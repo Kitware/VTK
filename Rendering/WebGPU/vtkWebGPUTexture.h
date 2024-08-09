@@ -19,7 +19,7 @@ public:
   vtkTypeMacro(vtkWebGPUTexture, vtkObject);
   static vtkWebGPUTexture* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * RGBA: Uses RGB + alpha. Default.

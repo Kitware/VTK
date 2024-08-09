@@ -23,7 +23,7 @@ public:
   vtkTypeMacro(vtkWebGPUComputeRenderTexture, vtkWebGPUComputeTexture);
   static vtkWebGPUComputeRenderTexture* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * What type of texture of the vtk render pipeline is this ComputeRenderTexture refering to.

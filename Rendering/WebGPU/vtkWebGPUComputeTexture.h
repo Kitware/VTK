@@ -31,7 +31,7 @@ public:
   vtkTypeMacro(vtkWebGPUComputeTexture, vtkObject);
   static vtkWebGPUComputeTexture* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
   /**

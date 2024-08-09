@@ -38,7 +38,7 @@ public:
   virtual double Cull(
     vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) override;
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkWebGPUComputeFrustumCuller();
