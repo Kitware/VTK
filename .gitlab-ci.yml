@@ -461,7 +461,8 @@ wasm32-emscripten:package:
 
 wasm32-emscripten:vtk:upload:
     extends:
-        - .generic_vtk_wasm32_emscripten_linux_upload
+        - .wasm32_emscripten_linux
+        - .generic_vtk_wasm_emscripten_linux_upload
         - .weekly_upload_only
     dependencies:
         - wasm32-emscripten:package
@@ -505,7 +506,8 @@ wasm64-emscripten:package:
 
 wasm64-emscripten:vtk:upload:
     extends:
-        - .generic_vtk_wasm64_emscripten_linux_upload
+        - .wasm64_emscripten_linux
+        - .generic_vtk_wasm_emscripten_linux_upload
         - .weekly_upload_only
     dependencies:
         - wasm64-emscripten:package
