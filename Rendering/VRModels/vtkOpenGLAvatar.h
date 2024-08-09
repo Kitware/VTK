@@ -12,8 +12,8 @@
 #define vtkOpenGLAvatar_h
 
 #include "vtkAvatar.h"
-#include "vtkNew.h"                    // for ivars
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkNew.h"                     // for ivars
+#include "vtkRenderingVRModelsModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLActor;
@@ -23,7 +23,7 @@ class vtkVRRay;
 class vtkFlagpoleLabel;
 class vtkTextProperty;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLAvatar : public vtkAvatar
+class VTKRENDERINGVRMODELS_EXPORT vtkOpenGLAvatar : public vtkAvatar
 {
 public:
   static vtkOpenGLAvatar* New();

@@ -29,5 +29,6 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::InteractionWidgets
   VTK::RenderingVolume
+  VTK::RenderingVRModels
   VTK::TestingCore
   VTK::TestingRendering
