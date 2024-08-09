@@ -5213,7 +5213,6 @@ function (vtk_module_add_executable name)
   endif ()
 
   set(_vtk_add_executable_target_name "${name}")
-  set(_vtk_add_executable_library_name "${name}")
   if (name STREQUAL _vtk_build_module)
     if (_vtk_add_executable_NO_INSTALL)
       message(FATAL_ERROR
@@ -5227,8 +5226,6 @@ function (vtk_module_add_executable name)
     endif ()
     get_property(_vtk_add_executable_target_name GLOBAL
       PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
-    get_property(_vtk_add_executable_library_name GLOBAL
-      PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   endif ()
 
   if (_vtk_add_executable_DEVELOPMENT AND NOT _vtk_build_INSTALL_HEADERS)
