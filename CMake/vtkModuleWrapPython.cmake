@@ -1360,7 +1360,7 @@ function (vtk_module_add_python_package name)
   cmake_policy(POP)
 
   get_property(_vtk_add_python_package_module GLOBAL
-    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+    PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   add_custom_target("${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}" ALL
     DEPENDS
       ${_vtk_add_python_package_file_outputs})
@@ -1411,7 +1411,7 @@ function (vtk_module_add_python_module name)
   get_property(_vtk_add_python_module_depends GLOBAL
     PROPERTY "_vtk_module_${_vtk_build_module}_depends")
   get_property(_vtk_add_python_module_target_name GLOBAL
-    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+    PROPERTY "_vtk_module_${_vtk_build_module}_library_name")
   add_library("${_vtk_add_python_module_target_name}" INTERFACE)
   target_link_libraries("${_vtk_add_python_module_target_name}"
     INTERFACE
