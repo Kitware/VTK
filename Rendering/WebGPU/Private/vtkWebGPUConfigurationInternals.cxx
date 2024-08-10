@@ -4,7 +4,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-double vtkWebGPUConfigurationInternals::DefaultTimeout = 1000;
+double vtkWebGPUConfigurationInternals::DefaultTimeout = 60000;
 
 wgpu::Instance vtkWebGPUConfigurationInternals::Instance = nullptr;
 
