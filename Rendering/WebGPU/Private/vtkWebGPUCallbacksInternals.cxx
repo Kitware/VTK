@@ -19,12 +19,15 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
     case WGPUDeviceLostReason_Destroyed:
       reasonStr = "Destroyed";
       break;
+#ifndef __EMSCRIPTEN__
+      // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
     case WGPUDeviceLostReason_InstanceDropped:
       reasonStr = "InstanceDropped";
       break;
     case WGPUDeviceLostReason_FailedCreation:
       reasonStr = "FailedCreation";
       break;
+#endif
     default:
       reasonStr = "Unknown";
   }

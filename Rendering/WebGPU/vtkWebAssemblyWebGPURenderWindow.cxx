@@ -7,7 +7,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkWGPUContext.h"
+#include "vtkWebGPUConfiguration.h"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -65,8 +65,15 @@ std::string vtkWebAssemblyWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebAssemblyWebGPURenderWindow::Initialize()
+bool vtkWebAssemblyWebGPURenderWindow::WindowSetup()
 {
+  vtkDebugMacro(<< __func__);
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+    return false;
+  }
   if (!this->WindowId)
   {
     this->CreateAWindow();
@@ -76,11 +83,12 @@ bool vtkWebAssemblyWebGPURenderWindow::Initialize()
     // render into canvas elememnt
     wgpu::SurfaceDescriptorFromCanvasHTMLSelector htmlSurfDesc;
     htmlSurfDesc.selector = "#canvas";
-    this->Surface = vtkWGPUContext::CreateSurface(htmlSurfDesc);
-    return this->Surface.Get() != nullptr;
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK HTML5 surface";
+    surfDesc.nextInChain = &htmlSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-
-  return false;
+  return this->Surface != nullptr;
 }
 
 //------------------------------------------------------------------------------
