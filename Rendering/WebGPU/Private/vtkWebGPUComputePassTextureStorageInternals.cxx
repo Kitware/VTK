@@ -862,8 +862,9 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 
-  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata) {
-    InternalMapTextureAsyncData* mapData = reinterpret_cast<InternalMapTextureAsyncData*>(userdata);
+  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata2) {
+    InternalMapTextureAsyncData* mapData =
+      reinterpret_cast<InternalMapTextureAsyncData*>(userdata2);
 
     if (status == WGPUBufferMapAsyncStatus_Success)
     {

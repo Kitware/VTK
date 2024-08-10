@@ -88,7 +88,7 @@ int TestComputeTexture(int, char*[])
 
   auto onTextureMapped = [](const void* mappedData, int bytesPerRow, void* userdata) {
     CallbackData* data = reinterpret_cast<CallbackData*>(userdata);
-    std::vector<unsigned char>* outputData = data->outputData;
+    std::vector<unsigned char>* outputData2 = data->outputData;
     const unsigned char* mappedDataChar = reinterpret_cast<const unsigned char*>(mappedData);
 
     for (int y = 0; y < data->textureHeight; y++)
@@ -101,10 +101,10 @@ int TestComputeTexture(int, char*[])
         int mappedIndex = x + y * (bytesPerRow / 4);
 
         // Copying the RGBA channels of each pixel
-        (*outputData)[index * 4 + 0] = mappedDataChar[mappedIndex * 4 + 0];
-        (*outputData)[index * 4 + 1] = mappedDataChar[mappedIndex * 4 + 1];
-        (*outputData)[index * 4 + 2] = mappedDataChar[mappedIndex * 4 + 2];
-        (*outputData)[index * 4 + 3] = mappedDataChar[mappedIndex * 4 + 3];
+        (*outputData2)[index * 4 + 0] = mappedDataChar[mappedIndex * 4 + 0];
+        (*outputData2)[index * 4 + 1] = mappedDataChar[mappedIndex * 4 + 1];
+        (*outputData2)[index * 4 + 2] = mappedDataChar[mappedIndex * 4 + 2];
+        (*outputData2)[index * 4 + 3] = mappedDataChar[mappedIndex * 4 + 3];
       }
     }
   };
