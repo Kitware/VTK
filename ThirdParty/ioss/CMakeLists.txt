@@ -7,7 +7,7 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright(C) 1999-2017 National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/seacas.git@ioss/for/vtk-20240709-master-gaeee5aa1/seacas/libraries/ioss/"
+      "git+https://gitlab.kitware.com/third-party/seacas.git@ioss/for/vtk-20240808-v2024-06-27/seacas/libraries/ioss/"
     VERSION
       "2024-04-03"
     STANDARD_INCLUDE_DIRS
