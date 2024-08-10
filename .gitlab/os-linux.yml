@@ -436,7 +436,7 @@
         CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome_ext_vtk
         WASM_WORDSIZE: 32
         VTK_INSTALL: 1
-        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab"
+        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader"
 
 .wasm64_emscripten_linux_chrome_ext_vtk:
     extends:
@@ -446,7 +446,7 @@
         CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome_ext_vtk
         WASM_WORDSIZE: 64
         VTK_INSTALL: 1
-        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --js-flags=--experimental-wasm-memory64"
+        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader --js-flags=--experimental-wasm-memory64"
 
 .linux_builder_tags:
     tags:
