@@ -229,29 +229,29 @@ int vtkWebAssemblyWebGPURenderWindow::GetColorBufferSizes(int* rgba)
   return (rgba[0] > 0) && (rgba[1] > 0) && (rgba[2] > 0) && (rgba[3] > 0);
 }
 
+namespace
+{
+void setCursorVisibility(bool visible)
+{
+  // clang-format off
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
+    MAIN_THREAD_EM_ASM({if (Module['canvas']) { Module['canvas'].style['cursor'] = $0 ? 'default' : 'none'; }}, visible);
+#pragma clang diagnostic pop
+  // clang-format on
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::HideCursor()
 {
-  // clang-format off
-  MAIN_THREAD_EM_ASM(
-    if (Module['canvas']) {
-      Module['canvas'].style['cursor'] = 'none';
-    }
-  );
-  // clang-format on
+  ::setCursorVisibility(false);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::ShowCursor()
 {
-  // clang-format off
-  MAIN_THREAD_EM_ASM({
-      if (Module['canvas']) {
-        Module['canvas'].style['cursor'] = 'default';
-      }
-    }
-  );
-  // clang-format on
+  ::setCursorVisibility(true);
 }
 
 //------------------------------------------------------------------------------
@@ -266,8 +266,6 @@ void vtkWebAssemblyWebGPURenderWindow::CleanUpRenderers()
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::CreateAWindow()
 {
-  int x = ((this->Position[0] >= 0) ? this->Position[0] : -1);
-  int y = ((this->Position[1] >= 0) ? this->Position[1] : -1);
   int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
   int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   this->SetSize(width, height);
