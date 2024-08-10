@@ -20,7 +20,7 @@ public:
 
 protected:
   vtkWebGPUComputeTextureView();
-  ~vtkWebGPUComputeTextureView();
+  ~vtkWebGPUComputeTextureView() override;
   vtkWebGPUComputeTextureView(const vtkWebGPUComputeTextureView&) = delete;
   void operator=(const vtkWebGPUComputeTextureView&) = delete;
 

@@ -190,7 +190,7 @@ public:
 
 protected:
   vtkWebGPUTexture();
-  ~vtkWebGPUTexture();
+  ~vtkWebGPUTexture() override;
   vtkWebGPUTexture(const vtkWebGPUTexture&) = delete;
   void operator=(const vtkWebGPUTexture&) = delete;
 

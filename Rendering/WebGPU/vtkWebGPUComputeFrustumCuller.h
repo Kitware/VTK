@@ -42,7 +42,7 @@ public:
 
 protected:
   vtkWebGPUComputeFrustumCuller();
-  ~vtkWebGPUComputeFrustumCuller();
+  ~vtkWebGPUComputeFrustumCuller() override;
 
 private:
   vtkWebGPUComputeFrustumCuller(const vtkWebGPUComputeFrustumCuller&) = delete;

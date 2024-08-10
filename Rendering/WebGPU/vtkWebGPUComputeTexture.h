@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkWebGPUComputeTexture();
-  ~vtkWebGPUComputeTexture();
+  ~vtkWebGPUComputeTexture() override;
   vtkWebGPUComputeTexture(const vtkWebGPUComputeTexture&) = delete;
   void operator=(const vtkWebGPUComputeTexture&) = delete;
 
