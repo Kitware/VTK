@@ -86,6 +86,7 @@ ostream& operator<<(ostream& os, const vtkWebGPUConfiguration::PowerPreferenceTy
       break;
     case vtkWebGPUConfiguration::PowerPreferenceType::LowPower:
       os << "LowPower";
+      break;
     case vtkWebGPUConfiguration::PowerPreferenceType::Undefined:
     default:
       os << "Undefined";
