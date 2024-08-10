@@ -20,7 +20,7 @@ public:
   vtkTypeMacro(vtkWebGPUTextureView, vtkObject);
   static vtkWebGPUTextureView* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * What will the shader sample from the texture when calling a sampling function.

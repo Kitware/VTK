@@ -330,10 +330,9 @@ std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> vtkWebGPURenderer::GetSet
 void vtkWebGPURenderer::ConfigureComputeRenderBuffers(
   vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline)
 {
-  vtkActor* actor;
   vtkActorCollection* actors = this->GetActors();
   actors->InitTraversal();
-  while (actor = actors->GetNextItem())
+  while (auto* actor = actors->GetNextItem())
   {
     vtkWebGPUActor* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
     if (wgpuActor == nullptr)

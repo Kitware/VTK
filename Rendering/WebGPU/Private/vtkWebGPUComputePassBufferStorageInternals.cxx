@@ -370,24 +370,24 @@ bool vtkWebGPUComputePassBufferStorageInternals::CheckBufferIndex(
 bool vtkWebGPUComputePassBufferStorageInternals::CheckBufferCorrectness(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer)
 {
-  const char* bufferLabel = buffer->GetLabel().c_str();
+  const auto& bufferLabel = buffer->GetLabel();
 
   if (buffer->GetGroup() == -1)
   {
-    vtkLogF(
-      ERROR, "The group of the buffer with label \"%s\" hasn't been initialized", bufferLabel);
+    vtkLogF(ERROR, "The group of the buffer with label \"%s\" hasn't been initialized",
+      bufferLabel.c_str());
     return false;
   }
   else if (buffer->GetBinding() == -1)
   {
-    vtkLogF(
-      ERROR, "The binding of the buffer with label \"%s\" hasn't been initialized", bufferLabel);
+    vtkLogF(ERROR, "The binding of the buffer with label \"%s\" hasn't been initialized",
+      bufferLabel.c_str());
     return false;
   }
   else if (buffer->GetByteSize() == 0)
   {
     vtkLogF(ERROR, "The buffer with label \"%s\" has a size of 0. Did you forget to set its size?",
-      bufferLabel);
+      bufferLabel.c_str());
     return false;
   }
   else

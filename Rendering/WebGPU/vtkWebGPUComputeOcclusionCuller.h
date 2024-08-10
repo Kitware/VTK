@@ -71,7 +71,7 @@ public:
   vtkTypeMacro(vtkWebGPUComputeOcclusionCuller, vtkCuller);
   static vtkWebGPUComputeOcclusionCuller* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Sets which render window this occlusion culler is going to work on
@@ -81,7 +81,7 @@ public:
   /**
    * Culls props and returns the number of props that still need to be rendered after the culling
    */
-  virtual double Cull(vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized);
+  double Cull(vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) override;
 
 protected:
   vtkWebGPUComputeOcclusionCuller();

@@ -5,6 +5,8 @@
 #include "vtkLogger.h"
 #include "vtkObject.h"
 
+#include <sstream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ void vtkWebGPUCallbacksInternals::UncapturedErrorCallback(
 void vtkWebGPUCallbacksInternals::PrintWGPUError(
   WGPUErrorType type, const char* message, void* userdata)
 {
-  std::string typeStr = "";
+  std::string typeStr;
   switch (type)
   {
     case WGPUErrorType_Validation:

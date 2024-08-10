@@ -733,8 +733,11 @@ void vtkWebGPUComputePassTextureStorageInternals::DeleteTextureViews(std::size_t
       std::vector<wgpu::BindGroupLayoutEntry>& bglLayoutEntries = find->second;
 
       // Now removing the bind group layout entry that corresponded to the texture view
-      std::remove_if(bglLayoutEntries.begin(), bglLayoutEntries.end(),
-        [binding](wgpu::BindGroupLayoutEntry entry) { return entry.binding == binding; });
+      bglLayoutEntries.erase(std::remove_if(bglLayoutEntries.begin(), bglLayoutEntries.end(),
+                               [binding](const wgpu::BindGroupLayoutEntry& entry) -> bool {
+                                 return entry.binding == binding;
+                               }),
+        bglLayoutEntries.end());
     }
   }
 

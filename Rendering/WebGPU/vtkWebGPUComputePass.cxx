@@ -66,7 +66,6 @@ void vtkWebGPUComputePass::SetShaderSourceFromPath(const char* shaderFilePath)
   }
 
   vtksys::ifstream inputFileStream(shaderFilePath);
-  assert(inputFileStream);
   std::string source(
     (std::istreambuf_iterator<char>(inputFileStream)), std::istreambuf_iterator<char>());
 
