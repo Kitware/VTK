@@ -192,7 +192,7 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
 }
 
 //------------------------------------------------------------------------------
-void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
+bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
   std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures, vtkGLTFImporter* parent)
 {
@@ -240,6 +240,10 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     // set albedo texture
     vtkSmartPointer<vtkTexture> baseColorTex;
     baseColorTex = CreateVTKTextureFromGLTFTexture(model, texIndex, existingTextures, parent);
+    if (!baseColorTex)
+    {
+      return false;
+    }
     baseColorTex->UseSRGBColorSpaceOn();
     property->SetBaseColorTexture(baseColorTex);
   }
@@ -300,6 +304,10 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
       }
       auto materialTex =
         CreateVTKTextureFromGLTFTexture(model, pbrTexIndex, existingTextures, parent);
+      if (!materialTex)
+      {
+        return false;
+      }
       property->SetORMTexture(materialTex);
     }
   }
@@ -310,6 +318,10 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
   {
     auto emissiveTex =
       CreateVTKTextureFromGLTFTexture(model, emissiveTexIndex, existingTextures, parent);
+    if (!emissiveTex)
+    {
+      return false;
+    }
     emissiveTex->UseSRGBColorSpaceOn();
     property->SetEmissiveTexture(emissiveTex);
   }
@@ -320,6 +332,10 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     actor->GetProperty()->SetNormalScale(material.NormalTextureScale);
     auto normalTex =
       CreateVTKTextureFromGLTFTexture(model, normalMapIndex, existingTextures, parent);
+    if (!normalTex)
+    {
+      return false;
+    }
     property->SetNormalTexture(normalTex);
   }
 
@@ -335,6 +351,7 @@ void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     b = pow(b, 1.f / 2.2f);
     actor->GetProperty()->SetColor(r, g, b);
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -548,7 +565,12 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         if (primitive.Material >= 0 &&
           primitive.Material < static_cast<int>(model->Materials.size()))
         {
-          ApplyGLTFMaterialToVTKActor(model, primitive, actor, this->Textures, this);
+          if (!ApplyGLTFMaterialToVTKActor(model, primitive, actor, this->Textures, this))
+          {
+            vtkErrorMacro("Could not apply GLTF material to VTK actor, aborting.");
+            this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+            return;
+          }
         }
         renderer->AddActor(actor);
 
