@@ -96,7 +96,8 @@ void vtkWebAssemblyWebGPURenderWindow::Finalize()
 namespace
 {
 //------------------------------------------------------------------------------
-EM_BOOL HandleCanvasResize(int eventType, const void* reserved, void* userData)
+EM_BOOL HandleCanvasResize(
+  int vtkNotUsed(eventType), const void* vtkNotUsed(reserved), void* userData)
 {
   // this is used during fullscreen changes
   auto window = reinterpret_cast<vtkWebAssemblyWebGPURenderWindow*>(userData);
