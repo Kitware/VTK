@@ -229,6 +229,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       this->InvokeEvent(vtkCommand::LeaveEvent);
       break;
     }
+    case EMSCRIPTEN_EVENT_KEYPRESS:
+      // EMSCRIPTEN_EVENT_KEYDOWN tracks these
+      break;
     case EMSCRIPTEN_EVENT_KEYDOWN:
     {
       auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event);
