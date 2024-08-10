@@ -84,7 +84,9 @@ void vtkWebGPUTexture::GetSize(unsigned int& x, unsigned int& y) const
 //------------------------------------------------------------------------------
 void vtkWebGPUTexture::GetSize(unsigned int* xyz)
 {
-  xyz = this->Extents;
+  xyz[0] = this->Extents[0];
+  xyz[1] = this->Extents[1];
+  xyz[2] = this->Extents[2];
 }
 
 //------------------------------------------------------------------------------
