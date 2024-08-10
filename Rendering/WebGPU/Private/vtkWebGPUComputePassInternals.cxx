@@ -400,7 +400,7 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
   {
     vtkLogF(ERROR,
       "Invalid number of workgroups when dispatching compute pipeline \"%s\". Work groups sizes "
-      "(X, Y, Z) were: (%d, %d, %d) but no dimensions can be 0.",
+      "(X, Y, Z) were: (%u, %u, %u) but no dimensions can be 0.",
       this->ParentPass->Label.c_str(), groupsX, groupsY, groupsZ);
 
     return;
