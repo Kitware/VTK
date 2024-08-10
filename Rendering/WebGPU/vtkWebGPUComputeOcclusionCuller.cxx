@@ -778,9 +778,9 @@ void vtkWebGPUComputeOcclusionCuller::UpdateBoundsBuffers(vtkProp** propList, in
   for (int i = 0; i < listLength; i++)
   {
     double* bounds = propList[i]->GetBounds();
-    for (int i = 0; i < 6; i++)
+    for (int j = 0; j < 6; j++)
     {
-      boundsData.push_back(static_cast<float>(bounds[i]));
+      boundsData.push_back(static_cast<float>(bounds[j]));
     }
   }
 
