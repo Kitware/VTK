@@ -181,6 +181,8 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
 void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uint8_t* event)
 {
   auto& internals = (*this->Internals);
+  const double dpr = emscripten_get_device_pixel_ratio();
+
   switch (type)
   {
     case 0: // user event
@@ -227,6 +229,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       this->InvokeEvent(vtkCommand::LeaveEvent);
       break;
     }
+    case EMSCRIPTEN_EVENT_KEYPRESS:
+      // EMSCRIPTEN_EVENT_KEYDOWN tracks these
+      break;
     case EMSCRIPTEN_EVENT_KEYDOWN:
     {
       auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event);
@@ -268,7 +273,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
       break;
@@ -277,7 +282,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonDownEventMap[emEvent->button]);
       break;
@@ -286,7 +291,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonUpEventMap[emEvent->button]);
       break;
@@ -295,7 +300,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     {
       auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonDblClickEventMap[emEvent->button]);
       break;
@@ -317,8 +322,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->LeftButtonPressEvent();
       break;
@@ -329,8 +335,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->LeftButtonReleaseEvent();
       break;
@@ -340,8 +347,9 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->MouseMoveEvent();
       break;
