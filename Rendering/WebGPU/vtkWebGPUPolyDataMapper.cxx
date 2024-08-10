@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN

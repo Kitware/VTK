@@ -5,6 +5,8 @@
 #include "vtkLogger.h"
 #include "vtkObject.h"
 
+#include <sstream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
