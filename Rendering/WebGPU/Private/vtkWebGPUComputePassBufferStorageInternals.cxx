@@ -344,15 +344,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
 bool vtkWebGPUComputePassBufferStorageInternals::CheckBufferIndex(
   std::size_t bufferIndex, const std::string& callerFunctionName)
 {
-  if (bufferIndex < 0)
-  {
-    vtkLog(ERROR,
-      "Negative bufferIndex given to "
-        << callerFunctionName << ". Make sure to use an index that was returned by AddBuffer().");
-
-    return false;
-  }
-  else if (bufferIndex >= this->Buffers.size())
+  if (bufferIndex >= this->Buffers.size())
   {
     vtkLog(ERROR,
       "Invalid bufferIndex given to "
