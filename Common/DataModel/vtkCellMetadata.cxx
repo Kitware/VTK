@@ -71,11 +71,16 @@ vtkCellGridResponders* vtkCellMetadata::GetResponders()
   if (!responders)
   {
     responders = vtkSmartPointer<vtkCellGridResponders>::New();
-    vtkDebugLeaks::AddFinalizer([]() {
-      token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>() = nullptr;
-    });
+    vtkDebugLeaks::AddFinalizer([]() { vtkCellMetadata::ClearResponders(); });
   }
   return responders;
+}
+
+void vtkCellMetadata::ClearResponders()
+{
+  // No matter whether we have assigned a value or not, just replace it
+  // with a null pointer. This will cause any assigned object to be destroyed.
+  token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>() = nullptr;
 }
 
 vtkCellGridResponders* vtkCellMetadata::GetCaches()

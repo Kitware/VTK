@@ -124,7 +124,7 @@ protected:
   static void ConstructingObject(vtkObjectBase* object);
   static void DestructingObject(vtkObjectBase* object);
 
-  static std::vector<std::function<void()>> Finalizers;
+  static std::vector<std::function<void()>>* Finalizers;
 
   friend class vtkDebugLeaksManager;
   friend class vtkObjectBase;
