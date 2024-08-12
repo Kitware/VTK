@@ -18,6 +18,10 @@
         VCVARSVERSION: "14.35.32215"
         VTK_INSTALL: 1
 
+.wheel_windows_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .wheel_windows38_x86_64:
     extends: .wheel_windows_x86_64
 
@@ -25,7 +29,9 @@
         CMAKE_CONFIGURATION: wheel_windows38_x86_64
 
 .wheel_windows38_x86_64_osmesa:
-    extends: .wheel_windows38_x86_64
+    extends:
+        - .wheel_windows38_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows38_x86_64_osmesa
@@ -37,7 +43,9 @@
         CMAKE_CONFIGURATION: wheel_windows39_x86_64
 
 .wheel_windows39_x86_64_osmesa:
-    extends: .wheel_windows39_x86_64
+    extends:
+        - .wheel_windows39_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows39_x86_64_osmesa
@@ -49,7 +57,9 @@
         CMAKE_CONFIGURATION: wheel_windows310_x86_64
 
 .wheel_windows310_x86_64_osmesa:
-    extends: .wheel_windows310_x86_64
+    extends:
+        - .wheel_windows310_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows310_x86_64_osmesa
@@ -61,7 +71,9 @@
         CMAKE_CONFIGURATION: wheel_windows311_x86_64
 
 .wheel_windows311_x86_64_osmesa:
-    extends: .wheel_windows311_x86_64
+    extends:
+        - .wheel_windows311_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows311_x86_64_osmesa
@@ -73,7 +85,9 @@
         CMAKE_CONFIGURATION: wheel_windows312_x86_64
 
 .wheel_windows312_x86_64_osmesa:
-    extends: .wheel_windows312_x86_64
+    extends:
+        - .wheel_windows312_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows312_x86_64_osmesa

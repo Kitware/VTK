@@ -31,6 +31,10 @@
         # must provide them.
         WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
 
+.wheel_linux_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
 
@@ -39,7 +43,9 @@
         PYTHON_PREFIX: /opt/python/cp38-cp38
 
 .wheel_linux38_x86_64_osmesa:
-    extends: .wheel_linux38_x86_64
+    extends:
+        - .wheel_linux38_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
@@ -61,7 +67,9 @@
         PYTHON_PREFIX: /opt/python/cp39-cp39
 
 .wheel_linux39_x86_64_osmesa:
-    extends: .wheel_linux39_x86_64
+    extends:
+        - .wheel_linux39_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
@@ -83,7 +91,9 @@
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
 .wheel_linux310_x86_64_osmesa:
-    extends: .wheel_linux310_x86_64
+    extends:
+        - .wheel_linux310_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
@@ -105,7 +115,9 @@
         PYTHON_PREFIX: /opt/python/cp311-cp311
 
 .wheel_linux311_x86_64_osmesa:
-    extends: .wheel_linux311_x86_64
+    extends:
+        - .wheel_linux311_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
@@ -127,7 +139,9 @@
         PYTHON_PREFIX: /opt/python/cp312-cp312
 
 .wheel_linux312_x86_64_osmesa:
-    extends: .wheel_linux312_x86_64
+    extends:
+        - .wheel_linux312_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_osmesa
@@ -180,6 +194,10 @@
         # Fails inside of CI containers.
         PSM3_KASSIST_MODE: none
 
+.fedora_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .fedora_openmpi_addon:
     variables:
         # Needed to work with OpenMPI
@@ -215,6 +233,7 @@
         - .fedora39
         - .fedora_cuda_addon
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_cuda_mpi_offscreen_osmesa
@@ -233,6 +252,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python
@@ -242,6 +262,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python_ext_vtk
