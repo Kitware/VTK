@@ -223,16 +223,6 @@ fedora39-helide-mpi-python-qt-tbb:test:
     needs:
         - fedora39-helide-mpi-python-qt-tbb:build
 
-fedora39-mpi-offscreen-osmesa-python:build:
-    extends:
-        - .fedora39_mpi_offscreen_osmesa_python
-        - .cmake_build_linux
-        - .linux_builder_tags
-        - .cmake_build_artifacts
-        - .run_manually
-    dependencies: []
-    needs: []
-
 fedora39-mpi-offscreen-osmesa-python:test:
     extends:
         - .fedora39_mpi_offscreen_osmesa_python
@@ -241,9 +231,9 @@ fedora39-mpi-offscreen-osmesa-python:test:
         - .cmake_test_artifacts
         - .run_automatically
     dependencies:
-        - fedora39-mpi-offscreen-osmesa-python:build
+        - fedora39-mpi-python-qt-tbb:build
     needs:
-        - fedora39-mpi-offscreen-osmesa-python:build
+        - fedora39-mpi-python-qt-tbb:build
 
 vtk:fedora39-mpi-offscreen-osmesa-python:test-ext:
     extends:
@@ -644,16 +634,6 @@ wheel-linux-python38-x86_64:test-x11:
     needs:
         - wheel-linux-python38-x86_64:build
 
-wheel-linux-python38-x86_64-osmesa:build:
-    extends:
-        - .wheel_linux38_x86_64_osmesa
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-linux-python38-x86_64-osmesa:test:
     extends:
         - .wheel_linux38_x86_64_osmesa
@@ -662,9 +642,9 @@ wheel-linux-python38-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python38-x86_64-osmesa:build
+        - wheel-linux-python38-x86_64:build
     needs:
-        - wheel-linux-python38-x86_64-osmesa:build
+        - wheel-linux-python38-x86_64:build
 
 wheel-linux-python38-x86_64-osmesa:test-x11:
     extends:
@@ -674,9 +654,9 @@ wheel-linux-python38-x86_64-osmesa:test-x11:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python38-x86_64-osmesa:build
+        - wheel-linux-python38-x86_64:build
     needs:
-        - wheel-linux-python38-x86_64-osmesa:build
+        - wheel-linux-python38-x86_64:build
 
 wheel-linux-python38-x86_64-egl:build:
     extends:
@@ -746,16 +726,6 @@ wheel-linux-python39-x86_64:test-x11:
     needs:
         - wheel-linux-python39-x86_64:build
 
-wheel-linux-python39-x86_64-osmesa:build:
-    extends:
-        - .wheel_linux39_x86_64_osmesa
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-linux-python39-x86_64-osmesa:test:
     extends:
         - .wheel_linux39_x86_64_osmesa
@@ -764,9 +734,9 @@ wheel-linux-python39-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python39-x86_64-osmesa:build
+        - wheel-linux-python39-x86_64:build
     needs:
-        - wheel-linux-python39-x86_64-osmesa:build
+        - wheel-linux-python39-x86_64:build
 
 wheel-linux-python39-x86_64-osmesa:test-x11:
     extends:
@@ -776,9 +746,9 @@ wheel-linux-python39-x86_64-osmesa:test-x11:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python39-x86_64-osmesa:build
+        - wheel-linux-python39-x86_64:build
     needs:
-        - wheel-linux-python39-x86_64-osmesa:build
+        - wheel-linux-python39-x86_64:build
 
 wheel-linux-python39-x86_64-egl:build:
     extends:
@@ -848,16 +818,6 @@ wheel-linux-python310-x86_64:test-x11:
     needs:
         - wheel-linux-python310-x86_64:build
 
-wheel-linux-python310-x86_64-osmesa:build:
-    extends:
-        - .wheel_linux310_x86_64_osmesa
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-linux-python310-x86_64-osmesa:test:
     extends:
         - .wheel_linux310_x86_64_osmesa
@@ -866,9 +826,9 @@ wheel-linux-python310-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python310-x86_64-osmesa:build
+        - wheel-linux-python310-x86_64:build
     needs:
-        - wheel-linux-python310-x86_64-osmesa:build
+        - wheel-linux-python310-x86_64:build
 
 wheel-linux-python310-x86_64-osmesa:test-x11:
     extends:
@@ -878,9 +838,9 @@ wheel-linux-python310-x86_64-osmesa:test-x11:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python310-x86_64-osmesa:build
+        - wheel-linux-python310-x86_64:build
     needs:
-        - wheel-linux-python310-x86_64-osmesa:build
+        - wheel-linux-python310-x86_64:build
 
 wheel-linux-python310-x86_64-egl:build:
     extends:
@@ -950,16 +910,6 @@ wheel-linux-python311-x86_64:test-x11:
     needs:
         - wheel-linux-python311-x86_64:build
 
-wheel-linux-python311-x86_64-osmesa:build:
-    extends:
-        - .wheel_linux311_x86_64_osmesa
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-linux-python311-x86_64-osmesa:test:
     extends:
         - .wheel_linux311_x86_64_osmesa
@@ -968,9 +918,9 @@ wheel-linux-python311-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python311-x86_64-osmesa:build
+        - wheel-linux-python311-x86_64:build
     needs:
-        - wheel-linux-python311-x86_64-osmesa:build
+        - wheel-linux-python311-x86_64:build
 
 wheel-linux-python311-x86_64-osmesa:test-x11:
     extends:
@@ -980,9 +930,9 @@ wheel-linux-python311-x86_64-osmesa:test-x11:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python311-x86_64-osmesa:build
+        - wheel-linux-python311-x86_64:build
     needs:
-        - wheel-linux-python311-x86_64-osmesa:build
+        - wheel-linux-python311-x86_64:build
 
 wheel-linux-python311-x86_64-egl:build:
     extends:
@@ -1052,16 +1002,6 @@ wheel-linux-python312-x86_64:test-x11:
     needs:
         - wheel-linux-python312-x86_64:build
 
-wheel-linux-python312-x86_64-osmesa:build:
-    extends:
-        - .wheel_linux312_x86_64_osmesa
-        - .cmake_build_wheel_linux
-        - .linux_builder_tags
-        - .cmake_wheel_artifacts
-        - .run_manually
-    dependencies: []
-    needs: []
-
 wheel-linux-python312-x86_64-osmesa:test:
     extends:
         - .wheel_linux312_x86_64_osmesa
@@ -1070,9 +1010,9 @@ wheel-linux-python312-x86_64-osmesa:test:
         - .run_automatically
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python312-x86_64-osmesa:build
+        - wheel-linux-python312-x86_64:build
     needs:
-        - wheel-linux-python312-x86_64-osmesa:build
+        - wheel-linux-python312-x86_64:build
 
 wheel-linux-python312-x86_64-osmesa:test-x11:
     extends:
@@ -1082,9 +1022,9 @@ wheel-linux-python312-x86_64-osmesa:test-x11:
         - .run_automatically
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-linux-python312-x86_64-osmesa:build
+        - wheel-linux-python312-x86_64:build
     needs:
-        - wheel-linux-python312-x86_64-osmesa:build
+        - wheel-linux-python312-x86_64:build
 
 wheel-linux-python312-x86_64-egl:build:
     extends:
@@ -1195,19 +1135,14 @@ wheel:vtk:upload:
         - .weekly_upload_only
     dependencies:
         - wheel-linux-python38-x86_64:build
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-egl:build
         - wheel-linux-python39-x86_64:build
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-egl:build
         - wheel-linux-python310-x86_64:build
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-egl:build
         - wheel-linux-python311-x86_64:build
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-egl:build
         - wheel-linux-python312-x86_64:build
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-egl:build
         - wheel-macos-python38-x86_64:build
         - wheel-macos-python39-arm64:build
@@ -1219,20 +1154,14 @@ wheel:vtk:upload:
         - wheel-macos-python312-arm64:build
         - wheel-macos-python312-x86_64:build
         - wheel-windows-python38-x86_64:build
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python39-x86_64:build
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python310-x86_64:build
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python311-x86_64:build
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python312-x86_64:build
-        - wheel-windows-python312-x86_64-osmesa:build
     needs:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
         - wheel-linux-python38-x86_64:test-x11
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-osmesa:test
         - wheel-linux-python38-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64-egl:build
@@ -1241,7 +1170,6 @@ wheel:vtk:upload:
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python39-x86_64:test-x11
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-osmesa:test
         - wheel-linux-python39-x86_64-osmesa:test-x11
         - wheel-linux-python39-x86_64-egl:build
@@ -1250,7 +1178,6 @@ wheel:vtk:upload:
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
         - wheel-linux-python310-x86_64:test-x11
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-osmesa:test
         - wheel-linux-python310-x86_64-osmesa:test-x11
         - wheel-linux-python310-x86_64-egl:build
@@ -1259,7 +1186,6 @@ wheel:vtk:upload:
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
         - wheel-linux-python311-x86_64:test-x11
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-osmesa:test
         - wheel-linux-python311-x86_64-osmesa:test-x11
         - wheel-linux-python311-x86_64-egl:build
@@ -1268,7 +1194,6 @@ wheel:vtk:upload:
         - wheel-linux-python312-x86_64:build
         - wheel-linux-python312-x86_64:test
         - wheel-linux-python312-x86_64:test-x11
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-osmesa:test
         - wheel-linux-python312-x86_64-osmesa:test-x11
         - wheel-linux-python312-x86_64-egl:build
@@ -1294,23 +1219,18 @@ wheel:vtk:upload:
         - wheel-macos-python312-x86_64:test
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python38-x86_64:test
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python38-x86_64-osmesa:test
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python39-x86_64:test
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python39-x86_64-osmesa:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python310-x86_64-osmesa:test
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python311-x86_64:test
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python311-x86_64-osmesa:test
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
-        - wheel-windows-python312-x86_64-osmesa:build
         - wheel-windows-python312-x86_64-osmesa:test
 
 wheel-sdk:upload:
@@ -1319,19 +1239,14 @@ wheel-sdk:upload:
         - .weekly_upload_only
     dependencies:
         - wheel-linux-python38-x86_64:build
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-egl:build
         - wheel-linux-python39-x86_64:build
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-egl:build
         - wheel-linux-python310-x86_64:build
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-egl:build
         - wheel-linux-python311-x86_64:build
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-egl:build
         - wheel-linux-python312-x86_64:build
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-egl:build
         - wheel-macos-python38-x86_64:build
         - wheel-macos-python39-arm64:build
@@ -1343,20 +1258,14 @@ wheel-sdk:upload:
         - wheel-macos-python312-arm64:build
         - wheel-macos-python312-x86_64:build
         - wheel-windows-python38-x86_64:build
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python39-x86_64:build
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python310-x86_64:build
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python311-x86_64:build
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python312-x86_64:build
-        - wheel-windows-python312-x86_64-osmesa:build
     needs:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
         - wheel-linux-python38-x86_64:test-x11
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-osmesa:test
         - wheel-linux-python38-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64-egl:build
@@ -1365,7 +1274,6 @@ wheel-sdk:upload:
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python39-x86_64:test-x11
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-osmesa:test
         - wheel-linux-python39-x86_64-osmesa:test-x11
         - wheel-linux-python39-x86_64-egl:build
@@ -1374,7 +1282,6 @@ wheel-sdk:upload:
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
         - wheel-linux-python310-x86_64:test-x11
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-osmesa:test
         - wheel-linux-python310-x86_64-osmesa:test-x11
         - wheel-linux-python310-x86_64-egl:build
@@ -1383,7 +1290,6 @@ wheel-sdk:upload:
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
         - wheel-linux-python311-x86_64:test-x11
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-osmesa:test
         - wheel-linux-python311-x86_64-osmesa:test-x11
         - wheel-linux-python311-x86_64-egl:build
@@ -1392,7 +1298,6 @@ wheel-sdk:upload:
         - wheel-linux-python312-x86_64:build
         - wheel-linux-python312-x86_64:test
         - wheel-linux-python312-x86_64:test-x11
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-osmesa:test
         - wheel-linux-python312-x86_64-osmesa:test-x11
         - wheel-linux-python312-x86_64-egl:build
@@ -1418,23 +1323,18 @@ wheel-sdk:upload:
         - wheel-macos-python312-x86_64:test
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python38-x86_64:test
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python38-x86_64-osmesa:test
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python39-x86_64:test
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python39-x86_64-osmesa:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python310-x86_64-osmesa:test
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python311-x86_64:test
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python311-x86_64-osmesa:test
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
-        - wheel-windows-python312-x86_64-osmesa:build
         - wheel-windows-python312-x86_64-osmesa:test
     variables:
         RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
@@ -1577,19 +1477,14 @@ release-artifacts:upload:
         - source:build
         - documentation:release-prep
         - wheel-linux-python38-x86_64:build
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-egl:build
         - wheel-linux-python39-x86_64:build
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-egl:build
         - wheel-linux-python310-x86_64:build
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-egl:build
         - wheel-linux-python311-x86_64:build
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-egl:build
         - wheel-linux-python312-x86_64:build
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-egl:build
         - wheel-macos-python38-x86_64:build
         - wheel-macos-python39-arm64:build
@@ -1601,22 +1496,16 @@ release-artifacts:upload:
         - wheel-macos-python312-arm64:build
         - wheel-macos-python312-x86_64:build
         - wheel-windows-python38-x86_64:build
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python39-x86_64:build
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python310-x86_64:build
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python311-x86_64:build
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python312-x86_64:build
-        - wheel-windows-python312-x86_64-osmesa:build
     needs:
         - source:build
         - documentation:release-prep
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
         - wheel-linux-python38-x86_64:test-x11
-        - wheel-linux-python38-x86_64-osmesa:build
         - wheel-linux-python38-x86_64-osmesa:test
         - wheel-linux-python38-x86_64-osmesa:test-x11
         - wheel-linux-python38-x86_64-egl:build
@@ -1625,7 +1514,6 @@ release-artifacts:upload:
         - wheel-linux-python39-x86_64:build
         - wheel-linux-python39-x86_64:test
         - wheel-linux-python39-x86_64:test-x11
-        - wheel-linux-python39-x86_64-osmesa:build
         - wheel-linux-python39-x86_64-osmesa:test
         - wheel-linux-python39-x86_64-osmesa:test-x11
         - wheel-linux-python39-x86_64-egl:build
@@ -1634,7 +1522,6 @@ release-artifacts:upload:
         - wheel-linux-python310-x86_64:build
         - wheel-linux-python310-x86_64:test
         - wheel-linux-python310-x86_64:test-x11
-        - wheel-linux-python310-x86_64-osmesa:build
         - wheel-linux-python310-x86_64-osmesa:test
         - wheel-linux-python310-x86_64-osmesa:test-x11
         - wheel-linux-python310-x86_64-egl:build
@@ -1643,7 +1530,6 @@ release-artifacts:upload:
         - wheel-linux-python311-x86_64:build
         - wheel-linux-python311-x86_64:test
         - wheel-linux-python311-x86_64:test-x11
-        - wheel-linux-python311-x86_64-osmesa:build
         - wheel-linux-python311-x86_64-osmesa:test
         - wheel-linux-python311-x86_64-osmesa:test-x11
         - wheel-linux-python311-x86_64-egl:build
@@ -1652,7 +1538,6 @@ release-artifacts:upload:
         - wheel-linux-python312-x86_64:build
         - wheel-linux-python312-x86_64:test
         - wheel-linux-python312-x86_64:test-x11
-        - wheel-linux-python312-x86_64-osmesa:build
         - wheel-linux-python312-x86_64-osmesa:test
         - wheel-linux-python312-x86_64-osmesa:test-x11
         - wheel-linux-python312-x86_64-egl:build
@@ -1678,23 +1563,18 @@ release-artifacts:upload:
         - wheel-macos-python312-x86_64:test
         - wheel-windows-python38-x86_64:build
         - wheel-windows-python38-x86_64:test
-        - wheel-windows-python38-x86_64-osmesa:build
         - wheel-windows-python38-x86_64-osmesa:test
         - wheel-windows-python39-x86_64:build
         - wheel-windows-python39-x86_64:test
-        - wheel-windows-python39-x86_64-osmesa:build
         - wheel-windows-python39-x86_64-osmesa:test
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python310-x86_64:test
-        - wheel-windows-python310-x86_64-osmesa:build
         - wheel-windows-python310-x86_64-osmesa:test
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python311-x86_64:test
-        - wheel-windows-python311-x86_64-osmesa:build
         - wheel-windows-python311-x86_64-osmesa:test
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
-        - wheel-windows-python312-x86_64-osmesa:build
         - wheel-windows-python312-x86_64-osmesa:test
     variables:
         RSYNC_SOURCE: release/
@@ -2143,16 +2023,6 @@ wheel-windows-python38-x86_64:test:
     needs:
         - wheel-windows-python38-x86_64:build
 
-wheel-windows-python38-x86_64-osmesa:build:
-    extends:
-        - .wheel_windows38_x86_64_osmesa
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-windows-python38-x86_64-osmesa:test:
     extends:
         - .wheel_windows38_x86_64_osmesa
@@ -2161,9 +2031,9 @@ wheel-windows-python38-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-windows-python38-x86_64-osmesa:build
+        - wheel-windows-python38-x86_64:build
     needs:
-        - wheel-windows-python38-x86_64-osmesa:build
+        - wheel-windows-python38-x86_64:build
 
 wheel-windows-python39-x86_64:build:
     extends:
@@ -2187,16 +2057,6 @@ wheel-windows-python39-x86_64:test:
     needs:
         - wheel-windows-python39-x86_64:build
 
-wheel-windows-python39-x86_64-osmesa:build:
-    extends:
-        - .wheel_windows39_x86_64_osmesa
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-windows-python39-x86_64-osmesa:test:
     extends:
         - .wheel_windows39_x86_64_osmesa
@@ -2205,9 +2065,9 @@ wheel-windows-python39-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-windows-python39-x86_64-osmesa:build
+        - wheel-windows-python39-x86_64:build
     needs:
-        - wheel-windows-python39-x86_64-osmesa:build
+        - wheel-windows-python39-x86_64:build
 
 wheel-windows-python310-x86_64:build:
     extends:
@@ -2231,16 +2091,6 @@ wheel-windows-python310-x86_64:test:
     needs:
         - wheel-windows-python310-x86_64:build
 
-wheel-windows-python310-x86_64-osmesa:build:
-    extends:
-        - .wheel_windows310_x86_64_osmesa
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-windows-python310-x86_64-osmesa:test:
     extends:
         - .wheel_windows310_x86_64_osmesa
@@ -2249,9 +2099,9 @@ wheel-windows-python310-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-windows-python310-x86_64-osmesa:build
+        - wheel-windows-python310-x86_64:build
     needs:
-        - wheel-windows-python310-x86_64-osmesa:build
+        - wheel-windows-python310-x86_64:build
 
 wheel-windows-python311-x86_64:build:
     extends:
@@ -2275,16 +2125,6 @@ wheel-windows-python311-x86_64:test:
     needs:
         - wheel-windows-python311-x86_64:build
 
-wheel-windows-python311-x86_64-osmesa:build:
-    extends:
-        - .wheel_windows311_x86_64_osmesa
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .merged_only
-    dependencies: []
-    needs: []
-
 wheel-windows-python311-x86_64-osmesa:test:
     extends:
         - .wheel_windows311_x86_64_osmesa
@@ -2293,9 +2133,9 @@ wheel-windows-python311-x86_64-osmesa:test:
         - .merged_only
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-windows-python311-x86_64-osmesa:build
+        - wheel-windows-python311-x86_64:build
     needs:
-        - wheel-windows-python311-x86_64-osmesa:build
+        - wheel-windows-python311-x86_64:build
 
 wheel-windows-python312-x86_64:build:
     extends:
@@ -2319,16 +2159,6 @@ wheel-windows-python312-x86_64:test:
     needs:
         - wheel-windows-python312-x86_64:build
 
-wheel-windows-python312-x86_64-osmesa:build:
-    extends:
-        - .wheel_windows312_x86_64_osmesa
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .run_manually
-    dependencies: []
-    needs: []
-
 wheel-windows-python312-x86_64-osmesa:test:
     extends:
         - .wheel_windows312_x86_64_osmesa
@@ -2337,9 +2167,9 @@ wheel-windows-python312-x86_64-osmesa:test:
         - .run_automatically
         - .cdash_annotations_artifacts
     dependencies:
-        - wheel-windows-python312-x86_64-osmesa:build
+        - wheel-windows-python312-x86_64:build
     needs:
-        - wheel-windows-python312-x86_64-osmesa:build
+        - wheel-windows-python312-x86_64:build
 
 macos-x86_64-java8:build:
     extends:
