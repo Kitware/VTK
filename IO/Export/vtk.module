@@ -36,7 +36,6 @@ PRIVATE_DEPENDS
   VTK::IOGeometry
   VTK::ImagingCore
   VTK::nlohmannjson
-  VTK::libharu
   VTK::utf8
 TEST_DEPENDS
   VTK::ChartsCore
