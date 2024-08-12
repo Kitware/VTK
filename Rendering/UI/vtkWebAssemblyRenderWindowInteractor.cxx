@@ -109,6 +109,7 @@ public:
 
   bool StartedMessageLoop = false;
   bool ResizeObserverInstalled = false;
+  bool ExpandedCanvasToContainerElement = false;
   int RepeatCounter = 0;
 };
 
@@ -212,6 +213,11 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
     auto& event = (*internals.Events.front());
     this->ProcessEvent(event.type(), event.data());
     internals.Events.pop_front();
+  }
+  if (!internals.ExpandedCanvasToContainerElement)
+  {
+    vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
+    internals.ExpandedCanvasToContainerElement = true;
   }
 }
 
@@ -397,6 +403,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       break;
   }
 }
+
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::Initialize()
 {
@@ -497,7 +504,6 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
     emscripten_set_main_loop_arg(
       &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
   }
-  vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
 }
 
 //------------------------------------------------------------------------------
@@ -557,6 +563,7 @@ void vtkWebAssemblyRenderWindowInteractor::TerminateApp(void)
     emscripten_cancel_main_loop();
     internals.StartedMessageLoop = false;
   }
+  internals.ExpandedCanvasToContainerElement = false;
 }
 
 //------------------------------------------------------------------------------
