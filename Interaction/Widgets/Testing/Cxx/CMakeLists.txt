@@ -34,6 +34,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImageActorContourWidget.cxx
+  TestImplicitConeWidget.cxx
   TestImplicitCylinderWidget.cxx
   TestImplicitCylinderWidget2.cxx
   TestImplicitPlaneWidget.cxx
