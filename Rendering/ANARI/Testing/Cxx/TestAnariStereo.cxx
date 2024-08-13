@@ -19,6 +19,7 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
+#include "vtkAnariTestUtilities.h"
 
 int TestAnariStereo(int argc, char* argv[])
 {
@@ -124,22 +125,7 @@ int TestAnariStereo(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariStereo";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", renderer);
-  vtkAnariRendererNode::SetSamplesPerPixel(4, renderer);
-  vtkAnariRendererNode::SetLightFalloff(.5, renderer);
-  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
-  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
+  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariStereo");
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->AddRenderer(renderer);

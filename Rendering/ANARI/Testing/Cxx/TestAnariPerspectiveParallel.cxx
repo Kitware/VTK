@@ -26,6 +26,7 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
+#include "vtkAnariTestUtilities.h"
 
 int TestAnariPerspectiveParallel(int argc, char* argv[])
 {
@@ -115,22 +116,7 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, ren1);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariPerspectiveParallel";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren1);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", ren1);
-  vtkAnariRendererNode::SetSamplesPerPixel(5, ren1);
-  vtkAnariRendererNode::SetLightFalloff(.3, ren1);
-  vtkAnariRendererNode::SetUseDenoiser(1, ren1);
-  vtkAnariRendererNode::SetCompositeOnGL(1, ren1);
+  SetAnariRendererParameterDefaults(ren1, useDebugDevice, "TestAnariPerspectiveParallel");
 
   ren1->ResetCamera();
   // Render composite. Default camera is perpective.
