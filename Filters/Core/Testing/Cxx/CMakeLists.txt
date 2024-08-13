@@ -78,6 +78,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestStripper.cxx,NO_VALID
   TestStructuredGridAppend.cxx,NO_VALID
   TestSynchronizedTemplates2D.cxx,NO_VALID
+  TestSynchronizedTemplates2DRGB.cxx,NO_DATA,NO_VALID
   TestThreshold.cxx,NO_VALID
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
