@@ -30,7 +30,12 @@
 #define GLAD_WGL_H_
 
 #include <windows.h>
-#include <glad/gl.h>
+// #include <glad/gl.h>
+// XXX(Kitware): Use vtkglad
+#include <vtk_glad.h>
+
+// XXX(Kitware): Mangle glad WGL symbols.
+#include <vtkglad/include/glad/vtk_wgl_mangle.h>
 
 #define GLAD_WGL
 #define GLAD_OPTION_WGL_LOADER

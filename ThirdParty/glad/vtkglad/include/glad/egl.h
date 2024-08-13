@@ -29,6 +29,8 @@
 #ifndef GLAD_EGL_H_
 #define GLAD_EGL_H_
 
+// XXX(Kitware): Mangle glad EGL symbols.
+#include <vtkglad/include/glad/vtk_egl_mangle.h>
 
 #define GLAD_EGL
 #define GLAD_OPTION_EGL_LOADER
@@ -745,8 +747,11 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define EGL_Y_INVERTED_NOK 0x307F
 
 
-#include <KHR/khrplatform.h>
-#include <EGL/eglplatform.h>
+// #include <KHR/khrplatform.h>
+// #include <EGL/eglplatform.h>
+// XXX(Kitware): Use vtkglad
+#include <vtkglad/include/KHR/khrplatform.h>
+#include <vtkglad/include/EGL/eglplatform.h>
 
 
 

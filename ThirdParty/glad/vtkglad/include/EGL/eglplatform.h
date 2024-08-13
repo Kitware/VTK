@@ -15,7 +15,9 @@
  * https://www.github.com/KhronosGroup/EGL-Registry/
  */
 
-#include <KHR/khrplatform.h>
+// #include <KHR/khrplatform.h>
+// XXX(Kitware): Use vtkglad
+#include <vtkglad/include/KHR/khrplatform.h>
 
 /* Macros used in EGL function prototype declarations.
  *

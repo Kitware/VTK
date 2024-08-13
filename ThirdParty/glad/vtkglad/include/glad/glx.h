@@ -39,7 +39,12 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+// #include <glad/gl.h>
+// XXX(Kitware): Use vtkglad
 #include <vtk_glad.h>
+
+// XXX(Kitware): Mangle glad GLX symbols.
+#include <vtkglad/include/glad/vtk_glx_mangle.h>
 
 #define GLAD_GLX
 #define GLAD_OPTION_GLX_LOADER

@@ -29,6 +29,9 @@
 #ifndef GLAD_GL_H_
 #define GLAD_GL_H_
 
+// XXX(Kitware): Mangle glad GL symbols.
+#include <vtkglad/include/glad/vtk_gl_mangle.h>
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
@@ -5176,7 +5179,8 @@ typedef void (*GLADpostcallback)(void *ret, const char *name, GLADapiproc apipro
 #define GL_Z_EXT 0x87D7
 
 
-#include <KHR/khrplatform.h>
+// XXX(Kitware): Use vtkglad
+#include <vtkglad/include/KHR/khrplatform.h>
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;

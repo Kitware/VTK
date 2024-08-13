@@ -2,20 +2,23 @@ set(headers
   "include/KHR/khrplatform.h")
 set(sources)
 
-list(APPEND headers 
+list(APPEND headers
+  "include/glad/vtk_gl_mangle.h"
   "include/glad/gl.h")
-list(APPEND sources 
+list(APPEND sources
   "src/gl.c")
 
 if (WIN32)
   list(APPEND sources
     "src/wgl.c")
   list(APPEND headers
+    "include/glad/vtk_wgl_mangle.h"
     "include/glad/wgl.h")
 endif ()
 if (VTK_OPENGL_HAS_EGL)
   list(APPEND sources "src/egl.c")
   list(APPEND headers
+    "include/glad/vtk_egl_mangle.h"
     "include/glad/egl.h"
     "include/EGL/eglplatform.h")
 endif ()
@@ -23,6 +26,7 @@ if (VTK_USE_X)
   list(APPEND sources
     "src/glx.c")
   list(APPEND headers
+    "include/glad/vtk_glx_mangle.h"
     "include/glad/glx.h")
 endif ()
 
