@@ -30,6 +30,7 @@
         # Exclude the built development EGL libraries from the wheel; the user
         # must provide them.
         WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
+        VTK_DEFAULT_OPENGL_WINDOW: vtkEGLRenderWindow
 
 .wheel_linux_osmesa_addon:
     variables:
