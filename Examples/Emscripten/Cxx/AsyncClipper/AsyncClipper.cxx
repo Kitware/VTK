@@ -23,7 +23,6 @@
 #include <vtkSphereSource.h>
 #include <vtkTableBasedClipDataSet.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkXMLPolyDataReader.h>
 
 #include <emscripten/proxying.h>
 #include <emscripten/threading.h>
@@ -49,28 +48,23 @@ public:
   vtkIPWCallback() = default;
 
   vtkPlane* plane{ nullptr };
-  vtkTableBasedClipDataSet* clipper{ nullptr };
 };
+
+vtkSmartPointer<vtkTableBasedClipDataSet> clipper;
 
 } // namespace
 
 extern "C"
 {
-  EMSCRIPTEN_KEEPALIVE void AbortClip(void* algorithm)
+  EMSCRIPTEN_KEEPALIVE void AbortClip()
   {
-    if (auto* clipper = reinterpret_cast<vtkTableBasedClipDataSet*>(algorithm))
-    {
-      // set abort flag.
-      clipper->SetAbortExecuteAndUpdateTime();
-    }
+    // set abort flag.
+    clipper->SetAbortExecuteAndUpdateTime();
   }
-  EMSCRIPTEN_KEEPALIVE void ResetAbortFlagForClip(void* algorithm)
+  EMSCRIPTEN_KEEPALIVE void ResetAbortFlagForClip()
   {
-    if (auto* clipper = reinterpret_cast<vtkTableBasedClipDataSet*>(algorithm))
-    {
-      // set abort flag.
-      clipper->SetAbortExecute(false);
-    }
+    // set abort flag.
+    clipper->SetAbortExecute(false);
   }
 }
 
@@ -97,7 +91,7 @@ int main(int argc, char** argv)
   ugridActor->SetMapper(ugridMapper);
   ugridActor->GetProperty()->SetOpacity(0.3);
 
-  vtkNew<vtkTableBasedClipDataSet> clipper;
+  clipper = vtk::TakeSmartPointer(vtkTableBasedClipDataSet::New());
   vtkNew<vtkPlane> plane;
   auto* ugrid = ugridSource->GetOutput();
   std::array<double, 6> bounds;
@@ -141,7 +135,6 @@ int main(int argc, char** argv)
 
   // The callback will do the work.
   vtkNew<vtkIPWCallback> myCallback;
-  myCallback->clipper = clipper;
   myCallback->plane = plane;
 
   vtkNew<vtkImplicitPlaneRepresentation> rep;
@@ -174,22 +167,22 @@ int main(int argc, char** argv)
     let canvas = document.getElementById("canvas");
     canvas.addEventListener('mousedown', (e) => {
       mouseDown = true;
-      Module._AbortClip($0);
+      Module._AbortClip();
       e.preventDefault();
     });
     canvas.addEventListener('mousemove', () => {
       if (mouseDown)
       {
-        Module._AbortClip($0);
+        Module._AbortClip();
       }
     });
     canvas.addEventListener('mouseup', (e) => {
       mouseDown = false;
-      Module._ResetAbortFlagForClip($0);
+      Module._ResetAbortFlagForClip();
     });
     // Resize the canvas to fill up window space.
     setTimeout(() => window.dispatchEvent(new Event("resize")), 3000)
-  }, clipper.Get());
+  });
   // clang-format on
 
   // Start event loop
