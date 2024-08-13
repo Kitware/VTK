@@ -13,7 +13,7 @@ endif ()
 
 # Support wasm64 architecture.
 set(VTK_WEBASSEMBLY_64_BIT OFF)
-if ("$ENV{WASM_WORDSIZE}" STREQUAL "64")
+if ("$ENV{WASM_ARCHITECTURE}" MATCHES "wasm64")
   set(VTK_WEBASSEMBLY_64_BIT ON)
 endif ()
 

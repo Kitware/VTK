@@ -85,6 +85,6 @@
         - cmake -P .gitlab/ci/download_node.cmake
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
-        - .gitlab/ci/upload_webassembly_archive.sh $WASM_WORDSIZE
+        - .gitlab/ci/upload_webassembly_archive.sh $WASM_ARCHITECTURE
 
     interruptible: true
