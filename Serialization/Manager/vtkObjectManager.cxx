@@ -558,4 +558,30 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
+{
+  if (auto object = this->Context->GetObjectAtId(identifier))
+  {
+    // clear dependency tree for this object.
+    // This lets the serializer see that the object is not processed
+    // in the marshalling context.
+    this->Context->ResetDirectDependenciesForNode(identifier);
+    const auto id = this->Serializer->SerializeJSON(object);
+    if (id.empty())
+    {
+      vtkErrorMacro(<< "Failed to update state for object at id=" << identifier);
+    }
+    else
+    {
+      vtkDebugMacro(<< "Updated state for object at id=" << identifier);
+    }
+  }
+  else
+  {
+    vtkErrorMacro(<< "Cannot update state for object at id=" << identifier
+                  << " because there is no such object!");
+  }
+}
+
 VTK_ABI_NAMESPACE_END
