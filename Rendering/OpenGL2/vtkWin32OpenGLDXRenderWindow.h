@@ -82,9 +82,10 @@ public:
 
   ///@{
   /**
-   * Overridden to update the internal D3D shared texture
+   * Set / Get the number of multisamples used by shared textures for hardware antialiasing.
    */
-  void SetMultiSamples(int samples) override;
+  vtkSetMacro(SharedTextureSamples, int);
+  vtkGetMacro(SharedTextureSamples, int);
   ///@}
 
   ///@{
@@ -149,6 +150,9 @@ private:
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Impl;
+
+  // Number of multisamples used by shared textures for hardware antialiasing
+  int SharedTextureSamples = 0;
 };
 VTK_ABI_NAMESPACE_END
 #endif
