@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkWebGPUComputeOcclusionCuller();
-  ~vtkWebGPUComputeOcclusionCuller();
+  ~vtkWebGPUComputeOcclusionCuller() override;
   vtkWebGPUComputeOcclusionCuller(const vtkWebGPUComputeOcclusionCuller&) = delete;
   void operator=(const vtkWebGPUComputeOcclusionCuller&) = delete;
 

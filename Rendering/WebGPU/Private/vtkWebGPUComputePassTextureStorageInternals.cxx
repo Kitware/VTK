@@ -52,15 +52,7 @@ void vtkWebGPUComputePassTextureStorageInternals::SetComputePass(
 bool vtkWebGPUComputePassTextureStorageInternals::CheckTextureIndex(
   std::size_t textureIndex, const std::string& callerFunctionName)
 {
-  if (textureIndex < 0)
-  {
-    vtkLog(ERROR,
-      "Negative textureIndex given to "
-        << callerFunctionName << ". Make sure to use an index that was returned by AddTexture().");
-
-    return false;
-  }
-  else if (textureIndex >= this->Textures.size())
+  if (textureIndex >= this->Textures.size())
   {
     vtkLog(ERROR,
       "Invalid textureIndex given to "
@@ -78,16 +70,7 @@ bool vtkWebGPUComputePassTextureStorageInternals::CheckTextureIndex(
 bool vtkWebGPUComputePassTextureStorageInternals::CheckTextureViewIndex(
   std::size_t textureViewIndex, const std::string& callerFunctionName)
 {
-  if (textureViewIndex < 0)
-  {
-    vtkLog(ERROR,
-      "Negative textureViewIndex given to "
-        << callerFunctionName
-        << ". Make sure to use an index that was returned by AddTextureView().");
-
-    return false;
-  }
-  else if (textureViewIndex >= this->TextureViewsToWebGPUTextureViews.size())
+  if (textureViewIndex >= this->TextureViewsToWebGPUTextureViews.size())
   {
     vtkLog(ERROR,
       "Invalid textureViewIndex given to " << callerFunctionName << ". Index was '"
@@ -879,8 +862,9 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 
-  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata) {
-    InternalMapTextureAsyncData* mapData = reinterpret_cast<InternalMapTextureAsyncData*>(userdata);
+  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata2) {
+    InternalMapTextureAsyncData* mapData =
+      reinterpret_cast<InternalMapTextureAsyncData*>(userdata2);
 
     if (status == WGPUBufferMapAsyncStatus_Success)
     {

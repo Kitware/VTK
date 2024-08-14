@@ -1,11 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "Private/vtkWebGPUConfigurationInternals.h"
-#include "Private/vtkWebGPUCallbacksInternals.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
-double vtkWebGPUConfigurationInternals::DefaultTimeout = 1000;
+double vtkWebGPUConfigurationInternals::DefaultTimeout = 60000;
 
 wgpu::Instance vtkWebGPUConfigurationInternals::Instance = nullptr;
 
@@ -110,59 +109,42 @@ wgpu::PowerPreference vtkWebGPUConfigurationInternals::ToWGPUPowerPreferenceType
 void vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted(
   WGPURequestAdapterStatus status, WGPUAdapter cAdapter, const char* message, void* userdata)
 {
-  auto* bridge = reinterpret_cast<vtkWebGPUConfigurationInternals::CallbackBridge*>(userdata);
-  if (bridge == nullptr)
+  auto* self = reinterpret_cast<vtkWebGPUConfiguration*>(userdata);
+  if (self == nullptr)
   {
     vtkErrorWithObjectMacro(nullptr, "OnAdapterRequestCompleted callback received null userdata!");
     return;
   }
-  vtkDebugWithObjectMacro(bridge->VTKDevice, << "Adapter request completed");
-  std::string label = "no label";
-  if (bridge->VTKDevice)
-  {
-    label = bridge->VTKDevice->GetObjectDescription();
-  }
+  vtkWarningWithObjectMacro(self, << "Adapter request completed");
   switch (status)
   {
     case WGPURequestAdapterStatus_Success:
-    {
-      bridge->Self->Adapter = wgpu::Adapter::Acquire(cAdapter);
-      wgpu::DeviceDescriptor opts = {};
-      opts.label = label.c_str();
-      opts.defaultQueue.nextInChain = nullptr;
-      opts.defaultQueue.label = label.c_str();
-      opts.deviceLostCallbackInfo.nextInChain = nullptr;
-      opts.deviceLostCallbackInfo.callback = &vtkWebGPUCallbacksInternals::DeviceLostCallback;
-      opts.deviceLostCallbackInfo.userdata = nullptr;
-      opts.uncapturedErrorCallbackInfo.nextInChain = nullptr;
-      opts.uncapturedErrorCallbackInfo.callback =
-        &vtkWebGPUCallbacksInternals::UncapturedErrorCallback;
-      opts.uncapturedErrorCallbackInfo.userdata = nullptr;
-      ///@{ TODO: Populate feature requests
-      // ...
-      ///@}
-      ///@{ TODO: Populate limit requests
-      // ...
-      ///@}
-      bridge->Self->Adapter.RequestDevice(&opts, OnDeviceRequestCompleted, bridge);
+      self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, cAdapter);
       break;
-    }
+#ifndef __EMSCRIPTEN__
+      // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
     case WGPURequestAdapterStatus_InstanceDropped:
+      vtkWarningWithObjectMacro(self, << "Adapter request completed with status InstanceDropped!");
+      self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
+#endif
     case WGPURequestAdapterStatus_Unavailable:
+      vtkWarningWithObjectMacro(self, << "Adapter request completed with status Unavailable!");
+      self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
     case WGPURequestAdapterStatus_Error:
-      vtkErrorWithObjectMacro(
-        bridge->VTKDevice, << "Error occured in wgpu::Instance::RequestAdapter");
+      vtkErrorWithObjectMacro(self, << "Error occured in wgpu::Instance::RequestAdapter");
+      self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
     case WGPURequestAdapterStatus_Unknown:
-      break;
     default:
+      vtkWarningWithObjectMacro(self, << "Adapter request completed with status Unknown!");
+      self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
   }
   if (message)
   {
-    vtkWarningWithObjectMacro(bridge->VTKDevice, << message);
+    vtkWarningWithObjectMacro(self, << message);
   }
 }
 
@@ -170,33 +152,38 @@ void vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted(
 void vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted(
   WGPURequestDeviceStatus status, WGPUDevice cDevice, const char* message, void* userdata)
 {
-  auto* bridge = reinterpret_cast<CallbackBridge*>(userdata);
-  if (bridge == nullptr)
+  auto* self = reinterpret_cast<vtkWebGPUConfiguration*>(userdata);
+  if (self == nullptr)
   {
-    vtkErrorWithObjectMacro(nullptr, "OnAdapterRequestCompleted callback received null userdata!");
+    vtkErrorWithObjectMacro(nullptr, "OnDeviceRequestCompleted callback received null userdata!");
     return;
   }
-  vtkDebugWithObjectMacro(bridge->VTKDevice, << "Device request completed");
+  vtkWarningWithObjectMacro(self, << "Device request completed");
   switch (status)
   {
     case WGPURequestDeviceStatus_Success:
-      bridge->Self->Device = wgpu::Device::Acquire(cDevice);
-      bridge->Self->DeviceReady = true;
+      self->InvokeEvent(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, cDevice);
       break;
+#ifndef __EMSCRIPTEN__
+      // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
     case WGPURequestDeviceStatus_InstanceDropped:
+      vtkWarningWithObjectMacro(self, << "Device request completed with status InstanceDropped!");
+      self->InvokeEvent(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, cDevice);
       break;
+#endif
     case WGPURequestDeviceStatus_Error:
-      vtkErrorWithObjectMacro(
-        bridge->VTKDevice, << "Error occured in wgpu::Adapter::RequestDevice");
+      vtkErrorWithObjectMacro(self, << "Error occured in wgpu::Adapter::RequestDevice");
+      self->InvokeEvent(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, cDevice);
       break;
     case WGPURequestDeviceStatus_Unknown:
-      break;
     default:
+      vtkWarningWithObjectMacro(self, << "Device request completed with status Unknown!");
+      self->InvokeEvent(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, cDevice);
       break;
   }
   if (message)
   {
-    vtkWarningWithObjectMacro(bridge->VTKDevice, << message);
+    vtkWarningWithObjectMacro(self, << message);
   }
 }
 VTK_ABI_NAMESPACE_END

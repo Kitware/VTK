@@ -176,7 +176,7 @@ public:
 
 protected:
   vtkWebGPUComputeBuffer();
-  ~vtkWebGPUComputeBuffer();
+  ~vtkWebGPUComputeBuffer() override;
 
 private:
   friend class vtkWebGPUComputePass;

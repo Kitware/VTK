@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkWebGPUTextureView();
-  ~vtkWebGPUTextureView();
+  ~vtkWebGPUTextureView() override;
   vtkWebGPUTextureView(const vtkWebGPUTextureView&) = delete;
   void operator=(const vtkWebGPUTextureView&) = delete;
 

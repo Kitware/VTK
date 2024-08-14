@@ -22,12 +22,6 @@ public:
   // Helps clean up the instance after it is no longer needed.
   static std::size_t InstanceCount;
 
-  struct CallbackBridge
-  {
-    vtkWebGPUConfiguration* VTKDevice;
-    vtkWebGPUConfigurationInternals* Self;
-  };
-
   static void AddInstanceRef();
 
   static void ReleaseInstanceRef();

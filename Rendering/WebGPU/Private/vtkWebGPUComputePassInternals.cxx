@@ -151,7 +151,7 @@ void vtkWebGPUComputePassInternals::RecreateBufferBindGroup(int bufferIndex)
   {
     // We only need to check the binding because we already retrieved all the entries that
     // correspond to the group of the buffer
-    if (entry.binding == buffer->GetBinding())
+    if (entry.binding == static_cast<uint32_t>(buffer->GetBinding()))
     {
       // Replacing the buffer by the one we just recreated
       entry.buffer = this->BufferStorage->WebGPUBuffers[bufferIndex];
@@ -243,7 +243,7 @@ void vtkWebGPUComputePassInternals::RecreateTextureBindGroup(int textureIndex)
     // the texture view whose entry we're trying to recreate
     for (wgpu::BindGroupEntry& entry : bgEntries)
     {
-      if (entry.binding == textureView->GetBinding())
+      if (entry.binding == static_cast<uint32_t>(textureView->GetBinding()))
       {
         // Replacing the texture view by the new one (recreated by a previous call to
         // RecreateTexture())
@@ -400,7 +400,7 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
   {
     vtkLogF(ERROR,
       "Invalid number of workgroups when dispatching compute pipeline \"%s\". Work groups sizes "
-      "(X, Y, Z) were: (%d, %d, %d) but no dimensions can be 0.",
+      "(X, Y, Z) were: (%u, %u, %u) but no dimensions can be 0.",
       this->ParentPass->Label.c_str(), groupsX, groupsY, groupsZ);
 
     return;

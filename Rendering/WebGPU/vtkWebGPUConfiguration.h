@@ -16,6 +16,8 @@
 #define vtkWebGPUConfiguration_h
 
 #include "vtkObject.h"
+
+#include "vtkCommand.h"               // for vtkCommand
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtk_wgpu.h"                 // for wgpu
 
@@ -172,6 +174,12 @@ public:
    */
   static std::size_t Align(std::size_t value, std::size_t alignment);
 
+  enum
+  {
+    AdapterRequestCompletedEvent = vtkCommand::UserEvent,
+    DeviceRequestCompletedEvent,
+  };
+
 protected:
   vtkWebGPUConfiguration();
   ~vtkWebGPUConfiguration() override;
@@ -181,6 +189,10 @@ protected:
   BackendType Backend;
   // In milliseconds
   double Timeout;
+
+  void AcquireAdapter(vtkObject* caller, unsigned long event, void* calldata);
+
+  void AcquireDevice(vtkObject* caller, unsigned long event, void* calldata);
 
 private:
   vtkWebGPUConfiguration(const vtkWebGPUConfiguration&) = delete;

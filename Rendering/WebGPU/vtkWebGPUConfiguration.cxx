@@ -2,12 +2,17 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUConfiguration.h"
+#include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtksys/SystemInformation.hxx"
 
 #include <chrono>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -32,6 +37,12 @@ vtkWebGPUConfiguration::vtkWebGPUConfiguration()
     this->Backend = BackendType::Vulkan;
   }
   this->Timeout = vtkWebGPUConfigurationInternals::DefaultTimeout;
+  // Install adapter request completion callback
+  this->AddObserver(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, this,
+    &vtkWebGPUConfiguration::AcquireAdapter);
+  // Install device request completion callback
+  this->AddObserver(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, this,
+    &vtkWebGPUConfiguration::AcquireDevice);
 }
 
 //------------------------------------------------------------------------------
@@ -86,6 +97,7 @@ ostream& operator<<(ostream& os, const vtkWebGPUConfiguration::PowerPreferenceTy
       break;
     case vtkWebGPUConfiguration::PowerPreferenceType::LowPower:
       os << "LowPower";
+      break;
     case vtkWebGPUConfiguration::PowerPreferenceType::Undefined:
     default:
       os << "Undefined";
@@ -128,14 +140,90 @@ wgpu::Instance vtkWebGPUConfiguration::GetInstance()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUConfiguration::SetDefaultTimeout(double timeout)
+void vtkWebGPUConfiguration::AcquireAdapter(
+  vtkObject* vtkNotUsed(caller), unsigned long event, void* calldata)
 {
-  vtkWebGPUConfigurationInternals::DefaultTimeout = timeout;
+  vtkDebugMacro(<< __func__);
+  if (event != vtkWebGPUConfiguration::AdapterRequestCompletedEvent)
+  {
+    return;
+  }
+  auto& internals = (*this->Internals);
+  // Fail on purpose if adapter is null.
+  if (calldata == nullptr)
+  {
+    internals.DeviceReady = false;
+    this->InvokeEvent(
+      vtkWebGPUConfiguration::DeviceRequestCompletedEvent, &(internals.DeviceReady));
+  }
+  else
+  {
+    const std::string label = this->GetObjectDescription();
+    auto cAdapter = reinterpret_cast<WGPUAdapter>(calldata);
+    internals.Adapter = wgpu::Adapter::Acquire(cAdapter);
+
+    wgpu::DeviceDescriptor opts = {};
+    opts.label = label.c_str();
+    opts.defaultQueue.nextInChain = nullptr;
+    opts.defaultQueue.label = label.c_str();
+#if defined(__EMSCRIPTEN__)
+    // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
+    opts.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata) {
+      return vtkWebGPUCallbacksInternals::DeviceLostCallback(nullptr, reason, message, userdata);
+    };
+    opts.deviceLostUserdata = nullptr;
+#else
+    opts.deviceLostCallbackInfo.nextInChain = nullptr;
+    opts.deviceLostCallbackInfo.callback = &vtkWebGPUCallbacksInternals::DeviceLostCallback;
+    opts.deviceLostCallbackInfo.userdata = nullptr;
+    opts.uncapturedErrorCallbackInfo.nextInChain = nullptr;
+    opts.uncapturedErrorCallbackInfo.callback =
+      &vtkWebGPUCallbacksInternals::UncapturedErrorCallback;
+    opts.uncapturedErrorCallbackInfo.userdata = nullptr;
+#endif
+    ///@{ TODO: Populate feature requests
+    // ...
+    ///@}
+    ///@{ TODO: Populate limit requests
+    // ...
+    ///@}
+    internals.Adapter.RequestDevice(
+      &opts, vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted, this);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::AcquireDevice(
+  vtkObject* vtkNotUsed(caller), unsigned long event, void* calldata)
+{
+  vtkDebugMacro(<< __func__);
+  if (event != vtkWebGPUConfiguration::DeviceRequestCompletedEvent)
+  {
+    return;
+  }
+  auto& internals = (*this->Internals);
+  // Fail on purpose if device is null.
+  if (calldata == nullptr)
+  {
+    internals.DeviceReady = false;
+  }
+  else
+  {
+    internals.DeviceReady = true;
+    auto cDevice = reinterpret_cast<WGPUDevice>(calldata);
+    internals.Device = wgpu::Device::Acquire(cDevice);
+#ifdef __EMSCRIPTEN__
+    // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
+    internals.Device.SetUncapturedErrorCallback(
+      &vtkWebGPUCallbacksInternals::UncapturedErrorCallback, nullptr);
+#endif
+  }
 }
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUConfiguration::Initialize()
 {
+  vtkDebugMacro(<< __func__);
   auto& internals = (*this->Internals);
   vtkWebGPUConfigurationInternals::AddInstanceRef();
 
@@ -143,20 +231,15 @@ bool vtkWebGPUConfiguration::Initialize()
   options.backendType = internals.ToWGPUBackendType(this->Backend);
   options.powerPreference = internals.ToWGPUPowerPreferenceType(this->PowerPreference);
 
-  vtkWebGPUConfigurationInternals::CallbackBridge bridge;
-  bridge.Self = this->Internals.get();
-  bridge.VTKDevice = this;
-
-  internals.DeviceReady = false;
 #if defined(__EMSCRIPTEN__)
   vtkWebGPUConfigurationInternals::Instance.RequestAdapter(
-    &options, vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted, &bridge);
+    &options, vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted, this);
 #else
   wgpu::RequestAdapterCallbackInfo adapterCbInfo;
   adapterCbInfo.nextInChain = nullptr;
   adapterCbInfo.callback = vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted;
   adapterCbInfo.mode = wgpu::CallbackMode::AllowProcessEvents;
-  adapterCbInfo.userdata = &bridge;
+  adapterCbInfo.userdata = this;
   vtkWebGPUConfigurationInternals::Instance.RequestAdapter(&options, adapterCbInfo);
 #endif
   double elapsed = 0;
