@@ -155,6 +155,7 @@ public:
   vtkCell* GetCell(vtkIdType cellId) override;
   void GetCell(vtkIdType cellId, vtkGenericCell* cell) override;
   int GetCellType(vtkIdType cellId) override;
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds) override;
   vtkCellIterator* NewCellIterator() override;
   void GetPointCells(vtkIdType ptId, vtkIdList* cellIds) override;

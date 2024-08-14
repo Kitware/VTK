@@ -39,6 +39,7 @@ public:
   /// This function may call CreateColormapTexture().
   void PrepareColormap(vtkScalarsToColors* cmap = nullptr);
 
+  using vtkMapper::GetBounds;
   double* GetBounds() VTK_SIZEHINT(6) override;
 
   /// Declare a new enum that inherits values from the base class

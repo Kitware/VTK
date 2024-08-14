@@ -386,7 +386,10 @@ void MarkDSBoundary(vtkDataSet* ds, unsigned char* smooth)
   vtkSMPTools::For(0, ds->GetNumberOfPoints(), [&ptr, &smooth](vtkIdType ptId, vtkIdType endPtId) {
     for (; ptId < endPtId; ++ptId)
     {
-      smooth[ptId] = (ptr[ptId] != 0 ? Boundary : smooth[ptId]);
+      if (ptr[ptId] != 0)
+      {
+        smooth[ptId] = Boundary;
+      }
     }
   });
 } // MarkDSBoundary
@@ -509,7 +512,7 @@ int vtkAttributeSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request)
   if (this->SmoothingStrategy == SMOOTHING_MASK)
   {
     smooth = ((this->SmoothingMask && this->SmoothingMask->GetNumberOfTuples() == numPts)
-        ? smooth = this->SmoothingMask->GetPointer(0)
+        ? this->SmoothingMask->GetPointer(0)
         : nullptr);
   }
   else if (this->SmoothingStrategy == ALL_POINTS)
