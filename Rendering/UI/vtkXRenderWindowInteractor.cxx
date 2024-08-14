@@ -444,6 +444,8 @@ void vtkXRenderWindowInteractor::Enable()
   // there is no real X Display or X Window.
   if (!this->WindowId || !this->DisplayId)
   {
+    this->Enabled = 1;
+    this->Modified();
     return;
   }
 
