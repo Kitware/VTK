@@ -632,13 +632,6 @@ void EnSightDataSet::ParseGeometrySection()
       vtkGenericWarningMacro("could not extract the line type from " << result.second);
     }
     extractLinePart(intRegEx, line, timeSet);
-    if (timeSet == -1)
-    {
-      // old reader seems to just automatically have a time set id 1 even if it's not specified
-      // I have run into some customer data that used wildcards in filenames, but did not
-      // specify the time set
-      timeSet = 1;
-    }
 
     extractLinePart(intRegEx, line, fileSet);
     if (!extractFileName(line, fileName))
@@ -648,14 +641,9 @@ void EnSightDataSet::ParseGeometrySection()
 
     if (lineType == "model:")
     {
-      this->GeometryFile.SetTimeAndFileSetInfo(timeSet, fileSet);
       this->GeometryFileName = this->GetFullPath(fileName);
       this->GeometryFile.SetFileNamePattern(this->GeometryFileName);
       extractLinePart(fileNameRegEx, line, option);
-
-      // as per the spec, model or measured filenames for changing geometry cases will contain a '*'
-      // wildcard while static geometry cases won't.
-      this->IsStaticGeometry = (fileName.find('*') != std::string::npos);
 
       // option can be empty, 'change_coords_only', 'change_coords_only cstep', or
       // 'changing_geometry_per_part'. changing_geometry_per_part signals that part lines will have
@@ -667,6 +655,17 @@ void EnSightDataSet::ParseGeometrySection()
         // changes too. cstep means the zero-based time step that contains the connectivity
         extractLinePart(intRegEx, line, this->GeometryCStep);
       }
+
+      // check to see if we do indeed have a static geometry
+      if (timeSet == -1 && this->GeometryFile.CheckForMultipleTimeSteps())
+      {
+        // old reader seems to just automatically have a time set id 1 even if it's not specified
+        // I have run into some customer data that used wildcards in filenames, but did not
+        // specify the time set
+        timeSet = 1;
+      }
+      this->GeometryFile.SetTimeAndFileSetInfo(timeSet, fileSet);
+
       if (this->GeometryFile.TimeSet == -1)
       {
         this->IsStaticGeometry = true;
@@ -695,6 +694,11 @@ void EnSightDataSet::ParseGeometrySection()
     else if (lineType == "rigid_body:")
     {
       this->RigidBodyFileName = this->GetFullPath(fileName);
+      // it's technically possible to have a static mesh, but have rigid body transforms to apply
+      // at each time step. In this case, ApplyRigidBodyTransforms ends up altering the mesh, and so
+      // the transforms aren't applied to the original geometry, messing things up. The simple fix
+      // is to not cache in this case.
+      this->IsStaticGeometry = false;
     }
     else if (lineType == "Vector_glyphs:")
     {
@@ -1066,11 +1070,6 @@ bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
     }
 
     vtkSmartPointer<vtkDataSet> grid = nullptr;
-    if (static_cast<unsigned int>(partInfo.PDCIndex) < output->GetNumberOfPartitionedDataSets())
-    {
-      grid = output->GetPartitionedDataSet(partInfo.PDCIndex)->GetPartition(0);
-      addToPDC = false;
-    }
 
     result = this->GeometryFile.ReadNextLine();
     auto opts = getGridOptions(result.second);

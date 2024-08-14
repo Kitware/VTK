@@ -38,7 +38,7 @@ int TestEnSightReaderStaticMeshCache(int argc, char* argv[])
 
   vtkNew<vtkEnSightGoldCombinedReader> enSightReader;
   enSightReader->SetCaseFileName(
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/EnSight/viga.case"));
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/EnSight/elements.case"));
 
   enSightReader->UpdateTimeStep(0);
   auto outDO = enSightReader->GetOutputDataObject(0);
