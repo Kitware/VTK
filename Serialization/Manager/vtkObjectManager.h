@@ -144,6 +144,11 @@ public:
   void UpdateStatesFromObjects();
 
   /**
+   * Deserialize the state into vtk object.
+   */
+  void UpdateObjectFromState(const std::string& state);
+
+  /**
    * Reset to initial state.
    * All registered objects are removed and no longer tracked.
    * All registered states are also removed.
