@@ -44,6 +44,9 @@ var vtkWebAssemblyRenderWindowInteractor = {
         canvasElem.style.left = 0;
         canvasElem.style.width = '100%';
         canvasElem.style.height = '100%';
+
+        // Trigger a resize event to refresh the canvas size.
+        window.dispatchEvent(new Event('resize'));
       }
     },
 

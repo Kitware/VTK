@@ -13,6 +13,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     set(_proxy_to_pthread_flag "1")
   endif ()
   set(_vtk_test_emscripten_extra_linker_args
+    "-sASSERTIONS=1"
     # O2 or higher make wasm-opt terribly slow.
     # test executables take a minute to link.
     "-O1"
