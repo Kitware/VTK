@@ -21,7 +21,8 @@
  * packages.  The output always has the same number of components
  * and the same extent as the first input.  The alpha value of the first
  * input is not used in the blending computation, instead it is copied
- * directly to the output.
+ * directly to the output. If BlendAlpha is set, the alpha value of the
+ * output is also computed using:
  *
  * \code
  * output <- input[0]
@@ -151,8 +152,28 @@ public:
 
   ///@{
   /**
+   * Set whether to blend the alpha component.
+   * If false, the output alpha component is set to the input alpha component.
+   * It has effect only if BlendMode is set to VTK_IMAGE_BLEND_MODE_NORMAL.
+   *
+   * Example:
+   * This blending option is useful when overlaying two images where the transparency of the
+   * foreground image needs to be used in the images blending. For instance when aligning two images
+   * with BlendAlpha set to false, the foreground image would be cropped to the region of interest
+   * defined by the alpha channel of the background image. While with BlendAlpha set to true, the
+   * foreground image would be blended with the background image allowing the visualization of both
+   * images.
+   */
+  vtkSetMacro(BlendAlpha, vtkTypeBool);
+  vtkGetMacro(BlendAlpha, vtkTypeBool);
+  vtkBooleanMacro(BlendAlpha, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
    * Specify a threshold in compound mode. Pixels with opacity*alpha less
    * or equal the threshold are ignored.
+   * It has effect only if BlendMode is set to VTK_IMAGE_BLEND_MODE_COMPOUND.
    */
   vtkSetMacro(CompoundThreshold, double);
   vtkGetMacro(CompoundThreshold, double);
@@ -163,6 +184,7 @@ public:
    * Set whether to use the alpha weighted blending calculation on the alpha
    * component. If false, the alpha component is set to the sum of the product
    * of opacity and alpha from all inputs.
+   * It has effect only if BlendMode is set to VTK_IMAGE_BLEND_MODE_COMPOUND
    */
   vtkSetMacro(CompoundAlpha, vtkTypeBool);
   vtkGetMacro(CompoundAlpha, vtkTypeBool);
@@ -193,6 +215,7 @@ protected:
   int BlendMode;
   double CompoundThreshold;
   int DataWasPassed;
+  vtkTypeBool BlendAlpha;
   vtkTypeBool CompoundAlpha;
 
 private:
