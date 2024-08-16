@@ -311,6 +311,12 @@ void vtkMarshalContext::ResetDirectDependencies()
 }
 
 //------------------------------------------------------------------------------
+void vtkMarshalContext::ResetDirectDependenciesForNode(vtkTypeUInt32 identifier)
+{
+  this->Internals->Tree.erase(identifier);
+}
+
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkMarshalContext::MakeId()
 {
   return (++(this->Internals->UniqueId));

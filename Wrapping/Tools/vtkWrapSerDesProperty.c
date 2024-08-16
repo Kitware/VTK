@@ -661,7 +661,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "    {\n");
       fprintf(fp, "      auto values = iter->get<std::string>();\n");
       callSetterBeginMacro(fp, "      ");
-      callSetterParameterMacro(fp, "&(values.front())");
+      callSetterParameterMacro(fp, "values.c_str()");
       callSetterEndMacro(fp);
       fprintf(fp, "    }\n");
     }
@@ -676,7 +676,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "    {\n");
     fprintf(fp, "      auto values = iter->get<std::string>();\n");
     callSetterBeginMacro(fp, "      ");
-    callSetterParameterMacro(fp, "&(values.front())");
+    callSetterParameterMacro(fp, "values");
     callSetterEndMacro(fp);
     fprintf(fp, "    }\n");
     fprintf(fp, "  }\n");
