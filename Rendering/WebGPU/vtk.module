@@ -19,6 +19,7 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::fmt
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::FiltersSources
   VTK::RenderingUI
   VTK::InteractionStyle
