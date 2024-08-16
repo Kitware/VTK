@@ -13,4 +13,5 @@ if(TARGET VTK::pvtkpython)
     COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
       $<TARGET_FILE:VTK::pvtkpython> ${CMAKE_CURRENT_SOURCE_DIR}/testTransmit.py
       ${VTK_MPI_POSTFLAGS})
+  vtk_add_test_python_mpi(TestCleanArrays.py NO_DATA NO_OUTPUT NO_VALID)
 endif()
