@@ -262,9 +262,14 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
             local_offset = offset_multipliers[5];
         }
         var point_size: vec2<f32> = vec2<f32>(actor.render_options.point_size, actor.render_options.point_size);
+    // The point rendering algorithm is unstable for point_size < 1.0
+        if (point_size.x < 1.0) {
+            point_size.x = 1.0;
+            point_size.y = 1.0;
+        }
     // squish the 'point size' value given as number of pixels into NDC space.
-    // This done by scaling it from viewport space -> NDC space.
-        point_size = point_size * 0.5 / scene_transform.viewport.zw;
+    // This is done by scaling it from viewport space -> NDC space.
+        point_size = point_size / scene_transform.viewport.zw;
     // push the vertex in a suitable direction while we're still in the NDC space.
         var pushed_vertex: vec2<f32> = position_ndc_2d + point_size * local_offset;
     // undo perspective division, so that vertex shader output is unaware of our tricks.
