@@ -1,6 +1,8 @@
 set(test_exclusions
   # Random Memory Leak #18599
-  "^VTK::FiltersCorePython-probe$")
+  "^VTK::FiltersCorePython-probe$"
+  # Leaks static thread_local instances, being worked in !11452 
+  "^VTK::FiltersCellGridPython-TestCellGridRange$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
@@ -272,7 +274,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Thread-local objects are not destroyed at program exit.
     # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
     "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
-    "^VTK::FiltersCellGridPython-TestCellGridRange$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
   )
 endif ()
