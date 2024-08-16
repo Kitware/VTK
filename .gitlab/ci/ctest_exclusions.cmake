@@ -1,4 +1,6 @@
 set(test_exclusions
+  # Leaks static thread_local instances, being worked in !11452 
+  "^VTK::FiltersCellGridPython-TestCellGridRange$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 
@@ -313,7 +315,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Thread-local objects are not destroyed at program exit.
     # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
     "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
-    "^VTK::FiltersCellGridPython-TestCellGridRange$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
