@@ -4,9 +4,9 @@ set -e
 set -x
 
 # Select the wasm architecture for the package.
-readonly architecture="wasm${1:-32}-emscripten"
+readonly architecture="${1}"
 case "$architecture" in
-    wasm64-emscripten)
+    wasm64-emscripten*)
         node_args="--experimental-wasm-memory64"
         ;;
     *)
