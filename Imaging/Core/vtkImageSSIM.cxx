@@ -142,7 +142,9 @@ struct SSIMWorker
             double c2 = C[dim][1];
 
             // Computing SSIM
-            double ssim = (2 * mean1 * mean2 + c1) * (2 * covar + c2) /
+            // The order of computation matters for 2 * (mean1 * mean2) in order to reduce rounding
+            // error
+            double ssim = (2 * (mean1 * mean2) + c1) * (2 * covar + c2) /
               ((mean1 * mean1 + mean2 * mean2 + c1) * (var1 + var2 + c2));
 
             // Clamping negative values if requested
