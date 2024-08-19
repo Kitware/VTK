@@ -1,6 +1,9 @@
 set(test_exclusions
   # Random Memory Leak #18599
-  "^VTK::FiltersCorePython-probe$")
+  "^VTK::FiltersCorePython-probe$"
+  
+  # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
+  "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
@@ -52,9 +55,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
 
     # Floating point imprecision?
     "^VTK::FiltersGeneralPython-TestSampleImplicitFunctionFilter$"
-
-    # Gets the wrong selection (sometimes).
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
 
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
@@ -327,8 +327,7 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
   list(APPEND test_exclusions
     # Flaky tests. They sometimes pass.
-    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$"
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
+    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
