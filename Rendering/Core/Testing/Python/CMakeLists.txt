@@ -1,9 +1,3 @@
-if(VTK_USE_GLSL_SHADERS)
-  set(glsl_tests
-    TestGLSLShader.py,NO_VALID
-    )
-endif()
-
 vtk_add_test_python(
   ImageActor.py
   ImageActorStressed.py
