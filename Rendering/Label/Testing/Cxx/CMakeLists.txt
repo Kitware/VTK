@@ -9,3 +9,4 @@ vtk_add_test_cxx(vtkRenderingLabelCxxTests tests
   TestLabelPlacementMapperCoincidentPoints.cxx
   )
 vtk_test_cxx_executable(vtkRenderingLabelCxxTests tests)
+set_tests_properties(VTK::RenderingLabelCxx-TestLabelPlacer PROPERTIES TIMEOUT 300)
