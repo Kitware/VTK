@@ -31,8 +31,6 @@
 # define VTK_USE_OSMESA
 #endif
 
-#define VTK_USE_GLSL_SHADERS
-
 /* Options for GPUInfo */
 #cmakedefine VTK_USE_DIRECTX
 #cmakedefine VTK_USE_CORE_GRAPHICS
