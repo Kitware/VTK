@@ -13,7 +13,6 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <iostream>
-#include <numeric>
 #include <string>
 
 // This test emulates a texture buffer. It verifies that the provided
@@ -25,17 +24,15 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
   const int height = 5;
 
   vtkNew<vtkRenderWindow> renWin;
-  auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(renWin);
-  auto gl = oglRenWin->GetState();
   renWin->SetSize(width, height);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
   iren->Initialize();
 
-  std::vector<unsigned char> values(width * height * 4); // w x h x [rgba]
-  std::iota(values.begin(), values.end(), 0);
+  std::vector<unsigned char> values(width * height * 4, 0); // w x h x [rgba]
 
+  auto oglRenWin = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   vtkNew<vtkOpenGLBufferObject> bo;
   bo->SetType(vtkOpenGLBufferObject::ArrayBuffer);
   bo->Upload(values, bo->GetType());
@@ -71,6 +68,7 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
   program->SetUniformi("aTexture", aTexture->GetTextureUnit());
   vao->Bind();
 
+  auto gl = oglRenWin->GetState();
   gl->vtkglDisable(GL_SCISSOR_TEST);
   gl->vtkglDisable(GL_DEPTH_TEST);
   gl->vtkglDisable(GL_BLEND);
