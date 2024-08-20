@@ -43,7 +43,7 @@
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <numeric> // for std::iota()
 

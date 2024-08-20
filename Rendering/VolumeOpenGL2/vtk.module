@@ -27,8 +27,7 @@ PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersSources
-  VTK::glew
-  VTK::opengl
+  VTK::glad
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonSystem

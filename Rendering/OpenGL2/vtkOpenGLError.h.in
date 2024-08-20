@@ -4,7 +4,7 @@
 #define vtkOpenGLError_h
 
 #include "vtkSetGet.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 #include <sstream>
 
 #ifndef NDEBUG
@@ -74,9 +74,7 @@ const char *vtkOpenGLStrError(unsigned int code)
       return "Stack overflow";
     case GL_STACK_UNDERFLOW:
       return "Stack underflow";
-    case GL_TABLE_TOO_LARGE:
-      return "Table too large";
-    case GL_INVALID_FRAMEBUFFER_OPERATION_EXT:
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
       return "Invalid framebuffer operation";
 #endif
   }

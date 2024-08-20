@@ -166,6 +166,17 @@ public:
     vtkWindow->SetMultiSamples(0);
     vtkWindow->SetReadyForRendering(false);
     vtkWindow->SetFrameBlitModeToNoBlit();
+    auto loadFunc = [](void*, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc {
+      if (auto context = QOpenGLContext::currentContext())
+      {
+        if (auto* symbol = context->getProcAddress(name))
+        {
+          return symbol;
+        }
+      }
+      return nullptr;
+    };
+    vtkWindow->SetOpenGLSymbolLoader(loadFunc, nullptr);
     vtkNew<QVTKInteractor> iren;
     iren->SetRenderWindow(vtkWindow);
     vtkNew<vtkInteractorStyleTrackballCamera> style;

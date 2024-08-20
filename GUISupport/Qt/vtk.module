@@ -25,7 +25,6 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::FiltersExtraction
   VTK::InteractionStyle
-  VTK::opengl
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::FiltersSources

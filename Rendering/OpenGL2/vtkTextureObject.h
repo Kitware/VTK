@@ -44,19 +44,15 @@ public:
     NumberOfDepthTextureCompareFunctions
   };
 
-// ClampToBorder is not supported in ES 2.0
-// Wrap values.
-#ifndef GL_ES_VERSION_3_0
-  enum { ClampToEdge = 0, Repeat, MirroredRepeat, ClampToBorder, NumberOfWrapModes };
-#else
+  // Wrap values.
   enum
   {
     ClampToEdge = 0,
     Repeat,
     MirroredRepeat,
+    ClampToBorder,
     NumberOfWrapModes
   };
-#endif
 
   // MinificationFilter values.
   enum

@@ -43,6 +43,9 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderWindow : public 
 public:
   vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+#if !(defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__))
+  static vtkOpenGLRenderWindow* New();
+#endif
 
   /**
    * Begin the rendering process.
@@ -477,6 +480,20 @@ public:
     int destX, int destY, int destX2, int destY2);
   ///@}
 
+  typedef void (*VTKOpenGLAPIProc)();
+  typedef VTKOpenGLAPIProc (*VTKOpenGLLoaderFunction)(void* userptr, const char* name);
+  /**
+   * Provide a function pointer which can load OpenGL core/extension functions.
+   * OpenGL proc loader. This is provided by the window system.
+   * Here's a brief listing of possible values.
+   * For glx: glXGetProcAddress
+   * For egl: eglGetProcAddress
+   * For wgl: wglGetProcAddress, if that returned null, implementation will get the function from
+   * opengl32.dll (for gl 1.1 funcs) For osmesa: OSMesaGetProcAddress For cocoa: null, uses dlsym
+   * directly
+   */
+  void SetOpenGLSymbolLoader(VTKOpenGLLoaderFunction loader, void* userData);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -577,8 +594,6 @@ protected:
 
   vtkTextureObject* DrawPixelsTextureObject;
 
-  bool GlewInitValid; // Did glewInit initialize with a valid state?
-
   float MaximumHardwareLineWidth;
 
   char* Capabilities;
@@ -598,6 +613,12 @@ protected:
   int RenderBufferTargetDepthSize;
 
   int ScreenSize[2];
+
+  struct
+  {
+    VTKOpenGLLoaderFunction LoadFunction = nullptr;
+    void* UserData = nullptr;
+  } SymbolLoader;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

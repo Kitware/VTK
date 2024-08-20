@@ -280,14 +280,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
   this->UsingInstancing = false;
 
   vtkHardwareSelector* selector = ren->GetSelector();
-
-  if (!selector && GLEW_ARB_instanced_arrays)
+  if (!selector && GLAD_GL_ARB_instanced_arrays)
   {
     // if there is no triangle, culling is useless.
-    // GLEW_ARB_gpu_shader5 is needed by the culling shader.
+    // GLAD_GL_ARB_gpu_shader5 is needed by the culling shader.
 #ifndef GL_ES_VERSION_3_0
-    if (this->CurrentInput->GetNumberOfPolys() <= 0 || !GLEW_ARB_gpu_shader5 ||
-      !GLEW_ARB_transform_feedback3)
+    if (this->CurrentInput->GetNumberOfPolys() <= 0 || !GLAD_GL_ARB_gpu_shader5 ||
+      !GLAD_GL_ARB_transform_feedback3)
     {
       culling = false;
     }
@@ -503,9 +502,18 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
               static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
               GL_UNSIGNED_INT, nullptr, this->InstanceCulling->GetLOD(j).NumberOfInstances);
 #else
-            glDrawElementsInstancedARB(mode,
-              static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
-              GL_UNSIGNED_INT, nullptr, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            if (GLAD_GL_ARB_draw_instanced)
+            {
+              glDrawElementsInstancedARB(mode,
+                static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
+                GL_UNSIGNED_INT, nullptr, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            }
+            else
+            {
+              glDrawElementsInstanced(mode,
+                static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
+                GL_UNSIGNED_INT, nullptr, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            }
 #endif
             this->InstanceCulling->GetLOD(j).IBO->Release();
           }
@@ -515,8 +523,16 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
             glDrawArraysInstanced(
               GL_POINTS, 0, 1, this->InstanceCulling->GetLOD(j).NumberOfInstances);
 #else
-            glDrawArraysInstancedARB(
-              GL_POINTS, 0, 1, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            if (GLAD_GL_ARB_draw_instanced)
+            {
+              glDrawArraysInstancedARB(
+                GL_POINTS, 0, 1, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            }
+            else
+            {
+              glDrawArraysInstanced(
+                GL_POINTS, 0, 1, this->InstanceCulling->GetLOD(j).NumberOfInstances);
+            }
 #endif
           }
         }
@@ -576,8 +592,17 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         glDrawElementsInstanced(mode, static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
           GL_UNSIGNED_INT, nullptr, numPts);
 #else
-        glDrawElementsInstancedARB(mode, static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
-          GL_UNSIGNED_INT, nullptr, numPts);
+        if (GLAD_GL_ARB_draw_instanced)
+        {
+          glDrawElementsInstancedARB(mode,
+            static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount), GL_UNSIGNED_INT, nullptr,
+            numPts);
+        }
+        else
+        {
+          glDrawElementsInstanced(mode, static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
+            GL_UNSIGNED_INT, nullptr, numPts);
+        }
 #endif
 
         this->Primitives[i].IBO->Release();

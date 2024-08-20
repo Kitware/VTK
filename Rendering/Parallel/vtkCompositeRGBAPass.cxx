@@ -35,7 +35,7 @@
 #include <sys/types.h> // Linux specific gettid()
 #endif
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeRGBAPass);

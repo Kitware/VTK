@@ -65,7 +65,7 @@
 #include <sstream>
 #include <string>
 
-#if defined(__APPLE__) && !defined(VTK_OPENGL_HAS_OSMESA)
+#if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -900,7 +900,7 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
 {
-#if defined(__APPLE__) && !defined(VTK_OPENGL_HAS_OSMESA)
+#if defined(__APPLE__)
   enum class QueryAllocStatus
   {
     NotChecked,

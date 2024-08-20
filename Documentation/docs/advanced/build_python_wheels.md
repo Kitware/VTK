@@ -32,14 +32,13 @@ When generating a wheel, you can modify the distribution name and/or add a
 suffix to the wheel version string.
 
 By default, the distribution name is `vtk` though you can add a suffix via the
-`VTK_DIST_NAME_SUFFIX` CMake variable (e.g., set `VTK_DIST_NAME_SUFFIX` to
-`'osmesa'` to have the distribution name be `vtk_osmesa`). An underscore (`_`)
-character is automatically placed between `vtk` and the value
+`VTK_DIST_NAME_SUFFIX` CMake variable (e.g., set `VTK_DIST_NAME_SUFFIX`).
+An underscore (`_`) character is automatically placed between `vtk` and the value
 of `VTK_DIST_NAME_SUFFIX`. Please use `_` characters for further delimination in
 the suffix value. Example setting:
 
 ```cmake
-set(VTK_DIST_NAME_SUFFIX "osmesa" CACHE STRING "")
+set(VTK_DIST_NAME_SUFFIX "foo" CACHE STRING "")
 ```
 
 By default (outside of a CI release build), `dev0` is appended to the version of

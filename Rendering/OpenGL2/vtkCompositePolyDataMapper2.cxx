@@ -5,7 +5,7 @@
 #define VTK_DEPRECATION_LEVEL 0
 #include "vtkCompositePolyDataMapper2.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"

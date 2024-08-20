@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtk_glew.h"
-#include <GL/gl.h>
+#include "vtkDynamicLoader.h"
+#include "vtk_glad.h"
 
 #ifndef GLAPI
 #define GLAPI extern
@@ -14,7 +14,6 @@
 #ifndef APIENTRY
 #define APIENTRY GLAPIENTRY
 #endif
-#include <GL/osmesa.h>
 
 #include "vtkOSOpenGLRenderWindow.h"
 #include "vtkOpenGLActor.h"
@@ -32,16 +31,84 @@
 #include "vtksys/SystemTools.hxx"
 #include <sstream>
 
+#if !defined(_WIN32)
+#include <dlfcn.h>
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;
 
-typedef OSMesaContext(GLAPIENTRY* OSMesaCreateContextAttribs_func)(
-  const int* attribList, OSMesaContext sharelist);
+#define OSMESA_MAJOR_VERSION 11
+#define OSMESA_MINOR_VERSION 2
+#define OSMESA_PATCH_VERSION 0
+
+/*
+ * Values for the format parameter of OSMesaCreateContext()
+ * New in version 2.0.
+ */
+#define OSMESA_COLOR_INDEX GL_COLOR_INDEX
+#define OSMESA_RGBA GL_RGBA
+#define OSMESA_BGRA 0x1
+#define OSMESA_ARGB 0x2
+#define OSMESA_RGB GL_RGB
+#define OSMESA_BGR 0x4
+#define OSMESA_RGB_565 0x5
+
+/*
+ * OSMesaPixelStore() parameters:
+ * New in version 2.0.
+ */
+#define OSMESA_ROW_LENGTH 0x10
+#define OSMESA_Y_UP 0x11
+
+/*
+ * Accepted by OSMesaGetIntegerv:
+ */
+#define OSMESA_WIDTH 0x20
+#define OSMESA_HEIGHT 0x21
+#define OSMESA_FORMAT 0x22
+#define OSMESA_TYPE 0x23
+#define OSMESA_MAX_WIDTH 0x24  /* new in 4.0 */
+#define OSMESA_MAX_HEIGHT 0x25 /* new in 4.0 */
+
+/*
+ * Accepted in OSMesaCreateContextAttrib's attribute list.
+ */
+#define OSMESA_DEPTH_BITS 0x30
+#define OSMESA_STENCIL_BITS 0x31
+#define OSMESA_ACCUM_BITS 0x32
+#define OSMESA_PROFILE 0x33
+#define OSMESA_CORE_PROFILE 0x34
+#define OSMESA_COMPAT_PROFILE 0x35
+#define OSMESA_CONTEXT_MAJOR_VERSION 0x36
+#define OSMESA_CONTEXT_MINOR_VERSION 0x37
+
+typedef struct osmesa_context* OSMesaContext;
 
 class vtkOSOpenGLRenderWindowInternal
 {
   friend class vtkOSOpenGLRenderWindow;
+
+  typedef OSMesaContext(GLAPIENTRY* PFNOSMesaCreateContext)(GLenum format, OSMesaContext sharelist);
+  typedef OSMesaContext(GLAPIENTRY* PFNOSMesaCreateContextAttribs)(
+    const int* attribList, OSMesaContext sharelist);
+  typedef void(GLAPIENTRY* PFNOSMesaDestroyContext)(OSMesaContext ctx);
+  typedef GLboolean(GLAPIENTRY* PFNOSMesaMakeCurrent)(
+    OSMesaContext ctx, void* buffer, GLenum type, GLsizei width, GLsizei height);
+  typedef OSMesaContext(GLAPIENTRY* PFNOSMesaGetCurrentContext)();
+
+  typedef void (*OSMESAproc)();
+  typedef OSMESAproc(GLAPIENTRY* PFNOSMesaGetProcAddress)(const char* funcName);
+
+  PFNOSMesaCreateContext OSMesaCreateContext;
+  PFNOSMesaCreateContextAttribs OSMesaCreateContextAttribs;
+  PFNOSMesaDestroyContext OSMesaDestroyContext;
+  PFNOSMesaMakeCurrent OSMesaMakeCurrent;
+  PFNOSMesaGetCurrentContext OSMesaGetCurrentContext;
+  PFNOSMesaGetProcAddress OSMesaGetProcAddress;
+
+  static vtkLibHandle OSMesaLibraryHandle;
 
 private:
   vtkOSOpenGLRenderWindowInternal();
@@ -51,11 +118,60 @@ private:
   void* OffScreenWindow;
 };
 
+vtkLibHandle vtkOSOpenGLRenderWindowInternal::OSMesaLibraryHandle = nullptr;
+
 vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal()
 {
   // OpenGL specific
   this->OffScreenContextId = nullptr;
   this->OffScreenWindow = nullptr;
+
+#if defined(_WIN32)
+  OSMesaLibraryHandle = LoadLibraryA("osmesa.dll");
+  if (OSMesaLibraryHandle == nullptr)
+  {
+    vtkGenericWarningMacro(
+      << "osmesa.dll not found. It appears that OSMesa is not installed in "
+         "your system. Please install the OSMesa library. You can obtain pre-built binaries for "
+         "Windows from https://github.com/pal1000/mesa-dist-win. Ensure that osmesa.dll is "
+         "available in PATH.");
+  }
+#elif defined(__linux__)
+  const std::vector<std::string> libNamesToTry = { "libOSMesa.so.8", "libOSMesa.so.6",
+    "libOSMesa.so" };
+  for (const auto& libName : libNamesToTry)
+  {
+    OSMesaLibraryHandle = dlopen(libName.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+    if (OSMesaLibraryHandle)
+    {
+      break;
+    }
+  }
+  if (OSMesaLibraryHandle == nullptr)
+  {
+    vtkGenericWarningMacro(<< "libOSMesa not found. It appears that OSMesa is not installed in "
+                              "your system. Please install the OSMesa library from your "
+                              "distribution's package manager.");
+  }
+#else
+  vtkGenericWarningMacro(<< "VTK does not support OSMesa for your operating system."
+                            "Please create an issue requesting osmesa support - "
+                            "https://gitlab.kitware.com/vtk/vtk/-/issues/new");
+#endif
+
+  this->OSMesaCreateContext = (PFNOSMesaCreateContext)vtkDynamicLoader::GetSymbolAddress(
+    OSMesaLibraryHandle, "OSMesaCreateContext");
+  this->OSMesaCreateContextAttribs =
+    (PFNOSMesaCreateContextAttribs)vtkDynamicLoader::GetSymbolAddress(
+      OSMesaLibraryHandle, "OSMesaCreateContextAttribs");
+  this->OSMesaDestroyContext = (PFNOSMesaDestroyContext)vtkDynamicLoader::GetSymbolAddress(
+    OSMesaLibraryHandle, "OSMesaDestroyContext");
+  this->OSMesaMakeCurrent = (PFNOSMesaMakeCurrent)vtkDynamicLoader::GetSymbolAddress(
+    OSMesaLibraryHandle, "OSMesaMakeCurrent");
+  this->OSMesaGetCurrentContext = (PFNOSMesaGetCurrentContext)vtkDynamicLoader::GetSymbolAddress(
+    OSMesaLibraryHandle, "OSMesaGetCurrentContext");
+  this->OSMesaGetProcAddress = (PFNOSMesaGetProcAddress)vtkDynamicLoader::GetSymbolAddress(
+    OSMesaLibraryHandle, "OSMesaGetProcAddress");
 }
 
 vtkStandardNewMacro(vtkOSOpenGLRenderWindow);
@@ -84,6 +200,15 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
   this->UseOffScreenBuffers = true;
 
   this->Internal = new vtkOSOpenGLRenderWindowInternal();
+  this->SetOpenGLSymbolLoader(
+    [](void* userData, const char* name) -> VTKOpenGLAPIProc {
+      if (auto* internal = reinterpret_cast<vtkOSOpenGLRenderWindowInternal*>(userData))
+      {
+        return internal->OSMesaGetProcAddress(name);
+      }
+      return nullptr;
+    },
+    this->Internal);
 }
 
 // free up memory & close the window
@@ -137,7 +262,7 @@ void vtkOSOpenGLRenderWindow::DestroyWindow()
   this->ReleaseGraphicsResources(this);
 
   delete[] this->Capabilities;
-  this->Capabilities = 0;
+  this->Capabilities = nullptr;
 
   this->DestroyOffScreenWindow();
 
@@ -147,6 +272,10 @@ void vtkOSOpenGLRenderWindow::DestroyWindow()
 
 void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 {
+  if (!this->Internal->OSMesaCreateContext || !this->Internal->OSMesaCreateContextAttribs)
+  {
+    return;
+  }
   this->DoubleBuffer = 0;
 
   if (!this->Internal->OffScreenWindow)
@@ -162,21 +291,18 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
       OSMESA_STENCIL_BITS, 0, OSMESA_ACCUM_BITS, 0, OSMESA_PROFILE, OSMESA_CORE_PROFILE,
       OSMESA_CONTEXT_MAJOR_VERSION, 3, OSMESA_CONTEXT_MINOR_VERSION, 2, 0 };
 
-    OSMesaCreateContextAttribs_func OSMesaCreateContextAttribs =
-      (OSMesaCreateContextAttribs_func)OSMesaGetProcAddress("OSMesaCreateContextAttribs");
-
-    if (OSMesaCreateContextAttribs != nullptr)
+    if (this->Internal->OSMesaCreateContextAttribs != nullptr)
     {
-      this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, nullptr);
+      this->Internal->OffScreenContextId =
+        this->Internal->OSMesaCreateContextAttribs(attribs, nullptr);
     }
   }
 #endif
   // if we still have no context fall back to the generic signature
   if (!this->Internal->OffScreenContextId)
   {
-    this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, nullptr);
+    this->Internal->OffScreenContextId = this->Internal->OSMesaCreateContext(GL_RGBA, nullptr);
   }
-  this->MakeCurrent();
 
   this->Mapped = 0;
   this->Size[0] = width;
@@ -188,7 +314,7 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(nullptr);
     ren->SetRenderWindow(this);
   }
 
@@ -209,7 +335,7 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
 
   if (this->Internal->OffScreenContextId)
   {
-    OSMesaDestroyContext(this->Internal->OffScreenContextId);
+    this->Internal->OSMesaDestroyContext(this->Internal->OffScreenContextId);
     this->Internal->OffScreenContextId = nullptr;
     vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
     this->Internal->OffScreenWindow = nullptr;
@@ -237,13 +363,18 @@ void vtkOSOpenGLRenderWindow::WindowInitialize()
 {
   this->CreateAWindow();
 
+  if (!this->Internal->OffScreenContextId)
+  {
+    return;
+  }
+
   this->MakeCurrent();
 
   // tell our renderers about us
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(nullptr);
     ren->SetRenderWindow(this);
   }
 
@@ -308,8 +439,9 @@ void vtkOSOpenGLRenderWindow::MakeCurrent()
   // set the current window
   if (this->Internal->OffScreenContextId)
   {
-    if (OSMesaMakeCurrent(this->Internal->OffScreenContextId, this->Internal->OffScreenWindow,
-          GL_UNSIGNED_BYTE, this->Size[0], this->Size[1]) != GL_TRUE)
+    if (this->Internal->OSMesaMakeCurrent(this->Internal->OffScreenContextId,
+          this->Internal->OffScreenWindow, GL_UNSIGNED_BYTE, this->Size[0],
+          this->Size[1]) != GL_TRUE)
     {
       vtkWarningMacro("failed call to OSMesaMakeCurrent");
     }
@@ -324,7 +456,7 @@ bool vtkOSOpenGLRenderWindow::IsCurrent()
   bool result = false;
   if (this->Internal->OffScreenContextId)
   {
-    result = this->Internal->OffScreenContextId == OSMesaGetCurrentContext();
+    result = this->Internal->OffScreenContextId == this->Internal->OSMesaGetCurrentContext();
   }
   return result;
 }

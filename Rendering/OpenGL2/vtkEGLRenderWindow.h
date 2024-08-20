@@ -200,6 +200,8 @@ public:
    */
   bool IsPointSpriteBugPresent() override;
 
+  const char* ReportCapabilities() override;
+
 protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow() override;
@@ -224,8 +226,6 @@ protected:
 private:
   vtkEGLRenderWindow(const vtkEGLRenderWindow&) = delete;
   void operator=(const vtkEGLRenderWindow&) = delete;
-
-  bool DeviceExtensionsPresent;
 };
 
 VTK_ABI_NAMESPACE_END

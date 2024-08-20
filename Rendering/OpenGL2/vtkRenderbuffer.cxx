@@ -5,7 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <cassert>
 

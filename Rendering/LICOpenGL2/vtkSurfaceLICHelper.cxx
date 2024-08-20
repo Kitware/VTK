@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkSurfaceLICComposite.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <vector>
 

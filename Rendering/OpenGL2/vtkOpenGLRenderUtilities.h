@@ -16,7 +16,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 
-#include "vtk_glew.h" // Needed for GLuint.
+#include "vtk_glad.h" // Needed for GLuint.
 #include <string>     // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN

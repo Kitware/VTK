@@ -6,7 +6,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLState.h"
 #include "vtkRenderState.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
