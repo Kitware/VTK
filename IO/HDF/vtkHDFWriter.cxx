@@ -1110,7 +1110,19 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
     for (int iArray = 0; iArray < nArrays; ++iArray)
     {
       vtkAbstractArray* array = attributes->GetAbstractArray(iArray);
-      const char* arrayName = array->GetName();
+      std::string arrayName{ array->GetName() };
+
+      // Make sure we replace any illegal characters in the arrayName (slash, dot), as they would
+      // create a HDF5 subgroup.
+      std::replace(arrayName.begin(), arrayName.end(), '/', '_');
+      std::replace(arrayName.begin(), arrayName.end(), '.', '_');
+
+      if (arrayName != std::string(array->GetName()))
+      {
+        vtkWarningMacro(<< "Replaced array with illegal name " << array->GetName() << " with "
+                        << arrayName);
+      }
+
       hid_t dataType = vtkHDFUtilities::getH5TypeFromVtkType(array->GetDataType());
       if (dataType == H5I_INVALID_HID)
       {
@@ -1120,7 +1132,8 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
       }
 
       // For transient data, also add the offset in the steps group
-      if (this->IsTemporal && !this->AppendDataArrayOffset(array, arrayName, offsetsGroupName))
+      if (this->IsTemporal &&
+        !this->AppendDataArrayOffset(array, arrayName.c_str(), offsetsGroupName))
       {
         return false;
       }
@@ -1131,7 +1144,7 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
         // Initialize empty dataset
         hsize_t ChunkSizeComponent[] = { static_cast<hsize_t>(this->ChunkSize),
           static_cast<unsigned long>(array->GetNumberOfComponents()) };
-        if (!this->Impl->InitDynamicDataset(group, arrayName, dataType,
+        if (!this->Impl->InitDynamicDataset(group, arrayName.c_str(), dataType,
               array->GetNumberOfComponents(), ChunkSizeComponent, this->CompressionLevel))
         {
           vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
@@ -1141,7 +1154,7 @@ bool vtkHDFWriter::AppendDataArrays(hid_t baseGroup, vtkDataObject* input, unsig
       }
 
       // Add actual array in the dataset
-      if (!this->Impl->AddOrCreateDataset(group, arrayName, dataType, array))
+      if (!this->Impl->AddOrCreateDataset(group, arrayName.c_str(), dataType, array))
       {
         vtkErrorMacro(<< "Can not create array " << arrayName << " of attribute " << groupName
                       << " when creating: " << this->FileName);

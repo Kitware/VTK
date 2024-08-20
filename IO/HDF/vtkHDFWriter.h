@@ -43,6 +43,9 @@ typedef int64_t hid_t;
  * Options are provided for data compression, and writing partitions, composite parts and time steps
  * in different files.
  *
+ * To comply with the HDF5 and VTKHDF standard specification,
+ * "/" and "." contained in field names will be replaced by "_".
+ *
  * Full file format specification is here:
  * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  *
