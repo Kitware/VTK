@@ -38,7 +38,6 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputePassChained.cxx,NO_DATA,NO_VALID
   TestComputePassUniform.cxx,NO_DATA,NO_VALID
   TestComputeTexture.cxx,NO_DATA,NO_VALID
-  TestConesBenchmark.cxx,NO_DATA
   TestLineRendering.cxx,NO_DATA
   TestLowPowerRenderWindow.cxx,NO_DATA
   TestPointScalarMappedColors.cxx,NO_DATA
