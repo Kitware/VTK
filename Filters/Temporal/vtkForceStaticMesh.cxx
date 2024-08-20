@@ -119,21 +119,6 @@ bool vtkForceStaticMesh::IsValidCache(vtkCompositeDataSet* input)
   vtkCompositeDataSet* internalCache = vtkCompositeDataSet::SafeDownCast(this->Cache);
   assert(internalCache);
 
-  // Dataset-wide comparisons
-  if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
-  {
-    vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
-      << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
-    return false;
-  }
-
-  if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
-  {
-    vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
-      << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
-    return false;
-  }
-
   // Per block comparisons
   auto compIterator = vtkSmartPointer<vtkCompositeDataIterator>::Take(internalCache->NewIterator());
   for (compIterator->InitTraversal(); !compIterator->IsDoneWithTraversal();
@@ -151,7 +136,7 @@ bool vtkForceStaticMesh::IsValidCache(vtkCompositeDataSet* input)
       return false;
     }
 
-    if (!cacheBlock /*&& inputBlock */)
+    if (cacheBlock == nullptr /*&& inputBlock */)
     {
       // Skip non-dataset blocks
       continue;
