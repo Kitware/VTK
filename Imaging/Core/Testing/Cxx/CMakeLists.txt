@@ -3,6 +3,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   ImageAccumulate.cxx,NO_VALID
   ImageAccumulateLarge.cxx,NO_VALID,NO_DATA,NO_OUTPUT 32
   ImageAutoRange.cxx
+  ImageBlend.cxx
   ImageBSplineCoefficients.cxx
   ImageChangeInformation.cxx,NO_VALID,NO_DATA
   ImageDifference.cxx,NO_VALID
