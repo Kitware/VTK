@@ -1,5 +1,5 @@
 vtk_add_test_cxx(vtkFiltersTemporalCxxTests tests
-  TestForceStaticMesh.cxx
+  TestForceStaticMesh.cxx, NO_VALID
   TestDataObjectMeshCache.cxx,NO_VALID
   TestTemporalSmoothingFilter.cxx,NO_VALID
   )
