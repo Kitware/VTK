@@ -277,8 +277,7 @@ vtkSmartPointer<vtkCompositeDataSet> CreateDataSet()
   cds40->SetNumberOfBlocks(1);
   addPolyData(0, cds40);
 
-  // explicit move needed to silence warnings about C++11 defect
-  return std::move(cds00);
+  return cds00;
 }
 
 } // end anon namespace
