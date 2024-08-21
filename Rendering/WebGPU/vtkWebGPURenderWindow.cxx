@@ -818,50 +818,6 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
                      "window failed to build a new render pass!");
     return;
   }
-
-  if (this->ColorAttachment.OffscreenBuffer == nullptr)
-  {
-    vtkErrorMacro(<< "Cannot copy offscreen texture into offscreen buffer because the destination "
-                     "buffer is null!");
-    return;
-  }
-  // Now copy the contents of the color attachment texture into the offscreen buffer.
-  // Both source and destination are on the GPU.
-  // Later, when we really need the pixels on the CPU, the `ReadPixels` method will map
-  // the contents of the offscreen buffer into CPU memory.
-  wgpu::Origin3D srcOrigin;
-  srcOrigin.x = 0;
-  srcOrigin.y = 0;
-  srcOrigin.y = 0;
-
-  wgpu::Extent3D srcExtent;
-  srcExtent.width = this->ColorAttachment.Texture.GetWidth();
-  srcExtent.height = this->ColorAttachment.Texture.GetHeight();
-  srcExtent.depthOrArrayLayers = 1;
-
-  wgpu::ImageCopyTexture copySrc;
-  copySrc.texture = this->ColorAttachment.Texture;
-  copySrc.mipLevel = 0;
-  copySrc.origin = srcOrigin;
-  copySrc.aspect = wgpu::TextureAspect::All;
-
-  wgpu::TextureDataLayout textureDataLayout;
-  textureDataLayout.offset = 0;
-  textureDataLayout.bytesPerRow =
-    vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
-  textureDataLayout.rowsPerImage = this->ColorAttachment.Texture.GetHeight();
-
-  wgpu::ImageCopyBuffer copyDst;
-  copyDst.buffer = this->ColorAttachment.OffscreenBuffer;
-  copyDst.layout = textureDataLayout;
-
-#ifndef NDEBUG
-  this->CommandEncoder.PushDebugGroup("Copy color attachment to offscreen buffer");
-#endif
-  this->CommandEncoder.CopyTextureToBuffer(&copySrc, &copyDst, &srcExtent);
-#ifndef NDEBUG
-  this->CommandEncoder.PopDebugGroup();
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -1034,6 +990,9 @@ const char* vtkWebGPURenderWindow::GetRenderingBackend()
 void vtkWebGPURenderWindow::ReadPixels()
 {
   vtkWebGPUCheckUnconfigured(this);
+
+  this->CopyFramebufferToOffscreenBuffer();
+
   if (this->ColorAttachment.OffscreenBuffer == nullptr)
   {
     vtkErrorMacro(<< "Cannot read pixels from texture because the color attachment's offscreen "
@@ -1131,6 +1090,62 @@ void vtkWebGPURenderWindow::ReadPixels()
   this->ColorAttachment.OffscreenBuffer.MapAsync(wgpu::MapMode::Read, 0,
     this->BufferMapReadContext.size, onBufferMapped, &this->BufferMapReadContext);
   this->WaitForCompletion();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::CopyFramebufferToOffscreenBuffer()
+{
+  if (this->ColorAttachment.OffscreenBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "Cannot copy offscreen texture into offscreen buffer because the destination "
+                     "buffer is null!");
+    return;
+  }
+
+  // Now copy the contents of the color attachment texture into the offscreen buffer.
+  // Both source and destination are on the GPU.
+  // Later, when we really need the pixels on the CPU, the `ReadPixels` method will map
+  // the contents of the offscreen buffer into CPU memory.
+  wgpu::Origin3D srcOrigin;
+  srcOrigin.x = 0;
+  srcOrigin.y = 0;
+  srcOrigin.y = 0;
+
+  wgpu::Extent3D srcExtent;
+  srcExtent.width = this->ColorAttachment.Texture.GetWidth();
+  srcExtent.height = this->ColorAttachment.Texture.GetHeight();
+  srcExtent.depthOrArrayLayers = 1;
+
+  wgpu::ImageCopyTexture copySrc;
+  copySrc.texture = this->ColorAttachment.Texture;
+  copySrc.mipLevel = 0;
+  copySrc.origin = srcOrigin;
+  copySrc.aspect = wgpu::TextureAspect::All;
+
+  wgpu::TextureDataLayout textureDataLayout;
+  textureDataLayout.offset = 0;
+  textureDataLayout.bytesPerRow =
+    vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
+  textureDataLayout.rowsPerImage = this->ColorAttachment.Texture.GetHeight();
+
+  wgpu::ImageCopyBuffer copyDst;
+  copyDst.buffer = this->ColorAttachment.OffscreenBuffer;
+  copyDst.layout = textureDataLayout;
+
+  this->CreateCommandEncoder();
+#ifndef NDEBUG
+  this->CommandEncoder.PushDebugGroup("Copy color attachment to offscreen buffer");
+#endif
+  this->CommandEncoder.CopyTextureToBuffer(&copySrc, &copyDst, &srcExtent);
+#ifndef NDEBUG
+  this->CommandEncoder.PopDebugGroup();
+#endif
+
+  wgpu::CommandBufferDescriptor cmdBufDesc = {};
+  wgpu::CommandBuffer cmdBuffer = this->CommandEncoder.Finish(&cmdBufDesc);
+
+  this->CommandEncoder = nullptr;
+  this->FlushCommandBuffers(1, &cmdBuffer);
 }
 
 //------------------------------------------------------------------------------

@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestLineRendering.cxx,NO_DATA
   TestLowPowerRenderWindow.cxx,NO_DATA
   TestPointScalarMappedColors.cxx,NO_DATA
+  TestReadPixels.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSurfacePlusEdges.cxx,NO_DATA
   TestQuad.cxx,NO_DATA
