@@ -38,6 +38,12 @@ struct InternalMapTextureAsyncData
 }
 
 //------------------------------------------------------------------------------
+vtkWebGPUComputePassTextureStorageInternals::~vtkWebGPUComputePassTextureStorageInternals()
+{
+  this->ReleaseResources();
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUComputePassTextureStorageInternals::SetComputePass(
   vtkWeakPointer<vtkWebGPUComputePass> parentComputePass)
 {
@@ -900,7 +906,23 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size, bufferMapCallback, callbackData);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void vtkWebGPUComputePassTextureStorageInternals::ReleaseResources()
+{
+  this->ParentComputePass = nullptr;
+  this->ParentPassWGPUConfiguration = nullptr;
+
+  this->Textures.clear();
+  this->RenderTextures.clear();
+  this->RenderTexturesToWebGPUTexture.clear();
+  this->WebGPUTextures.clear();
+
+  this->ComputeTextureToViews.clear();
+  this->TextureViews.clear();
+  this->TextureViewsToWebGPUTextureViews.clear();
+}
+
+//-----------------------------------------------------------------------------
 wgpu::TextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureFormatToWebGPU(
   vtkWebGPUComputeTexture::TextureFormat format)
 {

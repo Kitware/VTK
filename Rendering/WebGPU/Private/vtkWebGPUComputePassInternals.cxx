@@ -13,6 +13,9 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPUComputePassInternals);
 
 //------------------------------------------------------------------------------
+vtkWebGPUComputePassInternals::~vtkWebGPUComputePassInternals() = default;
+
+//------------------------------------------------------------------------------
 void vtkWebGPUComputePassInternals::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Initialized? : " << this->Initialized << std::endl;
@@ -573,6 +576,25 @@ void vtkWebGPUComputePassInternals::SubmitCommandEncoderToQueue(
 {
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->WGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePassInternals::ReleaseResources()
+{
+  this->Initialized = false;
+  this->BindGroupOrLayoutsInvalidated = true;
+
+  this->ShaderModule = nullptr;
+
+  this->BindGroups.clear();
+  this->BindGroupEntries.clear();
+  this->BindGroupLayouts.clear();
+  this->BindGroupLayoutEntries.clear();
+
+  this->ComputePipeline = nullptr;
+
+  this->TextureStorage->ReleaseResources();
+  this->BufferStorage->ReleaseResources();
 }
 
 VTK_ABI_NAMESPACE_END

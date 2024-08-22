@@ -74,6 +74,14 @@ public:
    */
   void Update();
 
+  /**
+   * Releases the resources used by this pipeline: all compute passes & registered buffers/textures.
+   *
+   * The WebGPU Configuration of this pipeline will be reset by this function and a call to
+   * SetWGPUConfiguration() will be necessary to create new compute passes on this pipeline.
+   */
+  void ReleaseResources();
+
 private:
   friend class vtkWebGPUComputePassInternals;
   friend class vtkWebGPURenderWindow;

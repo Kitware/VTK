@@ -33,6 +33,12 @@ struct InternalMapBufferAsyncData
 };
 
 //------------------------------------------------------------------------------
+vtkWebGPUComputePassBufferStorageInternals::~vtkWebGPUComputePassBufferStorageInternals()
+{
+  this->ReleaseResources();
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUComputePassBufferStorageInternals::SetComputePass(
   vtkWeakPointer<vtkWebGPUComputePass> parentComputePass)
 {
@@ -471,6 +477,16 @@ void vtkWebGPUComputePassBufferStorageInternals::SetupRenderBuffer(
   offsetSizeUniform->SetData(uniformData);
 
   this->AddBuffer(offsetSizeUniform);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePassBufferStorageInternals::ReleaseResources()
+{
+  this->ParentComputePass = nullptr;
+  this->ParentPassWGPUConfiguration = nullptr;
+
+  this->Buffers.clear();
+  this->WebGPUBuffers.clear();
 }
 
 //------------------------------------------------------------------------------

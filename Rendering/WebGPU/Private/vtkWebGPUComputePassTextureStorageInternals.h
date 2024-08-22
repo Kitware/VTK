@@ -264,6 +264,11 @@ public:
   }
 
   /**
+   * Releases the textures & resources held by this texture storage.
+   */
+  void ReleaseResources();
+
+  /**
    * Internal method used to convert the user friendly Dimension enum to its wgpu::TextureDimension
    * equivalent
    */
@@ -330,7 +335,7 @@ public:
 
 protected:
   vtkWebGPUComputePassTextureStorageInternals() = default;
-  ~vtkWebGPUComputePassTextureStorageInternals() override = default;
+  ~vtkWebGPUComputePassTextureStorageInternals() override;
 
 private:
   friend class vtkWebGPUComputePassInternals;

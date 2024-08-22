@@ -296,12 +296,17 @@ public:
    */
   void SubmitCommandEncoderToQueue(const wgpu::CommandEncoder& commandEncoder);
 
+  /**
+   * Releases the resources of this compute pass internals.
+   */
+  void ReleaseResources();
+
   // Compute pass whose internals this class represents
   vtkWeakPointer<vtkWebGPUComputePass> ParentPass;
 
 protected:
   vtkWebGPUComputePassInternals() = default;
-  ~vtkWebGPUComputePassInternals() override = default;
+  ~vtkWebGPUComputePassInternals() override;
 
 private:
   friend class vtkWebGPUComputePass;

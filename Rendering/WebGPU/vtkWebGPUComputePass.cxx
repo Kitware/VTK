@@ -33,7 +33,10 @@ vtkWebGPUComputePass::vtkWebGPUComputePass()
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPUComputePass::~vtkWebGPUComputePass() = default;
+vtkWebGPUComputePass::~vtkWebGPUComputePass()
+{
+  this->ReleaseResources();
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePass::PrintSelf(ostream& os, vtkIndent indent)
@@ -214,6 +217,19 @@ void vtkWebGPUComputePass::Dispatch()
   }
 
   this->Internals->WebGPUDispatch(this->GroupsX, this->GroupsY, this->GroupsZ);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePass::ReleaseResources()
+{
+  this->Internals->ReleaseResources();
+
+  this->ShaderSource = "";
+  this->ShaderEntryPoint = "";
+
+  this->GroupsX = 0;
+  this->GroupsY = 0;
+  this->GroupsZ = 0;
 }
 
 //------------------------------------------------------------------------------

@@ -314,6 +314,13 @@ public:
    */
   void Dispatch();
 
+  /**
+   * Releases the resources used by this compute pass. After this call, the compute pass will be in
+   * an unusable state and it should be removed from the compute pipeline it belongs to. A new
+   * compute pass should then be created from the compute pipeline.
+   */
+  void ReleaseResources();
+
 protected:
   vtkWebGPUComputePass();
   ~vtkWebGPUComputePass() override;
