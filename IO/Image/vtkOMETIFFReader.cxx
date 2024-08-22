@@ -17,7 +17,6 @@
 #include "vtkStringArray.h"
 #include "vtkStructuredData.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtk_pugixml.h"
 
 #include <algorithm>

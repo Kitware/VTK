@@ -4,7 +4,6 @@
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 // Example code from the molecule documentation. If this breaks,
 // update the docs in vtkMolecule.h

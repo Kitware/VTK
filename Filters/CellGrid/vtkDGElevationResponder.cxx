@@ -13,7 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringToken.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <unordered_set>
 

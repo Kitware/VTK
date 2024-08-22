@@ -25,7 +25,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <sstream>
 

@@ -41,7 +41,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 

@@ -5,7 +5,7 @@
 #include "vtkVRInteractorStyle.h"
 #include "vtkVRRenderWindow.h"
 #include "vtkVRRenderWindowInteractor.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkVRCamera::vtkVRCamera() = default;

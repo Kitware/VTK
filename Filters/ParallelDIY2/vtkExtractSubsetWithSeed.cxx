@@ -28,7 +28,6 @@
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 // clang-format off
 #include "vtk_diy2.h"

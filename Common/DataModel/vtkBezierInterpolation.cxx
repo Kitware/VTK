@@ -13,7 +13,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include <numeric> // std::accumulate
 
 VTK_ABI_NAMESPACE_BEGIN

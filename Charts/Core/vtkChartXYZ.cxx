@@ -26,7 +26,6 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include "vtkObjectFactory.h"
 

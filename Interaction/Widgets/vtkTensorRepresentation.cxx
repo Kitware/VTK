@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include "vtkWindow.h"
 
 #include <cassert>

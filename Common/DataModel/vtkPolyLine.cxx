@@ -15,7 +15,6 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 
