@@ -10,6 +10,7 @@ set(classes
   vtkAnimationScene
   vtkAnnotation
   vtkAnnotationLayers
+  vtkAnnulus
   vtkArrayData
   vtkAtom
   vtkAttributesErrorMetric
