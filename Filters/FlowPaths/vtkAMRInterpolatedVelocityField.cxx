@@ -82,9 +82,7 @@ int vtkAMRInterpolatedVelocityField::SelfInitialize()
   {
     vectors = (gVectors
         ? gVectors
-        : vectors =
-            dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection));
-
+        : dataset->GetAttributesAsFieldData(this->VectorsType)->GetArray(this->VectorsSelection));
     this->AddToDataSetsInfo(dataset, nullptr, vectors);
   }
 

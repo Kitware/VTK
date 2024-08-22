@@ -36,6 +36,7 @@ public:
   vtkTypeMacro(vtkCone, vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using vtkImplicitFunction::EvaluateFunction;
   ///@{
   /**
    * Evaluate cone equation.
