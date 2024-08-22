@@ -419,6 +419,10 @@ void vtkOpenGLLowMemoryPolyDataMapper::RenderPieceStart(vtkRenderer* renderer, v
     {
       this->ShaderProgram = nullptr;
     }
+    if (!this->IsShaderNormalSourceUpToDate(actor))
+    {
+      this->ShaderProgram = nullptr;
+    }
   }
   int picking = getPickState(renderer);
   if (this->LastSelectionState != picking)
