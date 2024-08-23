@@ -327,11 +327,14 @@ private:
 
   void WriteTextureData(int textureIndex, const void* data, std::size_t numBytes);
 
-  friend class vtkWebGPUComputePipeline;
-  friend class vtkWebGPUHelpers;
   friend class vtkWebGPUComputePassInternals;
   friend class vtkWebGPUComputePassTextureStorageInternals;
   friend class vtkWebGPUComputePassBufferStorageInternals;
+  friend class vtkWebGPUComputePipeline;
+  friend class vtkWebGPUHelpers;
+  // For the mapper to be able to access the internals to access the wgpu::Buffer objects for use
+  // in a render pipeline
+  friend class vtkWebGPUPointCloudMapperInternals;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;
 

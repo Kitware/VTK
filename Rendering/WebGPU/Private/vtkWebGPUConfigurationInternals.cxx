@@ -164,7 +164,14 @@ void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(wgpu::Adapter adapt
 //------------------------------------------------------------------------------
 void vtkWebGPUConfigurationInternals::PopulateRequiredFeatures()
 {
-  // Populate required features in RequiredFeatures here
+  // Required feature for writing to the BGRA8 framebuffer of the render window from a compute
+  // shader (used by the point the cloud renderer which needs to write the point color to the
+  // framebuffer of the render window from its compute shader)
+  //
+  // Only ~50% of devices support this extension according to:
+  // http://vulkan.gpuinfo.org/listoptimaltilingformats.php
+  // CTRL+F "B8G8R8A8_UNORM"
+  RequiredFeatures.push_back(wgpu::FeatureName::BGRA8UnormStorage);
 }
 
 //------------------------------------------------------------------------------
