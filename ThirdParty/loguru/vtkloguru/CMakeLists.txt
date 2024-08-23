@@ -23,6 +23,14 @@ vtk_module_definitions(VTK::loguru
   PRIVATE
     "LOGURU_SCOPE_TIME_PRECISION=${VTK_LOGGING_TIME_PRECISION}"
     "LOGURU_STACKTRACES=$<BOOL:${loguru_have_stacktraces}>")
+# Loguru dynamically sets LOGURU_PTLS_NAMES = 1 in Linux (`__linux__`)
+# Additionally, loguru also checks if user has defined LOGURU_PTLS_NAMES and avoids using pthread_[set]getname_np
+# wasm currently doesn't implement pthread_[set]getname_np, so ask to use TLS for thread names.
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  vtk_module_definitions(VTK::loguru
+    PRIVATE
+      "LOGURU_PTLS_NAMES=1")
+endif ()
 
 include(GenerateExportHeader)
 generate_export_header(loguru
