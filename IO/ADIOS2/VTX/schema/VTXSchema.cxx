@@ -69,6 +69,8 @@ void VTXSchema::GetDataArray(
 
   if (type.empty())
   {
+    throw std::invalid_argument(
+      "ERROR: variable `" + variableName + "` not present " + "in Engine " + this->Engine.Name());
   }
 #define declare_type(T)                                                                            \
   else if (type == adios2::GetType<T>())                                                           \
