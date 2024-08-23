@@ -387,22 +387,16 @@ to the `External` stage of the CI pipeline by `@kwrobot`. Developers and
 reviewers should start jobs which make sense for the change using the following
 methods:
 
-- The first thing to check is that CI is enabled in your fork of VTK. If you
-  see a `CI/CD` item on the left sidebar in your fork's project, you're all
-  set. If not, go to `Settings > General` and enable `CI/CD` for "Everyone With
-  Access" under the "Visibility, project features, permissions" section.
+- The first thing to check is that CI is enabled in your fork of VTK.
 
-- Merge request authors should visit their merge request's pipeline and click
-  the "Play" button on one or more jobs manually. If the merge request has the
-  "Allow commits from members who can merge to the target branch" check box
-  enabled, VTK developers and maintainers may use the "Play" button as well.
-  This flag is visible when editing the merge request. When in doubt, it's a
-  good idea to run a few jobs as smoke tests to catch early build/test failures
-  before a full CI run that would tie up useful resources. Note that, as detailed below,
-  a full CI run is necessary before the request can be merged.
+ 1. Navigate to your fork (change the username in the URL): (https://gitlab.kitware.com/username/vtk/)
+ 2. Click on `Settings > General`, then expand "Visibility, project features, permissions"
+ 3. Make sure `Project Visbility` is `Public` and `CI/CD` is enabled for `Everyone With Access`
+ 4. Click on `Settings > CI/CD`, then expand `General`
+ 5. Make sure `Public Pipelines` is enabled
 
-- VTK Project developers may trigger CI on a merge request by adding a comment
-  with a command among the [trailing lines][#trailing-lines]:
+- The simplest way to trigger CI on a merge request is by adding a comment
+  with a command among the [trailing lines](#trailing-lines):
 
     Do: test
 
@@ -427,6 +421,14 @@ methods:
       successfully.
     - `failed`: Restart jobs which have completed, but without success.
     - `completed`: Restart all completed jobs.
+  * There is a `quick` stage, so unless you are confident the CI will pass, it is preferable
+    to run only that by doing:
+
+      Do: test -s quick
+
+  * It is even possible to start a single job be navigating in the merge request's pipeline and
+    click on individual play button. This is a great way to test quickly run a smoke test or
+    debug CI issues without wasting CI resources.
 
 If the merge request topic branch is updated by a push, a new manual trigger
 using one of the above methods is needed to start CI again.
