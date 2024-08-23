@@ -34,6 +34,7 @@ class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputePipeline : public vtkObject
 public:
   vtkTypeMacro(vtkWebGPUComputePipeline, vtkObject);
   static vtkWebGPUComputePipeline* New();
+
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{

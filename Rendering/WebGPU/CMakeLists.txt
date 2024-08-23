@@ -97,7 +97,7 @@ unset(public_wgsl_shader_headers)
 set(private_shader_files
   wgsl/FrustumCullingShader.wgsl
   wgsl/PolyData.wgsl
-  wgsl/OcclusionCullingCopyDepthBuffer.wgsl
+  wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl)
 

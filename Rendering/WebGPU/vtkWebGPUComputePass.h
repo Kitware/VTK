@@ -170,9 +170,6 @@ public:
   vtkSmartPointer<vtkWebGPUComputeTexture> GetComputeTexture(int textureIndex);
 
   /**
-   * Recreates a compute texture. Must be called if the compute texture has been modified (after a
-   * call to GetComputeTexure() + modifications of the parameters for example) for the  changes to
-   * take effect.
    * Retrieves the texture view associated with the given texture view index
    *
    * @warning The texture view will need to be recreated by calling RecreateTextureView() for all
@@ -181,8 +178,9 @@ public:
   vtkSmartPointer<vtkWebGPUComputeTextureView> GetTextureView(int textureViewIndex);
 
   /**
-   * Recreates a compute texture. Must be called if the compute texture has been modified (after
-   * a call to GetComputeTexture for example) for the  changes to take effect.
+   * Recreates a compute texture. Must be called if the compute texture has been modified (after a
+   * call to GetComputeTexure() + modifications of the parameters for example) for the  changes to
+   * take effect.
    */
   void RecreateComputeTexture(int textureIndex);
 

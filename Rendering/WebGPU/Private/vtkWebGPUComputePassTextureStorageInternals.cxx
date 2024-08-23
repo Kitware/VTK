@@ -525,7 +525,7 @@ int vtkWebGPUComputePassTextureStorageInternals::AddTextureView(
     vtkLog(ERROR,
       "The texture view with label \""
         << textureView->GetLabel()
-        << "\" has no assicated texture index. Make sure you obtained the textureView by calling "
+        << "\" has no associated texture index. Make sure you obtained the textureView by calling "
            "vtkWebGPUComputePass::CreateTextureView().");
 
     return -1;
@@ -909,11 +909,17 @@ wgpu::TextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureF
     case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM:
       return wgpu::TextureFormat::RGBA8Unorm;
 
+    case vtkWebGPUComputeTexture::TextureFormat::BGRA8_UNORM:
+      return wgpu::TextureFormat::BGRA8Unorm;
+
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:
       return wgpu::TextureFormat::R32Float;
 
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS:
       return wgpu::TextureFormat::Depth24Plus;
+
+    case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS_8_STENCIL:
+      return wgpu::TextureFormat::Depth24PlusStencil8;
 
     default:
       vtkLog(ERROR, "Unhandled texture format in ComputeTextureFormatToWebGPU: " << format);

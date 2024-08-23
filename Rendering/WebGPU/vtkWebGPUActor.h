@@ -57,7 +57,8 @@ public:
     None = 0,
     UpdateBuffers,
     RenderPassEncode,
-    RenderBundleEncode
+    RenderBundleEncode,
+    RenderPostRasterization
   };
 
   // mapper figures this out when updating mesh geometry.
@@ -91,6 +92,10 @@ public:
   }
 
   inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
+  void SetMapperRenderType(MapperRenderType mapperRenderType)
+  {
+    this->CurrentMapperRenderType = mapperRenderType;
+  }
   inline wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->CurrentBundler; }
   inline void SetDynamicOffsets(vtkSmartPointer<vtkTypeUInt32Array> offsets)
   {

@@ -358,7 +358,7 @@ private:
   // List of the texture views added by the user. Can be used to find a texture
   // view from its index (indices which the user manipulates)
   std::vector<vtkSmartPointer<vtkWebGPUComputeTextureView>> TextureViews;
-  // WebGPU textures views associated with the compute texture views in the same order
+  // Compute textures views mapped to their WebGPU textures views
   std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTextureView>, wgpu::TextureView>
     TextureViewsToWebGPUTextureViews;
 };

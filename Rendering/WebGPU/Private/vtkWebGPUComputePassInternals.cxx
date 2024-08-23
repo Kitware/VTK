@@ -122,7 +122,42 @@ wgpu::TextureView vtkWebGPUComputePassInternals::CreateWebGPUTextureView(
 void vtkWebGPUComputePassInternals::UpdateWebGPUBuffer(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer)
 {
-  this->BufferStorage->UpdateWebGPUBuffer(buffer, wgpuBuffer);
+  std::size_t bufferIndex;
+  vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode statusCode =
+    this->BufferStorage->UpdateWebGPUBuffer(buffer, wgpuBuffer, bufferIndex);
+
+  switch (statusCode)
+  {
+    case vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode::SUCCESS:
+      this->RecreateBufferBindGroup(bufferIndex);
+
+      break;
+
+    case vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode::BUFFER_NOT_FOUND:
+      // No buffer updated because the buffer was never added to the this compute pass
+      vtkDebugMacro("UpdateWebGPUBuffer, buffer not found and not updated");
+
+      return;
+
+    case vtkWebGPUComputePassBufferStorageInternals::UpdateBufferStatusCode::UP_TO_DATE:
+      // This means that the buffer was already up to date in the compute pass. This happens when a
+      // buffer is recreated on a compute pass --> this triggers the update of the buffer within all
+      // the passes of the compute pipeline but the pass that recreated the buffer already has the
+      // right buffer up-to-date, it doesn't need an update. The buffer storage of this compute pass
+      // will return -2
+      //
+      // We're thus returning early, no need to recreate the bind group
+      vtkDebugMacro("UpdateWebGPUBuffer, buffer already up-to-date");
+
+      return;
+
+    default:
+      vtkErrorWithObjectMacro(this,
+        "UpdateBufferStatusCode: "
+          << statusCode << " not handled in UpdateWebGPUBuffer(). This is an internal error.");
+
+      return;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -205,6 +240,12 @@ bool vtkWebGPUComputePassInternals::GetRegisteredTextureFromPipeline(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture& wgpuTexture)
 {
   return this->AssociatedPipeline->GetRegisteredTexture(texture, wgpuTexture);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPUComputePassInternals::GetWGPUBuffer(std::size_t bufferIndex)
+{
+  return this->BufferStorage->GetWGPUBuffer(bufferIndex);
 }
 
 //------------------------------------------------------------------------------
@@ -407,6 +448,9 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
   }
 
   wgpu::CommandEncoder commandEncoder = this->CreateCommandEncoder();
+#ifndef NDEBUG
+  commandEncoder.PushDebugGroup(this->ParentPass->GetLabel().c_str());
+#endif
 
   wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
   computePassEncoder.SetPipeline(this->ComputePipeline);
@@ -416,6 +460,9 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
   }
   computePassEncoder.DispatchWorkgroups(groupsX, groupsY, groupsZ);
   computePassEncoder.End();
+#ifndef NDEBUG
+  commandEncoder.PopDebugGroup();
+#endif
 
   this->SubmitCommandEncoderToQueue(commandEncoder);
 }

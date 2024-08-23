@@ -3,6 +3,7 @@
 #include "vtkWebGPURenderWindow.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+#include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
@@ -10,6 +11,7 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkCamera.h"
+#include "vtkCollectionRange.h"
 #include "vtkFloatArray.h"
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
@@ -284,11 +286,55 @@ vtkWebGPURenderWindow::AcquireDepthBufferRenderTexture()
   texture->SetLabel("Depth buffer render texture");
   texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER);
   texture->SetWebGPUTexture(this->DepthStencil.Texture);
-  texture->SetFormat(vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS);
+  texture->SetFormat(vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS_8_STENCIL);
 
   this->ComputeRenderTextures.push_back(texture);
 
   return texture;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkWebGPUComputeRenderTexture>
+vtkWebGPURenderWindow::AcquireFramebufferRenderTexture()
+{
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> texture =
+    vtkSmartPointer<vtkWebGPUComputeRenderTexture>::New();
+
+  int* dims = this->GetSize();
+
+  texture->SetSize(dims[0], dims[1]);
+  texture->SetFormat(vtkWebGPUTexture::TextureFormat::BGRA8_UNORM);
+  texture->SetSampleType(vtkWebGPUComputeTexture::TextureSampleType::FLOAT);
+  texture->SetLabel("Framebuffer render texture");
+  texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::COLOR_BUFFER);
+  texture->SetMode(vtkWebGPUComputeRenderTexture::TextureMode::WRITE_ONLY_STORAGE);
+  texture->SetWebGPUTexture(this->ColorAttachment.Texture);
+  texture->SetAspect(vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_ALL);
+
+  this->ComputeRenderTextures.push_back(texture);
+
+  return texture;
+}
+
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPURenderWindow::CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor)
+{
+  wgpu::Device device = this->WGPUConfiguration->GetDevice();
+  if (!vtkWebGPUBufferInternals::CheckBufferSize(device, bufferDescriptor.size))
+  {
+    wgpu::SupportedLimits supportedDeviceLimits;
+    device.GetLimits(&supportedDeviceLimits);
+
+    vtkLog(ERROR,
+      "The current WebGPU Device cannot create buffers larger than: "
+        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
+        << " bytes but the buffer with label " << bufferDescriptor.label << " is "
+        << bufferDescriptor.size << " bytes big.");
+
+    return nullptr;
+  }
+
+  return device.CreateBuffer(&bufferDescriptor);
 }
 
 //------------------------------------------------------------------------------
@@ -312,18 +358,10 @@ void vtkWebGPURenderWindow::CreateCommandEncoder()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
 {
-  vtkRendererCollection* renderers = this->GetRenderers();
-  renderers->InitTraversal();
-
-  while (vtkRenderer* renderer = renderers->GetNextItem())
+  for (auto renderer : vtk::Range(this->Renderers))
   {
     vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
-
-    // Compute pipelines of the renderers
-    for (vtkWebGPUComputePipeline* pipeline : wgpuRenderer->GetSetupComputePipelines())
-    {
-      pipeline->SetWGPUConfiguration(this->WGPUConfiguration);
-    }
+    wgpuRenderer->ConfigureComputePipelines();
   }
 }
 
@@ -462,7 +500,7 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureDesc.dimension = wgpu::TextureDimension::e2D;
   textureDesc.format = this->GetPreferredSwapChainTextureFormat();
   textureDesc.usage = wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::TextureBinding |
-    wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst;
+    wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst | wgpu::TextureUsage::StorageBinding;
   textureDesc.viewFormatCount = 0;
   textureDesc.viewFormats = nullptr;
 
@@ -535,8 +573,8 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
   auto device = this->WGPUConfiguration->GetDevice();
   if (device == nullptr)
   {
-    vtkErrorMacro(
-      << "Cannot create full-screen-quad graphics pipeline because WebGPU device is not ready!");
+    vtkErrorMacro(<< "Cannot create full-screen-quad graphics pipeline because WebGPU device "
+                     "is not ready!");
     return;
   }
   wgpu::BindGroupLayout bgl = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
@@ -625,6 +663,7 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
 void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
 {
   vtkWebGPUCheckUnconfigured(this);
+
   for (const auto& renderTexture : this->ComputeRenderTextures)
   {
     int* dims = this->GetSize();
@@ -639,6 +678,11 @@ void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
       case vtkWebGPUComputeRenderTexture::RenderTextureType::DEPTH_BUFFER:
         renderTexture->SetWebGPUTexture(this->DepthStencil.Texture);
         break;
+
+      case vtkWebGPUComputeRenderTexture::RenderTextureType::COLOR_BUFFER:
+        renderTexture->SetWebGPUTexture(this->ColorAttachment.Texture);
+        break;
+
       default:
         vtkLog(ERROR,
           "Unhandled ComputeRenderTexture type in "
@@ -652,10 +696,10 @@ void vtkWebGPURenderWindow::RecreateComputeRenderTextures()
     if (associatedComputePass == nullptr)
     {
       vtkLog(WARNING,
-        "The render texture with label \""
-          << renderTexture->GetLabel()
-          << "\" didn't have an associated compute pass. Did you forget to add the render texture "
-             "to a compute pass?");
+        "The render texture with label \"" << renderTexture->GetLabel()
+                                           << "\" didn't have an associated compute pass. Did "
+                                              "you forget to add the render texture "
+                                              "to a compute pass?");
 
       continue;
     }
@@ -671,6 +715,40 @@ void vtkWebGPURenderWindow::DestroyFSQGraphicsPipeline()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PostRenderComputePipelines()
+{
+  for (auto renderer : vtk::Range(this->Renderers))
+  {
+    vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+    if (wgpuRenderer == nullptr)
+    {
+      // Probably not a wgpuRenderer
+
+      continue;
+    }
+
+    wgpuRenderer->PostRenderComputePipelines();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::PostRasterizationRender()
+{
+  for (auto renderer : vtk::Range(this->Renderers))
+  {
+    vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+    if (wgpuRenderer == nullptr)
+    {
+      // Probably not a wgpuRenderer
+
+      continue;
+    }
+
+    wgpuRenderer->PostRasterizationRender();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::RenderOffscreenTexture()
 {
   vtkWebGPUCheckUnconfigured(this);
@@ -681,20 +759,20 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
   }
   if (this->ColorAttachment.Texture == nullptr)
   {
-    vtkErrorMacro(
-      << "Cannot render offscreen texture because the source color attachment texture is null!");
+    vtkErrorMacro(<< "Cannot render offscreen texture because the source color attachment "
+                     "texture is null!");
     return;
   }
   if (this->FSQ.Pipeline == nullptr)
   {
-    vtkErrorMacro(
-      << "Cannot render offscreen texture because the full-screen-quad render pipeline is null!");
+    vtkErrorMacro(<< "Cannot render offscreen texture because the full-screen-quad render "
+                     "pipeline is null!");
     return;
   }
   if (this->FSQ.BindGroup == nullptr)
   {
-    vtkErrorMacro(
-      << "Cannot render offscreen texture because the full-screen-quad render bind group is null!");
+    vtkErrorMacro(<< "Cannot render offscreen texture because the full-screen-quad render bind "
+                     "group is null!");
     return;
   }
   if (this->CommandEncoder == nullptr)
@@ -866,10 +944,22 @@ void vtkWebGPURenderWindow::Frame()
   }
   this->Superclass::Frame();
 
-  this->RenderOffscreenTexture();
-
+  // Flushing the commands for the props to be rendered
   wgpu::CommandBufferDescriptor cmdBufDesc = {};
   wgpu::CommandBuffer cmdBuffer = this->CommandEncoder.Finish(&cmdBufDesc);
+
+  this->CommandEncoder = nullptr;
+  this->FlushCommandBuffers(1, &cmdBuffer);
+
+  this->PostRenderComputePipelines();
+  this->PostRasterizationRender();
+
+  // New command encoder for the FSQ pass
+  this->CreateCommandEncoder();
+  this->RenderOffscreenTexture();
+
+  // Flushing the FSQ render pass
+  cmdBuffer = this->CommandEncoder.Finish(&cmdBufDesc);
 
   this->CommandEncoder = nullptr;
   this->FlushCommandBuffers(1, &cmdBuffer);
@@ -888,8 +978,8 @@ void vtkWebGPURenderWindow::Frame()
   }
 
 #ifndef NDEBUG
-  // This lets the implementation execute all callbacks so that validation errors are output in the
-  // console.
+  // This lets the implementation execute all callbacks so that validation errors are output in
+  // the console.
   this->WGPUConfiguration->ProcessEvents();
 #endif
 }
@@ -964,8 +1054,8 @@ void vtkWebGPURenderWindow::ReadPixels()
     auto ctx = reinterpret_cast<MappingContext*>(userdata);
     if (ctx == nullptr)
     {
-      vtkErrorWithObjectMacro(nullptr,
-        << "Unexpected user data from buffer mapped callback in vtkWebGPURenderWindow::ReadPixels");
+      vtkErrorWithObjectMacro(nullptr, << "Unexpected user data from buffer mapped callback in "
+                                          "vtkWebGPURenderWindow::ReadPixels");
       return;
     }
     if (!ctx->window)
@@ -1126,7 +1216,7 @@ int vtkWebGPURenderWindow::SetPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1279,7 +1369,7 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1443,7 +1533,7 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = device.CreateBuffer(&desc);
+  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1622,9 +1712,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   {
     return;
   }
-  vtkCollectionSimpleIterator rit;
-  this->Renderers->InitTraversal(rit);
-  while (auto* ren = this->Renderers->GetNextRenderer(rit))
+  for (auto ren : vtk::Range(this->Renderers))
   {
     ren->ReleaseGraphicsResources(this);
   }

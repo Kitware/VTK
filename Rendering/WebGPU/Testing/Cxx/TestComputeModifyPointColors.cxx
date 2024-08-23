@@ -113,7 +113,7 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   // The pipeline will be executed each frame before the rendering pass
   vtkWebGPURenderer* wegpuRenderer =
     vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wegpuRenderer->AddComputePipeline(dynamicColorsComputePipeline);
+  wegpuRenderer->AddPreRenderComputePipeline(dynamicColorsComputePipeline);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();

@@ -173,13 +173,13 @@ int TestComputeDoublePipelineRenderBuffer(int argc, char* argv[])
   // Adding the compute pipeline to the renderer.
   // The pipeline will be executed each frame before the rendering pass
   wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wgpuRenderer->AddComputePipeline(dynamicColorsComputePipeline);
+  wgpuRenderer->AddPreRenderComputePipeline(dynamicColorsComputePipeline);
 
   renWin->Render();
 
   // Only adding the compute pipeline for the positions now because we only want it to execute
   // starting on the second frame
-  wgpuRenderer->AddComputePipeline(dynamicPositionsComputePipeline);
+  wgpuRenderer->AddPreRenderComputePipeline(dynamicPositionsComputePipeline);
   renWin->Render();
 
   // Screenshot taken by the regression testing isn't flipped.
