@@ -49,4 +49,20 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestVertexRendering.cxx,NO_DATA
   TestWireframe.cxx,NO_DATA)
 
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 0.5
+  TestPointRendering_1,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 1.0
+  TestPointRendering_2,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 3.0
+  TestPointRendering_3,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 7.0
+  TestPointRendering_4,TestPointRendering.cxx,NO_DATA)
+
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
