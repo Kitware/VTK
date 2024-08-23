@@ -4,6 +4,7 @@
 
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFVersion.h"
+#include "vtkLogger.h"
 
 #include "vtk_hdf5.h"
 
@@ -228,11 +229,11 @@ vtkHDFWriter::Implementation::GetCellArraysForTopos(vtkPolyData* polydata)
 
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateAndWriteHdfDataset(hid_t group,
-  hid_t type, hid_t source_type, const char* name, int rank, const hsize_t dimensions[],
+  hid_t type, hid_t source_type, const char* name, int rank, std::vector<hsize_t> dimensions,
   const void* data)
 {
   // Create the dataspace, use the whole extent
-  vtkHDF::ScopedH5SHandle dataspace = this->CreateSimpleDataspace(rank, dimensions);
+  vtkHDF::ScopedH5SHandle dataspace = this->CreateSimpleDataspace(rank, dimensions.data());
   if (dataspace == H5I_INVALID_HID)
   {
     return H5I_INVALID_HID;
@@ -244,10 +245,17 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateAndWriteHdfDataset(h
     return H5I_INVALID_HID;
   }
   // Write to the dataset
+  if (source_type == H5T_C_S1)
+  {
+    source_type = H5Tcopy(H5T_C_S1);
+    H5Tset_size(source_type, H5T_VARIABLE);
+  }
+
   if (data != nullptr && H5Dwrite(dataset, source_type, H5S_ALL, dataspace, H5P_DEFAULT, data) < 0)
   {
     return H5I_INVALID_HID;
   }
+
   return dataset;
 }
 
@@ -310,6 +318,7 @@ vtkHDF::ScopedH5SHandle vtkHDFWriter::Implementation::CreateUnlimitedSimpleDatas
   if (numDims == 2)
   {
     dims.emplace_back(numCols);
+    // as the number of cols cannot change, ensure to block it to the initial number of column
     max_dims.emplace_back(numCols);
   }
 
@@ -469,7 +478,22 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
   hid_t group, const char* name, int value)
 {
-  hsize_t dimensions[1] = { 1 };
+  return this->Create2DValueDataset(group, name, &value, 1);
+}
+
+//------------------------------------------------------------------------------
+vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::Create2DValueDataset(
+  hid_t group, const char* name, int* value, int size)
+{
+  if (size != 2)
+  {
+    // not a warn or an error as it could be noisy depending on the size of the data
+    vtkLog(INFO, "Try to create a 2D dataset with a size of " + std::to_string(size));
+    return H5I_INVALID_HID;
+  }
+  std::vector<hsize_t> dimensions;
+  dimensions.push_back(2);
+
   return this->CreateAndWriteHdfDataset(
     group, H5T_STD_I64LE, H5T_NATIVE_INT, name, 1, dimensions, &value);
 }
@@ -505,7 +529,7 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
     std::vector<int> allValues;
     allValues.resize(currentdims[0]);
     H5Dread(dataset, H5T_NATIVE_INT, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
-    value += allValues.at(allValues.size() - 1);
+    value += allValues.back();
   }
 
   // Resize dataset
@@ -527,6 +551,90 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
 
   // Write new data to the dataset
   if (H5Dwrite(dataset, H5T_NATIVE_INT, newDataspace, currentDataspace, H5P_DEFAULT, &value) < 0)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
+  hid_t dataset, int* value, int size, bool offset)
+{
+  if (size <= 1)
+  {
+    vtkLog(
+      WARNING, "Size given in this method shouldn't be less than 2, got : " + std::to_string(size));
+    return false;
+  }
+
+  // Specific value linked to how the VTKHDF File Format works for temporal field data offset
+  std::vector<hsize_t> addedDims{ 1, 2 };
+  std::vector<hsize_t> maxDims{ H5S_UNLIMITED, 2 };
+
+  vtkHDF::ScopedH5SHandle newDataspace = H5Screate_simple(1, addedDims.data(), maxDims.data());
+  if (newDataspace == H5I_INVALID_HID)
+  {
+    return false;
+  }
+
+  // Recover dataset and dataspace
+  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dataset);
+  if (currentDataspace == H5I_INVALID_HID)
+  {
+    return false;
+  }
+
+  // Retrieve current dataspace dimensions
+  int nbDims = H5Sget_simple_extent_ndims(currentDataspace);
+  if (nbDims <= 0)
+  {
+    return true;
+  }
+
+  std::vector<hsize_t> currentdims(nbDims);
+  H5Sget_simple_extent_dims(currentDataspace, currentdims.data(), nullptr);
+
+  std::vector<hsize_t> newdims(nbDims);
+  newdims[0] = { currentdims[0] + addedDims[0] };
+  for (int i = 1; i < nbDims; i++)
+  {
+    newdims[i] = currentdims[i];
+  }
+
+  // Add the last value of the dataset if we want an offset (only for arrays of stride 1)
+  if (offset && currentdims[0] > 0)
+  {
+    std::vector<int> allValues(size);
+    H5Dread(dataset, H5T_NATIVE_INT, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
+    if (size == 1)
+    {
+      value[0] += allValues.back();
+    }
+  }
+
+  // Resize dataset
+  if (H5Dset_extent(dataset, newdims.data()) < 0)
+  {
+    return false;
+  }
+  currentDataspace = H5Dget_space(dataset);
+  if (currentDataspace == H5I_INVALID_HID)
+  {
+    return false;
+  }
+
+  // create the hyperslab
+  hsize_t start[2] = { currentdims[0], 0 };
+  hsize_t count[2] = { 1, 1 };
+  hsize_t block[2] = { 1, 2 };
+  H5Sselect_hyperslab(currentDataspace, H5S_SELECT_SET, start, nullptr, count, block);
+  hsize_t length[1] = { 2 };
+  newDataspace = H5Screate_simple(1, length, nullptr);
+
+  // Write new data to the dataset
+  if (H5Dwrite(dataset, H5T_NATIVE_INT, newDataspace, currentDataspace, H5P_DEFAULT, value) < 0)
   {
     return false;
   }
@@ -567,20 +675,42 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFWriter::Implementation::AddOrCreateFieldDataSizeValueDataset(
+  hid_t group, const char* name, int* value, int size, bool offset)
+{
+  // Assume that when subfiles are set, we don't need to write data unless
+  // SubFilesReady is set, which means all subfiles have been written.
+  if (!this->Subfiles.empty() && group != this->StepsGroup)
+  {
+    if (this->SubFilesReady)
+    {
+      return this->CreateVirtualDataset(group, name, H5T_STD_I64LE, 1) != H5I_INVALID_HID;
+    }
+    return true;
+  }
+  if (!H5Lexists(group, name, H5P_DEFAULT))
+  {
+    // Dataset needs to be created
+    return this->Create2DValueDataset(group, name, value, size) != H5I_INVALID_HID;
+  }
+  else
+  {
+    // Append the value to an existing dataset
+    vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
+    return this->AddFieldDataSizeValueToDataset(dataset, value, size, offset);
+  }
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddArrayToDataset(
   hid_t dataset, vtkAbstractArray* dataArray, int trim)
 {
-
-  // Create dataspace from array
-  vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray);
-  if (dataspace == H5I_INVALID_HID)
+  if (dataArray == nullptr)
   {
-    return H5I_INVALID_HID;
+    return true;
   }
 
-  // Recover dataspace
-  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dataset);
-  if (currentDataspace == H5I_INVALID_HID)
+  if (dataset == -1)
   {
     return false;
   }
@@ -599,10 +729,30 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
     }
   }
 
+  hid_t source_type = vtkHDFUtilities::getH5TypeFromVtkType(dataArray->GetDataType());
+  if (source_type == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+
+  // Create dataspace from array
+  vtkHDF::ScopedH5SHandle dataspace = this->CreateDataspaceFromArray(dataArray);
+  if (dataspace == H5I_INVALID_HID)
+  {
+    return H5I_INVALID_HID;
+  }
+
+  // Recover dataspace
+  vtkHDF::ScopedH5SHandle currentDataspace = H5Dget_space(dataset);
+  if (currentDataspace == H5I_INVALID_HID)
+  {
+    return false;
+  }
+
   // Retrieve current dataspace dimensions
   const int nComp = dataArray->GetNumberOfComponents();
-  int nTuples = dataArray->GetNumberOfTuples();
   const int numDim = nComp == 1 ? 1 : 2;
+  int nTuples = dataArray->GetNumberOfTuples();
 
   std::vector<hsize_t> addedDims{ (hsize_t)nTuples };
   std::vector<hsize_t> currentdims(numDim, 0);
@@ -623,11 +773,6 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
     }
   }
 
-  hid_t source_type = vtkHDFUtilities::getH5TypeFromVtkType(dataArray->GetDataType());
-  if (source_type == H5I_INVALID_HID)
-  {
-    return H5I_INVALID_HID;
-  }
   if (addedDims[0] - trim > 0)
   {
     // Resize existing dataset to make space for the added array
@@ -645,13 +790,49 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
     start.emplace_back(0);
     count.emplace_back(addedDims[1]);
   }
-  H5Sselect_hyperslab(
-    currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
 
-  // Write new data to the dataset
-  if (H5Dwrite(dataset, source_type, dataspace, currentDataspace, H5P_DEFAULT, rawArrayData) < 0)
+  if (dataArray->GetDataType() == VTK_STRING)
   {
-    return false;
+    auto vtkStrArray = vtkStringArray::SafeDownCast(dataArray);
+    if (vtkStrArray == nullptr)
+    {
+      return false;
+    }
+
+    hid_t datatype = H5Tcopy(H5T_C_S1);
+    H5Tset_size(datatype, H5T_VARIABLE);
+
+    std::vector<const char*> strArray;
+    strArray.resize(vtkStrArray->GetNumberOfValues());
+    for (vtkIdType i = 0; i < vtkStrArray->GetNumberOfValues(); i++)
+    {
+      strArray[i] = vtkStrArray->GetPointer(i)->c_str();
+    }
+
+    if (strArray.empty())
+    {
+      return true;
+    }
+
+    H5Sselect_hyperslab(
+      currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+
+    // Write new data to the dataset
+    if (H5Dwrite(dataset, datatype, dataspace, currentDataspace, H5P_DEFAULT, strArray.data()) < 0)
+    {
+      return false;
+    }
+  }
+  else
+  {
+    H5Sselect_hyperslab(
+      currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
+
+    // Write new data to the dataset
+    if (H5Dwrite(dataset, source_type, dataspace, currentDataspace, H5P_DEFAULT, rawArrayData) < 0)
+    {
+      return false;
+    }
   }
 
   return true;
@@ -680,6 +861,10 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
   {
     // Simply append the array to an existing dataset
     vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
+    if (dataset == -1)
+    {
+      return false;
+    }
     return this->AddArrayToDataset(dataset, dataArray);
   }
 }

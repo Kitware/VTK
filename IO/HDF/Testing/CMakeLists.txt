@@ -18,7 +18,7 @@ vtk_module_test_data(
   Data/test_transient_poly_data_offset.vtkhdf
   Data/test_transient_poly_data_field_data.vtkhdf
   Data/transient_sphere.hdf
-  Data/transient_cube.hdf
+  Data/temporal_unstructured_grid.vtkhdf
   Data/transient_harmonics.hdf
   Data/transient_wavelet.hdf
   Data/wavelet_cell_data.hdf

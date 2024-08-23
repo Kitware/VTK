@@ -1485,7 +1485,7 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
 
     // Fill DataArray
     this->Impl->RetrieveHDFInformation(hdfPathName);
-    for (int attrIdx = 0; attrIdx < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++attrIdx)
+    for (int attrIdx = 0; attrIdx < vtkDataObject::AttributeTypes::FIELD; ++attrIdx)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
       for (const std::string& arrayName : arrayNames)

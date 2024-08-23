@@ -19,6 +19,7 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -138,7 +139,7 @@ bool NewArray(
   hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents, T* data)
 {
   hid_t nativeType = vtkHDFUtilities::TemplateTypeToHdfNativeType<T>();
-  std::vector<hsize_t> count(fileExtent.size() >> 1), start(fileExtent.size() >> 1);
+  std::vector<hsize_t> count(fileExtent.size() / 2), start(fileExtent.size() / 2);
   for (size_t i = 0; i < count.size(); ++i)
   {
     count[i] = fileExtent[i * 2 + 1] - fileExtent[i * 2];
@@ -195,7 +196,7 @@ vtkDataArray* NewArray(
   hid_t dataset, const std::vector<hsize_t>& fileExtent, hsize_t numberOfComponents)
 {
   int numberOfTuples = 1;
-  size_t ndims = fileExtent.size() >> 1;
+  size_t ndims = fileExtent.size() / 2;
   for (size_t i = 0; i < ndims; ++i)
   {
     size_t j = i << 1;
@@ -261,51 +262,6 @@ ArrayReader* GetArrayBuilder(hid_t type)
     return nullptr;
   }
   return it->second;
-}
-
-//------------------------------------------------------------------------------
-vtkStringArray* NewStringArray(hid_t dataset, hsize_t size)
-{
-  std::vector<char*> rdata(size);
-
-  /*
-   * Create the memory datatype.
-   */
-  hid_t memtype = H5Tcopy(H5T_C_S1);
-  if (H5Tset_size(memtype, H5T_VARIABLE) < 0)
-  {
-    vtkGenericWarningMacro(<< "Error H5Tset_size");
-    return nullptr;
-  }
-
-  /*
-   * Read the data.
-   */
-  if (H5Dread(dataset, memtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, rdata.data()) < 0)
-  {
-    vtkGenericWarningMacro(<< "Error H5Dread");
-  }
-
-  auto array = vtkStringArray::New();
-  array->SetNumberOfTuples(size);
-  for (size_t i = 0; i < size; ++i)
-  {
-    array->SetValue(i, rdata[i]);
-  }
-
-  /*
-   * Close and release resources.  Note that H5Dvlen_reclaim works
-   * for variable-length strings as well as variable-length arrays.
-   * Also note that we must still free the array of pointers stored
-   * in rdata, as H5Tvlen_reclaim only frees the data these point to.
-   */
-  vtkHDF::ScopedH5SHandle space = H5Dget_space(dataset);
-  if (H5Dvlen_reclaim(memtype, space, H5P_DEFAULT, rdata.data()) < 0)
-  {
-    vtkGenericWarningMacro(<< "Error H5Dvlen_reclaim");
-  }
-
-  return array;
 }
 
 //-----------------------------------------------------------------------------
@@ -484,8 +440,36 @@ hid_t vtkHDFUtilities::getH5TypeFromVtkType(int dataType)
     case VTK_UNSIGNED_CHAR:
       return H5T_NATIVE_UCHAR;
 
+    case VTK_STRING:
+      return H5T_C_S1;
+
     default:
       return H5I_INVALID_HID;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFUtilities::MakeObjectNameValid(std::string& objectName)
+{
+  bool containASlash = objectName.find('/') != std::string::npos;
+  bool containADot = objectName.find('.') != std::string::npos;
+
+  if (containASlash || containADot)
+  {
+    vtkLog(WARNING,
+      "Array name : " + objectName +
+        " contains illegal character (slash or dot) in hdf5. These characters will be replaced by "
+        "an underscore.");
+  }
+
+  if (containASlash)
+  {
+    std::replace(objectName.begin(), objectName.end(), '/', '_');
+  }
+
+  if (containADot)
+  {
+    std::replace(objectName.begin(), objectName.end(), '.', '_');
   }
 }
 
@@ -506,6 +490,92 @@ bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID)
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkStringArray* vtkHDFUtilities::NewStringArray(
+  hid_t dataset, std::vector<hsize_t> dims, std::vector<hsize_t> fileExtent)
+{
+  hsize_t size = dims[0];
+  std::vector<char*> rdata(size);
+
+  /*
+   * Create the memory datatype.
+   */
+  hid_t memtype = H5Tcopy(H5T_C_S1);
+  if (H5Tset_size(memtype, H5T_VARIABLE) < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Error H5Tset_size");
+    return nullptr;
+  }
+
+  hsize_t numberOfComponents = 0;
+  if (dims.size() == (fileExtent.size() / 2))
+  {
+    numberOfComponents = 1;
+  }
+  else
+  {
+    numberOfComponents = dims.back();
+    if (dims.size() > (fileExtent.size() / 2) + 1)
+    {
+      vtkErrorWithObjectMacro(
+        nullptr, << "Dataset: ndims: " << dims.size()
+                 << " greater than expected ndims: " << (fileExtent.size() / 2) << " plus one.");
+    }
+    if (numberOfComponents == 1)
+    {
+      fileExtent.resize(dims.size() * 2, 0);
+      fileExtent[fileExtent.size() - 1] = numberOfComponents;
+    }
+  }
+
+  std::vector<hsize_t> count(fileExtent.size() / 2), start(fileExtent.size() / 2);
+  for (size_t i = 0; i < count.size(); ++i)
+  {
+    count[i] = fileExtent[i * 2 + 1] - fileExtent[i * 2];
+    start[i] = fileExtent[i * 2];
+  }
+
+  // make sure to read the whole row in case of non 1D array
+  if (numberOfComponents > 1)
+  {
+    count.push_back(numberOfComponents);
+    start.push_back(0);
+  }
+
+  // create the filespace and select the required fileExtent
+  vtkHDF::ScopedH5SHandle filespace = H5Dget_space(dataset);
+  if (filespace < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Error H5Dget_space for array");
+  }
+  if (H5Sselect_hyperslab(filespace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr) <
+    0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "error when trying to read the hyperslab");
+  }
+
+  vtkHDF::ScopedH5SHandle memspace =
+    H5Screate_simple(static_cast<int>(count.size()), count.data(), nullptr);
+  if (memspace < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Error H5Screate_simple for memory space");
+    return nullptr;
+  }
+  if (H5Dread(dataset, memtype, memspace, filespace, H5P_DEFAULT, rdata.data()) < 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Error H5Dread");
+  }
+
+  auto array = vtkStringArray::New();
+  array->SetNumberOfTuples(size);
+  for (size_t i = 0; i < size; ++i)
+  {
+    array->SetValue(i, rdata[i]);
+  }
+
+  return array;
 }
 
 //------------------------------------------------------------------------------
@@ -723,7 +793,7 @@ hid_t vtkHDFUtilities::OpenDataSet(
     return -1;
   }
   int ndims = H5Sget_simple_extent_ndims(dataspace);
-  if (ndims < 0)
+  if (ndims <= 0)
   {
     vtkErrorWithObjectMacro(
       nullptr, << std::string(name) + " dataset: get_simple_extent_ndims error");
@@ -735,7 +805,6 @@ hid_t vtkHDFUtilities::OpenDataSet(
     vtkErrorWithObjectMacro(nullptr, << std::string("Cannot find dimension for ") + name);
     return -1;
   }
-
   return dataset;
 }
 
@@ -869,6 +938,7 @@ std::array<vtkIdType, 2> vtkHDFUtilities::GetFieldArraySize(
   }
   size[0] = buffer[0];
   size[1] = buffer[1];
+
   return size;
 }
 
@@ -916,42 +986,41 @@ vtkAbstractArray* vtkHDFUtilities::NewFieldArray(const std::array<hid_t, 3>& att
   {
     return nullptr;
   }
+
+  // empty fileExtent means read all values from the file
+  // field arrays are always 1D
+  std::vector<hsize_t> fileExtent;
+  if (offset >= 0 || size > 0)
+  {
+    // XXX(gcc-12): GCC 12 has some weird warning triggered here where
+    // `fileExtent.resize()` warns about writing out-of-bounds. Instead,
+    // just reserve ahead of time and push into the vector.
+    fileExtent.reserve(2);
+    fileExtent.push_back(offset);
+    fileExtent.push_back(offset + size);
+  }
+
+  if (size > 0)
+  {
+    dims[0] = size;
+  }
+
+  if (dims.size() >= 2 && dimMaxSize > 0 && static_cast<int>(dims[1]) > dimMaxSize)
+  {
+    dims[1] = dimMaxSize;
+  }
+
   ::TypeDescription td = ::GetTypeDescription(nativeType);
   if (td.Class == H5T_STRING)
   {
     vtkStringArray* array = nullptr;
-    if (dims.size() == 1)
-    {
-      array = ::NewStringArray(dataset, dims[0]);
-    }
-    else
-    {
-      vtkGenericWarningMacro(<< "Error: String array expected "
-                                "dimensions one but got: "
-                             << dims.size());
-    }
+    array = vtkHDFUtilities::NewStringArray(dataset, dims, fileExtent);
+    array->SetName(name);
+
     return array;
   }
-  else
-  {
-    // empty fileExtent means read all values from the file
-    // field arrays are always 1D
-    std::vector<hsize_t> fileExtent;
-    if (offset >= 0 || size > 0)
-    {
-      // XXX(gcc-12): GCC 12 has some weird warning triggered here where
-      // `fileExtent.resize()` warns about writing out-of-bounds. Instead,
-      // just reserve ahead of time and push into the vector.
-      fileExtent.reserve(2);
-      fileExtent.push_back(offset);
-      fileExtent.push_back(offset + size);
-    }
-    if (dims.size() >= 2 && dimMaxSize > 0 && static_cast<int>(dims[1]) > dimMaxSize)
-    {
-      dims[1] = dimMaxSize;
-    }
-    return vtkHDFUtilities::NewArrayForGroup(dataset, nativeType, dims, fileExtent);
-  }
+
+  return vtkHDFUtilities::NewArrayForGroup(dataset, nativeType, dims, fileExtent);
 }
 
 VTK_ABI_NAMESPACE_END

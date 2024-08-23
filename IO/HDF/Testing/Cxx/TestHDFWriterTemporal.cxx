@@ -193,8 +193,8 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   bool result = true;
 
   // Run tests : read data, write it, read the written data and compare to the original
-  std::vector<std::string> baseNames = { "transient_sphere.hdf", "transient_cube.hdf",
-    "transient_harmonics.hdf" };
+  std::vector<std::string> baseNames = { "transient_sphere.hdf",
+    "temporal_unstructured_grid.vtkhdf", "transient_harmonics.hdf" };
   std::vector<WriterConfigOptions> configs{ { false, false, "_NoExtTimeNoExtPart" },
     { false, true, "_NoExtTimeExtPart" }, { true, false, "_ExtTimeNoExtPart" },
     { true, true, "_ExtTimeExtPart" } };
