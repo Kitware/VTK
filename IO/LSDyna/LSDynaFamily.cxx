@@ -18,44 +18,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-// Decide which of 3 stat varieties to use: stat, stat64, __stat64
-// Usually stat uses 32 bit fields, and stat64 (with underscores in Windows) uses 64 bit fields.
-// But on the BSDs, stat uses 64 bit fields these days.
-#if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) &&                         \
-  !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__)
-#ifndef _WIN32
-#if defined __EMSCRIPTEN__
-#if defined _LARGEFILE64_SOURCE
-#define USE_STAT_64
-#else
-#define USE_STAT
-#endif
-#else
-#define USE_STAT_64
-#endif
-#else
-#define USE_WIN_STAT_64
-#endif
-#else
-#define USE_STAT
-#endif
-
-#if defined(USE_STAT_64)
-int LS_DYNA_STAT(const char* fname, struct stat64& s)
-{
-  return stat64(fname, &s);
-}
-#elif defined(USE_WIN_STAT_64)
-int LS_DYNA_STAT(const char* fname, struct __stat64& s)
-{
-  return __stat64(fname, &s);
-}
-#elif defined(USE_STAT)
-int LS_DYNA_STAT(const char* fname, struct stat& s)
-{
-  return stat(fname, &s);
-}
-#endif
 
 vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
 {
@@ -205,18 +167,12 @@ int LSDynaFamily::ScanDatabaseDirectory()
   int adaptLevel = 0;
   int tryAdapt = 0; // don't try an adaptive step unless we have one good file at the current level.
   bool adapted = true; // true when advancing over a mesh adaptation.
-#if defined(USE_WIN_STAT_64)
-  struct __stat64 st;
-#elif defined(USE_STAT_64)
-  struct stat64 st;
-#elif defined(USE_STAT)
-  struct stat st;
-#endif
+  vtksys::SystemTools::Stat_t st;
   while (tryAdapt >= 0)
   {
     tmpFile = vtkLSGetFamilyFileName(
       this->DatabaseDirectory.c_str(), this->DatabaseBaseName, adaptLevel, filenum);
-    if (LS_DYNA_STAT(tmpFile.c_str(), st) == 0)
+    if (vtksys::SystemTools::Stat(tmpFile.c_str(), &st) == 0)
     {
       if (adapted)
       {
