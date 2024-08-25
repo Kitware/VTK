@@ -1,5 +1,7 @@
 set(classes
   vtkMPASReader
+  vtkNetCDFAccessor
+  vtkXArrayAccessor
   vtkNetCDFCAMReader
   vtkNetCDFCFReader
   vtkNetCDFCFWriter

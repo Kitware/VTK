@@ -12,6 +12,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
 #include "vtkNew.h"
@@ -40,7 +41,7 @@
     int errorcode = call;                                                                          \
     if (errorcode != NC_NOERR)                                                                     \
     {                                                                                              \
-      const char* errorstring = nc_strerror(errorcode);                                            \
+      const char* errorstring = this->Accessor->strerror(errorcode);                               \
       on_error;                                                                                    \
     }                                                                                              \
   } while (false)
@@ -59,40 +60,6 @@
 // Convenience function for getting the text attribute on a variable.  Returns
 // true if the attribute exists, false otherwise.
 VTK_ABI_NAMESPACE_BEGIN
-static bool ReadTextAttribute(int ncFD, int varId, const char* name, std::string& result)
-{
-  size_t length;
-  if (nc_inq_attlen(ncFD, varId, name, &length) != NC_NOERR)
-  {
-    return false;
-  }
-
-  result.resize(length);
-  if (length > 0)
-  {
-    if (nc_get_att_text(ncFD, varId, name, &result.at(0)) != NC_NOERR)
-    {
-      return false;
-    }
-  }
-  else
-  {
-    // If length == 0, then there really is nothing to read. Do nothing
-  }
-
-  // The line below seems weird, but it is here for a good reason.  In general,
-  // text attributes are not null terminated, so you have to add your own (which
-  // the std::string will do for us).  However, sometimes a null terminating
-  // character is written in the attribute anyway.  In a C string this is no big
-  // deal.  But it means that the std::string has a null character in it and it
-  // is technically different than its own C string.  This line corrects that
-  // regardless of whether the null string was written we will get the right
-  // string.
-  // NOLINTNEXTLINE(readability-redundant-string-cstr)
-  result = result.c_str();
-
-  return true;
-}
 
 //------------------------------------------------------------------------------
 // Convenience function for getting the range of all values in all components of
@@ -113,16 +80,35 @@ static void GetRangeOfAllComponents(vtkDoubleArray* array, double range[2])
 }
 
 //=============================================================================
-vtkNetCDFCFReader::vtkDimensionInfo::vtkDimensionInfo(int ncFD, int id)
+vtkNetCDFCFReader::vtkDimensionInfo::vtkDimensionInfo(
+  vtkNetCDFAccessor* accessor, int ncFD, int id, const std::vector<std::string>& dimensionName)
 {
+  this->Accessor = accessor;
   this->DimId = id;
 
   this->Units = UNDEFINED_UNITS;
   this->HasRegularSpacing = true;
   this->Origin = 0.0;
   this->Spacing = 1.0;
+  this->SpecialDimensionOverrideNames = dimensionName;
 
   this->LoadMetaData(ncFD);
+}
+
+void vtkNetCDFCFReader::vtkDimensionInfo::SetUnitsIfSpecialDimensionOverriden(
+  vtkDimensionInfo::UnitsEnum unit, const char* name)
+{
+  if (this->SpecialDimensionOverrideNames[unit] == name)
+  {
+    if (this->Units != UNDEFINED_UNITS && this->Units != unit)
+    {
+      vtkLog(WARNING, << "Conflicting hint for " << name);
+    }
+    else
+    {
+      this->Units = unit;
+    }
+  }
 }
 
 int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
@@ -130,11 +116,11 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
   this->Units = UNDEFINED_UNITS;
 
   char name[NC_MAX_NAME + 1];
-  CALL_NETCDF_GW(nc_inq_dimname(ncFD, this->DimId, name));
+  CALL_NETCDF_GW(this->Accessor->inq_dimname(ncFD, this->DimId, name));
   this->Name = name;
 
   size_t dimLen;
-  CALL_NETCDF_GW(nc_inq_dimlen(ncFD, this->DimId, &dimLen));
+  CALL_NETCDF_GW(this->Accessor->inq_dimlen(ncFD, this->DimId, &dimLen));
   this->Coordinates = vtkSmartPointer<vtkDoubleArray>::New();
   this->Coordinates->SetName((this->Name + "_Coordinates").c_str());
   this->Coordinates->SetNumberOfComponents(1);
@@ -152,14 +138,14 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
   int varDim;
   // By convention if there is a single dimension variable with the same name as
   // its dimension, then the data contains the coordinates for the dimension.
-  if ((nc_inq_varid(ncFD, name, &varId) == NC_NOERR) &&
-    (nc_inq_varndims(ncFD, varId, &varNumDims) == NC_NOERR) && (varNumDims == 1) &&
-    (nc_inq_vardimid(ncFD, varId, &varDim) == NC_NOERR) && (varDim == this->DimId))
+  if ((this->Accessor->inq_varid(ncFD, name, &varId) == NC_NOERR) &&
+    (this->Accessor->inq_varndims(ncFD, varId, &varNumDims) == NC_NOERR) && (varNumDims == 1) &&
+    (this->Accessor->inq_vardimid(ncFD, varId, &varDim) == NC_NOERR) && (varDim == this->DimId))
   {
     this->SpecialVariables->InsertNextValue(name);
 
     // Read coordinates
-    CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, this->Coordinates->GetPointer(0)));
+    CALL_NETCDF_GW(this->Accessor->get_var_double(ncFD, varId, this->Coordinates->GetPointer(0)));
 
     // Check to see if the spacing is regular.
     this->Origin = this->Coordinates->GetValue(0);
@@ -181,7 +167,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
     // Check units.
     std::string units;
-    if (ReadTextAttribute(ncFD, varId, "units", units))
+    if (this->Accessor->ReadTextAttribute(ncFD, varId, "units", units))
     {
       units = vtksys::SystemTools::LowerCase(units);
       // Time, latitude, and longitude dimensions are those with units that
@@ -223,7 +209,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
 
     // Check axis.
     std::string axis;
-    if (ReadTextAttribute(ncFD, varId, "axis", axis))
+    if (this->Accessor->ReadTextAttribute(ncFD, varId, "axis", axis))
     {
       // The axis attribute is an alternate way of defining the coordinate type.
       // The string can be "X", "Y", "Z", or "T" which mean longitude, latitude,
@@ -246,9 +232,12 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       }
     }
 
+    for (int unit = TIME_UNITS; unit < NUMBER_OF_UNITS; ++unit)
+      SetUnitsIfSpecialDimensionOverriden(static_cast<enum UnitsEnum>(unit), name);
+
     // Check positive.
     std::string positive;
-    if (ReadTextAttribute(ncFD, varId, "positive", positive))
+    if (this->Accessor->ReadTextAttribute(ncFD, varId, "positive", positive))
     {
       positive = vtksys::SystemTools::LowerCase(positive);
       if (positive.find("down") != std::string::npos)
@@ -270,12 +259,12 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
     // for this (other than the existence of the attribute), so if this is not
     // the case then the code could fail.
     std::string boundsName;
-    if (ReadTextAttribute(ncFD, varId, "bounds", boundsName))
+    if (this->Accessor->ReadTextAttribute(ncFD, varId, "bounds", boundsName))
     {
       this->SpecialVariables->InsertNextValue(boundsName);
 
       int boundsVarId;
-      CALL_NETCDF_GW(nc_inq_varid(ncFD, boundsName.c_str(), &boundsVarId));
+      CALL_NETCDF_GW(this->Accessor->inq_varid(ncFD, boundsName.c_str(), &boundsVarId));
 
       // Read in the first bound value for each entry as a point bound.  If the
       // cells are connected, the second bound value should equal the first
@@ -285,8 +274,8 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       size_t count[2];
       count[0] = dimLen;
       count[1] = 1;
-      CALL_NETCDF_GW(
-        nc_get_vars_double(ncFD, boundsVarId, start, count, nullptr, this->Bounds->GetPointer(0)));
+      CALL_NETCDF_GW(this->Accessor->get_vars_double(
+        ncFD, boundsVarId, start, count, nullptr, this->Bounds->GetPointer(0)));
 
       // Read in the last value for the bounds array.  It will be the second
       // bound in the last entry.  This will not be replicated unless the
@@ -295,7 +284,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       start[1] = 1;
       count[0] = 1;
       count[1] = 1;
-      CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, nullptr,
+      CALL_NETCDF_GW(this->Accessor->get_vars_double(ncFD, boundsVarId, start, count, nullptr,
         this->Bounds->GetPointer(static_cast<vtkIdType>(dimLen))));
     }
     else
@@ -338,8 +327,9 @@ public:
 
 //=============================================================================
 vtkNetCDFCFReader::vtkDependentDimensionInfo::vtkDependentDimensionInfo(
-  int ncFD, int varId, vtkNetCDFCFReader* parent)
+  vtkNetCDFAccessor* accessor, int ncFD, int varId, vtkNetCDFCFReader* parent)
 {
+  this->Accessor = accessor;
   this->Valid = this->LoadMetaData(ncFD, varId, parent) != 0;
 }
 
@@ -363,7 +353,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   // coordinates are needed, then duplicate dimensions should be created.
   // Anyone who disagrees should write their own reader class.
   int numGridDimensions;
-  CALL_NETCDF_GW(nc_inq_varndims(ncFD, varId, &numGridDimensions));
+  CALL_NETCDF_GW(this->Accessor->inq_varndims(ncFD, varId, &numGridDimensions));
 
   if (numGridDimensions == 0)
   {
@@ -373,7 +363,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   }
 
   this->GridDimensions->SetNumberOfTuples(numGridDimensions);
-  CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId, this->GridDimensions->GetPointer(0)));
+  CALL_NETCDF_GW(this->Accessor->inq_vardimid(ncFD, varId, this->GridDimensions->GetPointer(0)));
 
   // Remove initial time dimension, which has no effect on data type.
   if (parent->IsTimeDimension(ncFD, this->GridDimensions->GetValue(0)))
@@ -399,19 +389,16 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   // happens for multi-dimensional coordinate variables with p-sided cells.
   // These are unstructured collections of polygons.
 
-  std::string coordinates;
-  if (!ReadTextAttribute(ncFD, varId, "coordinates", coordinates))
-    return 0;
-
   std::vector<std::string> coordName;
-  vtksys::SystemTools::Split(coordinates, coordName, ' ');
+  if (!this->Accessor->GetCoordinates(ncFD, varId, coordName))
+    return 0;
 
   int numAuxCoordDims = -1;
 
   for (std::vector<std::string>::iterator iter = coordName.begin(); iter != coordName.end(); ++iter)
   {
     int auxCoordVarId;
-    if (nc_inq_varid(ncFD, iter->c_str(), &auxCoordVarId) != NC_NOERR)
+    if (this->Accessor->inq_varid(ncFD, iter->c_str(), &auxCoordVarId) != NC_NOERR)
       continue;
 
     // Make sure that the coordinate variables have the same dimensions and that
@@ -419,7 +406,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
     // Not sure if that is enforced by the specification, but I am going to make
     // that assumption.
     int numDims;
-    CALL_NETCDF_GW(nc_inq_varndims(ncFD, auxCoordVarId, &numDims));
+    CALL_NETCDF_GW(this->Accessor->inq_varndims(ncFD, auxCoordVarId, &numDims));
     // I am only supporting either 1 or 2 dimensions in the coordinate
     // variables.  See the comment below regarding identifying the
     // CellsUnstructured flag.
@@ -427,7 +414,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
       continue;
 
     int auxCoordDims[2];
-    CALL_NETCDF_GW(nc_inq_vardimid(ncFD, auxCoordVarId, auxCoordDims));
+    CALL_NETCDF_GW(this->Accessor->inq_vardimid(ncFD, auxCoordVarId, auxCoordDims));
     int* gridDims = this->GridDimensions->GetPointer(numGridDimensions - numDims);
     bool auxCoordDimsValid = true;
     for (int dimId = 0; dimId < numDims; dimId++)
@@ -444,7 +431,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
     // The variable is no use to me unless it is identified as either longitude
     // or latitude.
     std::string units;
-    if (!ReadTextAttribute(ncFD, auxCoordVarId, "units", units))
+    if (!this->Accessor->ReadTextAttribute(ncFD, auxCoordVarId, "units", units))
       continue;
     units = vtksys::SystemTools::LowerCase(units);
     if (vtksys::RegularExpression("degrees?_?n").find(units))
@@ -501,22 +488,22 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadMetaData(
   }
 
   std::string bounds;
-  if (ReadTextAttribute(ncFD, longitudeCoordVarId, "bounds", bounds))
+  if (this->Accessor->ReadTextAttribute(ncFD, longitudeCoordVarId, "bounds", bounds))
   {
     // The bounds is supposed to point to an array with numAuxCoordDims+1
     // dimensions.  The first numAuxCoordDims should be the same as the coord
     // arrays.  The last dimension has the number of vertices in each cell.
     // Maybe I should check this, but I'm not.
-    CALL_NETCDF_GW(nc_inq_varid(ncFD, bounds.c_str(), &longitudeBoundsVarId));
+    CALL_NETCDF_GW(this->Accessor->inq_varid(ncFD, bounds.c_str(), &longitudeBoundsVarId));
     this->SpecialVariables->InsertNextValue(bounds);
   }
-  if (ReadTextAttribute(ncFD, latitudeCoordVarId, "bounds", bounds))
+  if (this->Accessor->ReadTextAttribute(ncFD, latitudeCoordVarId, "bounds", bounds))
   {
     // The bounds is supposed to point to an array with numAuxCoordDims+1
     // dimensions.  The first numAuxCoordDims should be the same as the coord
     // arrays.  The last dimension has the number of vertices in each cell.
     // Maybe I should check this, but I'm not.
-    CALL_NETCDF_GW(nc_inq_varid(ncFD, bounds.c_str(), &latitudeBoundsVarId));
+    CALL_NETCDF_GW(this->Accessor->inq_varid(ncFD, bounds.c_str(), &latitudeBoundsVarId));
     this->SpecialVariables->InsertNextValue(bounds);
   }
 
@@ -579,17 +566,17 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadCoordinateVariable(
   int ncFD, int varId, vtkDoubleArray* coords)
 {
   int dimIds[2];
-  CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_GW(this->Accessor->inq_vardimid(ncFD, varId, dimIds));
 
   size_t dimSizes[2];
   for (int i = 0; i < 2; i++)
   {
-    CALL_NETCDF_GW(nc_inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
+    CALL_NETCDF_GW(this->Accessor->inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
   }
 
   coords->SetNumberOfComponents(static_cast<int>(dimSizes[1]));
   coords->SetNumberOfTuples(static_cast<vtkIdType>(dimSizes[0]));
-  CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, coords->GetPointer(0)));
+  CALL_NETCDF_GW(this->Accessor->get_var_double(ncFD, varId, coords->GetPointer(0)));
 
   return 1;
 }
@@ -599,12 +586,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   int ncFD, int varId, vtkDoubleArray* coords)
 {
   int dimIds[3];
-  CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_GW(this->Accessor->inq_vardimid(ncFD, varId, dimIds));
 
   size_t dimSizes[3];
   for (int i = 0; i < 3; i++)
   {
-    CALL_NETCDF_GW(nc_inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
+    CALL_NETCDF_GW(this->Accessor->inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
   }
 
   if (dimSizes[2] != 4)
@@ -620,7 +607,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   std::vector<double> boundsData(dimSizes[0] * dimSizes[1] * 4);
   if (!boundsData.empty())
   {
-    CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
+    CALL_NETCDF_GW(this->Accessor->get_var_double(ncFD, varId, &boundsData.at(0)));
   }
 
   // The coords array are the coords at the points.  There is one more point
@@ -656,12 +643,12 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable
   int ncFD, int varId, vtkDoubleArray* coords)
 {
   int dimIds[2];
-  CALL_NETCDF_GW(nc_inq_vardimid(ncFD, varId, dimIds));
+  CALL_NETCDF_GW(this->Accessor->inq_vardimid(ncFD, varId, dimIds));
 
   size_t dimSizes[2];
   for (int i = 0; i < 2; i++)
   {
-    CALL_NETCDF_GW(nc_inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
+    CALL_NETCDF_GW(this->Accessor->inq_dimlen(ncFD, dimIds[i], &dimSizes[i]));
   }
 
   int numVertPerCell = static_cast<int>(dimSizes[1]);
@@ -669,7 +656,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadUnstructuredBoundsVariable
 
   coords->SetNumberOfComponents(numVertPerCell);
   coords->SetNumberOfTuples(numCells);
-  CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, coords->GetPointer(0)));
+  CALL_NETCDF_GW(this->Accessor->get_var_double(ncFD, varId, coords->GetPointer(0)));
 
   return 1;
 }
@@ -694,6 +681,7 @@ vtkNetCDFCFReader::vtkNetCDFCFReader()
 
   this->DimensionInfo = new vtkDimensionInfoVector;
   this->DependentDimensionInfo = new vtkDependentDimensionInfoVector;
+  this->SpecialDimensionOverrideNames.resize(vtkDimensionInfo::NUMBER_OF_UNITS);
 }
 
 vtkNetCDFCFReader::~vtkNetCDFCFReader()
@@ -771,7 +759,7 @@ int vtkNetCDFCFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
   int dataType = this->OutputType;
 
   int ncFD;
-  CALL_NETCDF(nc_open(this->FileName, NC_NOWRITE, &ncFD));
+  CALL_NETCDF(this->Accessor->open(this->FileName, NC_NOWRITE, &ncFD));
 
   int numArrays = this->VariableArraySelection->GetNumberOfArrays();
   for (int arrayIndex = 0; arrayIndex < numArrays; arrayIndex++)
@@ -781,16 +769,16 @@ int vtkNetCDFCFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
 
     const char* name = this->VariableArraySelection->GetArrayName(arrayIndex);
     int varId;
-    CALL_NETCDF(nc_inq_varid(ncFD, name, &varId));
+    CALL_NETCDF(this->Accessor->inq_varid(ncFD, name, &varId));
 
     int currentNumDims;
-    CALL_NETCDF(nc_inq_varndims(ncFD, varId, &currentNumDims));
+    CALL_NETCDF(this->Accessor->inq_varndims(ncFD, varId, &currentNumDims));
     if (currentNumDims < 1)
       continue;
     VTK_CREATE(vtkIntArray, currentDimensions);
     currentDimensions->SetNumberOfComponents(1);
     currentDimensions->SetNumberOfTuples(currentNumDims);
-    CALL_NETCDF(nc_inq_vardimid(ncFD, varId, currentDimensions->GetPointer(0)));
+    CALL_NETCDF(this->Accessor->inq_vardimid(ncFD, varId, currentDimensions->GetPointer(0)));
 
     // Remove initial time dimension, which has no effect on data type.
     if (this->IsTimeDimension(ncFD, currentDimensions->GetValue(0)))
@@ -878,7 +866,7 @@ int vtkNetCDFCFReader::RequestDataObject(vtkInformation* vtkNotUsed(request),
     break;
   }
 
-  CALL_NETCDF(nc_close(ncFD));
+  CALL_NETCDF(this->Accessor->close(ncFD));
 
   if (dataType == -1)
   {
@@ -1791,17 +1779,16 @@ void vtkNetCDFCFReader::AddUnstructuredSphericalCoordinates(
 //------------------------------------------------------------------------------
 int vtkNetCDFCFReader::ReadMetaData(int ncFD)
 {
-  vtkDebugMacro("ReadMetaData");
-
   int numDimensions;
-  CALL_NETCDF(nc_inq_ndims(ncFD, &numDimensions));
+  CALL_NETCDF(this->Accessor->inq_ndims(ncFD, &numDimensions));
   this->DimensionInfo->v.resize(numDimensions);
 
   std::set<std::string> specialVariables;
 
   for (int i = 0; i < numDimensions; i++)
   {
-    this->DimensionInfo->v[i] = vtkDimensionInfo(ncFD, i);
+    this->DimensionInfo->v[i] =
+      vtkDimensionInfo(this->Accessor, ncFD, i, this->SpecialDimensionOverrideNames);
 
     // Record any special variables for this dimension.
     vtkStringArray* dimensionVariables = this->DimensionInfo->v[i].GetSpecialVariables();
@@ -1812,12 +1799,12 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   }
 
   int numVariables;
-  CALL_NETCDF(nc_inq_nvars(ncFD, &numVariables));
+  CALL_NETCDF(this->Accessor->inq_nvars(ncFD, &numVariables));
 
   // Check all variables for special 2D coordinates.
   for (int i = 0; i < numVariables; i++)
   {
-    vtkDependentDimensionInfo info(ncFD, i, this);
+    vtkDependentDimensionInfo info(this->Accessor, ncFD, i, this);
     if (!info.GetValid())
       continue;
     if (this->FindDependentDimensionInfo(info.GetGridDimensions()) != nullptr)
@@ -1852,7 +1839,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   for (int i = 0; i < numVariables; i++)
   {
     char name[NC_MAX_NAME + 1];
-    CALL_NETCDF(nc_inq_varname(ncFD, i, name));
+    CALL_NETCDF(this->Accessor->inq_varname(ncFD, i, name));
     if (specialVariables.find(name) == specialVariables.end())
     {
       if (variablesToRemove.find(name) == variablesToRemove.end())
@@ -2053,4 +2040,29 @@ bool vtkNetCDFCFReader::DimensionsAreForPointData(vtkIntArray* dimensions)
       return true;
   }
 }
+
+//------------------------------------------------------------------------------
+void vtkNetCDFCFReader::SetTimeDimensionName(const char* name)
+{
+  this->SpecialDimensionOverrideNames[vtkDimensionInfo::TIME_UNITS] = name;
+}
+
+//------------------------------------------------------------------------------
+void vtkNetCDFCFReader::SetLatitudeDimensionName(const char* name)
+{
+  this->SpecialDimensionOverrideNames[vtkDimensionInfo::LATITUDE_UNITS] = name;
+}
+
+//------------------------------------------------------------------------------
+void vtkNetCDFCFReader::SetLongitudeDimensionName(const char* name)
+{
+  this->SpecialDimensionOverrideNames[vtkDimensionInfo::LONGITUDE_UNITS] = name;
+}
+
+//------------------------------------------------------------------------------
+void vtkNetCDFCFReader::SetVerticalDimensionName(const char* name)
+{
+  this->SpecialDimensionOverrideNames[vtkDimensionInfo::VERTICAL_UNITS] = name;
+}
+
 VTK_ABI_NAMESPACE_END
