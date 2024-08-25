@@ -915,7 +915,7 @@ void vtkHyperTreeGridContour::RecursivelyProcessTree(
           cell->PointIds->SetId(_cornerIdx, idN);
 
           // Assign scalar value attached to this contour item
-          this->CellScalars->SetTuple(_cornerIdx, this->InScalars->GetTuple(idN));
+          this->CellScalars->InsertTuple(_cornerIdx, this->InScalars->GetTuple(idN));
         } // cornerIdx
 
         /* If we are in 3D and the contour strategy is set to USE_DECOMPOSED_POLYHEDRA,
