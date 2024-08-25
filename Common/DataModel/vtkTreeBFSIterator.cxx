@@ -49,7 +49,7 @@ void vtkTreeBFSIterator::Initialize()
     return;
   }
   // Set all colors to white
-  this->Color->Resize(this->Tree->GetNumberOfVertices());
+  this->Color->SetNumberOfValues(this->Tree->GetNumberOfVertices());
   for (vtkIdType i = 0; i < this->Tree->GetNumberOfVertices(); i++)
   {
     this->Color->SetValue(i, this->WHITE);
