@@ -257,8 +257,9 @@ public:
    * Return the data component at the location specified by tupleIdx and
    * compIdx.
    */
-  virtual double GetComponent(vtkIdType tupleIdx, int compIdx) VTK_EXPECTS(0 <= tupleIdx &&
-    tupleIdx < GetNumberOfTuples()) VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
+  virtual double GetComponent(vtkIdType tupleIdx, int compIdx)
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + compIdx < GetNumberOfValues())
+      VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
    * Set the data component at the location specified by tupleIdx and compIdx
@@ -268,7 +269,7 @@ public:
    * (use SetNumberOfTuples() and SetNumberOfComponents()).
    */
   virtual void SetComponent(vtkIdType tupleIdx, int compIdx, double value)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + compIdx < GetNumberOfValues())
       VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents());
 
   /**
