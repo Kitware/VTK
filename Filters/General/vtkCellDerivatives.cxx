@@ -139,6 +139,7 @@ struct CellDerivatives
 
       if (computeScalarDerivs)
       {
+        cellScalars->SetNumberOfTuples(cell->GetNumberOfPoints());
         inScalars->GetTuples(cell->PointIds, cellScalars);
         scalars = cellScalars->GetPointer(0);
         cell->Derivatives(subId, pcoords, scalars, 1, derivs);
@@ -147,6 +148,7 @@ struct CellDerivatives
 
       if (computeVectorDerivs || computeVorticity)
       {
+        cellVectors->SetNumberOfTuples(cell->GetNumberOfPoints());
         inVectors->GetTuples(cell->PointIds, cellVectors);
         vectors = cellVectors->GetPointer(0);
         cell->Derivatives(0, pcoords, vectors, 3, derivs);
