@@ -886,6 +886,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
           vtkIdType cellId = cellIter->GetCellId();
           input->SetCellOrderAndRationalWeights(cellId, cell);
           cellIds = cell->GetPointIds();
+          cellScalars->SetNumberOfTuples(numCellPts);
           cutScalars->GetTuples(cellIds, cellScalars);
           // Loop over all contour values.
           for (iter = 0; iter < numContours && !abortExecute; iter++)
@@ -977,6 +978,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
           // Fetch the full cell -- most expensive.
           cellIter->GetCell(cell);
           input->SetCellOrderAndRationalWeights(cellId, cell);
+          cellScalars->SetNumberOfTuples(numCellPts);
           cutScalars->GetTuples(pointIdList, cellScalars);
           // Loop over all contour values.
           for (contourIter = contourValues; contourIter != contourValuesEnd; ++contourIter)
