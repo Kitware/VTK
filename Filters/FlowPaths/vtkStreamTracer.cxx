@@ -1100,6 +1100,7 @@ struct TracerIntegrator
       {
         if (vecType == vtkDataObject::POINT)
         {
+          cellVectors->SetNumberOfTuples(cell->PointIds->GetNumberOfIds());
           inVectors->GetTuples(cell->PointIds, cellVectors);
           func->GetLastLocalCoordinates(pcoords);
           this->StreamTracer->CalculateVorticity(cell, pcoords, cellVectors, vort);
@@ -1275,6 +1276,7 @@ struct TracerIntegrator
           {
             if (vecType == vtkDataObject::POINT)
             {
+              cellVectors->SetNumberOfTuples(cell->PointIds->GetNumberOfIds());
               inVectors->GetTuples(cell->PointIds, cellVectors);
               func->GetLastLocalCoordinates(pcoords);
               this->StreamTracer->CalculateVorticity(cell, pcoords, cellVectors, vort);
