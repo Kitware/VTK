@@ -47,6 +47,7 @@ void vtkExtractPolyDataPiece::ComputeCellTags(
   vtkIdList* cellPtIds;
 
   numCells = input->GetNumberOfCells();
+  tags->SetNumberOfValues(numCells);
 
   cellPtIds = vtkIdList::New();
   // Clear Point ownership.
