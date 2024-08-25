@@ -1031,7 +1031,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
           {
             p = this->GridPointGhostArrays[gridID]->GetValue(srcIdx);
           }
-          this->GhostedPointGhostArray[gridID]->SetValue(pntIdx, p);
+          this->GhostedPointGhostArray[gridID]->InsertValue(pntIdx, p);
         } // END if node within the registered extent
         else
         {
@@ -1044,7 +1044,7 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
             // it in the future.
           }
 
-          this->GhostedPointGhostArray[gridID]->SetValue(pntIdx, p);
+          this->GhostedPointGhostArray[gridID]->InsertValue(pntIdx, p);
         } // END else
 
       } // END for all k
@@ -1081,13 +1081,13 @@ void vtkStructuredAMRGridConnectivity::CreateGhostedMaskArrays(int gridID)
           {
             p = this->GridCellGhostArrays[gridID]->GetValue(srcCellIdx);
           }
-          this->GhostedCellGhostArray[gridID]->SetValue(cellIdx, p);
+          this->GhostedCellGhostArray[gridID]->InsertValue(cellIdx, p);
         }
         else
         {
           unsigned char p = 0;
           p |= vtkDataSetAttributes::DUPLICATECELL;
-          this->GhostedCellGhostArray[gridID]->SetValue(cellIdx, p);
+          this->GhostedCellGhostArray[gridID]->InsertValue(cellIdx, p);
         }
       } // END for all k
     }   // END for all j
