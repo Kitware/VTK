@@ -54,7 +54,7 @@ struct CopyPointsAlgorithm
     , OutPts(outPts)
   {
     // Prepare for threaded copying
-    this->Arrays.AddArrays(numNewPts, inPD, outPD);
+    this->Arrays.AddArrays(numNewPts, inPD, outPD, 0.0, /*promote=*/false);
 
     // Need to define a reverse point map (which maps the new/output points
     // to the input points from which they were merged). This could be
