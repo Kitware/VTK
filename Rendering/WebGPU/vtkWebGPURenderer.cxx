@@ -463,7 +463,11 @@ void vtkWebGPURenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtk
   {
     auto& wgpuPropItem = this->PropWGPUItems[this->PropArray[i]];
     auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-    if (this->UseRenderBundles)
+    bool actorUsesRenderBundles = wgpuActor->SupportRenderBundles();
+
+    // Even if the renderer is using render bundles, some actors don't support render bundles
+    // depending on the mapper they are using so we need both conditions here
+    if (this->UseRenderBundles && actorUsesRenderBundles)
     {
       this->BundleCacheStats.TotalRequests++;
       if (wgpuPropItem.Bundle == nullptr)

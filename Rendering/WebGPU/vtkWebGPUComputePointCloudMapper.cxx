@@ -72,6 +72,8 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
     }
 
     case vtkWebGPUActor::MapperRenderType::RenderPassEncode:
+      VTK_FALLTHROUGH;
+
     case vtkWebGPUActor::MapperRenderType::RenderBundleEncode:
     {
       vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);

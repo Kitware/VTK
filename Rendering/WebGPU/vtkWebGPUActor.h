@@ -30,6 +30,13 @@ public:
    */
   void Render(vtkRenderer* ren, vtkMapper* mapper) override;
   wgpu::RenderBundle RenderToBundle(vtkRenderer* ren, vtkMapper* mapper);
+  /**
+   * Returns true if the actor supports rendering with render bundles, false otherwise.
+   *
+   * This is mainly used for the point cloud mapper. This mapper doesn't use the rasterization
+   * pipeline for the rendering and thus doesn't support render bundles.
+   */
+  bool SupportRenderBundles();
 
   /**
    * Request mapper to run the vtkAlgorithm pipeline (if needed)
