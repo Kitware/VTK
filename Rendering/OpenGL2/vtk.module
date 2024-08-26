@@ -28,7 +28,6 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
-  VTK::IOXML
   VTK::opengl
   VTK::vtksys
   VTK::nlohmannjson

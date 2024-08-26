@@ -29,7 +29,6 @@ set(classes
   vtkOpaquePass
   vtkOpenGLActor
   vtkOpenGLArrayTextureBufferAdapter
-  vtkOpenGLAvatar
   vtkOpenGLBatchedPolyDataMapper
   vtkOpenGLBillboardTextActor3D
   vtkOpenGLBufferObject
@@ -109,8 +108,7 @@ set(classes
   vtkTransformFeedback
   vtkTranslucentPass
   vtkValuePass
-  vtkVolumetricPass
-  vtkVRRay)
+  vtkVolumetricPass)
 
 set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h"
@@ -226,7 +224,6 @@ list(APPEND private_headers "${BlueNoiseTexture64x64_header}")
 # setup factory overrides
 set(opengl_overrides
   Actor
-  Avatar
   CompositePolyDataMapperDelegator
   BillboardTextActor3D
   Camera
@@ -385,32 +382,6 @@ if (VTK_DEFAULT_RENDER_WINDOW_HEADLESS OR NOT has_vtkRenderWindow_override)
   endif ()
 endif ()
 
-set(geometry_sources)
-set(geometry_headers)
-
-# Generates headers with char arrays that contain the model file contents.
-set(geometry_files
-  data/vtkAvatarHead.vtp
-  data/vtkAvatarLeftForeArm.vtp
-  data/vtkAvatarLeftHand.vtp
-  data/vtkAvatarLeftUpperArm.vtp
-  data/vtkAvatarRightForeArm.vtp
-  data/vtkAvatarRightHand.vtp
-  data/vtkAvatarRightUpperArm.vtp
-  data/vtkAvatarTorso.vtp)
-foreach (geometry_file IN LISTS geometry_files)
-  vtk_encode_string(
-    INPUT         "${geometry_file}"
-    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
-    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_NO_EXPORT"
-    HEADER_OUTPUT header
-    SOURCE_OUTPUT source
-    BINARY
-    NUL_TERMINATE)
-  list(APPEND geometry_sources "${source}")
-  list(APPEND geometry_headers "${header}")
-endforeach ()
-
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
@@ -444,10 +415,10 @@ configure_file(
 vtk_module_add_module(VTK::RenderingOpenGL2
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
-  SOURCES ${sources} ${vtk_object_factory_source} ${geometry_sources}
+  SOURCES ${sources} ${vtk_object_factory_source}
   HEADERS ${headers}
   NOWRAP_HEADERS ${nowrap_headers}
-  PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header} ${geometry_headers})
+  PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2OpenGLRenderWindow is removed.

@@ -29,6 +29,7 @@ PRIVATE_DEPENDS
   VTK::ImagingCore
   VTK::glew
   VTK::opengl
+  VTK::RenderingVRModels
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersParallel
