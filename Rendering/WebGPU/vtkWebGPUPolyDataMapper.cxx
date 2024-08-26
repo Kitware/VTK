@@ -50,6 +50,18 @@ vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
 void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "InitializedPipeline: " << (this->InitializedPipeline ? "On\n" : "Off\n");
+  os << indent << "UpdatedPrimitiveSizes: " << (this->UpdatedPrimitiveSizes ? "On\n" : "Off\n");
+  os << indent << "UpdatedGeometryBuffers: " << (this->UpdatedGeometryBuffers ? "On\n" : "Off\n");
+  os << indent << "UpdatedPrimitiveBuffers: " << (this->UpdatedPrimitiveBuffers ? "On\n" : "Off\n");
+  os << indent << "HasPointColors: " << (this->HasPointColors ? "On\n" : "Off\n");
+  os << indent << "HasPointNormals: " << (this->HasPointNormals ? "On\n" : "Off\n");
+  os << indent << "HasPointTangents: " << (this->HasPointTangents ? "On\n" : "Off\n");
+  os << indent << "HasPointUVs: " << (this->HasPointUVs ? "On\n" : "Off\n");
+  os << indent << "HasCellColors: " << (this->HasCellColors ? "On\n" : "Off\n");
+  os << indent << "HasCellNormals: " << (this->HasCellNormals ? "On\n" : "Off\n");
+  os << indent << "LastScalarVisibility: " << (this->LastScalarVisibility ? "On\n" : "Off\n");
+  os << indent << "LastScalarMode: " << this->LastScalarMode << '\n';
 }
 
 //------------------------------------------------------------------------------
