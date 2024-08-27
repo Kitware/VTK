@@ -92,6 +92,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray* tags, vtkIdLi
   vtkIdType maxCell = 0;
   determineMinMax(piece, numPieces, numCells, minCell, maxCell);
 
+  tags->SetNumberOfValues(numCells);
   for (idx = 0; idx < minCell; ++idx)
   {
     tags->SetValue(idx, -1);

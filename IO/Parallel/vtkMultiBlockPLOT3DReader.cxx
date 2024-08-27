@@ -2740,14 +2740,14 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
       vtkPLOT3DArrayReader<float> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
-      return arrayReader.ReadScalar(fp, 0, n, 0, floatArray->GetPointer(0));
+      return arrayReader.ReadScalar(fp, 0, n, 0, floatArray->WritePointer(0, n));
     }
     else
     {
       vtkPLOT3DArrayReader<double> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
-      return arrayReader.ReadScalar(fp, 0, n, 0, doubleArray->GetPointer(0));
+      return arrayReader.ReadScalar(fp, 0, n, 0, doubleArray->WritePointer(0, n));
     }
   }
   else
@@ -2755,7 +2755,7 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
     if (this->Internal->Settings.Precision == 4)
     {
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
-      float* values = floatArray->GetPointer(0);
+      float* values = floatArray->WritePointer(0, n);
 
       int count = 0;
       for (int i = 0; i < n; i++)
@@ -2775,7 +2775,7 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
     else
     {
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
-      double* values = doubleArray->GetPointer(0);
+      double* values = doubleArray->WritePointer(0, n);
 
       int count = 0;
       for (int i = 0; i < n; i++)
@@ -2815,12 +2815,13 @@ int vtkMultiBlockPLOT3DReader::ReadIntScalar(void* vfp, int extent[6], int wexte
     vtkIdType preskip, postskip;
     vtkMultiBlockPLOT3DReaderInternals::CalculateSkips(extent, wextent, preskip, postskip);
     vtkIntArray* intArray = static_cast<vtkIntArray*>(scalar);
-    return arrayReader.ReadScalar(fp, preskip, n, postskip, intArray->GetPointer(0), record) == n;
+    return arrayReader.ReadScalar(fp, preskip, n, postskip, intArray->WritePointer(0, n), record) ==
+      n;
   }
   else
   {
     vtkIntArray* intArray = static_cast<vtkIntArray*>(scalar);
-    return this->ReadIntBlock(fp, n, intArray->GetPointer(0));
+    return this->ReadIntBlock(fp, n, intArray->WritePointer(0, n));
   }
 }
 
@@ -2847,8 +2848,8 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       vtkIdType preskip, postskip;
       vtkMultiBlockPLOT3DReaderInternals::CalculateSkips(extent, wextent, preskip, postskip);
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
-      return arrayReader.ReadScalar(fp, preskip, n, postskip, floatArray->GetPointer(0), record) ==
-        n;
+      return arrayReader.ReadScalar(
+               fp, preskip, n, postskip, floatArray->WritePointer(0, n), record) == n;
     }
     else
     {
@@ -2857,8 +2858,8 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       vtkIdType preskip, postskip;
       vtkMultiBlockPLOT3DReaderInternals::CalculateSkips(extent, wextent, preskip, postskip);
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
-      return arrayReader.ReadScalar(fp, preskip, n, postskip, doubleArray->GetPointer(0), record) ==
-        n;
+      return arrayReader.ReadScalar(
+               fp, preskip, n, postskip, doubleArray->WritePointer(0, n), record) == n;
     }
   }
   else
@@ -2866,7 +2867,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
     if (this->Internal->Settings.Precision == 4)
     {
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
-      float* values = floatArray->GetPointer(0);
+      float* values = floatArray->WritePointer(0, n);
 
       int count = 0;
       for (int i = 0; i < n; i++)
@@ -2886,7 +2887,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
     else
     {
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
-      double* values = doubleArray->GetPointer(0);
+      double* values = doubleArray->WritePointer(0, n);
 
       int count = 0;
       for (int i = 0; i < n; i++)
@@ -2927,16 +2928,18 @@ int vtkMultiBlockPLOT3DReader::ReadVector(void* vfp, int extent[6], int wextent[
       vtkPLOT3DArrayReader<float> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
-      return arrayReader.ReadVector(
-               fp, extent, wextent, numDims, floatArray->GetPointer(0), record) == nValues;
+      return arrayReader.ReadVector(fp, extent, wextent, numDims,
+               floatArray->WritePointer(0, 3 * vtkStructuredData::GetNumberOfPoints(extent)),
+               record) == nValues;
     }
     else
     {
       vtkPLOT3DArrayReader<double> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
-      return arrayReader.ReadVector(
-               fp, extent, wextent, numDims, doubleArray->GetPointer(0), record) == nValues;
+      return arrayReader.ReadVector(fp, extent, wextent, numDims,
+               doubleArray->WritePointer(0, 3 * vtkStructuredData::GetNumberOfPoints(extent)),
+               record) == nValues;
     }
   }
   else

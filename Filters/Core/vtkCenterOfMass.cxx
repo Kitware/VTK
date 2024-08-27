@@ -46,7 +46,7 @@ void vtkCenterOfMass::ComputeCenterOfMass(
       double point[3];
       points->GetPoint(i, point);
 
-      double weight = scalars->GetComponent(0, i);
+      double weight = scalars->GetComponent(i, 0);
       weightTotal += weight;
 
       vtkMath::MultiplyScalar(point, weight);

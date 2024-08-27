@@ -97,7 +97,7 @@ int vtkRecursiveDividingCubes::RequestData(vtkInformation* vtkNotUsed(request),
 
   voxelScalars = vtkDoubleArray::New();
   voxelScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-  voxelScalars->Allocate(8 * inScalars->GetNumberOfComponents());
+  voxelScalars->SetNumberOfTuples(8);
 
   //
   // Loop over all cells checking to see which straddle the specified value.

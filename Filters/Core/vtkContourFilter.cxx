@@ -568,11 +568,7 @@ int vtkContourFilter::RequestData(
           }
           input->GetCell(cellId, cell);
           cellPts = cell->GetPointIds();
-          if (cellScalars->GetSize() / cellScalars->GetNumberOfComponents() <
-            cellPts->GetNumberOfIds())
-          {
-            cellScalars->Allocate(cellScalars->GetNumberOfComponents() * cellPts->GetNumberOfIds());
-          }
+          cellScalars->SetNumberOfTuples(cellPts->GetNumberOfIds());
           inScalars->GetTuples(cellPts, cellScalars);
 
           if (dimensionality == 3 && !(cellId % 5000))

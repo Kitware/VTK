@@ -44,11 +44,13 @@ int TestReflectionFilter(int, char*[])
     array->InsertNextTuple(tuple);
     array->InsertNextTuple(tuple);
     array->InsertNextTuple(tuple);
+    array->InsertNextTuple(tuple);
     pd->AddArray(array);
 
     vtkNew<vtkDoubleArray> tensor;
     tensor->SetNumberOfComponents(9);
     double tensorTuple[9] = { 1, 1, 7, 1, 1, 1, 1, 1, 1 };
+    tensor->InsertNextTuple(tensorTuple);
     tensor->InsertNextTuple(tensorTuple);
     tensor->InsertNextTuple(tensorTuple);
     tensor->InsertNextTuple(tensorTuple);
@@ -59,6 +61,7 @@ int TestReflectionFilter(int, char*[])
     vtkNew<vtkDoubleArray> symTensor;
     symTensor->SetNumberOfComponents(6);
     double symTensorTuple[6] = { 1, 1, 1, 1, 17, 1 };
+    symTensor->InsertNextTuple(symTensorTuple);
     symTensor->InsertNextTuple(symTensorTuple);
     symTensor->InsertNextTuple(symTensorTuple);
     symTensor->InsertNextTuple(symTensorTuple);
