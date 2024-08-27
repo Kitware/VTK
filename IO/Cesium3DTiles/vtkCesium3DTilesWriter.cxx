@@ -83,7 +83,7 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctreePoints(
 }
 
 /**
- * Build octree for point cloud.
+ * Build octree for mesh.
  */
 vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctreeMesh(
   vtkPolyData* polyData, int cellsPerTile)
