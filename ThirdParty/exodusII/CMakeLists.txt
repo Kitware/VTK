@@ -6,7 +6,7 @@ vtk_module_third_party_internal(
   SPDX_COPYRIGHT_TEXT
     "Copyright (c) 2005-2017 National Technology & Engineering Solutions of Sandia, LLC (NTESS)"
   SPDX_DOWNLOAD_LOCATION
-    "git+https://gitlab.kitware.com/third-party/seacas.git@exodus/for/vtk-20240628-master-gaeee5aa1#packages/seacas/libraries/exodus"
+    "git+https://gitlab.kitware.com/third-party/seacas.git@exodus/for/vtk-20240826-master-gaeee5aa1#packages/seacas/libraries/exodus"
   VERSION
     "9.3f"
   STANDARD_INCLUDE_DIRS)
