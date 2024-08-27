@@ -557,13 +557,13 @@ FileInfo* vtkParse_Main(int argc, char* argv[])
       if (!(hfile = vtkParse_FileOpen(hfilename, "r")))
       {
         fprintf(stderr, "Error opening hint file %s\n", hfilename);
-        fclose(ifile);
         vtkParse_FreeFile(data);
         exit(vtkParse_FinalizeMain(1));
       }
 
       /* fill in some blanks by using the hints file */
       vtkParse_ReadHints(data, hfile, stderr);
+      fclose(hfile);
     }
   }
 

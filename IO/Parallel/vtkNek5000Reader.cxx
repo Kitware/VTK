@@ -509,7 +509,7 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
       case 'S':
         for (int sloop = 0; sloop < numSFields; sloop++)
         {
-          char sname[4];
+          char sname[12];
           snprintf(sname, sizeof(sname), "S%02d", sloop + 1);
           this->PointDataArraySelection->AddArray(sname);
           this->var_names[this->num_vars] = strdup(sname);
