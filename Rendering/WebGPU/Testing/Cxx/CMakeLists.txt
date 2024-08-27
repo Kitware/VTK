@@ -65,4 +65,16 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 7.0
   TestPointRendering_4,TestPointRendering.cxx,NO_DATA)
 
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 0.5 --line-width 0.5
+  TestMixedGeometry_1,TestMixedGeometry.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 1.0 --line-width 1.0
+  TestMixedGeometry_2,TestMixedGeometry.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 3.0 --line-width 3.0
+  TestMixedGeometry_3,TestMixedGeometry.cxx,NO_DATA)
+
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)

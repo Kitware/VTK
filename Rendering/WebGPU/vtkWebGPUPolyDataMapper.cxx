@@ -152,7 +152,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     passEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->LinePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -165,7 +165,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     passEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -225,7 +225,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     bundleEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->LinePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -238,7 +238,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     bundleEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG

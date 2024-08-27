@@ -245,7 +245,6 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
         let position_ndc_2d = output.position.xy / output.position.w;
     // an index into offset_multipliers
         let local_offset_id: u32 = vertex.vertex_id % 6u;
-        output.cell_id = point_id;
     // fetch an offset
         var local_offset: vec2<f32>;
         if local_offset_id == 0u {
@@ -283,7 +282,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   ///------------------------///
   // PrimitivtType:  VTK_LINE
   // AND
-  // Representation: VTK_WIREFREAME OR VTK_SURFACE
+  // Representation: VTK_WIREFRAME OR VTK_SURFACE
   ///------------------------///
     if primitive_size == 2u && actor.render_options.representation != 0u {
         let line_width: f32 = actor.render_options.line_width;
