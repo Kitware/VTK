@@ -45,7 +45,7 @@ You also need to indicate what data to use for input buffers using `SetData()`.
 Note that the data isn't uploaded (copied to the GPU) until the buffer is actually added to the compute pass
 by `vtkWebGPUComputePass::AddBuffer()` so the data needs to stay valid (i.e. not destroyed) on the CPU until `AddBuffer()` is called.
 Because you can give either `std::vector` data or `vtkDataArray` data to the buffer but only one of two is going to be used when
-sending data to the GPU, you must specify which one to use by calling `vtkWebGPUComputeBuffer::SetBufferDataType()`.
+sending data to the GPU, you must specify which one to use by calling `vtkWebGPUComputeBuffer::SetDataType()`.
 
 For buffers used as outputs of the compute shader, you only need to specify their size using `SetByteSize()`.
 The size of input buffers is automatically determined when `SetData()` is called. `SetByteSize()` should not be called on input buffers.
@@ -86,15 +86,15 @@ Here's an example of how this all can look like in practice:
   vtkNew<vtkWebGPUComputeBuffer> inputBuffer;
   inputBuffer->SetGroup(0);
   inputBuffer->SetBinding(0);
-  inputBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::INPUT_COMPUTE_STORAGE);
+  inputBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   inputBuffer->SetData(inputValues);
-  inputBuffer->SetBufferDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+  inputBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
   // Creating the output buffer of the compute shader
   vtkNew<vtkWebGPUComputeBuffer> outputBuffer;
   outputBuffer->SetGroup(0);
   outputBuffer->SetBinding(1);
-  outputBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::OUTPUT_COMPUTE_STORAGE);
+  outputBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
   outputBuffer->SetByteSize(inputValues.size() * sizeof(float));
 
   // Creating the compute pipeline
@@ -125,12 +125,12 @@ Here's an example of how this all can look like in practice:
     // size so that's just the right number of elements. If you don't want or can't use a
     // std::vector for that purpose, you can still pass the number of elements as the third
     // argument of ReadBufferFromGPU().
-    vtkIdType elementCount = outputDataVector->Size();
+    vtkIdType elementCount = outputDataVector->size();
 
-    const float* mappedData = static_cast<const float*>(mappedData);
+    const float* mappedDataAsF32 = static_cast<const float*>(mappedData);
     for (int i = 0; i < elementCount; i++)
     {
-      (*outputDataVector)[i] = mappedData[i];
+      (*outputDataVector)[i] = mappedDataAsF32[i];
     }
   };
 
@@ -326,7 +326,7 @@ int main()
   inputBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   inputBuffer->SetData(inputVector1Values);
   inputBuffer->SetLabel("First input buffer");
-  inputBuffer->SetBufferDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+  inputBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
   // Creating a buffer for the additional uniform
   float myUniform = 2.5f;
@@ -337,7 +337,7 @@ int main()
   uniformBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER);
   uniformBuffer->SetData(uniformData);
   uniformBuffer->SetLabel("Uniform buffer");
-  uniformBuffer->SetBufferDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+  uniformBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
   // .... Add the uniformBuffer to a compute pass as usual
 }
