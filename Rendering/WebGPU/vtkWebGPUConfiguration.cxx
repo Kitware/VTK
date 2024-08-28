@@ -181,12 +181,16 @@ void vtkWebGPUConfiguration::AcquireAdapter(
       &vtkWebGPUCallbacksInternals::UncapturedErrorCallback;
     opts.uncapturedErrorCallbackInfo.userdata = nullptr;
 #endif
-    ///@{ TODO: Populate feature requests
-    // ...
-    ///@}
-    ///@{ TODO: Populate limit requests
-    // ...
-    ///@}
+    // Populating limits of the device
+    internals.PopulateRequiredLimits(internals.Adapter);
+    opts.requiredLimits = &internals.RequiredLimits;
+
+    // Populating required features of the device
+    internals.PopulateRequiredFeatures();
+
+    opts.requiredFeatureCount = internals.RequiredFeatures.size();
+    opts.requiredFeatures = internals.RequiredFeatures.data();
+
     internals.Adapter.RequestDevice(
       &opts, vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted, this);
   }

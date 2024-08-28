@@ -149,6 +149,25 @@ void vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted(
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(wgpu::Adapter adapter)
+{
+  RequiredLimits.nextInChain = nullptr;
+
+  wgpu::SupportedLimits supportedLimits;
+  adapter.GetLimits(&supportedLimits);
+
+  RequiredLimits.limits.maxStorageBufferBindingSize =
+    supportedLimits.limits.maxStorageBufferBindingSize;
+  RequiredLimits.limits.maxBufferSize = supportedLimits.limits.maxBufferSize;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfigurationInternals::PopulateRequiredFeatures()
+{
+  // Populate required features in RequiredFeatures here
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted(
   WGPURequestDeviceStatus status, WGPUDevice cDevice, const char* message, void* userdata)
 {
