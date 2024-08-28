@@ -29,7 +29,7 @@ struct SimpleInputPoints
       ++this->Location;
       return *this;
     }
-    bool operator!=(const Iter& other)
+    bool operator!=(const Iter& other) const
     {
       assert(this->Self == other.Self);
       return this->Location != other.Location;

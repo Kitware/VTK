@@ -801,7 +801,7 @@ bool vtkAMRInformation::GetCoarsenedAMRBox(
   return true;
 }
 
-bool vtkAMRInformation::operator==(const vtkAMRInformation& other)
+bool vtkAMRInformation::operator==(const vtkAMRInformation& other) const
 {
   if (this->GridDescription != other.GridDescription)
   {

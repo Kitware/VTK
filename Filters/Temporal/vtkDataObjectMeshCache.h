@@ -114,7 +114,7 @@ public:
      * Return true if and only if every members are equals.
      * @sa operator!=
      */
-    bool operator==(const Status& other)
+    bool operator==(const Status& other) const
     {
       return other.OriginalDataDefined == this->OriginalDataDefined &&
         other.ConsumerDefined == this->ConsumerDefined &&
@@ -128,7 +128,7 @@ public:
      * Return true if both object are not equals.
      * @sa operator==
      */
-    bool operator!=(const Status& other) { return !(*this == other); }
+    bool operator!=(const Status& other) const { return !(*this == other); }
 
     /**
      * Print members.

@@ -149,12 +149,12 @@ public:
       return copy;
     }
 
-    bool operator==(const iterator& other)
+    bool operator==(const iterator& other) const
     {
       return this->ImplAbstract->Compare(other.ImplAbstract.get());
     }
 
-    bool operator!=(const iterator& other)
+    bool operator!=(const iterator& other) const
     {
       return !this->ImplAbstract->Compare(other.ImplAbstract.get());
     }
