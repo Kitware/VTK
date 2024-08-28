@@ -142,8 +142,6 @@ struct vtkAnariRendererNodeInternals
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
   anari::World AnariWorld{ nullptr };
-  anari::Instance AnariInstance{ nullptr };
-  anari::Group AnariGroup{ nullptr };
   anari::Frame AnariFrame{ nullptr };
 
   anari::Extensions AnariExtensions{};
@@ -162,8 +160,6 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 {
   if (this->AnariDevice != nullptr)
   {
-    anari::release(this->AnariDevice, this->AnariGroup);
-    anari::release(this->AnariDevice, this->AnariInstance);
     anari::release(this->AnariDevice, this->AnariWorld);
     anari::release(this->AnariDevice, this->AnariRenderer);
     anari::release(this->AnariDevice, this->AnariFrame);
@@ -566,21 +562,9 @@ void vtkAnariRendererNode::InitAnariWorld()
 
   auto anariDevice = this->GetAnariDevice();
 
-  auto anariGroup = anari::newObject<anari::Group>(anariDevice);
-  this->Internal->AnariGroup = anariGroup;
-  anari::setParameter(anariDevice, anariGroup, "name", ANARI_STRING, "vtk_group");
-  anari::commitParameters(anariDevice, anariGroup);
-
-  auto anariInstance = anari::newObject<anari::Instance>(anariDevice, "transform");
-  this->Internal->AnariInstance = anariInstance;
-  anari::setParameter(anariDevice, anariInstance, "name", ANARI_STRING, "vtk_instance");
-  anari::setParameter(anariDevice, anariInstance, "group", anariGroup);
-  anari::commitParameters(anariDevice, anariInstance);
-
   auto anariWorld = anari::newObject<anari::World>(anariDevice);
   this->Internal->AnariWorld = anariWorld;
   anari::setParameter(anariDevice, anariWorld, "name", "vtk_world");
-  anari::setParameterArray1D(anariDevice, anariWorld, "instance", &anariInstance, 1);
   anari::commitParameters(anariDevice, anariWorld);
 
   auto anariFrame = this->Internal->AnariFrame;
@@ -642,7 +626,7 @@ void vtkAnariRendererNode::UpdateAnariLights()
 void vtkAnariRendererNode::UpdateAnariSurfaces()
 {
   auto anariDevice = this->GetAnariDevice();
-  auto anariGroup = this->Internal->AnariGroup;
+  auto anariWorld = this->Internal->AnariWorld;
   const auto& surfaceState = this->Internal->AnariSurfaces;
 
   if (!surfaceState.empty())
@@ -655,21 +639,21 @@ void vtkAnariRendererNode::UpdateAnariSurfaces()
     }
 
     anari::setParameterArray1D(
-      anariDevice, anariGroup, "surface", surfaceState.data(), surfaceState.size());
+      anariDevice, anariWorld, "surface", surfaceState.data(), surfaceState.size());
   }
   else
   {
-    anari::unsetParameter(anariDevice, anariGroup, "surface");
+    anari::unsetParameter(anariDevice, anariWorld, "surface");
   }
 
-  anari::commitParameters(anariDevice, anariGroup);
+  anari::commitParameters(anariDevice, anariWorld);
 }
 
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::UpdateAnariVolumes()
 {
   auto anariDevice = this->GetAnariDevice();
-  auto anariGroup = this->Internal->AnariGroup;
+  auto anariWorld = this->Internal->AnariWorld;
   const auto& volumeState = this->Internal->AnariVolumes;
 
   if (!volumeState.empty())
@@ -682,14 +666,14 @@ void vtkAnariRendererNode::UpdateAnariVolumes()
     }
 
     anari::setParameterArray1D(
-      anariDevice, anariGroup, "volume", volumeState.data(), volumeState.size());
+      anariDevice, anariWorld, "volume", volumeState.data(), volumeState.size());
   }
   else
   {
-    anari::unsetParameter(anariDevice, anariGroup, "volume");
+    anari::unsetParameter(anariDevice, anariWorld, "volume");
   }
 
-  anari::commitParameters(anariDevice, anariGroup);
+  anari::commitParameters(anariDevice, anariWorld);
 }
 
 //----------------------------------------------------------------------------
