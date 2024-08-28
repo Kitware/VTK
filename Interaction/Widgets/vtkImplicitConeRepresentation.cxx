@@ -169,7 +169,7 @@ vtkImplicitConeRepresentation::vtkImplicitConeRepresentation()
 }
 
 //------------------------------------------------------------------------------
-vtkImplicitConeRepresentation::~vtkImplicitConeRepresentation() {}
+vtkImplicitConeRepresentation::~vtkImplicitConeRepresentation() = default;
 
 //------------------------------------------------------------------------------
 int vtkImplicitConeRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
