@@ -25,6 +25,7 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
+#include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariCameraInsideLog = "# StreamVersion 1\n"
                                               "EnterEvent 298 27 0 0 0 0 0\n"
@@ -766,22 +767,7 @@ int TestAnariCameraInside(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariCameraInside";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", ren);
-  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
-  vtkAnariRendererNode::SetLightFalloff(.5, ren);
-  vtkAnariRendererNode::SetUseDenoiser(1, ren);
-  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
+  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCameraInside");
 
   ren->AddVolume(volume);
   ren->ResetCamera();
