@@ -935,7 +935,8 @@ bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfCells", input->GetNumberOfCells()))
+  vtkIdType nbCells = input ? input->GetNumberOfCells() : 0;
+  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfCells", nbCells))
   {
     vtkErrorMacro(<< "Can not create NumberOfCells dataset when creating: " << this->FileName);
     return false;
@@ -946,8 +947,8 @@ bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateSingleValueDataset(
-        group, "NumberOfConnectivityIds", input->GetNumberOfConnectivityIds()))
+  vtkIdType nbConn = input ? input->GetNumberOfConnectivityIds() : 0;
+  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfConnectivityIds", nbConn))
   {
     vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset when creating: "
                   << this->FileName);
@@ -970,7 +971,17 @@ bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, input->GetOffsetsArray()))
+  vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
+  if (input)
+  {
+    offsetsArray = input->GetOffsetsArray();
+  }
+  else
+  {
+    offsetsArray = vtkSmartPointer<vtkIntArray>::New();
+    offsetsArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, offsetsArray))
   {
     vtkErrorMacro(<< "Can not create Offsets dataset when creating: " << this->FileName);
     return false;
@@ -981,8 +992,17 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateDataset(
-        group, "Connectivity", H5T_STD_I64LE, input->GetConnectivityArray()))
+  vtkSmartPointer<vtkDataArray> connArray = nullptr;
+  if (input)
+  {
+    connArray = input->GetConnectivityArray();
+  }
+  else
+  {
+    connArray = vtkSmartPointer<vtkIntArray>::New();
+    connArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Connectivity", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create Connectivity dataset when creating: " << this->FileName);
     return false;
@@ -993,14 +1013,20 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
 {
-  if (input->GetPoints() != nullptr && input->GetPoints()->GetData() != nullptr)
+  vtkSmartPointer<vtkPoints> points = nullptr;
+  if (input)
   {
-    if (!this->Impl->AddOrCreateDataset(
-          group, "Points", H5T_IEEE_F64LE, input->GetPoints()->GetData()))
-    {
-      vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
-      return false;
-    }
+    points = input->GetPoints();
+  }
+  else
+  {
+    points = vtkSmartPointer<vtkPoints>::New();
+    points->SetNumberOfPoints(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData()))
+  {
+    vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
+    return false;
   }
   return true;
 }
