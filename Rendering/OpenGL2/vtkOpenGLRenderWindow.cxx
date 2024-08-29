@@ -2504,7 +2504,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 
   if (!this->RenderFramebuffer->GetFBOIndex())
   {
-    // verify that our multisample setting doe snot exceed the hardware
+    // verify that our multisample setting does not exceed the hardware
     if (this->MultiSamples)
     {
 #ifdef GL_MAX_SAMPLES

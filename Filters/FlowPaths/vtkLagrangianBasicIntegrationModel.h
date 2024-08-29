@@ -15,7 +15,7 @@
  * Index 0 : "SurfaceType" array of surface input of the particle tracker
  *
  * Inherited classes MUST implement
- * int FunctionValues(vtkDataSet* detaSet, vtkIdType cellId, double* weights,
+ * int FunctionValues(vtkDataSet* dataSet, vtkIdType cellId, double* weights,
  *    double * x, double * f);
  * to define how the integration works.
  *
@@ -103,7 +103,7 @@ public:
    * Evaluate integration model velocity f at position x.
    * Look for the cell containing the position x in all its added datasets
    * if found this will call
-   * FunctionValues(vtkDataSet* detaSet, vtkIdType cellId, double* x, double* f)
+   * FunctionValues(vtkDataSet* dataSet, vtkIdType cellId, double* x, double* f)
    * This method is thread safe.
    */
   int FunctionValues(double* x, double* f, void* userData) override;
