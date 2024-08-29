@@ -1,5 +1,5 @@
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 2.12 with the flags below.
+// at least on macOS with cppcheck 2.15 with the flags below.
 
 // To run:
 // cd /path/to/VTK/
@@ -43,6 +43,10 @@ readdirCalled
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:*/IO/PostgreSQL/vtkPostgreSQLQuery.cxx
 unpreciseMathCall
+
+// Same expression 'methTypeLong&&propertyTypeLongLong' found multiple times in chain of '||' operators because 'methTypeLong&&propertyTypeLongLong' and 'propertyTypeLongLong&&methTypeLong' represent the same value.
+// This is due to the long and long long being the same type on some platforms, but not others, so hard to fix portably
+knownConditionTrueFalse:*/Wrapping/Tools/vtkParseProperties.c
 
 // Using reallocf() would be a good solution, but it's not available on all platforms.
 memleakOnRealloc
