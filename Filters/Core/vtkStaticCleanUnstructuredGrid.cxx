@@ -17,7 +17,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -44,7 +43,6 @@ void MarkUses(vtkIdType numIds, UType* connArray, vtkIdType* mergeMap, PointUses
 template <typename InArrayT, typename OutArrayT>
 struct CopyPointsAlgorithm
 {
-  vtkIdType* PtMap;
   InArrayT* InPts;
   OutArrayT* OutPts;
   ArrayList Arrays;
@@ -52,12 +50,11 @@ struct CopyPointsAlgorithm
 
   CopyPointsAlgorithm(vtkIdType* ptMap, InArrayT* inPts, vtkPointData* inPD, vtkIdType numNewPts,
     OutArrayT* outPts, vtkPointData* outPD)
-    : PtMap(ptMap)
-    , InPts(inPts)
+    : InPts(inPts)
     , OutPts(outPts)
   {
     // Prepare for threaded copying
-    this->Arrays.AddArrays(numNewPts, inPD, outPD);
+    this->Arrays.AddArrays(numNewPts, inPD, outPD, 0.0, /*promote=*/false);
 
     // Need to define a reverse point map (which maps the new/output points
     // to the input points from which they were merged). This could be
@@ -190,17 +187,15 @@ struct AverageAlgorithm
 {
   InArrayT* InPts;
   OutArrayT* OutPts;
-  vtkIdType* PtMap;
   vtkIdType* Links;
   vtkIdType* Offsets;
   bool AverageCoords;
   ArrayList Arrays;
 
   AverageAlgorithm(InArrayT* inPts, vtkPointData* inPD, vtkIdType numNewPts, OutArrayT* outPts,
-    vtkPointData* outPD, vtkIdType* ptMap, vtkIdType* links, vtkIdType* offsets, double tol)
+    vtkPointData* outPD, vtkIdType* links, vtkIdType* offsets, double tol)
     : InPts(inPts)
     , OutPts(outPts)
-    , PtMap(ptMap)
     , Links(links)
     , Offsets(offsets)
   {
@@ -275,12 +270,12 @@ struct AverageWorklet
 {
   template <typename InArrayT, typename OutArrayT>
   void operator()(InArrayT* inPts, OutArrayT* outPts, vtkPointData* inPD, vtkPointData* outPD,
-    vtkIdType* ptMap, vtkIdType* links, vtkIdType* offsets, double tol)
+    vtkIdType* links, vtkIdType* offsets, double tol)
   {
     const vtkIdType numNewPts = outPts->GetNumberOfTuples();
 
     AverageAlgorithm<InArrayT, OutArrayT> algo(
-      inPts, inPD, numNewPts, outPts, outPD, ptMap, links, offsets, tol);
+      inPts, inPD, numNewPts, outPts, outPD, links, offsets, tol);
     vtkSMPTools::For(0, numNewPts, algo);
   }
 };
@@ -638,9 +633,9 @@ void vtkStaticCleanUnstructuredGrid::AveragePoints(vtkPoints* inPts, vtkPointDat
   // Okay, now we can actually average the point coordinates and
   // point attribute data.
   AverageWorklet average;
-  if (!Dispatcher::Execute(inArray, outArray, average, inPD, outPD, ptMap, links, offsets, tol))
+  if (!Dispatcher::Execute(inArray, outArray, average, inPD, outPD, links, offsets, tol))
   { // Fallback to slow path for unusual types:
-    average(inArray, outArray, inPD, outPD, ptMap, links, offsets, tol);
+    average(inArray, outArray, inPD, outPD, links, offsets, tol);
   }
 }
 
