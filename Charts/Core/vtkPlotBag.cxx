@@ -326,7 +326,7 @@ vtkStdString vtkPlotBag::GetTooltipLabel(
           tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
           break;
         case 'z':
-          tooltipLabel += density ? density->GetVariantValue(seriesIndex).ToString() : "?";
+          tooltipLabel += density ? density->GetVariantValue(seriesIndex).ToString().c_str() : "?";
           break;
         case 'i':
           if (this->IndexedLabels && seriesIndex >= 0 &&
