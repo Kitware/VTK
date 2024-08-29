@@ -972,7 +972,7 @@ bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 {
   vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
-  if (input)
+  if (input && input->GetOffsetsArray())
   {
     offsetsArray = input->GetOffsetsArray();
   }
@@ -993,7 +993,7 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 {
   vtkSmartPointer<vtkDataArray> connArray = nullptr;
-  if (input)
+  if (input && input->GetConnectivityArray())
   {
     connArray = input->GetConnectivityArray();
   }
@@ -1014,7 +1014,7 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
 {
   vtkSmartPointer<vtkPoints> points = nullptr;
-  if (input)
+  if (input && input->GetPoints())
   {
     points = input->GetPoints();
   }
