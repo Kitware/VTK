@@ -326,6 +326,16 @@ public:
    */
   void GetActors(vtkPropCollection*) override;
 
+  ///@{
+  /**
+   * Get/Set the x,y,z coordinates for the corner points of the 3D box.
+   * This method is an alternative to PlaceWidget(bds) when you already
+   * know the exact coordinates for the corners of the box widget.
+   */
+  std::vector<double> GetCorners();
+  void SetCorners(std::vector<double> points);
+  ///@}
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;
