@@ -1502,7 +1502,7 @@ macos-x86_64-kits-python-qt:build:
     extends:
         - .macos_x86_64_kits_python_qt
         - .cmake_build_macos
-        - .macos_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     # Some of the macOS runners are not very powerful.
@@ -1513,7 +1513,7 @@ macos-x86_64-kits-python-qt:test:
     extends:
         - .macos_x86_64_kits_python_qt
         - .cmake_test_macos
-        - .macos_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -1526,7 +1526,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
         - .cmake_test_macos
-        - .macos_builder_tags
+        - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -1557,7 +1557,7 @@ wheel-macos-python38-x86_64:build:
     extends:
         - .wheel_macos38_x86_64
         - .cmake_build_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .old_python_wheel_rules
     timeout: 90 minutes
@@ -1567,7 +1567,7 @@ wheel-macos-python38-x86_64:test:
     extends:
         - .wheel_macos38_x86_64
         - .cmake_test_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .old_python_wheel_rules
         - .cdash_annotations_artifacts
     needs:
@@ -1596,7 +1596,7 @@ wheel-macos-python39-x86_64:build:
     extends:
         - .wheel_macos39_x86_64
         - .cmake_build_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .old_python_wheel_rules
     timeout: 90 minutes
@@ -1606,7 +1606,7 @@ wheel-macos-python39-x86_64:test:
     extends:
         - .wheel_macos39_x86_64
         - .cmake_test_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .old_python_wheel_rules
         - .cdash_annotations_artifacts
     needs:
@@ -1635,7 +1635,7 @@ wheel-macos-python310-x86_64:build:
     extends:
         - .wheel_macos310_x86_64
         - .cmake_build_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .old_python_wheel_rules
     timeout: 90 minutes
@@ -1645,7 +1645,7 @@ wheel-macos-python310-x86_64:test:
     extends:
         - .wheel_macos310_x86_64
         - .cmake_test_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .old_python_wheel_rules
         - .cdash_annotations_artifacts
     needs:
@@ -1674,7 +1674,7 @@ wheel-macos-python311-x86_64:build:
     extends:
         - .wheel_macos311_x86_64
         - .cmake_build_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .old_python_wheel_rules
     timeout: 90 minutes
@@ -1684,7 +1684,7 @@ wheel-macos-python311-x86_64:test:
     extends:
         - .wheel_macos311_x86_64
         - .cmake_test_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .old_python_wheel_rules
         - .cdash_annotations_artifacts
     needs:
@@ -1713,7 +1713,7 @@ wheel-macos-python312-x86_64:build:
     extends:
         - .wheel_macos312_x86_64
         - .cmake_build_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -1723,7 +1723,7 @@ wheel-macos-python312-x86_64:test:
     extends:
         - .wheel_macos312_x86_64
         - .cmake_test_wheel_macos
-        - .macos_wheel_builder_tags
+        - .macos_x86_64_wheel_builder_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:

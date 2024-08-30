@@ -132,7 +132,7 @@
 
 ## Tags
 
-.macos_builder_tags:
+.macos_x86_64_builder_tags:
     tags:
         - vtk
         - macos-x86_64
@@ -140,7 +140,7 @@
         - xcode-14.2
         - nonconcurrent
 
-.macos_wheel_builder_tags:
+.macos_x86_64_wheel_builder_tags:
     tags:
         - vtk
         - macos-x86_64
@@ -148,7 +148,7 @@
         - xcode-14.2
         - concurrent
 
-.macos_ext_builder_tags:
+.macos_x86_64_ext_builder_tags:
     tags:
         - vtk
         - macos-x86_64
