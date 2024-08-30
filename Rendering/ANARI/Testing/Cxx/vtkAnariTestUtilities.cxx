@@ -12,9 +12,11 @@ void SetAnariRendererParameterDefaults(
     return;
 
   vtkAnariRendererNode::SetLibraryName("environment", renderer);
+#if 0
   vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
   vtkAnariRendererNode::SetLightFalloff(.5, renderer);
   vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+#endif
   vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
 
   if (useDebugDevice)

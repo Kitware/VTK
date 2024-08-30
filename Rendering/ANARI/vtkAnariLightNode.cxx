@@ -301,7 +301,9 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     vtkDebugMacro(<< "Ambient Light");
     double ambientColor[3] = { light->GetAmbientColor()[0], light->GetAmbientColor()[1],
       light->GetAmbientColor()[2] };
+#if 0
     vtkAnariRendererNode::SetAmbientColor(ambientColor, vtkRenderer);
+#endif
   }
   else if (useHDRI)
   {

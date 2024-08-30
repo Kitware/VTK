@@ -42,8 +42,6 @@ using uvec2 = anari::std_types::uvec2;
 using ivec2 = anari::std_types::ivec2;
 using vec4 = anari::std_types::vec4;
 
-vtkInformationKeyMacro(vtkAnariRendererNode, SAMPLES_PER_PIXEL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, AMBIENT_SAMPLES, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, LIBRARY_NAME, String);
 vtkInformationKeyMacro(vtkAnariRendererNode, DEVICE_SUBTYPE, String);
@@ -54,21 +52,6 @@ vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_DEVICE_TRACE_MODE, String);
 vtkInformationKeyMacro(vtkAnariRendererNode, USE_DEBUG_DEVICE, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, RENDERER_SUBTYPE, String);
 vtkInformationKeyMacro(vtkAnariRendererNode, ACCUMULATION_COUNT, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USE_DENOISER, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, LIGHT_FALLOFF, Double);
-vtkInformationKeyMacro(vtkAnariRendererNode, AMBIENT_INTENSITY, Double);
-vtkInformationKeyMacro(vtkAnariRendererNode, MAX_DEPTH, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, R_VALUE, Double);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_METHOD, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_DIRECTORY, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_COMMIT, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_BINARY, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_MATERIAL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_PREVIEW, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_MDL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_MDLCOLORS, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, USD_OUTPUT_DISPLAYCOLORS, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, AMBIENT_COLOR, DoubleVector);
 
 struct RendererChangeCallback : vtkCommand
 {
@@ -341,6 +324,7 @@ void vtkAnariRendererNodeInternals::StatusCallback(const void* userData, anari::
 //----------------------------------------------------------------------------
 void vtkAnariRendererNodeInternals::SetUSDDeviceParameters()
 {
+#if 0
   // Initialize USD Device Parameters
   auto renderer = this->Owner->GetRenderer();
 
@@ -370,6 +354,7 @@ void vtkAnariRendererNodeInternals::SetUSDDeviceParameters()
   anari::setParameter(
     this->AnariDevice, this->AnariDevice, "usd::output.mdlcolors", outputMdlColors);
   anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::writeatcommit", writeAtCommit);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -491,6 +476,7 @@ void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
   auto anariDevice = this->GetAnariDevice();
   auto anariRenderer = this->Internal->AnariRenderer;
 
+#if 0
   anari::setParameter(anariDevice, anariRenderer, "denoise", bool(this->GetUseDenoiser(ren)));
   anari::setParameter<int>(
     anariDevice, anariRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
@@ -511,6 +497,7 @@ void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
 
   // Debug method
   anari::setParameter(anariDevice, anariRenderer, "method", this->GetDebugMethod(ren));
+#endif
 
   double* bg = ren->GetBackground();
   double bgAlpha = ren->GetBackgroundAlpha();
@@ -765,37 +752,6 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAmbientColor(double* value, vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-  info->Set(vtkAnariRendererNode::AMBIENT_COLOR(), value, 3);
-  vtkAnariRendererNode::AnariRendererModifiedTime.Modified();
-}
-
-//----------------------------------------------------------------------------
-double* vtkAnariRendererNode::GetAmbientColor(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return nullptr;
-  }
-
-  vtkInformation* info = renderer->GetInformation();
-
-  if (info && info->Has(vtkAnariRendererNode::AMBIENT_COLOR()))
-  {
-    return info->Get(vtkAnariRendererNode::AMBIENT_COLOR());
-  }
-
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
 #define RENDERER_NODE_PARAM_SET_DEFINITION(FCN, PARAM, TYPE)                                       \
   void vtkAnariRendererNode::Set##FCN(TYPE v, vtkRenderer* r)                                      \
   {                                                                                                \
@@ -809,8 +765,6 @@ double* vtkAnariRendererNode::GetAmbientColor(vtkRenderer* renderer)
     vtkAnariRendererNode::AnariRendererModifiedTime.Modified();                                    \
   }
 
-RENDERER_NODE_PARAM_SET_DEFINITION(UseDenoiser, USE_DENOISER, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(SamplesPerPixel, SAMPLES_PER_PIXEL, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(LibraryName, LIBRARY_NAME, const char*)
 RENDERER_NODE_PARAM_SET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*)
 RENDERER_NODE_PARAM_SET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*)
@@ -820,20 +774,6 @@ RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceTraceMode, DEBUG_DEVICE_TRACE_MODE
 RENDERER_NODE_PARAM_SET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*)
 RENDERER_NODE_PARAM_SET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(AmbientSamples, AMBIENT_SAMPLES, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(LightFalloff, LIGHT_FALLOFF, double)
-RENDERER_NODE_PARAM_SET_DEFINITION(AmbientIntensity, AMBIENT_INTENSITY, double)
-RENDERER_NODE_PARAM_SET_DEFINITION(MaxDepth, MAX_DEPTH, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(ROptionValue, R_VALUE, double)
-RENDERER_NODE_PARAM_SET_DEFINITION(DebugMethod, DEBUG_METHOD, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdDirectory, USD_DIRECTORY, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdAtCommit, USD_COMMIT, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputBinary, USD_OUTPUT_BINARY, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMaterial, USD_OUTPUT_MATERIAL, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputPreviewSurface, USD_OUTPUT_PREVIEW, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMDL, USD_OUTPUT_MDL, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputMDLColors, USD_OUTPUT_MDLCOLORS, int)
-RENDERER_NODE_PARAM_SET_DEFINITION(UsdOutputDisplayColors, USD_OUTPUT_DISPLAYCOLORS, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
 
 //----------------------------------------------------------------------------
@@ -855,8 +795,6 @@ RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
     return DEFAULT_VALUE;                                                                          \
   }
 
-RENDERER_NODE_PARAM_GET_DEFINITION(UseDenoiser, USE_DENOISER, int, 0)
-RENDERER_NODE_PARAM_GET_DEFINITION(SamplesPerPixel, SAMPLES_PER_PIXEL, int, 1)
 RENDERER_NODE_PARAM_GET_DEFINITION(LibraryName, LIBRARY_NAME, const char*, nullptr)
 RENDERER_NODE_PARAM_GET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*, "default")
 RENDERER_NODE_PARAM_GET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*, "debug")
@@ -868,20 +806,6 @@ RENDERER_NODE_PARAM_GET_DEFINITION(
 RENDERER_NODE_PARAM_GET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int, 0)
 RENDERER_NODE_PARAM_GET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*, "default")
 RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(AmbientSamples, AMBIENT_SAMPLES, int, 0)
-RENDERER_NODE_PARAM_GET_DEFINITION(LightFalloff, LIGHT_FALLOFF, double, 1.0)
-RENDERER_NODE_PARAM_GET_DEFINITION(AmbientIntensity, AMBIENT_INTENSITY, double, 1.0)
-RENDERER_NODE_PARAM_GET_DEFINITION(MaxDepth, MAX_DEPTH, int, 0)
-RENDERER_NODE_PARAM_GET_DEFINITION(ROptionValue, R_VALUE, double, 1.0)
-RENDERER_NODE_PARAM_GET_DEFINITION(DebugMethod, DEBUG_METHOD, const char*, nullptr)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdDirectory, USD_DIRECTORY, const char*, nullptr)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdAtCommit, USD_COMMIT, int, 0)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputBinary, USD_OUTPUT_BINARY, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMaterial, USD_OUTPUT_MATERIAL, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputPreviewSurface, USD_OUTPUT_PREVIEW, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMDL, USD_OUTPUT_MDL, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputMDLColors, USD_OUTPUT_MDLCOLORS, int, 1)
-RENDERER_NODE_PARAM_GET_DEFINITION(UsdOutputDisplayColors, USD_OUTPUT_DISPLAYCOLORS, int, 1)
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
 
 //----------------------------------------------------------------------------

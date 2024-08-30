@@ -50,8 +50,6 @@ void vtkAnariVolumeMapper::Init()
 
   // e.g. export ANARI_LIBRARY=helide
   vtkAnariRendererNode::SetLibraryName("environment", this->InternalRenderer);
-  vtkAnariRendererNode::SetSamplesPerPixel(6, this->InternalRenderer);
-  vtkAnariRendererNode::SetUseDenoiser(1, this->InternalRenderer);
   vtkAnariRendererNode::SetCompositeOnGL(1, this->InternalRenderer);
 
   this->InitializedOn();

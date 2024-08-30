@@ -105,9 +105,11 @@ void vtkAnariTestInteractor::OnKeyPress()
       cerr << "ANARI rendering " << this->O << endl;
       this->GLRenderer->SetPass(this->O);
       vtkAnariRendererNode::SetLibraryName("environment", this->GLRenderer);
+#if 0
       vtkAnariRendererNode::SetSamplesPerPixel(4, this->GLRenderer);
       vtkAnariRendererNode::SetLightFalloff(.5, this->GLRenderer);
       vtkAnariRendererNode::SetUseDenoiser(1, this->GLRenderer);
+#endif
       this->GLRenderer->GetRenderWindow()->Render();
     }
     else if (current == this->O)
@@ -174,18 +176,23 @@ void vtkAnariTestInteractor::OnKeyPress()
 
   if (key == "2")
   {
+#if 0
     int spp = vtkAnariRendererNode::GetSamplesPerPixel(this->GLRenderer);
     cerr << "samples now " << spp + 1 << endl;
     vtkAnariRendererNode::SetSamplesPerPixel(spp + 1, this->GLRenderer);
+#endif
     this->GLRenderer->GetRenderWindow()->Render();
   }
   if (key == "1")
   {
+#if 0
     vtkAnariRendererNode::SetSamplesPerPixel(1, this->GLRenderer);
     cerr << "samples now " << 1 << endl;
     this->GLRenderer->GetRenderWindow()->Render();
+#endif
   }
 
+#if 0
   if (key == "D")
   {
     int aoSamples = vtkAnariRendererNode::GetAmbientSamples(this->GLRenderer) + 2;
@@ -206,6 +213,7 @@ void vtkAnariTestInteractor::OnKeyPress()
     cerr << "aoSamples " << aosamples << endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
+#endif
 
   if (key == "I" || key == "i")
   {
