@@ -230,7 +230,7 @@ private:
 
   ///@{
   /**
-   * For transient data, update the steps group with information relevant to the current timestep.
+   * For temporal data, update the steps group with information relevant to the current timestep.
    */
   bool UpdateStepsGroup(vtkUnstructuredGrid* input);
   bool UpdateStepsGroup(vtkPolyData* input);
@@ -238,7 +238,7 @@ private:
 
   ///@{
   /**
-   * Initialize the `Steps` group for transient data, and extendable datasets where needed.
+   * Initialize the `Steps` group for temporal data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
   bool InitializeTemporalPolyData();
@@ -304,11 +304,15 @@ private:
    */
   bool AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input);
 
+  ///@{
   /**
    * Add the data arrays of the object to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+  bool AppendDataSetAttributes(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+  bool AppendFieldDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
+  ///@}
 
   ///@{
   /**
@@ -340,14 +344,18 @@ private:
    */
   bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb);
 
+  ///@{
   /**
-   * Append the offset data in the steps group for the current array for transient data
+   * Append the offset data in the steps group for the current array for temporal data
    */
   bool AppendDataArrayOffset(
-    vtkAbstractArray* array, const char* arrayName, const char* offsetsGroupName);
+    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
+  bool AppendDataArraySizeOffset(
+    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
+  ///@}
 
   /**
-   * Write the NSteps attribute and the Value dataset to group for transient writing.
+   * Write the NSteps attribute and the Value dataset to group for temporal writing.
    */
   bool AppendTimeValues(hid_t group);
 

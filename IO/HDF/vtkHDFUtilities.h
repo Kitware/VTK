@@ -12,8 +12,10 @@
 #include "vtkDataArray.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkIOHDFModule.h" // For export macro
+#include "vtkLogger.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkType.h"
 
 #include <array>
@@ -51,6 +53,20 @@ constexpr static int GetNumberOfAttributeTypes()
 {
   return 3;
 }
+
+/*
+ * How many attribute types we have as data array. This returns 2: point and cell.
+ */
+constexpr static int GetNumberOfDataArrayTypes()
+{
+  return 2;
+}
+
+/*
+ * Make sure we replace any illegal characters in the objectName (slash, dot) by an underscore, as
+ * they would create a HDF5 subgroup.
+ */
+VTKIOHDF_EXPORT void MakeObjectNameValid(std::string& objectName);
 
 /*
  * Returns the id to a HDF datatype (H5T) from a VTK datatype
@@ -205,6 +221,9 @@ VTKIOHDF_EXPORT vtkIdType GetArrayOffset(
  */
 VTKIOHDF_EXPORT vtkAbstractArray* NewFieldArray(const std::array<hid_t, 3>& attributeDataGroup,
   const char* name, vtkIdType offset, vtkIdType size, vtkIdType dimMaxSize);
+
+VTKIOHDF_EXPORT vtkStringArray* NewStringArray(
+  hid_t dataset, std::vector<hsize_t> dims, std::vector<hsize_t> fileExtent);
 }
 
 VTK_ABI_NAMESPACE_END

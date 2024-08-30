@@ -105,7 +105,7 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateAndWriteHdfDataset(hid_t group, hid_t type, hid_t source_type,
-    const char* name, int rank, const hsize_t dimensions[], const void* data);
+    const char* name, int rank, std::vector<hsize_t> dimensions, const void* data);
 
   /**
    * Create a HDF dataspace
@@ -222,11 +222,14 @@ public:
   vtkHDF::ScopedH5DHandle CreateDatasetFromDataArray(
     hid_t group, const char* name, hid_t type, vtkAbstractArray* dataArray);
 
+  ///@{
   /**
-   * Creates a single-value dataset and write a value to it.
+   * Creates a dataset and write a value to it.
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, int value);
+  vtkHDF::ScopedH5DHandle Create2DValueDataset(hid_t group, const char* name, int* value, int size);
+  ///@}
 
   /**
    * Create a chunked dataset with an empty extendable dataspace using chunking and set the desired
@@ -243,6 +246,12 @@ public:
    * Return true if the write operation was successful.
    */
   bool AddSingleValueToDataset(hid_t dataset, int value, bool offset, bool trim = false);
+
+  /**
+   * Add a 2D value of integer type to an existing dataspace which represents the FieldDataSize.
+   * Return true if the write operation was successful.
+   */
+  bool AddFieldDataSizeValueToDataset(hid_t dataset, int* value, int size, bool offset);
 
   /**
    * Append a full data array at the end of an existing infinite dataspace.
@@ -270,6 +279,16 @@ public:
    */
   bool AddOrCreateSingleValueDataset(
     hid_t group, const char* name, int value, bool offset = false, bool trim = false);
+
+  /**
+   * Append a 2D integer value to the dataset with name `FieldDataSize`.
+   * Create the dataset and dataspace if it does not exist yet.
+   * When offset is true, the value written to the dataset is offset by the previous value of the
+   * dataspace.
+   * Return true if the operation is successful.
+   */
+  bool AddOrCreateFieldDataSizeValueDataset(
+    hid_t group, const char* name, int* value, int size, bool offset = false);
 
   Implementation(vtkHDFWriter* writer);
   virtual ~Implementation();
