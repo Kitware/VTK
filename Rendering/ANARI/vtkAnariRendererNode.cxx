@@ -753,7 +753,7 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
 
 //----------------------------------------------------------------------------
 #define RENDERER_NODE_PARAM_SET_DEFINITION(FCN, PARAM, TYPE)                                       \
-  void vtkAnariRendererNode::Set##FCN(TYPE v, vtkRenderer* r)                                      \
+  void vtkAnariRendererNode::Set##FCN(vtkRenderer* r, TYPE v)                                      \
   {                                                                                                \
     if (!r)                                                                                        \
     {                                                                                              \

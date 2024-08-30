@@ -49,8 +49,8 @@ void vtkAnariVolumeMapper::Init()
   this->InternalRenderer = vtkRenderer::New();
 
   // e.g. export ANARI_LIBRARY=helide
-  vtkAnariRendererNode::SetLibraryName("environment", this->InternalRenderer);
-  vtkAnariRendererNode::SetCompositeOnGL(1, this->InternalRenderer);
+  vtkAnariRendererNode::SetLibraryName(this->InternalRenderer, "environment");
+  vtkAnariRendererNode::SetCompositeOnGL(this->InternalRenderer, 1);
 
   this->InitializedOn();
 }
@@ -83,7 +83,7 @@ void vtkAnariVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(0);
   vtkAnariRendererNode::SetCompositeOnGL(
-    ren->GetNumberOfPropsRendered() > 0, this->InternalRenderer);
+    this->InternalRenderer, ren->GetNumberOfPropsRendered() > 0);
   this->InternalRenderer->SetErase(ren->GetNumberOfPropsRendered() < 1);
   this->InternalRenderer->RemoveVolume(vol); // prevent a mem leak
 }

@@ -110,17 +110,6 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariVolumeRenderer";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
-  }
-
   SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariVolumeRenderer");
 
   auto cam = ren->GetActiveCamera();

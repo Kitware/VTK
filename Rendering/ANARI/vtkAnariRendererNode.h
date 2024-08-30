@@ -65,7 +65,7 @@ public:
    * Convenience method to set/get LIBRARY_NAME on a vtkRenderer.
    * "environment" is returned if no library name is set.
    */
-  static void SetLibraryName(const char* name, vtkRenderer* renderer);
+  static void SetLibraryName(vtkRenderer* renderer, const char* name);
   static const char* GetLibraryName(vtkRenderer* renderer);
   //@}
 
@@ -77,7 +77,7 @@ public:
   /**
    * Convenience method to set/get DEVICE_SUBTYPE on a vtkRenderer.
    */
-  static void SetDeviceSubtype(const char* name, vtkRenderer* renderer);
+  static void SetDeviceSubtype(vtkRenderer* renderer, const char* name);
   static const char* GetDeviceSubtype(vtkRenderer* renderer);
   //@}
 
@@ -91,7 +91,7 @@ public:
    * Convenience method to set/get DEBUG_LIBRARY_NAME on a vtkRenderer.
    * The default is "debug".
    */
-  static void SetDebugLibraryName(const char* name, vtkRenderer* renderer);
+  static void SetDebugLibraryName(vtkRenderer* renderer, const char* name);
   static const char* GetDebugLibraryName(vtkRenderer* renderer);
   //@}
 
@@ -104,7 +104,7 @@ public:
    * Convenience method to set/get DEBUG_DEVICE_SUBTYPE on a vtkRenderer.
    * Default is "debug".
    */
-  static void SetDebugDeviceSubtype(const char* name, vtkRenderer* renderer);
+  static void SetDebugDeviceSubtype(vtkRenderer* renderer, const char* name);
   static const char* GetDebugDeviceSubtype(vtkRenderer* renderer);
   //@}
 
@@ -117,7 +117,7 @@ public:
    * Convenience method to set/get DEBUG_DEVICE_DIRECTORY on a vtkRenderer.
    * Default is nullptr.
    */
-  static void SetDebugDeviceDirectory(const char* name, vtkRenderer* renderer);
+  static void SetDebugDeviceDirectory(vtkRenderer* renderer, const char* name);
   static const char* GetDebugDeviceDirectory(vtkRenderer* renderer);
   //@}
 
@@ -130,7 +130,7 @@ public:
    * Convenience method to set/get DEBUG_DEVICE_TRACE_MODE on a vtkRenderer.
    * Default is "code"
    */
-  static void SetDebugDeviceTraceMode(const char* name, vtkRenderer* renderer);
+  static void SetDebugDeviceTraceMode(vtkRenderer* renderer, const char* name);
   static const char* GetDebugDeviceTraceMode(vtkRenderer* renderer);
   //@}
 
@@ -144,7 +144,7 @@ public:
    * Convenience method to set/get USE_DEBUG_DEVICE on a vtkRenderer.
    * Default value is 0.
    */
-  static void SetUseDebugDevice(int, vtkRenderer* renderer);
+  static void SetUseDebugDevice(vtkRenderer* renderer, int);
   static int GetUseDebugDevice(vtkRenderer* renderer);
   //@}
 
@@ -156,7 +156,7 @@ public:
   /**
    * Convenience method to set/get RENDERER_SUBTYPE on a vtkRenderer.
    */
-  static void SetRendererSubtype(const char* name, vtkRenderer* renderer);
+  static void SetRendererSubtype(vtkRenderer* renderer, const char* name);
   static const char* GetRendererSubtype(vtkRenderer* renderer);
   //@}
 
@@ -169,7 +169,7 @@ public:
   /**
    * Convenience method to set/get ACCUMULATION_COUNT on a vtkRenderer.
    */
-  static void SetAccumulationCount(int, vtkRenderer* renderer);
+  static void SetAccumulationCount(vtkRenderer* renderer, int);
   static int GetAccumulationCount(vtkRenderer* renderer);
   //@}
 
@@ -182,7 +182,7 @@ public:
   /**
    * Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
    */
-  static void SetCompositeOnGL(int, vtkRenderer* renderer);
+  static void SetCompositeOnGL(vtkRenderer* renderer, int);
   static int GetCompositeOnGL(vtkRenderer* renderer);
   //@}
 

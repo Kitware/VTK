@@ -11,22 +11,22 @@ void SetAnariRendererParameterDefaults(
   if (!renderer)
     return;
 
-  vtkAnariRendererNode::SetLibraryName("environment", renderer);
+  vtkAnariRendererNode::SetLibraryName(renderer, "environment");
 #if 0
   vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
   vtkAnariRendererNode::SetLightFalloff(.5, renderer);
   vtkAnariRendererNode::SetUseDenoiser(1, renderer);
 #endif
-  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
+  vtkAnariRendererNode::SetCompositeOnGL(renderer, 1);
 
   if (useDebugDevice)
   {
-    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
+    vtkAnariRendererNode::SetUseDebugDevice(renderer, 1);
     vtkNew<vtkTesting> testing;
 
     std::string traceDir = testing->GetTempDirectory();
     traceDir += "/anari-trace/";
     traceDir += testName;
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
+    vtkAnariRendererNode::SetDebugDeviceDirectory(renderer, traceDir.c_str());
   }
 }
