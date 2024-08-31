@@ -248,16 +248,16 @@ void vtkLinearTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   }
   else
   {
-    double point[3];
-
-    for (vtkIdType i = 0; i < n; i++)
-    {
-      inPts->GetPoint(i, point);
-
-      vtkLinearTransformPoint(matrix, point, point);
-
-      outPts->SetPoint(m + i, point);
-    }
+    // for anything that isn't float or double
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        vtkLinearTransformPoint(matrix, point, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
   }
 }
 
@@ -299,18 +299,18 @@ void vtkLinearTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* out
   }
   else
   {
-    for (vtkIdType i = 0; i < n; i++)
-    {
+    // for anything that isn't float or double
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
       double norm[3];
-
-      inNms->GetTuple(i, norm);
-
-      // use TransformVector because matrix is already transposed & inverted
-      vtkLinearTransformVector(matrix, norm, norm);
-      vtkMath::Normalize(norm);
-
-      outNms->SetTuple(m + i, norm);
-    }
+      for (; ptId < endPtId; ++ptId)
+      {
+        inNms->GetTuple(ptId, norm);
+        // use TransformVector because matrix is already transposed & inverted
+        vtkLinearTransformVector(matrix, norm, norm);
+        vtkMath::Normalize(norm);
+        outNms->SetTuple(m + ptId, norm);
+      }
+    });
   }
 }
 
@@ -348,16 +348,16 @@ void vtkLinearTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* out
   }
   else
   {
-    for (vtkIdType i = 0; i < n; i++)
-    {
+    // for anything that isn't float or double
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
       double vec[3];
-
-      inVrs->GetTuple(i, vec);
-
-      vtkLinearTransformVector(matrix, vec, vec);
-
-      outVrs->SetTuple(m + i, vec);
-    }
+      for (; ptId < endPtId; ++ptId)
+      {
+        inVrs->GetTuple(ptId, vec);
+        vtkLinearTransformVector(matrix, vec, vec);
+        outVrs->SetTuple(m + ptId, vec);
+      }
+    });
   }
 }
 VTK_ABI_NAMESPACE_END
