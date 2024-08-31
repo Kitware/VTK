@@ -1525,6 +1525,11 @@ struct TracerIntegrator
     vtkPointData* threadPD = this->LocalThreadOutput.begin()->OutputPD;
     vtkPointData* outputPD = this->Output->GetPointData();
     outputPD->CopyAllocate(threadPD, numPts);
+    // Threads will fight over array MaxId unless we set it beforehand
+    for (int i = 0; i < outputPD->GetNumberOfArrays(); ++i)
+    {
+      outputPD->GetArray(i)->SetNumberOfTuples(numPts);
+    }
 
     // Allocate streamer cell data: seed ids and streamer termination return
     // values. Only add this information if the number of output cells
