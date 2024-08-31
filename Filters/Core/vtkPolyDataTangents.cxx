@@ -168,6 +168,11 @@ int vtkPolyDataTangents::RequestData(vtkInformation* vtkNotUsed(request),
   cellTangents->SetNumberOfTuples(outNumCell);
 
   outCD->CopyAllocate(inCD, outNumCell);
+  // Threads will fight over array MaxId unless we set it beforehand
+  for (int i = 0; i < outCD->GetNumberOfArrays(); ++i)
+  {
+    outCD->GetArray(i)->SetNumberOfTuples(outNumCell);
+  }
 
   TangentComputation functor(numVerts, inPts, inPolys, tcoords, cellTangents, inCD, outCD, this);
   vtkSMPTools::For(0, numVerts + numPolys, functor);
