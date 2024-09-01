@@ -1,13 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if defined(_MSC_VER)
-#ifdef _INTEGRAL_MAX_BITS
-#undef _INTEGRAL_MAX_BITS
-#endif
-#define _INTEGRAL_MAX_BITS 64
-#endif
-
 #include "vtkDebugLeaks.h"
 #include "vtkObject.h"
 #include "vtkWindows.h"
@@ -163,7 +156,8 @@ JNIEXPORT jbyteArray vtkJavaStringToUTF8(JNIEnv* env, const std::string& text)
 
 JNIEXPORT jbyteArray vtkJavaCharsToUTF8(JNIEnv* env, const char* chars, size_t length)
 {
-  return vtkJavaMakeJArrayOfByte(env, reinterpret_cast<const jbyte*>(chars), length);
+  return vtkJavaMakeJArrayOfByte(
+    env, reinterpret_cast<const jbyte*>(chars), static_cast<int>(length));
 }
 
 //**jcp this is the callback interface stub for Java. no user parms are passed

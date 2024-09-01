@@ -130,6 +130,20 @@
     variables:
         CMAKE_CONFIGURATION: macos_x86_64_kits_python_qt_ext_vtk
 
+.macos_x86_64_java:
+    extends: .macos_build
+    variables:
+        CMAKE_BUILD_TYPE: Release
+        CMAKE_CONFIGURATION: macos_x86_64_java
+        VTK_INSTALL: 1
+
+.macos_arm64_java:
+    extends: .macos_build
+    variables:
+        CMAKE_BUILD_TYPE: Release
+        CMAKE_CONFIGURATION: macos_arm64_java
+        VTK_INSTALL: 1
+
 ## Tags
 
 .macos_builder_tags:
@@ -188,6 +202,27 @@
     - git submodule sync --recursive
     - git submodule update --init --recursive
 
+.before_script_java_macos: &before_script_java_macos
+    - cmake -P .gitlab/ci/download_java.cmake
+    - export JAVA_HOME=$PWD/.gitlab/jdk/Contents/Home/
+    - cmake -P .gitlab/ci/download_maven.cmake
+    - export PATH="$PWD/.gitlab/maven/bin:$PATH"
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-macosx-universal"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-macosx-universal"'
+    - ls -R $GIT_CLONE_PATH/.gitlab/m2
+
+.script_macos: &script_macos
+    - .gitlab/ci/sccache.sh
+    # Allow the server to already be running.
+    - "sccache --start-server || :"
+    - sccache --show-stats
+    - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+    - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+    - sccache --show-stats
+    - exec .gitlab/ci/check_warnings.sh .
+
 .before_script_macos_deps: &before_script_macos_deps
     # currently not downloading adios for macos wheels
     # this way we can only get it for non-wheel macos builds
@@ -197,19 +232,10 @@
 .cmake_build_macos:
     stage: build
     extends: .warning_policy
-
     script:
         - *before_script_macos
         - *before_script_macos_deps
-        - .gitlab/ci/sccache.sh
-        # Allow the server to already be running.
-        - "sccache --start-server || :"
-        - sccache --show-stats
-        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        - ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
-        - sccache --show-stats
-        - exec .gitlab/ci/check_warnings.sh .
-
+        - *script_macos
     interruptible: true
 
 .cmake_test_macos:
@@ -283,3 +309,12 @@
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
+
+.cmake_build_java_macos:
+    stage: build
+    extends: .cmake_build_macos
+    script:
+        - *before_script_macos
+        - *before_script_java_macos
+        - *before_script_macos_deps
+        - *script_macos

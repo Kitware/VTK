@@ -71,6 +71,9 @@
             # SPDX files
             - build/**/*.spdx
 
+            # Java files
+            - build/Wrapping/Java/
+
 .cmake_wasm_build_artifacts:
     artifacts:
         expire_in: 1d
@@ -99,7 +102,6 @@
             - build/CMakeFiles/CMakeError.log
             - build/CMakeFiles/CMakeOutput.log
             - build/CMakeFiles/rules.ninja
-
 
 .cmake_junit_artifacts:
     artifacts:

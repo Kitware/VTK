@@ -143,7 +143,7 @@
 
 .fedora39:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-20240731"
+    image: "kitware/vtk:ci-fedora39-20240828"
 
 .el7_mindeps:
     extends: .linux
@@ -263,13 +263,15 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_renderless_ext_vtk
 
-.fedora39_java_mpi_qt_tbb:
+.fedora39_java:
     extends:
         - .fedora39
         - .fedora_mpich_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora39_java_mpi_qt_tbb
+        CMAKE_BUILD_TYPE: Release
+        CMAKE_CONFIGURATION: fedora39_java
+        VTK_INSTALL: 1
 
 .fedora39_mpi_python_qt_tbb:
     extends:
@@ -537,25 +539,35 @@
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
+.before_script_java_linux: &before_script_java_linux
+    - *before_script_linux
+    - cmake -P .gitlab/ci/download_maven.cmake
+    - export PATH="$PWD/.gitlab/maven/bin:$PATH"
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-linux-amd64"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-linux-amd64"'
+
 .before_script_linux_deps: &before_script_linux_deps
     - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+
+.script_linux: &script_linux
+    - .gitlab/ci/clang-tidy-cache.sh
+    - .gitlab/ci/sccache.sh
+    - sccache --start-server
+    - sccache --show-stats
+    - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+    - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+    - sccache --show-stats
+    - exec .gitlab/ci/check_warnings.sh .
 
 .cmake_build_linux:
     stage: build
     extends: .warning_policy
-
     script:
         - *before_script_linux
         - *before_script_linux_deps
-        - .gitlab/ci/clang-tidy-cache.sh
-        - .gitlab/ci/sccache.sh
-        - sccache --start-server
-        - sccache --show-stats
-        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
-        - sccache --show-stats
-        - exec .gitlab/ci/check_warnings.sh .
-
+        - *script_linux
     interruptible: true
 
 .cmake_test_linux:
@@ -661,6 +673,14 @@
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
+
+.cmake_build_java_linux:
+    stage: build
+    extends: .cmake_build_linux
+    script:
+        - *before_script_linux
+        - *before_script_java_linux
+        - *script_linux
 
 .cmake_source_tarballs:
     stage: build
@@ -784,3 +804,22 @@
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWasm
 
     interruptible: true
+
+.java_upload_linux:
+    stage: upload
+    script:
+        - *before_script_java_linux
+        - cp .gitlab/maven/conf/settings.xml "$HOME/.m2/settings.xml"
+        - xmlstarlet ed -O -L
+            -d '/_:settings/_:servers'
+            -s '/_:settings' -t elem -n servers -v ""
+            -s '/_:settings/servers' -t elem -n server -v ""
+            -s '/_:settings/servers/server' -t elem -n id -v "github"
+            -s '/_:settings/servers/server' -t elem -n username -v '${env.MAVEN_USERNAME}'
+            -s '/_:settings/servers/server' -t elem -n password -v '${env.MAVEN_PASSWORD}'
+            "$HOME/.m2/settings.xml"
+        - cd build/install
+        - mvn deploy -Dvtk.snapshots.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.snapshots.repo.id=github
+
+    environment:
+        name: maven-upload

@@ -280,29 +280,29 @@ fedora39-mpi-ospray-python-qt-tbb:test:
     needs:
         - fedora39-mpi-ospray-python-qt-tbb:build
 
-# fedora39-java-mpi-qt-tbb:build:
-#     extends:
-#         - .fedora39_java_mpi_qt_tbb
-#         - .cmake_build_linux
-#         - .linux_builder_tags
-#         - .cmake_build_artifacts
-#         - .run_manually
-#     # The Java build extends the build time considerably.
-#     timeout: 2 hours
-#     dependencies: []
-#     needs: []
+fedora39-java8:build:
+    extends:
+        - .fedora39_java
+        - .cmake_build_java_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    # The Java build extends the build time considerably.
+    timeout: 4 hours
+    variables:
+      VTK_JAVA_VERSION: 1.8
 
-# fedora39-java-mpi-qt-tbb:test:
-#     extends:
-#         - .fedora39_java_mpi_qt_tbb
-#         - .cmake_test_linux
-#         - .linux_tester_tags
-#         - .cmake_test_artifacts
-#         - .run_automatically
-#     dependencies:
-#         - fedora39-java-mpi-qt-tbb:build
-#     needs:
-#         - fedora39-java-mpi-qt-tbb:build
+fedora39-java11:build:
+    extends:
+        - .fedora39_java
+        - .cmake_build_java_linux
+        - .linux_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    # The Java build extends the build time considerably.
+    timeout: 4 hours
+    variables:
+      VTK_JAVA_VERSION: 11
 
 fedora39-mpi-python-qt-tbb:build:
     extends:
@@ -2340,3 +2340,103 @@ wheel-windows-python312-x86_64-osmesa:test:
         - wheel-windows-python312-x86_64-osmesa:build
     needs:
         - wheel-windows-python312-x86_64-osmesa:build
+
+macos-x86_64-java8:build:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_build_java_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+macos-x86_64-java11:build:
+    extends:
+        - .macos_x86_64_java
+        - .cmake_build_java_macos
+        - .macos_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+
+macos-arm64-java8:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+macos-arm64-java11:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+
+windows-x86_64-java8:build:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_build_java_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 1.8
+    timeout: 4 hours
+
+windows-x86_64-java11:build:
+    extends:
+        - .windows_vs2022_java
+        - .cmake_build_java_windows
+        - .windows_builder_tags
+        - .cmake_build_artifacts
+        - .weekly_upload_only
+    variables:
+      VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+
+java8:upload:
+    extends:
+        - .fedora39_java
+        - .java_upload_linux
+        - .linux_builder_tags
+        - .weekly_upload_only
+    dependencies:
+        - fedora39-java8:build
+        - macos-x86_64-java8:build
+        - macos-arm64-java8:build
+        - windows-x86_64-java8:build
+    needs:
+        - fedora39-java8:build
+        - macos-x86_64-java8:build
+        - macos-arm64-java8:build
+        - windows-x86_64-java8:build
+
+java11:upload:
+    extends:
+        - .fedora39_java
+        - .java_upload_linux
+        - .linux_builder_tags
+        - .weekly_upload_only
+    dependencies:
+        - fedora39-java11:build
+        - macos-x86_64-java11:build
+        - macos-arm64-java11:build
+        - windows-x86_64-java11:build
+    needs:
+        - fedora39-java11:build
+        - macos-x86_64-java11:build
+        - macos-arm64-java11:build
+        - windows-x86_64-java11:build

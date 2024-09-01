@@ -162,6 +162,12 @@
 #         WASM_ARCHITECTURE: wasm64-emscripten-threads
 #         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache --new-tab --js-flags=--experimental-wasm-memory64"
 
+.windows_vs2022_java:
+    extends: .windows_vs2022
+    variables:
+        CMAKE_BUILD_TYPE: Release
+        CMAKE_CONFIGURATION: windows_vs2022_java
+        VTK_INSTALL: 1
 
 ## Tags
 
@@ -231,29 +237,44 @@
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\openxr\x64\bin;$env:PATH"
     - cmake -P .gitlab/ci/download_openxrremoting.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxrremoting\build\native;$env:CMAKE_PREFIX_PATH"
+    - cmake -P .gitlab/ci/download_tbb.cmake
+    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
+
+.before_script_java_windows: &before_script_java_windows
+    - cmake -P .gitlab/ci/download_java.cmake
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\jdk\bin\;$env:PATH"
+    - Set-Item -Force -Path "env:JAVA_HOME" -Value "$pwdpath\.gitlab\jdk\"
+    - cmake -P .gitlab/ci/download_maven.cmake
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\maven\bin\;$env:PATH"
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-windows-amd64"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-windows-amd64"'
+
+.script_windows: &script_windows
+    # Build and activate the venv
+    - python -m venv $pwdpath\build\ci-venv
+    # This may be necessary when running manually.
+    # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+    - . .\build\ci-venv\Scripts\Activate.ps1
+    - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
+    - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
+    - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
+    - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
+    - buildcache --show-stats
+    - ctest -VV -S .gitlab/ci/ctest_configure.cmake
+    - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
+    - buildcache --show-stats
+    - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
 
 .cmake_build_windows:
     stage: build
     extends: .warning_policy
-
     script:
         - *before_script_windows
         - *before_script_windows_deps
-        # Build and activate the venv
-        - python -m venv $pwdpath\build\ci-venv
-        # This may be necessary when running manually.
-        # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-        - . .\build\ci-venv\Scripts\Activate.ps1
-        - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
-        - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
-        - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
-        - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - buildcache --show-stats
-        - ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        - ctest -VV -S .gitlab/ci/ctest_build.cmake | Out-File -FilePath compile_output.log
-        - buildcache --show-stats
-        - .gitlab\ci\check_warnings.ps1 -BuildPath . # This will call exit in case of warnings
-
+        - *script_windows
     interruptible: true
 
 .cmake_test_windows:
@@ -398,3 +419,12 @@
         - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\ExternalWasm # This will call exit in case of warnings
 
     interruptible: true
+
+.cmake_build_java_windows:
+    stage: build
+    extends: .cmake_build_windows
+    script:
+        - *before_script_windows
+        - *before_script_windows_deps
+        - *before_script_java_windows
+        - *script_windows
