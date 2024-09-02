@@ -70,6 +70,8 @@ vtkVectorFieldTopology::vtkVectorFieldTopology()
   // by default process active point vectors
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
+
+  this->StreamSurface->SetContainerAlgorithm(this);
 }
 
 //----------------------------------------------------------------------------
