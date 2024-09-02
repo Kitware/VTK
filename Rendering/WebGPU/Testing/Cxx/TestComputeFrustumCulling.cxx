@@ -83,6 +83,7 @@ int TestComputeFrustumCulling(int, char*[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
+  renWin->Initialize();
 
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);

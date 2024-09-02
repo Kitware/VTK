@@ -13,6 +13,7 @@ set(classes
   vtkWebGPUComputeOcclusionCuller
   vtkWebGPUComputePass
   vtkWebGPUComputePipeline
+  vtkWebGPUComputePointCloudMapper
   vtkWebGPUComputeRenderBuffer
   vtkWebGPUComputeRenderTexture
   vtkWebGPUComputeTexture
@@ -40,6 +41,7 @@ set(private_headers
   "Private/vtkWebGPUComputePassBufferStorageInternals.h"
   "Private/vtkWebGPUConfigurationInternals.h"
   "Private/vtkWebGPUPipelineLayoutInternals.h"
+  "Private/vtkWebGPUPointCloudMapperInternals.h"
   "Private/vtkWebGPURenderPassCreateInfoInternals.h"
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
@@ -57,6 +59,7 @@ set(private_sources
   "Private/vtkWebGPUComputePassBufferStorageInternals.cxx"
   "Private/vtkWebGPUConfigurationInternals.cxx"
   "Private/vtkWebGPUPipelineLayoutInternals.cxx"
+  "Private/vtkWebGPUPointCloudMapperInternals.cxx"
   "Private/vtkWebGPURenderPassCreateInfoInternals.cxx"
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
@@ -97,9 +100,12 @@ unset(public_wgsl_shader_headers)
 set(private_shader_files
   wgsl/FrustumCullingShader.wgsl
   wgsl/PolyData.wgsl
-  wgsl/OcclusionCullingCopyDepthBuffer.wgsl
+  wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
-  wgsl/OcclusionCullingPropsCulling.wgsl)
+  wgsl/OcclusionCullingPropsCulling.wgsl
+  wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
+  wgsl/PointCloudMapperCopyDepthToWindow.wgsl
+  wgsl/PointCloudMapperShader.wgsl)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl

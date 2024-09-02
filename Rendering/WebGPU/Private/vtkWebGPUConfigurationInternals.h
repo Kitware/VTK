@@ -22,6 +22,9 @@ public:
   // Helps clean up the instance after it is no longer needed.
   static std::size_t InstanceCount;
 
+  wgpu::RequiredLimits RequiredLimits;
+  std::vector<wgpu::FeatureName> RequiredFeatures;
+
   static void AddInstanceRef();
 
   static void ReleaseInstanceRef();
@@ -35,6 +38,18 @@ public:
 
   static void OnAdapterRequestCompleted(
     WGPURequestAdapterStatus status, WGPUAdapter cAdapter, const char* message, void* userdata);
+
+  /**
+   * Stores the required limits needed for querying the device in the RequiredLimits attribute of
+   * this ConfigurationInternals
+   */
+  void PopulateRequiredLimits(wgpu::Adapter adapter);
+
+  /**
+   * Stores the required features for querying the device in the RequiredFeatures vector of this
+   * ConfigurationInternals
+   */
+  void PopulateRequiredFeatures();
 
   static void OnDeviceRequestCompleted(
     WGPURequestDeviceStatus status, WGPUDevice cDevice, const char* message, void* userdata);

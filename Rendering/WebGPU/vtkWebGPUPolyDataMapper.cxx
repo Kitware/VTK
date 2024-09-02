@@ -77,7 +77,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
     {
       // update (i.e, create and write) GPU buffers if the data is outdated.
       bool buffersRecreated = false;
-      buffersRecreated |= this->UpdateMeshGeometryBuffers(device, actor);
+      buffersRecreated |= this->UpdateMeshGeometryBuffers(wgpuRenWin, device, actor);
       buffersRecreated |= this->UpdateMeshIndexBuffers(device);
       // setup pipeline
       if (!this->InitializedPipeline)
@@ -443,6 +443,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeByteSize(
         const vtkIdType* pts = nullptr;
         vtkIdType npts = 0;
         polysIter->GetCurrentCell(npts, pts);
+
         size += (npts - 2) * sizeof(vtkTypeFloat32);
         this->EdgeArrayCount += (npts - 2);
       }
@@ -744,7 +745,8 @@ vtkTypeFloat32Array* vtkWebGPUPolyDataMapper::ComputeEdgeArray(vtkCellArray* pol
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(
+  vtkWebGPURenderWindow* wgpuRenWin, const wgpu::Device& device, vtkActor* actor)
 {
   if (this->CachedInput == nullptr)
   {
@@ -857,7 +859,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   pointBufDescriptor.label = "Upload point buffer";
   pointBufDescriptor.mappedAtCreation = false;
   pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-  this->MeshSSBO.Point.Buffer = device.CreateBuffer(&pointBufDescriptor);
+  this->MeshSSBO.Point.Buffer = wgpuRenWin->CreateDeviceBuffer(pointBufDescriptor);
 
   ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer, device, 1. };
 
@@ -952,7 +954,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   cellBufDescriptor.label = "Upload cell buffer";
   cellBufDescriptor.mappedAtCreation = false;
   cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-  this->MeshSSBO.Cell.Buffer = device.CreateBuffer(&cellBufDescriptor);
+  this->MeshSSBO.Cell.Buffer = wgpuRenWin->CreateDeviceBuffer(cellBufDescriptor);
 
   ::WriteTypedArray<vtkTypeFloat32> cellBufWriter{ 0, this->MeshSSBO.Cell.Buffer, device, 1. };
 

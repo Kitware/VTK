@@ -55,7 +55,7 @@ void vtkWebGPUComputeFrustumCuller::PrintSelf(ostream& os, vtkIndent indent)
      << "Camera view projection matrix buffer index: " << this->CameraViewProjMatrixBufferIndex
      << std::endl;
   os << indent << "Output indices buffer index: " << this->OutputIndicesBufferIndex << std::endl;
-  os << indent << "Output object cout buffer index: " << this->OutputObjectCountBufferIndex
+  os << indent << "Output object count buffer index: " << this->OutputObjectCountBufferIndex
      << std::endl;
 }
 

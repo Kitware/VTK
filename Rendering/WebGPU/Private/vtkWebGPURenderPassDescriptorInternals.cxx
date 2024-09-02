@@ -36,7 +36,15 @@ vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
     }
     ++colorAttachmentIndex;
   }
-  colorAttachments = this->ColorAttachments.data();
+
+  if (!this->ColorAttachments.empty())
+  {
+    colorAttachments = this->ColorAttachments.data();
+  }
+  else
+  {
+    colorAttachments = nullptr;
+  }
 
   if (depthStencil.Get() != nullptr)
   {

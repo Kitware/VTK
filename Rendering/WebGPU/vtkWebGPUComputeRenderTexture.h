@@ -35,7 +35,8 @@ public:
   enum RenderTextureType
   {
     UNDEFINED = 0,
-    DEPTH_BUFFER
+    DEPTH_BUFFER,
+    COLOR_BUFFER
   };
 
   ///@{

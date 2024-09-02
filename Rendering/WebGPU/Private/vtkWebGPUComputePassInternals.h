@@ -177,6 +177,12 @@ public:
   /// @}
 
   /**
+   * Returns the wgpu::Buffer object for a buffer in this compute pass buffer storage given its
+   * index
+   */
+  wgpu::Buffer GetWGPUBuffer(std::size_t bufferIndex);
+
+  /**
    * Registers a texture to the associated compute pipeline of this compute pass so that other
    * compute passes of the same pipeline can reuse it.
    */
@@ -299,9 +305,11 @@ protected:
 
 private:
   friend class vtkWebGPUComputePass;
-  friend class vtkWebGPUComputePipeline;
   friend class vtkWebGPUComputePassBufferStorageInternals;
   friend class vtkWebGPUComputePassTextureStorageInternals;
+  friend class vtkWebGPUComputePipeline;
+  // For the mapper to be able to access the wgpu::Buffer objects for use in a render pipeline
+  friend class vtkWebGPUPointCloudMapperInternals;
 
   /**
    * Whether or not the shader module, binds groups, layouts and the wgpu::ComputePipeline have

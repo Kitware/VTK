@@ -146,8 +146,8 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->SceneTransformBuffer.Destroy();
     }
-    this->SceneTransformBuffer = vtkWebGPUBufferInternals::CreateABuffer(device,
-      transformSizePadded, wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
+    this->SceneTransformBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, transformSizePadded,
+      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
       "Transform uniform buffer for vtkRenderer");
     createSceneBindGroup = true;
   }
@@ -159,7 +159,7 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->SceneLightsBuffer.Destroy();
     }
-    this->SceneLightsBuffer = vtkWebGPUBufferInternals::CreateABuffer(device, lightSizePadded,
+    this->SceneLightsBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, lightSizePadded,
       wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false,
       "Lights uniform buffer for vtkRenderer");
     createSceneBindGroup = true;
@@ -172,7 +172,7 @@ void vtkWebGPURenderer::CreateBuffers()
     {
       this->ActorBlocksBuffer.Destroy();
     }
-    this->ActorBlocksBuffer = vtkWebGPUBufferInternals::CreateABuffer(device, actorBlkSize,
+    this->ActorBlocksBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, actorBlkSize,
       wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
       "Uniform buffer for all vtkActors in vtkRenderer");
     createActorBindGroup = true;
@@ -228,7 +228,7 @@ void vtkWebGPURenderer::DeviceRender()
   }
 
   this->ConfigureComputePipelines();
-  this->ComputePass();
+  this->PreRenderComputePipelines();
 
   this->BeginEncoding(); // all pipelines execute in single render pass, for now.
   this->ActiveCamera->UpdateViewport(this);
@@ -308,22 +308,37 @@ void vtkWebGPURenderer::ConfigureComputePipelines()
     return;
   }
 
-  for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline : this->NotSetupComputePipelines)
+  for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline :
+    this->NotSetupPreRenderComputePipelines)
   {
-    computePipeline->SetWGPUConfiguration(webGPURenderWindow->GetWGPUConfiguration());
-
     this->ConfigureComputeRenderBuffers(computePipeline);
-    this->SetupComputePipelines.push_back(computePipeline);
+    this->SetupPreRenderComputePipelines.push_back(computePipeline);
   }
 
-  // All the pipelines have been setup, we can clear the list
-  this->NotSetupComputePipelines.clear();
+  for (vtkSmartPointer<vtkWebGPUComputePipeline> computePipeline :
+    this->NotSetupPostRenderComputePipelines)
+  {
+    this->ConfigureComputeRenderBuffers(computePipeline);
+    this->SetupPostRenderComputePipelines.push_back(computePipeline);
+  }
+
+  // All the pipelines have been setup, we can clear the lists
+  this->NotSetupPreRenderComputePipelines.clear();
+  this->NotSetupPostRenderComputePipelines.clear();
 }
 
 //------------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> vtkWebGPURenderer::GetSetupComputePipelines()
+const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>&
+vtkWebGPURenderer::GetSetupPreRenderComputePipelines()
 {
-  return this->SetupComputePipelines;
+  return this->SetupPreRenderComputePipelines;
+}
+
+//------------------------------------------------------------------------------
+const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>&
+vtkWebGPURenderer::GetSetupPostRenderComputePipelines()
+{
+  return this->SetupPostRenderComputePipelines;
 }
 
 //------------------------------------------------------------------------------
@@ -448,7 +463,11 @@ void vtkWebGPURenderer::DeviceRenderOpaqueGeometry(vtkFrameBufferObjectBase* vtk
   {
     auto& wgpuPropItem = this->PropWGPUItems[this->PropArray[i]];
     auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(this->PropArray[i]);
-    if (this->UseRenderBundles)
+    bool actorUsesRenderBundles = wgpuActor->SupportRenderBundles();
+
+    // Even if the renderer is using render bundles, some actors don't support render bundles
+    // depending on the mapper they are using so we need both conditions here
+    if (this->UseRenderBundles && actorUsesRenderBundles)
     {
       this->BundleCacheStats.TotalRequests++;
       if (wgpuPropItem.Bundle == nullptr)
@@ -612,11 +631,23 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::ComputePass()
+void vtkWebGPURenderer::PreRenderComputePipelines()
 {
   // Executing the compute pipelines before the rendering so that the
   // render can take the compute pipelines results into account
-  for (vtkSmartPointer<vtkWebGPUComputePipeline> pipeline : this->SetupComputePipelines)
+  for (vtkWebGPUComputePipeline* pipeline : this->SetupPreRenderComputePipelines)
+  {
+    pipeline->DispatchAllPasses();
+    pipeline->Update();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::PostRenderComputePipelines()
+{
+  // Executing the compute pipelines before the rendering so that the
+  // render can take the compute pipelines results into account
+  for (vtkSmartPointer<vtkWebGPUComputePipeline> pipeline : this->SetupPostRenderComputePipelines)
   {
     pipeline->DispatchAllPasses();
     pipeline->Update();
@@ -795,6 +826,33 @@ void vtkWebGPURenderer::EndEncoding()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderer::PostRasterizationRender()
+{
+  for (vtkActor* postRasterActor : this->PostRasterizationActors)
+  {
+    vtkWebGPUActor* wgpuActor = vtkWebGPUActor::SafeDownCast(postRasterActor);
+    if (wgpuActor == nullptr)
+    {
+      vtkWarningWithObjectMacro(
+        this, "This vtkWebGPURenderer was trying to render a nullptr actor.");
+
+      continue;
+    }
+
+    wgpuActor->SetMapperRenderType(vtkWebGPUActor::MapperRenderType::RenderPostRasterization);
+    postRasterActor->GetMapper()->Render(this, postRasterActor);
+  }
+
+  this->PostRasterizationActors.clear();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::AddPostRasterizationActor(vtkActor* actor)
+{
+  this->PostRasterizationActors.push_back(actor);
+}
+
+//------------------------------------------------------------------------------
 wgpu::ShaderModule vtkWebGPURenderer::HasShaderCache(const std::string& source)
 {
   return this->ShaderCache.count(source) > 0 ? this->ShaderCache.at(source) : nullptr;
@@ -807,14 +865,31 @@ void vtkWebGPURenderer::InsertShader(const std::string& source, wgpu::ShaderModu
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
+void vtkWebGPURenderer::AddPreRenderComputePipeline(
+  vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
 {
-  this->NotSetupComputePipelines.push_back(pipeline);
+  this->NotSetupPreRenderComputePipelines.push_back(pipeline);
 
+  this->InitComputePipeline(pipeline);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::AddPostRenderComputePipeline(
+  vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
+{
+  this->NotSetupPostRenderComputePipelines.push_back(pipeline);
+
+  this->InitComputePipeline(pipeline);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::InitComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline)
+{
   vtkWebGPURenderWindow* wgpuRenderWindow =
     vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  vtkWebGPUConfiguration* renderWindowConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
-  if (wgpuRenderWindow->GetWGPUConfiguration() == nullptr)
+  if (renderWindowConfiguration == nullptr)
   {
     vtkLog(ERROR,
       "Trying to add a compute pipeline to a vtkWebGPURenderer whose vtkWebGPURenderWindow wasn't "
@@ -823,7 +898,7 @@ void vtkWebGPURenderer::AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipel
     return;
   }
 
-  pipeline->SetWGPUConfiguration(wgpuRenderWindow->GetWGPUConfiguration());
+  pipeline->SetWGPUConfiguration(renderWindowConfiguration);
 }
 
 VTK_ABI_NAMESPACE_END

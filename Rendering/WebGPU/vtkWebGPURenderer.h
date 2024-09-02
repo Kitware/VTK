@@ -81,10 +81,15 @@ public:
    */
   void ConfigureComputePipelines();
 
+  /// @{
   /**
-   * Returns the list of compute pipelines of this renderer that have been setup
+   * Returns the list of compute pipelines of this renderer that have been setup for execution
+   * before/after the rendering pass
    */
-  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> GetSetupComputePipelines();
+  const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>& GetSetupPreRenderComputePipelines();
+  const std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>>&
+  GetSetupPostRenderComputePipelines();
+  /// @}
 
   /**
    * Request props to encode render commands.
@@ -110,11 +115,14 @@ public:
   wgpu::ShaderModule HasShaderCache(const std::string& source);
   void InsertShader(const std::string& source, wgpu::ShaderModule shader);
 
+  /// @{
   /**
-   * Adds a compute pipeline to the renderer that will be executed each frame before the rendering
-   * pass.
+   * Adds a compute pipeline to the renderer that will be executed each frame before/after the
+   * rendering pass.
    */
-  void AddComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+  void AddPreRenderComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+  void AddPostRenderComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+  /// @}
 
   /**
    * Returns the list of the actors that were rendered last frame
@@ -232,26 +240,69 @@ protected:
 
 private:
   friend class vtkWebGPUComputeOcclusionCuller;
+  // For the mapper to access 'AddPostRasterizationActor'
+  friend class vtkWebGPUComputePointCloudMapper;
+  // For render window accessing PostRenderComputePipelines()
+  friend class vtkWebGPURenderWindow;
 
   vtkWebGPURenderer(const vtkWebGPURenderer&) = delete;
   void operator=(const vtkWebGPURenderer&) = delete;
 
   /**
+   * Sets the device and adapter of the render window of this renderer to the given pipeline
+   */
+  void InitComputePipeline(vtkSmartPointer<vtkWebGPUComputePipeline> pipeline);
+
+  /// @{
+  /**
    * Dispatches the compute pipelines attached to this renderer in the order they were added by
-   * AddComputePipeline()
+   * AddPreRenderComputePipeline() / AddPostRenderComputePipeline().
+   *
+   * This function only dispatches the compute pipelines that were given by the user to execute
+   * before/after the rendering pass
    */
-  void ComputePass();
+  void PreRenderComputePipelines();
+  void PostRenderComputePipelines();
+  /// @}
 
   /**
-   * Compute pipelines that have been setup and that will be dispatched by the renderer before the
-   * rendering passes
+   * Renders actors contained in the PostRasterizationActors vector after the pass that rasterizes
+   * the other actors of this renderer. This is mainly useful when some actors are rendered with
+   * compute shaders (through compute pipelines) because compute shaders that write to the
+   * framebuffer of the render window cannot be interleaved with rasterization pipeline render
+   * commands (in-between BeginEncoding() and EndEncoding() calls).
+   *
+   * This method is called by the render window after the rasterization render pass has been flushed
+   * to the device to make sure that all resources are up to date (depth buffer, frame buffer)
    */
-  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> SetupComputePipelines;
+  void PostRasterizationRender();
 
   /**
-   * Compute pipelines that have yet to be setup
+   * Adds an actor to be rendered after the main rasterization pass
    */
-  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupComputePipelines;
+  void AddPostRasterizationActor(vtkActor* actor);
+
+  /**
+   * Compute pipelines (post and pre render) that have been setup and that will be dispatched
+   * by the renderer before the rendering passes
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> SetupPreRenderComputePipelines;
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> SetupPostRenderComputePipelines;
+
+  /**
+   * Compute pipelines (post and pre render) that have yet to be setup
+   */
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupPreRenderComputePipelines;
+  std::vector<vtkSmartPointer<vtkWebGPUComputePipeline>> NotSetupPostRenderComputePipelines;
+
+  /**
+   * Actors that will be rendered by PostRasterizationRender() after the main rasterization pass.
+   * Actors are added to this list when the Render() method of an actor is called but the mapper of
+   * this actor determines that it needs to be rendered after the rasterization pass. The mapper
+   * will then add the actor to this list of the renderer so that the renderer can render the actor
+   * after the rasterization pass.
+   */
+  std::vector<vtkActor*> PostRasterizationActors;
 
   /**
    * Encodes a render command for rendering the given props

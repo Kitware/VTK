@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUComputeOcclusionCuller.h"
-#include "OcclusionCullingCopyDepthBuffer.h" // for copy depth buffer shader
-#include "OcclusionCullingDepthMipmaps.h"    // for depth buffer mipmap computation shader
-#include "OcclusionCullingPropsCulling.h"    // for occlusion culling shader
-#include "vtkCamera.h"                       // for manipulating the camera
-#include "vtkMatrix4x4.h"                    // for the view projection matrix
-#include "vtkObjectFactory.h"                // for vtk standard new macro
+#include "OcclusionCullingCopyDepthTexture.h" // for copy depth buffer shader
+#include "OcclusionCullingDepthMipmaps.h"     // for depth buffer mipmap computation shader
+#include "OcclusionCullingPropsCulling.h"     // for occlusion culling shader
+#include "vtkCamera.h"                        // for manipulating the camera
+#include "vtkMatrix4x4.h"                     // for the view projection matrix
+#include "vtkObjectFactory.h"                 // for vtk standard new macro
 #include "vtkRendererCollection.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"      // for the occlusion culling pipeline
@@ -155,7 +155,7 @@ void vtkWebGPUComputeOcclusionCuller::SetupDepthBufferCopyPass()
   depthTexture = this->WebGPURenderWindow->AcquireDepthBufferRenderTexture();
   depthTexture->SetLabel("Depth buffer texture for depth buffer copy pass");
 
-  this->DepthBufferCopyPass->SetShaderSource(OcclusionCullingCopyDepthBuffer);
+  this->DepthBufferCopyPass->SetShaderSource(OcclusionCullingCopyDepthTexture);
   this->DepthBufferCopyPass->SetShaderEntryPoint("computeMain");
 
   const int index = this->DepthBufferCopyPass->AddRenderTexture(depthTexture);
@@ -163,7 +163,7 @@ void vtkWebGPUComputeOcclusionCuller::SetupDepthBufferCopyPass()
   auto depthTextureView = this->DepthBufferCopyPass->CreateTextureView(index);
   depthTextureView->SetGroup(0);
   depthTextureView->SetBinding(0);
-  depthTextureView->SetLabel("Depth buffer texture depth buffer copy pass");
+  depthTextureView->SetLabel("Depth buffer texture view depth buffer copy pass");
   depthTextureView->SetMode(vtkWebGPUTextureView::TextureViewMode::READ_ONLY);
   depthTextureView->SetAspect(vtkWebGPUTextureView::TextureViewAspect::ASPECT_DEPTH);
   depthTextureView->SetFormat(vtkWebGPUTexture::TextureFormat::DEPTH_24_PLUS);
@@ -252,7 +252,7 @@ void vtkWebGPUComputeOcclusionCuller::AddOcclusionCullingPipelineToRenderer(vtkR
     return;
   }
 
-  wgpuRenderer->AddComputePipeline(this->OcclusionCullingPipeline);
+  wgpuRenderer->AddPreRenderComputePipeline(this->OcclusionCullingPipeline);
 }
 
 //------------------------------------------------------------------------------
@@ -338,12 +338,11 @@ void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBuffer(
   this->CullingPass->RecreateComputeTexture(this->HierarchicalZBufferTextureIndexCullingPass);
   this->CullingPass->RecreateTextureView(this->CullingPassHierarchicalZBufferView);
   // Because the size of the window has changed, we may have more or less mipmaps
-  this->ResizeHierarchicalZBufferMipmapsChain(newWidth, newHeight);
+  this->ResizeHierarchicalZBufferMipmapsChain();
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBufferMipmapsChain(
-  uint32_t vtkNotUsed(newWidth), uint32_t vtkNotUsed(newHeight))
+void vtkWebGPUComputeOcclusionCuller::ResizeHierarchicalZBufferMipmapsChain()
 {
   this->DepthMipmapsPass->DeleteTextureViews(this->HierarchicalZBufferTextureIndexMipmapsPass);
   this->FinishSetupMipmapsPass();
@@ -741,9 +740,6 @@ void vtkWebGPUComputeOcclusionCuller::UpdateCameraMVPBuffer(vtkRenderer* ren)
     camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), -1, 1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
-  // Reversing the y-axis because Vulkan has a Y-axis that is flipped compared to OpenGL (and VTK's
-  // projection matrix is OpenGL style)
-  // viewProj->SetElement(1, 1, viewProj->GetElement(1, 1) * -1);
   // WebGPU uses column major matrices but VTK is row major
   viewProj->Transpose();
 

@@ -454,11 +454,23 @@ vtkSmartPointer<vtkWebGPUComputePass> myComputePass = myComputePipeline->CreateC
 myComputePass->AddRenderBuffer(pointColorsRenderBuffer);
 ```
 
-The compute pipeline (to which the compute pass belongs) then needs to be added to a `vtkWebGPURenderer`:
+The compute pipeline (to which the compute pass belongs) then needs to be added to a `vtkWebGPURenderer`.
+You can add the `vtkWebGPUComputePipeline` to the renderer so that it executes before rendering a frame or
+after rendering a frame, depending on yours needs. To give examples, if you intend on modifying the geometry of some actors
+through your compute pipeline, you probably want to add the compute pipeline to the renderer so that it executes
+before the rendering process, allowing for the changes to the geometry to be reflected once the frame is rendered.
+On the other hand, if you need the depth buffer of the render window for your compute pipeline, you will want to add
+the compute pipeline so that it executes after the frame is rendered (so that the depth buffer has been constructed).
+
+You can decide that throug the `AddPreRenderComputePipeline()` and `AddPostRenderComputePipeline()` functions.
 
 ```c++
 vtkWebGPURenderer* wegpuRenderer = vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-wegpuRenderer->AddComputePipeline(myComputePipeline);
+
+// The compute pipeline will execute **before** rendering a frame.
+// Using AddPostRenderComputePipeline() will have the pipeline execute after
+// a frame is rendered
+wegpuRenderer->AddPreRenderComputePipeline(myComputePipeline);
 ```
 
 Warning: to add a compute pipeline to a `vtkWebGPURenderer`, the `vtkRenderWindow` of the renderer must be "initialized". This

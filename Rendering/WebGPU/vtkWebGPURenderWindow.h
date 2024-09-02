@@ -184,6 +184,11 @@ public:
   void CreateCommandEncoder();
 
   /**
+   * Sends a given command buffer to the device queue
+   */
+  void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
+
+  /**
    * Get a view of the color attachment used in the offscreen render target.
    */
   wgpu::TextureView GetOffscreenColorAttachmentView();
@@ -218,15 +223,25 @@ public:
    */
   wgpu::TextureFormat GetPreferredSwapChainTextureFormat();
 
+  ///@{
   /**
    * Returns a vtkWebGPUComputeRenderTexture ready to be added to a compute pipeline using
-   * vtkWebGPUComputePipeline::AddRenderTexture() that "points" to the depth buffer of this
-   * vtkWebGPURenderWindow.
+   * vtkWebGPUComputePipeline::AddRenderTexture() that "points" to the depth buffer/color texture of
+   * this vtkWebGPURenderWindow.
    *
-   * This texture is expected to be bound on \@group('bindGroup') \@binding('binding') in the
-   * compute shader that uses it.
+   * One or multiple texture views will also need to be created for that render texture with a call
+   * to CreateRenderTextureView(). The texture view returned can then be configured (group, binding,
+   * ...) and added to the render window by calling AddRenderTextureView()
    */
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireDepthBufferRenderTexture();
+
+  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireFramebufferRenderTexture();
+  ///@}
+
+  /**
+   * Creates a wgpu buffer with the device of this render window
+   */
+  wgpu::Buffer CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor);
 
 protected:
   vtkWebGPURenderWindow();
@@ -260,8 +275,6 @@ protected:
   void RecreateComputeRenderTextures();
 
   void RenderOffscreenTexture();
-
-  void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
 
   bool RenderTexturesSetup = false;
 
@@ -311,6 +324,7 @@ protected:
     wgpu::RenderPipeline Pipeline;
     wgpu::BindGroup BindGroup;
   };
+
   vtkWGPUFullScreenQuad FSQ;
 
   struct MappingContext
@@ -344,6 +358,17 @@ private:
    * commands by the render window.
    */
   void SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer);
+
+  /**
+   * Dispatches all the post-render compute pipelines of all the renderers of this render window
+   */
+  void PostRenderComputePipelines();
+
+  /**
+   * Renders actors of the renderers of this render window that were "deferred" to being rendered
+   * after the main rasterization pass
+   */
+  void PostRasterizationRender();
 
   // Render textures acquired by the user on this render window. They are kept here in case the
   // render window is resized, in which case, we'll need to resize the render textures --> We need

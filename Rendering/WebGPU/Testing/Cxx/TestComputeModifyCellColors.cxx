@@ -104,7 +104,7 @@ int TestComputeModifyCellColors(int argc, char* argv[])
   // The pipeline will be executed each frame before the rendering pass
   vtkWebGPURenderer* wegpuRenderer =
     vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wegpuRenderer->AddComputePipeline(cellColorComputePipeline);
+  wegpuRenderer->AddPreRenderComputePipeline(cellColorComputePipeline);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();

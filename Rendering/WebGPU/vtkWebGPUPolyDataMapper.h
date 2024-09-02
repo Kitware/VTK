@@ -210,7 +210,8 @@ protected:
   unsigned long GetExactPointBufferSize();
   unsigned long GetExactCellBufferSize();
   std::vector<unsigned long> GetExactConnecitivityBufferSizes();
-  bool UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor);
+  bool UpdateMeshGeometryBuffers(
+    vtkWebGPURenderWindow* wgpuRenWin, const wgpu::Device& device, vtkActor* actor);
   bool UpdateMeshIndexBuffers(const wgpu::Device& device);
   vtkTypeFloat32Array* ComputeEdgeArray(vtkCellArray* polys);
 

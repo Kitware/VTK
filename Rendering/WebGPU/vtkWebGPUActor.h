@@ -30,6 +30,13 @@ public:
    */
   void Render(vtkRenderer* ren, vtkMapper* mapper) override;
   wgpu::RenderBundle RenderToBundle(vtkRenderer* ren, vtkMapper* mapper);
+  /**
+   * Returns true if the actor supports rendering with render bundles, false otherwise.
+   *
+   * This is mainly used for the point cloud mapper. This mapper doesn't use the rasterization
+   * pipeline for the rendering and thus doesn't support render bundles.
+   */
+  bool SupportRenderBundles();
 
   /**
    * Request mapper to run the vtkAlgorithm pipeline (if needed)
@@ -57,7 +64,8 @@ public:
     None = 0,
     UpdateBuffers,
     RenderPassEncode,
-    RenderBundleEncode
+    RenderBundleEncode,
+    RenderPostRasterization
   };
 
   // mapper figures this out when updating mesh geometry.
@@ -91,6 +99,10 @@ public:
   }
 
   inline MapperRenderType GetMapperRenderType() { return this->CurrentMapperRenderType; }
+  void SetMapperRenderType(MapperRenderType mapperRenderType)
+  {
+    this->CurrentMapperRenderType = mapperRenderType;
+  }
   inline wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->CurrentBundler; }
   inline void SetDynamicOffsets(vtkSmartPointer<vtkTypeUInt32Array> offsets)
   {

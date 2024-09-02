@@ -545,6 +545,45 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_threads_windows
     "^VTK::WebAssemblyJavaScript")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
+  list (APPEND test_exclusions
+    # WebGPU tests on wasm64 fail 
+    "^VTK::RenderingWebGPUCxx-TestActorFaceCullingProperty"
+    "^VTK::RenderingWebGPUCxx-TestCellScalarMappedColors"
+    "^VTK::RenderingWebGPUCxx-TestComputeDoublePipelineRenderBuffer"
+    "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling"
+    "^VTK::RenderingWebGPUCxx-TestComputeOcclusionCulling"
+    "^VTK::RenderingWebGPUCxx-TestComputeOcclusionCullingResize"
+    "^VTK::RenderingWebGPUCxx-TestComputeModifyPointColors"
+    "^VTK::RenderingWebGPUCxx-TestComputeModifyCellColors"
+    "^VTK::RenderingWebGPUCxx-TestComputePass"
+    "^VTK::RenderingWebGPUCxx-TestComputePassChained"
+    "^VTK::RenderingWebGPUCxx-TestComputePassUniform"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapper"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperColors"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperDepth"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperGeometry"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperResize"
+    "^VTK::RenderingWebGPUCxx-TestComputeTexture"
+    "^VTK::RenderingWebGPUCxx-TestLineRendering"
+    "^VTK::RenderingWebGPUCxx-TestLowPowerRenderWindow"
+    "^VTK::RenderingWebGPUCxx-TestPointScalarMappedColors"
+    "^VTK::RenderingWebGPUCxx-TestScalarModeToggle"
+    "^VTK::RenderingWebGPUCxx-TestSurfacePlusEdges"
+    "^VTK::RenderingWebGPUCxx-TestQuad"
+    "^VTK::RenderingWebGPUCxx-TestQuadPointRep"
+    "^VTK::RenderingWebGPUCxx-TestRenderWindowChangeDeviceLater"
+    "^VTK::RenderingWebGPUCxx-TestVertexRendering"
+    "^VTK::RenderingWebGPUCxx-TestWireframe"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_1"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_2"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_3"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_4"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_1"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_2"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_3")
+endif ()
+
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "debug")

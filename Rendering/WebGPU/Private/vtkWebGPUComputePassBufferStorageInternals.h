@@ -28,6 +28,24 @@ public:
   vtkTypeMacro(vtkWebGPUComputePassBufferStorageInternals, vtkObject);
 
   /**
+   * Enum used by the returned value of UpdateWebGPUBuffer() to indicate what operation was done
+   * internally
+   *
+   * SUCCESS: The buffer was successfully updated
+   *
+   * UP_TO_DATE: The buffer was already up to date (the given wgpu::Buffer was already being used).
+   * No-op.
+   *
+   * BUFFER_NOT_FOUND: The given buffer did not belong to this buffer storage. No-op.
+   */
+  enum UpdateBufferStatusCode
+  {
+    SUCCESS = 0,
+    UP_TO_DATE,
+    BUFFER_NOT_FOUND
+  };
+
+  /**
    * Sets the device that will be used by this buffer storage when creating buffers.
    *
    * This device must be the one used by the parent compute pass.
@@ -46,6 +64,12 @@ public:
    * ReadBufferFromGPU() function.
    */
   int AddBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer);
+
+  /**
+   * Returns the wgpu::Buffer object for a buffer in this compute pass buffer storage given its
+   * index
+   */
+  wgpu::Buffer GetWGPUBuffer(std::size_t bufferIndex);
 
   /**
    * Adds a render texture to the pipeline. A render texture can be obtained from
@@ -85,11 +109,19 @@ public:
     std::size_t bufferIndex, vtkWebGPUComputePass::BufferMapAsyncCallback callback, void* userdata);
 
   /**
-   * Updates the wgpu::Buffer reference that a compute buffer is associated to. Useful when a
-   * compute buffer has been recreated and the associated wgpu::Buffer needs to be updated with the
-   * newly created buffer
+   * Updates the wgpu::Buffer reference that a compute buffer is associated to.
+   *
+   * Useful when a compute buffer has been recreated and the associated wgpu::Buffer needs to be
+   * updated with the newly created buffer.
+   *
+   * Also recreates the bind group of the buffer.
+   *
+   * Returns the status of the operation.
+   * The index of the buffer that was modified (basically the index of 'buffer' within Buffers) is
+   * stored in the outBufferIndex parameter.
    */
-  void UpdateWebGPUBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer);
+  UpdateBufferStatusCode UpdateWebGPUBuffer(vtkSmartPointer<vtkWebGPUComputeBuffer> buffer,
+    wgpu::Buffer wgpuBuffer, std::size_t& outBufferIndex);
 
   /**
    * Updates the data of a buffer.

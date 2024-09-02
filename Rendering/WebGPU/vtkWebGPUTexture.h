@@ -22,14 +22,19 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * RGBA: Uses RGB + alpha. Default.
+   * RGBA8_UNORM: Uses RGB + alpha. Default.
+   * BGRA8_UNORM: Uses BGR + alpha. Used by the framebuffer of WebGPU render windows
    * R32_FLOAT: Only a 32 bit float red channel
+   * DEPTH_24_PLUS: 24 bit depth format
+   * DEPTH_24_PLUS_8_STENCIL: 24 bit depth format + 8 bit stencil
    */
   enum TextureFormat
   {
     RGBA8_UNORM = 0,
+    BGRA8_UNORM,
     R32_FLOAT,
-    DEPTH_24_PLUS
+    DEPTH_24_PLUS,
+    DEPTH_24_PLUS_8_STENCIL
   };
 
   /**
