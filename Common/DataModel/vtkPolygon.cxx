@@ -1378,9 +1378,9 @@ int vtkPolyVertexList::CanRemoveVertex(int id)
 // the current polygon. 3 and 4 points are handled with special care for concave quad.
 int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList* tris)
 {
-  int NumberOfVerts = ptIds->GetNumberOfIds();
+  int number_of_verts = ptIds->GetNumberOfIds();
   // Just output the single triangle
-  if (NumberOfVerts == 3)
+  if (number_of_verts == 3)
   {
     double x0[3], x1[3], x2[3];
     bool valid = true;
@@ -1396,15 +1396,14 @@ int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList
     if (valid)
     {
       tris->SetNumberOfIds(3);
-      constexpr std::array<vtkIdType, 3> localPtIds{ 0, 1, 2 };
-      std::copy(localPtIds.begin(), localPtIds.end(), tris->begin());
+      std::iota(tris->begin(), tris->end(), 0);
       return 1;
     }
   }
 
   // Four points are split into two triangles. Watch out for the
   // concave case (i.e., quad looks like a arrowhead).
-  else if (NumberOfVerts == 4)
+  else if (number_of_verts == 4)
   {
     // There are only two ear cutting possibility.
     // This boolean
@@ -1435,8 +1434,8 @@ int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList
     d2[1] = x3[1] - x1[1];
     d2[2] = x3[2] - x1[2];
 
-    double d1_n2 = (d1[0] * d1[0] + d1[1] * d1[1] + d1[2] * d1[2]);
-    double d2_n2 = (d2[0] * d2[0] + d2[1] * d2[1] + d2[2] * d2[2]);
+    double d1_n2 = vtkMath::SquaredNorm(d1);
+    double d2_n2 = vtkMath::SquaredNorm(d2);
     if (d1_n2 < d2_n2)
     {
       use_d1 = true;
@@ -1470,11 +1469,11 @@ int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList
       v3[2] = x0[2] - x1[2];
     }
     // Check points validity
-    if ((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]) < tol2)
+    if (vtkMath::SquaredNorm(v1) < tol2)
     {
       return 0;
     }
-    if ((v3[0] * v3[0] + v3[1] * v3[1] + v3[2] * v3[2]) < tol2)
+    if (vtkMath::SquaredNorm(v3) < tol2)
     {
       return 0;
     }
@@ -1490,11 +1489,11 @@ int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList
       vtkMath::Cross(d2, v3, n2);
     }
     // Indirect check points validity
-    if ((n1[0] * n1[0] + n1[1] * n1[1] + n1[2] * n1[2]) < tol2)
+    if (vtkMath::SquaredNorm(n1) < tol2)
     {
       return 0;
     }
-    if ((n2[0] * n2[0] + n2[1] * n2[1] + n2[2] * n2[2]) < tol2)
+    if (vtkMath::SquaredNorm(n2) < tol2)
     {
       return 0;
     }
@@ -1559,28 +1558,20 @@ int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList
         vtkMath::Cross(d1, v3, n2);
       }
       // Check points validity
-      if ((v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]) < tol2)
+      if (vtkMath::SquaredNorm(v1) < tol2)
       {
         return 0;
       }
-      if ((v3[0] * v3[0] + v3[1] * v3[1] + v3[2] * v3[2]) < tol2)
+      if (vtkMath::SquaredNorm(v3) < tol2)
       {
         return 0;
       }
       // check for invalid case
-      if ((area = vtkMath::Dot(n1, normal)) < 0.0)
+      if (vtkMath::Dot(n1, normal) <= 0.0)
       {
         return 0;
       }
-      else if (area == 0.0)
-      {
-        return 0;
-      }
-      if ((area = vtkMath::Dot(n2, normal)) < 0.0)
-      {
-        return 0;
-      }
-      else if (area == 0.0)
+      if (vtkMath::Dot(n2, normal) <= 0.0)
       {
         return 0;
       }
