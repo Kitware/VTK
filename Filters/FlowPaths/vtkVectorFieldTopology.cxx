@@ -2149,7 +2149,9 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
         }
 
         if (!appendFlag)
+        {
           continue;
+        }
 
         criticalPoints->GetPoints()->InsertNextPoint(
           criticalPointsTemporary->GetPoints()->GetPoint(pointId));
