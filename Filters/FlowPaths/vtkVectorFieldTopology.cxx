@@ -325,6 +325,11 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
 {
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     auto cell = tridataset->GetCell(cellId);
     if (cell->GetCellType() != VTK_TRIANGLE)
     {
@@ -418,6 +423,11 @@ int vtkVectorFieldTopology::ComputeCriticalPoints3D(
 {
   for (int cellId = 0; cellId < tridataset->GetNumberOfCells(); cellId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     auto cell = tridataset->GetCell(cellId);
     if (cell->GetCellType() != VTK_TETRA)
     {
@@ -557,6 +567,10 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
   // main loop
   for (int i = 0; i < surface->GetOutput()->GetNumberOfCells(); i++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
 
     // compute tangent and line normal of the line in the ith cell
     vtkCell* cell = surface->GetOutput()->GetCell(i);
@@ -1412,7 +1426,6 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
     streamTracer->SetInputData(data);
   }
 
-  streamTracer->SetInterpolatorType(this->InterpolatorType);
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
@@ -1422,12 +1435,16 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   streamTracer->SetTerminalSpeed(epsilon);
   streamTracer->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, this->NameOfVectorArray);
-
-  // int numberOfSeparatingLines = 0;
-  // int numberOfSeparatingSurfaces = 0;
+  streamTracer->SetInterpolatorType(this->InterpolatorType);
+  streamTracer->SetContainerAlgorithm(this);
 
   for (int pointId = 0; pointId < criticalPoints->GetNumberOfPoints(); pointId++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
+
     // classification
     Eigen::Matrix<double, 3, 3> eigenMatrix;
     int flatIdx = 0;
@@ -1819,13 +1836,6 @@ void vtkVectorFieldTopology::CopyBoundarySwitchLinesArray(vtkDataSet* source, vt
     array->SetName(source->GetPointData()->GetArray(i)->GetName());
     target->GetPointData()->AddArray(array);
   }
-  // for (int i = 0; i < source->GetCellData()->GetNumberOfArrays(); i++)
-  //   {
-  //     vtkNew<vtkDoubleArray> array;
-  //     array->SetNumberOfComponents(source->GetCellData()->GetArray(i)->GetNumberOfComponents());
-  //     array->SetName(source->GetCellData()->GetArray(i)->GetName());
-  //     target->GetCellData()->AddArray(array);
-  //   }
 }
 
 //----------------------------------------------------------------------------
@@ -1969,9 +1979,6 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
       this->ComputeCriticalPoints3D(criticalPoints, tridataset);
     }
 
-    // if (criticalPoints->GetNumberOfPoints() > 0)
-    //   cout << "# of critical points: " << criticalPoints->GetNumberOfPoints() << endl;
-
     vtkNew<vtkPoints> interestPoints;
 
     if (this->Dimension == 2)
@@ -2036,11 +2043,6 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
     vtkCompositeDataIterator* iter = data->NewIterator();
 
-    // cout << "GetNumberOfLevels = "
-    //      << data->GetNumberOfLevels()
-    //      // << "\nGetNumberOfDataSets = " << data->GetNumberOfDataSets()
-    //      << "\nGetTotalNumberOfBlocks = " << data->GetTotalNumberOfBlocks() << endl;
-
     // initialize critical points data structure
     vtkNew<vtkPoints> criticalPointsPoints;
     vtkNew<vtkCellArray> criticalPointsCells;
@@ -2095,9 +2097,6 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
         this->ComputeCriticalPoints3D(criticalPointsTemporary, tridataset);
       }
 
-      // if (criticalPointsTemporary->GetNumberOfPoints())
-      //   cout << "# of critical points: " << criticalPointsTemporary->GetNumberOfPoints() << endl;
-
       vtkNew<vtkPoints> interestPoints;
 
       if (this->Dimension == 2)
@@ -2140,8 +2139,6 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
           double* pi = criticalPoints->GetPoints()->GetPoint(i);
           double typei = criticalPoints->GetPointData()->GetArray("type")->GetTuple1(i);
 
-          // cout << "type0 = " << type0 << " typei = " << typei << endl
-          //      << "distance: " << vtkMath::Distance2BetweenPoints(p0, pi) << endl;
           if (type0 == typei && vtkMath::Distance2BetweenPoints(p0, pi) < epsilon)
           {
             appendFlag = false;
