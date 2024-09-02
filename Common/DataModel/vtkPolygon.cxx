@@ -1061,7 +1061,6 @@ public:
   void RemoveVertex(int i, vtkIdList* ids, vtkPriorityQueue* queue = nullptr);
   int CanRemoveVertex(vtkLocalPolyVertex* vtx);
   int CanRemoveVertex(int id);
-  int SimpleTriangulation(vtkIdList* ids); // Handle trivial triangulation cases
 
   double Tol;
   double Tol2;
@@ -1372,34 +1371,6 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx)
 int vtkPolyVertexList::CanRemoveVertex(int id)
 {
   return this->CanRemoveVertex(this->Array + id);
-}
-
-//------------------------------------------------------------------------------
-// Handles some trivial triangulation cases. Returns 0 if cannot triangulate
-// the current polygon. NOTE: the original implementation had a special case
-// for four vertices, but this affects the way some quads are tessellated,
-// which in turn causes differences in vtkTriangleFilter, which many tests
-// depend on. So adding a special case for four vertices requires more
-// work than might be anticipated.
-int vtkPolyVertexList::SimpleTriangulation(vtkIdList* tris)
-{
-  // Just output the single triangle
-  if (this->NumberOfVerts == 3)
-  {
-    tris->InsertNextId(this->Array[0].id);
-    tris->InsertNextId(this->Array[1].id);
-    tris->InsertNextId(this->Array[2].id);
-    return 1;
-  }
-
-  // Four points are split into two triangles. Watch out for the
-  // concave case (i.e., quad looks like a arrowhead).
-  else if (NumberOfVerts == 4)
-  {
-    return 0;
-  } // if simple cases
-
-  return 0;
 }
 
 //------------------------------------------------------------------------------
