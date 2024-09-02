@@ -235,6 +235,9 @@ if (NOT cdash_show_third_party_warnings)
 
     # Timeout errors of SCCACHE are common cases for long builds such as VTK+VTKm+CUDA
     "sccache: warning: The server looks like it shut down unexpectedly, compiling locally instead"
+
+    # Ignore warnings from Apple's new linker about duplicate rpath flags.
+    "ld: warning: duplicate -rpath"
   )
 endif ()
 
