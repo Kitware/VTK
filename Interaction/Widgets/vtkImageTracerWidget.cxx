@@ -534,14 +534,13 @@ void vtkImageTracerWidget::SetProjectionPosition(double position)
 {
   this->ProjectionPosition = position;
 
-  int i;
-  for (i = 0; i < this->NumberOfHandles; ++i)
+  for (int i = 0; i < this->NumberOfHandles; ++i)
   {
     this->AdjustHandlePosition(i, this->HandleGeometry[i]->GetCenter());
   }
 
   double pt[3];
-  for (i = 0; i < this->NumberOfHandles; ++i)
+  for (int i = 0; i < this->LinePoints->GetNumberOfPoints(); ++i)
   {
     this->LinePoints->GetPoint(i, pt);
     pt[this->ProjectionNormal] = this->ProjectionPosition;
