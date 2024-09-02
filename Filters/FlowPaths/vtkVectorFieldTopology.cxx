@@ -719,11 +719,8 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
   vtkNew<vtkDoubleArray> integrationTimeArray;
   integrationTimeArray->SetName("IntegrationTime");
   currentCircle->GetPointData()->AddArray(integrationTimeArray);
-  integrationTimeArray->Resize(currentCircle->GetNumberOfPoints());
-  for (int i = 0; i < currentCircle->GetNumberOfPoints(); ++i)
-  {
-    integrationTimeArray->SetTuple1(i, (double)0);
-  }
+  integrationTimeArray->SetNumberOfTuples(currentCircle->GetNumberOfPoints());
+  integrationTimeArray->Fill(0.0);
 
   this->StreamSurface->SetInputData(0, dataset);
   this->StreamSurface->SetInputData(1, currentCircle);
