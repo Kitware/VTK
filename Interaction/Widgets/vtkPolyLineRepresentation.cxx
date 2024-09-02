@@ -203,7 +203,7 @@ void vtkPolyLineRepresentation::ReconfigureHandles(int npts)
     for (vtkIdType i = prevNumPoints; i < npts; ++i)
     {
       double pt[3] = { 0.0, 0.0, 0.0 };
-      this->PolyLineSource->GetPoints()->SetPoint(i, pt);
+      this->PolyLineSource->GetPoints()->InsertPoint(i, pt);
     }
   }
 
