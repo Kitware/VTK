@@ -236,7 +236,7 @@ public:
    * By default (and if a InterpolationPrototype is not set), a point locator
    * is used.
    */
-  void SetInterpolatorTypeToDataSetPointLocator(bool amrData = false);
+  void SetInterpolatorTypeToDataSetPointLocator();
 
   /**
    * Set the velocity field interpolator type to one that uses a cell locator
@@ -244,7 +244,7 @@ public:
    * the correct results, but it can be much slower that point locator-based
    * searches.
    */
-  void SetInterpolatorTypeToCellLocator(bool amrData = false);
+  void SetInterpolatorTypeToCellLocator();
 
   ///@{
   /**
@@ -403,7 +403,7 @@ public:
    * vtkPointSet::FindCell() coupled with vtkPointLocator). However the former
    * can be much faster and produce adequate results.
    */
-  void SetInterpolatorType(int interpType, bool amrData = false);
+  void SetInterpolatorType(int interpType);
 
   ///@{
   /**
@@ -554,6 +554,7 @@ protected:
 private:
   vtkStreamTracer(const vtkStreamTracer&) = delete;
   void operator=(const vtkStreamTracer&) = delete;
+  int InterpType;
 };
 
 VTK_ABI_NAMESPACE_END

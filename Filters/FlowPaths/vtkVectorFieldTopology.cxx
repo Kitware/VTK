@@ -769,14 +769,13 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   if (field->IsA("vtkDataSet"))
   {
     streamTracer->SetInputData(dataset);
-    streamTracer->SetInterpolatorType(this->InterpolatorType);
   }
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
     streamTracer->SetInputData(data);
-    streamTracer->SetInterpolatorType(this->InterpolatorType, true);
   }
+  streamTracer->SetInterpolatorType(this->InterpolatorType);
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);
@@ -1191,14 +1190,14 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   if (field->IsA("vtkDataSet"))
   {
     streamSurface->SetInputData(dataset);
-    streamSurface->SetInterpolatorTypeToCellLocator();
   }
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
     streamSurface->SetInputData(data);
-    streamSurface->SetInterpolatorTypeToCellLocator(true);
   }
+
+  streamSurface->SetInterpolatorTypeToCellLocator();
   streamSurface->SetIntegratorTypeToRungeKutta4();
   streamSurface->SetIntegrationStepUnit(IntegrationStepUnit);
   streamSurface->SetInitialIntegrationStep(IntegrationStepSize);
@@ -1406,14 +1405,14 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   if (field->IsA("vtkDataSet"))
   {
     streamTracer->SetInputData(dataset);
-    streamTracer->SetInterpolatorType(this->InterpolatorType);
   }
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
     streamTracer->SetInputData(data);
-    streamTracer->SetInterpolatorType(this->InterpolatorType, true);
   }
+
+  streamTracer->SetInterpolatorType(this->InterpolatorType);
   streamTracer->SetIntegratorTypeToRungeKutta4();
   streamTracer->SetIntegrationStepUnit(this->IntegrationStepUnit);
   streamTracer->SetInitialIntegrationStep(this->IntegrationStepSize);

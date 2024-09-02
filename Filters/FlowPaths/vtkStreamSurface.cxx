@@ -21,6 +21,7 @@
 #include <vtkUniformGridAMR.h>
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamSurface);
 
 //----------------------------------------------------------------------------
@@ -34,6 +35,9 @@ vtkStreamSurface::vtkStreamSurface()
   // by default process active point vectors
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
+
+  this->RuledSurface->SetContainerAlgorithm(this);
+  this->StreamTracer->SetContainerAlgorithm(this);
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +97,10 @@ int vtkStreamSurface::AdvectIterative(
 
   for (int currentIteration = 0; currentIteration < this->MaximumNumberOfSteps; currentIteration++)
   {
+    if (this->CheckAbort())
+    {
+      break;
+    }
     // advect currentSeeds
     // the output will be ordered: 0, advect(0), 1, advect(1), 2...
     // but if a point reaches the boundary, its advected point is just missing
@@ -460,3 +468,4 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   }
   return finishedSuccessfully;
 }
+VTK_ABI_NAMESPACE_END

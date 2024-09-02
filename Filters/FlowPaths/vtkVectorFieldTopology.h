@@ -80,7 +80,7 @@ public:
 
   ///@{
   /**
-   * Specify/see if the separatring surfaces (separatrices in 3D) are computed or not
+   * Specify/see if the separating surfaces (separatrices in 3D) are computed or not
    */
   vtkSetMacro(ComputeSurfaces, bool);
   vtkGetMacro(ComputeSurfaces, bool);
@@ -268,8 +268,8 @@ private:
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separatring surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
+   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
+   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
    * either good or fast
    * @return 1 if successfully terminated
    */
@@ -291,8 +291,8 @@ private:
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separatring surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
+   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
+   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
    * either good or fast
    * @param numberOfSeparatingLines: the number of separating lines
    * @param numberOfSeparatingSurfaces: the number of separating surfaces
@@ -316,7 +316,7 @@ private:
    * @param dist: size of the offset of the seeding
    * @param stepSize: stepsize of the integrator
    * @param maxNumSteps: maximal number of integration steps
-   * @param useIterativeSeeding: depending on this boolean the separatring surfaces  are computed
+   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
    * either good or fast
    * @return 1 if successful, 0 if empty
    */
@@ -455,7 +455,7 @@ private:
   bool UseIterativeSeeding = false;
 
   /**
-   * depending on this boolean the separatring surfaces (separatrices in 3D) are computed or not
+   * depending on this boolean the separating surfaces (separatrices in 3D) are computed or not
    */
   bool ComputeSurfaces = false;
 
