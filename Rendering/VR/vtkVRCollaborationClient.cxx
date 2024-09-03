@@ -198,6 +198,8 @@ void vtkVRCollaborationClient::Disconnect()
     return;
   }
 
+  this->SendAMessage("GB");
+
   mvLog(vtkLogger::VERBOSITY_INFO, "Collab server disconnecting. " << std::endl);
 
   if (this->Internal->Requester != nullptr)
@@ -819,6 +821,18 @@ void vtkVRCollaborationClient::HandleBroadcastMessage(
     {
       double* avatarUpVector = newUpVector.data();
       this->GetAvatar(otherID)->SetUpVector(avatarUpVector);
+    }
+  }
+  else if (type == "GB")
+  {
+    // If it's from someone we know (but not ourselves), remove the collaborator/avatar
+    if (otherID != this->CollabID && this->Avatars.count(otherID) != 0)
+    {
+      mvLog(
+        vtkLogger::VERBOSITY_INFO, "Collaborator sent goodbye, removing: " << otherID << std::endl);
+      this->Renderer->RemoveActor(this->Avatars[otherID]);
+      this->Avatars.erase(otherID);
+      this->AvatarUpdateTime.erase(otherID);
     }
   }
 }
