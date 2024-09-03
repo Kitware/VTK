@@ -314,6 +314,20 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture()
 }
 
 //------------------------------------------------------------------------------
+void vtkWin32OpenGLDXRenderWindow::RegisterSharedRenderFramebuffer()
+{
+  this->RegisterSharedTexture(
+    this->GetRenderFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32OpenGLDXRenderWindow::RegisterSharedDisplayFramebuffer()
+{
+  this->RegisterSharedTexture(
+    this->GetDisplayFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
+}
+
+//------------------------------------------------------------------------------
 void vtkWin32OpenGLDXRenderWindow::UnregisterSharedTexture()
 {
   if (!this->Impl->DeviceHandle || !this->Impl->ColorTexture.Handle)
