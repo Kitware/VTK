@@ -317,8 +317,9 @@ void vtkXMLPDataObjectWriter::SplitFileName()
   {
     pathname += "/";
   }
-  std::string filename_wo_ext = vtksys::SystemTools::GetFilenameWithoutExtension(this->FileName);
-  std::string ext = vtksys::SystemTools::GetFilenameExtension(this->FileName);
+  std::string filename_wo_ext =
+    vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
+  std::string ext = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
 
   delete[] this->PathName;
   delete[] this->FileNameBase;
