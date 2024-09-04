@@ -228,7 +228,6 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, int value);
-  vtkHDF::ScopedH5DHandle Create2DValueDataset(hid_t group, const char* name, int* value, int size);
   ///@}
 
   /**
