@@ -14,6 +14,7 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
   WGPUDeviceLostReason reason, char const* message, void* userdata)
 {
   std::string reasonStr;
+  bool warn = false;
   switch (reason)
   {
     case WGPUDeviceLostReason_Destroyed:
@@ -26,20 +27,25 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
       break;
     case WGPUDeviceLostReason_FailedCreation:
       reasonStr = "FailedCreation";
+      warn = true;
       break;
 #endif
     default:
       reasonStr = "Unknown";
+      warn = true;
   }
 
-  if (userdata)
+  if (warn)
   {
-    vtkWarningWithObjectMacro(reinterpret_cast<vtkObject*>(userdata),
-      << "WebGPU device lost: \"" << message << "\" with reason \"" << reasonStr << "\"");
-  }
-  else
-  {
-    vtkLogF(WARNING, "WebGPU device lost: \"%s\" with reason \"%s\"", message, reasonStr.c_str());
+    if (userdata)
+    {
+      vtkWarningWithObjectMacro(reinterpret_cast<vtkObject*>(userdata),
+        << "WebGPU device lost: \"" << message << "\" with reason \"" << reasonStr << "\"");
+    }
+    else
+    {
+      vtkLogF(WARNING, "WebGPU device lost: \"%s\" with reason \"%s\"", message, reasonStr.c_str());
+    }
   }
 }
 
