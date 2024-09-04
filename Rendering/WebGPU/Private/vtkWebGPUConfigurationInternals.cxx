@@ -115,7 +115,7 @@ void vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted(
     vtkErrorWithObjectMacro(nullptr, "OnAdapterRequestCompleted callback received null userdata!");
     return;
   }
-  vtkWarningWithObjectMacro(self, << "Adapter request completed");
+  vtkDebugWithObjectMacro(self, << "Adapter request completed");
   switch (status)
   {
     case WGPURequestAdapterStatus_Success:
@@ -184,7 +184,7 @@ void vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted(
     vtkErrorWithObjectMacro(nullptr, "OnDeviceRequestCompleted callback received null userdata!");
     return;
   }
-  vtkWarningWithObjectMacro(self, << "Device request completed");
+  vtkDebugWithObjectMacro(self, << "Device request completed");
   switch (status)
   {
     case WGPURequestDeviceStatus_Success:
