@@ -19,6 +19,7 @@
 		1482D1212870C2B30020537F /* libvtkFiltersHybrid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1482D1202870C2B30020537F /* libvtkFiltersHybrid.a */; };
 		1482D1232870C6B30020537F /* libvtkFiltersHyperTree.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1482D1222870C6B30020537F /* libvtkFiltersHyperTree.a */; };
 		148BD56B2270BFC3001DA6B6 /* libvtkloguru.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 148BD56A2270BFC3001DA6B6 /* libvtkloguru.a */; };
+		149B749E2C88E10F00CF46DA /* libvtktoken.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 149B749D2C88E10F00CF46DA /* libvtktoken.a */; };
 		14A3028C119E0C3200D75B9A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028A119E0C3200D75B9A /* MainMenu.xib */; };
 		14A3028D119E0C3200D75B9A /* MyWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 14A3028B119E0C3200D75B9A /* MyWindow.xib */; };
 		14B863A5113C436100C9B42E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B863A4113C436100C9B42E /* IOKit.framework */; };
@@ -82,6 +83,7 @@
 		1482D1202870C2B30020537F /* libvtkFiltersHybrid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkFiltersHybrid.a; sourceTree = "vtk-debug-lib"; };
 		1482D1222870C6B30020537F /* libvtkFiltersHyperTree.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkFiltersHyperTree.a; sourceTree = "vtk-debug-lib"; };
 		148BD56A2270BFC3001DA6B6 /* libvtkloguru.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtkloguru.a; sourceTree = "vtk-debug-lib"; };
+		149B749D2C88E10F00CF46DA /* libvtktoken.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvtktoken.a; sourceTree = "vtk-debug-lib"; };
 		14A3028A119E0C3200D75B9A /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		14A3028B119E0C3200D75B9A /* MyWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyWindow.xib; sourceTree = "<group>"; };
 		14B86358113C3E4200C9B42E /* SimpleCocoaVTK.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = text.xcconfig; path = SimpleCocoaVTK.xcconfig; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
@@ -178,6 +180,7 @@
 				14FC3EE616C5A9690092149A /* libvtkInteractionImage.a in Frameworks */,
 				14FC3EE716C5A9690092149A /* libvtkInteractionStyle.a in Frameworks */,
 				1482D1212870C2B30020537F /* libvtkFiltersHybrid.a in Frameworks */,
+				149B749E2C88E10F00CF46DA /* libvtktoken.a in Frameworks */,
 				1482D11F2870C2560020537F /* libvtkfmt.a in Frameworks */,
 				14FC3EEA16C5A9830092149A /* libvtksys.a in Frameworks */,
 				14FC3EEB16C5A9830092149A /* libvtktiff.a in Frameworks */,
@@ -237,6 +240,7 @@
 				14FC3ECF16C5A8C00092149A /* libvtklibxml2.a */,
 				14FC3ED016C5A8C00092149A /* libvtkpng.a */,
 				14D951A41B701C9A0012248C /* libvtkzlib.a */,
+				149B749D2C88E10F00CF46DA /* libvtktoken.a */,
 			);
 			name = "vtk libraries";
 			sourceTree = "<group>";
@@ -344,6 +348,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* SimpleCocoaVTK */;
