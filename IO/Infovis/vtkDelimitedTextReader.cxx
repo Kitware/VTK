@@ -175,6 +175,30 @@ vtkStdString vtkDelimitedTextReader::GetLastError()
 }
 
 //------------------------------------------------------------------------------
+int vtkDelimitedTextReader::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+{
+  this->Preview.clear();
+  if (this->PreviewNumberOfLines == 0)
+  {
+    return 1;
+  }
+
+  std::unique_ptr<std::istream> input_stream(this->OpenStream());
+  std::string line;
+  for (int indx = 0; indx < this->PreviewNumberOfLines; indx++)
+  {
+    if (!vtksys::SystemTools::GetLineFromStream(*input_stream, line))
+    {
+      break;
+    }
+    this->Preview += line + "\r\n";
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkDelimitedTextReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
