@@ -58,19 +58,7 @@ public:
   vtkGetObjectMacro(SceneGraph, vtkAnariRendererNode);
   //@}
 
-  /**
-   * Called by the internals of this class
-   */
-  virtual void RenderInternal(const vtkRenderState* s);
-
-  /**
-   * Get the view node factory that makes ANARI specific translator
-   * instances for every VTK rendering pipeline class instance it
-   * encounters.
-   */
-  virtual vtkViewNodeFactory* GetViewNodeFactory();
-
-protected:
+private:
   /**
    * Default constructor.
    */
@@ -79,17 +67,16 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkAnariPass();
+  ~vtkAnariPass() override;
 
-  vtkAnariRendererNode* SceneGraph;
+  vtkAnariRendererNode* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;
 
-private:
   vtkAnariPass(const vtkAnariPass&) = delete;
   void operator=(const vtkAnariPass&) = delete;
 
-  vtkAnariPassInternals* Internal;
-  const char* PreviousRendererSubtype;
+  friend class vtkAnariPassInternals;
+  vtkAnariPassInternals* Internal = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END
