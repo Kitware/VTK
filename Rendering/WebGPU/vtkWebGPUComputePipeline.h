@@ -115,10 +115,16 @@ private:
   ///@}
 
   /**
+   * Makes sure that the WGPUConfiguration of this pipeline is initialized. If it is not, this
+   * method does the initialization.
+   */
+  void EnsureConfigured();
+
+  /**
    * WebGPU adapter and device used by this pipeline (and all the compute passes contained in this
    * pipeline)
    */
-  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
+  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration = nullptr;
 
   /**
    * List of all the passes contained in this pipeline

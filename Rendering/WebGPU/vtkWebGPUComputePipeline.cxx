@@ -10,11 +10,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPUComputePipeline);
 
 //------------------------------------------------------------------------------
-vtkWebGPUComputePipeline::vtkWebGPUComputePipeline()
-{
-  this->WGPUConfiguration = vtk::TakeSmartPointer(vtkWebGPUConfiguration::New());
-  this->WGPUConfiguration->Initialize();
-}
+vtkWebGPUComputePipeline::vtkWebGPUComputePipeline() = default;
 
 //------------------------------------------------------------------------------
 vtkWebGPUComputePipeline::~vtkWebGPUComputePipeline() = default;
@@ -39,6 +35,8 @@ void vtkWebGPUComputePipeline::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkWebGPUComputePass> vtkWebGPUComputePipeline::CreateComputePass()
 {
+  this->EnsureConfigured();
+
   vtkSmartPointer<vtkWebGPUComputePass> computePass = vtkSmartPointer<vtkWebGPUComputePass>::New();
   computePass->Internals->SetWGPUConfiguration(this->WGPUConfiguration);
   computePass->Internals->SetAssociatedPipeline(this);
@@ -59,6 +57,8 @@ vtkWebGPUComputePipeline::GetComputePasses() const
 void vtkWebGPUComputePipeline::RegisterBuffer(
   vtkSmartPointer<vtkWebGPUComputeBuffer> buffer, wgpu::Buffer wgpuBuffer)
 {
+  this->EnsureConfigured();
+
   if (this->RegisteredBuffers.find(buffer) != this->RegisteredBuffers.end())
   {
     // If we're registering a new wgpu::Buffer for an existing (already registered)
@@ -78,6 +78,8 @@ void vtkWebGPUComputePipeline::RegisterBuffer(
 void vtkWebGPUComputePipeline::RegisterTexture(
   vtkSmartPointer<vtkWebGPUComputeTexture> texture, wgpu::Texture wgpuTexture)
 {
+  this->EnsureConfigured();
+
   if (this->RegisteredTextures.find(texture) != this->RegisteredTextures.end())
   {
     // If we're registering a new wgpu::Texture for an existing (already registered)
@@ -126,6 +128,8 @@ bool vtkWebGPUComputePipeline::GetRegisteredTexture(
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePipeline::DispatchAllPasses()
 {
+  this->EnsureConfigured();
+
   for (vtkWebGPUComputePass* computePass : this->ComputePasses)
   {
     computePass->Dispatch();
@@ -135,6 +139,8 @@ void vtkWebGPUComputePipeline::DispatchAllPasses()
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePipeline::Update()
 {
+  this->EnsureConfigured();
+
   bool workDone = false;
 
   // clang-format off
@@ -149,6 +155,20 @@ void vtkWebGPUComputePipeline::Update()
   while (!workDone)
   {
     this->WGPUConfiguration->ProcessEvents();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::EnsureConfigured()
+{
+  if (this->WGPUConfiguration == nullptr)
+  {
+    this->WGPUConfiguration = vtk::TakeSmartPointer(vtkWebGPUConfiguration::New());
+    this->WGPUConfiguration->Initialize();
+  }
+  else if (this->WGPUConfiguration->GetDevice() == nullptr)
+  {
+    this->WGPUConfiguration->Initialize();
   }
 }
 
