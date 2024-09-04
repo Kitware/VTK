@@ -5,6 +5,7 @@
 #define _USE_MATH_DEFINES
 #endif
 
+#include <anari/anari_cpp/ext/std.h>
 #define ANARI_EXTENSION_UTILITY_IMPL
 #include <anari/frontend/anari_extension_utility.h>
 
@@ -34,13 +35,9 @@
 
 #include <cmath>
 
-#include <anari/anari_cpp/ext/std.h>
-
 VTK_ABI_NAMESPACE_BEGIN
 
-using uvec2 = anari::std_types::uvec2;
-using ivec2 = anari::std_types::ivec2;
-using vec4 = anari::std_types::vec4;
+using namespace anari::std_types;
 
 vtkInformationKeyMacro(vtkAnariRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, LIBRARY_NAME, String);
@@ -86,6 +83,12 @@ struct vtkAnariRendererNodeInternals
    * Set the USD back-end related ANARI parameters
    */
   void SetUSDDeviceParameters();
+
+  /**
+   * Set a parameter on the underlying anari::Renderer
+   */
+  template <typename T>
+  void SetRendererParameter(const char* p, const T& v);
 
   /**
    * Load the ANARI library and initialize the ANARI back-end device.
@@ -355,6 +358,14 @@ void vtkAnariRendererNodeInternals::SetUSDDeviceParameters()
     this->AnariDevice, this->AnariDevice, "usd::output.mdlcolors", outputMdlColors);
   anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::writeatcommit", writeAtCommit);
 #endif
+}
+
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkAnariRendererNodeInternals::SetRendererParameter(const char* p, const T& v)
+{
+  anari::setParameter(this->AnariDevice, this->AnariRenderer, p, v);
+  anari::commitParameters(this->AnariDevice, this->AnariRenderer);
 }
 
 //------------------------------------------------------------------------------
@@ -807,6 +818,60 @@ RENDERER_NODE_PARAM_GET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int, 0)
 RENDERER_NODE_PARAM_GET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*, "default")
 RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1)
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, bool b)
+{
+  this->Internal->SetRendererParameter(param, b);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, int x)
+{
+  this->Internal->SetRendererParameter(param, x);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y)
+{
+  this->Internal->SetRendererParameter(param, ivec2{ x, y });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y, int z)
+{
+  this->Internal->SetRendererParameter(param, ivec3{ x, y, z });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y, int z, int w)
+{
+  this->Internal->SetRendererParameter(param, ivec4{ x, y, z, w });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, float x)
+{
+  this->Internal->SetRendererParameter(param, x);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y)
+{
+  this->Internal->SetRendererParameter(param, vec2{ x, y });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y, float z)
+{
+  this->Internal->SetRendererParameter(param, vec3{ x, y, z });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y, float z, float w)
+{
+  this->Internal->SetRendererParameter(param, vec4{ x, y, z, w });
+}
 
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::SetCamera(anari::Camera camera)
