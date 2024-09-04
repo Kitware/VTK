@@ -122,6 +122,12 @@ public:
   void SetStereoCapableWindow(vtkTypeBool capable) override;
 
   /**
+   * Set whether this xwindow should be coverable by other windows,
+   * as opposed to always on top.
+   */
+  void SetCoverable(vtkTypeBool coverable) override;
+
+  /**
    * Make this window the current OpenGL context.
    */
   void MakeCurrent() override;

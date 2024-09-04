@@ -250,6 +250,16 @@ public:
 
   ///@{
   /**
+   * Set/Get whether windows should be coverable (as opposed to always on
+   * top).
+   */
+  vtkGetMacro(Coverable, vtkTypeBool);
+  vtkBooleanMacro(Coverable, vtkTypeBool);
+  virtual void SetCoverable(vtkTypeBool coverable);
+  ///@}
+
+  ///@{
+  /**
    * Prescribe that the window be created in a stereo-capable mode. This
    * method must be called before the window is realized. Default is off.
    */
@@ -833,6 +843,7 @@ protected:
   vtkRendererCollection* Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
   vtkTypeBool Borders;
+  vtkTypeBool Coverable;
   vtkTypeBool FullScreen;
   int OldScreen[5];
   vtkTypeBool PointSmoothing;
