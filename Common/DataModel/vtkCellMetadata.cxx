@@ -3,6 +3,7 @@
 #include "vtkCellMetadata.h"
 
 #include "vtkCellGrid.h"
+#include "vtkDebugLeaks.h"
 
 #include <token/Singletons.h>
 
@@ -66,8 +67,20 @@ bool vtkCellMetadata::Query(vtkCellGridQuery* query)
 
 vtkCellGridResponders* vtkCellMetadata::GetResponders()
 {
-  static vtkNew<vtkCellGridResponders> responders;
+  auto& responders = token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>();
+  if (!responders)
+  {
+    responders = vtkSmartPointer<vtkCellGridResponders>::New();
+    vtkDebugLeaks::AddFinalizer([]() { vtkCellMetadata::ClearResponders(); });
+  }
   return responders;
+}
+
+void vtkCellMetadata::ClearResponders()
+{
+  // No matter whether we have assigned a value or not, just replace it
+  // with a null pointer. This will cause any assigned object to be destroyed.
+  token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>() = nullptr;
 }
 
 vtkCellGridResponders* vtkCellMetadata::GetCaches()
