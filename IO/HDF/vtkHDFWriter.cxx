@@ -1266,10 +1266,14 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
     // For temporal data, also add the offset in the steps group
     if (this->IsTemporal && !this->AppendDataArrayOffset(array, arrayName, offsetsGroupName))
     {
+      vtkErrorMacro(<< "Could not append data array offset for : " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
     if (this->IsTemporal && !this->AppendDataArraySizeOffset(array, arrayName, fieldDataSizeName))
     {
+      vtkErrorMacro(<< "Could not append data array size offset for : " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1278,7 +1282,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
       dataType = H5Tcopy(H5T_C_S1);
       if (H5Tset_size(dataType, H5T_VARIABLE) < 0)
       {
-        vtkErrorWithObjectMacro(nullptr, << "Error H5Tset_size");
+        vtkErrorMacro(<< "Could not set the size for : " << arrayName << ".");
         return false;
       }
     }
@@ -1292,8 +1296,8 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
       if (!this->Impl->InitDynamicDataset(group, arrayName.c_str(), dataType,
             array->GetNumberOfComponents(), ChunkSizeComponent, this->CompressionLevel))
       {
-        vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
-                        << " when creating: " << this->FileName);
+        vtkErrorMacro(<< "Could not initialize offset dataset for: " << arrayName
+                      << " when creating: " << this->FileName);
         return false;
       }
     }
@@ -1487,8 +1491,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->InitDynamicDataset(
           this->Impl->GetStepsGroup(), datasetName.c_str(), H5T_STD_I64LE, 1, ChunkSize1D))
     {
-      vtkWarningMacro(<< "Could not initialize temporal dataset for: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not initialize temporal dataset for: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1496,8 +1500,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->AddOrCreateSingleValueDataset(
           this->Impl->GetStepsGroup(), datasetName.c_str(), 0, false))
     {
-      vtkWarningMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1507,8 +1511,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->AddOrCreateSingleValueDataset(this->Impl->GetStepsGroup(), datasetName.c_str(),
           array->GetNumberOfTuples(), true, false))
     {
-      vtkWarningMacro(<< "Could not insert a value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1525,7 +1529,7 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
   if (this->CurrentTimeIndex < 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1))
   {
     // silently do nothing as it could mean that there is no temporal data to write
-    return false;
+    return true;
   }
 
   std::vector<int> value;
@@ -1540,8 +1544,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->InitDynamicDataset(this->Impl->GetStepsGroup(), datasetName.c_str(),
           H5T_STD_I64LE, value.size(), ChunkSize1D))
     {
-      vtkWarningMacro(<< "Could not initialize temporal dataset for: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not initialize temporal dataset for: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1549,8 +1553,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(),
           datasetName.c_str(), value.data(), static_cast<int>(value.size())))
     {
-      vtkWarningMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1564,8 +1568,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(),
           datasetName.c_str(), value.data(), static_cast<int>(value.size()), false))
     {
-      vtkWarningMacro(<< "Could not insert a value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }

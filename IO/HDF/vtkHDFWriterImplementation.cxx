@@ -435,12 +435,14 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
   vtkHDF::ScopedH5SHandle dataspace = CreateDataspaceFromArray(dataArray);
   if (dataspace == H5I_INVALID_HID)
   {
+    vtkErrorWithObjectMacro(this->Writer, "Could not create dataspace for array " << name);
     return H5I_INVALID_HID;
   }
   // Create dataset from dataspace and other arguments
   vtkHDF::ScopedH5DHandle dataset = this->CreateHdfDataset(group, name, type, dataspace);
   if (dataset == H5I_INVALID_HID)
   {
+    vtkErrorWithObjectMacro(this->Writer, "Could not create Dataset");
     return H5I_INVALID_HID;
   }
   // Get the data pointer
@@ -455,6 +457,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
     }
     else
     {
+      vtkErrorWithObjectMacro(this->Writer, "Dataset " << name << " is null");
       return H5I_INVALID_HID;
     }
   }
@@ -464,11 +467,13 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
   hid_t source_type = vtkHDFUtilities::getH5TypeFromVtkType(dataArray->GetDataType());
   if (source_type == H5I_INVALID_HID)
   {
+    vtkErrorWithObjectMacro(this->Writer, "Source type " << source_type << " is invalid");
     return H5I_INVALID_HID;
   }
   // Write vtkAbstractArray data to the HDF dataset
   if (H5Dwrite(dataset, source_type, H5S_ALL, dataspace, H5P_DEFAULT, data) < 0)
   {
+    vtkErrorWithObjectMacro(this->Writer, "Could not write dataset " << name);
     return H5I_INVALID_HID;
   }
   return dataset;
@@ -850,6 +855,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateDataset(
     vtkHDF::ScopedH5DHandle dataset = H5Dopen(group, name, H5P_DEFAULT);
     if (dataset == -1)
     {
+      vtkErrorWithObjectMacro(this->Writer, "Could not open dataset " << name);
       return false;
     }
     return this->AddArrayToDataset(dataset, dataArray);
