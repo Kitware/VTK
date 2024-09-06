@@ -20,6 +20,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 static const char* vtkDebugLeaksIgnoreClasses[] = { nullptr };
+std::vector<std::function<void()>>* vtkDebugLeaks::Finalizers = nullptr;
 
 //------------------------------------------------------------------------------
 // return 1 if the class should be ignored
@@ -278,6 +279,16 @@ vtkDebugLeaksObserver* vtkDebugLeaks::GetDebugLeaksObserver()
 }
 
 //------------------------------------------------------------------------------
+void vtkDebugLeaks::AddFinalizer(std::function<void()> finalizer)
+{
+  if (!vtkDebugLeaks::Finalizers)
+  {
+    vtkDebugLeaks::Finalizers = new std::vector<std::function<void()>>();
+  }
+  vtkDebugLeaks::Finalizers->push_back(finalizer);
+}
+
+//------------------------------------------------------------------------------
 void vtkDebugLeaks::ConstructingObject(vtkObjectBase* object)
 {
   if (vtkDebugLeaks::Observer)
@@ -407,6 +418,17 @@ void vtkDebugLeaks::ClassInitialize()
 void vtkDebugLeaks::ClassFinalize()
 {
 #ifdef VTK_DEBUG_LEAKS
+  // Allow persistent objects to be cleaned up before debugging leaks.
+  if (vtkDebugLeaks::Finalizers)
+  {
+    for (const auto& finalizer : *vtkDebugLeaks::Finalizers)
+    {
+      finalizer();
+    }
+    delete vtkDebugLeaks::Finalizers;
+    vtkDebugLeaks::Finalizers = nullptr;
+  }
+
   // Report leaks.
   int leaked = vtkDebugLeaks::PrintCurrentLeaks();
 

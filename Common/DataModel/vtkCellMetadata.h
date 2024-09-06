@@ -135,6 +135,9 @@ public:
   /// Return the set of registered responder types.
   static vtkCellGridResponders* GetResponders();
 
+  /// Clear all of the registered responders.
+  static void ClearResponders();
+
   /// Return the set of registered responder types.
   ///
   /// This method is not static on purpose; even when VTK is compiled

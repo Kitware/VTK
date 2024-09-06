@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFilteringInformationKeyManager.h"
 
+#include "vtkCellMetadata.h"
 #include "vtkInformationKey.h"
 
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
+std::vector<std::function<void()>>* vtkFilteringInformationKeyManager::Finalizers = nullptr;
+
 // Subclass vector so we can directly call constructor.  This works
 // around problems on Borland C++.
-VTK_ABI_NAMESPACE_BEGIN
 struct vtkFilteringInformationKeyManagerKeysType : public std::vector<vtkInformationKey*>
 {
   typedef std::vector<vtkInformationKey*> Superclass;
@@ -47,6 +50,16 @@ void vtkFilteringInformationKeyManager::Register(vtkInformationKey* key)
 }
 
 //------------------------------------------------------------------------------
+void vtkFilteringInformationKeyManager::AddFinalizer(std::function<void()> finalizer)
+{
+  if (!vtkFilteringInformationKeyManager::Finalizers)
+  {
+    vtkFilteringInformationKeyManager::Finalizers = new std::vector<std::function<void()>>();
+  }
+  vtkFilteringInformationKeyManager::Finalizers->push_back(finalizer);
+}
+
+//------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassInitialize()
 {
   // Allocate the singleton storing pointers to information keys.
@@ -57,11 +70,27 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
   // which then may try to access the vector before it is set here.
   void* keys = malloc(sizeof(vtkFilteringInformationKeyManagerKeysType));
   vtkFilteringInformationKeyManagerKeys = new (keys) vtkFilteringInformationKeyManagerKeysType;
+
+  // The cell-metadata class cannot register its finalizer upon construction
+  // of the registrar since CommonDataModel cannot depend on CommonExecutionModel.
+  // So, we always register a finalizer for cell-grid responders.
+  vtkFilteringInformationKeyManager::AddFinalizer([]() { vtkCellMetadata::ClearResponders(); });
 }
 
 //------------------------------------------------------------------------------
 void vtkFilteringInformationKeyManager::ClassFinalize()
 {
+  // Allow persistent objects to be cleaned up before debugging leaks.
+  if (vtkFilteringInformationKeyManager::Finalizers)
+  {
+    for (const auto& finalizer : *vtkFilteringInformationKeyManager::Finalizers)
+    {
+      finalizer();
+    }
+    delete vtkFilteringInformationKeyManager::Finalizers;
+    vtkFilteringInformationKeyManager::Finalizers = nullptr;
+  }
+
   if (vtkFilteringInformationKeyManagerKeys)
   {
     // Delete information keys.

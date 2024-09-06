@@ -43,7 +43,9 @@
 #include "vtkDebug.h"             // Needed for VTK_DEBUG_LEAKS macro setting.
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 
-#include <mutex> // for std::mutex
+#include <functional> // for finalizers
+#include <mutex>      // for std::mutex
+#include <vector>     // for finalizers
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDebugLeaksHashTable;
@@ -95,6 +97,21 @@ public:
   static void SetDebugLeaksObserver(vtkDebugLeaksObserver* observer);
   static vtkDebugLeaksObserver* GetDebugLeaksObserver();
 
+  /// Ensure that \a finalizer is invoked before debug-leaks accounting is reported.
+  ///
+  /// If your application holds VTK objects (i.e., instances of classes that inherit
+  /// vtkObjectBase) for its duration, then adding \a finalizer function that frees
+  /// them will prevent vtkDebugLeaks from reporting them as dangling references.
+  /// This can occur if you declare static global variable that owns a reference
+  /// to a VTK object (i.e., `static vtkNew<X> global;`). Because the order in which
+  /// static variables are destroyed is not guaranteed, vtkDebugLeaks (which also
+  /// depends on a static variable's destruction to report leaks at the exit of the
+  /// application) may be called before these other static globals are destroyed.
+  ///
+  /// By adding a \a finalizer, you can release these references before leak
+  /// reporting is performed.
+  static void AddFinalizer(std::function<void()> finalizer);
+
 protected:
   vtkDebugLeaks() = default;
   ~vtkDebugLeaks() override = default;
@@ -106,6 +123,8 @@ protected:
 
   static void ConstructingObject(vtkObjectBase* object);
   static void DestructingObject(vtkObjectBase* object);
+
+  static std::vector<std::function<void()>>* Finalizers;
 
   friend class vtkDebugLeaksManager;
   friend class vtkObjectBase;
