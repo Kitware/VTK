@@ -111,6 +111,15 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} -1
+   DATA{../Data/glTF/Lantern/Lantern.bin}
+   DATA{../Data/glTF/Lantern/Lantern_baseColor.png}
+   DATA{../Data/glTF/Lantern/Lantern_emissive.png}
+   DATA{../Data/glTF/Lantern/Lantern_normal.png}
+   DATA{../Data/glTF/Lantern/Lantern_roughnessMetallic.png}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporterHierarchy,TestGLTFImporterHierarchy.cxx DATA{../Data/glTF/ABeautifulGame/ABeautifulGame.glb} -1
 )
 
