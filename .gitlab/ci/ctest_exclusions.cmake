@@ -1,7 +1,4 @@
 set(test_exclusions
-  # Random Memory Leak #18599
-  "^VTK::FiltersCorePython-probe$"
-  
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 

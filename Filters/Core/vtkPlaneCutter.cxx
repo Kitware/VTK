@@ -12,6 +12,7 @@
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -885,5 +886,16 @@ void vtkPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
   os << indent << "Merge Points: " << (this->MergePoints ? "On\n" : "Off\n");
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkPlaneCutter::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  // the SphereTrees share our input and can be part of a reference loop
+  for (auto pit = this->SphereTrees.begin(); pit != this->SphereTrees.end(); ++pit)
+  {
+    vtkGarbageCollectorReport(collector, pit->second, "SphereTree");
+  }
 }
 VTK_ABI_NAMESPACE_END
