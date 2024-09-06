@@ -270,8 +270,18 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   list(APPEND test_exclusions
-    # Failed to open the display
-    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
+    # Failed to open the display.
+    # After (https://gitlab.kitware.com/vtk/vtk/-/issues/19453) is resolved,
+    # these tests could be smarter by skipping when there is no display.
+    "^VTK::FiltersSourcesPython-squadViewer$"
+    "^VTK::GUISupportQtCxx"
+    "^VTK::GUISupportQtQuickCxx"
+    "^VTK::GUISupportQtSQLCxx-TestQtSQLDatabase$"
+    "^VTK::RenderingCoreCxx-TestInteractorTimers$"
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    "^VTK::RenderingQtCxx-TestQtInitialization$"
+    "^VTK::RenderingTkPython"
+    "^VTK::ViewsQtCxx-TestVtkQtTableView$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
