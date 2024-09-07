@@ -5,6 +5,7 @@
 #include "vtkOBJImporter.h"
 
 #include "vtkCamera.h"
+#include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -62,7 +63,8 @@ int TestOBJImporter(int argc, char* argv[])
 
   ren->ResetCamera();
 
-  if (1 > ren->GetActors()->GetNumberOfItems())
+  if (ren->GetActors()->GetNumberOfItems() < 1 ||
+    importer->GetImportedActors()->GetNumberOfItems() < 1)
   {
     std::cout << "failed to get an actor created?!" << std::endl;
     return EXIT_FAILURE;

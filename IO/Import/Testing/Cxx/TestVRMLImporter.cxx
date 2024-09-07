@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -31,6 +32,12 @@ int TestVRMLImporter(int argc, char* argv[])
     std::cerr << "ERROR: Importer failed to update\n";
     return EXIT_FAILURE;
   }
+  if (importer->GetImportedActors()->GetNumberOfItems() != 1)
+  {
+    std::cerr << "ERROR: Unexpected number of imported actors\n";
+    return EXIT_FAILURE;
+  }
+
   // delete the importer and see if it can be run again
   importer->Delete();
 
