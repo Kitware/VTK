@@ -321,7 +321,7 @@ void vtkWebGPUComputePassBufferStorageInternals::UpdateBufferData(
   if (givenSize > byteSize)
   {
     vtkLog(ERROR,
-      "std::vector data given to UpdateBufferData with index "
+      "vtkDataArray data given to UpdateBufferData with index "
         << bufferIndex << " is too big. " << givenSize << "bytes were given but the buffer is only "
         << byteSize << " bytes long. No data was updated by this call.");
 
