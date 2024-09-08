@@ -69,6 +69,12 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
     DATA{../Data/Input/malformed.obj}
 )
 
+# Test an invalid file
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestOBJImporter-Invalid,TestOBJImporter.cxx,NO_VALID
+    DATA{../Data/Input/world_invalid.obj}
+)
+
 # Test an file with an invalid image
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestGLTFImporter-Invalid,TestGLTFImporterInvalid.cxx,NO_VALID
@@ -81,6 +87,8 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
 endif ()
+  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Invalid PROPERTIES PASS_REGULAR_EXPRESSION "Error reading point with index")
+  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
   set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES PASS_REGULAR_EXPRESSION "Failed to open file")
   set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
