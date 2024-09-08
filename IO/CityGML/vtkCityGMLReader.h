@@ -101,6 +101,17 @@ public:
   vtkGetMacro(EndBuildingIndex, int);
   ///@}
 
+  ///@{
+  /**
+   * Helper functions for setting field arrays. These are used to save texture paths or colors
+   * for polydata.
+   *
+   */
+  static void SetField(vtkDataObject* obj, const char* name, const char* value);
+  static void SetField(
+    vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
+  ///@}
+
 protected:
   vtkCityGMLReader();
   ~vtkCityGMLReader() override;

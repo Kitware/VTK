@@ -83,7 +83,7 @@ vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctreePoints(
 }
 
 /**
- * Build octree for point cloud.
+ * Build octree for mesh.
  */
 vtkSmartPointer<vtkIncrementalOctreePointLocator> BuildOctreeMesh(
   vtkPolyData* polyData, int cellsPerTile)
@@ -191,6 +191,7 @@ vtkCesium3DTilesWriter::vtkCesium3DTilesWriter()
   this->SetNumberOfInputPorts(1);
   this->DirectoryName = nullptr;
   this->TextureBaseDirectory = nullptr;
+  this->SetTextureBaseDirectory("");
   this->PropertyTextureFile = nullptr;
   this->SetPropertyTextureFile("");
   std::fill(this->Offset, this->Offset + 3, 0);
@@ -218,9 +219,7 @@ void vtkCesium3DTilesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "DirectoryName: " << (this->DirectoryName ? this->DirectoryName : "NONE")
-     << indent
-     << "TexturePath: " << (this->TextureBaseDirectory ? this->TextureBaseDirectory : "NONE")
-     << endl;
+     << indent << "TextureBaseDirectory: " << this->TextureBaseDirectory << endl;
 }
 
 //------------------------------------------------------------------------------
