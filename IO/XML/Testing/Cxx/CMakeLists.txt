@@ -18,6 +18,7 @@ set(all_tests
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
+  TestXMLPolyhedronUnstructuredGrid.cxx,NO_DATA,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
