@@ -145,21 +145,21 @@
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_static
 
-.wasm32_emscripten_threads_windows_chrome_ext_vtk:
+.wasm32_emscripten_windows_chrome_ext_vtk:
     extends: .windows
 
     variables:
-        CMAKE_CONFIGURATION: wasm32_emscripten_threads_windows_chrome_ext_vtk
-        WASM_ARCHITECTURE: wasm32-emscripten-threads
+        CMAKE_CONFIGURATION: wasm32_emscripten_windows_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm32-emscripten
         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache --new-tab"
 
 
-#.wasm64_emscripten_threads_windows_chrome_ext_vtk:
+#.wasm64_emscripten_windows_chrome_ext_vtk:
 #    extends: .windows
 
 #    variables:
-#         CMAKE_CONFIGURATION: wasm64_emscripten_threads_windows_chrome_ext_vtk
-#         WASM_ARCHITECTURE: wasm64-emscripten-threads
+#         CMAKE_CONFIGURATION: wasm64_emscripten_windows_chrome_ext_vtk
+#         WASM_ARCHITECTURE: wasm64-emscripten
 #         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache --new-tab --js-flags=--experimental-wasm-memory64"
 
 .windows_vs2022_java:
