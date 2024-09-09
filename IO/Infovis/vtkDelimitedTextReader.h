@@ -51,7 +51,13 @@
 #include "vtkStdString.h"       // Needed for vtkStdString
 #include "vtkTableAlgorithm.h"
 
+#include <memory>
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkTextCodec;
+
 class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 {
 public:
@@ -345,6 +351,15 @@ protected:
   vtkTypeUInt32 ReplacementCharacter;
 
 private:
+  /**
+   * Create and return an ifstream or an isstring stream depending on configuration.
+   * Return nullptr if stream cannot be open (e.g. unable to open file)
+   */
+  std::unique_ptr<std::istream> OpenStream();
+
+  void ReadBOM(std::istream* stream);
+  vtkTextCodec* CreateTextCodec(std::istream* input_stream);
+
   vtkDelimitedTextReader(const vtkDelimitedTextReader&) = delete;
   void operator=(const vtkDelimitedTextReader&) = delete;
 };
