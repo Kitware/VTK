@@ -86,6 +86,8 @@ set(classes
   vtkImplicitConeWidget
   vtkImplicitCylinderRepresentation
   vtkImplicitCylinderWidget
+  vtkImplicitFrustumRepresentation
+  vtkImplicitFrustumWidget
   vtkImplicitImageRepresentation
   vtkImplicitPlaneRepresentation
   vtkImplicitPlaneWidget
