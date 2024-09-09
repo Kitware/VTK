@@ -296,6 +296,7 @@ private:
 
 vtkStandardNewMacro(vtkDelimitedTextReader);
 
+//------------------------------------------------------------------------------
 vtkDelimitedTextReader::vtkDelimitedTextReader()
   : FileName(nullptr)
   , UnicodeCharacterSet(nullptr)
@@ -331,6 +332,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader()
   this->TrimWhitespacePriorToNumericConversion = false;
 }
 
+//------------------------------------------------------------------------------
 vtkDelimitedTextReader::~vtkDelimitedTextReader()
 {
   this->SetPedigreeIdArrayName(nullptr);
@@ -340,6 +342,7 @@ vtkDelimitedTextReader::~vtkDelimitedTextReader()
   this->SetFieldDelimiterCharacters(nullptr);
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -382,6 +385,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::SetInputString(const char* in)
 {
   int len = 0;
@@ -392,6 +396,7 @@ void vtkDelimitedTextReader::SetInputString(const char* in)
   this->SetInputString(in, len);
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::SetInputString(const char* in, int len)
 {
   if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
@@ -421,44 +426,52 @@ void vtkDelimitedTextReader::SetInputString(const char* in, int len)
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::SetUTF8RecordDelimiters(const char* delimiters)
 {
   this->UnicodeRecordDelimiters = delimiters;
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 const char* vtkDelimitedTextReader::GetUTF8RecordDelimiters()
 {
   return this->UnicodeRecordDelimiters.c_str();
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::SetUTF8FieldDelimiters(const char* delimiters)
 {
   this->UnicodeFieldDelimiters = delimiters;
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 const char* vtkDelimitedTextReader::GetUTF8FieldDelimiters()
 {
   return this->UnicodeFieldDelimiters.c_str();
 }
 
+//------------------------------------------------------------------------------
 void vtkDelimitedTextReader::SetUTF8StringDelimiters(const char* delimiters)
 {
   this->UnicodeStringDelimiters = delimiters;
   this->Modified();
 }
 
+//------------------------------------------------------------------------------
 const char* vtkDelimitedTextReader::GetUTF8StringDelimiters()
 {
   return this->UnicodeStringDelimiters.c_str();
 }
 
+//------------------------------------------------------------------------------
 vtkStdString vtkDelimitedTextReader::GetLastError()
 {
   return this->LastError;
 }
 
+//------------------------------------------------------------------------------
 int vtkDelimitedTextReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
