@@ -16,14 +16,4 @@ else ()
   set(CMAKE_CXX_SIZEOF_DATA_PTR 4)
 endif ()
 
-set (default_wasm_threads OFF)
-include(vtkTesting)
-if (VTK_BUILD_TESTING)
-  # Tests want to use synchronous XHR in order to access data and image files from the host filesystem outside of the wasm sandbox.
-  # Since synchronous XHR is deprecated outside of a web worker, VTK cannot have a test wait for data loading on the main browser thread.
-  # By enabling pthreads support, emscripten will be asked to run `main(argc, argv)` on a web worker and proxy function calls relating to the
-  # DOM, FS API over to the main UI thread.
-  # https://emscripten.org/docs/porting/pthreads.html#additional-flags
-  set (default_wasm_threads ON)
-endif ()
 option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." ${default_wasm_threads})

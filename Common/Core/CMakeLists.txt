@@ -507,6 +507,11 @@ elseif (CMAKE_USE_WIN32_THREADS_INIT)
   set(VTK_USE_WIN32_THREADS 1)
 endif ()
 
+# Honor `VTK_WEBASSEMBLY_THREADS` option.
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_USE_PTHREADS ${VTK_WEBASSEMBLY_THREADS})
+endif ()
+
 if(WIN32)
   list(APPEND classes
     vtkWin32OutputWindow

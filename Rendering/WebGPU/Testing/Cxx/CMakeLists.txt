@@ -1,27 +1,14 @@
-# (vtk/vtk#19322): Run these tests in CI for wasm with _vtk_test_cxx_wasm_enabled_in_browser=1
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(_vtk_test_cxx_wasm_enabled_in_browser ON)
-  set(_proxy_to_pthread_flag "0")
-  if (VTK_WEBASSEMBLY_THREADS)
-    set(_proxy_to_pthread_flag "1")
-  endif ()
   set(_vtk_test_emscripten_extra_linker_args
     "-sASYNCIFY=1"
     "-sASYNCIFY_STACK_SIZE=81920" #~297 nesting levels
     # O2 or higher make wasm-opt terribly slow.
     # test executables take a minute to link.
     "-O1"
-    # don't keep runtime alive after exit() is called.
+    # we need emscripten to emit code that handles exit code and atexit(s)
     "-sEXIT_RUNTIME=1"
-    # The below reasoning is moot ince we enable Asyncify which makes async/await
-    # possible. We'd like to test webgpu in webworker, so continue using pthread.
-    # this flag runs main() on a pthread i.e, a web worker.
-    # the primary reason we desire this is to make the unit test access
-    # data files through synchronous XHR which is only posssible from web-worker.
-    "-sPROXY_TO_PTHREAD=${_proxy_to_pthread_flag}"
-    "-sOFFSCREENCANVAS_SUPPORT=${_proxy_to_pthread_flag}"
-    "-sALLOW_MEMORY_GROWTH=1"
-    )
+    "-sALLOW_MEMORY_GROWTH=1")
 endif ()
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
