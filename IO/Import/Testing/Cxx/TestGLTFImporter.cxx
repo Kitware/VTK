@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <vtkGLTFImporter.h>
+#include <vtkLightCollection.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -10,9 +11,12 @@
 
 int TestGLTFImporter(int argc, char* argv[])
 {
-  if (argc < 3)
+  if (argc < 6)
   {
-    std::cout << "Usage: " << argv[0] << " <gltf file> <camera index>" << std::endl;
+    std::cout << "Usage: " << argv[0]
+              << " <gltf file> <camera index> <expected nb of actors> <expected nb of lights> "
+                 "<expected nb of cameras>"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -37,6 +41,29 @@ int TestGLTFImporter(int argc, char* argv[])
     std::cerr << "ERROR: Importer failed to update\n";
     return EXIT_FAILURE;
   }
+
+  if (importer->GetImportedActors()->GetNumberOfItems() != atoi(argv[3]))
+  {
+    std::cerr << "ERROR: Unexpected number of imported actors: "
+              << importer->GetImportedActors()->GetNumberOfItems() << "\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetImportedLights()->GetNumberOfItems() != atoi(argv[4]))
+  {
+    std::cerr << "ERROR: Unexpected number of imported lights: "
+              << importer->GetImportedActors()->GetNumberOfItems() << "\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetImportedCameras()->GetNumberOfItems() != atoi(argv[5]))
+  {
+    std::cerr << "ERROR: Unexpected number of imported cameras: "
+              << importer->GetImportedActors()->GetNumberOfItems() << "\n";
+    return EXIT_FAILURE;
+  }
+
+  std::cout << importer->GetImportedActors()->GetNumberOfItems() << std::endl;
+  std::cout << importer->GetImportedLights()->GetNumberOfItems() << std::endl;
+  std::cout << importer->GetImportedCameras()->GetNumberOfItems() << std::endl;
 
   auto hierarchy = importer->GetSceneHierarchy();
   if (hierarchy == nullptr || hierarchy->GetNumberOfChildren(0) == 0)

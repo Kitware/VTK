@@ -27,6 +27,7 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -209,6 +210,9 @@ int vtkVRMLImporter::ImportBegin()
   int ret = 1;
   try
   {
+    this->ActorCollection->RemoveAllItems();
+    this->LightCollection->RemoveAllItems();
+
     if (this->CurrentTransform)
     {
       this->CurrentTransform->Delete();
@@ -460,6 +464,7 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
     }
     this->CurrentLight = vtkLight::New();
     this->Renderer->AddLight(this->CurrentLight);
+    this->LightCollection->AddItem(this->CurrentLight);
     if (this->Parser->creatingDEF)
     {
       *this->Parser->useList += new vtkVRMLUseStruct(this->Parser->curDEFName, this->CurrentLight);
@@ -507,6 +512,7 @@ void vtkVRMLImporter::enterNode(const char* nodeType)
     this->CurrentActor->SetScale(this->CurrentTransform->GetScale());
     // Add actor to renderer
     this->Renderer->AddActor(this->CurrentActor);
+    this->ActorCollection->AddItem(this->CurrentActor);
     if (this->Parser->creatingDEF)
     {
       *this->Parser->useList += new vtkVRMLUseStruct(this->Parser->curDEFName, this->CurrentActor);
@@ -1323,6 +1329,7 @@ void vtkVRMLImporter::useNode(const char* name)
     }
     this->CurrentActor = actor;
     this->Renderer->AddActor(actor);
+    this->ActorCollection->AddItem(actor);
   }
   else if (className.find("PolyDataMapper") != std::string::npos)
   {
@@ -1341,6 +1348,7 @@ void vtkVRMLImporter::useNode(const char* name)
     }
     this->CurrentActor = actor;
     this->Renderer->AddActor(actor);
+    this->ActorCollection->AddItem(actor);
   }
   else if (className == "vtkPoints")
   {

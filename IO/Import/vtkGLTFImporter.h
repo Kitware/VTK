@@ -18,7 +18,6 @@
  * This importer supports all physically-based rendering material features, with the exception of
  * alpha masking and mirrored texture wrapping, which are not supported.
  *
- *
  * This importer does not support materials that use multiple
  * sets of texture coordinates. Only the first set will be used in this case.
  *
@@ -26,6 +25,10 @@
  * animations, morphing or skinning, please consider using vtkGLTFReader.
  *
  * This importer only supports assets that use the 2.x version of the glTF specification.
+ *
+ * This importer support recovering scene hierarchy partially, only actors are available.
+ *
+ * This importer supports the collection API
  *
  * For the full glTF specification, see:
  * https://github.com/KhronosGroup/glTF/tree/master/specification/2.0

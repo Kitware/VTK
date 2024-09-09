@@ -4,7 +4,9 @@
 #include "vtkGLTFImporter.h"
 
 #include "vtkActor.h"
+#include "vtkActorCollection.h"
 #include "vtkCamera.h"
+#include "vtkCollection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
@@ -16,6 +18,7 @@
 #include "vtkImageResize.h"
 #include "vtkInformation.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -479,6 +482,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   this->OutputsDescription = "";
 
   this->Actors.clear();
+  this->ActorCollection->RemoveAllItems();
 
   // Iterate over tree
   while (!nodeIdStack.empty())
@@ -575,6 +579,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         renderer->AddActor(actor);
 
         this->Actors[nodeId].emplace_back(actor);
+        this->ActorCollection->AddItem(actor);
         const int actorNode =
           this->SceneHierarchy->AddNode(meshNodeName.c_str(), /*parent=*/dasmNode);
         this->SceneHierarchy->SetAttribute(actorNode, "parent_node_name", dasmNodeName.c_str());
@@ -617,11 +622,14 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
+  this->CameraCollection->RemoveAllItems();
   this->Cameras.clear();
   for (size_t i = 0; i < model->Cameras.size(); i++)
   {
     vtkGLTFDocumentLoader::Camera const& camera = model->Cameras[i];
-    this->Cameras[static_cast<int>(i)] = GLTFCameraToVTKCamera(camera);
+    vtkSmartPointer<vtkCamera> vtkCam = GLTFCameraToVTKCamera(camera);
+    this->Cameras[static_cast<int>(i)] = vtkCam;
+    this->CameraCollection->AddItem(vtkCam);
   }
 
   // Iterate over tree
@@ -716,6 +724,8 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
     return;
   }
 
+  this->LightCollection->RemoveAllItems();
+
   const auto& lights = model->ExtensionMetaData.KHRLightsPunctualMetaData.Lights;
 
   // Add root nodes to the stack
@@ -764,6 +774,7 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
           break;
       }
       renderer->AddLight(light);
+      this->LightCollection->AddItem(light);
     }
 
     // Add node's children to stack
@@ -982,4 +993,5 @@ vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
   }
   return it->second;
 }
+
 VTK_ABI_NAMESPACE_END

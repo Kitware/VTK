@@ -90,24 +90,24 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} -1
+  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} -1 1 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   LOOSE_VALID
-  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1
+  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1 1 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0
+  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0 1 5 1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1
+  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1 1 0 2
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1
+  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1 2 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests

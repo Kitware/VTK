@@ -4,6 +4,10 @@
  * @class   vtkOBJImporter
  * @brief   import from .obj wavefront files
  *
+ * This importer doesn't support scene hierarchy API
+ *
+ * This importer supports the collection API
+ *
  *                        from Wavefront .obj & associated .mtl files.
  * @par Thanks - Peter Karasev (Georgia Tech / Keysight Technologies Inc),:
  *                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)

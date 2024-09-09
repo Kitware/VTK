@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImporter.h"
+
 #include "vtkAbstractArray.h"
+#include "vtkActorCollection.h"
 #include "vtkCellData.h"
+#include "vtkCollection.h"
 #include "vtkDataSet.h"
+#include "vtkLightCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
@@ -13,6 +17,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
+
+//------------------------------------------------------------------------------
+vtkImporter::vtkImporter() = default;
 
 //------------------------------------------------------------------------------
 vtkImporter::~vtkImporter()
