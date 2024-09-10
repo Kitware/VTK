@@ -3,9 +3,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-/// Needed to enable inverse function
-#extension GL_ARB_gpu_shader5 : enable
-
 //////////////////////////////////////////////////////////////////////////////
 ///
 /// Uniforms, attributes, and globals

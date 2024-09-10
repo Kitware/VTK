@@ -14,7 +14,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
-#include <vtkSmartPointer.h> // for vtkSmartPointer
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;

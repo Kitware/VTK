@@ -12,6 +12,7 @@
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkMeanValueCoordinatesInterpolator.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
@@ -161,6 +162,7 @@ vtkPolyhedron::vtkPolyhedron()
   this->CellLocator = vtkCellLocator::New();
   this->CellIds = vtkIdList::New();
   this->Cell = vtkGenericCell::New();
+  this->IsRandomSequenceSeedInitialized = false;
 }
 
 //------------------------------------------------------------------------------
@@ -650,6 +652,12 @@ static const int VTK_VOTE_THRESHOLD = 3;
 // Shoot random rays and count the number of intersections
 int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
+  if (!this->IsRandomSequenceSeedInitialized)
+  {
+    this->RandomSequence->SetSeed(std::time(nullptr));
+    this->IsRandomSequenceSeedInitialized = true;
+  }
+
   // do a quick bounds check
   this->ComputeBounds();
   double* bounds = this->Bounds;
@@ -700,7 +708,7 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
     {
       for (i = 0; i < 3; i++)
       {
-        ray[i] = vtkMath::Random(-1.0, 1.0);
+        ray[i] = this->RandomSequence->GetNextRangeValue(-1.0, 1.0);
       }
       rayMag = vtkMath::Norm(ray);
     } while (rayMag == 0.0);

@@ -321,6 +321,11 @@ void vtkXRenderWindowInteractor::WaitForEvents()
 // loop is exited.
 void vtkXRenderWindowInteractor::StartEventLoop()
 {
+  // cannot process events without an X display or window.
+  if (!this->DisplayId || !this->WindowId)
+  {
+    return;
+  }
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     rwi->Done = false;
@@ -378,19 +383,25 @@ void vtkXRenderWindowInteractor::Initialize()
   size = ren->GetActualSize();
   size[0] = ((size[0] > 0) ? size[0] : 300);
   size[1] = ((size[1] > 0) ? size[1] : 300);
-  XSync(this->DisplayId, False);
+  if (this->DisplayId)
+  {
+    XSync(this->DisplayId, False);
+  }
 
   ren->Start();
   ren->End();
 
   this->WindowId = reinterpret_cast<Window>(ren->GetGenericWindowId());
 
-  XWindowAttributes attribs;
-  //  Find the current window size
-  XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
+  if (this->DisplayId && this->WindowId)
+  {
+    XWindowAttributes attribs;
+    //  Find the current window size
+    XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
 
-  size[0] = attribs.width;
-  size[1] = attribs.height;
+    size[0] = attribs.width;
+    size[1] = attribs.height;
+  }
   ren->SetSize(size[0], size[1]);
 
   this->Enable();
@@ -426,6 +437,12 @@ void vtkXRenderWindowInteractor::Enable()
 {
   // avoid cycles of calling Initialize() and Enable()
   if (this->Enabled)
+  {
+    return;
+  }
+  // When we're attached to an offscreen render window,
+  // there is no real X Display or X Window.
+  if (!this->WindowId || !this->DisplayId)
   {
     return;
   }

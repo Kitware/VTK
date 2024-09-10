@@ -123,6 +123,7 @@
 #include "vtkCell3D.h"
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED
+#include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
@@ -137,6 +138,7 @@ class vtkPolyData;
 class vtkCellLocator;
 class vtkGenericCell;
 class vtkPointLocator;
+class vtkMinimalStandardRandomSequence;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
@@ -513,6 +515,9 @@ private:
 
   // Members used in GetPointToIncidentFaces
   std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
+
+  vtkNew<vtkMinimalStandardRandomSequence> RandomSequence;
+  bool IsRandomSequenceSeedInitialized;
 };
 
 //----------------------------------------------------------------------------

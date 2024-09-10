@@ -455,8 +455,8 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree(
   // Flag to keep track of whether current input cell is clipped out
   bool clipped = this->IsClipped(inCursor);
 
-  // Descend further into input trees only if cursor is neither a leaf nor clipped out
-  if (!inCursor->IsLeaf() && !clipped)
+  // Descend further into input trees only if cursor is neither a leaf, clipped out or masked
+  if (!inCursor->IsLeaf() && !clipped && !inCursor->IsMasked())
   {
     // Cursor is not at leaf, subdivide output tree one level further
     outCursor->SubdivideLeaf();

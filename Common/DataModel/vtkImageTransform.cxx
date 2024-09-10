@@ -5,6 +5,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -59,9 +60,9 @@ template <typename T>
 struct InPlaceTransformPoints
 {
   T* Points;
-  vtkMatrix4x4* M4;
+  const double* M4;
 
-  InPlaceTransformPoints(vtkMatrix4x4* m4, T* pts)
+  InPlaceTransformPoints(const double* m4, T* pts)
     : Points(pts)
     , M4(m4)
   {
@@ -70,24 +71,20 @@ struct InPlaceTransformPoints
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     T* pIn = this->Points + 3 * ptId;
-    T tmp[3] = { 0, 0, 0 };
 
     for (; ptId < endPtId; ++ptId)
     {
-      tmp[0] = M4->GetElement(0, 0) * pIn[0] + M4->GetElement(0, 1) * pIn[1] +
-        M4->GetElement(0, 2) * pIn[2] + M4->GetElement(0, 3);
-      tmp[1] = M4->GetElement(1, 0) * pIn[0] + M4->GetElement(1, 1) * pIn[1] +
-        M4->GetElement(1, 2) * pIn[2] + M4->GetElement(1, 3);
-      tmp[2] = M4->GetElement(2, 0) * pIn[0] + M4->GetElement(2, 1) * pIn[1] +
-        M4->GetElement(2, 2) * pIn[2] + M4->GetElement(2, 3);
-      *pIn++ = tmp[0];
-      *pIn++ = tmp[1];
-      *pIn++ = tmp[2];
+      double x = M4[0] * pIn[0] + M4[1] * pIn[1] + M4[2] * pIn[2] + M4[3];
+      double y = M4[4] * pIn[0] + M4[5] * pIn[1] + M4[6] * pIn[2] + M4[7];
+      double z = M4[8] * pIn[0] + M4[9] * pIn[1] + M4[10] * pIn[2] + M4[11];
+      *pIn++ = static_cast<T>(x);
+      *pIn++ = static_cast<T>(y);
+      *pIn++ = static_cast<T>(z);
     }
   }
 
   // Interface to vtkSMPTools
-  static void Execute(vtkMatrix4x4* m4, vtkIdType num, T* pts)
+  static void Execute(const double* m4, vtkIdType num, T* pts)
   {
     InPlaceTransformPoints<T> transform(m4, pts);
     vtkSMPTools::For(0, num, transform);
@@ -98,49 +95,35 @@ template <typename T>
 struct InPlaceTransformNormals
 {
   T* Normals;
-  vtkMatrix3x3* M3;
-  double Determinant;
-  double* Spacing;
+  const double* M3;
 
-  InPlaceTransformNormals(vtkMatrix3x3* m3, double* spacing, T* n)
+  InPlaceTransformNormals(const double* m3, T* n)
     : Normals(n)
     , M3(m3)
-    , Determinant(m3->Determinant())
-    , Spacing(spacing)
   {
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     T* nIn = this->Normals + 3 * ptId;
-    T tmp[3] = { 0, 0, 0 };
-    T toUnit = 0;
+    double vec[3];
 
     for (; ptId < endPtId; ++ptId)
     {
-      nIn[0] = nIn[0] / this->Spacing[0];
-      nIn[1] = nIn[1] / this->Spacing[1];
-      nIn[2] = nIn[2] / this->Spacing[2];
-      tmp[0] = M3->GetElement(0, 0) * nIn[0] + M3->GetElement(0, 1) * nIn[1] +
-        M3->GetElement(0, 2) * nIn[2];
-      tmp[1] = M3->GetElement(1, 0) * nIn[0] + M3->GetElement(1, 1) * nIn[1] +
-        M3->GetElement(1, 2) * nIn[2];
-      tmp[2] = M3->GetElement(2, 0) * nIn[0] + M3->GetElement(2, 1) * nIn[1] +
-        M3->GetElement(2, 2) * nIn[2];
-      tmp[0] *= this->Determinant;
-      tmp[1] *= this->Determinant;
-      tmp[2] *= this->Determinant;
-      toUnit = 1 / sqrt(tmp[0] * tmp[0] + tmp[1] * tmp[1] + tmp[2] * tmp[2]);
-      *nIn++ = tmp[0] * toUnit;
-      *nIn++ = tmp[1] * toUnit;
-      *nIn++ = tmp[2] * toUnit;
+      vec[0] = M3[0] * nIn[0] + M3[1] * nIn[1] + M3[2] * nIn[2];
+      vec[1] = M3[3] * nIn[0] + M3[4] * nIn[1] + M3[5] * nIn[2];
+      vec[2] = M3[6] * nIn[0] + M3[7] * nIn[1] + M3[8] * nIn[2];
+      vtkMath::Normalize(vec);
+      *nIn++ = static_cast<T>(vec[0]);
+      *nIn++ = static_cast<T>(vec[1]);
+      *nIn++ = static_cast<T>(vec[2]);
     }
   }
 
   // Interface to vtkSMPTools
-  static void Execute(vtkMatrix3x3* m3, double* spacing, vtkIdType num, T* n)
+  static void Execute(const double* m3, vtkIdType num, T* n)
   {
-    InPlaceTransformNormals<T> transform(m3, spacing, n);
+    InPlaceTransformNormals<T> transform(m3, n);
     vtkSMPTools::For(0, num, transform);
   }
 }; // InPlaceTransformNormals
@@ -149,42 +132,33 @@ template <typename T>
 struct InPlaceTransformVectors
 {
   T* Vectors;
-  vtkMatrix3x3* M3;
-  double* Spacing;
+  const double* M3;
 
-  InPlaceTransformVectors(vtkMatrix3x3* m3, double* spacing, T* v)
+  InPlaceTransformVectors(const double* m3, T* v)
     : Vectors(v)
     , M3(m3)
-    , Spacing(spacing)
   {
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     T* nIn = this->Vectors + 3 * ptId;
-    T tmp[3] = { 0, 0, 0 };
 
     for (; ptId < endPtId; ++ptId)
     {
-      nIn[0] = nIn[0] / this->Spacing[0];
-      nIn[1] = nIn[1] / this->Spacing[1];
-      nIn[2] = nIn[2] / this->Spacing[2];
-      tmp[0] = M3->GetElement(0, 0) * nIn[0] + M3->GetElement(0, 1) * nIn[1] +
-        M3->GetElement(0, 2) * nIn[2];
-      tmp[1] = M3->GetElement(1, 0) * nIn[0] + M3->GetElement(1, 1) * nIn[1] +
-        M3->GetElement(1, 2) * nIn[2];
-      tmp[2] = M3->GetElement(2, 0) * nIn[0] + M3->GetElement(2, 1) * nIn[1] +
-        M3->GetElement(2, 2) * nIn[2];
-      *nIn++ = tmp[0];
-      *nIn++ = tmp[1];
-      *nIn++ = tmp[2];
+      double x = M3[0] * nIn[0] + M3[1] * nIn[1] + M3[2] * nIn[2];
+      double y = M3[3] * nIn[0] + M3[4] * nIn[1] + M3[5] * nIn[2];
+      double z = M3[6] * nIn[0] + M3[7] * nIn[1] + M3[8] * nIn[2];
+      *nIn++ = static_cast<T>(x);
+      *nIn++ = static_cast<T>(y);
+      *nIn++ = static_cast<T>(z);
     }
   }
 
   // Interface to vtkSMPTools
-  static void Execute(vtkMatrix3x3* m3, double* spacing, vtkIdType num, T* v)
+  static void Execute(const double* m3, vtkIdType num, T* v)
   {
-    InPlaceTransformVectors<T> transform(m3, spacing, v);
+    InPlaceTransformVectors<T> transform(m3, v);
     vtkSMPTools::For(0, num, transform);
   }
 }; // InPlaceTransformVectors
@@ -234,7 +208,7 @@ void vtkImageTransform::TransformPointSet(
   double* ar = im->GetSpacing();
 
   // If there is no rotation or spacing, only translate
-  if (m3->IsIdentity() && ar[0] == 1 && ar[1] == 1 && ar[2] == 1)
+  if (m3->IsIdentity() && ar[0] == 1.0 && ar[1] == 1.0 && ar[2] == 1.0)
   {
     vtkImageTransform::TranslatePoints(im->GetOrigin(), pts);
     return;
@@ -246,19 +220,15 @@ void vtkImageTransform::TransformPointSet(
 
   if (transformNormals)
   {
-    vtkNew<vtkMatrix3x3> m3n;
-    vtkMatrix3x3::Transpose(m3, m3n);
-    m3n->Invert();
-
     vtkDataArray* normals = ps->GetPointData()->GetNormals();
     if (normals != nullptr)
     {
-      vtkImageTransform::TransformNormals(m3n, ar, normals);
+      vtkImageTransform::TransformNormals(m3, ar, normals);
     }
     normals = ps->GetCellData()->GetNormals();
     if (normals != nullptr)
     {
-      vtkImageTransform::TransformNormals(m3n, ar, normals);
+      vtkImageTransform::TransformNormals(m3, ar, normals);
     }
   }
 
@@ -285,7 +255,7 @@ void vtkImageTransform::TranslatePoints(double* t, vtkDataArray* da)
 
   switch (da->GetDataType())
   {
-    vtkTemplateMacro(InPlaceTranslatePoints<VTK_TT>::Execute(t, num, (VTK_TT*)pts));
+    vtkTemplateMacro(InPlaceTranslatePoints<VTK_TT>::Execute(t, num, static_cast<VTK_TT*>(pts)));
   }
 }
 
@@ -294,34 +264,80 @@ void vtkImageTransform::TransformPoints(vtkMatrix4x4* m4, vtkDataArray* da)
 {
   void* pts = da->GetVoidPointer(0);
   vtkIdType num = da->GetNumberOfTuples();
+  const double* m4d = m4->GetData();
 
   switch (da->GetDataType())
   {
-    vtkTemplateMacro(InPlaceTransformPoints<VTK_TT>::Execute(m4, num, (VTK_TT*)pts));
+    vtkTemplateMacro(InPlaceTransformPoints<VTK_TT>::Execute(m4d, num, static_cast<VTK_TT*>(pts)));
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkImageTransform::TransformNormals(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da)
 {
+  // The determinant of the image Direction is 1 or -1, we use it to flip
+  // the normals to the expected orientation for proper visualization
+  double determinant = m3->Determinant();
+  double m3n[9];
+  vtkMatrix3x3::Invert(m3->GetData(), m3n);
+  vtkMatrix3x3::Transpose(m3n, m3n);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    if (spacing[i] != 0.0)
+    {
+      m3n[i] = m3n[i] / spacing[i] * determinant;
+      m3n[3 + i] = m3n[3 + i] / spacing[i] * determinant;
+      m3n[6 + i] = m3n[6 + i] / spacing[i] * determinant;
+    }
+    else
+    {
+      m3n[i] = 0.0;
+      m3n[3 + i] = 0.0;
+      m3n[6 + i] = 0.0;
+    }
+  }
+
   void* n = da->GetVoidPointer(0);
   vtkIdType num = da->GetNumberOfTuples();
 
   switch (da->GetDataType())
   {
-    vtkTemplateMacro(InPlaceTransformNormals<VTK_TT>::Execute(m3, spacing, num, (VTK_TT*)n));
+    vtkTemplateMacro(InPlaceTransformNormals<VTK_TT>::Execute(m3n, num, static_cast<VTK_TT*>(n)));
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkImageTransform::TransformVectors(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da)
 {
+  // Here we assume that the vectors are gradient vectors, therefore
+  // the transposed inverse matrix is used to apply the transformation
+  double m3v[9];
+  vtkMatrix3x3::Invert(m3->GetData(), m3v);
+  vtkMatrix3x3::Transpose(m3v, m3v);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    if (spacing[i] != 0.0)
+    {
+      m3v[i] = m3v[i] / spacing[i];
+      m3v[3 + i] = m3v[3 + i] / spacing[i];
+      m3v[6 + i] = m3v[6 + i] / spacing[i];
+    }
+    else
+    {
+      m3v[i] = 0.0;
+      m3v[3 + i] = 0.0;
+      m3v[6 + i] = 0.0;
+    }
+  }
+
   void* v = da->GetVoidPointer(0);
   vtkIdType num = da->GetNumberOfTuples();
 
   switch (da->GetDataType())
   {
-    vtkTemplateMacro(InPlaceTransformVectors<VTK_TT>::Execute(m3, spacing, num, (VTK_TT*)v));
+    vtkTemplateMacro(InPlaceTransformVectors<VTK_TT>::Execute(m3v, num, static_cast<VTK_TT*>(v)));
   }
 }
 

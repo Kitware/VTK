@@ -26,7 +26,6 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::netcdf
   VTK::vtksys
-  VTK::libproj
 TEST_DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersGeometry
