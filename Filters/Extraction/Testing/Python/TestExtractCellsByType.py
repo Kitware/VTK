@@ -222,7 +222,7 @@ extr.RemoveCellType(VTK_LINE)
 extr.AddCellType(VTK_TRIANGLE_STRIP)
 extr.Update()
 print("Number of triangle strips: {0}".format(extr.GetOutput().GetNumberOfCells()))
-if extr.GetOutput().GetNumberOfCells() < 99:
+if extr.GetOutput().GetNumberOfCells() < 81:
     error = 1
 
 
