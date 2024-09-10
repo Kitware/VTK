@@ -1563,7 +1563,7 @@ struct TestDataObjectsImpl<vtkTable>
 {
   static bool Execute(vtkTable* t1, vtkTable* t2, double toleranceFactor)
   {
-    IdentityMapper identity(t1->GetNumberOfColumns());
+    IdentityMapper identity(t1->GetNumberOfRows());
 
     if (!TestFieldData(t1->GetFieldData(), t2->GetFieldData(), identity, toleranceFactor, true) ||
       !TestFieldData(t1->GetRowData(), t2->GetRowData(), identity, toleranceFactor))
