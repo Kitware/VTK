@@ -302,6 +302,7 @@ void vtkMultiThreader::SingleMethodExecute()
 
 #ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_PTHREADS
+  (void)thread_loop;
   // There is no multi threading, so there is only one thread.
   this->ThreadInfoArray[0].UserData = this->SingleData;
   this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
@@ -492,6 +493,7 @@ int vtkMultiThreader::SpawnThread(vtkThreadFunctionType f, void* userdata)
 
 #ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_PTHREADS
+  (void)f;
   // There is no multi threading, so there is only one thread.
   // This won't work - so give an error message.
   vtkErrorMacro(<< "Cannot spawn thread in a single threaded environment!");
@@ -607,6 +609,8 @@ vtkTypeBool vtkMultiThreader::ThreadsEqual(vtkMultiThreaderIDType t1, vtkMultiTh
 #elif defined(VTK_USE_WIN32_THREADS)
   return t1 == t2;
 #else
+  (void)t1;
+  (void)t2;
   // No threading implementation.  Assume all callers are in the same
   // thread.
   return 1;
