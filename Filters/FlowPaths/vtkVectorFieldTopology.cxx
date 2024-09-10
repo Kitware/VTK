@@ -23,6 +23,7 @@
 #include <vtkInformationVector.h>
 #include <vtkIntersectionPolyDataFilter.h>
 #include <vtkLine.h>
+#include <vtkLongLongArray.h>
 #include <vtkMath.h>
 #include <vtkMatrix3x3.h>
 #include <vtkNew.h>
@@ -1699,7 +1700,7 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   }
 
   // mark all points whose ids appear in the surface
-  vtkNew<vtkDoubleArray> isBoundary;
+  vtkNew<vtkLongLongArray> isBoundary;
   isBoundary->SetNumberOfTuples(tridataset->GetNumberOfPoints());
   isBoundary->SetName("isBoundary");
   tridataset->GetPointData()->AddArray(isBoundary);
