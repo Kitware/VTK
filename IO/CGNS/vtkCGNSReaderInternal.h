@@ -312,6 +312,7 @@ bool ReadBase(vtkCGNSReader* reader, const BaseInformation& baseInfo);
 bool ReadGridForZone(
   vtkCGNSReader* reader, const BaseInformation& baseInfo, const ZoneInformation& zoneInfo);
 bool ReadPatchesForBase(vtkCGNSReader* reader, const BaseInformation&);
+bool ReadSurfacesForBase(vtkCGNSReader* reader, const BaseInformation&);
 bool ReadPatch(vtkCGNSReader* reader, const BaseInformation&, const ZoneInformation& zoneInfo,
   const std::string& patchFamilyname);
 ///@}

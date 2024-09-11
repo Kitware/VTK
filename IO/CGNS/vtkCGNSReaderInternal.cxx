@@ -1368,6 +1368,18 @@ bool ReadPatchesForBase(vtkCGNSReader* reader, const BaseInformation&)
 }
 
 //------------------------------------------------------------------------------
+bool ReadSurfacesForBase(vtkCGNSReader* reader, const BaseInformation&)
+{
+  if (!reader->GetLoadSurfacePatch())
+  {
+    // surface patches have been globally disabled.
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool ReadPatch(vtkCGNSReader* reader, const BaseInformation&, const ZoneInformation&,
   const std::string& patchFamilyname)
 {
