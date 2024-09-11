@@ -430,41 +430,23 @@
         WASM_ARCHITECTURE: wasm64-emscripten
         VTK_INSTALL: 1
 
-.wasm32_emscripten_threads_linux:
+.wasm32_emscripten_linux_chrome_ext_vtk:
     extends:
         - .fedora39
 
     variables:
-        CMAKE_CONFIGURATION: wasm32_emscripten_threads_linux
-        WASM_ARCHITECTURE: wasm32-emscripten-threads
-        VTK_INSTALL: 1
-
-.wasm64_emscripten_threads_linux:
-    extends:
-        - .fedora39
-
-    variables:
-        CMAKE_CONFIGURATION: wasm64_emscripten_threads_linux
-        WASM_ARCHITECTURE: wasm64-emscripten-threads
-        VTK_INSTALL: 1
-
-.wasm32_emscripten_threads_linux_chrome_ext_vtk:
-    extends:
-        - .fedora39
-
-    variables:
-        CMAKE_CONFIGURATION: wasm32_emscripten_threads_linux_chrome_ext_vtk
-        WASM_ARCHITECTURE: wasm32-emscripten-threads
+        CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm32-emscripten
         VTK_INSTALL: 1
         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader"
 
-.wasm64_emscripten_threads_linux_chrome_ext_vtk:
+.wasm64_emscripten_linux_chrome_ext_vtk:
     extends:
         - .fedora39
 
     variables:
-        CMAKE_CONFIGURATION: wasm64_emscripten_threads_linux_chrome_ext_vtk
-        WASM_ARCHITECTURE: wasm64-emscripten-threads
+        CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm64-emscripten
         VTK_INSTALL: 1
         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader --js-flags=--experimental-wasm-memory64"
 

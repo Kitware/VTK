@@ -497,7 +497,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo* data, double time)
 
 //------------------------------------------------------------------------------
 // this function runs in an alternate thread to asynchronously grab frames
-static void* vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo* data)
+static VTK_THREAD_RETURN_TYPE vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo* data)
 {
   vtkVideoSource* self = (vtkVideoSource*)(data->UserData);
 
@@ -511,7 +511,7 @@ static void* vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo* data)
     frame++;
   } while (vtkThreadSleep(data, startTime + frame / rate));
 
-  return nullptr;
+  return VTK_THREAD_RETURN_VALUE;
 }
 
 //------------------------------------------------------------------------------
@@ -539,7 +539,7 @@ void vtkVideoSource::Record()
 //------------------------------------------------------------------------------
 // this function runs in an alternate thread to 'play the tape' at the
 // specified frame rate.
-static void* vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo* data)
+static VTK_THREAD_RETURN_TYPE vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo* data)
 {
   vtkVideoSource* self = (vtkVideoSource*)(data->UserData);
 
@@ -553,7 +553,7 @@ static void* vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo* data)
     frame++;
   } while (vtkThreadSleep(data, startTime + frame / rate));
 
-  return nullptr;
+  return VTK_THREAD_RETURN_VALUE;
 }
 
 //------------------------------------------------------------------------------
