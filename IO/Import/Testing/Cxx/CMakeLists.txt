@@ -119,7 +119,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} -1
+  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} -1 3 0 0
    DATA{../Data/glTF/Lantern/Lantern.bin}
    DATA{../Data/glTF/Lantern/Lantern_baseColor.png}
    DATA{../Data/glTF/Lantern/Lantern_emissive.png}
