@@ -13,7 +13,10 @@ vtkStandardNewMacro(vtkWebGPUComputePipeline);
 vtkWebGPUComputePipeline::vtkWebGPUComputePipeline() = default;
 
 //------------------------------------------------------------------------------
-vtkWebGPUComputePipeline::~vtkWebGPUComputePipeline() = default;
+vtkWebGPUComputePipeline::~vtkWebGPUComputePipeline()
+{
+  this->ReleaseResources();
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputePipeline::PrintSelf(ostream& os, vtkIndent indent)
@@ -170,6 +173,20 @@ void vtkWebGPUComputePipeline::EnsureConfigured()
   {
     this->WGPUConfiguration->Initialize();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUComputePipeline::ReleaseResources()
+{
+  for (vtkWebGPUComputePass* computePass : this->ComputePasses)
+  {
+    computePass->ReleaseResources();
+  }
+
+  this->ComputePasses.clear();
+
+  this->RegisteredBuffers.clear();
+  this->RegisteredTextures.clear();
 }
 
 //------------------------------------------------------------------------------

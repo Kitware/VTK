@@ -556,6 +556,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
     "^VTK::RenderingWebGPUCxx-TestComputePass"
     "^VTK::RenderingWebGPUCxx-TestComputePassChained"
     "^VTK::RenderingWebGPUCxx-TestComputePassUniform"
+    "^VTK::RenderingWebGPUCxx-TestComputePipelineRelease"
     "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapper"
     "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperColors"
     "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperDepth"
@@ -578,7 +579,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
     "^VTK::RenderingWebGPUCxx-TestPointRendering_4"
     "^VTK::RenderingWebGPUCxx-TestMixedGeometry_1"
     "^VTK::RenderingWebGPUCxx-TestMixedGeometry_2"
-    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_3")
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_3"
+    "^VTK::RenderingWebGPUCxx-TestReadPixels")
 endif ()
 
 
