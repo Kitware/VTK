@@ -110,11 +110,13 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
 
   // Default to 0, ignore chars at the end
   source2.Descriptor = "...2.101";
-  source2.ExpectedProcess = { 0, 0, 0, 2 };
+  source2.Mask = "1011";
+  source2.ExpectedProcess = { 0, -1, 0, 2 };
   success &= ::TestSource(source2, myRank, nbRanks);
 
   source2.Descriptor = ".1.0.2.";
-  source2.ExpectedProcess = { 0, 1, 0, 2 };
+  source2.Mask = "1011";
+  source2.ExpectedProcess = { 0, -1, 0, 2 };
   success &= ::TestSource(source2, myRank, nbRanks);
 
   controller->Finalize();
