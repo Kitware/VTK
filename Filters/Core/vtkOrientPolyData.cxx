@@ -197,27 +197,37 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // No need to check this->Consistency. It's implied.
 
-    // Ok, here's the basic idea: the "left-most" polygon should
-    // have its outward pointing normal facing left. If it doesn't,
-    // reverse the vertex order. Then use it as the seed for other
-    // connected polys. To find left-most polygon, first find left-most
-    // point, and examine neighboring polys and see which one
-    // has a normal that's "most aligned" with the X-axis. This process
-    // will need to be repeated to handle all connected components in
-    // the mesh. Report bugs/issues to cvolpe@ara.com.
-    int foundLeftmostCell;
-    vtkIdType leftmostCellID = -1, currentPointID, currentCellID;
-    vtkIdType* leftmostCells;
-    vtkIdType nleftmostCells;
-    const vtkIdType* cellPts;
-    vtkIdType nCellPts;
-    int cIdx;
-    double bestNormalAbsXComponent;
-    bool bestReverseFlag;
+    // Let "left" be the negative x direction.
+    //
+    // The basic idea is that the leftmost polygon should have its
+    // outward pointing normal facing left. If it doesn't, reverse the
+    // vertex order. Then use it as the seed for other connected
+    // polys.
+    //
+    // First find the leftmost point L and the set of cells that use
+    // it {C}. One of these cells is the leftmost. However defining
+    // leftmost correctly is not obvious (see
+    // Testing/TestPolyDataNormals.cxx for a difficult case). But we
+    // don't need to find the left**most**, just one which for which
+    // there exists a point on the face which is not shadowed (in the
+    // negative x-direction) by another face in {C}.
+    //
+    // Adopt the first face in {C} whose plane does not include the
+    // x-axis as our best so far. Then consider the others in turn,
+    // adopting the new one if it has any non-shared points on the
+    // outside (i.e. the more left side) of the plane defining the
+    // best cell.
+    //
+    // This has cases which would loop forever (e.g. chiral
+    // arrangements around L) but by only considering "later" faces
+    // there will be a terminating condition that is good enough.
+    //
+    // This process will need to be repeated to handle all connected
+    // components in the mesh.
     vtkNew<vtkPriorityQueue> leftmostPoints;
 
     // Put all the points in the priority queue, based on x coord
-    // So that we can find leftmost point
+    // so that we can find leftmost point
     leftmostPoints->Allocate(numInPoints);
     for (vtkIdType ptId = 0; ptId < numInPoints; ptId++)
     {
@@ -228,7 +238,6 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     // because there may be multiple connected components, each of
     // which needs to be seeded independently with a correctly
     // oriented polygon.
-    double n[3];
     const vtkIdType checkAbortInterval = std::min(numInPoints / 10 + 1, (vtkIdType)1000);
     vtkIdType progressCounter = 0;
     while (leftmostPoints->GetNumberOfItems())
@@ -238,40 +247,116 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         break;
       }
       progressCounter++;
-      foundLeftmostCell = 0;
+
+      // Have we found at least one "good" cell?
+      bool foundBestCell = false;
+      // The following "best" variables' values are overwritten when a
+      // "better" cell is found by the `setBestSoFar` capture
+      // below.
+      bool bestReverseFlag = false;
+      vtkIdType bestCellID = -1;
+      // Note this will be flipped, if needed, so bestNormal.x < 0
+      double bestNormal[3];
+      double bestPlaneConst;
+      // Pre-allocate a reasonable amount of space to (hopefully)
+      // avoid re-allocation.
+      std::vector<vtkIdType> bestCellPts;
+      bestCellPts.reserve(16);
+
       // Keep iterating through leftmost points and cells located at
       // those points until I've got a leftmost point with
       // unvisited cells attached, and I've found the best cell
       // at that point
       do
       {
-        currentPointID = leftmostPoints->Pop();
-        input->GetPointCells(currentPointID, nleftmostCells, leftmostCells);
-        bestNormalAbsXComponent = 0.0;
-        bestReverseFlag = false;
-        for (cIdx = 0; cIdx < nleftmostCells; cIdx++)
+        vtkIdType currentPointID = leftmostPoints->Pop();
+        double currentPointPos[3];
+        input->GetPoint(currentPointID, currentPointPos);
+
+        vtkIdType* leftmostCells;
+        vtkIdType nLeftmostCells;
+        input->GetPointCells(currentPointID, nLeftmostCells, leftmostCells);
+
+        for (vtkIdType cIdx = 0; cIdx < nLeftmostCells; cIdx++)
         {
-          currentCellID = leftmostCells[cIdx];
+          const vtkIdType& currentCellID = leftmostCells[cIdx];
           if (visited[currentCellID] == VTK_CELL_VISITED)
           {
             continue;
           }
+          const vtkIdType* cellPts;
+          vtkIdType nCellPts;
           input->GetCellPoints(currentCellID, nCellPts, cellPts);
-          vtkPolygon::ComputeNormal(inPoints, nCellPts, cellPts, n);
-          // Ok, see if this leftmost cell candidate is the best
-          // so far
-          if (std::abs(n[0]) > bestNormalAbsXComponent)
+          double currentNormal[3];
+          vtkPolygon::ComputeNormal(inPoints, nCellPts, cellPts, currentNormal);
+
+          if (std::abs(currentNormal[0]) == 0.0)
           {
-            bestNormalAbsXComponent = std::abs(n[0]);
-            leftmostCellID = currentCellID;
+            // Cells parallel to the x-axis (because all their points
+            // except L are right of L) cannot be best, so skip them.
+            continue;
+          }
+
+          // Update the best data with the current values.
+          auto setBestSoFar = [&]() {
+            // ID
+            bestCellID = currentCellID;
             // If the current leftmost cell's normal is pointing to the
-            // right, then the vertex ordering is wrong
-            bestReverseFlag = (n[0] > 0);
-            foundLeftmostCell = 1;
-          } // if this normal is most x-aligned so far
-        }   // for each cell at current leftmost point
-      } while (leftmostPoints->GetNumberOfItems() && !foundLeftmostCell);
-      if (foundLeftmostCell)
+            // right, then the vertex ordering is wrong.
+            bestReverseFlag = (currentNormal[0] > 0);
+            // Normal, flipping if needed
+            std::copy_n(currentNormal, 3, bestNormal);
+            if (bestReverseFlag)
+            {
+              vtkMath::MultiplyScalar(bestNormal, -1);
+            }
+            // For the equation of the plane we will compare against
+            // r.n = k = currentPos.n
+            bestPlaneConst = vtkMath::Dot(bestNormal, currentPointPos);
+            // Point IDs
+            bestCellPts.assign(cellPts, cellPts + nCellPts);
+            foundBestCell = true;
+          };
+
+          if (!foundBestCell)
+          {
+            // First candidate that is not parallel to x-axis.
+            setBestSoFar();
+          }
+          else
+          {
+            // This is a second or later candidate, check if it is
+            // better or not.
+
+            // Loop over candidate cell's points
+            for (vtkIdType pIdx = 0; pIdx < nCellPts; ++pIdx)
+            {
+              vtkIdType ptId = cellPts[pIdx];
+
+              // If the current point forms part of the best cell, it
+              // will not tell us anything about whether the candidate
+              // is better, so skip it.
+              if (std::find(bestCellPts.begin(), bestCellPts.end(), ptId) != bestCellPts.end())
+              {
+                continue;
+              }
+
+              // Is this point's position on the outside of the plane
+              // defined by the best candidate cell?
+              double pos[3];
+              input->GetPoint(ptId, pos);
+              double posDotN = vtkMath::Dot(pos, bestNormal);
+              if (posDotN > bestPlaneConst)
+              {
+                // Yes, accept as new best candidate.
+                setBestSoFar();
+              }
+            }
+          }
+        } // for each cell at current leftmost point
+      } while (leftmostPoints->GetNumberOfItems() && !foundBestCell);
+
+      if (foundBestCell)
       {
         // We've got the seed for a connected component! But do
         // we need to flip it first? We do, if it was pointed the wrong
@@ -279,17 +364,18 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         // normals, but if both are true, then we leave it as it is.
         if (bestReverseFlag ^ this->FlipNormals)
         {
-          output->ReverseCell(leftmostCellID);
+          output->ReverseCell(bestCellID);
           numFlips++;
         }
-        wave->InsertNextId(leftmostCellID);
-        visited[leftmostCellID] = VTK_CELL_VISITED;
+        wave->InsertNextId(bestCellID);
+        visited[bestCellID] = VTK_CELL_VISITED;
         this->TraverseAndOrder(
           input, output, wave, wave2, cellPointIds, cellIds, neighborPointIds, visited, numFlips);
         wave->Reset();
         wave2->Reset();
-      } // if found leftmost cell
-    }   // Still some points in the queue
+      } // if found best cell
+
+    } // Still some points in the queue
     vtkDebugMacro(<< "Reversed ordering of " << numFlips << " polygons");
   }    // automatically orient normals
   else // this->Consistency
