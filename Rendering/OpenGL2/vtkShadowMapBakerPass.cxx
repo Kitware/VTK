@@ -558,7 +558,7 @@ bool vtkShadowMapBakerPass::SetShaderParameters(vtkShaderProgram* program, vtkAb
   vtkCamera* lightCamera = (*this->LightCameras)[this->CurrentLightIndex];
   double* crange = lightCamera->GetClippingRange();
 
-  program->SetUniformf("depthC", 11.0);
+  program->SetUniformf("depthC", ExponentialConstant);
   program->SetUniformf("nearZ", crange[0]);
   program->SetUniformf("farZ", crange[1]);
 
