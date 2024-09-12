@@ -553,11 +553,17 @@ public:
    * - \p x - values
    */
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char* name, int numVars, int* x);
+  virtual void AddShaderVariable(const char*, int, int*)
+  { /* noop */
+  }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char* name, int numVars, float* x);
+  virtual void AddShaderVariable(const char*, int, float*)
+  { /* noop */
+  }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char* name, int numVars, double* x);
+  virtual void AddShaderVariable(const char*, int, double*)
+  { /* noop */
+  }
   ///@}
 
   ///@{
@@ -565,46 +571,40 @@ public:
    * Methods to provide to add shader variables from wrappers.
    */
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, int v) { this->AddShaderVariable(name, 1, &v); }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, float v) { this->AddShaderVariable(name, 1, &v); }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, double v) { this->AddShaderVariable(name, 1, &v); }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, int v1, int v2)
-  {
-    int v[2] = { v1, v2 };
-    this->AddShaderVariable(name, 2, v);
+  void AddShaderVariable(const char*, int)
+  { /* noop */
   }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, float v1, float v2)
-  {
-    float v[2] = { v1, v2 };
-    this->AddShaderVariable(name, 2, v);
+  void AddShaderVariable(const char*, float)
+  { /* noop */
   }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, double v1, double v2)
-  {
-    double v[2] = { v1, v2 };
-    this->AddShaderVariable(name, 2, v);
+  void AddShaderVariable(const char*, double)
+  { /* noop */
   }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, int v1, int v2, int v3)
-  {
-    int v[3] = { v1, v2, v3 };
-    this->AddShaderVariable(name, 3, v);
+  void AddShaderVariable(const char*, int, int)
+  { /* noop */
   }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, float v1, float v2, float v3)
-  {
-    float v[3] = { v1, v2, v3 };
-    this->AddShaderVariable(name, 3, v);
+  void AddShaderVariable(const char*, float, float)
+  { /* noop */
   }
   VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char* name, double v1, double v2, double v3)
-  {
-    double v[3] = { v1, v2, v3 };
-    this->AddShaderVariable(name, 3, v);
+  void AddShaderVariable(const char*, double, double)
+  { /* noop */
+  }
+  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
+  void AddShaderVariable(const char*, int, int, int)
+  { /* noop */
+  }
+  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
+  void AddShaderVariable(const char*, float, float, float)
+  { /* noop */
+  }
+  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
+  void AddShaderVariable(const char*, double, double, double)
+  { /* noop */
   }
   ///@}
 
