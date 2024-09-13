@@ -25,7 +25,7 @@
  * Cell 0: Triangle | point ids: {0, 1, 2}
  * Cell 1: Triangle | point ids: {5, 7, 2}
  * Cell 2: Quad     | point ids: {3, 4, 6, 7}
- * Cell 4: Line     | point ids: {5, 8}
+ * Cell 3: Line     | point ids: {5, 8}
  *
  * vtkCellArray (current):
  * -----------------------
