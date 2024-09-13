@@ -742,34 +742,16 @@ struct vtkLocalThreadOutput
   // doesn't work with smart pointers. The copy constructor is used to create
   // instances of vtkLocalThreadOutput for each thread.
   vtkLocalThreadOutput(const vtkLocalThreadOutput& other)
+    : vtkLocalThreadOutput()
   {
-    this->Cell.TakeReference(vtkGenericCell::New());
-    this->OutputPoints.TakeReference(vtkPoints::New());
-
-    this->Time.TakeReference(vtkDoubleArray::New());
-    this->Time->SetName("IntegrationTime");
-
-    this->VelocityVectors.TakeReference(vtkDoubleArray::New());
-
-    this->CellVectors.TakeReference(vtkDoubleArray::New());
-    this->CellVectors->SetNumberOfComponents(3);
-    this->CellVectors->Allocate(3 * VTK_CELL_SIZE);
-
-    this->Vorticity.TakeReference(vtkDoubleArray::New());
-    this->Vorticity->SetNumberOfComponents(3);
-    this->Vorticity->SetName("Vorticity");
-
-    this->Rotation.TakeReference(vtkDoubleArray::New());
-    this->Rotation->SetName("Rotation");
-
-    this->AngularVelocity.TakeReference(vtkDoubleArray::New());
-    this->AngularVelocity->SetName("AngularVelocity");
-
-    this->Output.TakeReference(vtkPolyData::New());
-    this->OutputPD = this->Output->GetPointData();
-
     this->LastUsedStepSize = other.LastUsedStepSize;
   }
+
+  vtkLocalThreadOutput& operator=(const vtkLocalThreadOutput& other)
+  {
+    this->LastUsedStepSize = other.LastUsedStepSize;
+    return *this;
+  };
 };
 
 // In order to ensure that the threaded output is the same as serial output,
