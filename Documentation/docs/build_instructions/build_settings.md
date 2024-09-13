@@ -55,28 +55,44 @@ Less common, but variables which may be of interest to some:
   * `VTK_TESTING_WASM_ENGINE_ARGUMENTS` (default ``):
     Space separated arguments passed to the wasm runtime executable.
 
-OpenGL-related options:
+## OpenGL related build options:
 
-Note that if OpenGL is used, there must be a "sensible" setup. Sanity checks
-exist to make sure a broken build is not being made. Essentially:
+When OpenGL is used, a valid rendering environment (e.g., X, Cocoa, SDL2, OSMesa, EGL) must be available.
+Sanity checks are in place to prevent a broken build.
 
-- at least one rendering environment (X, Cocoa, SDL2, OSMesa, EGL, etc.) must
-  be available;
-- OSMesa and EGL conflict with each other; and
-- OSMesa only supports off-screen rendering and is therefore incompatible with
-  Cocoa, X, and SDL2.
+For specific platforms:
+* Android: `vtkEGLRenderWindow` is the default.
+* macOS: `vtkCocoaRenderWindow` is the default.
+* iOS: `vtkIOSRenderWindow` is the default.
+* WebAssembly: `vtkWebAssemblyOpenGLRenderWindow` is the default.
+
+Please learn more about how you can influence the render window selection process in [](/advanced/runtime_settings.md#opengl)
+
+## Additional Rendering related build options:
+On Linux, the order of render window attempts is:
+
+1. `vtkXOpenGLRenderWindow`
+2. `vtkEGLRenderWindow`
+3. `vtkOSOpenGLRenderWindow`
+
+On Windows:
+
+* `vtkWin32OpenGLRenderWindow`
+* `vtkOSOpenGLRenderWindow`
+
+By default, VTK automatically selects the most appropriate render window class at runtime. This selection process uses the `Initialize` method of the compiled subclass to test whether the chosen setup is valid. If the initialization succeeds, the corresponding render window instance is returned.
+
+The default values of the following CMake `VTK_OPENGL_HAS_*` knobs are already configured so
+that the above condition is always met on all supported platforms.
 
   * `VTK_USE_COCOA` (default `ON`; requires macOS): Use Cocoa for
     render windows.
   * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
     iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
   * `VTK_USE_SDL2` (default `OFF`): Use SDL2 for render windows.
-  * `VTK_OPENGL_HAS_OSMESA` (default `OFF`): Use to indicate that the
-    OpenGL library being used supports offscreen Mesa rendering
-    (OSMesa).
   * `VTK_OPENGL_USE_GLES` (default `OFF`; forced `ON` for Android):
     Whether to use OpenGL ES API for OpenGL or not.
-  * `VTK_OPENGL_HAS_EGL` (default `ON` for Android, `OFF` otherwise):
+  * `VTK_OPENGL_HAS_EGL` (default `ON` for Android and Linux, `OFF` otherwise):
     Use to indicate that the OpenGL library being used supports EGL
     context management.
   * `VTK_DEFAULT_EGL_DEVICE_INDEX` (default `0`; requires

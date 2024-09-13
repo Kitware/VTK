@@ -3,6 +3,7 @@
 // This tests multiple interactor timers simultaneously.
 
 #include "vtkCommand.h"
+#include "vtkNew.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -203,16 +204,21 @@ int TestInteractorTimers(int argc, char* argv[])
 {
   int i;
 
-  vtkTesting* testing = vtkTesting::New();
+  vtkNew<vtkTesting> testing;
   for (i = 0; i < argc; ++i)
   {
     testing->AddArgument(argv[i]);
   }
 
-  vtkRenderer* renderer = vtkRenderer::New();
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
+  // only run unit test with X11 window.
+  if (!renWin || !renWin->IsA("vtkXOpenGLRenderWindow"))
+  {
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->AddRenderer(renderer);
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   // Initialize must be called prior to creating timer events.
@@ -222,7 +228,7 @@ int TestInteractorTimers(int argc, char* argv[])
 
   // Sign up to receive TimerEvent:
   //
-  vtkTimerCallback* cb = vtkTimerCallback::New();
+  vtkNew<vtkTimerCallback> cb;
   iren->AddObserver(vtkCommand::TimerEvent, cb);
 
   // Create two relatively fast repeating timers:
@@ -258,14 +264,6 @@ int TestInteractorTimers(int argc, char* argv[])
   iren->Start();
 
   bool ret = cb->CheckTimerCount();
-
-  // Clean up:
-  //
-  cb->Delete();
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
-  testing->Delete();
 
   return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }

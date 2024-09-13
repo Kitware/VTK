@@ -20,7 +20,7 @@
 #include "vtkOpenGLPolyDataMapper.h"   // for PrimitiveEnd
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 #ifdef GL_ES_VERSION_3_0

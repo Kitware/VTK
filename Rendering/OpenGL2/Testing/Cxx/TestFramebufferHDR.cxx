@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 //------------------------------------------------------------------------------
 int TestFramebufferHDR(int argc, char* argv[])

@@ -20,7 +20,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::CommonMath
-  VTK::glew
+  VTK::glad
   VTK::RenderingCore
 TEST_DEPENDS
   VTK::CommonSystem

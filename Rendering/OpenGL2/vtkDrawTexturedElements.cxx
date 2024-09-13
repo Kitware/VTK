@@ -28,7 +28,7 @@
 #include "vtkTexture.h"
 #include "vtkTextureObject.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 // Uncomment to print shader/color info to cout
 // #define vtkDrawTexturedElements_DEBUG
@@ -484,11 +484,11 @@ void vtkDrawTexturedElements::DrawInstancedElementsImpl(
   (void)ren;
   glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
 #else
-  if (GLEW_VERSION_3_1)
+  if (GLAD_GL_VERSION_3_1)
   {
     glDrawArraysInstanced(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
   }
-  else if (GL_ARB_instanced_arrays)
+  else if (GLAD_GL_ARB_instanced_arrays)
   {
     glDrawArraysInstancedARB(this->P->Primitive, this->FirstVertexId, this->P->Count, instances);
   }

@@ -29,13 +29,9 @@ used by downstream projects in headless, CI-like environments or cloud
 application deployments, preventing the need to install any addition system
 packages.
 
-To install the **OSMesa variant** from the latest release
-
-```
-pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
-```
-
-For more information see [here](https://discourse.vtk.org/t/status-update-vtk-python-wheels/11212).
+:::{versionchanged} 9.4
+As of VTK 9.4, OSMesa and EGL support are included by default in the `vtk` wheels and can be selected at runtime. The `vtk-osmesa` wheels are no longer provided, and it is no longer necessary to install `vtk-osmesa`.
+:::
 
 ```{note}
 conda-forge packages are also [available](https://anaconda.org/conda-forge/vtk) and maintained by the community.

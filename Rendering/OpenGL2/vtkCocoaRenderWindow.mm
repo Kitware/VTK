@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
 #import "vtkOpenGLRenderWindow.h"

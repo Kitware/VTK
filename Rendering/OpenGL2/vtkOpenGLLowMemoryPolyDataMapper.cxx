@@ -43,7 +43,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <limits>
 #include <sstream>

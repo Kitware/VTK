@@ -192,6 +192,22 @@ void QVTKOpenGLWindow::initializeGL()
   {
     Q_ASSERT(this->RenderWindowAdapter.data() == nullptr);
 
+    if (!this->RenderWindow->GetInitialized())
+    {
+      auto loadFunc = [](void* userData,
+                        const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc {
+        if (auto* context = reinterpret_cast<QOpenGLContext*>(userData))
+        {
+          if (auto* symbol = context->getProcAddress(name))
+          {
+            return symbol;
+          }
+        }
+        return nullptr;
+      };
+      this->RenderWindow->SetOpenGLSymbolLoader(loadFunc, this->context());
+      this->RenderWindow->vtkOpenGLRenderWindow::OpenGLInit();
+    }
     auto ostate = this->RenderWindow->GetState();
     ostate->Reset();
     // By default, Qt sets the depth function to GL_LESS but VTK expects GL_LEQUAL

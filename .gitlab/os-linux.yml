@@ -27,9 +27,11 @@
 
 .wheel_linux_egl_addon:
     variables:
-        # Exclude the built development EGL libraries from the wheel; the user
-        # must provide them.
-        WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
+        VTK_DEFAULT_OPENGL_WINDOW: vtkEGLRenderWindow
+
+.wheel_linux_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
 
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
@@ -39,7 +41,9 @@
         PYTHON_PREFIX: /opt/python/cp38-cp38
 
 .wheel_linux38_x86_64_osmesa:
-    extends: .wheel_linux38_x86_64
+    extends:
+        - .wheel_linux38_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
@@ -61,7 +65,9 @@
         PYTHON_PREFIX: /opt/python/cp39-cp39
 
 .wheel_linux39_x86_64_osmesa:
-    extends: .wheel_linux39_x86_64
+    extends:
+        - .wheel_linux39_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
@@ -83,7 +89,9 @@
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
 .wheel_linux310_x86_64_osmesa:
-    extends: .wheel_linux310_x86_64
+    extends:
+        - .wheel_linux310_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
@@ -105,7 +113,9 @@
         PYTHON_PREFIX: /opt/python/cp311-cp311
 
 .wheel_linux311_x86_64_osmesa:
-    extends: .wheel_linux311_x86_64
+    extends:
+        - .wheel_linux311_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
@@ -127,7 +137,9 @@
         PYTHON_PREFIX: /opt/python/cp312-cp312
 
 .wheel_linux312_x86_64_osmesa:
-    extends: .wheel_linux312_x86_64
+    extends:
+        - .wheel_linux312_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_osmesa
@@ -180,6 +192,10 @@
         # Fails inside of CI containers.
         PSM3_KASSIST_MODE: none
 
+.fedora_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .fedora_openmpi_addon:
     variables:
         # Needed to work with OpenMPI
@@ -215,6 +231,7 @@
         - .fedora39
         - .fedora_cuda_addon
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_cuda_mpi_offscreen_osmesa
@@ -233,6 +250,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python
@@ -242,6 +260,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python_ext_vtk
@@ -586,30 +605,17 @@
     extends: .warning_policy
 
     script:
-        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
+        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel git-core git-lfs gcc-c++
         - *before_script_linux
         - .gitlab/ci/sccache.sh
-        - cmake -P .gitlab/ci/download_osmesa.cmake
-        - cmake -P .gitlab/ci/download_mesa_egl.cmake
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        # Set `LD_LIBRARY_PATH` for osmesa wheels. Note that we do *not* want
-        # to use rpaths here because we do not want the rpaths to end up in the
-        # wheel binaries and they should instead be bundled.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
-        # Set `LD_LIBRARY_PATH` for egl wheels. Note that we do *not* want
-        # to use rpaths here because we do not want the rpaths to end up in the
-        # wheel binaries and they should instead be bundled.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "egl" ]] && export LD_LIBRARY_PATH=/opt/mesa/lib'
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
         - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
         - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
-        - auditwheel repair $WHEEL_EXCLUSIONS dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
-        - mv -v dist/ dist-orig/
-        - mv -v wheelhouse/ dist/
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
         - cd ..
         - exec .gitlab/ci/check_warnings.sh .
@@ -636,10 +642,18 @@
     image: "quay.io/pypa/manylinux_2_28_x86_64"
 
     script:
-        # Install `Xcursor` library.
+        # Set `LD_LIBRARY_PATH` for osmesa wheels.
+        - cmake -P .gitlab/ci/download_osmesa.cmake
+        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
+        # Set `LD_LIBRARY_PATH` for egl wheels.
+        - cmake -P .gitlab/ci/download_mesa_egl.cmake
+        - '[[ "$CMAKE_CONFIGURATION" =~ "egl" ]] && export LD_LIBRARY_PATH=/opt/mesa/lib'
+        # Install `Xcursor` library. This is needed because of the X render window interactor.
         - yum install -y --setopt=install_weak_deps=False libXcursor
-        # Install EGL runtime.
-        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl
+        # Make sure that GLX can work in the container. Install per-job to:
+        # - show that it doesn't affect wheel installation and importing
+        # - we do not need to manually update the wheel for any manylinux* rebase
+        -  '[[ "$CMAKE_CONFIGURATION" =~ (osmesa|egl) ]] || yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl'
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
         - pip install twine
@@ -647,10 +661,6 @@
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
-        # Make sure that X11 can work in the container. Install per-job to:
-        # - show that it doesn't affect wheel installation and importing
-        # - we do not need to manually update the wheel for any manylinux* rebase
-        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers
         - *before_script_linux
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel

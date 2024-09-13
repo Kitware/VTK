@@ -4,7 +4,7 @@
 #include "vtkShader.h"
 #include "vtkObjectFactory.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShader);
@@ -145,7 +145,7 @@ bool vtkShader::IsComputeShaderSupported()
 #if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
   return false;
 #else
-  return glewIsSupported("GL_ARB_compute_shader") != 0;
+  return GLAD_GL_ARB_compute_shader != 0;
 #endif
 }
 
@@ -155,7 +155,7 @@ bool vtkShader::IsTessellationShaderSupported()
 #if defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0)
   return false;
 #else
-  return glewIsSupported("GL_ARB_tessellation_shader") != 0;
+  return GLAD_GL_ARB_tessellation_shader != 0;
 #endif
 }
 

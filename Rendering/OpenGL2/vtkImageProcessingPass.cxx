@@ -9,7 +9,7 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 #include <cassert>
 
 // to be able to dump intermediate passes into png files for debugging.

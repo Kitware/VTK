@@ -3,7 +3,7 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include <vtk_glew.h>
+#include <vtk_glad.h>
 
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"

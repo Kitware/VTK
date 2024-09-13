@@ -10,10 +10,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkType.h"
-#include "vtk_glew.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <EGL/egl.h>
+#include "vtk_glad.h"
+#include "vtkglad/include/glad/egl.h"
+
 #include <atomic>
 #include <cassert>
 #include <sstream>
@@ -29,7 +30,6 @@ namespace
 typedef void* EGLDeviceEXT;
 typedef EGLBoolean (*EGLQueryDevicesType)(EGLint, EGLDeviceEXT*, EGLint*);
 typedef EGLDisplay (*EGLGetPlatformDisplayType)(EGLenum, void*, const EGLint*);
-const EGLenum EGL_PLATFORM_DEVICE_EXT = 0x313F;
 /**
  * EGLDisplay provided by eglGetDisplay() call can be same handle for multiple
  * instances of vtkEGLRenderWindow. In which case, while it's safe to call
@@ -112,17 +112,20 @@ private:
 
 vtkStandardNewMacro(vtkEGLRenderWindow);
 
-struct vtkEGLRenderWindow::vtkInternals
+class vtkEGLRenderWindow::vtkInternals
 {
+public:
   EGLNativeWindowType Window;
   EGLDisplay Display;
   EGLSurface Surface;
   EGLContext Context;
+  bool EGLInitialized; // When set, it means methods from EGL 1.4 and higher are accessible.
   vtkInternals()
     : Window((EGLNativeWindowType)0)
     , Display(EGL_NO_DISPLAY)
     , Surface(EGL_NO_SURFACE)
     , Context(EGL_NO_CONTEXT)
+    , EGLInitialized(false)
   {
   }
 };
@@ -183,6 +186,15 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
 
   this->IsPointSpriteBugTested = false;
   this->IsPointSpriteBugPresent_ = false;
+
+  auto loadFunc = [](void*, const char* name) -> VTKOpenGLAPIProc {
+    if (name)
+    {
+      return eglGetProcAddress(name);
+    }
+    return nullptr;
+  };
+  this->SetOpenGLSymbolLoader(loadFunc, nullptr);
 }
 
 // free up memory & close the window
@@ -379,17 +391,20 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 
     if (vtkEGLDisplayInitializationHelper::Initialize(impl->Display, &major, &minor) == EGL_FALSE)
     {
-      vtkErrorMacro("Could not initialize a device. Exiting...");
+      vtkWarningMacro("Could not initialize a device. Exiting...");
       return false;
     }
   }
 #if !defined(__ANDROID__) && !defined(ANDROID)
   if (major <= 1 && minor < 4)
   {
-    vtkErrorMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
-                  "See eglBindAPI for more information.");
+    vtkWarningMacro("Only EGL 1.4 and greater allows OpenGL as client API. "
+                    "See eglBindAPI for more information.");
     return false;
   }
+  // Loads EGL functions that are supported by this display.
+  gladLoaderLoadEGL(impl->Display);
+  impl->EGLInitialized = true;
   eglBindAPI(EGL_OPENGL_API);
 #endif
 
@@ -460,7 +475,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   eglChooseConfig(impl->Display, configs, &config, 1, &numConfigs);
   if (numConfigs == 0)
   {
-    vtkErrorMacro("No matching EGL configuration found.");
+    vtkWarningMacro("No matching EGL configuration found.");
     return;
   }
 
@@ -532,6 +547,7 @@ void vtkEGLRenderWindow::DestroyWindow()
     }
     vtkEGLDisplayInitializationHelper::Terminate(impl->Display);
     impl->Display = EGL_NO_DISPLAY;
+    impl->EGLInitialized = false;
   }
 }
 
@@ -555,7 +571,7 @@ void vtkEGLRenderWindow::WindowInitialize()
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(nullptr);
     ren->SetRenderWindow(this);
   }
 
@@ -563,7 +579,10 @@ void vtkEGLRenderWindow::WindowInitialize()
 
   // for offscreen EGL always turn on point sprites
 #if !defined(__ANDROID__) && !defined(ANDROID) && defined(GL_POINT_SPRITE)
-  glEnable(GL_POINT_SPRITE);
+  if (this->Initialized)
+  {
+    glEnable(GL_POINT_SPRITE);
+  }
 #endif
 
 #if defined(__ANDROID__) || defined(ANDROID)
@@ -584,7 +603,6 @@ void vtkEGLRenderWindow::Initialize()
   {
     this->WindowInitialize();
   }
-  this->Initialized = true;
 }
 
 void vtkEGLRenderWindow::Finalize()
@@ -774,4 +792,54 @@ void vtkEGLRenderWindow::SetWindowId(void* window)
   vtkInternals* impl = this->Internals;
   impl->Window = reinterpret_cast<EGLNativeWindowType>(window);
 }
+
+//------------------------------------------------------------------------------
+const char* vtkEGLRenderWindow::ReportCapabilities()
+{
+  this->MakeCurrent();
+
+  auto& internals = (*this->Internals);
+  if (!internals.Display)
+  {
+    return "Display ID not set";
+  }
+  const char* eglVersion =
+    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_VERSION));
+  const char* eglVendor =
+    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_VENDOR));
+  const char* eglClientAPIs =
+    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_CLIENT_APIS));
+  const char* eglExtensions =
+    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_EXTENSIONS));
+  const char* glVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  const char* glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+  const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+  std::ostringstream strm;
+  strm << "EGL version string:  " << eglVersion << endl;
+  strm << "EGL vendor string:  " << eglVendor << endl;
+  strm << "EGL client APIs:  " << eglClientAPIs << endl;
+  strm << "EGL extensions:  " << eglExtensions << endl;
+  strm << "OpenGL vendor string:  " << glVendor << endl;
+  strm << "OpenGL renderer string:  " << glRenderer << endl;
+  strm << "OpenGL version string:  " << glVersion << endl;
+  strm << "OpenGL extensions:  " << endl;
+  int n = 0;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+  for (int i = 0; i < n; i++)
+  {
+    const char* ext = (const char*)glGetStringi(GL_EXTENSIONS, i);
+    strm << "  " << ext << endl;
+  }
+  delete[] this->Capabilities;
+
+  const auto capsString = strm.str();
+  size_t len = capsString.length();
+  this->Capabilities = new char[len + 1];
+  strncpy(this->Capabilities, capsString.c_str(), len);
+  this->Capabilities[len] = 0;
+
+  return this->Capabilities;
+}
+
 VTK_ABI_NAMESPACE_END

@@ -47,7 +47,7 @@
 #include VTK_FMT(fmt/ostream.h)
 // clang-format on
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <string>
 

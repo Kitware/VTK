@@ -45,7 +45,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingVRModule.h" // For export macro
 #include "vtkSmartPointer.h"      // for vtkSmartPointer
-#include "vtk_glew.h"             // used for methods
+#include "vtk_glad.h"             // used for methods
 
 #include <vector> // ivars
 

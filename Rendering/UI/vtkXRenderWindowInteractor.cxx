@@ -397,10 +397,18 @@ void vtkXRenderWindowInteractor::Initialize()
   {
     XWindowAttributes attribs;
     //  Find the current window size
-    XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
-
-    size[0] = attribs.width;
-    size[1] = attribs.height;
+    auto* previousHandler = XSetErrorHandler([](Display*, XErrorEvent*) { return 0; });
+    if (XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs))
+    {
+      size[0] = attribs.width;
+      size[1] = attribs.height;
+    }
+    else
+    {
+      // window does not exist. `ren` is not an X11 render window.
+      this->WindowId = 0;
+    }
+    XSetErrorHandler(previousHandler);
   }
   ren->SetSize(size[0], size[1]);
 
@@ -444,6 +452,8 @@ void vtkXRenderWindowInteractor::Enable()
   // there is no real X Display or X Window.
   if (!this->WindowId || !this->DisplayId)
   {
+    this->Enabled = 1;
+    this->Modified();
     return;
   }
 

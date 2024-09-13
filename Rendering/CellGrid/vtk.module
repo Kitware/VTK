@@ -19,8 +19,7 @@ DEPENDS
   VTK::FiltersCellGrid
   VTK::RenderingCore
   VTK::RenderingOpenGL2
-  VTK::glew
-  VTK::opengl
+  VTK::glad
 PRIVATE_DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonColor

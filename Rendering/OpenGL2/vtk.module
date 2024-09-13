@@ -21,14 +21,13 @@ DEPENDS
   VTK::RenderingCore
   VTK::RenderingHyperTreeGrid
   VTK::RenderingUI
-  VTK::glew
+  VTK::glad
 PRIVATE_DEPENDS
   VTK::CommonColor
   VTK::CommonExecutionModel
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
-  VTK::opengl
   VTK::vtksys
   VTK::nlohmannjson
 TEST_DEPENDS
@@ -49,7 +48,7 @@ TEST_DEPENDS
   VTK::ImagingGeneral
   VTK::ImagingSources
   VTK::InteractionStyle
-  VTK::opengl
+  VTK::glad
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
   VTK::RenderingImage

@@ -39,9 +39,6 @@ configuration_flag(VTK_ENABLE_WEBGPU "webgpu")
 # cuda
 configuration_flag(VTK_USE_CUDA "cuda")
 
-# osmesa
-configuration_flag(VTK_OPENGL_HAS_OSMESA "osmesa")
-
 # python
 configuration_flag(VTK_WRAP_PYTHON "python")
 

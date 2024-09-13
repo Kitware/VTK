@@ -103,6 +103,7 @@ done
 
 The following third-party projects were imported by copying the files:
 
+  * glad
   * vpic
   * xdmf2
 

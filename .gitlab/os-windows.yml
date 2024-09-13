@@ -18,6 +18,10 @@
         VCVARSVERSION: "14.35.32215"
         VTK_INSTALL: 1
 
+.wheel_windows_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .wheel_windows38_x86_64:
     extends: .wheel_windows_x86_64
 
@@ -25,7 +29,9 @@
         CMAKE_CONFIGURATION: wheel_windows38_x86_64
 
 .wheel_windows38_x86_64_osmesa:
-    extends: .wheel_windows38_x86_64
+    extends:
+        - .wheel_windows38_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows38_x86_64_osmesa
@@ -37,7 +43,9 @@
         CMAKE_CONFIGURATION: wheel_windows39_x86_64
 
 .wheel_windows39_x86_64_osmesa:
-    extends: .wheel_windows39_x86_64
+    extends:
+        - .wheel_windows39_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows39_x86_64_osmesa
@@ -49,7 +57,9 @@
         CMAKE_CONFIGURATION: wheel_windows310_x86_64
 
 .wheel_windows310_x86_64_osmesa:
-    extends: .wheel_windows310_x86_64
+    extends:
+        - .wheel_windows310_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows310_x86_64_osmesa
@@ -61,7 +71,9 @@
         CMAKE_CONFIGURATION: wheel_windows311_x86_64
 
 .wheel_windows311_x86_64_osmesa:
-    extends: .wheel_windows311_x86_64
+    extends:
+        - .wheel_windows311_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows311_x86_64_osmesa
@@ -73,7 +85,9 @@
         CMAKE_CONFIGURATION: wheel_windows312_x86_64
 
 .wheel_windows312_x86_64_osmesa:
-    extends: .wheel_windows312_x86_64
+    extends:
+        - .wheel_windows312_x86_64
+        - .wheel_windows_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_windows312_x86_64_osmesa
@@ -320,9 +334,6 @@
         - *before_script_windows
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
-        - cmake -P .gitlab/ci/download_osmesa_windows.cmake
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\osmesa\bin;$env:PATH"
-        - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\osmesa;$env:CMAKE_PREFIX_PATH"
         - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
         - Set-Item -Force -Path "env:PATH" -Value "$env:PATH;$pwdpath\.gitlab\buildcache\bin"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
@@ -340,8 +351,8 @@
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
         - pip install delvewheel
-        - delvewheel show --add-path "bin;$env:CI_PROJECT_DIR\.gitlab\osmesa\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        - delvewheel repair --add-path "bin;$env:CI_PROJECT_DIR\.gitlab\osmesa\bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - delvewheel show --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - delvewheel repair --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
         - Rename-Item -Path dist -NewName dist-orig
         - Rename-Item -Path wheelhouse -NewName dist
         - cd ..
@@ -353,6 +364,8 @@
 
     script:
         - *before_script_windows
+        - cmake -P .gitlab/ci/download_osmesa_windows.cmake
+        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\osmesa\bin;$env:PATH"
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
         - Set-Item -Force -Path "env:PATH" -Value "$env:PYTHON_PREFIX;$env:PATH"
@@ -364,6 +377,12 @@
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        # Verify default render window backend works.
+        - Set-Item -Force -Path "env:VTK_DEFAULT_OPENGL_WINDOW" -Value ""
+        - python -c "import vtk; assert(vtk.vtkRenderWindow().GetClassName() == 'vtkWin32OpenGLRenderWindow')"
+        # Force osmesa render window and verify it worked.
+        - Set-Item -Force -Path "env:VTK_DEFAULT_OPENGL_WINDOW" -Value "vtkOSOpenGLRenderWindow"
+        - python -c "import vtk; assert(vtk.vtkRenderWindow().GetClassName() == 'vtkOSOpenGLRenderWindow')"
         - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel # This will call exit in case of warnings
     interruptible: true
 

@@ -37,7 +37,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObjectVS.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeZPass);

@@ -67,11 +67,14 @@
 #  define GL2PSDLL_API
 #endif
 
-#if defined(__APPLE__) || defined(HAVE_OPENGL_GL_H)
-#  include <OpenGL/gl.h>
-#else
-#  include <GL/gl.h>
-#endif
+// XXX(Kitware): Use vtk's glad
+// #if defined(__APPLE__) || defined(HAVE_OPENGL_GL_H)
+// #  include <OpenGL/gl.h>
+// #else
+// #  include <GL/gl.h>
+// #endif
+#include <vtk_glad.h>
+
 
 /* Support for compressed PostScript/PDF/SVG and for embedded PNG
    images in SVG */

@@ -254,6 +254,21 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
     this->m_renderWindow->SetMultiSamples(0);
     this->m_renderWindow->SetReadyForRendering(false);
     this->m_renderWindow->SetFrameBlitModeToBlitToHardware();
+    auto loadFunc = [](void*, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc {
+      if (auto context = QOpenGLContext::currentContext())
+      {
+        if (auto* symbol = context->getProcAddress(name))
+        {
+          return symbol;
+        }
+      }
+      else
+      {
+        vtkGenericWarningMacro(<< "Current opengl context is null!");
+      }
+      return nullptr;
+    };
+    this->m_renderWindow->SetOpenGLSymbolLoader(loadFunc, nullptr);
     vtkNew<QVTKInteractor> iren;
     iren->SetRenderWindow(this->m_renderWindow);
 

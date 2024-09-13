@@ -31,7 +31,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 // debugging
 #include "vtkTimerLog.h"

@@ -14,7 +14,7 @@ DEPENDS
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::RenderingVR
-  VTK::glew
+  VTK::glad
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
@@ -23,7 +23,6 @@ PRIVATE_DEPENDS
   VTK::ImagingSources
   VTK::InteractionWidgets
   VTK::jsoncpp
-  VTK::opengl
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonCore

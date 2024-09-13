@@ -60,3 +60,7 @@ That's it ! You may now try some of the
 If you are looking for a higher-level interface to VTK in Python, you may want
 to explore using [PyVista](https://docs.pyvista.org) as it exposes VTK in a
 "Pythonic" manner.
+
+If you are running the script in a Linux/Windows machine without a display or a GPU, VTK will automatically
+select an appropriate OpenGL render window class. Please learn more about how you can influence the
+render window selection process in [](/advanced/runtime_settings.md#opengl)

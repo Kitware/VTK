@@ -1,4 +1,6 @@
 set(test_exclusions
+  # Leaks static thread_local instances, being worked in !11452 
+  "^VTK::FiltersCellGridPython-TestCellGridRange$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 
@@ -268,8 +270,18 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   list(APPEND test_exclusions
-    # Failed to open the display
-    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
+    # Failed to open the display.
+    # After (https://gitlab.kitware.com/vtk/vtk/-/issues/19453) is resolved,
+    # these tests could be smarter by skipping when there is no display.
+    "^VTK::FiltersSourcesPython-squadViewer$"
+    "^VTK::GUISupportQtCxx"
+    "^VTK::GUISupportQtQuickCxx"
+    "^VTK::GUISupportQtSQLCxx-TestQtSQLDatabase$"
+    "^VTK::RenderingCoreCxx-TestInteractorTimers$"
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    "^VTK::RenderingQtCxx-TestQtInitialization$"
+    "^VTK::RenderingTkPython"
+    "^VTK::ViewsQtCxx-TestVtkQtTableView$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -313,7 +325,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
     # Thread-local objects are not destroyed at program exit.
     # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
     "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
-    "^VTK::FiltersCellGridPython-TestCellGridRange$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19400

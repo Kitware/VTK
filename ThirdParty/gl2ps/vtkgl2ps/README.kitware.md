@@ -10,3 +10,4 @@ process.
   * Use VTK's zlib and png libraries.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtkgl2ps_` prefix.
+  * Use VTK's glad library.

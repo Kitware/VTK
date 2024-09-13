@@ -631,6 +631,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
     auto ssim = vtkImageSSIM::New();
     ssim->SetInputToLab();
+    ssim->ClampNegativeValuesOn();
     auto alg = vtkSmartPointer<vtkAlgorithm>::Take(ssim);
     alg->SetInputConnection(pipeline1->GetOutputPort());
     alg->SetInputConnection(1, pipeline2->GetOutputPort());

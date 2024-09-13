@@ -5,7 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include <vtkglad/include/glad/wgl.h>
 
 #include <d3d11.h> // For D3D11 interface
 #include <dxgi.h>
@@ -82,9 +82,9 @@ void vtkWin32OpenGLDXRenderWindow::Initialize()
 void vtkWin32OpenGLDXRenderWindow::InitializeDX()
 {
   // Require NV_DX_interop OpenGL extension
-  if (!WGLEW_NV_DX_interop)
+  if (!GLAD_WGL_NV_DX_interop)
   {
-    vtkErrorMacro("OpenGL extension WGLEW_NV_DX_interop unsupported.");
+    vtkErrorMacro("OpenGL extension GLAD_WGL_NV_DX_interop unsupported.");
     return;
   }
 
