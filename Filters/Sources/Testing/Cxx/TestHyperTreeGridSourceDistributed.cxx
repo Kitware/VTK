@@ -20,7 +20,8 @@ struct SourceConfig
   std::array<unsigned int, 3> Dimensions;
   std::array<double, 3> GridScale;
   std::string Descriptor;
-  std::array<unsigned char, NbTrees> ExpectedProcess;
+  std::string Mask;
+  std::array<char, NbTrees> ExpectedProcess;
 };
 }
 
@@ -35,6 +36,12 @@ bool TestSource(const SourceConfig<NbTrees>& config, int myRank, int nbRanks)
   htGrid->SetDimensions(config.Dimensions.data());
   htGrid->SetGridScale(config.GridScale.data());
   htGrid->SetDescriptor(config.Descriptor.c_str());
+  if (!config.Mask.empty())
+  {
+    htGrid->SetUseMask(true);
+    htGrid->SetMask(config.Mask.c_str());
+  }
+
   htGrid->UpdatePiece(myRank, nbRanks, 0);
   auto htg = htGrid->GetHyperTreeGridOutput();
 
@@ -50,8 +57,9 @@ bool TestSource(const SourceConfig<NbTrees>& config, int myRank, int nbRanks)
     htg->InitializeNonOrientedCursor(cursor, inIndex, true);
     if ((config.ExpectedProcess[treeIndex++] == myRank) == cursor->IsMasked())
     {
-      vtkErrorWithObjectMacro(
-        nullptr, "Tree #" << treeIndex - 1 << " does not appear on the right process.");
+      vtkErrorWithObjectMacro(nullptr,
+        "Tree #" << treeIndex - 1 << " does not appear on the right process "
+                 << "Is masked ");
       success = false;
     }
   }
@@ -82,6 +90,8 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
   SourceConfig<6> source1{ 6, 2, { 3, 4, 1 }, { 1.5, 1., 10. },
     "0RR1RR0R.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... "
     "...R ..R. .... .R.. R...|.... .... .R.. ....|....",
+    "111111|1111 1111 1111 1111 1111|1111 1111 1111 1111 1111 1111 1111|1111 "
+    "1111 1111 1111 1111 1111|1111 1111 1111 1111|1111",
     { 0, 0, 1, 1, 0, 0 } };
 
   SourceConfig<4> source2{
@@ -90,7 +100,8 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
     { 3, 3, 1 },
     { 1.5, 1., 10. },
     "0..2.1.",
-    { 0, 0, 2, 1 },
+    "1011",
+    { 0, -1, 2, 1 },
   };
 
   bool success = true;
@@ -99,11 +110,13 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
 
   // Default to 0, ignore chars at the end
   source2.Descriptor = "...2.101";
-  source2.ExpectedProcess = { 0, 0, 0, 2 };
+  source2.Mask = "1011";
+  source2.ExpectedProcess = { 0, -1, 0, 2 };
   success &= ::TestSource(source2, myRank, nbRanks);
 
   source2.Descriptor = ".1.0.2.";
-  source2.ExpectedProcess = { 0, 1, 0, 2 };
+  source2.Mask = "1011";
+  source2.ExpectedProcess = { 0, -1, 0, 2 };
   success &= ::TestSource(source2, myRank, nbRanks);
 
   controller->Finalize();

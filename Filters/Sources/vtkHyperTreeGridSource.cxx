@@ -702,13 +702,19 @@ void vtkHyperTreeGridSource::InitTreeFromDescriptor(vtkHyperTreeGrid* output,
 //------------------------------------------------------------------------------
 int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 {
-  size_t descLen = strlen(this->Descriptor);
+  std::string descNoProcess = this->Descriptor;
+  for (char c = '0'; c <= '9'; c++)
+  {
+    descNoProcess.erase(
+      std::remove(descNoProcess.begin(), descNoProcess.end(), c), descNoProcess.end());
+  }
 
   // Verify that grid and material specifications are consistent
-  if (this->UseMask && strlen(this->Mask) != descLen)
+  if (this->UseMask && strlen(this->Mask) != descNoProcess.size())
   {
     vtkErrorMacro(<< "Material mask is used but has length " << strlen(this->Mask)
-                  << " != " << descLen << " which is the length of the grid descriptor.");
+                  << " != " << descNoProcess.size()
+                  << " which is the length of the grid descriptor, omitting process qualifiers.");
     return 0;
   }
 
@@ -726,6 +732,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   unsigned int nRefined = 0;
   unsigned int nLeaves = 0;
   unsigned int nNextLevel = nTotal;
+  unsigned int maskCounter = 0;
   bool rootLevel = true;
   std::ostringstream descriptor;
   std::ostringstream mask;
@@ -734,10 +741,16 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   this->LevelDescriptors.clear();
   this->LevelMasks.clear();
 
-  for (size_t i = 0; i < descLen; ++i)
+  // Iterate through descriptor strings
+  for (size_t i = 0; i < strlen(this->Descriptor); ++i)
   {
     char c = this->Descriptor[i];
-    char m = this->UseMask ? this->Mask[i] : 0;
+    char m = 0;
+    if (!isdigit(c) && this->UseMask)
+    {
+      // Only read mask value when the current descriptor character is not a process number
+      m = this->Mask[maskCounter++];
+    }
     switch (c)
     {
       case ' ':
@@ -786,7 +799,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
         //  Refined cell, verify mask consistency if needed
         if (this->UseMask && m == '0')
         {
-          vtkErrorMacro(<< "A refined branch must contain material.");
+          vtkErrorMacro(<< "A refined branch cannot be masked.");
           return 0;
         }
         // Refined cell, update branch counter
@@ -1048,7 +1061,7 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
   else if (this->UseMask)
   {
     // Blank leaf if needed
-    bool masked = this->LevelMasks.at(level).at(pointer) == '0';
+    bool masked = this->LevelMasks.at(level).at(pointer - offset) == '0';
     output->GetMask()->InsertTuple1(id, masked);
   } // else if
 
