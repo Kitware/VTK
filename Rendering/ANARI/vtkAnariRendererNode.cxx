@@ -724,7 +724,6 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
   if (renderedFrame.data != nullptr)
   {
     int retTotalSize = renderedFrame.width * renderedFrame.height;
-    int totalSize = this->Size[0] * this->Size[1];
     totalSize = std::min(retTotalSize, totalSize);
     memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
   }
