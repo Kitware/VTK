@@ -118,9 +118,15 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   vtk_add_flag(-Wreorder-ctor ${langs})
   vtk_add_flag(-Wunused-lambda-capture ${langs})
   vtk_add_flag(-Wunused-private-field ${langs})
+  vtk_add_flag(-Woverloaded-virtual ${langs})
 
   # C and C++ flags.
   set(langs C CXX)
+  if (NOT MSVC) # MSVC supports Wall but there are just too many to handle
+    vtk_add_flag(-Wall ${langs})
+  endif ()
+  vtk_add_flag(-Wextra ${langs})
+  vtk_add_flag(-Wshadow ${langs})
   vtk_add_flag(-Wabsolute-value ${langs})
   vtk_add_flag(-Wlogical-op ${langs})
   vtk_add_flag(-Wsign-compare ${langs})
