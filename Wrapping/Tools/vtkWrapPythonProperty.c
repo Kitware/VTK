@@ -171,8 +171,13 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     }
 
     /* Start a new PyGetSetDef item */
-    fprintf(fp, "  {\n");
     char* snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
+    if (!snakeCasePropName)
+    {
+      continue;
+    }
+
+    fprintf(fp, "  {\n");
     fprintf(fp, "    /*name=*/pystr(\"%s\"),\n", snakeCasePropName);
     free(snakeCasePropName);
 
