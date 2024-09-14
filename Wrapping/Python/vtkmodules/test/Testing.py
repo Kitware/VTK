@@ -515,8 +515,10 @@ def test(cases):
     """
     # Make the test suites from the arguments.
     suites = []
-    for case in cases:
-        suites.append(unittest.makeSuite(case[0], case[1]))
+    loader = unittest.TestLoader()
+    # the "name" is ignored (it was always just 'test')
+    for test,name in cases:
+        suites.append(loader.loadTestsFromTestCase(test))
     test_suite = unittest.TestSuite(suites)
 
     # Now run the tests.
