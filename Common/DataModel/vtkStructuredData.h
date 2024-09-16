@@ -21,8 +21,6 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <algorithm> // For std::max
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
@@ -348,8 +346,9 @@ inline vtkIdType vtkStructuredData::GetNumberOfCells(const int ext[6], int)
   vtkStructuredData::GetDimensionsFromExtent(ext, dims);
 
   // if any of the dimensions is 0, then there are no cells
-  const int cellDims[3] = { dims[0] != 0 ? std::max(dims[0] - 1, 1) : 0,
-    dims[1] != 0 ? std::max(dims[1] - 1, 1) : 0, dims[2] != 0 ? std::max(dims[2] - 1, 1) : 0 };
+  const int cellDims[3] = { dims[0] != 0 ? vtkStructuredData::Max(dims[0] - 1, 1) : 0,
+    dims[1] != 0 ? vtkStructuredData::Max(dims[1] - 1, 1) : 0,
+    dims[2] != 0 ? vtkStructuredData::Max(dims[2] - 1, 1) : 0 };
 
   // Note, when we compute the result below, we statically cast to vtkIdType to
   // ensure the compiler will generate a 32x32=64 instruction.
