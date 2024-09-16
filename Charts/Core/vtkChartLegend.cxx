@@ -10,9 +10,11 @@
 #include "vtkContextScene.h"
 #include "vtkPen.h"
 #include "vtkPlot.h"
+#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
+#include "vtkTransform2D.h"
 #include "vtkVector.h"
 #include "vtkWeakPointer.h"
 
@@ -34,6 +36,7 @@ public:
   vtkVector2f Point;
   vtkWeakPointer<vtkChart> Chart;
   std::vector<vtkPlot*> ActivePlots;
+  vtkNew<vtkTransform2D> Transform;
 };
 
 //------------------------------------------------------------------------------
@@ -55,6 +58,7 @@ vtkChartLegend::vtkChartLegend()
   this->Brush->SetColor(255, 255, 255, 255);
   this->HorizontalAlignment = vtkChartLegend::RIGHT;
   this->VerticalAlignment = vtkChartLegend::TOP;
+  this->PointIsNormalized = false;
 
   this->Padding = 5;
   this->SymbolWidth = 25;
@@ -76,6 +80,13 @@ vtkChartLegend::~vtkChartLegend()
 void vtkChartLegend::Update()
 {
   this->Storage->ActivePlots.clear();
+  this->Storage->Transform->Identity();
+  if (this->PointIsNormalized)
+  {
+    int w = 1, h = 1;
+    this->GetScene()->GetRenderer()->GetTiledSize(&w, &h);
+    this->Storage->Transform->Scale(w, h);
+  }
   for (int i = 0; i < this->Storage->Chart->GetNumberOfPlots(); ++i)
   {
     if (this->Storage->Chart->GetPlot(i)->GetVisible() &&
@@ -206,8 +217,14 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D* painter)
     numLabels += this->Storage->ActivePlots[i]->GetNumberOfLabels();
   }
 
+  vtkVector2f ptScreen = this->Storage->Point;
+  if (this->PointIsNormalized)
+  {
+    this->Storage->Transform->TransformPoints(
+      this->Storage->Point.GetData(), ptScreen.GetData(), 1);
+  }
   // Default point placement is bottom left.
-  this->Rect = vtkRectf(floor(this->Storage->Point.GetX()), floor(this->Storage->Point.GetY()),
+  this->Rect = vtkRectf(floor(ptScreen.GetX()), floor(ptScreen.GetY()),
     ceil(maxWidth + 2 * this->Padding + this->SymbolWidth),
     ceil((numLabels * (height + this->Padding)) + this->Padding));
 
@@ -304,7 +321,19 @@ bool vtkChartLegend::MouseMoveEvent(const vtkContextMouseEvent& mouse)
   if (this->Button == vtkContextMouseEvent::LEFT_BUTTON)
   {
     vtkVector2f delta = mouse.GetPos() - mouse.GetLastPos();
-    this->Storage->Point = this->Storage->Point + delta;
+    vtkVector2f ptScreen = this->Storage->Point;
+    if (this->PointIsNormalized)
+    {
+      this->Storage->Transform->TransformPoints(
+        this->Storage->Point.GetData(), ptScreen.GetData(), 1);
+      ptScreen = ptScreen + delta;
+      this->Storage->Transform->InverseTransformPoints(
+        ptScreen.GetData(), this->Storage->Point.GetData(), 1);
+    }
+    else
+    {
+      this->Storage->Point = ptScreen + delta;
+    }
     this->GetScene()->SetDirty(true);
     this->Modified();
   }
