@@ -187,10 +187,12 @@ void vtkVRCollaborationClient::Disconnect()
   {
     zmq_close(this->Internal->Requester);
   }
+  this->Internal->Requester = nullptr;
   if (this->Internal->Subscriber != nullptr)
   {
     zmq_close(this->Internal->Subscriber);
   }
+  this->Internal->Subscriber = nullptr;
   for (auto it : this->AvatarUpdateTime)
   {
     this->Renderer->RemoveActor(this->Avatars[it.first]);

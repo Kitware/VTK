@@ -177,8 +177,9 @@ int otherFieldData(int, char*[])
     // the tuples must be set before being read to avoid a UMR
     // this must have been a UMR in the past that was suppressed
     fa->Allocate(20);
-    fa->SetTuple1(0, 0.0);
-    fa->SetTuple1(2, 0.0);
+    fa->InsertValue(0, 0.0);
+    fa->InsertValue(1, 0.0);
+    fa->InsertValue(2, 0.0);
     fd->AddArray(fa);
     fa->Delete();
   }
@@ -189,7 +190,6 @@ int otherFieldData(int, char*[])
   (void)it;
   (void)it2;
 
-  fd->Allocate(20);
   fd->CopyFieldOff("Array0");
   fd->CopyFieldOff("Array1");
 

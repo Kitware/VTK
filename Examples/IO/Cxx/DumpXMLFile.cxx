@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-      std::cerr << argv[0] << " Unknown extension: " << extension << std::endl;
+      std::cerr << argv[f] << " Unknown extension: " << extension << std::endl;
       return EXIT_FAILURE;
     }
 

@@ -293,7 +293,7 @@ int vtkClipVolume::RequestData(vtkInformation* vtkNotUsed(request),
         for (above = below = 0, ii = 0; ii < 8; ii++)
         {
           s = clipScalars->GetComponent(cellIds->GetId(ii), 0);
-          cellScalars->SetComponent(ii, 0, s);
+          cellScalars->InsertComponent(ii, 0, s);
           if (s >= value)
           {
             above = 1;
@@ -437,7 +437,7 @@ void vtkClipVolume::ClipTets(double value, vtkTetra* clipTetra, vtkDataArray* cl
     {
       clipTetra->PointIds->SetId(j, tetraIds->GetId(id + j));
       clipTetra->Points->SetPoint(j, tetraPts->GetPoint(id + j));
-      cellScalars->SetComponent(j, 0, clipScalars->GetComponent(tetraIds->GetId(id + j), 0));
+      cellScalars->InsertComponent(j, 0, clipScalars->GetComponent(tetraIds->GetId(id + j), 0));
     }
     clipTetra->Clip(value, cellScalars, this->Locator, this->Connectivity, inPD, outPD, inCD,
       cellId, outCD, insideOut);

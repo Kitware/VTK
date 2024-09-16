@@ -161,10 +161,12 @@ int TestAppendMolecule(int, char*[])
   vtkAtom ghostAtom2 =
     fullMolecule2->AppendAtom(firstAtom3.GetAtomicNumber(), firstAtom3.GetPosition());
   vtkBond ghostBond2 = fullMolecule2->AppendBond(firstAtom2, ghostAtom2, 1);
+  AddAtomData(fullMolecule2);
 
   vtkAtom ghostAtom3 =
     fullMolecule3->AppendAtom(firstAtom2.GetAtomicNumber(), firstAtom2.GetPosition());
   vtkBond ghostBond3 = fullMolecule3->AppendBond(firstAtom3, ghostAtom3, 1);
+  AddAtomData(fullMolecule3);
 
   // set ghost flag on relevant atoms and bonds.
   fullMolecule1->AllocateAtomGhostArray();

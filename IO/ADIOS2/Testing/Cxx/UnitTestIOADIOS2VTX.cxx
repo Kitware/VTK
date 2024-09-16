@@ -457,6 +457,41 @@ void WriteBPFileNoPieceVTU(const std::string& fileName)
   fs.close();
 }
 
+void WriteBPFileMissingTypes(const std::string& fileName)
+{
+  const std::string unstructureGridSchema = R"(
+        <VTKFile type="UnstructuredGrid">
+          <UnstructuredGrid>
+            <Piece>
+              <Points>
+                <DataArray Name="vertices" />
+              </Points>
+              <Cells>
+                <DataArray Name="connectivity" />
+                <DataArray Name="types" />
+              </Cells>
+              <PointData>
+                <DataArray Name="sol" />
+              </PointData>
+            </Piece>
+          </UnstructuredGrid>
+        </VTKFile>)";
+
+  ADIOS_OPEN(fs, fileName);
+
+  std::vector<uint32_t> dummyConnectivity(18, 1);
+  std::vector<double> dummyVertices(9, 1.05);
+  std::vector<double> dummySol(3, -1);
+
+  fs.write("type", 1);
+  fs.write("connectivity", dummyConnectivity.data(), {}, {}, {});
+  fs.write("vertices", dummyVertices.data(), {}, {}, {});
+  fs.write("sol", dummySol.data(), {}, {}, {});
+  fs.write_attribute("vtk.xml", unstructureGridSchema);
+
+  fs.close();
+}
+
 void WriteBPFileUnsupportedShape(const std::string& fileName)
 {
   const std::string unstructureGridSchema = R"(
@@ -704,6 +739,7 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
     ADIOS2VTK_UNIT_TEST(WriteBPFileWrongNodePC2)
     ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTI)
     ADIOS2VTK_UNIT_TEST(WriteBPFileNoPieceVTU)
+    ADIOS2VTK_UNIT_TEST(WriteBPFileMissingTypes)
     ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedShape)
     ADIOS2VTK_UNIT_TEST(WriteBPFileUnsupportedType)
   }

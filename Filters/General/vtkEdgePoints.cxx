@@ -118,6 +118,7 @@ int vtkEdgePoints::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     input->GetCell(cellId, cell);
+    cellScalars->SetNumberOfTuples(cell->GetNumberOfPoints());
     inScalars->GetTuples(cell->PointIds, cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value

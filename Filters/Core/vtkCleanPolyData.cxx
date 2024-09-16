@@ -200,6 +200,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
+    // Start with original number of points, shrink when done
+    newPts->SetNumberOfPoints(numPts);
     pointMap = new vtkIdType[numPts];
     for (i = 0; i < numPts; ++i)
     {
