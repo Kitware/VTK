@@ -104,8 +104,8 @@ void vtkAnariTestInteractor::OnKeyPress()
     {
       cerr << "ANARI rendering " << this->O << endl;
       this->GLRenderer->SetPass(this->O);
-      vtkAnariRendererNode::SetLibraryName(this->GLRenderer, "environment");
 #if 0
+      vtkAnariRendererNode::SetLibraryName(this->GLRenderer, "environment");
       vtkAnariRendererNode::SetSamplesPerPixel(4, this->GLRenderer);
       vtkAnariRendererNode::SetLightFalloff(.5, this->GLRenderer);
       vtkAnariRendererNode::SetUseDenoiser(1, this->GLRenderer);

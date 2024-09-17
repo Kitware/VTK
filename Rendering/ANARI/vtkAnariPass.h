@@ -46,6 +46,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Setup the trace directory and trace mode strings for the debug device for
+   * when SetupAnariDeviceFromLibrary() is called. Once the Anari device is
+   * created, this method will have no effect.
+   */
+  void SetAnariDebugConfig(const char* traceDir, const char* traceMode);
+
+  /**
+   * Initialize this vtkAnariPass from the name of an anari::Library and anari::Device
+   * to be loaded. This initialization will use whatever debug configuration set
+   * by SetupAnariDebugConfig() prior to this function when 'enableDebugLayer' is true.
+   */
+  void SetupAnariDeviceFromLibrary(
+    const char* libraryName, const char* deviceName, bool enableDebugLayer = false);
+
+  /**
    * Perform rendering according to a render state s.
    */
   virtual void Render(const vtkRenderState* s) override;

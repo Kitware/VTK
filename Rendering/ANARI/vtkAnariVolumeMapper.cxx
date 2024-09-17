@@ -48,8 +48,10 @@ void vtkAnariVolumeMapper::Init()
   this->InternalAnariPass = vtkAnariPass::New();
   this->InternalRenderer = vtkRenderer::New();
 
+#if 0
   // e.g. export ANARI_LIBRARY=helide
   vtkAnariRendererNode::SetLibraryName(this->InternalRenderer, "environment");
+#endif
   vtkAnariRendererNode::SetCompositeOnGL(this->InternalRenderer, 1);
 
   this->InitializedOn();

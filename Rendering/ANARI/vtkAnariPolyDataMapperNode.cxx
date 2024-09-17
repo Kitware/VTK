@@ -182,9 +182,7 @@ public:
 
   std::vector<anari::Surface> Surfaces;
 
-  anari::Library AnariLibrary{ nullptr };
   anari::Device AnariDevice{ nullptr };
-  std::string AnariDeviceName;
   anari::Extensions AnariDeviceExtensions{};
 };
 
@@ -506,9 +504,8 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
     }
     else
     {
-      vtkWarningWithObjectMacro(this->Owner,
-        << "ANARI back-end " << this->AnariDeviceName
-        << " doesn't support Physically Based Materials (KHR_MATERIAL_PHYSICALLY_BASED).");
+      vtkWarningWithObjectMacro(this->Owner, << "ANARI back-end doesn't support Physically Based "
+                                                "Materials (KHR_MATERIAL_PHYSICALLY_BASED).");
 
       if (this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_MATTE)
       {
@@ -518,8 +515,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
       else
       {
         vtkErrorWithObjectMacro(
-          this->Owner, << "ANARI back-end " << this->AnariDeviceName
-                       << " doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
+          this->Owner, << "ANARI back-end doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
       }
     }
   }
@@ -533,8 +529,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
     else
     {
       vtkErrorWithObjectMacro(
-        this->Owner, << "ANARI back-end " << this->AnariDeviceName
-                     << " doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
+        this->Owner, << "ANARI back-end doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
     }
   }
 
@@ -748,9 +743,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Mate
 void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
 {
   this->AnariRendererNode = anariRendererNode;
-  this->AnariLibrary = anariRendererNode->GetAnariLibrary();
   this->AnariDevice = anariRendererNode->GetAnariDevice();
-  this->AnariDeviceName = anariRendererNode->GetAnariDeviceName();
   this->AnariDeviceExtensions = anariRendererNode->GetAnariDeviceExtensions();
 }
 

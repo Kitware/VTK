@@ -223,9 +223,6 @@ void vtkAnariLightNode::Synchronize(bool prepass)
 
   this->ClearLight();
 
-  const char* device = vtkAnariRendererNode::GetLibraryName(vtkRenderer);
-  const char* deviceSubtype = vtkAnariRendererNode::GetDeviceSubtype(vtkRenderer);
-
   vtkOpenGLRenderer* openGLRenderer =
     vtkOpenGLRenderer::SafeDownCast(this->Internals->RendererNode->GetRenderable());
   vtkTransform* userLightTransform = openGLRenderer->GetUserLightTransform();
@@ -353,8 +350,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support image based lighting (KHR_LIGHT_HDRI).");
+      vtkWarningMacro(<< "ANARI back-end doesn't support image based lighting (KHR_LIGHT_HDRI).");
     }
   }
   else if (light->GetPositional())
@@ -382,14 +378,12 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         }
         else
         {
-          vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                          << " doesn't support KHR_AREA_LIGHTS::radius");
+          vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::radius");
         }
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support point lights (KHR_LIGHT_POINT).");
+        vtkWarningMacro(<< "ANARI back-end doesn't support point lights (KHR_LIGHT_POINT).");
       }
     }
     else
@@ -415,8 +409,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support spotlights (KHR_LIGHT_SPOT).");
+        vtkWarningMacro(<< "ANARI back-end doesn't support spotlights (KHR_LIGHT_SPOT).");
       }
     }
   }
@@ -444,14 +437,13 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support KHR_AREA_LIGHTS::angularDiameter");
+        vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::angularDiameter");
       }
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
+      vtkWarningMacro(
+        << "ANARI back-end doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
     }
   }
 
@@ -467,8 +459,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support KHR_AREA_LIGHTS::visible");
+      vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::visible");
     }
 
     anari::commitParameters(anariDevice, anariLight);

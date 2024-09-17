@@ -40,13 +40,6 @@ VTK_ABI_NAMESPACE_BEGIN
 using namespace anari::std_types;
 
 vtkInformationKeyMacro(vtkAnariRendererNode, COMPOSITE_ON_GL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, LIBRARY_NAME, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEVICE_SUBTYPE, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_LIBRARY_NAME, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_DEVICE_SUBTYPE, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_DEVICE_DIRECTORY, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, DEBUG_DEVICE_TRACE_MODE, String);
-vtkInformationKeyMacro(vtkAnariRendererNode, USE_DEBUG_DEVICE, Integer);
 vtkInformationKeyMacro(vtkAnariRendererNode, RENDERER_SUBTYPE, String);
 vtkInformationKeyMacro(vtkAnariRendererNode, ACCUMULATION_COUNT, Integer);
 
@@ -90,20 +83,6 @@ struct vtkAnariRendererNodeInternals
   template <typename T>
   void SetRendererParameter(const char* p, const T& v);
 
-  /**
-   * Load the ANARI library and initialize the ANARI back-end device.
-   * @return true if ANARI was successfully initialized, false otherwise.
-   */
-  bool InitAnari();
-
-  /**
-   * ANARI status callback used as the default value for the statusCallback
-   * parameter on devices created from the returned library object.
-   */
-  static void StatusCallback(const void* userData, anari::Device device, anari::Object source,
-    anari::DataType sourceType, anari::StatusSeverity severity, anari::StatusCode code,
-    const char* details);
-
   vtkAnariRendererNode* Owner{ nullptr };
 
   int ColorBufferTex{ 0 };
@@ -115,16 +94,10 @@ struct vtkAnariRendererNodeInternals
   int ImageX;
   int ImageY;
 
-  std::string LibraryName;
-  std::string LibrarySubtype;
   bool CompositeOnGL{ false };
-  bool IsUSD{ false };
-  bool InitFlag{ false };
 
   std::string RendererSubtype;
 
-  anari::Library AnariLibrary{ nullptr };
-  anari::Library DebugAnariLibrary{ nullptr };
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
   anari::World AnariWorld{ nullptr };
@@ -151,177 +124,6 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
     anari::release(this->AnariDevice, this->AnariFrame);
     anari::release(this->AnariDevice, this->AnariDevice);
   }
-
-  if (this->AnariLibrary != nullptr)
-  {
-    anari::unloadLibrary(this->AnariLibrary);
-  }
-
-  if (this->DebugAnariLibrary != nullptr)
-  {
-    anari::unloadLibrary(this->DebugAnariLibrary);
-  }
-}
-
-//----------------------------------------------------------------------------
-bool vtkAnariRendererNodeInternals::InitAnari()
-{
-  vtkAnariProfiling startProfiling(
-    "vtkAnariRendererNodeInternals::InitAnari", vtkAnariProfiling::AQUA);
-  bool retVal = true;
-
-  const char* libraryName = vtkAnariRendererNode::GetLibraryName(this->Owner->GetRenderer());
-  vtkDebugWithObjectMacro(
-    this->Owner, << "VTK Library name: " << ((libraryName != nullptr) ? libraryName : "nullptr"));
-
-  if (libraryName != nullptr)
-  {
-    this->LibraryName = libraryName;
-    this->AnariLibrary =
-      anari::loadLibrary(libraryName, vtkAnariRendererNodeInternals::StatusCallback);
-
-    const char* librarySubtype = vtkAnariRendererNode::GetDeviceSubtype(this->Owner->GetRenderer());
-    vtkDebugWithObjectMacro(this->Owner, << "VTK Library subtype: " << librarySubtype);
-    this->LibrarySubtype = librarySubtype;
-
-    const int useDebugDevice = vtkAnariRendererNode::GetUseDebugDevice(this->Owner->GetRenderer());
-
-    if (useDebugDevice)
-    {
-      const char* debugLibraryName =
-        vtkAnariRendererNode::GetDebugLibraryName(this->Owner->GetRenderer());
-      vtkDebugWithObjectMacro(this->Owner, << "VTK Debug Library name: " << debugLibraryName);
-
-      this->DebugAnariLibrary =
-        anari::loadLibrary(debugLibraryName, vtkAnariRendererNodeInternals::StatusCallback);
-      const char* debugLibrarySubtype =
-        vtkAnariRendererNode::GetDebugDeviceSubtype(this->Owner->GetRenderer());
-      this->AnariDevice = anariNewDevice(this->DebugAnariLibrary, debugLibrarySubtype);
-    }
-    else
-    {
-      this->AnariDevice = anariNewDevice(this->AnariLibrary, librarySubtype);
-    }
-
-    if (this->AnariDevice)
-    {
-      anari::Device nestedDevice = nullptr;
-
-      if ((this->DebugAnariLibrary != nullptr) && useDebugDevice)
-      {
-        nestedDevice = anariNewDevice(this->AnariLibrary, librarySubtype);
-        anari::setParameter(
-          this->AnariDevice, this->AnariDevice, "wrappedDevice", ANARI_DEVICE, &nestedDevice);
-
-        const char* debugDeviceDir =
-          vtkAnariRendererNode::GetDebugDeviceDirectory(this->Owner->GetRenderer());
-        if (debugDeviceDir != nullptr)
-        {
-          anari::setParameter(
-            this->AnariDevice, this->AnariDevice, "traceDir", ANARI_STRING, debugDeviceDir);
-        }
-
-        const char* debugDeviceTraceMode =
-          vtkAnariRendererNode::GetDebugDeviceTraceMode(this->Owner->GetRenderer());
-        if (debugDeviceTraceMode != nullptr)
-        {
-          anari::setParameter(
-            this->AnariDevice, this->AnariDevice, "traceMode", ANARI_STRING, debugDeviceTraceMode);
-        }
-      }
-
-      this->IsUSD = false;
-
-      if (this->LibraryName.find("usd") != std::string::npos)
-      {
-        this->IsUSD = true;
-        this->SetUSDDeviceParameters();
-      }
-
-      anari::commitParameters(this->AnariDevice, this->AnariDevice);
-
-      if (nestedDevice != nullptr)
-      {
-        anari::release(nestedDevice, nestedDevice);
-      }
-
-      // Populate the current back-end device features
-      bool meetsMinReqs =
-        this->SetAnariDeviceFeatures(this->AnariLibrary, libraryName, librarySubtype);
-
-      if (meetsMinReqs)
-      {
-        vtkDebugWithObjectMacro(this->Owner,
-          << "[ANARI::" << libraryName << "] Loaded " << librarySubtype << " device.\n");
-      }
-      else
-      {
-        vtkDebugWithObjectMacro(
-          this->Owner, << "[ANARI::" << libraryName << "] Loaded " << librarySubtype
-                       << " device doesn't have the minimum required features.\n");
-      }
-    }
-    else
-    {
-      vtkErrorWithObjectMacro(this->Owner,
-        << "[ANARI::" << libraryName << "] Could not load " << librarySubtype << " device.\n");
-      this->LibraryName.clear();
-
-      if (this->AnariLibrary != nullptr)
-      {
-        anari::unloadLibrary(this->AnariLibrary);
-      }
-
-      retVal = false;
-    }
-  }
-  else
-  {
-    vtkErrorWithObjectMacro(this->Owner, << "[ANARI] Library name not set (nullptr).");
-    retVal = false;
-  }
-
-  return retVal;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::StatusCallback(const void* userData, anari::Device device,
-  anari::Object source, anari::DataType sourceType, anari::StatusSeverity severity,
-  anari::StatusCode code, const char* message)
-{
-  if (severity == ANARI_SEVERITY_FATAL_ERROR)
-  {
-    vtkLogF(ERROR, "[ANARI::FATAL] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_ERROR)
-  {
-    vtkLogF(ERROR, "[ANARI::ERROR] %s, DataType: %d\n", message, (int)sourceType);
-  }
-  else if (severity == ANARI_SEVERITY_WARNING)
-  {
-    vtkLogF(WARNING, "[ANARI::WARN] %s, DataType: %d\n", message, (int)sourceType);
-  }
-  else if (severity == ANARI_SEVERITY_PERFORMANCE_WARNING)
-  {
-    vtkLogF(WARNING, "[ANARI::PERF] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_INFO)
-  {
-    vtkLogF(INFO, "[ANARI::INFO] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_DEBUG)
-  {
-    vtkLogF(TRACE, "[ANARI::DEBUG] %s\n", message);
-  }
-  else
-  {
-    vtkLogF(INFO, "[ANARI::STATUS] %s\n", message);
-  }
-
-  (void)userData;
-  (void)device;
-  (void)source;
-  (void)code;
 }
 
 //----------------------------------------------------------------------------
@@ -366,48 +168,6 @@ void vtkAnariRendererNodeInternals::SetRendererParameter(const char* p, const T&
 {
   anari::setParameter(this->AnariDevice, this->AnariRenderer, p, v);
   anari::commitParameters(this->AnariDevice, this->AnariRenderer);
-}
-
-//------------------------------------------------------------------------------
-bool vtkAnariRendererNodeInternals::SetAnariDeviceFeatures(
-  anari::Library library, const char* deviceName, const char* deviceSubtype)
-{
-  bool useableDevice = false;
-  const char* const* list = (const char* const*)anariGetDeviceExtensions(library, deviceSubtype);
-  if (list)
-  {
-    memset(&this->AnariExtensions, 0, sizeof(anari::Extensions));
-
-    for (const auto* i = list; *i != NULL; ++i)
-    {
-      std::string feature = *i;
-      vtkDebugWithObjectMacro(
-        this->Owner, << "[" << deviceName << ":" << deviceSubtype << "] Feature => " << feature);
-    }
-  }
-
-  anariGetDeviceExtensionStruct(&this->AnariExtensions, library, deviceName);
-
-  if (this->IsUSD)
-  {
-    useableDevice = true;
-    this->AnariExtensions.ANARI_KHR_GEOMETRY_CYLINDER = 1;
-    this->AnariExtensions.ANARI_KHR_GEOMETRY_SPHERE = 1;
-    this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE = 1;
-  }
-  else
-  {
-    if ((this->AnariExtensions.ANARI_KHR_GEOMETRY_CYLINDER ||
-          this->AnariExtensions.ANARI_KHR_GEOMETRY_CURVE) &&
-      this->AnariExtensions.ANARI_KHR_GEOMETRY_SPHERE &&
-      this->AnariExtensions.ANARI_KHR_GEOMETRY_TRIANGLE &&
-      this->AnariExtensions.ANARI_KHR_INSTANCE_TRANSFORM)
-    {
-      useableDevice = true;
-    }
-  }
-
-  return useableDevice;
 }
 
 //============================================================================
@@ -685,7 +445,7 @@ void vtkAnariRendererNode::DebugOutputWorldBounds()
   if (anariGetProperty(anariDevice, anariWorld, "bounds", ANARI_FLOAT32_BOX3, worldBounds,
         sizeof(worldBounds), ANARI_WAIT))
   {
-    vtkDebugMacro(<< "[ANARI::" << this->Internal->LibraryName << "] World Bounds: "
+    vtkDebugMacro(<< "[ANARI] World Bounds: "
                   << "{" << worldBounds[0] << ", " << worldBounds[1] << ", " << worldBounds[2]
                   << "}, "
                   << "{" << worldBounds[3] << ", " << worldBounds[4] << ", " << worldBounds[5]
@@ -693,7 +453,7 @@ void vtkAnariRendererNode::DebugOutputWorldBounds()
   }
   else
   {
-    vtkWarningMacro(<< "[ANARI::" << this->Internal->LibraryName << "] World bounds not returned");
+    vtkWarningMacro(<< "[ANARI] World bounds not returned");
   }
 }
 
@@ -701,12 +461,6 @@ void vtkAnariRendererNode::DebugOutputWorldBounds()
 void vtkAnariRendererNode::CopyAnariFrameBufferData()
 {
   int totalSize = this->Size[0] * this->Size[1];
-  if (this->Internal->IsUSD)
-  {
-    memset(this->Internal->ColorBuffer.data(), 255, totalSize * 4);
-    memset(this->Internal->DepthBuffer.data(), 1, totalSize * sizeof(float));
-    return;
-  }
 
   auto anariDevice = this->GetAnariDevice();
   auto anariFrame = this->Internal->AnariFrame;
@@ -776,13 +530,6 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
     vtkAnariRendererNode::AnariRendererModifiedTime.Modified();                                    \
   }
 
-RENDERER_NODE_PARAM_SET_DEFINITION(LibraryName, LIBRARY_NAME, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceSubtype, DEBUG_DEVICE_SUBTYPE, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceDirectory, DEBUG_DEVICE_DIRECTORY, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(DebugDeviceTraceMode, DEBUG_DEVICE_TRACE_MODE, const char*)
-RENDERER_NODE_PARAM_SET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*)
 RENDERER_NODE_PARAM_SET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
@@ -806,15 +553,6 @@ RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
     return DEFAULT_VALUE;                                                                          \
   }
 
-RENDERER_NODE_PARAM_GET_DEFINITION(LibraryName, LIBRARY_NAME, const char*, nullptr)
-RENDERER_NODE_PARAM_GET_DEFINITION(DeviceSubtype, DEVICE_SUBTYPE, const char*, "default")
-RENDERER_NODE_PARAM_GET_DEFINITION(DebugLibraryName, DEBUG_LIBRARY_NAME, const char*, "debug")
-RENDERER_NODE_PARAM_GET_DEFINITION(DebugDeviceSubtype, DEBUG_DEVICE_SUBTYPE, const char*, "debug")
-RENDERER_NODE_PARAM_GET_DEFINITION(
-  DebugDeviceDirectory, DEBUG_DEVICE_DIRECTORY, const char*, nullptr)
-RENDERER_NODE_PARAM_GET_DEFINITION(
-  DebugDeviceTraceMode, DEBUG_DEVICE_TRACE_MODE, const char*, "code")
-RENDERER_NODE_PARAM_GET_DEFINITION(UseDebugDevice, USE_DEBUG_DEVICE, int, 0)
 RENDERER_NODE_PARAM_GET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*, "default")
 RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1)
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
@@ -916,6 +654,7 @@ void vtkAnariRendererNode::AddVolume(anari::Volume volume)
 void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+#if 0
   anari::Library anariLibrary = this->Internal->AnariLibrary;
 
   if (anariLibrary != nullptr)
@@ -944,29 +683,12 @@ void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
       }
     }
   }
+#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::Traverse(int operation)
 {
-  vtkRenderer* renderer = vtkRenderer::SafeDownCast(this->GetRenderable());
-  if (!renderer)
-  {
-    return;
-  }
-
-  if (!this->Internal->InitFlag)
-  {
-    this->Internal->InitFlag = this->Internal->InitAnari();
-    if (!this->Internal->InitFlag)
-    {
-      return;
-    }
-
-    this->InitAnariFrame(renderer);
-    this->InitAnariWorld();
-  }
-
   if (operation == operation_type::render)
   {
     this->Apply(operation, true);
@@ -1147,19 +869,7 @@ anari::Device vtkAnariRendererNode::GetAnariDevice()
 }
 
 //------------------------------------------------------------------------------
-std::string vtkAnariRendererNode::GetAnariDeviceName()
-{
-  return this->Internal->LibrarySubtype;
-}
-
-//------------------------------------------------------------------------------
-anari::Library vtkAnariRendererNode::GetAnariLibrary()
-{
-  return this->Internal->AnariLibrary;
-}
-
-//------------------------------------------------------------------------------
-anari::Extensions vtkAnariRendererNode::GetAnariDeviceExtensions()
+const anari::Extensions& vtkAnariRendererNode::GetAnariDeviceExtensions()
 {
   return this->Internal->AnariExtensions;
 }
@@ -1198,6 +908,28 @@ void vtkAnariRendererNode::InvalidateSceneStructure()
 void vtkAnariRendererNode::InvalidateRendererParameters()
 {
   vtkAnariRendererNode::AnariRendererModifiedTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
+{
+  vtkRenderer* renderer = GetRenderer();
+  if (!renderer)
+  {
+    vtkErrorMacro(<< "Null vtkRenderer in vtkAnariRendererNode::SetAnariDevice()");
+    return;
+  }
+
+  if (this->Internal->AnariDevice != nullptr)
+  {
+    vtkErrorMacro(<< "vtkAnariRendererNode::SetAnariDevice() called too many times");
+  }
+
+  anari::retain(d, d);
+  this->Internal->AnariDevice = d;
+  this->Internal->AnariExtensions = e;
+  this->InitAnariFrame(renderer);
+  this->InitAnariWorld();
 }
 
 VTK_ABI_NAMESPACE_END

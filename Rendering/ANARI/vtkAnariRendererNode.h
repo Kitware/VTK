@@ -54,101 +54,6 @@ public:
   // state beyond rendering core...
 
   /**
-   * Set the library name. This will look for a shared library named
-   * anari_library_[name](e.g., anari_library_visrtx).
-   * The default uses the environment library which reads ANARI_LIBRARY
-   * as an environment variable to get the library name to load.
-   */
-  static vtkInformationStringKey* LIBRARY_NAME();
-  //@{
-  /**
-   * Convenience method to set/get LIBRARY_NAME on a vtkRenderer.
-   * "environment" is returned if no library name is set.
-   */
-  static void SetLibraryName(vtkRenderer* renderer, const char* name);
-  static const char* GetLibraryName(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * Set the back-end device subtype. Default is "default"
-   */
-  static vtkInformationStringKey* DEVICE_SUBTYPE();
-  //@{
-  /**
-   * Convenience method to set/get DEVICE_SUBTYPE on a vtkRenderer.
-   */
-  static void SetDeviceSubtype(vtkRenderer* renderer, const char* name);
-  static const char* GetDeviceSubtype(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * Set the debug library name. This will look for a shared library named
-   * anari_library_[debug_name](e.g., anari_library_debug).
-   */
-  static vtkInformationStringKey* DEBUG_LIBRARY_NAME();
-  //@{
-  /**
-   * Convenience method to set/get DEBUG_LIBRARY_NAME on a vtkRenderer.
-   * The default is "debug".
-   */
-  static void SetDebugLibraryName(vtkRenderer* renderer, const char* name);
-  static const char* GetDebugLibraryName(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * Set the debug device subtype. Default is "debug"
-   */
-  static vtkInformationStringKey* DEBUG_DEVICE_SUBTYPE();
-  //@{
-  /**
-   * Convenience method to set/get DEBUG_DEVICE_SUBTYPE on a vtkRenderer.
-   * Default is "debug".
-   */
-  static void SetDebugDeviceSubtype(vtkRenderer* renderer, const char* name);
-  static const char* GetDebugDeviceSubtype(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * Set the debug device output directory. Default is nullptr.
-   */
-  static vtkInformationStringKey* DEBUG_DEVICE_DIRECTORY();
-  //@{
-  /**
-   * Convenience method to set/get DEBUG_DEVICE_DIRECTORY on a vtkRenderer.
-   * Default is nullptr.
-   */
-  static void SetDebugDeviceDirectory(vtkRenderer* renderer, const char* name);
-  static const char* GetDebugDeviceDirectory(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * Set the debug device trace mode Default is "code".
-   */
-  static vtkInformationStringKey* DEBUG_DEVICE_TRACE_MODE();
-  //@{
-  /**
-   * Convenience method to set/get DEBUG_DEVICE_TRACE_MODE on a vtkRenderer.
-   * Default is "code"
-   */
-  static void SetDebugDeviceTraceMode(vtkRenderer* renderer, const char* name);
-  static const char* GetDebugDeviceTraceMode(vtkRenderer* renderer);
-  //@}
-
-  /**
-   * When present on renderer, controls if the rendering back-end should be wrapped
-   * in a debug device to support trace dumps.
-   */
-  static vtkInformationIntegerKey* USE_DEBUG_DEVICE();
-  //@{
-  /**
-   * Convenience method to set/get USE_DEBUG_DEVICE on a vtkRenderer.
-   * Default value is 0.
-   */
-  static void SetUseDebugDevice(vtkRenderer* renderer, int);
-  static int GetUseDebugDevice(vtkRenderer* renderer);
-  //@}
-
-  /**
    * Set the renderer subtype. Default is "default"
    */
   static vtkInformationStringKey* RENDERER_SUBTYPE();
@@ -240,21 +145,9 @@ public:
   anari::Device GetAnariDevice();
 
   /**
-   * Get the ANARI back-end device subtype name.
-   */
-  std::string GetAnariDeviceName();
-
-  /**
-   * Get the ANARI library. ANARI libraries are the mechanism that applications
-   * use to manage API device implementations. Libraries are solely responsible
-   * for creating instances of devices.
-   */
-  anari::Library GetAnariLibrary();
-
-  /**
    * Get the extensions supported by the current back-end device.
    */
-  anari::Extensions GetAnariDeviceExtensions();
+  const anari::Extensions& GetAnariDeviceExtensions();
   //@}
 
   /**
@@ -326,6 +219,10 @@ protected:
 private:
   vtkAnariRendererNode(const vtkAnariRendererNode&) = delete;
   void operator=(const vtkAnariRendererNode&) = delete;
+
+  void SetAnariDevice(anari::Device d, anari::Extensions e);
+
+  friend class vtkAnariPass; // to allow vtkAnariPass only to set the Anari device
 };
 
 VTK_ABI_NAMESPACE_END
