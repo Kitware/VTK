@@ -100,7 +100,6 @@ set(vtk_cmake_module_files
   FindFontConfig.cmake
   FindFreetype.cmake
   FindGL2PS.cmake
-  FindGLEW.cmake
   FindJOGL.cmake
   FindJsonCpp.cmake
   FindLibHaru.cmake
