@@ -121,11 +121,11 @@ int TestAnariCellData(int argc, char* argv[])
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> style;
-      style->SetPipelineControlPoints(ren, anariPass, nullptr);
-      style->SetCurrentRenderer(ren);
+      vtkNew<vtkAnariTestInteractor> anariStyle;
+      anariStyle->SetPipelineControlPoints(ren, anariPass, nullptr);
+      anariStyle->SetCurrentRenderer(ren);
 
-      iren->SetInteractorStyle(style);
+      iren->SetInteractorStyle(anariStyle);
       iren->SetDesiredUpdateRate(30.0);
       iren->Start();
     }

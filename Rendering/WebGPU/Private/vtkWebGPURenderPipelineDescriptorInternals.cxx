@@ -10,10 +10,10 @@ vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInt
 
   // Set defaults for the vertex state.
   {
-    wgpu::VertexState* vertex = &descriptor->vertex;
-    vertex->module = nullptr;
-    vertex->entryPoint = "main";
-    vertex->bufferCount = 0;
+    wgpu::VertexState* dVertex = &descriptor->vertex;
+    dVertex->module = nullptr;
+    dVertex->entryPoint = "main";
+    dVertex->bufferCount = 0;
 
     // Fill the default values for vertexBuffers and vertexAttributes in buffers.
     for (uint32_t i = 0; i < kMaxVertexAttributes; ++i)
@@ -35,16 +35,16 @@ vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInt
     // &cAttributes[2]. Likewise, if cBuffers[1] has 3 attributes, then
     // cBuffers[2].attributes should point to &cAttributes[5].
     cBuffers[0].attributes = &cAttributes[0];
-    vertex->buffers = &cBuffers[0];
+    dVertex->buffers = &cBuffers[0];
   }
 
   // Set the defaults for the primitive state
   {
-    wgpu::PrimitiveState* primitive = &descriptor->primitive;
-    primitive->topology = wgpu::PrimitiveTopology::TriangleList;
-    primitive->stripIndexFormat = wgpu::IndexFormat::Undefined;
-    primitive->frontFace = wgpu::FrontFace::CCW;
-    primitive->cullMode = wgpu::CullMode::None;
+    wgpu::PrimitiveState* wPrimitive = &descriptor->primitive;
+    wPrimitive->topology = wgpu::PrimitiveTopology::TriangleList;
+    wPrimitive->stripIndexFormat = wgpu::IndexFormat::Undefined;
+    wPrimitive->frontFace = wgpu::FrontFace::CCW;
+    wPrimitive->cullMode = wgpu::CullMode::None;
   }
 
   // Set the defaults for the depth-stencil state
@@ -69,10 +69,10 @@ vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInt
 
   // Set the defaults for the multisample state
   {
-    wgpu::MultisampleState* multisample = &descriptor->multisample;
-    multisample->count = 1;
-    multisample->mask = 0xFFFFFFFF;
-    multisample->alphaToCoverageEnabled = false;
+    wgpu::MultisampleState* dMultisample = &descriptor->multisample;
+    dMultisample->count = 1;
+    dMultisample->mask = 0xFFFFFFFF;
+    dMultisample->alphaToCoverageEnabled = false;
   }
 
   // Set the defaults for the fragment state

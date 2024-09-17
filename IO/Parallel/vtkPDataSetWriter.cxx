@@ -277,14 +277,17 @@ int vtkPDataSetWriter::Write()
 int vtkPDataSetWriter::WriteUnstructuredMetaData(
   vtkDataSet* input, char* root, char* str, size_t strSize, ostream* fptr)
 {
-  int i;
+  if (!root || !str)
+  {
+    return 0;
+  }
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
   // This is making the assumption that all the files will be written out by
   // some processes.
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
-  for (i = 0; i < this->NumberOfPieces; ++i)
+  for (int i = 0; i < this->NumberOfPieces; ++i)
   {
     snprintf(str, strSize, this->FilePattern, root, i);
     *fptr << "  <Piece fileName=\"" << str << "\" />" << endl;

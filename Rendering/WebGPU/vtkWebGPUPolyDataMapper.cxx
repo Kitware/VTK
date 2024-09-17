@@ -1034,13 +1034,9 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(
 
     using DMEnum = vtkWebGPUActor::DirectionalMaskEnum;
     vtkTypeUInt32 dirMask = DMEnum::NoNormals;
-    dirMask = this->HasPointNormals ? DMEnum::PointNormals : 0;
+    dirMask |= this->HasPointNormals ? DMEnum::PointNormals : dirMask;
     dirMask |= this->HasPointTangents ? DMEnum::PointTangents : dirMask;
     dirMask |= this->HasCellNormals ? DMEnum::CellNormals : dirMask;
-    if (dirMask == 0)
-    {
-      dirMask = DMEnum::NoNormals;
-    }
     wgpuActor->SetDirectionalMaskType(dirMask);
 
     this->PointCellAttributesBuildTimestamp.Modified();

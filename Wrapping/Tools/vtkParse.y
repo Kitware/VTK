@@ -263,7 +263,7 @@ static const char* vtkstrncat(size_t n, const char** str)
   {
     if (j[i])
     {
-      strncpy(&cp[m], str[i], j[i]);
+      memcpy(&cp[m], str[i], j[i]);
       m += j[i];
     }
   }
