@@ -31,7 +31,6 @@ void vtkWebGPULight::CacheLightInformation(vtkRenderer* renderer, vtkCamera* cam
   li.Positional = 0;
   li.ConeAngle = 0;
   li.Exponent = 0;
-  std::memset(&li.Color, 0, sizeof(li.Color));
   std::memset(&li.DirectionVC, 0, sizeof(li.DirectionVC));
   std::memset(&li.PositionVC, 0, sizeof(li.PositionVC));
   std::memset(&li.Attenuation, 0, sizeof(li.Attenuation));
