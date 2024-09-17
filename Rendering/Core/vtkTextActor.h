@@ -25,6 +25,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -36,7 +37,7 @@ class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTransform;
 
-class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTextActor : public vtkTexturedActor2D
 {
 public:
   vtkTypeMacro(vtkTextActor, vtkTexturedActor2D);
@@ -137,7 +138,9 @@ public:
    * This is the same as setting the TextProperty's justification.
    * Currently TextActor is not oriented around its AlignmentPoint.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetAlignmentPoint(int point);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   int GetAlignmentPoint();
   ///@}
 
