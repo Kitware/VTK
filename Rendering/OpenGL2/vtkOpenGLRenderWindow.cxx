@@ -1495,12 +1495,7 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
   bool useTexture = false;
   if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
   {
-#ifndef GL_ES_VERSION_3_0
-    if (!GLAD_GL_ARB_texture_multisample)
-    {
-      useTexture = true;
-    }
-#endif
+    useTexture = true;
     const std::string& vendorString = this->GetState()->GetVendor();
     const std::string& versionString = this->GetState()->GetVersion();
     const std::string& rendererString = this->GetState()->GetRenderer();
