@@ -761,8 +761,10 @@ PyObject* PyVTKTemplate_New(const char* name, const char* docstring)
 {
   // make sure python has readied the type object
   PyType_Ready(&PyVTKTemplate_Type);
-  // call the allocator provided by python for this type
-  PyObject* self = PyVTKTemplate_Type.tp_alloc(&PyVTKTemplate_Type, 0);
+  // call the superclass new function
+  PyObject* empty = PyTuple_New(0);
+  PyObject* self = PyVTKTemplate_Type.tp_base->tp_new(&PyVTKTemplate_Type, empty, nullptr);
+  Py_DECREF(empty);
   // call the superclass init function
   PyObject* pyname = PyUnicode_FromString(name);
   PyObject* pydoc = PyUnicode_FromString(docstring);
