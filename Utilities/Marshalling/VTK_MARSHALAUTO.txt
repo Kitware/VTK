@@ -362,6 +362,7 @@ Rendering/UI/vtkWin32HardwareWindow.h
 Rendering/UI/vtkWin32RenderWindowInteractor.h
 Rendering/UI/vtkXRenderWindowInteractor.h
 Rendering/Volume/vtkVolumeMapper.h
+Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.h
 Rendering/VolumeOpenGL2/vtkSmartVolumeMapper.h
 Views/Context2D/vtkContextInteractorStyle.h
 Views/Context2D/vtkContextView.h

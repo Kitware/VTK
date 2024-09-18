@@ -869,7 +869,6 @@ Rendering/Volume/vtkVolumePicker.h
 Rendering/Volume/vtkVolumeRayCastSpaceLeapingImageFilter.h
 Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLRayCastImageDisplayHelper.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeGradientOpacityTable.h
