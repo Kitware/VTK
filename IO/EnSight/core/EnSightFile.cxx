@@ -640,9 +640,7 @@ bool EnSightFile::DetectByteOrder(int* result)
 //------------------------------------------------------------------------------
 void EnSightFile::MoveReadPosition(int numBytes)
 {
-  auto pos = this->Stream->tellg();
-  pos += numBytes;
-  this->Stream->seekg(pos, ios::beg);
+  this->Stream->seekg(numBytes, ios::cur);
 }
 
 //------------------------------------------------------------------------------
