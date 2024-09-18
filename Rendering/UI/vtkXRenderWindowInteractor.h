@@ -102,7 +102,6 @@ protected:
   static int NumAppInitialized;
 
   Display* DisplayId;
-  bool OwnDisplay = false;
   Window WindowId;
   Atom KillAtom;
   int PositionBeforeStereo[2];

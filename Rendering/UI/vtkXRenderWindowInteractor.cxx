@@ -187,6 +187,8 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 //------------------------------------------------------------------------------
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
+  this->Finalize();
+
   this->Disable();
 
   delete this->Internal;
@@ -368,15 +370,8 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Initialized = 1;
   ren = this->RenderWindow;
 
+  ren->EnsureDisplay();
   this->DisplayId = static_cast<Display*>(ren->GetGenericDisplayId());
-  if (!this->DisplayId)
-  {
-    vtkDebugMacro("opening display");
-    this->DisplayId = XOpenDisplay(nullptr);
-    this->OwnDisplay = true;
-    vtkDebugMacro("opened display");
-    ren->SetDisplayId(this->DisplayId);
-  }
 
   vtkXRenderWindowInteractorInternals::Instances.insert(this);
 
@@ -425,15 +420,8 @@ void vtkXRenderWindowInteractor::Finalize()
     this->RenderWindow->Finalize();
   }
 
-  // if we create the display, we'll delete it
-  if (this->OwnDisplay && this->DisplayId)
-  {
-    XCloseDisplay(this->DisplayId);
-  }
-
   // disconnect from the display, even if we didn't own it
   this->DisplayId = nullptr;
-  this->OwnDisplay = false;
 
   // revert to uninitialized state
   this->Initialized = false;

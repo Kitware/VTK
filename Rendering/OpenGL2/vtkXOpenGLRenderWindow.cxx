@@ -208,18 +208,9 @@ vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
   XVisualInfo* v = nullptr;
 
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-
-    if (this->DisplayId == nullptr)
-    {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
-      return nullptr;
-    }
-
-    this->OwnDisplay = 1;
+    return nullptr;
   }
   this->Internal->FBConfig =
     vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId, this->StereoCapableWindow,
@@ -434,16 +425,9 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   xsh.height = height;
 
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
-      return;
-    }
-    this->OwnDisplay = 1;
+    return;
   }
 
   attr.override_redirect = False;
@@ -1250,21 +1234,11 @@ vtkTypeBool vtkXOpenGLRenderWindow::GetEventPending()
 int* vtkXOpenGLRenderWindow::GetScreenSize()
 {
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
-      this->ScreenSize[0] = 0;
-      this->ScreenSize[1] = 0;
-      return this->ScreenSize;
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
+    this->ScreenSize[0] = 0;
+    this->ScreenSize[1] = 0;
+    return this->ScreenSize;
   }
 
   this->ScreenSize[0] = XDisplayWidth(this->DisplayId, XDefaultScreen(this->DisplayId));
@@ -1303,6 +1277,24 @@ Display* vtkXOpenGLRenderWindow::GetDisplayId()
   vtkDebugMacro(<< "Returning DisplayId of " << static_cast<void*>(this->DisplayId) << "\n");
 
   return this->DisplayId;
+}
+
+bool vtkXOpenGLRenderWindow::EnsureDisplay()
+{
+  if (!this->DisplayId)
+  {
+    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
+    if (this->DisplayId == nullptr)
+    {
+      vtkWarningMacro(<< "bad X server connection. DISPLAY="
+                      << vtksys::SystemTools::GetEnv("DISPLAY"));
+    }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
+  return this->DisplayId != nullptr;
 }
 
 // Get this RenderWindow's parent X window id.
@@ -1369,26 +1361,11 @@ void vtkXOpenGLRenderWindow::SetWindowId(Window arg)
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkXOpenGLRenderWindow::SetWindowInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
-      return;
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
-
   this->SetWindowId(static_cast<Window>(tmp));
 }
 
@@ -1397,33 +1374,17 @@ void vtkXOpenGLRenderWindow::SetNextWindowInfo(const char* info)
 {
   int tmp;
   sscanf(info, "%i", &tmp);
-
   this->SetNextWindowId(static_cast<Window>(tmp));
 }
 
 // Sets the X window id of the window that WILL BE created.
 void vtkXOpenGLRenderWindow::SetParentInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
-      return;
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
-
   this->SetParentId(static_cast<Window>(tmp));
 }
 

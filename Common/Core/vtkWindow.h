@@ -43,6 +43,8 @@ public:
   virtual void* GetGenericDrawable() { return nullptr; }
   virtual void SetWindowInfo(const char*) {}
   virtual void SetParentInfo(const char*) {}
+  virtual bool EnsureDisplay() { return true; }
+
   ///@}
 
   ///@{
