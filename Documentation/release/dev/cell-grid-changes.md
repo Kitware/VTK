@@ -42,13 +42,12 @@ degree of freedom is referenced by a connectivity entry.
 
 ### Multi-pass Cell Grid Queries
 
-This release, vtkCellGridQuery has been modified to
-allow for multiple passes. A new virtual method
-`IsAnotherPassRequired()` is provided; by default
-it returns false so existing query classes do not need
-to be modified. Override it if your algorithm needs
-multiple passes, but be aware it must return false for
-the algorithm to terminate.
+This release, vtkCellGridQuery has been modified to allow for multiple
+passes. A new virtual method `IsAnotherPassRequired()` is provided;
+by default it returns false so existing query classes do not need
+to be modified. Override it if your algorithm needs multiple passes,
+but be aware it must eventually return false for the algorithm to
+terminate.
 
 Another virtual method, `StartPass()`, is called at the beginning
 of each pass and you may override it to update the query's state
@@ -82,10 +81,25 @@ reference elements into world coordinates).
 
 Several of the queries above are used to implement
 subclasses of vtkAlgorithm which accept cell grids.
+Other algorithm classes contain their own query classes
+nested into the algorithm.
 
 + vtkCellGridComputeSides – compute the external boundaries of cells using vtkCellGridSidesQuery.
 + vtkCellGridElevation – add a new cell attribute to an existing cell grid using vtkCellGridElevationQuery.
 + vtkUnstructuredGridToCellGrid – convert an unstructured grid into a cell grid using its internal TranscribeQuery.
++ vtkCellGridCellCenters – place a vertex cell at the parametric center of each input cell.
++ vtkCellGridCellSource – generate a single cell of the requested type, optionally with cell attributes.
++ vtkLegacyCellGridWriter – write cell-grid data in VTK's "legacy" format (by wrapping JSON into a legacy header).
++ vtkLegacyCellGridReader – read cell-grid data from a "legacy"-formatted file.
++ vtkCellGridToUnstructuredGrid – convert to an approximating unstructured grid;
+  currently, all cell-attributes are converted to point-data and the output will have linear
+  geometry even if the source uses quadratic or higher order interpolation.
++ vtkPassSelectedArrays – this pre-existing filter now handles cell-grid data;
+  instead of named arrays being passed/omitted, entire cell-attributes (with all of their arrays)
+  are passed/omitted.
++ vtkCellGridTransform – apply a linear transform to the shape attribute of a cell-grid.
++ vtkCellGridWarp – add a scaled version of a cell-attribute to the shape attribute of a cell-grid.
++ vtkIOSSCellGridReader – read exodus-formatted files as cell-grids rather than unstructured grids.
 
 ### Attribute Calculators
 
@@ -159,3 +173,11 @@ the array renderer will use the arrays however your shaders choose to draw data.
 The vtkOpenGLCellGridMapper uses a vtkCellGridRenderRequest to find
 responders that can render input cell grids and the DG responder configures an
 array renderer to draw its cells to a framebuffer.
+
+## Example Application
+
+The `Examples/GUI/Qt/CellGridSource` directory contains an example application
+using the vtkCellGridCellSource filter to construct a single cell so you can
+explore the way arrays in different array-groups are used to specify cell-grids.
+It has an editable spreadsheet view so you can change the coefficients used to
+define the cell's attributes (including its shape).
