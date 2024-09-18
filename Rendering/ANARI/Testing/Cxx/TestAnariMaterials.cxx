@@ -61,7 +61,7 @@ int TestAnariMaterials(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariMaterials");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMaterials");
 
   // make some predictable data to test with
   // anything will do, but should have normals and textures coordinates

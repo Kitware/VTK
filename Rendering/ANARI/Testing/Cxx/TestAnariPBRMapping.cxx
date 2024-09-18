@@ -160,7 +160,7 @@ int TestAnariPBRMapping(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPBRMapping");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPBRMapping");
 
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(1.5);

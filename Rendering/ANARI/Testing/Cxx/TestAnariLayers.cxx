@@ -75,7 +75,7 @@ int TestAnariLayers(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer2->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer2, useDebugDevice, "TestAnariLayers");
+  SetAnariRendererParameterDefaults(anariPass, renderer2, useDebugDevice, "TestAnariLayers");
 
   renWin->SetSize(400, 400);
   renWin->Render();

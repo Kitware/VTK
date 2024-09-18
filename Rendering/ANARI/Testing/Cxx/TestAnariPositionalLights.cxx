@@ -127,7 +127,7 @@ int TestAnariPositionalLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariPositionalLights");
+  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariPositionalLights");
 
   renWin->Render();
   ren->ResetCamera();

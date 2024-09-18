@@ -120,7 +120,7 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   ren->SetPass(anariPass);
 
   SetAnariRendererParameterDefaults(
-    ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
+    anariPass, ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
 
   ren->AddActor(actor);
   win->SetSize(400, 400);

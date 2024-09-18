@@ -167,7 +167,7 @@ int TestAnariTransfer2D(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariTransfer2D");
+  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariTransfer2D");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);

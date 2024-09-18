@@ -201,7 +201,7 @@ int TestAnariLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariLights");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
 #if 0
   vtkAnariRendererNode::SetAmbientIntensity(0.2, renderer);
 #endif

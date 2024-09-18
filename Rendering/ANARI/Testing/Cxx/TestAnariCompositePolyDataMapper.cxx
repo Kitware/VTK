@@ -124,7 +124,8 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCompositePolyDataMapper");
+  SetAnariRendererParameterDefaults(
+    anariPass, ren, useDebugDevice, "TestAnariCompositePolyDataMapper");
 
   ren->ResetCamera();
   vtkNew<vtkTimerLog> timer;

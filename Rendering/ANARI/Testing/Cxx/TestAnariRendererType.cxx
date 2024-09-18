@@ -70,7 +70,7 @@ int TestAnariRendererType(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariRendererType");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
 
   for (int i = 1; i < 9; i++)
   {

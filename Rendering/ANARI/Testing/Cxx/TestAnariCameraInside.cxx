@@ -767,7 +767,7 @@ int TestAnariCameraInside(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCameraInside");
+  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCameraInside");
 
   ren->AddVolume(volume);
   ren->ResetCamera();

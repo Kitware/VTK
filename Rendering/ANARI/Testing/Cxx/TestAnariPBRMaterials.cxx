@@ -126,7 +126,7 @@ int TestAnariPBRMaterials(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPBRMaterials");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPBRMaterials");
 
   renWin->Render();
 

@@ -125,7 +125,7 @@ int TestAnariStereo(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariStereo");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariStereo");
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->AddRenderer(renderer);

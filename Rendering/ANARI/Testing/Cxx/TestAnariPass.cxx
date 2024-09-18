@@ -79,7 +79,7 @@ int TestAnariPass(int argc, char* argv[])
     {
       cerr << "Render via ANARI" << endl;
       renderer->SetPass(anariPass);
-      SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPass");
+      SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
     }
     else
     {

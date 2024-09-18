@@ -6,29 +6,26 @@
 #include "vtkTesting.h"
 
 void SetAnariRendererParameterDefaults(
-  vtkRenderer* renderer, bool useDebugDevice, const char* testName)
+  vtkAnariPass* pass, vtkRenderer* renderer, bool useDebugDevice, const char* testName)
 {
-  if (!renderer)
+  if (!pass || !renderer)
     return;
 
+  if (useDebugDevice)
+  {
+    vtkNew<vtkTesting> testing;
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace/";
+    traceDir += testName;
+    pass->SetAnariDebugConfig(traceDir.c_str(), "code");
+  }
+
+  pass->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+
 #if 0
-  vtkAnariRendererNode::SetLibraryName(renderer, "environment");
   vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
   vtkAnariRendererNode::SetLightFalloff(.5, renderer);
   vtkAnariRendererNode::SetUseDenoiser(1, renderer);
 #endif
   vtkAnariRendererNode::SetCompositeOnGL(renderer, 1);
-
-  if (useDebugDevice)
-  {
-#if 0
-    vtkAnariRendererNode::SetUseDebugDevice(renderer, 1);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace/";
-    traceDir += testName;
-    vtkAnariRendererNode::SetDebugDeviceDirectory(renderer, traceDir.c_str());
-#endif
-  }
 }

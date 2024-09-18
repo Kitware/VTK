@@ -69,7 +69,7 @@ int TestAnariOrthographic(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariOrthographic");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariOrthographic");
 
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetParallelProjection(1);

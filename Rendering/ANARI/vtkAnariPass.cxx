@@ -440,9 +440,9 @@ void vtkAnariPass::Render(const vtkRenderState* s)
   vtkRenderer* ren = s->GetRenderer();
   if (ren)
   {
-    const bool anariDeviceChanged =
-      this->SceneGraph->GetAnariDevice() != this->Internal->AnariDevice;
-    if (!this->SceneGraph || anariDeviceChanged)
+    const bool rebuildSceneGraph =
+      !this->SceneGraph || this->SceneGraph->GetAnariDevice() != this->Internal->AnariDevice;
+    if (rebuildSceneGraph)
     {
       this->SetSceneGraph(
         vtkAnariRendererNode::SafeDownCast(this->Internal->Factory->CreateNode(ren)));

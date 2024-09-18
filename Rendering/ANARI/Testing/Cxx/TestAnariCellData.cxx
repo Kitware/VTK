@@ -106,7 +106,7 @@ int TestAnariCellData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCellData");
+  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
 #if 0
   vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
 #endif

@@ -116,7 +116,8 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren1, useDebugDevice, "TestAnariPerspectiveParallel");
+  SetAnariRendererParameterDefaults(
+    anariPass, ren1, useDebugDevice, "TestAnariPerspectiveParallel");
 
   ren1->ResetCamera();
   // Render composite. Default camera is perpective.

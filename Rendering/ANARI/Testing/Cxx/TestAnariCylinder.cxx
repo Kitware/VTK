@@ -58,7 +58,7 @@ int TestAnariCylinder(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariCylinder");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariCylinder");
 
   vtkNew<vtkAnariTestInteractor> style;
   iren->SetInteractorStyle(style);

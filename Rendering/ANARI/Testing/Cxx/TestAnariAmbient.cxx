@@ -59,7 +59,7 @@ int TestAnariAmbient(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariAmbient");
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariAmbient");
 
   // Ambient Light
   vtkNew<vtkLight> ambientLight;
