@@ -19,6 +19,7 @@ set(classes
   vtkAnariActorNode
   vtkAnariCameraNode
   vtkAnariCompositePolyDataMapperNode
+  vtkAnariDeviceManager
   vtkAnariLightNode
   vtkAnariPass
   vtkAnariPolyDataMapperNode

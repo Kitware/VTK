@@ -222,7 +222,9 @@ private:
 
   void SetAnariDevice(anari::Device d, anari::Extensions e);
 
-  friend class vtkAnariPass; // to allow vtkAnariPass only to set the Anari device
+  // only allow these classes to set the Anari device on the scene graph
+  friend class vtkAnariPass;
+  friend class vtkAnariWindowNode;
 };
 
 VTK_ABI_NAMESPACE_END

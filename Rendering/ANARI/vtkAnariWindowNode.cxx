@@ -33,43 +33,69 @@ void vtkAnariWindowNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//------------------------------------------------------------------------------
+void vtkAnariWindowNode::Build(bool prepass)
+{
+  vtkWindowNode::Build(prepass);
+
+  if (!prepass)
+  {
+    return;
+  }
+
+  if (!this->AnariInitialized())
+  {
+    SetupAnariDeviceFromLibrary("environment", "default", false);
+  }
+
+  for (auto node : this->GetChildren())
+  {
+    vtkAnariRendererNode* child = vtkAnariRendererNode::SafeDownCast(node);
+    if (child && child->GetAnariDevice() == nullptr)
+    {
+      child->SetAnariDevice(this->GetAnariDevice(), this->GetAnariDeviceExtensions());
+    }
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkAnariWindowNode::Render(bool prepass)
 {
   vtkAnariProfiling startProfiling("vtkAnariWindowNode::Render", vtkAnariProfiling::BROWN);
 
-  if (!prepass)
+  if (prepass)
   {
-    int totalSize = this->Size[0] * this->Size[1];
+    return;
+  }
 
-    // composite all renderers framebuffers together
-    this->ColorBuffer->SetNumberOfComponents(4);
-    this->ColorBuffer->SetNumberOfTuples(totalSize);
-    unsigned char* rgba = static_cast<unsigned char*>(this->ColorBuffer->GetVoidPointer(0));
+  int totalSize = this->Size[0] * this->Size[1];
 
-    this->ZBuffer->SetNumberOfComponents(1);
-    this->ZBuffer->SetNumberOfTuples(totalSize);
-    float* z = static_cast<float*>(this->ZBuffer->GetVoidPointer(0));
+  // composite all renderers framebuffers together
+  this->ColorBuffer->SetNumberOfComponents(4);
+  this->ColorBuffer->SetNumberOfTuples(totalSize);
+  unsigned char* rgba = static_cast<unsigned char*>(this->ColorBuffer->GetVoidPointer(0));
 
-    auto const& renderers = this->GetChildren();
+  this->ZBuffer->SetNumberOfComponents(1);
+  this->ZBuffer->SetNumberOfTuples(totalSize);
+  float* z = static_cast<float*>(this->ZBuffer->GetVoidPointer(0));
 
-    int layer = 0;
-    int count = 0;
-    while (count < static_cast<int>(renderers.size()))
+  auto const& renderers = this->GetChildren();
+
+  int layer = 0;
+  int count = 0;
+  while (count < static_cast<int>(renderers.size()))
+  {
+    for (auto node : renderers)
     {
-      for (auto node : renderers)
+      vtkAnariRendererNode* child = vtkAnariRendererNode::SafeDownCast(node);
+      vtkRenderer* ren = vtkRenderer::SafeDownCast(child->GetRenderable());
+      if (ren->GetLayer() == layer)
       {
-        vtkAnariRendererNode* child = vtkAnariRendererNode::SafeDownCast(node);
-        vtkRenderer* ren = vtkRenderer::SafeDownCast(child->GetRenderable());
-
-        if (ren->GetLayer() == layer)
-        {
-          child->WriteLayer(rgba, z, this->Size[0], this->Size[1], layer);
-          count++;
-        }
+        child->WriteLayer(rgba, z, this->Size[0], this->Size[1], layer);
+        count++;
       }
-      layer++;
     }
+    layer++;
   }
 }
 

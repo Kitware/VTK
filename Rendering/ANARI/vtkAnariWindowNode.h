@@ -14,17 +14,25 @@
 #ifndef vtkAnariWindowNode_h
 #define vtkAnariWindowNode_h
 
+#include "vtkAnariDeviceManager.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 #include "vtkWindowNode.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGANARI_EXPORT vtkAnariWindowNode : public vtkWindowNode
+class VTKRENDERINGANARI_EXPORT vtkAnariWindowNode
+  : public vtkWindowNode
+  , public vtkAnariDeviceManager
 {
 public:
   static vtkAnariWindowNode* New();
   vtkTypeMacro(vtkAnariWindowNode, vtkWindowNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Ensure ANARI device is initialized and given to children nodes for use.
+   */
+  void Build(bool prepass) override;
 
   /**
    * Make ANARI calls to make visible.
