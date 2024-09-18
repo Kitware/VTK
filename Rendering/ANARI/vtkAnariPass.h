@@ -67,9 +67,8 @@ public:
 
   //@{
   /**
-   * Tells the pass what it will render.
+   * Get the root of the underlying scene graph.
    */
-  void SetSceneGraph(vtkAnariRendererNode*);
   vtkGetObjectMacro(SceneGraph, vtkAnariRendererNode);
   //@}
 
@@ -83,6 +82,11 @@ private:
    * Destructor.
    */
   ~vtkAnariPass() override;
+
+  /**
+   * Tells the pass what it will render.
+   */
+  void SetSceneGraph(vtkAnariRendererNode*);
 
   vtkAnariRendererNode* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;
