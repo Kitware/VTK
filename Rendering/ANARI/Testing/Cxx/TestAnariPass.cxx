@@ -72,6 +72,7 @@ int TestAnariPass(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkAnariPass> anariPass;
+  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
 
   for (int i = 1; i < 10; i++)
   {
@@ -79,7 +80,6 @@ int TestAnariPass(int argc, char* argv[])
     {
       cerr << "Render via ANARI" << endl;
       renderer->SetPass(anariPass);
-      SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
     }
     else
     {
