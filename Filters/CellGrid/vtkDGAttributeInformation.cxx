@@ -9,7 +9,7 @@
 #include "vtkDGCell.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <cctype>  // for std::tolower/std::toupper
 #include <cstdlib> // for strtol

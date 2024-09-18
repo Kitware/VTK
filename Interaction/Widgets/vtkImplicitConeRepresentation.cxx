@@ -31,7 +31,6 @@
 #include "vtkTubeFilter.h"
 #include "vtkType.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <limits>
 

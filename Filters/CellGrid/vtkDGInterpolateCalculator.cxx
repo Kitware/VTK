@@ -10,7 +10,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigen)

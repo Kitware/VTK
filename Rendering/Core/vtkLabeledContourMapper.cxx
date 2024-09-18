@@ -25,7 +25,6 @@
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
 #include <algorithm>

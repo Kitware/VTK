@@ -31,7 +31,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 // Note this class may have an accelerated subclass ala
 // vtkOpenGLMoleculeMapper. If you change this class please

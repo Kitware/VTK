@@ -6,7 +6,6 @@
 #include "vtkMath.h"
 #include "vtkMolecule.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <cassert>
 

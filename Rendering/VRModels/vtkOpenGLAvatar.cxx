@@ -23,7 +23,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVRRay.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include "vtkXMLPolyDataReader.h"
 
 #include <cmath>

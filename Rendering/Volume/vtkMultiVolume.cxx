@@ -9,7 +9,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkVolumeProperty.h"
 
 VTK_ABI_NAMESPACE_BEGIN

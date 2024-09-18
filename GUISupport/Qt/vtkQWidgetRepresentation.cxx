@@ -15,7 +15,7 @@
 #include "vtkProperty.h"
 #include "vtkQWidgetTexture.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include <QtWidgets/QWidget>
 
 #include "vtk_glad.h"

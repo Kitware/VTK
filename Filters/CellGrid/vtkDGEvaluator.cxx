@@ -19,7 +19,6 @@
 #include "vtkStringToken.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigen)

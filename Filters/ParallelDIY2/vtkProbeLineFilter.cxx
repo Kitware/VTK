@@ -38,7 +38,7 @@
 #include "vtkStaticCellLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <algorithm>
 #include <cmath>

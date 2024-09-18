@@ -28,7 +28,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include "vtkWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN

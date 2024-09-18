@@ -9,7 +9,6 @@
 #include "vtkSmartPointer.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

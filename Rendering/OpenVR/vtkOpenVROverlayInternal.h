@@ -8,7 +8,7 @@
 #include "vtkOpenVRCamera.h"
 #include "vtkOpenVRRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenVRCameraPose : public vtkVRCamera::Pose

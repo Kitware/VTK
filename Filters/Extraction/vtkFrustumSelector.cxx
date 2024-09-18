@@ -19,7 +19,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <bitset>
 #include <vector>

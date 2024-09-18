@@ -14,7 +14,6 @@
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkWeakPointer.h"
 
 #include "vtkObjectFactory.h"

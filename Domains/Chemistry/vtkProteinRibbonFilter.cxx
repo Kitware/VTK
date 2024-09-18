@@ -21,7 +21,6 @@
 #include "vtkTubeFilter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <map>
 #include <vector>

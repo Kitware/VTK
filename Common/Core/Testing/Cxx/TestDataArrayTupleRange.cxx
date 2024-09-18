@@ -12,7 +12,6 @@
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 #include <numeric>

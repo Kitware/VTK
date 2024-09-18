@@ -11,7 +11,6 @@
 #include "vtkSortDataArray.h"
 #include "vtkTable.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <array>
 

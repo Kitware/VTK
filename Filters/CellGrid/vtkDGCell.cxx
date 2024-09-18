@@ -8,7 +8,7 @@
 #include "vtkStringToken.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <token/Singletons.h>
 
