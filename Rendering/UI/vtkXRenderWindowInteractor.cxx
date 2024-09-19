@@ -56,7 +56,11 @@ constexpr unsigned char XDND_VERSION = 5;
 class vtkXRenderWindowInteractorInternals
 {
 public:
-  vtkXRenderWindowInteractorInternals() { this->TimerIdCount = 1; }
+  vtkXRenderWindowInteractorInternals()
+  {
+    this->DisplayConnection = -1;
+    this->TimerIdCount = 1;
+  }
   ~vtkXRenderWindowInteractorInternals() = default;
 
   // duration is in milliseconds
@@ -150,9 +154,8 @@ public:
     uint64_t NumEventsDispatched = 0;
     // the timeout value provided to `select`. waits until an event occurs or this interval expires.
     timeval WaitInterval;
-    // file descriptors that are monitored for activity in `WaitForEvents`
-    std::vector<int> RwiFileDescriptors;
   } FDWaitInfo;
+  int DisplayConnection;
 
 private:
   int TimerIdCount;
@@ -232,22 +235,12 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   auto& done = internals.FDWaitInfo.Done;
   auto& evCount = internals.FDWaitInfo.NumEventsDispatched;
   auto& waitTv = internals.FDWaitInfo.WaitInterval;
-  auto& rwiFileDescriptors = internals.FDWaitInfo.RwiFileDescriptors;
   auto& useTimeout = internals.FDWaitInfo.UseTimeout;
 
   // reset vars which help VTK wait for new events or timer timeouts.
   done = true;
   evCount = 0;
-  rwiFileDescriptors.clear();
-  rwiFileDescriptors.reserve(vtkXRenderWindowInteractorInternals::Instances.size());
   useTimeout = false;
-
-  // these file descriptors will be polled for new events. after pending events are processed, if
-  // any.
-  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
-  {
-    rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
-  }
 
   for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
        rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
@@ -284,10 +277,8 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       // Finalize the rwi
       (*rwi)->Finalize();
 
-      // Adjust the file descriptors vector
-      int rwiPosition = std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
+      // Adjust the Instances vector
       rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
-      rwiFileDescriptors.erase(rwiFileDescriptors.begin() + rwiPosition);
     }
     else
     {
@@ -308,10 +299,14 @@ void vtkXRenderWindowInteractor::WaitForEvents()
   FD_ZERO(&in_fds);
   int maxFd = -1;
   timeval* timeout = fdWaitInfo.UseTimeout ? &fdWaitInfo.WaitInterval : nullptr;
-  for (const auto& rwiFileDescriptor : fdWaitInfo.RwiFileDescriptors)
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
-    FD_SET(rwiFileDescriptor, &in_fds);
-    maxFd = std::max<int>(maxFd, rwiFileDescriptor);
+    if (!rwi->Done)
+    {
+      int rwi_fd = rwi->Internal->DisplayConnection;
+      FD_SET(rwi_fd, &in_fds);
+      maxFd = std::max<int>(maxFd, rwi_fd);
+    }
   }
   vtkDebugMacro(<< "wait");
   select(maxFd + 1, &in_fds, nullptr, nullptr, timeout);
@@ -380,6 +375,7 @@ void vtkXRenderWindowInteractor::Initialize()
   size[1] = ((size[1] > 0) ? size[1] : 300);
   if (this->DisplayId)
   {
+    this->Internal->DisplayConnection = ConnectionNumber(this->DisplayId);
     XSync(this->DisplayId, False);
   }
 
@@ -422,6 +418,7 @@ void vtkXRenderWindowInteractor::Finalize()
 
   // disconnect from the display, even if we didn't own it
   this->DisplayId = nullptr;
+  this->Internal->DisplayConnection = -1;
 
   // revert to uninitialized state
   this->Initialized = false;
