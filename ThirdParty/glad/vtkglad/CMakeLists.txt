@@ -38,11 +38,14 @@ vtk_module_add_module(VTK::glad
 target_include_directories(glad
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>")
-target_compile_definitions(glad
-  PRIVATE
-    GLAD_API_CALL_EXPORT_BUILD
-  PUBLIC
-    GLAD_API_CALL_EXPORT)
+if (BUILD_SHARED_LIBS)
+  target_compile_definitions(glad
+    PUBLIC
+      "GLAD_API_CALL_EXPORT")
+  set_target_properties(glad
+    PROPERTIES
+      DEFINE_SYMBOL "GLAD_API_CALL_EXPORT_BUILD")
+endif ()
 
 if (VTK_USE_X)
   find_package(X11 REQUIRED)
