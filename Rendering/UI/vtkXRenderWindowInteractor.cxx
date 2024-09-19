@@ -144,17 +144,13 @@ public:
 
   static std::set<vtkXRenderWindowInteractor*> Instances;
 
-  struct FDWaitInformation
+  struct LoopInformation
   {
     // whether application was terminated
     bool Done = false;
-    // whether `WaitForEvents` invokes `select` with a timeout argument.
-    bool UseTimeout = false;
     // the number of events dispatched by `ProcessEvents()`
     uint64_t NumEventsDispatched = 0;
-    // the timeout value provided to `select`. waits until an event occurs or this interval expires.
-    timeval WaitInterval;
-  } FDWaitInfo;
+  } LoopInfo;
   int DisplayConnection;
 
 private:
@@ -232,25 +228,17 @@ void vtkXRenderWindowInteractor::TerminateApp()
 void vtkXRenderWindowInteractor::ProcessEvents()
 {
   auto& internals = (*this->Internal);
-  auto& done = internals.FDWaitInfo.Done;
-  auto& evCount = internals.FDWaitInfo.NumEventsDispatched;
-  auto& waitTv = internals.FDWaitInfo.WaitInterval;
-  auto& useTimeout = internals.FDWaitInfo.UseTimeout;
+  auto& done = internals.LoopInfo.Done;
+  auto& evCount = internals.LoopInfo.NumEventsDispatched;
 
   // reset vars which help VTK wait for new events or timer timeouts.
   done = true;
   evCount = 0;
-  useTimeout = false;
 
   for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
        rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
   {
     XEvent event;
-    if (XPending((*rwi)->DisplayId) == 0)
-    {
-      // get how long to wait for the next timer
-      useTimeout = (*rwi)->Internal->GetTimeToNextTimer(waitTv);
-    }
     while (XPending((*rwi)->DisplayId) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
@@ -285,20 +273,44 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       ++rwi;
     }
   }
+
   this->Done = done;
 }
 
 //------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::WaitForEvents()
 {
-  auto& internals = (*this->Internal);
-  auto& fdWaitInfo = (internals.FDWaitInfo);
+  bool useTimeout = false;
+  timeval soonestTimer;
+
+  // check to see how long we wait for the next timer
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    if (rwi->Done)
+      continue;
+
+    timeval t;
+    bool haveTimer = rwi->Internal->GetTimeToNextTimer(t);
+    if (haveTimer)
+    {
+      if (!useTimeout)
+      {
+        useTimeout = true;
+        soonestTimer = t;
+      }
+      else if (timercmp(&t, &soonestTimer, <))
+      {
+        soonestTimer = t;
+      }
+    }
+  }
+
   fd_set in_fds;
 
   // select will wait until 'tv' elapses or something else wakes us
   FD_ZERO(&in_fds);
   int maxFd = -1;
-  timeval* timeout = fdWaitInfo.UseTimeout ? &fdWaitInfo.WaitInterval : nullptr;
+  timeval* timeout = useTimeout ? &soonestTimer : nullptr;
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     if (!rwi->Done)
@@ -330,11 +342,11 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   do
   {
     auto& internals = (*this->Internal);
-    auto& fdWaitInfo = (internals.FDWaitInfo);
+    auto& loopInfo = (internals.LoopInfo);
     // process pending events.
     this->ProcessEvents();
     // wait for events only if no events were dispatched and application is not yet terminated.
-    if (!fdWaitInfo.NumEventsDispatched && !fdWaitInfo.Done)
+    if (!loopInfo.NumEventsDispatched && !loopInfo.Done)
     {
       this->WaitForEvents();
     }
