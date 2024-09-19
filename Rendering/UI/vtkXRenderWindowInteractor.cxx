@@ -273,8 +273,6 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       ++rwi;
     }
   }
-
-  this->Done = done;
 }
 
 //------------------------------------------------------------------------------
@@ -339,10 +337,10 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   {
     rwi->Done = false;
   }
+
+  auto& loopInfo = this->Internal->LoopInfo;
   do
   {
-    auto& internals = (*this->Internal);
-    auto& loopInfo = (internals.LoopInfo);
     // process pending events.
     this->ProcessEvents();
     // wait for events only if no events were dispatched and application is not yet terminated.
@@ -350,7 +348,7 @@ void vtkXRenderWindowInteractor::StartEventLoop()
     {
       this->WaitForEvents();
     }
-  } while (!this->Done);
+  } while (!loopInfo.Done);
 }
 
 //------------------------------------------------------------------------------
