@@ -244,28 +244,8 @@ void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
   auto anariDevice = this->GetAnariDevice();
   auto anariRenderer = this->Internal->AnariRenderer;
 
-#if 0
-  anari::setParameter(anariDevice, anariRenderer, "denoise", bool(this->GetUseDenoiser(ren)));
-  anari::setParameter<int>(
-    anariDevice, anariRenderer, "pixelSamples", this->GetSamplesPerPixel(ren));
-  anari::setParameter<int>(
-    anariDevice, anariRenderer, "ambientSamples", this->GetAmbientSamples(ren));
-  anari::setParameter<float>(
-    anariDevice, anariRenderer, "lightFalloff", this->GetLightFalloff(ren));
-  anari::setParameter<float>(
-    anariDevice, anariRenderer, "ambientRadiance", this->GetAmbientIntensity(ren));
-  anari::setParameter<int>(anariDevice, anariRenderer, "maxDepth", this->GetMaxDepth(ren));
-  double* ambientColor = this->GetAmbientColor(ren);
-  if (ambientColor)
-  {
-    float ambientColorf[3] = { static_cast<float>(ambientColor[0]),
-      static_cast<float>(ambientColor[1]), static_cast<float>(ambientColor[2]) };
-    anari::setParameter(anariDevice, anariRenderer, "ambientColor", ambientColorf);
-  }
-
-  // Debug method
-  anari::setParameter(anariDevice, anariRenderer, "method", this->GetDebugMethod(ren));
-#endif
+  // NOTE(jda) - temporary until generic parameter handling is in place
+  anari::setParameter(anariDevice, anariRenderer, "ambientRadiance", 1.f);
 
   double* bg = ren->GetBackground();
   double bgAlpha = ren->GetBackgroundAlpha();
