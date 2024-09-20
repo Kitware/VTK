@@ -85,9 +85,6 @@ struct vtkAnariRendererNodeInternals
 
   vtkAnariRendererNode* Owner{ nullptr };
 
-  int ColorBufferTex{ 0 };
-  int DepthBufferTex{ 0 };
-
   std::vector<u_char> ColorBuffer;
   std::vector<float> DepthBuffer;
 
@@ -884,18 +881,6 @@ const unsigned char* vtkAnariRendererNode::GetBuffer()
 const float* vtkAnariRendererNode::GetZBuffer()
 {
   return this->Internal->DepthBuffer.data();
-}
-
-//------------------------------------------------------------------------------
-int vtkAnariRendererNode::GetColorBufferTextureGL()
-{
-  return this->Internal->ColorBufferTex;
-}
-
-//------------------------------------------------------------------------------
-int vtkAnariRendererNode::GetDepthBufferTextureGL()
-{
-  return this->Internal->DepthBufferTex;
 }
 
 //------------------------------------------------------------------------------

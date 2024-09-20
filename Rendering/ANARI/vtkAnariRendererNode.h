@@ -175,16 +175,6 @@ public:
   virtual void WriteLayer(unsigned char* buffer, float* zbuffer, int buffx, int buffy, int layer);
 
   /**
-   * Get the last renderer color buffer as an OpenGL texture.
-   */
-  virtual int GetColorBufferTextureGL();
-
-  /**
-   * Get the last renderer depth buffer as an OpenGL texture.
-   */
-  virtual int GetDepthBufferTextureGL();
-
-  /**
    * Indicate that a new RenderTraversal of children needs to occur next frame
    */
   void InvalidateSceneStructure();

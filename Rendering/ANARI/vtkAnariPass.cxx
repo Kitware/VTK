@@ -174,9 +174,7 @@ void vtkAnariPassInternals::Render(const vtkRenderState* s)
 
   sceneGraph->TraverseAllPasses();
 
-  // Copy result to the window
-  const int colorTexGL = sceneGraph->GetColorBufferTextureGL();
-  const int depthTexGL = sceneGraph->GetDepthBufferTextureGL();
+  // Copy result to the window //
 
   vtkRenderWindow* rwin = vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
   vtkOpenGLRenderWindow* windowOpenGL = vtkOpenGLRenderWindow::SafeDownCast(rwin);
@@ -190,35 +188,20 @@ void vtkAnariPassInternals::Render(const vtkRenderState* s)
 
   windowOpenGL->MakeCurrent();
 
-  vtkTextureObject* usedColorTex = nullptr;
-  vtkTextureObject* usedDepthTex = nullptr;
+  // upload to the texture //
 
-  if (colorTexGL != 0 && depthTexGL != 0)
-  {
-    // for visRTX, re-use existing OpenGL texture provided
-    this->SharedColorTexture->AssignToExistingTexture(colorTexGL, GL_TEXTURE_2D);
-    this->SharedDepthTexture->AssignToExistingTexture(depthTexGL, GL_TEXTURE_2D);
+  this->ColorTexture->Create2DFromRaw(viewportWidth, viewportHeight, 4, VTK_UNSIGNED_CHAR,
+    const_cast<unsigned char*>(sceneGraph->GetBuffer()));
+  this->DepthTexture->CreateDepthFromRaw(viewportWidth, viewportHeight, vtkTextureObject::Float32,
+    VTK_FLOAT, const_cast<float*>(sceneGraph->GetZBuffer()));
 
-    usedColorTex = this->SharedColorTexture;
-    usedDepthTex = this->SharedDepthTexture;
-  }
-  else
-  {
-    // upload to the texture
-    this->ColorTexture->Create2DFromRaw(viewportWidth, viewportHeight, 4, VTK_UNSIGNED_CHAR,
-      const_cast<unsigned char*>(sceneGraph->GetBuffer()));
-    this->DepthTexture->CreateDepthFromRaw(viewportWidth, viewportHeight, vtkTextureObject::Float32,
-      VTK_FLOAT, const_cast<float*>(sceneGraph->GetZBuffer()));
+  this->ColorTexture->Activate();
+  this->DepthTexture->Activate();
 
-    usedColorTex = this->ColorTexture;
-    usedDepthTex = this->DepthTexture;
-  }
-
-  usedColorTex->Activate();
-  usedDepthTex->Activate();
-
-  this->OpenGLQuadHelper->Program->SetUniformi("colorTexture", usedColorTex->GetTextureUnit());
-  this->OpenGLQuadHelper->Program->SetUniformi("depthTexture", usedDepthTex->GetTextureUnit());
+  this->OpenGLQuadHelper->Program->SetUniformi(
+    "colorTexture", this->ColorTexture->GetTextureUnit());
+  this->OpenGLQuadHelper->Program->SetUniformi(
+    "depthTexture", this->DepthTexture->GetTextureUnit());
 
   vtkOpenGLState* openGLState = windowOpenGL->GetState();
   vtkOpenGLState::ScopedglEnableDisable dsaver(openGLState, GL_DEPTH_TEST);
@@ -252,8 +235,8 @@ void vtkAnariPassInternals::Render(const vtkRenderState* s)
 
   this->OpenGLQuadHelper->Render();
 
-  usedColorTex->Deactivate();
-  usedDepthTex->Deactivate();
+  this->ColorTexture->Deactivate();
+  this->DepthTexture->Deactivate();
 }
 
 // ----------------------------------------------------------------------------
