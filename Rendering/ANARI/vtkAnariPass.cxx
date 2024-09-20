@@ -9,7 +9,6 @@
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkFrameBufferObjectBase.h"
-#include "vtkLightsPass.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlayPass.h"
@@ -290,8 +289,6 @@ vtkAnariPass::vtkAnariPass()
 
   vtkNew<vtkRenderPassCollection> renderPassCollection;
 
-  vtkNew<vtkLightsPass> lightPass;
-  renderPassCollection->AddItem(lightPass);
   renderPassCollection->AddItem(this->Internal);
 
   vtkNew<vtkOverlayPass> overlayPass;
