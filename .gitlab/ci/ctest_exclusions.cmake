@@ -359,9 +359,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     # MacOS OpenGL issue (intermittent)
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
-    
+
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19372
     "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+    "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+    "^VTK::FiltersCellGridPython-TestCellGridTransform$"
+    "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
   )
 endif ()
 
@@ -395,6 +398,17 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "stdthread")
     # Test is flaky with STDThread
     # See #18555
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+
+    # See #19471
+    "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
+    )
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "tbb")
+  list(APPEND test_exclusions
+    # Test is flaky with TBB backend for vtkSMPTools
+    # See #19471
+    "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
     )
 endif ()
 
