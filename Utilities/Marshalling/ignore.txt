@@ -154,6 +154,8 @@ Common/Core/vtkStructuredPointBackend.h
 Common/Core/vtkSystemIncludes.h
 Common/Core/vtkTemplateAliasMacro.h
 Common/Core/vtkTestDataArray.h
+Common/Core/vtkThreadedCallbackQueue.h
+Common/Core/vtkThreadedTaskQueue.h
 Common/Core/vtkTimePointUtility.h
 Common/Core/vtkTimeStamp.h
 Common/Core/vtkType.h
@@ -199,6 +201,7 @@ Common/DataModel/vtkAngularPeriodicDataArray.h
 Common/DataModel/vtkAnimationScene.h
 Common/DataModel/vtkAnnotation.h
 Common/DataModel/vtkAnnotationLayers.h
+Common/DataModel/vtkAnnulus.h
 Common/DataModel/vtkArrayData.h
 Common/DataModel/vtkArrayListTemplate.h
 Common/DataModel/vtkAtom.h
@@ -728,12 +731,10 @@ Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
 Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
-Rendering/Core/vtkTextActor.h
 Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
 Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTextRenderer.h
-Rendering/Core/vtkTexturedActor2D.h
 Rendering/Core/vtkTransformCoordinateSystems.h
 Rendering/Core/vtkTransformInterpolator.h
 Rendering/Core/vtkTupleInterpolator.h
@@ -812,7 +813,6 @@ Rendering/OpenGL2/vtkOpenGLShaderDeclaration.h
 Rendering/OpenGL2/vtkOpenGLSphereMapper.h
 Rendering/OpenGL2/vtkOpenGLState.h
 Rendering/OpenGL2/vtkOpenGLStickMapper.h
-Rendering/OpenGL2/vtkOpenGLTextActor.h
 Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTextMapper.h
 Rendering/OpenGL2/vtkOpenGLUniforms.h
@@ -869,7 +869,6 @@ Rendering/Volume/vtkVolumePicker.h
 Rendering/Volume/vtkVolumeRayCastSpaceLeapingImageFilter.h
 Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLRayCastImageDisplayHelper.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeGradientOpacityTable.h

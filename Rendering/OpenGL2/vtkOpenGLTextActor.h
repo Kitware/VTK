@@ -11,11 +11,12 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTextActor.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLGL2PSHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor : public vtkTextActor
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLTextActor : public vtkTextActor
 {
 public:
   static vtkOpenGLTextActor* New();
