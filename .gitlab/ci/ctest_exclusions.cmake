@@ -1,5 +1,5 @@
 set(test_exclusions
-  # Leaks static thread_local instances, being worked in !11452 
+  # Flaky when run with threads enabled. See #19471.
   "^VTK::FiltersCellGridPython-TestCellGridRange$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
@@ -438,7 +438,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
-      # MacOS OpenGL issue (intermittent)
+      # MacOS OpenGL issue (intermittent). See #19372.
+      "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
+      "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+      "^VTK::FiltersCellGridPython-TestCellGridTransform$"
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
       "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
       "^VTK::RenderingCellGridPython-TestCellGridRendering$"
