@@ -54,6 +54,7 @@ void vtkAnariWindowNode::Build(bool prepass)
     if (child && child->GetAnariDevice() == nullptr)
     {
       child->SetAnariDevice(this->GetAnariDevice(), this->GetAnariDeviceExtensions());
+      child->SetAnariRenderer(this->GetAnariRenderer());
     }
   }
 }
@@ -96,6 +97,18 @@ void vtkAnariWindowNode::Render(bool prepass)
       }
     }
     layer++;
+  }
+}
+
+void vtkAnariWindowNode::OnNewRenderer()
+{
+  for (auto node : this->GetChildren())
+  {
+    vtkAnariRendererNode* child = vtkAnariRendererNode::SafeDownCast(node);
+    if (child)
+    {
+      child->SetAnariRenderer(this->GetAnariRenderer());
+    }
   }
 }
 

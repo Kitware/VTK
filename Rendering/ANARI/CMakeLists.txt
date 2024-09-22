@@ -23,6 +23,7 @@ set(classes
   vtkAnariLightNode
   vtkAnariPass
   vtkAnariPolyDataMapperNode
+  vtkAnariRendererManager
   vtkAnariRendererNode
   vtkAnariViewNodeFactory
   vtkAnariWindowNode

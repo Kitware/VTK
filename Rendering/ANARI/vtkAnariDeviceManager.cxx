@@ -187,6 +187,8 @@ bool vtkAnariDeviceManagerInternals::InitAnari(
   this->AnariDeviceName = deviceName;
   this->AnariDebugDeviceEnabled = useDebugDevice;
 
+  this->Parent->OnNewDevice();
+
   return true;
 }
 
@@ -222,10 +224,10 @@ void vtkAnariDeviceManager::SetAnariDebugConfig(const char* traceDir, const char
 }
 
 // ----------------------------------------------------------------------------
-void vtkAnariDeviceManager::SetupAnariDeviceFromLibrary(
+bool vtkAnariDeviceManager::SetupAnariDeviceFromLibrary(
   const char* libraryName, const char* deviceName, bool enableDebugDevice)
 {
-  this->Internal->InitAnari(enableDebugDevice, libraryName, deviceName);
+  return this->Internal->InitAnari(enableDebugDevice, libraryName, deviceName);
 }
 
 // ----------------------------------------------------------------------------
@@ -258,6 +260,12 @@ vtkAnariDeviceManager::~vtkAnariDeviceManager()
 {
   this->Internal->Delete();
   this->Internal = nullptr;
+}
+
+// ----------------------------------------------------------------------------
+void vtkAnariDeviceManager::OnNewDevice()
+{
+  // no-op
 }
 
 VTK_ABI_NAMESPACE_END

@@ -93,21 +93,6 @@ public:
 
   //@{
   /**
-   * Methods to set generic parameteters on the underlying anari::Renderer object.
-   */
-  void SetAnariParameter(const char* param, bool);
-  void SetAnariParameter(const char* param, int);
-  void SetAnariParameter(const char* param, int, int);
-  void SetAnariParameter(const char* param, int, int, int);
-  void SetAnariParameter(const char* param, int, int, int, int);
-  void SetAnariParameter(const char* param, float);
-  void SetAnariParameter(const char* param, float, float);
-  void SetAnariParameter(const char* param, float, float, float);
-  void SetAnariParameter(const char* param, float, float, float, float);
-  //@}
-
-  //@{
-  /**
    * Methods for other nodes to access
    */
 
@@ -189,7 +174,6 @@ protected:
   ~vtkAnariRendererNode();
 
   void InitAnariFrame(vtkRenderer* ren);
-  void InitAnariRenderer(vtkRenderer* ren);
   void SetupAnariRendererParameters(vtkRenderer* ren);
   void InitAnariWorld();
   void UpdateAnariFrameSize();
@@ -211,8 +195,9 @@ private:
   void operator=(const vtkAnariRendererNode&) = delete;
 
   void SetAnariDevice(anari::Device d, anari::Extensions e);
+  void SetAnariRenderer(anari::Renderer r);
 
-  // only allow these classes to set the Anari device on the scene graph
+  // only allow these classes to set the Anari device + renderer
   friend class vtkAnariPass;
   friend class vtkAnariWindowNode;
 };

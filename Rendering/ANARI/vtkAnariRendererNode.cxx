@@ -77,12 +77,6 @@ struct vtkAnariRendererNodeInternals
    */
   void SetUSDDeviceParameters();
 
-  /**
-   * Set a parameter on the underlying anari::Renderer
-   */
-  template <typename T>
-  void SetRendererParameter(const char* p, const T& v);
-
   vtkAnariRendererNode* Owner{ nullptr };
 
   std::vector<u_char> ColorBuffer;
@@ -92,8 +86,6 @@ struct vtkAnariRendererNodeInternals
   int ImageY;
 
   bool CompositeOnGL{ false };
-
-  std::string RendererSubtype;
 
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
@@ -159,14 +151,6 @@ void vtkAnariRendererNodeInternals::SetUSDDeviceParameters()
 #endif
 }
 
-//------------------------------------------------------------------------------
-template <typename T>
-void vtkAnariRendererNodeInternals::SetRendererParameter(const char* p, const T& v)
-{
-  anari::setParameter(this->AnariDevice, this->AnariRenderer, p, v);
-  anari::commitParameters(this->AnariDevice, this->AnariRenderer);
-}
-
 //============================================================================
 
 vtkStandardNewMacro(vtkAnariRendererNode);
@@ -209,31 +193,6 @@ void vtkAnariRendererNode::InitAnariFrame(vtkRenderer* ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::InitAnariRenderer(vtkRenderer* ren)
-{
-  auto anariDevice = this->GetAnariDevice();
-  auto anariFrame = this->Internal->AnariFrame;
-
-  auto currentRendererSubtype = this->Internal->RendererSubtype;
-  this->Internal->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
-  const char* rendererSubtype = vtkAnariRendererNode::GetRendererSubtype(this->GetRenderer());
-
-  if (currentRendererSubtype != rendererSubtype)
-  {
-    this->Internal->RendererSubtype = rendererSubtype;
-
-    anari::release(anariDevice, this->Internal->AnariRenderer);
-
-    this->Internal->AnariRenderer = anari::newObject<anari::Renderer>(anariDevice, rendererSubtype);
-
-    anari::setParameter(anariDevice, anariFrame, "renderer", this->Internal->AnariRenderer);
-    anari::commitParameters(anariDevice, anariFrame);
-
-    this->AnariRendererModifiedTime.Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
 void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
 {
   if (this->AnariRendererModifiedTime <= this->AnariRendererUpdatedTime)
@@ -243,9 +202,6 @@ void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
 
   auto anariDevice = this->GetAnariDevice();
   auto anariRenderer = this->Internal->AnariRenderer;
-
-  // NOTE(jda) - temporary until generic parameter handling is in place
-  anari::setParameter(anariDevice, anariRenderer, "ambientRadiance", 1.f);
 
   double* bg = ren->GetBackground();
   double bgAlpha = ren->GetBackgroundAlpha();
@@ -535,60 +491,6 @@ RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, bool b)
-{
-  this->Internal->SetRendererParameter(param, b);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, int x)
-{
-  this->Internal->SetRendererParameter(param, x);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y)
-{
-  this->Internal->SetRendererParameter(param, ivec2{ x, y });
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y, int z)
-{
-  this->Internal->SetRendererParameter(param, ivec3{ x, y, z });
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, int x, int y, int z, int w)
-{
-  this->Internal->SetRendererParameter(param, ivec4{ x, y, z, w });
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, float x)
-{
-  this->Internal->SetRendererParameter(param, x);
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y)
-{
-  this->Internal->SetRendererParameter(param, vec2{ x, y });
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y, float z)
-{
-  this->Internal->SetRendererParameter(param, vec3{ x, y, z });
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariParameter(const char* param, float x, float y, float z, float w)
-{
-  this->Internal->SetRendererParameter(param, vec4{ x, y, z, w });
-}
-
-//----------------------------------------------------------------------------
 void vtkAnariRendererNode::SetCamera(anari::Camera camera)
 {
   auto d = this->Internal->AnariDevice;
@@ -730,7 +632,7 @@ void vtkAnariRendererNode::Render(bool prepass)
     return;
   }
 
-  this->InitAnariRenderer(ren);
+  this->Internal->CompositeOnGL = (this->GetCompositeOnGL(ren) != 0);
   this->SetupAnariRendererParameters(ren);
   this->UpdateAnariFrameSize();
 #if 0
@@ -895,6 +797,32 @@ void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
   this->Internal->AnariExtensions = e;
   this->InitAnariFrame(renderer);
   this->InitAnariWorld();
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariRendererNode::SetAnariRenderer(anari::Renderer r)
+{
+  if (!this->Internal->AnariDevice)
+  {
+    return;
+  }
+
+  auto d = this->Internal->AnariDevice;
+  anari::retain(d, r);
+  anari::release(d, this->Internal->AnariRenderer);
+  this->Internal->AnariRenderer = r;
+
+  if (!this->Internal->AnariFrame)
+  {
+    return;
+  }
+
+  auto f = this->Internal->AnariFrame;
+  if (r)
+    anari::setParameter(d, f, "renderer", r);
+  else
+    anari::unsetParameter(d, f, "renderer");
+  anari::commitParameters(d, f);
 }
 
 VTK_ABI_NAMESPACE_END

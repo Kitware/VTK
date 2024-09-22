@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAnariDeviceManager
- * @brief   base class to objects which create + manage ANARI libraries + devices
+ * @brief   base class to objects which create + manage a ANARI library + device
  *
  * Multiple VTK-ANARI objects are potentially are responsible for creating and
  * managing ANARI libraries and devices, so this base class consolidates the
@@ -32,11 +32,12 @@ public:
   void SetAnariDebugConfig(const char* traceDir, const char* traceMode);
 
   /**
-   * Initialize this vtkAnariDeviceManager from the name of an anari::Library and anari::Device
-   * to be loaded. This initialization will use whatever debug configuration set
-   * by SetupAnariDebugConfig() prior to this function when 'enableDebugLayer' is true.
+   * Initialize this vtkAnariDeviceManager from the name of an anari::Library
+   * and anari::Device to be loaded. This initialization will use whatever debug
+   * configuration set by SetupAnariDebugConfig() prior to this function when
+   * 'enableDebugLayer' is true. Returns success of getting everything setup.
    */
-  void SetupAnariDeviceFromLibrary(
+  bool SetupAnariDeviceFromLibrary(
     const char* libraryName, const char* deviceName, bool enableDebugLayer = false);
 
   /**
@@ -64,6 +65,13 @@ protected:
    * Destructor.
    */
   virtual ~vtkAnariDeviceManager();
+
+  /**
+   * Signal child classes that a new device was created so they can respond
+   * accordingly (e.g. release old handles). This only gets called when
+   * SetupAnariDeviceFromLibrary() causes a new device to get created.
+   */
+  virtual void OnNewDevice();
 
 private:
   vtkAnariDeviceManager(const vtkAnariDeviceManager&) = delete;

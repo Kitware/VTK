@@ -21,7 +21,7 @@
 #ifndef vtkAnariPass_h
 #define vtkAnariPass_h
 
-#include "vtkAnariDeviceManager.h"
+#include "vtkAnariRendererManager.h"
 #include "vtkNew.h" // For vtkNew
 #include "vtkRenderPass.h"
 #include "vtkRenderingAnariModule.h" // For export macro
@@ -41,7 +41,7 @@ class vtkViewNodeFactory;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPass
   : public vtkRenderPass
-  , public vtkAnariDeviceManager
+  , public vtkAnariRendererManager
 {
 public:
   static vtkAnariPass* New();
@@ -75,6 +75,11 @@ private:
    * Tells the pass what it will render.
    */
   void SetSceneGraph(vtkAnariRendererNode*);
+
+  /**
+   * Handle a new renderer getting set by the application
+   */
+  void OnNewRenderer() override;
 
   vtkAnariRendererNode* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;

@@ -55,10 +55,6 @@ int TestAnariWindow(int argc, char* argv[])
   // Create the RenderWindow, Renderer and all Actors
   vtkNew<vtkRenderer> ren1;
 
-#if 0
-  SetAnariRendererParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariWindow");
-#endif
-
   ren1->AddLight(light1);
 
   vtkNew<vtkRenderWindow> renWin;
@@ -74,6 +70,7 @@ int TestAnariWindow(int argc, char* argv[])
   renWin->SetSize(600, 500);
 
   vtkNew<vtkAnariWindowNode> anariWindow;
+  SetAnariRendererParameterDefaults(anariWindow, ren1, useDebugDevice, "TestAnariWindow");
   anariWindow->SetRenderable(renWin);
   anariWindow->TraverseAllPasses();
 

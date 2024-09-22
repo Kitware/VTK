@@ -14,7 +14,7 @@
 #ifndef vtkAnariWindowNode_h
 #define vtkAnariWindowNode_h
 
-#include "vtkAnariDeviceManager.h"
+#include "vtkAnariRendererManager.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 #include "vtkWindowNode.h"
 
@@ -22,7 +22,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class VTKRENDERINGANARI_EXPORT vtkAnariWindowNode
   : public vtkWindowNode
-  , public vtkAnariDeviceManager
+  , public vtkAnariRendererManager
 {
 public:
   static vtkAnariWindowNode* New();
@@ -42,6 +42,11 @@ public:
 protected:
   vtkAnariWindowNode();
   ~vtkAnariWindowNode() = default;
+
+  /**
+   * Handle a new renderer getting set by the application
+   */
+  void OnNewRenderer() override;
 
 private:
   vtkAnariWindowNode(const vtkAnariWindowNode&) = delete;

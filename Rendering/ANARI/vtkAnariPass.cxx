@@ -275,6 +275,7 @@ void vtkAnariPass::Render(const vtkRenderState* s)
       this->SetSceneGraph(
         vtkAnariRendererNode::SafeDownCast(this->Internal->Factory->CreateNode(ren)));
       this->SceneGraph->SetAnariDevice(device, this->GetAnariDeviceExtensions());
+      this->SceneGraph->SetAnariRenderer(this->GetAnariRenderer());
     }
   }
 
@@ -306,6 +307,17 @@ vtkAnariPass::~vtkAnariPass()
   this->SetSceneGraph(nullptr);
   this->Internal->Delete();
   this->Internal = nullptr;
+}
+
+// ----------------------------------------------------------------------------
+void vtkAnariPass::OnNewRenderer()
+{
+  if (!this->SceneGraph)
+  {
+    return;
+  }
+
+  this->SceneGraph->SetAnariRenderer(this->GetAnariRenderer());
 }
 
 VTK_ABI_NAMESPACE_END
