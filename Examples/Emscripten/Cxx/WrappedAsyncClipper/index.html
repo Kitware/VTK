@@ -75,18 +75,6 @@
     var mouseDown = false;
 
     var Module = {
-      'canvas': (function () {
-        var canvas = document.getElementById('canvas');
-        canvas.addEventListener(
-          "webglcontextlost",
-          function (e) {
-            console.error('WebGL context lost. You will need to reload the page.');
-            e.preventDefault();
-          },
-          false
-        );
-        return canvas;
-      })(),
       'print': (function () {
         var logs = document.getElementById('logs');
         if (logs) logs.value = ''; // clear browser cache

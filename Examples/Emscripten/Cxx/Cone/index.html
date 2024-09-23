@@ -6,45 +6,8 @@
 </head>
 
 <body>
-  <canvas id="canvas" style="position: absolute; left: 0; top: 0;"></canvas>
+  <canvas id="canvas" tabindex="-1" onclick="canvas.focus()" style="position: absolute; left: 0; top: 0;"></canvas>
   <script type="text/javascript" src="Cone.js"></script>
-  <script type='text/javascript'>
-    var Module = {
-      'canvas': (function () {
-        var canvas = document.getElementById('canvas');
-        canvas.addEventListener(
-          "webglcontextlost",
-          function (e) {
-            console.error('WebGL context lost. You will need to reload the page.');
-            e.preventDefault();
-          },
-          false
-        );
-        return canvas;
-      })(),
-      'print': (function () {
-        return function (text) {
-          text = Array.prototype.slice.call(arguments).join(' ');
-          console.info(text);
-        };
-      })(),
-      'printErr': function (text) {
-        text = Array.prototype.slice.call(arguments).join(' ');
-        console.error(text);
-      },
-      'onRuntimeInitialized': function () {
-        console.log('WASM runtime initialized');
-        // sends a resize event so that the render window fills up browser tab dimensions.
-        setTimeout(() => {
-          window.dispatchEvent(new Event('resize'));
-        }, 0);
-        // focus on the canvas to grab keyboard inputs.
-        canvas.setAttribute('tabindex', '0');
-        // grab focus when the render window region receives mouse clicks.
-        canvas.addEventListener('click', () => canvas.focus());
-      }
-    };
-  </script>
 </body>
 
 </html>

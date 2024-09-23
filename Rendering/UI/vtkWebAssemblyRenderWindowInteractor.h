@@ -67,8 +67,8 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasId);
-  vtkSetStringMacro(CanvasId);
+  vtkGetStringMacro(CanvasSelector);
+  virtual void SetCanvasSelector(const char* value);
 
   /**
    * When true (default), the style of the parent element of canvas will be adjusted
@@ -91,6 +91,19 @@ protected:
   vtkWebAssemblyRenderWindowInteractor();
   ~vtkWebAssemblyRenderWindowInteractor() override;
 
+  ///@{
+  /**
+   * Register/UnRegister callback functions for all recognized events on the document.
+   * This function calls `emscripten_set_xyz_callback_on_thread` with the `CanvasSelector` as the
+   * target and the thread parameter equal to EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD.
+   *
+   * Basically, the pumping process works like this, events are received on the main UI thread into
+   * a queue. The event is then processed during the next `requestAnimationFrame` call.
+   */
+  void RegisterUICallbacks();
+  void UnRegisterUICallbacks();
+  ///@}
+
   void ProcessEvent(int type, const std::uint8_t* event);
 
   ///@{
@@ -109,7 +122,7 @@ protected:
    */
   void StartEventLoop() override;
 
-  char* CanvasId = nullptr;
+  char* CanvasSelector = nullptr;
   bool ExpandCanvasToContainer;
   bool InstallHTMLResizeObserver;
 
