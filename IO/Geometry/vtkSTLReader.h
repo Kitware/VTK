@@ -51,7 +51,7 @@ public:
 
   ///@{
   /**
-   * Turn on/off merging of points/triangles.
+   * Turn on/off the merging of coincident points to restore neighborhood information.
    */
   vtkSetMacro(Merging, vtkTypeBool);
   vtkGetMacro(Merging, vtkTypeBool);
