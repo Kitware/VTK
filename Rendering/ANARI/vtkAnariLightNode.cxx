@@ -34,7 +34,6 @@ struct vtkAnariLightNodeInternals
 };
 
 //============================================================================
-vtkInformationKeyMacro(vtkAnariLightNode, IS_AMBIENT, Integer);
 vtkInformationKeyMacro(vtkAnariLightNode, RADIUS, Double);
 vtkInformationKeyMacro(vtkAnariLightNode, FALLOFF_ANGLE, Double);
 vtkInformationKeyMacro(vtkAnariLightNode, LIGHT_SCALE, Double);
@@ -82,36 +81,6 @@ double vtkAnariLightNode::GetLightScale(vtkLight* light)
   }
 
   return 1.0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariLightNode::SetIsAmbient(int value, vtkLight* light)
-{
-  if (!light)
-  {
-    return;
-  }
-
-  vtkInformation* info = light->GetInformation();
-  info->Set(vtkAnariLightNode::IS_AMBIENT(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariLightNode::GetIsAmbient(vtkLight* light)
-{
-  if (!light)
-  {
-    return 0;
-  }
-
-  vtkInformation* info = light->GetInformation();
-
-  if (info && info->Has(vtkAnariLightNode::IS_AMBIENT()))
-  {
-    return (info->Get(vtkAnariLightNode::IS_AMBIENT()));
-  }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -291,18 +260,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   anari::Light anariLight = nullptr;
   vtkTexture* envTexture = vtkRenderer->GetEnvironmentTexture();
   bool useHDRI = vtkRenderer->GetUseImageBasedLighting() && envTexture;
-  int isAmbient = vtkAnariLightNode::GetIsAmbient(light);
 
-  if (isAmbient)
-  {
-    vtkDebugMacro(<< "Ambient Light");
-    double ambientColor[3] = { light->GetAmbientColor()[0], light->GetAmbientColor()[1],
-      light->GetAmbientColor()[2] };
-#if 0
-    vtkAnariRendererNode::SetAmbientColor(ambientColor, vtkRenderer);
-#endif
-  }
-  else if (useHDRI)
+  if (useHDRI)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_HDRI)
     {

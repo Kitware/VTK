@@ -58,12 +58,6 @@ int TestAnariAmbient(int argc, char* argv[])
 
   SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariAmbient");
 
-  // Ambient Light
-  vtkNew<vtkLight> ambientLight;
-  renderer->AddLight(ambientLight);
-
-  vtkAnariLightNode::SetIsAmbient(1, ambientLight);
-
   // Bunny data
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
   vtkSmartPointer<vtkPLYReader> polysource = vtkSmartPointer<vtkPLYReader>::New();
