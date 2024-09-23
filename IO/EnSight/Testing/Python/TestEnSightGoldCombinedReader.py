@@ -103,7 +103,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.renderAndCompare(mapper, img_file)
 
 
-  def streamlinePipeline(self, casefile, img_file, pos):
+  def streamlinePipeline(self, casefile, img_file, pos, forward):
     reader = self.setupReader(casefile)
 
     streamer = vtkStreamTracer()
@@ -111,7 +111,10 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     streamer.SetStartPosition(pos)
     streamer.SetMaximumPropagation(500)
     streamer.SetInitialIntegrationStep(0.1)
-    streamer.SetIntegrationDirectionToBoth()
+    if forward == True:
+      streamer.SetIntegrationDirectionToForward()
+    else:
+      streamer.SetIntegrationDirectionToBoth()
 
     mapper = self.setupMapper(streamer)
     self.renderAndCompare(mapper, img_file)
@@ -261,16 +264,16 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.basicPipeline("ensight-gold-test-bin.case", "TestEnSightGoldCombinedReader_11.png")
 
   def testOfficeASCII(self):
-    self.streamlinePipeline("office_ascii.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5])
+    self.streamlinePipeline("office_ascii.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5], True)
 
   def testOfficeBinary(self):
-    self.streamlinePipeline("office_bin.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5])
+    self.streamlinePipeline("office_bin.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5], True)
 
   def testRectGridASCII(self):
-    self.streamlinePipeline("RectGrid_ascii.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4])
+    self.streamlinePipeline("RectGrid_ascii.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4], False)
 
   def testRectGridBinary(self):
-    self.streamlinePipeline("RectGrid_bin.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4])
+    self.streamlinePipeline("RectGrid_bin.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4], False)
 
   def testNfacedBinary(self):
     self.basicPipeline("TEST_bin.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrRange=[0.121168,0.254608])
