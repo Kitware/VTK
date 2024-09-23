@@ -31,7 +31,4 @@ if (ANDROID OR APPLE_IOS)
     find_library(OPENGL_gles3_LIBRARY NAMES GLESv3 PATHS ${_ANDROID_LIB_PATH})
     find_library(OPENGL_egl_LIBRARY NAMES EGL PATHS ${_ANDROID_LIB_PATH})
   endif()
-else()
-  # Choose static or shared libraries.
-  option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
