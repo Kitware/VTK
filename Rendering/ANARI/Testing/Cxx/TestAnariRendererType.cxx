@@ -77,12 +77,12 @@ int TestAnariRendererType(int argc, char* argv[])
     if (i % 2)
     {
       cerr << "Render via default" << endl;
-      vtkAnariRendererNode::SetRendererSubtype(renderer, "default");
+      anariPass->SetAnariRendererSubtype("default");
     }
     else
     {
       cerr << "Render via raycast" << endl;
-      vtkAnariRendererNode::SetRendererSubtype(renderer, "raycast");
+      anariPass->SetAnariRendererSubtype("raycast");
     }
 
     renWin->Render();

@@ -51,9 +51,6 @@ int TestAnariAmbient(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   renWin->AddRenderer(renderer);
-#if 0
-  vtkAnariRendererNode::SetSamplesPerPixel(16, renderer);
-#endif
 
   // Configure ANARI
   vtkNew<vtkAnariPass> anariPass;
@@ -86,17 +83,11 @@ int TestAnariAmbient(int argc, char* argv[])
   for (double i = 0.; i < 3.14; i += 0.1)
   {
     intensity = sin(i);
-    ambientLight->SetIntensity(intensity);
-#if 0
-    vtkAnariRendererNode::SetAmbientIntensity(intensity, renderer);
-#endif
+    anariPass->SetAnariRendererParameter("ambientRadiance", float(intensity));
     renWin->Render();
   }
 
-  ambientLight->SetIntensity(0.2);
-#if 0
-  vtkAnariRendererNode::SetAmbientIntensity(0.2, renderer);
-#endif
+  anariPass->SetAnariRendererParameter("ambientRadiance", 0.2f);
   renWin->Render();
 
   int retVal = vtkTesting::PASSED;

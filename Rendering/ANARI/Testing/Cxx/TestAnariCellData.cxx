@@ -107,9 +107,7 @@ int TestAnariCellData(int argc, char* argv[])
   ren->SetPass(anariPass);
 
   SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
-#if 0
-  vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
-#endif
+  anariPass->SetAnariRendererParameter("ambientRadiance", 0.5f);
 
   renWin->Render();
   ren->ResetCamera();

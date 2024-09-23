@@ -202,9 +202,7 @@ int TestAnariLights(int argc, char* argv[])
   renderer->SetPass(anariPass);
 
   SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
-#if 0
-  vtkAnariRendererNode::SetAmbientIntensity(0.2, renderer);
-#endif
+  anariPass->SetAnariRendererParameter("ambientRadiance", 0.2f);
 
   renWin->Render();
 

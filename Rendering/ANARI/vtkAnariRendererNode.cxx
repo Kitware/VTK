@@ -40,7 +40,6 @@ VTK_ABI_NAMESPACE_BEGIN
 using namespace anari::std_types;
 
 vtkInformationKeyMacro(vtkAnariRendererNode, COMPOSITE_ON_GL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, RENDERER_SUBTYPE, String);
 vtkInformationKeyMacro(vtkAnariRendererNode, ACCUMULATION_COUNT, Integer);
 
 struct RendererChangeCallback : vtkCommand
@@ -52,8 +51,10 @@ struct RendererChangeCallback : vtkCommand
   void Execute(
     vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
   {
-    vtkAnariRendererNode::InvalidateRendererParameters();
+    this->AnariRendererModifiedTime->Modified();
   }
+
+  vtkTimeStamp* AnariRendererModifiedTime{ nullptr };
 };
 
 struct vtkAnariRendererNodeInternals
@@ -71,11 +72,6 @@ struct vtkAnariRendererNodeInternals
    */
   bool SetAnariDeviceFeatures(
     anari::Library library, const char* deviceName, const char* deviceSubtype);
-
-  /**
-   * Set the USD back-end related ANARI parameters
-   */
-  void SetUSDDeviceParameters();
 
   vtkAnariRendererNode* Owner{ nullptr };
 
@@ -115,47 +111,9 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
   }
 }
 
-//----------------------------------------------------------------------------
-void vtkAnariRendererNodeInternals::SetUSDDeviceParameters()
-{
-#if 0
-  // Initialize USD Device Parameters
-  auto renderer = this->Owner->GetRenderer();
-
-  const char* location = vtkAnariRendererNode::GetUsdDirectory(renderer);
-  bool outputBinary = vtkAnariRendererNode::GetUsdOutputBinary(renderer) == 1;
-  bool outputMaterial = vtkAnariRendererNode::GetUsdOutputMaterial(renderer) == 1;
-  bool outputPreviewSurface = vtkAnariRendererNode::GetUsdOutputPreviewSurface(renderer) == 1;
-  bool outputMdl = vtkAnariRendererNode::GetUsdOutputMDL(renderer) == 1;
-  bool outputDisplayColors = vtkAnariRendererNode::GetUsdOutputDisplayColors(renderer) == 1;
-  bool outputMdlColors = vtkAnariRendererNode::GetUsdOutputMDLColors(renderer) == 1;
-  bool writeAtCommit = vtkAnariRendererNode::GetUsdAtCommit(renderer) == 1;
-
-  // Set USD Device Parameters
-  if (location != nullptr)
-  {
-    anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::serialize.location", location);
-  }
-
-  anari::setParameter(
-    this->AnariDevice, this->AnariDevice, "usd::serialize.outputbinary", outputBinary);
-  anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::output.material", outputMaterial);
-  anari::setParameter(
-    this->AnariDevice, this->AnariDevice, "usd::output.previewsurfaceshader", outputPreviewSurface);
-  anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::output.mdlshader", outputMdl);
-  anari::setParameter(
-    this->AnariDevice, this->AnariDevice, "usd::output.displaycolors", outputDisplayColors);
-  anari::setParameter(
-    this->AnariDevice, this->AnariDevice, "usd::output.mdlcolors", outputMdlColors);
-  anari::setParameter(this->AnariDevice, this->AnariDevice, "usd::writeatcommit", writeAtCommit);
-#endif
-}
-
 //============================================================================
 
 vtkStandardNewMacro(vtkAnariRendererNode);
-
-vtkTimeStamp vtkAnariRendererNode::AnariRendererModifiedTime;
 
 //----------------------------------------------------------------------------
 vtkAnariRendererNode::vtkAnariRendererNode()
@@ -187,6 +145,7 @@ void vtkAnariRendererNode::InitAnariFrame(vtkRenderer* ren)
   if (!ren->HasObserver(vtkCommand::ModifiedEvent))
   {
     vtkNew<RendererChangeCallback> cc;
+    cc->AnariRendererModifiedTime = &this->AnariRendererModifiedTime;
     ren->AddObserver(vtkCommand::ModifiedEvent, cc);
     cc->Execute(nullptr, vtkCommand::ModifiedEvent, nullptr);
   }
@@ -460,10 +419,8 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
                                                                                                    \
     vtkInformation* info = r->GetInformation();                                                    \
     info->Set(vtkAnariRendererNode::PARAM(), v);                                                   \
-    vtkAnariRendererNode::AnariRendererModifiedTime.Modified();                                    \
   }
 
-RENDERER_NODE_PARAM_SET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*)
 RENDERER_NODE_PARAM_SET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int)
 RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
 
@@ -486,7 +443,6 @@ RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
     return DEFAULT_VALUE;                                                                          \
   }
 
-RENDERER_NODE_PARAM_GET_DEFINITION(RendererSubtype, RENDERER_SUBTYPE, const char*, "default")
 RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1)
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
 
@@ -533,36 +489,6 @@ void vtkAnariRendererNode::AddVolume(anari::Volume volume)
 void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-#if 0
-  anari::Library anariLibrary = this->Internal->AnariLibrary;
-
-  if (anariLibrary != nullptr)
-  {
-    const char* libName = vtkAnariRendererNode::GetLibraryName(this->GetRenderer());
-
-    if (libName != nullptr)
-    {
-      // Available devices
-      const char** devices = anariGetDeviceSubtypes(anariLibrary);
-      os << indent << "[ANARI::" << libName << "] Available devices: \n";
-
-      for (const char** d = devices; *d != NULL; d++)
-      {
-        os << indent << indent << *d << "\n";
-      }
-
-      // Available renderers
-      const char** renderers = anariGetObjectSubtypes(this->Internal->AnariDevice, ANARI_RENDERER);
-      os << "\n";
-      os << indent << "[ANARI::" << libName << "] Available renderers: \n";
-
-      for (const char** r = renderers; *r != NULL; r++)
-      {
-        os << indent << indent << *r << "\n";
-      }
-    }
-  }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -772,12 +698,6 @@ void vtkAnariRendererNode::InvalidateSceneStructure()
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::InvalidateRendererParameters()
-{
-  vtkAnariRendererNode::AnariRendererModifiedTime.Modified();
-}
-
-//------------------------------------------------------------------------------
 void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
 {
   vtkRenderer* renderer = GetRenderer();
@@ -797,6 +717,8 @@ void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
   this->Internal->AnariExtensions = e;
   this->InitAnariFrame(renderer);
   this->InitAnariWorld();
+
+  this->AnariRendererModifiedTime.Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -823,6 +745,8 @@ void vtkAnariRendererNode::SetAnariRenderer(anari::Renderer r)
   else
     anari::unsetParameter(d, f, "renderer");
   anari::commitParameters(d, f);
+
+  this->AnariRendererModifiedTime.Modified();
 }
 
 VTK_ABI_NAMESPACE_END

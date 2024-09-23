@@ -4,7 +4,14 @@
  * @class   vtkAnariRendererNode
  * @brief   links vtkRenderers to ANARI
  *
- * Translates vtkRenderer state into ANARI rendering calls
+ * This class acts as a root node managing an anari::Frame and everything
+ * within it. The anari::Frame is the top-level object to render images using
+ * ANARI, containing the anari::Camera, anari::World, and anari::Renderer all
+ * from a particular anari::Device. vtkAnariRendererNode expects to be given
+ * the anari::Device and anari::Renderer externally, which are managed by
+ * other classes which use vtkAnariRendererNode (e.g. vtkAnariPass and
+ * vtkAnariWindowNode). vtkAnariRendererNode expects to be given a valid
+ * anari::Device before any scene graph traversals occur.
  *
  *  @par Thanks:
  *  Kevin Griffin kgriffin@nvidia.com for creating and contributing the class
@@ -54,16 +61,12 @@ public:
   // state beyond rendering core...
 
   /**
-   * Set the renderer subtype. Default is "default"
+   * When passing 'true', the renderer will skip actually rendering frame. This
+   * is for when an application wants to externally use the anari::World in
+   * their own non-VTK viewport using their own anari::Frame/Renderer/Camera,
+   * but still wants VTK to manage the contents of the anari::World.
    */
-  static vtkInformationStringKey* RENDERER_SUBTYPE();
-  //@{
-  /**
-   * Convenience method to set/get RENDERER_SUBTYPE on a vtkRenderer.
-   */
-  static void SetRendererSubtype(vtkRenderer* renderer, const char* name);
-  static const char* GetRendererSubtype(vtkRenderer* renderer);
-  //@}
+  void SetUpdateWorldOnly(bool onlyUpdateWorld = false);
 
   /**
    * Set the number of frames to render which are accumulated to result in a
@@ -164,11 +167,6 @@ public:
    */
   void InvalidateSceneStructure();
 
-  /**
-   * Indicate that the parameters to the underlying ANARIRenderer need to be set.
-   */
-  static void InvalidateRendererParameters();
-
 protected:
   vtkAnariRendererNode();
   ~vtkAnariRendererNode();
@@ -187,7 +185,7 @@ protected:
 
   vtkTimeStamp AnariSceneStructureModifiedMTime;
   vtkMTimeType AnariSceneConstructedMTime{ 0 };
-  static vtkTimeStamp AnariRendererModifiedTime;
+  vtkTimeStamp AnariRendererModifiedTime;
   vtkMTimeType AnariRendererUpdatedTime{ 0 };
 
 private:
