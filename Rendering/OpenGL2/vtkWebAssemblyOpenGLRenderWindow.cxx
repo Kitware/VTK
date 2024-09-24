@@ -65,16 +65,6 @@ void vtkWebAssemblyOpenGLRenderWindow::CleanUpRenderers()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebAssemblyOpenGLRenderWindow::SetWindowName(const char* title)
-{
-  this->Superclass::SetWindowName(title);
-  if (this->ContextId)
-  {
-    emscripten_set_window_title(title);
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkWebAssemblyOpenGLRenderWindow::MakeCurrent()
 {
   if (this->ContextId)

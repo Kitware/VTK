@@ -203,13 +203,6 @@ int* vtkWebAssemblyWebGPURenderWindow::GetPosition()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebAssemblyWebGPURenderWindow::SetWindowName(const char* title)
-{
-  this->Superclass::SetWindowName(title);
-  emscripten_set_window_title(title);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::Clean()
 {
   this->CleanUpRenderers();
