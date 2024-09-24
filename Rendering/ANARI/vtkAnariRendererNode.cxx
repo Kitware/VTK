@@ -82,6 +82,7 @@ struct vtkAnariRendererNodeInternals
   int ImageY;
 
   bool CompositeOnGL{ false };
+  bool OnlyUpdateWorld{ false };
 
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
@@ -553,7 +554,7 @@ void vtkAnariRendererNode::Render(bool prepass)
   vtkAnariProfiling startProfiling("vtkAnariRendererNode::Render", vtkAnariProfiling::BLUE);
 
   vtkRenderer* ren = this->GetRenderer();
-  if (prepass || !ren)
+  if (this->Internal->OnlyUpdateWorld || prepass || !ren)
   {
     return;
   }
@@ -659,6 +660,12 @@ void vtkAnariRendererNode::WriteLayer(
       }
     }
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererNode::SetUpdateWorldOnly(bool onlyUpdateWorld)
+{
+  this->Internal->OnlyUpdateWorld = onlyUpdateWorld;
 }
 
 //------------------------------------------------------------------------------
