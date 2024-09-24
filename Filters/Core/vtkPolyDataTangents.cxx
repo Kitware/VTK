@@ -55,7 +55,7 @@ struct TangentComputation
       if (cellId >= this->Offset)
       {
         vtkIdType npts;
-        const vtkIdType* pts;
+        vtkIdType pts[3];
         this->Triangles->GetCellAtId(cellId, npts, pts);
 
         // compute edges
