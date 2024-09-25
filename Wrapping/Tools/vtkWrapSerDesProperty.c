@@ -445,7 +445,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   }
   else if (isStdVector)
   {
-    char* arg = vtkWrap_TemplateArg(propertyInfo->ClassName);
+    const char* arg = vtkWrap_TemplateArg(propertyInfo->ClassName);
     size_t n;
     ValueInfo* element = (ValueInfo*)calloc(1, sizeof(ValueInfo));
     size_t l = vtkParse_BasicTypeFromString(arg, &(element->Type), &(element->Class), &n);
@@ -738,7 +738,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
   }
   else if (isStdVector)
   {
-    char* arg = vtkWrap_TemplateArg(val->Class);
+    const char* arg = vtkWrap_TemplateArg(val->Class);
     size_t n;
     ValueInfo* element = (ValueInfo*)calloc(1, sizeof(ValueInfo));
     size_t l = vtkParse_BasicTypeFromString(arg, &(element->Type), &(element->Class), &n);
@@ -796,7 +796,7 @@ void vtkWrapSerDes_Properties(
       continue;
     }
     /* Is this method associated with a property? */
-    if (properties && properties->MethodHasProperty[i])
+    if (properties->MethodHasProperty[i])
     {
       /* Get the property associated with this method */
       j = properties->MethodProperties[i];

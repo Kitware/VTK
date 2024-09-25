@@ -14,7 +14,7 @@ const char* vtkWrapSerDes_GetSuperClass(
 {
   const char* supername = NULL;
   const char* module = NULL;
-  HierarchyEntry* entry;
+  const HierarchyEntry* entry;
   int i;
 
   /* if there are multiple superclasses, we just need the relevant one */

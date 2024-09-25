@@ -14,7 +14,7 @@
  *   (or)
  *  vtkImageData() >> vtkElevationFilter()
  */
-int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, ClassInfo* classInfo);
+int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, const ClassInfo* classInfo);
 
 #endif /* vtkWrapPythonNumberProtocol_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonNumberProtocol.h */
