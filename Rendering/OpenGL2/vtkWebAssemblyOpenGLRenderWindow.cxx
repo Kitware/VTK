@@ -208,6 +208,20 @@ void vtkWebAssemblyOpenGLRenderWindow::CreateAWindow()
   attrs.depth = EM_TRUE;
   attrs.stencil = this->StencilCapable;
 
+  // choose power preference
+  switch (PowerPreference)
+  {
+    case PowerPreferenceType::Default:
+      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_DEFAULT;
+      break;
+    case PowerPreferenceType::LowPower:
+      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_LOW_POWER;
+      break;
+    case PowerPreferenceType::HighPerformance:
+      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_HIGH_PERFORMANCE;
+      break;
+  }
+
   const auto result = emscripten_webgl_create_context(this->CanvasSelector, &attrs);
   if (result <= 0)
   {
