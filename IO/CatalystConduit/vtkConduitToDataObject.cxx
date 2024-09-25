@@ -454,30 +454,23 @@ vtkSmartPointer<vtkImageData> CreateImageData(const conduit_cpp::Node& coordset)
 }
 
 //----------------------------------------------------------------------------
+/**
+ * The "const" of values_xyz is necessary to avoid creating a new object.
+ * If value_xyz is not const, coordset["values/xyz"] must NOT be const either
+ * to call the correct copy constructor.
+ */
 vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Node& coordset)
 {
   auto rectilinearGrid = vtkSmartPointer<vtkRectilinearGrid>::New();
 
-  conduit_cpp::Node values_x;
   const bool has_x_values = coordset.has_path("values/x");
-  if (has_x_values)
-  {
-    values_x = coordset["values/x"];
-  }
+  const conduit_cpp::Node values_x = has_x_values ? coordset["values/x"] : conduit_cpp::Node();
 
-  conduit_cpp::Node values_y;
   const bool has_y_values = coordset.has_path("values/y");
-  if (has_y_values)
-  {
-    values_y = coordset["values/y"];
-  }
+  const conduit_cpp::Node values_y = has_y_values ? coordset["values/y"] : conduit_cpp::Node();
 
-  conduit_cpp::Node values_z;
   const bool has_z_values = coordset.has_path("values/z");
-  if (has_z_values)
-  {
-    values_z = coordset["values/z"];
-  }
+  const conduit_cpp::Node values_z = has_z_values ? coordset["values/z"] : conduit_cpp::Node();
 
   vtkIdType x_dimension = 1;
   vtkSmartPointer<vtkDataArray> xArray;
