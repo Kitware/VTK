@@ -281,6 +281,8 @@ fedora39-java8:build:
     timeout: 4 hours
     variables:
       VTK_JAVA_VERSION: 1.8
+    dependencies: []
+    needs: []
 
 fedora39-java11:build:
     extends:
@@ -293,6 +295,8 @@ fedora39-java11:build:
     timeout: 4 hours
     variables:
       VTK_JAVA_VERSION: 11
+    dependencies: []
+    needs: []
 
 fedora39-mpi-python-qt-tbb:build:
     extends:
@@ -2032,6 +2036,8 @@ macos-x86_64-java8:build:
     variables:
       VTK_JAVA_VERSION: 1.8
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 macos-x86_64-java11:build:
     extends:
@@ -2043,6 +2049,8 @@ macos-x86_64-java11:build:
     variables:
       VTK_JAVA_VERSION: 11
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 macos-arm64-java8:build:
     extends:
@@ -2054,6 +2062,8 @@ macos-arm64-java8:build:
     variables:
       VTK_JAVA_VERSION: 1.8
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 macos-arm64-java11:build:
     extends:
@@ -2065,6 +2075,8 @@ macos-arm64-java11:build:
     variables:
       VTK_JAVA_VERSION: 11
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 windows-x86_64-java8:build:
     extends:
@@ -2076,6 +2088,8 @@ windows-x86_64-java8:build:
     variables:
       VTK_JAVA_VERSION: 1.8
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 windows-x86_64-java11:build:
     extends:
@@ -2087,6 +2101,8 @@ windows-x86_64-java11:build:
     variables:
       VTK_JAVA_VERSION: 11
     timeout: 4 hours
+    dependencies: []
+    needs: []
 
 java8:upload:
     extends:
