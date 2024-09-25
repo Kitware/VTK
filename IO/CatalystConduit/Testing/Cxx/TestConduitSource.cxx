@@ -111,17 +111,11 @@ bool ValidateMeshTypeUniform()
   return true;
 }
 
-void CreateRectilinearMesh(
-  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+void GenerateValues(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
+  std::vector<double>& x, std::vector<double>& y, std::vector<double>& z)
 {
-  conduit_cpp::Node coords = res["coordsets/coords"];
-  coords["type"] = "rectilinear";
-
-  std::vector<double> x;
   x.resize(nptsX);
-  std::vector<double> y;
   y.resize(nptsY);
-  std::vector<double> z;
 
   if (nptsZ > 1)
   {
@@ -154,6 +148,18 @@ void CreateRectilinearMesh(
       z[k] = -10.0 + k * dz;
     }
   }
+}
+
+void CreateRectilinearMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  conduit_cpp::Node coords = res["coordsets/coords"];
+  coords["type"] = "rectilinear";
+
+  std::vector<double> x;
+  std::vector<double> y;
+  std::vector<double> z;
+  GenerateValues(nptsX, nptsY, nptsZ, x, y, z);
 
   conduit_cpp::Node coordVals = coords["values"];
   coordVals["x"].set(x);
@@ -185,6 +191,24 @@ bool ValidateMeshTypeRectilinear()
   VERIFY(dims[0] == 3, "incorrect x dimension expected=3, got=%d", dims[0]);
   VERIFY(dims[1] == 3, "incorrect y dimension expected=3, got=%d", dims[1]);
   VERIFY(dims[2] == 3, "incorrect z dimension expected=3, got=%d", dims[2]);
+
+  // Expected values
+  std::vector<double> x;
+  std::vector<double> y;
+  std::vector<double> z;
+  GenerateValues(3, 3, 3, x, y, z);
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    VERIFY(x[i] == rg->GetXCoordinates()->GetComponent(i, 0),
+      "incorrect x value at %d: expected=%g, got=%g", i, x[i],
+      rg->GetXCoordinates()->GetComponent(i, 0));
+    VERIFY(y[i] == rg->GetYCoordinates()->GetComponent(i, 0),
+      "incorrect y value at %d: expected=%g, got=%g", i, y[i],
+      rg->GetYCoordinates()->GetComponent(i, 0));
+    VERIFY(z[i] == rg->GetZCoordinates()->GetComponent(i, 0),
+      "incorrect z value at %d: expected=%g, got=%g", i, z[i],
+      rg->GetZCoordinates()->GetComponent(i, 0));
+  }
 
   return true;
 }
