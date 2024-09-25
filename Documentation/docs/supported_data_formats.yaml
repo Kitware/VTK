@@ -197,6 +197,12 @@
   writer_class: vtkIOSSWriter
   vtk_module: VTK::IOIOSS
 
+- extensions: [.exdg]
+  description: "IOSS (Sierra IO System) files as cell-grids"
+  reader_class: vtkIOSSCellGridReader
+  writer_class: null
+  vtk_module: VTK::IOIOSS
+
 - extensions: [.bmp]
   description: "Windows BMP file"
   reader_class: vtkBMPReader

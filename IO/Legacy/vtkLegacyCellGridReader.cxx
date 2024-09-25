@@ -99,10 +99,10 @@ int vtkLegacyCellGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
       return 1;
     }
 
-    std::string raw;
+    std::vector<std::uint8_t> raw;
     raw.resize(contentLength);
     if (!this->GetIStream()->read(
-          const_cast<char*>(raw.data()), static_cast<std::streamsize>(contentLength)))
+          reinterpret_cast<char*>(raw.data()), static_cast<std::streamsize>(contentLength)))
     {
       vtkErrorMacro(<< "Cannot read encoded dataset.");
       this->CloseVTKFile();
@@ -112,7 +112,10 @@ int vtkLegacyCellGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
     nlohmann::json jdata;
     try
     {
-      jdata = nlohmann::json::parse(raw);
+      // The final argument (false) indicates that the decoder should allow
+      // partial consumption of raw.data() (meaning the trailing newline will
+      // not cause an exception):
+      jdata = nlohmann::json::from_msgpack(raw.data(), raw.data() + contentLength, false);
     }
     catch (nlohmann::json::exception& e)
     {

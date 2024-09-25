@@ -126,6 +126,19 @@ const vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType) const
   return dummy;
 }
 
+vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType)
+{
+  if (sideType < 0)
+  {
+    return this->CellSpec;
+  }
+  else if (sideType >= static_cast<int>(this->SideSpecs.size()))
+  {
+    throw std::logic_error("No source specifier at index " + std::to_string(sideType));
+  }
+  return this->SideSpecs[sideType];
+}
+
 vtkDataArray* vtkDGCell::GetCellSourceConnectivity(int sideType) const
 {
   return this->GetCellSource(sideType).Connectivity;

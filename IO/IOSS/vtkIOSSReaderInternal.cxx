@@ -1830,11 +1830,12 @@ bool vtkIOSSReaderInternal::GetGeometry(
 }
 
 vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::string& fieldname,
-  Ioss::Region* region, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle,
+  Ioss::Region* region, const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle,
   int timestep, vtkIdTypeArray* ids_to_extract, const std::string& cache_key_suffix)
 {
-  const auto get_field = [&fieldname, &region, &timestep, &handle, this](
-                           Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray> {
+  const auto get_field =
+    [&fieldname, &region, &timestep, &handle, this](
+      const Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray> {
     if (!entity->field_exists(fieldname))
     {
       return nullptr;
@@ -1886,7 +1887,7 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
       // sidesets need to be handled specially. For sidesets, the fields are
       // available on nested sideblocks.
       std::vector<vtkSmartPointer<vtkAbstractArray>> arrays;
-      auto sideSet = static_cast<Ioss::SideSet*>(group_entity);
+      const auto* sideSet = static_cast<const Ioss::SideSet*>(group_entity);
       for (auto sideBlock : sideSet->get_side_blocks())
       {
         if (auto array = get_field(sideBlock))

@@ -121,7 +121,7 @@ protected:
     /// The MTime of the render passes combined at the time \a RenderHelper was configured.
     /// Various render passes are injected into the render pipeline by vtkOpenGLRenderer for fancy
     /// features like dual-depth peeling, SSAO, etc.
-    mutable vtkMTimeType RenderPassStageTime;
+    mutable vtkMTimeType RenderPassStageTime{ 0 };
     /// Tessellation shaders are employed for higher order elements and quadrilaterals.
     mutable bool UsesTessellationShaders;
     /// Geometry shader is used to debug distance-based tessellation.

@@ -44,7 +44,7 @@ void vtkLegacyCellGridWriter::WriteData()
   //
   // We use "DATASET" here to prevent vtkDataObjectReader from attempting
   // to read cell-grids, even though vtkCellGrid does not inherit vtkDataSet.
-  std::string contents;
+  std::vector<std::uint8_t> contents;
   {
     nlohmann::json data;
     if (!Subwriter->ToJSON(data, input))
@@ -54,11 +54,12 @@ void vtkLegacyCellGridWriter::WriteData()
       unlink(this->FileName);
       return;
     }
-    contents = data.dump();
+    contents = nlohmann::json::to_msgpack(data);
   }
 
   *fp << "DATASET CELL_GRID " << contents.size() << "\n";
-  *fp << contents << "\n";
+  fp->write(reinterpret_cast<const char*>(contents.data()), contents.size());
+  *fp << "\n";
 
   this->CloseVTKFile(fp);
 }

@@ -12,6 +12,7 @@ vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestFrustumSource.cxx,NO_VALID
   TestGlyphSource2D.cxx,NO_VALID
   TestGlyphSource2DResolution.cxx,
+  TestGoldenBallSource.cxx,NO_VALID
   TestHyperTreeGridPreConfiguredSource.cxx
   TestLineSource.cxx,NO_VALID
   TestMultiBlock.cxx

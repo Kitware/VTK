@@ -4,10 +4,12 @@
 #include "vtkCellGrid.h"
 #include "vtkDGEdge.h"
 #include "vtkDGHex.h"
+#include "vtkDGPyr.h"
 #include "vtkDGQuad.h"
 #include "vtkDGTet.h"
 #include "vtkDGTri.h"
 #include "vtkDGVert.h"
+#include "vtkDGWdg.h"
 #include "vtkFiltersCellGrid.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -16,6 +18,61 @@
 
 namespace
 {
+
+template <typename CellType>
+int numberOfSidesOfDimension(int dimension);
+
+template <>
+int numberOfSidesOfDimension<vtkDGEdge>(int dimension)
+{
+  return (dimension < 0 ? 1 : (dimension == 0 ? 2 : -1));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGHex>(int dimension)
+{
+  return (
+    dimension < 0 ? 1 : (dimension == 0 ? 8 : (dimension == 1 ? 12 : (dimension == 2 ? 6 : -1))));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGPyr>(int dimension)
+{
+  return (
+    dimension < 0 ? 1 : (dimension == 0 ? 5 : (dimension == 1 ? 8 : (dimension == 2 ? 5 : -1))));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGQuad>(int dimension)
+{
+  return (dimension < 0 ? 1 : (dimension == 0 ? 4 : (dimension == 1 ? 4 : -1)));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGTet>(int dimension)
+{
+  return (
+    dimension < 0 ? 1 : (dimension == 0 ? 4 : (dimension == 1 ? 6 : (dimension == 2 ? 4 : -1))));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGTri>(int dimension)
+{
+  return (dimension < 0 ? 1 : (dimension == 0 ? 3 : (dimension == 1 ? 3 : -1)));
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGVert>(int dimension)
+{
+  return (dimension < 0 ? 1 : -1);
+}
+
+template <>
+int numberOfSidesOfDimension<vtkDGWdg>(int dimension)
+{
+  return (
+    dimension < 0 ? 1 : (dimension == 0 ? 6 : (dimension == 1 ? 9 : (dimension == 2 ? 5 : -1))));
+}
 
 template <typename CellType>
 bool TestDGCellType()
@@ -28,12 +85,21 @@ bool TestDGCellType()
   }
 
   std::cout << "Created " << cell->GetClassName() << " metadata:\n";
+  std::string shapeName = vtkDGCell::GetShapeName(cell->GetShape()).Data();
 
   if (cell->GetNumberOfCells() != 0)
   {
     std::cerr << "ERROR: Expected 0 cells present, found " << cell->GetNumberOfCells() << ".\n";
     return false;
   }
+
+  std::cout << "A/an " << shapeName << " has:\n";
+  for (int dim = cell->GetDimension() - 1; dim >= -1; --dim)
+  {
+    std::cout << "  " << cell->GetNumberOfSidesOfDimension(dim) << " sides of dimension " << dim
+              << " (expecting " << numberOfSidesOfDimension<CellType>(dim) << ").\n";
+  }
+  std::cout << "\nA/an " << shapeName << " has:\n";
 
   auto refPts = cell->GetReferencePoints();
   if (!refPts || refPts->GetNumberOfTuples() != cell->GetNumberOfCorners())
@@ -104,7 +170,7 @@ bool TestDGCellType()
   // Note that for cells of dimension 2 or less, the input cell's connectivity
   // is reported as the first side in the sideOffs/sideConn arrays so that
   // these cells can be rendered directly. We must account for that by
-  // offsetting ss and sideDim below.
+  // offsetting ss below.
   int ss = haveSelfSide ? -1 : 0;
   for (vtkIdType ii = 0; ii < sideOffs->GetNumberOfTuples() - 1; ++ii)
   {
@@ -117,8 +183,9 @@ bool TestDGCellType()
     // clang-format on
     int nn = vtkDGCell::GetShapeCornerCount(shape);
     int nextOffset = sideOffs->GetTuple(ii + 1)[0];
-    int sideDim = cell->GetDimension() - (haveSelfSide ? ii : ii + 1);
-    int numSidesOfType = ss < 0 ? 1 : cell->GetNumberOfSidesOfDimension(sideDim);
+    int numSidesOfType = haveSelfSide
+      ? (cell->GetSideRangeForType(ii - 1).second - cell->GetSideRangeForType(ii - 1).first)
+      : (cell->GetSideRangeForType(ii).second - cell->GetSideRangeForType(ii).first);
     if (nextOffset - offset != nn * numSidesOfType)
     {
       std::cerr << "ERROR: Bad offset " << offset << " to " << nextOffset << " vs "
@@ -154,10 +221,12 @@ int TestDGCells(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (
     !TestDGCellType<vtkDGEdge>() ||
     !TestDGCellType<vtkDGHex>() ||
+    !TestDGCellType<vtkDGPyr>() ||
     !TestDGCellType<vtkDGQuad>() ||
     !TestDGCellType<vtkDGTet>() ||
     !TestDGCellType<vtkDGTri>() ||
-    !TestDGCellType<vtkDGVert>())
+    !TestDGCellType<vtkDGVert>() ||
+    !TestDGCellType<vtkDGWdg>())
   {
     return EXIT_FAILURE;
   }

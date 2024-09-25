@@ -1,5 +1,5 @@
 set(test_exclusions
-  # Leaks static thread_local instances, being worked in !11452 
+  # Flaky when run with threads enabled. See #19471.
   "^VTK::FiltersCellGridPython-TestCellGridRange$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
@@ -128,7 +128,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39" AND "$ENV{CMAKE_CONFIGURATION
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
     "^VTK::DomainsParallelChemistryCxx-MPI-TestPSimpleBondPerceiver$"
-    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     "^VTK::FiltersCoreCxx-TestAppendSelection$"
     "^VTK::FiltersCoreCxx-TestDecimatePolylineFilter$"
     "^VTK::FiltersCoreCxx-TestFeatureEdges$"
@@ -247,7 +246,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39" AND "$ENV{CMAKE_CONFIGURATION
     "^VTK::IOIossCxx-TestIossTri6$"
     "^VTK::IOIossCxx-TestIossUnsupported$"
     "^VTK::IOIOSSCxx-TestIOSSWedge21$"
-    "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
     "^VTK::IOMPIParallelPython-MPI-Plot3DMPIIO$"
     "^VTK::IOParallelCxx-MPI-TestPOpenFOAMReaderLagrangianUncollated$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYDataExchanger$"
@@ -322,9 +320,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19183
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
-    # Thread-local objects are not destroyed at program exit.
-    # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
-    "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
@@ -359,9 +354,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     # MacOS OpenGL issue (intermittent)
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
-    
+
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19372
     "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+    "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+    "^VTK::FiltersCellGridPython-TestCellGridTransform$"
+    "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
   )
 endif ()
 
@@ -424,7 +422,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
-      # MacOS OpenGL issue (intermittent)
+      # MacOS OpenGL issue (intermittent). See #19372.
+      "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
+      "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+      "^VTK::FiltersCellGridPython-TestCellGridTransform$"
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
       "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
       "^VTK::RenderingCellGridPython-TestCellGridRendering$"

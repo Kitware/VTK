@@ -41,18 +41,40 @@ void colorEvaluateAt(
   }}
 #if {ColorScaleInverseJacobian}
   {{
-    // Scale the value by the normalized inverse Jacobian of the shape attribute.
+    // Scale the value by the inverse Jacobian of the shape attribute.
     vec3 dxdr;
     vec3 dxds;
     vec3 dxdt;
     mat3 jac;
     shapeGradientAt(rr, shapeData, dxdr, dxds, dxdt);
     jac = transpose(mat3(dxdr, dxds, dxdt));
+    // jac = mat3(dxdr, dxds, dxdt);
     mat3 ijac = inverse(jac);
     for (int cc = 0; cc < {ColorNumValPP} / 3; ++cc)
     {{
       vec3 unscaled = vec3(value[cc * 3], value[cc * 3 + 1], value[cc * 3 + 2]);
       vec3 scaled = ijac * unscaled;
+      value[cc * 3    ] = scaled.x;
+      value[cc * 3 + 1] = scaled.y;
+      value[cc * 3 + 2] = scaled.z;
+    }}
+  }}
+#elif {ColorScaleScaledJacobian}
+  {{
+    // Scale the value by the determinant of the Jacobian *and*
+    // transform the value by the Jacobian.
+    vec3 dxdr;
+    vec3 dxds;
+    vec3 dxdt;
+    mat3 jac;
+    shapeGradientAt(rr, shapeData, dxdr, dxds, dxdt);
+    // jac = transpose(mat3(dxdr, dxds, dxdt));
+    jac = mat3(dxdr, dxds, dxdt);
+    float jdet = determinant(jac);
+    for (int cc = 0; cc < {ColorNumValPP} / 3; ++cc)
+    {{
+      vec3 unscaled = vec3(value[cc * 3], value[cc * 3 + 1], value[cc * 3 + 2]);
+      vec3 scaled = jac * unscaled / jdet;
       value[cc * 3    ] = scaled.x;
       value[cc * 3 + 1] = scaled.y;
       value[cc * 3 + 2] = scaled.z;
@@ -84,7 +106,7 @@ void shapeEvaluateAt(in vec3 rr, in float shapeVals[{ShapeCoeffPerCell}], out fl
 // NB: Currently, a cell-grid's shape attribute *must* be continuous
 // (i.e., share degrees of freedom at cell boundaries). This makes
 // fetching shapeValues much simpler than fetching colorValues.
-// 
+//
 // NB: This method expects `shape_conn` and `shape_vals` declared as samplerBuffer uniforms.
 void shapeValuesForCell(in int cellId, out float shapeValues[{ShapeCoeffPerCell}])
 {{

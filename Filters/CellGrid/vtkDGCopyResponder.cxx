@@ -80,32 +80,37 @@ bool vtkDGCopyResponder::Query(
 
   vtkStringToken cellTypeName = cellType->GetClassName();
   auto* sourceMetadata = vtkDGCell::SafeDownCast(query->GetSource()->GetCellType(cellTypeName));
-  auto targetMetadataBase = vtkCellMetadata::NewInstance(cellTypeName, query->GetTarget());
-  auto* targetMetadata = vtkDGCell::SafeDownCast(targetMetadataBase);
 
-  if (!sourceMetadata || !targetMetadata)
+  vtkDGCell* targetMetadata = nullptr;
+  if (query->GetCopyCellTypes())
   {
-    vtkErrorMacro("Cannot copy non-DG cell with DG responder.");
-    return false;
-  }
+    auto targetMetadataBase = vtkCellMetadata::NewInstance(cellTypeName, query->GetTarget());
+    targetMetadata = vtkDGCell::SafeDownCast(targetMetadataBase);
 
-  // If we are copying cells, then ensure the connectivity is copied.
-  // If we are copying cells but not values, this will create an empty connectivity array.
-  this->CopySpecs(query, sourceMetadata, targetMetadata);
-
-  // Now, copy the arrays for any cell-attributes we are copying and then
-  // copy the cell-attribute (or at least update its arrays for the current cell-type).
-  if (query->GetCopyOnlyShape())
-  {
-    query->CopyAttributeArrays(query->GetSource()->GetShapeAttribute(), cellTypeName);
-  }
-  else
-  {
-    for (const auto& attId : query->GetCellAttributeIds())
+    if (!sourceMetadata || !targetMetadata)
     {
-      if (auto* cellAtt = query->GetSource()->GetCellAttributeById(attId))
+      vtkErrorMacro("Cannot copy non-DG cell with DG responder.");
+      return false;
+    }
+
+    // If we are copying cells, then ensure the connectivity is copied.
+    // If we are copying cells but not values, this will create an empty connectivity array.
+    this->CopySpecs(query, sourceMetadata, targetMetadata);
+
+    // Now, copy the arrays for any cell-attributes we are copying and then
+    // copy the cell-attribute (or at least update its arrays for the current cell-type).
+    if (query->GetCopyOnlyShape())
+    {
+      query->CopyAttributeArrays(query->GetSource()->GetShapeAttribute(), cellTypeName);
+    }
+    else
+    {
+      for (const auto& attId : query->GetCellAttributeIds())
       {
-        query->CopyAttributeArrays(cellAtt, cellTypeName);
+        if (auto* cellAtt = query->GetSource()->GetCellAttributeById(attId))
+        {
+          query->CopyAttributeArrays(cellAtt, cellTypeName);
+        }
       }
     }
   }

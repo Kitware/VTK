@@ -72,6 +72,24 @@ they tend to do very little work: all of the data processing is performed by
 responders that handle specific cell types and/or cell-attribute calculators
 that do work for a particular (cell-type, cell-attribute-type) tuple.
 
+#### vtkCellGridAlgorithm and array processing
+
+The [vtkCellGridAlgorithm](https://vtk.org/doc/nightly/html/classCellGridAlgorithm.html)
+class is intended for use as a base class for algorithms that process cell grids.
+Beyond the usual methods that algorithm subclasses provide, it provides a facility
+for marking [cell-attributes](https://vtk.org/doc/nightly/html/classCellAttribute.html)
+on input data for use by algorithms:
+instead of calling `SetInputArrayToProcess()` and providing an array name or type,
+you may call`SetInputAttributeToProcess()` and provide an array name (there is
+no way to select cell-attributes by type at this point).
+The `vtkCellGridWarp` filter is a good example of how to use these methods.
+
+Note that the implementation of `SetInputAttributeToProcess()` simply calls
+`SetInputArrayToProcess()` with a forced association to cells (since `vtkCellGrid`
+does not have an concept of other association types). This means that if you wish
+to expose a filter in ParaView that requires users to select an attribute,
+you may use a string-vector property with the `SetInputArrayToProcess`.
+
 ### How-to: Adding a new basis function to DG cells
 
 Note that you can query a cell-attribute for a `vtkCellAttribute::CellTypeInfo` object
