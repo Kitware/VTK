@@ -4,7 +4,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
+#include <algorithm>
 #include <cassert>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRDataInternals);
 
