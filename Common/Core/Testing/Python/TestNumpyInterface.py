@@ -10,6 +10,7 @@ except ImportError:
 from vtkmodules.vtkCommonCore import (
     vtkDoubleArray,
     vtkFloatArray,
+    vtkIntArray,
     vtkPoints,
     vtkSOADataArrayTemplate,
 )
@@ -247,6 +248,12 @@ mb = vtkMultiBlockDataSet()
 mb.SetBlock(0, pd)
 pd2 = vtkPolyData()
 mb.SetBlock(1, pd2)
+globalArray = vtkIntArray()
+globalArray.SetName("global")
+globalArray.SetNumberOfTuples(2)
+globalArray.SetValue(0, 1)
+globalArray.SetValue(1, 2)
+mb.GetFieldData().AddArray(globalArray)
 mbw = dsa.WrapDataObject(mb)
 
 mbw.PointData.append(dsa.NoneArray, 'foo')
@@ -262,6 +269,10 @@ mbw.PointData.append(algs.max(na2), "maxfoo")
 assert mbw.GetBlock(0).GetPointData().GetNumberOfArrays() == 2
 assert mbw.GetBlock(1).GetPointData().GetNumberOfArrays() == 1
 assert mbw.GetBlock(0).GetPointData().GetArray(1).GetName() == 'maxfoo'
+
+assert len(mbw.GlobalData.keys()) == 1
+assert mbw.GlobalData['global'][0] == 1
+assert mbw.GlobalData['global'][1] == 2
 
 # --------------------------------------
 
