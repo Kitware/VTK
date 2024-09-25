@@ -12,7 +12,7 @@ vtk_add_test_cxx(vtkIOInfovisCxxTests tests
   TestPhyloXMLTreeReadWrite.cxx
   TestRISReader.cxx
   TestTulipReaderProperties.cxx
-  TestDelimitedTextReader2.cxx
+  TestDelimitedTextReader.cxx
   TestTemporalDelimitedTextReader.cxx
   )
 vtk_test_cxx_executable(vtkIOInfovisCxxTests tests)
