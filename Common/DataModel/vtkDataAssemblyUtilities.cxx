@@ -150,10 +150,12 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
     const auto numDataSets = amr->GetNumberOfDataSets(level);
     // Add the composite index for each dataset in the AMR level.
+    std::vector<unsigned int> datasetIndices(numDataSets);
     for (unsigned int cc = 0; cc < numDataSets; ++cc)
     {
-      hierarchy->AddDataSetIndex(node, amr->GetCompositeIndex(level, cc));
+      datasetIndices[cc] = amr->GetCompositeIndex(level, cc);
     }
+    hierarchy->AddDataSetIndices(node, datasetIndices);
     hierarchy->SetAttribute(node, "number_of_datasets", numDataSets);
     if (output)
     {
