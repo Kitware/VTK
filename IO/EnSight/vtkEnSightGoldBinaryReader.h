@@ -177,7 +177,7 @@ protected:
    * Internal function to read in an integer array.
    * Returns zero if there was an error.
    */
-  int ReadIntArray(int* result, int numInts);
+  int ReadIntArray(int* result, vtkIdType numInts);
 
   /**
    * Internal function to read in a single long.
