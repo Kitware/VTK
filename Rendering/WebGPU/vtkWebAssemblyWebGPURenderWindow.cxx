@@ -19,7 +19,7 @@ vtkStandardNewMacro(vtkWebAssemblyWebGPURenderWindow);
 //------------------------------------------------------------------------------
 vtkWebAssemblyWebGPURenderWindow::vtkWebAssemblyWebGPURenderWindow()
 {
-  this->SetCanvasId("#canvas");
+  this->SetCanvasSelector("#canvas");
   this->SetStencilCapable(1);
 
   // set position to -1 to let SDL place the window
@@ -41,6 +41,7 @@ vtkWebAssemblyWebGPURenderWindow::~vtkWebAssemblyWebGPURenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+  this->SetCanvasSelector(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ bool vtkWebAssemblyWebGPURenderWindow::WindowSetup()
   {
     // render into canvas elememnt
     wgpu::SurfaceDescriptorFromCanvasHTMLSelector htmlSurfDesc;
-    htmlSurfDesc.selector = "#canvas";
+    htmlSurfDesc.selector = this->CanvasSelector;
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK HTML5 surface";
     surfDesc.nextInChain = &htmlSurfDesc;
@@ -151,7 +152,7 @@ void vtkWebAssemblyWebGPURenderWindow::SetFullScreen(vtkTypeBool arg)
     strategy.canvasResizedCallback = ::HandleCanvasResize;
     strategy.canvasResizedCallbackUserData = this;
 
-    result = emscripten_request_fullscreen_strategy(this->CanvasId, 1, &strategy);
+    result = emscripten_request_fullscreen_strategy(this->CanvasSelector, 1, &strategy);
   }
   else
   {
@@ -179,7 +180,7 @@ void vtkWebAssemblyWebGPURenderWindow::SetSize(int width, int height)
   {
     this->Size[0] = width;
     this->Size[1] = height;
-    emscripten_set_canvas_element_size(this->CanvasId, this->Size[0], this->Size[1]);
+    emscripten_set_canvas_element_size(this->CanvasSelector, this->Size[0], this->Size[1]);
     if (this->Interactor)
     {
       this->Interactor->SetSize(this->Size[0], this->Size[1]);
@@ -233,12 +234,12 @@ int vtkWebAssemblyWebGPURenderWindow::GetColorBufferSizes(int* rgba)
 
 namespace
 {
-void setCursorVisibility(bool visible)
+void setCursorVisibility(const char* target, bool visible)
 {
   // clang-format off
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
-    MAIN_THREAD_EM_ASM({if (Module['canvas']) { Module['canvas'].style['cursor'] = $0 ? 'default' : 'none'; }}, visible);
+    MAIN_THREAD_EM_ASM({findCanvasEventTarget($0).style.cursor = $1 ? 'default' : 'none'; }, target, visible);
 #pragma clang diagnostic pop
   // clang-format on
 }
@@ -247,13 +248,13 @@ void setCursorVisibility(bool visible)
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::HideCursor()
 {
-  ::setCursorVisibility(false);
+  ::setCursorVisibility(this->CanvasSelector, false);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::ShowCursor()
 {
-  ::setCursorVisibility(true);
+  ::setCursorVisibility(this->CanvasSelector, true);
 }
 
 //------------------------------------------------------------------------------
@@ -271,7 +272,7 @@ void vtkWebAssemblyWebGPURenderWindow::CreateAWindow()
   int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
   int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   this->SetSize(width, height);
-  this->WindowId = const_cast<void*>(static_cast<const void*>(this->CanvasId));
+  this->WindowId = const_cast<void*>(static_cast<const void*>(this->CanvasSelector));
 }
 
 //------------------------------------------------------------------------------

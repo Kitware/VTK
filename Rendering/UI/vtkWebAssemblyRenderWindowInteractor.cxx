@@ -108,6 +108,7 @@ public:
   emscripten::ProxyingQueue EventProxyingQueue;
 
   bool StartedMessageLoop = false;
+  bool RegisteredUICallbacks = false;
   bool ResizeObserverInstalled = false;
   bool ExpandedCanvasToContainerElement = false;
   int RepeatCounter = 0;
@@ -183,7 +184,7 @@ vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor()
   : Internals(std::make_shared<vtkInternals>())
 {
   // default is #canvas unless explicitly set by application.
-  this->SetCanvasId("#canvas");
+  this->SetCanvasSelector("#canvas");
   this->ExpandCanvasToContainer = ::DefaultExpandVTKCanvasToContainer;
   this->InstallHTMLResizeObserver = ::DefaultInstallHTMLResizeObserver;
 }
@@ -197,17 +198,46 @@ vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
     auto& platformTimerId = timerIds.second;
     vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   }
-  this->SetCanvasId(nullptr);
+  this->SetCanvasSelector(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector(const char* value)
+{
+  auto& internals = (*this->Internals);
+  // remove callbacks from previous target
+  const bool reInstallUICallbacks = internals.RegisteredUICallbacks;
+  if (internals.RegisteredUICallbacks)
+  {
+    this->UnRegisterUICallbacks();
+  }
+  vtkSetStringBodyMacro(CanvasSelector, value);
+  // add callbacks to new target
+  if (reInstallUICallbacks)
+  {
+    this->RegisterUICallbacks();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
 {
+  // initialize if not already done.
+  if (!this->Initialized)
+  {
+    this->Initialize();
+  }
   if (!this->Enabled)
   {
     return;
   }
   auto& internals = (*this->Internals);
+  // register UI callbacks if not already done. This can happen when the end-user application
+  // bypasses `vtkRenderWindowInteractor::Start` and directly invokes `ProcessEvents`.
+  if (!internals.RegisteredUICallbacks)
+  {
+    this->RegisterUICallbacks();
+  }
   while (!internals.Events.empty())
   {
     auto& event = (*internals.Events.front());
@@ -216,9 +246,126 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
   }
   if (!internals.ExpandedCanvasToContainerElement)
   {
-    vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
+    vtkInitializeCanvasElement(this->CanvasSelector, this->ExpandCanvasToContainer);
     internals.ExpandedCanvasToContainerElement = true;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
+{
+  auto& internals = (*this->Internals);
+  if (internals.RegisteredUICallbacks)
+  {
+    // already registered.
+    return;
+  }
+  internals.EventProcessingThread = pthread_self();
+
+  const char* canvas = this->CanvasSelector;
+  if (this->InstallHTMLResizeObserver)
+  {
+    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, &internals, 0,
+      vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+    internals.ResizeObserverInstalled = true;
+  }
+
+  emscripten_set_mousemove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchmove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchstart_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchend_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchcancel_callback_on_thread(canvas, &internals, 0,
+    vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mouseenter_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseleave_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_wheel_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_focus_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_blur_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_keydown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keyup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keypress_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  internals.RegisteredUICallbacks = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
+{
+  auto& internals = (*this->Internals);
+  if (!internals.RegisteredUICallbacks)
+  {
+    // already unregistered
+    return;
+  }
+  const char* canvas = this->CanvasSelector;
+  if (this->InstallHTMLResizeObserver && internals.ResizeObserverInstalled)
+  {
+    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
+      EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+    internals.ResizeObserverInstalled = false;
+  }
+  emscripten_set_mousemove_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mousedown_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseup_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchmove_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchstart_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchend_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchcancel_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mouseenter_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseleave_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_wheel_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_focus_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_blur_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_keydown_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keyup_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keypress_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  internals.RegisteredUICallbacks = false;
 }
 
 //------------------------------------------------------------------------------
@@ -249,7 +396,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     }
     case EMSCRIPTEN_EVENT_RESIZE:
     {
-      auto* size = vtkGetParentElementBoundingRectSize(this->CanvasId);
+      auto* size = vtkGetParentElementBoundingRectSize(this->CanvasSelector);
       this->UpdateSize(size[0], size[1]);
       free(size);
       this->Render();
@@ -432,7 +579,7 @@ void vtkWebAssemblyRenderWindowInteractor::Initialize()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
-  vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
+  vtkInitializeCanvasElement(this->CanvasSelector, this->ExpandCanvasToContainer);
 }
 
 //------------------------------------------------------------------------------
@@ -450,53 +597,8 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
     vtkWarningMacro(<< "An event loop has already been started!");
     return;
   }
-  internals.EventProcessingThread = pthread_self();
 
-  const char* canvas = this->CanvasId;
-  if (this->InstallHTMLResizeObserver)
-  {
-    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, &internals, 0,
-      vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-    internals.ResizeObserverInstalled = true;
-  }
-
-  emscripten_set_mousemove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_touchmove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_touchstart_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_touchend_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_touchcancel_callback_on_thread(canvas, &internals, 0,
-    vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_mouseenter_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseleave_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_wheel_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_focus_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_blur_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_keydown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_keyup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_keypress_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
-    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  this->RegisterUICallbacks();
 
   if (!internals.StartedMessageLoop)
   {
@@ -512,50 +614,8 @@ void vtkWebAssemblyRenderWindowInteractor::TerminateApp(void)
   this->Done = true;
 
   auto& internals = (*this->Internals);
-  const char* canvas = this->CanvasId;
-  if (this->InstallHTMLResizeObserver && internals.ResizeObserverInstalled)
-  {
-    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
-      EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-    internals.ResizeObserverInstalled = false;
-  }
-  emscripten_set_mousemove_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
 
-  emscripten_set_mousedown_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseup_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_touchmove_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_touchstart_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_touchend_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_touchcancel_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_mouseenter_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_mouseleave_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_wheel_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_focus_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_blur_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-
-  emscripten_set_keydown_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_keyup_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
-  emscripten_set_keypress_callback_on_thread(
-    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  this->UnRegisterUICallbacks();
 
   // Only post a quit message if Start was called...
   if (internals.StartedMessageLoop)
@@ -598,7 +658,7 @@ int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimer
 void vtkWebAssemblyRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "CanvasId: " << this->CanvasId << endl;
+  os << indent << "CanvasSelector: " << this->CanvasSelector << endl;
   os << indent << "ExpandCanvasToContainer: " << this->ExpandCanvasToContainer << endl;
   os << indent << "InstallHTMLResizeObserver: " << this->InstallHTMLResizeObserver << endl;
   os << indent << "StartedMessageLoop: " << this->Internals->StartedMessageLoop << endl;

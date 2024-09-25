@@ -112,15 +112,15 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasId);
-  vtkSetStringMacro(CanvasId);
+  vtkGetStringMacro(CanvasSelector);
+  vtkSetStringMacro(CanvasSelector);
 
 protected:
   vtkWebAssemblyWebGPURenderWindow();
   ~vtkWebAssemblyWebGPURenderWindow() override;
 
   void* WindowId = nullptr;
-  char* CanvasId;
+  char* CanvasSelector = nullptr;
 
   std::string MakeDefaultWindowNameWithBackend() override;
   void CleanUpRenderers();

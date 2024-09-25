@@ -147,8 +147,8 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasId);
-  vtkSetStringMacro(CanvasId);
+  vtkGetStringMacro(CanvasSelector);
+  vtkSetStringMacro(CanvasSelector);
 
 protected:
   vtkWebAssemblyOpenGLRenderWindow();
@@ -156,7 +156,7 @@ protected:
 
   unsigned long ContextId;
   std::stack<unsigned long> ContextStack;
-  char* CanvasId = nullptr;
+  char* CanvasSelector = nullptr;
 
   void CleanUpRenderers();
   void CreateAWindow() override;

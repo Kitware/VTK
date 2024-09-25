@@ -110,6 +110,10 @@ EMSCRIPTEN_BINDINGS(webtest)
 
   // vtkRenderWindowInteractor ----------------------------------------
   emscripten::class_<vtkRenderWindowInteractor>("vtkRenderWindowInteractor")
+    .constructor(&vtkRenderWindowInteractor::New, emscripten::allow_raw_pointers())
+    .class_function("configure", emscripten::select_overload<void()>([]() {
+      vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
+    }))
     .function("Start", &vtkRenderWindowInteractor::Start)
     .function("SetRenderWindow", &vtkRenderWindowInteractor::SetRenderWindow,
       emscripten::allow_raw_pointers());
