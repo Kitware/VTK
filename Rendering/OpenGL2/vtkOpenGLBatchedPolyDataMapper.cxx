@@ -28,6 +28,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
+
 #include <sstream>
 
 namespace
@@ -88,6 +89,9 @@ void vtkOpenGLBatchedPolyDataMapper::AddBatchElement(unsigned int flatIndex, Bat
 {
   auto address = reinterpret_cast<std::uintptr_t>(element.PolyData);
   auto found = this->VTKPolyDataToGLBatchElement.find(address);
+
+  this->FlatIndexToPolyData[flatIndex] = address;
+
   if (found == this->VTKPolyDataToGLBatchElement.end())
   {
     GLBatchElement glBatchElement;
@@ -122,6 +126,7 @@ vtkCompositePolyDataMapperDelegator::BatchElement* vtkOpenGLBatchedPolyDataMappe
 void vtkOpenGLBatchedPolyDataMapper::ClearBatchElements()
 {
   this->VTKPolyDataToGLBatchElement.clear();
+  this->FlatIndexToPolyData.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -667,9 +672,17 @@ void vtkOpenGLBatchedPolyDataMapper::DrawIBO(vtkRenderer* renderer, vtkActor* ac
     bool selecting = this->CurrentSelector != nullptr;
     bool tpass = actor->IsRenderingTranslucentPolygonalGeometry();
 
-    for (auto& iter : this->VTKPolyDataToGLBatchElement)
+    for (auto& pair : this->FlatIndexToPolyData)
     {
-      auto glBatchElement = iter.second.get();
+      if (this->VTKPolyDataToGLBatchElement.find(pair.second) ==
+        this->VTKPolyDataToGLBatchElement.end())
+      {
+        vtkDebugMacro(<< "polydata(" << pair.second
+                      << ") hasn't an associated GLBatchElement, skip.");
+        continue;
+      }
+
+      auto glBatchElement = this->VTKPolyDataToGLBatchElement[pair.second].get();
       auto& batchElement = glBatchElement->Parent;
       bool shouldDraw = batchElement.Visibility     // must be visible
         && (!selecting || batchElement.Pickability) // and pickable when selecting
