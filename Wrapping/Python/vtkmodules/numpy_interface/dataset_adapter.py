@@ -918,7 +918,7 @@ class DataObject(VTKObjectWrapper):
         """Returns the attributes specified by the type as a DataSetAttributes
          instance."""
         if type == ArrayAssociation.FIELD:
-            return DataSetAttributes(self.VTKObject.GetFieldData(), self, type)
+            return self.GetFieldData()
         return DataSetAttributes(self.VTKObject.GetAttributes(type), self, type)
 
     def HasAttributes(self, type):
@@ -969,6 +969,7 @@ class CompositeDataSet(DataObject):
         self._PointData = None
         self._CellData = None
         self._FieldData = None
+        self._GlobalData = None
         self._Points = None
 
     def __iter__(self):
@@ -1012,25 +1013,34 @@ class CompositeDataSet(DataObject):
         return True
 
     def GetPointData(self):
-        "Returns the point data as a DataSetAttributes instance."
+        "Returns the point data as a CompositeDataSetAttributes instance."
         if self._PointData is None or self._PointData() is None:
             pdata = self.GetAttributes(ArrayAssociation.POINT)
             self._PointData = weakref.ref(pdata)
         return self._PointData()
 
     def GetCellData(self):
-        "Returns the cell data as a DataSetAttributes instance."
+        "Returns the cell data as a CompositeDataSetAttributes instance."
         if self._CellData is None or self._CellData() is None:
             cdata = self.GetAttributes(ArrayAssociation.CELL)
             self._CellData = weakref.ref(cdata)
         return self._CellData()
 
     def GetFieldData(self):
-        "Returns the field data as a DataSetAttributes instance."
+        """
+        "Returns the field data as a CompositeDataSetAttributes instance."
+        """
         if self._FieldData is None or self._FieldData() is None:
             fdata = self.GetAttributes(ArrayAssociation.FIELD)
             self._FieldData = weakref.ref(fdata)
         return self._FieldData()
+
+    def GetGlobalData(self):
+        "Returns the global data (field data of the root) as a DataSetAttributes instance."
+        if self._GlobalData is None or self._GlobalData() is None:
+            gdata = super(CompositeDataSet, self).GetFieldData()
+            self._GlobalData = weakref.ref(gdata)
+        return self._GlobalData()
 
     def GetPoints(self):
         "Returns the points as a VTKCompositeDataArray instance."
@@ -1053,9 +1063,10 @@ class CompositeDataSet(DataObject):
             self._Points = weakref.ref(cpts)
         return self._Points()
 
-    PointData = property(GetPointData, None, None, "This property returns the point data of the dataset.")
-    CellData = property(GetCellData, None, None, "This property returns the cell data of a dataset.")
-    FieldData = property(GetFieldData, None, None, "This property returns the field data of a dataset.")
+    PointData = property(GetPointData, None, None, "This property returns the point data of the leafs of a composite dataset.")
+    CellData = property(GetCellData, None, None, "This property returns the cell data of the leafs of a composite dataset.")
+    FieldData = property(GetFieldData, None, None, "This property returns the field data of the leafs of a composite dataset.")
+    GlobalData = property(GetGlobalData, None, None, "This property returns the global data, i.e. field data of the root of a composite dataset.")
     Points = property(GetPoints, None, None, "This property returns the points of the dataset.")
 
 class DataSet(DataObject):
