@@ -467,7 +467,9 @@ bool GetShape(Ioss::Region* region, const Ioss::GroupingEntity* group_entity,
   vtkNew<vtkCellAttribute> attribute;
   attribute->Initialize("shape", "ℝ³", 3);
   cellShapeInfo.DOFSharing = "coordinates"_token; // Required for the shape attribute.
-  cellShapeInfo.FunctionSpace = "HGRAD"_token;    // Required for the shape attribute.
+  cellShapeInfo.FunctionSpace = meta->GetCellSpec().SourceShape == vtkDGCell::Shape::Vertex
+    ? "constant"_token
+    : "HGRAD"_token; // Required for the shape attribute.
   cellShapeInfo.ArraysByRole["connectivity"] = meta->GetCellSpec().Connectivity;
   cellShapeInfo.ArraysByRole["values"] = cached;
   attribute->SetCellTypeInfo(meta->GetClassName(), cellShapeInfo);
