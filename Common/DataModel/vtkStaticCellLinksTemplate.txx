@@ -648,14 +648,15 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkStaticCellLinksTemplate* link
 
   this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
-  vtkSMPTools::For(0, this->LinksSize + 1, [&](vtkIdType beginLink, vtkIdType endLink) {
-    std::copy(links->Links + beginLink, links->Links + endLink, this->Links + beginLink);
-  });
+  vtkSMPTools::For(0, this->LinksSize + 1,
+    [&](vtkIdType beginLink, vtkIdType endLink)
+    { std::copy(links->Links + beginLink, links->Links + endLink, this->Links + beginLink); });
   this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
-  vtkSMPTools::For(0, this->NumPts + 1, [&](vtkIdType beginPoint, vtkIdType endPoint) {
-    std::copy(links->Offsets + beginPoint, links->Offsets + endPoint, this->Offsets + beginPoint);
-  });
+  vtkSMPTools::For(0, this->NumPts + 1,
+    [&](vtkIdType beginPoint, vtkIdType endPoint) {
+      std::copy(links->Offsets + beginPoint, links->Offsets + endPoint, this->Offsets + beginPoint);
+    });
 }
 
 //----------------------------------------------------------------------------
@@ -684,8 +685,9 @@ void vtkStaticCellLinksTemplate<TIds>::SelectCells(
   vtkIdType minMaxDegree[2], unsigned char* cellSelection)
 {
   std::fill_n(cellSelection, this->NumCells, 0);
-  vtkSMPTools::For(
-    0, this->NumPts, [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId) {
+  vtkSMPTools::For(0, this->NumPts,
+    [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId)
+    {
       for (; ptId < endPtId; ++ptId)
       {
         vtkIdType degree = this->Offsets[ptId + 1] - this->Offsets[ptId];

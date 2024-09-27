@@ -228,9 +228,8 @@ vtkTypeUInt32 vtkMarshalContext::GetId(vtkObjectBase* objectBase) const
 {
   auto& internals = (*this->Internals);
   auto objectIter = std::find_if(internals.WeakObjects.begin(), internals.WeakObjects.end(),
-    [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item) {
-      return item.second == objectBase;
-    });
+    [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item)
+    { return item.second == objectBase; });
   if (objectIter != internals.WeakObjects.end())
   {
     return objectIter->first;

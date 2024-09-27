@@ -111,7 +111,8 @@ void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
     }
   }
 
-  auto dispatchCheck = [&](auto* dispatchedArray) {
+  auto dispatchCheck = [&](auto* dispatchedArray)
+  {
     vtkDataArrayAccessor<std::remove_pointer_t<decltype(dispatchedArray)>> accessor(
       dispatchedArray);
 

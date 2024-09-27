@@ -9,7 +9,8 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class T>
 vtkHDFUtilities::TransientGeometryOffsets::TransientGeometryOffsets(T* impl, vtkIdType step)
 {
-  auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val) {
+  auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val)
+  {
     val = impl->GetMetadata(path.c_str(), 1, step);
     if (val.empty())
     {
@@ -19,7 +20,8 @@ vtkHDFUtilities::TransientGeometryOffsets::TransientGeometryOffsets(T* impl, vtk
     }
     return true;
   };
-  auto recupSingleOffset = [&](std::string path, vtkIdType& val) {
+  auto recupSingleOffset = [&](std::string path, vtkIdType& val)
+  {
     std::vector<vtkIdType> buffer;
     if (!recupMultiOffset(path, buffer))
     {
@@ -54,7 +56,8 @@ vtkHDFUtilities::TransientGeometryOffsets::TransientGeometryOffsets(T* impl, vtk
 template <class T>
 vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkIdType step)
 {
-  auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val) {
+  auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val)
+  {
     val = impl->GetMetadata(path.c_str(), 1, step);
     if (val.empty())
     {
@@ -64,7 +67,8 @@ vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkId
     }
     return true;
   };
-  auto recupSingleOffset = [&](std::string path, vtkIdType& val) {
+  auto recupSingleOffset = [&](std::string path, vtkIdType& val)
+  {
     std::vector<vtkIdType> buffer;
     if (!recupMultiOffset(path, buffer))
     {

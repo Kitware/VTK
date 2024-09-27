@@ -1069,9 +1069,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsGeometryUpdateRequired(
   const auto GeomTime = this->BBoxPolyData->GetMTime();
   const bool uploadTimeChanged =
     any_of(this->Parent->AssembledInputs.begin(), this->Parent->AssembledInputs.end(),
-      [&GeomTime](const std::pair<int, vtkVolumeInputHelper>& item) {
-        return item.second.Texture->UploadTime > GeomTime;
-      });
+      [&GeomTime](const std::pair<int, vtkVolumeInputHelper>& item)
+      { return item.second.Texture->UploadTime > GeomTime; });
 
   return (this->NeedToInitializeResources || uploadTimeChanged ||
     this->IsCameraInside(ren, vol, geometry) || this->CameraWasInsideInLastUpdate ||

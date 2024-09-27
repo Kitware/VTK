@@ -1009,7 +1009,8 @@ void vtkWebGPURenderWindow::ReadPixels()
   this->BufferMapReadContext.dst = this->CachedPixelBytes;
   this->BufferMapReadContext.window = this;
 
-  auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata) {
+  auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata)
+  {
     auto ctx = reinterpret_cast<MappingContext*>(userdata);
     if (ctx == nullptr)
     {

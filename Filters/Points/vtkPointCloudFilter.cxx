@@ -39,17 +39,19 @@ struct MapPoints
     ArrayList arrays;
     arrays.AddArrays(outPts.size(), inPD, outPD, 0.0, false);
 
-    vtkSMPTools::For(0, inPts.size(), [&](vtkIdType ptId, vtkIdType endPtId) {
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, inPts.size(),
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        const vtkIdType outPtId = map[ptId];
-        if (outPtId != -1)
+        for (; ptId < endPtId; ++ptId)
         {
-          outPts[outPtId] = inPts[ptId];
-          arrays.Copy(ptId, outPtId);
+          const vtkIdType outPtId = map[ptId];
+          if (outPtId != -1)
+          {
+            outPts[outPtId] = inPts[ptId];
+            arrays.Copy(ptId, outPtId);
+          }
         }
-      }
-    });
+      });
   }
 };
 
@@ -68,18 +70,20 @@ struct MapOutliers
     ArrayList arrays;
     arrays.AddArrays(outPts.size(), inPD, outPD, 0.0, false);
 
-    vtkSMPTools::For(0, inPts.size(), [&](vtkIdType ptId, vtkIdType endPtId) {
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, inPts.size(),
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        vtkIdType outPtId = map[ptId];
-        if (outPtId < 0)
+        for (; ptId < endPtId; ++ptId)
         {
-          outPtId = (-outPtId) - 1;
-          outPts[outPtId] = inPts[ptId];
-          arrays.Copy(ptId, outPtId);
+          vtkIdType outPtId = map[ptId];
+          if (outPtId < 0)
+          {
+            outPtId = (-outPtId) - 1;
+            outPts[outPtId] = inPts[ptId];
+            arrays.Copy(ptId, outPtId);
+          }
         }
-      }
-    });
+      });
   }
 }; // MapOutliers
 

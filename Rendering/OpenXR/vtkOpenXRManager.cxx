@@ -707,7 +707,8 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
 
   std::vector<const char*> enabledExtensions;
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto EnableExtensionIfSupported = [&](const char* extensionName) {
+  auto EnableExtensionIfSupported = [&](const char* extensionName)
+  {
     for (uint32_t i = 0; i < extensionCount; i++)
     {
       if (strcmp(extensionProperties[i].extensionName, extensionName) == 0)
@@ -1034,7 +1035,8 @@ std::tuple<int64_t, int64_t> vtkOpenXRManager::SelectSwapchainPixelFormats()
   // Choose the first runtime-preferred format that this app supports.
   auto selectPixelFormat = [&](const std::vector<int64_t>& runtimePreferredFormats,
                              const std::vector<int64_t>& applicationSupportedFormats,
-                             const std::string& formatName) {
+                             const std::string& formatName)
+  {
     auto found =
       std::find_first_of(std::begin(runtimePreferredFormats), std::end(runtimePreferredFormats),
         std::begin(applicationSupportedFormats), std::end(applicationSupportedFormats));

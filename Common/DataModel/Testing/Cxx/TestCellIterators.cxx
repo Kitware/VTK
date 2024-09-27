@@ -20,11 +20,11 @@
 
 // Enable/disable code that helps/hinders profiling.
 #undef PROFILE
-//#define PROFILE
+// #define PROFILE
 
 // Enable benchmarks.
 #undef BENCHMARK
-//#define BENCHMARK
+// #define BENCHMARK
 
 #ifdef BENCHMARK
 #ifdef PROFILE

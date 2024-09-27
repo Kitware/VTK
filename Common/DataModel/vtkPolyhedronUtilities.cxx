@@ -368,7 +368,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkPolyhedronUtilities::Decompose(
 
   // Insert to UG a new tetra. Tetra points:
   // ptId1, ptId2 (forming one face edge), face barycenter, polyhedron barycenter
-  auto insertTetra = [&](vtkCell* face, vtkIdType ptId1, vtkIdType ptId2) {
+  auto insertTetra = [&](vtkCell* face, vtkIdType ptId1, vtkIdType ptId2)
+  {
     vtkIdType ptIds[4] = { 0 };
     ptIds[0] = pointIdMap.at(face->GetPointId(ptId1));
     ptIds[1] = barycenterId;

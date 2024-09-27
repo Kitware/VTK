@@ -133,7 +133,8 @@ const char* ParseInt(const char* it, const char* end, bool minus_sign, int base,
   constexpr UnsignedType absimin = static_cast<UnsignedType>(1)
     << ((sizeof(UnsignedType) * CHAR_BIT) - 1);
 
-  const auto limit = [=]() {
+  const auto limit = [=]()
+  {
     if (std::is_signed<T>::value)
     {
       if (minus_sign)

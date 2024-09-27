@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-//#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
+// #include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkShadowMapBakerPass.h"
 #include "vtkCameraPass.h"
 #include "vtkInformation.h"
@@ -33,8 +33,8 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkShadowMapBakerPass developers.
-//#define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
-//#define DONT_DUPLICATE_LIGHTS
+// #define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
+// #define DONT_DUPLICATE_LIGHTS
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShadowMapBakerPass);

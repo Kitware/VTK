@@ -179,7 +179,8 @@ int vtkRecoverGeometryWireframe::RequestData(vtkInformation* vtkNotUsed(request)
   outputPD->AddArray(edgeflags);
   outputPD->SetActiveAttribute("vtkEdgeFlags", vtkDataSetAttributes::EDGEFLAG);
 
-  auto tagEdgeFlags = [&edgeflags](vtkCellArray* inputCell, vtkIdType offset = 0) {
+  auto tagEdgeFlags = [&edgeflags](vtkCellArray* inputCell, vtkIdType offset = 0)
+  {
     auto cellIter = vtk::TakeSmartPointer(inputCell->NewIterator());
     vtkIdType npts;
     const vtkIdType* pts;

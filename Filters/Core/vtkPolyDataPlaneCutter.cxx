@@ -444,8 +444,9 @@ struct OutputLines
     const vtkIdType* offsets = this->MergeOffsets;
     vtkIdType* linesConn = this->OutLinesConn;
 
-    vtkSMPTools::For(
-      0, numNewPts, [&, edges, offsets, linesConn](vtkIdType newPtId, vtkIdType endNewPtId) {
+    vtkSMPTools::For(0, numNewPts,
+      [&, edges, offsets, linesConn](vtkIdType newPtId, vtkIdType endNewPtId)
+      {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
         vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
@@ -493,7 +494,8 @@ struct OutputPointsWorker
     plane->GetNormal(normal);
     vtkMath::Normalize(normal);
     vtkSMPTools::For(0, numNewPts,
-      [&, outPts, mergeEdges, mergeOffsets, arrays](vtkIdType newPtId, vtkIdType endNewPtId) {
+      [&, outPts, mergeEdges, mergeOffsets, arrays](vtkIdType newPtId, vtkIdType endNewPtId)
+      {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
@@ -723,12 +725,14 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     normals->SetNumberOfTuples(numOutPts);
     double planeNormal[3];
     this->Plane->GetNormal(planeNormal);
-    vtkSMPTools::For(0, numOutPts, [&](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType i = begin; i < end; ++i)
+    vtkSMPTools::For(0, numOutPts,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        normals->SetTuple(i, planeNormal);
-      }
-    });
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          normals->SetTuple(i, planeNormal);
+        }
+      });
     output->GetPointData()->AddArray(normals);
   }
 

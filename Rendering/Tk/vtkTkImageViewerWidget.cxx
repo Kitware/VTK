@@ -385,8 +385,7 @@ extern "C"
 #endif
         Tcl_EventuallyFree((ClientData)self, vtkTkImageViewerWidget_Destroy);
         break;
-      default
-        :
+      default:
         // nothing
         ;
     }

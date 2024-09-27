@@ -95,12 +95,14 @@ void WrappedAsyncClipper::SyncRender()
   LOG(__func__);
   if (this->m_RenderWindow != nullptr)
   {
-    this->m_Queue.proxySync(this->m_RenderThread, [this]() {
-      LOG("WrappedAsyncClipper::RenderWindow::Render");
-      // Clear abort execute flag in case filter was aborted.
-      this->m_Clipper->SetAbortExecute(false);
-      this->m_RenderWindow->Render();
-    });
+    this->m_Queue.proxySync(this->m_RenderThread,
+      [this]()
+      {
+        LOG("WrappedAsyncClipper::RenderWindow::Render");
+        // Clear abort execute flag in case filter was aborted.
+        this->m_Clipper->SetAbortExecute(false);
+        this->m_RenderWindow->Render();
+      });
   }
 }
 
@@ -110,12 +112,14 @@ void WrappedAsyncClipper::AsyncRender()
   LOG(__func__);
   if (this->m_RenderWindow != nullptr)
   {
-    this->m_Queue.proxyAsync(this->m_RenderThread, [this]() {
-      LOG("vtkRenderWindow::Render");
-      // Clear abort execute flag in case filter was aborted.
-      this->m_Clipper->SetAbortExecute(false);
-      this->m_RenderWindow->Render();
-    });
+    this->m_Queue.proxyAsync(this->m_RenderThread,
+      [this]()
+      {
+        LOG("vtkRenderWindow::Render");
+        // Clear abort execute flag in case filter was aborted.
+        this->m_Clipper->SetAbortExecute(false);
+        this->m_RenderWindow->Render();
+      });
   }
 }
 
@@ -285,23 +289,29 @@ void WrappedAsyncClipper::AddClipPlaneModifiedUIObserver(ClipPlaneModifiedCallba
 
   this->m_ClipPlaneCmd = vtk::TakeSmartPointer(vtkCallbackCommand::New());
   this->m_ClipPlaneCmd->SetClientData(bridge);
-  this->m_ClipPlaneCmd->SetClientDataDeleteCallback([](void* clientdata) {
-    if (auto* _bridge = reinterpret_cast<CallbackOnThreadBridge*>(clientdata))
+  this->m_ClipPlaneCmd->SetClientDataDeleteCallback(
+    [](void* clientdata)
     {
-      delete _bridge;
-    }
-  });
-  this->m_ClipPlaneCmd->SetCallback([](vtkObject* caller, unsigned long, void* clientdata, void*) {
-    if (auto* _bridge = reinterpret_cast<CallbackOnThreadBridge*>(clientdata))
+      if (auto* _bridge = reinterpret_cast<CallbackOnThreadBridge*>(clientdata))
+      {
+        delete _bridge;
+      }
+    });
+  this->m_ClipPlaneCmd->SetCallback(
+    [](vtkObject* caller, unsigned long, void* clientdata, void*)
     {
-      auto* plane = reinterpret_cast<vtkPlane*>(caller);
-      _bridge->Queue->proxyAsync(*(_bridge->Target), [plane, f = _bridge->Call]() {
-        double n[3] = {};
-        plane->GetNormal(n);
-        f(n[0], n[1], n[2]);
-      });
-    }
-  });
+      if (auto* _bridge = reinterpret_cast<CallbackOnThreadBridge*>(clientdata))
+      {
+        auto* plane = reinterpret_cast<vtkPlane*>(caller);
+        _bridge->Queue->proxyAsync(*(_bridge->Target),
+          [plane, f = _bridge->Call]()
+          {
+            double n[3] = {};
+            plane->GetNormal(n);
+            f(n[0], n[1], n[2]);
+          });
+      }
+    });
 }
 
 //---------------------------------------------------------------------

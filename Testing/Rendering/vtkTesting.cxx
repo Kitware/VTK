@@ -604,15 +604,18 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   rtExtract->SetComponents(0, 1, 2);
   rtExtract->Update();
 
-  auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
+  auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
+  {
     auto alg = vtkSmartPointer<vtkAlgorithm>::Take(vtkImageDifference::New());
     alg->SetInputConnection(source->GetOutputPort());
     alg->SetInputConnection(1, extract->GetOutputPort());
     return alg;
   };
 
-  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
-    auto createPipeline = [](vtkAlgorithm* alg) {
+  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
+  {
+    auto createPipeline = [](vtkAlgorithm* alg)
+    {
       vtkNew<vtkImageShiftScale> normalizer;
       vtkNew<vtkImageRGBToXYZ> rgb2xyz;
       vtkNew<vtkImageXYZToLAB> xyz2lab;
@@ -670,8 +673,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     NONE
   };
 
-  int imageCompareMethod = [] {
-    auto imageCompareString = [] {
+  int imageCompareMethod = []
+  {
+    auto imageCompareString = []
+    {
       if (!vtksys::SystemTools::HasEnv("VTK_TESTING_IMAGE_COMPARE_METHOD"))
       {
         vtkLog(WARNING, "Environment variable VTK_TESTING_IMAGE_COMPARE_METHOD is not set.");
@@ -700,7 +705,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   auto rtId =
     imageCompareMethod == LEGACY ? createLegacyDiffFilter(ic1, ic2) : createSSIMFilter(ic1, ic2);
 
-  auto executeComparison = [&](double& err) {
+  auto executeComparison = [&](double& err)
+  {
     rtId->Update();
 
     vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(
@@ -977,7 +983,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       auto ssim = vtkImageData::SafeDownCast(rtId->GetOutputDataObject(0));
       vtkDataSet* current = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(0, 0));
       vtkDataSet* baseline = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(1, 0));
-      auto addOriginalArray = [&ssim](vtkDataSet* ds, std::string&& name) {
+      auto addOriginalArray = [&ssim](vtkDataSet* ds, std::string&& name)
+      {
         vtkDataArray* scalars = ds->GetPointData()->GetScalars();
         auto array = vtkSmartPointer<vtkDataArray>::Take(scalars->NewInstance());
         array->ShallowCopy(scalars);

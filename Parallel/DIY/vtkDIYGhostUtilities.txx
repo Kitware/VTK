@@ -214,7 +214,8 @@ unsigned char CleanGhostsReduceAllForStructuredData(
   unsigned char cleanGhostMask = 0;
 
   diy::reduce(master, assigner, partners,
-    [&](BlockType* block, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&) {
+    [&](BlockType* block, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&)
+    {
       // step 1 dequeue and merge
       for (int i = 0; i < rp.in_link().size(); ++i)
       {
@@ -336,8 +337,9 @@ void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
-  diy::all_to_all(
-    master, assigner, [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp) {
+  diy::all_to_all(master, assigner,
+    [&master, &inputs](BlockType* block, const diy::ReduceProxy& srp)
+    {
       int myBlockId = srp.gid();
       int localId = master.lid(myBlockId);
       auto& input = inputs[localId];
@@ -386,44 +388,49 @@ bool vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, diy::Assigner& as
 {
   using BlockType = typename DataSetTypeToBlockTypeConverter<DataSetT>::BlockType;
 
-  master.foreach ([&master, &inputs](BlockType* block, const diy::Master::ProxyWithLink& cp) {
-    int myBlockId = cp.gid();
-    int localId = master.lid(myBlockId);
-    auto& input = inputs[localId];
-
-    for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+  master.foreach (
+    [&master, &inputs](BlockType* block, const diy::Master::ProxyWithLink& cp)
     {
-      const diy::BlockID& blockId = cp.link()->target(id);
-      vtkDIYGhostUtilities::EnqueueGhosts(cp, blockId, input, block);
-    }
-  });
+      int myBlockId = cp.gid();
+      int localId = master.lid(myBlockId);
+      auto& input = inputs[localId];
+
+      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      {
+        const diy::BlockID& blockId = cp.link()->target(id);
+        vtkDIYGhostUtilities::EnqueueGhosts(cp, blockId, input, block);
+      }
+    });
 
   master.exchange();
 
   bool error = false;
-  master.foreach ([&error](BlockType* block, const diy::Master::ProxyWithLink& cp) {
-    std::vector<int> incoming;
-    cp.incoming(incoming);
-    for (const int& gid : incoming)
+  master.foreach (
+    [&error](BlockType* block, const diy::Master::ProxyWithLink& cp)
     {
-      // we need this extra check because incoming is not empty when using only one block
-      if (!cp.incoming(gid).empty())
+      std::vector<int> incoming;
+      cp.incoming(incoming);
+      for (const int& gid : incoming)
       {
-        auto it = block->BlockStructures.find(gid);
-        if (it == block->BlockStructures.end())
+        // we need this extra check because incoming is not empty when using only one block
+        if (!cp.incoming(gid).empty())
         {
-          error = true;
-        }
-        else
-        {
-          vtkDIYGhostUtilities::DequeueGhosts(cp, gid, block->BlockStructures.at(gid));
+          auto it = block->BlockStructures.find(gid);
+          if (it == block->BlockStructures.end())
+          {
+            error = true;
+          }
+          else
+          {
+            vtkDIYGhostUtilities::DequeueGhosts(cp, gid, block->BlockStructures.at(gid));
+          }
         }
       }
-    }
-  });
+    });
 
   diy::reduce(master, assigner, partners,
-    [&error](BlockType*, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&) {
+    [&error](BlockType*, const diy::ReduceProxy& rp, const diy::RegularAllReducePartners&)
+    {
       for (int i = 0; i < rp.in_link().size(); ++i)
       {
         int gid = rp.in_link().target(i).gid;

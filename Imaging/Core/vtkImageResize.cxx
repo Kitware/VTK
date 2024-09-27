@@ -336,7 +336,10 @@ namespace
   }
 
 #define VTK_RESIZE_CONVERT_FLOAT(T)                                                                \
-  void vtkImageResizeConvert(double v, T& u) { u = static_cast<T>(v); }
+  void vtkImageResizeConvert(double v, T& u)                                                       \
+  {                                                                                                \
+    u = static_cast<T>(v);                                                                         \
+  }
 
 VTK_RESIZE_CONVERT_INT_CLAMP(vtkTypeUInt8, 0.0, 255.0);
 VTK_RESIZE_CONVERT_INT_CLAMP(vtkTypeUInt16, 0.0, 65535.0);

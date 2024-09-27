@@ -149,7 +149,8 @@ extern "C"
     char typeCheck[256];
     unsigned long long l;
     sscanf(argv[1], "_%llx_%s", &l, typeCheck);
-    union {
+    union
+    {
       void* p;
       uintptr_t l;
     } u;
@@ -672,8 +673,7 @@ extern "C"
       case DestroyNotify:
         Tcl_EventuallyFree((ClientData)self, vtkTkRenderWidget_Destroy);
         break;
-      default
-        :
+      default:
         // nothing
         ;
     }

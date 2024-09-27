@@ -1165,14 +1165,12 @@ int vtkPResampleWithDataSet::RequestData(
   block.PointsLookup = nullptr;
   master.exchange();
   // perform resampling on local and remote points
-  master.foreach ([&](DiyBlock* block_, const diy::Master::ProxyWithLink& cp) {
-    PerformResampling(block_, cp, this->Prober.GetPointer());
-  });
+  master.foreach ([&](DiyBlock* block_, const diy::Master::ProxyWithLink& cp)
+    { PerformResampling(block_, cp, this->Prober.GetPointer()); });
   master.exchange();
   // receive resampled points and set the values in output
-  master.foreach ([&](DiyBlock* block_, const diy::Master::ProxyWithLink& cp) {
-    ReceiveResampledPoints(block_, cp, this->Prober->GetValidPointMaskArrayName());
-  });
+  master.foreach ([&](DiyBlock* block_, const diy::Master::ProxyWithLink& cp)
+    { ReceiveResampledPoints(block_, cp, this->Prober->GetValidPointMaskArrayName()); });
 
   if (this->MarkBlankPointsAndCells)
   {

@@ -17,7 +17,7 @@ static int NumThreads = 5;
 
 // uncomment the following line if you want to see
 // the difference between using atomics and not
-//#define SHOW_DIFFERENCE
+// #define SHOW_DIFFERENCE
 #ifdef SHOW_DIFFERENCE
 static int Total = 0;
 static vtkTypeInt64 Total64 = 0;

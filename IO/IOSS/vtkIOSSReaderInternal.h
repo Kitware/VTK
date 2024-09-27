@@ -292,10 +292,9 @@ public:
     {
       return false;
     }
-    const bool allHandlesAreNew =
-      std::all_of(dbaseHandles.begin(), dbaseHandles.end(), [&](const DatabaseHandle& handle) {
-        return this->RegionMap.find(handle) == this->RegionMap.end();
-      });
+    const bool allHandlesAreNew = std::all_of(dbaseHandles.begin(), dbaseHandles.end(),
+      [&](const DatabaseHandle& handle)
+      { return this->RegionMap.find(handle) == this->RegionMap.end(); });
     return !allHandlesAreNew;
   }
 

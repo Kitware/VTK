@@ -50,8 +50,9 @@ struct CreateDataArray
     output->SetNumberOfTuples(data[0].size());
     auto range = vtk::DataArrayValueRange<NbComps>(output);
 
-    vtkSMPTools::For(
-      0, static_cast<vtkIdType>(data[0].size()), [&](vtkIdType begin, vtkIdType end) {
+    vtkSMPTools::For(0, static_cast<vtkIdType>(data[0].size()),
+      [&](vtkIdType begin, vtkIdType end)
+      {
         for (vtkIdType idx = begin; idx < end; idx++)
         {
           for (vtkIdType comp = 0; comp < NbComps; comp++)

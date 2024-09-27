@@ -643,7 +643,8 @@ bool vtkIOSSReaderInternal::BuildAssembly(
 
   std::function<void(const Ioss::Assembly*, int)> processAssembly;
   processAssembly = [&assembly, &processAssembly, &add_leaves, this](
-                      const Ioss::Assembly* ioss_assembly, int parent) {
+                      const Ioss::Assembly* ioss_assembly, int parent)
+  {
     auto node = assembly->AddNode(
       vtkDataAssembly::MakeValidNodeName(ioss_assembly->name().c_str()).c_str(), parent);
     assembly->SetAttribute(node, "label", ioss_assembly->name().c_str());
@@ -1833,9 +1834,9 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
   Ioss::Region* region, const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle,
   int timestep, vtkIdTypeArray* ids_to_extract, const std::string& cache_key_suffix)
 {
-  const auto get_field =
-    [&fieldname, &region, &timestep, &handle, this](
-      const Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray> {
+  const auto get_field = [&fieldname, &region, &timestep, &handle, this](
+                           const Ioss::GroupingEntity* entity) -> vtkSmartPointer<vtkAbstractArray>
+  {
     if (!entity->field_exists(fieldname))
     {
       return nullptr;
@@ -1855,10 +1856,9 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
       return nullptr;
     }
 
-    auto iter =
-      std::find_if(stateVector.begin(), stateVector.end(), [&](const std::pair<int, double>& pair) {
-        return pair.second == this->TimestepValues[timestep];
-      });
+    auto iter = std::find_if(stateVector.begin(), stateVector.end(),
+      [&](const std::pair<int, double>& pair)
+      { return pair.second == this->TimestepValues[timestep]; });
 
     if (iter == stateVector.end())
     {
@@ -1881,7 +1881,8 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
     }
   };
 
-  const auto get_field_for_entity = [&]() {
+  const auto get_field_for_entity = [&]()
+  {
     if (group_entity->type() == Ioss::EntityType::SIDESET)
     {
       // sidesets need to be handled specially. For sidesets, the fields are

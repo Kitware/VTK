@@ -64,7 +64,8 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
   p[7][2] += dz;
 
   auto addTetra = [](const double* p0, const double* p1, const double* p2, const double* p3,
-                    vtkPointLocator* pl, vtkCellArray* cells) {
+                    vtkPointLocator* pl, vtkCellArray* cells)
+  {
     vtkSmartPointer<vtkTetra> t = vtkSmartPointer<vtkTetra>::New();
     static vtkIdType bIndices[4][4] = { { 0, 0, 0, 1 }, { 1, 0, 0, 0 }, { 0, 1, 0, 0 },
       { 0, 0, 1, 0 } };
@@ -93,7 +94,8 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
     cells->InsertNextCell(t);
   };
 
-  auto addHex = [](double pts[8][3], vtkPointLocator* pl, vtkCellArray* cells) {
+  auto addHex = [](double pts[8][3], vtkPointLocator* pl, vtkCellArray* cells)
+  {
     vtkSmartPointer<vtkHexahedron> h = vtkSmartPointer<vtkHexahedron>::New();
 
     vtkIdType nPoints = 8;
@@ -179,7 +181,8 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
 
 void constructVelocityProfile(vtkUnstructuredGrid* unstructuredGrid)
 {
-  auto velocity = [](const double p[3]) -> std::array<double, 3> {
+  auto velocity = [](const double p[3]) -> std::array<double, 3>
+  {
     const double s = .5;
     const double r = .5;
     const double k = .1;

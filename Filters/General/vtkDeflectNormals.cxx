@@ -62,8 +62,9 @@ struct vtkDeflectNormalsWorker
     typedef vtkDataArrayAccessor<VectorArrayT> VectorAccessorT;
     VectorAccessorT vectors(vectorArray);
     const double* normal = this->Self->GetUserNormal();
-    vtkSMPTools::For(
-      0, vectorArray->GetNumberOfTuples(), [this, vectors, normal](vtkIdType begin, vtkIdType end) {
+    vtkSMPTools::For(0, vectorArray->GetNumberOfTuples(),
+      [this, vectors, normal](vtkIdType begin, vtkIdType end)
+      {
         bool isFirst = vtkSMPTools::GetSingleThread();
         for (vtkIdType t = begin; t < end; ++t)
         {
@@ -90,7 +91,8 @@ struct vtkDeflectNormalsWorker
     typedef vtkDataArrayAccessor<NormalArrayT> NormalAccessorT;
     NormalAccessorT normals(normalArray);
     vtkSMPTools::For(0, vectorArray->GetNumberOfTuples(),
-      [this, vectors, normals](vtkIdType begin, vtkIdType end) {
+      [this, vectors, normals](vtkIdType begin, vtkIdType end)
+      {
         bool isFirst = !vtkSMPTools::GetSingleThread();
         for (vtkIdType t = begin; t < end; ++t)
         {

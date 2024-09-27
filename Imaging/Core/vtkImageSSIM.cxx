@@ -44,7 +44,8 @@ struct SSIMWorker
     const int* e1 = im1->GetExtent();
     const int* e2 = im2->GetExtent();
 
-    auto inBounds = [&e1, &e2](int i, int j, int k) {
+    auto inBounds = [&e1, &e2](int i, int j, int k)
+    {
       return i >= e1[0] && j >= e1[2] && k >= e1[4] && i >= e2[0] && j >= e2[2] && k >= e2[4] &&
         i <= e1[1] && j <= e1[3] && k <= e1[5] && i <= e2[1] && j <= e2[3] && k <= e2[5];
     };
@@ -59,7 +60,8 @@ struct SSIMWorker
     int d[3], dijk[3];
     double squaredRadius = radius * radius;
 
-    auto inPatch = [&ijk, &dijk, &d, &squaredRadius] {
+    auto inPatch = [&ijk, &dijk, &d, &squaredRadius]
+    {
       vtkMath::Subtract(ijk, dijk, d);
       return vtkMath::SquaredNorm(d) <= squaredRadius;
     };
@@ -83,7 +85,8 @@ struct SSIMWorker
 
             double totalWeights = 0.0;
             auto smooth = [&sigma2](double x2) { return std::exp(-x2 / (2 * sigma2)); };
-            auto coordToNorm2 = [&](const int v[3]) {
+            auto coordToNorm2 = [&](const int v[3])
+            {
               int x = v[0] - (imax + imin) * 0.5;
               int y = v[1] - (jmax + jmin) * 0.5;
               int z = v[2] - (kmax + kmin) * 0.5;
@@ -535,9 +538,8 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 void vtkImageSSIM::ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose)
 {
-  auto arrayMax = [](const std::array<double, 3>& v) {
-    return std::max(std::max(v[0], v[1]), v[2]);
-  };
+  auto arrayMax = [](const std::array<double, 3>& v)
+  { return std::max(std::max(v[0], v[1]), v[2]); };
 
   auto mink1 = ComputeMinkowski1(scalars);
   auto mink2 = ComputeMinkowski2(scalars);

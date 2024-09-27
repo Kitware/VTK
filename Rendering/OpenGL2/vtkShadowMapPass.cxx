@@ -41,8 +41,8 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkShadowMapPass developers.
-//#define VTK_SHADOW_MAP_PASS_DEBUG
-//#define DONT_DUPLICATE_LIGHTS
+// #define VTK_SHADOW_MAP_PASS_DEBUG
+// #define DONT_DUPLICATE_LIGHTS
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShadowMapPass);

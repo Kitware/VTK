@@ -134,18 +134,17 @@ bool merge(vtkImageData* target, std::vector<vtkSmartPointer<vtkImageData>>& sou
     auto inPD = sources[idx]->GetPointData();
     if (auto ptids = get_ids(inPD, vtkDataSetAttributes::HIDDENPOINT))
     {
-      ptList.TransformData(idx, inPD, opd, [&ptids](vtkAbstractArray* in, vtkAbstractArray* out) {
-        out->InsertTuples(ptids, ptids, in);
-      });
+      ptList.TransformData(idx, inPD, opd,
+        [&ptids](vtkAbstractArray* in, vtkAbstractArray* out)
+        { out->InsertTuples(ptids, ptids, in); });
     }
 
     auto inCD = sources[idx]->GetCellData();
     if (auto cellids = get_ids(inCD, vtkDataSetAttributes::HIDDENCELL))
     {
-      cellList.TransformData(
-        idx, inCD, ocd, [&cellids](vtkAbstractArray* in, vtkAbstractArray* out) {
-          out->InsertTuples(cellids, cellids, in);
-        });
+      cellList.TransformData(idx, inCD, ocd,
+        [&cellids](vtkAbstractArray* in, vtkAbstractArray* out)
+        { out->InsertTuples(cellids, cellids, in); });
     }
   }
   return true;
@@ -218,7 +217,8 @@ int vtkAdaptiveResampleToImage::RequestData(
 
   const auto localBounds = vtkDIYUtilities::GetLocalBounds(inputDO);
   std::transform(boxes.begin(), boxes.end(), resamples.begin(),
-    [&inputDO, &localBounds, this](const vtkBoundingBox& bbox) {
+    [&inputDO, &localBounds, this](const vtkBoundingBox& bbox)
+    {
       std::vector<vtkSmartPointer<vtkImageData>> retval;
       vtkSmartPointer<vtkImageData> img =
         localBounds.Intersects(bbox) ? impl::resample(bbox, inputDO, this) : nullptr;
@@ -231,52 +231,54 @@ int vtkAdaptiveResampleToImage::RequestData(
   vtkLogEndScope("local resample");
 
   vtkLogStartScope(TRACE, "global exchange");
-  diy::all_to_all(master, assigner, [&resamples, &comm](vtkImageData*, const diy::ReduceProxy& rp) {
-    if (rp.in_link().size() == 0)
+  diy::all_to_all(master, assigner,
+    [&resamples, &comm](vtkImageData*, const diy::ReduceProxy& rp)
     {
-      // 1. enqueue
-      const auto& out_link = rp.out_link();
-      for (int cc = 0, max = out_link.size(); cc < max; ++cc)
+      if (rp.in_link().size() == 0)
       {
-        // resample input to image.
-        const auto target = out_link.target(cc);
-        auto& image_vector = resamples[target.gid];
-        if (!image_vector.empty() && target.proc != comm.rank())
+        // 1. enqueue
+        const auto& out_link = rp.out_link();
+        for (int cc = 0, max = out_link.size(); cc < max; ++cc)
         {
-          // send non-empty data to non-local block only.
-          assert(image_vector.size() == 1);
-          auto image = image_vector[0];
-          rp.enqueue<vtkDataSet*>(target, image);
-          // vtkLogF(TRACE, "enqueue for %d", target.gid);
-          image_vector.clear(); // free up memory
+          // resample input to image.
+          const auto target = out_link.target(cc);
+          auto& image_vector = resamples[target.gid];
+          if (!image_vector.empty() && target.proc != comm.rank())
+          {
+            // send non-empty data to non-local block only.
+            assert(image_vector.size() == 1);
+            auto image = image_vector[0];
+            rp.enqueue<vtkDataSet*>(target, image);
+            // vtkLogF(TRACE, "enqueue for %d", target.gid);
+            image_vector.clear(); // free up memory
+          }
         }
       }
-    }
-    else
-    {
-      // 2. dequeue
-      const auto& in_link = rp.in_link();
-      for (int cc = 0, max = in_link.size(); cc < max; ++cc)
+      else
       {
-        const auto source = in_link.target(cc);
-        if (rp.incoming(source.gid).empty())
+        // 2. dequeue
+        const auto& in_link = rp.in_link();
+        for (int cc = 0, max = in_link.size(); cc < max; ++cc)
         {
-          continue;
-        }
+          const auto source = in_link.target(cc);
+          if (rp.incoming(source.gid).empty())
+          {
+            continue;
+          }
 
-        vtkDataSet* ptr = nullptr;
-        rp.dequeue<vtkDataSet*>(source, ptr);
-        if (ptr)
-        {
-          // vtkLogF(TRACE, "dequeue from %d", source.gid);
-          auto img = vtkImageData::SafeDownCast(ptr);
-          assert(img);
-          resamples[rp.gid()].emplace_back(img);
-          ptr->Delete();
+          vtkDataSet* ptr = nullptr;
+          rp.dequeue<vtkDataSet*>(source, ptr);
+          if (ptr)
+          {
+            // vtkLogF(TRACE, "dequeue from %d", source.gid);
+            auto img = vtkImageData::SafeDownCast(ptr);
+            assert(img);
+            resamples[rp.gid()].emplace_back(img);
+            ptr->Delete();
+          }
         }
       }
-    }
-  });
+    });
   vtkLogEndScope("global exchange");
 
   // remove null images.
@@ -288,7 +290,8 @@ int vtkAdaptiveResampleToImage::RequestData(
 
   auto outputPD = vtkPartitionedDataSet::GetData(outputVector, 0);
   master.foreach (
-    [&outputPD, &resamples](vtkImageData* block, const diy::Master::ProxyWithLink& ln) {
+    [&outputPD, &resamples](vtkImageData* block, const diy::Master::ProxyWithLink& ln)
+    {
       if (impl::merge(block, resamples[ln.gid()]))
       {
         outputPD->SetPartition(outputPD->GetNumberOfPartitions(), block);

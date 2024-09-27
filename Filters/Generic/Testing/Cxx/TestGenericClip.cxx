@@ -9,8 +9,8 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-//#define WITH_GEOMETRY_FILTER
-//#define WRITE_GENERIC_RESULT
+// #define WITH_GEOMETRY_FILTER
+// #define WRITE_GENERIC_RESULT
 
 #include "vtkActor.h"
 #include "vtkAttributesErrorMetric.h"

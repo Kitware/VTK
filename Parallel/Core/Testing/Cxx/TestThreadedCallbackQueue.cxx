@@ -33,7 +33,8 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
   {
     vtkSmartPointer<vtkIntArray> array = vtkSmartPointer<vtkIntArray>::New();
     queue->Push(
-      [&count](const int& n, const double&&, char, vtkIntArray* a1, vtkIntArray* a2) {
+      [&count](const int& n, const double&&, char, vtkIntArray* a1, vtkIntArray* a2)
+      {
         a1->SetName(std::to_string(n).c_str());
         a2->SetName(std::to_string(n).c_str());
         ++count;
@@ -54,8 +55,7 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
 struct A
 {
   A() { vtkLog(INFO, "Constructor"); }
-  A(A&& other)
-  noexcept
+  A(A&& other) noexcept
     : array(std::move(other.array))
     , val(other.val)
   {
@@ -118,7 +118,7 @@ bool TestFunctionTypeCompleteness()
     queue->Push(&::A::f, std::unique_ptr<A>(new ::A()), ::A(), ::A());
 
     // Passing a std::function
-    std::function<void(::A&, ::A &&)> func = f;
+    std::function<void(::A&, ::A&&)> func = f;
     queue->Push(func, ::A(), ::A());
 
     // Testing lvalue reference return type behavior
@@ -145,7 +145,8 @@ bool TestSharedFutures()
     std::atomic_int count(0);
     std::mutex mutex;
 
-    auto f = [&count, &mutex](std::string& s, int low) {
+    auto f = [&count, &mutex](std::string& s, int low)
+    {
       std::unique_lock<std::mutex> lock(mutex);
       if (count++ < low)
       {

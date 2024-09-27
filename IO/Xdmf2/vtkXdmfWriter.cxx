@@ -814,9 +814,8 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
         da->SetNumberOfComponents(1);
         vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(ds);
         const int ESTIMATE = 4; /*celltype+numids+id0+id1 or celtype+id0+id1+id2*/
-        auto countConnSize = [](vtkCellArray* ca) {
-          return ca->GetNumberOfCells() + ca->GetNumberOfConnectivityIds();
-        };
+        auto countConnSize = [](vtkCellArray* ca)
+        { return ca->GetNumberOfCells() + ca->GetNumberOfConnectivityIds(); };
         if (ugrid)
         {
           da->Allocate(countConnSize(ugrid->GetCells()) * ESTIMATE);

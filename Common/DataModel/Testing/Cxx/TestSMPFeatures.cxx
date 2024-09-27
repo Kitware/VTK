@@ -179,23 +179,25 @@ int TestSMPFeatures(int, char*[])
   planes[15] = 0;
   planes[19] = 0;
   planes[23] = 0;
-  vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, numPts,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      double v, coord[3];
-      pts->GetPoint(ptId, coord);
-      for (auto j = 0; j < numPlanes; j++)
+      for (; ptId < endPtId; ++ptId)
       {
-        v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
-          planes[j * 4 + 2] * coord[2]);
-        // negative means further in + direction of plane
-        if (v < planes[j * 4 + 3])
+        double v, coord[3];
+        pts->GetPoint(ptId, coord);
+        for (auto j = 0; j < numPlanes; j++)
         {
-          planes[j * 4 + 3] = v;
+          v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
+            planes[j * 4 + 2] * coord[2]);
+          // negative means further in + direction of plane
+          if (v < planes[j * 4 + 3])
+          {
+            planes[j * 4 + 3] = v;
+          }
         }
       }
-    }
-  }); // end lambda
+    }); // end lambda
 
   std::cout << "Planes (lambda): " << planes[3] << ", " << planes[7] << ", " << planes[11] << ", "
             << planes[15] << ", " << planes[19] << ", " << planes[23] << "\n";

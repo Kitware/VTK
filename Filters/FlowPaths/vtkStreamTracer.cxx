@@ -1649,12 +1649,14 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
   // Make sure the normals are initialized in case
   // GenerateSlidingNormals() fails and returns before
   // creating all normals
-  vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, numPts,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      normals->SetTuple3(ptId, 1, 0, 0);
-    }
-  });
+      for (; ptId < endPtId; ++ptId)
+      {
+        normals->SetTuple3(ptId, 1, 0, 0);
+      }
+    });
 
   // Generate the orientation normals. This will be threaded since none of the
   // lines "reuse" points from another line.
@@ -1671,33 +1673,35 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
   }
 
   // Thread the final normal generation
-  vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
-    double velocity[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, numPts,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      normals->GetTuple(ptId, normal);
-      newVectors->GetTuple(ptId, velocity);
-      // obtain two unit orthogonal vectors on the plane perpendicular to
-      // the streamline
-      for (auto j = 0; j < 3; j++)
+      double normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
+      double velocity[3];
+      for (; ptId < endPtId; ++ptId)
       {
-        local1[j] = normal[j];
+        normals->GetTuple(ptId, normal);
+        newVectors->GetTuple(ptId, velocity);
+        // obtain two unit orthogonal vectors on the plane perpendicular to
+        // the streamline
+        for (auto j = 0; j < 3; j++)
+        {
+          local1[j] = normal[j];
+        }
+        length = vtkMath::Normalize(local1);
+        vtkMath::Cross(local1, velocity, local2);
+        vtkMath::Normalize(local2);
+        // Rotate the normal with theta
+        rotation->GetTuple(ptId, &theta);
+        costheta = std::cos(theta);
+        sintheta = std::sin(theta);
+        for (auto j = 0; j < 3; j++)
+        {
+          normal[j] = length * (costheta * local1[j] + sintheta * local2[j]);
+        }
+        normals->SetTuple(ptId, normal);
       }
-      length = vtkMath::Normalize(local1);
-      vtkMath::Cross(local1, velocity, local2);
-      vtkMath::Normalize(local2);
-      // Rotate the normal with theta
-      rotation->GetTuple(ptId, &theta);
-      costheta = std::cos(theta);
-      sintheta = std::sin(theta);
-      for (auto j = 0; j < 3; j++)
-      {
-        normal[j] = length * (costheta * local1[j] + sintheta * local2[j]);
-      }
-      normals->SetTuple(ptId, normal);
-    }
-  }); // lambda
+    }); // lambda
 
   // Associate normals with the output
   outputPD->AddArray(normals);

@@ -387,9 +387,9 @@ void readCaseFileValues(EnSightFile& file, std::string& line, std::vector<T>& va
     if (continueReading)
     {
       line = result.second;
-      if (!std::all_of(line.begin(), line.end(), [](char c) -> bool {
-            return isdigit(c) || isspace(c) || c == '.' || c == 'e' || c == '+' || c == '-';
-          }))
+      if (!std::all_of(line.begin(), line.end(),
+            [](char c) -> bool
+            { return isdigit(c) || isspace(c) || c == '.' || c == 'e' || c == '+' || c == '-'; }))
       {
         // The current line is not more time step values, so reset
         // this line so we can continue processing.
@@ -1776,14 +1776,16 @@ vtkSmartPointer<vtkFloatArray> EnSightDataSet::ReadVariableArray(
     file.ReadArray(&buffer.front(), count);
 
     partialIndices->SetNumberOfIds(count);
-    std::transform(
-      buffer.begin(), buffer.end(), partialIndices->WritePointer(0, count), [](vtkIdType val) {
+    std::transform(buffer.begin(), buffer.end(), partialIndices->WritePointer(0, count),
+      [](vtkIdType val)
+      {
         return val - 1; /* since ensight indices start with 1*/
       });
   }
 
   // replace undefined values with "internal undef" which in ParaView is NaN
-  auto replaceUndef = [&](vtkFloatArray* farray) {
+  auto replaceUndef = [&](vtkFloatArray* farray)
+  {
     if (hasUndef)
     {
       for (vtkIdType cc = 0; cc < numElements; ++cc)
@@ -1796,7 +1798,8 @@ vtkSmartPointer<vtkFloatArray> EnSightDataSet::ReadVariableArray(
     }
   };
 
-  auto readComponent = [&](vtkIdType count) {
+  auto readComponent = [&](vtkIdType count)
+  {
     vtkNew<vtkFloatArray> buffer;
     buffer->SetNumberOfTuples(count);
     if (hasPartial)
@@ -2264,7 +2267,8 @@ void EnSightDataSet::CreateStructuredGridOutput(const GridOptions& opts, vtkStru
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(numPts);
 
-  auto readComponent = [&](vtkIdType count) {
+  auto readComponent = [&](vtkIdType count)
+  {
     vtkNew<vtkFloatArray> buffer;
     buffer->SetNumberOfTuples(count);
     this->GeometryFile.ReadArray(buffer->WritePointer(0, count), count);
@@ -2367,7 +2371,8 @@ void EnSightDataSet::CreateUnstructuredGridOutput(
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(numPts);
 
-  auto readComponent = [&](vtkIdType count) {
+  auto readComponent = [&](vtkIdType count)
+  {
     vtkNew<vtkFloatArray> buffer;
     buffer->SetNumberOfTuples(count);
     this->GeometryFile.ReadArray(buffer->WritePointer(0, count), count);

@@ -288,7 +288,8 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetSide
     std::map<int, int> permutations;
     int firstSideIdx = -1;
     vtkSMPTools::For(0, sideArray->GetNumberOfTuples(),
-      [sideArray, cellIdOffset, &firstSideIdx, &permutations](vtkIdType begin, vtkIdType end) {
+      [sideArray, cellIdOffset, &firstSideIdx, &permutations](vtkIdType begin, vtkIdType end)
+      {
         std::array<vtkTypeUInt64, 2> sideTuple;
         for (vtkIdType mm = begin; mm < end; ++mm)
         {
@@ -923,19 +924,21 @@ bool vtkIOSSCellGridReaderInternal::ApplyDisplacements(vtkCellGrid* grid, Ioss::
     xformedPts->SetNumberOfComponents(3);
     xformedPts->SetNumberOfTuples(npts);
     double scale = this->DisplacementMagnitude;
-    vtkSMPTools::For(0, npts, [&](vtkIdType begin, vtkIdType end) {
-      vtkVector3d point{ 0.0 }, displ{ 0.0 };
-      for (vtkIdType ii = begin; ii != end; ++ii)
+    vtkSMPTools::For(0, npts,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        coords->GetTuple(ii, point.GetData());
-        array->GetTuple(ii, displ.GetData());
-        for (int jj = 0; jj < 3; ++jj)
+        vtkVector3d point{ 0.0 }, displ{ 0.0 };
+        for (vtkIdType ii = begin; ii != end; ++ii)
         {
-          displ[jj] *= scale;
+          coords->GetTuple(ii, point.GetData());
+          array->GetTuple(ii, displ.GetData());
+          for (int jj = 0; jj < 3; ++jj)
+          {
+            displ[jj] *= scale;
+          }
+          xformedPts->SetTuple(ii, (point + displ).GetData());
         }
-        xformedPts->SetTuple(ii, (point + displ).GetData());
-      }
-    });
+      });
     auto* pointGroup = grid->GetAttributes("coordinates"_token);
     // Remove the undeflected points:
     pointGroup->RemoveArray(coords->GetName());

@@ -64,20 +64,22 @@ struct vtkTableFFT::vtkInternal
     windowedSignal->SetNumberOfTuples(array->GetNumberOfTuples());
     auto inputRange = vtk::DataArrayTupleRange(array);
     auto outRange = vtk::DataArrayTupleRange(windowedSignal);
-    vtkSMPTools::For(0, inputRange.size(), [&](vtkIdType begin, vtkIdType end) {
-      auto inputIt = inputRange.cbegin() + begin;
-      auto windowIt = this->Window.cbegin() + begin;
-      auto outputIt = outRange.begin() + begin;
-      for (vtkIdType i = begin; i < end; ++i, ++inputIt, ++windowIt, ++outputIt)
+    vtkSMPTools::For(0, inputRange.size(),
+      [&](vtkIdType begin, vtkIdType end)
       {
-        auto inComponentIt = inputIt->cbegin();
-        auto outComponentIt = outputIt->begin();
-        for (; inComponentIt != inputIt->cend(); ++inComponentIt, ++outComponentIt)
+        auto inputIt = inputRange.cbegin() + begin;
+        auto windowIt = this->Window.cbegin() + begin;
+        auto outputIt = outRange.begin() + begin;
+        for (vtkIdType i = begin; i < end; ++i, ++inputIt, ++windowIt, ++outputIt)
         {
-          *outComponentIt = *inComponentIt * *windowIt;
+          auto inComponentIt = inputIt->cbegin();
+          auto outComponentIt = outputIt->begin();
+          for (; inComponentIt != inputIt->cend(); ++inComponentIt, ++outComponentIt)
+          {
+            *outComponentIt = *inComponentIt * *windowIt;
+          }
         }
-      }
-    });
+      });
 
     vtkSmartPointer<vtkFFT::vtkScalarNumberArray> result =
       onesided ? vtkFFT::RFft(windowedSignal) : vtkFFT::Fft(windowedSignal);

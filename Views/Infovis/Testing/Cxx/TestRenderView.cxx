@@ -1044,7 +1044,7 @@ static char RenderViewEventLog[] = "# StreamVersion 1\n"
                                    "LeaveEvent 251 299 0 0 0 0 0\n"
                                    "ExitEvent 251 299 0 0 0 0 0\n";
 
-//#define RECORD
+// #define RECORD
 
 int TestRenderView(int, char*[])
 {

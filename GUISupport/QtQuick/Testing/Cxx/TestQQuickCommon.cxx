@@ -67,27 +67,35 @@ int performTest(int argc, char* argv[], const char* filename)
       _updateTimer.setInterval(5);
       connect(&_updateTimer, &QTimer::timeout, this, [this] { render(); });
 
-      connect(_quickWindow, &QQuickWindow::sceneGraphInitialized, this, [this] {
-        _fbo = new QOpenGLFramebufferObject(
-          _quickWindow->size(), QOpenGLFramebufferObject::CombinedDepthStencil);
+      connect(_quickWindow, &QQuickWindow::sceneGraphInitialized, this,
+        [this]
+        {
+          _fbo = new QOpenGLFramebufferObject(
+            _quickWindow->size(), QOpenGLFramebufferObject::CombinedDepthStencil);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        _quickWindow->setRenderTarget(_fbo);
+          _quickWindow->setRenderTarget(_fbo);
 #else
         _quickWindow->setRenderTarget(QQuickRenderTarget::fromOpenGLTexture(_fbo->texture(), _fbo->size()));
 #endif
-      });
-      connect(_quickWindow, &QQuickWindow::sceneGraphInvalidated, this, [this] {
-        delete _fbo;
-        _fbo = nullptr;
-      });
-      connect(_renderControl, &QQuickRenderControl::renderRequested, this, [this] {
-        if (!_updateTimer.isActive())
-          _updateTimer.start();
-      });
-      connect(_renderControl, &QQuickRenderControl::sceneChanged, this, [this] {
-        if (!_updateTimer.isActive())
-          _updateTimer.start();
-      });
+        });
+      connect(_quickWindow, &QQuickWindow::sceneGraphInvalidated, this,
+        [this]
+        {
+          delete _fbo;
+          _fbo = nullptr;
+        });
+      connect(_renderControl, &QQuickRenderControl::renderRequested, this,
+        [this]
+        {
+          if (!_updateTimer.isActive())
+            _updateTimer.start();
+        });
+      connect(_renderControl, &QQuickRenderControl::sceneChanged, this,
+        [this]
+        {
+          if (!_updateTimer.isActive())
+            _updateTimer.start();
+        });
 
       _component = new QQmlComponent(_engine, url);
       if (_component->isLoading())
@@ -115,7 +123,8 @@ int performTest(int argc, char* argv[], const char* filename)
     }
     void run()
     {
-      auto reportFailure = [this] {
+      auto reportFailure = [this]
+      {
         if (_component->isError())
         {
           const QList<QQmlError> errorList = _component->errors();

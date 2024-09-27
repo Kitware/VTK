@@ -208,8 +208,9 @@ void QVTKOpenGLNativeWidget::initializeGL()
 
     if (!this->RenderWindow->GetInitialized())
     {
-      auto loadFunc = [](void* userData,
-                        const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc {
+      auto loadFunc = [](
+                        void* userData, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc
+      {
         if (auto* context = reinterpret_cast<QOpenGLContext*>(userData))
         {
           if (auto* symbol = context->getProcAddress(name))

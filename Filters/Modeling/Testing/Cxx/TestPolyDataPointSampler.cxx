@@ -6,7 +6,7 @@
 // -D <path> => path to the data; the data should be in <path>/Data/
 
 // If WRITE_RESULT is defined, the result of the surface filter is saved.
-//#define WRITE_RESULT
+// #define WRITE_RESULT
 
 #include "vtkActor.h"
 #include "vtkCamera.h"

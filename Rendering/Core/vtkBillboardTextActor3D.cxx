@@ -25,7 +25,7 @@
 #include <cmath>
 
 // Define to print debugging info:
-//#define DEBUG_BTA3D
+// #define DEBUG_BTA3D
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

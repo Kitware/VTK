@@ -103,7 +103,8 @@ int TestComputePassChained(int, char*[])
   std::vector<float> outputData;
   outputData.resize(DATA_SIZE);
 
-  auto onBufferMapped = [](const void* mappedData, void* userdata) {
+  auto onBufferMapped = [](const void* mappedData, void* userdata)
+  {
     std::vector<float>* out = reinterpret_cast<std::vector<float>*>(userdata);
     vtkIdType elementCount = out->size();
 

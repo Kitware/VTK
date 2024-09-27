@@ -764,7 +764,8 @@ bool vtkOpenXRRenderWindowInteractor::LoadDefaultBinding(const std::string& bind
   // Get the XrAction from the string jsonValue["output"]
   // Store in the actionData the device input guessed from the path
   // And fill actionSuggestedBindings
-  auto fillActionSuggestedBindings = [&](const std::string& path, const Json::Value& jsonValue) {
+  auto fillActionSuggestedBindings = [&](const std::string& path, const Json::Value& jsonValue)
+  {
     // Get the action
     std::string action = jsonValue["output"].asString();
 

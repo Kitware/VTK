@@ -485,7 +485,8 @@ int Test2DProbingHTG(vtkMultiProcessController* contr)
 
   int retVal = EXIT_SUCCESS;
 
-  auto Check = [&probeLine, &contr, &retVal](int pattern) {
+  auto Check = [&probeLine, &contr, &retVal](int pattern)
+  {
     probeLine->SetSamplingPattern(pattern);
     probeLine->Update();
     vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());
@@ -527,7 +528,8 @@ int Test3DProbingHTG(vtkMultiProcessController* contr)
 
   int retVal = EXIT_SUCCESS;
 
-  auto Check = [&probeLine, &contr, &retVal](int pattern) {
+  auto Check = [&probeLine, &contr, &retVal](int pattern)
+  {
     probeLine->SetSamplingPattern(pattern);
     probeLine->Update();
     vtkDataSet* outDataSet = vtkDataSet::SafeDownCast(probeLine->GetOutput());

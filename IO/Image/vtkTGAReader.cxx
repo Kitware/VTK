@@ -98,7 +98,8 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   unsigned char* endPtr =
     outPtr + ((this->DataExtent[3] + 1) * (this->DataExtent[1] + 1) * nComponents);
 
-  auto GetColor = [&](size_t& currentIndex, unsigned char*& buffer) {
+  auto GetColor = [&](size_t& currentIndex, unsigned char*& buffer)
+  {
     for (vtkIdType j = 0; j < nComponents; j++)
     {
       buffer[j] = content[currentIndex + j];

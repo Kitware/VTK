@@ -1202,14 +1202,14 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
               input->GetCellData(), npts, cellId, order);
             vtkIdType nPoints = 0;
             std::vector<vtkIdType> points;
-            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void
+            {
               points.resize(numFacePoints);
               nPoints = numFacePoints;
             };
             const auto set_ids_and_points = [&](const vtkIdType& face_id,
-                                              const vtkIdType& vol_id) -> void {
-              points[face_id] = pts[vol_id];
-            };
+                                              const vtkIdType& vol_id) -> void
+            { points[face_id] = pts[vol_id]; };
 
             int faceCellType = (cellType == VTK_LAGRANGE_HEXAHEDRON) ? VTK_LAGRANGE_QUADRILATERAL
                                                                      : VTK_BEZIER_QUADRILATERAL;
@@ -1229,14 +1229,14 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             int faceOrder[2] = { 0, 0 };
             vtkIdType nPoints = 0;
             std::vector<vtkIdType> points;
-            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void
+            {
               points.resize(numFacePoints);
               nPoints = numFacePoints;
             };
             const auto set_ids_and_points = [&](const vtkIdType& face_id,
-                                              const vtkIdType& vol_id) -> void {
-              points[face_id] = pts[vol_id];
-            };
+                                              const vtkIdType& vol_id) -> void
+            { points[face_id] = pts[vol_id]; };
 
             int faceCellType =
               (cellType == VTK_LAGRANGE_TETRAHEDRON) ? VTK_LAGRANGE_TRIANGLE : VTK_BEZIER_TRIANGLE;
@@ -1257,14 +1257,14 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             vtkHigherOrderWedge::SetOrderFromCellData(input->GetCellData(), npts, cellId, order);
             vtkIdType nPoints = 0;
             std::vector<vtkIdType> points;
-            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void {
+            const auto set_number_of_ids_and_points = [&](const vtkIdType& numFacePoints) -> void
+            {
               points.resize(numFacePoints);
               nPoints = numFacePoints;
             };
             const auto set_ids_and_points = [&](const vtkIdType& face_id,
-                                              const vtkIdType& vol_id) -> void {
-              points[face_id] = pts[vol_id];
-            };
+                                              const vtkIdType& vol_id) -> void
+            { points[face_id] = pts[vol_id]; };
 
             int faceCellType =
               (cellType == VTK_LAGRANGE_WEDGE) ? VTK_LAGRANGE_TRIANGLE : VTK_BEZIER_TRIANGLE;

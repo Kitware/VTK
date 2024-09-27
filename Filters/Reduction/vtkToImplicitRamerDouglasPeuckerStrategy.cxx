@@ -53,9 +53,8 @@ struct RDPAlgorithm
     {
       auto slope = (*end - *begin) / std::distance(begin, end);
       // for computing the distance between the affine representation and the actual value
-      auto distance = [&](const Iterator& it) {
-        return std::abs(static_cast<double>(slope * std::distance(begin, it) + *begin - *it));
-      };
+      auto distance = [&](const Iterator& it)
+      { return std::abs(static_cast<double>(slope * std::distance(begin, it) + *begin - *it)); };
       // compute max distance loop
       for (Iterator it = begin + 1; it != end; ++it)
       {
@@ -91,7 +90,8 @@ struct GenerateFunctionalRepresentation
   {
     using VType = vtk::GetAPIType<ArrayT>;
 
-    auto makeConstant = [](VType val, vtkIdType diff) {
+    auto makeConstant = [](VType val, vtkIdType diff)
+    {
       vtkNew<vtkConstantArray<VType>> constant;
       constant->SetBackend(std::make_shared<vtkConstantImplicitBackend<VType>>(val));
       constant->SetNumberOfComponents(1);

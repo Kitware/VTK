@@ -60,12 +60,14 @@ vtkm::cont::ArrayHandleBasic<T> vtkAOSDataArrayToFlatArrayHandle(vtkAOSDataArray
   // will still get problems if the `vtkAOSDataArrayTemplate` gets resized.
   input->Register(nullptr);
 
-  auto deleter = [](void* container) {
+  auto deleter = [](void* container)
+  {
     vtkAOSDataArrayTemplate<T>* vtkArray = reinterpret_cast<vtkAOSDataArrayTemplate<T>*>(container);
     vtkArray->UnRegister(nullptr);
   };
-  auto reallocator = [](void*& memory, void*& container, vtkm::BufferSizeType oldSize,
-                       vtkm::BufferSizeType newSize) {
+  auto reallocator =
+    [](void*& memory, void*& container, vtkm::BufferSizeType oldSize, vtkm::BufferSizeType newSize)
+  {
     vtkAOSDataArrayTemplate<T>* vtkArray = reinterpret_cast<vtkAOSDataArrayTemplate<T>*>(container);
     if ((vtkArray->GetVoidPointer(0) != memory) || (vtkArray->GetNumberOfValues() != oldSize))
     {
@@ -92,13 +94,15 @@ vtkm::cont::ArrayHandleBasic<T> vtkSOADataArrayToComponentArrayHandle(
   using ContainerPair = std::pair<vtkSOADataArrayTemplate<T>*, int>;
   ContainerPair* componentInput = new ContainerPair(input, componentIndex);
 
-  auto deleter = [](void* container) {
+  auto deleter = [](void* container)
+  {
     ContainerPair* containerPair = reinterpret_cast<ContainerPair*>(container);
     containerPair->first->UnRegister(nullptr);
     delete containerPair;
   };
   auto reallocator = [](void*& memory, void*& container, vtkm::BufferSizeType vtkNotUsed(oldSize),
-                       vtkm::BufferSizeType newSize) {
+                       vtkm::BufferSizeType newSize)
+  {
     ContainerPair* containerPair = reinterpret_cast<ContainerPair*>(container);
     containerPair->first->SetNumberOfTuples(newSize);
     memory = containerPair->first->GetComponentArrayPointer(containerPair->second);

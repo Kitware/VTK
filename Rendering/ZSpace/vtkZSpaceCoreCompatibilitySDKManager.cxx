@@ -386,9 +386,9 @@ void vtkZSpaceCoreCompatibilitySDKManager::UpdateButtonState()
     this->EntryPts.zccompatIsTargetButtonPressed(this->StylusHandle, buttonId, &isButtonPressed);
 
     ButtonState& buttonState = *this->ButtonsState[buttonId];
-    buttonState = isButtonPressed
-      ? buttonState != vtkZSpaceSDKManager::Pressed ? vtkZSpaceSDKManager::Down
-                                                    : vtkZSpaceSDKManager::Pressed
+    buttonState = isButtonPressed                ? buttonState != vtkZSpaceSDKManager::Pressed
+                       ? vtkZSpaceSDKManager::Down
+                       : vtkZSpaceSDKManager::Pressed
       : buttonState != vtkZSpaceSDKManager::None ? vtkZSpaceSDKManager::Up
                                                  : vtkZSpaceSDKManager::None;
   }

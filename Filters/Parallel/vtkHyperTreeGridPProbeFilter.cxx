@@ -253,7 +253,8 @@ public:
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
 
-    auto mergeThreadResults = [&](LocalData& loc) {
+    auto mergeThreadResults = [&](LocalData& loc)
+    {
       std::copy(
         loc.pointIds.begin(), loc.pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
       std::copy(
@@ -353,7 +354,8 @@ bool vtkHyperTreeGridPProbeFilter::Reduce(
   else
   {
     auto dealWithRemote = [](vtkIdList* remotePointIds, vtkDataSet* remoteOutput,
-                            vtkHyperTreeGrid* htgSource, vtkDataSet* totOutput) {
+                            vtkHyperTreeGrid* htgSource, vtkDataSet* totOutput)
+    {
       if (remotePointIds->GetNumberOfIds() > 0)
       {
         vtkNew<vtkIdList> iotaIds;

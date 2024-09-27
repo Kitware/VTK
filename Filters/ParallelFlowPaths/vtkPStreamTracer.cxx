@@ -101,7 +101,7 @@
       assert(false);                                                                               \
     }                                                                                              \
   }
-//#define PRINT(id, x)
+// #define PRINT(id, x)
 #else
 #define PRINT(x)
 #define ALLPRINT(x)
@@ -1643,7 +1643,8 @@ int vtkPStreamTracer::RequestData(
   if (auto seedIds = vtkIntArray::SafeDownCast(output->GetCellData()->GetArray("SeedIds")))
   {
     vtkSMPTools::For(0, seedIds->GetNumberOfTuples(),
-      [&originalSeedIds, &seedIds](vtkIdType start, vtkIdType end) {
+      [&originalSeedIds, &seedIds](vtkIdType start, vtkIdType end)
+      {
         for (vtkIdType cc = start; cc < end; ++cc)
         {
           const auto seedIdx = seedIds->GetTypedComponent(cc, 0);

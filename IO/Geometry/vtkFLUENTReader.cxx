@@ -3161,7 +3161,8 @@ void vtkFLUENTReader::PopulateCellNodes()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 {
-  union mix_i {
+  union mix_i
+  {
     int i;
     char c[4];
   } mi = { 1 };
@@ -3183,7 +3184,8 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 //------------------------------------------------------------------------------
 float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 {
-  union mix_f {
+  union mix_f
+  {
     float f;
     char c[4];
   } mf = { 1.0 };
@@ -3205,7 +3207,8 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 //------------------------------------------------------------------------------
 double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
 {
-  union mix_i {
+  union mix_i
+  {
     double d;
     char c[8];
   } md = { 1.0 };
@@ -3844,7 +3847,8 @@ void vtkFLUENTReader::ParseDataFile()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataBufferInt(int ptr)
 {
-  union mix_i {
+  union mix_i
+  {
     int i;
     char c[4];
   } mi = { 1 };
@@ -3866,7 +3870,8 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
 //------------------------------------------------------------------------------
 float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 {
-  union mix_f {
+  union mix_f
+  {
     float f;
     char c[4];
   } mf = { 1.0 };
@@ -3888,7 +3893,8 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 //------------------------------------------------------------------------------
 double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 {
-  union mix_i {
+  union mix_i
+  {
     double d;
     char c[8];
   } md = { 1.0 };

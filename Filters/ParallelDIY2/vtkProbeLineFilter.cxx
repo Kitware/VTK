@@ -86,12 +86,14 @@ void FillDefaultValues(vtkAbstractArray* array, double defaultValue = 0.0)
 {
   if (auto* strArray = vtkStringArray::SafeDownCast(array))
   {
-    vtkSMPTools::For(0, strArray->GetNumberOfValues(), [strArray](vtkIdType start, vtkIdType end) {
-      for (vtkIdType i = start; i < end; ++i)
+    vtkSMPTools::For(0, strArray->GetNumberOfValues(),
+      [strArray](vtkIdType start, vtkIdType end)
       {
-        strArray->SetValue(i, "");
-      }
-    });
+        for (vtkIdType i = start; i < end; ++i)
+        {
+          strArray->SetValue(i, "");
+        }
+      });
   }
   else if (auto* doubleArray = vtkDoubleArray::SafeDownCast(array))
   {
@@ -113,17 +115,19 @@ vtkSmartPointer<vtkDoubleArray> CreatePoints(
   auto arclengthArray = vtkSmartPointer<vtkDoubleArray>::New();
   arclengthArray->SetName("arc_length");
   arclengthArray->SetNumberOfValues(linePoints->GetNumberOfPoints());
-  vtkSMPTools::For(0, intersections.size(), [&](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType i = begin; i < end; ++i)
+  vtkSMPTools::For(0, intersections.size(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      const auto& inter = intersections[i];
-      linePoints->SetPoint(i * 2, inter.InPos.data());
-      arclengthArray->SetValue(i * 2, inter.InT * lengthFactor);
+      for (vtkIdType i = begin; i < end; ++i)
+      {
+        const auto& inter = intersections[i];
+        linePoints->SetPoint(i * 2, inter.InPos.data());
+        arclengthArray->SetValue(i * 2, inter.InT * lengthFactor);
 
-      linePoints->SetPoint(i * 2 + 1, inter.OutPos.data());
-      arclengthArray->SetValue(i * 2 + 1, inter.OutT * lengthFactor);
-    }
-  });
+        linePoints->SetPoint(i * 2 + 1, inter.OutPos.data());
+        arclengthArray->SetValue(i * 2 + 1, inter.OutT * lengthFactor);
+      }
+    });
 
   return arclengthArray;
 }
@@ -150,14 +154,16 @@ void AddCellData(const std::vector<HitCellInfo>& intersections, vtkCellData* inp
     vtkAbstractArray* sourceArray = inputCellAttribute->GetAbstractArray(i);
     if (auto targetArray = ::AddAttribute(sourceArray, resultPointData, npts))
     {
-      vtkSMPTools::For(0, intersections.size(), [&](vtkIdType begin, vtkIdType end) {
-        for (vtkIdType j = begin; j < end; ++j)
+      vtkSMPTools::For(0, intersections.size(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          const auto& inter = intersections[j];
-          targetArray->SetTuple(j * 2, inter.CellId, sourceArray);
-          targetArray->SetTuple(j * 2 + 1, inter.CellId, sourceArray);
-        }
-      });
+          for (vtkIdType j = begin; j < end; ++j)
+          {
+            const auto& inter = intersections[j];
+            targetArray->SetTuple(j * 2, inter.CellId, sourceArray);
+            targetArray->SetTuple(j * 2 + 1, inter.CellId, sourceArray);
+          }
+        });
     }
   }
 }
@@ -450,47 +456,50 @@ protected:
       arclength->SetValue(idx + 1,
         std::sqrt(vtkMath::Distance2BetweenPoints(this->P1.GetData(), this->P2.GetData())));
     }
-    vtkSMPTools::For(startFor, endFor, [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType pt = start; pt < end; ++pt)
+    vtkSMPTools::For(startFor, endFor,
+      [&](vtkIdType start, vtkIdType end)
       {
-        const vtkIdType idx = pt * 2;
-        const auto& mergeInfo = mergedInputIndices[pt];
-        if (mergeInfo.DsIndex < 0)
+        for (vtkIdType pt = start; pt < end; ++pt)
         {
-          const auto& previousInfo = mergedInputIndices[pt - 1];
-          const auto& nextInfo = mergedInputIndices[pt + 1];
-          double tmpPnt[3];
-          inputs[previousInfo.DsIndex]->GetPoint(previousInfo.PtIndex + 1, tmpPnt);
-          outputPoints->SetPoint(idx, tmpPnt);
-          inputs[nextInfo.DsIndex]->GetPoint(nextInfo.PtIndex, tmpPnt);
-          outputPoints->SetPoint(idx + 1, tmpPnt);
-          validPointMask->SetValue(idx, 0);
-          validPointMask->SetValue(idx + 1, 0);
-          arclength->SetValue(
-            idx, lengthArrays[previousInfo.DsIndex]->GetValue(previousInfo.PtIndex + 1));
-          arclength->SetValue(idx + 1, lengthArrays[nextInfo.DsIndex]->GetValue(nextInfo.PtIndex));
-        }
-        else
-        {
-          vtkPolyData* ds = inputs[mergeInfo.DsIndex];
-          double tmpPnt[3];
-          ds->GetPoint(mergeInfo.PtIndex, tmpPnt);
-          outputPoints->SetPoint(idx, tmpPnt);
-          ds->GetPoint(mergeInfo.PtIndex + 1, tmpPnt);
-          outputPoints->SetPoint(idx + 1, tmpPnt);
-          vtkDoubleArray* lengths = lengthArrays[mergeInfo.DsIndex];
-          arclength->SetValue(idx, lengths->GetValue(mergeInfo.PtIndex));
-          arclength->SetValue(idx + 1, lengths->GetValue(mergeInfo.PtIndex + 1));
-          for (int i = 0; i < outputPD->GetNumberOfArrays(); ++i)
+          const vtkIdType idx = pt * 2;
+          const auto& mergeInfo = mergedInputIndices[pt];
+          if (mergeInfo.DsIndex < 0)
           {
-            auto* targetArray = outputPD->GetAbstractArray(i);
-            auto* sourceArray = ds->GetPointData()->GetAbstractArray(targetArray->GetName());
-            targetArray->SetTuple(idx, mergeInfo.PtIndex, sourceArray);
-            targetArray->SetTuple(idx + 1, mergeInfo.PtIndex + 1, sourceArray);
+            const auto& previousInfo = mergedInputIndices[pt - 1];
+            const auto& nextInfo = mergedInputIndices[pt + 1];
+            double tmpPnt[3];
+            inputs[previousInfo.DsIndex]->GetPoint(previousInfo.PtIndex + 1, tmpPnt);
+            outputPoints->SetPoint(idx, tmpPnt);
+            inputs[nextInfo.DsIndex]->GetPoint(nextInfo.PtIndex, tmpPnt);
+            outputPoints->SetPoint(idx + 1, tmpPnt);
+            validPointMask->SetValue(idx, 0);
+            validPointMask->SetValue(idx + 1, 0);
+            arclength->SetValue(
+              idx, lengthArrays[previousInfo.DsIndex]->GetValue(previousInfo.PtIndex + 1));
+            arclength->SetValue(
+              idx + 1, lengthArrays[nextInfo.DsIndex]->GetValue(nextInfo.PtIndex));
+          }
+          else
+          {
+            vtkPolyData* ds = inputs[mergeInfo.DsIndex];
+            double tmpPnt[3];
+            ds->GetPoint(mergeInfo.PtIndex, tmpPnt);
+            outputPoints->SetPoint(idx, tmpPnt);
+            ds->GetPoint(mergeInfo.PtIndex + 1, tmpPnt);
+            outputPoints->SetPoint(idx + 1, tmpPnt);
+            vtkDoubleArray* lengths = lengthArrays[mergeInfo.DsIndex];
+            arclength->SetValue(idx, lengths->GetValue(mergeInfo.PtIndex));
+            arclength->SetValue(idx + 1, lengths->GetValue(mergeInfo.PtIndex + 1));
+            for (int i = 0; i < outputPD->GetNumberOfArrays(); ++i)
+            {
+              auto* targetArray = outputPD->GetAbstractArray(i);
+              auto* sourceArray = ds->GetPointData()->GetAbstractArray(targetArray->GetName());
+              targetArray->SetTuple(idx, mergeInfo.PtIndex, sourceArray);
+              targetArray->SetTuple(idx + 1, mergeInfo.PtIndex + 1, sourceArray);
+            }
           }
         }
-      }
-    });
+      });
   }
 
   void MergeSegmentCenters(const std::vector<vtkPolyData*>& inputs,
@@ -552,52 +561,54 @@ protected:
         targetArray->SetTuple(endFor + 1, mergeInfo.PtIndex + 1, sourceArray);
       }
     }
-    vtkSMPTools::For(startFor, endFor, [&](vtkIdType start, vtkIdType end) {
-      vtkNew<vtkIdList> interpList;
-      interpList->SetNumberOfIds(2);
-      for (vtkIdType pt = start; pt < end; ++pt)
+    vtkSMPTools::For(startFor, endFor,
+      [&](vtkIdType start, vtkIdType end)
       {
-        const vtkIdType idx = pt + 1;
-        const auto& mergeInfo = mergedInputIndices[pt];
-        if (mergeInfo.DsIndex < 0)
+        vtkNew<vtkIdList> interpList;
+        interpList->SetNumberOfIds(2);
+        for (vtkIdType pt = start; pt < end; ++pt)
         {
-          const auto& previousInfo = mergedInputIndices[pt - 1];
-          const auto& nextInfo = mergedInputIndices[pt + 1];
-          vtkVector3d pnt1, pnt2;
-          inputs[previousInfo.DsIndex]->GetPoint(previousInfo.PtIndex + 1, pnt1.GetData());
-          inputs[nextInfo.DsIndex]->GetPoint(nextInfo.PtIndex, pnt2.GetData());
-          pnt1 = (pnt1 + pnt2) * 0.5;
-          outputPoints->SetPoint(idx, pnt1.GetData());
-          validPointMask->SetValue(idx, 0);
-          double length = lengthArrays[previousInfo.DsIndex]->GetValue(previousInfo.PtIndex + 1) +
-            lengthArrays[nextInfo.DsIndex]->GetValue(previousInfo.PtIndex);
-          arclength->SetValue(idx, length * 0.5);
-        }
-        else
-        {
-          vtkPolyData* ds = inputs[mergeInfo.DsIndex];
-          vtkVector3d pnt1, pnt2;
-          ds->GetPoint(mergeInfo.PtIndex, pnt1.GetData());
-          ds->GetPoint(mergeInfo.PtIndex + 1, pnt2.GetData());
-          pnt1 = (pnt1 + pnt2) * 0.5;
-          outputPoints->SetPoint(idx, pnt1.GetData());
-
-          vtkDoubleArray* lengths = lengthArrays[mergeInfo.DsIndex];
-          double length =
-            lengths->GetValue(mergeInfo.PtIndex) + lengths->GetValue(mergeInfo.PtIndex + 1);
-          arclength->SetValue(idx, length * 0.5);
-          for (int i = 0; i < outputPD->GetNumberOfArrays(); ++i)
+          const vtkIdType idx = pt + 1;
+          const auto& mergeInfo = mergedInputIndices[pt];
+          if (mergeInfo.DsIndex < 0)
           {
-            auto* targetArray = outputPD->GetAbstractArray(i);
-            auto* sourceArray = ds->GetPointData()->GetAbstractArray(targetArray->GetName());
-            interpList->SetId(0, mergeInfo.PtIndex);
-            interpList->SetId(1, mergeInfo.PtIndex + 1);
-            double weights[2] = { 0.5, 0.5 };
-            targetArray->InterpolateTuple(idx, interpList, sourceArray, weights);
+            const auto& previousInfo = mergedInputIndices[pt - 1];
+            const auto& nextInfo = mergedInputIndices[pt + 1];
+            vtkVector3d pnt1, pnt2;
+            inputs[previousInfo.DsIndex]->GetPoint(previousInfo.PtIndex + 1, pnt1.GetData());
+            inputs[nextInfo.DsIndex]->GetPoint(nextInfo.PtIndex, pnt2.GetData());
+            pnt1 = (pnt1 + pnt2) * 0.5;
+            outputPoints->SetPoint(idx, pnt1.GetData());
+            validPointMask->SetValue(idx, 0);
+            double length = lengthArrays[previousInfo.DsIndex]->GetValue(previousInfo.PtIndex + 1) +
+              lengthArrays[nextInfo.DsIndex]->GetValue(previousInfo.PtIndex);
+            arclength->SetValue(idx, length * 0.5);
+          }
+          else
+          {
+            vtkPolyData* ds = inputs[mergeInfo.DsIndex];
+            vtkVector3d pnt1, pnt2;
+            ds->GetPoint(mergeInfo.PtIndex, pnt1.GetData());
+            ds->GetPoint(mergeInfo.PtIndex + 1, pnt2.GetData());
+            pnt1 = (pnt1 + pnt2) * 0.5;
+            outputPoints->SetPoint(idx, pnt1.GetData());
+
+            vtkDoubleArray* lengths = lengthArrays[mergeInfo.DsIndex];
+            double length =
+              lengths->GetValue(mergeInfo.PtIndex) + lengths->GetValue(mergeInfo.PtIndex + 1);
+            arclength->SetValue(idx, length * 0.5);
+            for (int i = 0; i < outputPD->GetNumberOfArrays(); ++i)
+            {
+              auto* targetArray = outputPD->GetAbstractArray(i);
+              auto* sourceArray = ds->GetPointData()->GetAbstractArray(targetArray->GetName());
+              interpList->SetId(0, mergeInfo.PtIndex);
+              interpList->SetId(1, mergeInfo.PtIndex + 1);
+              double weights[2] = { 0.5, 0.5 };
+              targetArray->InterpolateTuple(idx, interpList, sourceArray, weights);
+            }
           }
         }
-      }
-    });
+      });
   }
 };
 vtkStandardNewMacro(vtkRemoteProbeLineMerger);

@@ -254,7 +254,8 @@ void QQuickVTKRenderWindow::setRenderWindow(vtkGenericOpenGLRenderWindow* renWin
     this->m_renderWindow->SetMultiSamples(0);
     this->m_renderWindow->SetReadyForRendering(false);
     this->m_renderWindow->SetFrameBlitModeToBlitToHardware();
-    auto loadFunc = [](void*, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc {
+    auto loadFunc = [](void*, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc
+    {
       if (auto context = QOpenGLContext::currentContext())
       {
         if (auto* symbol = context->getProcAddress(name))

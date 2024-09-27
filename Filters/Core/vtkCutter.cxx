@@ -312,7 +312,8 @@ int vtkCutter::RequestData(
   }
 
   vtkPlane* plane = vtkPlane::SafeDownCast(this->CutFunction);
-  auto executePlaneCutter = [&]() {
+  auto executePlaneCutter = [&]()
+  {
     if (this->Locator == nullptr)
     {
       this->CreateDefaultLocator();

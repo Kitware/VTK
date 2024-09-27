@@ -6,7 +6,7 @@
 #include "vtkObjectFactory.h"
 
 // Define VTK_EXO_DBG_CACHE to print cache adds, drops, and replacements.
-//#undef VTK_EXO_DBG_CACHE
+// #undef VTK_EXO_DBG_CACHE
 
 #define VTK_EXO_PRT_KEY(ckey)                                                                      \
   "(" << (ckey).Time << ", " << (ckey).ObjectType << ", " << (ckey).ObjectId << ", "               \

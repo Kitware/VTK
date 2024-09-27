@@ -120,71 +120,75 @@ vtkThreadedCallbackQueue::~vtkThreadedCallbackQueue()
 //-----------------------------------------------------------------------------
 void vtkThreadedCallbackQueue::SetNumberOfThreads(int numberOfThreads)
 {
-  this->PushControl([this, numberOfThreads]() {
-    int size = static_cast<int>(this->Threads.size());
+  this->PushControl(
+    [this, numberOfThreads]()
+    {
+      int size = static_cast<int>(this->Threads.size());
 
-    std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
-    if (this->Destroying)
-    {
-      return;
-    }
-    if (size == numberOfThreads)
-    {
-      // Nothing to do
-      return;
-    }
-    // If we are expanding the number of threads, then we just need to spawn
-    // the missing threads.
-    else if (size < numberOfThreads)
-    {
-      this->NumberOfThreads = numberOfThreads;
-
-      std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size, [this] {
-        auto threadIndex =
-          std::make_shared<std::atomic_int>(static_cast<int>(this->Threads.size()));
-        auto thread = std::thread(ThreadWorker(this, threadIndex));
-        {
-          std::lock_guard<std::mutex> threadIdLock(this->ThreadIdToIndexMutex);
-          this->ThreadIdToIndex.emplace(thread.get_id(), threadIndex);
-        }
-        return thread;
-      });
-    }
-    // If we are shrinking the number of threads, let's notify all threads
-    // so the threads whose id is more than the updated NumberOfThreads terminate.
-    else
-    {
-      // If we have a thread index larger than the new number of threads, we swap ourself with
-      // thread 0. We now know we will live after this routine and can synchronize terminating
-      // threads ourselves.
+      std::lock_guard<std::mutex> destroyLock(this->DestroyMutex);
+      if (this->Destroying)
       {
-        std::unique_lock<std::mutex> lock(this->ThreadIdToIndexMutex);
-        std::atomic_int& threadIndex = *this->ThreadIdToIndex.at(std::this_thread::get_id());
-        if (threadIndex && threadIndex >= numberOfThreads)
-        {
-          std::atomic_int& thread0Index = *this->ThreadIdToIndex.at(this->Threads[0].get_id());
-          lock.unlock();
-
-          std::swap(this->Threads[threadIndex], this->Threads[0]);
-
-          // Swapping the value of atomic ThreadIndex inside ThreadWorker.
-          int tmp = thread0Index;
-          thread0Index.exchange(threadIndex);
-          threadIndex = tmp;
-        }
+        return;
       }
-
+      if (size == numberOfThreads)
       {
-        std::lock_guard<std::mutex> lock(this->Mutex);
+        // Nothing to do
+        return;
+      }
+      // If we are expanding the number of threads, then we just need to spawn
+      // the missing threads.
+      else if (size < numberOfThreads)
+      {
         this->NumberOfThreads = numberOfThreads;
-      }
-      this->ConditionVariable.notify_all();
-      this->Sync(this->NumberOfThreads);
 
-      // Excess threads are done, we can resize
-      this->Threads.resize(numberOfThreads);
-    }
-  });
+        std::generate_n(std::back_inserter(this->Threads), numberOfThreads - size,
+          [this]
+          {
+            auto threadIndex =
+              std::make_shared<std::atomic_int>(static_cast<int>(this->Threads.size()));
+            auto thread = std::thread(ThreadWorker(this, threadIndex));
+            {
+              std::lock_guard<std::mutex> threadIdLock(this->ThreadIdToIndexMutex);
+              this->ThreadIdToIndex.emplace(thread.get_id(), threadIndex);
+            }
+            return thread;
+          });
+      }
+      // If we are shrinking the number of threads, let's notify all threads
+      // so the threads whose id is more than the updated NumberOfThreads terminate.
+      else
+      {
+        // If we have a thread index larger than the new number of threads, we swap ourself with
+        // thread 0. We now know we will live after this routine and can synchronize terminating
+        // threads ourselves.
+        {
+          std::unique_lock<std::mutex> lock(this->ThreadIdToIndexMutex);
+          std::atomic_int& threadIndex = *this->ThreadIdToIndex.at(std::this_thread::get_id());
+          if (threadIndex && threadIndex >= numberOfThreads)
+          {
+            std::atomic_int& thread0Index = *this->ThreadIdToIndex.at(this->Threads[0].get_id());
+            lock.unlock();
+
+            std::swap(this->Threads[threadIndex], this->Threads[0]);
+
+            // Swapping the value of atomic ThreadIndex inside ThreadWorker.
+            int tmp = thread0Index;
+            thread0Index.exchange(threadIndex);
+            threadIndex = tmp;
+          }
+        }
+
+        {
+          std::lock_guard<std::mutex> lock(this->Mutex);
+          this->NumberOfThreads = numberOfThreads;
+        }
+        this->ConditionVariable.notify_all();
+        this->Sync(this->NumberOfThreads);
+
+        // Excess threads are done, we can resize
+        this->Threads.resize(numberOfThreads);
+      }
+    });
 }
 
 //-----------------------------------------------------------------------------
@@ -279,7 +283,8 @@ void vtkThreadedCallbackQueue::SignalDependentSharedFutures(vtkSharedFutureBase*
 //-----------------------------------------------------------------------------
 bool vtkThreadedCallbackQueue::TryInvoke(vtkSharedFutureBase* invoker)
 {
-  if (![this, &invoker] {
+  if (![this, &invoker]
+      {
         // We need to check again if we cannot run in case the thread worker just popped this
         // invoker. We are guarded by this->Mutex so there cannot be a conflict here.
         if (invoker->Status.load(std::memory_order_relaxed) != ENQUEUED)

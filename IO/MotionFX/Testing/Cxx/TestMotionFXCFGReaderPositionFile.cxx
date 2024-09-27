@@ -15,7 +15,8 @@
 int TestMotionFXCFGReaderPositionFile(int argc, char* argv[])
 {
   return impl::Test(argc, argv, "Data/MotionFX/position_file/generic_chain_input.cfg",
-    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*) {
+    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*)
+    {
       auto camera = renderer->GetActiveCamera();
       camera->SetFocalPoint(0.09, -0.02, -0.13);
       camera->SetPosition(0.15, -0.37, 0.15);

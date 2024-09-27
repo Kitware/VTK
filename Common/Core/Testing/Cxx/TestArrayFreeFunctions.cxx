@@ -97,10 +97,12 @@ void assign_user_free(FreeType, vtkAbstractArray*)
 
 void assign_user_free(UseLambda, vtkAbstractArray* array)
 {
-  array->SetArrayFreeFunction([](void* ptr) {
-    delete[] reinterpret_cast<uint8_t*>(ptr);
-    timesLambdaFreeCalled++;
-  });
+  array->SetArrayFreeFunction(
+    [](void* ptr)
+    {
+      delete[] reinterpret_cast<uint8_t*>(ptr);
+      timesLambdaFreeCalled++;
+    });
 }
 
 //------------------------------------------------------------------------------

@@ -1576,7 +1576,8 @@ public:
 
 protected:
   tokenType Type = tokenType::UNDEFINED;
-  union {
+  union
+  {
     char Char;
     vtkTypeInt64 Int;
     double Double;
@@ -1704,14 +1705,16 @@ public:
   float ToFloat() const noexcept
   {
     return this->Type == LABEL ? static_cast<float>(this->Int)
-                               : this->Type == SCALAR ? static_cast<float>(this->Double) : 0.0F;
+      : this->Type == SCALAR   ? static_cast<float>(this->Double)
+                               : 0.0F;
   }
 
   // Mostly the same as To<double>, with additional check
   double ToDouble() const noexcept
   {
     return this->Type == LABEL ? static_cast<double>(this->Int)
-                               : this->Type == SCALAR ? this->Double : 0.0;
+      : this->Type == SCALAR   ? this->Double
+                               : 0.0;
   }
 
   std::string ToString() const { return *this->StringPtr; }
@@ -8136,8 +8139,9 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
       }
     }
 
-    const int vtkFaceType =
-      (nFacePoints == 3 ? VTK_TRIANGLE : nFacePoints == 4 ? VTK_QUAD : VTK_POLYGON);
+    const int vtkFaceType = (nFacePoints == 3 ? VTK_TRIANGLE
+        : nFacePoints == 4                    ? VTK_QUAD
+                                              : VTK_POLYGON);
     bm.InsertNextCell(vtkFaceType, nFacePoints, facePointIds.data());
   }
 }
@@ -8576,19 +8580,21 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
       auto area = vtk::DataArrayValueRange<1>(cData->GetArray("Area"));
       auto volume = vtk::DataArrayValueRange<1>(cData->GetArray("Volume"));
       auto reduce = vtk::DataArrayValueRange<1>(buffer);
-      vtkSMPTools::For(0, mesh->GetNumberOfCells(), [&](vtkIdType first, vtkIdType last) {
-        auto volIt = volume.begin() + first;
-        auto areaIt = area.begin() + first;
-        auto lenIt = length.begin() + first;
-        auto vcIt = vc.begin() + first;
-        for (auto it = reduce.begin() + first; it != reduce.begin() + last;
-             ++it, ++volIt, ++areaIt, ++lenIt, ++vcIt)
+      vtkSMPTools::For(0, mesh->GetNumberOfCells(),
+        [&](vtkIdType first, vtkIdType last)
         {
-          *it = (*volIt > 0
-              ? *volIt
-              : (*areaIt > 0 ? *areaIt : (*lenIt > 0 ? *lenIt : (*vcIt > 0 ? *vcIt : -1.0))));
-        }
-      });
+          auto volIt = volume.begin() + first;
+          auto areaIt = area.begin() + first;
+          auto lenIt = length.begin() + first;
+          auto vcIt = vc.begin() + first;
+          for (auto it = reduce.begin() + first; it != reduce.begin() + last;
+               ++it, ++volIt, ++areaIt, ++lenIt, ++vcIt)
+          {
+            *it = (*volIt > 0
+                ? *volIt
+                : (*areaIt > 0 ? *areaIt : (*lenIt > 0 ? *lenIt : (*vcIt > 0 ? *vcIt : -1.0))));
+          }
+        });
       // this sanity check is necessary since the cell size filter does not yet seem able to support
       // all cell types. In certain configurations, all measures are 0
       bool sanityCheckWeights = true;

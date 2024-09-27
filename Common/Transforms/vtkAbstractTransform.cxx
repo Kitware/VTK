@@ -149,15 +149,17 @@ void vtkAbstractTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   vtkIdType m = outPts->GetNumberOfPoints();
   outPts->SetNumberOfPoints(m + n);
 
-  vtkSMPTools::For(0, n, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double point[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inPts->GetPoint(ptId, point);
-      this->InternalTransformPoint(point, point);
-      outPts->SetPoint(m + ptId, point);
-    }
-  });
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        this->InternalTransformPoint(point, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -193,40 +195,42 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vtkPo
     outNms->SetNumberOfTuples(m + n);
   }
 
-  vtkSMPTools::For(0, n, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double matrix[3][3];
-    double point[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inPts->GetPoint(ptId, point);
-      this->InternalTransformDerivative(point, point, matrix);
-      outPts->SetPoint(m + ptId, point);
+      double matrix[3][3];
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        this->InternalTransformDerivative(point, point, matrix);
+        outPts->SetPoint(m + ptId, point);
 
-      if (inVrs)
-      {
-        inVrs->GetTuple(ptId, point);
-        vtkMath::Multiply3x3(matrix, point, point);
-        outVrs->SetTuple(m + ptId, point);
-      }
-      if (inVrsArr)
-      {
-        for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+        if (inVrs)
         {
-          inVrsArr[iArr]->GetTuple(ptId, point);
+          inVrs->GetTuple(ptId, point);
           vtkMath::Multiply3x3(matrix, point, point);
-          outVrsArr[iArr]->SetTuple(m + ptId, point);
+          outVrs->SetTuple(m + ptId, point);
+        }
+        if (inVrsArr)
+        {
+          for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+          {
+            inVrsArr[iArr]->GetTuple(ptId, point);
+            vtkMath::Multiply3x3(matrix, point, point);
+            outVrsArr[iArr]->SetTuple(m + ptId, point);
+          }
+        }
+        if (inNms)
+        {
+          inNms->GetTuple(ptId, point);
+          vtkMath::Transpose3x3(matrix, matrix);
+          vtkMath::LinearSolve3x3(matrix, point, point);
+          vtkMath::Normalize(point);
+          outNms->SetTuple(m + ptId, point);
         }
       }
-      if (inNms)
-      {
-        inNms->GetTuple(ptId, point);
-        vtkMath::Transpose3x3(matrix, matrix);
-        vtkMath::LinearSolve3x3(matrix, point, point);
-        vtkMath::Normalize(point);
-        outNms->SetTuple(m + ptId, point);
-      }
-    }
-  });
+    });
 }
 
 //------------------------------------------------------------------------------

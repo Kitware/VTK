@@ -29,7 +29,7 @@
 #define VTK_BRIDGE_EXPORT
 #endif
 
-#endif //#if 1
+#endif // #if 1
 
 #endif
 

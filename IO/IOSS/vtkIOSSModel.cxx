@@ -274,13 +274,15 @@ ErrorHandleInformation HandleGlobalIds(vtkPartitionedDataSetCollection* pdc, int
         globalIds->SetName(VTK_IOSS_MODEL_GLOBAL_IDS_ARRAY_NAME);
         globalIds->SetNumberOfComponents(1);
         globalIds->SetNumberOfTuples(numberOfElements);
-        vtkSMPTools::For(0, numberOfElements, [&](vtkIdType begin, vtkIdType end) {
-          auto globalIdsPtr = globalIds->GetPointer(0);
-          for (vtkIdType j = begin; j < end; ++j)
+        vtkSMPTools::For(0, numberOfElements,
+          [&](vtkIdType begin, vtkIdType end)
           {
-            globalIdsPtr[j] = startId + j;
-          }
-        });
+            auto globalIdsPtr = globalIds->GetPointer(0);
+            for (vtkIdType j = begin; j < end; ++j)
+            {
+              globalIdsPtr[j] = startId + j;
+            }
+          });
         ds->GetAttributes(association)->SetGlobalIds(globalIds);
         startId += numberOfElements;
       }
@@ -462,20 +464,23 @@ ErrorHandleInformation HandleElementSide(vtkPartitionedDataSetCollection* pdc,
           ds->GetCellData()->GetArray(VTK_IOSS_MODEL_OLD_ELEMENT_SIDE_ARRAY_NAME));
         const auto numTuples = oldElementSide->GetNumberOfTuples();
         std::atomic<int> localHasValidOldElementSide(true);
-        vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
-          if (!localHasValidOldElementSide)
+        vtkSMPTools::For(0, numTuples,
+          [&](vtkIdType begin, vtkIdType end)
           {
-            return;
-          }
-          for (vtkIdType j = begin; j < end; ++j)
-          {
-            if (oldToNewGlobalIds.find(oldElementSide->GetValue(2 * j)) == oldToNewGlobalIds.end())
+            if (!localHasValidOldElementSide)
             {
-              localHasValidOldElementSide = false;
-              break;
+              return;
             }
-          }
-        });
+            for (vtkIdType j = begin; j < end; ++j)
+            {
+              if (oldToNewGlobalIds.find(oldElementSide->GetValue(2 * j)) ==
+                oldToNewGlobalIds.end())
+              {
+                localHasValidOldElementSide = false;
+                break;
+              }
+            }
+          });
         if (!localHasValidOldElementSide)
         {
           hasValidOldElementSide &= localHasValidOldElementSide.load();
@@ -515,17 +520,19 @@ ErrorHandleInformation HandleElementSide(vtkPartitionedDataSetCollection* pdc,
           elementSide->SetNumberOfTuples(oldElementSide->GetNumberOfTuples());
           const auto globalIdOffset = writer->GetOffsetGlobalIds();
           const auto numTuples = oldElementSide->GetNumberOfTuples();
-          vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
-            int oldElementSideTuple[2];
-            int elementSideTuple[2];
-            for (vtkIdType j = begin; j < end; ++j)
+          vtkSMPTools::For(0, numTuples,
+            [&](vtkIdType begin, vtkIdType end)
             {
-              oldElementSide->GetTypedTuple(j, oldElementSideTuple);
-              elementSideTuple[0] = oldToNewGlobalIds[oldElementSideTuple[0]] + globalIdOffset;
-              elementSideTuple[1] = oldElementSideTuple[1];
-              elementSide->SetTypedTuple(j, elementSideTuple);
-            }
-          });
+              int oldElementSideTuple[2];
+              int elementSideTuple[2];
+              for (vtkIdType j = begin; j < end; ++j)
+              {
+                oldElementSide->GetTypedTuple(j, oldElementSideTuple);
+                elementSideTuple[0] = oldToNewGlobalIds[oldElementSideTuple[0]] + globalIdOffset;
+                elementSideTuple[1] = oldElementSideTuple[1];
+                elementSide->SetTypedTuple(j, elementSideTuple);
+              }
+            });
           ds->GetCellData()->AddArray(elementSide);
         }
       }
@@ -625,14 +632,16 @@ std::map<unsigned char, int64_t> GetElementCounts(
 
   for (auto& ds : datasets)
   {
-    vtkSMPTools::For(0, ds->GetNumberOfCells(), [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, ds->GetNumberOfCells(),
+      [&](vtkIdType start, vtkIdType end)
       {
-        // memory_order_relaxed is safe here, since we're not using the atomics for
-        // synchronization.
-        elementCounts[ds->GetCellType(cc)].fetch_add(1, std::memory_order_relaxed);
-      }
-    });
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          // memory_order_relaxed is safe here, since we're not using the atomics for
+          // synchronization.
+          elementCounts[ds->GetCellType(cc)].fetch_add(1, std::memory_order_relaxed);
+        }
+      });
   }
 
   // convert element counts to a map
@@ -781,33 +790,35 @@ struct PutFieldWorker
   {
     using SourceT = vtk::GetAPIType<ArrayType>;
     vtkSMPThreadLocal<std::vector<SourceT>> tlTuple;
-    vtkSMPTools::For(0, this->SourceIds->size(), [&](vtkIdType start, vtkIdType end) {
-      auto tuple = tlTuple.Local();
-      tuple.resize(this->NumComponents);
-      if (this->CreateAOS)
+    vtkSMPTools::For(0, this->SourceIds->size(),
+      [&](vtkIdType start, vtkIdType end)
       {
-        for (vtkIdType cc = start; cc < end; ++cc)
+        auto tuple = tlTuple.Local();
+        tuple.resize(this->NumComponents);
+        if (this->CreateAOS)
         {
-          array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
-          for (int comp = 0; comp < this->NumComponents; ++comp)
+          for (vtkIdType cc = start; cc < end; ++cc)
           {
-            this->AOSData[(this->Offset + cc) * this->NumComponents + comp] =
-              static_cast<T>(tuple[comp]);
+            array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
+            for (int comp = 0; comp < this->NumComponents; ++comp)
+            {
+              this->AOSData[(this->Offset + cc) * this->NumComponents + comp] =
+                static_cast<T>(tuple[comp]);
+            }
           }
         }
-      }
-      else
-      {
-        for (vtkIdType cc = start; cc < end; ++cc)
+        else
         {
-          array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
-          for (int comp = 0; comp < this->NumComponents; ++comp)
+          for (vtkIdType cc = start; cc < end; ++cc)
           {
-            this->SOAData[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
+            array->GetTypedTuple((*this->SourceIds)[cc], tuple.data());
+            for (int comp = 0; comp < this->NumComponents; ++comp)
+            {
+              this->SOAData[comp][this->Offset + cc] = static_cast<T>(tuple[comp]);
+            }
           }
         }
-      }
-    });
+      });
 
     this->Offset += this->SourceIds->size();
   }
@@ -832,18 +843,20 @@ struct DisplacementWorker
   void operator()(ArrayType* array)
   {
     using SourceT = vtk::GetAPIType<ArrayType>;
-    vtkSMPTools::For(0, this->SourceIds->size(), [&](vtkIdType start, vtkIdType end) {
-      SourceT* displ = new SourceT[this->Data.size()];
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, this->SourceIds->size(),
+      [&](vtkIdType start, vtkIdType end)
       {
-        array->GetTypedTuple((*this->SourceIds)[cc], displ);
-        for (size_t comp = 0; comp < this->Data.size(); ++comp)
+        SourceT* displ = new SourceT[this->Data.size()];
+        for (vtkIdType cc = start; cc < end; ++cc)
         {
-          this->Data[comp][this->Offset + cc] -= (displ[comp] * this->Magnitude);
+          array->GetTypedTuple((*this->SourceIds)[cc], displ);
+          for (size_t comp = 0; comp < this->Data.size(); ++comp)
+          {
+            this->Data[comp][this->Offset + cc] -= (displ[comp] * this->Magnitude);
+          }
         }
-      }
-      delete[] displ;
-    });
+        delete[] displ;
+      });
 
     this->Offset += this->SourceIds->size();
   }
@@ -1450,9 +1463,9 @@ struct vtkEntityBlock : public vtkGroupingEntity
               else
               {
                 std::transform(orderingTransformation.begin(), orderingTransformation.end(),
-                  std::back_inserter(connectivity), [&](int localId) {
-                    return gidOffset + pointGIDs->GetValue(cellPoints[localId]);
-                  });
+                  std::back_inserter(connectivity),
+                  [&](int localId)
+                  { return gidOffset + pointGIDs->GetValue(cellPoints[localId]); });
               }
             }
           }
@@ -2005,9 +2018,8 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   }
   // write the above for loop with one line
   const bool indicesEmpty = std::all_of(entityIndices.begin(), entityIndices.end(),
-    [](const std::pair<EntityType, std::set<unsigned int>>& indices) {
-      return indices.second.empty();
-    });
+    [](const std::pair<EntityType, std::set<unsigned int>>& indices)
+    { return indices.second.empty(); });
   if (indicesEmpty)
   {
     // if no indices are specified, then all blocks will be processed as element blocks

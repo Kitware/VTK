@@ -239,33 +239,39 @@ int main(int argc, char* argv[])
   QObject::connect(&model, &ArrayGroupModel::dataChanged,
     [&vtkRenderWidget]() { vtkRenderWidget->renderWindow()->Render(); });
 
-  QObject::connect(&bdyBtn, &QCheckBox::toggled, [&](bool enabled) {
-    bdyActor->SetVisibility(enabled);
-    actor->SetVisibility(!enabled);
-    vtkRenderWidget->renderWindow()->Render();
-  });
+  QObject::connect(&bdyBtn, &QCheckBox::toggled,
+    [&](bool enabled)
+    {
+      bdyActor->SetVisibility(enabled);
+      actor->SetVisibility(!enabled);
+      vtkRenderWidget->renderWindow()->Render();
+    });
 
-  QObject::connect(&glySelector, &QComboBox::currentTextChanged, [&](const QString& text) {
-    if (text == QString("–none–"))
+  QObject::connect(&glySelector, &QComboBox::currentTextChanged,
+    [&](const QString& text)
     {
-      glyActor->SetVisibility(false);
-    }
-    else
-    {
-      glyActor->SetVisibility(true);
-      glyMapper->SetOrientationArray(text.toStdString().c_str());
-      glyMapper->SetScaleArray(text.toStdString().c_str());
-    }
-    vtkRenderWidget->renderWindow()->Render();
-  });
+      if (text == QString("–none–"))
+      {
+        glyActor->SetVisibility(false);
+      }
+      else
+      {
+        glyActor->SetVisibility(true);
+        glyMapper->SetOrientationArray(text.toStdString().c_str());
+        glyMapper->SetScaleArray(text.toStdString().c_str());
+      }
+      vtkRenderWidget->renderWindow()->Render();
+    });
 
   // connect the buttons
-  QObject::connect(&cellType, &QComboBox::currentTextChanged, [&](const QString& text) {
-    cellSource->SetCellType(text.toStdString().c_str());
-    updateGlyphSources(cellSource, &glySelector);
-    updateArrayGroups(model, cellSource, &arrayGroupSelector, true);
-    vtkRenderWidget->renderWindow()->Render();
-  });
+  QObject::connect(&cellType, &QComboBox::currentTextChanged,
+    [&](const QString& text)
+    {
+      cellSource->SetCellType(text.toStdString().c_str());
+      updateGlyphSources(cellSource, &glySelector);
+      updateArrayGroups(model, cellSource, &arrayGroupSelector, true);
+      vtkRenderWidget->renderWindow()->Render();
+    });
   QObject::connect(&arrayGroupSelector, &QComboBox::currentTextChanged,
     [&](const QString& text) { model.setGroupName(text.toStdString(), true); });
   updateGlyphSources(cellSource, &glySelector);

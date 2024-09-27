@@ -145,8 +145,9 @@ void vtkDGCellSourceResponder::CreateCellAttribute(vtkDGCell* dgCell, vtkStringT
     dofSharing.IsValid() ? numberOfComponents / basisSize : numberOfValues);
   attribVals->SetNumberOfTuples(
     dofSharing.IsValid() ? numberOfValues * basisSize / numberOfComponents : 1);
-  vtkSMPTools::For(
-    0, attribVals->GetNumberOfValues(), [&attribVals](vtkIdType begin, vtkIdType end) {
+  vtkSMPTools::For(0, attribVals->GetNumberOfValues(),
+    [&attribVals](vtkIdType begin, vtkIdType end)
+    {
       for (vtkIdType ii = begin; ii < end; ++ii)
       {
         attribVals->SetValue(ii, ii == 0 ? 1. : 0.);

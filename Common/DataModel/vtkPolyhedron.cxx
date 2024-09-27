@@ -1968,7 +1968,8 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
   }
 
   // the callback lambda will add each polygon found polys cell array
-  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly) {
+  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly)
+  {
     if (!poly)
       return;
 
@@ -2269,7 +2270,8 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
 {
   // set the compare function
-  std::function<bool(double, double)> c = [insideOut](double a, double b) {
+  std::function<bool(double, double)> c = [insideOut](double a, double b)
+  {
     if (insideOut)
       return std::less_equal<double>()(a, b);
 
@@ -2390,7 +2392,8 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   // variables
   std::vector<std::vector<vtkIdType>>* pPolygons = &polygons;
 
-  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly) {
+  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly)
+  {
     vtkIdType nIds = poly->GetNumberOfIds();
     std::vector<vtkIdType> polygon;
     polygon.reserve(nIds);

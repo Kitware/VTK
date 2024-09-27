@@ -337,22 +337,24 @@ void vtkDGTranscribeCellGridCells::GeneratePointData(
     interpResult->SetNumberOfComponents(nc);
     interpResult->SetNumberOfTuples(nn);
     dgCalc->Evaluate(contribs.InputCellIds, contribs.ParametricCoords, interpResult);
-    vtkSMPTools::For(0, nn, [&](vtkIdType begin, vtkIdType end) {
-      std::vector<double> outTuple(nc, 0.);
-      std::vector<double> inTuple(nc, 0.);
-      for (vtkIdType ii = begin; ii < end; ++ii)
+    vtkSMPTools::For(0, nn,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        interpResult->GetTuple(ii, inTuple.data());
-        vtkIdType outputPointId = contribs.OutputPointIds->GetValue(ii);
-        outputArray->GetTuple(outputPointId, outTuple.data());
-        double pw = pointWeights[outputPointId];
-        for (int jj = 0; jj < nc; ++jj)
+        std::vector<double> outTuple(nc, 0.);
+        std::vector<double> inTuple(nc, 0.);
+        for (vtkIdType ii = begin; ii < end; ++ii)
         {
-          outTuple[jj] += pw * inTuple[jj];
+          interpResult->GetTuple(ii, inTuple.data());
+          vtkIdType outputPointId = contribs.OutputPointIds->GetValue(ii);
+          outputArray->GetTuple(outputPointId, outTuple.data());
+          double pw = pointWeights[outputPointId];
+          for (int jj = 0; jj < nc; ++jj)
+          {
+            outTuple[jj] += pw * inTuple[jj];
+          }
+          outputArray->SetTuple(outputPointId, outTuple.data());
         }
-        outputArray->SetTuple(outputPointId, outTuple.data());
-      }
-    });
+      });
   }
   FreePointContributionCache(request, cellType, caches);
 }

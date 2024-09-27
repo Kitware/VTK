@@ -167,7 +167,8 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
   {
     vtkNew<vtkDataAssembly> assembly;
     std::function<void(int, const conduit_cpp::Node&)> helper;
-    helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node) {
+    helper = [&name_map, &assembly, &helper](int parent, const conduit_cpp::Node& node)
+    {
       if (node.dtype().is_object())
       {
         for (conduit_index_t cc = 0; cc < node.number_of_children(); ++cc)
@@ -221,9 +222,9 @@ int vtkConduitSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   const int dataType = this->OutputMultiBlock ? VTK_MULTIBLOCK_DATA_SET
-                                              : this->UseMultiMeshProtocol
-      ? VTK_PARTITIONED_DATA_SET_COLLECTION
-      : this->UseAMRMeshProtocol ? VTK_OVERLAPPING_AMR : VTK_PARTITIONED_DATA_SET;
+    : this->UseMultiMeshProtocol              ? VTK_PARTITIONED_DATA_SET_COLLECTION
+    : this->UseAMRMeshProtocol                ? VTK_OVERLAPPING_AMR
+                                              : VTK_PARTITIONED_DATA_SET;
 
   return this->SetOutputDataObject(dataType, outputVector->GetInformationObject(0), /*exact=*/true)
     ? 1

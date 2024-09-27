@@ -15,7 +15,8 @@
 int TestMotionFXCFGReaderClover(int argc, char* argv[])
 {
   return impl::Test(argc, argv, "Data/MotionFX/clover/clover_utm.cfg",
-    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*) {
+    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*)
+    {
       auto camera = renderer->GetActiveCamera();
       camera->SetFocalPoint(1.1, 2.25, -0.75);
       camera->SetPosition(-16.0, 15.0, 13.0);

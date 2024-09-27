@@ -23,5 +23,8 @@ VTK_ABI_NAMESPACE_END
 
 extern "C"
 {
-  const char* VTK_ABI_NAMESPACE_MANGLE(GetVTKVersion)() { return vtkVersion::GetVTKVersion(); }
+  const char* VTK_ABI_NAMESPACE_MANGLE(GetVTKVersion)()
+  {
+    return vtkVersion::GetVTKVersion();
+  }
 }

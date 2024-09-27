@@ -152,7 +152,8 @@ vtkVRCollaborationClient::vtkVRCollaborationClient()
   this->EventCommand->SetCallback(vtkVRCollaborationClient::EventCallback);
 
   // setup default scale callback
-  this->ScaleCallback = [this]() {
+  this->ScaleCallback = [this]()
+  {
     auto ovrrw = vtkVRRenderWindow::SafeDownCast(this->RenderWindow);
     return ovrrw ? ovrrw->GetPhysicalScale() : 1.0;
   };

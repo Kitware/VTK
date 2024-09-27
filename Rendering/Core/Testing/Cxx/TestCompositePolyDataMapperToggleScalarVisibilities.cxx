@@ -72,62 +72,64 @@ int TestCompositePolyDataMapperToggleScalarVisibilities(int argc, char* argv[])
 
   vtkNew<vtkCallbackCommand> charCallback;
   charCallback->SetClientData(mapper);
-  charCallback->SetCallback([](vtkObject* caller, unsigned long, void* clientdata, void*) {
-    auto istyle = reinterpret_cast<vtkInteractorStyleSwitch*>(caller);
-    auto* interactor = istyle->GetCurrentStyle()->GetInteractor();
-    if (istyle == nullptr)
+  charCallback->SetCallback(
+    [](vtkObject* caller, unsigned long, void* clientdata, void*)
     {
-      std::cerr << "istyle is null!\n";
-      return;
-    }
-    if (interactor == nullptr)
-    {
-      std::cerr << "interactor is null!\n";
-      return;
-    }
-    auto inputMapper = reinterpret_cast<vtkCompositePolyDataMapper*>(clientdata);
-    if (inputMapper == nullptr)
-    {
-      std::cerr << "Mapper is null!\n";
-      return;
-    }
-    auto* inputCda = inputMapper->GetCompositeDataDisplayAttributes();
-    auto keyCode = interactor->GetKeyCode();
-    switch (keyCode)
-    {
-      case 'n':
-      case 'N':
-        ++selectedSphere;
-        break;
-      default:
-        istyle->OnChar();
+      auto istyle = reinterpret_cast<vtkInteractorStyleSwitch*>(caller);
+      auto* interactor = istyle->GetCurrentStyle()->GetInteractor();
+      if (istyle == nullptr)
+      {
+        std::cerr << "istyle is null!\n";
         return;
-    }
-    if (auto* compositeMesh =
-          vtkPartitionedDataSetCollection::SafeDownCast(inputMapper->GetInputDataObject(0, 0)))
-    {
-      const unsigned int n = compositeMesh->GetNumberOfPartitionedDataSets();
-      selectedSphere %= (n + 1);
-      std::string text = "Selected sphere: " + std::to_string(selectedSphere);
-      if (auto* mesh = compositeMesh->GetPartitionAsDataObject(selectedSphere, 0))
-      {
-        const auto flatIndex = compositeMesh->GetCompositeIndex(selectedSphere, 0);
-        std::cout << "Turn off scalar visibility for sphere at flat index: " << flatIndex << '\n';
-        inputCda->RemoveBlockScalarVisibilities();
-        inputCda->SetBlockScalarVisibility(mesh, false);
-        double color[3] = { 1.0, 1.0, 0.0 };
-        inputCda->SetBlockColor(mesh, color);
-        interactor->GetRenderWindow()->Render();
       }
-      else
+      if (interactor == nullptr)
       {
-        std::cout << "Color all spheres using scalars\n";
-        inputCda->RemoveBlockScalarVisibilities();
-        inputCda->RemoveBlockColors();
-        interactor->GetRenderWindow()->Render();
+        std::cerr << "interactor is null!\n";
+        return;
       }
-    }
-  });
+      auto inputMapper = reinterpret_cast<vtkCompositePolyDataMapper*>(clientdata);
+      if (inputMapper == nullptr)
+      {
+        std::cerr << "Mapper is null!\n";
+        return;
+      }
+      auto* inputCda = inputMapper->GetCompositeDataDisplayAttributes();
+      auto keyCode = interactor->GetKeyCode();
+      switch (keyCode)
+      {
+        case 'n':
+        case 'N':
+          ++selectedSphere;
+          break;
+        default:
+          istyle->OnChar();
+          return;
+      }
+      if (auto* compositeMesh =
+            vtkPartitionedDataSetCollection::SafeDownCast(inputMapper->GetInputDataObject(0, 0)))
+      {
+        const unsigned int n = compositeMesh->GetNumberOfPartitionedDataSets();
+        selectedSphere %= (n + 1);
+        std::string text = "Selected sphere: " + std::to_string(selectedSphere);
+        if (auto* mesh = compositeMesh->GetPartitionAsDataObject(selectedSphere, 0))
+        {
+          const auto flatIndex = compositeMesh->GetCompositeIndex(selectedSphere, 0);
+          std::cout << "Turn off scalar visibility for sphere at flat index: " << flatIndex << '\n';
+          inputCda->RemoveBlockScalarVisibilities();
+          inputCda->SetBlockScalarVisibility(mesh, false);
+          double color[3] = { 1.0, 1.0, 0.0 };
+          inputCda->SetBlockColor(mesh, color);
+          interactor->GetRenderWindow()->Render();
+        }
+        else
+        {
+          std::cout << "Color all spheres using scalars\n";
+          inputCda->RemoveBlockScalarVisibilities();
+          inputCda->RemoveBlockColors();
+          interactor->GetRenderWindow()->Render();
+        }
+      }
+    });
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(window);

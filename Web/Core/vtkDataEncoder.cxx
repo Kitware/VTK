@@ -197,17 +197,19 @@ public:
     }
     const auto& ts = tsIter->second;
     std::unique_lock<std::mutex> lock(this->ResultsMutex);
-    this->ResultsCondition.wait(lock, [this, &ts, &key]() {
-      try
+    this->ResultsCondition.wait(lock,
+      [this, &ts, &key]()
       {
-        return ts == this->Results[key].first;
-      }
-      catch (std::out_of_range&)
-      {
-        // result not available yet; keep waiting;
-        return false;
-      }
-    });
+        try
+        {
+          return ts == this->Results[key].first;
+        }
+        catch (std::out_of_range&)
+        {
+          // result not available yet; keep waiting;
+          return false;
+        }
+      });
   }
 };
 VTK_ABI_NAMESPACE_END

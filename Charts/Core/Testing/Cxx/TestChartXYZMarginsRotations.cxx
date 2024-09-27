@@ -75,7 +75,8 @@ int TestChartXYZMarginsRotations(int, char*[])
   }
 
   pointindex = 0;
-  auto p = [&table2, &pointindex](float x, float y, float z) {
+  auto p = [&table2, &pointindex](float x, float y, float z)
+  {
     table2->SetValue(pointindex, 0, x * 0.8 + 100.1);
     table2->SetValue(pointindex, 1, y * 0.8 - 74.9);
     table2->SetValue(pointindex, 2, z * 0.8 + 50.1);

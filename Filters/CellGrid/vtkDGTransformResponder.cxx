@@ -86,15 +86,17 @@ bool vtkDGTransformResponder::Query(
   // loses precision; always use TransformPoint(double*, double*).
   if (dofSharing)
   {
-    vtkSMPTools::For(0, nt, [&](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType ii = begin; ii < end; ++ii)
+    vtkSMPTools::For(0, nt,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        std::array<double, 3> tuple;
-        values->GetTuple(ii, tuple.data());
-        xfm->TransformPoint(tuple.data(), tuple.data());
-        transformedValues->SetTuple(ii, tuple.data());
-      }
-    });
+        for (vtkIdType ii = begin; ii < end; ++ii)
+        {
+          std::array<double, 3> tuple;
+          values->GetTuple(ii, tuple.data());
+          xfm->TransformPoint(tuple.data(), tuple.data());
+          transformedValues->SetTuple(ii, tuple.data());
+        }
+      });
     auto* arrayGroup = cellType->GetCellGrid()->GetAttributes(cellTypeInfo.DOFSharing);
     arrayGroup->RemoveArray(values->GetName());
     arrayGroup->AddArray(transformedValues);
@@ -106,19 +108,21 @@ bool vtkDGTransformResponder::Query(
       cellTypeInfo.FunctionSpace == "constant"_token)
     {
       // DG HGRAD data repeats a vector value once for each basis
-      vtkSMPTools::For(0, nt, [&](vtkIdType begin, vtkIdType end) {
-        std::vector<double> tuple;
-        tuple.resize(values->GetNumberOfComponents());
-        for (vtkIdType ii = begin; ii < end; ++ii)
+      vtkSMPTools::For(0, nt,
+        [&](vtkIdType begin, vtkIdType end)
         {
-          values->GetTuple(ii, tuple.data());
-          for (int jj = 0; jj < nvpt; ++jj)
+          std::vector<double> tuple;
+          tuple.resize(values->GetNumberOfComponents());
+          for (vtkIdType ii = begin; ii < end; ++ii)
           {
-            xfm->TransformPoint(tuple.data() + 3 * jj, tuple.data() + 3 * jj);
+            values->GetTuple(ii, tuple.data());
+            for (int jj = 0; jj < nvpt; ++jj)
+            {
+              xfm->TransformPoint(tuple.data() + 3 * jj, tuple.data() + 3 * jj);
+            }
+            transformedValues->SetTuple(ii, tuple.data());
           }
-          transformedValues->SetTuple(ii, tuple.data());
-        }
-      });
+        });
       auto* arrayGroup = cellType->GetCellGrid()->GetAttributes(cellTypeToken);
       arrayGroup->RemoveArray(values->GetName());
       arrayGroup->AddArray(transformedValues);

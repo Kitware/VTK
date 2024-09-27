@@ -2721,7 +2721,8 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int* result)
     // Compare to file size, being careful not to overflow the
     // multiplication (by doing 64 bit math). Also check for overflow errors.
     // Use negative value as an indication of bad number.
-    auto checkByteOrderConsistency = [&](int& temporarySize) {
+    auto checkByteOrderConsistency = [&](int& temporarySize)
+    {
       if (temporarySize < 0)
       {
         temporarySize = -1;

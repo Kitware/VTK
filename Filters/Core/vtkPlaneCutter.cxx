@@ -864,12 +864,14 @@ void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkPolyData* polyData)
   newNormals->SetNumberOfComponents(3);
   newNormals->SetName("Normals");
   newNormals->SetNumberOfTuples(polyData->GetNumberOfPoints());
-  vtkSMPTools::For(0, polyData->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType i = begin; i < end; ++i)
+  vtkSMPTools::For(0, polyData->GetNumberOfPoints(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      newNormals->SetTuple(i, planeNormal);
-    }
-  });
+      for (vtkIdType i = begin; i < end; ++i)
+      {
+        newNormals->SetTuple(i, planeNormal);
+      }
+    });
   polyData->GetPointData()->AddArray(newNormals);
 }
 

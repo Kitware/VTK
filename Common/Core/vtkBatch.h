@@ -79,16 +79,18 @@ public:
     this->Batches.resize(static_cast<size_t>(numberOfBatches));
     const auto lastBatchId = numberOfBatches - 1;
 
-    vtkSMPTools::For(0, numberOfBatches, [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
-      vtkIdType endIdValues[2] = { -1, numberOfElements };
-      for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+    vtkSMPTools::For(0, numberOfBatches,
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId)
       {
-        auto& batch = this->Batches[batchId];
-        batch.BeginId = batchId * batchSizeSigned;
-        endIdValues[0] = (batchId + 1) * batchSizeSigned;
-        batch.EndId = endIdValues[batchId == lastBatchId];
-      }
-    });
+        vtkIdType endIdValues[2] = { -1, numberOfElements };
+        for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+        {
+          auto& batch = this->Batches[batchId];
+          batch.BeginId = batchId * batchSizeSigned;
+          endIdValues[0] = (batchId + 1) * batchSizeSigned;
+          batch.EndId = endIdValues[batchId == lastBatchId];
+        }
+      });
   }
 
   /**
@@ -110,18 +112,21 @@ public:
     tlInterEndBatchId.resize(static_cast<size_t>(numberOfThreads));
 
     // perform batch trimming of batch segments
-    vtkSMPTools::For(0, numberOfThreads, [&](vtkIdType beginThreadId, vtkIdType endThreadId) {
-      for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
+    vtkSMPTools::For(0, numberOfThreads,
+      [&](vtkIdType beginThreadId, vtkIdType endThreadId)
       {
-        const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
-        const vtkIdType endBatchId =
-          threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
-        auto beginBatchIter = this->Batches.begin() + beginBatchId;
-        auto endBatchIter = this->Batches.begin() + endBatchId;
-        auto newEndBatchIter = std::remove_if(beginBatchIter, endBatchIter, shouldRemoveBatch);
-        tlInterEndBatchId[threadId] = beginBatchId + std::distance(beginBatchIter, newEndBatchIter);
-      }
-    });
+        for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
+        {
+          const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
+          const vtkIdType endBatchId =
+            threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
+          auto beginBatchIter = this->Batches.begin() + beginBatchId;
+          auto endBatchIter = this->Batches.begin() + endBatchId;
+          auto newEndBatchIter = std::remove_if(beginBatchIter, endBatchIter, shouldRemoveBatch);
+          tlInterEndBatchId[threadId] =
+            beginBatchId + std::distance(beginBatchIter, newEndBatchIter);
+        }
+      });
     // compute the new end batch ids;
     std::vector<vtkIdType> tlNewEndBatchId;
     tlNewEndBatchId.resize(static_cast<size_t>(numberOfThreads));
@@ -166,20 +171,22 @@ public:
     std::vector<TBatchData> tlSums;
     tlSums.resize(static_cast<size_t>(numberOfThreads));
 
-    vtkSMPTools::For(0, numberOfThreads, [&](vtkIdType beginThreadId, vtkIdType endThreadId) {
-      for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
+    vtkSMPTools::For(0, numberOfThreads,
+      [&](vtkIdType beginThreadId, vtkIdType endThreadId)
       {
-        const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
-        const vtkIdType endBatchId =
-          threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
-
-        auto& threadSum = tlSums[threadId];
-        for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+        for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
         {
-          threadSum += this->Batches[batchId].Data;
+          const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
+          const vtkIdType endBatchId =
+            threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
+
+          auto& threadSum = tlSums[threadId];
+          for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
+          {
+            threadSum += this->Batches[batchId].Data;
+          }
         }
-      }
-    });
+      });
 
     // calculate the global sum;
     TBatchData globalSum;
@@ -197,28 +204,30 @@ public:
     }
 
     // convert the batch sums to offsets using the thread local offsets
-    vtkSMPTools::For(0, numberOfThreads, [&](vtkIdType beginThreadId, vtkIdType endThreadId) {
-      for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
+    vtkSMPTools::For(0, numberOfThreads,
+      [&](vtkIdType beginThreadId, vtkIdType endThreadId)
       {
-        const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
-        const vtkIdType endBatchId =
-          threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
-
-        // store the first batch sum
-        auto lastBatchData = this->Batches[beginBatchId].Data;
-        // convert the first batch sum to an offset
-        this->Batches[beginBatchId].Data = tlOffsets[threadId];
-        for (vtkIdType batchId = beginBatchId + 1; batchId < endBatchId; ++batchId)
+        for (vtkIdType threadId = beginThreadId; threadId < endThreadId; ++threadId)
         {
-          // store the current batch sum
-          const auto currentBatchData = this->Batches[batchId].Data;
-          // convert the current batch sum to an offset
-          this->Batches[batchId].Data = this->Batches[batchId - 1].Data + lastBatchData;
-          // store the current batch sum for the next iteration
-          lastBatchData = std::move(currentBatchData);
+          const vtkIdType beginBatchId = threadId * numberOfBatchesPerThread;
+          const vtkIdType endBatchId =
+            threadId != lastThreadId ? (threadId + 1) * numberOfBatchesPerThread : numberOfBatches;
+
+          // store the first batch sum
+          auto lastBatchData = this->Batches[beginBatchId].Data;
+          // convert the first batch sum to an offset
+          this->Batches[beginBatchId].Data = tlOffsets[threadId];
+          for (vtkIdType batchId = beginBatchId + 1; batchId < endBatchId; ++batchId)
+          {
+            // store the current batch sum
+            const auto currentBatchData = this->Batches[batchId].Data;
+            // convert the current batch sum to an offset
+            this->Batches[batchId].Data = this->Batches[batchId - 1].Data + lastBatchData;
+            // store the current batch sum for the next iteration
+            lastBatchData = std::move(currentBatchData);
+          }
         }
-      }
-    });
+      });
 
     return globalSum;
   }

@@ -20,7 +20,7 @@
 // Uncomment the following line to help with debugging. When
 // ENABLE_SYNCHRONIZED_COMMUNICATION is defined, every Send() blocks until the
 // receive is successful.
-//#define ENABLE_SYNCHRONIZED_COMMUNICATION
+// #define ENABLE_SYNCHRONIZED_COMMUNICATION
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSocketCommunicator::vtkMessageBuffer

@@ -14,7 +14,7 @@
 
 #include "vtkOpenGLError.h"
 
-//#define vtkOpenGLHardwareSelectorDEBUG
+// #define vtkOpenGLHardwareSelectorDEBUG
 #ifdef vtkOpenGLHardwareSelectorDEBUG
 #include "vtkImageImport.h"
 #include "vtkNew.h"

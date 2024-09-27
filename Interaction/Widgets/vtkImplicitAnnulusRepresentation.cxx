@@ -67,7 +67,8 @@ double ComputeDeltaRadius(
 //------------------------------------------------------------------------------
 vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
 {
-  auto initializeRadiusRepresentation = [](RadiusHandleRepresentation& representation) {
+  auto initializeRadiusRepresentation = [](RadiusHandleRepresentation& representation)
+  {
     vtkNew<vtkPoints> points;
     points->SetDataTypeToDouble();
     representation.PolyData->SetPoints(points);
@@ -84,7 +85,8 @@ vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
     representation.Mapper->ScalarVisibilityOff();
   };
 
-  auto initializeAxisRepresentation = [](AxisHandleRepresentation& representation) {
+  auto initializeAxisRepresentation = [](AxisHandleRepresentation& representation)
+  {
     // Create the axis
     representation.LineSource->SetResolution(1);
     representation.LineMapper->SetInputConnection(representation.LineSource->GetOutputPort());
@@ -1376,7 +1378,8 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
   vtkPoints* annulusPoints = this->AnnulusPD->GetPoints();
   annulusPoints->SetNumberOfPoints(numberOfPointsPerCylinder * 2.);
 
-  auto createPoints = [&](vtkIdType idx, const CylinderInfo& cylinder) {
+  auto createPoints = [&](vtkIdType idx, const CylinderInfo& cylinder)
+  {
     vtkVector3d topPoint(cylinder.Radius, height, 0.);
     toYAlignedAnnulus->TransformPoint(topPoint.GetData(), topPoint.GetData());
     toWidgetBasis->TransformPoint(topPoint.GetData(), topPoint.GetData());
@@ -1402,7 +1405,8 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
   vtkVector3d boundsCenter;
   bbox.GetCenter(boundsCenter.GetData());
 
-  auto clampPointsToBoundingBox = [&](CylinderInfo& cylinder) {
+  auto clampPointsToBoundingBox = [&](CylinderInfo& cylinder)
+  {
     for (vtkIdType pointIdx = 0; pointIdx < numberOfPointsPerCylinderSide; ++pointIdx)
     {
       vtkVector3d bottomPoint, topPoint;
@@ -1432,7 +1436,8 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
   // Create annulus polys
   vtkCellArray* polys = this->AnnulusPD->GetPolys();
 
-  auto buildCylinderPolys = [&](const CylinderInfo& cylinder, vtkPolyData* edgesPD) {
+  auto buildCylinderPolys = [&](const CylinderInfo& cylinder, vtkPolyData* edgesPD)
+  {
     // Copy cylinder points to edge polydata
     edgesPD->Reset();
     vtkPoints* edgePoints = edgesPD->GetPoints();

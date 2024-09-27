@@ -420,7 +420,8 @@ void vtkOpenGLES30PolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* view
 
   // populate vertex attributes
   auto expand = [](vtkSmartPointer<vtkDataArray> src, vtkSmartPointer<vtkDataArray> dst,
-                  const unsigned int* indices, const std::size_t numIndices) {
+                  const unsigned int* indices, const std::size_t numIndices)
+  {
     if (src == nullptr || dst == nullptr)
     {
       return;

@@ -576,7 +576,7 @@ static const char* MacKeyCodeToKeySymTable[128] = {
 
   vtkNew<vtkStringArray> filePaths;
   NSPasteboard* pboard = [sender draggingPasteboard];
-  NSArray* fileURLs = [pboard readObjectsForClasses:@ [[NSURL class]] options:nil];
+  NSArray* fileURLs = [pboard readObjectsForClasses:@[ [NSURL class] ] options:nil];
   for (NSURL* fileURL in fileURLs)
   {
     const char* filePath = [fileURL fileSystemRepresentation];

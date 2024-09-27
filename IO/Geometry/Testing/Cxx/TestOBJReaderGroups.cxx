@@ -63,7 +63,8 @@ static bool CheckOBJGroups(const std::string& filename, const int maxExpected)
 int TestOBJReaderGroups(int argc, char* argv[])
 {
   // lambda for the testing
-  auto doTesting = [&](int maxExpected, const char* dataName) -> bool {
+  auto doTesting = [&](int maxExpected, const char* dataName) -> bool
+  {
     char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, dataName);
     std::string filename(fname);
     delete[] fname;
