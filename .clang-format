@@ -14,7 +14,7 @@ BinPackArguments: true
 BinPackParameters: true
 ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
-Standard: Cpp11
+Standard: c++17
 StatementMacros:
 - DefineScopedHandle
 - DefineToNumeric
