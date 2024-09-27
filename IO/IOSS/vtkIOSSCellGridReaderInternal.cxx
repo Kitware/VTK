@@ -37,6 +37,7 @@
 
 // clang-format off
 #include VTK_IOSS(Ioss_Field.h)
+#include VTK_IOSS(Ioss_TransformFactory.h)
 // clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -326,18 +327,83 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetNode
   const DatabaseHandle& handle, int timestep, vtkIOSSCellGridReader* self)
 {
   (void)self;
-  (void)timestep;
   (void)vtk_entity_type;
-  std::vector<vtkSmartPointer<vtkCellGrid>> data;
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockName, Ioss::EntityType::NODESET);
   if (!group_entity)
   {
-    throw std::runtime_error("No group entity for node set.");
+    vtkErrorWithObjectMacro(self, "No group entity for node-set \"" << blockName << "\".");
+    return {};
+  }
+  auto grid = vtkSmartPointer<vtkCellGrid>::New();
+  auto meta = vtkCellMetadata::NewInstance("vtkDGVert"_token, grid);
+  auto* dg = vtkDGCell::SafeDownCast(meta);
+  if (!meta || !dg)
+  {
+    vtkErrorWithObjectMacro(
+      self, "Could not create metadata for node-set \"" << blockName << "\".");
+    return {};
+  }
+  if (!grid->AddCellMetadata(meta))
+  {
+    vtkErrorWithObjectMacro(
+      self, "Could not add metadata for node-set \"" << blockName << "\" to grid.");
+    return {};
+  }
+  // Fetch the IDs of the file-global points included in the node-set,
+  // offseting by -1 so they are 0-indexed:
+  auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+  transform->set_property("offset", -1);
+  auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform.get());
+  ids_raw->SetNumberOfComponents(1);
+
+  // Add the ID array to a vtkDataSetAttributes instance corresponding to
+  // the number of cells of the node-set. Since a separate cell-grid holds
+  // each node-set, we use the name of the cell type ("vtkDGVert") for the
+  // array group:
+  auto* cellGroup = grid->GetAttributes(dg->GetClassName());
+  cellGroup->AddArray(ids_raw);
+  dg->GetCellSpec().Connectivity = ids_raw;
+  dg->GetCellSpec().SourceShape = vtkDGCell::Shape::Vertex;
+  dg->GetCellSpec().Blanked = false;
+
+  // From the shape of cells in the block, the connectivity size, and the order,
+  // we need to infer vtkDGCell::CellTypeInfo data (FunctionSpace, Basis, Order).
+  vtkCellAttribute::CellTypeInfo cellShapeInfo;
+  cellShapeInfo.FunctionSpace = "constant"_token;
+  cellShapeInfo.Basis = "C"_token;
+  cellShapeInfo.Order = 0;
+
+  // Read node coordinates as the shape attribute.
+  // This must always be a "CG" (continuous) attribute.
+  vtkIOSSCellGridUtilities::GetShape(
+    region, group_entity, cellShapeInfo, timestep, dg, grid, &this->Cache);
+  // Apply displacements before reading other cell-attributes as
+  // computing the range of HDIV/HCURL attributes **must** use
+  // the actual (deformed) cell shape. Also, note that using a
+  // displacement scale factor other than 1.0 will introduce errors.
+  if (self->GetApplyDisplacements())
+  {
+    this->ApplyDisplacements(grid, region, group_entity, handle, timestep);
   }
 
-  std::cerr << "Node-sets (" << blockName << ") are currently unsupported.\n";
-  return data;
+  // TODO: Add per-block attributes.
+  // Note that this is very difficult since nodes may be attached to
+  // cells in any number (0 or more) of element blocks. We could add
+  // all cell-attributes across all element blocks (assuming there are
+  // no cell-attributes with different spaces/components in different
+  // blocks), but then we must have NaN entries for nodes that do not
+  // attach to cells in those blocks. Also, it is possible for a node
+  // to take on multiple values if multiple element blocks provide the
+  // same field. In that case, it is unclear what to do.
+
+  // Add cell-attributes for nodal-data.
+  auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
+  auto nodeblock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
+  this->GetNodalAttributes(nodeFieldSelection, grid->GetAttributes("point-data"_token), grid, dg,
+    nodeblock, region, handle, timestep, self->GetReadIds(), "");
+
+  return { grid };
 }
 
 vtkCellAttribute::CellTypeInfo vtkIOSSCellGridReaderInternal::GetCellGridInfoForBlock(
@@ -618,7 +684,12 @@ void vtkIOSSCellGridReaderInternal::GetNodalAttributes(vtkDataArraySelection* fi
       attribute->Initialize(array->GetName(), "ℝ³", array->GetNumberOfComponents());
       vtkCellAttribute::CellTypeInfo cellTypeInfo;
       cellTypeInfo.DOFSharing = "point-data"_token;
-      cellTypeInfo.FunctionSpace = "HGRAD"; // All point-data arrays are HGRAD
+      // Point-data arrays must match the shape-attribute since they are
+      // continuous and must thus use the connectivity array provided for
+      // the shape attribute. Note that even nodesets and blocks of vertex
+      // cells are "continuous," though in that case they live in the
+      // "constant" function space, not "HGRAD."
+      cellTypeInfo.FunctionSpace = shapeInfo.FunctionSpace;
       cellTypeInfo.Basis = shapeInfo.Basis;
       cellTypeInfo.Order = shapeInfo.Order;
       cellTypeInfo.ArraysByRole["connectivity"] = meta->GetCellSpec().Connectivity;
