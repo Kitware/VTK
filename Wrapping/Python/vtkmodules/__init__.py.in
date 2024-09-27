@@ -3,6 +3,7 @@ Currently, this package is experimental and may change in the future.
 """
 from __future__ import absolute_import
 import sys
+import importlib
 
 
 def _windows_dll_path():
@@ -63,3 +64,45 @@ __all__ = [
 #------------------------------------------------------------------------------
 # get the version
 __version__ = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
+
+#------------------------------------------------------------------------------
+# describe import dependencies to properly define Python @override
+MODULE_MAPPER = {
+    "vtkCommonDataModel": [
+        "vtkmodules.util.data_model",
+    ],
+    "vtkCommonExecutionModel": [
+        "vtkmodules.util.execution_model",
+    ],
+}
+LOADED_MODULES = set()
+IMPORTED_MODULES = set()
+
+def register_vtk_module_dependencies(vtk_module_name, *import_names):
+    """Method to call for registering external override on vtkmodule load"""
+    if vtk_module_name not in MODULE_MAPPER:
+        MODULE_MAPPER[vtk_module_name] = []
+
+    for import_name in import_names:
+        MODULE_MAPPER[vtk_module_name].append(import_name)
+
+    # If already loaded let's make sure we import it now
+    if vtk_module_name in LOADED_MODULES:
+        for import_name in import_names:
+            if import_name not in IMPORTED_MODULES:
+                importlib.import_module(import_name)
+                IMPORTED_MODULES.add(import_name)
+
+
+def on_vtk_module_loaded(module_name):
+    """Automatically called by vtkmodule when they are loaded"""
+    if module_name in LOADED_MODULES:
+        return
+
+    LOADED_MODULES.add(module_name)
+
+    if module_name in MODULE_MAPPER:
+        for import_name in MODULE_MAPPER[module_name]:
+            if import_name not in IMPORTED_MODULES:
+                importlib.import_module(import_name)
+                IMPORTED_MODULES.add(import_name)

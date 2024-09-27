@@ -128,6 +128,11 @@ static void CreateImplFile(
 
   fprintf(fout, "\n");
   fprintf(fout, "  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
+
+  // For any loaded module check if we need to import pure python dependency
+  // by calling vtkmodules.on_vtk_module_loaded(libName)
+  fprintf(fout, "  PyRun_SimpleString(\"vtkmodules.on_vtk_module_loaded('%s')\");\n\n", libName);
+
   fprintf(fout, "  return m;\n");
   fprintf(fout, "}\n\n");
 }
