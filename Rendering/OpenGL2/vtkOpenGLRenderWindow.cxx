@@ -962,6 +962,15 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
     {
       attachment = GL_BACK_LEFT;
     }
+    if (attachment == GL_NONE)
+    {
+      // when using vtkGenericOpenGLRenderWindow through QVTKOpenGLNativeWidget,
+      // or a subclass of QOpenGLWidget, the rendering takes place in an offscreen buffer
+      // and is then transferred to the default framebuffer object which is setup
+      // with glDrawBuffers(GL_NONE). So treat it as if it were GL_BACK_LEFT
+      // before querying the color buffer sizes.
+      attachment = GL_BACK_LEFT;
+    }
 
     // make sure we clear any errors before we start
     // otherwise we may get incorrect results
