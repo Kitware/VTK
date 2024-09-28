@@ -74,35 +74,6 @@ bool vtkCellGridSidesQuery::Finalize()
   return true;
 }
 
-#if 0
-void vtkCellGridSidesQuery::SummarizeSides()
-{
-  this->Sides.clear();
-#ifdef VTK_DBG_SUMMARIZE_SIDES
-  std::cout << "Hash table\n";
-  for (const auto& entry : this->Hashes)
-  {
-    std::cout << "  " << std::hex << entry.first << std::dec << "\n";
-    for (const auto& side : entry.second.Sides)
-    {
-      std::cout << "    " << side.CellType.Data() << " " << side.SideShape.Data() << ": " << side.DOF << " " << side.SideId << "\n";
-    }
-  }
-#endif
-  for (const auto& entry : this->Hashes)
-  {
-    if (entry.second.Sides.size() % 2 == 0)
-    {
-      continue; // Do not output matching pairs of sides.
-    }
-    for (const auto& ss : entry.second.Sides)
-    {
-      this->Sides[ss.CellType][ss.SideShape][ss.DOF].insert(ss.SideId);
-    }
-  }
-}
-#endif // 0
-
 std::vector<vtkCellGridSidesQuery::SideSetArray> vtkCellGridSidesQuery::GetSideSetArrays(
   vtkStringToken cellType)
 {
