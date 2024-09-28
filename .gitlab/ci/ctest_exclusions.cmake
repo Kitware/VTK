@@ -335,6 +335,19 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions
+    # floating point precision issues (fma optimizations change results)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
+    "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
+    "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+    "^VTK::FiltersFlowPathsCxx-TestParticleTracers$"
+    "^VTK::FiltersModelingPython-Hyper$"
+    "^VTK::RenderingAnnotationPython-xyPlot$"
+    "^VTK::RenderingAnnotationPython-xyPlot2$"
+    "^VTK::RenderingAnnotationPython-xyPlot4$"
+    "^VTK::RenderingCorePython-pickImageData$"
+
     # Crowded geometry?
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
     "^VTK::ViewsInfovisCxx-TestTreeMapView$"
@@ -344,6 +357,19 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
+    "$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
+  list(APPEND test_exclusions
+    # floating point precision issues (fma optimizations change results)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+    "^VTK::FiltersModelingPython-Hyper$"
+    "^VTK::RenderingAnnotationPython-xyPlot$"
+    "^VTK::RenderingAnnotationPython-xyPlot2$"
+    "^VTK::RenderingAnnotationPython-xyPlot4$"
+    "^VTK::RenderingCorePython-pickImageData$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")

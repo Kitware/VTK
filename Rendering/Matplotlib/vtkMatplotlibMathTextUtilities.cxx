@@ -456,7 +456,7 @@ PyObject* vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty* tpr
 
 //------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(
-  int rows, int cols, vtkTextProperty* tprop, int bbox[])
+  int rows, int cols, vtkTextProperty* tprop, int bbox[4])
 {
   bbox[0] = 0;
   bbox[1] = cols - 1;
