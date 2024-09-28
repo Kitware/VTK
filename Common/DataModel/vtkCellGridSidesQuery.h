@@ -192,6 +192,11 @@ public:
   void SetStrategyToWinding() { this->SetStrategy(SummaryStrategy::Winding); }
   void SetStrategyToAnyOccurrence() { this->SetStrategy(SummaryStrategy::AnyOccurrence); }
   void SetStrategyToBoundary() { this->SetStrategy(SummaryStrategy::Boundary); }
+  /// This method exists for ParaView to set the strategy.
+  virtual void SetStrategy(int strategy)
+  {
+    this->SetStrategy(static_cast<SummaryStrategy>(strategy));
+  }
 
   /// Set/get whether the extracted sides should be marked as selectable
   /// or whether their originating data should be selectable.
@@ -205,6 +210,11 @@ public:
   /// Other values indicate the generated output sides should be selected.
   vtkSetEnumMacro(SelectionType, SelectionMode);
   vtkGetEnumMacro(SelectionType, SelectionMode);
+  /// This method exists for ParaView to set the selection mode.
+  virtual void SetSelectionType(int selnType)
+  {
+    this->SetSelectionType(static_cast<SelectionMode>(selnType));
+  }
 
   bool Initialize() override;
   void StartPass() override;
