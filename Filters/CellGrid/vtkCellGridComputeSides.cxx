@@ -3,6 +3,7 @@
 
 #include "vtkCellGridComputeSides.h"
 
+#include "vtkCellGridSidesCache.h"
 #include "vtkCellGridSidesQuery.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFiltersCellGrid.h" // for RegisterCellsAndResponders()
@@ -20,6 +21,12 @@ vtkStandardNewMacro(vtkCellGridComputeSides);
 vtkCellGridComputeSides::vtkCellGridComputeSides()
 {
   vtkFiltersCellGrid::RegisterCellsAndResponders();
+  // For now, just keep the cached data on the filter.
+  // Eventually, a side-cache should be stored in the
+  // vtkCellGridResponders map of cached objects with
+  // a key appropriate to the input data object.
+  vtkNew<vtkCellGridSidesCache> sideCache;
+  this->Request->SetSideCache(sideCache);
 }
 
 void vtkCellGridComputeSides::PrintSelf(ostream& os, vtkIndent indent)
@@ -118,6 +125,10 @@ int vtkCellGridComputeSides::RequestData(
     return 0;
   }
   output->ShallowCopy(input);
+  // TODO: For now, always reset the side cache.
+  // In the future, the cache should invalidate
+  // itself as the query parameters are modified.
+  this->Request->GetSideCache()->Initialize();
   if (!output->Query(this->Request))
   {
     vtkErrorMacro("Input failed to respond to query.");

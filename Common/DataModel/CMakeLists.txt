@@ -44,6 +44,7 @@ set(classes
   vtkCellGridRangeQuery
   vtkCellGridQuery
   vtkCellGridResponders
+  vtkCellGridSidesCache
   vtkCellGridSidesQuery
   vtkCellIterator
   vtkCellLinks
