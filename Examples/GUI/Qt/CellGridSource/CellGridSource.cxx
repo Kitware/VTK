@@ -29,6 +29,7 @@
 #include <QMainWindow>
 #include <QPointer>
 #include <QPushButton>
+#include <QShortcut>
 #include <QTableView>
 #include <QVBoxLayout>
 
@@ -209,12 +210,16 @@ int main(int argc, char* argv[])
   bdyActor->GetProperty()->SetRepresentationToSurface();
   bdyActor->SetVisibility(false); // Turn off initially.
 
+  vtkNew<vtkCellGridComputeSides> centerSides;
   vtkNew<vtkCellGridCellCenters> centers;
   vtkNew<vtkCellGridToUnstructuredGrid> ugridCvt;
   vtkNew<vtkGlyph3DMapper> glyMapper;
   vtkNew<vtkArrowSource> arrow;
   vtkNew<vtkActor> glyActor;
-  centers->SetInputConnection(cellEdges->GetOutputPort());
+  centerSides->SetInputDataObject(0, cellSource->GetOutput());
+  centerSides->SetOutputDimensionControl(vtkCellGridSidesQuery::SideFlags::AllSides);
+  centerSides->OmitSidesForRenderableInputsOff();
+  centers->SetInputConnection(centerSides->GetOutputPort());
   ugridCvt->SetInputConnection(centers->GetOutputPort());
   glyMapper->SetInputConnection(ugridCvt->GetOutputPort());
   glyMapper->OrientOn();
@@ -237,7 +242,12 @@ int main(int argc, char* argv[])
 
   // Re-render upon each user edit of a cell-grid data-array:
   QObject::connect(&model, &ArrayGroupModel::dataChanged,
-    [&vtkRenderWidget]() { vtkRenderWidget->renderWindow()->Render(); });
+    [&vtkRenderWidget, &cellEdges, &centerSides]()
+    {
+      cellEdges->Modified();
+      centerSides->Modified();
+      vtkRenderWidget->renderWindow()->Render();
+    });
 
   QObject::connect(&bdyBtn, &QCheckBox::toggled,
     [&](bool enabled)
@@ -277,6 +287,8 @@ int main(int argc, char* argv[])
   updateGlyphSources(cellSource, &glySelector);
   updateArrayGroups(model, cellSource, &arrayGroupSelector, false);
 
+  QShortcut exitKey(QKeySequence("Ctrl+Q"), &mainWindow);
+  QObject::connect(&exitKey, &QShortcut::activated, [&]() { app.exit(); });
   mainWindow.show();
 
   return app.exec();
