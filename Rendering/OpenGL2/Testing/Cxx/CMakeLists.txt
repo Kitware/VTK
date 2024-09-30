@@ -1,6 +1,10 @@
 vtk_module_test_data(
   Data/pen_1.cur
   Data/pen_1.xcursor
+  Data/overlap_faces.vtm
+  Data/overlap_faces/overlap_faces_0_0.vtp
+  Data/overlap_faces/overlap_faces_1_0.vtp
+  Data/overlap_faces/overlap_faces_2_0.vtp
   )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -28,6 +32,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCameraShiftScale.cxx,NO_DATA
   TestCoincident.cxx
   TestCoincidentFloor.cxx
+  TestCompositeDataOverlappingCells.cxx,
   TestCompositeDataPointGaussian.cxx,NO_DATA
   TestCompositeDataPointGaussianSelection.cxx,NO_DATA
   TestCompositePolyDataMapper2.cxx,NO_DATA
