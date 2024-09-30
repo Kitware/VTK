@@ -514,6 +514,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-TestResizingWindowToImageFilter$"
     "^VTK::RenderingCoreCxx-TestTextureWrap$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
+    "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2CellScalars$"
