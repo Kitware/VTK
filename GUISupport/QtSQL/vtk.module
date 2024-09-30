@@ -2,6 +2,8 @@ NAME
   VTK::GUISupportQtSQL
 LIBRARY_NAME
   vtkGUISupportQtSQL
+DESCRIPTION
+  Adapt Qt's SQL interface to VTK's vtkSQLDatabase.
 GROUPS
   Qt
 SPDX_LICENSE_IDENTIFIER

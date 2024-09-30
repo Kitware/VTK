@@ -2,6 +2,8 @@ NAME
   VTK::GeovisGDAL
 LIBRARY_NAME
   vtkGeovisGDAL
+DESCRIPTION
+  Geospatial reprojection filters that use GDAL.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
