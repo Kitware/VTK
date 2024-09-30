@@ -211,39 +211,60 @@ int main(int argc, char* argv[])
   bdyActor->SetVisibility(false); // Turn off initially.
 
   vtkNew<vtkCellGridComputeSides> centerSides;
-  vtkNew<vtkCellGridCellCenters> centers;
+  vtkNew<vtkCellGridCellCenters> sideCenters;
   vtkNew<vtkCellGridToUnstructuredGrid> ugridCvt;
-  vtkNew<vtkGlyph3DMapper> glyMapper;
+  vtkNew<vtkGlyph3DMapper> glyMapperCC;
+  vtkNew<vtkGlyph3DMapper> glyMapperSC;
   vtkNew<vtkArrowSource> arrow;
-  vtkNew<vtkActor> glyActor;
+  vtkNew<vtkActor> glyActorCC;
+  vtkNew<vtkActor> glyActorSC;
   centerSides->SetInputDataObject(0, cellSource->GetOutput());
   centerSides->SetOutputDimensionControl(vtkCellGridSidesQuery::SideFlags::AllSides);
   centerSides->OmitSidesForRenderableInputsOff();
-  centers->SetInputConnection(centerSides->GetOutputPort());
-  ugridCvt->SetInputConnection(centers->GetOutputPort());
-  glyMapper->SetInputConnection(ugridCvt->GetOutputPort());
-  glyMapper->OrientOn();
-  glyMapper->SetOrientationArray("curl");
-  glyMapper->SetSourceConnection(arrow->GetOutputPort());
-  glyMapper->ScalingOn();
-  glyMapper->SetScaleMode(vtkGlyph3DMapper::SCALE_BY_MAGNITUDE);
-  glyMapper->SetScaleArray("curl");
-  glyMapper->SetScaleFactor(1.);
-  glyActor->SetMapper(glyMapper);
-  glyActor->SetVisibility(false);
+  sideCenters->SetInputConnection(centerSides->GetOutputPort());
+  ugridCvt->SetInputConnection(sideCenters->GetOutputPort());
+  // Put arrows at side centers
+  glyMapperSC->SetInputConnection(ugridCvt->GetOutputPort());
+  glyMapperSC->OrientOn();
+  glyMapperSC->SetOrientationArray("curl");
+  glyMapperSC->SetSourceConnection(arrow->GetOutputPort());
+  glyMapperSC->ScalingOn();
+  glyMapperSC->SetScaleMode(vtkGlyph3DMapper::SCALE_BY_MAGNITUDE);
+  glyMapperSC->SetScaleArray("curl");
+  glyMapperSC->SetScaleFactor(1.);
+  glyActorSC->SetMapper(glyMapperSC);
+  glyActorSC->SetVisibility(false);
+
+  vtkNew<vtkCellGridCellCenters> cellCenters;
+  vtkNew<vtkCellGridToUnstructuredGrid> ugridCvtCC;
+  cellCenters->SetInputConnection(cellSource->GetOutputPort());
+  ugridCvtCC->SetInputConnection(cellCenters->GetOutputPort());
+  // Put arrows at cell center
+  glyMapperCC->SetInputConnection(ugridCvtCC->GetOutputPort());
+  glyMapperCC->OrientOn();
+  glyMapperCC->SetOrientationArray("curl");
+  glyMapperCC->SetSourceConnection(arrow->GetOutputPort());
+  glyMapperCC->ScalingOn();
+  glyMapperCC->SetScaleMode(vtkGlyph3DMapper::SCALE_BY_MAGNITUDE);
+  glyMapperCC->SetScaleArray("curl");
+  glyMapperCC->SetScaleFactor(1.);
+  glyActorCC->SetMapper(glyMapperCC);
+  glyActorCC->SetVisibility(false);
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
   renderer->AddActor(bdyActor);
-  renderer->AddActor(glyActor);
+  renderer->AddActor(glyActorCC);
+  renderer->AddActor(glyActorSC);
 
   renderer->ResetCamera();
   window->AddRenderer(renderer);
 
   // Re-render upon each user edit of a cell-grid data-array:
   QObject::connect(&model, &ArrayGroupModel::dataChanged,
-    [&vtkRenderWidget, &cellEdges, &centerSides]()
+    [&vtkRenderWidget, &cellEdges, &centerSides, &cellCenters]()
     {
+      cellCenters->Modified();
       cellEdges->Modified();
       centerSides->Modified();
       vtkRenderWidget->renderWindow()->Render();
@@ -262,13 +283,17 @@ int main(int argc, char* argv[])
     {
       if (text == QString("–none–"))
       {
-        glyActor->SetVisibility(false);
+        glyActorCC->SetVisibility(false);
+        glyActorSC->SetVisibility(false);
       }
       else
       {
-        glyActor->SetVisibility(true);
-        glyMapper->SetOrientationArray(text.toStdString().c_str());
-        glyMapper->SetScaleArray(text.toStdString().c_str());
+        glyActorCC->SetVisibility(true);
+        glyActorSC->SetVisibility(true);
+        glyMapperCC->SetOrientationArray(text.toStdString().c_str());
+        glyMapperCC->SetScaleArray(text.toStdString().c_str());
+        glyMapperSC->SetOrientationArray(text.toStdString().c_str());
+        glyMapperSC->SetScaleArray(text.toStdString().c_str());
       }
       vtkRenderWidget->renderWindow()->Render();
     });
