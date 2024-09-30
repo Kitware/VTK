@@ -1,17 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-/**
- * @class   vtkCellGridSidesQuery
- * @brief   Compute external faces of a cell-grid.
- */
-
 #ifndef vtkCellGridSidesQuery_h
 #define vtkCellGridSidesQuery_h
 
 #include "vtkCellGridQuery.h"
 
-#include "vtkHashCombiner.h" // For templated AddSide() method.
-#include "vtkStringToken.h"  // For API.
+#include "vtkStringToken.h" // For API.
 
 #include <functional>
 #include <map>
@@ -21,8 +15,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkIdTypeArray;
 class vtkCellGridSidesCache;
+class vtkIdTypeArray;
 
 /**\brief A cell-grid query for enumerating sides of cells.
  *
@@ -31,9 +25,8 @@ class vtkCellGridSidesCache;
  * + In the first pass, responders invoke the AddSides() method on
  *   this query, entries are added to this->Hashes storage indicating
  *   the cells which are bounded by a given shape + connectivity.
- * + In the second pass, responders consume the entries created above
- *   (removing them as they are processed) and replace them with
- *   entries in this->Sides. This reorganizes the hashes into groups
+ * + In the second pass, responders mark the entries created above and
+ *   add entries in this->Sides. This reorganizes the hashes into groups
  *   more amenable to output as side arrays. This pass is called
  *   "Summarization," since not every input side identified will be
  *   output.

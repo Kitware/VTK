@@ -104,6 +104,28 @@ vtkCellGridComputeSides::SelectionMode vtkCellGridComputeSides::GetSelectionType
   return this->Request->GetSelectionType();
 }
 
+void vtkCellGridComputeSides::SetStrategy(int strategy)
+{
+  auto strat = static_cast<SummaryStrategy>(strategy);
+  if (strat == this->GetStrategy())
+  {
+    return;
+  }
+  this->SetStrategy(strat);
+  this->Modified();
+}
+
+void vtkCellGridComputeSides::SetSelectionType(int selnType)
+{
+  auto stype = static_cast<SelectionMode>(selnType);
+  if (stype == this->GetSelectionType())
+  {
+    return;
+  }
+  this->SetSelectionType(stype);
+  this->Modified();
+}
+
 vtkStringToken vtkCellGridComputeSides::GetSideAttribute()
 {
   return vtkStringToken("Sides");
