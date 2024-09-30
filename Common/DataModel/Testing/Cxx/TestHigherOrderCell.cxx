@@ -86,7 +86,8 @@ int TestHigherOrderCell(int, char*[])
     return 1;
   }
 
-  auto isQuadraticWedge = [](int cellType) -> bool {
+  auto isQuadraticWedge = [](int cellType) -> bool
+  {
     return (cellType == VTK_QUADRATIC_LINEAR_WEDGE) ||
       (cellType == VTK_BIQUADRATIC_QUADRATIC_WEDGE) || (cellType == VTK_QUADRATIC_WEDGE);
   };

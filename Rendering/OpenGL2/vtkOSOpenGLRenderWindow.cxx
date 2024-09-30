@@ -201,7 +201,8 @@ vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
 
   this->Internal = new vtkOSOpenGLRenderWindowInternal();
   this->SetOpenGLSymbolLoader(
-    [](void* userData, const char* name) -> VTKOpenGLAPIProc {
+    [](void* userData, const char* name) -> VTKOpenGLAPIProc
+    {
       if (auto* internal = reinterpret_cast<vtkOSOpenGLRenderWindowInternal*>(userData))
       {
         return internal->OSMesaGetProcAddress(name);

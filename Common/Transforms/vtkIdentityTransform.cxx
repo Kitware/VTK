@@ -143,14 +143,16 @@ void vtkIdentityTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   vtkIdType m = outPts->GetNumberOfPoints();
   outPts->SetNumberOfPoints(m + n);
 
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double point[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inPts->GetPoint(ptId, point);
-      outPts->SetPoint(m + ptId, point);
-    }
-  });
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -160,14 +162,16 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* o
   vtkIdType m = outNms->GetNumberOfTuples();
   outNms->SetNumberOfTuples(m + n);
 
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double normal[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inNms->GetTuple(ptId, normal);
-      outNms->SetTuple(m + ptId, normal);
-    }
-  });
+      double normal[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inNms->GetTuple(ptId, normal);
+        outNms->SetTuple(m + ptId, normal);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -177,13 +181,15 @@ void vtkIdentityTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* o
   vtkIdType m = outVrs->GetNumberOfTuples();
   outVrs->SetNumberOfTuples(m + n);
 
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double vect[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inVrs->GetTuple(ptId, vect);
-      outVrs->SetTuple(m + ptId, vect);
-    }
-  });
+      double vect[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inVrs->GetTuple(ptId, vect);
+        outVrs->SetTuple(m + ptId, vect);
+      }
+    });
 }
 VTK_ABI_NAMESPACE_END

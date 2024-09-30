@@ -120,43 +120,45 @@ struct ScaleWorker
 
     // We use THRESHOLD to test if the data size is small enough
     // to execute the functor serially.
-    vtkSMPTools::For(0, numPts, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-      double s, *n = normal, inNormal[3];
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, numPts, vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        if (isFirst)
+        double s, *n = normal, inNormal[3];
+        bool isFirst = vtkSMPTools::GetSingleThread();
+        for (; ptId < endPtId; ++ptId)
         {
-          self->CheckAbort();
-        }
-        if (self->GetAbortOutput())
-        {
-          break;
-        }
-        const auto xi = ipts[ptId];
-        auto xo = opts[ptId];
+          if (isFirst)
+          {
+            self->CheckAbort();
+          }
+          if (self->GetAbortOutput())
+          {
+            break;
+          }
+          const auto xi = ipts[ptId];
+          auto xo = opts[ptId];
 
-        if (XYPlane)
-        {
-          s = xi[2];
-        }
-        else
-        {
-          const auto sval = sRange[ptId];
-          s = sval[0]; // 0th component of the tuple
-        }
+          if (XYPlane)
+          {
+            s = xi[2];
+          }
+          else
+          {
+            const auto sval = sRange[ptId];
+            s = sval[0]; // 0th component of the tuple
+          }
 
-        if (inNormals)
-        {
-          inNormals->GetTuple(ptId, inNormal);
-          n = inNormal;
-        }
+          if (inNormals)
+          {
+            inNormals->GetTuple(ptId, inNormal);
+            n = inNormal;
+          }
 
-        xo[0] = xi[0] + sf * s * n[0];
-        xo[1] = xi[1] + sf * s * n[1];
-        xo[2] = xi[2] + sf * s * n[2];
-      }
-    }); // lambda
+          xo[0] = xi[0] + sf * s * n[0];
+          xo[1] = xi[1] + sf * s * n[1];
+          xo[2] = xi[2] + sf * s * n[2];
+        }
+      }); // lambda
   }
 };
 

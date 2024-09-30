@@ -36,8 +36,8 @@
 
 #include "vtkPolyDataReader.h"
 
-//#define TestPoints
-//#define TestFile
+// #define TestPoints
+// #define TestFile
 #define TestSplats
 
 int TestPointGaussianMapper(int argc, char* argv[])

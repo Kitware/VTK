@@ -223,8 +223,9 @@ void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
 
 void VTXvtkVTU::Init()
 {
-  auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
-                                   const pugi::xml_node& pieceNode) {
+  auto lf_InitPieceDataSetType =
+    [&](types::Piece& piece, const types::DataSetType type, const pugi::xml_node& pieceNode)
+  {
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);

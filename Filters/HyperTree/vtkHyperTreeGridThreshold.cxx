@@ -484,7 +484,8 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
     {
       // Create a new thread for every child, when we're not too deep into the tree
       vtkThreadedTaskQueue<bool, int> queue(
-        [this, outCursor](int ichild) {
+        [this, outCursor](int ichild)
+        {
           vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor> childOutCursor =
             vtk::TakeSmartPointer(outCursor->CloneFromCurrentEntry());
 

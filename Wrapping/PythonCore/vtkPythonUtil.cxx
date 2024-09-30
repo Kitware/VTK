@@ -695,14 +695,16 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
 
 //----------------
 // union of long int and pointer
-union vtkPythonUtilPointerUnion {
+union vtkPythonUtilPointerUnion
+{
   void* p;
   uintptr_t l;
 };
 
 //----------------
 // union of long int and pointer
-union vtkPythonUtilConstPointerUnion {
+union vtkPythonUtilConstPointerUnion
+{
   const void* p;
   uintptr_t l;
 };

@@ -532,8 +532,9 @@ struct EvaluateCellsStructuredFunctor
     }
     // merge thread local edges
     this->Edges.resize(totalSizeOfEdges);
-    vtkSMPTools::For(
-      0, static_cast<vtkIdType>(tlEdgesVector.size()), [&](vtkIdType begin, vtkIdType end) {
+    vtkSMPTools::For(0, static_cast<vtkIdType>(tlEdgesVector.size()),
+      [&](vtkIdType begin, vtkIdType end)
+      {
         for (vtkIdType threadId = begin; threadId < end; ++threadId)
         {
           auto& edges = *tlEdgesVector[threadId];
@@ -732,7 +733,8 @@ struct ExtractPointsWorker
     vtkStructuredDataPlaneCutter* filter)
   {
     // create edge points
-    auto extractEdgePoints = [&](vtkIdType beginEdgeId, vtkIdType endEdgeId) {
+    auto extractEdgePoints = [&](vtkIdType beginEdgeId, vtkIdType endEdgeId)
+    {
       const auto& inPts = vtk::DataArrayTupleRange<3>(inputPoints);
       auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
       double edgePoint1[3], edgePoint2[3];
@@ -1004,9 +1006,9 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       constantScalars->SetName("ConstantScalars");
       constantScalars->SetNumberOfComponents(1);
       constantScalars->SetNumberOfTuples(tmpImage->GetNumberOfPoints());
-      vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-        std::fill_n(constantScalars->GetPointer(begin), (end - begin), 1.0f);
-      });
+      vtkSMPTools::For(0, tmpImage->GetNumberOfPoints(),
+        [&](vtkIdType begin, vtkIdType end)
+        { std::fill_n(constantScalars->GetPointer(begin), (end - begin), 1.0f); });
       tmpImage->GetPointData()->AddArray(constantScalars);
       tmpImage->GetPointData()->SetActiveScalars(constantScalars->GetName());
       tmpInput = tmpImage;
@@ -1148,12 +1150,14 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
     newNormals->SetNumberOfComponents(3);
     newNormals->SetName("Normals");
     newNormals->SetNumberOfTuples(output->GetNumberOfPoints());
-    vtkSMPTools::For(0, output->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType i = begin; i < end; ++i)
+    vtkSMPTools::For(0, output->GetNumberOfPoints(),
+      [&](vtkIdType begin, vtkIdType end)
       {
-        newNormals->SetTuple(i, planeNormal);
-      }
-    });
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          newNormals->SetTuple(i, planeNormal);
+        }
+      });
     output->GetPointData()->AddArray(newNormals);
   }
 

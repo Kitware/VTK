@@ -25,7 +25,7 @@
 #include <mem.h> // for memcpy
 #endif
 
-//#define DEBUG_DICOM_APP_HELPER
+// #define DEBUG_DICOM_APP_HELPER
 
 VTK_ABI_NAMESPACE_BEGIN
 class DICOMAppHelperImplementation
@@ -133,7 +133,7 @@ DICOMAppHelper::~DICOMAppHelper()
   //
   // Fix warning here.
   //
-  delete[](static_cast<char*>(this->ImageData));
+  delete[] (static_cast<char*>(this->ImageData));
 
   delete this->TransferSyntaxUID;
   delete this->PhotometricInterpretation;
@@ -816,7 +816,7 @@ void DICOMAppHelper::PixelDataCallback(
     std::cout << "Slope and offset are not integer valued : ";
     std::cout << this->RescaleSlope << ", " << this->RescaleOffset << std::endl;
 #endif
-    delete[](static_cast<char*>(this->ImageData));
+    delete[] (static_cast<char*>(this->ImageData));
     this->ImageData = new float[numPixels];
     floatOutputData = static_cast<float*>(this->ImageData);
 
@@ -861,7 +861,7 @@ void DICOMAppHelper::PixelDataCallback(
 
     if (ptrIncr == 1)
     {
-      delete[](static_cast<char*>(this->ImageData));
+      delete[] (static_cast<char*>(this->ImageData));
       this->ImageData = new char[numPixels];
 
       char* charOutputData = static_cast<char*>(this->ImageData);
@@ -884,7 +884,7 @@ void DICOMAppHelper::PixelDataCallback(
     }
     else if (ptrIncr == 2)
     {
-      delete[](static_cast<char*>(this->ImageData));
+      delete[] (static_cast<char*>(this->ImageData));
       this->ImageData = new short[numPixels];
       short* shortOutputData = static_cast<short*>(this->ImageData);
 

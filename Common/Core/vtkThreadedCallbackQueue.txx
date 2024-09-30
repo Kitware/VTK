@@ -142,7 +142,7 @@ struct vtkThreadedCallbackQueue::InvokerImpl
     std::is_lvalue_reference<typename std::tuple_element<Is, FunctionArgsTupleT>::type>::value,
     typename std::decay<typename std::tuple_element<Is, FunctionArgsTupleT>::type>::type,
     typename std::decay<typename std::tuple_element<Is, InputArgsTupleT>::type>::type>::type...>
-  GetStaticCastArgsTuple(IntegerSequence<Is...>);
+    GetStaticCastArgsTuple(IntegerSequence<Is...>);
 
   /**
    * Convenient typedef to create a tuple of types allowing to call the constructor of the function
@@ -605,7 +605,8 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
   // We want the setting of ControlFutures to be strictly sequential. We don't want race conditions
   // on this container with 2 `PushControl` that are called almost simultaneously and have invokers
   // depend on flaky futures.
-  auto localControlFutures = [this, &invoker] {
+  auto localControlFutures = [this, &invoker]
+  {
     std::lock_guard<std::mutex> lock(this->ControlMutex);
 
     // We create a copy of the control futures that doesn't have ourselves in yet.

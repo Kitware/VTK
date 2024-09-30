@@ -109,26 +109,29 @@ bool vtkDIYDataExchanger::AllToAll(const std::vector<vtkSmartPointer<vtkDataSet>
   }
 
   master.add(/*gid=*/comm.rank(), block, link);
-  master.foreach ([](BlockT* b, const diy::Master::ProxyWithLink& cp) {
-    for (const auto& neighbor : cp.link()->neighbors())
+  master.foreach (
+    [](BlockT* b, const diy::Master::ProxyWithLink& cp)
     {
-      if (neighbor.gid == cp.gid())
+      for (const auto& neighbor : cp.link()->neighbors())
       {
-        continue;
-      } // don't enqueue for self
-      auto& vector_of_ds = (*b)[neighbor.gid];
-      // cp.enqueue(neighbor, static_cast<int>(vector_of_ds.size()));
-      for (auto& ds : vector_of_ds)
-      {
-        vtkLogF(TRACE, "enqueue for %d (%p)", neighbor.gid, static_cast<void*>(ds.GetPointer()));
-        cp.enqueue<vtkDataSet*>(neighbor, ds.GetPointer());
+        if (neighbor.gid == cp.gid())
+        {
+          continue;
+        } // don't enqueue for self
+        auto& vector_of_ds = (*b)[neighbor.gid];
+        // cp.enqueue(neighbor, static_cast<int>(vector_of_ds.size()));
+        for (auto& ds : vector_of_ds)
+        {
+          vtkLogF(TRACE, "enqueue for %d (%p)", neighbor.gid, static_cast<void*>(ds.GetPointer()));
+          cp.enqueue<vtkDataSet*>(neighbor, ds.GetPointer());
+        }
+        vector_of_ds.clear();
       }
-      vector_of_ds.clear();
-    }
-  });
+    });
   master.exchange();
   master.foreach (
-    [&offsets, &sendBuffer, &sendCounts](BlockT* b, const diy::Master::ProxyWithLink& cp) {
+    [&offsets, &sendBuffer, &sendCounts](BlockT* b, const diy::Master::ProxyWithLink& cp)
+    {
       for (const auto& neighbor : cp.link()->neighbors())
       {
         auto& vector_of_ds = (*b)[neighbor.gid];

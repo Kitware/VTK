@@ -4,20 +4,20 @@
 #define VTK_EPSILON 1e-10
 
 // Subclass of vtkCell
-//#include "vtkEmptyCell.h"
+// #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkLine.h"
 #include "vtkPixel.h"
-//#include "vtkPolygon.h"
-//#include "vtkPolyLine.h"
-//#include "vtkPolyVertex.h"
+// #include "vtkPolygon.h"
+// #include "vtkPolyLine.h"
+// #include "vtkPolyVertex.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
-//#include "vtkTriangleStrip.h"
+// #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
 // Subclass of vtkCell3D
-//#include "vtkConvexPointSet.h"
+// #include "vtkConvexPointSet.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
 #include "vtkPentagonalPrism.h"

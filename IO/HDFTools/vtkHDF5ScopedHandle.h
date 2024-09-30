@@ -46,7 +46,10 @@ VTK_ABI_NAMESPACE_BEGIN
       }                                                                                            \
     }                                                                                              \
                                                                                                    \
-    operator hid_t() const { return this->Handle; }                                                \
+    operator hid_t() const                                                                         \
+    {                                                                                              \
+      return this->Handle;                                                                         \
+    }                                                                                              \
                                                                                                    \
   private:                                                                                         \
     hid_t Handle;                                                                                  \

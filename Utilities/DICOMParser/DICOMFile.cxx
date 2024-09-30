@@ -21,7 +21,8 @@ VTK_ABI_NAMESPACE_BEGIN
 DICOMFile::DICOMFile()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
-  union {
+  union
+  {
     long l;
     char c[sizeof(long)];
   } u;

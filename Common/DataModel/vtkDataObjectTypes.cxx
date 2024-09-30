@@ -365,7 +365,8 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
     return typeA;
   }
 
-  auto computeBranch = [](int type) {
+  auto computeBranch = [](int type)
+  {
     // list immediate base-classes, no need to list any that are direct subclasses
     // of vtkDataObject since that's assumed by this point.
     static const std::map<int, int> bases = { { VTK_UNIFORM_HYPER_TREE_GRID, VTK_HYPER_TREE_GRID },

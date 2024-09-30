@@ -101,7 +101,8 @@ int TestComputePassUniform(int, char*[])
   std::vector<OutputDataType> outputData;
   outputData.resize(DATA_SIZE);
 
-  auto onBufferMapped = [](const void* mappedData, void* userdata) {
+  auto onBufferMapped = [](const void* mappedData, void* userdata)
+  {
     std::vector<OutputDataType>* out = reinterpret_cast<std::vector<OutputDataType>*>(userdata);
     vtkIdType elementCount = out->size();
 

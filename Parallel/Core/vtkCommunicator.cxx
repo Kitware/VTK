@@ -55,7 +55,10 @@
           reinterpret_cast<const VTK_TT*>(A), reinterpret_cast<VTK_TT*>(B), length));              \
       }                                                                                            \
     }                                                                                              \
-    int Commutative() override { return 1; }                                                       \
+    int Commutative() override                                                                     \
+    {                                                                                              \
+      return 1;                                                                                    \
+    }                                                                                              \
   };
 
 #define STANDARD_OPERATION_FLOAT_OVERRIDE(name)                                                    \

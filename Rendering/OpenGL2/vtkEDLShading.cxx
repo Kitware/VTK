@@ -34,7 +34,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkEDLShadeFS.h"
 #include "vtkTextureObjectVS.h"
 
-//#define VTK_EDL_SHADING_DEBUG
+// #define VTK_EDL_SHADING_DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

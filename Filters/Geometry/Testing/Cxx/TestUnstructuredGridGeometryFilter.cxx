@@ -9,17 +9,17 @@
 
 // If READ_FILE is defined, the unstructured grid is read from a file otherwise
 // it is created cell by cell.
-//#define READ_FILE
+// #define READ_FILE
 
 // If WRITE_RESULT is defined, the result of the surface filter is saved.
-//#define WRITE_RESULT
+// #define WRITE_RESULT
 
 // If USE_SHRINK is defined, each face is shrink to easily detect bad faces.
 #define USE_SHRINK
 
 // If FAST_GEOMETRY is defined, a vtkDataSetSurfaceFilter is used instead
 // of a vtkGeometryFilter at the end of the pipeline
-//#define FAST_GEOMETRY
+// #define FAST_GEOMETRY
 
 // If USE_CULLING is defined, backface culling is used to detect any bad
 // ordering of points defining a face.

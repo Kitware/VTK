@@ -201,16 +201,14 @@ public:
 
       // Copy the offsets, adding outConnOffset to adjust for existing
       // connectivity entries:
-      std::transform(
-        inCell.cbegin(), inCell.cend(), outCell.begin(), [&](InIndexType i) -> OutIndexType {
-          return static_cast<OutIndexType>(i + outConnOffset);
-        });
+      std::transform(inCell.cbegin(), inCell.cend(), outCell.begin(),
+        [&](InIndexType i) -> OutIndexType
+        { return static_cast<OutIndexType>(i + outConnOffset); });
 
       // Copy the connectivities, passing them through the map:
-      std::transform(
-        inConn.cbegin(), inConn.cend(), outConn.begin(), [&](InIndexType i) -> OutIndexType {
-          return static_cast<OutIndexType>(map->GetId(static_cast<vtkIdType>(i)));
-        });
+      std::transform(inConn.cbegin(), inConn.cend(), outConn.begin(),
+        [&](InIndexType i) -> OutIndexType
+        { return static_cast<OutIndexType>(map->GetId(static_cast<vtkIdType>(i))); });
     }
   };
 

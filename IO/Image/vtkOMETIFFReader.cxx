@@ -360,11 +360,13 @@ int vtkOMETIFFReader::RequestInformation(
 
     double start = 0.0;
     const double increment = omeinternals.TimeIncrement;
-    std::generate(timesteps.begin(), timesteps.end(), [&start, &increment]() {
-      double ret = start;
-      start += increment;
-      return ret;
-    });
+    std::generate(timesteps.begin(), timesteps.end(),
+      [&start, &increment]()
+      {
+        double ret = start;
+        start += increment;
+        return ret;
+      });
     outInfo->Set(
       vtkStreamingDemandDrivenPipeline::TIME_STEPS(), timesteps.data(), omeinternals.SizeT);
 

@@ -326,7 +326,8 @@ struct vtkSplitSharpEdgesPolyData::MarkAndSplitFunctor
 
     vtkSMPThreadLocalObject<vtkIdList> tlTempCellPointIds;
     vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
-      [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId)
+      {
         auto& tempCellPointIds = tlTempCellPointIds.Local();
         const bool isFirst = vtkSMPTools::GetSingleThread();
         for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
@@ -421,9 +422,10 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   // to map new points into old points.
   vtkNew<vtkIdList> newToOldPointsMap;
   newToOldPointsMap->SetNumberOfIds(numInPoints);
-  vtkSMPTools::For(0, numInPoints, [&](vtkIdType begin, vtkIdType end) {
-    std::iota(newToOldPointsMap->GetPointer(begin), newToOldPointsMap->GetPointer(end), begin);
-  });
+  vtkSMPTools::For(0, numInPoints,
+    [&](vtkIdType begin, vtkIdType end) {
+      std::iota(newToOldPointsMap->GetPointer(begin), newToOldPointsMap->GetPointer(end), begin);
+    });
 
   MarkAndSplitFunctor functor(input, output, cellNormals, newToOldPointsMap, this);
   vtkSMPTools::For(0, functor.PointBatches.GetNumberOfBatches(), functor);
@@ -467,16 +469,18 @@ int vtkSplitSharpEdgesPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     newPoints->SetNumberOfPoints(numOutPoints);
     outPD->SetNumberOfTuples(numOutPoints);
     vtkIdType* mapPtr = newToOldPointsMap->GetPointer(0);
-    vtkSMPTools::For(0, numOutPoints, [&](vtkIdType begin, vtkIdType end) {
-      double p[3];
-      for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
+    vtkSMPTools::For(0, numOutPoints,
+      [&](vtkIdType begin, vtkIdType end)
       {
-        const vtkIdType& oldPointId = mapPtr[newPointId];
-        inPoints->GetPoint(oldPointId, p);
-        newPoints->SetPoint(newPointId, p);
-        outPD->CopyData(inPD, oldPointId, newPointId);
-      }
-    });
+        double p[3];
+        for (vtkIdType newPointId = begin; newPointId < end; newPointId++)
+        {
+          const vtkIdType& oldPointId = mapPtr[newPointId];
+          inPoints->GetPoint(oldPointId, p);
+          newPoints->SetPoint(newPointId, p);
+          outPD->CopyData(inPD, oldPointId, newPointId);
+        }
+      });
     output->SetPoints(newPoints);
   }
 

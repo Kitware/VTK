@@ -96,8 +96,9 @@ void VTXvtkVTI::ReadPiece(size_t step, size_t pieceID)
 // PRIVATE
 void VTXvtkVTI::Init()
 {
-  auto lf_InitPieceDataSetType = [&](types::Piece& piece, const types::DataSetType type,
-                                   const pugi::xml_node& pieceNode) {
+  auto lf_InitPieceDataSetType =
+    [&](types::Piece& piece, const types::DataSetType type, const pugi::xml_node& pieceNode)
+  {
     const std::string nodeName = DataSetType(type);
     const pugi::xml_node dataSetNode = helper::XMLNode(
       nodeName, pieceNode, true, "when reading " + nodeName + " node in ImageData", false);
@@ -115,7 +116,8 @@ void VTXvtkVTI::Init()
     piece[type] = dataSet;
   };
 
-  auto lf_InitExtent = [&](const pugi::xml_node& extentNode) {
+  auto lf_InitExtent = [&](const pugi::xml_node& extentNode)
+  {
     // Spacing
     const pugi::xml_attribute spacingXML = vtx::helper::XMLAttribute(
       "Spacing", extentNode, true, "when reading Spacing in ImageData", true);

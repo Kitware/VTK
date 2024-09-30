@@ -60,13 +60,22 @@ struct AttributeTrait;
   {                                                                                                \
     typedef attType Type;                                                                          \
     typedef vtkArray vtkArrayType;                                                                 \
-    std::string Name() const { return std::string(attName); }                                      \
-    attType Default() const { return static_cast<attType>(attDefault); }                           \
+    std::string Name() const                                                                       \
+    {                                                                                              \
+      return std::string(attName);                                                                 \
+    }                                                                                              \
+    attType Default() const                                                                        \
+    {                                                                                              \
+      return static_cast<attType>(attDefault);                                                     \
+    }                                                                                              \
     static void Get(vtkIdType index, attType* in, vtkArray* array)                                 \
     {                                                                                              \
       array->GetTypedTuple(index, in);                                                             \
     }                                                                                              \
-    static void Stream(std::ostream& out, attType t) { out << t; }                                 \
+    static void Stream(std::ostream& out, attType t)                                               \
+    {                                                                                              \
+      out << t;                                                                                    \
+    }                                                                                              \
   }
 
 DefineAttributeTrait(VTK_DOUBLE, double, "float", vtkDoubleArray, 0.0);

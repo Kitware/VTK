@@ -19,7 +19,8 @@ class vtkOpenGLVertexBufferObjectCache;
  */
 
 // useful union for stuffing colors into a float
-union vtkFourByteUnion {
+union vtkFourByteUnion
+{
   unsigned char c[4];
   short s[2];
   float f;

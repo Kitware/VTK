@@ -32,96 +32,97 @@ void vtkWebGPUHelpers::WriteComputeTextureToDisk(const std::string& filepath,
 
   // Callback for the data is mapped to copy the texture data in the std::vector
   vtkWebGPUComputePass::TextureMapAsyncCallback writeTextureToDiskCallback =
-    [](const void* mappedTexture, int bytesPerRow, void* userdata) {
-      MapTextureData* mapData = reinterpret_cast<MapTextureData*>(userdata);
+    [](const void* mappedTexture, int bytesPerRow, void* userdata)
+  {
+    MapTextureData* mapData = reinterpret_cast<MapTextureData*>(userdata);
 
-      vtkNew<vtkImageData> pixelData;
-      pixelData->SetDimensions(mapData->width, mapData->height, 1);
-      pixelData->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-      for (int y = 0; y < mapData->height; y++)
+    vtkNew<vtkImageData> pixelData;
+    pixelData->SetDimensions(mapData->width, mapData->height, 1);
+    pixelData->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
+    for (int y = 0; y < mapData->height; y++)
+    {
+      int yIndex = y;
+      if (mapData->flipY)
       {
-        int yIndex = y;
-        if (mapData->flipY)
-        {
-          yIndex = mapData->height - 1 - y;
-        }
-
-        for (int x = 0; x < mapData->width; x++)
-        {
-          unsigned char* pixel =
-            static_cast<unsigned char*>(pixelData->GetScalarPointer(x, yIndex, 0));
-          int indexPadded = y * (bytesPerRow / 4) + x;
-
-          switch (mapData->dataType)
-          {
-            case VTK_FLOAT:
-            {
-              const float* mappedDataFloat = static_cast<const float*>(mappedTexture);
-
-              switch (mapData->nbComponents)
-              {
-                case 4:
-                  pixel[0] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 0] * 255);
-                  pixel[1] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 1] * 255);
-                  pixel[2] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 2] * 255);
-                  pixel[3] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 3] * 255);
-                  break;
-
-                case 1:
-                  pixel[0] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 1 + 0] * 255);
-                  pixel[1] = pixel[0];
-                  pixel[2] = pixel[0];
-                  pixel[3] = 255;
-                  break;
-
-                default:
-                  break;
-              }
-
-              break;
-            }
-
-            case VTK_UNSIGNED_CHAR:
-            {
-              const unsigned char* mappedDataUnsignedChar =
-                static_cast<const unsigned char*>(mappedTexture);
-
-              switch (mapData->nbComponents)
-              {
-                case 4:
-                  pixel[0] = mappedDataUnsignedChar[indexPadded * 4 + 0];
-                  pixel[1] = mappedDataUnsignedChar[indexPadded * 4 + 1];
-                  pixel[2] = mappedDataUnsignedChar[indexPadded * 4 + 2];
-                  pixel[3] = mappedDataUnsignedChar[indexPadded * 4 + 3];
-                  break;
-
-                case 1:
-                  pixel[0] = mappedDataUnsignedChar[indexPadded * 1 + 0];
-                  pixel[1] = pixel[0];
-                  pixel[2] = pixel[0];
-                  pixel[3] = 255;
-                  break;
-
-                default:
-                  break;
-              }
-
-              break;
-            }
-
-            default:
-              break;
-          }
-        }
+        yIndex = mapData->height - 1 - y;
       }
 
-      vtkNew<vtkPNGWriter> writer;
-      writer->SetFileName(mapData->filepath.c_str());
-      writer->SetInputData(pixelData);
-      writer->Write();
+      for (int x = 0; x < mapData->width; x++)
+      {
+        unsigned char* pixel =
+          static_cast<unsigned char*>(pixelData->GetScalarPointer(x, yIndex, 0));
+        int indexPadded = y * (bytesPerRow / 4) + x;
 
-      delete mapData;
-    };
+        switch (mapData->dataType)
+        {
+          case VTK_FLOAT:
+          {
+            const float* mappedDataFloat = static_cast<const float*>(mappedTexture);
+
+            switch (mapData->nbComponents)
+            {
+              case 4:
+                pixel[0] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 0] * 255);
+                pixel[1] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 1] * 255);
+                pixel[2] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 2] * 255);
+                pixel[3] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 4 + 3] * 255);
+                break;
+
+              case 1:
+                pixel[0] = static_cast<unsigned char>(mappedDataFloat[indexPadded * 1 + 0] * 255);
+                pixel[1] = pixel[0];
+                pixel[2] = pixel[0];
+                pixel[3] = 255;
+                break;
+
+              default:
+                break;
+            }
+
+            break;
+          }
+
+          case VTK_UNSIGNED_CHAR:
+          {
+            const unsigned char* mappedDataUnsignedChar =
+              static_cast<const unsigned char*>(mappedTexture);
+
+            switch (mapData->nbComponents)
+            {
+              case 4:
+                pixel[0] = mappedDataUnsignedChar[indexPadded * 4 + 0];
+                pixel[1] = mappedDataUnsignedChar[indexPadded * 4 + 1];
+                pixel[2] = mappedDataUnsignedChar[indexPadded * 4 + 2];
+                pixel[3] = mappedDataUnsignedChar[indexPadded * 4 + 3];
+                break;
+
+              case 1:
+                pixel[0] = mappedDataUnsignedChar[indexPadded * 1 + 0];
+                pixel[1] = pixel[0];
+                pixel[2] = pixel[0];
+                pixel[3] = 255;
+                break;
+
+              default:
+                break;
+            }
+
+            break;
+          }
+
+          default:
+            break;
+        }
+      }
+    }
+
+    vtkNew<vtkPNGWriter> writer;
+    writer->SetFileName(mapData->filepath.c_str());
+    writer->SetInputData(pixelData);
+    writer->Write();
+
+    delete mapData;
+  };
 
   vtkSmartPointer<vtkWebGPUComputeTexture> texture = computePass->GetComputeTexture(textureIndex);
 

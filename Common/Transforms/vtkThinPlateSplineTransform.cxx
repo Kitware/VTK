@@ -26,7 +26,7 @@ inline double** vtkNewMatrix(int rows, int cols)
 //------------------------------------------------------------------------------
 inline void vtkDeleteMatrix(double** m)
 {
-  delete[] * m;
+  delete[] *m;
   delete[] m;
 }
 

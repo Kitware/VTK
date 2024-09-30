@@ -36,12 +36,13 @@ const char* vtkCommand::GetStringFromEventId(unsigned long event)
   vtkAllEventsMacro()
 
 #undef _vtk_add_event
-      // clang-format on
+    // clang-format on
 
-      case UserEvent : return "UserEvent";
+    case UserEvent:
+    return "UserEvent";
 
-    case NoEvent:
-      return "NoEvent";
+  case NoEvent:
+    return "NoEvent";
   }
 
   // Unknown event. Original code was returning NoEvent, so I'll stick with

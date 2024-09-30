@@ -110,9 +110,8 @@ int Test_fft_cplx()
 
   static constexpr auto countIn = 16;
   static constexpr auto countOut = countIn;
-  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
-    return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
-  };
+  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r)
+  { return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon()); };
   auto status = 0;
   // Test with zeroes
   {
@@ -202,11 +201,10 @@ int Test_fft_cplx()
     }
     else
     {
-      bool is_equal = std::equal(expected.begin(), expected.end(),
-        vtk::DataArrayTupleRange(res).begin(),
-        [](vtkFFT::ComplexNumber x, decltype(vtk::DataArrayTupleRange(res).begin())::value_type y) {
-          return (x.r == y[0]) && (x.i == y[1]);
-        });
+      bool is_equal =
+        std::equal(expected.begin(), expected.end(), vtk::DataArrayTupleRange(res).begin(),
+          [](vtkFFT::ComplexNumber x, decltype(vtk::DataArrayTupleRange(res).begin())::value_type y)
+          { return (x.r == y[0]) && (x.i == y[1]); });
       if (!is_equal)
       {
         std::cerr << "..Error when using vtkDataArrays API..";
@@ -225,9 +223,8 @@ int Test_fft_direct()
 
   static constexpr std::size_t countIn = 16;
   static constexpr std::size_t countOut = (countIn / 2) + 1;
-  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
-    return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
-  };
+  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r)
+  { return FuzzyCompare(l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon()); };
   auto status = 0;
   // zeroes
   std::vector<vtkFFT::ScalarNumber> zeroes(countIn, 0.0);
@@ -298,7 +295,8 @@ int Test_fft_inverse()
 
   static constexpr auto countIn = 9;
   static constexpr auto countOut = (countIn - 1) * 2;
-  auto comparator = [](vtkFFT::ScalarNumber l, vtkFFT::ScalarNumber r) {
+  auto comparator = [](vtkFFT::ScalarNumber l, vtkFFT::ScalarNumber r)
+  {
     return vtkMathUtilities::FuzzyCompare(
       l, r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon());
   };
@@ -341,7 +339,8 @@ int Test_fft_inverse_cplx()
 {
   std::cout << "Test_fft_inverse_cplx..";
 
-  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r) {
+  auto comparator = [](vtkFFT::ComplexNumber l, vtkFFT::ComplexNumber r)
+  {
     return vtkMathUtilities::FuzzyCompare(
              l.r, r.r, std::numeric_limits<vtkFFT::ScalarNumber>::epsilon()) +
       vtkMathUtilities::FuzzyCompare(

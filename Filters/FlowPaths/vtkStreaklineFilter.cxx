@@ -30,7 +30,8 @@ void FillCellArrays(
 
   for (const auto& streak : streaks)
   {
-    auto insertNextCell = [&streak](ArrayT* connectivity, ArrayT* offsets, vtkIdType& n) {
+    auto insertNextCell = [&streak](ArrayT* connectivity, ArrayT* offsets, vtkIdType& n)
+    {
       for (vtkIdType pointId : streak)
       {
         connectivity->InsertNextValue(pointId);

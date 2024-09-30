@@ -754,8 +754,8 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
       // Find the starting vertex, i.e. the vertex with the lowest scalar value,
       // and rotate the indexing array such that it is the first of the indices
-      auto indexed_less = [&polygon, &point_less](
-                            int i1, int i2) { return point_less(polygon[i1], polygon[i2]); };
+      auto indexed_less = [&polygon, &point_less](int i1, int i2)
+      { return point_less(polygon[i1], polygon[i2]); };
       std::rotate(
         index.begin(), std::min_element(index.begin(), index.end(), indexed_less), index.end());
 
@@ -798,7 +798,8 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
       It l1 = index.end() - 1;
       while (r1 < l1)
       {
-        auto in_band = [&clip_scalar, &polygon](int i) {
+        auto in_band = [&clip_scalar, &polygon](int i)
+        {
           return (polygon[i].scalar == clip_scalar) ||
             ((polygon[i].type == PointType::VERTEX && polygon[i].scalar > clip_scalar));
         };

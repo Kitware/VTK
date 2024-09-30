@@ -255,7 +255,8 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
     this->WebGPUBuffers[bufferIndex], 0, internalCallbackData->buffer, 0, byteSize);
   this->ParentComputePass->Internals->SubmitCommandEncoderToQueue(commandEncoder);
 
-  auto internalCallback = [](WGPUBufferMapAsyncStatus status, void* wgpuUserData) {
+  auto internalCallback = [](WGPUBufferMapAsyncStatus status, void* wgpuUserData)
+  {
     InternalMapBufferAsyncData* callbackData =
       reinterpret_cast<InternalMapBufferAsyncData*>(wgpuUserData);
 

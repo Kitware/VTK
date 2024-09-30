@@ -86,7 +86,8 @@ int TestComputeTexture(int, char*[])
   std::vector<unsigned char> outputData(
     TEXTURE_HEIGHT * TEXTURE_WIDTH * outputTexture->GetBytesPerPixel());
 
-  auto onTextureMapped = [](const void* mappedData, int bytesPerRow, void* userdata) {
+  auto onTextureMapped = [](const void* mappedData, int bytesPerRow, void* userdata)
+  {
     CallbackData* data = reinterpret_cast<CallbackData*>(userdata);
     std::vector<unsigned char>* outputData2 = data->outputData;
     const unsigned char* mappedDataChar = reinterpret_cast<const unsigned char*>(mappedData);

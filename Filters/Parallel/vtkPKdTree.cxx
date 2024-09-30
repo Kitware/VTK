@@ -608,7 +608,7 @@ typedef struct vtkNodeInfo_
   int L;
   int level;
   int tag;
-} * vtkNodeInfo;
+}* vtkNodeInfo;
 
 #define ENQUEUE(a, b, c, d)                                                                        \
   do                                                                                               \

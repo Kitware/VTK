@@ -43,9 +43,9 @@ bool vtkIOSSFilesScanner::IsMetaFile(const std::string& filename)
   std::getline(metafile, s);
   rtrim(s); // strip trailing white-spaces
   if (s.empty() ||
-    s.size() != static_cast<size_t>(std::count_if(s.begin(), s.end(), [](unsigned char c) {
-      return std::isprint(c) || std::isspace(c);
-    })))
+    s.size() !=
+      static_cast<size_t>(std::count_if(
+        s.begin(), s.end(), [](unsigned char c) { return std::isprint(c) || std::isspace(c); })))
   {
     return false;
   }
@@ -103,7 +103,8 @@ std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
     R"(^(.*\.cgns[^-.]*)(-s.[0-9]+)?(\.[0-9]+(\.[0-9]+)?)?$)");
 
   // extract process count from the filename, if any, otherwise -1.
-  auto getProcessCount = [](const std::string& fname) {
+  auto getProcessCount = [](const std::string& fname)
+  {
     vtksys::RegularExpression procRegEx(R"(^.*\.([0-9]+)\.[0-9]+$)");
     if (procRegEx.find(fname))
     {
@@ -241,9 +242,8 @@ bool vtkIOSSFilesScanner::DoTestFilePatternMatching()
 {
   auto verify = [](const std::set<std::string>& original,
                   const std::vector<std::string>& dir_listing,
-                  const std::set<std::string>& expected) {
-    return (vtkIOSSFilesScanner::GetRelatedFiles(original, dir_listing) == expected);
-  };
+                  const std::set<std::string>& expected)
+  { return (vtkIOSSFilesScanner::GetRelatedFiles(original, dir_listing) == expected); };
 
   if (!verify({ "mysimoutput.e-s.000" },
         { "mysimoutput.e-s.000", "mysimoutput.e-s.001", "mysimoutput.e-s.002" },

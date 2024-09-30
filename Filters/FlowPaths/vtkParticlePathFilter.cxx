@@ -30,7 +30,8 @@ void FillCellArrays(vtkCellArray* verts, vtkCellArray* lines,
   for (const auto& pair : paths)
   {
     const auto& path = pair.second;
-    auto insertNextCell = [&path](ArrayType64* connectivity, ArrayType64* offsets, vtkIdType& n) {
+    auto insertNextCell = [&path](ArrayType64* connectivity, ArrayType64* offsets, vtkIdType& n)
+    {
       for (vtkIdType id = n; id < n + static_cast<vtkIdType>(path.size()); ++id)
       {
         connectivity->InsertNextValue(id);
@@ -200,7 +201,8 @@ int vtkParticlePathFilter::Execute(
       // We use injectedPointIdArray to map the received paths to the paths we hold locally.
       for (vtkIdType pointId = 0; pointId < ps->GetNumberOfPoints(); ++pointId)
       {
-        vtkIdType id = [this, &endId] {
+        vtkIdType id = [this, &endId]
+        {
           if (this->UnusedIndices.empty())
           {
             return endId++;

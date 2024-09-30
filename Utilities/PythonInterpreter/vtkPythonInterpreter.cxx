@@ -782,9 +782,8 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
         PyObject* minor = PyObject_GetAttrString(version_info, "minor");
         PyObject* micro = PyObject_GetAttrString(version_info, "micro");
 
-        auto py_number_cmp = [](PyObject* obj, long expected) {
-          return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected;
-        };
+        auto py_number_cmp = [](PyObject* obj, long expected)
+        { return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected; };
 
         // Only 3.7.0 has this issue. Any failures to get the version
         // information is OK; we'll just crash later anyways if the version is

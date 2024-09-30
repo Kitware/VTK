@@ -121,7 +121,8 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
   std::vector<vtkIdType>& numberOfCells, std::vector<vtkIdType>& connectivityOffsets,
   std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece, vtkPolyData* pieceData)
 {
-  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size) {
+  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size)
+  {
     std::string modifier = "_" + std::to_string(filePiece);
     return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
   };
@@ -890,8 +891,9 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   vtkIdType startingPointOffset, vtkIdType startingCellOffset,
   vtkIdType startingConnectivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData)
 {
-  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size,
-                               bool mData) {
+  auto readFromFileOrCache =
+    [&](int tag, std::string name, vtkIdType offset, vtkIdType size, bool mData)
+  {
     std::string modifier = "_" + std::to_string(filePiece);
     return ::ReadFromFileOrCache(
       this->Impl, this->UseCache ? this->Cache : nullptr, tag, name, modifier, offset, size, mData);

@@ -930,7 +930,8 @@ std::string vtkERFReader::GetAttributeValueAsStr(
   if (H5Aread(attributeHandler, dataType, &value[0]) >= 0)
   {
     value.erase(std::remove_if(value.begin(), value.end(),
-                  [](char c) {
+                  [](char c)
+                  {
                     // convert it to avoid potential issue wit negative char
                     unsigned char uc = static_cast<unsigned char>(c);
                     return std::isspace(uc) || !std::isalpha(uc);

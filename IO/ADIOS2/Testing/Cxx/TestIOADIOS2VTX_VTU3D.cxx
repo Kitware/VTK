@@ -308,7 +308,8 @@ void WriteBPFile3DVars(const std::string& fileName, const size_t steps, const in
 
 int TestIOADIOS2VTX_VTU3D(int argc, char* argv[])
 {
-  auto lf_DoTest = [&](const std::string& fileName, const size_t steps) {
+  auto lf_DoTest = [&](const std::string& fileName, const size_t steps)
+  {
     vtkNew<vtkADIOS2VTXReader> adios2Reader;
     adios2Reader->SetFileName(fileName.c_str());
     // check FileName

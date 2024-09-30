@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
-//#define HYPERTREEGRID_GETRUSAGE
+// #define HYPERTREEGRID_GETRUSAGE
 #ifdef HYPERTREEGRID_GETRUSAGE
 #include <sys/resource.h>
 #endif

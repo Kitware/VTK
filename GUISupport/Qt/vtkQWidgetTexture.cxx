@@ -35,7 +35,8 @@ vtkQWidgetTexture::vtkQWidgetTexture()
   this->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
   this->GenerateMipmap = true;
 
-  this->RedrawMethod = [this]() {
+  this->RedrawMethod = [this]()
+  {
     if (this->Scene && this->Widget)
     {
       if (!this->Context)

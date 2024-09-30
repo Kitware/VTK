@@ -17,7 +17,7 @@
 #include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 
-//#define WRITE_IMAGE
+// #define WRITE_IMAGE
 
 #ifdef WRITE_IMAGE
 #include "vtkPNGWriter.h"

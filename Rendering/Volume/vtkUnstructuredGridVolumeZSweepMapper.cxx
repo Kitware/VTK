@@ -27,7 +27,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
-//#include "vtkXMLPolyDataWriter.h"
+// #include "vtkXMLPolyDataWriter.h"
 #include "vtkPointData.h"
 
 #include <cassert>
@@ -36,7 +36,7 @@
 #include <vector>
 
 // do not remove the following line:
-//#define BACK_TO_FRONT
+// #define BACK_TO_FRONT
 
 // Put the internal classes in a namespace to avoid potential naming conflicts.
 namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
@@ -241,7 +241,7 @@ enum
 #define MOST_SIGNIFICANT
 #define EDGE_EQUATION
 #define HORI_EDGE_EQUATION
-//#define STRICTLY_INSIDE
+// #define STRICTLY_INSIDE
 
 class vtkSimpleScreenEdge : public vtkScreenEdge
 {

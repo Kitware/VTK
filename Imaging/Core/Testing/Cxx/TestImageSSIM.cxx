@@ -13,7 +13,8 @@
 
 int TestImageSSIM(int argc, char* argv[])
 {
-  auto createPipeline = [](std::string&& name) {
+  auto createPipeline = [](std::string&& name)
+  {
     vtkNew<vtkPNGReader> reader;
     reader->SetFileName(name.c_str());
 

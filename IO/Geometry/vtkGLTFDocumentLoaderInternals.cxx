@@ -1325,8 +1325,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
     // This is only for warnings. extensionsRequired is a subset of extensionsUsed, which is what is
     // used to fill extensionsUsedByLoader.
     if (!std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
-          [&extensionRequiredByModel](
-            const std::string& value) { return value == extensionRequiredByModel; }))
+          [&extensionRequiredByModel](const std::string& value)
+          { return value == extensionRequiredByModel; }))
     {
       vtkErrorWithObjectMacro(this->Self,
         "glTF extension "
@@ -1344,8 +1344,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
       continue;
     }
     if (std::any_of(supportedExtensions.begin(), supportedExtensions.end(),
-          [&extensionUsedByModel](
-            const std::string& value) { return value == extensionUsedByModel; }))
+          [&extensionUsedByModel](const std::string& value)
+          { return value == extensionUsedByModel; }))
     {
       extensionsUsedByLoader.push_back(extensionUsedByModel);
     }

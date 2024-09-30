@@ -7,7 +7,7 @@ newversion       crlf=input
 pre-commit       crlf=input
 
 # Custom attribute to mark sources as using our C code style.
-[attr]our-c-style  whitespace=tab-in-indent,-blank-at-eol  format.clang-format=8
+[attr]our-c-style  whitespace=tab-in-indent,-blank-at-eol  format.clang-format=16
 
 *.c              our-c-style
 *.h              our-c-style

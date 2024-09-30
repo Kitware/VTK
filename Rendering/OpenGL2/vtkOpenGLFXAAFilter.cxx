@@ -29,7 +29,7 @@
 #include "vtkFXAAFilterFS.h"
 
 // Define to perform/dump benchmarking info:
-//#define FXAA_BENCHMARK
+// #define FXAA_BENCHMARK
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLFXAAFilter);

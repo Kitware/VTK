@@ -107,42 +107,50 @@ int TestSelectionExpression(int, char*[])
     arrays_ptrs[cc] = newarray;
   }
 
-  Validate(expr, "A & (B | (C & D))", arrays_ptrs, [&](vtkIdType cc) {
-    auto a = get(arrays["A"], cc);
-    auto b = get(arrays["B"], cc);
-    auto c = get(arrays["C"], cc);
-    auto d = get(arrays["D"], cc);
-    return a && (b || (c && d));
-  });
+  Validate(expr, "A & (B | (C & D))", arrays_ptrs,
+    [&](vtkIdType cc)
+    {
+      auto a = get(arrays["A"], cc);
+      auto b = get(arrays["B"], cc);
+      auto c = get(arrays["C"], cc);
+      auto d = get(arrays["D"], cc);
+      return a && (b || (c && d));
+    });
 
-  Validate(expr, "A & B | (C & D)", arrays_ptrs, [&](vtkIdType cc) {
-    auto a = get(arrays["A"], cc);
-    auto b = get(arrays["B"], cc);
-    auto c = get(arrays["C"], cc);
-    auto d = get(arrays["D"], cc);
-    return (a && b) || (c && d);
-  });
+  Validate(expr, "A & B | (C & D)", arrays_ptrs,
+    [&](vtkIdType cc)
+    {
+      auto a = get(arrays["A"], cc);
+      auto b = get(arrays["B"], cc);
+      auto c = get(arrays["C"], cc);
+      auto d = get(arrays["D"], cc);
+      return (a && b) || (c && d);
+    });
 
-  Validate(expr, "(A & B) | (C | (D & E) ) | (C & D)", arrays_ptrs, [&](vtkIdType cc) {
-    auto a = get(arrays["A"], cc);
-    auto b = get(arrays["B"], cc);
-    auto c = get(arrays["C"], cc);
-    auto d = get(arrays["D"], cc);
-    auto e = get(arrays["E"], cc);
-    return (a && b) || (c || (d && e)) || (c && d);
-  });
+  Validate(expr, "(A & B) | (C | (D & E) ) | (C & D)", arrays_ptrs,
+    [&](vtkIdType cc)
+    {
+      auto a = get(arrays["A"], cc);
+      auto b = get(arrays["B"], cc);
+      auto c = get(arrays["C"], cc);
+      auto d = get(arrays["D"], cc);
+      auto e = get(arrays["E"], cc);
+      return (a && b) || (c || (d && e)) || (c && d);
+    });
 
   // empty expression is treated as "|"
-  Validate(expr, "", arrays, [&](vtkIdType cc) {
-    auto a = get(arrays["A"], cc);
-    auto b = get(arrays["B"], cc);
-    auto c = get(arrays["C"], cc);
-    auto d = get(arrays["D"], cc);
-    auto e = get(arrays["E"], cc);
-    auto f = get(arrays["F"], cc);
-    auto g = get(arrays["G"], cc);
-    return (a || b || c || d || e || f || g);
-  });
+  Validate(expr, "", arrays,
+    [&](vtkIdType cc)
+    {
+      auto a = get(arrays["A"], cc);
+      auto b = get(arrays["B"], cc);
+      auto c = get(arrays["C"], cc);
+      auto d = get(arrays["D"], cc);
+      auto e = get(arrays["E"], cc);
+      auto f = get(arrays["F"], cc);
+      auto g = get(arrays["G"], cc);
+      return (a || b || c || d || e || f || g);
+    });
 
   return EXIT_SUCCESS;
 }

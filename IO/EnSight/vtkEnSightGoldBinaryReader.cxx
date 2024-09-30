@@ -79,14 +79,16 @@ public:
       self->ReadIntArray(&buffer.front(), count);
 
       partialIndices->SetNumberOfIds(count);
-      std::transform(
-        buffer.begin(), buffer.end(), partialIndices->GetPointer(0), [](vtkIdType val) {
+      std::transform(buffer.begin(), buffer.end(), partialIndices->GetPointer(0),
+        [](vtkIdType val)
+        {
           return val - 1; /* since ensight indices start with 1*/
         });
     }
 
     // replace undefined values with "internal undef" which in ParaView is NaN
-    auto replaceUndef = [&](vtkFloatArray* farray) {
+    auto replaceUndef = [&](vtkFloatArray* farray)
+    {
       if (hasUndef)
       {
         const float nanfloat = std::nanf("1");
@@ -100,7 +102,8 @@ public:
       }
     };
 
-    auto readComponent = [&](vtkIdType count) {
+    auto readComponent = [&](vtkIdType count)
+    {
       vtkNew<vtkFloatArray> buffer;
       buffer->SetNumberOfTuples(count);
       if (hasPartial)
@@ -1560,7 +1563,8 @@ bool vtkEnSightGoldBinaryReader::ReadVariableArray(const char* description,
   // read description.
   this->ReadLine(line);
 
-  auto advance = [&line, this]() {
+  auto advance = [&line, this]()
+  {
     this->GoldIFile->peek();
     return this->GoldIFile->eof() ? 0 : this->ReadLine(line);
   };

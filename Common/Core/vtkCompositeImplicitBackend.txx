@@ -155,26 +155,30 @@ private:
   void Initialize(Iterator first, Iterator last)
   {
     this->CachedArrays.resize(std::distance(first, last));
-    std::transform(first, last, this->CachedArrays.begin(), [](vtkDataArray* arr) {
-      vtkNew<CachedArray> newCache;
-      newCache->SetBackend(std::make_shared<CachedBackend>(arr));
-      newCache->SetNumberOfComponents(1);
-      if (arr)
+    std::transform(first, last, this->CachedArrays.begin(),
+      [](vtkDataArray* arr)
       {
-        newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
-      }
-      else
-      {
-        newCache->SetNumberOfTuples(0);
-      }
-      return newCache;
-    });
+        vtkNew<CachedArray> newCache;
+        newCache->SetBackend(std::make_shared<CachedBackend>(arr));
+        newCache->SetNumberOfComponents(1);
+        if (arr)
+        {
+          newCache->SetNumberOfTuples(arr->GetNumberOfTuples() * arr->GetNumberOfComponents());
+        }
+        else
+        {
+          newCache->SetNumberOfTuples(0);
+        }
+        return newCache;
+      });
     if (this->CachedArrays.size() > 0)
     {
       this->Offsets.resize(this->CachedArrays.size() - 1);
       std::size_t runningSum = 0;
       std::transform(this->CachedArrays.begin(), this->CachedArrays.end() - 1,
-        this->Offsets.begin(), [&runningSum](CachedArray* arr) {
+        this->Offsets.begin(),
+        [&runningSum](CachedArray* arr)
+        {
           runningSum += arr->GetNumberOfTuples();
           return runningSum;
         });

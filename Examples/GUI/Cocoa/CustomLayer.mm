@@ -25,7 +25,7 @@
   assert(customView);
 
   // Tell VTK to render.
-  assert([customView renderWindowInteractor] -> GetInitialized());
+  assert([customView renderWindowInteractor]->GetInitialized());
   vtkCocoaRenderWindow* renderWindow = [customView renderWindow];
   if (renderWindow && renderWindow->GetMapped())
   {
@@ -63,7 +63,7 @@
   assert(renderWindow);
 
   // Get the OpenGL context from VTK.
-  assert([customView renderWindowInteractor] -> GetInitialized());
+  assert([customView renderWindowInteractor]->GetInitialized());
   NSOpenGLContext* openGLContext = (__bridge NSOpenGLContext*)(renderWindow->GetContextId());
   assert(openGLContext);
 

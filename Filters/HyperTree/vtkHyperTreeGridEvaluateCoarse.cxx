@@ -149,7 +149,8 @@ void vtkHyperTreeGridEvaluateCoarse::ProcessNode(vtkHyperTreeGridNonOrientedCurs
   {
     // Create a new thread for every child, when we're not too deep into the tree
     vtkThreadedTaskQueue<void, int> queue(
-      [this, outCursor, &childrenValues](int ichild) {
+      [this, outCursor, &childrenValues](int ichild)
+      {
         vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor> childCursor =
           vtk::TakeSmartPointer(outCursor->CloneFromCurrentEntry());
         this->ProcessChild(childCursor, ichild, childrenValues[ichild]);

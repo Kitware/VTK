@@ -60,8 +60,9 @@ public:
   static bool RegisterType()
   {
     vtkStringToken name = vtk::TypeName<Subclass>();
-    auto status =
-      vtkCellMetadata::Constructors().insert(std::make_pair(name, [](vtkCellGrid* grid) {
+    auto status = vtkCellMetadata::Constructors().insert(std::make_pair(name,
+      [](vtkCellGrid* grid)
+      {
         auto result = vtkSmartPointer<Subclass>::New();
         if (result)
         {

@@ -1222,16 +1222,16 @@ done:
   if ((vertex == 0) || (retVal == 0))
   {
     /* Graph was empty */
-    delete[] * start;
+    delete[] *start;
     *start = nullptr;
 
-    delete[] * adjacency;
+    delete[] *adjacency;
     *adjacency = nullptr;
 
-    delete[] * vweights;
+    delete[] *vweights;
     *vweights = nullptr;
 
-    delete[] * eweights;
+    delete[] *eweights;
     *eweights = nullptr;
   }
 

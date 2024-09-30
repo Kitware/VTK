@@ -168,9 +168,8 @@ void vtkWebGPUConfiguration::AcquireAdapter(
     opts.defaultQueue.label = label.c_str();
 #if defined(__EMSCRIPTEN__)
     // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
-    opts.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata) {
-      return vtkWebGPUCallbacksInternals::DeviceLostCallback(nullptr, reason, message, userdata);
-    };
+    opts.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata)
+    { return vtkWebGPUCallbacksInternals::DeviceLostCallback(nullptr, reason, message, userdata); };
     opts.deviceLostUserdata = nullptr;
 #else
     opts.deviceLostCallbackInfo.nextInChain = nullptr;

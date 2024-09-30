@@ -1007,7 +1007,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       }
 
       // add the points to the VBO
-      union {
+      union
+      {
         unsigned char c[4];
         float f;
       } v = { { 0, 0, 0, 255 } };

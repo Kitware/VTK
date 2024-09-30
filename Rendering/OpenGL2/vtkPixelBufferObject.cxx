@@ -9,8 +9,8 @@
 
 #include "vtkOpenGLError.h"
 
-//#define VTK_PBO_DEBUG
-//#define VTK_PBO_TIMING
+// #define VTK_PBO_DEBUG
+// #define VTK_PBO_TIMING
 
 #ifdef VTK_PBO_TIMING
 #include "vtkTimerLog.h"

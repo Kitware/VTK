@@ -478,28 +478,30 @@ void vtkVRInteractorStyle::StartClip(vtkEventDataDevice3D* ed)
 
   if (this->CurrentRenderer != nullptr)
   {
-    ForEachNonWidgetProp(this->CurrentRenderer, [this, dev](vtkProp* prop) {
-      auto* actor = vtkActor::SafeDownCast(prop);
-      if (actor)
+    ForEachNonWidgetProp(this->CurrentRenderer,
+      [this, dev](vtkProp* prop)
       {
-        auto* mapper = actor->GetMapper();
-        if (mapper)
+        auto* actor = vtkActor::SafeDownCast(prop);
+        if (actor)
         {
-          mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          auto* mapper = actor->GetMapper();
+          if (mapper)
+          {
+            mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          }
+          return;
         }
-        return;
-      }
-      auto* volume = vtkVolume::SafeDownCast(prop);
-      if (volume)
-      {
-        auto* mapper = volume->GetMapper();
-        if (mapper)
+        auto* volume = vtkVolume::SafeDownCast(prop);
+        if (volume)
         {
-          mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          auto* mapper = volume->GetMapper();
+          if (mapper)
+          {
+            mapper->AddClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          }
+          return;
         }
-        return;
-      }
-    });
+      });
   }
   else
   {
@@ -515,17 +517,19 @@ void vtkVRInteractorStyle::EndClip(vtkEventDataDevice3D* ed)
 
   if (this->CurrentRenderer != nullptr)
   {
-    ForEachNonWidgetProp(this->CurrentRenderer, [this, dev](vtkProp* prop) {
-      auto* actor = vtkActor::SafeDownCast(prop);
-      if (actor)
+    ForEachNonWidgetProp(this->CurrentRenderer,
+      [this, dev](vtkProp* prop)
       {
-        auto* mapper = actor->GetMapper();
-        if (mapper)
+        auto* actor = vtkActor::SafeDownCast(prop);
+        if (actor)
         {
-          mapper->RemoveClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          auto* mapper = actor->GetMapper();
+          if (mapper)
+          {
+            mapper->RemoveClippingPlane(this->ClippingPlanes[static_cast<int>(dev)]);
+          }
         }
-      }
-    });
+      });
   }
   else
   {

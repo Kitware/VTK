@@ -2542,15 +2542,15 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdatePBRStateCache(vtkRenderer*, vtkActo
     actor->GetProperty()->GetCoatStrength() > 0.0;
 
   std::vector<TextureInfo> textures = this->GetTextures(actor);
-  bool usesNormalMap = std::find_if(textures.begin(), textures.end(), [](const TextureInfo& tex) {
-    return tex.second == "normalTex";
-  }) != textures.end();
+  bool usesNormalMap =
+    std::find_if(textures.begin(), textures.end(),
+      [](const TextureInfo& tex) { return tex.second == "normalTex"; }) != textures.end();
   bool usesCoatNormalMap = this->HasClearCoat &&
     std::find_if(textures.begin(), textures.end(),
       [](const TextureInfo& tex) { return tex.second == "coatNormalTex"; }) != textures.end();
-  bool usesRotationMap = std::find_if(textures.begin(), textures.end(), [](const TextureInfo& tex) {
-    return tex.second == "anisotropyTex";
-  }) != textures.end();
+  bool usesRotationMap =
+    std::find_if(textures.begin(), textures.end(),
+      [](const TextureInfo& tex) { return tex.second == "anisotropyTex"; }) != textures.end();
 
   if (hasAnisotropy != this->HasAnisotropy)
   {

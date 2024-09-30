@@ -131,20 +131,22 @@ bool vtkDGWarp::Query(
 
   auto* outPts = pts->NewInstance();
   outPts->DeepCopy(pts);
-  vtkSMPTools::For(0, outPts->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-    std::array<double, 3> xx;
-    std::array<double, 3> dd;
-    for (vtkIdType ii = begin; ii < end; ++ii)
+  vtkSMPTools::For(0, outPts->GetNumberOfTuples(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      pts->GetTuple(ii, xx.data());
-      defl->GetTuple(ii, dd.data());
-      for (int jj = 0; jj < 3; ++jj)
+      std::array<double, 3> xx;
+      std::array<double, 3> dd;
+      for (vtkIdType ii = begin; ii < end; ++ii)
       {
-        xx[jj] += request->GetScaleFactor() * dd[jj];
+        pts->GetTuple(ii, xx.data());
+        defl->GetTuple(ii, dd.data());
+        for (int jj = 0; jj < 3; ++jj)
+        {
+          xx[jj] += request->GetScaleFactor() * dd[jj];
+        }
+        outPts->SetTuple(ii, xx.data());
       }
-      outPts->SetTuple(ii, xx.data());
-    }
-  });
+    });
   grid->GetAttributes(shapeInfo.DOFSharing)->RemoveArray(pts->GetName());
   grid->GetAttributes(shapeInfo.DOFSharing)->AddArray(outPts);
   shapeArrays["values"_token] = outPts;

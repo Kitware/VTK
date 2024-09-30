@@ -31,7 +31,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
-//#define DEBUG_ON
+// #define DEBUG_ON
 
 namespace
 {

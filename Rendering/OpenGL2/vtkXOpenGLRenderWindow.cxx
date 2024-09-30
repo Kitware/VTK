@@ -267,7 +267,8 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCHand = 0;
   this->XCCustom = 0;
 
-  auto loadFunc = [](void*, const char* name) -> VTKOpenGLAPIProc {
+  auto loadFunc = [](void*, const char* name) -> VTKOpenGLAPIProc
+  {
     if (name)
     {
       return glXGetProcAddress((const GLubyte*)name);

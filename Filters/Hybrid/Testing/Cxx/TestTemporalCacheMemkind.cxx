@@ -106,9 +106,8 @@ int vtkTemporalSphereSource2::RequestData(
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     this->ActualTimeStep =
       std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
-        [requestedTimeValue](double const& v) {
-          return vtkTestTemporalCacheSimpleWithinTolerance2(v, requestedTimeValue);
-        }) -
+        [requestedTimeValue](double const& v)
+        { return vtkTestTemporalCacheSimpleWithinTolerance2(v, requestedTimeValue); }) -
       this->TimeStepValues.begin();
     this->ActualTimeStep = this->ActualTimeStep + this->TimeStepRange[0];
   }

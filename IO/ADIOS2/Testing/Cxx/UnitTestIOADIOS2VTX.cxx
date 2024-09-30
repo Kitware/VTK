@@ -596,7 +596,8 @@ bool TestPointDataTime(const std::string& baseDir)
 
   adios2Reader->Update();
 
-  auto checkTimestep = [&](double timestep) {
+  auto checkTimestep = [&](double timestep)
+  {
     adios2Reader->GetOutputInformation(0)->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timestep);
     adios2Reader->Update();
@@ -677,13 +678,15 @@ bool TestCellDataTime(const std::string& baseDir)
 
 int UnitTestIOADIOS2VTX(int argc, char* argv[])
 {
-  auto lf_GetFileName = [](const size_t id) -> std::string {
+  auto lf_GetFileName = [](const size_t id) -> std::string
+  {
     vtkNew<vtkTesting> testing;
     const std::string rootDirectory(testing->GetTempDirectory());
     return rootDirectory + "/dummy_" + std::to_string(id) + ".bp";
   };
 
-  auto lf_TestBadFile = [&](const std::string& fileName, const size_t id) {
+  auto lf_TestBadFile = [&](const std::string& fileName, const size_t id)
+  {
     std::cout << id << " " << fileName << "\n";
     vtkNew<vtkADIOS2VTXReader> reader;
     reader->SetFileName(fileName.c_str());
@@ -752,7 +755,8 @@ int UnitTestIOADIOS2VTX(int argc, char* argv[])
 
   std::string baseDir = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ADIOS2/vtx/bp4/");
 
-  auto lf_TestCornerCase = [&](bool (*function)(const std::string&), const char* name) {
+  auto lf_TestCornerCase = [&](bool (*function)(const std::string&), const char* name)
+  {
     ++testID;
     std::cout << testID << " " << name << "\n";
     bool success = function(baseDir);

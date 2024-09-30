@@ -100,7 +100,8 @@ void ShrinkFieldData(vtkHyperTreeGrid* htg)
 //------------------------------------------------------------------------------
 void TurnOffLogging(std::ostringstream& logStream)
 {
-  auto stream_sink = [](void* userData, const vtkLogger::Message& message) {
+  auto stream_sink = [](void* userData, const vtkLogger::Message& message)
+  {
     std::ostream& s = *reinterpret_cast<std::ostream*>(userData);
     s << message.preamble << message.message << std::endl;
   };

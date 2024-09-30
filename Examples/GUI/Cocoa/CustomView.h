@@ -4,7 +4,7 @@
 
 #import "vtkRenderWindow.h"
 #import "vtkRenderer.h"
-//#import "vtkRenderWindowInteractor.h"
+// #import "vtkRenderWindowInteractor.h"
 #import "vtkCocoaRenderWindow.h"
 #import "vtkCocoaRenderWindowInteractor.h"
 

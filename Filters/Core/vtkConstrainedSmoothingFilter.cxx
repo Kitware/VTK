@@ -379,7 +379,8 @@ struct AttrWorker
 
     // In place lambda to compute error scalars and vectors
     vtkSMPTools::For(0, numPts,
-      [&inPtsArray, &outPtsArray, &scalars, &vectors](vtkIdType ptId, vtkIdType endPtId) {
+      [&inPtsArray, &outPtsArray, &scalars, &vectors](vtkIdType ptId, vtkIdType endPtId)
+      {
         const auto inPts = vtk::DataArrayTupleRange<3>(inPtsArray);
         const auto outPts = vtk::DataArrayTupleRange<3>(outPtsArray);
 

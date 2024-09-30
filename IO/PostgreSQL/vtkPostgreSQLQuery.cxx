@@ -799,7 +799,8 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
 
     // This is the idiom that libpq uses internally to convert between the
     // two types.
-    union {
+    union
+    {
       unsigned int i;
       float f;
     } swap;
@@ -898,7 +899,8 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
     // Let's hope that we always have a 64-bit type.
     vtkTypeUInt64 intResult = 0;
     ConvertFromNetworkOrder(intResult, rawData);
-    union {
+    union
+    {
       vtkTypeUInt64 i;
       double d;
     } swap;

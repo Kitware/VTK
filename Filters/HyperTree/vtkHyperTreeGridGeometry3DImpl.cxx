@@ -252,44 +252,45 @@ void vtkHyperTreeGridGeometry3DImpl::GenerateCellSurface(
   }
 
   auto createInterfacePoints =
-    [&](std::map<unsigned int, std::pair<HTG3DPoint*, unsigned int>>& interface) {
-      if (!interface.empty() && interface.size() >= 3)
+    [&](std::map<unsigned int, std::pair<HTG3DPoint*, unsigned int>>& interface)
+  {
+    if (!interface.empty() && interface.size() >= 3)
+    {
+      std::vector<vtkIdType> newOutputPointIds;
+      unsigned int firstEdge = interface.begin()->first;
+      if (firstEdge == VTK_DEFAULT_EDGE_INDEX)
       {
-        std::vector<vtkIdType> newOutputPointIds;
-        unsigned int firstEdge = interface.begin()->first;
-        if (firstEdge == VTK_DEFAULT_EDGE_INDEX)
+        vtkWarningWithObjectMacro(nullptr, "Uninitialized edge encountered");
+        return;
+      }
+      else
+      {
+        HTG3DPoint* pt = interface[firstEdge].first;
+        newOutputPointIds.emplace_back(pt->Id);
+        unsigned int next = interface[firstEdge].second;
+        while (next != firstEdge && next != VTK_DEFAULT_EDGE_INDEX)
+        {
+          // XXX: think adding an "emergency" breaking condition to
+          // avoid potential infinite looping
+          pt = interface[next].first;
+          newOutputPointIds.emplace_back(pt->Id);
+          next = interface[next].second;
+        }
+        if (next == VTK_DEFAULT_EDGE_INDEX)
         {
           vtkWarningWithObjectMacro(nullptr, "Uninitialized edge encountered");
           return;
         }
-        else
-        {
-          HTG3DPoint* pt = interface[firstEdge].first;
-          newOutputPointIds.emplace_back(pt->Id);
-          unsigned int next = interface[firstEdge].second;
-          while (next != firstEdge && next != VTK_DEFAULT_EDGE_INDEX)
-          {
-            // XXX: think adding an "emergency" breaking condition to
-            // avoid potential infinite looping
-            pt = interface[next].first;
-            newOutputPointIds.emplace_back(pt->Id);
-            next = interface[next].second;
-          }
-          if (next == VTK_DEFAULT_EDGE_INDEX)
-          {
-            vtkWarningWithObjectMacro(nullptr, "Uninitialized edge encountered");
-            return;
-          }
-        }
-
-        // XXX: We need to clarify a criterion for valid cells
-        // (i.e. that can be added to the output)
-        if (!newOutputPointIds.empty())
-        {
-          this->CreateNewCellAndCopyData(newOutputPointIds, cellId);
-        }
       }
-    };
+
+      // XXX: We need to clarify a criterion for valid cells
+      // (i.e. that can be added to the output)
+      if (!newOutputPointIds.empty())
+      {
+        this->CreateNewCellAndCopyData(newOutputPointIds, cellId);
+      }
+    }
+  };
 
   // Create interface points for interface A and B if they are defined
   createInterfacePoints(internalFaceA);

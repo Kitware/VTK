@@ -94,7 +94,10 @@ extern "C"
     std::cout << "c++::stop - end" << std::endl;
   }
 
-  int getConeResolution() { return coneSource->GetResolution(); }
+  int getConeResolution()
+  {
+    return coneSource->GetResolution();
+  }
 
   void setConeResolution(int resolution)
   {

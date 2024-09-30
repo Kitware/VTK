@@ -105,7 +105,8 @@ vtkSEPReader::vtkSEPReader()
 //----------------------------------------------------------------------------
 void vtkSEPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  const auto PrintDataType = [](const DataFormatType type) {
+  const auto PrintDataType = [](const DataFormatType type)
+  {
     switch (type)
     {
       case DataFormatType::XDR_DOUBLE:
@@ -166,7 +167,8 @@ int vtkSEPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->FixedDimRange[1] = std::max(this->FixedDimRange[1], this->Dimensions[i]);
   }
 
-  const auto AssignDimensionId = [this](const std::string& Name) -> int {
+  const auto AssignDimensionId = [this](const std::string& Name) -> int
+  {
     auto iter = std::find(std::begin(this->Label), std::end(this->Label), Name);
     return std::distance(this->Label, iter);
   };
@@ -450,7 +452,8 @@ bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
     acc *= this->Dimensions[t];
   }
 
-  const auto GetConstantOffsetValue = [this](const int fixedValue, const int dimensionArrayId) {
+  const auto GetConstantOffsetValue = [this](const int fixedValue, const int dimensionArrayId)
+  {
     if (details::DimensionIsInRange(fixedValue))
     {
       if (fixedValue >= dimensionArrayId)

@@ -89,9 +89,8 @@ void vtkMergeTimeFilter::MergeTimeSteps(const std::vector<double>& timeSteps)
   for (double newTime : timeSteps)
   {
     // lambda to find TimeStep in the list, depending on Tolerance.
-    auto insideTolerance = [this, newTime](double outputTime) {
-      return this->AreTimesWithinTolerance(outputTime, newTime);
-    };
+    auto insideTolerance = [this, newTime](double outputTime)
+    { return this->AreTimesWithinTolerance(outputTime, newTime); };
 
     auto it =
       std::find_if(this->OutputTimeSteps.begin(), this->OutputTimeSteps.end(), insideTolerance);

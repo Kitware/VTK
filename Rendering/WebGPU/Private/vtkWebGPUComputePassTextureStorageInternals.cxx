@@ -723,9 +723,8 @@ void vtkWebGPUComputePassTextureStorageInternals::DeleteTextureViews(std::size_t
 
       // Now removing the bind group layout entry that corresponded to the texture view
       bglLayoutEntries.erase(std::remove_if(bglLayoutEntries.begin(), bglLayoutEntries.end(),
-                               [binding](const wgpu::BindGroupLayoutEntry& entry) -> bool {
-                                 return entry.binding == binding;
-                               }),
+                               [binding](const wgpu::BindGroupLayoutEntry& entry) -> bool
+                               { return entry.binding == binding; }),
         bglLayoutEntries.end());
     }
   }
@@ -868,7 +867,8 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 
-  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata2) {
+  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userdata2)
+  {
     InternalMapTextureAsyncData* mapData =
       reinterpret_cast<InternalMapTextureAsyncData*>(userdata2);
 

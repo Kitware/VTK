@@ -57,7 +57,10 @@ void VTXSchema::GetTimes(const std::string& variableName)
       " in Engine " + this->Engine.Name() + " when reading time data\n");
   }
 #define declare_type(T)                                                                            \
-  else if (type == adios2::GetType<T>()) { GetTimesCommon<T>(variableName); }
+  else if (type == adios2::GetType<T>())                                                           \
+  {                                                                                                \
+    GetTimesCommon<T>(variableName);                                                               \
+  }
   VTK_IO_ADIOS2_VTX_ARRAY_TYPE(declare_type)
 #undef declare_type
 }

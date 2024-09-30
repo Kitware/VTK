@@ -52,12 +52,14 @@ bool vtkAbstractCellLocator::StoreCellBounds()
   // side effects from GetCellBounds().
   this->DataSet->GetCellBounds(0, &this->CellBounds[0]);
 
-  vtkSMPTools::For(1, numCells, [&](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType cellId = begin; cellId < end; cellId++)
+  vtkSMPTools::For(1, numCells,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      this->DataSet->GetCellBounds(cellId, &this->CellBounds[cellId * 6]);
-    }
-  });
+      for (vtkIdType cellId = begin; cellId < end; cellId++)
+      {
+        this->DataSet->GetCellBounds(cellId, &this->CellBounds[cellId * 6]);
+      }
+    });
   return true;
 }
 

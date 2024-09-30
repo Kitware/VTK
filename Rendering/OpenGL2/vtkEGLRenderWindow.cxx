@@ -187,7 +187,8 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->IsPointSpriteBugTested = false;
   this->IsPointSpriteBugPresent_ = false;
 
-  auto loadFunc = [](void*, const char* name) -> VTKOpenGLAPIProc {
+  auto loadFunc = [](void*, const char* name) -> VTKOpenGLAPIProc
+  {
     if (name)
     {
       return eglGetProcAddress(name);

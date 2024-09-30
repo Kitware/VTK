@@ -373,14 +373,14 @@ int TestUGTemporalBase(OpenerWorklet& opener, bool testMeshMTime = false)
     CheckerWorklet checks(CHECK_TOLERANCE);
 
     // Point Data checks
-    auto getLHSPData = [&](vtkIdType iP) {
+    auto getLHSPData = [&](vtkIdType iP)
+    {
       std::array<double, 3> point = { 0 };
       dSet->GetPoint(iP, point.data());
       return ::Sin11T(dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0), point);
     };
-    auto getRHSPData = [&](vtkIdType iP) {
-      return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
-    };
+    auto getRHSPData = [&](vtkIdType iP)
+    { return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0); };
 
     if (!checks(0, dSet->GetNumberOfPoints(), getLHSPData, getRHSPData))
     {
@@ -499,14 +499,14 @@ int TestUGTemporalPartitioned(
       CheckerWorklet checks(CHECK_TOLERANCE);
 
       // Point Data checks
-      auto getLHSPData = [&](vtkIdType iP) {
+      auto getLHSPData = [&](vtkIdType iP)
+      {
         std::array<double, 3> point = { 0 };
         dSetPartition->GetPoint(iP, point.data());
         return ::Sin11T(dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0), point);
       };
-      auto getRHSPData = [&](vtkIdType iP) {
-        return dSetPartition->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
-      };
+      auto getRHSPData = [&](vtkIdType iP)
+      { return dSetPartition->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0); };
 
       if (!checks(0, dSetPartition->GetNumberOfPoints(), getLHSPData, getRHSPData))
       {
@@ -619,13 +619,13 @@ int TestImageDataTemporalBase(OpenerWorklet& opener)
     CheckerWorklet checks(CHECK_TOLERANCE);
 
     // Point Data checks
-    auto getLHSPData = [&](vtkIdType iP) {
+    auto getLHSPData = [&](vtkIdType iP)
+    {
       auto wave = refGeometry->GetPointData()->GetArray("RTData");
       return dSet->GetFieldData()->GetArray("Time")->GetComponent(0, 0) * wave->GetComponent(iP, 0);
     };
-    auto getRHSPData = [&](vtkIdType iP) {
-      return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0);
-    };
+    auto getRHSPData = [&](vtkIdType iP)
+    { return dSet->GetPointData()->GetArray("Modulator")->GetComponent(iP, 0); };
 
     if (!checks(0, dSet->GetNumberOfPoints(), getLHSPData, getRHSPData))
     {
@@ -635,9 +635,8 @@ int TestImageDataTemporalBase(OpenerWorklet& opener)
 
     // Cell Data checks
     auto getLHSCData = [&](vtkIdType iC) { return iC; };
-    auto getRHSCData = [&](vtkIdType iC) {
-      return dSet->GetCellData()->GetArray("IDs")->GetComponent(iC, 0);
-    };
+    auto getRHSCData = [&](vtkIdType iC)
+    { return dSet->GetCellData()->GetArray("IDs")->GetComponent(iC, 0); };
 
     if (!checks(0, dSet->GetNumberOfCells(), getLHSCData, getRHSCData))
     {

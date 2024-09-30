@@ -433,7 +433,8 @@ public:
       OutputIterator, DOFSharing, SourceType, Modifier, ShapeSharing>(
       op, conn, values, sides, offset, shapeGradient, shapeConnectivity, shapeValues));
     entry.Function = [&entry](InputIterator& inIter, OutputIterator& outIter, vtkTypeUInt64 begin,
-                       vtkTypeUInt64 end) {
+                       vtkTypeUInt64 end)
+    {
       auto* eval = reinterpret_cast<vtkDGOperationEvaluator<InputIterator, OutputIterator,
         DOFSharing, SourceType, Modifier, ShapeSharing>*>(entry.State.get());
       return (*eval)(inIter, outIter, begin, end);

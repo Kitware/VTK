@@ -135,10 +135,12 @@ public:
   bool Pop(R& result)
   {
     std::unique_lock<std::mutex> lk(this->ResultsMutex);
-    this->ResultsCV.wait(lk, [this] {
-      return !this->Results.empty() &&
-        (!this->StrictOrdering || this->Results.top().first == this->NextResultId);
-    });
+    this->ResultsCV.wait(lk,
+      [this]
+      {
+        return !this->Results.empty() &&
+          (!this->StrictOrdering || this->Results.top().first == this->NextResultId);
+      });
     lk.unlock();
     return this->TryPop(result);
   }
@@ -174,7 +176,8 @@ vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(
                                               : max_concurrent_tasks)
   , Threads{ new std::thread[this->NumberOfThreads] }
 {
-  auto f = [this](int thread_id) {
+  auto f = [this](int thread_id)
+  {
     vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
     while (true)
     {
@@ -270,7 +273,8 @@ vtkThreadedTaskQueue<void, Args...>::vtkThreadedTaskQueue(std::function<void(Arg
                                               : max_concurrent_tasks)
   , Threads{ new std::thread[this->NumberOfThreads] }
 {
-  auto f = [this](int thread_id) {
+  auto f = [this](int thread_id)
+  {
     vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
     while (true)
     {

@@ -8,7 +8,7 @@
 #ifndef vtkX3DExporterFIWriterHelper_h
 #define vtkX3DExporterFIWriterHelper_h
 
-//#include "vtkX3DExporterFIByteWriter.h"
+// #include "vtkX3DExporterFIByteWriter.h"
 #include "vtkZLibDataCompressor.h"
 #include <cassert>
 
@@ -22,7 +22,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkX3DExporterFIWriterHelper
 {
 public:
-  union float_to_unsigned_int_to_bytes {
+  union float_to_unsigned_int_to_bytes
+  {
     float f;
     unsigned int ui;
     unsigned char ub[4]; // unsigned bytes
@@ -329,7 +330,8 @@ public:
     const double* vd = value;
     for (i = 0; i < size; i++)
     {
-      union float_to_unsigned_int_to_bytes {
+      union float_to_unsigned_int_to_bytes
+      {
         float f;
         unsigned int ui;
         unsigned char ub[4]; // unsigned bytes

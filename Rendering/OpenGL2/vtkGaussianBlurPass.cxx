@@ -19,7 +19,7 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkGaussianBlurPass developers.
-//#define VTK_GAUSSIAN_BLUR_PASS_DEBUG
+// #define VTK_GAUSSIAN_BLUR_PASS_DEBUG
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
 #include "vtkImageExtractComponents.h"

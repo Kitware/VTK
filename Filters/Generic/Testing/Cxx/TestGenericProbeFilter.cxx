@@ -8,8 +8,8 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-//#define ADD_GEOMETRY
-//#define STD_PROBE
+// #define ADD_GEOMETRY
+// #define STD_PROBE
 
 #include "vtkActor.h"
 #include "vtkAttributesErrorMetric.h"

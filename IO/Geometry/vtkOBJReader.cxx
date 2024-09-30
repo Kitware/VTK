@@ -206,7 +206,8 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
   std::string tcoordsName; // name of active tcoords
   int lineNumber = 0;      // current line number
 
-  const auto flushLine = [this, &parser, &lineNumber]() {
+  const auto flushLine = [this, &parser, &lineNumber]()
+  {
     std::string remaining;
 
     auto result = parser->Parse(remaining);

@@ -1089,7 +1089,8 @@ void vtkDataAssembly::Visit(int id, vtkDataAssemblyVisitor* visitor, int travers
   if (traversal_order == vtkDataAssembly::TraversalOrder::DepthFirst)
   {
     std::function<void(const pugi::xml_node&)> iterate;
-    iterate = [&](const pugi::xml_node& node) {
+    iterate = [&](const pugi::xml_node& node)
+    {
       const auto cid = node.attribute("id").as_int(-1);
       vinternals.CurrentNode = node;
       visitor->Visit(cid);
@@ -1168,7 +1169,8 @@ std::vector<int> vtkDataAssembly::SelectNodes(
       auto set = internals.Document.select_nodes(query.c_str());
 
       auto notUsed = std::accumulate(set.begin(), set.end(), &visitor->UnorderedSelectedNodes,
-        [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode) {
+        [&internals](std::unordered_set<int>* result, const pugi::xpath_node& xnode)
+        {
           if (xnode.node() == internals.Document)
           {
             // note: if xpath matches the document, the xnode is the document and not the
@@ -1281,7 +1283,8 @@ void vtkDataAssembly::SubsetCopy(vtkDataAssembly* other, const std::vector<int>&
 
   std::function<void(const pugi::xml_node&, pugi::xml_node)> subset_copier;
   subset_copier = [&partial_subtree, &complete_subtree, &subset_copier](
-                    const pugi::xml_node& src, pugi::xml_node dest) -> void {
+                    const pugi::xml_node& src, pugi::xml_node dest) -> void
+  {
     // first, copy src attributes over.
     for (const auto& attribute : src.attributes())
     {

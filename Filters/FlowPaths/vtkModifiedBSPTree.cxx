@@ -92,8 +92,8 @@ public:
   {
     for (int i = 0; i < 3; i++)
     {
-      delete[](this->Mins[i]);
-      delete[](this->Maxs[i]);
+      delete[] (this->Mins[i]);
+      delete[] (this->Maxs[i]);
     }
     global_list_count -= 1;
   }
@@ -147,23 +147,25 @@ void vtkModifiedBSPTree::BuildLocatorInternal()
 
   // sort the cells into 6 lists using structure for subdividing tests
   Sorted_cell_extents_Lists* lists = new Sorted_cell_extents_Lists(numCells);
-  vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
-    double cellBounds[6], *cellBoundsPtr;
-    cellBoundsPtr = cellBounds;
-    for (uint8_t i = 0; i < 3; ++i)
+  vtkSMPTools::For(0, numCells,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      for (vtkIdType j = begin; j < end; ++j)
+      double cellBounds[6], *cellBoundsPtr;
+      cellBoundsPtr = cellBounds;
+      for (uint8_t i = 0; i < 3; ++i)
       {
-        this->GetCellBounds(j, cellBoundsPtr);
-        lists->Mins[i][j].min = cellBoundsPtr[i * 2];
-        lists->Mins[i][j].max = cellBoundsPtr[i * 2 + 1];
-        lists->Mins[i][j].cell_ID = j;
-        lists->Maxs[i][j].min = cellBoundsPtr[i * 2];
-        lists->Maxs[i][j].max = cellBoundsPtr[i * 2 + 1];
-        lists->Maxs[i][j].cell_ID = j;
+        for (vtkIdType j = begin; j < end; ++j)
+        {
+          this->GetCellBounds(j, cellBoundsPtr);
+          lists->Mins[i][j].min = cellBoundsPtr[i * 2];
+          lists->Mins[i][j].max = cellBoundsPtr[i * 2 + 1];
+          lists->Mins[i][j].cell_ID = j;
+          lists->Maxs[i][j].min = cellBoundsPtr[i * 2];
+          lists->Maxs[i][j].max = cellBoundsPtr[i * 2 + 1];
+          lists->Maxs[i][j].cell_ID = j;
+        }
       }
-    }
-  });
+    });
   for (uint8_t i = 0; i < 3; i++)
   {
     // Sort

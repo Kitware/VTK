@@ -125,17 +125,19 @@ struct ComputeTransformationWorker
     Eigen::MatrixXd p1, p2;
     p1.resize(3, p1Range.size());
     p2.resize(3, p2Range.size());
-    vtkSMPTools::For(0, p1Range.size(), [&](vtkIdType begin, vtkIdType end) {
-      for (vtkIdType i = begin; i < end; i++)
+    vtkSMPTools::For(0, p1Range.size(),
+      [&](vtkIdType begin, vtkIdType end)
       {
-        p1(0, i) = p1Range[i][0];
-        p1(1, i) = p1Range[i][1];
-        p1(2, i) = p1Range[i][2];
-        p2(0, i) = p2Range[i][0];
-        p2(1, i) = p2Range[i][1];
-        p2(2, i) = p2Range[i][2];
-      }
-    });
+        for (vtkIdType i = begin; i < end; i++)
+        {
+          p1(0, i) = p1Range[i][0];
+          p1(1, i) = p1Range[i][1];
+          p1(2, i) = p1Range[i][2];
+          p2(0, i) = p2Range[i][0];
+          p2(1, i) = p2Range[i][1];
+          p2(2, i) = p2Range[i][2];
+        }
+      });
 
     // find the rotation and translation matrix between 2 sets of points
     Eigen::Vector3d p1BaryCenter = p1.rowwise().mean();

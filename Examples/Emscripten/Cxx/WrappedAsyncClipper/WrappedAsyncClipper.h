@@ -99,16 +99,18 @@ EMSCRIPTEN_BINDINGS(WrappedAsyncClipperBindings)
     .function("ResetAbortFlag", &WrappedAsyncClipper::ResetAbortFlag)
     .function("UpdateClipPlaneNormal", &WrappedAsyncClipper::UpdateClipPlaneNormal)
     .function("AddClipPlaneModifiedUIObserver",
-      emscripten::optional_override([](WrappedAsyncClipper& self, emscripten::val jsFunc) {
-        // the `jsFunc` must be a javascript function that takes 3 doubles and returns nothing.
-        // Here, we dynamically "import" the javascript function into the wasm table by using
-        // an emscripten library function called "addFunction". That must be in the list of
-        // EXPORTED_RUNTIME_METHODS in the link flags. See CMakeLists.txt.
-        int fp =
-          emscripten::val::module_property("addFunction")(jsFunc, std::string("vddd")).as<int>();
-        auto callback = reinterpret_cast<WrappedAsyncClipper::ClipPlaneModifiedCallbackType>(fp);
-        self.AddClipPlaneModifiedUIObserver(callback);
-      }))
+      emscripten::optional_override(
+        [](WrappedAsyncClipper& self, emscripten::val jsFunc)
+        {
+          // the `jsFunc` must be a javascript function that takes 3 doubles and returns nothing.
+          // Here, we dynamically "import" the javascript function into the wasm table by using
+          // an emscripten library function called "addFunction". That must be in the list of
+          // EXPORTED_RUNTIME_METHODS in the link flags. See CMakeLists.txt.
+          int fp =
+            emscripten::val::module_property("addFunction")(jsFunc, std::string("vddd")).as<int>();
+          auto callback = reinterpret_cast<WrappedAsyncClipper::ClipPlaneModifiedCallbackType>(fp);
+          self.AddClipPlaneModifiedUIObserver(callback);
+        }))
     .function("SyncRender", &WrappedAsyncClipper::SyncRender)
     .function("AsyncRender", &WrappedAsyncClipper::AsyncRender)
     .function("Start", &WrappedAsyncClipper::Start);

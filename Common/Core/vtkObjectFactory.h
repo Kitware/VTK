@@ -274,7 +274,10 @@ static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 // The name of the function will by vtkObjectFactoryCreateclassname
 // where classname is the name of the class being created
 #define VTK_CREATE_CREATE_FUNCTION(classname)                                                      \
-  static vtkObject* vtkObjectFactoryCreate##classname() { return classname::New(); }
+  static vtkObject* vtkObjectFactoryCreate##classname()                                            \
+  {                                                                                                \
+    return classname::New();                                                                       \
+  }
 
 VTK_ABI_NAMESPACE_END
 #endif
@@ -331,7 +334,10 @@ VTK_ABI_NAMESPACE_END
 
 // Macro to implement the standard form of the New() method.
 #define vtkStandardNewMacro(thisClass)                                                             \
-  thisClass* thisClass::New() { VTK_STANDARD_NEW_BODY(thisClass); }
+  thisClass* thisClass::New()                                                                      \
+  {                                                                                                \
+    VTK_STANDARD_NEW_BODY(thisClass);                                                              \
+  }
 
 // Macro to implement the ExtendedNew() to create an object in a memkind extended memory space. If
 // VTK is not compiled with VTK_USE_MEMKIND this is equivalent to New()
@@ -345,10 +351,16 @@ VTK_ABI_NAMESPACE_END
 
 // Macro to implement the object factory form of the New() method.
 #define vtkObjectFactoryNewMacro(thisClass)                                                        \
-  thisClass* thisClass::New() { VTK_OBJECT_FACTORY_NEW_BODY(thisClass); }
+  thisClass* thisClass::New()                                                                      \
+  {                                                                                                \
+    VTK_OBJECT_FACTORY_NEW_BODY(thisClass);                                                        \
+  }
 
 // Macro to implement the abstract object factory form of the New() method.
 // That is an abstract base class that can only be instantiated if the
 // object factory overrides it.
 #define vtkAbstractObjectFactoryNewMacro(thisClass)                                                \
-  thisClass* thisClass::New() { VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass); }
+  thisClass* thisClass::New()                                                                      \
+  {                                                                                                \
+    VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass);                                               \
+  }

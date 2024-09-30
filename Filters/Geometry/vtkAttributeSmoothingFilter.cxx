@@ -383,15 +383,17 @@ void MarkDSBoundary(vtkDataSet* ds, unsigned char* smooth)
   unsigned char* ptr = ptMarks->GetPointer(0);
 
   // Now copy the information over (with in-place lambda).
-  vtkSMPTools::For(0, ds->GetNumberOfPoints(), [&ptr, &smooth](vtkIdType ptId, vtkIdType endPtId) {
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, ds->GetNumberOfPoints(),
+    [&ptr, &smooth](vtkIdType ptId, vtkIdType endPtId)
     {
-      if (ptr[ptId] != 0)
+      for (; ptId < endPtId; ++ptId)
       {
-        smooth[ptId] = Boundary;
+        if (ptr[ptId] != 0)
+        {
+          smooth[ptId] = Boundary;
+        }
       }
-    }
-  });
+    });
 } // MarkDSBoundary
 
 // Mark all points directly adjacent to the dataset boundary (i.e.,

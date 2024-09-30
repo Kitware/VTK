@@ -47,31 +47,35 @@ void addSourceCenters(vtkDGCell* cell, const vtkDGCell::Source& spec, vtkIdTypeA
   if (spec.SideType < 0)
   {
     // Compute center of (non-blanked) cell
-    vtkSMPTools::For(0, nn, [&](vtkIdType beg, vtkIdType end) {
-      vtkVector3d param;
-      for (vtkIdType ii = beg; ii < end; ++ii)
+    vtkSMPTools::For(0, nn,
+      [&](vtkIdType beg, vtkIdType end)
       {
-        // param = cell->GetParametricCenterOfSide(spec.SideType);
-        param = cell->GetParametricCenterOfSide(spec.SideType);
-        cellIds->SetValue(vbegin + ii, ii + off);
-        rst->SetTuple(vbegin + ii, param.GetData());
-      }
-    });
+        vtkVector3d param;
+        for (vtkIdType ii = beg; ii < end; ++ii)
+        {
+          // param = cell->GetParametricCenterOfSide(spec.SideType);
+          param = cell->GetParametricCenterOfSide(spec.SideType);
+          cellIds->SetValue(vbegin + ii, ii + off);
+          rst->SetTuple(vbegin + ii, param.GetData());
+        }
+      });
   }
   else
   {
     // Compute center of side of a cell.
-    vtkSMPTools::For(0, nn, [&](vtkIdType beg, vtkIdType end) {
-      vtkVector3d param;
-      std::array<vtkTypeUInt64, 2> sideConn;
-      for (vtkIdType ii = beg; ii < end; ++ii)
+    vtkSMPTools::For(0, nn,
+      [&](vtkIdType beg, vtkIdType end)
       {
-        spec.Connectivity->GetUnsignedTuple(ii, sideConn.data());
-        param = cell->GetParametricCenterOfSide(sideConn[1]);
-        cellIds->SetValue(vbegin + ii, ii + off);
-        rst->SetTuple(vbegin + ii, param.GetData());
-      }
-    });
+        vtkVector3d param;
+        std::array<vtkTypeUInt64, 2> sideConn;
+        for (vtkIdType ii = beg; ii < end; ++ii)
+        {
+          spec.Connectivity->GetUnsignedTuple(ii, sideConn.data());
+          param = cell->GetParametricCenterOfSide(sideConn[1]);
+          cellIds->SetValue(vbegin + ii, ii + off);
+          rst->SetTuple(vbegin + ii, param.GetData());
+        }
+      });
   }
   vbegin += nn;
   assert(vbegin <= vend);
@@ -170,12 +174,14 @@ void vtkDGCellCenterResponder::AllocateOutputVertices(vtkCellGridCellCenters::Qu
   vtkNew<vtkIntArray> vconn;
   vconn->SetNumberOfTuples(nn);
   vconn->SetName(vcnname.c_str());
-  vtkSMPTools::For(0, nn, [&vconn](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType ii = begin; ii < end; ++ii)
+  vtkSMPTools::For(0, nn,
+    [&vconn](vtkIdType begin, vtkIdType end)
     {
-      vconn->SetValue(ii, ii);
-    }
-  });
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        vconn->SetValue(ii, ii);
+      }
+    });
   auto dgVert = request->GetOutput()->AddCellMetadata<vtkDGVert>();
   auto* vtxGroup = request->GetOutput()->GetAttributes("vtkDGVert"_token);
   vtxGroup->SetScalars(vconn);

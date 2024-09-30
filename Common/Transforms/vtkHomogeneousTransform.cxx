@@ -119,15 +119,17 @@ void vtkHomogeneousTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPt
 
   this->Update();
 
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double point[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inPts->GetPoint(ptId, point);
-      vtkHomogeneousTransformPoint(M, point, point);
-      outPts->SetPoint(m + ptId, point);
-    }
-  });
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        vtkHomogeneousTransformPoint(M, point, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -169,51 +171,53 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vt
     vtkMatrix4x4::Transpose(*L, *L);
   }
 
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    double inPnt[3], outPnt[3], inNrm[3], outNrm[3], inVec[3], outVec[3];
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inPts->GetPoint(ptId, inPnt);
-
-      // do the coordinate transformation, get 1/w
-      double f = vtkHomogeneousTransformPoint(M, inPnt, outPnt);
-      outPts->SetPoint(m + ptId, outPnt);
-
-      if (inVrs)
+      double inPnt[3], outPnt[3], inNrm[3], outNrm[3], inVec[3], outVec[3];
+      for (; ptId < endPtId; ++ptId)
       {
-        inVrs->GetTuple(ptId, inVec);
-        TransformVector(M, outPnt, f, inVec, outVec);
-        outVrs->SetTuple(m + ptId, outVec);
-      }
+        inPts->GetPoint(ptId, inPnt);
 
-      if (inVrsArr)
-      {
-        for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+        // do the coordinate transformation, get 1/w
+        double f = vtkHomogeneousTransformPoint(M, inPnt, outPnt);
+        outPts->SetPoint(m + ptId, outPnt);
+
+        if (inVrs)
         {
-          inVrsArr[iArr]->GetTuple(ptId, inVec);
+          inVrs->GetTuple(ptId, inVec);
           TransformVector(M, outPnt, f, inVec, outVec);
-          outVrsArr[iArr]->SetTuple(m + ptId, outVec);
+          outVrs->SetTuple(m + ptId, outVec);
+        }
+
+        if (inVrsArr)
+        {
+          for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+          {
+            inVrsArr[iArr]->GetTuple(ptId, inVec);
+            TransformVector(M, outPnt, f, inVec, outVec);
+            outVrsArr[iArr]->SetTuple(m + ptId, outVec);
+          }
+        }
+
+        if (inNms)
+        {
+          inNms->GetTuple(ptId, inNrm);
+
+          // calculate the w component of the normal
+          double w = -(inNrm[0] * inPnt[0] + inNrm[1] * inPnt[1] + inNrm[2] * inPnt[2]);
+
+          // perform the transformation in homogeneous coordinates
+          outNrm[0] = L[0][0] * inNrm[0] + L[0][1] * inNrm[1] + L[0][2] * inNrm[2] + L[0][3] * w;
+          outNrm[1] = L[1][0] * inNrm[0] + L[1][1] * inNrm[1] + L[1][2] * inNrm[2] + L[1][3] * w;
+          outNrm[2] = L[2][0] * inNrm[0] + L[2][1] * inNrm[1] + L[2][2] * inNrm[2] + L[2][3] * w;
+
+          // re-normalize
+          vtkMath::Normalize(outNrm);
+          outNms->SetTuple(m + ptId, outNrm);
         }
       }
-
-      if (inNms)
-      {
-        inNms->GetTuple(ptId, inNrm);
-
-        // calculate the w component of the normal
-        double w = -(inNrm[0] * inPnt[0] + inNrm[1] * inPnt[1] + inNrm[2] * inPnt[2]);
-
-        // perform the transformation in homogeneous coordinates
-        outNrm[0] = L[0][0] * inNrm[0] + L[0][1] * inNrm[1] + L[0][2] * inNrm[2] + L[0][3] * w;
-        outNrm[1] = L[1][0] * inNrm[0] + L[1][1] * inNrm[1] + L[1][2] * inNrm[2] + L[1][3] * w;
-        outNrm[2] = L[2][0] * inNrm[0] + L[2][1] * inNrm[1] + L[2][2] * inNrm[2] + L[2][3] * w;
-
-        // re-normalize
-        vtkMath::Normalize(outNrm);
-        outNms->SetTuple(m + ptId, outNrm);
-      }
-    }
-  });
+    });
 }
 
 //------------------------------------------------------------------------------

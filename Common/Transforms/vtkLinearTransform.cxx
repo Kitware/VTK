@@ -82,16 +82,18 @@ inline void vtkLinearTransformPoints(T1 matrix[4][4], T2* in, T3* out, vtkIdType
 {
   // We use THRESHOLD to test if the data size is small enough
   // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    T2* pin = in + 3 * ptId;
-    T3* pout = out + 3 * ptId;
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      vtkLinearTransformPoint(matrix, pin, pout);
-      pin += 3;
-      pout += 3;
-    }
-  });
+      T2* pin = in + 3 * ptId;
+      T3* pout = out + 3 * ptId;
+      for (; ptId < endPtId; ++ptId)
+      {
+        vtkLinearTransformPoint(matrix, pin, pout);
+        pin += 3;
+        pout += 3;
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -100,16 +102,18 @@ inline void vtkLinearTransformVectors(T1 matrix[4][4], T2* in, T3* out, vtkIdTyp
 {
   // We use THRESHOLD to test if the data size is small enough
   // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    T2* pin = in + 3 * ptId;
-    T3* pout = out + 3 * ptId;
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      vtkLinearTransformVector(matrix, pin, pout);
-      pin += 3;
-      pout += 3;
-    }
-  });
+      T2* pin = in + 3 * ptId;
+      T3* pout = out + 3 * ptId;
+      for (; ptId < endPtId; ++ptId)
+      {
+        vtkLinearTransformVector(matrix, pin, pout);
+        pin += 3;
+        pout += 3;
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -118,18 +122,20 @@ inline void vtkLinearTransformNormals(T1 matrix[4][4], T2* in, T3* out, vtkIdTyp
 {
   // We use THRESHOLD to test if the data size is small enough
   // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-    T2* pin = in + 3 * ptId;
-    T3* pout = out + 3 * ptId;
-    for (; ptId < endPtId; ++ptId)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      // matrix has been transposed & inverted, so use TransformVector
-      vtkLinearTransformVector(matrix, pin, pout);
-      vtkMath::Normalize(pout);
-      pin += 3;
-      pout += 3;
-    }
-  });
+      T2* pin = in + 3 * ptId;
+      T3* pout = out + 3 * ptId;
+      for (; ptId < endPtId; ++ptId)
+      {
+        // matrix has been transposed & inverted, so use TransformVector
+        vtkLinearTransformVector(matrix, pin, pout);
+        vtkMath::Normalize(pout);
+        pin += 3;
+        pout += 3;
+      }
+    });
 }
 
 } // anonymous namespace
@@ -249,15 +255,17 @@ void vtkLinearTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   else
   {
     // for anything that isn't float or double
-    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-      double point[3];
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        inPts->GetPoint(ptId, point);
-        vtkLinearTransformPoint(matrix, point, point);
-        outPts->SetPoint(m + ptId, point);
-      }
-    });
+        double point[3];
+        for (; ptId < endPtId; ++ptId)
+        {
+          inPts->GetPoint(ptId, point);
+          vtkLinearTransformPoint(matrix, point, point);
+          outPts->SetPoint(m + ptId, point);
+        }
+      });
   }
 }
 
@@ -300,17 +308,19 @@ void vtkLinearTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* out
   else
   {
     // for anything that isn't float or double
-    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-      double norm[3];
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        inNms->GetTuple(ptId, norm);
-        // use TransformVector because matrix is already transposed & inverted
-        vtkLinearTransformVector(matrix, norm, norm);
-        vtkMath::Normalize(norm);
-        outNms->SetTuple(m + ptId, norm);
-      }
-    });
+        double norm[3];
+        for (; ptId < endPtId; ++ptId)
+        {
+          inNms->GetTuple(ptId, norm);
+          // use TransformVector because matrix is already transposed & inverted
+          vtkLinearTransformVector(matrix, norm, norm);
+          vtkMath::Normalize(norm);
+          outNms->SetTuple(m + ptId, norm);
+        }
+      });
   }
 }
 
@@ -349,15 +359,17 @@ void vtkLinearTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* out
   else
   {
     // for anything that isn't float or double
-    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD, [&](vtkIdType ptId, vtkIdType endPtId) {
-      double vec[3];
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        inVrs->GetTuple(ptId, vec);
-        vtkLinearTransformVector(matrix, vec, vec);
-        outVrs->SetTuple(m + ptId, vec);
-      }
-    });
+        double vec[3];
+        for (; ptId < endPtId; ++ptId)
+        {
+          inVrs->GetTuple(ptId, vec);
+          vtkLinearTransformVector(matrix, vec, vec);
+          outVrs->SetTuple(m + ptId, vec);
+        }
+      });
   }
 }
 VTK_ABI_NAMESPACE_END

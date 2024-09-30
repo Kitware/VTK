@@ -468,7 +468,8 @@ void vtkObjectManager::UpdateObjectsFromStates()
   nlohmann::json strongRefStates;
   const auto& states = this->Context->States();
   std::copy_if(states.begin(), states.end(), std::back_inserter(strongRefStates),
-    [](const nlohmann::json& item) {
+    [](const nlohmann::json& item)
+    {
       return item.contains("vtk-object-manager-kept-alive") &&
         item["vtk-object-manager-kept-alive"] == true;
     });

@@ -70,11 +70,11 @@
 
 //------------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
-//#ifdef NC_INT64
+// #ifdef NC_INT64
 //// This may or may not work with the netCDF 4 library reading in netCDF 3 files.
-//#define nc_get_var_vtkIdType nc_get_var_longlong
-//#define nc_get_vars_vtkIdType nc_get_vars_longlong
-//#else // NC_INT64
+// #define nc_get_var_vtkIdType nc_get_var_longlong
+// #define nc_get_vars_vtkIdType nc_get_vars_longlong
+// #else // NC_INT64
 VTK_ABI_NAMESPACE_BEGIN
 static int nc_get_var_vtkIdType(int ncid, int varid, vtkIdType* ip)
 {
@@ -135,7 +135,7 @@ static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[], cons
   return NC_NOERR;
 }
 VTK_ABI_NAMESPACE_END
-//#endif // NC_INT64
+// #endif // NC_INT64
 #else // VTK_USE_64_BIT_IDS
 #define nc_get_var_vtkIdType nc_get_var_int
 #define nc_get_vars_vtkIdType nc_get_vars_int

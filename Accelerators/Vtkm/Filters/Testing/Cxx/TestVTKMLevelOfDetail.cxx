@@ -69,7 +69,7 @@
  * convert LOD_0* -append summary.png
  */
 
-//#define LUCY_PATH "/prm/lucy.ply"
+// #define LUCY_PATH "/prm/lucy.ply"
 
 namespace
 {

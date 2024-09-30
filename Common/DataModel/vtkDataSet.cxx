@@ -167,14 +167,16 @@ vtkPoints* vtkDataSet::GetPoints()
   vtkNew<vtkDoubleArray> array;
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(this->GetNumberOfPoints());
-  vtkSMPTools::For(0, this->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-    double x[3];
-    for (vtkIdType pointId = begin; pointId < end; ++pointId)
+  vtkSMPTools::For(0, this->GetNumberOfPoints(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      this->GetPoint(pointId, x);
-      array->SetTypedTuple(pointId, x);
-    }
-  });
+      double x[3];
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
+      {
+        this->GetPoint(pointId, x);
+        array->SetTypedTuple(pointId, x);
+      }
+    });
   this->TempPoints->SetData(array);
   return this->TempPoints;
 }
