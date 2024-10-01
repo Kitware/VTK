@@ -7,6 +7,8 @@
 #include "vtkOpenXRInteractorStyle.h"
 #include "vtkOpenXRRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
+#include "vtkResourceFileLocator.h"
+#include "vtkVersion.h"
 
 #include "vtk_jsoncpp.h"
 #include <vtksys/FStream.hxx>
@@ -184,6 +186,16 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
           }
 
           vtkDebugMacro(<< "Interaction profile changed for " << hand << ": " << profileString);
+
+          auto renWin = vtkOpenXRRenderWindow::SafeDownCast(this->RenderWindow);
+          if (!renWin)
+          {
+            vtkErrorMacro("Unable to retrieve the OpenXR render window !");
+            return;
+          }
+
+          std::string profile(&profileString[0]);
+          renWin->SetCurrentInteractionProfile(hand, profile);
         }
         break;
       }

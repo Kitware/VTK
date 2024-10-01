@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenXRRenderWindow.h"
 
+#include "vtkGlobFileNames.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenXR.h"
@@ -12,7 +13,15 @@
 #include "vtkOpenXRRenderer.h"
 #include "vtkOpenXRUtilities.h"
 #include "vtkRendererCollection.h"
+#include "vtkResourceFileLocator.h"
 #include "vtkVRCamera.h"
+#include "vtkVersion.h"
+
+#include "vtk_jsoncpp.h"
+#include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
+
+#include <map> // map
 
 // include what we need for the helper window
 #if defined(_WIN32)
@@ -28,10 +37,115 @@
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkOpenXRRenderWindow::vtkInternals
+{
+public:
+  vtkInternals() = default;
+
+  //----------------------------------------------------------------------------
+  // OpenXR does not yet have a way to load and render controller
+  // models. This workaround maps known/tested interaction profiles
+  // to local assets.
+  void LoadRenderModelMapping()
+  {
+    std::string modelsFile = "openxr_controllermodels.json";
+
+    // Look for where the function "GetVTKVersion." lives.
+    auto vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
+
+    if (vtklib.empty())
+    {
+      vtkWarningWithObjectMacro(nullptr, << "Unable to locate runtime library location.");
+      return;
+    }
+
+    // Search for the controller models json file in the parent of the
+    // directory containing the library/executable.
+    const std::string libPath = vtksys::SystemTools::GetFilenamePath(vtklib);
+    const std::string rootSearchDir = vtksys::SystemTools::GetParentDirectory(libPath);
+    vtkNew<vtkGlobFileNames> fileGlobber;
+    fileGlobber->SetDirectory(rootSearchDir.c_str());
+    fileGlobber->SetRecurse(true);
+    fileGlobber->AddFileNames(modelsFile.c_str());
+    if (fileGlobber->GetNumberOfFileNames() <= 0)
+    {
+      vtkWarningWithObjectMacro(
+        nullptr, << "Unable to locate model mapping file in: " << rootSearchDir);
+      return;
+    }
+
+    const char* match = fileGlobber->GetNthFileName(0);
+    const std::string modelFile(&match[0]);
+
+    // Get the directory containing the controller models json file, since
+    // we found it.
+    std::string modelsDirectory = vtksys::SystemTools::GetFilenamePath(modelFile);
+
+    // Open the profile->asset mapping file
+    vtksys::ifstream file;
+    file.open(modelFile.c_str());
+    if (!file.is_open())
+    {
+      vtkWarningWithObjectMacro(nullptr, << "Unable to open model mapping file : " << modelFile);
+      return;
+    }
+
+    Json::Value root;
+    Json::CharReaderBuilder builder;
+    std::string formattedErrors;
+    if (!Json::parseFromStream(builder, file, &root, &formattedErrors))
+    {
+      // Report failures and their locations in the document
+      vtkWarningWithObjectMacro(nullptr, << "Failed to parse file with errors :" << endl
+                                         << formattedErrors);
+      return;
+    }
+
+    uint32_t leftHand = static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Left);
+    uint32_t rightHand = static_cast<uint32_t>(vtkOpenXRManager::ControllerIndex::Right);
+
+    for (Json::Value::ArrayIndex i = 0; i < root.size(); ++i)
+    {
+      Json::Value nextMapping = root[i];
+      std::string profileName = nextMapping["interaction_profile"].asString();
+      Json::Value assetPaths = nextMapping["asset_paths"];
+
+      std::string leftControllerPath = assetPaths["left_controller"].asString();
+      std::string leftControllerPathFull =
+        vtksys::SystemTools::CollapseFullPath(modelsDirectory + "/" + leftControllerPath);
+      this->SetModelAsset(profileName, leftHand, leftControllerPathFull);
+
+      std::string rightControllerPath = assetPaths["right_controller"].asString();
+      std::string rightControllerPathFull =
+        vtksys::SystemTools::CollapseFullPath(modelsDirectory + "/" + rightControllerPath);
+      this->SetModelAsset(profileName, rightHand, rightControllerPathFull);
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  // Set the model asset path for given interaction profile and hand
+  void SetModelAsset(const std::string& profile, uint32_t hand, const std::string& assetPath)
+  {
+    this->ProfileToModelMapping[profile][hand] = assetPath;
+  }
+
+  //----------------------------------------------------------------------------
+  // Get the model asset path for given interaction profile and hand
+  std::string& GetModelAsset(const std::string& profile, uint32_t hand)
+  {
+    return this->ProfileToModelMapping[profile][hand];
+  }
+
+  std::map<uint32_t, std::string> CurrentInteractionProfiles;
+  std::map<std::string, std::map<uint32_t, std::string>> ProfileToModelMapping;
+};
+
 vtkStandardNewMacro(vtkOpenXRRenderWindow);
 
 //------------------------------------------------------------------------------
 vtkOpenXRRenderWindow::vtkOpenXRRenderWindow()
+  : Internal(new vtkOpenXRRenderWindow::vtkInternals())
 {
   this->StereoCapableWindow = 1;
   this->StereoRender = 1;
@@ -128,6 +242,9 @@ void vtkOpenXRRenderWindow::Initialize()
 
   std::string strWindowTitle = "VTK - " + xrManager.GetOpenXRPropertiesAsString();
   this->SetWindowName(strWindowTitle.c_str());
+
+  // Load the interaction-profile-to-asset mapping
+  this->Internal->LoadRenderModelMapping();
 
   this->VRInitialized = true;
 }
@@ -278,6 +395,14 @@ void vtkOpenXRRenderWindow::RenderModels()
   for (uint32_t hand :
     { vtkOpenXRManager::ControllerIndex::Left, vtkOpenXRManager::ControllerIndex::Right })
   {
+    // Defer model loading until we have an interaction profile
+    const std::string& currentProfile = this->GetCurrentInteractionProfile(hand);
+    if (currentProfile.empty())
+    {
+      vtkDebugMacro(<< "Defer loading controller model for hand: " << hand);
+      continue;
+    }
+
     // do we not have a model loaded yet? try loading one
     auto handle = this->GetDeviceHandleForOpenXRHandle(hand);
     auto device = this->GetDeviceForOpenXRHandle(hand);
@@ -286,6 +411,16 @@ void vtkOpenXRRenderWindow::RenderModels()
     if (!pRenderModel)
     {
       vtkNew<vtkOpenXRModel> newModel;
+      auto search = this->Internal->ProfileToModelMapping.find(currentProfile);
+      if (search != this->Internal->ProfileToModelMapping.end())
+      {
+        auto modelMap = search->second;
+        auto model = modelMap.find(hand);
+        if (model != modelMap.end())
+        {
+          newModel->SetAssetPath(model->second);
+        }
+      }
       this->SetModelForDeviceHandle(handle, newModel);
       pRenderModel = newModel;
     }
@@ -390,4 +525,21 @@ vtkEventDataDevice vtkOpenXRRenderWindow::GetDeviceForOpenXRHandle(uint32_t ohan
 
   return vtkEventDataDevice::Unknown;
 }
+
+//------------------------------------------------------------------------------
+std::string& vtkOpenXRRenderWindow::GetCurrentInteractionProfile(uint32_t hand)
+{
+  return this->Internal->CurrentInteractionProfiles[hand];
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRRenderWindow::SetCurrentInteractionProfile(uint32_t hand, const std::string& profile)
+{
+  std::string currentValue = this->Internal->CurrentInteractionProfiles[hand];
+  if (profile != currentValue)
+  {
+    this->Internal->CurrentInteractionProfiles[hand] = profile;
+  }
+}
+
 VTK_ABI_NAMESPACE_END
