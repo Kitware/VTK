@@ -28,38 +28,11 @@ vtkStandardNewMacro(vtkDelimitedTextReader);
 
 //------------------------------------------------------------------------------
 vtkDelimitedTextReader::vtkDelimitedTextReader()
-  : FileName(nullptr)
-  , UnicodeCharacterSet(nullptr)
-  , MaxRecords(0)
-  , UnicodeRecordDelimiters("\r\n")
-  , UnicodeFieldDelimiters(",")
-  , UnicodeStringDelimiters("\"")
-  , UnicodeWhitespace(" \t\r\n\v\f")
-  , UnicodeEscapeCharacter("\\")
-  , HaveHeaders(false)
-  , ReplacementCharacter('x')
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-
-  this->ReadFromInputString = 0;
-  this->InputString = nullptr;
-  this->InputStringLength = 0;
-  this->MergeConsecutiveDelimiters = false;
-  this->PedigreeIdArrayName = nullptr;
   this->SetPedigreeIdArrayName("id");
-  this->GeneratePedigreeIds = true;
-  this->OutputPedigreeIds = false;
-  this->AddTabFieldDelimiter = false;
-  this->FieldDelimiterCharacters = nullptr;
   this->SetFieldDelimiterCharacters(",");
-  this->StringDelimiter = '"';
-  this->UseStringDelimiter = true;
-  this->DetectNumericColumns = false;
-  this->ForceDouble = false;
-  this->DefaultIntegerValue = 0;
-  this->DefaultDoubleValue = 0.0;
-  this->TrimWhitespacePriorToNumericConversion = false;
 }
 
 //------------------------------------------------------------------------------

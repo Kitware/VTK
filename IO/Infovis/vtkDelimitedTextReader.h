@@ -326,33 +326,33 @@ protected:
   // Read the content of the input file.
   int ReadData(vtkTable* output_table);
 
-  char* FileName;
-  vtkTypeBool ReadFromInputString;
-  char* InputString;
-  int InputStringLength;
-  char* UnicodeCharacterSet;
-  vtkIdType MaxRecords;
-  std::string UnicodeRecordDelimiters;
-  std::string UnicodeFieldDelimiters;
-  std::string UnicodeStringDelimiters;
-  std::string UnicodeWhitespace;
-  std::string UnicodeEscapeCharacter;
-  bool DetectNumericColumns;
-  bool ForceDouble;
-  bool TrimWhitespacePriorToNumericConversion;
-  int DefaultIntegerValue;
-  double DefaultDoubleValue;
-  char* FieldDelimiterCharacters;
-  char StringDelimiter;
-  bool UseStringDelimiter;
-  bool HaveHeaders;
-  bool MergeConsecutiveDelimiters;
-  char* PedigreeIdArrayName;
-  bool GeneratePedigreeIds;
-  bool OutputPedigreeIds;
-  bool AddTabFieldDelimiter;
-  vtkStdString LastError;
-  vtkTypeUInt32 ReplacementCharacter;
+  char* FileName = nullptr;
+  vtkTypeBool ReadFromInputString = 0;
+  char* InputString = nullptr;
+  int InputStringLength = 0;
+  char* UnicodeCharacterSet = nullptr;
+  vtkIdType MaxRecords = 0;
+  std::string UnicodeRecordDelimiters = "\r\n";
+  std::string UnicodeFieldDelimiters = ",";
+  std::string UnicodeStringDelimiters = "\"";
+  std::string UnicodeWhitespace = " \t\r\n\v\f";
+  std::string UnicodeEscapeCharacter = "\\";
+  bool DetectNumericColumns = false;
+  bool ForceDouble = false;
+  bool TrimWhitespacePriorToNumericConversion = false;
+  int DefaultIntegerValue = 0;
+  double DefaultDoubleValue = 0.;
+  char* FieldDelimiterCharacters = nullptr;
+  char StringDelimiter = '"';
+  bool UseStringDelimiter = true;
+  bool HaveHeaders = false;
+  bool MergeConsecutiveDelimiters = false;
+  char* PedigreeIdArrayName = nullptr;
+  bool GeneratePedigreeIds = true;
+  bool OutputPedigreeIds = false;
+  bool AddTabFieldDelimiter = false;
+  vtkStdString LastError = "";
+  vtkTypeUInt32 ReplacementCharacter = 'x';
 
 private:
   /**
@@ -361,7 +361,16 @@ private:
    */
   std::unique_ptr<std::istream> OpenStream();
 
+  /**
+   * Read the BOM and configure a default value for UnicodeCharacterSet,
+   * if not set explicitly.
+   */
   void ReadBOM(std::istream* stream);
+
+  /**
+   * Create a vtkTextCodec for the given stream.
+   * Uses UnicodeCharacterSet if given, or try to find an one.
+   */
   vtkTextCodec* CreateTextCodec(std::istream* input_stream);
 
   vtkDelimitedTextReader(const vtkDelimitedTextReader&) = delete;

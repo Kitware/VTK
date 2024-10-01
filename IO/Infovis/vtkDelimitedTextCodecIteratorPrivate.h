@@ -106,28 +106,28 @@ private:
    */
   void InsertField();
 
-  vtkIdType MaxRecords;
-  vtkIdType MaxRecordIndex;
+  vtkIdType MaxRecords = 0;
+  vtkIdType MaxRecordIndex = 0;
   std::set<vtkTypeUInt32> RecordDelimiters;
   std::set<vtkTypeUInt32> FieldDelimiters;
   std::set<vtkTypeUInt32> StringDelimiters;
   std::set<vtkTypeUInt32> Whitespace;
   std::set<vtkTypeUInt32> EscapeDelimiter;
-  bool HaveHeaders;
-  bool WhiteSpaceOnlyString;
-  vtkTable* OutputTable;
-  vtkIdType CurrentRecordIndex;
-  vtkIdType CurrentFieldIndex;
+  bool HaveHeaders = false;
+  bool WhiteSpaceOnlyString = true;
+  vtkTable* OutputTable = nullptr;
+  vtkIdType CurrentRecordIndex = 0;
+  vtkIdType CurrentFieldIndex = 0;
   std::string CurrentField;
-  bool RecordAdjacent;
-  bool MergeConsDelims;
-  bool ProcessEscapeSequence;
-  bool UseStringDelimiter;
-  bool DetectNumericColumns;
-  bool ForceDouble;
-  int DefaultIntegerValue;
-  double DefaultDoubleValue;
-  vtkTypeUInt32 WithinString;
+  bool RecordAdjacent = true;
+  bool MergeConsDelims = false;
+  bool ProcessEscapeSequence = false;
+  bool UseStringDelimiter = true;
+  bool DetectNumericColumns = false;
+  bool ForceDouble = false;
+  int DefaultIntegerValue = 0;
+  double DefaultDoubleValue = 0.;
+  vtkTypeUInt32 WithinString = 0;
 };
 
 VTK_ABI_NAMESPACE_END

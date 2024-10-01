@@ -32,19 +32,13 @@ vtkDelimitedTextCodecIteratorPrivate::vtkDelimitedTextCodecIteratorPrivate(
   , Whitespace(whitespace.begin(), whitespace.end())
   , EscapeDelimiter(escape.begin(), escape.end())
   , HaveHeaders(have_headers)
-  , WhiteSpaceOnlyString(true)
   , OutputTable(output_table)
-  , CurrentRecordIndex(0)
-  , CurrentFieldIndex(0)
-  , RecordAdjacent(true)
   , MergeConsDelims(merg_cons_delimiters)
-  , ProcessEscapeSequence(false)
   , UseStringDelimiter(use_string_delimiter)
   , DetectNumericColumns(detect_numeric_columns)
   , ForceDouble(force_double)
   , DefaultIntegerValue(default_int)
   , DefaultDoubleValue(default_double)
-  , WithinString(0)
 {
 }
 
