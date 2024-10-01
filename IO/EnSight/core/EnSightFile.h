@@ -313,6 +313,11 @@ template <typename T>
 bool EnSightFile::ReadArray(T* result, vtkIdType n, bool singleLine /* = false*/,
   bool padBeginning /* = true*/, bool padEnd /* = true*/)
 {
+  if (n <= 0)
+  {
+    return true;
+  }
+
   if (this->Format == FileType::ASCII)
   {
     if (!singleLine)
@@ -343,7 +348,7 @@ bool EnSightFile::ReadArray(T* result, vtkIdType n, bool singleLine /* = false*/
     // In some cases we want to read everything in a single fortran
     // read into a single array, but sometimes we don't want to, so
     // we have to handle the skip bytes appropriately
-    if (padBeginning)
+    if (padBeginning && this->FortranSkipBytes > 0)
     {
       this->MoveReadPosition(this->FortranSkipBytes);
     }
@@ -352,7 +357,7 @@ bool EnSightFile::ReadArray(T* result, vtkIdType n, bool singleLine /* = false*/
       vtkGenericWarningMacro("read array failed");
       return false;
     }
-    if (padEnd)
+    if (padEnd && this->FortranSkipBytes > 0)
     {
       this->MoveReadPosition(this->FortranSkipBytes);
     }
