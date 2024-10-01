@@ -1,7 +1,7 @@
 """This module provides classes that allow numpy style access
 to VTK datasets. See examples at bottom.
 """
-
+from contextlib import suppress
 from vtkmodules.vtkCommonCore import vtkPoints, vtkAbstractArray
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
@@ -19,11 +19,12 @@ from vtkmodules.vtkCommonDataModel import (
 
 import weakref
 
-try:
+NUMPY_AVAILABLE = False
+
+with suppress(ImportError):
     import numpy
     from vtkmodules.numpy_interface import dataset_adapter as dsa
-except ImportError:
-    NUMPY_NOT_AVAILABLE = True
+    NUMPY_AVAILABLE = True
 
 class FieldDataBase(object):
     def __init__(self):
@@ -44,7 +45,7 @@ class FieldDataBase(object):
             raise IndexError("array index out of range")
         vtkarray = super().GetArray(idx)
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             return vtkarray if vtkarray else self.GetAbstractArray(idx)
 
         if not vtkarray:
@@ -78,7 +79,7 @@ class FieldDataBase(object):
 
     def set_array(self, name, narray):
         """Appends a new array to the dataset attributes."""
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             if isinstance(narray, vtkAbstractArray):
                 narray.SetName(name)
                 self.AddArray(narray)
@@ -235,7 +236,7 @@ class CompositeDataSetAttributes(object):
 
     def set_array(self, name, narray):
         """Appends a new array to the composite dataset attributes."""
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             # don't know how to handle composite dataset attribute when numpy not around
             raise NotImplementedError("Only available with numpy")
 
@@ -265,7 +266,7 @@ class CompositeDataSetAttributes(object):
         """Given a name, returns a VTKCompositeArray."""
         arrayname = idx
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             # don't know how to handle composite dataset attribute when numpy not around
             raise NotImplementedError("Only available with numpy")
 
@@ -315,7 +316,7 @@ class PointSet(DataSet):
     def points(self):
         pts = self.GetPoints()
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             return pts
 
         if not pts or not pts.GetData():
@@ -324,7 +325,7 @@ class PointSet(DataSet):
 
     @points.setter
     def points(self, points):
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             if isinstance(pts, vtkPoints):
                 self.SetPoints(pts)
                 return
@@ -345,7 +346,7 @@ class vtkUnstructuredGrid(PointSet, vtkUnstructuredGrid):
         offsets_vtk = ca.GetOffsetsArray()
         ct_vtk = self.GetCellTypesArray()
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             return {
                'connectivity' : conn_vtk,
                'offsets' : offsets_vtk,
@@ -361,7 +362,7 @@ class vtkUnstructuredGrid(PointSet, vtkUnstructuredGrid):
     def cells(self, cells):
         ca = vtkCellArray()
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             ca.SetData(cells['offsets'], cells['connectivity'])
             self.SetCells(cells['cell_types'], ca)
             return
@@ -384,7 +385,7 @@ class vtkPolyData(PointSet, vtkPolyData):
         conn_vtk = ca.GetConnectivityArray()
         offsets_vtk = ca.GetOffsetsArray()
 
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             return {
                 'connectivity' : conn_vtk,
                 'offsets' : offsets_vtk,
@@ -475,7 +476,7 @@ class CompositeDataSetBase(object):
     @property
     def points(self):
         "Returns the points as a VTKCompositeDataArray instance."
-        if NUMPY_NOT_AVAILABLE:
+        if not NUMPY_AVAILABLE:
             # don't know how to handle composite dataset when numpy not around
             raise NotImplementedError("Only available with numpy")
 

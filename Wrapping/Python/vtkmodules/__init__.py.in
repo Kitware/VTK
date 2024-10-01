@@ -76,22 +76,15 @@ MODULE_MAPPER = {
     ],
 }
 LOADED_MODULES = set()
-IMPORTED_MODULES = set()
 
 def register_vtk_module_dependencies(vtk_module_name, *import_names):
     """Method to call for registering external override on vtkmodule load"""
-    if vtk_module_name not in MODULE_MAPPER:
-        MODULE_MAPPER[vtk_module_name] = []
-
-    for import_name in import_names:
-        MODULE_MAPPER[vtk_module_name].append(import_name)
+    MODULE_MAPPER.setdefault(vtk_module_name, []).extend(import_names)
 
     # If already loaded let's make sure we import it now
     if vtk_module_name in LOADED_MODULES:
         for import_name in import_names:
-            if import_name not in IMPORTED_MODULES:
-                importlib.import_module(import_name)
-                IMPORTED_MODULES.add(import_name)
+            importlib.import_module(import_name)
 
 
 def on_vtk_module_loaded(module_name):
@@ -101,8 +94,5 @@ def on_vtk_module_loaded(module_name):
 
     LOADED_MODULES.add(module_name)
 
-    if module_name in MODULE_MAPPER:
-        for import_name in MODULE_MAPPER[module_name]:
-            if import_name not in IMPORTED_MODULES:
-                importlib.import_module(import_name)
-                IMPORTED_MODULES.add(import_name)
+    for import_name in MODULE_MAPPER.get(module_name, []):
+        importlib.import_module(import_name)
