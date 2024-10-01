@@ -200,6 +200,10 @@ VTKCOMMONCORE_EXPORT void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int);
 
 //--------------------------------------------------------------------------------
 template <>
+VTKCOMMONCORE_EXPORT vtkSMPToolsImpl<BackendType::TBB>::vtkSMPToolsImpl();
+
+//--------------------------------------------------------------------------------
+template <>
 VTKCOMMONCORE_EXPORT int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedDefaultNumberOfThreads();
 
 //--------------------------------------------------------------------------------
