@@ -135,7 +135,8 @@ static void CreateImplFile(
   fprintf(fout, "  PyObject *pFunc = PyObject_GetAttrString(pModule, \"on_vtk_module_loaded\");\n");
   fprintf(fout, "  PyObject *pArgs = PyTuple_New(1);\n");
   fprintf(fout, "  PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(\"%s\"));\n", libName);
-  fprintf(fout, "  PyObject_CallObject(pFunc, pArgs);\n\n");
+  fprintf(fout, "  PyObject *execVal = PyObject_CallObject(pFunc, pArgs);\n");
+  fprintf(fout, "  Py_DECREF(execVal);\n");
   fprintf(fout, "  Py_DECREF(pArgs);\n");
   fprintf(fout, "  Py_DECREF(pFunc);\n");
   fprintf(fout, "  Py_DECREF(pModule);\n");
