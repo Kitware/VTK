@@ -325,11 +325,11 @@ class PointSet(DataSet):
 
     @points.setter
     def points(self, points):
-        if not NUMPY_AVAILABLE:
-            if isinstance(pts, vtkPoints):
-                self.SetPoints(pts)
-                return
+        if isinstance(points, vtkPoints):
+            self.SetPoints(points)
+            return
 
+        if not NUMPY_AVAILABLE:
             raise ValueError("Expect vtkPoints")
 
         pts = dsa.numpyTovtkDataArray(points, "points")
