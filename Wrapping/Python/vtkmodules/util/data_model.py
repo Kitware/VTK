@@ -503,3 +503,15 @@ class CompositeDataSetBase(object):
 class vtkPartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
     def append(self, dataset):
         self.SetPartition(self.GetNumberOfPartitions(), dataset)
+
+# -----------------------------------------------------------------------------
+# Handle pickle registration
+# -----------------------------------------------------------------------------
+with suppress(ImportError):
+    import copyreg
+    from vtkmodules.util.pickle_support import serialize_VTK_data_object
+
+    copyreg.pickle(vtkPolyData, serialize_VTK_data_object)
+    copyreg.pickle(vtkUnstructuredGrid, serialize_VTK_data_object)
+    copyreg.pickle(vtkImageData, serialize_VTK_data_object)
+    copyreg.pickle(vtkPartitionedDataSet, serialize_VTK_data_object)
