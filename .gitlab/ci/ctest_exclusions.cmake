@@ -1,6 +1,6 @@
 set(test_exclusions
   # Flaky when run with threads enabled. See #19471.
-  "^VTK::FiltersCellGridPython-TestCellGridRange$"
+  "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 
