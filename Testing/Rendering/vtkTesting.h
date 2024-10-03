@@ -50,6 +50,7 @@
 #ifndef vtkTesting_h
 #define vtkTesting_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_9_4_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
@@ -159,40 +160,43 @@ public:
   ///@}
 
   /**
-   * Perform the test and return the result. Delegates to
-   * RegressionTestAndCaptureOutput, sending the output to cout.
+   * Perform the test and return the result.
+   *
+   * The output of the test will be written to cout (including timing information), @output, or @os.
    */
   virtual int RegressionTest(double thresh);
+  virtual int RegressionTest(double thresh, std::string& output);
+  virtual int RegressionTest(double thresh, ostream& os);
+  ///@}
 
   /**
    * Perform the test and return the result. At the same time, write
    * the output to the output stream os. Includes timing information
    * in the output.
    */
+  VTK_DEPRECATED_IN_9_4_0("Use RegressionTest(double, ostream&) instead.")
   virtual int RegressionTestAndCaptureOutput(double thresh, ostream& os);
-
-  /**
-   * Perform the test and return the result. At the same time, write
-   * the output to the output stream os. This method is nearly the
-   * same as RegressionTestAndCaptureOutput, but does not include
-   * timing information in the output.
-   */
-  virtual int RegressionTest(double thresh, ostream& os);
 
   ///@{
   /**
    * Perform the test and return result. The test image will be read from the
    * png file at pngFileName.
+   *
+   * The output of the test will be written to cout (including timing information), @output, or @os.
    */
   virtual int RegressionTest(const std::string& pngFileName, double thresh);
+  virtual int RegressionTest(const std::string& pngFileName, double thresh, std::string& output);
   virtual int RegressionTest(const std::string& pngFileName, double thresh, ostream& os);
   ///@}
 
   ///@{
   /**
    * Compare the image with the valid image.
+   *
+   * The output of the test will be written to cout (including timing information), @output, or @os.
    */
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh);
+  virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, std::string& output);
   virtual int RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os);
   ///@}
 
