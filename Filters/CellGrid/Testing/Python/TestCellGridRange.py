@@ -8,6 +8,17 @@ from vtkmodules import vtkIOCellGrid as io
 from vtkmodules.test import Testing
 import os
 
+# Avoid Unicode console output on Windows:
+L1n='L1 norm'
+L2n='L2 norm'
+try:
+    import platform
+    if platform.system() != 'Windows':
+        L1n='L₁ norm'
+        L2n='L₂ norm'
+finally:
+    pass
+
 class TestCellGridRange(Testing.vtkTest):
 
     def setUp(self):
@@ -42,7 +53,7 @@ class TestCellGridRange(Testing.vtkTest):
             for comp in range(numComp + 2):
                 cr = [1, -1]
                 self.source.GetCellAttributeRange(attribute, comp - 2, cr, True)
-                compName = 'L₂ norm' if comp == 0 else 'L₁ norm' if comp == 1 else '%d' % (comp - 2)
+                compName = L2n if comp == 0 else L1n if comp == 1 else '%d' % (comp - 2)
                 print('  %s: [ %g, %g ]' % (compName, cr[0], cr[1]))
                 if comp - 2 in expectedComponentRanges:
                     expectedRange = expectedComponentRanges[comp - 2]
