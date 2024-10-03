@@ -9,6 +9,8 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+DESCRIPTION
+  Filters that work in a distributed-memory environment.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

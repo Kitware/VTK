@@ -99,6 +99,7 @@ void vtkCellGrid::ShallowCopy(vtkDataObject* baseSrc)
     return;
   }
 
+  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(src);
   copier->SetTarget(this);
@@ -123,6 +124,7 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
     return;
   }
 
+  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(src);
   copier->SetTarget(this);
@@ -140,6 +142,7 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
 
 bool vtkCellGrid::CopyStructure(vtkCellGrid* other, bool byReference)
 {
+  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(other);
   copier->SetTarget(this);

@@ -107,11 +107,22 @@ bool vtkDGCellSourceResponder::Query(
   grid->SetShapeAttribute(shape);
 
   // clang-format off
-  this->CreateCellAttribute(
-    dgCell, cellTypeToken,
-    "hgrad", "ℝ³", 3,
-    "HGRAD"_token, "C"_token, 1,
-    dgCell->GetNumberOfSidesOfDimension(0) * 3, 1, "point"_token);
+  if (cellTypeToken == "vtkDGVert"_token)
+  {
+    this->CreateCellAttribute(
+      dgCell, cellTypeToken,
+      "constant", "ℝ³", 3,
+      "constant"_token, "C"_token, 0,
+      3, 1, "points"_token);
+  }
+  else
+  {
+    this->CreateCellAttribute(
+      dgCell, cellTypeToken,
+      "hgrad", "ℝ³", 3,
+      "HGRAD"_token, "C"_token, 1,
+      dgCell->GetNumberOfSidesOfDimension(0) * 3, 1, "points"_token);
+  }
   // clang-format on
   if (dgCell->IsA("vtkDeRhamCell"))
   {

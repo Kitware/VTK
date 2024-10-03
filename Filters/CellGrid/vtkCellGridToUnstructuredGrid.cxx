@@ -126,20 +126,23 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
           array->FillComponent(jj, 0.);
         }
       }
-      // Invert the connectivity counts into weights:
-      vtkIdType np = this->ConnectivityCount.rbegin()->first + 1;
-      this->ConnectivityWeights.resize(np, 0.);
-      vtkSMPTools::For(0, np,
-        [this](vtkIdType begin, vtkIdType end)
-        {
-          for (vtkIdType ii = begin; ii < end; ++ii)
+      if (!this->ConnectivityCount.empty())
+      {
+        // Invert the connectivity counts into weights:
+        vtkIdType np = this->ConnectivityCount.rbegin()->first + 1;
+        this->ConnectivityWeights.resize(np, 0.);
+        vtkSMPTools::For(0, np,
+          [this](vtkIdType begin, vtkIdType end)
           {
-            auto it = this->ConnectivityCount.find(ii);
-            this->ConnectivityWeights[ii] =
-              (it == this->ConnectivityCount.end() ? 1.0 : 1.0 / it->second);
-          }
-        });
-      this->ConnectivityCount.clear();
+            for (vtkIdType ii = begin; ii < end; ++ii)
+            {
+              auto it = this->ConnectivityCount.find(ii);
+              this->ConnectivityWeights[ii] =
+                (it == this->ConnectivityCount.end() ? 1.0 : 1.0 / it->second);
+            }
+          });
+        this->ConnectivityCount.clear();
+      }
     }
     break;
     default:

@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkGUISupportQtQuick
 GROUPS
   Qt
+DESCRIPTION
+  Make VTK render-windows and interactors available in Qt Quick applications.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

@@ -2,6 +2,8 @@ NAME
   VTK::GeovisCore
 LIBRARY_NAME
   vtkGeovisCore
+DESCRIPTION
+  Core functionality for geospatial visualizations, such as spherical projections.
 GROUPS
   Rendering
 SPDX_LICENSE_IDENTIFIER

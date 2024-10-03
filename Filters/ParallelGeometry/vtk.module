@@ -8,6 +8,8 @@ GROUPS
   MPI
 IMPLEMENTS
   VTK::FiltersCore
+DESCRIPTION
+  Filters for distributed-memory processing of geometric data.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
