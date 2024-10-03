@@ -130,7 +130,7 @@ class TestCellGridTransform(Testing.vtkTest):
             rwi.AddObserver(cc.vtkCommand.KeyPressEvent, onKeyPress)
             rwi.Start()
             print('camera', cam)
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
     def testHCurlVectors(self):
         self.runCase('curl1', 'TestCellGridTransform-HCurl.png')

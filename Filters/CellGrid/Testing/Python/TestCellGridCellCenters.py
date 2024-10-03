@@ -129,7 +129,7 @@ class TestCellGridCellCenters(Testing.vtkTest):
         if '-I' in sys.argv:
             rwi.Start()
             print('camera', cam)
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
     def testEdgeCenters(self):
         """Test that the cell-center filter properly computes centers

@@ -262,7 +262,7 @@ class TestCellGridRendering(Testing.vtkTest):
             rw.Render()
             ri.Start()
         # else:
-            # Testing.compareImage(rw, Testing.getAbsImagePath(imageFile), threshold=25)
+            # Testing.compareImage(rw, Testing.getAbsImagePath(imageFile))
 
     def testCurlVectorComponents(self):
         dataFile = os.path.join(VTK_DATA_ROOT, 'Data', 'dgHexahedra.dg')
