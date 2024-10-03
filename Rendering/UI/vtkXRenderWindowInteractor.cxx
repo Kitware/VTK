@@ -56,7 +56,11 @@ constexpr unsigned char XDND_VERSION = 5;
 class vtkXRenderWindowInteractorInternals
 {
 public:
-  vtkXRenderWindowInteractorInternals() { this->TimerIdCount = 1; }
+  vtkXRenderWindowInteractorInternals()
+  {
+    this->DisplayConnection = -1;
+    this->TimerIdCount = 1;
+  }
   ~vtkXRenderWindowInteractorInternals() = default;
 
   // duration is in milliseconds
@@ -140,19 +144,14 @@ public:
 
   static std::set<vtkXRenderWindowInteractor*> Instances;
 
-  struct FDWaitInformation
+  struct LoopInformation
   {
     // whether application was terminated
     bool Done = false;
-    // whether `WaitForEvents` invokes `select` with a timeout argument.
-    bool UseTimeout = false;
     // the number of events dispatched by `ProcessEvents()`
     uint64_t NumEventsDispatched = 0;
-    // the timeout value provided to `select`. waits until an event occurs or this interval expires.
-    timeval WaitInterval;
-    // file descriptors that are monitored for activity in `WaitForEvents`
-    std::vector<int> RwiFileDescriptors;
-  } FDWaitInfo;
+  } LoopInfo;
+  int DisplayConnection;
 
 private:
   int TimerIdCount;
@@ -187,6 +186,8 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 //------------------------------------------------------------------------------
 vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
+  this->Finalize();
+
   this->Disable();
 
   delete this->Internal;
@@ -227,35 +228,17 @@ void vtkXRenderWindowInteractor::TerminateApp()
 void vtkXRenderWindowInteractor::ProcessEvents()
 {
   auto& internals = (*this->Internal);
-  auto& done = internals.FDWaitInfo.Done;
-  auto& evCount = internals.FDWaitInfo.NumEventsDispatched;
-  auto& waitTv = internals.FDWaitInfo.WaitInterval;
-  auto& rwiFileDescriptors = internals.FDWaitInfo.RwiFileDescriptors;
-  auto& useTimeout = internals.FDWaitInfo.UseTimeout;
+  auto& done = internals.LoopInfo.Done;
+  auto& evCount = internals.LoopInfo.NumEventsDispatched;
 
   // reset vars which help VTK wait for new events or timer timeouts.
   done = true;
   evCount = 0;
-  rwiFileDescriptors.clear();
-  rwiFileDescriptors.reserve(vtkXRenderWindowInteractorInternals::Instances.size());
-  useTimeout = false;
-
-  // these file descriptors will be polled for new events. after pending events are processed, if
-  // any.
-  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
-  {
-    rwiFileDescriptors.push_back(ConnectionNumber(rwi->DisplayId));
-  }
 
   for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
        rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
   {
     XEvent event;
-    if (XPending((*rwi)->DisplayId) == 0)
-    {
-      // get how long to wait for the next timer
-      useTimeout = (*rwi)->Internal->GetTimeToNextTimer(waitTv);
-    }
     while (XPending((*rwi)->DisplayId) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
@@ -282,34 +265,58 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       // Finalize the rwi
       (*rwi)->Finalize();
 
-      // Adjust the file descriptors vector
-      int rwiPosition = std::distance(vtkXRenderWindowInteractorInternals::Instances.begin(), rwi);
+      // Adjust the Instances vector
       rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
-      rwiFileDescriptors.erase(rwiFileDescriptors.begin() + rwiPosition);
     }
     else
     {
       ++rwi;
     }
   }
-  this->Done = done;
 }
 
 //------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::WaitForEvents()
 {
-  auto& internals = (*this->Internal);
-  auto& fdWaitInfo = (internals.FDWaitInfo);
+  bool useTimeout = false;
+  timeval soonestTimer;
+
+  // check to see how long we wait for the next timer
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    if (rwi->Done)
+      continue;
+
+    timeval t;
+    bool haveTimer = rwi->Internal->GetTimeToNextTimer(t);
+    if (haveTimer)
+    {
+      if (!useTimeout)
+      {
+        useTimeout = true;
+        soonestTimer = t;
+      }
+      else if (timercmp(&t, &soonestTimer, <))
+      {
+        soonestTimer = t;
+      }
+    }
+  }
+
   fd_set in_fds;
 
   // select will wait until 'tv' elapses or something else wakes us
   FD_ZERO(&in_fds);
   int maxFd = -1;
-  timeval* timeout = fdWaitInfo.UseTimeout ? &fdWaitInfo.WaitInterval : nullptr;
-  for (const auto& rwiFileDescriptor : fdWaitInfo.RwiFileDescriptors)
+  timeval* timeout = useTimeout ? &soonestTimer : nullptr;
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
-    FD_SET(rwiFileDescriptor, &in_fds);
-    maxFd = std::max<int>(maxFd, rwiFileDescriptor);
+    if (!rwi->Done)
+    {
+      int rwi_fd = rwi->Internal->DisplayConnection;
+      FD_SET(rwi_fd, &in_fds);
+      maxFd = std::max<int>(maxFd, rwi_fd);
+    }
   }
   vtkDebugMacro(<< "wait");
   select(maxFd + 1, &in_fds, nullptr, nullptr, timeout);
@@ -330,18 +337,18 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   {
     rwi->Done = false;
   }
+
+  auto& loopInfo = this->Internal->LoopInfo;
   do
   {
-    auto& internals = (*this->Internal);
-    auto& fdWaitInfo = (internals.FDWaitInfo);
     // process pending events.
     this->ProcessEvents();
     // wait for events only if no events were dispatched and application is not yet terminated.
-    if (!fdWaitInfo.NumEventsDispatched && !fdWaitInfo.Done)
+    if (!loopInfo.NumEventsDispatched && !loopInfo.Done)
     {
       this->WaitForEvents();
     }
-  } while (!this->Done);
+  } while (!loopInfo.Done);
 }
 
 //------------------------------------------------------------------------------
@@ -368,15 +375,8 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Initialized = 1;
   ren = this->RenderWindow;
 
+  ren->EnsureDisplay();
   this->DisplayId = static_cast<Display*>(ren->GetGenericDisplayId());
-  if (!this->DisplayId)
-  {
-    vtkDebugMacro("opening display");
-    this->DisplayId = XOpenDisplay(nullptr);
-    this->OwnDisplay = true;
-    vtkDebugMacro("opened display");
-    ren->SetDisplayId(this->DisplayId);
-  }
 
   vtkXRenderWindowInteractorInternals::Instances.insert(this);
 
@@ -385,6 +385,7 @@ void vtkXRenderWindowInteractor::Initialize()
   size[1] = ((size[1] > 0) ? size[1] : 300);
   if (this->DisplayId)
   {
+    this->Internal->DisplayConnection = ConnectionNumber(this->DisplayId);
     XSync(this->DisplayId, False);
   }
 
@@ -425,15 +426,9 @@ void vtkXRenderWindowInteractor::Finalize()
     this->RenderWindow->Finalize();
   }
 
-  // if we create the display, we'll delete it
-  if (this->OwnDisplay && this->DisplayId)
-  {
-    XCloseDisplay(this->DisplayId);
-  }
-
   // disconnect from the display, even if we didn't own it
   this->DisplayId = nullptr;
-  this->OwnDisplay = false;
+  this->Internal->DisplayConnection = -1;
 
   // revert to uninitialized state
   this->Initialized = false;

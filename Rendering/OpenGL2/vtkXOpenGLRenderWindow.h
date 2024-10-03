@@ -184,6 +184,11 @@ public:
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   Display* GetDisplayId();
 
+  /**
+   * Ensure RenderWindow's X display is opened
+   */
+  bool EnsureDisplay() override;
+
   ///@{
   /**
    * Set the X display id for this RenderWindow to use to a pre-existing
