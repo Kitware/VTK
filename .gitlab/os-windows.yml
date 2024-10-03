@@ -352,7 +352,8 @@
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
         - pip install delvewheel
         - delvewheel show --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
-        - delvewheel repair --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
+        - $no_mangle = (Get-ChildItem -Path ".\bin" -Filter "*.dll" -File -Name) -join ';'
+        - delvewheel repair --add-path "bin" --no-mangle "$no_mangle" (Get-ChildItem dist\*.whl | % FullName) | Out-File -Append -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
         - Rename-Item -Path dist -NewName dist-orig
         - Rename-Item -Path wheelhouse -NewName dist
         - cd ..
