@@ -129,18 +129,6 @@ static void CreateImplFile(
   fprintf(fout, "\n");
   fprintf(fout, "  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
 
-  // For any loaded module check if we need to import pure python dependency
-  // by calling vtkmodules.on_vtk_module_loaded(libName)
-  fprintf(fout, "  PyObject *pModule = PyImport_ImportModule(\"vtkmodules\");\n");
-  fprintf(fout, "  PyObject *pFunc = PyObject_GetAttrString(pModule, \"on_vtk_module_loaded\");\n");
-  fprintf(fout, "  PyObject *pArgs = PyTuple_New(1);\n");
-  fprintf(fout, "  PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(\"%s\"));\n", libName);
-  fprintf(fout, "  PyObject *execVal = PyObject_CallObject(pFunc, pArgs);\n");
-  fprintf(fout, "  Py_DECREF(execVal);\n");
-  fprintf(fout, "  Py_DECREF(pArgs);\n");
-  fprintf(fout, "  Py_DECREF(pFunc);\n");
-  fprintf(fout, "  Py_DECREF(pModule);\n");
-
   fprintf(fout, "  return m;\n");
   fprintf(fout, "}\n\n");
 }

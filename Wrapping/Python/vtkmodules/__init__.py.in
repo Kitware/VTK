@@ -3,7 +3,34 @@ Currently, this package is experimental and may change in the future.
 """
 from __future__ import absolute_import
 import sys
-import importlib
+from pathlib import Path
+import importlib.util
+from importlib.abc import Loader, MetaPathFinder
+from importlib.machinery import ExtensionFileLoader
+
+class VTKMetaHook(MetaPathFinder):
+    """Attach a custom  loaded for vtk native library loading to defer loading of pure python dependencies"""
+    def find_spec(self, fullname, path, target=None):
+        if fullname.startswith("vtkmodules.vtk"):
+            module_path = None
+            vtk_module_name = fullname.split(".")[1]
+            for base_path in path:
+                for f in Path(base_path).glob(f"{vtk_module_name}.*"):
+                    module_path = str(f.resolve())
+
+            return importlib.util.spec_from_file_location(fullname, module_path, loader=VTKLoader(fullname, module_path))
+        return None
+
+
+class VTKLoader(ExtensionFileLoader):
+    """Flush any pending dependency load once initialize() phase is done"""
+    def exec_module(self, module):
+        super().exec_module(module)
+        _flush_pending()
+
+
+# Register hook
+sys.meta_path.insert(0, VTKMetaHook())
 
 
 def _windows_dll_path():
@@ -59,8 +86,8 @@ def _load_vtkmodules_static():
 #------------------------------------------------------------------------------
 # list the contents
 __all__ = [
-@_vtkmodules_all@]
-
+    @_vtkmodules_all@
+]
 #------------------------------------------------------------------------------
 # get the version
 __version__ = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
@@ -76,6 +103,7 @@ MODULE_MAPPER = {
     ],
 }
 LOADED_MODULES = set()
+PENDING_LOADED_MODULES = set()
 
 def register_vtk_module_dependencies(vtk_module_name, *import_names):
     """Method to call for registering external override on vtkmodule load"""
@@ -87,12 +115,18 @@ def register_vtk_module_dependencies(vtk_module_name, *import_names):
             importlib.import_module(import_name)
 
 
-def on_vtk_module_loaded(module_name):
+def on_vtk_module_initialize(module_name):
     """Automatically called by vtkmodule when they are loaded"""
     if module_name in LOADED_MODULES:
         return
 
-    LOADED_MODULES.add(module_name)
+    PENDING_LOADED_MODULES.add(module_name)
 
-    for import_name in MODULE_MAPPER.get(module_name, []):
-        importlib.import_module(import_name)
+
+def _flush_pending():
+    for module_name in PENDING_LOADED_MODULES:
+        LOADED_MODULES.add(module_name)
+        for import_name in MODULE_MAPPER.get(module_name, []):
+            importlib.import_module(import_name)
+
+    PENDING_LOADED_MODULES.clear()
