@@ -280,6 +280,14 @@ private:
   void ReadNSidedSection(int& numElements, vtkUnstructuredGrid* output);
   void ReadNFacedSection(int& numElements, vtkUnstructuredGrid* output);
 
+  ///@{
+  /**
+   * Pass through element sections ignoring as much info as possible.
+   */
+  void SkipNSidedSection(int& numElements);
+  void SkipNFacedSection(int& numElements);
+  ///@}
+
   void ReadVariableNodes(EnSightFile& file, const std::string& arrayName, int numComponents,
     vtkPartitionedDataSetCollection* output, vtkDataArraySelection* selection,
     bool isComplex = false, bool isReal = true);
