@@ -73,6 +73,16 @@ public:
 
   ///@{
   /**
+   * Set/Get whether the anchor point is in normalized chart coordinates or screen coordinates.
+   * By default, this is disabled and the point is in screen coordinates.
+   */
+  vtkSetMacro(PointIsNormalized, bool);
+  vtkGetMacro(PointIsNormalized, bool);
+  vtkBooleanMacro(PointIsNormalized, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set the horizontal alignment of the legend to the point specified.
    * Valid values are LEFT, CENTER and RIGHT.
    */
@@ -245,6 +255,7 @@ protected:
   float* Point;            // The point the legend is anchored to.
   int HorizontalAlignment; // Alignment of the legend to the point it is anchored to.
   int VerticalAlignment;   // Alignment of the legend to the point it is anchored to.
+  bool PointIsNormalized;  // Allow specifying the point in normalized coordinates
 
   /**
    * The pen used to draw the legend box.
