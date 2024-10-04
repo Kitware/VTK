@@ -388,8 +388,21 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkDebugMacro("Consumer modification time has changed.");
   }
 
-  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
+  // Be sure that original data and cache are of same class.
+  if (this->OriginalCompositeDataSet)
+  {
+    status.OriginalMeshUnmodified =
+      strcmp(this->OriginalCompositeDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
+  }
+  else if (this->OriginalDataSet)
+  {
+    status.OriginalMeshUnmodified =
+      strcmp(this->OriginalDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
+  }
+
+  status.OriginalMeshUnmodified &= this->GetNumberOfDataSets(this->Cache) ==
     this->GetNumberOfDataSets(this->GetOriginalDataObject());
+
   if (!status.OriginalMeshUnmodified)
   {
     vtkDebugMacro("Input structure has changed.");
