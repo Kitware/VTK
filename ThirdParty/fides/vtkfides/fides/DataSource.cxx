@@ -11,7 +11,7 @@
 #include <fides/DataSource.h>
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/ArrayHandleGroupVec.h>
+#include <vtkm/cont/ArrayHandleRuntimeVec.h>
 #include <vtkm/cont/Storage.h>
 
 #include <algorithm>
@@ -175,6 +175,38 @@ std::map<std::string, adios2::Params>::iterator DataSource::FindAttribute(
   return this->AvailAtts.find(fullAttrName);
 }
 
+void DataSource::OpenSource(const std::unordered_map<std::string, std::string>& paths,
+                            const std::string& dataSourceName,
+                            bool useMPI /* = true */)
+{
+  if (this->Reader)
+  {
+    return;
+  }
+
+  auto itr = paths.find(dataSourceName);
+  std::string path;
+  if (itr != paths.end())
+  {
+    path = itr->second;
+  }
+  else
+  {
+    if (!this->RelativePath.empty())
+    {
+      path = this->RelativePath;
+    }
+    else
+    {
+      throw std::runtime_error("Could not find data_source with name " + dataSourceName +
+                               " among the input paths.");
+    }
+  }
+
+  path += this->FileName;
+  this->OpenSource(path, useMPI);
+}
+
 void DataSource::OpenSource(const std::string& fname, bool useMPI /* = true */)
 {
   //if the reader (ADIOS engine) is already been set, do nothing
@@ -243,23 +275,6 @@ void DataSource::Refresh()
       this->AvailGroups[lastPiece].insert(JoinString(pieces, '/'));
     }
   }
-}
-
-template <typename VariableType, typename VecType>
-vtkm::cont::UnknownArrayHandle AllocateArrayHandle(vtkm::Id bufSize, VariableType*& buffer)
-{
-  vtkm::cont::ArrayHandleBasic<VecType> arrayHandle;
-  arrayHandle.Allocate(bufSize);
-  buffer = reinterpret_cast<VariableType*>(arrayHandle.GetWritePointer());
-  return arrayHandle;
-}
-
-template <typename VariableType, vtkm::IdComponent Dim>
-vtkm::cont::UnknownArrayHandle AllocateArrayHandle(const VariableType* vecData, vtkm::Id bufSize)
-{
-  vtkm::cont::ArrayHandle<VariableType> arrayHandle =
-    vtkm::cont::make_ArrayHandle(vecData, bufSize, vtkm::CopyFlag::Off);
-  return vtkm::cont::make_ArrayHandleGroupVec<Dim>(arrayHandle);
 }
 
 struct FidesArrayMemoryRequirements
@@ -412,7 +427,6 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
   const auto& shape = memoryRequirements.Count;
   auto& bufSize = memoryRequirements.Size;
 
-  vtkm::cont::UnknownArrayHandle retVal;
   VariableType* buffer = nullptr;
 
   PrepareVariableSelection(varADIOS2, memoryRequirements, blockId);
@@ -425,6 +439,19 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
     // vector or not
     reader.Get(varADIOS2, blocksInfo[blockId]);
     reader.PerformGets();
+  }
+
+  vtkm::cont::ArrayHandleBasic<VariableType> basicArray;
+  if (engineType == EngineType::Inline)
+  {
+    const VariableType* vecData = blocksInfo[blockId].Data();
+    basicArray = vtkm::cont::make_ArrayHandle(vecData, bufSize, vtkm::CopyFlag::Off);
+  }
+  else
+  {
+    basicArray.Allocate(bufSize);
+    buffer = basicArray.GetWritePointer();
+    reader.Get(varADIOS2, buffer);
   }
 
   // This logic is used to determine if a variable is a
@@ -447,76 +474,18 @@ vtkm::cont::UnknownArrayHandle ReadVariableInternal(adios2::Engine& reader,
 
   if (!isVector)
   {
-    if (engineType == EngineType::Inline)
-    {
-      const VariableType* vecData = blocksInfo[blockId].Data();
-      vtkm::cont::ArrayHandle<VariableType> arrayHandle =
-        vtkm::cont::make_ArrayHandle(vecData, bufSize, vtkm::CopyFlag::Off);
-      retVal = arrayHandle;
-    }
-    else
-    {
-      vtkm::cont::ArrayHandleBasic<VariableType> arrayHandle;
-      arrayHandle.Allocate(bufSize);
-      buffer = arrayHandle.GetWritePointer();
-      retVal = arrayHandle;
-      reader.Get(varADIOS2, buffer);
-    }
+    // Scalar: can be returned as the basic array.
+    return basicArray;
   }
   else
   {
     // Vector: the last dimension is assumed to be the vector
     // components. Previous dimensions are collapsed together.
-    size_t nDims = shape.size();
-    if (nDims < 2)
-    {
-      throw std::runtime_error("1D array cannot be a vector");
-    }
-
-    vtkm::Id bufSize2 = 1;
-    for (size_t i = 0; i < nDims - 1; i++)
-    {
-      bufSize2 *= shape[i];
-    }
-    if (engineType == EngineType::Inline)
-    {
-      const VariableType* vecData = blocksInfo[blockId].Data();
-      switch (shape[nDims - 1])
-      {
-        case 1:
-          retVal = AllocateArrayHandle<VariableType, 1>(vecData, bufSize);
-          break;
-        case 2:
-          retVal = AllocateArrayHandle<VariableType, 2>(vecData, bufSize2);
-          break;
-        case 3:
-          retVal = AllocateArrayHandle<VariableType, 3>(vecData, bufSize2);
-          break;
-        default:
-          break;
-      }
-    }
-    else
-    {
-      switch (shape[nDims - 1])
-      {
-        case 1:
-          retVal = AllocateArrayHandle<VariableType, VariableType>(bufSize, buffer);
-          break;
-        case 2:
-          retVal = AllocateArrayHandle<VariableType, vtkm::Vec<VariableType, 2>>(bufSize2, buffer);
-          break;
-        case 3:
-          retVal = AllocateArrayHandle<VariableType, vtkm::Vec<VariableType, 3>>(bufSize2, buffer);
-          break;
-        default:
-          break;
-      }
-      reader.Get(varADIOS2, buffer);
-    }
+    // Need to wrap the data in a runtime vec.
+    const size_t nDims = shape.size();
+    const vtkm::IdComponent nComponents = shape[nDims - 1];
+    return vtkm::cont::make_ArrayHandleRuntimeVec(nComponents, basicArray);
   }
-
-  return retVal;
 }
 
 // Inline engine is not supported for multiblock read into a contiguous array

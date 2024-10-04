@@ -72,15 +72,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetVariableDimensions(this->VariableName, selections);
 }
 
@@ -89,15 +82,8 @@ size_t ValueVariableDimensions::GetNumberOfBlocks(
   DataSourcesType& sources,
   const std::string& groupName /*=""*/)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetNumberOfBlocks(this->VariableName, groupName);
 }
 
@@ -105,15 +91,8 @@ std::set<std::string> ValueVariableDimensions::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
 }
 
@@ -145,15 +124,8 @@ std::set<std::string> ValueScalar::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
 }
 
@@ -162,15 +134,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueScalar::Read(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetScalarVariable(this->VariableName, selections);
 }
 
@@ -179,15 +144,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueArrayVariable::Read(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
 
   auto arrays = ds->ReadVariable(this->VariableName, selections);
   return arrays;
@@ -198,15 +156,8 @@ size_t ValueArrayVariable::GetNumberOfBlocks(
   DataSourcesType& sources,
   const std::string& groupName /*=""*/)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetNumberOfBlocks(this->VariableName, groupName);
 }
 
@@ -214,15 +165,8 @@ std::set<std::string> ValueArrayVariable::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
 }
 

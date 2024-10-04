@@ -118,16 +118,9 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataModelBase::ReadSelf(
   {
     return make_ArrayHandlesWithoutDataOwnership(this->Cache);
   }
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
 
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   std::vector<vtkm::cont::UnknownArrayHandle> var;
   bool readAsMultiBlock = false;
   if (selections.Has(fides::keys::READ_AS_MULTIBLOCK()))

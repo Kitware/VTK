@@ -16,7 +16,7 @@ Documentation is hosted at [Read The Docs](https://fides.readthedocs.io/en/lates
 
 Fides depends of VTK-m and ADIOS2:
 
-- For VTK-m, we require any version equal or higher than 2.0.
+- For VTK-m, we require any version equal or higher than 2.1.
 - For ADIOS2, we recommend v2.8.0 or later. Run the unit tests if doubt arises.
 
 ## Testing

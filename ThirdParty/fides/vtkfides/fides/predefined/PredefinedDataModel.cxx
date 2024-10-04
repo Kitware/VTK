@@ -293,6 +293,12 @@ void PredefinedDataModel::AddFieldAttributes(
       continue;
     }
 
+    //Don't include coordinates variable name.
+    if (this->DataSetSource.GetCoordinateSystemName() == field.GetName())
+    {
+      continue;
+    }
+
     std::string assoc;
     if (field.IsCellField())
     {
@@ -331,6 +337,11 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
       //If field restriction is turned on, then skip those fields.
       if (this->FieldsToWriteSet &&
           this->FieldsToWrite.find(field.GetName()) == this->FieldsToWrite.end())
+      {
+        continue;
+      }
+      //Don't write field if it's a coordinate array.
+      if (field.GetName() == this->DataSetSource.GetCoordinateSystemName())
       {
         continue;
       }
