@@ -21,7 +21,6 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <cmath>
 

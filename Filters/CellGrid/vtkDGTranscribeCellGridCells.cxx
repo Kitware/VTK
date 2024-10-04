@@ -21,7 +21,7 @@
 #include "vtkTypeInt64Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <sstream>
 #include <unordered_set>
