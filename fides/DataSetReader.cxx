@@ -64,13 +64,27 @@ public:
     }
     else
     {
-      rapidjson::Document doc = this->GetJSONDocument(dataModel, inputType);
-      this->ParsingChecks(doc, dataModel, inputType);
+      rapidjson::Document doc = DataSetReaderImpl::GetJSONDocument(dataModel, inputType);
+      DataSetReaderImpl::ParsingChecks(doc, dataModel, inputType);
       this->ReadJSON(doc);
+    }
+    std::string relativePath;
+    if (inputType != DataModelInput::JSONString)
+    {
+      size_t pos = dataModel.find_last_of("\\/");
+      if (pos != std::string::npos)
+      {
+        relativePath = dataModel.substr(0, pos + 1);
+      }
+      else
+      {
+        relativePath = "./";
+      }
     }
     for (auto it : this->DataSources)
     {
       it.second->CreateSharedPoints = createSharedPoints;
+      it.second->RelativePath = relativePath;
     }
 
     this->SetDataSourceParameters(params);
@@ -85,7 +99,7 @@ public:
     this->CellSet.reset();
   }
 
-  rapidjson::Document GetJSONDocument(const std::string& dataModel, DataModelInput inputType)
+  static rapidjson::Document GetJSONDocument(const std::string& dataModel, DataModelInput inputType)
   {
     rapidjson::Document d;
     if (inputType == DataModelInput::JSONFile)
@@ -295,9 +309,9 @@ public:
     return val;
   }
 
-  void ParsingChecks(rapidjson::Document& document,
-                     const std::string& fileName,
-                     DataModelInput inputType)
+  static void ParsingChecks(rapidjson::Document& document,
+                            const std::string& fileName,
+                            DataModelInput inputType)
   {
     std::string nameStr;
     if (inputType == DataModelInput::JSONFile)
@@ -506,14 +520,7 @@ public:
     if (it != this->DataSources.end())
     {
       auto ds = it->second;
-      auto itr = paths.find(this->StepSource);
-      if (itr == paths.end())
-      {
-        throw std::runtime_error("Could not find data_source with name " + this->StepSource +
-                                 " among the input paths.");
-      }
-      std::string path = itr->second + ds->FileName;
-      ds->OpenSource(path);
+      ds->OpenSource(paths, this->StepSource);
 
       // StreamingMode only gets set on the first PrepareNextStep, but
       // for streaming PrepareNextStep has to be called before ReadMetaData anyway
@@ -590,14 +597,7 @@ public:
     if (it != this->DataSources.end())
     {
       auto ds = it->second;
-      auto itr = paths.find(this->StepSource);
-      if (itr == paths.end())
-      {
-        throw std::runtime_error("Could not find data_source with name " + this->StepSource +
-                                 " among the input paths.");
-      }
-      std::string path = itr->second + ds->FileName;
-      ds->OpenSource(path);
+      ds->OpenSource(paths, this->StepSource);
       return this->CoordinateSystem->GetGroupNames(paths, this->DataSources);
     }
     return {};
@@ -639,14 +639,7 @@ public:
     {
       auto& ds = *(source.second);
       std::string name = source.first;
-      auto itr = paths.find(name);
-      if (itr == paths.end())
-      {
-        throw std::runtime_error("Could not find data_source with name " + name +
-                                 " among the input paths.");
-      }
-      std::string path = itr->second + ds.FileName;
-      ds.OpenSource(path);
+      ds.OpenSource(paths, name);
       auto rc = ds.BeginStep();
       while (rc == StepStatus::NotReady)
       {
@@ -808,6 +801,12 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   // }
 
   return vtkm::cont::PartitionedDataSet(ds);
+}
+
+vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
+  const fides::metadata::MetaData& selections)
+{
+  return this->ReadDataSet(std::unordered_map<std::string, std::string>{}, selections);
 }
 
 std::set<std::string> DataSetReader::GetGroupNames(

@@ -88,7 +88,16 @@ public:
                                  (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
   }
 
-  virtual ~GenericWriter() { this->Engine.Close(); }
+  void Close()
+  {
+    this->Engine.Close();
+    this->CloseCalled = true;
+  }
+
+  virtual ~GenericWriter()
+  {
+    assert(this->CloseCalled && "Error: DataSetWriter::Close() not called.");
+  }
 
   void SetWriteFields(std::set<std::string>& writeFields)
   {
@@ -456,6 +465,7 @@ protected:
   std::size_t DataSetPointsOffset = 0;
   std::size_t DataSetCellsOffset = 0;
   bool VariablesDefined = false;
+  bool CloseCalled = false;
 };
 
 class DataSetWriter::UniformDataSetWriter : public DataSetWriter::GenericWriter
@@ -1044,7 +1054,7 @@ protected:
     for (auto const& ds : DataSets)
     {
       auto const& dCellSet = ds.GetCellSet();
-      vtkm::cont::CellSetExplicit<> cellSet = dCellSet.AsCellSet<UnstructuredExplicitType>();
+      const auto& cellSet = dCellSet.AsCellSet<UnstructuredExplicitType>();
       const auto& conn = cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{},
                                                       vtkm::TopologyElementTagPoint{});
       std::size_t numConn = static_cast<std::size_t>(conn.GetNumberOfValues());
@@ -1112,19 +1122,32 @@ unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
 
   using UnstructuredExplicitType = vtkm::cont::CellSetExplicit<>;
 
-  if (ds.GetCoordinateSystem().GetData().IsType<UniformCoordType>())
+  const vtkm::cont::CoordinateSystem& coords = ds.GetCoordinateSystem();
+  const vtkm::cont::UnknownCellSet& cellSet = ds.GetCellSet();
+
+  //Check for structred cellset.
+  if (cellSet.IsType<vtkm::cont::CellSetStructured<1>>() ||
+      cellSet.IsType<vtkm::cont::CellSetStructured<2>>() ||
+      cellSet.IsType<vtkm::cont::CellSetStructured<3>>())
   {
-    return DATASET_TYPE_UNIFORM;
+    if (coords.GetData().IsType<UniformCoordType>())
+    {
+      return DATASET_TYPE_UNIFORM;
+    }
+    else if (coords.GetData().IsType<RectilinearCoordType>())
+    {
+      return DATASET_TYPE_RECTILINEAR;
+    }
+    else
+    {
+      return DATASET_TYPE_ERROR;
+    }
   }
-  else if (ds.GetCoordinateSystem().GetData().IsType<RectilinearCoordType>())
-  {
-    return DATASET_TYPE_RECTILINEAR;
-  }
-  else if (ds.GetCellSet().IsType<UnstructuredSingleType>())
+  else if (cellSet.IsType<UnstructuredSingleType>())
   {
     return DATASET_TYPE_UNSTRUCTURED_SINGLE;
   }
-  else if (ds.GetCellSet().IsType<UnstructuredExplicitType>())
+  else if (cellSet.IsType<UnstructuredExplicitType>())
   {
     return DATASET_TYPE_UNSTRUCTURED;
   }
@@ -1207,6 +1230,7 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
       writeImpl.SetWriteFields(this->FieldsToWrite);
 
     writeImpl.Write();
+    writeImpl.Close();
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
@@ -1214,6 +1238,7 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
+    writeImpl.Close();
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
@@ -1221,6 +1246,7 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
+    writeImpl.Close();
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
@@ -1228,6 +1254,7 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
+    writeImpl.Close();
   }
   else
   {
@@ -1265,6 +1292,7 @@ void DataSetAppendWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
 void DataSetAppendWriter::Close()
 {
   this->IsInitialized = false;
+  this->Writer->Close();
   this->Writer.reset();
 }
 

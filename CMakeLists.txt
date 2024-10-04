@@ -32,8 +32,9 @@ if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
   set(ADIOS_DEFS FIDES_ADIOS_HAS_RANDOM_ACCESS)
 endif()
 
-# need to continue to support v1.9 for awhile
-find_package(VTKm REQUIRED)
+# Minimum VTK-m version is 2.1. Future versions of VTK-m should maintain
+# backward compatibility.
+find_package(VTKm 2.1 REQUIRED)
 else ()
 vtk_module_find_package(PACKAGE ADIOS2)
 if (ADIOS2_VERSION VERSION_GREATER_EQUAL "2.8.0")
