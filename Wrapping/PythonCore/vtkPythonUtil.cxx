@@ -1042,7 +1042,7 @@ void vtkPythonUtil::AddModule(const char* name)
 
   // Register module name into pending list for defered side module loading
   PyObject* pModule = PyImport_ImportModule("vtkmodules");
-  PyObject* pFunc = PyObject_GetAttrString(pModule, "on_vtk_module_initialize");
+  PyObject* pFunc = PyObject_GetAttrString(pModule, "on_vtk_module_init");
   PyObject* pArgs = PyTuple_New(1);
   PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(name));
   PyObject* execVal = PyObject_CallObject(pFunc, pArgs);

@@ -128,7 +128,6 @@ static void CreateImplFile(
 
   fprintf(fout, "\n");
   fprintf(fout, "  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
-
   fprintf(fout, "  return m;\n");
   fprintf(fout, "}\n\n");
 }

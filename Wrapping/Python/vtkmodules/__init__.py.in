@@ -3,22 +3,31 @@ Currently, this package is experimental and may change in the future.
 """
 from __future__ import absolute_import
 import sys
-from pathlib import Path
 import importlib.util
-from importlib.abc import Loader, MetaPathFinder
+
+from pathlib import Path
+
+from importlib.abc import MetaPathFinder
 from importlib.machinery import ExtensionFileLoader
+
+LOADING_STACK = []
+
+def find_lib_path(paths, vtk_module_name):
+    for ext in [".pyd", ".so"]:
+        for base_path in paths:
+            for f in Path(base_path).glob(f"{vtk_module_name}.*{ext}"):
+                return str(f.resolve())
+
 
 class VTKMetaHook(MetaPathFinder):
     """Attach a custom  loaded for vtk native library loading to defer loading of pure python dependencies"""
     def find_spec(self, fullname, path, target=None):
         if fullname.startswith("vtkmodules.vtk"):
-            module_path = None
             vtk_module_name = fullname.split(".")[1]
-            for base_path in path:
-                for f in Path(base_path).glob(f"{vtk_module_name}.*"):
-                    module_path = str(f.resolve())
-
+            module_path = find_lib_path(path, vtk_module_name)
+            LOADING_STACK.append(fullname)
             return importlib.util.spec_from_file_location(fullname, module_path, loader=VTKLoader(fullname, module_path))
+
         return None
 
 
@@ -26,10 +35,15 @@ class VTKLoader(ExtensionFileLoader):
     """Flush any pending dependency load once initialize() phase is done"""
     def exec_module(self, module):
         super().exec_module(module)
-        _flush_pending()
+
+        # Process pending dependencies only if the module match the first load request
+        if len(LOADING_STACK) and LOADING_STACK[0] == module.__name__:
+            LOADING_STACK.clear()
+            on_vtk_module_init_completed()
 
 
-# Register hook
+
+# Register our hook for vtk library loader
 sys.meta_path.insert(0, VTKMetaHook())
 
 
@@ -115,7 +129,7 @@ def register_vtk_module_dependencies(vtk_module_name, *import_names):
             importlib.import_module(import_name)
 
 
-def on_vtk_module_initialize(module_name):
+def on_vtk_module_init(module_name):
     """Automatically called by vtkmodule when they are loaded"""
     if module_name in LOADED_MODULES:
         return
@@ -123,10 +137,11 @@ def on_vtk_module_initialize(module_name):
     PENDING_LOADED_MODULES.add(module_name)
 
 
-def _flush_pending():
-    for module_name in PENDING_LOADED_MODULES:
+def on_vtk_module_init_completed():
+    pending = list(PENDING_LOADED_MODULES)
+    PENDING_LOADED_MODULES.clear()
+
+    for module_name in pending:
         LOADED_MODULES.add(module_name)
         for import_name in MODULE_MAPPER.get(module_name, []):
             importlib.import_module(import_name)
-
-    PENDING_LOADED_MODULES.clear()
