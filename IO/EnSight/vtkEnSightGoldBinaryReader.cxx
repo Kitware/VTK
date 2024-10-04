@@ -807,7 +807,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
     {
       vtkDebugMacro("nsided");
       int* numNodesPerElement;
-      int numNodes = 0;
+      vtkIdType numNodes = 0;
 
       // cellType = vtkEnSightReader::NSIDED;
       this->ReadInt(&numElements);
@@ -2099,8 +2099,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
     {
       vtkDebugMacro("nsided");
       int* numNodesPerElement;
-      int numNodes = 0;
-      int nodeCount = 0;
+      vtkIdType numNodes = 0;
+      vtkIdType nodeCount = 0;
 
       cellType = vtkEnSightReader::NSIDED;
       this->ReadInt(&numElements);
@@ -2147,7 +2147,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       // skipping ghost cells
       vtkDebugMacro("g_nsided");
       int* numNodesPerElement;
-      int numNodes = 0;
+      vtkIdType numNodes = 0;
 
       // cellType = vtkEnSightReader::NSIDED;
       this->ReadInt(&numElements);
@@ -2377,12 +2377,12 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
       int* numNodesPerFace;
       int* numNodesPerElement;
       int* nodeMarker;
-      int numPts = 0;
-      int numFaces = 0;
-      int numNodes = 0;
-      int faceCount = 0;
-      int nodeCount = 0;
-      int elementNodeCount = 0;
+      vtkIdType numPts = 0;
+      vtkIdType numFaces = 0;
+      vtkIdType numNodes = 0;
+      vtkIdType faceCount = 0;
+      vtkIdType nodeCount = 0;
+      vtkIdType elementNodeCount = 0;
 
       cellType = vtkEnSightReader::NFACED;
       this->ReadInt(&numElements);
@@ -2451,8 +2451,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
 
       // yyy begin
       int k;                      // indexing each node Id of a face
-      int faceIdx = 0;            // indexing faces throughout all polyhedra
-      int nodeIdx = 0;            // indexing nodes throughout all polyhedra
+      vtkIdType faceIdx = 0;      // indexing faces throughout all polyhedra
+      vtkIdType nodeIdx = 0;      // indexing nodes throughout all polyhedra
       vtkNew<vtkCellArray> faces; // cell array describing a vtkPolyhedron
       // yyy end
 
@@ -3392,7 +3392,7 @@ int vtkEnSightGoldBinaryReader::ReadFloat(float* result)
 
 // Internal function to read an integer array.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadIntArray(int* result, int numInts)
+int vtkEnSightGoldBinaryReader::ReadIntArray(int* result, vtkIdType numInts)
 {
   if (numInts <= 0)
   {
