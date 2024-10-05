@@ -21,7 +21,8 @@ from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkColorTransferFunction,
     vtkDataSetMapper,
-    vtkImageActor,
+    vtkImageSlice,
+    vtkImageSliceMapper,
     vtkPolyDataMapper,
     vtkProperty,
     vtkRenderWindow,
@@ -139,9 +140,13 @@ class VolumePicker(vtkmodules.test.Testing.vtkTest):
         mapToColors.SetInputConnection(v16.GetOutputPort())
         mapToColors.SetLookupTable(table)
 
-        imageActor = vtkImageActor()
-        imageActor.GetMapper().SetInputConnection(mapToColors.GetOutputPort())
-        imageActor.SetDisplayExtent(32, 32, 0, 63, 0, 92)
+        imageMapper = vtkImageSliceMapper()
+        imageMapper.SetInputConnection(mapToColors.GetOutputPort())
+        imageMapper.SetOrientationToX()
+        imageMapper.SetSliceNumber(32)
+
+        imageActor = vtkImageSlice()
+        imageActor.SetMapper(imageMapper)
 
         #---------------------------------------------------------
         # make a transform and some clipping planes
