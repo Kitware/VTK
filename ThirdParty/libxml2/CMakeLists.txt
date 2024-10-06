@@ -7,7 +7,7 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (C) 1998-2012 Daniel Veillard"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/libxml2.git@for/vtk-20241002-2.13.4"
+      "git+https://gitlab.kitware.com/third-party/libxml2.git@for/vtk-20241004-2.13.4"
     VERSION
       "2.13.4"
     STANDARD_INCLUDE_DIRS
