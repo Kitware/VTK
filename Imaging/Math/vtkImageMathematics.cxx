@@ -442,85 +442,84 @@ void vtkImageMathematics::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  void* inPtr1;
-  void* outPtr;
+  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-
-  for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
+  if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT ||
+    this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
+    this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2 ||
+    this->Operation == VTK_COMPLEX_MULTIPLY)
   {
-    inPtr1 = inData[0][idx1]->GetScalarPointerForExtent(outExt);
-    if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT ||
-      this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
-      this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2 ||
-      this->Operation == VTK_COMPLEX_MULTIPLY)
+    for (int i = 0; i < this->GetNumberOfInputConnections(0); ++i)
     {
-      if (this->Operation == VTK_COMPLEX_MULTIPLY)
+      void* inPtrI = inData[0][i]->GetScalarPointerForExtent(outExt);
       {
-        if (inData[0][idx1]->GetNumberOfScalarComponents() != 2 ||
-          inData[0][idx1]->GetNumberOfScalarComponents() != 2)
+        if (this->Operation == VTK_COMPLEX_MULTIPLY)
         {
-          vtkErrorMacro("Complex inputs must have two components.");
-          return;
-        }
-        // this filter expects that input is the same type as output.
-        if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
-        {
-          vtkErrorMacro(<< "Execute: input1 ScalarType, " << inData[0][idx1]->GetScalarType()
-                        << ", must match output ScalarType " << outData[0]->GetScalarType());
-          return;
-        }
-      }
-      if (idx1 == 0)
-      {
-        switch (inData[0][idx1]->GetScalarType())
-        {
-          vtkTemplateMacro(vtkImageMathematicsInitOutput(inData[0][idx1],
-            static_cast<VTK_TT*>(inPtr1), outData[0], static_cast<VTK_TT*>(outPtr), outExt));
-          default:
-            vtkErrorMacro(<< "InitOutput: Unknown ScalarType");
+          if (inData[0][i]->GetNumberOfScalarComponents() != 2 ||
+            inData[0][i]->GetNumberOfScalarComponents() != 2)
+          {
+            vtkErrorMacro("Complex inputs must have two components.");
             return;
-        }
-      }
-      else
-      {
-        switch (inData[0][idx1]->GetScalarType())
-        {
-          vtkTemplateMacro(vtkImageMathematicsExecute2(this, inData[0][idx1],
-            static_cast<VTK_TT*>(inPtr1), outData[0], static_cast<VTK_TT*>(outPtr), outExt, id));
-          default:
-            vtkErrorMacro(<< "Execute: Unknown ScalarType");
+          }
+          // this filter expects that input is the same type as output.
+          if (inData[0][i]->GetScalarType() != outData[0]->GetScalarType())
+          {
+            vtkErrorMacro(<< "Execute: input1 ScalarType, " << inData[0][i]->GetScalarType()
+                          << ", must match output ScalarType " << outData[0]->GetScalarType());
             return;
+          }
+        }
+        if (i == 0)
+        {
+          switch (inData[0][i]->GetScalarType())
+          {
+            vtkTemplateMacro(vtkImageMathematicsInitOutput(inData[0][i],
+              static_cast<VTK_TT*>(inPtrI), outData[0], static_cast<VTK_TT*>(outPtr), outExt));
+            default:
+              vtkErrorMacro(<< "InitOutput: Unknown ScalarType");
+              return;
+          }
+        }
+        else
+        {
+          switch (inData[0][i]->GetScalarType())
+          {
+            vtkTemplateMacro(vtkImageMathematicsExecute2(this, inData[0][i],
+              static_cast<VTK_TT*>(inPtrI), outData[0], static_cast<VTK_TT*>(outPtr), outExt, id));
+            default:
+              vtkErrorMacro(<< "Execute: Unknown ScalarType");
+              return;
+          }
         }
       }
     }
-    else
+  }
+  else
+  {
+    // this filter expects that input is the same type as output.
+    if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-      // this filter expects that input is the same type as output.
-      if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+      vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
+                    << ", must match out ScalarType " << outData[0]->GetScalarType());
+      return;
+    }
+
+    if (this->Operation == VTK_CONJUGATE)
+    {
+      if (inData[0][0]->GetNumberOfScalarComponents() != 2)
       {
-        vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
-                      << ", must match out ScalarType " << outData[0]->GetScalarType());
+        vtkErrorMacro("Complex inputs must have two components.");
         return;
       }
+    }
 
-      if (this->Operation == VTK_CONJUGATE)
-      {
-        if (inData[0][0]->GetNumberOfScalarComponents() != 2)
-        {
-          vtkErrorMacro("Complex inputs must have two components.");
-          return;
-        }
-      }
-
-      switch (inData[0][0]->GetScalarType())
-      {
-        vtkTemplateMacro(vtkImageMathematicsExecute1(this, inData[0][0],
-          static_cast<VTK_TT*>(inPtr1), outData[0], static_cast<VTK_TT*>(outPtr), outExt, id));
-        default:
-          vtkErrorMacro(<< "Execute: Unknown ScalarType");
-          return;
-      }
+    void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+    switch (inData[0][0]->GetScalarType())
+    {
+      vtkTemplateMacro(vtkImageMathematicsExecute1(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+        outData[0], static_cast<VTK_TT*>(outPtr), outExt, id));
+      default:
+        vtkErrorMacro(<< "Execute: Unknown ScalarType");
     }
   }
 }
