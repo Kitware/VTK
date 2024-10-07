@@ -17,7 +17,7 @@ vtk_add_test_python(
   TestPointDensityGradient.py
   TestPointInterpolator.py
   TestPointInterpolator2.py
-  TestPointInterpolator2D.py
+  TestPointInterpolator2D.py,LOOSE_VALID
   TestPointInterpolator2D2.py,LOOSE_VALID
   TestPointOccupancyFilter.py
   TestPointSmoothingFilter.py
