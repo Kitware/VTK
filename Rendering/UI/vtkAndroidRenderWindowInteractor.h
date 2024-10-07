@@ -114,10 +114,8 @@ protected:
   int MouseInWindow;
   int StartedMessageLoop;
 
-  struct android_app* AndroidApplication;
+  struct android_app* AndroidApplication = nullptr;
   const char** KeyCodeToKeySymTable;
-
-  bool Done; // is the event loop done running
 
   ///@{
   /**
@@ -146,7 +144,7 @@ protected:
    */
   void StartEventLoop() override;
 
-  vtkTypeBool OwnWindow;
+  vtkTypeBool OwnWindow = true;
 
 private:
   vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&) = delete;

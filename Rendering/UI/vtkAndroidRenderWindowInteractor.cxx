@@ -526,7 +526,7 @@ void vtkAndroidRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   ren = this->RenderWindow;
 
-  if (this->GetOwnWindow())
+  if (this->GetOwnWindow() && this->AndroidApplication != nullptr)
   {
     this->AndroidApplication->userData = this;
     this->AndroidApplication->onAppCmd = android_handle_cmd;
