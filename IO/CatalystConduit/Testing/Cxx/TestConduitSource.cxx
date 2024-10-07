@@ -322,7 +322,7 @@ bool ValidateMeshTypeStructured()
   return true;
 }
 
-void CreatePointsMesh(
+void CreatePointSet(
   unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
 {
   CreateCoords(nptsX, nptsY, nptsZ, res);
@@ -334,7 +334,7 @@ void CreatePointsMesh(
 bool ValidateMeshTypePoints()
 {
   conduit_cpp::Node mesh;
-  CreatePointsMesh(3, 3, 3, mesh);
+  CreatePointSet(3, 3, 3, mesh);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));

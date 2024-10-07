@@ -4,6 +4,7 @@
 #include "vtkDataObjectToConduit.h"
 
 #include <catalyst_conduit.hpp>
+#include <catalyst_conduit_blueprint.hpp>
 
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
@@ -963,7 +964,14 @@ bool TestPointSet()
     diff_info.print();
   }
 
-  is_success = !are_nodes_different;
+  conduit_cpp::Node diff_info_blueprint;
+  int is_blueprint_valid = conduit_cpp::Blueprint::verify("mesh", node, diff_info_blueprint);
+  if (is_blueprint_valid != 1)
+  {
+    diff_info_blueprint.print();
+  }
+
+  is_success = !are_nodes_different && is_blueprint_valid == 1;
 
   return is_success;
 }
