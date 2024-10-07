@@ -127,6 +127,12 @@ public:
     , Context(EGL_NO_CONTEXT)
     , EGLInitialized(false)
   {
+#if defined(__ANDROID__) || defined(ANDROID)
+    // On Android platform, unconditionally load the EGL functions with EGL_NO_DISPLAY
+    // because the EGL library is always available.
+    gladLoaderLoadEGL(this->Display);
+    this->EGLInitialized = true;
+#endif
   }
 };
 
