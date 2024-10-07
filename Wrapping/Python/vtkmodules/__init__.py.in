@@ -25,6 +25,9 @@ class VTKMetaHook(MetaPathFinder):
         if fullname.startswith("vtkmodules.vtk"):
             vtk_module_name = fullname.split(".")[1]
             module_path = find_lib_path(path, vtk_module_name)
+            if module_path is None:
+                return None
+
             LOADING_STACK.append(fullname)
             return importlib.util.spec_from_file_location(fullname, module_path, loader=VTKLoader(fullname, module_path))
 
