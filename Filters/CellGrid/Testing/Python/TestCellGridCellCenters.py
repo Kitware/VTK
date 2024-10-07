@@ -86,6 +86,7 @@ class TestCellGridCellCenters(Testing.vtkTest):
         ren.AddActor(centerActor)
 
         rw = vtkRenderWindow()
+        rw.SetMultiSamples(0)  # when rendering lines ensure same output since anti-aliasing is not supported on all machines
         rw.AddRenderer(ren)
         ren.SetBackground(1.0, 1.0, 1.0)
         #ren.SetBackground(0.5, 0.4, 0.3)

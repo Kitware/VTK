@@ -49,6 +49,7 @@ class contourQuadraticTetra(vtkmodules.test.Testing.vtkTest):
         ren1 = vtkRenderer()
         ren1.GetCullers().RemoveAllItems()
         renWin = vtkRenderWindow()
+        renWin.SetMultiSamples(0) # when rendering lines ensure same output since anti-aliasing is not supported on all machines
         renWin.AddRenderer(ren1)
         iren = vtkRenderWindowInteractor()
         iren.SetRenderWindow(renWin)
