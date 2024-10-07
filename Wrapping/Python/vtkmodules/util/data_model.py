@@ -1,8 +1,8 @@
 """This module provides classes that allow numpy style access
 to VTK datasets. See examples at bottom.
 """
-
-from vtkmodules.vtkCommonCore import vtkPoints
+from contextlib import suppress
+from vtkmodules.vtkCommonCore import vtkPoints, vtkAbstractArray
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
     vtkDataObject,
@@ -17,9 +17,14 @@ from vtkmodules.vtkCommonDataModel import (
     vtkPartitionedDataSet
 )
 
-from vtkmodules.numpy_interface import dataset_adapter as dsa
-import numpy
 import weakref
+
+NUMPY_AVAILABLE = False
+
+with suppress(ImportError):
+    import numpy
+    from vtkmodules.numpy_interface import dataset_adapter as dsa
+    NUMPY_AVAILABLE = True
 
 class FieldDataBase(object):
     def __init__(self):
@@ -39,6 +44,10 @@ class FieldDataBase(object):
         if isinstance(idx, int) and idx >= self.GetNumberOfArrays():
             raise IndexError("array index out of range")
         vtkarray = super().GetArray(idx)
+
+        if not NUMPY_AVAILABLE:
+            return vtkarray if vtkarray else self.GetAbstractArray(idx)
+
         if not vtkarray:
             vtkarray = self.GetAbstractArray(idx)
             if vtkarray:
@@ -70,6 +79,12 @@ class FieldDataBase(object):
 
     def set_array(self, name, narray):
         """Appends a new array to the dataset attributes."""
+        if not NUMPY_AVAILABLE:
+            if isinstance(narray, vtkAbstractArray):
+                narray.SetName(name)
+                self.AddArray(narray)
+            return
+
         if narray is dsa.NoneArray:
             # if NoneArray, nothing to do.
             return
@@ -221,6 +236,10 @@ class CompositeDataSetAttributes(object):
 
     def set_array(self, name, narray):
         """Appends a new array to the composite dataset attributes."""
+        if not NUMPY_AVAILABLE:
+            # don't know how to handle composite dataset attribute when numpy not around
+            raise NotImplementedError("Only available with numpy")
+
         if narray is dsa.NoneArray:
             # if NoneArray, nothing to do.
             return
@@ -246,6 +265,11 @@ class CompositeDataSetAttributes(object):
     def get_array(self, idx):
         """Given a name, returns a VTKCompositeArray."""
         arrayname = idx
+
+        if not NUMPY_AVAILABLE:
+            # don't know how to handle composite dataset attribute when numpy not around
+            raise NotImplementedError("Only available with numpy")
+
         if arrayname not in self.ArrayNames:
             return dsa.NoneArray
         if arrayname not in self.Arrays or self.Arrays[arrayname]() is None:
@@ -291,12 +315,23 @@ class PointSet(DataSet):
     @property
     def points(self):
         pts = self.GetPoints()
+
+        if not NUMPY_AVAILABLE:
+            return pts
+
         if not pts or not pts.GetData():
             return None
         return dsa.vtkDataArrayToVTKArray(pts.GetData())
 
     @points.setter
     def points(self, points):
+        if isinstance(points, vtkPoints):
+            self.SetPoints(points)
+            return
+
+        if not NUMPY_AVAILABLE:
+            raise ValueError("Expect vtkPoints")
+
         pts = dsa.numpyTovtkDataArray(points, "points")
         vtkpts = vtkPoints()
         vtkpts.SetData(pts)
@@ -308,20 +343,33 @@ class vtkUnstructuredGrid(PointSet, vtkUnstructuredGrid):
     def cells(self):
         ca = self.GetCells()
         conn_vtk = ca.GetConnectivityArray()
-        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
         offsets_vtk = ca.GetOffsetsArray()
-        offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
         ct_vtk = self.GetCellTypesArray()
+
+        if not NUMPY_AVAILABLE:
+            return {
+               'connectivity' : conn_vtk,
+               'offsets' : offsets_vtk,
+               'cell_types' : ct_vtk,
+            }
+
+        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
+        offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
         ct = dsa.vtkDataArrayToVTKArray(ct_vtk)
         return { 'connectivity' : conn, 'offsets' : offsets , 'cell_types' : ct}
 
     @cells.setter
     def cells(self, cells):
         ca = vtkCellArray()
+
+        if not NUMPY_AVAILABLE:
+            ca.SetData(cells['offsets'], cells['connectivity'])
+            self.SetCells(cells['cell_types'], ca)
+            return
+
         conn_vtk = dsa.numpyTovtkDataArray(cells['connectivity'])
         offsets_vtk = dsa.numpyTovtkDataArray(cells['offsets'])
         cell_types_vtk = dsa.numpyTovtkDataArray(cells['cell_types'])
-        print(cells['cell_types'][1])
         ca.SetData(offsets_vtk, conn_vtk)
         self.SetCells(cell_types_vtk, ca)
 
@@ -335,8 +383,15 @@ class vtkPolyData(PointSet, vtkPolyData):
     def polygons(self):
         ca = self.GetPolys()
         conn_vtk = ca.GetConnectivityArray()
-        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
         offsets_vtk = ca.GetOffsetsArray()
+
+        if not NUMPY_AVAILABLE:
+            return {
+                'connectivity' : conn_vtk,
+                'offsets' : offsets_vtk,
+            }
+
+        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
         offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
         return { 'connectivity' : conn, 'offsets' : offsets }
 
@@ -406,7 +461,7 @@ class CompositeDataSetBase(object):
     def cell_data(self):
         "Returns the cell data as a DataSetAttributes instance."
         if self._CellData is None or self._CellData() is None:
-            cdata = self.get_attributes(DataObject.CELL)
+            cdata = self.get_attributes(vtkDataObject.CELL)
             self._CellData = weakref.ref(cdata)
         return self._CellData()
 
@@ -414,13 +469,17 @@ class CompositeDataSetBase(object):
     def field_data(self):
         "Returns the field data as a DataSetAttributes instance."
         if self._FieldData is None or self._FieldData() is None:
-            fdata = self.get_attributes(DataObject.FIELD)
+            fdata = self.get_attributes(vtkDataObject.FIELD)
             self._FieldData = weakref.ref(fdata)
         return self._FieldData()
 
     @property
     def points(self):
         "Returns the points as a VTKCompositeDataArray instance."
+        if not NUMPY_AVAILABLE:
+            # don't know how to handle composite dataset when numpy not around
+            raise NotImplementedError("Only available with numpy")
+
         if self._Points is None or self._Points() is None:
             pts = []
             for ds in self:
@@ -430,11 +489,11 @@ class CompositeDataSetBase(object):
                     _pts = None
 
                 if _pts is None:
-                    pts.append(NoneArray)
+                    pts.append(dsa.NoneArray)
                 else:
                     pts.append(_pts)
-            if len(pts) == 0 or all([a is NoneArray for a in pts]):
-                cpts = NoneArray
+            if len(pts) == 0 or all([a is dsa.NoneArray for a in pts]):
+                cpts = dsa.NoneArray
             else:
                 cpts = dsa.VTKCompositeDataArray(pts, dataset=self)
             self._Points = weakref.ref(cpts)
@@ -444,3 +503,15 @@ class CompositeDataSetBase(object):
 class vtkPartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
     def append(self, dataset):
         self.SetPartition(self.GetNumberOfPartitions(), dataset)
+
+# -----------------------------------------------------------------------------
+# Handle pickle registration
+# -----------------------------------------------------------------------------
+with suppress(ImportError):
+    import copyreg
+    from vtkmodules.util.pickle_support import serialize_VTK_data_object
+
+    copyreg.pickle(vtkPolyData, serialize_VTK_data_object)
+    copyreg.pickle(vtkUnstructuredGrid, serialize_VTK_data_object)
+    copyreg.pickle(vtkImageData, serialize_VTK_data_object)
+    copyreg.pickle(vtkPartitionedDataSet, serialize_VTK_data_object)
