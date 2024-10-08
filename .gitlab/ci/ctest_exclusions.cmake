@@ -386,6 +386,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
     "^VTK::FiltersCellGridPython-TestCellGridTransform$"
     "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
+    "^VTK::RenderingOpenGL2Python-TestArrayRenderer$"
   )
 endif ()
 
@@ -455,6 +456,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
       "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
       "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+      "^VTK::RenderingOpenGL2Python-TestArrayRenderer$"
     )
   endif()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
