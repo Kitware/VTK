@@ -31,6 +31,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
@@ -225,13 +226,20 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   auto& internals = (*this->Internal);
   auto& done = internals.LoopDone;
 
-  // reset vars which help VTK wait for new events or timer timeouts.
-  done = true;
-
   std::map<Window, vtkXRenderWindowInteractor*> windowmap;
   std::set<Display*> dpys;
-  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  // Make a copy of Instances, the original set might change during loop
+  std::vector<vtkXRenderWindowInteractor*> instances(
+    vtkXRenderWindowInteractorInternals::Instances.begin(),
+    vtkXRenderWindowInteractorInternals::Instances.end());
+  for (auto rwi : instances)
   {
+    if (rwi->RenderWindow->GetGenericDisplayId() == nullptr)
+    {
+      // The window has closed the display connection
+      rwi->Finalize();
+      continue;
+    }
     windowmap.insert({ rwi->WindowId, rwi });
     dpys.insert(rwi->DisplayId);
   }
@@ -252,14 +260,18 @@ void vtkXRenderWindowInteractor::ProcessEvents()
     }
   }
 
+  // Set event loop to terminate if there were no displays to check for events
+  done = dpys.empty();
+
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     if (!rwi->Done)
     {
       rwi->FireTimers();
     }
-    // Check if all RenderWindowInteractors have been terminated
-    done = done && rwi->Done;
+    // Set event loop to terminate if SetDone(true) or TerminateApp() was
+    // called on any of the interactors
+    done = done || rwi->Done;
   }
 }
 
@@ -273,7 +285,9 @@ void vtkXRenderWindowInteractor::WaitForEvents()
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     if (rwi->Done)
+    {
       continue;
+    }
 
     timeval t;
     bool haveTimer = rwi->Internal->GetTimeToNextTimer(t);
