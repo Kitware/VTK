@@ -109,8 +109,9 @@ public:
   /// \param paths a map that provides
   /// the paths (filenames usually) corresponding to each data source.
   /// \param groupName looks for metadata on variables inside the given group.
-  fides::metadata::MetaData ReadMetaData(const std::unordered_map<std::string, std::string>& paths,
-                                         const std::string& groupName = "");
+  fides::metadata::MetaData ReadMetaData(
+    const std::unordered_map<std::string, std::string>& paths = {},
+    const std::string& groupName = "");
 
   /// Read and return heavy-data.
   /// \param paths a map that provides
@@ -121,6 +122,11 @@ public:
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections);
 
+  /// Read and return heavy-data.
+  /// \param selections provides support for reading a subset of
+  /// the data by providing choices for things such as time and blocks.
+  vtkm::cont::PartitionedDataSet ReadDataSet(const fides::metadata::MetaData& selections);
+
   /// When reading in streaming mode, this method has to be called before
   /// reading any meta-data or heavy data. It will also move the reader
   /// to the next step. Fides will loop on a data source while ADIOS
@@ -129,7 +135,7 @@ public:
   /// If EndOfStream, all steps have been read.
   /// \param paths a map that provides
   /// the paths (filenames usually) corresponding to each data source.
-  StepStatus PrepareNextStep(const std::unordered_map<std::string, std::string>& paths);
+  StepStatus PrepareNextStep(const std::unordered_map<std::string, std::string>& paths = {});
 
   /// Same as \c ReadDataSet except that it works in streaming mode and
   /// needs to be preceeded by PrepareStep.

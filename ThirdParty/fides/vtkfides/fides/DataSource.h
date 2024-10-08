@@ -11,6 +11,7 @@
 #ifndef fides_datamodel_DataSource_H_
 #define fides_datamodel_DataSource_H_
 
+#include <fides/Deprecated.h>
 #include <fides/FidesTypes.h>
 #include <fides/MetaData.h>
 
@@ -63,6 +64,11 @@ struct DataSource
   /// Used only when \c FileNameMode is set to \c Relative.
   std::string FileName = "";
 
+  /// When \c FileNameMode is set to \c Relative, the \c FileName will
+  /// be relative to this directory unless otherwise specified in the
+  /// paths.
+  std::string RelativePath = "";
+
   /// Determines whether to close gaps between uniform grid blocks
   /// with the use of shared points.
   bool CreateSharedPoints = false;
@@ -107,6 +113,18 @@ struct DataSource
   /// This call is only required when
   /// using the inline engine and must be called before attempting to read.
   void SetDataSourceIO(const std::string& ioAddress);
+
+  /// Prepare data source for reading. This needs to be called before
+  /// any meta-data or heavy-data operations can be performed.
+  /// A map of paths to find data sources and the name of the data source
+  /// is provided to find the pathname of the source file.
+  /// In most cases, useMPI should be true (the default value), but in some
+  /// cases it is useful to open a source without using MPI
+  /// (See DataSetReader::CheckForDataModelAttribute for details).
+  /// useMPI is ignored if Fides is built without MPI support.
+  void OpenSource(const std::unordered_map<std::string, std::string>& paths,
+                  const std::string& dataSourceName,
+                  bool useMPI = true);
 
   /// Prepare data source for reading. This needs to be called before
   /// any meta-data or heavy-data operations can be performed.

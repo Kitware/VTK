@@ -250,15 +250,8 @@ size_t ArrayBasic::GetNumberOfBlocks(const std::unordered_map<std::string, std::
                                      DataSourcesType& sources,
                                      const std::string& groupName /*=""*/)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetNumberOfBlocks(this->VariableName, groupName);
 }
 
@@ -266,15 +259,8 @@ std::set<std::string> ArrayBasic::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
 }
 
@@ -632,15 +618,8 @@ std::vector<size_t> ArrayXGC::GetShape(const std::unordered_map<std::string, std
                                        DataSourcesType& sources,
                                        const std::string& groupName /*=""*/)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetVariableShape(this->VariableName, groupName);
 }
 
@@ -755,15 +734,8 @@ vtkm::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   auto arrays = ds->ReadMultiBlockVariable(this->VariableName, selections);
   if (arrays.size() != 1)
   {
@@ -1123,11 +1095,7 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   }
 
   auto& dataSet = dataSets[0];
-#if VTKM_VERSION_MAJOR < 2
-  auto& cs = dataSet.GetCoordinateSystem();
-#else
   auto& cs = dataSet.GetField(dataSet.GetCoordinateSystemName());
-#endif
 
   size_t numInsertPlanes = 0;
   if (metaData.Has(fides::keys::fusion::PLANE_INSERTION()))
@@ -1219,15 +1187,8 @@ std::set<std::string> ArrayGTCField::GetGroupNames(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources)
 {
-  auto itr = paths.find(this->DataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + this->DataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[this->DataSourceName];
-  std::string path = itr->second + ds->FileName;
-  ds->OpenSource(path);
+  ds->OpenSource(paths, this->DataSourceName);
   return ds->GetGroupNames(this->VariableName);
 }
 
