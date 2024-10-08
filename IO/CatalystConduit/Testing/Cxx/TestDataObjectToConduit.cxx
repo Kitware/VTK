@@ -18,6 +18,7 @@
 #include <vtkTable.h>
 #include <vtkUnstructuredGrid.h>
 
+//----------------------------------------------------------------------------
 bool TestNonDataSetObject()
 {
   conduit_cpp::Node node;
@@ -33,6 +34,7 @@ bool TestNonDataSetObject()
   return !is_table_supported;
 }
 
+//----------------------------------------------------------------------------
 bool TestImageData()
 {
   conduit_cpp::Node node;
@@ -99,6 +101,7 @@ bool TestImageData()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestRectilinearGrid()
 {
   conduit_cpp::Node node;
@@ -169,6 +172,7 @@ bool TestRectilinearGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestStructuredGrid()
 {
   conduit_cpp::Node node;
@@ -283,6 +287,7 @@ static struct
   { VTK_TRIANGLE, { 21, 22, 18 } }, { VTK_TRIANGLE, { 22, 19, 18 } }, { VTK_LINE, { 23, 26 } },
   { VTK_LINE, { 21, 24 } }, { VTK_VERTEX, { 25 } } };
 
+//----------------------------------------------------------------------------
 bool TestMixedShapedUnstructuredGrid()
 {
   conduit_cpp::Node node;
@@ -369,6 +374,7 @@ bool TestMixedShapedUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestHexahedronUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -446,6 +452,7 @@ bool TestHexahedronUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestTetrahedronUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -523,6 +530,7 @@ bool TestTetrahedronUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestPolygonalUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -582,6 +590,7 @@ bool TestPolygonalUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestQuadUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -656,6 +665,7 @@ bool TestQuadUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestTriangleUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -731,6 +741,7 @@ bool TestTriangleUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestLineUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -806,6 +817,7 @@ bool TestLineUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestPointUnstructuredGrid()
 {
   vtkNew<vtkUnstructuredGrid> unstructured_grid;
@@ -877,6 +889,7 @@ bool TestPointUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestMixedShapePolyData()
 {
   vtkNew<vtkPolyData> poly_data;
@@ -906,6 +919,7 @@ bool TestMixedShapePolyData()
   return !is_filling_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestUnstructuredGrid()
 {
   bool is_success = true;
@@ -922,6 +936,7 @@ bool TestUnstructuredGrid()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 bool TestPointSet()
 {
   vtkNew<vtkPointSet> point_set;
@@ -976,6 +991,7 @@ bool TestPointSet()
   return is_success;
 }
 
+//----------------------------------------------------------------------------
 int TestDataObjectToConduit(int, char*[])
 {
   bool is_success = true;
