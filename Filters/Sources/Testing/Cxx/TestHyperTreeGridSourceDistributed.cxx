@@ -8,6 +8,8 @@
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 
+#include <sstream>
+
 namespace
 {
 constexpr int NB_PROCS = 3;
@@ -111,6 +113,43 @@ bool TestSourceBoundingBox(int myRank, int nbRanks, vtkMPIController* controller
   return success;
 }
 
+bool TestHighPieceIdDoesNotCrash(int myRank, int nbRanks)
+{
+  std::ostringstream logStream;
+
+  auto error_message_callback = [](void* userData, const vtkLogger::Message& message)
+  {
+    std::ostream& s = *reinterpret_cast<std::ostream*>(userData);
+    s << message.preamble << message.message << std::endl;
+  };
+
+  auto previous_verbosity = vtkLogger::GetCurrentVerbosityCutoff();
+  vtkLogger::AddCallback(
+    "logStream", error_message_callback, &logStream, vtkLogger::VERBOSITY_ERROR);
+  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+
+  vtkNew<vtkHyperTreeGridSource> htGrid;
+  htGrid->SetDebug(true);
+  htGrid->SetMaxDepth(1);
+  htGrid->SetBranchFactor(2);
+  htGrid->SetDimensions(1, 1, 1);
+  htGrid->SetDescriptor("3.");
+  htGrid->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkLogger::RemoveCallback("logStream");
+  vtkLogger::SetStderrVerbosity(previous_verbosity);
+
+  if (logStream.str().find("Can not assign tree to piece") == std::string::npos)
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Using a process id in descriptor greater than the number of ranks did not raise an error. "
+      "Error log should read 'Can not assign tree to piece'");
+    return false;
+  }
+
+  return true;
+}
+
 int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
 {
   // Initialize MPI Controller
@@ -164,6 +203,7 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
   success &= ::TestSource(source2, myRank, nbRanks);
 
   success &= ::TestSourceBoundingBox(myRank, nbRanks, controller);
+  success &= ::TestHighPieceIdDoesNotCrash(myRank, nbRanks);
 
   controller->Finalize();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
