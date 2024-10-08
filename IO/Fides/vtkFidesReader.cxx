@@ -375,7 +375,7 @@ int vtkFidesReader::RequestInformation(
     }
   }
 
-  if (this->Impl->NumberOfDataSources == 0 || this->Impl->Paths.empty())
+  if (this->Impl->NumberOfDataSources == 0)
   {
     // no reason to keep going
     // this can happen when using a JSON file instead of a BP file
