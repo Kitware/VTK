@@ -2,7 +2,7 @@
 to VTK datasets. See examples at bottom.
 """
 from contextlib import suppress
-from vtkmodules.vtkCommonCore import vtkPoints, vtkAbstractArray
+from vtkmodules.vtkCommonCore import vtkPoints, vtkAbstractArray, vtkDataArray
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
     vtkDataObject,
@@ -13,6 +13,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkDataObject,
     vtkImageData,
     vtkPolyData,
+    vtkRectilinearGrid,
     vtkUnstructuredGrid,
     vtkPartitionedDataSet
 )
@@ -394,6 +395,77 @@ class vtkPolyData(PointSet, vtkPolyData):
         conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
         offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
         return { 'connectivity' : conn, 'offsets' : offsets }
+
+@vtkRectilinearGrid.override
+class vtkRectilinearGrid(DataSet, vtkRectilinearGrid):
+    @property
+    def x_coordinates(self):
+        pts = self.GetXCoordinates()
+
+        if not NUMPY_AVAILABLE:
+            return pts
+
+        if not pts:
+            return None
+        return dsa.vtkDataArrayToVTKArray(pts)
+
+    @x_coordinates.setter
+    def x_coordinates(self, points):
+        if isinstance(points, vtkDataArray):
+            self.SetXCoordinates(points)
+            return
+
+        if not NUMPY_AVAILABLE:
+            raise ValueError("Expect vtkDataArray")
+
+        pts = dsa.numpyTovtkDataArray(points, "x_coords")
+        self.SetXCoordinates(pts)
+
+    @property
+    def y_coordinates(self):
+        pts = self.GetYCoordinates()
+
+        if not NUMPY_AVAILABLE:
+            return pts
+
+        if not pts:
+            return None
+        return dsa.vtkDataArrayToVTKArray(pts)
+
+    @y_coordinates.setter
+    def y_coordinates(self, points):
+        if isinstance(points, vtkDataArray):
+            self.SetYCoordinates(points)
+            return
+
+        if not NUMPY_AVAILABLE:
+            raise ValueError("Expect vtkDataArray")
+
+        pts = dsa.numpyTovtkDataArray(points, "y_coords")
+        self.SetYCoordinates(pts)
+
+    @property
+    def z_coordinates(self):
+        pts = self.GetZCoordinates()
+
+        if not NUMPY_AVAILABLE:
+            return pts
+
+        if not pts:
+            return None
+        return dsa.vtkDataArrayToVTKArray(pts)
+
+    @z_coordinates.setter
+    def z_coordinates(self, points):
+        if isinstance(points, vtkDataArray):
+            self.SetZCoordinates(points)
+            return
+
+        if not NUMPY_AVAILABLE:
+            raise ValueError("Expect vtkDataArray")
+
+        pts = dsa.numpyTovtkDataArray(points, "z_coords")
+        self.SetZCoordinates(pts)
 
 class CompositeDataIterator(object):
     """Wrapper for a vtkCompositeDataIterator class to satisfy
