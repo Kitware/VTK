@@ -261,7 +261,7 @@ void vtkAndroidRenderWindowInteractor::StartEventLoop()
     int events;
     struct android_poll_source* source;
 
-    ident = ALooper_pollAll(500, nullptr, &events, (void**)&source);
+    ident = ALooper_pollOnce(500, nullptr, &events, (void**)&source);
     if (ident == ALOOPER_POLL_TIMEOUT)
     {
       // just watch for resize events
@@ -526,7 +526,7 @@ void vtkAndroidRenderWindowInteractor::Initialize()
   // get the info we need from the RenderingWindow
   ren = this->RenderWindow;
 
-  if (this->GetOwnWindow())
+  if (this->GetOwnWindow() && this->AndroidApplication != nullptr)
   {
     this->AndroidApplication->userData = this;
     this->AndroidApplication->onAppCmd = android_handle_cmd;
@@ -541,7 +541,7 @@ void vtkAndroidRenderWindowInteractor::Initialize()
       int events;
       struct android_poll_source* source;
 
-      if ((ident = ALooper_pollAll(-1, nullptr, &events, (void**)&source)) >= 0)
+      if ((ident = ALooper_pollOnce(-1, nullptr, &events, (void**)&source)) >= 0)
       {
         // Process this event.
         if (source != nullptr)
