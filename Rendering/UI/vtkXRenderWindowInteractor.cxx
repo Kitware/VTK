@@ -202,6 +202,11 @@ void vtkXRenderWindowInteractor::TerminateApp()
 
   this->Done = true;
 
+  if (this->RenderWindow == nullptr || this->RenderWindow->GetGenericDisplayId() == nullptr)
+  {
+    return;
+  }
+
   // Send a VTK_BreakXtLoop ClientMessage event to be sure we pop out of the
   // event loop.  This "wakes up" the event loop.  Otherwise, it might sit idle
   // waiting for an event before realizing an exit was requested.
@@ -247,7 +252,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   for (Display* dpy : dpys)
   {
     XEvent event;
-    while (XPending(dpy) != 0)
+    while (this->CheckDisplayId(dpy) && XPending(dpy) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
       XNextEvent(dpy, &event);
@@ -313,7 +318,7 @@ void vtkXRenderWindowInteractor::WaitForEvents()
   timeval* timeout = useTimeout ? &soonestTimer : nullptr;
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
-    if (!rwi->Done)
+    if (!rwi->Done && rwi->RenderWindow->GetGenericDisplayId() != nullptr)
     {
       int rwi_fd = rwi->Internal->DisplayConnection;
       FD_SET(rwi_fd, &in_fds);
@@ -420,6 +425,27 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 }
 
+//------------------------------------------------------------------------------
+bool vtkXRenderWindowInteractor::CheckDisplayId(Display* dpy)
+{
+  bool good = false;
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    if (rwi->DisplayId == dpy)
+    {
+      if (rwi->RenderWindow->GetGenericDisplayId() != nullptr)
+      {
+        good = true;
+        continue;
+      }
+      vtkDebugMacro(<< "RenderWindow->DisplayId is null for " << rwi->GetObjectDescription());
+    }
+  }
+
+  return good;
+}
+
+//------------------------------------------------------------------------------
 void vtkXRenderWindowInteractor::Finalize()
 {
   vtkXRenderWindowInteractorInternals::Instances.erase(this);
