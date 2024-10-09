@@ -320,6 +320,54 @@ bool TestCharSets(int argc, char* argv[])
   return ret;
 }
 
+bool TestPreview(int argc, char* argv[])
+{
+  char* filepath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/authors.csv");
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetFileName(filepath);
+  delete[] filepath;
+
+  reader->UpdateInformation();
+  std::string preview = reader->GetPreview();
+  if (!preview.empty())
+  {
+    vtkLog(ERROR, "Preview should be empty by default, has: \n" << preview);
+  }
+
+  std::string firstlines = "Author,Affiliation,Alma Mater,Categories,Age,Coolness\r\n";
+
+  reader->SetPreviewNumberOfLines(1);
+  reader->UpdateInformation();
+  preview = reader->GetPreview();
+  if (preview.empty())
+  {
+    vtkLog(ERROR, "Preview should contains first line, but is empty");
+    return false;
+  }
+
+  if (preview != firstlines)
+  {
+    vtkLog(ERROR,
+      "Preview wrong first line. Has: <" << preview << ">"
+                                         << "But expect <" << firstlines << ">");
+    return false;
+  }
+
+  firstlines += "Biff,NASA,Ole Southern,Jazz; Rocket Science,27,0.6\r\n";
+  firstlines += "Bob,Bob's Supermarket,Ole Southern,Jazz,54,0.3\r\n";
+
+  reader->SetPreviewNumberOfLines(3);
+  reader->UpdateInformation();
+  preview = reader->GetPreview();
+
+  if (preview != firstlines)
+  {
+    vtkLog(ERROR, "Preview wrong contents. Has: <" << preview << ">");
+    return false;
+  }
+
+  return true;
+}
 };
 
 //------------------------------------------------------------------------------
@@ -348,6 +396,10 @@ int TestDelimitedTextReader(int argc, char* argv[])
   else if (!::TestNumerics())
   {
     vtkLog(ERROR, "Test Numerics failed.\n");
+  }
+  else if (!::TestPreview(argc, argv))
+  {
+    vtkLog(ERROR, "Test Preview failed.\n");
   }
   else
   {
