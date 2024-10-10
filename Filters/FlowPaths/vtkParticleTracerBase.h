@@ -194,16 +194,16 @@ public:
    * in `vtkAlgorithm::RequestUpdateExtent`.
    */
   VTK_DEPRECATED_IN_9_4_0(
-    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead");
+    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead")
   virtual void SetTerminationTime(double) {}
   VTK_DEPRECATED_IN_9_4_0(
-    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead");
+    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead")
   virtual double GetTerminationTime() { return std::numeric_limits<double>::quiet_NaN(); }
   VTK_DEPRECATED_IN_9_4_0(
-    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead");
+    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead")
   virtual void SetStartTime(double) {}
   VTK_DEPRECATED_IN_9_4_0(
-    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead");
+    "Please edit the TIME_STEPS information key in vtkAlgorithm::RequestInformation() instead")
   virtual double GetStartTime() { return std::numeric_limits<double>::quiet_NaN(); }
   ///@}
 
@@ -211,13 +211,13 @@ public:
   /**
    * @deprecated Caching is now automated.
    */
-  VTK_DEPRECATED_IN_9_4_0("Caching is now automated");
+  VTK_DEPRECATED_IN_9_4_0("Caching is now automated")
   virtual void SetDisableResetCache(bool) {}
-  VTK_DEPRECATED_IN_9_4_0("Caching is now automated");
+  VTK_DEPRECATED_IN_9_4_0("Caching is now automated")
   virtual bool GetDisableResetCache() { return false; }
-  VTK_DEPRECATED_IN_9_4_0("Caching is now automated");
+  VTK_DEPRECATED_IN_9_4_0("Caching is now automated")
   virtual void DisableResetCacheOn() {}
-  VTK_DEPRECATED_IN_9_4_0("Caching is now automated");
+  VTK_DEPRECATED_IN_9_4_0("Caching is now automated")
   virtual void DisableResetCacheOff() {}
   ///@}
 
