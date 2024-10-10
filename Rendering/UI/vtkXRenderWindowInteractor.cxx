@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <poll.h>
 #include <sys/time.h>
 
 #include "vtkActor.h"
@@ -76,16 +77,16 @@ public:
   void DestroyLocalTimer(int id) { this->LocalToTimer.erase(id); }
 
   /**
-   * This interactor uses `select` to coordinate timers.
-   * Returns true if `select` needs to block until some time elapses or a user interaction event
-   * occurs. Returns false if `select` needs to block indefinitely until a user interaction event
-   * occurs. The `tv` arg is populated with a time-interval that can be used by `select` when it
-   * needs to use a timeout.
+   * This interactor uses `poll()` to coordinate timers.
+   * Returns true if `poll()` needs to block until some time elapses or a user interaction event
+   * occurs. Returns false if `poll()` needs to block indefinitely until a user interaction event
+   * occurs. The `timeout` arg is populated with a time interval (in milliseconds) that can be
+   * used by `poll()` when it needs to use a timeout.
    */
-  bool GetTimeToNextTimer(timeval& tv)
+  bool GetTimeToNextTimer(int& timeout)
   {
-    bool useTimeout = false; // whether `select` must block for some time.
-    uint64_t delta = 0;      // in microsecs
+    bool useTimeout = false; // whether `poll()` must block for some time.
+    uint64_t delta = 0;      // in microseconds
     if (!this->LocalToTimer.empty())
     {
       timeval ctv;
@@ -101,8 +102,8 @@ public:
         useTimeout = true;
       }
     }
-    tv.tv_sec = delta / 1000000;
-    tv.tv_usec = delta % 1000000;
+    // max timeout will be VTK_UNSIGNED_INT_MAX/1000, or 4.3e6 milliseconds
+    timeout = static_cast<int>(delta / 1000);
     return useTimeout;
   }
 
@@ -284,7 +285,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
 void vtkXRenderWindowInteractor::WaitForEvents()
 {
   bool useTimeout = false;
-  timeval soonestTimer;
+  int soonestTimer = 0;
 
   // check to see how long we wait for the next timer
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
@@ -294,7 +295,7 @@ void vtkXRenderWindowInteractor::WaitForEvents()
       continue;
     }
 
-    timeval t;
+    int t;
     bool haveTimer = rwi->Internal->GetTimeToNextTimer(t);
     if (haveTimer)
     {
@@ -303,30 +304,37 @@ void vtkXRenderWindowInteractor::WaitForEvents()
         useTimeout = true;
         soonestTimer = t;
       }
-      else if (timercmp(&t, &soonestTimer, <))
+      else
       {
-        soonestTimer = t;
+        soonestTimer = std::min(soonestTimer, t);
       }
     }
   }
 
-  fd_set in_fds;
-
-  // select will wait until 'tv' elapses or something else wakes us
-  FD_ZERO(&in_fds);
-  int maxFd = -1;
-  timeval* timeout = useTimeout ? &soonestTimer : nullptr;
+  // build the list of unique display connection fds to poll
+  std::vector<pollfd> in_fds;
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
   {
     if (!rwi->Done && rwi->RenderWindow->GetGenericDisplayId() != nullptr)
     {
       int rwi_fd = rwi->Internal->DisplayConnection;
-      FD_SET(rwi_fd, &in_fds);
-      maxFd = std::max<int>(maxFd, rwi_fd);
+      auto iter = std::lower_bound(in_fds.begin(), in_fds.end(), rwi_fd,
+        [](const pollfd& pfd, const int& fd) { return pfd.fd < fd; });
+
+      if (iter == in_fds.end() || iter->fd != rwi_fd)
+      {
+        in_fds.insert(iter, { rwi_fd, POLLIN, 0 });
+      }
     }
   }
-  vtkDebugMacro(<< "wait");
-  select(maxFd + 1, &in_fds, nullptr, nullptr, timeout);
+
+  if (!in_fds.empty())
+  {
+    // poll() will wait until timeout elapses or something else wakes us
+    int timeout = useTimeout ? soonestTimer : -1;
+    vtkDebugMacro(<< "X event wait, timeout=" << timeout << "ms");
+    poll(in_fds.data(), static_cast<nfds_t>(in_fds.size()), timeout);
+  }
 }
 
 //------------------------------------------------------------------------------
