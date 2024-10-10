@@ -416,14 +416,6 @@
         - linux-x86_64
         - vtk
 
-.linux_cuda_builder_tags:
-    tags:
-        - build
-        - docker
-        - large-memory
-        - linux-x86_64
-        - vtk
-
 .linux_tester_tags:
     tags:
         - docker
