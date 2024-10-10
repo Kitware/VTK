@@ -238,6 +238,9 @@ if (NOT cdash_show_third_party_warnings)
 
     # Ignore warnings from Apple's new linker about duplicate rpath flags.
     "ld: warning: duplicate -rpath"
+
+    # Libxml2 has an ignored warning in a line with a string containing `warning`
+    "xmlVFormatLegacyError.*validity warning"
   )
 endif ()
 
