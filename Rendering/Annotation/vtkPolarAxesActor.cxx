@@ -946,6 +946,7 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     axis->SetAxisTypeToX();
     axis->SetLabelVisibility(false);
     axis->SetUse2DMode(this->PolarAxis->GetUse2DMode());
+    axis->SetUseTextActor3D(this->PolarAxis->GetUseTextActor3D());
     axis->LastMajorTickPointCorrectionOn();
   }
 }
@@ -2054,6 +2055,18 @@ void vtkPolarAxesActor::SetMaximumAngle(double a)
 }
 
 //------------------------------------------------------------------------------
+void vtkPolarAxesActor::SetUseTextActor3D(bool enable)
+{
+  for (int i = 0; i < this->NumberOfRadialAxes; ++i)
+  {
+    this->RadialAxes[i]->SetUseTextActor3D(enable);
+  }
+
+  this->PolarAxis->SetUseTextActor3D(enable);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkPolarAxesActor::SetUse2DMode(bool enable)
 {
   for (int i = 0; i < this->NumberOfRadialAxes; ++i)
@@ -2062,6 +2075,7 @@ void vtkPolarAxesActor::SetUse2DMode(bool enable)
   }
 
   this->PolarAxis->SetUse2DMode(enable);
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------

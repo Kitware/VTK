@@ -700,6 +700,13 @@ public:
   bool GetUse2DMode();
   ///@}
 
+  /**
+   * Enable / Disable labels text 3D mode in underlying axes.
+   * When on, text is rasterized and displayed in 3D Scene.
+   * @see SetUse2DMode()
+   */
+  void SetUseTextActor3D(bool enable);
+
   ///@{
   /**
    * Set/Get the polar axis title text property.
