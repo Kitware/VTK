@@ -13,3 +13,11 @@ are:
   4. `vtkOSOpenGLRenderWindow` (OSMesa, requires that `osmesa.dll` or `libOSMesa.so` is installed)
 
 Note: VTK does **not** support OSMesa on macOS, iOS, Android and WebAssembly platforms.
+
+### Multisample anti-aliasing
+
+Some OpenGL drivers have rendering problems when Multisample anti-aliasing is enabled.
+It is possible to specify the environment variable `VTK_FORCE_MSAA` to troubleshoot rendering problems with these values:
+
+  1. `0` to disable MSAA
+  2. `1` to enable it regardless even when the driver is known to have problems with MSAA
