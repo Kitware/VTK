@@ -482,6 +482,33 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
   {
     return FillTopology(polydata, conduit_node);
   }
+  else if (auto pointset = vtkPointSet::SafeDownCast(data_set))
+  {
+    if (data_set->GetNumberOfCells() == 0) // Implicit topology
+    {
+      auto coords_node = conduit_node["coordsets/coords"];
+
+      coords_node["type"] = "explicit";
+
+      auto values_node = coords_node["values"];
+      if (!ConvertDataArrayToMCArray(
+            pointset->GetPoints()->GetData(), values_node, { "x", "y", "z" }))
+      {
+        vtkLog(ERROR, "Failed ConvertPoints for point set");
+        return false;
+      }
+
+      auto topologies_node = conduit_node["topologies/mesh"];
+      topologies_node["type"] = "points";
+      topologies_node["coordset"] = "coords";
+      topologies_node["elements/shape"] = "point";
+    }
+    else
+    {
+      vtkLog(ERROR, "Unsupported point set type: " << data_set->GetClassName());
+      return false;
+    }
+  }
   else
   {
     vtkLog(ERROR, "Unsupported data set type: " << data_set->GetClassName());
