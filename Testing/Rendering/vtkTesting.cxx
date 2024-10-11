@@ -386,23 +386,9 @@ void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
 }
 
 //------------------------------------------------------------------------------
-int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
-{
-  int result = this->RegressionTest(imageSource, thresh, cout);
-
-  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  cout << "</DartMeasurement>\n";
-  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  cout << "</DartMeasurement>\n";
-
-  return result;
-}
-//------------------------------------------------------------------------------
 int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 {
-  int result = this->RegressionTest(thresh, os);
+  const int result = this->RegressionTest(thresh, os);
 
   os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
   os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
@@ -413,12 +399,29 @@ int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 
   return result;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTestAndCaptureOutput(thresh, cout);
+  const int result = this->RegressionTestAndCaptureOutput(thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
   return result;
 }
+
+//------------------------------------------------------------------------------
+int vtkTesting::RegressionTest(double thresh, std::string& output)
+{
+  std::ostringstream os;
+  const int result = this->RegressionTestAndCaptureOutput(thresh, os);
+  output = os.str();
+  return result;
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh, ostream& os)
 {
@@ -484,11 +487,29 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
   }
   return this->Controller->GetLocalProcessId() == 0 ? res : NOT_RUN;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh)
 {
-  return this->RegressionTest(pngFileName, thresh, cout);
+  const int result = this->RegressionTest(pngFileName, thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
+  return result;
 }
+
+//------------------------------------------------------------------------------
+int vtkTesting::RegressionTest(const std::string& pngFileName, double thresh, std::string& output)
+{
+  std::ostringstream os;
+  const int result = this->RegressionTest(pngFileName, thresh, os);
+  output = os.str();
+  return result;
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream& os)
 {
@@ -516,6 +537,28 @@ int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream
   }
 
   return this->RegressionTest(src, thresh, os);
+}
+
+//------------------------------------------------------------------------------
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
+{
+  const int result = this->RegressionTest(imageSource, thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
+
+  return result;
+}
+
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, std::string& output)
+{
+  std::ostringstream os;
+  const int result = this->RegressionTest(imageSource, thresh, os);
+  output = os.str();
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -548,7 +591,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   {
     fclose(rtFin);
   }
-  else // there was no valid image, so write one to the temp dir
+  else if (!tmpDir.empty()) // there was no valid image, so write one to the temp dir
   {
     string vImage = tmpDir + "/" + validName;
 #ifdef __EMSCRIPTEN__
@@ -969,7 +1012,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   rtId->Update();
 
   // test the directory for writing
-  if (hasDiff)
+  if (hasDiff && !tmpDir.empty())
   {
     string diffFilename = tmpDir + "/" + validName;
     string::size_type dotPos = diffFilename.rfind('.');
@@ -1064,6 +1107,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   return FAILED;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
 {

@@ -83,6 +83,7 @@ class TestCellGridTransform(Testing.vtkTest):
         ren.AddActor(glyphActor)
 
         rw = vtkRenderWindow()
+        rw.SetMultiSamples(0)  # when rendering lines ensure same output since anti-aliasing is not supported on all machines
         rw.AddRenderer(ren)
         ren.SetBackground(1.0, 1.0, 1.0)
 
@@ -130,7 +131,7 @@ class TestCellGridTransform(Testing.vtkTest):
             rwi.AddObserver(cc.vtkCommand.KeyPressEvent, onKeyPress)
             rwi.Start()
             print('camera', cam)
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
     def testHCurlVectors(self):
         self.runCase('curl1', 'TestCellGridTransform-HCurl.png')

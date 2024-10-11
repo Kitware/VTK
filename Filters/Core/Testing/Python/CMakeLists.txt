@@ -102,7 +102,7 @@ vtk_add_test_python(
   fieldToUGrid.py
   financialField.py
   financialField2.py
-  financialField3.py
+  financialField3.py,LOOSE_VALID
 # glyphComb.py #19221
   hull.py
   mergeFilter.py

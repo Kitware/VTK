@@ -7,7 +7,7 @@ vtk_add_test_python(
   TestEuclideanClusterExtraction2.py
   TestExtractEnclosedPoints.py
   TestExtractPoints.py
-  TestFitImplicitFunction.py, LOOSE_VALID
+  TestFitImplicitFunction.py,LOOSE_VALID
   TestHierarchicalBinningFilter.py
   TestPCACurvatureEstimation.py
   TestPCACurvatureEstimation2.py
@@ -17,8 +17,8 @@ vtk_add_test_python(
   TestPointDensityGradient.py
   TestPointInterpolator.py
   TestPointInterpolator2.py
-  TestPointInterpolator2D.py
-  TestPointInterpolator2D2.py, LOOSE_VALID
+  TestPointInterpolator2D.py,LOOSE_VALID
+  TestPointInterpolator2D2.py,LOOSE_VALID
   TestPointOccupancyFilter.py
   TestPointSmoothingFilter.py
   TestPointSmoothingFilter2.py

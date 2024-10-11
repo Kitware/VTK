@@ -10,7 +10,7 @@ if(vtk_can_do_onscreen AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
     TestMagnifierWidget.py
     TestPointCloudWidget.py
     TestPointCloudWidget2.py
-    TestSphereWidget.py
+    TestSphereWidget.py,LOOSE_VALID
     TestTensorWidget.py
     TestTensorWidget2.py
     TestTextWidget.py

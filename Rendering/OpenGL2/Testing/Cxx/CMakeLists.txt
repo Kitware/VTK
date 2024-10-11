@@ -57,7 +57,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestFXAAPass.cxx
   TestFXAAWithEDLPass.cxx
   TestFlipRenderFramebuffer.cxx
-  TestFloor.cxx, LOOSE_VALID
+  TestFloor.cxx,LOOSE_VALID
   TestFluidMapper.cxx
   TestFramebufferHDR.cxx
   TestFramebufferPass.cxx
