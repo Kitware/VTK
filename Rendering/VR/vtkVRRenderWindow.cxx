@@ -389,4 +389,21 @@ void vtkVRRenderWindow::SetSize(int width, int height)
     }
   }
 }
+
+void vtkVRRenderWindow::SetTrackHMD(bool trackHMD)
+{
+  vtkDebugMacro(<< " setting TrackHMD to " << trackHMD);
+  if (this->TrackHMD != trackHMD)
+  {
+    this->TrackHMD = trackHMD;
+    this->Modified();
+  }
+}
+
+bool vtkVRRenderWindow::GetTrackHMD()
+{
+  vtkDebugMacro(<< " returning TrackHMD of " << this->TrackHMD);
+  return this->TrackHMD;
+}
+
 VTK_ABI_NAMESPACE_END
