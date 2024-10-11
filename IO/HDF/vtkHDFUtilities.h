@@ -108,8 +108,8 @@ inline hid_t getH5TypeFromVtkType(const int dataType)
   }
 }
 
-VTK_DEPRECATED_IN_9_4_0("Please use TemporalGeometryOffsets struct instead.")
-struct TransientGeometryOffsets
+struct VTK_DEPRECATED_IN_9_4_0(
+  "Please use TemporalGeometryOffsets struct instead.") TransientGeometryOffsets
 {
 public:
   bool Success = true;
