@@ -9,6 +9,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkWebAssemblyRenderWindowInteractor.h"
 
 // Init factories.
 #ifdef VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
@@ -16,6 +17,7 @@
 #endif
 #ifdef VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
 #include "vtkOpenGLPolyDataMapper.h" // needed to remove unused mapper, also includes vtkRenderingOpenGL2Module.h
+#include "vtkWebAssemblyOpenGLRenderWindow.h"
 #endif
 #ifdef VTK_MODULE_ENABLE_VTK_RenderingUI
 #include "vtkRenderingUIModule.h"
@@ -100,13 +102,30 @@ bool vtkWasmSceneManager::StartEventLoop(vtkTypeUInt32 identifier)
 {
   vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
   auto object = this->GetObjectAtId(identifier);
-  if (auto renderWindow = vtkRenderWindow::SafeDownCast(object))
+  if (auto* renderWindow = vtkRenderWindow::SafeDownCast(object))
   {
-    auto interactor = renderWindow->GetInteractor();
-    std::cout << "Started event loop id=" << identifier
-              << ", interactor=" << interactor->GetObjectDescription() << '\n';
-    interactor->Start();
-    return true;
+    if (auto* interactor =
+          vtkWebAssemblyRenderWindowInteractor::SafeDownCast(renderWindow->GetInteractor()))
+    {
+      if (auto* wasmGLWindow = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(renderWindow))
+      {
+        // copy canvas selector from the render window to the interactor.
+        interactor->SetCanvasSelector(wasmGLWindow->GetCanvasSelector());
+        std::cout << "Started event loop id=" << identifier
+                  << ", interactor=" << interactor->GetObjectDescription() << '\n';
+        interactor->Start();
+        return true;
+      }
+      else
+      {
+        std::cerr << "Render window class " << renderWindow->GetClassName()
+                  << " is not recognized!\n";
+      }
+    }
+    else
+    {
+      std::cerr << "Interactor class " << renderWindow->GetClassName() << " is not recognized!\n";
+    }
   }
   return false;
 }

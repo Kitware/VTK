@@ -81,32 +81,33 @@ bool vtkDeserializer::DeserializeJSON(
   }
   std::string className;
   std::vector<std::string> superClassNames;
-  {
-    const auto iter = state.find("ClassName");
-    if (iter == state.end())
-    {
-      vtkErrorMacro(<< "Failed to find 'ClassName' in state at id=" << identifier);
-      return false;
-    }
-    else
-    {
-      className = iter->get<std::string>();
-    }
-  }
-  {
-    const auto iter = state.find("SuperClassNames");
-    if (iter == state.end())
-    {
-      vtkErrorMacro(<< "Failed to find 'SuperClassNames' in state at id=" << identifier);
-      return false;
-    }
-    else
-    {
-      superClassNames = iter->get<std::vector<std::string>>();
-    }
-  }
   if (objectBase == nullptr)
   {
+    // Only look for ClassName and SuperClassNames if we are going to construct the object.
+    {
+      const auto iter = state.find("ClassName");
+      if (iter == state.end())
+      {
+        vtkErrorMacro(<< "Failed to find 'ClassName' in state at id=" << identifier);
+        return false;
+      }
+      else
+      {
+        className = iter->get<std::string>();
+      }
+    }
+    {
+      const auto iter = state.find("SuperClassNames");
+      if (iter == state.end())
+      {
+        vtkErrorMacro(<< "Failed to find 'SuperClassNames' in state at id=" << identifier);
+        return false;
+      }
+      else
+      {
+        superClassNames = iter->get<std::vector<std::string>>();
+      }
+    }
     if (auto ptr = this->ConstructObject(className, superClassNames))
     {
       objectBase = vtk::TakeSmartPointer(ptr);
