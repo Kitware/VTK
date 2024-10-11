@@ -86,6 +86,7 @@ class TestCellGridCellCenters(Testing.vtkTest):
         ren.AddActor(centerActor)
 
         rw = vtkRenderWindow()
+        rw.SetMultiSamples(0)  # when rendering lines ensure same output since anti-aliasing is not supported on all machines
         rw.AddRenderer(ren)
         ren.SetBackground(1.0, 1.0, 1.0)
         #ren.SetBackground(0.5, 0.4, 0.3)
@@ -129,7 +130,7 @@ class TestCellGridCellCenters(Testing.vtkTest):
         if '-I' in sys.argv:
             rwi.Start()
             print('camera', cam)
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
     def testEdgeCenters(self):
         """Test that the cell-center filter properly computes centers

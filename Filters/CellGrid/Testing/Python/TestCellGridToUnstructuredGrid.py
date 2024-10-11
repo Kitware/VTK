@@ -105,7 +105,7 @@ class TestCellGridToUnstructuredGrid(Testing.vtkTest):
             rwi.Start()
             print('camera', cam)
         baseline = 'TestCellGridToUnstructuredGrid-Centers.png'
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
     def testMultipleCellTypes(self):
         bds = [0, 0, 0, 0, 0, 0]
@@ -198,7 +198,7 @@ class TestCellGridToUnstructuredGrid(Testing.vtkTest):
             rwi.Start()
             print('camera', cam)
         baseline = 'TestCellGridToUnstructuredGrid-Mixed.png'
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
 
 if __name__ == "__main__":
     Testing.main([(TestCellGridToUnstructuredGrid, 'test')])

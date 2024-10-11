@@ -49,6 +49,7 @@ class contourQuadraticTetra(vtkmodules.test.Testing.vtkTest):
         ren1 = vtkRenderer()
         ren1.GetCullers().RemoveAllItems()
         renWin = vtkRenderWindow()
+        renWin.SetMultiSamples(0) # when rendering lines ensure same output since anti-aliasing is not supported on all machines
         renWin.AddRenderer(ren1)
         iren = vtkRenderWindowInteractor()
         iren.SetRenderWindow(renWin)
@@ -68,7 +69,7 @@ class contourQuadraticTetra(vtkmodules.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "contourQuadraticTetra.png"
-        vtkmodules.test.Testing.compareImage(iren.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.compareImage(iren.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file))
         vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":
