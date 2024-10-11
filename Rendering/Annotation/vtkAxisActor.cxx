@@ -203,21 +203,9 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
     }
     if (this->Title != nullptr && this->Title[0] != 0 && this->TitleVisibility)
     {
-      if (this->Use2DMode)
-      {
-        this->TitleActor2D->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleActor2D->RenderOpaqueGeometry(viewport);
-      }
-      else if (this->UseTextActor3D)
-      {
-        this->TitleProp3D->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleProp3D->RenderOpaqueGeometry(viewport);
-      }
-      else
-      {
-        this->TitleActor->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
-      }
+      vtkProp* titleActor = this->GetTitleActorInternal();
+      titleActor->SetPropertyKeys(propKeys);
+      renderedSomething += titleActor->RenderOpaqueGeometry(viewport);
     }
     if (this->AxisVisibility)
     {
@@ -245,40 +233,16 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
       for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
       {
-        if (this->Use2DMode)
-        {
-          this->LabelActors2D[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelActors2D[i]->RenderOpaqueGeometry(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          this->LabelActors3D[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelActors3D[i]->RenderOpaqueGeometry(viewport);
-        }
-        else
-        {
-          this->LabelActors[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
-        }
+        vtkProp* labelActor = this->GetLabelActorInternal(i);
+        labelActor->SetPropertyKeys(propKeys);
+        renderedSomething += labelActor->RenderOpaqueGeometry(viewport);
       }
 
       if (this->ExponentVisibility && this->Exponent != nullptr && this->Exponent[0] != 0)
       {
-        if (this->Use2DMode)
-        {
-          this->ExponentActor2D->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentActor2D->RenderOpaqueGeometry(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          this->ExponentProp3D->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentProp3D->RenderOpaqueGeometry(viewport);
-        }
-        else
-        {
-          this->ExponentActor->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentActor->RenderOpaqueGeometry(viewport);
-        }
+        vtkProp* exponentActor = this->GetExponentActorInternal();
+        exponentActor->SetPropertyKeys(propKeys);
+        exponentActor->RenderOpaqueGeometry(viewport);
       }
     }
   }
@@ -318,59 +282,23 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
     }
     if (this->Title != nullptr && this->Title[0] != 0 && this->TitleVisibility)
     {
-      if (this->Use2DMode)
-      {
-        this->TitleActor2D->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleActor2D->RenderTranslucentPolygonalGeometry(viewport);
-      }
-      else if (this->UseTextActor3D)
-      {
-        this->TitleProp3D->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleProp3D->RenderTranslucentPolygonalGeometry(viewport);
-      }
-      else
-      {
-        this->TitleActor->SetPropertyKeys(propKeys);
-        renderedSomething += this->TitleActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
+      vtkProp* titleActor = this->GetTitleActorInternal();
+      titleActor->SetPropertyKeys(propKeys);
+      renderedSomething += titleActor->RenderTranslucentPolygonalGeometry(viewport);
     }
     if (this->LabelVisibility)
     {
       for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
       {
-        if (this->Use2DMode)
-        {
-          this->LabelActors2D[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelActors2D[i]->RenderTranslucentPolygonalGeometry(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          this->LabelProps3D[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelProps3D[i]->RenderTranslucentPolygonalGeometry(viewport);
-        }
-        else
-        {
-          this->LabelActors[i]->SetPropertyKeys(propKeys);
-          renderedSomething += this->LabelActors[i]->RenderTranslucentPolygonalGeometry(viewport);
-        }
+        vtkProp* labelActor = this->GetLabelActorInternal(i);
+        labelActor->SetPropertyKeys(propKeys);
+        renderedSomething += labelActor->RenderTranslucentPolygonalGeometry(viewport);
       }
       if (this->ExponentVisibility)
       {
-        if (this->Use2DMode)
-        {
-          this->ExponentActor2D->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentActor2D->RenderTranslucentPolygonalGeometry(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          this->ExponentProp3D->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentProp3D->RenderTranslucentPolygonalGeometry(viewport);
-        }
-        else
-        {
-          this->ExponentActor->SetPropertyKeys(propKeys);
-          renderedSomething += this->ExponentActor->RenderTranslucentPolygonalGeometry(viewport);
-        }
+        vtkProp* exponentActor = this->GetExponentActorInternal();
+        exponentActor->SetPropertyKeys(propKeys);
+        renderedSomething += exponentActor->RenderTranslucentPolygonalGeometry(viewport);
       }
     }
   }
@@ -389,50 +317,20 @@ int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
   {
     if (this->TitleVisibility)
     {
-      if (this->Use2DMode)
-      {
-        renderedSomething += this->TitleActor2D->RenderOverlay(viewport);
-      }
-      else if (this->UseTextActor3D)
-      {
-        renderedSomething += this->TitleProp3D->RenderOverlay(viewport);
-      }
-      else
-      {
-        renderedSomething += this->TitleActor->RenderOverlay(viewport);
-      }
+      vtkProp* titleActor = this->GetTitleActorInternal();
+      renderedSomething += titleActor->RenderOverlay(viewport);
     }
     if (this->LabelVisibility)
     {
       for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
       {
-        if (this->Use2DMode)
-        {
-          renderedSomething += this->LabelActors2D[i]->RenderOverlay(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          renderedSomething += this->LabelProps3D[i]->RenderOverlay(viewport);
-        }
-        else
-        {
-          renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
-        }
+        vtkProp* labelActor = this->GetLabelActorInternal(i);
+        renderedSomething += labelActor->RenderOverlay(viewport);
       }
       if (this->ExponentVisibility)
       {
-        if (this->Use2DMode)
-        {
-          renderedSomething += this->ExponentActor2D->RenderOverlay(viewport);
-        }
-        else if (this->UseTextActor3D)
-        {
-          renderedSomething += this->ExponentProp3D->RenderOverlay(viewport);
-        }
-        else
-        {
-          renderedSomething += this->ExponentActor->RenderOverlay(viewport);
-        }
+        vtkProp* exponentActor = this->GetExponentActorInternal();
+        renderedSomething += exponentActor->RenderOverlay(viewport);
       }
     }
   }
@@ -446,84 +344,29 @@ vtkTypeBool vtkAxisActor::HasTranslucentPolygonalGeometry()
   {
     if (this->TitleVisibility)
     {
-      if (this->Use2DMode)
+      vtkProp* titleActor = this->GetTitleActorInternal();
+      if (titleActor->HasTranslucentPolygonalGeometry())
       {
-        if (this->TitleActor2D->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
-      }
-      else if (this->UseTextActor3D)
-      {
-        if (this->TitleProp3D->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
-      }
-      else
-      {
-        if (this->TitleActor->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
+        return 1;
       }
     }
 
     if (this->LabelVisibility)
     {
-      if (this->Use2DMode)
+      for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
       {
-        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
+        vtkProp* labelActor = this->GetLabelActorInternal(i);
+        if (labelActor->HasTranslucentPolygonalGeometry())
         {
-          if (this->LabelActors2D[i]->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          } // end if
-        }   // end for
-      }     // end 2D
-      else if (this->UseTextActor3D)
-      {
-        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
-        {
-          // if (this->LabelActors3D[i]->HasTranslucentPolygonalGeometry())
-          if (this->LabelProps3D[i]->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          } // end if
-        }   // end for
-      }     // end 3D
-      else
-      {
-        for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
-        {
-          if (this->LabelActors[i]->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          } // end if
-        }   // end for
-      }     // end 3D
+          return 1;
+        }
+      }
       if (this->ExponentVisibility)
       {
-        if (this->Use2DMode)
+        vtkProp* exponentActor = this->GetExponentActorInternal();
+        if (exponentActor->HasTranslucentPolygonalGeometry())
         {
-          if (this->ExponentActor2D->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          }
-        }
-        else if (this->UseTextActor3D)
-        {
-          if (this->ExponentProp3D->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          }
-        }
-        else
-        {
-          if (this->ExponentActor->HasTranslucentPolygonalGeometry())
-          {
-            return 1;
-          }
+          return 1;
         }
       }
     } // end label vis
@@ -3048,4 +2891,56 @@ void vtkAxisActor::RotateActor2DFromAxisProjection(vtkTextActor* pActor2D)
 
   pActor2D->SetOrientation(orient);
 }
+
+//------------------------------------------------------------------------------
+vtkProp* vtkAxisActor::GetTitleActorInternal()
+{
+  if (this->Use2DMode)
+  {
+    return this->TitleActor2D;
+  }
+  else if (this->UseTextActor3D)
+  {
+    return this->TitleProp3D;
+  }
+  else
+  {
+    return this->TitleActor;
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkProp* vtkAxisActor::GetLabelActorInternal(int index)
+{
+  if (this->Use2DMode)
+  {
+    return this->LabelActors2D[index];
+  }
+  else if (this->UseTextActor3D)
+  {
+    return this->LabelProps3D[index];
+  }
+  else
+  {
+    return this->LabelActors[index];
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkProp* vtkAxisActor::GetExponentActorInternal()
+{
+  if (this->Use2DMode)
+  {
+    return this->ExponentActor2D;
+  }
+  else if (this->UseTextActor3D)
+  {
+    return this->ExponentProp3D;
+  }
+  else
+  {
+    return this->ExponentActor;
+  }
+}
+
 VTK_ABI_NAMESPACE_END

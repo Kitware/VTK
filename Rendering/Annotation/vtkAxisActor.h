@@ -869,6 +869,15 @@ private:
 
   bool BoundsDisplayCoordinateChanged(vtkViewport* viewport);
 
+  ///@{
+  /**
+   * Return the correct actor depending on current mode (Use2DMode and UseTextActor3D)
+   */
+  vtkProp* GetTitleActorInternal();
+  vtkProp* GetLabelActorInternal(int index);
+  vtkProp* GetExponentActorInternal();
+  ///@}
+
   vtkNew<vtkCoordinate> Point1Coordinate;
   vtkNew<vtkCoordinate> Point2Coordinate;
 
