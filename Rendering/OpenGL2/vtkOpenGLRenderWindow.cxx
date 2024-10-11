@@ -93,6 +93,12 @@ static const vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug
   // OpenGL Version: 4.6 (Core Profile) Mesa 20.0.8
   // OpenGL Renderer: AMD RAVEN (DRM 3.35.0, 5.4.0-42-generic, LLVM 10.0.0)
   { "X.Org", "", "AMD" },
+
+  // xref https://gitlab.freedesktop.org/mesa/mesa/-/issues/11999
+  // OpenGL Vendor: Mesa
+  // OpenGL Version: 4.3 (Core Profile) Mesa 24.0.9-0ubuntu0.1
+  // OpenGL Renderer: NV137
+  { "Mesa", "", "NV" },
 };
 
 static const char* defaultWindowName = "Visualization Toolkit - OpenGL";
