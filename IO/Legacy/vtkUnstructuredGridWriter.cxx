@@ -146,7 +146,7 @@ int vtkUnstructuredGridWriter::WriteCellsAndFaces(
     }
     else
     {
-      expandedCells->InsertNextCell(it->GetFaces());
+      expandedCells->InsertNextCell(it->GetSerializedCellFaces());
     }
   }
 
