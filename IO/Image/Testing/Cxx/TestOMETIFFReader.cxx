@@ -8,7 +8,6 @@
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkVector.h>
-#include <vtkVectorOperators.h>
 #include <vtksys/RegularExpression.hxx>
 
 #include <cstdlib>
