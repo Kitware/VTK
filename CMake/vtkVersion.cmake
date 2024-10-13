@@ -6,7 +6,7 @@ set(VTK_MINOR_VERSION 4)
 # the date component is updated while it is in progress, the bump of the minor
 # version ends up conflicting with the patch version update.
 
-set(VTK_BUILD_VERSION 20241012)
+set(VTK_BUILD_VERSION 20241013)
 
 if (NOT VTK_MINOR_VERSION LESS 100)
   message(FATAL_ERROR
