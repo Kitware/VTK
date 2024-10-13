@@ -6,6 +6,9 @@
 // this program tests the CityGML Reader and setting of textures to
 // individual datasets of the multiblock tree.
 
+// VTK_DEPRECATED_IN_9_4_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCesiumB3DMReader.h"
