@@ -57,7 +57,7 @@ int RegressionTestWithImageName(
   if (testing->IsValidImageSpecified())
   {
     testing->SetRenderWindow(rw);
-    return testing->RegressionTestAndCaptureOutput(thresh, cout);
+    return testing->RegressionTest(thresh, cout);
   }
 
   return vtkTesting::NOT_RUN;

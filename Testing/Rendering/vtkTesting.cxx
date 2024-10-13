@@ -416,7 +416,7 @@ int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTestAndCaptureOutput(thresh, cout);
+  int result = this->RegressionTest(thresh, cout);
   return result;
 }
 //------------------------------------------------------------------------------
@@ -1187,7 +1187,7 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
   {
     testing->SetRenderWindow(rw);
 
-    return testing->RegressionTestAndCaptureOutput(thresh, cout);
+    return testing->RegressionTest(thresh, cout);
   }
   return NOT_RUN;
 }
