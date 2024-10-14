@@ -403,7 +403,7 @@ int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  const int result = this->RegressionTestAndCaptureOutput(thresh, cout);
+  const int result = this->RegressionTest(thresh, cout);
   cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
   cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
   cout << "</DartMeasurement>\n";
@@ -417,7 +417,7 @@ int vtkTesting::RegressionTest(double thresh)
 int vtkTesting::RegressionTest(double thresh, std::string& output)
 {
   std::ostringstream os;
-  const int result = this->RegressionTestAndCaptureOutput(thresh, os);
+  const int result = this->RegressionTest(thresh, os);
   output = os.str();
   return result;
 }
@@ -1126,7 +1126,7 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
   {
     testing->SetRenderWindow(rw);
 
-    return testing->RegressionTestAndCaptureOutput(thresh, cout);
+    return testing->RegressionTest(thresh, cout);
   }
   return NOT_RUN;
 }

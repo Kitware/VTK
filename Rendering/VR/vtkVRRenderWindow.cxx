@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_4_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkVRRenderWindow.h"
 
 #include "vtkOpenGLState.h"
@@ -385,4 +389,21 @@ void vtkVRRenderWindow::SetSize(int width, int height)
     }
   }
 }
+
+void vtkVRRenderWindow::SetTrackHMD(bool trackHMD)
+{
+  vtkDebugMacro(<< " setting TrackHMD to " << trackHMD);
+  if (this->TrackHMD != trackHMD)
+  {
+    this->TrackHMD = trackHMD;
+    this->Modified();
+  }
+}
+
+bool vtkVRRenderWindow::GetTrackHMD()
+{
+  vtkDebugMacro(<< " returning TrackHMD of " << this->TrackHMD);
+  return this->TrackHMD;
+}
+
 VTK_ABI_NAMESPACE_END
