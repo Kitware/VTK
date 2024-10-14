@@ -1766,14 +1766,14 @@ bool vtkContour3DLinearGrid::CanFullyProcessDataObject(
       : ug->GetPointData()->GetScalars();
     if (!array)
     {
-      vtkLog(INFO, "Scalar array is null");
+      vtkLog(TRACE, "Scalar array is null");
       return true;
     }
 
     int aType = array->GetDataType();
     if (aType != VTK_UNSIGNED_INT && aType != VTK_INT && aType != VTK_FLOAT && aType != VTK_DOUBLE)
     {
-      vtkLog(INFO, "Invalid scalar array type");
+      vtkLog(TRACE, "Invalid scalar array type");
       return false;
     }
 
