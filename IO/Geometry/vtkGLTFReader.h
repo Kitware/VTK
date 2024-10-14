@@ -81,8 +81,7 @@ public:
    * output dataset's field data to create vtkTextures and apply them to the geometry.
    * Note that texture coordinates need to be fliped using a texture transform.
    */
-  VTK_DEPRECATED_IN_9_4_0("Use vtkGLTFTexture instead.")
-  struct GLTFTexture
+  struct VTK_DEPRECATED_IN_9_4_0("Use vtkGLTFTexture instead.") GLTFTexture
   {
     vtkSmartPointer<vtkImageData> Image;
     unsigned short MinFilterValue;

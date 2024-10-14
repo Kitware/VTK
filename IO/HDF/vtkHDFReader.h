@@ -312,8 +312,8 @@ private:
    *
    * Useful to set privatly the deprecate UseTransientData variable to true when it's needed.
    */
-  VTK_DEPRECATED_IN_9_4_0("Use directly UseTemporalData, the purpose of this setter was to set"
-                          "the deprecate value HasTransientData.")
+  VTK_DEPRECATED_IN_9_4_0("Use UseTemporalData directly; the purpose of this setter was to set "
+                          "the deprecated field HasTransientData.")
   void SetHasTemporalData(bool useTemporalData);
 
   /**

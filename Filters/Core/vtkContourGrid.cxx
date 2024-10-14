@@ -214,8 +214,6 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
     //
     const int numComps = cellScalars->GetNumberOfComponents();
     int cellType;
-    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
-    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
     int dimensionality;
     // We skip 0d cells (points), because they cannot be cut (generate no data).
     for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
@@ -236,7 +234,7 @@ void vtkContourGridExecute(vtkContourGrid* self, vtkDataSet* input, vtkPolyData*
           vtkGenericWarningMacro("Unknown cell type " << cellType);
           continue;
         }
-        if (cellTypeDimensions[cellType] != dimensionality)
+        if (vtkCellTypes::GetDimension(cellType) != dimensionality)
         {
           continue;
         }

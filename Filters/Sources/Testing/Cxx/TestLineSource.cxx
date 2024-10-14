@@ -6,7 +6,6 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 #include <vtkVector.h>
-#include <vtkVectorOperators.h>
 
 int TestLineSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

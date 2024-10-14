@@ -4,6 +4,9 @@
  * This tests reading a file using a PDAL reader.
  */
 
+// VTK_DEPRECATED_IN_9_4_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
 #include "vtkCesium3DTilesReader.h"

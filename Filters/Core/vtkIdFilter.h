@@ -19,7 +19,7 @@
 #define vtkIdFilter_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkFiltersCoreModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN

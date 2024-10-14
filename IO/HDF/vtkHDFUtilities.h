@@ -74,8 +74,8 @@ VTKIOHDF_EXPORT void MakeObjectNameValid(std::string& objectName);
  */
 VTKIOHDF_EXPORT hid_t getH5TypeFromVtkType(int dataType);
 
-VTK_DEPRECATED_IN_9_4_0("Please use TemporalGeometryOffsets struct instead.")
-struct VTKIOHDF_EXPORT TransientGeometryOffsets
+struct VTK_DEPRECATED_IN_9_4_0(
+  "Please use TemporalGeometryOffsets struct instead.") VTKIOHDF_EXPORT TransientGeometryOffsets
 {
 public:
   bool Success = true;
