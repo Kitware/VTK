@@ -5,6 +5,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGenerateGlobalIds.h"
 #include "vtkHyperTreeGridGhostCellsGenerator.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -258,6 +259,95 @@ int TestGhost2D(vtkMPIController* controller)
 
   return ret;
 }
+
+/**
+ * With one or more partitions not containing cells, ghost cells should still be generated
+ */
+int TestGhostNullPart(vtkMPIController* controller)
+{
+  int ret = EXIT_SUCCESS;
+
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // Setup HTG Source: process 1, 2 and 3 have cells, the others do not.
+  // Still, GCG should generate ghost cells, except for process 0
+  /**
+   * The distributed HTG with process ids looks like this
+   * +---+---+---+
+   * | 1 | 1 | 1 |
+   * +---+---+---+
+   * | 1 | 1 | 1 |
+   * +---+---+---+
+   * | 2 | 2 | 2 |
+   * |---+---+---+
+   * | 2 | 2 | 2 |
+   * |---+---+---+
+   * | 3 | 3 | 3 |
+   * |---+---+---+
+   *
+   * It should have ghost cells:
+   * +---+---+---+
+   * |   |   |   |
+   * +---+---+---+
+   * | 2 | 2 | 2 |
+   * +---+---+---+
+   * | 1 | 1 | 1 |
+   * |---+---+---+
+   * | 3 | 3 | 3 |
+   * |---+---+---+
+   * | 2 | 2 | 2 |
+   * |---+---+---+
+   */
+
+  vtkNew<vtkHyperTreeGridSource> htgSource;
+  htgSource->SetDimensions(4, 6, 1);
+
+  htgSource->SetDescriptor("1... ... 2... ... 3...");
+  htgSource->SetMaxDepth(1);
+  htgSource->SetUseMask(false);
+
+  // Create GCG
+  vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
+  generator->SetDebug(true);
+  generator->SetInputConnection(htgSource->GetOutputPort());
+  vtkSmartPointer<vtkHyperTreeGrid> htg(generator->GetHyperTreeGridOutput());
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  std::array<vtkIdType, 4> expectedNbOfCells{ 0, 9, 12, 6 };
+  vtkIdType nbCellsAfter = htg->GetNumberOfCells();
+  if (expectedNbOfCells[myRank] != nbCellsAfter)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
+                                     << myRank << ". Has " << nbCellsAfter << " but expect "
+                                     << expectedNbOfCells[myRank]);
+    ret = EXIT_FAILURE;
+  }
+
+  // Now, only one process has cells, so no ghost cells should be generated
+  htgSource->SetDescriptor("2... ... ... ... ...");
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  std::array<vtkIdType, 4> expectedNbOfCells_1Process{ 0, 0, 15, 0 };
+  nbCellsAfter = htg->GetNumberOfCells();
+  if (expectedNbOfCells_1Process[myRank] != nbCellsAfter)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
+                                     << myRank << ". Has " << nbCellsAfter << " but expect "
+                                     << expectedNbOfCells[myRank]);
+    ret = EXIT_FAILURE;
+  }
+
+  return ret;
+}
 }
 
 /**
@@ -290,6 +380,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   ret |= ::TestGhostCellFields(controller);
   ret |= ::TestGhostMasking(controller);
   ret |= ::TestGhost2D(controller);
+  ret |= ::TestGhostNullPart(controller);
 
   controller->Finalize();
   return ret;
