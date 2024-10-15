@@ -41,11 +41,11 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   int numberOfProcesses = controller->GetNumberOfProcesses();
 
-  if (!input || input->GetNumberOfNonEmptyTrees() == 0)
+  if (!input)
   {
+    vtkErrorMacro("Input HyperTreeGrid is null.");
     return 1;
   }
-
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
   if (!output)
   {
