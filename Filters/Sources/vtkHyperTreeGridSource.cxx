@@ -1065,10 +1065,10 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor(vtkHyperTreeGrid* out
     output->GetMask()->InsertTuple1(id, masked);
   } // else if
 
-  // Process selection for root trees: mask the entire tree if it's not selected for this process
+  // Process selection for root trees: remove the entire tree if it's not selected for this process
   if (level == 0 && this->CurrentTreeProcess != this->Piece)
   {
-    cursor->SetMask(true);
+    output->RemoveTree(treeIdx);
   }
 }
 
