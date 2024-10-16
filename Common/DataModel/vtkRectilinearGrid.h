@@ -93,6 +93,7 @@ public:
   void ComputeBounds() override;
   int GetMaxCellSize() override { return 8; } // voxel is the largest
   int GetMaxSpatialDimension() override;
+  int GetMinSpatialDimension() override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds) override;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList* ptIds, vtkIdList* cellIds, int* seedLoc);
   ///@}
@@ -383,6 +384,12 @@ inline int vtkRectilinearGrid::GetDataDimension()
 
 //----------------------------------------------------------------------------
 inline int vtkRectilinearGrid::GetMaxSpatialDimension()
+{
+  return vtkStructuredData::GetDataDimension(this->DataDescription);
+}
+
+//----------------------------------------------------------------------------
+inline int vtkRectilinearGrid::GetMinSpatialDimension()
 {
   return vtkStructuredData::GetDataDimension(this->DataDescription);
 }
