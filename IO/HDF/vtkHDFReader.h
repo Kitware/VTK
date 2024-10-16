@@ -281,7 +281,7 @@ protected:
   /**
    * Temporal data properties
    */
-  VTK_DEPRECATED_IN_9_4_0("Use Get/Set TemporalData methods instead.")
+  // VTK_DEPRECATED_IN_9_4_0( )
   bool HasTransientData = false;
   vtkIdType Step = 0;
   vtkIdType NumberOfSteps = 1;
@@ -312,8 +312,6 @@ private:
    *
    * Useful to set privatly the deprecate UseTransientData variable to true when it's needed.
    */
-  VTK_DEPRECATED_IN_9_4_0("Use UseTemporalData directly; the purpose of this setter was to set "
-                          "the deprecated field HasTransientData.")
   void SetHasTemporalData(bool useTemporalData);
 
   /**
