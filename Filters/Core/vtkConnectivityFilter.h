@@ -39,7 +39,7 @@
  * or number of cells.
  *
  * @sa
- * vtkPolyDataConnectivityFilter
+ * vtkPolyDataConnectivityFilter, vtkGenerateRegionIds
  */
 
 #ifndef vtkConnectivityFilter_h

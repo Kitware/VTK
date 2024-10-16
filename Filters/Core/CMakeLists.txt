@@ -58,6 +58,7 @@ set(classes
   vtkFlyingEdges3D
   vtkFlyingEdgesPlaneCutter
   vtkGenerateIds
+  vtkGenerateRegionIds
   vtkGlyph2D
   vtkGlyph3D
   vtkGridSynchronizedTemplates3D
