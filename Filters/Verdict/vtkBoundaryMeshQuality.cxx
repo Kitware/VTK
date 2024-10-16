@@ -52,53 +52,6 @@ int vtkBoundaryMeshQuality::FillInputPortInformation(int vtkNotUsed(port), vtkIn
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkExplicitStructuredGrid");
   return 1;
 }
-
-//----------------------------------------------------------------------------
-struct HasNon3DCellsFunctor
-{
-  vtkUnstructuredGridBase* InputUG;
-  vtkSMPThreadLocal<unsigned char> TLHasNon3DCells;
-
-  bool HasNon3DCells = false;
-
-  HasNon3DCellsFunctor(vtkUnstructuredGridBase* inputUG)
-    : InputUG(inputUG)
-  {
-  }
-
-  void Initialize() { this->TLHasNon3DCells.Local() = false; }
-
-  void operator()(vtkIdType begin, vtkIdType end)
-  {
-    auto& hasNon3DCellsLocal = this->TLHasNon3DCells.Local();
-    if (hasNon3DCellsLocal)
-    {
-      return;
-    }
-    for (vtkIdType cellId = begin; cellId < end && !hasNon3DCellsLocal; ++cellId)
-    {
-      const auto cellType = static_cast<unsigned char>(this->InputUG->GetCellType(cellId));
-      if (vtkCellTypes::GetDimension(cellType) < 3)
-      {
-        hasNon3DCellsLocal = true;
-        break;
-      }
-    }
-  }
-
-  void Reduce()
-  {
-    for (auto& hasNon3DCellsLocal : this->TLHasNon3DCells)
-    {
-      if (hasNon3DCellsLocal)
-      {
-        this->HasNon3DCells = true;
-        break;
-      }
-    }
-  }
-};
-
 //----------------------------------------------------------------------------
 int vtkBoundaryMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -114,9 +67,7 @@ int vtkBoundaryMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   if (inputUG)
   {
     // check if it has non 3d elements
-    HasNon3DCellsFunctor hasNon3DCellsFunctor(inputUG);
-    vtkSMPTools::For(0, inputUG->GetNumberOfCells(), hasNon3DCellsFunctor);
-    if (hasNon3DCellsFunctor.HasNon3DCells)
+    if (inputUG->GetMinSpatialDimension() < 3)
     {
       vtkErrorMacro("Input unstructured grid has non 3D cells.");
       return 1;
