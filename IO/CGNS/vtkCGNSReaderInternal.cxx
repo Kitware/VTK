@@ -880,14 +880,15 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
   {
     char message[81];
     cgio_error_message(message);
-    std::cerr << "Error loading CGNS file with cgio_file_open: " << message;
+    vtkErrorWithObjectMacro(nullptr, "Error loading CGNS file with cgio_file_open: " << message);
     return false;
   }
   if (cgio_get_root_id(cgioNum, &rootId) != CG_OK)
   {
     char message[81];
     cgio_error_message(message);
-    std::cerr << "Error accessing CGNS root node with cgio_get_root_id: " << message;
+    vtkErrorWithObjectMacro(
+      nullptr, "Error accessing CGNS root node with cgio_get_root_id: " << message);
     return false;
   }
 
