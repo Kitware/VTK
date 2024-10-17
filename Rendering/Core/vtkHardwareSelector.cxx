@@ -452,7 +452,7 @@ bool vtkHardwareSelector::PassRequired(int pass)
 {
   if (this->ActorPassOnly)
   {
-    return (pass == ACTOR_PASS);
+    return (pass == ACTOR_PASS) && (this->Iteration == 0);
   }
 
   switch (pass)
