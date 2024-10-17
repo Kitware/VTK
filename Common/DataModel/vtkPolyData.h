@@ -155,11 +155,14 @@ public:
    */
   int GetMaxCellSize() override;
 
+  ///@{
   /**
-   * Get the maximum spatial dimensionality of the data
-   * which is the maximum dimension of all cells.
+   * Get the maximum/minimum spatial dimensionality of the data
+   * which is the maximum/minimum  dimension of all cells.
    */
   int GetMaxSpatialDimension() override;
+  int GetMinSpatialDimension() override;
+  ///@}
 
   /**
    * Maps the cell at position `cellId` inside the `vtkPolyData` to its location in the

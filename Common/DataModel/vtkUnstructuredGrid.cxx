@@ -430,6 +430,21 @@ int vtkUnstructuredGrid::GetMaxSpatialDimension()
 }
 
 //------------------------------------------------------------------------------
+int vtkUnstructuredGrid::GetMinSpatialDimension()
+{
+  if (auto cellTypes = this->GetDistinctCellTypesArray())
+  {
+    int minDim = 3;
+    for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
+    {
+      minDim = std::min(minDim, vtkCellTypes::GetDimension(cellTypes->GetValue(i)));
+    }
+    return minDim;
+  }
+  return 3;
+}
+
+//------------------------------------------------------------------------------
 vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 {
   vtkDebugMacro(<< "NUMBER OF CELLS = "

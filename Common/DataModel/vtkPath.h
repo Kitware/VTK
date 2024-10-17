@@ -95,11 +95,14 @@ public:
    */
   int GetMaxCellSize() override { return 0; }
 
+  ///@{
   /**
-   * Get the maximum spatial dimensionality of the data
-   * which is the maximum dimension of all cells.
+   * Get the maximum/minimum spatial dimensionality of the data
+   * which is the maximum/minimum dimension of all cells.
    */
   int GetMaxSpatialDimension() override { return 0; }
+  int GetMinSpatialDimension() override { return 0; }
+  ///@}
 
   /**
    * Method allocates initial storage for points. Use this method before the

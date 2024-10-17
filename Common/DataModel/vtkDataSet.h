@@ -390,14 +390,17 @@ public:
    */
   virtual int GetMaxCellSize() = 0;
 
+  ///@{
   /**
-   * Get the maximum spatial dimensionality of the data
-   * which is the maximum dimension of all cells.
+   * Get the maximum/minimum spatial dimensionality of the data
+   * which is the maximum/minimum dimension of all cells.
    *
    * @warning This method MUST be overridden for performance reasons.
    * Default implementation is very inefficient.
    */
   virtual int GetMaxSpatialDimension();
+  virtual int GetMinSpatialDimension();
+  ///@}
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number

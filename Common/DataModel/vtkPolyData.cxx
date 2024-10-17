@@ -632,6 +632,33 @@ int vtkPolyData::GetMaxSpatialDimension()
 }
 
 //------------------------------------------------------------------------------
+int vtkPolyData::GetMinSpatialDimension()
+{
+  int minDim = 3;
+
+  if (this->Verts && this->Verts->GetNumberOfCells() > 0)
+  {
+    minDim = std::min(minDim, 0);
+  }
+
+  if (this->Lines && this->Lines->GetNumberOfCells() > 0)
+  {
+    minDim = std::min(minDim, 1);
+  }
+
+  if (this->Polys && this->Polys->GetNumberOfCells() > 0)
+  {
+    minDim = std::min(minDim, 2);
+  }
+
+  if (this->Strips && this->Strips->GetNumberOfCells() > 0)
+  {
+    minDim = std::min(minDim, 2);
+  }
+  return minDim;
+}
+
+//------------------------------------------------------------------------------
 bool vtkPolyData::AllocateEstimate(vtkIdType numCells, vtkIdType maxCellSize)
 {
   return this->AllocateExact(numCells, numCells * maxCellSize);

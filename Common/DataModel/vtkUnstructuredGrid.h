@@ -218,11 +218,14 @@ public:
    */
   int GetMaxCellSize() override;
 
+  ///@{
   /**
-   * Get the maximum spatial dimensionality of the data
-   * which is the maximum dimension of all cells.
+   * Get the maximum/minimum spatial dimensionality of the data
+   * which is the maximum/minimum dimension of all cells.
    */
   int GetMaxSpatialDimension() override;
+  int GetMinSpatialDimension() override;
+  ///@}
 
   /**
    * Build topological links from points to lists of cells that use each point.
