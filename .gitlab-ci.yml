@@ -163,7 +163,7 @@ fedora39-cuda-mpi:build:
         - .fedora39_cuda_mpi
         - .cmake_build_linux
         - .cmake_build_artifacts
-        - .linux_cuda_builder_tags
+        - .linux_builder_tags
         - .run_manually
     variables:
         CTEST_MAX_PARALLELISM: 4
