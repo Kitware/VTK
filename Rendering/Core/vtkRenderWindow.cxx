@@ -34,6 +34,7 @@ vtkObjectFactoryNewMacro(vtkRenderWindow);
 vtkRenderWindow::vtkRenderWindow()
 {
   this->Borders = 1;
+  this->Coverable = 0;
   this->FullScreen = 0;
   this->OldScreen[0] = this->OldScreen[1] = 0;
   this->OldScreen[2] = this->OldScreen[3] = 300;
@@ -362,6 +363,13 @@ void vtkRenderWindow::SetStereoType(int stereoType)
 }
 
 //------------------------------------------------------------------------------
+void vtkRenderWindow::SetCoverable(vtkTypeBool coverable)
+{
+  vtkWarningMacro(<< "SetCoverable(" << coverable << ") is unsupported for "
+                  << this->GetClassName());
+}
+
+//------------------------------------------------------------------------------
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
@@ -578,6 +586,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Borders: " << (this->Borders ? "On\n" : "Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n" : "Off\n");
+  os << indent << "Coverable: " << (this->Coverable ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n" : "Off\n");
   os << indent << "Renderers:\n";
   this->Renderers->PrintSelf(os, indent.GetNextIndent());
