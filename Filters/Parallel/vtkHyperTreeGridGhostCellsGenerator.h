@@ -54,6 +54,13 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
+   * Override RequestData, to make sure every HTG piece can be processed, hence avoiding that one
+   * rank waits for the others which will actually never enter the filter.
+   */
+  int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector) override;
+
+  /**
    * Main routine to generate ghost cells using information
    * from the neighboring HTGs.
    */
