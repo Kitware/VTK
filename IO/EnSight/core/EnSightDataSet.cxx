@@ -14,11 +14,8 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkLogger.h"
-#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -35,9 +32,9 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <algorithm>
 #include <vtksys/SystemTools.hxx>
 
+#include <algorithm>
 #include <cstdlib>
 #include <numeric>
 #include <regex>
@@ -430,19 +427,6 @@ void readFileValues(const std::string& filename, std::vector<T>& values)
 
   readFileValues(file, values);
 }
-
-// Push back `newId` in `ids` if it does not already contain it
-void pushBackUnique(std::vector<vtkIdType>& ids, vtkIdType newId)
-{
-  for (const auto& existingId : ids)
-  {
-    if (existingId == newId)
-    {
-      return;
-    }
-  }
-  ids.push_back(newId);
-};
 
 } // end anon namespace
 
@@ -1063,6 +1047,7 @@ bool EnSightDataSet::ReadGeometry(vtkPartitionedDataSetCollection* output,
       vtkGenericWarningMacro("Part Id " << partId << " could not be found in PartInfoMap");
       return false;
     }
+
     auto& partInfo = it->second;
 
     result = this->GeometryFile.ReadNextLine(); // part description line
@@ -2763,9 +2748,6 @@ void EnSightDataSet::ReadNSidedSection(int& numElements, vtkUnstructuredGrid* ou
 //------------------------------------------------------------------------------
 void EnSightDataSet::SkipNFacedSection(int& numElements)
 {
-  vtkLogScopeFunction(TRACE);
-
-  // Number of elements
   this->GeometryFile.ReadNumber(&numElements);
 
   // (optional) Element IDs
@@ -2778,8 +2760,8 @@ void EnSightDataSet::SkipNFacedSection(int& numElements)
   std::vector<int> numFacesPerElement(numElements, 0);
   this->GeometryFile.ReadArray(numFacesPerElement.data(), numElements);
 
-  vtkIdType totalNumFaces =
-    std::accumulate(numFacesPerElement.begin(), numFacesPerElement.end(), 0);
+  vtkIdType totalNumFaces = std::accumulate(
+    numFacesPerElement.begin(), numFacesPerElement.end(), static_cast<vtkIdType>(0));
 
   if (this->GeometryFile.Format == FileType::ASCII)
   {
@@ -2795,8 +2777,8 @@ void EnSightDataSet::SkipNFacedSection(int& numElements)
     std::vector<int> numNodesPerFacePerElement(totalNumFaces);
     this->GeometryFile.ReadArray(numNodesPerFacePerElement.data(), totalNumFaces);
 
-    vtkIdType totalNumNodes =
-      std::accumulate(numNodesPerFacePerElement.begin(), numNodesPerFacePerElement.end(), 0);
+    vtkIdType totalNumNodes = std::accumulate(numNodesPerFacePerElement.begin(),
+      numNodesPerFacePerElement.end(), static_cast<vtkIdType>(0));
 
     this->GeometryFile.SkipNNumbers<int>(totalNumNodes);
   }
@@ -2815,8 +2797,9 @@ void EnSightDataSet::SkipNSidedSection(int& numElements)
   if (this->GeometryFile.Format == FileType::ASCII)
   {
     // Skip 2 lines per element: number of nodes, node numbers for this element
-    for (int elementIdx = 0; elementIdx < numElements * 2; ++elementIdx)
+    for (int elementIdx = 0; elementIdx < numElements; ++elementIdx)
     {
+      this->GeometryFile.SkipLine();
       this->GeometryFile.SkipLine();
     }
   }
@@ -2825,8 +2808,8 @@ void EnSightDataSet::SkipNSidedSection(int& numElements)
     std::vector<int> numNodesPerElement(numElements);
     this->GeometryFile.ReadArray(numNodesPerElement.data(), numElements);
 
-    vtkIdType totalNumNodes =
-      std::accumulate(numNodesPerElement.begin(), numNodesPerElement.end(), 0);
+    vtkIdType totalNumNodes = std::accumulate(
+      numNodesPerElement.begin(), numNodesPerElement.end(), static_cast<vtkIdType>(0));
     this->GeometryFile.SkipNNumbers<int>(totalNumNodes);
   }
 }
@@ -2850,60 +2833,90 @@ void EnSightDataSet::ReadNFacedSection(int& numElements, vtkUnstructuredGrid* ou
   this->GeometryFile.ReadArray(numFacesPerElement.data(), numElements);
 
   // Read the whole block in one go
-  vtkIdType totalNumFaces =
-    std::accumulate(numFacesPerElement.begin(), numFacesPerElement.end(), 0);
+  vtkIdType totalNumFaces = std::accumulate(
+    numFacesPerElement.begin(), numFacesPerElement.end(), static_cast<vtkIdType>(0));
 
   std::vector<int> numNodesPerFacePerElement(totalNumFaces);
   this->GeometryFile.ReadArray(numNodesPerFacePerElement.data(), totalNumFaces);
 
-  vtkIdType totalNumNodes =
-    std::accumulate(numNodesPerFacePerElement.begin(), numNodesPerFacePerElement.end(), 0);
-
+  vtkIdType totalNumNodes = std::accumulate(
+    numNodesPerFacePerElement.begin(), numNodesPerFacePerElement.end(), static_cast<vtkIdType>(0));
   std::vector<int> faceNodesBuffer(totalNumNodes);
-  this->GeometryFile.ReadArray(faceNodesBuffer.data(), totalNumNodes);
+
+  vtkIdType offset = 0;
+  for (vtkIdType i = 0; i < totalNumFaces; ++i)
+  {
+    this->GeometryFile.ReadArray(
+      faceNodesBuffer.data() + offset, numNodesPerFacePerElement[i], true);
+    offset += numNodesPerFacePerElement[i];
+  }
 
   // Now build the actual cells
   auto cellInfo = getVTKCellType(ElementType::NFaced);
 
   auto numNodesInFaceIt = numNodesPerFacePerElement.begin();
   auto nodeIt = faceNodesBuffer.begin();
+
+  // Break through all loops if numNodesInFaceIt or nodeIt reach the end of vector
+  bool endReached = false;
+  vtkNew<vtkCellArray> faceStream;
+
   for (int elemIdx = 0; elemIdx < numElements; elemIdx++)
   {
     const int numFacesInElement = numFacesPerElement[elemIdx];
     /// @note: we could save that value from the earlier "total" computation. It's not significant
     // compared to the read time though
-    const vtkIdType numNodesInElement =
-      std::accumulate(numNodesInFaceIt, numNodesInFaceIt + numFacesInElement, 0);
+    const vtkIdType numNodesInElement = std::accumulate(
+      numNodesInFaceIt, numNodesInFaceIt + numFacesInElement, static_cast<vtkIdType>(0));
 
     std::vector<vtkIdType> uniqueCellIDs;
     uniqueCellIDs.reserve(numNodesInElement);
 
-    std::vector<vtkIdType> faceStream;
-    faceStream.reserve(numFacesInElement + numNodesInElement);
+    faceStream->Reset();
+    faceStream->AllocateExact(numFacesInElement, numNodesInElement);
 
     for (int faceIdx = 0; faceIdx < numFacesInElement; ++faceIdx)
     {
       const int numNodesInFace = *numNodesInFaceIt;
-      faceStream.push_back(numNodesInFace);
+      faceStream->InsertNextCell(numNodesInFace);
 
       for (int i = 0; i < numNodesInFace; ++i)
       {
         vtkIdType correctedId = (*nodeIt) - 1; // Ensight node IDs are 1-based
-        faceStream.push_back(correctedId);
+        faceStream->InsertCellPoint(correctedId);
 
         /// @note: We use an unsorted, unique vector instead of a set because:
         // 1) This is a per-cell unique point list; we expect it to be relatively small
         // 2) It allows us to use the insertNextCell call below which expects a contiguous container
-        pushBackUnique(uniqueCellIDs, correctedId);
-        nodeIt++;
+        if (std::find(uniqueCellIDs.begin(), uniqueCellIDs.end(), correctedId) ==
+          std::end(uniqueCellIDs))
+        {
+          uniqueCellIDs.push_back(correctedId);
+        }
+
+        ++nodeIt;
+        if (nodeIt == faceNodesBuffer.end())
+        {
+          endReached = true;
+          break;
+        }
       }
-      numNodesInFaceIt++;
+      ++numNodesInFaceIt;
+      if (endReached || numNodesInFaceIt == numNodesPerFacePerElement.end())
+      {
+        endReached = true;
+        break;
+      }
     }
 
     if (output)
     {
-      output->InsertNextCell(cellInfo.first, uniqueCellIDs.size(), uniqueCellIDs.data(),
-        numFacesInElement, faceStream.data());
+      output->InsertNextCell(
+        cellInfo.first, uniqueCellIDs.size(), uniqueCellIDs.data(), faceStream);
+    }
+    if (endReached)
+    {
+      break;
     }
   }
 }

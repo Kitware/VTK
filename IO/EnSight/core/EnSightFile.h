@@ -9,7 +9,7 @@
 #include "vtksys/FStream.hxx"
 
 #include <cassert>
-#include <limits> // For std::numeric_limits
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -263,7 +263,7 @@ void EnSightFile::SkipNNumbers(vtkIdType n, int numsPerLine /* = 1 */)
     //  for float, 12 characters total
     //  there's also white space allowed between numbers
     int size = getNumChars<T>() * numsPerLine + 10 * numsPerLine;
-    int lineIdx = 0;
+    vtkIdType lineIdx = 0;
     while (lineIdx < n)
     {
       auto result = this->ReadLine(size);
