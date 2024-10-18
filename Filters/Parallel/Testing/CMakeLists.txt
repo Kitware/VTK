@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/AMR/htg3d.htg
   Data/RectGrid2.vtk
   Data/SampleStructGrid.vtk
   Data/ironProt.vtk

@@ -6,13 +6,14 @@
 #include "vtkHyperTreeGridGenerateGlobalIds.h"
 #include "vtkHyperTreeGridGhostCellsGenerator.h"
 #include "vtkHyperTreeGridSource.h"
+#include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
-
-#include "vtkLogger.h"
+#include "vtkXMLHyperTreeGridReader.h"
 
 namespace
 {
@@ -348,6 +349,47 @@ int TestGhostNullPart(vtkMPIController* controller)
 
   return ret;
 }
+
+/**
+ * Make sure the Ghost Cells filter behaves correctly when given a non-distributed input, such as a
+ * HTG read from a .htg file. No ghost cells should be generated in that case
+ */
+int TestGhostSinglePiece(vtkMPIController* controller, const std::string& filename)
+{
+  int ret = EXIT_SUCCESS;
+
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // Read HTG From file
+  vtkNew<vtkXMLHyperTreeGridReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
+
+  // Create GCG
+  vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
+  generator->SetDebug(true);
+  generator->SetInputConnection(reader->GetOutputPort());
+  vtkSmartPointer<vtkHyperTreeGrid> htgGhosted(generator->GetHyperTreeGridOutput());
+  vtkSmartPointer<vtkHyperTreeGrid> htgRead(
+    vtkHyperTreeGrid::SafeDownCast(reader->GetOutputDataObject(0)));
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  vtkIdType nbCellsBefore = htgRead->GetNumberOfCells();
+  vtkIdType nbCellsAfter = htgGhosted->GetNumberOfCells();
+  if (nbCellsAfter != nbCellsBefore)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
+                                     << myRank << ". Has " << nbCellsAfter << " but expect "
+                                     << nbCellsBefore);
+    ret = EXIT_FAILURE;
+  }
+  return ret;
+}
 }
 
 /**
@@ -376,11 +418,14 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   threadName += std::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
+  std::string htgFileName{ vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/htg3d.htg") };
+
   // Run actual tests
   ret |= ::TestGhostCellFields(controller);
   ret |= ::TestGhostMasking(controller);
   ret |= ::TestGhost2D(controller);
   ret |= ::TestGhostNullPart(controller);
+  ret |= ::TestGhostSinglePiece(controller, htgFileName);
 
   controller->Finalize();
   return ret;
