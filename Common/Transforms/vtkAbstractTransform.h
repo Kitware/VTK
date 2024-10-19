@@ -293,6 +293,11 @@ public:
   vtkMTimeType GetMTime() override;
 
   /**
+   * Override Modified to avoid ModifiedEvent during update.
+   */
+  void Modified() override;
+
+  /**
    * Needs a special UnRegister() implementation to avoid
    * circular references.
    */
