@@ -212,16 +212,10 @@ void vtkXWebGPURenderWindow::CreateAWindow()
   xsh.height = height;
 
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    this->OwnDisplay = 1;
+    vtkErrorMacro(<< "Aborting in CreateAWindow(), no Display\n");
+    abort();
   }
 
   attr.override_redirect = False;
@@ -688,19 +682,11 @@ vtkTypeBool vtkXWebGPURenderWindow::GetEventPending()
 int* vtkXWebGPURenderWindow::GetScreenSize()
 {
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
+    this->ScreenSize[0] = 0;
+    this->ScreenSize[1] = 0;
+    return this->ScreenSize;
   }
 
   this->ScreenSize[0] = XDisplayWidth(this->DisplayId, XDefaultScreen(this->DisplayId));
@@ -741,6 +727,26 @@ Display* vtkXWebGPURenderWindow::GetDisplayId()
   vtkDebugMacro(<< "Returning DisplayId of " << static_cast<void*>(this->DisplayId) << "\n");
 
   return this->DisplayId;
+}
+
+//------------------------------------------------------------------------------------------------
+bool vtkXWebGPURenderWindow::EnsureDisplay()
+{
+  if (!this->DisplayId)
+  {
+    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
+    if (this->DisplayId == nullptr)
+    {
+      vtkWarningMacro(<< "bad X server connection. DISPLAY="
+                      << vtksys::SystemTools::GetEnv("DISPLAY"));
+    }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
+
+  return this->DisplayId != nullptr;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -807,24 +813,10 @@ void vtkXWebGPURenderWindow::SetWindowId(Window arg)
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkXWebGPURenderWindow::SetWindowInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
 
   this->SetWindowId(static_cast<Window>(tmp));
@@ -844,24 +836,10 @@ void vtkXWebGPURenderWindow::SetNextWindowInfo(const char* info)
 // Sets the X window id of the window that WILL BE created.
 void vtkXWebGPURenderWindow::SetParentInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
 
   this->SetParentId(static_cast<Window>(tmp));

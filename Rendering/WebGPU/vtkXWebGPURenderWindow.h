@@ -138,6 +138,11 @@ public:
    */
   Display* GetDisplayId();
 
+  /**
+   * Ensure RenderWindow's X display is opened
+   */
+  bool EnsureDisplay() override;
+
   ///@{
   /**
    * Set the X display id for this RenderWindow to use to a pre-existing
