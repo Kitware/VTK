@@ -21,10 +21,12 @@
 #ifndef vtkAnariPass_h
 #define vtkAnariPass_h
 
-#include "vtkAnariRendererManager.h"
 #include "vtkNew.h" // For vtkNew
 #include "vtkRenderPass.h"
 #include "vtkRenderingAnariModule.h" // For export macro
+
+#include "vtkAnariDeviceManager.h"
+#include "vtkAnariRendererManager.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -39,9 +41,7 @@ class vtkSequencePass;
 class vtkVolumetricPass;
 class vtkViewNodeFactory;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariPass
-  : public vtkRenderPass
-  , public vtkAnariRendererManager
+class VTKRENDERINGANARI_EXPORT vtkAnariPass : public vtkRenderPass
 {
 public:
   static vtkAnariPass* New();
@@ -49,7 +49,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Perform rendering according to a render state s.
+   * Perform rendering according to a render state.
    */
   virtual void Render(const vtkRenderState* s) override;
 
@@ -59,6 +59,18 @@ public:
    */
   vtkGetObjectMacro(SceneGraph, vtkAnariRendererNode);
   //@}
+
+  /**
+   * Get the managing class of the ANARI device for queries or make changes.
+   */
+  vtkAnariDeviceManager& GetAnariDeviceManager();
+
+  /**
+   * Get the managing class of the ANARI renderer to query or make changes. Note
+   * that this will not do anything unless the device has been initialized in
+   * the device manager.
+   */
+  vtkAnariRendererManager& GetAnariRendererManager();
 
 private:
   /**
@@ -75,11 +87,6 @@ private:
    * Tells the pass what it will render.
    */
   void SetSceneGraph(vtkAnariRendererNode*);
-
-  /**
-   * Handle a new renderer getting set by the application
-   */
-  void OnNewRenderer() override;
 
   vtkAnariRendererNode* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;

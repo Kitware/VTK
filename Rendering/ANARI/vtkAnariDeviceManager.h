@@ -13,17 +13,26 @@
 #ifndef vtkAnariDeviceManager_h
 #define vtkAnariDeviceManager_h
 
+#include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include <anari/anari_cpp.hpp> // for external getter/setters
+#include <anari/anari_cpp.hpp> // for ANARI handles
+
+#include <functional>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariDeviceManagerInternals;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariDeviceManager
+class VTKRENDERINGANARI_EXPORT vtkAnariDeviceManager : public vtkObject
 {
 public:
+  using OnNewDeviceCallback = std::function<void(anari::Device)>;
+
+  static vtkAnariDeviceManager* New();
+  vtkTypeMacro(vtkAnariDeviceManager, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   /**
    * Setup the trace directory and trace mode strings for the debug device for
    * when SetupAnariDeviceFromLibrary() is called. Once the Anari device is
@@ -55,6 +64,11 @@ public:
    */
   const anari::Extensions& GetAnariDeviceExtensions() const;
 
+  /**
+   * Set a callback that gets called whenever a new device has been created
+   */
+  void SetOnNewDeviceCallback(OnNewDeviceCallback&& cb);
+
 protected:
   /**
    * Default constructor.
@@ -66,18 +80,10 @@ protected:
    */
   virtual ~vtkAnariDeviceManager();
 
-  /**
-   * Signal child classes that a new device was created so they can respond
-   * accordingly (e.g. release old handles). This only gets called when
-   * SetupAnariDeviceFromLibrary() causes a new device to get created.
-   */
-  virtual void OnNewDevice();
-
 private:
   vtkAnariDeviceManager(const vtkAnariDeviceManager&) = delete;
   void operator=(const vtkAnariDeviceManager&) = delete;
 
-  friend class vtkAnariDeviceManagerInternals;
   vtkAnariDeviceManagerInternals* Internal{ nullptr };
 };
 

@@ -675,13 +675,19 @@ vtkRenderer* vtkAnariRendererNode::GetRenderer()
 }
 
 //------------------------------------------------------------------------------
-anari::Device vtkAnariRendererNode::GetAnariDevice()
+anari::Device vtkAnariRendererNode::GetAnariDevice() const
 {
   return this->Internal->AnariDevice;
 }
 
 //------------------------------------------------------------------------------
-const anari::Extensions& vtkAnariRendererNode::GetAnariDeviceExtensions()
+anari::Renderer vtkAnariRendererNode::GetAnariRenderer() const
+{
+  return this->Internal->AnariRenderer;
+}
+
+//------------------------------------------------------------------------------
+const anari::Extensions& vtkAnariRendererNode::GetAnariDeviceExtensions() const
 {
   return this->Internal->AnariExtensions;
 }

@@ -72,17 +72,18 @@ int TestAnariRendererType(int argc, char* argv[])
 
   SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
 
+  auto& rm = anariPass->GetAnariRendererManager();
   for (int i = 1; i < 9; i++)
   {
     if (i % 2)
     {
       cerr << "Render via default" << endl;
-      anariPass->SetAnariRendererSubtype("default");
+      rm.SetAnariRendererSubtype("default");
     }
     else
     {
       cerr << "Render via raycast" << endl;
-      anariPass->SetAnariRendererSubtype("raycast");
+      rm.SetAnariRendererSubtype("raycast");
     }
 
     renWin->Render();

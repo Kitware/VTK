@@ -130,12 +130,17 @@ public:
    * Get the ANARI back-end device. A device is an object which provides the
    * implementation of all ANARI API calls outside of libraries.
    */
-  anari::Device GetAnariDevice();
+  anari::Device GetAnariDevice() const;
+
+  /**
+   * Get the currently set ANARI renderer.
+   */
+  anari::Renderer GetAnariRenderer() const;
 
   /**
    * Get the extensions supported by the current back-end device.
    */
-  const anari::Extensions& GetAnariDeviceExtensions();
+  const anari::Extensions& GetAnariDeviceExtensions() const;
   //@}
 
   /**

@@ -5,7 +5,6 @@
 #include "vtkAnariProfiling.h"
 
 #include "vtkLogger.h"
-#include "vtkObject.h"
 #include "vtkObjectFactory.h"
 
 #include <anari/anari_cpp/ext/std.h>
@@ -32,8 +31,6 @@ public:
   template <typename T>
   void SetRendererParameter(const char* p, const T& v);
 
-  vtkAnariRendererManager* Parent{ nullptr };
-
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
   std::string AnariRendererSubtype;
@@ -43,6 +40,8 @@ public:
 vtkAnariRendererManagerInternals::~vtkAnariRendererManagerInternals()
 {
   CleanupAnariObjects();
+  anari::release(this->AnariDevice, this->AnariDevice);
+  this->AnariDevice = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -51,6 +50,7 @@ void vtkAnariRendererManagerInternals::CleanupAnariObjects()
   if (this->AnariDevice)
   {
     anari::release(this->AnariDevice, this->AnariRenderer);
+    this->AnariRenderer = nullptr;
     this->AnariRendererSubtype.clear();
   }
 }
@@ -73,6 +73,40 @@ vtkStandardNewMacro(vtkAnariRendererManagerInternals);
 
 //============================================================================
 
+// ----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkAnariRendererManager);
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererManager::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariRendererManager::SetAnariDevice(anari::Device d)
+{
+  if (d == GetAnariDevice())
+  {
+    return;
+  }
+
+  this->Internal->CleanupAnariObjects();
+
+  if (this->Internal->AnariDevice)
+  {
+    anari::release(this->Internal->AnariDevice, this->Internal->AnariDevice);
+  }
+
+  this->Internal->AnariDevice = d;
+  anari::retain(d, d);
+  this->SetAnariRendererSubtype();
+}
+
+anari::Device vtkAnariRendererManager::GetAnariDevice() const
+{
+  return this->Internal->AnariDevice;
+}
+
 //----------------------------------------------------------------------------
 void vtkAnariRendererManager::SetAnariRendererSubtype(const char* subtype)
 {
@@ -81,15 +115,12 @@ void vtkAnariRendererManager::SetAnariRendererSubtype(const char* subtype)
     return;
   }
 
-  this->Internal->CleanupAnariObjects();
-
-  if (!this->AnariInitialized())
+  if (!this->Internal->AnariDevice)
   {
-    if (!SetupAnariDeviceFromLibrary("environment", "default"))
-    {
-      return;
-    }
+    return;
   }
+
+  this->Internal->CleanupAnariObjects();
 
   anari::Renderer renderer = anari::newObject<anari::Renderer>(this->GetAnariDevice(), subtype);
   if (!renderer)
@@ -100,8 +131,6 @@ void vtkAnariRendererManager::SetAnariRendererSubtype(const char* subtype)
 
   this->Internal->AnariRenderer = renderer;
   this->Internal->AnariRendererSubtype = subtype;
-
-  this->OnNewRenderer();
 }
 
 const char* vtkAnariRendererManager::GetAnariRendererSubtype() const
@@ -176,7 +205,6 @@ anari::Renderer vtkAnariRendererManager::GetAnariRenderer() const
 vtkAnariRendererManager::vtkAnariRendererManager()
 {
   this->Internal = vtkAnariRendererManagerInternals::New();
-  this->Internal->Parent = this;
 }
 
 // ----------------------------------------------------------------------------
@@ -184,20 +212,6 @@ vtkAnariRendererManager::~vtkAnariRendererManager()
 {
   this->Internal->Delete();
   this->Internal = nullptr;
-}
-
-// ----------------------------------------------------------------------------
-void vtkAnariRendererManager::OnNewDevice()
-{
-  this->Internal->CleanupAnariObjects();
-  this->Internal->AnariDevice = this->GetAnariDevice();
-  this->SetAnariRendererSubtype();
-}
-
-// ----------------------------------------------------------------------------
-void vtkAnariRendererManager::OnNewRenderer()
-{
-  // no-op
 }
 
 VTK_ABI_NAMESPACE_END

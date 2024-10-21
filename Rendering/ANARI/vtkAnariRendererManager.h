@@ -15,16 +15,25 @@
 #ifndef vtkAnariRendererManager_h
 #define vtkAnariRendererManager_h
 
-#include "vtkAnariDeviceManager.h"
+#include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
+
+#include <anari/anari_cpp.hpp> // for ANARI handles
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariRendererManagerInternals;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariRendererManager : public vtkAnariDeviceManager
+class VTKRENDERINGANARI_EXPORT vtkAnariRendererManager : public vtkObject
 {
 public:
+  static vtkAnariRendererManager* New();
+  vtkTypeMacro(vtkAnariRendererManager, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void SetAnariDevice(anari::Device d);
+  anari::Device GetAnariDevice() const;
+
   /**
    * Set the underlying subtype of the anari::Renderer. When a different subtype
    * is passed from what was already in-use, a new anari::Renderer handle will
@@ -76,25 +85,12 @@ protected:
    */
   virtual ~vtkAnariRendererManager();
 
-  /**
-   * Respond to a new device being set as the device in-use.
-   */
-  void OnNewDevice() override;
-
-  /**
-   * Signal child classes that a new renderer was created so they can respond
-   * accordingly (e.g. release old handles). This only gets called when
-   * SetAnariRendererSubtype() causes a new renderer to get created.
-   */
-  virtual void OnNewRenderer();
-
 private:
   void CheckAnariDeviceInitialized();
 
   vtkAnariRendererManager(const vtkAnariRendererManager&) = delete;
   void operator=(const vtkAnariRendererManager&) = delete;
 
-  friend class vtkAnariRendererManagerInternals;
   vtkAnariRendererManagerInternals* Internal{ nullptr };
 };
 

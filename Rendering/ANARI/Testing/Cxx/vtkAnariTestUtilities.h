@@ -4,10 +4,9 @@
 #ifndef vtkAnariTestUtilities_h
 #define vtkAnariTestUtilities_h
 
-#include "vtkAnariRendererManager.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariPass.h"
 
-void SetAnariRendererParameterDefaults(vtkAnariRendererManager* manager, vtkRenderer* renderer,
-  bool useDebugDevice, const char* testName);
+void SetAnariRendererParameterDefaults(
+  vtkAnariPass* manager, vtkRenderer* renderer, bool useDebugDevice, const char* testName);
 
 #endif

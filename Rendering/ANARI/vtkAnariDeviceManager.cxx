@@ -61,14 +61,12 @@ public:
   vtkTypeMacro(vtkAnariDeviceManagerInternals, vtkObject);
 
   vtkAnariDeviceManagerInternals() = default;
-  ~vtkAnariDeviceManagerInternals() = default;
+  ~vtkAnariDeviceManagerInternals() override = default;
 
   bool IsInitialized() const;
   bool InitAnari(bool useDebugDevice = false, const char* libraryName = "environment",
     const char* deviceName = "default");
   void CleanupAnariObjects();
-
-  vtkAnariDeviceManager* Parent{ nullptr };
 
   std::string AnariLibraryName;
   std::string AnariDeviceName;
@@ -78,6 +76,8 @@ public:
   anari::Library AnariLibrary{ nullptr };
   anari::Device AnariDevice{ nullptr };
   anari::Extensions AnariExtensions{};
+
+  vtkAnariDeviceManager::OnNewDeviceCallback NewDeviceCB;
 };
 
 // ----------------------------------------------------------------------------
@@ -187,7 +187,10 @@ bool vtkAnariDeviceManagerInternals::InitAnari(
   this->AnariDeviceName = deviceName;
   this->AnariDebugDeviceEnabled = useDebugDevice;
 
-  this->Parent->OnNewDevice();
+  if (this->NewDeviceCB)
+  {
+    this->NewDeviceCB(this->AnariDevice);
+  }
 
   return true;
 }
@@ -215,6 +218,17 @@ void vtkAnariDeviceManagerInternals::CleanupAnariObjects()
 
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAnariDeviceManagerInternals);
+
+//============================================================================
+
+// ----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkAnariDeviceManager);
+
+//----------------------------------------------------------------------------
+void vtkAnariDeviceManager::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
 
 // ----------------------------------------------------------------------------
 void vtkAnariDeviceManager::SetAnariDebugConfig(const char* traceDir, const char* traceMode)
@@ -249,10 +263,15 @@ const anari::Extensions& vtkAnariDeviceManager::GetAnariDeviceExtensions() const
 }
 
 // ----------------------------------------------------------------------------
+void vtkAnariDeviceManager::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
+{
+  this->Internal->NewDeviceCB = std::move(cb);
+}
+
+// ----------------------------------------------------------------------------
 vtkAnariDeviceManager::vtkAnariDeviceManager()
 {
   this->Internal = vtkAnariDeviceManagerInternals::New();
-  this->Internal->Parent = this;
 }
 
 // ----------------------------------------------------------------------------
@@ -260,12 +279,6 @@ vtkAnariDeviceManager::~vtkAnariDeviceManager()
 {
   this->Internal->Delete();
   this->Internal = nullptr;
-}
-
-// ----------------------------------------------------------------------------
-void vtkAnariDeviceManager::OnNewDevice()
-{
-  // no-op
 }
 
 VTK_ABI_NAMESPACE_END
