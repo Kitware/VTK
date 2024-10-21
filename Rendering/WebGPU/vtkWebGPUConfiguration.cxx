@@ -122,6 +122,12 @@ void vtkWebGPUConfiguration::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::SetDefaultTimeout(double t)
+{
+  vtkWebGPUConfigurationInternals::DefaultTimeout = t;
+}
+
+//------------------------------------------------------------------------------
 wgpu::Adapter vtkWebGPUConfiguration::GetAdapter()
 {
   return this->Internals->Adapter;
