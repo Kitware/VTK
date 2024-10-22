@@ -61,7 +61,7 @@ int TestAnariSphere(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariSphere");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariSphere");
 
   vtkNew<vtkAnariTestInteractor> style;
   iren->SetInteractorStyle(style);

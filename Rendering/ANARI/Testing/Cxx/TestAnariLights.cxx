@@ -201,9 +201,9 @@ int TestAnariLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
-  auto& rm = anariPass->GetAnariRendererManager();
-  rm.SetAnariRendererParameter("ambientRadiance", 0.2f);
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
+  auto& ar = anariPass->GetAnariRenderer();
+  ar.SetParameter("ambientRadiance", 0.2f);
 
   renWin->Render();
 

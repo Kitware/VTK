@@ -246,11 +246,11 @@ bool vtkAnariDevice::SetupAnariDeviceFromLibrary(
 // ----------------------------------------------------------------------------
 bool vtkAnariDevice::AnariInitialized() const
 {
-  return GetAnariDevice() != nullptr;
+  return this->GetHandle() != nullptr;
 }
 
 // ----------------------------------------------------------------------------
-anari::Device vtkAnariDevice::GetAnariDevice() const
+anari::Device vtkAnariDevice::GetHandle() const
 {
   return this->Internal->AnariDevice;
 }

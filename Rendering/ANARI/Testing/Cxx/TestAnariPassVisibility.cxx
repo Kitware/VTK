@@ -69,7 +69,7 @@ int TestAnariPassVisibility(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPassVisibility");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPassVisibility");
 
   for (int i = 1; i < 3; i++)
   {

@@ -106,9 +106,9 @@ int TestAnariCellData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
-  auto& rm = anariPass->GetAnariRendererManager();
-  rm.SetAnariRendererParameter("ambientRadiance", 0.5f);
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
+  auto& ar = anariPass->GetAnariRenderer();
+  ar.SetParameter("ambientRadiance", 0.5f);
 
   renWin->Render();
   ren->ResetCamera();

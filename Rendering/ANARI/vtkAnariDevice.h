@@ -18,7 +18,7 @@
 
 #include <anari/anari_cpp.hpp> // for ANARI handles
 
-#include <functional>
+#include <functional> // for std::function
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -57,7 +57,7 @@ public:
   /**
    * Get the current ANARI device, which will be NULL if not yet setup
    */
-  anari::Device GetAnariDevice() const;
+  anari::Device GetHandle() const;
 
   /**
    * Get the current ANARI device extensions, which will be empty if not yet setup

@@ -315,7 +315,7 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
 
     this->Internal->AnariRendererNode =
       static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-    auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+    auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
 
     if (!this->Internal->AnariDevice)
     {
@@ -454,7 +454,7 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     {
       this->Internal->AnariRendererNode =
         static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
-      auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+      auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
       anari::release(anariDevice, this->Internal->AnariVolume);
       this->Internal->AnariVolume = nullptr;
     }

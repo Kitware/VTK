@@ -70,20 +70,20 @@ int TestAnariRendererType(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
 
-  auto& rm = anariPass->GetAnariRendererManager();
+  auto& ar = anariPass->GetAnariRenderer();
   for (int i = 1; i < 9; i++)
   {
     if (i % 2)
     {
       cerr << "Render via default" << endl;
-      rm.SetAnariRendererSubtype("default");
+      ar.SetSubtype("default");
     }
     else
     {
       cerr << "Render via raycast" << endl;
-      rm.SetAnariRendererSubtype("raycast");
+      ar.SetSubtype("raycast");
     }
 
     renWin->Render();

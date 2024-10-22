@@ -108,7 +108,7 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
 
   renWin->Render();
   ren->ResetCamera();

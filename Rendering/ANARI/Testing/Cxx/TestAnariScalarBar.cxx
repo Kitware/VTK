@@ -94,7 +94,7 @@ int TestAnariScalarBar(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariScalarBar");
+  SetParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariScalarBar");
 
   renWin->Render();
 

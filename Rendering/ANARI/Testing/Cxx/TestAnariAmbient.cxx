@@ -56,7 +56,7 @@ int TestAnariAmbient(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariAmbient");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariAmbient");
 
   // Bunny data
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/bunny.ply");
@@ -73,14 +73,14 @@ int TestAnariAmbient(int argc, char* argv[])
   actor->SetMapper(mapper);
   renWin->SetSize(400, 400);
 
-  auto& rm = anariPass->GetAnariRendererManager();
+  auto& ar = anariPass->GetAnariRenderer();
   for (double i = 0.; i < 3.14; i += 0.1)
   {
-    rm.SetAnariRendererParameter("ambientRadiance", float(sin(i)));
+    ar.SetParameter("ambientRadiance", float(sin(i)));
     renWin->Render();
   }
 
-  rm.SetAnariRendererParameter("ambientRadiance", 0.2f);
+  ar.SetParameter("ambientRadiance", 0.2f);
   renWin->Render();
 
   int retVal = vtkTesting::PASSED;

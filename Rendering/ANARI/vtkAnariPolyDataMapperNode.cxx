@@ -221,7 +221,7 @@ void vtkAnariPolyDataMapperNodeInternals::ClearSurfaces()
     return;
   }
 
-  anari::Device anariDevice = this->AnariRendererNode->GetAnariDevice();
+  anari::Device anariDevice = this->AnariRendererNode->GetDeviceHandle();
 
   if (anariDevice)
   {
@@ -743,7 +743,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Mate
 void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariSceneGraph* anariRendererNode)
 {
   this->AnariRendererNode = anariRendererNode;
-  this->AnariDevice = anariRendererNode->GetAnariDevice();
+  this->AnariDevice = anariRendererNode->GetDeviceHandle();
   this->AnariDeviceExtensions = anariRendererNode->GetAnariDeviceExtensions();
 }
 

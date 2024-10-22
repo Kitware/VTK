@@ -110,7 +110,7 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeRenderer");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeRenderer");
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);

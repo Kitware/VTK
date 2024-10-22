@@ -186,7 +186,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   vtkLight* light = this->GetVtkLight();
   this->RenderTime = light->GetMTime();
 
-  auto anariDevice = this->Internals->RendererNode->GetAnariDevice();
+  auto anariDevice = this->Internals->RendererNode->GetDeviceHandle();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
   auto anariExtensions = this->Internals->RendererNode->GetAnariDeviceExtensions();
 
@@ -447,7 +447,7 @@ void vtkAnariLightNode::ClearLight()
 {
   if (this->Internals->RendererNode != nullptr)
   {
-    anari::Device anariDevice = this->Internals->RendererNode->GetAnariDevice();
+    anari::Device anariDevice = this->Internals->RendererNode->GetDeviceHandle();
 
     if (anariDevice)
     {

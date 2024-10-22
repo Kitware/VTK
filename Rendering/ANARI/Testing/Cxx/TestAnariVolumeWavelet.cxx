@@ -1084,7 +1084,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
 
   renderer->ResetCamera();
   renderWindow->Render();

@@ -72,7 +72,7 @@ int TestAnariPass(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkAnariPass> anariPass;
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
 
   for (int i = 1; i < 10; i++)
   {

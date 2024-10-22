@@ -34,6 +34,7 @@
 #include "vtkTexture.h"
 
 #include <cmath>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -137,7 +138,7 @@ void vtkAnariSceneGraph::InitAnariFrame(vtkRenderer* ren)
     return;
   }
 
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   this->Internal->AnariFrame = anari::newObject<anari::Frame>(anariDevice);
   anari::setParameter(anariDevice, this->Internal->AnariFrame, "channel.color", ANARI_UFIXED8_VEC4);
   anari::setParameter(anariDevice, this->Internal->AnariFrame, "channel.depth", ANARI_FLOAT32);
@@ -160,7 +161,7 @@ void vtkAnariSceneGraph::SetupAnariRendererParameters(vtkRenderer* ren)
     return;
   }
 
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariRenderer = this->Internal->AnariRenderer;
 
   double* bg = ren->GetBackground();
@@ -211,7 +212,7 @@ void vtkAnariSceneGraph::InitAnariWorld()
     return;
   }
 
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
 
   auto anariWorld = anari::newObject<anari::World>(anariDevice);
   this->Internal->AnariWorld = anariWorld;
@@ -239,7 +240,7 @@ void vtkAnariSceneGraph::UpdateAnariFrameSize()
   this->Internal->ColorBuffer.resize(totalSize * sizeof(float));
   this->Internal->DepthBuffer.resize(totalSize);
 
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariFrame = this->Internal->AnariFrame;
   anari::setParameter(anariDevice, anariFrame, "size", frameSize);
   anari::commitParameters(anariDevice, anariFrame);
@@ -248,7 +249,7 @@ void vtkAnariSceneGraph::UpdateAnariFrameSize()
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::UpdateAnariLights()
 {
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariWorld = this->Internal->AnariWorld;
   const auto& lightState = this->Internal->AnariLights;
 
@@ -276,7 +277,7 @@ void vtkAnariSceneGraph::UpdateAnariLights()
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::UpdateAnariSurfaces()
 {
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariWorld = this->Internal->AnariWorld;
   const auto& surfaceState = this->Internal->AnariSurfaces;
 
@@ -303,7 +304,7 @@ void vtkAnariSceneGraph::UpdateAnariSurfaces()
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::UpdateAnariVolumes()
 {
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariWorld = this->Internal->AnariWorld;
   const auto& volumeState = this->Internal->AnariVolumes;
 
@@ -330,7 +331,7 @@ void vtkAnariSceneGraph::UpdateAnariVolumes()
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::DebugOutputWorldBounds()
 {
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariWorld = this->Internal->AnariWorld;
 
   // Get world bounds
@@ -355,7 +356,7 @@ void vtkAnariSceneGraph::CopyAnariFrameBufferData()
 {
   int totalSize = this->Size[0] * this->Size[1];
 
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariFrame = this->Internal->AnariFrame;
 
   float duration = 0.0f;
@@ -567,7 +568,7 @@ void vtkAnariSceneGraph::Render(bool prepass)
 #endif
 
   // Render frame
-  auto anariDevice = this->GetAnariDevice();
+  auto anariDevice = this->GetDeviceHandle();
   auto anariFrame = this->Internal->AnariFrame;
   int accumulationCount = this->GetAccumulationCount(ren);
   for (int i = 0; i < accumulationCount; i++)
@@ -675,13 +676,13 @@ vtkRenderer* vtkAnariSceneGraph::GetRenderer()
 }
 
 //------------------------------------------------------------------------------
-anari::Device vtkAnariSceneGraph::GetAnariDevice() const
+anari::Device vtkAnariSceneGraph::GetDeviceHandle() const
 {
   return this->Internal->AnariDevice;
 }
 
 //------------------------------------------------------------------------------
-anari::Renderer vtkAnariSceneGraph::GetAnariRenderer() const
+anari::Renderer vtkAnariSceneGraph::GetRendererHandle() const
 {
   return this->Internal->AnariRenderer;
 }

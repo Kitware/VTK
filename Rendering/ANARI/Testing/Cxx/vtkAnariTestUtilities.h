@@ -6,7 +6,7 @@
 
 #include "vtkAnariPass.h"
 
-void SetAnariRendererParameterDefaults(
-  vtkAnariPass* manager, vtkRenderer* renderer, bool useDebugDevice, const char* testName);
+void SetParameterDefaults(
+  vtkAnariPass*, vtkRenderer* renderer, bool useDebugDevice, const char* testName);
 
 #endif

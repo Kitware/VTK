@@ -242,7 +242,7 @@ int TestAnariRenderMesh(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
 
   // Now, vary most of the many parameters that rendering can vary by.
 

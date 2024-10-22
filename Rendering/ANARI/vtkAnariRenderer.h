@@ -42,13 +42,13 @@ public:
    * cause a default setup of the anari::Device to be done using the
    * 'environment' device.
    */
-  void SetAnariRendererSubtype(const char* subtype = "default");
+  void SetSubtype(const char* subtype = "default");
 
   /**
    * Get the subtype of the current underlying anari::Renderer. Empty if not
    * yet set.
    */
-  const char* GetAnariRendererSubtype() const;
+  const char* GetSubtype() const;
 
   //@{
   /**
@@ -58,21 +58,21 @@ public:
    * anari::setParameter() and anari::commitParameters() directly as it is
    * equivalent.
    */
-  void SetAnariRendererParameter(const char* param, bool);
-  void SetAnariRendererParameter(const char* param, int);
-  void SetAnariRendererParameter(const char* param, int, int);
-  void SetAnariRendererParameter(const char* param, int, int, int);
-  void SetAnariRendererParameter(const char* param, int, int, int, int);
-  void SetAnariRendererParameter(const char* param, float);
-  void SetAnariRendererParameter(const char* param, float, float);
-  void SetAnariRendererParameter(const char* param, float, float, float);
-  void SetAnariRendererParameter(const char* param, float, float, float, float);
+  void SetParameter(const char* param, bool);
+  void SetParameter(const char* param, int);
+  void SetParameter(const char* param, int, int);
+  void SetParameter(const char* param, int, int, int);
+  void SetParameter(const char* param, int, int, int, int);
+  void SetParameter(const char* param, float);
+  void SetParameter(const char* param, float, float);
+  void SetParameter(const char* param, float, float, float);
+  void SetParameter(const char* param, float, float, float, float);
   //@}
 
   /**
    * Get the current ANARI renderer, which will be NULL if not yet setup
    */
-  anari::Renderer GetAnariRenderer() const;
+  anari::Renderer GetHandle() const;
 
 protected:
   /**

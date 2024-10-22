@@ -24,8 +24,7 @@
 #include "vtkRendererNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include <anari/anari_cpp.hpp> // for external getter/setters
-#include <vector>              // for ivars
+#include <anari/anari_cpp.hpp> // For ANARI handles
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -130,12 +129,12 @@ public:
    * Get the ANARI back-end device. A device is an object which provides the
    * implementation of all ANARI API calls outside of libraries.
    */
-  anari::Device GetAnariDevice() const;
+  anari::Device GetDeviceHandle() const;
 
   /**
    * Get the currently set ANARI renderer.
    */
-  anari::Renderer GetAnariRenderer() const;
+  anari::Renderer GetRendererHandle() const;
 
   /**
    * Get the extensions supported by the current back-end device.

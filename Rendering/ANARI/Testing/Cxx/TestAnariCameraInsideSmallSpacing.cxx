@@ -1072,8 +1072,7 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
 
   ren->AddVolume(volume);
   ren->ResetCamera();

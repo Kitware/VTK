@@ -101,7 +101,7 @@ void vtkAnariCameraNode::UpdateAnariObjectHandles()
 {
   if (!this->Internals->AnariDevice)
   {
-    this->Internals->AnariDevice = this->Internals->RendererNode->GetAnariDevice();
+    this->Internals->AnariDevice = this->Internals->RendererNode->GetDeviceHandle();
     anari::retain(this->Internals->AnariDevice, this->Internals->AnariDevice);
   }
 

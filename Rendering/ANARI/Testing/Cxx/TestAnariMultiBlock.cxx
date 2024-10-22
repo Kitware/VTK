@@ -67,7 +67,7 @@ int TestAnariMultiBlock(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
 
   renWin->Render();
   int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);

@@ -25,8 +25,8 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include "vtkAnariDevice.h"
-#include "vtkAnariRenderer.h"
+#include "vtkAnariDevice.h"   // For vtkAnariDevice
+#include "vtkAnariRenderer.h" // For vtkAnariRenderer
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -63,14 +63,14 @@ public:
   /**
    * Get the managing class of the ANARI device for queries or make changes.
    */
-  vtkAnariDevice& GetAnariDeviceManager();
+  vtkAnariDevice& GetAnariDevice();
 
   /**
    * Get the managing class of the ANARI renderer to query or make changes. Note
    * that this will not do anything unless the device has been initialized in
-   * the device manager.
+   * the device .
    */
-  vtkAnariRenderer& GetAnariRendererManager();
+  vtkAnariRenderer& GetAnariRenderer();
 
 private:
   /**

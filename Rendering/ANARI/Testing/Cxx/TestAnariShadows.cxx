@@ -91,7 +91,7 @@ int TestAnariShadows(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariShadows");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariShadows");
 
   for (double i = 0.; i < 2.0; i += 0.25)
   {

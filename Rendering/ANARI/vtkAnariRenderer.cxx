@@ -99,7 +99,7 @@ void vtkAnariRenderer::SetAnariDevice(anari::Device d)
 
   this->Internal->AnariDevice = d;
   anari::retain(d, d);
-  this->SetAnariRendererSubtype();
+  this->SetSubtype();
 }
 
 anari::Device vtkAnariRenderer::GetAnariDevice() const
@@ -108,7 +108,7 @@ anari::Device vtkAnariRenderer::GetAnariDevice() const
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererSubtype(const char* subtype)
+void vtkAnariRenderer::SetSubtype(const char* subtype)
 {
   if (this->Internal->AnariRendererSubtype == subtype)
   {
@@ -133,68 +133,67 @@ void vtkAnariRenderer::SetAnariRendererSubtype(const char* subtype)
   this->Internal->AnariRendererSubtype = subtype;
 }
 
-const char* vtkAnariRenderer::GetAnariRendererSubtype() const
+const char* vtkAnariRenderer::GetSubtype() const
 {
   return this->Internal->AnariRendererSubtype.c_str();
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, bool b)
+void vtkAnariRenderer::SetParameter(const char* param, bool b)
 {
   this->Internal->SetRendererParameter(param, b);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, int x)
+void vtkAnariRenderer::SetParameter(const char* param, int x)
 {
   this->Internal->SetRendererParameter(param, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, int x, int y)
+void vtkAnariRenderer::SetParameter(const char* param, int x, int y)
 {
   this->Internal->SetRendererParameter(param, ivec2{ x, y });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, int x, int y, int z)
+void vtkAnariRenderer::SetParameter(const char* param, int x, int y, int z)
 {
   this->Internal->SetRendererParameter(param, ivec3{ x, y, z });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, int x, int y, int z, int w)
+void vtkAnariRenderer::SetParameter(const char* param, int x, int y, int z, int w)
 {
   this->Internal->SetRendererParameter(param, ivec4{ x, y, z, w });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, float x)
+void vtkAnariRenderer::SetParameter(const char* param, float x)
 {
   this->Internal->SetRendererParameter(param, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, float x, float y)
+void vtkAnariRenderer::SetParameter(const char* param, float x, float y)
 {
   this->Internal->SetRendererParameter(param, vec2{ x, y });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(const char* param, float x, float y, float z)
+void vtkAnariRenderer::SetParameter(const char* param, float x, float y, float z)
 {
   this->Internal->SetRendererParameter(param, vec3{ x, y, z });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariRendererParameter(
-  const char* param, float x, float y, float z, float w)
+void vtkAnariRenderer::SetParameter(const char* param, float x, float y, float z, float w)
 {
   this->Internal->SetRendererParameter(param, vec4{ x, y, z, w });
 }
 
 // ----------------------------------------------------------------------------
-anari::Renderer vtkAnariRenderer::GetAnariRenderer() const
+anari::Renderer vtkAnariRenderer::GetHandle() const
 {
   return this->Internal->AnariRenderer;
 }

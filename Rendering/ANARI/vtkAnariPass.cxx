@@ -35,46 +35,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 // ----------------------------------------------------------------------------
-static void AnariStatusCallback(const void* userData, anari::Device device, anari::Object source,
-  anari::DataType sourceType, anari::StatusSeverity severity, anari::StatusCode code,
-  const char* message)
-{
-  if (severity == ANARI_SEVERITY_FATAL_ERROR)
-  {
-    vtkLogF(ERROR, "[ANARI::FATAL] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_ERROR)
-  {
-    vtkLogF(ERROR, "[ANARI::ERROR] %s, DataType: %d\n", message, (int)sourceType);
-  }
-  else if (severity == ANARI_SEVERITY_WARNING)
-  {
-    vtkLogF(WARNING, "[ANARI::WARN] %s, DataType: %d\n", message, (int)sourceType);
-  }
-  else if (severity == ANARI_SEVERITY_PERFORMANCE_WARNING)
-  {
-    vtkLogF(WARNING, "[ANARI::PERF] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_INFO)
-  {
-    vtkLogF(INFO, "[ANARI::INFO] %s\n", message);
-  }
-  else if (severity == ANARI_SEVERITY_DEBUG)
-  {
-    vtkLogF(TRACE, "[ANARI::DEBUG] %s\n", message);
-  }
-  else
-  {
-    vtkLogF(INFO, "[ANARI::STATUS] %s\n", message);
-  }
-
-  (void)userData;
-  (void)device;
-  (void)source;
-  (void)code;
-}
-
-// ----------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkAnariPass, SceneGraph, vtkAnariSceneGraph);
 
 // ----------------------------------------------------------------------------
@@ -94,8 +54,8 @@ public:
   vtkAnariPass* Parent{ nullptr };
   std::unique_ptr<vtkOpenGLQuadHelper> OpenGLQuadHelper;
 
-  vtkNew<vtkAnariDevice> DeviceManager;
-  vtkNew<vtkAnariRenderer> RendererManager;
+  vtkNew<vtkAnariDevice> Device;
+  vtkNew<vtkAnariRenderer> Renderer;
 
   vtkNew<vtkAnariViewNodeFactory> Factory;
   vtkNew<vtkTextureObject> ColorTexture;
@@ -263,31 +223,30 @@ void vtkAnariPass::Render(const vtkRenderState* s)
 {
   vtkAnariProfiling startProfiling("vtkAnariPass::Render", vtkAnariProfiling::YELLOW);
 
-  auto& dm = this->GetAnariDeviceManager();
-  auto& rm = this->GetAnariRendererManager();
+  auto& ad = this->GetAnariDevice();
+  auto& ar = this->GetAnariRenderer();
 
-  if (!dm.AnariInitialized())
+  if (!ad.AnariInitialized())
   {
-    dm.SetupAnariDeviceFromLibrary("environment", "default", false);
+    ad.SetupAnariDeviceFromLibrary("environment", "default", false);
   }
 
-  anari::Device device = dm.GetAnariDevice();
+  anari::Device device = ad.GetHandle();
 
   vtkRenderer* ren = s->GetRenderer();
   if (ren)
   {
     const bool rebuildSceneGraph =
-      !this->SceneGraph || this->SceneGraph->GetAnariDevice() != device;
+      !this->SceneGraph || this->SceneGraph->GetDeviceHandle() != device;
     if (rebuildSceneGraph)
     {
-      this->SetSceneGraph(
-        vtkAnariSceneGraph::SafeDownCast(this->Internal->Factory->CreateNode(ren)));
-      this->SceneGraph->SetAnariDevice(device, dm.GetAnariDeviceExtensions());
-      this->SceneGraph->SetAnariRenderer(rm.GetAnariRenderer());
+      this->SceneGraph = vtkAnariSceneGraph::SafeDownCast(this->Internal->Factory->CreateNode(ren));
+      this->SceneGraph->SetAnariDevice(device, ad.GetAnariDeviceExtensions());
+      this->SceneGraph->SetAnariRenderer(ar.GetHandle());
     }
-    else if (rm.GetAnariRenderer() != this->SceneGraph->GetAnariRenderer())
+    else if (ar.GetHandle() != this->SceneGraph->GetRendererHandle())
     {
-      this->SceneGraph->SetAnariRenderer(rm.GetAnariRenderer());
+      this->SceneGraph->SetAnariRenderer(ar.GetHandle());
     }
   }
 
@@ -295,15 +254,15 @@ void vtkAnariPass::Render(const vtkRenderState* s)
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariDevice& vtkAnariPass::GetAnariDeviceManager()
+vtkAnariDevice& vtkAnariPass::GetAnariDevice()
 {
-  return *this->Internal->DeviceManager;
+  return *this->Internal->Device;
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariRenderer& vtkAnariPass::GetAnariRendererManager()
+vtkAnariRenderer& vtkAnariPass::GetAnariRenderer()
 {
-  return *this->Internal->RendererManager;
+  return *this->Internal->Renderer;
 }
 
 // ----------------------------------------------------------------------------
@@ -324,8 +283,8 @@ vtkAnariPass::vtkAnariPass()
 
   this->CameraPass->SetDelegatePass(sequencePass);
 
-  this->GetAnariDeviceManager().SetOnNewDeviceCallback(
-    [&](anari::Device d) { this->GetAnariRendererManager().SetAnariDevice(d); });
+  this->GetAnariDevice().SetOnNewDeviceCallback(
+    [&](anari::Device d) { this->GetAnariRenderer().SetAnariDevice(d); });
 }
 
 // ----------------------------------------------------------------------------

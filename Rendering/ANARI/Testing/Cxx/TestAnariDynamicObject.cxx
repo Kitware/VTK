@@ -65,7 +65,7 @@ int TestAnariDynamicObject(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariDynamicObject");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariDynamicObject");
 
   renWin->Render();
 

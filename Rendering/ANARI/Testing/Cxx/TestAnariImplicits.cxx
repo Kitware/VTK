@@ -71,7 +71,7 @@ int TestAnariImplicits(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariImplicits");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariImplicits");
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);

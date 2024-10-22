@@ -119,8 +119,7 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(
-    anariPass, ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
 
   ren->AddActor(actor);
   win->SetSize(400, 400);
