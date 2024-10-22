@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkAnariDeviceManager
+ * @class   vtkAnariDevice
  * @brief   base class to objects which create + manage a ANARI library + device
  *
  * Multiple VTK-ANARI objects are potentially responsible for creating and
@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef vtkAnariDeviceManager_h
-#define vtkAnariDeviceManager_h
+#ifndef vtkAnariDevice_h
+#define vtkAnariDevice_h
 
 #include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
@@ -22,15 +22,15 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkAnariDeviceManagerInternals;
+class vtkAnariDeviceInternals;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariDeviceManager : public vtkObject
+class VTKRENDERINGANARI_EXPORT vtkAnariDevice : public vtkObject
 {
 public:
   using OnNewDeviceCallback = std::function<void(anari::Device)>;
 
-  static vtkAnariDeviceManager* New();
-  vtkTypeMacro(vtkAnariDeviceManager, vtkObject);
+  static vtkAnariDevice* New();
+  vtkTypeMacro(vtkAnariDevice, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -41,7 +41,7 @@ public:
   void SetAnariDebugConfig(const char* traceDir, const char* traceMode);
 
   /**
-   * Initialize this vtkAnariDeviceManager from the name of an anari::Library
+   * Initialize this vtkAnariDevice from the name of an anari::Library
    * and anari::Device to be loaded. This initialization will use whatever debug
    * configuration set by SetupAnariDebugConfig() prior to this function when
    * 'enableDebugLayer' is true. Returns success of getting everything setup.
@@ -73,18 +73,18 @@ protected:
   /**
    * Default constructor.
    */
-  vtkAnariDeviceManager();
+  vtkAnariDevice();
 
   /**
    * Destructor.
    */
-  virtual ~vtkAnariDeviceManager();
+  virtual ~vtkAnariDevice();
 
 private:
-  vtkAnariDeviceManager(const vtkAnariDeviceManager&) = delete;
-  void operator=(const vtkAnariDeviceManager&) = delete;
+  vtkAnariDevice(const vtkAnariDevice&) = delete;
+  void operator=(const vtkAnariDevice&) = delete;
 
-  vtkAnariDeviceManagerInternals* Internal{ nullptr };
+  vtkAnariDeviceInternals* Internal{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

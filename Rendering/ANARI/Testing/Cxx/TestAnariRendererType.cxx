@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 

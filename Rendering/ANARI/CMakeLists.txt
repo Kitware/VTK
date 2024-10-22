@@ -19,12 +19,12 @@ set(classes
   vtkAnariActorNode
   vtkAnariCameraNode
   vtkAnariCompositePolyDataMapperNode
-  vtkAnariDeviceManager
+  vtkAnariDevice
   vtkAnariLightNode
   vtkAnariPass
   vtkAnariPolyDataMapperNode
-  vtkAnariRendererManager
-  vtkAnariRendererNode
+  vtkAnariRenderer
+  vtkAnariSceneGraph
   vtkAnariViewNodeFactory
   vtkAnariFollowerNode
   vtkAnariProfiling

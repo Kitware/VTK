@@ -5,7 +5,7 @@
 // with the composite method.
 
 #include <vtkAnariPass.h>
-#include <vtkAnariRendererNode.h>
+#include <vtkAnariSceneGraph.h>
 #include <vtkCamera.h>
 #include <vtkClipPolyData.h>
 #include <vtkColorTransferFunction.h>

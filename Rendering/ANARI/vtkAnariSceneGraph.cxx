@@ -9,7 +9,7 @@
 #define ANARI_EXTENSION_UTILITY_IMPL
 #include <anari/frontend/anari_extension_utility.h>
 
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkAnariActorNode.h"
@@ -39,8 +39,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace anari::std_types;
 
-vtkInformationKeyMacro(vtkAnariRendererNode, COMPOSITE_ON_GL, Integer);
-vtkInformationKeyMacro(vtkAnariRendererNode, ACCUMULATION_COUNT, Integer);
+vtkInformationKeyMacro(vtkAnariSceneGraph, COMPOSITE_ON_GL, Integer);
+vtkInformationKeyMacro(vtkAnariSceneGraph, ACCUMULATION_COUNT, Integer);
 
 struct RendererChangeCallback : vtkCommand
 {
@@ -57,10 +57,10 @@ struct RendererChangeCallback : vtkCommand
   vtkTimeStamp* AnariRendererModifiedTime{ nullptr };
 };
 
-struct vtkAnariRendererNodeInternals
+struct vtkAnariSceneGraphInternals
 {
-  vtkAnariRendererNodeInternals(vtkAnariRendererNode*);
-  ~vtkAnariRendererNodeInternals();
+  vtkAnariSceneGraphInternals(vtkAnariSceneGraph*);
+  ~vtkAnariSceneGraphInternals();
 
   /**
    * @brief Populate the current ANARI back-end device features.
@@ -73,7 +73,7 @@ struct vtkAnariRendererNodeInternals
   bool SetAnariDeviceFeatures(
     anari::Library library, const char* deviceName, const char* deviceSubtype);
 
-  vtkAnariRendererNode* Owner{ nullptr };
+  vtkAnariSceneGraph* Owner{ nullptr };
 
   std::vector<u_char> ColorBuffer;
   std::vector<float> DepthBuffer;
@@ -96,12 +96,12 @@ struct vtkAnariRendererNodeInternals
   std::vector<anari::Light> AnariLights;
 };
 
-vtkAnariRendererNodeInternals::vtkAnariRendererNodeInternals(vtkAnariRendererNode* owner)
+vtkAnariSceneGraphInternals::vtkAnariSceneGraphInternals(vtkAnariSceneGraph* owner)
   : Owner(owner)
 {
 }
 
-vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
+vtkAnariSceneGraphInternals::~vtkAnariSceneGraphInternals()
 {
   if (this->AnariDevice != nullptr)
   {
@@ -114,23 +114,23 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 
 //============================================================================
 
-vtkStandardNewMacro(vtkAnariRendererNode);
+vtkStandardNewMacro(vtkAnariSceneGraph);
 
 //----------------------------------------------------------------------------
-vtkAnariRendererNode::vtkAnariRendererNode()
+vtkAnariSceneGraph::vtkAnariSceneGraph()
 {
-  this->Internal = new vtkAnariRendererNodeInternals(this);
+  this->Internal = new vtkAnariSceneGraphInternals(this);
   InvalidateSceneStructure();
 }
 
 //----------------------------------------------------------------------------
-vtkAnariRendererNode::~vtkAnariRendererNode()
+vtkAnariSceneGraph::~vtkAnariSceneGraph()
 {
   delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::InitAnariFrame(vtkRenderer* ren)
+void vtkAnariSceneGraph::InitAnariFrame(vtkRenderer* ren)
 {
   if (this->Internal->AnariFrame != nullptr)
   {
@@ -153,7 +153,7 @@ void vtkAnariRendererNode::InitAnariFrame(vtkRenderer* ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
+void vtkAnariSceneGraph::SetupAnariRendererParameters(vtkRenderer* ren)
 {
   if (this->AnariRendererModifiedTime <= this->AnariRendererUpdatedTime)
   {
@@ -204,7 +204,7 @@ void vtkAnariRendererNode::SetupAnariRendererParameters(vtkRenderer* ren)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::InitAnariWorld()
+void vtkAnariSceneGraph::InitAnariWorld()
 {
   if (this->Internal->AnariWorld != nullptr)
   {
@@ -224,7 +224,7 @@ void vtkAnariRendererNode::InitAnariWorld()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::UpdateAnariFrameSize()
+void vtkAnariSceneGraph::UpdateAnariFrameSize()
 {
   const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
   if ((uint)this->Internal->ImageX == frameSize[0] && (uint)this->Internal->ImageY == frameSize[1])
@@ -246,7 +246,7 @@ void vtkAnariRendererNode::UpdateAnariFrameSize()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::UpdateAnariLights()
+void vtkAnariSceneGraph::UpdateAnariLights()
 {
   auto anariDevice = this->GetAnariDevice();
   auto anariWorld = this->Internal->AnariWorld;
@@ -274,7 +274,7 @@ void vtkAnariRendererNode::UpdateAnariLights()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::UpdateAnariSurfaces()
+void vtkAnariSceneGraph::UpdateAnariSurfaces()
 {
   auto anariDevice = this->GetAnariDevice();
   auto anariWorld = this->Internal->AnariWorld;
@@ -301,7 +301,7 @@ void vtkAnariRendererNode::UpdateAnariSurfaces()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::UpdateAnariVolumes()
+void vtkAnariSceneGraph::UpdateAnariVolumes()
 {
   auto anariDevice = this->GetAnariDevice();
   auto anariWorld = this->Internal->AnariWorld;
@@ -328,7 +328,7 @@ void vtkAnariRendererNode::UpdateAnariVolumes()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::DebugOutputWorldBounds()
+void vtkAnariSceneGraph::DebugOutputWorldBounds()
 {
   auto anariDevice = this->GetAnariDevice();
   auto anariWorld = this->Internal->AnariWorld;
@@ -351,7 +351,7 @@ void vtkAnariRendererNode::DebugOutputWorldBounds()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::CopyAnariFrameBufferData()
+void vtkAnariSceneGraph::CopyAnariFrameBufferData()
 {
   int totalSize = this->Size[0] * this->Size[1];
 
@@ -411,7 +411,7 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
 
 //----------------------------------------------------------------------------
 #define RENDERER_NODE_PARAM_SET_DEFINITION(FCN, PARAM, TYPE)                                       \
-  void vtkAnariRendererNode::Set##FCN(vtkRenderer* r, TYPE v)                                      \
+  void vtkAnariSceneGraph::Set##FCN(vtkRenderer* r, TYPE v)                                        \
   {                                                                                                \
     if (!r)                                                                                        \
     {                                                                                              \
@@ -419,7 +419,7 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
     }                                                                                              \
                                                                                                    \
     vtkInformation* info = r->GetInformation();                                                    \
-    info->Set(vtkAnariRendererNode::PARAM(), v);                                                   \
+    info->Set(vtkAnariSceneGraph::PARAM(), v);                                                     \
   }
 
 RENDERER_NODE_PARAM_SET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int)
@@ -427,7 +427,7 @@ RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
 
 //----------------------------------------------------------------------------
 #define RENDERER_NODE_PARAM_GET_DEFINITION(FCN, PARAM, TYPE, DEFAULT_VALUE)                        \
-  TYPE vtkAnariRendererNode::Get##FCN(vtkRenderer* r)                                              \
+  TYPE vtkAnariSceneGraph::Get##FCN(vtkRenderer* r)                                                \
   {                                                                                                \
     if (!r)                                                                                        \
     {                                                                                              \
@@ -436,9 +436,9 @@ RENDERER_NODE_PARAM_SET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int)
                                                                                                    \
     vtkInformation* info = r->GetInformation();                                                    \
                                                                                                    \
-    if (info && info->Has(vtkAnariRendererNode::PARAM()))                                          \
+    if (info && info->Has(vtkAnariSceneGraph::PARAM()))                                            \
     {                                                                                              \
-      return info->Get(vtkAnariRendererNode::PARAM());                                             \
+      return info->Get(vtkAnariSceneGraph::PARAM());                                               \
     }                                                                                              \
                                                                                                    \
     return DEFAULT_VALUE;                                                                          \
@@ -448,7 +448,7 @@ RENDERER_NODE_PARAM_GET_DEFINITION(AccumulationCount, ACCUMULATION_COUNT, int, 1
 RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetCamera(anari::Camera camera)
+void vtkAnariSceneGraph::SetCamera(anari::Camera camera)
 {
   auto d = this->Internal->AnariDevice;
   auto f = this->Internal->AnariFrame;
@@ -460,7 +460,7 @@ void vtkAnariRendererNode::SetCamera(anari::Camera camera)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddLight(anari::Light light)
+void vtkAnariSceneGraph::AddLight(anari::Light light)
 {
   if (light != nullptr)
   {
@@ -469,7 +469,7 @@ void vtkAnariRendererNode::AddLight(anari::Light light)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddSurface(anari::Surface surface)
+void vtkAnariSceneGraph::AddSurface(anari::Surface surface)
 {
   if (surface != nullptr)
   {
@@ -478,7 +478,7 @@ void vtkAnariRendererNode::AddSurface(anari::Surface surface)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::AddVolume(anari::Volume volume)
+void vtkAnariSceneGraph::AddVolume(anari::Volume volume)
 {
   if (volume != nullptr)
   {
@@ -487,13 +487,13 @@ void vtkAnariRendererNode::AddVolume(anari::Volume volume)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAnariSceneGraph::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::Traverse(int operation)
+void vtkAnariSceneGraph::Traverse(int operation)
 {
   if (operation == operation_type::render)
   {
@@ -521,7 +521,7 @@ void vtkAnariRendererNode::Traverse(int operation)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::Invalidate(bool prepass)
+void vtkAnariSceneGraph::Invalidate(bool prepass)
 {
   if (prepass)
   {
@@ -530,9 +530,9 @@ void vtkAnariRendererNode::Invalidate(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::Build(bool prepass)
+void vtkAnariSceneGraph::Build(bool prepass)
 {
-  vtkAnariProfiling startProfiling("vtkAnariRendererNode::Build", vtkAnariProfiling::BLUE);
+  vtkAnariProfiling startProfiling("vtkAnariSceneGraph::Build", vtkAnariProfiling::BLUE);
 
   if (prepass)
   {
@@ -549,9 +549,9 @@ void vtkAnariRendererNode::Build(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::Render(bool prepass)
+void vtkAnariSceneGraph::Render(bool prepass)
 {
-  vtkAnariProfiling startProfiling("vtkAnariRendererNode::Render", vtkAnariProfiling::BLUE);
+  vtkAnariProfiling startProfiling("vtkAnariSceneGraph::Render", vtkAnariProfiling::BLUE);
 
   vtkRenderer* ren = this->GetRenderer();
   if (this->Internal->OnlyUpdateWorld || prepass || !ren)
@@ -581,10 +581,10 @@ void vtkAnariRendererNode::Render(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::WriteLayer(
+void vtkAnariSceneGraph::WriteLayer(
   unsigned char* buffer, float* Z, int buffx, int buffy, int layer)
 {
-  vtkAnariProfiling startProfiling("vtkAnariRendererNode::WriteLayer", vtkAnariProfiling::BLUE);
+  vtkAnariProfiling startProfiling("vtkAnariSceneGraph::WriteLayer", vtkAnariProfiling::BLUE);
   unsigned char* colorBuffer = this->Internal->ColorBuffer.data();
   float* zBuffer = this->Internal->DepthBuffer.data();
 
@@ -663,66 +663,66 @@ void vtkAnariRendererNode::WriteLayer(
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRendererNode::SetUpdateWorldOnly(bool onlyUpdateWorld)
+void vtkAnariSceneGraph::SetUpdateWorldOnly(bool onlyUpdateWorld)
 {
   this->Internal->OnlyUpdateWorld = onlyUpdateWorld;
 }
 
 //------------------------------------------------------------------------------
-vtkRenderer* vtkAnariRendererNode::GetRenderer()
+vtkRenderer* vtkAnariSceneGraph::GetRenderer()
 {
   return vtkRenderer::SafeDownCast(this->GetRenderable());
 }
 
 //------------------------------------------------------------------------------
-anari::Device vtkAnariRendererNode::GetAnariDevice() const
+anari::Device vtkAnariSceneGraph::GetAnariDevice() const
 {
   return this->Internal->AnariDevice;
 }
 
 //------------------------------------------------------------------------------
-anari::Renderer vtkAnariRendererNode::GetAnariRenderer() const
+anari::Renderer vtkAnariSceneGraph::GetAnariRenderer() const
 {
   return this->Internal->AnariRenderer;
 }
 
 //------------------------------------------------------------------------------
-const anari::Extensions& vtkAnariRendererNode::GetAnariDeviceExtensions() const
+const anari::Extensions& vtkAnariSceneGraph::GetAnariDeviceExtensions() const
 {
   return this->Internal->AnariExtensions;
 }
 
 //------------------------------------------------------------------------------
-const unsigned char* vtkAnariRendererNode::GetBuffer()
+const unsigned char* vtkAnariSceneGraph::GetBuffer()
 {
   return this->Internal->ColorBuffer.data();
 }
 
 //------------------------------------------------------------------------------
-const float* vtkAnariRendererNode::GetZBuffer()
+const float* vtkAnariSceneGraph::GetZBuffer()
 {
   return this->Internal->DepthBuffer.data();
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::InvalidateSceneStructure()
+void vtkAnariSceneGraph::InvalidateSceneStructure()
 {
   this->AnariSceneStructureModifiedMTime.Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
+void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e)
 {
   vtkRenderer* renderer = GetRenderer();
   if (!renderer)
   {
-    vtkErrorMacro(<< "Null vtkRenderer in vtkAnariRendererNode::SetAnariDevice()");
+    vtkErrorMacro(<< "Null vtkRenderer in vtkAnariSceneGraph::SetAnariDevice()");
     return;
   }
 
   if (this->Internal->AnariDevice != nullptr)
   {
-    vtkErrorMacro(<< "vtkAnariRendererNode::SetAnariDevice() called too many times");
+    vtkErrorMacro(<< "vtkAnariSceneGraph::SetAnariDevice() called too many times");
   }
 
   anari::retain(d, d);
@@ -735,7 +735,7 @@ void vtkAnariRendererNode::SetAnariDevice(anari::Device d, anari::Extensions e)
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariRendererNode::SetAnariRenderer(anari::Renderer r)
+void vtkAnariSceneGraph::SetAnariRenderer(anari::Renderer r)
 {
   if (!this->Internal->AnariDevice)
   {

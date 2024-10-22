@@ -25,7 +25,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"

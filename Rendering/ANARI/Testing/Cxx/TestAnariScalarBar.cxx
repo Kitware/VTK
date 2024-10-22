@@ -19,7 +19,7 @@
 #include "vtkTextProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 int TestAnariScalarBar(int argc, char* argv[])

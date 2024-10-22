@@ -25,13 +25,13 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
-#include "vtkAnariDeviceManager.h"
-#include "vtkAnariRendererManager.h"
+#include "vtkAnariDevice.h"
+#include "vtkAnariRenderer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariPassInternals;
-class vtkAnariRendererNode;
+class vtkAnariSceneGraph;
 
 class vtkCameraPass;
 class vtkLightsPass;
@@ -57,20 +57,20 @@ public:
   /**
    * Get the root of the underlying scene graph.
    */
-  vtkGetObjectMacro(SceneGraph, vtkAnariRendererNode);
+  vtkGetObjectMacro(SceneGraph, vtkAnariSceneGraph);
   //@}
 
   /**
    * Get the managing class of the ANARI device for queries or make changes.
    */
-  vtkAnariDeviceManager& GetAnariDeviceManager();
+  vtkAnariDevice& GetAnariDeviceManager();
 
   /**
    * Get the managing class of the ANARI renderer to query or make changes. Note
    * that this will not do anything unless the device has been initialized in
    * the device manager.
    */
-  vtkAnariRendererManager& GetAnariRendererManager();
+  vtkAnariRenderer& GetAnariRendererManager();
 
 private:
   /**
@@ -86,9 +86,9 @@ private:
   /**
    * Tells the pass what it will render.
    */
-  void SetSceneGraph(vtkAnariRendererNode*);
+  void SetSceneGraph(vtkAnariSceneGraph*);
 
-  vtkAnariRendererNode* SceneGraph = nullptr;
+  vtkAnariSceneGraph* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;
 
   vtkAnariPass(const vtkAnariPass&) = delete;

@@ -3,7 +3,7 @@
 #include "vtkAnariLightNode.h"
 #include "vtkAnariCameraNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
@@ -29,7 +29,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkAnariLightNodeInternals
 {
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariSceneGraph* RendererNode{ nullptr };
   anari::Light AnariLight{ nullptr };
 };
 
@@ -170,7 +170,7 @@ void vtkAnariLightNode::Build(bool prepass)
   if (this->Internals->RendererNode == nullptr)
   {
     this->Internals->RendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+      static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
   }
 }
 

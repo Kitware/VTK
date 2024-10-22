@@ -3,7 +3,7 @@
 #include "vtkAnariCompositePolyDataMapperNode.h"
 #include "vtkAnariActorNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkActor.h"
 #include "vtkCompositeDataDisplayAttributes.h"

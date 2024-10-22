@@ -3,7 +3,7 @@
 
 #include "vtkAnariTestUtilities.h"
 
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkTesting.h"
 
 void SetAnariRendererParameterDefaults(
@@ -34,5 +34,5 @@ void SetAnariRendererParameterDefaults(
   rm.SetAnariRendererParameter("denoise", true);
   rm.SetAnariRendererParameter("pixelSamples", 8);
 
-  vtkAnariRendererNode::SetCompositeOnGL(renderer, 1);
+  vtkAnariSceneGraph::SetCompositeOnGL(renderer, 1);
 }

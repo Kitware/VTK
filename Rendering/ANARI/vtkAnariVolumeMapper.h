@@ -49,7 +49,7 @@ public:
   virtual void Render(vtkRenderer*, vtkVolume*) override;
 
   /**
-   * Allow vtkAnariRendererNode properties to be set on the internal vtkRenderer.
+   * Allow vtkAnariSceneGraph properties to be set on the internal vtkRenderer.
    */
   vtkRenderer* GetInternalRenderer() const { return this->InternalRenderer; }
 

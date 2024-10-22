@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkAnariRendererManager
+ * @class   vtkAnariRenderer
  * @brief   base class to objects which create + manage an ANARI library, device, and renderer
  *
- * This class extends vtkAnariDeviceManager to also manage an instance of an
+ * This class extends vtkAnariDevice to also manage an instance of an
  * ANARI renderer object, as well as being able to query what renderer subtypes
  * are available and setting parameters on the object. Note that applications which
  * set any 'background' parameters on the handle directly will conflict with
@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef vtkAnariRendererManager_h
-#define vtkAnariRendererManager_h
+#ifndef vtkAnariRenderer_h
+#define vtkAnariRenderer_h
 
 #include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
@@ -22,13 +22,13 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkAnariRendererManagerInternals;
+class vtkAnariRendererInternals;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariRendererManager : public vtkObject
+class VTKRENDERINGANARI_EXPORT vtkAnariRenderer : public vtkObject
 {
 public:
-  static vtkAnariRendererManager* New();
-  vtkTypeMacro(vtkAnariRendererManager, vtkObject);
+  static vtkAnariRenderer* New();
+  vtkTypeMacro(vtkAnariRenderer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetAnariDevice(anari::Device d);
@@ -78,20 +78,20 @@ protected:
   /**
    * Default constructor.
    */
-  vtkAnariRendererManager();
+  vtkAnariRenderer();
 
   /**
    * Destructor.
    */
-  virtual ~vtkAnariRendererManager();
+  virtual ~vtkAnariRenderer();
 
 private:
   void CheckAnariDeviceInitialized();
 
-  vtkAnariRendererManager(const vtkAnariRendererManager&) = delete;
-  void operator=(const vtkAnariRendererManager&) = delete;
+  vtkAnariRenderer(const vtkAnariRenderer&) = delete;
+  void operator=(const vtkAnariRenderer&) = delete;
 
-  vtkAnariRendererManagerInternals* Internal{ nullptr };
+  vtkAnariRendererInternals* Internal{ nullptr };
 };
 
 VTK_ABI_NAMESPACE_END

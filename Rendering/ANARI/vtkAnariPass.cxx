@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAnariPass.h"
-#include "vtkAnariDeviceManager.h"
+#include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererManager.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariRenderer.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariViewNodeFactory.h"
 
 #include "vtkCamera.h"
@@ -75,7 +75,7 @@ static void AnariStatusCallback(const void* userData, anari::Device device, anar
 }
 
 // ----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkAnariPass, SceneGraph, vtkAnariRendererNode);
+vtkCxxSetObjectMacro(vtkAnariPass, SceneGraph, vtkAnariSceneGraph);
 
 // ----------------------------------------------------------------------------
 class vtkAnariPassInternals : public vtkRenderPass
@@ -94,8 +94,8 @@ public:
   vtkAnariPass* Parent{ nullptr };
   std::unique_ptr<vtkOpenGLQuadHelper> OpenGLQuadHelper;
 
-  vtkNew<vtkAnariDeviceManager> DeviceManager;
-  vtkNew<vtkAnariRendererManager> RendererManager;
+  vtkNew<vtkAnariDevice> DeviceManager;
+  vtkNew<vtkAnariRenderer> RendererManager;
 
   vtkNew<vtkAnariViewNodeFactory> Factory;
   vtkNew<vtkTextureObject> ColorTexture;
@@ -173,8 +173,8 @@ void vtkAnariPassInternals::Render(const vtkRenderState* s)
     win->GetTileScale(tileScale);
   }
 
-  vtkAnariRendererNode* anariRendererNode =
-    vtkAnariRendererNode::SafeDownCast(sceneGraph->GetViewNodeFor(ren));
+  vtkAnariSceneGraph* anariRendererNode =
+    vtkAnariSceneGraph::SafeDownCast(sceneGraph->GetViewNodeFor(ren));
   anariRendererNode->SetSize(viewportWidth, viewportHeight);
   anariRendererNode->SetViewport(tileViewport);
   anariRendererNode->SetScale(tileScale);
@@ -230,7 +230,7 @@ void vtkAnariPassInternals::Render(const vtkRenderState* s)
     openGLState->vtkglEnable(GL_BLEND);
     openGLState->vtkglDepthFunc(GL_LESS);
 
-    if (vtkAnariRendererNode::GetCompositeOnGL(ren))
+    if (vtkAnariSceneGraph::GetCompositeOnGL(ren))
     {
       openGLState->vtkglBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
     }
@@ -281,7 +281,7 @@ void vtkAnariPass::Render(const vtkRenderState* s)
     if (rebuildSceneGraph)
     {
       this->SetSceneGraph(
-        vtkAnariRendererNode::SafeDownCast(this->Internal->Factory->CreateNode(ren)));
+        vtkAnariSceneGraph::SafeDownCast(this->Internal->Factory->CreateNode(ren)));
       this->SceneGraph->SetAnariDevice(device, dm.GetAnariDeviceExtensions());
       this->SceneGraph->SetAnariRenderer(rm.GetAnariRenderer());
     }
@@ -295,13 +295,13 @@ void vtkAnariPass::Render(const vtkRenderState* s)
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariDeviceManager& vtkAnariPass::GetAnariDeviceManager()
+vtkAnariDevice& vtkAnariPass::GetAnariDeviceManager()
 {
   return *this->Internal->DeviceManager;
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariRendererManager& vtkAnariPass::GetAnariRendererManager()
+vtkAnariRenderer& vtkAnariPass::GetAnariRendererManager()
 {
   return *this->Internal->RendererManager;
 }

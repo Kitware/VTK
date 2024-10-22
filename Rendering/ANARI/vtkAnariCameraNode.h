@@ -20,7 +20,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariCameraNodeInternals;
-class vtkAnariRendererNode;
+class vtkAnariSceneGraph;
 class vtkCamera;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariCameraNode : public vtkCameraNode

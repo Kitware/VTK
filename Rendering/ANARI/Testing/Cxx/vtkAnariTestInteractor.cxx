@@ -6,7 +6,7 @@
 
 #include "vtkAnariLightNode.h"
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOpenGLRenderer.h"

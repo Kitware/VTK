@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariVolumeMapper.h"
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
@@ -50,9 +50,9 @@ void vtkAnariVolumeMapper::Init()
 
 #if 0
   // e.g. export ANARI_LIBRARY=helide
-  vtkAnariRendererNode::SetLibraryName(this->InternalRenderer, "environment");
+  vtkAnariSceneGraph::SetLibraryName(this->InternalRenderer, "environment");
 #endif
-  vtkAnariRendererNode::SetCompositeOnGL(this->InternalRenderer, 1);
+  vtkAnariSceneGraph::SetCompositeOnGL(this->InternalRenderer, 1);
 
   this->InitializedOn();
 }
@@ -84,8 +84,7 @@ void vtkAnariVolumeMapper::Render(vtkRenderer* ren, vtkVolume* vol)
   this->InternalRenderer->SetPass(this->InternalAnariPass);
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(0);
-  vtkAnariRendererNode::SetCompositeOnGL(
-    this->InternalRenderer, ren->GetNumberOfPropsRendered() > 0);
+  vtkAnariSceneGraph::SetCompositeOnGL(this->InternalRenderer, ren->GetNumberOfPropsRendered() > 0);
   this->InternalRenderer->SetErase(ren->GetNumberOfPropsRendered() < 1);
   this->InternalRenderer->RemoveVolume(vol); // prevent a mem leak
 }

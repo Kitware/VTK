@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkAnariDeviceManager.h"
+#include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
 
 #include "vtkLogger.h"
@@ -54,14 +54,14 @@ static void AnariStatusCallback(const void* userData, anari::Device device, anar
 }
 
 // ----------------------------------------------------------------------------
-class vtkAnariDeviceManagerInternals : public vtkObject
+class vtkAnariDeviceInternals : public vtkObject
 {
 public:
-  static vtkAnariDeviceManagerInternals* New();
-  vtkTypeMacro(vtkAnariDeviceManagerInternals, vtkObject);
+  static vtkAnariDeviceInternals* New();
+  vtkTypeMacro(vtkAnariDeviceInternals, vtkObject);
 
-  vtkAnariDeviceManagerInternals() = default;
-  ~vtkAnariDeviceManagerInternals() override = default;
+  vtkAnariDeviceInternals() = default;
+  ~vtkAnariDeviceInternals() override = default;
 
   bool IsInitialized() const;
   bool InitAnari(bool useDebugDevice = false, const char* libraryName = "environment",
@@ -77,21 +77,20 @@ public:
   anari::Device AnariDevice{ nullptr };
   anari::Extensions AnariExtensions{};
 
-  vtkAnariDeviceManager::OnNewDeviceCallback NewDeviceCB;
+  vtkAnariDevice::OnNewDeviceCallback NewDeviceCB;
 };
 
 // ----------------------------------------------------------------------------
-bool vtkAnariDeviceManagerInternals::IsInitialized() const
+bool vtkAnariDeviceInternals::IsInitialized() const
 {
   return this->AnariDevice != nullptr;
 }
 
 // ----------------------------------------------------------------------------
-bool vtkAnariDeviceManagerInternals::InitAnari(
+bool vtkAnariDeviceInternals::InitAnari(
   bool useDebugDevice, const char* libraryName, const char* deviceName)
 {
-  vtkAnariProfiling startProfiling(
-    "vtkAnariDeviceManagerInternals::InitAnari", vtkAnariProfiling::YELLOW);
+  vtkAnariProfiling startProfiling("vtkAnariDeviceInternals::InitAnari", vtkAnariProfiling::YELLOW);
 
   const bool configIsTheSame = IsInitialized() && libraryName == this->AnariLibraryName &&
     deviceName == this->AnariDeviceName && useDebugDevice == this->AnariDebugDeviceEnabled;
@@ -196,7 +195,7 @@ bool vtkAnariDeviceManagerInternals::InitAnari(
 }
 
 // ----------------------------------------------------------------------------
-void vtkAnariDeviceManagerInternals::CleanupAnariObjects()
+void vtkAnariDeviceInternals::CleanupAnariObjects()
 {
   if (this->AnariLibrary)
   {
@@ -217,65 +216,65 @@ void vtkAnariDeviceManagerInternals::CleanupAnariObjects()
 }
 
 // ----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkAnariDeviceManagerInternals);
+vtkStandardNewMacro(vtkAnariDeviceInternals);
 
 //============================================================================
 
 // ----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkAnariDeviceManager);
+vtkStandardNewMacro(vtkAnariDevice);
 
 //----------------------------------------------------------------------------
-void vtkAnariDeviceManager::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAnariDevice::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 // ----------------------------------------------------------------------------
-void vtkAnariDeviceManager::SetAnariDebugConfig(const char* traceDir, const char* traceMode)
+void vtkAnariDevice::SetAnariDebugConfig(const char* traceDir, const char* traceMode)
 {
   this->Internal->AnariDebugTraceDir = traceDir;
   this->Internal->AnariDebugTraceMode = traceMode;
 }
 
 // ----------------------------------------------------------------------------
-bool vtkAnariDeviceManager::SetupAnariDeviceFromLibrary(
+bool vtkAnariDevice::SetupAnariDeviceFromLibrary(
   const char* libraryName, const char* deviceName, bool enableDebugDevice)
 {
   return this->Internal->InitAnari(enableDebugDevice, libraryName, deviceName);
 }
 
 // ----------------------------------------------------------------------------
-bool vtkAnariDeviceManager::AnariInitialized() const
+bool vtkAnariDevice::AnariInitialized() const
 {
   return GetAnariDevice() != nullptr;
 }
 
 // ----------------------------------------------------------------------------
-anari::Device vtkAnariDeviceManager::GetAnariDevice() const
+anari::Device vtkAnariDevice::GetAnariDevice() const
 {
   return this->Internal->AnariDevice;
 }
 
 // ----------------------------------------------------------------------------
-const anari::Extensions& vtkAnariDeviceManager::GetAnariDeviceExtensions() const
+const anari::Extensions& vtkAnariDevice::GetAnariDeviceExtensions() const
 {
   return this->Internal->AnariExtensions;
 }
 
 // ----------------------------------------------------------------------------
-void vtkAnariDeviceManager::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
+void vtkAnariDevice::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
 {
   this->Internal->NewDeviceCB = std::move(cb);
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariDeviceManager::vtkAnariDeviceManager()
+vtkAnariDevice::vtkAnariDevice()
 {
-  this->Internal = vtkAnariDeviceManagerInternals::New();
+  this->Internal = vtkAnariDeviceInternals::New();
 }
 
 // ----------------------------------------------------------------------------
-vtkAnariDeviceManager::~vtkAnariDeviceManager()
+vtkAnariDevice::~vtkAnariDevice()
 {
   this->Internal->Delete();
   this->Internal = nullptr;

@@ -22,7 +22,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariLightNodeInternals;
-class vtkAnariRendererNode;
+class vtkAnariSceneGraph;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkLight;

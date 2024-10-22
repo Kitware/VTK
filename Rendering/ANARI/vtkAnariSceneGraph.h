@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkAnariRendererNode
+ * @class   vtkAnariSceneGraph
  * @brief   links vtkRenderers to ANARI
  *
  * This class acts as a root node managing an anari::Frame and everything
  * within it. The anari::Frame is the top-level object to render images using
  * ANARI, containing the anari::Camera, anari::World, and anari::Renderer all
- * from a particular anari::Device. vtkAnariRendererNode expects to be given
+ * from a particular anari::Device. vtkAnariSceneGraph expects to be given
  * the anari::Device and anari::Renderer externally, which are managed by
- * other classes which use vtkAnariRendererNode (e.g. vtkAnariPass and
- * vtkAnariWindowNode). vtkAnariRendererNode expects to be given a valid
+ * other classes which use vtkAnariSceneGraph (e.g. vtkAnariPass and
+ * vtkAnariWindowNode). vtkAnariSceneGraph expects to be given a valid
  * anari::Device before any scene graph traversals occur.
  *
  *  @par Thanks:
@@ -18,8 +18,8 @@
  *  and NVIDIA for supporting this work.
  */
 
-#ifndef vtkAnariRendererNode_h
-#define vtkAnariRendererNode_h
+#ifndef vtkAnariSceneGraph_h
+#define vtkAnariSceneGraph_h
 
 #include "vtkRendererNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
@@ -33,14 +33,14 @@ class vtkInformationIntegerKey;
 class vtkInformationDoubleKey;
 class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
-class vtkAnariRendererNodeInternals;
+class vtkAnariSceneGraphInternals;
 class vtkRenderer;
 
-class VTKRENDERINGANARI_EXPORT vtkAnariRendererNode : public vtkRendererNode
+class VTKRENDERINGANARI_EXPORT vtkAnariSceneGraph : public vtkRendererNode
 {
 public:
-  static vtkAnariRendererNode* New();
-  vtkTypeMacro(vtkAnariRendererNode, vtkRendererNode);
+  static vtkAnariSceneGraph* New();
+  vtkTypeMacro(vtkAnariSceneGraph, vtkRendererNode);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -173,8 +173,8 @@ public:
   void InvalidateSceneStructure();
 
 protected:
-  vtkAnariRendererNode();
-  ~vtkAnariRendererNode();
+  vtkAnariSceneGraph();
+  ~vtkAnariSceneGraph();
 
   void InitAnariFrame(vtkRenderer* ren);
   void SetupAnariRendererParameters(vtkRenderer* ren);
@@ -186,7 +186,7 @@ protected:
   void CopyAnariFrameBufferData();
   void DebugOutputWorldBounds();
 
-  vtkAnariRendererNodeInternals* Internal{ nullptr };
+  vtkAnariSceneGraphInternals* Internal{ nullptr };
 
   vtkTimeStamp AnariSceneStructureModifiedMTime;
   vtkMTimeType AnariSceneConstructedMTime{ 0 };
@@ -194,8 +194,8 @@ protected:
   vtkMTimeType AnariRendererUpdatedTime{ 0 };
 
 private:
-  vtkAnariRendererNode(const vtkAnariRendererNode&) = delete;
-  void operator=(const vtkAnariRendererNode&) = delete;
+  vtkAnariSceneGraph(const vtkAnariSceneGraph&) = delete;
+  void operator=(const vtkAnariSceneGraph&) = delete;
 
   void SetAnariDevice(anari::Device d, anari::Extensions e);
   void SetAnariRenderer(anari::Renderer r);
