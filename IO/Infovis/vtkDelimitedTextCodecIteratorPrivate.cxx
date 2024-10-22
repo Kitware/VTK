@@ -12,6 +12,7 @@
 #include <vtk_utf8.h>
 
 #include <algorithm>
+#include <cctype>
 #include <sstream>
 #include <string>
 
