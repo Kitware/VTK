@@ -946,12 +946,17 @@ It is meant to provide good I/O performance as well as robust and flexible paral
 It currently supports: PolyData, UnstructuredGrid, ImageData, OverlappingAMR, MultiBlockDataSet and the
 PartitionedDataSetCollection.
 
-The current file format version is the **2.2**.
+The current file format version is the **2.3**.
 
 Note: This development is iterative and the format is expected to grow in
 its support for more and more use cases.
 
 ### Changelog
+
+#### VTKHDF - 2.3
+
+- fix array names which miss the `s` to be consistent with other temporal dataset in case of the temporal
+OverlappingAMR. It concerns these data names: NumberOfBox, AMRBoxOffset, Point/Cell/FieldDataOffset.
 
 #### VTKHDF - 2.2
 
@@ -1267,13 +1272,13 @@ As such, arrays described in temporal `Image Data` should have dimensions ordere
 
 Currently only `AMRBox` and `Point/Cell/Field data` can be temporal, not the `Spacing`. Due to the
 structure of the OverlappingAMR format, the format specify an intermediary group between the `Steps`
-group and the `Point/Cell/FieldDataOffset` group named `LevelX` for each level where `X` is the
+group and the `Point/Cell/FieldDataOffsets` group named `LevelX` for each level where `X` is the
 number of level. These `Level` groups will also contain 2 other datasets to retrieve the `AMRBox`:
 
 - `AMRBoxOffsets` : each entry indicates by how many AMR box to offset reading into the `AMRBox`.
-- `NumberOfAMRBox` : the number of boxes contained in the `AMRBox` for each timestep.
+- `NumberOfAMRBoxes` : the number of boxes contained in the `AMRBox` for each timestep.
 
-```{figure} vtkhdf_images/transient_overlapping_amr_hdf_schema.png
+```{figure} vtkhdf_images/temporal_overlapping_amr_hdf_schema.png
 :width: 640px
 :align: center
 
