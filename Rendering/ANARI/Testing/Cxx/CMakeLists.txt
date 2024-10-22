@@ -18,7 +18,6 @@ vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   TestAnariRendererType.cxx
   TestAnariScalarBar.cxx
   TestAnariStereo.cxx
-  TestAnariWindow.cxx
   TestAnariShadows.cxx
   TestAnariPBRMaterials.cxx
   TestAnariPBRMapping.cxx

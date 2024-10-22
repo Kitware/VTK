@@ -26,7 +26,6 @@ set(classes
   vtkAnariRendererManager
   vtkAnariRendererNode
   vtkAnariViewNodeFactory
-  vtkAnariWindowNode
   vtkAnariFollowerNode
   vtkAnariProfiling
   vtkAnariVolumeNode
