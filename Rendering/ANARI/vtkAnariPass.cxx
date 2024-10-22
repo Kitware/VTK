@@ -75,6 +75,9 @@ static void AnariStatusCallback(const void* userData, anari::Device device, anar
 }
 
 // ----------------------------------------------------------------------------
+vtkCxxSetObjectMacro(vtkAnariPass, SceneGraph, vtkAnariRendererNode);
+
+// ----------------------------------------------------------------------------
 class vtkAnariPassInternals : public vtkRenderPass
 {
 public:
@@ -248,9 +251,6 @@ vtkStandardNewMacro(vtkAnariPassInternals);
 
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAnariPass);
-
-// ----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkAnariPass, SceneGraph, vtkAnariRendererNode);
 
 // ----------------------------------------------------------------------------
 void vtkAnariPass::PrintSelf(ostream& os, vtkIndent indent)

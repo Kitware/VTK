@@ -4,7 +4,7 @@
  * @class   vtkAnariDeviceManager
  * @brief   base class to objects which create + manage a ANARI library + device
  *
- * Multiple VTK-ANARI objects are potentially are responsible for creating and
+ * Multiple VTK-ANARI objects are potentially responsible for creating and
  * managing ANARI libraries and devices, so this base class consolidates the
  * common functionality between them.
  *

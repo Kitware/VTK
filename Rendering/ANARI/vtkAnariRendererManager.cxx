@@ -21,7 +21,7 @@ public:
   vtkTypeMacro(vtkAnariRendererManagerInternals, vtkObject);
 
   vtkAnariRendererManagerInternals() = default;
-  ~vtkAnariRendererManagerInternals();
+  ~vtkAnariRendererManagerInternals() override;
 
   void CleanupAnariObjects();
 
