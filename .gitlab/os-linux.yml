@@ -614,6 +614,7 @@
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
+        - "$PYTHON_PREFIX/bin/python -m pip install -U setuptools wheel"
         - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
         - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
