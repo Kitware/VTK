@@ -4811,34 +4811,44 @@ struct PolyhedronsInserter
           //
           for (vtkIdType locPt = faceOffset; locPt<nextFaceOffset; ++locPt)
           {
-              vtkIdType pointId = srcFacesConnectivity->GetValue(locPt);
-              if (pointId >= 0)
+            vtkIdType pointId = srcFacesConnectivity->GetValue(locPt);
+            if (pointId >= 0)
+            {
+              if (this->RedirectionMapForDuplicatePointIds.empty())
               {
-                if (this->RedirectionMapForDuplicatePointIds.empty())
-                {
-                  destFacesConnectivity->SetValue(this->FacesOffset + locPt,
-                      this->PointIdOffset + pointId);
-                }
-                else
-                {
-                  auto it = this->RedirectionMapForDuplicatePointIds.find(pointId);
-                  if (it == this->RedirectionMapForDuplicatePointIds.end())
-                  {
-                    destFacesConnectivity->SetValue(this->FacesOffset + locPt,
-                        this->PointIdOffset + pointId -
-                        this->PointIdOffsetIntervals.lower_bound(pointId)->second);
-                  }
-                  else
-                  {
-                    destFacesConnectivity->SetValue(this->FacesOffset + locPt, it->second);
-                  }
-                }
+                destFacesConnectivity->SetValue(this->FacesOffset + locPt,
+                  this->PointIdOffset + pointId);
               }
               else
               {
-                destFacesConnectivity->SetValue(this->FacesOffset + locPt,
-                    this->MatchingReceivedPointIds->GetId(-pointId - 1));
+                auto it = this->RedirectionMapForDuplicatePointIds.find(pointId);
+                if (it == this->RedirectionMapForDuplicatePointIds.end())
+                {
+                  destFacesConnectivity->SetValue(this->FacesOffset + locPt,
+                    this->PointIdOffset + pointId -
+                    this->PointIdOffsetIntervals.lower_bound(pointId)->second);
+                }
+                else
+                {
+                  destFacesConnectivity->SetValue(this->FacesOffset + locPt, it->second);
+                }
               }
+            }
+            else if (-pointId - 1 < this->MatchingReceivedPointIds->GetNumberOfIds())
+            {
+              // In this case, we already own a copy of this point. It is on the interfacing surface
+              // between us and the block who sent us those ids. We have to retrieve where this point
+              // is located.
+              // We tagged those points by giving them a negative id.
+              destFacesConnectivity->SetValue(this->FacesOffset + locPt,
+                this->MatchingReceivedPointIds->GetId(-pointId - 1));
+            }
+            else
+            {
+              vtkLog(ERROR, "Wrong output geometry... Ghosts should not be trusted."
+                << " This is likely due to asymmetry between data shared between the partitions.");
+              destFacesConnectivity->SetValue(this->FacesOffset + locPt, 0);
+            }
           }
         }
       }
