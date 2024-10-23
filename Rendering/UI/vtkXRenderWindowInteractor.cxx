@@ -144,13 +144,8 @@ public:
 
   static std::set<vtkXRenderWindowInteractor*> Instances;
 
-  struct LoopInformation
-  {
-    // whether application was terminated
-    bool Done = false;
-    // the number of events dispatched by `ProcessEvents()`
-    uint64_t NumEventsDispatched = 0;
-  } LoopInfo;
+  // whether application was terminated
+  bool LoopDone = false;
   int DisplayConnection;
 
 private:
@@ -228,50 +223,43 @@ void vtkXRenderWindowInteractor::TerminateApp()
 void vtkXRenderWindowInteractor::ProcessEvents()
 {
   auto& internals = (*this->Internal);
-  auto& done = internals.LoopInfo.Done;
-  auto& evCount = internals.LoopInfo.NumEventsDispatched;
+  auto& done = internals.LoopDone;
 
   // reset vars which help VTK wait for new events or timer timeouts.
   done = true;
-  evCount = 0;
 
-  for (auto rwi = vtkXRenderWindowInteractorInternals::Instances.begin();
-       rwi != vtkXRenderWindowInteractorInternals::Instances.end();)
+  std::map<Window, vtkXRenderWindowInteractor*> windowmap;
+  std::set<Display*> dpys;
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    windowmap.insert({ rwi->WindowId, rwi });
+    dpys.insert(rwi->DisplayId);
+  }
+
+  for (Display* dpy : dpys)
   {
     XEvent event;
-    while (XPending((*rwi)->DisplayId) != 0)
+    while (XPending(dpy) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
-      XNextEvent((*rwi)->DisplayId, &event);
-      (*rwi)->DispatchEvent(&event);
-      evCount++;
-    }
-    (*rwi)->FireTimers();
-
-    // Check if all RenderWindowInteractors have been terminated
-    done = done && (*rwi)->Done;
-
-    // If current RenderWindowInteractor have been terminated, handle its last event,
-    // then remove it from the Instance vector
-    if ((*rwi)->Done)
-    {
-      // Empty the event list
-      while (XPending((*rwi)->DisplayId) != 0)
+      XNextEvent(dpy, &event);
+      Window w = event.xany.window;
+      auto iter = windowmap.find(w);
+      if (iter != windowmap.end() && !iter->second->Done)
       {
-        XNextEvent((*rwi)->DisplayId, &event);
-        (*rwi)->DispatchEvent(&event);
+        iter->second->DispatchEvent(&event);
       }
-
-      // Finalize the rwi
-      (*rwi)->Finalize();
-
-      // Adjust the Instances vector
-      rwi = vtkXRenderWindowInteractorInternals::Instances.erase(rwi);
     }
-    else
+  }
+
+  for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
+  {
+    if (!rwi->Done)
     {
-      ++rwi;
+      rwi->FireTimers();
     }
+    // Check if all RenderWindowInteractors have been terminated
+    done = done && rwi->Done;
   }
 }
 
@@ -338,17 +326,17 @@ void vtkXRenderWindowInteractor::StartEventLoop()
     rwi->Done = false;
   }
 
-  auto& loopInfo = this->Internal->LoopInfo;
+  auto& loopDone = this->Internal->LoopDone;
   do
   {
     // process pending events.
     this->ProcessEvents();
-    // wait for events only if no events were dispatched and application is not yet terminated.
-    if (!loopInfo.NumEventsDispatched && !loopInfo.Done)
+    // wait for events if application is not yet terminated.
+    if (!loopDone)
     {
       this->WaitForEvents();
     }
-  } while (!loopInfo.Done);
+  } while (!loopDone);
 }
 
 //------------------------------------------------------------------------------
@@ -420,6 +408,8 @@ void vtkXRenderWindowInteractor::Initialize()
 
 void vtkXRenderWindowInteractor::Finalize()
 {
+  vtkXRenderWindowInteractorInternals::Instances.erase(this);
+
   if (this->RenderWindow)
   {
     // Finalize the window
