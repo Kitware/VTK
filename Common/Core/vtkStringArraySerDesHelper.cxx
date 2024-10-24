@@ -32,7 +32,7 @@ static nlohmann::json Serialize_vtkStringArray(vtkObjectBase* objectBase, vtkSer
   auto& dst = state["Values"] = json::array();
   for (vtkIdType i = 0; i < object->GetNumberOfValues(); ++i)
   {
-    dst.emplace_back(object->GetValue(i));
+    dst.emplace_back(static_cast<std::string>(object->GetValue(i)));
   }
   return state;
 }

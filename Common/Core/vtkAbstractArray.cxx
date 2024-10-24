@@ -945,7 +945,7 @@ nlohmann::json vtkAbstractArray::SerializeValues()
   {
     for (vtkIdType ii = 0; ii < this->GetNumberOfValues(); ++ii)
     {
-      result.push_back(this->GetVariantValue(ii).ToString());
+      result.push_back(static_cast<std::string>(this->GetVariantValue(ii).ToString()));
     }
   }
   return result;
