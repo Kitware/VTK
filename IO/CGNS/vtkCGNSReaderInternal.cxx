@@ -168,6 +168,7 @@ int get_section_connectivity(int cgioNum, double cgioSectionId, int dim, const c
       if (data == nullptr)
       {
         std::cerr << "Allocation failed for temporary connectivity array\n";
+        return 1;
       }
 
       if (cgio_read_data_type(cgioNum, cgioElemConnectId, srcStart, srcEnd, srcStride, "I4", dim,
@@ -877,11 +878,18 @@ bool vtkCGNSMetaData::Parse(const char* cgnsFileName)
   // use cgio routine to open the file
   if (cgio_open_file(cgnsFileName, CGIO_MODE_READ, CG_FILE_NONE, &cgioNum) != CG_OK)
   {
-    cgio_error_exit("cgio_file_open");
+    char message[81];
+    cgio_error_message(message);
+    vtkErrorWithObjectMacro(nullptr, "Error loading CGNS file with cgio_file_open: " << message);
+    return false;
   }
   if (cgio_get_root_id(cgioNum, &rootId) != CG_OK)
   {
-    cgio_error_exit("cgio_get_root_id");
+    char message[81];
+    cgio_error_message(message);
+    vtkErrorWithObjectMacro(
+      nullptr, "Error accessing CGNS root node with cgio_get_root_id: " << message);
+    return false;
   }
 
   // Get base id list :
