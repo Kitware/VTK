@@ -189,6 +189,16 @@ public:
 
   ///@{
   /**
+   * Enable/disable loading of surface patches. In constrast to LoadBndPatch this loads elements of
+   * +++ that do not have an associated boundary condition patch. Defaults to false.
+   */
+  vtkSetMacro(LoadSurfacePatch, bool);
+  vtkGetMacro(LoadSurfacePatch, bool);
+  vtkBooleanMacro(LoadSurfacePatch, bool);
+  ///@}
+
+  ///@{
+  /**
    * Enable/disable loading of zone mesh. Defaults to true. It may be turned off
    * to load only boundary patches (when LoadBndPatch if ON), for example.
    */
@@ -356,6 +366,7 @@ private:
   std::string FileName;
   int DataLocation = vtkCGNSReader::CELL_DATA;
   bool LoadBndPatch = false;
+  bool LoadSurfacePatch = false;
   bool LoadMesh = true;
   int DoublePrecisionMesh = 1;
   int CreateEachSolutionAsBlock = 0;

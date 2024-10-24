@@ -304,7 +304,8 @@ private:
 
 //------------------------------------------------------------------------------
 /**
- * Class to encapsulate information provided by a BC_t node.
+ * Class to encapsulate information provided by a BC_t node or Elements_t node
+ * that corresponds to boundary elements.
  * This is only useful for the Unstructured I/O code.
  */
 class BCInformationUns
@@ -416,6 +417,13 @@ public:
     CGNSRead::releaseIds(cgioNum, childrenIds);
   }
 
+  // initialize the object using a CGNS section that corresponds to boundary elements.
+  BCInformationUns(const SectionInformation& sectionInfo)
+  {
+    this->BCElementRange = std::vector<vtkTypeInt64>{ sectionInfo.range[0], sectionInfo.range[1] };
+    strncpy(this->Name, sectionInfo.name, sizeof(CGNSRead::char_33));
+  }
+
   ~BCInformationUns() = default;
 
 private:
@@ -487,6 +495,18 @@ public:
       iarray->SetNumberOfTuples(1);
       iarray->SetValue(0, is_patch ? 1 : 0);
       iarray->SetName("ispatch");
+      ds->GetFieldData()->AddArray(iarray.Get());
+    }
+  }
+
+  static void AddIsSurfaceArray(vtkDataSet* ds, bool issurface)
+  {
+    if (ds)
+    {
+      vtkNew<vtkIntArray> iarray;
+      iarray->SetNumberOfTuples(1);
+      iarray->SetValue(0, issurface ? 1 : 0);
+      iarray->SetName("issurface");
       ds->GetFieldData()->AddArray(iarray.Get());
     }
   }
@@ -3254,12 +3274,23 @@ int vtkCGNSReader::GetUnstructuredZone(
   auto& baseInfo = this->Internals->Internal->GetBase(base);
   auto& zoneInfo = baseInfo.zones[zone];
   const bool requiredPatch = CGNSRead::ReadPatchesForBase(this, baseInfo);
+  const bool requiredSurfaces = CGNSRead::ReadSurfacesForBase(this, baseInfo);
+  int patchBlockId = -1;
+  int surfaceBlockId = -1;
 
   // Setup zone blocks
   vtkNew<vtkMultiBlockDataSet> mzone;
 
-  if (!bndSec.empty() && requiredPatch)
+  if (!bndSec.empty() && requiredPatch && requiredSurfaces)
   {
+    patchBlockId = 1;
+    surfaceBlockId = 2;
+    mzone->SetNumberOfBlocks(3);
+  }
+  else if (!bndSec.empty() && (requiredPatch || requiredSurfaces))
+  {
+    patchBlockId = requiredPatch ? 1 : -1;
+    surfaceBlockId = requiredSurfaces ? 1 : -1;
     mzone->SetNumberOfBlocks(2);
   }
   else
@@ -3292,32 +3323,52 @@ int vtkCGNSReader::GetUnstructuredZone(
   // Add field data array to indicate that the unstructured
   // grid built above is not a patch
   vtkPrivate::AddIsPatchArray(ugrid.Get(), false);
+  vtkPrivate::AddIsSurfaceArray(ugrid.Get(), false);
 
-  if ((!bndSec.empty() || isPoly3D) && requiredPatch)
+  if ((!bndSec.empty() || isPoly3D) && (requiredPatch || requiredSurfaces))
   {
     // Create first zone block for the unstructured grid built above
     mzone->SetBlock(0u, ugrid.Get());
     mzone->GetMetaData(0u)->Set(vtkCompositeDataSet::NAME(), "Internal");
 
-    // Create second zone block containing all patches
+    vtkMultiBlockDataSet* mBlocks[2] = { nullptr, nullptr };
     vtkNew<vtkMultiBlockDataSet> patchesMB;
-    mzone->SetBlock(1, patchesMB.Get());
-    mzone->GetMetaData(1)->Set(vtkCompositeDataSet::NAME(), "Patches");
+    // Create a zone block containing all patches
+    if (requiredPatch)
+    {
+      mzone->SetBlock(patchBlockId, patchesMB.Get());
+      mzone->GetMetaData(patchBlockId)->Set(vtkCompositeDataSet::NAME(), "Patches");
+      mBlocks[patchBlockId] = patchesMB.Get();
+    }
 
-    // Identify BC_t nodes among zone sub nodes
+    // Create a zone block containing all surfaces that are not patches
+    vtkNew<vtkMultiBlockDataSet> surfacesMB;
+    if (requiredSurfaces)
+    {
+      mzone->SetBlock(surfaceBlockId, surfacesMB.Get());
+      mzone->GetMetaData(surfaceBlockId)->Set(vtkCompositeDataSet::NAME(), "Surfaces");
+      mBlocks[surfaceBlockId] = surfacesMB.Get();
+    }
+
+    // Identify BC_t nodes and Elements_t zones with ids in bndSec among zone sub nodes
     std::vector<double> zoneChildren;
     CGNSRead::getNodeChildrenId(this->cgioNum, this->currentZoneId, zoneChildren);
 
     for (auto iter = zoneChildren.begin(); iter != zoneChildren.end(); ++iter)
     {
       CGNSRead::char_33 nodeLabel;
+      CGNSRead::char_33 nodeName;
       cgio_get_label(cgioNum, (*iter), nodeLabel);
-      if (strcmp(nodeLabel, "ZoneBC_t") != 0)
+      cgio_get_name(cgioNum, (*iter), nodeName);
+      const bool isZoneBC_t = (strcmp(nodeLabel, "ZoneBC_t") == 0);
+      const bool isElements_t = (strcmp(nodeLabel, "Elements_t") == 0);
+      if (!isZoneBC_t && !isElements_t)
       {
         continue;
       }
 
       const double zoneBCId = (*iter);
+      int activeblockId = -1;
 
       // Iterate over all ZoneBC_t children and read supported BC_t nodes
       std::vector<double> zoneBCChildren;
@@ -3327,27 +3378,50 @@ int vtkCGNSReader::GetUnstructuredZone(
       {
         char label[CGIO_MAX_LABEL_LENGTH + 1];
         cgio_get_label(this->cgioNum, *bciter, label);
-
-        if (strcmp(label, "BC_t") == 0)
+        const bool isBC_t = (strcmp(label, "BC_t") == 0);
+        const bool isIndexRange_t = (strcmp(label, "IndexRange_t") == 0);
+        if ((isZoneBC_t && isBC_t) || (isElements_t && isIndexRange_t))
         {
           try
           {
-            BCInformationUns binfo(this->cgioNum, *bciter, cellDim);
+            std::unique_ptr<BCInformationUns> binfo;
 
-            if (CGNSRead::ReadPatch(this, baseInfo, zoneInfo, binfo.FamilyName))
+            if (requiredPatch && isZoneBC_t)
+            {
+              binfo = std::unique_ptr<BCInformationUns>(
+                new BCInformationUns(this->cgioNum, *bciter, cellDim));
+              activeblockId = patchBlockId;
+            }
+            else if (requiredSurfaces && isElements_t)
+            {
+              auto boundaryIterator = std::find_if(bndSec.begin(), bndSec.end(),
+                [nodeName, &sectionInfoList](const int id)
+                {
+                  const SectionInformation& section = sectionInfoList[id];
+                  return strcmp(section.name, nodeName) == 0;
+                });
+              if (boundaryIterator != bndSec.end())
+              {
+                const SectionInformation& section = sectionInfoList[*boundaryIterator];
+                binfo = std::unique_ptr<BCInformationUns>(new BCInformationUns(section));
+                activeblockId = surfaceBlockId;
+              }
+            }
+
+            if (binfo && CGNSRead::ReadPatch(this, baseInfo, zoneInfo, binfo->FamilyName))
             {
               // Create cell and cell types arrays
               vtkNew<vtkCellArray> bcCells;
               int* bcCellsTypes = nullptr;
               vtkIdType numBCFaces = 0;
 
-              if (binfo.BCElementRange.size() == 2)
+              if (binfo->BCElementRange.size() == 2)
               {
-                numBCFaces = binfo.BCElementRange[1] - binfo.BCElementRange[0] + 1;
+                numBCFaces = binfo->BCElementRange[1] - binfo->BCElementRange[0] + 1;
               }
-              else if (!binfo.BCElementList.empty())
+              else if (!binfo->BCElementList.empty())
               {
-                numBCFaces = static_cast<vtkIdType>(binfo.BCElementList.size());
+                numBCFaces = static_cast<vtkIdType>(binfo->BCElementList.size());
               }
               else
               {
@@ -3380,16 +3454,16 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                 if (elemType == CGNS_ENUMV(NGON_n))
                 {
-                  if (binfo.BCElementRange.size() == 2)
+                  if (binfo->BCElementRange.size() == 2)
                   {
-                    vtkIdType bcStartFaceId = binfo.BCElementRange[0];
+                    vtkIdType bcStartFaceId = binfo->BCElementRange[0];
 
                     // Compute range intersection with current NGon section
                     //------------------------------------------------
                     cgsize_t startFaceId = std::max(sectionInfoList[curSec].range[0],
-                      static_cast<cgsize_t>(binfo.BCElementRange[0]));
+                      static_cast<cgsize_t>(binfo->BCElementRange[0]));
                     cgsize_t endFaceId = std::min(sectionInfoList[curSec].range[1],
-                      static_cast<cgsize_t>(binfo.BCElementRange[1]));
+                      static_cast<cgsize_t>(binfo->BCElementRange[1]));
                     cgsize_t numFacesToRead = endFaceId - startFaceId + 1;
 
                     // Stop if there is no faces to read in the current section
@@ -3477,12 +3551,12 @@ int vtkCGNSReader::GetUnstructuredZone(
                       break;
                     }
                   }
-                  else if (!binfo.BCElementList.empty())
+                  else if (!binfo->BCElementList.empty())
                   {
-                    std::vector<bool> BCElementRead(binfo.BCElementList.size(), false);
+                    std::vector<bool> BCElementRead(binfo->BCElementList.size(), false);
 
                     const auto bcminmax = std::minmax_element(
-                      std::begin(binfo.BCElementList), std::end(binfo.BCElementList));
+                      std::begin(binfo->BCElementList), std::end(binfo->BCElementList));
 
                     std::vector<std::pair<vtkIdType, vtkIdType>> faceElemToRead;
 
@@ -3498,10 +3572,10 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                     for (std::size_t idx = 0; idx < BCElementRead.size(); idx++)
                     {
-                      if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
-                        binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
+                      if (binfo->BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
+                        binfo->BCElementList[idx] <= sectionInfoList[curSec].range[1])
                       {
-                        faceElemToRead.emplace_back(binfo.BCElementList[idx], idx);
+                        faceElemToRead.emplace_back(binfo->BCElementList[idx], idx);
                         BCElementRead[idx] = true;
                       }
                     }
@@ -3617,16 +3691,16 @@ int vtkCGNSReader::GetUnstructuredZone(
                 }
                 else
                 {
-                  if (binfo.BCElementRange.size() == 2)
+                  if (binfo->BCElementRange.size() == 2)
                   {
-                    vtkIdType bcStartFaceId = binfo.BCElementRange[0];
+                    vtkIdType bcStartFaceId = binfo->BCElementRange[0];
 
                     // Compute range intersection with current section
                     //------------------------------------------------
                     cgsize_t startBndElemId = std::max(sectionInfoList[curSec].range[0],
-                      static_cast<cgsize_t>(binfo.BCElementRange[0]));
+                      static_cast<cgsize_t>(binfo->BCElementRange[0]));
                     cgsize_t endBndElemId = std::min(sectionInfoList[curSec].range[1],
-                      static_cast<cgsize_t>(binfo.BCElementRange[1]));
+                      static_cast<cgsize_t>(binfo->BCElementRange[1]));
                     cgsize_t numBndElemToRead = endBndElemId - startBndElemId + 1;
 
                     // Skip section without faces to read
@@ -3889,12 +3963,12 @@ int vtkCGNSReader::GetUnstructuredZone(
                       break;
                     }
                   }
-                  else if (!binfo.BCElementList.empty())
+                  else if (!binfo->BCElementList.empty())
                   {
                     // This a bit more tricky to implement because it generate lot of small IO
-                    std::vector<bool> BCElementRead(binfo.BCElementList.size(), false);
+                    std::vector<bool> BCElementRead(binfo->BCElementList.size(), false);
                     const auto bcminmax = std::minmax_element(
-                      std::begin(binfo.BCElementList), std::end(binfo.BCElementList));
+                      std::begin(binfo->BCElementList), std::end(binfo->BCElementList));
                     std::vector<std::pair<vtkIdType, vtkIdType>> elemToRead;
                     elemType = CGNS_ENUMV(ElementTypeNull);
 
@@ -3910,10 +3984,10 @@ int vtkCGNSReader::GetUnstructuredZone(
 
                     for (std::size_t idx = 0; idx < BCElementRead.size(); idx++)
                     {
-                      if (binfo.BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
-                        binfo.BCElementList[idx] <= sectionInfoList[curSec].range[1])
+                      if (binfo->BCElementList[idx] >= sectionInfoList[curSec].range[0] &&
+                        binfo->BCElementList[idx] <= sectionInfoList[curSec].range[1])
                       {
-                        elemToRead.emplace_back(binfo.BCElementList[idx], idx);
+                        elemToRead.emplace_back(binfo->BCElementList[idx], idx);
                         BCElementRead[idx] = true;
                       }
                     }
@@ -4200,7 +4274,7 @@ int vtkCGNSReader::GetUnstructuredZone(
 
               if (numRemainingFacesToRead > 0)
               {
-                vtkWarningMacro("Not enough elements to generate BC patch " << binfo.Name);
+                vtkWarningMacro("Not enough elements to generate BC patch " << binfo->Name);
                 delete[] bcCellsTypes;
                 continue;
               }
@@ -4248,18 +4322,19 @@ int vtkCGNSReader::GetUnstructuredZone(
               // At least should read from Neumann and Dirichlet nodes for face centered values
               // Try to parse BCDataSet CGNS arrays
               vtkCGNSReader::vtkPrivate::readBCData(
-                *bciter, cellDim, physicalDim, binfo.Location, bcGrid.Get(), this);
+                *bciter, cellDim, physicalDim, binfo->Location, bcGrid.Get(), this);
 
-              const unsigned int idx = patchesMB->GetNumberOfBlocks();
-              patchesMB->SetBlock(idx, bcGrid.Get());
+              const unsigned int idx = mBlocks[activeblockId]->GetNumberOfBlocks();
+              mBlocks[activeblockId]->SetBlock(idx, bcGrid.Get());
 
-              if (!binfo.FamilyName.empty())
+              if (!binfo->FamilyName.empty())
               {
                 vtkInformationStringKey* bcfamily = vtkCGNSReader::FAMILY();
-                patchesMB->GetMetaData(idx)->Set(bcfamily, binfo.FamilyName.c_str());
+                mBlocks[activeblockId]->GetMetaData(idx)->Set(bcfamily, binfo->FamilyName.c_str());
               }
 
-              patchesMB->GetMetaData(idx)->Set(vtkCompositeDataSet::NAME(), binfo.Name);
+              mBlocks[activeblockId]->GetMetaData(idx)->Set(
+                vtkCompositeDataSet::NAME(), binfo->Name);
             }
           }
           catch (const CGIOUnsupported& ue)
@@ -4535,6 +4610,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (numProcessors > 1)
   {
     this->LoadBndPatch = false;
+    this->LoadSurfacePatch = false;
     this->CreateEachSolutionAsBlock = 0;
   }
 
@@ -4944,6 +5020,7 @@ void vtkCGNSReader::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "File Name: " << (this->FileName.empty() ? "(none)" : this->FileName) << endl;
   os << indent << "LoadBndPatch: " << this->LoadBndPatch << endl;
+  os << indent << "LoadSurfacePatch: " << this->LoadSurfacePatch << endl;
   os << indent << "LoadMesh: " << this->LoadMesh << endl;
   os << indent << "CreateEachSolutionAsBlock: " << this->CreateEachSolutionAsBlock << endl;
   os << indent << "IgnoreFlowSolutionPointers: " << this->IgnoreFlowSolutionPointers << endl;
