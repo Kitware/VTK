@@ -21,7 +21,8 @@ OPTIONAL_DEPENDS
   VTK::ParallelMPI
 TEST_DEPENDS
   VTK::FiltersGeometry
-  VTK::ParallelMPI
   VTK::RenderingOpenGL2
   VTK::RenderingParallel
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
