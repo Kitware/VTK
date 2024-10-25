@@ -61,7 +61,7 @@ int vtkRemoveDuplicatePolys::RequestData(vtkInformation* vtkNotUsed(request),
   std::map<std::set<int>, vtkIdType>::iterator polyIter;
 
   // Now copy the polys.
-  vtkIdList* polyPoints = vtkIdList::New();
+  vtkNew<vtkIdList> polyPoints;
   const vtkIdType numberOfPolys = input->GetNumberOfPolys();
   vtkIdType progressStep = numberOfPolys / 100;
   if (progressStep == 0)
@@ -129,8 +129,6 @@ int vtkRemoveDuplicatePolys::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDebugMacro(<< "vtkRemoveDuplicatePolys : " << ndup
                   << " duplicate polys (multiple instances of a polygon) have been"
                   << " removed." << endl);
-
-    polyPoints->Delete();
     output->Squeeze();
   }
 
