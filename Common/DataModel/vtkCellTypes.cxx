@@ -158,6 +158,8 @@ int vtkCellTypes::GetDimension(unsigned char type)
     case VTK_POLY_LINE:
     case VTK_QUADRATIC_EDGE:
     case VTK_CUBIC_LINE:
+    case VTK_PARAMETRIC_CURVE:
+    case VTK_HIGHER_ORDER_EDGE:
     case VTK_LAGRANGE_CURVE:
     case VTK_BEZIER_CURVE:
       return 1;
@@ -169,8 +171,15 @@ int vtkCellTypes::GetDimension(unsigned char type)
     case VTK_QUADRATIC_TRIANGLE:
     case VTK_QUADRATIC_QUAD:
     case VTK_QUADRATIC_POLYGON:
+    case VTK_QUADRATIC_LINEAR_QUAD:
     case VTK_BIQUADRATIC_QUAD:
     case VTK_BIQUADRATIC_TRIANGLE:
+    case VTK_PARAMETRIC_SURFACE:
+    case VTK_PARAMETRIC_TRI_SURFACE:
+    case VTK_PARAMETRIC_QUAD_SURFACE:
+    case VTK_HIGHER_ORDER_TRIANGLE:
+    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_HIGHER_ORDER_POLYGON:
     case VTK_LAGRANGE_TRIANGLE:
     case VTK_LAGRANGE_QUADRILATERAL:
     case VTK_BEZIER_TRIANGLE:
@@ -187,21 +196,38 @@ int vtkCellTypes::GetDimension(unsigned char type)
     case VTK_QUADRATIC_HEXAHEDRON:
     case VTK_QUADRATIC_WEDGE:
     case VTK_QUADRATIC_PYRAMID:
+    case VTK_QUADRATIC_LINEAR_WEDGE:
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
     case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
     case VTK_TRIQUADRATIC_HEXAHEDRON:
     case VTK_TRIQUADRATIC_PYRAMID:
+    case VTK_CONVEX_POINT_SET:
+    case VTK_POLYHEDRON:
+    case VTK_PARAMETRIC_TETRA_REGION:
+    case VTK_PARAMETRIC_HEX_REGION:
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+    case VTK_HIGHER_ORDER_WEDGE:
+    case VTK_HIGHER_ORDER_PYRAMID:
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
     case VTK_LAGRANGE_TETRAHEDRON:
     case VTK_LAGRANGE_HEXAHEDRON:
     case VTK_LAGRANGE_WEDGE:
+    case VTK_LAGRANGE_PYRAMID:
     case VTK_BEZIER_TETRAHEDRON:
     case VTK_BEZIER_HEXAHEDRON:
     case VTK_BEZIER_WEDGE:
+    case VTK_BEZIER_PYRAMID:
       return 3;
     default:
+    {
+      if (type < VTK_NUMBER_OF_CELL_TYPES)
+      {
+        return 3;
+      }
       vtkNew<vtkGenericCell> cell;
       cell->SetCellType(type);
       return cell->GetCellDimension();
+    }
   }
 }
 

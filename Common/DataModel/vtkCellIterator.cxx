@@ -3,6 +3,7 @@
 
 #include "vtkCellIterator.h"
 
+#include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
@@ -60,67 +61,7 @@ void vtkCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkCellIterator::GetCellDimension()
 {
-  // For the most common cell types, this is a fast call. If the cell type is
-  // more exotic, then the cell must be grabbed and queried directly, which is
-  // slow.
-
-  int cellType = this->GetCellType();
-
-  switch (cellType)
-  {
-    case VTK_EMPTY_CELL:
-    case VTK_VERTEX:
-    case VTK_POLY_VERTEX:
-      return 0;
-    case VTK_LINE:
-    case VTK_POLY_LINE:
-    case VTK_QUADRATIC_EDGE:
-    case VTK_CUBIC_LINE:
-    case VTK_LAGRANGE_CURVE:
-    case VTK_BEZIER_CURVE:
-      return 1;
-    case VTK_TRIANGLE:
-    case VTK_QUAD:
-    case VTK_PIXEL:
-    case VTK_POLYGON:
-    case VTK_TRIANGLE_STRIP:
-    case VTK_QUADRATIC_TRIANGLE:
-    case VTK_QUADRATIC_QUAD:
-    case VTK_QUADRATIC_POLYGON:
-    case VTK_BIQUADRATIC_QUAD:
-    case VTK_BIQUADRATIC_TRIANGLE:
-    case VTK_LAGRANGE_TRIANGLE:
-    case VTK_LAGRANGE_QUADRILATERAL:
-    case VTK_BEZIER_TRIANGLE:
-    case VTK_BEZIER_QUADRILATERAL:
-      return 2;
-    case VTK_TETRA:
-    case VTK_VOXEL:
-    case VTK_HEXAHEDRON:
-    case VTK_WEDGE:
-    case VTK_PYRAMID:
-    case VTK_PENTAGONAL_PRISM:
-    case VTK_HEXAGONAL_PRISM:
-    case VTK_QUADRATIC_TETRA:
-    case VTK_QUADRATIC_HEXAHEDRON:
-    case VTK_QUADRATIC_WEDGE:
-    case VTK_QUADRATIC_PYRAMID:
-    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
-    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
-    case VTK_TRIQUADRATIC_HEXAHEDRON:
-    case VTK_TRIQUADRATIC_PYRAMID:
-    case VTK_LAGRANGE_TETRAHEDRON:
-    case VTK_LAGRANGE_HEXAHEDRON:
-    case VTK_LAGRANGE_WEDGE:
-    case VTK_BEZIER_TETRAHEDRON:
-    case VTK_BEZIER_HEXAHEDRON:
-    case VTK_BEZIER_WEDGE:
-      return 3;
-    default:
-      vtkNew<vtkGenericCell> cell;
-      this->GetCell(cell);
-      return cell->GetCellDimension();
-  }
+  return vtkCellTypes::GetDimension(this->GetCellType());
 }
 
 //------------------------------------------------------------------------------
