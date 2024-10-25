@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestFieldDataToDataSetAttribute.cxx,NO_VALID
   TestFlyingEdges.cxx
   TestGenerateIdsHTG.cxx,NO_VALID,NO_OUTPUT
+  TestGenerateRegionIds.cxx,NO_VALID
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
   TestHedgeHog.cxx,NO_VALID

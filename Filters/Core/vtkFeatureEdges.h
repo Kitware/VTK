@@ -21,7 +21,7 @@
  * is only a problem if there are point data scalars.)
  *
  * @sa
- * vtkExtractEdges
+ * vtkExtractEdges, vtkGenerateRegionIds
  */
 
 #ifndef vtkFeatureEdges_h
