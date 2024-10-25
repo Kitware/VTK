@@ -344,11 +344,6 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 };
 
 //------------------------------------------------------------------------------
-template <int DataDescription, bool UsePixelVoxelOrientation>
-constexpr std::array<std::array<int, 8>, 3> vtkStructuredCellArray::vtkStructuredTCellBackend<
-  DataDescription, UsePixelVoxelOrientation>::ShiftLUT;
-
-//------------------------------------------------------------------------------
 // template instantiated for each data description
 template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_SINGLE_POINT, true>;
 template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_X_LINE, true>;
