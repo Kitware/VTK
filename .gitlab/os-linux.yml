@@ -808,6 +808,3 @@
             "$HOME/.m2/settings.xml"
         - cd build/install
         - mvn deploy -Dvtk.snapshots.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.snapshots.repo.id=github
-
-    environment:
-        name: maven-upload
