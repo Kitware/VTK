@@ -65,12 +65,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(VTK_MODULE_ENABLE_VTK_TestingRendering NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "" FORCE)
   set(VTK_VERSIONED_INSTALL "OFF" CACHE BOOL "" FORCE)
-  set(MAVEN_NATIVE_ARTIFACTS
-    Darwin-amd64
-    Darwin-arm64
-    Linux-amd64
-    Windows-amd64
-  )
+  set(MAVEN_NATIVE_ARTIFACTS "Darwin-amd64;Darwin-arm64;Linux-amd64;Windows-amd64" CACHE STRING "" FORCE)
 endif()
 
 # qt
