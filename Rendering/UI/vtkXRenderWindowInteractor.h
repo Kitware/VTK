@@ -144,6 +144,11 @@ protected:
   void WaitForEvents();
 
   /**
+   * Check if a display connection is in use by any windows.
+   */
+  bool CheckDisplayId(Display* dpy);
+
+  /**
    * Deallocate X resource that may have been allocated
    * Also calls finalize on the render window if available
    */
