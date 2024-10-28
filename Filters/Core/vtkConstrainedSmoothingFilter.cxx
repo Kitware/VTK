@@ -443,7 +443,7 @@ int vtkConstrainedSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(reques
   vtkPointSet* input = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointSet* output = vtkPointSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkLog(INFO, "Executing constrained smoothing filter");
+  vtkLog(TRACE, "Executing constrained smoothing filter");
 
   // Sanity check the input
   vtkIdType numPts = input->GetNumberOfPoints();

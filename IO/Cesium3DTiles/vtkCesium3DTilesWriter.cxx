@@ -263,7 +263,7 @@ void vtkCesium3DTilesWriter::WriteData()
         return;
       }
       std::vector<vtkSmartPointer<vtkCompositeDataSet>> buildings;
-      vtkLog(INFO, "Translate buildings...");
+      vtkLog(TRACE, "Translate buildings...");
       auto wholeBB = TranslateBuildings(rootBuildings, this->Offset, buildings);
       if (buildings.empty())
       {
@@ -272,7 +272,7 @@ void vtkCesium3DTilesWriter::WriteData()
           "Maybe buildings are on a different LOD. Try changing --lod parameter.");
         return;
       }
-      vtkLog(INFO, "Processing " << buildings.size() << " buildings...");
+      vtkLog(TRACE, "Processing " << buildings.size() << " buildings...");
       vtkDirectory::MakeDirectory(this->DirectoryName);
 
       vtkSmartPointer<vtkIncrementalOctreePointLocator> octree =
@@ -281,13 +281,13 @@ void vtkCesium3DTilesWriter::WriteData()
         this->TextureBaseDirectory, this->PropertyTextureFile, this->SaveTextures,
         this->ContentGLTF, this->ContentGLTFSaveGLB, this->CRS, this->DirectoryName);
       treeInformation.Compute();
-      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      vtkLog(TRACE, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
         treeInformation.SaveTilesBuildings(this->MergeTilePolyData, this->MergedTextureWidth);
       }
-      vtkLog(INFO, "Deleting objects ...");
+      vtkLog(TRACE, "Deleting objects ...");
       break;
     }
     case Points:
@@ -305,13 +305,13 @@ void vtkCesium3DTilesWriter::WriteData()
       TreeInformation treeInformation(octree->GetRoot(), octree->GetNumberOfNodes(), pc,
         this->ContentGLTF, this->ContentGLTFSaveGLB, this->CRS, this->DirectoryName);
       treeInformation.Compute();
-      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      vtkLog(TRACE, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
         treeInformation.SaveTilesPoints();
       }
-      vtkLog(INFO, "Deleting objects ...");
+      vtkLog(TRACE, "Deleting objects ...");
       break;
     }
     case Mesh:
@@ -332,13 +332,13 @@ void vtkCesium3DTilesWriter::WriteData()
         this->TextureBaseDirectory, this->PropertyTextureFile, this->SaveTextures,
         this->ContentGLTF, this->ContentGLTFSaveGLB, this->CRS, this->DirectoryName);
       treeInformation.Compute();
-      vtkLog(INFO, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
+      vtkLog(TRACE, "Generating tileset.json for " << octree->GetNumberOfNodes() << " nodes...");
       treeInformation.SaveTileset(std::string(this->DirectoryName) + "/tileset.json");
       if (this->SaveTiles)
       {
         treeInformation.SaveTilesMesh();
       }
-      vtkLog(INFO, "Deleting objects ...");
+      vtkLog(TRACE, "Deleting objects ...");
       break;
     }
   }

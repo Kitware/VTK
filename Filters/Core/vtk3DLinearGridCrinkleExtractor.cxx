@@ -734,7 +734,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   }
   if (numPts <= 0 || numCells <= 0)
   {
-    vtkLog(INFO, "Empty input");
+    vtkLog(TRACE, "Empty input");
     return 0;
   }
 
@@ -904,7 +904,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   }
 
   // Report the results of execution
-  vtkLog(INFO,
+  vtkLog(TRACE,
     "Extracted: " << grid->GetNumberOfPoints() << " points, " << grid->GetNumberOfCells()
                   << " cells");
 
@@ -1029,7 +1029,7 @@ int vtk3DLinearGridCrinkleExtractor::RequestData(
       }
       else
       {
-        vtkLog(INFO, << "This filter only processes unstructured grids");
+        vtkLog(TRACE, << "This filter only processes unstructured grids");
       }
     }
   }

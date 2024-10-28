@@ -114,7 +114,7 @@ void vtkXMLWriter2::AddRootArtifact(const std::string& fname, bool isDir)
 //----------------------------------------------------------------------------
 void vtkXMLWriter2::DeleteArtifacts()
 {
-  vtkLogScopeF(INFO, "DeleteArtifacts");
+  vtkLogScopeF(TRACE, "DeleteArtifacts");
   for (const auto& pair : this->Artifacts)
   {
     if (pair.second)

@@ -340,7 +340,7 @@ void vtkCesium3DTilesReader::ReadTiles(
       transform->SetMatrix(this->Tilesets[tilesetIndex_tileIndex.first]
                              ->Transforms[tilesetIndex_tileIndex.second]
                              .data());
-      vtkLog(INFO, "Read: " << tileFileName);
+      vtkLog(TRACE, "Read: " << tileFileName);
       auto tile_gltfReader =
         this->Tilesets[tilesetIndex_tileIndex.first]->ReadTile(tileFileName, transform);
       if (tile_gltfReader.first != nullptr)
@@ -476,7 +476,7 @@ int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(reques
     this->Tilesets[0]->Open(this->FileName, transform);
     for (size_t i = 0; i < this->Tilesets.size(); ++i)
     {
-      vtkLog(INFO, "Tileset: " << i << ", " << *this->Tilesets[i]);
+      vtkLog(TRACE, "Tileset: " << i << ", " << *this->Tilesets[i]);
     }
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     if (!outInfo)
