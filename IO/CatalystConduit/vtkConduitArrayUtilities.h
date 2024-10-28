@@ -60,7 +60,7 @@ public:
    * of data to match data type expected by vtkCellArray API.
    */
   static vtkSmartPointer<vtkCellArray> MCArrayToVTKCellArray(
-    vtkIdType cellSize, const conduit_node* mcarray);
+    vtkIdType cellSize, int vtk_cell_type, const conduit_node* mcarray);
 
   /**
    * If the number of components in the array does not match the target, a new

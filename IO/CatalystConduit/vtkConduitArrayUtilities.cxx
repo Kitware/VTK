@@ -5,6 +5,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
@@ -481,7 +482,7 @@ struct NoOp
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-  vtkIdType cellSize, const conduit_node* mcarray)
+  vtkIdType cellSize, int vtk_cell_type, const conduit_node* mcarray)
 {
   auto array = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
   if (!array)
@@ -489,6 +490,25 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
     return nullptr;
   }
 
+  if (vtk_cell_type == VTK_WEDGE)
+  {
+    vtkNew<vtkCellArray> wedgeCellArray;
+    vtkIdType number_of_cells = array->GetNumberOfTuples() / 6;
+    vtkNew<vtkIdTypeArray> fixed_ordering;
+
+    vtkTypeInt32Array* id_array = vtkTypeInt32Array::SafeDownCast(array);
+    for (vtkIdType i = 0; i < number_of_cells; i++)
+    {
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 3));
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 4));
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 5));
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 0));
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 1));
+      fixed_ordering->InsertNextValue(id_array->GetValue(i * 6 + 2));
+    }
+    wedgeCellArray->SetData(6, fixed_ordering);
+    return wedgeCellArray;
+  }
   // now the array matches the type accepted by vtkCellArray (in most cases).
   vtkNew<vtkCellArray> cellArray;
   cellArray->SetData(cellSize, array);
