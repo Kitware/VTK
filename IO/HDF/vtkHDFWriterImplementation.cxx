@@ -488,7 +488,7 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::Create2DValueDataset(
   if (size != 2)
   {
     // not a warn or an error as it could be noisy depending on the size of the data
-    vtkLog(INFO, "Try to create a 2D dataset with a size of " + std::to_string(size));
+    vtkLog(TRACE, "Try to create a 2D dataset with a size of " + std::to_string(size));
     return H5I_INVALID_HID;
   }
   std::vector<hsize_t> dimensions;

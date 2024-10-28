@@ -122,7 +122,7 @@ bool vtkUnstructuredGridToCellGrid::TranscribeQuery::SumOutputCounts()
       else
       {
         // clang-format off
-        vtkLogF(INFO, "No allocations for %llu cells of type %lu",
+        vtkLogF(TRACE, "No allocations for %llu cells of type %lu",
           static_cast<unsigned long long>(entry.second.NumberOfCells),
           static_cast<unsigned long>(entry.first));
         // clang-format on

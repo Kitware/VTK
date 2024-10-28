@@ -45,7 +45,7 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (numPts <= 0 || numCells <= 0)
   {
-    vtkLog(INFO, "Empty input");
+    vtkLog(TRACE, "Empty input");
     return 1;
   }
 

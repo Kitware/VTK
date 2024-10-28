@@ -1156,7 +1156,7 @@ struct NetsWorker
 void SmoothOutput(vtkPolyData* geomCache, vtkCellArray* stencils, vtkPolyData* output,
   vtkConstrainedSmoothingFilter* smoother)
 {
-  vtkLog(INFO, "Smoothing output");
+  vtkLog(TRACE, "Smoothing output");
 
   // Smooth the data and replace the output points.
   smoother->SetInputData(geomCache);
@@ -1212,7 +1212,7 @@ vtkMTimeType vtkSurfaceNets2D::GetMTime()
 int vtkSurfaceNets2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkLog(INFO, "Executing Surface Nets 2D");
+  vtkLog(TRACE, "Executing Surface Nets 2D");
 
   // Get the information objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -1287,7 +1287,7 @@ int vtkSurfaceNets2D::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
 
-    vtkLog(INFO,
+    vtkLog(TRACE,
       "Extracted: " << newPts->GetNumberOfPoints() << " points, " << newLines->GetNumberOfCells()
                     << " lines");
 
