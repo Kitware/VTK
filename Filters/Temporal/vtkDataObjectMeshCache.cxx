@@ -223,6 +223,12 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
 
   if (this->IsSupportedData(input))
   {
+    if (this->OriginalCompositeDataSet &&
+      strcmp(this->OriginalCompositeDataSet->GetClassName(), input->GetClassName()) == 0)
+    {
+      this->InvalidateCache();
+    }
+
     this->OriginalDataSet = vtkDataSet::SafeDownCast(input);
     this->OriginalCompositeDataSet = vtkCompositeDataSet::SafeDownCast(input);
     vtkDebugMacro(" set OriginalDataObject: " << input);
@@ -388,19 +394,7 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkDebugMacro("Consumer modification time has changed.");
   }
 
-  // Be sure that original data and cache are of same class.
-  if (this->OriginalCompositeDataSet)
-  {
-    status.OriginalMeshUnmodified =
-      strcmp(this->OriginalCompositeDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
-  }
-  else if (this->OriginalDataSet)
-  {
-    status.OriginalMeshUnmodified =
-      strcmp(this->OriginalDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
-  }
-
-  status.OriginalMeshUnmodified &= this->GetNumberOfDataSets(this->Cache) ==
+  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
     this->GetNumberOfDataSets(this->GetOriginalDataObject());
 
   if (!status.OriginalMeshUnmodified)
@@ -566,7 +560,7 @@ void vtkDataObjectMeshCache::ForwardAttributes(
   outAttribute->CopyAllocate(inAttribute);
 
   // NOTE potential optimization:
-  // this copy may be replaced by an (optional ?) use of the implicit vtkIndexedArray
+  // this copy may be replaced by an use of SMPTools (or optionally the implicit vtkIndexedArray?)
   auto ptsIdsRange = vtk::DataArrayValueRange(originalIds);
   vtkIdType outId = 0;
   for (auto originalId : ptsIdsRange)
