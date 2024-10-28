@@ -640,13 +640,13 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
     this->Impl->OpenDataset(stepsGroup, "ConnectivityIdOffsets");
 
   // Get the connectivity offsets for the previous timestep
-  std::vector<int> allValues;
+  std::vector<vtkIdType> allValues;
   allValues.resize(NUM_POLY_DATA_TOPOS * (this->CurrentTimeIndex + 1));
-  H5Dread(connectivityOffsetsHandle, H5T_NATIVE_INT, H5Dget_space(connectivityOffsetsHandle),
-    H5S_ALL, H5P_DEFAULT, allValues.data());
+  H5Dread(connectivityOffsetsHandle, VTK_ID_H5T, H5Dget_space(connectivityOffsetsHandle), H5S_ALL,
+    H5P_DEFAULT, allValues.data());
 
   // Offset the offset by the previous timestep's offset
-  std::vector<int> connectivityOffsetArray{ 0, 0, 0, 0 };
+  std::vector<vtkIdType> connectivityOffsetArray{ 0, 0, 0, 0 };
   auto cellArrayTopos = this->Impl->GetCellArraysForTopos(input);
 
   bool geometryUpdated = this->HasGeometryChangedFromPreviousStep(input);
@@ -659,7 +659,7 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
       connectivityOffsetArray[i] += cellArrayTopos[i].cellArray->GetNumberOfConnectivityIds();
     }
   }
-  vtkNew<vtkIntArray> connectivityOffsetvtkArray;
+  vtkNew<vtkIdTypeArray> connectivityOffsetvtkArray;
   connectivityOffsetvtkArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
   connectivityOffsetvtkArray->SetArray(connectivityOffsetArray.data(), NUM_POLY_DATA_TOPOS, 1);
 
@@ -667,8 +667,8 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   if (geometryUpdated)
   {
     // Need to deep copy the data since the pointer will be taken
-    vtkNew<vtkIntArray> connectivityOffsetvtkArrayCopy;
-    std::vector<int> connectivityOffsetArrayCopy = connectivityOffsetArray;
+    vtkNew<vtkIdTypeArray> connectivityOffsetvtkArrayCopy;
+    std::vector<vtkIdType> connectivityOffsetArrayCopy = connectivityOffsetArray;
     connectivityOffsetvtkArrayCopy->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
     connectivityOffsetvtkArrayCopy->SetArray(
       connectivityOffsetArrayCopy.data(), NUM_POLY_DATA_TOPOS, 1);
