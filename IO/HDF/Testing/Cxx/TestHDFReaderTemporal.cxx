@@ -67,6 +67,7 @@ int TestImageDataTemporalWithCache(const std::string& dataRoot);
 int TestPolyDataTemporalWithCache(const std::string& dataRoot);
 int TestPolyDataTemporalFieldData(const std::string& dataRoot);
 int TestOverlappingAMRTemporal(const std::string& dataRoot);
+int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot);
 }
 
 //------------------------------------------------------------------------------
@@ -85,6 +86,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestPolyDataTemporalWithCache(dataRoot);
   res |= ::TestPolyDataTemporalFieldData(dataRoot);
   res |= ::TestOverlappingAMRTemporal(dataRoot);
+  res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
 
   return res;
 }
@@ -664,6 +666,7 @@ int TestImageDataTemporalWithCache(const std::string& dataRoot)
   return TestImageDataTemporalBase(opener);
 }
 
+//------------------------------------------------------------------------------
 int TestPolyDataTemporalBase(
   OpenerWorklet& opener, const std::string& dataRoot, bool testMeshMTime = false)
 {
@@ -1072,10 +1075,8 @@ int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 }
 
 //------------------------------------------------------------------------------
-int TestOverlappingAMRTemporal(const std::string& dataRoot)
+int TestOverlappingAMRTemporalBase(OpenerWorklet& opener, const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/vtkHDF/test_transient_overlapping_amr.vtkhdf");
-
   // Generic Time data checks
   vtkIdType nbSteps = 3;
   if (opener.GetReader()->GetNumberOfSteps() != nbSteps)
@@ -1168,4 +1169,21 @@ int TestOverlappingAMRTemporal(const std::string& dataRoot)
   return EXIT_SUCCESS;
 }
 
+//------------------------------------------------------------------------------
+int TestOverlappingAMRTemporal(const std::string& dataRoot)
+{
+  std::string filePath = "/Data/vtkHDF/test_temporal_overlapping_amr.vtkhdf";
+  auto worklet = OpenerWorklet(dataRoot + filePath);
+  return ::TestOverlappingAMRTemporalBase(worklet, dataRoot);
+}
+
+//------------------------------------------------------------------------------
+// Ensures retro-compatibility with the VTKHDF specification v2.2 which has a typo in the
+// Point/Cell/FieldDataOffset name arrays.
+int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot)
+{
+  std::string filePath = "/Data/vtkHDF/test_temporal_overlapping_amr_version_2_2.vtkhdf";
+  auto worklet = OpenerWorklet(dataRoot + filePath);
+  return ::TestOverlappingAMRTemporalBase(worklet, dataRoot);
+}
 }

@@ -118,7 +118,8 @@ vtk_module_test_data(
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_1_0.vtp
   Data/vtkHDF/test_multiblock_hdf/test_multiblock_hdf_2_0.vtu
 
-  Data/vtkHDF/test_transient_overlapping_amr.vtkhdf
+  Data/vtkHDF/test_temporal_overlapping_amr.vtkhdf
+  Data/vtkHDF/test_temporal_overlapping_amr_version_2_2.vtkhdf
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_0.vthb
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_0.vti
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_0/transient_expected_overlapping_amr_0_1.vti
