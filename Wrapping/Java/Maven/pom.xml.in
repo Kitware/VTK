@@ -54,8 +54,9 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <dependencies>@MAVEN_DEPENDENCY_XML@
-    </dependencies>
+  <dependencies>
+@MAVEN_DEPENDENCY_XML@
+  </dependencies>
   <distributionManagement>
     <!-- Warning: Generating release artifacts is only meant to be used after
          a compilation of VTK across all the targeted platforms while overriding
@@ -140,7 +141,7 @@
                   <file>vtk-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.jar</file>
                   <type>jar</type>
                 </artifact>
-                @MAVEN_NATIVE_ARTIFACT_XML@
+@MAVEN_NATIVE_ARTIFACT_XML@
               </artifacts>
             </configuration>
           </execution>
