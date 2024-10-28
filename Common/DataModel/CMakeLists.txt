@@ -84,6 +84,7 @@ set(classes
   vtkExtractStructuredGridHelper
   vtkFieldData
   vtkFindCellStrategy
+  vtkFrustum
   vtkGenericAdaptorCell
   vtkGenericAttribute
   vtkGenericAttributeCollection

@@ -38,6 +38,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestImplicitConeWidget.cxx
   TestImplicitCylinderWidget.cxx
   TestImplicitCylinderWidget2.cxx
+  TestImplicitFrustumWidget.cxx
   TestImplicitPlaneWidget.cxx
   TestImplicitPlaneWidget2.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
