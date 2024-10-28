@@ -101,7 +101,7 @@ public class vtkJavaTesting {
     System.exit(0);
   }
 
-  public static int RegressionTest(vtkRenderWindow renWin, int threshold) {
+  public static int RegressionTest(vtkRenderWindow renWin, double threshold) {
     vtkJavaTesting.Tester.SetRenderWindow(renWin);
 
     if (vtkJavaTesting.Tester.RegressionTest(threshold) == vtkJavaTesting.PASSED) {
