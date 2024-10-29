@@ -474,6 +474,11 @@ bool vtkWebGPUConfiguration::Initialize()
 {
   vtkDebugMacro(<< __func__);
   auto& internals = (*this->Internals);
+  if (internals.DeviceReady)
+  {
+    vtkDebugMacro(<< "Device is already initialized.");
+    return true;
+  }
   vtkWebGPUConfigurationInternals::AddInstanceRef();
 
   wgpu::RequestAdapterOptions options;
