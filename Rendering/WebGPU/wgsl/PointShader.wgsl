@@ -236,6 +236,9 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
 
   let d = length(fragment.local_position); // distance of fragment from the input vertex in noramlized bi-unit domain.
+  if ((actor.render_options.point_2d_shape == POINT_2D_ROUND) && (d > 1)) {
+    discard;
+  }
 
   var normal_vc = normalize(fragment.normal_vc);
   if (actor.render_options.render_points_as_spheres != 0) {

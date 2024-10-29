@@ -148,7 +148,7 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
 
   let d = length(fragment.local_position); // distance of fragment from the input vertex in noramlized bi-unit domain.
-  if (d > 1) {
+  if ((actor.render_options.point_2d_shape == POINT_2D_ROUND) && (d > 1)) {
     discard;
   }
 

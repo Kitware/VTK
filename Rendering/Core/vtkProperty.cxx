@@ -144,6 +144,7 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetLighting(p->GetLighting());
     this->SetRenderPointsAsSpheres(p->GetRenderPointsAsSpheres());
+    this->SetPoint2DShape(p->GetPoint2DShape());
     this->SetRenderLinesAsTubes(p->GetRenderLinesAsTubes());
     this->SetShading(p->GetShading());
     this->SetNormalScale(p->GetNormalScale());
@@ -462,6 +463,17 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   else
   {
     os << "Off" << endl;
+  }
+  os << indent << "Point2DShape: ";
+  switch (this->Point2DShape)
+  {
+    case Point2DShapeType::Round:
+      os << "Round\n";
+      break;
+    case Point2DShapeType::Square:
+    default:
+      os << "Square\n";
+      break;
   }
   os << indent << "RenderPointsAsSpheres: " << (this->RenderPointsAsSpheres ? "On" : "Off") << endl;
   os << indent << "RenderLinesAsTubes: " << (this->RenderLinesAsTubes ? "On" : "Off") << endl;

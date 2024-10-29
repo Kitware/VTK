@@ -148,17 +148,19 @@ void vtkWebGPUActor::CacheActorTransforms()
 //------------------------------------------------------------------------------
 void vtkWebGPUActor::CacheActorRenderOptions()
 {
-  if (this->GetProperty()->GetMTime() > this->RenderOptionsBuildTimestamp ||
+  auto* displayProperty = this->GetProperty();
+  if (displayProperty->GetMTime() > this->RenderOptionsBuildTimestamp ||
     this->GetMTime() > this->RenderOptionsBuildTimestamp)
   {
     auto& ro = this->CachedActorInfo.RenderOpts;
-    const int representation = this->GetProperty()->GetRepresentation();
+    const int representation = displayProperty->GetRepresentation();
     ro.Representation = representation;
-    ro.PointSize = this->GetProperty()->GetPointSize();
-    ro.LineWidth = this->GetProperty()->GetLineWidth();
-    ro.EdgeVisibility = this->GetProperty()->GetEdgeVisibility();
-    ro.RenderPointsAsSpheres = this->GetProperty()->GetRenderPointsAsSpheres();
-    ro.RenderLinesAsTubes = this->GetProperty()->GetRenderLinesAsTubes();
+    ro.PointSize = displayProperty->GetPointSize();
+    ro.LineWidth = displayProperty->GetLineWidth();
+    ro.EdgeVisibility = displayProperty->GetEdgeVisibility();
+    ro.RenderPointsAsSpheres = displayProperty->GetRenderPointsAsSpheres();
+    ro.RenderLinesAsTubes = displayProperty->GetRenderLinesAsTubes();
+    ro.Point2DShape = static_cast<std::uint32_t>(displayProperty->GetPoint2DShape());
     this->RenderOptionsBuildTimestamp.Modified();
   }
 }
@@ -166,22 +168,23 @@ void vtkWebGPUActor::CacheActorRenderOptions()
 //------------------------------------------------------------------------------
 void vtkWebGPUActor::CacheActorShadeOptions()
 {
-  if (this->GetProperty()->GetMTime() > this->ShadingOptionsBuildTimestamp ||
+  auto* displayProperty = this->GetProperty();
+  if (displayProperty->GetMTime() > this->ShadingOptionsBuildTimestamp ||
     this->GetMTime() > this->ShadingOptionsBuildTimestamp)
   {
     auto& so = this->CachedActorInfo.ShadeOpts;
-    so.AmbientIntensity = this->GetProperty()->GetAmbient();
-    so.DiffuseIntensity = this->GetProperty()->GetDiffuse();
-    so.SpecularIntensity = this->GetProperty()->GetSpecular();
-    so.SpecularPower = this->GetProperty()->GetSpecularPower();
-    so.Opacity = this->GetProperty()->GetOpacity();
+    so.AmbientIntensity = displayProperty->GetAmbient();
+    so.DiffuseIntensity = displayProperty->GetDiffuse();
+    so.SpecularIntensity = displayProperty->GetSpecular();
+    so.SpecularPower = displayProperty->GetSpecularPower();
+    so.Opacity = displayProperty->GetOpacity();
     for (int i = 0; i < 3; ++i)
     {
-      so.AmbientColor[i] = this->GetProperty()->GetAmbientColor()[i];
-      so.DiffuseColor[i] = this->GetProperty()->GetDiffuseColor()[i];
-      so.SpecularColor[i] = this->GetProperty()->GetSpecularColor()[i];
-      so.EdgeColor[i] = this->GetProperty()->GetEdgeColor()[i];
-      so.VertexColor[i] = this->GetProperty()->GetVertexColor()[i];
+      so.AmbientColor[i] = displayProperty->GetAmbientColor()[i];
+      so.DiffuseColor[i] = displayProperty->GetDiffuseColor()[i];
+      so.SpecularColor[i] = displayProperty->GetSpecularColor()[i];
+      so.EdgeColor[i] = displayProperty->GetEdgeColor()[i];
+      so.VertexColor[i] = displayProperty->GetVertexColor()[i];
     }
     this->ShadingOptionsBuildTimestamp.Modified();
   }

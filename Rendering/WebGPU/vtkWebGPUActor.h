@@ -80,7 +80,9 @@ protected:
       vtkTypeUInt32 RenderPointsAsSpheres = 0;
       // Render lines as tubes - applicable when rendering lines.
       vtkTypeUInt32 RenderLinesAsTubes = 0;
-      vtkTypeUInt32 Padding[2] = {};
+      // 2D shape of points.
+      vtkTypeUInt32 Point2DShape = 0;
+      vtkTypeUInt32 Padding;
     } RenderOpts;
 
     struct ShadeOptions

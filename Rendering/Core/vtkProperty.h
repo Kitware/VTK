@@ -102,6 +102,19 @@ public:
   vtkBooleanMacro(Lighting, bool);
   ///@}
 
+  enum class Point2DShapeType
+  {
+    Round,
+    Square,
+  };
+
+  /**
+   * Set/Get the 2D shape of points to use when RenderPointsAsSpheres=false.
+   * Some graphics implementations may ignore this setting.
+   */
+  vtkSetEnumMacro(Point2DShape, Point2DShapeType);
+  vtkGetEnumMacro(Point2DShape, Point2DShapeType);
+
   ///@{
   /**
    * Set/Get rendering of points as spheres. The size of the
@@ -809,6 +822,7 @@ protected:
   vtkTypeBool BackfaceCulling;
   vtkTypeBool FrontfaceCulling;
   bool Lighting;
+  Point2DShapeType Point2DShape = Point2DShapeType::Square;
   bool RenderPointsAsSpheres;
   bool RenderLinesAsTubes;
   bool ShowTexturesOnBackface;
