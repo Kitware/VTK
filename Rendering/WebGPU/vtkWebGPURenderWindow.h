@@ -219,9 +219,9 @@ public:
   wgpu::Adapter GetAdapter();
 
   /**
-   * Get the texture format preferred for the swapchain presentation.
+   * Get the texture format preferred for the surface.
    */
-  wgpu::TextureFormat GetPreferredSwapChainTextureFormat();
+  wgpu::TextureFormat GetPreferredSurfaceTextureFormat();
 
   ///@{
   /**
@@ -260,8 +260,8 @@ protected:
   bool WGPUInit();
   void WGPUFinalize();
 
-  void CreateSwapChain();
-  void DestroySwapChain();
+  void ConfigureSurface();
+  void UnconfigureSurface();
 
   void CreateOffscreenColorAttachments();
   void DestroyOffscreenColorAttachments();
@@ -280,17 +280,8 @@ protected:
 
   wgpu::Surface Surface;
   wgpu::CommandEncoder CommandEncoder;
-
-  struct vtkWGPUSwapChain
-  {
-    wgpu::SwapChain Instance;
-    wgpu::TextureView Framebuffer;
-    wgpu::TextureFormat TexFormat;
-    wgpu::PresentMode PresentMode;
-    int Width = 0;
-    int Height = 0;
-  };
-  vtkWGPUSwapChain SwapChain;
+  int SurfaceConfiguredSize[2];
+  wgpu::TextureFormat PreferredSurfaceTextureFormat = wgpu::TextureFormat::BGRA8Unorm;
 
   struct vtkWGPUDeptStencil
   {
