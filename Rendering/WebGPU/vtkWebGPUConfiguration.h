@@ -180,6 +180,12 @@ public:
     DeviceRequestCompletedEvent,
   };
 
+  /**
+   * Print information of webgpu adapter and device to the output string.
+   */
+  std::string ReportCapabilities();
+  static std::string DeviceNotReadyMessage();
+
 protected:
   vtkWebGPUConfiguration();
   ~vtkWebGPUConfiguration() override;
