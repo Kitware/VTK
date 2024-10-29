@@ -23,6 +23,7 @@ set(classes
   vtkWebGPUHelpers
   vtkWebGPULight
   vtkWebGPURenderWindow
+  vtkWebGPURenderPipelineCache
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
