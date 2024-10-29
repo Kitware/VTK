@@ -38,7 +38,7 @@ protected:
 
   struct LightInfo
   {
-    vtkTypeUInt8 Pad[12] = {}; // so that Type begins at n module 16 byte. LightCount
+    vtkTypeUInt8 Pad[12] = {}; // so that Type begins at n modulo 16 byte. LightCount,
                                // a 4-byte integer is the first element in lights ssbo.
     // 0 : deferred, 1 : headlight, 2 : lightkit, 3 : positional
     vtkTypeUInt32 Type = 0;
