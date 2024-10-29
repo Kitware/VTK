@@ -105,7 +105,8 @@ set(private_shader_files
   wgsl/OcclusionCullingPropsCulling.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
-  wgsl/PointCloudMapperShader.wgsl)
+  wgsl/PointCloudMapperShader.wgsl
+  wgsl/VTKCellToGraphicsPrimitive.wgsl)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl
