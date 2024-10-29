@@ -75,6 +75,7 @@ for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit);
     {
       object_factory->SetEnableFlag(use_webgpu, "vtkRenderWindow", "@vtk_webgpu_factory_override_classname@");
       // disable ALL opengl render window overrides.
+      object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkOpenGLRenderWindow");
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkCocoaRenderWindow");
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkWin32OpenGLRenderWindow");
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkXOpenGLRenderWindow");
