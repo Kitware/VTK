@@ -19,6 +19,17 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
+// https://pcisig.com/membership/member-companies
+const std::uint32_t AMD_PCI_VENDOR_ID = 0x1002;
+const std::uint32_t APPLE_PCI_VENDOR_ID = 0x106b;
+const std::uint32_t ARM_PCI_VENDOR_ID = 0x13b5;
+const std::uint32_t BROADCOM_PCI_VENDOR_ID = 0x14e4; // Used on low power devices like Raspberry-Pi
+const std::uint32_t INTEL_PCI_VENDOR_ID = 0x8086;
+const std::uint32_t MESA_PCI_VENDOR_ID = 0x10005;
+const std::uint32_t MICROSOFT_PCI_VENDOR_ID = 0x1414; // used in Microsoft WSL
+const std::uint32_t NVIDIA_PCI_VENDOR_ID = 0x10de;
+const std::uint32_t SAMSUNG_PCI_VENDOR_ID = 0x144d;
+
 ostream& operator<<(ostream& os, const vtkWebGPUConfiguration::BackendType& backend)
 {
   switch (backend)
@@ -629,6 +640,90 @@ std::string vtkWebGPUConfiguration::ReportCapabilities()
   {
     return DeviceNotReadyMessage();
   }
+}
+
+//------------------------------------------------------------------------------
+std::uint32_t vtkWebGPUConfiguration::GetAdapterVendorID()
+{
+  if (this->Internals->DeviceReady)
+  {
+    wgpu::AdapterInfo info{};
+    this->Internals->Adapter.GetInfo(&info);
+    return info.vendorID;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
+std::uint32_t vtkWebGPUConfiguration::GetAdapterDeviceID()
+{
+  if (this->Internals->DeviceReady)
+  {
+    wgpu::AdapterInfo info{};
+    this->Internals->Adapter.GetInfo(&info);
+    return info.deviceID;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsAMDGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::AMD_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsAppleGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::APPLE_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsARMGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::ARM_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsBroadcomGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::BROADCOM_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsIntelGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::INTEL_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsMesaGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::MESA_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsMicrosoftGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::MICROSOFT_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsNVIDIAGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::NVIDIA_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUConfiguration::IsSamsungGPUInUse()
+{
+  return this->GetAdapterVendorID() == ::SAMSUNG_PCI_VENDOR_ID;
 }
 
 VTK_ABI_NAMESPACE_END

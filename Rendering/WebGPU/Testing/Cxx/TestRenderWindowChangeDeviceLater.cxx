@@ -46,9 +46,24 @@ int TestRenderWindowChangeDeviceLater(int argc, char* argv[])
 
   vtkNew<vtkWebGPUConfiguration> wgpuConfig;
   wgpuConfig->DebugOn();
-  wgpuConfig->SetPowerPreference(vtkWebGPUConfiguration::PowerPreferenceType::LowPower);
   if (auto* wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renWin))
   {
+    // When both intel and nvidia are available, vulkan doesn't work with the intel gpu.
+    // So far, this is only observed in linux as there is no win32 webgpu render window yet.
+    // X Error of failed request:  BadMatch (invalid parameter attributes)
+    //   Major opcode of failed request:  149 ()
+    //   Minor opcode of failed request:  4
+    wgpuConfig->Initialize();
+    const auto nvidiaInUseBeforePowerPrefChange = wgpuConfig->IsNVIDIAGPUInUse();
+    wgpuConfig->Finalize();
+
+    wgpuConfig->SetPowerPreference(vtkWebGPUConfiguration::PowerPreferenceType::LowPower);
+    wgpuConfig->Initialize();
+
+    if (nvidiaInUseBeforePowerPrefChange && wgpuConfig->IsIntelGPUInUse())
+    {
+      return VTK_SKIP_RETURN_CODE;
+    }
     wgpuRenWin->SetWGPUConfiguration(wgpuConfig);
   }
   else
