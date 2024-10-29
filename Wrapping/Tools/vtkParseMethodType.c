@@ -105,7 +105,7 @@ int vtkParseMethodType_IsAsStringMethod(const char* name)
   if (vtkParseMethodType_IsGetMethod(name))
   {
     n = strlen(name);
-    if (!strncmp(&name[n - 8], "AsString", 8))
+    if (n > 8 && !strncmp(&name[n - 8], "AsString", 8))
     {
       return 1;
     }
@@ -133,7 +133,7 @@ int vtkParseMethodType_IsRemoveAllMethod(const char* name)
   if (vtkParseMethodType_IsRemoveMethod(name))
   {
     n = strlen(name);
-    return (!strncmp(&name[6], "All", 3) && (n > 9) && isupper(name[9]));
+    return (n > 9) && isupper(name[9]) && !strncmp(&name[6], "All", 3);
   }
 
   return 0;
