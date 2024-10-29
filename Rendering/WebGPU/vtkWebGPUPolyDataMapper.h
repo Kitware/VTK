@@ -100,7 +100,7 @@ public:
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
+  void RenderPiece(vtkRenderer* renderer, vtkActor* act) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.

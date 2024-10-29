@@ -55,13 +55,13 @@ vtkXWebGPURenderWindow::vtkXWebGPURenderWindow()
 // free up memory & close the window
 vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
 {
-  vtkRenderer* ren;
+  vtkRenderer* renderer;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
-  while ((ren = this->Renderers->GetNextRenderer(rit)))
+  while ((renderer = this->Renderers->GetNextRenderer(rit)))
   {
-    ren->ReleaseGraphicsResources(this);
-    ren->SetRenderWindow(nullptr);
+    renderer->ReleaseGraphicsResources(this);
+    renderer->SetRenderWindow(nullptr);
   }
   this->Renderers->RemoveAllItems();
   // Finalize in turn destroys the WGPUInstance. As a result, it must be called after all renderers
@@ -421,11 +421,11 @@ void vtkXWebGPURenderWindow::WindowInitialize()
   this->CreateAWindow();
 
   // tell our renderers about us
-  vtkRenderer* ren;
-  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+  vtkRenderer* renderer;
+  for (this->Renderers->InitTraversal(); (renderer = this->Renderers->GetNextItem());)
   {
-    ren->SetRenderWindow(nullptr);
-    ren->SetRenderWindow(this);
+    renderer->SetRenderWindow(nullptr);
+    renderer->SetRenderWindow(this);
   }
 }
 

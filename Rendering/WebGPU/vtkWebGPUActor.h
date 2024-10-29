@@ -25,7 +25,7 @@ public:
   /**
    * Actual actor render method.
    */
-  void Render(vtkRenderer* ren, vtkMapper* mapper) override;
+  void Render(vtkRenderer* renderer, vtkMapper* mapper) override;
 
   /**
    * Returns true if the actor supports rendering with render bundles, false otherwise.

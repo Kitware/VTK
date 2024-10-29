@@ -32,7 +32,8 @@ void vtkWebGPUProperty::PostRender(vtkActor*, vtkRenderer*) {}
 
 //------------------------------------------------------------------------------
 // Implement base class method.
-void vtkWebGPUProperty::BackfaceRender(vtkActor* vtkNotUsed(anActor), vtkRenderer* vtkNotUsed(ren))
+void vtkWebGPUProperty::BackfaceRender(
+  vtkActor* vtkNotUsed(anActor), vtkRenderer* vtkNotUsed(renderer))
 {
 }
 

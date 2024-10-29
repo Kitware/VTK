@@ -65,9 +65,10 @@ void vtkWebGPUPointCloudMapperInternals::SetMapper(vtkWebGPUComputePointCloudMap
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderWindow* vtkWebGPUPointCloudMapperInternals::GetRendererRenderWindow(vtkRenderer* ren)
+vtkWebGPURenderWindow* vtkWebGPUPointCloudMapperInternals::GetRendererRenderWindow(
+  vtkRenderer* renderer)
 {
-  vtkRenderWindow* renderWindow = ren->GetRenderWindow();
+  vtkRenderWindow* renderWindow = renderer->GetRenderWindow();
   vtkWebGPURenderWindow* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderWindow);
 
   if (wgpuRenderWindow == nullptr)
@@ -92,9 +93,9 @@ vtkWebGPURenderWindow* vtkWebGPUPointCloudMapperInternals::GetRendererRenderWind
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::UpdateRenderWindowDepthBuffer(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::UpdateRenderWindowDepthBuffer(vtkRenderer* renderer)
 {
-  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(ren);
+  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(renderer);
   if (wgpuRenderWindow == nullptr)
   {
     return;
@@ -209,7 +210,7 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::Initialize(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::Initialize(vtkRenderer* renderer)
 {
   if (this->Initialized)
   {
@@ -228,23 +229,23 @@ void vtkWebGPUPointCloudMapperInternals::Initialize(vtkRenderer* ren)
   this->RenderPointsPass->SetShaderSource(PointCloudMapperShader);
   this->RenderPointsPass->SetShaderEntryPoint("pointCloudRenderEntryPoint");
 
-  this->UseRenderWindowDevice(ren);
-  this->InitializeDepthCopyPass(ren);
-  this->InitializePointRenderPass(ren);
+  this->UseRenderWindowDevice(renderer);
+  this->InitializeDepthCopyPass(renderer);
+  this->InitializePointRenderPass(renderer);
 
   this->Initialized = true;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::Update(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::Update(vtkRenderer* renderer)
 {
-  this->ResizeToRenderWindow(ren);
+  this->ResizeToRenderWindow(renderer);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::UseRenderWindowDevice(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::UseRenderWindowDevice(vtkRenderer* renderer)
 {
-  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(ren);
+  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(renderer);
   if (wgpuRenderWindow == nullptr)
   {
     return;
@@ -254,9 +255,9 @@ void vtkWebGPUPointCloudMapperInternals::UseRenderWindowDevice(vtkRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::ResizeToRenderWindow(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::ResizeToRenderWindow(vtkRenderer* renderer)
 {
-  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(ren);
+  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(renderer);
   if (wgpuRenderWindow == nullptr)
   {
     return;
@@ -281,9 +282,9 @@ void vtkWebGPUPointCloudMapperInternals::ResizeToRenderWindow(vtkRenderer* ren)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::InitializeDepthCopyPass(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::InitializeDepthCopyPass(vtkRenderer* renderer)
 {
-  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(ren);
+  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(renderer);
   if (wgpuRenderWindow == nullptr)
   {
     return;
@@ -320,9 +321,9 @@ void vtkWebGPUPointCloudMapperInternals::InitializeDepthCopyPass(vtkRenderer* re
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::InitializePointRenderPass(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::InitializePointRenderPass(vtkRenderer* renderer)
 {
-  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(ren);
+  vtkWebGPURenderWindow* wgpuRenderWindow = this->GetRendererRenderWindow(renderer);
   if (wgpuRenderWindow == nullptr)
   {
     return;
@@ -450,13 +451,13 @@ void vtkWebGPUPointCloudMapperInternals::UploadColorsToGPU()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPointCloudMapperInternals::UploadCameraVPMatrix(vtkRenderer* ren)
+void vtkWebGPUPointCloudMapperInternals::UploadCameraVPMatrix(vtkRenderer* renderer)
 {
-  vtkCamera* camera = ren->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
 
   vtkMatrix4x4* viewMatrix = camera->GetModelViewTransformMatrix();
   vtkMatrix4x4* projectionMatrix =
-    camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), -1, 1);
+    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), -1, 1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
   // WebGPU uses column major matrices but VTK is row major

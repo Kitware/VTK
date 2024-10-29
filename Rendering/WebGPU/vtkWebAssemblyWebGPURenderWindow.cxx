@@ -34,12 +34,12 @@ vtkWebAssemblyWebGPURenderWindow::~vtkWebAssemblyWebGPURenderWindow()
 {
   this->Finalize();
 
-  vtkRenderer* ren;
+  vtkRenderer* renderer;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
-  while ((ren = this->Renderers->GetNextRenderer(rit)))
+  while ((renderer = this->Renderers->GetNextRenderer(rit)))
   {
-    ren->SetRenderWindow(nullptr);
+    renderer->SetRenderWindow(nullptr);
   }
   this->SetCanvasSelector(nullptr);
 }

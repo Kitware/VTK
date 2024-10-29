@@ -26,12 +26,12 @@ public:
   /**
    * Implement base class method.
    */
-  void Render(vtkActor* a, vtkRenderer* ren) override;
+  void Render(vtkActor* a, vtkRenderer* renderer) override;
 
   /**
    * Implement base class method.
    */
-  void BackfaceRender(vtkActor* a, vtkRenderer* ren) override;
+  void BackfaceRender(vtkActor* a, vtkRenderer* renderer) override;
 
   /**
    * This method is called after the actor has been rendered.

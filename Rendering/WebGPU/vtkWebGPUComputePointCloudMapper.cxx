@@ -33,16 +33,16 @@ void vtkWebGPUComputePointCloudMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* act)
+void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkActor* act)
 {
-  this->Internals->Initialize(ren);
-  this->Internals->Update(ren);
+  this->Internals->Initialize(renderer);
+  this->Internals->Update(renderer);
 
   // Updating the camera matrix because we cannot know which renderer (and thus which camera)
   // RenderPiece was called with
-  this->Internals->UploadCameraVPMatrix(ren);
+  this->Internals->UploadCameraVPMatrix(renderer);
 
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(ren->GetRenderWindow());
+  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   if (wgpuRenWin->CheckAbortStatus())
   {
     return;
@@ -58,7 +58,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
   }
 
   const auto device = wgpuRenWin->GetDevice();
-  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
+  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
     vtkErrorMacro("The renderer passed in vtkWebGPUComputePointCloudMapper::RenderPiece is not a "
@@ -97,7 +97,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
       this->Internals->ComputePipeline->DispatchAllPasses();
       this->Internals->ComputePipeline->Update();
 
-      this->Internals->UpdateRenderWindowDepthBuffer(ren);
+      this->Internals->UpdateRenderWindowDepthBuffer(renderer);
 
       break;
     }

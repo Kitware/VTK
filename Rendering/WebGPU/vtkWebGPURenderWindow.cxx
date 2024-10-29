@@ -1776,9 +1776,9 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   {
     return;
   }
-  for (auto ren : vtk::Range(this->Renderers))
+  for (auto renderer : vtk::Range(this->Renderers))
   {
-    ren->ReleaseGraphicsResources(this);
+    renderer->ReleaseGraphicsResources(this);
   }
   this->WGPUPipelineCache->ReleaseGraphicsResources(w);
   this->DestroyFSQGraphicsPipeline();
