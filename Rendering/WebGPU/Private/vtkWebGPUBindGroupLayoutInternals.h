@@ -45,13 +45,14 @@ public:
    * Creates the bind group layout from a list of bind group layout entries
    */
   static wgpu::BindGroupLayout MakeBindGroupLayout(const wgpu::Device& device,
-    std::initializer_list<LayoutEntryInitializationHelper> entriesInitializer);
+    std::initializer_list<LayoutEntryInitializationHelper> entriesInitializer,
+    std::string label = "");
 
   /**
    * Creates the bind group layout from a list of bind group layout entries
    */
-  static wgpu::BindGroupLayout MakeBindGroupLayout(
-    const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries);
+  static wgpu::BindGroupLayout MakeBindGroupLayout(const wgpu::Device& device,
+    const std::vector<wgpu::BindGroupLayoutEntry>& entries, std::string label = "");
 };
 VTK_ABI_NAMESPACE_END
 

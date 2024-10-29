@@ -5,9 +5,11 @@
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
-  const wgpu::Device& device, const wgpu::BindGroupLayout* bindGroupLayout)
+  const wgpu::Device& device, const wgpu::BindGroupLayout* bindGroupLayout,
+  std::string label /*=""*/)
 {
   wgpu::PipelineLayoutDescriptor descriptor;
+  descriptor.label = label.c_str();
   if (bindGroupLayout != nullptr)
   {
     descriptor.bindGroupLayoutCount = 1;
@@ -23,9 +25,10 @@ wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(
 
 //------------------------------------------------------------------------------
 wgpu::PipelineLayout vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
-  const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls)
+  const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls, std::string label /*=""*/)
 {
   wgpu::PipelineLayoutDescriptor descriptor;
+  descriptor.label = label.c_str();
   descriptor.bindGroupLayoutCount = uint32_t(bgls.size());
   descriptor.bindGroupLayouts = bgls.data();
   return device.CreatePipelineLayout(&descriptor);
