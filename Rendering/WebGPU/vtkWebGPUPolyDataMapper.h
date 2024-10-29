@@ -344,7 +344,7 @@ protected:
    * Note that internally, dawn uses a staging ring buffer, as a result, vtk arrays are copied
    * into that host-side buffer and kept alive until uploaded.
    */
-  void UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenWin);
+  void UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenderWindow);
   ///@}
 
   /**

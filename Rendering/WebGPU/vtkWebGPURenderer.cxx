@@ -49,8 +49,8 @@ void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent)
 std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
   const wgpu::Queue& queue = device.GetQueue();
   const auto size = vtkWebGPUCamera::GetCacheSizeBytes();
   const auto data =
@@ -64,8 +64,8 @@ std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=
 std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
   const wgpu::Queue& queue = device.GetQueue();
 
   const vtkTypeUInt32 count = this->LightIDs.size();
@@ -97,8 +97,8 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
   const wgpu::Queue& queue = device.GetQueue();
 
   const auto size = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
@@ -134,8 +134,8 @@ void vtkWebGPURenderer::CreateBuffers()
       vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256),
     256);
 
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
   bool createSceneBindGroup = false;
   bool createActorBindGroup = false;
 
@@ -376,20 +376,20 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
             if (wgpuPropItem.Bundle == nullptr)
             {
               const std::string label = this->GetObjectDescription();
-              auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-              const auto colorFormat = wgpuRenWin->GetPreferredSurfaceTextureFormat();
+              auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+              const auto colorFormat = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
               const int sampleCount =
-                wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
+                wgpuRenderWindow->GetMultiSamples() ? wgpuRenderWindow->GetMultiSamples() : 1;
               wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
               bundleEncDesc.colorFormatCount = 1;
               bundleEncDesc.colorFormats = &colorFormat;
-              bundleEncDesc.depthStencilFormat = wgpuRenWin->GetDepthStencilFormat();
+              bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
               bundleEncDesc.sampleCount = sampleCount;
               bundleEncDesc.depthReadOnly = false;
               bundleEncDesc.stencilReadOnly = false;
               bundleEncDesc.label = label.c_str();
               bundleEncDesc.nextInChain = nullptr;
-              this->WGPUBundleEncoder = wgpuRenWin->NewRenderBundleEncoder(bundleEncDesc);
+              this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
               this->WGPUBundleEncoder.SetBindGroup(0, this->SceneBindGroup);
               this->WGPUBundleEncoder.SetBindGroup(
                 1, this->ActorBindGroup, 1, &wgpuPropItem.DynamicOffset);
@@ -476,20 +476,20 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
             if (wgpuPropItem.Bundle == nullptr)
             {
               const std::string label = this->GetObjectDescription();
-              auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-              const auto colorFormat = wgpuRenWin->GetPreferredSurfaceTextureFormat();
+              auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+              const auto colorFormat = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
               const int sampleCount =
-                wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
+                wgpuRenderWindow->GetMultiSamples() ? wgpuRenderWindow->GetMultiSamples() : 1;
               wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
               bundleEncDesc.colorFormatCount = 1;
               bundleEncDesc.colorFormats = &colorFormat;
-              bundleEncDesc.depthStencilFormat = wgpuRenWin->GetDepthStencilFormat();
+              bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
               bundleEncDesc.sampleCount = sampleCount;
               bundleEncDesc.depthReadOnly = false;
               bundleEncDesc.stencilReadOnly = false;
               bundleEncDesc.label = label.c_str();
               bundleEncDesc.nextInChain = nullptr;
-              this->WGPUBundleEncoder = wgpuRenWin->NewRenderBundleEncoder(bundleEncDesc);
+              this->WGPUBundleEncoder = wgpuRenderWindow->NewRenderBundleEncoder(bundleEncDesc);
               this->WGPUBundleEncoder.SetBindGroup(0, this->SceneBindGroup);
               this->WGPUBundleEncoder.SetBindGroup(
                 1, this->ActorBindGroup, 1, &wgpuPropItem.DynamicOffset);
@@ -904,8 +904,8 @@ void vtkWebGPURenderer::BeginRecording()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::SetupBindGroupLayouts()
 {
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Device device = wgpuRenderWindow->GetDevice();
   if (this->SceneBindGroupLayout.Get() == nullptr)
   {
     this->SceneBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
@@ -938,8 +938,8 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::SetupSceneBindGroup()
 {
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Device device = wgpuRenderWindow->GetDevice();
 
   this->SceneBindGroup =
     vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->SceneBindGroupLayout,
@@ -955,8 +955,8 @@ void vtkWebGPURenderer::SetupSceneBindGroup()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::SetupActorBindGroup()
 {
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  wgpu::Device device = wgpuRenWin->GetDevice();
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  wgpu::Device device = wgpuRenderWindow->GetDevice();
   this->ActorBindGroup =
     vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->ActorBindGroupLayout,
       {

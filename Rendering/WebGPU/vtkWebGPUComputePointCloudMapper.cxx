@@ -42,8 +42,8 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkAct
   // RenderPiece was called with
   this->Internals->UploadCameraVPMatrix(renderer);
 
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  if (wgpuRenWin->CheckAbortStatus())
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  if (wgpuRenderWindow->CheckAbortStatus())
   {
     return;
   }
@@ -57,7 +57,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkAct
     this->Internals->CachedInput = this->GetInput();
   }
 
-  const auto device = wgpuRenWin->GetDevice();
+  const auto device = wgpuRenderWindow->GetDevice();
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {

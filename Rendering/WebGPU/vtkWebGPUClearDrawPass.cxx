@@ -30,12 +30,13 @@ void vtkWebGPUClearDrawPass::PrintSelf(ostream& os, vtkIndent indent)
 wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* state)
 {
   auto renderer = state->GetRenderer();
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(state->GetRenderer()->GetRenderWindow());
+  auto wgpuRenderWindow =
+    vtkWebGPURenderWindow::SafeDownCast(state->GetRenderer()->GetRenderWindow());
 
   std::vector<wgpu::TextureView> backBufferViews = {
-    wgpuRenWin->GetOffscreenColorAttachmentView()
+    wgpuRenderWindow->GetOffscreenColorAttachmentView()
   };
-  wgpu::TextureView depthStencilView = wgpuRenWin->GetDepthStencilView();
+  wgpu::TextureView depthStencilView = wgpuRenderWindow->GetDepthStencilView();
 
   vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
     backBufferViews, depthStencilView, this->DoClear);
@@ -49,7 +50,7 @@ wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* stat
     colorAttachment.clearValue.b = bgColor[2];
     colorAttachment.clearValue.a = 1.0f;
   }
-  return wgpuRenWin->NewRenderPass(renderPassDescriptor);
+  return wgpuRenderWindow->NewRenderPass(renderPassDescriptor);
 }
 
 //------------------------------------------------------------------------------

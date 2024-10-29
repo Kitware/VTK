@@ -22,7 +22,7 @@ int TestLowPowerRenderWindow(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkWebGPUConfiguration> wgpuConfig;
-  if (auto* wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renWin))
+  if (auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renWin))
   {
     // When both intel and nvidia are available, vulkan doesn't work with the intel gpu.
     // So far, this is only observed in linux as there is no win32 webgpu render window yet.
@@ -40,7 +40,7 @@ int TestLowPowerRenderWindow(int argc, char* argv[])
     {
       return VTK_SKIP_RETURN_CODE;
     }
-    wgpuRenWin->SetWGPUConfiguration(wgpuConfig);
+    wgpuRenderWindow->SetWGPUConfiguration(wgpuConfig);
   }
   else
   {

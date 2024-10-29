@@ -272,18 +272,18 @@ vtkPolyDataMapper::MapperHashType vtkWebGPUPolyDataMapper::GenerateHash(vtkPolyD
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 {
-  auto wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   // Note for emscripten: the indirection to js getTimeNow is a bit costly. it can quickly add up
   // for really large number of actors. However, vtkRenderWindow caps it to 5 times per second. the
   // cost of this check abort is about 0.2ms per call in emscripten. So, 1 millisecond is the
   // guaranteed cost per number of frames rendered in a second.
-  // if (wgpuRenWin->CheckAbortStatus())
+  // if (wgpuRenderWindow->CheckAbortStatus())
   // {
   //   return;
   // }
 
-  const auto device = wgpuRenWin->GetDevice();
-  auto* wgpuConfiguration = wgpuRenWin->GetWGPUConfiguration();
+  const auto device = wgpuRenderWindow->GetDevice();
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   auto* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
 
@@ -291,7 +291,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   {
     case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
     { // update (i.e, create and write) GPU buffers if the data is outdated.
-      this->UpdateMeshGeometryBuffers(wgpuRenWin);
+      this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       // dispatch compute pipeline that converts polyvertex to vertices.
       auto* mesh = this->CurrentInput;
       const int representation = actor->GetProperty()->GetRepresentation();
@@ -1000,13 +1000,13 @@ void vtkWebGPUPolyDataMapper::ResetPointCellAttributeState()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenWin)
+void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenderWindow)
 {
   if ((this->CachedInput != nullptr) && (this->CurrentInput != nullptr) &&
     (this->CurrentInput != this->CachedInput))
   {
     // invalidate any existing pipeline/bindgroups because input mesh changed.
-    this->ReleaseGraphicsResources(wgpuRenWin);
+    this->ReleaseGraphicsResources(wgpuRenderWindow);
   }
   if (this->CachedInput == nullptr)
   {
@@ -1105,7 +1105,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     pointBufDescriptor.label = label.c_str();
     pointBufDescriptor.mappedAtCreation = false;
     pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Point.Buffer = wgpuRenWin->CreateDeviceBuffer(pointBufDescriptor);
+    this->MeshSSBO.Point.Buffer = wgpuRenderWindow->CreateDeviceBuffer(pointBufDescriptor);
     this->MeshSSBO.Point.Size = requiredPointBufferSize;
     for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
          attributeIndex++)
@@ -1115,7 +1115,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     updatePointDescriptor = true;
   }
 
-  const auto& device = wgpuRenWin->GetDevice();
+  const auto& device = wgpuRenderWindow->GetDevice();
   ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer, device, 1. };
 
   pointDataWriter.Denominator = 1.0;
@@ -1294,7 +1294,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     cellBufDescriptor.label = label.c_str();
     cellBufDescriptor.mappedAtCreation = false;
     cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Cell.Buffer = wgpuRenWin->CreateDeviceBuffer(cellBufDescriptor);
+    this->MeshSSBO.Cell.Buffer = wgpuRenderWindow->CreateDeviceBuffer(cellBufDescriptor);
     this->MeshSSBO.Cell.Size = requiredCellBufferSize;
     for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
          attributeIndex++)
@@ -1811,17 +1811,17 @@ void vtkWebGPUPolyDataMapper::DispatchCellToPrimitiveComputePipeline(
 void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
 {
-  auto* wgpuRenWin = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
-  auto* wgpuPipelineCache = wgpuRenWin->GetWGPUPipelineCache();
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
   vtkWebGPURenderPipelineDescriptorInternals descriptor;
   descriptor.vertex.entryPoint = "vertexMain";
   descriptor.vertex.bufferCount = 0;
   descriptor.cFragment.entryPoint = "fragmentMain";
-  descriptor.cTargets[0].format = wgpuRenWin->GetPreferredSurfaceTextureFormat();
+  descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
   ///@{ TODO: Only for valid depth stencil formats
-  auto depthState = descriptor.EnableDepthStencil(wgpuRenWin->GetDepthStencilFormat());
+  auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
   depthState->depthWriteEnabled = true;
   depthState->depthCompare = wgpu::CompareFunction::Less;
   ///@}
