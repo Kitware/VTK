@@ -82,13 +82,15 @@ public:
    */
   enum GraphicsPipelineType : int
   {
-    // Pipeline using wgpu::PrimitiveType::PointList
-    GFX_PIPELINE_POINT_LIST = 0,
-    // Pipeline using wgpu::PrimitiveType::LineList
-    GFX_PIPELINE_LINE_LIST,
-    // Pipeline using wgpu::PrimitiveType::TriangleList
-    GFX_PIPELINE_TRIANGLE_LIST,
-    // Pipeline using wgpu::PrimitiveType::TriangleList with ShowVertices.wgsl
+    // Pipeline that renders points
+    GFX_PIPELINE_POINTS = 0,
+    // Pipeline that renders lines with rounded caps and rounded joins.
+    GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
+    // Pipeline that renders lines with miter joins.
+    GFX_PIPELINE_LINES_MITER_JOIN,
+    // Pipeline that renders triangles
+    GFX_PIPELINE_TRIANGLES,
+    // Pipeline that shows vertices in the polydata.
     GFX_PIPELINE_VERTEX_VISIBILITY,
     GFX_PIPELINE_NB_TYPES
   };
@@ -537,6 +539,7 @@ protected:
     bool LastActorFrontfaceCulling = false;
     bool LastVertexVisibility = false;
     int LastRepresentation = VTK_SURFACE;
+    bool LastHasRenderingTranslucentGeometry = false;
   };
   std::map<vtkWeakPointer<vtkActor>, ActorState> CachedActorProperties;
 

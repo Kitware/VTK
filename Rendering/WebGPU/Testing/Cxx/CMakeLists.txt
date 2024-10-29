@@ -51,6 +51,10 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --translucent
+  TestLineRenderingTranslucent,TestLineRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 0.5
   TestPointRendering_1,TestPointRendering.cxx,NO_DATA)
 

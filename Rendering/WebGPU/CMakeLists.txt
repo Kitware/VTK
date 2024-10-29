@@ -104,7 +104,11 @@ set(private_shader_files
   wgsl/ActorRenderOptions.wgsl
   wgsl/ActorTransform.wgsl
   wgsl/FrustumCullingShader.wgsl
-  wgsl/LineShader.wgsl
+  wgsl/LineFragmentShader.wgsl
+  wgsl/LineMiterJoinVertexShader.wgsl
+  wgsl/LineRoundJoinVertexShader.wgsl
+  wgsl/LineShaderOpaque.wgsl
+  wgsl/LineShaderTranslucent.wgsl
   wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl

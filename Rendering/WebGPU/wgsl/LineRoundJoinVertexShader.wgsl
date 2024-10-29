@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-Clause
-
 // #include "VTK/wgsl/SceneTransform.wgsl"
 // #include "VTK/wgsl/ActorTransform.wgsl"
 
@@ -12,20 +9,73 @@
 
 /**
  * (0, 0.5) |-------------------------------|(1, 0.5)
- *          |-                              |
- *          |    -                          |
- *          |        -                      |
- * (0, 0)   |              -                |
- *          |                   -           |
- *          |                        -      |
- *          |                              -|
+ *         /|-                              |\
+ *       /  |    -                          |  \
+ *     /  \ |        -                      | /  \
+ * (0, 0)---|              -                |-----|
+ *     \  / |                   -           |    /
+ *       \  |                        -      | \ /
+ *         \|                              -|/
  * (0,-0.5) |-------------------------------|(1, -0.5)
+ * The semicircle points are generated using this python snippet.
+  import math
+  def generate_instance_round_round(instanceRoundRound, resolution):
+    for step in range(resolution):
+      theta0 = math.pi / 2 + (step * math.pi) / resolution
+      theta1 = math.pi / 2 + ((step + 1) * math.pi) / resolution
+      instanceRoundRound.append([0, 0, 0])
+      instanceRoundRound.append([0.5 * math.cos(theta0), 0.5 * math.sin(theta0), 0])
+      instanceRoundRound.append([0.5 * math.cos(theta1), 0.5 * math.sin(theta1), 0])
+    for step in range(resolution):
+      theta0 = (3 * math.pi) / 2 + (step * math.pi) / resolution
+      theta1 = (3 * math.pi) / 2 + ((step + 1) * math.pi) / resolution
+      instanceRoundRound.append([0, 0, 1])
+      instanceRoundRound.append([0.5 * math.cos(theta0), 0.5 * math.sin(theta0), 1])
+      instanceRoundRound.append([0.5 * math.cos(theta1), 0.5 * math.sin(theta1), 1])
+  instanceRoundRound = []
+  resolution = 10  # example resolution
+  generate_instance_round_round(instanceRoundRound, resolution)
+  print(instanceRoundRound)
  */
 const TRIANGLE_VERTS = array(
-  vec2(0, -0.5),
-  vec2(1, -0.5),
-  vec2(0, 0.5),
-  vec2(1, 0.5),
+  vec3(0, -0.5, 0),
+  vec3(0, -0.5, 1),
+  vec3(0, 0.5, 1),
+  vec3(0, -0.5, 0),
+  vec3(0, 0.5, 1),
+  vec3(0, 0.5, 0),
+  // left semicircle
+  vec3(0, 0, 0),
+  vec3(3.061616997868383e-17, 0.5, 0),
+  vec3(-0.2938926261462365, 0.4045084971874737, 0),
+  vec3(0, 0, 0),
+  vec3(-0.2938926261462365, 0.4045084971874737, 0),
+  vec3(-0.47552825814757677, 0.15450849718747375, 0),
+  vec3(0, 0, 0),
+  vec3(-0.47552825814757677, 0.15450849718747375, 0),
+  vec3(-0.4755282581475768, -0.15450849718747364, 0),
+  vec3(0, 0, 0),
+  vec3(-0.4755282581475768, -0.15450849718747364, 0),
+  vec3(-0.2938926261462366, -0.40450849718747367, 0),
+  vec3(0, 0, 0),
+  vec3(-0.2938926261462366, -0.40450849718747367, 0),
+  vec3(-9.184850993605148e-17, -0.5, 0),
+  // right semicircle
+  vec3(0, 0, 1),
+  vec3(-9.184850993605148e-17, -0.5, 1),
+  vec3(0.29389262614623646, -0.4045084971874738, 1),
+  vec3(0, 0, 1),
+  vec3(0.29389262614623646, -0.4045084971874738, 1),
+  vec3(0.47552825814757677, -0.1545084971874738, 1),
+  vec3(0, 0, 1),
+  vec3(0.47552825814757677, -0.1545084971874738, 1),
+  vec3(0.4755282581475768, 0.1545084971874736, 1),
+  vec3(0, 0, 1),
+  vec3(0.4755282581475768, 0.1545084971874736, 1),
+  vec3(0.2938926261462367, 0.4045084971874736, 1),
+  vec3(0, 0, 1),
+  vec3(0.2938926261462367, 0.4045084971874736, 1),
+  vec3(1.5308084989341916e-16, 0.5, 1)
 );
 
 struct ActorBlock {
@@ -116,7 +166,7 @@ struct VertexOutput {
   @location(2) normal_vc: vec3<f32>,
   @location(3) tangent_vc: vec3<f32>,
   @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) local_position: vec2<f32>,
+  @location(5) distance_from_centerline: f32,
 }
 
 
@@ -155,21 +205,22 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   let x_basis = normalize(p1_screen - p0_screen);
   let y_basis = vec2(-x_basis.y, x_basis.x);
 
-  let p0_offsetted = p0_screen + local_position.x * x_basis + local_position.y * y_basis * width;
-  let p1_offsetted = p1_screen + local_position.x * x_basis + local_position.y * y_basis * width;
-  let p = mix(p0_offsetted, p1_offsetted, local_position.x);
+  let p0_offsetted = p0_screen + (local_position.x * x_basis + local_position.y * y_basis) * width;
+  let p1_offsetted = p1_screen + (local_position.x * x_basis + local_position.y * y_basis) * width;
+  let p = mix(p0_offsetted, p1_offsetted, local_position.z);
 
   // used to select the z, w coordinate.
-  let p_dc = mix(p0_dc, p1_dc, local_position.x);
+  let p_dc = mix(p0_dc, p1_dc, local_position.z);
 
   output.position = vec4(p_dc.w * ((2.0 * p) / resolution - 1.0), p_dc.z, p_dc.w);
   output.position_vc = scene_transform.inverted_projection * output.position;
-  output.local_position = local_position;
+  output.distance_from_centerline = local_position.y;
 
+  let vertex_id = select(p0_vertex_id, p1_vertex_id, local_position.z == 1);
   // pull the point id
-  let point_id = select(topology[p0_vertex_id].point_id, topology[p1_vertex_id].point_id, local_position.x == 1);
+  let point_id = topology[vertex_id].point_id;
   // get CellID from vertex ID -> VTK cell map.
-  output.cell_id = select(topology[p0_vertex_id].cell_id, topology[p1_vertex_id].cell_id, local_position.x == 1);
+  output.cell_id = topology[vertex_id].cell_id;
 
   ///------------------------///
   // Smooth/Flag shading
@@ -202,101 +253,5 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   } else {
     output.normal_vc = vec3<f32>(0.0, 0.0, 1.0);
   }
-  return output;
-}
-
-//-------------------------------------------------------------------
-struct FragmentInput {
-  @builtin(position) frag_coord: vec4<f32>,
-  @builtin(front_facing) is_front_facing: bool,
-  @location(0) color: vec4<f32>,
-  @location(1) position_vc: vec4<f32>, // in view coordinate system.
-  @location(2) normal_vc: vec3<f32>, // in view coordinate system.
-  @location(3) tangent_vc: vec3<f32>, // in view coordinate system.
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) local_position: vec2<f32>,
-}
-
-//-------------------------------------------------------------------
-struct FragmentOutput {
-  @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
-}
-
-//-------------------------------------------------------------------
-@fragment
-fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
-  var output: FragmentOutput;
-  var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
-  var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
-  var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
-
-  var opacity: f32;
-
-  let distance_to_centerline = abs(fragment.local_position.y);
-
-  // adjust z component of normal in order to emulate a tube if necessary.
-  var normal_vc: vec3<f32> = normalize(fragment.normal_vc);
-  if (actor.render_options.render_lines_as_tubes != 0)
-  {
-    normal_vc.z = 1.0 - 2.0 * distance_to_centerline;
-  }
-
-  ///------------------------///
-  // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
-  ///------------------------///
-  let has_mapped_colors: bool = mesh.point_color.num_tuples > 0u || mesh.cell_color.num_tuples > 0u;
-  if (mesh.override_colors.apply_override_colors == 1u) {
-    ambient_color = mesh.override_colors.ambient_color.rgb;
-    diffuse_color = mesh.override_colors.diffuse_color.rgb;
-    opacity = mesh.override_colors.opacity;
-  } else if (has_mapped_colors) {
-    ambient_color = fragment.color.rgb;
-    diffuse_color = fragment.color.rgb;
-    opacity = fragment.color.a;
-  } else {
-    ambient_color = actor.color_options.ambient_color;
-    diffuse_color = actor.color_options.diffuse_color;
-    opacity = actor.color_options.opacity;
-  }
-
-  ///------------------------///
-  // Lights
-  ///------------------------///
-  if scene_lights.count == 0u {
-    // allow post-processing this pixel.
-    output.color = vec4<f32>(
-      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      opacity
-    );
-  } else if scene_lights.count == 1u {
-    let light: SceneLight = scene_lights.values[0];
-    if light.positional == 1u {
-      // TODO: positional
-      output.color = vec4<f32>(
-          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-          opacity
-      );
-    } else {
-      // headlight
-      let df: f32 = max(0.000001f, normal_vc.z);
-      let sf: f32 = pow(df, actor.color_options.specular_power);
-      diffuse_color = df * diffuse_color * light.color;
-      specular_color = sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light.color;
-      output.color = vec4<f32>(
-          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color + specular_color,
-          opacity
-      );
-    }
-  } else {
-    // TODO: light kit
-    output.color = vec4<f32>(
-      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      opacity
-    );
-  }
-  // pre-multiply colors
-  output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = fragment.cell_id;
   return output;
 }

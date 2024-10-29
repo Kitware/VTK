@@ -49,6 +49,16 @@ int TestLineRendering(int argc, char* argv[])
 
   vtkNew<vtkActor> actor;
   actor->GetProperty()->SetLineWidth(4);
+  bool translucent = false;
+  for (int i = 0; i < argc; ++i)
+  {
+    if (strcmp(argv[i], "--translucent") == 0)
+    {
+      translucent = true;
+      break;
+    }
+  }
+  actor->GetProperty()->SetOpacity(translucent ? 0.4 : 1.0);
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 

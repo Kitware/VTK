@@ -29,7 +29,8 @@
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
-#include "LineShader.h"
+#include "LineShaderOpaque.h"
+#include "LineShaderTranslucent.h"
 #include "PointShader.h"
 #include "ShowVertices.h"
 #include "SurfaceMeshShader.h"
@@ -53,31 +54,37 @@ const std::array<std::string, vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_NB_TYPES>
     "cell_to_points", "polygon_to_triangle", "cell_to_points", "polygon_edges_to_lines" };
 
 const std::array<const char**, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
-  GraphicsPipelineShaderSources = { &PointShader, &LineShader, &SurfaceMeshShader, &ShowVertices };
+  GraphicsPipelineShaderSources = { &PointShader, &LineShaderOpaque, &LineShaderTranslucent,
+    &SurfaceMeshShader, &ShowVertices };
 
 const std::array<wgpu::PrimitiveTopology, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
   GraphicsPipelinePrimitiveTypes = { wgpu::PrimitiveTopology::TriangleStrip,
-    wgpu::PrimitiveTopology::TriangleStrip, wgpu::PrimitiveTopology::TriangleList,
-    wgpu::PrimitiveTopology::TriangleStrip };
+    wgpu::PrimitiveTopology::TriangleList, wgpu::PrimitiveTopology::TriangleStrip,
+    wgpu::PrimitiveTopology::TriangleList, wgpu::PrimitiveTopology::TriangleStrip };
 
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
   std::vector<vtkWebGPUPolyDataMapper::TopologySourceType>>
   PipelineBindGroupCombos[VTK_SURFACE + 1] = { // VTK_POINTS
-    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINT_LIST,
+    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
       { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS,
         vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINE_POINTS,
         vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_POINTS } } },
     // VTK_WIREFRAME
-    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINE_LIST,
-      { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES,
-        vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES } } },
+    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
+        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
+        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES } } },
     // VTK_SURFACE
     {
-      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINT_LIST,
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
         { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS } },
-      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINE_LIST,
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
         { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES } },
-      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_TRIANGLE_LIST,
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
+        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_TRIANGLES,
         { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS } },
     }
   };
@@ -332,6 +339,11 @@ bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
 {
   auto it = this->CachedActorProperties.find(actor);
   auto* displayProperty = actor->GetProperty();
+  bool hasTranslucentPolygonalGeometry = false;
+  if (actor)
+  {
+    hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
+  }
   if (it == this->CachedActorProperties.end())
   {
     ActorState state = {};
@@ -339,6 +351,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
     state.LastActorFrontfaceCulling = displayProperty->GetFrontfaceCulling();
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
+    state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
     this->CachedActorProperties[actor] = state;
     return true;
   }
@@ -366,6 +379,11 @@ bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
       cacheChanged = true;
     }
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
+    if (state.LastHasRenderingTranslucentGeometry != hasTranslucentPolygonalGeometry)
+    {
+      cacheChanged = true;
+    }
+    state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
     return cacheChanged;
   }
 }
@@ -382,9 +400,23 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   auto* displayProperty = actor->GetProperty();
   const int representation = displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
+  const bool hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
+    const auto& pipelineType = pipelineMapping.first;
+    // apply miter join only for translucent pass.
+    if (hasTranslucentPolygonalGeometry)
+    {
+      if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
+      {
+        continue;
+      }
+    }
+    else if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+    {
+      continue;
+    }
     const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
     passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
     const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
@@ -408,7 +440,14 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
           break;
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES:
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES:
-          passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
+          if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+          {
+            passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
+          }
+          else if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
+          {
+            passEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
+          }
           break;
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS:
           passEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
@@ -446,9 +485,23 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   auto* displayProperty = actor->GetProperty();
   const int representation = displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
+  const bool hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
+    const auto& pipelineType = pipelineMapping.first;
+    // apply miter join only for translucent pass.
+    if (hasTranslucentPolygonalGeometry)
+    {
+      if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
+      {
+        continue;
+      }
+    }
+    else if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+    {
+      continue;
+    }
     const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
     bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
     const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
@@ -472,7 +525,14 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
           break;
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES:
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES:
-          bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
+          if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+          {
+            bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
+          }
+          else if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
+          {
+            bundleEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
+          }
           break;
         case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS:
           bundleEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
@@ -1394,12 +1454,14 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
 {
   switch (graphicsPipelineType)
   {
-    case GFX_PIPELINE_POINT_LIST:
-      return "GFX_PIPELINE_POINT_LIST";
-    case GFX_PIPELINE_LINE_LIST:
-      return "GFX_PIPELINE_LINE_LIST";
-    case GFX_PIPELINE_TRIANGLE_LIST:
-      return "GFX_PIPELINE_TRIANGLE_LIST";
+    case GFX_PIPELINE_POINTS:
+      return "GFX_PIPELINE_POINTS";
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      return "GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN";
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+      return "GFX_PIPELINE_LINES_MITER_JOIN";
+    case GFX_PIPELINE_TRIANGLES:
+      return "GFX_PIPELINE_TRIANGLES";
     case GFX_PIPELINE_VERTEX_VISIBILITY:
       return "GFX_PIPELINE_VERTEX_VISIBILITY";
     default:
