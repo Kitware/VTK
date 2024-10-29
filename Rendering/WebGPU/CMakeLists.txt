@@ -6,8 +6,10 @@ endif ()
 
 set(classes
   vtkWebGPUActor
+  vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
   vtkWebGPUClearDrawPass
+  vtkWebGPUCompositePolyDataMapperDelegator
   vtkWebGPUComputeBuffer
   vtkWebGPUComputeFrustumCuller
   vtkWebGPUComputeOcclusionCuller
@@ -74,6 +76,7 @@ set(webgpu_overrides
   Actor
   # NI: BillboardTextActor3D
   Camera
+  CompositePolyDataMapperDelegator
   # NI: LabeledContourMapper
   HardwareSelector
   # NI: ImageMapper

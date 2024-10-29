@@ -15,7 +15,7 @@ endif ()
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestActorFaceCullingProperty.cxx,NO_DATA
   TestCellScalarMappedColors.cxx,NO_DATA
-  # TestCompositePolyDataMapper.cxx,NO_DATA,NO_VALID # FIXME: Composite PolyDataMapper needs updated to delegator design pattern.
+  TestCompositePolyDataMapper.cxx,NO_DATA
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
   TestComputeFrustumCulling.cxx,NO_DATA,NO_VALID
   TestComputeOcclusionCulling.cxx,NO_DATA,NO_VALID
