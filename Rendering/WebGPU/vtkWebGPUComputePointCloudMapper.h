@@ -68,10 +68,10 @@ protected:
    */
   vtkWebGPUComputePointCloudMapper();
   ~vtkWebGPUComputePointCloudMapper() override;
-  vtkWebGPUComputePointCloudMapper(const vtkWebGPUComputePointCloudMapper&) = delete;
-  void operator=(const vtkWebGPUComputePointCloudMapper&) = delete;
 
 private:
+  vtkWebGPUComputePointCloudMapper(const vtkWebGPUComputePointCloudMapper&) = delete;
+  void operator=(const vtkWebGPUComputePointCloudMapper&) = delete;
   /**
    * Called in GetBounds(). When this method is called, the consider the input
    * to be updated depending on whether this->Static is set or not. This method

@@ -316,6 +316,9 @@ private:
   // For the mapper to be able to access the wgpu::Buffer objects for use in a render pipeline
   friend class vtkWebGPUPointCloudMapperInternals;
 
+  vtkWebGPUComputePassInternals(const vtkWebGPUComputePassInternals&) = delete;
+  void operator=(const vtkWebGPUComputePassInternals&) = delete;
+
   /**
    * Whether or not the shader module, binds groups, layouts and the wgpu::ComputePipeline have
    * been created already

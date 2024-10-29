@@ -250,6 +250,10 @@ protected:
 private:
   friend class vtkWebGPUComputePassInternals;
 
+  vtkWebGPUComputePassBufferStorageInternals(
+    const vtkWebGPUComputePassBufferStorageInternals&) = delete;
+  void operator=(const vtkWebGPUComputePassBufferStorageInternals&) = delete;
+
   // Compute pass that uses this buffer storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass;
   // Device of the parent compute pass that is used when creating buffers

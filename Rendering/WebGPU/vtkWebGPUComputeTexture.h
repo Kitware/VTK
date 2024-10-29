@@ -100,10 +100,11 @@ public:
 protected:
   vtkWebGPUComputeTexture();
   ~vtkWebGPUComputeTexture() override;
+
+private:
   vtkWebGPUComputeTexture(const vtkWebGPUComputeTexture&) = delete;
   void operator=(const vtkWebGPUComputeTexture&) = delete;
 
-private:
   // Total size of the texture in bytes
   vtkIdType ByteSize = -1;
 

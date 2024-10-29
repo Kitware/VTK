@@ -86,10 +86,10 @@ public:
 protected:
   vtkWebGPUComputeOcclusionCuller();
   ~vtkWebGPUComputeOcclusionCuller() override;
-  vtkWebGPUComputeOcclusionCuller(const vtkWebGPUComputeOcclusionCuller&) = delete;
-  void operator=(const vtkWebGPUComputeOcclusionCuller&) = delete;
 
 private:
+  vtkWebGPUComputeOcclusionCuller(const vtkWebGPUComputeOcclusionCuller&) = delete;
+  void operator=(const vtkWebGPUComputeOcclusionCuller&) = delete;
   /**
    * Sets up the first compute pass for copying the depth buffer of the render window to the first
    * mip level (level 0) of the hierarchical Z-buffer

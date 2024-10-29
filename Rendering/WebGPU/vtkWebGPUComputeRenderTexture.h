@@ -80,10 +80,11 @@ public:
 protected:
   vtkWebGPUComputeRenderTexture();
   ~vtkWebGPUComputeRenderTexture() override;
+
+private:
   vtkWebGPUComputeRenderTexture(const vtkWebGPUComputeRenderTexture&) = delete;
   void operator=(const vtkWebGPUComputeRenderTexture&) = delete;
 
-private:
   // Aspect for the future texture view of this texture in a compute pass
   vtkWebGPUComputeTextureView::TextureViewAspect Aspect =
     vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_ALL;

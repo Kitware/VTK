@@ -21,12 +21,13 @@ public:
 protected:
   vtkWebGPUComputeTextureView();
   ~vtkWebGPUComputeTextureView() override;
-  vtkWebGPUComputeTextureView(const vtkWebGPUComputeTextureView&) = delete;
-  void operator=(const vtkWebGPUComputeTextureView&) = delete;
 
 private:
   friend class vtkWebGPUComputePass;
   friend class vtkWebGPUComputePassTextureStorageInternals;
+
+  vtkWebGPUComputeTextureView(const vtkWebGPUComputeTextureView&) = delete;
+  void operator=(const vtkWebGPUComputeTextureView&) = delete;
 
   ///@{
   /**
