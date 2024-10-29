@@ -27,6 +27,7 @@ set(classes
   vtkWebGPUProperty
   vtkWebGPURenderer
   vtkWebGPURenderPass
+  vtkWebGPUShaderDatabase
   vtkWebGPUTexture
   vtkWebGPUTextureView)
 

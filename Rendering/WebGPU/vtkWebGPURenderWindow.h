@@ -9,6 +9,7 @@
 #include "vtkTypeUInt8Array.h"             // for ivar
 #include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
+#include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtk_wgpu.h"                      // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -160,6 +161,19 @@ public:
 
   void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
   vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
+
+  /**
+   * Get a database of all WebGPU shader source codes in VTK.
+   * You can extend the database with custom source code through the
+   * vtkWebGPUShaderDatabase::AddShaderSource API.
+   */
+  vtkGetSmartPointerMacro(WGPUShaderDatabase, vtkWebGPUShaderDatabase);
+
+  /**
+   * Replaces all #include statements in the given source code with source code
+   * corresponding to the included file from the database.
+   */
+  std::string PreprocessShaderSource(const std::string& source) const;
 
   /**
    * Create a new render pass encoder on the webgpu device.
@@ -328,6 +342,7 @@ protected:
 
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
+  vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
 
   int ScreenSize[2];
 
