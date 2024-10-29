@@ -9,6 +9,7 @@
 #include "vtkTypeUInt8Array.h"             // for ivar
 #include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
+#include "vtkWebGPURenderPipelineCache.h"  // for vtkWebGPURenderPipelineCache
 #include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtk_wgpu.h"                      // for webgpu
 
@@ -167,7 +168,13 @@ public:
    * You can extend the database with custom source code through the
    * vtkWebGPUShaderDatabase::AddShaderSource API.
    */
-  vtkGetSmartPointerMacro(WGPUShaderDatabase, vtkWebGPUShaderDatabase);
+  vtkGetNewMacro(WGPUShaderDatabase, vtkWebGPUShaderDatabase);
+
+  /**
+   * Get the pipeline cache for this renderer. Use this to minimize costly creation of identical
+   * render pipelines.
+   */
+  vtkGetNewMacro(WGPUPipelineCache, vtkWebGPURenderPipelineCache);
 
   /**
    * Replaces all #include statements in the given source code with source code
@@ -343,6 +350,7 @@ protected:
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
+  vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
 
   int ScreenSize[2];
 

@@ -58,12 +58,17 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
   }
 
   const auto device = wgpuRenWin->GetDevice();
-  auto wgpuActor = reinterpret_cast<vtkWebGPUActor*>(act);
-
-  vtkWebGPUActor::MapperRenderType renderType = wgpuActor->GetMapperRenderType();
-  switch (renderType)
+  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
+  if (wgpuRenderer == nullptr)
   {
-    case vtkWebGPUActor::MapperRenderType::UpdateBuffers:
+    vtkErrorMacro("The renderer passed in vtkWebGPUComputePointCloudMapper::RenderPiece is not a "
+                  "WebGPU renderer.");
+    return;
+  }
+
+  switch (wgpuRenderer->GetRenderStage())
+  {
+    case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
     {
       this->Internals->UploadPointsToGPU();
       this->Internals->UploadColorsToGPU();
@@ -71,12 +76,8 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
       break;
     }
 
-    case vtkWebGPUActor::MapperRenderType::RenderPassEncode:
-      VTK_FALLTHROUGH;
-
-    case vtkWebGPUActor::MapperRenderType::RenderBundleEncode:
+    case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
     {
-      vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
       if (wgpuRenderer == nullptr)
       {
         vtkLog(ERROR,
@@ -91,7 +92,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
       break;
     }
 
-    case vtkWebGPUActor::MapperRenderType::RenderPostRasterization:
+    case vtkWebGPURenderer::RenderStageEnum::RenderPostRasterization:
     {
       this->Internals->ComputePipeline->DispatchAllPasses();
       this->Internals->ComputePipeline->Update();
@@ -101,7 +102,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* ren, vtkActor* a
       break;
     }
 
-    case vtkWebGPUActor::MapperRenderType::None:
+    default:
       break;
   }
 }

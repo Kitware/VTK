@@ -7,18 +7,15 @@
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkWebGPUComputePointCloudMapper.h"
-#include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
-
-#if defined(__EMSCRIPTEN__)
-#include "emscripten/version.h"
-#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -35,89 +32,42 @@ vtkWebGPUActor::~vtkWebGPUActor() = default;
 void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "ModelTransformsBuildTimestamp: " << this->ModelTransformsBuildTimestamp << '\n';
+  os << indent << "ShadingOptionsBuildTimestamp: " << this->ShadingOptionsBuildTimestamp << '\n';
+  os << indent << "RenderOptionsBuildTimestamp: " << this->RenderOptionsBuildTimestamp << '\n';
+  os << indent << "BundleInvalidated: " << this->BundleInvalidated << '\n';
 }
 
 //------------------------------------------------------------------------------
-int vtkWebGPUActor::Update(vtkRenderer* ren, vtkMapper* mapper)
+void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
 {
-  // Enter the UpdateBuffers mapper render type.
-  // WebGPU Mappers are required to query the current render type and
-  // take necessary action.
-  this->CurrentMapperRenderType = MapperRenderType::UpdateBuffers;
-  mapper->Render(ren, this);
-  this->CurrentMapperRenderType = MapperRenderType::None;
-  return this->MapperRenderPipelineOutdated;
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUActor::Render(vtkRenderer* ren, vtkMapper* mapper)
-{
-  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(ren);
-  auto passEncoder = wgpuRenderer->GetRenderPassEncoder();
-  auto bindGroup = wgpuRenderer->GetActorBindGroup();
-
-  passEncoder.SetBindGroup(1, bindGroup,
-    /*dynamicOffsetCount=*/this->DynamicOffsets->GetNumberOfValues(),
-    /*dynamicOffsets=*/this->DynamicOffsets->GetPointer(0));
-
-#ifndef NDEBUG
-  passEncoder.PushDebugGroup("vtkWebGPUActor::Render");
-#endif
-  this->CurrentMapperRenderType = MapperRenderType::RenderPassEncode;
-  mapper->Render(ren, this);
-#ifndef NDEBUG
-  passEncoder.PopDebugGroup();
-#endif
-  this->CurrentMapperRenderType = MapperRenderType::None;
-}
-
-//------------------------------------------------------------------------------
-wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* mapper)
-{
-  auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(ren);
-  auto wgpuRenWin = reinterpret_cast<vtkWebGPURenderWindow*>(wgpuRenderer->GetRenderWindow());
-  auto sceneBindGroup = wgpuRenderer->GetSceneBindGroup();
-  auto actorBindGroup = wgpuRenderer->GetActorBindGroup();
-
+  if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
-    const auto colorFormat = wgpuRenWin->GetPreferredSurfaceTextureFormat();
-    const int sampleCount = wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
-
-    wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
-#if defined(__EMSCRIPTEN__) &&                                                                     \
-  ((__EMSCRIPTEN_major__ < 3) || ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ < 1)) ||    \
-    ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ <= 1) && (__EMSCRIPTEN_tiny__ < 54)))
-    bundleEncDesc.colorFormatsCount = 1;
-#else
-    bundleEncDesc.colorFormatCount = 1;
-#endif
-    bundleEncDesc.colorFormats = &colorFormat;
-    bundleEncDesc.depthStencilFormat = wgpuRenWin->GetDepthStencilFormat();
-    bundleEncDesc.sampleCount = sampleCount;
-    bundleEncDesc.depthReadOnly = false;
-    bundleEncDesc.stencilReadOnly = false;
-    bundleEncDesc.label = "Render bundle for vtkWebGPUActor";
-    bundleEncDesc.nextInChain = nullptr;
-    this->CurrentBundler = wgpuRenWin->NewRenderBundleEncoder(bundleEncDesc);
+    switch (wgpuRenderer->GetRenderStage())
+    {
+      case vtkWebGPURenderer::AwaitingPreparation:
+        break;
+      case vtkWebGPURenderer::UpdatingBuffers:
+        // reset this flag because the `mapper->Render()` call shall invalidate the bundle if it
+        // determines that the render bundle needs to be recorded once again.
+        this->BundleInvalidated = false;
+        mapper->Render(renderer, this);
+        this->CacheActorRenderOptions();
+        this->CacheActorShadeOptions();
+        this->CacheActorTransforms();
+        break;
+      case vtkWebGPURenderer::RecordingCommands:
+        mapper->Render(renderer, this);
+        break;
+      case vtkWebGPURenderer::Finished:
+      default:
+        break;
+    }
   }
-
-  this->CurrentBundler.SetBindGroup(0, sceneBindGroup);
-  this->CurrentBundler.SetBindGroup(1, actorBindGroup,
-    /*dynamicOffsetCount=*/this->DynamicOffsets->GetNumberOfValues(),
-    /*dynamicOffsets=*/this->DynamicOffsets->GetPointer(0));
-#ifndef NDEBUG
-  this->CurrentBundler.PushDebugGroup("vtkWebGPUActor::Render");
-#endif
-  this->CurrentMapperRenderType = MapperRenderType::RenderBundleEncode;
-  mapper->Render(ren, this);
-#ifndef NDEBUG
-  this->CurrentBundler.PopDebugGroup();
-#endif
-  this->CurrentMapperRenderType = MapperRenderType::None;
-
-  auto bundle = this->CurrentBundler.Finish();
-  this->CurrentBundler = nullptr;
-  return bundle;
+  else
+  {
+    vtkErrorMacro("The renderer passed in vtkWebGPUActor::Render is not a WebGPU renderer.");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -133,60 +83,6 @@ bool vtkWebGPUActor::SupportRenderBundles()
 
   // Assuming that any other mapper supports render bundles
   return true;
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkWebGPUActor::HasOpaqueGeometry()
-{
-  bool is_opaque = false;
-  switch (this->CurrentMapperRenderType)
-  {
-    case MapperRenderType::None:
-      break;
-    case MapperRenderType::RenderPassEncode:
-    { // nullify mapper so that superclass doesn't run the code path in
-      // vtkMapper::HasOpaqueGeometry.
-      vtkMapper* tmpMapper = this->Mapper;
-      this->Mapper = nullptr;
-      is_opaque = this->Superclass::HasOpaqueGeometry();
-      // restore
-      this->Mapper = tmpMapper;
-      is_opaque &= this->CachedMapperHasOpaqueGeometry;
-      break;
-    }
-    case MapperRenderType::UpdateBuffers:
-    default:
-      is_opaque = this->Superclass::HasOpaqueGeometry();
-      break;
-  }
-  return is_opaque;
-}
-
-//------------------------------------------------------------------------------
-vtkTypeBool vtkWebGPUActor::HasTranslucentPolygonalGeometry()
-{
-  bool is_opaque = false;
-  switch (this->CurrentMapperRenderType)
-  {
-    case MapperRenderType::None:
-      break;
-    case MapperRenderType::RenderPassEncode:
-    { // nullify mapper so that superclass doesn't run the code path in
-      // vtkMapper::HasTranslucentPolygonalGeometry.
-      vtkMapper* tmpMapper = this->Mapper;
-      this->Mapper = nullptr;
-      is_opaque = this->Superclass::HasTranslucentPolygonalGeometry();
-      // restore
-      this->Mapper = tmpMapper;
-      is_opaque &= this->CachedMapperHasTranslucentPolygonalGeometry;
-      break;
-    }
-    case MapperRenderType::UpdateBuffers:
-    default:
-      is_opaque = this->Superclass::HasTranslucentPolygonalGeometry();
-      break;
-  }
-  return is_opaque;
 }
 
 //------------------------------------------------------------------------------
@@ -230,18 +126,6 @@ bool vtkWebGPUActor::UpdateKeyMatrices()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::SetShadingType(ShadingTypeEnum shadeType)
-{
-  this->CachedActorInfo.ShadeOpts.ShadingType = shadeType;
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUActor::SetDirectionalMaskType(vtkTypeUInt32 directionalMask)
-{
-  this->CachedActorInfo.ShadeOpts.DirectionalMaskType = directionalMask;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUActor::CacheActorTransforms()
 {
   if (this->UpdateKeyMatrices())
@@ -273,6 +157,9 @@ void vtkWebGPUActor::CacheActorRenderOptions()
     ro.PointSize = this->GetProperty()->GetPointSize();
     ro.LineWidth = this->GetProperty()->GetLineWidth();
     ro.EdgeVisibility = this->GetProperty()->GetEdgeVisibility();
+    ro.RenderPointsAsSpheres = this->GetProperty()->GetRenderPointsAsSpheres();
+    ro.RenderLinesAsTubes = this->GetProperty()->GetRenderLinesAsTubes();
+    this->RenderOptionsBuildTimestamp.Modified();
   }
 }
 
@@ -294,7 +181,9 @@ void vtkWebGPUActor::CacheActorShadeOptions()
       so.DiffuseColor[i] = this->GetProperty()->GetDiffuseColor()[i];
       so.SpecularColor[i] = this->GetProperty()->GetSpecularColor()[i];
       so.EdgeColor[i] = this->GetProperty()->GetEdgeColor()[i];
+      so.VertexColor[i] = this->GetProperty()->GetVertexColor()[i];
     }
+    this->ShadingOptionsBuildTimestamp.Modified();
   }
 }
 VTK_ABI_NAMESPACE_END

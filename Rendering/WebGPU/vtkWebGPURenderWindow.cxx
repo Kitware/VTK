@@ -1780,6 +1780,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   {
     ren->ReleaseGraphicsResources(this);
   }
+  this->WGPUPipelineCache->ReleaseGraphicsResources(w);
   this->DestroyFSQGraphicsPipeline();
   this->DestroyDepthStencilTexture();
   this->DestroyOffscreenColorAttachments();

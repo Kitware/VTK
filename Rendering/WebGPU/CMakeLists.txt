@@ -100,14 +100,23 @@ unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
+  wgsl/ActorColorOptions.wgsl
+  wgsl/ActorRenderOptions.wgsl
+  wgsl/ActorTransform.wgsl
   wgsl/FrustumCullingShader.wgsl
-  wgsl/PolyData.wgsl
+  wgsl/LineShader.wgsl
   wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
+  wgsl/PointShader.wgsl
+  wgsl/SceneLight.wgsl
+  wgsl/SceneTransform.wgsl
+  wgsl/ShowVertices.wgsl
+  wgsl/SurfaceMeshShader.wgsl
+  wgsl/Utilities.wgsl
   wgsl/VTKCellToGraphicsPrimitive.wgsl)
 
 set(public_shader_files
