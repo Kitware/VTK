@@ -530,7 +530,7 @@ public:
   }
   float GetZbufferDataAtPoint(int x, int y)
   {
-    float value;
+    float value = 1.0f;
     this->GetZbufferData(x, y, x, y, &value);
     return value;
   }
