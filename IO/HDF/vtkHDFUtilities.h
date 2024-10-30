@@ -24,6 +24,16 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+#if VTK_ID_TYPE_IMPL == VTK_LONG_LONG
+#define VTK_ID_H5T H5T_NATIVE_LLONG
+#elif VTK_ID_TYPE_IMPL == VTK_LONG
+#define VTK_ID_H5T H5T_NATIVE_LONG
+#elif VTK_ID_TYPE_IMPL == VTK_INT
+#define VTK_ID_H5T H5T_NATIVE_INT
+#else
+#error "No HDF5 type available for vtkIdType"
+#endif
+
 namespace vtkHDFUtilities
 {
 const std::string VTKHDF_ROOT_PATH = "/VTKHDF";

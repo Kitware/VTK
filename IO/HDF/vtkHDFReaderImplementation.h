@@ -197,11 +197,11 @@ private:
   struct AMRBlocksInformation
   {
     std::vector<int> BlocksPerLevel;
-    std::vector<int> BlockOffsetsPerLevel;
-    std::map<std::string, std::vector<int>> CellOffsetsPerLevel;
-    std::map<std::string, std::vector<int>> PointOffsetsPerLevel;
-    std::map<std::string, std::vector<int>> FieldOffsetsPerLevel;
-    std::map<std::string, std::vector<int>> FieldSizesPerLevel;
+    std::vector<vtkIdType> BlockOffsetsPerLevel;
+    std::map<std::string, std::vector<vtkIdType>> CellOffsetsPerLevel;
+    std::map<std::string, std::vector<vtkIdType>> PointOffsetsPerLevel;
+    std::map<std::string, std::vector<vtkIdType>> FieldOffsetsPerLevel;
+    std::map<std::string, std::vector<vtkIdType>> FieldSizesPerLevel;
 
     void Clear()
     {
