@@ -180,11 +180,14 @@ class FieldDataBase(object):
         if self is other:
             return True
 
-        if set(self.keys()) != set(other.keys()):
+        """
+        If numpy is not available, only check for identity without comparing contents of the data arrays
+        """
+        if not NUMPY_AVAILABLE:
             return False
 
-        if not NUMPY_AVAILABLE:
-            raise NotImplementedError("Comparisons only possible with numpy")
+        if set(self.keys()) != set(other.keys()):
+            return False
 
         # verify the value of the arrays
         for key, value in other.items():
@@ -393,8 +396,11 @@ class DataSet(object):
         if self is other:
             return True
 
+        """
+        If numpy is not available, only check for identity without comparing contents of the data arrays
+        """
         if not NUMPY_AVAILABLE:
-            raise NotImplementedError("Comparisons only possible with numpy")
+            return False
 
         for attr in self._numpy_attrs:
             if hasattr(self, attr):
@@ -791,8 +797,8 @@ with suppress(ImportError):
     import copyreg
     from vtkmodules.util.pickle_support import serialize_VTK_data_object
 
-    copyreg.pickle(vtkPolyData, serialize_VTK_data_object)
-    copyreg.pickle(vtkUnstructuredGrid, serialize_VTK_data_object)
-    copyreg.pickle(vtkImageData, serialize_VTK_data_object)
-    copyreg.pickle(vtkPartitionedDataSet, serialize_VTK_data_object)
-    copyreg.pickle(vtkStructuredGrid, serialize_VTK_data_object)
+    copyreg.pickle(PolyData, serialize_VTK_data_object)
+    copyreg.pickle(UnstructuredGrid, serialize_VTK_data_object)
+    copyreg.pickle(ImageData, serialize_VTK_data_object)
+    copyreg.pickle(PartitionedDataSet, serialize_VTK_data_object)
+    copyreg.pickle(StructuredGrid, serialize_VTK_data_object)
