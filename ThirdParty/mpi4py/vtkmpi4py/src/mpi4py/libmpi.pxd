@@ -1,7 +1,7 @@
 # Author:  Lisandro Dalcin
 # Contact: dalcinl@gmail.com
 
-cdef import from "mpi.h" nogil:
+cdef extern from "<mpi.h>" nogil:
 
     #-----------------------------------------------------------------
 
@@ -32,6 +32,12 @@ cdef import from "mpi.h" nogil:
     ctypedef struct _mpi_info_t
     ctypedef _mpi_info_t* MPI_Info
 
+    ctypedef struct _mpi_errhandler_t
+    ctypedef _mpi_errhandler_t* MPI_Errhandler
+
+    ctypedef struct _mpi_session_t
+    ctypedef _mpi_session_t* MPI_Session
+
     ctypedef struct _mpi_comm_t
     ctypedef _mpi_comm_t* MPI_Comm
 
@@ -40,9 +46,6 @@ cdef import from "mpi.h" nogil:
 
     ctypedef struct _mpi_file_t
     ctypedef _mpi_file_t* MPI_File
-
-    ctypedef struct _mpi_errhandler_t
-    ctypedef _mpi_errhandler_t* MPI_Errhandler
 
     #-----------------------------------------------------------------
 
@@ -61,7 +64,7 @@ cdef import from "mpi.h" nogil:
     void* MPI_IN_PLACE   #:= 0
 
     enum: MPI_KEYVAL_INVALID   #:= 0
-    enum: MPI_MAX_OBJECT_NAME  #:= 1
+    enum: MPI_MAX_OBJECT_NAME  #:= 64
 
     #-----------------------------------------------------------------
 
@@ -143,19 +146,9 @@ cdef import from "mpi.h" nogil:
     MPI_Datatype MPI_COMPLEX16 #:= MPI_DATATYPE_NULL
     MPI_Datatype MPI_COMPLEX32 #:= MPI_DATATYPE_NULL
 
-    # Deprecated since MPI-2, removed in MPI-3
-    MPI_Datatype MPI_UB #:= MPI_DATATYPE_NULL
-    MPI_Datatype MPI_LB #:= MPI_DATATYPE_NULL
-    int MPI_Type_lb(MPI_Datatype, MPI_Aint*)
-    int MPI_Type_ub(MPI_Datatype, MPI_Aint*)
-    int MPI_Type_extent(MPI_Datatype, MPI_Aint*)
-    int MPI_Address(void*, MPI_Aint*)
-    int MPI_Type_hvector(int, int, MPI_Aint, MPI_Datatype, MPI_Datatype*)
-    int MPI_Type_hindexed(int, int[], MPI_Aint[], MPI_Datatype, MPI_Datatype*)
-    int MPI_Type_struct(int, int[], MPI_Aint[], MPI_Datatype[], MPI_Datatype*)
-    enum: MPI_COMBINER_HVECTOR_INTEGER  #:= MPI_UNDEFINED
-    enum: MPI_COMBINER_HINDEXED_INTEGER #:= MPI_UNDEFINED
-    enum: MPI_COMBINER_STRUCT_INTEGER   #:= MPI_UNDEFINED
+    int MPI_Get_address(void*, MPI_Aint*) #:= MPI_Address
+    MPI_Aint MPI_Aint_add(MPI_Aint, MPI_Aint)
+    MPI_Aint MPI_Aint_diff(MPI_Aint, MPI_Aint)
 
     int MPI_Type_dup(MPI_Datatype, MPI_Datatype*)
     int MPI_Type_contiguous(int, MPI_Datatype, MPI_Datatype*)
@@ -170,11 +163,6 @@ cdef import from "mpi.h" nogil:
     enum: MPI_DISTRIBUTE_CYCLIC     #:= 2
     enum: MPI_DISTRIBUTE_DFLT_DARG  #:= 4
     int MPI_Type_create_darray(int, int, int, int[], int[], int[], int[], int, MPI_Datatype, MPI_Datatype*)
-
-    int MPI_Get_address(void*, MPI_Aint*) #:= MPI_Address
-    MPI_Aint MPI_Aint_add(MPI_Aint, MPI_Aint)
-    MPI_Aint MPI_Aint_diff(MPI_Aint, MPI_Aint)
-
     int MPI_Type_create_hvector(int, int, MPI_Aint, MPI_Datatype, MPI_Datatype*)      #:= MPI_Type_hvector
     int MPI_Type_create_hindexed(int, int[], MPI_Aint[], MPI_Datatype, MPI_Datatype*) #:= MPI_Type_hindexed
     int MPI_Type_create_hindexed_block(int, int, MPI_Aint[], MPI_Datatype, MPI_Datatype*)
@@ -182,10 +170,10 @@ cdef import from "mpi.h" nogil:
     int MPI_Type_create_resized(MPI_Datatype, MPI_Aint, MPI_Aint, MPI_Datatype*)
 
     int MPI_Type_size(MPI_Datatype, int*)
-    int MPI_Type_size_x(MPI_Datatype, MPI_Count*)
     int MPI_Type_get_extent(MPI_Datatype, MPI_Aint*, MPI_Aint*)
-    int MPI_Type_get_extent_x(MPI_Datatype, MPI_Count*, MPI_Count*)
     int MPI_Type_get_true_extent(MPI_Datatype, MPI_Aint*, MPI_Aint*)
+    int MPI_Type_size_x(MPI_Datatype, MPI_Count*)
+    int MPI_Type_get_extent_x(MPI_Datatype, MPI_Count*, MPI_Count*)
     int MPI_Type_get_true_extent_x(MPI_Datatype, MPI_Count*, MPI_Count*)
 
     int MPI_Type_create_f90_integer(int, MPI_Datatype*)
@@ -195,17 +183,10 @@ cdef import from "mpi.h" nogil:
     enum: MPI_TYPECLASS_REAL     #:= MPI_UNDEFINED
     enum: MPI_TYPECLASS_COMPLEX  #:= MPI_UNDEFINED
     int MPI_Type_match_size(int, int, MPI_Datatype*)
+    int MPI_Type_get_value_index(MPI_Datatype, MPI_Datatype, MPI_Datatype*)
 
     int MPI_Type_commit(MPI_Datatype*)
     int MPI_Type_free(MPI_Datatype*)
-
-    int MPI_Pack(void*, int, MPI_Datatype, void*, int, int*,  MPI_Comm)
-    int MPI_Unpack(void*, int, int*, void*, int, MPI_Datatype, MPI_Comm)
-    int MPI_Pack_size(int, MPI_Datatype, MPI_Comm, int*)
-
-    int MPI_Pack_external(char[], void*, int, MPI_Datatype, void*, MPI_Aint, MPI_Aint*)
-    int MPI_Unpack_external(char[], void*, MPI_Aint, MPI_Aint*, void*, int, MPI_Datatype)
-    int MPI_Pack_external_size(char[], int, MPI_Datatype, MPI_Aint*)
 
     enum: MPI_COMBINER_NAMED           #:= MPI_UNDEFINED
     enum: MPI_COMBINER_DUP             #:= MPI_UNDEFINED
@@ -223,8 +204,17 @@ cdef import from "mpi.h" nogil:
     enum: MPI_COMBINER_F90_COMPLEX     #:= MPI_UNDEFINED
     enum: MPI_COMBINER_F90_INTEGER     #:= MPI_UNDEFINED
     enum: MPI_COMBINER_RESIZED         #:= MPI_UNDEFINED
+    enum: MPI_COMBINER_VALUE_INDEX     #:= MPI_COMBINER_NAMED
     int MPI_Type_get_envelope(MPI_Datatype, int*, int*, int*, int*)
     int MPI_Type_get_contents(MPI_Datatype, int, int, int, int[], MPI_Aint[], MPI_Datatype[])
+
+    int MPI_Pack(void*, int, MPI_Datatype, void*, int, int*, MPI_Comm)
+    int MPI_Unpack(void*, int, int*, void*, int, MPI_Datatype, MPI_Comm)
+    int MPI_Pack_size(int, MPI_Datatype, MPI_Comm, int*)
+
+    int MPI_Pack_external(char[], void*, int, MPI_Datatype, void*, MPI_Aint, MPI_Aint*)
+    int MPI_Unpack_external(char[], void*, MPI_Aint, MPI_Aint*, void*, int, MPI_Datatype)
+    int MPI_Pack_external_size(char[], int, MPI_Datatype, MPI_Aint*)
 
     int MPI_Type_get_name(MPI_Datatype, char[], int*)
     int MPI_Type_set_name(MPI_Datatype, char[])
@@ -241,6 +231,34 @@ cdef import from "mpi.h" nogil:
     int MPI_Type_create_keyval(MPI_Type_copy_attr_function*, MPI_Type_delete_attr_function*, int*, void*)
     int MPI_Type_free_keyval(int*)
 
+    # MPI-4 large count functions
+
+    int MPI_Type_contiguous_c(MPI_Count, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_vector_c(MPI_Count, MPI_Count, MPI_Count, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_indexed_c(MPI_Count, MPI_Count[], MPI_Count[], MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_indexed_block_c(MPI_Count, MPI_Count, MPI_Count[], MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_subarray_c(int, MPI_Count[], MPI_Count[], MPI_Count[], int, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_darray_c(int, int, int, MPI_Count[], int[], int[], int[], int, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_hvector_c(MPI_Count, MPI_Count, MPI_Count, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_hindexed_c(MPI_Count, MPI_Count[], MPI_Count[], MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_hindexed_block_c(MPI_Count, MPI_Count, MPI_Count[], MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_create_struct_c(MPI_Count, MPI_Count[], MPI_Count[], MPI_Datatype[], MPI_Datatype*)
+    int MPI_Type_create_resized_c(MPI_Datatype, MPI_Count, MPI_Count, MPI_Datatype*)
+
+    int MPI_Type_size_c(MPI_Datatype, MPI_Count*) #:= MPI_Type_size_x
+    int MPI_Type_get_extent_c(MPI_Datatype, MPI_Count*, MPI_Count*) #:= MPI_Type_get_extent_x
+    int MPI_Type_get_true_extent_c(MPI_Datatype, MPI_Count*, MPI_Count*) #:= MPI_Type_get_true_extent_x
+    int MPI_Type_get_envelope_c(MPI_Datatype, MPI_Count*, MPI_Count*, MPI_Count*, MPI_Count*, int*)
+    int MPI_Type_get_contents_c(MPI_Datatype, MPI_Count, MPI_Count, MPI_Count, MPI_Count, int[], MPI_Aint[], MPI_Count[], MPI_Datatype[])
+
+    int MPI_Pack_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Count*, MPI_Comm)
+    int MPI_Unpack_c(void*, MPI_Count, MPI_Count*, void*, MPI_Count, MPI_Datatype, MPI_Comm)
+    int MPI_Pack_size_c(MPI_Count, MPI_Datatype, MPI_Comm, MPI_Count*)
+
+    int MPI_Pack_external_c(char[], void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Count*)
+    int MPI_Unpack_external_c(char[], void*, MPI_Count, MPI_Count*, void*, MPI_Count, MPI_Datatype)
+    int MPI_Pack_external_size_c(char[], MPI_Count, MPI_Datatype, MPI_Count*)
+
     #-----------------------------------------------------------------
 
     MPI_Status* MPI_STATUS_IGNORE    #:= 0
@@ -248,32 +266,57 @@ cdef import from "mpi.h" nogil:
 
     int MPI_Get_count(MPI_Status*, MPI_Datatype, int*)
     int MPI_Get_elements(MPI_Status*, MPI_Datatype, int*)
-    int MPI_Get_elements_x(MPI_Status*, MPI_Datatype, MPI_Count*)
     int MPI_Status_set_elements(MPI_Status*, MPI_Datatype, int)
+    int MPI_Get_elements_x(MPI_Status*, MPI_Datatype, MPI_Count*)
     int MPI_Status_set_elements_x(MPI_Status*, MPI_Datatype, MPI_Count)
 
     int MPI_Test_cancelled(MPI_Status*, int*)
     int MPI_Status_set_cancelled(MPI_Status*, int)
 
+    # MPI-4 large count functions
+
+    int MPI_Get_count_c(MPI_Status*, MPI_Datatype, MPI_Count*)
+    int MPI_Get_elements_c(MPI_Status*, MPI_Datatype, MPI_Count*) #:= MPI_Get_elements_x
+    int MPI_Status_set_elements_c(MPI_Status*, MPI_Datatype, MPI_Count) #:= MPI_Status_set_elements_x
+
+    # MPI-41 getters and setters
+
+    int MPI_Status_get_source(MPI_Status*, int*)
+    int MPI_Status_set_source(MPI_Status*, int)
+    int MPI_Status_get_tag(MPI_Status*, int*)
+    int MPI_Status_set_tag(MPI_Status*, int)
+    int MPI_Status_get_error(MPI_Status*, int*)
+    int MPI_Status_set_error(MPI_Status*, int)
+
     #-----------------------------------------------------------------
 
     MPI_Request MPI_REQUEST_NULL  #:= 0
 
-    int MPI_Request_free(MPI_Request*)
     int MPI_Wait(MPI_Request*, MPI_Status*)
     int MPI_Test(MPI_Request*, int*, MPI_Status*)
     int MPI_Request_get_status(MPI_Request, int*, MPI_Status*)
-    int MPI_Cancel(MPI_Request*)
 
     int MPI_Waitany(int, MPI_Request[], int*, MPI_Status*)
     int MPI_Testany(int, MPI_Request[], int*, int*, MPI_Status*)
+    int MPI_Request_get_status_any(int, MPI_Request[], int*, int*, MPI_Status*)
+
     int MPI_Waitall(int, MPI_Request[], MPI_Status[])
     int MPI_Testall(int, MPI_Request[], int*, MPI_Status[])
+    int MPI_Request_get_status_all(int, MPI_Request [], int*, MPI_Status[])
+
     int MPI_Waitsome(int, MPI_Request[], int*, int[], MPI_Status[])
     int MPI_Testsome(int, MPI_Request[], int*, int[], MPI_Status[])
+    int MPI_Request_get_status_some(int, MPI_Request[], int*, int[], MPI_Status[])
+
+    int MPI_Cancel(MPI_Request*)
+    int MPI_Request_free(MPI_Request*)
 
     int MPI_Start(MPI_Request*)
     int MPI_Startall(int, MPI_Request*)
+    int MPI_Pready(int, MPI_Request)
+    int MPI_Pready_range(int, int, MPI_Request)
+    int MPI_Pready_list(int, int[], MPI_Request)
+    int MPI_Parrived(MPI_Request, int, int*)
 
     ctypedef int MPI_Grequest_cancel_function(void*,int)
     ctypedef int MPI_Grequest_free_function(void*)
@@ -305,24 +348,10 @@ cdef import from "mpi.h" nogil:
     int MPI_Op_create(MPI_User_function*, int, MPI_Op*)
     int MPI_Op_commutative(MPI_Op, int*)
 
-    #-----------------------------------------------------------------
+    # MPI-4 large count functions
 
-    MPI_Info MPI_INFO_NULL #:= 0
-    MPI_Info MPI_INFO_ENV  #:= MPI_INFO_NULL
-
-    int MPI_Info_free(MPI_Info*)
-    int MPI_Info_create(MPI_Info*)
-    int MPI_Info_dup(MPI_Info, MPI_Info*)
-
-    enum: MPI_MAX_INFO_KEY  #:= 1
-    enum: MPI_MAX_INFO_VAL  #:= 1
-    int MPI_Info_get(MPI_Info, char[], int, char[], int*)
-    int MPI_Info_set(MPI_Info, char[], char[])
-    int MPI_Info_delete(MPI_Info, char[])
-
-    int MPI_Info_get_nkeys(MPI_Info, int*)
-    int MPI_Info_get_nthkey(MPI_Info, int, char[])
-    int MPI_Info_get_valuelen(MPI_Info, char[], int*, int*)
+    ctypedef void MPI_User_function_c(void*,void*,MPI_Count*,MPI_Datatype*)
+    int MPI_Op_create_c(MPI_User_function_c*, int, MPI_Op*)
 
     #-----------------------------------------------------------------
 
@@ -347,6 +376,53 @@ cdef import from "mpi.h" nogil:
 
     #-----------------------------------------------------------------
 
+    MPI_Info MPI_INFO_NULL #:= 0
+    MPI_Info MPI_INFO_ENV  #:= MPI_INFO_NULL
+
+    int MPI_Info_free(MPI_Info*)
+    int MPI_Info_create(MPI_Info*)
+    int MPI_Info_dup(MPI_Info, MPI_Info*)
+    int MPI_Info_create_env(int, char*[], MPI_Info*)
+
+    enum: MPI_MAX_INFO_KEY  #:= 1
+    enum: MPI_MAX_INFO_VAL  #:= 1
+    int MPI_Info_get_string(MPI_Info, char[], int*, char[], int*)
+    int MPI_Info_set(MPI_Info, char[], char[])
+    int MPI_Info_delete(MPI_Info, char[])
+
+    int MPI_Info_get_nkeys(MPI_Info, int*)
+    int MPI_Info_get_nthkey(MPI_Info, int, char[])
+
+    #-----------------------------------------------------------------
+
+    MPI_Errhandler MPI_ERRHANDLER_NULL   #:= 0
+    MPI_Errhandler MPI_ERRORS_RETURN     #:= MPI_ERRHANDLER_NULL
+    MPI_Errhandler MPI_ERRORS_ABORT      #:= MPI_ERRHANDLER_NULL
+    MPI_Errhandler MPI_ERRORS_ARE_FATAL  #:= MPI_ERRHANDLER_NULL
+
+    int MPI_Errhandler_free(MPI_Errhandler*)
+
+    #-----------------------------------------------------------------
+
+    MPI_Session MPI_SESSION_NULL #:= 0
+
+    enum: MPI_MAX_PSET_NAME_LEN #:= 1
+    int MPI_Session_init(MPI_Info, MPI_Errhandler, MPI_Session*)
+    int MPI_Session_finalize(MPI_Session*)
+    int MPI_Session_get_num_psets(MPI_Session, MPI_Info, int*)
+    int MPI_Session_get_nth_pset(MPI_Session, MPI_Info, int, int*, char[])
+    int MPI_Session_get_info(MPI_Session, MPI_Info*)
+    int MPI_Session_get_pset_info(MPI_Session, char[], MPI_Info*)
+    int MPI_Group_from_session_pset(MPI_Session, char[], MPI_Group*)
+
+    ctypedef void MPI_Session_errhandler_function(MPI_Session*,int*,...)
+    int MPI_Session_create_errhandler(MPI_Session_errhandler_function*, MPI_Errhandler*)
+    int MPI_Session_get_errhandler(MPI_Session, MPI_Errhandler*)
+    int MPI_Session_set_errhandler(MPI_Session, MPI_Errhandler)
+    int MPI_Session_call_errhandler(MPI_Session, int)
+
+    #-----------------------------------------------------------------
+
     MPI_Comm MPI_COMM_NULL   #:= 0
     MPI_Comm MPI_COMM_SELF   #:= MPI_COMM_NULL
     MPI_Comm MPI_COMM_WORLD  #:= MPI_COMM_NULL
@@ -364,29 +440,49 @@ cdef import from "mpi.h" nogil:
 
     int MPI_Abort(MPI_Comm, int)
 
-    int MPI_Send(void*, int, MPI_Datatype, int, int, MPI_Comm)
-    int MPI_Recv(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
-    int MPI_Sendrecv(void*, int, MPI_Datatype,int, int, void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
-    int MPI_Sendrecv_replace(void*, int, MPI_Datatype, int, int, int, int, MPI_Comm, MPI_Status*)
-
     enum: MPI_BSEND_OVERHEAD #:= 0
+    void* MPI_BUFFER_AUTOMATIC #:= 0
     int MPI_Buffer_attach(void*, int)
     int MPI_Buffer_detach(void*, int*)
+    int MPI_Buffer_flush()
+    int MPI_Buffer_iflush(MPI_Request*)
+
+    int MPI_Comm_attach_buffer(MPI_Comm, void*, int)
+    int MPI_Comm_detach_buffer(MPI_Comm, void*, int*)
+    int MPI_Comm_flush_buffer(MPI_Comm)
+    int MPI_Comm_iflush_buffer(MPI_Comm,MPI_Request*)
+
+    int MPI_Session_attach_buffer(MPI_Session, void*, int)
+    int MPI_Session_detach_buffer(MPI_Session, void*, int*)
+    int MPI_Session_flush_buffer(MPI_Session)
+    int MPI_Session_iflush_buffer(MPI_Session,MPI_Request*)
+
+    int MPI_Send(void*, int, MPI_Datatype, int, int, MPI_Comm)
+    int MPI_Recv(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
+    int MPI_Sendrecv(void*, int, MPI_Datatype, int, int, void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
+    int MPI_Sendrecv_replace(void*, int, MPI_Datatype, int, int, int, int, MPI_Comm, MPI_Status*)
+
     int MPI_Bsend(void*, int, MPI_Datatype, int, int, MPI_Comm)
     int MPI_Ssend(void*, int, MPI_Datatype, int, int, MPI_Comm)
     int MPI_Rsend(void*, int, MPI_Datatype, int, int, MPI_Comm)
 
     int MPI_Isend(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Irecv(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Isendrecv(void*, int, MPI_Datatype, int, int, void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Isendrecv_replace(void*, int, MPI_Datatype, int, int, int, int, MPI_Comm, MPI_Request*)
+
     int MPI_Ibsend(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
     int MPI_Issend(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
     int MPI_Irsend(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
-    int MPI_Irecv(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
 
     int MPI_Send_init(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
-    int MPI_Bsend_init(void*, int, MPI_Datatype, int,int, MPI_Comm, MPI_Request*)
-    int MPI_Ssend_init(void*, int, MPI_Datatype, int,int, MPI_Comm, MPI_Request*)
-    int MPI_Rsend_init(void*, int, MPI_Datatype, int,int, MPI_Comm, MPI_Request*)
-    int MPI_Recv_init(void*, int, MPI_Datatype, int,int, MPI_Comm, MPI_Request*)
+    int MPI_Bsend_init(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Ssend_init(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Rsend_init(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Recv_init(void*, int, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+
+    int MPI_Psend_init(void*, int, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Precv_init(void*, int, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Info, MPI_Request*)
 
     int MPI_Probe(int, int, MPI_Comm, MPI_Status*)
     int MPI_Iprobe(int, int, MPI_Comm, int*, MPI_Status*)
@@ -410,9 +506,9 @@ cdef import from "mpi.h" nogil:
     int MPI_Alltoallv(void*, int[], int[], MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm)
     int MPI_Alltoallw(void*, int[], int[], MPI_Datatype[], void*, int[], int[], MPI_Datatype[], MPI_Comm)
 
+    int MPI_Reduce_local(void*, void*, int, MPI_Datatype, MPI_Op)
     int MPI_Reduce(void*, void*, int, MPI_Datatype, MPI_Op, int, MPI_Comm)
     int MPI_Allreduce(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm)
-    int MPI_Reduce_local(void*, void*, int, MPI_Datatype, MPI_Op)
     int MPI_Reduce_scatter_block(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm)
     int MPI_Reduce_scatter(void*, void*, int[], MPI_Datatype, MPI_Op, MPI_Comm)
     int MPI_Scan(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm)
@@ -421,8 +517,8 @@ cdef import from "mpi.h" nogil:
     int MPI_Neighbor_allgather(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm)
     int MPI_Neighbor_allgatherv(void*, int, MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm)
     int MPI_Neighbor_alltoall(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm)
-    int MPI_Neighbor_alltoallv(void*, int[], int[],MPI_Datatype, void*, int[],int[], MPI_Datatype, MPI_Comm)
-    int MPI_Neighbor_alltoallw(void*, int[], MPI_Aint[],MPI_Datatype[], void*, int[],MPI_Aint[], MPI_Datatype[], MPI_Comm)
+    int MPI_Neighbor_alltoallv(void*, int[], int[], MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm)
+    int MPI_Neighbor_alltoallw(void*, int[], MPI_Aint[], MPI_Datatype[], void*, int[], MPI_Aint[], MPI_Datatype[], MPI_Comm)
 
     int MPI_Ibarrier(MPI_Comm, MPI_Request*)
     int MPI_Ibcast(void*, int, MPI_Datatype, int, MPI_Comm, MPI_Request*)
@@ -446,16 +542,47 @@ cdef import from "mpi.h" nogil:
     int MPI_Ineighbor_allgather(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Request*)
     int MPI_Ineighbor_allgatherv(void*, int, MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Request*)
     int MPI_Ineighbor_alltoall(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Request*)
-    int MPI_Ineighbor_alltoallv(void*, int[], int[],MPI_Datatype, void*, int[],int[], MPI_Datatype, MPI_Comm, MPI_Request*)
-    int MPI_Ineighbor_alltoallw(void*, int[], MPI_Aint[],MPI_Datatype[], void*, int[],MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_alltoallv(void*, int[], int[], MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_alltoallw(void*, int[], MPI_Aint[], MPI_Datatype[], void*, int[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Request*)
+
+    int MPI_Barrier_init(MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Bcast_init(void*, int, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Gather_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Gatherv_init(void*, int, MPI_Datatype, void*, int[], int[], MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scatter_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scatterv_init(void*, int[], int[],  MPI_Datatype, void*, int, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allgather_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allgatherv_init(void*, int, MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoall_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoallv_init(void*, int[], int[], MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoallw_init(void*, int[], int[], MPI_Datatype[], void*, int[], int[], MPI_Datatype[], MPI_Comm, MPI_Info, MPI_Request*)
+
+    int MPI_Reduce_init(void*, void*, int, MPI_Datatype, MPI_Op, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allreduce_init(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Reduce_scatter_block_init(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Reduce_scatter_init(void*, void*, int[], MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scan_init(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Exscan_init(void*, void*, int, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+
+    int MPI_Neighbor_allgather_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_allgatherv_init(void*, int, MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoall_init(void*, int, MPI_Datatype, void*, int, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoallv_init(void*, int[], int[], MPI_Datatype, void*, int[], int[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoallw_init(void*, int[], MPI_Aint[], MPI_Datatype[], void*, int[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Info, MPI_Request*)
 
     int MPI_Comm_dup(MPI_Comm, MPI_Comm*)
     int MPI_Comm_dup_with_info(MPI_Comm, MPI_Info, MPI_Comm*)
     int MPI_Comm_idup(MPI_Comm, MPI_Comm*, MPI_Request*)
+    int MPI_Comm_idup_with_info(MPI_Comm, MPI_Info, MPI_Comm*, MPI_Request*)
     int MPI_Comm_create(MPI_Comm, MPI_Group, MPI_Comm*)
     int MPI_Comm_create_group(MPI_Comm, MPI_Group, int, MPI_Comm*)
+    enum: MPI_MAX_STRINGTAG_LEN #:= 1
+    int MPI_Comm_create_from_group(MPI_Group, char[], MPI_Info, MPI_Errhandler, MPI_Comm*)
     int MPI_Comm_split(MPI_Comm, int, int, MPI_Comm*)
     enum: MPI_COMM_TYPE_SHARED #:= MPI_UNDEFINED
+    enum: MPI_COMM_TYPE_HW_GUIDED #:= MPI_UNDEFINED
+    enum: MPI_COMM_TYPE_HW_UNGUIDED #:= MPI_UNDEFINED
+    enum: MPI_COMM_TYPE_RESOURCE_GUIDED #:= MPI_UNDEFINED
     int MPI_Comm_split_type(MPI_Comm, int, int, MPI_Info, MPI_Comm*)
     int MPI_Comm_set_info(MPI_Comm, MPI_Info)
     int MPI_Comm_get_info(MPI_Comm, MPI_Info*)
@@ -488,6 +615,7 @@ cdef import from "mpi.h" nogil:
     int MPI_Dist_graph_neighbors(MPI_Comm, int, int[], int[], int, int[], int[])
 
     int MPI_Intercomm_create(MPI_Comm, int, MPI_Comm, int, int, MPI_Comm*)
+    int MPI_Intercomm_create_from_groups(MPI_Group, int, MPI_Group, int, char[], MPI_Info, MPI_Errhandler, MPI_Comm*)
     int MPI_Comm_remote_group(MPI_Comm, MPI_Group*)
     int MPI_Comm_remote_size(MPI_Comm, int*)
     int MPI_Intercomm_merge(MPI_Comm, int, MPI_Comm*)
@@ -512,42 +640,16 @@ cdef import from "mpi.h" nogil:
     int MPI_Comm_spawn_multiple(int, char*[], char**[], int[], MPI_Info[], int, MPI_Comm, MPI_Comm*, int[])
     int MPI_Comm_get_parent(MPI_Comm*)
 
-    # Deprecated since MPI-2, removed in MPI-3
-    int MPI_Errhandler_get(MPI_Comm, MPI_Errhandler*)
-    int MPI_Errhandler_set(MPI_Comm, MPI_Errhandler)
-    ctypedef void MPI_Handler_function(MPI_Comm*,int*,...)
-    int MPI_Errhandler_create(MPI_Handler_function*, MPI_Errhandler*)
-
-    # Deprecated since MPI-2
-    int MPI_Attr_get(MPI_Comm, int, void*, int*)
-    int MPI_Attr_put(MPI_Comm, int, void*)
-    int MPI_Attr_delete(MPI_Comm, int)
-    ctypedef int MPI_Copy_function(MPI_Comm,int,void*,void*,void*,int*)
-    ctypedef int MPI_Delete_function(MPI_Comm,int,void*,void*)
-    MPI_Copy_function*   MPI_DUP_FN         #:= 0
-    MPI_Copy_function*   MPI_NULL_COPY_FN   #:= 0
-    MPI_Delete_function* MPI_NULL_DELETE_FN #:= 0
-    int MPI_Keyval_create(MPI_Copy_function*, MPI_Delete_function*, int*, void*)
-    int MPI_Keyval_free(int*)
-
-    int MPI_Comm_get_errhandler(MPI_Comm, MPI_Errhandler*)                         #:= MPI_Errhandler_get
-    int MPI_Comm_set_errhandler(MPI_Comm, MPI_Errhandler)                          #:= MPI_Errhandler_set
-    ctypedef void MPI_Comm_errhandler_fn(MPI_Comm*,int*,...)                       #:= MPI_Handler_function
-    ctypedef void MPI_Comm_errhandler_function(MPI_Comm*,int*,...)                 #:= MPI_Comm_errhandler_fn
-    int MPI_Comm_create_errhandler(MPI_Comm_errhandler_function*, MPI_Errhandler*) #:= MPI_Errhandler_create
-    int MPI_Comm_call_errhandler(MPI_Comm, int)
-
     int MPI_Comm_get_name(MPI_Comm, char[], int*)
     int MPI_Comm_set_name(MPI_Comm, char[])
 
     enum: MPI_TAG_UB          #:= MPI_KEYVAL_INVALID
-    enum: MPI_HOST            #:= MPI_KEYVAL_INVALID
     enum: MPI_IO              #:= MPI_KEYVAL_INVALID
     enum: MPI_WTIME_IS_GLOBAL #:= MPI_KEYVAL_INVALID
 
-    enum: MPI_UNIVERSE_SIZE #:= MPI_KEYVAL_INVALID
-    enum: MPI_APPNUM        #:= MPI_KEYVAL_INVALID
-    enum: MPI_LASTUSEDCODE  #:= MPI_KEYVAL_INVALID
+    enum: MPI_UNIVERSE_SIZE   #:= MPI_KEYVAL_INVALID
+    enum: MPI_APPNUM          #:= MPI_KEYVAL_INVALID
+    enum: MPI_LASTUSEDCODE    #:= MPI_KEYVAL_INVALID
 
     int MPI_Comm_get_attr(MPI_Comm, int, void*, int*)  #:= MPI_Attr_get
     int MPI_Comm_set_attr(MPI_Comm, int, void*)        #:= MPI_Attr_put
@@ -560,6 +662,134 @@ cdef import from "mpi.h" nogil:
     MPI_Comm_delete_attr_function* MPI_COMM_NULL_DELETE_FN                                                #:= MPI_NULL_DELETE_FN
     int MPI_Comm_create_keyval(MPI_Comm_copy_attr_function*, MPI_Comm_delete_attr_function*, int*, void*) #:= MPI_Keyval_create
     int MPI_Comm_free_keyval(int*)                                                                        #:= MPI_Keyval_free
+
+    ctypedef void MPI_Comm_errhandler_fn(MPI_Comm*,int*,...)                       #:= MPI_Handler_function
+    ctypedef void MPI_Comm_errhandler_function(MPI_Comm*,int*,...)                 #:= MPI_Comm_errhandler_fn
+    int MPI_Comm_create_errhandler(MPI_Comm_errhandler_function*, MPI_Errhandler*) #:= MPI_Errhandler_create
+    int MPI_Comm_get_errhandler(MPI_Comm, MPI_Errhandler*)                         #:= MPI_Errhandler_get
+    int MPI_Comm_set_errhandler(MPI_Comm, MPI_Errhandler)                          #:= MPI_Errhandler_set
+    int MPI_Comm_call_errhandler(MPI_Comm, int)
+
+    # MPI-4 large count functions
+
+    int MPI_Buffer_attach_c(void*, MPI_Count)
+    int MPI_Buffer_detach_c(void*, MPI_Count*)
+
+    int MPI_Comm_attach_buffer_c(MPI_Comm, void*, MPI_Count)
+    int MPI_Comm_detach_buffer_c(MPI_Comm, void*, MPI_Count*)
+
+    int MPI_Session_attach_buffer_c(MPI_Session, void*, MPI_Count)
+    int MPI_Session_detach_buffer_c(MPI_Session, void*, MPI_Count*)
+
+    int MPI_Send_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm)
+    int MPI_Recv_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
+    int MPI_Sendrecv_c(void*, MPI_Count, MPI_Datatype, int, int, void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Status*)
+    int MPI_Sendrecv_replace_c(void*, MPI_Count, MPI_Datatype, int, int, int, int, MPI_Comm, MPI_Status*)
+
+    int MPI_Bsend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm)
+    int MPI_Ssend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm)
+    int MPI_Rsend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm)
+
+    int MPI_Isend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Irecv_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Isendrecv_c(void*, MPI_Count, MPI_Datatype, int, int, void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Isendrecv_replace_c(void*, MPI_Count, MPI_Datatype, int, int, int, int, MPI_Comm, MPI_Request*)
+
+    int MPI_Ibsend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Issend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Irsend_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+
+    int MPI_Send_init_c (void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Recv_init_c (void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Bsend_init_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Ssend_init_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+    int MPI_Rsend_init_c(void*, MPI_Count, MPI_Datatype, int, int, MPI_Comm, MPI_Request*)
+
+    int MPI_Mrecv_c (void*, MPI_Count, MPI_Datatype, MPI_Message*, MPI_Status*)
+    int MPI_Imrecv_c(void*, MPI_Count, MPI_Datatype, MPI_Message*, MPI_Request*)
+
+    int MPI_Bcast_c (void*, MPI_Count, MPI_Datatype, int, MPI_Comm)
+    int MPI_Gather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm)
+    int MPI_Gatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, int, MPI_Comm)
+    int MPI_Scatter_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm)
+    int MPI_Scatterv_c(void*, MPI_Count[], MPI_Aint[],  MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm)
+    int MPI_Allgather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm)
+    int MPI_Allgatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm)
+    int MPI_Alltoall_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm)
+    int MPI_Alltoallv_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm)
+    int MPI_Alltoallw_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm)
+
+    int MPI_Reduce_local_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op)
+    int MPI_Reduce_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, int, MPI_Comm)
+    int MPI_Allreduce_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm)
+    int MPI_Reduce_scatter_block_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm)
+    int MPI_Reduce_scatter_c(void*, void*, MPI_Count[], MPI_Datatype, MPI_Op, MPI_Comm)
+    int MPI_Scan_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm)
+    int MPI_Exscan_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm)
+
+    int MPI_Neighbor_allgather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm)
+    int MPI_Neighbor_allgatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm)
+    int MPI_Neighbor_alltoall_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm)
+    int MPI_Neighbor_alltoallv_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm)
+    int MPI_Neighbor_alltoallw_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm)
+
+    int MPI_Ibcast_c(void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Request*)
+    int MPI_Igather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Request*)
+    int MPI_Igatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, int, MPI_Comm, MPI_Request*)
+    int MPI_Iscatter_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Request*)
+    int MPI_Iscatterv_c(void*, MPI_Count[], MPI_Aint[],  MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Request*)
+    int MPI_Iallgather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Iallgatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ialltoall_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ialltoallv_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ialltoallw_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Request*)
+
+    int MPI_Ireduce_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, int, MPI_Comm, MPI_Request*)
+    int MPI_Iallreduce_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Request*)
+    int MPI_Ireduce_scatter_block_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Request*)
+    int MPI_Ireduce_scatter_c(void*, void*, MPI_Count[], MPI_Datatype, MPI_Op, MPI_Comm, MPI_Request*)
+    int MPI_Iscan_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Request*)
+    int MPI_Iexscan_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Request*)
+
+    int MPI_Ineighbor_allgather_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_allgatherv_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_alltoall_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_alltoallv_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Request*)
+    int MPI_Ineighbor_alltoallw_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Request*)
+
+    int MPI_Bcast_init_c(void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Gather_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Gatherv_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scatter_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scatterv_init_c(void*, MPI_Count[], MPI_Aint[],  MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allgather_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allgatherv_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoall_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoallv_init_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Alltoallw_init_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Info, MPI_Request*)
+
+    int MPI_Reduce_init_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, int, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Allreduce_init_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Reduce_scatter_block_init_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Reduce_scatter_init_c(void*, void*, MPI_Count[], MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Scan_init_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Exscan_init_c(void*, void*, MPI_Count, MPI_Datatype, MPI_Op, MPI_Comm, MPI_Info, MPI_Request*)
+
+    int MPI_Neighbor_allgather_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_allgatherv_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoall_init_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoallv_init_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype, void*, MPI_Count[], MPI_Aint[], MPI_Datatype, MPI_Comm, MPI_Info, MPI_Request*)
+    int MPI_Neighbor_alltoallw_init_c(void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], void*, MPI_Count[], MPI_Aint[], MPI_Datatype[], MPI_Comm, MPI_Info, MPI_Request*)
+
+    # MPI-5 process fault tolerance
+    int MPI_Comm_revoke(MPI_Comm)
+    int MPI_Comm_is_revoked(MPI_Comm, int*)
+    int MPI_Comm_get_failed(MPI_Comm, MPI_Group*)
+    int MPI_Comm_ack_failed(MPI_Comm, int, int*)
+    int MPI_Comm_agree(MPI_Comm, int*)
+    int MPI_Comm_iagree(MPI_Comm, int*, MPI_Request*)
+    int MPI_Comm_shrink(MPI_Comm, MPI_Comm*)
+    int MPI_Comm_ishrink(MPI_Comm, MPI_Comm*, MPI_Request*)
 
     #-----------------------------------------------------------------
 
@@ -580,14 +810,14 @@ cdef import from "mpi.h" nogil:
     int MPI_Get(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Win)
     int MPI_Put(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Win)
     int MPI_Accumulate(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win)
-    int MPI_Get_accumulate(void*, int, MPI_Datatype, void*, int,MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win)
+    int MPI_Get_accumulate(void*, int, MPI_Datatype, void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win)
     int MPI_Fetch_and_op(void*, void*, MPI_Datatype, int, MPI_Aint, MPI_Op, MPI_Win)
     int MPI_Compare_and_swap(void*, void*, void*, MPI_Datatype, int, MPI_Aint, MPI_Win)
 
     int MPI_Rget(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Win, MPI_Request*)
     int MPI_Rput(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Win, MPI_Request*)
     int MPI_Raccumulate(void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win, MPI_Request*)
-    int MPI_Rget_accumulate(void*, int, MPI_Datatype, void*, int,MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win, MPI_Request*)
+    int MPI_Rget_accumulate(void*, int, MPI_Datatype, void*, int, MPI_Datatype, int, MPI_Aint, int, MPI_Datatype, MPI_Op, MPI_Win, MPI_Request*)
 
     enum: MPI_MODE_NOCHECK    #:= MPI_UNDEFINED
     enum: MPI_MODE_NOSTORE    #:= MPI_UNDEFINED
@@ -612,13 +842,6 @@ cdef import from "mpi.h" nogil:
     int MPI_Win_flush_local(int, MPI_Win)
     int MPI_Win_flush_local_all(MPI_Win)
     int MPI_Win_sync(MPI_Win)
-
-    int MPI_Win_get_errhandler(MPI_Win, MPI_Errhandler*)
-    int MPI_Win_set_errhandler(MPI_Win, MPI_Errhandler)
-    ctypedef void MPI_Win_errhandler_fn(MPI_Win*,int*,...)
-    ctypedef void MPI_Win_errhandler_function(MPI_Win*,int*,...) #:= MPI_Win_errhandler_fn
-    int MPI_Win_create_errhandler(MPI_Win_errhandler_function*, MPI_Errhandler*)
-    int MPI_Win_call_errhandler(MPI_Win, int)
 
     int MPI_Win_get_name(MPI_Win, char[], int*)
     int MPI_Win_set_name(MPI_Win, char[])
@@ -648,6 +871,30 @@ cdef import from "mpi.h" nogil:
     MPI_Win_delete_attr_function* MPI_WIN_NULL_DELETE_FN #:= 0
     int MPI_Win_create_keyval(MPI_Win_copy_attr_function*, MPI_Win_delete_attr_function*, int*, void*)
     int MPI_Win_free_keyval(int*)
+
+    ctypedef void MPI_Win_errhandler_fn(MPI_Win*,int*,...)
+    ctypedef void MPI_Win_errhandler_function(MPI_Win*,int*,...) #:= MPI_Win_errhandler_fn
+    int MPI_Win_create_errhandler(MPI_Win_errhandler_function*, MPI_Errhandler*)
+    int MPI_Win_get_errhandler(MPI_Win, MPI_Errhandler*)
+    int MPI_Win_set_errhandler(MPI_Win, MPI_Errhandler)
+    int MPI_Win_call_errhandler(MPI_Win, int)
+
+    # MPI-4 large count functions
+
+    int MPI_Win_create_c(void*, MPI_Aint, MPI_Aint, MPI_Info, MPI_Comm, MPI_Win*)
+    int MPI_Win_allocate_c(MPI_Aint, MPI_Aint, MPI_Info, MPI_Comm, void*, MPI_Win*)
+    int MPI_Win_allocate_shared_c(MPI_Aint, MPI_Aint, MPI_Info, MPI_Comm, void*, MPI_Win*)
+    int MPI_Win_shared_query_c(MPI_Win, int, MPI_Aint*, MPI_Aint*, void*)
+
+    int MPI_Get_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Win)
+    int MPI_Put_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Win)
+    int MPI_Accumulate_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Op, MPI_Win)
+    int MPI_Get_accumulate_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Op, MPI_Win)
+
+    int MPI_Rget_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Win, MPI_Request*)
+    int MPI_Rput_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Win, MPI_Request*)
+    int MPI_Raccumulate_c(void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Op, MPI_Win, MPI_Request*)
+    int MPI_Rget_accumulate_c(void*, MPI_Count, MPI_Datatype, void*, MPI_Count, MPI_Datatype, int, MPI_Aint, MPI_Count, MPI_Datatype, MPI_Op, MPI_Win, MPI_Request*)
 
     #-----------------------------------------------------------------
 
@@ -696,14 +943,14 @@ cdef import from "mpi.h" nogil:
     int MPI_File_get_position(MPI_File, MPI_Offset*)
     int MPI_File_get_byte_offset(MPI_File, MPI_Offset, MPI_Offset*)
 
-    int MPI_File_read      (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
-    int MPI_File_read_all  (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
-    int MPI_File_write     (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
-    int MPI_File_write_all (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
-    int MPI_File_iread     (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
-    int MPI_File_iread_all (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
-    int MPI_File_iwrite    (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
-    int MPI_File_iwrite_all(MPI_File, void*, int, MPI_Datatype, MPI_Request*)
+    int MPI_File_read       (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
+    int MPI_File_read_all   (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
+    int MPI_File_write      (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_all  (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
+    int MPI_File_iread      (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
+    int MPI_File_iread_all  (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite     (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_all (MPI_File, void*, int, MPI_Datatype, MPI_Request*)
 
     int MPI_File_read_shared   (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
     int MPI_File_write_shared  (MPI_File, void*, int, MPI_Datatype, MPI_Status*)
@@ -734,11 +981,11 @@ cdef import from "mpi.h" nogil:
     int MPI_File_get_atomicity(MPI_File, int*)
     int MPI_File_sync(MPI_File)
 
-    int MPI_File_get_errhandler(MPI_File, MPI_Errhandler*)
-    int MPI_File_set_errhandler(MPI_File, MPI_Errhandler)
     ctypedef void MPI_File_errhandler_fn(MPI_File*,int*,...)
     ctypedef void MPI_File_errhandler_function(MPI_File*,int*,...) #:= MPI_File_errhandler_fn
     int MPI_File_create_errhandler(MPI_File_errhandler_function*, MPI_Errhandler*)
+    int MPI_File_get_errhandler(MPI_File, MPI_Errhandler*)
+    int MPI_File_set_errhandler(MPI_File, MPI_Errhandler)
     int MPI_File_call_errhandler(MPI_File, int)
 
     ctypedef int MPI_Datarep_conversion_function(void*,MPI_Datatype,int,void*,MPI_Offset,void*)
@@ -747,13 +994,45 @@ cdef import from "mpi.h" nogil:
     enum: MPI_MAX_DATAREP_STRING #:= 1
     int MPI_Register_datarep(char[], MPI_Datarep_conversion_function*, MPI_Datarep_conversion_function*, MPI_Datarep_extent_function*, void*)
 
-    #-----------------------------------------------------------------
+    # MPI-4 large count functions
 
-    MPI_Errhandler MPI_ERRHANDLER_NULL   #:= 0
-    MPI_Errhandler MPI_ERRORS_RETURN     #:= MPI_ERRHANDLER_NULL
-    MPI_Errhandler MPI_ERRORS_ARE_FATAL  #:= MPI_ERRHANDLER_NULL
+    int MPI_File_read_at_c       (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_read_at_all_c   (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_at_c      (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_at_all_c  (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_iread_at_c      (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iread_at_all_c  (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_at_c     (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_at_all_c (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype, MPI_Request*)
 
-    int MPI_Errhandler_free(MPI_Errhandler*)
+    int MPI_File_read_c       (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_read_all_c   (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_c      (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_all_c  (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_iread_c      (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iread_all_c  (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_c     (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_all_c (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+
+    int MPI_File_read_shared_c   (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_shared_c  (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_iread_shared_c  (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_iwrite_shared_c (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Request*)
+    int MPI_File_read_ordered_c  (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+    int MPI_File_write_ordered_c (MPI_File, void*, MPI_Count, MPI_Datatype, MPI_Status*)
+
+    int MPI_File_read_at_all_begin_c   (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype)
+    int MPI_File_write_at_all_begin_c  (MPI_File, MPI_Offset, void*, MPI_Count, MPI_Datatype)
+    int MPI_File_read_all_begin_c      (MPI_File, void*, MPI_Count, MPI_Datatype)
+    int MPI_File_write_all_begin_c     (MPI_File, void*, MPI_Count, MPI_Datatype)
+    int MPI_File_read_ordered_begin_c  (MPI_File, void*, MPI_Count, MPI_Datatype)
+    int MPI_File_write_ordered_begin_c (MPI_File, void*, MPI_Count, MPI_Datatype)
+
+    int MPI_File_get_type_extent_c(MPI_File, MPI_Datatype, MPI_Count*)
+
+    ctypedef int MPI_Datarep_conversion_function_c(void*,MPI_Datatype,MPI_Count,void*,MPI_Offset,void*)
+    MPI_Datarep_conversion_function_c* MPI_CONVERSION_FN_NULL_C #:= 0
+    int MPI_Register_datarep_c(char[], MPI_Datarep_conversion_function_c*, MPI_Datarep_conversion_function_c*, MPI_Datarep_extent_function*, void*)
 
     #-----------------------------------------------------------------
 
@@ -762,86 +1041,92 @@ cdef import from "mpi.h" nogil:
     int MPI_Error_string(int, char[], int*)
 
     int MPI_Add_error_class(int*)
+    int MPI_Remove_error_class(int)
     int MPI_Add_error_code(int,int*)
+    int MPI_Remove_error_code(int)
     int MPI_Add_error_string(int,char[])
+    int MPI_Remove_error_string(int)
 
-    # MPI-1 Error classes
-    # -------------------
-    # Actually no errors
-    enum: MPI_SUCCESS        #:= 0
-    enum: MPI_ERR_LASTCODE   #:= 1
-    # MPI-1 Objects
-    enum: MPI_ERR_COMM       #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_GROUP      #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_TYPE       #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_REQUEST    #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_OP         #:= MPI_ERR_LASTCODE
-    # Communication argument parameters
-    enum: MPI_ERR_BUFFER     #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_COUNT      #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_TAG        #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_RANK       #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_ROOT       #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_TRUNCATE   #:= MPI_ERR_LASTCODE
-    # Multiple completion
-    enum: MPI_ERR_IN_STATUS  #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_PENDING    #:= MPI_ERR_LASTCODE
-    # Topology argument parameters
-    enum: MPI_ERR_TOPOLOGY   #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_DIMS       #:= MPI_ERR_LASTCODE
-    # All other arguments, this is a class with many kinds
-    enum: MPI_ERR_ARG        #:= MPI_ERR_LASTCODE
-    # Other errors that are not simply an invalid argument
-    enum: MPI_ERR_OTHER      #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_UNKNOWN    #:= MPI_ERR_LASTCODE
-    enum: MPI_ERR_INTERN     #:= MPI_ERR_LASTCODE
-
-    # MPI-2 Error classes
-    # -------------------
-    # Attributes
-    enum: MPI_ERR_KEYVAL                 #:= MPI_ERR_ARG
-    # Memory Allocation
-    enum: MPI_ERR_NO_MEM                 #:= MPI_ERR_UNKNOWN
-    # Info Object
-    enum: MPI_ERR_INFO                   #:= MPI_ERR_ARG
-    enum: MPI_ERR_INFO_KEY               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_INFO_VALUE             #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_INFO_NOKEY             #:= MPI_ERR_UNKNOWN
-    # Dynamic Process Management
-    enum: MPI_ERR_SPAWN                  #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_PORT                   #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_SERVICE                #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_NAME                   #:= MPI_ERR_UNKNOWN
-    # Input/Ouput
-    enum: MPI_ERR_FILE                   #:= MPI_ERR_ARG
-    enum: MPI_ERR_NOT_SAME               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_BAD_FILE               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_NO_SUCH_FILE           #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_FILE_EXISTS            #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_FILE_IN_USE            #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_AMODE                  #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_ACCESS                 #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_READ_ONLY              #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_NO_SPACE               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_QUOTA                  #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_UNSUPPORTED_DATAREP    #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_UNSUPPORTED_OPERATION  #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_CONVERSION             #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_DUP_DATAREP            #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_IO                     #:= MPI_ERR_UNKNOWN
-    # One-Sided Communications
-    enum: MPI_ERR_WIN                    #:= MPI_ERR_ARG
-    enum: MPI_ERR_BASE                   #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_SIZE                   #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_DISP                   #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_ASSERT                 #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_LOCKTYPE               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_CONFLICT           #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_SYNC               #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_RANGE              #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_ATTACH             #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_SHARED             #:= MPI_ERR_UNKNOWN
-    enum: MPI_ERR_RMA_FLAVOR             #:= MPI_ERR_UNKNOWN
+    # no errors
+    enum: MPI_SUCCESS                    #:= 0
+    enum: MPI_ERR_LASTCODE               #:= 1
+    # object handles
+    enum: MPI_ERR_TYPE                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_REQUEST                #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_OP                     #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_GROUP                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_INFO                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_ERRHANDLER             #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_SESSION                #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_COMM                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_WIN                    #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_FILE                   #:= MPI_ERR_LASTCODE
+    # communication arguments
+    enum: MPI_ERR_BUFFER                 #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_COUNT                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_TAG                    #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RANK                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_ROOT                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_TRUNCATE               #:= MPI_ERR_LASTCODE
+    # multiple completion
+    enum: MPI_ERR_IN_STATUS              #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_PENDING                #:= MPI_ERR_LASTCODE
+    # topology
+    enum: MPI_ERR_TOPOLOGY               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_DIMS                   #:= MPI_ERR_LASTCODE
+    # other arguments
+    enum: MPI_ERR_ARG                    #:= MPI_ERR_LASTCODE
+    # other errors
+    enum: MPI_ERR_OTHER                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_UNKNOWN                #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_INTERN                 #:= MPI_ERR_LASTCODE
+    # attributes
+    enum: MPI_ERR_KEYVAL                 #:= MPI_ERR_LASTCODE
+    # memory allocation
+    enum: MPI_ERR_NO_MEM                 #:= MPI_ERR_LASTCODE
+    # info object
+    enum: MPI_ERR_INFO_KEY               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_INFO_VALUE             #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_INFO_NOKEY             #:= MPI_ERR_LASTCODE
+    # dynamic process management
+    enum: MPI_ERR_SPAWN                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_PORT                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_SERVICE                #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_NAME                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_PROC_ABORTED           #:= MPI_ERR_LASTCODE
+    # one-sided communications
+    enum: MPI_ERR_BASE                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_SIZE                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_DISP                   #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_ASSERT                 #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_LOCKTYPE               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_CONFLICT           #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_SYNC               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_RANGE              #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_ATTACH             #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_SHARED             #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_RMA_FLAVOR             #:= MPI_ERR_LASTCODE
+    # input/output
+    enum: MPI_ERR_BAD_FILE               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_NO_SUCH_FILE           #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_FILE_EXISTS            #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_FILE_IN_USE            #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_AMODE                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_ACCESS                 #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_READ_ONLY              #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_NO_SPACE               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_QUOTA                  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_UNSUPPORTED_OPERATION  #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_NOT_SAME               #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_IO                     #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_UNSUPPORTED_DATAREP    #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_CONVERSION             #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_DUP_DATAREP            #:= MPI_ERR_LASTCODE
+    enum: MPI_ERR_VALUE_TOO_LARGE        #:= MPI_ERR_LASTCODE
+    # Process Fault Tolerance
+    enum: MPI_ERR_REVOKED                #:= MPI_ERR_UNKNOWN
+    enum: MPI_ERR_PROC_FAILED            #:= MPI_ERR_UNKNOWN
+    enum: MPI_ERR_PROC_FAILED_PENDING    #:= MPI_ERR_UNKNOWN
 
     #-----------------------------------------------------------------
 
@@ -872,8 +1157,9 @@ cdef import from "mpi.h" nogil:
     enum: MPI_MAX_LIBRARY_VERSION_STRING #:= 1
     int MPI_Get_library_version(char[], int*)
 
-    enum: MPI_MAX_PROCESSOR_NAME  #:= 1
+    enum: MPI_MAX_PROCESSOR_NAME #:= 1
     int MPI_Get_processor_name(char[], int*)
+    int MPI_Get_hw_resource_info(MPI_Info*)
 
     #-----------------------------------------------------------------
 
@@ -887,6 +1173,10 @@ cdef import from "mpi.h" nogil:
     # Fortran INTEGER
     ctypedef int MPI_Fint
 
+    enum: MPI_F_SOURCE              #:= MPI_UNDEFINED
+    enum: MPI_F_TAG                 #:= MPI_UNDEFINED
+    enum: MPI_F_ERROR               #:= MPI_UNDEFINED
+    enum: MPI_F_STATUS_SIZE         #:= MPI_UNDEFINED
     MPI_Fint* MPI_F_STATUS_IGNORE   #:= 0
     MPI_Fint* MPI_F_STATUSES_IGNORE #:= 0
     int MPI_Status_c2f (MPI_Status*, MPI_Fint*)
@@ -897,8 +1187,9 @@ cdef import from "mpi.h" nogil:
     MPI_Fint MPI_Request_c2f    (MPI_Request)
     MPI_Fint MPI_Message_c2f    (MPI_Message)
     MPI_Fint MPI_Op_c2f         (MPI_Op)
-    MPI_Fint MPI_Info_c2f       (MPI_Info)
     MPI_Fint MPI_Group_c2f      (MPI_Group)
+    MPI_Fint MPI_Info_c2f       (MPI_Info)
+    MPI_Fint MPI_Session_c2f    (MPI_Session)
     MPI_Fint MPI_Comm_c2f       (MPI_Comm)
     MPI_Fint MPI_Win_c2f        (MPI_Win)
     MPI_Fint MPI_File_c2f       (MPI_File)
@@ -909,8 +1200,9 @@ cdef import from "mpi.h" nogil:
     MPI_Request    MPI_Request_f2c    (MPI_Fint)
     MPI_Message    MPI_Message_f2c    (MPI_Fint)
     MPI_Op         MPI_Op_f2c         (MPI_Fint)
-    MPI_Info       MPI_Info_f2c       (MPI_Fint)
     MPI_Group      MPI_Group_f2c      (MPI_Fint)
+    MPI_Info       MPI_Info_f2c       (MPI_Fint)
+    MPI_Session    MPI_Session_f2c    (MPI_Fint)
     MPI_Comm       MPI_Comm_f2c       (MPI_Fint)
     MPI_Win        MPI_Win_f2c        (MPI_Fint)
     MPI_File       MPI_File_f2c       (MPI_Fint)
@@ -923,5 +1215,46 @@ cdef import from "mpi.h" nogil:
     ## int MPI_Status_f082c(MPI_F08_status*, MPI_Status*)
     ## int MPI_Status_f2f08(MPI_Fint*, MPI_F08_status*)
     ## int MPI_Status_f082f(MPI_F08_status*, MPI_Fint*)
+
+    #-----------------------------------------------------------------
+
+    # Deprecated since MPI-4.1
+    enum: MPI_HOST #:= MPI_KEYVAL_INVALID
+
+    # Deprecated since MPI-4.0
+    int MPI_Info_get(MPI_Info, char[], int, char[], int*)
+    int MPI_Info_get_valuelen(MPI_Info, char[], int*, int*)
+
+    # Deprecated since MPI-2
+    int MPI_Attr_get(MPI_Comm, int, void*, int*)
+    int MPI_Attr_put(MPI_Comm, int, void*)
+    int MPI_Attr_delete(MPI_Comm, int)
+    ctypedef int MPI_Copy_function(MPI_Comm,int,void*,void*,void*,int*)
+    ctypedef int MPI_Delete_function(MPI_Comm,int,void*,void*)
+    MPI_Copy_function*   MPI_DUP_FN         #:= 0
+    MPI_Copy_function*   MPI_NULL_COPY_FN   #:= 0
+    MPI_Delete_function* MPI_NULL_DELETE_FN #:= 0
+    int MPI_Keyval_create(MPI_Copy_function*, MPI_Delete_function*, int*, void*)
+    int MPI_Keyval_free(int*)
+
+    # Deprecated since MPI-2, removed in MPI-3
+    int MPI_Errhandler_get(MPI_Comm, MPI_Errhandler*)
+    int MPI_Errhandler_set(MPI_Comm, MPI_Errhandler)
+    ctypedef void MPI_Handler_function(MPI_Comm*,int*,...)
+    int MPI_Errhandler_create(MPI_Handler_function*, MPI_Errhandler*)
+
+    # Deprecated since MPI-2, removed in MPI-3
+    int MPI_Address(void*, MPI_Aint*)
+    MPI_Datatype MPI_UB #:= MPI_DATATYPE_NULL
+    MPI_Datatype MPI_LB #:= MPI_DATATYPE_NULL
+    int MPI_Type_lb(MPI_Datatype, MPI_Aint*)
+    int MPI_Type_ub(MPI_Datatype, MPI_Aint*)
+    int MPI_Type_extent(MPI_Datatype, MPI_Aint*)
+    int MPI_Type_hvector(int, int, MPI_Aint, MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_hindexed(int, int[], MPI_Aint[], MPI_Datatype, MPI_Datatype*)
+    int MPI_Type_struct(int, int[], MPI_Aint[], MPI_Datatype[], MPI_Datatype*)
+    enum: MPI_COMBINER_HVECTOR_INTEGER  #:= MPI_UNDEFINED
+    enum: MPI_COMBINER_HINDEXED_INTEGER #:= MPI_UNDEFINED
+    enum: MPI_COMBINER_STRUCT_INTEGER   #:= MPI_UNDEFINED
 
     #-----------------------------------------------------------------

@@ -20,8 +20,4 @@ static int PyMPI_MPICH2_MPI_Add_error_code(int errorclass,
 #undef  MPI_Add_error_code
 #define MPI_Add_error_code PyMPI_MPICH2_MPI_Add_error_code
 
-#if defined(__SICORTEX__)
-#include "sicortex.h"
-#endif
-
 #endif /* !PyMPI_COMPAT_MPICH2_H */

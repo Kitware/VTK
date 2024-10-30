@@ -237,7 +237,6 @@
 #define PyMPI_HAVE_MPI_File_get_amode 1
 #define PyMPI_HAVE_MPI_File_set_info 1
 #define PyMPI_HAVE_MPI_File_get_info 1
-#define PyMPI_HAVE_MPI_MAX_DATAREP_STRING 1
 #define PyMPI_HAVE_MPI_File_get_view 1
 #define PyMPI_HAVE_MPI_File_set_view 1
 #define PyMPI_HAVE_MPI_File_read_at 1
