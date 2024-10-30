@@ -8,6 +8,13 @@ set(python_files
   mpi4py/__init__.pxd
   mpi4py/MPI.pxd)
 
+if (Python3_VERSION VERSION_GREATER_EQUAL "3.11")
+  list(APPEND python_files
+    mpi4py/__init__.pyi
+    mpi4py/MPI.pyi
+    mpi4py/py.typed)
+endif ()
+
 set(python_install_files)
 foreach (python_file IN LISTS python_files)
   set(output_python_file
@@ -44,6 +51,12 @@ install(
   DESTINATION "${mpi4py_install_dir}/mpi4py"
   COMPONENT   "python")
 
+if (Python3_SOABI)
+  set(_soabi_suffix ".${Python3_SOABI}")
+else ()
+  set(_soabi_suffix "")
+endif ()
+
 add_library(vtkmpi4py.MPI MODULE
   MPI.c)
 set_target_properties(vtkmpi4py.MPI
@@ -57,7 +70,11 @@ if (WIN32)
       # XXX(python-debug): VTK doesn't expect a debug Python for Debug builds
       # anymore. See vtkModuleWrapPython what actually decides this.
       #DEBUG_POSTFIX "_d"
-      SUFFIX        ".pyd")
+      SUFFIX "${_soabi_suffix}.pyd")
+else ()
+  set_target_properties(vtkmpi4py.MPI
+    PROPERTIES
+      SUFFIX "${_soabi_suffix}${CMAKE_SHARED_MODULE_SUFFIX}")
 endif ()
 
 # Assume that fortran bindings are not available.
