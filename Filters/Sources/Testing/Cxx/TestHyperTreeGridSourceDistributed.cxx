@@ -51,17 +51,15 @@ bool TestSource(const SourceConfig<NbTrees>& config, int myRank, int nbRanks)
   vtkIdType inIndex = 0;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   htg->InitializeTreeIterator(it);
-  int treeIndex = 0;
   bool success = true;
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   while (it.GetNextTree(inIndex))
   {
     htg->InitializeNonOrientedCursor(cursor, inIndex, true);
-    if ((config.ExpectedProcess[treeIndex++] == myRank) == cursor->IsMasked())
+    if ((config.ExpectedProcess[inIndex] == myRank) == cursor->IsMasked())
     {
-      vtkErrorWithObjectMacro(nullptr,
-        "Tree #" << treeIndex - 1 << " does not appear on the right process "
-                 << "Is masked ");
+      vtkErrorWithObjectMacro(
+        nullptr, "Tree #" << inIndex << " does not appear on the right process");
       success = false;
     }
   }
@@ -108,6 +106,15 @@ bool TestSourceBoundingBox(int myRank, int nbRanks, vtkMPIController* controller
         success = false;
       }
     }
+  }
+
+  std::array<int, 3> expectedNumberOfTrees{ 2, 3, 1 };
+  if (expectedNumberOfTrees[myRank] != htg->GetNumberOfNonEmptyTrees())
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Expected to get " << expectedNumberOfTrees[myRank] << " non-empty trees on rank " << myRank
+                         << " but got " << htg->GetNumberOfNonEmptyTrees() << " instead.");
+    success = false;
   }
 
   return success;

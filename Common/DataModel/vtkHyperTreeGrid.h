@@ -478,6 +478,12 @@ public:
   void SetTree(vtkIdType, vtkHyperTree*);
 
   /**
+   * Remove the tree at the given index.
+   * Return the number of trees removed (0 or 1).
+   */
+  size_t RemoveTree(vtkIdType index);
+
+  /**
    * Create shallow copy of hyper tree grid.
    */
   void ShallowCopy(vtkDataObject*) override;

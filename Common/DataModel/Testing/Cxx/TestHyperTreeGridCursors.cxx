@@ -10,6 +10,7 @@
 #include "vtkHyperTreeGridOrientedCursor.h"
 #include "vtkUniformHyperTreeGrid.h"
 
+#include <array>
 #include <iostream>
 #include <string>
 
@@ -249,6 +250,64 @@ void initOctreeHTG(vtkUniformHyperTreeGrid* uhtg)
   generateOctreeHTG(uhtg, 1);
 }
 
+/**
+ * Test the Tree deletion function, using cursors
+ */
+int TestTreeDeletion()
+{
+  // Setup a HTG with a few trees at given ids
+  vtkNew<vtkHyperTreeGrid> htg;
+  vtkHyperTree* tree = vtkHyperTree::CreateInstance(2, 2);
+  std::array<vtkIdType, 6> ids{ 0, 1, 3, 5, 8, 12 };
+  for (auto id : ids)
+  {
+    htg->SetTree(id, tree);
+  }
+  tree->Delete();
+
+  // Delete some trees
+  vtkIdType totalTreesRemoved = 0;
+  vtkIdType expectedTreesRemoved = 3;
+  totalTreesRemoved += htg->RemoveTree(3);
+  totalTreesRemoved += htg->RemoveTree(5);
+  totalTreesRemoved += htg->RemoveTree(12);
+  totalTreesRemoved += htg->RemoveTree(12);
+  if (totalTreesRemoved != expectedTreesRemoved)
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Expected to have " << expectedTreesRemoved << " trees removed but got " << totalTreesRemoved
+                          << " instead.");
+    return 1;
+  }
+
+  vtkIdType inIndex = 0;
+  std::size_t offset = 0;
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+  htg->InitializeTreeIterator(it);
+  std::array<vtkIdType, 3> expectedIds{ 0, 1, 8 };
+  vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+  while (it.GetNextTree(inIndex))
+  {
+    if (inIndex != expectedIds[offset++])
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        "Expected to get tree id " << expectedIds[offset] << " at position " << offset
+                                   << " but got " << inIndex << " instead.");
+      return 1;
+    }
+  }
+
+  if (offset != expectedIds.size())
+  {
+    vtkErrorWithObjectMacro(nullptr,
+      "Expected to have " << expectedIds.size() << " trees left in the HTG but got " << offset
+                          << " instead.");
+    return 1;
+  }
+
+  return 0;
+}
+
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -383,6 +442,10 @@ int TestHyperTreeGridCursors(int, char*[])
     TestCursor test4;
     status += test4.doTest(unlimtedMooreSC.Get());
     // no result for unlimited
+  }
+
+  {
+    status += TestTreeDeletion();
   }
 
   return status;

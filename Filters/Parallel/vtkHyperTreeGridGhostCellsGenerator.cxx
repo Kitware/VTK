@@ -8,9 +8,11 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkSetGet.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGhostCellsGenerator);
@@ -35,16 +37,60 @@ int vtkHyperTreeGridGhostCellsGenerator::FillOutputPortInformation(int, vtkInfor
 }
 
 //------------------------------------------------------------------------------
+int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  this->UpdateProgress(0.);
+
+  // Retrieve input and output
+  vtkHyperTreeGrid* input = vtkHyperTreeGrid::GetData(inputVector[0], 0);
+  if (!input)
+  {
+    vtkErrorMacro("No input available. Cannot proceed with hyper tree grid algorithm.");
+    return 0;
+  }
+  vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
+  if (!outputDO)
+  {
+    vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
+    return 0;
+  }
+
+  int correctExtent = input->GetExtent()[0] <= input->GetExtent()[1] &&
+    input->GetExtent()[2] <= input->GetExtent()[3] &&
+    input->GetExtent()[4] <= input->GetExtent()[5];
+
+  // Make sure every HTG piece has a correct extent and can be processed.
+  // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
+  // or by none, and avoids getting stuck on barriers.
+  int allCorrect = 1; // Reduction operation cannot be done on bools
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+  controller->AllReduce(&correctExtent, &allCorrect, 1, vtkCommunicator::LOGICAL_AND_OP);
+
+  if (!allCorrect)
+  {
+    vtkWarningMacro("Every individual distributed process does not have a valid HTG extent. No "
+                    "ghost cells will be generated.");
+    vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
+    output->ShallowCopy(input);
+    return 1;
+  }
+  else if (!this->ProcessTrees(input, outputDO))
+  {
+    return 0;
+  }
+
+  // Update progress and return
+  this->UpdateProgress(1.);
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   int numberOfProcesses = controller->GetNumberOfProcesses();
-
-  if (!input || input->GetNumberOfNonEmptyTrees() == 0)
-  {
-    return 1;
-  }
 
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
   if (!output)

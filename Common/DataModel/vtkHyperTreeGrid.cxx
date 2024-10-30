@@ -1119,6 +1119,12 @@ void vtkHyperTreeGrid::SetTree(vtkIdType index, vtkHyperTree* tree)
 }
 
 //------------------------------------------------------------------------------
+size_t vtkHyperTreeGrid::RemoveTree(vtkIdType index)
+{
+  return this->HyperTrees.erase(index);
+}
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGrid::ShallowCopy(vtkDataObject* src)
 {
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(src);
