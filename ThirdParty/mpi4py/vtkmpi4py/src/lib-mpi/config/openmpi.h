@@ -1,13 +1,7 @@
 #ifndef PyMPI_CONFIG_OPENMPI_H
 #define PyMPI_CONFIG_OPENMPI_H
 
-#include "mpi-11.h"
-#include "mpi-12.h"
-#include "mpi-20.h"
-#include "mpi-22.h"
-#include "mpi-30.h"
-#include "mpi-31.h"
-#include "mpi-40.h"
+#include "mpiapi.h"
 
 #ifndef OMPI_HAVE_FORTRAN_LOGICAL1
 #define OMPI_HAVE_FORTRAN_LOGICAL1 0
@@ -142,9 +136,88 @@
 
 #endif
 
-#if OMPI_NUMVERSION >= 40000
-#undef PyMPI_HAVE_MPI_LB
-#undef PyMPI_HAVE_MPI_UB
-#endif /* OMPI >= 4.0.0 */
+#if MPI_VERSION == 3
+#if OMPI_NUMVERSION >= 50000
+
+#define PyMPI_HAVE_MPI_Pready 1
+#define PyMPI_HAVE_MPI_Pready_range 1
+#define PyMPI_HAVE_MPI_Pready_list 1
+#define PyMPI_HAVE_MPI_Parrived 1
+#define PyMPI_HAVE_MPI_Info_create_env 1
+#define PyMPI_HAVE_MPI_Info_get_string 1
+#define PyMPI_HAVE_MPI_ERRORS_ABORT 1
+#define PyMPI_HAVE_MPI_Session 1
+#define PyMPI_HAVE_MPI_SESSION_NULL 1
+#define PyMPI_HAVE_MPI_Session_c2f 1
+#define PyMPI_HAVE_MPI_Session_f2c 1
+#define PyMPI_HAVE_MPI_MAX_PSET_NAME_LEN 1
+#define PyMPI_HAVE_MPI_Session_init 1
+#define PyMPI_HAVE_MPI_Session_finalize 1
+#define PyMPI_HAVE_MPI_Session_get_num_psets 1
+#define PyMPI_HAVE_MPI_Session_get_nth_pset 1
+#define PyMPI_HAVE_MPI_Session_get_info 1
+#define PyMPI_HAVE_MPI_Session_get_pset_info 1
+#define PyMPI_HAVE_MPI_Group_from_session_pset 1
+#define PyMPI_HAVE_MPI_Session_errhandler_function 1
+#define PyMPI_HAVE_MPI_Session_create_errhandler 1
+#define PyMPI_HAVE_MPI_Session_get_errhandler 1
+#define PyMPI_HAVE_MPI_Session_set_errhandler 1
+#define PyMPI_HAVE_MPI_Session_call_errhandler 1
+#define PyMPI_HAVE_MPI_Isendrecv 1
+#define PyMPI_HAVE_MPI_Isendrecv_replace 1
+#define PyMPI_HAVE_MPI_Psend_init 1
+#define PyMPI_HAVE_MPI_Precv_init 1
+#define PyMPI_HAVE_MPI_Barrier_init 1
+#define PyMPI_HAVE_MPI_Bcast_init 1
+#define PyMPI_HAVE_MPI_Gather_init 1
+#define PyMPI_HAVE_MPI_Gatherv_init 1
+#define PyMPI_HAVE_MPI_Scatter_init 1
+#define PyMPI_HAVE_MPI_Scatterv_init 1
+#define PyMPI_HAVE_MPI_Allgather_init 1
+#define PyMPI_HAVE_MPI_Allgatherv_init 1
+#define PyMPI_HAVE_MPI_Alltoall_init 1
+#define PyMPI_HAVE_MPI_Alltoallv_init 1
+#define PyMPI_HAVE_MPI_Alltoallw_init 1
+#define PyMPI_HAVE_MPI_Reduce_init 1
+#define PyMPI_HAVE_MPI_Allreduce_init 1
+#define PyMPI_HAVE_MPI_Reduce_scatter_block_init 1
+#define PyMPI_HAVE_MPI_Reduce_scatter_init 1
+#define PyMPI_HAVE_MPI_Scan_init 1
+#define PyMPI_HAVE_MPI_Exscan_init 1
+#define PyMPI_HAVE_MPI_Neighbor_allgather_init 1
+#define PyMPI_HAVE_MPI_Neighbor_allgatherv_init 1
+#define PyMPI_HAVE_MPI_Neighbor_alltoall_init 1
+#define PyMPI_HAVE_MPI_Neighbor_alltoallv_init 1
+#define PyMPI_HAVE_MPI_Neighbor_alltoallw_init 1
+#define PyMPI_HAVE_MPI_Comm_idup_with_info 1
+#define PyMPI_HAVE_MPI_MAX_STRINGTAG_LEN 1
+#define PyMPI_HAVE_MPI_Comm_create_from_group 1
+#define PyMPI_HAVE_MPI_COMM_TYPE_HW_GUIDED 1
+#define PyMPI_HAVE_MPI_COMM_TYPE_HW_UNGUIDED 1
+#define PyMPI_HAVE_MPI_Intercomm_create_from_groups 1
+#define PyMPI_HAVE_MPI_ERR_PROC_ABORTED 1
+#define PyMPI_HAVE_MPI_ERR_VALUE_TOO_LARGE 1
+#define PyMPI_HAVE_MPI_ERR_SESSION 1
+#define PyMPI_HAVE_MPI_F_SOURCE 1
+#define PyMPI_HAVE_MPI_F_TAG 1
+#define PyMPI_HAVE_MPI_F_ERROR 1
+#define PyMPI_HAVE_MPI_F_STATUS_SIZE 1
+
+#endif
+#endif
+
+#if MPI_VERSION < 5
+
+#ifdef MPI_ERR_REVOKED
+#define PyMPI_HAVE_MPI_ERR_REVOKED 1
+#endif
+#ifdef MPI_ERR_PROC_FAILED
+#define PyMPI_HAVE_MPI_ERR_PROC_FAILED 1
+#endif
+#ifdef MPI_ERR_PROC_FAILED_PENDING
+#define PyMPI_HAVE_MPI_ERR_PROC_FAILED_PENDING 1
+#endif
+
+#endif
 
 #endif /* !PyMPI_CONFIG_OPENMPI_H */

@@ -213,9 +213,9 @@
 
 #define PyMPI_HAVE_MPI_KEYVAL_INVALID 1
 #define PyMPI_HAVE_MPI_TAG_UB 1
-#define PyMPI_HAVE_MPI_HOST 1
 #define PyMPI_HAVE_MPI_IO 1
 #define PyMPI_HAVE_MPI_WTIME_IS_GLOBAL 1
+#define PyMPI_HAVE_MPI_HOST 1
 #define PyMPI_HAVE_MPI_Attr_get 1
 #define PyMPI_HAVE_MPI_Attr_put 1
 #define PyMPI_HAVE_MPI_Attr_delete 1

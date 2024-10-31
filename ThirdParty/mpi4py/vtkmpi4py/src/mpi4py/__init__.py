@@ -1,6 +1,6 @@
 # Author:  Lisandro Dalcin
 # Contact: dalcinl@gmail.com
-"""This is the **MPI for Python** package.
+"""The **MPI for Python** package.
 
 The *Message Passing Interface* (MPI) is a standardized and portable
 message-passing system designed to function on a wide variety of
@@ -17,7 +17,7 @@ oriented interface which closely follows MPI-2 C++ bindings.
 
 """
 
-__version__ = '3.1.4'
+__version__ = '4.0.1'
 __author__ = 'Lisandro Dalcin'
 __credits__ = 'MPI Forum, MPICH Team, Open MPI Team'
 
@@ -42,7 +42,9 @@ class Rc:
         Use tree-based reductions for objects (default: True).
     recv_mprobe : bool
         Use matched probes to receive objects (default: True).
-    errors : {"exception", "default", "fatal"}
+    irecv_bufsz : int
+        Default buffer size in bytes for ``irecv()`` (default = 32768).
+    errors : {"exception", "default", "abort", "fatal"}
         Error handling policy (default: "exception").
 
     """
@@ -53,24 +55,34 @@ class Rc:
     finalize = None
     fast_reduce = True
     recv_mprobe = True
+    irecv_bufsz = 32768
     errors = 'exception'
 
     def __init__(self, **kwargs):
+        """Initialize options."""
         self(**kwargs)
 
+    def __setattr__(self, name, value):
+        """Set option."""
+        if not hasattr(self, name):
+            raise TypeError(f"object has no attribute {name!r}")
+        super().__setattr__(name, value)
+
     def __call__(self, **kwargs):
+        """Update options."""
         for key in kwargs:
             if not hasattr(self, key):
-                raise TypeError("unexpected argument '{0}'".format(key))
+                raise TypeError(f"unexpected argument {key!r}")
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def __repr__(self):
-        return '<{0}.rc>'.format(__name__)
+        """Return repr(self)."""
+        return f'<{__spec__.name}.rc>'
 
 
 rc = Rc()
-__import__('sys').modules[__name__ + '.rc'] = rc
+__import__('sys').modules[__spec__.name + '.rc'] = rc
 
 
 def get_include():
@@ -87,18 +99,31 @@ def get_include():
     """
     # pylint: disable=import-outside-toplevel
     from os.path import join, dirname
-    return join(dirname(__file__), 'include')
+    return join(dirname(__spec__.origin), 'include')
 
 
 def get_config():
-    """Return a dictionary with information about MPI."""
+    """Return a dictionary with information about MPI.
+
+    .. versionchanged:: 4.0.0
+       By default, this function returns an empty dictionary. However,
+       downstream packagers and distributors may alter such behavior.
+       To that end, MPI information must be provided under an ``mpi``
+       section within a UTF-8 encoded INI-style configuration file
+       :file:`mpi.cfg` located at the top-level package directory.
+       The configuration file is read and parsed using the
+       `configparser` module.
+
+    """
     # pylint: disable=import-outside-toplevel
-    from os.path import join, dirname
     from configparser import ConfigParser
+    from os.path import join, dirname
     parser = ConfigParser()
-    parser.read(join(dirname(__file__), 'mpi.cfg'))
+    parser.add_section('mpi')
+    mpicfg = join(dirname(__spec__.origin), 'mpi.cfg')
+    parser.read(mpicfg, encoding='utf-8')
     return dict(parser.items('mpi'))
 
 
-def profile(name, *, path=None, logfile=None):
+def profile(name, *, path=None):
     raise RuntimeError('VTK\'s mpi4py does not support profiling')
