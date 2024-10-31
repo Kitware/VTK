@@ -489,16 +489,14 @@ int vtkCollisionDetectionFilter::RequestData(vtkInformation* vtkNotUsed(request)
   Tree0->SetDataSet(input[0]);
   Tree0->AutomaticOn();
   Tree0->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
+  Tree0->SetTolerance(this->BoxTolerance);
   Tree0->BuildLocator();
 
   Tree1->SetDataSet(input[1]);
   Tree1->AutomaticOn();
   Tree1->SetNumberOfCellsPerNode(this->NumberOfCellsPerNode);
-  Tree1->BuildLocator();
-
-  // Set the Box Tolerance
-  Tree0->SetTolerance(this->BoxTolerance);
   Tree1->SetTolerance(this->BoxTolerance);
+  Tree1->BuildLocator();
 
   // Do the collision detection...
   int boxTests = Tree0->IntersectWithOBBTree(Tree1, matrix, ComputeCollisions, this);
