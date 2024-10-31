@@ -1,15 +1,9 @@
 #ifndef PyMPI_CONFIG_MPICH2_H
 #define PyMPI_CONFIG_MPICH2_H
 
-#include "mpi-11.h"
-#include "mpi-12.h"
-#include "mpi-20.h"
-#include "mpi-22.h"
-#include "mpi-30.h"
-#include "mpi-31.h"
-#include "mpi-40.h"
+#include "mpiapi.h"
 
-/* These types are difficult to implement portably */
+/* These types are not available */
 #undef PyMPI_HAVE_MPI_REAL2
 #undef PyMPI_HAVE_MPI_COMPLEX4
 
@@ -24,6 +18,7 @@
 #undef PyMPI_HAVE_MPI_Type_create_f90_complex
 #endif /* MPICH2 < 1.1.0 */
 
+/* MPI I/O may not be available */
 #ifndef ROMIO_VERSION
 #include "mpi-io.h"
 #endif
