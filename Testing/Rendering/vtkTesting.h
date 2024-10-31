@@ -279,7 +279,8 @@ public:
 
   ///@{
   /**
-   * Get some parameters from the command line arguments, env, or defaults
+   * Get the temp directory from the command line arguments, env, or defaults
+   * This folder may not exists yet
    */
   VTK_FILEPATH const char* GetTempDirectory();
   vtkSetFilePathMacro(TempDirectory);
