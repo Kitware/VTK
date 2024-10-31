@@ -8,6 +8,8 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <cassert>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -64,6 +66,7 @@ struct EnSightFile
   Endianness ByteOrder = Endianness::Unknown;
   int TimeSet = -1;
   int FileSet = -1;
+  bool InBlockRead = false;
 
   EnSightFile();
   ~EnSightFile();
@@ -133,6 +136,12 @@ struct EnSightFile
    */
   std::pair<bool, std::string> ReadLine(int size = MAX_LINE_LENGTH);
 
+  /** Ignore the the next characters until either the line end delimiter is met or size characters
+   * have been ignored (if provided).
+   * For binary formats, ignore the next size characters + padding (but you should probably use
+   * another method)*/
+  void SkipLine(vtkTypeInt64 size = std::numeric_limits<std::streamsize>::max());
+
   /**
    * Skip the specified number of non-numeric lines when reading.
    * WARNING: Should only be used for non-numeric lines, even in ASCII mode!
@@ -182,7 +191,7 @@ struct EnSightFile
   /**
    * Move the read position ahead n bytes.
    */
-  void MoveReadPosition(int numBytes);
+  void MoveReadPosition(vtkTypeInt64 numBytes);
 
   /**
    * Get current position of reader in stream.
@@ -254,7 +263,7 @@ void EnSightFile::SkipNNumbers(vtkIdType n, int numsPerLine /* = 1 */)
     //  for float, 12 characters total
     //  there's also white space allowed between numbers
     int size = getNumChars<T>() * numsPerLine + 10 * numsPerLine;
-    int lineIdx = 0;
+    vtkIdType lineIdx = 0;
     while (lineIdx < n)
     {
       auto result = this->ReadLine(size);
@@ -267,7 +276,7 @@ void EnSightFile::SkipNNumbers(vtkIdType n, int numsPerLine /* = 1 */)
   }
   else
   {
-    int numBytes = n * static_cast<int>(sizeof(T)) + this->FortranSkipBytes * 2;
+    vtkTypeInt64 numBytes = n * sizeof(T) + this->FortranSkipBytes * 2;
     this->MoveReadPosition(numBytes);
   }
 }
@@ -285,6 +294,7 @@ bool EnSightFile::ReadNumber(T* result, bool padBeginning /* = true*/, bool padE
   {
     if (padBeginning)
     {
+      assert(!this->InBlockRead);
       this->MoveReadPosition(this->FortranSkipBytes);
     }
     if (!this->Stream->read((char*)result, sizeof(T)))
@@ -294,6 +304,7 @@ bool EnSightFile::ReadNumber(T* result, bool padBeginning /* = true*/, bool padE
     }
     if (padEnd)
     {
+      assert(!this->InBlockRead);
       this->MoveReadPosition(this->FortranSkipBytes);
     }
     if (this->ByteOrder == Endianness::Little)

@@ -543,6 +543,19 @@ std::pair<bool, std::string> EnSightFile::ReadNextLine(int size /* = MAX_LINE_LE
 }
 
 //------------------------------------------------------------------------------
+void EnSightFile::SkipLine(vtkTypeInt64 size)
+{
+  if (this->Format == FileType::ASCII)
+  {
+    this->Stream->ignore(size, '\n');
+  }
+  else
+  {
+    this->MoveReadPosition(this->FortranSkipBytes * 2 + size);
+  }
+}
+
+//------------------------------------------------------------------------------
 std::pair<bool, std::string> EnSightFile::ReadLine(int size /* = MAX_LINE_LENGTH*/)
 {
   std::vector<char> line(size);
@@ -638,7 +651,7 @@ bool EnSightFile::DetectByteOrder(int* result)
 }
 
 //------------------------------------------------------------------------------
-void EnSightFile::MoveReadPosition(int numBytes)
+void EnSightFile::MoveReadPosition(vtkTypeInt64 numBytes)
 {
   this->Stream->seekg(numBytes, ios::cur);
 }
