@@ -4,11 +4,21 @@
 
 import vtkmodules.test.Testing as vtkTesting
 from vtkmodules.vtkCommonDataModel import vtkImageData, vtkPolyData
-from vtkmodules.vtkFiltersCore import vtkElevationFilter, vtkPolyDataConnectivityFilter, vtkPolyDataNormals, VTK_EXTRACT_ALL_REGIONS, vtkAppendFilter
+from vtkmodules.vtkFiltersCore import (
+    vtkElevationFilter,
+    vtkPolyDataConnectivityFilter,
+    vtkPolyDataNormals,
+    VTK_EXTRACT_ALL_REGIONS,
+    vtkAppendFilter,
+)
 from vtkmodules.vtkFiltersGeneral import vtkShrinkFilter
 from vtkmodules.vtkFiltersGeometry import vtkGeometryFilter
 from vtkmodules.vtkFiltersModeling import vtkLinearExtrusionFilter
-from vtkmodules.vtkFiltersSources import vtkConeSource, vtkCylinderSource, vtkSphereSource
+from vtkmodules.vtkFiltersSources import (
+    vtkConeSource,
+    vtkCylinderSource,
+    vtkSphereSource,
+)
 from vtkmodules.util.execution_model import Pipeline
 
 
@@ -39,7 +49,9 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
     def testCaseAlgorithmToAlgorithm(self):
         ef = vtkSphereSource(radius=10) >> vtkElevationFilter()
         self.assertIsInstance(ef, Pipeline)
-        self.assertIsInstance(ef.last.GetInputConnection(0, 0).producer, vtkSphereSource)
+        self.assertIsInstance(
+            ef.last.GetInputConnection(0, 0).producer, vtkSphereSource
+        )
         self.assertEqual(ef.last.GetInputConnection(0, 0).producer.radius, 10)
 
     def testCaseDataObjectToAlgorithm(self):
@@ -51,15 +63,22 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
     def testCaseManyAlgorithms(self):
         pipeline = (
             vtkSphereSource(radius=10, theta_resolution=64, phi_resolution=64)
-                >> vtkElevationFilter()
-                >> vtkShrinkFilter()
-                >> vtkGeometryFilter()
-                >> vtkPolyDataConnectivityFilter(color_regions=True, extraction_mode=VTK_EXTRACT_ALL_REGIONS)
-                >> vtkPolyDataNormals()
+            >> vtkElevationFilter()
+            >> vtkShrinkFilter()
+            >> vtkGeometryFilter()
+            >> vtkPolyDataConnectivityFilter(
+                color_regions=True, extraction_mode=VTK_EXTRACT_ALL_REGIONS
+            )
+            >> vtkPolyDataNormals()
         )
         self.assertIsInstance(pipeline, Pipeline)
-        self.assertIsInstance(pipeline.last.GetInputConnection(0, 0).producer, vtkPolyDataConnectivityFilter)
-        self.assertEqual(pipeline.last.GetInputConnection(0, 0).producer.color_regions, True)
+        self.assertIsInstance(
+            pipeline.last.GetInputConnection(0, 0).producer,
+            vtkPolyDataConnectivityFilter,
+        )
+        self.assertEqual(
+            pipeline.last.GetInputConnection(0, 0).producer.color_regions, True
+        )
 
         output = pipeline()
         self.assertIsInstance(output, vtkPolyData)
@@ -71,34 +90,43 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
     def testCaseDataObjectManyAlgorithms(self):
         pipeline = (
             vtkImageData(dimensions=(10, 10, 1))
-                >> vtkElevationFilter(low_point=(0, 0, 0), high_point=(10, 10, 0))
-                >> vtkGeometryFilter()
-                >> vtkPolyDataConnectivityFilter(color_regions=True)
-                >> vtkPolyDataNormals()
+            >> vtkElevationFilter(low_point=(0, 0, 0), high_point=(10, 10, 0))
+            >> vtkGeometryFilter()
+            >> vtkPolyDataConnectivityFilter(color_regions=True)
+            >> vtkPolyDataNormals()
         )
         self.assertIsInstance(pipeline.last, vtkPolyDataNormals)
-        self.assertIsInstance(pipeline.last.GetInputConnection(0, 0).producer, vtkPolyDataConnectivityFilter)
+        self.assertIsInstance(
+            pipeline.last.GetInputConnection(0, 0).producer,
+            vtkPolyDataConnectivityFilter,
+        )
         self.assertEqual(
-            pipeline.last.GetInputConnection(0, 0).producer.color_regions, True)
+            pipeline.last.GetInputConnection(0, 0).producer.color_regions, True
+        )
         self.assertEqual(
-            pipeline.last                            # this is vtkPolyDataNormals
-                .GetInputConnection(0, 0).producer  # this is vtkPolyDataConnectivityFilter
-                .GetInputConnection(0, 0).producer  # this is vtkGeometryFilter
-                .GetInputConnection(0, 0).producer  # this is vtkElevationFilter
-                .low_point, (0, 0, 0))
+            pipeline.last.GetInputConnection(0, 0)  # this is vtkPolyDataNormals
+            .producer.GetInputConnection(0, 0)  # this is vtkPolyDataConnectivityFilter
+            .producer.GetInputConnection(0, 0)  # this is vtkGeometryFilter
+            .producer.low_point,  # this is vtkElevationFilter
+            (0, 0, 0),
+        )
         self.assertEqual(
-            pipeline.last                            # this is vtkPolyDataNormals
-                .GetInputConnection(0, 0).producer  # this is vtkPolyDataConnectivityFilter
-                .GetInputConnection(0, 0).producer  # this is vtkGeometryFilter
-                .GetInputConnection(0, 0).producer  # this is vtkElevationFilter
-                .high_point, (10, 10, 0))
+            pipeline.last.GetInputConnection(0, 0)  # this is vtkPolyDataNormals
+            .producer.GetInputConnection(0, 0)  # this is vtkPolyDataConnectivityFilter
+            .producer.GetInputConnection(0, 0)  # this is vtkGeometryFilter
+            .producer.high_point,  # this is vtkElevationFilter
+            (10, 10, 0),
+        )
         self.assertEqual(
-            pipeline.last                            # this is vtkPolyDataNormals
-                .GetInputConnection(0, 0).producer  # this is vtkPolyDataConnectivityFilter
-                .GetInputConnection(0, 0).producer  # this is vtkGeometryFilter
-                .GetInputConnection(0, 0).producer  # this is vtkElevationFilter
-                .GetInputDataObject(0, 0)           # this is vtkImageData
-                .dimensions, (10, 10, 1))
+            pipeline.last.GetInputConnection(0, 0)  # this is vtkPolyDataNormals
+            .producer.GetInputConnection(0, 0)  # this is vtkPolyDataConnectivityFilter
+            .producer.GetInputConnection(0, 0)  # this is vtkGeometryFilter
+            .producer.GetInputDataObject(  # this is vtkElevationFilter
+                0, 0
+            )  # this is vtkImageData
+            .dimensions,
+            (10, 10, 1),
+        )
 
         output = pipeline()
         self.assertIsInstance(output, vtkPolyData)
@@ -111,14 +139,21 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
         # A pipeline object can be reused with different input data objects.
         pipeline = (
             vtkElevationFilter()
-                >> vtkShrinkFilter()
-                >> vtkGeometryFilter()
-                >> vtkPolyDataConnectivityFilter(color_regions=True, extraction_mode=VTK_EXTRACT_ALL_REGIONS)
-                >> vtkPolyDataNormals()
+            >> vtkShrinkFilter()
+            >> vtkGeometryFilter()
+            >> vtkPolyDataConnectivityFilter(
+                color_regions=True, extraction_mode=VTK_EXTRACT_ALL_REGIONS
+            )
+            >> vtkPolyDataNormals()
         )
         self.assertIsInstance(pipeline, Pipeline)
-        self.assertIsInstance(pipeline.last.GetInputConnection(0, 0).producer, vtkPolyDataConnectivityFilter)
-        self.assertEqual(pipeline.last.GetInputConnection(0, 0).producer.color_regions, True)
+        self.assertIsInstance(
+            pipeline.last.GetInputConnection(0, 0).producer,
+            vtkPolyDataConnectivityFilter,
+        )
+        self.assertEqual(
+            pipeline.last.GetInputConnection(0, 0).producer.color_regions, True
+        )
 
         cone = vtkConeSource(radius=5, resolution=8, height=2)()
         output = pipeline(cone)
@@ -142,50 +177,85 @@ class TestAlgorithmNumberProtocol(vtkTesting.vtkTest):
         self.assertEqual(MockValidConnector.ExecutedSetInputDataObject, 0)
 
         ef = vtkSphereSource() >> MockValidConnector(vtkElevationFilter())
-        self.assertEqual(MockValidConnector.ExecutedSetInputConnection, 1, "VTK wrapping did not call MockValidConnector.SetInputConnection")
+        self.assertEqual(
+            MockValidConnector.ExecutedSetInputConnection,
+            1,
+            "VTK wrapping did not call MockValidConnector.SetInputConnection",
+        )
 
-        ef = vtkImageData(dimensions=(10, 10, 1)) >> MockValidConnector(vtkElevationFilter())
-        self.assertEqual(MockValidConnector.ExecutedSetInputConnection, 2, "VTK wrapping did not call MockValidConnector.SetInputDataObject")
+        ef = vtkImageData(dimensions=(10, 10, 1)) >> MockValidConnector(
+            vtkElevationFilter()
+        )
+        self.assertEqual(
+            MockValidConnector.ExecutedSetInputConnection,
+            2,
+            "VTK wrapping did not call MockValidConnector.SetInputDataObject",
+        )
 
     def testCaseRejectInvalidRHS(self):
         # Tests that you can't place just about anything on the right hand side of a vtkAlgorithm.__rshift__ operator.
         # The RHS must have a function called SetInputConnection(self, other: vtkAlgorithmOutput).
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkSphereSource and str"):
+        with self.assertRaisesRegex(
+            TypeError, "unsupported operand type\(s\) for >>: vtkSphereSource and str"
+        ):
             pipeline = vtkSphereSource() >> "helloThere"
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkSphereSource and int"):
+        with self.assertRaisesRegex(
+            TypeError, "unsupported operand type\(s\) for >>: vtkSphereSource and int"
+        ):
             pipeline = vtkSphereSource() >> 2
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: str and vtkElevationFilter"):
+        with self.assertRaisesRegex(
+            TypeError,
+            "unsupported operand type\(s\) for >>: str and vtkElevationFilter",
+        ):
             pipeline = "ImageData" >> vtkElevationFilter()
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: int and vtkElevationFilter"):
+        with self.assertRaisesRegex(
+            TypeError,
+            "unsupported operand type\(s\) for >>: int and vtkElevationFilter",
+        ):
             pipeline = 2 >> vtkElevationFilter()
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkSphereSource and MockInvalidConnector"):
+        with self.assertRaisesRegex(
+            TypeError,
+            "unsupported operand type\(s\) for >>: vtkSphereSource and MockInvalidConnector",
+        ):
             pipeline = vtkSphereSource() >> MockInvalidConnector(vtkElevationFilter())
 
         # Tests that you can't place just about anything on the right hand side of a vtkDataObject.__rshift__ operator.
         # The RHS must have a function called SetInputDataObject(self, other: vtkDataObject).
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkImageData and str"):
-            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> "helloThere"
+        obj = vtkImageData(dimensions=(10, 10, 1))
+        with self.assertRaisesRegex(
+            TypeError,
+            f"unsupported operand type\(s\) for >>: {obj.__class__.__name__} and str",
+        ):
+            pipeline = obj >> "helloThere"
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkImageData and int"):
-            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> 2
+        with self.assertRaisesRegex(
+            TypeError,
+            f"unsupported operand type\(s\) for >>: {obj.__class__.__name__} and int",
+        ):
+            pipeline = obj >> 2
 
-        with self.assertRaisesRegex(TypeError, "unsupported operand type\(s\) for >>: vtkImageData and MockInvalidConnector"):
-            pipeline = vtkImageData(dimensions=(10, 10, 1)) >> MockInvalidConnector(vtkElevationFilter())
+        with self.assertRaisesRegex(
+            TypeError,
+            f"unsupported operand type\(s\) for >>: {obj.__class__.__name__} and MockInvalidConnector",
+        ):
+            pipeline = obj >> MockInvalidConnector(vtkElevationFilter())
+
     def testClearInput(self):
         s = vtkShrinkFilter()
         vtkSphereSource() >> s
         self.assertTrue(s.GetInputAlgorithm(0, 0).IsA("vtkSphereSource"))
         None >> s
-        self.assertEqual(s.GetInputAlgorithm(0,0), None)
+        self.assertEqual(s.GetInputAlgorithm(0, 0), None)
         a = vtkAppendFilter()
         (vtkConeSource(), vtkSphereSource()) >> a
         self.assertEqual(a.GetNumberOfInputConnections(0), 2)
         [] >> a
         self.assertEqual(a.GetNumberOfInputConnections(0), 0)
 
-if __name__ == '__main__':
-    vtkTesting.main([(TestAlgorithmNumberProtocol, 'test')])
+
+if __name__ == "__main__":
+    vtkTesting.main([(TestAlgorithmNumberProtocol, "test")])

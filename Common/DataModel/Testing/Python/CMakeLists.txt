@@ -52,4 +52,5 @@ vtk_add_test_python(
   TestUniformHyperTreeGrid2DWithFilters.py,NO_DATA,NO_VALID
   TestUniformHyperTreeGrid3DWithFilters.py,NO_DATA,NO_VALID
   TestHyperTreeGrid3DCursorsMandel.py,NO_DATA,NO_VALID
+  TestCompareDataSet.py,NO_DATA,NO_VALID
   )
