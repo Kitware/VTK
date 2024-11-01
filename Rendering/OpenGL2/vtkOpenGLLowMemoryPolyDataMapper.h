@@ -96,6 +96,7 @@ public:
    * If this class should override the process id using a data-array,
    * set this variable to the name of the array to use. It must be a
    * point-array.
+   * The array's DataType *MUST* be VTK_UNSIGNED_INT.
    */
   vtkSetStdStringFromCharMacro(ProcessIdArrayName);
   vtkGetCharFromStdStringMacro(ProcessIdArrayName);
@@ -109,7 +110,8 @@ public:
    * to provide a cell array that can be used to render in the composite id in
    * selection passes. Set to NULL (default) to not override the composite id
    * color set by vtkCompositePainter if any.
-   * The array *MUST* be a cell array and of type vtkUnsignedIntArray.
+   * The array *MUST* be a cell array.
+   * The array's DataType *MUST* be VTK_UNSIGNED_INT.
    */
   vtkSetStdStringFromCharMacro(CompositeIdArrayName);
   vtkGetCharFromStdStringMacro(CompositeIdArrayName);
