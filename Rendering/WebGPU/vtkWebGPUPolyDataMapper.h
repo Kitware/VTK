@@ -194,6 +194,18 @@ protected:
   void ComputeBounds() override;
 
   /**
+   * This method keeps track of few properties of the actor which when changed,
+   * require rebuilding a render bundle. For example, if representation changed
+   * from wireframe to surface, the last set of draw commands were recorded using
+   * the SurfaceMesh pipeline. In order to draw wireframes, the render bundle
+   * will need to be rebuilt using the wireframe pipeline instead.
+   *
+   * This method returns true if the cached properties have changed or the properties of the actor
+   * are cached for the first time, false otherwise.
+   */
+  bool CacheActorProperties(vtkActor* actor);
+
+  /**
    * Record draw calls in the render pass encoder. It also sets the bind group, graphics pipeline to
    * use before making the draw calls.
    */
@@ -519,10 +531,14 @@ protected:
   // invoke MapScalars().
   int LastScalarMode = -1;
   bool LastScalarVisibility = false;
-  bool LastActorBackfaceCulling = false;
-  bool LastActorFrontfaceCulling = false;
-  bool LastVertexVisibility = false;
-  int LastRepresentation = VTK_SURFACE;
+  struct ActorState
+  {
+    bool LastActorBackfaceCulling = false;
+    bool LastActorFrontfaceCulling = false;
+    bool LastVertexVisibility = false;
+    int LastRepresentation = VTK_SURFACE;
+  };
+  std::map<vtkWeakPointer<vtkActor>, ActorState> CachedActorProperties;
 
 private:
   friend class vtkWebGPUComputeRenderBuffer;

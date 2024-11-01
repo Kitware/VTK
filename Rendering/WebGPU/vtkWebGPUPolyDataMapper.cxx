@@ -252,14 +252,8 @@ void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HasPointUVs: " << (this->HasPointAttributes[POINT_UVS] ? "On\n" : "Off\n");
   os << indent << "HasCellColors: " << (this->HasCellAttributes[CELL_COLORS] ? "On\n" : "Off\n");
   os << indent << "HasCellNormals: " << (this->HasCellAttributes[CELL_NORMALS] ? "On\n" : "Off\n");
-  os << indent << "LastRepresentation: " << this->LastRepresentation << '\n';
   os << indent << "LastScalarVisibility: " << (this->LastScalarVisibility ? "On\n" : "Off\n");
   os << indent << "LastScalarMode: " << this->LastScalarMode << '\n';
-  os << indent
-     << "LastActorBackfaceCulling: " << (this->LastActorBackfaceCulling ? "On\n" : "Off\n");
-  os << indent
-     << "LastActorFrontfaceCulling: " << (this->LastActorFrontfaceCulling ? "On\n" : "Off\n");
-  os << indent << "LastVertexVisibility: " << (this->LastVertexVisibility ? "On\n" : "Off\n");
 }
 
 //------------------------------------------------------------------------------
@@ -311,17 +305,11 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
         wgpuActor->SetBundleInvalidated(true);
         this->SetupGraphicsPipelines(device, renderer, actor);
       }
-      if (this->LastRepresentation != representation)
+      // invalidate render bundle when any of the cached properties of an actor have changed.
+      if (this->CacheActorProperties(actor))
       {
         wgpuActor->SetBundleInvalidated(true);
       }
-      const bool showVertices = wgpuActor->GetProperty()->GetVertexVisibility();
-      if (this->LastVertexVisibility != showVertices)
-      {
-        wgpuActor->SetBundleInvalidated(true);
-      }
-      this->LastRepresentation = representation;
-      this->LastVertexVisibility = showVertices;
       break;
     }
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
@@ -336,6 +324,49 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       break;
     default:
       break;
+  }
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
+{
+  auto it = this->CachedActorProperties.find(actor);
+  auto* displayProperty = actor->GetProperty();
+  if (it == this->CachedActorProperties.end())
+  {
+    ActorState state = {};
+    state.LastActorBackfaceCulling = displayProperty->GetBackfaceCulling();
+    state.LastActorFrontfaceCulling = displayProperty->GetFrontfaceCulling();
+    state.LastRepresentation = displayProperty->GetRepresentation();
+    state.LastVertexVisibility = displayProperty->GetVertexVisibility();
+    this->CachedActorProperties[actor] = state;
+    return true;
+  }
+  else
+  {
+    auto& state = it->second;
+    bool cacheChanged = false;
+    if (state.LastActorBackfaceCulling != displayProperty->GetBackfaceCulling())
+    {
+      cacheChanged = true;
+    }
+    state.LastActorBackfaceCulling = displayProperty->GetBackfaceCulling();
+    if (state.LastActorFrontfaceCulling != displayProperty->GetFrontfaceCulling())
+    {
+      cacheChanged = true;
+    }
+    state.LastActorFrontfaceCulling = displayProperty->GetFrontfaceCulling();
+    if (state.LastRepresentation != displayProperty->GetRepresentation())
+    {
+      cacheChanged = true;
+    }
+    state.LastRepresentation = displayProperty->GetRepresentation();
+    if (state.LastVertexVisibility != displayProperty->GetVertexVisibility())
+    {
+      cacheChanged = true;
+    }
+    state.LastVertexVisibility = displayProperty->GetVertexVisibility();
+    return cacheChanged;
   }
 }
 
@@ -1744,8 +1775,6 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   {
     descriptor.primitive.cullMode = wgpu::CullMode::Front;
   }
-  this->LastActorBackfaceCulling = actor->GetProperty()->GetBackfaceCulling();
-  this->LastActorFrontfaceCulling = actor->GetProperty()->GetFrontfaceCulling();
 
   std::vector<wgpu::BindGroupLayout> bgls;
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
@@ -1789,11 +1818,17 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(vtkActor* actor)
   {
     return true;
   }
-  if (this->LastActorBackfaceCulling != actor->GetProperty()->GetBackfaceCulling())
+  auto it = this->CachedActorProperties.find(actor);
+  if (it == this->CachedActorProperties.end())
   {
     return true;
   }
-  if (this->LastActorFrontfaceCulling != actor->GetProperty()->GetFrontfaceCulling())
+  auto* displayProperty = actor->GetProperty();
+  if (it->second.LastActorBackfaceCulling != displayProperty->GetBackfaceCulling())
+  {
+    return true;
+  }
+  if (it->second.LastActorFrontfaceCulling != displayProperty->GetFrontfaceCulling())
   {
     return true;
   }
@@ -1831,8 +1866,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
     this->IndirectDrawBufferUploadTimeStamp[i] = vtkTimeStamp();
   }
   this->RebuildGraphicsPipelines = true;
-  this->LastActorBackfaceCulling = false;
-  this->LastActorFrontfaceCulling = false;
+  this->CachedActorProperties.clear();
 }
 
 //------------------------------------------------------------------------------
