@@ -275,10 +275,11 @@ install(
   DESTINATION "${vtk_cmake_destination}"
   COMPONENT "development")
 
-# We need this for targets that depends in vtkjava to
-# delay its source code compilation until the vtkjava JAR file is
-# generated.
-add_custom_target(vtkjava_jar DEPENDS "$<TARGET_FILE:vtkjava>")
+if (CMAKE_GENERATOR MATCHES "Ninja")
+  # We need this for targets that depends in vtkjava to delay its
+  # source code compilation until the vtkjava JAR file is generated.
+  add_custom_target(vtkjava_jar DEPENDS "$<TARGET_FILE:vtkjava>")
+endif ()
 
 if (VTK_BUILD_TESTING AND TARGET VTK::TestingRendering)
   add_subdirectory(Testing)
