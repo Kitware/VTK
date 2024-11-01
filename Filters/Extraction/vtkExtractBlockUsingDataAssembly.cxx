@@ -12,6 +12,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 
@@ -207,6 +208,7 @@ const char* vtkExtractBlockUsingDataAssembly::GetSelector(int index) const
 int vtkExtractBlockUsingDataAssembly::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSetCollection");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkMultiBlockDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
   return 1;
@@ -264,6 +266,13 @@ int vtkExtractBlockUsingDataAssembly::RequestData(
 
   // Ensure field data from input is copied to output when this method returns.
   vtkScopedFieldDataCopier copier(inputCD, outputCD);
+
+  // if the input is a vtkPartitionedDataSet, we have nothing to do but copy it over.
+  if (auto pd = vtkPartitionedDataSet::SafeDownCast(inputCD))
+  {
+    outputCD->ShallowCopy(pd);
+    return 1;
+  }
 
   auto assembly = vtkDataAssemblyUtilities::GetDataAssembly(this->AssemblyName, inputCD);
   if (!assembly)
