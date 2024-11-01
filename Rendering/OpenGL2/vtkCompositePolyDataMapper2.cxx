@@ -7,12 +7,14 @@
 
 #include "vtk_glad.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataPipeline.h"
+#include "vtkConstantArray.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSetAttributes.h"
@@ -1045,6 +1047,74 @@ void vtkCompositeMapperHelper2::ProcessSelectorPixelBuffers(
   }
 }
 
+namespace
+{
+struct ProcessFunctor
+{
+  template <typename TArray>
+  void operator()(TArray* array, unsigned char* rawplowdata, unsigned char* rawphighdata,
+    unsigned char* processdata, vtkCompositeMapperHelperData* hdata,
+    std::vector<unsigned int>& pixeloffsets)
+  {
+    auto arrayRange = vtk::DataArrayValueRange<1>(array);
+    for (auto pos : pixeloffsets)
+    {
+      unsigned int inval = 0;
+      if (rawphighdata)
+      {
+        inval = rawphighdata[pos];
+        inval = inval << 8;
+      }
+      inval |= rawplowdata[pos + 2];
+      inval = inval << 8;
+      inval |= rawplowdata[pos + 1];
+      inval = inval << 8;
+      inval |= rawplowdata[pos];
+      // as this pass happens after both low and high point passes
+      // the computed value should be higher than StartVertex
+      inval -= hdata->StartVertex;
+      const auto outval = static_cast<unsigned int>(arrayRange[inval]) + 1;
+      processdata[pos] = outval & 0xff;
+      processdata[pos + 1] = (outval & 0xff00) >> 8;
+      processdata[pos + 2] = (outval & 0xff0000) >> 16;
+    }
+  }
+};
+
+struct CompositeFunctor
+{
+  template <typename TArray>
+  void operator()(TArray* array, unsigned char* rawclowdata, unsigned char* rawchighdata,
+    unsigned char* compositedata, vtkCompositeMapperHelperData* hdata,
+    std::vector<unsigned int>& pixeloffsets, bool pointPicking)
+  {
+    auto arrayRange = vtk::DataArrayValueRange<1>(array);
+    for (auto pos : pixeloffsets)
+    {
+      unsigned int inval = 0;
+      if (rawchighdata)
+      {
+        inval = rawchighdata[pos];
+        inval = inval << 8;
+      }
+      inval |= rawclowdata[pos + 2];
+      inval = inval << 8;
+      inval |= rawclowdata[pos + 1];
+      inval = inval << 8;
+      inval |= rawclowdata[pos];
+
+      // always gets called after the cell high and low are available
+      // so it is safe
+      vtkIdType vtkCellId = hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
+      const auto outval = static_cast<unsigned int>(arrayRange[vtkCellId]);
+      compositedata[pos] = outval & 0xff;
+      compositedata[pos + 1] = (outval & 0xff00) >> 8;
+      compositedata[pos + 2] = (outval & 0xff0000) >> 16;
+    }
+  }
+};
+}
+
 //------------------------------------------------------------------------------
 void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector* sel,
   vtkProp* prop, vtkCompositeMapperHelperData* hdata, std::vector<unsigned int>& pixeloffsets)
@@ -1072,37 +1142,24 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
   if (currPass == vtkHardwareSelector::PROCESS_PASS)
   {
     unsigned char* processdata = sel->GetPixelBuffer(vtkHardwareSelector::PROCESS_PASS);
-    vtkUnsignedIntArray* processArray = nullptr;
+    vtkDataArray* processArray = nullptr;
 
     if (sel->GetUseProcessIdFromData())
     {
-      processArray = this->ProcessIdArrayName
-        ? vtkArrayDownCast<vtkUnsignedIntArray>(pd->GetArray(this->ProcessIdArrayName))
-        : nullptr;
+      processArray = this->ProcessIdArrayName ? pd->GetArray(this->ProcessIdArrayName) : nullptr;
     }
 
-    if (processArray && processdata && rawplowdata)
+    if (processdata && (processArray && processArray->GetDataType() == VTK_UNSIGNED_INT) &&
+      rawplowdata)
     {
-      for (auto pos : pixeloffsets)
+      using UIntArrays =
+        vtkTypeList::Create<vtkAOSDataArrayTemplate<unsigned int>, vtkConstantArray<unsigned int>>;
+      using Dispatcher = vtkArrayDispatch::DispatchByArray<UIntArrays>;
+      ProcessFunctor functor;
+      if (!Dispatcher::Execute(
+            processArray, functor, rawplowdata, rawphighdata, processdata, hdata, pixeloffsets))
       {
-        unsigned int inval = 0;
-        if (rawphighdata)
-        {
-          inval = rawphighdata[pos];
-          inval = inval << 8;
-        }
-        inval |= rawplowdata[pos + 2];
-        inval = inval << 8;
-        inval |= rawplowdata[pos + 1];
-        inval = inval << 8;
-        inval |= rawplowdata[pos];
-        // as this pass happens after both low and high point passes
-        // the computed value should be higher than StartVertex
-        inval -= hdata->StartVertex;
-        unsigned int outval = processArray->GetValue(inval) + 1;
-        processdata[pos] = outval & 0xff;
-        processdata[pos + 1] = (outval & 0xff00) >> 8;
-        processdata[pos + 2] = (outval & 0xff0000) >> 16;
+        functor(processArray, rawplowdata, rawphighdata, processdata, hdata, pixeloffsets);
       }
     }
   }
@@ -1204,36 +1261,23 @@ void vtkCompositeMapperHelper2::ProcessCompositePixelBuffers(vtkHardwareSelector
   {
     unsigned char* compositedata = sel->GetPixelBuffer(vtkHardwareSelector::COMPOSITE_INDEX_PASS);
 
-    vtkUnsignedIntArray* compositeArray = this->CompositeIdArrayName
-      ? vtkArrayDownCast<vtkUnsignedIntArray>(cd->GetArray(this->CompositeIdArrayName))
-      : nullptr;
+    vtkDataArray* compositeArray =
+      this->CompositeIdArrayName ? cd->GetArray(this->CompositeIdArrayName) : nullptr;
 
-    if (compositedata && compositeArray && rawclowdata)
+    if (compositedata && (compositeArray && compositeArray->GetDataType() == VTK_UNSIGNED_INT) &&
+      rawclowdata)
     {
       hdata->CellCellMap->Update(prims, representation, poly->GetPoints());
 
-      for (auto pos : pixeloffsets)
+      using UIntArrays =
+        vtkTypeList::Create<vtkAOSDataArrayTemplate<unsigned int>, vtkConstantArray<unsigned int>>;
+      using Dispatcher = vtkArrayDispatch::DispatchByArray<UIntArrays>;
+      CompositeFunctor functor;
+      if (!Dispatcher::Execute(compositeArray, functor, rawclowdata, rawchighdata, compositedata,
+            hdata, pixeloffsets, pointPicking))
       {
-        unsigned int inval = 0;
-        if (rawchighdata)
-        {
-          inval = rawchighdata[pos];
-          inval = inval << 8;
-        }
-        inval |= rawclowdata[pos + 2];
-        inval = inval << 8;
-        inval |= rawclowdata[pos + 1];
-        inval = inval << 8;
-        inval |= rawclowdata[pos];
-
-        // always gets called after the cell high and low are available
-        // so it is safe
-        vtkIdType vtkCellId =
-          hdata->CellCellMap->ConvertOpenGLCellIdToVTKCellId(pointPicking, inval);
-        unsigned int outval = compositeArray->GetValue(vtkCellId);
-        compositedata[pos] = outval & 0xff;
-        compositedata[pos + 1] = (outval & 0xff00) >> 8;
-        compositedata[pos + 2] = (outval & 0xff0000) >> 16;
+        functor(compositeArray, rawclowdata, rawchighdata, compositedata, hdata, pixeloffsets,
+          pointPicking);
       }
     }
   }
