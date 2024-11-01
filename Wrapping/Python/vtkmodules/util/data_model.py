@@ -14,6 +14,7 @@ from vtkmodules.vtkCommonDataModel import (
     vtkDataObject,
     vtkImageData,
     vtkPolyData,
+    vtkStructuredGrid,
     vtkRectilinearGrid,
     vtkUnstructuredGrid,
     vtkPartitionedDataSet,
@@ -80,6 +81,17 @@ class FieldDataBase(object):
             if a.GetName():
                 vals.append(a)
         return vals
+
+    def items(self):
+        """Returns a list of pairs (name, array)"""
+        pairs = []
+        narrays = self.GetNumberOfArrays()
+        for i in range(narrays):
+            arr = self.get_array(i)
+            name = arr.GetName()
+            if name:
+                pairs.append((name, arr))
+        return pairs
 
     def set_array(self, name, narray):
         """Appends a new array to the dataset attributes."""
@@ -159,9 +171,34 @@ class FieldDataBase(object):
         arr = dsa.numpyTovtkDataArray(copy, name)
         self.AddArray(arr)
 
+    def __eq__(self, other: object) -> bool:
+        """Test dict-like equivalency."""
+        # here we check if other is the same class or a subclass of self.
+        if not isinstance(other, type(self)):
+            return False
+
+        if self is other:
+            return True
+
+        """
+        If numpy is not available, only check for identity without comparing contents of the data arrays
+        """
+        if not NUMPY_AVAILABLE:
+            return False
+
+        if set(self.keys()) != set(other.keys()):
+            return False
+
+        # verify the value of the arrays
+        for key, value in other.items():
+            if not numpy.array_equal(value, self[key]):
+                return False
+
+        return True
+
 
 @vtkFieldData.override
-class vtkFieldData(FieldDataBase, vtkFieldData):
+class FieldData(FieldDataBase, vtkFieldData):
     pass
 
 
@@ -171,7 +208,33 @@ class DataSetAttributesBase(FieldDataBase):
 
 @vtkDataSetAttributes.override
 class DataSetAttributes(DataSetAttributesBase, vtkDataSetAttributes):
-    pass
+    def __eq__(self, other: object) -> bool:
+        """Test dict-like equivalency."""
+        if not super().__eq__(other):
+            return False
+
+        for attr in [
+            "GetScalars",
+            "GetVectors",
+            "GetNormals",
+            "GetTangents",
+            "GetTCoords",
+            "GetTensors",
+            "GetGlobalIds",
+            "GetPedigreeIds",
+            "GetRationalWeights",
+            "GetHigherOrderDegrees",
+            "GetProcessIds",
+        ]:
+            self_attr = getattr(self, attr)()
+            other_attr = getattr(other, attr)()
+            if self_attr and other_attr:
+                if self_attr.GetName() != other_attr.GetName():
+                    return False
+            elif self_attr != other_attr:
+                return False
+
+        return True
 
 
 @vtkPointData.override
@@ -306,6 +369,9 @@ class CompositeDataSetAttributes(object):
 
 # class DataSet(DataObjectBase):
 class DataSet(object):
+    def __init__(self, **kwargs) -> None:
+        self._numpy_attrs = []
+
     @property
     def point_data(self):
         pd = super().GetPointData()
@@ -322,6 +388,31 @@ class DataSet(object):
         cd.association = self.CELL
         return cd
 
+    def __eq__(self, other: object) -> bool:
+        """Test equivalency between data objects."""
+        if not isinstance(self, type(other)):
+            return False
+
+        if self is other:
+            return True
+
+        """
+        If numpy is not available, only check for identity without comparing contents of the data arrays
+        """
+        if not NUMPY_AVAILABLE:
+            return False
+
+        for attr in self._numpy_attrs:
+            if hasattr(self, attr):
+                if not numpy.array_equal(getattr(self, attr), getattr(other, attr)):
+                    return False
+
+        for attr in ["field_data", "point_data", "cell_data"]:
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+
+        return True
+
     def convert_to_unstructured_grid(self):
         from vtkmodules.vtkFiltersCore import vtkExtractCells
 
@@ -333,6 +424,10 @@ class DataSet(object):
 
 
 class PointSet(DataSet):
+    def __init__(self, **kwargs) -> None:
+        DataSet.__init__(self, **kwargs)
+        self._numpy_attrs.append("points")
+
     @property
     def points(self):
         pts = self.GetPoints()
@@ -360,7 +455,11 @@ class PointSet(DataSet):
 
 
 @vtkUnstructuredGrid.override
-class vtkUnstructuredGrid(PointSet, vtkUnstructuredGrid):
+class UnstructuredGrid(PointSet, vtkUnstructuredGrid):
+    def __init__(self, **kwargs):
+        PointSet.__init__(self, **kwargs)
+        vtkUnstructuredGrid.__init__(self, **kwargs)
+
     @property
     def cells(self):
         ca = self.GetCells()
@@ -397,14 +496,69 @@ class vtkUnstructuredGrid(PointSet, vtkUnstructuredGrid):
 
 
 @vtkImageData.override
-class vtkImageData(DataSet, vtkImageData):
-    pass
+class ImageData(DataSet, vtkImageData):
+    def __init__(self, **kwargs):
+        DataSet.__init__(self, **kwargs)
+        vtkImageData.__init__(self, **kwargs)
 
 
 @vtkPolyData.override
-class vtkPolyData(PointSet, vtkPolyData):
+class PolyData(PointSet, vtkPolyData):
+    def __init__(self, **kwargs) -> None:
+        PointSet.__init__(self, **kwargs)
+        vtkPolyData.__init__(self, **kwargs)
+        self._numpy_attrs.extend(["verts", "lines", "strips", "polys"])
+
     @property
-    def polygons(self):
+    def verts_arrays(self):
+        ca = self.GetVerts()
+        conn_vtk = ca.GetConnectivityArray()
+        offsets_vtk = ca.GetOffsetsArray()
+
+        if not NUMPY_AVAILABLE:
+            return {
+                "connectivity": conn_vtk,
+                "offsets": offsets_vtk,
+            }
+
+        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
+        offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
+        return {"connectivity": conn, "offsets": offsets}
+
+    @property
+    def lines_arrays(self):
+        ca = self.GetLines()
+        conn_vtk = ca.GetConnectivityArray()
+        offsets_vtk = ca.GetOffsetsArray()
+
+        if not NUMPY_AVAILABLE:
+            return {
+                "connectivity": conn_vtk,
+                "offsets": offsets_vtk,
+            }
+
+        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
+        offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
+        return {"connectivity": conn, "offsets": offsets}
+
+    @property
+    def strips_arrays(self):
+        ca = self.GetStrips()
+        conn_vtk = ca.GetConnectivityArray()
+        offsets_vtk = ca.GetOffsetsArray()
+
+        if not NUMPY_AVAILABLE:
+            return {
+                "connectivity": conn_vtk,
+                "offsets": offsets_vtk,
+            }
+
+        conn = dsa.vtkDataArrayToVTKArray(conn_vtk)
+        offsets = dsa.vtkDataArrayToVTKArray(offsets_vtk)
+        return {"connectivity": conn, "offsets": offsets}
+
+    @property
+    def polys_arrays(self):
         ca = self.GetPolys()
         conn_vtk = ca.GetConnectivityArray()
         offsets_vtk = ca.GetOffsetsArray()
@@ -421,7 +575,12 @@ class vtkPolyData(PointSet, vtkPolyData):
 
 
 @vtkRectilinearGrid.override
-class vtkRectilinearGrid(DataSet, vtkRectilinearGrid):
+class RectilinearGrid(DataSet, vtkRectilinearGrid):
+    def __init__(self, **kwargs) -> None:
+        DataSet.__init__(self, **kwargs)
+        vtkRectilinearGrid.__init__(self, **kwargs)
+        self._numpy_attrs.extend(["x_coordinates", "y_coordinates", "z_coordinates"])
+
     @property
     def x_coordinates(self):
         pts = self.GetXCoordinates()
@@ -536,7 +695,6 @@ class CompositeDataSetBase(object):
         self._CellData = None
         self._FieldData = None
         self._Points = None
-        super().__init__(**kwargs)
 
     def __iter__(self):
         "Creates an iterator for the contained datasets."
@@ -599,9 +757,37 @@ class CompositeDataSetBase(object):
 
 
 @vtkPartitionedDataSet.override
-class vtkPartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
+class PartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
     def append(self, dataset):
         self.SetPartition(self.GetNumberOfPartitions(), dataset)
+
+
+@vtkStructuredGrid.override
+class StructuredGrid(PointSet, vtkStructuredGrid):
+    def __init__(self, **kwargs):
+        PointSet.__init__(self, **kwargs)
+        vtkStructuredGrid.__init__(self, **kwargs)
+
+    @property
+    def x_coordinates(self):
+        if not NUMPY_AVAILABLE:
+            raise NotImplementedError("Only available with numpy")
+
+        return self.points[:, 0].reshape(self.dimensions, order="F")
+
+    @property
+    def y_coordinates(self):
+        if not NUMPY_AVAILABLE:
+            raise NotImplementedError("Only available with numpy")
+
+        return self.points[:, 1].reshape(self.dimensions, order="F")
+
+    @property
+    def z_coordinates(self):
+        if not NUMPY_AVAILABLE:
+            raise NotImplementedError("Only available with numpy")
+
+        return self.points[:, 2].reshape(self.dimensions, order="F")
 
 
 # -----------------------------------------------------------------------------
@@ -611,7 +797,8 @@ with suppress(ImportError):
     import copyreg
     from vtkmodules.util.pickle_support import serialize_VTK_data_object
 
-    copyreg.pickle(vtkPolyData, serialize_VTK_data_object)
-    copyreg.pickle(vtkUnstructuredGrid, serialize_VTK_data_object)
-    copyreg.pickle(vtkImageData, serialize_VTK_data_object)
-    copyreg.pickle(vtkPartitionedDataSet, serialize_VTK_data_object)
+    copyreg.pickle(PolyData, serialize_VTK_data_object)
+    copyreg.pickle(UnstructuredGrid, serialize_VTK_data_object)
+    copyreg.pickle(ImageData, serialize_VTK_data_object)
+    copyreg.pickle(PartitionedDataSet, serialize_VTK_data_object)
+    copyreg.pickle(StructuredGrid, serialize_VTK_data_object)
