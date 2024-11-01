@@ -98,24 +98,7 @@ void vtkViewNode::AddMissingNodes(vtkCollection* col)
   while (rit)
   {
     vtkObject* obj = col->GetNextItemAsObject(rit);
-    if (obj)
-    {
-      auto nit = this->Renderables.find(obj);
-      if (nit == this->Renderables.end())
-      {
-        vtkViewNode* node = this->CreateViewNode(obj);
-        if (node)
-        {
-          this->Children.push_back(node);
-          node->SetParent(this);
-          node->Used = true;
-        }
-      }
-      else
-      {
-        nit->second->Used = true;
-      }
-    }
+    this->AddMissingNode(obj);
   }
 }
 

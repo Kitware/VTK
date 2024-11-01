@@ -24,7 +24,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariCameraInsideLog = "# StreamVersion 1\n"
@@ -767,7 +767,7 @@ int TestAnariCameraInside(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCameraInside");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCameraInside");
 
   ren->AddVolume(volume);
   ren->ResetCamera();

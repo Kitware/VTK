@@ -25,7 +25,7 @@
 #include <vtkPolyDataMapper.h>
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 int TestAnariPositionalLights(int argc, char* argv[])
@@ -127,7 +127,7 @@ int TestAnariPositionalLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariPositionalLights");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariPositionalLights");
 
   renWin->Render();
   ren->ResetCamera();

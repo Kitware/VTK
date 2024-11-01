@@ -24,7 +24,7 @@
 #include "vtkTestUtilities.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -72,6 +72,7 @@ int TestAnariPass(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkAnariPass> anariPass;
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPass");
 
   for (int i = 1; i < 10; i++)
   {
@@ -79,7 +80,6 @@ int TestAnariPass(int argc, char* argv[])
     {
       cerr << "Render via ANARI" << endl;
       renderer->SetPass(anariPass);
-      SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPass");
     }
     else
     {

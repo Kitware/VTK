@@ -27,7 +27,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariCameraInsideSmallSpacingLog =
@@ -1072,7 +1072,7 @@ int TestAnariCameraInsideSmallSpacing(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCameraInsideSmallSpacing");
 
   ren->AddVolume(volume);
   ren->ResetCamera();

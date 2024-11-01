@@ -25,7 +25,7 @@
 #include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
@@ -1084,7 +1084,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariVolumeWavelet");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariVolumeWavelet");
 
   renderer->ResetCamera();
   renderWindow->Render();

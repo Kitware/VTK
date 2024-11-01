@@ -30,7 +30,7 @@
 #include "vtkTexture.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -61,7 +61,7 @@ int TestAnariSphere(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariSphere");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariSphere");
 
   vtkNew<vtkAnariTestInteractor> style;
   iren->SetInteractorStyle(style);

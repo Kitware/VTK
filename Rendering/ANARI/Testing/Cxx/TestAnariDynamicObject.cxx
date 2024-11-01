@@ -22,7 +22,7 @@
 #include "vtkSphereSource.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -65,7 +65,7 @@ int TestAnariDynamicObject(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariDynamicObject");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariDynamicObject");
 
   renWin->Render();
 

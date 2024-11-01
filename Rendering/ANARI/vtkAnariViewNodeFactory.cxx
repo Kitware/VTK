@@ -7,7 +7,7 @@
 #include "vtkAnariFollowerNode.h"
 #include "vtkAnariLightNode.h"
 #include "vtkAnariPolyDataMapperNode.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariVolumeMapperNode.h"
 #include "vtkAnariVolumeNode.h"
 
@@ -17,7 +17,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 vtkViewNode* ren_maker()
 {
-  vtkAnariRendererNode* vn = vtkAnariRendererNode::New();
+  vtkAnariSceneGraph* vn = vtkAnariSceneGraph::New();
   return vn;
 }
 

@@ -31,7 +31,7 @@
 #include "vtkTesting.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -201,8 +201,9 @@ int TestAnariLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariLights");
-  vtkAnariRendererNode::SetAmbientIntensity(0.2, renderer);
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
+  auto& ar = anariPass->GetAnariRenderer();
+  ar.SetParameter("ambientRadiance", 0.2f);
 
   renWin->Render();
 

@@ -21,7 +21,7 @@
 #include <vtkXMLImageDataReader.h>
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -106,8 +106,9 @@ int TestAnariCellData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCellData");
-  vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
+  auto& ar = anariPass->GetAnariRenderer();
+  ar.SetParameter("ambientRadiance", 0.5f);
 
   renWin->Render();
   ren->ResetCamera();

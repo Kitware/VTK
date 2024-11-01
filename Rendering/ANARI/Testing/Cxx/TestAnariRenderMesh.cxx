@@ -51,7 +51,7 @@
 #include <vector>
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -242,7 +242,7 @@ int TestAnariRenderMesh(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariRendererMesh");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererMesh");
 
   // Now, vary most of the many parameters that rendering can vary by.
 

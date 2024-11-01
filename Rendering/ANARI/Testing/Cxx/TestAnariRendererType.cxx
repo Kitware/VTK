@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -70,19 +70,20 @@ int TestAnariRendererType(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariRendererType");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
 
+  auto& ar = anariPass->GetAnariRenderer();
   for (int i = 1; i < 9; i++)
   {
     if (i % 2)
     {
       cerr << "Render via default" << endl;
-      vtkAnariRendererNode::SetRendererSubtype("default", renderer);
+      ar.SetSubtype("default");
     }
     else
     {
       cerr << "Render via raycast" << endl;
-      vtkAnariRendererNode::SetRendererSubtype("raycast", renderer);
+      ar.SetSubtype("raycast");
     }
 
     renWin->Render();

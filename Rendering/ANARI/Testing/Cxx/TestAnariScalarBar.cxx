@@ -19,7 +19,7 @@
 #include "vtkTextProperty.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 int TestAnariScalarBar(int argc, char* argv[])
@@ -94,7 +94,7 @@ int TestAnariScalarBar(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren1, useDebugDevice, "TestAnariScalarBar");
+  SetParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariScalarBar");
 
   renWin->Render();
 

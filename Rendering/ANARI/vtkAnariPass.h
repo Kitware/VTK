@@ -25,10 +25,13 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderingAnariModule.h" // For export macro
 
+#include "vtkAnariDevice.h"   // For vtkAnariDevice
+#include "vtkAnariRenderer.h" // For vtkAnariRenderer
+
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariPassInternals;
-class vtkAnariRendererNode;
+class vtkAnariSceneGraph;
 
 class vtkCameraPass;
 class vtkLightsPass;
@@ -46,31 +49,30 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Perform rendering according to a render state s.
+   * Perform rendering according to a render state.
    */
   virtual void Render(const vtkRenderState* s) override;
 
   //@{
   /**
-   * Tells the pass what it will render.
+   * Get the root of the underlying scene graph.
    */
-  void SetSceneGraph(vtkAnariRendererNode*);
-  vtkGetObjectMacro(SceneGraph, vtkAnariRendererNode);
+  vtkGetObjectMacro(SceneGraph, vtkAnariSceneGraph);
   //@}
 
   /**
-   * Called by the internals of this class
+   * Get the managing class of the ANARI device for queries or make changes.
    */
-  virtual void RenderInternal(const vtkRenderState* s);
+  vtkAnariDevice& GetAnariDevice();
 
   /**
-   * Get the view node factory that makes ANARI specific translator
-   * instances for every VTK rendering pipeline class instance it
-   * encounters.
+   * Get the managing class of the ANARI renderer to query or make changes. Note
+   * that this will not do anything unless the device has been initialized in
+   * the device .
    */
-  virtual vtkViewNodeFactory* GetViewNodeFactory();
+  vtkAnariRenderer& GetAnariRenderer();
 
-protected:
+private:
   /**
    * Default constructor.
    */
@@ -79,17 +81,21 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkAnariPass();
+  ~vtkAnariPass() override;
 
-  vtkAnariRendererNode* SceneGraph;
+  /**
+   * Tells the pass what it will render.
+   */
+  void SetSceneGraph(vtkAnariSceneGraph*);
+
+  vtkAnariSceneGraph* SceneGraph = nullptr;
   vtkNew<vtkCameraPass> CameraPass;
 
-private:
   vtkAnariPass(const vtkAnariPass&) = delete;
   void operator=(const vtkAnariPass&) = delete;
 
-  vtkAnariPassInternals* Internal;
-  const char* PreviousRendererSubtype;
+  friend class vtkAnariPassInternals;
+  vtkAnariPassInternals* Internal = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

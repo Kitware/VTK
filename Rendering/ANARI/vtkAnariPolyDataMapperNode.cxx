@@ -3,7 +3,7 @@
 #include "vtkAnariPolyDataMapperNode.h"
 #include "vtkAnariActorNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkActor.h"
 #include "vtkCommand.h"
@@ -59,7 +59,7 @@ struct PolyDataMapperCallback : vtkCommand
     this->RendererNode->InvalidateSceneStructure();
   }
 
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariSceneGraph* RendererNode{ nullptr };
 };
 
 //============================================================================
@@ -160,7 +160,7 @@ public:
   /**
    * Methods for setting/getting the ANARI library and device parameters
    */
-  void SetAnariConfig(vtkAnariRendererNode*);
+  void SetAnariConfig(vtkAnariSceneGraph*);
 
   /**
    * Converts the given string to lowercase.
@@ -178,13 +178,11 @@ public:
   void ClearSurfaces();
 
   vtkAnariPolyDataMapperNode* Owner{ nullptr };
-  vtkAnariRendererNode* AnariRendererNode{ nullptr };
+  vtkAnariSceneGraph* AnariRendererNode{ nullptr };
 
   std::vector<anari::Surface> Surfaces;
 
-  anari::Library AnariLibrary{ nullptr };
   anari::Device AnariDevice{ nullptr };
-  std::string AnariDeviceName;
   anari::Extensions AnariDeviceExtensions{};
 };
 
@@ -223,7 +221,7 @@ void vtkAnariPolyDataMapperNodeInternals::ClearSurfaces()
     return;
   }
 
-  anari::Device anariDevice = this->AnariRendererNode->GetAnariDevice();
+  anari::Device anariDevice = this->AnariRendererNode->GetDeviceHandle();
 
   if (anariDevice)
   {
@@ -506,9 +504,8 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
     }
     else
     {
-      vtkWarningWithObjectMacro(this->Owner,
-        << "ANARI back-end " << this->AnariDeviceName
-        << " doesn't support Physically Based Materials (KHR_MATERIAL_PHYSICALLY_BASED).");
+      vtkWarningWithObjectMacro(this->Owner, << "ANARI back-end doesn't support Physically Based "
+                                                "Materials (KHR_MATERIAL_PHYSICALLY_BASED).");
 
       if (this->AnariDeviceExtensions.ANARI_KHR_MATERIAL_MATTE)
       {
@@ -518,8 +515,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
       else
       {
         vtkErrorWithObjectMacro(
-          this->Owner, << "ANARI back-end " << this->AnariDeviceName
-                       << " doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
+          this->Owner, << "ANARI back-end doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
       }
     }
   }
@@ -533,8 +529,7 @@ anari::Material vtkAnariPolyDataMapperNodeInternals::MakeMaterial(
     else
     {
       vtkErrorWithObjectMacro(
-        this->Owner, << "ANARI back-end " << this->AnariDeviceName
-                     << " doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
+        this->Owner, << "ANARI back-end doesn't support Matte Materials (KHR_MATERIAL_MATTE).");
     }
   }
 
@@ -745,12 +740,10 @@ void vtkAnariPolyDataMapperNodeInternals::SetMatteMaterialParameters(anari::Mate
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariRendererNode* anariRendererNode)
+void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariSceneGraph* anariRendererNode)
 {
   this->AnariRendererNode = anariRendererNode;
-  this->AnariLibrary = anariRendererNode->GetAnariLibrary();
-  this->AnariDevice = anariRendererNode->GetAnariDevice();
-  this->AnariDeviceName = anariRendererNode->GetAnariDeviceName();
+  this->AnariDevice = anariRendererNode->GetDeviceHandle();
   this->AnariDeviceExtensions = anariRendererNode->GetAnariDeviceExtensions();
 }
 
@@ -2036,7 +2029,7 @@ void vtkAnariPolyDataMapperNode::Build(bool prepass)
   if (!this->RendererNode)
   {
     this->RendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+      static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
   }
 
   if (!this->Internal->AnariDevice)

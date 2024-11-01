@@ -22,7 +22,7 @@
 #include "vtkXMLMultiBlockDataReader.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -67,7 +67,7 @@ int TestAnariMultiBlock(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariMultiBlock");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariMultiBlock");
 
   renWin->Render();
   int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);

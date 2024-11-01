@@ -18,7 +18,7 @@
 #include "vtkSphereSource.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -119,8 +119,7 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(
-    ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
 
   ren->AddActor(actor);
   win->SetSize(400, 400);

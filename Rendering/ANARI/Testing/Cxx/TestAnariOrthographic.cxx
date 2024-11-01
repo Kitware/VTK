@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -69,7 +69,7 @@ int TestAnariOrthographic(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariOrthographic");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariOrthographic");
 
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetParallelProjection(1);

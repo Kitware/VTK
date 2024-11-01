@@ -24,7 +24,7 @@ class vtkAnariPolyDataMapperNodeInternals;
 class vtkAnariActorNode;
 class vtkPolyData;
 class vtkDataSetSurfaceFilter;
-class vtkAnariRendererNode;
+class vtkAnariSceneGraph;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPolyDataMapperNode : public vtkPolyDataMapperNode
 {
@@ -64,7 +64,7 @@ protected:
     double* const diffuse, const double opacity, const std::string& materialName);
 
   vtkAnariPolyDataMapperNodeInternals* Internal{ nullptr };
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariSceneGraph* RendererNode{ nullptr };
 
 private:
   vtkAnariPolyDataMapperNode(const vtkAnariPolyDataMapperNode&) = delete;

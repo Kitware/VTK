@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariVolumeMapperNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkArrayDispatch.h"
@@ -106,7 +106,7 @@ public:
   int LastArrayComponent{ -2 };
 
   vtkAnariVolumeMapperNode* Owner{ nullptr };
-  vtkAnariRendererNode* AnariRendererNode{ nullptr };
+  vtkAnariSceneGraph* AnariRendererNode{ nullptr };
   anari::Device AnariDevice{ nullptr };
   anari::Volume AnariVolume{ nullptr };
   std::unique_ptr<anari_structured::TransferFunction> TransferFunction;
@@ -314,8 +314,8 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     }
 
     this->Internal->AnariRendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-    auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+      static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
+    auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
 
     if (!this->Internal->AnariDevice)
     {
@@ -453,8 +453,8 @@ void vtkAnariVolumeMapperNode::Synchronize(bool prepass)
     if (this->Internal->AnariVolume != nullptr)
     {
       this->Internal->AnariRendererNode =
-        static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
-      auto anariDevice = this->Internal->AnariRendererNode->GetAnariDevice();
+        static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
+      auto anariDevice = this->Internal->AnariRendererNode->GetDeviceHandle();
       anari::release(anariDevice, this->Internal->AnariVolume);
       this->Internal->AnariVolume = nullptr;
     }

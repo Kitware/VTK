@@ -23,7 +23,7 @@
 #include "vtkTestUtilities.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -124,7 +124,7 @@ int TestAnariCompositePolyDataMapper(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCompositePolyDataMapper");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCompositePolyDataMapper");
 
   ren->ResetCamera();
   vtkNew<vtkTimerLog> timer;

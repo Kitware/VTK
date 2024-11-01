@@ -23,7 +23,7 @@
 #include "vtkTexture.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -127,7 +127,7 @@ int TestAnariPBRMaterialsCoat(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPBRMaterialsCoat");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPBRMaterialsCoat");
 
   renWin->Render();
 

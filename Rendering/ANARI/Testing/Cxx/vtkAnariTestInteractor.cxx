@@ -6,7 +6,7 @@
 
 #include "vtkAnariLightNode.h"
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOpenGLRenderer.h"
@@ -104,10 +104,6 @@ void vtkAnariTestInteractor::OnKeyPress()
     {
       cerr << "ANARI rendering " << this->O << endl;
       this->GLRenderer->SetPass(this->O);
-      vtkAnariRendererNode::SetLibraryName("environment", this->GLRenderer);
-      vtkAnariRendererNode::SetSamplesPerPixel(4, this->GLRenderer);
-      vtkAnariRendererNode::SetLightFalloff(.5, this->GLRenderer);
-      vtkAnariRendererNode::SetUseDenoiser(1, this->GLRenderer);
       this->GLRenderer->GetRenderWindow()->Render();
     }
     else if (current == this->O)
@@ -169,41 +165,6 @@ void vtkAnariTestInteractor::OnKeyPress()
         vtkLight::SafeDownCast(lights->GetItemAsObject(i))->SwitchOff();
       }
     }
-    this->GLRenderer->GetRenderWindow()->Render();
-  }
-
-  if (key == "2")
-  {
-    int spp = vtkAnariRendererNode::GetSamplesPerPixel(this->GLRenderer);
-    cerr << "samples now " << spp + 1 << endl;
-    vtkAnariRendererNode::SetSamplesPerPixel(spp + 1, this->GLRenderer);
-    this->GLRenderer->GetRenderWindow()->Render();
-  }
-  if (key == "1")
-  {
-    vtkAnariRendererNode::SetSamplesPerPixel(1, this->GLRenderer);
-    cerr << "samples now " << 1 << endl;
-    this->GLRenderer->GetRenderWindow()->Render();
-  }
-
-  if (key == "D")
-  {
-    int aoSamples = vtkAnariRendererNode::GetAmbientSamples(this->GLRenderer) + 2;
-    if (aoSamples > 64)
-    {
-      aoSamples = 64;
-    }
-    vtkAnariRendererNode::SetAmbientSamples(aoSamples, this->GLRenderer);
-    cerr << "aoSamples " << aoSamples << endl;
-    this->GLRenderer->GetRenderWindow()->Render();
-  }
-
-  if (key == "d")
-  {
-    int aosamples = vtkAnariRendererNode::GetAmbientSamples(this->GLRenderer);
-    aosamples = aosamples / 2;
-    vtkAnariRendererNode::SetAmbientSamples(aosamples, this->GLRenderer);
-    cerr << "aoSamples " << aosamples << endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 

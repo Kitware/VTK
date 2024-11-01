@@ -27,7 +27,7 @@
 #include "vtkTesting.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -58,7 +58,7 @@ int TestAnariCylinder(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariCylinder");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariCylinder");
 
   vtkNew<vtkAnariTestInteractor> style;
   iren->SetInteractorStyle(style);

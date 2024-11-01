@@ -27,7 +27,7 @@
 #include "vtkTriangleFilter.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
@@ -160,7 +160,7 @@ int TestAnariPBRMapping(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPBRMapping");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariPBRMapping");
 
   renWin->Render();
   renderer->GetActiveCamera()->Zoom(1.5);

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariCameraNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkCamera.h"
 #include "vtkHomogeneousTransform.h"
@@ -27,7 +27,7 @@ struct vtkAnariCameraNodeInternals
   anari::Device AnariDevice{ nullptr };
   anari::Camera AnariCamera{ nullptr };
   bool IsParallelProjection{ false };
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariSceneGraph* RendererNode{ nullptr };
 };
 
 //============================================================================
@@ -79,7 +79,7 @@ void vtkAnariCameraNode::Build(bool prepass)
   if (this->Internals->RendererNode == nullptr)
   {
     this->Internals->RendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+      static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
   }
 
   this->UpdateAnariObjectHandles();
@@ -101,7 +101,7 @@ void vtkAnariCameraNode::UpdateAnariObjectHandles()
 {
   if (!this->Internals->AnariDevice)
   {
-    this->Internals->AnariDevice = this->Internals->RendererNode->GetAnariDevice();
+    this->Internals->AnariDevice = this->Internals->RendererNode->GetDeviceHandle();
     anari::retain(this->Internals->AnariDevice, this->Internals->AnariDevice);
   }
 

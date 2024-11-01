@@ -3,7 +3,7 @@
 #include "vtkAnariLightNode.h"
 #include "vtkAnariCameraNode.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
@@ -29,12 +29,11 @@ VTK_ABI_NAMESPACE_BEGIN
 
 struct vtkAnariLightNodeInternals
 {
-  vtkAnariRendererNode* RendererNode{ nullptr };
+  vtkAnariSceneGraph* RendererNode{ nullptr };
   anari::Light AnariLight{ nullptr };
 };
 
 //============================================================================
-vtkInformationKeyMacro(vtkAnariLightNode, IS_AMBIENT, Integer);
 vtkInformationKeyMacro(vtkAnariLightNode, RADIUS, Double);
 vtkInformationKeyMacro(vtkAnariLightNode, FALLOFF_ANGLE, Double);
 vtkInformationKeyMacro(vtkAnariLightNode, LIGHT_SCALE, Double);
@@ -82,36 +81,6 @@ double vtkAnariLightNode::GetLightScale(vtkLight* light)
   }
 
   return 1.0;
-}
-
-//----------------------------------------------------------------------------
-void vtkAnariLightNode::SetIsAmbient(int value, vtkLight* light)
-{
-  if (!light)
-  {
-    return;
-  }
-
-  vtkInformation* info = light->GetInformation();
-  info->Set(vtkAnariLightNode::IS_AMBIENT(), value);
-}
-
-//----------------------------------------------------------------------------
-int vtkAnariLightNode::GetIsAmbient(vtkLight* light)
-{
-  if (!light)
-  {
-    return 0;
-  }
-
-  vtkInformation* info = light->GetInformation();
-
-  if (info && info->Has(vtkAnariLightNode::IS_AMBIENT()))
-  {
-    return (info->Get(vtkAnariLightNode::IS_AMBIENT()));
-  }
-
-  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -201,7 +170,7 @@ void vtkAnariLightNode::Build(bool prepass)
   if (this->Internals->RendererNode == nullptr)
   {
     this->Internals->RendererNode =
-      static_cast<vtkAnariRendererNode*>(this->GetFirstAncestorOfType("vtkAnariRendererNode"));
+      static_cast<vtkAnariSceneGraph*>(this->GetFirstAncestorOfType("vtkAnariSceneGraph"));
   }
 }
 
@@ -217,14 +186,11 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   vtkLight* light = this->GetVtkLight();
   this->RenderTime = light->GetMTime();
 
-  auto anariDevice = this->Internals->RendererNode->GetAnariDevice();
+  auto anariDevice = this->Internals->RendererNode->GetDeviceHandle();
   auto vtkRenderer = this->Internals->RendererNode->GetRenderer();
   auto anariExtensions = this->Internals->RendererNode->GetAnariDeviceExtensions();
 
   this->ClearLight();
-
-  const char* device = vtkAnariRendererNode::GetLibraryName(vtkRenderer);
-  const char* deviceSubtype = vtkAnariRendererNode::GetDeviceSubtype(vtkRenderer);
 
   vtkOpenGLRenderer* openGLRenderer =
     vtkOpenGLRenderer::SafeDownCast(this->Internals->RendererNode->GetRenderable());
@@ -294,16 +260,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
   anari::Light anariLight = nullptr;
   vtkTexture* envTexture = vtkRenderer->GetEnvironmentTexture();
   bool useHDRI = vtkRenderer->GetUseImageBasedLighting() && envTexture;
-  int isAmbient = vtkAnariLightNode::GetIsAmbient(light);
 
-  if (isAmbient)
-  {
-    vtkDebugMacro(<< "Ambient Light");
-    double ambientColor[3] = { light->GetAmbientColor()[0], light->GetAmbientColor()[1],
-      light->GetAmbientColor()[2] };
-    vtkAnariRendererNode::SetAmbientColor(ambientColor, vtkRenderer);
-  }
-  else if (useHDRI)
+  if (useHDRI)
   {
     if (anariExtensions.ANARI_KHR_LIGHT_HDRI)
     {
@@ -351,8 +309,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support image based lighting (KHR_LIGHT_HDRI).");
+      vtkWarningMacro(<< "ANARI back-end doesn't support image based lighting (KHR_LIGHT_HDRI).");
     }
   }
   else if (light->GetPositional())
@@ -380,14 +337,12 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         }
         else
         {
-          vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                          << " doesn't support KHR_AREA_LIGHTS::radius");
+          vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::radius");
         }
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support point lights (KHR_LIGHT_POINT).");
+        vtkWarningMacro(<< "ANARI back-end doesn't support point lights (KHR_LIGHT_POINT).");
       }
     }
     else
@@ -413,8 +368,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support spotlights (KHR_LIGHT_SPOT).");
+        vtkWarningMacro(<< "ANARI back-end doesn't support spotlights (KHR_LIGHT_SPOT).");
       }
     }
   }
@@ -442,14 +396,13 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                        << " doesn't support KHR_AREA_LIGHTS::angularDiameter");
+        vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::angularDiameter");
       }
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
+      vtkWarningMacro(
+        << "ANARI back-end doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
     }
   }
 
@@ -465,8 +418,7 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end " << device << ":" << deviceSubtype
-                      << " doesn't support KHR_AREA_LIGHTS::visible");
+      vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::visible");
     }
 
     anari::commitParameters(anariDevice, anariLight);
@@ -495,7 +447,7 @@ void vtkAnariLightNode::ClearLight()
 {
   if (this->Internals->RendererNode != nullptr)
   {
-    anari::Device anariDevice = this->Internals->RendererNode->GetAnariDevice();
+    anari::Device anariDevice = this->Internals->RendererNode->GetDeviceHandle();
 
     if (anariDevice)
     {

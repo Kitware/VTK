@@ -18,7 +18,7 @@
 #include "vtkSphereSource.h"
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 int TestAnariStereo(int argc, char* argv[])
@@ -125,7 +125,7 @@ int TestAnariStereo(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariStereo");
+  SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariStereo");
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->AddRenderer(renderer);

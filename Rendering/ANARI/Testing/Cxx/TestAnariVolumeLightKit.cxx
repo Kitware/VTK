@@ -30,7 +30,7 @@
 #include <vtkXMLImageDataReader.h>
 
 #include "vtkAnariPass.h"
-#include "vtkAnariRendererNode.h"
+#include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
 int TestAnariVolumeLightKit(int argc, char* argv[])
@@ -108,7 +108,7 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariVolumeLightKit");
+  SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariVolumeLightKit");
 
   renWin->Render();
   ren->ResetCamera();
