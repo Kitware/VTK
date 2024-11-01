@@ -83,6 +83,29 @@ def addDataToViewer(dataPath, srcHtmlPath, disableGirder=False):
 # -----------------------------------------------------------------------------
 
 
+def numericSorted(l):
+    """Numerically sort a list of strings."""
+
+    # pattern to split name into numeric and non-numeric parts
+    splitter_pattern = re.compile('([0-9]+|[^0-9]+)')
+
+    def keyfunc(name):
+        """Sorting key for numeric sorting."""
+        split_name = re.findall(splitter_pattern, name)
+        # one-liner to convert numeric parts into integers
+        split_name = list(map(lambda x: int(x) if x.isdigit() else x, split_name))
+        # ensure that list begins with a string to avoid string<->int compare
+        if split_name and isinstance(split_name[0], int):
+            split_name.insert(0, '')
+        return split_name
+
+    # return the numerically sorted list
+    return sorted(l, key=keyfunc)
+
+
+# -----------------------------------------------------------------------------
+
+
 def zipAllTimeSteps(directoryPath):
     if os.path.isfile(directoryPath):
         return
@@ -201,7 +224,7 @@ def zipAllTimeSteps(directoryPath):
 
         timeStep = 0
         # zip all timestep directories
-        for folder in sorted(os.listdir(currentDirectory)):
+        for folder in numericSorted(os.listdir(currentDirectory)):
             fullPath = os.path.join(currentDirectory, folder)
             if os.path.isdir(fullPath) and reg.match(folder):
                 if not isSceneInitialized:
