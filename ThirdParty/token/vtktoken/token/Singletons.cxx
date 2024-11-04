@@ -1,23 +1,45 @@
 #include "token/Singletons.h"
 
-#include <cstdlib>
 #include <mutex>
 
 token_BEGIN_NAMESPACE
 namespace {
 
-TypeContainer* s_singletons = nullptr;
-std::mutex s_singletonsMutex;
+// rely on default initialization to 0 for static variables
+unsigned int s_singletonsCleanupCounter;
+TypeContainer* s_singletons;
+std::mutex* s_singletonsMutex;
 
 } // anonymous namespace
 
+namespace detail {
+
+singletonsCleanup::singletonsCleanup()
+{
+  if (++s_singletonsCleanupCounter == 1)
+  {
+    s_singletons = nullptr;
+    s_singletonsMutex = new std::mutex;
+  }
+}
+
+singletonsCleanup::~singletonsCleanup()
+{
+  if (--s_singletonsCleanupCounter == 0)
+  {
+    finalizeSingletons();
+    delete s_singletonsMutex;
+  }
+}
+
+} // namespace detail
+
 TypeContainer& singletons()
 {
-  std::lock_guard<std::mutex> guard(s_singletonsMutex);
+  std::lock_guard<std::mutex> guard(*s_singletonsMutex);
   if (!s_singletons)
   {
     s_singletons = new TypeContainer;
-    atexit(finalizeSingletons);
   }
   return *s_singletons;
 }
