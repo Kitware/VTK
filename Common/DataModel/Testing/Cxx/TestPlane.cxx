@@ -86,6 +86,54 @@ int TestPlane(int, char*[])
     }
   }
 
+  // Test AxisAligned
+  {
+    vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+    plane->SetOrigin(0.0, 0.0, 0.0);
+    plane->SetNormal(0.5, 0.8, 0.2);
+    plane->SetAxisAligned(false);
+
+    std::cout << "Testing AxisAligned" << std::endl;
+    double x[3] = { 1.0, 1.0, 1.0 };
+    double res = plane->EvaluateFunction(x);
+    if (!fuzzyCompare1D(res, 1.5))
+    {
+      std::cerr << "AxisAligned failed! Should be 1.5 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+    plane->SetAxisAligned(true);
+    res = plane->EvaluateFunction(x);
+    if (!fuzzyCompare1D(res, 1.0))
+    {
+      std::cerr << "AxisAligned failed! Should be 1.0 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  // Test Offset
+  {
+    vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+    plane->SetOrigin(0.0, 0.0, 0.0);
+    plane->SetNormal(0.5, 0.5, 0.5);
+    plane->SetOffset(0);
+
+    std::cout << "Testing Offset" << std::endl;
+    double x[3] = { 1.0, 1.0, 1.0 };
+    double res = plane->EvaluateFunction(x);
+    if (!fuzzyCompare1D(res, 1.5))
+    {
+      std::cerr << "Offset failed! Should be 1.5 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+    plane->SetOffset(0.5);
+    res = plane->EvaluateFunction(x);
+    if (!fuzzyCompare1D(res, 1.125))
+    {
+      std::cerr << "Offset failed! Should be 1.125 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   {
     vtkNew<vtkPlane> plane;
     plane->SetOrigin(0.0, 0.0, 0.0);
