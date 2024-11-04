@@ -104,9 +104,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     "^VTK::IOPDALCxx-TestPDALReader_test_1$"
     "^VTK::IOPDALCxx-TestPDALReader_test_2$"
 
-    # Numerical problems?
-    "^VTK::FiltersOpenTURNSCxx-TestOTKernelSmoothing$"
-
     # Syntax error in generated shader program.
     "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
 

@@ -2,6 +2,12 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE OpenTURNS
   VERSION 1.12)
 
+if (OpenTURNS_VERSION VERSION_LESS 1.22)
+  message(WARNING "Using OpenTURNS ${OpenTURNS_VERSION}, "
+    "this version provides incorrect KernelSmothing results, consider updating to "
+    "OpenTURNS >= 1.22")
+endif ()
+
 # XXX(openturns-1.23): This is fixed upstream.
 # Detect static builds of OT and warn that patches need applied to OT to truly
 # work in this configuration.
