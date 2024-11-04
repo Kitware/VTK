@@ -80,7 +80,8 @@ vtk_module_add_module(VTK::vtkvtkm
   HEADER_ONLY)
 # vtkm_cont_testing does not refer to unit tests but to the vtkm testing library.
 vtk_module_link(VTK::vtkvtkm INTERFACE vtkm_cont vtkm_cont_testing vtkm_filter)
-if(VTK_USE_KOKKOS)
+# Use of VTK_KOKKOS_BACKEND is deprecated.
+if(VTK_KOKKOS_BACKEND)
   if (VTK_KOKKOS_BACKEND STREQUAL "HIP" AND NOT TARGET vtkm_kokkos_hip)
     message(FATAL_ERROR "VTK_KOKKOS_BACKEND=HIP but Kokkos HIP backend not found, exiting.")
   endif()
