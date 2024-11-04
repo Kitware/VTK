@@ -4,6 +4,7 @@ set(classes
   vtkOpenGLGPUVolumeRayCastMapper
   vtkOpenGLProjectedTetrahedraMapper
   vtkOpenGLRayCastImageDisplayHelper
+  vtkOpenGLSurfaceProbeVolumeMapper
   vtkSmartVolumeMapper
   vtkVolumeTexture)
 
