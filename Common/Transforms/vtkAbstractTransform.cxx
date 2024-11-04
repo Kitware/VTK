@@ -29,13 +29,14 @@ public:
   vtkTimeStamp UpdateTime;
   std::mutex UpdateMutex;
   std::mutex InverseMutex;
-  int DependsOnInverse;
 
   // MyInverse is a transform which is the inverse of this one.
 
   vtkAbstractTransform* MyInverse;
 
-  int InUnRegister;
+  bool DependsOnInverse;
+  bool InUpdate;
+  bool InUnRegister;
 };
 
 //------------------------------------------------------------------------------
@@ -43,8 +44,9 @@ vtkAbstractTransform::vtkAbstractTransform()
 {
   this->Internals = new vtkInternals;
   this->Internals->MyInverse = nullptr;
-  this->Internals->DependsOnInverse = 0;
-  this->Internals->InUnRegister = 0;
+  this->Internals->DependsOnInverse = false;
+  this->Internals->InUpdate = false;
+  this->Internals->InUnRegister = false;
 }
 
 //------------------------------------------------------------------------------
@@ -318,8 +320,10 @@ void vtkAbstractTransform::DeepCopy(vtkAbstractTransform* transform)
 void vtkAbstractTransform::Update()
 {
   auto& internals = *(this->Internals);
+
   // locking is required to ensure that the class is thread-safe
   internals.UpdateMutex.lock();
+  internals.InUpdate = true;
 
   // check to see if we are a special 'inverse' transform
   if (internals.DependsOnInverse &&
@@ -339,6 +343,7 @@ void vtkAbstractTransform::Update()
     this->InternalUpdate();
   }
 
+  internals.InUpdate = false;
   internals.UpdateTime.Modified();
   internals.UpdateMutex.unlock();
 }
@@ -370,6 +375,19 @@ vtkMTimeType vtkAbstractTransform::GetMTime()
 }
 
 //------------------------------------------------------------------------------
+// During an update, we don't want to generate ModifiedEvent because code
+// observing the event might modify the transform while the transform's
+// update is in progress (leading to corrupt state, deadlocks, infinite
+// recursion, or other nastiness).
+void vtkAbstractTransform::Modified()
+{
+  if (!this->Internals->InUpdate)
+  {
+    this->Superclass::Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 // We need to handle the circular reference between a transform and its
 // inverse.
 void vtkAbstractTransform::UnRegister(vtkObjectBase* o)
@@ -388,10 +406,10 @@ void vtkAbstractTransform::UnRegister(vtkObjectBase* o)
     internals.MyInverse->Internals->MyInverse == this && internals.MyInverse->ReferenceCount == 1)
   { // break the cycle
     vtkDebugMacro(<< "UnRegister: eliminating circular reference");
-    internals.InUnRegister = 1;
+    internals.InUnRegister = true;
     internals.MyInverse->UnRegister(this);
     internals.MyInverse = nullptr;
-    internals.InUnRegister = 0;
+    internals.InUnRegister = false;
   }
 
   this->vtkObject::UnRegister(o);
