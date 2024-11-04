@@ -330,7 +330,7 @@ public:
 
   /**
    * Return the center of the cell in parametric coordinates. In this cell,
-   * the center of the bounding box is returned.
+   * the parametric location (within its bounds) of the centroid of its points is returned.
    */
   int GetParametricCenter(double pcoords[3]) override;
 
@@ -519,13 +519,6 @@ private:
   vtkNew<vtkMinimalStandardRandomSequence> RandomSequence;
   std::atomic<bool> IsRandomSequenceSeedInitialized{ false };
 };
-
-//----------------------------------------------------------------------------
-inline int vtkPolyhedron::GetParametricCenter(double pcoords[3])
-{
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
-  return 0;
-}
 
 VTK_ABI_NAMESPACE_END
 #endif

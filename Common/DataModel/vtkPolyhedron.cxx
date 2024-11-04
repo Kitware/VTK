@@ -986,6 +986,22 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
   }
 }
 
+//----------------------------------------------------------------------------
+int vtkPolyhedron::GetParametricCenter(double pcoords[3])
+{
+  const vtkIdType numPts = this->Points->GetNumberOfPoints();
+  double center[3] = { 0.0, 0.0, 0.0 };
+  double x[3];
+  for (vtkIdType i = 0; i < numPts; i++)
+  {
+    this->Points->GetPoint(i, x);
+    vtkMath::Add(center, x, center);
+  }
+  vtkMath::MultiplyScalar(center, 1.0 / numPts);
+  this->ComputeParametricCoordinate(center, pcoords);
+  return 0;
+}
+
 //------------------------------------------------------------------------------
 int vtkPolyhedron::EvaluatePosition(const double x[3], double closestPoint[3],
   int& vtkNotUsed(subId), double pcoords[3], double& minDist2, double weights[])
