@@ -1572,8 +1572,7 @@ void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane* plane)
     return;
   }
 
-  plane->SetNormal(this->Plane->GetNormal());
-  plane->SetOrigin(this->Plane->GetOrigin());
+  plane->DeepCopy(this->Plane);
 }
 
 //------------------------------------------------------------------------------
@@ -1584,8 +1583,7 @@ void vtkImplicitPlaneRepresentation::SetPlane(vtkPlane* plane)
     return;
   }
 
-  this->Plane->SetNormal(plane->GetNormal());
-  this->Plane->SetOrigin(plane->GetOrigin());
+  this->Plane->DeepCopy(plane);
 }
 
 //------------------------------------------------------------------------------

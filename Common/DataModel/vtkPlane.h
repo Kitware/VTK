@@ -61,6 +61,23 @@ public:
   vtkGetVectorMacro(Origin, double, 3);
   ///@}
 
+  ///@{
+  /**
+   * The origin is shifted in the direction of the normal
+   * by the offset.
+   */
+  vtkSetMacro(Offset, double);
+  vtkGetMacro(Offset, double);
+  ///@}
+
+  ///@{
+  /**
+   * Accessors for AxisAligned, which locks normal to plane to be aligned with x, y, or z axis.
+   */
+  vtkSetMacro(AxisAligned, bool);
+  vtkGetMacro(AxisAligned, bool);
+  ///@}
+
   /**
    * Translate the plane in the direction of the normal by the
    * distance specified.  Negative values move the plane in the
@@ -156,16 +173,32 @@ public:
   static bool ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* normal);
   ///@}
 
+  ///@{
+  /**
+   * Perform a deep copy of the given plane.
+   */
+  void DeepCopy(vtkPlane* plane);
+  ///@}
+
 protected:
-  vtkPlane();
+  vtkPlane() = default;
   ~vtkPlane() override = default;
 
-  double Normal[3];
-  double Origin[3];
+  // Construct plane passing through origin and normal to z-axis.
+  double Normal[3] = { 0.0, 0.0, 1.0 };
+  double Origin[3] = { 0.0, 0.0, 0.0 };
 
 private:
   vtkPlane(const vtkPlane&) = delete;
   void operator=(const vtkPlane&) = delete;
+
+  // If AxisAligned is enabled, sets axis to the nearest canonical axis.
+  void ComputeNormal(double normal[3]);
+  // Shifts the origin in the direction of the normal by the offset.
+  void ComputeOrigin(double origin[3]);
+
+  double Offset = 0.0;
+  bool AxisAligned = false;
 };
 
 // Generally the normal should be normalized

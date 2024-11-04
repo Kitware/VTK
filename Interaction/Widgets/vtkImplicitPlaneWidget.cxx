@@ -1178,8 +1178,7 @@ void vtkImplicitPlaneWidget::GetPlane(vtkPlane* plane)
     return;
   }
 
-  plane->SetNormal(this->Plane->GetNormal());
-  plane->SetOrigin(this->Plane->GetOrigin());
+  plane->DeepCopy(this->Plane);
 }
 
 //------------------------------------------------------------------------------

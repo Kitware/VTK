@@ -18,16 +18,55 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPlane);
 
 //------------------------------------------------------------------------------
-// Construct plane passing through origin and normal to z-axis.
-vtkPlane::vtkPlane()
+void vtkPlane::DeepCopy(vtkPlane* plane)
 {
-  this->Normal[0] = 0.0;
-  this->Normal[1] = 0.0;
-  this->Normal[2] = 1.0;
+  this->SetNormal(plane->GetNormal());
+  this->SetOrigin(plane->GetOrigin());
+  this->SetAxisAligned(plane->GetAxisAligned());
+  this->SetOffset(plane->GetOffset());
+}
 
-  this->Origin[0] = 0.0;
-  this->Origin[1] = 0.0;
-  this->Origin[2] = 0.0;
+//------------------------------------------------------------------------------
+void vtkPlane::ComputeNormal(double normal[3])
+{
+  if (this->AxisAligned)
+  {
+    normal[0] = std::fabs(this->Normal[0]) >= std::fabs(this->Normal[1]) &&
+        std::fabs(this->Normal[0]) >= std::fabs(this->Normal[2])
+      ? 1.0
+      : 0.0;
+    normal[1] = std::fabs(this->Normal[1]) >= std::fabs(this->Normal[0]) &&
+        std::fabs(this->Normal[1]) >= std::fabs(this->Normal[2])
+      ? 1.0
+      : 0.0;
+    normal[2] = std::fabs(this->Normal[2]) >= std::fabs(this->Normal[0]) &&
+        std::fabs(this->Normal[2]) >= std::fabs(this->Normal[1])
+      ? 1.0
+      : 0.0;
+  }
+  else
+  {
+    normal[0] = this->Normal[0];
+    normal[1] = this->Normal[1];
+    normal[2] = this->Normal[2];
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPlane::ComputeOrigin(double origin[3])
+{
+  origin[0] = this->Origin[0];
+  origin[1] = this->Origin[1];
+  origin[2] = this->Origin[2];
+  if (this->Offset != 0.0)
+  {
+    double normal[3];
+    this->ComputeNormal(normal);
+    for (int i = 0; i < 3; i++)
+    {
+      origin[i] += this->Offset * normal[i];
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -89,9 +128,12 @@ void vtkPlane::Push(double distance)
   {
     return;
   }
+
+  double normal[3];
+  this->ComputeNormal(normal);
   for (i = 0; i < 3; i++)
   {
-    this->Origin[i] += distance * this->Normal[i];
+    this->Origin[i] += distance * normal[i];
   }
   this->Modified();
 }
@@ -136,17 +178,23 @@ void vtkPlane::GeneralizedProjectPoint(const double x[3], double xproj[3])
 // Evaluate plane equation for point x[3].
 double vtkPlane::EvaluateFunction(double x[3])
 {
-  return (this->Normal[0] * (x[0] - this->Origin[0]) + this->Normal[1] * (x[1] - this->Origin[1]) +
-    this->Normal[2] * (x[2] - this->Origin[2]));
+  double normal[3];
+  double origin[3];
+  this->ComputeNormal(normal);
+  this->ComputeOrigin(origin);
+  return (normal[0] * (x[0] - origin[0]) + normal[1] * (x[1] - origin[1]) +
+    normal[2] * (x[2] - origin[2]));
 }
 
 //------------------------------------------------------------------------------
 // Evaluate function gradient at point x[3].
 void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 {
+  double normal[3];
+  this->ComputeNormal(normal);
   for (int i = 0; i < 3; i++)
   {
-    n[i] = this->Normal[i];
+    n[i] = normal[i];
   }
 }
 
@@ -283,7 +331,11 @@ struct CutFunctionWorker
 //------------------------------------------------------------------------------
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
-  CutFunctionWorker worker(this->Normal, this->Origin);
+  double normal[3];
+  double origin[3];
+  this->ComputeNormal(normal);
+  this->ComputeOrigin(origin);
+  CutFunctionWorker worker(normal, origin);
   typedef vtkTypeList::Create<float, double> InputTypes;
   typedef vtkTypeList::Create<float, double> OutputTypes;
   typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays, InputTypes,
@@ -376,13 +428,13 @@ namespace
 // This code supports the method ComputeBestFittingPlane()
 
 // Determine the origin of the points.
-struct ComputeOrigin
+struct ComputePointsOrigin
 {
   vtkPoints* Points;
   double Origin[3];
   vtkSMPThreadLocal<std::array<double, 3>> Sum;
 
-  ComputeOrigin(vtkPoints* pts)
+  ComputePointsOrigin(vtkPoints* pts)
     : Points(pts)
     , Origin{ 0, 0, 0 }
   {
@@ -515,7 +567,7 @@ bool vtkPlane::ComputeBestFittingPlane(vtkPoints* pts, double* origin, double* n
 
   // 1. Calculate the centroid of the points; this will become origin. Thread the
   // operation of the number of points is large.
-  ComputeOrigin computeOrigin(pts);
+  ComputePointsOrigin computeOrigin(pts);
   // We use THRESHOLD to test if the data size is small enough
   // to execute the functor serially.
   vtkSMPTools::For(0, npts, vtkSMPTools::THRESHOLD, computeOrigin);
@@ -597,11 +649,11 @@ int vtkPlane::IntersectWithFinitePlane(
 void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
   os << indent << "Normal: (" << this->Normal[0] << ", " << this->Normal[1] << ", "
      << this->Normal[2] << ")\n";
-
   os << indent << "Origin: (" << this->Origin[0] << ", " << this->Origin[1] << ", "
      << this->Origin[2] << ")\n";
+  os << indent << "Offset: " << this->Offset << endl;
+  os << indent << "AxisAligned: " << (this->AxisAligned ? "On" : "Off") << endl;
 }
 VTK_ABI_NAMESPACE_END
