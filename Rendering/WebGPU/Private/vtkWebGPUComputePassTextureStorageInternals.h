@@ -229,10 +229,8 @@ public:
       return;
     }
 
-    wgpu::Texture wgpuTexture;
-    vtkSmartPointer<vtkWebGPUComputeTexture> texture;
-    wgpuTexture = this->WebGPUTextures[textureIndex];
-    texture = this->Textures[textureIndex];
+    const auto wgpuTexture = this->WebGPUTextures[textureIndex];
+    auto& texture = this->Textures[textureIndex];
 
     if (numBytes > static_cast<std::size_t>(texture->GetByteSize()))
     {
@@ -243,24 +241,12 @@ public:
       return;
     }
 
-    wgpu::Extent3D textureExtents = { texture->GetWidth(), texture->GetHeight(),
-      texture->GetDepth() };
-
-    wgpu::ImageCopyTexture copyTexture;
-    copyTexture.aspect = wgpu::TextureAspect::All;
-    copyTexture.mipLevel = 0;
-    copyTexture.origin = { 0, 0, 0 };
-    copyTexture.texture = wgpuTexture;
-
-    wgpu::TextureDataLayout textureDataLayout;
-    textureDataLayout.nextInChain = nullptr;
-    textureDataLayout.bytesPerRow = texture->GetBytesPerPixel() * textureExtents.width;
-    textureDataLayout.offset = 0;
-    textureDataLayout.rowsPerImage = textureExtents.height;
-
     // Uploading from std::vector or vtkDataArray if one of the two is present
-    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteTexture(
-      &copyTexture, bytes, numBytes, &textureDataLayout, &textureExtents);
+    const std::string textureLabel = texture->GetLabel();
+    const char* textureLabelCStr = textureLabel.c_str();
+    const uint32_t bytesPerRow = texture->GetBytesPerPixel() * texture->GetWidth();
+    this->ParentPassWGPUConfiguration->WriteTexture(
+      wgpuTexture, bytesPerRow, numBytes, bytes, textureLabelCStr);
   }
 
   /**

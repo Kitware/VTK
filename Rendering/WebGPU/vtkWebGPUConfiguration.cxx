@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
+#include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtksys/SystemInformation.hxx"
@@ -771,8 +772,8 @@ wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& 
     return nullptr;
   }
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
-    "Create buffer {label\"" << bufferDescriptor.label << "\",size=" << bufferDescriptor.size
-                             << "}");
+    "Create buffer {label=" << (bufferDescriptor.label ? bufferDescriptor.label : "")
+                            << ",size=" << bufferDescriptor.size << "}");
   wgpu::Buffer buffer = internals.Device.CreateBuffer(&bufferDescriptor);
   return buffer;
 }
@@ -791,6 +792,100 @@ void vtkWebGPUConfiguration::WriteBuffer(const wgpu::Buffer& buffer, unsigned lo
     "Write buffer {description=" << (description ? description : "null") << ",size=" << sizeBytes
                                  << ",offset=" << offset << "}");
   internals.Device.GetQueue().WriteBuffer(buffer, offset, data, sizeBytes);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Texture vtkWebGPUConfiguration::CreateTexture(wgpu::Extent3D extents,
+  wgpu::TextureDimension dimension, wgpu::TextureFormat format, wgpu::TextureUsage usage,
+  int mipLevelCount, const char* label /*=nullptr*/)
+{
+  wgpu::TextureDescriptor textureDescriptor;
+  textureDescriptor.dimension = dimension;
+  textureDescriptor.format = format;
+  textureDescriptor.size = extents;
+  textureDescriptor.mipLevelCount = mipLevelCount;
+  textureDescriptor.nextInChain = nullptr;
+  textureDescriptor.sampleCount = 1;
+  textureDescriptor.usage = usage;
+  textureDescriptor.viewFormatCount = 0;
+  textureDescriptor.viewFormats = nullptr;
+  textureDescriptor.label = label;
+  return this->CreateTexture(textureDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Texture vtkWebGPUConfiguration::CreateTexture(
+  const wgpu::TextureDescriptor& textureDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create texture because device is not ready.");
+    return nullptr;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Create texture {label=" << (textureDescriptor.label ? textureDescriptor.label : "null")
+                             << "\",size=" << textureDescriptor.size.width << 'x'
+                             << textureDescriptor.size.height << 'x'
+                             << textureDescriptor.size.depthOrArrayLayers << "}");
+  return internals.Device.CreateTexture(&textureDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::TextureView vtkWebGPUConfiguration::CreateView(wgpu::Texture texture,
+  wgpu::TextureViewDimension dimension, wgpu::TextureAspect aspect, wgpu::TextureFormat format,
+  int baseMipLevel, int mipLevelCount, const char* label /*=nullptr*/)
+{
+  // Creating a "full" view of the texture
+  wgpu::TextureViewDescriptor textureViewDescriptor;
+  textureViewDescriptor.arrayLayerCount = 1;
+  textureViewDescriptor.aspect = aspect;
+  textureViewDescriptor.baseArrayLayer = 0;
+  textureViewDescriptor.baseMipLevel = baseMipLevel;
+  textureViewDescriptor.dimension = dimension;
+  textureViewDescriptor.format = format;
+  textureViewDescriptor.label = label;
+  textureViewDescriptor.mipLevelCount = mipLevelCount;
+  textureViewDescriptor.nextInChain = nullptr;
+
+  return this->CreateView(texture, textureViewDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::TextureView vtkWebGPUConfiguration::CreateView(
+  wgpu::Texture texture, const wgpu::TextureViewDescriptor& viewDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create texture because device is not ready.");
+    return nullptr;
+  }
+  return texture.CreateView(&viewDescriptor);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow,
+  uint32_t sizeBytes, const void* data, const char* description /*= nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot write data into texture because device is not ready.");
+    return;
+  }
+  wgpu::ImageCopyTexture copyTexture = vtkWebGPUTextureInternals::GetImageCopyTexture(texture);
+
+  wgpu::TextureDataLayout textureDataLayout =
+    vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow);
+
+  wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(),
+    texture.GetDepthOrArrayLayers() };
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Write texture {description=" << (description ? description : "null") << ",size=" << sizeBytes
+                                  << "}");
+  internals.Device.GetQueue().WriteTexture(
+    &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
 }
 
 //------------------------------------------------------------------------------

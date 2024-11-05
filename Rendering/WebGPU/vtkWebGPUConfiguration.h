@@ -236,6 +236,32 @@ public:
 
   ///@{
   /**
+   * Creates a WebGPU texture with the given device and returns it.
+   */
+  wgpu::Texture CreateTexture(wgpu::Extent3D extents, wgpu::TextureDimension dimension,
+    wgpu::TextureFormat format, wgpu::TextureUsage usage, int mipLevelCount = 1,
+    const char* label = nullptr);
+  wgpu::Texture CreateTexture(const wgpu::TextureDescriptor& textureDescriptor);
+  ///@}
+
+  /**
+   * Creates a texture view of a texture
+   */
+  wgpu::TextureView CreateView(wgpu::Texture texture, wgpu::TextureViewDimension dimension,
+    wgpu::TextureAspect aspect, wgpu::TextureFormat format, int baseMipLevel, int mipLevelCount,
+    const char* label = nullptr);
+  wgpu::TextureView CreateView(
+    wgpu::Texture texture, const wgpu::TextureViewDescriptor& viewDescriptor);
+
+  /**
+   * Upload byteSize of data from the data pointer to the given texture,
+   * assuming `bytesPerRow` bytes of data per row in the texture.
+   */
+  void WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow, uint32_t byteSize,
+    const void* data, const char* description = nullptr);
+
+  ///@{
+  /**
    * Set/Get the log verbosity of messages that are emitted when data is uploaded to GPU memory.
    * The GetGPUMemoryLogVerbosity looks up system environment for `VTK_WEBGPU_MEMORY_LOG_VERBOSITY`
    * that shall be used to set initial logger verbosity. The default value

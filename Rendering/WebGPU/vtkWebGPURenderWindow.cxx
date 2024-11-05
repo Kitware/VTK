@@ -409,7 +409,9 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   // todo: verify device supports this depth and stencil format in feature set
   this->DepthStencil.HasStencil = true;
 
+  const std::string textureLabel = "DepthStencil-" + this->GetObjectDescription();
   wgpu::TextureDescriptor textureDesc;
+  textureDesc.label = textureLabel.c_str();
   textureDesc.dimension = wgpu::TextureDimension::e2D;
   textureDesc.size.width = this->SurfaceConfiguredSize[0];
   textureDesc.size.height = this->SurfaceConfiguredSize[1];
@@ -432,10 +434,10 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   // To be able to access the depth part of the depth-stencil buffer in a compute pipeline
   textureViewDesc.aspect = wgpu::TextureAspect::All;
 
-  if (auto texture = device.CreateTexture(&textureDesc))
+  if (auto texture = this->WGPUConfiguration->CreateTexture(textureDesc))
   {
     this->DepthStencil.Texture = texture;
-    if (auto view = texture.CreateView(&textureViewDesc))
+    if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->DepthStencil.View = view;
       this->DepthStencil.Format = textureDesc.format;
@@ -479,7 +481,9 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureExtent.height = this->SurfaceConfiguredSize[1];
 
   // Color attachment
+  const std::string textureLabel = "OffscreenColor-" + this->GetObjectDescription();
   wgpu::TextureDescriptor textureDesc;
+  textureDesc.label = textureLabel.c_str();
   textureDesc.size = textureExtent;
   textureDesc.mipLevelCount = 1;
   textureDesc.sampleCount = 1;
@@ -499,10 +503,10 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureViewDesc.baseArrayLayer = 0;
   textureViewDesc.arrayLayerCount = 1;
 
-  if (auto texture = device.CreateTexture(&textureDesc))
+  if (auto texture = this->WGPUConfiguration->CreateTexture(textureDesc))
   {
     this->ColorAttachment.Texture = texture;
-    if (auto view = texture.CreateView(&textureViewDesc))
+    if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->ColorAttachment.View = view;
       this->ColorAttachment.Format = textureDesc.format;
