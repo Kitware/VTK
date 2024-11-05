@@ -12,11 +12,11 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPipelineLayoutInternals
 {
 public:
-  static wgpu::PipelineLayout MakeBasicPipelineLayout(
-    const wgpu::Device& device, const wgpu::BindGroupLayout* bindGroupLayout);
+  static wgpu::PipelineLayout MakeBasicPipelineLayout(const wgpu::Device& device,
+    const wgpu::BindGroupLayout* bindGroupLayout, std::string label = "");
 
   static wgpu::PipelineLayout MakePipelineLayout(
-    const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls);
+    const wgpu::Device& device, std::vector<wgpu::BindGroupLayout> bgls, std::string label = "");
 };
 VTK_ABI_NAMESPACE_END
 

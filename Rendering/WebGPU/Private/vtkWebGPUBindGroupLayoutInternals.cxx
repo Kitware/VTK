@@ -61,9 +61,11 @@ vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper::LayoutEntryI
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
-  const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries)
+  const wgpu::Device& device, const std::vector<wgpu::BindGroupLayoutEntry>& entries,
+  std::string label /*=""*/)
 {
   wgpu::BindGroupLayoutDescriptor descriptor;
+  descriptor.label = label.c_str();
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
   return device.CreateBindGroupLayout(&descriptor);
@@ -73,7 +75,8 @@ wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
 wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
   const wgpu::Device& device,
   std::initializer_list<vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper>
-    entriesInitializer)
+    entriesInitializer,
+  std::string label /*=""*/)
 {
   std::vector<wgpu::BindGroupLayoutEntry> entries;
   for (const vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper& entry :
@@ -82,6 +85,6 @@ wgpu::BindGroupLayout vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
     entries.push_back(entry);
   }
 
-  return MakeBindGroupLayout(device, entries);
+  return MakeBindGroupLayout(device, entries, label);
 }
 VTK_ABI_NAMESPACE_END

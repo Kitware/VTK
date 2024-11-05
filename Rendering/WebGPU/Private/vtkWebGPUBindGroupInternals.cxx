@@ -54,9 +54,11 @@ wgpu::BindGroupEntry vtkWebGPUBindGroupInternals::BindingInitializationHelper::G
 
 //------------------------------------------------------------------------------
 wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& device,
-  const wgpu::BindGroupLayout& layout, const std::vector<wgpu::BindGroupEntry>& entries)
+  const wgpu::BindGroupLayout& layout, const std::vector<wgpu::BindGroupEntry>& entries,
+  std::string label /*=""*/)
 {
   wgpu::BindGroupDescriptor descriptor;
+  descriptor.label = label.c_str();
   descriptor.layout = layout;
   descriptor.entryCount = static_cast<uint32_t>(entries.size());
   descriptor.entries = entries.data();
@@ -67,7 +69,7 @@ wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& d
 //------------------------------------------------------------------------------
 wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& device,
   const wgpu::BindGroupLayout& layout,
-  std::initializer_list<BindingInitializationHelper> entriesInitializer)
+  std::initializer_list<BindingInitializationHelper> entriesInitializer, std::string label /*=""*/)
 {
   std::vector<wgpu::BindGroupEntry> entries;
   for (const BindingInitializationHelper& helper : entriesInitializer)
@@ -75,6 +77,6 @@ wgpu::BindGroup vtkWebGPUBindGroupInternals::MakeBindGroup(const wgpu::Device& d
     entries.push_back(helper.GetAsBinding());
   }
 
-  return MakeBindGroup(device, layout, entries);
+  return MakeBindGroup(device, layout, entries, label);
 }
 VTK_ABI_NAMESPACE_END
