@@ -2162,6 +2162,9 @@ XML_StopParser(XML_Parser parser, XML_Bool resumable) {
   if (parser == NULL)
     return XML_STATUS_ERROR;
   switch (parser->m_parsingStatus.parsing) {
+  case XML_INITIALIZED:
+    parser->m_errorCode = XML_ERROR_NOT_STARTED;
+    return XML_STATUS_ERROR;
   case XML_SUSPENDED:
     if (resumable) {
       parser->m_errorCode = XML_ERROR_SUSPENDED;
@@ -2172,7 +2175,7 @@ XML_StopParser(XML_Parser parser, XML_Bool resumable) {
   case XML_FINISHED:
     parser->m_errorCode = XML_ERROR_FINISHED;
     return XML_STATUS_ERROR;
-  default:
+  case XML_PARSING:
     if (resumable) {
 #ifdef XML_DTD
       if (parser->m_isParamEntity) {
@@ -2183,6 +2186,9 @@ XML_StopParser(XML_Parser parser, XML_Bool resumable) {
       parser->m_parsingStatus.parsing = XML_SUSPENDED;
     } else
       parser->m_parsingStatus.parsing = XML_FINISHED;
+    break;
+  default:
+    assert(0);
   }
   return XML_STATUS_OK;
 }
@@ -2447,6 +2453,9 @@ XML_ErrorString(enum XML_Error code) {
   case XML_ERROR_AMPLIFICATION_LIMIT_BREACH:
     return XML_L(
         "limit on input amplification factor (from DTD and entities) breached");
+  /* Added in 2.6.4. */
+  case XML_ERROR_NOT_STARTED:
+    return XML_L("parser not started");
   }
   return NULL;
 }
