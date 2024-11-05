@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUConfiguration.h"
+#include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtksys/SystemInformation.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <chrono>
 #include <sstream>
@@ -724,6 +726,98 @@ bool vtkWebGPUConfiguration::IsNVIDIAGPUInUse()
 bool vtkWebGPUConfiguration::IsSamsungGPUInUse()
 {
   return this->GetAdapterVendorID() == ::SAMSUNG_PCI_VENDOR_ID;
+}
+
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(unsigned long sizeBytes, wgpu::BufferUsage usage,
+  bool mappedAtCreation /*=false*/, const char* label /*=nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
+    return nullptr;
+  }
+  wgpu::BufferDescriptor bufferDescriptor;
+  bufferDescriptor.label = label == nullptr ? "(nolabel)" : label;
+  bufferDescriptor.size = sizeBytes;
+  bufferDescriptor.usage = usage;
+  bufferDescriptor.mappedAtCreation = mappedAtCreation;
+
+  return this->CreateBuffer(bufferDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& bufferDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
+    return nullptr;
+  }
+  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
+  {
+    wgpu::SupportedLimits supportedDeviceLimits;
+    internals.Device.GetLimits(&supportedDeviceLimits);
+
+    vtkLog(ERROR,
+      "The current WebGPU Device cannot create buffers larger than: "
+        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
+        << " bytes but the buffer with label "
+        << (bufferDescriptor.label ? bufferDescriptor.label : "") << " is " << bufferDescriptor.size
+        << " bytes big.");
+
+    return nullptr;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Create buffer {label\"" << bufferDescriptor.label << "\",size=" << bufferDescriptor.size
+                             << "}");
+  wgpu::Buffer buffer = internals.Device.CreateBuffer(&bufferDescriptor);
+  return buffer;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::WriteBuffer(const wgpu::Buffer& buffer, unsigned long offset,
+  const void* data, unsigned long sizeBytes, const char* description /*= nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot write data into buffer because device is not ready.");
+    return;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Write buffer {description=" << (description ? description : "null") << ",size=" << sizeBytes
+                                 << ",offset=" << offset << "}");
+  internals.Device.GetQueue().WriteBuffer(buffer, offset, data, sizeBytes);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::SetGPUMemoryLogVerbosity(vtkLogger::Verbosity verbosity)
+{
+  this->GPUMemoryLogVerbosity = verbosity;
+}
+
+//------------------------------------------------------------------------------
+vtkLogger::Verbosity vtkWebGPUConfiguration::GetGPUMemoryLogVerbosity()
+{
+  if (this->GPUMemoryLogVerbosity == vtkLogger::VERBOSITY_INVALID)
+  {
+    this->GPUMemoryLogVerbosity = vtkLogger::VERBOSITY_TRACE;
+    // Find an environment variable that specifies logger verbosity
+    const char* verbosityKey = "VTK_WEBGPU_MEMORY_LOG_VERBOSITY";
+    if (vtksys::SystemTools::HasEnv(verbosityKey))
+    {
+      const char* verbosityCStr = vtksys::SystemTools::GetEnv(verbosityKey);
+      const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityCStr);
+      if (verbosity > vtkLogger::VERBOSITY_INVALID)
+      {
+        this->GPUMemoryLogVerbosity = verbosity;
+      }
+    }
+  }
+  return this->GPUMemoryLogVerbosity;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -431,13 +431,6 @@ protected:
    */
   bool GetNeedToRebuildGraphicsPipelines(vtkActor* actor);
 
-  /**
-   * Convenient method used by the mapper to allow developers to audit GPU memory in use by the
-   * mapper.
-   * @ TODO: Centralize buffer memory tracking.
-   */
-  void DebugLogBufferUpload(const std::string& attributeName, std::size_t numberOfBytes);
-
   struct MeshAttributeBuffers
   {
     struct

@@ -269,11 +269,6 @@ public:
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireFramebufferRenderTexture();
   ///@}
 
-  /**
-   * Creates a wgpu buffer with the device of this render window
-   */
-  wgpu::Buffer CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor);
-
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;

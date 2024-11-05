@@ -49,13 +49,12 @@ void vtkWebGPURenderer::PrintSelf(ostream& os, vtkIndent indent)
 std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
-  const wgpu::Queue& queue = device.GetQueue();
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   const auto size = vtkWebGPUCamera::GetCacheSizeBytes();
   const auto data =
     reinterpret_cast<vtkWebGPUCamera*>(this->ActiveCamera)->GetCachedSceneTransforms();
-  queue.WriteBuffer(this->SceneTransformBuffer, offset, data, size);
+  wgpuConfiguration->WriteBuffer(this->SceneTransformBuffer, offset, data, size, "SceneTransforms");
   wroteBytes += size;
   return wroteBytes;
 }
@@ -64,9 +63,8 @@ std::size_t vtkWebGPURenderer::WriteSceneTransformsBuffer(std::size_t offset /*=
 std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
-  const wgpu::Queue& queue = device.GetQueue();
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
   const vtkTypeUInt32 count = this->LightIDs.size();
   const auto size = vtkWebGPULight::GetCacheSizeBytes();
@@ -89,7 +87,8 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
     std::memcpy(&stage[wroteBytes], data, size);
     wroteBytes += size;
   }
-  queue.WriteBuffer(this->SceneLightsBuffer, offset, stage.data(), wroteBytes);
+  wgpuConfiguration->WriteBuffer(
+    this->SceneLightsBuffer, offset, stage.data(), wroteBytes, "LightInformation");
   return wroteBytes;
 }
 
@@ -97,9 +96,8 @@ std::size_t vtkWebGPURenderer::WriteLightsBuffer(std::size_t offset /*=0*/)
 std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
 {
   std::size_t wroteBytes = 0;
-  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
-  const wgpu::Queue& queue = device.GetQueue();
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
   const auto size = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256);
   std::vector<uint8_t> stage;
@@ -115,7 +113,8 @@ std::size_t vtkWebGPURenderer::WriteActorBlocksBuffer(std::size_t offset /*=0*/)
     std::memcpy(&stage[wroteBytes], data, size);
     wroteBytes += size;
   }
-  queue.WriteBuffer(this->ActorBlocksBuffer, offset, stage.data(), wroteBytes);
+  wgpuConfiguration->WriteBuffer(
+    this->ActorBlocksBuffer, offset, stage.data(), wroteBytes, "ActorInformation");
   return wroteBytes;
 }
 
@@ -134,24 +133,24 @@ void vtkWebGPURenderer::CreateBuffers()
       vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 256),
     256);
 
-  auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-  const wgpu::Device& device = wgpuRenderWindow->GetDevice();
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   bool createSceneBindGroup = false;
   bool createActorBindGroup = false;
 
   if (this->SceneTransformBuffer == nullptr)
   {
-    this->SceneTransformBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, transformSizePadded,
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
-      "Transform uniform buffer for vtkRenderer");
+    const std::string label = "SceneTransforms-" + this->GetObjectDescription();
+    this->SceneTransformBuffer = wgpuConfiguration->CreateBuffer(transformSizePadded,
+      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
     createSceneBindGroup = true;
   }
 
   if (this->SceneLightsBuffer == nullptr)
   {
-    this->SceneLightsBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, lightSizePadded,
-      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false,
-      "Lights uniform buffer for vtkRenderer");
+    const std::string label = "LightInformation-" + this->GetObjectDescription();
+    this->SceneLightsBuffer = wgpuConfiguration->CreateBuffer(lightSizePadded,
+      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
     createSceneBindGroup = true;
   }
 
@@ -165,9 +164,9 @@ void vtkWebGPURenderer::CreateBuffers()
   }
   if (this->ActorBlocksBuffer == nullptr)
   {
-    this->ActorBlocksBuffer = vtkWebGPUBufferInternals::CreateBuffer(device, actorBlkSize,
-      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false,
-      "Uniform buffer for all vtkActors in vtkRenderer");
+    const std::string label = "ActorInformation-" + this->GetObjectDescription();
+    this->ActorBlocksBuffer = wgpuConfiguration->CreateBuffer(
+      actorBlkSize, wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
     this->LastActorBufferSize = actorBlkSize;
     createActorBindGroup = true;
   }

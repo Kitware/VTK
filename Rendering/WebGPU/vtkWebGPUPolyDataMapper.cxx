@@ -38,7 +38,6 @@
 
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
-#include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
@@ -173,11 +172,11 @@ struct WriteTypedArray
 {
   std::size_t ByteOffset = 0;
   const wgpu::Buffer& DstBuffer;
-  const wgpu::Device& Device;
+  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   float Denominator = 1.0;
 
   template <typename SrcArrayT>
-  void operator()(SrcArrayT* array)
+  void operator()(SrcArrayT* array, const char* description)
   {
     if (array == nullptr || this->DstBuffer.Get() == nullptr)
     {
@@ -190,8 +189,8 @@ struct WriteTypedArray
       data->InsertNextValue(value / this->Denominator);
     }
     const std::size_t nbytes = data->GetNumberOfValues() * sizeof(DestT);
-    this->Device.GetQueue().WriteBuffer(
-      this->DstBuffer, this->ByteOffset, data->GetPointer(0), nbytes);
+    this->WGPUConfiguration->WriteBuffer(
+      this->DstBuffer, this->ByteOffset, data->GetPointer(0), nbytes, description);
     this->ByteOffset += nbytes;
   }
 
@@ -1026,14 +1025,16 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   if (this->CurrentInput == nullptr)
   {
     vtkErrorMacro(<< "No input!");
-    // TODO: Destroy existing mesh buffers.
+    // invalidate any existing pipeline/bindgroups because input mesh changed.
+    this->ReleaseGraphicsResources(wgpuRenderWindow);
     return;
   }
 
   // if there are no points then we are done
   if (!this->CurrentInput->GetPoints())
   {
-    // TODO: Destroy existing mesh buffers.
+    // invalidate any existing pipeline/bindgroups because input mesh changed.
+    this->ReleaseGraphicsResources(wgpuRenderWindow);
     return;
   }
 
@@ -1085,6 +1086,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
   // Realloc WGPUBuffer to fit all point attributes.
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   bool updatePointDescriptor = false;
   uint64_t currentPointBufferSize = 0;
   uint64_t requiredPointBufferSize = this->GetExactPointBufferSize();
@@ -1105,7 +1107,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     pointBufDescriptor.label = label.c_str();
     pointBufDescriptor.mappedAtCreation = false;
     pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Point.Buffer = wgpuRenderWindow->CreateDeviceBuffer(pointBufDescriptor);
+    this->MeshSSBO.Point.Buffer = wgpuConfiguration->CreateBuffer(pointBufDescriptor);
     this->MeshSSBO.Point.Size = requiredPointBufferSize;
     for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
          attributeIndex++)
@@ -1115,12 +1117,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     updatePointDescriptor = true;
   }
 
-  const auto& device = wgpuRenderWindow->GetDevice();
-  ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer, device, 1. };
+  ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer,
+    wgpuConfiguration, 1. };
 
   pointDataWriter.Denominator = 1.0;
   pointDataWriter.ByteOffset = 0;
-  std::size_t lastByteOffset = 0;
   for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
        attributeIndex++)
   {
@@ -1131,12 +1132,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
 
         if (pointPositions->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointPositions, pointDataWriter))
+          if (!DispatchT::Execute(pointPositions, pointDataWriter, "Positions"))
           {
-            pointDataWriter(pointPositions);
+            pointDataWriter(pointPositions, "Positions");
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Positions", pointDataWriter.ByteOffset - lastByteOffset);
         }
         else
         {
@@ -1153,12 +1153,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         if (pointColors &&
           pointColors->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointColors, pointDataWriter))
+          if (!DispatchT::Execute(pointColors, pointDataWriter, "Colors"))
           {
-            pointDataWriter(pointColors);
+            pointDataWriter(pointColors, "Colors");
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Colors", pointDataWriter.ByteOffset - lastByteOffset);
         }
         else
         {
@@ -1177,12 +1176,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         if (pointNormals &&
           pointNormals->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointNormals, pointDataWriter))
+          if (!DispatchT::Execute(pointNormals, pointDataWriter, "Normals"))
           {
-            pointDataWriter(pointNormals);
+            pointDataWriter(pointNormals, "Normals");
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Normals", pointDataWriter.ByteOffset - lastByteOffset);
         }
         else
         {
@@ -1198,12 +1196,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         if (pointTangents &&
           pointTangents->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointTangents, pointDataWriter))
+          if (!DispatchT::Execute(pointTangents, pointDataWriter, "Tangents"))
           {
-            pointDataWriter(pointTangents);
+            pointDataWriter(pointTangents, "Tangents");
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Tangents", pointDataWriter.ByteOffset - lastByteOffset);
         }
         else
         {
@@ -1219,12 +1216,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         meshAttrDescriptor.UVs.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (pointUvs && pointUvs->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointUvs, pointDataWriter))
+          if (!DispatchT::Execute(pointUvs, pointDataWriter, "UVs"))
           {
-            pointDataWriter(pointUvs);
+            pointDataWriter(pointUvs, "UVs");
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("UVs", pointDataWriter.ByteOffset - lastByteOffset);
         }
         else
         {
@@ -1237,10 +1233,10 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
       default:
         break;
     }
-    lastByteOffset = pointDataWriter.ByteOffset;
   }
 
-  ::WriteTypedArray<vtkTypeFloat32> cellDataWriter{ 0, this->MeshSSBO.Cell.Buffer, device, 1. };
+  ::WriteTypedArray<vtkTypeFloat32> cellDataWriter{ 0, this->MeshSSBO.Cell.Buffer,
+    wgpuConfiguration, 1. };
 
   vtkCellData* cellData = this->CurrentInput->GetCellData();
   vtkDataArray* cellColors = nullptr;
@@ -1294,7 +1290,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     cellBufDescriptor.label = label.c_str();
     cellBufDescriptor.mappedAtCreation = false;
     cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Cell.Buffer = wgpuRenderWindow->CreateDeviceBuffer(cellBufDescriptor);
+    this->MeshSSBO.Cell.Buffer = wgpuConfiguration->CreateBuffer(cellBufDescriptor);
     this->MeshSSBO.Cell.Size = requiredCellBufferSize;
     for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
          attributeIndex++)
@@ -1316,12 +1312,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         if (cellColors &&
           cellColors->GetMTime() > this->CellAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(cellColors, cellDataWriter))
+          if (!DispatchT::Execute(cellColors, cellDataWriter, "Cell colors"))
           {
-            cellDataWriter(cellColors);
+            cellDataWriter(cellColors, "Cell colors");
           }
           this->CellAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Cell colors", pointDataWriter.ByteOffset);
         }
         else
         {
@@ -1342,12 +1337,11 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         if (cellNormals &&
           cellNormals->GetMTime() > this->CellAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(cellNormals, cellDataWriter))
+          if (!DispatchT::Execute(cellNormals, cellDataWriter, "Cell normals"))
           {
-            cellDataWriter(cellNormals);
+            cellDataWriter(cellNormals, "Cell normals");
           }
           this->CellAttributesBuildTimestamp[attributeIndex].Modified();
-          this->DebugLogBufferUpload("Cell normals", pointDataWriter.ByteOffset);
         }
         else
         {
@@ -1366,22 +1360,19 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     }
   }
 
+  const std::string meshAttrDescriptorLabel =
+    "MeshAttributeDescriptor-" + this->CurrentInput->GetObjectDescription();
   if (this->AttributeDescriptorBuffer == nullptr)
   {
-    this->AttributeDescriptorBuffer =
-      vtkWebGPUBufferInternals::Upload(device, 0, &meshAttrDescriptor, sizeof(meshAttrDescriptor),
-        wgpu::BufferUsage::Storage, "Mesh attribute descriptor");
-    this->DebugLogBufferUpload("Mesh attribute descriptor", sizeof(meshAttrDescriptor));
+    this->AttributeDescriptorBuffer = wgpuConfiguration->CreateBuffer(sizeof(meshAttrDescriptor),
+      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
+      /*mappedAtCreation=*/false, meshAttrDescriptorLabel.c_str());
   }
-  else
+  // handle partial updates
+  if (updatePointDescriptor || updateCellArrayDescriptor)
   {
-    // handle partial updates
-    if (updatePointDescriptor || updateCellArrayDescriptor)
-    {
-      device.GetQueue().WriteBuffer(
-        this->AttributeDescriptorBuffer, 0, &meshAttrDescriptor, sizeof(meshAttrDescriptor));
-      this->DebugLogBufferUpload("Mesh attribute descriptor", sizeof(meshAttrDescriptor));
-    }
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer, 0, &meshAttrDescriptor,
+      sizeof(meshAttrDescriptor), meshAttrDescriptorLabel.c_str());
   }
 
   vtkDebugMacro(<< ((updatePointDescriptor || updateCellArrayDescriptor) ? "rebuilt" : "")
@@ -1395,7 +1386,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   {
     // Create bind group for the point/cell attribute buffers.
     this->MeshAttributeBindGroup =
-      this->CreateMeshAttributeBindGroup(device, "MeshAttributeBindGroup");
+      this->CreateMeshAttributeBindGroup(wgpuConfiguration->GetDevice(), "MeshAttributeBindGroup");
     this->RebuildGraphicsPipelines = true;
   }
 }
@@ -2020,18 +2011,6 @@ void vtkWebGPUPolyDataMapper::ComputeBounds()
     return;
   }
   this->CachedInput->GetCellsBounds(this->Bounds);
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::DebugLogBufferUpload(
-  const std::string& attributeName, std::size_t numberOfBytes)
-{
-  vtkDebugMacro(<< "[" << attributeName << "]"
-                << " Uploaded " << numberOfBytes << " bytes");
-#ifdef NDEBUG
-  (void)attributeName;
-  (void)numberOfBytes;
-#endif
 }
 
 VTK_ABI_NAMESPACE_END

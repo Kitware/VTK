@@ -316,27 +316,6 @@ vtkWebGPURenderWindow::AcquireFramebufferRenderTexture()
 }
 
 //------------------------------------------------------------------------------
-wgpu::Buffer vtkWebGPURenderWindow::CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor)
-{
-  wgpu::Device device = this->WGPUConfiguration->GetDevice();
-  if (!vtkWebGPUBufferInternals::CheckBufferSize(device, bufferDescriptor.size))
-  {
-    wgpu::SupportedLimits supportedDeviceLimits;
-    device.GetLimits(&supportedDeviceLimits);
-
-    vtkLog(ERROR,
-      "The current WebGPU Device cannot create buffers larger than: "
-        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
-        << " bytes but the buffer with label " << bufferDescriptor.label << " is "
-        << bufferDescriptor.size << " bytes big.");
-
-    return nullptr;
-  }
-
-  return device.CreateBuffer(&bufferDescriptor);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateCommandEncoder()
 {
   vtkWebGPUCheckUnconfigured(this);
@@ -532,12 +511,13 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
       // buffer.
       const auto alignedWidth =
         vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
+      const std::string label = "OffscreenBuffer-" + this->GetObjectDescription();
       wgpu::BufferDescriptor buffDesc;
-      buffDesc.label = "Offscreen buffer";
+      buffDesc.label = label.c_str();
       buffDesc.mappedAtCreation = false;
       buffDesc.size = this->ColorAttachment.Texture.GetHeight() * alignedWidth;
       buffDesc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
-      if (auto buffer = device.CreateBuffer(&buffDesc))
+      if (auto buffer = this->WGPUConfiguration->CreateBuffer(buffDesc))
       {
         this->ColorAttachment.OffscreenBuffer = buffer;
       }
@@ -1273,13 +1253,14 @@ int vtkWebGPURenderWindow::SetPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1426,13 +1407,14 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBAPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetRGBAPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1590,13 +1572,14 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBACharPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetRGBACharPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "

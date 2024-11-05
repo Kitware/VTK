@@ -839,8 +839,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   bufferDescriptor.size = bytesPerRow * texture->GetHeight();
   bufferDescriptor.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
 
-  wgpu::Buffer buffer =
-    this->ParentPassWGPUConfiguration->GetDevice().CreateBuffer(&bufferDescriptor);
+  wgpu::Buffer buffer = this->ParentPassWGPUConfiguration->CreateBuffer(bufferDescriptor);
 
   // Parameters for copying the texture
   wgpu::ImageCopyTexture imageCopyTexture;
