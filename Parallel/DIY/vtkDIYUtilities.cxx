@@ -362,6 +362,11 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataArray*& array)
   {
     array = nullptr;
   }
+  else if (type < VTK_VOID || type > VTK_OBJECT)
+  {
+    array = nullptr;
+    vtkErrorWithObjectMacro(nullptr, "Error while receiving array: wrong type: " << type << ".");
+  }
   else
   {
     array = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(type));
@@ -382,6 +387,11 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkStringArray*& array)
   if (type == VTK_VOID)
   {
     array = nullptr;
+  }
+  else if (type < VTK_VOID || type > VTK_OBJECT)
+  {
+    array = nullptr;
+    vtkErrorWithObjectMacro(nullptr, "Error while receiving array: wrong type: " << type << ".");
   }
   else
   {
