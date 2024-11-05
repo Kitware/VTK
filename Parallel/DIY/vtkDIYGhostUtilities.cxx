@@ -4942,8 +4942,11 @@ void DeepCopyInputAndAllocateGhosts(
   for (auto& pair : block->BlockStructures)
   {
     BlockStructureType& blockStructure = pair.second;
-    numberOfPoints += blockStructure.GhostPoints->GetNumberOfPoints() -
-      static_cast<vtkIdType>(blockStructure.RedirectionMapForDuplicatePointIds.size());
+    if (blockStructure.GhostPoints)
+    {
+      numberOfPoints += blockStructure.GhostPoints->GetNumberOfPoints() -
+        static_cast<vtkIdType>(blockStructure.RedirectionMapForDuplicatePointIds.size());
+    }
     numberOfCells += blockStructure.ReceiveBuffer.Types->GetNumberOfValues();
     connectivitySize +=
       blockStructure.ReceiveBuffer.CellArray->GetConnectivityArray()->GetNumberOfValues();
@@ -5019,8 +5022,11 @@ void DeepCopyInputAndAllocateGhosts(::PolyDataBlock* block, vtkPolyData* input, 
   for (auto& pair : block->BlockStructures)
   {
     BlockStructureType& blockStructure = pair.second;
-    numberOfPoints += blockStructure.GhostPoints->GetNumberOfPoints() -
-      static_cast<vtkIdType>(blockStructure.RedirectionMapForDuplicatePointIds.size());
+    if (blockStructure.GhostPoints)
+    {
+      numberOfPoints += blockStructure.GhostPoints->GetNumberOfPoints() -
+        static_cast<vtkIdType>(blockStructure.RedirectionMapForDuplicatePointIds.size());
+    }
 
     auto& buffer = blockStructure.ReceiveBuffer;
 
@@ -5121,7 +5127,10 @@ void DeepCopyInputAndAllocateGhostsForUnstructuredData(
   vtkIdType numberOfReceivedSharedPoints = 0;
   for (auto& pair : blockStructures)
   {
-    numberOfReceivedSharedPoints += pair.second.ReceivedSharedPointIds->GetNumberOfValues();
+    if (pair.second.ReceivedSharedPointIds)
+    {
+      numberOfReceivedSharedPoints += pair.second.ReceivedSharedPointIds->GetNumberOfValues();
+    }
   }
 
   // This pointIdRedirection is used to redirect duplicate points that have been sent by multiple
@@ -5146,7 +5155,10 @@ void DeepCopyInputAndAllocateGhostsForUnstructuredData(
     for (auto& pair : blockStructures)
     {
       BlockStructureType& blockStructure = pair.second;
-
+      if (!blockStructure.GhostGlobalPointIds || !blockStructure.ReceivedSharedPointIds)
+      {
+        continue;
+      }
       auto globalIds = vtk::DataArrayValueRange<1>(blockStructure.GhostGlobalPointIds);
       std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds =
         blockStructure.RedirectionMapForDuplicatePointIds;
@@ -5214,6 +5226,10 @@ void DeepCopyInputAndAllocateGhostsForUnstructuredData(
       vtkPoints* receivedPoints = blockStructure.GhostPoints;
       std::map<vtkIdType, vtkIdType>& redirectionMapForDuplicatePointIds =
         blockStructure.RedirectionMapForDuplicatePointIds;
+      if (!blockStructure.ReceivedSharedPointIds || !receivedPoints)
+      {
+        continue;
+      }
       auto sharedPointIds = vtk::DataArrayValueRange<1>(blockStructure.ReceivedSharedPointIds);
       using ConstRef = typename decltype(sharedPointIds)::ConstReferenceType;
       vtkIdType numberOfMatchingPoints = 0;
@@ -5506,8 +5522,11 @@ void FillReceivedGhostPointsForStructuredDataIfNeeded(
   ::StructuredGridBlockStructure& blockStructure, vtkStructuredGrid* output, vtkIdList* remapping,
   vtkIdList* pointIds)
 {
-  output->GetPoints()->GetData()->InsertTuples(
-    pointIds, remapping, blockStructure.GhostPoints->GetData());
+  if (blockStructure.GhostPoints)
+  {
+    output->GetPoints()->GetData()->InsertTuples(
+      pointIds, remapping, blockStructure.GhostPoints->GetData());
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -5607,8 +5626,11 @@ void FillReceivedGhostPointsForUnstructuredData(::UnstructuredDataInformation& i
   // we can use a shortcut when copying point related data from the received buffers.
   if (blockStructure.RedirectionMapForDuplicatePointIds.empty())
   {
-    outputPoints->InsertPoints(
-      info.CurrentMaxPointId, numberOfAddedPoints, 0, blockStructure.GhostPoints);
+    if (blockStructure.GhostPoints)
+    {
+      outputPoints->InsertPoints(
+        info.CurrentMaxPointId, numberOfAddedPoints, 0, blockStructure.GhostPoints);
+    }
     ::FillReceivedGhostFieldData(blockStructure.GhostPointData, output->GetPointData(),
       info.CurrentMaxPointId, numberOfAddedPoints);
   }
@@ -5632,7 +5654,10 @@ void FillReceivedGhostPointsForUnstructuredData(::UnstructuredDataInformation& i
       }
       pointIds->SetId(id, id + offset);
     }
-    outputPoints->InsertPoints(identity, pointIds, blockStructure.GhostPoints);
+    if (blockStructure.GhostPoints)
+    {
+      outputPoints->InsertPoints(identity, pointIds, blockStructure.GhostPoints);
+    }
 
     ::FillReceivedGhostFieldData(
       blockStructure.GhostPointData, output->GetPointData(), pointIds, identity);
@@ -5652,8 +5677,12 @@ vtkIdType FillReceivedPointBuffersForUnstructuredData(
   BlockInformationType& info = block->Information;
   BlockStructureType& blockStructure = block->BlockStructures.at(gid);
 
-  vtkIdType numberOfAddedPoints = blockStructure.GhostPoints->GetNumberOfPoints() -
-    blockStructure.RedirectionMapForDuplicatePointIds.size();
+  vtkIdType numberOfAddedPoints = 0;
+  if (blockStructure.GhostPoints)
+  {
+    numberOfAddedPoints = blockStructure.GhostPoints->GetNumberOfPoints() -
+      blockStructure.RedirectionMapForDuplicatePointIds.size();
+  }
 
   ::FillReceivedGhostPointsForUnstructuredData(info, blockStructure, output, numberOfAddedPoints);
 
