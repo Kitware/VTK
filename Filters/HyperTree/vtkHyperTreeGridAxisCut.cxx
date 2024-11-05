@@ -11,6 +11,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformHyperTreeGrid.h"
@@ -167,7 +168,8 @@ int vtkHyperTreeGridAxisCut::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
     const double* _size = inCursor->GetSize();
 
     // Check whether root cell is intersected by plane
-    if (origin[axis] < inter && (origin[axis] + _size[axis] >= inter))
+    if ((origin[axis] < inter && (origin[axis] + _size[axis] > inter)) ||
+      vtkMathUtilities::FuzzyCompare(origin[axis] + _size[axis], inter))
     {
       // Root is intersected by plane, descend into current child
       input->GetLevelZeroCoordinatesFromIndex(inIndex, i, j, k);
@@ -260,7 +262,8 @@ void vtkHyperTreeGridAxisCut::RecursivelyProcessTree(
       const double* size = inCursor->GetSize();
 
       // Check whether child is intersected by plane
-      if (origin[axis] < inter && (origin[axis] + size[axis] >= inter))
+      if ((origin[axis] < inter && (origin[axis] + size[axis] > inter)) ||
+        vtkMathUtilities::FuzzyCompare(origin[axis] + size[axis], inter))
       {
         // Child is intersected by plane, descend into current child
         outCursor->ToChild(outChild);

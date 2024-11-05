@@ -4,9 +4,13 @@
  * @class   vtkHyperTreeGridAxisCut
  * @brief   Axis aligned hyper tree grid cut
  *
- *
  * Cut an hyper tree grid along an axis aligned plane and output a hyper
- * tree grid lower dimensionality. Only works for 3D grids as inputs
+ * tree grid lower dimensionality. Only works for 3D HTGs as input.
+ *
+ * @note This filter uses fuzzy comparison to test if a plane cuts the
+ * HTG (used epsilon is DBL_EPSILON). It prevents having no cut generated
+ * inside the HTG (when the is being coincident to cell faces) or bugs
+ * related to floating point comparison.
  *
  * NB: This new (2014-16) version of the class is not to be confused with
  * earlier (2012-13) version that produced a vtkPolyData output composed of
