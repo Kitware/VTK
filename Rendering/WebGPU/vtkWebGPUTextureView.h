@@ -138,10 +138,11 @@ public:
 protected:
   vtkWebGPUTextureView();
   ~vtkWebGPUTextureView() override;
+
+private:
   vtkWebGPUTextureView(const vtkWebGPUTextureView&) = delete;
   void operator=(const vtkWebGPUTextureView&) = delete;
 
-private:
   // Mip level of the base texture that this texture view gives a view on
   int BaseMipLevel = 0;
   // How many mip levels this texture view give the shader access to

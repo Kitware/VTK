@@ -196,10 +196,11 @@ public:
 protected:
   vtkWebGPUTexture();
   ~vtkWebGPUTexture() override;
+
+private:
   vtkWebGPUTexture(const vtkWebGPUTexture&) = delete;
   void operator=(const vtkWebGPUTexture&) = delete;
 
-private:
   // Number of pixels in X, Y and Z direction.
   // Defaulting to 1 in the Z direction because 2D textures are assumed to be the common case.
   unsigned int Extents[3] = { 0, 0, 1 };

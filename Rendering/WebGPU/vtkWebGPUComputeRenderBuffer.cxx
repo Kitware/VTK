@@ -13,6 +13,9 @@ vtkStandardNewMacro(vtkWebGPUComputeRenderBuffer);
 vtkWebGPUComputeRenderBuffer::vtkWebGPUComputeRenderBuffer() = default;
 
 //------------------------------------------------------------------------------
+vtkWebGPUComputeRenderBuffer::~vtkWebGPUComputeRenderBuffer() = default;
+
+//------------------------------------------------------------------------------
 void vtkWebGPUComputeRenderBuffer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

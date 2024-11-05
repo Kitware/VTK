@@ -340,6 +340,10 @@ protected:
 private:
   friend class vtkWebGPUComputePassInternals;
 
+  vtkWebGPUComputePassTextureStorageInternals(
+    const vtkWebGPUComputePassTextureStorageInternals&) = delete;
+  void operator=(const vtkWebGPUComputePassTextureStorageInternals&) = delete;
+
   // Compute pass that uses this texture storage
   vtkWeakPointer<vtkWebGPUComputePass> ParentComputePass = nullptr;
   // Device of the parent compute pass that is used when creating textures and texture views
