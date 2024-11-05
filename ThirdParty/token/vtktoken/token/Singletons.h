@@ -28,6 +28,24 @@ TOKEN_EXPORT TypeContainer& singletons();
 /// the application's singletons to be destroyed.
 TOKEN_EXPORT void finalizeSingletons();
 
+namespace detail {
+
+// Implementation detail for Schwarz counter idiom.
+class TOKEN_EXPORT singletonsCleanup
+{
+public:
+  singletonsCleanup();
+  ~singletonsCleanup();
+
+private:
+  singletonsCleanup(const singletonsCleanup& other) = delete;
+  singletonsCleanup& operator=(const singletonsCleanup& rhs) = delete;
+};
+
+static singletonsCleanup singletonsCleanupInstance;
+
+} // namespace detail
+
 token_CLOSE_NAMESPACE
 
 #endif // token_Singletons
