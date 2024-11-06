@@ -180,6 +180,41 @@ public:
     DeviceRequestCompletedEvent,
   };
 
+  /**
+   * Print information of webgpu adapter and device to the output string.
+   */
+  std::string ReportCapabilities();
+  static std::string DeviceNotReadyMessage();
+
+  /**
+   * Get the PCI vendor ID of the adapter and the system PCI ID of the device.
+   * The Vendor ID can be looked up in https://pcisig.com/membership/member-companies
+   * The Device ID will match output of `lspci` or the hardware Ids property of the GPU in Windows
+   * device manager
+   */
+  std::uint32_t GetAdapterVendorID();
+  std::uint32_t GetAdapterDeviceID();
+
+  ///@{
+  /**
+   * Checks whether a particular vendor's GPU is in use.
+   * These methods are useful if you want to detect the GPU platform and skip running a test
+   * or warn the user that the GPU may not be supported that well by your application.
+   * Internally, these methods look at the VendorID.
+   * A more robust detection mechanism can be built to parse it from an external json file
+   * like https://dawn.googlesource.com/dawn/+/refs/heads/main/src/dawn/gpu_info.json
+   */
+  bool IsAMDGPUInUse();
+  bool IsAppleGPUInUse();
+  bool IsARMGPUInUse();
+  bool IsBroadcomGPUInUse();
+  bool IsIntelGPUInUse();
+  bool IsMesaGPUInUse();
+  bool IsMicrosoftGPUInUse();
+  bool IsNVIDIAGPUInUse();
+  bool IsSamsungGPUInUse();
+  ///@}
+
 protected:
   vtkWebGPUConfiguration();
   ~vtkWebGPUConfiguration() override;

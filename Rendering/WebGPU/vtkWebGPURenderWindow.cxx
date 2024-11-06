@@ -1710,8 +1710,9 @@ int vtkWebGPURenderWindow::SupportsOpenGL()
 //------------------------------------------------------------------------------
 const char* vtkWebGPURenderWindow::ReportCapabilities()
 {
-  // TODO: Request caps from device
-  return "unknown";
+  static std::string caps = "unknown";
+  caps = this->WGPUConfiguration->ReportCapabilities();
+  return caps.c_str();
 }
 
 //------------------------------------------------------------------------------

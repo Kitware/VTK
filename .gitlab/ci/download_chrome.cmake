@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Input variables.
-set(chrome_version "125.0.6422.60")
+set(chrome_version "130.0.6723.91")
 set(chrome_baseurl "https://vtk.org/files/support")
 # Uncomment to test newer releases before mirroring at vtk.org
 # set(chrome_baseurl "https://storage.googleapis.com/chrome-for-testing-public")
@@ -9,11 +9,11 @@ set(chrome_baseurl "https://vtk.org/files/support")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(chrome_platform "win64")
   set(chrome_ext "zip")
-  set(chrome_hash "ea51cd37d28747820046b989ed178dd39e0133c2474a95bec2853c154ecae6de")
+  set(chrome_hash "51349c6240cc359a855402eabe7fd2e849af78f4cbbd89374572f7a61cbffeb9")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux")
   set(chrome_platform "linux64")
   set(chrome_ext "zip")
-  set(chrome_hash "ffb9fe5f0ad490716d403c04bf176a80b35726ef399b6b895301e435e7753d6f")
+  set(chrome_hash "9190cc0540c9f59df5e81aae48d0e048dca6f7343266cee17d956931d844b1e7")
 else ()
   message(FATAL_ERROR
       "Unknown platform for chrome")
