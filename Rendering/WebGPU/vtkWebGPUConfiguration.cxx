@@ -283,7 +283,7 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& ad
     os << indent << "   * " << info->name << '\n';
     os << indent << info->description << '\n';
     os << indent << "      " << info->url << '\n';
-#else
+#elif defined(__EMSCRIPTEN__)
     // Look up the list of feature strings in `WebGPU.FeatureName`
     const auto featureIdx = static_cast<std::underlying_type<wgpu::FeatureName>::type>(f);
     // clang-format off
