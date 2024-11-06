@@ -1511,19 +1511,28 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
   if (this->MultiSamples > 1 && this->RenderFramebuffer->GetColorAttachmentAsTextureObject(0))
   {
     useTexture = true;
-    const std::string& vendorString = this->GetState()->GetVendor();
-    const std::string& versionString = this->GetState()->GetVersion();
-    const std::string& rendererString = this->GetState()->GetRenderer();
-    size_t numExceptions =
-      sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
-    for (size_t i = 0; i < numExceptions; i++)
+    // can set VTK_FORCE_MSAA=0/1 to override driver exclusion
+    const char* useMSAAEnv = std::getenv("VTK_FORCE_MSAA");
+    if (useMSAAEnv)
     {
-      if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
-        versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
-        rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
+      useTexture = strlen(useMSAAEnv) ? (std::atoi(useMSAAEnv) == 1) : true;
+    }
+    else
+    {
+      const std::string& vendorString = this->GetState()->GetVendor();
+      const std::string& versionString = this->GetState()->GetVersion();
+      const std::string& rendererString = this->GetState()->GetRenderer();
+      size_t numExceptions =
+        sizeof(vtkOpenGLRenderWindowMSAATextureBug) / sizeof(vtkOpenGLRenderWindowDriverInfo);
+      for (size_t i = 0; i < numExceptions; i++)
       {
-        useTexture = false;
-        break;
+        if (vendorString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Vendor) == 0 &&
+          versionString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Version) == 0 &&
+          rendererString.find(vtkOpenGLRenderWindowMSAATextureBug[i].Renderer) == 0)
+        {
+          useTexture = false;
+          break;
+        }
       }
     }
   }
