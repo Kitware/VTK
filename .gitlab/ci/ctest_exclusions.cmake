@@ -567,13 +567,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_webgpu")
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling") # Crashes randomly with mesa-vulkan-drivers
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome_ext_vtk$")
-  list(APPEND test_exclusions
-    # Fails when chrome uses software accelerated webgl2 in linux.
-    "^VTK::RenderingCoreCxx-TestGlyph3DMapperCompositeDisplayAttributeInheritance$"
-    "^VTK::RenderingCoreCxx-TestTransformCoordinateUseDouble$")
-endif ()
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_windows_chrome_ext_vtk$")
   list(APPEND test_exclusions
     # ERR_UNSUPPORTED_ESM_URL_SCHEME: absolute paths must be valid file:// URLs. Received protocol 'c:'

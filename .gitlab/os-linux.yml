@@ -449,26 +449,6 @@
         WASM_ARCHITECTURE: wasm64-emscripten
         VTK_INSTALL: 1
 
-.wasm32_emscripten_linux_chrome_ext_vtk:
-    extends:
-        - .fedora39
-
-    variables:
-        CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome_ext_vtk
-        WASM_ARCHITECTURE: wasm32-emscripten
-        VTK_INSTALL: 1
-        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader"
-
-.wasm64_emscripten_linux_chrome_ext_vtk:
-    extends:
-        - .fedora39
-
-    variables:
-        CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome_ext_vtk
-        WASM_ARCHITECTURE: wasm64-emscripten
-        VTK_INSTALL: 1
-        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader --js-flags=--experimental-wasm-memory64"
-
 .linux_builder_tags:
     tags:
         - build
@@ -770,26 +750,6 @@
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
         - .gitlab/ci/create_webassembly_archive.sh $WASM_ARCHITECTURE
-
-    interruptible: true
-
-.cmake_test_wasm_emscripten_linux_chrome_ext:
-    stage: test-ext
-    extends: .warning_policy
-
-    script:
-        - *before_script_linux_emscripten
-        - .gitlab/ci/clang-tidy-cache.sh
-        - .gitlab/ci/sccache.sh
-        - sccache --start-server
-        # Fetch chrome-for-testing
-        - cmake -P .gitlab/ci/download_chrome.cmake
-        - export VTK_TESTING_WASM_ENGINE=$PWD/.gitlab/chrome/chrome
-        # Activate python virtual env, we need Jinja2 package.
-        - source build/ci-venv/bin/activate
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wasm.cmake
-        - sccache --show-stats
-        - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWasm
 
     interruptible: true
 
