@@ -407,7 +407,6 @@ function (vtk_add_test_cxx exename _tests)
             "$<TARGET_FILE:Python3::Interpreter>"
             "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
             "--engine=${VTK_TESTING_WASM_ENGINE}"
-            "--engine-args=${VTK_TESTING_WASM_ENGINE_ARGUMENTS}"
             "--exit")
       else ()
         ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"

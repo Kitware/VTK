@@ -11,6 +11,7 @@ import logging
 import shlex
 import shutil
 import subprocess
+import sys
 import threading
 
 from functools import partial
@@ -187,13 +188,32 @@ class vtkWebAssemblyTestRunner:
         self._url = None
         self._server_is_shutdown = False
 
+        # Add arguments that are recommended when automating VTK wasm tests with a specific engine
+        self.implicit_engine_args = ""
+        if "chrome" in self.engine or "chromium" in self.engine:
+            flags = [
+              "--disable-application-cache",
+              "--disable-restore-session-state",
+              "--new-window",
+              "--incognito",
+              "--js-flags=--experimental-wasm-memory64",
+              "--no-default-browser-check",
+              "--no-first-run",
+            ]
+            # on linux, chrome needs more flags to unblock webgpu
+            if sys.platform == "linux":
+                flags.append("--enable-features=Vulkan")
+                flags.append("--enable-unsafe-webgpu")
+                flags.append("--use-angle=Vulkan")
+            self.implicit_engine_args = " ".join(flags)
+
     def run(self):
 
         # Run the browser after http server is ready to accept connections.
         self._httpd_thread.start()
         self._wait_for_server_start()
         if self.engine:
-            subprocess_args = [self.engine] + shlex.split(self.engine_args) + [self._url]
+            subprocess_args = [self.engine] + shlex.split(self.implicit_engine_args) + shlex.split(self.engine_args) + [self._url]
             logger.info(f"Running subprocess '{' '.join(subprocess_args)}'")
             try:
                 subprocess.run(subprocess_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -272,7 +292,8 @@ if __name__ == "__main__":
     engine_grp.add_argument("--engine",
                             help="Path to a webassembly execution engine. Technically, this can point to a web browser or a webview runtime like tauri/wry application.")
     engine_grp.add_argument("--engine-args",
-                            help="Additional arguments that will be passed to the engine")
+                            help="Additional arguments that will be passed to the engine",
+                            default="")
 
     httpd_grp = parser.add_argument_group(
         title="HTTP Server",

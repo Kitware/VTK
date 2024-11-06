@@ -49,7 +49,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     "$<TARGET_FILE:Python3::Interpreter>"
     "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
     "--engine=${VTK_TESTING_WASM_ENGINE}"
-    "--engine-args=${VTK_TESTING_WASM_ENGINE_ARGUMENTS}"
     "--exit")
 else ()
   set(_vtk_test_cxx_pre_args)
