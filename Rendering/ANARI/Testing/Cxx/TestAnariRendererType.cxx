@@ -55,8 +55,6 @@ int TestAnariRendererType(int argc, char* argv[])
 
   vtkNew<vtkPolyDataNormals> normals;
   normals->SetInputConnection(polysource->GetOutputPort());
-  // normals->ComputePointNormalsOn();
-  // normals->ComputeCellNormalsOff();
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(normals->GetOutputPort());
@@ -72,18 +70,18 @@ int TestAnariRendererType(int argc, char* argv[])
 
   SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariRendererType");
 
-  auto& ar = anariPass->GetAnariRenderer();
+  auto* ar = anariPass->GetAnariRenderer();
   for (int i = 1; i < 9; i++)
   {
     if (i % 2)
     {
       cerr << "Render via default" << endl;
-      ar.SetSubtype("default");
+      ar->SetSubtype("default");
     }
     else
     {
       cerr << "Render via raycast" << endl;
-      ar.SetSubtype("raycast");
+      ar->SetSubtype("raycast");
     }
 
     renWin->Render();

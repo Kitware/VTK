@@ -73,14 +73,14 @@ int TestAnariAmbient(int argc, char* argv[])
   actor->SetMapper(mapper);
   renWin->SetSize(400, 400);
 
-  auto& ar = anariPass->GetAnariRenderer();
+  auto* ar = anariPass->GetAnariRenderer();
   for (double i = 0.; i < 3.14; i += 0.1)
   {
-    ar.SetParameter("ambientRadiance", float(sin(i)));
+    ar->SetParameter("ambientRadiance", float(sin(i)));
     renWin->Render();
   }
 
-  ar.SetParameter("ambientRadiance", 0.2f);
+  ar->SetParameter("ambientRadiance", 0.2f);
   renWin->Render();
 
   int retVal = vtkTesting::PASSED;

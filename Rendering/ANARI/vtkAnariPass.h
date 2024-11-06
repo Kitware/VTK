@@ -63,14 +63,14 @@ public:
   /**
    * Get the managing class of the ANARI device for queries or make changes.
    */
-  vtkAnariDevice& GetAnariDevice();
+  vtkAnariDevice* GetAnariDevice();
 
   /**
    * Get the managing class of the ANARI renderer to query or make changes. Note
    * that this will not do anything unless the device has been initialized in
    * the device .
    */
-  vtkAnariRenderer& GetAnariRenderer();
+  vtkAnariRenderer* GetAnariRenderer();
 
 private:
   /**
