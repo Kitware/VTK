@@ -71,7 +71,7 @@ void vtkOSPRayLightNode::SetIsAmbient(int value, vtkLight* light)
 //------------------------------------------------------------------------------
 int vtkOSPRayLightNode::GetIsAmbient(vtkLight* light)
 {
-  if (!light)
+  if (!light || !light->GetSwitch())
   {
     return 0;
   }
