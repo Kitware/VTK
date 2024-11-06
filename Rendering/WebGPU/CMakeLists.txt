@@ -105,7 +105,8 @@ set(private_shader_files
   wgsl/OcclusionCullingPropsCulling.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
-  wgsl/PointCloudMapperShader.wgsl)
+  wgsl/PointCloudMapperShader.wgsl
+  wgsl/VTKCellToGraphicsPrimitive.wgsl)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl
@@ -200,7 +201,9 @@ elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
 endif ()
 
 if (NOT has_vtkRenderWindow_override)
-  message(FATAL_ERROR "A render window factory override was not found! This module currently supports X11 and Emscripten platforms")
+  message(WARNING "A render window factory override was not found!"
+    "This module currently supports rendering on X11 and Emscripten platforms."
+    "However, you can still execute webgpu compute pipelines.")
 endif ()
 
 list (APPEND classes ${vtk_webgpu_factory_override_classname})
@@ -208,9 +211,11 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebGPUObjectFactoryInit.cxx.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
 
-vtk_object_factory_declare(
-  BASE vtkRenderWindow
-  OVERRIDE ${vtk_webgpu_factory_override_classname})
+if (has_vtkRenderWindow_override)
+  vtk_object_factory_declare(
+    BASE vtkRenderWindow
+    OVERRIDE ${vtk_webgpu_factory_override_classname})
+endif ()
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
