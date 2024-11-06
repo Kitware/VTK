@@ -332,8 +332,7 @@ int vtkCutter::RequestData(
     {
       // Create a copy of vtkPlane and nudge it by the single contour
       vtkNew<vtkPlane> newPlane;
-      newPlane->SetNormal(plane->GetNormal());
-      newPlane->SetOrigin(plane->GetOrigin());
+      newPlane->DeepCopy(plane);
       // Evaluate the distance the origin is from the original plane. This accommodates
       // subclasses of vtkPlane that may have an additional offset parameter not
       // accessible through the vtkPlane interface. Use this distance to adjust the origin
