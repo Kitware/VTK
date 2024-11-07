@@ -574,7 +574,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
     {
       const auto cell_size = GetNumberOfPointsInCellType(vtk_cell_type);
       auto cellArray = vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-        cell_size, vtk_cell_type, conduit_cpp::c_node(&connectivity));
+        cell_size, conduit_cpp::c_node(&connectivity));
       unstructured->SetCells(vtk_cell_type, cellArray);
     }
   }
@@ -961,6 +961,8 @@ vtkIdType GetNumberOfPointsInCellType(int vtk_cell_type)
     case VTK_QUAD:
     case VTK_TETRA:
       return 4;
+    case VTK_PYRAMID:
+      return 5;
     case VTK_WEDGE:
       return 6;
     case VTK_HEXAHEDRON:
@@ -1008,6 +1010,10 @@ int GetCellType(const std::string& shape)
   else if (shape == "wedge")
   {
     return VTK_WEDGE;
+  }
+  else if (shape == "pyramid")
+  {
+    return VTK_PYRAMID;
   }
   else
   {
