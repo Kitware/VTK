@@ -82,8 +82,6 @@
         reports:
             annotations:
                 - build/annotations.json
-            junit:
-                - build/junit.xml
         paths:
             # Install tree
             - build/install/
