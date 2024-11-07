@@ -122,6 +122,8 @@ if (NOT CMAKE_INSTALL_QMLDIR)
     "${CMAKE_INSTALL_LIBDIR}/qml")
 endif ()
 
+# Choose static or shared libraries.
+option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
