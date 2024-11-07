@@ -174,15 +174,15 @@ bool TestDGCellType()
   int ss = haveSelfSide ? -1 : 0;
   for (vtkIdType ii = 0; ii < sideOffs->GetNumberOfTuples() - 1; ++ii)
   {
-    int offset = sideOffs->GetTuple(ii)[0];
-    auto shape = static_cast<vtkDGCell::Shape>(sideOffs->GetTuple(ii)[1]);
+    int offset = sideOffs->GetTypedComponent(ii, 0);
+    auto shape = static_cast<vtkDGCell::Shape>(sideOffs->GetTypedComponent(ii, 1));
     // clang-format off
     std::cout
       << "    " << (ii + (haveSelfSide ? 0 : 1)) << ". "
       << vtkDGCell::GetShapeName(shape).Data() << " sides (@ " << offset << ")\n";
     // clang-format on
     int nn = vtkDGCell::GetShapeCornerCount(shape);
-    int nextOffset = sideOffs->GetTuple(ii + 1)[0];
+    int nextOffset = sideOffs->GetTypedComponent(ii + 1, 0);
     int numSidesOfType = haveSelfSide
       ? (cell->GetSideRangeForType(ii - 1).second - cell->GetSideRangeForType(ii - 1).first)
       : (cell->GetSideRangeForType(ii).second - cell->GetSideRangeForType(ii).first);
@@ -197,8 +197,8 @@ bool TestDGCellType()
       std::cout << "      " << ss << ":";
       for (int kk = 0; kk < nn; ++kk)
       {
-        std::cout << " " << sideConn->GetTuple1(offset + jj * nn + kk);
-        if (sideConn->GetTuple1(offset + jj * nn + kk) != cell->GetSideConnectivity(ss)[kk])
+        std::cout << " " << sideConn->GetValue(offset + jj * nn + kk);
+        if (sideConn->GetValue(offset + jj * nn + kk) != cell->GetSideConnectivity(ss)[kk])
         {
           std::cerr << "\nERROR: Bad point ID @ kk = " << kk << "\n";
           return false;
