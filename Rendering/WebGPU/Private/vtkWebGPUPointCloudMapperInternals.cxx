@@ -152,7 +152,7 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   pipelineDesc.cFragment.entryPoint = "fragmentMain";
   // We are not going to use the color target but Dawn needs it
   pipelineDesc.cFragment.targetCount = 1;
-  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSwapChainTextureFormat();
+  pipelineDesc.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
   // Not writing to the color attachment
   pipelineDesc.cTargets[0].writeMask = wgpu::ColorWriteMask::None;
 

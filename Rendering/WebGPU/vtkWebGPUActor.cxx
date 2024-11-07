@@ -80,7 +80,7 @@ wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* m
   auto actorBindGroup = wgpuRenderer->GetActorBindGroup();
 
   {
-    const auto colorFormat = wgpuRenWin->GetPreferredSwapChainTextureFormat();
+    const auto colorFormat = wgpuRenWin->GetPreferredSurfaceTextureFormat();
     const int sampleCount = wgpuRenWin->GetMultiSamples() ? wgpuRenWin->GetMultiSamples() : 1;
 
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;

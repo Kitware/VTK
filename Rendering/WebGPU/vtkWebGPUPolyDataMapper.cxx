@@ -1207,7 +1207,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   descriptor.vertex.bufferCount = 0;
   descriptor.cFragment.module = shaderModule;
   descriptor.cFragment.entryPoint = "fragmentMain";
-  descriptor.cTargets[0].format = wgpuRenWin->GetPreferredSwapChainTextureFormat();
+  descriptor.cTargets[0].format = wgpuRenWin->GetPreferredSurfaceTextureFormat();
   ///@{ TODO: Only for valid depth stencil formats
   auto depthState = descriptor.EnableDepthStencil(wgpuRenWin->GetDepthStencilFormat());
   depthState->depthWriteEnabled = true;
