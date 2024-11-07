@@ -74,11 +74,11 @@ public:
    * @note: Do not attempt to modify ! Use the vertical/horizontal angles and near plane distance to
    * parameterize the frustum instead.
    */
-  VTK_FUTURE_CONST vtkPlane* GetTopPlane() { return this->TopPlane; }
-  VTK_FUTURE_CONST vtkPlane* GetBottomPlane() { return this->BottomPlane; }
-  VTK_FUTURE_CONST vtkPlane* GetRightPlane() { return this->RightPlane; }
-  VTK_FUTURE_CONST vtkPlane* GetLeftPlane() { return this->LeftPlane; }
-  VTK_FUTURE_CONST vtkPlane* GetNearPlane() { return this->NearPlane; }
+  vtkPlane* GetTopPlane() { return this->TopPlane; }
+  vtkPlane* GetBottomPlane() { return this->BottomPlane; }
+  vtkPlane* GetRightPlane() { return this->RightPlane; }
+  vtkPlane* GetLeftPlane() { return this->LeftPlane; }
+  vtkPlane* GetNearPlane() { return this->NearPlane; }
   ///@}
 
 protected:
