@@ -69,13 +69,10 @@
 namespace
 {
 
-using MemorySpaceTypes = vtkConduitArrayUtilities::MemorySpaceTypes;
-
-vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node, MemorySpaceTypes memorySpace)
+vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node, vtkm::Int8 memorySpace)
 {
   vtkNew<vtkConduitSource> source;
   source->SetNode(conduit_cpp::c_node(&node));
-  source->SetMemorySpace(memorySpace);
   source->Update();
   return source->GetOutputDataObject(0);
 }
@@ -219,7 +216,7 @@ void Copy(vtkm::cont::ArrayHandle<T, S> src, vtkm::cont::ArrayHandle<T, S> dst,
 
 void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandle<vtkm::FloatDefault> outCoords[3],
-  MemorySpaceTypes memorySpace)
+  vtkm::Int8 memorySpace)
 {
   conduit_cpp::Node coords = res["coordsets/coords"];
   coords["type"] = "rectilinear";
@@ -262,7 +259,7 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
 
 void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  MemorySpaceTypes memorySpace)
+  vtkm::Int8 memorySpace)
 {
   conduit_cpp::Node coords = res["coordsets/coords"];
   conduit_cpp::Node coordVals = coords["values"];
@@ -305,7 +302,7 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
 
 void CreateStructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  MemorySpaceTypes memorySpace)
+  vtkm::Int8 memorySpace)
 {
   CreateCoords(nptsX, nptsY, nptsZ, res, outCoords, memorySpace);
 
@@ -322,7 +319,7 @@ void CreateStructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int n
 void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& res,
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
   vtkm::cont::ArrayHandle<unsigned int>& connectivity,
-  vtkm::cont::ArrayHandle<vtkm::Float64>& values, MemorySpaceTypes memorySpace)
+  vtkm::cont::ArrayHandle<vtkm::Float64>& values, vtkm::Int8 memorySpace)
 {
   CreateStructuredMesh(nptsX, nptsY, 1, res, outCoords, memorySpace);
 
@@ -383,7 +380,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, std::vector<unsigned int>& subelemShapes,
   vtkm::cont::ArrayHandle<unsigned int>& subelemConnectivity,
   vtkm::cont::ArrayHandle<unsigned int>& subelemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& subelemOffsets, MemorySpaceTypes memorySpace)
+  vtkm::cont::ArrayHandle<unsigned int>& subelemOffsets, vtkm::Int8 memorySpace)
 {
   auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
   CreateCoords(nptsX, nptsY, nptsZ, res, pointCoords, memorySpace);
@@ -625,7 +622,7 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords, std::vector<unsigned int>& elemShapes,
   vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
   vtkm::cont::ArrayHandle<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, MemorySpaceTypes memorySpace)
+  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, vtkm::Int8 memorySpace)
 {
   CreateCoords(npts_x, npts_y, 1, res, pointCoords, memorySpace);
 
@@ -734,7 +731,7 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
     ::GetDevicePointer(elemConnectivity, 0, device), nquads * 4 + ntris * 3);
 }
 
-bool ValidateMeshTypeRectilinearImpl(MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeRectilinearImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -770,7 +767,7 @@ bool ValidateMeshTypeRectilinearImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeStructuredImpl(MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeStructuredImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -806,7 +803,7 @@ bool ValidateMeshTypeStructuredImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeUnstructuredImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -845,7 +842,7 @@ bool ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes memorySpace)
+bool ValidateRectilinearGridWithDifferentDimensionsImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -868,7 +865,7 @@ bool ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes memoryS
   return true;
 }
 
-bool Validate1DRectilinearGridImpl(MemorySpaceTypes memorySpace)
+bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   auto xAH = vtkm::cont::make_ArrayHandle({ 5.0, 6.0, 7.0 });
@@ -905,7 +902,7 @@ bool Validate1DRectilinearGridImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixedImpl(MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -994,7 +991,7 @@ bool ValidateMeshTypeMixedImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixed2DImpl(MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -1059,7 +1056,7 @@ bool ValidateMeshTypeMixed2DImpl(MemorySpaceTypes memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeAMRImpl(const std::string& file, MemorySpaceTypes memorySpace)
+bool ValidateMeshTypeAMRImpl(const std::string& file, vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -1097,7 +1094,6 @@ bool ValidateMeshTypeAMRImpl(const std::string& file, MemorySpaceTypes memorySpa
   // run vtk conduit source
   vtkNew<vtkConduitSource> source;
   source->SetUseAMRMeshProtocol(true);
-  source->SetMemorySpace(memorySpace);
   source->SetNode(conduit_cpp::c_node(&meshdata));
   source->Update();
   auto data = source->GetOutputDataObject(0);
@@ -1138,16 +1134,10 @@ bool ValidateMeshTypeStructured()
 {
   try
   {
-    VERIFY(ValidateMeshTypeStructuredImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeStructuredImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeStructuredImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeStructuredImpl(MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeStructuredImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeStructuredImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeStructuredImpl(MemorySpaceTypes::TBB),
-      "ValidateMeshTypeStructuredImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeStructuredImpl(MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeStructuredImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeStructuredImpl(MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeStructuredImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1160,16 +1150,10 @@ bool ValidateMeshTypeRectilinear()
 {
   try
   {
-    VERIFY(ValidateMeshTypeRectilinearImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeRectilinearImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeRectilinearImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeRectilinearImpl(MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeRectilinearImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeRectilinearImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeRectilinearImpl(MemorySpaceTypes::TBB),
-      "ValidateMeshTypeRectilinearImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeRectilinearImpl(MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeRectilinearImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeRectilinearImpl(MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeRectilinearImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1182,16 +1166,10 @@ bool ValidateMeshTypeUnstructured()
 {
   try
   {
-    VERIFY(ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeUnstructuredImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes::TBB),
-      "ValidateMeshTypeUnstructuredImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeUnstructuredImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeUnstructuredImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1204,16 +1182,10 @@ bool ValidateRectilinearGridWithDifferentDimensions()
 {
   try
   {
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateRectilinearGridWithDifferentDimensionsImpl with serial device failed.");
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes::CUDA),
-      "ValidateRectilinearGridWithDifferentDimensionsImpl with CUDA device failed.");
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes::TBB),
-      "ValidateRectilinearGridWithDifferentDimensionsImpl with TBB device failed.");
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes::OpenMP),
-      "ValidateRectilinearGridWithDifferentDimensionsImpl with OpenMP device failed.");
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(MemorySpaceTypes::Kokkos),
-      "ValidateRectilinearGridWithDifferentDimensionsImpl with Kokkos device failed.");
+    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VTKM_DEVICE_ADAPTER_CUDA),
+      "ValidateRectilinearGridWithDifferentDimensionsImpl with CUDA device FAILED.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1226,16 +1198,10 @@ bool Validate1DRectilinearGrid()
 {
   try
   {
-    VERIFY(Validate1DRectilinearGridImpl(MemorySpaceTypes::Serial),
+    VERIFY(Validate1DRectilinearGridImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "Validate1DRectilinearGridImpl with serial device failed.");
-    VERIFY(Validate1DRectilinearGridImpl(MemorySpaceTypes::CUDA),
+    VERIFY(Validate1DRectilinearGridImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "Validate1DRectilinearGridImpl with CUDA device failed.");
-    VERIFY(Validate1DRectilinearGridImpl(MemorySpaceTypes::TBB),
-      "Validate1DRectilinearGridImpl with TBB device failed.");
-    VERIFY(Validate1DRectilinearGridImpl(MemorySpaceTypes::OpenMP),
-      "Validate1DRectilinearGridImpl with OpenMP device failed.");
-    VERIFY(Validate1DRectilinearGridImpl(MemorySpaceTypes::Kokkos),
-      "Validate1DRectilinearGridImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1248,16 +1214,10 @@ bool ValidateMeshTypeMixed()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixedImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeMixedImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeMixedImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeMixedImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeMixedImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(MemorySpaceTypes::TBB),
-      "ValidateMeshTypeMixedImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeMixedImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeMixedImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1270,16 +1230,10 @@ bool ValidateMeshTypeMixed2D()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixed2DImpl(MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeMixed2DImpl(VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeMixed2DImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeMixed2DImpl(VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeMixed2DImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(MemorySpaceTypes::TBB),
-      "ValidateMeshTypeMixed2DImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeMixed2DImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeMixed2DImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
@@ -1292,16 +1246,10 @@ bool ValidateMeshTypeAMR(const std::string& file)
 {
   try
   {
-    VERIFY(ValidateMeshTypeAMRImpl(file, MemorySpaceTypes::Serial),
+    VERIFY(ValidateMeshTypeAMRImpl(file, VTKM_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeAMRImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeAMRImpl(file, MemorySpaceTypes::CUDA),
+    VERIFY(ValidateMeshTypeAMRImpl(file, VTKM_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeAMRImpl with CUDA device failed.");
-    VERIFY(ValidateMeshTypeAMRImpl(file, MemorySpaceTypes::TBB),
-      "ValidateMeshTypeAMRImpl with TBB device failed.");
-    VERIFY(ValidateMeshTypeAMRImpl(file, MemorySpaceTypes::OpenMP),
-      "ValidateMeshTypeAMRImpl with OpenMP device failed.");
-    VERIFY(ValidateMeshTypeAMRImpl(file, MemorySpaceTypes::Kokkos),
-      "ValidateMeshTypeAMRImpl with Kokkos device failed.");
   }
   catch (vtkm::cont::ErrorBadValue& e)
   {
