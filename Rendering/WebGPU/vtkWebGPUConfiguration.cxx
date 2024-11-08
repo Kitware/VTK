@@ -324,6 +324,84 @@ void PrintAdapter(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
   PrintAdapterFeatures(os, indent.GetNextIndent(), adapter);
   PrintAdapterLimits(os, indent.GetNextIndent(), adapter);
 }
+
+#if VTK_USE_DAWN_WEBGPU
+/**
+ * Implement Dawn's MemoryDump interface.
+ */
+class DawnMemoryDump : public dawn::native::MemoryDump
+{
+public:
+  void AddScalar(const char* name, const char* key, const char* units, uint64_t value) override
+  {
+    if (key == MemoryDump::kNameSize && units == MemoryDump::kUnitsBytes)
+    {
+      TotalSize += value;
+    }
+    else if (key == MemoryDump::kNameObjectCount && units == MemoryDump::kUnitsObjects)
+    {
+      TotalObjects += value;
+    }
+    auto it = this->WebGPUObjects.find(name);
+    if (it == this->WebGPUObjects.end())
+    {
+      MemoryInformation info;
+      info.Size = value;
+      this->WebGPUObjects[name] = info;
+    }
+    else
+    {
+      it->second.Size = value;
+    }
+  }
+
+  void AddString(const char* name, const char* key, const std::string& value) override
+  {
+    auto it = this->WebGPUObjects.find(name);
+    if (it == this->WebGPUObjects.end())
+    {
+      MemoryInformation info;
+      info.Properties[key] = value;
+      this->WebGPUObjects[name] = info;
+    }
+    else
+    {
+      it->second.Properties[key] = value;
+    }
+  }
+
+  uint64_t GetTotalSize() const { return TotalSize; }
+  uint64_t GetTotalNumberOfObjects() const { return TotalObjects; }
+
+  void PrintSelf(ostream& os, vtkIndent indent)
+  {
+    os << indent << "TotalSize: " << this->TotalSize << '\n';
+    os << indent << "TotalObjects: " << this->TotalObjects << '\n';
+    for (auto& object : this->WebGPUObjects)
+    {
+      os << indent << indent << "-Name: " << object.first << '\n';
+      os << indent << indent << "  Size: " << object.second.Size << '\n';
+      for (auto& property : object.second.Properties)
+      {
+        os << indent << indent << "  " << property.first << "=" << property.second << '\n';
+      }
+    }
+  }
+
+  struct MemoryInformation
+  {
+    std::uint64_t Size;
+    std::map<std::string, std::string> Properties;
+  };
+
+private:
+  uint64_t TotalSize = 0;
+  uint64_t TotalObjects = 0;
+
+  std::unordered_map<std::string, MemoryInformation> WebGPUObjects;
+};
+#endif
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -915,4 +993,21 @@ vtkLogger::Verbosity vtkWebGPUConfiguration::GetGPUMemoryLogVerbosity()
   return this->GPUMemoryLogVerbosity;
 }
 
+void vtkWebGPUConfiguration::DumpMemoryStatistics()
+{
+#if VTK_USE_DAWN_WEBGPU
+  auto* memoryDump = new DawnMemoryDump();
+  dawn::native::DumpMemoryStatistics(this->GetDevice().Get(), memoryDump);
+  std::ostringstream os;
+  memoryDump->PrintSelf(os, vtkIndent());
+  vtkVLog(this->GetGPUMemoryLogVerbosity(), << os.str());
+  delete memoryDump;
+#else
+  // Cannot do anything here because we don't know if the textures/buffers
+  // created through `this->CreateTexture` or `this->CreateBuffer` are still alive.
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Cannot determine memory statistics for allocated webgpu objects in this webgpu "
+    "implementation");
+#endif
+}
 VTK_ABI_NAMESPACE_END

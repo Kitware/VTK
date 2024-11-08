@@ -276,6 +276,14 @@ public:
   vtkLogger::Verbosity GetGPUMemoryLogVerbosity();
   ///@}
 
+  /**
+   * This method prints the information corresponding to all active wgpu::Buffer and wgpu::Texture
+   * objects to the log with verbosity specified by GetGPUMemoryLogVerbosity().
+   * With Dawn, this interfaces directly into Dawn's memory statistics API for accurate
+   * information about active objects.
+   */
+  void DumpMemoryStatistics();
+
 protected:
   vtkWebGPUConfiguration();
   ~vtkWebGPUConfiguration() override;
