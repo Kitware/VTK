@@ -5,8 +5,21 @@
  * @brief   reads a dataset in Fluent file format
  *
  * vtkFLUENTReader creates an unstructured grid multiblock dataset.
- * When multiple zones are defined in the file they are provided in separate blocks.
  * It reads .cas (with associated .dat) and .msh files stored in FLUENT native format.
+ * When multiple zone sections are defined in the file they are provided in separate blocks.
+ * Each zone section can be unselected so that it won't be part of the outputed multiblock dataset.
+ *
+ * Keep in mind that all intermediate structures are cached by default to avoid re-parsing the file
+ * when the zone selections change. If you wish to avoid caching to lower memory usage at the
+ * expense of IO performances, you can set CacheData to false.
+ *
+ * Because of zone sections interdependency in the FLUENT format, some unselected zone sections may
+ * still need to be read from the file, even if they are not part of the outputed multiblock. Here
+ * is the general file parsing logic:
+ * - If any cell zone is enabled, the whole file needs to be read
+ * - Otherwise, only the necessary zones are read (nodes, faces, data arrays,...)
+ * Therefore, unselecting a zone will not always improve the file's reading
+ * time, but will lower the output' size.
  *
  * @par Thanks:
  * Thanks to Brian W. Dotson & Terry E. Jordan (Department of Energy, National
@@ -24,9 +37,13 @@
 #ifndef vtkFLUENTReader_h
 #define vtkFLUENTReader_h
 
+#include "vtkDeprecation.h"      // For deprecation macro
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // For vtkNew
+
+#include <set>
+#include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
@@ -49,7 +66,7 @@ public:
 
   ///@{
   /**
-   * Specify the file name of the Fluent case file to read.
+   * Specify the file name of the Fluent file to read.
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
@@ -61,6 +78,16 @@ public:
    * successful read of the data file is performed. Initial value is 0.
    */
   vtkGetMacro(NumberOfCells, vtkIdType);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set if the filter should cache the data (i.e. keep the intermediate structures in memory to
+   * avoid re-parsing the file). Defaults is true
+   */
+  vtkGetMacro(CacheData, bool);
+  vtkSetMacro(CacheData, bool);
+  vtkBooleanMacro(CacheData, bool);
   ///@}
 
   /**
@@ -93,6 +120,14 @@ public:
 
   ///@{
   /**
+   * Zone section selection, to determine which zone sections
+   * are loaded.
+   */
+  vtkDataArraySelection* GetZoneSectionSelection();
+  ///@}
+
+  ///@{
+  /**
    * These methods should be used instead of the SwapBytes methods.
    * They indicate the byte ordering of the file you are trying
    * to read in. These methods will then either swap or not swap
@@ -117,10 +152,18 @@ public:
   struct Cell;
   struct Face;
   struct Zone;
+  struct ZoneSection;
   struct ScalarDataChunk;
   struct VectorDataChunk;
   struct SubSection;
   ///@}
+
+  /**
+   * Get the last modified time of this filter.
+   * This time also depends on the the modified
+   * time of the internal ZoneSectionSelection instance.
+   */
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkFLUENTReader();
@@ -147,7 +190,6 @@ protected:
   virtual int GetDataChunk();
   virtual void GetSpeciesVariableNames();
 
-  virtual bool ParseCaseFile();
   virtual int GetDimension();
   virtual void GetLittleEndianFlag();
   virtual void GetNodesAscii();
@@ -155,7 +197,6 @@ protected:
   virtual void GetNodesDoublePrecision();
   virtual void GetCellsAscii();
   virtual void GetCellsBinary();
-  virtual void ReadZone();
   virtual bool GetFacesAscii();
   virtual void GetFacesBinary();
   virtual void GetPeriodicShadowFacesAscii();
@@ -181,26 +222,123 @@ protected:
   virtual void PopulatePyramidCell(size_t cellIdx);
   virtual void PopulateWedgeCell(size_t cellIdx);
   virtual void PopulatePolyhedronCell(size_t cellIdx);
-  virtual void ParseDataFile();
   virtual int GetDataBufferInt(int ptr);
   virtual float GetDataBufferFloat(int ptr);
   virtual double GetDataBufferDouble(int ptr);
   virtual void GetData(int dataType);
   virtual bool ParallelCheckCell(int vtkNotUsed(i)) { return true; }
 
+  VTK_DEPRECATED_IN_9_5_0(
+    "ReadZone is deprecated. It was an internal method an should not be used.")
+  virtual void ReadZone();
+  VTK_DEPRECATED_IN_9_5_0(
+    "ParseCaseFile is deprecated. It was an internal method an should not be used.")
+  virtual bool ParseCaseFile();
+  VTK_DEPRECATED_IN_9_5_0(
+    "ParseDataFile is deprecated. It was an internal method an should not be used.")
+  virtual void ParseDataFile();
+
 private:
+  /**
+   * Check whether all cell zones are disabled.
+   */
+  bool AreCellsEnabled();
+  /**
+   * Fill CurrentCells/CurrentFaces with cells/faces from enabled zone sections.
+   */
+  void DisableCellsAndFaces(std::vector<unsigned int>& disabledZones);
+  /**
+   * Disable the zones that belong to disabled zone sections.
+   */
+  void DisableZones(std::vector<unsigned int>& disabledZones, bool& areAllZonesDisabled);
+  /**
+   * Fill output multiblock with cells
+   */
+  bool FillMultiblock(std::vector<unsigned int>& disabledZones,
+    std::vector<size_t>& zoneIDToBlockIdx,
+    std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
+  /**
+   * Fill output multiblock with data scalars and vectors
+   */
+  void FillMultiblockData(std::vector<unsigned int>& disabledZones,
+    std::vector<size_t>& zoneIDToBlockIdx,
+    std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
+  /**
+   * Get arrays from SubSections.
+   */
+  void GetArraysFromSubSections();
+  /**
+   * Create a block per zone section.
+   */
+  void InitOutputBlocks(vtkMultiBlockDataSet* output, std::vector<size_t>& zoneIDToBlockIdx,
+    std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs);
+  /**
+   * Parse the data zone according to its index.
+   */
+  void ParseDataZone(int index);
+  /**
+   * Parse all the data zones in DataZones.
+   * A data zone is not parsed if:
+   * - It is already parsed.
+   * - Its zone section is disabled and there are no cell zones enabled
+   */
+  void ParseDataZones(bool areCellsEnabled);
+  /**
+   * Parse the zone according to its index.
+   */
+  void ParseZone(int index);
+  /**
+   * Parse all the zones in Zones.
+   * A zone is not parsed if:
+   * - It is already parsed.
+   * - Its zone section is disabled and there are no cell zones enabled
+   */
+  void ParseZones(bool areCellsEnabled);
+  /**
+   * Parse the data file but only save the zoneId, zoneSectionId, and position of each data zone
+   * into DataZones to be fully parsed later.
+   */
+  bool PreParseDataFile();
+  /**
+   * Parse the fluent file but only save the zoneId, zoneSectionId, and position of each zone into
+   * Zones to be fully parsed later. Zone sections (39 and 45) are read into ZoneSections, @see
+   * vtkFLUENTReader::ReadZoneSection
+   */
+  bool PreParseFluentFile();
+  /**
+   * Read the zone section id of a data zone
+   * zones format: (zoneId (subSectionId zoneSectionId ...
+   */
+  bool ReadDataZoneSectionId(unsigned int& zoneSectionId);
+  /**
+   * Read the zone section id of a zone (only nodes, cells, and faces zones have section ids).
+   * zones format: (zoneId (zoneSectionId ...
+   */
+  bool ReadZoneSectionId(unsigned int& zoneSectionId);
+  /**
+   * Read the header of a zone section to create and save a ZoneSection, allowing its selection or
+   * not when creating the output.
+   */
+  bool ReadZoneSection(int limit);
+
+  /**
+   * Add an array to ZoneSectionSelection for each zone section in ZoneSections
+   */
+  void UpdateZoneSectionSelection();
+
   /**
    * @brief Create an output multi block dataset using only the faces of the file
    *
    * This function is used to generate an output when reading a FLUENT Mesh file
    * that only contains faces without cells.
-   * It supports triangles and quads.
+   * It supports lines, triangles and quads.
    *
    * @param blockUGs per-bloc unstructured grid objects
    * @param zoneIDToBlockIdx Lookup map used to convert zone ID to block index.
+   * @param disabledZones List of disabled zone ids
    */
   void FillMultiBlockFromFaces(std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
-    const std::vector<size_t>& zoneIDToBlockIdx);
+    const std::vector<size_t>& zoneIDToBlockIdx, std::vector<unsigned int> disabledZones);
 
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;
@@ -208,20 +346,22 @@ private:
   //
   //  Variables
   //
+  vtkNew<vtkDataArraySelection> ZoneSectionSelection;
   vtkNew<vtkDataArraySelection> CellDataArraySelection;
   char* FileName = nullptr;
   vtkIdType NumberOfCells = 0;
+  bool CacheData = true;
 
-  istream* FluentCaseFile = nullptr;
+  istream* FluentFile = nullptr;
   istream* FluentDataFile = nullptr;
-  std::string CaseBuffer;
+  std::string FluentBuffer;
   std::string DataBuffer;
 
   // File data cache
   vtkNew<vtkPoints> Points;
   std::vector<Cell> Cells;
   std::vector<Face> Faces;
-  std::vector<Zone> Zones;
+  std::vector<ZoneSection> ZoneSections;
   std::map<size_t, std::string> VariableNames;
   std::vector<ScalarDataChunk> ScalarDataChunks;
   std::vector<VectorDataChunk> VectorDataChunks;
@@ -236,7 +376,14 @@ private:
   int GridDimension = 0;
   int NumberOfScalars = 0;
   int NumberOfVectors = 0;
-  bool Parsed = false;
+
+  std::vector<Zone> Zones;
+  std::vector<Zone> DataZones;
+  std::vector<Cell> CurrentCells;
+  std::vector<Face> CurrentFaces;
+  std::vector<ZoneSection> CurrentZoneSections;
+
+  bool IsFilePreParsed = false;
 };
 
 VTK_ABI_NAMESPACE_END
