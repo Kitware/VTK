@@ -52,8 +52,6 @@ Less common, but variables which may be of interest to some:
     the test binaries.
   * `VTK_TESTING_WASM_ENGINE` (default ``):
     Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
-  * `VTK_TESTING_WASM_ENGINE_ARGUMENTS` (default ``):
-    Space separated arguments passed to the wasm runtime executable.
 
 ## OpenGL related build options:
 

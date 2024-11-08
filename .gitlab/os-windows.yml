@@ -165,16 +165,14 @@
     variables:
         CMAKE_CONFIGURATION: wasm32_emscripten_windows_chrome_ext_vtk
         WASM_ARCHITECTURE: wasm32-emscripten
-        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache --new-tab"
 
 
-#.wasm64_emscripten_windows_chrome_ext_vtk:
-#    extends: .windows
+.wasm64_emscripten_windows_chrome_ext_vtk:
+   extends: .windows
 
-#    variables:
-#         CMAKE_CONFIGURATION: wasm64_emscripten_windows_chrome_ext_vtk
-#         WASM_ARCHITECTURE: wasm64-emscripten
-#         VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache --new-tab --js-flags=--experimental-wasm-memory64"
+   variables:
+        CMAKE_CONFIGURATION: wasm64_emscripten_windows_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm64-emscripten
 
 .windows_vs2022_java:
     extends: .windows_vs2022
@@ -423,9 +421,6 @@
         - buildcache --show-stats
         # Fetch chrome-for-testing
         - cmake -P .gitlab/ci/download_chrome.cmake
-        # Launch one instance of the browser which will be used by all tests, each test is run inside an isolated process anyway
-        # TODO: This works and makes sure no test timesout but the terminate_chrome_processes.ps1 at the end hangs forever.
-        # - .gitlab\chrome\chrome.exe --disable-restore-session-state --no-default-browser-check --no-first-run --incognito --disable-application-cache
         # Reuse the venv from the build step (avoids version changes between
         # build and testing). This is set up manually because Activate.ps1
         # doesn't seem to work for our extracted Python tarball.
@@ -434,8 +429,7 @@
         - Set-Item -Force -Path "env:VTK_TESTING_WASM_ENGINE" -Value "$pwdpath\.gitlab\chrome\chrome.exe"
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test_external_wasm.cmake
         - buildcache --show-stats
-        # TODO: Times out :/
-        #- powershell -File ".gitlab/ci/terminate_chrome_processes.ps1"
+        - powershell -File ".gitlab/ci/terminate_chrome_processes.ps1"
         - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\ExternalWasm # This will call exit in case of warnings
 
     interruptible: true
