@@ -44,7 +44,7 @@ public:
 
   /**
    * Add a prop to the list of props. Does nothing if the prop is
-   * already present. Prop is the superclass of all actors, volumes,
+   * nullptr or already present. Prop is the superclass of all actors, volumes,
    * 2D actors, composite props etc.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
@@ -56,13 +56,13 @@ public:
   vtkPropCollection* GetViewProps() { return this->Props; }
 
   /**
-   * Query if a prop is in the list of props.
+   * Query if a prop is in the list of props. Returns false for nullptr.
    */
   vtkTypeBool HasViewProp(vtkProp*);
 
   /**
    * Remove a prop from the list of props. Does nothing if the prop
-   * is not already present or if the parameter is NULL.
+   * is nullptr or not already present.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void RemoveViewProp(vtkProp*);
