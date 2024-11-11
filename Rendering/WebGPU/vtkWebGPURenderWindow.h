@@ -1,5 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+/**
+ * @class   vtkWebGPURenderWindow
+ * @brief   WebGPU rendering window
+ *
+ * vtkWebGPURenderWindow is a concrete implementation of the abstract class
+ * vtkRenderWindow. vtkWebGPURenderer interfaces to the WebGPU graphics
+ * library. Application programmers should normally use vtkRenderWindow
+ * instead of the WebGPU specific version.
+ */
+
 #ifndef vtkWebGPURenderWindow_h
 #define vtkWebGPURenderWindow_h
 
@@ -177,7 +187,7 @@ public:
   vtkGetNewMacro(WGPUPipelineCache, vtkWebGPURenderPipelineCache);
 
   /**
-   * Replaces all #include statements in the given source code with source code
+   * Replaces all include statements in the given source code with source code
    * corresponding to the included file from the database.
    */
   std::string PreprocessShaderSource(const std::string& source) const;
