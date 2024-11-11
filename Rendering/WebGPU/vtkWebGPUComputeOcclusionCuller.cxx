@@ -190,7 +190,7 @@ void vtkWebGPUComputeOcclusionCuller::SetupCullingPass()
 
 //------------------------------------------------------------------------------
 double vtkWebGPUComputeOcclusionCuller::Cull(
-  vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized)
+  vtkRenderer* renderer, vtkProp** propList, int& listLength, int& initialized)
 {
   if (this->WebGPURenderWindow == nullptr)
   {
@@ -207,7 +207,7 @@ double vtkWebGPUComputeOcclusionCuller::Cull(
   {
     // Adding the occlusion culling pipeline to the renderer so that it can reuse the texture (depth
     // buffer mainly) of the render window of the renderer
-    this->AddOcclusionCullingPipelineToRenderer(ren);
+    this->AddOcclusionCullingPipelineToRenderer(renderer);
 
     // Some setup can only be done once we have the render window size so that's why we're doing
     // it here. Also, buffers can only be created now because before this point, the render window
@@ -223,13 +223,13 @@ double vtkWebGPUComputeOcclusionCuller::Cull(
   }
 
   // First rendering the actors that were rendered last frame to fill the z-buffer
-  this->FirstPassRender(ren, propList, listLength);
+  this->FirstPassRender(renderer, propList, listLength);
   // Copy the depth buffer to the hierarchical z-buffer texture
   this->CopyDepthBuffer();
   // Compute the mipmaps of the depth buffer
   this->DepthMipmaps();
   // Culls the given list of props against the hierarchical z-buffer
-  this->PropCulling(ren, propList, listLength);
+  this->PropCulling(renderer, propList, listLength);
 
   this->OcclusionCullingPipeline->Update();
   this->FirstFrame = false;
@@ -240,14 +240,14 @@ double vtkWebGPUComputeOcclusionCuller::Cull(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputeOcclusionCuller::AddOcclusionCullingPipelineToRenderer(vtkRenderer* ren)
+void vtkWebGPUComputeOcclusionCuller::AddOcclusionCullingPipelineToRenderer(vtkRenderer* renderer)
 {
-  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
+  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (wgpuRenderer == nullptr)
   {
     vtkLog(ERROR,
       "Cannot add the occlusion culling compute pipeline to the renderer "
-        << ren << " because it is not a vtkWebGPURenderer");
+        << renderer << " because it is not a vtkWebGPURenderer");
 
     return;
   }
@@ -489,9 +489,9 @@ void vtkWebGPUComputeOcclusionCuller::FinishSetupCullingPass()
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::FirstPassRender(
-  vtkRenderer* ren, vtkProp** propList, int listLength)
+  vtkRenderer* renderer, vtkProp** propList, int listLength)
 {
-  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
+  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   if (!wgpuRenderer)
   {
     vtkErrorWithObjectMacro(
@@ -587,7 +587,7 @@ void vtkWebGPUComputeOcclusionCuller::DepthMipmaps()
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeOcclusionCuller::PropCulling(
-  vtkRenderer* ren, vtkProp** propList, int& listLength)
+  vtkRenderer* renderer, vtkProp** propList, int& listLength)
 {
   int nbGroupsX = std::ceil(listLength / 32.0f);
   if (nbGroupsX == 0)
@@ -598,9 +598,9 @@ void vtkWebGPUComputeOcclusionCuller::PropCulling(
     return;
   }
 
-  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(ren);
+  vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
 
-  this->UpdateCameraMVPBuffer(ren);
+  this->UpdateCameraMVPBuffer(renderer);
   this->UpdateBoundsBuffers(propList, listLength);
   this->CullingPass->SetWorkgroups(nbGroupsX, 1, 1);
   this->CullingPass->Dispatch();
@@ -727,9 +727,9 @@ void vtkWebGPUComputeOcclusionCuller::WindowResizedCallback(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputeOcclusionCuller::UpdateCameraMVPBuffer(vtkRenderer* ren)
+void vtkWebGPUComputeOcclusionCuller::UpdateCameraMVPBuffer(vtkRenderer* renderer)
 {
-  vtkCamera* camera = ren->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   // Getting the view-projection matrix
   vtkMatrix4x4* viewMatrix = camera->GetModelViewTransformMatrix();
 
@@ -737,7 +737,7 @@ void vtkWebGPUComputeOcclusionCuller::UpdateCameraMVPBuffer(vtkRenderer* ren)
   // OpenGL would have worked too since we're not using the graphics pipeline (compute shader only)
   // that actually expects [0, 1]
   vtkMatrix4x4* projectionMatrix =
-    camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), -1, 1);
+    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), -1, 1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
   // WebGPU uses column major matrices but VTK is row major

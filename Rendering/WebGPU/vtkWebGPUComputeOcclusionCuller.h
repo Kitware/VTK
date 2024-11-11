@@ -81,7 +81,8 @@ public:
   /**
    * Culls props and returns the number of props that still need to be rendered after the culling
    */
-  double Cull(vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) override;
+  double Cull(
+    vtkRenderer* renderer, vtkProp** propList, int& listLength, int& initialized) override;
 
 protected:
   vtkWebGPUComputeOcclusionCuller();
@@ -113,7 +114,7 @@ private:
    * Return a list of the props that were not rendered for the first (filling the depth buffer) but
    * that need to be tested for culling (they are in the propList given to the Cull() call).
    */
-  void FirstPassRender(vtkRenderer* ren, vtkProp** propList, int listLength);
+  void FirstPassRender(vtkRenderer* renderer, vtkProp** propList, int listLength);
 
   /**
    * Copies the depth buffer filled by the rendering of the props of last frame into the mipmap
@@ -129,12 +130,12 @@ private:
   /**
    * Culls the actors using the depth buffer mipmaps computed in the previous pass
    */
-  void PropCulling(vtkRenderer* ren, vtkProp** propList, int& listLength);
+  void PropCulling(vtkRenderer* renderer, vtkProp** propList, int& listLength);
 
   /**
    * Reuploads the camera MVP matrix to its GPU buffer
    */
-  void UpdateCameraMVPBuffer(vtkRenderer* ren);
+  void UpdateCameraMVPBuffer(vtkRenderer* renderer);
 
   /**
    * Resizes the various bounds buffers (inputBounds, outputBoundsIndices) and updates their data
@@ -145,7 +146,7 @@ private:
    * Adds the occlusion culling pipeline to the passed renderer so that the pipeline can reuse the
    * textures from the render window of the renderer
    */
-  void AddOcclusionCullingPipelineToRenderer(vtkRenderer* ren);
+  void AddOcclusionCullingPipelineToRenderer(vtkRenderer* renderer);
 
   /**
    * Sets-up the hierarchical z-buffer mipmapped texture

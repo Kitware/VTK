@@ -60,7 +60,7 @@ public:
    * vtkRenderer and then calling RenderPiece() again with another vtkRenderer will yield incorrect
    * results. Two mappers must be used in that case
    */
-  void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
+  void RenderPiece(vtkRenderer* renderer, vtkActor* act) override;
 
 protected:
   /**

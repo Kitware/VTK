@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkConeSource.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
-#include "vtkPointSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -13,21 +12,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int TestPointRendering(int argc, char* argv[])
+int TestManyActorsOneMapper(int argc, char* argv[])
 {
-  double pointSize = 1.0;
-  bool drawRoundPoints = false;
-  for (int i = 0; i < argc; i++)
-  {
-    if (std::string(argv[i]) == "--point-size")
-    {
-      pointSize = std::atof(argv[++i]);
-    }
-    if (std::string(argv[i]) == "--round")
-    {
-      drawRoundPoints = true;
-    }
-  }
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
@@ -35,26 +21,38 @@ int TestPointRendering(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
 
-  vtkNew<vtkPointSource> points;
-  vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
-  randomSequence->SetSeed(1);
-  points->SetRandomSequence(randomSequence);
-  points->SetRadius(1);
-  points->SetNumberOfPoints(100);
-
+  vtkNew<vtkConeSource> cone;
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(points->GetOutputPort());
+  mapper->SetInputConnection(cone->GetOutputPort());
 
-  vtkNew<vtkActor> actor;
-  actor->GetProperty()->SetPointSize(pointSize);
-  if (drawRoundPoints)
+  double x = 0.0, y = 0.0, z = 0.0;
+  double spacingX = 2.0, spacingY = 2.0, spacingZ = 2.0;
+  for (int k = 0; k < 8; ++k)
   {
-    actor->GetProperty()->SetPoint2DShape(vtkProperty::Point2DShapeType::Round);
+    for (int j = 0; j < 8; ++j)
+    {
+      for (int i = 0; i < 8; ++i)
+      {
+        x += spacingX;
+        vtkNew<vtkActor> actor;
+        actor->SetMapper(mapper);
+        mapper->Update();
+        mapper->SetStatic(1);
+        actor->GetProperty()->SetEdgeVisibility(true);
+        actor->GetProperty()->SetLineWidth(2);
+        actor->GetProperty()->SetEdgeColor(1.0, 0.0, 0.0);
+        actor->SetPosition(x, y, z);
+        renderer->AddActor(actor);
+      }
+      x = 0.0;
+      y += spacingY;
+    }
+    y = 0.0;
+    z += spacingZ;
   }
-  actor->SetMapper(mapper);
-  renderer->AddActor(actor);
 
   renderer->ResetCamera();
+  renderer->SetBackground(0.1, 0.1, 0.1);
   renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -62,7 +60,6 @@ int TestPointRendering(int argc, char* argv[])
   vtkNew<vtkInteractorStyleTrackballCamera> style;
   iren->SetInteractorStyle(style);
   style->SetDefaultRenderer(renderer);
-
   renWin->Render();
 
   const int retVal = vtkRegressionTestImage(renWin);

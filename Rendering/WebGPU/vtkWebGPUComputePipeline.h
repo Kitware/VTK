@@ -88,6 +88,7 @@ protected:
 
 private:
   friend class vtkWebGPUComputePassInternals;
+  friend class vtkWebGPUPolyDataMapper;
   friend class vtkWebGPURenderWindow;
   friend class vtkWebGPURenderer;
 

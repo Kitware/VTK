@@ -59,12 +59,12 @@ private:
   /**
    * Returns the WebGPU Render window of the given renderer. Nullptr if something goes wrong
    */
-  vtkWebGPURenderWindow* GetRendererRenderWindow(vtkRenderer* ren);
+  vtkWebGPURenderWindow* GetRendererRenderWindow(vtkRenderer* renderer);
 
   /**
    * Creates the compute pipeline and sets up the compute passes for rendering point clouds
    */
-  void Initialize(vtkRenderer* ren);
+  void Initialize(vtkRenderer* renderer);
 
   /**
    * Copies the depth buffer that contains the depth of the points back to the depth buffer of the
@@ -75,7 +75,7 @@ private:
    * a render window framebuffer. The solution is to use a fragment shader that reads from the
    * buffer and writes to the depth buffer (using the rasterizer pipeline)
    */
-  void UpdateRenderWindowDepthBuffer(vtkRenderer* ren);
+  void UpdateRenderWindowDepthBuffer(vtkRenderer* renderer);
 
   /**
    * Creates the render pipeline for copying the point depth buffer to the render window's depth
@@ -96,27 +96,27 @@ private:
    * renderer isn't the same size as the size of the current point depth buffer, the point depth
    * buffer will be resized
    */
-  void Update(vtkRenderer* ren);
+  void Update(vtkRenderer* renderer);
 
   /**
    * Sets the device of the render window of the given renderer on the compute pipeline
    */
-  void UseRenderWindowDevice(vtkRenderer* ren);
+  void UseRenderWindowDevice(vtkRenderer* renderer);
 
   /**
    * Resizes the textures used by the point cloud mapper to the size of the render window
    */
-  void ResizeToRenderWindow(vtkRenderer* ren);
+  void ResizeToRenderWindow(vtkRenderer* renderer);
 
   /**
    * Sets up the compute pass that copies the depth buffer of the render window
    */
-  void InitializeDepthCopyPass(vtkRenderer* ren);
+  void InitializeDepthCopyPass(vtkRenderer* renderer);
 
   /**
    * Sets up the compute pass that renders the points
    */
-  void InitializePointRenderPass(vtkRenderer* ren);
+  void InitializePointRenderPass(vtkRenderer* renderer);
 
   /**
    * Resizes and uploads the points data to be rendered from the current CachedInput.
@@ -139,7 +139,7 @@ private:
    * Updates the view projection matrix buffer with the view projection matrix data of the matrix of
    * the WebGPURenderer this compute point cloud renderer is rendering to
    */
-  void UploadCameraVPMatrix(vtkRenderer* ren);
+  void UploadCameraVPMatrix(vtkRenderer* renderer);
 
   // Whether or not the compute pipeline has been initialized
   bool Initialized = false;

@@ -23,6 +23,8 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderer.h"
 
+#include "vtksys/SystemTools.hxx"
+
 #include <exception>
 #include <sstream>
 
@@ -1774,10 +1776,11 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   {
     return;
   }
-  for (auto ren : vtk::Range(this->Renderers))
+  for (auto renderer : vtk::Range(this->Renderers))
   {
-    ren->ReleaseGraphicsResources(this);
+    renderer->ReleaseGraphicsResources(this);
   }
+  this->WGPUPipelineCache->ReleaseGraphicsResources(w);
   this->DestroyFSQGraphicsPipeline();
   this->DestroyDepthStencilTexture();
   this->DestroyOffscreenColorAttachments();
@@ -1799,6 +1802,42 @@ void vtkWebGPURenderWindow::SetWGPUConfiguration(vtkWebGPUConfiguration* config)
   {
     this->Initialize();
   }
+}
+
+//------------------------------------------------------------------------------
+std::string vtkWebGPURenderWindow::PreprocessShaderSource(const std::string& source) const
+{
+  std::istringstream is(source);
+  std::ostringstream os;
+  std::string line;
+
+  while (std::getline(is, line))
+  {
+    if (line.find("#include") != std::string::npos)
+    {
+      auto pieces = vtksys::SystemTools::SplitString(line, ' ');
+      if (pieces.size() == 3)
+      {
+        const auto key = pieces[2].substr(1, pieces[2].size() - 2);
+        const auto replacement = this->WGPUShaderDatabase->GetShaderSource(key);
+        if (!replacement.empty())
+        {
+          os << "// Start " << key << '\n';
+          os << this->PreprocessShaderSource(replacement) << '\n';
+          os << "// End " << key << '\n';
+        }
+        else
+        {
+          vtkErrorMacro(<< "Failed to substitute " << line);
+        }
+      }
+    }
+    else
+    {
+      os << line << '\n';
+    }
+  }
+  return os.str();
 }
 
 VTK_ABI_NAMESPACE_END

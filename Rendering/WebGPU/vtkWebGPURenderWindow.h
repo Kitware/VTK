@@ -1,5 +1,15 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+/**
+ * @class   vtkWebGPURenderWindow
+ * @brief   WebGPU rendering window
+ *
+ * vtkWebGPURenderWindow is a concrete implementation of the abstract class
+ * vtkRenderWindow. vtkWebGPURenderer interfaces to the WebGPU graphics
+ * library. Application programmers should normally use vtkRenderWindow
+ * instead of the WebGPU specific version.
+ */
+
 #ifndef vtkWebGPURenderWindow_h
 #define vtkWebGPURenderWindow_h
 
@@ -9,6 +19,8 @@
 #include "vtkTypeUInt8Array.h"             // for ivar
 #include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
+#include "vtkWebGPURenderPipelineCache.h"  // for vtkWebGPURenderPipelineCache
+#include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtk_wgpu.h"                      // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -160,6 +172,25 @@ public:
 
   void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
   vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
+
+  /**
+   * Get a database of all WebGPU shader source codes in VTK.
+   * You can extend the database with custom source code through the
+   * vtkWebGPUShaderDatabase::AddShaderSource API.
+   */
+  vtkGetNewMacro(WGPUShaderDatabase, vtkWebGPUShaderDatabase);
+
+  /**
+   * Get the pipeline cache for this renderer. Use this to minimize costly creation of identical
+   * render pipelines.
+   */
+  vtkGetNewMacro(WGPUPipelineCache, vtkWebGPURenderPipelineCache);
+
+  /**
+   * Replaces all include statements in the given source code with source code
+   * corresponding to the included file from the database.
+   */
+  std::string PreprocessShaderSource(const std::string& source) const;
 
   /**
    * Create a new render pass encoder on the webgpu device.
@@ -328,6 +359,8 @@ protected:
 
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
+  vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
+  vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
 
   int ScreenSize[2];
 

@@ -36,7 +36,7 @@ public:
   static vtkWebGPUComputeFrustumCuller* New();
 
   virtual double Cull(
-    vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized) override;
+    vtkRenderer* renderer, vtkProp** propList, int& listLength, int& initialized) override;
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -110,7 +110,7 @@ private:
   /**
    * Re-uploads the camera data to the GPU
    */
-  void UpdateCamera(vtkRenderer* ren);
+  void UpdateCamera(vtkRenderer* renderer);
 
   /**
    * Callback that reads the number of objects that passed the culling test and that stores the

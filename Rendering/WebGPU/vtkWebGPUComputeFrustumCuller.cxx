@@ -61,7 +61,7 @@ void vtkWebGPUComputeFrustumCuller::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 double vtkWebGPUComputeFrustumCuller::Cull(
-  vtkRenderer* ren, vtkProp** propList, int& listLength, int& initialized)
+  vtkRenderer* renderer, vtkProp** propList, int& listLength, int& initialized)
 {
   if (listLength != this->PreviousPropsCount)
   {
@@ -72,7 +72,7 @@ double vtkWebGPUComputeFrustumCuller::Cull(
   // Reuploads the bounds if some bounds actually need reupload
   this->UpdateBoundsBuffer(propList, listLength);
   // Reuploads the camera data if the camera was modified since last time
-  this->UpdateCamera(ren);
+  this->UpdateCamera(renderer);
 
   this->PreviousPropsCount = listLength;
 
@@ -252,15 +252,15 @@ void vtkWebGPUComputeFrustumCuller::UpdateBoundsBuffer(vtkProp** propList, int l
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUComputeFrustumCuller::UpdateCamera(vtkRenderer* ren)
+void vtkWebGPUComputeFrustumCuller::UpdateCamera(vtkRenderer* renderer)
 {
-  vtkCamera* camera = ren->GetActiveCamera();
+  vtkCamera* camera = renderer->GetActiveCamera();
   // Getting the view-projection matrix
   vtkMatrix4x4* viewMatrix = camera->GetModelViewTransformMatrix();
 
   // We're using [0, 1] for znear and zfar here to align with WebGPU convention
   vtkMatrix4x4* projectionMatrix =
-    camera->GetProjectionTransformMatrix(ren->GetTiledAspectRatio(), 0, 1);
+    camera->GetProjectionTransformMatrix(renderer->GetTiledAspectRatio(), 0, 1);
   vtkNew<vtkMatrix4x4> viewProj;
   vtkMatrix4x4::Multiply4x4(projectionMatrix, viewMatrix, viewProj);
   // WebGPU uses column major matrices but VTK is row major

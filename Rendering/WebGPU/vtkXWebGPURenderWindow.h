@@ -5,7 +5,7 @@
  * @brief WebGPU rendering window for the X Window system
  *
  * vtkXWebGPURenderWindow is a concrete implementation of the abstract class vtkRenderWindow.
- * vtkWebGPURenderer interfaces to the OpenGL graphics library.  Application programmers should
+ * vtkWebGPURenderer interfaces to the WebGPU graphics library.  Application programmers should
  * normally use vtkRenderWindow instead of the WebGPU specific version.
  */
 
@@ -203,7 +203,7 @@ public:
 
   /**
    * Initialize the render window from the information associated
-   * with the currently activated OpenGL context.
+   * with the currently activated native graphics context.
    */
   bool InitializeFromCurrentContext() override;
 

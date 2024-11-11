@@ -5,7 +5,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     "-sASYNCIFY_STACK_SIZE=81920" #~297 nesting levels
     # O2 or higher make wasm-opt terribly slow.
     # test executables take a minute to link.
-    "-O1"
+    "-O2"
+    "-g2"
     # we need emscripten to emit code that handles exit code and atexit(s)
     "-sEXIT_RUNTIME=1"
     "-sALLOW_MEMORY_GROWTH=1")
@@ -33,6 +34,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeTexture.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA
   TestLowPowerRenderWindow.cxx,NO_DATA
+  TestManyActorsOneMapper.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA
   TestReadPixels.cxx,NO_DATA,NO_VALID
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
@@ -49,6 +51,10 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputeTriangulationVerifyPointIds,TestComputeTriangulation.cxx,NO_DATA,NO_VALID)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --translucent
+  TestLineRenderingTranslucent,TestLineRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 0.5
   TestPointRendering_1,TestPointRendering.cxx,NO_DATA)
 
@@ -63,6 +69,22 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 7.0
   TestPointRendering_4,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 0.5 --round
+  TestPointRenderingRound_1,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 1.0 --round
+  TestPointRenderingRound_2,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 3.0 --round
+  TestPointRenderingRound_3,TestPointRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 7.0 --round
+  TestPointRenderingRound_4,TestPointRendering.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 0.5 --line-width 0.5
