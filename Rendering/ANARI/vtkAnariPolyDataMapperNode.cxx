@@ -74,7 +74,7 @@ public:
    * (e.g., wireframe or points).
    */
   void RenderSurfaces(anari::Sampler, vtkActor*, vtkPolyData*, std::vector<vec3>&,
-    std::vector<u_int>&, bool, double, double, vtkDataArray*, vtkPiecewiseFunction*,
+    std::vector<uint32_t>&, bool, double, double, vtkDataArray*, vtkPiecewiseFunction*,
     std::vector<vec2>&, std::vector<float>&, std::vector<vec4>&,
     vtkPolyDataMapperNode::vtkPDConnectivity& conn, int);
 
@@ -83,7 +83,7 @@ public:
    * of which can have its own radius.
    */
   anari::Surface RenderAsSpheres(anari::Sampler, vtkProperty*, std::vector<vec3>&,
-    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
     std::vector<float>&, std::vector<vec4>&, int);
 
   /**
@@ -91,7 +91,7 @@ public:
    * of which can have its own radius.
    */
   anari::Surface RenderAsCylinders(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
     std::vector<float>&, std::vector<vec4>&, int);
 
   /**
@@ -99,14 +99,14 @@ public:
    * of which can have its own radius.
    */
   anari::Surface RenderAsCurves(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<u_int>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
+    std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
     std::vector<float>&, std::vector<vec4>&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of triangles.
    */
   anari::Surface RenderAsTriangles(anari::Sampler anariSampler, vtkProperty* property,
-    std::vector<vec3>&, std::vector<u_int>& indexArray, std::vector<vec3>& normals,
+    std::vector<vec3>&, std::vector<uint32_t>& indexArray, std::vector<vec3>& normals,
     std::vector<vec2>& textureCoords, std::vector<float>&, std::vector<vec4>&, int);
 
   /**
@@ -361,11 +361,11 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
 
       anari::DataType anariLinearColorFormats[4] = { ANARI_UFIXED8_R_SRGB, ANARI_UFIXED8_RA_SRGB,
         ANARI_UFIXED8_RGB_SRGB, ANARI_UFIXED8_RGBA_SRGB };
-      std::vector<u_char> charData;
+      std::vector<uint8_t> charData;
 
       if (comps > 4)
       {
-        u_char* imageDataPtr = (u_char*)imageData->GetScalarPointer(0, 0, 0);
+        uint8_t* imageDataPtr = (uint8_t*)imageData->GetScalarPointer(0, 0, 0);
 
         for (int i = 0; i < xsize; i++)
         {
@@ -424,11 +424,11 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
       anari::DataType anariColorFormats[4] = { ANARI_UFIXED16, ANARI_UFIXED16_VEC2,
         ANARI_UFIXED16_VEC3, ANARI_UFIXED16_VEC4 };
 
-      std::vector<u_short> shortData;
+      std::vector<uint16_t> shortData;
 
       if (comps > 4)
       {
-        u_short* imageDataPtr = reinterpret_cast<u_short*>(imageData->GetScalarPointer(0, 0, 0));
+        uint16_t* imageDataPtr = reinterpret_cast<uint16_t*>(imageData->GetScalarPointer(0, 0, 0));
 
         for (int i = 0; i < xsize; i++)
         {
@@ -772,9 +772,9 @@ vtkImageData* vtkAnariPolyDataMapperNodeInternals::GetTextureMap(
 
 //----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSampler,
-  vtkActor* actor, vtkPolyData* poly, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
-  bool isTriangleIndex, double pointSize, double lineWidth, vtkDataArray* scaleArray,
-  vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
+  vtkActor* actor, vtkPolyData* poly, std::vector<vec3>& vertices,
+  std::vector<uint32_t>& indexArray, bool isTriangleIndex, double pointSize, double lineWidth,
+  vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
   std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
   vtkPolyDataMapperNode::vtkPDConnectivity& conn, int cellFlag)
 {
@@ -873,7 +873,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
+  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
   std::vector<vec3>& normals, std::vector<vec2>& textureCoords,
   std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors, int cellFlag)
 {
@@ -1088,7 +1088,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
+  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
   double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
   std::vector<vec4>& pointColors, int cellFlag)
@@ -1288,7 +1288,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
+  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
   double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
   std::vector<vec4>& pointColors, int cellFlag)
@@ -1337,7 +1337,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   {
     auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numIndices);
     {
-      auto indicesArrayPtr = anari::map<u_int>(this->AnariDevice, indicesArray);
+      auto indicesArrayPtr = anari::map<uint32_t>(this->AnariDevice, indicesArray);
 
       for (size_t i = 0; i < numIndices; i++)
       {
@@ -1484,7 +1484,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<u_int>& indexArray,
+  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
   double pointSize, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
   std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
   std::vector<vec4>& pointColors, int cellFlag)
@@ -1536,7 +1536,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   {
     auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numPositions);
     {
-      auto indicesArrayPtr = anari::map<u_int32_t>(this->AnariDevice, indicesArray);
+      auto indicesArrayPtr = anari::map<uint32_t>(this->AnariDevice, indicesArray);
 
       for (size_t i = 0; i < numPositions; i++)
       {
@@ -1866,7 +1866,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
       {
         // Use the color for the field data value
         int ncomps = mapperColors->GetNumberOfComponents();
-        u_char* mapperColorsPtr = mapperColors->GetPointer(0);
+        uint8_t* mapperColorsPtr = mapperColors->GetPointer(0);
         mapperColorsPtr = mapperColorsPtr + mapper->GetFieldDataTupleId() * ncomps;
         double diffuseColor[3] = { mapperColorsPtr[0] * property->GetDiffuse() / 255.0,
           mapperColorsPtr[1] * property->GetDiffuse() / 255.0,
@@ -1882,7 +1882,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
 
       for (int i = 0; i < numPointColors; i++)
       {
-        u_char* color = mapperColors->GetPointer(ncomps * i);
+        uint8_t* color = mapperColors->GetPointer(ncomps * i);
         float alpha = ncomps == 3 ? 1.0f : (color[3] / 255.0f);
 
         pointColors[i] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, alpha };
