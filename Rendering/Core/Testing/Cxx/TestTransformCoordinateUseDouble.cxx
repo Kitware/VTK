@@ -73,7 +73,7 @@ int TestTransformCoordinateUseDouble(int argc, char* argv[])
     vtkNew<vtkActor2D> boxActor;
     boxActor->SetMapper(polyDataMapper);
 
-    renderer->AddActor2D(boxActor);
+    renderer->AddViewProp(boxActor);
 
     renderWindow->AddRenderer(renderer);
 

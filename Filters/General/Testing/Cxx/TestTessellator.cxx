@@ -3094,7 +3094,7 @@ int TestTessellator(int argc, char* argv[])
     startTetLabelMapper->SetLabelFormat("  %2d");
     // startTetLabelMapper->SetLabelModeToLabelIds();
     startTetLabelActor->SetMapper(startTetLabelMapper);
-    r->AddActor2D(startTetLabelActor);
+    r->AddViewProp(startTetLabelActor);
     startTetLabelMapper->GetLabelTextProperty()->SetFontSize(32);
 #ifdef FOR_PAPER
     startTetLabelMapper->GetLabelTextProperty()->SetColor(.1, .1, 0.7);
@@ -3105,7 +3105,7 @@ int TestTessellator(int argc, char* argv[])
     annotationActor->GetTextProperty()->ShadowOn();
     annotationActor->SetPosition2(10, 40);
 #ifndef FOR_PAPER
-    r->AddActor2D(annotationActor);
+    r->AddViewProp(annotationActor);
 #endif //  FOR_PAPER
 
     sphere = vtkSphereSource::New();

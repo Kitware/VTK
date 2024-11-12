@@ -91,7 +91,7 @@ for scalarFunction in scalarFunctions:
 #    eval("text" + scalarFunction).SetMapper(eval("textMapper" + scalarFunction))
 #    eval("text" + scalarFunction).SetPosition(2, 3)
 #
-#    eval("ren" + scalarFunction).AddActor2D(eval("text" + scalarFunction))
+#    eval("ren" + scalarFunction).AddViewProp(eval("text" + scalarFunction))
 
     i += 1
 #

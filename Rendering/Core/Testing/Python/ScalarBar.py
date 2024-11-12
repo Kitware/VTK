@@ -71,7 +71,7 @@ renWin.AddRenderer(ren1)
 iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 ren1.AddActor(sphereActor)
-ren1.AddActor2D(scalarBar)
+ren1.AddViewProp(scalarBar)
 renWin.SetSize(350,350)
 # render the image
 #

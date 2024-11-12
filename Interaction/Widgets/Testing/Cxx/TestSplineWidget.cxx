@@ -299,7 +299,7 @@ int TestSplineWidget(int argc, char* argv[])
 
   ren2->SetBackground(1, 1, 1);
   ren2->SetViewport(0.5, 0, 1, 1);
-  ren2->AddActor2D(profile);
+  ren2->AddViewProp(profile);
 
   renWin->SetSize(600, 300);
 

@@ -55,7 +55,7 @@ int TestUserShader2D(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 400);
   renderWindow->AddRenderer(renderer);
-  renderer->AddActor2D(actor);
+  renderer->AddViewProp(actor);
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow);
 

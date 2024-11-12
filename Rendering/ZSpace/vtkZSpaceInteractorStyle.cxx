@@ -345,7 +345,7 @@ void vtkZSpaceInteractorStyle::EndPickCallback(vtkSelection* sel)
 
   this->TextActor->SetDisplayPosition(50, 50);
   this->TextActor->SetInput(pickedText.c_str());
-  this->CurrentRenderer->AddActor2D(this->TextActor);
+  this->CurrentRenderer->AddViewProp(this->TextActor);
 }
 
 //----------------------------------------------------------------------------

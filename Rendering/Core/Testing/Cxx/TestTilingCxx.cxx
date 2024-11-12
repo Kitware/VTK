@@ -93,7 +93,7 @@ int TestTilingCxx(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   ren1->AddActor(sphereActor);
-  ren2->AddActor2D(scalarBar);
+  ren2->AddViewProp(scalarBar);
   renWin->SetSize(160, 160);
   ren1->SetViewport(0, 0, 0.75, 1.0);
   ren2->SetViewport(0.75, 0, 1.0, 1.0);

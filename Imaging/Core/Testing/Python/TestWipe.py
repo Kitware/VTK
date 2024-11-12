@@ -50,7 +50,7 @@ class TestWipe(vtkmodules.test.Testing.vtkTest):
         actor = vtkActor2D()
         actor.SetMapper(mapper)
         imager = vtkRenderer()
-        imager.AddActor2D(actor)
+        imager.AddViewProp(actor)
 
         renWin.AddRenderer(imager)
 
@@ -77,7 +77,7 @@ class TestWipe(vtkmodules.test.Testing.vtkTest):
             actor[wipe].SetMapper(mapper[wipe])
 
             imagers.update({wipe:vtkRenderer()})
-            imagers[wipe].AddActor2D(actor[wipe])
+            imagers[wipe].AddViewProp(actor[wipe])
 
             renWin.AddRenderer(imagers[wipe])
 

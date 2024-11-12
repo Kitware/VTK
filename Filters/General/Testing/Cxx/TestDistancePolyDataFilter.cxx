@@ -64,7 +64,7 @@ int TestDistancePolyDataFilter(int, char*[])
 
   renderer->AddActor(actor);
   renderer->AddActor(actor2);
-  renderer->AddActor2D(scalarBar);
+  renderer->AddViewProp(scalarBar);
 
   renWin->Render();
   distanceFilter->Print(std::cout);

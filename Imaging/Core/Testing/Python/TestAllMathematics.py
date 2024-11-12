@@ -71,7 +71,7 @@ class TestAllMathematics(vtkmodules.test.Testing.vtkTest):
             actor.append(vtkActor2D())
             actor[idx].SetMapper(mapper[idx])
             imager.append(vtkRenderer())
-            imager[idx].AddActor2D(actor[idx])
+            imager[idx].AddViewProp(actor[idx])
             renWin.AddRenderer(imager[idx])
 
         column = 1

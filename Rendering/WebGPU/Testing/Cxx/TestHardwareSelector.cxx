@@ -120,7 +120,7 @@ int TestHardwareSelector(int argc, char* argv[])
   textActor->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   textActor->GetPositionCoordinate()->SetValue(0.4, 0.1);
   textActor->SetMapper(textMapper);
-  renderer->AddActor2D(textActor);
+  renderer->AddViewProp(textActor);
 
   renderer->ResetCamera();
   renderer->SetBackground(0.2, 0.3, 0.4);

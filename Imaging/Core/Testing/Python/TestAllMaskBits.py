@@ -72,7 +72,7 @@ class TestAllMaskBits(vtkmodules.test.Testing.vtkTest):
             actor[idx].SetMapper(mapper[idx])
 
             imager.update({idx: vtkRenderer()})
-            imager[idx].AddActor2D(actor[idx])
+            imager[idx].AddViewProp(actor[idx])
 
             renWin.AddRenderer(imager[idx])
 

@@ -109,9 +109,9 @@ int TestGL2PSLabeledDataMapper(int, char*[])
   visPts->SetRenderer(ren);
   visCells->SetRenderer(ren);
   ren->AddActor(sphereActor);
-  ren->AddActor2D(rectActor);
-  ren->AddActor2D(pointLabels);
-  ren->AddActor2D(cellLabels);
+  ren->AddViewProp(rectActor);
+  ren->AddViewProp(pointLabels);
+  ren->AddViewProp(cellLabels);
   ren->SetBackground(1., 1., 1.);
   ren->GetActiveCamera()->Zoom(.55);
 

@@ -79,7 +79,7 @@ class TestImageThresholdConnectivity(vtkmodules.test.Testing.vtkTest):
                     act[k].SetMapper(map[k])
 
                     ren.append(vtkRenderer())
-                    ren[k].AddActor2D(act[k])
+                    ren[k].AddViewProp(act[k])
 
                     renWin.AddRenderer(ren[k])
 

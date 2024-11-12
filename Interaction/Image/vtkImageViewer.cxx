@@ -27,7 +27,7 @@ vtkImageViewer::vtkImageViewer()
 
   // setup the pipeline
   this->Actor2D->SetMapper(this->ImageMapper);
-  this->Renderer->AddActor2D(this->Actor2D);
+  this->Renderer->AddViewProp(this->Actor2D);
   this->RenderWindow->AddRenderer(this->Renderer);
 
   this->FirstRender = 1;

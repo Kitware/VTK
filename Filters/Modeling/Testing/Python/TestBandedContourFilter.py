@@ -160,7 +160,7 @@ iren.SetRenderWindow(renWin)
 # Add the actors to the renderer, set the background and size
 #
 ren1.AddActor(actor)
-#ren1 AddActor2D pointLabels #for debugging only
+#ren1 AddViewProp pointLabels #for debugging only
 ren1.SetBackground(0,0,0)
 renWin.SetSize(300,80)
 renWin.Render()

@@ -54,7 +54,7 @@ vtkSmartPointer<vtkRenderer> CreateScene(
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
-  renderer->AddActor2D(textActor);
+  renderer->AddViewProp(textActor);
   renderer->ResetCamera();
 
   vtkNew<vtkLightKit> lightKit;

@@ -37,7 +37,7 @@ int TestTextBoundingBox(int, char*[])
   textActor->SetInput(first);
   textActor->GetTextProperty()->SetFontSize(24);
   textActor->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
-  renderer->AddActor2D(textActor);
+  renderer->AddViewProp(textActor);
 
   // get the bounding box
   double bbox[4];

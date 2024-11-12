@@ -80,8 +80,8 @@ contourLabels.SetMapper(ldm)
 
 # Add the actors to the renderer, set the background and size
 #
-ren1.AddActor2D(isoActor)
-ren1.AddActor2D(contourLabels)
+ren1.AddViewProp(isoActor)
+ren1.AddViewProp(contourLabels)
 ren1.SetBackground(1, 1, 1)
 
 renWin.SetSize(500, 500)

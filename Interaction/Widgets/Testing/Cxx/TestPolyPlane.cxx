@@ -266,7 +266,7 @@ int TestPolyPlane(int argc, char* argv[])
 
   // Render the image
   iren->Initialize();
-  ren2->AddActor2D(profile);
+  ren2->AddViewProp(profile);
   renWin->Render();
   ren1->ResetCamera();
 
