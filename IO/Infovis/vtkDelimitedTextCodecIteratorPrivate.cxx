@@ -19,14 +19,43 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
+bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::MaxReached()
+{
+  return this->HasMax && this->Current == this->Max;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::AcceptingField()
+{
+  return (!this->HasMax || this->Current < this->Max);
+}
+
+//------------------------------------------------------------------------------
+void vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::Next()
+{
+  this->Current++;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::FirstAccepted()
+{
+  return this->Current == 0;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::GetNumberOfAcceptedRecords()
+{
+  return this->Current;
+}
+
+//------------------------------------------------------------------------------
 vtkDelimitedTextCodecIteratorPrivate::vtkDelimitedTextCodecIteratorPrivate(
   const vtkIdType max_records, const std::string& record_delimiters,
   const std::string& field_delimiters, const std::string& string_delimiters,
   const std::string& whitespace, const std::string& escape, bool have_headers,
   bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
   bool force_double, int default_int, double default_double, vtkTable* const output_table)
-  : MaxRecords(max_records)
-  , MaxRecordIndex(have_headers ? max_records + 1 : max_records)
+  : RecordsCount(max_records > 0, have_headers ? max_records + 1 : max_records)
   , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())
   , FieldDelimiters(field_delimiters.begin(), field_delimiters.end())
   , StringDelimiters(string_delimiters.begin(), string_delimiters.end())
@@ -82,7 +111,7 @@ vtkDelimitedTextCodecIteratorPrivate& vtkDelimitedTextCodecIteratorPrivate::oper
   const vtkTypeUInt32& value)
 {
   // If we've already read our maximum number of records, we're done ...
-  if (this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
+  if (this->RecordsCount.MaxReached())
   {
     return *this;
   }
@@ -101,13 +130,24 @@ vtkDelimitedTextCodecIteratorPrivate& vtkDelimitedTextCodecIteratorPrivate::oper
   // Look for record delimiters ...
   if (this->RecordDelimiters.count(value))
   {
-    this->InsertField();
-    this->CurrentRecordIndex += 1;
+    // optionnaly store current field
+    if (this->RecordsCount.AcceptingField())
+    {
+      this->InsertField();
+    }
+
+    // reset internal state for new Record.
+    this->RecordsCount.Next();
     this->CurrentFieldIndex = 0;
     this->CurrentField.clear();
     this->RecordAdjacent = true;
     this->WithinString = 0;
     this->WhiteSpaceOnlyString = true;
+    return *this;
+  }
+
+  if (!this->RecordsCount.AcceptingField())
+  {
     return *this;
   }
 
@@ -373,14 +413,14 @@ void vtkDelimitedTextCodecIteratorPrivate::InsertField()
 {
   // Add column only when parsing first line
   if (this->CurrentFieldIndex >= this->OutputTable->GetNumberOfColumns() &&
-    this->CurrentRecordIndex == 0)
+    this->RecordsCount.FirstAccepted())
   {
     this->CreateColumn();
   }
 
   if (this->CurrentFieldIndex < this->OutputTable->GetNumberOfColumns())
   {
-    vtkIdType rec_index = this->CurrentRecordIndex;
+    vtkIdType rec_index = this->RecordsCount.GetNumberOfAcceptedRecords();
     if (this->HaveHeaders)
     {
       rec_index--;

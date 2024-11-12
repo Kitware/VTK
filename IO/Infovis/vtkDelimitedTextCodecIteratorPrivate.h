@@ -106,17 +106,49 @@ private:
    */
   void InsertField();
 
-  vtkIdType MaxRecords = 0;
-  vtkIdType MaxRecordIndex = 0;
+  /**
+   * Utility struct to count records and get associated informations.
+   * A "Record" is usually a line (see RecordDelimiters)
+   */
+  struct RecordsCounter
+  {
+    RecordsCounter(bool has, vtkIdType max)
+      : HasMax(has)
+      , Max(max)
+    {
+    }
+
+    bool HasMax = false;
+    vtkIdType Max = 0;
+    vtkIdType Current = 0;
+
+    // Return true if max records was reached
+    bool MaxReached();
+
+    // Return true if current records is acceptable, based on its index
+    bool AcceptingField();
+
+    // Return true if this is the first acceptable records
+    bool FirstAccepted();
+
+    // Increment current index
+    void Next();
+
+    // Return the current number of read record.
+    vtkIdType GetNumberOfAcceptedRecords();
+  };
+
+  RecordsCounter RecordsCount;
+
   std::set<vtkTypeUInt32> RecordDelimiters;
   std::set<vtkTypeUInt32> FieldDelimiters;
   std::set<vtkTypeUInt32> StringDelimiters;
   std::set<vtkTypeUInt32> Whitespace;
   std::set<vtkTypeUInt32> EscapeDelimiter;
+
   bool HaveHeaders = false;
   bool WhiteSpaceOnlyString = true;
   vtkTable* OutputTable = nullptr;
-  vtkIdType CurrentRecordIndex = 0;
   vtkIdType CurrentFieldIndex = 0;
   std::string CurrentField;
   bool RecordAdjacent = true;
