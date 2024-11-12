@@ -61,8 +61,8 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 
     if (cIt->GetCellType() == VTK_POLYHEDRON)
     {
-      vtkIdList* oFaces = oIt->GetFaces();
-      vtkIdList* cFaces = cIt->GetFaces();
+      vtkIdList* oFaces = oIt->GetSerializedCellFaces();
+      vtkIdList* cFaces = cIt->GetSerializedCellFaces();
 
       if (cFaces->GetNumberOfIds() != oFaces->GetNumberOfIds())
       {

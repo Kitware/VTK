@@ -139,6 +139,7 @@ protected:
   vtkCompositePolyDataMapper* Parent = nullptr;
   // Maps an address of a vtkPolyData to its rendering attributes.
   std::map<std::uintptr_t, std::unique_ptr<GLBatchElement>> VTKPolyDataToGLBatchElement;
+  std::map<unsigned int, std::uintptr_t> FlatIndexToPolyData;
   // Index arrays for vert, line, poly, strip, edge, stripedge
   std::vector<unsigned int> IndexArray[PrimitiveEnd];
   // Whether primitive IDs are used

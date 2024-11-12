@@ -124,6 +124,12 @@ public:
   vtkCellArray* GetCellFaces();
 
   /**
+   * Get a serialized view of the faces for a polyhedral cell.
+   * This is only valid when CellType is VTK_POLYHEDRON.
+   */
+  vtkIdList* GetSerializedCellFaces();
+
+  /**
    * Get the faces for a polyhedral cell. This is only valid when CellType
    * is VTK_POLYHEDRON.
    */
@@ -280,8 +286,7 @@ inline vtkCellArray* vtkCellIterator::GetCellFaces()
 }
 
 //------------------------------------------------------------------------------
-// To be removed when deprecating
-inline vtkIdList* vtkCellIterator::GetFaces()
+inline vtkIdList* vtkCellIterator::GetSerializedCellFaces()
 {
   if (!this->CheckCache(FacesFlag))
   {

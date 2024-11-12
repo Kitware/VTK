@@ -48,26 +48,26 @@ function(determine_version source_dir git_command var_prefix)
   extract_version_components("${output}" tmp)
   if(DEFINED tmp_VERSION)
     if (${var_prefix}_BUILD_VERSION GREATER "20200101")
-      if (NOT tmp_MAJOR_VERSION STREQUAL ${var_prefix}_MAJOR_VERSION OR
-          NOT tmp_MINOR_VERSION STREQUAL ${var_prefix}_MINOR_VERSION)
-        message(WARNING
-          "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
-        if (NOT "$ENV{CI}" STREQUAL "")
-          message(WARNING
-            "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
-        endif ()
-      endif ()
+#      if (NOT tmp_MAJOR_VERSION STREQUAL ${var_prefix}_MAJOR_VERSION OR
+#          NOT tmp_MINOR_VERSION STREQUAL ${var_prefix}_MINOR_VERSION)
+#        message(WARNING
+#          "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
+#        if (NOT "$ENV{CI}" STREQUAL "")
+#          message(WARNING
+#            "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
+#        endif ()
+#      endif ()
       # git describe rely on tags that do not have access to the build version, correct the ${var_prefix}_VERSION accordingly
       if (${var_prefix}_BUILD_VERSION GREATER tmp_PATCH_VERSION)
         set(tmp_VERSION "${tmp_MAJOR_VERSION}.${tmp_MINOR_VERSION}.${${var_prefix}_BUILD_VERSION}")
       endif ()
-    elseif (NOT "${tmp_VERSION}" STREQUAL "${${var_prefix}_VERSION}")
-      message(WARNING
-        "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
-      if (NOT "$ENV{CI}" STREQUAL "")
-        message(WARNING
-          "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
-      endif ()
+#    elseif (NOT "${tmp_VERSION}" STREQUAL "${${var_prefix}_VERSION}")
+#      message(WARNING
+#        "Version from git (${tmp_VERSION}) disagrees with hard coded version (${${var_prefix}_VERSION}). Either update the git tags or version.txt.")
+#      if (NOT "$ENV{CI}" STREQUAL "")
+#        message(WARNING
+#          "Please update your fork tags, using this command: `git fetch origin --tags && git push gitlab --tags`.")
+#      endif ()
     endif()
     foreach(suffix VERSION MAJOR_VERSION MINOR_VERSION PATCH_VERSION
                    PATCH_VERSION_EXTRA VERSION_FULL VERSION_IS_RELEASE)

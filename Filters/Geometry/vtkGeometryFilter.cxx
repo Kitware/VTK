@@ -3164,7 +3164,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    if (uGrid && !uGrid->GetFaces())
+    if (uGrid && !uGrid->GetPolyhedronFaces())
     {
       using TFaceIdType = vtkTypeInt8;
       return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
@@ -3193,7 +3193,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
-    if (uGrid && !uGrid->GetFaces())
+    if (uGrid && !uGrid->GetPolyhedronFaces())
     {
       using TFaceIdType = vtkTypeInt8;
       return ExecuteUnstructuredGrid<TInputIdType, TFaceIdType>(
