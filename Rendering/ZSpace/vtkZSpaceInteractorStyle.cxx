@@ -713,7 +713,7 @@ void vtkZSpaceInteractorStyle::RemovePickActor()
   if (this->CurrentRenderer)
   {
     this->CurrentRenderer->RemoveActor(this->PickActor);
-    this->CurrentRenderer->RemoveActor2D(this->TextActor);
+    this->CurrentRenderer->RemoveViewProp(this->TextActor);
     this->PickedInteractionProp = nullptr;
   }
 }
