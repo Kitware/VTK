@@ -174,11 +174,8 @@ void vtkOTScatterPlotMatrix::SetDensityMapVisibility(int plotType, bool visible)
     this->DensityMapsSettings[plotType]->ShowDensityMap != visible)
   {
     this->DensityMapsSettings[plotType]->ShowDensityMap = visible;
+    this->ActivePlotValid = false;
     this->Modified();
-    if (plotType == ACTIVEPLOT)
-    {
-      this->ActivePlotValid = false;
-    }
   }
 }
 
@@ -189,11 +186,8 @@ void vtkOTScatterPlotMatrix::SetDensityLineSize(int plotType, float size)
     this->DensityMapsSettings[plotType]->DensityLineSize != size)
   {
     this->DensityMapsSettings[plotType]->DensityLineSize = size;
+    this->ActivePlotValid = false;
     this->Modified();
-    if (plotType == ACTIVEPLOT)
-    {
-      this->ActivePlotValid = false;
-    }
   }
 }
 
@@ -208,11 +202,8 @@ void vtkOTScatterPlotMatrix::SetDensityMapColor(
     if (this->DensityMapsSettings[plotType]->DensityMapColorMap[density] != color)
     {
       this->DensityMapsSettings[plotType]->DensityMapColorMap[density] = color;
+      this->ActivePlotValid = false;
       this->Modified();
-      if (plotType == ACTIVEPLOT)
-      {
-        this->ActivePlotValid = false;
-      }
     }
   }
 }
