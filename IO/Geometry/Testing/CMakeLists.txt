@@ -92,6 +92,8 @@ vtk_module_test_data(
   Data/prostar.cel
   Data/prostar.vrt
   Data/relative_indices.obj
+  Data/room.cas
+  Data/room.dat
   Data/uGridEx.vtk)
 
 set(enable_large_data_tests FALSE)
@@ -133,8 +135,6 @@ if (VTK_WRAP_PYTHON)
     Data/multi.p3d
     Data/points.txt
     Data/prism.neu
-    Data/room.cas
-    Data/room.dat
     Data/test.p3d
     Data/texThres2.vtk
     Data/vwgt.coords
