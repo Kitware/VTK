@@ -69,7 +69,7 @@ bool TestHeaders(int argc, char* argv[])
 
   reader->SetHaveHeaders(true);
   reader->Update();
-  ret |= CheckOutput(reader->GetOutput(), 6, 6);
+  ret &= CheckOutput(reader->GetOutput(), 6, 6);
 
   return ret;
 }
@@ -89,7 +89,7 @@ bool TestDelimiters(int argc, char* argv[])
   reader->SetFieldDelimiterCharacters(":");
   reader->Update();
   vtkTable* table = reader->GetOutput();
-  ret |= CheckOutput(table, 4, 5);
+  ret &= CheckOutput(table, 4, 5);
 
   auto column = table->GetColumnByName("My Field Name 2");
   if (!column)
@@ -111,7 +111,7 @@ bool TestDelimiters(int argc, char* argv[])
   reader->Update();
   delete[] filepath;
 
-  ret |= CheckOutput(reader->GetOutput(), 9, 1);
+  ret &= CheckOutput(reader->GetOutput(), 9, 1);
 
   column = table->GetColumnByName("Sam");
   if (!column)
@@ -315,7 +315,7 @@ bool TestCharSets(int argc, char* argv[])
   reader->Update();
   delete[] filepath;
 
-  ret |= CheckOutput(reader->GetOutput(), 4, 5);
+  ret &= CheckOutput(reader->GetOutput(), 4, 5);
 
   return ret;
 }
@@ -368,6 +368,67 @@ bool TestPreview(int argc, char* argv[])
 
   return true;
 }
+
+bool TestSkipLines(int argc, char* argv[])
+{
+  char* filepath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/authors.csv");
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetFileName(filepath);
+  delete[] filepath;
+
+  reader->SetSkippedRecords(3);
+  reader->Update();
+  // skip header lines
+
+  return CheckOutput(reader->GetOutput(), 6, 4);
+}
+
+bool TestComments(int argc, char* argv[])
+{
+  char* filepath =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/half_sphere_commented.csv");
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetFileName(filepath);
+  delete[] filepath;
+  reader->SetHaveHeaders(true);
+  reader->Update();
+  vtkTable* outTable = reader->GetOutput();
+
+  // check the line with ending comment
+  vtkVariant variant = outTable->GetValueByName(2, "RandomPointScalars");
+  auto value = variant.ToInt();
+  if (value != 57)
+  {
+    vtkLog(ERROR, "Wrong value in commented line, has " << value);
+    return false;
+  }
+
+  if (!CheckOutput(outTable, 7, 50))
+  {
+    return false;
+  }
+
+  // add comma as comment char
+  reader->SetCommentCharacters("#,");
+  // use another field delimiter
+  reader->SetFieldDelimiterCharacters(" ");
+  reader->Update();
+  outTable = reader->GetOutput();
+  if (!CheckOutput(outTable, 1, 50))
+  {
+    return false;
+  }
+
+  vtkAbstractArray* named = outTable->GetColumnByName("Normals:0");
+  vtkAbstractArray* first = outTable->GetColumn(0);
+  if (!named)
+  {
+    vtkLog(ERROR, "Wrong name for column " << first->GetName());
+    return false;
+  }
+
+  return true;
+}
 };
 
 //------------------------------------------------------------------------------
@@ -400,6 +461,14 @@ int TestDelimitedTextReader(int argc, char* argv[])
   else if (!::TestPreview(argc, argv))
   {
     vtkLog(ERROR, "Test Preview failed.\n");
+  }
+  else if (!::TestSkipLines(argc, argv))
+  {
+    vtkLog(ERROR, "Test SkipLines failed.\n");
+  }
+  else if (!::TestComments(argc, argv))
+  {
+    vtkLog(ERROR, "Test Comments failed.\n");
   }
   else
   {
