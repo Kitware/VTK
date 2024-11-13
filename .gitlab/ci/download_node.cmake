@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(node_version "22.0.0")
-set(node_baseurl "https://nodejs.org/download/release")
+set(node_url "https://vtk.org/files/support")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(node_platform "win-x64")
@@ -15,7 +15,6 @@ else ()
   message(FATAL_ERROR
       "Unknown platform for node $ENV{CMAKE_CONFIGURATION}")
 endif ()
-set(node_url "${node_baseurl}/v${node_version}")
 set(node_file "node-v${node_version}-${node_platform}.${node_ext}")
 
 # Download the file.
