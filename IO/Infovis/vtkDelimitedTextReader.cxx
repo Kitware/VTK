@@ -69,6 +69,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReplacementCharacter: " << this->ReplacementCharacter << endl;
   os << indent << "FieldDelimiterCharacters: "
      << (this->FieldDelimiterCharacters ? this->FieldDelimiterCharacters : "(none)") << endl;
+  os << indent << "CommentCharacters: " << this->CommentCharacters << endl;
   os << indent << "HaveHeaders: " << (this->HaveHeaders ? "true" : "false") << endl;
   os << indent
      << "MergeConsecutiveDelimiters: " << (this->MergeConsecutiveDelimiters ? "true" : "false")
@@ -327,9 +328,9 @@ int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
   {
     vtkDelimitedTextCodecIteratorPrivate iterator(this->MaxRecords, this->UnicodeRecordDelimiters,
       this->UnicodeFieldDelimiters, this->UnicodeStringDelimiters, this->UnicodeWhitespace,
-      this->UnicodeEscapeCharacter, this->HaveHeaders, this->MergeConsecutiveDelimiters,
-      this->UseStringDelimiter, this->DetectNumericColumns, this->ForceDouble,
-      this->DefaultIntegerValue, this->DefaultDoubleValue, output_table);
+      this->CommentChar, this->UnicodeEscapeCharacter, this->HaveHeaders,
+      this->MergeConsecutiveDelimiters, this->UseStringDelimiter, this->DetectNumericColumns,
+      this->ForceDouble, this->DefaultIntegerValue, this->DefaultDoubleValue, output_table);
 
     transCodec->ToUnicode(*input_stream, iterator);
     iterator.ReachedEndOfInput();

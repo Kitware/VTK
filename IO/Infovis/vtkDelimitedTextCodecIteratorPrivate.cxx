@@ -37,29 +37,37 @@ void vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::Next()
 }
 
 //------------------------------------------------------------------------------
+void vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::Skip()
+{
+  this->Skipped++;
+}
+
+//------------------------------------------------------------------------------
 bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::FirstAccepted()
 {
-  return this->Current == 0;
+  return this->Current == this->Skipped;
 }
 
 //------------------------------------------------------------------------------
 vtkIdType vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::GetNumberOfAcceptedRecords()
 {
-  return this->Current;
+  return this->Current - this->Skipped;
 }
 
 //------------------------------------------------------------------------------
 vtkDelimitedTextCodecIteratorPrivate::vtkDelimitedTextCodecIteratorPrivate(
   const vtkIdType max_records, const std::string& record_delimiters,
   const std::string& field_delimiters, const std::string& string_delimiters,
-  const std::string& whitespace, const std::string& escape, bool have_headers,
-  bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
-  bool force_double, int default_int, double default_double, vtkTable* const output_table)
+  const std::string& whitespace, const std::string& comments, const std::string& escape,
+  bool have_headers, bool merg_cons_delimiters, bool use_string_delimiter,
+  bool detect_numeric_columns, bool force_double, int default_int, double default_double,
+  vtkTable* const output_table)
   : RecordsCount(max_records > 0, have_headers ? max_records + 1 : max_records)
   , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())
   , FieldDelimiters(field_delimiters.begin(), field_delimiters.end())
   , StringDelimiters(string_delimiters.begin(), string_delimiters.end())
   , Whitespace(whitespace.begin(), whitespace.end())
+  , CommentChar(comments.begin(), comments.end())
   , EscapeDelimiter(escape.begin(), escape.end())
   , HaveHeaders(have_headers)
   , OutputTable(output_table)
@@ -143,10 +151,29 @@ vtkDelimitedTextCodecIteratorPrivate& vtkDelimitedTextCodecIteratorPrivate::oper
     this->RecordAdjacent = true;
     this->WithinString = 0;
     this->WhiteSpaceOnlyString = true;
+    this->WithinComment = false;
     return *this;
   }
 
   if (!this->RecordsCount.AcceptingField())
+  {
+    return *this;
+  }
+
+  if (this->CommentChar.count(value))
+  {
+    // ignore comment char inside comments or inside string
+    if (!this->WithinComment && !this->WithinString)
+    {
+      if (this->CurrentField.empty() && this->CurrentFieldIndex == 0)
+      {
+        this->RecordsCount.Skip();
+      }
+      this->WithinComment = true;
+    }
+  }
+
+  if (this->WithinComment)
   {
     return *this;
   }

@@ -335,6 +335,17 @@ public:
   vtkGetMacro(PreviewNumberOfLines, vtkIdType);
   ///@}
 
+  ///@{
+  /**
+   * Set / Get the list of possible characters used to start comments section.
+   * Comment section will start at first matching character.
+   * So multi-character (like `//`) is not supported.
+   * Default is `#`.
+   */
+  vtkGetMacro(CommentCharacters, std::string);
+  vtkSetMacro(CommentCharacters, std::string);
+  ///@}
+
 protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader() override;
@@ -356,6 +367,7 @@ protected:
   std::string UnicodeStringDelimiters = "\"";
   std::string UnicodeWhitespace = " \t\r\n\v\f";
   std::string UnicodeEscapeCharacter = "\\";
+  std::string CommentCharacters = "#";
   bool DetectNumericColumns = false;
   bool ForceDouble = false;
   bool TrimWhitespacePriorToNumericConversion = false;

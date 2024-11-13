@@ -32,9 +32,10 @@ class vtkDelimitedTextCodecIteratorPrivate : public vtkTextCodec::OutputIterator
 public:
   vtkDelimitedTextCodecIteratorPrivate(vtkIdType max_records, const std::string& record_delimiters,
     const std::string& field_delimiters, const std::string& string_delimiters,
-    const std::string& whitespace, const std::string& escape, bool have_headers,
-    bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
-    bool force_double, int default_int, double default_double, vtkTable* output_table);
+    const std::string& whitespace, const std::string& comments, const std::string& escape,
+    bool have_headers, bool merg_cons_delimiters, bool use_string_delimiter,
+    bool detect_numeric_columns, bool force_double, int default_int, double default_double,
+    vtkTable* output_table);
 
   ~vtkDelimitedTextCodecIteratorPrivate() override;
 
@@ -120,6 +121,7 @@ private:
 
     bool HasMax = false;
     vtkIdType Max = 0;
+    vtkIdType Skipped = 0;
     vtkIdType Current = 0;
 
     // Return true if max records was reached
@@ -134,6 +136,9 @@ private:
     // Increment current index
     void Next();
 
+    // Mark current record as skipped.
+    void Skip();
+
     // Return the current number of read record.
     vtkIdType GetNumberOfAcceptedRecords();
   };
@@ -144,6 +149,7 @@ private:
   std::set<vtkTypeUInt32> FieldDelimiters;
   std::set<vtkTypeUInt32> StringDelimiters;
   std::set<vtkTypeUInt32> Whitespace;
+  std::set<vtkTypeUInt32> CommentChar = { '#' };
   std::set<vtkTypeUInt32> EscapeDelimiter;
 
   bool HaveHeaders = false;
@@ -160,6 +166,7 @@ private:
   int DefaultIntegerValue = 0;
   double DefaultDoubleValue = 0.;
   vtkTypeUInt32 WithinString = 0;
+  bool WithinComment = false;
 };
 
 VTK_ABI_NAMESPACE_END
