@@ -229,6 +229,17 @@ public:
 
   ///@{
   /**
+   * Set/Get the flag to force the use of manual shift when using
+   * distributed computing
+   * Default is false.
+   */
+  vtkSetMacro(ForcePManualShift, bool);
+  vtkGetMacro(ForcePManualShift, bool);
+  vtkBooleanMacro(ForcePManualShift, bool);
+  ///@}
+
+  ///@{
+  /**
    * Specify the source object used to generate particle initial position (seeds).
    * Note that this method does not connect the pipeline. The algorithm will
    * work on the input data as it is without updating the producer of the data.
@@ -374,6 +385,7 @@ protected:
   bool AdaptiveStepReintegration;
   bool GenerateParticlePathsOutput = true;
   bool GeneratePolyVertexInteractionOutput;
+  bool ForcePManualShift = false;
   std::atomic<vtkIdType> ParticleCounter;
   std::atomic<vtkIdType> IntegratedParticleCounter;
   vtkIdType IntegratedParticleCounterIncrement;

@@ -160,6 +160,7 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController* controller, void*
   tracker->SetIntegrationModel(integrationModel);
   tracker->SetInputData(waveletImg);
   tracker->SetStepFactor(0.1);
+  tracker->ForcePManualShiftOn();
   tracker->SetSourceData(seedPD);
   // Show tracker result
   vtkNew<vtkPolyDataMapper> trackerMapper;

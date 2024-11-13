@@ -139,7 +139,7 @@ public:
 
   // Method to send a particle to others ranks
   // if particle contained in bounds
-  void SendParticle(vtkLagrangianParticle* particle)
+  void SendParticle(vtkLagrangianParticle* particle, bool forceSend)
   {
     // Serialize particle
     // This is strongly linked to Constructor and Receive code
@@ -200,7 +200,8 @@ public:
       {
         continue;
       }
-      if (particle->GetPManualShift() || this->Boxes[i].ContainsPoint(particle->GetPosition()))
+      if (forceSend || particle->GetPManualShift() ||
+        this->Boxes[i].ContainsPoint(particle->GetPosition()))
       {
         ++sendStream->count; // increment counter on message
         this->SendRequests.emplace_back(new vtkMPICommunicator::Request, sendStream);
@@ -849,7 +850,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(const vtkBoundingBox* boun
       }
       else
       {
-        this->StreamManager->SendParticle(particle);
+        this->StreamManager->SendParticle(particle, this->ForcePManualShift);
         delete particle;
       }
     }
@@ -913,14 +914,14 @@ int vtkPLagrangianParticleTracker::Integrate(vtkInitialValueProblemSolver* integ
   {
     if (particle->GetTermination() == vtkLagrangianParticle::PARTICLE_TERMINATION_OUT_OF_DOMAIN)
     {
-      if (!particle->GetPManualShift())
+      if (!this->ForcePManualShift && !particle->GetPManualShift())
       {
         particle->SetPInsertPreviousPosition(true);
       }
 
       // Stream out of domain particles
       std::lock_guard<std::mutex> guard(this->StreamManagerMutex);
-      this->StreamManager->SendParticle(particle);
+      this->StreamManager->SendParticle(particle, this->ForcePManualShift);
     }
   }
   return ret;
@@ -960,7 +961,7 @@ void vtkPLagrangianParticleTracker::ReceiveParticles(
     receivedParticle->SetThreadedData(this->SerialThreadedData);
 
     // Check for manual shift
-    if (receivedParticle->GetPManualShift())
+    if (this->ForcePManualShift || receivedParticle->GetPManualShift())
     {
       this->IntegrationModel->ParallelManualShift(receivedParticle);
       receivedParticle->SetPManualShift(false);

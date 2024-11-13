@@ -245,6 +245,7 @@ int TestLagrangianParticleTracker(int, char*[])
   tracker->SetSurfaceConnection(groupSurface->GetOutputPort());
   tracker->SetCellLengthComputationMode(vtkLagrangianParticleTracker::STEP_CUR_CELL_VEL_DIR);
   tracker->AdaptiveStepReintegrationOff();
+  tracker->ForcePManualShiftOn();
   tracker->Update();
   if (tracker->GetStepFactor() != 0.1)
   {
@@ -285,6 +286,11 @@ int TestLagrangianParticleTracker(int, char*[])
   if (!tracker->GetGenerateParticlePathsOutput())
   {
     std::cerr << "Incorrect GenerateParticlePathsOutput" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!tracker->GetForcePManualShift())
+  {
+    std::cerr << "Incorrect GetForcePManualShift" << std::endl;
     return EXIT_FAILURE;
   }
   tracker->Print(cout);
