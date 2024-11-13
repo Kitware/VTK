@@ -2,23 +2,49 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkConeSource.h"
-#include "vtkElevationFilter.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
-#include "vtkPartitionedDataSetCollectionSource.h"
-#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkScalarsToColors.h"
-#include "vtkSphereSource.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkTransform.h"
+#include "vtkTransformFilter.h"
+
+namespace
+{
+void GenerateGlyphs(vtkGroupDataSetsFilter* groupedMeshes, vtkAlgorithm* source)
+{
+  source->Update();
+  auto* dataset = vtkDataSet::SafeDownCast(source->GetOutputDataObject(0));
+  double bounds[6];
+  dataset->GetBounds(bounds);
+  double lengths[3] = { bounds[1] - bounds[0], bounds[3] - bounds[2], bounds[5] - bounds[4] };
+  double scales[3] = { 1 / lengths[0], 1 / lengths[1], 1 / lengths[2] };
+  for (std::size_t i = 0; i < 2; ++i)
+  {
+    for (std::size_t j = 0; j < 2; ++j)
+    {
+      for (std::size_t k = 0; k < 2; ++k)
+      {
+        vtkNew<vtkTransformFilter> transformFilter;
+        transformFilter->SetInputConnection(source->GetOutputPort());
+        vtkNew<vtkTransform> transform;
+        transform->Translate(i, j, k);
+        transform->Scale(scales);
+        transformFilter->SetTransform(transform);
+        groupedMeshes->AddInputConnection(transformFilter->GetOutputPort());
+      }
+    }
+  }
+}
+
+}
 
 int TestCompositePolyDataMapper(int argc, char* argv[])
 {
@@ -29,20 +55,12 @@ int TestCompositePolyDataMapper(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
 
-  // partitioned datasets
-  vtkNew<vtkPartitionedDataSetCollectionSource> source;
-  source->SetNumberOfShapes(12);
-
-  vtkNew<vtkColorTransferFunction> ctf;
-  ctf->SetColorSpaceToDiverging();
-  ctf->AddRGBPoint(0, 0.231373, 0.298038, 0.752941);
-  ctf->AddRGBPoint(3.14139, 0.865, 0.865, 0.865);
-  ctf->AddRGBPoint(6.28319, 0.705882, 0.0156863, 0.14902);
+  vtkNew<vtkGroupDataSetsFilter> groupMeshes;
+  vtkNew<vtkConeSource> cone;
+  ::GenerateGlyphs(groupMeshes, cone);
 
   vtkNew<vtkCompositePolyDataMapper> mapper;
-  mapper->SetLookupTable(ctf);
-  mapper->DebugOn();
-  mapper->SetInputConnection(source->GetOutputPort());
+  mapper->SetInputConnection(groupMeshes->GetOutputPort());
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
@@ -60,6 +78,10 @@ int TestCompositePolyDataMapper(int argc, char* argv[])
 
   renWin->Render();
 
-  iren->Start();
+  const int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
   return 0;
 }

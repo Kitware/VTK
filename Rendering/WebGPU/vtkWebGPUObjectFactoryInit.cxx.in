@@ -58,6 +58,8 @@ for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit);
     object_factory->SetEnableFlag(use_webgpu, "vtkPolyDataMapper", "vtkWebGPUPolyDataMapper");
     object_factory->SetEnableFlag(use_opengl, "vtkPolyDataMapper", "vtkOpenGLPolyDataMapper");
     object_factory->SetEnableFlag(use_opengl, "vtkPolyDataMapper", "vtkOpenGLLowMemoryPolyDataMapper");
+    object_factory->SetEnableFlag(use_webgpu, "vtkCompositePolyDataMapperDelegator", "vtkWebGPUCompositePolyDataMapperDelegator");
+    object_factory->SetEnableFlag(use_opengl, "vtkCompositePolyDataMapperDelegator", "vtkOpenGLCompositePolyDataMapperDelegator");
   }
   if (object_factory->HasOverride("vtkProperty"))
   {
