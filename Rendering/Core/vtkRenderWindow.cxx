@@ -365,8 +365,11 @@ void vtkRenderWindow::SetStereoType(int stereoType)
 //------------------------------------------------------------------------------
 void vtkRenderWindow::SetCoverable(vtkTypeBool coverable)
 {
-  vtkWarningMacro(<< "SetCoverable(" << coverable << ") is unsupported for "
-                  << this->GetClassName());
+  if (coverable)
+  {
+    vtkWarningMacro(<< "SetCoverable(" << coverable << ") is unsupported for "
+                    << this->GetClassName());
+  }
 }
 
 //------------------------------------------------------------------------------
