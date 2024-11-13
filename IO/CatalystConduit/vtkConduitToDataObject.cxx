@@ -34,7 +34,7 @@ namespace vtkConduitToDataObject
 VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
-bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
+bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
 #if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   // conduit verify_shape_node dereferences the pointer to
@@ -141,6 +141,12 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
   }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& meshNode)
+{
+  return FillPartitionedDataSet(output, meshNode);
 }
 
 //----------------------------------------------------------------------------
