@@ -61,6 +61,7 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "UnicodeCharacterSet: "
      << (this->UnicodeCharacterSet ? this->UnicodeCharacterSet : "(none)") << endl;
+  os << indent << "SkippedRecords: " << this->SkippedRecords << endl;
   os << indent << "MaxRecords: " << this->MaxRecords << endl;
   os << indent << "UnicodeRecordDelimiters: '" << this->UnicodeRecordDelimiters << "'" << endl;
   os << indent << "UnicodeFieldDelimiters: '" << this->UnicodeFieldDelimiters << "'" << endl;
@@ -326,11 +327,12 @@ int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
 
   try
   {
-    vtkDelimitedTextCodecIteratorPrivate iterator(this->MaxRecords, this->UnicodeRecordDelimiters,
-      this->UnicodeFieldDelimiters, this->UnicodeStringDelimiters, this->UnicodeWhitespace,
-      this->CommentChar, this->UnicodeEscapeCharacter, this->HaveHeaders,
-      this->MergeConsecutiveDelimiters, this->UseStringDelimiter, this->DetectNumericColumns,
-      this->ForceDouble, this->DefaultIntegerValue, this->DefaultDoubleValue, output_table);
+    vtkDelimitedTextCodecIteratorPrivate iterator(this->SkippedRecords, this->MaxRecords,
+      this->UnicodeRecordDelimiters, this->UnicodeFieldDelimiters, this->UnicodeStringDelimiters,
+      this->UnicodeWhitespace, this->CommentCharacters, this->UnicodeEscapeCharacter,
+      this->HaveHeaders, this->MergeConsecutiveDelimiters, this->UseStringDelimiter,
+      this->DetectNumericColumns, this->ForceDouble, this->DefaultIntegerValue,
+      this->DefaultDoubleValue, output_table);
 
     transCodec->ToUnicode(*input_stream, iterator);
     iterator.ReachedEndOfInput();

@@ -27,7 +27,7 @@ bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::MaxReached()
 //------------------------------------------------------------------------------
 bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::AcceptingField()
 {
-  return (!this->HasMax || this->Current < this->Max);
+  return (!this->HasMax || this->Current < this->Max) && this->Current >= this->Start;
 }
 
 //------------------------------------------------------------------------------
@@ -45,24 +45,24 @@ void vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::Skip()
 //------------------------------------------------------------------------------
 bool vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::FirstAccepted()
 {
-  return this->Current == this->Skipped;
+  return this->Current == this->Start + this->Skipped;
 }
 
 //------------------------------------------------------------------------------
 vtkIdType vtkDelimitedTextCodecIteratorPrivate::RecordsCounter::GetNumberOfAcceptedRecords()
 {
-  return this->Current - this->Skipped;
+  return this->Current - this->Skipped - this->Start;
 }
 
 //------------------------------------------------------------------------------
 vtkDelimitedTextCodecIteratorPrivate::vtkDelimitedTextCodecIteratorPrivate(
-  const vtkIdType max_records, const std::string& record_delimiters,
+  const vtkIdType start_records, const vtkIdType max_records, const std::string& record_delimiters,
   const std::string& field_delimiters, const std::string& string_delimiters,
   const std::string& whitespace, const std::string& comments, const std::string& escape,
   bool have_headers, bool merg_cons_delimiters, bool use_string_delimiter,
   bool detect_numeric_columns, bool force_double, int default_int, double default_double,
   vtkTable* const output_table)
-  : RecordsCount(max_records > 0, have_headers ? max_records + 1 : max_records)
+  : RecordsCount(max_records > 0, have_headers ? max_records + 1 : max_records, start_records)
   , RecordDelimiters(record_delimiters.begin(), record_delimiters.end())
   , FieldDelimiters(field_delimiters.begin(), field_delimiters.end())
   , StringDelimiters(string_delimiters.begin(), string_delimiters.end())

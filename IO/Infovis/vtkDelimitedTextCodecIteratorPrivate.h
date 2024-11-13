@@ -30,12 +30,12 @@ class vtkTable;
 class vtkDelimitedTextCodecIteratorPrivate : public vtkTextCodec::OutputIterator
 {
 public:
-  vtkDelimitedTextCodecIteratorPrivate(vtkIdType max_records, const std::string& record_delimiters,
-    const std::string& field_delimiters, const std::string& string_delimiters,
-    const std::string& whitespace, const std::string& comments, const std::string& escape,
-    bool have_headers, bool merg_cons_delimiters, bool use_string_delimiter,
-    bool detect_numeric_columns, bool force_double, int default_int, double default_double,
-    vtkTable* output_table);
+  vtkDelimitedTextCodecIteratorPrivate(vtkIdType start_records, vtkIdType max_records,
+    const std::string& record_delimiters, const std::string& field_delimiters,
+    const std::string& string_delimiters, const std::string& whitespace,
+    const std::string& comments, const std::string& escape, bool have_headers,
+    bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
+    bool force_double, int default_int, double default_double, vtkTable* output_table);
 
   ~vtkDelimitedTextCodecIteratorPrivate() override;
 
@@ -113,14 +113,16 @@ private:
    */
   struct RecordsCounter
   {
-    RecordsCounter(bool has, vtkIdType max)
+    RecordsCounter(bool has, vtkIdType max, vtkIdType start)
       : HasMax(has)
       , Max(max)
+      , Start(start)
     {
     }
 
     bool HasMax = false;
     vtkIdType Max = 0;
+    vtkIdType Start = 0;
     vtkIdType Skipped = 0;
     vtkIdType Current = 0;
 

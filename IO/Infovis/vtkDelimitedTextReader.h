@@ -199,6 +199,15 @@ public:
 
   ///@{
   /**
+   * Specifies the first records to read, so it is possible to skip some header text.
+   * Default is 0.
+   */
+  vtkGetMacro(SkippedRecords, vtkIdType);
+  vtkSetMacro(SkippedRecords, vtkIdType);
+  ///@}
+
+  ///@{
+  /**
    * When set to true, the reader will detect numeric columns and create
    * vtkDoubleArray or vtkIntArray for those instead of vtkStringArray. Default
    * is off.
@@ -361,6 +370,7 @@ protected:
   char* InputString = nullptr;
   int InputStringLength = 0;
   char* UnicodeCharacterSet = nullptr;
+  vtkIdType SkippedRecords = 0;
   vtkIdType MaxRecords = 0;
   std::string UnicodeRecordDelimiters = "\r\n";
   std::string UnicodeFieldDelimiters = ",";
