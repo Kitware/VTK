@@ -846,7 +846,7 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
           }
         }
 
-        if ((field_name == "time" || field_name == "TimeValue") && field_node.dtype().is_float())
+        if ((field_name == "time" || field_name == "TimeValue") && field_node.dtype().is_number())
         {
           // let's also set DATA_TIME_STEP.
           output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), field_node.to_float64());
