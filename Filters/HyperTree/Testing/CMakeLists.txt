@@ -5,6 +5,7 @@ vtk_module_test_data(
   Data/HTG/binary_3D_333_mask.htg
   Data/HTG/donut_XZ_shift_2d.htg
   Data/HTG/ghost.htg
+  Data/HTG/htg_for_axis_aligned_cut.htg
   Data/HTG/shell_3d.htg
   Data/HTG/single_cell_3d.htg
   Data/HTG/three_cells_3d.htg
