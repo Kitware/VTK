@@ -65,6 +65,34 @@ set_target_properties(vtkmpi4py.MPI
     PREFIX      ""
     LIBRARY_OUTPUT_DIRECTORY "${mpi4py_build_dir}/mpi4py")
 if (WIN32)
+  if ("msmpi" IN_LIST MPI_C_LIB_NAMES)
+    if (NOT VTK_MPI4PY_MSMPI_VER)
+      # set default msmpi version to 10.0, but also check registry
+      set(_msmpi_version_hex 0xa00)
+      # XXX(cmake-3.24) use cmake_host_system_information() to read registry
+      execute_process(COMMAND REG "QUERY" "HKLM\\SOFTWARE\\Microsoft\\MPI"
+        RESULT_VARIABLE _reg_result
+        OUTPUT_VARIABLE _reg_output
+        ERROR_QUIET)
+      if (_reg_result EQUAL 0)
+        string(REGEX MATCH "[ \t\r\n]+Version[ \t]+REG_SZ[ \t]+([^ \t\r\n]*)"
+          _fullmatch "${_reg_output}")
+        set(_msmpi_VERSION "${CMAKE_MATCH_1}")
+        string(REGEX MATCH "^([0-9]+)\\.([0-9]+)"
+          _short_version "${_msmpi_VERSION}")
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.13")
+          math(EXPR _msmpi_version_hex
+            "${CMAKE_MATCH_1} * 256 + ${CMAKE_MATCH_2}"
+            OUTPUT_FORMAT HEXADECIMAL)
+        endif ()
+      endif ()
+      set(VTK_MPI4PY_MSMPI_VER "${_msmpi_version_hex}" CACHE INTERNAL
+        "Hexadecimal msmpi version (with 0x) for mpi4py")
+    endif ()
+    target_compile_definitions(vtkmpi4py.MPI
+      PRIVATE
+        MSMPI_VER=${VTK_MPI4PY_MSMPI_VER})
+  endif ()
   set_target_properties(vtkmpi4py.MPI
     PROPERTIES
       # XXX(python-debug): VTK doesn't expect a debug Python for Debug builds
