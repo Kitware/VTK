@@ -20,15 +20,19 @@ public:
   std::unordered_map<std::size_t, vtkSerializer::HandlerType> Handlers;
 };
 
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSerializer);
 
+//------------------------------------------------------------------------------
 vtkSerializer::vtkSerializer()
   : Internals(new vtkInternals())
 {
 }
 
+//------------------------------------------------------------------------------
 vtkSerializer::~vtkSerializer() = default;
 
+//------------------------------------------------------------------------------
 void vtkSerializer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -40,6 +44,7 @@ void vtkSerializer::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+//------------------------------------------------------------------------------
 nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
 {
   if ((this->Context == nullptr) || (objectBase == nullptr))
@@ -52,7 +57,8 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
   {
     if (this->Context->IsProcessing(identifier) || this->Context->IsProcessed(identifier))
     {
-      vtkLogF(TRACE, "Avoided serialization of %s", objectBase->GetObjectDescription().c_str());
+      vtkVLogF(this->GetSerializerLogVerbosity(), "Avoided serialization of %s",
+        objectBase->GetObjectDescription().c_str());
       this->Context->AddChild(identifier);
       return { { "Id", identifier } };
     }
@@ -68,7 +74,7 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
     try
     {
       vtkMarshalContext::ScopedParentTracker parentTracker(this->Context, identifier);
-      vtkLogScopeF(TRACE, "Serialize objectBase=%s at id=%u",
+      vtkVLogScopeF(this->GetSerializerLogVerbosity(), "Serialize objectBase=%s at id=%u",
         objectBase->GetObjectDescription().c_str(), identifier);
       state = f(objectBase, this);
       state["Id"] = identifier;
@@ -91,14 +97,16 @@ nlohmann::json vtkSerializer::SerializeJSON(vtkObjectBase* objectBase)
   return nlohmann::json::object();
 }
 
+//------------------------------------------------------------------------------
 void vtkSerializer::RegisterHandler(const std::type_info& type, HandlerType handler)
 {
   auto& internals = (*this->Internals);
-  vtkDebugMacro(<< "Register handler at { .name=" << type.name()
-                << " .hashCode=" << type.hash_code() << " }");
+  vtkVLog(this->GetSerializerLogVerbosity(),
+    << "Register handler at { .name=" << type.name() << " .hashCode=" << type.hash_code() << " }");
   internals.Handlers[type.hash_code()] = handler;
 }
 
+//------------------------------------------------------------------------------
 vtkSerializer::HandlerType vtkSerializer::GetHandler(const std::type_info& type) const
 {
   const auto& internals = (*this->Internals);
@@ -117,8 +125,37 @@ vtkSerializer::HandlerType vtkSerializer::GetHandler(const std::type_info& type)
   return nullptr;
 }
 
+//------------------------------------------------------------------------------
 bool vtkSerializer::UnRegisterHandler(const std::type_info& type)
 {
   return this->Internals->Handlers.erase(type.hash_code()) != 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkSerializer::SetSerializerLogVerbosity(vtkLogger::Verbosity verbosity)
+{
+  this->SerializerLogVerbosity = verbosity;
+}
+
+//------------------------------------------------------------------------------
+vtkLogger::Verbosity vtkSerializer::GetSerializerLogVerbosity()
+{
+  // initialize the log verbosity if it is invalid.
+  if (this->SerializerLogVerbosity == vtkLogger::VERBOSITY_INVALID)
+  {
+    this->SerializerLogVerbosity = vtkLogger::VERBOSITY_TRACE;
+    // Find an environment variable that specifies logger verbosity
+    const char* verbosityKey = "VTK_SERIALIZER_LOG_VERBOSITY";
+    if (vtksys::SystemTools::HasEnv(verbosityKey))
+    {
+      const char* verbosityCStr = vtksys::SystemTools::GetEnv(verbosityKey);
+      const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityCStr);
+      if (verbosity > vtkLogger::VERBOSITY_INVALID)
+      {
+        this->SerializerLogVerbosity = verbosity;
+      }
+    }
+  }
+  return this->SerializerLogVerbosity;
 }
 VTK_ABI_NAMESPACE_END

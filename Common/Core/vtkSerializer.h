@@ -10,6 +10,7 @@
 #include "vtkObject.h"
 
 #include "vtkCommonCoreModule.h" // for export macro
+#include "vtkLogger.h"           // for vtkLogger::Verbosity enum
 #include "vtkMarshalContext.h"   // for vtkMarshalContext
 #include "vtkSmartPointer.h"     // for vktSmartPointer
 
@@ -64,11 +65,29 @@ public:
   vtkGetSmartPointerMacro(Context, vtkMarshalContext);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the log verbosity of messages that are emitted when data is uploaded to GPU memory.
+   * The GetSerializerLogVerbosity looks up system environment for
+   * `VTK_SERIALIZER_LOG_VERBOSITY` that shall be used to set initial logger verbosity. The
+   * default value is TRACE.
+   *
+   * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
+   * representation for an integer in the range [-9,9].
+   *
+   * @note This method internally uses vtkLogger::ConvertToVerbosity(const char*) to parse the
+   * value from environment variable.
+   */
+  void SetSerializerLogVerbosity(vtkLogger::Verbosity verbosity);
+  vtkLogger::Verbosity GetSerializerLogVerbosity();
+  ///@}
+
 protected:
   vtkSerializer();
   ~vtkSerializer() override;
 
   vtkSmartPointer<vtkMarshalContext> Context;
+  vtkLogger::Verbosity SerializerLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
 private:
   vtkSerializer(const vtkSerializer&) = delete;
