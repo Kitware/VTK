@@ -34,15 +34,14 @@ vtkCameraOrientationWidget::vtkCameraOrientationWidget()
 
   this->CameraInterpolator->SetInterpolationTypeToSpline();
 
+  // Initialize a default renderer.
   vtkNew<vtkRenderer> renderer;
-  this->SetDefaultRenderer(renderer);
   renderer->SetViewport(0.8, 0.8, 1.0, 1.0);
   renderer->GetActiveCamera()->ParallelProjectionOff();
   renderer->GetActiveCamera()->Dolly(0.25);
   renderer->InteractiveOff();
   renderer->SetLayer(1);
-  renderer->AddObserver(
-    vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
+  this->SetDefaultRenderer(renderer);
 }
 
 //----------------------------------------------------------------------------
@@ -52,6 +51,44 @@ vtkCameraOrientationWidget::~vtkCameraOrientationWidget() = default;
 vtkRenderer* vtkCameraOrientationWidget::GetParentRenderer()
 {
   return this->ParentRenderer;
+}
+
+//------------------------------------------------------------------------------
+void vtkCameraOrientationWidget::SetDefaultRenderer(vtkRenderer* renderer)
+{
+  if (renderer == this->DefaultRenderer)
+  {
+    return;
+  }
+  // remove reorientation observer
+  if (this->DefaultRenderer != nullptr)
+  {
+    this->DefaultRenderer->RemoveObserver(this->ReorientObserverTag);
+  }
+  const bool reEnable = this->Enabled;
+  if (this->Enabled)
+  {
+    // remove previous default renderer from render window.
+    if (this->Interactor)
+    {
+      this->Interactor->GetRenderWindow()->RemoveRenderer(this->DefaultRenderer);
+    }
+    this->SetEnabled(false);
+  }
+
+  // install observer to sync camera widget orientation with that of parent renderer's camera
+  this->ReorientObserverTag = renderer->AddObserver(
+    vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
+  this->Superclass::SetDefaultRenderer(renderer);
+
+  if (reEnable)
+  {
+    this->SetEnabled(true);
+    if (this->Interactor)
+    {
+      this->Interactor->GetRenderWindow()->AddRenderer(this->DefaultRenderer);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -91,14 +128,27 @@ void vtkCameraOrientationWidget::SetParentRenderer(vtkRenderer* parentRen)
       this->SetInteractor(renWin->GetInteractor());
       const int& numLayers = renWin->GetNumberOfLayers();
       renWin->SetNumberOfLayers(numLayers + 1);
+      // In order to occupy sufficient space as per the padding and size of the representation,
+      // the widget always invokes the SquareResize callback at the beginning of every frame.
+      // We do it like that because the viewport (xmin,xmax, ymin, ymax) of the DefaultRenderer
+      // may be different than the previously computed values. Otherwise, in a
+      // serialization/deserialization setup, the viewport values could revert back since a resize
+      // event is never trigerred upon deserialization. This approach is acceptable since the
+      // SquareResize method is qutie efficient.
       this->ResizeObserverTag = renWin->AddObserver(
-        vtkCommand::WindowResizeEvent, this, &vtkCameraOrientationWidget::SquareResize);
+        vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::SquareResize);
     }
   }
 
   // assign
   this->ParentRenderer = parentRen;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::SetRepresentation(vtkCameraOrientationRepresentation* r)
+{
+  this->Superclass::SetWidgetRepresentation(r);
 }
 
 //----------------------------------------------------------------------------

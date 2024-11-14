@@ -23,85 +23,95 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # a renderer's camera orientation.
 
 # -Z -> -X -> -Z
-FromMinusZToMinusX = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 294 265 0 0 0 c\n\
-          LeftButtonPressEvent 294 265 0 0 0 c\n\
-          LeftButtonReleaseEvent 294 265 0 0 0 c\n"
-FromMinusXToMinusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 289 0 0 0 c\n\
-          LeftButtonPressEvent 267 289 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 289 0 0 0 c\n"
+FromMinusZToMinusX = """# StreamVersion 1.2
+ExposeEvent 0 299 0 0 0 0 0
+EnterEvent 298 224 0 0 0 0 0
+MouseMoveEvent 283 230 0 0 0 0 0
+LeftButtonPressEvent 283 230 0 0 0 0 0
+LeftButtonReleaseEvent 283 230 0 0 0 0 0
+MouseMoveEvent 282 230 0 0 0 0 0
+"""
+FromMinusXToMinusZ = """# StreamVersion 1.2
+MouseMoveEvent 230 275 0 0 0 0 0
+LeftButtonPressEvent 230 275 0 0 0 0 0
+LeftButtonReleaseEvent 230 275 0 0 0 0 0
+MouseMoveEvent 282 275 0 0 0 0 0
+"""
 ###
 # -Z -> -Y -> -Z
-FromMinusZToMinusY = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 268 288 0 0 0 c\n\
-          LeftButtonPressEvent 268 288 0 0 0 c\n\
-          LeftButtonReleaseEvent 268 288 0 0 0 c\n"
-FromMinusYToMinusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 289 0 0 0 c\n\
-          LeftButtonPressEvent 267 289 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 289 0 0 0 c\n"
+FromMinusZToMinusY = """# StreamVersion 1.2
+MouseMoveEvent 232 276 0 0 0 0 0
+LeftButtonPressEvent 232 276 0 0 0 0 0
+LeftButtonReleaseEvent 232 276 0 0 0 0 0
+MouseMoveEvent 232 276 0 0 0 0 0
+"""
+FromMinusYToMinusZ = """# StreamVersion 1.2
+MouseMoveEvent 231 274 0 0 0 0 0
+LeftButtonPressEvent 231 274 0 0 0 0 0
+LeftButtonReleaseEvent 231 274 0 0 0 0 0
+MouseMoveEvent 231 274 0 0 0 0 0
+"""
 ###
-# -Z -> +Z -> -Z
-FromMinusZToPlusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 265 0 0 0 c\n\
-          LeftButtonPressEvent 267 265 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 265 0 0 0 c\n"
-FromPlusZToMinusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 265 0 0 0 c\n\
-          LeftButtonPressEvent 267 265 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 265 0 0 0 c\n"
+# -Z -> +Z
+FromMinusZToPlusZ = """# StreamVersion 1.2
+MouseMoveEvent 226 229 0 0 0 0 0
+LeftButtonPressEvent 226 229 0 0 0 0 0
+LeftButtonReleaseEvent 226 229 0 0 0 0 0
+MouseMoveEvent 226 229 0 0 0 0 0
+"""
+FromPlusZToMinusZ = """# StreamVersion 1.2
+MouseMoveEvent 227 229 0 0 0 0 0
+LeftButtonPressEvent 227 229 0 0 0 0 0
+LeftButtonReleaseEvent 227 229 0 0 0 0 0
+MouseMoveEvent 227 229 0 0 0 0 0
+"""
 ###
 # +Z -> +X -> +Z
-FromPlusZToPlusX = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 289 265 0 0 0 c\n\
-          LeftButtonPressEvent 289 265 0 0 0 c\n\
-          LeftButtonReleaseEvent 289 265 0 0 0 c\n"
-FromPlusXToPlusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 245 0 0 0 c\n\
-          LeftButtonPressEvent 267 245 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
+FromPlusZToPlusX = """# StreamVersion 1.2
+MouseMoveEvent 269 227 0 0 0 0 0
+LeftButtonPressEvent 269 227 0 0 0 0 0
+LeftButtonReleaseEvent 269 227 0 0 0 0 0
+MouseMoveEvent 269 227 0 0 0 0 0
+"""
+FromPlusXToPlusZ = """# StreamVersion 1.2
+MouseMoveEvent 235 186 0 0 0 0 0
+LeftButtonPressEvent 235 186 0 0 0 0 0
+LeftButtonReleaseEvent 235 186 0 0 0 0 0
+MouseMoveEvent 235 186 0 0 0 0 0
+"""
 ###
 # +Z -> +Y -> +Z
-FromPlusZToPlusY = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 245 0 0 0 c\n\
-          LeftButtonPressEvent 267 245 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
-FromPlusYToPlusZ = "# StreamVersion 1.1\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 267 245 0 0 0 c\n\
-          LeftButtonPressEvent 267 245 0 0 0 c\n\
-          LeftButtonReleaseEvent 267 245 0 0 0 c\n"
+FromPlusZToPlusY = """# StreamVersion 1.2
+MouseMoveEvent 236 181 0 0 0 0 0
+LeftButtonPressEvent 236 181 0 0 0 0 0
+LeftButtonReleaseEvent 236 181 0 0 0 0 0
+MouseMoveEvent 236 181 0 0 0 0 0
+"""
+FromPlusYToPlusZ = """# StreamVersion 1.2
+MouseMoveEvent 229 180 0 0 0 0 0
+LeftButtonPressEvent 229 180 0 0 0 0 0
+LeftButtonReleaseEvent 229 180 0 0 0 0 0
+MouseMoveEvent 229 180 0 0 0 0 0
+"""
 
 ###
 # -Z -> arbitrary
-FromMinusZToArbitrary = "# StreamVersion 1.1\n\
-          LeaveEvent 300 150 0 0 0 c\n\
-          EnterEvent 150 150 0 0 0 c\n\
-          MouseMoveEvent 268 288 0 0 0 c\n\
-          LeftButtonPressEvent 268 288 0 0 0 c\n\
-          MouseMoveEvent 266 287 0 0 0 c\n\
-          MouseMoveEvent 260 260 0 0 0 c\n\
-          MouseMoveEvent 250 255 0 0 0 c\n\
-          MouseMoveEvent 246 250 0 0 0 c\n\
-          LeftButtonReleaseEvent 246 250 0 0 0 c\n"
-
+FromMinusZToArbitrary = """# StreamVersion 1.2
+MouseMoveEvent 232 277 0 0 0 0 0
+LeftButtonPressEvent 232 277 0 0 0 0 0
+MouseMoveEvent 231 277 0 0 0 0 0
+MouseMoveEvent 212 229 0 0 0 0 0
+MouseMoveEvent 210 228 0 0 0 0 0
+MouseMoveEvent 208 226 0 0 0 0 0
+LeftButtonReleaseEvent 178 187 0 0 0 0 0
+MouseMoveEvent 178 187 0 0 0 0 0
+"""
 
 class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
 
     def spin(self, instructions, widgetBack, widgetUp, camPos, focalPoint, viewUp):
         self.recorder.SetInputString(instructions)
         self.recorder.Play()
-
         rep = self.camOrientManipulator.GetRepresentation()
         cam = self.renderer.GetActiveCamera()
         for i in range(3):
@@ -156,14 +166,14 @@ class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
             [-1, 0, 0], [0, 0, -1], [0, -1, 0], [0, 0, -1],
             [0, 0, 1],  [0, 0, -1], [0, 0, 1],  [1, 0, 0],
             [0, 0, 1],  [0, 1, 0],  [0, 0, 1],  [0, 0, -1],
-            [-0.44760227022559895, -0.7930977224238861, -0.4130958852069752]
+            [-0.2534933352606766, -0.6182851620138625, -0.7439520061213022]
         ]
         requiredWidgetUp = [[0, 0, 1], [0, 1, 0], [0, 0, 1],
                             [0, 1, 0], [0, 1, 0], [0, 1, 0],
                             [0, 1, 0], [0, 0, 1], [0, 1, 0],
                             [0, 0, 1], [0, 1, 0], [0, 1, 0],
-                            [-0.24830554277755906,
-                                0.5540205026572317, -0.7946103699684332]
+                            [-0.16187898668927914,
+                                0.7853407471227284, -0.597524145601805]
                             ]
         requiredPos = [
             [25.3322, -0.438658, 0],        [0.776126, -0.438658, 24.556],
@@ -172,7 +182,7 @@ class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
             [0.776126, -0.438658, -24.556], [-23.7799, -0.438658, 0],
             [0.776126, -0.438658, -24.556], [0.776126, -24.9947, 0],
             [0.776126, -0.438658, -24.556], [0.776126, -0.438658, 24.556],
-            [11.767466031971992, 19.036682097465544, 10.143999445975485]
+            [7.000919089107853, 14.743977717076099, 18.268515877725843]
         ]
 
         requiredFp = [
@@ -188,8 +198,8 @@ class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
                           [0, 1, 0], [0, 1, 0], [0, 1, 0],
                           [0, 1, 0], [0, 0, 1], [0, 1, 0],
                           [0, 0, 1], [0, 1, 0], [0, 1, 0],
-                          [-0.24830554277755904,
-                              0.5540205026572318, -0.7946103699684332]
+                          [-0.16187898668927914,
+                              0.7853407471227285, -0.5975241456018049]
                           ]
 
         widgetBack = [0, 0, 0]

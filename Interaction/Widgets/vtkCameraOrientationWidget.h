@@ -80,6 +80,13 @@ public:
   ///@}
 
   /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of vtkProp
+   * so it can be added to the renderer independently of the widget.
+   */
+  void SetRepresentation(vtkCameraOrientationRepresentation* r);
+
+  /**
    * Create a vtkCameraOrientationRepresentation.
    */
   void CreateDefaultRepresentation() override;
@@ -88,6 +95,13 @@ public:
    * Fits the widget's renderer to a square viewport.
    */
   void SquareResize();
+
+  /**
+   * Override super class method for default renderer.
+   * This widget adds the representation props into the default
+   * renderer.
+   */
+  void SetDefaultRenderer(vtkRenderer* renderer) override;
 
   ///@{
   /**
