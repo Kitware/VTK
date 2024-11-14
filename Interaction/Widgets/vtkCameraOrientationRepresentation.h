@@ -102,7 +102,8 @@ public:
   /**
    * Get/Set the widget anchor type
    */
-  AnchorType GetAnchorPosition() { return this->AnchorPosition; }
+  vtkSetEnumMacro(AnchorPosition, AnchorType);
+  vtkGetEnumMacro(AnchorPosition, AnchorType);
   void AnchorToLowerLeft()
   {
     this->AnchorPosition = AnchorType::LowerLeft;
