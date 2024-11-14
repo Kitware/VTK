@@ -412,6 +412,10 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
     values[i] = i + 0.0;
   }
   resFields["values"].set(values);
+
+  conduit_cpp::Node resFieldsMetaData = res["state/metadata/vtk_fields/field"];
+  resFieldsMetaData["attribute_type"] =
+    vtkDataSetAttributes::GetAttributeTypeAsString(vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -434,7 +438,9 @@ bool ValidateMeshTypeUnstructured()
     ug->GetNumberOfPoints());
   VERIFY(ug->GetNumberOfCells() == 8, "incorrect number of cells, expected 8, got %lld",
     ug->GetNumberOfCells());
-  VERIFY(ug->GetCellData()->GetArray("field") != nullptr, "missing 'field' cell-data array");
+  VERIFY(ug->GetCellData()->GetAttribute(vtkDataSetAttributes::SCALARS) != nullptr,
+    "missing 'field' cell-data array with attribute '%s'",
+    vtkDataSetAttributes::GetAttributeTypeAsString(vtkDataSetAttributes::SCALARS));
   return true;
 }
 
@@ -626,14 +632,22 @@ bool ValidateAscentGhostCellData()
   resCellFields["volume_dependent"] = "false";
   resCellFields["values"] = cellGhosts;
 
+  std::vector<int> cellGhostValuesToReplace(1, 1);
+  std::vector<int> cellGhostReplacementValues(1, vtkDataSetAttributes::HIDDENCELL);
+
+  std::vector<int> cellGhostsMetaData(1, 1);
+  conduit_cpp::Node ghostMetaData = mesh["state/metadata/vtk_fields/ascent_ghosts"];
+  ghostMetaData["attribute_type"] = "Ghosts";
+  ghostMetaData["values_to_replace"] = cellGhostValuesToReplace;
+  ghostMetaData["replacement_values"] = cellGhostReplacementValues;
+
   auto data = Convert(mesh);
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
   VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
     pds->GetNumberOfPartitions());
   auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
   VERIFY(img != nullptr, "missing partition 0");
-  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
-    img->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  auto array = vtkUnsignedCharArray::SafeDownCast(img->GetCellData()->GetGhostArray());
   VERIFY(array != nullptr &&
       array->GetValue(2) == static_cast<unsigned char>(vtkDataSetAttributes::HIDDENCELL),
     "Verification failed for converting Ascent ghost cell data");
@@ -655,14 +669,22 @@ bool ValidateAscentGhostPointData()
   resPointFields["topology"] = "mesh";
   resPointFields["values"] = pointGhosts;
 
+  std::vector<int> pointGhostValuesToReplace(1, 1);
+  std::vector<int> pointGhostReplacementValues(1, vtkDataSetAttributes::HIDDENPOINT);
+
+  std::vector<int> cellGhostsMetaData(1, 1);
+  conduit_cpp::Node ghostMetaData = mesh["state/metadata/vtk_fields/ascent_ghosts"];
+  ghostMetaData["attribute_type"] = "Ghosts";
+  ghostMetaData["values_to_replace"] = pointGhostValuesToReplace;
+  ghostMetaData["replacement_values"] = pointGhostReplacementValues;
+
   auto data = Convert(mesh);
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
   VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
     pds->GetNumberOfPartitions());
   auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
   VERIFY(img != nullptr, "missing partition 0");
-  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
-    img->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  auto array = vtkUnsignedCharArray::SafeDownCast(img->GetPointData()->GetGhostArray());
   VERIFY(array != nullptr &&
       array->GetValue(2) == static_cast<unsigned char>(vtkDataSetAttributes::HIDDENPOINT),
     "Verification failed for converting Ascent ghost point data");
