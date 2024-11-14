@@ -529,7 +529,7 @@ bool FillFields(
   vtkFieldData* field_data, const std::string& association, conduit_cpp::Node& conduit_node)
 {
   bool is_success = true;
-
+  auto dataset_attributes = vtkDataSetAttributes::SafeDownCast(field_data);
   int array_count = field_data->GetNumberOfArrays();
   for (int array_index = 0; is_success && array_index < array_count; ++array_index)
   {
@@ -579,6 +579,26 @@ bool FillFields(
 
       auto values_node = field_node["values"];
       is_success = ConvertDataArrayToMCArray(data_array, values_node);
+      if (dataset_attributes)
+      {
+        bool is_dataset_attribute = false;
+        for (int i = 0; i < vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES; ++i)
+        {
+          if (dataset_attributes->GetAttribute(i) == data_array)
+          {
+            auto field_metadata_node = conduit_node["state/metadata/vtk_fields"][name];
+            field_metadata_node["attribute_type"] =
+              vtkDataSetAttributes::GetAttributeTypeAsString(i);
+            is_dataset_attribute = true;
+            break;
+          }
+        }
+        if (!is_dataset_attribute && strcmp(name, vtkDataSetAttributes::GhostArrayName()) == 0)
+        {
+          auto field_metadata_node = conduit_node["state/metadata/vtk_fields"][name];
+          field_metadata_node["attribute_type"] = "Ghosts";
+        }
+      }
     }
     else
     {
