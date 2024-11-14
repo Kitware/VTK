@@ -130,6 +130,10 @@ protected:
   void OrientWidgetRepresentation();
   void InterpolateCamera(int t);
 
+  void StartAnimation();
+  void PlayAnimationSingleFrame(vtkObject* caller, unsigned long event, void* callData);
+  void StopAnimation();
+
   // Manage the state of the widget
   enum class WidgetStateType : int
   {
@@ -146,8 +150,12 @@ protected:
 
   bool Animate = true;
   int AnimatorTotalFrames = 20;
+  int AnimatorCurrentFrame = 0;
+  int AnimationTimerId = -1;
 
   int ResizeObserverTag = -1;
+  int ReorientObserverTag = -1;
+  int AnimationTimerObserverTag = -1;
 
 private:
   vtkCameraOrientationWidget(const vtkCameraOrientationWidget&) = delete;

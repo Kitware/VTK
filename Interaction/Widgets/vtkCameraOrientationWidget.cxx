@@ -274,15 +274,11 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
 
     self->OrientParentCamera(back, up);
     // this fires off animation if needed
-    if (self->Animate)
+    if (self->Animate && self->AnimationTimerObserverTag == -1)
     {
       // update gizmo and camera to new orientation step by step.
-      for (int i = 0; i < self->AnimatorTotalFrames; ++i)
-      {
-        self->InterpolateCamera(i);
-        self->ParentRenderer->ResetCamera();
-        self->Render();
-      }
+      self->StartAnimation();
+      return;
     }
     else
     {
@@ -300,6 +296,62 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent);
   self->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::StartAnimation()
+{
+  this->AnimatorCurrentFrame = 1;
+  this->AnimationTimerId = this->Interactor->CreateRepeatingTimer(1);
+  this->AnimationTimerObserverTag = this->Interactor->AddObserver(
+    vtkCommand::TimerEvent, this, &vtkCameraOrientationWidget::PlayAnimationSingleFrame);
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::PlayAnimationSingleFrame(
+  vtkObject*, unsigned long event, void* callData)
+{
+  if (event == vtkCommand::TimerEvent &&
+    (*reinterpret_cast<int*>(callData)) == this->AnimationTimerId)
+  {
+    if (this->AnimatorCurrentFrame < this->AnimatorTotalFrames)
+    {
+      this->InterpolateCamera(this->AnimatorCurrentFrame);
+      this->ParentRenderer->ResetCamera();
+      this->Render();
+      this->AnimatorCurrentFrame++;
+    }
+    else
+    {
+      this->StopAnimation();
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::StopAnimation()
+{
+  if (this->Interactor->DestroyTimer(this->AnimationTimerId))
+  {
+    this->Interactor->RemoveObserver(this->AnimationTimerObserverTag);
+    this->AnimationTimerObserverTag = -1;
+    // get event position.
+    const int& X = this->Interactor->GetEventPosition()[0];
+    const int& Y = this->Interactor->GetEventPosition()[1];
+    // one might have moved the mouse out of the widget's interactive area during animation
+    // need to compute state.
+    this->ComputeWidgetState(X, Y, 1);
+
+    this->ReleaseFocus();
+    this->EventCallbackCommand->AbortFlagOn();
+    this->EndInteraction();
+    this->InvokeEvent(vtkCommand::EndInteractionEvent);
+    this->Render();
+  }
+  else
+  {
+    vtkErrorMacro(<< "Failed to stop animation timer " << this->AnimationTimerId);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -424,6 +476,7 @@ void vtkCameraOrientationWidget::OrientWidgetRepresentation()
   }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCameraOrientationWidget::InterpolateCamera(int t)
 {
   if (this->ParentRenderer == nullptr)
@@ -453,11 +506,6 @@ void vtkCameraOrientationWidget::SquareResize()
   {
     return;
   }
-  if (renWin->GetNeverRendered())
-  {
-    return;
-  }
-
   auto rep = vtkCameraOrientationRepresentation::SafeDownCast(this->WidgetRep);
   if (rep == nullptr)
   {
@@ -514,25 +562,30 @@ void vtkCameraOrientationWidget::PrintSelf(ostream& os, vtkIndent indent)
   switch (this->WidgetState)
   {
     case WidgetStateType::Inactive:
-      os << indent << "Inactive" << endl;
+      os << indent << "Inactive" << '\n';
       break;
     case WidgetStateType::Hot:
-      os << indent << "Hot" << endl;
+      os << indent << "Hot" << '\n';
       break;
     case WidgetStateType::Active:
-      os << indent << "Active" << endl;
+      os << indent << "Active" << '\n';
       break;
     default:
       break;
   }
+  os << indent << "ParentRenderer: ";
   if (this->ParentRenderer != nullptr)
   {
-    os << indent << "ParentRenderer:" << endl;
-    this->ParentRenderer->PrintSelf(os, indent);
+    os << this->ParentRenderer->GetObjectDescription() << '\n';
+    this->ParentRenderer->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "CameraInterpolator:" << endl;
-  this->CameraInterpolator->PrintSelf(os, indent);
-  os << indent << "Animate: " << (this->Animate ? "True" : "False");
-  os << indent << "AnimatorTotalFrames: " << this->AnimatorTotalFrames;
+  else
+  {
+    os << "(null)\n";
+  }
+  os << indent << "CameraInterpolator:" << this->CameraInterpolator->GetObjectDescription() << '\n';
+  this->CameraInterpolator->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Animate: " << (this->Animate ? "True" : "False") << '\n';
+  os << indent << "AnimatorTotalFrames: " << this->AnimatorTotalFrames << '\n';
 }
 VTK_ABI_NAMESPACE_END
