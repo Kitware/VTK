@@ -561,22 +561,14 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "    if ((iter != state.end()) && !iter->is_null())\n");
       fprintf(fp, "    {\n");
       fprintf(fp, "      const auto items = iter->get<nlohmann::json::array_t>();\n");
-      fprintf(fp,
-        "      const size_t numExistingItems = static_cast<size_t>(object->GetNumberOf%ss());\n",
-        keyName);
-      fprintf(fp, "      bool populateCollection = numExistingItems == 0;\n");
-      fprintf(fp, "      if (items.size() != numExistingItems)\n");
-      fprintf(fp, "      {\n");
-      fprintf(fp, "        object->RemoveAll%ss();\n", keyName);
-      fprintf(fp, "        populateCollection = true;\n");
-      fprintf(fp, "      }\n");
+      fprintf(fp, "      object->RemoveAll%ss();\n", keyName);
       fprintf(fp, "      const auto* context = deserializer->GetContext();\n");
       fprintf(fp, "      for (const auto& item: items)\n");
       fprintf(fp, "      {\n");
       fprintf(fp, "        const auto identifier = item.at(\"Id\").get<vtkTypeUInt32>();\n");
       fprintf(fp, "        auto subObject = context->GetObjectAtId(identifier);\n");
       fprintf(fp, "        deserializer->DeserializeJSON(identifier, subObject);\n");
-      fprintf(fp, "        if (populateCollection && subObject != nullptr)\n");
+      fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          auto* itemAsObject = vtkObject::SafeDownCast(subObject);\n");
       fprintf(fp, "          object->Add%s(reinterpret_cast<%s*>(itemAsObject));\n", keyName,
