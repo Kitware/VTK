@@ -56,6 +56,12 @@ bool TestImageData()
       }
     }
   }
+  vtkNew<vtkUnsignedCharArray> ghostCells;
+  ghostCells->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghostCells->SetNumberOfValues(image->GetNumberOfCells());
+  ghostCells->SetValue(0, 0);
+  ghostCells->SetValue(1, vtkDataSetAttributes::HIDDENCELL);
+  image->GetCellData()->AddArray(ghostCells);
 
   bool is_success =
     vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(image), node);
@@ -88,6 +94,18 @@ bool TestImageData()
   field_node["topology"] = "mesh";
   field_node["volume_dependent"] = "false";
   field_node["values"] = std::vector<int>{ 2, 2, 2, 2, 2, 2 };
+
+  auto field_metadata_node = expected_node["state/metadata/vtk_fields/ImageScalars"];
+  field_metadata_node["attribute_type"] = "Scalars";
+
+  auto ghost_field_node = expected_node["fields/vtkGhostType"];
+  ghost_field_node["association"] = "element";
+  ghost_field_node["topology"] = "mesh";
+  ghost_field_node["volume_dependent"] = "false";
+  ghost_field_node["values"] = std::vector<unsigned char>{ 0, vtkDataSetAttributes::HIDDENCELL };
+
+  auto ghost_field_metadata_node = expected_node["state/metadata/vtk_fields/vtkGhostType"];
+  ghost_field_metadata_node["attribute_type"] = "Ghosts";
 
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
@@ -252,11 +270,17 @@ bool TestStructuredGrid()
   point_field_node["volume_dependent"] = "false";
   point_field_node["values"] = std::vector<double>{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
+  auto point_field_metadata_node = expected_node["state/metadata/vtk_fields/point_field"];
+  point_field_metadata_node["attribute_type"] = "Scalars";
+
   auto cell_field_node = expected_node["fields/cell_field"];
   cell_field_node["association"] = "element";
   cell_field_node["topology"] = "mesh";
   cell_field_node["volume_dependent"] = "false";
   cell_field_node["values"] = std::vector<double>{ 0, 2 };
+
+  auto cell_field_metadata_node = expected_node["state/metadata/vtk_fields/cell_field"];
+  cell_field_metadata_node["attribute_type"] = "Scalars";
 
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
