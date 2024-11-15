@@ -5,6 +5,7 @@ vtk_module_test_data(
   Data/TriangulatorBadData.vtk
   Data/UCD2D/UCD_00005.inp
   Data/2DScalar.vti
+  Data/can.vtu
   Data/fullhead15.png
   Data/hexa.vtk
   Data/mine_with_dates.vtp
