@@ -2,7 +2,7 @@
 # we are actually testing at any given point.
 
 # numpy
-numpy==1.24.0
+numpy==1.26.4
 
 # Web modules
 aiohttp==3.8.3
