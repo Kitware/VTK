@@ -5,7 +5,7 @@
 numpy==1.26.4
 
 # Web modules
-aiohttp==3.8.3
+aiohttp==3.9.5
 wslink==1.9.1
 
 # For wasm test runner
