@@ -45,40 +45,19 @@ struct SaveArrayWorker
   {
   }
 
-  template <class ArrayT>
+  template <typename ValueType>
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* array)
+  {
+    diy::save(this->BB, array->GetPointer(0), array->GetNumberOfValues());
+  }
+
+  template <typename ArrayT>
   void operator()(ArrayT* array)
   {
-    using ValueType = vtk::GetAPIType<ArrayT>;
-    ValueType* data(nullptr);
-    if (array->HasStandardMemoryLayout())
+    switch (array->GetDataType())
     {
-      // get the void pointer, this is OK for standard memory layout
-      data = static_cast<ValueType*>(array->GetVoidPointer(0));
-    }
-    else
-    {
-      // create a temporary data array for saving.
-      data = new ValueType[array->GetNumberOfValues()];
-
-      const auto range = vtk::DataArrayTupleRange(array);
-      using ConstTupleRef = typename decltype(range)::ConstTupleReferenceType;
-      using ComponentType = typename decltype(range)::ComponentType;
-
-      vtkIdType i(0);
-      for (ConstTupleRef tpl : range)
-      {
-        for (ComponentType comp : tpl)
-        {
-          data[i++] = comp;
-        }
-      }
-      assert(i == array->GetNumberOfValues());
-    }
-
-    diy::save(this->BB, data, array->GetNumberOfValues());
-    if (!array->HasStandardMemoryLayout())
-    {
-      delete[] data;
+      vtkTemplateMacro(vtkNew<vtkAOSDataArrayTemplate<VTK_TT>> aosArray; aosArray->DeepCopy(array);
+                       this->operator()(aosArray.Get()));
     }
   }
 
@@ -362,6 +341,11 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkDataArray*& array)
   {
     array = nullptr;
   }
+  else if (type < VTK_VOID || type > VTK_OBJECT)
+  {
+    array = nullptr;
+    vtkErrorWithObjectMacro(nullptr, "Error while receiving array: wrong type: " << type << ".");
+  }
   else
   {
     array = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(type));
@@ -382,6 +366,11 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkStringArray*& array)
   if (type == VTK_VOID)
   {
     array = nullptr;
+  }
+  else if (type < VTK_VOID || type > VTK_OBJECT)
+  {
+    array = nullptr;
+    vtkErrorWithObjectMacro(nullptr, "Error while receiving array: wrong type: " << type << ".");
   }
   else
   {
