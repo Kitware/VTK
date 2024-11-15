@@ -19,6 +19,7 @@
 #include "vtkObject.h"
 
 #include "vtkDeserializer.h"               // for vtkDeserializer
+#include "vtkLogger.h"                     // for vtkLogger::Verbosity enum
 #include "vtkNew.h"                        // for vtkNew
 #include "vtkSerializationManagerModule.h" // for export macro
 #include "vtkSerializer.h"                 // for vtkSerializer
@@ -182,6 +183,23 @@ public:
   vtkGetSmartPointerMacro(Serializer, vtkSerializer);
   vtkGetSmartPointerMacro(Deserializer, vtkDeserializer);
 
+  ///@{
+  /**
+   * Set/Get the log verbosity of messages that are emitted when data is uploaded to GPU memory.
+   * The GetObjectManagerLogVerbosity looks up system environment for
+   * `VTK_OBJECT_MANAGER_LOG_VERBOSITY` that shall be used to set initial logger verbosity. The
+   * default value is TRACE.
+   *
+   * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
+   * representation for an integer in the range [-9,9].
+   *
+   * @note This method internally uses vtkLogger::ConvertToVerbosity(const char*) to parse the
+   * value from environment variable.
+   */
+  void SetObjectManagerLogVerbosity(vtkLogger::Verbosity verbosity);
+  vtkLogger::Verbosity GetObjectManagerLogVerbosity();
+  ///@}
+
 protected:
   vtkObjectManager();
   ~vtkObjectManager() override;
@@ -189,6 +207,7 @@ protected:
   vtkSmartPointer<vtkMarshalContext> Context;
   vtkNew<vtkDeserializer> Deserializer;
   vtkNew<vtkSerializer> Serializer;
+  vtkLogger::Verbosity ObjectManagerLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
   static const char* OWNERSHIP_KEY() { return "manager"; }
 

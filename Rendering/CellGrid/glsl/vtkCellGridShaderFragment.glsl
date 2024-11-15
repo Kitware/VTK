@@ -269,6 +269,16 @@ void main()
   }}
 
   //VTK::Normal::Impl
+  // vtkGLSLModLight inverts the z component of normal when gl_FrontFacing == false.
+  // Some OpenGL implementations strictly adhere to the spec and set that property to false
+  // when rendering lines and points.
+  // This block reorients the normal vector to always point towards the camera to
+  // avoid black lines and points.
+  if ((DrawingCellsNotSides && NumPtsPerCell <= 2) || (!DrawingCellsNotSides && NumPtsPerSide <= 2))
+  {{
+    vertexNormalVCVS.z = 1;
+    normalizedNormalVCVSOutput.z = 1;
+  }}
 
   //VTK::Light::Impl
 

@@ -223,6 +223,46 @@ bool removeObserver(vtkTypeUInt32 identifier, unsigned long tag)
 }
 
 //-------------------------------------------------------------------------------
+void printSceneManagerInformation()
+{
+  CHECK_INIT;
+  Manager->Print(std::cout);
+}
+
+//-------------------------------------------------------------------------------
+void setDeserializerLogVerbosity(const std::string& verbosityStr)
+{
+  CHECK_INIT;
+  const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityStr.c_str());
+  if (verbosity != vtkLogger::VERBOSITY_INVALID)
+  {
+    Manager->GetDeserializer()->SetDeserializerLogVerbosity(verbosity);
+  }
+}
+
+//-------------------------------------------------------------------------------
+void setObjectManagerLogVerbosity(const std::string& verbosityStr)
+{
+  CHECK_INIT;
+  const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityStr.c_str());
+  if (verbosity != vtkLogger::VERBOSITY_INVALID)
+  {
+    Manager->SetObjectManagerLogVerbosity(verbosity);
+  }
+}
+
+//-------------------------------------------------------------------------------
+void setSerializerLogVerbosity(const std::string& verbosityStr)
+{
+  CHECK_INIT;
+  const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityStr.c_str());
+  if (verbosity != vtkLogger::VERBOSITY_INVALID)
+  {
+    Manager->GetSerializer()->SetSerializerLogVerbosity(verbosity);
+  }
+}
+
+//-------------------------------------------------------------------------------
 std::string getVTKVersion()
 {
   return vtkVersion::GetVTKVersion();
@@ -274,6 +314,13 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("addObserver", ::addObserver);
   function("removeObserver", ::removeObserver);
+
+  // debugging
+  function("printSceneManagerInformation", ::printSceneManagerInformation);
+  // accepts JS strings like "INFO", "WARNING", "TRACE", "ERROR"
+  function("setDeserializerLogVerbosity", ::setDeserializerLogVerbosity);
+  function("setObjectManagerLogVerbosity", ::setObjectManagerLogVerbosity);
+  function("setSerializerLogVerbosity", ::setSerializerLogVerbosity);
 
   function("getVTKVersion", ::getVTKVersion);
   function("getVTKVersionFull", ::getVTKVersionFull);

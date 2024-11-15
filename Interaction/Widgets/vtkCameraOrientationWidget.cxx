@@ -34,15 +34,14 @@ vtkCameraOrientationWidget::vtkCameraOrientationWidget()
 
   this->CameraInterpolator->SetInterpolationTypeToSpline();
 
+  // Initialize a default renderer.
   vtkNew<vtkRenderer> renderer;
-  this->SetDefaultRenderer(renderer);
   renderer->SetViewport(0.8, 0.8, 1.0, 1.0);
   renderer->GetActiveCamera()->ParallelProjectionOff();
   renderer->GetActiveCamera()->Dolly(0.25);
   renderer->InteractiveOff();
   renderer->SetLayer(1);
-  renderer->AddObserver(
-    vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
+  this->SetDefaultRenderer(renderer);
 }
 
 //----------------------------------------------------------------------------
@@ -52,6 +51,44 @@ vtkCameraOrientationWidget::~vtkCameraOrientationWidget() = default;
 vtkRenderer* vtkCameraOrientationWidget::GetParentRenderer()
 {
   return this->ParentRenderer;
+}
+
+//------------------------------------------------------------------------------
+void vtkCameraOrientationWidget::SetDefaultRenderer(vtkRenderer* renderer)
+{
+  if (renderer == this->DefaultRenderer)
+  {
+    return;
+  }
+  // remove reorientation observer
+  if (this->DefaultRenderer != nullptr)
+  {
+    this->DefaultRenderer->RemoveObserver(this->ReorientObserverTag);
+  }
+  const bool reEnable = this->Enabled;
+  if (this->Enabled)
+  {
+    // remove previous default renderer from render window.
+    if (this->Interactor)
+    {
+      this->Interactor->GetRenderWindow()->RemoveRenderer(this->DefaultRenderer);
+    }
+    this->SetEnabled(false);
+  }
+
+  // install observer to sync camera widget orientation with that of parent renderer's camera
+  this->ReorientObserverTag = renderer->AddObserver(
+    vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::OrientWidgetRepresentation);
+  this->Superclass::SetDefaultRenderer(renderer);
+
+  if (reEnable)
+  {
+    this->SetEnabled(true);
+    if (this->Interactor)
+    {
+      this->Interactor->GetRenderWindow()->AddRenderer(this->DefaultRenderer);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -91,14 +128,27 @@ void vtkCameraOrientationWidget::SetParentRenderer(vtkRenderer* parentRen)
       this->SetInteractor(renWin->GetInteractor());
       const int& numLayers = renWin->GetNumberOfLayers();
       renWin->SetNumberOfLayers(numLayers + 1);
+      // In order to occupy sufficient space as per the padding and size of the representation,
+      // the widget always invokes the SquareResize callback at the beginning of every frame.
+      // We do it like that because the viewport (xmin,xmax, ymin, ymax) of the DefaultRenderer
+      // may be different than the previously computed values. Otherwise, in a
+      // serialization/deserialization setup, the viewport values could revert back since a resize
+      // event is never trigerred upon deserialization. This approach is acceptable since the
+      // SquareResize method is qutie efficient.
       this->ResizeObserverTag = renWin->AddObserver(
-        vtkCommand::WindowResizeEvent, this, &vtkCameraOrientationWidget::SquareResize);
+        vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::SquareResize);
     }
   }
 
   // assign
   this->ParentRenderer = parentRen;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::SetRepresentation(vtkCameraOrientationRepresentation* r)
+{
+  this->Superclass::SetWidgetRepresentation(r);
 }
 
 //----------------------------------------------------------------------------
@@ -224,15 +274,11 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
 
     self->OrientParentCamera(back, up);
     // this fires off animation if needed
-    if (self->Animate)
+    if (self->Animate && self->AnimationTimerObserverTag == -1)
     {
       // update gizmo and camera to new orientation step by step.
-      for (int i = 0; i < self->AnimatorTotalFrames; ++i)
-      {
-        self->InterpolateCamera(i);
-        self->ParentRenderer->ResetCamera();
-        self->Render();
-      }
+      self->StartAnimation();
+      return;
     }
     else
     {
@@ -250,6 +296,62 @@ void vtkCameraOrientationWidget::EndSelectAction(vtkAbstractWidget* w)
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent);
   self->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::StartAnimation()
+{
+  this->AnimatorCurrentFrame = 1;
+  this->AnimationTimerId = this->Interactor->CreateRepeatingTimer(1);
+  this->AnimationTimerObserverTag = this->Interactor->AddObserver(
+    vtkCommand::TimerEvent, this, &vtkCameraOrientationWidget::PlayAnimationSingleFrame);
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::PlayAnimationSingleFrame(
+  vtkObject*, unsigned long event, void* callData)
+{
+  if (event == vtkCommand::TimerEvent &&
+    (*reinterpret_cast<int*>(callData)) == this->AnimationTimerId)
+  {
+    if (this->AnimatorCurrentFrame < this->AnimatorTotalFrames)
+    {
+      this->InterpolateCamera(this->AnimatorCurrentFrame);
+      this->ParentRenderer->ResetCamera();
+      this->Render();
+      this->AnimatorCurrentFrame++;
+    }
+    else
+    {
+      this->StopAnimation();
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCameraOrientationWidget::StopAnimation()
+{
+  if (this->Interactor->DestroyTimer(this->AnimationTimerId))
+  {
+    this->Interactor->RemoveObserver(this->AnimationTimerObserverTag);
+    this->AnimationTimerObserverTag = -1;
+    // get event position.
+    const int& X = this->Interactor->GetEventPosition()[0];
+    const int& Y = this->Interactor->GetEventPosition()[1];
+    // one might have moved the mouse out of the widget's interactive area during animation
+    // need to compute state.
+    this->ComputeWidgetState(X, Y, 1);
+
+    this->ReleaseFocus();
+    this->EventCallbackCommand->AbortFlagOn();
+    this->EndInteraction();
+    this->InvokeEvent(vtkCommand::EndInteractionEvent);
+    this->Render();
+  }
+  else
+  {
+    vtkErrorMacro(<< "Failed to stop animation timer " << this->AnimationTimerId);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -374,6 +476,7 @@ void vtkCameraOrientationWidget::OrientWidgetRepresentation()
   }
 }
 
+//-----------------------------------------------------------------------------
 void vtkCameraOrientationWidget::InterpolateCamera(int t)
 {
   if (this->ParentRenderer == nullptr)
@@ -403,11 +506,6 @@ void vtkCameraOrientationWidget::SquareResize()
   {
     return;
   }
-  if (renWin->GetNeverRendered())
-  {
-    return;
-  }
-
   auto rep = vtkCameraOrientationRepresentation::SafeDownCast(this->WidgetRep);
   if (rep == nullptr)
   {
@@ -464,25 +562,30 @@ void vtkCameraOrientationWidget::PrintSelf(ostream& os, vtkIndent indent)
   switch (this->WidgetState)
   {
     case WidgetStateType::Inactive:
-      os << indent << "Inactive" << endl;
+      os << indent << "Inactive" << '\n';
       break;
     case WidgetStateType::Hot:
-      os << indent << "Hot" << endl;
+      os << indent << "Hot" << '\n';
       break;
     case WidgetStateType::Active:
-      os << indent << "Active" << endl;
+      os << indent << "Active" << '\n';
       break;
     default:
       break;
   }
+  os << indent << "ParentRenderer: ";
   if (this->ParentRenderer != nullptr)
   {
-    os << indent << "ParentRenderer:" << endl;
-    this->ParentRenderer->PrintSelf(os, indent);
+    os << this->ParentRenderer->GetObjectDescription() << '\n';
+    this->ParentRenderer->PrintSelf(os, indent.GetNextIndent());
   }
-  os << indent << "CameraInterpolator:" << endl;
-  this->CameraInterpolator->PrintSelf(os, indent);
-  os << indent << "Animate: " << (this->Animate ? "True" : "False");
-  os << indent << "AnimatorTotalFrames: " << this->AnimatorTotalFrames;
+  else
+  {
+    os << "(null)\n";
+  }
+  os << indent << "CameraInterpolator:" << this->CameraInterpolator->GetObjectDescription() << '\n';
+  this->CameraInterpolator->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "Animate: " << (this->Animate ? "True" : "False") << '\n';
+  os << indent << "AnimatorTotalFrames: " << this->AnimatorTotalFrames << '\n';
 }
 VTK_ABI_NAMESPACE_END

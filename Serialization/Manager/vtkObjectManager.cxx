@@ -312,7 +312,8 @@ std::vector<std::string> vtkObjectManager::GetBlobHashes(const std::vector<vtkTy
       }
       else
       {
-        vtkDebugMacro(<< "Failed to get hash at id=" << id << ".");
+        // not uncommon for some objects to have any blobs.
+        vtkVLog(this->GetObjectManagerLogVerbosity(), << "Failed to get hash at id=" << id << ".");
       }
     }
     else
@@ -354,7 +355,7 @@ void vtkObjectManager::PruneUnusedStates()
     if (iter.second == nullptr)
     {
       staleIds.emplace_back(iter.first);
-      vtkDebugMacro(<< "Remove stale state: " << iter.first);
+      vtkVLog(this->GetObjectManagerLogVerbosity(), << "Remove stale state: " << iter.first);
     }
   }
   for (const auto& identifier : staleIds)
@@ -384,7 +385,8 @@ void vtkObjectManager::PruneUnusedObjects()
   {
     for (const auto& object : iter.second)
     {
-      vtkDebugMacro(<< "Remove stale strong object: " << iter.first << ":" << object);
+      vtkVLog(this->GetObjectManagerLogVerbosity(),
+        << "Remove stale strong object: " << iter.first << ":" << object);
       this->Context->Retire(iter.first, object);
     }
   }
@@ -397,7 +399,7 @@ void vtkObjectManager::PruneUnusedObjects()
     if (iter.second == nullptr)
     {
       staleIds.emplace_back(iter.first);
-      vtkDebugMacro(<< "Remove stale object: " << iter.first);
+      vtkVLog(this->GetObjectManagerLogVerbosity(), << "Remove stale object: " << iter.first);
     }
   }
   for (const auto& identifier : staleIds)
@@ -555,7 +557,8 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
   }
   else
   {
-    vtkDebugMacro(<< "Updated object for state at id=" << identifier);
+    vtkVLog(
+      this->GetObjectManagerLogVerbosity(), << "Updated object for state at id=" << identifier);
   }
 }
 
@@ -575,7 +578,8 @@ void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
     }
     else
     {
-      vtkDebugMacro(<< "Updated state for object at id=" << identifier);
+      vtkVLog(
+        this->GetObjectManagerLogVerbosity(), << "Updated state for object at id=" << identifier);
     }
   }
   else
@@ -585,4 +589,31 @@ void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
   }
 }
 
+//------------------------------------------------------------------------------
+void vtkObjectManager::SetObjectManagerLogVerbosity(vtkLogger::Verbosity verbosity)
+{
+  this->ObjectManagerLogVerbosity = verbosity;
+}
+
+//------------------------------------------------------------------------------
+vtkLogger::Verbosity vtkObjectManager::GetObjectManagerLogVerbosity()
+{
+  // initialize the log verbosity if it is invalid.
+  if (this->ObjectManagerLogVerbosity == vtkLogger::VERBOSITY_INVALID)
+  {
+    this->ObjectManagerLogVerbosity = vtkLogger::VERBOSITY_TRACE;
+    // Find an environment variable that specifies logger verbosity
+    const char* verbosityKey = "VTK_OBJECT_MANAGER_LOG_VERBOSITY";
+    if (vtksys::SystemTools::HasEnv(verbosityKey))
+    {
+      const char* verbosityCStr = vtksys::SystemTools::GetEnv(verbosityKey);
+      const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityCStr);
+      if (verbosity > vtkLogger::VERBOSITY_INVALID)
+      {
+        this->ObjectManagerLogVerbosity = verbosity;
+      }
+    }
+  }
+  return this->ObjectManagerLogVerbosity;
+}
 VTK_ABI_NAMESPACE_END

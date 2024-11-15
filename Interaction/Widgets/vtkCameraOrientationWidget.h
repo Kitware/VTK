@@ -80,6 +80,13 @@ public:
   ///@}
 
   /**
+   * Specify an instance of vtkWidgetRepresentation used to represent this
+   * widget in the scene. Note that the representation is a subclass of vtkProp
+   * so it can be added to the renderer independently of the widget.
+   */
+  void SetRepresentation(vtkCameraOrientationRepresentation* r);
+
+  /**
    * Create a vtkCameraOrientationRepresentation.
    */
   void CreateDefaultRepresentation() override;
@@ -88,6 +95,13 @@ public:
    * Fits the widget's renderer to a square viewport.
    */
   void SquareResize();
+
+  /**
+   * Override super class method for default renderer.
+   * This widget adds the representation props into the default
+   * renderer.
+   */
+  void SetDefaultRenderer(vtkRenderer* renderer) override;
 
   ///@{
   /**
@@ -116,6 +130,10 @@ protected:
   void OrientWidgetRepresentation();
   void InterpolateCamera(int t);
 
+  void StartAnimation();
+  void PlayAnimationSingleFrame(vtkObject* caller, unsigned long event, void* callData);
+  void StopAnimation();
+
   // Manage the state of the widget
   enum class WidgetStateType : int
   {
@@ -132,8 +150,12 @@ protected:
 
   bool Animate = true;
   int AnimatorTotalFrames = 20;
+  int AnimatorCurrentFrame = 0;
+  int AnimationTimerId = -1;
 
   int ResizeObserverTag = -1;
+  int ReorientObserverTag = -1;
+  int AnimationTimerObserverTag = -1;
 
 private:
   vtkCameraOrientationWidget(const vtkCameraOrientationWidget&) = delete;

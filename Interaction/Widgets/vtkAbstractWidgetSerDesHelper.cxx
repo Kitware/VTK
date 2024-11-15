@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAbstractWidget.h"
+#include "vtkCameraOrientationRepresentation.h"
+#include "vtkCameraOrientationWidget.h"
 #include "vtkDeserializer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSerializer.h"
@@ -174,6 +176,7 @@ static void Deserialize_vtkAbstractWidget(
       SET_WIDGET_REPRESENTATION(vtkBoxWidget2, vtkBoxRepresentation)
       SET_WIDGET_REPRESENTATION(vtkButtonWidget, vtkButtonRepresentation)
       SET_WIDGET_REPRESENTATION(vtkCamera3DWidget, vtkCamera3DRepresentation)
+      SET_WIDGET_REPRESENTATION(vtkCameraOrientationWidget, vtkCameraOrientationRepresentation)
       SET_WIDGET_REPRESENTATION(vtkCameraPathWidget, vtkCameraPathRepresentation)
       SET_WIDGET_REPRESENTATION(vtkCaptionWidget, vtkCaptionRepresentation)
       SET_WIDGET_REPRESENTATION(vtkCenteredSliderWidget, vtkCenteredSliderRepresentation)
