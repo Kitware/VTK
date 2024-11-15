@@ -1054,6 +1054,7 @@ wheel:pypi:upload:
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python312-x86_64:build
+        - wheel-windows-python313-x86_64:build
     needs:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
@@ -1105,6 +1106,8 @@ wheel:pypi:upload:
         - wheel-windows-python311-x86_64:test
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
+        - wheel-windows-python313-x86_64:build
+        - wheel-windows-python313-x86_64:test
 
 wheel:vtk:upload:
     extends:
@@ -1214,6 +1217,9 @@ wheel:vtk:upload:
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
         - wheel-windows-python312-x86_64-osmesa:test
+        - wheel-windows-python313-x86_64:build
+        - wheel-windows-python313-x86_64:test
+        - wheel-windows-python313-x86_64-osmesa:test
 
 wheel-sdk:upload:
     extends:
@@ -1242,6 +1248,7 @@ wheel-sdk:upload:
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python312-x86_64:build
+        - wheel-windows-python313-x86_64:build
     needs:
         - wheel-linux-python38-x86_64:build
         - wheel-linux-python38-x86_64:test
@@ -1322,6 +1329,9 @@ wheel-sdk:upload:
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
         - wheel-windows-python312-x86_64-osmesa:test
+        - wheel-windows-python313-x86_64:build
+        - wheel-windows-python313-x86_64:test
+        - wheel-windows-python313-x86_64-osmesa:test
     variables:
         RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
         RSYNC_DESTINATION: wheel-sdks/
@@ -1484,6 +1494,7 @@ release-artifacts:upload:
         - wheel-windows-python310-x86_64:build
         - wheel-windows-python311-x86_64:build
         - wheel-windows-python312-x86_64:build
+        - wheel-windows-python313-x86_64:build
     needs:
         - source:build
         - documentation:release-prep
@@ -1566,6 +1577,9 @@ release-artifacts:upload:
         - wheel-windows-python312-x86_64:build
         - wheel-windows-python312-x86_64:test
         - wheel-windows-python312-x86_64-osmesa:test
+        - wheel-windows-python313-x86_64:build
+        - wheel-windows-python313-x86_64:test
+        - wheel-windows-python313-x86_64-osmesa:test
     variables:
         RSYNC_SOURCE: release/
 
@@ -2205,6 +2219,40 @@ wheel-windows-python312-x86_64-osmesa:test:
         - wheel-windows-python312-x86_64:build
     needs:
         - wheel-windows-python312-x86_64:build
+
+wheel-windows-python313-x86_64:build:
+    extends:
+        - .wheel_windows313_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .run_manually
+    dependencies: []
+    needs: []
+
+wheel-windows-python313-x86_64:test:
+    extends:
+        - .wheel_windows313_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+        - .cdash_annotations_artifacts
+    dependencies:
+        - wheel-windows-python313-x86_64:build
+    needs:
+        - wheel-windows-python313-x86_64:build
+
+wheel-windows-python313-x86_64-osmesa:test:
+    extends:
+        - .wheel_windows313_x86_64_osmesa
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .run_automatically
+        - .cdash_annotations_artifacts
+    dependencies:
+        - wheel-windows-python313-x86_64:build
+    needs:
+        - wheel-windows-python313-x86_64:build
 
 macos-x86_64-java8:build:
     extends:
