@@ -10,3 +10,6 @@ wslink==1.9.1
 
 # For wasm test runner
 Jinja2==3.1.3
+
+# setuptools required for distutils since python 3.12+
+setuptools==75.5.0
