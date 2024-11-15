@@ -17,3 +17,12 @@ else ()
 endif ()
 
 option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." ${default_wasm_threads})
+
+# wasm linking is already multithreaded. Here, we ensure targets are linked one at a time to avoid
+# OOM errors and file lock contention.
+if(CMAKE_GENERATOR MATCHES "Ninja")
+  set_property(GLOBAL APPEND PROPERTY JOB_POOLS wasm64_link_job_pool=1)
+  set(CMAKE_JOB_POOL_LINK wasm64_link_job_pool)
+else ()
+  message(WARNING "Some targets may not link successfully! Job pooling is only available with Ninja generators.")
+endif()
