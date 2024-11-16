@@ -316,27 +316,6 @@ vtkWebGPURenderWindow::AcquireFramebufferRenderTexture()
 }
 
 //------------------------------------------------------------------------------
-wgpu::Buffer vtkWebGPURenderWindow::CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor)
-{
-  wgpu::Device device = this->WGPUConfiguration->GetDevice();
-  if (!vtkWebGPUBufferInternals::CheckBufferSize(device, bufferDescriptor.size))
-  {
-    wgpu::SupportedLimits supportedDeviceLimits;
-    device.GetLimits(&supportedDeviceLimits);
-
-    vtkLog(ERROR,
-      "The current WebGPU Device cannot create buffers larger than: "
-        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
-        << " bytes but the buffer with label " << bufferDescriptor.label << " is "
-        << bufferDescriptor.size << " bytes big.");
-
-    return nullptr;
-  }
-
-  return device.CreateBuffer(&bufferDescriptor);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::CreateCommandEncoder()
 {
   vtkWebGPUCheckUnconfigured(this);
@@ -430,7 +409,9 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   // todo: verify device supports this depth and stencil format in feature set
   this->DepthStencil.HasStencil = true;
 
+  const std::string textureLabel = "DepthStencil-" + this->GetObjectDescription();
   wgpu::TextureDescriptor textureDesc;
+  textureDesc.label = textureLabel.c_str();
   textureDesc.dimension = wgpu::TextureDimension::e2D;
   textureDesc.size.width = this->SurfaceConfiguredSize[0];
   textureDesc.size.height = this->SurfaceConfiguredSize[1];
@@ -453,10 +434,10 @@ void vtkWebGPURenderWindow::CreateDepthStencilTexture()
   // To be able to access the depth part of the depth-stencil buffer in a compute pipeline
   textureViewDesc.aspect = wgpu::TextureAspect::All;
 
-  if (auto texture = device.CreateTexture(&textureDesc))
+  if (auto texture = this->WGPUConfiguration->CreateTexture(textureDesc))
   {
     this->DepthStencil.Texture = texture;
-    if (auto view = texture.CreateView(&textureViewDesc))
+    if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->DepthStencil.View = view;
       this->DepthStencil.Format = textureDesc.format;
@@ -500,7 +481,9 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureExtent.height = this->SurfaceConfiguredSize[1];
 
   // Color attachment
+  const std::string textureLabel = "OffscreenColor-" + this->GetObjectDescription();
   wgpu::TextureDescriptor textureDesc;
+  textureDesc.label = textureLabel.c_str();
   textureDesc.size = textureExtent;
   textureDesc.mipLevelCount = 1;
   textureDesc.sampleCount = 1;
@@ -520,10 +503,10 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
   textureViewDesc.baseArrayLayer = 0;
   textureViewDesc.arrayLayerCount = 1;
 
-  if (auto texture = device.CreateTexture(&textureDesc))
+  if (auto texture = this->WGPUConfiguration->CreateTexture(textureDesc))
   {
     this->ColorAttachment.Texture = texture;
-    if (auto view = texture.CreateView(&textureViewDesc))
+    if (auto view = this->WGPUConfiguration->CreateView(texture, textureViewDesc))
     {
       this->ColorAttachment.View = view;
       this->ColorAttachment.Format = textureDesc.format;
@@ -532,12 +515,13 @@ void vtkWebGPURenderWindow::CreateOffscreenColorAttachments()
       // buffer.
       const auto alignedWidth =
         vtkWebGPUConfiguration::Align(4 * this->ColorAttachment.Texture.GetWidth(), 256);
+      const std::string label = "OffscreenBuffer-" + this->GetObjectDescription();
       wgpu::BufferDescriptor buffDesc;
-      buffDesc.label = "Offscreen buffer";
+      buffDesc.label = label.c_str();
       buffDesc.mappedAtCreation = false;
       buffDesc.size = this->ColorAttachment.Texture.GetHeight() * alignedWidth;
       buffDesc.usage = wgpu::BufferUsage::MapRead | wgpu::BufferUsage::CopyDst;
-      if (auto buffer = device.CreateBuffer(&buffDesc))
+      if (auto buffer = this->WGPUConfiguration->CreateBuffer(buffDesc))
       {
         this->ColorAttachment.OffscreenBuffer = buffer;
       }
@@ -1273,13 +1257,14 @@ int vtkWebGPURenderWindow::SetPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1426,13 +1411,14 @@ int vtkWebGPURenderWindow::SetRGBAPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBAPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetRGBAPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "
@@ -1590,13 +1576,14 @@ int vtkWebGPURenderWindow::SetRGBACharPixelData(
   int bytesPerRow = vtkWebGPUConfiguration::Align(width * nComp, 256);
   int size = bytesPerRow * height;
 
+  const std::string label = "StagingRGBACharPixelData-" + this->GetObjectDescription();
   wgpu::BufferDescriptor desc;
   desc.mappedAtCreation = true;
-  desc.label = "Staging buffer for SetRGBACharPixelData";
+  desc.label = label.c_str();
   desc.size = size;
   desc.usage = wgpu::BufferUsage::CopySrc;
 
-  this->StagingPixelData.Buffer = this->CreateDeviceBuffer(desc);
+  this->StagingPixelData.Buffer = this->WGPUConfiguration->CreateBuffer(desc);
   if (this->StagingPixelData.Buffer == nullptr)
   {
     vtkErrorMacro(<< "Failed to create buffer for staging pixel data using device "

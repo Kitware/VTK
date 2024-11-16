@@ -361,7 +361,9 @@ function (vtk_add_test_cxx exename _tests)
 
   set(_vtk_skip_regex
     # Insufficient graphics resources.
-    "Attempt to use a texture buffer exceeding your hardware's limits")
+    "Attempt to use a texture buffer exceeding your hardware's limits"
+    # Vulkan driver not setup correctly.
+    "vulkan: No DRI3 support detected - required for presentation")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
@@ -502,7 +504,9 @@ function (vtk_add_test_mpi exename _tests)
 
   set(_vtk_skip_regex
     # Insufficient graphics resources.
-    "Attempt to use a texture buffer exceeding your hardware's limits")
+    "Attempt to use a texture buffer exceeding your hardware's limits"
+    # Vulkan driver not setup correctly.
+    "vulkan: No DRI3 support detected - required for presentation")
 
   set(default_numprocs ${VTK_MPI_NUMPROCS})
   if (${exename}_NUMPROCS)
@@ -739,7 +743,9 @@ function (vtk_add_test_python)
 
   set(_vtk_skip_regex
     # Insufficient graphics resources.
-    "Attempt to use a texture buffer exceeding your hardware's limits")
+    "Attempt to use a texture buffer exceeding your hardware's limits"
+    # Vulkan driver not setup correctly.
+    "vulkan: No DRI3 support detected - required for presentation")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${python_options}" "local_" ${_${name}_options})

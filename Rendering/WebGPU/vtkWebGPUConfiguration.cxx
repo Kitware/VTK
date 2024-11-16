@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkWebGPUConfiguration.h"
+#include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
+#include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtksys/SystemInformation.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <chrono>
 #include <sstream>
@@ -280,7 +283,7 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& ad
     os << indent << "   * " << info->name << '\n';
     os << indent << info->description << '\n';
     os << indent << "      " << info->url << '\n';
-#else
+#elif defined(__EMSCRIPTEN__)
     // Look up the list of feature strings in `WebGPU.FeatureName`
     const auto featureIdx = static_cast<std::underlying_type<wgpu::FeatureName>::type>(f);
     // clang-format off
@@ -321,6 +324,84 @@ void PrintAdapter(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
   PrintAdapterFeatures(os, indent.GetNextIndent(), adapter);
   PrintAdapterLimits(os, indent.GetNextIndent(), adapter);
 }
+
+#if VTK_USE_DAWN_WEBGPU
+/**
+ * Implement Dawn's MemoryDump interface.
+ */
+class DawnMemoryDump : public dawn::native::MemoryDump
+{
+public:
+  void AddScalar(const char* name, const char* key, const char* units, uint64_t value) override
+  {
+    if (key == MemoryDump::kNameSize && units == MemoryDump::kUnitsBytes)
+    {
+      TotalSize += value;
+    }
+    else if (key == MemoryDump::kNameObjectCount && units == MemoryDump::kUnitsObjects)
+    {
+      TotalObjects += value;
+    }
+    auto it = this->WebGPUObjects.find(name);
+    if (it == this->WebGPUObjects.end())
+    {
+      MemoryInformation info;
+      info.Size = value;
+      this->WebGPUObjects[name] = info;
+    }
+    else
+    {
+      it->second.Size = value;
+    }
+  }
+
+  void AddString(const char* name, const char* key, const std::string& value) override
+  {
+    auto it = this->WebGPUObjects.find(name);
+    if (it == this->WebGPUObjects.end())
+    {
+      MemoryInformation info;
+      info.Properties[key] = value;
+      this->WebGPUObjects[name] = info;
+    }
+    else
+    {
+      it->second.Properties[key] = value;
+    }
+  }
+
+  uint64_t GetTotalSize() const { return TotalSize; }
+  uint64_t GetTotalNumberOfObjects() const { return TotalObjects; }
+
+  void PrintSelf(ostream& os, vtkIndent indent)
+  {
+    os << indent << "TotalSize: " << this->TotalSize << '\n';
+    os << indent << "TotalObjects: " << this->TotalObjects << '\n';
+    for (auto& object : this->WebGPUObjects)
+    {
+      os << indent << indent << "-Name: " << object.first << '\n';
+      os << indent << indent << "  Size: " << object.second.Size << '\n';
+      for (auto& property : object.second.Properties)
+      {
+        os << indent << indent << "  " << property.first << "=" << property.second << '\n';
+      }
+    }
+  }
+
+  struct MemoryInformation
+  {
+    std::uint64_t Size;
+    std::map<std::string, std::string> Properties;
+  };
+
+private:
+  uint64_t TotalSize = 0;
+  uint64_t TotalObjects = 0;
+
+  std::unordered_map<std::string, MemoryInformation> WebGPUObjects;
+};
+#endif
+
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -726,4 +807,207 @@ bool vtkWebGPUConfiguration::IsSamsungGPUInUse()
   return this->GetAdapterVendorID() == ::SAMSUNG_PCI_VENDOR_ID;
 }
 
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(unsigned long sizeBytes, wgpu::BufferUsage usage,
+  bool mappedAtCreation /*=false*/, const char* label /*=nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
+    return nullptr;
+  }
+  wgpu::BufferDescriptor bufferDescriptor;
+  bufferDescriptor.label = label == nullptr ? "(nolabel)" : label;
+  bufferDescriptor.size = sizeBytes;
+  bufferDescriptor.usage = usage;
+  bufferDescriptor.mappedAtCreation = mappedAtCreation;
+
+  return this->CreateBuffer(bufferDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& bufferDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
+    return nullptr;
+  }
+  if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
+  {
+    wgpu::SupportedLimits supportedDeviceLimits;
+    internals.Device.GetLimits(&supportedDeviceLimits);
+
+    vtkLog(ERROR,
+      "The current WebGPU Device cannot create buffers larger than: "
+        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
+        << " bytes but the buffer with label "
+        << (bufferDescriptor.label ? bufferDescriptor.label : "") << " is " << bufferDescriptor.size
+        << " bytes big.");
+
+    return nullptr;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Create buffer {label=" << (bufferDescriptor.label ? bufferDescriptor.label : "")
+                            << ",size=" << bufferDescriptor.size << "}");
+  wgpu::Buffer buffer = internals.Device.CreateBuffer(&bufferDescriptor);
+  return buffer;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::WriteBuffer(const wgpu::Buffer& buffer, unsigned long offset,
+  const void* data, unsigned long sizeBytes, const char* description /*= nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot write data into buffer because device is not ready.");
+    return;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Write buffer {description=" << (description ? description : "null") << ",size=" << sizeBytes
+                                 << ",offset=" << offset << "}");
+  internals.Device.GetQueue().WriteBuffer(buffer, offset, data, sizeBytes);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Texture vtkWebGPUConfiguration::CreateTexture(wgpu::Extent3D extents,
+  wgpu::TextureDimension dimension, wgpu::TextureFormat format, wgpu::TextureUsage usage,
+  int mipLevelCount, const char* label /*=nullptr*/)
+{
+  wgpu::TextureDescriptor textureDescriptor;
+  textureDescriptor.dimension = dimension;
+  textureDescriptor.format = format;
+  textureDescriptor.size = extents;
+  textureDescriptor.mipLevelCount = mipLevelCount;
+  textureDescriptor.nextInChain = nullptr;
+  textureDescriptor.sampleCount = 1;
+  textureDescriptor.usage = usage;
+  textureDescriptor.viewFormatCount = 0;
+  textureDescriptor.viewFormats = nullptr;
+  textureDescriptor.label = label;
+  return this->CreateTexture(textureDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::Texture vtkWebGPUConfiguration::CreateTexture(
+  const wgpu::TextureDescriptor& textureDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create texture because device is not ready.");
+    return nullptr;
+  }
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Create texture {label=" << (textureDescriptor.label ? textureDescriptor.label : "null")
+                             << "\",size=" << textureDescriptor.size.width << 'x'
+                             << textureDescriptor.size.height << 'x'
+                             << textureDescriptor.size.depthOrArrayLayers << "}");
+  return internals.Device.CreateTexture(&textureDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::TextureView vtkWebGPUConfiguration::CreateView(wgpu::Texture texture,
+  wgpu::TextureViewDimension dimension, wgpu::TextureAspect aspect, wgpu::TextureFormat format,
+  int baseMipLevel, int mipLevelCount, const char* label /*=nullptr*/)
+{
+  // Creating a "full" view of the texture
+  wgpu::TextureViewDescriptor textureViewDescriptor;
+  textureViewDescriptor.arrayLayerCount = 1;
+  textureViewDescriptor.aspect = aspect;
+  textureViewDescriptor.baseArrayLayer = 0;
+  textureViewDescriptor.baseMipLevel = baseMipLevel;
+  textureViewDescriptor.dimension = dimension;
+  textureViewDescriptor.format = format;
+  textureViewDescriptor.label = label;
+  textureViewDescriptor.mipLevelCount = mipLevelCount;
+  textureViewDescriptor.nextInChain = nullptr;
+
+  return this->CreateView(texture, textureViewDescriptor);
+}
+
+//------------------------------------------------------------------------------
+wgpu::TextureView vtkWebGPUConfiguration::CreateView(
+  wgpu::Texture texture, const wgpu::TextureViewDescriptor& viewDescriptor)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot create texture because device is not ready.");
+    return nullptr;
+  }
+  return texture.CreateView(&viewDescriptor);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow,
+  uint32_t sizeBytes, const void* data, const char* description /*= nullptr*/)
+{
+  auto& internals = (*this->Internals);
+  if (!internals.DeviceReady)
+  {
+    vtkWarningMacro(<< "Cannot write data into texture because device is not ready.");
+    return;
+  }
+  wgpu::ImageCopyTexture copyTexture = vtkWebGPUTextureInternals::GetImageCopyTexture(texture);
+
+  wgpu::TextureDataLayout textureDataLayout =
+    vtkWebGPUTextureInternals::GetDataLayout(texture, bytesPerRow);
+
+  wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(),
+    texture.GetDepthOrArrayLayers() };
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Write texture {description=" << (description ? description : "null") << ",size=" << sizeBytes
+                                  << "}");
+  internals.Device.GetQueue().WriteTexture(
+    &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUConfiguration::SetGPUMemoryLogVerbosity(vtkLogger::Verbosity verbosity)
+{
+  this->GPUMemoryLogVerbosity = verbosity;
+}
+
+//------------------------------------------------------------------------------
+vtkLogger::Verbosity vtkWebGPUConfiguration::GetGPUMemoryLogVerbosity()
+{
+  if (this->GPUMemoryLogVerbosity == vtkLogger::VERBOSITY_INVALID)
+  {
+    this->GPUMemoryLogVerbosity = vtkLogger::VERBOSITY_TRACE;
+    // Find an environment variable that specifies logger verbosity
+    const char* verbosityKey = "VTK_WEBGPU_MEMORY_LOG_VERBOSITY";
+    if (vtksys::SystemTools::HasEnv(verbosityKey))
+    {
+      const char* verbosityCStr = vtksys::SystemTools::GetEnv(verbosityKey);
+      const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityCStr);
+      if (verbosity > vtkLogger::VERBOSITY_INVALID)
+      {
+        this->GPUMemoryLogVerbosity = verbosity;
+      }
+    }
+  }
+  return this->GPUMemoryLogVerbosity;
+}
+
+void vtkWebGPUConfiguration::DumpMemoryStatistics()
+{
+#if VTK_USE_DAWN_WEBGPU
+  auto* memoryDump = new DawnMemoryDump();
+  dawn::native::DumpMemoryStatistics(this->GetDevice().Get(), memoryDump);
+  std::ostringstream os;
+  memoryDump->PrintSelf(os, vtkIndent());
+  vtkVLog(this->GetGPUMemoryLogVerbosity(), << os.str());
+  delete memoryDump;
+#else
+  // Cannot do anything here because we don't know if the textures/buffers
+  // created through `this->CreateTexture` or `this->CreateBuffer` are still alive.
+  vtkVLog(this->GetGPUMemoryLogVerbosity(),
+    "Cannot determine memory statistics for allocated webgpu objects in this webgpu "
+    "implementation");
+#endif
+}
 VTK_ABI_NAMESPACE_END

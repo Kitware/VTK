@@ -139,6 +139,7 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
+  auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   const auto& device = wgpuRenderWindow->GetDevice();
 
   auto& batchElement = *(this->VTKPolyDataToBatchElement.begin()->second);
@@ -205,21 +206,22 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   {
     if (useNanColor)
     {
-      this->WriteOverrideColorBuffer(
-        device, true, batchElement.Opacity, vtkColor3d{ nanColor }, vtkColor3d{ nanColor });
+      this->WriteOverrideColorBuffer(wgpuConfiguration, true, batchElement.Opacity,
+        vtkColor3d{ nanColor }, vtkColor3d{ nanColor });
     }
     else
     {
-      this->WriteOverrideColorBuffer(device, batchElement.OverridesColor, batchElement.Opacity,
-        batchElement.AmbientColor, batchElement.DiffuseColor);
+      this->WriteOverrideColorBuffer(wgpuConfiguration, batchElement.OverridesColor,
+        batchElement.Opacity, batchElement.AmbientColor, batchElement.DiffuseColor);
     }
   }
   this->LastUseNanColor = useNanColor;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUBatchedPolyDataMapper::WriteOverrideColorBuffer(const wgpu::Device& device,
-  bool applyOverrides, double overrideOpacity, const vtkColor3d& overrideAmbientColor,
+void vtkWebGPUBatchedPolyDataMapper::WriteOverrideColorBuffer(
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, bool applyOverrides,
+  double overrideOpacity, const vtkColor3d& overrideAmbientColor,
   const vtkColor3d& overrideDiffuseColor)
 {
   OverrideColorDescriptor overrideColorDescriptor = {};
@@ -232,7 +234,7 @@ void vtkWebGPUBatchedPolyDataMapper::WriteOverrideColorBuffer(const wgpu::Device
   }
   if (this->AttributeDescriptorBuffer != nullptr)
   {
-    device.GetQueue().WriteBuffer(this->AttributeDescriptorBuffer,
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
       offsetof(MeshAttributeDescriptor, OverrideColors), &overrideColorDescriptor,
       sizeof(overrideColorDescriptor));
   }

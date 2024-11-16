@@ -3,21 +3,23 @@
 
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 
 namespace
 {
 class DispatchDataWriter
 {
 public:
-  DispatchDataWriter(wgpu::Device device, wgpu::Buffer buffer, vtkIdType byteOffset)
-    : Device(device)
+  DispatchDataWriter(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+    vtkIdType byteOffset)
+    : WGPUConfiguration(wgpuConfiguration)
     , Buffer(buffer)
     , ByteOffset(byteOffset)
   {
   }
 
   template <typename SrcArrayType>
-  void operator()(SrcArrayType* srcArray)
+  void operator()(SrcArrayType* srcArray, const char* description)
   {
     using SrcType = vtk::GetAPIType<SrcArrayType>;
 
@@ -29,13 +31,12 @@ public:
     {
       data.push_back(value);
     }
-
-    this->Device.GetQueue().WriteBuffer(
-      this->Buffer, this->ByteOffset, data.data(), data.size() * srcArray->GetDataTypeSize());
+    this->WGPUConfiguration->WriteBuffer(this->Buffer, this->ByteOffset, data.data(),
+      data.size() * srcArray->GetDataTypeSize(), description);
   }
 
 private:
-  wgpu::Device Device;
+  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   wgpu::Buffer Buffer;
   vtkIdType ByteOffset;
 };
@@ -43,21 +44,23 @@ private:
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-  wgpu::Device device, wgpu::Buffer buffer, vtkDataArray* dataArray)
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+  vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
-  UploadFromDataArray(device, buffer, 0, dataArray);
+  UploadFromDataArray(wgpuConfiguration, buffer, 0, dataArray, description);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
-  wgpu::Device device, wgpu::Buffer buffer, vtkIdType byteOffset, vtkDataArray* dataArray)
+  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Buffer buffer,
+  vtkIdType byteOffset, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   using DispatchAllTypes = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
-  DispatchDataWriter dispatchDataWriter(device, buffer, byteOffset);
+  DispatchDataWriter dispatchDataWriter(wgpuConfiguration, buffer, byteOffset);
 
-  if (!DispatchAllTypes::Execute(dataArray, dispatchDataWriter))
+  if (!DispatchAllTypes::Execute(dataArray, dispatchDataWriter, description))
   {
-    dispatchDataWriter(dataArray);
+    dispatchDataWriter(dataArray, description);
   }
 }

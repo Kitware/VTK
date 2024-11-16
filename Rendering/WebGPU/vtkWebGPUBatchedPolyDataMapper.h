@@ -73,8 +73,8 @@ protected:
   bool LastBlockVisibility = true;
   bool LastUseNanColor = false;
 
-  void WriteOverrideColorBuffer(const wgpu::Device& device, bool applyOverrides,
-    double overrideOpacity, const vtkColor3d& overrideAmbientColor,
+  void WriteOverrideColorBuffer(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
+    bool applyOverrides, double overrideOpacity, const vtkColor3d& overrideAmbientColor,
     const vtkColor3d& overrideDiffuseColor);
 
 private:

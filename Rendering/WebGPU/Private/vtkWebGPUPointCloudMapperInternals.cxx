@@ -118,7 +118,7 @@ void vtkWebGPUPointCloudMapperInternals::CreateCopyDepthBufferRenderPipeline(
   // Creating the buffer that will hold the width of the framebuffer for the fragment shader that
   // copies the point depth buffer into the depth buffer of the render window
   this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer =
-    vtkWebGPUBufferInternals::CreateBuffer(device, sizeof(unsigned int),
+    wgpuRenderWindow->GetWGPUConfiguration()->CreateBuffer(sizeof(unsigned int),
       wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Uniform, false,
       "Point cloud mapper - Copy depth to RenderWindow - Framebuffer width uniform buffer");
 
@@ -182,8 +182,9 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   int* windowSize = wgpuRenderWindow->GetSize();
 
   wgpu::Device device = wgpuRenderWindow->GetDevice();
-  device.GetQueue().WriteBuffer(this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer, 0,
-    (uint8_t*)&windowSize[0], sizeof(unsigned int));
+  wgpuRenderWindow->GetWGPUConfiguration()->WriteBuffer(
+    this->CopyDepthBufferPipeline.FramebufferWidthUniformBuffer, 0, (uint8_t*)&windowSize[0],
+    sizeof(unsigned int));
 
   wgpu::CommandEncoderDescriptor encDesc;
   encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";

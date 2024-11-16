@@ -153,8 +153,7 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteBuffer(
-      wgpuBuffer, 0, bytes, numBytes);
+    this->ParentPassWGPUConfiguration->WriteBuffer(wgpuBuffer, 0, bytes, numBytes);
   }
 
   void WriteBuffer(
@@ -176,8 +175,7 @@ public:
     }
 
     wgpu::Buffer wgpuBuffer = this->WebGPUBuffers[bufferIndex];
-    this->ParentPassWGPUConfiguration->GetDevice().GetQueue().WriteBuffer(
-      wgpuBuffer, byteOffset, bytes, numBytes);
+    this->ParentPassWGPUConfiguration->WriteBuffer(wgpuBuffer, byteOffset, bytes, numBytes);
   }
 
   /**

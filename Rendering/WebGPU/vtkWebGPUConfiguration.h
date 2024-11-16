@@ -18,6 +18,7 @@
 #include "vtkObject.h"
 
 #include "vtkCommand.h"               // for vtkCommand
+#include "vtkLogger.h"                // for vtkLogger::Verbosity enum
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtk_wgpu.h"                 // for wgpu
 
@@ -215,6 +216,74 @@ public:
   bool IsSamsungGPUInUse();
   ///@}
 
+  ///@{
+  /**
+   * Convenient methods used to create webgpu buffers. This method also logs memory information
+   * which is useful to audit GPU memory usage. It avoids creating buffers larger
+   * than supported by the device.
+   */
+  wgpu::Buffer CreateBuffer(unsigned long sizeBytes, wgpu::BufferUsage usage,
+    bool mappedAtCreation = false, const char* label = nullptr);
+  wgpu::Buffer CreateBuffer(const wgpu::BufferDescriptor& bufferDescriptor);
+  ///@}
+
+  /**
+   * Convenient method used to write data into an existing buffer. This method also logs memory
+   * information which is useful to audit GPU memory usage.
+   */
+  void WriteBuffer(const wgpu::Buffer& buffer, unsigned long offset, const void* data,
+    unsigned long sizeBytes, const char* description = nullptr);
+
+  ///@{
+  /**
+   * Creates a WebGPU texture with the given device and returns it.
+   */
+  wgpu::Texture CreateTexture(wgpu::Extent3D extents, wgpu::TextureDimension dimension,
+    wgpu::TextureFormat format, wgpu::TextureUsage usage, int mipLevelCount = 1,
+    const char* label = nullptr);
+  wgpu::Texture CreateTexture(const wgpu::TextureDescriptor& textureDescriptor);
+  ///@}
+
+  /**
+   * Creates a texture view of a texture
+   */
+  wgpu::TextureView CreateView(wgpu::Texture texture, wgpu::TextureViewDimension dimension,
+    wgpu::TextureAspect aspect, wgpu::TextureFormat format, int baseMipLevel, int mipLevelCount,
+    const char* label = nullptr);
+  wgpu::TextureView CreateView(
+    wgpu::Texture texture, const wgpu::TextureViewDescriptor& viewDescriptor);
+
+  /**
+   * Upload byteSize of data from the data pointer to the given texture,
+   * assuming `bytesPerRow` bytes of data per row in the texture.
+   */
+  void WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow, uint32_t byteSize,
+    const void* data, const char* description = nullptr);
+
+  ///@{
+  /**
+   * Set/Get the log verbosity of messages that are emitted when data is uploaded to GPU memory.
+   * The GetGPUMemoryLogVerbosity looks up system environment for `VTK_WEBGPU_MEMORY_LOG_VERBOSITY`
+   * that shall be used to set initial logger verbosity. The default value
+   * is TRACE.
+   *
+   * Accepted string values are OFF, ERROR, WARNING, INFO, TRACE, MAX, INVALID or ASCII
+   * representation for an integer in the range [-9,9].
+   *
+   * @note This method internally uses vtkLogger::ConvertToVerbosity(const char*).
+   */
+  void SetGPUMemoryLogVerbosity(vtkLogger::Verbosity verbosity);
+  vtkLogger::Verbosity GetGPUMemoryLogVerbosity();
+  ///@}
+
+  /**
+   * This method prints the information corresponding to all active wgpu::Buffer and wgpu::Texture
+   * objects to the log with verbosity specified by GetGPUMemoryLogVerbosity().
+   * With Dawn, this interfaces directly into Dawn's memory statistics API for accurate
+   * information about active objects.
+   */
+  void DumpMemoryStatistics();
+
 protected:
   vtkWebGPUConfiguration();
   ~vtkWebGPUConfiguration() override;
@@ -224,6 +293,8 @@ protected:
   BackendType Backend;
   // In milliseconds
   double Timeout;
+
+  vtkLogger::Verbosity GPUMemoryLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
   void AcquireAdapter(vtkObject* caller, unsigned long event, void* calldata);
 
