@@ -153,6 +153,30 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_egl
 
+.wheel_linux313_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64
+        PYTHON_PREFIX: /opt/python/cp313-cp313
+
+.wheel_linux313_x86_64_osmesa:
+    extends:
+        - .wheel_linux313_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64_osmesa
+
+.wheel_linux313_x86_64_egl:
+    extends:
+        - .wheel_linux313_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64_egl
+
 .fedora39:
     extends: .linux
     image: "kitware/vtk:ci-fedora39-20240828"

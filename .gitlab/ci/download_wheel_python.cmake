@@ -9,6 +9,7 @@ set(python39_version "3.9.13") # Source-only releases after this.
 set(python310_version "3.10.11") # Source-only releases after this.
 set(python311_version "3.11.6")
 set(python312_version "3.12.0")
+set(python313_version "3.13.0")
 
 # Hashes for various deployments.
 set(python38_windows_x86_64_hash "d4e7e83de0db659697eea034dd2b1620ff26ac7062709b60d723307a68aa5d81")
@@ -16,6 +17,7 @@ set(python39_windows_x86_64_hash "004683810c0e0b4ff10025392ac95e699e99d8c3566f41
 set(python310_windows_x86_64_hash "b02692c7905dea2829e4204eab2343b226f0c9f244df89502ba8d483d5f8f9d3")
 set(python311_windows_x86_64_hash "2a8393087e0cac9e3c0eeb69a3a34f3b01734266a0bb276621aec7a159b576b6")
 set(python312_windows_x86_64_hash "782f1b9db7e8ff78c928ea94861549820c8abc70cde76a3dfb7ef9e54a06e326")
+set(python313_windows_x86_64_hash "b733a8c7d8d30aa5d0742c00de419294ec385797586672076c337885a440d701")
 
 set(python38_macos_x86_64_hash "8c49fa50d34529e58769d3901e9e079554424d59bc1aa7dceb82c8c63f09cbc1")
 set(python39_macos_arm64_hash "e6b95bb926feff99e38bcd4986feb8897b36170a6c6c01b36da7d8e3daac5b6b")
@@ -26,6 +28,8 @@ set(python311_macos_arm64_hash "ad1380cd383e0bab7d988f9ee7bfb8693d5de28736ad3d8d
 set(python311_macos_x86_64_hash "6dba6a561f02ae1a93707dd87386f2adca4a4765a9a73929c121290489ca14db")
 set(python312_macos_arm64_hash "475b1626769b6e517eb0630accba08c4669c4e16573c6d4137cef0aaee67b785")
 set(python312_macos_x86_64_hash "22772ed975c06f931c9b9f1d633afe34b04fbab6d0824d9a46a698d561ee5e90")
+set(python313_macos_arm64_hash "0833901d0b91c5c59bfeff3e155e3bc0bfe41d4ba730e94e5f6db4f6eb72cbe4")
+set(python313_macos_x86_64_hash "367962d9e5e7cb7346e78840d806c117cae12830fa57e739f88d5bb7b052924e")
 
 # Extracting information from the build configuration.
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -49,6 +53,8 @@ elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "311_")
   set(python_version 311)
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "312_")
   set(python_version 312)
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "313_")
+  set(python_version 313)
 else ()
   message(FATAL_ERROR
     "Unknown version for Python")
