@@ -342,9 +342,9 @@ def get_constructors(c):
         if signature.startswith("def " + name + "("):
             signature = re.sub("-> \'?" + name + "\'?", "-> None", signature)
             if signature.startswith("def " + name + "()"):
-                constructors.append(re.sub(name + r"\(", "__init__(self", signature, 1))
+                constructors.append(re.sub(name + r"\(", "__init__(self", signature, count=1))
             else:
-                constructors.append(re.sub(name + r"\(", "__init__(self, ", signature, 1))
+                constructors.append(re.sub(name + r"\(", "__init__(self, ", signature, count=1))
     return constructors
 
 def handle_static(o, signature):
