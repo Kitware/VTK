@@ -13,11 +13,11 @@
 
 #define callSetterBeginMacro(fp, indent) fprintf(fp, "%sobject->%s(", indent, setterName)
 
-#define callSetterParameterMacro(fp, ...) fprintf(fp, __VA_ARGS__);
+#define callSetterParameterMacro(fp, ...) fprintf(fp, __VA_ARGS__)
 
-#define callSetterNextParameterMacro(fp, ...) fprintf(fp, ", " __VA_ARGS__);
+#define callSetterNextParameterMacro(fp, ...) fprintf(fp, ", " __VA_ARGS__)
 
-#define callSetterEndMacro(fp) fprintf(fp, ");\n");
+#define callSetterEndMacro(fp) fprintf(fp, ");\n")
 
 /* test whether all types in testTypes exist in methodTypes */
 static int vtkWrapSerDes_MethodTypeMatches(

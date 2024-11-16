@@ -528,7 +528,7 @@ int vtkRedistributeDataSetFilter::RequestData(
             ghosts[id] &= ~vtkDataSetAttributes::DUPLICATEPOINT;
           }
         });
-    };
+    }
   }
 
   // ******************************************************

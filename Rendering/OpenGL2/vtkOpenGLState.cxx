@@ -292,6 +292,7 @@ bool reportOpenGLErrors(std::string& result)
 #define vtkOpenGLCheckStateMacro() this->CheckState()
 
 #define vtkCheckOpenGLErrorsWithStack(message)                                                     \
+  do                                                                                               \
   {                                                                                                \
     std::string _tmp;                                                                              \
     if (reportOpenGLErrors(_tmp))                                                                  \
@@ -299,7 +300,7 @@ bool reportOpenGLErrors(std::string& result)
       vtkGenericWarningMacro("Error " << message << _tmp);                                         \
       vtkOpenGLClearErrorMacro();                                                                  \
     }                                                                                              \
-  }
+  } while (false)
 
 VTK_ABI_NAMESPACE_END
 #else // VTK_REPORT_OPENGL_ERRORS

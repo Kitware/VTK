@@ -1082,7 +1082,7 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
       dst.push_back(                                                                               \
         { { "Key", serializer->SerializeJSON(iter.first) }, { "Value", iter.second } });           \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define SERIALIZE_MAP_OF_VTK_COLOR3D(name)                                                         \
   do                                                                                               \
@@ -1093,7 +1093,7 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
       dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
         { "Values", { iter.second.GetRed(), iter.second.GetGreen(), iter.second.GetBlue() } } });  \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define SERIALIZE_MAP_OF_VTK_VECTOR2D(name)                                                        \
   do                                                                                               \
@@ -1104,7 +1104,7 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
       dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
         { "Values", { iter.second[0], iter.second[1] } } });                                       \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define SERIALIZE_MAP_OF_VTK_OBJECTS(name)                                                         \
   do                                                                                               \
@@ -1115,7 +1115,7 @@ vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
       dst.push_back({ { "Key", serializer->SerializeJSON(iter.first) },                            \
         { "Value", serializer->SerializeJSON(iter.second) } });                                    \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 //----------------------------------------------------------------------------
 nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* serializer)
@@ -1159,7 +1159,7 @@ nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* seria
         this->Block##name[vtkDataObject::SafeDownCast(subObject)] = value;                         \
       }                                                                                            \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define DESERIALIZE_MAP_OF_VTK_COLOR3D(name)                                                       \
   do                                                                                               \
@@ -1179,7 +1179,7 @@ nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* seria
           vtkColor3d(values[0], values[1], values[2]);                                             \
       }                                                                                            \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define DESERIALIZE_MAP_OF_VTK_VECTOR2D(name)                                                      \
   do                                                                                               \
@@ -1199,7 +1199,7 @@ nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* seria
           vtkVector2d(values[0], values[1]);                                                       \
       }                                                                                            \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 #define DESERIALIZE_MAP_OF_VTK_OBJECTS(name, type)                                                 \
   do                                                                                               \
@@ -1221,7 +1221,7 @@ nlohmann::json vtkCompositeDataDisplayAttributes::Serialize(vtkSerializer* seria
           type::SafeDownCast(valueObject);                                                         \
       }                                                                                            \
     }                                                                                              \
-  } while (0);
+  } while (0)
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataDisplayAttributes::Deserialize(

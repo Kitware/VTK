@@ -77,20 +77,22 @@ using vtkImageComplex = struct vtkImageComplex_t;
   } while (false)
 
 #define vtkImageComplexMultiply(C1, C2, cOut)                                                      \
+  do                                                                                               \
   {                                                                                                \
     vtkImageComplex vtkImageComplex_tMultiplyTemp;                                                 \
     vtkImageComplex_tMultiplyTemp.Real = (C1).Real * (C2).Real - (C1).Imag * (C2).Imag;            \
     vtkImageComplex_tMultiplyTemp.Imag = (C1).Real * (C2).Imag + (C1).Imag * (C2).Real;            \
     cOut = vtkImageComplex_tMultiplyTemp;                                                          \
-  }
+  } while (false)
 
 // This macro calculates exp(cIn) and puts the result in cOut
 #define vtkImageComplexExponential(cIn, cOut)                                                      \
+  do                                                                                               \
   {                                                                                                \
     double tmp = exp(cIn.Real);                                                                    \
     cOut.Real = tmp * cos(cIn.Imag);                                                               \
     cOut.Imag = tmp * sin(cIn.Imag);                                                               \
-  }
+  } while (false)
 
 /******************* End of COMPLEX number stuff ********************/
 

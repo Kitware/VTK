@@ -230,11 +230,16 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
 #endif
 
 #if !defined(VTK_REPORT_OPENGL_ERRORS)
-# define vtkOpenGLClearErrorMacro()
+# define vtkOpenGLClearErrorMacro() do {} while (false)
 # define vtkOpenGLCheckErrorMacro(message)
 # define vtkOpenGLStaticCheckErrorMacro(message)
 #else
-# define vtkOpenGLClearErrorMacro() vtkClearOpenGLErrors(16);
+#define vtkOpenGLClearErrorMacro()                                                                 \
+  do                                                                                               \
+  {                                                                                                \
+    vtkClearOpenGLErrors(16);                                                                      \
+  }                                                                                                \
+  while (false)
 # include <sstream> // for error macro
 # define vtkOpenGLCheckErrorMacroImpl(ostr, message) \
 do                                                   \

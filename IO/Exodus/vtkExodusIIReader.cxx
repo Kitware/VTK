@@ -5419,7 +5419,7 @@ vtkMTimeType vtkExodusIIReader::GetMetadataMTime()
 void vtkExodusIIReader::SetFileName(const char* fname)
 {
   vtkLogF(TRACE, "%s: SetFileName old=%s, new=%s", vtkLogIdentifier(this), this->FileName, fname);
-  vtkSetStringMacroBody(FileName, fname);
+  vtkSetStringMacroBody(FileName, fname)
   if (modified)
   {
     this->Metadata->Reset();
@@ -5429,7 +5429,7 @@ void vtkExodusIIReader::SetFileName(const char* fname)
 
 void vtkExodusIIReader::SetXMLFileName(const char* fname)
 {
-  vtkSetStringMacroBody(XMLFileName, fname);
+  vtkSetStringMacroBody(XMLFileName, fname)
   if (modified)
   {
     this->XMLFileNameMTime.Modified();

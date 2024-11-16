@@ -164,7 +164,6 @@ void vtkCaptionRepresentation::BuildRepresentation()
       }
       else // this->Fit == VTK_FIT_TO_TEXT
       {
-        ;
       }
       this->AdjustCaptionBoundary();
     }

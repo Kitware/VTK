@@ -444,7 +444,7 @@ int vtkCell::Triangulate(int index, vtkIdList* ptIds, vtkPoints* pts)
   if (!this->TriangulateLocalIds(index, ptIds))
   {
     return 0;
-  };
+  }
   pts->SetNumberOfPoints(ptIds->GetNumberOfIds());
   for (int i = 0; i < ptIds->GetNumberOfIds(); i++)
   {
@@ -461,7 +461,7 @@ int vtkCell::TriangulateIds(int index, vtkIdList* ptIds)
   if (!this->TriangulateLocalIds(index, ptIds))
   {
     return 0;
-  };
+  }
   for (int i = 0; i < ptIds->GetNumberOfIds(); i++)
   {
     ptIds->SetId(i, this->PointIds->GetId(ptIds->GetId(i)));

@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkDataObjectMeshCache);
  * of Cache instances can be used around a program.
  */
 #define vtkCacheLog(_verbosity, _msg)                                                              \
-  vtkLogIf(_verbosity, this->Debug, << this->GetObjectDescription() << " " << _msg);
+  vtkLogIf(_verbosity, this->Debug, << this->GetObjectDescription() << " " << _msg)
 
 /**
  * Interface to dispatch work over every contained vtkDataSet.
