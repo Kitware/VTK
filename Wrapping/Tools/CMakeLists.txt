@@ -52,9 +52,11 @@ set(_vtk_module_no_namespace_abi_mangling ON)
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers})
-vtk_module_compile_options("${ns}::WrappingTools"
-  PRIVATE
-    "-pthread")
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  vtk_module_compile_options("${ns}::WrappingTools"
+    PRIVATE
+      "-pthread")
+endif ()
 
 if (NOT TARGET "${ns}::WrapHierarchy")
   vtk_module_add_executable(WrapHierarchy
