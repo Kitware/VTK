@@ -30,8 +30,8 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
 
   // adjust z component of normal in order to emulate a tube if necessary.
   var normal_vc: vec3<f32> = normalize(fragment.normal_vc);
-  if (actor.render_options.render_lines_as_tubes != 0)
-  {
+  let render_lines_as_tubes = getRenderLinesAsTubes(actor.render_options.flags);
+  if (render_lines_as_tubes) {
     normal_vc.z = 1.0 - 2.0 * distance_from_centerline;
   }
 

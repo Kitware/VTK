@@ -22,7 +22,8 @@
 #include "vtkDeprecation.h" // For deprecation
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
+#include "vtkSetGet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <map>    // used for ivar
 #include <string> // used for ivar
@@ -489,6 +490,30 @@ public:
 
   ///@{
   /**
+   * Set/Get the edge width.
+   * Default is 1.
+   * @note When UseLineWidthForEdgeThickness is false, this property
+   * controls the thickness of edges of cells.
+   */
+  vtkSetClampMacro(EdgeWidth, float, 0, VTK_FLOAT_MAX);
+  vtkGetMacro(EdgeWidth, float);
+  ///@}
+
+  ///@{
+  /**
+   * When UseLineWidthForEdgeThickness is true, the thickness of edges in a cell
+   * is controlled by `LineWidth` property.
+   * When UseLineWidthForEdgeThickness is false, the thickness of edges in a cell
+   * is controlled by `EdgeWidth` property.
+   * @note Default value is true. Edge width is determined by the value of `LineWidth`
+   */
+  vtkBooleanMacro(UseLineWidthForEdgeThickness, bool);
+  vtkSetMacro(UseLineWidthForEdgeThickness, bool);
+  vtkGetMacro(UseLineWidthForEdgeThickness, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
    * (1 = pixel on, 0 = pixel off).
    * This is only implemented for OpenGL, not OpenGL2. The default is 0xFFFF.
@@ -811,8 +836,10 @@ protected:
   double EdgeTint[3];
   float PointSize;
   float LineWidth;
+  float EdgeWidth = 1.0;
   float SelectionPointSize = 2.f;
   float SelectionLineWidth = 2.f;
+  bool UseLineWidthForEdgeThickness = true;
   int LineStipplePattern;
   int LineStippleRepeatFactor;
   int Interpolation;

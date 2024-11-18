@@ -153,14 +153,16 @@ void vtkWebGPUActor::CacheActorRenderOptions()
     this->GetMTime() > this->RenderOptionsBuildTimestamp)
   {
     auto& ro = this->CachedActorInfo.RenderOpts;
-    const int representation = displayProperty->GetRepresentation();
-    ro.Representation = representation;
     ro.PointSize = displayProperty->GetPointSize();
     ro.LineWidth = displayProperty->GetLineWidth();
-    ro.EdgeVisibility = displayProperty->GetEdgeVisibility();
-    ro.RenderPointsAsSpheres = displayProperty->GetRenderPointsAsSpheres();
-    ro.RenderLinesAsTubes = displayProperty->GetRenderLinesAsTubes();
-    ro.Point2DShape = static_cast<std::uint32_t>(displayProperty->GetPoint2DShape());
+    ro.EdgeWidth = displayProperty->GetEdgeWidth();
+    // input property is shifted by `k` positions and then the shifted value is added to flags
+    // to update the bit at `k` position.
+    ro.Flags = displayProperty->GetRepresentation() | (displayProperty->GetEdgeVisibility() << 2) |
+      (displayProperty->GetUseLineWidthForEdgeThickness() << 3) |
+      (displayProperty->GetRenderPointsAsSpheres() << 4) |
+      (displayProperty->GetRenderLinesAsTubes() << 5) |
+      (static_cast<int>(displayProperty->GetPoint2DShape()) << 6);
     this->RenderOptionsBuildTimestamp.Modified();
   }
 }

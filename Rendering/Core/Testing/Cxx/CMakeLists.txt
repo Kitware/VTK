@@ -73,6 +73,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestDragEvent.cxx
   TestEdgeFlags.cxx
   TestEdgeOpacity.cxx
+  TestEdgeThickness.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA

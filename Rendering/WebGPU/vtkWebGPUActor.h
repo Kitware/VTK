@@ -68,21 +68,15 @@ protected:
 
     struct RenderOptions
     {
-      // Representation - 0 : VTK_POINTS, 1 : VTK_WIREFRAME, 2 : VTK_SURFACE
-      vtkTypeUInt32 Representation = 0;
       // Point size in pixels - applicable when points are visible.
       vtkTypeFloat32 PointSize = 0;
-      // Line width in pixels - applicable when edges are visible.
+      // Line width in pixels - applicable when lines/edges are visible.
       vtkTypeFloat32 LineWidth = 0;
-      // Edge visibility - applicable for Representation = VTK_SURFACE.
-      vtkTypeUInt32 EdgeVisibility = 0;
-      // Render points as spheres - applicable when rendering points.
-      vtkTypeUInt32 RenderPointsAsSpheres = 0;
-      // Render lines as tubes - applicable when rendering lines.
-      vtkTypeUInt32 RenderLinesAsTubes = 0;
-      // 2D shape of points.
-      vtkTypeUInt32 Point2DShape = 0;
-      vtkTypeUInt32 Padding;
+      // Edge width in pixels - applicable when edges are visible and UseLineWidthForEdgeThickness
+      // is false.
+      vtkTypeFloat32 EdgeWidth = 0;
+      // Custom flags used to encode various integer/boolean properties.
+      vtkTypeUInt32 Flags = 0;
     } RenderOpts;
 
     struct ShadeOptions
