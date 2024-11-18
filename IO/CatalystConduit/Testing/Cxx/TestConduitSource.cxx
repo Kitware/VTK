@@ -726,7 +726,7 @@ bool Validate1DRectilinearGrid()
 }
 
 //----------------------------------------------------------------------------
-inline unsigned int calc(unsigned int i, unsigned int j, unsigned int k, unsigned int I,
+inline unsigned int GetLinearIndex3D(unsigned int i, unsigned int j, unsigned int k, unsigned int I,
   unsigned int J, unsigned int K, unsigned int nx, unsigned int ny)
 {
   return (i + I) + (j + J) * nx + (k + K) * (nx * ny);
@@ -784,13 +784,13 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
           offsets[idx_elem + 2] = offsets[idx_elem + 1] + TrianglePointCount;
         }
 
-        connectivity[idx + 0] = calc(0, 0, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 1] = calc(1, 0, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 2] = calc(1, 1, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, 0, npts_x, npts_y);
 
-        connectivity[idx + 3] = calc(0, 0, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 4] = calc(1, 1, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 5] = calc(0, 1, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 3] = GetLinearIndex3D(0, 0, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 4] = GetLinearIndex3D(1, 1, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 5] = GetLinearIndex3D(0, 1, 0, i, j, 0, npts_x, npts_y);
 
         idx_elem += 2;
         idx += 6;
@@ -806,10 +806,10 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
           offsets[idx_elem + 1] = offsets[idx_elem + 0] + QuadPointCount;
         }
 
-        connectivity[idx + 0] = calc(0, 0, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 1] = calc(1, 0, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 2] = calc(1, 1, 0, i, j, 0, npts_x, npts_y);
-        connectivity[idx + 3] = calc(0, 1, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, 0, npts_x, npts_y);
+        connectivity[idx + 3] = GetLinearIndex3D(0, 1, 0, i, j, 0, npts_x, npts_y);
 
         idx_elem += 1;
         idx += 4;
@@ -869,6 +869,96 @@ bool ValidateMeshTypeMixed2D()
   }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+void CreateWedgeAndPyramidUnstructuredMesh(
+  unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ, conduit_cpp::Node& res)
+{
+  conduit_cpp::Node mesh;
+  CreateCoords(nptsX, nptsY, nptsZ, res);
+
+  res["topologies/mesh/type"] = "unstructured";
+  res["topologies/mesh/coordset"] = "coords";
+
+  const unsigned int nElementX = nptsX - 1;
+  const unsigned int nElementY = nptsY - 1;
+  const unsigned int nElementZ = nptsZ - 1;
+  const unsigned int nElementX2 = nElementX / 2;
+  const unsigned int nPyramid = nElementZ * nElementY * (nElementX2 + nElementX % 2);
+  const unsigned int nWedge = nElementZ * nElementY * nElementX2;
+  const unsigned int nEle = nPyramid + nWedge;
+
+  res["topologies/mesh/elements/shape"] = "mixed";
+  res["topologies/mesh/elements/shape_map/pyramid"] = VTK_PYRAMID;
+  res["topologies/mesh/elements/shape_map/wedge"] = VTK_WEDGE;
+
+  std::vector<unsigned int> elemConnectivity, elemShapes, elemSizes, elemOffsets;
+  elemShapes.resize(nEle);
+  elemSizes.resize(nEle);
+  elemOffsets.resize(nEle);
+  elemConnectivity.resize(nPyramid * 5 + nWedge * 6);
+  elemOffsets[0] = 0;
+
+  unsigned int idxElem = 0;
+  unsigned int idx = 0;
+
+  for (unsigned int k = 0; k < nElementZ; ++k)
+  {
+    for (unsigned int j = 0; j < nElementZ; ++j)
+    {
+      for (unsigned int i = 0; i < nElementX; ++i)
+      {
+        if (i % 2 == 0) // pyramid
+        {
+          constexpr int pyramidPointCount = 5;
+
+          elemShapes[idxElem] = VTK_PYRAMID;
+          elemSizes[idxElem] = pyramidPointCount;
+          if (idxElem + 1 < elemOffsets.size())
+          {
+            elemOffsets[idxElem + 1] = elemOffsets[idxElem] + pyramidPointCount;
+          }
+
+          elemConnectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 3] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 4] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+
+          idxElem += 1;
+          idx += pyramidPointCount;
+        }
+        else
+        {
+          constexpr int wedgePointCount = 6;
+
+          elemShapes[idxElem] = VTK_WEDGE;
+          elemSizes[idxElem] = wedgePointCount;
+          if (idxElem + 1 < elemOffsets.size())
+          {
+            elemOffsets[idxElem + 1] = elemOffsets[idxElem] + wedgePointCount;
+          }
+
+          elemConnectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 3] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 4] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+          elemConnectivity[idx + 5] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+
+          idxElem += 1;
+          idx += wedgePointCount;
+        }
+      }
+    }
+  }
+
+  auto elements = res["topologies/mesh/elements"];
+  elements["shapes"].set(elemShapes);
+  elements["offsets"].set(elemOffsets);
+  elements["sizes"].set(elemSizes);
+  elements["connectivity"].set(elemConnectivity);
 }
 
 //----------------------------------------------------------------------------
@@ -944,14 +1034,14 @@ void CreateMixedUnstructuredMesh(
             elem_offsets[idx_elem + 1] = elem_offsets[idx_elem] + HexaPointCount;
           }
 
-          elem_connectivity[idx + 0] = calc(0, 0, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 1] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 2] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 3] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 4] = calc(0, 0, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 5] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 6] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 7] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 2] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 3] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 4] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 5] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 6] = GetLinearIndex3D(1, 1, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 7] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
 
           idx_elem += 1;
           idx += HexaPointCount;
@@ -981,20 +1071,20 @@ void CreateMixedUnstructuredMesh(
             elem_offsets[idx_elem + 4] = elem_offsets[idx_elem + 3] + WedgeFaceCount;
           }
 
-          elem_connectivity[idx + 0] = calc(0, 0, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 1] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 2] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 3] = calc(0, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 0] = GetLinearIndex3D(0, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 1] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 2] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 3] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
 
-          elem_connectivity[idx + 4] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 5] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 6] = calc(0, 0, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 7] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 4] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 5] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 6] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 7] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
 
-          elem_connectivity[idx + 8] = calc(0, 0, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 9] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 10] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          elem_connectivity[idx + 11] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 8] = GetLinearIndex3D(0, 0, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 9] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 10] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          elem_connectivity[idx + 11] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
 
           // note: there are no shared faces in this example
           elem_connectivity[idx + 12] = 0 + WedgeFaceCount * polyhedronCounter;
@@ -1024,28 +1114,28 @@ void CreateMixedUnstructuredMesh(
             subelem_offsets[idx_elem2 + 5] = subelem_offsets[idx_elem2 + 4] + TrianglePointCount;
           }
 
-          subelem_connectivity[idx2 + 0] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 1] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 2] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 3] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 0] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 1] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 2] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 3] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
 
-          subelem_connectivity[idx2 + 4] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 5] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 6] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 7] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 4] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 5] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 6] = GetLinearIndex3D(1, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 7] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
 
-          subelem_connectivity[idx2 + 8] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 9] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 10] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 11] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 8] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 9] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 10] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 11] = GetLinearIndex3D(1, 1, 1, i, j, k, nptsX, nptsY);
 
-          subelem_connectivity[idx2 + 12] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 13] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 14] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 12] = GetLinearIndex3D(1, 0, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 13] = GetLinearIndex3D(0, 1, 0, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 14] = GetLinearIndex3D(1, 1, 0, i, j, k, nptsX, nptsY);
 
-          subelem_connectivity[idx2 + 15] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 16] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 17] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 15] = GetLinearIndex3D(1, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 16] = GetLinearIndex3D(0, 1, 1, i, j, k, nptsX, nptsY);
+          subelem_connectivity[idx2 + 17] = GetLinearIndex3D(1, 0, 1, i, j, k, nptsX, nptsY);
 
           idx_elem += 4; // three tets, 1 polyhedron
           idx += 3 * TetraPointCount + WedgeFaceCount;
@@ -1076,11 +1166,11 @@ bool ValidateMeshTypeMixed()
   conduit_cpp::Node mesh;
   constexpr int nX = 5, nY = 5, nZ = 5;
   CreateMixedUnstructuredMesh(5, 5, 5, mesh);
-  const auto data = Convert(mesh);
+  auto data = Convert(mesh);
 
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
-  const auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
   VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
     pds->GetNumberOfPartitions());
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
@@ -1095,7 +1185,7 @@ bool ValidateMeshTypeMixed()
   VERIFY(ug->GetNumberOfCells() == 160, "expected 160 cells, got %lld", ug->GetNumberOfCells());
 
   // check cell types
-  const auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+  auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
 
   int nPolyhedra(0), nTetra(0), nHexa(0), nCells(0);
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
@@ -1133,6 +1223,60 @@ bool ValidateMeshTypeMixed()
   VERIFY(nTetra == 96, "Expected 96 tetras, got %d", nTetra);
   VERIFY(nHexa == 32, "Expected 32 hexahedra, got %d", nHexa);
   VERIFY(nPolyhedra == 32, "Expected 32 polyhedra, got %d", nPolyhedra);
+
+  // Test Wedge and Pyramid cell type
+  conduit_cpp::Node mesh2;
+  CreateWedgeAndPyramidUnstructuredMesh(5, 5, 5, mesh2);
+  data = Convert(mesh2);
+
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+
+  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
+    ug->GetNumberOfPoints());
+
+  // 64 cells expected: 4 layers of
+  //                     - 2 columns with 4 pyramids
+  //                     - 2 columns with 4 wedges
+  //                     32 pyramids + 32 wedges
+  VERIFY(ug->GetNumberOfCells() == 64, "expected 64 cells, got %lld", ug->GetNumberOfCells());
+
+  // check cell types
+  it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+
+  int nPyramids(0), nWedges(0);
+  nCells = 0;
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  {
+    ++nCells;
+    const int cellType = it->GetCellType();
+    switch (cellType)
+    {
+      case VTK_PYRAMID:
+      {
+        ++nPyramids;
+        break;
+      }
+      case VTK_WEDGE:
+      {
+        ++nWedges;
+        break;
+      }
+      default:
+      {
+        vtkLog(ERROR, "Expected only pyramids and wedges.");
+        return false;
+      }
+    }
+  }
+
+  VERIFY(nCells == 64, "Expected 64 cells, got %d", nCells);
+  VERIFY(nPyramids == 32, "Expected 32 pyramids, got %d", nPyramids);
+  VERIFY(nWedges == 32, "Expected 32 wedges, got %d", nWedges);
 
   return true;
 }
