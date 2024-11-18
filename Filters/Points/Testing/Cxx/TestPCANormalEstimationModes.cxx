@@ -12,6 +12,7 @@ int TestPCANormalEstimation1Point();
 int TestPCANormalEstimationKNN();
 int TestPCANormalEstimationRadius();
 int TestPCANormalEstimationKNNAndRadius();
+int TestPCANormalEstimationGenerationMode();
 
 int TestOutput(vtkDataArray* normals, const double output[3]);
 
@@ -30,6 +31,10 @@ int TestPCANormalEstimationModes(int, char*[])
     return EXIT_FAILURE;
   }
   if (TestPCANormalEstimationKNNAndRadius() != EXIT_SUCCESS)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestPCANormalEstimationGenerationMode() != EXIT_SUCCESS)
   {
     return EXIT_FAILURE;
   }
@@ -180,4 +185,62 @@ int TestOutput(vtkDataArray* normals, const double output[3])
     }
   }
   return EXIT_SUCCESS;
+}
+
+int TestPCANormalEstimationGenerationMode()
+{
+  const double pt1[3] = { 0, 0, 0 };
+  const double pt2[3] = { 0, 0, 1 };
+  const double pt3[3] = { 0, 1, 0 };
+  const double pt4[3] = { 0, 0, 2 };
+  const double pt5[3] = { 0, 1, 2 };
+
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->SetDataTypeToDouble();
+  points->InsertNextPoint(pt1);
+  points->InsertNextPoint(pt2);
+  points->InsertNextPoint(pt3);
+  points->InsertNextPoint(pt4);
+  points->InsertNextPoint(pt5);
+
+  // Create input polydata
+  vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+  polyData->SetPoints(points);
+
+  // Create normals estimator
+  vtkNew<vtkPCANormalEstimation> normalEstimation;
+  normalEstimation->SetInputData(polyData);
+
+  // Test number of cells with default CellGenerationMode
+  normalEstimation->Update();
+  vtkPolyData* output = vtkPolyData::SafeDownCast(normalEstimation->GetOutputDataObject(0));
+  vtkIdType numCellsDefaultMode = output->GetNumberOfCells();
+
+  // Test number of cells with CellGenerationMode set to vtkConvertToPointCloud::NO_CELLS
+  normalEstimation->SetCellGenerationMode(vtkConvertToPointCloud::NO_CELLS);
+  normalEstimation->Update();
+  output = vtkPolyData::SafeDownCast(normalEstimation->GetOutputDataObject(0));
+  vtkIdType numCellsNoCellsMode = output->GetNumberOfCells();
+
+  // Test number of cells with CellGenerationMode set to vtkConvertToPointCloud::POLYVERTEX_CELL
+  normalEstimation->SetCellGenerationMode(vtkConvertToPointCloud::POLYVERTEX_CELL);
+  normalEstimation->Update();
+  output = vtkPolyData::SafeDownCast(normalEstimation->GetOutputDataObject(0));
+  vtkIdType numCellsPolyMode = output->GetNumberOfCells();
+
+  // Test number of cells with CellGenerationMode set to vtkConvertToPointCloud::VERTEX_CELLS
+  normalEstimation->SetCellGenerationMode(vtkConvertToPointCloud::VERTEX_CELLS);
+  normalEstimation->Update();
+  output = vtkPolyData::SafeDownCast(normalEstimation->GetOutputDataObject(0));
+  vtkIdType numCellsVertexCellMode = output->GetNumberOfCells();
+
+  if ((numCellsDefaultMode == 0) && (numCellsNoCellsMode == 0) && (numCellsPolyMode == 1) &&
+    (numCellsVertexCellMode == polyData->GetPoints()->GetNumberOfPoints()))
+  {
+    return EXIT_SUCCESS;
+  }
+  else
+  {
+    return EXIT_FAILURE;
+  }
 }
