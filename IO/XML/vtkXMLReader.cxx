@@ -11,6 +11,7 @@
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -754,6 +755,11 @@ int vtkXMLReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (this->DataError || this->AbortExecute)
     {
       this->SetupEmptyOutput();
+    }
+    if (this->DataError)
+    {
+      // There was an error reading data, but it can be many things so we use unknown error code.
+      this->SetErrorCode(vtkErrorCode::UnknownError);
     }
   }
   else
