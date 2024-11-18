@@ -48,7 +48,8 @@ public:
   /**
    * Set/get plane normal. Plane is defined by point and normal.
    */
-  vtkSetVector3Macro(Normal, double);
+  virtual void SetNormal(double x, double y, double z);
+  virtual void SetNormal(const double normal[3]);
   vtkGetVectorMacro(Normal, double, 3);
   ///@}
 
@@ -57,7 +58,8 @@ public:
    * Set/get point through which plane passes. Plane is defined by point
    * and normal.
    */
-  vtkSetVector3Macro(Origin, double);
+  virtual void SetOrigin(double x, double y, double z);
+  virtual void SetOrigin(const double origin[3]);
   vtkGetVectorMacro(Origin, double, 3);
   ///@}
 
@@ -66,7 +68,7 @@ public:
    * The origin is shifted in the direction of the normal
    * by the offset.
    */
-  vtkSetMacro(Offset, double);
+  virtual void SetOffset(double _arg);
   vtkGetMacro(Offset, double);
   ///@}
 
@@ -74,7 +76,7 @@ public:
   /**
    * Accessors for AxisAligned, which locks normal to plane to be aligned with x, y, or z axis.
    */
-  vtkSetMacro(AxisAligned, bool);
+  virtual void SetAxisAligned(bool _arg);
   vtkGetMacro(AxisAligned, bool);
   ///@}
 
@@ -193,12 +195,25 @@ private:
   void operator=(const vtkPlane&) = delete;
 
   // If AxisAligned is enabled, sets axis to the nearest canonical axis.
-  void ComputeNormal(double normal[3]);
+  void ComputeInternalNormal();
   // Shifts the origin in the direction of the normal by the offset.
-  void ComputeOrigin(double origin[3]);
+  void ComputeInternalOrigin();
+  // Computes InternalNormal and InternalOrigin.
+  void InternalUpdates();
 
   double Offset = 0.0;
   bool AxisAligned = false;
+
+  ///@{
+  /**
+   * InternalNormal and InternalOrigin are Normal and Origin that account for Offset and AxisAligned
+   * (@see vtkPlane::ComputeInternalNormal and vtkPlane::ComputeInternalOrigin). They are both
+   * computed whenever a member variable is changed, so that EvaluateFunction and EvaluateGradient
+   * can directly use them (to preserve performances).
+   */
+  double InternalNormal[3] = { 0.0, 0.0, 1.0 };
+  double InternalOrigin[3] = { 0.0, 0.0, 0.0 };
+  ///@}
 };
 
 // Generally the normal should be normalized
