@@ -30,12 +30,12 @@ class vtkTable;
 class vtkDelimitedTextCodecIteratorPrivate : public vtkTextCodec::OutputIterator
 {
 public:
-  vtkDelimitedTextCodecIteratorPrivate(vtkIdType start_records, vtkIdType max_records,
-    const std::string& record_delimiters, const std::string& field_delimiters,
-    const std::string& string_delimiters, const std::string& whitespace,
-    const std::string& comments, const std::string& escape, bool have_headers,
-    bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
-    bool force_double, int default_int, double default_double, vtkTable* output_table);
+  vtkDelimitedTextCodecIteratorPrivate(vtkIdType startRecords, vtkIdType maxRecords,
+    const std::string& recordDelimiters, const std::string& fieldDelimiters,
+    const std::string& stringDelimiters, const std::string& whitespace, const std::string& comments,
+    const std::string& escape, bool haveHeaders, bool mergConsDelimiters, bool useStringDelimiter,
+    bool detectNumericColumns, bool forceDouble, int defaultInt, double defaultDouble,
+    vtkTable* outputTable);
 
   ~vtkDelimitedTextCodecIteratorPrivate() override;
 
