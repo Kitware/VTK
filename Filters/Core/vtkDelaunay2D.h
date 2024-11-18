@@ -109,7 +109,7 @@
  * but the more likely you are to see numerical problems.
  *
  * @sa
- * vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
+ * vtkContourTriangulator vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
  */
 
 #ifndef vtkDelaunay2D_h
