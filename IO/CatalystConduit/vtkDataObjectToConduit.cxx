@@ -374,6 +374,12 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
       case VTK_VERTEX:
         topologies_node["elements/shape"] = "point";
         break;
+      case VTK_PYRAMID:
+        topologies_node["elements/shape"] = "pyramid";
+        break;
+      case VTK_WEDGE:
+        topologies_node["elements/shape"] = "wedge";
+        break;
       default:
         vtkLogF(ERROR, "Unsupported cell type in %s. Cell type: %s", datasetType,
           vtkCellTypes::GetClassNameFromTypeId(cell_type));
