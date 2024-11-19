@@ -39,7 +39,9 @@ public:
    */
   void Frame() override;
 
-  // override as some EGL systems cannot show the window
+  /**
+   * Overridden because vtkEGLRenderWindow window cannot be shown onscreen, except on android
+   */
   void SetShowWindow(bool) override;
 
   /**

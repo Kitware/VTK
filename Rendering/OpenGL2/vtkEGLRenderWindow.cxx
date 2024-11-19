@@ -146,7 +146,7 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
   this->DeviceIndex = -1;
-#ifdef VTK_USE_OFFSCREEN_EGL
+#if !defined(__ANDROID__) && !defined(ANDROID)
   this->ShowWindow = false;
 #endif
 
@@ -420,19 +420,13 @@ bool vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
 
 void vtkEGLRenderWindow::SetShowWindow(bool val)
 {
-  if (val == this->ShowWindow)
+#if !defined(__ANDROID__) && !defined(ANDROID)
+  if (val)
   {
-    return;
+    vtkWarningMacro("vtkEGLRenderWindow does not support showing the window onscreen");
   }
-
-#if defined(VTK_USE_OFFSCREEN_EGL)
-  if (!val)
-  {
-    this->Superclass::SetShowWindow(val);
-  }
-#else
-  this->Superclass::SetShowWindow(val);
 #endif
+  this->Superclass::SetShowWindow(val);
 }
 
 void vtkEGLRenderWindow::ResizeWindow(int width, int height)
