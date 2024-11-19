@@ -40,18 +40,18 @@ endif ()
 #-----------------------------------------------------------------------------
 
 set(default_has_egl OFF)
+set(default_use_gles OFF)
 if (ANDROID)
-  set(VTK_OPENGL_USE_GLES ON)
   set(default_has_egl ON)
+  set(default_use_gles ON)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(VTK_OPENGL_USE_GLES ON)
+  set(default_use_gles ON)
 elseif (UNIX AND NOT APPLE)
   set(default_has_egl ON)
-else ()
-  # OpenGLES implementation.
-  option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" OFF)
-  mark_as_advanced(VTK_OPENGL_USE_GLES)
 endif ()
+# OpenGLES implementation.
+option(VTK_OPENGL_USE_GLES "Use the OpenGL ES API" "${default_use_gles}")
+mark_as_advanced(VTK_OPENGL_USE_GLES)
 
 #-----------------------------------------------------------------------------
 # EGL variables
