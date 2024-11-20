@@ -779,9 +779,12 @@ int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 //------------------------------------------------------------------------------
 int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
-  // The internal actor needs to share property keys. This allows depth peeling
+  // The internal actors need to share property keys. This allows depth peeling
   // etc to work.
   this->SphereActor->SetPropertyKeys(this->GetPropertyKeys());
+  this->HandleActor->SetPropertyKeys(this->GetPropertyKeys());
+  this->RadialLineActor->SetPropertyKeys(this->GetPropertyKeys());
+  this->CenterActor->SetPropertyKeys(this->GetPropertyKeys());
 
   int count = 0;
 
