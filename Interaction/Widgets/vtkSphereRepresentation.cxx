@@ -779,6 +779,10 @@ int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 //------------------------------------------------------------------------------
 int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 {
+  // The internal actor needs to share property keys. This allows depth peeling
+  // etc to work.
+  this->SphereActor->SetPropertyKeys(this->GetPropertyKeys());
+
   int count = 0;
 
   if (this->Representation != VTK_SPHERE_OFF)
