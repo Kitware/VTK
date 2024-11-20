@@ -1,1 +1,0 @@
-- Added a new `AddUserPythonPath` static method for `vtkPythonInterpreter` that can be used to add user python paths.
