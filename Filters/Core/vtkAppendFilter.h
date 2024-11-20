@@ -134,7 +134,7 @@ private:
   vtkDataSetCollection* GetNonEmptyInputs(vtkInformationVector** inputVector);
 
   void AppendArrays(int attributesType, vtkInformationVector** inputVector, vtkIdType* globalIds,
-    vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements);
+    vtkUnstructuredGrid* output, vtkIdType totalNumberOfElements, bool reallyMergePoints);
 };
 
 VTK_ABI_NAMESPACE_END
