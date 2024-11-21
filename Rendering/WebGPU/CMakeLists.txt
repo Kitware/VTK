@@ -121,7 +121,6 @@ set(private_shader_files
   wgsl/PointShader.wgsl
   wgsl/SceneLight.wgsl
   wgsl/SceneTransform.wgsl
-  wgsl/ShowVertices.wgsl
   wgsl/SurfaceMeshShader.wgsl
   wgsl/Utilities.wgsl
   wgsl/VTKCellToGraphicsPrimitive.wgsl)

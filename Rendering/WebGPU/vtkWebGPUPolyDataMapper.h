@@ -90,8 +90,6 @@ public:
     GFX_PIPELINE_LINES_MITER_JOIN,
     // Pipeline that renders triangles
     GFX_PIPELINE_TRIANGLES,
-    // Pipeline that shows vertices in the polydata.
-    GFX_PIPELINE_VERTEX_VISIBILITY,
     GFX_PIPELINE_NB_TYPES
   };
 
@@ -346,6 +344,16 @@ protected:
    */
   void UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenderWindow);
   ///@}
+
+  /**
+   * Tessellates the cells in a mesh into graphics primitives.
+   * This function calls DispatchCellToPrimitiveComputePipeline() for
+   * - vtkPolyData::GetVerts()
+   * - vtkPolyData::GetLines()
+   * - vtkPolyData::GetPolys()
+   */
+  void DispatchMeshToPrimitiveComputePipeline(
+    vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation);
 
   /**
    * Tessellates each cell into primitives.
