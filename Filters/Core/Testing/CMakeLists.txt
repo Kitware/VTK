@@ -10,6 +10,11 @@ vtk_module_test_data(
   Data/disk_out_ref_surface.vtp
   Data/explicitStructuredGrid.vtu
   Data/explicitStructuredGridEmpty.vtu
+  Data/ghostBrokenScalars.pvtp
+  Data/ghostBrokenScalars/ghostBrokenScalars_0.vtp
+  Data/ghostBrokenScalars/ghostBrokenScalars_1.vtp
+  Data/ghostBrokenScalars/ghostBrokenScalars_2.vtp
+  Data/ghostBrokenScalars/ghostBrokenScalars_3.vtp
   Data/sliding_multi_block_end.vtm
   Data/sliding_multi_block_end/sliding_multi_block_end_0_0.vtu
   Data/sliding_multi_block_end/sliding_multi_block_end_1_0.vtu
