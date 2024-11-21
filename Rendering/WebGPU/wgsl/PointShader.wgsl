@@ -220,8 +220,14 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   ///------------------------///
   // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
   ///------------------------///
+  let vertex_visibility = getVertexVisibility(actor.render_options.flags);
   let has_mapped_colors: bool = mesh.point_color.num_tuples > 0u || mesh.cell_color.num_tuples > 0u;
-  if (mesh.override_colors.apply_override_colors == 1u) {
+  if (vertex_visibility) {
+    // use vertex color instead of point scalar colors when drawing vertices.
+    ambient_color = actor.color_options.vertex_color;
+    diffuse_color = actor.color_options.vertex_color;
+    opacity = actor.color_options.opacity;
+  } else if (mesh.override_colors.apply_override_colors == 1u) {
     ambient_color = mesh.override_colors.ambient_color.rgb;
     diffuse_color = mesh.override_colors.diffuse_color.rgb;
     opacity = mesh.override_colors.opacity;

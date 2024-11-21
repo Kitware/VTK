@@ -159,10 +159,11 @@ void vtkWebGPUActor::CacheActorRenderOptions()
     // input property is shifted by `k` positions and then the shifted value is added to flags
     // to update the bit at `k` position.
     ro.Flags = displayProperty->GetRepresentation() | (displayProperty->GetEdgeVisibility() << 2) |
-      (displayProperty->GetUseLineWidthForEdgeThickness() << 3) |
-      (displayProperty->GetRenderPointsAsSpheres() << 4) |
-      (displayProperty->GetRenderLinesAsTubes() << 5) |
-      (static_cast<int>(displayProperty->GetPoint2DShape()) << 6);
+      (displayProperty->GetVertexVisibility() << 3) |
+      (displayProperty->GetUseLineWidthForEdgeThickness() << 4) |
+      (displayProperty->GetRenderPointsAsSpheres() << 5) |
+      (displayProperty->GetRenderLinesAsTubes() << 6) |
+      (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
     this->RenderOptionsBuildTimestamp.Modified();
   }
 }

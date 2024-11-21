@@ -10,10 +10,11 @@ const POINT_2D_SQUARE: u32 = 1;
 
 const BIT_MASK_REPRESENTATION: u32 = 0x3; // mask to obtain lower 2 bits
 const BIT_POSITION_EDGE_VISIBILITY: u32 = 2u;
-const BIT_POSITION_USE_LINE_WIDTH_FOR_EDGE_THICKNESS: u32 = 3u;
-const BIT_POSITION_RENDER_POINTS_AS_SPHERES: u32 = 4u;
-const BIT_POSITION_RENDER_LINES_AS_TUBES: u32 = 5u;
-const BIT_POSITION_POINT_2D_SHAPE: u32 = 6u;
+const BIT_POSITION_VERTEX_VISIBILITY: u32 = 3u;
+const BIT_POSITION_USE_LINE_WIDTH_FOR_EDGE_THICKNESS: u32 = 4u;
+const BIT_POSITION_RENDER_POINTS_AS_SPHERES: u32 = 5u;
+const BIT_POSITION_RENDER_LINES_AS_TUBES: u32 = 6u;
+const BIT_POSITION_POINT_2D_SHAPE: u32 = 7u;
 
 //-------------------------------------------------------------------
 struct ActorRenderOptions {
@@ -37,6 +38,13 @@ fn getRepresentation(flags: u32) -> u32
 fn getEdgeVisibility(flags: u32) -> bool
 {
   let result: u32 = (flags >> BIT_POSITION_EDGE_VISIBILITY) & 0x1;
+  return select(false, true, result == 1u);
+}
+
+// Extracts vertex visibility from flags. Returns true/false
+fn getVertexVisibility(flags: u32) -> bool
+{
+  let result: u32 = (flags >> BIT_POSITION_VERTEX_VISIBILITY) & 0x1;
   return select(false, true, result == 1u);
 }
 
