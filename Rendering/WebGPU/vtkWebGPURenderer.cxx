@@ -911,7 +911,7 @@ void vtkWebGPURenderer::SetupBindGroupLayouts()
       {
         // clang-format off
       // SceneTransforms
-      { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform },
+      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform },
       // SceneLights
       { 1, wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage }
         // clang-format on

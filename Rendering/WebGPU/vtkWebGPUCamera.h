@@ -59,6 +59,8 @@ protected:
     vtkTypeFloat32 NormalMatrix[3][4] = {};
     // Clipped space -> Camera space
     vtkTypeFloat32 InvertedProjectionMatrix[4][4] = {};
+    // Custom flags used to encode various integer/boolean properties.
+    vtkTypeUInt32 Flags = 0;
   };
   SceneTransforms CachedSceneTransforms;
 

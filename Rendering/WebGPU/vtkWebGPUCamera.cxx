@@ -96,6 +96,8 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
     st.Viewport[2] = width;
     st.Viewport[3] = height;
 
+    st.Flags = this->ParallelProjection ? 1u : 0u;
+
     this->KeyMatrixTime.Modified();
     this->LastRenderer = renderer;
   }

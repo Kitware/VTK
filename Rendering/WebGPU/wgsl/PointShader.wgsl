@@ -203,6 +203,7 @@ struct FragmentInput {
 
 //-------------------------------------------------------------------
 struct FragmentOutput {
+  @builtin(frag_depth) frag_depth: f32,
   @location(0) color: vec4<f32>,
   @location(1) cell_id: u32
 }
@@ -241,17 +242,39 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     opacity = actor.color_options.opacity;
   }
 
-  let d = length(fragment.local_position); // distance of fragment from the input vertex in noramlized bi-unit domain.
+  let d = length(fragment.local_position); // distance of fragment from the input vertex.
   let point_2d_shape = getPoint2DShape(actor.render_options.flags);
-  if ((point_2d_shape == POINT_2D_ROUND) && (d > 1)) {
+  let render_points_as_spheres = getRenderPointsAsSpheres(actor.render_options.flags);
+  if (((point_2d_shape == POINT_2D_ROUND) || render_points_as_spheres) && (d > 1)) {
     discard;
   }
 
+  let point_size = clamp(actor.render_options.point_size, 1.0f, 100000.0f);
   var normal_vc = normalize(fragment.normal_vc);
-  let render_points_as_spheres = getRenderPointsAsSpheres(actor.render_options.flags);
   if (render_points_as_spheres) {
-    // adjust z component of normal in order to emulate a sphere if necessary.
-    normal_vc.z = 1.0 - d;
+    if (d > 1) {
+      discard;
+    }
+    normal_vc = normalize(vec3f(fragment.local_position, 1));
+    normal_vc.z = sqrt(1.0f - d * d);
+    // Pushes the fragment in order to fake a sphere.
+    // See Rendering/OpenGL2/PixelsToZBufferConversion.txt for the math behind this. Note that,
+    // that document assumes the conventions for depth buffer in OpenGL,
+    // where, the z-buffer spans [-1, 1]. In WebGPU, the depth buffer spans [0, 1].
+    let r = point_size / (scene_transform.viewport.z * scene_transform.projection[0][0]);
+    if (getUseParallelProjection(scene_transform.flags)) {
+      let s = scene_transform.projection[2][2];
+      output.frag_depth = fragment.frag_coord.z + normal_vc.z * r * s;
+    }
+    else
+    {
+      let s = -scene_transform.projection[2][2];
+      output.frag_depth = (s - fragment.frag_coord.z) / (normal_vc.z * r - 1.0) + s;
+    }
+  }
+  else
+  {
+    output.frag_depth = fragment.frag_coord.z;
   }
 
   ///------------------------///
