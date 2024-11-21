@@ -890,6 +890,146 @@ bool TestPointUnstructuredGrid()
 }
 
 //----------------------------------------------------------------------------
+bool TestPyramidUnstructuredGrid()
+{
+  vtkNew<vtkUnstructuredGrid> unstructuredGrid;
+  std::vector<std::array<double, 3>> pointsCoords = { { 0, 0, 0 }, { 1, 0, 0 }, { 1, 0, 1 },
+    { 1, 1, 0 }, { 1, 1, 1 }, { 2, 0, 0 } };
+  std::vector<vtkIdType> connectivity[2] = { { 1, 2, 3, 4, 0 }, { 1, 2, 3, 4, 5 } };
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 6; i++)
+  {
+    points->InsertPoint(i, pointsCoords[i].data());
+  }
+  unstructuredGrid->SetPoints(points);
+  unstructuredGrid->Allocate(2);
+  unstructuredGrid->InsertNextCell(VTK_PYRAMID, 5, connectivity[0].data());
+  unstructuredGrid->InsertNextCell(VTK_PYRAMID, 5, connectivity[1].data());
+
+  vtkNew<vtkDoubleArray> cellValues;
+  cellValues->SetNumberOfTuples(2);
+  cellValues->SetValue(0, 10);
+  cellValues->SetValue(1, -10);
+  cellValues->SetName("cell_field");
+  unstructuredGrid->GetCellData()->AddArray(cellValues);
+
+  conduit_cpp::Node node;
+
+  if (!vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(unstructuredGrid), node))
+  {
+    std::cerr << "FillConduitNode failed for TestPyramidUnstructuredGrid" << std::endl;
+    return false;
+  }
+
+  conduit_cpp::Node expectedNode;
+  auto coordsNode = expectedNode["coordsets/coords"];
+  coordsNode["type"] = "explicit";
+  coordsNode["values/x"] = std::vector<float>{ 0, 1, 1, 1, 1, 2 };
+  coordsNode["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 0 };
+  coordsNode["values/z"] = std::vector<float>{ 0, 0, 1, 0, 1, 0 };
+
+  auto topologiesNode = expectedNode["topologies/mesh"];
+  topologiesNode["type"] = "unstructured";
+  topologiesNode["coordset"] = "coords";
+  topologiesNode["elements/shape"] = "pyramid";
+  if (unstructuredGrid->GetCells()->IsStorage64Bit())
+  {
+    topologiesNode["elements/connectivity"] =
+      std::vector<conduit_int64>{ 1, 2, 3, 4, 0, 1, 2, 3, 4, 5 };
+  }
+  else
+  {
+    topologiesNode["elements/connectivity"] =
+      std::vector<conduit_int32>{ 1, 2, 3, 4, 0, 1, 2, 3, 4, 5 };
+  }
+
+  auto cellFieldNode = expectedNode["fields/cell_field"];
+  cellFieldNode["association"] = "element";
+  cellFieldNode["topology"] = "mesh";
+  cellFieldNode["volume_dependent"] = "false";
+  cellFieldNode["values"] = std::vector<double>{ 10, -10 };
+
+  conduit_cpp::Node diffInfo;
+  bool areNodesDifferent = node.diff(expectedNode, diffInfo, 1e-6);
+  if (areNodesDifferent)
+  {
+    diffInfo.print();
+  }
+
+  return !areNodesDifferent;
+}
+
+//----------------------------------------------------------------------------
+bool TestWedgeUnstructuredGrid()
+{
+  vtkNew<vtkUnstructuredGrid> unstructuredGrid;
+  std::vector<std::array<double, 3>> pointsCoords = { { 0, 0, 0 }, { 0, 1, 0 }, { 1, 0, 0 },
+    { 1, 0, 1 }, { 1, 1, 0 }, { 1, 1, 1 }, { 2, 0, 0 }, { 2, 1, 0 } };
+  std::vector<vtkIdType> connectivity[2] = { { 2, 3, 4, 5, 0, 1 }, { 2, 3, 4, 5, 6, 7 } };
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 8; i++)
+  {
+    points->InsertPoint(i, pointsCoords[i].data());
+  }
+  unstructuredGrid->SetPoints(points);
+  unstructuredGrid->Allocate(2);
+  unstructuredGrid->InsertNextCell(VTK_WEDGE, 6, connectivity[0].data());
+  unstructuredGrid->InsertNextCell(VTK_WEDGE, 6, connectivity[1].data());
+
+  vtkNew<vtkDoubleArray> cellValues;
+  cellValues->SetNumberOfTuples(2);
+  cellValues->SetValue(0, 10);
+  cellValues->SetValue(1, -10);
+  cellValues->SetName("cell_field");
+  unstructuredGrid->GetCellData()->AddArray(cellValues);
+
+  conduit_cpp::Node node;
+
+  if (!vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(unstructuredGrid), node))
+  {
+    std::cerr << "FillConduitNode failed for TestWedgeUnstructuredGrid" << std::endl;
+    return false;
+  }
+
+  conduit_cpp::Node expectedNode;
+  auto coordsNode = expectedNode["coordsets/coords"];
+  coordsNode["type"] = "explicit";
+  coordsNode["values/x"] = std::vector<float>{ 0, 0, 1, 1, 1, 1, 2, 2 };
+  coordsNode["values/y"] = std::vector<float>{ 0, 1, 0, 0, 1, 1, 0, 1 };
+  coordsNode["values/z"] = std::vector<float>{ 0, 0, 0, 1, 0, 1, 0, 0 };
+
+  auto topologiesNode = expectedNode["topologies/mesh"];
+  topologiesNode["type"] = "unstructured";
+  topologiesNode["coordset"] = "coords";
+  topologiesNode["elements/shape"] = "wedge";
+  if (unstructuredGrid->GetCells()->IsStorage64Bit())
+  {
+    topologiesNode["elements/connectivity"] =
+      std::vector<conduit_int64>{ 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
+  }
+  else
+  {
+    topologiesNode["elements/connectivity"] =
+      std::vector<conduit_int32>{ 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7 };
+  }
+
+  auto cellFieldNode = expectedNode["fields/cell_field"];
+  cellFieldNode["association"] = "element";
+  cellFieldNode["topology"] = "mesh";
+  cellFieldNode["volume_dependent"] = "false";
+  cellFieldNode["values"] = std::vector<double>{ 10, -10 };
+
+  conduit_cpp::Node diffInfo;
+  bool areNodesDifferent = node.diff(expectedNode, diffInfo, 1e-6);
+  if (areNodesDifferent)
+  {
+    diffInfo.print();
+  }
+
+  return !areNodesDifferent;
+}
+
+//----------------------------------------------------------------------------
 bool TestMixedShapePolyData()
 {
   vtkNew<vtkPolyData> poly_data;
@@ -932,6 +1072,8 @@ bool TestUnstructuredGrid()
   is_success &= TestTriangleUnstructuredGrid();
   is_success &= TestLineUnstructuredGrid();
   is_success &= TestPointUnstructuredGrid();
+  is_success &= TestPyramidUnstructuredGrid();
+  is_success &= TestWedgeUnstructuredGrid();
 
   return is_success;
 }
