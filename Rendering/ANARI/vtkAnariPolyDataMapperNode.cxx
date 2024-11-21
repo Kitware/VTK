@@ -824,14 +824,17 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
         double edgeColor[3];
         property->GetEdgeColor(edgeColor);
         property->SetColor(edgeColor);
+        const double edgeWidth = property->GetEdgeWidth();
+        const auto useLineWidthForEdgeThickness = property->GetUseLineWidthForEdgeThickness();
 
         std::vector<vec2> edgeTextureCoords;
         std::vector<float> edgePointValueTextureCoords;
         std::vector<vec4> edgePointColors;
 
         auto anariSurface = this->RenderAsCylinders(nullptr, property, vertices,
-          isTriangleIndex ? conn.triangle_index : conn.strip_index, lineWidth, scaleArray,
-          scaleFunction, edgeTextureCoords, edgePointValueTextureCoords, edgePointColors, cellFlag);
+          isTriangleIndex ? conn.triangle_index : conn.strip_index,
+          useLineWidthForEdgeThickness ? lineWidth : edgeWidth, scaleArray, scaleFunction,
+          edgeTextureCoords, edgePointValueTextureCoords, edgePointColors, cellFlag);
         this->Surfaces.emplace_back(anariSurface);
       }
 

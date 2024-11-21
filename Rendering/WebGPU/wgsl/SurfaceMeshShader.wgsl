@@ -136,11 +136,11 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   }
 
   ///------------------------///
-  // Representation: VTK_SURFACE + Edge visibility turned on OR VTK_WIREFRAME
+  // Representation: VTK_SURFACE + Edge visibility turned on
   ///------------------------///
-  let wireframe: bool = (actor.render_options.representation == VTK_WIREFRAME);
-  let surface_plus_edges: bool = (actor.render_options.representation == VTK_SURFACE && actor.render_options.edge_visibility == 1u);
-  if wireframe || surface_plus_edges {
+  let representation = getRepresentation(actor.render_options.flags);
+  let edge_visibility = getEdgeVisibility(actor.render_options.flags);
+  if (representation == VTK_SURFACE && edge_visibility) {
     let triangle_id: u32 = pull_vertex_id / 3u;
     let i0 = triangle_id * 3u;
     let pt0 = topology[i0].point_id;
@@ -261,12 +261,13 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
 
   ///------------------------///
-  // Representation: VTK_SURFACE with edge visibility turned on (or) VTK_WIREFRAME
+  // Representation: VTK_SURFACE with edge visibility turned on.
   ///------------------------///
-  let wireframe: bool = (actor.render_options.representation == VTK_WIREFRAME);
-  let surface_plus_edges: bool = (actor.render_options.representation == VTK_SURFACE && actor.render_options.edge_visibility == 1u);
-  let linewidth: f32 = actor.render_options.line_width;
-  if (wireframe || surface_plus_edges) {
+  let representation = getRepresentation(actor.render_options.flags);
+  let edge_visibility = getEdgeVisibility(actor.render_options.flags);
+  if (representation == VTK_SURFACE && edge_visibility) {
+    let use_line_width_for_edge_thickness = getUseLineWidthForEdgeThickness(actor.render_options.flags);
+    let linewidth: f32 = select(actor.render_options.edge_width, actor.render_options.line_width, use_line_width_for_edge_thickness);
     // Undo perspective correction.
     let dist_vec = fragment.edge_dists.xyz * fragment.frag_coord.w;
     var d: f32 = 0.0;
@@ -281,15 +282,9 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
         d = min(dist_vec[0], min(dist_vec[1], dist_vec[2]));
     }
     let half_linewidth: f32 = 0.5 * linewidth;
-    if wireframe {
-        if d > half_linewidth {
-          discard;
-      }
-    } else {
-        let I: f32 = select(exp2(-2.0 * (d - half_linewidth) * (d - half_linewidth)), 1.0, d < half_linewidth);
-        diffuse_color = mix(diffuse_color, actor.color_options.edge_color, I);
-        ambient_color = mix(ambient_color, actor.color_options.edge_color, I);
-    }
+    let I: f32 = select(exp2(-2.0 * (d - half_linewidth) * (d - half_linewidth)), 1.0, d < half_linewidth);
+    diffuse_color = mix(diffuse_color, actor.color_options.edge_color, I);
+    ambient_color = mix(ambient_color, actor.color_options.edge_color, I);
   }
 
   ///------------------------///

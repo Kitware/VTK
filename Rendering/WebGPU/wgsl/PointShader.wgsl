@@ -236,12 +236,14 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
 
   let d = length(fragment.local_position); // distance of fragment from the input vertex in noramlized bi-unit domain.
-  if ((actor.render_options.point_2d_shape == POINT_2D_ROUND) && (d > 1)) {
+  let point_2d_shape = getPoint2DShape(actor.render_options.flags);
+  if ((point_2d_shape == POINT_2D_ROUND) && (d > 1)) {
     discard;
   }
 
   var normal_vc = normalize(fragment.normal_vc);
-  if (actor.render_options.render_points_as_spheres != 0) {
+  let render_points_as_spheres = getRenderPointsAsSpheres(actor.render_options.flags);
+  if (render_points_as_spheres) {
     // adjust z component of normal in order to emulate a sphere if necessary.
     normal_vc.z = 1.0 - d;
   }

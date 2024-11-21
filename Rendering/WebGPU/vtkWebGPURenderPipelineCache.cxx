@@ -9,6 +9,7 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 
+#include <string>
 #include <unordered_map>
 
 #include "vtksys/MD5.h"

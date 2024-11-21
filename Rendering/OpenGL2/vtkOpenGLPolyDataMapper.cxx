@@ -2774,7 +2774,10 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
   if (this->DrawingEdges(ren, actor))
   {
-    float lw = actor->GetProperty()->GetLineWidth();
+    const bool useLineWidthForEdgeThickness =
+      actor->GetProperty()->GetUseLineWidthForEdgeThickness();
+    float lw = useLineWidthForEdgeThickness ? actor->GetProperty()->GetLineWidth()
+                                            : actor->GetProperty()->GetEdgeWidth();
     cellBO.Program->SetUniformf("lineWidth", lw < 1.1 ? 1.1 : lw);
     int vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);

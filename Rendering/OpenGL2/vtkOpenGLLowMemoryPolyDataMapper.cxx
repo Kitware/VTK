@@ -1519,6 +1519,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderEdges(
   vtkShaderProgram::Substitute(vsSource, "//VTK::EdgesGLES30::Dec",
     R"(flat out mat4 edgeEqn;
 uniform highp int wireframe;
+uniform float edgeWidth;
 uniform highp int edgeVisibility;)");
   std::ostringstream vsImpl;
   vsImpl
@@ -1551,7 +1552,7 @@ uniform highp int edgeVisibility;)");
     }
     if (usesEdgeValues == 1)
     {
-      float nudge = halfLineWidth * 2.0 + 0.5;
+      float nudge = edgeWidth + 0.5;
       int edgeValue = int(texelFetchBuffer(edgeValueBuffer, primitiveId + edgeValueBufferOffset).x);
       // all but last triangle in a polygon's implicit triangulation
       if (edgeValue < 4) edgeEqn[2].z = nudge;
@@ -1569,7 +1570,7 @@ uniform vec3 edgeColor;
 uniform float edgeOpacity;
 uniform highp int wireframe;
 uniform highp int edgeVisibility;
-uniform float halfLineWidth;
+uniform float edgeWidth;
 )");
 
   std::ostringstream fsImpl;
@@ -1590,7 +1591,7 @@ uniform float halfLineWidth;
       edist[1] += edgeEqn[1].z;
       edist[2] += edgeEqn[2].z;
     }
-    float emix = clamp(0.5 + halfLineWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
+    float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
     if (wireframe == 1)
     {
       opacity = mix(0.0, opacity, emix);
@@ -2062,6 +2063,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
     vpDims[i] = vp[i];
   }
   const float lineWidth = actor->GetProperty()->GetLineWidth();
+  const float edgeWidth = actor->GetProperty()->GetEdgeWidth();
 
   this->ShaderProgram->SetUniform4f("viewportDimensions", vpDims);
   this->ShaderProgram->SetUniformf("lineWidthStepSize", lineWidth / vtkMath::Ceil(lineWidth));
@@ -2072,6 +2074,14 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   this->ShaderProgram->SetUniformi("edgeVisibility", actor->GetProperty()->GetEdgeVisibility());
   this->ShaderProgram->SetUniformi(
     "wireframe", actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
+  if (actor->GetProperty()->GetUseLineWidthForEdgeThickness())
+  {
+    this->ShaderProgram->SetUniformf("edgeWidth", lineWidth);
+  }
+  else
+  {
+    this->ShaderProgram->SetUniformf("edgeWidth", edgeWidth);
+  }
 
   vtkHardwareSelector* selector = renderer->GetSelector();
   if (selector && this->ShaderProgram->IsUniformUsed("mapperIndex"))

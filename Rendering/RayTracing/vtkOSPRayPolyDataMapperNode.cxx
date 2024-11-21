@@ -1139,12 +1139,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
           OSPMaterial oMaterial2 =
             vtkosp::MakeActorMaterial(orn, oRenderer, property, eColor, eColor, specularf, opacity);
           ospCommit(oMaterial2);
+          const double edgeWidth = property->GetEdgeWidth();
+          const auto useLineWidthForEdgeThickness = property->GetUseLineWidthForEdgeThickness();
 
           this->GeometricModels.emplace_back(
             vtkosp::RenderAsCylinders(vertices, conn2.triangle_index, conn2.triangle_reverse,
-              lineWidth, scaleArray, scaleFunction, false, oMaterial2, vColorTextureMap, sRGB, 0,
-              (float*)textureCoordinates.data(), numCellMaterials, cellMaterials, numPointColors,
-              pointColors.data(), 0, (float*)pointValueTextureCoords.data(), backend));
+              useLineWidthForEdgeThickness ? lineWidth : edgeWidth, scaleArray, scaleFunction,
+              false, oMaterial2, vColorTextureMap, sRGB, 0, (float*)textureCoordinates.data(),
+              numCellMaterials, cellMaterials, numPointColors, pointColors.data(), 0,
+              (float*)pointValueTextureCoords.data(), backend));
           uniqueMats.insert(oMaterial2);
         }
 
