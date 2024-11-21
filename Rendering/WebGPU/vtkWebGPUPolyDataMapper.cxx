@@ -1841,7 +1841,6 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 
   for (int i = 0; i < GFX_PIPELINE_NB_TYPES; ++i)
   {
-    const auto seed = std::to_string(i) + this->GetClassName();
     descriptor.label = this->GetGraphicsPipelineTypeAsString(static_cast<GraphicsPipelineType>(i));
     descriptor.primitive.topology = GraphicsPipelinePrimitiveTypes[i];
     if (i == GFX_PIPELINE_VERTEX_VISIBILITY)
