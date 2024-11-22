@@ -1,6 +1,4 @@
-## Delimited Text Reader Improvements
-
-### Performances
+## Delimited Text Reader Performances
 
 vtkDelimitedTextReader memory footprint is now much lower during computation.
 (i.e. inside the `RequestData`, called from `Update`)
