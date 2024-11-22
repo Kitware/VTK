@@ -544,6 +544,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
   const conduit_cpp::DataType dtype0 = connectivity.dtype();
   const auto nb_cells = dtype0.number_of_elements();
   unstructured->SetPoints(CreatePoints(coordset));
+  vtkIdType numberOfPoints = unstructured->GetNumberOfPoints();
   const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
   if (nb_cells > 0)
   {
@@ -573,7 +574,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
     {
       const auto cell_size = GetNumberOfPointsInCellType(vtk_cell_type);
       auto cellArray = vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-        cell_size, conduit_cpp::c_node(&connectivity));
+        numberOfPoints, vtk_cell_type, cell_size, conduit_cpp::c_node(&connectivity));
       unstructured->SetCells(vtk_cell_type, cellArray);
     }
   }

@@ -22,10 +22,13 @@
 #include "vtkTypeUInt8Array.h"
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#include "vtkm/CellShape.h"
 #include "vtkm/cont/ArrayHandle.h"
+#include "vtkm/cont/ArrayHandleCast.h"
 #include "vtkm/cont/CellSetSingleType.h"
 #include "vtkm/cont/DeviceAdapterTag.h"
 #include "vtkmDataArray.h"
+#include "vtkmlib/CellSetConverters.h"
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 
 #include <catalyst_conduit.hpp>
@@ -33,6 +36,7 @@
 
 #include <cuda_runtime_api.h>
 #include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 namespace internals
@@ -158,6 +162,7 @@ struct ChangeComponentsSOAImpl
     }
   }
 };
+
 //----------------------------------------------------------------------------
 static vtkSmartPointer<vtkDataArray> ChangeComponentsSOA(vtkDataArray* array, int num_components)
 {
@@ -203,6 +208,44 @@ conduit_cpp::DataType::Id GetTypeId(conduit_cpp::DataType::Id type, bool force_s
 }
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+using vtkmConnectivityArrays = vtkTypeList::Unique<vtkTypeList::Create<vtkmDataArray<vtkm::Int8>,
+  vtkmDataArray<vtkm::Int16>, vtkmDataArray<vtkm::Int32>, vtkmDataArray<vtkm::Int64>>>::Result;
+
+//----------------------------------------------------------------------------
+struct ToCellArray
+{
+  vtkIdType NumberOfPoints;
+  vtkIdType NumberOfPointsPerCell;
+  int VTKCellType;
+  vtkCellArray* CellArray;
+
+  ToCellArray(vtkIdType numberOfPoints, vtkIdType numberOfPointsPerCell, int vtkCellType,
+    vtkCellArray* cellArray)
+    : NumberOfPoints(numberOfPoints)
+    , NumberOfPointsPerCell(numberOfPointsPerCell)
+    , VTKCellType(vtkCellType)
+    , CellArray(cellArray)
+  {
+  }
+
+  template <typename ArrayT>
+  void operator()(ArrayT* input)
+  {
+    using connValueType = typename ArrayT::ValueType;
+    constexpr bool IsVtkmIdType = std::is_same<connValueType, vtkm::Id>::value;
+    auto connectivityUnknownHandle = input->GetVtkmUnknownArrayHandle();
+    vtkm::cont::ArrayHandle<connValueType> connectivityArrayHandle =
+      connectivityUnknownHandle.template AsArrayHandle<vtkm::cont::ArrayHandle<connValueType>>();
+    vtkm::cont::UnknownArrayHandle connectivityHandle = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    connectivityHandle.CopyShallowIfPossible(connectivityUnknownHandle);
+    vtkm::cont::CellSetSingleType<> cellSet;
+    // VTK cell types and VTKm cell shapes have the same numbers
+    cellSet.Fill(this->NumberOfPoints, this->VTKCellType, this->NumberOfPointsPerCell,
+      connectivityHandle.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>());
+    fromvtkm::Convert(cellSet, this->CellArray);
+  }
+};
+
 constexpr vtkm::Int8 GetDeviceAdapterId()
 {
 #if defined(VTK_USE_CUDA)
@@ -547,17 +590,25 @@ struct NoOp
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-  vtkIdType cellSize, const conduit_node* mcarray)
+  vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray)
 {
-  auto array = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
-  if (!array)
+  auto connectivity =
+    vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
+  if (!connectivity)
   {
     return nullptr;
   }
-
-  // now the array matches the type accepted by vtkCellArray (in most cases).
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  // check if cell arrays are in device memory
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<internals::vtkmConnectivityArrays>;
   vtkNew<vtkCellArray> cellArray;
-  cellArray->SetData(cellSize, array);
+  internals::ToCellArray worker{ numberOfPoints, cellSize, cellType, cellArray };
+  if (!Dispatcher::Execute(connectivity, worker))
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  {
+    // cell arrays are in host memory
+    cellArray->SetData(cellSize, connectivity);
+  }
   return cellArray;
 }
 
