@@ -37,6 +37,8 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestManyActorsOneMapper.cxx,NO_DATA,NO_VALID
   TestPointScalarMappedColors.cxx,NO_DATA
   TestReadPixels.cxx,NO_DATA,NO_VALID
+  TestRenderPointsAsSpheres.cxx,NO_DATA
+  TestRenderLinesAsTubes.cxx,NO_DATA
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSurfacePlusEdges.cxx,NO_DATA
@@ -53,6 +55,18 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --translucent
   TestLineRenderingTranslucent,TestLineRendering.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 0.5 --line-width 0.5
+  TestMixedGeometry_1,TestMixedGeometry.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 1.0 --line-width 1.0
+  TestMixedGeometry_2,TestMixedGeometry.cxx,NO_DATA)
+
+vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
+  --point-size 3.0 --line-width 3.0
+  TestMixedGeometry_3,TestMixedGeometry.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-size 0.5
@@ -87,15 +101,11 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestPointRenderingRound_4,TestPointRendering.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  --point-size 0.5 --line-width 0.5
-  TestMixedGeometry_1,TestMixedGeometry.cxx,NO_DATA)
+  --ortho
+  TestRenderPointsAsSpheresOrthoCamera,TestRenderPointsAsSpheres.cxx,NO_DATA) 
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  --point-size 1.0 --line-width 1.0
-  TestMixedGeometry_2,TestMixedGeometry.cxx,NO_DATA)
-
-vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
-  --point-size 3.0 --line-width 3.0
-  TestMixedGeometry_3,TestMixedGeometry.cxx,NO_DATA)
+  --ortho
+  TestRenderLinesAsTubesOrthoCamera,TestRenderLinesAsTubes.cxx,NO_DATA) 
 
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
