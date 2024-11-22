@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRedistributeDataSetToSubCommFilter.h"
 
@@ -18,9 +18,24 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "cassert"
+#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkRedistributeDataSetToSubCommFilter::vtkInternals
+{
+public:
+  vtkInternals()
+  {
+    this->CacheValid = false;
+    this->CutCachingEnabled = false;
+  }
+
+  std::vector<vtkBoundingBox> BoundingBoxCuts;
+  bool CacheValid;
+  bool CutCachingEnabled;
+};
+
 vtkStandardNewMacro(vtkRedistributeDataSetToSubCommFilter);
 vtkCxxSetObjectMacro(vtkRedistributeDataSetToSubCommFilter, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkRedistributeDataSetToSubCommFilter, SubGroup, vtkProcessGroup);
@@ -28,6 +43,7 @@ vtkCxxSetObjectMacro(vtkRedistributeDataSetToSubCommFilter, SubGroup, vtkProcess
 vtkRedistributeDataSetToSubCommFilter::vtkRedistributeDataSetToSubCommFilter()
   : Controller(nullptr)
   , SubGroup(nullptr)
+  , Internal(new vtkRedistributeDataSetToSubCommFilter::vtkInternals())
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
@@ -129,21 +145,28 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
 
   if (inputDO == nullptr)
   {
-    std::cout << "ERROR! inputDO in RequestData is null!\n";
+    vtkErrorMacro("ERROR! inputDO in RequestData is null!");
     return -1;
   }
 
-  const int nProcs = Controller->GetNumberOfProcesses();
-  const int myRank = Controller->GetLocalProcessId();
+  const int nProcs = this->Controller->GetNumberOfProcesses();
+  const int myRank = this->Controller->GetLocalProcessId();
 
-  const int nTargetProcs = SubGroup->GetNumberOfProcessIds();
+  const int nTargetProcs = this->SubGroup->GetNumberOfProcessIds();
 
   // redistribute onto all procs then aggregate onto target number of procs
   vtkNew<vtkRedistributeDataSetFilter> rds;
   vtkNew<vtkDIYAggregateDataSetFilter> aggregator;
-  rds->SetController(Controller);
+  rds->SetController(this->Controller);
   rds->SetInputDataObject(inputDO);
   rds->SetNumberOfPartitions(-1);
+  rds->UseExplicitCutsOff();
+
+  if (this->Internal->CutCachingEnabled && this->Internal->CacheValid)
+  {
+    rds->SetExplicitCuts(this->Internal->BoundingBoxCuts);
+    rds->UseExplicitCutsOn();
+  }
 
   aggregator->SetNumberOfTargetProcesses(nTargetProcs);
   aggregator->SetInputConnection(rds->GetOutputPort());
@@ -180,7 +203,7 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
     numPoints = aug->GetNumberOfPoints();
   }
 
-  Controller->AllGather(&numPoints, pointCount.data(), 1);
+  this->Controller->AllGather(&numPoints, pointCount.data(), 1);
 
   std::vector<vtkIdType> procsWithData;
   for (vtkIdType i = 0; i < nProcs; ++i)
@@ -198,7 +221,7 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
   std::map<int, int> aggregatedToWriterRank;
   for (auto p : procsWithData)
   {
-    int groupLoc = SubGroup->FindProcessId(p);
+    int groupLoc = this->SubGroup->FindProcessId(p);
     if (groupLoc != -1)
     {
       preFilledWriterRanks.push_back(p);
@@ -209,9 +232,9 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
     }
   }
 
-  for (int i = 0; i < SubGroup->GetNumberOfProcessIds(); ++i)
+  for (int i = 0; i < this->SubGroup->GetNumberOfProcessIds(); ++i)
   {
-    int proc = SubGroup->GetProcessId(i);
+    int proc = this->SubGroup->GetProcessId(i);
     auto loc = std::find(preFilledWriterRanks.begin(), preFilledWriterRanks.end(), proc);
     if (loc == std::end(preFilledWriterRanks))
     {
@@ -221,7 +244,7 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
 
   assert(unFilledWriterRanks.size() == moveReadyDataRanks.size());
 
-  for (int i = 0; i < unFilledWriterRanks.size(); ++i)
+  for (size_t i = 0; i < unFilledWriterRanks.size(); ++i)
   {
     aggregatedToWriterRank[unFilledWriterRanks[i]] = moveReadyDataRanks[i];
   }
@@ -235,22 +258,23 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
     if (myRank == recvRank)
     {
       vtkSmartPointer<vtkDataObject> recvBuffer =
-        Controller->ReceiveDataObject(sendRank, sendChannel);
+        this->Controller->ReceiveDataObject(sendRank, sendChannel);
       if (recvBuffer)
       {
         outputDO->ShallowCopy(recvBuffer);
+        recvBuffer->Delete();
       }
     }
     if (myRank == sendRank)
     {
       if (apds)
-        Controller->Send(apds, recvRank, sendChannel);
+        this->Controller->Send(apds, recvRank, sendChannel);
       else if (ambds)
-        Controller->Send(ambds, recvRank, sendChannel);
+        this->Controller->Send(ambds, recvRank, sendChannel);
       else if (apdsc)
-        Controller->Send(apdsc, recvRank, sendChannel);
+        this->Controller->Send(apdsc, recvRank, sendChannel);
       else if (aug)
-        Controller->Send(aug, recvRank, sendChannel);
+        this->Controller->Send(aug, recvRank, sendChannel);
     }
   }
 
@@ -270,18 +294,38 @@ int vtkRedistributeDataSetToSubCommFilter::RequestData(
     }
   }
 
-  // check that we pulled this off
-  // int groupLoc = SubGroup->FindProcessId(myRank);
-  // if(groupLoc != -1)
-  // {
-  //   assert(outputDO->GetNumberOfPoints() > 0);
-  // }
-  // else
-  // {
-  //   assert(outputDO->GetNumberOfPoints() == 0);
-  // }
+  if (this->Internal->CutCachingEnabled)
+  {
+    // Cache the cuts to speed up the redistributor for next time
+    this->Internal->BoundingBoxCuts = rds->GetCuts();
+    this->Internal->CacheValid = true;
+  }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkRedistributeDataSetToSubCommFilter::SetEnableCutCaching(bool optimize)
+{
+  if (this->Internal->CutCachingEnabled == optimize)
+  {
+    return;
+  }
+
+  if (optimize)
+  {
+    // Trigger the cache to be reset
+    this->Internal->CacheValid = false;
+  }
+
+  this->Internal->CutCachingEnabled = optimize;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkRedistributeDataSetToSubCommFilter::GetEnableCutCaching()
+{
+  return this->Internal->CutCachingEnabled;
 }
 
 //------------------------------------------------------------------------------
@@ -290,5 +334,7 @@ void vtkRedistributeDataSetToSubCommFilter::PrintSelf(ostream& os, vtkIndent ind
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Controller: " << this->Controller << endl;
   os << indent << "SubGroup: " << this->SubGroup << endl;
+  os << indent << "CutCachingEnabled: " << this->Internal->CutCachingEnabled << endl;
 }
+
 VTK_ABI_NAMESPACE_END
