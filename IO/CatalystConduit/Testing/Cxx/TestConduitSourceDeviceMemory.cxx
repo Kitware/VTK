@@ -1259,7 +1259,7 @@ bool ValidateMeshTypeAMR(const std::string& file)
 }
 } // end namespace
 
-int TestConduitSourceExternalMemorySpaces(int argc, char** argv)
+int TestConduitSourceDeviceMemory(int argc, char** argv)
 {
 #if defined(VTKM_ENABLE_CUDA)
   // We really want to use unmanaged memory to exercise external memory space code paths.
@@ -1289,7 +1289,7 @@ int TestConduitSourceExternalMemorySpaces(int argc, char** argv)
 }
 #else
 #include <cstdlib>
-int TestConduitSourceExternalMemorySpaces(int, char**)
+int TestConduitSourceDeviceMemory(int, char**)
 {
   return EXIT_SUCCESS;
 }

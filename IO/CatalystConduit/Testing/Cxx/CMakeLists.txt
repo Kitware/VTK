@@ -2,7 +2,7 @@ vtk_add_test_cxx(vtkConduitCxxTests tests
   NO_VALID NO_OUTPUT
   TestDataObjectToConduit.cxx
   TestConduitSource.cxx
-  TestConduitSourceExternalMemorySpaces.cxx)
+  TestConduitSourceDeviceMemory.cxx)
 
 vtk_test_cxx_executable(vtkConduitCxxTests tests)
 
@@ -11,13 +11,13 @@ if (TARGET VTK::ParallelMPI)
     TESTING_DATA NO_VALID NO_OUTPUT
     TestDataObjectToConduit.cxx
     TestConduitSource.cxx
-    TestConduitSourceExternalMemorySpaces.cxx)
+    TestConduitSourceDeviceMemory.cxx)
 
   vtk_test_cxx_executable(vtkConduitCxxTests-MPI mpitests)
 endif()
 
 if (TARGET vtkm::cuda)
-  set_source_files_properties(TestConduitSourceExternalMemorySpaces.cxx PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(TestConduitSourceDeviceMemory.cxx PROPERTIES LANGUAGE CUDA)
 
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmDataModel
