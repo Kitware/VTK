@@ -56,7 +56,7 @@ protected:
     // Camera space -> Clipped space
     vtkTypeFloat32 ProjectionMatrix[4][4] = {};
     // Normal matrix Inverted and transposed ViewMatrix
-    vtkTypeFloat32 NormalMatrix[4][4] = {};
+    vtkTypeFloat32 NormalMatrix[3][4] = {};
     // Clipped space -> Camera space
     vtkTypeFloat32 InvertedProjectionMatrix[4][4] = {};
   };
