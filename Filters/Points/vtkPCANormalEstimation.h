@@ -62,6 +62,7 @@
 #ifndef vtkPCANormalEstimation_h
 #define vtkPCANormalEstimation_h
 
+#include "vtkConvertToPointCloud.h" // For adding cells to output polydata
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h"       // For vtkSmartPointer
@@ -196,6 +197,21 @@ public:
   vtkGetObjectMacro(Locator, vtkAbstractPointLocator);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the cell generation mode.
+   * Available modes are:
+   * - vtkConvertToPointCloud::NO_CELLS:
+   * No cells are generated, set by default
+   * - vtkConvertToPointCloud::POLYVERTEX_CELL:
+   * A single polyvertex cell is generated
+   * - vtkConvertToPointCloud::VERTEX_CELLS:
+   * One vertex cell by point, not efficient to generate
+   */
+  vtkSetMacro(CellGenerationMode, int);
+  vtkGetMacro(CellGenerationMode, int);
+  ///@}
+
 protected:
   vtkPCANormalEstimation() = default;
   ~vtkPCANormalEstimation() override;
@@ -208,6 +224,7 @@ protected:
   int NormalOrientation = vtkPCANormalEstimation::POINT;
   double OrientationPoint[3] = { 0. };
   bool FlipNormals = false;
+  int CellGenerationMode = vtkConvertToPointCloud::NO_CELLS;
 
   // Methods used to produce consistent normal orientations
   void TraverseAndFlip(

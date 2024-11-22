@@ -319,6 +319,13 @@ int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetPointData()->SetNormals(normals);
   normals->Delete();
 
+  // Convert to point cloud
+  vtkNew<vtkConvertToPointCloud> convertToPointCloud;
+  convertToPointCloud->SetInputData(output);
+  convertToPointCloud->SetCellGenerationMode(this->CellGenerationMode);
+  convertToPointCloud->Update();
+  output->ShallowCopy(convertToPointCloud->GetOutput());
+
   return 1;
 }
 
