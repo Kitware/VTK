@@ -30,11 +30,12 @@ class vtkTable;
 class vtkDelimitedTextCodecIteratorPrivate : public vtkTextCodec::OutputIterator
 {
 public:
-  vtkDelimitedTextCodecIteratorPrivate(vtkIdType max_records, const std::string& record_delimiters,
-    const std::string& field_delimiters, const std::string& string_delimiters,
-    const std::string& whitespace, const std::string& escape, bool have_headers,
-    bool merg_cons_delimiters, bool use_string_delimiter, bool detect_numeric_columns,
-    bool force_double, int default_int, double default_double, vtkTable* output_table);
+  vtkDelimitedTextCodecIteratorPrivate(vtkIdType startRecords, vtkIdType maxRecords,
+    const std::string& recordDelimiters, const std::string& fieldDelimiters,
+    const std::string& stringDelimiters, const std::string& whitespace, const std::string& comments,
+    const std::string& escape, bool haveHeaders, bool mergConsDelimiters, bool useStringDelimiter,
+    bool detectNumericColumns, bool forceDouble, int defaultInt, double defaultDouble,
+    vtkTable* outputTable);
 
   ~vtkDelimitedTextCodecIteratorPrivate() override;
 
@@ -106,17 +107,56 @@ private:
    */
   void InsertField();
 
-  vtkIdType MaxRecords = 0;
-  vtkIdType MaxRecordIndex = 0;
+  /**
+   * Utility struct to count records and get associated informations.
+   * A "Record" is usually a line (see RecordDelimiters)
+   */
+  struct RecordsCounter
+  {
+    RecordsCounter(bool has, vtkIdType max, vtkIdType start)
+      : HasMax(has)
+      , Max(max)
+      , Start(start)
+    {
+    }
+
+    bool HasMax = false;
+    vtkIdType Max = 0;
+    vtkIdType Start = 0;
+    vtkIdType Skipped = 0;
+    vtkIdType Current = 0;
+
+    // Return true if max records was reached
+    bool MaxReached();
+
+    // Return true if current records is acceptable, based on its index
+    bool AcceptingField();
+
+    // Return true if this is the first acceptable records
+    bool FirstAccepted();
+
+    // Increment current index
+    void Next();
+
+    // Mark current record as skipped.
+    void Skip();
+
+    // Return the current number of read record.
+    vtkIdType GetNumberOfAcceptedRecords();
+  };
+
+  RecordsCounter RecordsCount;
+
   std::set<vtkTypeUInt32> RecordDelimiters;
   std::set<vtkTypeUInt32> FieldDelimiters;
   std::set<vtkTypeUInt32> StringDelimiters;
   std::set<vtkTypeUInt32> Whitespace;
+  std::set<vtkTypeUInt32> CommentChar = { '#' };
   std::set<vtkTypeUInt32> EscapeDelimiter;
+
   bool HaveHeaders = false;
   bool WhiteSpaceOnlyString = true;
   vtkTable* OutputTable = nullptr;
-  vtkIdType CurrentRecordIndex = 0;
   vtkIdType CurrentFieldIndex = 0;
   std::string CurrentField;
   bool RecordAdjacent = true;
@@ -128,6 +168,7 @@ private:
   int DefaultIntegerValue = 0;
   double DefaultDoubleValue = 0.;
   vtkTypeUInt32 WithinString = 0;
+  bool WithinComment = false;
 };
 
 VTK_ABI_NAMESPACE_END

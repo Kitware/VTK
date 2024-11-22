@@ -199,6 +199,15 @@ public:
 
   ///@{
   /**
+   * Specifies the first records to read, so it is possible to skip some header text.
+   * Default is 0.
+   */
+  vtkGetMacro(SkippedRecords, vtkIdType);
+  vtkSetMacro(SkippedRecords, vtkIdType);
+  ///@}
+
+  ///@{
+  /**
    * When set to true, the reader will detect numeric columns and create
    * vtkDoubleArray or vtkIntArray for those instead of vtkStringArray. Default
    * is off.
@@ -335,6 +344,17 @@ public:
   vtkGetMacro(PreviewNumberOfLines, vtkIdType);
   ///@}
 
+  ///@{
+  /**
+   * Set / Get the list of possible characters used to start comments section.
+   * Comment section will start at first matching character.
+   * So multi-character (like `//`) is not supported.
+   * Default is `#`.
+   */
+  vtkGetMacro(CommentCharacters, std::string);
+  vtkSetMacro(CommentCharacters, std::string);
+  ///@}
+
 protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader() override;
@@ -350,12 +370,14 @@ protected:
   char* InputString = nullptr;
   int InputStringLength = 0;
   char* UnicodeCharacterSet = nullptr;
+  vtkIdType SkippedRecords = 0;
   vtkIdType MaxRecords = 0;
   std::string UnicodeRecordDelimiters = "\r\n";
   std::string UnicodeFieldDelimiters = ",";
   std::string UnicodeStringDelimiters = "\"";
   std::string UnicodeWhitespace = " \t\r\n\v\f";
   std::string UnicodeEscapeCharacter = "\\";
+  std::string CommentCharacters = "#";
   bool DetectNumericColumns = false;
   bool ForceDouble = false;
   bool TrimWhitespacePriorToNumericConversion = false;

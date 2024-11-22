@@ -19,6 +19,7 @@ vtk_module_test_data(
   Data/delimitedUTF16BE.txt
   Data/delimitedUTF16LE.txt
   Data/fixedwidth.txt
+  Data/half_sphere_commented.csv
   Data/vehicle_data.csv)
 
 if (NOT vtk_testing_cxx_disabled)
