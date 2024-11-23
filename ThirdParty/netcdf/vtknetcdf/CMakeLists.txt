@@ -134,6 +134,25 @@ set(USE_PARALLEL_POSIX 0)
 set(USE_PNETCDF 0)
 set(USE_ZLIB 0)
 
+set(ENABLE_CDF5 ON)
+check_type_size("size_t" SIZEOF_SIZE_T)
+if (SIZEOF_SIZE_T EQUAL 4)
+  if (ENABLE_CDF5) # enable or auto
+    string(TOUPPER ${ENABLE_CDF5} ENABLE_CDF5)
+    if (ENABLE_CDF5 AND NOT ENABLE_CDF5 STREQUAL "AUTO") # explicitly enabled
+      message(STATUS "Unable to support CDF5 feature because size_t is less than 8 bytes")
+    endif ()
+    set(ENABLE_CDF5 OFF) # cannot support CDF5
+    set(USE_CDF5 OFF) # cannot support CDF5
+  endif ()
+else ()
+  if (ENABLE_CDF5) # explicitly set by user or not set
+    set(USE_CDF5 ON)
+  else () # explicitly disabled by user
+    set(USE_CDF5 OFF)
+  endif ()
+endif ()
+
 if (REGEDIT)
   list(APPEND sources
     libdispatch/dreg.c)
