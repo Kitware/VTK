@@ -682,73 +682,34 @@ struct SurfaceNets
   void AdvanceRowIterator(vtkIdType i, std::array<TriadType*, 9>& triadPtrs,
     std::array<vtkIdType, 9>& pointIds, const TrimmedEdgesCaseType& trimmedEdgesCase)
   {
-    if (SurfaceNets::ProducesPoint(triadPtrs[4][i]))
-    {
-      pointIds[4]++;
-    }
-    if (SurfaceNets::ProducesPoint(triadPtrs[5][i]))
-    {
-      pointIds[5]++;
-    }
-    if (SurfaceNets::ProducesPoint(triadPtrs[7][i]))
-    {
-      pointIds[7]++;
-    }
-    if (SurfaceNets::ProducesPoint(triadPtrs[8][i]))
-    {
-      pointIds[8]++;
-    }
+    pointIds[4] += SurfaceNets::ProducesPoint(triadPtrs[4][i]);
+    pointIds[5] += SurfaceNets::ProducesPoint(triadPtrs[5][i]);
+    pointIds[7] += SurfaceNets::ProducesPoint(triadPtrs[7][i]);
+    pointIds[8] += SurfaceNets::ProducesPoint(triadPtrs[8][i]);
     switch (trimmedEdgesCase)
     {
       case 1: // if not on -y boundary
       {
         // do the checks only for 3 and 6 ids
-        if (SurfaceNets::ProducesPoint(triadPtrs[3][i]))
-        {
-          pointIds[3]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[6][i]))
-        {
-          pointIds[6]++;
-        }
+        pointIds[3] += SurfaceNets::ProducesPoint(triadPtrs[3][i]);
+        pointIds[6] += SurfaceNets::ProducesPoint(triadPtrs[6][i]);
         break;
       }
       case 2: // if not on -z boundary
       {
         // do the checks only for 1 and 2 ids
-        if (SurfaceNets::ProducesPoint(triadPtrs[1][i]))
-        {
-          pointIds[1]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[2][i]))
-        {
-          pointIds[2]++;
-        }
+        pointIds[1] += SurfaceNets::ProducesPoint(triadPtrs[1][i]);
+        pointIds[2] += SurfaceNets::ProducesPoint(triadPtrs[2][i]);
         break;
       }
       case 3: // if not on -y boundary and not on -z boundary
       {
         // do the checks for 0, 1, 2, 3, 6 ids
-        if (SurfaceNets::ProducesPoint(triadPtrs[0][i]))
-        {
-          pointIds[0]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[1][i]))
-        {
-          pointIds[1]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[2][i]))
-        {
-          pointIds[2]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[3][i]))
-        {
-          pointIds[3]++;
-        }
-        if (SurfaceNets::ProducesPoint(triadPtrs[6][i]))
-        {
-          pointIds[6]++;
-        }
+        pointIds[0] += SurfaceNets::ProducesPoint(triadPtrs[0][i]);
+        pointIds[1] += SurfaceNets::ProducesPoint(triadPtrs[1][i]);
+        pointIds[2] += SurfaceNets::ProducesPoint(triadPtrs[2][i]);
+        pointIds[3] += SurfaceNets::ProducesPoint(triadPtrs[3][i]);
+        pointIds[6] += SurfaceNets::ProducesPoint(triadPtrs[6][i]);
         break;
       }
       case 0:
