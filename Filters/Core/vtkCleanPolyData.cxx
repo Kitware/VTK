@@ -120,6 +120,26 @@ int vtkCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+bool vtkCleanPolyData::IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex)
+{
+  return !input->HasAnyGhostPoints() ||
+    input->GetGhostArray(vtkDataObject::POINT)->GetValue(ptIndex) == 0;
+}
+
+//------------------------------------------------------------------------------
+bool vtkCleanPolyData::InsertUniquePoint(vtkIdTypeArray* globalIdsArray, vtkIdType ptIndex,
+  vtkPoints* newPts, std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdsMap, double* point,
+  vtkIdType& ptId)
+{
+  if (globalIdsArray)
+  {
+    return InsertPointUsingGlobalId(
+      globalIdsArray->GetValue(ptIndex), newPts, addedGlobalIdsMap, point, ptId);
+  }
+  return this->Locator->InsertUniquePoint(point, ptId);
+}
+
+//------------------------------------------------------------------------------
 int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -268,10 +288,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (this->IsPrimaryPoint(input, pts[i]) &&
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -324,10 +342,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (this->IsPrimaryPoint(input, pts[i]) &&
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -404,10 +420,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (this->IsPrimaryPoint(input, pts[i]) &&
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
@@ -505,10 +519,8 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if ((globalIdsArray &&
-                   InsertPointUsingGlobalId(
-                     globalIdsArray->GetValue(pts[i]), newPts, addedGlobalIdsMap, newx, ptId)) ||
-          (!globalIdsArray && this->Locator->InsertUniquePoint(newx, ptId)))
+        else if (this->IsPrimaryPoint(input, pts[i]) &&
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
         {
           outputPD->CopyData(inputPD, pts[i], ptId);
         }
