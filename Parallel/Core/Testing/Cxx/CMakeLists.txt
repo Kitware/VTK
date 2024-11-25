@@ -6,7 +6,7 @@ vtk_add_test_cxx(vtkParallelCoreCxxTests tests
   )
 vtk_test_cxx_executable(vtkParallelCoreCxxTests tests)
 
-if (PYTHON_EXECUTABLE)
+if (Python3_EXECUTABLE)
   vtk_module_test_executable(
     vtkParallelCore-TestSocketCommunicator TestSocketCommunicator.cxx)
 

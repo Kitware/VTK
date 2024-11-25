@@ -17,7 +17,7 @@ set(all_tests
   )
 vtk_test_cxx_executable(vtkRenderingParallelCxxTests-MPI all_tests)
 
-if (PYTHON_EXECUTABLE)
+if (Python3_EXECUTABLE)
   vtk_module_test_executable(
     vtkRenderingParallel-TestClientServerRendering TestClientServerRendering.cxx)
 
