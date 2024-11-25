@@ -1332,7 +1332,7 @@ fedora39-tidy:build:
     needs: []
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
-    timeout: 330 minutes
+    timeout: 7 hours
 
 ## Sanitizer builds
 
