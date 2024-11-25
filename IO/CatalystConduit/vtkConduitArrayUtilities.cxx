@@ -212,14 +212,14 @@ using vtkmConnectivityArrays = vtkTypeList::Unique<vtkTypeList::Create<vtkmDataA
   vtkmDataArray<vtkm::Int16>, vtkmDataArray<vtkm::Int32>, vtkmDataArray<vtkm::Int64>>>::Result;
 
 //----------------------------------------------------------------------------
-struct ToCellArray
+struct FromDeviceToCellArray
 {
   vtkIdType NumberOfPoints;
   vtkIdType NumberOfPointsPerCell;
   int VTKCellType;
   vtkCellArray* CellArray;
 
-  ToCellArray(vtkIdType numberOfPoints, vtkIdType numberOfPointsPerCell, int vtkCellType,
+  FromDeviceToCellArray(vtkIdType numberOfPoints, vtkIdType numberOfPointsPerCell, int vtkCellType,
     vtkCellArray* cellArray)
     : NumberOfPoints(numberOfPoints)
     , NumberOfPointsPerCell(numberOfPointsPerCell)
@@ -231,17 +231,17 @@ struct ToCellArray
   template <typename ArrayT>
   void operator()(ArrayT* input)
   {
-    using connValueType = typename ArrayT::ValueType;
-    constexpr bool IsVtkmIdType = std::is_same<connValueType, vtkm::Id>::value;
-    auto connectivityUnknownHandle = input->GetVtkmUnknownArrayHandle();
-    vtkm::cont::ArrayHandle<connValueType> connectivityArrayHandle =
-      connectivityUnknownHandle.template AsArrayHandle<vtkm::cont::ArrayHandle<connValueType>>();
-    vtkm::cont::UnknownArrayHandle connectivityHandle = vtkm::cont::ArrayHandle<vtkm::Id>{};
-    connectivityHandle.CopyShallowIfPossible(connectivityUnknownHandle);
+    // input is a vtkmDataArray<inputValueType>
+    using inputValueType = typename ArrayT::ValueType;
+    auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
+    vtkm::cont::ArrayHandle<inputValueType> inputArrayHandle =
+      inputUnknownHandle.template AsArrayHandle<vtkm::cont::ArrayHandle<inputValueType>>();
+    vtkm::cont::UnknownArrayHandle connectivityUnknownHandle = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    connectivityUnknownHandle.CopyShallowIfPossible(inputUnknownHandle);
     vtkm::cont::CellSetSingleType<> cellSet;
     // VTK cell types and VTKm cell shapes have the same numbers
     cellSet.Fill(this->NumberOfPoints, this->VTKCellType, this->NumberOfPointsPerCell,
-      connectivityHandle.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>());
+      connectivityUnknownHandle.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>());
     fromvtkm::Convert(cellSet, this->CellArray);
   }
 };
@@ -602,7 +602,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   // check if cell arrays are in device memory
   using Dispatcher = vtkArrayDispatch::DispatchByArray<internals::vtkmConnectivityArrays>;
   vtkNew<vtkCellArray> cellArray;
-  internals::ToCellArray worker{ numberOfPoints, cellSize, cellType, cellArray };
+  internals::FromDeviceToCellArray worker{ numberOfPoints, cellSize, cellType, cellArray };
   if (!Dispatcher::Execute(connectivity, worker))
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   {
