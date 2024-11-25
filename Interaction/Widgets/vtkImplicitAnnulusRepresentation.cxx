@@ -372,27 +372,10 @@ void vtkImplicitAnnulusRepresentation::WidgetInteraction(double e[2])
     return;
   }
 
-  // Do different things depending on state
-  // Calculations everybody does
-  // Compute the two points defining the motion vector
-  vtkVector3d pos;
-  this->Picker->GetPickPosition(pos.GetData());
+  vtkVector3d prevPickPoint = this->GetWorldPoint(this->Picker, this->LastEventPosition.GetData());
+  vtkVector3d pickPoint = this->GetWorldPoint(this->Picker, e);
 
-  vtkVector4d focalPoint;
-  vtkInteractorObserver::ComputeWorldToDisplay(
-    this->Renderer, pos[0], pos[1], pos[2], focalPoint.GetData());
-  double z = focalPoint[2];
-
-  // Note: vtkVector4d::GetXYZ() methods would make this cleaner
-  vtkVector4d prevPickPoint4d;
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, this->LastEventPosition[0],
-    this->LastEventPosition[1], z, prevPickPoint4d.GetData());
-  vtkVector3d prevPickPoint(prevPickPoint4d.GetX(), prevPickPoint4d.GetY(), prevPickPoint4d.GetZ());
-
-  vtkVector4d pickPoint4d;
-  vtkInteractorObserver::ComputeDisplayToWorld(
-    this->Renderer, e[0], e[1], z, pickPoint4d.GetData());
-  vtkVector3d pickPoint(pickPoint4d.GetX(), pickPoint4d.GetY(), pickPoint4d.GetZ());
+  vtkVector3d annulusPickPoint = this->GetWorldPoint(this->AnnulusPicker, e);
 
   // Process the motion
   switch (this->InteractionState)
@@ -410,11 +393,11 @@ void vtkImplicitAnnulusRepresentation::WidgetInteraction(double e[2])
       break;
 
     case InteractionStateType::AdjustingInnerRadius:
-      this->AdjustInnerRadius(e[0], e[1], prevPickPoint, pickPoint);
+      this->AdjustInnerRadius(e[0], e[1], prevAnnulusPickPoint, annulusPickPoint);
       break;
 
     case InteractionStateType::AdjustingOuterRadius:
-      this->AdjustOuterRadius(e[0], e[1], prevPickPoint, pickPoint);
+      this->AdjustOuterRadius(e[0], e[1], prevAnnulusPickPoint, annulusPickPoint);
       break;
 
     case InteractionStateType::Scaling:

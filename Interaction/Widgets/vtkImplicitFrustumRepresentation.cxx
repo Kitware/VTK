@@ -388,25 +388,11 @@ void vtkImplicitFrustumRepresentation::WidgetInteraction(double e[2])
 
   vtkVector2d eventPosition(e);
 
-  // Compute the two points defining the motion vector
-  vtkVector3d pickPosition;
-  this->Picker->GetPickPosition(pickPosition.GetData());
-
-  vtkVector4d focalPoint;
-  vtkInteractorObserver::ComputeWorldToDisplay(
-    this->Renderer, pickPosition[0], pickPosition[1], pickPosition[2], focalPoint.GetData());
-  double z = focalPoint[2];
-
-  // Note: vtkVector4d::GetXYZ() methods would make this cleaner
-  vtkVector4d prevPickPoint4d;
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, this->LastEventPosition[0],
-    this->LastEventPosition[1], z, prevPickPoint4d.GetData());
-  vtkVector3d prevPickPoint(prevPickPoint4d.GetX(), prevPickPoint4d.GetY(), prevPickPoint4d.GetZ());
-
-  vtkVector4d pickPoint4d;
-  vtkInteractorObserver::ComputeDisplayToWorld(
-    this->Renderer, e[0], e[1], z, pickPoint4d.GetData());
-  vtkVector3d pickPoint(pickPoint4d.GetX(), pickPoint4d.GetY(), pickPoint4d.GetZ());
+  vtkVector3d pickPoint = this->GetWorldPoint(this->Picker, e);
+  vtkVector3d prevPickPoint = this->GetWorldPoint(this->Picker, this->LastEventPosition.GetData());
+  vtkVector3d frustumPickPoint = this->GetWorldPoint(this->FrustumPicker, e);
+  vtkVector3d prevFrustumPickPoint =
+    this->GetWorldPoint(this->FrustumPicker, this->LastEventPosition.GetData());
 
   switch (this->InteractionState)
   {
@@ -419,11 +405,11 @@ void vtkImplicitFrustumRepresentation::WidgetInteraction(double e[2])
       break;
 
     case InteractionStateType::AdjustingHorizontalAngle:
-      this->AdjustHorizontalAngle(prevPickPoint, pickPoint);
+      this->AdjustHorizontalAngle(prevFrustumPickPoint, frustumPickPoint);
       break;
 
     case InteractionStateType::AdjustingVerticalAngle:
-      this->AdjustVerticalAngle(prevPickPoint, pickPoint);
+      this->AdjustVerticalAngle(prevFrustumPickPoint, frustumPickPoint);
       break;
 
     case InteractionStateType::AdjustingNearPlaneDistance:

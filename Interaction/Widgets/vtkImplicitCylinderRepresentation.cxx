@@ -394,52 +394,44 @@ void vtkImplicitCylinderRepresentation::StartWidgetInteraction(double e[2])
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
 {
-  // Do different things depending on state
-  // Calculations everybody does
-  double focalPoint[4], pickPoint[4], prevPickPoint[4];
-  double z, vpn[3];
-
   vtkCamera* camera = this->Renderer->GetActiveCamera();
   if (!camera)
   {
     return;
   }
 
-  // Compute the two points defining the motion vector
-  double pos[3];
-  this->Picker->GetPickPosition(pos);
-  vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, pos[0], pos[1], pos[2], focalPoint);
-  z = focalPoint[2];
-  vtkInteractorObserver::ComputeDisplayToWorld(
-    this->Renderer, this->LastEventPosition[0], this->LastEventPosition[1], z, prevPickPoint);
-  vtkInteractorObserver::ComputeDisplayToWorld(this->Renderer, e[0], e[1], z, pickPoint);
+  vtkVector3d prevPickPoint = this->GetWorldPoint(this->Picker, this->LastEventPosition);
+  vtkVector3d pickPoint = this->GetWorldPoint(this->Picker, e);
+  vtkVector3d cylinderPickPoint = this->GetWorldPoint(this->CylPicker, e);
 
   // Process the motion
   if (this->InteractionState == vtkImplicitCylinderRepresentation::MovingOutline)
   {
-    this->TranslateOutline(prevPickPoint, pickPoint);
+    this->TranslateOutline(prevPickPoint.GetData(), pickPoint.GetData());
   }
   else if (this->InteractionState == vtkImplicitCylinderRepresentation::MovingCenter)
   {
-    this->TranslateCenter(prevPickPoint, pickPoint);
+    this->TranslateCenter(prevPickPoint.GetData(), pickPoint.GetData());
   }
   else if (this->InteractionState == vtkImplicitCylinderRepresentation::TranslatingCenter)
   {
-    this->TranslateCenterOnAxis(prevPickPoint, pickPoint);
+    this->TranslateCenterOnAxis(prevPickPoint.GetData(), pickPoint.GetData());
   }
   else if (this->InteractionState == vtkImplicitCylinderRepresentation::AdjustingRadius)
   {
-    this->AdjustRadius(e[0], e[1], prevPickPoint, pickPoint);
+    double dummy[3];
+    this->AdjustRadius(e[0], e[1], dummy, cylinderPickPoint.GetData());
   }
   else if (this->InteractionState == vtkImplicitCylinderRepresentation::Scaling &&
     this->ScaleEnabled)
   {
-    this->Scale(prevPickPoint, pickPoint, e[0], e[1]);
+    this->Scale(prevPickPoint.GetData(), pickPoint.GetData(), e[0], e[1]);
   }
   else if (this->InteractionState == vtkImplicitCylinderRepresentation::RotatingAxis)
   {
+    double vpn[3];
     camera->GetViewPlaneNormal(vpn);
-    this->Rotate(e[0], e[1], prevPickPoint, pickPoint, vpn);
+    this->Rotate(e[0], e[1], prevPickPoint.GetData(), pickPoint.GetData(), vpn);
   }
 
   this->LastEventPosition[0] = e[0];
