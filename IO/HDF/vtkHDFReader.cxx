@@ -932,7 +932,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   vtkIdType offset = std::accumulate(
     numberOfCells.data(), &numberOfCells[filePiece], startingCellOffset + partOffset + filePiece);
   if ((offsetsArray = readFromFileOrCache(vtkHDFUtilities::GEOMETRY_ATTRIBUTE_TAG, "Offsets",
-         offset, numberOfCells[filePiece] + 1, true)) == nullptr)
+         offset, numberOfCells[filePiece] ? numberOfCells[filePiece] + 1 : 0, true)) == nullptr)
   {
     vtkErrorMacro("Cannot read the Offsets array");
     return 0;

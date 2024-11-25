@@ -185,9 +185,9 @@ public:
    * This virtual dataset references the datasets with the same name in subfiles,
    * and its first dimension is the sum of all subfiles datasets'.
    * the number of components must be the same in every subfile.
+   * Return true iff the operation completed successfully
    */
-  vtkHDF::ScopedH5DHandle CreateVirtualDataset(
-    hid_t group, const char* name, hid_t type, int numComp);
+  bool CreateVirtualDataset(hid_t group, const char* name, hid_t type, int numComp);
 
   ///@{
   /**
@@ -228,7 +228,6 @@ public:
    * Returned scoped handle may be invalid
    */
   vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, int value);
-  vtkHDF::ScopedH5DHandle Create2DValueDataset(hid_t group, const char* name, int* value, int size);
   ///@}
 
   /**
@@ -329,6 +328,11 @@ private:
    */
   hsize_t GetSubfileNumberOf(
     const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
+
+  /**
+   * Return true if the given dataset exists in the given existing group.
+   */
+  bool DatasetAndGroupExist(const std::string& dataset, hid_t group);
 
   /**
    * Set `totalSize` as the the sum of the subfiles dataset's size given a path to the dataset.

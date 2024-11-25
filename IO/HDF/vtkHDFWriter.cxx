@@ -935,7 +935,8 @@ bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfCells", input->GetNumberOfCells()))
+  vtkIdType nbCells = input ? input->GetNumberOfCells() : 0;
+  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfCells", nbCells))
   {
     vtkErrorMacro(<< "Can not create NumberOfCells dataset when creating: " << this->FileName);
     return false;
@@ -946,8 +947,8 @@ bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateSingleValueDataset(
-        group, "NumberOfConnectivityIds", input->GetNumberOfConnectivityIds()))
+  vtkIdType nbConn = input ? input->GetNumberOfConnectivityIds() : 0;
+  if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfConnectivityIds", nbConn))
   {
     vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset when creating: "
                   << this->FileName);
@@ -970,7 +971,17 @@ bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, input->GetOffsetsArray()))
+  vtkSmartPointer<vtkDataArray> offsetsArray = nullptr;
+  if (input && input->GetOffsetsArray())
+  {
+    offsetsArray = input->GetOffsetsArray();
+  }
+  else
+  {
+    offsetsArray = vtkSmartPointer<vtkIntArray>::New();
+    offsetsArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Offsets", H5T_STD_I64LE, offsetsArray))
   {
     vtkErrorMacro(<< "Can not create Offsets dataset when creating: " << this->FileName);
     return false;
@@ -981,8 +992,17 @@ bool vtkHDFWriter::AppendOffsets(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 {
-  if (!this->Impl->AddOrCreateDataset(
-        group, "Connectivity", H5T_STD_I64LE, input->GetConnectivityArray()))
+  vtkSmartPointer<vtkDataArray> connArray = nullptr;
+  if (input && input->GetConnectivityArray())
+  {
+    connArray = input->GetConnectivityArray();
+  }
+  else
+  {
+    connArray = vtkSmartPointer<vtkIntArray>::New();
+    connArray->SetNumberOfValues(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Connectivity", H5T_STD_I64LE, connArray))
   {
     vtkErrorMacro(<< "Can not create Connectivity dataset when creating: " << this->FileName);
     return false;
@@ -993,14 +1013,20 @@ bool vtkHDFWriter::AppendConnectivity(hid_t group, vtkCellArray* input)
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendPoints(hid_t group, vtkPointSet* input)
 {
-  if (input->GetPoints() != nullptr && input->GetPoints()->GetData() != nullptr)
+  vtkSmartPointer<vtkPoints> points = nullptr;
+  if (input && input->GetPoints())
   {
-    if (!this->Impl->AddOrCreateDataset(
-          group, "Points", H5T_IEEE_F64LE, input->GetPoints()->GetData()))
-    {
-      vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
-      return false;
-    }
+    points = input->GetPoints();
+  }
+  else
+  {
+    points = vtkSmartPointer<vtkPoints>::New();
+    points->SetNumberOfPoints(0);
+  }
+  if (!this->Impl->AddOrCreateDataset(group, "Points", H5T_IEEE_F64LE, points->GetData()))
+  {
+    vtkErrorMacro(<< "Can not create points dataset when creating: " << this->FileName);
+    return false;
   }
   return true;
 }
@@ -1181,7 +1207,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
     return true;
   }
 
-  // Create the group corresponding to point, cell or field data
+  // Create the group corresponding to field data
   std::string groupName = "FieldData";
   const std::string offsetsGroupName = groupName + "Offsets";
   std::string fieldDataSizeName = "FieldDataSizes";
@@ -1240,10 +1266,14 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
     // For temporal data, also add the offset in the steps group
     if (this->IsTemporal && !this->AppendDataArrayOffset(array, arrayName, offsetsGroupName))
     {
+      vtkErrorMacro(<< "Could not append data array offset for : " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
     if (this->IsTemporal && !this->AppendDataArraySizeOffset(array, arrayName, fieldDataSizeName))
     {
+      vtkErrorMacro(<< "Could not append data array size offset for : " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1252,7 +1282,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
       dataType = H5Tcopy(H5T_C_S1);
       if (H5Tset_size(dataType, H5T_VARIABLE) < 0)
       {
-        vtkErrorWithObjectMacro(nullptr, << "Error H5Tset_size");
+        vtkErrorMacro(<< "Could not set the size for : " << arrayName << ".");
         return false;
       }
     }
@@ -1266,8 +1296,8 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
       if (!this->Impl->InitDynamicDataset(group, arrayName.c_str(), dataType,
             array->GetNumberOfComponents(), ChunkSizeComponent, this->CompressionLevel))
       {
-        vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
-                        << " when creating: " << this->FileName);
+        vtkErrorMacro(<< "Could not initialize offset dataset for: " << arrayName
+                      << " when creating: " << this->FileName);
         return false;
       }
     }
@@ -1461,8 +1491,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->InitDynamicDataset(
           this->Impl->GetStepsGroup(), datasetName.c_str(), H5T_STD_I64LE, 1, ChunkSize1D))
     {
-      vtkWarningMacro(<< "Could not initialize temporal dataset for: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not initialize temporal dataset for: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1470,8 +1500,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->AddOrCreateSingleValueDataset(
           this->Impl->GetStepsGroup(), datasetName.c_str(), 0, false))
     {
-      vtkWarningMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1481,8 +1511,8 @@ bool vtkHDFWriter::AppendDataArrayOffset(
     if (!this->Impl->AddOrCreateSingleValueDataset(this->Impl->GetStepsGroup(), datasetName.c_str(),
           array->GetNumberOfTuples(), true, false))
     {
-      vtkWarningMacro(<< "Could not insert a value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1499,7 +1529,7 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
   if (this->CurrentTimeIndex < 0 || (this->Impl->GetSubFilesReady() && this->NbPieces > 1))
   {
     // silently do nothing as it could mean that there is no temporal data to write
-    return false;
+    return true;
   }
 
   std::vector<int> value;
@@ -1514,8 +1544,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->InitDynamicDataset(this->Impl->GetStepsGroup(), datasetName.c_str(),
           H5T_STD_I64LE, value.size(), ChunkSize1D))
     {
-      vtkWarningMacro(<< "Could not initialize temporal dataset for: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not initialize temporal dataset for: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
 
@@ -1523,8 +1553,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(),
           datasetName.c_str(), value.data(), static_cast<int>(value.size())))
     {
-      vtkWarningMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
@@ -1538,8 +1568,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(),
           datasetName.c_str(), value.data(), static_cast<int>(value.size()), false))
     {
-      vtkWarningMacro(<< "Could not insert a value in the offsets array: " << arrayName
-                      << " when creating: " << this->FileName);
+      vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
+                    << " when creating: " << this->FileName);
       return false;
     }
   }
