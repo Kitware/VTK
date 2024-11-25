@@ -285,14 +285,23 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     let I: f32 = select(exp2(-2.0 * (d - half_linewidth) * (d - half_linewidth)), 1.0, d < half_linewidth);
     diffuse_color = mix(diffuse_color, actor.color_options.edge_color, I);
     ambient_color = mix(ambient_color, actor.color_options.edge_color, I);
+
+    let render_lines_as_tubes = getRenderLinesAsTubes(actor.render_options.flags);
+    if (render_lines_as_tubes) {
+      if (d < 1.1 * half_linewidth) { // extend 10% to hide jagged artifacts on the edge-surface interace.
+        normal_vc.z = 1.0 - (d / half_linewidth);
+      }
+    }
   }
 
   ///------------------------///
   // Normals
   ///------------------------///
   if !fragment.is_front_facing {
-    normal_vc = -fragment.normal_vc;
-    normal_vc = normalize(normal_vc);
+    if (normal_vc.z < 0.0) {
+      normal_vc = -fragment.normal_vc;
+      normal_vc = normalize(normal_vc);
+    }
   } else if normal_vc.z < 0.0 {
     normal_vc.z = -normal_vc.z;
   }

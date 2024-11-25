@@ -32,7 +32,6 @@
 #include "LineShaderOpaque.h"
 #include "LineShaderTranslucent.h"
 #include "PointShader.h"
-#include "ShowVertices.h"
 #include "SurfaceMeshShader.h"
 #include "VTKCellToGraphicsPrimitive.h"
 
@@ -54,12 +53,12 @@ const std::array<std::string, vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_NB_TYPES>
 
 const std::array<const char**, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
   GraphicsPipelineShaderSources = { &PointShader, &LineShaderOpaque, &LineShaderTranslucent,
-    &SurfaceMeshShader, &ShowVertices };
+    &SurfaceMeshShader };
 
 const std::array<wgpu::PrimitiveTopology, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
   GraphicsPipelinePrimitiveTypes = { wgpu::PrimitiveTopology::TriangleStrip,
     wgpu::PrimitiveTopology::TriangleList, wgpu::PrimitiveTopology::TriangleStrip,
-    wgpu::PrimitiveTopology::TriangleList, wgpu::PrimitiveTopology::TriangleStrip };
+    wgpu::PrimitiveTopology::TriangleList };
 
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
   std::vector<vtkWebGPUPolyDataMapper::TopologySourceType>>
@@ -285,25 +284,25 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   auto* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
+  auto* displayProperty = actor->GetProperty();
 
   switch (wgpuRenderer->GetRenderStage())
   {
     case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
     { // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
-      // dispatch compute pipeline that converts polyvertex to vertices.
       auto* mesh = this->CurrentInput;
-      const int representation = actor->GetProperty()->GetRepresentation();
-      this->DispatchCellToPrimitiveComputePipeline(
-        wgpuConfiguration, mesh->GetVerts(), representation, VTK_POLY_VERTEX, 0);
-      // dispatch compute pipeline that converts polyline to lines.
-      const vtkIdType numVerts = mesh->GetNumberOfVerts();
-      this->DispatchCellToPrimitiveComputePipeline(
-        wgpuConfiguration, mesh->GetLines(), representation, VTK_POLY_LINE, numVerts);
-      // dispatch compute pipeline that converts polygon to triangles.
-      const vtkIdType numLines = mesh->GetNumberOfLines();
-      this->DispatchCellToPrimitiveComputePipeline(
-        wgpuConfiguration, mesh->GetPolys(), representation, VTK_POLYGON, numLines + numVerts);
+      this->DispatchMeshToPrimitiveComputePipeline(
+        wgpuConfiguration, mesh, displayProperty->GetRepresentation());
+      // Handle vertex visibility.
+      if (displayProperty->GetVertexVisibility() &&
+        // avoids dispatching the cell-to-vertex pipeline again.
+        displayProperty->GetRepresentation() != VTK_POINTS)
+      {
+        // dispatch compute pipeline that extracts cell vertices.
+        this->DispatchMeshToPrimitiveComputePipeline(
+          wgpuConfiguration, mesh, /*representation=*/VTK_POINTS);
+      }
       // setup graphics pipeline
       if (this->GetNeedToRebuildGraphicsPipelines(actor))
       {
@@ -457,17 +456,26 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
     }
   }
-  if (showVertices && representation != VTK_POINTS) // Don't draw vertices on top of points.
+  if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
   {
-    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_VERTEX_VISIBILITY];
-    if (!pipelineKey.empty())
+    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_POINTS];
+    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_POINTS);
+    passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+    vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
+    passEncoder.Draw(/*vertexCount=*/4,
+      /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+    for (const auto& bindGroupType :
+      { TOPOLOGY_SOURCE_VERTS, TOPOLOGY_SOURCE_LINE_POINTS, TOPOLOGY_SOURCE_POLYGON_POINTS })
     {
-      const auto& pipelineLabel =
-        this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_VERTEX_VISIBILITY);
-      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
-      passEncoder.Draw(/*vertexCount=*/4,
-        /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      if (bgInfo.VertexCount == 0)
+      {
+        continue;
+      }
+      passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+      passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
     }
   }
 }
@@ -542,17 +550,26 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       }
     }
   }
-  if (showVertices && representation != VTK_POINTS) // Don't draw vertices on top of points.
+  if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
   {
-    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_VERTEX_VISIBILITY];
-    if (!pipelineKey.empty())
+    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_POINTS];
+    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_POINTS);
+    bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+    vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
+    bundleEncoder.Draw(/*vertexCount=*/4,
+      /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+    for (const auto& bindGroupType :
+      { TOPOLOGY_SOURCE_VERTS, TOPOLOGY_SOURCE_LINE_POINTS, TOPOLOGY_SOURCE_POLYGON_POINTS })
     {
-      const auto& pipelineLabel =
-        this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_VERTEX_VISIBILITY);
-      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
-      bundleEncoder.Draw(/*vertexCount=*/4,
-        /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+      const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+      if (bgInfo.VertexCount == 0)
+      {
+        continue;
+      }
+      bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+      bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
     }
   }
 }
@@ -1453,8 +1470,6 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
       return "GFX_PIPELINE_LINES_MITER_JOIN";
     case GFX_PIPELINE_TRIANGLES:
       return "GFX_PIPELINE_TRIANGLES";
-    case GFX_PIPELINE_VERTEX_VISIBILITY:
-      return "GFX_PIPELINE_VERTEX_VISIBILITY";
     default:
       return "";
   }
@@ -1603,6 +1618,22 @@ vtkWebGPUPolyDataMapper::CreateCellToPrimitiveComputePassForCellType(
   pass->SetShaderSource(VTKCellToGraphicsPrimitive);
   pass->SetShaderEntryPoint(::TopologyConversionShaderEntrypoints[topologySourceType]);
   return std::make_pair(pass, pipeline);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::DispatchMeshToPrimitiveComputePipeline(
+  vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation)
+{
+  this->DispatchCellToPrimitiveComputePipeline(
+    wgpuConfiguration, mesh->GetVerts(), representation, VTK_POLY_VERTEX, 0);
+  // dispatch compute pipeline that converts polyline to lines.
+  const vtkIdType numVerts = mesh->GetNumberOfVerts();
+  this->DispatchCellToPrimitiveComputePipeline(
+    wgpuConfiguration, mesh->GetLines(), representation, VTK_POLY_LINE, numVerts);
+  // dispatch compute pipeline that converts polygon to triangles.
+  const vtkIdType numLines = mesh->GetNumberOfLines();
+  this->DispatchCellToPrimitiveComputePipeline(
+    wgpuConfiguration, mesh->GetPolys(), representation, VTK_POLYGON, numLines + numVerts);
 }
 
 //------------------------------------------------------------------------------
@@ -1833,25 +1864,14 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(
     this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroupLayout"));
-  auto layoutWithoutTopology =
-    vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(device, bgls, "pipelineLayout");
   bgls.emplace_back(this->CreateTopologyBindGroupLayout(device, "TopologyBindGroupLayout"));
-  auto layoutWithTopology =
+  descriptor.layout =
     vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(device, bgls, "pipelineLayout");
 
   for (int i = 0; i < GFX_PIPELINE_NB_TYPES; ++i)
   {
-    const auto seed = std::to_string(i) + this->GetClassName();
     descriptor.label = this->GetGraphicsPipelineTypeAsString(static_cast<GraphicsPipelineType>(i));
     descriptor.primitive.topology = GraphicsPipelinePrimitiveTypes[i];
-    if (i == GFX_PIPELINE_VERTEX_VISIBILITY)
-    {
-      descriptor.layout = layoutWithoutTopology;
-    }
-    else
-    {
-      descriptor.layout = layoutWithTopology;
-    }
     // generate a unique key for the pipeline descriptor and shader source pointer
     this->GraphicsPipelineKeys[i] =
       wgpuPipelineCache->GetPipelineKey(&descriptor, *GraphicsPipelineShaderSources[i]);

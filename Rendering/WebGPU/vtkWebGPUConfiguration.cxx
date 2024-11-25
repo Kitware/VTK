@@ -646,9 +646,9 @@ vtkWebGPUConfiguration::BackendType vtkWebGPUConfiguration::GetBackendInUse()
   {
     return vtkWebGPUConfiguration::BackendType::Undefined;
   }
-  wgpu::AdapterProperties properties = {};
-  internals.Adapter.GetProperties(&properties);
-  return internals.FromWGPUBackendType(properties.backendType);
+  wgpu::AdapterInfo info{};
+  internals.Adapter.GetInfo(&info);
+  return internals.FromWGPUBackendType(info.backendType);
 }
 
 //------------------------------------------------------------------------------
@@ -657,9 +657,9 @@ std::string vtkWebGPUConfiguration::GetBackendInUseAsString()
   auto& internals = (*this->Internals);
   if (internals.DeviceReady)
   {
-    wgpu::AdapterProperties properties = {};
-    internals.Adapter.GetProperties(&properties);
-    switch (properties.backendType)
+    wgpu::AdapterInfo info{};
+    internals.Adapter.GetInfo(&info);
+    switch (info.backendType)
     {
       case wgpu::BackendType::Null:
         return "Null";
