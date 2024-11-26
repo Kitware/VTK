@@ -11,6 +11,7 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
 #include "vtkTestUtilities.h"
@@ -99,6 +100,11 @@ int MeshQuality(int argc, char* argv[])
 
   mr->SetFileName(fname);
   mr->Update();
+
+  vtkNew<vtkPolyData> dummyPolyData;
+  iq->SetInputData(dummyPolyData);
+  iq->SetTriangleQualityMeasureToArea();
+  iq->Update();
 
   ug = mr->GetOutput();
   iq->SetInputConnection(mr->GetOutputPort());
