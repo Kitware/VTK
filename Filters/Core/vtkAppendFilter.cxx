@@ -302,33 +302,29 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       if (reallyMergePoints)
       {
-        if (!dataSet->HasAnyGhostPoints() ||
-          dataSet->GetGhostArray(vtkDataObject::POINT)->GetValue(ptId) == 0)
+        if (dataSetGlobalIdsArray)
         {
-          if (dataSetGlobalIdsArray)
+          vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
+          auto it = addedPointsMap.find(globalId);
+          if (it == addedPointsMap.end())
           {
-            vtkIdType globalId = dataSetGlobalIdsArray->GetValue(ptId);
-            auto it = addedPointsMap.find(globalId);
-            if (it == addedPointsMap.end())
-            {
-              globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
-              dataSet->GetPoint(ptId, p);
-              vtkIdType newPtId = newPts->InsertNextPoint(p);
-              addedPointsMap.emplace(globalId, newPtId);
-            }
-            else
-            {
-              globalIndices[ptId + ptOffset] = it->second;
-            }
+            globalIndices[ptId + ptOffset] = newPts->GetNumberOfPoints();
+            dataSet->GetPoint(ptId, p);
+            vtkIdType newPtId = newPts->InsertNextPoint(p);
+            addedPointsMap.emplace(globalId, newPtId);
           }
           else
           {
-            vtkIdType globalPtId = 0;
-            dataSet->GetPoint(ptId, p);
-            ptInserter->InsertUniquePoint(p, globalPtId);
-            globalIndices[ptId + ptOffset] = globalPtId;
-            // The point inserter puts the point into newPts, so we don't have to do that here.
+            globalIndices[ptId + ptOffset] = it->second;
           }
+        }
+        else
+        {
+          vtkIdType globalPtId = 0;
+          dataSet->GetPoint(ptId, p);
+          ptInserter->InsertUniquePoint(p, globalPtId);
+          globalIndices[ptId + ptOffset] = globalPtId;
+          // The point inserter puts the point into newPts, so we don't have to do that here.
         }
       }
       else
@@ -481,7 +477,8 @@ void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** in
       const auto numberOfInputTuples = inputData->GetNumberOfTuples();
       for (vtkIdType id = 0; id < numberOfInputTuples; ++id)
       {
-        if (!reallyMergePoints || !dataSet->HasAnyGhostPoints() ||
+        if (attributesType != vtkDataObject::POINT || !reallyMergePoints ||
+          !dataSet->HasAnyGhostPoints() ||
           dataSet->GetGhostArray(vtkDataObject::POINT)->GetValue(id) == 0)
         {
           if (globalIds != nullptr)
