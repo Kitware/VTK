@@ -3,6 +3,8 @@ set(test_exclusions
   "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
+  # https://gitlab.kitware.com/vtk/vtk/-/issues/19544
+  "^vtkRenderingParallel-TestClientServerRendering$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19542
   "^vtkParallelCore-TestSocketCommunicator$")
 
