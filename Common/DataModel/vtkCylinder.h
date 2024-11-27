@@ -59,7 +59,7 @@ public:
   /**
    * Set/Get the cylinder radius.
    */
-  vtkSetMacro(Radius, double);
+  vtkSetClampMacro(Radius, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(Radius, double);
   ///@}
 

@@ -17,6 +17,7 @@
 #include "vtkImplicitPlaneRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLineSource.h"
+#include "vtkLogger.h"
 #include "vtkMath.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPickingManager.h"
@@ -1016,7 +1017,6 @@ double* vtkImplicitAnnulusRepresentation::GetWidgetBounds()
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::SetInnerRadius(double radius)
 {
-  radius = vtkMath::ClampValue(radius, 0.0, this->GetOuterRadius());
   this->Annulus->SetInnerRadius(radius);
 }
 
@@ -1029,7 +1029,6 @@ double vtkImplicitAnnulusRepresentation::GetInnerRadius() const
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::SetOuterRadius(double radius)
 {
-  radius = std::max(radius, this->GetInnerRadius());
   this->Annulus->SetOuterRadius(radius);
 }
 
@@ -1336,6 +1335,12 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
   outer.BottomOffset = outer.StartOffset + this->Resolution;
   outer.Radius = this->Annulus->GetOuterRadius();
   outer.EdgeInsideBoundingBox.resize(numberOfPointsPerCylinderSide);
+
+  if (inner.Radius > outer.Radius)
+  {
+    vtkLog(TRACE, "Inner radius is greater than the outer one. Clamping.");
+    inner.Radius = outer.Radius;
+  }
 
   // Annulus base points
   vtkVector3d cross = yAxis.Cross(axis);

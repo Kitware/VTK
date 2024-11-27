@@ -96,8 +96,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the annulus inner radius. Values will be clamped between 0 and the outer radius.
+   * Set/Get the annulus inner radius. Should be lower than OuterRadius.
    * Default is 0.25.
+
+   * @see GetOuterRadius
    */
   void SetInnerRadius(double r);
   double GetInnerRadius() const;
@@ -105,8 +107,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the annulus outer radius. Values lower than the inner radius will be clamped.
+   * Set/Get the annulus outer radius. Should be greater than InnerRadius.
    * Default is 0.5.
+   *
+   * @see GetInnerRadius.
    */
   void SetOuterRadius(double r);
   double GetOuterRadius() const;
