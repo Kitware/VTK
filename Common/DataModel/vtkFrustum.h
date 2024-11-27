@@ -89,9 +89,15 @@ private:
   vtkFrustum(const vtkFrustum&) = delete;
   void operator=(const vtkFrustum&) = delete;
 
-  /// Compute and set the horizontal or vertical planes' normals according to the defined angle
+  ///@{
+  /**
+   * Compute and set the horizontal or vertical planes' normals according to the defined angle
+   * Normals are pointing "outside" the frustum
+   * @see vtkImplicitFunction and EvaluateFunction
+   */
   void CalculateHorizontalPlanesNormal();
   void CalculateVerticalPlanesNormal();
+  ///@}
 
   double NearPlaneDistance = 0.5;
   double VerticalAngle = 30;

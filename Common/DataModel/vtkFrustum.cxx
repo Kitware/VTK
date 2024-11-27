@@ -16,7 +16,7 @@ vtkStandardNewMacro(vtkFrustum);
 //------------------------------------------------------------------------------
 vtkFrustum::vtkFrustum()
 {
-  this->NearPlane->SetNormal(0, 1, 0);
+  this->NearPlane->SetNormal(0, -1, 0);
   this->NearPlane->SetOrigin(0, this->NearPlaneDistance, 0);
 
   this->CalculateHorizontalPlanesNormal();
@@ -28,7 +28,7 @@ vtkFrustum::vtkFrustum()
   this->BooleanOp->AddFunction(this->RightPlane);
   this->BooleanOp->AddFunction(this->LeftPlane);
 
-  this->BooleanOp->SetOperationTypeToUnion();
+  this->BooleanOp->SetOperationTypeToIntersection();
 }
 
 //------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ double vtkFrustum::EvaluateFunction(double x[3])
 //------------------------------------------------------------------------------
 void vtkFrustum::EvaluateGradient(double x[3], double g[3])
 {
-  return this->BooleanOp->EvaluateGradient(x, g);
+  this->BooleanOp->EvaluateGradient(x, g);
 }
 
 //------------------------------------------------------------------------------
@@ -104,8 +104,8 @@ void vtkFrustum::CalculateHorizontalPlanesNormal()
   double cosAngle = std::cos(angleRadians);
   double sinAngle = std::sin(angleRadians);
 
-  vtkVector3d leftPlaneNormal(cosAngle, sinAngle, 0);
-  vtkVector3d rightPlaneNormal(-cosAngle, sinAngle, 0);
+  vtkVector3d leftPlaneNormal(cosAngle, -sinAngle, 0);
+  vtkVector3d rightPlaneNormal(-cosAngle, -sinAngle, 0);
 
   this->RightPlane->SetNormal(rightPlaneNormal.GetData());
   this->LeftPlane->SetNormal(leftPlaneNormal.GetData());
@@ -118,8 +118,8 @@ void vtkFrustum::CalculateVerticalPlanesNormal()
   double cosAngle = std::cos(angleRadians);
   double sinAngle = std::sin(angleRadians);
 
-  vtkVector3d topPlaneNormal(0, sinAngle, -cosAngle);
-  vtkVector3d bottomPlaneNormal(0, sinAngle, cosAngle);
+  vtkVector3d topPlaneNormal(0, -sinAngle, -cosAngle);
+  vtkVector3d bottomPlaneNormal(0, -sinAngle, cosAngle);
 
   this->TopPlane->SetNormal(topPlaneNormal.GetData());
   this->BottomPlane->SetNormal(bottomPlaneNormal.GetData());
