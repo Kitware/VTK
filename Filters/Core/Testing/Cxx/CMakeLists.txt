@@ -109,4 +109,13 @@ set(all_tests
   ${no_vtkm_tests}
   )
 
+if (TARGET VTK::ParallelMPI)
+  set(vtkFiltersCoreCxxTests-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkFiltersCoreCxxTests-MPI mpi_test
+    TestAppendFilterDistributed.cxx,NO_VALID
+  )
+
+  vtk_test_cxx_executable(vtkFiltersCoreCxxTests-MPI mpi_test)
+endif()
+
 vtk_test_cxx_executable(vtkFiltersCoreCxxTests all_tests)
