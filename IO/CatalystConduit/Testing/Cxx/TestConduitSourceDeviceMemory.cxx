@@ -69,7 +69,7 @@
 namespace
 {
 
-vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node, vtkm::Int8 memorySpace)
+vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node)
 {
   vtkNew<vtkConduitSource> source;
   source->SetNode(conduit_cpp::c_node(&node));
@@ -737,7 +737,7 @@ bool ValidateMeshTypeRectilinearImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   vtkm::cont::ArrayHandle<vtkm::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 3, 3, mesh, pointCoords, memorySpace);
-  auto data = Convert(mesh, memorySpace);
+  auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -773,7 +773,7 @@ bool ValidateMeshTypeStructuredImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
   CreateStructuredMesh(3, 3, 3, mesh, pointCoords, memorySpace);
-  auto data = Convert(mesh, memorySpace);
+  auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -813,7 +813,7 @@ bool ValidateMeshTypeUnstructuredImpl(vtkm::Int8 memorySpace)
   vtkm::cont::ArrayHandle<vtkm::Float64> values;
   CreateTrisMesh(3, 3, mesh, pointCoords, connectivity, values, memorySpace);
 
-  auto data = Convert(mesh, memorySpace);
+  auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -848,7 +848,7 @@ bool ValidateRectilinearGridWithDifferentDimensionsImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   vtkm::cont::ArrayHandle<vtkm::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 2, 1, mesh, pointCoords, memorySpace);
-  auto data = Convert(mesh, memorySpace);
+  auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -885,7 +885,7 @@ bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
   field["volume_dependent"] = "false";
   field["values"].set_external(::GetDevicePointer(fieldAH, 0, device), 2);
 
-  auto data = Convert(mesh, memorySpace);
+  auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -916,7 +916,7 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
   CreateMixedUnstructuredMesh(5, 5, 5, mesh, pointCoords, elem_shapes, elem_connectivity,
     elem_sizes, elem_offsets, subelem_shapes, subelem_connectivity, subelem_sizes, subelem_offsets,
     memorySpace);
-  const auto data = Convert(mesh, memorySpace);
+  const auto data = Convert(mesh);
 
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
@@ -1002,7 +1002,7 @@ bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
   std::vector<unsigned int> elem_shapes;
   CreateMixedUnstructuredMesh2D(
     5, 5, mesh, pointCoords, elem_shapes, elem_connectivity, elem_sizes, elem_offsets, memorySpace);
-  const auto data = Convert(mesh, memorySpace);
+  const auto data = Convert(mesh);
 
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
