@@ -16,6 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
@@ -136,8 +137,13 @@ public:
     : Output(output)
   {
     // instantiate any data-structure that needs to be cached for parallel execution.
-    vtkNew<vtkGenericCell> cell;
-    this->Output->GetCell(0, cell);
+    if (auto pd = vtkPolyData::SafeDownCast(this->Output))
+    {
+      if (pd->NeedToBuildCells())
+      {
+        pd->BuildCells();
+      }
+    }
     // initialize min quality
     this->TriangleStats.Min = this->QuadStats.Min = this->TetStats.Min = this->PyrStats.Min =
       this->WedgeStats.Min = this->HexStats.Min = 0;
@@ -381,8 +387,13 @@ public:
     , HexQuality(hexQuality)
   {
     // instantiate any data-structure that needs to be cached for parallel execution.
-    vtkNew<vtkGenericCell> cell;
-    this->Output->GetCell(0, cell);
+    if (auto pd = vtkPolyData::SafeDownCast(this->Output))
+    {
+      if (pd->NeedToBuildCells())
+      {
+        pd->BuildCells();
+      }
+    }
     // initialize min quality
     this->TriangleStats.Min = this->QuadStats.Min = this->TetStats.Min = this->PyrStats.Min =
       this->WedgeStats.Min = this->HexStats.Min = VTK_DOUBLE_MAX;
