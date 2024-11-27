@@ -76,7 +76,7 @@ static int NetCDFTypeToVTKType(nc_type type)
   switch (type)
   {
     case NC_BYTE:
-      return VTK_UNSIGNED_CHAR;
+      return VTK_SIGNED_CHAR;
     case NC_CHAR:
       return VTK_CHAR;
     case NC_SHORT:
@@ -87,6 +87,16 @@ static int NetCDFTypeToVTKType(nc_type type)
       return VTK_FLOAT;
     case NC_DOUBLE:
       return VTK_DOUBLE;
+    case NC_UBYTE:
+      return VTK_UNSIGNED_CHAR;
+    case NC_USHORT:
+      return VTK_UNSIGNED_SHORT;
+    case NC_UINT:
+      return VTK_UNSIGNED_INT;
+    case NC_UINT64:
+      return VTK_UNSIGNED_LONG_LONG;
+    case NC_STRING:
+      return VTK_STRING;
     default:
       vtkGenericWarningMacro(<< "Unknown netCDF variable type " << type);
       return -1;
