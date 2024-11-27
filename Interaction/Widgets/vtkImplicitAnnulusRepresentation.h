@@ -430,8 +430,8 @@ private:
   void TranslateCenter(const vtkVector3d& p1, const vtkVector3d& p2);
   void TranslateCenterOnAxis(const vtkVector3d& p1, const vtkVector3d& p2);
   void ScaleRadii(const vtkVector3d& p1, const vtkVector3d& p2);
-  void AdjustOuterRadius(double X, double Y, const vtkVector3d& p1, const vtkVector3d& p2);
-  void AdjustInnerRadius(double X, double Y, const vtkVector3d& p1, const vtkVector3d& p2);
+  void AdjustOuterRadius(double x, double y, const vtkVector3d& point);
+  void AdjustInnerRadius(double x, double y, const vtkVector3d& point);
   void Scale(const vtkVector3d& p1, const vtkVector3d& p2, double X, double Y);
   void SizeHandles();
 

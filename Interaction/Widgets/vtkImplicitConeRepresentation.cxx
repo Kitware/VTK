@@ -800,25 +800,30 @@ void vtkImplicitConeRepresentation::Scale(
 
 //------------------------------------------------------------------------------
 void vtkImplicitConeRepresentation::AdjustAngle(
-  double vtkNotUsed(X), double Y, const vtkVector3d& p1, const vtkVector3d& p2)
+  double X, double Y, const vtkVector3d& p1, const vtkVector3d& p2)
 {
-  if (Y == this->LastEventPosition[1])
+  if (X == this->LastEventPosition[0] && Y == this->LastEventPosition[1])
   {
     return;
   }
 
-  double angle = this->Cone->GetAngle();
-  vtkVector3d v = p2 - p1; // vector of motion
+  const double prevAngle = vtkMath::RadiansFromDegrees(this->Cone->GetAngle());
+  const double prevCos = std::cos(prevAngle);
 
-  const double angleManipulationFactor = 5.0;
-  double deltaAngle = std::sqrt(v.Dot(v)) * angleManipulationFactor;
+  vtkVector3d origin;
+  this->Cone->GetOrigin(origin.GetData());
 
-  if (Y < this->LastEventPosition[1])
+  vtkVector3d conePoint1 = p1 - origin;
+  const double lenght1 = std::sqrt(conePoint1.Dot(conePoint1));
+  vtkVector3d conePoint2 = p2 - origin;
+  const double lenght2 = std::sqrt(conePoint2.Dot(conePoint2));
+
+  if (lenght2 > 0)
   {
-    deltaAngle *= -1.0;
+    const double newCos = std::min(prevCos * lenght1 / lenght2, 1.);
+    const double newAngle = vtkMath::DegreesFromRadians(std::acos(newCos));
+    this->SetAngle(newAngle);
   }
-
-  this->SetAngle(angle + deltaAngle);
 }
 
 //------------------------------------------------------------------------------

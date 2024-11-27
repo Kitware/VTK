@@ -43,25 +43,22 @@ vtkStandardNewMacro(vtkImplicitAnnulusRepresentation);
 namespace
 {
 /**
- *@brief Compute the delta to apply to the inner or outer radius based on the cursor and event
- *positions
+ * @brief Compute the distance between the point and the axis of the annulus.
  */
-double ComputeDeltaRadius(
-  const vtkVector3d& p1, const vtkVector3d& p2, double currentYPosition, double lastEventYPosition)
+double ComputeDistanceToAxis(vtkAnnulus* annulus, const vtkVector3d& point)
 {
-  vtkVector3d v = p2 - p1; // vector of motion
+  vtkVector3d center;
+  annulus->GetCenter(center.GetData());
 
-  const double radiusManipulationFactor = 0.25;
-  double deltaRadius = std::sqrt(v.Dot(v)) * radiusManipulationFactor;
+  vtkVector3d axis;
+  annulus->GetAxis(axis.GetData());
 
-  if (currentYPosition < lastEventYPosition)
-  {
-    deltaRadius *= -1.0;
-  }
+  vtkVector3d centerToPoint = point - center;
 
-  return deltaRadius;
+  vtkVector3d crossed = axis.Cross(centerToPoint);
+  return crossed.Norm();
 }
-}
+};
 
 //------------------------------------------------------------------------------
 vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
@@ -393,11 +390,11 @@ void vtkImplicitAnnulusRepresentation::WidgetInteraction(double e[2])
       break;
 
     case InteractionStateType::AdjustingInnerRadius:
-      this->AdjustInnerRadius(e[0], e[1], prevAnnulusPickPoint, annulusPickPoint);
+      this->AdjustInnerRadius(e[0], e[1], annulusPickPoint);
       break;
 
     case InteractionStateType::AdjustingOuterRadius:
-      this->AdjustOuterRadius(e[0], e[1], prevAnnulusPickPoint, annulusPickPoint);
+      this->AdjustOuterRadius(e[0], e[1], annulusPickPoint);
       break;
 
     case InteractionStateType::Scaling:
@@ -861,30 +858,29 @@ void vtkImplicitAnnulusRepresentation::Scale(
 
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::AdjustInnerRadius(
-  double vtkNotUsed(X), double Y, const vtkVector3d& p1, const vtkVector3d& p2)
+  double x, double y, const vtkVector3d& point)
 {
-  if (Y == this->LastEventPosition[1])
+  if (x == this->LastEventPosition[0] && y == this->LastEventPosition[1])
   {
     return;
   }
 
-  double radius = this->Annulus->GetInnerRadius();
-  double deltaRadius = ::ComputeDeltaRadius(p1, p2, Y, this->LastEventPosition[1]);
-  this->SetInnerRadius(radius + deltaRadius);
+  double radius = ::ComputeDistanceToAxis(this->Annulus, point);
+
+  this->SetInnerRadius(radius);
 }
 
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::AdjustOuterRadius(
-  double vtkNotUsed(X), double Y, const vtkVector3d& p1, const vtkVector3d& p2)
+  double x, double y, const vtkVector3d& point)
 {
-  if (Y == this->LastEventPosition[1])
+  if (x == this->LastEventPosition[0] && y == this->LastEventPosition[1])
   {
     return;
   }
 
-  double radius = this->Annulus->GetOuterRadius();
-  double deltaRadius = ::ComputeDeltaRadius(p1, p2, Y, this->LastEventPosition[1]);
-  this->SetOuterRadius(radius + deltaRadius);
+  double radius = ::ComputeDistanceToAxis(this->Annulus, point);
+  this->SetOuterRadius(radius);
 }
 
 //------------------------------------------------------------------------------

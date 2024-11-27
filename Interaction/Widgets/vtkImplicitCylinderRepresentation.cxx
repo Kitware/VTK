@@ -917,27 +917,28 @@ void vtkImplicitCylinderRepresentation::Scale(
 
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::AdjustRadius(
-  double vtkNotUsed(X), double Y, double* p1, double* p2)
+  double X, double Y, double* vtkNotUsed(p1), double* point)
 {
-  if (Y == this->LastEventPosition[1])
+  if (X == this->LastEventPosition[0] && Y == this->LastEventPosition[1])
   {
     return;
   }
 
-  double dr, radius = this->Cylinder->GetRadius();
-  double v[3]; // vector of motion
-  v[0] = p2[0] - p1[0];
-  v[1] = p2[1] - p1[1];
-  v[2] = p2[2] - p1[2];
-  double l = sqrt(vtkMath::Dot(v, v));
+  double origin[3];
+  this->Cylinder->GetCenter(origin);
 
-  dr = l / 4;
-  if (Y < this->LastEventPosition[1])
-  {
-    dr *= -1.0;
-  }
+  double axis[3];
+  this->Cylinder->GetAxis(axis);
 
-  this->SetRadius(radius + dr);
+  double centerToPoint[3];
+  centerToPoint[0] = point[0] - origin[0];
+  centerToPoint[1] = point[1] - origin[1];
+  centerToPoint[2] = point[2] - origin[2];
+
+  double crossed[3];
+  vtkMath::Cross(axis, centerToPoint, crossed);
+  this->SetRadius(vtkMath::Norm(crossed));
+
   this->BuildRepresentation();
 }
 
