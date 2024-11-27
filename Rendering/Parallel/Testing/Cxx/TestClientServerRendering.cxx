@@ -69,7 +69,7 @@ private:
 
 protected:
   MyProcess();
-  ~MyProcess();
+  ~MyProcess() override;
   int ImageReductionFactor;
   vtkMultiProcessController* Controller;
 };
