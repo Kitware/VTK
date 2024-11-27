@@ -50,22 +50,30 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
   set(CMAKE_INSTALL_JNILIBDIR "" CACHE STRING "")
   set(JOGL_VERSION "2.3.2" CACHE STRING "")
+  # Naming is <arch-platform> since some maven versions fail to properly parse
+  # the artifact name when numbers are trailing in the classifer name.
+  set(MAVEN_NATIVE_ARTIFACTS "amd64-darwin;arm64-darwin;amd64-linux;amd64-windows" CACHE STRING "" FORCE)
   set(MAVEN_VTK_ARTIFACT_SUFFIX "-java${VTK_JAVA_TARGET_VERSION}" CACHE STRING "")
-  set(MAVEN_VTK_SNAPSHOT "-SNAPSHOT" CACHE STRING "")
+  # Disable snapshots for tag releases and also when the env variable
+  # VTK_JAVA_FORCE_RELEASE is defined through the Gitlab schedule pipeline UI.
+  # Note that VTK_JAVA_FORCE_RELEASE is used to create/override VTK java
+  # releases.
+  if (NOT DEFINED ENV{CI_COMMIT_TAG} AND NOT DEFINED ENV{VTK_JAVA_FORCE_RELEASE})
+    set(MAVEN_VTK_SNAPSHOT "-SNAPSHOT" CACHE STRING "")
+  endif()
   set(VTK_BUILD_TESTING OFF CACHE BOOL "" FORCE)
-  set(VTK_DEBUG_LEAKS OFF CACHE BOOL "" FORCE)
   set(VTK_CUSTOM_LIBRARY_SOVERSION "" CACHE STRING "")
   set(VTK_CUSTOM_LIBRARY_VERSION "" CACHE STRING "")
+  set(VTK_DEBUG_LEAKS OFF CACHE BOOL "" FORCE)
   set(VTK_GROUP_ENABLE_Rendering "YES" CACHE STRING "")
   set(VTK_JAVA_JOGL_COMPONENT "YES" CACHE STRING "")
+  set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "" FORCE)
   set(VTK_MODULE_ENABLE_VTK_TestingCore NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_TestingDataModel NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_TestingGenericBridge NO STRING STRING "")
   set(VTK_MODULE_ENABLE_VTK_TestingIOSQL NO CACHE STRING "")
   set(VTK_MODULE_ENABLE_VTK_TestingRendering NO CACHE STRING "")
-  set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "" FORCE)
   set(VTK_VERSIONED_INSTALL "OFF" CACHE BOOL "" FORCE)
-  set(MAVEN_NATIVE_ARTIFACTS "Darwin-amd64;Darwin-arm64;Linux-amd64;Windows-amd64" CACHE STRING "" FORCE)
 endif()
 
 # qt
