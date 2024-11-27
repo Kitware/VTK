@@ -258,15 +258,12 @@ vtkDataObjectTreeIterator* vtkCompositePolyDataMapper::MakeAnIterator(vtkComposi
 }
 
 //------------------------------------------------------------------------------
-// simple tests, the mapper is tolerant of being
-// called both on opaque and translucent
 bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
 {
-  return true;
+  return !this->HasTranslucentPolygonalGeometry();
 }
 
 //------------------------------------------------------------------------------
-// look at children
 bool vtkCompositePolyDataMapper::HasTranslucentPolygonalGeometry()
 {
   // Make sure that we have been properly initialized.
