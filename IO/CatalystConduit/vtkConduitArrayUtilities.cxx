@@ -29,12 +29,14 @@
 #include "vtkm/cont/DeviceAdapterTag.h"
 #include "vtkmDataArray.h"
 #include "vtkmlib/CellSetConverters.h"
+#if defined(VTK_USE_CUDA)
+#include <cuda_runtime_api.h>
+#endif // VTK_USE_CUDA
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
-#include <cuda_runtime_api.h>
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
