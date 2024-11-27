@@ -874,12 +874,7 @@ void vtkImplicitFrustumRepresentation::AdjustNearPlaneDistance(
 
   vtkVector3d delta = p2 - p1;
   double currentDistance = this->Frustum->GetNearPlaneDistance();
-  double deltaDistance = delta.Norm();
-
-  if (delta.Dot(this->GetForwardAxis()) <= 0)
-  {
-    deltaDistance = -deltaDistance;
-  }
+  double deltaDistance = delta.Dot(this->GetForwardAxis());
 
   // Clamp the near plane so that it's still pickable
   double minNearPlaneDistance = 0.01 * this->Length;
