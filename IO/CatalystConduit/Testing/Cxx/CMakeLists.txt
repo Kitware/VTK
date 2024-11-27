@@ -29,9 +29,7 @@ if (TARGET vtkm::cuda)
   # We are disabling all warnings as nvlink has no known way to suppress
   # individual warning types.
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
-endif()
 
-if (TARGET vtkm::cuda)
   # When cuda is enabled VTK::AcceleratorsVTKmDataModel is built statically but with fpic
   # enabled so the tests are also built with fpic enabled
   set_target_properties(vtkConduitCxxTests PROPERTIES

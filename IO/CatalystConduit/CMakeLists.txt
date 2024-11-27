@@ -1,15 +1,12 @@
 set(classes
   vtkConduitSource
   vtkConduitToDataObject
-  vtkDataObjectToConduit)
-
-if (TARGET vtkm::cuda)
-  list(APPEND classes vtkConduitArrayUtilities)
-endif()
+  vtkDataObjectToConduit
+  vtkConduitArrayUtilities
+)
 
 vtk_module_add_module(VTK::IOCatalystConduit
-  CLASSES ${classes}
-  NOWRAP_CLASSES ${nowrap_classes})
+  CLASSES ${classes})
 
 if (VTK_KOKKOS_BACKEND STREQUAL "HIP")
   set(VTK_KOKKOS_BACKEND_HIP 1)
@@ -28,9 +25,7 @@ if (TARGET vtkm::cuda)
   # individual warning types.
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 
-  list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE nowrap_sources)
-  set(cuda_impl ${nowrap_sources})
-  set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(vtkConduitArrayUtilities PROPERTIES LANGUAGE CUDA)
 
   vtk_module_set_properties(VTK::IOCatalystConduit
     CUDA_SEPARABLE_COMPILATION ON)
