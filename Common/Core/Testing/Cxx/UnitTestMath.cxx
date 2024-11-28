@@ -603,21 +603,27 @@ int TestBinomial()
   std::vector<int> mvalues;
   std::vector<int> nvalues;
 
+  // Accumulate Pascal's triangle so that the expected values are exact. These
+  // used to be computed with the same running product of doubles that Binomial()
+  // itself used, which only checked that the two agreed - including where both
+  // were wrong. Truncating that product loses one whenever it lands just below
+  // an integer, so Binomial(11, 11) was "expected" to be 0 rather than 1.
   std::vector<vtkTypeInt64> expecteds;
-  double expected;
+  std::vector<vtkTypeInt64> previousRow{ 1 };
   for (m = 1; m < 31; ++m)
   {
+    std::vector<vtkTypeInt64> row(m + 1, 1);
+    for (n = 1; n < m; ++n)
+    {
+      row[n] = previousRow[n - 1] + previousRow[n];
+    }
     for (n = 1; n <= m; ++n)
     {
       mvalues.push_back(m);
       nvalues.push_back(n);
-      expected = 1;
-      for (int i = 1; i <= n; ++i)
-      {
-        expected *= static_cast<double>(m - i + 1) / i;
-      }
-      expecteds.push_back(static_cast<vtkTypeInt64>(expected));
+      expecteds.push_back(row[n]);
     }
+    previousRow = row;
   }
 
   for (size_t i = 0; i < mvalues.size(); ++i)
