@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkXMLMultiBlockDataReader.h>
+
 #include "vtkAxisAlignedReflectionFilter.h"
 #include "vtkCellData.h"
 #include "vtkDataAssembly.h"
@@ -281,7 +283,7 @@ int TestHyperTreeGrid(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
-int TestCompositeData(int argc, char* argv[])
+int TestPartitionedDataSetCollection(int argc, char* argv[])
 {
   ReadFileMacro("Data/sphereMirror.vtpc", vtkXMLPartitionedDataSetCollectionReader);
 
@@ -302,25 +304,14 @@ int TestCompositeData(int argc, char* argv[])
   AssertMacro(strcmp(assembly->GetNodeName(reflectionId), "Reflection") == 0,
     output->GetClassName(), "Incorrect assembly");
 
-  int inputCompositeId = assembly->GetChild(inputId, 0);
-  int reflectionCompositeId = assembly->GetChild(reflectionId, 0);
-  AssertMacro(strcmp(assembly->GetNodeName(inputCompositeId), "Composite") == 0,
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 0)), "Input") == 0,
     output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(reflectionCompositeId), "Composite") == 0,
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 1)), "Reflection") == 0,
     output->GetClassName(), "Incorrect assembly");
 
-  AssertMacro(
-    strcmp(assembly->GetNodeName(assembly->GetChild(inputCompositeId, 0)), "Input_Input") == 0,
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 0)), "Input") == 0,
     output->GetClassName(), "Incorrect assembly");
-  AssertMacro(
-    strcmp(assembly->GetNodeName(assembly->GetChild(inputCompositeId, 1)), "Input_Reflection") == 0,
-    output->GetClassName(), "Incorrect assembly");
-
-  AssertMacro(
-    strcmp(assembly->GetNodeName(assembly->GetChild(reflectionCompositeId, 0)), "Input") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(
-    strcmp(assembly->GetNodeName(assembly->GetChild(reflectionCompositeId, 1)), "Reflection") == 0,
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 1)), "Reflection") == 0,
     output->GetClassName(), "Incorrect assembly");
 
   AssertMacro(output->GetNumberOfPartitionedDataSets() == 4, output->GetClassName(),
@@ -335,11 +326,81 @@ int TestCompositeData(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
+int TestMultiBlockMultiPiece(int argc, char* argv[])
+{
+  ReadFileMacro("Data/mb-of-mps.vtm", vtkXMLMultiBlockDataReader);
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output =
+    Reflect(reader->GetOutputPort(), true, true, vtkAxisAlignedReflectionFilter::X_MIN);
+
+  vtkDataAssembly* assembly = output->GetDataAssembly();
+
+  int rootId = assembly->GetRootNode();
+
+  int inputId = assembly->GetChild(rootId, 0);
+  int reflectionId = assembly->GetChild(rootId, 1);
+
+  AssertMacro(strcmp(assembly->GetNodeName(inputId), "Input") == 0, output->GetClassName(),
+    "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(reflectionId), "Reflection") == 0,
+    output->GetClassName(), "Incorrect assembly");
+
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 0)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 1)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 2)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 0)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 1)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 2)), "Composite") == 0,
+    output->GetClassName(), "Incorrect assembly");
+
+  return EXIT_SUCCESS;
+}
+
+int TestMultiBlockOnlyDataSets(int argc, char* argv[])
+{
+  ReadFileMacro("Data/distTest.vtm", vtkXMLMultiBlockDataReader);
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output =
+    Reflect(reader->GetOutputPort(), true, true, vtkAxisAlignedReflectionFilter::X_MIN);
+
+  vtkDataAssembly* assembly = output->GetDataAssembly();
+
+  int rootId = assembly->GetRootNode();
+
+  int inputId = assembly->GetChild(rootId, 0);
+  int reflectionId = assembly->GetChild(rootId, 1);
+
+  AssertMacro(strcmp(assembly->GetNodeName(inputId), "Input") == 0, output->GetClassName(),
+    "Incorrect assembly");
+  AssertMacro(strcmp(assembly->GetNodeName(reflectionId), "Reflection") == 0,
+    output->GetClassName(), "Incorrect assembly");
+
+  for (int i = 0; i < 10; i++)
+  {
+    std::string inputCorrect = "Input_" + std::to_string(i);
+    AssertMacro(
+      strcmp(assembly->GetNodeName(assembly->GetChild(inputId, i)), inputCorrect.c_str()) == 0,
+      output->GetClassName(), "Incorrect assembly");
+    std::string reflectionCorrect = "Reflection_" + std::to_string(i);
+    AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, i)),
+                  reflectionCorrect.c_str()) == 0,
+      output->GetClassName(), "Incorrect assembly");
+  }
+
+  return EXIT_SUCCESS;
+}
+
 // This function tests all the input types, and each input type will test a different plane mode.
 int TestAxisAlignedReflectionFilter(int argc, char* argv[])
 {
   return TestUnstructuredGrid(argc, argv) || TestImageData(argc, argv) ||
     TestRectilinearGrid(argc, argv) || TestExplicitStructuredGrid(argc, argv) ||
     TestStructuredGrid(argc, argv) || TestPolyData(argc, argv) || TestHyperTreeGrid(argc, argv) ||
-    TestCompositeData(argc, argv);
+    TestPartitionedDataSetCollection(argc, argv) || TestMultiBlockMultiPiece(argc, argv) ||
+    TestMultiBlockOnlyDataSets(argc, argv);
 }

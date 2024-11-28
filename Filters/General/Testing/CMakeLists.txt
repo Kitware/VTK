@@ -8,9 +8,11 @@ vtk_module_test_data(
   Data/2DScalar.vti
   Data/can.vtu
   Data/cow.vtp
+  Data/distTest.vtm
   Data/explicitStructuredGrid.vtu
   Data/fullhead15.png
   Data/hexa.vtk
+  Data/mb-of-mps.vtm
   Data/mine_with_dates.vtp
   Data/quadraticTetra01.vtu
   Data/rectGrid.vtr
