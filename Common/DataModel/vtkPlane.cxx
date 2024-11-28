@@ -199,6 +199,7 @@ void vtkPlane::Push(double distance)
   {
     this->Origin[i] += distance * this->InternalNormal[i];
   }
+  this->ComputeInternalOrigin();
   this->Modified();
 }
 

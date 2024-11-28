@@ -134,6 +134,32 @@ int TestPlane(int, char*[])
     }
   }
 
+  // Test Push
+  {
+    vtkSmartPointer<vtkPlane> plane = vtkSmartPointer<vtkPlane>::New();
+    plane->SetOrigin(5.0, 5.0, 5.0);
+    plane->SetNormal(1.0, 0.0, 0.0);
+    plane->SetAxisAligned(true);
+
+    double x[3] = { 5.0, 5.0, 5.0 };
+    double res = plane->EvaluateFunction(x);
+
+    if (!fuzzyCompare1D(res, 0.0))
+    {
+      std::cerr << "Push failed! Should be 0.0 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    plane->Push(1.0);
+    res = plane->EvaluateFunction(x);
+
+    if (!fuzzyCompare1D(res, -1.0))
+    {
+      std::cerr << "Push failed! Should be -1.0 but is " << res << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
   {
     vtkNew<vtkPlane> plane;
     plane->SetOrigin(0.0, 0.0, 0.0);
