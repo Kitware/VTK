@@ -188,7 +188,6 @@ void vtkGenericOpenGLRenderWindow::Render()
 {
   if (this->ReadyForRendering)
   {
-    vtkOpenGLCheckErrorMacro("error before running VTK rendering code");
     if (!this->Initialized)
     {
       this->OpenGLInit();
@@ -200,6 +199,7 @@ void vtkGenericOpenGLRenderWindow::Render()
     }
     else
     {
+      vtkOpenGLCheckErrorMacro("error before running VTK rendering code");
       // Query current GL state and store them
       auto state = this->GetState();
       state->Reset();
@@ -209,8 +209,8 @@ void vtkGenericOpenGLRenderWindow::Render()
 
       // Restore state to previous known value
       state->Pop();
+      vtkOpenGLCheckErrorMacro("error after running VTK rendering code");
     }
-    vtkOpenGLCheckErrorMacro("error after running VTK rendering code");
   }
 }
 
