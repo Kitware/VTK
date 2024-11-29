@@ -52,7 +52,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(JOGL_VERSION "2.3.2" CACHE STRING "")
   # Naming is <arch-platform> since some maven versions fail to properly parse
   # the artifact name when numbers are trailing in the classifer name.
-  set(MAVEN_NATIVE_ARTIFACTS "amd64-darwin;arm64-darwin;amd64-linux;amd64-windows" CACHE STRING "" FORCE)
+  set(MAVEN_NATIVE_ARTIFACTS "darwin-amd;darwin-arm;linux-amd;windows-amd" CACHE STRING "" FORCE)
   set(MAVEN_VTK_ARTIFACT_SUFFIX "-java${VTK_JAVA_TARGET_VERSION}" CACHE STRING "")
   # Disable snapshots for tag releases and also when the env variable
   # VTK_JAVA_FORCE_RELEASE is defined through the Gitlab schedule pipeline UI.
