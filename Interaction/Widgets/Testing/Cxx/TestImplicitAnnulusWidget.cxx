@@ -532,6 +532,23 @@ int TestImplicitAnnulusWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   rep->SetPlaceFactor(1.25);
   rep->PlaceWidget(glyph->GetOutput()->GetBounds());
 
+  const double inner = rep->GetInnerRadius();
+  const double outer = rep->GetOuterRadius();
+
+  if (inner > outer)
+  {
+    vtkLog(ERROR, "Inner radius is expected to be lower than outer one.");
+  }
+
+  const double newInner = outer + 1;
+  rep->SetInnerRadius(newInner);
+  if (newInner != rep->GetInnerRadius())
+  {
+    vtkLog(ERROR, "Getter should return previously set value");
+  }
+  // restore for further testing.
+  rep->SetInnerRadius(inner);
+
   vtkNew<vtkImplicitAnnulusWidget> annulusWidget;
   annulusWidget->SetInteractor(interactor);
   annulusWidget->SetRepresentation(rep);
