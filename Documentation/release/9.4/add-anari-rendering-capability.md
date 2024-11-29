@@ -10,4 +10,4 @@ Here's the list of other publicly available back-ends:
 * [Intel OSPRay](https://github.com/ospray/anari-ospray)
 * [NVIDIA USD](https://github.com/NVIDIA-Omniverse/AnariUsdDevice)
 
-> :warning: Before using any back-end, check that the version is compatible with **ANARI-SDK version 0.9.1**.
+> ⚠️ Before using any back-end, check that the version is compatible with **ANARI-SDK version 0.9.1**.
