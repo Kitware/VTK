@@ -1097,6 +1097,71 @@ override.  For example, on Windows,
 Please see [Subclassing a VTK Class](#subclassing-a-vtk-class) for restrictions on
 subclassing VTK classes through Python.
 
+### Overrides and initialization
+
+The previous section contained examples of when an overridden VTK class is
+instantiated in Python.  A more interesting case is when the overridden
+class is instantiated in C++ and then, sometime later, becomes visible to
+the Python interpreter:
+
+    from vtkmodules.vtkImagingSources import vtkImageGridSource
+    from vtkmodules.vtkCommonDataModel import vtkImageData
+
+    @vtkImageData.override
+    class CustomImageData(vtkImageData):
+        def __init__(self, filename=None):
+            self.filename = filename
+
+    source = vtkImageGridSource()
+    source.SetDataSpacing(0.1, 0.1, 0.1)
+    source.Update()
+    data = source.GetOutput()
+
+In this example, the vtkImageData object is created by vtkImageGridSource.
+At the time of its creation, it is a C++ object and Python is unaware that
+it has been created.  The corresponding Python object is not created until
+`source.GetOutput()` is called and returns the object.  It is specifically
+at this point that the override mechanism kicks in.  The C++ object remains
+the same, but the Python wrapper around that object is instantiated from the
+override class.  This exemplifies the dual nature of VTK-Python objects.
+
+The automatic creation of the Python wrapper object is usually transparent,
+and is something that we take for granted.  However, one must be aware that
+the creation of the wrapper object involves calling its `__init__()` method,
+which can have unwanted side-effects if the C++ object itself is no longer
+in its initial state.  In the example above, the vtkImageData object will
+already have been modified by the vtkImageGridSource before the `__init__()`
+method adds the new `filename` attribute.
+
+A situation that we want to avoid, and which is only possible for override
+classes, is when the Python `__init__()` method modifies attributes of the
+pre-existing C++ object:
+
+    @vtkImageData.override
+    class CustomImageData(vtkImageData):
+        def __init__(self, spacing=(1.0, 1.0, 1.0)):
+            self.SetSpacing(spacing)
+
+Even though the vtkImageData object has already had its C++ attributes set by
+the vtkImageGridSource prior to the call to `__init__()`, this override will
+forcibly reset the spacing upon the call to `source.GetOutput()`.  This is
+not what we want!  In fact, the Python wrappers will raise a RuntimError
+warning when this occurs:
+
+    >>> data = source.GetOutput()
+    RuntimeWarning: Python method CustomImageData.__init__() unexpectedly
+    modified pre-existing C++ base object vtkImageData (0x563cf7ddaf20).
+
+During the automated creation of a Python wrapper for a pre-existing C++
+object, `__init__()` is always called with no parameters, so the goal is
+to ensure that default construction never modifies the C++ object.  This
+can be done by making all modifications conditional:
+
+    @vtkImageData.override
+    class CustomImageData(vtkImageData):
+        def __init__(self, spacing=None):
+            if spacing is not None:
+                self.SetSpacing(spacing)
 
 ### Stub Files for Type Hinting
 
