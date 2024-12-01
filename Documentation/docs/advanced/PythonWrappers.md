@@ -1042,9 +1042,9 @@ collector runs).
 It is possible to subclass a VTK class from within Python, but this is of
 limited use because the C++ virtual methods are not hooked to the Python
 methods.  In other words, if you make a subclass of `vtkPolyDataAlgorithm`
-and override override the `Execute()` method, it will not be automatically
-called by the VTK pipeline. Your `Execute()` method will only be called if
-the call is made from Python.
+and override the `Execute()` method, it will not be automatically called by
+the VTK pipeline. Your `Execute()` method will only be called if the call is
+made from Python.
 
 The addition of virtual method hooks to the wrappers has been proposed,
 but currently the only way for Python methods to be called from C++ code
@@ -1084,18 +1084,19 @@ not impact instantiations that have already occurred.
 
     vtkPoints.override(None)
 
-If the class has already been overridden in C++ via VTK's object factory
-mechanism, then directly applying a Python override to that class will not
-work.  Instead, the Python override must be applied to the C++ factory
-override.  For example, on Windows,
+If a class is already overridden in C++ via VTK's object factory mechanism,
+for example the vtkWin32OpenGLRenderWindow override for vtkRenderWindow,
+then directly applying a Python override to the original class will not
+work.  However, the Python override can be chained to the C++ override class.
+For example, here is a chained override of vtkRenderWindow on Windows:
 
     @vtkWin32OpenGLRenderWindow.override
     class CustomRenderWindow(vtkWin32OpenGLRenderWindow):
         ...
     window = vtkRenderWindow() # creates a CustomRenderWindow
 
-Please see [Subclassing a VTK Class](#subclassing-a-vtk-class) for restrictions on
-subclassing VTK classes through Python.
+Please see [Subclassing a VTK Class](#subclassing-a-vtk-class) for additional
+restrictions on subclassing VTK classes through Python.
 
 ### Overrides and initialization
 
