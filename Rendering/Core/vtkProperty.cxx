@@ -127,11 +127,14 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetSpecularColor(p->GetSpecularColor());
     this->SetEdgeColor(p->GetEdgeColor());
     this->SetVertexColor(p->GetVertexColor());
+    this->SetSelectionColor(p->GetSelectionColor());
     this->SetAmbient(p->GetAmbient());
     this->SetDiffuse(p->GetDiffuse());
     this->SetSpecular(p->GetSpecular());
     this->SetSpecularPower(p->GetSpecularPower());
     this->SetOpacity(p->GetOpacity());
+    this->SetEdgeOpacity(p->GetEdgeOpacity());
+    this->SetEdgeTint(p->GetEdgeTint());
     this->SetInterpolation(p->GetInterpolation());
     this->SetRepresentation(p->GetRepresentation());
     this->SetEdgeVisibility(p->GetEdgeVisibility());
@@ -140,6 +143,10 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetFrontfaceCulling(p->GetFrontfaceCulling());
     this->SetPointSize(p->GetPointSize());
     this->SetLineWidth(p->GetLineWidth());
+    this->SetEdgeWidth(p->GetEdgeWidth());
+    this->SetSelectionPointSize(p->GetSelectionPointSize());
+    this->SetSelectionLineWidth(p->GetSelectionLineWidth());
+    this->SetUseLineWidthForEdgeThickness(p->GetUseLineWidthForEdgeThickness());
     this->SetLineStipplePattern(p->GetLineStipplePattern());
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetLighting(p->GetLighting());
@@ -160,7 +167,9 @@ void vtkProperty::DeepCopy(vtkProperty* p)
     this->SetCoatStrength(p->GetCoatStrength());
     this->SetCoatNormalScale(p->GetCoatNormalScale());
     this->SetCoatColor(p->GetCoatColor());
+    this->SetEmissiveFactor(p->GetEmissiveFactor());
     this->SetShowTexturesOnBackface(p->GetShowTexturesOnBackface());
+    this->SetMaterialName(p->GetMaterialName());
 
     this->RemoveAllTextures();
     auto iter = p->Textures.begin();
