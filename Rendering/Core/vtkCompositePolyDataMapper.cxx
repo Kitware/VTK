@@ -85,13 +85,7 @@ vtkCompositePolyDataMapper::vtkCompositePolyDataMapper()
 }
 
 //------------------------------------------------------------------------------
-vtkCompositePolyDataMapper::~vtkCompositePolyDataMapper()
-{
-  this->SetPointIdArrayName(nullptr);
-  this->SetCellIdArrayName(nullptr);
-  this->SetProcessIdArrayName(nullptr);
-  this->SetCompositeIdArrayName(nullptr);
-}
+vtkCompositePolyDataMapper::~vtkCompositePolyDataMapper() = default;
 
 //------------------------------------------------------------------------------
 // Specify the type of data this mapper can handle. If we are
@@ -175,10 +169,7 @@ void vtkCompositePolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
   {
     this->SetCompositeDataDisplayAttributes(cpdm->GetCompositeDataDisplayAttributes());
     this->SetColorMissingArraysWithNanColor(cpdm->GetColorMissingArraysWithNanColor());
-    this->SetCellIdArrayName(cpdm->GetCellIdArrayName());
     this->SetCompositeIdArrayName(cpdm->GetCompositeIdArrayName());
-    this->SetPointIdArrayName(cpdm->GetPointIdArrayName());
-    this->SetProcessIdArrayName(cpdm->GetProcessIdArrayName());
   }
   // Now do superclass
   this->vtkPolyDataMapper::ShallowCopy(mapper);

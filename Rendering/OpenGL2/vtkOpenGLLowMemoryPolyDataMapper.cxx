@@ -2764,9 +2764,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
 
     if (sel->GetUseProcessIdFromData())
     {
-      processArray = !this->ProcessIdArrayName.empty()
-        ? pd->GetArray(this->ProcessIdArrayName.c_str())
-        : nullptr;
+      processArray = this->ProcessIdArrayName ? pd->GetArray(this->ProcessIdArrayName) : nullptr;
     }
 
     // do we need to do anything to the process pass data?
@@ -2788,8 +2786,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
 
   if (currPass == vtkHardwareSelector::POINT_ID_LOW24)
   {
-    vtkIdTypeArray* pointArrayId = !this->PointIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(pd->GetArray(this->PointIdArrayName.c_str()))
+    vtkIdTypeArray* pointArrayId = this->PointIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(pd->GetArray(this->PointIdArrayName))
       : nullptr;
 
     // do we need to do anything to the point id data?
@@ -2820,8 +2818,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
 
   if (currPass == vtkHardwareSelector::POINT_ID_HIGH24)
   {
-    vtkIdTypeArray* pointArrayId = !this->PointIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(pd->GetArray(this->PointIdArrayName.c_str()))
+    vtkIdTypeArray* pointArrayId = this->PointIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(pd->GetArray(this->PointIdArrayName))
       : nullptr;
 
     // do we need to do anything to the point id data?
@@ -2855,9 +2853,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
   {
     unsigned char* compositedata = sel->GetPixelBuffer(vtkHardwareSelector::COMPOSITE_INDEX_PASS);
 
-    vtkDataArray* compositeArray = !this->CompositeIdArrayName.empty()
-      ? cd->GetArray(this->CompositeIdArrayName.c_str())
-      : nullptr;
+    vtkDataArray* compositeArray =
+      this->CompositeIdArrayName ? cd->GetArray(this->CompositeIdArrayName) : nullptr;
 
     if (compositedata && (compositeArray && compositeArray->GetDataType() == VTK_UNSIGNED_INT) &&
       rawclowdata)
@@ -2877,8 +2874,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
   // process the cellid array?
   if (currPass == vtkHardwareSelector::CELL_ID_LOW24)
   {
-    vtkIdTypeArray* cellArrayId = !this->CellIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(cd->GetArray(this->CellIdArrayName.c_str()))
+    vtkIdTypeArray* cellArrayId = this->CellIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(cd->GetArray(this->CellIdArrayName))
       : nullptr;
     unsigned char* clowdata = sel->GetPixelBuffer(vtkHardwareSelector::CELL_ID_LOW24);
 
@@ -2911,8 +2908,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ProcessSelectorPixelBuffers(
 
   if (currPass == vtkHardwareSelector::CELL_ID_HIGH24)
   {
-    vtkIdTypeArray* cellArrayId = !this->CellIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(cd->GetArray(this->CellIdArrayName.c_str()))
+    vtkIdTypeArray* cellArrayId = this->CellIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(cd->GetArray(this->CellIdArrayName))
       : nullptr;
     unsigned char* chighdata = sel->GetPixelBuffer(vtkHardwareSelector::CELL_ID_HIGH24);
 
@@ -2955,9 +2952,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* re
   vtkIdType maxPointId = mesh->GetPoints()->GetNumberOfPoints() - 1;
   if (mesh && mesh->GetPointData())
   {
-    vtkIdTypeArray* pointArrayId = !this->PointIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(
-          mesh->GetPointData()->GetArray(this->PointIdArrayName.c_str()))
+    vtkIdTypeArray* pointArrayId = this->PointIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(mesh->GetPointData()->GetArray(this->PointIdArrayName))
       : nullptr;
     if (pointArrayId)
     {
@@ -2973,9 +2969,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* re
   vtkIdType maxCellId = mesh->GetNumberOfCells() - 1;
   if (mesh && mesh->GetCellData())
   {
-    vtkIdTypeArray* cellArrayId = !this->CellIdArrayName.empty()
-      ? vtkArrayDownCast<vtkIdTypeArray>(
-          mesh->GetCellData()->GetArray(this->CellIdArrayName.c_str()))
+    vtkIdTypeArray* cellArrayId = this->CellIdArrayName
+      ? vtkArrayDownCast<vtkIdTypeArray>(mesh->GetCellData()->GetArray(this->CellIdArrayName))
       : nullptr;
     if (cellArrayId)
     {

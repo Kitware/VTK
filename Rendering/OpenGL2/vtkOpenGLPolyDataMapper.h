@@ -93,45 +93,6 @@ public:
   // other polydata (not the input)
   vtkPolyData* CurrentInput;
 
-  ///@{
-  /**
-   * By default, this class uses the dataset's point and cell ids during
-   * rendering. However, one can override those by specifying cell and point
-   * data arrays to use instead. Currently, only vtkIdType array is supported.
-   * Set to NULL string (default) to use the point ids instead.
-   */
-  vtkSetStringMacro(PointIdArrayName);
-  vtkGetStringMacro(PointIdArrayName);
-  vtkSetStringMacro(CellIdArrayName);
-  vtkGetStringMacro(CellIdArrayName);
-  ///@}
-
-  ///@{
-  /**
-   * If this class should override the process id using a data-array,
-   * set this variable to the name of the array to use. It must be a
-   * point-array.
-   * The array's DataType *MUST* be VTK_UNSIGNED_INT.
-   */
-  vtkSetStringMacro(ProcessIdArrayName);
-  vtkGetStringMacro(ProcessIdArrayName);
-  ///@}
-
-  ///@{
-  /**
-   * Generally, this class can render the composite id when iterating
-   * over composite datasets. However in some cases (as in AMR), the rendered
-   * structure may not correspond to the input data, in which case we need
-   * to provide a cell array that can be used to render in the composite id in
-   * selection passes. Set to NULL (default) to not override the composite id
-   * color set by vtkCompositePainter if any.
-   * The array *MUST* be a cell array.
-   * The array's DataType *MUST* be VTK_UNSIGNED_INT.
-   */
-  vtkSetStringMacro(CompositeIdArrayName);
-  vtkGetStringMacro(CompositeIdArrayName);
-  ///@}
-
   /**
    * Make a shallow copy of this mapper.
    */
@@ -459,12 +420,6 @@ protected:
   vtkOpenGLBufferObject* EdgeBuffer;
   std::vector<unsigned char> EdgeValues;
   virtual bool DrawingEdges(vtkRenderer*, vtkActor*);
-
-  // additional picking indirection
-  char* PointIdArrayName;
-  char* CellIdArrayName;
-  char* ProcessIdArrayName;
-  char* CompositeIdArrayName;
 
   class ExtraAttributeValue
   {
