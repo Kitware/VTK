@@ -1,12 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <vtkAppendDataSets.h>
+#include <vtkActor.h>
 #include <vtkAppendFilter.h>
 #include <vtkCellArray.h>
 #include <vtkCleanPolyData.h>
 #include <vtkPointData.h>
-#include <vtkSmartPointer.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkRegressionTestImage.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLPPolyDataReader.h>
@@ -52,6 +56,16 @@ int TestCleanPolyDataWithGhostCells(int argc, char* argv[])
   reader->Update();
   delete[] fileName;
 
+  vtkNew<vtkAppendFilter> appendFilter;
+  appendFilter->SetInputData(reader->GetOutput());
+  appendFilter->SetMergePoints(true);
+  appendFilter->Update();
+
+  if (!CheckOutput(vtkUnstructuredGrid::SafeDownCast(appendFilter->GetOutput())))
+  {
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkCleanPolyData> cleanPolyData;
   cleanPolyData->SetInputData(reader->GetOutput());
   cleanPolyData->SetPointMerging(false);
@@ -84,15 +98,30 @@ int TestCleanPolyDataWithGhostCells(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkAppendFilter> appendFilter;
-  appendFilter->SetInputData(reader->GetOutput());
-  appendFilter->SetMergePoints(true);
-  appendFilter->Update();
+  vtkNew<vtkPolyDataMapper> mapper;
+  mapper->SetInputConnection(cleanPolyData->GetOutputPort());
 
-  if (!CheckOutput(vtkUnstructuredGrid::SafeDownCast(appendFilter->GetOutput())))
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+
+  vtkNew<vtkRenderer> ren;
+  ren->AddActor(actor);
+
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->AddRenderer(ren);
+
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
+
+  iren->Initialize();
+
+  renWin->Render();
+
+  int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
-    return EXIT_FAILURE;
+    iren->Start();
   }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

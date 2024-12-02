@@ -20,7 +20,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestCenterOfMass.cxx,NO_VALID
   TestCleanPolyData.cxx,NO_VALID
   TestCleanPolyData2.cxx,NO_VALID
-  TestCleanPolyDataWithGhostCells.cxx,NO_VALID
+  TestCleanPolyDataWithGhostCells.cxx
   TestClipPolyData.cxx,NO_VALID
   TestCompositeDataProbeFilterWithHyperTreeGrid.cxx
   TestConnectivityFilter.cxx,NO_VALID
