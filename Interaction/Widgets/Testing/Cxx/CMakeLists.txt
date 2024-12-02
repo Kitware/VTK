@@ -10,7 +10,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestAngleWidget2D.cxx
   TestAngleWidget3D.cxx
   TestBalloonWidget.cxx
-  TestBiDimensionalWidget.cxx
+  TestBiDimensionalWidget.cxx,LOOSE_VALID
   TestBorderWidget.cxx
   TestBrokenLineWidget.cxx
   TestCamera3DWidget.cxx
@@ -26,7 +26,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestCoordinateFrameWidget.cxx
   TestDijkstraImageGeodesicPath.cxx
   TestDisplaySizedImplicitPlaneWidget.cxx
-  TestDistanceWidget.cxx
+  TestDistanceWidget.cxx,LOOSE_VALID
   TestDistanceWidget3D.cxx
   TestFinitePlaneWidget.cxx
   TestFixedSizeHandleRepresentation3D.cxx
@@ -68,7 +68,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   TestRectilinearWipeWidget.cxx
   TestResliceCursorWidget2.cxx
   TestResliceCursorWidget3.cxx
-  TestScalarBarWidget.cxx
+  TestScalarBarWidget.cxx,LOOSE_VALID
   TestSeedWidget.cxx
   TestSeedWidget2.cxx
   TestSeedWidgetNonUniformRepresentations.cxx

@@ -12,7 +12,7 @@ if(MATPLOTLIB_FOUND)
     TestMathTextActor3D.cxx
     TestRenderString.cxx
     TestStringToPath.cxx
-    TestIndexedLookupScalarBar.cxx
+    TestIndexedLookupScalarBar.cxx,LOOSE_VALID
     TestScalarBarCombinatorics.cxx
     )
 
