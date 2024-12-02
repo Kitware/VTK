@@ -29,7 +29,7 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkThresholdPoints vtkThresholdTextureCoords
+ * vtkThresholdPoints vtkThresholdTextureCoords, vtkMultiThreshold, vtkSplitByCellScalarFilter
  */
 
 #ifndef vtkThreshold_h

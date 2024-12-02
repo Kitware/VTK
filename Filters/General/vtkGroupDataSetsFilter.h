@@ -13,6 +13,8 @@
  *
  * This is a more generic version of `vtkMultiBlockDataGroupFilter` and should
  * be preferred.
+ *
+ * @sa vtkMergeBlocks vtkExtractBlock
  */
 
 #ifndef vtkGroupDataSetsFilter_h

@@ -12,6 +12,7 @@
  * vtkPartitionedDataSet (and vtkMultiPieceDataSet) blocks will be merged, thus
  * largely preserving the tree structure.
  *
+ * @sa vtkGroupDataSetsFilter
  */
 
 #ifndef vtkMergeBlocks_h

@@ -83,6 +83,7 @@
  * \enddot
  *
  * The filled rectangles represent sets that are output.
+ * @sa vtkThreshold, vtkSplitByScalarFilter
  */
 
 #ifndef vtkMultiThreshold_h
