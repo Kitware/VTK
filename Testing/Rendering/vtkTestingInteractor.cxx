@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTestingInteractor.h"
+
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
@@ -17,7 +19,7 @@ vtkStandardNewMacro(vtkTestingInteractor);
 vtkCxxSetSmartPointerMacro(vtkTestingInteractor, Controller, vtkMultiProcessController);
 
 int vtkTestingInteractor::TestReturnStatus = -1;
-double vtkTestingInteractor::ErrorThreshold = 10.0;
+double vtkTestingInteractor::ErrorThreshold = vtkRegressionTester::ErrorThreshold;
 std::string vtkTestingInteractor::ValidBaseline;
 std::string vtkTestingInteractor::TempDirectory;
 std::string vtkTestingInteractor::DataDirectory;
