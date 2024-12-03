@@ -12,18 +12,20 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-int TestManyActorsOneMapper(int argc, char* argv[])
+// In this unit test, there are 4 actors, each connected to a mapper. All mappers share a common
+// source.
+int TestNActorsNMappersOneInput(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
+  renWin->SetSize(800, 800);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> renderer;
+  renderer->SetBackground(1.0, 1.0, 1.0);
   renWin->AddRenderer(renderer);
 
   vtkNew<vtkConeSource> cone;
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(cone->GetOutputPort());
 
   double x = 0.0, y = 0.0, z = 0.0;
   double spacingX = 2.0, spacingY = 2.0, spacingZ = 2.0;
@@ -34,13 +36,16 @@ int TestManyActorsOneMapper(int argc, char* argv[])
       for (int i = 0; i < 8; ++i)
       {
         x += spacingX;
+        vtkNew<vtkPolyDataMapper> mapper;
+        mapper->SetInputConnection(cone->GetOutputPort());
         vtkNew<vtkActor> actor;
         actor->SetMapper(mapper);
         mapper->Update();
         mapper->SetStatic(1);
         actor->GetProperty()->SetEdgeVisibility(true);
         actor->GetProperty()->SetLineWidth(2);
-        actor->GetProperty()->SetEdgeColor(1.0, 0.0, 0.0);
+        actor->GetProperty()->SetEdgeColor((8.0 - j) / 8.0, k / 16.0, i / 8.0);
+        actor->GetProperty()->SetDiffuseColor(i / 8.0, (8.0 - j) / 8.0, k / 16.0);
         actor->SetPosition(x, y, z);
         renderer->AddActor(actor);
       }
@@ -52,7 +57,6 @@ int TestManyActorsOneMapper(int argc, char* argv[])
   }
 
   renderer->ResetCamera();
-  renderer->SetBackground(0.1, 0.1, 0.1);
   renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;

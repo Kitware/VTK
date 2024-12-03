@@ -57,6 +57,11 @@ public:
   };
 
   /**
+   * Clear the image to the background color.
+   */
+  void Clear() override;
+
+  /**
    * Create an image.
    */
   void DeviceRender() override;

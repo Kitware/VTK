@@ -303,14 +303,14 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
           wgpuConfiguration, mesh, /*representation=*/VTK_POINTS);
       }
       // setup graphics pipeline
-      if (this->GetNeedToRebuildGraphicsPipelines(actor))
+      if (this->GetNeedToRebuildGraphicsPipelines(actor, renderer))
       {
         // render bundle must reference new bind groups and/or pipelines
         wgpuRenderer->InvalidateBundle();
         this->SetupGraphicsPipelines(device, renderer, actor);
       }
       // invalidate render bundle when any of the cached properties of an actor have changed.
-      if (this->CacheActorProperties(actor))
+      if (this->CacheActorRendererProperties(actor, renderer))
       {
         wgpuRenderer->InvalidateBundle();
       }
@@ -332,16 +332,17 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkRenderer* renderer)
 {
-  auto it = this->CachedActorProperties.find(actor);
+  const auto key = std::make_pair(actor, renderer);
+  auto it = this->CachedActorRendererProperties.find(key);
   auto* displayProperty = actor->GetProperty();
   bool hasTranslucentPolygonalGeometry = false;
   if (actor)
   {
     hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
   }
-  if (it == this->CachedActorProperties.end())
+  if (it == this->CachedActorRendererProperties.end())
   {
     ActorState state = {};
     state.LastActorBackfaceCulling = displayProperty->GetBackfaceCulling();
@@ -349,7 +350,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    this->CachedActorProperties[actor] = state;
+    this->CachedActorRendererProperties[key] = state;
     return true;
   }
   else
@@ -1884,14 +1885,16 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
+  vtkActor* actor, vtkRenderer* renderer)
 {
   if (this->RebuildGraphicsPipelines)
   {
     return true;
   }
-  auto it = this->CachedActorProperties.find(actor);
-  if (it == this->CachedActorProperties.end())
+  const auto key = std::make_pair(actor, renderer);
+  auto it = this->CachedActorRendererProperties.find(key);
+  if (it == this->CachedActorRendererProperties.end())
   {
     return true;
   }
@@ -1938,7 +1941,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
     this->IndirectDrawBufferUploadTimeStamp[i] = vtkTimeStamp();
   }
   this->RebuildGraphicsPipelines = true;
-  this->CachedActorProperties.clear();
+  this->CachedActorRendererProperties.clear();
 }
 
 //------------------------------------------------------------------------------

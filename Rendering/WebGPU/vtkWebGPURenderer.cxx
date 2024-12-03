@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkHardwareSelector.h"
@@ -28,6 +29,53 @@
 #include <cstring>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+const char* backgroundShaderSource = R"(
+    struct VertexOutput {
+      @builtin(position) position: vec4<f32>,
+    }
+
+    @vertex
+    fn vertexMain(@builtin(vertex_index) vertex_id: u32) -> VertexOutput {
+      var output: VertexOutput;
+      var coords: array<vec2<f32>, 4> = array<vec2<f32>, 4>(
+        vec2<f32>(-1, -1), // bottom-left
+        vec2<f32>(-1,  1), // top-left
+        vec2<f32>( 1, -1), // bottom-right
+        vec2<f32>( 1,  1)  // top-right
+      );
+      output.position = vec4<f32>(coords[vertex_id].xy, 1.0, 1.0);
+      return output;
+    }
+
+    struct FragmentInput {
+      @builtin(position) position: vec4<f32>
+    };
+    struct FragmentOutput {
+      @location(0) color: vec4<f32>
+    };
+
+    @fragment
+    fn fragmentMain() -> FragmentOutput {
+      var output: FragmentOutput;
+      output.color = vec4<f32>(1, 1, 1, 1);
+      return output;
+    }
+  )";
+
+vtkWebGPURenderPass* MakeClearDrawPass()
+{
+  auto* pass = vtkWebGPUClearDrawPass::New();
+  // do not clear color because doing so would erase the contents of the entire
+  // color attachment, including other renderer's viewports!
+  pass->SetClearColor(false);
+  pass->SetClearDepth(false);
+  pass->SetClearStencil(false);
+  return pass;
+}
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWebGPURenderer);
@@ -125,6 +173,61 @@ void vtkWebGPURenderer::CreateBuffers()
   {
     this->SetupSceneBindGroup();
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::Clear()
+{
+  if (!this->DoClearPass)
+  {
+    return;
+  }
+
+  // Draw a quad as big as viewport and colored by the background color.
+  auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow);
+  auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
+  vtkWebGPURenderPipelineDescriptorInternals bkgPipelineDescriptor;
+  bkgPipelineDescriptor.vertex.entryPoint = "vertexMain";
+  bkgPipelineDescriptor.vertex.bufferCount = 0;
+  bkgPipelineDescriptor.cFragment.entryPoint = "fragmentMain";
+  bkgPipelineDescriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+
+  auto depthState =
+    bkgPipelineDescriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
+  depthState->depthWriteEnabled = !this->PreserveDepthBuffer;
+  depthState->depthCompare = wgpu::CompareFunction::Always;
+
+  bkgPipelineDescriptor.primitive.frontFace = wgpu::FrontFace::CCW;
+  bkgPipelineDescriptor.primitive.cullMode = wgpu::CullMode::Front;
+  bkgPipelineDescriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
+
+  for (int i = 0; i < vtkWebGPURenderPipelineDescriptorInternals::kMaxColorAttachments; ++i)
+  {
+    if (this->Transparent())
+    {
+      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Zero;
+      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::One;
+      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Zero;
+      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::One;
+    }
+    else
+    {
+      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Constant;
+      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::Zero;
+      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Constant;
+      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::Zero;
+    }
+  }
+  const auto pipelineKey =
+    wgpuPipelineCache->GetPipelineKey(&bkgPipelineDescriptor, backgroundShaderSource);
+  wgpuPipelineCache->CreateRenderPipeline(&bkgPipelineDescriptor, this, backgroundShaderSource);
+  auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
+
+  this->WGPURenderEncoder.SetPipeline(pipeline);
+  wgpu::Color bkgColor = { this->Background[0], this->Background[1], this->Background[2],
+    this->BackgroundAlpha };
+  this->WGPURenderEncoder.SetBlendConstant(&bkgColor);
+  this->WGPURenderEncoder.Draw(4);
 }
 
 //------------------------------------------------------------------------------
@@ -668,6 +771,7 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   this->PropArrayCount = listLength;
 
   this->BeginRecording();
+  this->ActiveCamera->UpdateViewport(this);
   this->UpdateGeometry();
   this->EndRecording();
 
@@ -696,9 +800,7 @@ void vtkWebGPURenderer::BeginRecording()
   vtkRenderState state(this);
   state.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
   state.SetFrameBuffer(nullptr);
-  this->Pass = vtkWebGPUClearDrawPass::New();
-
-  vtkWebGPUClearDrawPass::SafeDownCast(this->Pass)->SetDoClear(this->DoClearPass);
+  this->Pass = ::MakeClearDrawPass();
 
   this->WGPURenderEncoder = vtkWebGPURenderPass::SafeDownCast(this->Pass)->Begin(&state);
 #ifndef NDEBUG
