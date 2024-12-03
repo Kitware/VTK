@@ -320,7 +320,7 @@
           # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
         - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
         - pip install twine
-        - pip install xarray cftime netcdf4
+        - pip install -qq -r $PWD/.gitlab/ci/requirements-wheel-test.txt
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
         - python -c "import vtk"
