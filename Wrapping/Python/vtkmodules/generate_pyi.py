@@ -35,7 +35,7 @@ To generate pyi files for your own modules in your own package:
 
 """
 
-from vtkmodules.vtkCommonCore import vtkObject, vtkSOADataArrayTemplate
+from vtkmodules.vtkCommonCore import vtkObjectBase, vtkSOADataArrayTemplate
 from keyword import iskeyword
 
 import sys
@@ -63,7 +63,7 @@ ismethod = inspect.isroutine
 isclass = inspect.isclass
 
 # VTK methods have a special type
-vtkmethod = type(vtkObject.IsA)
+vtkmethod = type(vtkObjectBase.IsA)
 template = type(vtkSOADataArrayTemplate)
 
 def isvtkmethod(m):
@@ -429,10 +429,9 @@ def class_pyi(c):
     # do the __init__ methods
     constructors = get_constructors(c)
     if len(constructors) == 0:
-        #if hasattr(c, "__init__") and not issubclass(c, int):
-        #    out += "    def __init__() -> None: ...\n"
-        #    count += 1
-        pass
+        if hasattr(c, "__init__") and issubclass(c, vtkObjectBase):
+            out += "    def __init__(self, **properties:Any) -> None: ...\n"
+            count += 1
     else:
         count += 1
         if len(constructors) == 1:
