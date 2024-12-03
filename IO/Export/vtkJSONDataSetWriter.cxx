@@ -403,6 +403,15 @@ bool vtkJSONDataSetWriter::WriteArrayAsRAW(vtkDataArray* array, const char* file
 void vtkJSONDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Archiver:" << endl;
+  this->Archiver->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "PointArraySelection:" << endl;
+  this->PointArraySelection->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "CelltArraySelection:" << endl;
+  this->CellArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
