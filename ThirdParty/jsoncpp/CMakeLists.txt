@@ -7,8 +7,8 @@ vtk_module_third_party(
     LICENSE_FILES           "vtkjsoncpp/LICENSE"
     SPDX_LICENSE_IDENTIFIER "MIT"
     SPDX_COPYRIGHT_TEXT     "Copyright (c) 2007-2010 Baptiste Lepilleur and The JsonCpp Author"
-    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/jsoncpp.git@for/vtk-20210908-1.9.4"
-    VERSION                 "1.9.4"
+    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/jsoncpp.git@for/vtk-20241206-1.9.6"
+    VERSION                 "1.9.6"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE JsonCpp
