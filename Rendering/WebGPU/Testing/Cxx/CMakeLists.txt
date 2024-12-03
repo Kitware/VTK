@@ -14,6 +14,7 @@ endif ()
 # (vtk/vtk#19322): Add baselines for these unit tests
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestActorFaceCullingProperty.cxx,NO_DATA
+  TestAxesActor.cxx,NO_DATA
   TestCellScalarMappedColors.cxx,NO_DATA
   TestCompositePolyDataMapper.cxx,NO_DATA
   TestComputeDoublePipelineRenderBuffer.cxx,NO_DATA
