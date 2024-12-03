@@ -47,7 +47,6 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkJSONSceneExporter);
 
 //------------------------------------------------------------------------------
-
 vtkJSONSceneExporter::vtkJSONSceneExporter()
 {
   this->FileName = nullptr;
@@ -61,7 +60,6 @@ vtkJSONSceneExporter::vtkJSONSceneExporter()
 }
 
 //------------------------------------------------------------------------------
-
 vtkJSONSceneExporter::~vtkJSONSceneExporter()
 {
   this->SetFileName(nullptr);
@@ -70,9 +68,21 @@ vtkJSONSceneExporter::~vtkJSONSceneExporter()
 }
 
 //------------------------------------------------------------------------------
+void vtkJSONSceneExporter::SetNamedActorsMap(std::map<std::string, vtkActor*>& map)
+{
+  this->NamedActorsMap = map;
+  this->Modified();
+}
 
+//------------------------------------------------------------------------------
+std::map<std::string, vtkActor*> vtkJSONSceneExporter::GetNamedActorsMap()
+{
+  return this->NamedActorsMap;
+}
+
+//------------------------------------------------------------------------------
 void vtkJSONSceneExporter::WriteDataObject(
-  ostream& os, vtkDataObject* dataObject, vtkActor* actor = nullptr, vtkVolume* volume = nullptr)
+  ostream& os, vtkDataObject* dataObject, vtkActor* actor, vtkVolume* volume, const char* name)
 {
   // Skip if nothing to process
   if (dataObject == nullptr)
@@ -107,7 +117,7 @@ void vtkJSONSceneExporter::WriteDataObject(
     }
     std::string addOnMeta = renderingSetup + texturesString + "\n";
     std::string dsMeta =
-      this->WriteDataSet(vtkDataSet::SafeDownCast(dataObject), addOnMeta.c_str());
+      this->WriteDataSet(vtkDataSet::SafeDownCast(dataObject), addOnMeta.c_str(), name);
     if (!dsMeta.empty())
     {
       os << dsMeta;
@@ -125,7 +135,7 @@ void vtkJSONSceneExporter::WriteDataObject(
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
     {
-      this->WriteDataObject(os, iter->GetCurrentDataObject(), actor, volume);
+      this->WriteDataObject(os, iter->GetCurrentDataObject(), actor, volume, name);
       iter->GoToNextItem();
     }
 
@@ -198,13 +208,12 @@ void vtkJSONSceneExporter::WriteDataObject(
     normalFilter->Update();
 
     // Write tubes and spheres
-    this->WriteDataObject(os, stickFilter->GetOutput(), actor, volume);
-    this->WriteDataObject(os, normalFilter->GetOutput(), actor, volume);
+    this->WriteDataObject(os, stickFilter->GetOutput(), actor, volume, name);
+    this->WriteDataObject(os, normalFilter->GetOutput(), actor, volume, name);
   }
 }
 
 //------------------------------------------------------------------------------
-
 std::string vtkJSONSceneExporter::ExtractColorTransferFunctionSetup(
   vtkColorTransferFunction* function)
 {
@@ -260,7 +269,6 @@ std::string vtkJSONSceneExporter::ExtractColorTransferFunctionSetup(
 }
 
 //------------------------------------------------------------------------------
-
 std::string vtkJSONSceneExporter::ExtractPiecewiseFunctionSetup(vtkPiecewiseFunction* function)
 {
   bool clamping = function->GetClamping();
@@ -429,12 +437,12 @@ std::string vtkJSONSceneExporter::ExtractActorRenderingSetup(vtkActor* actor)
 }
 
 //------------------------------------------------------------------------------
-
 std::string vtkJSONSceneExporter::GetTemporaryPath() const
 {
   return std::string(this->FileName) + ".pvtmp";
 }
 
+//------------------------------------------------------------------------------
 std::string vtkJSONSceneExporter::CurrentDataSetPath() const
 {
   std::stringstream path;
@@ -443,8 +451,8 @@ std::string vtkJSONSceneExporter::CurrentDataSetPath() const
 }
 
 //------------------------------------------------------------------------------
-
-std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* addOnMeta = nullptr)
+std::string vtkJSONSceneExporter::WriteDataSet(
+  vtkDataSet* dataset, const char* addOnMeta, const char* name)
 {
   if (!dataset)
   {
@@ -467,6 +475,32 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
   vtkNew<vtkJSONDataSetWriter> dsWriter;
   dsWriter->SetInputData(dataset);
   dsWriter->GetArchiver()->SetArchiveName(dsPath.c_str());
+
+  // Parse MapPointArrays's list of arrays, filter the ones that start with "propName:X", and
+  // forward information about X to the writer
+  for (int id = 0; id < this->PointArraySelection->GetNumberOfArrays(); id++)
+  {
+    std::string currentName = this->PointArraySelection->GetArrayName(id);
+    if (currentName.find(name) != std::string::npos && currentName[std::string(name).size()] == ':')
+    {
+      std::string arrayName = currentName.substr(std::string(name).size() + 1);
+      dsWriter->GetPointArraySelection()->SetArraySetting(
+        arrayName.c_str(), this->PointArraySelection->ArrayIsEnabled(currentName.c_str()));
+    }
+  }
+
+  // Same for cell arrays
+  for (int id = 0; id < this->CellArraySelection->GetNumberOfArrays(); id++)
+  {
+    std::string currentName = this->CellArraySelection->GetArrayName(id);
+    if (currentName.find(name) != std::string::npos && currentName[std::string(name).size()] == ':')
+    {
+      std::string arrayName = currentName.substr(std::string(name).size() + 1);
+      dsWriter->GetCellArraySelection()->SetArraySetting(
+        arrayName.c_str(), this->CellArraySelection->ArrayIsEnabled(currentName.c_str()));
+    }
+  }
+
   dsWriter->Write();
 
   if (!dsWriter->IsDataSetValid())
@@ -485,8 +519,9 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
     meta << "\n";
   }
   constexpr const char* INDENT = "    ";
+  std::string dsName = (name ? name : std::to_string(this->DatasetCount));
   meta << INDENT << "{\n"
-       << INDENT << "  \"name\": \"" << this->DatasetCount << "\",\n"
+       << INDENT << "  \"name\": \"" << dsName << "\",\n"
        << INDENT << "  \"type\": \"vtkHttpDataSetReader\",\n"
        << INDENT << "  \"vtkHttpDataSetReader\": { \"url\": \"" << this->DatasetCount << "\" }";
 
@@ -502,7 +537,6 @@ std::string vtkJSONSceneExporter::WriteDataSet(vtkDataSet* dataset, const char* 
 }
 
 //------------------------------------------------------------------------------
-
 void vtkJSONSceneExporter::WriteLookupTable(const char* name, vtkScalarsToColors* lookupTable)
 {
   if (lookupTable == nullptr)
@@ -572,7 +606,7 @@ void vtkJSONSceneExporter::WritePropCollection(
       vtkMapper* mapper = actor->GetMapper();
 
       vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
-      this->WriteDataObject(sceneComponents, dataObject, actor);
+      this->WriteDataObject(sceneComponents, dataObject, actor, nullptr, nullptr);
       this->WriteLookupTable(mapper->GetArrayName(), mapper->GetLookupTable());
     }
   }
@@ -594,7 +628,33 @@ void vtkJSONSceneExporter::WriteVolumeCollection(
 
     vtkAbstractVolumeMapper* mapper = volume->GetMapper();
     vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
-    this->WriteDataObject(sceneComponents, dataObject, nullptr, volume);
+    this->WriteDataObject(sceneComponents, dataObject, nullptr, volume, nullptr);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkJSONSceneExporter::WriteNamedActors(
+  std::map<std::string, vtkActor*>& actorMap, std::ostream& sceneComponents)
+{
+  for (auto it = actorMap.begin(); it != actorMap.end(); it++)
+  {
+    vtkProp* prop = vtkProp::SafeDownCast(it->second);
+    // Skip non-visible actors
+    if (!prop || !prop->GetVisibility())
+    {
+      continue;
+    }
+
+    // Skip actors with no geometry
+    vtkActor* actor = vtkActor::SafeDownCast(prop);
+    if (actor)
+    {
+      vtkMapper* mapper = actor->GetMapper();
+
+      vtkDataObject* dataObject = mapper->GetInputDataObject(0, 0);
+      this->WriteDataObject(sceneComponents, dataObject, actor, nullptr, it->first.c_str());
+      this->WriteLookupTable(mapper->GetArrayName(), mapper->GetLookupTable());
+    }
   }
 }
 
@@ -631,8 +691,16 @@ void vtkJSONSceneExporter::WriteData()
   std::stringstream sceneComponents;
   vtkPropCollection* renProps = renderer->GetViewProps();
 
-  this->WritePropCollection(renProps, sceneComponents);
-  this->WriteVolumeCollection(renderer->GetVolumes(), sceneComponents);
+  auto actorMap = this->GetNamedActorsMap();
+  if (!actorMap.empty())
+  {
+    this->WriteNamedActors(actorMap, sceneComponents);
+  }
+  else
+  {
+    this->WritePropCollection(renProps, sceneComponents);
+    this->WriteVolumeCollection(renderer->GetVolumes(), sceneComponents);
+  }
 
   std::stringstream sceneJsonFile;
   sceneJsonFile << "{\n"
@@ -685,6 +753,7 @@ void vtkJSONSceneExporter::WriteData()
   }
 }
 
+//------------------------------------------------------------------------------
 namespace
 {
 
@@ -710,7 +779,6 @@ size_t getFileSize(const std::string& path)
 } // end anon namespace
 
 //------------------------------------------------------------------------------
-
 std::string vtkJSONSceneExporter::WriteTexture(vtkTexture* texture)
 {
   // If this texture has already been written, just re-use the one
@@ -747,7 +815,6 @@ std::string vtkJSONSceneExporter::WriteTexture(vtkTexture* texture)
 }
 
 //------------------------------------------------------------------------------
-
 std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
 {
   // If this texture has already been written, just re-use the one
@@ -838,7 +905,6 @@ std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
 }
 
 //------------------------------------------------------------------------------
-
 vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
   vtkPolyData* dataset, std::string& polyLODsConfig)
 {
@@ -1034,7 +1100,6 @@ vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
 }
 
 //------------------------------------------------------------------------------
-
 void vtkJSONSceneExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

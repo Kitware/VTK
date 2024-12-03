@@ -13,8 +13,10 @@
 #ifndef vtkJSONSceneExporter_h
 #define vtkJSONSceneExporter_h
 
+#include "vtkDataArraySelection.h" // Instantiated
 #include "vtkExporter.h"
 #include "vtkIOExportModule.h" // For export macro
+#include "vtkNew.h"            // For vtkDataArraySelection
 #include "vtkSmartPointer.h"   // For vtkSmartPointer
 
 #include <map>    // For member variables
@@ -133,6 +135,29 @@ public:
   vtkGetStringMacro(PolyLODsBaseUrl);
   ///@}
 
+  ///@{
+  /**
+   * Return the object used for point/array selection.
+   * This can only be used when using `WriteNamedActors`: an array is selected for a source by
+   * enabling the array `actorName:arrayName` in here.
+   */
+  vtkGetObjectMacro(PointArraySelection, vtkDataArraySelection);
+  vtkGetObjectMacro(CellArraySelection, vtkDataArraySelection);
+  ///@}
+
+  ///@{
+  /**
+   * Instead of using a render window that contains a scene to be written, use a map of named actors
+   * whose source datasets need to be written. This allows for point and cell array selections using
+   * PointArraySelection and CellArraySelection.
+   *
+   * If this map is specified and has non-null size, the render widows/renderer passed will be
+   * ignored, and the map used instead as the export content.
+   */
+  void SetNamedActorsMap(std::map<std::string, vtkActor*>& map);
+  std::map<std::string, vtkActor*> GetNamedActorsMap();
+  ///@}
+
 protected:
   vtkJSONSceneExporter();
   ~vtkJSONSceneExporter() override;
@@ -140,12 +165,10 @@ protected:
   void WritePropCollection(vtkPropCollection* collection, std::ostream& sceneComponents);
   void WriteVolumeCollection(vtkVolumeCollection* volumeCollection, std::ostream& sceneComponents);
 
-  void WriteDataObject(ostream& os, vtkDataObject* dataObject, vtkActor* actor, vtkVolume* volume);
   std::string ExtractPiecewiseFunctionSetup(vtkPiecewiseFunction* pwf);
   std::string ExtractColorTransferFunctionSetup(vtkColorTransferFunction* volume);
   std::string ExtractVolumeRenderingSetup(vtkVolume* volume);
   std::string ExtractActorRenderingSetup(vtkActor* actor);
-  std::string WriteDataSet(vtkDataSet* dataset, const char* addOnMeta);
   void WriteLookupTable(const char* name, vtkScalarsToColors* lookupTable);
 
   void WriteData() override;
@@ -185,6 +208,31 @@ protected:
 private:
   vtkJSONSceneExporter(const vtkJSONSceneExporter&) = delete;
   void operator=(const vtkJSONSceneExporter&) = delete;
+
+  /**
+   * Write a collection of datasets as inputs of named actors to the output stream.
+   */
+  void WriteNamedActors(std::map<std::string, vtkActor*>& actorMap, std::ostream& sceneComponents);
+
+  /**
+   * Write named dataset to file
+   */
+  std::string WriteDataSet(vtkDataSet* dataset, const char* addOnMeta, const char* name);
+
+  /**
+   * Write a dataobject to the exported file. If associated to an actor, write its texture as well
+   * as rendering setup. If associated to a volume, write its rendering setup too.
+   *
+   * The exported data object can be named, otherwise its name in the file will be the next
+   * available positive integer.
+   */
+  void WriteDataObject(
+    ostream& os, vtkDataObject* dataObject, vtkActor* actor, vtkVolume* volume, const char* name);
+
+  // Map named sources with their data array selection
+  vtkNew<vtkDataArraySelection> PointArraySelection;
+  vtkNew<vtkDataArraySelection> CellArraySelection;
+  std::map<std::string, vtkActor*> NamedActorsMap;
 };
 
 VTK_ABI_NAMESPACE_END
