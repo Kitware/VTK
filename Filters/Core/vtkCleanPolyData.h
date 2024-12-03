@@ -210,12 +210,6 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  // Check whether a point is a primary point (as opposed to duplicated ghost point)
-  bool IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex);
-  // Insert point into newPts. If already present, only return its id.
-  bool InsertUniquePoint(vtkIdTypeArray* globalIdsArray, vtkIdType ptIndex, vtkPoints* newPts,
-    std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdsMap, double* point, vtkIdType& ptId);
-
   vtkTypeBool PointMerging;
   double Tolerance;
   double AbsoluteTolerance;
@@ -231,6 +225,12 @@ protected:
 private:
   vtkCleanPolyData(const vtkCleanPolyData&) = delete;
   void operator=(const vtkCleanPolyData&) = delete;
+
+  // Check whether a point is a primary point (as opposed to duplicated ghost point)
+  bool IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex);
+  // Insert point into newPts. If already present, only get its id.
+  void InsertUniquePoint(vtkIdTypeArray* globalIdsArray, vtkIdType ptIndex, vtkPoints* newPts,
+    std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdsMap, double* point, vtkIdType& ptId);
 };
 
 VTK_ABI_NAMESPACE_END

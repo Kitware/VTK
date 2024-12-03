@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkCleanPolyData);
 
 namespace
 {
-bool InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
+void InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
   std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdMap, const double* x, vtkIdType& ptId)
 {
   auto it = addedGlobalIdMap.find(globalId);
@@ -31,10 +31,11 @@ bool InsertPointUsingGlobalId(vtkIdType globalId, vtkPoints* newPts,
     ptId = newPts->GetNumberOfPoints();
     newPts->InsertNextPoint(x);
     addedGlobalIdMap[globalId] = ptId;
-    return true;
   }
-  ptId = it->second;
-  return false;
+  else
+  {
+    ptId = it->second;
+  }
 }
 } // anonymous namespace
 
@@ -127,16 +128,19 @@ bool vtkCleanPolyData::IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex)
 }
 
 //------------------------------------------------------------------------------
-bool vtkCleanPolyData::InsertUniquePoint(vtkIdTypeArray* globalIdsArray, vtkIdType ptIndex,
+void vtkCleanPolyData::InsertUniquePoint(vtkIdTypeArray* globalIdsArray, vtkIdType ptIndex,
   vtkPoints* newPts, std::unordered_map<vtkIdType, vtkIdType>& addedGlobalIdsMap, double* point,
   vtkIdType& ptId)
 {
   if (globalIdsArray)
   {
-    return InsertPointUsingGlobalId(
+    ::InsertPointUsingGlobalId(
       globalIdsArray->GetValue(ptIndex), newPts, addedGlobalIdsMap, point, ptId);
   }
-  return this->Locator->InsertUniquePoint(point, ptId);
+  else
+  {
+    this->Locator->InsertUniquePoint(point, ptId);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -288,10 +292,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if (this->IsPrimaryPoint(input, pts[i]) &&
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
+        else
         {
-          outputPD->CopyData(inputPD, pts[i], ptId);
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+          if (this->IsPrimaryPoint(input, pts[i]))
+          {
+            outputPD->CopyData(inputPD, pts[i], ptId);
+          }
         }
         updatedPts[numNewPts++] = ptId;
       } // for all points of vertex cell
@@ -342,10 +349,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if (this->IsPrimaryPoint(input, pts[i]) &&
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
+        else
         {
-          outputPD->CopyData(inputPD, pts[i], ptId);
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+          if (this->IsPrimaryPoint(input, pts[i]))
+          {
+            outputPD->CopyData(inputPD, pts[i], ptId);
+          }
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {
@@ -420,10 +430,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if (this->IsPrimaryPoint(input, pts[i]) &&
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
+        else
         {
-          outputPD->CopyData(inputPD, pts[i], ptId);
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+          if (this->IsPrimaryPoint(input, pts[i]))
+          {
+            outputPD->CopyData(inputPD, pts[i], ptId);
+          }
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {
@@ -519,10 +532,13 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
-        else if (this->IsPrimaryPoint(input, pts[i]) &&
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId))
+        else
         {
-          outputPD->CopyData(inputPD, pts[i], ptId);
+          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+          if (this->IsPrimaryPoint(input, pts[i]))
+          {
+            outputPD->CopyData(inputPD, pts[i], ptId);
+          }
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {
