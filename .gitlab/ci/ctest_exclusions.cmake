@@ -4,9 +4,7 @@ set(test_exclusions
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
   "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
   # https://gitlab.kitware.com/vtk/vtk/-/issues/19544
-  "^vtkRenderingParallel-TestClientServerRendering$"
-  # https://gitlab.kitware.com/vtk/vtk/-/issues/19542
-  "^vtkParallelCore-TestSocketCommunicator$")
+  "^vtkRenderingParallel-TestClientServerRendering$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
