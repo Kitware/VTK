@@ -198,8 +198,6 @@ protected:
   void CreateBuffers();
   // Create scene bind group.
   void SetupSceneBindGroup();
-  // Create actor bind group.
-  void SetupActorBindGroup();
 
   // Start, finish recording commands with render pass encoder
   void BeginRecording();
