@@ -20,6 +20,19 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
+void vtkWebGPUActor::MapperBooleanCache::SetValue(bool newValue)
+{
+  this->Value = newValue;
+  this->TimeStamp.Modified();
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUActor::MapperBooleanCache::IsOutdated(vtkMapper* mapper)
+{
+  return mapper->GetMTime() > this->TimeStamp;
+}
+
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWebGPUActor);
 
 //------------------------------------------------------------------------------
@@ -36,6 +49,14 @@ void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ShadingOptionsBuildTimestamp: " << this->ShadingOptionsBuildTimestamp << '\n';
   os << indent << "RenderOptionsBuildTimestamp: " << this->RenderOptionsBuildTimestamp << '\n';
   os << indent << "BundleInvalidated: " << this->BundleInvalidated << '\n';
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUActor::ReleaseGraphicsResources(vtkWindow* window)
+{
+  this->MapperHasOpaqueGeometry = {};
+  this->MapperHasTranslucentPolygonalGeometry = {};
+  this->Superclass::ReleaseGraphicsResources(window);
 }
 
 //------------------------------------------------------------------------------
@@ -83,6 +104,66 @@ bool vtkWebGPUActor::SupportRenderBundles()
 
   // Assuming that any other mapper supports render bundles
   return true;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkWebGPUActor::HasOpaqueGeometry()
+{
+  bool isOpaque = false;
+  if (this->Mapper)
+  {
+    if (this->MapperHasOpaqueGeometry.IsOutdated(this->Mapper))
+    {
+      isOpaque = this->Superclass::HasOpaqueGeometry();
+      this->MapperHasOpaqueGeometry.SetValue(isOpaque);
+    }
+    else
+    {
+      // nullify mapper so that superclass doesn't run the expensive
+      // code path in vtkMapper::HasOpaqueGeometry.
+      vtkMapper* tmpMapper = this->Mapper;
+      this->Mapper = nullptr;
+      isOpaque = this->Superclass::HasOpaqueGeometry();
+      // restore
+      this->Mapper = tmpMapper;
+      isOpaque &= this->MapperHasOpaqueGeometry.GetValue();
+    }
+  }
+  else
+  {
+    isOpaque = this->Superclass::HasOpaqueGeometry();
+  }
+  return isOpaque;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeBool vtkWebGPUActor::HasTranslucentPolygonalGeometry()
+{
+  bool isTranslucent = false;
+  if (this->Mapper)
+  {
+    if (this->MapperHasTranslucentPolygonalGeometry.IsOutdated(this->Mapper))
+    {
+      isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
+      this->MapperHasTranslucentPolygonalGeometry.SetValue(isTranslucent);
+    }
+    else
+    {
+      // nullify mapper so that superclass doesn't run the expensive
+      // code path in vtkMapper::HasTranslucentPolygonalGeometry.
+      vtkMapper* tmpMapper = this->Mapper;
+      this->Mapper = nullptr;
+      isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
+      // restore
+      this->Mapper = tmpMapper;
+      isTranslucent &= this->MapperHasTranslucentPolygonalGeometry.GetValue();
+    }
+  }
+  else
+  {
+    isTranslucent = this->Superclass::HasTranslucentPolygonalGeometry();
+  }
+  return isTranslucent;
 }
 
 //------------------------------------------------------------------------------

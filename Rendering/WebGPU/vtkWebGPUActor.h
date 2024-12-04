@@ -37,6 +37,24 @@ public:
 
   virtual bool UpdateKeyMatrices();
 
+  ///@{
+  /**
+   * Does this prop have opaque/translucent polygonal geometry?
+   * These methods are overriden to skip redundant checks
+   * in different rendering stages.
+   *
+   * If the mapper has already been checked for opaque geometry and the mapper
+   * has not been modified since the last check, this method uses the last result,
+   * instead of asking the mapper to check for opaque geometry again. The
+   * HasTranslucentPolygonalGeometry() similarly checks and caches the result of
+   * vtkMapper::HasTranslucentPolygonalGeometry()
+   *
+   * @sa vtkWebGPURenderer::GetRenderStage()
+   */
+  vtkTypeBool HasOpaqueGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  ///@}
+
   /**
    * Forces the renderer to re-record draw commands into a render bundle associated with this actor.
    *
@@ -117,6 +135,31 @@ protected:
   vtkTimeStamp RenderOptionsBuildTimestamp;
 
   bool BundleInvalidated = false;
+
+  class MapperBooleanCache
+  {
+    bool Value = false;
+    vtkTimeStamp TimeStamp;
+
+  public:
+    /**
+     * Update the cached value with the new value. This also increments the TimeStamp.
+     */
+    void SetValue(bool newValue);
+
+    /**
+     * Returns the cached `Value`.
+     */
+    inline bool GetValue() { return Value; }
+
+    /**
+     * Returns true if the timestamp of the cached value is older than the mapper's MTime.
+     */
+    bool IsOutdated(vtkMapper* mapper);
+  };
+
+  MapperBooleanCache MapperHasOpaqueGeometry;
+  MapperBooleanCache MapperHasTranslucentPolygonalGeometry;
 
 private:
   vtkWebGPUActor(const vtkWebGPUActor&) = delete;
