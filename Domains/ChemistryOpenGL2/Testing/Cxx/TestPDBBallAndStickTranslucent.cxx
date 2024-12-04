@@ -42,7 +42,7 @@ int TestPDBBallAndStickTranslucent(int argc, char* argv[])
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper);
-  actor->GetProperty()->SetOpacity(0.1);
+  actor->GetProperty()->SetOpacity(0.4);
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
