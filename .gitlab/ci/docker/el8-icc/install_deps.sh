@@ -32,6 +32,7 @@ python3.11 -m venv /opt/python311/venv
 /opt/python311/venv/bin/pip install 'matplotlib<=3.6.3'
 # wslink will bring aiohttp>=3.7.4
 /opt/python311/venv/bin/pip install 'wslink>=1.0.4'
+/opt/python311/venv/bin/pip install xarray cftime netcdf4
 
 # Upgrade libarchive (for CMake)
 dnf upgrade -y --setopt=install_weak_deps=False \
