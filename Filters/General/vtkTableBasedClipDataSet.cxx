@@ -185,7 +185,8 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   {
     auto inputArray = this->GetInputArrayToProcess(0, inputVector);
     // This is needed by vtkClipDataSet in case we fall back to it.
-    inputCopy->GetPointData()->SetScalars(inputArray);
+    inputCopy->GetPointData()->AddArray(inputArray);
+    inputCopy->GetPointData()->SetActiveScalars(inputArray->GetName());
     if (!inputArray)
     {
       vtkErrorMacro(<< "no input scalars." << endl);
@@ -1257,7 +1258,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
   vtkSmartPointer<vtkAOSDataArrayTemplate<TInputIdType>> pointsMap = evaluatePoints.PointsMap;
   if (implicitFunction && this->GenerateClipScalars)
   {
-    input->GetPointData()->SetScalars(clipArray);
+    input->GetPointData()->AddArray(clipArray);
+    input->GetPointData()->SetActiveScalars(clipArray->GetName());
   }
   // check if there are no kept points
   if (numberOfKeptPoints == 0)

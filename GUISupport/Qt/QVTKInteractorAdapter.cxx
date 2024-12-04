@@ -104,7 +104,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     return false;
 
   if (t == QEvent::MouseButtonPress || t == QEvent::MouseButtonRelease ||
-    t == QEvent::MouseButtonDblClick || t == QEvent::MouseMove)
+    t == QEvent::MouseButtonDblClick || t == QEvent::MouseMove || t == QEvent::HoverMove)
   {
     QMouseEvent* e2 = static_cast<QMouseEvent*>(e);
 
@@ -124,7 +124,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       e2->type() == QEvent::MouseButtonDblClick ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
-    if (t == QEvent::MouseMove)
+    if (t == QEvent::MouseMove || t == QEvent::HoverMove)
     {
       iren->InvokeEvent(vtkCommand::MouseMoveEvent, e2);
     }

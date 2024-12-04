@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSocket.h"
 
+#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 
 // The VTK_SOCKET_FAKE_API definition is given to the compiler
@@ -605,15 +606,27 @@ int vtkSocket::Receive(void* data, int length, int readFully /*=1*/)
     }
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-    if ((nRecvd == vtkSocketErrorReturnMacro) && (WSAGetLastError() == WSAENOBUFS))
+    if ((nRecvd == vtkSocketErrorReturnMacro))
     {
-      // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
-      // will work if you try again.
-      if ((tries++ < 1000))
+      int lastError = WSAGetLastError();
+      if (lastError == WSAECONNABORTED)
       {
-        Sleep(1);
-        continue;
+        // From the receiver we cannot know if the connection abort is expected or not, this is why
+        // we output a trace instead of an error.
+        vtkLog(TRACE, "Socket error: connection abort.");
+        return 0;
       }
+      else if (lastError == WSAENOBUFS)
+      {
+        // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
+        // will work if you try again.
+        if ((tries++ < 1000))
+        {
+          Sleep(1);
+          continue;
+        }
+      }
+
       vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to recv.");
       return 0;
     }

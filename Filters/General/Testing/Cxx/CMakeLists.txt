@@ -54,6 +54,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestReflectionFilter.cxx,NO_VALID
   TestSpatioTemporalHarmonicsAttribute.cxx
   TestSplitByCellScalarFilter.cxx,NO_VALID
+  TestTableBasedClipDataSet.cxx,NO_VALID
   TestTableFFT.cxx,NO_VALID
   TestTableSplitColumnComponents.cxx,NO_VALID
   TestTemporalPathLineFilter.cxx,NO_VALID
