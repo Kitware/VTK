@@ -623,13 +623,6 @@ void vtkDataObjectTree::ShallowCopy(vtkDataObject* src)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectTree::RecursiveShallowCopy(vtkDataObject* src)
-{
-  VTK_LEGACY_REPLACED_BODY(RecursiveShallowCopy, "VTK 9.3", ShallowCopy);
-  this->ShallowCopy(src);
-}
-
-//------------------------------------------------------------------------------
 void vtkDataObjectTree::Initialize()
 {
   this->Internals->Children.clear();

@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 #include "vtkDataSet.h"
 
 #include "vtkBezierCurve.h"
@@ -38,7 +36,6 @@ vtkDataSet::vtkDataSet()
   vtkMath::UninitializeBounds(this->Bounds);
   // Observer for updating the cell/point ghost arrays pointers
   this->DataObserver = vtkCallbackCommand::New();
-  this->DataObserver->SetCallback(&vtkDataSet::OnDataModified);
   this->DataObserver->SetClientData(this);
 
   this->PointData = vtkPointData::New();
@@ -1159,22 +1156,6 @@ vtkUnsignedCharArray* vtkDataSet::AllocateCellGhostArray()
     this->GetCellData()->AddArray(ghosts);
   }
   return this->GetCellGhostArray();
-}
-
-//------------------------------------------------------------------------------
-void vtkDataSet::OnDataModified(vtkObject* source, unsigned long, void* clientdata, void*)
-{
-  // update the point/cell pointers to ghost data arrays.
-  vtkDataSet* This = static_cast<vtkDataSet*>(clientdata);
-  if (source == This->GetPointData())
-  {
-    This->UpdatePointGhostArrayCache();
-  }
-  else
-  {
-    assert(source == This->GetCellData());
-    This->UpdateCellGhostArrayCache();
-  }
 }
 
 //------------------------------------------------------------------------------

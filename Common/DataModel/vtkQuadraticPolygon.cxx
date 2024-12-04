@@ -119,15 +119,6 @@ int vtkQuadraticPolygon::IntersectWithLine(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraticPolygon::Triangulate(vtkIdList* outTris)
-{
-  this->InitializePolygon();
-  int result = this->Polygon->TriangulateLocalIds(0, outTris);
-  vtkQuadraticPolygon::ConvertFromPolygon(this->GetNumberOfPoints(), outTris);
-  return result;
-}
-
-//------------------------------------------------------------------------------
 int vtkQuadraticPolygon::TriangulateLocalIds(int index, vtkIdList* ptIds)
 {
   this->InitializePolygon();

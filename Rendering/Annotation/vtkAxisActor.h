@@ -42,7 +42,6 @@
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
-#include "vtkDeprecation.h"               // For deprecation macro
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
@@ -728,13 +727,8 @@ public:
    * Y-component is the same than other offsets.
    * Default: (20.0, 20.0).
    */
-  VTK_DEPRECATED_IN_9_3_0("Use SetTitleOffset(double, double) as it's now a 2d vector")
-  void SetTitleOffset(double titleOffsetY);
-  VTK_DEPRECATED_IN_9_3_0("Use GetTitleOffset(double&, double&) as it's now a 2d vector")
-  double GetTitleOffset();
   vtkSetVector2Macro(TitleOffset, double);
-  // TODO: Replace getter with macro once deprecated one is removed
-  void GetTitleOffset(double& titleOffsetX, double& titleOffsetY);
+  vtkGetVector2Macro(TitleOffset, double);
   ///@}
 
 protected:

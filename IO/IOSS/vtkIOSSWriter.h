@@ -81,7 +81,6 @@
 #ifndef vtkIOSSWriter_h
 #define vtkIOSSWriter_h
 
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED
 #include "vtkIOIOSSModule.h" // For export macros
 #include "vtkIOSSReader.h"   // For vtkIOSSReader::EntityType
 #include "vtkNew.h"          // For vtkNew
@@ -526,24 +525,6 @@ public:
 
   ///@{
   /**
-   * If input is untransformed IOSS dataset, then the writer can preserve entity
-   * group classifications, such as element blocks, side sets etc. The same is
-   * not true if the input has been transformed e.g. through a clip filter. Thus
-   * flag is used to indicate whether the input has valid element
-   * classifications.
-   */
-  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
-  void SetPreserveInputEntityGroups(bool) {}
-  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
-  bool GetPreserveInputEntityGroups() { return true; }
-  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
-  void PreserveInputEntityGroupsOn() {}
-  VTK_DEPRECATED_IN_9_3_0("PreserveInputEntityGroups is no longer needed.")
-  void PreserveInputEntityGroupsOff() {}
-  ///@}
-
-  ///@{
-  /**
    * If input is transformed, e.g. through clipping, new element blocks may be created.
    * This flag can be used to indicate whether to preserve the original ids from blocks.
    *
@@ -581,25 +562,6 @@ public:
    */
   vtkSetClampMacro(DisplacementMagnitude, double, 0, VTK_DOUBLE_MAX);
   vtkGetMacro(DisplacementMagnitude, double);
-  ///@}
-
-  ///@{
-  /**
-   * A debugging variable, set this to non-zero positive number to save at most
-   * the specified number of timesteps in a single file before starting a new
-   * one. The writer may start new files (aka restarts) automatically if it
-   * determines that the mesh has changed.
-   *
-   * Defaults to 0 i.e. unlimited timesteps per file.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use TimeStepRange/TimeStepStride instead.")
-  void SetMaximumTimeStepsPerFile(int val)
-  {
-    this->SetTimeStepStride(1);
-    this->SetTimeStepRange(0, val - 1);
-  }
-  VTK_DEPRECATED_IN_9_3_0("Use TimeStepRange/TimeStepStride instead.")
-  int GetMaximumTimeStepsPerFile() { return this->TimeStepRange[1] + 1; }
   ///@}
 
   ///@{

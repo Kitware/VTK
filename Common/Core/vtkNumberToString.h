@@ -47,7 +47,6 @@
 #define vtkNumberToString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkTypeTraits.h"
 
 #include <ostream>
@@ -157,10 +156,6 @@ public:
   {
     return val;
   }
-  VTK_DEPRECATED_IN_9_3_0("Use vtkNumberToString::Convert instead.")
-  TagDouble operator()(const double& val) const { return TagDouble(val); }
-  VTK_DEPRECATED_IN_9_3_0("Use vtkNumberToString::Convert instead.")
-  TagFloat operator()(const float& val) const { return TagFloat(val); }
 
 private:
   int LowExponent = -6;

@@ -9,17 +9,7 @@ vtk_add_test_cxx(vtkGUISupportQtQuickCxxTests tests
   TestQQuickVTKItem_1.cxx
   TestQQuickVTKItem_2.cxx,LOOSE_VALID
   TestQQuickVTKItem_3.cxx
-  # VTK_DEPRECATED_IN_9_3_0 applies to these three tests
-  TestQQuickVTKRenderItem.cxx
-  TestQQuickVTKRenderItemWidget.cxx
-  TestQQuickVTKRenderWindow.cxx
   )
-
-# VTK_DEPRECATED_IN_9_3_0 applies here
-set(qml_files
-  TestQQuickVTKRenderItem.qml
-  TestQQuickVTKRenderItemWidget.qml
-  TestQQuickVTKRenderWindow.qml)
 
 foreach (qml_file IN LISTS qml_files)
   configure_file(
@@ -57,13 +47,3 @@ target_link_libraries(vtkGUISupportQtQuickCxxTests
     )
 
 target_compile_definitions(vtkGUISupportQtQuickCxxTests PRIVATE QT_NO_KEYWORDS)
-
-# VTK_DEPRECATED_IN_9_3_0 applies here
-set_property(
-  TEST
-    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItem
-    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderItemWidget
-    VTK::GUISupportQtQuickCxx-TestQQuickVTKRenderWindow
-  APPEND
-  PROPERTY
-    ENVIRONMENT "QML2_IMPORT_PATH=${VTK_QML_DIR}")

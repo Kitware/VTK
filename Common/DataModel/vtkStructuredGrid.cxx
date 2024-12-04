@@ -395,15 +395,6 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax, int yMin, int yMax, int zM
 }
 
 //------------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-int* vtkStructuredGrid::GetDimensions()
-{
-  this->GetDimensions(this->Dimensions);
-  return this->Dimensions;
-}
-#endif
-
-//------------------------------------------------------------------------------
 void vtkStructuredGrid::GetDimensions(int dims[3])
 {
   const int* extent = this->Extent;

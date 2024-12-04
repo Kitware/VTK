@@ -68,18 +68,10 @@ elseif (APPLE_IOS)
   endif ()
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # Add some custom overrides
-  # VTK_DEPRECATED_IN_9_3_0() Remove when vtkSDL2RenderWindowInteractor is removed.
-  if (VTK_USE_SDL2)
-    vtk_object_factory_declare(
-      BASE vtkRenderWindowInteractor
-      OVERRIDE vtkSDL2RenderWindowInteractor)
-    list(APPEND classes vtkSDL2RenderWindowInteractor)
-  else ()
-    vtk_object_factory_declare(
-      BASE vtkRenderWindowInteractor
-      OVERRIDE vtkWebAssemblyRenderWindowInteractor)
-    list(APPEND classes vtkWebAssemblyRenderWindowInteractor)
-  endif ()
+  vtk_object_factory_declare(
+    BASE vtkRenderWindowInteractor
+    OVERRIDE vtkWebAssemblyRenderWindowInteractor)
+  list(APPEND classes vtkWebAssemblyRenderWindowInteractor)
 else () # use generic
   vtk_object_factory_declare(
     BASE vtkRenderWindowInteractor
@@ -102,23 +94,12 @@ vtk_module_add_module(VTK::RenderingUI
   )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  # VTK_DEPRECATED_IN_9_3_0() Remove when vtkSDL2RenderWindowInteractor is removed.
-  if (VTK_USE_SDL2)
-    # The -sUSE_SDL=2 flag will inform emcc driver to add include paths.
-    vtk_module_compile_options(VTK::RenderingUI
-      PRIVATE
-        "-sUSE_SDL=2")
-    vtk_module_LINK_options(VTK::RenderingUI
-      PRIVATE
-        "-sUSE_SDL=2")
-  else ()
-    vtk_module_link_options(VTK::RenderingUI
-      INTERFACE
-        "$<BUILD_INTERFACE:--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js>"
-        "$<INSTALL_INTERFACE:--js-library=$<INSTALL_PREFIX>/${_vtk_build_LIBRARY_DESTINATION}/vtkWebAssemblyRenderWindowInteractor.js>")
-    install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js"
-      DESTINATION ${_vtk_build_LIBRARY_DESTINATION})
-  endif ()
+  vtk_module_link_options(VTK::RenderingUI
+    INTERFACE
+      "$<BUILD_INTERFACE:--js-library=${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js>"
+      "$<INSTALL_INTERFACE:--js-library=$<INSTALL_PREFIX>/${_vtk_build_LIBRARY_DESTINATION}/vtkWebAssemblyRenderWindowInteractor.js>")
+  install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js"
+    DESTINATION ${_vtk_build_LIBRARY_DESTINATION})
 endif ()
 
 if (VTK_USE_X)

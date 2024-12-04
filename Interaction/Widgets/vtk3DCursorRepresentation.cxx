@@ -305,21 +305,6 @@ void vtk3DCursorRepresentation::SetCustomCursor(vtkActor* customCursor)
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_3_0
-void vtk3DCursorRepresentation::SetCursor(vtkActor* cursor)
-{
-  this->SetCursorShape(CUSTOM_SHAPE);
-  this->SetCustomCursor(cursor);
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_3_0
-vtkActor* vtk3DCursorRepresentation::GetCursor()
-{
-  return this->GetCustomCursor();
-}
-
-//------------------------------------------------------------------------------
 void vtk3DCursorRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -3389,40 +3389,6 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
 }
 
 //------------------------------------------------------------------------------
-int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
-  vtkInformation* inInfo, vtkPolyData* exc, bool* extractFace)
-{
-  int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
-  if (input->GetExtentType() == VTK_3D_EXTENT)
-  {
-    const int* wholeExt32;
-    if (inInfo)
-    {
-      wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-      std::copy(wholeExt32, wholeExt32 + 6, wholeExtent);
-    }
-  }
-  return this->StructuredExecute(input, output, wholeExtent, exc, extractFace);
-}
-
-//------------------------------------------------------------------------------
-int vtkGeometryFilter::StructuredExecute(
-  vtkDataSet* input, vtkPolyData* output, vtkInformation* inInfo, bool* extractFace)
-{
-  int wholeExtent[6] = { 0, -1, 0, -1, 0, -1 };
-  if (input->GetExtentType() == VTK_3D_EXTENT)
-  {
-    const int* wholeExt32;
-    if (inInfo)
-    {
-      wholeExt32 = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-      std::copy(wholeExt32, wholeExt32 + 6, wholeExtent);
-    }
-  }
-  return this->StructuredExecute(input, output, wholeExtent, extractFace);
-}
-
-//------------------------------------------------------------------------------
 int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output, int* wholeExtent,
   vtkPolyData* excludedFaces, bool* extractFace)
 {

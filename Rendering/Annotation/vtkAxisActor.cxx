@@ -2180,25 +2180,6 @@ void vtkAxisActor::SetMajorStart(int axis, double value)
 }
 
 //------------------------------------------------------------------------------
-void vtkAxisActor::SetTitleOffset(double titleOffsetY)
-{
-  this->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
-}
-
-//------------------------------------------------------------------------------
-double vtkAxisActor::GetTitleOffset()
-{
-  return this->TitleOffset[1];
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor::GetTitleOffset(double& titleOffsetX, double& titleOffsetY)
-{
-  titleOffsetX = this->TitleOffset[0];
-  titleOffsetY = this->TitleOffset[1];
-}
-
-//------------------------------------------------------------------------------
 bool vtkAxisActor::BoundsDisplayCoordinateChanged(vtkViewport* viewport)
 {
   double transMinPt[3], transMaxPt[3];

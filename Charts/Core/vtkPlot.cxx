@@ -230,6 +230,12 @@ void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b, unsign
 }
 
 //------------------------------------------------------------------------------
+void vtkPlot::SetColor(unsigned char r, unsigned char g, unsigned char b)
+{
+  this->Pen->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
 void vtkPlot::SetColorF(double r, double g, double b, double a)
 {
   this->Pen->SetColorF(r, g, b, a);

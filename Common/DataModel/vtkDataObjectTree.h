@@ -23,7 +23,6 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
-#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -121,12 +120,6 @@ public:
   void ShallowCopy(vtkDataObject* src) override;
   void DeepCopy(vtkDataObject* src) override;
   ///@}
-
-  /**
-   * @deprecated RecursiveShallowCopy method, @see ShallowCopy
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use ShallowCopy instead.")
-  void RecursiveShallowCopy(vtkDataObject* src) override;
 
   /**
    * Returns the total number of points of all blocks. This will

@@ -35,7 +35,6 @@
 #ifndef vtkThreshold_h
 #define vtkThreshold_h
 
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
@@ -94,33 +93,6 @@ public:
 
   ///@{
   /**
-   * Control how the filter works with scalar point data and cell attribute
-   * data.  By default (AttributeModeToDefault), the filter will use point
-   * data, and if no point data is available, then cell data is
-   * used. Alternatively you can explicitly set the filter to use point data
-   * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
-  vtkSetMacro(AttributeMode, int);
-
-  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
-  vtkGetMacro(AttributeMode, int);
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
-  void SetAttributeModeToDefault();
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
-  void SetAttributeModeToUsePointData();
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInputArrayToProcess instead.")
-  void SetAttributeModeToUseCellData();
-
-  VTK_DEPRECATED_IN_9_3_0("This method is deprecated.")
-  const char* GetAttributeModeAsString();
-  ///@}
-
-  ///@{
-  /**
    * Control how the decision of in / out is made with multi-component data.
    * The choices are to use the selected component (specified in the
    * SelectedComponent ivar), or to look at all components. When looking at
@@ -171,27 +143,6 @@ public:
   vtkSetMacro(UseContinuousCellRange, vtkTypeBool);
   vtkGetMacro(UseContinuousCellRange, vtkTypeBool);
   vtkBooleanMacro(UseContinuousCellRange, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Set the data type of the output points (See the data types defined in
-   * vtkType.h). The default data type is float.
-
-   * These methods are deprecated. Please use the SetOutputPointsPrecision()
-   * and GetOutputPointsPrecision() methods instead.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
-  void SetPointsDataTypeToDouble();
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
-  void SetPointsDataTypeToFloat();
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetOutputPointsPrecision instead.")
-  void SetPointsDataType(int type);
-
-  VTK_DEPRECATED_IN_9_3_0("Please use GetOutputPointsPrecision instead.")
-  int GetPointsDataType();
   ///@}
 
   ///@{

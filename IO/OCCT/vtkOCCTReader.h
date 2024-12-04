@@ -20,7 +20,6 @@
 
 #include <vtkMultiBlockDataSetAlgorithm.h>
 
-#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkIOOCCTModule.h" // For export macro
 
 #include <memory> // For std::unique_ptr
@@ -48,8 +47,6 @@ public:
    * It can be either STEP or IGES.
    * Default is FILE_FORMAT::STEP
    */
-  VTK_DEPRECATED_IN_9_3_0("Use SetFormat with unsigned int instead.")
-  vtkSetEnumMacro(FileFormat, Format);
   vtkSetClampMacro(FileFormat, unsigned int, Format::STEP, Format::IGES);
   ///@}
 

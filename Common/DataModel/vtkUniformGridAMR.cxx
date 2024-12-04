@@ -347,13 +347,6 @@ void vtkUniformGridAMR::ShallowCopy(vtkDataObject* src)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMR::RecursiveShallowCopy(vtkDataObject* src)
-{
-  VTK_LEGACY_REPLACED_BODY(RecursiveShallowCopy, "VTK 9.3", ShallowCopy);
-  this->ShallowCopy(src);
-}
-
-//------------------------------------------------------------------------------
 const double* vtkUniformGridAMR::GetBounds()
 {
   return !this->AMRData->Empty() ? this->Bounds : this->AMRInfo->GetBounds();

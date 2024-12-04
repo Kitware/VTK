@@ -27,7 +27,6 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 
-#include "vtkDeprecation.h" // for deprecatin S/GetRenderWindow
 #include "vtkHyperTreeGridAlgorithm.h"
 #include "vtkNew.h"          // for internal fields
 #include "vtkSmartPointer.h" // for internal fields
@@ -70,10 +69,6 @@ public:
    */
   vtkSetStringMacro(GradientArrayName);
   vtkGetStringMacro(GradientArrayName);
-  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetGradientArrayName method instead.")
-  void SetResultArrayName(std::string name) { this->SetGradientArrayName(name.c_str()); }
-  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous GetGradientArrayName method instead.")
-  std::string GetResultArrayName() { return std::string(this->GetGradientArrayName()); }
   ///@}
 
   ///@{

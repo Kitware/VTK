@@ -12,7 +12,6 @@
 #define vtkUniformGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED
 #include "vtkImageData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -49,12 +48,6 @@ public:
    */
   void Initialize() override;
   ///@}
-
-  /**
-   * Returns the data description of this uniform grid instance.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use GetDataDescription() instead.")
-  int GetGridDescription() { return this->GetDataDescription(); }
 
   /**
    * Initialize with no ghost cell arrays, from the definition in

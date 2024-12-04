@@ -88,41 +88,6 @@ vtkQuadricDecimation::~vtkQuadricDecimation()
   this->TargetPoints->Delete();
 }
 
-void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId, const double* x)
-{
-  int i;
-  this->Mesh->GetPoints()->SetPoint(ptId, x);
-
-  for (i = 0; i < this->NumberOfComponents; i++)
-  {
-    if (i < this->AttributeComponents[0])
-    {
-      this->Mesh->GetPointData()->GetScalars()->SetComponent(
-        ptId, i, x[3 + i] / this->AttributeScale[0]);
-    }
-    else if (i < this->AttributeComponents[1])
-    {
-      this->Mesh->GetPointData()->GetVectors()->SetComponent(
-        ptId, i - this->AttributeComponents[0], x[3 + i] / this->AttributeScale[1]);
-    }
-    else if (i < this->AttributeComponents[2])
-    {
-      this->Mesh->GetPointData()->GetNormals()->SetComponent(
-        ptId, i - this->AttributeComponents[1], x[3 + i] / this->AttributeScale[2]);
-    }
-    else if (i < this->AttributeComponents[3])
-    {
-      this->Mesh->GetPointData()->GetTCoords()->SetComponent(
-        ptId, i - this->AttributeComponents[2], x[3 + i] / this->AttributeScale[3]);
-    }
-    else if (i < this->AttributeComponents[4])
-    {
-      this->Mesh->GetPointData()->GetTensors()->SetComponent(
-        ptId, i - this->AttributeComponents[3], x[3 + i] / this->AttributeScale[4]);
-    }
-  }
-}
-
 void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId[2], const double* x)
 {
   auto points = this->Mesh->GetPoints();

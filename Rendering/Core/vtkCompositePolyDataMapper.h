@@ -18,7 +18,6 @@
 
 #include "vtkPolyDataMapper.h"
 
-#include "vtkDeprecation.h"         // for VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingCoreModule.h" // for export macro
 #include "vtkStateStorage.h"        // for ivar
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
@@ -106,8 +105,6 @@ public:
     double color[3] = { r, g, b };
     this->SetBlockColor(index, color);
   }
-  VTK_DEPRECATED_IN_9_3_0("Use void GetBlockColor(unsigned int index, double color[3])")
-  double* GetBlockColor(unsigned int index);
   void GetBlockColor(unsigned int index, double color[3]);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();
@@ -334,8 +331,6 @@ protected:
 private:
   vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&) = delete;
   void operator=(const vtkCompositePolyDataMapper&) = delete;
-
-  std::array<double, 3> ColorResult = {};
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internals;

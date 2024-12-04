@@ -1,11 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkActor.h"
 #include "vtkCompositeDataDisplayAttributes.h"
-#include "vtkCompositePolyDataMapper2.h"
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkCubeSource.h"
 #include "vtkDataArray.h"
 #include "vtkLookupTable.h"
@@ -68,8 +66,8 @@ int TestBlockVisibility(int argc, char* argv[])
 
   auto mbds = vtkCreateData();
 
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkSmartPointer<vtkCompositePolyDataMapper> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper>::New();
   mapper->SetInputDataObject(mbds);
   // mapper->SetColorModeToMapScalars();
   // mapper->SetScalarModeToUsePointData();

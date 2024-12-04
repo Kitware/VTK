@@ -143,62 +143,6 @@ vtkm::cont::UnknownArrayHandle vtkDataArrayToUnknownArrayHandle(DataArrayType* i
   return vtkDataArrayToArrayHandle(input);
 }
 
-template <typename DataArrayType, vtkm::IdComponent NumComponents>
-struct DataArrayToArrayHandle;
-
-template <typename T, vtkm::IdComponent NumComponents>
-struct DataArrayToArrayHandle<vtkAOSDataArrayTemplate<T>, NumComponents>
-{
-  using ValueType =
-    typename std::conditional<NumComponents == 1, T, vtkm::Vec<T, NumComponents>>::type;
-  using StorageType = vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagBasic>;
-  using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagBasic>;
-
-  VTK_DEPRECATED_IN_9_3_0("Use vtkDataArrayToArrayHandle or vtkAOSDataArrayToFlatArrayHandle.")
-  static ArrayHandleType Wrap(vtkAOSDataArrayTemplate<T>* input)
-  {
-    return vtkm::cont::make_ArrayHandle(reinterpret_cast<ValueType*>(input->GetPointer(0)),
-      input->GetNumberOfTuples(), vtkm::CopyFlag::Off);
-  }
-};
-
-template <typename T, vtkm::IdComponent NumComponents>
-struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, NumComponents>
-{
-  using ValueType = vtkm::Vec<T, NumComponents>;
-  using StorageType = vtkm::cont::internal::Storage<ValueType, vtkm::cont::StorageTagSOA>;
-  using ArrayHandleType = vtkm::cont::ArrayHandle<ValueType, vtkm::cont::StorageTagSOA>;
-
-  VTK_DEPRECATED_IN_9_3_0("Use vtkDataArrayToArrayHandle or vtkSOADataArrayToComponentArrayHandle.")
-  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T>* input)
-  {
-    vtkm::Id numValues = input->GetNumberOfTuples();
-    vtkm::cont::ArrayHandleSOA<ValueType> handle;
-    for (vtkm::IdComponent i = 0; i < NumComponents; ++i)
-    {
-      handle.SetArray(i,
-        vtkm::cont::make_ArrayHandle<T>(reinterpret_cast<T*>(input->GetComponentArrayPointer(i)),
-          numValues, vtkm::CopyFlag::Off));
-    }
-
-    return std::move(handle);
-  }
-};
-
-template <typename T>
-struct DataArrayToArrayHandle<vtkSOADataArrayTemplate<T>, 1>
-{
-  using StorageType = vtkm::cont::internal::Storage<T, vtkm::cont::StorageTagBasic>;
-  using ArrayHandleType = vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>;
-
-  VTK_DEPRECATED_IN_9_3_0("Use vtkDataArrayToArrayHandle or vtkSOADataArrayToComponentArrayHandle.")
-  static ArrayHandleType Wrap(vtkSOADataArrayTemplate<T>* input)
-  {
-    return vtkm::cont::make_ArrayHandle(
-      input->GetComponentArrayPointer(0), input->GetNumberOfTuples(), vtkm::CopyFlag::Off);
-  }
-};
-
 enum class FieldsFlag
 {
   None = 0x0,

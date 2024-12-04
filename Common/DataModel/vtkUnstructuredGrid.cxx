@@ -1145,12 +1145,6 @@ void vtkUnstructuredGrid::BuildLinks()
 }
 
 //------------------------------------------------------------------------------
-vtkAbstractCellLinks* vtkUnstructuredGrid::GetCellLinks()
-{
-  return this->Links;
-}
-
-//------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdType& ncells, vtkIdType*& cells)
 {
   if (!this->Editable)

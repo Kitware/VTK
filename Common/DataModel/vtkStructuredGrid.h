@@ -31,7 +31,6 @@
 #define vtkStructuredGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkPointSet.h"
 
 #include "vtkStructuredData.h" // Needed for inline methods
@@ -188,18 +187,10 @@ public:
   void SetDimensions(const int dims[3]);
   ///@}
 
-  ///@{
-  /**
-   * Get dimensions of this structured grid.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use GetDimensions(int dims[3]) instead.")
-  virtual int* GetDimensions() VTK_SIZEHINT(3);
-
   /**
    * Get dimensions of this structured grid based on its extent.
    */
   virtual void GetDimensions(int dims[3]);
-  ///@}
 
   /**
    * Return the dimensionality of the data.

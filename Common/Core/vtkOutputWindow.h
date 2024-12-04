@@ -15,22 +15,9 @@
 
 #include "vtkCommonCoreModule.h"  // For export macro
 #include "vtkDebugLeaksManager.h" // Must be included before singletons
-#include "vtkDeprecation.h"       // For `VTK_DEPRECATED_IN_9_3_0`
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTK_DEPRECATED_IN_9_3_0(
-  "`vtkOutputWindowCleanup` is no longer necessary") VTKCOMMONCORE_EXPORT vtkOutputWindowCleanup
-{
-public:
-  vtkOutputWindowCleanup() = default;
-  ~vtkOutputWindowCleanup() = default;
-
-private:
-  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
-  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) = delete;
-};
-
 class vtkOutputWindowPrivateAccessor;
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
 {

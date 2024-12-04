@@ -15,7 +15,6 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_3_0
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
@@ -125,12 +124,6 @@ public:
   void CompositeShallowCopy(vtkCompositeDataSet* src) override;
   void ShallowCopy(vtkDataObject* src) override;
   ///@}
-
-  /**
-   * Deprecated RecursiveShallowCopy method, uses ShallowCopy
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use ShallowCopy instead.")
-  void RecursiveShallowCopy(vtkDataObject* src) override;
 
   /**
    * DeepCopy.

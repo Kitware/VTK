@@ -156,13 +156,6 @@ void vtkRectilinearGrid::Initialize()
 }
 
 //------------------------------------------------------------------------------
-void vtkRectilinearGrid::GetPoints(vtkPoints* points)
-{
-  assert("pre: points object should not be nullptr" && (points != nullptr));
-  points->ShallowCopy(this->GetPoints());
-}
-
-//------------------------------------------------------------------------------
 void vtkRectilinearGrid::GetPoint(vtkIdType ptId, double x[3])
 {
   static_cast<vtkStructuredPointArray<double>*>(this->StructuredPoints->GetData())

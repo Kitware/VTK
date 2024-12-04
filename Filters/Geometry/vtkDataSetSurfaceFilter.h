@@ -76,7 +76,6 @@
 #ifndef vtkDataSetSurfaceFilter_h
 #define vtkDataSetSurfaceFilter_h
 
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkGeometryFilter.h"        // To facilitate delegation
 #include "vtkPolyDataAlgorithm.h"
@@ -325,10 +324,6 @@ protected:
   vtkIdType* PointMap;
   vtkIdType GetOutputPointId(
     vtkIdType inPtId, vtkDataSet* input, vtkPoints* outPts, vtkPointData* outPD);
-
-  VTK_DEPRECATED_IN_9_3_0("This function is deprecated since reserved for private usage.")
-  vtkIdType GetOutputPointIdAndInterpolate(vtkIdType inPtId, vtkDataSet* input, vtkCell* cell,
-    double* weights, vtkPoints* outPts, vtkPointData* outPD);
 
   class vtkEdgeInterpolationMap;
 

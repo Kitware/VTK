@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkAbstractCellLinks.h"
 
@@ -54,13 +52,6 @@ int vtkAbstractCellLinks::ComputeType(
   }
 #endif
   return vtkAbstractCellLinks::STATIC_CELL_LINKS_IDTYPE;
-}
-
-//------------------------------------------------------------------------------
-void vtkAbstractCellLinks::BuildLinks(vtkDataSet* dataset)
-{
-  this->SetDataSet(dataset);
-  this->BuildLinks();
 }
 
 //------------------------------------------------------------------------------

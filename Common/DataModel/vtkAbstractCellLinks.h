@@ -20,7 +20,6 @@
 #define vtkAbstractCellLinks_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -46,12 +45,6 @@ public:
   virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet, vtkDataSet);
   ///@}
-
-  /**
-   * Set the input dataset and build the link list array.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use SetDataSet() and BuildLinks() instead.")
-  void BuildLinks(vtkDataSet* data);
 
   /**
    * Build the link list array from the input dataset.

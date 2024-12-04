@@ -23,7 +23,6 @@
 
 #include "vtkActor.h"
 #include "vtkAxisActor.h"                 // access to enum values
-#include "vtkDeprecation.h"               // For deprecation macro
 #include "vtkNew.h"                       // used for vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // used for vtkSmartPointer
@@ -95,29 +94,6 @@ public:
    */
   vtkSetClampMacro(RequestedNumberOfPolarAxes, vtkIdType, 0, VTK_MAXIMUM_NUMBER_OF_POLAR_AXES);
   vtkGetMacro(RequestedNumberOfPolarAxes, vtkIdType);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get whether the number of polar axis ticks and arcs should be automatically calculated.
-   * Default: false.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
-  vtkSetMacro(AutoSubdividePolarAxis, bool);
-  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
-  vtkGetMacro(AutoSubdividePolarAxis, bool);
-  void AutoSubdividePolarAxisOn();
-  void AutoSubdividePolarAxisOff();
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get a number of ticks that one would like to display along polar axis.
-   * NB: it modifies DeltaRangeMajor to correspond to this number.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
-  virtual void SetNumberOfPolarAxisTicks(int);
-  int GetNumberOfPolarAxisTicks();
   ///@}
 
   ///@{
@@ -872,15 +848,6 @@ protected:
   void BuildRadialAxes(vtkViewport* viewport = nullptr);
 
   /**
-   * Set Range and PolarAxis members value to build axis ticks
-   * this function doesn't actually build PolarAxis ticks, it set the DeltaRangeMajor and DeltaMajor
-   * attributes
-   * then PolarAxis itself is in charge of ticks drawing
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use SetDeltaRangeMajor instead or enable AxisTickMatchesPolarAxes")
-  void AutoComputeTicksProperties();
-
-  /**
    * return a step attempting to be as rounded as possible according to input parameters
    */
   double ComputeIdealStep(int subDivsRequired, double rangeLength, int maxSubDivs = 1000);
@@ -1004,11 +971,6 @@ protected:
    * Range between 2 major ticks (values displayed on the axis).
    */
   double DeltaRangeMajor = 1.0;
-
-  /**
-   * DEPRECATED: Automatically subdivide polar axis.
-   */
-  bool AutoSubdividePolarAxis = false;
 
   /**
    * Range between 2 polar axes.

@@ -13,7 +13,6 @@
 #define vtkStdString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkSystemIncludes.h"   // For VTKCOMMONCORE_EXPORT.
 #include <string>                // For the superclass.
 #include <utility>               // For std::move
@@ -58,9 +57,6 @@ public:
     : std::string(s, pos, n)
   {
   }
-
-  VTK_DEPRECATED_IN_9_3_0("Call `.c_str()` explicitly")
-  operator const char*() { return this->c_str(); }
 };
 
 VTK_ABI_NAMESPACE_END
