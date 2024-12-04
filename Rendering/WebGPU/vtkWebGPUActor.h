@@ -10,6 +10,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
+class vtkWebGPUConfiguration;
 class vtkWebGPURenderPipelineCache;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUActor : public vtkActor
@@ -18,6 +19,8 @@ public:
   static vtkWebGPUActor* New();
   vtkTypeMacro(vtkWebGPUActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
   inline const void* GetCachedActorInformation() { return &(this->CachedActorInfo); }
   static std::size_t GetCacheSizeBytes() { return sizeof(ActorBlock); }
@@ -34,6 +37,11 @@ public:
    * pipeline for the rendering and thus doesn't support render bundles.
    */
   bool SupportRenderBundles();
+
+  inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  {
+    layouts.emplace_back(this->ActorBindGroupLayout);
+  }
 
   virtual bool UpdateKeyMatrices();
 
@@ -55,26 +63,15 @@ public:
   vtkTypeBool HasTranslucentPolygonalGeometry() override;
   ///@}
 
-  /**
-   * Forces the renderer to re-record draw commands into a render bundle associated with this actor.
-   *
-   * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
-   * render bundle is invalidated.
-   */
-  inline void SetBundleInvalidated(bool value) { this->BundleInvalidated = value; }
-
-  /**
-   * Get whether the render bundle associated with this actor must be reset by the renderer.
-   */
-  vtkGetMacro(BundleInvalidated, bool);
-
 protected:
   vtkWebGPUActor();
   ~vtkWebGPUActor() override;
 
-  void CacheActorTransforms();
-  void CacheActorRenderOptions();
-  void CacheActorShadeOptions();
+  bool CacheActorTransforms();
+  bool CacheActorRenderOptions();
+  bool CacheActorShadeOptions();
+
+  void AllocateResources(vtkWebGPUConfiguration* renderer);
 
   struct ActorBlock
   {
@@ -134,7 +131,9 @@ protected:
   vtkTimeStamp ShadingOptionsBuildTimestamp;
   vtkTimeStamp RenderOptionsBuildTimestamp;
 
-  bool BundleInvalidated = false;
+  wgpu::BindGroupLayout ActorBindGroupLayout;
+  wgpu::BindGroup ActorBindGroup;
+  wgpu::Buffer ActorBuffer;
 
   class MapperBooleanCache
   {

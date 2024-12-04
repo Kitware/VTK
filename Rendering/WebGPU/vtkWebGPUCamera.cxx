@@ -119,13 +119,12 @@ void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
     rpassEncoder.SetScissorRect(static_cast<uint32_t>(this->ScissorRect.GetLeft()),
       static_cast<uint32_t>(this->ScissorRect.GetBottom()),
       static_cast<uint32_t>(this->ScissorRect.GetWidth()),
-      static_cast<uint32_t>(this->ScissorRect.GetWidth()));
+      static_cast<uint32_t>(this->ScissorRect.GetHeight()));
     this->UseScissor = false;
   }
   else
   {
-    rpassEncoder.SetScissorRect(
-      0u, 0u, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+    rpassEncoder.SetScissorRect(0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
   }
 }
 

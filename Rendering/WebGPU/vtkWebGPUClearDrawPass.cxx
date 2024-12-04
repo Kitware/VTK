@@ -7,7 +7,6 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
-#include <chrono>
 
 VTK_ABI_NAMESPACE_BEGIN
 

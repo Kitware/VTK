@@ -110,13 +110,11 @@ public:
 
   inline wgpu::RenderPassEncoder GetRenderPassEncoder() { return this->WGPURenderEncoder; }
   inline wgpu::RenderBundleEncoder GetRenderBundleEncoder() { return this->WGPUBundleEncoder; }
-  inline wgpu::BindGroup GetActorBindGroup() { return this->ActorBindGroup; }
   inline wgpu::BindGroup GetSceneBindGroup() { return this->SceneBindGroup; }
 
   inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
   {
     layouts.emplace_back(this->SceneBindGroupLayout);
-    layouts.emplace_back(this->ActorBindGroupLayout);
   }
 
   /// @{
@@ -165,6 +163,19 @@ public:
    */
   vtkGetEnumMacro(RenderStage, RenderStageEnum);
 
+  /**
+   * Forces the renderer to re-record draw commands into a render bundle.
+   *
+   * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
+   * render bundle is invalidated.
+   */
+  inline void SetBundleInvalidated(bool value) { this->BundleInvalidated = value; }
+
+  /**
+   * Get whether the render bundle associated with this actor must be reset by the renderer.
+   */
+  vtkGetMacro(BundleInvalidated, bool);
+
 protected:
   vtkWebGPURenderer();
   ~vtkWebGPURenderer() override;
@@ -193,35 +204,23 @@ protected:
 
   std::size_t WriteLightsBuffer(std::size_t offset = 0);
   std::size_t WriteSceneTransformsBuffer(std::size_t offset = 0);
-  std::size_t WriteActorBlocksBuffer(std::size_t offset = 0);
 
   wgpu::RenderPassEncoder WGPURenderEncoder;
   wgpu::RenderBundleEncoder WGPUBundleEncoder;
   wgpu::Buffer SceneTransformBuffer;
   wgpu::Buffer SceneLightsBuffer;
-  wgpu::Buffer ActorBlocksBuffer;
   std::size_t LastActorBufferSize = 0;
   wgpu::BindGroup SceneBindGroup;
   wgpu::BindGroupLayout SceneBindGroupLayout;
 
-  wgpu::BindGroup ActorBindGroup;
-  wgpu::BindGroupLayout ActorBindGroupLayout;
-
 #ifdef __EMSCRIPTEN__
   bool UseRenderBundles = true;
 #else
-  bool UseRenderBundles = false;
+  bool UseRenderBundles = true;
 #endif
-  // one bundle per actor. bundle gets reused every frame.
-  // these bundles can be built in parallel with vtkSMPTools. holding off because not
-  // sure how to get emscripten to thread.
-  std::vector<wgpu::RenderBundle> Bundles;
-  struct vtkWGPUPropItem
-  {
-    wgpu::RenderBundle Bundle = nullptr;
-    vtkTypeUInt32 DynamicOffset = 0;
-  };
-  std::unordered_map<vtkProp*, vtkWGPUPropItem> PropWGPUItems;
+  bool BundleInvalidated = false;
+  // the commands in bundle get reused every frame.
+  wgpu::RenderBundle Bundle;
 
   int LightingComplexity = 0;
   std::size_t NumberOfLightsUsed = 0;
@@ -229,13 +228,6 @@ protected:
 
   vtkMTimeType LightingUpdateTime;
   vtkTimeStamp LightingUploadTimestamp;
-
-  struct
-  {
-    uint32_t Hits = 0;
-    uint32_t Misses = 0;
-    uint32_t TotalRequests = 0;
-  } BundleCacheStats;
 
   /**
    * Optional user transform for lights

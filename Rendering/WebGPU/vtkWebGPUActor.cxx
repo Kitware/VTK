@@ -3,6 +3,9 @@
 
 #include "vtkWebGPUActor.h"
 
+#include "Private/vtkWebGPUBindGroupInternals.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
@@ -12,6 +15,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkWebGPUComputePointCloudMapper.h"
+#include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 #include "vtkWindow.h"
 
@@ -48,12 +52,14 @@ void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ModelTransformsBuildTimestamp: " << this->ModelTransformsBuildTimestamp << '\n';
   os << indent << "ShadingOptionsBuildTimestamp: " << this->ShadingOptionsBuildTimestamp << '\n';
   os << indent << "RenderOptionsBuildTimestamp: " << this->RenderOptionsBuildTimestamp << '\n';
-  os << indent << "BundleInvalidated: " << this->BundleInvalidated << '\n';
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUActor::ReleaseGraphicsResources(vtkWindow* window)
 {
+  this->ActorBindGroupLayout = nullptr;
+  this->ActorBindGroup = nullptr;
+  this->ActorBuffer = nullptr;
   this->MapperHasOpaqueGeometry = {};
   this->MapperHasTranslucentPolygonalGeometry = {};
   this->Superclass::ReleaseGraphicsResources(window);
@@ -64,21 +70,46 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
 {
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
+    auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
+    auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
     switch (wgpuRenderer->GetRenderStage())
     {
       case vtkWebGPURenderer::AwaitingPreparation:
         break;
       case vtkWebGPURenderer::UpdatingBuffers:
+      {
+        if (!(this->ActorBindGroup && this->ActorBindGroupLayout && this->ActorBuffer))
+        {
+          this->AllocateResources(wgpuConfiguration);
+        }
         // reset this flag because the `mapper->Render()` call shall invalidate the bundle if it
         // determines that the render bundle needs to be recorded once again.
-        this->BundleInvalidated = false;
         mapper->Render(renderer, this);
-        this->CacheActorRenderOptions();
-        this->CacheActorShadeOptions();
-        this->CacheActorTransforms();
+        bool updateBuffers = this->CacheActorRenderOptions();
+        updateBuffers |= this->CacheActorShadeOptions();
+        updateBuffers |= this->CacheActorTransforms();
+        if (updateBuffers)
+        {
+          wgpuConfiguration->WriteBuffer(this->ActorBuffer, 0, this->GetCachedActorInformation(),
+            this->GetCacheSizeBytes(), "ActorBufferUpdate");
+        }
         break;
+      }
       case vtkWebGPURenderer::RecordingCommands:
-        mapper->Render(renderer, this);
+        if (wgpuRenderer->GetUseRenderBundles() && this->SupportRenderBundles())
+        {
+          if (wgpuRenderer->GetBundleInvalidated())
+          {
+            wgpuRenderer->GetRenderBundleEncoder().SetBindGroup(1, this->ActorBindGroup);
+            mapper->Render(renderer, this);
+          }
+          // else, no need to record draw commands.
+        }
+        else
+        {
+          wgpuRenderer->GetRenderPassEncoder().SetBindGroup(1, this->ActorBindGroup);
+          mapper->Render(renderer, this);
+        }
         break;
       case vtkWebGPURenderer::Finished:
       default:
@@ -207,7 +238,7 @@ bool vtkWebGPUActor::UpdateKeyMatrices()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::CacheActorTransforms()
+bool vtkWebGPUActor::CacheActorTransforms()
 {
   if (this->UpdateKeyMatrices())
   {
@@ -223,11 +254,13 @@ void vtkWebGPUActor::CacheActorTransforms()
         transform.Normal[i][j] = this->NormalMatrix->GetElement(i, j);
       }
     }
+    return true;
   }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::CacheActorRenderOptions()
+bool vtkWebGPUActor::CacheActorRenderOptions()
 {
   auto* displayProperty = this->GetProperty();
   if (displayProperty->GetMTime() > this->RenderOptionsBuildTimestamp ||
@@ -246,11 +279,13 @@ void vtkWebGPUActor::CacheActorRenderOptions()
       (displayProperty->GetRenderLinesAsTubes() << 6) |
       (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
     this->RenderOptionsBuildTimestamp.Modified();
+    return true;
   }
+  return false;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::CacheActorShadeOptions()
+bool vtkWebGPUActor::CacheActorShadeOptions()
 {
   auto* displayProperty = this->GetProperty();
   if (displayProperty->GetMTime() > this->ShadingOptionsBuildTimestamp ||
@@ -271,6 +306,42 @@ void vtkWebGPUActor::CacheActorShadeOptions()
       so.VertexColor[i] = displayProperty->GetVertexColor()[i];
     }
     this->ShadingOptionsBuildTimestamp.Modified();
+    return true;
   }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration)
+{
+  const auto& device = wgpuConfiguration->GetDevice();
+
+  const auto actorDescription = this->GetObjectDescription();
+  const auto bufferLabel = "buffer@" + actorDescription;
+  const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
+  this->ActorBuffer = wgpuConfiguration->CreateBuffer(bufferSize,
+    wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, bufferLabel.c_str());
+
+  this->ActorBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+    {
+      // clang-format off
+      // ActorBlocks
+      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
+      // clang-format on
+    },
+    "bgl@" + actorDescription);
+  this->ActorBindGroup =
+    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->ActorBindGroupLayout,
+      {
+        // clang-format off
+        { 0, this->ActorBuffer, 0, bufferSize },
+        // clang-format on
+      },
+      "bg@" + actorDescription);
+  // Reset timestamps because the previous buffer is now gone and contents of the buffer will need
+  // to be re-uploaded.
+  this->ModelTransformsBuildTimestamp = vtkTimeStamp();
+  this->ShadingOptionsBuildTimestamp = vtkTimeStamp();
+  this->RenderOptionsBuildTimestamp = vtkTimeStamp();
 }
 VTK_ABI_NAMESPACE_END
