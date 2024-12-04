@@ -340,7 +340,7 @@
 
 .el8_x86_64_icc:
     extends: .linux
-    image: "kitware/vtk:ci-el8-x86_64-icc-20231201"
+    image: "danlipsa/vtk:ci-el8-x86_64-icc-20241116"
 
     variables:
         VENV_ROOT: "/opt/python311/venv"
