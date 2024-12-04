@@ -336,6 +336,7 @@
 
     variables:
         VENV_ROOT: "/opt/python38/venv"
+        SITE_PACKAGES_DIR: python3.8
         LAUNCHER: "scl enable rh-python38 devtoolset-8 --"
 
 .el8_x86_64_icc:
@@ -344,6 +345,7 @@
 
     variables:
         VENV_ROOT: "/opt/python311/venv"
+        SITE_PACKAGES_DIR: python3.11
 
         CC: icx
         CXX: icpx
@@ -721,6 +723,7 @@
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
     # Load a venv
     - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
+    - '[ -n "$VENV_ROOT" ] && export PYTHONPATH=$VENV_ROOT/lib/$SITE_PACKAGES_DIR/site-packages'
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 

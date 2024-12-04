@@ -260,8 +260,12 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
-        - . build/ci-venv/bin/activate
-        - python -c "import xarray"
+        # Reuse the venv from the build step (avoids version changes between
+        # build and testing). This is set up manually because Activate.ps1
+        # doesn't seem to work for our extracted Python tarball.
+        - export PATH=$PWD/build/ci-venv/bin:$PATH
+        - export PYTHONPATH=$PWD/build/ci-venv/lib/python3.9/site-packages
+        - build/bin/vtkpython -c "import xarray"
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
