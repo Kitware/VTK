@@ -590,7 +590,6 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
   wgpu::ShaderModule shaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(device, R"(
     struct VertexOutput {
       @builtin(position) position: vec4<f32>,
-      @location(0) uv: vec2<f32>
     }
 
     @vertex
@@ -603,22 +602,20 @@ void vtkWebGPURenderWindow::CreateFSQGraphicsPipeline()
         vec2<f32>( 1,  1)  // top-right
       );
       output.position = vec4<f32>(coords[vertex_id].xy, 1.0, 1.0);
-      output.uv = output.position.xy * 0.5 + 0.5;
-      // fip y for texture coordinate.
-      output.uv.y = 1.0 - output.uv.y;
       return output;
     }
 
     struct FragmentInput {
       @builtin(position) position: vec4<f32>,
-      @location(0) uv: vec2<f32>
     }
 
     @group(0) @binding(0) var fsqTexture: texture_2d<f32>;
 
     @fragment
     fn fragmentMain(fragment: FragmentInput) -> @location(0) vec4<f32> {
-      let color = textureLoad(fsqTexture, vec2<i32>(fragment.position.xy), 0);
+      let dims = textureDimensions(fsqTexture);
+      let texCoord = vec2(u32(fragment.position.x), dims.y - 1u - u32(fragment.position.y));
+      let color = textureLoad(fsqTexture, texCoord, 0);
       return vec4<f32>(color);
     }
   )");
