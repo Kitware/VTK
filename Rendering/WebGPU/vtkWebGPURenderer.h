@@ -10,8 +10,6 @@
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
 #include "vtk_wgpu.h"                 // for webgpu
 
-#include <string>        // for ivar
-#include <unordered_map> // for ivar
 #include <unordered_set> // for the set of actors rendered last frame
 
 class vtkAbstractMapper;
@@ -169,12 +167,12 @@ public:
    * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
    * render bundle is invalidated.
    */
-  inline void SetBundleInvalidated(bool value) { this->BundleInvalidated = value; }
+  inline void InvalidateBundle() { this->RebuildRenderBundle = true; }
 
   /**
    * Get whether the render bundle associated with this actor must be reset by the renderer.
    */
-  vtkGetMacro(BundleInvalidated, bool);
+  vtkGetMacro(RebuildRenderBundle, bool);
 
 protected:
   vtkWebGPURenderer();
@@ -216,9 +214,9 @@ protected:
 #ifdef __EMSCRIPTEN__
   bool UseRenderBundles = true;
 #else
-  bool UseRenderBundles = true;
+  bool UseRenderBundles = false;
 #endif
-  bool BundleInvalidated = false;
+  bool RebuildRenderBundle = false;
   // the commands in bundle get reused every frame.
   wgpu::RenderBundle Bundle;
 

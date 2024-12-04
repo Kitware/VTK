@@ -160,8 +160,18 @@ void vtkWebGPURenderer::UpdateBuffers()
   this->UpdateLightGeometry();
   this->UpdateLights();
 
-  // if any mapper's commands need rebundling, that mapper will set this flag.
-  this->BundleInvalidated = false;
+  // Render bundle is rebuilt if any mapper needs to re-record render commands.
+  if (this->UseRenderBundles)
+  {
+    if (this->Bundle != nullptr)
+    {
+      this->RebuildRenderBundle = false;
+    }
+    else
+    {
+      this->RebuildRenderBundle = true;
+    }
+  }
   this->UpdateGeometry(); // mappers prepare geometry SSBO and pipeline layout.
 
   this->CreateBuffers();
@@ -695,7 +705,7 @@ void vtkWebGPURenderer::BeginRecording()
   this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
 #endif
   this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
-  if (this->BundleInvalidated)
+  if (this->RebuildRenderBundle)
   {
     // destroy previous bundle.
     this->Bundle = nullptr;

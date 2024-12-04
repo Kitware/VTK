@@ -145,7 +145,7 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   auto& batchElement = *(this->VTKPolyDataToBatchElement.begin()->second);
   if (this->LastBlockVisibility != batchElement.Visibility)
   {
-    wgpuRenderer->SetBundleInvalidated(true);
+    wgpuRenderer->InvalidateBundle();
   }
   this->LastBlockVisibility = batchElement.Visibility;
 

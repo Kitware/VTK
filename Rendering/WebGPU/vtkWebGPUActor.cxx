@@ -98,7 +98,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
       case vtkWebGPURenderer::RecordingCommands:
         if (wgpuRenderer->GetUseRenderBundles() && this->SupportRenderBundles())
         {
-          if (wgpuRenderer->GetBundleInvalidated())
+          if (wgpuRenderer->GetRebuildRenderBundle())
           {
             wgpuRenderer->GetRenderBundleEncoder().SetBindGroup(1, this->ActorBindGroup);
             mapper->Render(renderer, this);

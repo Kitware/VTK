@@ -306,13 +306,13 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       if (this->GetNeedToRebuildGraphicsPipelines(actor))
       {
         // render bundle must reference new bind groups and/or pipelines
-        wgpuRenderer->SetBundleInvalidated(true);
+        wgpuRenderer->InvalidateBundle();
         this->SetupGraphicsPipelines(device, renderer, actor);
       }
       // invalidate render bundle when any of the cached properties of an actor have changed.
       if (this->CacheActorProperties(actor))
       {
-        wgpuRenderer->SetBundleInvalidated(true);
+        wgpuRenderer->InvalidateBundle();
       }
       break;
     }
