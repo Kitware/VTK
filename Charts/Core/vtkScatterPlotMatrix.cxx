@@ -1711,7 +1711,7 @@ void vtkScatterPlotMatrix::SetGridVisibility(int plotType, bool visible)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->ShowGrid = visible;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1722,7 +1722,7 @@ void vtkScatterPlotMatrix::SetGridColor(int plotType, const vtkColor4ub& color)
   if (plotType >= 0 && plotType < vtkScatterPlotMatrix::NOPLOT)
   {
     this->Private->ChartSettings[plotType]->GridColor = color;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1733,7 +1733,7 @@ void vtkScatterPlotMatrix::SetAxisLabelVisibility(int plotType, bool visible)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->ShowAxisLabels = visible;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1744,7 +1744,7 @@ void vtkScatterPlotMatrix::SetAxisLabelNotation(int plotType, int notation)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->LabelNotation = notation;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1755,7 +1755,7 @@ void vtkScatterPlotMatrix::SetAxisLabelPrecision(int plotType, int precision)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->LabelPrecision = precision;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1766,7 +1766,7 @@ void vtkScatterPlotMatrix::SetTooltipNotation(int plotType, int notation)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->TooltipNotation = notation;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1777,7 +1777,7 @@ void vtkScatterPlotMatrix::SetTooltipPrecision(int plotType, int precision)
   if (plotType != NOPLOT)
   {
     this->Private->ChartSettings[plotType]->TooltipPrecision = precision;
-    // How to update
+    this->ActivePlotValid = false;
     this->Modified();
   }
 }
@@ -1842,6 +1842,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
       this->Private->BigChart->GetAxis(vtkAxis::RIGHT), this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->UpdateChart(this->Private->BigChart, this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->BigChart->SetSelectionMode(this->SelectionMode);
+    this->ActivePlotValid = false;
   }
   this->Modified();
 }
