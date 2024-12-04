@@ -30,6 +30,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
   TestDistancePolyDataFilter2.cxx
+  TestExplodeDataSet.cxx,NO_VALID
   TestExtractGhostCells.cxx,NO_VALID
   TestGraphWeightEuclideanDistanceFilter.cxx,NO_VALID
   TestGroupDataSetsFilter.cxx,NO_VALID

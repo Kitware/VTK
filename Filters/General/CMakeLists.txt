@@ -43,6 +43,7 @@ set(classes
   vtkDistancePolyDataFilter
   vtkEdgePoints
   vtkEqualizerFilter
+  vtkExplodeDataSet
   vtkExtractArray
   vtkExtractGhostCells
   vtkExtractSelectedFrustum
