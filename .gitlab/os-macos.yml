@@ -248,6 +248,9 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
+        - "$DEVELOPER_DIR//Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9 -m venv build/ci-venv"
+        - . build/ci-venv/bin/activate
+        - pip install xarray cftime netcdf4
         - *script_macos
     interruptible: true
 
@@ -257,6 +260,8 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
+        - . build/ci-venv/bin/activate
+        - python -c "import xarray"
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake
     interruptible: true
 
@@ -315,6 +320,7 @@
           # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
         - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
         - pip install twine
+        - pip install xarray cftime netcdf4
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
         - python -c "import vtk"
