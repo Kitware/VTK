@@ -11,7 +11,7 @@ if (Python3_EXECUTABLE)
     vtkParallelCore-TestSocketCommunicator TestSocketCommunicator.cxx)
 
   add_test(NAME vtkParallelCore-TestSocketCommunicator
-           COMMAND ${PYTHON_EXECUTABLE}
+           COMMAND ${Python3_EXECUTABLE}
                    ${VTK_SOURCE_DIR}/CMake/vtkTestDriver.py
                    # indicate that the processes are not run sequentially,
                    --process

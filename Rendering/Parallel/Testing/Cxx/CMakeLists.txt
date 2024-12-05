@@ -23,7 +23,7 @@ if (Python3_EXECUTABLE)
 
   ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     NAME vtkRenderingParallel-TestClientServerRendering
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${Python3_EXECUTABLE}
       ${VTK_SOURCE_DIR}/CMake/vtkTestDriver.py
       --process
         $<TARGET_FILE:vtkRenderingParallel-TestClientServerRendering>
