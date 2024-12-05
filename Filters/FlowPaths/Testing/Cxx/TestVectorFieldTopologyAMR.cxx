@@ -14,6 +14,7 @@
 #include "vtkAMRGaussianPulseSource.h"
 #include "vtkActor.h"
 #include "vtkArrayCalculator.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkDataSetMapper.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -30,24 +31,30 @@
 #include "vtkStreamSurface.h"
 #include "vtkVectorFieldTopology.h"
 #include "vtkWarpScalar.h"
+#include <vtkXMLUniformGridAMRWriter.h>
 
 int TestVectorFieldTopologyAMR(int argc, char* argv[])
 {
   vtkNew<vtkAMRGaussianPulseSource> wavelet;
-
   vtkNew<vtkArrayCalculator> calc;
   calc->AddCoordinateScalarVariable("coordsX", 0);
   calc->AddCoordinateScalarVariable("coordsY", 1);
   calc->AddCoordinateScalarVariable("coordsZ", 2);
-  calc->SetFunction("(coordsX+coordsZ)*iHat + coordsY*jHat + (coordsX-coordsZ)*kHat");
+  calc->SetFunction("(coordsX+coordsZ-1)*iHat + coordsY*jHat + (coordsX-coordsZ+1)*kHat");
   calc->SetInputConnection(wavelet->GetOutputPort());
   calc->Update();
+
+  // Now store this file to disk
+  vtkNew<vtkXMLUniformGridAMRWriter> writer;
+  writer->SetInputConnection(calc->GetOutputPort());
+  writer->SetFileName("/Users/bujack/Downloads/output.vthb");
+  writer->Write();
 
   vtkNew<vtkVectorFieldTopology> topology;
   topology->SetInputData(calc->GetOutput());
   topology->SetIntegrationStepUnit(1);
-  topology->SetSeparatrixDistance(1);
-  topology->SetIntegrationStepSize(1);
+  topology->SetSeparatrixDistance(0.2);
+  topology->SetIntegrationStepSize(0.2);
   topology->SetMaxNumSteps(1000);
   topology->SetComputeSurfaces(true);
   topology->SetUseBoundarySwitchPoints(false);
@@ -56,12 +63,16 @@ int TestVectorFieldTopologyAMR(int argc, char* argv[])
   topology->Update();
 
   // the bounding box
+  vtkNew<vtkCompositeDataGeometryFilter> geomFilter;
+  geomFilter->SetInputConnection(wavelet->GetOutputPort());
+  geomFilter->Update();
+
   vtkNew<vtkDataSetMapper> waveletMapper;
-  waveletMapper->SetInputConnection(topology->GetOutputPort());
+  waveletMapper->SetInputConnection(geomFilter->GetOutputPort());
 
   vtkNew<vtkActor> waveletActor;
   waveletActor->SetMapper(waveletMapper);
-  waveletActor->GetProperty()->SetColor(0.4, 0.4, 0.4);
+  waveletActor->GetProperty()->SetColor(0.4, 0.4, 1.0);
   waveletActor->GetProperty()->SetOpacity(0.1);
   waveletActor->GetProperty()->SetRepresentationToSurface();
 
