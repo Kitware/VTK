@@ -89,7 +89,7 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->UseLocalSeedSource = true;
 
-  this->InterpType = 0;
+  this->InterpolatorType = INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
 }
 
 //------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 //------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorType(int interpType)
 {
-  this->InterpType = interpType;
+  this->InterpolatorType = interpType;
 }
 
 //------------------------------------------------------------------------------
@@ -480,7 +480,7 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
     if (vtkOverlappingAMR::SafeDownCast(this->InputData))
     {
       vtkNew<vtkAMRInterpolatedVelocityField> cIVF;
-      if (this->InterpType == INTERPOLATOR_WITH_CELL_LOCATOR)
+      if (this->InterpolatorType == INTERPOLATOR_WITH_CELL_LOCATOR)
       {
         // create an interpolator equipped with a cell locator
         vtkNew<vtkCellLocatorStrategy> strategy;
@@ -498,7 +498,7 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
-      if (this->InterpType == INTERPOLATOR_WITH_CELL_LOCATOR)
+      if (this->InterpolatorType == INTERPOLATOR_WITH_CELL_LOCATOR)
       {
         // create an interpolator equipped with a cell locator
         vtkNew<vtkCellLocatorStrategy> strategy;

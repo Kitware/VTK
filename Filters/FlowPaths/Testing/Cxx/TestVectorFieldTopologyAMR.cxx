@@ -44,12 +44,6 @@ int TestVectorFieldTopologyAMR(int argc, char* argv[])
   calc->SetInputConnection(wavelet->GetOutputPort());
   calc->Update();
 
-  // Now store this file to disk
-  vtkNew<vtkXMLUniformGridAMRWriter> writer;
-  writer->SetInputConnection(calc->GetOutputPort());
-  writer->SetFileName("/Users/bujack/Downloads/output.vthb");
-  writer->Write();
-
   vtkNew<vtkVectorFieldTopology> topology;
   topology->SetInputData(calc->GetOutput());
   topology->SetIntegrationStepUnit(1);

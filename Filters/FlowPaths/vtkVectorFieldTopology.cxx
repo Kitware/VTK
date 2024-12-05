@@ -60,6 +60,7 @@
 #define epsilon (1e-10)
 
 //----------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVectorFieldTopology);
 
 //----------------------------------------------------------------------------
@@ -595,7 +596,7 @@ int vtkVectorFieldTopology::ComputeBoundarySwitchPoints(
     tangent[1] = p1[1] - p0[1];
     tangent[2] = 0;
 
-    // makse sure that the line normal points inward
+    // makes sure that the line normal points inward
     double offset[3], shiftedPoint[3];
     vtkMath::Assign(normal, offset);
     vtkMath::MultiplyScalar(offset, 0.1);
@@ -1057,7 +1058,7 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
     return 1;
 
   // copy celldata to boundarySwitchLines
-  // delete the temporay arrays "Normals" and "ScalarProduct"
+  // delete the temporary arrays "Normals" and "ScalarProduct"
   // keep the vector array and the output
   boundarySwitchLines->DeepCopy(contourFilter->GetOutput());
   boundarySwitchLines->GetPointData()->RemoveArray("Normals");
@@ -1365,9 +1366,6 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
               streamSurface->SetSourceData(seeds);
               streamSurface->Update();
 
-              // cout << BoundarySwitchTypeArray->GetTuple1(cell->GetPointId(0)) << ": "
-              //      << streamSurface->GetOutput()->GetNumberOfPoints() << "    "
-              //      << streamSurface->GetOutput()->GetNumberOfCells() << endl;
               vtkNew<vtkAppendPolyData> appendFilter;
               appendFilter->AddInputData(separatrices);
               appendFilter->AddInputData(streamSurface->GetOutput());
@@ -1706,6 +1704,10 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   tridataset->GetPointData()->AddArray(isBoundary);
   for (int ptId = 0; ptId < tridataset->GetNumberOfPoints(); ptId++)
   {
+    // The point data is `double`, but it stores ids and the value of
+    // `isBoundary` is treated as a boolean, so while the types may appear as
+    // if these are swapped, they are not.
+    // NOLINTNEXTLINE(bugprone-swapped-arguments)
     isBoundary->SetTuple1(ptId, 0);
   }
   for (int ptId = 0; ptId < boundary->GetNumberOfPoints(); ptId++)
@@ -1795,7 +1797,7 @@ int vtkVectorFieldTopology::UnstructuredGridPrepare(
     return 1;
   }
 
-  // find out domension from cell types
+  // find out dimension from cell types
   for (int cellId = 0; cellId < dataset->GetNumberOfCells(); cellId++)
   {
     if (dataset->GetCell(cellId)->GetCellType() >= VTK_TETRA)
@@ -1828,6 +1830,7 @@ int vtkVectorFieldTopology::UnstructuredGridPrepare(
 
   return 1;
 }
+
 //----------------------------------------------------------------------------
 void vtkVectorFieldTopology::CopyBoundarySwitchLinesArray(vtkDataSet* source, vtkPolyData* target)
 {
@@ -2015,7 +2018,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      vtkErrorMacro("Dimention has to be either 2 or 3.\n");
+      vtkErrorMacro("Dimension has to be either 2 or 3.\n");
       return 0;
     }
 
@@ -2180,3 +2183,4 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
 
   return success;
 }
+VTK_ABI_NAMESPACE_END
