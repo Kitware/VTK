@@ -24,6 +24,7 @@ class vtkActor;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationStringVectorKey;
 class vtkInformationStringKey;
 class vtkMapper;
 class vtkPiecewiseFunction;
@@ -117,6 +118,35 @@ public:
   static void SetLuminosity(double value, vtkProperty*);
   static double GetLuminosity(vtkProperty*);
   //@}
+
+  /**
+   * Name of the node, used for debugging or representation
+   * metadata in case ANARI output is written out to intermediate
+   * authoring stages.
+   */
+  static vtkInformationStringKey* ACTOR_NODE_NAME();
+
+  /**
+   * Indicates that the actor includes point and cell attribute arrays
+   * within its rendering output. This allows ANARI backends that transfer
+   * rendering data to intermediate authoring stages to get access to
+   * additional data than what is typically used by VTK's rendering itself.
+   */
+  static vtkInformationIntegerKey* OUTPUT_POINT_AND_CELL_ARRAYS();
+
+  /**
+   * Whether the output enabled with OUTPUT_POINT_AND_CELL_ARRAYS should
+   * convert double arrays to float.
+   */
+  static vtkInformationIntegerKey* OUTPUT_POINT_AND_CELL_ARRAYS_DOUBLE_TO_FLOAT();
+
+  /**
+   * Array metadata for intermediate authoring steps, which denotes the arrays
+   * which are not written out separately for every timestep,
+   * but instead contain only a single representation for all timesteps.
+   */
+  static vtkInformationStringVectorKey* SCENEGRAPH_TIME_CONSTANT_POINT_ARRAYS();
+  static vtkInformationStringVectorKey* SCENEGRAPH_TIME_CONSTANT_CELL_ARRAYS();
 
 protected:
   vtkAnariActorNode();

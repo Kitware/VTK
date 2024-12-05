@@ -59,6 +59,7 @@ protected:
   bool ActorWasModified() const;
   void RenderSurfaceModels();
   void ClearSurfaces();
+  void SetActorNodeName();
 
   void AnariRenderPoly(vtkAnariActorNode* const anariActorNode, vtkPolyData* const poly,
     double* const diffuse, const double opacity, const std::string& materialName);

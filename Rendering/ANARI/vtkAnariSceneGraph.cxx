@@ -84,6 +84,8 @@ struct vtkAnariSceneGraphInternals
   std::vector<anari::Surface> AnariSurfaces;
   std::vector<anari::Volume> AnariVolumes;
   std::vector<anari::Light> AnariLights;
+
+  int MaxPropId = 0;
 };
 
 vtkAnariSceneGraphInternals::vtkAnariSceneGraphInternals(vtkAnariSceneGraph* owner)
@@ -276,8 +278,6 @@ void vtkAnariSceneGraph::UpdateAnariSurfaces()
   {
     for (size_t i = 0; i < surfaceState.size(); i++)
     {
-      std::string surfaceName = "vtk_surface_" + std::to_string(i);
-      anari::setParameter(anariDevice, surfaceState[i], "name", surfaceName.c_str());
       anari::commitParameters(anariDevice, surfaceState[i]);
     }
 
@@ -340,6 +340,12 @@ void vtkAnariSceneGraph::DebugOutputWorldBounds()
   {
     vtkWarningMacro(<< "[ANARI] World bounds not returned");
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariSceneGraph::ResetReservedPropIds()
+{
+  this->Internal->MaxPropId = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -530,6 +536,8 @@ void vtkAnariSceneGraph::Build(bool prepass)
   {
     vtkRenderer* aren = vtkRenderer::SafeDownCast(this->Renderable);
 
+    ResetReservedPropIds(); // Make sure the prop ids are reset before rendering
+
     // make sure we have a camera
     if (!(aren->IsActiveCameraCreated()))
     {
@@ -700,6 +708,12 @@ const float* vtkAnariSceneGraph::GetZBuffer()
 void vtkAnariSceneGraph::InvalidateSceneStructure()
 {
   this->AnariSceneStructureModifiedMTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+int vtkAnariSceneGraph::ReservePropId()
+{
+  return this->Internal->MaxPropId++;
 }
 
 //------------------------------------------------------------------------------

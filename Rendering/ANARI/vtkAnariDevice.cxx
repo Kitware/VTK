@@ -11,7 +11,14 @@
 #include <memory>
 #include <sstream>
 
+#include <anari/anari_cpp/ext/std.h>
+
 VTK_ABI_NAMESPACE_BEGIN
+
+using namespace anari::std_types;
+using vec2_d = std::array<double, 2>;
+using vec3_d = std::array<double, 3>;
+using vec4_d = std::array<double, 4>;
 
 // ----------------------------------------------------------------------------
 static void AnariStatusCallback(const void* userData, anari::Device device, anari::Object source,
@@ -67,6 +74,10 @@ public:
   bool InitAnari(bool useDebugDevice = false, const char* libraryName = "environment",
     const char* deviceName = "default");
   void CleanupAnariObjects();
+
+  template <typename T>
+  void SetDeviceParameter(const char* p, const T& v);
+  void CommitDeviceParameters();
 
   std::string AnariLibraryName;
   std::string AnariDeviceName;
@@ -215,6 +226,24 @@ void vtkAnariDeviceInternals::CleanupAnariObjects()
   this->AnariExtensions = {};
 }
 
+//------------------------------------------------------------------------------
+template <typename T>
+void vtkAnariDeviceInternals::SetDeviceParameter(const char* p, const T& v)
+{
+  if (!this->AnariDevice)
+  {
+    return;
+  }
+
+  anari::setParameter(this->AnariDevice, this->AnariDevice, p, v);
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariDeviceInternals::CommitDeviceParameters()
+{
+  anari::commitParameters(this->AnariDevice, this->AnariDevice);
+}
+
 // ----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAnariDeviceInternals);
 
@@ -265,6 +294,78 @@ const anari::Extensions& vtkAnariDevice::GetAnariDeviceExtensions() const
 void vtkAnariDevice::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
 {
   this->Internal->NewDeviceCB = std::move(cb);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, char* c)
+{
+  this->Internal->SetDeviceParameter(param, c);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, bool b)
+{
+  this->Internal->SetDeviceParameter(param, b);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, int x)
+{
+  this->Internal->SetDeviceParameter(param, x);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, int x, int y)
+{
+  this->Internal->SetDeviceParameter(param, ivec2{ x, y });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, int x, int y, int z)
+{
+  this->Internal->SetDeviceParameter(param, ivec3{ x, y, z });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, int x, int y, int z, int w)
+{
+  this->Internal->SetDeviceParameter(param, ivec4{ x, y, z, w });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, float x)
+{
+  this->Internal->SetDeviceParameter(param, x);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, float x, float y)
+{
+  this->Internal->SetDeviceParameter(param, vec2{ x, y });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, float x, float y, float z)
+{
+  this->Internal->SetDeviceParameter(param, vec3{ x, y, z });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameter(const char* param, float x, float y, float z, float w)
+{
+  this->Internal->SetDeviceParameter(param, vec4{ x, y, z, w });
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::SetParameterd(const char* param, double x)
+{
+  this->Internal->SetDeviceParameter(param, x);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariDevice::CommitParameters()
+{
+  this->Internal->CommitDeviceParameters();
 }
 
 // ----------------------------------------------------------------------------

@@ -69,6 +69,28 @@ public:
    */
   void SetOnNewDeviceCallback(OnNewDeviceCallback&& cb);
 
+  //@{
+  /**
+   * Methods to set/commit generic parameteters on the underlying
+   * anari::Renderer object.  These are primarily to support setting parameters
+   * from Python -- C++ users can also use the ANARI API directly by using
+   * anari::setParameter() and anari::commitParameters() directly as it is
+   * equivalent.
+   */
+  void SetParameter(const char* param, char*);
+  void SetParameter(const char* param, bool);
+  void SetParameter(const char* param, int);
+  void SetParameter(const char* param, int, int);
+  void SetParameter(const char* param, int, int, int);
+  void SetParameter(const char* param, int, int, int, int);
+  void SetParameter(const char* param, float);
+  void SetParameter(const char* param, float, float);
+  void SetParameter(const char* param, float, float, float);
+  void SetParameter(const char* param, float, float, float, float);
+  void SetParameterd(const char* param, double);
+  void CommitParameters();
+  //@}
+
 protected:
   /**
    * Default constructor.

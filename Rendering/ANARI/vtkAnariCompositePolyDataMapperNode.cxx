@@ -53,6 +53,8 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
     return;
   }
 
+  this->SetActorNodeName();
+
   vtkProperty* prop = act->GetProperty();
 
   // Push base-values on the state stack.

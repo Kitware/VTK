@@ -6,6 +6,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
+#include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -14,6 +15,9 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //============================================================================
 vtkStandardNewMacro(vtkAnariVolumeNode);
+
+//============================================================================
+vtkInformationKeyMacro(vtkAnariVolumeNode, VOLUME_NODE_NAME, String);
 
 //----------------------------------------------------------------------------
 void vtkAnariVolumeNode::PrintSelf(ostream& os, vtkIndent indent)

@@ -171,6 +171,11 @@ public:
    */
   void InvalidateSceneStructure();
 
+  /**
+   * Reserve an Id which is unique to a render call.
+   */
+  int ReservePropId();
+
 protected:
   vtkAnariSceneGraph();
   ~vtkAnariSceneGraph();
@@ -184,6 +189,7 @@ protected:
   void UpdateAnariVolumes();
   void CopyAnariFrameBufferData();
   void DebugOutputWorldBounds();
+  void ResetReservedPropIds();
 
   vtkAnariSceneGraphInternals* Internal{ nullptr };
 
