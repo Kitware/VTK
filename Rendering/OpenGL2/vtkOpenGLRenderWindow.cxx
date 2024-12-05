@@ -8,6 +8,7 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
@@ -189,6 +190,106 @@ static const char* FlipShader =
     gl_FragData[0] = texture(tex, texCoord);
   }
   )***";
+
+#if defined(VTK_REPORT_OPENGL_ERRORS) && defined(GLAD_GL)
+static void GLAPIENTRY vtkOpenGLMessageHandler(GLenum source, GLenum type, GLuint id,
+  GLenum severity, GLsizei /*length*/, const GLchar* message, const void* /*userParam*/)
+{
+  std::string messageType;
+  switch (type)
+  {
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+      messageType = "DEPRECATED_BEHAVIOR";
+      break;
+    case GL_DEBUG_TYPE_ERROR:
+      messageType = "ERROR";
+      break;
+    case GL_DEBUG_TYPE_MARKER:
+      messageType = "MARKER";
+      break;
+    case GL_DEBUG_TYPE_OTHER:
+      messageType = "OTHER";
+      break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+      messageType = "PERFORMANCE";
+      break;
+    case GL_DEBUG_TYPE_POP_GROUP:
+      messageType = "POP_GROUP";
+      break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+      messageType = "PORTABILITY";
+      break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+      messageType = "PUSH_GROUP";
+      break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+      messageType = "UNDEFINED_BEHAVIOR";
+      break;
+    default:
+      messageType = "UNKNOWN";
+      break;
+  }
+  std::string messageSeverity;
+  switch (severity)
+  {
+    case GL_DEBUG_SEVERITY_HIGH:
+      messageSeverity = "HIGH";
+      break;
+    case GL_DEBUG_SEVERITY_LOW:
+      messageSeverity = "LOW";
+      break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+      messageSeverity = "MEDIUM";
+      break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+      messageSeverity = "NOTIFICATION";
+      break;
+    default:
+      messageSeverity = "UNKNOWN";
+      break;
+  }
+
+  std::string sourceType;
+  switch (source)
+  {
+    case GL_DEBUG_SOURCE_API:
+      sourceType = "SOURCE_API";
+      break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+      sourceType = "SOURCE_APPLICATION";
+      break;
+    case GL_DEBUG_SOURCE_OTHER:
+      sourceType = "SOURCE_OTHER";
+      break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+      sourceType = "SOURCE_SHADER_COMPILER";
+      break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+      sourceType = "SOURCE_THIRD_PARTY";
+      break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+      sourceType = "SOURCE_WINDOW_SYSTEM";
+      break;
+    default:
+      sourceType = "UNKNOWN";
+      break;
+  }
+
+  std::ostringstream oss;
+  oss << "GL Message: id=" << id << " source=" << sourceType << "(0x" << std::hex << source << ")"
+      << std::dec << " type=" << messageType << "(0x" << std::hex << type << std::dec << ")"
+      << " severity=" << messageSeverity << "(0x" << std::hex << severity << std::dec << ")"
+      << " message=" << message;
+  if (severity == GL_DEBUG_SEVERITY_HIGH)
+  {
+    vtkLog(WARNING, << oss.str());
+  }
+  else
+  {
+    vtkLog(TRACE, << oss.str());
+  }
+}
+#endif
 
 #ifdef GL_ES_VERSION_3_0
 namespace
@@ -826,6 +927,17 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
                          "to avoid this issue.");
       return;
     }
+
+    // Enable debug output if OpenGL version supports attaching debug callbacks.
+#if defined(VTK_REPORT_OPENGL_ERRORS) && defined(GLAD_GL)
+    if (GLAD_GL_ARB_debug_output)
+    {
+      glEnable(GL_DEBUG_OUTPUT);
+      glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+      glDebugMessageCallback(vtkOpenGLMessageHandler, this);
+    }
+#endif
     // get this system's supported maximum line width
     // we do it here and store it to avoid repeated glGet
     // calls when the result should not change

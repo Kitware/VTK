@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 
+#include "vtkCompositePolyDataMapper.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -119,6 +120,12 @@ vtkTypeBool vtkActor::HasOpaqueGeometry()
 
   // are we using an opaque scalar array, if any?
   is_opaque = is_opaque && (this->Mapper == nullptr || this->Mapper->HasOpaqueGeometry());
+
+  // are we using a composite mapper that could have an opacity override per block?
+  if (auto* cpdm = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper))
+  {
+    is_opaque = is_opaque || cpdm->HasOpaqueGeometry();
+  }
 
   return is_opaque ? 1 : 0;
 }

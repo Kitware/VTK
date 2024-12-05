@@ -6,6 +6,7 @@
 #include <vtkCommand.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkLogger.h>
+#include <vtkOpenGLError.h>
 #include <vtkOpenGLFramebufferObject.h>
 #include <vtkOpenGLState.h>
 #include <vtkRenderWindowInteractor.h>
@@ -596,6 +597,9 @@ QSurfaceFormat QVTKRenderWindowAdapter::defaultFormat(bool stereo_capable)
   fmt.setRenderableType(QSurfaceFormat::OpenGL);
   fmt.setVersion(3, 2);
   fmt.setProfile(QSurfaceFormat::CoreProfile);
+#if defined(VTK_REPORT_OPENGL_ERRORS)
+  fmt.setOption(QSurfaceFormat::DebugContext);
+#endif
   fmt.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
   fmt.setRedBufferSize(8);
   fmt.setGreenBufferSize(8);
