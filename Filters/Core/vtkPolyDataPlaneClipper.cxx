@@ -709,7 +709,7 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
 
   // Prepare for processing
   vtkStaticCellLinksTemplate<vtkIdType> links;
-  links.ThreadedBuildLinks(numPts, numLines, lines);
+  links.BuildLinks(numPts, numLines, lines);
   vtkNew<vtkCellArray> polys;
   vtkNew<vtkPolygon> polygon;
   vtkIdType* lineConn =

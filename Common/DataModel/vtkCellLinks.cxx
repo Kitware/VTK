@@ -249,7 +249,6 @@ void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
   {
     return;
   }
-  this->SetSequentialProcessing(src->GetSequentialProcessing());
   this->Allocate(cellLinks->Size, cellLinks->Extend);
   vtkSMPTools::For(0, cellLinks->MaxId + 1,
     [&](vtkIdType ptId, vtkIdType endPtId)
@@ -277,7 +276,6 @@ void vtkCellLinks::ShallowCopy(vtkAbstractCellLinks* src)
   {
     return;
   }
-  this->SetSequentialProcessing(src->GetSequentialProcessing());
   this->ArraySharedPtr = cellLinks->ArraySharedPtr;
   this->Array = this->ArraySharedPtr.get();
   this->Size = cellLinks->Size;

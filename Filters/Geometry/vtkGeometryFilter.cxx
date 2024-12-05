@@ -2599,7 +2599,7 @@ int vtkGeometryFilter::PolyDataExecute(
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
+        exc.Links->BuildLinks(
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
@@ -2617,7 +2617,7 @@ int vtkGeometryFilter::PolyDataExecute(
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
+        exc.Links->BuildLinks(
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
@@ -3166,7 +3166,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
+        exc.Links->BuildLinks(
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
@@ -3195,7 +3195,7 @@ int vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet* dataSetInput, vtkPoly
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
+        exc.Links->BuildLinks(
           dataSetInput->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
@@ -3430,8 +3430,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
-          input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
+        exc.Links->BuildLinks(input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
     return ExecuteStructured<TInputIdType>(this, input, output, wholeExtent, &exc, extractFace);
@@ -3448,8 +3447,7 @@ int vtkGeometryFilter::StructuredExecute(vtkDataSet* input, vtkPolyData* output,
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
-          input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
+        exc.Links->BuildLinks(input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
     return ExecuteStructured<TInputIdType>(this, input, output, wholeExtent, &exc, extractFace);
@@ -3685,8 +3683,7 @@ int vtkGeometryFilter::DataSetExecute(
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
-          input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
+        exc.Links->BuildLinks(input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
     return ExecuteDataSet<TInputIdType>(this, input, output, &exc);
@@ -3702,8 +3699,7 @@ int vtkGeometryFilter::DataSetExecute(
       if (excPolys->GetNumberOfCells() > 0)
       {
         exc.Links = new vtkStaticCellLinksTemplate<TInputIdType>;
-        exc.Links->ThreadedBuildLinks(
-          input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
+        exc.Links->BuildLinks(input->GetNumberOfPoints(), excPolys->GetNumberOfCells(), excPolys);
       }
     }
     return ExecuteDataSet<TInputIdType>(this, input, output, &exc);

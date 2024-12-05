@@ -103,7 +103,7 @@ vtkSmartPointer<vtkCellArray> BuildStencils(vtkPointSet* input)
   // links from the points to the (line) cells using the output of
   // vtkExtractEdges.
   vtkStaticCellLinksTemplate<vtkIdType> links;
-  links.ThreadedBuildLinks(numPts, numLines, lines);
+  links.BuildLinks(numPts, numLines, lines);
   vtkIdType linksSize = links.GetLinksSize();
 
   // Building the links does most of the work. Now we transform the links
