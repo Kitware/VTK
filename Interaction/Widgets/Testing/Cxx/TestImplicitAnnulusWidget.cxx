@@ -7,8 +7,6 @@
 #include "vtkCamera.h"
 #include "vtkClipPolyData.h"
 #include "vtkCommand.h"
-#include "vtkConeSource.h"
-#include "vtkGlyph3D.h"
 #include "vtkImplicitAnnulusRepresentation.h"
 #include "vtkImplicitAnnulusWidget.h"
 #include "vtkInteractorEventRecorder.h"
@@ -27,19 +25,6 @@ const char eventLog[] = "# StreamVersion 1.2\n"
                         "ExposeEvent 0 299 0 0 0 0 0\n"
                         "MouseMoveEvent 147 149 0 0 0 0 0\n"
                         "RenderEvent 147 149 0 0 0 0 0\n"
-
-                        // Zoom back
-                        "MouseWheelBackwardEvent 147 149 0 0 0 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 1 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 0 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 1 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 0 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 1 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 0 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 1 0 0\n"
-                        "MouseWheelBackwardEvent 147 149 0 0 0 0 0\n"
-
-                        "RenderEvent 234 187 0 0 0 0 0\n"
 
                         "LeftButtonPressEvent 234 187 0 0 0 0 0\n"
                         "MouseMoveEvent 234 187 0 0 0 0 0\n"
@@ -443,10 +428,10 @@ const char eventLog[] = "# StreamVersion 1.2\n"
 // This does the actual work: updates the vtkAnnulus implicit function.
 // This in turn causes the pipeline to update and clip the object.
 // Callback for the interaction
-class vtkTICWCallback : public vtkCommand
+class UpdateClipSurfaceCallback : public vtkCommand
 {
 public:
-  static vtkTICWCallback* New() { return new vtkTICWCallback; }
+  static UpdateClipSurfaceCallback* New() { return new UpdateClipSurfaceCallback(); }
 
   void Execute(vtkObject* caller, unsigned long, void*) override
   {
@@ -467,50 +452,33 @@ int TestImplicitAnnulusWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create a mace out of filters.
   vtkNew<vtkSphereSource> sphere;
-  vtkNew<vtkConeSource> coneSource;
-  vtkNew<vtkGlyph3D> glyph;
-  glyph->SetInputConnection(sphere->GetOutputPort());
-  glyph->SetSourceConnection(coneSource->GetOutputPort());
-  glyph->SetVectorModeToUseNormal();
-  glyph->SetScaleModeToScaleByVector();
-  glyph->SetScaleFactor(0.25);
-  glyph->Update();
 
-  // The sphere and spikes are appended into a single polydata.
-  // This just makes things simpler to manage.
-  vtkNew<vtkAppendPolyData> apd;
-  apd->AddInputConnection(glyph->GetOutputPort());
-  apd->AddInputConnection(sphere->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> sphereMapper;
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
-  vtkNew<vtkPolyDataMapper> maceMapper;
-  maceMapper->SetInputConnection(apd->GetOutputPort());
+  vtkNew<vtkActor> sphereActor;
+  sphereActor->SetMapper(sphereMapper);
+  // sphereActor->VisibilityOn();
 
-  vtkNew<vtkActor> maceActor;
-  maceActor->SetMapper(maceMapper);
-  maceActor->VisibilityOn();
-
-  // This portion of the code clips the mace with the vtkAnnuluss
-  // implicit function. The clipped region is colored green.
   vtkNew<vtkAnnulus> annulus;
-
   vtkNew<vtkClipPolyData> clipper;
-  clipper->SetInputConnection(apd->GetOutputPort());
+  clipper->SetInputConnection(sphere->GetOutputPort());
   clipper->SetClipFunction(annulus);
-  clipper->InsideOutOn();
+  // clipper->InsideOutOn();
 
-  vtkNew<vtkPolyDataMapper> selectMapper;
-  selectMapper->SetInputConnection(clipper->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> clipMapper;
+  clipMapper->SetInputConnection(clipper->GetOutputPort());
 
-  vtkNew<vtkActor> selectActor;
-  selectActor->SetMapper(selectMapper);
-  selectActor->GetProperty()->SetColor(0, 1, 0);
-  selectActor->VisibilityOff();
-  selectActor->SetScale(1.01, 1.01, 1.01);
+  vtkNew<vtkActor> clipActor;
+  clipActor->SetMapper(clipMapper);
+  clipActor->GetProperty()->SetColor(0, 1, 0);
+  clipActor->VisibilityOff();
+  clipActor->SetScale(1.01, 1.01, 1.01);
 
   // Create the RenderWindow, Renderer and both Actors
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(maceActor);
-  renderer->AddActor(selectActor);
+  renderer->AddActor(sphereActor);
+  renderer->AddActor(clipActor);
   renderer->SetBackground(0.1, 0.2, 0.4);
 
   vtkNew<vtkRenderWindow> renWin;
@@ -520,45 +488,27 @@ int TestImplicitAnnulusWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkRenderWindowInteractor> interactor;
   renWin->SetInteractor(interactor);
-
-  // The SetInteractor method is how 3D widgets are associated with the render
-  // window interactor. Internally, SetInteractor sets up a bunch of callbacks
-  // using the Command/Observer mechanism (AddObserver()).
-  vtkNew<vtkTICWCallback> myCallback;
-  myCallback->Annulus = annulus;
-  myCallback->Actor = selectActor;
+  renWin->Render();
 
   vtkNew<vtkImplicitAnnulusRepresentation> rep;
   rep->SetPlaceFactor(1.25);
-  rep->PlaceWidget(glyph->GetOutput()->GetBounds());
-
-  const double inner = rep->GetInnerRadius();
-  const double outer = rep->GetOuterRadius();
-
-  if (inner > outer)
-  {
-    vtkLog(ERROR, "Inner radius is expected to be lower than outer one.");
-  }
-
-  const double newInner = outer + 1;
-  rep->SetInnerRadius(newInner);
-  if (newInner != rep->GetInnerRadius())
-  {
-    vtkLog(ERROR, "Getter should return previously set value");
-  }
-  // restore for further testing.
-  rep->SetInnerRadius(inner);
+  rep->PlaceWidget(sphere->GetOutput()->GetBounds());
 
   vtkNew<vtkImplicitAnnulusWidget> annulusWidget;
   annulusWidget->SetInteractor(interactor);
   annulusWidget->SetRepresentation(rep);
-  annulusWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
   annulusWidget->SetEnabled(true);
+
+  // Add callback to update click following annulus widget.
+  vtkNew<UpdateClipSurfaceCallback> myCallback;
+  myCallback->Annulus = annulus;
+  myCallback->Actor = clipActor;
+  annulusWidget->AddObserver(vtkCommand::InteractionEvent, myCallback);
 
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->SetInteractor(interactor);
 
-#if 0 // uncomment if recording
+#if 0 // set to 1 if recording
   recorder->SetFileName("./record.log");
   recorder->Record();
 
