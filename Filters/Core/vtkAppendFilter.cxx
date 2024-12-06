@@ -474,12 +474,13 @@ void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** in
   {
     if (auto inputData = dataSet->GetAttributes(attributesType))
     {
+      bool checkGhostValue =
+        attributesType == vtkDataObject::POINT && reallyMergePoints && dataSet->HasAnyGhostPoints();
+      vtkUnsignedCharArray* ghostPointArray = dataSet->GetGhostArray(vtkDataObject::POINT);
       const auto numberOfInputTuples = inputData->GetNumberOfTuples();
       for (vtkIdType id = 0; id < numberOfInputTuples; ++id)
       {
-        if (attributesType != vtkDataObject::POINT || !reallyMergePoints ||
-          !dataSet->HasAnyGhostPoints() ||
-          dataSet->GetGhostArray(vtkDataObject::POINT)->GetValue(id) == 0)
+        if (!checkGhostValue || ghostPointArray->GetValue(id) == 0)
         {
           if (globalIds != nullptr)
           {
