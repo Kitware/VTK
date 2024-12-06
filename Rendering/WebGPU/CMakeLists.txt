@@ -10,6 +10,7 @@ set(classes
   vtkWebGPUCamera
   vtkWebGPUCellToPrimitiveConverter
   vtkWebGPUClearDrawPass
+  vtkWebGPUCommandEncoderDebugGroup
   vtkWebGPUCompositePolyDataMapperDelegator
   vtkWebGPUComputeBuffer
   vtkWebGPUComputeFrustumCuller

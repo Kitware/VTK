@@ -23,6 +23,7 @@
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
+#include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputePipeline.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
@@ -82,49 +83,6 @@ std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS } },
     }
   };
-
-class MakeEncoderDebugGroup
-{
-  const wgpu::RenderPassEncoder* PassEncoder = nullptr;
-  const wgpu::RenderBundleEncoder* BundleEncoder = nullptr;
-
-public:
-  MakeEncoderDebugGroup(const wgpu::RenderPassEncoder& passEncoder, const char* groupLabel)
-    : PassEncoder(&passEncoder)
-  {
-#ifndef NDEBUG
-    this->PassEncoder->PushDebugGroup(groupLabel);
-#else
-    (void)this->PassEncoder;
-    (void)groupLabel;
-#endif
-  }
-  MakeEncoderDebugGroup(const wgpu::RenderBundleEncoder& bundleEncoder, const char* groupLabel)
-    : BundleEncoder(&bundleEncoder)
-  {
-#ifndef NDEBUG
-    this->BundleEncoder->PushDebugGroup(groupLabel);
-#else
-    (void)this->BundleEncoder;
-    (void)groupLabel;
-#endif
-  }
-#ifndef NDEBUG
-  ~MakeEncoderDebugGroup()
-  {
-    if (this->PassEncoder)
-    {
-      this->PassEncoder->PopDebugGroup();
-    }
-    if (this->BundleEncoder)
-    {
-      this->BundleEncoder->PopDebugGroup();
-    }
-  }
-#else
-  ~MakeEncoderDebugGroup() = default;
-#endif
-};
 
 template <typename DestT>
 struct WriteTypedArray
@@ -187,14 +145,6 @@ struct WriteTypedArray
   }
 };
 }
-
-#define vtkScopedEncoderDebugGroupConcatImpl(s1, s2) s1##s2
-#define vtkScopedEncoderDebugGroupConcat(s1, s2) vtkScopedEncoderDebugGroupConcatImpl(s1, s2)
-#define vtkScopedEncoderDebugGroupAnonymousVariable(x) vtkScopedEncoderDebugGroupConcat(x, __LINE__)
-// Use this macro to annotate a group of commands in an renderpass/bundle encoder.
-#define vtkScopedEncoderDebugGroup(encoder, name)                                                  \
-  auto vtkScopedEncoderDebugGroupAnonymousVariable(encoderDebugGroup) =                            \
-    ::MakeEncoderDebugGroup(encoder, name);
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWebGPUPolyDataMapper);
