@@ -620,7 +620,7 @@ std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
   }
   return measure;
 }
-} // anonymoun namespace
+} // anonymous namespace
 
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os)
@@ -930,7 +930,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     if ((ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) && (ext2[3] - ext2[2]) == (ext1[3] - ext1[2]) &&
       (ext2[5] - ext2[4]) == (ext1[5] - ext1[4]))
     {
-      vtkLog(INFO, "Trying onother baseline.");
+      vtkLog(INFO, "Trying another baseline.");
       // Cannot compute difference unless image sizes are the same
       executeComparison(error);
     }
