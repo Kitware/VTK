@@ -710,6 +710,13 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
   }
   else if (ghostdict == nullptr && pytype->tp_init != nullptr)
   {
+    // For checking if Python __init__ call modifies the C++ object
+    vtkObject* checkptr = vtkObject::SafeDownCast(ptr);
+    vtkMTimeType checktime = 0;
+    if (checkptr)
+    {
+      checktime = checkptr->vtkObject::GetMTime();
+    }
     // Call __init__(self)
     PyObject* arglist = Py_BuildValue("()");
     int res = pytype->tp_init((PyObject*)self, arglist, nullptr);
@@ -718,6 +725,23 @@ PyObject* PyVTKObject_FromPointer(PyTypeObject* pytype, PyObject* ghostdict, vtk
     {
       Py_DECREF(self);
       self = nullptr;
+    }
+    else if (checkptr && checktime < checkptr->vtkObject::GetMTime())
+    {
+      // If the C++ object already existed within VTK, and the Python object
+      // is being created right now, then we don't want the creation of the
+      // Python object to cause changes to object attributes that were already
+      // set by the C++ VTK code.  For example, if we're getting the output
+      // dataset from a C++ VTK filter, we don't want any C++ attributes of
+      // the dataset to change when the Python part of the dataset object is
+      // created and initialized.
+      std::string message = "Python method ";
+      message += pytype->tp_name;
+      message += ".__init__() ";
+      message += "unexpectedly modified pre-existing C++ base object ";
+      message += checkptr->GetObjectDescription();
+      message += ".";
+      PyErr_WarnEx(PyExc_RuntimeWarning, message.c_str(), 1);
     }
   }
 

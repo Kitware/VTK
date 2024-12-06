@@ -22,7 +22,9 @@ from vtkmodules.vtkCommonCore import (
     vtkObjectBase,
     vtkPoints,
 )
+from vtkmodules.vtkCommonDataModel import vtkImageData
 from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkImagingSources import vtkImageGridSource
 from vtkmodules.test import Testing
 
 class vtkCustomObject(vtkObject):
@@ -59,6 +61,13 @@ class vtkCustomObject(vtkObject):
 class vtkPointsCustom(vtkPoints):
     def __init__(self):
         self.some_attribute = "custom"
+
+class vtkImageDataWarning(vtkImageData):
+    def __init__(self, spacing=(1.0, 1.0, 1.0)):
+        # this sets the spacing when the constructor is called without any
+        # arguments, which generates a warning in testOverrideWarning (see
+        # the test code below for an explanation)
+        self.SetSpacing(spacing)
 
 class TestSubclass(Testing.vtkTest):
     def testSubclassInstantiate(self):
@@ -129,6 +138,26 @@ class TestSubclass(Testing.vtkTest):
         # check that overrides can be removed
         vtkPoints.override(None)
         self.assertTrue(vtkPoints().__class__ == vtkPoints)
+
+    def testOverrideWarning(self):
+        """Check if a late call to __init__() modifies the C++ object"""
+        # check that the object has the correct class
+        vtkImageData.override(vtkImageDataWarning)
+        self.assertTrue(isinstance(vtkImageData(), vtkImageDataWarning))
+        # check object created deep in c++
+        source = vtkImageGridSource()
+        source.SetDataExtent(0, 255, 0, 255, 0, 0)
+        source.SetDataSpacing(0.1, 0.1, 1.0)
+        # calling Update() instantiates the data object in C++
+        source.Update()
+        # calling GetOutput() instantiates the data object in Python,
+        # and reports RuntimeWarning because our override modifies the data
+        with self.assertWarns(RuntimeWarning):
+            data = source.GetOutput()
+        # the custom __init__() method modified the spacing to be (1.0,1.0,1.0),
+        # the purpose of the RuntimeWarning is to let the user know that an odd
+        # modification like this has occurred
+        self.assertEqual(data.GetSpacing(), (1.0, 1.0, 1.0))
 
 if __name__ == "__main__":
     Testing.main([(TestSubclass, 'test')])
