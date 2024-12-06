@@ -126,7 +126,9 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(
     std::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
       descriptor->primitive.cullMode));
   std::string hash;
-  this->Internals->ComputeMD5({ shaderSource, cullModeStr.c_str(), topologyStr.c_str() }, hash);
+  this->Internals->ComputeMD5({ shaderSource, cullModeStr.c_str(), topologyStr.c_str(),
+                                descriptor->vertex.entryPoint, descriptor->fragment->entryPoint },
+    hash);
   return hash;
 }
 
