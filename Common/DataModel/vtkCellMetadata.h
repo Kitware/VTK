@@ -30,6 +30,8 @@
 #include "vtkStringToken.h"  // for vtkStringToken::Hash
 #include "vtkTypeName.h"     // for vtk::TypeName<>()
 
+#include <token/Singletons.h> // Increment Schwarz counter for initialization.
+
 #include <functional>
 #include <set>
 #include <unordered_map>
