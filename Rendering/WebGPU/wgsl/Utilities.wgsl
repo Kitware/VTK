@@ -21,6 +21,14 @@ fn getTuple3F32(tuple_id: u32, offset: u32, values: ptr<storage,array<f32>>) -> 
   );
 }
 
+fn getTuple2F32(tuple_id: u32, offset: u32, values: ptr<storage,array<f32>>) -> vec2<f32>
+{
+  return vec2<f32>(
+    values[2u * tuple_id + offset],
+    values[2u * tuple_id + 1u + offset],
+  );
+}
+
 //--------------------------------------------------------------------------------------
 // Standard Geometric Functions
 //--------------------------------------------------------------------------------------
