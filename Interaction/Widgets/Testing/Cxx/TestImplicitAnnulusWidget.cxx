@@ -458,13 +458,11 @@ int TestImplicitAnnulusWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkActor> sphereActor;
   sphereActor->SetMapper(sphereMapper);
-  // sphereActor->VisibilityOn();
 
   vtkNew<vtkAnnulus> annulus;
   vtkNew<vtkClipPolyData> clipper;
   clipper->SetInputConnection(sphere->GetOutputPort());
   clipper->SetClipFunction(annulus);
-  // clipper->InsideOutOn();
 
   vtkNew<vtkPolyDataMapper> clipMapper;
   clipMapper->SetInputConnection(clipper->GetOutputPort());

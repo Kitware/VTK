@@ -3,14 +3,14 @@
 #include "vtkImplicitCylinderRepresentation.h"
 
 #include "vtkActor.h"
+#include "vtkActorCollection.h"
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkBox.h"
-#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellPicker.h"
-#include "vtkCommand.h"
+#include "vtkCollectionRange.h"
 #include "vtkConeSource.h"
 #include "vtkCylinder.h"
 #include "vtkDoubleArray.h"
@@ -18,10 +18,8 @@
 #include "vtkImageData.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLineSource.h"
-#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutlineFilter.h"
 #include "vtkPickingManager.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -32,7 +30,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
@@ -68,19 +65,7 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->MaxRadius = 1.00;
 
   this->Resolution = 128;
-
-  this->Box = vtkImageData::New();
-  this->Box->SetDimensions(2, 2, 2);
-  this->Outline = vtkOutlineFilter::New();
-  this->Outline->SetInputData(this->Box);
-  this->OutlineMapper = vtkPolyDataMapper::New();
-  this->OutlineMapper->SetInputConnection(this->Outline->GetOutputPort());
-  this->OutlineActor = vtkActor::New();
-  this->OutlineActor->SetMapper(this->OutlineMapper);
-  this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
-  this->OutsideBounds = 1;
-  this->ConstrainToWidgetBounds = 1;
 
   this->Cyl = vtkPolyData::New();
   vtkPoints* pts = vtkPoints::New();
@@ -176,7 +161,7 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->Picker->AddPickList(this->LineActor2);
   this->Picker->AddPickList(this->ConeActor2);
   this->Picker->AddPickList(this->SphereActor);
-  this->Picker->AddPickList(this->OutlineActor);
+  this->Picker->AddPickList(this->GetOutlineActor());
   this->Picker->PickFromListOn();
 
   this->CylPicker = vtkCellPicker::New();
@@ -196,24 +181,17 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->SphereActor->SetProperty(this->AxisProperty);
   this->CylActor->SetProperty(this->CylinderProperty);
   this->EdgesActor->SetProperty(this->EdgesProperty);
-  this->OutlineActor->SetProperty(this->OutlineProperty);
 
   // The bounding box
   this->BoundingBox = vtkBox::New();
 
   this->RepresentationState = vtkImplicitCylinderRepresentation::Outside;
-
-  this->TranslationAxis = Axis::NONE;
 }
 
 //------------------------------------------------------------------------------
 vtkImplicitCylinderRepresentation::~vtkImplicitCylinderRepresentation()
 {
   this->Cylinder->Delete();
-  this->Box->Delete();
-  this->Outline->Delete();
-  this->OutlineMapper->Delete();
-  this->OutlineActor->Delete();
 
   this->Cyl->Delete();
   this->CylMapper->Delete();
@@ -253,8 +231,6 @@ vtkImplicitCylinderRepresentation::~vtkImplicitCylinderRepresentation()
   this->SelectedAxisProperty->Delete();
   this->CylinderProperty->Delete();
   this->SelectedCylinderProperty->Delete();
-  this->OutlineProperty->Delete();
-  this->SelectedOutlineProperty->Delete();
   this->EdgesProperty->Delete();
   this->BoundingBox->Delete();
 }
@@ -307,7 +283,7 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y, int
     }
     else
     {
-      if (this->OutlineTranslation)
+      if (this->GetOutlineTranslation())
       {
         this->InteractionState = vtkImplicitCylinderRepresentation::MovingOutline;
         this->SetRepresentationState(vtkImplicitCylinderRepresentation::MovingOutline);
@@ -449,14 +425,14 @@ void vtkImplicitCylinderRepresentation::EndWidgetInteraction(double vtkNotUsed(e
 double* vtkImplicitCylinderRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  this->BoundingBox->SetBounds(this->OutlineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->CylActor->GetBounds());
-  this->BoundingBox->AddBounds(this->EdgesActor->GetBounds());
-  this->BoundingBox->AddBounds(this->ConeActor->GetBounds());
-  this->BoundingBox->AddBounds(this->LineActor->GetBounds());
-  this->BoundingBox->AddBounds(this->ConeActor2->GetBounds());
-  this->BoundingBox->AddBounds(this->LineActor2->GetBounds());
-  this->BoundingBox->AddBounds(this->SphereActor->GetBounds());
+
+  vtkNew<vtkActorCollection> actors;
+  this->GetActors(actors);
+  this->BoundingBox->SetBounds(actors->GetLastActor()->GetBounds());
+  for (auto actor : vtk::Range(actors.Get()))
+  {
+    this->BoundingBox->AddBounds(actor->GetBounds());
+  }
 
   return this->BoundingBox->GetBounds();
 }
@@ -464,27 +440,29 @@ double* vtkImplicitCylinderRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->OutlineActor->GetActors(pc);
-  this->CylActor->GetActors(pc);
+  this->GetOutlineActor()->GetActors(pc);
   this->EdgesActor->GetActors(pc);
   this->ConeActor->GetActors(pc);
   this->LineActor->GetActors(pc);
   this->ConeActor2->GetActors(pc);
   this->LineActor2->GetActors(pc);
   this->SphereActor->GetActors(pc);
+
+  if (this->DrawCylinder)
+  {
+    this->CylActor->GetActors(pc);
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
-  this->OutlineActor->ReleaseGraphicsResources(w);
-  this->CylActor->ReleaseGraphicsResources(w);
-  this->EdgesActor->ReleaseGraphicsResources(w);
-  this->ConeActor->ReleaseGraphicsResources(w);
-  this->LineActor->ReleaseGraphicsResources(w);
-  this->ConeActor2->ReleaseGraphicsResources(w);
-  this->LineActor2->ReleaseGraphicsResources(w);
-  this->SphereActor->ReleaseGraphicsResources(w);
+  vtkNew<vtkActorCollection> actors;
+  this->GetActors(actors);
+  for (auto actor : vtk::Range(actors.Get()))
+  {
+    actor->ReleaseGraphicsResources(w);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -492,17 +470,12 @@ int vtkImplicitCylinderRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
-  count += this->OutlineActor->RenderOpaqueGeometry(v);
-  count += this->EdgesActor->RenderOpaqueGeometry(v);
-  count += this->ConeActor->RenderOpaqueGeometry(v);
-  count += this->LineActor->RenderOpaqueGeometry(v);
-  count += this->ConeActor2->RenderOpaqueGeometry(v);
-  count += this->LineActor2->RenderOpaqueGeometry(v);
-  count += this->SphereActor->RenderOpaqueGeometry(v);
 
-  if (this->DrawCylinder)
+  vtkNew<vtkActorCollection> actors;
+  this->GetActors(actors);
+  for (auto actor : vtk::Range(actors.Get()))
   {
-    count += this->CylActor->RenderOpaqueGeometry(v);
+    count += actor->RenderOpaqueGeometry(v);
   }
 
   return count;
@@ -513,17 +486,12 @@ int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(vtkVie
 {
   int count = 0;
   this->BuildRepresentation();
-  count += this->OutlineActor->RenderTranslucentPolygonalGeometry(v);
-  count += this->EdgesActor->RenderTranslucentPolygonalGeometry(v);
-  count += this->ConeActor->RenderTranslucentPolygonalGeometry(v);
-  count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
-  count += this->ConeActor2->RenderTranslucentPolygonalGeometry(v);
-  count += this->LineActor2->RenderTranslucentPolygonalGeometry(v);
-  count += this->SphereActor->RenderTranslucentPolygonalGeometry(v);
 
-  if (this->DrawCylinder)
+  vtkNew<vtkActorCollection> actors;
+  this->GetActors(actors);
+  for (auto actor : vtk::Range(actors.Get()))
   {
-    count += this->CylActor->RenderTranslucentPolygonalGeometry(v);
+    count += actor->RenderTranslucentPolygonalGeometry(v);
   }
 
   return count;
@@ -533,17 +501,11 @@ int vtkImplicitCylinderRepresentation::RenderTranslucentPolygonalGeometry(vtkVie
 vtkTypeBool vtkImplicitCylinderRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
-  result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
-  result |= this->EdgesActor->HasTranslucentPolygonalGeometry();
-  result |= this->ConeActor->HasTranslucentPolygonalGeometry();
-  result |= this->LineActor->HasTranslucentPolygonalGeometry();
-  result |= this->ConeActor2->HasTranslucentPolygonalGeometry();
-  result |= this->LineActor2->HasTranslucentPolygonalGeometry();
-  result |= this->SphereActor->HasTranslucentPolygonalGeometry();
-
-  if (this->DrawCylinder)
+  vtkNew<vtkActorCollection> actors;
+  this->GetActors(actors);
+  for (auto actor : vtk::Range(actors.Get()))
   {
-    result |= this->CylActor->HasTranslucentPolygonalGeometry();
+    result |= actor->HasTranslucentPolygonalGeometry();
   }
 
   return result;
@@ -593,23 +555,6 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Cylinder Property: (none)\n";
   }
 
-  if (this->OutlineProperty)
-  {
-    os << indent << "Outline Property: " << this->OutlineProperty << "\n";
-  }
-  else
-  {
-    os << indent << "Outline Property: (none)\n";
-  }
-  if (this->SelectedOutlineProperty)
-  {
-    os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
-  }
-  else
-  {
-    os << indent << "Selected Outline Property: (none)\n";
-  }
-
   if (this->EdgesProperty)
   {
     os << indent << "Edges Property: " << this->EdgesProperty << "\n";
@@ -623,15 +568,7 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Along Y Axis: " << (this->AlongYAxis ? "On" : "Off") << "\n";
   os << indent << "ALong Z Axis: " << (this->AlongZAxis ? "On" : "Off") << "\n";
 
-  os << indent << "Widget Bounds: " << this->WidgetBounds[0] << ", " << this->WidgetBounds[1]
-     << ", " << this->WidgetBounds[2] << ", " << this->WidgetBounds[3] << ", "
-     << this->WidgetBounds[4] << ", " << this->WidgetBounds[5] << "\n";
-
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
-  os << indent << "Outline Translation: " << (this->OutlineTranslation ? "On" : "Off") << "\n";
-  os << indent << "Outside Bounds: " << (this->OutsideBounds ? "On" : "Off") << "\n";
-  os << indent << "Constrain to Widget Bounds: " << (this->ConstrainToWidgetBounds ? "On" : "Off")
-     << "\n";
   os << indent << "Scale Enabled: " << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Cylinder: " << (this->DrawCylinder ? "On" : "Off") << "\n";
   os << indent << "Bump Distance: " << this->BumpDistance << "\n";
@@ -706,19 +643,6 @@ void vtkImplicitCylinderRepresentation::HighlightCylinder(int highlight)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitCylinderRepresentation::HighlightOutline(int highlight)
-{
-  if (highlight)
-  {
-    this->OutlineActor->SetProperty(this->SelectedOutlineProperty);
-  }
-  else
-  {
-    this->OutlineActor->SetProperty(this->OutlineProperty);
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::Rotate(
   double X, double Y, double* p1, double* p2, double* vpn)
 {
@@ -759,41 +683,15 @@ void vtkImplicitCylinderRepresentation::Rotate(
 
 //------------------------------------------------------------------------------
 // Loop through all points and translate them
-void vtkImplicitCylinderRepresentation::TranslateOutline(double* p1, double* p2)
+void vtkImplicitCylinderRepresentation::TranslateRepresentation(const vtkVector3d& move)
 {
-  // Get the motion vector
-  double v[3] = { 0, 0, 0 };
-
-  if (!this->IsTranslationConstrained())
-  {
-    v[0] = p2[0] - p1[0];
-    v[1] = p2[1] - p1[1];
-    v[2] = p2[2] - p1[2];
-  }
-  else
-  {
-    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis out of bounds");
-    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
-  }
-
-  // Translate the bounding box
-  double* origin = this->Box->GetOrigin();
   double oNew[3];
-  oNew[0] = origin[0] + v[0];
-  oNew[1] = origin[1] + v[1];
-  oNew[2] = origin[2] + v[2];
-  this->Box->SetOrigin(oNew);
-  this->Box->GetBounds(this->WidgetBounds);
-
   // Translate the cylinder
-  origin = this->Cylinder->GetCenter();
-  oNew[0] = origin[0] + v[0];
-  oNew[1] = origin[1] + v[1];
-  oNew[2] = origin[2] + v[2];
+  double* origin = this->Cylinder->GetCenter();
+  oNew[0] = origin[0] + move[0];
+  oNew[1] = origin[1] + move[1];
+  oNew[2] = origin[2] + move[2];
   this->Cylinder->SetCenter(oNew);
-
-  this->BuildRepresentation();
 }
 
 //------------------------------------------------------------------------------
@@ -811,9 +709,7 @@ void vtkImplicitCylinderRepresentation::TranslateCenter(double* p1, double* p2)
   }
   else
   {
-    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis out of bounds");
-    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+    v[this->GetTranslationAxis()] = p2[this->GetTranslationAxis()] - p1[this->GetTranslationAxis()];
   }
 
   // Add to the current point, project back down onto plane
@@ -883,7 +779,7 @@ void vtkImplicitCylinderRepresentation::Scale(
   double* o = this->Cylinder->GetCenter();
 
   // Compute the scale factor
-  double sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
+  double sf = vtkMath::Norm(v) / this->GetDiagonalLength();
   if (Y > this->LastEventPosition[1])
   {
     sf = 1.0 + sf;
@@ -898,19 +794,7 @@ void vtkImplicitCylinderRepresentation::Scale(
   this->Transform->Scale(sf, sf, sf);
   this->Transform->Translate(-o[0], -o[1], -o[2]);
 
-  double* origin = this->Box->GetOrigin();
-  double* spacing = this->Box->GetSpacing();
-  double oNew[3], p[3], pNew[3];
-  p[0] = origin[0] + spacing[0];
-  p[1] = origin[1] + spacing[1];
-  p[2] = origin[2] + spacing[2];
-
-  this->Transform->TransformPoint(origin, oNew);
-  this->Transform->TransformPoint(p, pNew);
-
-  this->Box->SetOrigin(oNew);
-  this->Box->SetSpacing((pNew[0] - oNew[0]), (pNew[1] - oNew[1]), (pNew[2] - oNew[2]));
-  this->Box->GetBounds(this->WidgetBounds);
+  this->TransformBounds(this->Transform);
 
   this->BuildRepresentation();
 }
@@ -966,27 +850,20 @@ void vtkImplicitCylinderRepresentation::CreateDefaultProperties()
   this->SelectedAxisProperty->SetColor(1, 0, 0);
   this->SelectedAxisProperty->SetLineWidth(2);
 
-  // Outline properties
-  this->OutlineProperty = vtkProperty::New();
-  this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetColor(1.0, 1.0, 1.0);
-
-  this->SelectedOutlineProperty = vtkProperty::New();
-  this->SelectedOutlineProperty->SetAmbient(1.0);
-  this->SelectedOutlineProperty->SetColor(0.0, 1.0, 0.0);
-
   // Edge property
   this->EdgesProperty = vtkProperty::New();
   // don't want for 3D tubes: this->EdgesProperty->SetAmbient(1.0);
   this->EdgesProperty->SetColor(1.0, 0.0, 0.0);
+
+  this->Superclass::CreateDefaultProperties();
 }
 
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetInteractionColor(double r, double g, double b)
 {
   this->SelectedAxisProperty->SetColor(r, g, b);
-  this->SelectedOutlineProperty->SetColor(r, g, b);
   this->SelectedCylinderProperty->SetAmbientColor(r, g, b);
+  this->SetSelectedOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -1000,7 +877,7 @@ void vtkImplicitCylinderRepresentation::SetHandleColor(double r, double g, doubl
 void vtkImplicitCylinderRepresentation::SetForegroundColor(double r, double g, double b)
 {
   this->CylinderProperty->SetAmbientColor(r, g, b);
-  this->OutlineProperty->SetColor(r, g, b);
+  this->SetOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -1010,11 +887,7 @@ void vtkImplicitCylinderRepresentation::PlaceWidget(double bds[6])
   double bounds[6], origin[3];
 
   this->AdjustBounds(bds, bounds, origin);
-
-  // Set up the bounding box
-  this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-  this->Box->SetSpacing((bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-  this->Outline->Update();
+  this->SetOutlineBounds(bds);
 
   this->LineSource->SetPoint1(this->Cylinder->GetCenter());
   if (this->AlongYAxis)
@@ -1036,8 +909,8 @@ void vtkImplicitCylinderRepresentation::PlaceWidget(double bds[6])
   for (i = 0; i < 6; i++)
   {
     this->InitialBounds[i] = bounds[i];
-    this->WidgetBounds[i] = bounds[i];
   }
+  this->SetWidgetBounds(bounds);
 
   this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
@@ -1122,10 +995,10 @@ void vtkImplicitCylinderRepresentation::GetAxis(double xyz[3])
 // Set the radius the cylinder. The radius must be a positive number.
 void vtkImplicitCylinderRepresentation::SetRadius(double radius)
 {
-  if (this->ConstrainToWidgetBounds)
+  if (this->GetConstrainToWidgetBounds())
   {
-    double minRadius = this->Outline->GetOutput()->GetLength() * this->MinRadius;
-    double maxRadius = this->Outline->GetOutput()->GetLength() * this->MaxRadius;
+    double minRadius = this->GetDiagonalLength() * this->MinRadius;
+    double maxRadius = this->GetDiagonalLength() * this->MaxRadius;
 
     radius = std::min(maxRadius, std::max(minRadius, radius));
   }
@@ -1221,7 +1094,7 @@ void vtkImplicitCylinderRepresentation::GetCylinder(vtkCylinder* cyl)
 void vtkImplicitCylinderRepresentation::UpdatePlacement()
 {
   this->BuildRepresentation();
-  this->Outline->Update();
+  this->UpdateOutline();
   this->Edges->Update();
 }
 
@@ -1264,7 +1137,7 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
   }
 
   vtkInformation* info = this->GetPropertyKeys();
-  this->OutlineActor->SetPropertyKeys(info);
+  this->GetOutlineActor()->SetPropertyKeys(info);
   this->CylActor->SetPropertyKeys(info);
   this->EdgesActor->SetPropertyKeys(info);
   this->ConeActor->SetPropertyKeys(info);
@@ -1278,80 +1151,12 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
   {
     double* center = this->Cylinder->GetCenter();
     double* axis = this->Cylinder->GetAxis();
-
-    double bounds[6];
-    std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
-
     double p2[3];
-    if (!this->OutsideBounds)
-    {
-      // restrict the center inside InitialBounds
-      double* ibounds = this->InitialBounds;
-      for (int i = 0; i < 3; i++)
-      {
-        if (center[i] < ibounds[2 * i])
-        {
-          center[i] = ibounds[2 * i];
-        }
-        else if (center[i] > ibounds[2 * i + 1])
-        {
-          center[i] = ibounds[2 * i + 1];
-        }
-      }
-    }
 
-    if (this->ConstrainToWidgetBounds)
-    {
-      if (!this->OutsideBounds)
-      {
-        // center cannot move outside InitialBounds. Therefore, restrict
-        // movement of the Box.
-        double v[3] = { 0.0, 0.0, 0.0 };
-        for (int i = 0; i < 3; ++i)
-        {
-          if (center[i] <= bounds[2 * i])
-          {
-            v[i] = center[i] - bounds[2 * i] - FLT_EPSILON;
-          }
-          else if (center[i] >= bounds[2 * i + 1])
-          {
-            v[i] = center[i] - bounds[2 * i + 1] + FLT_EPSILON;
-          }
-          bounds[2 * i] += v[i];
-          bounds[2 * i + 1] += v[i];
-        }
-      }
-
-      // restrict center inside bounds
-      for (int i = 0; i < 3; ++i)
-      {
-        if (center[i] <= bounds[2 * i])
-        {
-          center[i] = bounds[2 * i] + FLT_EPSILON;
-        }
-        if (center[i] >= bounds[2 * i + 1])
-        {
-          center[i] = bounds[2 * i + 1] - FLT_EPSILON;
-        }
-      }
-    }
-    else // cylinder can move freely, adjust the bounds to change with it
-    {
-      double offset = this->Cylinder->GetRadius() * 1.2;
-      for (int i = 0; i < 3; ++i)
-      {
-        bounds[2 * i] = vtkMath::Min(center[i] - offset, this->WidgetBounds[2 * i]);
-        bounds[2 * i + 1] = vtkMath::Max(center[i] + offset, this->WidgetBounds[2 * i + 1]);
-      }
-    }
-
-    this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-    this->Box->SetSpacing(
-      (bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-    this->Outline->Update();
+    this->UpdateCenterAndBounds(center);
 
     // Setup the cylinder axis
-    double d = this->Outline->GetOutput()->GetLength();
+    double d = this->GetDiagonalLength();
 
     p2[0] = center[0] + 0.30 * d * axis[0];
     p2[1] = center[1] + 0.30 * d * axis[1];
@@ -1426,7 +1231,7 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   double* axis = this->Cylinder->GetAxis();
   double radius = this->Cylinder->GetRadius();
   int res = this->Resolution;
-  double d = this->Outline->GetOutput()->GetLength();
+  double d = this->GetDiagonalLength();
 
   // We're gonna need a local coordinate system. Find a normal to the
   // cylinder axis. Then use cross product to find a third orthogonal
@@ -1482,7 +1287,9 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   // intersect the bounding box.
   bool edgeInside[VTK_MAX_CYL_RESOLUTION];
   double x1[3], x2[3], p1[3], p2[3], t1, t2;
-  const double* bounds = this->Outline->GetOutput()->GetBounds();
+
+  double bounds[6];
+  this->GetOutlineBounds(bounds);
   int plane1, plane2;
   for (pid = 0; pid < res; ++pid)
   {

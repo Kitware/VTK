@@ -31,8 +31,18 @@ public:
    * VTK_DOUBLE_MAX and the max point set to VTK_DOUBLE_MIN.
    */
   vtkBoundingBox();
+  /**
+   * Construct a bounding box with given bounds.
+   */
   vtkBoundingBox(const double bounds[6]);
+  /**
+   * Construct a bounding box with given bounds.
+   */
   vtkBoundingBox(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
+  /**
+   * Construct a bounding box around center, inflated by delta (so final length is 2*delta)
+   */
+  vtkBoundingBox(double center[3], double delta);
   ///@}
 
   /**
@@ -365,6 +375,12 @@ public:
    */
   void Reset();
 
+  /**
+   * Clamp point so it is contained inside box.
+   * Each coordinate is clamped with box bounds.
+   */
+  void ClampPoint(double point[3]);
+
 protected:
   double MinPnt[3], MaxPnt[3];
 };
@@ -494,6 +510,13 @@ inline vtkBoundingBox::vtkBoundingBox(const vtkBoundingBox& bbox)
   this->MaxPnt[0] = bbox.MaxPnt[0];
   this->MaxPnt[1] = bbox.MaxPnt[1];
   this->MaxPnt[2] = bbox.MaxPnt[2];
+}
+
+inline vtkBoundingBox::vtkBoundingBox(double center[3], double delta)
+{
+  this->Reset();
+  this->AddPoint(center);
+  this->Inflate(delta);
 }
 
 inline vtkBoundingBox& vtkBoundingBox::operator=(const vtkBoundingBox& bbox)

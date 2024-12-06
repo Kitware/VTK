@@ -4,11 +4,11 @@
 #ifndef vtkImplicitFrustumRepresentation_h
 #define vtkImplicitFrustumRepresentation_h
 
+#include "vtkBoundedWidgetRepresentation.h"
 #include "vtkEllipseArcSource.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSetGet.h"
-#include "vtkVector.h" // For vtkVector3d
-#include "vtkWidgetRepresentation.h"
+#include "vtkVector.h"        // For vtkVector3d
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -38,7 +38,7 @@ class vtkTubeFilter;
  * @sa vtkImplicitFrustumWidget vtkFrustum
  */
 class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitFrustumRepresentation
-  : public vtkWidgetRepresentation
+  : public vtkBoundedWidgetRepresentation
 {
 public:
   // Manage the state of the widget
@@ -57,7 +57,7 @@ public:
   };
 
   static vtkImplicitFrustumRepresentation* New();
-  vtkTypeMacro(vtkImplicitFrustumRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkImplicitFrustumRepresentation, vtkBoundedWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -139,16 +139,6 @@ public:
   void SetDrawFrustum(bool draw);
   vtkGetMacro(DrawFrustum, bool);
   vtkBooleanMacro(DrawFrustum, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the bounds of the widget representation. PlaceWidget can also be used to set the bounds
-   * of the widget but it may also have other effects on the internal state of the representation.
-   * Use this function when only the widget bounds need to be modified.
-   */
-  vtkSetVector6Macro(WidgetBounds, double);
-  double* GetWidgetBounds();
   ///@}
 
   /**
@@ -238,30 +228,6 @@ public:
    */
   void RegisterPickers() override;
 
-  ///@{
-  /**
-   * Gets/Sets the constraint axis for translations.
-   * Defaults to Axis::NONE
-   **/
-  vtkGetMacro(TranslationAxis, int);
-  vtkSetClampMacro(TranslationAxis, int, Axis::NONE, Axis::ZAxis);
-  ///@}
-
-  ///@{
-  /**
-   * Toggles constraint translation axis on/off.
-   */
-  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
-  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
-  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
-  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  ///@}
-
-  /**
-   * Returns true if translation is constrained to an axis
-   **/
-  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-
   /**
    * Get the concrete represented frustum
    **/
@@ -350,7 +316,6 @@ private:
   vtkNew<vtkFrustum> Frustum;
 
   InteractionStateType RepresentationState = InteractionStateType::Outside;
-  int TranslationAxis = Axis::NONE;
 
   // Keep track of event positions
   vtkVector3d LastEventPosition = { 0., 0., 0. };
@@ -359,7 +324,6 @@ private:
   bool AlongYAxis = false;
   bool AlongZAxis = false;
 
-  vtkVector<double, 6> WidgetBounds;
   double Length = 1;
 
   vtkVector3d Origin = { 0, 0, 0 };

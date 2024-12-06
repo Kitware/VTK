@@ -13,13 +13,11 @@
 #include "vtkCellArray.h"
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
-#include "vtkImageData.h"
 #include "vtkImplicitPlaneRepresentation.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLineSource.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
-#include "vtkOutlineFilter.h"
 #include "vtkPickingManager.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
@@ -34,9 +32,6 @@
 #include "vtkTubeFilter.h"
 #include "vtkType.h"
 #include "vtkVector.h"
-
-#include <algorithm>
-#include <limits>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitAnnulusRepresentation);
@@ -101,12 +96,6 @@ vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
   // Handle size is in pixels for this widget
   this->HandleSize = 5.0;
 
-  // Build the representation of the widget
-  this->Box->SetDimensions(2, 2, 2);
-  this->Outline->SetInputData(this->Box);
-  this->OutlineMapper->SetInputConnection(this->Outline->GetOutputPort());
-  this->OutlineActor->SetMapper(this->OutlineMapper);
-
   vtkNew<vtkPoints> pts;
   pts->SetDataTypeToDouble();
   this->AnnulusPD->SetPoints(pts);
@@ -151,7 +140,7 @@ vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
   this->Picker->AddPickList(this->UpperAxisRepresentation.LineActor);
   this->Picker->AddPickList(this->UpperAxisRepresentation.ArrowActor);
   this->Picker->AddPickList(this->CenterHandleActor);
-  this->Picker->AddPickList(this->OutlineActor);
+  this->Picker->AddPickList(this->GetOutlineActor());
   this->Picker->PickFromListOn();
 
   this->AnnulusPicker->SetTolerance(0.005);
@@ -185,13 +174,6 @@ vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
   this->SelectedCenterHandleProperty->SetAmbient(1.0);
   this->SelectedCenterHandleProperty->SetColor(0, 1, 0);
 
-  // Outline properties
-  this->OutlineProperty->SetAmbient(1.0);
-  this->OutlineProperty->SetColor(1.0, 1.0, 1.0);
-
-  this->SelectedOutlineProperty->SetAmbient(1.0);
-  this->SelectedOutlineProperty->SetColor(0.0, 1.0, 0.0);
-
   // Edge property
   this->RadiusHandleProperty->SetAmbient(1.0);
   this->RadiusHandleProperty->SetColor(1.0, 0.0, 0.0);
@@ -208,7 +190,6 @@ vtkImplicitAnnulusRepresentation::vtkImplicitAnnulusRepresentation()
   this->AnnulusActor->SetProperty(this->AnnulusProperty);
   this->InnerRadiusRepresentation.Actor->SetProperty(this->RadiusHandleProperty);
   this->OuterRadiusRepresentation.Actor->SetProperty(this->RadiusHandleProperty);
-  this->OutlineActor->SetProperty(this->OutlineProperty);
 }
 
 //------------------------------------------------------------------------------
@@ -269,7 +250,7 @@ int vtkImplicitAnnulusRepresentation::ComputeInteractionState(int X, int Y, int 
     }
     else
     {
-      if (this->OutlineTranslation)
+      if (this->GetOutlineTranslation())
       {
         this->InteractionState = vtkImplicitAnnulusRepresentation::MovingOutline;
         this->SetRepresentationState(vtkImplicitAnnulusRepresentation::MovingOutline);
@@ -379,7 +360,7 @@ void vtkImplicitAnnulusRepresentation::WidgetInteraction(double e[2])
   switch (this->InteractionState)
   {
     case InteractionStateType::MovingOutline:
-      this->TranslateOutline(prevPickPoint, pickPoint);
+      this->TranslateOutline(prevPickPoint.GetData(), pickPoint.GetData());
       break;
 
     case InteractionStateType::MovingCenter:
@@ -427,7 +408,7 @@ void vtkImplicitAnnulusRepresentation::EndWidgetInteraction(double vtkNotUsed(e)
 double* vtkImplicitAnnulusRepresentation::GetBounds()
 {
   this->BuildRepresentation();
-  this->BoundingBox->SetBounds(this->OutlineActor->GetBounds());
+  this->BoundingBox->SetBounds(this->GetOutlineActor()->GetBounds());
   this->BoundingBox->AddBounds(this->AnnulusActor->GetBounds());
   this->BoundingBox->AddBounds(this->InnerRadiusRepresentation.Actor->GetBounds());
   this->BoundingBox->AddBounds(this->OuterRadiusRepresentation.Actor->GetBounds());
@@ -443,7 +424,7 @@ double* vtkImplicitAnnulusRepresentation::GetBounds()
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::GetActors(vtkPropCollection* pc)
 {
-  this->OutlineActor->GetActors(pc);
+  this->GetOutlineActor()->GetActors(pc);
   this->AnnulusActor->GetActors(pc);
   this->InnerRadiusRepresentation.Actor->GetActors(pc);
   this->OuterRadiusRepresentation.Actor->GetActors(pc);
@@ -457,7 +438,7 @@ void vtkImplicitAnnulusRepresentation::GetActors(vtkPropCollection* pc)
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::ReleaseGraphicsResources(vtkWindow* w)
 {
-  this->OutlineActor->ReleaseGraphicsResources(w);
+  this->GetOutlineActor()->ReleaseGraphicsResources(w);
   this->AnnulusActor->ReleaseGraphicsResources(w);
   this->InnerRadiusRepresentation.Actor->ReleaseGraphicsResources(w);
   this->OuterRadiusRepresentation.Actor->ReleaseGraphicsResources(w);
@@ -473,7 +454,7 @@ int vtkImplicitAnnulusRepresentation::RenderOpaqueGeometry(vtkViewport* v)
 {
   int count = 0;
   this->BuildRepresentation();
-  count += this->OutlineActor->RenderOpaqueGeometry(v);
+  count += this->GetOutlineActor()->RenderOpaqueGeometry(v);
   count += this->InnerRadiusRepresentation.Actor->RenderOpaqueGeometry(v);
   count += this->OuterRadiusRepresentation.Actor->RenderOpaqueGeometry(v);
   count += this->LowerAxisRepresentation.LineActor->RenderOpaqueGeometry(v);
@@ -495,7 +476,7 @@ int vtkImplicitAnnulusRepresentation::RenderTranslucentPolygonalGeometry(vtkView
 {
   int count = 0;
   this->BuildRepresentation();
-  count += this->OutlineActor->RenderTranslucentPolygonalGeometry(v);
+  count += this->GetOutlineActor()->RenderTranslucentPolygonalGeometry(v);
   count += this->InnerRadiusRepresentation.Actor->RenderTranslucentPolygonalGeometry(v);
   count += this->OuterRadiusRepresentation.Actor->RenderTranslucentPolygonalGeometry(v);
   count += this->LowerAxisRepresentation.LineActor->RenderTranslucentPolygonalGeometry(v);
@@ -516,7 +497,7 @@ int vtkImplicitAnnulusRepresentation::RenderTranslucentPolygonalGeometry(vtkView
 vtkTypeBool vtkImplicitAnnulusRepresentation::HasTranslucentPolygonalGeometry()
 {
   vtkTypeBool result = false;
-  result |= this->OutlineActor->HasTranslucentPolygonalGeometry();
+  result |= this->GetOutlineActor()->HasTranslucentPolygonalGeometry();
   result |= this->InnerRadiusRepresentation.Actor->HasTranslucentPolygonalGeometry();
   result |= this->OuterRadiusRepresentation.Actor->HasTranslucentPolygonalGeometry();
   result |= this->LowerAxisRepresentation.LineActor->HasTranslucentPolygonalGeometry();
@@ -548,10 +529,6 @@ void vtkImplicitAnnulusRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Annulus Property: (none)" << std::endl;
   os << indent << "Selected Annulus Property: " << this->SelectedAnnulusProperty << std::endl;
   os << indent << "Selected Annulus Property: (none)" << std::endl;
-  os << indent << "Outline Property: " << this->OutlineProperty << std::endl;
-  os << indent << "Outline Property: (none)" << std::endl;
-  os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << std::endl;
-  os << indent << "Selected Outline Property: (none)" << std::endl;
   os << indent << "Edges Property: " << this->RadiusHandleProperty << std::endl;
   os << indent << "Edges Property: (none)" << std::endl;
 
@@ -559,13 +536,7 @@ void vtkImplicitAnnulusRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Along Y Axis: " << (this->AlongYAxis ? "On" : "Off") << std::endl;
   os << indent << "ALong Z Axis: " << (this->AlongZAxis ? "On" : "Off") << std::endl;
 
-  os << indent << "Widget Bounds: " << this->WidgetBounds << std::endl;
-
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << std::endl;
-  os << indent << "Outline Translation: " << (this->OutlineTranslation ? "On" : "Off") << std::endl;
-  os << indent << "Outside Bounds: " << (this->OutsideBounds ? "On" : "Off") << std::endl;
-  os << indent << "Constrain to Widget Bounds: " << (this->ConstrainToWidgetBounds ? "On" : "Off")
-     << std::endl;
   os << indent << "Scale Enabled: " << (this->ScaleEnabled ? "On" : "Off") << std::endl;
   os << indent << "Draw Annulus: " << (this->DrawAnnulus ? "On" : "Off") << std::endl;
   os << indent << "Bump Distance: " << this->BumpDistance << std::endl;
@@ -653,19 +624,6 @@ void vtkImplicitAnnulusRepresentation::HighlightAnnulus(bool highlight)
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitAnnulusRepresentation::HighlightOutline(bool highlight)
-{
-  if (highlight)
-  {
-    this->OutlineActor->SetProperty(this->SelectedOutlineProperty);
-  }
-  else
-  {
-    this->OutlineActor->SetProperty(this->OutlineProperty);
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::HighlightInnerRadiusHandle(bool highlight)
 {
   if (highlight)
@@ -724,32 +682,11 @@ void vtkImplicitAnnulusRepresentation::Rotate(
 }
 
 //------------------------------------------------------------------------------
-void vtkImplicitAnnulusRepresentation::TranslateOutline(
-  const vtkVector3d& p1, const vtkVector3d& p2)
+void vtkImplicitAnnulusRepresentation::TranslateRepresentation(const vtkVector3d& motion)
 {
-  // Get the motion vector
-  vtkVector3d v = { 0, 0, 0 };
-
-  if (!this->IsTranslationConstrained())
-  {
-    v = p2 - p1;
-  }
-  else
-  {
-    assert(this->TranslationAxis > -1 && this->TranslationAxis < 3 &&
-      "this->TranslationAxis out of bounds");
-    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
-  }
-
-  // Translate the bounding box
-  vtkVector3d boxOrigin(this->Box->GetOrigin());
-  vtkVector3d newBoxOrigin = boxOrigin + v;
-  this->Box->SetOrigin(newBoxOrigin.GetData());
-  this->Box->GetBounds(this->WidgetBounds.GetData());
-
   // Translate the annulus
   vtkVector3d annulusCenter(this->Annulus->GetCenter());
-  vtkVector3d newAnnulusCenter = annulusCenter + v;
+  vtkVector3d newAnnulusCenter = annulusCenter + motion;
   this->Annulus->SetCenter(newAnnulusCenter.GetData());
 }
 
@@ -771,12 +708,7 @@ void vtkImplicitAnnulusRepresentation::TranslateCenter(const vtkVector3d& p1, co
   }
   else
   {
-    if (this->TranslationAxis < Axis::XAxis || this->TranslationAxis > Axis::ZAxis)
-    {
-      vtkWarningMacro("this->TranslationAxis out of bounds");
-      return;
-    }
-    v[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+    v[this->GetTranslationAxis()] = p2[this->GetTranslationAxis()] - p1[this->GetTranslationAxis()];
   }
 
   // Translate the current center
@@ -823,7 +755,7 @@ void vtkImplicitAnnulusRepresentation::Scale(
   vtkVector3d annulusCenter(this->Annulus->GetCenter());
 
   // Compute the scale factor
-  double diagonal = this->Outline->GetOutput()->GetLength();
+  double diagonal = this->GetDiagonalLength();
   if (diagonal == 0.)
   {
     return;
@@ -844,17 +776,7 @@ void vtkImplicitAnnulusRepresentation::Scale(
   transform->Scale(sf, sf, sf);
   transform->Translate((-annulusCenter).GetData());
 
-  vtkVector3d boxCenter(this->Box->GetCenter());
-  vtkVector3d spacing(this->Box->GetSpacing());
-  vtkVector3d p = boxCenter + spacing;
-
-  vtkVector3d oNew, pNew;
-  transform->TransformPoint(boxCenter.GetData(), oNew.GetData());
-  transform->TransformPoint(p.GetData(), pNew.GetData());
-
-  this->Box->SetOrigin(oNew.GetData());
-  this->Box->SetSpacing((pNew - oNew).GetData());
-  this->Box->GetBounds(this->WidgetBounds.GetData());
+  this->TransformBounds(transform);
 }
 
 //------------------------------------------------------------------------------
@@ -888,8 +810,8 @@ void vtkImplicitAnnulusRepresentation::AdjustOuterRadius(
 void vtkImplicitAnnulusRepresentation::SetInteractionColor(double r, double g, double b)
 {
   this->SelectedAxisProperty->SetColor(r, g, b);
-  this->SelectedOutlineProperty->SetColor(r, g, b);
   this->SelectedAnnulusProperty->SetAmbientColor(r, g, b);
+  this->SetSelectedOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -902,7 +824,7 @@ void vtkImplicitAnnulusRepresentation::SetHandleColor(double r, double g, double
 void vtkImplicitAnnulusRepresentation::SetForegroundColor(double r, double g, double b)
 {
   this->AnnulusProperty->SetAmbientColor(r, g, b);
-  this->OutlineProperty->SetColor(r, g, b);
+  this->SetOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -911,11 +833,7 @@ void vtkImplicitAnnulusRepresentation::PlaceWidget(double bds[6])
   vtkVector<double, 6> bounds;
   vtkVector3d center;
   this->AdjustBounds(bds, bounds.GetData(), center.GetData());
-
-  // Set up the bounding box
-  this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-  this->Box->SetSpacing((bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-  this->Outline->Update();
+  this->SetOutlineBounds(bounds.GetData());
 
   this->LowerAxisRepresentation.LineSource->SetPoint1(this->Annulus->GetCenter());
   this->UpperAxisRepresentation.LineSource->SetPoint1(this->Annulus->GetCenter());
@@ -941,8 +859,8 @@ void vtkImplicitAnnulusRepresentation::PlaceWidget(double bds[6])
   for (int i = 0; i < 6; i++)
   {
     this->InitialBounds[i] = bounds[i];
-    this->WidgetBounds[i] = bounds[i];
   }
+  this->SetWidgetBounds(bounds.GetData());
 
   this->InitialLength = sqrt((bounds[1] - bounds[0]) * (bounds[1] - bounds[0]) +
     (bounds[3] - bounds[2]) * (bounds[3] - bounds[2]) +
@@ -1006,12 +924,6 @@ double* vtkImplicitAnnulusRepresentation::GetAxis() const
 void vtkImplicitAnnulusRepresentation::GetAxis(double xyz[3]) const
 {
   return this->Annulus->GetAxis(xyz);
-}
-
-//------------------------------------------------------------------------------
-double* vtkImplicitAnnulusRepresentation::GetWidgetBounds()
-{
-  return this->WidgetBounds.GetData();
 }
 
 //------------------------------------------------------------------------------
@@ -1105,7 +1017,7 @@ void vtkImplicitAnnulusRepresentation::GetPolyData(vtkPolyData* pd)
 void vtkImplicitAnnulusRepresentation::UpdatePlacement()
 {
   this->BuildRepresentation();
-  this->Outline->Update();
+  this->UpdateOutline();
 }
 
 //------------------------------------------------------------------------------
@@ -1151,7 +1063,7 @@ void vtkImplicitAnnulusRepresentation::BuildRepresentation()
   {
 
     vtkInformation* info = this->GetPropertyKeys();
-    this->OutlineActor->SetPropertyKeys(info);
+    this->GetOutlineActor()->SetPropertyKeys(info);
     this->AnnulusActor->SetPropertyKeys(info);
     this->InnerRadiusRepresentation.Actor->SetPropertyKeys(info);
     this->OuterRadiusRepresentation.Actor->SetPropertyKeys(info);
@@ -1164,78 +1076,13 @@ void vtkImplicitAnnulusRepresentation::BuildRepresentation()
     vtkVector3d center(this->Annulus->GetCenter());
     vtkVector3d axis(this->Annulus->GetAxis());
 
-    vtkVector<double, 6> bounds = this->WidgetBounds;
-    if (!this->OutsideBounds)
-    {
-      // restrict the center inside InitialBounds
-      vtkVector<double, 6> ibounds(this->InitialBounds);
-      for (int i = 0; i < 3; i++)
-      {
-        if (center[i] < ibounds[2 * i])
-        {
-          center[i] = ibounds[2 * i];
-        }
-        else if (center[i] > ibounds[2 * i + 1])
-        {
-          center[i] = ibounds[2 * i + 1];
-        }
-      }
-    }
-
-    if (this->ConstrainToWidgetBounds)
-    {
-      if (!this->OutsideBounds)
-      {
-        // center cannot move outside InitialBounds. Therefore, restrict
-        // movement of the Box.
-        vtkVector3d v = { 0.0, 0.0, 0.0 };
-        for (int i = 0; i < 3; ++i)
-        {
-          if (center[i] <= bounds[2 * i])
-          {
-            v[i] = center[i] - bounds[2 * i] - std::numeric_limits<double>::epsilon();
-          }
-          else if (center[i] >= bounds[2 * i + 1])
-          {
-            v[i] = center[i] - bounds[2 * i + 1] + std::numeric_limits<double>::epsilon();
-          }
-          bounds[2 * i] += v[i];
-          bounds[2 * i + 1] += v[i];
-        }
-      }
-
-      // restrict center inside bounds
-      for (int i = 0; i < 3; ++i)
-      {
-        if (center[i] <= bounds[2 * i])
-        {
-          center[i] = bounds[2 * i] + std::numeric_limits<float>::epsilon();
-        }
-        if (center[i] >= bounds[2 * i + 1])
-        {
-          center[i] = bounds[2 * i + 1] - std::numeric_limits<float>::epsilon();
-        }
-      }
-    }
-    else // annulus can move freely, adjust the bounds to change with it
-    {
-      for (int i = 0; i < 3; ++i)
-      {
-        bounds[2 * i] = vtkMath::Min(center[i], this->WidgetBounds[2 * i]);
-        bounds[2 * i + 1] = vtkMath::Max(center[i], this->WidgetBounds[2 * i + 1]);
-      }
-    }
+    this->UpdateCenterAndBounds(center.GetData());
 
     // Update the adjusted center
     this->Annulus->SetCenter(center.GetData());
 
-    this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-    this->Box->SetSpacing(
-      (bounds[1] - bounds[0]), (bounds[3] - bounds[2]), (bounds[5] - bounds[4]));
-    this->Outline->Update();
-
     // Setup the annulus axis
-    double d = this->Outline->GetOutput()->GetLength();
+    double d = this->GetDiagonalLength();
     vtkVector3d widgetAxisVector = axis * 0.3 * d;
 
     vtkVector3d p2 = center + widgetAxisVector;
@@ -1302,7 +1149,7 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
 {
   const vtkVector3d axis(this->Annulus->GetAxis());
   const vtkVector3d center(this->Annulus->GetCenter());
-  const double height = this->Outline->GetOutput()->GetLength();
+  const double height = this->GetDiagonalLength();
   const double deltaRadiusAngle = 360. / this->Resolution;
   const vtkVector3d yAxis(0., 1., 0.);
 
@@ -1383,7 +1230,8 @@ void vtkImplicitAnnulusRepresentation::BuildAnnulus()
   }
 
   // Clamp annulus points to the bounding box
-  const double* bounds = this->Outline->GetOutput()->GetBounds();
+  double bounds[6];
+  this->GetOutlineBounds(bounds);
   const vtkBoundingBox bbox(bounds);
   vtkVector3d boundsCenter;
   bbox.GetCenter(boundsCenter.GetData());

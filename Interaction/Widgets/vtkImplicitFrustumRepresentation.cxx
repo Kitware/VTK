@@ -129,6 +129,7 @@ vtkImplicitFrustumRepresentation::vtkImplicitFrustumRepresentation()
   {
     this->Picker->AddPickList(this->FarPlaneHandles[edgeIdx].Actor);
   }
+  this->Picker->AddPickList(this->GetOutlineActor());
 
   this->Picker->PickFromListOn();
 
@@ -154,6 +155,8 @@ vtkImplicitFrustumRepresentation::vtkImplicitFrustumRepresentation()
   this->EdgeHandleProperty->SetColor(1.0, 0.0, 0.0);
   this->SelectedEdgeHandleProperty->SetAmbient(1.0);
   this->SelectedEdgeHandleProperty->SetColor(0.0, 1.0, 0.0);
+
+  this->CreateDefaultProperties();
 
   // Pass the initial properties to the actors.
   this->FrustumActor->SetProperty(this->FrustumProperty);
@@ -331,6 +334,7 @@ void vtkImplicitFrustumRepresentation::SetRepresentationState(InteractionStateTy
   this->HighlightRollHandle(false);
   this->HighlightPitchHandle(false);
   this->HighlightYawHandle(false);
+  this->HighlightOutline(0);
 
   switch (state)
   {
@@ -474,11 +478,13 @@ void vtkImplicitFrustumRepresentation::GetActors(vtkPropCollection* pc)
   {
     this->FarPlaneHandles[edgeIdx].Actor->GetActors(pc);
   }
+  this->GetOutlineActor()->GetActors(pc);
 }
 
 //------------------------------------------------------------------------------
 void vtkImplicitFrustumRepresentation::ReleaseGraphicsResources(vtkWindow* window)
 {
+  this->GetOutlineActor()->ReleaseGraphicsResources(window);
   this->FrustumActor->ReleaseGraphicsResources(window);
   this->NearPlaneEdgesHandle.Actor->ReleaseGraphicsResources(window);
   this->OriginHandle.Actor->ReleaseGraphicsResources(window);
@@ -497,6 +503,7 @@ int vtkImplicitFrustumRepresentation::RenderOpaqueGeometry(vtkViewport* viewport
 {
   int count = 0;
   this->BuildRepresentation();
+  count += this->GetOutlineActor()->RenderOpaqueGeometry(viewport);
   count += this->NearPlaneEdgesHandle.Actor->RenderOpaqueGeometry(viewport);
   count += this->OriginHandle.Actor->RenderOpaqueGeometry(viewport);
   count += this->NearPlaneCenterHandle.Actor->RenderOpaqueGeometry(viewport);
@@ -521,6 +528,7 @@ int vtkImplicitFrustumRepresentation::RenderTranslucentPolygonalGeometry(vtkView
 {
   int count = 0;
   this->BuildRepresentation();
+  count += this->GetOutlineActor()->RenderTranslucentPolygonalGeometry(viewport);
   count += this->NearPlaneEdgesHandle.Actor->RenderTranslucentPolygonalGeometry(viewport);
   count += this->OriginHandle.Actor->RenderTranslucentPolygonalGeometry(viewport);
   count += this->NearPlaneCenterHandle.Actor->RenderTranslucentPolygonalGeometry(viewport);
@@ -544,6 +552,7 @@ int vtkImplicitFrustumRepresentation::RenderTranslucentPolygonalGeometry(vtkView
 vtkTypeBool vtkImplicitFrustumRepresentation::HasTranslucentPolygonalGeometry()
 {
   vtkTypeBool result = false;
+  result |= this->GetOutlineActor()->HasTranslucentPolygonalGeometry();
   result |= this->NearPlaneEdgesHandle.Actor->HasTranslucentPolygonalGeometry();
   result |= this->OriginHandle.Actor->HasTranslucentPolygonalGeometry();
   result |= this->NearPlaneCenterHandle.Actor->HasTranslucentPolygonalGeometry();
@@ -579,7 +588,6 @@ void vtkImplicitFrustumRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Along X Axis: " << (this->AlongXAxis ? "On" : "Off") << std::endl;
   os << indent << "Along Y Axis: " << (this->AlongYAxis ? "On" : "Off") << std::endl;
   os << indent << "ALong Z Axis: " << (this->AlongZAxis ? "On" : "Off") << std::endl;
-  os << indent << "Widget Bounds: " << this->WidgetBounds << std::endl;
   os << indent << "Draw Frustum: " << (this->DrawFrustum ? "On" : "Off") << std::endl;
 
   os << indent << "Representation State: ";
@@ -746,12 +754,8 @@ void vtkImplicitFrustumRepresentation::TranslateOrigin(const vtkVector3d& p1, co
   }
   else
   {
-    if (this->TranslationAxis < Axis::XAxis || this->TranslationAxis > Axis::ZAxis)
-    {
-      vtkWarningMacro("this->TranslationAxis out of bounds");
-      return;
-    }
-    translation[this->TranslationAxis] = p2[this->TranslationAxis] - p1[this->TranslationAxis];
+    translation[this->GetTranslationAxis()] =
+      p2[this->GetTranslationAxis()] - p1[this->GetTranslationAxis()];
   }
 
   // Translate the current origin
@@ -887,6 +891,7 @@ void vtkImplicitFrustumRepresentation::SetInteractionColor(double r, double g, d
 {
   this->SelectedEdgeHandleProperty->SetColor(r, g, b);
   this->SelectedOriginHandleProperty->SetColor(r, g, b);
+  this->SetSelectedOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -900,6 +905,7 @@ void vtkImplicitFrustumRepresentation::SetHandleColor(double r, double g, double
 void vtkImplicitFrustumRepresentation::SetForegroundColor(double r, double g, double b)
 {
   this->FrustumProperty->SetAmbientColor(r, g, b);
+  this->SetOutlineColor(r, g, b);
 }
 
 //------------------------------------------------------------------------------
@@ -908,12 +914,13 @@ void vtkImplicitFrustumRepresentation::PlaceWidget(double bds[6])
   vtkVector<double, 6> bounds;
   vtkVector3d center;
   this->AdjustBounds(bds, bounds.GetData(), center.GetData());
+  this->SetOutlineBounds(bds);
 
   for (int i = 0; i < 6; i++)
   {
     this->InitialBounds[i] = bounds[i];
-    this->WidgetBounds[i] = bounds[i];
   }
+  this->SetWidgetBounds(bounds.GetData());
 
   vtkBoundingBox bbox(bounds.GetData());
   this->InitialLength = bbox.GetDiagonalLength();
@@ -1081,12 +1088,6 @@ void vtkImplicitFrustumRepresentation::SetNearPlaneDistance(double distance)
 }
 
 //------------------------------------------------------------------------------
-double* vtkImplicitFrustumRepresentation::GetWidgetBounds()
-{
-  return this->WidgetBounds.GetData();
-}
-
-//------------------------------------------------------------------------------
 void vtkImplicitFrustumRepresentation::SetDrawFrustum(bool drawFrustum)
 {
   if (drawFrustum == this->DrawFrustum)
@@ -1152,6 +1153,7 @@ void vtkImplicitFrustumRepresentation::GetPolyData(vtkPolyData* pd)
 //------------------------------------------------------------------------------
 void vtkImplicitFrustumRepresentation::UpdatePlacement()
 {
+  this->UpdateOutline();
   this->BuildRepresentation();
 }
 
@@ -1177,14 +1179,30 @@ void vtkImplicitFrustumRepresentation::BuildRepresentation()
       this->FarPlaneHandles[edgeIdx].Actor->SetPropertyKeys(info);
     }
 
-    vtkBoundingBox bbox(this->WidgetBounds.GetData());
-    this->Length = std::max(bbox.GetMaxLength(), this->Frustum->GetNearPlaneDistance() * 1.1);
+    this->GetOutlineActor()->SetPropertyKeys(info);
 
     // Build an oriented basis - frustum is aligned to the y axis
     vtkVector3d origin(this->GetOrigin());
     vtkVector3d forwardAxis = this->GetForwardAxis();
     vtkVector3d upAxis = this->GetUpAxis();
     vtkVector3d rightAxis = this->GetRightAxis();
+
+    this->UpdateCenterAndBounds(origin.GetData());
+
+    double outlineBounds[6];
+    this->GetOutlineBounds(outlineBounds);
+    double param1 = 0;
+    double param2 = 0;
+    int plane1 = 0;
+    int plane2 = 0;
+    vtkVector3d intersection1;
+    vtkVector3d intersection2;
+    vtkVector3d endPoint = origin + forwardAxis * this->GetDiagonalLength();
+    vtkBox::IntersectWithLine(outlineBounds, origin.GetData(), endPoint.GetData(), param1, param2,
+      intersection1.GetData(), intersection2.GetData(), plane1, plane2);
+
+    vtkVector3d distanceToOutline = intersection2 - origin;
+    this->Length = distanceToOutline.Norm();
 
     // Set up the position handles
     vtkVector3d originHandlePosition = origin;

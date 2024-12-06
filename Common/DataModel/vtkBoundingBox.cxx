@@ -766,6 +766,22 @@ bool vtkBoundingBox::IntersectsLine(const double p1[3], const double p2[3]) cons
 }
 
 // ---------------------------------------------------------------------------
+void vtkBoundingBox::ClampPoint(double point[3])
+{
+  for (int i = 0; i < 3; i++)
+  {
+    if (point[i] < this->MinPnt[i])
+    {
+      point[i] = this->MinPnt[i];
+    }
+    else if (point[i] > this->MaxPnt[i])
+    {
+      point[i] = this->MaxPnt[i];
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 int vtkBoundingBox::ComputeInnerDimension() const
 {
   double thickness = this->MaxPnt[0] - this->MinPnt[0];

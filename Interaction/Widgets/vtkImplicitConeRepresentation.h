@@ -27,10 +27,10 @@
 #ifndef vtkImplicitConeRepresentation_h
 #define vtkImplicitConeRepresentation_h
 
+#include "vtkBoundedWidgetRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkVector.h"                   // For vtkVector3d
-#include "vtkWidgetRepresentation.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -42,7 +42,6 @@ class vtkTubeFilter;
 class vtkCone;
 class vtkProperty;
 class vtkImageData;
-class vtkOutlineFilter;
 class vtkPolyData;
 class vtkBox;
 class vtkCellPicker;
@@ -50,7 +49,7 @@ class vtkCellPicker;
 #define VTK_MAX_CONE_RESOLUTION 2048
 
 class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitConeRepresentation
-  : public vtkWidgetRepresentation
+  : public vtkBoundedWidgetRepresentation
 {
 public:
   // Manage the state of the widget
@@ -67,7 +66,7 @@ public:
   };
 
   static vtkImplicitConeRepresentation* New();
-  vtkTypeMacro(vtkImplicitConeRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkImplicitConeRepresentation, vtkBoundedWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -158,52 +157,6 @@ public:
 
   ///@{
   /**
-   * Turn on/off the ability to translate the bounding box by moving it
-   * with the mouse.
-   * Defaults to true.
-   */
-  vtkSetMacro(OutlineTranslation, bool);
-  vtkGetMacro(OutlineTranslation, bool);
-  vtkBooleanMacro(OutlineTranslation, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off the ability to move the widget outside of the bounds
-   * specified in the PlaceWidget() invocation.
-   * Defaults to true.
-   */
-  vtkSetMacro(OutsideBounds, bool);
-  vtkGetMacro(OutsideBounds, bool);
-  vtkBooleanMacro(OutsideBounds, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the bounds of the widget representation. PlaceWidget can also be
-   * used to set the bounds of the widget but it may also have other effects
-   * on the internal state of the representation. Use this function when only
-   * the widget bounds need to be modified.
-   */
-  vtkSetVector6Macro(WidgetBounds, double);
-  vtkGetVector6Macro(WidgetBounds, double);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off whether the cone should be constrained to the widget bounds.
-   * If on, the center will not be allowed to move outside the set widget bounds.
-   * This is the default behaviour.
-   * If off, the center can be freely moved. The widget outline will change accordingly.
-   * Defaults to true.
-   */
-  vtkSetMacro(ConstrainToWidgetBounds, bool);
-  vtkGetMacro(ConstrainToWidgetBounds, bool);
-  vtkBooleanMacro(ConstrainToWidgetBounds, bool);
-  ///@}
-
-  ///@{
-  /**
    * Turn on/off the ability to scale the widget with the mouse.
    * Defaults to true.
    */
@@ -239,14 +192,6 @@ public:
    */
   vtkGetObjectMacro(ConeProperty, vtkProperty);
   vtkGetObjectMacro(SelectedConeProperty, vtkProperty);
-  ///@}
-
-  ///@{
-  /**
-   * Get the property of the outline.
-   */
-  vtkGetObjectMacro(OutlineProperty, vtkProperty);
-  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
   ///@}
 
   ///@{
@@ -349,30 +294,6 @@ public:
    */
   void RegisterPickers() override;
 
-  ///@{
-  /**
-   * Gets/Sets the constraint axis for translations.
-   * Defaults to Axis::NONE
-   **/
-  vtkGetMacro(TranslationAxis, int);
-  vtkSetClampMacro(TranslationAxis, int, Axis::NONE, Axis::ZAxis);
-  ///@}
-
-  ///@{
-  /**
-   * Toggles constraint translation axis on/off.
-   */
-  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
-  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
-  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
-  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  ///@}
-
-  /**
-   * Returns true if ConstrainedAxis
-   **/
-  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-
   void GetCone(vtkCone* cone) const;
 
 protected:
@@ -383,7 +304,6 @@ protected:
   vtkNew<vtkCone> Cone;
 
   InteractionStateType RepresentationState = InteractionStateType::Outside;
-  int TranslationAxis = Axis::NONE;
 
   // Keep track of event positions
   vtkVector3d LastEventPosition;
@@ -399,16 +319,7 @@ protected:
   // The facet resolution for rendering purposes.
   int Resolution = 128;
 
-  // The bounding box is represented by a single voxel image data
-  vtkNew<vtkImageData> Box;
-  vtkNew<vtkOutlineFilter> Outline;
-  vtkNew<vtkPolyDataMapper> OutlineMapper;
-  vtkNew<vtkActor> OutlineActor;
-  bool OutlineTranslation = true; // whether the outline can be moved
-  bool ScaleEnabled = true;       // whether the widget can be scaled
-  bool OutsideBounds = true;      // whether the widget can be moved outside input's bounds
-  double WidgetBounds[6];
-  bool ConstrainToWidgetBounds = true;
+  bool ScaleEnabled = true; // whether the widget can be scaled
 
   vtkNew<vtkPolyData> ConePD;
   vtkNew<vtkPolyDataMapper> ConePDMapper;
@@ -447,8 +358,6 @@ protected:
   vtkNew<vtkProperty> SelectedAxisProperty;
   vtkNew<vtkProperty> ConeProperty;
   vtkNew<vtkProperty> SelectedConeProperty;
-  vtkNew<vtkProperty> OutlineProperty;
-  vtkNew<vtkProperty> SelectedOutlineProperty;
   vtkNew<vtkProperty> EdgesProperty;
   vtkNew<vtkProperty> OriginHandleProperty;
   vtkNew<vtkProperty> SelectedOriginHandleProperty;
@@ -459,13 +368,12 @@ protected:
   void HighlightCone(bool highlight);
   void HighlightOriginHandle(bool highlight);
   void HighlightAxis(bool highlight);
-  void HighlightOutline(bool highlight);
 
   // Methods to manipulate the cone
   void Rotate(
     double X, double Y, const vtkVector3d& p1, const vtkVector3d& p2, const vtkVector3d& vpn);
   void TranslateCone(const vtkVector3d& p1, const vtkVector3d& p2);
-  void TranslateOutline(const vtkVector3d& p1, const vtkVector3d& p2);
+  void TranslateRepresentation(const vtkVector3d& motion) override;
   void TranslateOrigin(const vtkVector3d& p1, const vtkVector3d& p2);
   void TranslateOriginOnAxis(const vtkVector3d& p1, const vtkVector3d& p2);
   void ScaleAngle(const vtkVector3d& p1, const vtkVector3d& p2);

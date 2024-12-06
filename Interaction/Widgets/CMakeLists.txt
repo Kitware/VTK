@@ -23,6 +23,7 @@ set(classes
   vtkBorderRepresentation
   vtkBorderWidget
   vtkBoundedPlanePointPlacer
+  vtkBoundedWidgetRepresentation
   vtkBoxRepresentation
   vtkBoxWidget
   vtkBoxWidget2
