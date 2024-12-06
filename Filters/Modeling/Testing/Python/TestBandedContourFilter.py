@@ -5,6 +5,7 @@ from vtkmodules.vtkCommonCore import (
 )
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
+    vtkDataObject,
     vtkPolyData,
 )
 from vtkmodules.vtkFiltersCore import vtkGenerateIds
@@ -93,6 +94,7 @@ strips.InsertCellPoint(22)
 strips.InsertCellPoint(25)
 strips.InsertCellPoint(24)
 scalars = vtkFloatArray()
+scalars.SetName("SomeScalars")
 scalars.SetNumberOfTuples(26)
 scalars.SetTuple1(0,0)
 scalars.SetTuple1(1,50)
@@ -126,8 +128,9 @@ polyData.SetVerts(verts)
 polyData.SetLines(lines)
 polyData.SetPolys(polys)
 polyData.SetStrips(strips)
-polyData.GetPointData().SetScalars(scalars)
+polyData.GetPointData().AddArray(scalars)
 bf = vtkBandedPolyDataContourFilter()
+bf.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "SomeScalars")
 bf.SetInputData(polyData)
 bf.GenerateValues(3,25,75)
 mapper = vtkPolyDataMapper()

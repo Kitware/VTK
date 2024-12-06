@@ -145,6 +145,10 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->ClipTolerance = FLT_EPSILON;
   this->Internal->ClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
 }
 
 //------------------------------------------------------------------------------
@@ -327,7 +331,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
   vtkPointData* outPD = output->GetPointData();
   vtkCellData* outCD = output->GetCellData();
   vtkPoints* inPts = input->GetPoints();
-  vtkDataArray* inScalars = pd->GetScalars();
+  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
   bool abort = false;
   vtkIdType npts = 0;
   vtkIdType cellId = 0;
@@ -444,6 +448,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
   // numerical precision issues.
   newPts->Allocate(estimatedSize, estimatedSize);
   outPD->CopyScalarsOff();
+  outPD->CopyFieldOff(inScalars->GetName());
   outPD->InterpolateAllocate(pd, 3 * numPts, numPts);
   vtkNew<vtkDoubleArray> outScalars;
   outScalars->SetName(inScalars->GetName());
