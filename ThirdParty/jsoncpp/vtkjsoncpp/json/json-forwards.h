@@ -1,4 +1,4 @@
-/// Json-cpp amalgamated forward header (http://jsoncpp.sourceforge.net/).
+/// Json-cpp amalgamated forward header (https://github.com/open-source-parsers/jsoncpp/).
 /// It is intended to be used with #include "json/json-forwards.h"
 /// This header provides forward declaration for all JsonCpp types.
 
@@ -7,28 +7,28 @@
 // //////////////////////////////////////////////////////////////////////
 
 /*
-The JsonCpp library's source code, including accompanying documentation, 
+The JsonCpp library's source code, including accompanying documentation,
 tests and demonstration applications, are licensed under the following
 conditions...
 
-Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all 
-jurisdictions which recognize such a disclaimer. In such jurisdictions, 
+Baptiste Lepilleur and The JsonCpp Authors explicitly disclaim copyright in all
+jurisdictions which recognize such a disclaimer. In such jurisdictions,
 this software is released into the Public Domain.
 
 In jurisdictions which do not recognize Public Domain property (e.g. Germany as of
 2010), this software is Copyright (c) 2007-2010 by Baptiste Lepilleur and
 The JsonCpp Authors, and is released under the terms of the MIT License (see below).
 
-In jurisdictions which recognize Public Domain property, the user of this 
-software may choose to accept it either as 1) Public Domain, 2) under the 
-conditions of the MIT License (see below), or 3) under the terms of dual 
+In jurisdictions which recognize Public Domain property, the user of this
+software may choose to accept it either as 1) Public Domain, 2) under the
+conditions of the MIT License (see below), or 3) under the terms of dual
 Public Domain/MIT License conditions described here, as they choose.
 
 The MIT License is about as close to Public Domain as a license can get, and is
 described in clear, concise terms at:
 
    http://en.wikipedia.org/wiki/MIT_License
-   
+
 The full text of the MIT License follows:
 
 ========================================================================
@@ -94,19 +94,18 @@ license you like.
 // 3. /CMakeLists.txt
 // IMPORTANT: also update the SOVERSION!!
 
-#define JSONCPP_VERSION_STRING "1.9.4"
+#define JSONCPP_VERSION_STRING "1.9.6"
 #define JSONCPP_VERSION_MAJOR 1
 #define JSONCPP_VERSION_MINOR 9
-#define JSONCPP_VERSION_PATCH 3
+#define JSONCPP_VERSION_PATCH 6
 #define JSONCPP_VERSION_QUALIFIER
 #define JSONCPP_VERSION_HEXA                                                   \
   ((JSONCPP_VERSION_MAJOR << 24) | (JSONCPP_VERSION_MINOR << 16) |             \
    (JSONCPP_VERSION_PATCH << 8))
 
-#ifdef JSONCPP_USING_SECURE_MEMORY
-#undef JSONCPP_USING_SECURE_MEMORY
-#endif
+#if !defined(JSONCPP_USE_SECURE_MEMORY)
 #define JSONCPP_USING_SECURE_MEMORY 0
+#endif
 // If non-zero, the library zeroes any memory that it has allocated before
 // it frees its memory.
 
@@ -139,7 +138,8 @@ license you like.
 #include <cstring>
 #include <memory>
 
-#pragma pack(push, 8)
+#pragma pack(push)
+#pragma pack()
 
 namespace Json {
 template <typename T> class SecureAllocator {
@@ -165,11 +165,10 @@ public:
    * Release memory which was allocated for N items at pointer P.
    *
    * The memory block is filled with zeroes before being released.
-   * The pointer argument is tagged as "volatile" to prevent the
-   * compiler optimizing out this critical step.
    */
-  void deallocate(volatile pointer p, size_type n) {
-    std::memset(p, 0, n * sizeof(T));
+  void deallocate(pointer p, size_type n) {
+    // memset_s is used because memset may be optimized away by the compiler
+    memset_s(p, n * sizeof(T), 0, n * sizeof(T));
     // free using "global operator delete"
     ::operator delete(p);
   }
@@ -199,7 +198,9 @@ public:
   // Boilerplate
   SecureAllocator() {}
   template <typename U> SecureAllocator(const SecureAllocator<U>&) {}
-  template <typename U> struct rebind { using other = SecureAllocator<U>; };
+  template <typename U> struct rebind {
+    using other = SecureAllocator<U>;
+  };
 };
 
 template <typename T, typename U>
