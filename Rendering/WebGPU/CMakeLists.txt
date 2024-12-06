@@ -8,6 +8,7 @@ set(classes
   vtkWebGPUActor
   vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
+  vtkWebGPUCellToPrimitiveConverter
   vtkWebGPUClearDrawPass
   vtkWebGPUCompositePolyDataMapperDelegator
   vtkWebGPUComputeBuffer
