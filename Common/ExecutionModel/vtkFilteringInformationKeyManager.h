@@ -16,8 +16,9 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-#include "token/Singletons.h"     // to increment its Schwarz counter
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer than info keys.
+
+#include <token/Singletons.h> // to increment its Schwarz counter
 
 #include <functional> // for finalizers
 #include <vector>     // for finalizers
