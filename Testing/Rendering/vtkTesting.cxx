@@ -845,7 +845,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     vtkEmscriptenTestUtilities::PreloadDataFile(hostFileName.c_str(), sandboxedFileName);
     // so that subsequent code uses the sandboxed file name instead of host file name.
     delete[] newFileName;
-    newFileName = strdup(sandboxedFileName.c_str());
+    newFileName = new char[sandboxedFileName.size() + 1];
+    strcpy(newFileName, sandboxedFileName.c_str());
 #endif
     if (!LookForFile(newFileName))
     {
@@ -972,7 +973,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 #ifdef __EMSCRIPTEN__
     std::string sandboxedFileName = vtkEmscriptenTestUtilities::PreloadDataFile(newFileName);
     delete[] newFileName;
-    newFileName = strdup(sandboxedFileName.c_str());
+    newFileName = new char[sandboxedFileName.size() + 1];
+    strcpy(newFileName, sandboxedFileName.c_str());
 #endif
     rtPng->SetFileName(newFileName);
     delete[] newFileName;
