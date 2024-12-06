@@ -9,7 +9,7 @@ vtk_module_third_party(
     SPDX_DOWNLOAD_LOCATION
       "git+https://gitlab.kitware.com/third-party/pugixml.git@for/vtk-20241202-1.14"
     VERSION
-      "1.11.4"
+      "1.14"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE pugixml
