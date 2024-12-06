@@ -21,12 +21,12 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkSynchronizedRenderWindows.h>
 #include <vtkTableBasedClipDataSet.h>
 #include <vtkTestUtilities.h>
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include <vtkMPIController.h>
+#include <vtkSynchronizedRenderWindows.h>
 #else
 #include "vtkDummyController.h"
 #endif
@@ -155,10 +155,12 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   ren->ResetCamera(bds);
   ren->ResetCameraClippingRange(bds);
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkSynchronizedRenderWindows> syncWindows;
   syncWindows->SetRenderWindow(renWin);
   syncWindows->SetParallelController(contr);
   syncWindows->SetIdentifier(1);
+#endif
 
   vtkNew<vtkCompositedSynchronizedRenderers> syncRenderers;
   syncRenderers->SetRenderer(ren);
