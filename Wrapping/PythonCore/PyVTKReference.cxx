@@ -196,7 +196,7 @@ static PyObject* PyVTKReference_Get(PyObject* self, PyObject* args)
 
 static PyObject* PyVTKReference_Set(PyObject* self, PyObject* args)
 {
-  PyObject* opn;
+  PyObject* opn = nullptr;
 
   if (PyArg_ParseTuple(args, "O:set", &opn))
   {
@@ -217,7 +217,7 @@ static PyObject* PyVTKReference_Set(PyObject* self, PyObject* args)
 
 static PyObject* PyVTKReference_Trunc(PyObject* self, PyObject* args)
 {
-  PyObject* opn;
+  PyObject* opn = nullptr;
 
   if (PyArg_ParseTuple(args, ":__trunc__", &opn))
   {
@@ -238,7 +238,7 @@ static PyObject* PyVTKReference_Trunc(PyObject* self, PyObject* args)
 
 static PyObject* PyVTKReference_Round(PyObject* self, PyObject* args)
 {
-  PyObject* opn;
+  PyObject* opn = nullptr;
 
   if (PyArg_ParseTuple(args, "|O:__round__", &opn))
   {
@@ -691,7 +691,7 @@ static PyObject* PyVTKReference_GetAttr(PyObject* self, PyObject* attr)
 
 static PyObject* PyVTKReference_New(PyTypeObject*, PyObject* args, PyObject* kwds)
 {
-  PyObject* o;
+  PyObject* o = nullptr;
 
   if (kwds && PyDict_Size(kwds))
   {
