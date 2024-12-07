@@ -97,8 +97,8 @@ public:
    * Used to compare whether two events are equal. Takes into account
    * the EventId as well as the various modifiers.
    */
-  bool operator==(vtkEvent*);
-  bool operator==(unsigned long VTKEvent); // event with no modifiers
+  bool operator==(vtkEvent*) const;
+  bool operator==(unsigned long VTKEvent) const; // event with no modifiers
 
 protected:
   vtkEvent();

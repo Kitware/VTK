@@ -17,7 +17,7 @@
 
 // NOTE: @hcwiley commented this out as its not being used, and causes builds
 // to fail with examples on but testing off. Why is this included?
-//#include "vtkRegressionTestImage.h"
+// #include "vtkRegressionTestImage.h"
 
 class GraphAnimate : public vtkCommand
 {

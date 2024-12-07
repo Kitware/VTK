@@ -9,7 +9,6 @@
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkRenderer.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN

@@ -32,125 +32,78 @@ endif ()
 # -----------------------------------------------------------------------------
 
 add_executable(Cone Cone.cxx)
-
-target_link_libraries(Cone
-  PRIVATE
-    VTK::FiltersSources
-    VTK::InteractionStyle
-    VTK::RenderingOpenGL2
-    VTK::RenderingUI
-)
+target_link_libraries(Cone PRIVATE ${VTK_LIBRARIES})
 
 # -----------------------------------------------------------------------------
-# WebAssembly build options
+# Optimizations
 # -----------------------------------------------------------------------------
-set(emscripten_link_options)
-set(emscripten_compile_options)
 
-list(APPEND emscripten_link_options
-  "SHELL:-s WASM=1"
-)
-
-set(emscripten_debug_options)
-set(DEBUGINFO "PROFILE" CACHE STRING "Type of debug info")
-set_property(CACHE DEBUGINFO PROPERTY
-  STRINGS
-    NONE              # -g0
-    READABLE_JS       # -g1
-    PROFILE           # -g2
-    DEBUG_NATIVE      # -g3
-)
-
-if(DEBUGINFO STREQUAL "NONE")
-  list(APPEND emscripten_debug_options
-    "-g0"
-  )
-elseif(DEBUGINFO STREQUAL "READABLE_JS")
-  list(APPEND emscripten_debug_options
-    "-g1"
-  )
-  list(APPEND emscripten_link_options
-    "SHELL:-s DEMANGLE_SUPPORT=1"
-  )
-elseif(DEBUGINFO STREQUAL "PROFILE")
-  list(APPEND emscripten_debug_options
-    "-g2"
-  )
-  list(APPEND emscripten_link_options
-    "SHELL:-s DEMANGLE_SUPPORT=1"
-  )
-elseif(DEBUGINFO STREQUAL "DEBUG_NATIVE")
-  list(APPEND emscripten_debug_options
-    "-g3"
-  )
-  list(APPEND emscripten_link_options
-    "SHELL:-s ASSERTIONS=1"
-    "SHELL:-s DEMANGLE_SUPPORT=1"
-  )
-endif()
-
-# -----------------------------------------------------------------------------
-# Build options
-# -----------------------------------------------------------------------------
 set(emscripten_optimizations)
-set(OPTIMIZE "SMALLEST_WITH_CLOSURE" CACHE STRING "Emscripten optimization")
-set_property(CACHE OPTIMIZE PROPERTY
-  STRINGS
-    NO_OPTIMIZATION       # -O0
-    LITTLE                # -O1
-    MORE                  # -O2
-    BEST                  # -O3
-    SMALL                 # -Os
-    SMALLEST              # -Oz
-    SMALLEST_WITH_CLOSURE # -Oz --closure 1
-)
+set(emscripten_debug_options)
 
-if(OPTIMIZE STREQUAL "NO_OPTIMIZATION")
-  list(APPEND emscripten_optimizations
-    "-O0"
-  )
-elseif(OPTIMIZE STREQUAL "LITTLE")
-  list(APPEND emscripten_optimizations
-    "-O1"
-  )
-elseif(OPTIMIZE STREQUAL "MORE")
-  list(APPEND emscripten_optimizations
-    "-O2"
-  )
-elseif(OPTIMIZE STREQUAL "BEST")
-  list(APPEND emscripten_optimizations
-    "-O3"
-  )
-elseif(OPTIMIZE STREQUAL "SMALL")
-  list(APPEND emscripten_optimizations
-    "-Os"
-  )
-elseif(OPTIMIZE STREQUAL "SMALLEST")
-  list(APPEND emscripten_optimizations
-    "-Oz"
-  )
-elseif(OPTIMIZE STREQUAL "SMALLEST_WITH_CLOSURE")
-  list(APPEND emscripten_optimizations
-    "-Oz"
-  )
-  list(APPEND emscripten_link_options
-    "--closure 1"
-  )
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
 endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(cone_wasm_optimize "BEST")
+  set(cone_wasm_debuginfo "NONE")
+elseif (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+  set(cone_wasm_optimize "SMALLEST_WITH_CLOSURE")
+  set(cone_wasm_debuginfo "NONE")
+elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  set(cone_wasm_optimize "MORE")
+  set(cone_wasm_debuginfo "PROFILE")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(cone_wasm_optimize "NO_OPTIMIZATION")
+  set(cone_wasm_debuginfo "DEBUG_NATIVE")
+endif ()
+set(cone_wasm_optimize_NO_OPTIMIZATION "-O0")
+set(cone_wasm_optimize_LITTLE "-O1")
+set(cone_wasm_optimize_MORE "-O2")
+set(cone_wasm_optimize_BEST "-O3")
+set(cone_wasm_optimize_SMALLEST "-Os")
+set(cone_wasm_optimize_SMALLEST_WITH_CLOSURE "-Oz")
+set(cone_wasm_optimize_SMALLEST_WITH_CLOSURE_link "--closure=1")
+
+if (DEFINED "cone_wasm_optimize_${cone_wasm_optimize}")
+  list(APPEND emscripten_optimizations
+    ${cone_wasm_optimize_${cone_wasm_optimize}})
+  list(APPEND emscripten_link_options
+    ${cone_wasm_optimize_${cone_wasm_optimize}_link})
+else ()
+  message (FATAL_ERROR "Unrecognized value for cone_wasm_optimize=${cone_wasm_optimize}")
+endif ()
+
+set(cone_wasm_debuginfo_NONE "-g0")
+set(cone_wasm_debuginfo_READABLE_JS "-g1")
+set(cone_wasm_debuginfo_PROFILE "-g2")
+set(cone_wasm_debuginfo_DEBUG_NATIVE "-g3")
+set(cone_wasm_debuginfo_DEBUG_NATIVE_link "-sASSERTIONS=1")
+if (DEFINED "cone_wasm_debuginfo_${cone_wasm_debuginfo}")
+  list(APPEND emscripten_debug_options
+    ${cone_wasm_debuginfo_${cone_wasm_debuginfo}})
+  list(APPEND emscripten_link_options
+    ${cone_wasm_debuginfo_${cone_wasm_debuginfo}_link})
+else ()
+  message (FATAL_ERROR "Unrecognized value for cone_wasm_debuginfo=${cone_wasm_debuginfo}")
+endif ()
 
 target_compile_options(Cone
-  PUBLIC
+  PRIVATE
     ${emscripten_compile_options}
     ${emscripten_optimizations}
-    ${emscripten_debug_options}
-)
-
+    ${emscripten_debug_options})
 target_link_options(Cone
-  PUBLIC
+  PRIVATE
     ${emscripten_link_options}
     ${emscripten_optimizations}
-    ${emscripten_debug_options}
-)
+    ${emscripten_debug_options})
 
 # -----------------------------------------------------------------------------
 # VTK modules initialization

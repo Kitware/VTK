@@ -5,8 +5,6 @@
 #include "vtkCellGrid.h"
 #include "vtkDebugLeaks.h"
 
-#include <token/Singletons.h>
-
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
@@ -80,7 +78,7 @@ void vtkCellMetadata::ClearResponders()
 {
   // No matter whether we have assigned a value or not, just replace it
   // with a null pointer. This will cause any assigned object to be destroyed.
-  token_NAMESPACE::singletons().get<vtkSmartPointer<vtkCellGridResponders>>() = nullptr;
+  token_NAMESPACE::singletons().erase<vtkSmartPointer<vtkCellGridResponders>>();
 }
 
 vtkCellGridResponders* vtkCellMetadata::GetCaches()

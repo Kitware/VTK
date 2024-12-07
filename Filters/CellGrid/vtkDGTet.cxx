@@ -107,9 +107,13 @@ std::pair<int, int> vtkDGTet::GetSideRangeForType(int sideType) const
 
 int vtkDGTet::GetNumberOfSidesOfDimension(int dimension) const
 {
-  if (dimension < 0 || dimension >= this->Dimension)
+  if (dimension < -1 || dimension >= this->Dimension)
   {
     return 0;
+  }
+  else if (dimension == -1)
+  {
+    return 1;
   }
   return this->SideOffsets[Dimension - dimension + 1] - this->SideOffsets[Dimension - dimension];
 }

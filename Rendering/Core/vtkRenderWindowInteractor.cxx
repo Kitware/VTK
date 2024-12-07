@@ -102,6 +102,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->Size[0] = 0;
   this->Size[1] = 0;
 
+  this->Translation[0] = this->LastTranslation[0] = 0;
+  this->Translation[1] = this->LastTranslation[1] = 0;
+
   this->NumberOfFlyFrames = 15;
   this->Dolly = 0.30;
 

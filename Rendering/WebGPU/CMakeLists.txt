@@ -7,29 +7,64 @@ endif ()
 set(classes
   vtkWebGPUActor
   vtkWebGPUCamera
-  vtkWebGPUClearPass
-  vtkWebGPUComputePipeline
+  vtkWebGPUClearDrawPass
   vtkWebGPUComputeBuffer
+  vtkWebGPUComputeFrustumCuller
+  vtkWebGPUComputeOcclusionCuller
+  vtkWebGPUComputePass
+  vtkWebGPUComputePipeline
+  vtkWebGPUComputePointCloudMapper
   vtkWebGPUComputeRenderBuffer
+  vtkWebGPUComputeRenderTexture
+  vtkWebGPUComputeTexture
+  vtkWebGPUComputeTextureView
+  vtkWebGPUConfiguration
   vtkWebGPUHardwareSelector
+  vtkWebGPUHelpers
   vtkWebGPULight
   vtkWebGPURenderWindow
   vtkWebGPUPolyDataMapper
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass)
+  vtkWebGPURenderPass
+  vtkWebGPUTexture
+  vtkWebGPUTextureView)
 
-set(private_classes
-  vtkWebGPUInternalsBindGroup
-  vtkWebGPUInternalsBindGroupLayout
-  vtkWebGPUInternalsBuffer
-  vtkWebGPUInternalsCallbacks
-  vtkWebGPUInternalsComputeBuffer
-  vtkWebGPUInternalsPipelineLayout
-  vtkWebGPUInternalsRenderPassCreateInfo
-  vtkWebGPUInternalsRenderPassDescriptor
-  vtkWebGPUInternalsRenderPipelineDescriptor
-  vtkWebGPUInternalsShaderModule)
+set(private_headers
+  "Private/vtkWebGPUBindGroupInternals.h"
+  "Private/vtkWebGPUBindGroupLayoutInternals.h"
+  "Private/vtkWebGPUBufferInternals.h"
+  "Private/vtkWebGPUCallbacksInternals.h"
+  "Private/vtkWebGPUComputeBufferInternals.h"
+  "Private/vtkWebGPUComputePassInternals.h"
+  "Private/vtkWebGPUComputePassTextureStorageInternals.h"
+  "Private/vtkWebGPUComputePassBufferStorageInternals.h"
+  "Private/vtkWebGPUConfigurationInternals.h"
+  "Private/vtkWebGPUPipelineLayoutInternals.h"
+  "Private/vtkWebGPUPointCloudMapperInternals.h"
+  "Private/vtkWebGPURenderPassCreateInfoInternals.h"
+  "Private/vtkWebGPURenderPassDescriptorInternals.h"
+  "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+  "Private/vtkWebGPUShaderModuleInternals.h"
+  "Private/vtkWebGPUTextureInternals.h")
+
+set(private_sources
+  "Private/vtkWebGPUBindGroupInternals.cxx"
+  "Private/vtkWebGPUBindGroupLayoutInternals.cxx"
+  "Private/vtkWebGPUBufferInternals.cxx"
+  "Private/vtkWebGPUCallbacksInternals.cxx"
+  "Private/vtkWebGPUComputeBufferInternals.cxx"
+  "Private/vtkWebGPUComputePassInternals.cxx"
+  "Private/vtkWebGPUComputePassTextureStorageInternals.cxx"
+  "Private/vtkWebGPUComputePassBufferStorageInternals.cxx"
+  "Private/vtkWebGPUConfigurationInternals.cxx"
+  "Private/vtkWebGPUPipelineLayoutInternals.cxx"
+  "Private/vtkWebGPUPointCloudMapperInternals.cxx"
+  "Private/vtkWebGPURenderPassCreateInfoInternals.cxx"
+  "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
+  "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
+  "Private/vtkWebGPUShaderModuleInternals.cxx"
+  "Private/vtkWebGPUTextureInternals.cxx")
 
 # setup factory overrides
 # NI - Not Implemented
@@ -63,11 +98,20 @@ unset(wgsl_shader_sources)
 unset(private_wgsl_shader_headers)
 unset(public_wgsl_shader_headers)
 set(private_shader_files
-  wgsl/PolyData.wgsl)
+  wgsl/FrustumCullingShader.wgsl
+  wgsl/PolyData.wgsl
+  wgsl/OcclusionCullingCopyDepthTexture.wgsl
+  wgsl/OcclusionCullingDepthMipmaps.wgsl
+  wgsl/OcclusionCullingPropsCulling.wgsl
+  wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
+  wgsl/PointCloudMapperCopyDepthToWindow.wgsl
+  wgsl/PointCloudMapperShader.wgsl)
 
 set(public_shader_files
-  Testing/Cxx/TestShaders/TestComputePipelineShader.wgsl
-  Testing/Cxx/TestShaders/TestComputePipelineUniformShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassChainedShader.wgsl
+  Testing/Cxx/TestShaders/TestComputePassUniformShader.wgsl
+  Testing/Cxx/TestShaders/TestComputeTextureShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyPointColorsShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyPointPositionsShader.wgsl
   Testing/Cxx/TestShaders/TestComputeModifyCellColorsShader.wgsl)
@@ -75,7 +119,7 @@ set(public_shader_files
 foreach (file IN LISTS private_shader_files)
   vtk_encode_string(
     INPUT         "${file}"
-    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_NO_EXPORT"
+    EXPORT_SYMBOL "VTKRENDERINGWEBGPU_EXPORT"
     EXPORT_HEADER "vtkRenderingWebGPUModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
@@ -107,11 +151,10 @@ foreach (webgpu_override IN LISTS webgpu_overrides)
     OVERRIDE "vtkWebGPU${webgpu_override}")
 endforeach ()
 
-set(headers
-  vtkWGPUContext.h)
-
 set(generated_headers
   vtk_wgpu.h)
+
+set(headers)
 
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
@@ -121,9 +164,6 @@ foreach (generated_header IN LISTS generated_headers)
   list(APPEND headers
     "${CMAKE_CURRENT_BINARY_DIR}/${generated_header}")
 endforeach ()
-
-set(sources
-  vtkWGPUContext.cxx)
 
 # Setup factory overrides and add window system specific render windows.
 # FIXME: I've only brought the X render window from https://gitlab.kitware.com/vtk/vtk/-/merge_requests/10239/commits.
@@ -180,15 +220,14 @@ vtk_object_factory_configure(
 
 vtk_module_add_module(VTK::RenderingWebGPU
   CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes}
-  SOURCES ${vtk_object_factory_source} ${sources} ${wgsl_shader_sources}
+  SOURCES ${vtk_object_factory_source} ${wgsl_shader_sources} ${private_sources}
   HEADERS ${headers}
   NOWRAP_HEADERS ${public_wgsl_shader_headers}
-  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers})
+  PRIVATE_HEADERS ${vtk_object_factory_header} ${vtk_wgpu_private_headers} ${private_wgsl_shader_headers} ${private_headers})
 
 vtk_module_compile_features(VTK::RenderingWebGPU
   PUBLIC
-    cxx_std_14)
+    cxx_std_17)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_link_options(VTK::RenderingWebGPU
@@ -223,13 +262,7 @@ else ()
   endif ()
   vtk_module_find_package(PACKAGE Dawn)
   # Must include these source files here.
-  vtk_module_sources(VTK::RenderingWebGPU PRIVATE
-    "${DAWN_GEN_SRC_DIR}/dawn/webgpu_cpp.cpp"
-    "${DAWN_GEN_SRC_DIR}/dawn/dawn_proc.c")
   vtk_module_link(VTK::RenderingWebGPU
-    PRIVATE
-      ${DAWN_LIBRARIES})
-  vtk_module_include(VTK::RenderingWebGPU
     PUBLIC
-      ${DAWN_INCLUDE_DIRS})
+      dawn::webgpu_dawn)
 endif ()

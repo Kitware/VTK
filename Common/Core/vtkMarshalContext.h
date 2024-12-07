@@ -169,6 +169,11 @@ public:
   void ResetDirectDependencies();
 
   /**
+   * Reset the dependency cache for the given `identifier`
+   */
+  void ResetDirectDependenciesForNode(vtkTypeUInt32 identifier);
+
+  /**
    * Make a new `identifier`.
    */
   vtkTypeUInt32 MakeId();

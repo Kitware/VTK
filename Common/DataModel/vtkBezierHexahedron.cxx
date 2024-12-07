@@ -17,7 +17,6 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierHexahedron);
@@ -37,12 +36,14 @@ vtkCell* vtkBezierHexahedron::GetEdge(int edgeId)
 
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->SetNumberOfTuples(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
       result->GetRationalWeights()->SetValue(edge_id, this->GetRationalWeights()->GetValue(vol_id));
@@ -51,12 +52,14 @@ vtkCell* vtkBezierHexahedron::GetEdge(int edgeId)
   }
   else
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->Reset();
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
     };
@@ -72,12 +75,14 @@ vtkCell* vtkBezierHexahedron::GetFace(int faceId)
   int faceOrder[2];
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->SetNumberOfTuples(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       result->GetRationalWeights()->SetValue(face_id, this->GetRationalWeights()->GetValue(vol_id));
@@ -87,12 +92,14 @@ vtkCell* vtkBezierHexahedron::GetFace(int faceId)
   }
   else
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->Reset();
     };
-    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
     };

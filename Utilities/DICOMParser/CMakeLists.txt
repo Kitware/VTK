@@ -5,7 +5,7 @@ if (WIN32)
     set(DICOM_STATIC 1)
   endif ()
 endif ()
-set(DICOM_ANSI_STDLIB 1)
+
 configure_file(DICOMCMakeConfig.h.in DICOMCMakeConfig.h)
 
 set(headers

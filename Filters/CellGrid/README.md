@@ -1,7 +1,6 @@
 # VTK::FiltersCellGrid
-## vtkRenderingCellGrid – Novel discretization support in VTK
 
-### Introduction
+## Novel discretization support in VTK
 
 The CellGrid filter module includes queries, responders, filters, and calculators
 for processing data held in a [vtkCellGrid](https://vtk.org/doc/nightly/html/classvtkCellGrid.html).
@@ -22,7 +21,7 @@ Note that only 2-d and 3-d cell-shapes can have HDiv and HCurl
 This is enforced by having those cell metadata classes inherit
 [vtkDeRhamCell](https://vtk.org/doc/nightly/html/classvtkDeRhamCell.html).
 
-### Query classes
+## Query classes
 
 Queries (and their registered responder objects that answer the query for a given cell type)
 are the basic building block for cell-grids.
@@ -43,7 +42,7 @@ are the basic building block for cell-grids.
   – Add a cell-attribute whose values correspond to distance in world coordinates (either
   the distance from a point or the distance along a particular direction).
 
-### Calculators
+## Calculators
 
 In addition to queries and responders – which operate on cells – the vtkCellGrid
 also provides [vtkCellAttributeCalculator](https://vtk.org/doc/nightly/html/classvtkCellAttributeCalculator.html).
@@ -58,7 +57,7 @@ or perform any other task for attributes defined on cell-grids.
 + [vtkInterpolateCalculator](https://vtk.org/doc/nightly/html/classvtkInterpolateCalculator.html)
   – Interpolate a cell-attribute at a given point.
 
-### Filters
+## Filters
 
 For cell-grids, VTK algorithms are thin wrappers around a corresponding query.
 In fact, a subclass of `vtkAlgorithm` can simply provide a child class which
@@ -72,7 +71,25 @@ they tend to do very little work: all of the data processing is performed by
 responders that handle specific cell types and/or cell-attribute calculators
 that do work for a particular (cell-type, cell-attribute-type) tuple.
 
-### How-to: Adding a new basis function to DG cells
+### vtkCellGridAlgorithm and array processing
+
+The [vtkCellGridAlgorithm](https://vtk.org/doc/nightly/html/classCellGridAlgorithm.html)
+class is intended for use as a base class for algorithms that process cell grids.
+Beyond the usual methods that algorithm subclasses provide, it provides a facility
+for marking [cell-attributes](https://vtk.org/doc/nightly/html/classCellAttribute.html)
+on input data for use by algorithms:
+instead of calling `SetInputArrayToProcess()` and providing an array name or type,
+you may call`SetInputAttributeToProcess()` and provide an array name (there is
+no way to select cell-attributes by type at this point).
+The `vtkCellGridWarp` filter is a good example of how to use these methods.
+
+Note that the implementation of `SetInputAttributeToProcess()` simply calls
+`SetInputArrayToProcess()` with a forced association to cells (since `vtkCellGrid`
+does not have an concept of other association types). This means that if you wish
+to expose a filter in ParaView that requires users to select an attribute,
+you may use a string-vector property with the `SetInputArrayToProcess`.
+
+## How-to: Adding a new basis function to DG cells
 
 Note that you can query a cell-attribute for a `vtkCellAttribute::CellTypeInfo` object
 given any cell type-name. This allows each cell type to use different methods to

@@ -38,9 +38,10 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ComplexNumber>&
 std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ScalarNumber>& in)
 {
   std::vector<ComplexNumber> cplx(in.size());
-  std::transform(in.begin(), in.end(), cplx.begin(), [](ScalarNumber x) {
-    return ComplexNumber{ x, 0 };
-  });
+  std::transform(in.begin(), in.end(), cplx.begin(),
+    [](ScalarNumber x) {
+      return ComplexNumber{ x, 0 };
+    });
   return vtkFFT::Fft(cplx);
 }
 
@@ -48,9 +49,10 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::Fft(const std::vector<ScalarNumber>& 
 void vtkFFT::Fft(ScalarNumber* input, std::size_t size, ComplexNumber* result)
 {
   std::vector<ComplexNumber> cplx(size);
-  std::transform(input, input + size, cplx.begin(), [](ScalarNumber x) {
-    return ComplexNumber{ x, 0 };
-  });
+  std::transform(input, input + size, cplx.begin(),
+    [](ScalarNumber x) {
+      return ComplexNumber{ x, 0 };
+    });
   vtkFFT::Fft(cplx.data(), cplx.size(), result);
 }
 
@@ -91,9 +93,10 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Fft(vtkScalarNumberArray* 
     rawInput = new ComplexNumber[size];
     auto inputRange = vtk::DataArrayValueRange<1>(input);
     using ValueT = decltype(inputRange)::ConstReferenceType;
-    vtkSMPTools::Transform(inputRange.begin(), inputRange.end(), rawInput, [](ValueT val) {
-      return vtkFFT::ComplexNumber{ val, 0.0 };
-    });
+    vtkSMPTools::Transform(inputRange.begin(), inputRange.end(), rawInput,
+      [](ValueT val) {
+        return vtkFFT::ComplexNumber{ val, 0.0 };
+      });
   }
 
   auto result = vtkSmartPointer<vtkScalarNumberArray>::New();
@@ -216,9 +219,10 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::IFft(const std::vector<vtkFFT::Comple
     std::vector<vtkFFT::ComplexNumber> result(outSize);
 
     kiss_fft(cfg, in.data(), result.data());
-    std::for_each(result.begin(), result.end(), [outSize](vtkFFT::ComplexNumber& x) {
-      x = vtkFFT::ComplexNumber{ x.r / outSize, x.i / outSize };
-    });
+    std::for_each(result.begin(), result.end(),
+      [outSize](vtkFFT::ComplexNumber& x) {
+        x = vtkFFT::ComplexNumber{ x.r / outSize, x.i / outSize };
+      });
     kiss_fft_free(cfg);
 
     return result;

@@ -15,22 +15,19 @@
 #ifndef vtkHyperTreeGridGhostCellsGeneratorInternals_h
 #define vtkHyperTreeGridGhostCellsGeneratorInternals_h
 
+#include "vtkAbstractArray.h"
 #include "vtkBitArray.h"
-#include "vtkCellData.h"
-#include "vtkCommunicator.h"
+#include "vtkDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGhostCellsGenerator.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
-#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkSmartPointer.h"
 
-#include <cmath>
 #include <map>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -44,12 +41,15 @@ public:
    * @param controller reference to the MPI controller used for parallel operations
    * @param inputHTG reference to the input HyperTreeGrid
    * @param outputHTG reference to the output HyperTreeGrid
-   * @param outputMask reference to the output mask array. Can be null if inputHTG has no mask.
-   * @param totalVertices Number of vertices in the input HTG
    */
   vtkHyperTreeGridGhostCellsGeneratorInternals(vtkHyperTreeGridGhostCellsGenerator* self,
-    vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG,
-    vtkBitArray* outputMask, vtkIdType totalVertices);
+    vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG);
+
+  /**
+   * Initilize the internal cell data implicit array handler, with the
+   * cell arrays as the first entries of as many implicit composite arrays.
+   */
+  void InitializeCellData();
 
   /**
    * Subroutine performing an MPI AllReduce operation,
@@ -85,10 +85,8 @@ public:
 
   /**
    * ProcessTrees subroutine creating the output ghost array and adding it to the output HTG.
-   *
-   * @param nonGhostVertices The number of vertices in the HTG excluding ghost cells.
    */
-  void AppendGhostArray(vtkIdType nonGhostVertices);
+  void FinalizeCellData();
 
 private:
   // Internal structures used for MPI message exchanges
@@ -135,7 +133,7 @@ private:
 
   // Handling receive and send buffer.
   // The structure is as follows:
-  // SendBuffer[id] or RecvBuffer[id] == process id of neighbor with who to communicate buffer
+  // SendBuffer[id] or RecvBuffer[id] == process id of neighbor with whom to communicate buffer
   // SendBuffer[id][jd] or RecvBuffer[id][jd] tells which tree index is being sent.
   SendProcessBufferMap SendBuffer;
   RecvProcessBufferMap RecvBuffer;
@@ -144,12 +142,27 @@ private:
 
   std::vector<int> HyperTreesMapToProcesses;
 
+public:
+  // Store the values for a single cell data array, composed of two parts
+  // * InternalArray is the cell array internal to this HTG (ShallowCopied)
+  // * GhostCDBuffer is the buffer with values from ghost cells
+  struct CellDataArray
+  {
+    vtkDataArray* InternalArray;
+    vtkDataArray* GhostCDBuffer;
+  };
+  // All cell data attributes composing a vtkCellData, accessed by name.
+  using CellDataAttributes = std::map<std::string, CellDataArray>;
+
+private:
   vtkHyperTreeGridGhostCellsGenerator* Self = nullptr;
   vtkMultiProcessController* Controller = nullptr;
   vtkHyperTreeGrid* InputHTG = nullptr;
   vtkHyperTreeGrid* OutputHTG = nullptr;
-  vtkBitArray* OutputMask = nullptr;
+  vtkSmartPointer<vtkBitArray> OutputMask;
+  CellDataAttributes ImplicitCD;
   vtkIdType NumberOfVertices = 0;
+  vtkIdType InitialNumberOfVertices = 0;
 };
 
 VTK_ABI_NAMESPACE_END

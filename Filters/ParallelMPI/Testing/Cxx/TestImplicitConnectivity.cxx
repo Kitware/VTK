@@ -247,16 +247,16 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
 
   vtkRectilinearGrid* wholeGrid = vtkRectilinearGrid::New();
   GenerateRectGrid(wholeGrid, wholeExtent, origin);
-  //#ifdef DEBUG_ON
-  //  if( Controller->GetLocalProcessId() == 0 )
-  //    {
-  //    vtkRectilinearGridWriter* writer = vtkRectilinearGridWriter::New();
-  //    writer->SetFileName("RectilinearGrid.vtk");
-  //    writer->SetInputData( wholeGrid );
-  //    writer->Write();
-  //    writer->Delete();
-  //    }
-  //#endif
+  // #ifdef DEBUG_ON
+  //   if( Controller->GetLocalProcessId() == 0 )
+  //     {
+  //     vtkRectilinearGridWriter* writer = vtkRectilinearGridWriter::New();
+  //     writer->SetFileName("RectilinearGrid.vtk");
+  //     writer->SetInputData( wholeGrid );
+  //     writer->Write();
+  //     writer->Delete();
+  //     }
+  // #endif
   vtkRectilinearGridPartitioner* gridPartitioner = vtkRectilinearGridPartitioner::New();
   gridPartitioner->SetInputData(wholeGrid);
   gridPartitioner->SetNumberOfPartitions(numPartitions);

@@ -9,6 +9,10 @@
 #include "DICOMFile.h"
 #include "DICOMConfig.h"
 
+#include "vtksys/FStream.hxx"
+
+#include <iomanip>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -17,7 +21,8 @@ VTK_ABI_NAMESPACE_BEGIN
 DICOMFile::DICOMFile()
 {
   /* Are we little or big endian?  From Harbison&Steele.  */
-  union {
+  union
+  {
     long l;
     char c[sizeof(long)];
   } u;
@@ -31,6 +36,7 @@ DICOMFile::DICOMFile()
   {
     PlatformEndian = "LittleEndian";
   }
+  InputStream = nullptr;
 }
 
 DICOMFile::~DICOMFile()
@@ -70,62 +76,81 @@ void DICOMFile::operator=(const DICOMFile& in)
   // InputStream = in.InputStream;
 }
 
-bool DICOMFile::Open(const dicom_stl::string& filename)
+bool DICOMFile::Open(const std::string& filename)
 {
+  std::ios_base::openmode mode = std::ios::in;
 #ifdef _WIN32
-  InputStream.open(filename.c_str(), dicom_stream::ios::binary | dicom_stream::ios::in);
-#else
-  InputStream.open(filename.c_str(), dicom_stream::ios::in);
+  mode |= std::ios::binary;
 #endif
+  delete InputStream; // ensure any old streams are closed
+  InputStream = new vtksys::ifstream(filename.c_str(), mode);
 
-  // return InputStream.is_open();
-  return InputStream.rdbuf()->is_open();
+  if (InputStream && !InputStream->fail())
+  {
+    return true;
+  }
+
+  delete InputStream;
+  InputStream = nullptr;
+  return false;
 }
 
 void DICOMFile::Close()
 {
-  InputStream.close();
+  delete InputStream;
+  InputStream = nullptr;
 }
 
 long DICOMFile::Tell()
 {
-  long loc = static_cast<long>(InputStream.tellg());
-  // dicom_stream::cout << "Tell: " << loc << dicom_stream::endl;
-  return loc;
+  if (InputStream)
+  {
+    return static_cast<long>(InputStream->tellg());
+  }
+  return 0;
 }
 
 void DICOMFile::SkipToPos(long increment)
 {
-  InputStream.seekg(increment, dicom_stream::ios::beg);
+  if (InputStream)
+  {
+    InputStream->seekg(increment, std::ios::beg);
+  }
 }
 
 long DICOMFile::GetSize()
 {
-  long curpos = this->Tell();
+  if (InputStream)
+  {
+    long curpos = this->Tell();
 
-  InputStream.seekg(0, dicom_stream::ios::end);
+    InputStream->seekg(0, std::ios::end);
 
-  long size = this->Tell();
-  // dicom_stream::cout << "Tell says size is: " << size << dicom_stream::endl;
-  this->SkipToPos(curpos);
+    long size = this->Tell();
+    this->SkipToPos(curpos);
 
-  return size;
+    return size;
+  }
+  return 0;
 }
 
 void DICOMFile::Skip(long increment)
 {
-  InputStream.seekg(increment, dicom_stream::ios::cur);
+  if (InputStream)
+  {
+    InputStream->seekg(increment, std::ios::cur);
+  }
 }
 
 void DICOMFile::SkipToStart()
 {
-  InputStream.seekg(0, dicom_stream::ios::beg);
+  InputStream->seekg(0, std::ios::beg);
 }
 
 void DICOMFile::Read(void* ptr, long nbytes)
 {
-  InputStream.read(static_cast<char*>(ptr), nbytes);
-  // dicom_stream::cout << (char*) ptr << dicom_stream::endl;
+  InputStream->read(static_cast<char*>(ptr), nbytes);
+  // std::cout << (char*) ptr << std::endl;
 }
 
 doublebyte DICOMFile::ReadDoubleByte()
@@ -181,7 +206,7 @@ quadbyte DICOMFile::ReadNBytes(int len)
       ret = ReadQuadByte();
       break;
     default:
-      dicom_stream::cerr << "Unable to read " << len << " bytes" << dicom_stream::endl;
+      std::cerr << "Unable to read " << len << " bytes" << std::endl;
       break;
   }
   return (ret);
@@ -203,14 +228,14 @@ float DICOMFile::ReadAsciiFloat(int len)
   char* val2 = new char[len2];
   strncpy(val2, (char*) val, len2);
 
-  dicom_stream::istrstream data(val2);
+  std::istrstream data(val2);
   data >> ret;
   delete [] val2;
 #else
   sscanf(val, "%e", &ret);
 #endif
 
-  dicom_stream::cout << "Read ASCII float: " << ret << dicom_stream::endl;
+  std::cout << "Read ASCII float: " << ret << std::endl;
 
   delete[] val;
   return (ret);
@@ -232,14 +257,14 @@ int DICOMFile::ReadAsciiInt(int len)
   char* val2 = new char[len2];
   strncpy(val2, (char*) val, len2);
 
-  dicom_stream::istrstream data(val2);
+  std::istrstream data(val2);
   data >> ret;
   delete [] val2;
 #else
   sscanf(val, "%d", &ret);
 #endif
 
-  dicom_stream::cout << "Read ASCII int: " << ret << dicom_stream::endl;
+  std::cout << "Read ASCII int: " << ret << std::endl;
 
   delete[] val;
   return (ret);

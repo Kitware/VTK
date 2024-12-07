@@ -47,6 +47,7 @@ vtkCaptionRepresentation::vtkCaptionRepresentation()
 
   this->SetShowBorderToOff();
   this->FontFactor = 1.0;
+  this->Fit = VTK_FIT_TO_BORDER;
 }
 
 //------------------------------------------------------------------------------
@@ -118,6 +119,20 @@ void vtkCaptionRepresentation::GetAnchorPosition(double pos[3])
 }
 
 //------------------------------------------------------------------------------
+// Return the type of fitting to use.
+const char* vtkCaptionRepresentation::GetFitAsString()
+{
+  if (this->Fit == VTK_FIT_TO_BORDER)
+  {
+    return "FitToBorder";
+  }
+  else // if (this->Fit == VTK_FIT_TO_TEXT)
+  {
+    return "FitToText";
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkCaptionRepresentation::BuildRepresentation()
 {
   if (this->GetMTime() > this->BuildTime || this->CaptionActor2D->GetMTime() > this->BuildTime ||
@@ -125,26 +140,32 @@ void vtkCaptionRepresentation::BuildRepresentation()
       this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime))
   {
 
-    // If the text actor's text scaling is off, we still want to be able
-    // to change the caption's text size programmatically by changing a
-    // *relative* font size factor. We will also need to change the
-    // caption's boundary size accordingly.
-
+    // If the text actor's text scaling is off, we still may want to be able
+    // to change the caption's text to respond to changes in the border/box
+    // sizing.  This is done using the *relative* font size factor. We will
+    // also need to change the caption's boundary size accordingly. It
+    // depends on the relationship between the fit of the text to the border.
     if (!this->Moving && this->CaptionActor2D && this->CaptionActor2D->GetCaption() &&
-      (this->CaptionActor2D->GetTextActor()->GetTextScaleMode() ==
-        vtkTextActor::TEXT_SCALE_MODE_NONE))
+      this->CaptionActor2D->GetTextActor()->GetTextScaleMode() ==
+        vtkTextActor::TEXT_SCALE_MODE_NONE)
     {
-      // Create a dummy text mapper for getting font sizes
-      vtkTextMapper* textMapper = vtkTextMapper::New();
+      // Create a dummy text mapper for managing font sizes.
+      vtkNew<vtkTextMapper> textMapper;
       vtkTextProperty* tprop = textMapper->GetTextProperty();
-
       tprop->ShallowCopy(this->CaptionActor2D->GetCaptionTextProperty());
       textMapper->SetInput(this->CaptionActor2D->GetCaption());
       int textsize[2];
       int fsize = vtkTextMapper::SetRelativeFontSize(
         textMapper, this->Renderer, this->Renderer->GetSize(), textsize, 0.015 * this->FontFactor);
-      this->CaptionActor2D->GetCaptionTextProperty()->SetFontSize(fsize);
-      textMapper->Delete();
+
+      if (this->Fit == VTK_FIT_TO_BORDER)
+      {
+        this->CaptionActor2D->GetCaptionTextProperty()->SetFontSize(fsize);
+      }
+      else // this->Fit == VTK_FIT_TO_TEXT
+      {
+        ;
+      }
       this->AdjustCaptionBoundary();
     }
 
@@ -276,6 +297,7 @@ void vtkCaptionRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Caption Actor: " << this->CaptionActor2D << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
+  os << indent << "Fit: " << this->GetFitAsString() << "\n";
 
   os << indent << "Anchor Representation:\n";
   this->AnchorRepresentation->PrintSelf(os, indent.GetNextIndent());

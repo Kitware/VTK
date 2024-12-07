@@ -132,8 +132,8 @@ int vtkRandomHyperTreeGridSource::RequestData(
   }
 
   // Create dataset:
-  auto fillArray = [](
-                     vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound) {
+  auto fillArray = [](vtkDoubleArray* array, vtkIdType numPoints, double minBound, double maxBound)
+  {
     array->SetNumberOfComponents(1);
     array->SetNumberOfTuples(numPoints);
     // We differentiate the pathological case at one point from the other cases

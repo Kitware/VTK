@@ -155,9 +155,8 @@ void vtkSelectionSource::SetNodeName(unsigned int nodeId, const char* name)
     return;
   }
   if (std::find_if(this->NodesInfo.begin(), this->NodesInfo.end(),
-        [&safeNodeName](const std::shared_ptr<NodeInformation>& nodeInfo) {
-          return nodeInfo->Name == safeNodeName;
-        }) != this->NodesInfo.end())
+        [&safeNodeName](const std::shared_ptr<NodeInformation>& nodeInfo)
+        { return nodeInfo->Name == safeNodeName; }) != this->NodesInfo.end())
   {
     vtkErrorMacro("Node name already exists: " << safeNodeName);
     return;

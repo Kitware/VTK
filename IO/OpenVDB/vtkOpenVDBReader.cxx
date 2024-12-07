@@ -319,8 +319,9 @@ struct PopulateImageDataArray
     const int maxSubIdx = imgDims[0] * imgDims[1];
     const int maxIdx = maxSubIdx * imgDims[2];
 
-    vtkSMPTools::For(
-      0, maxIdx, [this, maxSubIdx, &imgDims, grid, dataArray](vtkIdType idx, vtkIdType endIdx) {
+    vtkSMPTools::For(0, maxIdx,
+      [this, maxSubIdx, &imgDims, grid, dataArray](vtkIdType idx, vtkIdType endIdx)
+      {
         typename GridType::Accessor accessor = grid->getAccessor();
         float downsamplingFactor = this->dataInfo->DownsamplingFactor;
 

@@ -45,7 +45,8 @@ bool Execute(vtkAlgorithm* input, vtkPolyData* seeds, vtkSmartPointer<vtkDataObj
 
 int TestParticleTracers(int argc, char* argv[])
 {
-  auto getBaseline = [&](std::string&& name) {
+  auto getBaseline = [&](std::string&& name)
+  {
     vtkNew<vtkXMLPolyDataReader> reader;
     reader->SetFileName(vtkTestUtilities::ExpandDataFileName(
       argc, argv, (std::string("Data/ParticleTracers/") + name).c_str()));

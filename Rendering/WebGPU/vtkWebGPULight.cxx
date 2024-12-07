@@ -21,13 +21,19 @@ void vtkWebGPULight::Render(vtkRenderer* renderer, int)
 //------------------------------------------------------------------------------
 void vtkWebGPULight::CacheLightInformation(vtkRenderer* renderer, vtkCamera* camera)
 {
+  // Init the cache with right information
   LightInfo& li = this->CachedLightInfo;
-  std::memset(&li, 0, sizeof(li));
-
+  std::memset(&li.Pad, 0, sizeof(li.Pad));
   li.Type = this->LightType;
   li.Color[0] = { static_cast<vtkTypeFloat32>(this->DiffuseColor[0] * this->Intensity) };
   li.Color[1] = { static_cast<vtkTypeFloat32>(this->DiffuseColor[1] * this->Intensity) };
   li.Color[2] = { static_cast<vtkTypeFloat32>(this->DiffuseColor[2] * this->Intensity) };
+  li.Positional = 0;
+  li.ConeAngle = 0;
+  li.Exponent = 0;
+  std::memset(&li.DirectionVC, 0, sizeof(li.DirectionVC));
+  std::memset(&li.PositionVC, 0, sizeof(li.PositionVC));
+  std::memset(&li.Attenuation, 0, sizeof(li.Attenuation));
 
   auto wgpuRenderer = reinterpret_cast<vtkWebGPURenderer*>(renderer);
   if (wgpuRenderer->GetLightingComplexity() >=

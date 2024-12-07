@@ -961,7 +961,7 @@ int vtkTRUCHASReader::RequestData(
     }
     else
     {
-      strncpy(field_name, array_name, MAX_NAME);
+      strncpy(field_name, array_name, sizeof(field_name));
     }
 
     bool isFloat = this->Internals->array_isFloat[array_name];

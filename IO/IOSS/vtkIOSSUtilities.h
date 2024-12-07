@@ -243,7 +243,7 @@ vtkSmartPointer<vtkPoints> GetMeshModelCoordinates(
  * This method supports SIDESETs. It iterates into the nest SIDEBLOCK elements
  * to check for the field.
  */
-bool IsFieldTransient(Ioss::GroupingEntity* entity, const std::string& fieldname);
+bool IsFieldTransient(const Ioss::GroupingEntity* entity, const std::string& fieldname);
 
 ///@{
 /**

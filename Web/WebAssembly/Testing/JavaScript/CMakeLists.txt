@@ -6,7 +6,7 @@ endif ()
 set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
 list(APPEND _vtk_node_args
-  --import "${PROJECT_BINARY_DIR}/bin/vtkWasmSceneManager.mjs")
+  --import "$<TARGET_FILE:VTK::WasmSceneManager>")
 vtk_add_test_module_javascript_node(
   testInitialize.mjs,NO_DATA
   testBlobs.mjs,

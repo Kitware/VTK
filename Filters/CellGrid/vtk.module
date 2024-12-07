@@ -16,6 +16,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
+  VTK::CommonTransforms
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::eigen

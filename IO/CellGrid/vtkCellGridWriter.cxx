@@ -24,7 +24,6 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellGridWriter);
 
 vtkCellGridWriter::vtkCellGridWriter()
-  : FileName{ nullptr }
 {
   // Ensure vtkCellGridIOQuery is registered.
   vtkIOCellGrid::RegisterCellsAndResponders();
@@ -39,6 +38,7 @@ void vtkCellGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "FileName: " << this->FileName << "\n";
+  os << indent << "FileFormat: " << this->FileFormat << "\n";
 }
 
 vtkCellGrid* vtkCellGridWriter::GetInput()
@@ -157,6 +157,37 @@ std::string dataTypeToString(int dataType)
   return "unhandled";
 }
 
+bool getCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribute* attribute,
+  nlohmann::json& rangeInfo)
+{
+  auto it = rangeCache.find(attribute);
+  if (it == rangeCache.end())
+  {
+    return false;
+  }
+  rangeInfo = nlohmann::json::object();
+  int compNum = 0;
+  for (const auto& compRange : it->second)
+  {
+    nlohmann::json entry{ { "min", compRange.FiniteRange[0] },
+      { "max", compRange.FiniteRange[1] } };
+    if (compNum == 1)
+    {
+      rangeInfo["L₁"] = entry;
+    }
+    else if (compNum == 0)
+    {
+      rangeInfo["L₂"] = entry;
+    }
+    else
+    {
+      rangeInfo[std::to_string(compNum - 2)] = entry;
+    }
+    ++compNum;
+  }
+  return true;
+}
+
 bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
 {
   // Iterate all the vtkDataSetAttributes held by the grid.
@@ -249,6 +280,7 @@ bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
 
   auto attributes = nlohmann::json::array();
   auto* shapeAtt = grid->GetShapeAttribute();
+  auto& rangeCache = grid->GetRangeCache();
   for (const auto cellAttId : grid->GetCellAttributeIds())
   {
     auto* cellAtt = grid->GetCellAttributeById(cellAttId);
@@ -260,6 +292,11 @@ bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
       if (cellAtt == shapeAtt)
       {
         record["shape"] = true;
+      }
+      nlohmann::json rangeInfo;
+      if (getCachedRange(rangeCache, cellAtt, rangeInfo))
+      {
+        record["range"] = rangeInfo;
       }
       attributes.push_back(record);
     }
@@ -326,7 +363,22 @@ void vtkCellGridWriter::WriteData()
   nlohmann::json data;
   if (this->ToJSON(data, grid))
   {
-    output << data;
+    switch (this->FileFormat)
+    {
+      default:
+      case Format::PlainText:
+        output << data;
+        break;
+      case Format::MessagePack:
+      {
+        output << "vtkCellGrid\nMessagePack\nv1\n";
+        std::vector<std::uint8_t> mpack = nlohmann::json::to_msgpack(data);
+        auto writeSize = mpack.size() / sizeof(std::istream::char_type) +
+          (mpack.size() % sizeof(std::istream::char_type) ? 1 : 0);
+        output.write(reinterpret_cast<std::ostream::char_type*>(mpack.data()), writeSize);
+      }
+      break;
+    }
     output.close();
   }
   else

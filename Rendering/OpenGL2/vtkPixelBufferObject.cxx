@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPixelBufferObject.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
 
 #include "vtkOpenGLError.h"
 
-//#define VTK_PBO_DEBUG
-//#define VTK_PBO_TIMING
+// #define VTK_PBO_DEBUG
+// #define VTK_PBO_TIMING
 
 #ifdef VTK_PBO_TIMING
 #include "vtkTimerLog.h"

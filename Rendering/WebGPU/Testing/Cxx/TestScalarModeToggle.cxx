@@ -3,15 +3,14 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkElevationFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -109,6 +108,10 @@ int TestScalarModeToggle(int argc, char* argv[])
   mapper->SelectColorArray("colors");
   renWin->Render();
 
-  iren->Start();
-  return 0;
+  const int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
+  return !retVal;
 }

@@ -2,8 +2,6 @@ NAME
   VTK::IOHDF
 LIBRARY_NAME
   vtkIOHDF
-KIT
-  VTK::IO
 GROUPS
   StandAlone
 SPDX_LICENSE_IDENTIFIER
@@ -16,15 +14,18 @@ DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersCore
   VTK::IOCore
+  VTK::IOHDFTools
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::hdf5
   VTK::IOCore
   VTK::vtksys
   VTK::FiltersTemporal
+  VTK::ParallelCore
 TEST_DEPENDS
   VTK::FiltersGeneral
   VTK::FiltersHybrid
+  VTK::FiltersParallelDIY2
   VTK::FiltersPoints
   VTK::FiltersSources
   VTK::FiltersTemporal
@@ -34,3 +35,7 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::FiltersParallelMPI
+  VTK::mpi
+  VTK::ParallelMPI

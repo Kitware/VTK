@@ -695,14 +695,16 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
 
 //----------------
 // union of long int and pointer
-union vtkPythonUtilPointerUnion {
+union vtkPythonUtilPointerUnion
+{
   void* p;
   uintptr_t l;
 };
 
 //----------------
 // union of long int and pointer
-union vtkPythonUtilConstPointerUnion {
+union vtkPythonUtilConstPointerUnion
+{
   const void* p;
   uintptr_t l;
 };
@@ -1039,6 +1041,17 @@ bool vtkPythonUtil::ImportModule(const char* fullname, PyObject* globals)
 void vtkPythonUtil::AddModule(const char* name)
 {
   vtkPythonMap->ModuleList->push_back(name);
+
+  // Register module name into pending list for defered side module loading
+  PyObject* pModule = PyImport_ImportModule("vtkmodules");
+  PyObject* pFunc = PyObject_GetAttrString(pModule, "on_vtk_module_init");
+  PyObject* pArgs = PyTuple_New(1);
+  PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(name));
+  PyObject* execVal = PyObject_CallObject(pFunc, pArgs);
+  Py_DECREF(execVal);
+  Py_DECREF(pArgs);
+  Py_DECREF(pFunc);
+  Py_DECREF(pModule);
 }
 
 //------------------------------------------------------------------------------

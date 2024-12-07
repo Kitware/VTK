@@ -346,12 +346,11 @@ vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
 {
   const int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
   const int dimension = vtkStructuredData::GetDataDimension(dataDescription);
-  const int cellType = dimension == 3
-    ? (usePixelVoxelOrientation ? VTK_VOXEL : VTK_HEXAHEDRON)
-    : dimension == 2 ? (usePixelVoxelOrientation ? VTK_PIXEL : VTK_QUAD)
-                     : dimension == 1
-        ? VTK_LINE
-        : dimension == 0 && dataDescription == VTK_SINGLE_POINT ? VTK_VERTEX : VTK_EMPTY_CELL;
+  const int cellType = dimension == 3 ? (usePixelVoxelOrientation ? VTK_VOXEL : VTK_HEXAHEDRON)
+    : dimension == 2                  ? (usePixelVoxelOrientation ? VTK_PIXEL : VTK_QUAD)
+    : dimension == 1                  ? VTK_LINE
+    : dimension == 0 && dataDescription == VTK_SINGLE_POINT ? VTK_VERTEX
+                                                            : VTK_EMPTY_CELL;
   auto cellTypesArray = vtkSmartPointer<vtkConstantArray<int>>::New();
   cellTypesArray->ConstructBackend(cellType);
   cellTypesArray->SetNumberOfComponents(1);

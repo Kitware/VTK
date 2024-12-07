@@ -2,6 +2,8 @@ NAME
   VTK::TestingCore
 LIBRARY_NAME
   vtkTestingCore
+DESCRIPTION
+  Core classes for regression and unit testing of VTK.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

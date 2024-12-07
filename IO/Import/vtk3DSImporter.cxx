@@ -3,10 +3,12 @@
 #include "vtk3DSImporter.h"
 
 #include "vtkActor.h"
+#include "vtkActorCollection.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -182,6 +184,8 @@ void vtk3DSImporter::ImportActors(vtkRenderer* renderer)
   vtkPolyData* polyData;
   vtkActor* actor;
 
+  this->ActorCollection->RemoveAllItems();
+
   // walk the list of meshes, creating actors
   for (mesh = this->MeshList; mesh != nullptr; mesh = (vtk3DSMesh*)mesh->next)
   {
@@ -214,6 +218,7 @@ void vtk3DSImporter::ImportActors(vtkRenderer* renderer)
     material = (vtk3DSMatProp*)VTK_LIST_FIND(this->MatPropList, mesh->mtl[0]->name);
     actor->SetProperty(material->aProperty);
     renderer->AddActor(actor);
+    this->ActorCollection->AddItem(actor);
   }
 }
 
@@ -274,6 +279,8 @@ void vtk3DSImporter::ImportLights(vtkRenderer* renderer)
   vtk3DSSpotLight* spotLight;
   vtkLight* aLight;
 
+  this->LightCollection->RemoveAllItems();
+
   // just walk the list of omni lights, creating vtk lights
   for (omniLight = this->OmniList; omniLight != nullptr;
        omniLight = (vtk3DSOmniLight*)omniLight->next)
@@ -283,6 +290,7 @@ void vtk3DSImporter::ImportLights(vtkRenderer* renderer)
     aLight->SetFocalPoint(0, 0, 0);
     aLight->SetColor(omniLight->col.red, omniLight->col.green, omniLight->col.blue);
     renderer->AddLight(aLight);
+    this->LightCollection->AddItem(aLight);
     vtkDebugMacro(<< "Importing Omni Light: " << omniLight->name);
   }
 
@@ -297,6 +305,7 @@ void vtk3DSImporter::ImportLights(vtkRenderer* renderer)
     aLight->SetColor(spotLight->col.red, spotLight->col.green, spotLight->col.blue);
     aLight->SetConeAngle(spotLight->falloff);
     renderer->AddLight(aLight);
+    this->LightCollection->AddItem(aLight);
     vtkDebugMacro(<< "Importing Spot Light: " << spotLight->name);
   }
 }

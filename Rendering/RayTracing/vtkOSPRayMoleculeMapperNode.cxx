@@ -17,7 +17,6 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 #include <string.h>

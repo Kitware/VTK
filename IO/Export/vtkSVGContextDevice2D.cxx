@@ -28,7 +28,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkXMLDataElement.h"
 
 #include <vtk_utf8.h>

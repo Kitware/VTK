@@ -3,6 +3,51 @@ Currently, this package is experimental and may change in the future.
 """
 from __future__ import absolute_import
 import sys
+import importlib.util
+
+from pathlib import Path
+
+from importlib.abc import MetaPathFinder
+from importlib.machinery import ExtensionFileLoader
+
+LOADING_STACK = []
+
+def find_lib_path(paths, vtk_module_name):
+    for ext in [".pyd", ".so"]:
+        for base_path in paths:
+            for f in Path(base_path).glob(f"{vtk_module_name}.*{ext}"):
+                return str(f.resolve())
+
+
+class VTKMetaHook(MetaPathFinder):
+    """Attach a custom  loaded for vtk native library loading to defer loading of pure python dependencies"""
+    def find_spec(self, fullname, path, target=None):
+        if fullname.startswith("vtkmodules.vtk"):
+            vtk_module_name = fullname.split(".")[1]
+            module_path = find_lib_path(path, vtk_module_name)
+            if module_path is None:
+                return None
+
+            LOADING_STACK.append(fullname)
+            return importlib.util.spec_from_file_location(fullname, module_path, loader=VTKLoader(fullname, module_path))
+
+        return None
+
+
+class VTKLoader(ExtensionFileLoader):
+    """Flush any pending dependency load once initialize() phase is done"""
+    def exec_module(self, module):
+        super().exec_module(module)
+
+        # Process pending dependencies only if the module match the first load request
+        if len(LOADING_STACK) and LOADING_STACK[0] == module.__name__:
+            LOADING_STACK.clear()
+            on_vtk_module_init_completed()
+
+
+
+# Register our hook for vtk library loader
+sys.meta_path.insert(0, VTKMetaHook())
 
 
 def _windows_dll_path():
@@ -58,8 +103,48 @@ def _load_vtkmodules_static():
 #------------------------------------------------------------------------------
 # list the contents
 __all__ = [
-@_vtkmodules_all@]
-
+    @_vtkmodules_all@
+]
 #------------------------------------------------------------------------------
 # get the version
 __version__ = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
+
+#------------------------------------------------------------------------------
+# describe import dependencies to properly define Python @override
+MODULE_MAPPER = {
+    "vtkCommonDataModel": [
+        "vtkmodules.util.data_model",
+    ],
+    "vtkCommonExecutionModel": [
+        "vtkmodules.util.execution_model",
+    ],
+}
+LOADED_MODULES = set()
+PENDING_LOADED_MODULES = set()
+
+def register_vtk_module_dependencies(vtk_module_name, *import_names):
+    """Method to call for registering external override on vtkmodule load"""
+    MODULE_MAPPER.setdefault(vtk_module_name, []).extend(import_names)
+
+    # If already loaded let's make sure we import it now
+    if vtk_module_name in LOADED_MODULES:
+        for import_name in import_names:
+            importlib.import_module(import_name)
+
+
+def on_vtk_module_init(module_name):
+    """Automatically called by vtkmodule when they are loaded"""
+    if module_name in LOADED_MODULES:
+        return
+
+    PENDING_LOADED_MODULES.add(module_name)
+
+
+def on_vtk_module_init_completed():
+    pending = list(PENDING_LOADED_MODULES)
+    PENDING_LOADED_MODULES.clear()
+
+    for module_name in pending:
+        LOADED_MODULES.add(module_name)
+        for import_name in MODULE_MAPPER.get(module_name, []):
+            importlib.import_module(import_name)

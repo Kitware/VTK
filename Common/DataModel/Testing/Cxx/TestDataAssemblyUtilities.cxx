@@ -127,7 +127,8 @@ vtkSmartPointer<vtkMultiBlockDataSet> CreateMultiBlock(
   const std::map<std::string, std::vector<std::string>>& map, int numPieces = 0)
 {
   std::function<vtkSmartPointer<vtkDataObject>(const std::string&)> populate;
-  populate = [&](const std::string& name) -> vtkSmartPointer<vtkDataObject> {
+  populate = [&](const std::string& name) -> vtkSmartPointer<vtkDataObject>
+  {
     auto iter = map.find(name);
     if (iter == map.end())
     {
@@ -177,7 +178,8 @@ bool TestMultiBlockDataSet(int numPieces)
   }
   hierarchy->Print(cout);
 
-  auto XPath = [&hierarchy](const std::string& path) {
+  auto XPath = [&hierarchy](const std::string& path)
+  {
     auto nodes = hierarchy->SelectNodes({ path });
     return nodes.size() == 1 ? nodes[0] : -1;
   };

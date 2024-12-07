@@ -79,6 +79,7 @@ for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit);
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkWin32OpenGLRenderWindow");
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkXOpenGLRenderWindow");
       object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkSDL2OpenGLRenderWindow");
+      object_factory->SetEnableFlag(0, "vtkRenderWindow", "vtkWebAssemblyOpenGLRenderWindow");
     }
   }
 }

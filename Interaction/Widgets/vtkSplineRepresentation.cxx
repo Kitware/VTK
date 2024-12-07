@@ -9,7 +9,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN

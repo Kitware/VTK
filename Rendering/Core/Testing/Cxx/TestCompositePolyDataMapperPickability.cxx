@@ -198,20 +198,24 @@ int TestCompositePolyDataMapperPickability(int argc, char* argv[])
   sel->Delete();
 
   // One block in every possible state.
-  prepareDisplayAttribute(expected, da, mb, [](int nn) {
-    --nn;
-    return std::pair<bool, bool>(!!(nn / 2), !!(nn % 2));
-  });
+  prepareDisplayAttribute(expected, da, mb,
+    [](int nn)
+    {
+      --nn;
+      return std::pair<bool, bool>(!!(nn / 2), !!(nn % 2));
+    });
   mp->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // One block in every possible state (but different).
-  prepareDisplayAttribute(expected, da, mb, [](int nn) {
-    --nn;
-    return std::pair<bool, bool>(!(nn / 2), !(nn % 2));
-  });
+  prepareDisplayAttribute(expected, da, mb,
+    [](int nn)
+    {
+      --nn;
+      return std::pair<bool, bool>(!(nn / 2), !(nn % 2));
+    });
   mp->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);

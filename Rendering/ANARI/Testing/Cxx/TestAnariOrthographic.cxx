@@ -26,6 +26,7 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
+#include "vtkAnariTestUtilities.h"
 
 int TestAnariOrthographic(int argc, char* argv[])
 {
@@ -68,22 +69,7 @@ int TestAnariOrthographic(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariOrthographic";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", renderer);
-  vtkAnariRendererNode::SetSamplesPerPixel(4, renderer);
-  vtkAnariRendererNode::SetLightFalloff(.3, renderer);
-  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
-  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
+  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariOrthographic");
 
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->SetParallelProjection(1);

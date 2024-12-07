@@ -19,7 +19,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -193,24 +192,26 @@ protected:
       VTK_ASSUME(darray->GetNumberOfComponents() == 3);
       using ValueType = vtk::GetAPIType<InputArrayType>;
 
-      vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        auto drange = vtk::DataArrayTupleRange(darray, begin, end);
-        for (auto tuple : drange)
+      vtkSMPTools::For(0, darray->GetNumberOfTuples(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          vtkVector4<ValueType> in, out;
-          in[0] = tuple[0];
-          in[1] = tuple[1];
-          in[2] = tuple[2];
-          in[3] = 1.0;
+          auto drange = vtk::DataArrayTupleRange(darray, begin, end);
+          for (auto tuple : drange)
+          {
+            vtkVector4<ValueType> in, out;
+            in[0] = tuple[0];
+            in[1] = tuple[1];
+            in[2] = tuple[2];
+            in[3] = 1.0;
 
-          this->Transform->MultiplyPoint(in.GetData(), out.GetData());
+            this->Transform->MultiplyPoint(in.GetData(), out.GetData());
 
-          out[0] /= out[3];
-          out[1] /= out[3];
-          out[2] /= out[3];
-          tuple.SetTuple(out.GetData());
-        }
-      });
+            out[0] /= out[3];
+            out[1] /= out[3];
+            out[2] /= out[3];
+            tuple.SetTuple(out.GetData());
+          }
+        });
     }
   };
 };
@@ -280,14 +281,16 @@ private:
     {
       using T = vtk::GetAPIType<InputArrayType>;
 
-      vtkSMPTools::For(0, darray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
-        for (auto tuple : vtk::DataArrayTupleRange<3>(darray, begin, end))
+      vtkSMPTools::For(0, darray->GetNumberOfTuples(),
+        [&](vtkIdType begin, vtkIdType end)
         {
-          tuple[0] += static_cast<T>(this->Displacement[0]);
-          tuple[1] += static_cast<T>(this->Displacement[1]);
-          tuple[2] += static_cast<T>(this->Displacement[2]);
-        }
-      });
+          for (auto tuple : vtk::DataArrayTupleRange<3>(darray, begin, end))
+          {
+            tuple[0] += static_cast<T>(this->Displacement[0]);
+            tuple[1] += static_cast<T>(this->Displacement[1]);
+            tuple[2] += static_cast<T>(this->Displacement[2]);
+          }
+        });
     }
   };
 };
@@ -1175,9 +1178,8 @@ struct action<MotionFX::CFG::Grammar>
     {
       std::sort(apair.second.begin(), apair.second.end(),
         [](const std::shared_ptr<const impl::Motion>& m0,
-          const std::shared_ptr<const impl::Motion>& m1) {
-          return m0->tstart_prescribe < m1->tstart_prescribe;
-        });
+          const std::shared_ptr<const impl::Motion>& m1)
+        { return m0->tstart_prescribe < m1->tstart_prescribe; });
     }
   }
 };

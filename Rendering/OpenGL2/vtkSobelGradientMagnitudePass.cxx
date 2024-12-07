@@ -20,7 +20,7 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkSobelGradientMagnitudePass developers.
-//#define VTK_SOBEL_PASS_DEBUG
+// #define VTK_SOBEL_PASS_DEBUG
 
 #ifdef VTK_SOBEL_BLUR_PASS_DEBUG
 #include "vtkImageExtractComponents.h"

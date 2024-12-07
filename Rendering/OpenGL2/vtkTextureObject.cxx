@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTextureObject.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include "vtkObjectFactory.h"
 
@@ -186,7 +186,7 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win), bool 
   (void)requireTexInt;
   return true;
 #elif defined(__APPLE__)
-  // Cannot trust glew on apple systems
+  // Cannot trust glad on apple systems
   (void)requireTexFloat;
   (void)requireDepthFloat;
   (void)requireTexInt;
@@ -195,20 +195,19 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win), bool 
   bool texFloat = true;
   if (requireTexFloat)
   {
-    texFloat =
-      (glewIsSupported("GL_ARB_texture_float") != 0 && glewIsSupported("GL_ARB_texture_rg") != 0);
+    texFloat = (GLAD_GL_ARB_texture_float != 0 && GLAD_GL_ARB_texture_rg != 0);
   }
 
   bool depthFloat = true;
   if (requireDepthFloat)
   {
-    depthFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+    depthFloat = (GLAD_GL_ARB_depth_buffer_float != 0);
   }
 
   bool texInt = true;
   if (requireTexInt)
   {
-    texInt = (glewIsSupported("GL_EXT_texture_integer") != 0);
+    texInt = (GLAD_GL_EXT_texture_integer != 0);
   }
 
   return texFloat && depthFloat && texInt;
@@ -223,17 +222,16 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow* renWin)
   this->SupportsTextureFloat = true;
   this->SupportsDepthBufferFloat = true;
 #elif defined(__APPLE__)
-  // Cannot trust glew on apple systems. OpenGL 3.2 on apple supports these features.
+  // Cannot trust glad on apple systems. OpenGL 3.2 on apple supports these features.
   this->SupportsTextureInteger = true;
   this->SupportsTextureFloat = true;
   this->SupportsDepthBufferFloat = true;
 #else
-  this->SupportsTextureInteger = (glewIsSupported("GL_EXT_texture_integer") != 0);
+  this->SupportsTextureInteger = (GLAD_GL_EXT_texture_integer != 0);
 
-  this->SupportsTextureFloat =
-    (glewIsSupported("GL_ARB_texture_float") != 0 && glewIsSupported("GL_ARB_texture_rg") != 0);
+  this->SupportsTextureFloat = (GLAD_GL_ARB_texture_float != 0 && GLAD_GL_ARB_texture_rg != 0);
 
-  this->SupportsDepthBufferFloat = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+  this->SupportsDepthBufferFloat = (GLAD_GL_ARB_depth_buffer_float != 0);
 #endif
 
   return this->IsSupported(
@@ -344,7 +342,7 @@ void vtkTextureObject::CreateTexture()
       // See: http://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
       // turn off mip map filter or set the base and max level correctly. here
       // both are done.
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
       if (this->Target != GL_TEXTURE_2D_MULTISAMPLE)
 #endif
       {
@@ -516,7 +514,7 @@ void vtkTextureObject::SendParameters()
   }
 #endif
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   if (this->Target == GL_TEXTURE_2D_MULTISAMPLE)
   {
     return;
@@ -589,7 +587,7 @@ void vtkTextureObject::SendParameters()
 
   // if mipmaps are requested also turn on anisotropic if available
 #ifdef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
-  if (GLEW_EXT_texture_filter_anisotropic)
+  if (GLAD_GL_EXT_texture_filter_anisotropic)
   {
     float aniso = 0.0f;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
@@ -1738,7 +1736,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height, in
   assert(
     "pre: valid_internalFormat" && internalFormat >= 0 && internalFormat < NumberOfDepthFormats);
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   this->Target = (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
 #else
   this->Target = GL_TEXTURE_2D;
@@ -1767,7 +1765,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height, in
   this->CreateTexture();
   this->Bind();
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   if (this->Samples)
   {
     glTexImage2DMultisample(this->Target, this->Samples, static_cast<GLint>(this->InternalFormat),
@@ -1791,7 +1789,7 @@ bool vtkTextureObject::AllocateDepthStencil(unsigned int width, unsigned int hei
 {
   assert("pre: context_exists" && this->GetContext() != nullptr);
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   this->Target = (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
 #else
   this->Target = GL_TEXTURE_2D;
@@ -1811,7 +1809,7 @@ bool vtkTextureObject::AllocateDepthStencil(unsigned int width, unsigned int hei
   this->CreateTexture();
   this->Bind();
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   if (this->Samples)
   {
     glTexImage2DMultisample(this->Target, this->Samples, static_cast<GLint>(this->InternalFormat),
@@ -1874,7 +1872,7 @@ bool vtkTextureObject::Allocate2D(
 {
   assert(this->Context);
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   this->Target = (this->Samples ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D);
 #else
   this->Target = GL_TEXTURE_2D;
@@ -1894,7 +1892,7 @@ bool vtkTextureObject::Allocate2D(
   this->CreateTexture();
   this->Bind();
 
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
   if (this->Samples)
   {
     glTexImage2DMultisample(this->Target, this->Samples, static_cast<GLint>(this->InternalFormat),
@@ -2187,7 +2185,7 @@ void vtkTextureObject::Resize(unsigned int width, unsigned int height)
 
   if (this->NumberOfDimensions == 2)
   {
-#ifdef GL_TEXTURE_2D_MULTISAMPLE
+#ifdef glTexImage2DMultisample
     if (this->Samples)
     {
       glTexImage2DMultisample(this->Target, this->Samples, static_cast<GLint>(this->InternalFormat),

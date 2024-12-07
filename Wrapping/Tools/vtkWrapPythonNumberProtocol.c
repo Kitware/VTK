@@ -5,7 +5,7 @@
 #include <string.h>
 
 /* Overrides __rshift__ operator for vtkAlgorithm and vtkDataObject */
-int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, ClassInfo* classInfo)
+int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, const ClassInfo* classInfo)
 {
   const int isVtkAlgorithm = strcmp("vtkAlgorithm", classInfo->Name) == 0;
   const int isVtkDataObject = strcmp("vtkDataObject", classInfo->Name) == 0;

@@ -39,7 +39,7 @@ def convertDirectoryToZipFile(directoryPath):
 # -----------------------------------------------------------------------------
 
 
-def addDataToViewer(dataPath, srcHtmlPath):
+def addDataToViewer(dataPath, srcHtmlPath, disableGirder=False):
     if os.path.isfile(dataPath) and os.path.exists(srcHtmlPath):
         dstDir = os.path.dirname(dataPath)
         dstHtmlPath = os.path.join(dstDir, "%s.html" % os.path.basename(dataPath)[:-6])
@@ -54,6 +54,19 @@ def addDataToViewer(dataPath, srcHtmlPath):
         with open(srcHtmlPath, mode="r", encoding="utf-8") as srcHtml:
             with open(dstHtmlPath, mode="w", encoding="utf-8") as dstHtml:
                 for line in srcHtml:
+                    if disableGirder and "</title>" in line:
+                        dstHtml.write(
+                            """
+    <script>
+        // Force reloading the page if we want to disable girder before anything else.
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('noGirder') != 'true') {
+            urlParams.set('noGirder', 'true');
+            window.location.search = urlParams;
+        }
+    </script>
+                                      """
+                        )
                     if "</body>" in line:
                         dstHtml.write("<script>\n")
                         dstHtml.write('var contentToLoad = "%s";\n\n' % base64Content)
@@ -65,6 +78,29 @@ def addDataToViewer(dataPath, srcHtmlPath):
                         dstHtml.write("</script>\n")
 
                     dstHtml.write(line)
+
+
+# -----------------------------------------------------------------------------
+
+
+def numericSorted(l):
+    """Numerically sort a list of strings."""
+
+    # pattern to split name into numeric and non-numeric parts
+    splitter_pattern = re.compile('([0-9]+|[^0-9]+)')
+
+    def keyfunc(name):
+        """Sorting key for numeric sorting."""
+        split_name = re.findall(splitter_pattern, name)
+        # one-liner to convert numeric parts into integers
+        split_name = list(map(lambda x: int(x) if x.isdigit() else x, split_name))
+        # ensure that list begins with a string to avoid string<->int compare
+        if split_name and isinstance(split_name[0], int):
+            split_name.insert(0, '')
+        return split_name
+
+    # return the numerically sorted list
+    return sorted(l, key=keyfunc)
 
 
 # -----------------------------------------------------------------------------
@@ -188,7 +224,7 @@ def zipAllTimeSteps(directoryPath):
 
         timeStep = 0
         # zip all timestep directories
-        for folder in sorted(os.listdir(currentDirectory)):
+        for folder in numericSorted(os.listdir(currentDirectory)):
             fullPath = os.path.join(currentDirectory, folder)
             if os.path.isdir(fullPath) and reg.match(folder):
                 if not isSceneInitialized:

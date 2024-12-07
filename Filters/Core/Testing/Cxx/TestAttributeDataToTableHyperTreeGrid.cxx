@@ -56,7 +56,8 @@ int TestAttributeDataToTableHyperTreeGrid(int vtkNotUsed(argc), char* vtkNotUsed
     return EXIT_FAILURE;
   }
 
-  auto checkIota = [](vtkDataArray* arr) {
+  auto checkIota = [](vtkDataArray* arr)
+  {
     if (!arr)
     {
       return false;

@@ -4,9 +4,12 @@
 #include "vtkCellArray.h"
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
+#include "vtkDGArrayOutputAccessor.h"
+#include "vtkDGArraysInputAccessor.h"
 #include "vtkDGCell.h"
 #include "vtkDGInterpolateCalculator.h"
-#include "vtkDGInvokeOperator.h"
+#include "vtkDGOperation.h"
+#include "vtkDGOperation.txx"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFiltersCellGrid.h"
@@ -18,7 +21,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include "vtkXMLPolyDataWriter.h"
 
@@ -227,25 +230,31 @@ bool EvaluateBasisFunctions(vtkCellGrid* grid, vtkDGCell* dgCell)
 
   // Test basis evaluation for HGrad (and constant, for vertex) function space
   // Note: This only tests linear/constant shape functions.
-  std::vector<vtkIdType> cellId(nn, 0);
-  std::vector<double> result;
-  result.resize(nn * 3);
+  vtkNew<vtkIdTypeArray> cellId;
+  cellId->SetNumberOfTuples(nn);
+  cellId->FillComponent(0, 0);
+  vtkNew<vtkDoubleArray> result;
+  result->SetNumberOfComponents(3);
+  result->SetNumberOfTuples(nn);
   vtkNew<vtkDoubleArray> pc2;
   pc2->DeepCopy(pcoords);
-  double* params = pc2->GetPointer(0);
-  vtkDGInvokeOperator evaluator;
-  evaluator.Invoke(op, shapeInfo, nn, cellId.data(), params, result.data());
+  vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> shapeEvaluator;
+  shapeEvaluator.Prepare(dgCell, shape, "Basis"_token);
+  vtkDGArraysInputAccessor inIt(cellId, pc2);
+  vtkDGArrayOutputAccessor outIt(result);
+  shapeEvaluator.Evaluate(inIt, outIt, 0, nn);
   std::cout << "  basis   ii: (r,s,t) → (x,y,z)\n";
+  std::array<double, 3> params;
+  std::vector<double> rval(3, 0.);
   for (vtkIdType ii = 0; ii < nn; ++ii)
   {
+    pc2->GetTuple(ii, params.data());
+    result->GetTuple(ii, rval.data());
     std::cout << "    " << ii << ":"
-              << " (" << params[3 * ii] << " " << params[3 * ii + 1] << " " << params[3 * ii + 2]
-              << ") →"
-              << " (" << result[3 * ii] << " " << result[3 * ii + 1] << " " << result[3 * ii + 2]
-              << ")\n";
-    test(nearly_eq(params[3 * ii], result[3 * ii]) &&
-        nearly_eq(params[3 * ii + 1], result[3 * ii + 1]) &&
-        nearly_eq(params[3 * ii + 2], result[3 * ii + 2]),
+              << " (" << params[0] << " " << params[1] << " " << params[2] << ") →"
+              << " (" << rval[0] << " " << rval[1] << " " << rval[2] << ")\n";
+    test(nearly_eq(params[0], rval[0]) && nearly_eq(params[1], rval[1]) &&
+        nearly_eq(params[2], rval[2]),
       "Element that matches reference element should have identity transform.");
   }
 
@@ -258,22 +267,26 @@ bool EvaluateBasisFunctions(vtkCellGrid* grid, vtkDGCell* dgCell)
 
   // Test gradient evaluation for HGrad (and constant, for vertex) function space
   // Note: This only tests linear/constant shape functions.
-  std::vector<double> gradient;
-  gradient.resize(nn * 3 * 3);
-  evaluator.Invoke(grop, shapeInfo, nn, cellId.data(), params, gradient.data());
+  vtkNew<vtkDoubleArray> gradient;
+  gradient->SetNumberOfComponents(9);
+  gradient->SetNumberOfTuples(nn);
+  vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> shapeGradientEvaluator;
+  shapeGradientEvaluator.Prepare(dgCell, shape, "BasisGradient"_token);
+  inIt.Restart();
+  vtkDGArrayOutputAccessor gradIt(gradient);
+  shapeGradientEvaluator.Evaluate(inIt, gradIt, 0, nn);
   std::cout << "  gradient ii: (r,s,t) → ∇(r,s,t)\n";
+  std::vector<double> gval(9, 0.0);
   for (vtkIdType ii = 0; ii < nn; ++ii)
   {
+    pc2->GetTuple(ii, params.data());
+    gradient->GetTuple(ii, gval.data());
     std::cout << "    " << ii << ":"
-              << " (" << params[3 * ii] << " " << params[3 * ii + 1] << " " << params[3 * ii + 2]
-              << ") →"
-              << " ((" << gradient[9 * ii] << " " << gradient[9 * ii + 1] << " "
-              << gradient[9 * ii + 2] << ")"
-              << " (" << gradient[9 * ii + 3] << " " << gradient[9 * ii + 4] << " "
-              << gradient[9 * ii + 5] << ")"
-              << " (" << gradient[9 * ii + 6] << " " << gradient[9 * ii + 7] << " "
-              << gradient[9 * ii + 8] << "))\n";
-    test(is_identitity(&gradient[9 * ii], dgCell->GetDimension()),
+              << " (" << params[0] << " " << params[1] << " " << params[2] << ") →"
+              << " ((" << gval[0] << " " << gval[1] << " " << gval[2] << ")"
+              << " (" << gval[3] << " " << gval[4] << " " << gval[5] << ")"
+              << " (" << gval[6] << " " << gval[7] << " " << gval[8] << "))\n";
+    test(is_identitity(gval.data(), dgCell->GetDimension()),
       "Cell gradient should be identity for each parametric dimension.");
   }
 
@@ -408,9 +421,7 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
   AddMidSidePoints(grid, drCell, testPoints);
   vtkNew<vtkDoubleArray> mspt;
   mspt->DeepCopy(points->GetData());
-  auto* params = mspt->GetPointer(0);
 
-  vtkDGInvokeOperator evaluator;
   auto* shapeField = grid->GetShapeAttribute();
   auto shapeTypeInfo = shapeField->GetCellTypeInfo(drCell->GetClassName());
   auto shapeGradOp = drCell->GetOperatorEntry("BasisGradient"_token, shapeTypeInfo);
@@ -420,10 +431,17 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
     return false;
   }
   vtkIdType nn = testPoints->GetNumberOfVerts();
-  std::vector<vtkIdType> cellId(nn, 0);
-  std::vector<double> jacobians;
-  jacobians.resize(nn * 9);
-  evaluator.Invoke(shapeGradOp, shapeTypeInfo, nn, cellId.data(), params, jacobians.data());
+  vtkNew<vtkIdTypeArray> cellId;
+  cellId->SetNumberOfTuples(nn);
+  cellId->FillComponent(0, 0);
+  vtkNew<vtkDoubleArray> jacobians;
+  jacobians->SetNumberOfComponents(9);
+  jacobians->SetNumberOfTuples(nn);
+  vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> shapeEvaluator;
+  shapeEvaluator.Prepare(drCell, shapeField, "BasisGradient"_token);
+  vtkDGArraysInputAccessor inIt(cellId, mspt);
+  vtkDGArrayOutputAccessor outIt(jacobians);
+  shapeEvaluator.Evaluate(inIt, outIt, 0, nn);
 
   // Test evaluation for HCurl and HDiv function spaces.
   // Note: This only tests linear shape functions and DG I1 curl-/div-attributes.
@@ -431,6 +449,8 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
   int ii = 0;
   for (const auto& divField : divFields)
   {
+    vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> fieldEvaluator(
+      drCell, divField, "Basis"_token);
     auto divTypeInfo = divField->GetCellTypeInfo(drCell->GetClassName());
     auto divOp = drCell->GetOperatorEntry("Basis"_token, divTypeInfo);
     if (!divOp)
@@ -439,22 +459,24 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
       return false;
     }
 
-    std::vector<double> divVals;
-    divVals.resize(nn * divOp.OperatorSize);
-    std::cout << "  " << divField->GetName().Data() << " ii: (r,s,t) → ∇·f(r,s,t)\n";
-    evaluator.Invoke(divOp, divTypeInfo, nn, cellId.data(), params, divVals.data());
-
-    vtkNew<vtkDoubleArray> divArr;
     std::ostringstream dname;
     dname << "divf_" << ii << "(r,s,t)";
-    divArr->SetName(dname.str().c_str());
-    divArr->SetNumberOfComponents(3);
-    divArr->SetNumberOfTuples(nn);
-    testPoints->GetPointData()->AddArray(divArr);
+    vtkNew<vtkDoubleArray> divVals;
+    divVals->SetNumberOfComponents(divOp.OperatorSize);
+    divVals->SetNumberOfTuples(nn);
+    divVals->SetName(dname.str().c_str());
+    std::cout << "  " << divField->GetName().Data() << " ii: (r,s,t) → ∇·f(r,s,t)\n";
+    inIt.Restart();
+    vtkDGArrayOutputAccessor divIt(divVals);
+    fieldEvaluator.Evaluate(inIt, divIt, 0, nn);
+    testPoints->GetPointData()->AddArray(divVals);
 
+    vtkVector3d d3;
+    std::array<double, 3> params;
     for (vtkIdType pp = 0; pp < nn; ++pp)
     {
-      vtkVector3d d3(divVals[3 * pp], divVals[3 * pp + 1], divVals[3 * pp + 2]);
+      mspt->GetTuple(pp, params.data());
+      divVals->GetTuple(pp, d3.GetData());
 #if 0
       if (drCell->GetDimension() == 3)
       {
@@ -467,10 +489,8 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
       }
 #endif
       std::cout << "    " << pp << ":"
-                << " (" << params[3 * pp] << " " << params[3 * pp + 1] << " " << params[3 * pp + 2]
-                << ") →"
+                << " (" << params[0] << " " << params[1] << " " << params[2] << ") →"
                 << " " << d3 << "\n";
-      divArr->SetTuple(pp, d3.GetData());
     }
 
     ++ii;
@@ -487,22 +507,26 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
       return false;
     }
 
-    std::vector<double> curlVals;
-    curlVals.resize(nn * curlOp.OperatorSize);
-    std::cout << "  " << curlField->GetName().Data() << " ii: (r,s,t) → ∇×f(r,s,t)\n";
-    evaluator.Invoke(curlOp, curlTypeInfo, nn, cellId.data(), params, curlVals.data());
-
-    vtkNew<vtkDoubleArray> curlArr;
     std::ostringstream cname;
     cname << "curlf_" << ii << "(r,s,t)";
-    curlArr->SetName(cname.str().c_str());
-    curlArr->SetNumberOfComponents(3);
-    curlArr->SetNumberOfTuples(nn);
-    testPoints->GetPointData()->AddArray(curlArr);
+    vtkNew<vtkDoubleArray> curlVals;
+    curlVals->SetName(cname.str().c_str());
+    curlVals->SetNumberOfComponents(curlOp.OperatorSize);
+    curlVals->SetNumberOfTuples(nn);
+    std::cout << "  " << curlField->GetName().Data() << " ii: (r,s,t) → ∇×f(r,s,t)\n";
+    vtkDGOperation<vtkDGArraysInputAccessor, vtkDGArrayOutputAccessor> fieldEvaluator(
+      drCell, curlField, "Basis"_token);
+    inIt.Restart();
+    vtkDGArrayOutputAccessor curlIt(curlVals);
+    fieldEvaluator.Evaluate(inIt, curlIt, 0, nn);
+    testPoints->GetPointData()->AddArray(curlVals);
 
+    vtkVector3d c3;
+    std::array<double, 3> params;
     for (vtkIdType pp = 0; pp < nn; ++pp)
     {
-      vtkVector3d c3(curlVals[3 * pp], curlVals[3 * pp + 1], curlVals[3 * pp + 2]);
+      mspt->GetTuple(pp, params.data());
+      curlVals->GetTuple(pp, c3.GetData());
 #if 0
       if (drCell->GetDimension() == 3)
       {
@@ -515,10 +539,8 @@ bool TestDeRhamBases(vtkCellGrid* grid, vtkDeRhamCell* drCell)
       }
 #endif
       std::cout << "    " << pp << ":"
-                << " (" << params[3 * pp] << " " << params[3 * pp + 1] << " " << params[3 * pp + 2]
-                << ") →"
+                << " (" << params[0] << " " << params[1] << " " << params[2] << ") →"
                 << " " << c3 << "\n";
-      curlArr->SetTuple(pp, c3.GetData());
     }
 
     ++ii;

@@ -25,7 +25,7 @@
 
 #define PTSMULT 10
 #define TXTMULT (PTSMULT * PTSMULT)
-//#define GENERATE_TEST_POINTS
+// #define GENERATE_TEST_POINTS
 
 static const char* vtkTextLabelList[] = {
   "Barbey",

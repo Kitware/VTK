@@ -387,15 +387,6 @@ void vtkProperty::PostRender(vtkActor*, vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, int*) {}
-
-//------------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, float*) {}
-
-//------------------------------------------------------------------------------
-void vtkProperty::AddShaderVariable(const char*, int, double*) {}
-
-//------------------------------------------------------------------------------
 void vtkProperty::ReleaseGraphicsResources(vtkWindow*)
 {
   // vtkOpenGLRenderer releases texture resources, so we don't need to release

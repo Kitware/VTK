@@ -38,6 +38,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkTesting.h"
 
 //------------------------------------------------------------------------------
 class vtkBalloonPickCallback : public vtkCommand
@@ -139,6 +140,14 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
+  if (renWin->IsA("vtkOSOpenGLRenderWindow"))
+  {
+    // we cannot run in OSMesa.
+    // Note: I am not sure why but this is how things were before.
+    // This test was excluded from the build when VTK_OPENGL_HAS_OSMESA (old setting)
+    // was `ON`.
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;

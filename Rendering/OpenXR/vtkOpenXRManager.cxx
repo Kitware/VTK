@@ -42,11 +42,15 @@ vtkOpenXRManager::InstanceVersion vtkOpenXRManager::QueryInstanceVersion(
   // Create the instance with enabled extensions.
   XrInstanceCreateInfo createInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
   createInfo.applicationInfo = XrApplicationInfo{
-    "OpenXR with VTK",      // .applicationName
-    1,                      // .applicationVersion
-    "",                     // .engineName
-    1,                      // .engineVersion
-    XR_CURRENT_API_VERSION, // .apiVersion
+    "OpenXR with VTK",    // .applicationName
+    1,                    // .applicationVersion
+    "",                   // .engineName
+    1,                    // .engineVersion
+#ifdef XR_API_VERSION_1_0 // available with OpenXR 1.1.37 or later:
+    XR_API_VERSION_1_0,   // .apiVersion
+#else                     // for 1.1.36 and earlier:
+    XR_MAKE_VERSION(1, 0, XR_VERSION_PATCH(XR_CURRENT_API_VERSION)), // .apiVersion
+#endif
   };
   createInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
   createInfo.enabledExtensionNames = enabledExtensions.data();
@@ -703,7 +707,8 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
 
   std::vector<const char*> enabledExtensions;
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto EnableExtensionIfSupported = [&](const char* extensionName) {
+  auto EnableExtensionIfSupported = [&](const char* extensionName)
+  {
     for (uint32_t i = 0; i < extensionCount; i++)
     {
       if (strcmp(extensionProperties[i].extensionName, extensionName) == 0)
@@ -804,11 +809,15 @@ bool vtkOpenXRManager::CreateInstance()
   createInfo.enabledExtensionNames = enabledExtensions.data();
 
   XrApplicationInfo applicationInfo = {
-    "OpenXR with VTK",      // .applicationName
-    1,                      // .applicationVersion
-    "",                     // .engineName
-    1,                      // .engineVersion
-    XR_CURRENT_API_VERSION, // .apiVersion
+    "OpenXR with VTK",    // .applicationName
+    1,                    // .applicationVersion
+    "",                   // .engineName
+    1,                    // .engineVersion
+#ifdef XR_API_VERSION_1_0 // available with OpenXR 1.1.37 or later:
+    XR_API_VERSION_1_0,   // .apiVersion
+#else                     // for 1.1.36 and earlier:
+    XR_MAKE_VERSION(1, 0, XR_VERSION_PATCH(XR_CURRENT_API_VERSION)), // .apiVersion
+#endif
   };
 
   createInfo.applicationInfo = applicationInfo;
@@ -1026,7 +1035,8 @@ std::tuple<int64_t, int64_t> vtkOpenXRManager::SelectSwapchainPixelFormats()
   // Choose the first runtime-preferred format that this app supports.
   auto selectPixelFormat = [&](const std::vector<int64_t>& runtimePreferredFormats,
                              const std::vector<int64_t>& applicationSupportedFormats,
-                             const std::string& formatName) {
+                             const std::string& formatName)
+  {
     auto found =
       std::find_first_of(std::begin(runtimePreferredFormats), std::end(runtimePreferredFormats),
         std::begin(applicationSupportedFormats), std::end(applicationSupportedFormats));

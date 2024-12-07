@@ -13,7 +13,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include <numeric> // std::accumulate
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -196,15 +195,20 @@ void vtkBezierInterpolation::DeCasteljauSimplex(
     {
       const int sub_degree = d - 1;
       const int sub_degree_length = NumberOfSimplexFunctions(dim, sub_degree);
-      iterateSimplex(dim, sub_degree, [&](vtkVector3i sub_degree_coord, int sub_index) {
-        iterateSimplex(dim, lin_degree, [&](vtkVector3i lin_degree_coord, int lin_index) {
-          const vtkVector3i one_higher_coord = { sub_degree_coord[0] + lin_degree_coord[0],
-            sub_degree_coord[1] + lin_degree_coord[1], sub_degree_coord[2] + lin_degree_coord[2] };
-          const int idx = FlattenSimplex(dim, sub_degree + 1, one_higher_coord);
-          shape_funcs[lin_index] = coeffs[idx] * linear_basis[lin_index];
+      iterateSimplex(dim, sub_degree,
+        [&](vtkVector3i sub_degree_coord, int sub_index)
+        {
+          iterateSimplex(dim, lin_degree,
+            [&](vtkVector3i lin_degree_coord, int lin_index)
+            {
+              const vtkVector3i one_higher_coord = { sub_degree_coord[0] + lin_degree_coord[0],
+                sub_degree_coord[1] + lin_degree_coord[1],
+                sub_degree_coord[2] + lin_degree_coord[2] };
+              const int idx = FlattenSimplex(dim, sub_degree + 1, one_higher_coord);
+              shape_funcs[lin_index] = coeffs[idx] * linear_basis[lin_index];
+            });
+          sub_coeffs[sub_index] = std::accumulate(shape_funcs.begin(), shape_funcs.end(), 0.);
         });
-        sub_coeffs[sub_index] = std::accumulate(shape_funcs.begin(), shape_funcs.end(), 0.);
-      });
       for (int i = 0; i < sub_degree_length; ++i)
       {
         coeffs[i] = sub_coeffs[i];

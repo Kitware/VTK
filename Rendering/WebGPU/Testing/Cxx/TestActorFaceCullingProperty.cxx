@@ -27,15 +27,16 @@ int TestActorFaceCullingProperty(int argc, char* argv[])
   actor->SetMapper(mapper);
   actor->GetProperty()->FrontfaceCullingOn();
 
-  vtkNew<vtkRenderWindow> renwin;
+  vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
   renderer->SetBackground(0.1, 0.2, 0.4);
   renderer->ResetCamera();
-  renwin->AddRenderer(renderer);
-  renwin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renwin, 0.05);
+  renWin->AddRenderer(renderer);
+  renWin->Render();
+
+  int retVal = vtkRegressionTestImage(renWin);
 
   return !retVal;
 }

@@ -102,13 +102,15 @@ struct vtkVectorNormDispatch // Interface between VTK and templated functions.
 
     if (max > 0.0 && normalize)
     {
-      vtkSMPTools::For(0, num, [&](vtkIdType i, vtkIdType end) {
-        float* s = algo.Scalars + i;
-        for (; i < end; ++i)
+      vtkSMPTools::For(0, num,
+        [&](vtkIdType i, vtkIdType end)
         {
-          *s++ /= max;
-        }
-      });
+          float* s = algo.Scalars + i;
+          for (; i < end; ++i)
+          {
+            *s++ /= max;
+          }
+        });
     }
   }
 };

@@ -22,8 +22,6 @@ class vtkCompositeDataSet;
  * This filter will keep the initial given geometry as long as its input keeps the same number of
  * points and cells (and ForceCacheComputation is false). This may lead to inconsistent attributes
  * if the geometry has changed its connectivity.
- * This filter only impacts vtkPolyData and vtkUnstructuredGrid dataset and blocks (in composite
- * data sets) as other data set types do not provide a GetMeshMTime method.
  */
 class VTKFILTERSTEMPORAL_EXPORT vtkForceStaticMesh : public vtkPassThrough
 {

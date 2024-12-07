@@ -20,6 +20,7 @@
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
+#include VTK_FMT(fmt/ranges.h)
 #endif
 
 #ifdef SEACAS_HAVE_MPI

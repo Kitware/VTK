@@ -262,9 +262,9 @@ void vtkZSpaceCoreSDKManager::UpdateButtonState()
     ZSPACE_CHECK_ERROR(zcIsTargetButtonPressed, error);
 
     ButtonState& buttonState = *this->ButtonsState[buttonId];
-    buttonState = isButtonPressed
-      ? buttonState != vtkZSpaceSDKManager::Pressed ? vtkZSpaceSDKManager::Down
-                                                    : vtkZSpaceSDKManager::Pressed
+    buttonState = isButtonPressed                ? buttonState != vtkZSpaceSDKManager::Pressed
+                       ? vtkZSpaceSDKManager::Down
+                       : vtkZSpaceSDKManager::Pressed
       : buttonState != vtkZSpaceSDKManager::None ? vtkZSpaceSDKManager::Up
                                                  : vtkZSpaceSDKManager::None;
   }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkRenderTimings.h"
-//#include "vtkNew.h"
+// #include "vtkNew.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/RegularExpression.hxx>

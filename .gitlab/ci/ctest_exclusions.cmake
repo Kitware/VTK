@@ -1,8 +1,8 @@
 set(test_exclusions
-  # Random Memory Leak #18599
-  "^VTK::FiltersCorePython-probe$"
-  # Leaks static thread_local instances, being worked in !11452 
-  "^VTK::FiltersCellGridPython-TestCellGridRange$")
+  # Flaky when run with threads enabled. See #19471.
+  "^VTK::FiltersCellGridCxx-TestCellGridEvaluator$"
+  # https://gitlab.kitware.com/vtk/vtk/-/issues/19427
+  "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
 
 if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   list(APPEND test_exclusions
@@ -54,9 +54,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
 
     # Floating point imprecision?
     "^VTK::FiltersGeneralPython-TestSampleImplicitFunctionFilter$"
-
-    # Gets the wrong selection (sometimes).
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$"
 
     # Test image looks "dim"; image rendering seems to be common
     # (some also have vertical line rendering differences)
@@ -126,13 +123,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
     "^VTK::DomainsParallelChemistryCxx-MPI-TestPSimpleBondPerceiver$"
-    "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     "^VTK::FiltersCoreCxx-TestAppendSelection$"
+    "^VTK::FiltersCoreCxx-TestDecimatePolylineFilter$"
     "^VTK::FiltersCoreCxx-TestFeatureEdges$"
     "^VTK::FiltersCorePython-TestCompositeDataSetPlaneCutter$"
     "^VTK::FiltersExtractionCxx-TestExpandMarkedElements$"
@@ -144,13 +141,18 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::FiltersHybridCxx-TestTemporalInterpolator$"
     "^VTK::FiltersHybridCxx-TestTemporalInterpolatorFactorMode$"
     "^VTK::FiltersParallelCxx-MPI-AggregateDataSet$"
+    "^VTK::FiltersParallelCxx-MPI-DistributedData$"
     "^VTK::FiltersParallelCxx-MPI-DistributedDataRenderPass$"
     "^VTK::FiltersParallelCxx-MPI-ParallelResampling$"
     "^VTK::FiltersParallelCxx-MPI-PTextureMapToSphere$"
+    "^VTK::FiltersParallelCxx-MPI-TestGenerateGlobalIdsHTG$"
     "^VTK::FiltersParallelCxx-MPI-TestGenerateProcessIds$"
+    "^VTK::FiltersParallelCxx-MPI-TestGenerateProcessIdsHTG$"
     "^VTK::FiltersParallelCxx-MPI-TestHyperTreeGridGhostCellsGenerator$"
-    "^VTK::FiltersParallelCxx-MPI-TestPHyperTreeGridProbeFilter$"
     "^VTK::FiltersParallelCxx-MPI-TestPartitionBalancer$"
+    "^VTK::FiltersParallelCxx-MPI-TestPExtractDataArraysOverTime$"
+    "^VTK::FiltersParallelCxx-MPI-TestPHyperTreeGridProbeFilter$"
+    "^VTK::FiltersParallelCxx-MPI-TestPOutlineFilter$"
     "^VTK::FiltersParallelCxx-MPI-TransmitImageData$"
     "^VTK::FiltersParallelCxx-MPI-TransmitImageDataRenderPass$"
     "^VTK::FiltersParallelCxx-MPI-TransmitRectilinearGrid$"
@@ -161,6 +163,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestAdaptiveResampleToImage$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestDIYGenerateCuts$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestGenerateGlobalIds$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestGhostCellsGenerator$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestOverlappingCellsDetector$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleHyperTreeGridWithDataSet$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleToImage$"
@@ -168,9 +171,11 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet2$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestProbeLineFilter$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUniformGridGhostDataGenerator$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUnstructuredGridGhostCellsGenerator$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilter$"
     "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterImplicitArray$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestRedistributeDataSetFilterOnIoss$"
     "^VTK::FiltersParallelDIY2Cxx-TestAdaptiveResampleToImage$"
     "^VTK::FiltersParallelDIY2Cxx-TestExtractSubsetWithSeed$"
     "^VTK::FiltersParallelDIY2Cxx-TestGenerateGlobalIds$"
@@ -178,11 +183,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::FiltersParallelDIY2Cxx-TestOverlappingCellsDetector$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilter$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
+    "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterOnIoss$"
     "^VTK::FiltersParallelDIY2Cxx-TestRedistributeDataSetFilterWithPolyData$"
     "^VTK::FiltersParallelDIY2Cxx-TestStitchImageDataWithGhosts$"
     "^VTK::FiltersParallelDIY2Cxx-TestUniformGridGhostDataGenerator$"
     "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPLagrangianParticleTracker$"
     "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPParticleTracers$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPStream$"
     "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPStreamAMR$"
     "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPStreamGeometry$"
     "^VTK::FiltersParallelGeometryCxx-MPI-ParallelConnectivity1$"
@@ -194,30 +201,62 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_mpi")
     "^VTK::FiltersParallelMPICxx-MPI-TestDistributedPointCloudFilter5$"
     "^VTK::FiltersParallelMPICxx-MPI-TestImplicitConnectivity$"
     "^VTK::FiltersParallelStatisticsCxx-MPI-TestPCorrelativeStatistics$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestPDescriptiveStatistics$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestRandomPContigencyStatisticsMPI$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestRandomPContingencyStatisticsMPI$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestRandomPKMeansStatisticsMPI$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestRandomPMomentStatisticsMPI$"
+    "^VTK::FiltersParallelStatisticsCxx-MPI-TestRandomPOrderStatisticsMPI$"
     "^VTK::FiltersParallelVerdictCxx-MPI-PCellSizeFilter$"
     "^VTK::FiltersSourcesCxx-MPI-TestRandomHyperTreeGridSourceMPI3$"
     "^VTK::FiltersSourcesCxx-MPI-TestSpatioTemporalHarmonicsSourceDistributed$"
     "^VTK::IOADIOS2Cxx-MPI-TestADIOS2BPReaderMPIMultiTimeSteps2D$"
+    "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTI3DRendering$"
     "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTU1DRendering$"
     "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTU2DRendering$"
+    "^VTK::IOADIOS2Cxx-TestIOADIOS2VTX_VTU3DRendering$"
+    "^VTK::IOADIOS2Cxx-UnitTestIOADIOS2VTX$"
+    "^VTK::IOCatalystConduitCxx-MPI-TestConduitSource$"
+    "^VTK::IOCatalystConduitCxx-TestConduitSource$"
+    "^VTK::IOFidesPython-TestFidesBasic$"
+    "^VTK::IOHDFCxx-MPI-TestHDFWriterDistributed$"
+    "^VTK::IOIOSSCxx-MPI-TestIOSSCatalystExodus$"
     "^VTK::IOIOSSCxx-MPI-TestIOSSExodusParallelWriter$"
     "^VTK::IOIossCxx-MPI-TestIossExodusParitionedFiles$"
+    "^VTK::IOIOSSCxx-MPI-TestIOSSExodusPartitionedFiles$"
     "^VTK::IOIossCxx-MPI-TestIossExodusRestarts$"
+    "^VTK::IOIossCxx-TestIossApplyDisplacementsCGNS$"
+    "^VTK::IOIossCxx-TestIossAssemblies$"
+    "^VTK::IOIossCxx-TestIossAttributes$"
+    "^VTK::IOIOSSCxx-TestIOSSCatalystCGNS$"
+    "^VTK::IOIOSSCxx-TestIOSSCatalystExodus$"
+    "^VTK::IOIossCxx-TestIossCGNS$"
+    "^VTK::IOIossCxx-TestIossExodus$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusMergeEntityBlocks$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusParallelWriter$"
     "^VTK::IOIossCxx-TestIossExodusRestarts$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusSetArrays$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusWriter$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusWriterClip$"
+    "^VTK::IOIOSSCxx-TestIOSSExodusWriterCrinkleClip$"
+    "^VTK::IOIOSSCxx-TestIOSSGhostArray$"
     "^VTK::IOIossCxx-TestIossNoElementBlocks$"
     "^VTK::IOIOSSCxx-TestIOSSReadAllFilesToDetermineStructure$"
+    "^VTK::IOIossCxx-TestIossSuperelements$"
     "^VTK::IOIossCxx-TestIossTri6$"
     "^VTK::IOIossCxx-TestIossUnsupported$"
     "^VTK::IOIOSSCxx-TestIOSSWedge21$"
     "^VTK::IOMPIParallelPython-MPI-Plot3DMPIIO$"
     "^VTK::IOParallelCxx-MPI-TestPOpenFOAMReaderLagrangianUncollated$"
-    "^VTK::ParallelMPICxx-MPI-PDirectory$"
-    "^VTK::ParallelMPICxx-MPI-PSystemTools$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYDataExchanger$"
     "^VTK::ParallelDIYCxx-MPI-TestDIYUtilities$"
+    "^VTK::ParallelMPICxx-MPI-MPIController$"
+    "^VTK::ParallelMPICxx-MPI-PDirectory$"
+    "^VTK::ParallelMPICxx-MPI-PSystemTools$"
     "^VTK::ParallelMPICxx-MPI-TestNonBlockingCommunication$"
     "^VTK::ParallelMPICxx-MPI-TestPProbe$"
     "^VTK::ParallelMPICxx-MPI-TestProcess$"
+    "^vtkFiltersParallelPython-testTransmit$"
 
     # Failures that appear related to OpenGL driver.
     #    MESA: error: ZINK: vkCreateInstance failed (VK_ERROR_INCOMPATIBLE_DRIVER)
@@ -229,8 +268,18 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   list(APPEND test_exclusions
-    # Failed to open the display
-    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$")
+    # Failed to open the display.
+    # After (https://gitlab.kitware.com/vtk/vtk/-/issues/19453) is resolved,
+    # these tests could be smarter by skipping when there is no display.
+    "^VTK::FiltersSourcesPython-squadViewer$"
+    "^VTK::GUISupportQtCxx"
+    "^VTK::GUISupportQtQuickCxx"
+    "^VTK::GUISupportQtSQLCxx-TestQtSQLDatabase$"
+    "^VTK::RenderingCoreCxx-TestInteractorTimers$"
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$"
+    "^VTK::RenderingQtCxx-TestQtInitialization$"
+    "^VTK::RenderingTkPython"
+    "^VTK::ViewsQtCxx-TestVtkQtTableView$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -271,22 +320,34 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
 
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19183
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
-    # Thread-local objects are not destroyed at program exit.
-    # https://stackoverflow.com/questions/50897768/in-visual-studio-thread-local-variables-destructor-not-called-when-used-with
-    "^VTK::FiltersCellGridPython-TestCellGridPointProbe$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19400
+    "^VTK::RenderingCoreCxx-TestResizingWindowToImageFilter$"
   )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
   list(APPEND test_exclusions
     # Flaky tests. They sometimes pass.
-    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$"
-    "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperPickability$")
+    "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions
+    # floating point precision issues (fma optimizations change results)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
+    "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
+    "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+    "^VTK::FiltersFlowPathsCxx-TestParticleTracers$"
+    "^VTK::FiltersModelingPython-Hyper$"
+    "^VTK::RenderingAnnotationPython-xyPlot$"
+    "^VTK::RenderingAnnotationPython-xyPlot2$"
+    "^VTK::RenderingAnnotationPython-xyPlot4$"
+    "^VTK::RenderingCorePython-pickImageData$"
+
     # Crowded geometry?
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18230
     "^VTK::ViewsInfovisCxx-TestTreeMapView$"
@@ -298,6 +359,19 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
+    "$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
+  list(APPEND test_exclusions
+    # floating point precision issues (fma optimizations change results)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+    "^VTK::FiltersModelingPython-Hyper$"
+    "^VTK::RenderingAnnotationPython-xyPlot$"
+    "^VTK::RenderingAnnotationPython-xyPlot2$"
+    "^VTK::RenderingAnnotationPython-xyPlot4$"
+    "^VTK::RenderingCorePython-pickImageData$")
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
   list(APPEND test_exclusions
     # Screenshot issue for test comparison with background buffer (intermittent)
@@ -306,7 +380,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
     # MacOS OpenGL issue (intermittent)
     "^VTK::RenderingCellGridPython-TestCellGridRendering$"
     "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19372
     "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
+    "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+    "^VTK::FiltersCellGridPython-TestCellGridTransform$"
+    "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
+    "^VTK::RenderingOpenGL2Python-TestArrayRenderer$"
   )
 endif ()
 
@@ -369,10 +449,14 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
-      # MacOS OpenGL issue (intermittent)
+      # MacOS OpenGL issue (intermittent). See #19372.
+      "^VTK::FiltersCellGridPython-TestCellGridCellCenters$"
+      "^VTK::FiltersCellGridPython-TestCellGridToUnstructuredGrid$"
+      "^VTK::FiltersCellGridPython-TestCellGridTransform$"
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
       "^VTK::IOIOSSPython-TestIOSSCellGridReader$"
       "^VTK::RenderingCellGridPython-TestCellGridRendering$"
+      "^VTK::RenderingOpenGL2Python-TestArrayRenderer$"
     )
   endif()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
@@ -471,6 +555,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestSimpleMotionBlur$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestSpherePoints$"
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"
+    "^VTK::RenderingOpenGL2Cxx-TestSSAOPass$" # shader error
+    "^VTK::RenderingOpenGL2Cxx-TestSSAOPassWithRenderer$" # shader error
     "^VTK::RenderingOpenGL2Cxx-TestSurfaceInterpolationSwitch$"
     "^VTK::RenderingOpenGL2Cxx-TestTexture16Bits$"
     "^VTK::RenderingOpenGL2Cxx-TestTextureBufferEmulation$"
@@ -479,12 +565,84 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome$")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_webgpu")
   list(APPEND test_exclusions
-    # Disabled until CI figures out a way to use hardware accel. inside linux container.
-    "^VTK::RenderingCoreCxx"
-    "^VTK::RenderingOpenGL2Cxx")
+    "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling") # Crashes randomly with mesa-vulkan-drivers
 endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_linux_chrome_ext_vtk$")
+  list(APPEND test_exclusions
+    # Fails when chrome uses software accelerated webgl2 in linux.
+    "^VTK::RenderingCoreCxx-TestGlyph3DMapperCompositeDisplayAttributeInheritance$"
+    "^VTK::RenderingCoreCxx-TestTransformCoordinateUseDouble$")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_windows_chrome_ext_vtk$")
+  list(APPEND test_exclusions
+    # ERR_UNSUPPORTED_ESM_URL_SCHEME: absolute paths must be valid file:// URLs. Received protocol 'c:'
+    "^VTK::WebAssemblyJavaScript")
+endif ()
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
+  list (APPEND test_exclusions
+    # WebGPU tests on wasm64 fail 
+    "^VTK::RenderingWebGPUCxx-TestActorFaceCullingProperty"
+    "^VTK::RenderingWebGPUCxx-TestCellScalarMappedColors"
+    "^VTK::RenderingWebGPUCxx-TestComputeDoublePipelineRenderBuffer"
+    "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling"
+    "^VTK::RenderingWebGPUCxx-TestComputeOcclusionCulling"
+    "^VTK::RenderingWebGPUCxx-TestComputeOcclusionCullingResize"
+    "^VTK::RenderingWebGPUCxx-TestComputeModifyPointColors"
+    "^VTK::RenderingWebGPUCxx-TestComputeModifyCellColors"
+    "^VTK::RenderingWebGPUCxx-TestComputePass"
+    "^VTK::RenderingWebGPUCxx-TestComputePassChained"
+    "^VTK::RenderingWebGPUCxx-TestComputePassUniform"
+    "^VTK::RenderingWebGPUCxx-TestComputePipelineRelease"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapper"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperColors"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperDepth"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperGeometry"
+    "^VTK::RenderingWebGPUCxx-TestComputePointCloudMapperResize"
+    "^VTK::RenderingWebGPUCxx-TestComputeTexture"
+    "^VTK::RenderingWebGPUCxx-TestLineRendering"
+    "^VTK::RenderingWebGPUCxx-TestLowPowerRenderWindow"
+    "^VTK::RenderingWebGPUCxx-TestPointScalarMappedColors"
+    "^VTK::RenderingWebGPUCxx-TestScalarModeToggle"
+    "^VTK::RenderingWebGPUCxx-TestSurfacePlusEdges"
+    "^VTK::RenderingWebGPUCxx-TestQuad"
+    "^VTK::RenderingWebGPUCxx-TestQuadPointRep"
+    "^VTK::RenderingWebGPUCxx-TestRenderWindowChangeDeviceLater"
+    "^VTK::RenderingWebGPUCxx-TestVertexRendering"
+    "^VTK::RenderingWebGPUCxx-TestWireframe"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_1"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_2"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_3"
+    "^VTK::RenderingWebGPUCxx-TestPointRendering_4"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_1"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_2"
+    "^VTK::RenderingWebGPUCxx-TestMixedGeometry_3"
+    "^VTK::RenderingWebGPUCxx-TestReadPixels")
+endif ()
+
+
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
+    "$ENV{CMAKE_CONFIGURATION}" MATCHES "debug")
+  # Timeouts from debug builds (even with 5 minute limits). See #19212
+  list(APPEND test_exclusions
+    "^TestLoggerDisableSignalHandler$"
+    "^VTK::FiltersCoreCxx-TestFeatureEdges$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestGhostCellsGenerator$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPResampleWithDataSet$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUniformGridGhostDataGenerator$"
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestPUnstructuredGridGhostCellsGenerator$"
+    "^VTK::FiltersParallelFlowPathsCxx-MPI-TestPParticleTracers$"
+    "^VTK::FiltersParallelGeometryCxx-MPI-ParallelConnectivity4$"
+    "^VTK::GUISupportQtCxx-TestQVTKTableModelAdapter$"
+    "^VTK::IOCGNSReaderCxx-TestCGNSUnsteadyTemporalSolution$"
+    "^VTK::ParallelCoreCxx-TestThreadedCallbackQueue$"
+    "^VTK::RenderingVolumeCxx-TestGPURayCastLabelMapValidity$")
+endif ()
+
 string(REPLACE ";" "|" test_exclusions "${test_exclusions}")
 if (test_exclusions)
   set(test_exclusions "(${test_exclusions})")

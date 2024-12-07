@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_4_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkHDFReader.h"
 #include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
@@ -19,6 +16,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkHDFReaderImplementation.h"
+#include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -124,7 +122,8 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
   std::vector<vtkIdType>& numberOfCells, std::vector<vtkIdType>& connectivityOffsets,
   std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece, vtkPolyData* pieceData)
 {
-  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size) {
+  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size)
+  {
     std::string modifier = "_" + std::to_string(filePiece);
     return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
   };
@@ -893,8 +892,9 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   vtkIdType startingPointOffset, vtkIdType startingCellOffset,
   vtkIdType startingConnectivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData)
 {
-  auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size,
-                               bool mData) {
+  auto readFromFileOrCache =
+    [&](int tag, std::string name, vtkIdType offset, vtkIdType size, bool mData)
+  {
     std::string modifier = "_" + std::to_string(filePiece);
     return ::ReadFromFileOrCache(
       this->Impl, this->UseCache ? this->Cache : nullptr, tag, name, modifier, offset, size, mData);
@@ -1488,7 +1488,7 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
 
     // Fill DataArray
     this->Impl->RetrieveHDFInformation(hdfPathName);
-    for (int attrIdx = 0; attrIdx < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++attrIdx)
+    for (int attrIdx = 0; attrIdx < vtkDataObject::AttributeTypes::FIELD; ++attrIdx)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
       for (const std::string& arrayName : arrayNames)

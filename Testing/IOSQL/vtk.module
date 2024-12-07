@@ -2,6 +2,8 @@ NAME
   VTK::TestingIOSQL
 LIBRARY_NAME
   vtkTestingIOSQL
+DESCRIPTION
+  Facilities for testing SQL database functionality in VTK.
 PRIVATE_DEPENDS
   VTK::IOSQL
 SPDX_LICENSE_IDENTIFIER

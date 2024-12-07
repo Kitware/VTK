@@ -2572,10 +2572,9 @@ int vtkCGNSReader::GetUnstructuredZone(
       // in the same order as in the CGNS file
       std::vector<std::size_t> indices(elemSec.size());
       std::iota(indices.begin(), indices.end(), 0);
-      std::sort(
-        indices.begin(), indices.end(), [&elemSec, &sectionInfoList](std::size_t a, std::size_t b) {
-          return sectionInfoList[elemSec[a]].range[0] < sectionInfoList[elemSec[b]].range[0];
-        });
+      std::sort(indices.begin(), indices.end(),
+        [&elemSec, &sectionInfoList](std::size_t a, std::size_t b)
+        { return sectionInfoList[elemSec[a]].range[0] < sectionInfoList[elemSec[b]].range[0]; });
 
       std::vector<vtkIdType> startArraySec(elemSec.size());
 

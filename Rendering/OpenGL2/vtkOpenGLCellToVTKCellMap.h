@@ -35,9 +35,9 @@ public:
   //
   // The same concept applies to cell based picking
   //
-  void BuildCellSupportArrays(vtkCellArray * [4], int representation, vtkPoints* points);
+  void BuildCellSupportArrays(vtkCellArray* [4], int representation, vtkPoints* points);
 
-  void BuildPrimitiveOffsetsIfNeeded(vtkCellArray * [4], int representation, vtkPoints* points);
+  void BuildPrimitiveOffsetsIfNeeded(vtkCellArray* [4], int representation, vtkPoints* points);
 
   vtkIdType ConvertOpenGLCellIdToVTKCellId(bool pointPicking, vtkIdType openGLId);
 

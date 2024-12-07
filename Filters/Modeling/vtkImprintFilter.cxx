@@ -245,7 +245,7 @@ struct vtkEdgeIntersection
 
   // Equivalence operator. See if two intersection points have the
   // same point id.
-  bool operator==(vtkEdgeIntersection& edgeInt)
+  bool operator==(const vtkEdgeIntersection& edgeInt) const
   {
     vtkPointInfo *p0 = nullptr, *p1 = nullptr;
     if (this->PointList != nullptr)
@@ -365,7 +365,10 @@ struct vtkTriEdge
   }
 
   // Equivalence operator
-  bool operator==(vtkTriEdge& edge) { return this->V0 == edge.V0 && this->V1 == edge.V1; }
+  bool operator==(const vtkTriEdge& edge) const
+  {
+    return this->V0 == edge.V0 && this->V1 == edge.V1;
+  }
 
   // Indicate whether the edge provided is a reversed edge to this one (i.e.,
   // same edge but opposite direction). This check is needed because we don't

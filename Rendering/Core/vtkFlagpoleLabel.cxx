@@ -405,18 +405,31 @@ void vtkFlagpoleLabel::GenerateQuad(vtkRenderer* ren)
   double scale = this->FlagSize * 0.001;
   vtkCamera* cam = ren->GetActiveCamera();
   double pos[3];
-  cam->GetPosition(pos);
-  if (cam->GetParallelProjection())
+  if (cam->GetUseOffAxisProjection())
   {
-    double cscale = cam->GetParallelScale();
-    scale = scale * cscale;
-  }
-  else
-  {
-    double vangle = cam->GetViewAngle();
+    cam->GetStereoEyePosition(pos);
+
+    double vangle = 90.0;
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pos, this->TopPosition));
     dist *= 2.0 * tan(vtkMath::RadiansFromDegrees(vangle / 2.0));
     scale = scale * dist;
+  }
+  else
+  {
+    cam->GetPosition(pos);
+
+    if (cam->GetParallelProjection())
+    {
+      double cscale = cam->GetParallelScale();
+      scale = scale * cscale;
+    }
+    else
+    {
+      double vangle = cam->GetViewAngle();
+      double dist = sqrt(vtkMath::Distance2BetweenPoints(pos, this->TopPosition));
+      dist *= 2.0 * tan(vtkMath::RadiansFromDegrees(vangle / 2.0));
+      scale = scale * dist;
+    }
   }
 
   // the middle bottom of the quad should be at TopPosition

@@ -586,12 +586,12 @@ bool vtkOSPRayPointGaussianMapperNode::GetNeedToRebuild(vtkOSPRayActorNode* aNod
   vtkActor* act = vtkActor::SafeDownCast(aNode->GetRenderable());
   vtkPointGaussianMapper* mapper = vtkPointGaussianMapper::SafeDownCast(act->GetMapper());
   if ((aNode->GetMTime() > this->RenderTime) ||
-    mapper &&
-      ((mapper->GetInput() && (mapper->GetInput()->GetMTime() > this->RenderTime)) ||
+    (mapper &&
+      ((mapper->GetInput() && mapper->GetInput()->GetMTime() > this->RenderTime) ||
         (mapper->GetScaleFunction() &&
           mapper->GetScaleFunction()->GetMTime() > this->ScaleTableUpdateTime) ||
         (mapper->GetScalarOpacityFunction() &&
-          mapper->GetScalarOpacityFunction()->GetMTime() > this->OpacityTableUpdateTime)))
+          mapper->GetScalarOpacityFunction()->GetMTime() > this->OpacityTableUpdateTime))))
   {
     return true;
   }

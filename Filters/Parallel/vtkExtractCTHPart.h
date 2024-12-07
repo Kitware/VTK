@@ -51,7 +51,7 @@ class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 class vtkExtractCTHPartFragments;
 
-//#define EXTRACT_USE_IMAGE_DATA 1
+// #define EXTRACT_USE_IMAGE_DATA 1
 
 class VTKFILTERSPARALLEL_EXPORT vtkExtractCTHPart : public vtkMultiBlockDataSetAlgorithm
 {

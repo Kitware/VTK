@@ -105,11 +105,34 @@ public:
   ///@{
   /**
    * Set/Get the factor that controls the overall size of the fonts
-   * of the caption when the text actor's ScaledText is OFF
+   * of the caption when the text actor's ScaledText is OFF. This
+   * simply is a way of controlling the text size.
    */
   vtkSetClampMacro(FontFactor, double, 0.1, 10.0);
   vtkGetMacro(FontFactor, double);
   ///@}
+
+  /**
+   * Control the relationship between the size of the text and the border.
+   * By default, the text is sized to fit in the border (defined by this
+   * class's superclass vtkBorderRepresentation). However, it is also
+   * possible to size the border to fit around the text. In typical
+   * applications (SetFitToBorder()), sizing the text to fit within the
+   * border means that the text changes size as the rendering window changes
+   * in size. However, by choosing SetFitToText(), the text always remains
+   * the specified font size (as specified by the text actor) and the border
+   * will not scale as the rendering window size changes.
+   */
+  enum FitType
+  {
+    VTK_FIT_TO_BORDER = 0,
+    VTK_FIT_TO_TEXT
+  };
+  vtkSetClampMacro(Fit, int, VTK_FIT_TO_BORDER, VTK_FIT_TO_TEXT);
+  vtkGetMacro(Fit, int);
+  void SetFitToBorder() { this->SetFit(VTK_FIT_TO_BORDER); }
+  void SetFitToText() { this->SetFit(VTK_FIT_TO_TEXT); }
+  const char* GetFitAsString();
 
 protected:
   vtkCaptionRepresentation();
@@ -122,6 +145,7 @@ protected:
   int PointWidgetState;
   int DisplayAttachmentPoint[2];
   double FontFactor;
+  int Fit;
 
   // Internal representation for the anchor
   vtkPointHandleRepresentation3D* AnchorRepresentation;

@@ -7,18 +7,16 @@
 #include "vtkDataArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridAxisClip.h"
+#include "vtkHyperTreeGridDepthLimiter.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridOrientedGeometryCursor.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkVariant.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLHyperTreeGridWriter.h"
 
-#include <algorithm>
 #include <array>
 #include <string>
 namespace
@@ -44,11 +42,12 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   std::string tdir = tmpstr ? tmpstr : std::string();
   delete[] tmpstr;
 
-  std::string fname = tdir + std::string("/TestXMLHyperTreeGridIOReduction_Appendedv1.htg");
+  std::string fname = tdir + std::string("/TestXMLHyperTreeGridIOReduction.htg");
   // using default source: 5 levels, 5x5x2 HT grid, [-10,10] for x, y, z
   vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetMaxDepth(5);
   source->Update();
-  auto* htg = source->GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* htg = source->GetHyperTreeGridOutput();
 
   std::cout << "Writing " << fname << std::endl;
   vtkNew<vtkXMLHyperTreeGridWriter> writer;
@@ -149,8 +148,76 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   const size_t nbTrees = count_trees(htgRead);
   if (nbTrees - 9)
   {
-    std::cout << "Got " << nbTrees << " instead of 9" << std::endl;
+    std::cout << "Got trees##" << nbTrees << " instead of 9" << std::endl;
     return EXIT_FAILURE;
   }
+  if (htgRead->GetNumberOfCells() - 11425)
+  {
+    std::cout << "Got A cells##" << htgRead->GetNumberOfCells() << " instead of 11425" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  //------------------------------------------------------------------------------------
+  // Creation of a DepthLimiter filter without creation of a new HTG mesh
+  vtkNew<vtkHyperTreeGridDepthLimiter> depthlimiter;
+  depthlimiter->SetInputConnection(reader->GetOutputPort());
+  depthlimiter->SetDepth(3);
+  depthlimiter->SetJustCreateNewMask(true); // set member DepthLimiter on actual HTG mesh
+  depthlimiter->Update();
+  // Number of cells unchanged, the DepthLimiter is not yet taken into account
+  if (depthlimiter->GetHyperTreeGridOutput()->GetNumberOfCells() - 11425)
+  {
+    std::cout << "Got B cells##" << depthlimiter->GetHyperTreeGridOutput()->GetNumberOfCells()
+              << " instead of 11425" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Write to file, this time the DepthLimiter will be taken into account
+  writer->SetFileName(fname.c_str());
+  writer->SetDataModeToAppended();
+  writer->SetInputData(depthlimiter->GetHyperTreeGridOutput());
+  writer->SetDataSetMajorVersion(2);
+  writer->Write();
+
+  // Read the written HTG and check the effective cell number reduction
+  vtkNew<vtkXMLHyperTreeGridReader> reader2;
+  reader2->SetFileName(fname.c_str());
+  reader2->Update();
+  htgRead = vtkHyperTreeGrid::SafeDownCast(reader2->GetOutputDataObject(0));
+  // WARNING The correct behavior of the write filter is only available in
+  //         data set major version 2.
+  //         In data set major version 1, it is as if the application of the
+  //         DepthLimiter filter, with set member DepthLimiter on actual HTG
+  //         mesh, had no impact.
+  if (htgRead->GetNumberOfCells() - 689)
+  {
+    std::cout << "Got C cells##" << htgRead->GetNumberOfCells() << " instead of 689" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  //------------------------------------------------------------------------------------
+  // Creation of a DepthLimiter filter with creation of a new HTG mesh
+  depthlimiter->SetJustCreateNewMask(false); // create a new HTG on filter output
+  depthlimiter->Update();
+  // Number of cells already reduced in DepthLimiter output
+  if (depthlimiter->GetHyperTreeGridOutput()->GetNumberOfCells() - 689)
+  {
+    std::cout << "Got D cells##" << depthlimiter->GetHyperTreeGridOutput()->GetNumberOfCells()
+              << " instead of 689" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Write to file, to check that written HTG is still reduced
+  writer->Write();
+
+  // Read the written HTG and check the cell number coherence
+  reader2->Update();
+  htgRead = vtkHyperTreeGrid::SafeDownCast(reader2->GetOutputDataObject(0));
+  if (htgRead->GetNumberOfCells() - 689)
+  {
+    std::cout << "Got E cells##" << htgRead->GetNumberOfCells() << " instead of 689" << std::endl;
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }

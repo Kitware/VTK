@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "TestComputePipelineUniformShader.h"
-#include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkWebGPUComputeBuffer.h"
@@ -23,7 +22,7 @@ constexpr int DATA_SIZE = 128;
 
 using OutputDataType = float;
 
-int TestComputePipelineUniform(int argc, char** argv)
+int TestComputePipelineUniform(int, char*[])
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputVector1Values;
@@ -58,7 +57,6 @@ int TestComputePipelineUniform(int argc, char** argv)
   inputValues2Buffer->SetData(inputVector2Values);
   inputValues2Buffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
-  // Creating a buffer for the additional uniform
   float myUniform = 2.5f;
   std::vector<float> multiplierUniform = { myUniform };
   vtkNew<vtkWebGPUComputeBuffer> uniformBuffer;
@@ -97,7 +95,8 @@ int TestComputePipelineUniform(int argc, char** argv)
   std::vector<OutputDataType> outputData;
   outputData.resize(::DATA_SIZE);
 
-  auto onBufferMapped = [](const void* mappedData, void* userdata) {
+  auto onBufferMapped = [](const void* mappedData, void* userdata)
+  {
     std::vector<OutputDataType>* out = reinterpret_cast<std::vector<OutputDataType>*>(userdata);
     vtkIdType elementCount = out->size();
 

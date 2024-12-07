@@ -6,6 +6,8 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+DESCRIPTION
+  Compute statistics of VTK data.
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-BSD-3-Clause-Sandia-USGov
 SPDX_COPYRIGHT_TEXT

@@ -227,6 +227,9 @@ protected:
 
   static void AddNormalArray(double* planeNormal, vtkPolyData* polyData);
 
+  // Garbage collection method
+  void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkPlaneCutter(const vtkPlaneCutter&) = delete;
   void operator=(const vtkPlaneCutter&) = delete;

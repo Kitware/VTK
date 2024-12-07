@@ -48,8 +48,8 @@
 #endif // #ifdef WRITE_GENERIC_RESULT
 
 // debugging when clipping on n=(1,1,1) c=(0.5,0,0)
-//#include "vtkExtractGeometry.h"
-//#include "vtkSphere.h"
+// #include "vtkExtractGeometry.h"
+// #include "vtkSphere.h"
 
 // Remark about the lookup tables that seem different between the
 // GenericGeometryFilter and GenericDataSetTessellator:

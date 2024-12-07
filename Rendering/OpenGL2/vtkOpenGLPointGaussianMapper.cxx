@@ -39,7 +39,7 @@
 #include "vtkPointGaussianVS.h"
 #include "vtkPolyDataFS.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include "vtkOpenGLPointGaussianMapperHelper.h"
 

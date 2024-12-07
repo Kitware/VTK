@@ -25,6 +25,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkCellAttribute;
 class vtkCellGrid;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCellGridAlgorithm : public vtkAlgorithm
@@ -74,6 +75,40 @@ public:
   void AddInputData(vtkDataObject*);
   void AddInputData(int, vtkDataObject*);
   ///@}
+
+  // clang-format off
+  ///@{
+  /**
+   * Set an input cell-attribute that this algorithm will process.
+   * Specifically the \a idx-th cell-attribute for this algorithm
+   * (starting from 0) will be taken from the cell-grid at the given
+   * \a port and \a connection and must have the given \a name.
+   *
+   * Note that SetInputAttributeToProcess() simply invokes
+   * SetInputArrayToProcess() with a cell-centered array-name;
+   * the same information keys are used to mark input attributes
+   * as input arrays. This means that you may use ParaView's
+   * existing ArrayListDomain to call SetInputArrayToProcess
+   * with cell-grid algorithms to indicate cell-attributes rather
+   * than vtkAbstractArrays on vtkCellData.
+   */
+  virtual void SetInputAttributeToProcess(int idx, int port, int connection, const char* name);
+
+  /**
+   * Fetch a vtkCellAttribute that matches a cell-centered array
+   * specified by calling SetInputAttributeToProcess().
+   * (Note that SetInputAttributeToProcess() simply invokes
+   * SetInputArrayToProcess() with a cell-centered array-name).
+   *
+   * If you call a variant that accepts an \a association, it
+   * will always be set to FIELD_ASSOCIATION_CELLS upon success.
+   */
+  vtkCellAttribute* GetInputCellAttributeToProcess(int idx, int connection, vtkInformationVector** inputVector);
+  vtkCellAttribute* GetInputCellAttributeToProcess(int idx, int connection, vtkInformationVector** inputVector, int& association);
+  vtkCellAttribute* GetInputCellAttributeToProcess(int idx, vtkCellGrid* input);
+  vtkCellAttribute* GetInputCellAttributeToProcess(int idx, vtkCellGrid* input, int& association);
+  ///@}
+  // clang-format on
 
 protected:
   vtkCellGridAlgorithm();

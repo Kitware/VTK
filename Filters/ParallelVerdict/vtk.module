@@ -6,6 +6,8 @@ KIT
   VTK::Parallel
 GROUPS
   MPI
+DESCRIPTION
+  Parallel mesh-quality computation.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

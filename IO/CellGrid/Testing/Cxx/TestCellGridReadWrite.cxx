@@ -30,7 +30,7 @@ struct AttInfo
 };
 
 bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCells,
-  const std::vector<AttInfo>& expectedAttributes)
+  const std::vector<AttInfo>& expectedAttributes, bool msgPack = false)
 {
   if (!filename)
   {
@@ -38,7 +38,8 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
   }
   bool ok = true;
 
-  std::cout << "=== Start of round trip " << filename << " ===\n";
+  std::cout << "=== Start of round trip " << filename << " (msgpack?" << (msgPack ? "Y" : "N")
+            << " ===\n";
   vtkNew<vtkCellGridReader> reader;
   reader->SetFileName(filename);
   reader->Update();
@@ -49,11 +50,17 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
     ok = false;
     return ok;
   }
+  // Force computation of range if it does not already exist.
+  // This let us test whether it gets written and then read back in.
+  std::array<double, 2> range;
+  og->GetCellAttributeRange(og->GetCellAttributeByName("shape"), 2, range.data(), true);
 
   std::cout << "  === Write step ===\n";
   vtkNew<vtkCellGridWriter> writer;
   std::string tempFile = tempDir.empty() ? "test.dg" : tempDir + "/test.dg";
   writer->SetFileName(tempFile.c_str());
+  writer->SetFileFormat(
+    msgPack ? vtkCellGridWriter::Format::MessagePack : vtkCellGridWriter::Format::PlainText);
   writer->SetInputConnection(reader->GetOutputPort());
   writer->Write();
 
@@ -75,6 +82,13 @@ bool RoundTrip(const char* filename, const std::string& tempDir, vtkIdType numCe
   {
     std::cerr << "ERROR: Expected to have " << numCells << " cells, got " << cg->GetNumberOfCells()
               << ".\n";
+    ok = false;
+  }
+
+  auto shape = cg->GetShapeAttribute();
+  if (cg->GetRangeCache().find(shape) == cg->GetRangeCache().end())
+  {
+    std::cerr << "ERROR: Did not preserve range of shape attribute in round trip.\n";
     ok = false;
   }
 
@@ -161,7 +175,9 @@ int TestCellGridReadWrite(int argc, char* argv[])
         { "scalar2",   "vtkDGHex",  invalid,      "HGRAD", "C", 1 },
         { "scalar3",   "vtkDGHex", "point-data",  "HGRAD", "C", 1 },
         { "curl1",     "vtkDGHex",  invalid,      "HCURL", "I", 1 },
-        { "quadratic", "vtkDGHex",  invalid,      "HGRAD", "I", 2 } }))
+        { "div1",      "vtkDGHex",  invalid,      "HDIV",  "I", 1 },
+        { "quadratic", "vtkDGHex",  invalid,      "HGRAD", "I", 2 } },
+        /*msgpack*/true))
   {
     return EXIT_FAILURE;
   }
@@ -169,11 +185,14 @@ int TestCellGridReadWrite(int argc, char* argv[])
   if (!RoundTrip(vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dgTetrahedra.dg", 0),
         tempDir,
         /* numCells */ 2, {
-        { "shape",   "vtkDGTet", "coordinates", "HGRAD", "C", 1 },
-        { "scalar0", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
-        { "scalar1", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
-        { "scalar2", "vtkDGTet",  invalid,      "HGRAD", "C", 1 },
-        { "scalar3", "vtkDGTet", "point-data",  "HGRAD", "C", 1 } }))
+        { "shape",   "vtkDGTet", "coordinates",                 "HGRAD", "C", 1 },
+        { "scalar0", "vtkDGTet",  invalid,                      "HGRAD", "C", 1 },
+        { "scalar1", "vtkDGTet",  invalid,                      "HGRAD", "C", 1 },
+        { "scalar2", "vtkDGTet",  invalid,                      "HGRAD", "C", 1 },
+        { "scalar3", "vtkDGTet", "point-data",                  "HGRAD", "C", 1 },
+        { "curl1",   "vtkDGTet",  invalid,                      "HCURL", "I", 1 },
+        { "div1",    "vtkDGTet",  invalid,                      "HDIV",  "I", 1 } },
+        /*msgpack*/false))
   {
     return EXIT_FAILURE;
   }

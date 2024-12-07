@@ -31,12 +31,12 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOSOpenGLRenderWindow
 public:
   static vtkOSOpenGLRenderWindow* New();
   vtkTypeMacro(vtkOSOpenGLRenderWindow, vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * End the rendering process and display the image.
    */
-  virtual void Frame();
+  void Frame() override;
 
   /**
    * Initialize the window for rendering.
@@ -56,12 +56,12 @@ public:
    * resources.  After having called this, it should be possible to destroy
    * a window that was used for a SetWindowId() call without any ill effects.
    */
-  virtual void Finalize();
+  void Finalize() override;
 
   /**
    * Change the window to fill the entire screen.
    */
-  virtual void SetFullScreen(vtkTypeBool);
+  void SetFullScreen(vtkTypeBool) override;
 
   ///@{
   /**
@@ -101,109 +101,109 @@ public:
    * overrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  virtual void SetStereoCapableWindow(vtkTypeBool capable);
+  void SetStereoCapableWindow(vtkTypeBool capable) override;
 
   /**
    * Make this window the current OpenGL context.
    */
-  void MakeCurrent();
+  void MakeCurrent() override;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  virtual bool IsCurrent();
+  bool IsCurrent() override;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
    * MakeCurrent() reverts to original behavior of cache-checking
    * on the next render.
    */
-  void SetForceMakeCurrent();
+  void SetForceMakeCurrent() override;
 
   /**
    * Get report of capabilities for the render window
    */
-  const char* ReportCapabilities();
+  const char* ReportCapabilities() override;
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
    */
-  int SupportsOpenGL();
+  int SupportsOpenGL() override;
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  vtkTypeBool IsDirect();
+  vtkTypeBool IsDirect() override;
 
   /**
    * Resize the window.
    */
-  virtual void WindowRemap();
+  void WindowRemap() override;
 
   ///@{
   /**
    * Xwindow get set functions
    */
-  virtual void* GetGenericDisplayId() { return 0; }
-  virtual void* GetGenericWindowId();
-  virtual void* GetGenericParentId() { return 0; }
-  virtual void* GetGenericContext();
-  virtual void* GetGenericDrawable() { return 0; }
+  void* GetGenericDisplayId() override { return nullptr; }
+  void* GetGenericWindowId() override;
+  void* GetGenericParentId() override { return nullptr; }
+  void* GetGenericContext() override;
+  void* GetGenericDrawable() override { return nullptr; }
   ///@}
 
   /**
    * Set the X display id for this RenderWindow to use to a pre-existing
    * X display id.
    */
-  void SetDisplayId(void*) {}
+  void SetDisplayId(void*) override {}
 
   /**
    * Sets the parent of the window that WILL BE created.
    */
-  void SetParentId(void*);
+  void SetParentId(void*) override;
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void SetWindowId(void*);
+  void SetWindowId(void*) override;
 
   /**
    * Set the window id of the new window once a WindowRemap is done.
    * This is the generic prototype as required by the vtkRenderWindow
    * parent.
    */
-  void SetNextWindowId(void*);
+  void SetNextWindowId(void*) override;
 
-  void SetWindowName(const char*);
+  void SetWindowName(const char*) override;
 
   /**
    * Hide or Show the mouse cursor, it is nice to be able to hide the
    * default cursor if you want VTK to display a 3D cursor instead.
    */
-  void HideCursor() {}
-  void ShowCursor() {}
+  void HideCursor() override {}
+  void ShowCursor() override {}
 
   /**
    * Check to see if a mouse button has been pressed.
    * All other events are ignored by this method.
    * This is a useful check to abort a long render.
    */
-  virtual vtkTypeBool GetEventPending();
+  vtkTypeBool GetEventPending() override;
 
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
-  void SetWindowInfo(const char* info);
+  void SetWindowInfo(const char* info) override;
 
   /**
    * Set the window info that will be used after WindowRemap()
    */
-  void SetNextWindowInfo(const char* info);
+  void SetNextWindowInfo(const char* info) override;
 
   /**
    * Sets the X window id of the window that WILL BE created.
    */
-  void SetParentInfo(const char* info);
+  void SetParentInfo(const char* info) override;
 
 protected:
   vtkOSOpenGLRenderWindow();

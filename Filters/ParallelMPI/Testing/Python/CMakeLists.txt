@@ -1,0 +1,1 @@
+vtk_add_test_python_mpi(TestCleanArrays.py NO_DATA NO_OUTPUT NO_VALID)

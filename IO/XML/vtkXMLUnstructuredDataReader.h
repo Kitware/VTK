@@ -88,6 +88,9 @@ protected:
     vtkXMLDataElement* eCells, vtkCellArray* outCells);
 
   // Read faces and faceoffsets arrays for unstructured grid with polyhedon cells
+  int ReadPolyhedronCellArray(vtkIdType numberOfCells, vtkXMLDataElement* eCells,
+    vtkCellArray* outFaces, vtkCellArray* outFaceOffsets);
+  // Backward compatibility layer to read unstructured grid with polyhedron cells.
   int ReadFaceArray(vtkIdType numberOfCells, vtkXMLDataElement* eCells, vtkIdTypeArray* outFaces,
     vtkIdTypeArray* outFaceOffsets);
   int ReadFaceCellArray(vtkIdType numberOfCells, vtkXMLDataElement* eCells, vtkCellArray* outFaces,

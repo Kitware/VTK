@@ -39,7 +39,7 @@ vtk_add_test_python(
 
 # This test can take much longer on Windows than other platforms, so extend the timeout
 if (NOT VTK_TEST_TIMEOUT_TestEnSightGoldCombinedReader)
-  set(VTK_TEST_TIMEOUT_TestEnSightGoldCombinedReader 150)
+  set(VTK_TEST_TIMEOUT_TestEnSightGoldCombinedReader 300)
 endif()
 set_tests_properties(VTK::IOEnSightPython-TestEnSightGoldCombinedReader
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestEnSightGoldCombinedReader})

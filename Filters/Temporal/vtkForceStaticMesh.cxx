@@ -1,15 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) Kitware SAS
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkForceStaticMesh.h"
 
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkObjectFactory.h" // for standard new macro
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceStaticMesh);
@@ -80,101 +83,80 @@ int vtkForceStaticMesh::RequestData(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 bool vtkForceStaticMesh::IsValidCache(vtkDataSet* input)
 {
-  bool validCache = this->CacheInitialized;
-  if (validCache)
+  if (!this->CacheInitialized || !this->Cache)
   {
-    if (!this->Cache)
-    {
-      // Not initialized
-      validCache = false;
-    }
-    vtkDataSet* internalCache = vtkDataSet::SafeDownCast(this->Cache);
-    if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
-    {
-      vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
-        << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
-      validCache = false;
-    }
-    if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
-    {
-      vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
-        << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
-      validCache = false;
-    }
+    // Not initialized
+    return false;
   }
-  return validCache;
+
+  vtkDataSet* internalCache = vtkDataSet::SafeDownCast(this->Cache);
+  if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
+  {
+    vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
+      << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
+    return false;
+  }
+
+  if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
+  {
+    vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
+      << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
+    return false;
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
 bool vtkForceStaticMesh::IsValidCache(vtkCompositeDataSet* input)
 {
-  bool validCache = this->CacheInitialized;
-  if (validCache)
+  if (!this->CacheInitialized || !this->Cache)
   {
-    if (!this->Cache)
+    // Not initialized
+    return false;
+  }
+
+  vtkCompositeDataSet* internalCache = vtkCompositeDataSet::SafeDownCast(this->Cache);
+  assert(internalCache);
+
+  // Per block comparisons
+  auto compIterator = vtkSmartPointer<vtkCompositeDataIterator>::Take(internalCache->NewIterator());
+  for (compIterator->InitTraversal(); !compIterator->IsDoneWithTraversal();
+       compIterator->GoToNextItem())
+  {
+    // Both composite must have the same structure by construction,
+    // we can use the GetDataSet with iterator from other composite
+    vtkDataSet* cacheBlock = vtkDataSet::SafeDownCast(internalCache->GetDataSet(compIterator));
+    vtkDataSet* inputBlock = vtkDataSet::SafeDownCast(input->GetDataSet(compIterator));
+
+    if ((cacheBlock == nullptr) != (inputBlock == nullptr))
     {
-      // Not initialized
-      validCache = false;
+      // if one of them is dataset and not the other:
+      // not the same internal structure, invalid cache
+      return false;
     }
-    vtkCompositeDataSet* internalCache = vtkCompositeDataSet::SafeDownCast(this->Cache);
-    assert(internalCache);
 
-    // Global parameters
-    if (input->GetNumberOfPoints() != internalCache->GetNumberOfPoints())
+    if (cacheBlock == nullptr /*&& inputBlock */)
     {
-      vtkWarningMacro("Cache has been invalidated, the number of points in input changed, from "
-        << internalCache->GetNumberOfPoints() << " to " << input->GetNumberOfPoints());
-      validCache = false;
-    }
-    if (input->GetNumberOfCells() != internalCache->GetNumberOfCells())
-    {
-      vtkWarningMacro("Cache has been invalidated, the number of cells in input changed, from "
-        << internalCache->GetNumberOfCells() << " to " << input->GetNumberOfCells());
-      validCache = false;
+      // Skip non-dataset blocks
+      continue;
     }
 
-    // Per block parameters
-
-    auto compIterator =
-      vtkSmartPointer<vtkCompositeDataIterator>::Take(internalCache->NewIterator());
-    for (compIterator->InitTraversal(); !compIterator->IsDoneWithTraversal();
-         compIterator->GoToNextItem())
+    if (inputBlock->GetNumberOfPoints() != cacheBlock->GetNumberOfPoints())
     {
-      // Both composite must have the same structure by construction,
-      // we can use the GetDataSet with iterator from other composite
-      vtkDataSet* cacheBlock = vtkDataSet::SafeDownCast(internalCache->GetDataSet(compIterator));
-      vtkDataSet* inputBlock = vtkDataSet::SafeDownCast(input->GetDataSet(compIterator));
+      vtkWarningMacro("Cache has been invalidated, the number of points in a block changed, from "
+        << cacheBlock->GetNumberOfPoints() << " to " << inputBlock->GetNumberOfPoints());
+      return false;
+    }
 
-      if ((cacheBlock == nullptr) != (inputBlock == nullptr))
-      {
-        // if one of them is dataset and not the other:
-        // not the same internal structure, invalid cache
-        validCache = false;
-        break;
-      }
-
-      if (cacheBlock /*&& inputBlock */)
-      {
-        if (inputBlock->GetNumberOfPoints() != cacheBlock->GetNumberOfPoints())
-        {
-          vtkWarningMacro(
-            "Cache has been invalidated, the number of points in a block changed, from "
-            << cacheBlock->GetNumberOfPoints() << " to " << inputBlock->GetNumberOfPoints());
-          validCache = false;
-          break;
-        }
-        if (inputBlock->GetNumberOfCells() != cacheBlock->GetNumberOfCells())
-        {
-          vtkWarningMacro(
-            "Cache has been invalidated, the number of cells in a block changed, from "
-            << cacheBlock->GetNumberOfCells() << " to " << inputBlock->GetNumberOfCells());
-          validCache = false;
-          break;
-        }
-      }
+    if (inputBlock->GetNumberOfCells() != cacheBlock->GetNumberOfCells())
+    {
+      vtkWarningMacro("Cache has been invalidated, the number of cells in a block changed, from "
+        << cacheBlock->GetNumberOfCells() << " to " << inputBlock->GetNumberOfCells());
+      return false;
     }
   }
-  return validCache;
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -135,7 +135,6 @@
     };
     var vtkWasmRuntime = null;
     var Module = {
-      arguments: [],
       print: (() => {
         return (...args) => {
           const text = args.join(" ");
@@ -159,12 +158,6 @@
             }
           }
         };
-      })(),
-      canvas: (() => {
-        let canvasElement = document.getElementById("canvas");
-        canvasElement.addEventListener("click", _e => canvasElement.focus());
-        canvasElement.addEventListener("webglcontextlost", (e) => { alert("WebGL context lost. You will need to reload the page."); e.preventDefault(); }, false);
-        return canvasElement;
       })(),
       preRun: (runtime) => {
         // cache the VTK wasm runtime instance.

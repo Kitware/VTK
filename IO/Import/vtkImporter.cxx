@@ -1,9 +1,13 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImporter.h"
+
 #include "vtkAbstractArray.h"
+#include "vtkActorCollection.h"
 #include "vtkCellData.h"
+#include "vtkCollection.h"
 #include "vtkDataSet.h"
+#include "vtkLightCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
@@ -14,12 +18,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImporter, RenderWindow, vtkRenderWindow);
 
-vtkImporter::vtkImporter()
-{
-  this->Renderer = nullptr;
-  this->RenderWindow = nullptr;
-}
+//------------------------------------------------------------------------------
+vtkImporter::vtkImporter() = default;
 
+//------------------------------------------------------------------------------
 vtkImporter::~vtkImporter()
 {
   this->SetRenderWindow(nullptr);
@@ -31,18 +33,21 @@ vtkImporter::~vtkImporter()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkImporter::ReadData()
 {
   // this->Import actors, cameras, lights and properties
+  // Do not check for UpdateStatus but try to import all that is possible
   this->ImportActors(this->Renderer);
   this->ImportCameras(this->Renderer);
   this->ImportLights(this->Renderer);
   this->ImportProperties(this->Renderer);
 }
 
-void vtkImporter::Read()
+//------------------------------------------------------------------------------
+bool vtkImporter::Update()
 {
-  vtkRenderer* renderer;
+  this->UpdateStatus = vtkImporter::UpdateStatusEnum::SUCCESS;
 
   // if there is no render window, create one
   if (this->RenderWindow == nullptr)
@@ -52,7 +57,7 @@ void vtkImporter::Read()
   }
 
   // Get the first renderer in the render window
-  renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
+  vtkRenderer* renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   if (renderer == nullptr)
   {
     vtkDebugMacro(<< "Creating a Renderer\n");
@@ -75,8 +80,15 @@ void vtkImporter::Read()
     this->ReadData();
     this->ImportEnd();
   }
+  else
+  {
+    this->UpdateStatus = vtkImporter::UpdateStatusEnum::FAILURE;
+  }
+
+  return this->UpdateStatus == vtkImporter::UpdateStatusEnum::SUCCESS;
 }
 
+//------------------------------------------------------------------------------
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -208,8 +220,14 @@ bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
 }
 
 //------------------------------------------------------------------------------
-void vtkImporter::UpdateTimeStep(double vtkNotUsed(timeValue))
+void vtkImporter::UpdateTimeStep(double timeValue)
 {
-  this->Update();
+  this->UpdateAtTimeValue(timeValue);
+}
+
+//------------------------------------------------------------------------------
+bool vtkImporter::UpdateAtTimeValue(double vtkNotUsed(timeValue))
+{
+  return this->Update();
 }
 VTK_ABI_NAMESPACE_END

@@ -1,6 +1,6 @@
 # Disable unsupported features
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "")
-set(VTK_ENABLE_LOGGING OFF CACHE BOOL "") # final link stage gives undefined symbol error `pthread_setname_np` from loguru
+set(VTK_ENABLE_WEBGPU ON CACHE BOOL "")
 set(VTK_BUILD_EXAMPLES OFF CACHE BOOL "")
 set(VTK_ENABLE_CATALYST OFF CACHE BOOL "")
 set(VTK_LEGACY_REMOVE ON CACHE BOOL "") # Hides many `-Wreserved-identifier` from legacy code.

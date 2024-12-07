@@ -334,7 +334,8 @@ static int CompareDataObjects(vtkDataObject* obj1, vtkDataObject* obj2)
     vtkPolyData* pd1 = vtkPolyData::SafeDownCast(ps1);
     vtkPolyData* pd2 = vtkPolyData::SafeDownCast(ps2);
 
-    auto compareCellArrays = [](vtkCellArray* ca1, vtkCellArray* ca2) -> bool {
+    auto compareCellArrays = [](vtkCellArray* ca1, vtkCellArray* ca2) -> bool
+    {
       return (CompareDataArrays(ca1->GetOffsetsArray(), ca2->GetOffsetsArray()) &&
         CompareDataArrays(ca1->GetConnectivityArray(), ca2->GetConnectivityArray()));
     };

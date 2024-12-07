@@ -276,8 +276,8 @@ void vtkNIFTIImageWriterSetInformation(nifti_2_header* hdr, vtkInformation* info
   short datatype = 0;
   short databits = 0;
 
-  // the end of the typemap has been reached when typeMap[2] is 0
-  for (int i = 0; typeMap[2] != nullptr; i++)
+  // the end of the typemap has been reached when typeMap[i][2] is 0
+  for (int i = 0; typeMap[i][2] != 0; i++)
   {
     if (scalarType == typeMap[i][0])
     {

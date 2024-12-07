@@ -32,7 +32,7 @@ static void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction);
 
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunction,
-  ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject);
+  const ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject);
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(FILE* fp, ClassInfo* data, FunctionInfo* currentFunction);
@@ -799,7 +799,7 @@ void vtkWrapPython_SaveArgs(FILE* fp, FunctionInfo* currentFunction)
 /* -------------------------------------------------------------------- */
 /* generate the code that calls the C++ method */
 static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunction,
-  ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
+  const ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
 {
   char methodname[256];
   const ValueInfo* arg;
@@ -810,6 +810,17 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
   totalArgs = vtkWrap_CountWrappedParameters(currentFunction);
 
   is_constructor = vtkWrap_IsConstructor(data, currentFunction);
+
+  /* add code to allow Python threads during C++ execution */
+  if (currentFunction->ReturnValue &&
+    (currentFunction->ReturnValue->Attributes & VTK_PARSE_UNBLOCKTHREADS) != 0)
+  {
+    fprintf(fp,
+      "#ifdef VTK_PYTHON_FULL_THREADSAFE\n"
+      "    PyThreadState *ts = PyEval_SaveThread();\n"
+      "#endif\n"
+      "\n");
+  }
 
   /* for vtkobjects, do a bound call and an unbound call */
   n = 1;
@@ -975,6 +986,17 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
   }
 
   fprintf(fp, "\n");
+
+  /* restore thread state */
+  if (currentFunction->ReturnValue &&
+    (currentFunction->ReturnValue->Attributes & VTK_PARSE_UNBLOCKTHREADS) != 0)
+  {
+    fprintf(fp,
+      "#ifdef VTK_PYTHON_FULL_THREADSAFE\n"
+      "    PyEval_RestoreThread(ts);\n"
+      "#endif\n"
+      "\n");
+  }
 }
 
 /* -------------------------------------------------------------------- */

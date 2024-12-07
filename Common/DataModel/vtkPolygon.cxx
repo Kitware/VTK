@@ -1061,7 +1061,6 @@ public:
   void RemoveVertex(int i, vtkIdList* ids, vtkPriorityQueue* queue = nullptr);
   int CanRemoveVertex(vtkLocalPolyVertex* vtx);
   int CanRemoveVertex(int id);
-  int SimpleTriangulation(vtkIdList* ids); // Handle trivial triangulation cases
 
   double Tol;
   double Tol2;
@@ -1376,27 +1375,221 @@ int vtkPolyVertexList::CanRemoveVertex(int id)
 
 //------------------------------------------------------------------------------
 // Handles some trivial triangulation cases. Returns 0 if cannot triangulate
-// the current polygon. NOTE: the original implementation had a special case
-// for four vertices, but this affects the way some quads are tessellated,
-// which in turn causes differences in vtkTriangleFilter, which many tests
-// depend on. So adding a special case for four vertices requires more
-// work than might be anticipated.
-int vtkPolyVertexList::SimpleTriangulation(vtkIdList* tris)
+// the current polygon. 3 and 4 points are handled with special care for concave quad.
+int SimpleTriangulation(vtkIdList* ptIds, vtkPoints* pts, double tol2, vtkIdList* tris)
 {
+  int number_of_verts = ptIds->GetNumberOfIds();
   // Just output the single triangle
-  if (this->NumberOfVerts == 3)
+  if (number_of_verts == 3)
   {
-    tris->InsertNextId(this->Array[0].id);
-    tris->InsertNextId(this->Array[1].id);
-    tris->InsertNextId(this->Array[2].id);
-    return 1;
+    double x0[3], x1[3], x2[3];
+    bool valid = true;
+    pts->GetPoint(0, x0);
+    pts->GetPoint(1, x1);
+    pts->GetPoint(2, x2);
+    if (vtkMath::Distance2BetweenPoints(x0, x1) < tol2 ||
+      vtkMath::Distance2BetweenPoints(x1, x2) < tol2 ||
+      vtkMath::Distance2BetweenPoints(x0, x2) < tol2)
+    {
+      valid = false;
+    }
+    if (valid)
+    {
+      tris->SetNumberOfIds(3);
+      std::iota(tris->begin(), tris->end(), 0);
+      return 1;
+    }
   }
 
   // Four points are split into two triangles. Watch out for the
   // concave case (i.e., quad looks like a arrowhead).
-  else if (NumberOfVerts == 4)
+  else if (number_of_verts == 4)
   {
-    return 0;
+    // There are only two ear cutting possibility.
+    // This boolean
+    bool use_d1 = true;
+    bool concave = false;
+    // Temporary storage of the four points
+    double x0[3], x1[3], x2[3], x3[3];
+    // Quad possible diagonals with d1 and d2
+    double d1[3], d2[3];
+    // complementary vector to analyse fan
+    double v1[3], v3[3];
+    // face normal
+    double normal[3];
+    // local tri normal
+    double n1[3], n2[3];
+    double area;
+
+    pts->GetPoint(0, x0);
+    pts->GetPoint(1, x1);
+    pts->GetPoint(2, x2);
+    pts->GetPoint(3, x3);
+    // Build diagonals for ear cutting
+    d1[0] = x2[0] - x0[0];
+    d1[1] = x2[1] - x0[1];
+    d1[2] = x2[2] - x0[2];
+    //
+    d2[0] = x3[0] - x1[0];
+    d2[1] = x3[1] - x1[1];
+    d2[2] = x3[2] - x1[2];
+
+    double d1_n2 = vtkMath::SquaredNorm(d1);
+    double d2_n2 = vtkMath::SquaredNorm(d2);
+    if (d1_n2 < d2_n2)
+    {
+      use_d1 = true;
+      // check diagonal validity
+      if (d1_n2 < tol2)
+      {
+        return 0;
+      }
+      // prepare vector for fan building
+      v1[0] = x1[0] - x0[0];
+      v1[1] = x1[1] - x0[1];
+      v1[2] = x1[2] - x0[2];
+      v3[0] = x3[0] - x0[0];
+      v3[1] = x3[1] - x0[1];
+      v3[2] = x3[2] - x0[2];
+    }
+    else
+    {
+      use_d1 = false;
+      // check diagonal validity
+      if (d2_n2 < tol2)
+      {
+        return 0;
+      }
+      // prepare vector for fan building
+      v1[0] = x2[0] - x1[0];
+      v1[1] = x2[1] - x1[1];
+      v1[2] = x2[2] - x1[2];
+      v3[0] = x0[0] - x1[0];
+      v3[1] = x0[1] - x1[1];
+      v3[2] = x0[2] - x1[2];
+    }
+    // Check points validity
+    if (vtkMath::SquaredNorm(v1) < tol2)
+    {
+      return 0;
+    }
+    if (vtkMath::SquaredNorm(v3) < tol2)
+    {
+      return 0;
+    }
+    // build polygon normal to get coherent result with earcut algo
+    if (use_d1)
+    {
+      vtkMath::Cross(v1, d1, n1);
+      vtkMath::Cross(d1, v3, n2);
+    }
+    else
+    {
+      vtkMath::Cross(v1, d2, n1);
+      vtkMath::Cross(d2, v3, n2);
+    }
+    // Indirect check points validity
+    if (vtkMath::SquaredNorm(n1) < tol2)
+    {
+      return 0;
+    }
+    if (vtkMath::SquaredNorm(n2) < tol2)
+    {
+      return 0;
+    }
+    // Now finalize the normal building
+    normal[0] = n1[0] + n2[0];
+    normal[1] = n1[1] + n2[1];
+    normal[2] = n1[2] + n2[2];
+    if (vtkMath::Normalize(normal) == 0.0)
+    {
+      return 0;
+    }
+
+    // check for concave or invalid case
+    if ((area = vtkMath::Dot(n1, normal)) < 0.0)
+    {
+      concave = true;
+    }
+    else if (area == 0.0)
+    {
+      return 0;
+    }
+    else
+    {
+      if ((area = vtkMath::Dot(n2, normal)) < 0.0)
+      {
+        concave = true;
+      }
+      else if (area == 0.0)
+      {
+        return 0;
+      }
+    }
+    // Best possible case has concavity
+    // Try the opposite case
+    if (concave)
+    {
+      use_d1 = use_d1 != concave; // switch use_d1 if concave is true
+      // Check concavity of opposite triangulation
+      // Two cases:
+      // - arrowhead is OK
+      // - self intersecting like quad is KO
+      if (use_d1)
+      {
+        v1[0] = x1[0] - x0[0];
+        v1[1] = x1[1] - x0[1];
+        v1[2] = x1[2] - x0[2];
+        v3[0] = x3[0] - x0[0];
+        v3[1] = x3[1] - x0[1];
+        v3[2] = x3[2] - x0[2];
+        vtkMath::Cross(v1, d2, n1);
+        vtkMath::Cross(d2, v3, n2);
+      }
+      else
+      {
+        v1[0] = x2[0] - x1[0];
+        v1[1] = x2[1] - x1[1];
+        v1[2] = x2[2] - x1[2];
+        v3[0] = x0[0] - x1[0];
+        v3[1] = x0[1] - x1[1];
+        v3[2] = x0[2] - x1[2];
+        vtkMath::Cross(v1, d1, n1);
+        vtkMath::Cross(d1, v3, n2);
+      }
+      // Check points validity
+      if (vtkMath::SquaredNorm(v1) < tol2)
+      {
+        return 0;
+      }
+      if (vtkMath::SquaredNorm(v3) < tol2)
+      {
+        return 0;
+      }
+      // check for invalid case
+      if (vtkMath::Dot(n1, normal) <= 0.0)
+      {
+        return 0;
+      }
+      if (vtkMath::Dot(n2, normal) <= 0.0)
+      {
+        return 0;
+      }
+    }
+
+    // Finalize the tris
+    tris->SetNumberOfIds(6);
+    if (use_d1)
+    {
+      constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 2, 0, 2, 3 };
+      std::copy(localPtIds.begin(), localPtIds.end(), tris->begin());
+    }
+    else
+    {
+      constexpr std::array<vtkIdType, 6> localPtIds{ 0, 1, 3, 1, 2, 3 };
+      std::copy(localPtIds.begin(), localPtIds.end(), tris->begin());
+    }
+    return 1;
   } // if simple cases
 
   return 0;
@@ -1424,16 +1617,16 @@ int vtkPolygon::EarCutTriangulation(vtkIdList* outTris, int measure)
   // Compute the tolerance local to this polygon
   this->ComputeTolerance();
 
+  // Check for trivial triangulation cases
+  if (::SimpleTriangulation(this->PointIds, this->Points, this->Tol * this->Tol, outTris))
+  {
+    return (this->SuccessfulTriangulation = 1);
+  }
+
   // Establish a more convenient structure for the triangulation process
   vtkPolyVertexList poly(this->PointIds, this->Points, this->Tol * this->Tol, measure);
   vtkLocalPolyVertex* vtx;
   int i, id;
-
-  // Check for trivial triangulation cases
-  if (poly.SimpleTriangulation(outTris))
-  {
-    return (this->SuccessfulTriangulation = 1);
-  }
 
   // The polygon normal is needed during triangulation
   //

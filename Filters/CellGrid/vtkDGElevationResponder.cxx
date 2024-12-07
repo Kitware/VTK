@@ -13,7 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringToken.h"
 #include "vtkTypeInt64Array.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <unordered_set>
 
@@ -90,7 +90,8 @@ bool vtkDGElevationResponder::Query(
       evaluateElevation = [&](const vtkVector3d& pt) { return (pt - origin).Dot(axis); };
       break;
     case 2:
-      evaluateElevation = [&](const vtkVector3d& pt) {
+      evaluateElevation = [&](const vtkVector3d& pt)
+      {
         double dist = (pt - origin).Dot(axis);
         return (pt - (origin + dist * axis)).Norm();
       };

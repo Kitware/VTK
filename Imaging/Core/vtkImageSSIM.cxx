@@ -44,7 +44,8 @@ struct SSIMWorker
     const int* e1 = im1->GetExtent();
     const int* e2 = im2->GetExtent();
 
-    auto inBounds = [&e1, &e2](int i, int j, int k) {
+    auto inBounds = [&e1, &e2](int i, int j, int k)
+    {
       return i >= e1[0] && j >= e1[2] && k >= e1[4] && i >= e2[0] && j >= e2[2] && k >= e2[4] &&
         i <= e1[1] && j <= e1[3] && k <= e1[5] && i <= e2[1] && j <= e2[3] && k <= e2[5];
     };
@@ -59,7 +60,8 @@ struct SSIMWorker
     int d[3], dijk[3];
     double squaredRadius = radius * radius;
 
-    auto inPatch = [&ijk, &dijk, &d, &squaredRadius] {
+    auto inPatch = [&ijk, &dijk, &d, &squaredRadius]
+    {
       vtkMath::Subtract(ijk, dijk, d);
       return vtkMath::SquaredNorm(d) <= squaredRadius;
     };
@@ -83,7 +85,8 @@ struct SSIMWorker
 
             double totalWeights = 0.0;
             auto smooth = [&sigma2](double x2) { return std::exp(-x2 / (2 * sigma2)); };
-            auto coordToNorm2 = [&](const int v[3]) {
+            auto coordToNorm2 = [&](const int v[3])
+            {
               int x = v[0] - (imax + imin) * 0.5;
               int y = v[1] - (jmax + jmin) * 0.5;
               int z = v[2] - (kmax + kmin) * 0.5;
@@ -158,6 +161,101 @@ struct SSIMWorker
     }
   }
 };
+
+std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
+{
+  std::array<double, 3> measure = {};
+
+  auto data = vtk::DataArrayTupleRange<3>(array);
+
+  for (auto lab : data)
+  {
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      measure[dim] += f(1.0 - lab[dim]);
+    }
+  }
+
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= array->GetNumberOfTuples();
+  }
+
+  return measure;
+}
+
+std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
+{
+  return ComputeMinkowski(array, &std::abs);
+}
+
+std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
+{
+  auto f = [](double v) { return v * v; };
+  auto measure = ComputeMinkowski(array, f);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] = std::sqrt(measure[dim]);
+  }
+  return measure;
+}
+
+std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(double))
+{
+  std::array<double, 3> measure = {};
+
+  auto data = vtk::DataArrayTupleRange<3>(array);
+
+  constexpr int N = 100;
+  std::array<double, N> hist[3] = {};
+
+  for (auto lab : data)
+  {
+    for (int dim = 0; dim < 3; ++dim)
+    {
+      ++hist[dim][std::round(lab[dim] * (N - 1))];
+    }
+  }
+
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    std::array<double, N> cfd;
+    std::partial_sum(hist[dim].begin(), hist[dim].end(), cfd.begin());
+
+    for (std::size_t i = 0; i < N - 1; ++i)
+    {
+      measure[dim] += f(cfd[i]);
+    }
+
+    measure[dim] += f(cfd.back() - array->GetNumberOfTuples());
+  }
+
+  return measure;
+}
+
+std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
+{
+  auto measure = ComputeWasserstein(array, &std::abs);
+  vtkIdType div = array->GetNumberOfTuples() * (100 - 1);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= div;
+  }
+  return measure;
+}
+
+std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
+{
+  auto f = [](double v) { return v * v; };
+  auto measure = ComputeWasserstein(array, f);
+  vtkIdType div = array->GetNumberOfTuples() * array->GetNumberOfTuples() * (100 - 1);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= div;
+    measure[dim] = std::sqrt(measure[dim]);
+  }
+  return measure;
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -166,6 +264,17 @@ vtkImageSSIM::vtkImageSSIM()
 {
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
+}
+
+//------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToAdditiveChar(unsigned int size)
+{
+  this->C.resize(size);
+  for (unsigned int i = 0; i < size; ++i)
+  {
+    this->C[i][0] = 6.5025;
+    this->C[i][1] = 58.5225;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -235,17 +344,22 @@ void vtkImageSSIM::SetInputToLab()
 }
 
 //------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToRGBA()
+{
+  if (this->Mode != MODE_RGBA)
+  {
+    this->SetInputToAdditiveChar(4);
+    this->Mode = MODE_RGBA;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkImageSSIM::SetInputToRGB()
 {
   if (this->Mode != MODE_RGB)
   {
-    this->C.resize(3);
-    for (int i = 0; i < 3; ++i)
-    {
-      this->C[i][0] = 6.5025;
-      this->C[i][1] = 58.5225;
-    }
-
+    this->SetInputToAdditiveChar(3);
     this->Mode = MODE_RGB;
     this->Modified();
   }
@@ -256,11 +370,18 @@ void vtkImageSSIM::SetInputToGrayscale()
 {
   if (this->Mode != MODE_GRAYSCALE)
   {
-    this->C.resize(1);
-    this->C[0][0] = 6.5025;
-    this->C[0][1] = 58.5225;
-
+    this->SetInputToAdditiveChar(1);
     this->Mode = MODE_GRAYSCALE;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkImageSSIM::SetInputToAuto()
+{
+  if (this->Mode != MODE_AUTO)
+  {
+    this->Mode = MODE_AUTO;
     this->Modified();
   }
 }
@@ -268,7 +389,7 @@ void vtkImageSSIM::SetInputToGrayscale()
 //------------------------------------------------------------------------------
 void vtkImageSSIM::SetInputRange(std::vector<int>& range)
 {
-  if (this->Mode != MODE_NONE)
+  if (this->Mode != MODE_INPUT_RANGE)
   {
     this->C.resize(range.size());
     for (std::size_t i = 0; i < range.size(); ++i)
@@ -277,8 +398,8 @@ void vtkImageSSIM::SetInputRange(std::vector<int>& range)
       this->C[i][1] = 0.0009 * range[i] * range[i];
     }
 
+    this->Mode = MODE_INPUT_RANGE;
     this->Modified();
-    this->Mode = MODE_NONE;
   }
 }
 
@@ -309,8 +430,7 @@ int vtkImageSSIM::RequestData(
     return 0;
   }
 
-  // The user hasn't put the right input range
-  if (C.size() != static_cast<std::size_t>(nComp))
+  if (this->Mode == MODE_AUTO)
   {
     C.resize(nComp);
     double r[2];
@@ -322,6 +442,15 @@ int vtkImageSSIM::RequestData(
       C[i][0] *= 0.0001 * C[i][0];
       C[i][1] = 9 * C[i][1];
     }
+  }
+  else if (C.size() < static_cast<std::size_t>(nComp))
+  {
+    vtkLog(ERROR, "Input range is too small for provided input, aborting");
+    return 0;
+  }
+  else if (C.size() > static_cast<std::size_t>(nComp))
+  {
+    vtkLog(TRACE, "Input range is bigger than provided input");
   }
 
   return this->Superclass::RequestData(request, inputVector, outputVector);
@@ -404,6 +533,20 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkImageSSIM::ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose)
+{
+  auto arrayMax = [](const std::array<double, 3>& v)
+  { return std::max(std::max(v[0], v[1]), v[2]); };
+
+  auto mink1 = ComputeMinkowski1(scalars);
+  auto mink2 = ComputeMinkowski2(scalars);
+  auto wass1 = ComputeWasserstein1(scalars);
+  auto wass2 = ComputeWasserstein2(scalars);
+  tight = std::max(arrayMax(mink2), arrayMax(wass2));
+  loose = std::max(arrayMax(mink1), arrayMax(wass1));
 }
 
 //------------------------------------------------------------------------------

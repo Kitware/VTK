@@ -218,6 +218,7 @@ public:
   /**
    * Invoke the writer.  Returns 1 for success, 0 for failure.
    */
+  VTK_UNBLOCKTHREADS
   int Write();
 
 protected:

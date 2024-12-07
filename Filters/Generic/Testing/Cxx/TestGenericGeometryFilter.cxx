@@ -9,7 +9,7 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
-//#define WRITE_GENERIC_RESULT
+// #define WRITE_GENERIC_RESULT
 
 #include "vtkActor.h"
 #include "vtkAttributesErrorMetric.h"

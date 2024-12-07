@@ -12,7 +12,7 @@
 
 // to be able to dump intermediate result into png files for debugging.
 // only for vtkCompositeZPass developers.
-//#define VTK_COMPOSITE_ZPASS_DEBUG
+// #define VTK_COMPOSITE_ZPASS_DEBUG
 
 #include "vtkFrameBufferObjectBase.h"
 #include "vtkImageData.h"
@@ -27,7 +27,7 @@
 #include <sstream>
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
-//#include <unistd.h>
+// #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h> // Linux specific gettid()
 #endif
@@ -37,7 +37,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObjectVS.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeZPass);

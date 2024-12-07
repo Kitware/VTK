@@ -58,7 +58,7 @@ python3 -m pip install 'wslink>=1.0.4'
 
 # Java dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    java-latest-openjdk-devel
+    java-11-openjdk-devel xmlstarlet
 
 # RPMFusion (for ffmpeg)
 dnf install -y --setopt=install_weak_deps=False \
@@ -76,5 +76,13 @@ dnf install -y --setopt=install_weak_deps=False \
 dnf config-manager --add-repo https://download.opensuse.org/repositories/science:/openturns/Fedora_39/science:openturns.repo
 dnf install -y --setopt=install_weak_deps=False \
     openturns-libs openturns-devel
+
+# Vulkan backend dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    mesa-vulkan-drivers
+
+# Emscripten SDK dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    xz
 
 dnf clean all

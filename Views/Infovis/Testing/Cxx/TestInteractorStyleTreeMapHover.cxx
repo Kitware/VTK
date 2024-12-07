@@ -573,7 +573,7 @@ static char InteractorStyleTreeMapHoverEventLog[] =
   "RenderEvent 169 213 0 0 0 0 Control_L\n"
   "MouseMoveEvent 169 213 0 0 0 0 Control_L\n";
 
-//#define RECORD
+// #define RECORD
 
 int TestInteractorStyleTreeMapHover(int argc, char* argv[])
 {

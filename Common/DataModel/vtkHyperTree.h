@@ -115,7 +115,7 @@
  * This class was modified by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
  * Among others, this class was simplified, optimized (memory), documented and
- * completed for to improve IO XML by Jacques-Bernard Lekien 2018-19
+ * completed for to improve IO XML by Jacques-Bernard Lekien 2018-19,24
  * This work was supported by Commissariat a l'Energie Atomique
  * CEA, DAM, DIF, F-91297 Arpajon, France.
  */
@@ -124,9 +124,11 @@
 #define vtkHyperTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // Include the macros.
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
+#include <limits>  // Used infinity
 #include <memory>  // std::shared_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -237,6 +239,8 @@ public:
    * concatenating breadth first order description and mapping of concatenated
    * trees.
    *
+   * @param depthLimiter the depth limiter by `vtkHyperTreeGrid`.
+   *
    * @param inputMask the mask provided by `vtkHyperTreeGrid`.
    *
    * @param numberOfVerticesPerDepth is self explanatory: from depth 0 to the maximum
@@ -261,9 +265,19 @@ public:
    * @warning Masked subtrees of the input are ignored, so the topology of the
    * output tree can differ from the input depending on that.
    */
-  virtual void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
+  virtual void ComputeBreadthFirstOrderDescriptor(unsigned int depthLimiter, vtkBitArray* inputMask,
     vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) = 0;
+
+  VTK_DEPRECATED_IN_9_4_0(
+    "You must use depthLimiter parameter for transmit the eponymous member of vtkHyperTreeGrid")
+  void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
+    vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
+    vtkIdList* breadthFirstIdMap)
+  {
+    ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::infinity(), inputMask,
+      numberOfVerticesPerDepth, descriptor, breadthFirstIdMap);
+  }
 
   /**
    * Copy the structure by sharing the decomposition description

@@ -33,6 +33,8 @@ Less common, but variables which may be of interest to some:
     Whether Java support will be available or not.
   * `VTK_WRAP_SERIALIZATION` (default `OFF`; requires `VTK_ENABLE_WRAPPING`):
     Whether serialization code will be auto generated or not.
+  * `VTK_JAVA_INSTALL` (default `OFF`; requires `VTK_WRAP_JAVA`):
+    Whether to build the Java Maven package for VTK.
   * `VTK_SMP_IMPLEMENTATION_TYPE` (default `Sequential`): Set which SMPTools
     will be implemented by default. Must be either `Sequential`, `STDThread`,
     `OpenMP` or `TBB`. The backend can be changed at runtime if the desired
@@ -48,29 +50,49 @@ Less common, but variables which may be of interest to some:
     this also runs unit tests in web workers, which is the only way for the tests
     to reliably load data files without having to embed entire datasets inside
     the test binaries.
+  * `VTK_TESTING_WASM_ENGINE` (default ``):
+    Path to a wasm runtime executable. This is used to run C++ tests in wasm environments.
+  * `VTK_TESTING_WASM_ENGINE_ARGUMENTS` (default ``):
+    Space separated arguments passed to the wasm runtime executable.
 
-OpenGL-related options:
+## OpenGL related build options:
 
-Note that if OpenGL is used, there must be a "sensible" setup. Sanity checks
-exist to make sure a broken build is not being made. Essentially:
+When OpenGL is used, a valid rendering environment (e.g., X, Cocoa, SDL2, OSMesa, EGL) must be available.
+Sanity checks are in place to prevent a broken build.
 
-- at least one rendering environment (X, Cocoa, SDL2, OSMesa, EGL, etc.) must
-  be available;
-- OSMesa and EGL conflict with each other; and
-- OSMesa only supports off-screen rendering and is therefore incompatible with
-  Cocoa, X, and SDL2.
+For specific platforms:
+* Android: `vtkEGLRenderWindow` is the default.
+* macOS: `vtkCocoaRenderWindow` is the default.
+* iOS: `vtkIOSRenderWindow` is the default.
+* WebAssembly: `vtkWebAssemblyOpenGLRenderWindow` is the default.
+
+Please learn more about how you can influence the render window selection process in [](/advanced/runtime_settings.md#opengl)
+
+## Additional Rendering related build options:
+On Linux, the order of render window attempts is:
+
+1. `vtkXOpenGLRenderWindow`
+2. `vtkEGLRenderWindow`
+3. `vtkOSOpenGLRenderWindow`
+
+On Windows:
+
+* `vtkWin32OpenGLRenderWindow`
+* `vtkOSOpenGLRenderWindow`
+
+By default, VTK automatically selects the most appropriate render window class at runtime. This selection process uses the `Initialize` method of the compiled subclass to test whether the chosen setup is valid. If the initialization succeeds, the corresponding render window instance is returned.
+
+The default values of the following CMake `VTK_OPENGL_HAS_*` knobs are already configured so
+that the above condition is always met on all supported platforms.
 
   * `VTK_USE_COCOA` (default `ON`; requires macOS): Use Cocoa for
     render windows.
   * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
     iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
   * `VTK_USE_SDL2` (default `OFF`): Use SDL2 for render windows.
-  * `VTK_OPENGL_HAS_OSMESA` (default `OFF`): Use to indicate that the
-    OpenGL library being used supports offscreen Mesa rendering
-    (OSMesa).
   * `VTK_OPENGL_USE_GLES` (default `OFF`; forced `ON` for Android):
     Whether to use OpenGL ES API for OpenGL or not.
-  * `VTK_OPENGL_HAS_EGL` (default `ON` for Android, `OFF` otherwise):
+  * `VTK_OPENGL_HAS_EGL` (default `ON` for Android and Linux, `OFF` otherwise):
     Use to indicate that the OpenGL library being used supports EGL
     context management.
   * `VTK_DEFAULT_EGL_DEVICE_INDEX` (default `0`; requires
@@ -127,6 +149,10 @@ More advanced options:
     The custom suffix for libraries built by VTK. Defaults to either an empty
     string or `X.Y` where `X` and `Y` are VTK's major and minor version
     components, respectively.
+  * `VTK_CUSTOM_LIBRARY_VERSION` (default depends on `VTK_VERSIONED_INSTALL`):
+    The custom version for libraries built by VTK. Defaults to either an empty
+    string  or `X.Y` where `X` and `Y` are VTK's major and minor version if
+    VTK_VERSIONED_INSTALL is ON.
   * `VTK_INSTALL_SDK` (default `ON`): If set, VTK will install its headers,
     CMake API, etc. into its install tree for use.
   * `VTK_FORBID_DOWNLOADS` (default `OFF`): If set, VTK will error on any
@@ -176,6 +202,10 @@ More advanced options:
     enable Tkinter support for VTK widgets.
   * `VTK_BUILD_COMPILE_TOOLS_ONLY` (default `OFF`): If set, VTK will compile
     just its compile tools for use in a cross-compile build.
+  * `VTK_NO_PYTHON_THREADS` (default `OFF`): If set, then all Python threading
+    in VTK will be disabled.
+  * `VTK_PYTHON_FULL_THREADSAFE` (default `ON`): If set, lock the Python GIL
+    for Python C API calls, to make it safe to allow Python thread concurrency.
   * `VTK_SERIAL_TESTS_USE_MPIEXEC` (default `OFF`): Used on HPC to run
     serial tests on compute nodes. If set, it prefixes serial tests with
     "${MPIEXEC_EXECUTABLE}" "${MPIEXEC_NUMPROC_FLAG}" "1" ${MPIEXEC_PREFLAGS}

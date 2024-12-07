@@ -636,7 +636,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
       append->AddInput( subgrid );
       subgrid->Delete();
     }
-#else  // 0
+#else // 0
     append->AddInputConnection(this->ReaderList[reader_idx]->GetOutputPort());
 #endif // 0
   }

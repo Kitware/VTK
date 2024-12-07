@@ -31,6 +31,7 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
+#include "vtkAnariTestUtilities.h"
 
 int TestAnariVolumeLightKit(int argc, char* argv[])
 {
@@ -107,22 +108,7 @@ int TestAnariVolumeLightKit(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariVolumeLightKit";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", ren);
-  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
-  vtkAnariRendererNode::SetLightFalloff(.5, ren);
-  vtkAnariRendererNode::SetUseDenoiser(1, ren);
-  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
+  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariVolumeLightKit");
 
   renWin->Render();
   ren->ResetCamera();

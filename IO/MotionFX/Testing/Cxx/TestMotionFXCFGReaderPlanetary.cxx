@@ -15,7 +15,8 @@
 int TestMotionFXCFGReaderPlanetary(int argc, char* argv[])
 {
   return impl::Test(argc, argv, "Data/MotionFX/planetary/Planetary_prescribedCOMmotion.cfg",
-    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*) {
+    [](vtkRenderWindow*, vtkRenderer* renderer, vtkMotionFXCFGReader*)
+    {
       auto camera = renderer->GetActiveCamera();
       camera->SetFocalPoint(-412.84, 121.00, -304.88);
       camera->SetPosition(-412.17, 121.27, -305.32);

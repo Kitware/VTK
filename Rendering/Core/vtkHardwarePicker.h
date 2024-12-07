@@ -25,11 +25,13 @@
 #include "vtkNew.h"                 // For vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
+#include "vtkStringToken.h"         // for vtkStringToken
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper3D;
 class vtkCell;
 class vtkCompositeDataSet;
+class vtkDataObject;
 class vtkDataSet;
 class vtkSelection;
 
@@ -76,6 +78,16 @@ public:
    * Note: Use vtkWeakPointer. This is because the DataSet may be deleted.
    */
   vtkGetObjectMacro(DataSet, vtkDataSet);
+  ///@}
+
+  ///@{
+  /**
+   * Get a pointer to the dataobject that was picked (if any). If nothing
+   * was picked then nullptr is returned.
+   *
+   * Note: Use vtkWeakPointer. This is because the DataObject may be deleted.
+   */
+  vtkGetObjectMacro(DataObject, vtkDataObject);
   ///@}
 
   ///@{
@@ -139,6 +151,43 @@ public:
    * If a prop is not picked, SubId = -1.
    */
   vtkGetMacro(SubId, int);
+  ///@}
+
+  ///@{
+  /**
+   * Get the id of the picked cell type in a vtkCellGrid
+   *
+   * If a prop is picked, cellGridCellTypeId >= 0
+   *
+   * if a prop is not picked, CellGridCellTypeId = -1.
+   */
+  vtkGetMacro(CellGridCellTypeId, vtkIdType);
+  ///@}
+
+  ///@{
+  /**
+   * Get the id of the picked cell/side spec (the vtkDGCell::Source object) in a vtkCellGrid's cell
+   * type.
+   *
+   * If a prop is picked:
+   *
+   * 1) If a cell spec was picked, CellGridSourceSpecId = 0.
+   * 2) If a side spec was picked, the CellGridSourceSpecId will be >= 1.
+   *
+   * if a prop is not picked, CellGridSourceSpecId = -1.
+   */
+  vtkGetMacro(CellGridSourceSpecId, vtkIdType);
+  ///@}
+
+  ///@{
+  /**
+   * Get the id of the tuple in the cell/side's connectivity array in a vtkCellGrid
+   *
+   * If a prop is picked, CellGridTupleId >= 0
+   *
+   * if a prop is not picked, CellGridTupleId = -1.
+   */
+  vtkGetMacro(CellGridTupleId, vtkIdType);
   ///@}
 
   ///@{
@@ -231,14 +280,21 @@ protected:
   double NearRayPoint[3]; // near ray point
   double FarRayPoint[3];  // far ray point
 
-  vtkAbstractMapper3D* Mapper;           // selected mapper (if the prop has a mapper)
-  vtkDataSet* DataSet;                   // selected dataset (if there is one)
+  vtkAbstractMapper3D* Mapper; // selected mapper (if the prop has a mapper)
+  vtkDataSet* DataSet;         // selected dataset (if there is one)
+  vtkDataObject* DataObject;   // selected dataobject (useful when the picked object is directly
+                               // derived from vtkDataObject)
   vtkCompositeDataSet* CompositeDataSet; // selected dataset (if there is one)
   vtkIdType FlatBlockIndex;              // flat block index, for a composite data set
 
-  vtkIdType PointId;    // id of the picked point
-  vtkIdType CellId;     // id of the picked cell
-  int SubId;            // sub id of the picked cell
+  vtkIdType PointId;              // id of the picked point
+  vtkIdType CellId;               // id of the picked cell
+  int SubId;                      // sub id of the picked cell
+  vtkIdType CellGridCellTypeId;   // id of the picked cell type in a vtkCellGrid
+  vtkIdType CellGridSourceSpecId; // id of the picked cell/side spec in a vtkCellGrid. 0 is for cell
+                                  // spec, 1+ is for side specs
+  vtkIdType
+    CellGridTupleId;    // id of the picked tuple in the cell/side connectivity of a vtkCellGrid
   double PCoords[3];    // parametric coordinates of the picked point
   double PickNormal[3]; // normal of the picked surface
   bool NormalFlipped;   // Flag to indicate if the normal has been flipped

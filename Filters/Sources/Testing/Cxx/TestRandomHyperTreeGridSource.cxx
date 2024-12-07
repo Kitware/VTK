@@ -178,6 +178,7 @@ void TripAll(vtkHyperTreeGrid* htGrid)
   htGrid->InitializeTreeIterator(it);
   vtkIdType crtTreeIndex = 0;
   vtkIdType crtOffsetTree = 0;
+  (void)crtOffsetTree;                 // used in an `assert`.
   while (it.GetNextTree(crtTreeIndex)) // Masked or non
   {
     assert(crtTreeIndex == crtOffsetTree ||

@@ -160,7 +160,7 @@ int UnitTestCells(int, char*[])
     VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, MakeBiQuadraticQuadraticHexahedron(randomSequence), 0);
   results["BiQuadraticQuadraticWedge"] = TestOneCell<vtkBiQuadraticQuadraticWedge>(
     VTK_BIQUADRATIC_QUADRATIC_WEDGE, MakeBiQuadraticQuadraticWedge(), 0);
-  results["BiQuadraticTrangle"] =
+  results["BiQuadraticTriangle"] =
     TestOneCell<vtkBiQuadraticTriangle>(VTK_BIQUADRATIC_TRIANGLE, MakeBiQuadraticTriangle(), 0);
   results["CubicLine"] = TestOneCell<vtkCubicLine>(VTK_CUBIC_LINE, MakeCubicLine(), 0);
 
@@ -1215,7 +1215,7 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
       std::vector<double> above(3);
       above[0] = tCenter[0];
       above[1] = tCenter[1];
-      above[2] = tCenter[2] + aCell->GetLength2();
+      above[2] = tCenter[2] + sqrt(aCell->GetLength2());
       testPoints.push_back(above);
       inOuts.push_back(0);
       typePoint.emplace_back("point above cell");
@@ -1263,11 +1263,13 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
     {
       continue;
     }
-    else if (inOut == 1 && dist2 == 0.0 && inOuts[p] == 1)
+    const double tol = std::numeric_limits<double>::epsilon();
+    bool isDist2AlmostZero = (dist2 <= tol * tol * aCell->GetLength2());
+    if (inOut == 1 && isDist2AlmostZero && inOuts[p] == 1)
     {
       continue;
     }
-    else if (inOut == 1 && dist2 != 0.0 && inOuts[p] == 0)
+    if (inOut == 1 && !isDist2AlmostZero && inOuts[p] == 0)
     {
       continue;
     }
@@ -1309,8 +1311,8 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
     aCell->EvaluateLocation(subId, pcenter, startPoint, weights.data());
     endPoint[0] = startPoint[0];
     endPoint[1] = startPoint[1];
-    endPoint[2] = startPoint[2] + aCell->GetLength2();
-    startPoint[2] = startPoint[2] - aCell->GetLength2();
+    endPoint[2] = startPoint[2] + sqrt(aCell->GetLength2());
+    startPoint[2] = startPoint[2] - sqrt(aCell->GetLength2());
     int status3 = 0;
     int result =
       aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
@@ -1322,7 +1324,7 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
     {
       std::cout << " t: " << t << " ";
     }
-    startPoint[2] = endPoint[2] + aCell->GetLength2();
+    startPoint[2] = endPoint[2] + sqrt(aCell->GetLength2());
     result =
       aCell->IntersectWithLine(startPoint, endPoint, tol, t, intersection, pintersection, subId);
     if (result == 1)

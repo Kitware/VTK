@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-//#define VTK_DEBUG_MRC_HEADER
+// #define VTK_DEBUG_MRC_HEADER
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

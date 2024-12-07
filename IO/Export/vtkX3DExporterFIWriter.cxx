@@ -16,7 +16,7 @@
 #include <sstream>
 #include <vector>
 
-//#define ENCODEASSTRING 1
+// #define ENCODEASSTRING 1
 
 using namespace vtkX3D;
 

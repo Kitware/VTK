@@ -666,7 +666,8 @@ public:
 
     vtkNew<vtkPolyData> device;
 
-    auto setSingleVector = [](vtkDoubleArray* arr, const std::array<double, 3>& vec) {
+    auto setSingleVector = [](vtkDoubleArray* arr, const std::array<double, 3>& vec)
+    {
       arr->SetNumberOfComponents(3);
       arr->SetNumberOfTuples(1);
       for (std::size_t iDim = 0; iDim < 3; ++iDim)
@@ -1243,8 +1244,8 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   // tolerance of this->TimeTolerance
   std::set<double> uniqueSortedTimeValues;
 
-  auto insertIntoSet = [&uniqueSortedTimeValues](
-                         double val) { uniqueSortedTimeValues.insert(val); };
+  auto insertIntoSet = [&uniqueSortedTimeValues](double val)
+  { uniqueSortedTimeValues.insert(val); };
 
   for (auto& devcFileData : this->Internals->DevcFiles)
   {

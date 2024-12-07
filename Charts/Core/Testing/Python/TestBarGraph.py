@@ -70,7 +70,7 @@ class TestBarGraph(vtkmodules.test.Testing.vtkTest):
         view.GetRenderWindow().Render()
 
         img_file = "TestBarGraph.png"
-        vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file),threshold=25)
+        vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),vtkmodules.test.Testing.getAbsImagePath(img_file))
         vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":

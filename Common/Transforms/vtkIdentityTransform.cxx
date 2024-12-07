@@ -6,6 +6,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIdentityTransform);
@@ -139,38 +140,56 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vtkPo
 void vtkIdentityTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
-  double point[3];
+  vtkIdType m = outPts->GetNumberOfPoints();
+  outPts->SetNumberOfPoints(m + n);
 
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    inPts->GetPoint(i, point);
-    outPts->InsertNextPoint(point);
-  }
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
+    {
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
 void vtkIdentityTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* outNms)
 {
   vtkIdType n = inNms->GetNumberOfTuples();
-  double normal[3];
+  vtkIdType m = outNms->GetNumberOfTuples();
+  outNms->SetNumberOfTuples(m + n);
 
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    inNms->GetTuple(i, normal);
-    outNms->InsertNextTuple(normal);
-  }
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
+    {
+      double normal[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inNms->GetTuple(ptId, normal);
+        outNms->SetTuple(m + ptId, normal);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
-void vtkIdentityTransform::TransformVectors(vtkDataArray* inNms, vtkDataArray* outNms)
+void vtkIdentityTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* outVrs)
 {
-  vtkIdType n = inNms->GetNumberOfTuples();
-  double vect[3];
+  vtkIdType n = inVrs->GetNumberOfTuples();
+  vtkIdType m = outVrs->GetNumberOfTuples();
+  outVrs->SetNumberOfTuples(m + n);
 
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    inNms->GetTuple(i, vect);
-    outNms->InsertNextTuple(vect);
-  }
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
+    {
+      double vect[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inVrs->GetTuple(ptId, vect);
+        outVrs->SetTuple(m + ptId, vect);
+      }
+    });
 }
 VTK_ABI_NAMESPACE_END

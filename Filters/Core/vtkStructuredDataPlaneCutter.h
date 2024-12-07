@@ -201,6 +201,9 @@ protected:
   int FillInputPortInformation(int, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  // Garbage collection method
+  void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkStructuredDataPlaneCutter(const vtkStructuredDataPlaneCutter&) = delete;
   void operator=(const vtkStructuredDataPlaneCutter&) = delete;

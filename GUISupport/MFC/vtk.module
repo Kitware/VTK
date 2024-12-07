@@ -2,6 +2,8 @@ NAME
   VTK::GUISupportMFC
 LIBRARY_NAME
   vtkGUISupportMFC
+DESCRIPTION
+  Make VTK available to Microsoft MFC applications.
 CONDITION
   MSVC
 SPDX_LICENSE_IDENTIFIER

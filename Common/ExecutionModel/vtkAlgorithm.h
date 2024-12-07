@@ -561,7 +561,9 @@ public:
   /**
    * Bring this algorithm's outputs up-to-date.
    */
+  VTK_UNBLOCKTHREADS
   virtual void Update(int port);
+  VTK_UNBLOCKTHREADS
   virtual void Update();
   ///@}
 
@@ -610,6 +612,7 @@ public:
    * to its first output port.
    * Supports extent request.
    */
+  VTK_UNBLOCKTHREADS
   virtual int UpdateExtent(const int extents[6]);
 
   /**
@@ -618,12 +621,14 @@ public:
    * Update(int port, vtkInformationVector* requests) for details.
    * Supports time, piece (optional) and extent (optional) requests.
    */
+  VTK_UNBLOCKTHREADS
   virtual int UpdateTimeStep(double time, int piece = -1, int numPieces = 1, int ghostLevels = 0,
     const int extents[6] = nullptr);
 
   /**
    * Bring the algorithm's information up-to-date.
    */
+  VTK_UNBLOCKTHREADS
   virtual void UpdateInformation();
 
   /**
@@ -639,6 +644,7 @@ public:
   /**
    * Bring this algorithm's outputs up-to-date.
    */
+  VTK_UNBLOCKTHREADS
   virtual void UpdateWholeExtent();
 
   /**

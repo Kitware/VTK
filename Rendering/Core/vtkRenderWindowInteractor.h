@@ -579,7 +579,7 @@ public:
 
   ///@{
   /**
-   * Set/get the repear count for the key or mouse event. This specifies how
+   * Set/get the repeat count for the key or mouse event. This specifies how
    * many times a key has been pressed.
    */
   vtkSetMacro(RepeatCount, int);

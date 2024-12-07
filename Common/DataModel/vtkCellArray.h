@@ -25,7 +25,7 @@
  * Cell 0: Triangle | point ids: {0, 1, 2}
  * Cell 1: Triangle | point ids: {5, 7, 2}
  * Cell 2: Quad     | point ids: {3, 4, 6, 7}
- * Cell 4: Line     | point ids: {5, 8}
+ * Cell 3: Line     | point ids: {5, 8}
  *
  * vtkCellArray (current):
  * -----------------------
@@ -878,8 +878,8 @@ public:
 
 private: // Helpers that allow Visit to return a value:
   template <typename Functor, typename... Args>
-  using GetReturnType = decltype(
-    std::declval<Functor>()(std::declval<VisitState<ArrayType32>&>(), std::declval<Args>()...));
+  using GetReturnType = decltype(std::declval<Functor>()(
+    std::declval<VisitState<ArrayType32>&>(), std::declval<Args>()...));
 
   template <typename Functor, typename... Args>
   struct ReturnsVoid : std::is_same<GetReturnType<Functor, Args...>, void>
@@ -1196,7 +1196,8 @@ protected:
   struct Storage
   {
     // Union type that switches 32 and 64 bit array storage
-    union ArraySwitch {
+    union ArraySwitch
+    {
       ArraySwitch() = default;  // handled by Storage
       ~ArraySwitch() = default; // handle by Storage
       VisitState<ArrayType32>* Int32;

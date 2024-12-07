@@ -430,14 +430,14 @@ void vtkCameraOrientationWidget::SquareResize()
     case vtkCameraOrientationRepresentation::AnchorType::LowerLeft:
       xmin = 0. + vppadw;
       xmax = vpw + vppadw;
-      ymin = 0. + vppadw;
-      ymax = vph + vppadw;
+      ymin = 0. + vppadh;
+      ymax = vph + vppadh;
       break;
     case vtkCameraOrientationRepresentation::AnchorType::LowerRight:
       xmin = 1. - vpw - vppadw;
       xmax = 1. - vppadw;
-      ymin = 0. + vppadw;
-      ymax = vph + vppadw;
+      ymin = 0. + vppadh;
+      ymax = vph + vppadh;
       break;
     case vtkCameraOrientationRepresentation::AnchorType::UpperLeft:
       xmin = 0.0 + vppadw;

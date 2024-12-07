@@ -88,20 +88,22 @@ struct ExtractPointsWorker
   void operator()(
     TInputPoints* inputPoints, TOutputPoints* outputPoints, const PointWorkT& pointWork)
   {
-    vtkSMPTools::For(0, pointWork.GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
-      const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
-      auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
-      double point[3];
-      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+    vtkSMPTools::For(0, pointWork.GetNumberOfPoints(),
+      [&](vtkIdType begin, vtkIdType end)
       {
-        const vtkIdType origPtId = pointWork.GetPointId(ptId);
-        // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
-        // we do that since the input points can be implicit points, and GetTypedTuple is faster
-        // than accessing the component of the TupleReference using GetTypedComponent internally.
-        inPts.GetTuple(origPtId, point);
-        outPts.SetTuple(ptId, point);
-      }
-    });
+        const auto inPts = vtk::DataArrayTupleRange<3>(inputPoints);
+        auto outPts = vtk::DataArrayTupleRange<3>(outputPoints);
+        double point[3];
+        for (vtkIdType ptId = begin; ptId < end; ++ptId)
+        {
+          const vtkIdType origPtId = pointWork.GetPointId(ptId);
+          // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+          // we do that since the input points can be implicit points, and GetTypedTuple is faster
+          // than accessing the component of the TupleReference using GetTypedComponent internally.
+          inPts.GetTuple(origPtId, point);
+          outPts.SetTuple(ptId, point);
+        }
+      });
   }
 };
 
@@ -168,12 +170,14 @@ void AddOriginalCellIds(vtkCellData* outCD, const CellWorkT& work)
     vtkNew<vtkIdTypeArray> ids;
     ids->SetName("vtkOriginalCellIds");
     ids->SetNumberOfValues(numCells);
-    vtkSMPTools::For(0, numCells, [&ids, &work](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, numCells,
+      [&ids, &work](vtkIdType start, vtkIdType end)
       {
-        ids->SetValue(cc, work.GetCellId(cc));
-      }
-    });
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          ids->SetValue(cc, work.GetCellId(cc));
+        }
+      });
     outCD->AddArray(ids);
   }
 }
@@ -227,12 +231,14 @@ ExtractedCellsT ExtractCells(vtkDataSet* input, const CellWorkT& work, unsigned 
   input->GetCell(0);
 
   // set cell types
-  vtkSMPTools::For(0, outputNumCells, [&](vtkIdType begin, vtkIdType end) {
-    for (vtkIdType cc = begin; cc < end; ++cc)
+  vtkSMPTools::For(0, outputNumCells,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      result.CellTypes->SetValue(cc, input->GetCellType(work.GetCellId(cc)));
-    }
-  });
+      for (vtkIdType cc = begin; cc < end; ++cc)
+      {
+        result.CellTypes->SetValue(cc, input->GetCellType(work.GetCellId(cc)));
+      }
+    });
 
   // initialize batches
   ExtractCellsBatches batches;
@@ -240,22 +246,24 @@ ExtractedCellsT ExtractCells(vtkDataSet* input, const CellWorkT& work, unsigned 
 
   // figure out the connectivity size and the begin values for each batch
   vtkSMPThreadLocalObject<vtkIdList> TLCellPointIds;
-  vtkSMPTools::For(0, batches.GetNumberOfBatches(), [&](vtkIdType begin, vtkIdType end) {
-    vtkIdType numCellPts, cellId, cellIndex;
-    const vtkIdType* cellPts;
-    auto& cellPointIds = TLCellPointIds.Local();
-    for (vtkIdType batchId = begin; batchId < end; ++batchId)
+  vtkSMPTools::For(0, batches.GetNumberOfBatches(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      ExtractCellsBatch& batch = batches[batchId];
-      auto& cellsConnectivity = batch.Data.CellsConnectivityOffset;
-      for (cellIndex = batch.BeginId; cellIndex < batch.EndId; ++cellIndex)
+      vtkIdType numCellPts, cellId, cellIndex;
+      const vtkIdType* cellPts;
+      auto& cellPointIds = TLCellPointIds.Local();
+      for (vtkIdType batchId = begin; batchId < end; ++batchId)
       {
-        cellId = work.GetCellId(cellIndex);
-        input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
-        cellsConnectivity += numCellPts;
+        ExtractCellsBatch& batch = batches[batchId];
+        auto& cellsConnectivity = batch.Data.CellsConnectivityOffset;
+        for (cellIndex = batch.BeginId; cellIndex < batch.EndId; ++cellIndex)
+        {
+          cellId = work.GetCellId(cellIndex);
+          input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
+          cellsConnectivity += numCellPts;
+        }
       }
-    }
-  });
+    });
   // assign BeginCellsConnectivity and calculate connectivity size
   const auto globalSum = batches.BuildOffsetsAndGetGlobalSum();
   const auto totalConnectivitySize = globalSum.CellsConnectivityOffset;
@@ -266,26 +274,28 @@ ExtractedCellsT ExtractCells(vtkDataSet* input, const CellWorkT& work, unsigned 
   // set cell array offsets
   vtkNew<vtkIdTypeArray> offsets;
   offsets->SetNumberOfValues(outputNumCells + 1);
-  vtkSMPTools::For(0, batches.GetNumberOfBatches(), [&](vtkIdType begin, vtkIdType end) {
-    vtkIdType numCellPts, cellId, cellIndex, ptId;
-    const vtkIdType* cellPts;
-    auto& cellPointIds = TLCellPointIds.Local();
-    for (vtkIdType batchId = begin; batchId < end; ++batchId)
+  vtkSMPTools::For(0, batches.GetNumberOfBatches(),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      ExtractCellsBatch& batch = batches[batchId];
-      auto cellsConnectivityOffset = batch.Data.CellsConnectivityOffset;
-      for (cellIndex = batch.BeginId; cellIndex < batch.EndId; ++cellIndex)
+      vtkIdType numCellPts, cellId, cellIndex, ptId;
+      const vtkIdType* cellPts;
+      auto& cellPointIds = TLCellPointIds.Local();
+      for (vtkIdType batchId = begin; batchId < end; ++batchId)
       {
-        cellId = work.GetCellId(cellIndex);
-        input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
-        offsets->SetValue(cellIndex, cellsConnectivityOffset);
-        for (ptId = 0; ptId < numCellPts; ++ptId)
+        ExtractCellsBatch& batch = batches[batchId];
+        auto cellsConnectivityOffset = batch.Data.CellsConnectivityOffset;
+        for (cellIndex = batch.BeginId; cellIndex < batch.EndId; ++cellIndex)
         {
-          connectivity->SetValue(cellsConnectivityOffset++, work.GetPointId(cellPts[ptId]));
+          cellId = work.GetCellId(cellIndex);
+          input->GetCellPoints(cellId, numCellPts, cellPts, cellPointIds);
+          offsets->SetValue(cellIndex, cellsConnectivityOffset);
+          for (ptId = 0; ptId < numCellPts; ++ptId)
+          {
+            connectivity->SetValue(cellsConnectivityOffset++, work.GetPointId(cellPts[ptId]));
+          }
         }
       }
-    }
-  });
+    });
   // set last offset
   offsets->SetValue(outputNumCells, totalConnectivitySize);
   // set cell array
@@ -361,19 +371,22 @@ void ExtractPolyhedralFaces(
     offsetsPolyFaces->SetValue(face + 1, facePos);
   }
   // Now copy polyhedron Faces.
-  vtkSMPTools::For(0, outFaceLocSize, [&](vtkIdType start, vtkIdType end) {
-    vtkNew<vtkIdList> facePts;
-    for (vtkIdType cc = start; cc < end; ++cc)
+  vtkSMPTools::For(0, outFaceLocSize,
+    [&](vtkIdType start, vtkIdType end)
     {
-      vtkIdType npts;
-      const vtkIdType* pts;
-      vtkIdType faceId = connectivityPoly->GetValue(cc);
-      inFaces->GetCellAtId(faceId, npts, pts, facePts);
-      const auto loc = offsetsPolyFaces->GetValue(cc);
-      auto optr = connectivityPolyFaces->GetPointer(loc);
-      std::transform(pts, pts + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
-    }
-  });
+      vtkNew<vtkIdList> facePts;
+      for (vtkIdType cc = start; cc < end; ++cc)
+      {
+        vtkIdType npts;
+        const vtkIdType* pts;
+        vtkIdType faceId = connectivityPoly->GetValue(cc);
+        inFaces->GetCellAtId(faceId, npts, pts, facePts);
+        const auto loc = offsetsPolyFaces->GetValue(cc);
+        auto optr = connectivityPolyFaces->GetPointer(loc);
+        std::transform(
+          pts, pts + npts, optr, [&work](vtkIdType id) { return work.GetPointId(id); });
+      }
+    });
   // Finalize the mapping to local faces
   facePos = 0;
   for (vtkIdType face = 0; face < outFaceLocSize; ++face)
@@ -401,20 +414,22 @@ vtkSmartPointer<vtkIdList> GeneratePointMap(
   input->GetCell(0);
 
   auto pointMapPtr = pointMap->GetPointer(0);
-  vtkSMPTools::For(0, numberOutputCells, [&](vtkIdType begin, vtkIdType end) {
-    vtkIdType npts, cellId;
-    const vtkIdType* ptids;
-    auto& cellPointIds = TLCellPointIds.Local();
-    for (vtkIdType cellIndex = begin; cellIndex < end; ++cellIndex)
+  vtkSMPTools::For(0, numberOutputCells,
+    [&](vtkIdType begin, vtkIdType end)
     {
-      cellId = cellList->GetId(cellIndex);
-      input->GetCellPoints(cellId, npts, ptids, cellPointIds);
-      for (vtkIdType i = 0; i < npts; ++i)
+      vtkIdType npts, cellId;
+      const vtkIdType* ptids;
+      auto& cellPointIds = TLCellPointIds.Local();
+      for (vtkIdType cellIndex = begin; cellIndex < end; ++cellIndex)
       {
-        pointMapPtr[ptids[i]] = 1;
+        cellId = cellList->GetId(cellIndex);
+        input->GetCellPoints(cellId, npts, ptids, cellPointIds);
+        for (vtkIdType i = 0; i < npts; ++i)
+        {
+          pointMapPtr[ptids[i]] = 1;
+        }
       }
-    }
-  });
+    });
   // convert flags to map where index is old id, value is new id and -1 means
   // the point is to be discarded.
   vtkIdType nextid = 0;
@@ -561,9 +576,9 @@ void vtkExtractCells::AddCellIds(const vtkIdType* ptr, vtkIdType numValues)
     cellIds->Resize(newSize);
   }
   cellIds->SetNumberOfIds(newSize);
-  vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
-    std::copy(ptr + begin, ptr + end, cellIds->GetPointer(oldSize + begin));
-  });
+  vtkSMPTools::For(0, numValues,
+    [&](vtkIdType begin, vtkIdType end)
+    { std::copy(ptr + begin, ptr + end, cellIds->GetPointer(oldSize + begin)); });
   this->Modified();
 }
 
@@ -589,10 +604,12 @@ void vtkExtractCells::AddCellRange(vtkIdType from, vtkIdType to)
     cellIds->Resize(newSize);
   }
   cellIds->SetNumberOfIds(newSize);
-  vtkSMPTools::For(0, numValues, [&](vtkIdType begin, vtkIdType end) {
-    std::iota(
-      cellIds->GetPointer(oldSize + begin), cellIds->GetPointer(oldSize + end), from + begin);
-  });
+  vtkSMPTools::For(0, numValues,
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      std::iota(
+        cellIds->GetPointer(oldSize + begin), cellIds->GetPointer(oldSize + end), from + begin);
+    });
   this->Modified();
 }
 

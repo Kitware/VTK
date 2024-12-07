@@ -43,7 +43,7 @@
 #include <vector>
 
 // uncomment the following line to add in state debugging information
-//#define USE_STATE_DEBUGGING 1
+// #define USE_STATE_DEBUGGING 1
 #ifdef USE_STATE_DEBUGGING
 
 VTK_ABI_NAMESPACE_BEGIN

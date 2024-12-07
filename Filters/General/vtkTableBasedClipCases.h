@@ -9,16 +9,14 @@
 #include "vtkSetGet.h"
 #include "vtkCellType.h"
 
+#include <array>
 #include <cstdint>
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
-template <bool TInsideOut>
-class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases
+class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCasesBase
 {
 public:
-  static constexpr uint8_t DISCARDED_CELL_CASE = TInsideOut * 255;
-
   // Points of original cell (up to 8, for the hex)
   // Note: we assume P0 is zero in several places.
   // Note: we assume these values are contiguous and monotonic.
@@ -63,7 +61,7 @@ public:
 
   using EDGEIDXS = uint8_t[2];
 
-private:
+protected:
   static constexpr bool F = false;
   static constexpr bool T = true;
   // Supported Cell Types
@@ -118,8 +116,84 @@ private:
     { { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N } },
   };
 
+#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
+// XXX(gcc-4.8.5)
+// GCC 4.8.5 has the following bugs
+// internal compiler error: unexpected expression 'static_cast<int16_t>(-1)' of kind static_cast_expr internal compiler error: unexpected expression '(int16_t)((-1))' of kind cast_expr
+#define VTK_CLIP_CAST(type, value) value
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnarrowing"
+#else
+#define VTK_CLIP_CAST(type, value) static_cast<type>(value)
+#endif
+
+  // index into StartCellCases for each cell
+  static constexpr int16_t CellCasesStartIndexLookUp[NUM_CELL_TYPES] = {
+    VTK_CLIP_CAST(int16_t, -1),  // 0 = VTK_EMPTY_CELL
+    VTK_CLIP_CAST(int16_t, 0),   // 1 = VTK_VERTEX
+    VTK_CLIP_CAST(int16_t, -1),  // 2 = VTK_POLY_VERTEX
+    VTK_CLIP_CAST(int16_t, 2),   // 3 = VTK_LINE
+    VTK_CLIP_CAST(int16_t, -1),  // 4 = VTK_POLY_LINE
+    VTK_CLIP_CAST(int16_t, 6),   // 5 = VTK_TRIANGLE
+    VTK_CLIP_CAST(int16_t, -1),  // 6 = VTK_TRIANGLE_STRIP
+    VTK_CLIP_CAST(int16_t, -1),  // 7 = VTK_POLYGON
+    VTK_CLIP_CAST(int16_t, 14),  // 8 = VTK_PIXEL
+    VTK_CLIP_CAST(int16_t, 30),  // 9 = VTK_QUAD
+    VTK_CLIP_CAST(int16_t, 46),  // 10 = VTK_TETRA
+    VTK_CLIP_CAST(int16_t, 62),  // 11 = VTK_VOXEL
+    VTK_CLIP_CAST(int16_t, 318), // 12 = VTK_HEXAHEDRON
+    VTK_CLIP_CAST(int16_t, 574), // 13 = VTK_WEDGE
+    VTK_CLIP_CAST(int16_t, 638), // 14 = VTK_PYRAMID
+    VTK_CLIP_CAST(int16_t, -1),  // 15 = VTK_PENTAGONAL_PRISM
+    VTK_CLIP_CAST(int16_t, -1),  // 16 = VTK_HEXAGONAL_PRISM
+  };
+
+#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
+#pragma GCC diagnostic pop
+#endif
+
+public:
+  /**
+   * Given a cell type return if it's supported by this class.
+   */
+  VTK_ALWAYS_INLINE static constexpr bool IsCellTypeSupported(int cellType)
+  {
+    return SupportedCellTypes[cellType];
+  }
+
+  /**
+   * Given a cell type, return the edges of the cell.
+   *
+   * This is used in correspondence with GetShapeCase.
+   */
+  VTK_ALWAYS_INLINE static constexpr EDGEIDXS* GetCellEdges(int cellType)
+  {
+    return const_cast<EDGEIDXS*>(CellEdges[cellType]);
+  }
+
+  /**
+   * Given a shape type, return the VTK cell type.
+   */
+  VTK_ALWAYS_INLINE static constexpr uint8_t GetCellType(uint8_t shapeType)
+  {
+    return shapeType & 0x07;
+  }
+};
+
+// Primary template declaration
+template <bool InsideOut>
+class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases;
+
+// Specialization for false
+template <>
+class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipCases<false> : public vtkTableBasedClipCasesBase
+{
+public:
+  static constexpr uint8_t DISCARDED_CELL_CASE = 0;
+
+private:
   // clip table for all cases of each cell
-  static constexpr uint8_t CellCases[] = {
+  static constexpr std::array<uint8_t, 26665> CellCases = { {
     // VTK_VERTEX
     /* case 0 */ 0,
     /* case 1 */ 1,
@@ -4638,10 +4712,10 @@ private:
     ST_TET, 4, P1, P2, P3, P4,
     /* case 31 */ 1,
     ST_PYR, 5, P0, P1, P2, P3, P4,
-  };
+  } };
 
   // offset into CellCases for each cell
-  static constexpr uint16_t StartCellCases[] = {
+  static constexpr std::array<uint16_t, 670> StartCellCases = { {
     // VTK_VERTEX
     0, 1, // case 0 - 1
     // VTK_LINE
@@ -4737,10 +4811,50 @@ private:
     26191, 26198, 26207, 26224, 26241, 26250, 26267, 26284, // case 8 - 15
     26295, 26303, 26318, 26333, 26383, 26398, 26415, 26465, // case 16 - 23
     26480, 26495, 26545, 26562, 26577, 26627, 26642, 26657, // case 24 - 31
-  };
+  } };
 
+public:
+  /**
+   * Given the number of points and a case index, return if the cell is kept.
+   */
+  VTK_ALWAYS_INLINE static constexpr bool IsCellKept(vtkIdType numberOfPoints, uint8_t caseIndex)
+  {
+    return caseIndex == CellMaxCase[numberOfPoints];
+  }
+
+  /**
+   * Given the number of points and a case index, return if the cell is discarded.
+   */
+  VTK_ALWAYS_INLINE static constexpr bool IsCellDiscarded(
+    vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
+  {
+    return caseIndex == 0;
+  }
+
+  /**
+   * Given a cell type and a case index, return the case in the form of
+   * number of output cells,
+   * 1. shape type, number of points, and point ids p0, p1, p2, ...
+   * 2. shape type, number of points, and point ids p0, p1, p2, ...
+   * ...
+   */
+  VTK_ALWAYS_INLINE static uint8_t* GetCellCase(int cellType, uint8_t caseIndex)
+  {
+    return const_cast<uint8_t*>(
+      &CellCases[StartCellCases[CellCasesStartIndexLookUp[cellType] + caseIndex]]);
+  }
+};
+
+// Specialization for true
+template <>
+class vtkTableBasedClipCases<true> : public vtkTableBasedClipCasesBase
+{
+public:
+  static constexpr uint8_t DISCARDED_CELL_CASE = 255;
+
+private:
   //  clip table for all cases of each cell
-  static constexpr uint8_t CellCasesInsideOut[] = {
+  static constexpr std::array<uint8_t, 23879> CellCases = { {
     // VTK_VERTEX
     /* case 0 */ 1,
     ST_VTX, 1, P0,
@@ -8921,10 +9035,10 @@ private:
     /* case 30 */ 1,
     ST_TET, 4, P0, EA, ED, EE,
     /* case 31 */ 0,
-  };
+  } };
 
   // offset into CellCases for each cell
-  static constexpr uint16_t StartCellCasesInsideOut[] = {
+  static constexpr std::array<uint16_t, 670> StartCellCases = { {
     // VTK_VERTEX
     0, 4, // case 0 - 1
     // VTK_LINE
@@ -9020,98 +9134,27 @@ private:
     23524, 23539, 23589, 23606, 23621, 23671, 23686, 23701, // case 8 - 15
     23709, 23720, 23737, 23754, 23763, 23780, 23793, 23802, // case 16 - 23
     23809, 23826, 23835, 23848, 23855, 23864, 23871, 23878, // case 24 - 31
-  };
-
-#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
-//XXX(gcc-4.8.5)
-//GCC 4.8.5 has the following bugs
-//internal compiler error: unexpected expression 'static_cast<int16_t>(-1)' of kind static_cast_expr
-//internal compiler error: unexpected expression '(int16_t)((-1))' of kind cast_expr
-#define VTK_CLIP_CAST(type, value) value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnarrowing"
-#else
-#define VTK_CLIP_CAST(type, value) static_cast<type>(value)
-#endif
-
-  // index into StartCellCases for each cell
-  static constexpr int16_t CellCasesStartIndexLookUp[NUM_CELL_TYPES] = {
-    VTK_CLIP_CAST(int16_t, -1),   // 0 = VTK_EMPTY_CELL
-    VTK_CLIP_CAST(int16_t, 0),    // 1 = VTK_VERTEX
-    VTK_CLIP_CAST(int16_t, -1),   // 2 = VTK_POLY_VERTEX
-    VTK_CLIP_CAST(int16_t, 2),    // 3 = VTK_LINE
-    VTK_CLIP_CAST(int16_t, -1),   // 4 = VTK_POLY_LINE
-    VTK_CLIP_CAST(int16_t, 6),    // 5 = VTK_TRIANGLE
-    VTK_CLIP_CAST(int16_t, -1),   // 6 = VTK_TRIANGLE_STRIP
-    VTK_CLIP_CAST(int16_t, -1),   // 7 = VTK_POLYGON
-    VTK_CLIP_CAST(int16_t, 14),   // 8 = VTK_PIXEL
-    VTK_CLIP_CAST(int16_t, 30),   // 9 = VTK_QUAD
-    VTK_CLIP_CAST(int16_t, 46),   // 10 = VTK_TETRA
-    VTK_CLIP_CAST(int16_t, 62),   // 11 = VTK_VOXEL
-    VTK_CLIP_CAST(int16_t, 318),  // 12 = VTK_HEXAHEDRON
-    VTK_CLIP_CAST(int16_t, 574),  // 13 = VTK_WEDGE
-    VTK_CLIP_CAST(int16_t, 638),  // 14 = VTK_PYRAMID
-    VTK_CLIP_CAST(int16_t, -1),   // 15 = VTK_PENTAGONAL_PRISM
-    VTK_CLIP_CAST(int16_t, -1),   // 16 = VTK_HEXAGONAL_PRISM
-  };
-
-#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
-#pragma GCC diagnostic pop
-#endif
+  } };
 
 public:
-#if defined(VTK_COMPILER_MSVC)
-// For some reason, vtkWrapHierarchy & MSVC don't like forced inline functions here
-#define VTK_CLIP_INLINE inline
-#else
-#define VTK_CLIP_INLINE VTK_ALWAYS_INLINE
-#endif
-
-  /**
-   * Given a cell type return if it's supported by this class.
-   */
-  VTK_CLIP_INLINE static constexpr bool IsCellTypeSupported(int cellType)
-  {
-    return SupportedCellTypes[cellType];
-  }
-
-  ///@{
   /**
    * Given the number of points and a case index, return if the cell is kept.
    */
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
+  VTK_ALWAYS_INLINE static constexpr bool IsCellKept(
     vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
   {
     return caseIndex == 0;
   }
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellKept(
-    vtkIdType numberOfPoints, uint8_t caseIndex)
-  {
-    return caseIndex == CellMaxCase[numberOfPoints];
-  }
-  ///@}
 
-  ///@{
   /**
    * Given the number of points and a case index, return if the cell is discarded.
    */
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
+  VTK_ALWAYS_INLINE static constexpr bool IsCellDiscarded(
     vtkIdType numberOfPoints, uint8_t caseIndex)
   {
     return caseIndex == CellMaxCase[numberOfPoints];
   }
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, bool>::type VTK_CLIP_INLINE static constexpr IsCellDiscarded(
-    vtkIdType vtkNotUsed(numberOfPoints), uint8_t caseIndex)
-  {
-    return caseIndex == 0;
-  }
-  ///@}
 
-  ///@{
   /**
    * Given a cell type and a case index, return the case in the form of
    * number of output cells,
@@ -9119,42 +9162,14 @@ public:
    * 2. shape type, number of points, and point ids p0, p1, p2, ...
    * ...
    */
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<InOut, uint8_t*>::type VTK_CLIP_INLINE static GetCellCase(
-    int cellType, uint8_t caseIndex)
-  {
-    return const_cast<uint8_t*>(
-      &CellCasesInsideOut[StartCellCasesInsideOut[CellCasesStartIndexLookUp[cellType] +
-        caseIndex]]);
-  }
-  template <bool InOut = TInsideOut>
-  typename std::enable_if<!InOut, uint8_t*>::type VTK_CLIP_INLINE static GetCellCase(
-    int cellType, uint8_t caseIndex)
+  VTK_ALWAYS_INLINE static uint8_t* GetCellCase(int cellType, uint8_t caseIndex)
   {
     return const_cast<uint8_t*>(
       &CellCases[StartCellCases[CellCasesStartIndexLookUp[cellType] + caseIndex]]);
-  }
-  ///@}
-
-  /**
-   * Given a cell type, return the edges of the cell.
-   *
-   * This is used in correspondence with GetShapeCase.
-   */
-  VTK_CLIP_INLINE static constexpr EDGEIDXS* GetCellEdges(int cellType)
-  {
-    return const_cast<EDGEIDXS*>(CellEdges[cellType]);
-  }
-
-  /**
-   * Given a shape type, return the VTK cell type.
-   */
-  VTK_CLIP_INLINE static constexpr uint8_t GetCellType(uint8_t shapeType)
-  {
-    return shapeType & 0x07;
   }
 };
 
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkTableBasedClipCases_h
+// VTK-HeaderTest-Exclude: vtkTableBasedClipCases.h

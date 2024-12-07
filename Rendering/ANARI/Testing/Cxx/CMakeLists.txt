@@ -38,4 +38,5 @@ vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
 vtk_test_cxx_executable(vtkRenderingAnariCxxTests tests RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS
   vtkAnariTestInteractor.cxx
+  vtkAnariTestUtilities.cxx
   )

@@ -386,23 +386,9 @@ void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
 }
 
 //------------------------------------------------------------------------------
-int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
-{
-  int result = this->RegressionTest(imageSource, thresh, cout);
-
-  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  cout << "</DartMeasurement>\n";
-  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  cout << "</DartMeasurement>\n";
-
-  return result;
-}
-//------------------------------------------------------------------------------
 int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 {
-  int result = this->RegressionTest(thresh, os);
+  const int result = this->RegressionTest(thresh, os);
 
   os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
   os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
@@ -413,12 +399,29 @@ int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
 
   return result;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
-  int result = this->RegressionTest(thresh, cout);
+  const int result = this->RegressionTest(thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
   return result;
 }
+
+//------------------------------------------------------------------------------
+int vtkTesting::RegressionTest(double thresh, std::string& output)
+{
+  std::ostringstream os;
+  const int result = this->RegressionTest(thresh, os);
+  output = os.str();
+  return result;
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh, ostream& os)
 {
@@ -484,11 +487,29 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
   }
   return this->Controller->GetLocalProcessId() == 0 ? res : NOT_RUN;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh)
 {
-  return this->RegressionTest(pngFileName, thresh, cout);
+  const int result = this->RegressionTest(pngFileName, thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
+  return result;
 }
+
+//------------------------------------------------------------------------------
+int vtkTesting::RegressionTest(const std::string& pngFileName, double thresh, std::string& output)
+{
+  std::ostringstream os;
+  const int result = this->RegressionTest(pngFileName, thresh, os);
+  output = os.str();
+  return result;
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream& os)
 {
@@ -518,109 +539,27 @@ int vtkTesting::RegressionTest(const string& pngFileName, double thresh, ostream
   return this->RegressionTest(src, thresh, os);
 }
 
-namespace
-{
 //------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double))
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh)
 {
-  std::array<double, 3> measure = {};
+  const int result = this->RegressionTest(imageSource, thresh, cout);
+  cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
+  cout << "</DartMeasurement>\n";
+  cout << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
+  cout << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
+  cout << "</DartMeasurement>\n";
 
-  auto data = vtk::DataArrayTupleRange<3>(array);
-
-  for (auto lab : data)
-  {
-    for (int dim = 0; dim < 3; ++dim)
-    {
-      measure[dim] += f(1.0 - lab[dim]);
-    }
-  }
-
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= array->GetNumberOfTuples();
-  }
-
-  return measure;
+  return result;
 }
 
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
+int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, std::string& output)
 {
-  return ComputeMinkowski(array, &std::abs);
+  std::ostringstream os;
+  const int result = this->RegressionTest(imageSource, thresh, os);
+  output = os.str();
+  return result;
 }
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
-{
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeMinkowski(array, f);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] = std::sqrt(measure[dim]);
-  }
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(double))
-{
-  std::array<double, 3> measure = {};
-
-  auto data = vtk::DataArrayTupleRange<3>(array);
-
-  constexpr int N = 100;
-  std::array<double, N> hist[3] = {};
-
-  for (auto lab : data)
-  {
-    for (int dim = 0; dim < 3; ++dim)
-    {
-      ++hist[dim][std::round(lab[dim] * (N - 1))];
-    }
-  }
-
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    std::array<double, N> cfd;
-    std::partial_sum(hist[dim].begin(), hist[dim].end(), cfd.begin());
-
-    for (std::size_t i = 0; i < N - 1; ++i)
-    {
-      measure[dim] += f(cfd[i]);
-    }
-
-    measure[dim] += f(cfd.back() - array->GetNumberOfTuples());
-  }
-
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
-{
-  auto measure = ComputeWasserstein(array, &std::abs);
-  vtkIdType div = array->GetNumberOfTuples() * (100 - 1);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= div;
-  }
-  return measure;
-}
-
-//------------------------------------------------------------------------------
-std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
-{
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeWasserstein(array, f);
-  vtkIdType div = array->GetNumberOfTuples() * array->GetNumberOfTuples() * (100 - 1);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= div;
-    measure[dim] = std::sqrt(measure[dim]);
-  }
-  return measure;
-}
-} // anonymoun namespace
 
 //------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream& os)
@@ -652,7 +591,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   {
     fclose(rtFin);
   }
-  else // there was no valid image, so write one to the temp dir
+  else if (!tmpDir.empty()) // there was no valid image, so write one to the temp dir
   {
     string vImage = tmpDir + "/" + validName;
 #ifdef __EMSCRIPTEN__
@@ -708,15 +647,18 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   rtExtract->SetComponents(0, 1, 2);
   rtExtract->Update();
 
-  auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
+  auto createLegacyDiffFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
+  {
     auto alg = vtkSmartPointer<vtkAlgorithm>::Take(vtkImageDifference::New());
     alg->SetInputConnection(source->GetOutputPort());
     alg->SetInputConnection(1, extract->GetOutputPort());
     return alg;
   };
 
-  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract) {
-    auto createPipeline = [](vtkAlgorithm* alg) {
+  auto createSSIMFilter = [](vtkAlgorithm* source, vtkAlgorithm* extract)
+  {
+    auto createPipeline = [](vtkAlgorithm* alg)
+    {
       vtkNew<vtkImageShiftScale> normalizer;
       vtkNew<vtkImageRGBToXYZ> rgb2xyz;
       vtkNew<vtkImageXYZToLAB> xyz2lab;
@@ -735,6 +677,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
     auto ssim = vtkImageSSIM::New();
     ssim->SetInputToLab();
+    ssim->ClampNegativeValuesOn();
     auto alg = vtkSmartPointer<vtkAlgorithm>::Take(ssim);
     alg->SetInputConnection(pipeline1->GetOutputPort());
     alg->SetInputConnection(1, pipeline2->GetOutputPort());
@@ -773,8 +716,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     NONE
   };
 
-  int imageCompareMethod = [] {
-    auto imageCompareString = [] {
+  int imageCompareMethod = []
+  {
+    auto imageCompareString = []
+    {
       if (!vtksys::SystemTools::HasEnv("VTK_TESTING_IMAGE_COMPARE_METHOD"))
       {
         vtkLog(WARNING, "Environment variable VTK_TESTING_IMAGE_COMPARE_METHOD is not set.");
@@ -803,15 +748,12 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   auto rtId =
     imageCompareMethod == LEGACY ? createLegacyDiffFilter(ic1, ic2) : createSSIMFilter(ic1, ic2);
 
-  auto executeComparison = [&](double& err) {
+  auto executeComparison = [&](double& err)
+  {
     rtId->Update();
 
     vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(rtId->GetOutputDataObject(0))->GetPointData()->GetScalars());
-
-    auto arrayMax = [](const std::array<double, 3>& v) {
-      return std::max(std::max(v[0], v[1]), v[2]);
-    };
 
     if (imageCompareMethod == LEGACY)
     {
@@ -819,22 +761,17 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     }
     else
     {
-      auto mink1 = ComputeMinkowski1(scalars);
-      auto mink2 = ComputeMinkowski2(scalars);
-      auto wass1 = ComputeWasserstein1(scalars);
-      auto wass2 = ComputeWasserstein2(scalars);
+      assert(scalars);
+      double tight, loose;
+      vtkImageSSIM::ComputeErrorMetrics(scalars, tight, loose);
 
       vtkLog(INFO,
         "When comparing images, error is defined as the maximum of all individual"
           << " values within the used method (TIGHT or LOOSE) using the threshold " << thresh);
       vtkLog(
         INFO, "Error computations on Lab channels using Minkownski and Wasserstein distances:");
-      vtkLog(INFO, "TIGHT_VALID metric (euclidian) :");
-      vtkLog(INFO, "mink2 = [" << mink2[0] << ", " << mink2[1] << ", " << mink2[2] << "]");
-      vtkLog(INFO, "wass2 = [" << wass2[0] << ", " << wass2[1] << ", " << wass2[2] << "]");
-      vtkLog(INFO, "LOOSE_VALID metric (manhattan / earth's mover) :");
-      vtkLog(INFO, "mink1 = [" << mink1[0] << ", " << mink1[1] << ", " << mink1[2] << "]");
-      vtkLog(INFO, "wass1 = [" << wass1[0] << ", " << wass1[1] << ", " << wass1[2] << "]");
+      vtkLog(INFO, "TIGHT_VALID metric (euclidian): " << tight);
+      vtkLog(INFO, "LOOSE_VALID metric (manhattan / earth's mover): " << loose);
       vtkLog(INFO,
         "Note: if the test fails but is visually acceptable, one can make the test pass"
           << " by changing the method (TIGHT_VALID vs LOOSE_VALID) and the threshold in CMake.");
@@ -843,11 +780,11 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       {
         case TIGHT:
         {
-          err = std::max(arrayMax(mink2), arrayMax(wass2));
+          err = tight;
           break;
         }
         case LOOSE:
-          err = std::max(arrayMax(mink1), arrayMax(wass1));
+          err = loose;
           break;
         default:
           vtkLog(ERROR,
@@ -1075,7 +1012,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
   rtId->Update();
 
   // test the directory for writing
-  if (hasDiff)
+  if (hasDiff && !tmpDir.empty())
   {
     string diffFilename = tmpDir + "/" + validName;
     string::size_type dotPos = diffFilename.rfind('.');
@@ -1089,7 +1026,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
       auto ssim = vtkImageData::SafeDownCast(rtId->GetOutputDataObject(0));
       vtkDataSet* current = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(0, 0));
       vtkDataSet* baseline = vtkDataSet::SafeDownCast(rtId->GetExecutive()->GetInputData(1, 0));
-      auto addOriginalArray = [&ssim](vtkDataSet* ds, std::string&& name) {
+      auto addOriginalArray = [&ssim](vtkDataSet* ds, std::string&& name)
+      {
         vtkDataArray* scalars = ds->GetPointData()->GetScalars();
         auto array = vtkSmartPointer<vtkDataArray>::Take(scalars->NewInstance());
         array->ShallowCopy(scalars);
@@ -1169,6 +1107,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 
   return FAILED;
 }
+
 //------------------------------------------------------------------------------
 int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
 {

@@ -22,7 +22,7 @@ objects in the global dispatch table used by pickle. NumPy is required as well s
 try:
     import copyreg, pickle, numpy
 except ImportError:
-    raise RuntimeError("This module depends on the pickle, copyreg, and numpy modules.\
+    raise ImportError("This module depends on the pickle, copyreg, and numpy modules.\
  Please make sure that it is installed properly.")
 
 from ..vtkParallelCore import vtkCommunicator

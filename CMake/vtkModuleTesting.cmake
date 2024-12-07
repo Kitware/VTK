@@ -405,7 +405,7 @@ function (vtk_add_test_cxx exename _tests)
       if (_vtk_test_cxx_wasm_enabled_in_browser)
         set(_vtk_test_cxx_pre_args
             "$<TARGET_FILE:Python3::Interpreter>"
-            "${CMAKE_SOURCE_DIR}/Testing/WebAssembly/runner.py"
+            "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
             "--engine=${VTK_TESTING_WASM_ENGINE}"
             "--engine-args=${VTK_TESTING_WASM_ENGINE_ARGUMENTS}"
             "--exit")
@@ -771,13 +771,13 @@ function (vtk_add_test_python)
         if (NOT local_JUST_VALID)
           set(rtImageTest -m "vtkmodules.test.rtImageTest")
         endif ()
-        if (local_LEGACY_VALID)
-          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
-        elseif (local_TIGHT_VALID)
-          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
-        elseif (local_LOOSE_VALID)
-          set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
-        endif ()
+      endif ()
+      if (local_LEGACY_VALID)
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LEGACY_VALID")
+      elseif (local_TIGHT_VALID)
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
+      elseif (local_LOOSE_VALID)
+        set(image_compare_method ";VTK_TESTING_IMAGE_COMPARE_METHOD=LOOSE_VALID")
       endif ()
     endif ()
 

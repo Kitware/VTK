@@ -64,7 +64,7 @@ public:
 
   vtkTypeMacro(vtkCellGridRenderRequest, vtkCellGridQuery);
   static vtkCellGridRenderRequest* New();
-  void PrintSelf(std::ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Set/get the mapper which owns this request (so responders can inspect its configuration).
   ///

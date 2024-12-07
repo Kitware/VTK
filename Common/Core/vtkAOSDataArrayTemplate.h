@@ -158,8 +158,9 @@ public:
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
    */
-  ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const VTK_EXPECTS(0 <= tupleIdx &&
-    tupleIdx < GetNumberOfTuples()) VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     return this->Buffer->GetBuffer()[this->NumberOfComponents * tupleIdx + comp];
   }
@@ -168,8 +169,9 @@ public:
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
-  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value) VTK_EXPECTS(0 <= tupleIdx &&
-    tupleIdx < GetNumberOfTuples()) VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
+  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);

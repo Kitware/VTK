@@ -75,11 +75,45 @@
 #undef PyMPI_HAVE_MPI_File_create_errhandler
 #undef PyMPI_HAVE_MPI_File_call_errhandler
 
-#undef PyMPI_HAVE_MPI_Datarep_conversion_function
-#undef PyMPI_HAVE_MPI_Datarep_extent_function
-#undef PyMPI_HAVE_MPI_CONVERSION_FN_NULL
 #undef PyMPI_HAVE_MPI_MAX_DATAREP_STRING
+#undef PyMPI_HAVE_MPI_Datarep_extent_function
+#undef PyMPI_HAVE_MPI_Datarep_conversion_function
+#undef PyMPI_HAVE_MPI_CONVERSION_FN_NULL
 #undef PyMPI_HAVE_MPI_Register_datarep
+
+#undef PyMPI_HAVE_MPI_File_read_at_c
+#undef PyMPI_HAVE_MPI_File_read_at_all_c
+#undef PyMPI_HAVE_MPI_File_write_at_c
+#undef PyMPI_HAVE_MPI_File_write_at_all_c
+#undef PyMPI_HAVE_MPI_File_iread_at_c
+#undef PyMPI_HAVE_MPI_File_iread_at_all_c
+#undef PyMPI_HAVE_MPI_File_iwrite_at_c
+#undef PyMPI_HAVE_MPI_File_iwrite_at_all_c
+#undef PyMPI_HAVE_MPI_File_read_c
+#undef PyMPI_HAVE_MPI_File_read_all_c
+#undef PyMPI_HAVE_MPI_File_write_c
+#undef PyMPI_HAVE_MPI_File_write_all_c
+#undef PyMPI_HAVE_MPI_File_iread_c
+#undef PyMPI_HAVE_MPI_File_iread_all_c
+#undef PyMPI_HAVE_MPI_File_iwrite_c
+#undef PyMPI_HAVE_MPI_File_iwrite_all_c
+#undef PyMPI_HAVE_MPI_File_read_shared_c
+#undef PyMPI_HAVE_MPI_File_write_shared_c
+#undef PyMPI_HAVE_MPI_File_iread_shared_c
+#undef PyMPI_HAVE_MPI_File_iwrite_shared_c
+#undef PyMPI_HAVE_MPI_File_read_ordered_c
+#undef PyMPI_HAVE_MPI_File_write_ordered_c
+#undef PyMPI_HAVE_MPI_File_read_at_all_begin_c
+#undef PyMPI_HAVE_MPI_File_write_at_all_begin_c
+#undef PyMPI_HAVE_MPI_File_read_all_begin_c
+#undef PyMPI_HAVE_MPI_File_write_all_begin_c
+#undef PyMPI_HAVE_MPI_File_read_ordered_begin_c
+#undef PyMPI_HAVE_MPI_File_write_ordered_begin_c
+#undef PyMPI_HAVE_MPI_File_get_type_extent_c
+
+#undef PyMPI_HAVE_MPI_Datarep_conversion_function_c
+#undef PyMPI_HAVE_MPI_CONVERSION_FN_NULL_C
+#undef PyMPI_HAVE_MPI_Register_datarep_c
 
 #undef PyMPI_HAVE_MPI_File_c2f
 #undef PyMPI_HAVE_MPI_File_f2c

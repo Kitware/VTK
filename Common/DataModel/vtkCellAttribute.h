@@ -66,6 +66,18 @@ public:
     /// to interpolate attribute values.
     ArraysForCellType ArraysByRole;
 
+    /// Return an array (or nullptr) given a role, cast to \a ArrayType.
+    template <typename ArrayType>
+    ArrayType* GetArrayForRoleAs(vtkStringToken role) const
+    {
+      auto it = this->ArraysByRole.find(role);
+      if (it == this->ArraysByRole.end())
+      {
+        return nullptr;
+      }
+      return ArrayType::SafeDownCast(it->second);
+    }
+
     /// Comparator used to test inequality.
     bool operator!=(const CellTypeInfo& other) const;
 

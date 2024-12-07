@@ -19,7 +19,7 @@
 #include "vtkOpenGLCompositePolyDataMapperDelegator.h" // for struct BatchElement
 #include "vtkRenderingOpenGL2Module.h"                 // for export macro
 #include "vtkSmartPointer.h"                           // for arg
-#include "vtk_glew.h"                                  // for OpenGL defs
+#include "vtk_glad.h"                                  // for OpenGL defs
 
 #include <cstdint> // for std::uintptr_t
 #include <memory>  // for shared_ptr

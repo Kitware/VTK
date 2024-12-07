@@ -362,7 +362,8 @@ struct GenericArrayWorker
     ArrayT1& array1Ref = this->Array1;
     ArrayT2& array2Ref = this->Array2;
 
-    auto execute = [this, &array1Ref, &array2Ref](vtkIdType id) {
+    auto execute = [this, &array1Ref, &array2Ref](vtkIdType id)
+    {
       this->Processor.template Execute<N>(
         this->Mapper1.Map(id), array1Ref, this->Mapper2.Map(id), array2Ref);
     };
@@ -811,7 +812,8 @@ struct PointMatchingWorker
           // when checking the cells.
           std::unordered_set<vtkIdType> pointIdCandidates, pointIdCandidatesSource;
 
-          auto initializer = [&pointIdCandidatesSource](bool equals, vtkIdType, vtkIdType id) {
+          auto initializer = [&pointIdCandidatesSource](bool equals, vtkIdType, vtkIdType id)
+          {
             if (equals)
             {
               pointIdCandidatesSource.insert(id);
@@ -819,7 +821,8 @@ struct PointMatchingWorker
           };
 
           auto intersector = [&pointIdCandidatesSource, &pointIdCandidates](
-                               bool equals, vtkIdType, vtkIdType id) {
+                               bool equals, vtkIdType, vtkIdType id)
+          {
             if (equals)
             {
               auto it = pointIdCandidatesSource.find(id);
@@ -929,7 +932,8 @@ struct DataSetPointMapper<vtkPointSet>
   DataSetPointMapper(vtkPointSet* ps1, vtkPointSet* ps2, double toleranceFactor)
     : Size(ps1->GetNumberOfPoints())
   {
-    auto testValidInput = [](vtkPointSet* input) {
+    auto testValidInput = [](vtkPointSet* input)
+    {
       if (vtkPoints* points = input->GetPoints())
       {
         if (!points->GetData())
@@ -959,7 +963,8 @@ struct DataSetPointMapper<vtkPointSet>
     }
 
     auto comparePoints = [this, &toleranceFactor](
-                           vtkPointSet* query, vtkPointSet* target, bool mapPoints) {
+                           vtkPointSet* query, vtkPointSet* target, bool mapPoints)
+    {
       vtkNew<vtkStaticPointLocator> locator;
       locator->SetDataSet(target);
       locator->BuildLocator();
@@ -996,7 +1001,8 @@ bool TestAbstractArray(vtkAbstractArray* array1, vtkAbstractArray* array2, Array
 {
   std::atomic_bool success{ true };
 
-  auto decider = [&success](bool equals, vtkIdType id1, vtkIdType id2) {
+  auto decider = [&success](bool equals, vtkIdType id1, vtkIdType id2)
+  {
     if (!equals)
     {
       vtkLog(ERROR, "Tuples mapped at id " << id1 << " and " << id2 << " do not match.");
@@ -1047,8 +1053,9 @@ struct DataSetPointMapper<vtkImageData> : public StructuredDataSetMapper<vtkImag
     double origin1[3], origin2[3], spacing1[3], spacing2[3];
     vtkQuaternion<double> q1, q2;
 
-    auto extractStructure = [](vtkImageData* im, double origin[3], double spacing[3],
-                              vtkQuaternion<double>& q) {
+    auto extractStructure =
+      [](vtkImageData* im, double origin[3], double spacing[3], vtkQuaternion<double>& q)
+    {
       im->GetOrigin(origin);
       im->GetSpacing(spacing);
       vtkMatrix3x3* m = im->GetDirectionMatrix();
@@ -1084,7 +1091,8 @@ struct DataSetPointMapper<RectilinearGridT,
       return;
     }
 
-    auto extractStructure = [](RectilinearGridT* rg, vtkDataArray* coords[3]) {
+    auto extractStructure = [](RectilinearGridT* rg, vtkDataArray* coords[3])
+    {
       coords[0] = rg->GetXCoordinates();
       coords[1] = rg->GetYCoordinates();
       coords[2] = rg->GetZCoordinates();
@@ -1115,7 +1123,8 @@ struct DataSetPointMapper<RectilinearGridT,
     using DataArrayDispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
 
     vtkIdType errorId;
-    auto decider = [&errorId, this](bool equals, vtkIdType id, vtkIdType) {
+    auto decider = [&errorId, this](bool equals, vtkIdType id, vtkIdType)
+    {
       if (!equals)
       {
         vtkLog(ERROR, "Coords don't match at id " << id << ".");
@@ -1297,7 +1306,8 @@ bool TestPoints(DataObjectT* ds1, DataObjectT* ds2, double toleranceFactor)
 //----------------------------------------------------------------------------
 bool TestEdgeCenters(vtkPointSet* ps1, vtkPointSet* ps2, double toleranceFactor)
 {
-  auto computeEdgeCenters = [](vtkPointSet* ps) {
+  auto computeEdgeCenters = [](vtkPointSet* ps)
+  {
     vtkNew<vtkExtractEdges> edges;
     edges->SetInputData(ps);
 
@@ -1351,7 +1361,8 @@ void GenerateNewRandomArrayName(std::string nameRoot, vtkAbstractArray* array1,
 void AddArrayCopyWithUniqueNameToFieldData(std::string nameRoot, vtkDataArray* array1,
   vtkDataArray* array2, vtkFieldData* fd1, vtkFieldData* fd2)
 {
-  auto impl = [](vtkDataArray* in) {
+  auto impl = [](vtkDataArray* in)
+  {
     auto out = vtkSmartPointer<vtkDataArray>::Take(in->NewInstance());
     out->ShallowCopy(in);
     return out;
@@ -1387,7 +1398,8 @@ void AddCellMetaDataToCellDataImpl(vtkUnstructuredGrid* out1, vtkUnstructuredGri
 void AddCellMetaDataToCellDataImpl(vtkPolyData* out1, vtkPolyData* out2)
 {
   // We need to generate a cell types array.
-  auto impl = [](vtkPolyData* out) {
+  auto impl = [](vtkPolyData* out)
+  {
     out->BuildCells();
 
     vtkNew<vtkUnsignedCharArray> cellTypes;
@@ -1395,8 +1407,9 @@ void AddCellMetaDataToCellDataImpl(vtkPolyData* out1, vtkPolyData* out2)
 
     auto array = vtk::DataArrayValueRange<1>(cellTypes);
 
-    vtkSMPTools::For(
-      0, cellTypes->GetNumberOfValues(), [&array, &out](vtkIdType begin, vtkIdType end) {
+    vtkSMPTools::For(0, cellTypes->GetNumberOfValues(),
+      [&array, &out](vtkIdType begin, vtkIdType end)
+      {
         for (vtkIdType cellId = begin; cellId < end; ++cellId)
         {
           array[cellId] = out->GetCellType(cellId);
@@ -1435,7 +1448,8 @@ template <class DataObjectT>
 std::pair<vtkSmartPointer<DataObjectT>, vtkSmartPointer<DataObjectT>> AddCellMetaDataToCellData(
   DataObjectT* in1, DataObjectT* in2)
 {
-  auto createOutput = [](DataObjectT* in) {
+  auto createOutput = [](DataObjectT* in)
+  {
     auto out = vtkSmartPointer<DataObjectT>::Take(in->NewInstance());
     out->CopyStructure(in);
     out->ShallowCopy(in);
@@ -1474,7 +1488,8 @@ struct CellsTester<DataObjectT,
     vtkSmartPointer<DataObjectT> enhancedDO1, enhancedDO2;
     std::tie(enhancedDO1, enhancedDO2) = AddCellMetaDataToCellData(do1, do2);
 
-    auto computeCellCenters = [](DataObjectT* ds) {
+    auto computeCellCenters = [](DataObjectT* ds)
+    {
       using CellCenters = typename DataObjectTraits<DataObjectT>::CellCenters;
 
       vtkNew<CellCenters> centers;
@@ -1548,7 +1563,7 @@ struct TestDataObjectsImpl<vtkTable>
 {
   static bool Execute(vtkTable* t1, vtkTable* t2, double toleranceFactor)
   {
-    IdentityMapper identity(t1->GetNumberOfColumns());
+    IdentityMapper identity(t1->GetNumberOfRows());
 
     if (!TestFieldData(t1->GetFieldData(), t2->GetFieldData(), identity, toleranceFactor, true) ||
       !TestFieldData(t1->GetRowData(), t2->GetRowData(), identity, toleranceFactor))

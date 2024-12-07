@@ -263,7 +263,7 @@
 
   [EAGLContext setCurrentContext:self.context];
   [self resizeView];
-  [self getVTKRenderWindow] -> Render();
+  [self getVTKRenderWindow]->Render();
 }
 
 - (void)dealloc
@@ -309,7 +309,7 @@
   double scale = self.view.contentScaleFactor;
   double newWidth = scale * self.view.bounds.size.width;
   double newHeight = scale * self.view.bounds.size.height;
-  [self getVTKRenderWindow] -> SetSize(newWidth, newHeight);
+  [self getVTKRenderWindow]->SetSize(newWidth, newHeight);
 }
 
 - (void)viewWillLayoutSubviews
@@ -320,7 +320,7 @@
 - (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
 {
   // std::cout << [self getVTKRenderWindow]->ReportCapabilities() << std::endl;
-  [self getVTKRenderWindow] -> Render();
+  [self getVTKRenderWindow]->Render();
 }
 
 //=================================================================

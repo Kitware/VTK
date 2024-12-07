@@ -15,10 +15,10 @@
 #include "vtkProperty.h"
 #include "vtkQWidgetTexture.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include <QtWidgets/QWidget>
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQWidgetRepresentation);

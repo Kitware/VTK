@@ -3,22 +3,32 @@ set(classes
   vtkFiltersCellGrid
 
   # Algorithms
+  vtkCellGridCellCenters
+  vtkCellGridCellSource
   vtkCellGridComputeSides
   vtkCellGridElevation
   vtkCellGridPointProbe
+  vtkCellGridTransform
   vtkUnstructuredGridToCellGrid
+  vtkCellGridToUnstructuredGrid
+  vtkCellGridWarp
 
   # Queries
   vtkCellGridElevationQuery
 
   # Responders
   vtkDGBoundsResponder
+  vtkDGCellCenterResponder
+  vtkDGCellSourceResponder
   vtkDGCopyResponder
   vtkDGElevationResponder
   vtkDGEvaluator
   vtkDGRangeResponder
   vtkDGSidesResponder
+  vtkDGTranscribeCellGridCells
   vtkDGTranscribeUnstructuredCells
+  vtkDGTransformResponder
+  vtkDGWarp
 
   # Calculator bases
   vtkInterpolateCalculator
@@ -46,7 +56,21 @@ set(classes
   vtkDGHCurlOperators
   vtkDGHDivOperators
   vtkDGOperatorEntry
-  vtkDGInvokeOperator
+  vtkDGOperation
+  vtkDGArraysInputAccessor
+  vtkDGArrayOutputAccessor
+  vtkUnstructuredGridFieldAnnotations
+)
+
+# Header-only classes
+set(headers
+  vtkDGOperationEvaluator.h
+  vtkDGOperationState.h
+  vtkDGOperationStateEntry.h
+)
+
+set(templates
+  vtkDGOperation.txx
 )
 
 # Encode the basis implementations as strings we can
@@ -125,6 +149,8 @@ endforeach()
 
 vtk_module_add_module(VTK::FiltersCellGrid
   CLASSES ${classes}
+  HEADERS ${header} ${headers}
   SOURCES ${sources}
+  TEMPLATES ${templates}
   PRIVATE_HEADERS ${private_headers}
 )

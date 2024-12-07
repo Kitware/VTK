@@ -46,7 +46,7 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
 ```
   - Create a merge request targeting `release`
     - [ ] Obtain a GitLab API token for the `kwrobot.release.vtk` user (ask
-          @ben.boeckel if you do not have one)
+          @utils/maintainers/release if you do not have one)
     - [ ] Add the `kwrobot.release.vtk` user to your fork with at least
           `Developer` privileges (so it can open MRs)
     - [ ] Use [the `release-mr`][release-mr] script to open the create the
@@ -67,7 +67,8 @@ git commit -m 'Update version number to @VERSION@@RC@' CMake/vtkVersion.cmake
         `marketing@kitware.com` with filenames and hashes)
       - [ ] Hashes can be found in the output of the `release-artifacts:upload` job
   - Software process updates (these can all be done independently)
-    - [ ] Update kwrobot with the new `release` branch rules (@ben.boeckel)
+    - [ ] Update kwrobot with the new `release` branch rules
+      (@utils/maintainers/ghostflow)
     - [ ] Run [this script][cdash-update-groups] to update the CDash groups
       - This must be done after a nightly run to ensure all builds are in the
         `release` group

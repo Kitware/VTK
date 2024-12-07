@@ -562,7 +562,7 @@ static double** vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
 // free a double vector allocated with SRVector()
 static void vtkSRFreeVector(double* v, long nl, long vtkNotUsed(nh))
 {
-  delete[](v + nl - VTK_NR_END);
+  delete[] (v + nl - VTK_NR_END);
 }
 
 // free a double matrix allocated by Matrix()
@@ -570,8 +570,8 @@ static void vtkSRFreeMatrix(
   double** m, long nrl, long vtkNotUsed(nrh), long ncl, long vtkNotUsed(nch))
 
 {
-  delete[](m[nrl] + ncl - VTK_NR_END);
-  delete[](m + nrl - VTK_NR_END);
+  delete[] (m[nrl] + ncl - VTK_NR_END);
+  delete[] (m + nrl - VTK_NR_END);
 }
 
 #undef VTK_NR_END

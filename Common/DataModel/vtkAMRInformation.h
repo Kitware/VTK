@@ -41,7 +41,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool operator==(const vtkAMRInformation& other);
+  bool operator==(const vtkAMRInformation& other) const;
 
   /**
    * Initialize the meta information

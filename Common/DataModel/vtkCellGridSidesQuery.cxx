@@ -3,6 +3,7 @@
 #include "vtkCellGridSidesQuery.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCellGridSidesCache.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -10,19 +11,21 @@
 #include <array>
 #include <sstream>
 
-// Uncomment the next line for debug printouts.
-// #define VTK_DBG_SUMMARIZE_SIDES 1
-
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
 
 vtkStandardNewMacro(vtkCellGridSidesQuery);
 
+vtkCellGridSidesQuery::~vtkCellGridSidesQuery()
+{
+  this->SetSideCache(nullptr);
+}
+
 void vtkCellGridSidesQuery::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Hashes: " << this->Hashes.size() << "\n";
+  os << indent << "SideCache: " << this->SideCache << "\n";
   os << indent << "Sides: " << this->Sides.size() << "\n";
   os << indent << "PreserveRenderableInputs: " << (this->PreserveRenderableInputs ? "Y" : "N")
      << "\n";
@@ -42,7 +45,26 @@ void vtkCellGridSidesQuery::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCellGridSidesQuery::Initialize()
 {
   bool ok = this->Superclass::Initialize(); // Reset Pass number.
-  this->Hashes.clear();
+  // If we don't have a side-cache, make one as responders should be able to
+  // assume it exists. But warn if we have to create one; this is really the
+  // job of the filter.
+  if (!this->SideCache)
+  {
+    this->TemporarySideCache = true;
+    auto* sideCache = vtkCellGridSidesCache::New();
+    this->SideCache = sideCache;
+    vtkWarningMacro("No side cache was provided; creating a temporary.");
+  }
+  else
+  {
+    // If the cache is older than the query, reset the cache.
+    // Otherwise, allow responders to skip hashing their sides.
+    if (this->GetMTime() > this->SideCache->GetMTime())
+    {
+      this->SideCache->Initialize();
+    }
+  }
+
   return ok;
 }
 
@@ -70,38 +92,13 @@ bool vtkCellGridSidesQuery::IsAnotherPassRequired()
 bool vtkCellGridSidesQuery::Finalize()
 {
   this->Sides.clear();
-  this->Hashes.clear();
+  if (this->TemporarySideCache)
+  {
+    this->SideCache->Delete();
+    this->SideCache = nullptr;
+  }
   return true;
 }
-
-#if 0
-void vtkCellGridSidesQuery::SummarizeSides()
-{
-  this->Sides.clear();
-#ifdef VTK_DBG_SUMMARIZE_SIDES
-  std::cout << "Hash table\n";
-  for (const auto& entry : this->Hashes)
-  {
-    std::cout << "  " << std::hex << entry.first << std::dec << "\n";
-    for (const auto& side : entry.second.Sides)
-    {
-      std::cout << "    " << side.CellType.Data() << " " << side.SideShape.Data() << ": " << side.DOF << " " << side.SideId << "\n";
-    }
-  }
-#endif
-  for (const auto& entry : this->Hashes)
-  {
-    if (entry.second.Sides.size() % 2 == 0)
-    {
-      continue; // Do not output matching pairs of sides.
-    }
-    for (const auto& ss : entry.second.Sides)
-    {
-      this->Sides[ss.CellType][ss.SideShape][ss.DOF].insert(ss.SideId);
-    }
-  }
-}
-#endif // 0
 
 std::vector<vtkCellGridSidesQuery::SideSetArray> vtkCellGridSidesQuery::GetSideSetArrays(
   vtkStringToken cellType)
@@ -216,6 +213,25 @@ vtkCellGridSidesQuery::SummaryStrategy vtkCellGridSidesQuery::SummaryStrategyFro
       return SummaryStrategy::Boundary;
   }
 #endif
+}
+
+void vtkCellGridSidesQuery::SetSideCache(vtkCellGridSidesCache* cache)
+{
+  if (this->SideCache == cache)
+  {
+    return;
+  }
+  if (this->SideCache)
+  {
+    this->SideCache->Delete();
+  }
+  this->SideCache = cache;
+  this->TemporarySideCache = !cache;
+  if (this->SideCache)
+  {
+    this->SideCache->Register(this);
+  }
+  this->Modified();
 }
 
 VTK_ABI_NAMESPACE_END

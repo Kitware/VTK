@@ -163,7 +163,7 @@ void vtkPolyDataEdgeConnectivityFilter::SortRegionsByArea()
 vtkIdType vtkPolyDataEdgeConnectivityFilter::FindNumberOfExtractedRegions()
 {
   vtkIdType regionNum = 0, numSizes = this->RegionSizes->GetNumberOfTuples();
-  while (regionNum < numSizes && this->RegionSizes->GetValue(regionNum) > 0)
+  while (regionNum<numSizes&& this->RegionSizes->GetValue(regionNum)> 0)
   {
     regionNum++;
   }

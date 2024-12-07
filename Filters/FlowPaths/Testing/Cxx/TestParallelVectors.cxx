@@ -76,7 +76,8 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
   p[7][2] += dz;
 
   auto addTetra = [](const double* p0, const double* p1, const double* p2, const double* p3,
-                    vtkPointLocator* pl, vtkCellArray* cells) {
+                    vtkPointLocator* pl, vtkCellArray* cells)
+  {
     vtkSmartPointer<vtkTetra> t = vtkSmartPointer<vtkTetra>::New();
     static vtkIdType bIndices[4][4] = { { 0, 0, 0, 1 }, { 1, 0, 0, 0 }, { 0, 1, 0, 0 },
       { 0, 0, 1, 0 } };
@@ -105,7 +106,8 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
     cells->InsertNextCell(t);
   };
 
-  auto addHex = [](double pts[8][3], vtkPointLocator* pl, vtkCellArray* cells) {
+  auto addHex = [](double pts[8][3], vtkPointLocator* pl, vtkCellArray* cells)
+  {
     vtkSmartPointer<vtkHexahedron> h = vtkSmartPointer<vtkHexahedron>::New();
 
     vtkIdType nPoints = 8;
@@ -193,14 +195,16 @@ void constructFieldProfile(vtkUnstructuredGrid* unstructuredGrid)
 {
   const double z0 = -1.5;
 
-  auto f = [=](const double& t) -> std::array<double, 2> {
+  auto f = [=](const double& t) -> std::array<double, 2>
+  {
     const double amplitude = .8;
     const double phase = 2.;
 
     return { amplitude * cos(2. * M_PI * t / phase), amplitude * sin(2. * M_PI * t / phase) };
   };
 
-  auto v = [=](const double p[3]) -> std::array<double, 3> {
+  auto v = [=](const double p[3]) -> std::array<double, 3>
+  {
     const double& x = p[0];
     const double& y = p[1];
     const double& z = p[2];
@@ -211,7 +215,8 @@ void constructFieldProfile(vtkUnstructuredGrid* unstructuredGrid)
     return { x - f_t[0], y - f_t[1], t };
   };
 
-  auto w = [=](const double p[3]) -> std::array<double, 3> {
+  auto w = [=](const double p[3]) -> std::array<double, 3>
+  {
     const double& x = p[0];
     const double& y = p[1];
     const double& z = p[2];

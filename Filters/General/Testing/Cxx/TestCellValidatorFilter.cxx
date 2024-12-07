@@ -29,7 +29,8 @@ bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellValidator::Sta
 
   for (vtkIdType cellId = 0; cellId < size; cellId++)
   {
-    auto state = static_cast<vtkCellValidator::State>(stateArray->GetTuple1(cellId));
+    auto state =
+      static_cast<vtkCellValidator::State>(static_cast<short>(stateArray->GetTuple1(cellId)));
     if (state != vtkCellValidator::Valid && (state & expectedValues[cellId]) == 0)
     {
       std::cout << "ERROR: invalid cell state found at id: " << cellId << "\n";

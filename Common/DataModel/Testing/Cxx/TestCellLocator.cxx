@@ -80,10 +80,10 @@ int TestFindCellsAlongLine()
 
   // these ids are the ones that should be in the list.
   // if we uniquely add them the list size should still be 4.
-  cellIds->InsertUniqueId(657);
-  cellIds->InsertUniqueId(856);
-  cellIds->InsertUniqueId(1885);
-  cellIds->InsertUniqueId(1887);
+  cellIds->InsertUniqueId(664);
+  cellIds->InsertUniqueId(849);
+  cellIds->InsertUniqueId(1693);
+  cellIds->InsertUniqueId(1695);
 
   if (cellIds->GetNumberOfIds() != 4)
   {

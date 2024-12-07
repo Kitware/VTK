@@ -144,8 +144,9 @@ public:
    * the fastest way to access array data.
    * @ingroup vtkGDAConceptMethods
    */
-  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const VTK_EXPECTS(0 <= tupleIdx &&
-    tupleIdx < GetNumberOfTuples()) VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + compIdx < GetNumberOfValues())
+      VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     return static_cast<const DerivedT*>(this)->GetTypedComponent(tupleIdx, compIdx);
   }
@@ -156,7 +157,7 @@ public:
    * @ingroup vtkGDAConceptMethods
    */
   void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + compIdx < GetNumberOfValues())
       VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     static_cast<DerivedT*>(this)->SetTypedComponent(tupleIdx, compIdx, value);

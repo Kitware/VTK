@@ -131,6 +131,13 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   for (auto i : GetFieldsIndicesWithoutCoords(input))
   {
     const vtkm::cont::Field& f = input.GetField(i);
+    if (f.GetData().GetNumberOfComponentsFlat() < 1)
+    {
+      vtkGenericWarningMacro("VTK-m field "
+        << f.GetName()
+        << " does not have a fixed tuple size. This field will be unavailable in VTK.");
+      continue;
+    }
     vtkDataArray* vfield = Convert(f);
     if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::Points)
     {

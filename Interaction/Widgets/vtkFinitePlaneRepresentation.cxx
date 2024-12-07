@@ -54,7 +54,6 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->PreviousNormal[0] = 0.;
   this->PreviousNormal[1] = 0.;
   this->PreviousNormal[2] = 1.;
-  this->Transform = vtkTransform::New();
   this->Transform->Identity();
 
   this->V1[0] = 1.;
@@ -75,66 +74,42 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   p2[2] = this->Origin[2] + this->V2[2];
 
   // the origin
-  this->OriginGeometry = vtkSphereSource::New();
   this->OriginGeometry->SetCenter(this->Origin);
   this->OriginGeometry->Update();
-  this->OriginMapper = vtkPolyDataMapper::New();
   this->OriginMapper->SetInputConnection(this->OriginGeometry->GetOutputPort());
-  this->OriginActor = vtkActor::New();
   this->OriginActor->SetMapper(this->OriginMapper);
 
   // the X Vector
-  this->V1Geometry = vtkSphereSource::New();
   this->V1Geometry->SetCenter(p1);
   this->V1Geometry->Update();
-  this->V1Mapper = vtkPolyDataMapper::New();
   this->V1Mapper->SetInputConnection(this->V1Geometry->GetOutputPort());
-  this->V1Actor = vtkActor::New();
   this->V1Actor->SetMapper(this->V1Mapper);
 
   // the Y Vector
-  this->V2Geometry = vtkSphereSource::New();
   this->V2Geometry->SetCenter(p2);
   this->V2Geometry->Update();
-  this->V2Mapper = vtkPolyDataMapper::New();
   this->V2Mapper->SetInputConnection(this->V2Geometry->GetOutputPort());
-  this->V2Actor = vtkActor::New();
   this->V2Actor->SetMapper(this->V2Mapper);
 
   // Create the + plane normal
-  this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
-  this->LineMapper = vtkPolyDataMapper::New();
   this->LineMapper->SetInputConnection(this->LineSource->GetOutputPort());
-  this->LineActor = vtkActor::New();
   this->LineActor->SetMapper(this->LineMapper);
 
-  this->ConeSource = vtkConeSource::New();
   this->ConeSource->SetResolution(12);
   this->ConeSource->SetAngle(25.0);
-  this->ConeMapper = vtkPolyDataMapper::New();
   this->ConeMapper->SetInputConnection(this->ConeSource->GetOutputPort());
-  this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
 
   // Create the - plane normal
-  this->LineSource2 = vtkLineSource::New();
   this->LineSource2->SetResolution(1);
-  this->LineMapper2 = vtkPolyDataMapper::New();
   this->LineMapper2->SetInputConnection(this->LineSource2->GetOutputPort());
-  this->LineActor2 = vtkActor::New();
   this->LineActor2->SetMapper(this->LineMapper2);
 
-  this->ConeSource2 = vtkConeSource::New();
   this->ConeSource2->SetResolution(12);
   this->ConeSource2->SetAngle(25.0);
-  this->ConeMapper2 = vtkPolyDataMapper::New();
   this->ConeMapper2->SetInputConnection(this->ConeSource2->GetOutputPort());
-  this->ConeActor2 = vtkActor::New();
   this->ConeActor2->SetMapper(this->ConeMapper2);
-
-  // The finite plane
-  this->PlanePolyData = vtkPolyData::New();
 
   // Construct initial points
   vtkNew<vtkPoints> points;
@@ -154,23 +129,15 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->PlanePolyData->SetPolys(cell);
   this->PlanePolyData->BuildCells();
 
-  this->PlaneMapper = vtkPolyDataMapper::New();
   this->PlaneMapper->SetInputData(this->PlanePolyData);
-  this->PlaneActor = vtkActor::New();
   this->PlaneActor->SetMapper(this->PlaneMapper);
 
-  this->Edges = vtkFeatureEdges::New();
   this->Edges->SetInputData(this->PlanePolyData);
 
-  this->EdgesTuber = vtkTubeFilter::New();
   this->EdgesTuber->SetInputConnection(this->Edges->GetOutputPort());
   this->EdgesTuber->SetNumberOfSides(12);
-  this->EdgesMapper = vtkPolyDataMapper::New();
   this->EdgesMapper->SetInputConnection(this->EdgesTuber->GetOutputPort());
-  this->EdgesActor = vtkActor::New();
   this->EdgesActor->SetMapper(this->EdgesMapper);
-  this->Tubing = true;    // control whether tubing is on
-  this->DrawPlane = true; // control whether draw plane is on
   this->CurrentHandle = nullptr;
 
   // Initial creation of the widget, serves to initialize it
@@ -178,7 +145,6 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->PlaceWidget(bounds);
 
   // Manage the picking stuff
-  this->HandlePicker = vtkCellPicker::New();
   this->HandlePicker->SetTolerance(0.001);
 
   this->HandlePicker->AddPickList(OriginActor);
@@ -192,9 +158,6 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
 
   this->HandlePicker->PickFromListOn();
 
-  // The bounding box
-  this->BoundingBox = vtkBox::New();
-
   this->RepresentationState = vtkFinitePlaneRepresentation::Outside;
 
   // Pass the initial properties to the actors.
@@ -206,75 +169,10 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->V1Actor->SetProperty(this->V1HandleProperty);
   this->V2Actor->SetProperty(this->V2HandleProperty);
   this->OriginActor->SetProperty(this->OriginHandleProperty);
-
-  // Internal data members for performance
-  this->TransformRotation = vtkTransform::New();
 }
 
 //------------------------------------------------------------------------------
-vtkFinitePlaneRepresentation::~vtkFinitePlaneRepresentation()
-{
-  this->OriginGeometry->Delete();
-  this->OriginMapper->Delete();
-  this->OriginActor->Delete();
-
-  // the X Vector
-  this->V1Geometry->Delete();
-  this->V1Mapper->Delete();
-  this->V1Actor->Delete();
-
-  // the Y Vector
-  this->V2Geometry->Delete();
-  this->V2Mapper->Delete();
-  this->V2Actor->Delete();
-
-  // The + normal cone
-  this->ConeSource->Delete();
-  this->ConeMapper->Delete();
-  this->ConeActor->Delete();
-
-  // The + normal line
-  this->LineSource->Delete();
-  this->LineMapper->Delete();
-  this->LineActor->Delete();
-
-  // The - normal cone
-  this->ConeSource2->Delete();
-  this->ConeMapper2->Delete();
-  this->ConeActor2->Delete();
-
-  // The - normal line
-  this->LineSource2->Delete();
-  this->LineMapper2->Delete();
-  this->LineActor2->Delete();
-
-  // The finite plane
-  this->PlanePolyData->Delete();
-  this->PlaneMapper->Delete();
-  this->PlaneActor->Delete();
-
-  this->Edges->Delete();
-  this->EdgesTuber->Delete();
-  this->EdgesMapper->Delete();
-  this->EdgesActor->Delete();
-
-  this->BoundingBox->Delete();
-
-  this->NormalProperty->Delete();
-  this->SelectedNormalProperty->Delete();
-
-  this->HandlePicker->Delete();
-
-  this->TransformRotation->Delete();
-  this->Transform->Delete();
-
-  this->OriginHandleProperty->Delete();
-  this->V1HandleProperty->Delete();
-  this->V2HandleProperty->Delete();
-  this->SelectedHandleProperty->Delete();
-  this->PlaneProperty->Delete();
-  this->SelectedPlaneProperty->Delete();
-}
+vtkFinitePlaneRepresentation::~vtkFinitePlaneRepresentation() = default;
 
 //------------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::GetPolyData(vtkPolyData* pd)
@@ -388,36 +286,28 @@ void vtkFinitePlaneRepresentation::Rotate(int X, int Y, double* p1, double* p2, 
 void vtkFinitePlaneRepresentation::CreateDefaultProperties()
 {
   // Normal properties
-  this->NormalProperty = vtkProperty::New();
   this->NormalProperty->SetColor(1.0, 1.0, 1.0);
   this->NormalProperty->SetLineWidth(2.0);
 
-  this->SelectedNormalProperty = vtkProperty::New();
   this->SelectedNormalProperty->SetColor(1.0, 0.0, 0.0);
   this->NormalProperty->SetLineWidth(2.0);
 
   // Origin Handle properties
-  this->OriginHandleProperty = vtkProperty::New();
   this->OriginHandleProperty->SetColor(1.0, 1.0, 1.0);
 
   // P1 Handle properties
-  this->V1HandleProperty = vtkProperty::New();
   this->V1HandleProperty->SetColor(1.0, 0.0, 0.0);
 
   // P2 Handle properties
-  this->V2HandleProperty = vtkProperty::New();
   this->V2HandleProperty->SetColor(0.0, 1.0, 0.0);
 
-  this->SelectedHandleProperty = vtkProperty::New();
   this->SelectedHandleProperty->SetColor(1.0, 1.0, 0.0);
 
   // Plane properties
-  this->PlaneProperty = vtkProperty::New();
   this->PlaneProperty->SetAmbient(1.0);
   this->PlaneProperty->SetAmbientColor(1.0, 1.0, 1.0);
   this->PlaneProperty->SetOpacity(0.5);
 
-  this->SelectedPlaneProperty = vtkProperty::New();
   this->SelectedPlaneProperty->SetAmbient(1.0);
   this->SelectedPlaneProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedPlaneProperty->SetOpacity(0.25);
@@ -853,6 +743,15 @@ void vtkFinitePlaneRepresentation::SetV1(double x[2])
     this->V1[0] = x[0];
     this->V1[1] = x[1];
 
+    if (this->RectangularShape)
+    {
+      double v2[3] = { this->V2[0], this->V2[1], this->V2[2] };
+      vtkMath::Normalize(v2);
+      double proj = (v2[0] * this->V1[0] + v2[1] * this->V1[1]);
+      this->V1[0] -= proj * v2[0];
+      this->V1[1] -= proj * v2[1];
+    }
+
     this->Modified();
     this->BuildRepresentation();
   }
@@ -870,8 +769,18 @@ void vtkFinitePlaneRepresentation::SetV2(double x[2])
 {
   if (this->V2[0] != x[0] || this->V2[1] != x[1])
   {
+
     this->V2[0] = x[0];
     this->V2[1] = x[1];
+
+    if (this->RectangularShape)
+    {
+      double v1[3] = { this->V1[0], this->V1[1], this->V1[2] };
+      vtkMath::Normalize(v1);
+      double proj = (v1[0] * this->V2[0] + v1[1] * this->V2[1]);
+      this->V2[0] -= proj * v1[0];
+      this->V2[1] -= proj * v1[1];
+    }
 
     this->Modified();
     this->BuildRepresentation();

@@ -244,12 +244,12 @@ int vtkDEMReader::ReadTypeARecord()
   sscanf(current, "%6d", &this->AccuracyCode);
   current += 6;
   char buf[13];
-  buf[12] = 0;
-  strncpy(buf, current, 12);
+  buf[12] = '\0';
+  memcpy(buf, current, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[0]);
-  strncpy(buf, current + 12, 12);
+  memcpy(buf, current + 12, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[1]);
-  strncpy(buf, current + 24, 12);
+  memcpy(buf, current + 24, 12);
   sscanf(buf, "%12g", &this->SpatialResolution[2]);
   current += 36;
   sscanf(current, "%6d%6d", &this->ProfileDimension[0], &this->ProfileDimension[1]);

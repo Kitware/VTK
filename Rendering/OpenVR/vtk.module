@@ -21,13 +21,13 @@ PRIVATE_DEPENDS
   VTK::FiltersSources
   VTK::IOXML
   VTK::ImagingSources
-  VTK::glew
-  VTK::opengl
+  VTK::glad
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::IOPLY
   VTK::IOXML
   VTK::InteractionWidgets
   VTK::RenderingVolume
+  VTK::RenderingVRModels
   VTK::TestingCore
   VTK::TestingRendering

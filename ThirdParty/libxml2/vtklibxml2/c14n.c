@@ -12,7 +12,6 @@
 #define IN_LIBXML
 #include "libxml.h"
 #ifdef LIBXML_C14N_ENABLED
-#ifdef LIBXML_OUTPUT_ENABLED
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,11 +20,11 @@
 #include <libxml/parser.h>
 #include <libxml/uri.h>
 #include <libxml/xmlerror.h>
-#include <libxml/globals.h>
 #include <libxml/xpathInternals.h>
 #include <libxml/c14n.h>
 
-#include "buf.h"
+#include "private/error.h"
+#include "private/io.h"
 
 /************************************************************************
  *									*
@@ -73,7 +72,7 @@ typedef struct _xmlC14NCtx {
 
 static xmlC14NVisibleNsStackPtr	xmlC14NVisibleNsStackCreate	(void);
 static void     xmlC14NVisibleNsStackDestroy	(xmlC14NVisibleNsStackPtr cur);
-static void     xmlC14NVisibleNsStackAdd	    (xmlC14NVisibleNsStackPtr cur,
+static int      xmlC14NVisibleNsStackAdd	    (xmlC14NVisibleNsStackPtr cur,
                                                  xmlNsPtr ns,
                                                  xmlNodePtr node);
 static void			xmlC14NVisibleNsStackSave	(xmlC14NVisibleNsStackPtr cur,
@@ -135,87 +134,85 @@ static xmlChar *xmlC11NNormalizeString(const xmlChar * input,
  * Handle a redefinition of memory error
  */
 static void
-xmlC14NErrMemory(const char *extra)
+xmlC14NErrMemory(xmlC14NCtxPtr ctxt)
 {
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_ERR_NO_MEMORY, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Memory allocation failed : %s\n", extra);
+    if (ctxt != NULL)
+        ctxt->error = XML_ERR_NO_MEMORY;
+
+    xmlRaiseMemoryError(NULL, NULL, NULL, XML_FROM_C14N, NULL);
+}
+
+static void
+xmlC14NErrFull(xmlC14NCtxPtr ctxt, xmlNodePtr node, int code, const char *str1,
+               const char *msg, ...)
+{
+    va_list ap;
+    int res;
+
+    if (ctxt != NULL)
+        ctxt->error = code;
+
+    va_start(ap, msg);
+    res = xmlVRaiseError(NULL, NULL, NULL, ctxt, node,
+                         XML_FROM_C14N, code, XML_ERR_ERROR, NULL, 0,
+                         str1, NULL, NULL, 0, 0,
+                         msg, ap);
+    va_end(ap);
+    if (res < 0)
+        xmlC14NErrMemory(ctxt);
 }
 
 /**
  * xmlC14NErrParam:
  * @extra:  extra information
  *
- * Handle a redefinition of param error
+ * Handle a param error
  */
 static void
-xmlC14NErrParam(const char *extra)
+xmlC14NErrParam(xmlC14NCtxPtr ctxt)
 {
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_ERR_INTERNAL_ERROR, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Invalid parameter : %s\n", extra);
-}
-
-/**
- * xmlC14NErrInternal:
- * @extra:  extra information
- *
- * Handle a redefinition of internal error
- */
-static void
-xmlC14NErrInternal(const char *extra)
-{
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_ERR_INTERNAL_ERROR, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Internal error : %s\n", extra);
+    xmlC14NErrFull(ctxt, NULL, XML_ERR_ARGUMENT, NULL,
+		   "Invalid argument\n", NULL);
 }
 
 /**
  * xmlC14NErrInvalidNode:
  * @extra:  extra information
  *
- * Handle a redefinition of invalid node error
+ * Handle an invalid node error
  */
 static void
-xmlC14NErrInvalidNode(const char *node_type, const char *extra)
+xmlC14NErrInvalidNode(xmlC14NCtxPtr ctxt, const char *node_type,
+                      const char *extra)
 {
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_C14N_INVALID_NODE, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Node %s is invalid here : %s\n", node_type, extra);
+    xmlC14NErrFull(ctxt, NULL, XML_C14N_INVALID_NODE, extra,
+		   "Node %s is invalid here : %s\n", node_type, extra);
 }
 
 /**
  * xmlC14NErrUnknownNode:
  * @extra:  extra information
  *
- * Handle a redefinition of unknown node error
+ * Handle an unknown node error
  */
 static void
-xmlC14NErrUnknownNode(int node_type, const char *extra)
+xmlC14NErrUnknownNode(xmlC14NCtxPtr ctxt, int node_type, const char *extra)
 {
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_C14N_UNKNOW_NODE, XML_ERR_ERROR, NULL, 0, extra,
-		    NULL, NULL, 0, 0,
-		    "Unknown node type %d found : %s\n", node_type, extra);
+    xmlC14NErrFull(ctxt, NULL, XML_C14N_UNKNOW_NODE, extra,
+		   "Unknown node type %d found : %s\n", node_type, extra);
 }
 
 /**
  * xmlC14NErrRelativeNamespace:
  * @extra:  extra information
  *
- * Handle a redefinition of relative namespace error
+ * Handle a relative namespace error
  */
 static void
-xmlC14NErrRelativeNamespace(const char *ns_uri)
+xmlC14NErrRelativeNamespace(xmlC14NCtxPtr ctxt, const char *ns_uri)
 {
-    __xmlRaiseError(NULL, NULL, NULL, NULL, NULL, XML_FROM_C14N,
-		    XML_C14N_RELATIVE_NAMESPACE, XML_ERR_ERROR, NULL, 0, NULL,
-		    NULL, NULL, 0, 0,
-		    "Relative namespace UR is invalid here : %s\n", ns_uri);
+    xmlC14NErrFull(ctxt, NULL, XML_C14N_RELATIVE_NAMESPACE, ns_uri,
+		   "Relative namespace UR is invalid here : %s\n", ns_uri);
 }
 
 
@@ -228,18 +225,13 @@ xmlC14NErrRelativeNamespace(const char *ns_uri)
  * @msg:  the message
  * @extra:  extra information
  *
- * Handle a redefinition of attribute error
+ * Handle an error
  */
 static void
 xmlC14NErr(xmlC14NCtxPtr ctxt, xmlNodePtr node, int error,
            const char * msg)
 {
-    if (ctxt != NULL)
-        ctxt->error = error;
-    __xmlRaiseError(NULL, NULL, NULL,
-		    ctxt, node, XML_FROM_C14N, error,
-		    XML_ERR_ERROR, NULL, 0,
-		    NULL, NULL, NULL, 0, 0, "%s", msg);
+    xmlC14NErrFull(ctxt, node, error, NULL, "%s", msg);
 }
 
 /************************************************************************
@@ -282,18 +274,16 @@ xmlC14NVisibleNsStackCreate(void) {
     xmlC14NVisibleNsStackPtr ret;
 
     ret = (xmlC14NVisibleNsStackPtr) xmlMalloc(sizeof(xmlC14NVisibleNsStack));
-    if (ret == NULL) {
-        xmlC14NErrMemory("creating namespaces stack");
+    if (ret == NULL)
 	return(NULL);
-    }
-    memset(ret, 0 , (size_t) sizeof(xmlC14NVisibleNsStack));
+    memset(ret, 0, sizeof(xmlC14NVisibleNsStack));
     return(ret);
 }
 
 static void
 xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur) {
     if(cur == NULL) {
-        xmlC14NErrParam("destroying namespaces stack");
+        xmlC14NErrParam(NULL);
         return;
     }
     if(cur->nsTab != NULL) {
@@ -309,22 +299,18 @@ xmlC14NVisibleNsStackDestroy(xmlC14NVisibleNsStackPtr cur) {
 
 }
 
-static void
+static int
 xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlNodePtr node) {
     if((cur == NULL) ||
        ((cur->nsTab == NULL) && (cur->nodeTab != NULL)) ||
-       ((cur->nsTab != NULL) && (cur->nodeTab == NULL))) {
-        xmlC14NErrParam("adding namespace to stack");
-	return;
-    }
+       ((cur->nsTab != NULL) && (cur->nodeTab == NULL)))
+	return (1);
 
     if ((cur->nsTab == NULL) && (cur->nodeTab == NULL)) {
         cur->nsTab = (xmlNsPtr*) xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
         cur->nodeTab = (xmlNodePtr*) xmlMalloc(XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
-	if ((cur->nsTab == NULL) || (cur->nodeTab == NULL)) {
-	    xmlC14NErrMemory("adding node to stack");
-	    return;
-	}
+	if ((cur->nsTab == NULL) || (cur->nodeTab == NULL))
+	    return (-1);
 	memset(cur->nsTab, 0 , XML_NAMESPACES_DEFAULT * sizeof(xmlNsPtr));
 	memset(cur->nodeTab, 0 , XML_NAMESPACES_DEFAULT * sizeof(xmlNodePtr));
         cur->nsMax = XML_NAMESPACES_DEFAULT;
@@ -334,17 +320,13 @@ xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlNodePtr n
 
 	tmpSize = 2 * cur->nsMax;
 	tmp = xmlRealloc(cur->nsTab, tmpSize * sizeof(xmlNsPtr));
-	if (tmp == NULL) {
-	    xmlC14NErrMemory("adding node to stack");
-	    return;
-	}
+	if (tmp == NULL)
+	    return (-1);
 	cur->nsTab = (xmlNsPtr*)tmp;
 
 	tmp = xmlRealloc(cur->nodeTab, tmpSize * sizeof(xmlNodePtr));
-	if (tmp == NULL) {
-	    xmlC14NErrMemory("adding node to stack");
-	    return;
-	}
+	if (tmp == NULL)
+	    return (-1);
 	cur->nodeTab = (xmlNodePtr*)tmp;
 
 	cur->nsMax = tmpSize;
@@ -353,12 +335,14 @@ xmlC14NVisibleNsStackAdd(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlNodePtr n
     cur->nodeTab[cur->nsCurEnd] = node;
 
     ++cur->nsCurEnd;
+
+    return (0);
 }
 
 static void
 xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state) {
     if((cur == NULL) || (state == NULL)) {
-        xmlC14NErrParam("saving namespaces stack");
+        xmlC14NErrParam(NULL);
 	return;
     }
 
@@ -370,7 +354,7 @@ xmlC14NVisibleNsStackSave(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr
 static void
 xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStackPtr state) {
     if((cur == NULL) || (state == NULL)) {
-        xmlC14NErrParam("restoring namespaces stack");
+        xmlC14NErrParam(NULL);
 	return;
     }
     cur->nsCurEnd = state->nsCurEnd;
@@ -381,7 +365,7 @@ xmlC14NVisibleNsStackRestore(xmlC14NVisibleNsStackPtr cur, xmlC14NVisibleNsStack
 static void
 xmlC14NVisibleNsStackShift(xmlC14NVisibleNsStackPtr cur) {
     if(cur == NULL) {
-        xmlC14NErrParam("shifting namespaces stack");
+        xmlC14NErrParam(NULL);
 	return;
     }
     cur->nsPrevStart = cur->nsPrevEnd;
@@ -417,7 +401,7 @@ xmlC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns)
     int has_empty_ns;
 
     if(cur == NULL) {
-        xmlC14NErrParam("searching namespaces stack (c14n)");
+        xmlC14NErrParam(NULL);
         return (0);
     }
 
@@ -450,7 +434,7 @@ xmlExcC14NVisibleNsStackFind(xmlC14NVisibleNsStackPtr cur, xmlNsPtr ns, xmlC14NC
     int has_empty_ns;
 
     if(cur == NULL) {
-        xmlC14NErrParam("searching namespaces stack (exc c14n)");
+        xmlC14NErrParam(ctx);
         return (0);
     }
 
@@ -514,8 +498,8 @@ xmlC14NIsXmlNs(xmlNsPtr ns)
 static int
 xmlC14NNsCompare(const void *data1, const void *data2)
 {
-    const xmlNsPtr ns1 = (const xmlNsPtr) data1;
-    const xmlNsPtr ns2 = (const xmlNsPtr) data2;
+    const xmlNs *ns1 = data1;
+    const xmlNs *ns2 = data2;
     if (ns1 == ns2)
         return (0);
     if (ns1 == NULL)
@@ -537,11 +521,11 @@ xmlC14NNsCompare(const void *data1, const void *data2)
  * Returns 1 on success or 0 on fail.
  */
 static int
-xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
+xmlC14NPrintNamespaces(const xmlNs *ns, xmlC14NCtxPtr ctx)
 {
 
     if ((ns == NULL) || (ctx == NULL)) {
-        xmlC14NErrParam("writing namespaces");
+        xmlC14NErrParam(ctx);
         return 0;
     }
 
@@ -553,7 +537,7 @@ xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
         xmlOutputBufferWriteString(ctx->buf, " xmlns=");
     }
     if(ns->href != NULL) {
-	xmlBufWriteQuotedString(ctx->buf->buffer, ns->href);
+	xmlOutputBufferWriteQuotedString(ctx->buf, ns->href);
     } else {
     	xmlOutputBufferWriteString(ctx->buf, "\"\"");
     }
@@ -562,7 +546,7 @@ xmlC14NPrintNamespaces(const xmlNsPtr ns, xmlC14NCtxPtr ctx)
 
 static int
 xmlC14NPrintNamespacesWalker(const void *ns, void *ctx) {
-    return xmlC14NPrintNamespaces((const xmlNsPtr) ns, (xmlC14NCtxPtr) ctx);
+    return xmlC14NPrintNamespaces(ns, ctx);
 }
 
 /**
@@ -614,7 +598,7 @@ xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     int has_empty_ns = 0;
 
     if ((ctx == NULL) || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
-        xmlC14NErrParam("processing namespaces axis (c14n)");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -623,7 +607,7 @@ xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
      */
     list = xmlListCreate(NULL, xmlC14NNsCompare);
     if (list == NULL) {
-        xmlC14NErrInternal("creating namespaces list (c14n)");
+        xmlC14NErrMemory(ctx);
         return (-1);
     }
 
@@ -635,7 +619,10 @@ xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	    if((tmp == ns) && !xmlC14NIsXmlNs(ns) && xmlC14NIsVisible(ctx, ns, cur)) {
 		already_rendered = xmlC14NVisibleNsStackFind(ctx->ns_rendered, ns);
 		if(visible) {
-	    xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur);
+	            if (xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur) < 0) {
+                        xmlC14NErrMemory(ctx);
+                        goto error;
+                    }
 		}
 		if(!already_rendered) {
 		    xmlListInsert(list, ns);
@@ -674,6 +661,7 @@ xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     /*
      * Cleanup
      */
+error:
     xmlListDelete(list);
     return (0);
 }
@@ -721,12 +709,12 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     int has_empty_ns_in_inclusive_list = 0;
 
     if ((ctx == NULL) || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
-        xmlC14NErrParam("processing namespaces axis (exc c14n)");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
     if(!xmlC14NIsExclusive(ctx)) {
-        xmlC14NErrParam("processing namespaces axis (exc c14n)");
+        xmlC14NErrParam(ctx);
         return (-1);
 
     }
@@ -736,7 +724,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
      */
     list = xmlListCreate(NULL, xmlC14NNsCompare);
     if (list == NULL) {
-        xmlC14NErrInternal("creating namespaces list (exc c14n)");
+        xmlC14NErrMemory(ctx);
         return (-1);
     }
 
@@ -764,7 +752,10 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	    if((ns != NULL) && !xmlC14NIsXmlNs(ns) && xmlC14NIsVisible(ctx, ns, cur)) {
 		already_rendered = xmlC14NVisibleNsStackFind(ctx->ns_rendered, ns);
 		if(visible) {
-		    xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur);
+		    if (xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur) < 0) {
+                        xmlC14NErrMemory(ctx);
+                        goto error;
+                    }
 		}
 		if(!already_rendered) {
 		    xmlListInsert(list, ns);
@@ -790,7 +781,10 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
 	    }
 	}
 	if(visible) {
-	    xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur);
+	    if (xmlC14NVisibleNsStackAdd(ctx->ns_rendered, ns, cur) < 0) {
+                xmlC14NErrMemory(ctx);
+                goto error;
+            }
 	}
 	if(xmlStrlen(ns->prefix) == 0) {
 	    has_empty_ns = 1;
@@ -807,7 +801,10 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
          */
 	if((attr->ns != NULL) && !xmlC14NIsXmlNs(attr->ns) && xmlC14NIsVisible(ctx, attr, cur)) {
 	    already_rendered = xmlExcC14NVisibleNsStackFind(ctx->ns_rendered, attr->ns, ctx);
-	    xmlC14NVisibleNsStackAdd(ctx->ns_rendered, attr->ns, cur);
+	    if (xmlC14NVisibleNsStackAdd(ctx->ns_rendered, attr->ns, cur) < 0) {
+                xmlC14NErrMemory(ctx);
+                goto error;
+            }
 	    if(!already_rendered && visible) {
 		xmlListInsert(list, attr->ns);
 	    }
@@ -851,6 +848,7 @@ xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     /*
      * Cleanup
      */
+error:
     xmlListDelete(list);
     return (0);
 }
@@ -887,8 +885,8 @@ xmlC14NIsXmlAttr(xmlAttrPtr attr)
 static int
 xmlC14NAttrsCompare(const void *data1, const void *data2)
 {
-    const xmlAttrPtr attr1 = (const xmlAttrPtr) data1;
-    const xmlAttrPtr attr2 = (const xmlAttrPtr) data2;
+    const xmlAttr *attr1 = data1;
+    const xmlAttr *attr2 = data2;
     int ret = 0;
 
     /*
@@ -941,13 +939,13 @@ xmlC14NAttrsCompare(const void *data1, const void *data2)
 static int
 xmlC14NPrintAttrs(const void *data, void *user)
 {
-    const xmlAttrPtr attr = (const xmlAttrPtr) data;
+    const xmlAttr *attr = data;
     xmlC14NCtxPtr ctx = (xmlC14NCtxPtr) user;
     xmlChar *value;
     xmlChar *buffer;
 
     if ((attr == NULL) || (ctx == NULL)) {
-        xmlC14NErrParam("writing attributes");
+        xmlC14NErrParam(ctx);
         return (0);
     }
 
@@ -969,7 +967,7 @@ xmlC14NPrintAttrs(const void *data, void *user)
             xmlOutputBufferWriteString(ctx->buf, (const char *) buffer);
             xmlFree(buffer);
         } else {
-            xmlC14NErrInternal("normalizing attributes axis");
+            xmlC14NErrMemory(ctx);
             return (0);
         }
     }
@@ -1018,20 +1016,22 @@ xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
     int tmp_str_len;
 
     if ((ctx == NULL) || (xml_base_attr == NULL) || (xml_base_attr->parent == NULL)) {
-        xmlC14NErrParam("processing xml:base attribute");
+        xmlC14NErrParam(ctx);
         return (NULL);
     }
 
     /* start from current value */
     res = xmlNodeListGetString(ctx->doc, xml_base_attr->children, 1);
     if(res == NULL) {
-        xmlC14NErrInternal("processing xml:base attribute - can't get attr value");
+        xmlC14NErrMemory(ctx);
         return (NULL);
     }
 
     /* go up the stack until we find a node that we rendered already */
     cur = xml_base_attr->parent->parent;
     while((cur != NULL) && (!xmlC14NIsVisible(ctx, cur, cur->parent))) {
+        int code;
+
         attr = xmlHasNsProp(cur, BAD_CAST "base", XML_XML_NAMESPACE);
         if(attr != NULL) {
             /* get attr value */
@@ -1039,7 +1039,7 @@ xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
             if(tmp_str == NULL) {
                 xmlFree(res);
 
-                xmlC14NErrInternal("processing xml:base attribute - can't get attr value");
+                xmlC14NErrMemory(ctx);
                 return (NULL);
             }
 
@@ -1052,7 +1052,7 @@ xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
                     xmlFree(tmp_str);
                     xmlFree(res);
 
-                    xmlC14NErrInternal("processing xml:base attribute - can't modify uri");
+                    xmlC14NErrMemory(ctx);
                     return (NULL);
                 }
 
@@ -1060,12 +1060,17 @@ xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
             }
 
             /* build uri */
-            tmp_str2 = xmlBuildURI(res, tmp_str);
-            if(tmp_str2 == NULL) {
+            code = xmlBuildURISafe(res, tmp_str, &tmp_str2);
+            if (code != 0) {
                 xmlFree(tmp_str);
                 xmlFree(res);
 
-                xmlC14NErrInternal("processing xml:base attribute - can't construct uri");
+                if (code < 0)
+                    xmlC14NErrMemory(ctx);
+                else
+                    xmlC14NErr(ctx, cur, XML_ERR_INVALID_URI,
+                               "processing xml:base attribute - "
+                               "can't construct uri");
                 return (NULL);
             }
 
@@ -1090,7 +1095,7 @@ xmlC14NFixupBaseAttr(xmlC14NCtxPtr ctx, xmlAttrPtr xml_base_attr)
     if(attr == NULL) {
         xmlFree(res);
 
-        xmlC14NErrInternal("processing xml:base attribute - can't construct attribute");
+        xmlC14NErrMemory(ctx);
         return (NULL);
     }
 
@@ -1145,7 +1150,7 @@ xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
     xmlAttrPtr xml_space_attr = NULL;
 
     if ((ctx == NULL) || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
-        xmlC14NErrParam("processing attributes axis");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -1154,7 +1159,7 @@ xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNodePtr cur, int parent_visible)
      */
     list = xmlListCreate(NULL, xmlC14NAttrsCompare);
     if (list == NULL) {
-        xmlC14NErrInternal("creating attributes list");
+        xmlC14NErrMemory(ctx);
         return (-1);
     }
 
@@ -1366,7 +1371,7 @@ xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNodePtr cur)
     xmlNsPtr ns;
 
     if ((ctx == NULL) || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
-        xmlC14NErrParam("checking for relative namespaces");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -1374,14 +1379,19 @@ xmlC14NCheckForRelativeNamespaces(xmlC14NCtxPtr ctx, xmlNodePtr cur)
     while (ns != NULL) {
         if (xmlStrlen(ns->href) > 0) {
             xmlURIPtr uri;
+            int code;
 
-            uri = xmlParseURI((const char *) ns->href);
+            code = xmlParseURISafe((const char *) ns->href, &uri);
             if (uri == NULL) {
-                xmlC14NErrInternal("parsing namespace uri");
+                if (code < 0)
+                    xmlC14NErrMemory(ctx);
+                else
+                    xmlC14NErr(ctx, cur, XML_ERR_INVALID_URI,
+                               "parsing namespace uri");
                 return (-1);
             }
             if (xmlStrlen((const xmlChar *) uri->scheme) == 0) {
-                xmlC14NErrRelativeNamespace(uri->scheme);
+                xmlC14NErrRelativeNamespace(ctx, uri->scheme);
                 xmlFreeURI(uri);
                 return (-1);
             }
@@ -1423,7 +1433,7 @@ xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     int parent_is_doc = 0;
 
     if ((ctx == NULL) || (cur == NULL) || (cur->type != XML_ELEMENT_NODE)) {
-        xmlC14NErrParam("processing element node");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -1432,11 +1442,8 @@ xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
      * implementations of XML canonicalization MUST report an operation
      * failure on documents containing relative namespace URIs.
      */
-    if (xmlC14NCheckForRelativeNamespaces(ctx, cur) < 0) {
-        xmlC14NErrInternal("checking for relative namespaces");
+    if (xmlC14NCheckForRelativeNamespaces(ctx, cur) < 0)
         return (-1);
-    }
-
 
     /*
      * Save ns_rendered stack position
@@ -1466,30 +1473,24 @@ xmlC14NProcessElementNode(xmlC14NCtxPtr ctx, xmlNodePtr cur, int visible)
     } else {
         ret = xmlExcC14NProcessNamespacesAxis(ctx, cur, visible);
     }
-    if (ret < 0) {
-        xmlC14NErrInternal("processing namespaces axis");
+    if (ret < 0)
         return (-1);
-    }
     /* todo: shouldn't this go to "visible only"? */
     if(visible) {
 	xmlC14NVisibleNsStackShift(ctx->ns_rendered);
     }
 
     ret = xmlC14NProcessAttrsAxis(ctx, cur, visible);
-    if (ret < 0) {
-	xmlC14NErrInternal("processing attributes axis");
+    if (ret < 0)
 	return (-1);
-    }
 
     if (visible) {
         xmlOutputBufferWriteString(ctx->buf, ">");
     }
     if (cur->children != NULL) {
         ret = xmlC14NProcessNodeList(ctx, cur->children);
-        if (ret < 0) {
-            xmlC14NErrInternal("processing childrens list");
+        if (ret < 0)
             return (-1);
-        }
     }
     if (visible) {
         xmlOutputBufferWriteString(ctx->buf, "</");
@@ -1530,7 +1531,7 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
     int visible;
 
     if ((ctx == NULL) || (cur == NULL)) {
-        xmlC14NErrParam("processing node");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -1559,7 +1560,7 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
                                                (const char *) buffer);
                     xmlFree(buffer);
                 } else {
-                    xmlC14NErrInternal("normalizing text node");
+                    xmlC14NErrMemory(ctx);
                     return (-1);
                 }
             }
@@ -1598,7 +1599,7 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
                                                    (const char *) buffer);
                         xmlFree(buffer);
                     } else {
-                        xmlC14NErrInternal("normalizing pi node");
+                        xmlC14NErrMemory(ctx);
                         return (-1);
                     }
                 }
@@ -1643,7 +1644,7 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
                                                    (const char *) buffer);
                         xmlFree(buffer);
                     } else {
-                        xmlC14NErrInternal("normalizing comment node");
+                        xmlC14NErrMemory(ctx);
                         return (-1);
                     }
                 }
@@ -1668,16 +1669,16 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
             break;
 
         case XML_ATTRIBUTE_NODE:
-            xmlC14NErrInvalidNode("XML_ATTRIBUTE_NODE", "processing node");
+            xmlC14NErrInvalidNode(ctx, "XML_ATTRIBUTE_NODE", "processing node");
             return (-1);
         case XML_NAMESPACE_DECL:
-            xmlC14NErrInvalidNode("XML_NAMESPACE_DECL", "processing node");
+            xmlC14NErrInvalidNode(ctx, "XML_NAMESPACE_DECL", "processing node");
             return (-1);
         case XML_ENTITY_REF_NODE:
-            xmlC14NErrInvalidNode("XML_ENTITY_REF_NODE", "processing node");
+            xmlC14NErrInvalidNode(ctx, "XML_ENTITY_REF_NODE", "processing node");
             return (-1);
         case XML_ENTITY_NODE:
-            xmlC14NErrInvalidNode("XML_ENTITY_NODE", "processing node");
+            xmlC14NErrInvalidNode(ctx, "XML_ENTITY_NODE", "processing node");
             return (-1);
 
         case XML_DOCUMENT_TYPE_NODE:
@@ -1695,7 +1696,7 @@ xmlC14NProcessNode(xmlC14NCtxPtr ctx, xmlNodePtr cur)
              */
             break;
         default:
-            xmlC14NErrUnknownNode(cur->type, "processing node");
+            xmlC14NErrUnknownNode(ctx, cur->type, "processing node");
             return (-1);
     }
 
@@ -1717,7 +1718,7 @@ xmlC14NProcessNodeList(xmlC14NCtxPtr ctx, xmlNodePtr cur)
     int ret;
 
     if (ctx == NULL) {
-        xmlC14NErrParam("processing node list");
+        xmlC14NErrParam(ctx);
         return (-1);
     }
 
@@ -1739,7 +1740,7 @@ static void
 xmlC14NFreeCtx(xmlC14NCtxPtr ctx)
 {
     if (ctx == NULL) {
-        xmlC14NErrParam("freeing context");
+        xmlC14NErrParam(ctx);
         return;
     }
 
@@ -1779,7 +1780,7 @@ xmlC14NNewCtx(xmlDocPtr doc,
     xmlC14NCtxPtr ctx = NULL;
 
     if ((doc == NULL) || (buf == NULL)) {
-        xmlC14NErrParam("creating new context");
+        xmlC14NErrParam(ctx);
         return (NULL);
     }
 
@@ -1797,7 +1798,7 @@ xmlC14NNewCtx(xmlDocPtr doc,
      */
     ctx = (xmlC14NCtxPtr) xmlMalloc(sizeof(xmlC14NCtx));
     if (ctx == NULL) {
-	xmlC14NErrMemory("creating context");
+	xmlC14NErrMemory(ctx);
         return (NULL);
     }
     memset(ctx, 0, sizeof(xmlC14NCtx));
@@ -1815,8 +1816,7 @@ xmlC14NNewCtx(xmlDocPtr doc,
     ctx->ns_rendered = xmlC14NVisibleNsStackCreate();
 
     if(ctx->ns_rendered == NULL) {
-        xmlC14NErr(ctx, (xmlNodePtr) doc, XML_C14N_CREATE_STACK,
-		   "xmlC14NNewCtx: xmlC14NVisibleNsStackCreate failed\n");
+        xmlC14NErrMemory(ctx);
 	xmlC14NFreeCtx(ctx);
         return (NULL);
     }
@@ -1829,6 +1829,7 @@ xmlC14NNewCtx(xmlDocPtr doc,
     if(xmlC14NIsExclusive(ctx)) {
         ctx->inclusive_ns_prefixes = inclusive_ns_prefixes;
     }
+
     return (ctx);
 }
 
@@ -1865,7 +1866,7 @@ xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
     int ret;
 
     if ((buf == NULL) || (doc == NULL)) {
-        xmlC14NErrParam("executing c14n");
+        xmlC14NErrParam(NULL);
         return (-1);
     }
 
@@ -1878,7 +1879,7 @@ xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
          c14n_mode = (xmlC14NMode)mode;
          break;
     default:
-        xmlC14NErrParam("invalid mode for executing c14n");
+        xmlC14NErrParam(NULL);
         return (-1);
     }
 
@@ -1913,7 +1914,6 @@ xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
     if (doc->children != NULL) {
         ret = xmlC14NProcessNodeList(ctx, doc->children);
         if (ret < 0) {
-            xmlC14NErrInternal("processing docs children list");
             xmlC14NFreeCtx(ctx);
             return (-1);
         }
@@ -1924,7 +1924,7 @@ xmlC14NExecute(xmlDocPtr doc, xmlC14NIsVisibleCallback is_visible_callback,
      */
     ret = xmlOutputBufferFlush(buf);
     if (ret < 0) {
-        xmlC14NErrInternal("flushing output buffer");
+        xmlC14NErr(ctx, NULL, buf->error, "flushing output buffer");
         xmlC14NFreeCtx(ctx);
         return (-1);
     }
@@ -2001,7 +2001,7 @@ xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes,
     xmlOutputBufferPtr buf;
 
     if (doc_txt_ptr == NULL) {
-        xmlC14NErrParam("dumping doc to memory");
+        xmlC14NErrParam(NULL);
         return (-1);
     }
 
@@ -2012,7 +2012,7 @@ xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes,
      */
     buf = xmlAllocOutputBuffer(NULL);
     if (buf == NULL) {
-        xmlC14NErrMemory("creating output buffer");
+        xmlC14NErrMemory(NULL);
         return (-1);
     }
 
@@ -2022,7 +2022,6 @@ xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes,
     ret = xmlC14NDocSaveTo(doc, nodes, mode, inclusive_ns_prefixes,
                            with_comments, buf);
     if (ret < 0) {
-        xmlC14NErrInternal("saving doc to output buffer");
         (void) xmlOutputBufferClose(buf);
         return (-1);
     }
@@ -2034,7 +2033,7 @@ xmlC14NDocDumpMemory(xmlDocPtr doc, xmlNodeSetPtr nodes,
     (void) xmlOutputBufferClose(buf);
 
     if ((*doc_txt_ptr == NULL) && (ret >= 0)) {
-        xmlC14NErrMemory("copying canonicalized document");
+        xmlC14NErrMemory(NULL);
         return (-1);
     }
     return (ret);
@@ -2072,7 +2071,7 @@ xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
     int ret;
 
     if (filename == NULL) {
-        xmlC14NErrParam("saving doc");
+        xmlC14NErrParam(NULL);
         return (-1);
     }
 #ifdef LIBXML_ZLIB_ENABLED
@@ -2085,7 +2084,7 @@ xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
      */
     buf = xmlOutputBufferCreateFilename(filename, NULL, compression);
     if (buf == NULL) {
-        xmlC14NErrInternal("creating temporary filename");
+        xmlC14NErr(NULL, NULL, XML_IO_UNKNOWN, "creating temporary filename");
         return (-1);
     }
 
@@ -2095,7 +2094,6 @@ xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
     ret = xmlC14NDocSaveTo(doc, nodes, mode, inclusive_ns_prefixes,
                            with_comments, buf);
     if (ret < 0) {
-        xmlC14NErrInternal("canonize document to buffer");
         (void) xmlOutputBufferClose(buf);
         return (-1);
     }
@@ -2105,21 +2103,6 @@ xmlC14NDocSave(xmlDocPtr doc, xmlNodeSetPtr nodes,
      */
     ret = xmlOutputBufferClose(buf);
     return (ret);
-}
-
-
-
-/*
- * Macro used to grow the current buffer.
- */
-#define growBufferReentrant() {						\
-    buffer_size *= 2;							\
-    buffer = (xmlChar *)						\
-		xmlRealloc(buffer, buffer_size * sizeof(xmlChar));	\
-    if (buffer == NULL) {						\
-	xmlC14NErrMemory("growing buffer");				\
-	return(NULL);							\
-    }									\
 }
 
 /**
@@ -2150,18 +2133,23 @@ xmlC11NNormalizeString(const xmlChar * input,
      * allocate an translation buffer.
      */
     buffer_size = 1000;
-    buffer = (xmlChar *) xmlMallocAtomic(buffer_size * sizeof(xmlChar));
-    if (buffer == NULL) {
-	xmlC14NErrMemory("allocating buffer");
+    buffer = (xmlChar *) xmlMallocAtomic(buffer_size);
+    if (buffer == NULL)
         return (NULL);
-    }
     out = buffer;
 
     while (*cur != '\0') {
         if ((out - buffer) > (buffer_size - 10)) {
+            xmlChar *tmp;
             int indx = out - buffer;
 
-            growBufferReentrant();
+            buffer_size *= 2;
+            tmp = xmlRealloc(buffer, buffer_size);
+            if (tmp == NULL) {
+                xmlFree(buffer);
+                return(NULL);
+            }
+            buffer = tmp;
             out = &buffer[indx];
         }
 
@@ -2223,6 +2211,5 @@ xmlC11NNormalizeString(const xmlChar * input,
     *out = 0;
     return (buffer);
 }
-#endif /* LIBXML_OUTPUT_ENABLED */
 
 #endif /* LIBXML_C14N_ENABLED */

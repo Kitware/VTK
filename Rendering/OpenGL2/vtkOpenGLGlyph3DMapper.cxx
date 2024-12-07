@@ -1043,7 +1043,7 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow* window)
 vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
 {
 #ifndef GL_ES_VERSION_3_0
-  if (!GLEW_ARB_gpu_shader5 || !GLEW_ARB_transform_feedback3)
+  if (!GLAD_GL_ARB_gpu_shader5 || !GLAD_GL_ARB_transform_feedback3)
   {
     return 0;
   }

@@ -323,43 +323,72 @@ bool ConnectivityNeedsPermutation(vtkDGCell* meta, int ioss_cell_points,
   return !permutation.empty();
 }
 
-bool GetConnectivity(Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkDGCell* meta,
-  int ioss_cell_points, vtkIOSSUtilities::Cache* cache)
+bool GetConnectivity(const Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkDGCell* meta,
+  int ioss_cell_points, int spec_index, const std::string& group_name,
+  vtkIOSSUtilities::Cache* cache)
 {
   if (!group_entity || !meta)
   {
     return false;
   }
-  auto& cellSpec = meta->GetCellSpec();
+  auto& sourceSpec = meta->GetCellSource(spec_index);
   if (cache)
   {
-    cellSpec.Connectivity =
+    sourceSpec.Connectivity =
       vtkDataArray::SafeDownCast(cache->Find(group_entity, "__vtk_cell_connectivity__"));
-    cellSpec.NodalGhostMarks =
+    sourceSpec.NodalGhostMarks =
       vtkDataArray::SafeDownCast(cache->Find(group_entity, "__vtk_point_ghosts__"));
   }
 
-  if (!cellSpec.Connectivity)
+  if (!sourceSpec.Connectivity)
   {
     std::vector<int> permutation;
     auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
     transform->set_property("offset", -1);
     auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
-    // Transfer ownership to a vtkDataSetAttributes instance:
-    grid->GetAttributes(meta->GetClassName())->AddArray(ids_raw);
-    if (ConnectivityNeedsPermutation(meta, ioss_cell_points, /* ioss_cell_order, */ permutation))
+    if (spec_index < 0)
     {
-      SwizzleComponents(ids_raw, permutation);
+      // Transfer ownership to a vtkDataSetAttributes instance:
+      grid->GetAttributes(meta->GetClassName())->AddArray(ids_raw);
+      // Permute nodal connectivity to match shape function order in vtkDGCell.
+      if (ConnectivityNeedsPermutation(meta, ioss_cell_points, /* ioss_cell_order, */ permutation))
+      {
+        SwizzleComponents(ids_raw, permutation);
+      }
+    }
+    else
+    {
+      // Add the side-connectivity to the specified group_name instead of the
+      // per-cell group.
+      grid->GetAttributes(group_name)->AddArray(ids_raw);
+#if 0
+      if (SidesNeedPermutation(meta, group_entity, group_name, permutation))
+      {
+        SwizzleComponents(ids_raw, permutation);
+      }
+#endif
     }
     ids_raw->SetNumberOfComponents(ioss_cell_points);
-    cellSpec.Connectivity = ids_raw;
+    sourceSpec.Connectivity = ids_raw;
     if (cache)
     {
-      cache->Insert(group_entity, "__vtk_cell_connectivity__", cellSpec.Connectivity);
+      cache->Insert(group_entity, "__vtk_cell_connectivity__", sourceSpec.Connectivity);
+    }
+  }
+  else
+  {
+    // Need to add cached array to grid's vtkDataSetAttributes
+    if (spec_index < 0)
+    {
+      grid->GetAttributes(meta->GetClassName())->AddArray(sourceSpec.Connectivity);
+    }
+    else
+    {
+      grid->GetAttributes(group_name)->AddArray(sourceSpec.Connectivity);
     }
   }
 
-  if (!cellSpec.NodalGhostMarks)
+  if (!sourceSpec.NodalGhostMarks)
   {
     // TODO: In ThirdParty/ioss/vtkioss/: use Ioss_CommSet.h or possibly
     //       exodus/Ioex_DecompositionData to obtain ghost-node flags and
@@ -367,14 +396,18 @@ bool GetConnectivity(Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkD
 #if 0
     if (cache)
     {
-      cache->Insert(group_entity, "__vtk_cell_connectivity__", cellSpec.NodalGhostMarks);
+      cache->Insert(group_entity, "__vtk_point_ghosts__", sourceSpec.NodalGhostMarks);
     }
 #endif
   }
-  return !!cellSpec.Connectivity;
+  else
+  {
+    grid->GetAttributes("coordinates"_token)->AddArray(sourceSpec.NodalGhostMarks);
+  }
+  return !!sourceSpec.Connectivity;
 }
 
-vtkSmartPointer<vtkCellMetadata> GetCellMetadata(Ioss::GroupingEntity* group_entity,
+vtkSmartPointer<vtkCellMetadata> GetCellMetadata(const Ioss::GroupingEntity* group_entity,
   int& ioss_cell_points, int& ioss_cell_order, vtkCellGrid* cell_grid,
   vtkIOSSUtilities::Cache* cache)
 {
@@ -396,7 +429,7 @@ vtkSmartPointer<vtkCellMetadata> GetCellMetadata(Ioss::GroupingEntity* group_ent
   return metadata;
 }
 
-bool GetShape(Ioss::Region* region, Ioss::GroupingEntity* group_entity,
+bool GetShape(Ioss::Region* region, const Ioss::GroupingEntity* group_entity,
   vtkCellAttribute::CellTypeInfo& cellShapeInfo, int timestep, vtkDGCell* meta, vtkCellGrid* grid,
   vtkIOSSUtilities::Cache* cache)
 {
@@ -434,7 +467,9 @@ bool GetShape(Ioss::Region* region, Ioss::GroupingEntity* group_entity,
   vtkNew<vtkCellAttribute> attribute;
   attribute->Initialize("shape", "ℝ³", 3);
   cellShapeInfo.DOFSharing = "coordinates"_token; // Required for the shape attribute.
-  cellShapeInfo.FunctionSpace = "HGRAD"_token;    // Required for the shape attribute.
+  cellShapeInfo.FunctionSpace = meta->GetCellSpec().SourceShape == vtkDGCell::Shape::Vertex
+    ? "constant"_token
+    : "HGRAD"_token; // Required for the shape attribute.
   cellShapeInfo.ArraysByRole["connectivity"] = meta->GetCellSpec().Connectivity;
   cellShapeInfo.ArraysByRole["values"] = cached;
   attribute->SetCellTypeInfo(meta->GetClassName(), cellShapeInfo);

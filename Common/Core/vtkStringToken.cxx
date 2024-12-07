@@ -80,7 +80,8 @@ std::unordered_set<vtkStringToken> vtkStringToken::Children(bool recursive)
   std::unordered_set<vtkStringToken> result;
   auto* manager = token_NAMESPACE::Token::getManager();
   token_NAMESPACE::Manager::Visitor visitor = [&result, &manager, &visitor, recursive](
-                                                token_NAMESPACE::Hash member) {
+                                                token_NAMESPACE::Hash member)
+  {
     if (recursive && result.find(member) == result.end())
     {
       manager->visitMembers(visitor, member);
@@ -96,7 +97,8 @@ std::unordered_set<vtkStringToken> vtkStringToken::AllGroups()
 {
   std::unordered_set<vtkStringToken> result;
   auto* manager = token_NAMESPACE::Token::getManager();
-  token_NAMESPACE::Manager::Visitor visitor = [&result](token_NAMESPACE::Hash member) {
+  token_NAMESPACE::Manager::Visitor visitor = [&result](token_NAMESPACE::Hash member)
+  {
     result.insert(vtkStringToken(member));
     return token_NAMESPACE::Manager::Visit::Continue;
   };

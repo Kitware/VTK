@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkTestUtilities.h"
+#include "vtkRegressionTestImage.h"
 
 #include <vtkActor.h>
 #include <vtkCellData.h>
@@ -89,10 +89,10 @@ int TestCellScalarMappedColors(int argc, char* argv[])
 
   renWin->Render();
 
-  //   if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  const int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();
   }
-
-  return 0;
+  return !retVal;
 }

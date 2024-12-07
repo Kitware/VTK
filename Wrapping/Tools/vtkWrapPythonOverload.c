@@ -433,7 +433,7 @@ int* vtkWrapPython_ArgCountToOverloadMap(FunctionInfo** wrappedFunctions,
 /* output the method table for all overloads of a particular method,
  * this is also used to write out all constructors for the class */
 
-void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, ClassInfo* data,
+void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
   const int* overloadMap, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences)
 {

@@ -5,6 +5,7 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
+#include "vtkSMPTools.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -112,19 +113,23 @@ void vtkHomogeneousTransform::InternalTransformDerivative(
 void vtkHomogeneousTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
+  vtkIdType m = outPts->GetNumberOfPoints();
+  outPts->SetNumberOfPoints(m + n);
   double(*M)[4] = this->Matrix->Element;
-  double point[3];
 
   this->Update();
 
-  for (int i = 0; i < n; i++)
-  {
-    inPts->GetPoint(i, point);
-
-    vtkHomogeneousTransformPoint(M, point, point);
-
-    outPts->InsertNextPoint(point);
-  }
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
+    {
+      double point[3];
+      for (; ptId < endPtId; ++ptId)
+      {
+        inPts->GetPoint(ptId, point);
+        vtkHomogeneousTransformPoint(M, point, point);
+        outPts->SetPoint(m + ptId, point);
+      }
+    });
 }
 
 //------------------------------------------------------------------------------
@@ -138,63 +143,81 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints* inPts, vt
   vtkDataArray* inNms, vtkDataArray* outNms, vtkDataArray* inVrs, vtkDataArray* outVrs,
   int nOptionalVectors, vtkDataArray** inVrsArr, vtkDataArray** outVrsArr)
 {
-  vtkIdType n = inPts->GetNumberOfPoints();
   double(*M)[4] = this->Matrix->Element;
   double L[4][4];
-  double inPnt[3], outPnt[3], inNrm[3], outNrm[3], inVec[3], outVec[3];
-  double w;
 
   this->Update();
 
+  vtkIdType n = inPts->GetNumberOfPoints();
+  vtkIdType m = outPts->GetNumberOfPoints();
+  outPts->SetNumberOfPoints(m + n);
+  if (inVrs)
+  {
+    outVrs->SetNumberOfTuples(m + n);
+  }
+  if (inVrsArr)
+  {
+    for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+    {
+      outVrsArr[iArr]->SetNumberOfTuples(m + n);
+    }
+  }
   if (inNms)
-  { // need inverse of the matrix to calculate normals
+  {
+    outNms->SetNumberOfTuples(m + n);
+    // need inverse of the matrix to calculate normals
     vtkMatrix4x4::DeepCopy(*L, this->Matrix);
     vtkMatrix4x4::Invert(*L, *L);
     vtkMatrix4x4::Transpose(*L, *L);
   }
 
-  for (int i = 0; i < n; i++)
-  {
-    inPts->GetPoint(i, inPnt);
-
-    // do the coordinate transformation, get 1/w
-    double f = vtkHomogeneousTransformPoint(M, inPnt, outPnt);
-    outPts->InsertNextPoint(outPnt);
-
-    if (inVrs)
+  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
+    [&](vtkIdType ptId, vtkIdType endPtId)
     {
-      inVrs->GetTuple(i, inVec);
-      TransformVector(M, outPnt, f, inVec, outVec);
-      outVrs->InsertNextTuple(outVec);
-    }
-
-    if (inVrsArr)
-    {
-      for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+      double inPnt[3], outPnt[3], inNrm[3], outNrm[3], inVec[3], outVec[3];
+      for (; ptId < endPtId; ++ptId)
       {
-        inVrsArr[iArr]->GetTuple(i, inVec);
-        TransformVector(M, outPnt, f, inVec, outVec);
-        outVrsArr[iArr]->InsertNextTuple(outVec);
+        inPts->GetPoint(ptId, inPnt);
+
+        // do the coordinate transformation, get 1/w
+        double f = vtkHomogeneousTransformPoint(M, inPnt, outPnt);
+        outPts->SetPoint(m + ptId, outPnt);
+
+        if (inVrs)
+        {
+          inVrs->GetTuple(ptId, inVec);
+          TransformVector(M, outPnt, f, inVec, outVec);
+          outVrs->SetTuple(m + ptId, outVec);
+        }
+
+        if (inVrsArr)
+        {
+          for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+          {
+            inVrsArr[iArr]->GetTuple(ptId, inVec);
+            TransformVector(M, outPnt, f, inVec, outVec);
+            outVrsArr[iArr]->SetTuple(m + ptId, outVec);
+          }
+        }
+
+        if (inNms)
+        {
+          inNms->GetTuple(ptId, inNrm);
+
+          // calculate the w component of the normal
+          double w = -(inNrm[0] * inPnt[0] + inNrm[1] * inPnt[1] + inNrm[2] * inPnt[2]);
+
+          // perform the transformation in homogeneous coordinates
+          outNrm[0] = L[0][0] * inNrm[0] + L[0][1] * inNrm[1] + L[0][2] * inNrm[2] + L[0][3] * w;
+          outNrm[1] = L[1][0] * inNrm[0] + L[1][1] * inNrm[1] + L[1][2] * inNrm[2] + L[1][3] * w;
+          outNrm[2] = L[2][0] * inNrm[0] + L[2][1] * inNrm[1] + L[2][2] * inNrm[2] + L[2][3] * w;
+
+          // re-normalize
+          vtkMath::Normalize(outNrm);
+          outNms->SetTuple(m + ptId, outNrm);
+        }
       }
-    }
-
-    if (inNms)
-    {
-      inNms->GetTuple(i, inNrm);
-
-      // calculate the w component of the normal
-      w = -(inNrm[0] * inPnt[0] + inNrm[1] * inPnt[1] + inNrm[2] * inPnt[2]);
-
-      // perform the transformation in homogeneous coordinates
-      outNrm[0] = L[0][0] * inNrm[0] + L[0][1] * inNrm[1] + L[0][2] * inNrm[2] + L[0][3] * w;
-      outNrm[1] = L[1][0] * inNrm[0] + L[1][1] * inNrm[1] + L[1][2] * inNrm[2] + L[1][3] * w;
-      outNrm[2] = L[2][0] * inNrm[0] + L[2][1] * inNrm[1] + L[2][2] * inNrm[2] + L[2][3] * w;
-
-      // re-normalize
-      vtkMath::Normalize(outNrm);
-      outNms->InsertNextTuple(outNrm);
-    }
-  }
+    });
 }
 
 //------------------------------------------------------------------------------

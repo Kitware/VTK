@@ -2,6 +2,8 @@ NAME
   VTK::GUISupportQt
 LIBRARY_NAME
   vtkGUISupportQt
+DESCRIPTION
+  Make VTK render-windows, interactors, and widgets available to Qt applications.
 GROUPS
   Qt
 SPDX_LICENSE_IDENTIFIER
@@ -25,7 +27,6 @@ PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::FiltersExtraction
   VTK::InteractionStyle
-  VTK::opengl
 TEST_DEPENDS
   VTK::ChartsCore
   VTK::FiltersSources

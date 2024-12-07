@@ -71,5 +71,5 @@ public:
 #endif
 
 VTK_ABI_NAMESPACE_END
-#endif //# vtkXdmf3ArraySelection_h
+#endif // # vtkXdmf3ArraySelection_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h

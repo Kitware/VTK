@@ -215,23 +215,23 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Scalar Data
-  for (const auto& ScalarDataChunk : this->ScalarDataChunks)
+  for (const auto& scalarDataChunk : this->ScalarDataChunks)
   {
-    if (this->CellDataArraySelection->ArrayIsEnabled(ScalarDataChunk.variableName.c_str()))
+    if (this->CellDataArraySelection->ArrayIsEnabled(scalarDataChunk.variableName.c_str()))
     {
       for (size_t location = 0; location < this->CellZones.size(); location++)
       {
         vtkNew<vtkDoubleArray> v;
         unsigned int i = 0;
-        for (size_t m = 0; m < ScalarDataChunk.scalarData.size(); m++)
+        for (size_t m = 0; m < scalarDataChunk.scalarData.size(); m++)
         {
           if (this->Cells[m].zone == this->CellZones[location])
           {
-            v->InsertValue(static_cast<vtkIdType>(i), ScalarDataChunk.scalarData[m]);
+            v->InsertValue(static_cast<vtkIdType>(i), scalarDataChunk.scalarData[m]);
             i++;
           }
         }
-        v->SetName(ScalarDataChunk.variableName.c_str());
+        v->SetName(scalarDataChunk.variableName.c_str());
         grid[location]->GetCellData()->AddArray(v);
       }
     }
@@ -239,28 +239,28 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->ScalarDataChunks.clear();
 
   // Vector Data
-  for (const auto& VectorDataChunk : VectorDataChunks)
+  for (const auto& vectorDataChunk : VectorDataChunks)
   {
-    if (this->CellDataArraySelection->ArrayIsEnabled(VectorDataChunk.variableName.c_str()))
+    if (this->CellDataArraySelection->ArrayIsEnabled(vectorDataChunk.variableName.c_str()))
     {
       for (size_t location = 0; location < this->CellZones.size(); location++)
       {
         vtkNew<vtkDoubleArray> v;
-        v->SetNumberOfComponents(static_cast<int>(VectorDataChunk.dim));
-        for (size_t k = 0; k < VectorDataChunk.dim; k++)
+        v->SetNumberOfComponents(static_cast<int>(vectorDataChunk.dim));
+        for (size_t k = 0; k < vectorDataChunk.dim; k++)
         {
           unsigned int i = 0;
-          for (size_t m = 0; m < VectorDataChunk.vectorData.size() / VectorDataChunk.dim; m++)
+          for (size_t m = 0; m < vectorDataChunk.vectorData.size() / vectorDataChunk.dim; m++)
           {
             if (this->Cells[m].zone == this->CellZones[location])
             {
               v->InsertComponent(static_cast<vtkIdType>(i), static_cast<int>(k),
-                VectorDataChunk.vectorData[k + VectorDataChunk.dim * m]);
+                vectorDataChunk.vectorData[k + vectorDataChunk.dim * m]);
               i++;
             }
           }
         }
-        v->SetName(VectorDataChunk.variableName.c_str());
+        v->SetName(vectorDataChunk.variableName.c_str());
         grid[location]->GetCellData()->AddArray(v);
       }
     }
@@ -1681,7 +1681,7 @@ void vtkFLUENTCFFReader::PopulateCellTree()
     // If cell is parent cell -> interpolate data from children
     if (cell.parent == 1)
     {
-      for (auto& ScalarDataChunk : this->ScalarDataChunks)
+      for (auto& scalarDataChunk : this->ScalarDataChunks)
       {
         double data = 0.0;
         int ncell = 0;
@@ -1689,16 +1689,16 @@ void vtkFLUENTCFFReader::PopulateCellTree()
         {
           if (this->Cells[cell.childId[j]].parent == 0)
           {
-            data += ScalarDataChunk.scalarData[cell.childId[j]];
+            data += scalarDataChunk.scalarData[cell.childId[j]];
             ncell++;
           }
         }
-        ScalarDataChunk.scalarData.emplace_back(
+        scalarDataChunk.scalarData.emplace_back(
           (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
       }
-      for (auto& VectorDataChunk : this->VectorDataChunks)
+      for (auto& vectorDataChunk : this->VectorDataChunks)
       {
-        for (size_t k = 0; k < VectorDataChunk.dim; k++)
+        for (size_t k = 0; k < vectorDataChunk.dim; k++)
         {
           double data = 0.0;
           int ncell = 0;
@@ -1706,11 +1706,11 @@ void vtkFLUENTCFFReader::PopulateCellTree()
           {
             if (this->Cells[cell.childId[j]].parent == 0)
             {
-              data += VectorDataChunk.vectorData[k + VectorDataChunk.dim * cell.childId[j]];
+              data += vectorDataChunk.vectorData[k + vectorDataChunk.dim * cell.childId[j]];
               ncell++;
             }
           }
-          VectorDataChunk.vectorData.emplace_back(
+          vectorDataChunk.vectorData.emplace_back(
             (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
         }
       }

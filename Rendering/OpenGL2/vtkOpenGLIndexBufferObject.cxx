@@ -13,7 +13,7 @@
 #include "vtkProperty.h"
 #include "vtkUnsignedCharArray.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <set>
 

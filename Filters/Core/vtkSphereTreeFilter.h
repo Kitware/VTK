@@ -153,6 +153,8 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
+  void ReportReferences(vtkGarbageCollector*) override;
+
 private:
   vtkSphereTreeFilter(const vtkSphereTreeFilter&) = delete;
   void operator=(const vtkSphereTreeFilter&) = delete;

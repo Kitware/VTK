@@ -26,6 +26,8 @@
 
 #include "vtksys/Encoding.hxx"
 
+#include "vtkglad/include/glad/wgl.h"
+
 // Mouse wheel support
 // In an ideal world we would just have to include <zmouse.h>, but it is not
 // always available with all compilers/headers
@@ -307,14 +309,14 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
 //------------------------------------------------------------------------------
 bool vtkWin32OpenGLRenderWindow::SetSwapControl(int i)
 {
-  if (!wglewIsSupported("WGL_EXT_swap_control"))
+  if (!GLAD_WGL_EXT_swap_control)
   {
     return false;
   }
 
   if (i < 0)
   {
-    if (wglewIsSupported("WGL_EXT_swap_control_tear"))
+    if (GLAD_WGL_EXT_swap_control_tear)
     {
       wglSwapIntervalEXT(i);
       return true;
@@ -569,9 +571,6 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   return this->Capabilities;
 }
 
-typedef bool(APIENTRY* wglChoosePixelFormatARBType)(
-  HDC, const int*, const float*, unsigned int, int*, unsigned int*);
-
 //------------------------------------------------------------------------------
 void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   HDC hDC, DWORD dwFlags, int debug, int bpp, int zbpp)
@@ -594,16 +593,10 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       "failed to create temporary windows OpenGL context with error: " << GetLastError());
   }
 
-  // make sure glew is initialized with fake window
-  GLenum result = glewInit();
-  bool m_valid = (result == GLEW_OK);
-  if (!m_valid)
-  {
-    vtkErrorMacro("GLEW could not be initialized.");
-    return;
-  }
+  // make sure wgl extensions are initialized.
+  gladLoaderLoadWGL(tempDC);
 
-  // First we try to use the newer wglChoosePixelFormatARB
+  // use the newer wglChoosePixelFormatARB
   PIXELFORMATDESCRIPTOR pfd;
   int pixelFormat = 0;
   if (wglChoosePixelFormatARB)
@@ -627,12 +620,12 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       stereoAttributeIndex = n + 1;
       n += 2;
     }
-    if (this->UseSRGBColorSpace && WGLEW_EXT_framebuffer_sRGB)
+    if (this->UseSRGBColorSpace && GLAD_WGL_EXT_framebuffer_sRGB)
     {
       attrib[n++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT;
       attrib[n++] = TRUE;
     }
-    else if (this->UseSRGBColorSpace && WGLEW_ARB_framebuffer_sRGB)
+    else if (this->UseSRGBColorSpace && GLAD_WGL_ARB_framebuffer_sRGB)
     {
       attrib[n++] = WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB;
       attrib[n++] = TRUE;
@@ -674,9 +667,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     this->SetupPalette(hDC);
 
     // create a context
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
-      reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(
-        wglGetProcAddress("wglCreateContextAttribsARB"));
     this->ContextId = 0;
     if (wglCreateContextAttribsARB)
     {
@@ -734,7 +724,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   }
 
   // Delete the dummy window
-  wglMakeCurrent(tempDC, 0);
+  wglMakeCurrent(tempDC, nullptr);
   wglDeleteContext(tempContext);
   ReleaseDC(tempId, tempDC);
   ::DestroyWindow(tempId); // windows api
@@ -745,8 +735,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   {
     vtkErrorMacro("failed to get valid pixel format.");
   }
-
-  return;
 }
 
 //------------------------------------------------------------------------------

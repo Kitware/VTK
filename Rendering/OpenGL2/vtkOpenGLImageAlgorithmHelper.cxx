@@ -14,7 +14,7 @@
 #include "vtkPointData.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);

@@ -270,7 +270,7 @@ public:
   struct TextureInfo
   {
     int Index = -1;
-    int TexCoord;
+    int TexCoord = -1;
   };
 
   /**

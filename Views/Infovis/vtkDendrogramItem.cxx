@@ -697,8 +697,8 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D* painter)
     }
 
     std::string vertexName = vertexNames->GetValue(vertex);
-    if (this->SceneBottomLeft[0] < xStart && this->SceneTopRight[0] > xStart &&
-      this->SceneBottomLeft[1] < yStart && this->SceneTopRight[1] > yStart)
+    if (this->SceneBottomLeft[0]<xStart&& this->SceneTopRight[0]> xStart &&
+      this->SceneBottomLeft[1]<yStart&& this->SceneTopRight[1]> yStart)
     {
       painter->DrawString(xStart, yStart, vertexName);
     }

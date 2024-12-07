@@ -562,8 +562,26 @@ public:
   /**
    * Given a pixel location, return the Z value. The z value is
    * normalized (0,1) between the front and back clipping planes.
+   * By default this functions accesses the `vtkRenderWindow`'s depth buffer
+   * that is only valid right after this specific renderer has renderered.
+   * If `SafeGetZ` is On, this function will use a `vtkHardwareSelector` to
+   * get the depth information in flight. This approach always works,
+   * but takes more time as it invokes a render on the whole scene.
    */
   double GetZ(int x, int y);
+
+  ///@{
+  /**
+   * If this flag is On `GetZ(int, int)` will use a vtkHardwareSelector
+   * internally to determine the Z value. Otherwise, it will use
+   * `vtkRenderWindow::GetZbufferValue`.
+   * See `GetZ(int, int)` documentation for more information.
+   * Default is off.
+   */
+  vtkSetMacro(SafeGetZ, bool);
+  vtkGetMacro(SafeGetZ, bool);
+  vtkBooleanMacro(SafeGetZ, bool);
+  ///@}
 
   /**
    * Return the MTime of the renderer also considering its ivars.
@@ -1203,6 +1221,11 @@ private:
    * Modified time from the camera when this->ViewTransformMatrix was set.
    */
   vtkMTimeType LastViewTransformCameraModified;
+
+  /**
+   * If this flag affect GetZ. See Get/Set macro for more information.
+   */
+  bool SafeGetZ = false;
 
   vtkRenderer(const vtkRenderer&) = delete;
   void operator=(const vtkRenderer&) = delete;

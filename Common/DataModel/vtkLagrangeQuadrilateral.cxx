@@ -14,7 +14,6 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeQuadrilateral);
@@ -31,11 +30,13 @@ void vtkLagrangeQuadrilateral::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkLagrangeQuadrilateral::GetEdge(int edgeId)
 {
   vtkLagrangeCurve* result = EdgeCell;
-  const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+  const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+  {
     result->Points->SetNumberOfPoints(npts);
     result->PointIds->SetNumberOfIds(npts);
   };
-  const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& face_id) -> void {
+  const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& face_id) -> void
+  {
     result->Points->SetPoint(edge_id, this->Points->GetPoint(face_id));
     result->PointIds->SetId(edge_id, this->PointIds->GetId(face_id));
   };

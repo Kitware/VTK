@@ -51,7 +51,7 @@ static PyObject* PyVTKClass_override(PyObject* cls, PyObject* type)
   PyTypeObject* typeobj = (PyTypeObject*)cls;
   std::string clsName = vtkPythonUtil::StripModuleFromType(typeobj);
 
-  if (Py_TYPE(type) == &PyType_Type)
+  if (PyObject_TypeCheck(type, &PyType_Type))
   {
     PyTypeObject* newtypeobj = (PyTypeObject*)type;
     if (PyType_IsSubtype(newtypeobj, typeobj))

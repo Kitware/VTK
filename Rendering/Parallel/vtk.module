@@ -17,6 +17,7 @@ LICENSE_FILES
   LICENSE
 DEPENDS
   VTK::CommonCore
+  VTK::ParallelCore
   VTK::RenderingCore
   VTK::RenderingOpenGL2
 PRIVATE_DEPENDS
@@ -26,9 +27,8 @@ PRIVATE_DEPENDS
   VTK::FiltersParallel
   VTK::IOImage
   VTK::ImagingCore
-  VTK::ParallelCore
-  VTK::glew
-  VTK::opengl
+  VTK::glad
+  VTK::RenderingVRModels
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersParallel

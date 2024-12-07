@@ -66,7 +66,7 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
 {
   this->vtkWin32VideoSource::ReleaseSystemResources();
 
-  delete[](char*)(this->Internal->BitMapPtr);
+  delete[] (char*)(this->Internal->BitMapPtr);
   this->Internal->BitMapPtr = nullptr;
   this->BitMapSize = 0;
   delete this->Internal;
@@ -1025,7 +1025,7 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
   int formatSize = capGetVideoFormatSize(this->Internal->CapWnd);
   if (formatSize > this->BitMapSize)
   {
-    delete[]((char*)this->Internal->BitMapPtr);
+    delete[] ((char*)this->Internal->BitMapPtr);
     this->Internal->BitMapPtr = (LPBITMAPINFO) new char[formatSize];
     this->BitMapSize = formatSize;
   }
@@ -1111,7 +1111,7 @@ void vtkWin32VideoSource::DoVFWFormatSetup()
   int formatSize = capGetVideoFormatSize(this->Internal->CapWnd);
   if (formatSize > this->BitMapSize)
   {
-    delete[]((char*)this->Internal->BitMapPtr);
+    delete[] ((char*)this->Internal->BitMapPtr);
     this->Internal->BitMapPtr = (LPBITMAPINFO) new char[formatSize];
     this->BitMapSize = formatSize;
   }

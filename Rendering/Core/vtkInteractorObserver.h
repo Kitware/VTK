@@ -52,25 +52,6 @@ public:
   vtkTypeMacro(vtkInteractorObserver, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * Methods for turning the interactor observer on and off, and determining
-   * its state. All subclasses must provide the SetEnabled() method.
-   * Enabling a vtkInteractorObserver has the side effect of adding
-   * observers; disabling it removes the observers. Prior to enabling the
-   * vtkInteractorObserver you must set the render window interactor (via
-   * SetInteractor()). Initial value is 0.
-   */
-  VTK_MARSHALEXCLUDE(
-    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
-  virtual void SetEnabled(int) {}
-  VTK_MARSHALEXCLUDE(
-    "is overridden by vtkInteractorStyle::Enabled in the correct order after Interactor")
-  int GetEnabled() { return this->Enabled; }
-  void EnabledOn() { this->SetEnabled(1); }
-  void EnabledOff() { this->SetEnabled(0); }
-  void On() { this->SetEnabled(1); }
-  void Off() { this->SetEnabled(0); }
-
   ///@{
   /**
    * This method is used to associate the widget with the render window
@@ -80,13 +61,24 @@ public:
    * vtkInteractorObserver.
    * It automatically registers available pickers to the Picking Manager.
    */
-  VTK_MARSHALEXCLUDE(
-    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   virtual void SetInteractor(vtkRenderWindowInteractor* iren);
-  VTK_MARSHALEXCLUDE(
-    "is overridden by vtkInteractorStyle::Interactor in the correct order before Enabled")
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
   ///@}
+
+  /**
+   * Methods for turning the interactor observer on and off, and determining
+   * its state. All subclasses must provide the SetEnabled() method.
+   * Enabling a vtkInteractorObserver has the side effect of adding
+   * observers; disabling it removes the observers. Prior to enabling the
+   * vtkInteractorObserver you must set the render window interactor (via
+   * SetInteractor()). Initial value is 0.
+   */
+  virtual void SetEnabled(int) {}
+  int GetEnabled() { return this->Enabled; }
+  void EnabledOn() { this->SetEnabled(1); }
+  void EnabledOff() { this->SetEnabled(0); }
+  void On() { this->SetEnabled(1); }
+  void Off() { this->SetEnabled(0); }
 
   ///@{
   /**

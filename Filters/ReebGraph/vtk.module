@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkFiltersReebGraph
 KIT
   VTK::Filters
+DESCRIPTION
+  Compute Reeb graphs of VTK data.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

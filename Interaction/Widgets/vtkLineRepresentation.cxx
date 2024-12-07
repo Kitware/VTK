@@ -21,7 +21,6 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 

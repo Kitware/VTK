@@ -130,7 +130,7 @@
 
   [EAGLContext setCurrentContext:self.context];
   [self resizeView];
-  [self getVTKRenderWindow] -> Render();
+  [self getVTKRenderWindow]->Render();
 }
 
 - (void)dealloc
@@ -174,8 +174,8 @@
 - (void)resizeView
 {
   double scale = self.view.contentScaleFactor;
-  [self getVTKRenderWindow] -> SetSize(self.view.bounds.size.width * scale,
-                              self.view.bounds.size.height * scale);
+  [self getVTKRenderWindow]->SetSize(
+    self.view.bounds.size.width * scale, self.view.bounds.size.height * scale);
 }
 
 - (void)viewWillLayoutSubviews
@@ -185,7 +185,7 @@
 
 - (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
 {
-  [self getVTKRenderWindow] -> Render();
+  [self getVTKRenderWindow]->Render();
 }
 
 //=================================================================

@@ -530,8 +530,9 @@ struct OutputPointsWorker
     vtkIdType numOutPts = outPts->GetNumberOfTuples();
 
     // Copy kept points to output.
-    vtkSMPTools::For(
-      0, numInPts, [&, inPts, outPts, ptMap, arrays, filter](vtkIdType ptId, vtkIdType endPtId) {
+    vtkSMPTools::For(0, numInPts,
+      [&, inPts, outPts, ptMap, arrays, filter](vtkIdType ptId, vtkIdType endPtId)
+      {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         bool isFirst = vtkSMPTools::GetSingleThread();
@@ -573,7 +574,8 @@ struct OutputPointsWorker
     vtkIdType numKeptPts = numOutPts - numNewPts;
     vtkSMPTools::For(0, numNewPts,
       [&, numKeptPts, outPts, mergeEdges, mergeOffsets, arrays, filter](
-        vtkIdType newPtId, vtkIdType endNewPtId) {
+        vtkIdType newPtId, vtkIdType endNewPtId)
+      {
         const auto in = vtk::DataArrayTupleRange<3>(inPts);
         auto out = vtk::DataArrayTupleRange<3>(outPts);
         double x0[3], x1[3];
@@ -652,7 +654,8 @@ struct OutputCells
 
     vtkSMPTools::For(0, numNewPts,
       [&, numKeptPts, edges, offsets, cellsConn, linesConn, filter](
-        vtkIdType newPtId, vtkIdType endNewPtId) {
+        vtkIdType newPtId, vtkIdType endNewPtId)
+      {
         const EdgeTupleType* edge;
         bool isFirst = vtkSMPTools::GetSingleThread();
         vtkIdType checkAbortInterval = std::min((endNewPtId - newPtId) / 10 + 1, (vtkIdType)1000);
@@ -782,7 +785,8 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
 
           vtkSMPTools::For(0, numTris,
             [&, totTris, ids, outTrisPtr, outConnPtr, outOffsetsPtr](
-              vtkIdType triId, vtkIdType endTriId) {
+              vtkIdType triId, vtkIdType endTriId)
+            {
               for (; triId < endTriId; ++triId)
               {
                 vtkIdType tID = triId + totTris;

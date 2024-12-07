@@ -5,8 +5,8 @@
 
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
+#include "vtkBoundingBox.h"
 #include "vtkBox.h"
-#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellPicker.h"
@@ -27,10 +27,14 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 #include "vtkWindow.h"
 
 #include <cassert>
+#ifndef NDEBUG
+#include <iterator>
+#include <sstream>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBoxRepresentation);
@@ -1011,6 +1015,64 @@ void vtkBoxRepresentation::CreateDefaultProperties()
   this->SelectedOutlineProperty->SetAmbient(1.0);
   this->SelectedOutlineProperty->SetColor(0.0, 1.0, 0.0);
   this->SelectedOutlineProperty->SetLineWidth(2.0);
+}
+
+//------------------------------------------------------------------------------
+std::vector<double> vtkBoxRepresentation::GetCorners()
+{
+  std::vector<double> corners;
+  corners.resize(24);
+  for (vtkIdType i = 0; i < 8; ++i)
+  {
+    this->Points->GetPoint(i, &corners[3 * i]);
+  }
+#ifndef NDEBUG
+  std::ostringstream cornersStr;
+  std::copy(corners.begin(), corners.end(), std::ostream_iterator<double>(cornersStr, ","));
+  vtkDebugMacro(<< " returning corners = (" << cornersStr.str() << ")");
+#endif
+  return corners;
+}
+
+//------------------------------------------------------------------------------
+void vtkBoxRepresentation::SetCorners(std::vector<double> corners)
+{
+  if (corners.size() != 24)
+  {
+    vtkErrorMacro(<< "The number of elements in provided corners must equal 24!");
+  }
+
+  // determine bounding box of new corner points.
+  vtkBoundingBox bbox;
+  for (std::size_t i = 0; i < 8; ++i)
+  {
+    bbox.AddPoint(&corners[3 * i]);
+  }
+
+  // skip when the corners have same bounding box as current corners
+  if (bbox == vtkBoundingBox(this->Points->GetBounds()))
+  {
+    return;
+  }
+
+#ifndef NDEBUG
+  std::ostringstream cornersStr;
+  std::copy(corners.begin(), corners.end(), std::ostream_iterator<double>(cornersStr, ","));
+  vtkDebugMacro(<< " setting corners = (" << cornersStr.str() << ")");
+#endif
+  // reset all coordinates to 0
+  this->Points->GetData()->Fill(0);
+
+  // populate 8 corner points.
+  for (vtkIdType i = 0; i < 8; ++i)
+  {
+    this->Points->SetPoint(i, &corners[3 * i]);
+  }
+
+  this->PositionHandles();
+  this->ComputeNormals();
+  this->ValidPick = 1; // since we have set up widget
+  this->SizeHandles();
 }
 
 //------------------------------------------------------------------------------

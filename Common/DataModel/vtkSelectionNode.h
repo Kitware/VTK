@@ -285,6 +285,7 @@ public:
    * GetContentType() returns -1 if the content type is not set.
    *
    * \sa vtkSelectionNode::SelectionContent
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CONTENT_TYPE();
 
@@ -327,6 +328,7 @@ public:
    * The default is CELL.
    * Vertex and edge types are also available for graph classes.
    * GetFieldType() returns -1 if the field type is not set.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* FIELD_TYPE();
 
@@ -380,17 +382,20 @@ public:
 
   /**
    * For location selection of points, if distance is greater than this reject.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* EPSILON();
 
   /**
    * If present, closest zbuffer value of this selection
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* ZBUFFER_VALUE();
 
   /**
    * This flag tells the extraction filter, when FIELD_TYPE==POINT, that
    * it should also extract the cells that contain any of the extracted points.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CONTAINING_CELLS();
 
@@ -398,18 +403,21 @@ public:
    * When specified, this indicates how many layers of *connected* elements
    * in addition to those chosen explicitly are being selected. Currently,
    * this is only supported for cells and points.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CONNECTED_LAYERS();
 
   /**
    * When specified and also using CONNECTED_LAYERS(), this indicates
    * if the initial selection should be kept or not.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CONNECTED_LAYERS_REMOVE_SEED();
 
   /**
    * When specified and also using CONNECTED_LAYERS(), this indicates
    * if the intermediate layers should be kept or not.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CONNECTED_LAYERS_REMOVE_INTERMEDIATE_LAYERS();
 
@@ -419,44 +427,52 @@ public:
    * possible pick the component number using this key. If none is specified,
    * the 0th component is used. If any number less than 0 is specified, then
    * the magnitude is used.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* COMPONENT_NUMBER();
 
   /**
    * This flag tells the extraction filter to exclude the selection.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* INVERSE();
 
   /**
    * A helper for visible cell selector, this is the number of pixels covered
    * by the actor whose cells are listed in the selection.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* PIXEL_COUNT();
 
   /**
    * Pointer to the data or algorithm the selection belongs to.
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* SOURCE();
 
   /**
    * ID of the data or algorithm the selection belongs to. What
    * ID means is application specific.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* SOURCE_ID();
 
   /**
    * Pointer to the prop the selection belongs to.
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* PROP();
 
   /**
    * ID of the prop the selection belongs to. What
    * ID means is application specific.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* PROP_ID();
 
   /**
    * Process id the selection is on.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* PROCESS_ID();
 
@@ -469,6 +485,7 @@ public:
    *
    * Use `vtkDataAssemblyUtilities::HierarchyName` as the assembly name
    * to use the data hierarchy
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* ASSEMBLY_NAME();
   static vtkInformationStringVectorKey* SELECTORS();
@@ -476,15 +493,30 @@ public:
 
   /**
    * Used to identify a node in composite datasets.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* COMPOSITE_INDEX();
 
   ///@{
   /**
    * Used to identify a dataset in a hiererchical box dataset.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* HIERARCHICAL_LEVEL();
   static vtkInformationIntegerKey* HIERARCHICAL_INDEX();
+  ///@}
+
+  ///@{
+  /**
+   * Used to identify a cell type and whether picked entity is a side in a vtkCellGrid.
+   * 1. `CELLGRID_CELL_TYPE_INDEX` is an offset into vtkCellGrid::GetCellTypesArray()
+   * 2. For cell spec, `CELLGRID_SOURCE_SPECIFICATION_INDEX` will be 0,
+   * 3. For all other side specs, `CELLGRID_SOURCE_SPECIFICATION_INDEX` will take on values starting
+   * from 1. NOTE: The cell/side spec correspond to `vtkDGCell::Source` objects found in
+   * `vtkDGCell::GetCellSpec()` and `vtkDGCell::GetSideSpecs()`
+   */
+  static vtkInformationIntegerKey* CELLGRID_CELL_TYPE_INDEX();
+  static vtkInformationIntegerKey* CELLGRID_SOURCE_SPECIFICATION_INDEX();
   ///@}
 
   /**

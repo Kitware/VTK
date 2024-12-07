@@ -47,9 +47,17 @@ public:
 
   /**
    * Create a copy of `this'.
+   * This function allocates a new cursor that needs to be freed.
    * \post results_exists:result!=0
    */
   vtkHyperTreeGridNonOrientedCursor* Clone();
+
+  /**
+   * Create a copy of `this`, but discard history.
+   * The cloned cursor cannot go any higher in the tree than the position it has been cloned at.
+   * This function allocates a new cursor that needs to be freed.
+   */
+  vtkHyperTreeGridNonOrientedCursor* CloneFromCurrentEntry();
 
   /**
    * Initialize cursor at root of given tree index in grid.

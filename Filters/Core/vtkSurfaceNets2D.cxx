@@ -740,18 +740,22 @@ void SurfaceNets<T>::ConfigureOutput(
   // (i.e., row interleaving is performed).
   vtkIdType numRows = this->DyadDims[1];
   vtkIdType numRowPairs = (numRows - 1) / 2 + 1;
-  vtkSMPTools::For(0, numRowPairs, [this](vtkIdType rowPair, vtkIdType endRowPair) {
-    for (; rowPair < endRowPair; ++rowPair)
+  vtkSMPTools::For(0, numRowPairs,
+    [this](vtkIdType rowPair, vtkIdType endRowPair)
     {
-      this->ProduceSquareCases(rowPair, false); // even rows
-    }
-  });
-  vtkSMPTools::For(0, numRowPairs, [this](vtkIdType rowPair, vtkIdType endRowPair) {
-    for (; rowPair < endRowPair; ++rowPair)
+      for (; rowPair < endRowPair; ++rowPair)
+      {
+        this->ProduceSquareCases(rowPair, false); // even rows
+      }
+    });
+  vtkSMPTools::For(0, numRowPairs,
+    [this](vtkIdType rowPair, vtkIdType endRowPair)
     {
-      this->ProduceSquareCases(rowPair, true); // odd rows
-    }
-  });
+      for (; rowPair < endRowPair; ++rowPair)
+      {
+        this->ProduceSquareCases(rowPair, true); // odd rows
+      }
+    });
 
   // Begin prefix sum to determine the point, line, and stencil number
   // offsets for each row.

@@ -23,6 +23,8 @@
 #include "vtkSmartPointer.h"            // needed for vtkSmartPointer.
 #include "vtkUnsignedCharArray.h"       // needed for vtkUnsignedCharArray.
 
+#include <memory> // for std::unique_ptr
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFXAAOptions;
 class vtkRenderer;
@@ -113,6 +115,14 @@ public:
    */
   virtual void SetCaptureDelegate(vtkSynchronizedRenderers*);
   vtkGetObjectMacro(CaptureDelegate, vtkSynchronizedRenderers);
+  ///@}
+
+  ///@{
+  /**
+   * Allows synchronizing collections of actors from local to remote
+   * renderer.
+   */
+  void EnableSynchronizableActors(bool);
   ///@}
 
   ///@{
@@ -300,6 +310,9 @@ private:
   bool LastTexturedBackground;
   bool LastGradientBackground;
   bool FixBackground;
+
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internal;
 };
 
 VTK_ABI_NAMESPACE_END

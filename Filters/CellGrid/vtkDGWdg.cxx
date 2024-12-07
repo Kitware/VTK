@@ -33,6 +33,8 @@ const std::array<int, vtkDGWdg::Dimension + 3> vtkDGWdg::SideOffsets{ { 0, 1, 4,
 const std::array<vtkDGCell::Shape, vtkDGWdg::Dimension + 3> vtkDGWdg::SideShapes{ { Shape::Wedge,
   Shape::Quadrilateral, Shape::Triangle, Shape::Edge, Shape::Vertex, Shape::None } };
 
+const std::array<int, vtkDGWdg::Dimension + 1> vtkDGWdg::SidesOfDimension{ { 1, 6, 9, 5 } };
+
 // WARNING: The order of sides **must** match the IOSS (Exodus) side order or side sets
 //   from Exodus files will not be rendered properly. Note that this order **coincidentally**
 //   matches the Intrepid face ordering for HDiv face-coefficients but does **not** match
@@ -122,11 +124,11 @@ std::pair<int, int> vtkDGWdg::GetSideRangeForType(int sideType) const
 
 int vtkDGWdg::GetNumberOfSidesOfDimension(int dimension) const
 {
-  if (dimension < 0 || dimension >= this->Dimension)
+  if (dimension < -1 || dimension >= this->Dimension)
   {
     return 0;
   }
-  return this->SideOffsets[Dimension - dimension + 1] - this->SideOffsets[Dimension - dimension];
+  return vtkDGWdg::SidesOfDimension[dimension + 1];
 }
 
 const std::vector<vtkIdType>& vtkDGWdg::GetSideConnectivity(int side) const

@@ -29,13 +29,39 @@ public:
   static vtkCellGridWriter* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /// Set/get the filename to write to.
+  ///
+  /// This must be set before you call Write(). However, it need
+  /// not be set before calling ToJSON().
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  ///@}
 
+  ///@{
+  /// Get the input cell-grid.
   vtkCellGrid* GetInput();
   vtkCellGrid* GetInput(int port);
+  ///@}
 
+  /// Populate the JSON \a data with a representation of the input \a grid.
   bool ToJSON(nlohmann::json& data, vtkCellGrid* grid);
+
+  /// On-disk formats for the cell-grid data.
+  ///
+  /// This list may be extended in the future.
+  enum Format : int
+  {
+    PlainText,      //!< Human-readable text.
+    MessagePack,    //!< Binary message-pack data.
+    NumberOfFormats //!< The number of enumerants (not a valid format).
+  };
+
+  ///@{
+  /// Set/get the format to use when writing to disk.
+  vtkSetEnumMacro(FileFormat, Format);
+  vtkGetEnumMacro(FileFormat, Format);
+  ///@}
 
 protected:
   vtkCellGridWriter();
@@ -44,7 +70,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
   void WriteData() override;
 
-  char* FileName;
+  char* FileName{ nullptr };
+  Format FileFormat{ Format::PlainText };
 
 private:
   vtkCellGridWriter(const vtkCellGridWriter&) = delete;

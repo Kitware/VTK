@@ -456,7 +456,7 @@ PyObject* vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty* tpr
 
 //------------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::GetJustifiedBBox(
-  int rows, int cols, vtkTextProperty* tprop, int bbox[])
+  int rows, int cols, vtkTextProperty* tprop, int bbox[4])
 {
   bbox[0] = 0;
   bbox[1] = cols - 1;
@@ -1018,6 +1018,7 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
       else
       {
         // item is borrowed, no need for a smart wrapper
+        vtkPythonScopeGilEnsurer gilEnsurer;
         PyObject* item = PyList_GetItem(pythonData, ind++);
         if (this->CheckForError(item))
         {

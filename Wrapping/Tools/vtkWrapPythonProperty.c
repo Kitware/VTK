@@ -46,7 +46,7 @@ static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
     // or  3. the current character is followed by a lowercase character
     if (isupper(currentChar))
     {
-      if (islower(pascalCase[i - 1]) || (i < pascalLen && islower(pascalCase[i + 1])))
+      if (islower(pascalCase[i - 1]) || (i + 1 < pascalLen && islower(pascalCase[i + 1])))
       {
         snakeCase[snakeIndex++] = '_';
       }
@@ -111,7 +111,7 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
   GetSetDefInfo* getSetInfo = NULL;
   GetSetDefInfo** getSetsInfo = NULL;
   FunctionInfo* theFunc = NULL;
-  PropertyInfo* theProp = NULL;
+  const PropertyInfo* theProp = NULL;
   const char* propName = NULL;
 
   fprintf(fp,
@@ -141,7 +141,7 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
       continue;
     }
     /* Is this method associated with a property? */
-    if (properties && properties->MethodHasProperty[i])
+    if (properties->MethodHasProperty[i])
     {
       /* Get the property associated with this method */
       j = properties->MethodProperties[i];
@@ -171,8 +171,13 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     }
 
     /* Start a new PyGetSetDef item */
-    fprintf(fp, "  {\n");
     char* snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
+    if (!snakeCasePropName)
+    {
+      continue;
+    }
+
+    fprintf(fp, "  {\n");
     fprintf(fp, "    /*name=*/pystr(\"%s\"),\n", snakeCasePropName);
     free(snakeCasePropName);
 

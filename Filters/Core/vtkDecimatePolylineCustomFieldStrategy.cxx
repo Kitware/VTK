@@ -57,4 +57,16 @@ double vtkDecimatePolylineCustomFieldStrategy::ComputeError(
   return maxError;
 }
 
+//------------------------------------------------------------------------------
+bool vtkDecimatePolylineCustomFieldStrategy::IsStateValid(vtkPointSet* dataset) const
+{
+  vtkDataArray* fieldArray = dataset->GetPointData()->GetArray(this->FieldName.c_str());
+  if (!fieldArray)
+  {
+    vtkWarningMacro("No matching point data array found.");
+    return false;
+  }
+  return true;
+}
+
 VTK_ABI_NAMESPACE_END
