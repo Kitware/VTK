@@ -17,7 +17,8 @@ set(all_tests
   )
 vtk_test_cxx_executable(vtkRenderingParallelCxxTests-MPI all_tests)
 
-if (Python3_EXECUTABLE)
+if (Python3_EXECUTABLE AND
+    NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_test_executable(
     vtkRenderingParallel-TestClientServerRendering TestClientServerRendering.cxx)
 

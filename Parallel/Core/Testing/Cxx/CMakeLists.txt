@@ -6,7 +6,8 @@ vtk_add_test_cxx(vtkParallelCoreCxxTests tests
   )
 vtk_test_cxx_executable(vtkParallelCoreCxxTests tests)
 
-if (Python3_EXECUTABLE)
+if (Python3_EXECUTABLE AND
+    NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_test_executable(
     vtkParallelCore-TestSocketCommunicator TestSocketCommunicator.cxx)
 
