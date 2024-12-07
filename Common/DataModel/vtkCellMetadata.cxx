@@ -5,8 +5,6 @@
 #include "vtkCellGrid.h"
 #include "vtkDebugLeaks.h"
 
-#include <token/Singletons.h>
-
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;
