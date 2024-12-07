@@ -10,6 +10,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
+class vtkWebGPUConfiguration;
 class vtkWebGPURenderPipelineCache;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUActor : public vtkActor
@@ -18,6 +19,8 @@ public:
   static vtkWebGPUActor* New();
   vtkTypeMacro(vtkWebGPUActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  void ReleaseGraphicsResources(vtkWindow* window) override;
 
   inline const void* GetCachedActorInformation() { return &(this->CachedActorInfo); }
   static std::size_t GetCacheSizeBytes() { return sizeof(ActorBlock); }
@@ -35,28 +38,40 @@ public:
    */
   bool SupportRenderBundles();
 
+  inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  {
+    layouts.emplace_back(this->ActorBindGroupLayout);
+  }
+
   virtual bool UpdateKeyMatrices();
 
+  ///@{
   /**
-   * Forces the renderer to re-record draw commands into a render bundle associated with this actor.
+   * Does this prop have opaque/translucent polygonal geometry?
+   * These methods are overriden to skip redundant checks
+   * in different rendering stages.
    *
-   * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
-   * render bundle is invalidated.
+   * If the mapper has already been checked for opaque geometry and the mapper
+   * has not been modified since the last check, this method uses the last result,
+   * instead of asking the mapper to check for opaque geometry again. The
+   * HasTranslucentPolygonalGeometry() similarly checks and caches the result of
+   * vtkMapper::HasTranslucentPolygonalGeometry()
+   *
+   * @sa vtkWebGPURenderer::GetRenderStage()
    */
-  inline void SetBundleInvalidated(bool value) { this->BundleInvalidated = value; }
-
-  /**
-   * Get whether the render bundle associated with this actor must be reset by the renderer.
-   */
-  vtkGetMacro(BundleInvalidated, bool);
+  vtkTypeBool HasOpaqueGeometry() override;
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  ///@}
 
 protected:
   vtkWebGPUActor();
   ~vtkWebGPUActor() override;
 
-  void CacheActorTransforms();
-  void CacheActorRenderOptions();
-  void CacheActorShadeOptions();
+  bool CacheActorTransforms();
+  bool CacheActorRenderOptions();
+  bool CacheActorShadeOptions();
+
+  void AllocateResources(vtkWebGPUConfiguration* renderer);
 
   struct ActorBlock
   {
@@ -116,7 +131,34 @@ protected:
   vtkTimeStamp ShadingOptionsBuildTimestamp;
   vtkTimeStamp RenderOptionsBuildTimestamp;
 
-  bool BundleInvalidated = false;
+  wgpu::BindGroupLayout ActorBindGroupLayout;
+  wgpu::BindGroup ActorBindGroup;
+  wgpu::Buffer ActorBuffer;
+
+  class MapperBooleanCache
+  {
+    bool Value = false;
+    vtkTimeStamp TimeStamp;
+
+  public:
+    /**
+     * Update the cached value with the new value. This also increments the TimeStamp.
+     */
+    void SetValue(bool newValue);
+
+    /**
+     * Returns the cached `Value`.
+     */
+    inline bool GetValue() { return Value; }
+
+    /**
+     * Returns true if the timestamp of the cached value is older than the mapper's MTime.
+     */
+    bool IsOutdated(vtkMapper* mapper);
+  };
+
+  MapperBooleanCache MapperHasOpaqueGeometry;
+  MapperBooleanCache MapperHasTranslucentPolygonalGeometry;
 
 private:
   vtkWebGPUActor(const vtkWebGPUActor&) = delete;

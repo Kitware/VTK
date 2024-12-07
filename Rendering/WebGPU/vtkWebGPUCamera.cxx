@@ -5,6 +5,7 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderer.h"
 
@@ -60,6 +61,7 @@ void vtkWebGPUCamera::CacheSceneTransforms(vtkRenderer* renderer)
         st.ProjectionMatrix[i][j] = projection->GetElement(j, i);
       }
     }
+    st.ProjectionMatrix[1][1] *= -1;
     // normal matrix
     for (int i = 0; i < 3; ++i)
     {
@@ -119,13 +121,17 @@ void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
     rpassEncoder.SetScissorRect(static_cast<uint32_t>(this->ScissorRect.GetLeft()),
       static_cast<uint32_t>(this->ScissorRect.GetBottom()),
       static_cast<uint32_t>(this->ScissorRect.GetWidth()),
-      static_cast<uint32_t>(this->ScissorRect.GetWidth()));
+      static_cast<uint32_t>(this->ScissorRect.GetHeight()));
     this->UseScissor = false;
   }
   else
   {
     rpassEncoder.SetScissorRect(
-      0u, 0u, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+      lowerLeft[0], lowerLeft[1], static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+  }
+  if ((renderer->GetRenderWindow())->GetErase() && renderer->GetErase())
+  {
+    renderer->Clear();
   }
 }
 

@@ -19,12 +19,31 @@ public:
 
   ///@{
   /**
-   * Get/set the DoClear attribute. If true this clear pass will clear the color and depth buffer
-   * before rendering. Il false, this pass will render on top of the existing color and depth buffer
+   * Get/set the ClearColor attribute. If true this clear pass will clear the color buffer
+   * before rendering. If false, this pass will render on top of the existing color buffer
    */
-  vtkGetMacro(DoClear, bool);
-  vtkSetMacro(DoClear, bool);
+  vtkGetMacro(ClearColor, bool);
+  vtkSetMacro(ClearColor, bool);
   ///@}
+
+  ///@{
+  /**
+   * Get/set the ClearDepth attribute. If true this clear pass will clear the depth buffer
+   * before rendering. If false, this pass will render on top of the existing depth buffer
+   */
+  vtkGetMacro(ClearDepth, bool);
+  vtkSetMacro(ClearDepth, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Get/set the ClearStencil attribute. If true this clear pass will clear the stencil buffer
+   * before rendering. If false, this pass will render on top of the existing stencil buffer
+   */
+  vtkGetMacro(ClearStencil, bool);
+  vtkSetMacro(ClearStencil, bool);
+  ///@}
+
   wgpu::RenderPassEncoder Begin(const vtkRenderState* state) override;
 
 protected:
@@ -32,7 +51,9 @@ protected:
   ~vtkWebGPUClearDrawPass() override;
 
 private:
-  bool DoClear = true;
+  bool ClearColor = true;
+  bool ClearDepth = true;
+  bool ClearStencil = true;
 
   vtkWebGPUClearDrawPass(const vtkWebGPUClearDrawPass&) = delete;
   void operator=(const vtkWebGPUClearDrawPass&) = delete;

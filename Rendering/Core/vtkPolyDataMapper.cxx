@@ -25,6 +25,19 @@ vtkPolyDataMapper::vtkPolyDataMapper()
   this->SeamlessV = false;
   this->PauseShiftScale = false;
   this->ShiftScaleMethod = ShiftScaleMethodType::AUTO_SHIFT_SCALE;
+  this->SetPointIdArrayName(nullptr);
+  this->SetCellIdArrayName(nullptr);
+  this->SetCompositeIdArrayName(nullptr);
+  this->SetProcessIdArrayName(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkPolyDataMapper::~vtkPolyDataMapper()
+{
+  this->SetPointIdArrayName(nullptr);
+  this->SetCellIdArrayName(nullptr);
+  this->SetCompositeIdArrayName(nullptr);
+  this->SetProcessIdArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -156,6 +169,9 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper* mapper)
     this->SetSeamlessV(m->GetSeamlessV());
     this->SetVBOShiftScaleMethod(m->GetVBOShiftScaleMethod());
     this->SetPauseShiftScale(m->GetPauseShiftScale());
+    this->SetCellIdArrayName(m->GetCellIdArrayName());
+    this->SetPointIdArrayName(m->GetPointIdArrayName());
+    this->SetProcessIdArrayName(m->GetProcessIdArrayName());
   }
 
   // Now do superclass

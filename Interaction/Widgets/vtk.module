@@ -42,7 +42,6 @@ PRIVATE_DEPENDS
   VTK::RenderingAnnotation
   VTK::RenderingFreeType
   VTK::RenderingVolume
-  VTK::RenderingOpenGL2
 
 TEST_DEPENDS
   VTK::CommonComputationalGeometry

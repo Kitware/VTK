@@ -53,13 +53,13 @@ int TestReadPixels(int, char*[])
   VTK_TEST_READ_PIXELS(ucharTuple[0] == 100);
   VTK_TEST_READ_PIXELS(ucharTuple[1] == 110);
   VTK_TEST_READ_PIXELS(ucharTuple[2] == 120);
-  VTK_TEST_READ_PIXELS(ucharTuple[3] == 255);
+  VTK_TEST_READ_PIXELS(ucharTuple[3] == 0);
 
   ucharRGBA->GetTypedTuple(299 * 299, ucharTuple);
   VTK_TEST_READ_PIXELS(ucharTuple[0] == 100);
   VTK_TEST_READ_PIXELS(ucharTuple[1] == 110);
   VTK_TEST_READ_PIXELS(ucharTuple[2] == 120);
-  VTK_TEST_READ_PIXELS(ucharTuple[3] == 255);
+  VTK_TEST_READ_PIXELS(ucharTuple[3] == 0);
 
   // Verify background color as normalized float32 RGBA values
   vtkNew<vtkFloatArray> f32RGBA;
@@ -68,12 +68,12 @@ int TestReadPixels(int, char*[])
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(0)[0] * 255) == 100);
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(0)[1] * 255) == 110);
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(0)[2] * 255) == 120);
-  VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(0)[3] * 255) == 255);
+  VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(0)[3] * 255) == 0);
 
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(299)[0] * 255) == 100);
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(299)[1] * 255) == 110);
   VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(299)[2] * 255) == 120);
-  VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(299)[3] * 255) == 255);
+  VTK_TEST_READ_PIXELS(static_cast<int>(f32RGBA->GetTuple(299)[3] * 255) == 0);
 
   // Verify background color as unsigned char RGB values
   vtkNew<vtkUnsignedCharArray> ucharRGB;

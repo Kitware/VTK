@@ -27,8 +27,8 @@ renderWindow.Render()
 # Verify background color as unsigned char RGBA values
 ucharRGBA = vtkUnsignedCharArray()
 renderWindow.GetRGBACharPixelData(0, 0, 299, 299, 0, ucharRGBA)
-assert(ucharRGBA.GetTuple(0) == (100.0, 110.0, 120.0, 255.0))
-assert(ucharRGBA.GetTuple(299 * 299) == (100.0, 110.0, 120.0, 255.0))
+assert(ucharRGBA.GetTuple(0) == (100.0, 110.0, 120.0, 0.0))
+assert(ucharRGBA.GetTuple(299 * 299) == (100.0, 110.0, 120.0, 0.0))
 
 # Verify background color as normalized float32 RGBA values
 f32RGBA = vtkFloatArray()
@@ -36,11 +36,11 @@ renderWindow.GetRGBAPixelData(0, 0, 299, 299, 0, f32RGBA)
 assert(int(f32RGBA.GetTuple(0)[0] * 255) == 100)
 assert(int(f32RGBA.GetTuple(0)[1] * 255) == 110)
 assert(int(f32RGBA.GetTuple(0)[2] * 255) == 120)
-assert(int(f32RGBA.GetTuple(0)[3] * 255) == 255)
+assert(int(f32RGBA.GetTuple(0)[3] * 255) == 0)
 assert(int(f32RGBA.GetTuple(299)[0] * 255) == 100)
 assert(int(f32RGBA.GetTuple(299)[1] * 255) == 110)
 assert(int(f32RGBA.GetTuple(299)[2] * 255) == 120)
-assert(int(f32RGBA.GetTuple(299)[3] * 255) == 255)
+assert(int(f32RGBA.GetTuple(299)[3] * 255) == 0)
 
 # Verify background color as unsigned char RGB values
 ucharRGB = vtkUnsignedCharArray()

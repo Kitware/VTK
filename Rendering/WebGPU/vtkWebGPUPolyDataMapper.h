@@ -7,6 +7,7 @@
 
 #include "vtkProperty.h"              // for VTK_SURFACE constants
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWeakPointer.h"           // for vtkWeakPointer
 #include "vtkWebGPUComputePipeline.h" // for ivar
 #include "vtk_wgpu.h"                 // for webgpu
 
@@ -203,7 +204,7 @@ protected:
    * This method returns true if the cached properties have changed or the properties of the actor
    * are cached for the first time, false otherwise.
    */
-  bool CacheActorProperties(vtkActor* actor);
+  bool CacheActorRendererProperties(vtkActor* actor, vtkRenderer* renderer);
 
   /**
    * Record draw calls in the render pass encoder. It also sets the bind group, graphics pipeline to
@@ -437,7 +438,7 @@ protected:
    * This method checks MTime of the vtkActor's vtkProperty instance against the build timestamp of
    * the graphics pipeline.
    */
-  bool GetNeedToRebuildGraphicsPipelines(vtkActor* actor);
+  bool GetNeedToRebuildGraphicsPipelines(vtkActor* actor, vtkRenderer* renderer);
 
   struct MeshAttributeBuffers
   {
@@ -542,7 +543,8 @@ protected:
     int LastRepresentation = VTK_SURFACE;
     bool LastHasRenderingTranslucentGeometry = false;
   };
-  std::map<vtkWeakPointer<vtkActor>, ActorState> CachedActorProperties;
+  std::map<std::pair<vtkWeakPointer<vtkActor>, vtkWeakPointer<vtkRenderer>>, ActorState>
+    CachedActorRendererProperties;
 
 private:
   friend class vtkWebGPUComputeRenderBuffer;

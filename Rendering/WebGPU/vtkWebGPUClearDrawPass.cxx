@@ -7,7 +7,6 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPURenderWindow.h"
-#include <chrono>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -29,7 +28,6 @@ void vtkWebGPUClearDrawPass::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* state)
 {
-  auto renderer = state->GetRenderer();
   auto wgpuRenderWindow =
     vtkWebGPURenderWindow::SafeDownCast(state->GetRenderer()->GetRenderWindow());
 
@@ -39,17 +37,8 @@ wgpu::RenderPassEncoder vtkWebGPUClearDrawPass::Begin(const vtkRenderState* stat
   wgpu::TextureView depthStencilView = wgpuRenderWindow->GetDepthStencilView();
 
   vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
-    backBufferViews, depthStencilView, this->DoClear);
+    backBufferViews, depthStencilView, this->ClearColor, this->ClearDepth, this->ClearStencil);
   renderPassDescriptor.label = "vtkWebGPUClearDrawPass::Begin";
-
-  double* bgColor = renderer->GetBackground();
-  for (auto& colorAttachment : renderPassDescriptor.ColorAttachments)
-  {
-    colorAttachment.clearValue.r = bgColor[0];
-    colorAttachment.clearValue.g = bgColor[1];
-    colorAttachment.clearValue.b = bgColor[2];
-    colorAttachment.clearValue.a = 1.0f;
-  }
   return wgpuRenderWindow->NewRenderPass(renderPassDescriptor);
 }
 

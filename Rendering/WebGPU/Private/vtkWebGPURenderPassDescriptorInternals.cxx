@@ -9,21 +9,24 @@ vtkWebGPURenderPassDescriptorInternals::~vtkWebGPURenderPassDescriptorInternals(
 //------------------------------------------------------------------------------
 vtkWebGPURenderPassDescriptorInternals::vtkWebGPURenderPassDescriptorInternals(
   const std::vector<wgpu::TextureView>& colorAttachmentInfo,
-  wgpu::TextureView depthStencil /*= wgpu::TextureView()*/, bool doClear /*= true*/)
+  wgpu::TextureView depthStencil /*= wgpu::TextureView()*/, bool clearColor /*= true*/,
+  bool clearDepth /*= true*/, bool clearStencil /*= true*/)
 {
-  wgpu::LoadOp loadOp = doClear ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+  const wgpu::LoadOp colorLoadOp = clearColor ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
   for (uint32_t i = 0; i < kMaxColorAttachments; ++i)
   {
-    this->ColorAttachments[i].loadOp = loadOp;
+    this->ColorAttachments[i].loadOp = colorLoadOp;
     this->ColorAttachments[i].storeOp = wgpu::StoreOp::Store;
     this->ColorAttachments[i].clearValue = { 0.0f, 0.0f, 0.0f, 0.0f };
   }
 
+  const wgpu::LoadOp depthLoadOp = clearDepth ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
+  const wgpu::LoadOp stencilLoadOp = clearStencil ? wgpu::LoadOp::Clear : wgpu::LoadOp::Load;
   this->DepthStencilAttachmentInfo.depthClearValue = 1.0f;
   this->DepthStencilAttachmentInfo.stencilClearValue = 0;
-  this->DepthStencilAttachmentInfo.depthLoadOp = loadOp;
+  this->DepthStencilAttachmentInfo.depthLoadOp = depthLoadOp;
   this->DepthStencilAttachmentInfo.depthStoreOp = wgpu::StoreOp::Store;
-  this->DepthStencilAttachmentInfo.stencilLoadOp = loadOp;
+  this->DepthStencilAttachmentInfo.stencilLoadOp = stencilLoadOp;
   this->DepthStencilAttachmentInfo.stencilStoreOp = wgpu::StoreOp::Store;
 
   colorAttachmentCount = static_cast<uint32_t>(colorAttachmentInfo.size());

@@ -138,14 +138,14 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   }
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
-  auto* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
+  auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   const auto& device = wgpuRenderWindow->GetDevice();
 
   auto& batchElement = *(this->VTKPolyDataToBatchElement.begin()->second);
   if (this->LastBlockVisibility != batchElement.Visibility)
   {
-    wgpuActor->SetBundleInvalidated(true);
+    wgpuRenderer->InvalidateBundle();
   }
   this->LastBlockVisibility = batchElement.Visibility;
 

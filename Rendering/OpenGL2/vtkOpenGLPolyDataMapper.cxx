@@ -177,10 +177,6 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     this->CellNormalBuffer = nullptr;
   }
 
-  this->SetPointIdArrayName(nullptr);
-  this->SetCellIdArrayName(nullptr);
-  this->SetProcessIdArrayName(nullptr);
-  this->SetCompositeIdArrayName(nullptr);
   this->VBOs->Delete();
   this->VBOs = nullptr;
 

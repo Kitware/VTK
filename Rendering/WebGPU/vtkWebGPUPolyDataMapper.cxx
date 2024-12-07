@@ -282,7 +282,6 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
 
   const auto device = wgpuRenderWindow->GetDevice();
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
-  auto* wgpuActor = reinterpret_cast<vtkWebGPUActor*>(actor);
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* displayProperty = actor->GetProperty();
 
@@ -304,16 +303,16 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
           wgpuConfiguration, mesh, /*representation=*/VTK_POINTS);
       }
       // setup graphics pipeline
-      if (this->GetNeedToRebuildGraphicsPipelines(actor))
+      if (this->GetNeedToRebuildGraphicsPipelines(actor, renderer))
       {
         // render bundle must reference new bind groups and/or pipelines
-        wgpuActor->SetBundleInvalidated(true);
+        wgpuRenderer->InvalidateBundle();
         this->SetupGraphicsPipelines(device, renderer, actor);
       }
       // invalidate render bundle when any of the cached properties of an actor have changed.
-      if (this->CacheActorProperties(actor))
+      if (this->CacheActorRendererProperties(actor, renderer))
       {
-        wgpuActor->SetBundleInvalidated(true);
+        wgpuRenderer->InvalidateBundle();
       }
       break;
     }
@@ -333,16 +332,17 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkRenderer* renderer)
 {
-  auto it = this->CachedActorProperties.find(actor);
+  const auto key = std::make_pair(actor, renderer);
+  auto it = this->CachedActorRendererProperties.find(key);
   auto* displayProperty = actor->GetProperty();
   bool hasTranslucentPolygonalGeometry = false;
   if (actor)
   {
     hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
   }
-  if (it == this->CachedActorProperties.end())
+  if (it == this->CachedActorRendererProperties.end())
   {
     ActorState state = {};
     state.LastActorBackfaceCulling = displayProperty->GetBackfaceCulling();
@@ -350,7 +350,7 @@ bool vtkWebGPUPolyDataMapper::CacheActorProperties(vtkActor* actor)
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
-    this->CachedActorProperties[actor] = state;
+    this->CachedActorRendererProperties[key] = state;
     return true;
   }
   else
@@ -1257,7 +1257,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
 
   vtkCellData* cellData = this->CurrentInput->GetCellData();
   vtkDataArray* cellColors = nullptr;
-  vtkNew<vtkUnsignedCharArray> cellColorsFromFieldData;
+  vtkSmartPointer<vtkUnsignedCharArray> cellColorsFromFieldData;
   if (this->HasCellAttributes[CELL_COLORS])
   {
     // are we using a single color value replicated over all cells?
@@ -1265,6 +1265,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     {
       const vtkIdType numCells = this->CurrentInput->GetNumberOfCells();
       const int numComponents = this->Colors->GetNumberOfComponents();
+      cellColorsFromFieldData = vtk::TakeSmartPointer(vtkUnsignedCharArray::New());
       cellColorsFromFieldData->SetNumberOfComponents(numComponents);
       cellColorsFromFieldData->SetNumberOfTuples(numCells);
       for (int i = 0; i < numComponents; ++i)
@@ -1377,19 +1378,23 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     }
   }
 
-  const std::string meshAttrDescriptorLabel =
-    "MeshAttributeDescriptor-" + this->CurrentInput->GetObjectDescription();
-  if (this->AttributeDescriptorBuffer == nullptr)
-  {
-    this->AttributeDescriptorBuffer = wgpuConfiguration->CreateBuffer(sizeof(meshAttrDescriptor),
-      wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
-      /*mappedAtCreation=*/false, meshAttrDescriptorLabel.c_str());
-  }
   // handle partial updates
   if (updatePointDescriptor || updateCellArrayDescriptor)
   {
+    const std::string meshAttrDescriptorLabel =
+      "MeshAttributeDescriptor-" + this->CurrentInput->GetObjectDescription();
+    if (this->AttributeDescriptorBuffer == nullptr)
+    {
+      this->AttributeDescriptorBuffer = wgpuConfiguration->CreateBuffer(sizeof(meshAttrDescriptor),
+        wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
+        /*mappedAtCreation=*/false, meshAttrDescriptorLabel.c_str());
+    }
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer, 0, &meshAttrDescriptor,
       sizeof(meshAttrDescriptor), meshAttrDescriptorLabel.c_str());
+    // Create bind group for the point/cell attribute buffers.
+    this->MeshAttributeBindGroup =
+      this->CreateMeshAttributeBindGroup(wgpuConfiguration->GetDevice(), "MeshAttributeBindGroup");
+    this->RebuildGraphicsPipelines = true;
   }
 
   vtkDebugMacro(<< ((updatePointDescriptor || updateCellArrayDescriptor) ? "rebuilt" : "")
@@ -1399,13 +1404,6 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
                 << ((updatePointDescriptor || updateCellArrayDescriptor)
                        ? " buffers"
                        : "reuse point and cell buffers"));
-  if (updatePointDescriptor || updateCellArrayDescriptor)
-  {
-    // Create bind group for the point/cell attribute buffers.
-    this->MeshAttributeBindGroup =
-      this->CreateMeshAttributeBindGroup(wgpuConfiguration->GetDevice(), "MeshAttributeBindGroup");
-    this->RebuildGraphicsPipelines = true;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -1833,6 +1831,7 @@ void vtkWebGPUPolyDataMapper::DispatchCellToPrimitiveComputePipeline(
 void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
 {
+  auto* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
@@ -1862,6 +1861,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 
   std::vector<wgpu::BindGroupLayout> bgls;
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
+  wgpuActor->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(
     this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroupLayout"));
   bgls.emplace_back(this->CreateTopologyBindGroupLayout(device, "TopologyBindGroupLayout"));
@@ -1885,14 +1885,16 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
+  vtkActor* actor, vtkRenderer* renderer)
 {
   if (this->RebuildGraphicsPipelines)
   {
     return true;
   }
-  auto it = this->CachedActorProperties.find(actor);
-  if (it == this->CachedActorProperties.end())
+  const auto key = std::make_pair(actor, renderer);
+  auto it = this->CachedActorRendererProperties.find(key);
+  if (it == this->CachedActorRendererProperties.end())
   {
     return true;
   }
@@ -1939,7 +1941,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
     this->IndirectDrawBufferUploadTimeStamp[i] = vtkTimeStamp();
   }
   this->RebuildGraphicsPipelines = true;
-  this->CachedActorProperties.clear();
+  this->CachedActorRendererProperties.clear();
 }
 
 //------------------------------------------------------------------------------

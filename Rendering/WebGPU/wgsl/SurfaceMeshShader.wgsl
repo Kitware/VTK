@@ -70,7 +70,7 @@ struct Topology {
 ///-------------------------------------------------------------------
 // Everything shader needs from the vtkActor and it's vtkProperty
 ///-------------------------------------------------------------------
-@group(1) @binding(0) var<uniform> actor: ActorBlock;
+@group(1) @binding(0) var<storage, read> actor: ActorBlock;
 
 ///-----------------------------------------------------------------///
 // Mesh attributes.
