@@ -387,8 +387,11 @@ int vtkTextureObject::GetTextureUnit()
 void vtkTextureObject::Activate()
 {
   // activate a free texture unit for this texture
-  this->Context->ActivateTexture(this);
-  this->Bind();
+  if (this->Context)
+  {
+    this->Context->ActivateTexture(this);
+    this->Bind();
+  }
 }
 
 //------------------------------------------------------------------------------
