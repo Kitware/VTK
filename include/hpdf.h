@@ -258,6 +258,13 @@ HPDF_EXPORT(HPDF_STATUS)
 HPDF_Page_SetHeight  (HPDF_Page   page,
                       HPDF_REAL   value);
 
+HPDF_EXPORT(HPDF_STATUS)
+HPDF_Page_SetBoundary  (HPDF_Page           page,
+                        HPDF_PageBoundary   boundary,
+                        HPDF_REAL           left,
+                        HPDF_REAL           bottom,
+                        HPDF_REAL           right,
+                        HPDF_REAL           top);
 
 HPDF_EXPORT(HPDF_STATUS)
 HPDF_Page_SetSize  (HPDF_Page            page,

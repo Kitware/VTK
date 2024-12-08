@@ -317,8 +317,13 @@ static HPDF_STATUS
 WriteTrailer  (HPDF_Xref     xref,
                HPDF_Stream   stream)
 {
-    HPDF_UINT max_obj_id = xref->entries->count + xref->start_offset;
+    HPDF_UINT max_obj_id;
     HPDF_STATUS ret;
+
+    if (!xref)
+        return HPDF_INVALID_OBJECT;
+
+    max_obj_id = xref->entries->count + xref->start_offset;
 
     HPDF_PTRACE ((" WriteTrailer\n"));
 

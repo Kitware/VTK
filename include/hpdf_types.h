@@ -583,6 +583,16 @@ typedef enum _HPDF_NameDictKey {
 
 /*----------------------------------------------------------------------------*/
 
+typedef enum _HPDF_PageBoundary {
+    HPDF_PAGE_MEDIABOX = 0,
+    HPDF_PAGE_CROPBOX,
+    HPDF_PAGE_BLEEDBOX,
+    HPDF_PAGE_TRIMBOX,
+    HPDF_PAGE_ARTBOX
+} HPDF_PageBoundary;
+
+/*----------------------------------------------------------------------------*/
+
 typedef enum _HPDF_ShadingType {
   HPDF_SHADING_FREE_FORM_TRIANGLE_MESH = 4 /* TODO the rest */
 } HPDF_ShadingType;

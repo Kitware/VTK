@@ -2,14 +2,21 @@ if (FALSE) # XXX(kitware): VTK handles minimum versions
 cmake_minimum_required(VERSION 3.10)
 endif ()
 
+file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/include/hpdf_version.h HPDF_VERSION_H_CONTENTS REGEX " HPDF_(MAJOR|MINOR|BUGFIX)_VERSION ")
+string(REGEX MATCH "MAJOR_VERSION [0-9]+"  HPDF_MAJOR_VERSION  ${HPDF_VERSION_H_CONTENTS})
+string(REGEX MATCH "MINOR_VERSION [0-9]+"  HPDF_MINOR_VERSION  ${HPDF_VERSION_H_CONTENTS})
+string(REGEX MATCH "BUGFIX_VERSION [0-9]+" HPDF_BUGFIX_VERSION ${HPDF_VERSION_H_CONTENTS})
+string(REGEX MATCH "[0-9]+" HPDF_MAJOR_VERSION  ${HPDF_MAJOR_VERSION})
+string(REGEX MATCH "[0-9]+" HPDF_MINOR_VERSION  ${HPDF_MINOR_VERSION})
+string(REGEX MATCH "[0-9]+" HPDF_BUGFIX_VERSION ${HPDF_BUGFIX_VERSION})
+
 project(libharu
-    VERSION 2.4.0
+    VERSION ${HPDF_MAJOR_VERSION}.${HPDF_MINOR_VERSION}.${HPDF_BUGFIX_VERSION}
     DESCRIPTION "libHaru is a free, cross platform, open source library for generating PDF files."
     LANGUAGES C)
 
-if (UNIX)
-    include(GNUInstallDirs)
-endif()
+include(GNUInstallDirs)
+
 
 # Location where the haru cmake build system first looks for cmake modules
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
@@ -60,7 +67,7 @@ endif ()
 if (FALSE) # XXX(kitware): use VTK's libraries
 # check zlib availibility
 find_package(ZLIB)
-  
+
 # check png availability
 find_package(PNG)
 
@@ -122,8 +129,7 @@ set(
   haru_HDRS
     include/hpdf.h
     include/hpdf_types.h
-    include/hpdf_consts.h 
-    include/hpdf_version.h
+    include/hpdf_consts.h
     include/hpdf_annotation.h
     include/hpdf_catalog.h
     include/hpdf_conf.h
@@ -141,6 +147,7 @@ set(
     include/hpdf_info.h
     include/hpdf_list.h
     include/hpdf_mmgr.h
+    include/hpdf_namedict.h
     include/hpdf_objects.h
     include/hpdf_outline.h
     include/hpdf_pages.h
@@ -151,6 +158,7 @@ set(
     include/hpdf_pdfa.h
     include/hpdf_3dmeasure.h
     include/hpdf_exdata.h
+    include/hpdf_version.h
     include/vtk_haru_mangle.h
     ${PROJECT_BINARY_DIR}/include/hpdf_config.h
 )
@@ -164,8 +172,8 @@ if (FALSE) # XXX(kitware): VTK handles installation
 install(FILES ${haru_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # install various files
-install(FILES README.md CHANGES INSTALL DESTINATION .)
-install(DIRECTORY bindings DESTINATION .)
+install(FILES README.md CHANGES INSTALL DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
+install(DIRECTORY bindings DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
 endif ()
 
 # =======================================================================

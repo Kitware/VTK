@@ -183,16 +183,14 @@ HPDF_FToA  (char       *s,
             HPDF_REAL   val,
             char       *eptr)
 {
-    HPDF_INT32 int_val;
-    HPDF_INT32 fpart_val;
+    HPDF_REAL int_val;
+    HPDF_REAL fpart_val;
+    HPDF_REAL dig;
     char buf[HPDF_REAL_LEN + 1];
     char* sptr = s;
     char* t;
-    HPDF_UINT32 i;
-    HPDF_UINT32 prec;
     HPDF_INT32 logVal;
-    HPDF_REAL roundInc;
-    HPDF_INT64 fShift;
+    HPDF_UINT32 prec;
 
     if (val > HPDF_LIMIT_MAX_REAL)
         val = HPDF_LIMIT_MAX_REAL;
@@ -200,15 +198,15 @@ HPDF_FToA  (char       *s,
     if (val < HPDF_LIMIT_MIN_REAL)
         val = HPDF_LIMIT_MIN_REAL;
 
-    t = buf + HPDF_REAL_LEN;
-    *t-- = 0;
+    t = buf;
+    *t++ = 0;
 
     if (val < 0) {
         *s++ = '-';
         val = -val;
     }
 
-    /* Compute the decimal precision to write at least 5 significant figures */
+    /* compute the decimal precision to write at least 5 significant figures */
     logVal = (HPDF_INT32)(val > 1e-20 ? log10(val) : 0.);
     if (logVal >= 0) {
         prec = 5;
@@ -217,38 +215,31 @@ HPDF_FToA  (char       *s,
         prec = -logVal + 5;
     }
 
-    roundInc = 0.5 * (1. / pow((HPDF_REAL)10, (HPDF_REAL)prec));
-    fShift = (HPDF_INT64)pow((HPDF_REAL)10, (HPDF_REAL)prec);
-
-    /* separate an integer part and a decimal part. */
-    int_val = (HPDF_INT64)(val + roundInc);
-    fpart_val = (HPDF_INT64)((HPDF_REAL)(val - int_val + roundInc) * fShift);
-
-    /* process decimal part */
-    for (i = 0; i < prec; i++) {
-        *t = (char)((char)(fpart_val % 10) + '0');
-        fpart_val /= 10;
-        t--;
-    }
+    /* separate an integer part and a fractional part. */
+    fpart_val = modff(val, &int_val);
 
     /* process integer part */
-    *t-- = '.';
-    *t = '0';
-    if (int_val == 0)
-        t--;
+    do {
+        dig = modff(int_val/10.0, &int_val);
+        *t++ = (char)(dig*10.0 + 0.5) + '0';
+    } while (int_val > 0);
 
-    while (int_val > 0) {
-        *t = (char)((char)(int_val % 10) + '0');
-        int_val /= 10;
-        t--;
-    }
-
-    t++;
+    /* copy to destination buffer */
+    t--;
     while (s <= eptr && *t != 0)
-        *s++ = *t++;
-    s--;
+        *s++ = *t--;
 
-    /* delete an excessive decimal portion. */
+   /* process fractional part */
+   *s++ = '.';
+   if(fpart_val != 0.0) {
+       for (HPDF_UINT32 i = 0; i < prec; i++) {
+          fpart_val = modff(fpart_val*10.0, &int_val);
+          *s++ = (char)(int_val + 0.5) + '0';
+       }
+   }
+
+   /* delete an excessive decimal portion. */
+   s--;
     while (s > sptr) {
         if (*s == '0')
             *s = 0;

@@ -145,7 +145,7 @@ extern "C" {
 #define HPDF_INVALID_U3D_DATA                     0x1083
 #define HPDF_NAME_CANNOT_GET_NAMES                0x1084
 #define HPDF_INVALID_ICC_COMPONENT_NUM            0x1085
-/*                                                0x1086 */
+#define HPDF_PAGE_INVALID_BOUNDARY                0x1086
 /*                                                0x1087 */
 #define HPDF_INVALID_SHADING_TYPE                 0x1088
 

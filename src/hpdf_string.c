@@ -196,7 +196,19 @@ HPDF_INT32
 HPDF_String_Cmp  (HPDF_String s1,
                   HPDF_String s2)
 {
-    if (s1->len < s2->len) return -1;
-    if (s1->len > s2->len) return +1;
-    return memcmp(s1->value, s2->value, s1->len);
+    HPDF_INT32 res;
+    HPDF_UINT  minLen;
+
+    minLen = s1->len;
+    if( s1->len > s2->len ) {
+      minLen = s2->len;
+    }
+
+    res = memcmp( s1->value, s2->value, minLen );
+    if( res == 0 ) {
+      if( s1->len < s2->len ) res = -1;
+      if( s1->len > s2->len ) res = +1;
+    }
+
+    return res;
 }

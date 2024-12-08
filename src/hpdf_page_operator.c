@@ -441,13 +441,17 @@ HPDF_Page_Concat  (HPDF_Page         page,
         return HPDF_CheckError (page->error);
 
     tm = attr->gstate->trans_matrix;
-
+    /*
+    | ta tb 0 |   | a b |   | ta*a+tb*c   ta*b+tb*d   |
+    | tc td 0 | x | c d | = | tc*a+td*c   tc*b+td*d   |
+    | tx ty 1 |   | x y |   | tx*a+ty*c+x tx*b+ty*d+y |
+    */
     attr->gstate->trans_matrix.a = tm.a * a + tm.b * c;
     attr->gstate->trans_matrix.b = tm.a * b + tm.b * d;
     attr->gstate->trans_matrix.c = tm.c * a + tm.d * c;
     attr->gstate->trans_matrix.d = tm.c * b + tm.d * d;
-    attr->gstate->trans_matrix.x = tm.x + x * tm.a + y * tm.c;
-    attr->gstate->trans_matrix.y = tm.y + x * tm.b + y * tm.d;
+    attr->gstate->trans_matrix.x = tm.x * a + tm.y * c + x;
+    attr->gstate->trans_matrix.y = tm.x * b + tm.y * d + y;
 
     return ret;
 }

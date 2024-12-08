@@ -181,30 +181,30 @@ LoadAfm (HPDF_FontDef  fontdef,
         } else
 
         if (HPDF_StrCmp (keyword, "CharacterSet") == 0) {
-            HPDF_UINT len = HPDF_StrLen (s, HPDF_LIMIT_MAX_STRING_LEN);
+            HPDF_UINT len1 = HPDF_StrLen (s, HPDF_LIMIT_MAX_STRING_LEN);
 
-            if (len > 0) {
-                attr->char_set = HPDF_GetMem (fontdef->mmgr, len + 1);
+            if (len1 > 0) {
+                attr->char_set = HPDF_GetMem (fontdef->mmgr, len1 + 1);
                 if (!attr->char_set)
                     return HPDF_Error_GetCode (fontdef->error);
 
-                HPDF_StrCpy (attr->char_set, s, attr->char_set + len);
+                HPDF_StrCpy (attr->char_set, s, attr->char_set + len1);
             }
         } else
         if (HPDF_StrCmp (keyword, "FontBBox") == 0) {
-            char buf[HPDF_INT_LEN + 1];
+            char buf1[HPDF_INT_LEN + 1];
 
-            s = GetKeyword (s, buf, HPDF_INT_LEN + 1);
-            fontdef->font_bbox.left = (HPDF_REAL)HPDF_AToI (buf);
+            s = GetKeyword (s, buf1, HPDF_INT_LEN + 1);
+            fontdef->font_bbox.left = (HPDF_REAL)HPDF_AToI (buf1);
 
-            s = GetKeyword (s, buf, HPDF_INT_LEN + 1);
-            fontdef->font_bbox.bottom = (HPDF_REAL)HPDF_AToI (buf);
+            s = GetKeyword (s, buf1, HPDF_INT_LEN + 1);
+            fontdef->font_bbox.bottom = (HPDF_REAL)HPDF_AToI (buf1);
 
-            s = GetKeyword (s, buf, HPDF_INT_LEN + 1);
-            fontdef->font_bbox.right = (HPDF_REAL)HPDF_AToI (buf);
+            s = GetKeyword (s, buf1, HPDF_INT_LEN + 1);
+            fontdef->font_bbox.right = (HPDF_REAL)HPDF_AToI (buf1);
 
-            GetKeyword (s, buf, HPDF_INT_LEN + 1);
-            fontdef->font_bbox.top = (HPDF_REAL)HPDF_AToI (buf);
+            GetKeyword (s, buf1, HPDF_INT_LEN + 1);
+            fontdef->font_bbox.top = (HPDF_REAL)HPDF_AToI (buf1);
         } else
         if (HPDF_StrCmp (keyword, "EncodingScheme") == 0) {
             HPDF_StrCpy (attr->encoding_scheme, s,
@@ -242,7 +242,7 @@ LoadAfm (HPDF_FontDef  fontdef,
     /* load CharMetrics */
     for (i = 0; i < attr->widths_count; i++, cdata++) {
         const char *s;
-        char buf2[HPDF_LIMIT_MAX_NAME_LEN + 1];
+        char buf2[HPDF_LIMIT_MAX_NAME_LEN + 1] = { 0 };
 
         len = HPDF_TMP_BUF_SIZ;
         if ((ret = HPDF_Stream_ReadLn (stream, buf, &len)) != HPDF_OK)
@@ -259,8 +259,6 @@ LoadAfm (HPDF_FontDef  fontdef,
             s += 2;
 
             s = GetKeyword (s, buf2, HPDF_LIMIT_MAX_NAME_LEN + 1);
-              HPDF_AToI (buf2);
-
             cdata->char_cd = (HPDF_INT16)HPDF_AToI (buf2);
 
         } else
@@ -343,7 +341,7 @@ LoadFontData (HPDF_FontDef  fontdef,
                         len + 11);
 
                 if (s2)
-                    attr->length2 = attr->font_data->size + - 520 -
+                    attr->length2 = attr->font_data->size - 520 -
                         attr->length1 + (s2 - buf);
                 /*  length1 indicate the size of binary-data.
                  *  in most fonts, it is all right at 520 bytes . but it need
