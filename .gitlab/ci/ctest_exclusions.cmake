@@ -359,6 +359,15 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
+  list(APPEND test_exclusions
+    # geometry shader issues (observed on M4 hardware)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19555
+    "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
+    "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
+    "^VTK::CommonDataModelPython-TestClipPolyhedra$")
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "arm64")
   list(APPEND test_exclusions
