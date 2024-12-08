@@ -585,7 +585,7 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
   list (APPEND test_exclusions
-    # WebGPU tests on wasm64 fail 
+    # WebGPU tests on wasm64 fail
     "^VTK::RenderingWebGPUCxx-TestActorFaceCullingProperty"
     "^VTK::RenderingWebGPUCxx-TestCellScalarMappedColors"
     "^VTK::RenderingWebGPUCxx-TestComputeDoublePipelineRenderBuffer"
