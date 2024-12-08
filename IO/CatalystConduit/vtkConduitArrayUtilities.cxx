@@ -213,16 +213,39 @@ conduit_cpp::DataType::Id GetTypeId(conduit_cpp::DataType::Id type, bool force_s
 using vtkmConnectivityArrays = vtkTypeList::Unique<vtkTypeList::Create<vtkmDataArray<vtkm::Int8>,
   vtkmDataArray<vtkm::Int16>, vtkmDataArray<vtkm::Int32>, vtkmDataArray<vtkm::Int64>>>::Result;
 
+void AddOneIndexToOffset(vtkm::cont::ArrayHandle<vtkm::Id>& offset, size_t connectivitySize)
+{
+  size_t lastValue = offset.GetNumberOfValues();
+  offset.Allocate(lastValue + 1, vtkm::CopyFlag::On);
+  auto portal = offset.WritePortal();
+  portal.Set(lastValue, connectivitySize);
+}
+
+template <typename OutputValueT, typename ArrayT>
+vtkm::cont::ArrayHandle<OutputValueT> ToArrayHandle(ArrayT* input)
+{
+  // input is a vtkmDataArray<inputValueType>
+  using inputValueType = typename ArrayT::ValueType;
+  auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
+  vtkm::cont::ArrayHandle<inputValueType> inputArrayHandle =
+    inputUnknownHandle.template AsArrayHandle<vtkm::cont::ArrayHandle<inputValueType>>();
+  vtkm::cont::UnknownArrayHandle connectivityUnknownHandle =
+    vtkm::cont::ArrayHandle<OutputValueT>{};
+  connectivityUnknownHandle.CopyShallowIfPossible(inputUnknownHandle);
+  vtkm::cont::CellSetSingleType<> cellSet;
+  return connectivityUnknownHandle.AsArrayHandle<vtkm::cont::ArrayHandle<OutputValueT>>();
+}
+
 //----------------------------------------------------------------------------
-struct FromDeviceToCellArray
+struct FromDeviceConduitToMonoShapedCellArray
 {
   vtkIdType NumberOfPoints;
   vtkIdType NumberOfPointsPerCell;
   int VTKCellType;
   vtkCellArray* CellArray;
 
-  FromDeviceToCellArray(vtkIdType numberOfPoints, vtkIdType numberOfPointsPerCell, int vtkCellType,
-    vtkCellArray* cellArray)
+  FromDeviceConduitToMonoShapedCellArray(vtkIdType numberOfPoints, vtkIdType numberOfPointsPerCell,
+    int vtkCellType, vtkCellArray* cellArray)
     : NumberOfPoints(numberOfPoints)
     , NumberOfPointsPerCell(numberOfPointsPerCell)
     , VTKCellType(vtkCellType)
@@ -234,18 +257,70 @@ struct FromDeviceToCellArray
   void operator()(ArrayT* input)
   {
     // input is a vtkmDataArray<inputValueType>
-    using inputValueType = typename ArrayT::ValueType;
-    auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
-    vtkm::cont::ArrayHandle<inputValueType> inputArrayHandle =
-      inputUnknownHandle.template AsArrayHandle<vtkm::cont::ArrayHandle<inputValueType>>();
-    vtkm::cont::UnknownArrayHandle connectivityUnknownHandle = vtkm::cont::ArrayHandle<vtkm::Id>{};
-    connectivityUnknownHandle.CopyShallowIfPossible(inputUnknownHandle);
     vtkm::cont::CellSetSingleType<> cellSet;
     // VTK cell types and VTKm cell shapes have the same numbers
     cellSet.Fill(this->NumberOfPoints, this->VTKCellType, this->NumberOfPointsPerCell,
-      connectivityUnknownHandle.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>());
+      internals::ToArrayHandle<vtkm::Id>(input));
     fromvtkm::Convert(cellSet, this->CellArray);
   }
+};
+
+//----------------------------------------------------------------------------
+struct FromDeviceConduitToMixedCellArray
+{
+public:
+  FromDeviceConduitToMixedCellArray(vtkIdType numberOfPoints, vtkCellArray* cellArray)
+    : NumberOfPoints(numberOfPoints)
+    , CellArray(cellArray)
+  {
+  }
+
+  template <typename ArrayT1, typename ArrayT2, typename ArrayT3>
+  void operator()(ArrayT1* offsets, ArrayT2* shapes, ArrayT3* connectivity)
+  {
+    // conduit offsets array does not include the last index =
+    // connectivity.size() as CellSetExplicit
+    vtkm::cont::CellSetExplicit<> cellSet;
+    auto vtkmOffsets = ToArrayHandle<vtkm::Id>(offsets);
+    auto vtkmConnectivity = ToArrayHandle<vtkm::Id>(connectivity);
+    AddOneIndexToOffset(vtkmOffsets, vtkmConnectivity.GetNumberOfValues());
+    cellSet.Fill(
+      this->NumberOfPoints, ToArrayHandle<vtkm::UInt8>(shapes), vtkmConnectivity, vtkmOffsets);
+
+    fromvtkm::Convert(cellSet, this->CellArray);
+  }
+
+private:
+  vtkIdType NumberOfPoints;
+  vtkCellArray* CellArray;
+};
+
+//----------------------------------------------------------------------------
+struct FromHostConduitToMixedCellArray
+{
+public:
+  FromHostConduitToMixedCellArray(vtkCellArray* cellArray)
+    : CellArray(cellArray)
+  {
+  }
+
+  template <typename ArrayT1, typename ArrayT2>
+  void operator()(ArrayT1* offsets, ArrayT2* connectivity)
+  {
+    // conduit offsets array does not include the last index = connectivity.size() as vtkCellArray
+    vtkSmartPointer<vtkDataArray> vtkOffsets = vtk::TakeSmartPointer(offsets->NewInstance());
+    vtkOffsets->SetNumberOfTuples(offsets->GetNumberOfTuples() + 1);
+    vtkOffsets->SetNumberOfComponents(1);
+
+    const auto offsetsRange = vtk::DataArrayValueRange(offsets);
+    auto vtkOffsetsRange = vtk::DataArrayValueRange(vtkOffsets);
+    std::copy(offsetsRange.begin(), offsetsRange.end(), vtkOffsetsRange.begin());
+    *(vtkOffsetsRange.end() - 1) = connectivity->GetNumberOfTuples();
+    this->CellArray->SetData(vtkOffsets, connectivity);
+  }
+
+private:
+  vtkCellArray* CellArray;
 };
 
 constexpr vtkm::Int8 GetDeviceAdapterId()
@@ -604,7 +679,8 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   // check if cell arrays are in device memory
   using Dispatcher = vtkArrayDispatch::DispatchByArray<internals::vtkmConnectivityArrays>;
   vtkNew<vtkCellArray> cellArray;
-  internals::FromDeviceToCellArray worker{ numberOfPoints, cellSize, cellType, cellArray };
+  internals::FromDeviceConduitToMonoShapedCellArray worker{ numberOfPoints, cellSize, cellType,
+    cellArray };
   if (!Dispatcher::Execute(connectivity, worker))
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   {
@@ -616,7 +692,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-  const conduit_node* c_o2mrelation, const std::string& leafname)
+  vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname)
 {
   const conduit_cpp::Node o2mrelation =
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
@@ -636,9 +712,29 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   const auto node_offsets = o2mrelation["offsets"];
   auto offsets = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&node_offsets), /*force_signed*/ true);
-
+  const auto node_shapes = o2mrelation["shapes"];
+  auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
+    conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
   vtkNew<vtkCellArray> cellArray;
-  cellArray->SetData(offsets, elements);
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  // offsets and connectivity are in device memory
+  using VtkmDispatcher =
+    vtkArrayDispatch::Dispatch3ByArrayWithSameValueType<internals::vtkmConnectivityArrays,
+      internals::vtkmConnectivityArrays, internals::vtkmConnectivityArrays>;
+  internals::FromDeviceConduitToMixedCellArray deviceWorker{ numberOfPoints, cellArray };
+  if (!VtkmDispatcher::Execute(offsets, shapes, elements, deviceWorker))
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  {
+    // offsets and connectivity are in host memory
+    using ConduitDispatcher =
+      vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Integrals>;
+    internals::FromHostConduitToMixedCellArray hostWorker{ cellArray };
+    if (!ConduitDispatcher::Execute(offsets, elements, hostWorker))
+    {
+      vtkLogF(ERROR, "offsets and elements do not have int values.");
+      return nullptr;
+    }
+  }
   return cellArray;
 }
 

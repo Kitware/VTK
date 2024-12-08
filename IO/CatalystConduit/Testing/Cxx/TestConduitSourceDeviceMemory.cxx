@@ -375,9 +375,11 @@ inline unsigned int calc(unsigned int i, unsigned int j, unsigned int k, unsigne
 
 void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
-  std::vector<unsigned int>& elemShapes, vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
+  vtkm::cont::ArrayHandle<unsigned int>& elemShapes,
+  vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
   vtkm::cont::ArrayHandle<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, std::vector<unsigned int>& subelemShapes,
+  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets,
+  vtkm::cont::ArrayHandle<unsigned int>& subelemShapes,
   vtkm::cont::ArrayHandle<unsigned int>& subelemConnectivity,
   vtkm::cont::ArrayHandle<unsigned int>& subelemSizes,
   vtkm::cont::ArrayHandle<unsigned int>& subelemOffsets, vtkm::Int8 memorySpace)
@@ -417,15 +419,15 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   const auto elemConnectivitySize = nTet * 4 + nPolyhedra * 5 + nHex * 8;
   const auto subElemConnectivitySize = nPolyhedra * 18;
 
-  std::vector<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  elemShapes.resize(nEle);
+  std::vector<unsigned int> elem_connectivity, elem_shapes, elem_sizes, elem_offsets;
+  elem_shapes.resize(nEle);
   elem_sizes.resize(nEle);
   elem_offsets.resize(nEle);
   elem_connectivity.resize(nTet * 4 + nPolyhedra * 5 + nHex * 8);
   elem_offsets[0] = 0;
 
-  std::vector<unsigned int> subelem_connectivity, subelem_sizes, subelem_offsets;
-  subelemShapes.resize(nFaces);
+  std::vector<unsigned int> subelem_connectivity, subelem_shapes, subelem_sizes, subelem_offsets;
+  subelem_shapes.resize(nFaces);
   subelem_sizes.resize(nFaces);
   subelem_offsets.resize(nFaces);
   subelem_connectivity.resize(nPolyhedra * 18);
@@ -447,7 +449,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
         {
           constexpr int HexaPointCount = 8;
 
-          elemShapes[idx_elem] = VTK_HEXAHEDRON;
+          elem_shapes[idx_elem] = VTK_HEXAHEDRON;
           elem_sizes[idx_elem] = HexaPointCount;
           if (idx_elem + 1 < elem_offsets.size())
           {
@@ -468,10 +470,10 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
         }
         else // 3 tets, one polyhedron
         {
-          elemShapes[idx_elem + 0] = VTK_TETRA;
-          elemShapes[idx_elem + 1] = VTK_TETRA;
-          elemShapes[idx_elem + 2] = VTK_TETRA;
-          elemShapes[idx_elem + 3] = VTK_POLYHEDRON;
+          elem_shapes[idx_elem + 0] = VTK_TETRA;
+          elem_shapes[idx_elem + 1] = VTK_TETRA;
+          elem_shapes[idx_elem + 2] = VTK_TETRA;
+          elem_shapes[idx_elem + 3] = VTK_POLYHEDRON;
 
           constexpr int TetraPointCount = 4;
           constexpr int WedgeFaceCount = 5;
@@ -513,11 +515,11 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           elem_connectivity[idx + 15] = 3 + WedgeFaceCount * polyhedronCounter;
           elem_connectivity[idx + 16] = 4 + WedgeFaceCount * polyhedronCounter;
 
-          subelemShapes[idx_elem2 + 0] = VTK_QUAD;
-          subelemShapes[idx_elem2 + 1] = VTK_QUAD;
-          subelemShapes[idx_elem2 + 2] = VTK_QUAD;
-          subelemShapes[idx_elem2 + 3] = VTK_TRIANGLE;
-          subelemShapes[idx_elem2 + 4] = VTK_TRIANGLE;
+          subelem_shapes[idx_elem2 + 0] = VTK_QUAD;
+          subelem_shapes[idx_elem2 + 1] = VTK_QUAD;
+          subelem_shapes[idx_elem2 + 2] = VTK_QUAD;
+          subelem_shapes[idx_elem2 + 3] = VTK_TRIANGLE;
+          subelem_shapes[idx_elem2 + 4] = VTK_TRIANGLE;
 
           subelem_sizes[idx_elem2 + 0] = QuadPointCount;
           subelem_sizes[idx_elem2 + 1] = QuadPointCount;
@@ -577,6 +579,10 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   }
   {
     vtkm::cont::Token token;
+    elemShapes.PrepareForOutput(elem_shapes.size(), device, token);
+  }
+  {
+    vtkm::cont::Token token;
     elemConnectivity.PrepareForOutput(elem_connectivity.size(), device, token);
   }
   {
@@ -594,6 +600,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
 
   ::Copy(vtkm::cont::make_ArrayHandle(elem_offsets, vtkm::CopyFlag::Off), elemOffsets, device);
   ::Copy(vtkm::cont::make_ArrayHandle(elem_sizes, vtkm::CopyFlag::Off), elemSizes, device);
+  ::Copy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes, device);
   ::Copy(
     vtkm::cont::make_ArrayHandle(elem_connectivity, vtkm::CopyFlag::Off), elemConnectivity, device);
 
@@ -604,14 +611,14 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
     subelemConnectivity, device);
 
   auto elements = res["topologies/mesh/elements"];
-  elements["shapes"].set(elemShapes);
+  elements["shapes"].set_external(::GetDevicePointer(elemShapes, 0, device), nEle);
   elements["offsets"].set_external(::GetDevicePointer(elemOffsets, 0, device), nEle);
   elements["sizes"].set_external(::GetDevicePointer(elemSizes, 0, device), nEle);
   elements["connectivity"].set_external(
     ::GetDevicePointer(elemConnectivity, 0, device), elemConnectivitySize);
 
   auto subelements = res["topologies/mesh/subelements"];
-  subelements["shapes"].set(subelemShapes);
+  subelements["shapes"].set_external(::GetDevicePointer(subelemShapes, 0, device), nFaces);
   subelements["offsets"].set_external(::GetDevicePointer(subelemOffsets, 0, device), nFaces);
   subelements["sizes"].set_external(::GetDevicePointer(subelemSizes, 0, device), nFaces);
   subelements["connectivity"].set_external(
@@ -619,7 +626,8 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
 }
 
 void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, conduit_cpp::Node& res,
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords, std::vector<unsigned int>& elemShapes,
+  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
+  vtkm::cont::ArrayHandle<unsigned int>& elemShapes,
   vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
   vtkm::cont::ArrayHandle<unsigned int>& elemSizes,
   vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, vtkm::Int8 memorySpace)
@@ -644,8 +652,8 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
   const unsigned int ntris = nele_y * 2 * (nele_x2 + nele_x % 2);
   const unsigned int nele = nquads + ntris;
 
-  std::vector<unsigned int> connectivity, sizes, offsets;
-  elemShapes.resize(nele);
+  std::vector<unsigned int> connectivity, sizes, offsets, shapes;
+  shapes.resize(nele);
   sizes.resize(nele);
   offsets.resize(nele);
   offsets[0] = 0;
@@ -661,8 +669,8 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
       if (i % 2 == 0)
       {
         constexpr int TrianglePointCount = 3;
-        elemShapes[idx_elem + 0] = VTK_TRIANGLE;
-        elemShapes[idx_elem + 1] = VTK_TRIANGLE;
+        shapes[idx_elem + 0] = VTK_TRIANGLE;
+        shapes[idx_elem + 1] = VTK_TRIANGLE;
         sizes[idx_elem + 0] = 3;
         sizes[idx_elem + 1] = 3;
 
@@ -686,7 +694,7 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
       else
       {
         constexpr int QuadPointCount = 4;
-        elemShapes[idx_elem] = VTK_QUAD;
+        shapes[idx_elem] = VTK_QUAD;
 
         sizes[idx_elem] = 4;
         if (idx_elem + 1 < offsets.size())
@@ -716,15 +724,20 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
   }
   {
     vtkm::cont::Token token;
+    elemShapes.PrepareForOutput(shapes.size(), device, token);
+  }
+  {
+    vtkm::cont::Token token;
     elemConnectivity.PrepareForOutput(connectivity.size(), device, token);
   }
 
   ::Copy(vtkm::cont::make_ArrayHandle(offsets, vtkm::CopyFlag::Off), elemOffsets, device);
   ::Copy(vtkm::cont::make_ArrayHandle(sizes, vtkm::CopyFlag::Off), elemSizes, device);
+  ::Copy(vtkm::cont::make_ArrayHandle(shapes, vtkm::CopyFlag::Off), elemShapes, device);
   ::Copy(vtkm::cont::make_ArrayHandle(connectivity, vtkm::CopyFlag::Off), elemConnectivity, device);
 
   auto elements = res["topologies/mesh/elements"];
-  elements["shapes"].set(elemShapes);
+  elements["shapes"].set_external(::GetDevicePointer(elemShapes, 0, device), nele);
   elements["offsets"].set_external(::GetDevicePointer(elemOffsets, 0, device), nele);
   elements["sizes"].set_external(::GetDevicePointer(elemSizes, 0, device), nele);
   elements["connectivity"].set_external(
@@ -910,9 +923,7 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
   vtkm::cont::ArrayHandle<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
   vtkm::cont::ArrayHandle<unsigned int> subelem_connectivity, subelem_sizes, subelem_offsets;
-  // shapes are in serial space because conduit verify_shape_node dereferences the pointer to
-  // access values.
-  std::vector<unsigned int> elem_shapes, subelem_shapes;
+  vtkm::cont::ArrayHandle<unsigned int> elem_shapes, subelem_shapes;
   CreateMixedUnstructuredMesh(5, 5, 5, mesh, pointCoords, elem_shapes, elem_connectivity,
     elem_sizes, elem_offsets, subelem_shapes, subelem_connectivity, subelem_sizes, subelem_offsets,
     memorySpace);
@@ -997,9 +1008,7 @@ bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
   vtkm::cont::ArrayHandle<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  // shapes are in serial space because conduit verify_shape_node dereferences the pointer to
-  // access values.
-  std::vector<unsigned int> elem_shapes;
+  vtkm::cont::ArrayHandle<unsigned int> elem_shapes;
   CreateMixedUnstructuredMesh2D(
     5, 5, mesh, pointCoords, elem_shapes, elem_connectivity, elem_sizes, elem_offsets, memorySpace);
   const auto data = Convert(mesh);
