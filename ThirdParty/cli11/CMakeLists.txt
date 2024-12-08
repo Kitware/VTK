@@ -7,9 +7,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2017-2019 University of Cincinnati, developed by Henry Schreiner under NSF AWARD 1414736"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/cli11.git@for/vtk-20210726-v2.0.0"
+      "git+https://gitlab.kitware.com/third-party/cli11.git@for/vtk-20241208-2.4.2"
     VERSION
-      "2.0.0"
+      "2.4.2"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL
