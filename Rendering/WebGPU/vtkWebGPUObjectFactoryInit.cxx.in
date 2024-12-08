@@ -43,6 +43,11 @@ for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit);
     object_factory->SetEnableFlag(use_webgpu, "vtkCamera", "vtkWebGPUCamera");
     object_factory->SetEnableFlag(use_opengl, "vtkCamera", "vtkOpenGLCamera");
   }
+  if (object_factory->HasOverride("vtkGlyph3DMapper"))
+  {
+    object_factory->SetEnableFlag(use_webgpu, "vtkGlyph3DMapper", "vtkWebGPUGlyph3DMapper");
+    object_factory->SetEnableFlag(use_opengl, "vtkGlyph3DMapper", "vtkOpenGLGlyph3DMapper");
+  }
   if (object_factory->HasOverride("vtkHardwareSelector"))
   {
     object_factory->SetEnableFlag(use_webgpu, "vtkHardwareSelector", "vtkWebGPUHardwareSelector");

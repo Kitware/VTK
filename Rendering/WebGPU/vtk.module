@@ -20,11 +20,14 @@ PRIVATE_DEPENDS
   VTK::fmt
 TEST_DEPENDS
   VTK::CommonColor
+  VTK::CommonSystem
   VTK::RenderingAnnotation
+  VTK::FiltersExtraction
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::RenderingUI
   VTK::InteractionStyle
   VTK::InteractionWidgets
+  VTK::IOParallel
   VTK::TestingCore
   VTK::TestingRendering

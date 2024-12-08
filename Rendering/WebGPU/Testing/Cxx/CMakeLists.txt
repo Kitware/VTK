@@ -23,6 +23,15 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputePointCloudMapperGeometry.cxx,NO_DATA
   TestComputePointCloudMapperResize.cxx,NO_DATA
   TestComputeTexture.cxx,NO_DATA,NO_VALID
+  TestGlyph3DMapper.cxx,NO_DATA
+  TestGlyph3DMapperArrow.cxx
+  TestGlyph3DMapperBounds.cxx,NO_DATA,NO_VALID
+  TestGlyph3DMapperCompositeDisplayAttributeInheritance.cxx,NO_DATA
+  TestGlyph3DMapperIndexing.cxx,NO_DATA
+  TestGlyph3DMapperMasking.cxx,NO_DATA
+  TestGlyph3DMapperOrientationArray.cxx,NO_DATA
+  TestGlyph3DMapperQuaternionArray.cxx,NO_DATA
+  TestGlyph3DMapperTreeIndexing.cxx,NO_DATA
   TestLineRendering.cxx,NO_DATA
   TestLowPowerRenderWindow.cxx,NO_DATA
   TestNActorsNMappersOneInput.cxx,NO_DATA
