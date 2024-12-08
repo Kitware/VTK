@@ -1356,8 +1356,13 @@ bool vtkXOpenGLRenderWindow::EnsureDisplay()
     this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
     if (this->DisplayId == nullptr)
     {
-      vtkWarningMacro(<< "bad X server connection. DISPLAY="
-                      << vtksys::SystemTools::GetEnv("DISPLAY"));
+      // Only warn about DISPLAY if on-screen rendering is selected,
+      // this helps with automatic detection of best window backend.
+      if (this->ShowWindow)
+      {
+        vtkWarningMacro(<< "bad X server connection. DISPLAY="
+                        << vtksys::SystemTools::GetEnv("DISPLAY"));
+      }
     }
     else
     {
