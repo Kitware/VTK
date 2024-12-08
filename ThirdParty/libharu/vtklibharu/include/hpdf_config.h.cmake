@@ -12,7 +12,7 @@
 #cmakedefine LIBHPDF_HAVE_LIBPNG
 
 /* Define to 1 if you have the `z' library (-lz). */
-#cmakedefine LIBHPDF_HAVE_LIBZ
+#cmakedefine LIBHPDF_HAVE_ZLIB
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine LIBHPDF_HAVE_MEMORY_H

@@ -135,27 +135,13 @@ HPDF_NameTree_Add  (HPDF_NameTree  tree,
 
     icount = HPDF_Array_Items(items);
 
-    /* If we're larger than the last element, append */
-    if (icount) {
-        HPDF_String last = HPDF_Array_GetItem(items, icount - 2, HPDF_OCLASS_STRING);
-
-        if (HPDF_String_Cmp(name, last) > 0) {
-            HPDF_Array_Add(items, name);
-            HPDF_Array_Add(items, obj);
-            return HPDF_OK;
-        }
-    }
-
-    /* Walk backwards through the list until we're smaller than an element=
-     * That's the element to insert in front of. */
-    for (i = icount - 4; i >= 0; i -= 2) {
-        HPDF_String elem = HPDF_Array_GetItem(items, i, HPDF_OCLASS_STRING);
-
-        if (i == 0 || HPDF_String_Cmp(name, elem) < 0) {
-            HPDF_Array_Insert(items, elem, name);
-            HPDF_Array_Insert(items, elem, obj);
-            return HPDF_OK;
-        }
+    for( i = 0; i < icount; i += 2 ) {
+      HPDF_String elem = HPDF_Array_GetItem( items, i, HPDF_OCLASS_STRING );
+      if( HPDF_String_Cmp( name, elem ) < 0 ) {
+        HPDF_Array_Insert( items, elem, name );
+        HPDF_Array_Insert( items, elem, obj );
+        return HPDF_OK;
+      }
     }
 
     /* Items list is empty */

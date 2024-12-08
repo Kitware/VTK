@@ -181,7 +181,7 @@ HPDF_PDFA_SetPDFAConformance (HPDF_Doc pdf,HPDF_PDFAType pdfatype)
         pdf->pdf_version = HPDF_VER_14;
 
         HPDF_Dict_AddName(xmp,"Type","Metadata");
-        HPDF_Dict_AddName(xmp,"SubType","XML");
+        HPDF_Dict_AddName(xmp,"Subtype","XML");
 
         ret = HPDF_OK;
         ret += HPDF_Stream_WriteStr(xmp->stream, HEADER);
