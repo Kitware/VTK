@@ -595,6 +595,10 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   }
   {
     vtkm::cont::Token token;
+    subelemShapes.PrepareForOutput(subelem_shapes.size(), device, token);
+  }
+  {
+    vtkm::cont::Token token;
     subelemConnectivity.PrepareForOutput(subelem_connectivity.size(), device, token);
   }
 
@@ -607,6 +611,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   ::Copy(
     vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets, device);
   ::Copy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes, device);
+  ::Copy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes, device);
   ::Copy(vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off),
     subelemConnectivity, device);
 
