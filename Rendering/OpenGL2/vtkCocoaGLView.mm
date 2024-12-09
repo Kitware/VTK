@@ -201,7 +201,7 @@ static const char* MacKeyCodeToKeySymTable[128] = {
   nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
   nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
   nullptr, nullptr, nullptr, nullptr, "Return",nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
-  "Tab", nullptr, nullptr, "Backspace", nullptr, "Escape", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
+  "Tab", nullptr, nullptr, "BackSpace", nullptr, "Escape", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
   nullptr, "period", nullptr, "asterisk", nullptr, "plus", nullptr, "Clear", nullptr, nullptr, nullptr, "slash", "KP_Enter", nullptr, "minus", nullptr, 
   nullptr, nullptr, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", nullptr, "KP_8", "KP_9", nullptr, nullptr, nullptr, 
   "F5", "F6", "F7", "F3", "F8", nullptr, nullptr, nullptr, nullptr, "Snapshot", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 
