@@ -449,6 +449,12 @@ void vtkAlgorithm::SetInputArrayToProcess(
 }
 
 //------------------------------------------------------------------------------
+void vtkAlgorithm::SetInputArrayToProcess(const char* name, int fieldAssociation)
+{
+  this->SetInputArrayToProcess(0, 0, 0, fieldAssociation, name);
+}
+
+//------------------------------------------------------------------------------
 int vtkAlgorithm::GetInputArrayAssociation(int idx, vtkInformationVector** inputVector)
 {
   int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
