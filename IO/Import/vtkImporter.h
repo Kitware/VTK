@@ -47,6 +47,7 @@ class vtkActorCollection;
 class vtkCollection;
 class vtkDataSet;
 class vtkDoubleArray;
+class vtkInformationIntegerKey;
 class vtkLightCollection;
 class vtkRenderWindow;
 class vtkRenderer;
@@ -183,6 +184,15 @@ public:
    */
   virtual bool UpdateAtTimeValue(double timeValue);
 
+  ///@{
+  /**
+   * Enable/Disable armature actors import if supported.
+   */
+  vtkSetMacro(ImportArmature, bool);
+  vtkGetMacro(ImportArmature, bool);
+  vtkBooleanMacro(ImportArmature, bool);
+  ///@}
+
 protected:
   vtkImporter();
   ~vtkImporter() override;
@@ -229,6 +239,8 @@ protected:
   vtkNew<vtkActorCollection> ActorCollection;
   vtkNew<vtkCollection> CameraCollection;
   vtkNew<vtkLightCollection> LightCollection;
+
+  bool ImportArmature = false;
 
 private:
   vtkImporter(const vtkImporter&) = delete;

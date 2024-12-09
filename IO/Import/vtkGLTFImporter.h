@@ -158,11 +158,20 @@ protected:
 
   void ApplySkinningMorphing();
 
+  /**
+   * Apply properties on the armature actors.
+   * By default, the armature is represented with spheres for joints
+   * and tubes for bones.
+   * Can be subclassed to change properties.
+   */
+  virtual void ApplyArmatureProperties(vtkActor* actor);
+
   char* FileName = nullptr;
 
   std::map<int, vtkSmartPointer<vtkCamera>> Cameras;
   std::map<int, vtkSmartPointer<vtkTexture>> Textures;
-  std::map<int, std::vector<vtkSmartPointer<vtkActor>>> Actors;
+  std::map<int, std::vector<vtkSmartPointer<vtkActor>>> MeshActors;
+  std::map<int, vtkSmartPointer<vtkActor>> ArmatureActors;
   vtkSmartPointer<vtkGLTFDocumentLoader> Loader;
   std::string OutputsDescription;
   std::vector<bool> EnabledAnimations;

@@ -1231,6 +1231,85 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
 }
 
 //------------------------------------------------------------------------------
+bool vtkGLTFDocumentLoader::BuildPolyDataFromSkin(Skin& skin)
+{
+  if (skin.Skeleton >= 0 && skin.Skeleton < this->InternalModel->Nodes.size())
+  {
+    skin.Armature = vtkSmartPointer<vtkPolyData>::New();
+
+    vtkNew<vtkPoints> points;
+    points->SetNumberOfPoints(skin.Joints.size());
+
+    vtkNew<vtkCellArray> vertices;
+
+    std::vector<int> nodeMapping(this->InternalModel->Nodes.size(), -1);
+
+    for (int i = 0; i < skin.Joints.size(); i++)
+    {
+      if (skin.Joints[i] >= nodeMapping.size())
+      {
+        // invalid index
+        return false;
+      }
+
+      double p[3] = {};
+
+      auto trs = this->InternalModel->Nodes[skin.Joints[i]].GlobalTransform;
+      if (trs)
+      {
+        p[0] = trs->GetElement(0, 3);
+        p[1] = trs->GetElement(1, 3);
+        p[2] = trs->GetElement(2, 3);
+      }
+
+      points->SetPoint(i, p);
+
+      vtkIdType vId = i;
+      vertices->InsertNextCell(1, &vId);
+
+      nodeMapping[skin.Joints[i]] = i;
+    }
+
+    vtkNew<vtkCellArray> lines;
+
+    std::function<bool(int)> VisitJoint = [&](int nodeIndex)
+    {
+      const Node& node = this->InternalModel->Nodes[nodeIndex];
+
+      int mappedNode = nodeMapping[nodeIndex];
+
+      if (mappedNode == -1)
+      {
+        return false;
+      }
+
+      for (int childIndex : node.Children)
+      {
+        int mappedChild = nodeMapping[childIndex];
+
+        if (mappedChild == -1)
+        {
+          return false;
+        }
+
+        lines->InsertNextCell({ mappedNode, mappedChild });
+        VisitJoint(childIndex);
+      }
+
+      return true;
+    };
+
+    skin.Armature->SetPoints(points);
+    skin.Armature->SetVerts(vertices);
+    skin.Armature->SetLines(lines);
+
+    return VisitJoint(skin.Skeleton);
+  }
+
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkGLTFDocumentLoader::Node::UpdateTransform()
 {
   this->Transform->Identity();
@@ -1518,6 +1597,11 @@ bool vtkGLTFDocumentLoader::BuildModelVTKGeometry()
     {
       this->BuildGlobalTransforms(node, nullptr);
     }
+  }
+  // Build armatures
+  for (Skin& skin : this->InternalModel->Skins)
+  {
+    this->BuildPolyDataFromSkin(skin);
   }
 
   return true;

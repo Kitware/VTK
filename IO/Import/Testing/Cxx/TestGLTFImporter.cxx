@@ -24,6 +24,7 @@ int TestGLTFImporter(int argc, char* argv[])
 
   vtkNew<vtkGLTFImporter> importer;
   importer->SetFileName(argv[1]);
+  importer->ImportArmatureOn();
 
   vtkNew<vtkRenderWindow> renderWindow;
   importer->SetRenderWindow(renderWindow);
