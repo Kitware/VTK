@@ -669,4 +669,24 @@ bool vtkXArrayAccessor::NeedsFileName()
   return false;
 }
 
+bool vtkXArrayAccessor::IsCOARDSCoordinate(std::string name)
+{
+  auto it = this->VarIndex.find(name);
+  if (it == this->VarIndex.end())
+  {
+    return false;
+  }
+  size_t nameId = it->second;
+  auto nameDims = this->VarDimId[nameId];
+  if (nameDims.size() != 1)
+  {
+    return false;
+  }
+  if (this->Dim[nameDims[0]] != name)
+  {
+    return false;
+  }
+  return true;
+}
+
 VTK_ABI_NAMESPACE_END

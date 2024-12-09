@@ -86,6 +86,7 @@ class VtkAccessor:
     def get_accessor(self):
         accessor = vtkXArrayAccessor()
         time_name = None
+        time_names = []
         # Set Dim and DimLen
         dims = {k: i for i, k in enumerate(self._xr.sizes.keys())}
         accessor.SetDim(list(self._xr.sizes.keys()))
@@ -107,12 +108,12 @@ class VtkAccessor:
                 un = np.datetime_data(v_data.dtype)
                 # unit = ns and 1 base unit in a spep
                 if un[0] == "ns" and un[1] == 1 and v in self._xr.coords.keys():
-                    time_name = v
+                    time_names.append(v)
             if v_data.dtype.char == "O":
                 # object array, assume cftime
                 # copy cftime array to a doubles array
                 self._arrays[v] = ndarray_cftime_toordinal(v_data).astype(np.float64)
-                time_name = v
+                time_names.append(v)
                 v_data = self._arrays[v]
             else:
                 self._arrays[v] = v_data
@@ -138,4 +139,9 @@ class VtkAccessor:
                     )
                 else:
                     accessor.SetAtt(i, item[0], vtkVariant(item[1]))
+        if len(time_names) >= 1:
+            for name in time_names:
+                if accessor.IsCOARDSCoordinate(name):
+                    time_name = name
+                    break
         return accessor, time_name

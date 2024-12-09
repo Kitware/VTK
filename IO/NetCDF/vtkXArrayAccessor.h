@@ -74,6 +74,11 @@ public:
   void SetVarValue(size_t varIndex, void* value);
   void SetAtt(size_t varIndex, std::string attributeName, const vtkVariant& var);
   void SetVarType(size_t varIndex, int nctype);
+  /**
+   * Check if this coordinate has one dim with the same name as the
+   * coordinate.
+   */
+  bool IsCOARDSCoordinate(std::string);
   ///@}
 
   /**
@@ -82,6 +87,8 @@ public:
   void SetVarDimId(size_t varIndex, const std::vector<size_t>& dims);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+protected:
   void PrintVarValue(const char* name, int varid);
   void PrintVarValue(const char* name, int varid, const size_t* startp, const size_t* countp);
   bool IsContiguous(int varid, const size_t* startp, const size_t* countp);
@@ -92,7 +99,6 @@ public:
   bool DecrementAndUpdate(size_t varid, std::vector<size_t>& count, const size_t* startp,
     const size_t* count_p, const std::vector<size_t>& dimIncrement, char*& src);
 
-protected:
   vtkXArrayAccessor() = default;
   ~vtkXArrayAccessor() override = default;
 
