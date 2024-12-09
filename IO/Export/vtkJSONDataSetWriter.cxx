@@ -39,6 +39,8 @@ vtkJSONDataSetWriter::vtkJSONDataSetWriter()
 {
   this->Archiver = vtkArchiver::New();
   this->ValidStringCount = 1;
+  this->GetPointArraySelection()->SetUnknownArraySetting(1);
+  this->GetCellArraySelection()->SetUnknownArraySetting(1);
 }
 
 //------------------------------------------------------------------------------
@@ -92,6 +94,23 @@ std::string vtkJSONDataSetWriter::WriteDataSetAttributes(
     if (field == nullptr)
     {
       continue;
+    }
+
+    if (std::string(className) == "pointData")
+    {
+      if (!this->GetPointArraySelection()->ArrayIsEnabled(field->GetName()))
+      {
+        vtkDebugMacro("Skipping writing point array " << field->GetName());
+        continue;
+      }
+    }
+    else if (std::string(className) == "cellData")
+    {
+      if (!this->GetCellArraySelection()->ArrayIsEnabled(field->GetName()))
+      {
+        vtkDebugMacro("Skipping cell array " << field->GetName());
+        continue;
+      }
     }
 
     if (nbArrayWritten)
@@ -384,6 +403,15 @@ bool vtkJSONDataSetWriter::WriteArrayAsRAW(vtkDataArray* array, const char* file
 void vtkJSONDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Archiver:" << endl;
+  this->Archiver->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "PointArraySelection:" << endl;
+  this->PointArraySelection->PrintSelf(os, indent.GetNextIndent());
+
+  os << indent << "CelltArraySelection:" << endl;
+  this->CellArraySelection->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------

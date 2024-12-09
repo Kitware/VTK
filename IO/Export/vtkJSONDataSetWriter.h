@@ -32,6 +32,9 @@
 
 #include <string> // std::string used as parameters in a few methods
 
+#include "vtkDataArraySelection.h" // Instantiated
+#include "vtkNew.h"                // Used for DataArray selection
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataArray;
@@ -118,6 +121,16 @@ public:
   vtkGetObjectMacro(Archiver, vtkArchiver);
   ///@}
 
+  /**
+   * Specify which point arrays should be written.
+   */
+  vtkGetObjectMacro(PointArraySelection, vtkDataArraySelection);
+
+  /**
+   * Specify which cell arrays should be written.
+   */
+  vtkGetObjectMacro(CellArraySelection, vtkDataArraySelection);
+
   void Write(vtkDataSet*);
 
   bool IsDataSetValid() { return this->ValidDataSet; }
@@ -139,6 +152,9 @@ protected:
 private:
   vtkJSONDataSetWriter(const vtkJSONDataSetWriter&) = delete;
   void operator=(const vtkJSONDataSetWriter&) = delete;
+
+  vtkNew<vtkDataArraySelection> PointArraySelection;
+  vtkNew<vtkDataArraySelection> CellArraySelection;
 };
 
 VTK_ABI_NAMESPACE_END
