@@ -66,6 +66,20 @@ void vtkWebGPUActor::ReleaseGraphicsResources(vtkWindow* window)
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUActor::ShallowCopy(vtkProp* other)
+{
+  if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(other))
+  {
+    this->ActorBindGroupLayout = wgpuActor->ActorBindGroupLayout;
+    this->ActorBindGroup = wgpuActor->ActorBindGroup;
+    this->ActorBuffer = wgpuActor->ActorBuffer;
+    this->MapperHasOpaqueGeometry = wgpuActor->MapperHasOpaqueGeometry;
+    this->MapperHasTranslucentPolygonalGeometry = wgpuActor->MapperHasTranslucentPolygonalGeometry;
+  }
+  this->Superclass::ShallowCopy(other);
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
 {
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))

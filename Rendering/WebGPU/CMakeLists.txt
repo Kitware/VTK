@@ -35,6 +35,7 @@ set(classes
   vtkWebGPURenderer
   vtkWebGPURenderPass
   vtkWebGPUShaderDatabase
+  vtkWebGPUShaderProperty
   vtkWebGPUTexture
   vtkWebGPUTextureView)
 
@@ -94,7 +95,7 @@ set(webgpu_overrides
   PolyDataMapper
   PolyDataMapper2D
   Property
-  # NI: ShaderProperty
+  ShaderProperty
   # NI: Uniforms
   Renderer
   # NI: RenderTimerLog

@@ -71,6 +71,11 @@ for (vtkObjectFactory::GetRegisteredFactories()->InitTraversal(osit);
     object_factory->SetEnableFlag(use_webgpu, "vtkPolyDataMapper2D", "vtkWebGPUPolyDataMapper2D");
     object_factory->SetEnableFlag(use_opengl, "vtkPolyDataMapper2D", "vtkOpenGLPolyDataMapper2D");
   }
+  if (object_factory->HasOverride("vtkShaderProperty"))
+  {
+    object_factory->SetEnableFlag(use_webgpu, "vtkShaderProperty", "vtkWebGPUShaderProperty");
+    object_factory->SetEnableFlag(use_opengl, "vtkShaderProperty", "vtkOpenGLShaderProperty");
+  }
   if (object_factory->HasOverride("vtkProperty"))
   {
     object_factory->SetEnableFlag(use_webgpu, "vtkProperty", "vtkWebGPUProperty");
