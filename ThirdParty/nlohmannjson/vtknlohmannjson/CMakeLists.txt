@@ -5,6 +5,7 @@ set(headers
   include/vtknlohmann/json_fwd.hpp
   include/vtknlohmann/ordered_map.hpp
 
+  include/vtknlohmann/detail/abi_macros.hpp
   include/vtknlohmann/detail/conversions/from_json.hpp
   include/vtknlohmann/detail/conversions/to_chars.hpp
   include/vtknlohmann/detail/conversions/to_json.hpp
@@ -22,6 +23,7 @@ set(headers
   include/vtknlohmann/detail/iterators/iterator_traits.hpp
   include/vtknlohmann/detail/iterators/json_reverse_iterator.hpp
   include/vtknlohmann/detail/iterators/primitive_iterator.hpp
+  include/vtknlohmann/detail/json_custom_base_class.hpp
   include/vtknlohmann/detail/json_pointer.hpp
   include/vtknlohmann/detail/json_ref.hpp
   include/vtknlohmann/detail/macro_scope.hpp
@@ -32,11 +34,13 @@ set(headers
   include/vtknlohmann/detail/meta/detected.hpp
   include/vtknlohmann/detail/meta/identity_tag.hpp
   include/vtknlohmann/detail/meta/is_sax.hpp
+  include/vtknlohmann/detail/meta/std_fs.hpp
   include/vtknlohmann/detail/meta/type_traits.hpp
   include/vtknlohmann/detail/meta/void_t.hpp
   include/vtknlohmann/detail/output/binary_writer.hpp
   include/vtknlohmann/detail/output/output_adapters.hpp
   include/vtknlohmann/detail/output/serializer.hpp
+  include/vtknlohmann/detail/string_concat.hpp
   include/vtknlohmann/detail/string_escape.hpp
   include/vtknlohmann/detail/value_t.hpp
 
