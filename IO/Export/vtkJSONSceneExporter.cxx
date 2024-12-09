@@ -476,6 +476,10 @@ std::string vtkJSONSceneExporter::WriteDataSet(
   dsWriter->SetInputData(dataset);
   dsWriter->GetArchiver()->SetArchiveName(dsPath.c_str());
 
+  // Disable all arrays by default, and select only the ones that we need.
+  dsWriter->GetPointArraySelection()->SetUnknownArraySetting(0);
+  dsWriter->GetCellArraySelection()->SetUnknownArraySetting(0);
+
   // Parse MapPointArrays's list of arrays, filter the ones that start with "propName:X", and
   // forward information about X to the writer
   for (int id = 0; id < this->PointArraySelection->GetNumberOfArrays(); id++)
