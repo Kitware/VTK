@@ -21,9 +21,16 @@ file (INSTALL "${install_prefix_dir}/bin/"
       PATTERN *test* EXCLUDE
 )
 
-# Create the natives directory
+# If LIBDIR already contains JNILIBDIR do not install JNI libs again
+set(install_jni_libs_separately TRUE)
+string(REGEX MATCH "^@CMAKE_INSTALL_LIBDIR@" matched_libdir_path "@CMAKE_INSTALL_JNILIBDIR@")
+if (matched_libdir_path STREQUAL "@CMAKE_INSTALL_LIBDIR@")
+  set(install_jni_libs_separately FALSE)
+endif()
+
+# Install native VTK libs
 file (INSTALL
-        "${install_prefix_dir}/@CMAKE_INSTALL_JNILIBDIR@/"
+      "${install_prefix_dir}/@CMAKE_INSTALL_LIBDIR@/"
       DESTINATION "${install_prefix_dir}/${NATIVE_NAME}"
       FILES_MATCHING
       PATTERN *.dll
@@ -35,6 +42,20 @@ file (INSTALL
       PATTERN *Test* EXCLUDE
       PATTERN *test* EXCLUDE
 )
+
+if (install_jni_libs_separately)
+  # Install native VTK JAVA libs
+  file (INSTALL
+        "${install_prefix_dir}/@CMAKE_INSTALL_JNILIBDIR@/"
+        DESTINATION "${install_prefix_dir}/${NATIVE_NAME}/@CMAKE_INSTALL_JNILIBDIR@"
+        FILES_MATCHING
+        PATTERN *.dll
+        PATTERN *.so
+        PATTERN *.dylib
+        PATTERN *Test* EXCLUDE
+        PATTERN *test* EXCLUDE
+  )
+endif()
 
 # Rename vtk.jar with version number
 file(RENAME

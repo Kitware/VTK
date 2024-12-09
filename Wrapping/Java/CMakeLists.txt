@@ -1,6 +1,10 @@
 set(CMAKE_INSTALL_JNILIBDIR ""
-  CACHE STRING "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+  CACHE STRING "JNI libraries (LIBDIR/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})")
 mark_as_advanced(CMAKE_INSTALL_JNILIBDIR)
+
+# Since CMAKE_INSTALL_LIBDIR can mutate, set CMAKE_INSTALL_JNILIBDIR here to
+# avoid expanding its content as opposed as setting the default value during
+# the declaration of the CACHE var which would then expand its value.
 if (NOT CMAKE_INSTALL_JNILIBDIR)
   set(CMAKE_INSTALL_JNILIBDIR
     "${CMAKE_INSTALL_LIBDIR}/java/vtk-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
