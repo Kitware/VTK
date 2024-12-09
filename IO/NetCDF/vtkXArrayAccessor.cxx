@@ -6,6 +6,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkType.h"
 #include "vtk_netcdf.h"
 #include <algorithm>
 #include <iterator>
@@ -86,10 +87,16 @@ int VTKSizeof(int vtktype)
     case VTK_CHAR:
       return VTK_SIZEOF_CHAR;
     case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
       return VTK_SIZEOF_SHORT;
     case VTK_INT:
+    case VTK_UNSIGNED_INT:
       return VTK_SIZEOF_INT;
+    case VTK_LONG:
+    case VTK_UNSIGNED_LONG:
+      return VTK_SIZEOF_LONG;
     case VTK_LONG_LONG:
+    case VTK_UNSIGNED_LONG_LONG:
       return VTK_SIZEOF_LONG_LONG;
     case VTK_FLOAT:
       return VTK_SIZEOF_FLOAT;
