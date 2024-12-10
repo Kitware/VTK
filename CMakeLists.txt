@@ -711,8 +711,15 @@ if (VTK_WRAP_PYTHON)
 endif ()
 
 if (VTK_WRAP_JAVA)
-  enable_language(Java)
+  find_package(Java 11 REQUIRED COMPONENTS Development)
 
+  # We need to set CMAKE_Java variables before enable_language to
+  # retain specified JDK in ENV{JAVA_HOME}.
+  set(CMAKE_Java_ARCHIVE ${Java_JAR_EXECUTABLE})
+  set(CMAKE_Java_COMPILER ${Java_JAVAC_EXECUTABLE})
+  set(CMAKE_Java_RUNTIME ${Java_JAVA_EXECUTABLE})
+
+  enable_language(Java)
   add_subdirectory(Wrapping/Java)
 endif ()
 
