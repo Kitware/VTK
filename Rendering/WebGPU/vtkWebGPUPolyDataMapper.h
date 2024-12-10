@@ -5,11 +5,12 @@
 
 #include "vtkPolyDataMapper.h"
 
-#include "vtkProperty.h"              // for VTK_SURFACE constants
-#include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtkWeakPointer.h"           // for vtkWeakPointer
-#include "vtkWebGPUComputePipeline.h" // for ivar
-#include "vtk_wgpu.h"                 // for webgpu
+#include "vtkProperty.h"                       // for VTK_SURFACE constants
+#include "vtkRenderingWebGPUModule.h"          // for export macro
+#include "vtkWeakPointer.h"                    // for vtkWeakPointer
+#include "vtkWebGPUCellToPrimitiveConverter.h" // for TopologySourceType
+#include "vtkWebGPUComputePipeline.h"          // for ivar
+#include "vtk_wgpu.h"                          // for webgpu
 
 #include <unordered_set> // for the not set compute render buffers
 
@@ -50,30 +51,6 @@ public:
     CELL_NORMALS,
     CELL_NB_ATTRIBUTES,
     CELL_UNDEFINED
-  };
-
-  /**
-   * All supported types of topology. These describe the kinds of cells
-   * found in a `vtkPolyData`.
-   */
-  enum TopologySourceType : int
-  {
-    // Used to draw VTK_VERTEX and VTK_POLY_VERTEX cell types
-    TOPOLOGY_SOURCE_VERTS = 0,
-    // Used to draw VTK_LINE and VTK_POLY_LINE cell types.
-    TOPOLOGY_SOURCE_LINES,
-    // Used to draw only the points of each line segment.
-    // Activated when `vtkProperty::Representation` == `VTK_POINTS`
-    TOPOLOGY_SOURCE_LINE_POINTS,
-    // Used to draw VTK_QUAD, VTK_TRIANGLE and VTK_POLYGON cell types.
-    TOPOLOGY_SOURCE_POLYGONS,
-    // Used to draw only the corner points of each face.
-    // Activated when `vtkProperty::Representation` == `VTK_POINTS`
-    TOPOLOGY_SOURCE_POLYGON_POINTS,
-    // Used to draw only the edges of each face.
-    // Activated when `vtkProperty::Representation` == `VTK_WIREFRAME`
-    TOPOLOGY_SOURCE_POLYGON_EDGES,
-    TOPOLOGY_SOURCE_NB_TYPES
   };
 
   /**
@@ -281,8 +258,8 @@ protected:
    *      sequence of edge_value for all triangles
    *      @sa vtkWebGPUPolyDataMapper::TopologyRenderInfo
    */
-  wgpu::BindGroup CreateTopologyBindGroup(
-    const wgpu::Device& device, const std::string& label, TopologySourceType topologySourceType);
+  wgpu::BindGroup CreateTopologyBindGroup(const wgpu::Device& device, const std::string& label,
+    vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType);
 
   /**
    * Returns the size of the 'sub-buffer' within the whole point data SSBO for the given attribute
@@ -347,85 +324,9 @@ protected:
   ///@}
 
   /**
-   * Tessellates the cells in a mesh into graphics primitives.
-   * This function calls DispatchCellToPrimitiveComputePipeline() for
-   * - vtkPolyData::GetVerts()
-   * - vtkPolyData::GetLines()
-   * - vtkPolyData::GetPolys()
-   */
-  void DispatchMeshToPrimitiveComputePipeline(
-    vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation);
-
-  /**
-   * Tessellates each cell into primitives.
-   * This function splits polygons, quads and triangle-strips into separate triangles.
-   * It splits polylines into line segments and polyvertices into individual vertices.
-   */
-  void DispatchCellToPrimitiveComputePipeline(vtkWebGPUConfiguration* wgpuConfiguration,
-    vtkCellArray* cells, int representation, int cellType, vtkIdType cellIdOffset);
-
-  /**
-   * Query the integer that, when subtracted from the no. of vertices of a polygon gives
-   * the number of sub primitives.
-   *
-   * Example: there are n - 2 triangles in a n-sided polygon, so this function returns '2' for
-   * `VTK_POLYGON`
-   */
-  vtkIdType GetTessellatedPrimitiveSizeOffsetForCellType(int cellType);
-
-  /**
-   * Get the name of the topology source type as a string.
-   */
-  const char* GetTopologySourceTypeAsString(TopologySourceType topologySourceType);
-
-  /**
    * Get the name of the graphics pipeline type as a string.
    */
   const char* GetGraphicsPipelineTypeAsString(GraphicsPipelineType graphicsPipelineType);
-
-  /**
-   * Get the name of the VTK cell type as a string.
-   */
-  const char* GetCellTypeAsString(int cellType);
-
-  /**
-   * Get the name of the sub primitive of a VTK cell type as a string. Ex: "vertex", "line",
-   * "triangle"
-   */
-  const char* GetTessellatedPrimitiveTypeAsString(TopologySourceType topologySourceType);
-
-  /**
-   * Get the number of points in the sub primitive of a VTK cell type.
-   */
-  std::size_t GetTessellatedPrimitiveSize(TopologySourceType topologySourceType);
-
-  /**
-   * Get whether the Cell-to-Primitive compute pipeline needs rebuilt.
-   * This method checks MTime of the vtkCellArray against the build timestamp of the relevant
-   * compute pipeline.
-   */
-  bool GetNeedToRebuildCellToPrimitiveComputePipeline(
-    vtkCellArray* cells, TopologySourceType topologySourceType);
-
-  /**
-   * Brings the build timestamp of the compute pipeline associated with `cellType` up to date.
-   */
-  void UpdateCellToPrimitiveComputePipelineTimestamp(TopologySourceType topologySourceType);
-
-  /**
-   * A convenient method to get the relevant `TopologyRenderInfo` instance for a `cellType`.
-   */
-  TopologySourceType GetTopologySourceTypeForCellType(int cellType, int representation);
-
-  /**
-   * This method creates a compute pass and a compute pipeline for breaking down composite
-   * VTK cells into graphics primitives. It selects the correct shader entry point
-   * based on the `cellType`
-   */
-  std::pair<vtkSmartPointer<vtkWebGPUComputePass>, vtkSmartPointer<vtkWebGPUComputePipeline>>
-  CreateCellToPrimitiveComputePassForCellType(
-    vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
-    TopologySourceType topologySourceType);
 
   /**
    * Creates the graphics pipeline. Rendering state is frozen after this point.
@@ -489,8 +390,8 @@ protected:
   ///@{ Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp CellAttributesBuildTimestamp[CELL_NB_ATTRIBUTES];
   vtkTimeStamp PointAttributesBuildTimestamp[POINT_NB_ATTRIBUTES];
-  vtkTimeStamp TopologyBuildTimestamp[TOPOLOGY_SOURCE_NB_TYPES];
-  vtkTimeStamp IndirectDrawBufferUploadTimeStamp[TOPOLOGY_SOURCE_NB_TYPES];
+  vtkTimeStamp
+    IndirectDrawBufferUploadTimeStamp[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
   ///@}
 
   bool HasPointAttributes[POINT_NB_ATTRIBUTES];
@@ -520,15 +421,13 @@ protected:
     // wgpu::Buffer IndirectDrawBuffer;
     // bind group for the primitive size uniform.
     wgpu::BindGroup BindGroup;
-    // compute pass speeds up cell to primitive conversions.
-    vtkSmartPointer<vtkWebGPUComputePass> ComputePass;
-    // compute pipeline to execute the compute pass.
-    vtkSmartPointer<vtkWebGPUComputePipeline> ComputePipeline;
     // vertexCount for draw call.
     vtkTypeUInt32 VertexCount = 0;
   };
 
-  TopologyBindGroupInfo TopologyBindGroupInfos[TOPOLOGY_SOURCE_NB_TYPES] = {};
+  vtkNew<vtkWebGPUCellToPrimitiveConverter> CellConverter;
+  TopologyBindGroupInfo
+    TopologyBindGroupInfos[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
   std::string GraphicsPipelineKeys[GFX_PIPELINE_NB_TYPES] = {};
 
   // Cache these so that subsequent executions of UpdateMeshGeometryBuffers() do not unnecessarily

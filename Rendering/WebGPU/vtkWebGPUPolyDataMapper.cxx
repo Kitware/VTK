@@ -22,6 +22,8 @@
 #include "vtkTimeStamp.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
+#include "vtkWebGPUCellToPrimitiveConverter.h"
+#include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputePipeline.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
@@ -33,7 +35,6 @@
 #include "LineShaderTranslucent.h"
 #include "PointShader.h"
 #include "SurfaceMeshShader.h"
-#include "VTKCellToGraphicsPrimitive.h"
 
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
@@ -47,10 +48,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-const std::array<std::string, vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_NB_TYPES>
-  TopologyConversionShaderEntrypoints = { "poly_vertex_to_vertex", "poly_line_to_line",
-    "cell_to_points", "polygon_to_triangle", "cell_to_points", "polygon_edges_to_lines" };
-
 const std::array<const char**, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
   GraphicsPipelineShaderSources = { &PointShader, &LineShaderOpaque, &LineShaderTranslucent,
     &SurfaceMeshShader };
@@ -61,110 +58,31 @@ const std::array<wgpu::PrimitiveTopology, vtkWebGPUPolyDataMapper::GFX_PIPELINE_
     wgpu::PrimitiveTopology::TriangleList };
 
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
-  std::vector<vtkWebGPUPolyDataMapper::TopologySourceType>>
+  std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType>>
   PipelineBindGroupCombos[VTK_SURFACE + 1] = { // VTK_POINTS
     { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
-      { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS,
-        vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINE_POINTS,
-        vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_POINTS } } },
+      { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+        vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+        vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } } },
     // VTK_WIREFRAME
     { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES,
-          vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES,
-          vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES } } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } } },
     // VTK_SURFACE
     {
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_TRIANGLES,
-        { vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS } },
     }
   };
-
-// Function to factor the number into three multiples
-int Factorize(vtkTypeUInt32 n, std::array<vtkTypeUInt32, 3>& result)
-{
-  const vtkTypeUInt32 MAX_WORKGROUPS_PER_DIM = 65535;
-  if (n > MAX_WORKGROUPS_PER_DIM)
-  {
-    result[0] = MAX_WORKGROUPS_PER_DIM;
-  }
-  else
-  {
-    result[0] = n;
-    result[1] = 1;
-    result[2] = 1;
-    return 0;
-  }
-  if (n > (result[0] * MAX_WORKGROUPS_PER_DIM))
-  {
-    result[1] = MAX_WORKGROUPS_PER_DIM;
-  }
-  else
-  {
-    result[1] = std::ceil(n / static_cast<double>(result[0]));
-    result[2] = 1;
-    return 0;
-  }
-  if (n > (result[0] * result[1] * MAX_WORKGROUPS_PER_DIM))
-  {
-    return -1;
-  }
-  else
-  {
-    result[2] = std::ceil(n / static_cast<double>(result[0] * result[1]));
-    return 0;
-  }
-}
-
-class MakeEncoderDebugGroup
-{
-  const wgpu::RenderPassEncoder* PassEncoder = nullptr;
-  const wgpu::RenderBundleEncoder* BundleEncoder = nullptr;
-
-public:
-  MakeEncoderDebugGroup(const wgpu::RenderPassEncoder& passEncoder, const char* groupLabel)
-    : PassEncoder(&passEncoder)
-  {
-#ifndef NDEBUG
-    this->PassEncoder->PushDebugGroup(groupLabel);
-#else
-    (void)this->PassEncoder;
-    (void)groupLabel;
-#endif
-  }
-  MakeEncoderDebugGroup(const wgpu::RenderBundleEncoder& bundleEncoder, const char* groupLabel)
-    : BundleEncoder(&bundleEncoder)
-  {
-#ifndef NDEBUG
-    this->BundleEncoder->PushDebugGroup(groupLabel);
-#else
-    (void)this->BundleEncoder;
-    (void)groupLabel;
-#endif
-  }
-#ifndef NDEBUG
-  ~MakeEncoderDebugGroup()
-  {
-    if (this->PassEncoder)
-    {
-      this->PassEncoder->PopDebugGroup();
-    }
-    if (this->BundleEncoder)
-    {
-      this->BundleEncoder->PopDebugGroup();
-    }
-  }
-#else
-  ~MakeEncoderDebugGroup() = default;
-#endif
-};
 
 template <typename DestT>
 struct WriteTypedArray
@@ -228,14 +146,6 @@ struct WriteTypedArray
 };
 }
 
-#define vtkScopedEncoderDebugGroupConcatImpl(s1, s2) s1##s2
-#define vtkScopedEncoderDebugGroupConcat(s1, s2) vtkScopedEncoderDebugGroupConcatImpl(s1, s2)
-#define vtkScopedEncoderDebugGroupAnonymousVariable(x) vtkScopedEncoderDebugGroupConcat(x, __LINE__)
-// Use this macro to annotate a group of commands in an renderpass/bundle encoder.
-#define vtkScopedEncoderDebugGroup(encoder, name)                                                  \
-  auto vtkScopedEncoderDebugGroupAnonymousVariable(encoderDebugGroup) =                            \
-    ::MakeEncoderDebugGroup(encoder, name);
-
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkWebGPUPolyDataMapper);
 
@@ -291,16 +201,59 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
     { // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       auto* mesh = this->CurrentInput;
-      this->DispatchMeshToPrimitiveComputePipeline(
-        wgpuConfiguration, mesh, displayProperty->GetRepresentation());
+      vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+      wgpu::Buffer* topologyBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+      wgpu::Buffer* edgeArrayBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+
+      for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
+      {
+        auto& bgInfo = this->TopologyBindGroupInfos[i];
+        vertexCounts[i] = &(bgInfo.VertexCount);
+        topologyBuffers[i] = &(bgInfo.TopologyBuffer);
+        edgeArrayBuffers[i] = &(bgInfo.EdgeArrayBuffer);
+      }
+      bool updateTopologyBindGroup =
+        this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
+          displayProperty->GetRepresentation(), vertexCounts, topologyBuffers, edgeArrayBuffers);
+
       // Handle vertex visibility.
       if (displayProperty->GetVertexVisibility() &&
         // avoids dispatching the cell-to-vertex pipeline again.
         displayProperty->GetRepresentation() != VTK_POINTS)
       {
         // dispatch compute pipeline that extracts cell vertices.
-        this->DispatchMeshToPrimitiveComputePipeline(
-          wgpuConfiguration, mesh, /*representation=*/VTK_POINTS);
+        updateTopologyBindGroup |=
+          this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
+            /*representation=*/VTK_POINTS, vertexCounts, topologyBuffers, edgeArrayBuffers);
+      }
+      // Rebuild topology bind group if required (when VertexCount > 0)
+      for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
+      {
+        const auto topologySourceType = vtkWebGPUCellToPrimitiveConverter::TopologySourceType(i);
+        auto& bgInfo = this->TopologyBindGroupInfos[i];
+        // setup bind group
+        if (updateTopologyBindGroup && bgInfo.VertexCount > 0)
+        {
+          const std::string& label =
+            vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
+          bgInfo.BindGroup = this->CreateTopologyBindGroup(
+            wgpuConfiguration->GetDevice(), label, topologySourceType);
+          this->RebuildGraphicsPipelines = true;
+        }
+        else if (bgInfo.VertexCount == 0)
+        {
+          if (bgInfo.TopologyBuffer)
+          {
+            bgInfo.TopologyBuffer.Destroy();
+            bgInfo.TopologyBuffer = nullptr;
+          }
+          if (bgInfo.EdgeArrayBuffer)
+          {
+            bgInfo.EdgeArrayBuffer.Destroy();
+            bgInfo.EdgeArrayBuffer = nullptr;
+          }
+          bgInfo.BindGroup = nullptr;
+        }
       }
       // setup graphics pipeline
       if (this->GetNeedToRebuildGraphicsPipelines(actor, renderer))
@@ -427,17 +380,18 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         continue;
       }
       passEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
       vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
       switch (bindGroupType)
       {
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINE_POINTS:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_POINTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS:
           passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES:
           if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
           {
             passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
@@ -447,10 +401,10 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
             passEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
           }
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS:
           passEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_NB_TYPES:
+        case vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES:
         default:
           break;
       }
@@ -464,8 +418,9 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
     vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
     passEncoder.Draw(/*vertexCount=*/4,
       /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
-    for (const auto& bindGroupType :
-      { TOPOLOGY_SOURCE_VERTS, TOPOLOGY_SOURCE_LINE_POINTS, TOPOLOGY_SOURCE_POLYGON_POINTS })
+    for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
       if (bgInfo.VertexCount == 0)
@@ -473,7 +428,8 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         continue;
       }
       passEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
       vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
       passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
     }
@@ -521,17 +477,18 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         continue;
       }
       bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
       vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
       switch (bindGroupType)
       {
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_VERTS:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINE_POINTS:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_POINTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS:
           bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_LINES:
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGON_EDGES:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES:
           if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
           {
             bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
@@ -541,10 +498,10 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
             bundleEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
           }
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_POLYGONS:
+        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS:
           bundleEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
           break;
-        case vtkWebGPUPolyDataMapper::TOPOLOGY_SOURCE_NB_TYPES:
+        case vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES:
         default:
           break;
       }
@@ -558,8 +515,9 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
     vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
     bundleEncoder.Draw(/*vertexCount=*/4,
       /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
-    for (const auto& bindGroupType :
-      { TOPOLOGY_SOURCE_VERTS, TOPOLOGY_SOURCE_LINE_POINTS, TOPOLOGY_SOURCE_POLYGON_POINTS })
+    for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
       if (bgInfo.VertexCount == 0)
@@ -567,7 +525,8 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         continue;
       }
       bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName = this->GetTopologySourceTypeAsString(bindGroupType);
+      const auto topologyBGInfoName =
+        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
       vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
       bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
     }
@@ -641,9 +600,11 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
 }
 
 //------------------------------------------------------------------------------
-wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(
-  const wgpu::Device& device, const std::string& label, TopologySourceType topologySourceType)
+wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Device& device,
+  const std::string& label,
+  vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
+  vtkGenericWarningMacro(<< __func__);
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
   {
     auto layout = this->CreateTopologyBindGroupLayout(device, label + "_LAYOUT");
@@ -1407,54 +1368,6 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkWebGPUPolyDataMapper::GetTessellatedPrimitiveSizeOffsetForCellType(int cellType)
-{
-  switch (cellType)
-  {
-    case VTK_POLYGON:
-    case VTK_QUAD:
-      return 2;
-    case VTK_TRIANGLE_STRIP:
-      return 1;
-    case VTK_TRIANGLE:
-      return 0;
-    case VTK_POLY_LINE:
-      return 1;
-    case VTK_LINE:
-      return 0;
-    case VTK_POLY_VERTEX:
-      return 0;
-    case VTK_VERTEX:
-      return 0;
-    default:
-      return 0;
-  }
-}
-
-//------------------------------------------------------------------------------
-const char* vtkWebGPUPolyDataMapper::GetTopologySourceTypeAsString(
-  TopologySourceType topologySourceType)
-{
-  switch (topologySourceType)
-  {
-    case TOPOLOGY_SOURCE_VERTS:
-      return "TOPOLOGY_SOURCE_VERTS";
-    case TOPOLOGY_SOURCE_LINES:
-      return "TOPOLOGY_SOURCE_LINES";
-    case TOPOLOGY_SOURCE_LINE_POINTS:
-      return "TOPOLOGY_SOURCE_LINE_POINTS";
-    case TOPOLOGY_SOURCE_POLYGONS:
-      return "TOPOLOGY_SOURCE_POLYGONS";
-    case TOPOLOGY_SOURCE_POLYGON_POINTS:
-      return "TOPOLOGY_SOURCE_POLYGON_POINTS";
-    case TOPOLOGY_SOURCE_POLYGON_EDGES:
-      return "TOPOLOGY_SOURCE_POLYGON_EDGES";
-    default:
-      return "";
-  }
-}
-
-//------------------------------------------------------------------------------
 const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
   GraphicsPipelineType graphicsPipelineType)
 {
@@ -1471,360 +1384,6 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
     default:
       return "";
   }
-}
-
-//------------------------------------------------------------------------------
-const char* vtkWebGPUPolyDataMapper::GetCellTypeAsString(int cellType)
-{
-  switch (cellType)
-  {
-    case VTK_POLYGON:
-      return "polygon";
-    case VTK_QUAD:
-      return "quad";
-    case VTK_TRIANGLE_STRIP:
-      return "triangle-strip";
-    case VTK_TRIANGLE:
-      return "triangle";
-    case VTK_POLY_LINE:
-      return "polyline";
-    case VTK_LINE:
-      return "line";
-    case VTK_POLY_VERTEX:
-      return "polyvertex";
-    case VTK_VERTEX:
-      return "vertex";
-    default:
-      return "";
-  }
-}
-
-//------------------------------------------------------------------------------
-const char* vtkWebGPUPolyDataMapper::GetTessellatedPrimitiveTypeAsString(
-  TopologySourceType topologySourceType)
-{
-  switch (topologySourceType)
-  {
-    case TOPOLOGY_SOURCE_VERTS:
-      return "point-list";
-    case TOPOLOGY_SOURCE_LINES:
-      return "line-list";
-    case TOPOLOGY_SOURCE_LINE_POINTS:
-      return "point-list";
-    case TOPOLOGY_SOURCE_POLYGONS:
-      return "triangle-list";
-    case TOPOLOGY_SOURCE_POLYGON_POINTS:
-      return "point-list";
-    case TOPOLOGY_SOURCE_POLYGON_EDGES:
-    default:
-      return "line-list";
-  }
-}
-
-//------------------------------------------------------------------------------
-std::size_t vtkWebGPUPolyDataMapper::GetTessellatedPrimitiveSize(
-  TopologySourceType topologySourceType)
-{
-  switch (topologySourceType)
-  {
-    case TOPOLOGY_SOURCE_VERTS:
-      return 1;
-    case TOPOLOGY_SOURCE_LINES:
-      return 2;
-    case TOPOLOGY_SOURCE_LINE_POINTS:
-      return 1;
-    case TOPOLOGY_SOURCE_POLYGONS:
-      return 3;
-    case TOPOLOGY_SOURCE_POLYGON_POINTS:
-      return 1;
-    case TOPOLOGY_SOURCE_POLYGON_EDGES:
-    default:
-      return 2;
-  }
-}
-
-//------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::GetNeedToRebuildCellToPrimitiveComputePipeline(
-  vtkCellArray* cells, TopologySourceType topologySourceType)
-{
-  return cells->GetMTime() > this->TopologyBuildTimestamp[topologySourceType];
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::UpdateCellToPrimitiveComputePipelineTimestamp(
-  TopologySourceType topologySourceType)
-{
-  this->TopologyBuildTimestamp[topologySourceType].Modified();
-}
-
-//------------------------------------------------------------------------------
-vtkWebGPUPolyDataMapper::TopologySourceType
-vtkWebGPUPolyDataMapper::GetTopologySourceTypeForCellType(int cellType, int representation)
-{
-  switch (cellType)
-  {
-    case VTK_POLYGON:
-    case VTK_QUAD:
-    case VTK_TRIANGLE_STRIP:
-    case VTK_TRIANGLE:
-      switch (representation)
-      {
-        case VTK_SURFACE:
-          return TOPOLOGY_SOURCE_POLYGONS;
-        case VTK_WIREFRAME:
-          return TOPOLOGY_SOURCE_POLYGON_EDGES;
-        case VTK_POINTS:
-        default:
-          return TOPOLOGY_SOURCE_POLYGON_POINTS;
-      }
-    case VTK_POLY_LINE:
-    case VTK_LINE:
-      switch (representation)
-      {
-        case VTK_SURFACE:
-        case VTK_WIREFRAME:
-          return TOPOLOGY_SOURCE_LINES;
-        case VTK_POINTS:
-        default:
-          return TOPOLOGY_SOURCE_LINE_POINTS;
-      }
-    case VTK_POLY_VERTEX:
-    case VTK_VERTEX:
-    default:
-      return TOPOLOGY_SOURCE_VERTS;
-  }
-}
-
-//------------------------------------------------------------------------------
-std::pair<vtkSmartPointer<vtkWebGPUComputePass>, vtkSmartPointer<vtkWebGPUComputePipeline>>
-vtkWebGPUPolyDataMapper::CreateCellToPrimitiveComputePassForCellType(
-  vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, TopologySourceType topologySourceType)
-{
-  vtkSmartPointer<vtkWebGPUComputePass> pass;
-  vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
-
-  auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
-
-  // Create compute pipeline.
-  bgInfo.ComputePipeline = vtk::TakeSmartPointer(vtkWebGPUComputePipeline::New());
-  pipeline = bgInfo.ComputePipeline;
-  pipeline->SetWGPUConfiguration(wgpuConfiguration);
-  // Create compute pass.
-  bgInfo.ComputePass = pipeline->CreateComputePass();
-  pass = bgInfo.ComputePass;
-  pass->SetLabel("Split polygonal faces into individual triangles");
-  pass->SetShaderSource(VTKCellToGraphicsPrimitive);
-  pass->SetShaderEntryPoint(::TopologyConversionShaderEntrypoints[topologySourceType]);
-  return std::make_pair(pass, pipeline);
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::DispatchMeshToPrimitiveComputePipeline(
-  vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation)
-{
-  this->DispatchCellToPrimitiveComputePipeline(
-    wgpuConfiguration, mesh->GetVerts(), representation, VTK_POLY_VERTEX, 0);
-  // dispatch compute pipeline that converts polyline to lines.
-  const vtkIdType numVerts = mesh->GetNumberOfVerts();
-  this->DispatchCellToPrimitiveComputePipeline(
-    wgpuConfiguration, mesh->GetLines(), representation, VTK_POLY_LINE, numVerts);
-  // dispatch compute pipeline that converts polygon to triangles.
-  const vtkIdType numLines = mesh->GetNumberOfLines();
-  this->DispatchCellToPrimitiveComputePipeline(
-    wgpuConfiguration, mesh->GetPolys(), representation, VTK_POLYGON, numLines + numVerts);
-}
-
-//------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::DispatchCellToPrimitiveComputePipeline(
-  vtkWebGPUConfiguration* wgpuConfiguration, vtkCellArray* cells, int representation, int cellType,
-  vtkIdType cellIdOffset)
-{
-  const auto idx = this->GetTopologySourceTypeForCellType(cellType, representation);
-  auto& bgInfo = this->TopologyBindGroupInfos[idx];
-
-  if (!cells)
-  {
-    bgInfo.VertexCount = 0;
-    // TODO: Destroy existing buffers.
-    return;
-  }
-  if (cells->GetNumberOfCells() == 0)
-  {
-    bgInfo.VertexCount = 0;
-    // TODO: Destroy existing buffers.
-    return;
-  }
-  if (!this->GetNeedToRebuildCellToPrimitiveComputePipeline(cells, idx))
-  {
-    return;
-  }
-
-  const char* cellTypeAsString = this->GetCellTypeAsString(cellType);
-  const char* primitiveTypeAsString = this->GetTessellatedPrimitiveTypeAsString(idx);
-  const auto primitiveSize = this->GetTessellatedPrimitiveSize(idx);
-  // extra workgroups are fine to have.
-  int nRequiredWorkGroups = std::ceil(cells->GetNumberOfCells() / 64.0);
-  std::array<vtkTypeUInt32, 3> nWorkGroupsPerDimension = { 1, 1, 1 };
-  if (::Factorize(nRequiredWorkGroups, nWorkGroupsPerDimension) == -1)
-  {
-    vtkErrorMacro(<< "Number of cells is too large to fit in available workgroups");
-    return;
-  }
-  vtkDebugMacro(<< "Dispatch " << cellTypeAsString
-                << " with workgroups=" << nWorkGroupsPerDimension[0] << 'x'
-                << nWorkGroupsPerDimension[1] << 'x' << nWorkGroupsPerDimension[2]);
-
-  if (!cells->ConvertTo32BitStorage())
-  {
-    vtkErrorMacro(<< "Failed to convert cell array storage to 32-bit");
-    return;
-  }
-  const vtkIdType primitiveSizeOffset =
-    this->GetTessellatedPrimitiveSizeOffsetForCellType(cellType);
-  std::size_t numberOfPrimitives = 0;
-  std::vector<vtkTypeUInt32> primitiveIdOffsets;
-  auto cellIterator = vtk::TakeSmartPointer(cells->NewIterator());
-  for (cellIterator->GoToFirstCell(); !cellIterator->IsDoneWithTraversal();
-       cellIterator->GoToNextCell())
-  {
-    const vtkIdType* cellPts = nullptr;
-    vtkIdType cellSize;
-    cellIterator->GetCurrentCell(cellSize, cellPts);
-    primitiveIdOffsets.emplace_back(numberOfPrimitives);
-    if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
-    {
-      // number of sides in polygon.
-      numberOfPrimitives += cellSize;
-    }
-    else if (representation == VTK_POINTS)
-    {
-      // number of points in cell.
-      numberOfPrimitives += cellSize;
-    }
-    else
-    {
-      numberOfPrimitives += (cellSize - primitiveSizeOffset);
-    }
-  }
-  primitiveIdOffsets.emplace_back(numberOfPrimitives);
-  // create input buffer for connectivity ids
-  vtkNew<vtkWebGPUComputeBuffer> connBuffer;
-  connBuffer->SetGroup(0);
-  connBuffer->SetBinding(0);
-  connBuffer->SetLabel(
-    std::string("connectivity/") + cellTypeAsString + "@" + cells->GetObjectDescription());
-  connBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  connBuffer->SetData(cells->GetConnectivityArray());
-  connBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
-
-  // create input buffer for offsets
-  vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
-  offsetsBuffer->SetGroup(0);
-  offsetsBuffer->SetBinding(1);
-  offsetsBuffer->SetLabel(
-    std::string("offsets/") + cellTypeAsString + "@" + cells->GetObjectDescription());
-  offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  offsetsBuffer->SetData(cells->GetOffsetsArray());
-  offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
-
-  // create input buffer for primitive offsets
-  vtkNew<vtkWebGPUComputeBuffer> primIdBuffer;
-  primIdBuffer->SetGroup(0);
-  primIdBuffer->SetBinding(2);
-  primIdBuffer->SetLabel(
-    std::string("primIds/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
-  primIdBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  primIdBuffer->SetData(primitiveIdOffsets);
-  primIdBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-
-  std::vector<vtkTypeUInt32> uniformData = { static_cast<unsigned int>(cellIdOffset) };
-  vtkNew<vtkWebGPUComputeBuffer> uniformBuffer;
-  uniformBuffer->SetGroup(0);
-  uniformBuffer->SetBinding(3);
-  uniformBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER);
-  uniformBuffer->SetData(uniformData);
-  uniformBuffer->SetLabel(
-    std::string("cell offsets/") + cellTypeAsString + "@" + cells->GetObjectDescription());
-  uniformBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-
-  std::size_t outputBufferSize = 2 * numberOfPrimitives * primitiveSize * sizeof(vtkTypeUInt32);
-  vtkNew<vtkWebGPUComputeBuffer> topologyBuffer;
-  topologyBuffer->SetGroup(0);
-  topologyBuffer->SetBinding(4);
-  topologyBuffer->SetLabel(
-    std::string("topology/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
-  topologyBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
-  topologyBuffer->SetByteSize(outputBufferSize);
-
-  // handle optional edge visibility.
-  // this lets fragment shader hide internal edges of a polygon
-  // when edge visibility is turned on.
-  vtkNew<vtkWebGPUComputeBuffer> edgeArrayBuffer;
-  edgeArrayBuffer->SetGroup(0);
-  edgeArrayBuffer->SetBinding(5);
-  edgeArrayBuffer->SetLabel(
-    std::string("edge array/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
-  edgeArrayBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
-  if (primitiveSize == 3)
-  {
-    edgeArrayBuffer->SetByteSize(numberOfPrimitives * sizeof(vtkTypeUInt32));
-  }
-  else
-  {
-    // placeholder must be aligned to 32-bit boundary
-    edgeArrayBuffer->SetByteSize(4);
-  }
-
-  // obtain a compute pass for cell type.
-  vtkSmartPointer<vtkWebGPUComputePass> pass;
-  vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
-  std::tie(pass, pipeline) =
-    this->CreateCellToPrimitiveComputePassForCellType(wgpuConfiguration, idx);
-  if (!(pass || pipeline))
-  {
-    vtkErrorMacro(<< "Failed to create a compute pass/pipeline to convert " << cellTypeAsString
-                  << "->" << primitiveTypeAsString);
-    return;
-  }
-
-  // add buffers one by one to the compute pass.
-  pass->AddBuffer(connBuffer);
-  pass->AddBuffer(offsetsBuffer);
-  pass->AddBuffer(primIdBuffer);
-  pass->AddBuffer(uniformBuffer);
-  pass->AddBuffer(topologyBuffer);  // not used in cpu
-  pass->AddBuffer(edgeArrayBuffer); // not used in cpu
-  // the topology and edge_array buffers are populated by compute pipeline and their contents
-  // read in the graphics pipeline within the vertex and fragment shaders
-  // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-  if (pipeline->GetRegisteredBuffer(topologyBuffer, bgInfo.TopologyBuffer))
-  {
-    bgInfo.VertexCount = numberOfPrimitives * primitiveSize;
-  }
-  else
-  {
-    bgInfo.VertexCount = 0;
-  }
-  // do the same for the edge array buffer
-  if (!pipeline->GetRegisteredBuffer(edgeArrayBuffer, bgInfo.EdgeArrayBuffer))
-  {
-    vtkErrorMacro(<< "edge array buffer for " << primitiveTypeAsString << " is not registered!");
-  }
-  // dispatch
-  pass->SetWorkgroups(
-    nWorkGroupsPerDimension[0], nWorkGroupsPerDimension[1], nWorkGroupsPerDimension[2]);
-  pass->Dispatch();
-
-  // setup bind group
-  if (bgInfo.VertexCount > 0)
-  {
-    const std::string& label = this->GetTopologySourceTypeAsString(idx);
-    bgInfo.BindGroup = this->CreateTopologyBindGroup(wgpuConfiguration->GetDevice(), label, idx);
-    this->RebuildGraphicsPipelines = true;
-  }
-
-  // update build timestamp
-  this->UpdateCellToPrimitiveComputePipelineTimestamp(idx);
 }
 
 //------------------------------------------------------------------------------
@@ -1934,12 +1493,12 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   this->MeshAttributeBindGroup = nullptr;
 
   // Release topology conversion pipelines and reset their build timestamps.
-  for (int i = 0; i < TOPOLOGY_SOURCE_NB_TYPES; ++i)
+  for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
   {
     this->TopologyBindGroupInfos[i] = TopologyBindGroupInfo{};
-    this->TopologyBuildTimestamp[i] = vtkTimeStamp();
     this->IndirectDrawBufferUploadTimeStamp[i] = vtkTimeStamp();
   }
+  this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
   this->CachedActorRendererProperties.clear();
 }
