@@ -347,8 +347,10 @@ HPDF_Dict_Add  (HPDF_Dict        dict,
     if (header->obj_id & HPDF_OTYPE_INDIRECT) {
         HPDF_Proxy proxy = HPDF_Proxy_New (dict->mmgr, obj);
 
-        if (!proxy)
+        if (!proxy) {
+            HPDF_Obj_Free(dict->mmgr, obj);
             return HPDF_Error_GetCode (dict->error);
+        }
 
         element->value = proxy;
         proxy->header.obj_id |= HPDF_OTYPE_DIRECT;

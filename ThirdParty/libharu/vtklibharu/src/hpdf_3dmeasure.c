@@ -125,7 +125,7 @@ HPDF_3DMeasure_SetName(HPDF_3DMeasure measure,
 
 	s = HPDF_String_New (measure->mmgr, name, 0);
 	if (!s)
-		return HPDF_Error_GetCode ( s->error);
+		return HPDF_Error_GetCode ( measure->error);
 
 	ret = HPDF_Dict_Add(measure, "TRL", s);
 
@@ -164,7 +164,7 @@ HPDF_3DC3DMeasure_SetText(HPDF_3DMeasure measure,
 
 	s = HPDF_String_New (measure->mmgr, text, encoder);
 	if (!s)
-		return HPDF_Error_GetCode ( s->error);
+		return HPDF_Error_GetCode ( measure->error);
 
 	ret = HPDF_Dict_Add(measure, "UT", s);
 

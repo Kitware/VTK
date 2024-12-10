@@ -1241,7 +1241,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
     } else {
         HPDF_INT16 num_of_contours;
         HPDF_INT16 flags;
-        HPDF_INT16 glyph_index;
+        HPDF_UINT16 glyph_index;
         const HPDF_UINT16 ARG_1_AND_2_ARE_WORDS = 1;
         const HPDF_UINT16 WE_HAVE_A_SCALE  = 8;
         const HPDF_UINT16 MORE_COMPONENTS = 32;
@@ -1264,7 +1264,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
             if ((ret = GetINT16 (attr->stream, &flags)) != HPDF_OK)
                 return ret;
 
-            if ((ret = GetINT16 (attr->stream, &glyph_index)) != HPDF_OK)
+            if ((ret = GetUINT16 (attr->stream, &glyph_index)) != HPDF_OK)
                 return ret;
 
             if (flags & ARG_1_AND_2_ARE_WORDS) {
@@ -1291,7 +1291,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
                     return ret;
             }
 
-            if (glyph_index > 0 && glyph_index < attr->num_glyphs &&
+            if (glyph_index < attr->num_glyphs &&
                     !attr->glyph_tbl.flgs[glyph_index]) {
                 HPDF_INT32 next_glyph;
 

@@ -289,7 +289,7 @@ HPDF_Array_Insert  (HPDF_Array  array,
         void *ptr = HPDF_List_ItemAt (array->list, i);
         void *obj_ptr;
 
-        header = (HPDF_Obj_Header *)obj;
+        header = (HPDF_Obj_Header *)ptr;
         if (header->obj_class == HPDF_OCLASS_PROXY)
             obj_ptr = ((HPDF_Proxy)ptr)->obj;
         else
