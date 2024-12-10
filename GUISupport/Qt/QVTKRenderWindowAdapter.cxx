@@ -36,7 +36,6 @@
   {                                                                                                \
     std::ostringstream str;                                                                        \
     str << "QVTKRenderWindowAdapter(" << this << "): " << msg;                                     \
-    cout << str.str() << endl;                                                                     \
     this->Logger->logMessage(                                                                      \
       QOpenGLDebugMessage::createApplicationMessage(QString(str.str().c_str())));                  \
   }
