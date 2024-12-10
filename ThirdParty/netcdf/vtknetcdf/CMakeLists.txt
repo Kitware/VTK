@@ -135,6 +135,7 @@ set(USE_PNETCDF 0)
 set(USE_ZLIB 0)
 
 set(ENABLE_CDF5 ON)
+include(CheckTypeSize)
 check_type_size("size_t" SIZEOF_SIZE_T)
 if (SIZEOF_SIZE_T EQUAL 4)
   if (ENABLE_CDF5) # enable or auto
@@ -244,7 +245,6 @@ check_include_file("sys/stat.h" HAVE_SYS_STAT_H)
 check_include_file("sys/types.h" HAVE_SYS_TYPES_H)
 check_include_file("unistd.h" HAVE_UNISTD_H)
 
-include(CheckTypeSize)
 check_type_size("longlong" HAVE_LONGLONG)
 check_type_size("long long int" HAVE_LONG_LONG_INT)
 check_type_size("ssize_t" HAVE_SSIZE_T)
