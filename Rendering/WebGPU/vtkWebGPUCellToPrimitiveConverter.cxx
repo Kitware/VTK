@@ -418,7 +418,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   topologyBuffer->SetBinding(4);
   topologyBuffer->SetLabel(
     std::string("topology/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
-  topologyBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
+  topologyBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
   topologyBuffer->SetByteSize(outputBufferSize);
 
   // handle optional edge visibility.
