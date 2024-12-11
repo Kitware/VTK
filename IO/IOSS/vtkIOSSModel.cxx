@@ -1254,7 +1254,15 @@ struct vtkEntityBlock : public vtkGroupingEntity
       const int64_t elementCount = element.second;
       const unsigned char vtk_cell_type = element.first;
 
-      const auto* elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      const Ioss::ElementTopology* elementTopology = nullptr;
+      try
+      {
+        elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      }
+      catch (std::runtime_error&)
+      {
+        continue;
+      }
       const auto& elementType = elementTopology->name();
       const auto blockInfo = this->GetSubElementBlockInfo(vtk_cell_type, elementType);
 
@@ -1277,7 +1285,15 @@ struct vtkEntityBlock : public vtkGroupingEntity
       const int64_t elementCount = element.second;
       const unsigned char vtk_cell_type = element.first;
 
-      const auto* elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      const Ioss::ElementTopology* elementTopology = nullptr;
+      try
+      {
+        elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      }
+      catch (std::runtime_error&)
+      {
+        continue;
+      }
       const auto& elementType = elementTopology->name();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
 
@@ -1405,7 +1421,15 @@ struct vtkEntityBlock : public vtkGroupingEntity
       const int64_t elementCount = element.second;
       const unsigned char vtk_cell_type = element.first;
 
-      const auto* elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      const Ioss::ElementTopology* elementTopology = nullptr;
+      try
+      {
+        elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      }
+      catch (std::runtime_error&)
+      {
+        continue;
+      }
       const auto& elementType = elementTopology->name();
       const int nodeCount = elementTopology->number_nodes();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
@@ -1484,7 +1508,15 @@ struct vtkEntityBlock : public vtkGroupingEntity
     {
       const unsigned char vtk_cell_type = element.first;
 
-      const auto* elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      const Ioss::ElementTopology* elementTopology = nullptr;
+      try
+      {
+        elementTopology = vtkIOSSUtilities::GetElementTopology(vtk_cell_type);
+      }
+      catch (std::runtime_error&)
+      {
+        continue;
+      }
       const auto& elementType = elementTopology->name();
       const auto blockName = this->GetSubElementBlockInfo(vtk_cell_type, elementType).second;
 
