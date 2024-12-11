@@ -77,10 +77,6 @@ typedef tstrile_t ttile_t;  /* tile number */
 typedef tmsize_t tsize_t;   /* i/o size in bytes */
 typedef void *tdata_t;      /* image data ref */
 
-#if !defined(__WIN32__) && (defined(_WIN32) || defined(WIN32))
-#define __WIN32__
-#endif
-
 /*
  * On windows you should define USE_WIN32_FILEIO if you are using tif_win32.c
  * or AVOID_WIN32_FILEIO if you are using something else (like tif_unix.c).
@@ -88,7 +84,7 @@ typedef void *tdata_t;      /* image data ref */
  * By default tif_unix.c is assumed.
  */
 
-#if defined(_WINDOWS) || defined(__WIN32__) || defined(_Windows)
+#if defined(_WIN32)
 #if !defined(__CYGWIN) && !defined(AVOID_WIN32_FILEIO) &&                      \
     !defined(USE_WIN32_FILEIO)
 #define AVOID_WIN32_FILEIO
@@ -98,11 +94,11 @@ typedef void *tdata_t;      /* image data ref */
 #if defined(USE_WIN32_FILEIO)
 #define VC_EXTRALEAN
 #include <windows.h>
-#ifdef __WIN32__
+#ifdef _WIN32
 DECLARE_HANDLE(thandle_t); /* Win32 file handle */
 #else
 typedef HFILE thandle_t; /* client data handle */
-#endif /* __WIN32__ */
+#endif /* _WIN32 */
 #else
 typedef void *thandle_t; /* client data handle */
 #endif /* USE_WIN32_FILEIO */
@@ -311,14 +307,15 @@ extern "C"
     /*
      * Auxiliary functions.
      */
-
+#ifndef TIFF_DO_NOT_USE_NON_EXT_ALLOC_FUNCTIONS
     vtktiff_EXPORT void *_TIFFmalloc(tmsize_t s);
     vtktiff_EXPORT void *_TIFFcalloc(tmsize_t nmemb, tmsize_t siz);
     vtktiff_EXPORT void *_TIFFrealloc(void *p, tmsize_t s);
+    vtktiff_EXPORT void _TIFFfree(void *p);
+#endif
     vtktiff_EXPORT void _TIFFmemset(void *p, int v, tmsize_t c);
     vtktiff_EXPORT void _TIFFmemcpy(void *d, const void *s, tmsize_t c);
     vtktiff_EXPORT int _TIFFmemcmp(const void *p1, const void *p2, tmsize_t c);
-    vtktiff_EXPORT void _TIFFfree(void *p);
 
     /*
     ** Stuff, related to tag handling and creating custom tags.
@@ -508,6 +505,9 @@ vtktiff_EXPORT int TIFFReadRGBAImageOriented(TIFF *, uint32_t, uint32_t, uint32_
     TIFFOpenOptionsSetMaxSingleMemAlloc(TIFFOpenOptions *opts,
                                         tmsize_t max_single_mem_alloc);
     vtktiff_EXPORT void
+    TIFFOpenOptionsSetMaxCumulatedMemAlloc(TIFFOpenOptions *opts,
+                                           tmsize_t max_cumulated_mem_alloc);
+    vtktiff_EXPORT void
     TIFFOpenOptionsSetErrorHandlerExtR(TIFFOpenOptions *opts,
                                        TIFFErrorHandlerExtR handler,
                                        void *errorhandler_user_data);
@@ -518,11 +518,11 @@ vtktiff_EXPORT int TIFFReadRGBAImageOriented(TIFF *, uint32_t, uint32_t, uint32_
 
     vtktiff_EXPORT TIFF *TIFFOpen(const char *, const char *);
     vtktiff_EXPORT TIFF *TIFFOpenExt(const char *, const char *, TIFFOpenOptions *opts);
-#ifdef __WIN32__
+#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
     vtktiff_EXPORT TIFF *TIFFOpenW(const wchar_t *, const char *);
     vtktiff_EXPORT TIFF *TIFFOpenWExt(const wchar_t *, const char *,
                               TIFFOpenOptions *opts);
-#endif /* __WIN32__ */
+#endif // defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
     vtktiff_EXPORT TIFF *TIFFFdOpen(int, const char *, const char *);
     vtktiff_EXPORT TIFF *TIFFFdOpenExt(int, const char *, const char *,
                                TIFFOpenOptions *opts);
