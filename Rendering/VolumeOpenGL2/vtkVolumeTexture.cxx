@@ -120,7 +120,10 @@ bool vtkVolumeTexture::LoadVolume(
     {
       vtkRectilinearGrid* singleBlock = vtkRectilinearGrid::New();
       singleBlock->ShallowCopy(rGrid);
-      singleBlock->SetExtent(this->FullExtent.GetData());
+      // Do not update the block extent at this time.
+      // We need the full block extent in ComputeBounds later on.
+      // Leaving the following commented line in as a reminder.
+      // singleBlock->SetExtent(this->FullExtent.GetData());
       this->ImageDataBlocks.push_back(singleBlock);
     }
   }
@@ -222,16 +225,22 @@ void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFo
     vtkDataSet* dataset = this->ImageDataBlocks.at(i);
     vtkImageData* imData = vtkImageData::SafeDownCast(dataset);
     vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(dataset);
-    int* ext = nullptr;
+    Size6 ext;
     if (imData)
     {
-      ext = imData->GetExtent();
+      imData->GetExtent(ext.GetData());
     }
     else if (rGrid)
     {
-      ext = rGrid->GetExtent();
+      rGrid->GetExtent(ext.GetData());
+      if (this->IsCellData)
+      {
+        // The block extents for rectilinear grids were not overridden before. Hence, this
+        // additional step of adjusting them here.
+        this->AdjustExtentForCell(ext);
+      }
     }
-    Size3 const texSize = this->ComputeBlockSize(ext);
+    Size3 const texSize = this->ComputeBlockSize(ext.GetData());
     VolumeBlock* block = new VolumeBlock(dataset, this->Texture, texSize);
 
     // Compute tuple index (array aligned in x -> Y -> Z)
@@ -991,9 +1000,14 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
     rGrid->GetExtent(block->Extents);
     if (this->IsCellData)
     {
-      block->Extents[1]--;
-      block->Extents[3]--;
-      block->Extents[5]--;
+      for (int i = 0; i < 3; ++i)
+      {
+        // The block extents for rectilinear grids were not overridden before.        // Hence, this
+        // additional step of adjusting them here.
+        block->Extents[2 * i + 1] -= 1;
+        // Re-computing spacing with the updated extents/dimensions.
+        spacing[i] = (bounds[2 * i + 1] - bounds[2 * i]) / (dims[i] - 1);
+      }
     }
   }
 
