@@ -12,4 +12,3 @@ set(VTK_MODULE_ENABLE_VTK_IOFides NO CACHE STRING "")
 
 set(JOGL_GLUE "$ENV{HOME}/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.3.2/gluegen-rt-2.3.2.jar" CACHE FILEPATH "")
 set(JOGL_LIB  "$ENV{HOME}/.m2/repository/org/jogamp/jogl/jogl-all/2.3.2/jogl-all-2.3.2.jar" CACHE FILEPATH "")
-set(CMAKE_INSTALL_JNILIBDIR "lib64" CACHE STRING "" FORCE)
