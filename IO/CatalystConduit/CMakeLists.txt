@@ -1,8 +1,8 @@
 set(classes
+  vtkConduitArrayUtilities
   vtkConduitSource
   vtkConduitToDataObject
   vtkDataObjectToConduit
-  vtkConduitArrayUtilities
 )
 
 vtk_module_add_module(VTK::IOCatalystConduit
