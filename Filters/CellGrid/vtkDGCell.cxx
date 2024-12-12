@@ -363,6 +363,71 @@ int vtkDGCell::GetShapeDimension(Shape shape)
   return -1;
 }
 
+vtkDGCell::ShapeType vtkDGCell::GetShapeType(Shape shape)
+{
+  switch (shape)
+  {
+    case Vertex:
+      return Null;
+
+    case Edge:
+    case Quadrilateral:
+    case Hexahedron:
+      return Prismatic;
+
+    case Triangle:
+    case Tetrahedron:
+      return Barycentric;
+
+    case Wedge:
+    case Pyramid:
+      return Mixed;
+
+    case None:
+    default:
+      break;
+  }
+  return Null;
+}
+
+vtkStringToken vtkDGCell::GetShapeTypeName(ShapeType shapeType)
+{
+  switch (shapeType)
+  {
+    default:
+    case ShapeType::Null:
+      break;
+    case ShapeType::Prismatic:
+      return "prismatic"_token;
+    case ShapeType::Barycentric:
+      return "barycentric"_token;
+    case ShapeType::Mixed:
+      return "mixed"_token;
+  }
+  return "null"_token;
+}
+
+vtkDGCell::ShapeType vtkDGCell::GetShapeTypeName(vtkStringToken shapeTypeName)
+{
+  switch (shapeTypeName.GetId())
+  {
+    case "mixed"_hash:
+      return ShapeType::Mixed;
+    case "barycentric"_hash:
+      return ShapeType::Barycentric;
+    case "prismatic"_hash:
+      return ShapeType::Prismatic;
+    default:
+      break;
+  }
+  return ShapeType::Null;
+}
+
+vtkDGCell::ShapeType vtkDGCell::GetParameterSpaceType() const
+{
+  return vtkDGCell::GetShapeType(this->GetShape());
+}
+
 vtkVector3d vtkDGCell::GetParametricCenterOfSide(int sideId) const
 {
   const auto& sideConn = this->GetSideConnectivity(sideId);
