@@ -140,6 +140,8 @@ public:
    * Return the object used for point/array selection.
    * This can only be used when using `WriteNamedActors`: an array is selected for a source by
    * enabling the array `actorName:arrayName` in here.
+   *
+   * By default, all arrays are disabled.
    */
   vtkGetObjectMacro(PointArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellArraySelection, vtkDataArraySelection);
