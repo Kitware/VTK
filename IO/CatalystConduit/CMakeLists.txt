@@ -12,6 +12,15 @@ if (VTK_KOKKOS_BACKEND STREQUAL "HIP")
   set(VTK_KOKKOS_BACKEND_HIP 1)
 endif()
 
+if (VTK_KOKKOS_BACKEND STREQUAL "CUDA")
+  set(VTK_KOKKOS_BACKEND_CUDA 1)
+endif()
+
+if (VTK_KOKKOS_BACKEND STREQUAL "SYCL")
+  set(VTK_KOKKOS_BACKEND_SYCL 1)
+endif()
+
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkDeviceMemoryType.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkDeviceMemoryType.h"

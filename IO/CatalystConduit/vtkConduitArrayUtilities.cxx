@@ -319,14 +319,18 @@ private:
   vtkCellArray* CellArray;
 };
 
-constexpr vtkm::Int8 GetDeviceAdapterId()
+constexpr vtkm::Int8 GetCompiledInDeviceAdapterId()
 {
 #if defined(VTK_USE_CUDA)
   return VTKM_DEVICE_ADAPTER_CUDA;
-#elif defined(VTK_KOKKOS_BACKEND_HIP)
+#elif defined(VTK_USE_KOKKOS)
   return VTKM_DEVICE_ADAPTER_KOKKOS;
+#elif defined(VTKm_ENABLE_TBB)
+  return VTKM_DEVICE_ADAPTER_TBB;
+#elif defined(VTKm_ENABLE_OPENMP)
+  return VTKM_DEVICE_ADAPTER_OPENMP;
 #endif // VTK_USE_CUDA
-  return VTKM_DEVICE_ADAPTER_UNDEFINED;
+  return VTKM_DEVICE_ADAPTER_SERIAL;
 }
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 
@@ -737,7 +741,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
 bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr)
 {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#if defined(VTK_USE_CUDA)
+#if defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
   cudaPointerAttributes atts;
   const cudaError_t perr = cudaPointerGetAttributes(&atts, ptr);
   // clear last error so other error checking does
@@ -755,6 +759,10 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr)
   hipError_t error = hipGetLastError();
   return perr == hipSuccess &&
     (atts.TYPE_ATTR == hipMemoryTypeDevice || atts.TYPE_ATTR == hipMemoryTypeUnified);
+#elif defined(VTK_KOKKOS_BACKEND_SYCL)
+#warning "SYCL device pointers are not correctly detected"
+  (void)ptr;
+  return false;
 #endif // VTK_USE_CUDA
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   (void)ptr;
@@ -767,7 +775,7 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr)
   {                                                                                                \
     return make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(                                      \
       std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(                 \
-        vtkm::cont::make_DeviceAdapterId(internals::GetDeviceAdapterId()),                         \
+        vtkm::cont::make_DeviceAdapterId(internals::GetCompiledInDeviceAdapterId()),               \
         reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),                      \
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
         vtkm::cont::internal::InvalidRealloc) }));                                                 \
@@ -778,7 +786,7 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr)
   {                                                                                                \
     return make_vtkmDataArray(vtkm::cont::ArrayHandle<vtkm::Vec<dtype, ncomp>>(                    \
       std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(                 \
-        vtkm::cont::make_DeviceAdapterId(internals::GetDeviceAdapterId()),                         \
+        vtkm::cont::make_DeviceAdapterId(internals::GetCompiledInDeviceAdapterId()),               \
         reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),                      \
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},         \
         vtkm::cont::internal::InvalidRealloc) }));                                                 \
@@ -852,7 +860,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKmAOSArray(
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
       buffers.push_back(vtkm::cont::internal::MakeBuffer(                                          \
-        vtkm::cont::make_DeviceAdapterId(internals::GetDeviceAdapterId()),                         \
+        vtkm::cont::make_DeviceAdapterId(internals::GetCompiledInDeviceAdapterId()),               \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
@@ -869,7 +877,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKmAOSArray(
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
       buffers.push_back(vtkm::cont::internal::MakeBuffer(                                          \
-        vtkm::cont::make_DeviceAdapterId(internals::GetDeviceAdapterId()),                         \
+        vtkm::cont::make_DeviceAdapterId(internals::GetCompiledInDeviceAdapterId()),               \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(num_tuples), [](void*) {},            \

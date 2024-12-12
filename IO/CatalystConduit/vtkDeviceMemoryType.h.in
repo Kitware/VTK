@@ -5,6 +5,9 @@
 
 // These are the type of device memory we support
 #cmakedefine VTK_USE_CUDA
+#cmakedefine VTK_USE_KOKKOS
 #cmakedefine VTK_KOKKOS_BACKEND_HIP
+#cmakedefine VTK_KOKKOS_BACKEND_CUDA
+#cmakedefine VTK_KOKKOS_BACKEND_SYCL
 
 #endif
