@@ -169,7 +169,7 @@ public:
 
   /// Fetch an instance of an attribute calculator for the given tags.
   vtkSmartPointer<vtkCellAttributeCalculator> AttributeCalculator(vtkStringToken calculatorType,
-    vtkCellMetadata* cellType, vtkCellAttribute* attrib, const TagSet& tags) const;
+    vtkCellMetadata* cellType, vtkCellAttribute* attrib, const TagSet& tags = {}) const;
 
   template <typename CalculatorType>
   vtkSmartPointer<CalculatorType> AttributeCalculator(
