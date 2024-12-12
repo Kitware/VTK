@@ -15,7 +15,6 @@
 #ifndef vtkPointGaussianMapper_h
 #define vtkPointGaussianMapper_h
 
-#include "vtkDeprecation.h" // For deprecation macro
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
@@ -170,10 +169,6 @@ public:
    * to avoid sending many fragments to the shader that will just get
    * discarded.
    */
-  VTK_DEPRECATED_IN_9_3_0("Use SetBoundScale function instead")
-  void SetTriangleScale(float value) { this->SetBoundScale(value); }
-  VTK_DEPRECATED_IN_9_3_0("Use GetBoundScale function instead")
-  float GetTriangleScale() { return this->GetBoundScale(); }
   vtkSetMacro(BoundScale, float);
   vtkGetMacro(BoundScale, float);
   ///@}

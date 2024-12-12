@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkThreshold.h"
 
@@ -392,42 +390,6 @@ int vtkThreshold::EvaluateComponents(TScalarsArray& scalars, vtkIdType id)
 }
 
 //------------------------------------------------------------------------------
-void vtkThreshold::SetAttributeModeToDefault()
-{
-  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);
-}
-
-//------------------------------------------------------------------------------
-void vtkThreshold::SetAttributeModeToUsePointData()
-{
-  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);
-}
-
-//------------------------------------------------------------------------------
-void vtkThreshold::SetAttributeModeToUseCellData()
-{
-  this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);
-}
-
-//------------------------------------------------------------------------------
-// Return the method for manipulating scalar data as a string.
-const char* vtkThreshold::GetAttributeModeAsString()
-{
-  if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)
-  {
-    return "Default";
-  }
-  else if (this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
-  {
-    return "UsePointData";
-  }
-  else
-  {
-    return "UseCellData";
-  }
-}
-
-//------------------------------------------------------------------------------
 // Return a string representation of the component mode
 const char* vtkThreshold::GetComponentModeAsString()
 {
@@ -443,46 +405,6 @@ const char* vtkThreshold::GetComponentModeAsString()
   {
     return "UseAll";
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkThreshold::SetPointsDataTypeToDouble()
-{
-  this->SetPointsDataType(VTK_DOUBLE);
-}
-
-//------------------------------------------------------------------------------
-void vtkThreshold::SetPointsDataTypeToFloat()
-{
-  this->SetPointsDataType(VTK_FLOAT);
-}
-
-//------------------------------------------------------------------------------
-void vtkThreshold::SetPointsDataType(int type)
-{
-  if (type == VTK_FLOAT)
-  {
-    this->SetOutputPointsPrecision(SINGLE_PRECISION);
-  }
-  else if (type == VTK_DOUBLE)
-  {
-    this->SetOutputPointsPrecision(DOUBLE_PRECISION);
-  }
-}
-
-//------------------------------------------------------------------------------
-int vtkThreshold::GetPointsDataType()
-{
-  if (this->OutputPointsPrecision == SINGLE_PRECISION)
-  {
-    return VTK_FLOAT;
-  }
-  else if (this->OutputPointsPrecision == DOUBLE_PRECISION)
-  {
-    return VTK_DOUBLE;
-  }
-
-  return 0;
 }
 
 //------------------------------------------------------------------------------

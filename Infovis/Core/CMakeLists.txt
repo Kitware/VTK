@@ -6,7 +6,6 @@ set(classes
   vtkCollapseGraph
   vtkCollapseVerticesByArray
   vtkContinuousScatterplot
-  vtkDataObjectToTable
   vtkDotProductSimilarity
   vtkEdgeCenters
   vtkExpandSelectedGraph

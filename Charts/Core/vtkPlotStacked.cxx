@@ -562,6 +562,12 @@ void vtkPlotStacked::SetColor(unsigned char r, unsigned char g, unsigned char b,
 }
 
 //------------------------------------------------------------------------------
+void vtkPlotStacked::SetColor(unsigned char r, unsigned char g, unsigned char b)
+{
+  this->Brush->SetColor(r, g, b);
+}
+
+//------------------------------------------------------------------------------
 void vtkPlotStacked::SetColorF(double r, double g, double b, double a)
 {
   this->Brush->SetColorF(r, g, b, a);

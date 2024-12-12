@@ -30,7 +30,6 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkNew.h"           // For vtkNew
 #include "vtkSmartPointer.h"  // For vtkSmartPointer
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -514,12 +513,6 @@ public:
   vtkUnsignedCharArray* GetPointGhostArray();
 
   /**
-   * Updates the pointer to the point ghost array.
-   */
-  VTK_DEPRECATED_IN_9_3_0("This function is deprecated. It has no effect.")
-  void UpdatePointGhostArrayCache() {}
-
-  /**
    * Allocate ghost array for points.
    */
   vtkUnsignedCharArray* AllocatePointGhostArray();
@@ -529,12 +522,6 @@ public:
    * We cache the pointer to the array to save a lookup involving string comparisons
    */
   vtkUnsignedCharArray* GetCellGhostArray();
-
-  /**
-   * Updates the pointer to the cell ghost array.
-   */
-  VTK_DEPRECATED_IN_9_3_0("This function is deprecated. It has no effect.")
-  void UpdateCellGhostArrayCache() {}
 
   /**
    * Allocate ghost array for cells.
@@ -584,29 +571,8 @@ protected:
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
 
-  ///@{
-  /**
-   * These arrays pointers are caches used to avoid a string comparison (when
-   * getting ghost arrays using GetArray(name))
-   */
-  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
-  vtkUnsignedCharArray* PointGhostArray;
-  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
-  vtkUnsignedCharArray* CellGhostArray;
-  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
-  bool PointGhostArrayCached;
-  VTK_DEPRECATED_IN_9_3_0("This member is deprecated. It's no longer used.")
-  bool CellGhostArrayCached;
-  ///@}
-
 private:
   void InternalDataSetCopy(vtkDataSet* src);
-  /**
-   * Called when point/cell data is modified
-   * Updates caches to point/cell ghost arrays.
-   */
-  static void OnDataModified(
-    vtkObject* source, unsigned long eid, void* clientdata, void* calldata);
 
   // This should only be used if a vtkDataSet subclass don't define GetPoints()
   vtkSmartPointer<vtkPoints> TempPoints;

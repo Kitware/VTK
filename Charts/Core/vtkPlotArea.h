@@ -40,6 +40,7 @@ public:
    * Set the plot color with integer values (comprised between 0 and 255)
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) override;
+  void SetColor(unsigned char r, unsigned char g, unsigned char b) override;
 
   ///@{
   /**
@@ -47,9 +48,6 @@ public:
    */
   void SetColorF(double r, double g, double b, double a) override;
   void SetColorF(double r, double g, double b) override;
-
-  VTK_DEPRECATED_IN_9_3_0("Please use unambiguous SetColorF method instead.")
-  void SetColor(double r, double g, double b) override { this->SetColorF(r, g, b); }
   ///@}
 
   ///@{

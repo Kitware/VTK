@@ -24,7 +24,6 @@
 #ifndef vtkTemporalPathLineFilter_h
 #define vtkTemporalPathLineFilter_h
 
-#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkTemporalAlgorithm.h" // For temporal algorithm
@@ -123,22 +122,6 @@ public:
    */
   vtkSetMacro(KeepDeadTrails, bool);
   vtkGetMacro(KeepDeadTrails, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Set / Get if the filter is configured to work in backward time going mode.
-   * Default is false (time should go forward).
-   *
-   * Time going forward means that for each call to RequestData, then the time
-   * step from vtkDataObject::DATA_TIME_STEP() is greater than the time step
-   * from the previous call. Time going backward means that the current time
-   * step is smaller than the previous one.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Running backward will not be supported anymore.")
-  virtual void SetBackwardTime(bool backward);
-  VTK_DEPRECATED_IN_9_3_0("Running backward will not be supported anymore.")
-  vtkGetMacro(BackwardTime, bool);
   ///@}
 
   /**

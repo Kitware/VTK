@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) CSCS - Swiss National Supercomputing Centre
 // SPDX-License-Identifier: BSD-3-Clause
-// Hide VTK_DEPRECATED_IN_9_3_0() warnings
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkTemporalPathLineFilter.h"
 #include "vtkArrayDispatch.h"
@@ -215,18 +213,6 @@ int vtkTemporalPathLineFilter::FillOutputPortInformation(int port, vtkInformatio
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
   }
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkTemporalPathLineFilter::SetBackwardTime(bool backward)
-{
-  if (this->BackwardTime != backward)
-  {
-    this->LatestTime = backward ? 0 : LATEST_TIME_MAX;
-    this->BackwardTime = backward;
-    this->RunBackward = backward;
-    this->Modified();
-  }
 }
 
 //------------------------------------------------------------------------------

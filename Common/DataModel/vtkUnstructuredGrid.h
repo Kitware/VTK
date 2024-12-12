@@ -242,16 +242,6 @@ public:
   ///@}
 
   /**
-   * Get the cell links. The cell links will be one of nullptr=0;
-   * vtkCellLinks=1; vtkStaticCellLinksTemplate<VTK_UNSIGNED_SHORT>=2;
-   * vtkStaticCellLinksTemplate<VTK_UNSIGNED_INT>=3;
-   * vtkStaticCellLinksTemplate<VTK_ID_TYPE>=4.  (See enum types defined in
-   * vtkAbstractCellLinks.)
-   */
-  VTK_DEPRECATED_IN_9_3_0("Use GetLinks() instead.")
-  vtkAbstractCellLinks* GetCellLinks();
-
-  /**
    * Get the face stream of a polyhedron cell in the following format:
    * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...).
    * If the requested cell is not a polyhedron, then the standard GetCellPoints
@@ -330,12 +320,6 @@ public:
   {
     vtkIdType neighborCellId;
     return this->IsCellBoundary(cellId, npts, ptIds, neighborCellId);
-  }
-  VTK_DEPRECATED_IN_9_3_0("Use the overload that doesn't take a vtkIdList instead.")
-  bool IsCellBoundary(
-    vtkIdType cellId, vtkIdType npts, const vtkIdType* ptIds, vtkIdList* vtkNotUsed(cellIds))
-  {
-    return this->IsCellBoundary(cellId, npts, ptIds);
   }
   ///@}
 

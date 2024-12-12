@@ -22,7 +22,6 @@
 #define vtkQuadraticPolygon_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkNonLinearCell.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -79,8 +78,6 @@ public:
   {
     return vtkCell::Triangulate(index, ptIds, pts);
   }
-  VTK_DEPRECATED_IN_9_3_0("Replaced by its parent's implementation vtkCell::TriangulateLocalIds")
-  int Triangulate(vtkIdList* outTris);
   int TriangulateLocalIds(int index, vtkIdList* ptIds) override;
   int NonDegenerateTriangulate(vtkIdList* outTris);
   static double DistanceToPolygon(

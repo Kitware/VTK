@@ -84,8 +84,6 @@ vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
   this->RegisterOverride("vtkPVLight", light_maker);
   this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
-  // VTK_DEPRECATED_IN_9_3_0: Remove CPDM2 override after vtkCompositePolyDataMapper2 is removed
-  this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper", cpd_maker);
   this->RegisterOverride("vtkVolume", vol_maker);
   this->RegisterOverride("vtkPVLODVolume", vol_maker);

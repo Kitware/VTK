@@ -44,7 +44,6 @@
 #ifndef vtkQuadricDecimation_h
 #define vtkQuadricDecimation_h
 
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -260,9 +259,6 @@ protected:
    *
    * The setter needs the entire edge for interpolation of point data
    */
-  VTK_DEPRECATED_IN_9_3_0("Deprecated in favor of the method taking the indexes of both points on "
-                          "the edge to interpolate point data")
-  void SetPointAttributeArray(vtkIdType ptId, const double* x);
   void SetPointAttributeArray(vtkIdType ptId[2], const double* x);
   void GetPointAttributeArray(vtkIdType ptId, double* x);
   ///@}

@@ -1,4 +1,0 @@
-module VTK
-plugin qmlvtkplugin
-classname QQmlVTKPlugin
-typeinfo plugins.qmltypes

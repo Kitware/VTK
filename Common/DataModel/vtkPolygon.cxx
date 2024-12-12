@@ -810,15 +810,6 @@ int vtkPolygon::PointInPolygon(double x[3], int numPts, double* pts, double boun
 }
 
 //------------------------------------------------------------------------------
-// Triangulate polygon.
-//
-int vtkPolygon::Triangulate(vtkIdList* outTris)
-{
-  this->SuccessfulTriangulation = 1;
-  return this->EarCutTriangulation(outTris);
-}
-
-//------------------------------------------------------------------------------
 // Split into non-degenerate polygons prior to triangulation
 //
 int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)

@@ -2727,14 +2727,6 @@ vtkIdType vtkDataSetSurfaceFilter::GetOutputPointId(
 
 //------------------------------------------------------------------------------
 vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cellPtId,
-  vtkDataSet* input, vtkCell* cell, double* weights, vtkPoints* outPts, vtkPointData* outPD)
-{
-  double* pc = cell->GetParametricCoords();
-  return this->GetOutputPointIdAndInterpolate(cellPtId, input, cell, pc, weights, outPts, outPD);
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkDataSetSurfaceFilter::GetOutputPointIdAndInterpolate(vtkIdType cellPtId,
   vtkDataSet* input, vtkCell* cell, double* pc, double* weights, vtkPoints* outPts,
   vtkPointData* outPD)
 {

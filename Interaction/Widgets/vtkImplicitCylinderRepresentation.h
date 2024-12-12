@@ -290,18 +290,6 @@ public:
 
   ///@{
   /**
-   * Set color to the edge
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
-  void SetEdgeColor(vtkLookupTable*) {}
-  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
-  void SetEdgeColor(double, double, double) {}
-  VTK_DEPRECATED_IN_9_3_0("Please use GetEdgesProperty or SetHandleColor instead.")
-  void SetEdgeColor(double[3]) {}
-  ///@}
-
-  ///@{
-  /**
    * Methods to interface with the vtkImplicitCylinderWidget.
    */
   int ComputeInteractionState(int X, int Y, int modify = 0) override;

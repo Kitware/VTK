@@ -1073,15 +1073,6 @@ void vtkXOpenGLRenderWindow::SetSize(int width, int height)
   }
 }
 
-void vtkXOpenGLRenderWindow::SetSizeNoXResize(int width, int height)
-{
-  if ((this->Size[0] != width) || (this->Size[1] != height))
-  {
-    this->Superclass::SetSize(width, height);
-    this->Modified();
-  }
-}
-
 bool vtkXOpenGLRenderWindow::SetSwapControl(int i)
 {
   glXSwapIntervalEXTProc glXSwapIntervalEXT =

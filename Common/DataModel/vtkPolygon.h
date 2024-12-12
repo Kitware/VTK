@@ -15,7 +15,6 @@
 
 #include "vtkCell.h"
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_3_0
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
@@ -162,16 +161,6 @@ public:
   {
     return vtkCell::Triangulate(index, ptIds, pts);
   }
-  /**
-   * Triangulate this polygon. The user must provide the vtkIdList outTris.
-   * On output, the outTris list contains the ids of the points defining the
-   * triangulation (i.e., not the associated polygon->PointIds, rather the
-   * index into the polygon->Points array). The ids are ordered into groups
-   * of three: each three-group defines one triangle. The method returns
-   * non-zero if the triangulation is successful.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Replaced by its parent's implementation vtkCell::TriangulateLocalIds")
-  int Triangulate(vtkIdList* outTris);
 
   /**
    * Same as Triangulate(vtkIdList *outTris)

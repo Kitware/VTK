@@ -52,13 +52,6 @@ void vtkCompositeDataSet::CompositeShallowCopy(vtkCompositeDataSet* src)
 }
 
 //------------------------------------------------------------------------------
-void vtkCompositeDataSet::RecursiveShallowCopy(vtkDataObject* src)
-{
-  VTK_LEGACY_REPLACED_BODY(RecursiveShallowCopy, "VTK 9.3", ShallowCopy);
-  this->ShallowCopy(src);
-}
-
-//------------------------------------------------------------------------------
 void vtkCompositeDataSet::Initialize()
 {
   this->Superclass::Initialize();

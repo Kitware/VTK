@@ -27,7 +27,6 @@
 #ifndef vtkHyperTreeGridThreshold_h
 #define vtkHyperTreeGridThreshold_h
 
-#include "vtkDeprecation.h"            // For deprecation macros
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 
@@ -46,19 +45,6 @@ public:
   static vtkHyperTreeGridThreshold* New();
   vtkTypeMacro(vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Set/Get True, sets the MemoryStrategy to MaskInput ; False, does nothing now prefer
-   * SetMemoryStrategy.
-   *
-   * Default is technically true
-   */
-  VTK_DEPRECATED_IN_9_3_0("JustCreateNewMask is deprecated in favor of MemoryStrategy")
-  virtual void SetJustCreateNewMask(bool) {}
-  VTK_DEPRECATED_IN_9_3_0("JustCreateNewMask is deprecated in favor of MemoryStrategy")
-  virtual bool GetJustCreateNewMask() { return (this->GetMemoryStrategy() == MaskInput); }
-  ///@}
 
   ///@{
   /**

@@ -345,15 +345,6 @@ public:
   void SetForegroundColor(double c[3]) { this->SetForegroundColor(c[0], c[1], c[2]); }
   ///@}
 
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInteractionColor instead.")
-  void SetSelectedWidgetColor(double a, double b, double c) { this->SetInteractionColor(a, b, c); }
-  VTK_DEPRECATED_IN_9_3_0("Please use SetInteractionColor instead.")
-  void SetSelectedWidgetColor(double c[3]) { this->SetInteractionColor(c); }
-  VTK_DEPRECATED_IN_9_3_0("Please use SetHandleColor instead.")
-  void SetUnselectedWidgetColor(double a, double b, double c) { this->SetHandleColor(a, b, c); }
-  VTK_DEPRECATED_IN_9_3_0("Please use SetHandleColor instead.")
-  void SetUnselectedWidgetColor(double c[3]) { this->SetHandleColor(c); }
-
   ///@{
   /**
    * Specify a translation distance used by the BumpPlane() method. Note that the

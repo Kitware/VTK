@@ -120,11 +120,7 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestUpdateExtent(
   {
     int newTerminationTimeIndex = static_cast<int>(this->IntegrateFullTimeSeries
         ? this->InputTimeSteps.size() - 1
-        : (this->RunBackward
-              // VTK_DEPRECATED_IN_9_3_0 FIXME Following 2 lines can go away.
-              ? this->InputTimeSteps.size() - 1 -
-                ::FindTimeIndex(outInfo->Get(vtkSDDP::UPDATE_TIME_STEP()), this->InputTimeSteps)
-              : ::FindTimeIndex(outInfo->Get(vtkSDDP::UPDATE_TIME_STEP()), this->InputTimeSteps)));
+        : ::FindTimeIndex(outInfo->Get(vtkSDDP::UPDATE_TIME_STEP()), this->InputTimeSteps));
 
     if (newTerminationTimeIndex < this->CurrentTimeIndex)
     {
@@ -135,11 +131,7 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestUpdateExtent(
 
   if (vtkInformation* inInfo = inputVector[0]->GetInformationObject(0))
   {
-    inInfo->Set(vtkSDDP::UPDATE_TIME_STEP(),
-      this->InputTimeSteps[this->RunBackward
-          // VTK_DEPRECATED_IN_9_3_0 FIXME Following line can go away.
-          ? this->InputTimeSteps.size() - this->CurrentTimeIndex - 1
-          : this->CurrentTimeIndex]);
+    inInfo->Set(vtkSDDP::UPDATE_TIME_STEP(), this->InputTimeSteps[this->CurrentTimeIndex]);
   }
 
   return retVal;
@@ -249,10 +241,7 @@ double vtkTemporalAlgorithm<AlgorithmT>::GetCurrentTimeStep() const
 {
   return this->NoPriorTimeStepAccess
     ? this->ProcessedTimeSteps->GetValue(this->ProcessedTimeSteps->GetNumberOfValues() - 1)
-    : (this->RunBackward
-          // VTK_DEPRECATED_IN_9_3_0 FIXME Following line can go away.
-          ? this->InputTimeSteps[this->InputTimeSteps.size() - this->CurrentTimeIndex]
-          : this->InputTimeSteps[this->CurrentTimeIndex - 1]);
+    : this->InputTimeSteps[this->CurrentTimeIndex - 1];
 }
 
 VTK_ABI_NAMESPACE_END

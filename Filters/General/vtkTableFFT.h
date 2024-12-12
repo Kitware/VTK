@@ -203,43 +203,6 @@ public:
   vtkBooleanMacro(Detrend, bool);
   ///@}
 
-  ///@{
-  /**
-   * @deprecated in v9.3. Property has been renamed ReturnOnesided.
-   *
-   * @see vtkTableFFT::SetReturnOnesided(bool)
-   *
-   * Specify if the filter should use the optimized discrete fourier transform for
-   * real values. This will cause output columns to have from n to ((n / 2) + 1) rows.
-   * If OptimizeForRealInput is On but the input contains columns with 2 components,
-   * these columns will be ignored.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Function has been renamed GetReturnOnesided")
-  virtual bool GetOptimizeForRealInput() { return this->GetReturnOnesided(); }
-  VTK_DEPRECATED_IN_9_3_0("Function has been renamed SetReturnOnesided")
-  virtual void SetOptimizeForRealInput(bool _arg) { this->SetReturnOnesided(_arg); }
-  VTK_DEPRECATED_IN_9_3_0("Function has been renamed ReturnOnesidedOn")
-  virtual void OptimizeForRealInputOn() { this->ReturnOnesidedOn(); }
-  VTK_DEPRECATED_IN_9_3_0("Function has been renamed ReturnOnesidedOff")
-  virtual void OptimizeForRealInputOff() { this->ReturnOnesidedOff(); }
-  ///@}
-
-  ///@{
-  /**
-   * @deprecated in v9.3, in favor of the more intuitive API BlockOverlap and BlockSize.
-   * Does not have any effect anymore.
-   *
-   * @see vtkTableFFT::SetBlockSize(int)
-   * @see vtkTableFFT::SetBlockOverlap(int)
-   */
-  VTK_DEPRECATED_IN_9_3_0(
-    "Block behavior is not controlled using BlockSize and BlockOverlap properties.")
-  virtual int GetNumberOfBlock() { return 0; }
-  VTK_DEPRECATED_IN_9_3_0(
-    "Block behavior is not controlled using BlockSize and BlockOverlap properties.")
-  virtual void SetNumberOfBlock(int) {}
-  ///@}
-
 protected:
   vtkTableFFT();
   ~vtkTableFFT() override;

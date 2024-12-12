@@ -26,22 +26,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCompositeDataOverlappingCells.cxx,
   TestCompositeDataPointGaussian.cxx,NO_DATA
   TestCompositeDataPointGaussianSelection.cxx,NO_DATA
-  TestCompositePolyDataMapper2.cxx,NO_DATA
-  TestCompositePolyDataMapper2CameraShiftScale.cxx,NO_DATA
-  TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
-  TestCompositePolyDataMapper2CustomShader.cxx,NO_DATA
-  TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
-  TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
-  TestCompositePolyDataMapper2NaNPartial.cxx,NO_DATA
-  TestCompositePolyDataMapper2PartialFieldData.cxx,NO_DATA
-  TestCompositePolyDataMapper2PartialPointData.cxx,NO_DATA
-  TestCompositePolyDataMapper2Pickability.cxx,NO_DATA
-  TestCompositePolyDataMapper2Picking.cxx,NO_DATA
-  TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
-# TestCompositePolyDataMapper2ScalarsSurfaceOpacity.cxx,NO_DATA #19221
-  TestCompositePolyDataMapper2SharedArray.cxx,NO_DATA
-  TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
-  TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
   TestComputeShader.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestCubeMap.cxx
   TestCubeMap2.cxx

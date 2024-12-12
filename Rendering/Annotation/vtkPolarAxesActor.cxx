@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// VTK_DEPRECATED_IN_9_3_0() warnings for this class.
-#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkPolarAxesActor.h"
 
@@ -854,43 +852,6 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
 }
 
 //------------------------------------------------------------------------------
-void vtkPolarAxesActor::AutoSubdividePolarAxisOn()
-{
-  this->SetAutoSubdividePolarAxis(true);
-}
-
-//------------------------------------------------------------------------------
-void vtkPolarAxesActor::AutoSubdividePolarAxisOff()
-{
-  this->SetAutoSubdividePolarAxis(false);
-}
-
-//------------------------------------------------------------------------------
-void vtkPolarAxesActor::AutoComputeTicksProperties()
-{
-  // set DeltaRangeMajor according to Range[1] magnitude
-  double rangeLength = fabs(this->PolarAxis->GetRange()[1] - this->PolarAxis->GetRange()[0]);
-
-  // we would like no more than 15 ticks
-  double threshold = log10(1.5);
-  double log10RangeLength = log10(rangeLength);
-
-  double stepPow10 = (log10RangeLength - std::floor(log10RangeLength) < threshold)
-    ? std::floor(log10RangeLength) - 1.0
-    : std::floor(log10RangeLength);
-
-  double deltaRangeMajor = std::pow(10.0, stepPow10);
-  double deltaRangeMinor = deltaRangeMajor / 2.0;
-
-  if (this->DeltaRangeMajor != deltaRangeMajor || this->DeltaRangeMinor != deltaRangeMinor)
-  {
-    this->DeltaRangeMajor = deltaRangeMajor;
-    this->DeltaRangeMinor = deltaRangeMinor;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkPolarAxesActor::SetCommonAxisAttributes(vtkAxisActor* axis)
 {
   vtkProperty* prop = this->GetProperty();
@@ -956,12 +917,6 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   else
   {
     axis->SetExponentVisibility(false);
-  }
-
-  // Compute delta Range values (if log == 1, deltaRange properties will be overwritten)
-  if (this->AutoSubdividePolarAxis)
-  {
-    this->AutoComputeTicksProperties();
   }
 
   // Set polar axis labels
@@ -2245,24 +2200,6 @@ vtkProperty* vtkPolarAxesActor::GetSecondaryPolarArcsProperty()
 }
 
 //------------------------------------------------------------------------------
-void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
-{
-  if (tickCountRequired <= 1)
-  {
-    return;
-  }
-  double rangeLength = fabs(this->Range[1] - this->Range[0]);
-  double tmpRangeMajor = rangeLength / (tickCountRequired - 1);
-  double tmpRangeMinor = tmpRangeMajor / 2.0;
-  if (tmpRangeMajor != this->DeltaRangeMajor || tmpRangeMinor != this->DeltaRangeMinor)
-  {
-    this->DeltaRangeMajor = tmpRangeMajor;
-    this->DeltaRangeMinor = tmpRangeMinor;
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkPolarAxesActor::ComputeDeltaRangePolarAxes(vtkIdType n)
 {
   double rangeLength = fabs(this->Range[1] - this->Range[0]);
@@ -2392,13 +2329,6 @@ double vtkPolarAxesActor::ComputeIdealStep(int subDivsRequired, double rangeLeng
   }
 
   return idealStep;
-}
-
-//------------------------------------------------------------------------------
-int vtkPolarAxesActor::GetNumberOfPolarAxisTicks()
-{
-  double rangeLength = fabs(this->Range[1] - this->Range[0]);
-  return static_cast<int>(std::ceil(rangeLength / this->DeltaRangeMajor) + 1);
 }
 
 double vtkPolarAxesActor::ComputeEllipseAngle(double angleInDegrees, double ratio)

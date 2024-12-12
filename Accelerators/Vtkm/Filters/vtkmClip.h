@@ -15,7 +15,6 @@
 #define vtkmClip_h
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // For export macro
-#include "vtkDeprecation.h"                   // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkTableBasedClipDataSet.h"
 
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
@@ -31,16 +30,6 @@ public:
   static vtkmClip* New();
   vtkTypeMacro(vtkmClip, vtkTableBasedClipDataSet);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * The scalar value to use when clipping the dataset. Values greater than
-   * ClipValue are preserved in the output dataset. Default is 0.
-   */
-  VTK_DEPRECATED_IN_9_3_0("Please use GetValue instead.")
-  double GetClipValue() { return this->GetValue(); }
-
-  VTK_DEPRECATED_IN_9_3_0("Please use SetValue instead.")
-  void SetClipValue(double v) { this->SetValue(v); }
 
   /**
    * If true, all input point data arrays will be mapped onto the output

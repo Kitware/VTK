@@ -446,23 +446,6 @@ void vtkCubeAxesActor::SetLabelOffset(double offset)
 }
 
 //------------------------------------------------------------------------------
-void vtkCubeAxesActor::SetTitleOffset(double titleOffsetY)
-{
-  if (this->TitleOffset[1] != titleOffsetY)
-  {
-    this->TitleOffset[1] = titleOffsetY;
-    this->Modified();
-
-    for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
-    {
-      this->XAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
-      this->YAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
-      this->ZAxes[i]->SetTitleOffset(this->TitleOffset[0], titleOffsetY);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkCubeAxesActor::SetTitleOffset(double titleOffset[2])
 {
   if (this->TitleOffset[0] != titleOffset[0] || this->TitleOffset[1] != titleOffset[1])
@@ -478,19 +461,6 @@ void vtkCubeAxesActor::SetTitleOffset(double titleOffset[2])
       this->ZAxes[i]->SetTitleOffset(titleOffset);
     }
   }
-}
-
-//------------------------------------------------------------------------------
-double vtkCubeAxesActor::GetTitleOffset()
-{
-  return this->TitleOffset[1];
-}
-
-//------------------------------------------------------------------------------
-void vtkCubeAxesActor::GetTitleOffset(double& titleOffsetX, double& titleOffsetY)
-{
-  titleOffsetX = this->TitleOffset[0];
-  titleOffsetY = this->TitleOffset[1];
 }
 
 //------------------------------------------------------------------------------

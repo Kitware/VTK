@@ -23,7 +23,6 @@ set(classes
   vtkPHyperTreeGridProbeFilter
   vtkIntegrateAttributes
   vtkPeriodicFilter
-  vtkPCellDataToPointData
   vtkPConvertToMultiBlockDataSet
   vtkPExtractDataArraysOverTime
   vtkPExtractExodusGlobalTemporalVariables
@@ -44,7 +43,6 @@ set(classes
   vtkPReflectionFilter
   vtkPResampleFilter
   vtkPartitionBalancer
-  vtkProcessIdScalars
   vtkPSphereSource
   vtkPTextureMapToSphere
   vtkPYoungsMaterialInterface

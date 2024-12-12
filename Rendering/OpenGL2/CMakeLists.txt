@@ -3,7 +3,6 @@ set(classes
   vtkCameraPass
   vtkClearRGBPass
   vtkClearZPass
-  vtkCompositePolyDataMapper2
   vtkDataTransferHelper
   vtkDefaultPass
   vtkDepthImageProcessingPass
@@ -116,8 +115,7 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 set(nowrap_headers
-  vtkCompositeMapperHelper2.h
-  vtkOpenGLPointGaussianMapperHelper.h
+        vtkOpenGLPointGaussianMapperHelper.h
   vtkOpenGLShaderDeclaration.h
 )
 

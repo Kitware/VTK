@@ -13,8 +13,8 @@
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
-#include <vtkCapsuleSource.h>
 #include <vtkConeSource.h>
+#include <vtkCylinderSource.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -53,13 +53,16 @@ public:
     vtkNew<vtkRenderer> renderer;
     vtkNew<vtkConeSource> cone;
     vtkNew<vtkSphereSource> sphere;
-    vtkNew<vtkCapsuleSource> capsule;
+    vtkNew<vtkCylinderSource> capsule;
     vtkNew<vtkPolyDataMapper> mapper;
   };
 
   vtkUserData initializeVTK(vtkRenderWindow* renderWindow) override
   {
     vtkNew<Data> vtk;
+
+    vtk->capsule->SetCapping(true);
+    vtk->capsule->SetCapsuleCap(true);
 
     vtk->actor->SetMapper(vtk->mapper);
 
