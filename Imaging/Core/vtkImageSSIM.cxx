@@ -172,13 +172,16 @@ std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double
   {
     for (int dim = 0; dim < 3; ++dim)
     {
+      // The range of ssim values is [-1, 1]. By doing 1 - value, we change the range to [0, 2]
       measure[dim] += f(1.0 - lab[dim]);
     }
   }
 
+  // Normalize the measure
+  const vtkIdType div = array->GetNumberOfTuples();
   for (int dim = 0; dim < 3; ++dim)
   {
-    measure[dim] /= array->GetNumberOfTuples();
+    measure[dim] /= div;
   }
 
   return measure;
@@ -186,13 +189,14 @@ std::array<double, 3> ComputeMinkowski(vtkDoubleArray* array, double (*f)(double
 
 std::array<double, 3> ComputeMinkowski1(vtkDoubleArray* array)
 {
-  return ComputeMinkowski(array, &std::abs);
+  auto same = [](double v) -> double { return v; };
+  return ComputeMinkowski(array, same);
 }
 
 std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
 {
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeMinkowski(array, f);
+  auto power2 = [](double v) -> double { return v * v; };
+  auto measure = ComputeMinkowski(array, power2);
   for (int dim = 0; dim < 3; ++dim)
   {
     measure[dim] = std::sqrt(measure[dim]);
@@ -200,34 +204,47 @@ std::array<double, 3> ComputeMinkowski2(vtkDoubleArray* array)
   return measure;
 }
 
-std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(double))
+std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, std::uint64_t (*f)(std::uint64_t))
 {
   std::array<double, 3> measure = {};
 
   auto data = vtk::DataArrayTupleRange<3>(array);
 
-  constexpr int N = 100;
-  std::array<double, N> hist[3] = {};
+  constexpr std::uint64_t N = 200;
+  std::array<std::uint64_t, N> hist[3] = {};
 
   for (auto lab : data)
   {
     for (int dim = 0; dim < 3; ++dim)
     {
-      ++hist[dim][std::round(lab[dim] * (N - 1))];
+      // The range of ssim values is [-1, 1], so we rescale it to [0, 1]
+      double value = (lab[dim] + 1.0) / 2.0;
+      // Find the bucket to place the value in, by rescaling it to [0, N - 1]
+      // [0, (N - 1) / 2] is for negative ssim values,
+      // N / 2 is for ssim = 0,
+      // ((N + 1) / 2, N - 1] is for positive ssim values
+      auto bucket = static_cast<std::uint32_t>(std::round(value * (N - 1)));
+      ++hist[dim][bucket];
     }
   }
 
   for (int dim = 0; dim < 3; ++dim)
   {
-    std::array<double, N> cfd;
+    // Compute the cumulative frequency distribution
+    std::array<std::uint64_t, N> cfd;
     std::partial_sum(hist[dim].begin(), hist[dim].end(), cfd.begin());
 
     for (std::size_t i = 0; i < N - 1; ++i)
     {
       measure[dim] += f(cfd[i]);
     }
+  }
 
-    measure[dim] += f(cfd.back() - array->GetNumberOfTuples());
+  // Normalize the measure
+  const vtkIdType div = f(static_cast<std::uint64_t>(array->GetNumberOfTuples())) * (N - 1);
+  for (int dim = 0; dim < 3; ++dim)
+  {
+    measure[dim] /= div;
   }
 
   return measure;
@@ -235,23 +252,16 @@ std::array<double, 3> ComputeWasserstein(vtkDoubleArray* array, double (*f)(doub
 
 std::array<double, 3> ComputeWasserstein1(vtkDoubleArray* array)
 {
-  auto measure = ComputeWasserstein(array, &std::abs);
-  vtkIdType div = array->GetNumberOfTuples() * (100 - 1);
-  for (int dim = 0; dim < 3; ++dim)
-  {
-    measure[dim] /= div;
-  }
-  return measure;
+  auto same = [](std::uint64_t v) -> std::uint64_t { return v; };
+  return ComputeWasserstein(array, same);
 }
 
 std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
 {
-  auto f = [](double v) { return v * v; };
-  auto measure = ComputeWasserstein(array, f);
-  vtkIdType div = array->GetNumberOfTuples() * array->GetNumberOfTuples() * (100 - 1);
+  auto power2 = [](std::uint64_t v) -> std::uint64_t { return v * v; };
+  auto measure = ComputeWasserstein(array, power2);
   for (int dim = 0; dim < 3; ++dim)
   {
-    measure[dim] /= div;
     measure[dim] = std::sqrt(measure[dim]);
   }
   return measure;
@@ -259,7 +269,7 @@ std::array<double, 3> ComputeWasserstein2(vtkDoubleArray* array)
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
-// Construct object to extract all of the input data.
+// Construct object to extract all the input data.
 vtkImageSSIM::vtkImageSSIM()
 {
   this->SetNumberOfInputPorts(2);
