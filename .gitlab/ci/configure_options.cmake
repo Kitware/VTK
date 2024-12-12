@@ -48,7 +48,6 @@ configuration_flag(VTK_JAVA_INSTALL "java")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-  set(CMAKE_INSTALL_JNILIBDIR "" CACHE STRING "")
   set(JOGL_VERSION "2.3.2" CACHE STRING "")
   # Naming is <arch-platform> since some maven versions fail to properly parse
   # the artifact name when numbers are trailing in the classifer name.
