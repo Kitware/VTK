@@ -109,6 +109,17 @@ set(tiff_SOURCES
         tif_zip.c
         tif_zstd.c)
 
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.16)
+  set_property(SOURCE tif_jpeg.c tif_jpeg12.c PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+endif ()
+
+if (FALSE) # XXX(kitware): Use VTK's module system for definitions down below
+# For all files (but tif_open.c, tif_unix.c and tif_win32.c), forbid the use
+# of _TIFFmalloc/_TIFFfree and require the use of their "Ext" versions
+target_compile_definitions(tiff PRIVATE TIFF_DO_NOT_USE_NON_EXT_ALLOC_FUNCTIONS)
+set_property(SOURCE tif_open.c APPEND PROPERTY COMPILE_DEFINITIONS ALLOW_TIFF_NON_EXT_ALLOC_FUNCTIONS)
+endif() # XXX(kitware): Use VTK's module system for definitions down below
+
 if(USE_WIN32_FILEIO)
   #target_sources(tiff PRIVATE tif_win32.c)
   list(APPEND tiff_SOURCES tif_win32.c)
@@ -127,8 +138,8 @@ target_include_directories(tiff
         ${TIFF_INCLUDES}
 )
 
-# MSVC specific resource preparation
-if (WIN32 AND MSVC)
+# Windows specific resource preparation
+if (WIN32)
   message(STATUS "Include resource version information for LibTIFF")
   target_sources(tiff PRIVATE tif_win32_versioninfo.rc)
   source_group("Resource Files" FILES tif_win32_versioninfo.rc)
@@ -144,7 +155,11 @@ if(ZIP_SUPPORT)
 endif()
 if(ZIP_SUPPORT AND LIBDEFLATE_SUPPORT)
   target_link_libraries(tiff PRIVATE Deflate::Deflate)
-  list(APPEND tiff_libs_private_list "${Deflate_LIBRARY}")
+  if(Deflate_VERSION_STRING VERSION_GREATER_EQUAL "1.9")
+    string(APPEND tiff_requires_private " libdeflate")
+  else()
+    list(APPEND tiff_libs_private_list "${Deflate_LIBRARY}")
+  endif()
 endif()
 if(JPEG_SUPPORT)
   target_link_libraries(tiff PRIVATE JPEG::JPEG)
@@ -162,9 +177,13 @@ if(JBIG_SUPPORT)
 endif()
 if(LERC_SUPPORT)
   target_link_libraries(tiff PRIVATE LERC::LERC)
-  list(APPEND tiff_libs_private_list "${LERC_LIBRARY}")
-  if(NOT BUILD_SHARED_LIBS)
-    set_target_properties(tiff PROPERTIES COMPILE_DEFINITIONS LERC_STATIC)
+  if(LERC_VERSION_STRING VERSION_GREATER_EQUAL "4.0")
+    if(NOT BUILD_SHARED_LIBS)
+      set_target_properties(tiff PROPERTIES COMPILE_DEFINITIONS LERC_STATIC)
+    endif()
+    string(APPEND tiff_requires_private " Lerc")
+  else()
+    list(APPEND tiff_libs_private_list "${LERC_LIBRARY}")
   endif()
 endif()
 if(LZMA_SUPPORT)
@@ -208,6 +227,13 @@ if(HAVE_LD_VERSION_SCRIPT)
                         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
 endif()
 
+if (TRUE) # XXX(kitware): Use module system to set definitions
+# For all files (but tif_open.c, tif_unix.c and tif_win32.c), forbid the use
+# of _TIFFmalloc/_TIFFfree and require the use of their "Ext" versions
+vtk_module_definitions(VTK::tiff PRIVATE TIFF_DO_NOT_USE_NON_EXT_ALLOC_FUNCTIONS)
+set_property(SOURCE tif_open.c APPEND PROPERTY COMPILE_DEFINITIONS ALLOW_TIFF_NON_EXT_ALLOC_FUNCTIONS)
+endif() # XXX(kitware): Use module system to set definitions
+
 if (FALSE) # XXX(kitware): VTK handles installation.
 if(tiff-install)
   export(TARGETS tiff NAMESPACE TIFF:: FILE "${CMAKE_CURRENT_BINARY_DIR}/libtiffTargets.cmake")
@@ -244,7 +270,7 @@ if(CXX_SUPPORT)
           tiffio.hxx)
 
   # No .def file for this library.
-  if (WIN32)
+  if (WIN32 AND NOT MINGW)
       add_library(tiffxx STATIC ../placeholder.h)
   else()
       add_library(tiffxx ../placeholder.h)
@@ -278,7 +304,7 @@ if(CXX_SUPPORT)
     install(FILES ${tiffxx_HEADERS}
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
   endif()
-      
+
 endif()
 
 if (FALSE) # XXX(kitware): VTK doesn't need extra tools
