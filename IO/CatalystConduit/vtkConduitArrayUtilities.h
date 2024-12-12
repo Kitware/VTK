@@ -24,6 +24,10 @@
 
 #include <string> // for std::string
 
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#include "vtkm/cont/DeviceAdapterTag.h"
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
@@ -35,7 +39,7 @@ public:
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  static bool IsDevicePointer(const void* p);
+  static bool IsDevicePointer(const void* p, int8_t& id);
 
   ///@{
   /**
@@ -89,10 +93,10 @@ protected:
     const conduit_node* mcarray, bool force_signed);
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(
-    const conduit_node* mcarray, bool force_signed);
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(
-    const conduit_node* mcarray, bool force_signed);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(const conduit_node* mcarray,
+    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(const conduit_node* mcarray,
+    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
 #endif
 
 private:
