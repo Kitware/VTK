@@ -77,20 +77,6 @@ vtkSmartPointer<vtkDataObject> Convert(const conduit_cpp::Node& node)
   return source->GetOutputDataObject(0);
 }
 
-template <typename T, typename ComponentType = typename vtkm::VecTraits<T>::ComponentType,
-  typename S>
-ComponentType* GetDevicePointer(const vtkm::cont::ArrayHandle<T, S> ah, const std::size_t bufferIdx,
-  const vtkm::cont::DeviceAdapterId& device)
-{
-  auto buffers = ah.GetBuffers();
-  if (bufferIdx >= buffers.size())
-  {
-    return nullptr;
-  }
-  auto bufferInfo = buffers[bufferIdx].GetDeviceBufferInfo(device);
-  return reinterpret_cast<ComponentType*>(bufferInfo.GetPointer());
-}
-
 struct ScopedCudaDisableManagedMemory
 {
   ScopedCudaDisableManagedMemory()
@@ -215,7 +201,7 @@ void Copy(vtkm::cont::ArrayHandle<T, S> src, vtkm::cont::ArrayHandle<T, S> dst,
 }
 
 void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
-  conduit_cpp::Node& res, vtkm::cont::ArrayHandle<vtkm::FloatDefault> outCoords[3],
+  conduit_cpp::Node& res, vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> outCoords[3],
   vtkm::Int8 memorySpace)
 {
   conduit_cpp::Node coords = res["coordsets/coords"];
@@ -246,7 +232,7 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
       vtkm::cont::Invoker invoke(device);
       RectilinearCoordsWorklet worker(spacings[dim]);
       invoke(worker, vtkm::cont::make_ArrayHandleCounting(0, 1, dims[dim]), outCoords[dim]);
-      if (auto ptr = ::GetDevicePointer(outCoords[dim], 0, device))
+      if (auto ptr = outCoords[dim].GetReadPointer(device))
       {
         coordVals[axes[dim]].set_external(ptr, dims[dim]);
       }
@@ -293,7 +279,7 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   const char* axes[3] = { "x", "y", "z" };
   for (int dim = 0; dim < 3; ++dim)
   {
-    if (auto ptr = ::GetDevicePointer(outCoords, dim, device))
+    if (auto ptr = outCoords.GetArray(dim).GetReadPointer(device))
     {
       coordVals[axes[dim]].set_external(ptr, npts);
     }
@@ -318,8 +304,8 @@ void CreateStructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int n
 
 void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& res,
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  vtkm::cont::ArrayHandle<unsigned int>& connectivity,
-  vtkm::cont::ArrayHandle<vtkm::Float64>& values, vtkm::Int8 memorySpace)
+  vtkm::cont::ArrayHandleBasic<unsigned int>& connectivity,
+  vtkm::cont::ArrayHandleBasic<vtkm::Float64>& values, vtkm::Int8 memorySpace)
 {
   CreateStructuredMesh(nptsX, nptsY, 1, res, outCoords, memorySpace);
 
@@ -340,7 +326,7 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
     vtkm::cont::Invoker invoke(device);
     TriangleIndicesWorklet worker({ nElementX, nElementY });
     invoke(worker, vtkm::cont::make_ArrayHandleCounting(0, 1, nElements), connectivity);
-    if (auto ptr = ::GetDevicePointer(connectivity, 0, device))
+    if (auto ptr = connectivity.GetReadPointer(device))
     {
       res["topologies/mesh/elements/connectivity"].set_external(ptr, nElements * 6);
     }
@@ -360,7 +346,7 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
   {
     vtkm::cont::Invoker invoke(device);
     invoke(CopyWorklet{}, vtkm::cont::make_ArrayHandleCounting(0, 1, numberofValues), values);
-    if (auto ptr = ::GetDevicePointer(values, 0, device))
+    if (auto ptr = values.GetReadPointer(device))
     {
       resFields["values"].set_external(ptr, numberofValues);
     }
@@ -375,14 +361,14 @@ inline unsigned int calc(unsigned int i, unsigned int j, unsigned int k, unsigne
 
 void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
-  vtkm::cont::ArrayHandle<unsigned int>& elemShapes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
-  vtkm::cont::ArrayHandle<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets,
-  vtkm::cont::ArrayHandle<unsigned int>& subelemShapes,
-  vtkm::cont::ArrayHandle<unsigned int>& subelemConnectivity,
-  vtkm::cont::ArrayHandle<unsigned int>& subelemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& subelemOffsets, vtkm::Int8 memorySpace)
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemShapes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemShapes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemOffsets, vtkm::Int8 memorySpace)
 {
   auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
   CreateCoords(nptsX, nptsY, nptsZ, res, pointCoords, memorySpace);
@@ -616,26 +602,26 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
     subelemConnectivity, device);
 
   auto elements = res["topologies/mesh/elements"];
-  elements["shapes"].set_external(::GetDevicePointer(elemShapes, 0, device), nEle);
-  elements["offsets"].set_external(::GetDevicePointer(elemOffsets, 0, device), nEle);
-  elements["sizes"].set_external(::GetDevicePointer(elemSizes, 0, device), nEle);
+  elements["shapes"].set_external(elemShapes.GetReadPointer(device), nEle);
+  elements["offsets"].set_external(elemOffsets.GetReadPointer(device), nEle);
+  elements["sizes"].set_external(elemSizes.GetReadPointer(device), nEle);
   elements["connectivity"].set_external(
-    ::GetDevicePointer(elemConnectivity, 0, device), elemConnectivitySize);
+    elemConnectivity.GetReadPointer(device), elemConnectivitySize);
 
   auto subelements = res["topologies/mesh/subelements"];
-  subelements["shapes"].set_external(::GetDevicePointer(subelemShapes, 0, device), nFaces);
-  subelements["offsets"].set_external(::GetDevicePointer(subelemOffsets, 0, device), nFaces);
-  subelements["sizes"].set_external(::GetDevicePointer(subelemSizes, 0, device), nFaces);
+  subelements["shapes"].set_external(subelemShapes.GetReadPointer(device), nFaces);
+  subelements["offsets"].set_external(subelemOffsets.GetReadPointer(device), nFaces);
+  subelements["sizes"].set_external(subelemSizes.GetReadPointer(device), nFaces);
   subelements["connectivity"].set_external(
-    ::GetDevicePointer(subelemConnectivity, 0, device), subElemConnectivitySize);
+    subelemConnectivity.GetReadPointer(device), subElemConnectivitySize);
 }
 
 void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, conduit_cpp::Node& res,
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
-  vtkm::cont::ArrayHandle<unsigned int>& elemShapes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemConnectivity,
-  vtkm::cont::ArrayHandle<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandle<unsigned int>& elemOffsets, vtkm::Int8 memorySpace)
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemShapes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets, vtkm::Int8 memorySpace)
 {
   CreateCoords(npts_x, npts_y, 1, res, pointCoords, memorySpace);
 
@@ -742,18 +728,18 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
   ::Copy(vtkm::cont::make_ArrayHandle(connectivity, vtkm::CopyFlag::Off), elemConnectivity, device);
 
   auto elements = res["topologies/mesh/elements"];
-  elements["shapes"].set_external(::GetDevicePointer(elemShapes, 0, device), nele);
-  elements["offsets"].set_external(::GetDevicePointer(elemOffsets, 0, device), nele);
-  elements["sizes"].set_external(::GetDevicePointer(elemSizes, 0, device), nele);
+  elements["shapes"].set_external(elemShapes.GetReadPointer(device), nele);
+  elements["offsets"].set_external(elemOffsets.GetReadPointer(device), nele);
+  elements["sizes"].set_external(elemSizes.GetReadPointer(device), nele);
   elements["connectivity"].set_external(
-    ::GetDevicePointer(elemConnectivity, 0, device), nquads * 4 + ntris * 3);
+    elemConnectivity.GetReadPointer(device), nquads * 4 + ntris * 3);
 }
 
 bool ValidateMeshTypeRectilinearImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandle<vtkm::FloatDefault> pointCoords[3];
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 3, 3, mesh, pointCoords, memorySpace);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -827,8 +813,8 @@ bool ValidateMeshTypeUnstructuredImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   // generate simple explicit tri-based 2d 'basic' mesh
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandle<unsigned int> connectivity;
-  vtkm::cont::ArrayHandle<vtkm::Float64> values;
+  vtkm::cont::ArrayHandleBasic<unsigned int> connectivity;
+  vtkm::cont::ArrayHandleBasic<vtkm::Float64> values;
   CreateTrisMesh(3, 3, mesh, pointCoords, connectivity, values, memorySpace);
 
   auto data = Convert(mesh);
@@ -864,7 +850,7 @@ bool ValidateRectilinearGridWithDifferentDimensionsImpl(vtkm::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandle<vtkm::FloatDefault> pointCoords[3];
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 2, 1, mesh, pointCoords, memorySpace);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -893,7 +879,7 @@ bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   auto coords = mesh["coordsets/coords"];
   coords["type"] = "rectilinear";
-  coords["values/x"].set_external(::GetDevicePointer(xAH, 0, device), 3);
+  coords["values/x"].set_external(xAH.GetReadPointer(device), 3);
   auto topo_mesh = mesh["topologies/mesh"];
   topo_mesh["type"] = "rectilinear";
   topo_mesh["coordset"] = "coords";
@@ -901,7 +887,7 @@ bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
   field["association"] = "element";
   field["topology"] = "mesh";
   field["volume_dependent"] = "false";
-  field["values"].set_external(::GetDevicePointer(fieldAH, 0, device), 2);
+  field["values"].set_external(fieldAH.GetReadPointer(device), 2);
 
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -926,9 +912,9 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
   conduit_cpp::Node mesh;
   constexpr int nX = 5, nY = 5, nZ = 5;
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandle<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  vtkm::cont::ArrayHandle<unsigned int> subelem_connectivity, subelem_sizes, subelem_offsets;
-  vtkm::cont::ArrayHandle<unsigned int> elem_shapes, subelem_shapes;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
+  vtkm::cont::ArrayHandleBasic<unsigned int> subelem_connectivity, subelem_sizes, subelem_offsets;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elem_shapes, subelem_shapes;
   CreateMixedUnstructuredMesh(5, 5, 5, mesh, pointCoords, elem_shapes, elem_connectivity,
     elem_sizes, elem_offsets, subelem_shapes, subelem_connectivity, subelem_sizes, subelem_offsets,
     memorySpace);
@@ -1012,8 +998,8 @@ bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
   vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandle<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  vtkm::cont::ArrayHandle<unsigned int> elem_shapes;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elem_shapes;
   CreateMixedUnstructuredMesh2D(
     5, 5, mesh, pointCoords, elem_shapes, elem_connectivity, elem_sizes, elem_offsets, memorySpace);
   const auto data = Convert(mesh);
@@ -1093,14 +1079,14 @@ bool ValidateMeshTypeAMRImpl(const std::string& file, vtkm::Int8 memorySpace)
     conduit_cpp::Node point_field = fields[field_name];
     point_field["association"] = "vertex";
     point_field["topology"] = "topo";
-    vtkm::cont::ArrayHandle<vtkm::Float64> ah;
+    vtkm::cont::ArrayHandleBasic<vtkm::Float64> ah;
     {
       vtkm::cont::Token token;
       ah.PrepareForOutput((i_dimension + 1) * (j_dimension + 1) * (k_dimension + 1), device, token);
     }
     ah.Fill(field_value);
     auto pointFieldValues = point_field["values"];
-    pointFieldValues.set_external(::GetDevicePointer(ah, 0, device), ah.GetNumberOfValues());
+    pointFieldValues.set_external(ah.GetReadPointer(device), ah.GetNumberOfValues());
     pointValuesAHs.emplace_back(ah);
   }
 
