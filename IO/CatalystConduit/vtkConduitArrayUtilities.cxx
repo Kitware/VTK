@@ -227,11 +227,9 @@ vtkm::cont::ArrayHandle<OutputValueT> ToArrayHandle(ArrayT* input)
   // input is a vtkmDataArray<inputValueType>
   using inputValueType = typename ArrayT::ValueType;
   auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
-  vtkm::cont::UnknownArrayHandle connectivityUnknownHandle =
-    vtkm::cont::ArrayHandle<OutputValueT>{};
-  connectivityUnknownHandle.CopyShallowIfPossible(inputUnknownHandle);
-  vtkm::cont::CellSetSingleType<> cellSet;
-  return connectivityUnknownHandle.AsArrayHandle<vtkm::cont::ArrayHandle<OutputValueT>>();
+  vtkm::cont::ArrayHandle<OutputValueT> output;
+  vtkm::cont::ArrayCopyShallowIfPossible(inputUnknownHandle, output);
+  return output;
 }
 
 //----------------------------------------------------------------------------
