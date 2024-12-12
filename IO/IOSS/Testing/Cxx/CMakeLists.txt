@@ -5,7 +5,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSCGNS.cxx
   TestIOSSExodus.cxx,NO_VALID
   TestIOSSExodusMergeEntityBlocks.cxx,NO_VALID
-  TestIOSSExodusParallelWriter.cxx,
+  TestIOSSExodusParallelWriter.cxx
   TestIOSSExodusRestarts.cxx,NO_VALID
   TestIOSSExodusSetArrays.cxx
   TestIOSSExodusWriterCrinkleClip.cxx

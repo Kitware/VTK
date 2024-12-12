@@ -852,7 +852,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     vtkEmscriptenTestUtilities::PreloadDataFile(hostFileName.c_str(), sandboxedFileName);
     // so that subsequent code uses the sandboxed file name instead of host file name.
     delete[] newFileName;
-    newFileName = strdup(sandboxedFileName.c_str());
+    newFileName = new char[sandboxedFileName.size() + 1];
+    strcpy(newFileName, sandboxedFileName.c_str());
 #endif
     if (!LookForFile(newFileName))
     {
@@ -873,7 +874,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
     if ((ext2[1] - ext2[0]) == (ext1[1] - ext1[0]) && (ext2[3] - ext2[2]) == (ext1[3] - ext1[2]) &&
       (ext2[5] - ext2[4]) == (ext1[5] - ext1[4]))
     {
-      vtkLog(INFO, "Trying onother baseline.");
+      vtkLog(INFO, "Trying another baseline.");
       // Cannot compute difference unless image sizes are the same
       executeComparison(error);
     }
@@ -979,7 +980,8 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource, double thresh, ostream
 #ifdef __EMSCRIPTEN__
     std::string sandboxedFileName = vtkEmscriptenTestUtilities::PreloadDataFile(newFileName);
     delete[] newFileName;
-    newFileName = strdup(sandboxedFileName.c_str());
+    newFileName = new char[sandboxedFileName.size() + 1];
+    strcpy(newFileName, sandboxedFileName.c_str());
 #endif
     rtPng->SetFileName(newFileName);
     delete[] newFileName;
