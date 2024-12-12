@@ -535,39 +535,6 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
     }
   }
 
-  {
-    vtkm::cont::Token token;
-    elemOffsets.PrepareForOutput(elem_offsets.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemSizes.PrepareForOutput(elem_sizes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemShapes.PrepareForOutput(elem_shapes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemConnectivity.PrepareForOutput(elem_connectivity.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    subelemOffsets.PrepareForOutput(subelem_offsets.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    subelemSizes.PrepareForOutput(subelem_sizes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    subelemShapes.PrepareForOutput(subelem_shapes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    subelemConnectivity.PrepareForOutput(subelem_connectivity.size(), device, token);
-  }
-
   ArrayCopy(vtkm::cont::make_ArrayHandle(elem_offsets, vtkm::CopyFlag::Off), elemOffsets);
   ArrayCopy(vtkm::cont::make_ArrayHandle(elem_sizes, vtkm::CopyFlag::Off), elemSizes);
   ArrayCopy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes);
@@ -683,22 +650,6 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
   }
 
   auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
-  {
-    vtkm::cont::Token token;
-    elemOffsets.PrepareForOutput(offsets.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemSizes.PrepareForOutput(sizes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemShapes.PrepareForOutput(shapes.size(), device, token);
-  }
-  {
-    vtkm::cont::Token token;
-    elemConnectivity.PrepareForOutput(connectivity.size(), device, token);
-  }
 
   ArrayCopy(vtkm::cont::make_ArrayHandle(offsets, vtkm::CopyFlag::Off), elemOffsets);
   ArrayCopy(vtkm::cont::make_ArrayHandle(sizes, vtkm::CopyFlag::Off), elemSizes);
