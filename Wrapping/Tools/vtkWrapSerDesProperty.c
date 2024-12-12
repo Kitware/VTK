@@ -383,10 +383,17 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
       return 1;
     }
   }
-  else if (isString || (isStdVector && isString))
+  else if (isString)
   {
     fprintf(fp, "  state[\"%s\"] = ", keyName);
-    fprintf(fp, "object->%s();\n", getterName);
+    if (isStdVector)
+    {
+      fprintf(fp, "object->%s();\n", getterName);
+    }
+    else
+    {
+      fprintf(fp, "object->%s().c_str();\n", getterName);
+    }
     return 1;
   }
   else if (isEnumMember)
@@ -668,7 +675,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "    {\n");
     fprintf(fp, "      auto values = iter->get<std::string>();\n");
     callSetterBeginMacro(fp, "      ");
-    callSetterParameterMacro(fp, "values");
+    callSetterParameterMacro(fp, "values.c_str()");
     callSetterEndMacro(fp);
     fprintf(fp, "    }\n");
     fprintf(fp, "  }\n");
