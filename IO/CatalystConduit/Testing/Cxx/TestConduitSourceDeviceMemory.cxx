@@ -28,6 +28,7 @@
 #include "vtkm/Flags.h"
 #include "vtkm/Math.h"
 #include "vtkm/Types.h"
+#include "vtkm/cont/ArrayCopy.h"
 #include "vtkm/cont/ArrayHandle.h"
 #include "vtkm/cont/ArrayHandleBasic.h"
 #include "vtkm/cont/ArrayHandleCounting.h"
@@ -180,26 +181,6 @@ private:
   vtkm::Vec<vtkm::Id, 2> Dims;
 };
 
-struct CopyWorklet : vtkm::worklet::WorkletMapField
-{
-  using ControlSignature = void(FieldIn, FieldOut);
-  using ExcecutionSignature = void(_1, _2);
-
-  template <typename SourceType, typename DestType>
-  VTKM_EXEC void operator()(SourceType& src, DestType& dst) const
-  {
-    dst = src;
-  }
-};
-
-template <typename T, typename S>
-void Copy(vtkm::cont::ArrayHandle<T, S> src, vtkm::cont::ArrayHandle<T, S> dst,
-  vtkm::cont::DeviceAdapterId& device)
-{
-  vtkm::cont::Invoker invoke(device);
-  invoke(CopyWorklet{}, src, dst);
-}
-
 void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   conduit_cpp::Node& res, vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> outCoords[3],
   vtkm::Int8 memorySpace)
@@ -344,8 +325,7 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
     values.PrepareForOutput(numberofValues, device, token);
   }
   {
-    vtkm::cont::Invoker invoke(device);
-    invoke(CopyWorklet{}, vtkm::cont::make_ArrayHandleCounting(0, 1, numberofValues), values);
+    ArrayCopy(vtkm::cont::make_ArrayHandleCounting(0, 1, numberofValues), values);
     if (auto ptr = values.GetReadPointer(device))
     {
       resFields["values"].set_external(ptr, numberofValues);
@@ -588,18 +568,16 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
     subelemConnectivity.PrepareForOutput(subelem_connectivity.size(), device, token);
   }
 
-  ::Copy(vtkm::cont::make_ArrayHandle(elem_offsets, vtkm::CopyFlag::Off), elemOffsets, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(elem_sizes, vtkm::CopyFlag::Off), elemSizes, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes, device);
-  ::Copy(
-    vtkm::cont::make_ArrayHandle(elem_connectivity, vtkm::CopyFlag::Off), elemConnectivity, device);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_offsets, vtkm::CopyFlag::Off), elemOffsets);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_sizes, vtkm::CopyFlag::Off), elemSizes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_connectivity, vtkm::CopyFlag::Off), elemConnectivity);
 
-  ::Copy(
-    vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off),
-    subelemConnectivity, device);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes);
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off), subelemConnectivity);
 
   auto elements = res["topologies/mesh/elements"];
   elements["shapes"].set_external(elemShapes.GetReadPointer(device), nEle);
@@ -722,10 +700,10 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
     elemConnectivity.PrepareForOutput(connectivity.size(), device, token);
   }
 
-  ::Copy(vtkm::cont::make_ArrayHandle(offsets, vtkm::CopyFlag::Off), elemOffsets, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(sizes, vtkm::CopyFlag::Off), elemSizes, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(shapes, vtkm::CopyFlag::Off), elemShapes, device);
-  ::Copy(vtkm::cont::make_ArrayHandle(connectivity, vtkm::CopyFlag::Off), elemConnectivity, device);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(offsets, vtkm::CopyFlag::Off), elemOffsets);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(sizes, vtkm::CopyFlag::Off), elemSizes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(shapes, vtkm::CopyFlag::Off), elemShapes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(connectivity, vtkm::CopyFlag::Off), elemConnectivity);
 
   auto elements = res["topologies/mesh/elements"];
   elements["shapes"].set_external(elemShapes.GetReadPointer(device), nele);
