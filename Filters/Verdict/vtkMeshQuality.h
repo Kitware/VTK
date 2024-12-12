@@ -96,7 +96,18 @@ public:
   ///@}
 
   /**
-   * Enum which lists the Quality Measures Types
+   * Enum which lists the Quality Measures Types.
+   *
+   * - ASPECT_RATIO: is the ratio between the longest and the shortest edge.
+   * - ASPECT_GAMMA: is the root-mean-square edge to the volume.
+   * - CONDITION: is the condition number of the weighted Jacobian matrix.
+   * - COLLAPSE_RATIO: is useful to identify a sliver (degenerated tetrahedra).
+   * - DIAGONAL: is the ratio between the longest and the shortest diagonal.
+   * - ODDY: is a distortion metric.
+   * - SKEW: measures the angle between the principal axes
+   * - TAPER: represents the ratio of the areas of two triangles separated by a
+   *          diagonal within a quadrilateral face
+   * - WARPAGE: indicates that a face is not planar for 2D elments with 4 nodes.
    */
   enum class QualityMeasureTypes
   {
