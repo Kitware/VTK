@@ -22,7 +22,7 @@
  * OF THIS SOFTWARE.
  */
 
-/* Initialise fax decoder tables
+/* Initialize fax decoder tables
  * Decoder support is derived, with permission, from the code
  * in Frank Cringle's viewfax program;
  *      Copyright (C) 1990, 1995  Frank D. Cringle.
@@ -194,7 +194,7 @@ void WriteTable(FILE *fd, const TIFFFaxTabEnt *T, int Size, const char *name)
     fprintf(fd, "\n};\n");
 }
 
-/* initialise the huffman code tables */
+/* initialize the huffman code tables */
 int main(int argc, char *argv[])
 {
     FILE *fd;

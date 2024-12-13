@@ -85,6 +85,7 @@ EXPORTS	vtktiff_TIFFAccessTagMethods
 	vtktiff_TIFFOpenWExt
 	vtktiff_TIFFOpenOptionsAlloc
 	vtktiff_TIFFOpenOptionsFree
+	vtktiff_TIFFOpenOptionsSetMaxCumulatedMemAlloc
 	vtktiff_TIFFOpenOptionsSetMaxSingleMemAlloc
 	vtktiff_TIFFOpenOptionsSetErrorHandlerExtR
 	vtktiff_TIFFOpenOptionsSetWarningHandlerExtR
