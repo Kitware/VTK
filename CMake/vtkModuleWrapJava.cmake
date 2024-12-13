@@ -192,7 +192,7 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     set(_vtk_java_java_source_output
       "${_vtk_java_JAVA_OUTPUT}/${_vtk_java_basename}.java")
     set(_vtk_java_parse_depfile
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java.dir/${_vtk_java_basename}.java.d")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}.java.d")
     list(APPEND _vtk_java_java_sources
       "${_vtk_java_java_source_output}")
 
