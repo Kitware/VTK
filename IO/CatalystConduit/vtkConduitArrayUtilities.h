@@ -25,7 +25,7 @@
 #include <string> // for std::string
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#include "vtkm/cont/DeviceAdapterTag.h"
+#include "vtkm/cont/DeviceAdapterTag.h" // for vtkm::cont::DeviceAdapterId
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN

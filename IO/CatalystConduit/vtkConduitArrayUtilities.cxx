@@ -224,7 +224,6 @@ template <typename OutputValueT, typename ArrayT>
 vtkm::cont::ArrayHandle<OutputValueT> ToArrayHandle(ArrayT* input)
 {
   // input is a vtkmDataArray<inputValueType>
-  using inputValueType = typename ArrayT::ValueType;
   auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
   vtkm::cont::ArrayHandle<OutputValueT> output;
   vtkm::cont::ArrayCopyShallowIfPossible(inputUnknownHandle, output);
