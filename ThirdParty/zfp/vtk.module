@@ -1,7 +1,0 @@
-NAME
-  VTK::zfp
-LIBRARY_NAME
-  vtkzfp
-TEST_DEPENDS
-  VTK::TestingCore
-THIRD_PARTY
