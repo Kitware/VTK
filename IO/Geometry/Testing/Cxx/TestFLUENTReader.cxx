@@ -1,3 +1,5 @@
+#include "vtkDataArraySelection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFLUENTReader.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -103,6 +105,71 @@ bool TestFLUENTReaderMSHSurfaceAscii(const std::string& filename)
   return true;
 }
 
+bool TestFLUENTReaderZoneSelection(const std::string& filename)
+{
+  vtkNew<vtkFLUENTReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+
+  vtkMultiBlockDataSet* set = reader->GetOutput();
+  Check(set->GetNumberOfBlocks() == 8,
+    "Wrong number of blocks: " << set->GetNumberOfBlocks() << ", expected 8");
+  Check(set->GetNumberOfCells() == 21690,
+    "Wrong number of cells: " << set->GetNumberOfCells() << ", expected 21690");
+  Check(set->GetNumberOfPoints() == 36520,
+    "Wrong number of points: " << set->GetNumberOfPoints() << ", expected 36520");
+
+  reader->GetZoneSectionSelection()->DisableArray("wall-5:wall");
+  reader->SetCacheData(false);
+  reader->Update();
+
+  Check(set->GetNumberOfBlocks() == 7,
+    "Wrong number of blocks: " << set->GetNumberOfBlocks() << ", expected 7");
+  Check(set->GetNumberOfCells() == 21590,
+    "Wrong number of cells: " << set->GetNumberOfCells() << ", expected 21590");
+  Check(set->GetNumberOfPoints() == 31955,
+    "Wrong number of points: " << set->GetNumberOfPoints() << ", expected 31955");
+
+  reader->GetZoneSectionSelection()->DisableAllArrays();
+  reader->SetCacheData(true);
+  reader->GetZoneSectionSelection()->EnableArray("wall-5:wall");
+  reader->Update();
+
+  Check(set->GetNumberOfBlocks() == 1,
+    "Wrong number of blocks: " << set->GetNumberOfBlocks() << ", expected 7");
+  Check(set->GetNumberOfCells() == 100,
+    "Wrong number of cells: " << set->GetNumberOfCells() << ", expected 100");
+  Check(set->GetNumberOfPoints() == 4565,
+    "Wrong number of points: " << set->GetNumberOfPoints() << ", expected 4565");
+  Check(set->GetBlock(0)->GetAttributes(vtkDataObject::CELL)->GetNumberOfArrays() == 15,
+    "Wrong number of cell data arrays: "
+      << set->GetAttributes(vtkDataObject::CELL)->GetNumberOfArrays() << ", expected 15");
+  Check(set->GetBlock(0)->GetAttributes(vtkDataObject::CELL)->HasArray("WALL_SHEAR"),
+    "Could not find WALL_SHEAR cell data array !");
+  Check(!set->GetBlock(0)->GetAttributes(vtkDataObject::CELL)->HasArray("DENSITY"),
+    "DENSITY cell data array should not exist !");
+
+  return true;
+}
+
+bool TestFLUENTReaderSelectiveParsing(const std::string& filename)
+{
+  vtkNew<vtkFLUENTReader> reader;
+  reader->SetFileName(filename.c_str());
+  reader->GetZoneSectionSelection()->DisableArray("solide:fluid");
+  reader->Update();
+
+  vtkMultiBlockDataSet* set = reader->GetOutput();
+  Check(set->GetNumberOfBlocks() == 5,
+    "Wrong number of blocks: " << set->GetNumberOfBlocks() << ", expected 5");
+  Check(set->GetNumberOfCells() == 15141,
+    "Wrong number of cells: " << set->GetNumberOfCells() << ", expected 15141");
+  Check(set->GetNumberOfPoints() == 9810,
+    "Wrong number of points: " << set->GetNumberOfPoints() << ", expected 9810");
+
+  return true;
+}
+
 // std::string friendly wrapper for vtkTestUtilities::ExpandDataFileName
 std::string GetFilePath(int argc, char* argv[], const char* path)
 {
@@ -134,7 +201,15 @@ int TestFLUENTReader(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  // TODO: add test for FLUENT Case files
+  if (!::TestFLUENTReaderZoneSelection(GetFilePath(argc, argv, "Data/room.cas")))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (!::TestFLUENTReaderSelectiveParsing(GetFilePath(argc, argv, "Data/3D_cylinder_vol.msh")))
+  {
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }
