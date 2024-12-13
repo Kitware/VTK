@@ -83,6 +83,7 @@
  * \enddot
  *
  * The filled rectangles represent sets that are output.
+ * @sa vtkThreshold, vtkSplitByCellScalarFilter, vtkExplodeDataset
  */
 
 #ifndef vtkMultiThreshold_h

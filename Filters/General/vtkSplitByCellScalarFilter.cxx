@@ -120,7 +120,7 @@ int vtkSplitByCellScalarFilter::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<std::map<vtkIdType, vtkIdType>> pointMaps(nbBlocks);
 
   bool abortExecute = this->CheckAbort();
-  vtkIdType progressInterval = nbCells / 100;
+  vtkIdType progressInterval = std::max(nbCells / 100, vtkIdType(1));
 
   // Check that the scalars of each cell satisfy the threshold criterion
   for (vtkIdType cellId = 0; cellId < nbCells && !abortExecute; cellId++)

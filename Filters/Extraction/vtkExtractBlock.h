@@ -15,6 +15,8 @@
  *
  * `0` identifies the root-node. Thus, choosing `0` will result in the entire
  * input dataset being passed to the output.
+ *
+ * @sa vtkGroupDataSetsFilter vtkMergeBlocks
  */
 
 #ifndef vtkExtractBlock_h

@@ -11,8 +11,12 @@
  * input is of type vtkPolyData. In that case output blocks are of type
  * vtkPolyData.
  *
+ * As vtkMultiBlockDataSets tends to be replaced by vtkPartitionedDataSetCollection,
+ * vtkExplodeDataSet should be used in place. Also vtkExplodeDataSet benefits from
+ * SMPTools threading acceleration.
+ *
  * @sa
- * vtkThreshold
+ * vtkThreshold, vtkExplodeDataSet
  *
  * @par Thanks:
  * This class was written by Joachim Pouderoux, Kitware 2016.
