@@ -25,6 +25,7 @@ file (INSTALL "${install_prefix_dir}/bin/"
 file (INSTALL
         "${install_prefix_dir}/@CMAKE_INSTALL_JNILIBDIR@/"
       DESTINATION "${install_prefix_dir}/${NATIVE_NAME}"
+      FOLLOW_SYMLINK_CHAIN
       FILES_MATCHING
       PATTERN *.dll
       PATTERN *.so
