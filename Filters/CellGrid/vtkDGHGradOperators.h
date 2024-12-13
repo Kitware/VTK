@@ -4,6 +4,7 @@
 #define Filters_CellGrid_vtkDGHGradOperators_h
 
 #include "vtkCellAttribute.h" // For CellTypeInfo.
+#include "vtkDGCell.h"        // For shape enum.
 #include "vtkDGOperatorEntry.h"
 #include "vtkFiltersCellGridModule.h" // For export macro.
 
@@ -20,6 +21,18 @@ VTK_ABI_NAMESPACE_BEGIN
 
 /// Register basis-function operators for the "HGRAD" function space with vtkDGCell.
 bool VTKFILTERSCELLGRID_EXPORT RegisterOperators();
+
+/// Fetch parametric coordinates where Lagrange basis functions exactly interpolate a value.
+///
+/// This only returns true when the \a shape, \a basis, and \a nominalOrder match
+/// a **fixed-order** basis function. You should prefer using the vtkLagrangePoints
+/// calculator as that class calls this method when appropriate but also handles
+/// arbitrary-order basis functions.
+///
+/// This function exists because programmatically generating parametric coordinates
+/// for serendipity and other finite elements would be difficult.
+bool VTKFILTERSCELLGRID_EXPORT FixedOrderLagrangePoints(vtkDGCell::Shape shape,
+  vtkStringToken basis, int nominalOrder, std::vector<std::vector<double>>& points);
 
 VTK_ABI_NAMESPACE_END
 } // namespace hgrad

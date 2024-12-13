@@ -1128,6 +1128,350 @@ bool RegisterOperators()
   return true;
 }
 
+using LagrangePointMapType = std::map<vtkDGCell::Shape,
+  std::unordered_map<vtkStringToken, std::unordered_map<int, std::vector<std::vector<double>>>>>;
+LagrangePointMapType BuildLagrangePointMap()
+{
+  LagrangePointMapType lagrangePointMap;
+
+  // clang-format off
+  lagrangePointMap[vtkDGCell::Shape::Edge]["C"_token][1] = {{ -1. }, { +1. }};
+  lagrangePointMap[vtkDGCell::Shape::Edge]["C"_token][2] = {{ -1. }, { +1. }, { 0. }};
+
+  lagrangePointMap[vtkDGCell::Shape::Hexahedron]["C"_token][1] = {
+    { -1., -1., -1. },
+    { +1., -1., -1. },
+    { +1., +1., -1. },
+    { -1., +1., -1. },
+    { -1., -1., +1. },
+    { +1., -1., +1. },
+    { +1., +1., +1. },
+    { -1., +1., +1. }};
+  lagrangePointMap[vtkDGCell::Shape::Hexahedron]["C"_token][2] = {
+    // corners
+    { -1., -1., -1. },
+    { +1., -1., -1. },
+    { +1., +1., -1. },
+    { -1., +1., -1. },
+    { -1., -1., +1. },
+    { +1., -1., +1. },
+    { +1., +1., +1. },
+    { -1., +1., +1. },
+    // t=-1 edges
+    {  0., -1., -1. },
+    { +1.,  0., -1. },
+    {  0., +1., -1. },
+    { -1.,  0., -1. },
+    // t=0 edges
+    { -1., -1.,  0. },
+    { +1., -1.,  0. },
+    { +1., +1.,  0. },
+    { -1., +1.,  0. },
+    // t=+1 edges
+    {  0., -1., +1. },
+    { +1.,  0., +1. },
+    {  0., +1., +1. },
+    { -1.,  0., +1. },
+    // body center
+    {  0.,  0.,  0. },
+    // faces: -t, +t, -r, +r, -s, +s
+    {  0.,  0., -1. },
+    {  0.,  0., +1. },
+    { -1.,  0.,  0. },
+    { +1.,  0.,  0. },
+    {  0., -1.,  0. },
+    {  0., +1.,  0. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Hexahedron]["I"_token][2] = {
+    // corners
+    { -1., -1., -1. },
+    { +1., -1., -1. },
+    { +1., +1., -1. },
+    { -1., +1., -1. },
+    { -1., -1., +1. },
+    { +1., -1., +1. },
+    { +1., +1., +1. },
+    { -1., +1., +1. },
+    // t=-1 edges
+    {  0., -1., -1. },
+    { +1.,  0., -1. },
+    {  0., +1., -1. },
+    { -1.,  0., -1. },
+    // t=0 edges
+    { -1., -1.,  0. },
+    { +1., -1.,  0. },
+    { +1., +1.,  0. },
+    { -1., +1.,  0. },
+    // t=+1 edges
+    {  0., -1., +1. },
+    { +1.,  0., +1. },
+    {  0., +1., +1. },
+    { -1.,  0., +1. }
+  };
+
+  lagrangePointMap[vtkDGCell::Shape::Pyramid]["C"_token][1] = {
+    { -1., -1.,  0. },
+    { +1., -1.,  0. },
+    { +1., +1.,  0. },
+    { -1., +1.,  0. },
+    {  0.,  0., +1. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Pyramid]["I"_token][2] = {
+    // corners
+    { -1., -1.,  0. },
+    { +1., -1.,  0. },
+    { +1., +1.,  0. },
+    { -1., +1.,  0. },
+    {  0.,  0., +1. },
+    // mid-edge nodes of base
+    {  0., -1.,  0. },
+    { +1.,  0.,  0. },
+    {  0., +1.,  0. },
+    { -1.,  0.,  0. },
+    // mid-edge nodes of center
+    { -.5, -.5,  .5 },
+    { +.5, -.5,  .5 },
+    { +.5, +.5,  .5 },
+    { -.5, +.5,  .5 },
+  };
+  // NB: The 18-node quadratic pyramid has no entry here. Unlike its I2 and F2
+  //     siblings it is not a nodal basis: its face functions reach only 8/9 at
+  //     the corresponding face centroid, so there is no set of points at which
+  //     its degrees of freedom are the values taken on. Callers must fall back
+  //     to sampling the basis wherever they need it.
+  lagrangePointMap[vtkDGCell::Shape::Pyramid]["F"_token][2] = {
+    // corners
+    { +1., +1.,  0. },
+    { -1., +1.,  0. },
+    { -1., -1.,  0. },
+    { +1., -1.,  0. },
+    {  0.,  0., +1. },
+    // mid-edge nodes of base
+    {  0., +1.,  0. },
+    { -1.,  0.,  0. },
+    {  0., -1.,  0. },
+    { +1.,  0.,  0. },
+    // mid-edge nodes of center
+    { +0.5, +0.5, 0.5 },
+    { -0.5, +0.5, 0.5 },
+    { -0.5, -0.5, 0.5 },
+    { +0.5, -0.5, 0.5 },
+    // mid-face (bottom)
+    {  0.,  0.,  0. },
+    // mid-face (sides)
+    {   0.,  2/3., 1/3. },
+    { -2/3.,  0,   1/3. },
+    {   0,  -2/3., 1/3. },
+    {  2/3.,  0.,  1/3. },
+    // body center
+    {   0.,   0.,  0.25 }
+  };
+
+  lagrangePointMap[vtkDGCell::Shape::Quadrilateral]["C"_token][1] = {
+    { -1., -1. },
+    { +1., -1. },
+    { +1., +1. },
+    { -1., +1. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Quadrilateral]["C"_token][2] = {
+    // corners
+    { -1., -1. },
+    { +1., -1. },
+    { +1., +1. },
+    { -1., +1. },
+    // mid-edge
+    {  0., -1. },
+    { +1.,  0. },
+    {  0., +1. },
+    { -1.,  0. },
+    // body center
+    {  0.,  0. }
+  };
+
+  lagrangePointMap[vtkDGCell::Shape::Tetrahedron]["C"_token][1] = {
+    {  0.,  0.,  0. },
+    { +1.,  0.,  0. },
+    {  0., +1.,  0. },
+    {  0.,  0., +1. } 
+  };
+  lagrangePointMap[vtkDGCell::Shape::Tetrahedron]["C"_token][2] = {
+    // corners
+    {  0.,  0.,  0. },
+    { +1.,  0.,  0. },
+    {  0., +1.,  0. },
+    {  0.,  0., +1. },
+    // mid-edge
+    {  .5,  0.,  0. },
+    {  .5,  .5,  0. },
+    {  0.,  .5,  0. },
+    {  0.,  0.,  .5 },
+    {  .5,  0.,  .5 },
+    {  0.,  .5,  .5 }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Tetrahedron]["F"_token][2] = {
+    // corners
+    {  0.,  0.,  0. },
+    { +1.,  0.,  0. },
+    {  0., +1.,  0. },
+    {  0.,  0., +1. },
+    // mid-edge
+    {  .5,  0.,  0. },
+    {  .5,  .5,  0. },
+    {  0.,  .5,  0. },
+    {  0.,  0.,  .5 },
+    {  .5,  0.,  .5 },
+    {  0.,  .5,  .5 },
+    // mid-face
+    { 1/3., 1/3., 0.   },
+    { 1/3., 0.,   1/3. },
+    { 1/3., 1/3., 1/3. },
+    { 0.,   1/3., 1/3. },
+    // mid-body
+    { 0.25, 0.25, 0.25 }
+  };
+
+  lagrangePointMap[vtkDGCell::Shape::Triangle]["C"_token][1] = {
+    { 0., 0. },
+    { 1., 0. },
+    { 0., 1. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Triangle]["C"_token][2] = {
+    // corners
+    { 0., 0. },
+    { 1., 0. },
+    { 0., 1. },
+    // mid-edge
+    { .5, 0. },
+    { .5, .5 },
+    { 0., .5 }
+  };
+
+  lagrangePointMap[vtkDGCell::Shape::Wedge]["C"_token][1] = {
+    {  0.,  0., -1. },
+    { +1.,  0., -1. },
+    {  0., +1., -1. },
+    {  0.,  0., +1. },
+    { +1.,  0., +1. },
+    {  0., +1., +1. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Wedge]["I"_token][2] = {
+    // corner
+    {  0.,   0.,  -1. },
+    { +1.,   0.,  -1. },
+    {  0.,  +1.,  -1. },
+    {  0.,   0.,  +1. },
+    { +1.,   0.,  +1. },
+    {  0.,  +1.,  +1. },
+    // mid-edge, t=-1
+    {  .5,   0.,  -1. },
+    {  .5,   .5,  -1. },
+    {  0.,   .5,  -1. },
+    // mid-edge, t=0
+    {  0.,   0.,   0. },
+    { +1.,   0.,   0. },
+    {  0.,  +1.,   0. },
+    // mid-edge, t=+1
+    {  .5,   0.,  +1. },
+    {  .5,   .5,  +1. },
+    {  0.,   .5,  +1. },
+  };
+  lagrangePointMap[vtkDGCell::Shape::Wedge]["C"_token][2] = {
+    // corner
+    {  0.,   0.,  -1. },
+    { +1.,   0.,  -1. },
+    {  0.,  +1.,  -1. },
+    {  0.,   0.,  +1. },
+    { +1.,   0.,  +1. },
+    {  0.,  +1.,  +1. },
+    // mid-edge, t=-1
+    {  .5,   0.,  -1. },
+    {  .5,   .5,  -1. },
+    {  0.,   .5,  -1. },
+    // mid-edge, t=0
+    {  0.,   0.,   0. },
+    { +1.,   0.,   0. },
+    {  0.,  +1.,   0. },
+    // mid-edge, t=+1
+    {  .5,   0.,  +1. },
+    {  .5,   .5,  +1. },
+    {  0.,   .5,  +1. },
+    // mid-face R/RS/S normal
+    {  .5,   0.,   0. },
+    {  .5,   .5,   0. },
+    {  0.,   .5,   0. }
+  };
+  lagrangePointMap[vtkDGCell::Shape::Wedge]["F"_token][2] = {
+    // corner
+    {  0.,   0.,  -1. },
+    { +1.,   0.,  -1. },
+    {  0.,  +1.,  -1. },
+    {  0.,   0.,  +1. },
+    { +1.,   0.,  +1. },
+    {  0.,  +1.,  +1. },
+    // mid-edge, t=-1
+    {  .5,   0.,  -1. },
+    {  .5,   .5,  -1. },
+    {  0.,   .5,  -1. },
+    // mid-edge, t=+1
+    {  .5,   0.,  +1. },
+    {  .5,   .5,  +1. },
+    {  0.,   .5,  +1. },
+    // mid-edge, t=0
+    {  0.,   0.,   0. },
+    { +1.,   0.,   0. },
+    {  0.,  +1.,   0. },
+    // mid-face, T normal
+    { 1/3., 1/3., -1. },
+    { 1/3., 1/3., +1. },
+    // mid-face R/RS/S normal
+    {  .5,   0.,   0. },
+    {  .5,   .5,   0. },
+    {  0.,   .5,   0. },
+    // body center
+    { 1/3., 1/3.,  0. }
+  };
+  // clang-format on
+  return lagrangePointMap;
+}
+
+bool FixedOrderLagrangePoints(vtkDGCell::Shape shape, vtkStringToken basis, int nominalOrder,
+  std::vector<std::vector<double>>& points)
+{
+  // Initialized on first use. A function-local static is built exactly once even
+  // if several threads arrive together, which a check for an empty file-scope
+  // map would not be.
+  static const LagrangePointMapType lagrangePointMap = BuildLagrangePointMap();
+  points.clear();
+  if (nominalOrder == 0)
+  {
+    // Constant cells have a single parametric point (the origin)
+    // where the value for the entire cell is specified.
+    std::vector<double> onePoint(vtkDGCell::GetShapeDimension(shape), 0.0);
+    points.push_back(onePoint);
+    return true;
+  }
+
+  // The simple cases are handled above. Now deal with non-simple
+  // shape+order combinations via table lookup.
+  auto shapeIt = lagrangePointMap.find(shape);
+  if (shapeIt == lagrangePointMap.end())
+  {
+    return false;
+  }
+  auto basisIt = shapeIt->second.find(basis);
+  if (basisIt == shapeIt->second.end())
+  {
+    return false;
+  }
+  auto orderIt = basisIt->second.find(nominalOrder);
+  if (orderIt == basisIt->second.end())
+  {
+    return false;
+  }
+  points = orderIt->second;
+  return true;
+}
+
 VTK_ABI_NAMESPACE_END
 } // namespace hgrad
 } // namespace basis
