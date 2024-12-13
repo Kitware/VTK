@@ -313,7 +313,13 @@ int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(
 {
 
   double pos[4], xyz[3];
-  this->FocalPoint->GetPoint(0, pos);
+  pos[0] = 0.0;
+  pos[1] = 0.0;
+  pos[2] = 0.0;
+  if (this->FocalPoint && this->FocalPoint->GetNumberOfPoints() > 0)
+  {
+    this->FocalPoint->GetPoint(0, pos);
+  }
   pos[3] = 1.0;
   this->Renderer->SetWorldPoint(pos);
   this->Renderer->WorldToDisplay();
