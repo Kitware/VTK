@@ -2065,4 +2065,39 @@ void vtkNetCDFCFReader::SetVerticalDimensionName(const char* name)
   this->SpecialDimensionOverrideNames[vtkDimensionInfo::VERTICAL_UNITS] = name;
 }
 
+//------------------------------------------------------------------------------
+const char* vtkNetCDFCFReader::GetTimeDimensionName()
+{
+  return GetSpecialDimensionName(vtkDimensionInfo::TIME_UNITS);
+}
+
+//------------------------------------------------------------------------------
+const char* vtkNetCDFCFReader::GetLatitudeDimensionName()
+{
+  return GetSpecialDimensionName(vtkDimensionInfo::LATITUDE_UNITS);
+}
+
+//------------------------------------------------------------------------------
+const char* vtkNetCDFCFReader::GetLongitudeDimensionName()
+{
+  return GetSpecialDimensionName(vtkDimensionInfo::LONGITUDE_UNITS);
+}
+
+//------------------------------------------------------------------------------
+const char* vtkNetCDFCFReader::GetVerticalDimensionName()
+{
+  return GetSpecialDimensionName(vtkDimensionInfo::VERTICAL_UNITS);
+}
+
+//------------------------------------------------------------------------------
+const char* vtkNetCDFCFReader::GetSpecialDimensionName(vtkDimensionInfo::UnitsEnum units)
+{
+  auto it = std::find_if(this->DimensionInfo->v.begin(), this->DimensionInfo->v.end(),
+    [units](const vtkDimensionInfo& di) { return di.GetUnits() == units; });
+  if (it == this->DimensionInfo->v.end())
+    return nullptr;
+  else
+    return it->GetName();
+}
+
 VTK_ABI_NAMESPACE_END

@@ -96,6 +96,17 @@ public:
   void SetVerticalDimensionName(const char* name);
   ///@}
 
+  ///@{
+  /**
+   * Names for Time, Latitude, Longitude and Vertical. These are either
+   * deduced from CF attributes or overwritten by the user
+   */
+  const char* GetTimeDimensionName();
+  const char* GetLatitudeDimensionName();
+  const char* GetLongitudeDimensionName();
+  const char* GetVerticalDimensionName();
+  ///@}
+
 protected:
   vtkNetCDFCFReader();
   ~vtkNetCDFCFReader() override;
@@ -168,6 +179,7 @@ protected:
   {
     this->SpecialDimensionOverrideNames[dim] = name;
   }
+  const char* GetSpecialDimensionName(vtkDimensionInfo::UnitsEnum dim);
 
   class vtkDimensionInfoVector;
   friend class vtkDimensionInfoVector;
