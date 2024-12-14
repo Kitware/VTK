@@ -64,6 +64,9 @@ vtkTypeBool vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
 #if defined(VTK_LEGACY_REMOVE)
   return (index >= 0);
 #else
+  // VTK_DEPRECATED_IN_9_5_0()
+  // Keep "#if" block and remove this "#else" when removing 9.5.0 deprecations
+
   // The implementation used to call IsItemPresent(), which, despite its name,
   // returned an index, not a boolean.  Preserve the old behaviour.  0 means
   // the item is not found, otherwise return the index + 1.
