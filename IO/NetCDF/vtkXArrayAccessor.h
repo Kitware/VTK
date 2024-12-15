@@ -84,7 +84,8 @@ public:
   /**
    * Set dimensions for a variable
    */
-  void SetVarDimId(size_t varIndex, const std::vector<size_t>& dims);
+  void SetVarDims(size_t varIndex, const std::vector<size_t>& dims);
+  void SetVarCoords(size_t varIndex, const std::vector<size_t>& coords);
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -127,9 +128,10 @@ private:
   std::vector<size_t> DimLen;
   ///@}
   /**
-   * Var index -> vector of Dim index
+   * Var index -> vector of Dim or Coords indexes
    */
-  std::vector<std::vector<size_t>> VarDimId;
+  std::vector<std::vector<size_t>> VarDims;
+  std::vector<std::vector<size_t>> VarCoords;
 
   vtkXArrayAccessor(const vtkXArrayAccessor&) = delete;
   void operator=(const vtkXArrayAccessor&) = delete;

@@ -88,15 +88,16 @@ class VtkAccessor:
         time_name = None
         time_names = []
         # Set Dim and DimLen
-        dims = {k: i for i, k in enumerate(self._xr.sizes.keys())}
+        dimNameToIndex = {k: i for i, k in enumerate(self._xr.sizes.keys())}
         accessor.SetDim(list(self._xr.sizes.keys()))
         accessor.SetDimLen(list(self._xr.sizes.values()))
         # Set Var
-        var = list(self._xr.data_vars.keys()) + list(self._xr.coords.keys())
+        varList = list(self._xr.data_vars.keys()) + list(self._xr.coords.keys())
+        varNameToIndex = {k: i for i, k in enumerate(varList)}
         is_coord = [0] * len(self._xr.data_vars)
         is_coord = is_coord + [1] * len(self._xr.coords)
-        accessor.SetVar(var, is_coord)
-        for i, v in enumerate(var):
+        accessor.SetVar(varList, is_coord)
+        for i, v in enumerate(varList):
             # if there is subsetting in xarray, self._xr[v].values is
             # not contiguous. If the array is not contigous, a contigous
             # copy is created otherwise nothing is done.
@@ -121,7 +122,9 @@ class VtkAccessor:
             logging.debug(f"address:{hex(v_data.ctypes.data)} {v_data=}")
             accessor.SetVarValue(i, v_data)
             accessor.SetVarType(i, get_nc_type(v_data.dtype))
-            accessor.SetVarDimId(i, [dims[name] for name in self._xr[v].dims])
+            accessor.SetVarDims(i, [dimNameToIndex[name] for name in self._xr[v].dims])
+            accessor.SetVarCoords(i, [varNameToIndex[name] for name in self._xr[v].coords])
+
             logging.debug("Attributes:")
             for item in self._xr[v].attrs.items():
                 logging.debug(

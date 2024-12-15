@@ -169,7 +169,7 @@ int vtkXArrayAccessor::inq_vardimid(int vtkNotUsed(ncid), int varid, int* dimids
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
 
-  std::transform(this->VarDimId[varid].begin(), this->VarDimId[varid].end(), dimidsp,
+  std::transform(this->VarDims[varid].begin(), this->VarDims[varid].end(), dimidsp,
     [](size_t v) { return static_cast<int>(v); });
   return NC_NOERR;
 }
@@ -197,7 +197,7 @@ int vtkXArrayAccessor::inq_varndims(int vtkNotUsed(ncid), int varid, int* ndimsp
 {
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
-  *ndimsp = static_cast<int>(VarDimId[varid].size());
+  *ndimsp = static_cast<int>(VarDims[varid].size());
   return NC_NOERR;
 }
 
@@ -298,7 +298,7 @@ void vtkXArrayAccessor::PrintVarValue(
 {
   vtkLog(INFO, << name << ": " << this->Var[varid]
                << " Value: " << static_cast<void*>(this->VarValue[varid]));
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   vtkLog(INFO, "startp: ");
   for (size_t i = 0; i < ndims; ++i)
   {
@@ -314,11 +314,11 @@ void vtkXArrayAccessor::PrintVarValue(
 bool vtkXArrayAccessor::IsContiguous(int varid, const size_t* startp, const size_t* countp)
 {
   // the last dim is the most rapidly varying
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   size_t contiguousDims = 0;
   for (int i = static_cast<int>(ndims - 1); i >= 0; --i)
   {
-    if (startp[i] == 0 && countp[i] == this->DimLen[this->VarDimId[varid][i]])
+    if (startp[i] == 0 && countp[i] == this->DimLen[this->VarDims[varid][i]])
     {
       ++contiguousDims;
     }
@@ -332,13 +332,13 @@ bool vtkXArrayAccessor::IsContiguous(int varid, const size_t* startp, const size
 
 std::vector<size_t> vtkXArrayAccessor::GetDimIncrement(int varid)
 {
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   std::vector<size_t> dimIncrement;
   dimIncrement.resize(ndims);
   dimIncrement[ndims - 1] = 1;
   for (size_t i = ndims - 1; i >= 1; --i)
   {
-    dimIncrement[i - 1] = dimIncrement[i] * this->DimLen[this->VarDimId[varid][i]];
+    dimIncrement[i - 1] = dimIncrement[i] * this->DimLen[this->VarDims[varid][i]];
   }
   return dimIncrement;
 }
@@ -366,7 +366,7 @@ bool vtkXArrayAccessor::DecrementAndUpdate(size_t varid, std::vector<size_t>& co
   }
 
   size_t j = i + 1;
-  size_t length = this->DimLen[this->VarDimId[varid][j]];
+  size_t length = this->DimLen[this->VarDims[varid][j]];
   length -= countp[j] * dimIncrement[j];
   int vtkType = NetCDFTypeToVTKType(this->VarType[varid]);
   src += length * VTKSizeof(vtkType);
@@ -425,7 +425,7 @@ int vtkXArrayAccessor::get_vars(int vtkNotUsed(ncid), int varid, const size_t* s
 {
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   if (std::any_of(countp, countp + ndims, [](size_t val) { return val == 0; }))
   {
     vtkErrorMacro("Invalid countp: one of the elements is 0");
@@ -466,7 +466,7 @@ int vtkXArrayAccessor::get_vars(int vtkNotUsed(ncid), int varid, const size_t* s
 {
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   if (std::any_of(countp, countp + ndims, [](size_t val) { return val == 0; }))
   {
     vtkErrorMacro("Invalid countp: one of the elements is 0");
@@ -493,7 +493,7 @@ int vtkXArrayAccessor::get_vars_double(int vtkNotUsed(ncid), int varid, const si
 {
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   if (std::any_of(countp, countp + ndims, [](size_t val) { return val == 0; }))
   {
     vtkErrorMacro("Invalid countp: one of the elements is 0");
@@ -521,13 +521,13 @@ int vtkXArrayAccessor::get_var_double(int ncid, int varid, double* ip)
   if (static_cast<size_t>(varid) >= this->Var.size())
     return NC_ENOTVAR;
 
-  size_t ndims = this->VarDimId[varid].size();
+  size_t ndims = this->VarDims[varid].size();
   std::vector<size_t> start, count;
   start.resize(ndims, 0);
   count.resize(ndims, 0);
   for (size_t i = 0; i < ndims; ++i)
   {
-    count[i] = this->DimLen[this->VarDimId[varid][i]];
+    count[i] = this->DimLen[this->VarDims[varid][i]];
   }
 
   return get_vars_double(ncid, varid, start.data(), count.data(), nullptr, ip);
@@ -562,9 +562,9 @@ void vtkXArrayAccessor::SetVar(const std::vector<std::string>& v, const std::vec
   this->VarValue.resize(v.size());
   std::fill(this->VarValue.begin(), this->VarValue.end(), nullptr);
   this->Att.resize(Var.size());
-  this->VarDimId.resize(Var.size());
+  this->VarDims.resize(Var.size());
+  this->VarCoords.resize(Var.size());
   this->VarType.resize(Var.size());
-  this->VarDimId.resize(Var.size());
   std::copy(v.begin(), v.end(), this->Var.begin());
   std::copy(isCoord.begin(), isCoord.end(), this->IsCoord.begin());
   for (size_t i = 0; i < this->Var.size(); ++i)
@@ -606,16 +606,28 @@ void vtkXArrayAccessor::SetVarType(size_t varIndex, int nctype)
   this->VarType[varIndex] = nctype;
 }
 
-void vtkXArrayAccessor::SetVarDimId(size_t varIndex, const std::vector<size_t>& dims)
+void vtkXArrayAccessor::SetVarDims(size_t varIndex, const std::vector<size_t>& dims)
 {
-  if (varIndex >= this->VarDimId.size())
+  if (varIndex >= this->VarDims.size())
   {
     vtkErrorMacro("Index " << varIndex << " greater than the number of VarDimId "
-                           << this->VarDimId.size() << ". Did you call SetVar first?");
+                           << this->VarDims.size() << ". Did you call SetVar first?");
     return;
   }
-  this->VarDimId[varIndex].resize(dims.size());
-  std::copy(dims.begin(), dims.end(), this->VarDimId[varIndex].begin());
+  this->VarDims[varIndex].resize(dims.size());
+  std::copy(dims.begin(), dims.end(), this->VarDims[varIndex].begin());
+}
+
+void vtkXArrayAccessor::SetVarCoords(size_t varIndex, const std::vector<size_t>& coords)
+{
+  if (varIndex >= this->VarDims.size())
+  {
+    vtkErrorMacro("Index " << varIndex << " greater than the number of VarDimId "
+                           << this->VarDims.size() << ". Did you call SetVar first?");
+    return;
+  }
+  this->VarCoords[varIndex].resize(coords.size());
+  std::copy(coords.begin(), coords.end(), this->VarCoords[varIndex].begin());
 }
 
 void vtkXArrayAccessor::PrintSelf(ostream& os, vtkIndent indent)
@@ -636,9 +648,9 @@ void vtkXArrayAccessor::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << indent << "Att: " << it->first << " value: " << it->second.ToString() << endl;
     }
-    for (size_t j = 0; j < this->VarDimId.size(); ++j)
+    for (size_t j = 0; j < this->VarDims.size(); ++j)
     {
-      os << indent << "VarDimId: " << this->VarDimId[i][j] << endl;
+      os << indent << "VarDimId: " << this->VarDims[i][j] << endl;
     }
   }
 }
@@ -646,21 +658,9 @@ void vtkXArrayAccessor::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkXArrayAccessor::GetCoordinates(
   int vtkNotUsed(ncid), int varId, std::vector<std::string>& coordName)
 {
-  if (!this->IsCoord[varId])
-  {
-    auto varDims = this->VarDimId[varId];
-    for (size_t i = 0; i < this->Var.size(); ++i)
-    {
-      if (this->IsCoord[i])
-      {
-        auto coordDims = this->VarDimId[i];
-        if (varDims == coordDims)
-        {
-          coordName.push_back(this->Var[i]);
-        }
-      }
-    }
-  }
+  coordName.resize(this->VarCoords[varId].size());
+  std::transform(this->VarCoords[varId].begin(), this->VarCoords[varId].end(), coordName.begin(),
+    [this](size_t index) { return this->Var[index]; });
   return true;
 }
 
@@ -677,7 +677,7 @@ bool vtkXArrayAccessor::IsCOARDSCoordinate(std::string name)
     return false;
   }
   size_t nameId = it->second;
-  auto nameDims = this->VarDimId[nameId];
+  auto nameDims = this->VarDims[nameId];
   if (nameDims.size() != 1)
   {
     return false;
