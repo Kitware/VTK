@@ -7,7 +7,6 @@
 #include <vtkCamera.h>
 #include <vtkCellData.h>
 #include <vtkCompositePolyDataMapper.h>
-#include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDataSetSurfaceFilter.h>
 #include <vtkGenerateProcessIds.h>
@@ -21,12 +20,13 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkSynchronizedRenderWindows.h>
 #include <vtkTableBasedClipDataSet.h>
 #include <vtkTestUtilities.h>
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include <vtkCompositedSynchronizedRenderers.h>
 #include <vtkMPIController.h>
+#include <vtkSynchronizedRenderWindows.h>
 #else
 #include "vtkDummyController.h"
 #endif
@@ -155,6 +155,7 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   ren->ResetCamera(bds);
   ren->ResetCameraClippingRange(bds);
 
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
   vtkNew<vtkSynchronizedRenderWindows> syncWindows;
   syncWindows->SetRenderWindow(renWin);
   syncWindows->SetParallelController(contr);
@@ -163,6 +164,7 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   vtkNew<vtkCompositedSynchronizedRenderers> syncRenderers;
   syncRenderers->SetRenderer(ren);
   syncRenderers->SetParallelController(contr);
+#endif
 
   int retVal = EXIT_FAILURE;
   if (myId == 0)

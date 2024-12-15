@@ -52,13 +52,11 @@ template<class T>
 void Print(const std::vector<T>& input, const std::string& name)
 {
   std::ostringstream oss;
-  size_t i = 0;
 
   oss << name << " = { ";
   for (const T in : input)
   {
     oss << in << ", ";
-    ++i;
   }
   oss << "}  rank : " << MPIGetRank();
   std::cout << oss.str() << "\n";
