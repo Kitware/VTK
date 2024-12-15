@@ -32,6 +32,7 @@ endif()
 file (INSTALL
       "${install_prefix_dir}/@CMAKE_INSTALL_LIBDIR@/"
       DESTINATION "${install_prefix_dir}/${NATIVE_NAME}"
+      FOLLOW_SYMLINK_CHAIN
       FILES_MATCHING
       PATTERN *.dll
       PATTERN *.so
