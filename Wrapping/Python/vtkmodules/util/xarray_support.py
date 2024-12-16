@@ -45,6 +45,8 @@ def get_nc_type(numpy_array_type):
         np.float64: NC_DOUBLE,
         np.datetime64: NC_INT64,
         np.timedelta64: NC_INT64,
+        np.str_: NC_STRING,
+        np.bytes_: NC_CHAR,
     }
     for key, nc_type in _np_nc.items():
         if (
