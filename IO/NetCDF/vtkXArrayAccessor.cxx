@@ -28,11 +28,20 @@ void copyToDouble(int vtktype, void* src, double* dst)
     case VTK_SHORT:
       *dst = *static_cast<short*>(src);
       break;
+    case VTK_UNSIGNED_SHORT:
+      *dst = *static_cast<unsigned short*>(src);
+      break;
     case VTK_INT:
       *dst = *static_cast<int*>(src);
       break;
+    case VTK_UNSIGNED_INT:
+      *dst = *static_cast<unsigned int*>(src);
+      break;
     case VTK_LONG_LONG:
       *dst = *static_cast<long long*>(src);
+      break;
+    case VTK_UNSIGNED_LONG_LONG:
+      *dst = *static_cast<unsigned long long*>(src);
       break;
     case VTK_FLOAT:
       *dst = *static_cast<float*>(src);
