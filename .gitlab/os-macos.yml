@@ -248,7 +248,7 @@
     script:
         - *before_script_macos
         - *before_script_macos_deps
-        - "$DEVELOPER_DIR//Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9 -m venv build/ci-venv"
+        - "$DEVELOPER_DIR//Library/Frameworks/Python3.framework/Versions/Current/bin/python3.9 -m venv build/ci-venv"
         - . build/ci-venv/bin/activate
         - pip install xarray cftime netcdf4
         - *script_macos
