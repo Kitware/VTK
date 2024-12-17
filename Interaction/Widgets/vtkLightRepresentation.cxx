@@ -333,6 +333,21 @@ int vtkLightRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport* v)
 }
 
 //------------------------------------------------------------------------------
+void vtkLightRepresentation::GetActors(vtkPropCollection* pc)
+{
+  if (pc != nullptr && this->GetVisibility())
+  {
+    pc->AddItem(this->SphereActor);
+    pc->AddItem(this->LineActor);
+    if (this->Positional)
+    {
+      pc->AddItem(this->ConeActor);
+    }
+  }
+  this->Superclass::GetActors(pc);
+}
+
+//------------------------------------------------------------------------------
 void vtkLightRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "LightPosition: " << this->LightPosition[0] << " " << this->LightPosition[1]
