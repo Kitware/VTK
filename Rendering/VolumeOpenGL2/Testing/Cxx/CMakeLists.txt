@@ -19,6 +19,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastToggleJittering.cxx
   TestGPURayCastUserShader.cxx
   TestGPURayCastUserShader2.cxx
+  TestSurfaceProbeVolumeMapper.cxx
   )
 
 # everyone gets these tests
