@@ -719,6 +719,8 @@ Options:
 
 Additional flags may be passed to tests using the ``${_vtk_build_test}_ARGS``
 variable or the ``<NAME>_ARGS`` variable.
+To use a different baseline name than ``<NAME>`` you can set
+``<NAME>_BASELINE_NAME`` variable. This is the name of the image file without extension.
 #]==]
 function (vtk_add_test_python)
   if (NOT _vtk_testing_python_exe)
@@ -761,17 +763,22 @@ function (vtk_add_test_python)
     set(_V "")
     set(image_compare_method ${default_image_compare})
     if (NOT local_NO_VALID)
+      if (DEFINED "${test_name}_BASELINE_NAME")
+        set(baseline_name "${${test_name}_BASELINE_NAME}")
+      else()
+        set(baseline_name "${test_name}")
+      endif()
       if (local_NO_RT)
         if (local_DIRECT_DATA)
           set(_B -B "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/")
         else ()
-          set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${test_name}(-.*)?(_[0-9]+)?.png}")
+          set(_B -B "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/,REGEX:${baseline_name}(-.*)?(_[0-9]+)?.png}")
         endif()
       else ()
         if (local_DIRECT_DATA)
-          set(_V -V "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/${test_name}.png")
+          set(_V -V "${CMAKE_CURRENT_SOURCE_DIR}/Data/Baseline/${baseline_name}.png")
         else ()
-          set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${test_name}.png,:}")
+          set(_V -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/${baseline_name}.png,:}")
         endif()
         if (NOT local_JUST_VALID)
           set(rtImageTest -m "vtkmodules.test.rtImageTest")

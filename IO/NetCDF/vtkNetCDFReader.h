@@ -18,6 +18,7 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkIONetCDFModule.h" // For export macro
+#include "vtkNetCDFAccessor.h" // For netcdf/xarray accessor
 
 #include "vtkSmartPointer.h" // For ivars
 #include <string>            //For std::string
@@ -40,6 +41,10 @@ public:
 
   virtual void SetFileName(VTK_FILEPATH const char* filename);
   vtkGetFilePathMacro(FileName);
+  ///@{
+  vtkSetObjectMacro(Accessor, vtkNetCDFAccessor);
+  vtkGetObjectMacro(Accessor, vtkNetCDFAccessor);
+  ///@}
 
   /**
    * Update the meta data from the current file.  Automatically called
@@ -238,6 +243,8 @@ protected:
    * on success and 0 on failure.
    */
   virtual int LoadVariable(int ncFD, const char* varName, double time, vtkDataSet* output);
+
+  vtkNetCDFAccessor* Accessor;
 
 private:
   vtkNetCDFReader(const vtkNetCDFReader&) = delete;

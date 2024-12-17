@@ -85,6 +85,28 @@ public:
    */
   static int CanReadFile(VTK_FILEPATH const char* filename);
 
+  ///@{
+  /**
+   * Names for Time, Latitude, Longitude and Vertical which can be set by
+   * the user for datasets that don't use the proper CF attributes
+   */
+  void SetTimeDimensionName(const char* name);
+  void SetLatitudeDimensionName(const char* name);
+  void SetLongitudeDimensionName(const char* name);
+  void SetVerticalDimensionName(const char* name);
+  ///@}
+
+  ///@{
+  /**
+   * Names for Time, Latitude, Longitude and Vertical. These are either
+   * deduced from CF attributes or overwritten by the user
+   */
+  const char* GetTimeDimensionName();
+  const char* GetLatitudeDimensionName();
+  const char* GetLongitudeDimensionName();
+  const char* GetVerticalDimensionName();
+  ///@}
+
 protected:
   vtkNetCDFCFReader();
   ~vtkNetCDFCFReader() override;
@@ -118,7 +140,9 @@ protected:
   {
   public:
     vtkDimensionInfo() = default;
-    vtkDimensionInfo(int ncFD, int id);
+    vtkDimensionInfo(vtkNetCDFAccessor* accessor, int ncFD, int id,
+      const std::vector<std::string>& dimensionNames);
+
     const char* GetName() const { return this->Name.c_str(); }
     enum UnitsEnum
     {
@@ -126,7 +150,8 @@ protected:
       TIME_UNITS,
       LATITUDE_UNITS,
       LONGITUDE_UNITS,
-      VERTICAL_UNITS
+      VERTICAL_UNITS,
+      NUMBER_OF_UNITS
     };
     UnitsEnum GetUnits() const { return this->Units; }
     vtkSmartPointer<vtkDoubleArray> GetCoordinates() { return this->Coordinates; }
@@ -135,8 +160,10 @@ protected:
     double GetOrigin() const { return this->Origin; }
     double GetSpacing() const { return this->Spacing; }
     vtkSmartPointer<vtkStringArray> GetSpecialVariables() const { return this->SpecialVariables; }
+    void SetUnitsIfSpecialDimensionOverriden(UnitsEnum unit, const char* name);
 
   protected:
+    vtkNetCDFAccessor* Accessor = nullptr;
     vtkStdString Name;
     int DimId;
     vtkSmartPointer<vtkDoubleArray> Coordinates;
@@ -145,8 +172,15 @@ protected:
     bool HasRegularSpacing;
     double Origin, Spacing;
     vtkSmartPointer<vtkStringArray> SpecialVariables;
+    std::vector<std::string> SpecialDimensionOverrideNames;
     int LoadMetaData(int ncFD);
   };
+  void SetSpecialDimensionOverrideName(vtkDimensionInfo::UnitsEnum dim, const char* name)
+  {
+    this->SpecialDimensionOverrideNames[dim] = name;
+  }
+  const char* GetSpecialDimensionName(vtkDimensionInfo::UnitsEnum dim);
+
   class vtkDimensionInfoVector;
   friend class vtkDimensionInfoVector;
   vtkDimensionInfoVector* DimensionInfo;
@@ -155,11 +189,13 @@ protected:
   class vtkDependentDimensionInfo
   {
   public:
-    vtkDependentDimensionInfo()
-      : Valid(false)
+    vtkDependentDimensionInfo(vtkNetCDFAccessor* accessor)
+      : Accessor(accessor)
+      , Valid(false)
     {
     }
-    vtkDependentDimensionInfo(int ncFD, int varId, vtkNetCDFCFReader* parent);
+    vtkDependentDimensionInfo(
+      vtkNetCDFAccessor* accessor, int ncFD, int varId, vtkNetCDFCFReader* parent);
     bool GetValid() const { return this->Valid; }
     bool GetHasBounds() const { return this->HasBounds; }
     bool GetCellsUnstructured() const { return this->CellsUnstructured; }
@@ -175,6 +211,7 @@ protected:
     vtkSmartPointer<vtkStringArray> GetSpecialVariables() const { return this->SpecialVariables; }
 
   protected:
+    vtkNetCDFAccessor* Accessor;
     bool Valid;
     bool HasBounds;
     bool CellsUnstructured;
@@ -284,6 +321,8 @@ protected:
   void AddUnstructuredSphericalCoordinates(
     vtkUnstructuredGrid* unstructuredOutput, const int extent[6]);
   ///@}
+
+  std::vector<std::string> SpecialDimensionOverrideNames;
 
 private:
   vtkNetCDFCFReader(const vtkNetCDFCFReader&) = delete;

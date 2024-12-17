@@ -146,6 +146,7 @@ set(python_files
   vtkmodules/util/keys.py
   vtkmodules/util/misc.py
   vtkmodules/util/numpy_support.py
+  vtkmodules/util/xarray_support.py
   vtkmodules/util/pickle_support.py
   vtkmodules/util/vtkAlgorithm.py
   vtkmodules/util/vtkConstants.py

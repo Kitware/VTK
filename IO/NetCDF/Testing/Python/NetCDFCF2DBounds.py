@@ -1,17 +1,17 @@
 #!/usr/bin/env python
+from GetReader import get_reader
 from vtkmodules.vtkFiltersCore import vtkAssignAttribute
 from vtkmodules.vtkFiltersExtraction import vtkExtractGrid
 from vtkmodules.vtkFiltersGeometry import vtkDataSetSurfaceFilter
-from vtkmodules.vtkIONetCDF import vtkNetCDFCFReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkPolyDataMapper,
     vtkRenderWindow,
     vtkRenderer,
 )
-import vtkmodules.vtkRenderingFreeType
 import vtkmodules.vtkRenderingOpenGL2
 from vtkmodules.util.misc import vtkGetDataRoot
+
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This test checks netCDF CF reader for reading 2D bounds information.
@@ -20,16 +20,17 @@ renWin.SetSize(400,200)
 #############################################################################
 # Case 1: Spherical coordinates off.
 # Open the file.
-reader_cartesian = vtkNetCDFCFReader()
-reader_cartesian.SetFileName(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
+reader_cartesian = get_reader(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
 # Set the arrays we want to load.
 reader_cartesian.UpdateMetaData()
 reader_cartesian.SetVariableArrayStatus("sample",1)
 reader_cartesian.SphericalCoordinatesOff()
+
 # Extract a region that is non-overlapping.
 voi_cartesian = vtkExtractGrid()
 voi_cartesian.SetInputConnection(reader_cartesian.GetOutputPort())
 voi_cartesian.SetVOI(20,47,0,31,0,0)
+
 # Assign the field to scalars.
 aa_cartesian = vtkAssignAttribute()
 aa_cartesian.SetInputConnection(voi_cartesian.GetOutputPort())
@@ -49,8 +50,7 @@ renWin.AddRenderer(ren_cartesian)
 #############################################################################
 # Case 2: Spherical coordinates on.
 # Open the file.
-reader_spherical = vtkNetCDFCFReader()
-reader_spherical.SetFileName(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
+reader_spherical = get_reader(VTK_DATA_ROOT + "/Data/sampleCurveGrid4.nc")
 # Set the arrays we want to load.
 reader_spherical.UpdateMetaData()
 reader_spherical.SetVariableArrayStatus("sample",1)
