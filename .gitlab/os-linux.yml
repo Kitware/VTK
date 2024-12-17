@@ -845,7 +845,7 @@
         -  '[[ "$CMAKE_CONFIGURATION" =~ (osmesa|egl) ]] || yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl'
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
-        - pip install -qq -r $PWD/.gitlab/ci/requirements-wheel-test.txt
+        - pip install -r $PWD/.gitlab/ci/requirements-wheel-test.txt
         - pip install twine
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
