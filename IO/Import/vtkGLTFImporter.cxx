@@ -481,7 +481,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
 
   this->OutputsDescription = "";
 
-  this->MeshActors.clear();
+  this->Actors.clear();
   this->ArmatureActors.clear();
   this->ActorCollection->RemoveAllItems();
 
@@ -579,7 +579,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         }
         renderer->AddActor(actor);
 
-        this->MeshActors[nodeId].emplace_back(actor);
+        this->Actors[nodeId].emplace_back(actor);
         this->ActorCollection->AddItem(actor);
         const int actorNode =
           this->SceneHierarchy->AddNode(meshNodeName.c_str(), /*parent=*/dasmNode);
@@ -591,7 +591,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     }
 
     // Import node's armature
-    if (this->ImportArmature && node.Skin >= 0)
+    if (this->GetImportArmature() && node.Skin >= 0)
     {
       auto skin = model->Skins[node.Skin];
 
@@ -871,7 +871,7 @@ void vtkGLTFImporter::ApplySkinningMorphing()
       vtkGLTFDocumentLoader::ComputeJointMatrices(*model, model->Skins[node.Skin], node, jointMats);
     }
 
-    for (const auto& actor : this->MeshActors[nodeId])
+    for (const auto& actor : this->Actors[nodeId])
     {
       actor->SetUserMatrix(node.GlobalTransform);
 
@@ -915,7 +915,7 @@ void vtkGLTFImporter::ApplySkinningMorphing()
     }
 
     // armature
-    if (this->ImportArmature)
+    if (this->GetImportArmature())
     {
       auto& actor = this->ArmatureActors[nodeId];
       if (actor)
@@ -925,7 +925,7 @@ void vtkGLTFImporter::ApplySkinningMorphing()
         vtkNew<vtkPoints> points;
         points->SetNumberOfPoints(skin.Armature->GetPoints()->GetNumberOfPoints());
 
-        for (int i = 0; i < skin.Joints.size(); i++)
+        for (size_t i = 0; i < skin.Joints.size(); i++)
         {
           int jointId = skin.Joints[i];
           vtkGLTFDocumentLoader::Node& joint = model->Nodes[jointId];

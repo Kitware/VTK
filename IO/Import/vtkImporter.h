@@ -240,8 +240,6 @@ protected:
   vtkNew<vtkCollection> CameraCollection;
   vtkNew<vtkLightCollection> LightCollection;
 
-  bool ImportArmature = false;
-
 private:
   vtkImporter(const vtkImporter&) = delete;
   void operator=(const vtkImporter&) = delete;
@@ -249,6 +247,7 @@ private:
   bool SetAndCheckUpdateStatus();
 
   UpdateStatusEnum UpdateStatus = UpdateStatusEnum::SUCCESS;
+  bool ImportArmature = false;
 };
 
 VTK_ABI_NAMESPACE_END

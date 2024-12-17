@@ -1233,7 +1233,7 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::BuildPolyDataFromSkin(Skin& skin)
 {
-  if (skin.Skeleton >= 0 && skin.Skeleton < this->InternalModel->Nodes.size())
+  if (skin.Skeleton >= 0 && skin.Skeleton < static_cast<int>(this->InternalModel->Nodes.size()))
   {
     skin.Armature = vtkSmartPointer<vtkPolyData>::New();
 
@@ -1244,9 +1244,9 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromSkin(Skin& skin)
 
     std::vector<int> nodeMapping(this->InternalModel->Nodes.size(), -1);
 
-    for (int i = 0; i < skin.Joints.size(); i++)
+    for (size_t i = 0; i < skin.Joints.size(); i++)
     {
-      if (skin.Joints[i] >= nodeMapping.size())
+      if (skin.Joints[i] >= static_cast<int>(nodeMapping.size()))
       {
         // invalid index
         return false;
