@@ -249,7 +249,7 @@ vtkDataObjectTreeIterator* vtkCompositePolyDataMapper::MakeAnIterator(vtkComposi
 //------------------------------------------------------------------------------
 bool vtkCompositePolyDataMapper::HasOpaqueGeometry()
 {
-  return !this->HasTranslucentPolygonalGeometry();
+  return true;
 }
 
 //------------------------------------------------------------------------------
