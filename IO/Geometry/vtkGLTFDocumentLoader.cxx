@@ -1267,7 +1267,7 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromSkin(Skin& skin)
       vtkIdType vId = i;
       vertices->InsertNextCell(1, &vId);
 
-      nodeMapping[skin.Joints[i]] = i;
+      nodeMapping[skin.Joints[i]] = static_cast<int>(i);
     }
 
     vtkNew<vtkCellArray> lines;
