@@ -376,6 +376,7 @@ public:
     int InverseBindMatricesAccessorId;
     int Skeleton;
     std::string Name;
+    vtkSmartPointer<vtkPolyData> Armature;
   };
 
   /**
@@ -653,6 +654,11 @@ private:
    * and connectivity information the Primitive contains.
    */
   bool BuildPolyDataFromPrimitive(Primitive& primitive);
+
+  /**
+   * Creates and populates the Skin's geometry vtkPolyData member with all the armature hierarchy
+   */
+  bool BuildPolyDataFromSkin(Skin& skin);
 
   /**
    * Load keyframes from buffers.
