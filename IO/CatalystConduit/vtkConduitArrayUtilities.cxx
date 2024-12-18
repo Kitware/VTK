@@ -561,6 +561,9 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
     vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
       vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray));
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  (void)cellType;
+  (void)cellSize;
+  (void)mcarray;
   vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
   return nullptr;
 #else
@@ -602,6 +605,8 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
       vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname));
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  (void)c_o2mrelation;
+  (void)leafname;
   vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
   return nullptr;
 #else
