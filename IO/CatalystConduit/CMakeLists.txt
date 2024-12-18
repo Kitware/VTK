@@ -1,12 +1,20 @@
 set(classes
-  vtkConduitArrayUtilities
   vtkConduitSource
   vtkConduitToDataObject
   vtkDataObjectToConduit
+  vtkConduitArrayUtilities  
 )
 
+
+if (VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel)
+  set(classes_cuda vtkConduitArrayUtilities vtkConduitArrayUtilitiesDevice)
+endif()
+
 vtk_module_add_module(VTK::IOCatalystConduit
-  CLASSES ${classes})
+  CLASSES ${classes}
+  PRIVATE_CLASSES vtkConduitArrayUtilitiesDevice
+  SOURCES vtkConduitArrayUtilitiesInternals.cxx
+  PRIVATE_HEADERS vtkConduitArrayUtilitiesInternals.h)
 
 if (VTK_KOKKOS_BACKEND STREQUAL "HIP")
   set(VTK_KOKKOS_BACKEND_HIP 1)
@@ -34,7 +42,7 @@ if (TARGET vtkm::cuda)
   # individual warning types.
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
 
-  set_source_files_properties(vtkConduitArrayUtilities PROPERTIES LANGUAGE CUDA)
+  set_source_files_properties(${classes_cuda} PROPERTIES LANGUAGE CUDA)
 
   vtk_module_set_properties(VTK::IOCatalystConduit
     CUDA_SEPARABLE_COMPILATION ON)

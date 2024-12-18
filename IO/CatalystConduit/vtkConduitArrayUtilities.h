@@ -24,10 +24,6 @@
 
 #include <string> // for std::string
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#include "vtkm/cont/DeviceAdapterTag.h" // for vtkm::cont::DeviceAdapterId
-#endif
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkDataArray;
@@ -91,13 +87,6 @@ protected:
     const conduit_node* mcarray, bool force_signed);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKSOAArray(
     const conduit_node* mcarray, bool force_signed);
-
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(const conduit_node* mcarray,
-    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
-  static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(const conduit_node* mcarray,
-    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
-#endif
 
 private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
