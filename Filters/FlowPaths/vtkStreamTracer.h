@@ -555,7 +555,7 @@ protected:
 private:
   vtkStreamTracer(const vtkStreamTracer&) = delete;
   void operator=(const vtkStreamTracer&) = delete;
-  int InterpolatorType = INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
+  int InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
 };
 
 VTK_ABI_NAMESPACE_END

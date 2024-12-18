@@ -56,6 +56,7 @@
 
 #include <cmath>
 #include <map>
+#include <vector>
 
 #define epsilon (1e-10)
 
@@ -737,7 +738,6 @@ int vtkVectorFieldTopology::ComputeSurface(int numberOfSeparatingSurfaces, bool 
     this->StreamSurface->SetInputData(0, data);
   }
 
-  // this->StreamSurface->SetInputData(0, dataset);
   this->StreamSurface->SetInputData(1, currentCircle);
   this->StreamSurface->SetUseIterativeSeeding(useIterativeSeeding);
   this->StreamSurface->SetIntegratorTypeToRungeKutta4();
@@ -1704,14 +1704,14 @@ int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> 
   tridataset->GetPointData()->AddArray(isBoundary);
   for (int ptId = 0; ptId < tridataset->GetNumberOfPoints(); ptId++)
   {
-    // The point data is `double`, but it stores ids and the value of
-    // `isBoundary` is treated as a boolean, so while the types may appear as
-    // if these are swapped, they are not.
-    // NOLINTNEXTLINE(bugprone-swapped-arguments)
     isBoundary->SetTuple1(ptId, 0);
   }
   for (int ptId = 0; ptId < boundary->GetNumberOfPoints(); ptId++)
   {
+    // The point data is `double`, but it stores ids and the value of
+    // `isBoundary` is treated as a boolean, so while the types may appear as
+    // if these are swapped, they are not.
+    // NOLINTNEXTLINE(bugprone-swapped-arguments)
     isBoundary->SetTuple1(boundary->GetPointData()->GetArray("ids")->GetTuple1(ptId), 1);
   }
 
@@ -2133,6 +2133,8 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
 
       // copy temporary criticalPoints
 
+      std::vector<int> pointIdVec(criticalPointsTemporary->GetNumberOfPoints());
+      int pointCount = 0;
       for (int pointId = 0; pointId < criticalPointsTemporary->GetNumberOfPoints(); pointId++)
       {
         bool appendFlag = true;
@@ -2157,23 +2159,34 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
           continue;
         }
 
-        criticalPoints->GetPoints()->InsertNextPoint(
-          criticalPointsTemporary->GetPoints()->GetPoint(pointId));
+        pointIdVec[pointCount++] = pointId;
+      }
+
+      criticalPoints->GetPoints()->SetNumberOfPoints(pointCount);
+      criticalPoints->GetPointData()->GetArray("gradient")->SetNumberOfTuples(pointCount);
+      criticalPoints->GetPointData()->GetArray("type")->SetNumberOfTuples(pointCount);
+      criticalPoints->GetPointData()->GetArray("typeDetailed")->SetNumberOfTuples(pointCount);
+
+      for (int i = 0; i < pointCount; i++)
+      {
+        int pointId = pointIdVec[i];
+        criticalPoints->GetPoints()->InsertPoint(
+          i, criticalPointsTemporary->GetPoints()->GetPoint(pointId));
         vtkNew<vtkVertex> vertex;
         vertex->GetPointIds()->SetId(0, criticalPoints->GetNumberOfPoints() - 1);
         criticalPoints->GetVerts()->InsertNextCell(vertex);
 
         criticalPoints->GetPointData()
           ->GetArray("gradient")
-          ->InsertNextTuple(
-            criticalPointsTemporary->GetPointData()->GetArray("gradient")->GetTuple(pointId));
+          ->InsertTuple(
+            i, criticalPointsTemporary->GetPointData()->GetArray("gradient")->GetTuple(pointId));
 
-        criticalPoints->GetPointData()->GetArray("type")->InsertNextTuple(
-          criticalPointsTemporary->GetPointData()->GetArray("type")->GetTuple(pointId));
+        criticalPoints->GetPointData()->GetArray("type")->InsertTuple(
+          i, criticalPointsTemporary->GetPointData()->GetArray("type")->GetTuple(pointId));
 
         criticalPoints->GetPointData()
           ->GetArray("typeDetailed")
-          ->InsertNextTuple(
+          ->InsertTuple(i,
             criticalPointsTemporary->GetPointData()->GetArray("typeDetailed")->GetTuple(pointId));
       }
     }
