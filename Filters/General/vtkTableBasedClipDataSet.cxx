@@ -184,14 +184,14 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   if (!this->ClipFunction)
   {
     auto inputArray = this->GetInputArrayToProcess(0, inputVector);
-    // This is needed by vtkClipDataSet in case we fall back to it.
-    inputCopy->GetPointData()->AddArray(inputArray);
-    inputCopy->GetPointData()->SetActiveScalars(inputArray->GetName());
     if (!inputArray)
     {
       vtkErrorMacro(<< "no input scalars." << endl);
       return 1;
     }
+    // This is needed by vtkClipDataSet in case we fall back to it.
+    inputCopy->GetPointData()->AddArray(inputArray);
+    inputCopy->GetPointData()->SetActiveScalars(inputArray->GetName());
     // We (shallow/deep)copy the input scalars into a double array.
     // This is needed to GREATLY minimize compilation time,
     // and avoid using the vtkDataArray API
