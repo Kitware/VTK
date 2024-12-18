@@ -321,8 +321,8 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAAr
   return {};
 }
 
-bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTK(vtkIdType numberOfPoints, int cellType,
-  vtkIdType cellSize, vtkDataArray* connectivity, vtkCellArray* cellArray)
+bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMonoShapedCellArray(vtkIdType numberOfPoints,
+  int cellType, vtkIdType cellSize, vtkDataArray* connectivity, vtkCellArray* cellArray)
 {
   using Dispatcher = vtkArrayDispatch::DispatchByArray<internals::vtkmConnectivityArrays>;
   internals::FromDeviceConduitToMonoShapedCellArray worker{ numberOfPoints, cellSize, cellType,
@@ -330,7 +330,7 @@ bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTK(vtkIdType numberOfPoints, 
   return Dispatcher::Execute(connectivity, worker);
 }
 
-bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTK(vtkIdType numberOfPoints,
+bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(vtkIdType numberOfPoints,
   vtkDataArray* offsets, vtkDataArray* shapes, vtkDataArray* elements, vtkCellArray* cellArray)
 {
   using VtkmDispatcher =

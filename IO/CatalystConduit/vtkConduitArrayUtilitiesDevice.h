@@ -40,9 +40,9 @@ public:
     bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(const conduit_node* mcarray,
     bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
-  static bool IfVTKmConvertVTK(vtkIdType numberOfPoints, int cellType, vtkIdType cellSize,
-    vtkDataArray* connectivity, vtkCellArray* cellArray);
-  static bool IfVTKmConvertVTK(vtkIdType numberOfPoints, vtkDataArray* offsets,
+  static bool IfVTKmConvertVTKMonoShapedCellArray(vtkIdType numberOfPoints, int cellType,
+    vtkIdType cellSize, vtkDataArray* connectivity, vtkCellArray* cellArray);
+  static bool IfVTKmConvertVTKMixedCellArray(vtkIdType numberOfPoints, vtkDataArray* offsets,
     vtkDataArray* shapes, vtkDataArray* elements, vtkCellArray* cellArray);
   static bool CanRunOn(const vtkm::cont::DeviceAdapterId& deviceAdapterId);
 

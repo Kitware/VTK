@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkLegacy.h"
+
 #include "vtkConduitArrayUtilities.h"
 #include "vtkConduitArrayUtilitiesInternals.h"
 
@@ -550,6 +552,23 @@ struct NoOp
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+  int cellType, vtkIdType cellSize, const conduit_node* mcarray)
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+      int cellType, vtkIdType cellSize, const conduit_node* mcarray),
+    "VTK 9.4",
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+      vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray));
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
+  return nullptr;
+#else
+  return MCArrayToVTKCellArray(0, cellType, cellSize, mcarray);
+#endif
+}
+
+vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray)
 {
   auto connectivity =
@@ -560,8 +579,10 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   }
   vtkNew<vtkCellArray> cellArray;
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTK(
+  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMonoShapedCellArray(
         numberOfPoints, cellType, cellSize, connectivity, cellArray))
+#else
+  (void)numberOfPoints; // avoid unused variable warning
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   {
     // cell arrays are in host memory
@@ -571,6 +592,23 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+  const conduit_node* c_o2mrelation, const std::string& leafname)
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+      const conduit_node* c_o2mrelation, const std::string& leafname),
+    "VTK 9.4",
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+      vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname));
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
+  return nullptr;
+#else
+  return O2MRelationToVTKCellArray(0, c_o2mrelation, leafname);
+#endif
+}
+
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
   vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname)
 {
@@ -597,8 +635,10 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
   vtkNew<vtkCellArray> cellArray;
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTK(
+  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(
         numberOfPoints, offsets, shapes, elements, cellArray))
+#else
+  (void)numberOfPoints; // avoid unused variable warning
 #endif
   {
     // offsets and connectivity are in host memory
