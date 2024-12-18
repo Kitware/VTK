@@ -26,9 +26,9 @@
 #ifndef vtkImplicitPlaneRepresentation_h
 #define vtkImplicitPlaneRepresentation_h
 
+#include "vtkBoundedWidgetRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkWidgetRepresentation.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -52,7 +52,7 @@ class vtkTransform;
 class vtkTubeFilter;
 
 class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitPlaneRepresentation
-  : public vtkWidgetRepresentation
+  : public vtkBoundedWidgetRepresentation
 {
 public:
   /**
@@ -64,7 +64,7 @@ public:
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkImplicitPlaneRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkImplicitPlaneRepresentation, vtkBoundedWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -152,67 +152,6 @@ public:
 
   ///@{
   /**
-   * Turn on/off the ability to translate the bounding box by grabbing it
-   * with the left mouse button.
-   */
-  vtkSetMacro(OutlineTranslation, vtkTypeBool);
-  vtkGetMacro(OutlineTranslation, vtkTypeBool);
-  vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off the ability to move the widget outside of the bounds
-   * specified in the initial PlaceWidget() invocation.
-   */
-  vtkSetMacro(OutsideBounds, vtkTypeBool);
-  vtkGetMacro(OutsideBounds, vtkTypeBool);
-  vtkBooleanMacro(OutsideBounds, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Toggles constraint translation axis on/off.
-   */
-  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
-  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
-  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
-  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  ///@}
-
-  ///@{
-  /**
-   * Returns true if ConstrainedAxis
-   **/
-  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the bounds of the widget representation. PlaceWidget can also be
-   * used to set the bounds of the widget but it may also have other effects
-   * on the internal state of the representation. Use this function when only
-   * the widget bounds are needs to be modified.
-   */
-  vtkSetVector6Macro(WidgetBounds, double);
-  vtkGetVector6Macro(WidgetBounds, double);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off whether the plane should be constrained to the widget bounds.
-   * If on, the origin will not be allowed to move outside the set widget bounds.
-   * This is the default behaviour.
-   * If off, the origin can be freely moved and the widget outline will change
-   * accordingly.
-   */
-  vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
@@ -271,14 +210,6 @@ public:
    */
   vtkGetObjectMacro(PlaneProperty, vtkProperty);
   vtkGetObjectMacro(SelectedPlaneProperty, vtkProperty);
-  ///@}
-
-  ///@{
-  /**
-   * Get the property of the outline.
-   */
-  vtkGetObjectMacro(OutlineProperty, vtkProperty);
-  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
   ///@}
 
   ///@{
@@ -475,19 +406,7 @@ protected:
   // The actual plane which is being manipulated
   vtkPlane* Plane;
 
-  int TranslationAxis;
-
-  // The bounding box is represented by a single voxel image data
-  vtkImageData* Box;
-  vtkOutlineFilter* Outline;
-  vtkPolyDataMapper* OutlineMapper;
-  vtkActor* OutlineActor;
-  void HighlightOutline(int highlight);
-  vtkTypeBool OutlineTranslation; // whether the outline can be moved
-  vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
-  vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
-  double WidgetBounds[6];
-  vtkTypeBool ConstrainToWidgetBounds;
+  vtkTypeBool ScaleEnabled; // whether the widget can be scaled
 
   // The cut plane is produced with a vtkCutter
   vtkCutter* Cutter;
@@ -538,7 +457,7 @@ protected:
   // Methods to manipulate the plane
   void Rotate(double X, double Y, double* p1, double* p2, double* vpn);
   void Rotate3D(double* p1, double* p2);
-  void TranslateOutline(double* p1, double* p2);
+  void TranslateRepresentation(const vtkVector3d&) override;
   void TranslateOrigin(double* p1, double* p2);
   void UpdatePose(double* p1, double* d1, double* p2, double* d2);
   void Push(double* p1, double* p2);
@@ -554,7 +473,7 @@ protected:
   vtkProperty* OutlineProperty;
   vtkProperty* SelectedOutlineProperty;
   vtkProperty* EdgesProperty;
-  virtual void CreateDefaultProperties();
+  void CreateDefaultProperties() override;
 
   bool CropPlaneToBoundingBox;
 

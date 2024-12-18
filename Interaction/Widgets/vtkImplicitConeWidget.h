@@ -19,55 +19,49 @@
  * @par Event Bindings:
  * By default, the widget responds to the following VTK events (i.e., it
  * watches the vtkRenderWindowInteractor for these events):
- * <pre>
- * If the cone axis is selected:
- *   LeftButtonPressEvent - select normal
- *   LeftButtonReleaseEvent - release (end select) normal
- *   MouseMoveEvent - orient the normal vector
- * If the origin point (handle) is selected:
- *   LeftButtonPressEvent - select handle (if on slider)
- *   LeftButtonReleaseEvent - release handle (if selected)
- *   MouseMoveEvent - move the origin point (constrained to plane or on the
+ * - If the cone axis is selected:
+ *   - LeftButtonPressEvent - select normal
+ *   - LeftButtonReleaseEvent - release (end select) normal
+ *   - MouseMoveEvent - orient the normal vector
+ * - If the origin point (handle) is selected:
+ *   - LeftButtonPressEvent - select handle (if on slider)
+ *   - LeftButtonReleaseEvent - release handle (if selected)
+ *   - MouseMoveEvent - move the origin point (constrained to plane or on the
  *                    axis if CTRL key is pressed)
- * If the cone is selected:
- *   LeftButtonPressEvent - select cone
- *   LeftButtonReleaseEvent - release cone
- *   MouseMoveEvent - increase/decrease cone angle
- * If the outline is selected:
- *   LeftButtonPressEvent - select outline
- *   LeftButtonReleaseEvent - release outline
- *   MouseMoveEvent - move the outline
- * If the keypress characters are used
- *   'Down/Left' Move cone away from viewer
- *   'Up/Right' Move cone towards viewer
- * In all the cases, independent of what is picked, the widget responds to the
+ * - If the cone is selected:
+ *   - LeftButtonPressEvent - select cone
+ *   - LeftButtonReleaseEvent - release cone
+ *   - MouseMoveEvent - increase/decrease cone angle
+ * - If the outline is selected:
+ *   - LeftButtonPressEvent - select outline
+ *   - LeftButtonReleaseEvent - release outline
+ *   - MouseMoveEvent - move the outline
+ * - If the keypress characters are used
+ *   - 'Down/Left' Move cone away from viewer
+ *   - 'Up/Right' Move cone towards viewer
+ * - In all the cases, independent of what is picked, the widget responds to the
  * following VTK events:
- *   MiddleButtonPressEvent - move the cone
- *   MiddleButtonReleaseEvent - release the cone
- *   RightButtonPressEvent - scale the widget's representation
- *   RightButtonReleaseEvent - stop scaling the widget
- *   MouseMoveEvent - scale (if right button) or move (if middle button) the widget
- * </pre>
+ *   - MiddleButtonPressEvent - move the cone
+ *   - MiddleButtonReleaseEvent - release the cone
+ *   - RightButtonPressEvent - scale the widget's representation
+ *   - RightButtonReleaseEvent - stop scaling the widget
+ *   - MouseMoveEvent - scale (if right button) or move (if middle button) the widget
  *
  * @par Event Bindings:
  * Note that the event bindings described above can be changed using this
  * class's vtkWidgetEventTranslator. This class translates VTK events
  * into the vtkImplicitConeWidget's widget events:
- * <pre>
- *   vtkWidgetEvent::Select -- some part of the widget has been selected
- *   vtkWidgetEvent::EndSelect -- the selection process has completed
- *   vtkWidgetEvent::Move -- a request for widget motion has been invoked
- *   vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MoveConeAction
- * </pre>
+ *   - vtkWidgetEvent::Select -- some part of the widget has been selected
+ *   - vtkWidgetEvent::EndSelect -- the selection process has completed
+ *   - vtkWidgetEvent::Move -- a request for widget motion has been invoked
+ *   - vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MoveConeAction
  *
  * @par Event Bindings:
  * In turn, when these widget events are processed, the vtkImplicitConeWidget
  * invokes the following VTK events on itself (which observers can listen for):
- * <pre>
- *   vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
- *   vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
- *   vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
- * </pre>
+ *   - vtkCommand::StartInteractionEvent (on vtkWidgetEvent::Select)
+ *   - vtkCommand::EndInteractionEvent (on vtkWidgetEvent::EndSelect)
+ *   - vtkCommand::InteractionEvent (on vtkWidgetEvent::Move)
  *
  *
  * @sa

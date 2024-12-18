@@ -49,10 +49,12 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"                      // for ivars
 #include "vtkProp.h"
+#include "vtkVector.h"        // for vtkVector3d
 #include "vtkWeakPointer.h"   // needed for vtkWeakPointer iVar.
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkAbstractPicker;
 class vtkAbstractPropPicker;
 class vtkAbstractWidget;
 class vtkMatrix4x4;
@@ -252,6 +254,11 @@ public:
 protected:
   vtkWidgetRepresentation();
   ~vtkWidgetRepresentation() override;
+
+  /**
+   * Return the given screen point in world coordinates, based on picked position.
+   */
+  vtkVector3d GetWorldPoint(vtkAbstractPicker* picker, double screenPos[2]);
 
   // The renderer in which this widget is placed
   vtkWeakPointer<vtkRenderer> Renderer;

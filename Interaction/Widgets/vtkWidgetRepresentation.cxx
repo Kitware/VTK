@@ -45,6 +45,24 @@ vtkWidgetRepresentation::~vtkWidgetRepresentation()
 }
 
 //------------------------------------------------------------------------------
+vtkVector3d vtkWidgetRepresentation::GetWorldPoint(vtkAbstractPicker* picker, double screenPos[2])
+{
+  vtkVector3d pos;
+  picker->GetPickPosition(pos.GetData());
+
+  vtkVector4d focalPoint;
+  vtkInteractorObserver::ComputeWorldToDisplay(
+    this->Renderer, pos[0], pos[1], pos[2], focalPoint.GetData());
+  double z = focalPoint[2];
+
+  // Note: vtkVector4d::GetXYZ() methods would make this cleaner
+  vtkVector4d prevPickPoint4d;
+  vtkInteractorObserver::ComputeDisplayToWorld(
+    this->Renderer, screenPos[0], screenPos[1], z, prevPickPoint4d.GetData());
+  return vtkVector3d{ prevPickPoint4d.GetX(), prevPickPoint4d.GetY(), prevPickPoint4d.GetZ() };
+}
+
+//------------------------------------------------------------------------------
 void vtkWidgetRepresentation::SetRenderer(vtkRenderer* ren)
 {
   if (ren == this->Renderer)

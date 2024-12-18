@@ -27,9 +27,9 @@
 #ifndef vtkImplicitCylinderRepresentation_h
 #define vtkImplicitCylinderRepresentation_h
 
+#include "vtkBoundedWidgetRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkWidgetRepresentation.h"
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
@@ -53,7 +53,7 @@ class vtkLookupTable;
 #define VTK_MAX_CYL_RESOLUTION 2048
 
 class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkImplicitCylinderRepresentation
-  : public vtkWidgetRepresentation
+  : public vtkBoundedWidgetRepresentation
 {
 public:
   /**
@@ -65,7 +65,7 @@ public:
   /**
    * Standard methods for the class.
    */
-  vtkTypeMacro(vtkImplicitCylinderRepresentation, vtkWidgetRepresentation);
+  vtkTypeMacro(vtkImplicitCylinderRepresentation, vtkBoundedWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
@@ -169,51 +169,6 @@ public:
 
   ///@{
   /**
-   * Turn on/off the ability to translate the bounding box by moving it
-   * with the mouse.
-   */
-  vtkSetMacro(OutlineTranslation, vtkTypeBool);
-  vtkGetMacro(OutlineTranslation, vtkTypeBool);
-  vtkBooleanMacro(OutlineTranslation, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off the ability to move the widget outside of the bounds
-   * specified in the PlaceWidget() invocation.
-   */
-  vtkSetMacro(OutsideBounds, vtkTypeBool);
-  vtkGetMacro(OutsideBounds, vtkTypeBool);
-  vtkBooleanMacro(OutsideBounds, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the bounds of the widget representation. PlaceWidget can also be
-   * used to set the bounds of the widget but it may also have other effects
-   * on the internal state of the representation. Use this function when only
-   * the widget bounds are needs to be modified.
-   */
-  vtkSetVector6Macro(WidgetBounds, double);
-  vtkGetVector6Macro(WidgetBounds, double);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off whether the cylinder should be constrained to the widget bounds.
-   * If on, the center will not be allowed to move outside the set widget bounds
-   * and the radius will be limited by MinRadius and MaxRadius. This is the
-   * default behaviour.
-   * If off, the center can be freely moved and the radius can be set to
-   * arbitrary values. The widget outline will change accordingly.
-   */
-  vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
   vtkSetMacro(ScaleEnabled, vtkTypeBool);
@@ -256,14 +211,6 @@ public:
    */
   vtkGetObjectMacro(CylinderProperty, vtkProperty);
   vtkGetObjectMacro(SelectedCylinderProperty, vtkProperty);
-  ///@}
-
-  ///@{
-  /**
-   * Get the property of the outline.
-   */
-  vtkGetObjectMacro(OutlineProperty, vtkProperty);
-  vtkGetObjectMacro(SelectedOutlineProperty, vtkProperty);
   ///@}
 
   ///@{
@@ -379,39 +326,13 @@ public:
    */
   void RegisterPickers() override;
 
-  ///@{
-  /**
-   * Gets/Sets the constraint axis for translations. Returns Axis::NONE
-   * if none.
-   **/
-  vtkGetMacro(TranslationAxis, int);
-  vtkSetClampMacro(TranslationAxis, int, -1, 2);
-  ///@}
-
-  ///@{
-  /**
-   * Toggles constraint translation axis on/off.
-   */
-  void SetXTranslationAxisOn() { this->TranslationAxis = Axis::XAxis; }
-  void SetYTranslationAxisOn() { this->TranslationAxis = Axis::YAxis; }
-  void SetZTranslationAxisOn() { this->TranslationAxis = Axis::ZAxis; }
-  void SetTranslationAxisOff() { this->TranslationAxis = Axis::NONE; }
-  ///@}
-
-  ///@{
-  /**
-   * Returns true if ConstrainedAxis
-   **/
-  bool IsTranslationConstrained() { return this->TranslationAxis != Axis::NONE; }
-  ///@}
-
 protected:
   vtkImplicitCylinderRepresentation();
   ~vtkImplicitCylinderRepresentation() override;
 
-  int RepresentationState;
+  void TranslateRepresentation(const vtkVector3d& move) override;
 
-  int TranslationAxis;
+  int RepresentationState;
 
   // Keep track of event positions
   double LastEventPosition[3];
@@ -434,17 +355,7 @@ protected:
   // The facet resolution for rendering purposes.
   int Resolution;
 
-  // The bounding box is represented by a single voxel image data
-  vtkImageData* Box;
-  vtkOutlineFilter* Outline;
-  vtkPolyDataMapper* OutlineMapper;
-  vtkActor* OutlineActor;
-  void HighlightOutline(int highlight);
-  vtkTypeBool OutlineTranslation; // whether the outline can be moved
-  vtkTypeBool ScaleEnabled;       // whether the widget can be scaled
-  vtkTypeBool OutsideBounds;      // whether the widget can be moved outside input's bounds
-  double WidgetBounds[6];
-  int ConstrainToWidgetBounds;
+  vtkTypeBool ScaleEnabled; // whether the widget can be scaled
 
   // The cut cylinder is produced with a vtkCutter
   vtkPolyData* Cyl;
@@ -496,7 +407,6 @@ protected:
   // Methods to manipulate the cylinder
   void Rotate(double X, double Y, double* p1, double* p2, double* vpn);
   void TranslateCylinder(double* p1, double* p2);
-  void TranslateOutline(double* p1, double* p2);
   void TranslateCenter(double* p1, double* p2);
   void TranslateCenterOnAxis(double* p1, double* p2);
   void ScaleRadius(double* p1, double* p2);
@@ -510,10 +420,8 @@ protected:
   vtkProperty* SelectedAxisProperty;
   vtkProperty* CylinderProperty;
   vtkProperty* SelectedCylinderProperty;
-  vtkProperty* OutlineProperty;
-  vtkProperty* SelectedOutlineProperty;
   vtkProperty* EdgesProperty;
-  void CreateDefaultProperties();
+  void CreateDefaultProperties() override;
 
   // Intersect oriented infinite cylinder against bounding box
   void BuildCylinder();
