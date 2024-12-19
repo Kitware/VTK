@@ -329,7 +329,7 @@ void vtkOpenGLRenderer::DeviceRender()
     // - UseSH is ON, SH is not provided, EnvTex is compatible but empty, error out
     // - UseSH is OFF, use irradiance
     bool useSH = this->UseSphericalHarmonics;
-    if (this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
+    if (useSH && this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
     {
       vtkWarningMacro(
         "Cannot compute spherical harmonics of a cubemap, falling back to irradiance texture");
