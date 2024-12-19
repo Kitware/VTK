@@ -143,6 +143,12 @@ public:
   //@}
 
   /**
+   * Get the extensions supported by the current back-end device.
+   */
+  const char* const* GetAnariDeviceExtensionStrings() const;
+  //@}
+
+  /**
    * Get the last rendered ColorBuffer
    */
   virtual const unsigned char* GetBuffer();
@@ -202,7 +208,7 @@ private:
   vtkAnariSceneGraph(const vtkAnariSceneGraph&) = delete;
   void operator=(const vtkAnariSceneGraph&) = delete;
 
-  void SetAnariDevice(anari::Device d, anari::Extensions e);
+  void SetAnariDevice(anari::Device d, anari::Extensions e, const char* const* es);
   void SetAnariRenderer(anari::Renderer r);
 
   // only allow these classes to set the Anari device + renderer

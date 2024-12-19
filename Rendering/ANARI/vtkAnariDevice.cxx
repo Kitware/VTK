@@ -291,6 +291,13 @@ const anari::Extensions& vtkAnariDevice::GetAnariDeviceExtensions() const
 }
 
 // ----------------------------------------------------------------------------
+const char* const* vtkAnariDevice::GetAnariDeviceExtensionStrings() const
+{
+  return (const char* const*)anariGetDeviceExtensions(
+    this->Internal->AnariLibrary, this->Internal->AnariDeviceName.c_str());
+}
+
+// ----------------------------------------------------------------------------
 void vtkAnariDevice::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
 {
   this->Internal->NewDeviceCB = std::move(cb);

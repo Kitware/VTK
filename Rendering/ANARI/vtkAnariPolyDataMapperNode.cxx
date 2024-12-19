@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAnariPolyDataMapperNode.h"
 #include "vtkAnariActorNode.h"
+#include "vtkAnariPolyDataMapperInheritInterface.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariSceneGraph.h"
 
@@ -39,13 +40,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-using uvec2 = anari::std_types::uvec2;
-using uvec3 = anari::std_types::uvec3;
-using vec2 = anari::std_types::vec2;
-using vec3 = anari::std_types::vec3;
-using vec4 = anari::std_types::vec4;
-using mat4 = anari::std_types::mat4;
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -174,7 +168,7 @@ public:
    * Create an ANARI surface with a geometry consisting of individual spheres, each
    * of which can have its own radius.
    */
-  anari::Surface RenderAsSpheres(anari::Sampler, vtkProperty*, std::vector<vec3>&,
+  anari::Surface RenderAsSpheres(anari::Sampler, vtkProperty*, vtkPolyData*, std::vector<vec3>&,
     std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
     std::vector<float>&, std::vector<vec4>&, AttributeArrayCollection&, int);
 
@@ -182,22 +176,22 @@ public:
    * Create an ANARI surface with a geometry consisting of individual cylinders, each
    * of which can have its own radius.
    */
-  anari::Surface RenderAsCylinders(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
-    std::vector<float>&, std::vector<vec4>&, AttributeArrayCollection&, int);
+  anari::Surface RenderAsCylinders(anari::Sampler, vtkProperty* property, vtkPolyData*,
+    std::vector<vec3>&, std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*,
+    std::vector<vec2>&, std::vector<float>&, std::vector<vec4>&, AttributeArrayCollection&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of curves, each
    * of which can have its own radius.
    */
-  anari::Surface RenderAsCurves(anari::Sampler, vtkProperty* property, std::vector<vec3>&,
-    std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*, std::vector<vec2>&,
-    std::vector<float>&, std::vector<vec4>&, AttributeArrayCollection&, int);
+  anari::Surface RenderAsCurves(anari::Sampler, vtkProperty* property, vtkPolyData*,
+    std::vector<vec3>&, std::vector<uint32_t>&, double, vtkDataArray*, vtkPiecewiseFunction*,
+    std::vector<vec2>&, std::vector<float>&, std::vector<vec4>&, AttributeArrayCollection&, int);
 
   /**
    * Create an ANARI surface with a geometry consisting of triangles.
    */
-  anari::Surface RenderAsTriangles(anari::Sampler anariSampler, vtkProperty* property,
+  anari::Surface RenderAsTriangles(anari::Sampler anariSampler, vtkProperty* property, vtkPolyData*,
     std::vector<vec3>&, std::vector<uint32_t>& indexArray, std::vector<vec3>& normals,
     std::vector<vec2>& textureCoords, std::vector<float>&, std::vector<vec4>&,
     AttributeArrayCollection&, int);
@@ -270,6 +264,12 @@ public:
   void SetAnariConfig(vtkAnariSceneGraph*);
 
   /**
+   * Sets inherit interface to something new and assigns ANARI state.
+   * If null, just assigns ANARI state to existing interface.
+   */
+  void SetInheritInterface(vtkAnariPolyDataMapperInheritInterface* inheritInterface = nullptr);
+
+  /**
    * Converts the given string to lowercase.
    */
   std::string StrToLower(std::string s);
@@ -290,6 +290,7 @@ public:
   void ResetIds();
 
   vtkAnariPolyDataMapperNode* Owner{ nullptr };
+  vtkAnariPolyDataMapperInheritInterface* InheritInterface{ nullptr };
   vtkAnariSceneGraph* AnariRendererNode{ nullptr };
 
   std::vector<anari::Surface> Surfaces;
@@ -304,12 +305,14 @@ public:
 
   anari::Device AnariDevice{ nullptr };
   anari::Extensions AnariDeviceExtensions{};
+  const char* const* AnariDeviceExtensionStrings{ nullptr };
 };
 
 //----------------------------------------------------------------------------
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
   : Owner(owner)
+  , InheritInterface(new vtkAnariPolyDataMapperInheritInterface())
 {
 }
 
@@ -317,6 +320,7 @@ vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
 vtkAnariPolyDataMapperNodeInternals::~vtkAnariPolyDataMapperNodeInternals()
 {
   this->ClearSurfaces();
+  delete this->InheritInterface;
 }
 
 //----------------------------------------------------------------------------
@@ -866,6 +870,22 @@ void vtkAnariPolyDataMapperNodeInternals::SetAnariConfig(vtkAnariSceneGraph* ana
   this->AnariRendererNode = anariRendererNode;
   this->AnariDevice = anariRendererNode->GetDeviceHandle();
   this->AnariDeviceExtensions = anariRendererNode->GetAnariDeviceExtensions();
+  this->AnariDeviceExtensionStrings = anariRendererNode->GetAnariDeviceExtensionStrings();
+  this->SetInheritInterface();
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariPolyDataMapperNodeInternals::SetInheritInterface(
+  vtkAnariPolyDataMapperInheritInterface* inheritInterface)
+{
+  if (inheritInterface != nullptr)
+  {
+    delete this->InheritInterface;
+    this->InheritInterface = inheritInterface;
+  }
+
+  this->InheritInterface->SetDevice(
+    this->AnariDevice, this->AnariDeviceExtensions, this->AnariDeviceExtensionStrings);
 }
 
 //----------------------------------------------------------------------------
@@ -903,7 +923,9 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderSurfaces", vtkAnariProfiling::LIME);
   vtkProperty* property = actor->GetProperty();
 
-  switch (property->GetRepresentation())
+  int connRepresentation = this->InheritInterface->GetSurfaceRepresentation(property);
+
+  switch (connRepresentation)
   {
     case VTK_POINTS:
     {
@@ -911,7 +933,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
 
       if (this->AnariDeviceExtensions.ANARI_KHR_GEOMETRY_SPHERE)
       {
-        anariSurface = this->RenderAsSpheres(anariSampler, property, vertices, indexArray,
+        anariSurface = this->RenderAsSpheres(anariSampler, property, poly, vertices, indexArray,
           pointSize, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors,
           attributeArrays, cellFlag);
       }
@@ -925,14 +947,14 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
 
       if (this->AnariDeviceExtensions.ANARI_KHR_GEOMETRY_CYLINDER)
       {
-        anariSurface = this->RenderAsCylinders(anariSampler, property, vertices, indexArray,
+        anariSurface = this->RenderAsCylinders(anariSampler, property, poly, vertices, indexArray,
           lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors,
           attributeArrays, cellFlag);
       }
       else if (this->AnariDeviceExtensions.ANARI_KHR_GEOMETRY_CURVE)
       {
-        anariSurface = this->RenderAsCurves(anariSampler, property, vertices, indexArray, lineWidth,
-          scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors,
+        anariSurface = this->RenderAsCurves(anariSampler, property, poly, vertices, indexArray,
+          lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors,
           attributeArrays, cellFlag);
       }
 
@@ -954,7 +976,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
         std::vector<float> edgePointValueTextureCoords;
         std::vector<vec4> edgePointColors;
 
-        auto anariSurface = this->RenderAsCylinders(nullptr, property, vertices,
+        auto anariSurface = this->RenderAsCylinders(nullptr, property, poly, vertices,
           isTriangleIndex ? conn.triangle_index : conn.strip_index,
           useLineWidthForEdgeThickness ? lineWidth : edgeWidth, scaleArray, scaleFunction,
           edgeTextureCoords, edgePointValueTextureCoords, edgePointColors, attributeArrays,
@@ -989,7 +1011,7 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
       }
 
       auto anariSurface =
-        this->RenderAsTriangles(anariSampler, property, vertices, indexArray, vertexNormals,
+        this->RenderAsTriangles(anariSampler, property, poly, vertices, indexArray, vertexNormals,
           textureCoords, pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       this->Surfaces.emplace_back(anariSurface);
     }
@@ -998,8 +1020,8 @@ void vtkAnariPolyDataMapperNodeInternals::RenderSurfaces(anari::Sampler anariSam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
-  std::vector<vec3>& normals, std::vector<vec2>& textureCoords,
+  vtkProperty* property, vtkPolyData* poly, std::vector<vec3>& vertices,
+  std::vector<uint32_t>& indexArray, std::vector<vec3>& normals, std::vector<vec2>& textureCoords,
   std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
   AttributeArrayCollection& attributeArrays, int cellFlag)
 {
@@ -1010,31 +1032,38 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   size_t numTriangles = indexArray.size() / 3;
   int geometryId = 0;
 
+  auto updateResponsibility = this->InheritInterface->GetBaseUpdateResponsibility();
+
   if (numVertices > 0)
   {
     geometryId = this->TrianglesId++;
 
-    triangleGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "triangle");
-    std::string usdTriangleName = this->ActorName + "_triangles_" + std::to_string(geometryId);
+    triangleGeometry = this->InheritInterface->InitializeTriangles(poly, property, vertices,
+      indexArray, normals, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
+    std::string usdTriangleName =
+      this->ActorName + this->InheritInterface->GetTrianglesPostfix() + std::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, triangleGeometry, "name", ANARI_STRING, usdTriangleName.c_str());
 
-    // Vertices
-    auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
+    if (updateResponsibility.Positions)
     {
-      auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
-
-      for (size_t i = 0; i < numVertices; i++)
+      // Vertices
+      auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
       {
-        positionArrayPtr[i] = vertices[i];
+        auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
+
+        for (size_t i = 0; i < numVertices; i++)
+        {
+          positionArrayPtr[i] = vertices[i];
+        }
+
+        anari::unmap(this->AnariDevice, positionArray);
       }
 
-      anari::unmap(this->AnariDevice, positionArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, triangleGeometry, "vertex.position", positionArray);
     }
-
-    anari::setAndReleaseParameter(
-      this->AnariDevice, triangleGeometry, "vertex.position", positionArray);
   }
   else
   {
@@ -1045,7 +1074,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   }
 
   // Optional indices
-  if (numTriangles > 0)
+  if (updateResponsibility.Indices && numTriangles > 0)
   {
     auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32_VEC3, numTriangles);
     {
@@ -1066,7 +1095,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   // Vertex normals
   size_t numNormals = normals.size();
 
-  if (numNormals > 0)
+  if (updateResponsibility.Normals && numNormals > 0)
   {
     auto normalArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numNormals);
     {
@@ -1088,7 +1117,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   size_t numPointValueTextureCoords = pointValueTextureCoords.size();
   size_t numTextureCoords = textureCoords.size();
 
-  if (numTextureCoords > 0 || numPointValueTextureCoords > 0)
+  if (updateResponsibility.Texcoords && (numTextureCoords > 0 || numPointValueTextureCoords > 0))
   {
     std::vector<vec2> tcoords;
     anari::Array1D tcoordsArray = nullptr;
@@ -1130,7 +1159,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   // Per point color
   size_t numPointColors = pointColors.size();
 
-  if (numPointColors > 0)
+  if (updateResponsibility.Colors && numPointColors > 0)
   {
     if (cellFlag == 0)
     {
@@ -1193,7 +1222,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   // These take a geometry, which defines the spatial representation, and
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
-  std::string surfaceName = this->ActorName + "_surface_triangles_" + std::to_string(geometryId);
+  std::string surfaceName = this->ActorName + "_surface" +
+    this->InheritInterface->GetTrianglesPostfix() + std::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", triangleGeometry);
 
@@ -1225,10 +1255,11 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
-  double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
-  std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, AttributeArrayCollection& attributeArrays, int cellFlag)
+  vtkProperty* property, vtkPolyData* poly, std::vector<vec3>& vertices,
+  std::vector<uint32_t>& indexArray, double lineWidth, vtkDataArray* scaleArray,
+  vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
+  std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
+  AttributeArrayCollection& attributeArrays, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsCylinders", vtkAnariProfiling::LIME);
 
@@ -1239,31 +1270,39 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
 
   int geometryId = 0;
 
+  auto updateResponsibility = this->InheritInterface->GetBaseUpdateResponsibility();
+
   if (numVertices > 0)
   {
     geometryId = this->CylindersId++;
 
-    cylinderGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "cylinder");
-    std::string usdCylinderName = this->ActorName + "_cylinders_" + std::to_string(geometryId);
+    cylinderGeometry =
+      this->InheritInterface->InitializeCylinders(poly, property, vertices, indexArray, lineWidth,
+        scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
+    std::string usdCylinderName =
+      this->ActorName + this->InheritInterface->GetCylindersPostfix() + std::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, cylinderGeometry, "name", ANARI_STRING, usdCylinderName.c_str());
 
-    // Vertex positions
-    auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
+    if (updateResponsibility.Positions)
     {
-      auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
-
-      for (size_t i = 0; i < numVertices; i++)
+      // Vertex positions
+      auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
       {
-        positionArrayPtr[i] = vertices[i];
+        auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
+
+        for (size_t i = 0; i < numVertices; i++)
+        {
+          positionArrayPtr[i] = vertices[i];
+        }
+
+        anari::unmap(this->AnariDevice, positionArray);
       }
 
-      anari::unmap(this->AnariDevice, positionArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, cylinderGeometry, "vertex.position", positionArray);
     }
-
-    anari::setAndReleaseParameter(
-      this->AnariDevice, cylinderGeometry, "vertex.position", positionArray);
   }
   else
   {
@@ -1274,7 +1313,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   }
 
   // Optional indices
-  if (numCylinders > 0)
+  if (updateResponsibility.Indices && numCylinders > 0)
   {
     auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32_VEC2, numCylinders);
     {
@@ -1293,37 +1332,40 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   }
 
   // Radius
-  if (scaleArray != nullptr) // per cylinder radius
+  if (updateResponsibility.Scales)
   {
-    auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numCylinders);
+    if (scaleArray != nullptr) // per cylinder radius
     {
-      auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
-
-      for (size_t i = 0; i < numCylinders; i++)
+      auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numCylinders);
       {
-        float avgRadius = (*scaleArray->GetTuple(indexArray[i * 2]) +
-                            *scaleArray->GetTuple(indexArray[i * 2 + 1])) *
-          0.5f;
-        radiusArrayPtr[i] = MapThroughPWF(avgRadius, scaleFunction);
+        auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
+
+        for (size_t i = 0; i < numCylinders; i++)
+        {
+          float avgRadius = (*scaleArray->GetTuple(indexArray[i * 2]) +
+                              *scaleArray->GetTuple(indexArray[i * 2 + 1])) *
+            0.5f;
+          radiusArrayPtr[i] = MapThroughPWF(avgRadius, scaleFunction);
+        }
+
+        anari::unmap(this->AnariDevice, radiusArray);
       }
 
-      anari::unmap(this->AnariDevice, radiusArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, cylinderGeometry, "primitive.radius", radiusArray);
     }
-
-    anari::setAndReleaseParameter(
-      this->AnariDevice, cylinderGeometry, "primitive.radius", radiusArray);
-  }
-  else
-  {
-    anari::setParameter(
-      this->AnariDevice, cylinderGeometry, "radius", static_cast<float>(lineWidth));
+    else
+    {
+      anari::setParameter(
+        this->AnariDevice, cylinderGeometry, "radius", static_cast<float>(lineWidth));
+    }
   }
 
   // Texture Coordinates
   size_t numTextureCoords = textureCoords.size();
   size_t numPointValueTextureCoords = pointValueTextureCoords.size();
 
-  if (numTextureCoords > 0 || numPointValueTextureCoords > 0)
+  if (updateResponsibility.Texcoords && (numTextureCoords > 0 || numPointValueTextureCoords > 0))
   {
     anari::Array1D tcoordsArray = nullptr;
 
@@ -1364,7 +1406,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   // Per point color
   size_t numPointColors = pointColors.size();
 
-  if (numPointColors > 0)
+  if (updateResponsibility.Colors && numPointColors > 0)
   {
     // if(cellFlag == 0)
     // {
@@ -1405,7 +1447,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   // These take a geometry, which defines the spatial representation, and
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
-  std::string surfaceName = this->ActorName + "_surface_cylinders_" + std::to_string(geometryId);
+  std::string surfaceName = this->ActorName + "_surface" +
+    this->InheritInterface->GetCylindersPostfix() + std::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", cylinderGeometry);
 
@@ -1437,10 +1480,11 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
-  double lineWidth, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
-  std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, AttributeArrayCollection& attributeArrays, int cellFlag)
+  vtkProperty* property, vtkPolyData* poly, std::vector<vec3>& vertices,
+  std::vector<uint32_t>& indexArray, double lineWidth, vtkDataArray* scaleArray,
+  vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
+  std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
+  AttributeArrayCollection& attributeArrays, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsCurves", vtkAnariProfiling::LIME);
   // Geometries in ANARI are objects that describe the spatial representation of a surface
@@ -1451,31 +1495,39 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
 
   int geometryId = 0;
 
+  auto updateResponsibility = this->InheritInterface->GetBaseUpdateResponsibility();
+
   if (numVertices > 0)
   {
     geometryId = this->CurvesId++;
 
-    curveGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "curve");
-    std::string usdCurveName = this->ActorName + "_curves_" + std::to_string(geometryId);
+    curveGeometry =
+      this->InheritInterface->InitializeCurves(poly, property, vertices, indexArray, lineWidth,
+        scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
+    std::string usdCurveName =
+      this->ActorName + this->InheritInterface->GetCurvesPostfix() + std::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, curveGeometry, "name", ANARI_STRING, usdCurveName.c_str());
 
-    // Vertex positions
-    auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
+    if (updateResponsibility.Positions)
     {
-      auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
-
-      for (size_t i = 0; i < numVertices; i++)
+      // Vertex positions
+      auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
       {
-        positionArrayPtr[i] = vertices[i];
+        auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
+
+        for (size_t i = 0; i < numVertices; i++)
+        {
+          positionArrayPtr[i] = vertices[i];
+        }
+
+        anari::unmap(this->AnariDevice, positionArray);
       }
 
-      anari::unmap(this->AnariDevice, positionArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, curveGeometry, "vertex.position", positionArray);
     }
-
-    anari::setAndReleaseParameter(
-      this->AnariDevice, curveGeometry, "vertex.position", positionArray);
   }
   else
   {
@@ -1486,7 +1538,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   }
 
   // Optional indices
-  if (numIndices > 0)
+  if (updateResponsibility.Indices && numIndices > 0)
   {
     auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numIndices);
     {
@@ -1505,34 +1557,38 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   }
 
   // Radius
-  if (scaleArray != nullptr)
+  if (updateResponsibility.Scales)
   {
-    size_t numRadius = scaleArray->GetNumberOfTuples();
-
-    auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numRadius);
+    if (scaleArray != nullptr)
     {
-      auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
+      size_t numRadius = scaleArray->GetNumberOfTuples();
 
-      for (size_t i = 0; i < numRadius; i++)
+      auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numRadius);
       {
-        radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
+        auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
+
+        for (size_t i = 0; i < numRadius; i++)
+        {
+          radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
+        }
+
+        anari::unmap(this->AnariDevice, radiusArray);
       }
 
-      anari::unmap(this->AnariDevice, radiusArray);
+      anari::setAndReleaseParameter(this->AnariDevice, curveGeometry, "vertex.radius", radiusArray);
     }
-
-    anari::setAndReleaseParameter(this->AnariDevice, curveGeometry, "vertex.radius", radiusArray);
-  }
-  else
-  {
-    anari::setParameter(this->AnariDevice, curveGeometry, "radius", static_cast<float>(lineWidth));
+    else
+    {
+      anari::setParameter(
+        this->AnariDevice, curveGeometry, "radius", static_cast<float>(lineWidth));
+    }
   }
 
   // Texture Coordinates
   size_t numTextureCoords = textureCoords.size();
   size_t numPointValueTextureCoords = pointValueTextureCoords.size();
 
-  if (numTextureCoords > 0 || numPointValueTextureCoords > 0)
+  if (updateResponsibility.Texcoords && (numTextureCoords > 0 || numPointValueTextureCoords > 0))
   {
     anari::Array1D tcoordsArray = nullptr;
 
@@ -1573,7 +1629,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   // Per point color
   size_t numPointColors = pointColors.size();
 
-  if (numPointColors > 0)
+  if (updateResponsibility.Colors && numPointColors > 0)
   {
     // if(cellFlag == 0)
     // {
@@ -1613,7 +1669,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   // These take a geometry, which defines the spatial representation, and
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
-  std::string surfaceName = this->ActorName + "_surface_curves_" + std::to_string(geometryId);
+  std::string surfaceName = this->ActorName + "_surface" +
+    this->InheritInterface->GetCurvesPostfix() + std::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", curveGeometry);
 
@@ -1645,10 +1702,11 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
 
 //----------------------------------------------------------------------------
 anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampler anariSampler,
-  vtkProperty* property, std::vector<vec3>& vertices, std::vector<uint32_t>& indexArray,
-  double pointSize, vtkDataArray* scaleArray, vtkPiecewiseFunction* scaleFunction,
-  std::vector<vec2>& textureCoords, std::vector<float>& pointValueTextureCoords,
-  std::vector<vec4>& pointColors, AttributeArrayCollection& attributeArrays, int cellFlag)
+  vtkProperty* property, vtkPolyData* poly, std::vector<vec3>& vertices,
+  std::vector<uint32_t>& indexArray, double pointSize, vtkDataArray* scaleArray,
+  vtkPiecewiseFunction* scaleFunction, std::vector<vec2>& textureCoords,
+  std::vector<float>& pointValueTextureCoords, std::vector<vec4>& pointColors,
+  AttributeArrayCollection& attributeArrays, int cellFlag)
 {
   vtkAnariProfiling startProfiling("VTKAPDMNInternals::RenderAsSpheres", vtkAnariProfiling::LIME);
 
@@ -1657,36 +1715,45 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
 
   // Geometries in ANARI are objects that describe the spatial representation of a surface
   anari::Geometry sphereGeometry = nullptr;
-  size_t numPositions = indexArray.size();
+  size_t numIndices = indexArray.size();
   size_t numVertices = vertices.size();
 
   int geometryId = 0;
+
+  auto updateResponsibility = this->InheritInterface->GetBaseUpdateResponsibility();
 
   if (numVertices > 0)
   {
     geometryId = this->SpheresId++;
 
-    sphereGeometry = anari::newObject<anari::Geometry>(this->AnariDevice, "sphere");
-    std::string usdSphereName = this->ActorName + "_spheres_" + std::to_string(geometryId);
+    sphereGeometry =
+      this->InheritInterface->InitializeSpheres(poly, property, vertices, indexArray, pointSize,
+        scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
+
+    std::string usdSphereName =
+      this->ActorName + this->InheritInterface->GetSpheresPostfix() + std::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, sphereGeometry, "name", ANARI_STRING, usdSphereName.c_str());
 
-    // Vertex positions
-    auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
+    if (updateResponsibility.Positions)
     {
-      auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
-
-      for (size_t i = 0; i < numVertices; i++)
+      // Vertex positions
+      auto positionArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC3, numVertices);
       {
-        positionArrayPtr[i] = vertices[i];
+        auto positionArrayPtr = anari::map<vec3>(this->AnariDevice, positionArray);
+
+        for (size_t i = 0; i < numVertices; i++)
+        {
+          positionArrayPtr[i] = vertices[i];
+        }
+
+        anari::unmap(this->AnariDevice, positionArray);
       }
 
-      anari::unmap(this->AnariDevice, positionArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, sphereGeometry, "vertex.position", positionArray);
     }
-
-    anari::setAndReleaseParameter(
-      this->AnariDevice, sphereGeometry, "vertex.position", positionArray);
   }
   else
   {
@@ -1697,13 +1764,13 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   }
 
   // Optional indices
-  if (numPositions > 0)
+  if (updateResponsibility.Indices && numIndices > 0)
   {
-    auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numPositions);
+    auto indicesArray = anari::newArray1D(this->AnariDevice, ANARI_UINT32, numIndices);
     {
       auto indicesArrayPtr = anari::map<uint32_t>(this->AnariDevice, indicesArray);
 
-      for (size_t i = 0; i < numPositions; i++)
+      for (size_t i = 0; i < numIndices; i++)
       {
         indicesArrayPtr[i] = indexArray[i];
       }
@@ -1716,35 +1783,40 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   }
 
   // Radius
-  if (scaleArray != nullptr) // per sphere radius
+  if (updateResponsibility.Scales)
   {
-    size_t numRadius = scaleArray->GetNumberOfTuples();
-
-    auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numRadius);
+    if (scaleArray != nullptr) // per sphere radius
     {
-      auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
+      size_t numRadius = scaleArray->GetNumberOfTuples();
 
-      for (size_t i = 0; i < numRadius; i++)
+      auto radiusArray = anari::newArray1D(this->AnariDevice, ANARI_FLOAT32, numRadius);
       {
-        // radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(indexArray[i]), scaleFunction);
-        radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
+        auto radiusArrayPtr = anari::map<float>(this->AnariDevice, radiusArray);
+
+        for (size_t i = 0; i < numRadius; i++)
+        {
+          // radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(indexArray[i]), scaleFunction);
+          radiusArrayPtr[i] = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
+        }
+
+        anari::unmap(this->AnariDevice, radiusArray);
       }
 
-      anari::unmap(this->AnariDevice, radiusArray);
+      anari::setAndReleaseParameter(
+        this->AnariDevice, sphereGeometry, "vertex.radius", radiusArray);
     }
-
-    anari::setAndReleaseParameter(this->AnariDevice, sphereGeometry, "vertex.radius", radiusArray);
-  }
-  else
-  {
-    anari::setParameter(this->AnariDevice, sphereGeometry, "radius", static_cast<float>(pointSize));
+    else
+    {
+      anari::setParameter(
+        this->AnariDevice, sphereGeometry, "radius", static_cast<float>(pointSize));
+    }
   }
 
   // Texture Coordinates
   size_t numTextureCoords = textureCoords.size();
   size_t numPointValueTextureCoords = pointValueTextureCoords.size();
 
-  if (numTextureCoords > 0 || numPointValueTextureCoords > 0)
+  if (updateResponsibility.Texcoords && (numTextureCoords > 0 || numPointValueTextureCoords > 0))
   {
     anari::Array1D tcoordsArray = nullptr;
 
@@ -1785,7 +1857,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   // Per point color
   size_t numPointColors = pointColors.size();
 
-  if (numPointColors > 0)
+  if (updateResponsibility.Colors && numPointColors > 0)
   {
     anari::Array1D colorArray =
       anari::newArray1D(this->AnariDevice, ANARI_FLOAT32_VEC4, numPointColors);
@@ -1815,7 +1887,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   // These take a geometry, which defines the spatial representation, and
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
-  std::string surfaceName = this->ActorName + "_surface_spheres_" + std::to_string(geometryId);
+  std::string surfaceName = this->ActorName + "_surface" +
+    this->InheritInterface->GetSpheresPostfix() + std::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", sphereGeometry);
 
@@ -2244,8 +2317,10 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
     }
   }
 
+  int connRepresentation = this->Internal->InheritInterface->GetSurfaceRepresentation(property);
+
   vtkPolyDataMapperNode::vtkPDConnectivity conn;
-  vtkPolyDataMapperNode::MakeConnectivity(poly, property->GetRepresentation(), conn);
+  vtkPolyDataMapperNode::MakeConnectivity(poly, connRepresentation, conn);
   anari::Extensions anariDeviceExtensions =
     this->Internal->AnariRendererNode->GetAnariDeviceExtensions();
 
@@ -2257,7 +2332,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
     {
       auto anariSampler = this->Internal->VTKToAnariSampler(
         "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
-      anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, vertices,
+      anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
         conn.vertex_index, pointSize, scaleArray, scaleFunction, textureCoords,
         pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
     }
@@ -2275,7 +2350,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
-        anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, vertices,
+        anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
           conn.line_index, pointSize, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
@@ -2286,7 +2361,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
-        anariSurface = this->Internal->RenderAsCylinders(anariSampler, property, vertices,
+        anariSurface = this->Internal->RenderAsCylinders(anariSampler, property, poly, vertices,
           conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
@@ -2294,7 +2369,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
           "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
-        anariSurface = this->Internal->RenderAsCurves(anariSampler, property, vertices,
+        anariSurface = this->Internal->RenderAsCurves(anariSampler, property, poly, vertices,
           conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
       }
@@ -2469,6 +2544,13 @@ void vtkAnariPolyDataMapperNode::SetActorNodeName()
   {
     this->Internal->ActorName = "vtk_actor_" + this->RendererNode->ReservePropId();
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariPolyDataMapperNode::SetInheritInterface(
+  vtkAnariPolyDataMapperInheritInterface* inheritInterface)
+{
+  this->Internal->SetInheritInterface(inheritInterface);
 }
 
 VTK_ABI_NAMESPACE_END

@@ -65,6 +65,11 @@ public:
   const anari::Extensions& GetAnariDeviceExtensions() const;
 
   /**
+   * Get the current ANARI device extensions as list of strings
+   */
+  const char* const* GetAnariDeviceExtensionStrings() const;
+
+  /**
    * Set a callback that gets called whenever a new device has been created
    */
   void SetOnNewDeviceCallback(OnNewDeviceCallback&& cb);

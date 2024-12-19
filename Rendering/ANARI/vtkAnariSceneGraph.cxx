@@ -58,8 +58,9 @@ struct RendererChangeCallback : vtkCommand
   vtkTimeStamp* AnariRendererModifiedTime{ nullptr };
 };
 
-struct vtkAnariSceneGraphInternals
+class vtkAnariSceneGraphInternals
 {
+public:
   vtkAnariSceneGraphInternals(vtkAnariSceneGraph*);
   ~vtkAnariSceneGraphInternals();
 
@@ -80,6 +81,7 @@ struct vtkAnariSceneGraphInternals
   anari::Frame AnariFrame{ nullptr };
 
   anari::Extensions AnariExtensions{};
+  const char* const* AnariExtensionStrings{ nullptr };
 
   std::vector<anari::Surface> AnariSurfaces;
   std::vector<anari::Volume> AnariVolumes;
@@ -693,6 +695,12 @@ const anari::Extensions& vtkAnariSceneGraph::GetAnariDeviceExtensions() const
 }
 
 //------------------------------------------------------------------------------
+const char* const* vtkAnariSceneGraph::GetAnariDeviceExtensionStrings() const
+{
+  return this->Internal->AnariExtensionStrings;
+}
+
+//------------------------------------------------------------------------------
 const unsigned char* vtkAnariSceneGraph::GetBuffer()
 {
   return this->Internal->ColorBuffer.data();
@@ -717,7 +725,7 @@ int vtkAnariSceneGraph::ReservePropId()
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e)
+void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e, const char* const* es)
 {
   vtkRenderer* renderer = GetRenderer();
   if (!renderer)
@@ -734,6 +742,7 @@ void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e)
   anari::retain(d, d);
   this->Internal->AnariDevice = d;
   this->Internal->AnariExtensions = e;
+  this->Internal->AnariExtensionStrings = es;
   this->InitAnariFrame(renderer);
   this->InitAnariWorld();
 

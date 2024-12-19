@@ -77,16 +77,16 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
 
   // render using the composite data attributes
   unsigned int flat_index = 0;
-  vtkCompositePolyDataMapper* cpdm = vtkCompositePolyDataMapper::SafeDownCast(act->GetMapper());
+  vtkMapper* baseMapper = vtkMapper::SafeDownCast(this->GetRenderable());
   vtkDataObject* dobj = nullptr;
 
-  if (cpdm)
+  if (baseMapper)
   {
-    dobj = cpdm->GetInputDataObject(0, 0);
+    dobj = baseMapper->GetInputDataObject(0, 0);
 
     if (dobj)
     {
-      this->SynchronizeBlock(cpdm, act, dobj, flat_index);
+      this->SynchronizeBlock(baseMapper, act, dobj, flat_index);
     }
   }
 
@@ -100,12 +100,12 @@ void vtkAnariCompositePolyDataMapperNode::Synchronize(bool prepass)
 
 //------------------------------------------------------------------------------
 void vtkAnariCompositePolyDataMapperNode::SynchronizeBlock(
-  vtkCompositePolyDataMapper* cpdm, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
+  vtkMapper* baseMapper, vtkActor* actor, vtkDataObject* dobj, unsigned int& flat_index)
 {
   vtkAnariProfiling startProfiling(
     "vtkAnariCompositePolyDataMapperNode::SynchronizeBlock", vtkAnariProfiling::BROWN);
 
-  vtkCompositeDataDisplayAttributes* cda = cpdm->GetCompositeDataDisplayAttributes();
+  vtkCompositeDataDisplayAttributes* cda = this->GetCompositeDisplayAttributes();
 
   vtkProperty* prop = actor->GetProperty();
   vtkColor3d ecolor(prop->GetEdgeColor());
@@ -147,7 +147,7 @@ void vtkAnariCompositePolyDataMapperNode::SynchronizeBlock(
     {
       if (auto child = dataObjTree->GetChild(i))
       {
-        this->SynchronizeBlock(cpdm, actor, child, flat_index);
+        this->SynchronizeBlock(baseMapper, actor, child, flat_index);
       }
       else
       {
@@ -170,7 +170,7 @@ void vtkAnariCompositePolyDataMapperNode::SynchronizeBlock(
       vtkColor3d& aColor = this->BlockState.AmbientColor.top();
       vtkColor3d& dColor = this->BlockState.DiffuseColor.top();
       std::string& material = this->BlockState.Material.top();
-      cpdm->ClearColorArrays(); // prevents reuse of stale color arrays
+      baseMapper->ClearColorArrays(); // prevents reuse of stale color arrays
 
       double color[3] = { aColor.GetRed() * dColor.GetRed(), aColor.GetGreen() * dColor.GetGreen(),
         aColor.GetBlue() * dColor.GetBlue() };
@@ -196,6 +196,15 @@ void vtkAnariCompositePolyDataMapperNode::SynchronizeBlock(
   {
     this->BlockState.Material.pop();
   }
+}
+
+//----------------------------------------------------------------------------
+vtkCompositeDataDisplayAttributes*
+vtkAnariCompositePolyDataMapperNode::GetCompositeDisplayAttributes()
+{
+  vtkCompositePolyDataMapper* cpdm =
+    vtkCompositePolyDataMapper::SafeDownCast(this->GetRenderable());
+  return cpdm ? cpdm->GetCompositeDataDisplayAttributes() : nullptr;
 }
 
 VTK_ABI_NAMESPACE_END
