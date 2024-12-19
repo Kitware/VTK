@@ -560,15 +560,10 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
     "VTK 9.4",
     vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
       vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray));
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  (void)cellType;
-  (void)cellSize;
-  (void)mcarray;
-  vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
-  return nullptr;
-#else
+  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
+  // if arrays are stored in device memory, we'll get an error - however this case did not work
+  // for the deprecated function.
   return MCArrayToVTKCellArray(0, cellType, cellSize, mcarray);
-#endif
 }
 
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
@@ -604,14 +599,10 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     "VTK 9.4",
     vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
       vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname));
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  (void)c_o2mrelation;
-  (void)leafname;
-  vtkLogF(ERROR, "This legacy function does not work when using vtkm accelerators");
-  return nullptr;
-#else
+  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
+  // if arrays are stored in device memory, we'll get an error - however this case did not work
+  // for the deprecated function.
   return O2MRelationToVTKCellArray(0, c_o2mrelation, leafname);
-#endif
 }
 
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
