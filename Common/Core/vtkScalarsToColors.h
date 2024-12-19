@@ -35,6 +35,7 @@
 #define vtkScalarsToColors_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkObject.h"
 #include "vtkVariant.h"       // Set/get annotation methods require variants.
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -446,7 +447,7 @@ protected:
   int VectorSize;
 
 #if !defined(VTK_LEGACY_REMOVE)
-  // Obsolete, kept so subclasses will still compile
+  VTK_DEPRECATED_IN_9_5_0("UseMagnitude is ignored and will be removed")
   int UseMagnitude;
 #endif
 
