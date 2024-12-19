@@ -11,6 +11,7 @@ if (VTK_ENABLE_OSPRAY)
     TestOSPRayIsosurface.cxx
     TestOSPRayLayers.cxx
     TestOSPRayLights.cxx
+    TestOSPRayLightWidget.cxx
     TestOSPRayMultiBlock.cxx
 #   TestOSPRayMultiBlockPartialArrayFieldData.cxx #19221
     TestOSPRayOrthographic.cxx
