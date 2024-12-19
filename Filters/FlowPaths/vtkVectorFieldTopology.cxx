@@ -2139,15 +2139,16 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
       {
         bool appendFlag = true;
 
-        for (int i = 0; i < criticalPoints->GetNumberOfPoints(); i++)
+        for (int i = 0; i < pointCount; i++)
         {
+          int pointId1 = pointIdVec[i];
           double* p0 = criticalPointsTemporary->GetPoints()->GetPoint(pointId);
           double type0 =
             criticalPointsTemporary->GetPointData()->GetArray("type")->GetTuple1(pointId);
-          double* pi = criticalPoints->GetPoints()->GetPoint(i);
-          double typei = criticalPoints->GetPointData()->GetArray("type")->GetTuple1(i);
+          double* p1 = criticalPoints->GetPoints()->GetPoint(pointId1);
+          double type1 = criticalPoints->GetPointData()->GetArray("type")->GetTuple1(pointId1);
 
-          if (type0 == typei && vtkMath::Distance2BetweenPoints(p0, pi) < epsilon)
+          if (type0 == type1 && vtkMath::Distance2BetweenPoints(p0, p1) < epsilon)
           {
             appendFlag = false;
             break;
