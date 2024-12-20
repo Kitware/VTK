@@ -16,8 +16,8 @@
 #include <vtkDataSetTriangleFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkFeatureEdges.h>
+#include <vtkGenerateIds.h>
 #include <vtkGeometryFilter.h>
-#include <vtkIdFilter.h>
 #include <vtkImageData.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -1671,7 +1671,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
 int vtkVectorFieldTopology::RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset)
 {
   // assign id to each point
-  vtkNew<vtkIdFilter> idFilter;
+  vtkNew<vtkGenerateIds> idFilter;
   idFilter->SetInputData(tridataset);
   idFilter->SetPointIdsArrayName("ids");
   idFilter->Update();
