@@ -385,6 +385,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   }
   else if (isString)
   {
+    fprintf(fp, "// NOLINTNEXTLINE(readability-redundant-string-cstr)\n");
     fprintf(fp, "  state[\"%s\"] = ", keyName);
     if (isStdVector)
     {
@@ -674,6 +675,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "    if ((iter != state.end()) && !iter->is_null())\n");
     fprintf(fp, "    {\n");
     fprintf(fp, "      auto values = iter->get<std::string>();\n");
+    fprintf(fp, "      // NOLINTNEXTLINE(readability-redundant-string-cstr)\n");
     callSetterBeginMacro(fp, "      ");
     callSetterParameterMacro(fp, "values.c_str()");
     callSetterEndMacro(fp);

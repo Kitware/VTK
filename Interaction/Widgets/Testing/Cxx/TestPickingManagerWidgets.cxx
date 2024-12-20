@@ -293,7 +293,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // First ImplicitPlaneWidget (Green)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep;
   impPlaneRep->SetPlaceFactor(1.);
-  impPlaneRep->SetOutlineTranslation(0);
+  impPlaneRep->SetOutlineTranslation(false);
   impPlaneRep->SetScaleEnabled(0);
   impPlaneRep->PlaceWidget(glyphImpPlane->GetOutput()->GetBounds());
   impPlaneRep->SetEdgeColor(0., 1., 0.);
@@ -309,7 +309,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   // Second ImplicitPlaneWidget (Red)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep2;
-  impPlaneRep2->SetOutlineTranslation(0);
+  impPlaneRep2->SetOutlineTranslation(false);
   impPlaneRep2->SetScaleEnabled(0);
   impPlaneRep2->SetPlaceFactor(1.);
   impPlaneRep2->PlaceWidget(glyphImpPlane->GetOutput()->GetBounds());
