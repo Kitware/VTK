@@ -30,16 +30,10 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+// Forward declarations
 class vtkAnariPassInternals;
 class vtkAnariSceneGraph;
-
 class vtkCameraPass;
-class vtkLightsPass;
-class vtkOverlayPass;
-class vtkRenderPassCollection;
-class vtkSequencePass;
-class vtkVolumetricPass;
-class vtkViewNodeFactory;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPass : public vtkRenderPass
 {
@@ -51,7 +45,7 @@ public:
   /**
    * Perform rendering according to a render state.
    */
-  virtual void Render(const vtkRenderState* s) override;
+  void Render(const vtkRenderState* s) override;
 
   //@{
   /**

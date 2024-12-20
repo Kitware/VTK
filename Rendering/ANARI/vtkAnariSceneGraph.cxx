@@ -63,17 +63,6 @@ struct vtkAnariSceneGraphInternals
   vtkAnariSceneGraphInternals(vtkAnariSceneGraph*);
   ~vtkAnariSceneGraphInternals();
 
-  /**
-   * @brief Populate the current ANARI back-end device features.
-   * @param library the ANARI library
-   * @param deviceName  the ANARI back-end device name
-   * @param deviceSubtype the ANARI back-end device subtype name
-   * @return true if this device implements a minimum set of features required to
-   *         render VTK datasets, false otherwise.
-   */
-  bool SetAnariDeviceFeatures(
-    anari::Library library, const char* deviceName, const char* deviceSubtype);
-
   vtkAnariSceneGraph* Owner{ nullptr };
 
   std::vector<u_char> ColorBuffer;

@@ -2,16 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAnariPass.h"
-#include "vtkAnariDevice.h"
 #include "vtkAnariProfiling.h"
-#include "vtkAnariRenderer.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariViewNodeFactory.h"
 
 #include "vtkCamera.h"
 #include "vtkCameraPass.h"
 #include "vtkFrameBufferObjectBase.h"
-#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlayPass.h"
 #include "vtkRenderPassCollection.h"
@@ -19,7 +16,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSequencePass.h"
-#include "vtkVolumetricPass.h"
 
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
