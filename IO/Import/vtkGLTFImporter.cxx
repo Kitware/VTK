@@ -595,18 +595,21 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     {
       auto skin = model->Skins[node.Skin];
 
-      vtkNew<vtkActor> actor;
+      if (skin.Skeleton >= 0)
+      {
+        vtkNew<vtkActor> actor;
 
-      vtkNew<vtkPolyDataMapper> mapper;
-      mapper->SetInputData(skin.Armature);
-      actor->SetMapper(mapper);
+        vtkNew<vtkPolyDataMapper> mapper;
+        mapper->SetInputData(skin.Armature);
+        actor->SetMapper(mapper);
 
-      this->ApplyArmatureProperties(actor);
+        this->ApplyArmatureProperties(actor);
 
-      renderer->AddActor(actor);
+        renderer->AddActor(actor);
 
-      this->ArmatureActors[nodeId] = actor;
-      this->ActorCollection->AddItem(actor);
+        this->ArmatureActors[nodeId] = actor;
+        this->ActorCollection->AddItem(actor);
+      }
     }
 
     // Add node's children to stack
