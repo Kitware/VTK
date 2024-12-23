@@ -12,8 +12,8 @@ void SetParameterDefaults(
   if (!pass || !renderer)
     return;
 
-  auto& ad = pass->GetAnariDevice();
-  auto& ar = pass->GetAnariRenderer();
+  auto* ad = pass->GetAnariDevice();
+  auto* ar = pass->GetAnariRenderer();
 
   if (useDebugDevice)
   {
@@ -21,18 +21,18 @@ void SetParameterDefaults(
     std::string traceDir = testing->GetTempDirectory();
     traceDir += "/anari-trace/";
     traceDir += testName;
-    ad.SetAnariDebugConfig(traceDir.c_str(), "code");
+    ad->SetAnariDebugConfig(traceDir.c_str(), "code");
   }
 
-  ad.SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
+  ad->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
 
   // General renderer parameters:
-  ar.SetParameter("ambientRadiance", 1.f);
+  ar->SetParameter("ambientRadiance", 1.f);
 
   // VisRTX specific renderer parameters:
-  ar.SetParameter("lightFalloff", 0.5f);
-  ar.SetParameter("denoise", true);
-  ar.SetParameter("pixelSamples", 8);
+  ar->SetParameter("lightFalloff", 0.5f);
+  ar->SetParameter("denoise", true);
+  ar->SetParameter("pixelSamples", 8);
 
   vtkAnariSceneGraph::SetCompositeOnGL(renderer, 1);
 }

@@ -202,8 +202,8 @@ int TestAnariLights(int argc, char* argv[])
   renderer->SetPass(anariPass);
 
   SetParameterDefaults(anariPass, renderer, useDebugDevice, "TestAnariLights");
-  auto& ar = anariPass->GetAnariRenderer();
-  ar.SetParameter("ambientRadiance", 0.2f);
+  auto* ar = anariPass->GetAnariRenderer();
+  ar->SetParameter("ambientRadiance", 0.2f);
 
   renWin->Render();
 

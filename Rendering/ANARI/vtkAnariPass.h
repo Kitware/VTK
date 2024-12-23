@@ -30,16 +30,10 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+// Forward declarations
 class vtkAnariPassInternals;
 class vtkAnariSceneGraph;
-
 class vtkCameraPass;
-class vtkLightsPass;
-class vtkOverlayPass;
-class vtkRenderPassCollection;
-class vtkSequencePass;
-class vtkVolumetricPass;
-class vtkViewNodeFactory;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPass : public vtkRenderPass
 {
@@ -51,7 +45,7 @@ public:
   /**
    * Perform rendering according to a render state.
    */
-  virtual void Render(const vtkRenderState* s) override;
+  void Render(const vtkRenderState* s) override;
 
   //@{
   /**
@@ -63,14 +57,14 @@ public:
   /**
    * Get the managing class of the ANARI device for queries or make changes.
    */
-  vtkAnariDevice& GetAnariDevice();
+  vtkAnariDevice* GetAnariDevice();
 
   /**
    * Get the managing class of the ANARI renderer to query or make changes. Note
    * that this will not do anything unless the device has been initialized in
    * the device .
    */
-  vtkAnariRenderer& GetAnariRenderer();
+  vtkAnariRenderer* GetAnariRenderer();
 
 private:
   /**

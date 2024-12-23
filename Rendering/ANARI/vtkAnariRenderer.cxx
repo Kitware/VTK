@@ -61,6 +61,7 @@ void vtkAnariRendererInternals::SetRendererParameter(const char* p, const T& v)
 {
   if (!this->AnariDevice || !this->AnariRenderer)
   {
+    vtkWarningMacro(<< "ANARI device not yet set, ignoring renderer parameter '" << p << "'");
     return;
   }
 
