@@ -597,7 +597,7 @@ protected:
   /**
    * Update whether log scaling will be used for layout and rendering.
 
-   * Log scaling is only active when LogScaling is true <b>and</b> the closed,
+   * Log scaling is only active when LogScale is true <b>and</b> the closed,
    * unscaled range does not contain the origin.
    * The boolean parameter determines whether the minimum and maximum values
    * are set from their unscaled counterparts.
