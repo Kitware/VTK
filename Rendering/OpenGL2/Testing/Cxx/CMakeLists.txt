@@ -52,6 +52,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestGlyph3DMapperPickability.cxx,NO_DATA
   TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
   TestHiddenLineRemovalPass.cxx
+  TestLabeledDataMappers.cxx
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
   TestMultiTexturing.cxx

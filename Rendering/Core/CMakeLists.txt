@@ -176,6 +176,7 @@ set_source_files_properties(
 
 set(headers
   vtkGPUInfoListArray.h
+  vtkLabeledDatatypeDefinitions.h
   vtkPythagoreanQuadruples.h
   vtkRayCastStructures.h
   vtkRenderingCoreEnums.h

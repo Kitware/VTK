@@ -19,6 +19,8 @@
 #include "vtkImagingCoreModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
+
 class VTKIMAGINGCORE_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
@@ -30,16 +32,29 @@ public:
   ///@{
   /**
    * Set/Get the pad value.
+   *
+   * @note if the ComponentConstants array is set, this value is ignored.
    */
   vtkSetMacro(Constant, double);
   vtkGetMacro(Constant, double);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the pad values for each component.
+   *
+   * @note If this array is set, the Constant value is ignored.
+   */
+  virtual void SetComponentConstants(vtkDoubleArray* values);
+  vtkGetObjectMacro(ComponentConstants, vtkDoubleArray);
+  ///@}
+
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() override = default;
+  ~vtkImageConstantPad() override;
 
   double Constant;
+  vtkDoubleArray* ComponentConstants;
 
   void ThreadedRequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, vtkImageData*** inData, vtkImageData** outData, int ext[6],

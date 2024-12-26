@@ -36,6 +36,7 @@
 #ifndef vtkLabeledDataMapper_h
 #define vtkLabeledDataMapper_h
 
+#include "vtkLabeledDatatypeDefinitions.h" // For Data type Definitions
 #include "vtkMapper2D.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
@@ -48,14 +49,6 @@ class vtkDataSet;
 class vtkTextMapper;
 class vtkTextProperty;
 class vtkTransform;
-
-#define VTK_LABEL_IDS 0
-#define VTK_LABEL_SCALARS 1
-#define VTK_LABEL_VECTORS 2
-#define VTK_LABEL_NORMALS 3
-#define VTK_LABEL_TCOORDS 4
-#define VTK_LABEL_TENSORS 5
-#define VTK_LABEL_FIELD_DATA 6
 
 class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkLabeledDataMapper : public vtkMapper2D
 {

@@ -28,6 +28,8 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonSystem
   VTK::CommonTransforms
+  VTK::ImagingCore
+  VTK::RenderingFreeType
   VTK::vtksys
   VTK::nlohmannjson
 TEST_DEPENDS

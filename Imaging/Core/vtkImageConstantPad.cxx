@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageConstantPad.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -9,13 +10,23 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //------------------------------------------------------------------------------
-// Constructor sets default values
+vtkCxxSetObjectMacro(vtkImageConstantPad, ComponentConstants, vtkDoubleArray);
+
+//----------------------------------------------------------------------------
 vtkImageConstantPad::vtkImageConstantPad()
 {
   this->Constant = 0.0;
+  this->ComponentConstants = nullptr;
+}
+
+//------------------------------------------------------------------------------
+vtkImageConstantPad::~vtkImageConstantPad()
+{
+  this->SetComponentConstants(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -28,9 +39,9 @@ void vtkImageConstantPadExecute(vtkImageConstantPad* self, vtkImageData* inData,
   int maxC, maxX, maxY, maxZ;
   vtkIdType inIncX, inIncY, inIncZ;
   vtkIdType outIncX, outIncY, outIncZ;
-  T constant;
+  const T constant = static_cast<T>(self->GetConstant());
+  vtkDoubleArray* componentConstants = self->GetComponentConstants();
   int inMinX, inMaxX, inMaxC;
-  constant = static_cast<T>(self->GetConstant());
   int state0, state1, state2, state3;
   unsigned long count = 0;
   unsigned long target;
@@ -45,6 +56,9 @@ void vtkImageConstantPadExecute(vtkImageConstantPad* self, vtkImageData* inData,
   inMaxX = inExt[1] - outExt[0];
   target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
   target++;
+
+  const bool useComponentConstants =
+    componentConstants && componentConstants->GetNumberOfValues() == maxC;
 
   // Get increments to march through data
   inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
@@ -94,7 +108,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad* self, vtkImageData* inData,
             state0 = (state1 || idxC >= inMaxC);
             if (state0)
             {
-              *outPtr = constant;
+              *outPtr = useComponentConstants ? componentConstants->GetValue(idxC) : constant;
             }
             else
             {
@@ -158,6 +172,7 @@ void vtkImageConstantPad::ThreadedRequestData(vtkInformation* vtkNotUsed(request
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

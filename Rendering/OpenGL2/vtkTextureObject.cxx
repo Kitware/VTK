@@ -433,12 +433,14 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow* win)
     this->Type = 0;
     this->Components = 0;
     this->Width = this->Height = this->Depth = 0;
+    this->Modified();
   }
   if (this->ShaderProgram)
   {
     this->ShaderProgram->ReleaseGraphicsResources(win);
     delete this->ShaderProgram;
     this->ShaderProgram = nullptr;
+    this->Modified();
   }
 }
 
