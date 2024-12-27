@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkConduitArrayUtilitiesDevice
- * @brief helper to convert Conduit arrays to VTK arrays.
+ * @brief helper to convert Conduit arrays stored on acceleration devices to VTKm arrays.
  * @ingroup Insitu
  *
  * vtkConduitArrayUtilitiesDevice is intended to convert Conduit nodes satisfying the
- * `mcarray` protocol to VTK arrays. It uses zero-copy, as much as possible.
- * Currently implementation fails if zero-copy is not possible. In future, that
- * may be changed to do a deep-copy (with appropriate warnings) if necessary.
+ * `mcarray` protocol, with memory allocated on acceleration devices, to VTKm arrays. It uses
+ * zero-copy, when possible otherwise it uses deep copy.
  *
  * This is primarily designed for use by vtkConduitSource.
  */

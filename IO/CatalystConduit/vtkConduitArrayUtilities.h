@@ -6,9 +6,10 @@
  * @ingroup Insitu
  *
  * vtkConduitArrayUtilities is intended to convert Conduit nodes satisfying the
- * `mcarray` protocol to VTK arrays. It uses zero-copy, as much as possible.
- * Currently implementation fails if zero-copy is not possible. In future, that
- * may be changed to do a deep-copy (with appropriate warnings) if necessary.
+ * `mcarray` protocol to VTK arrays. It uses zero-copy when possible otherwise
+ * it uses deep copy. If arrays are stored on acceleration devices and VTK
+ * is not compiled with appropriate options (VTKm and appropriate acceleration
+ * device turned on) the conversion fails.
  *
  * This is primarily designed for use by vtkConduitSource.
  */
