@@ -37,6 +37,7 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(
   : Superclass(parentWdg, f)
   , RenderWindow(nullptr)
   , RenderWindowAdapter(nullptr)
+  , EnableTouchEventProcessing(true)
   , EnableHiDPI(true)
   , UnscaledDPI(72)
   , CustomDevicePixelRatio(0.0)
@@ -154,6 +155,16 @@ QSurfaceFormat QVTKOpenGLNativeWidget::defaultFormat(bool stereo_capable)
 }
 
 //------------------------------------------------------------------------------
+void QVTKOpenGLNativeWidget::setEnableTouchEventProcessing(bool enable)
+{
+  this->EnableTouchEventProcessing = enable;
+  if (this->RenderWindowAdapter)
+  {
+    this->RenderWindowAdapter->setEnableTouchEventProcessing(enable);
+  }
+}
+
+//------------------------------------------------------------------------------
 void QVTKOpenGLNativeWidget::setEnableHiDPI(bool enable)
 {
   this->EnableHiDPI = enable;
@@ -240,6 +251,7 @@ void QVTKOpenGLNativeWidget::initializeGL()
     this->RenderWindowAdapter.reset(
       new QVTKRenderWindowAdapter(this->context(), this->RenderWindow, this));
     this->RenderWindowAdapter->setDefaultCursor(this->defaultCursor());
+    this->RenderWindowAdapter->setEnableTouchEventProcessing(this->EnableTouchEventProcessing);
     this->RenderWindowAdapter->setEnableHiDPI(this->EnableHiDPI);
     this->RenderWindowAdapter->setUnscaledDPI(this->UnscaledDPI);
     this->RenderWindowAdapter->setCustomDevicePixelRatio(this->CustomDevicePixelRatio);
@@ -300,9 +312,15 @@ void QVTKOpenGLNativeWidget::cleanupContext()
 //------------------------------------------------------------------------------
 bool QVTKOpenGLNativeWidget::event(QEvent* evt)
 {
+  bool EventProcessed = false;
   if (this->RenderWindowAdapter)
   {
-    this->RenderWindowAdapter->handleEvent(evt);
+    EventProcessed = this->RenderWindowAdapter->handleEvent(evt);
+  }
+
+  if (EventProcessed)
+  {
+    return true;
   }
   return this->Superclass::event(evt);
 }
