@@ -95,6 +95,18 @@ public:
   }
 
   /**
+   * @copydoc QVTKOpenGLWindow::setEnableTouchEventProcessing()
+   */
+  void setEnableTouchEventProcessing(bool enable)
+  {
+    this->VTKOpenGLWindow->setEnableTouchEventProcessing(enable);
+  }
+  bool enableTouchEventProcessing() const
+  {
+    return this->VTKOpenGLWindow->enableTouchEventProcessing();
+  }
+
+  /**
    * @copydoc QVTKOpenGLWindow::setEnableHiDPI()
    */
   void setEnableHiDPI(bool enable) { this->VTKOpenGLWindow->setEnableHiDPI(enable); }
