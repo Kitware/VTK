@@ -24,6 +24,7 @@
 #include "verdict_defines.hpp"
 
 #include <algorithm>
+#include <vector>
 
 namespace VERDICT_NAMESPACE
 {
@@ -459,16 +460,10 @@ double quad_aspect_ratio(int /*num_nodes*/, const double coordinates[][3])
   double mb = c1 > d1 ? c1 : d1;
   double hm = ma > mb ? ma : mb;
 
-  VerdictVector ab = edges[0] * edges[1];
-  VerdictVector cd = edges[2] * edges[3];
-  double denominator = ab.length() + cd.length();
+  double corner_areas[4];
+  signed_corner_areas(corner_areas, coordinates);
 
-  if (denominator < VERDICT_DBL_MIN)
-  {
-    return (double)VERDICT_DBL_MAX;
-  }
-
-  double aspect_ratio = .5 * hm * (a1 + b1 + c1 + d1) / denominator;
+  double aspect_ratio = hm * (a1 + b1 + c1 + d1) / (corner_areas[0] + corner_areas[1] + corner_areas[2] + corner_areas[3]);
 
   if (aspect_ratio > 0)
   {
@@ -744,18 +739,103 @@ double quad_warpage(int /*num_nodes*/, const double coordinates[][3])
 
   jacobian at quad center
  */
-double quad_area(int /*num_nodes*/, const double coordinates[][3])
+double quad_area(int num_nodes, const double coordinates[][3])
 {
-  double corner_areas[4];
-  signed_corner_areas(corner_areas, coordinates);
-
-  double area = 0.25 * (corner_areas[0] + corner_areas[1] + corner_areas[2] + corner_areas[3]);
-
-  if (area > 0)
+  if (4 == num_nodes)
   {
-    return (double)std::min(area, VERDICT_DBL_MAX);
+    double corner_areas[4];
+    signed_corner_areas(corner_areas, coordinates);
+
+    double area = 0.25 * (corner_areas[0] + corner_areas[1] + corner_areas[2] + corner_areas[3]);
+
+    if (area > 0)
+    {
+      return (double)std::min(area, VERDICT_DBL_MAX);
+    }
+    return (double)std::max(area, -VERDICT_DBL_MAX);
   }
-  return (double)std::max(area, -VERDICT_DBL_MAX);
+  else 
+  {
+    double area = 0;
+    double tmp_coords[4][3];
+    
+    if (5 == num_nodes)
+    {
+      std::vector< std::vector<int> > tri_conn = { {0,1}, {1,2}, {2,3}, {3,0} };
+
+      //center node 4
+      tmp_coords[2][0] = coordinates[4][0];
+      tmp_coords[2][1] = coordinates[4][1];
+      tmp_coords[2][2] = coordinates[4][2];
+
+      for (std::vector<int> v : tri_conn)
+      {
+        tmp_coords[0][0] = coordinates[v[0]][0];
+        tmp_coords[0][1] = coordinates[v[0]][1];
+        tmp_coords[0][2] = coordinates[v[0]][2];
+        tmp_coords[1][0] = coordinates[v[1]][0];
+        tmp_coords[1][1] = coordinates[v[1]][1];
+        tmp_coords[1][2] = coordinates[v[1]][2];
+        area += tri_area(3, tmp_coords);
+      }     
+    }
+    else if (8 == num_nodes)
+    {
+      std::vector< std::vector<int> > tri_conn = 
+        { {0,4,7}, {4,1,5}, {5,2,6}, {6,3,7} };
+
+      for (std::vector<int> v : tri_conn)
+      {
+        tmp_coords[0][0] = coordinates[v[0]][0];
+        tmp_coords[0][1] = coordinates[v[0]][1];
+        tmp_coords[0][2] = coordinates[v[0]][2];
+        tmp_coords[1][0] = coordinates[v[1]][0];
+        tmp_coords[1][1] = coordinates[v[1]][1];
+        tmp_coords[1][2] = coordinates[v[1]][2];
+        tmp_coords[2][0] = coordinates[v[2]][0];
+        tmp_coords[2][1] = coordinates[v[2]][1];
+        tmp_coords[2][2] = coordinates[v[2]][2];
+        area += tri_area(3, tmp_coords);
+      }
+
+      //interior quad 4567
+      tmp_coords[0][0] = coordinates[4][0];
+      tmp_coords[0][1] = coordinates[4][1];
+      tmp_coords[0][2] = coordinates[4][2];
+      tmp_coords[1][0] = coordinates[5][0];
+      tmp_coords[1][1] = coordinates[5][1];
+      tmp_coords[1][2] = coordinates[5][2];
+      tmp_coords[2][0] = coordinates[6][0];
+      tmp_coords[2][1] = coordinates[6][1];
+      tmp_coords[2][2] = coordinates[6][2];
+      tmp_coords[3][0] = coordinates[7][0];
+      tmp_coords[3][1] = coordinates[7][1];
+      tmp_coords[3][2] = coordinates[7][2];
+      area += quad_area(4, tmp_coords);
+    }
+    else if (9 == num_nodes)
+    {
+      std::vector< std::vector<int> > tri_conn =
+      { {0,4}, {4,1}, {1,5}, {5,2}, {2,6}, {6,3}, {3,7}, {7,0} };
+
+      //quad center node
+      tmp_coords[2][0] = coordinates[8][0];
+      tmp_coords[2][1] = coordinates[8][1];
+      tmp_coords[2][2] = coordinates[8][2];
+
+      for (std::vector<int> v : tri_conn)
+      {
+        tmp_coords[0][0] = coordinates[v[0]][0];
+        tmp_coords[0][1] = coordinates[v[0]][1];
+        tmp_coords[0][2] = coordinates[v[0]][2];
+        tmp_coords[1][0] = coordinates[v[1]][0];
+        tmp_coords[1][1] = coordinates[v[1]][1];
+        tmp_coords[1][2] = coordinates[v[1]][2];
+        area += tri_area(3, tmp_coords);
+      }
+    }
+    return area;
+  }
 }
 
 /*!

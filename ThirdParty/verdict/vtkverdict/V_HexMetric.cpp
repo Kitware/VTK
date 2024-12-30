@@ -105,7 +105,7 @@ static double compute_tet_volume(VerdictVector& v1, VerdictVector& v2, VerdictVe
 // Compute interior node
 VerdictVector hex20_auxillary_node_coordinate(const double coordinates[][3])
 {
-  VerdictVector aux_node(0, 0, 0);
+  VerdictVector aux_node(0.0, 0.0, 0.0);
   for (int i = 0; i < 8; i++)
   {
     VerdictVector tmp_vec(coordinates[i][0], coordinates[i][1], coordinates[i][2]);

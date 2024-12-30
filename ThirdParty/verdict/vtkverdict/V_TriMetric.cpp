@@ -24,6 +24,7 @@
 #include "verdict_defines.hpp"
 
 #include <algorithm>
+#include <array>
 
 namespace VERDICT_NAMESPACE
 {
@@ -149,27 +150,23 @@ double tri_edge_ratio(int /*num_nodes*/, const double coordinates[][3])
      what is now called "v_tri_aspect_frobenius"
 
  */
-double tri_aspect_ratio(int /*num_nodes*/, const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_aspect_ratio_impl(int /*num_nodes*/, const CoordsContainerType coordinates, const int dimension)
 {
   // three vectors for each side
-  VerdictVector a(coordinates[1][0] - coordinates[0][0], coordinates[1][1] - coordinates[0][1],
-    coordinates[1][2] - coordinates[0][2]);
+  const VerdictVector a{coordinates[0], coordinates[1], dimension};
+  const VerdictVector b{coordinates[1], coordinates[2], dimension};
+  const VerdictVector c{coordinates[2], coordinates[0], dimension};
 
-  VerdictVector b(coordinates[2][0] - coordinates[1][0], coordinates[2][1] - coordinates[1][1],
-    coordinates[2][2] - coordinates[1][2]);
-
-  VerdictVector c(coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1],
-    coordinates[0][2] - coordinates[2][2]);
-
-  double a1 = a.length();
-  double b1 = b.length();
-  double c1 = c.length();
+  const double a1 = a.length();
+  const double b1 = b.length();
+  const double c1 = c.length();
 
   double hm = a1 > b1 ? a1 : b1;
   hm = hm > c1 ? hm : c1;
 
-  VerdictVector ab = a * b;
-  double denominator = ab.length();
+  const VerdictVector ab = a * b;
+  const double denominator = ab.length();
 
   if (denominator < VERDICT_DBL_MIN)
   {
@@ -177,9 +174,7 @@ double tri_aspect_ratio(int /*num_nodes*/, const double coordinates[][3])
   }
   else
   {
-    double aspect_ratio;
-    aspect_ratio = aspect_ratio_normal_coeff * hm * (a1 + b1 + c1) / denominator;
-
+    const double aspect_ratio = aspect_ratio_normal_coeff * hm * (a1 + b1 + c1) / denominator;
     if (aspect_ratio > 0)
     {
       return (double)std::min(aspect_ratio, VERDICT_DBL_MAX);
@@ -188,6 +183,14 @@ double tri_aspect_ratio(int /*num_nodes*/, const double coordinates[][3])
   }
 }
 
+double tri_aspect_ratio(int num_nodes, const double coordinates[][3])
+{
+    return tri_aspect_ratio_impl(num_nodes, coordinates, 3);
+}
+double tri_aspect_ratio_from_loc_ptrs(int num_nodes, const double * const *coordinates, const int dimension)
+{
+    return tri_aspect_ratio_impl(num_nodes, coordinates, dimension);
+}
 /*!
    the radius ratio of a triangle
 
@@ -279,26 +282,124 @@ double tri_aspect_frobenius(int /*num_nodes*/, const double coordinates[][3])
 
   0.5 * jacobian at a node
  */
-double tri_area(int /*num_nodes*/, const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_area_impl(int num_nodes, const CoordsContainerType coordinates, const int dimension)
 {
-  // two vectors for two sides
-  VerdictVector side1(coordinates[1][0] - coordinates[0][0], coordinates[1][1] - coordinates[0][1],
-    coordinates[1][2] - coordinates[0][2]);
-
-  VerdictVector side3(coordinates[2][0] - coordinates[0][0], coordinates[2][1] - coordinates[0][1],
-    coordinates[2][2] - coordinates[0][2]);
-
-  // the cross product of the two vectors representing two sides of the
-  // triangle
-  VerdictVector tmp = side1 * side3;
-
-  // return the magnitude of the vector divided by two
-  double area = 0.5 * tmp.length();
-  if (area > 0)
+  if (3 == num_nodes)
   {
-    return (double)std::min(area, VERDICT_DBL_MAX);
+    // two vectors for two sides
+    const VerdictVector side1{ coordinates[0], coordinates[1], dimension };
+    const VerdictVector side3{ coordinates[0], coordinates[2], dimension };
+
+    // the cross product of the two vectors representing two sides of the
+    // triangle
+    const VerdictVector tmp = side1 * side3;
+
+    // return the magnitude of the vector divided by two
+    const double area = 0.5 * tmp.length();
+    if (area > 0)
+    {
+      return (double)std::min(area, VERDICT_DBL_MAX);
+    }
+    return (double)std::max(area, -VERDICT_DBL_MAX);
   }
-  return (double)std::max(area, -VERDICT_DBL_MAX);
+  else
+  {
+    const double *tmp_coords[3];
+    double tri_area = 0.0;
+
+    if (6 == num_nodes)
+    {
+      // 035
+      tmp_coords[0] = coordinates[0];
+      tmp_coords[1] = coordinates[3];
+      tmp_coords[2] = coordinates[5];      
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 314
+      tmp_coords[0] = coordinates[3];
+      tmp_coords[1] = coordinates[1];
+      tmp_coords[2] = coordinates[4];      
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 425
+      tmp_coords[0] = coordinates[4];
+      tmp_coords[1] = coordinates[2];
+      tmp_coords[2] = coordinates[5];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 345
+      tmp_coords[0] = coordinates[3];
+      tmp_coords[1] = coordinates[4];     
+      tmp_coords[2] = coordinates[5];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+    }    
+    else if (7 == num_nodes)
+    {
+      //center node 6
+      tmp_coords[2] = coordinates[6];
+      
+      // 036
+      tmp_coords[0] = coordinates[0];
+      tmp_coords[1] = coordinates[3];      
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 316
+      tmp_coords[0] = coordinates[3];
+      tmp_coords[1] = coordinates[1];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 146
+      tmp_coords[0] = coordinates[1];
+      tmp_coords[1] = coordinates[4];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 426
+      tmp_coords[0] = coordinates[4];
+      tmp_coords[1] = coordinates[2];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);      
+
+      // 256
+      tmp_coords[0] = coordinates[2];
+      tmp_coords[1] = coordinates[5];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 506
+      tmp_coords[0] = coordinates[5];
+      tmp_coords[1] = coordinates[0];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+    }    
+    else if( 4 == num_nodes )
+    {
+      //center node 3
+      tmp_coords[2] = coordinates[3];      
+
+      // 013
+      tmp_coords[0] = coordinates[0];
+      tmp_coords[1] = coordinates[1];      
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 123
+      tmp_coords[0] = coordinates[1];
+      tmp_coords[1] = coordinates[2];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+
+      // 203
+      tmp_coords[0] = coordinates[2];
+      tmp_coords[1] = coordinates[0];
+      tri_area += tri_area_impl(3, tmp_coords, dimension);
+    }    
+    return tri_area;
+  }
+}
+double tri_area(int num_nodes, const double coordinates[][3])
+{
+    return tri_area_impl(num_nodes, coordinates, 3);
+}
+
+double tri_area_from_loc_ptrs(int num_nodes, const double * const *coordinates, const int dimension)
+{
+    return tri_area_impl(num_nodes, coordinates, dimension);
 }
 
 /*!
@@ -463,25 +564,32 @@ double tri_equiangle_skew(int num_nodes, const double coordinates[][3])
 
   Condition number of the jacobian matrix at any corner
  */
-double tri_condition(int /*num_nodes*/, const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_condition_impl(int /*num_nodes*/, const CoordsContainerType coordinates, const int dimension)
 {
-  VerdictVector v1(coordinates[1][0] - coordinates[0][0], coordinates[1][1] - coordinates[0][1],
-    coordinates[1][2] - coordinates[0][2]);
-
-  VerdictVector v2(coordinates[2][0] - coordinates[0][0], coordinates[2][1] - coordinates[0][1],
-    coordinates[2][2] - coordinates[0][2]);
-
-  VerdictVector tri_normal = v1 * v2;
-  double areax2 = tri_normal.length();
+  const VerdictVector v1{coordinates[0], coordinates[1], dimension};
+  const VerdictVector v2{coordinates[0], coordinates[2], dimension};
+  const VerdictVector tri_normal = v1 * v2;
+  const double areax2 = tri_normal.length();
 
   if (areax2 == 0.0)
   {
     return (double)VERDICT_DBL_MAX;
   }
 
-  double condition = (double)(((v1 % v1) + (v2 % v2) - (v1 % v2)) / (areax2 * sqrt3));
+  const double condition = (double)(((v1 % v1) + (v2 % v2) - (v1 % v2)) / (areax2 * sqrt3));
 
   return (double)std::min(condition, VERDICT_DBL_MAX);
+}
+
+double tri_condition(int num_nodes, const double coordinates[][3])
+{
+    return tri_condition_impl(num_nodes, coordinates, 3);
+}
+
+double tri_condition_from_loc_ptrs(int num_nodes, const double * const * coordinates, const int dimension)
+{
+    return tri_condition_impl(num_nodes, coordinates, dimension);
 }
 
 /*!
@@ -489,28 +597,23 @@ double tri_condition(int /*num_nodes*/, const double coordinates[][3])
 
   minimum of the jacobian divided by the lengths of 2 edge vectors
  */
-double tri_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_scaled_jacobian_impl(int /*num_nodes*/, const CoordsContainerType coordinates, const int dimension)
 {
-  VerdictVector first, second;
-  double jacobian;
+  const VerdictVector edge[3] =
+  {
+      {coordinates[0], coordinates[1], dimension},
+      {coordinates[0], coordinates[2], dimension},
+      {coordinates[1], coordinates[2], dimension},
+  };
 
-  VerdictVector edge[3];
-  edge[0].set(coordinates[1][0] - coordinates[0][0], coordinates[1][1] - coordinates[0][1],
-    coordinates[1][2] - coordinates[0][2]);
+  const VerdictVector first = edge[1] - edge[0];
+  const VerdictVector second = edge[2] - edge[0];
 
-  edge[1].set(coordinates[2][0] - coordinates[0][0], coordinates[2][1] - coordinates[0][1],
-    coordinates[2][2] - coordinates[0][2]);
+  const VerdictVector cross = first * second;
+  double jacobian = cross.length();
 
-  edge[2].set(coordinates[2][0] - coordinates[1][0], coordinates[2][1] - coordinates[1][1],
-    coordinates[2][2] - coordinates[1][2]);
-  first = edge[1] - edge[0];
-  second = edge[2] - edge[0];
-
-  VerdictVector cross = first * second;
-  jacobian = cross.length();
-
-  double max_edge_length_product;
-  max_edge_length_product = std::max(edge[0].length() * edge[1].length(),
+  const double max_edge_length_product = std::max(edge[0].length() * edge[1].length(),
     std::max(edge[1].length() * edge[2].length(), edge[0].length() * edge[2].length()));
 
   if (max_edge_length_product < VERDICT_DBL_MIN)
@@ -526,6 +629,16 @@ double tri_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
     return (double)std::min(jacobian, VERDICT_DBL_MAX);
   }
   return (double)std::max(jacobian, -VERDICT_DBL_MAX);
+}
+
+double tri_scaled_jacobian(int num_nodes, const double coordinates[][3])
+{
+    return tri_scaled_jacobian_impl(num_nodes, coordinates, 3);
+}
+
+double tri_scaled_jacobian_from_loc_ptrs(int num_nodes, const double * const * coordinates, const int dimension)
+{
+    return tri_scaled_jacobian_impl(num_nodes, coordinates, dimension);
 }
 
 /*!
@@ -649,10 +762,11 @@ double tri_distortion(int num_nodes, const double coordinates[][3])
     return (double)distortion;
   }
 
-  else if (num_nodes == 6)
+  else if (num_nodes >= 6)
   {
     total_number_of_gauss_points = 6;
     number_of_gauss_points = 6;
+    num_nodes = 6; //seven nodes not handled 
   }
 
   distortion = VERDICT_DBL_MAX;
@@ -829,7 +943,8 @@ double tri_distortion(int num_nodes, const double coordinates[][3])
   return (double)std::max(distortion, -VERDICT_DBL_MAX);
 }
 
-double tri_inradius(const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_inradius(const CoordsContainerType coordinates)
 {
   double sp = 0.0;
   VerdictVector sides[3];
@@ -849,7 +964,8 @@ double tri_inradius(const double coordinates[][3])
   return ir;
 }
 
-double tri6_min_inradius(const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri6_min_inradius(const CoordsContainerType coordinates, const int dimension)
 {
   static int SUBTRI_NODES[4][3] = { { 0, 3, 5 }, { 3, 1, 4 }, { 5, 4, 2 }, { 3, 4, 5 } };
   double min_inrad = VERDICT_DBL_MAX;
@@ -861,7 +977,7 @@ double tri6_min_inradius(const double coordinates[][3])
       int idx = SUBTRI_NODES[i][j];
       subtri_coords[j][0] = coordinates[idx][0];
       subtri_coords[j][1] = coordinates[idx][1];
-      subtri_coords[j][2] = coordinates[idx][2];
+      subtri_coords[j][2] = dimension == 2 ? 0.0 : coordinates[idx][2];
     }
     double subtri_inrad = tri_inradius(subtri_coords);
     if (subtri_inrad < min_inrad)
@@ -872,7 +988,8 @@ double tri6_min_inradius(const double coordinates[][3])
   return min_inrad;
 }
 
-double calculate_tri3_outer_radius(const double coordinates[][3])
+template <typename CoordsContainerType>
+double calculate_tri3_outer_radius(const CoordsContainerType coordinates, const int dimension)
 {
   double sp = 0.0;
   VerdictVector sides[3];
@@ -880,8 +997,8 @@ double calculate_tri3_outer_radius(const double coordinates[][3])
   for (int i = 0; i < 3; i++)
   {
     int j = (i + 1) % 3;
-    sides[i].set(coordinates[j][0] - coordinates[i][0], coordinates[j][1] - coordinates[i][1],
-      coordinates[j][2] - coordinates[i][2]);
+    const VerdictVector thisSide{coordinates[i], coordinates[j], dimension};
+    sides[i] = thisSide;
     slen[i] = sides[i].length();
     sp += slen[i];
   }
@@ -895,50 +1012,80 @@ double calculate_tri3_outer_radius(const double coordinates[][3])
   return cr;
 }
 
-double tri6_normalized_inradius(const double coordinates[][3])
+static double fix_range(double v)
 {
-  double min_inradius_for_subtri = tri6_min_inradius(coordinates);
-  double outer_radius = calculate_tri3_outer_radius(coordinates);
-  double normalized_inradius = 4.0 * min_inradius_for_subtri / outer_radius;
-
-  return normalized_inradius;
+  if (std::isnan(v))
+  {
+    return VERDICT_DBL_MAX;
+  }
+  if (v >= VERDICT_DBL_MAX)
+  {
+    return VERDICT_DBL_MAX;
+  }
+  if (v <= -VERDICT_DBL_MAX)
+  {
+    return -VERDICT_DBL_MAX;
+  }
+  return v;
 }
 
-double tri3_normalized_inradius(const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri6_normalized_inradius(const CoordsContainerType coordinates, const int dimension)
 {
-  double tri6_coords[6][3];
+  double min_inradius_for_subtri = tri6_min_inradius(coordinates, dimension);
+  double outer_radius = calculate_tri3_outer_radius(coordinates, dimension);
+  double normalized_inradius = 4.0 * min_inradius_for_subtri / outer_radius;
+
+  return fix_range(normalized_inradius);
+}
+
+template <typename CoordsContainerType>
+double tri3_normalized_inradius(const CoordsContainerType coordinates, const int dimension)
+{
+  std::array<const double*, 6> tri6_coords;
   for (int i = 0; i < 3; i++)
-  {
-    tri6_coords[i][0] = coordinates[i][0];
-    tri6_coords[i][1] = coordinates[i][1];
-    tri6_coords[i][2] = coordinates[i][2];
-  }
+    tri6_coords[i] = coordinates[i];
 
   static int eidx[3][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
+  double tri6_midnode_coords[3][3];
   for (int i = 3; i < 6; i++)
   {
     int i0 = eidx[i - 3][0];
     int i1 = eidx[i - 3][1];
-    tri6_coords[i][0] = (coordinates[i0][0] + coordinates[i1][0]) * 0.5;
-    tri6_coords[i][1] = (coordinates[i0][1] + coordinates[i1][1]) * 0.5;
-    tri6_coords[i][2] = (coordinates[i0][2] + coordinates[i1][2]) * 0.5;
+
+    tri6_midnode_coords[i-3][0] = (coordinates[i0][0] + coordinates[i1][0]) * 0.5;
+    tri6_midnode_coords[i-3][1] = (coordinates[i0][1] + coordinates[i1][1]) * 0.5;
+    tri6_midnode_coords[i-3][2] = (coordinates[i0][2] + coordinates[i1][2]) * 0.5;
+    tri6_coords[i] = tri6_midnode_coords[i-3];
   }
-  return tri6_normalized_inradius(tri6_coords);
+  return tri6_normalized_inradius(tri6_coords.data(), dimension);
 }
 
 //! Calculates the minimum normalized inner radius of a tri6
 /** Ratio of the minimum subtri inner radius to tri outer radius*/
 /* Currently, supports tri 6 and 3.*/
-double tri_normalized_inradius(int num_nodes, const double coordinates[][3])
+template <typename CoordsContainerType>
+double tri_normalized_inradius_impl(int num_nodes, const CoordsContainerType coordinates, const int dimension)
 {
   if (num_nodes == 3)
   {
-    return tri3_normalized_inradius(coordinates);
+    return tri3_normalized_inradius(coordinates, dimension);
   }
   else if (num_nodes == 6)
   {
-    return tri6_normalized_inradius(coordinates);
+    return tri6_normalized_inradius(coordinates, dimension);
   }
   return 0.0;
 }
+
+double tri_normalized_inradius(int num_nodes, const double coordinates[][3])
+{
+    return tri_normalized_inradius_impl(num_nodes, coordinates, 3);
+}
+
+double tri_normalized_inradius_from_loc_ptrs(int num_nodes, const double * const *coordinates, const int dimension)
+{
+    return tri_normalized_inradius_impl(num_nodes, coordinates, dimension);
+}
+
 } // namespace verdict
