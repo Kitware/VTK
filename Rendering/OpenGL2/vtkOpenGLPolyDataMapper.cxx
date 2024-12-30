@@ -313,6 +313,24 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
       shaders[i.first.ShaderType]->SetSource(ssrc);
     }
   }
+
+  // Fix gl_PrimitiveID in fragment shader after all shader replacements.
+  // When oglRenderWindow->IsPrimIDBugPresent() returns true, the geometry shader
+  // ignores values written into gl_PrimitiveID and increments it per output primitive.
+  // So, here, undo the two increments per line segment with a divide-by-2.
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  if (this->HaveWideLines(ren, actor))
+  {
+    if (auto oglRenderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()))
+    {
+      if (oglRenderWindow->IsPrimIDBugPresent())
+      {
+        vtkShaderProgram::Substitute(FSSource, "gl_PrimitiveID", "gl_PrimitiveID / 2");
+      }
+    }
+  }
+
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
 //------------------------------------------------------------------------------
