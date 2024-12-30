@@ -8,7 +8,7 @@ readonly name="verdict"
 readonly ownership="Verdict Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/verdict.git"
-readonly tag="for/vtk-20231029-1.4.0"
+readonly tag="for/vtk-20241230-1.4.2"
 readonly paths="
 .gitattributes
 V_*
