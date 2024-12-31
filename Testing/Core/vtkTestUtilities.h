@@ -43,8 +43,6 @@ class vtkAbstractArray;
 class vtkDataObject;
 class vtkDataSet;
 class vtkFieldData;
-class vtkPartitionedDataSetCollection;
-class vtkCompositeDataSet;
 class vtkUnsignedCharArray;
 
 struct VTKTESTINGCORE_EXPORT vtkTestUtilities
