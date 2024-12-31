@@ -190,22 +190,23 @@ class vtkWebAssemblyTestRunner:
 
         # Add arguments that are recommended when automating VTK wasm tests with a specific engine
         self.implicit_engine_args = ""
-        if "chrome" in self.engine or "chromium" in self.engine:
-            flags = [
-              "--disable-application-cache",
-              "--disable-restore-session-state",
-              "--new-window",
-              "--incognito",
-              "--js-flags=--experimental-wasm-memory64",
-              "--no-default-browser-check",
-              "--no-first-run",
-            ]
-            # on linux, chrome needs more flags to unblock webgpu
-            if sys.platform == "linux":
-                flags.append("--enable-features=Vulkan")
-                flags.append("--enable-unsafe-webgpu")
-                flags.append("--use-angle=Vulkan")
-            self.implicit_engine_args = " ".join(flags)
+        if self.engine:
+            if "chrome" in self.engine or "chromium" in self.engine:
+                flags = [
+                    "--disable-application-cache",
+                    "--disable-restore-session-state",
+                    "--new-window",
+                    "--incognito",
+                    "--js-flags=--experimental-wasm-memory64",
+                    "--no-default-browser-check",
+                    "--no-first-run",
+                ]
+                # on linux, chrome needs more flags to unblock webgpu
+                if sys.platform == "linux":
+                    flags.append("--enable-features=Vulkan")
+                    flags.append("--enable-unsafe-webgpu")
+                    flags.append("--use-angle=Vulkan")
+                self.implicit_engine_args = " ".join(flags)
 
     def run(self):
 
