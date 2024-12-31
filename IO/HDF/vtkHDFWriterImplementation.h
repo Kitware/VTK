@@ -26,7 +26,7 @@ class vtkHDFWriter::Implementation
 public:
   hid_t GetRoot() { return this->Root; }
   hid_t GetFile() { return this->File; }
-  hid_t GetStepsGroup() { return this->StepsGroup; }
+  hid_t GetStepsGroup(hid_t currentGroup);
 
   /**
    * Write version and type attributes to the root group
@@ -76,10 +76,9 @@ public:
   ///@}
 
   /**
-   * Create the steps group in the root group. Set a member variable to store the group, so it can
-   * be retrieved later using `GetStepsGroup` function.
+   * Create the steps group in the given group. It can be retrieved later using `GetStepsGroup`
    */
-  bool CreateStepsGroup();
+  bool CreateStepsGroup(hid_t group);
 
   /**
    * @struct PolyDataTopos

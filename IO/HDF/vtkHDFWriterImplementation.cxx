@@ -202,17 +202,24 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CreateStepsGroup()
+bool vtkHDFWriter::Implementation::CreateStepsGroup(hid_t group)
 {
   vtkHDF::ScopedH5GHandle stepsGroup{ H5Gcreate(
-    this->Root, "Steps", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
-  if (stepsGroup == H5I_INVALID_HID)
-  {
-    return false;
-  }
+    group, "Steps", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  return stepsGroup != H5I_INVALID_HID;
+}
 
-  this->StepsGroup = std::move(stepsGroup);
-  return true;
+//------------------------------------------------------------------------------
+hid_t vtkHDFWriter::Implementation::GetStepsGroup(hid_t currentGroup)
+{
+  if (H5Lexists(currentGroup, "Steps", H5P_DEFAULT))
+  {
+    // Store the last steps group accessed. There can be multiple for a given file
+    // if it composite. This Steps group is only used internally.
+    this->StepsGroup = H5Gopen(currentGroup, "Steps", H5P_DEFAULT);
+    return this->StepsGroup;
+  }
+  return H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------

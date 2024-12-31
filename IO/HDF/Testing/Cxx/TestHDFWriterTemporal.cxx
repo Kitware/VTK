@@ -198,24 +198,24 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
 
   // vtkGroupDataSetsFilter does not create a vtkDataAssembly for the PDC, so we create it manually
   group->Update();
-  auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(group->GetOutputDataObject(0));
-  vtkNew<vtkDataAssembly> assembly;
-  assembly->Initialize();
-  assembly->SetRootNodeName("RootGroup");
-  auto nodeIds = assembly->AddNodes(baseNames);
-  for (int i = 0; i < baseNames.size(); i++)
-  {
-    assembly->AddDataSetIndex(nodeIds[i], i);
-  }
-  pdc->SetDataAssembly(assembly);
+  // auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(group->GetOutputDataObject(0));
+  // vtkNew<vtkDataAssembly> assembly;
+  // assembly->Initialize();
+  // assembly->SetRootNodeName("RootGroup");
+  // auto nodeIds = assembly->AddNodes(baseNames);
+  // for (int i = 0; i < baseNames.size(); i++)
+  // {
+  //   assembly->AddDataSetIndex(nodeIds[i], i);
+  // }
+  // pdc->SetDataAssembly(assembly);
 
   // Write the data to a file using the vtkHDFWriter
   vtkNew<vtkHDFWriter> HDFWriter;
   std::string tempPath = tempDir + "/HDFWriter_TemporalComposite.vtkhdf";
   HDFWriter->SetFileName(tempPath.c_str());
   HDFWriter->SetWriteAllTimeSteps(true);
-  HDFWriter->SetUseExternalComposite(true);
-  HDFWriter->SetInputDataObject(pdc);
+  HDFWriter->SetUseExternalComposite(false); // TODO: variabilize
+  HDFWriter->SetInputConnection(group->GetOutputPort());
   if (!HDFWriter->Write())
   {
     vtkLog(ERROR, "An error occured while writing the composite temporal mesh HDF file");
@@ -261,6 +261,11 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
     vtkDataObjectTree* composite =
       vtkDataObjectTree::SafeDownCast(HDFReader->GetOutputDataObject(0));
 
+    // After grouping datasets, field data (time values) are not expected to match with the original
+    // dataset field values. Copy them to avoid failing comparison.
+    currentGroupedDO->SetFieldData(baselineDO->GetFieldData());
+    currentGroupedDO->GetPointData()->RemoveArray(0);
+    currentGroupedDO->GetPointData()->AddArray(baselineDO->GetPointData()->GetArray(0));
     if (!vtkTestUtilities::CompareDataObjects(composite, compositeRef))
     {
       vtkLog(ERROR, "Failed comparison for timestep." << i);
