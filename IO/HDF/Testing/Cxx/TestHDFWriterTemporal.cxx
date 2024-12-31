@@ -305,7 +305,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   HDFWriterGrouped->SetFileName(tempPath.c_str());
   HDFWriterGrouped->SetWriteAllTimeSteps(true);
   HDFWriterGrouped->SetUseExternalComposite(false); // TODO: variabilize
-  HDFWriterGrouped->SetDebug(true);
+  // HDFWriterGrouped->SetDebug(true);
   HDFWriterGrouped->Write();
 
   // Read back the grouped dataset
@@ -408,7 +408,7 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   {
     for (const auto& fileName : baseNames)
     {
-      // result &= TestTemporalData(tempDir, dataRoot, fileName, config);
+      result &= TestTemporalData(tempDir, dataRoot, fileName, config);
     }
   }
 

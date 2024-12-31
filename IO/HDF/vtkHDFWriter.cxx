@@ -233,6 +233,7 @@ void vtkHDFWriter::WriteData()
   // Root file group only needs to be opened for the first timestep
   if (this->CurrentTimeIndex == 0)
   {
+    // Write all pieces concurrently
     if (this->NbPieces > 1)
     {
       const std::string partitionSuffix = "part" + std::to_string(this->CurrentPiece);
@@ -255,9 +256,9 @@ void vtkHDFWriter::WriteData()
 
   vtkDataObject* input = vtkDataObject::SafeDownCast(this->GetInput());
 
+  // Write the time step data in an external file
   if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
   {
-    // Write the time step data in an external file
     const std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
     const std::string subFilePath =
       ::GetExternalBlockFileName(std::string(this->FileName), timestepSuffix);
@@ -268,8 +269,6 @@ void vtkHDFWriter::WriteData()
     writer->SetChunkSize(this->ChunkSize);
     writer->SetUseExternalComposite(this->UseExternalComposite);
     writer->SetUseExternalPartitions(this->UseExternalPartitions);
-    writer->SetUseExternalTimeSteps(this->UseExternalTimeSteps);
-    writer->SetWriteAllTimeSteps(this->WriteAllTimeSteps);
     if (!writer->Write())
     {
       vtkErrorMacro(<< "Could not write timestep file " << subFilePath);
@@ -287,11 +286,6 @@ void vtkHDFWriter::WriteData()
     }
   }
 
-  // First time step is considered static mesh
-  if (this->CurrentTimeIndex == 0)
-  {
-    this->UpdatePreviousStepMeshMTime(input);
-  }
   this->DispatchDataObject(this->Impl->GetRoot(), input);
 
   this->UpdatePreviousStepMeshMTime(input);
@@ -1354,7 +1348,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
     if (this->UseExternalComposite)
     {
       // External block writes for all timesteps independently, so only
-      if (this->CurrentTimeIndex == 0 && !this->AppendExternalBlock(currentBlock, currentName))
+      if (this->AppendExternalBlock(currentBlock, currentName))
       {
         return false;
       }
@@ -1385,7 +1379,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& blockName)
 {
-  // Write the block data in an external file
+  // Write the block data in an external file. Append data if it already exists
   const std::string subfileName =
     ::GetExternalBlockFileName(std::string(this->FileName), blockName);
   vtkNew<vtkHDFWriter> writer;
@@ -1395,17 +1389,16 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& 
   writer->SetChunkSize(this->ChunkSize);
   writer->SetUseExternalComposite(this->UseExternalComposite);
   writer->SetUseExternalPartitions(this->UseExternalPartitions);
-  writer->SetUseExternalTimeSteps(this->UseExternalTimeSteps);
-  writer->SetWriteAllTimeSteps(this->WriteAllTimeSteps);
   if (!writer->Write())
   {
     vtkErrorMacro(<< "Could not write block file " << subfileName);
     return false;
   }
 
-  // Create external link
-  if (this->Impl->CreateExternalLink(
-        this->Impl->GetRoot(), subfileName.c_str(), "VTKHDF", blockName.c_str()))
+  // Create external link, only done once
+  if (this->CurrentTimeIndex == 0 &&
+    this->Impl->CreateExternalLink(
+      this->Impl->GetRoot(), subfileName.c_str(), "VTKHDF", blockName.c_str()))
   {
     vtkErrorMacro(<< "Could not create external link to file " << subfileName);
     return false;
@@ -1629,7 +1622,8 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
 {
-  return input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  return this->CurrentTimeIndex != 0 && input->GetMeshMTime() != this->PreviousStepMeshMTime;
+  // return input->GetMeshMTime() != this->PreviousStepMeshMTime;
 }
 
 //------------------------------------------------------------------------------
