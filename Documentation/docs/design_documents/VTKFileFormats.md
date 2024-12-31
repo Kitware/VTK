@@ -1087,7 +1087,7 @@ offset.
 
 ### Poly data
 
-The format for unstructured grid is shown in Figure 8. In this case
+The format for poly data is shown in Figure 8. In this case
 the `Type` attribute of the `VTKHDF` group is `PolyData`.
 The poly data is split into partitions, with a partition for
 each MPI rank. This is reflected in the HDF5 file structure. Each HDF
