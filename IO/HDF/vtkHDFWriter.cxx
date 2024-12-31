@@ -1374,6 +1374,12 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& 
 bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetCollection* pdc)
 {
   vtkDataAssembly* assembly = pdc->GetDataAssembly();
+  if (!assembly)
+  {
+    vtkErrorMacro(<< "Could not retrieve assembly from composite vtjPartitionedCollection");
+    return false;
+  }
+
   std::vector<int> assemblyIndices = assembly->GetChildNodes(
     assembly->GetRootNode(), true, vtkDataAssembly::TraversalOrder::DepthFirst);
 
