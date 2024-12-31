@@ -1420,7 +1420,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
   vtkDataAssembly* assembly = pdc->GetDataAssembly();
   if (!assembly)
   {
-    vtkErrorMacro(<< "Could not retrieve assembly from composite vtkPartitionedCollection");
+    vtkErrorMacro(<< "Could not retrieve assembly from composite vtkPartitionedDataSetCollection");
     return false;
   }
 
