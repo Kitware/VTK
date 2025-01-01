@@ -113,17 +113,14 @@ function (vtk_module_test_executable name)
     PRIVATE
       "${_vtk_build_test}"
       ${test_depends})
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    target_link_libraries("${name}"
+      PRIVATE
+        VTK::vtkWebAssemblyTestLinkOptions)
+  endif ()
   target_compile_definitions("${name}"
     PRIVATE
       ${optional_depends_flags})
-
-  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    if (_vtk_test_emscripten_extra_linker_args)
-      target_link_options("${name}"
-        PRIVATE
-          ${_vtk_test_emscripten_extra_linker_args})
-    endif ()
-  endif ()
   vtk_module_autoinit(
     TARGETS "${name}"
     MODULES "${_vtk_build_test}"
@@ -406,10 +403,10 @@ function (vtk_add_test_cxx exename _tests)
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       if (_vtk_test_cxx_wasm_enabled_in_browser)
         set(_vtk_test_cxx_pre_args
-            "$<TARGET_FILE:Python3::Interpreter>"
-            "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
-            "--engine=${VTK_TESTING_WASM_ENGINE}"
-            "--exit")
+          "$<TARGET_FILE:Python3::Interpreter>"
+          "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
+          "--engine=${VTK_TESTING_WASM_ENGINE}"
+          "--exit")
       else ()
         ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
           NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
