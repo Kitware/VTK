@@ -203,9 +203,11 @@ class vtkWebAssemblyTestRunner:
                 ]
                 # on linux, chrome needs more flags to unblock webgpu
                 if sys.platform == "linux":
-                    flags.append("--enable-features=Vulkan")
-                    flags.append("--enable-unsafe-webgpu")
-                    flags.append("--use-angle=Vulkan")
+                    flags.extend([
+                        "--enable-features=Vulkan",
+                        "--enable-unsafe-webgpu",
+                        "--use-angle=Vulkan",
+                    ])
                 self.implicit_engine_args = " ".join(flags)
 
     def run(self):
