@@ -4,7 +4,7 @@
  *
  *   Type 42 objects manager (body).
  *
- * Copyright (C) 2002-2022 by
+ * Copyright (C) 2002-2024 by
  * Roberto Alameda.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -148,7 +148,7 @@
     t42_loader_done( &loader );
     if ( error )
     {
-      FT_FREE(face->ttf_data);
+      FT_FREE( face->ttf_data );
       face->ttf_size = 0;
     }
     return error;
