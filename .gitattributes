@@ -1,2 +1,3 @@
 * -whitespace
-sqlite3.c hooks-max-size=8388608
+sqlite3.c hooks-max-size=9195477
+
