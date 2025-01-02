@@ -154,11 +154,24 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   // now handle scalar coloring
   if (!this->DrawingVertices)
   {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::Color::Impl",
-      "//VTK::Color::Impl\n"
-      "  diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
-      "  ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
-      "  opacity = opacity * vertexColorVSOutput.a;");
+    if (actor->GetBackfaceProperty())
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Color::Impl",
+        "//VTK::Color::Impl\n"
+        "  diffuseColor = (gl_FrontFacing) ? diffuseIntensity * vertexColorVSOutput.rgb : "
+        "diffuseIntensityBF * diffuseColorUniformBF;\n"
+        "  ambientColor = (gl_FrontFacing) ? ambientIntensity * vertexColorVSOutput.rgb : "
+        "ambientIntensityBF * ambientColorUniformBF;\n"
+        "  opacity = (gl_FrontFacing) ? opacity * vertexColorVSOutput.a : opacityUniformBF;");
+    }
+    else
+    {
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Color::Impl",
+        "//VTK::Color::Impl\n"
+        "  diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
+        "  ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
+        "  opacity = opacity * vertexColorVSOutput.a;\n");
+    }
   }
 
   if (this->UsingInstancing)
