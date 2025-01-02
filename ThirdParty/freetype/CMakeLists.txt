@@ -8,9 +8,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 1996-2002, 2006 by David Turner, Robert Wilhelm, and Werner Lemberg"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/freetype.git@for/vtk-20220414-2.12.0"
+      "git+https://gitlab.kitware.com/third-party/freetype.git@for/vtk-20250101-2.13.3"
     VERSION
-      "2.12.0"
+      "2.13.3"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Freetype
