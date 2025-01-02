@@ -7,9 +7,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 2003,2006,2019 National Technology & Engineering Solutions of Sandia, LLC (NTESS)."
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/verdict.git@for/vtk-20220303-1.4.0"
+      "git+https://gitlab.kitware.com/third-party/verdict.git@for/vtk-20241230-1.4.2"
     VERSION
-      "1.4.0"
+      "1.4.2"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Verdict
