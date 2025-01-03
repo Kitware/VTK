@@ -8,7 +8,7 @@ vtk_module_third_party(
     LICENSE_FILES "vtktoken/license.md"
     SPDX_LICENSE_IDENTIFIER "BSD-3-Clause"
     SPDX_COPYRIGHT_TEXT "Copyright ⓒ  2020-2023 Kitware, Inc."
-    SPDX_DOWNLOAD_LOCATION "git+https://gitlab.kitware.com/token/token.git@for/vtk"
+    SPDX_DOWNLOAD_LOCATION "git+https://gitlab.kitware.com/utils/token.git@for/vtk"
     VERSION "23.09"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
