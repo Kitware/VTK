@@ -2,9 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <properties>
-    <vtk.snapshots.repo.id>vtk-snapshots-repo</vtk.snapshots.repo.id>
-    <vtk.snapshots.repo>file://@MAVEN_LOCAL_REPOSITORY@/snapshots</vtk.snapshots.repo>
-    <vtk.releases.repo>file://@MAVEN_LOCAL_REPOSITORY@/releases</vtk.releases.repo>
+    <vtk.maven.repo.id>vtk-maven-repo</vtk.maven.repo.id>
+    <vtk.maven.repo>file://@MAVEN_LOCAL_REPOSITORY@</vtk.maven.repo>
   </properties>
   <groupId>@MAVEN_VTK_GROUP_ID@</groupId>
   <artifactId>vtk@MAVEN_VTK_ARTIFACT_SUFFIX@</artifactId>
@@ -80,14 +79,14 @@
          will ease the merge of those directory for a one step maven deploy.
      -->
     <repository>
-      <id>vtk-releases-repo</id>
+      <id>vtk-maven-repo</id>
       <name>VTK Release Artifact Repository</name>
-      <url>${vtk.releases.repo}</url>
+      <url>${vtk.maven.repo}</url>
     </repository>
     <snapshotRepository>
-      <id>${vtk.snapshots.repo.id}</id>
+      <id>${vtk.maven.repo.id}</id>
       <name>VTK Snapshot Artifact Repository</name>
-      <url>${vtk.snapshots.repo}</url>
+      <url>${vtk.maven.repo}</url>
     </snapshotRepository>
   </distributionManagement>
   <pluginRepositories>
