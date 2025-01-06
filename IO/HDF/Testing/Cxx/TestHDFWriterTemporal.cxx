@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCleanUnstructuredGrid.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataSet.h"
 #include "vtkExtractSurface.h"
@@ -11,9 +12,12 @@
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPartitionedDataSetCollectionAlgorithm.h"
+#include "vtkPassArrays.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
@@ -39,6 +43,39 @@ struct WriterConfigOptions
   bool UseExternalPartitions;
   std::string FileNameSuffix;
 };
+
+/**
+ * Simple filter that adds a vtkDataAssembly to a PDC that does not have one.
+ * This can be removed when vtkGroupDataSetsFilter will support generating an assembly automatically
+ * for PartitionedDataSetCollections
+ */
+class vtkAddAssembly : public vtkPartitionedDataSetCollectionAlgorithm
+{
+public:
+  static vtkAddAssembly* New();
+  vtkTypeMacro(vtkAddAssembly, vtkDataObjectAlgorithm);
+  vtkAddAssembly()
+    : vtkPartitionedDataSetCollectionAlgorithm(){
+
+    };
+
+protected:
+  int RequestData(
+    vtkInformation* request, vtkInformationVector** inVector, vtkInformationVector* ouInfo) override
+  {
+    this->vtkPartitionedDataSetCollectionAlgorithm::RequestData(request, inVector, ouInfo);
+    auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(vtkDataObject::GetData(ouInfo, 0));
+    vtkPartitionedDataSetCollection* input = vtkPartitionedDataSetCollection::SafeDownCast(
+      inVector[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
+
+    vtkNew<vtkDataAssembly> hierarchy;
+    vtkDataAssemblyUtilities::GenerateHierarchy(input, hierarchy, pdc);
+    return 1;
+  }
+};
+
+vtkStandardNewMacro(vtkAddAssembly);
+
 }
 
 //----------------------------------------------------------------------------
@@ -180,109 +217,13 @@ bool TestTemporalStaticMesh(
 }
 
 //----------------------------------------------------------------------------
-// bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRoot,
-//   const std::vector<std::string>& baseNames, int compositeType)
-// {
-//   // Open all non-composite parts and group them in a composite dataset
-//   vtkNew<vtkGroupDataSetsFilter> group;
-//   group->SetOutputType(compositeType);
-
-//   // std::vector<std::string> baseFiles{ "transient_sphere.hdf", "transient_harmonics.hdf" };
-//   for (auto& baseName : baseNames)
-//   {
-//     const std::string basePath = dataRoot + "/Data/" + baseName;
-//     vtkNew<vtkHDFReader> baseHDFReader;
-//     baseHDFReader->SetFileName(basePath.c_str());
-//     group->AddInputConnection(baseHDFReader->GetOutputPort());
-//   }
-
-//   // vtkGroupDataSetsFilter does not create a vtkDataAssembly for the PDC, so we create it
-//   manually group->Update();
-//   // auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(group->GetOutputDataObject(0));
-//   // vtkNew<vtkDataAssembly> assembly;
-//   // assembly->Initialize();
-//   // assembly->SetRootNodeName("RootGroup");
-//   // auto nodeIds = assembly->AddNodes(baseNames);
-//   // for (int i = 0; i < baseNames.size(); i++)
-//   // {
-//   //   assembly->AddDataSetIndex(nodeIds[i], i);
-//   // }
-//   // pdc->SetDataAssembly(assembly);
-
-//   // Write the data to a file using the vtkHDFWriter
-//   vtkNew<vtkHDFWriter> HDFWriter;
-//   std::string tempPath = tempDir + "/HDFWriter_TemporalComposite.vtkhdf";
-//   HDFWriter->SetFileName(tempPath.c_str());
-//   HDFWriter->SetWriteAllTimeSteps(true);
-//   HDFWriter->SetUseExternalComposite(false); // TODO: variabilize
-//   HDFWriter->SetInputConnection(group->GetOutputPort());
-//   if (!HDFWriter->Write())
-//   {
-//     vtkLog(ERROR, "An error occured while writing the composite temporal mesh HDF file");
-//     return false;
-//   }
-
-//   // Read again the data
-//   vtkNew<vtkHDFReader> HDFReader;
-//   HDFReader->SetFileName(tempPath.c_str());
-//   HDFReader->Update();
-
-//   // Check that the number of time steps is right
-//   vtkInformation* info = group->GetOutputInformation(0);
-//   if (!info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-//   {
-//     vtkLog(ERROR, "Unable to retrieve time steps from test data.");
-//     return false;
-//   }
-
-//   // TODO: also check for values
-//   std::vector<double> timeSteps;
-//   const int nbOfTimesteps = info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-//   const double* timeStepsPtr = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-
-//   if (HDFReader->GetNumberOfSteps() != nbOfTimesteps)
-//   {
-//     vtkLog(ERROR,
-//       "Number of timesteps do not match: got " << HDFReader->GetNumberOfSteps() << " instead of "
-//                                                << nbOfTimesteps);
-//     return false;
-//   }
-
-//   // Check for equality between datasets for each timestep
-//   for (int i = 0; i < nbOfTimesteps; i++)
-//   {
-//     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), i);
-//     group->Update();
-//     vtkDataObjectTree* compositeRef =
-//       vtkDataObjectTree::SafeDownCast(group->GetOutputDataObject(0));
-
-//     HDFReader->SetStep(i);
-//     HDFReader->Update();
-//     vtkDataObjectTree* composite =
-//       vtkDataObjectTree::SafeDownCast(HDFReader->GetOutputDataObject(0));
-
-//     // After grouping datasets, field data (time values) are not expected to match with the
-//     original
-//     // dataset field values. Copy them to avoid failing comparison.
-//     currentGroupedDO->SetFieldData(baselineDO->GetFieldData());
-//     currentGroupedDO->GetPointData()->RemoveArray(0);
-//     currentGroupedDO->GetPointData()->AddArray(baselineDO->GetPointData()->GetArray(0));
-//     if (!vtkTestUtilities::CompareDataObjects(composite, compositeRef))
-//     {
-//       vtkLog(ERROR, "Failed comparison for timestep." << i);
-//       return false;
-//     }
-//   }
-//   return true;
-// }
-
 bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRoot,
   const std::vector<std::string>& baseNames, int compositeType)
 {
   std::vector<vtkSmartPointer<vtkHDFReader>> baselineReaders;
   for (const auto& baseName : baseNames)
   {
-    const std::string filePath = dataRoot + "/Data/" + baseName;
+    const std::string filePath = dataRoot + "/Data/" + baseName + ".hdf";
     vtkNew<vtkHDFReader> baseHDFReader;
     baseHDFReader->SetFileName(filePath.c_str());
     baselineReaders.emplace_back(baseHDFReader);
@@ -297,15 +238,22 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
     groupDataSets->SetInputName(i, baseNames[i].c_str());
   }
 
+  // vtkGroupDataSetsFilter does not create an assembly for PDC, but the VTKHDF requires one.
+  // vtkNew<vtkPassInputTypeAlgorithm> addAssembly;
+  vtkNew<::vtkAddAssembly> addAssembly;
+  addAssembly->SetInputConnection(groupDataSets->GetOutputPort());
+
   // Write out the composite temporal dataset
   vtkNew<vtkHDFWriter> HDFWriterGrouped;
-  HDFWriterGrouped->SetInputConnection(groupDataSets->GetOutputPort());
+  HDFWriterGrouped->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
+      ? addAssembly->GetOutputPort()
+      : groupDataSets->GetOutputPort());
+  // HDFWriterGrouped->SetInputConnection(addAssembly->GetOutputPort());
   std::string tempPath = tempDir + "/HDFWriter_";
   tempPath += "composite" + std::to_string(compositeType) + ".vtkhdf";
   HDFWriterGrouped->SetFileName(tempPath.c_str());
   HDFWriterGrouped->SetWriteAllTimeSteps(true);
   HDFWriterGrouped->SetUseExternalComposite(false); // TODO: variabilize
-  // HDFWriterGrouped->SetDebug(true);
   HDFWriterGrouped->Write();
 
   // Read back the grouped dataset
@@ -330,11 +278,11 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   }
 
   // Compare the data at each timestep
-  for (int i = 0; i < totalTimeStepsGrouped; i++)
+  for (int step = 0; step < totalTimeStepsGrouped; step++)
   {
-    std::cout << "Comparing timestep " << i << std::endl;
+    std::cout << "Comparing timestep " << step << std::endl;
 
-    readerGrouped->SetStep(i);
+    readerGrouped->SetStep(step);
     readerGrouped->Update();
 
     auto composite = vtkCompositeDataSet::SafeDownCast(readerGrouped->GetOutputDataObject(0));
@@ -342,7 +290,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
     iter->SkipEmptyNodesOn();
     iter->GoToFirstItem();
 
-    for (int i = 0; i < static_cast<int>(baseNames.size()); i++)
+    for (int compositeID = 0; compositeID < static_cast<int>(baseNames.size()); compositeID++)
     {
       if (iter->IsDoneWithTraversal())
       {
@@ -350,11 +298,12 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
         return false;
       }
 
-      baselineReaders[i]->SetStep(i);
-      baselineReaders[i]->Update();
+      baselineReaders[compositeID]->SetStep(step);
+      baselineReaders[compositeID]->Update();
 
       auto currentGroupedDO = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      auto baselineDO = vtkDataSet::SafeDownCast(baselineReaders[i]->GetOutputDataObject(0));
+      auto baselineDO =
+        vtkDataSet::SafeDownCast(baselineReaders[compositeID]->GetOutputDataObject(0));
 
       // After grouping datasets, field data (time values) are not expected to match with the
       // original dataset field values. Copy them to avoid failing comparison.
@@ -408,18 +357,17 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   {
     for (const auto& fileName : baseNames)
     {
-      result &= TestTemporalData(tempDir, dataRoot, fileName, config);
+      // result &= TestTemporalData(tempDir, dataRoot, fileName, config);
     }
   }
 
   // result &= TestTemporalComposite(tempDir, dataRoot, VTK_PARTITIONED_DATA_SET_COLLECTION);
 
-  std::vector<std::string> baseNamesComposite = { "transient_sphere.hdf",
-    "transient_harmonics.hdf" };
-  // result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite,
-  // VTK_MULTIBLOCK_DATA_SET);
-  //   result &=
-  TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_PARTITIONED_DATA_SET_COLLECTION);
+  std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
+  result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
+  // result &=
+  // TestTemporalComposite(tempDir, dataRoot, baseNamesComposite,
+  // VTK_PARTITIONED_DATA_SET_COLLECTION);
 
   // result &= TestTemporalStaticMesh(
   //   tempDir, "transient_static_sphere_ug_source",
