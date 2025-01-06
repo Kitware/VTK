@@ -163,8 +163,8 @@ protected:
    * Internal function to read in a single integer.
    * Returns zero if there was an error.
    */
-  int ReadInt(int* result);
-  int ReadInt(vtkIdType* result);
+  template <typename T>
+  int ReadInt(T* result);
   int ReadPartId(int* result);
   ///@}
 
