@@ -2919,7 +2919,6 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
     else
     {
       vtkErrorMacro("undefined geometry file line '" << line << "'");
-      // TOOD: skip?
       return -1;
     }
     this->GoldIFile->peek();
@@ -3308,22 +3307,13 @@ int vtkEnSightGoldBinaryReader::ReadPartId(int* result)
   return 1;
 }
 
-int vtkEnSightGoldBinaryReader::ReadInt(vtkIdType* result)
-{
-  int resultInt;
-  if (!this->ReadInt(&resultInt))
-  {
-    return 0;
-  }
-  *result = static_cast<vtkIdType>(resultInt);
-  return 1;
-}
-
 // Internal function to read a single integer.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadInt(int* result)
+template <typename T>
+int vtkEnSightGoldBinaryReader::ReadInt(T* result)
 {
   char dummy[4];
+  int resultInt;
   if (this->Fortran)
   {
     if (!this->GoldIFile->read(dummy, 4))
@@ -3333,7 +3323,7 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
     }
   }
 
-  if (!this->GoldIFile->read((char*)result, sizeof(int)))
+  if (!this->GoldIFile->read(reinterpret_cast<char*>(&resultInt), sizeof(int)))
   {
     vtkErrorMacro("Read failed");
     return 0;
@@ -3341,11 +3331,11 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
 
   if (this->ByteOrder == FILE_LITTLE_ENDIAN)
   {
-    vtkByteSwap::Swap4LE(result);
+    vtkByteSwap::Swap4LE(&resultInt);
   }
   else if (this->ByteOrder == FILE_BIG_ENDIAN)
   {
-    vtkByteSwap::Swap4BE(result);
+    vtkByteSwap::Swap4BE(&resultInt);
   }
 
   if (this->Fortran)
@@ -3356,6 +3346,8 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
       return 0;
     }
   }
+
+  *result = static_cast<T>(resultInt);
 
   return 1;
 }
