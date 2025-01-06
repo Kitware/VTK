@@ -8,6 +8,9 @@
 // Terry Jordan (terry.jordan@sa.netl.doe.gov)
 // & Doug McCorkle (mccdo@iastate.edu)
 
+// VTK_DEPRECATED_IN_9_5_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkFLUENTReader.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
