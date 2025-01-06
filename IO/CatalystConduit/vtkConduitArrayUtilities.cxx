@@ -1,13 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkLegacy.h"
+
 #include "vtkConduitArrayUtilities.h"
+#include "vtkConduitArrayUtilitiesInternals.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDeviceMemoryType.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
+#include "vtkSetGet.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeFloat64Array.h"
 #include "vtkTypeInt16Array.h"
@@ -19,9 +24,18 @@
 #include "vtkTypeUInt64Array.h"
 #include "vtkTypeUInt8Array.h"
 
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#include "vtkConduitArrayUtilitiesDevice.h"
+#if defined(VTK_USE_CUDA)
+#include <cuda_runtime_api.h>
+#endif // VTK_USE_CUDA
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
+#include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 namespace internals
@@ -147,6 +161,7 @@ struct ChangeComponentsSOAImpl
     }
   }
 };
+
 //----------------------------------------------------------------------------
 static vtkSmartPointer<vtkDataArray> ChangeComponentsSOA(vtkDataArray* array, int num_components)
 {
@@ -166,30 +181,32 @@ static vtkSmartPointer<vtkDataArray> ChangeComponentsSOA(vtkDataArray* array, in
 }
 
 //----------------------------------------------------------------------------
-conduit_cpp::DataType::Id GetTypeId(conduit_cpp::DataType::Id type, bool force_signed)
+struct FromHostConduitToMixedCellArray
 {
-  if (!force_signed)
+public:
+  FromHostConduitToMixedCellArray(vtkCellArray* cellArray)
+    : CellArray(cellArray)
   {
-    return type;
   }
-  switch (type)
+
+  template <typename ArrayT1, typename ArrayT2>
+  void operator()(ArrayT1* offsets, ArrayT2* connectivity)
   {
-    case conduit_cpp::DataType::Id::uint8:
-      return conduit_cpp::DataType::Id::int8;
+    // conduit offsets array does not include the last index = connectivity.size() as vtkCellArray
+    vtkSmartPointer<vtkDataArray> vtkOffsets = vtk::TakeSmartPointer(offsets->NewInstance());
+    vtkOffsets->SetNumberOfTuples(offsets->GetNumberOfTuples() + 1);
+    vtkOffsets->SetNumberOfComponents(1);
 
-    case conduit_cpp::DataType::Id::uint16:
-      return conduit_cpp::DataType::Id::int16;
-
-    case conduit_cpp::DataType::Id::uint32:
-      return conduit_cpp::DataType::Id::int32;
-
-    case conduit_cpp::DataType::Id::uint64:
-      return conduit_cpp::DataType::Id::int64;
-
-    default:
-      return type;
+    const auto offsetsRange = vtk::DataArrayValueRange(offsets);
+    auto vtkOffsetsRange = vtk::DataArrayValueRange(vtkOffsets);
+    std::copy(offsetsRange.begin(), offsetsRange.end(), vtkOffsetsRange.begin());
+    *(vtkOffsetsRange.end() - 1) = connectivity->GetNumberOfTuples();
+    this->CellArray->SetData(vtkOffsets, connectivity);
   }
-}
+
+private:
+  vtkCellArray* CellArray;
+};
 
 VTK_ABI_NAMESPACE_END
 } // internals
@@ -314,20 +331,74 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
   }
 
+  void* ptr = mcarray.child(0).element_ptr(0);
+  int8_t id;
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(ptr, id);
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
+  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))
+  {
+    vtkLogF(ERROR, "Device %d is not available at runtime", id);
+    return nullptr;
+  }
+#endif
+
   if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
   {
-    return vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
-      conduit_cpp::c_node(&mcarray), force_signed);
+    if (isDevicePointer)
+    {
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+      return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSArray(
+        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+#else
+      // IsDeviceMemory returns false in this case
+      vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
+      return nullptr;
+#endif
+    }
+    else
+    {
+      return vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
+        conduit_cpp::c_node(&mcarray), force_signed);
+    }
   }
   else if (internals::is_contiguous(mcarray))
   {
-    return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
-      conduit_cpp::c_node(&mcarray), force_signed);
+    if (isDevicePointer)
+    {
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+      return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
+        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+#else
+      // IsDeviceMemory returns false in this case
+      vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
+      return nullptr;
+#endif
+    }
+    else
+    {
+      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
+        conduit_cpp::c_node(&mcarray), force_signed);
+    }
   }
   else if (mcarray.dtype().number_of_elements() == 1)
   {
-    return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
-      conduit_cpp::c_node(&mcarray), force_signed);
+    if (isDevicePointer)
+    {
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+      return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
+        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+#else
+      // IsDeviceMemory returns false in this case
+      vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
+      return nullptr;
+#endif
+    }
+    else
+    {
+      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
+        conduit_cpp::c_node(&mcarray), force_signed);
+    }
   }
   else
   {
@@ -481,67 +552,61 @@ struct NoOp
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-  vtkIdType cellSize, const conduit_node* mcarray)
+  int cellType, vtkIdType cellSize, const conduit_node* mcarray)
 {
-  auto array = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
-  if (!array)
+  VTK_LEGACY_REPLACED_BODY(
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+      int cellType, vtkIdType cellSize, const conduit_node* mcarray),
+    "VTK 9.4",
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+      vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray));
+  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
+  // if arrays are stored in device memory, we'll get an error - however this case did not work
+  // for the deprecated function.
+  return MCArrayToVTKCellArray(0, cellType, cellSize, mcarray);
+}
+
+vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
+  vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray)
+{
+  auto connectivity =
+    vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
+  if (!connectivity)
   {
     return nullptr;
   }
-
-  // now the array matches the type accepted by vtkCellArray (in most cases).
   vtkNew<vtkCellArray> cellArray;
-  cellArray->SetData(cellSize, array);
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMonoShapedCellArray(
+        numberOfPoints, cellType, cellSize, connectivity, cellArray))
+#else
+  (void)numberOfPoints; // avoid unused variable warning
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  {
+    // cell arrays are in host memory
+    cellArray->SetData(cellSize, connectivity);
+  }
   return cellArray;
 }
-
-VTK_ABI_NAMESPACE_END
-
-namespace
-{
-VTK_ABI_NAMESPACE_BEGIN
-
-struct O2MRelationToVTKCellArrayWorker
-{
-  vtkNew<vtkCellArray> Cells;
-
-  template <typename ElementsArray, typename SizesArray, typename OffsetsArray>
-  void operator()(ElementsArray* elements, SizesArray* sizes, OffsetsArray* offsets)
-  {
-    VTK_ASSUME(elements->GetNumberOfComponents() == 1);
-    VTK_ASSUME(sizes->GetNumberOfComponents() == 1);
-    VTK_ASSUME(offsets->GetNumberOfComponents() == 1);
-
-    auto& cellArray = this->Cells;
-    cellArray->AllocateEstimate(offsets->GetNumberOfTuples(),
-      std::max(static_cast<vtkIdType>(sizes->GetRange(0)[1]), vtkIdType(1)));
-
-    vtkDataArrayAccessor<ElementsArray> e(elements);
-    vtkDataArrayAccessor<SizesArray> s(sizes);
-    vtkDataArrayAccessor<OffsetsArray> o(offsets);
-
-    const auto numElements = sizes->GetNumberOfTuples();
-    for (vtkIdType id = 0; id < numElements; ++id)
-    {
-      const auto offset = static_cast<vtkIdType>(o.Get(id, 0));
-      const auto size = static_cast<vtkIdType>(s.Get(id, 0));
-
-      cellArray->InsertNextCell(size);
-      for (vtkIdType cc = 0; cc < size; ++cc)
-      {
-        cellArray->InsertCellPoint(e.Get(offset + cc, 0));
-      }
-    }
-  }
-};
-VTK_ABI_NAMESPACE_END
-}
-
-VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
   const conduit_node* c_o2mrelation, const std::string& leafname)
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+      const conduit_node* c_o2mrelation, const std::string& leafname),
+    "VTK 9.4",
+    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+      vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname));
+  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
+  // if arrays are stored in device memory, we'll get an error - however this case did not work
+  // for the deprecated function.
+  return O2MRelationToVTKCellArray(0, c_o2mrelation, leafname);
+}
+
+vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
+  vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname)
 {
   const conduit_cpp::Node o2mrelation =
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
@@ -558,26 +623,74 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     vtkLogF(WARNING, "'indices' in a O2MRelation are currently ignored.");
   }
 
-  const auto node_sizes = o2mrelation["sizes"];
-  auto sizes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-    conduit_cpp::c_node(&node_sizes), /*force_signed*/ true);
   const auto node_offsets = o2mrelation["offsets"];
   auto offsets = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&node_offsets), /*force_signed*/ true);
-
-  O2MRelationToVTKCellArrayWorker worker;
-
-  // Using a reduced type list for typical id types.
-  using TypeList =
-    vtkTypeList::Unique<vtkTypeList::Create<vtkTypeInt32, vtkTypeInt64, vtkIdType>>::Result;
-
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByValueType<TypeList, TypeList, TypeList>;
-  if (!Dispatcher::Execute(elements.GetPointer(), sizes.GetPointer(), offsets.GetPointer(), worker))
+  const auto node_shapes = o2mrelation["shapes"];
+  auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
+    conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
+  vtkNew<vtkCellArray> cellArray;
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(
+        numberOfPoints, offsets, shapes, elements, cellArray))
+#else
+  (void)numberOfPoints; // avoid unused variable warning
+#endif
   {
-    worker(elements.GetPointer(), sizes.GetPointer(), offsets.GetPointer());
+    // offsets and connectivity are in host memory
+    using ConduitDispatcher =
+      vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Integrals>;
+    internals::FromHostConduitToMixedCellArray hostWorker{ cellArray };
+    if (!ConduitDispatcher::Execute(offsets, elements, hostWorker))
+    {
+      vtkLogF(ERROR, "offsets and elements do not have int values.");
+      return nullptr;
+    }
   }
+  return cellArray;
+}
 
-  return worker.Cells;
+/**
+ * Returns true if the pointer is in device memory. In that case
+ * id is the DeviceAdapterTag
+ */
+bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
+{
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#if defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
+  cudaPointerAttributes atts;
+  const cudaError_t perr = cudaPointerGetAttributes(&atts, ptr);
+  // clear last error so other error checking does
+  // not pick it up
+  cudaError_t error = cudaGetLastError();
+  bool isCudaDevice = perr == cudaSuccess &&
+    (atts.type == cudaMemoryTypeDevice || atts.type == cudaMemoryTypeManaged);
+  std::cerr << "Cuda device: " << isCudaDevice;
+#if defined(VTK_USE_CUDA)
+  id = VTKM_DEVICE_ADAPTER_CUDA;
+#elif defined(VTK_KOKKOS_BACKEND_CUDA)
+  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+#endif
+  return isCudaDevice;
+#elif defined(VTK_KOKKOS_BACKEND_HIP)
+  hipPointerAttribute_t atts;
+  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+  const hipError_t perr = hipPointerGetAttributes(&atts, ptr);
+  // clear last error so other error checking does
+  // not pick it up
+  hipError_t error = hipGetLastError();
+  return perr == hipSuccess &&
+    (atts.TYPE_ATTR == hipMemoryTypeDevice || atts.TYPE_ATTR == hipMemoryTypeUnified);
+#elif defined(VTK_KOKKOS_BACKEND_SYCL)
+  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+#warning "SYCL device pointers are not correctly detected"
+  (void)ptr;
+  return false;
+#endif // VTK_USE_CUDA
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  id = VTKM_DEVICE_ADAPTER_SERIAL;
+  (void)ptr;
+  return false;
 }
 
 //----------------------------------------------------------------------------

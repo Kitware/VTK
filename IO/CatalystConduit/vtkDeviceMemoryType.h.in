@@ -1,0 +1,13 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkMemoryTypeDevice_h
+#define vtkMemoryTypeDevice_h
+
+// These are the type of device memory we support
+#cmakedefine VTK_USE_CUDA
+#cmakedefine VTK_USE_KOKKOS
+#cmakedefine VTK_KOKKOS_BACKEND_HIP
+#cmakedefine VTK_KOKKOS_BACKEND_CUDA
+#cmakedefine VTK_KOKKOS_BACKEND_SYCL
+
+#endif

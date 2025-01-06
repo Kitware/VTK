@@ -6,9 +6,10 @@
  * @ingroup Insitu
  *
  * vtkConduitArrayUtilities is intended to convert Conduit nodes satisfying the
- * `mcarray` protocol to VTK arrays. It uses zero-copy, as much as possible.
- * Currently implementation fails if zero-copy is not possible. In future, that
- * may be changed to do a deep-copy (with appropriate warnings) if necessary.
+ * `mcarray` protocol to VTK arrays. It uses zero-copy when possible otherwise
+ * it uses deep copy. If arrays are stored on acceleration devices and VTK
+ * is not compiled with appropriate options (VTKm and appropriate acceleration
+ * device turned on) the conversion fails.
  *
  * This is primarily designed for use by vtkConduitSource.
  */
@@ -35,6 +36,8 @@ public:
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  static bool IsDevicePointer(const void* p, int8_t& id);
+
   ///@{
   /**
    * Returns a vtkDataArray from a conduit node in the conduit mcarray protocol.
@@ -59,8 +62,12 @@ public:
    * This may reinterpret unsigned array as signed arrays to avoid deep-copying
    * of data to match data type expected by vtkCellArray API.
    */
+  VTK_DEPRECATED_IN_9_4_0("Version with additional `numberOfPoints` parameter needed with "
+                          "zero-copy arrays stored on acceleration devices such as CUDA")
   static vtkSmartPointer<vtkCellArray> MCArrayToVTKCellArray(
-    vtkIdType cellSize, const conduit_node* mcarray);
+    int cellType, vtkIdType cellSize, const conduit_node* mcarray);
+  static vtkSmartPointer<vtkCellArray> MCArrayToVTKCellArray(
+    vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray);
 
   /**
    * If the number of components in the array does not match the target, a new
@@ -72,8 +79,12 @@ public:
   /**
    * Read a O2MRelation element
    */
+  VTK_DEPRECATED_IN_9_4_0("Version with additional `numberOfPoints` parameter needed with "
+                          "zero-copy arrays stored on acceleration devices such as CUDA")
   static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
     const conduit_node* o2mrelation, const std::string& leafname);
+  static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
+    vtkIdType numberOfPoints, const conduit_node* o2mrelation, const std::string& leafname);
 
 protected:
   vtkConduitArrayUtilities();

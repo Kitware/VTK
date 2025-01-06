@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkConduitSource.h"
 
+#include "vtkConduitArrayUtilities.h"
 #include "vtkConduitToDataObject.h"
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataAssembly.h"
@@ -267,7 +268,8 @@ int vtkConduitSource::RequestData(
 
   if (internals.GlobalFieldsNodeValid)
   {
-    vtkConduitToDataObject::AddFieldData(real_output, internals.GlobalFieldsNode);
+    vtkConduitToDataObject::AddFieldData(
+      real_output, internals.GlobalFieldsNode, /*isAMReX=*/false);
   }
 
   if (internals.Node.has_path("state/fields"))

@@ -36,13 +36,16 @@ VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
+#if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  // conduit verify_shape_node dereferences the pointer to
+  // access values, so verify crashes in that case
   conduit_cpp::Node info;
   if (!conduit_cpp::BlueprintMesh::verify(node, info))
   {
     vtkLogF(ERROR, "Mesh blueprint verification failed!");
     return false;
   }
-
+#endif
   std::map<std::string, vtkSmartPointer<vtkDataSet>> datasets;
 
   // process "topologies".
@@ -472,10 +475,8 @@ vtkSmartPointer<vtkRectilinearGrid> CreateRectilinearGrid(const conduit_cpp::Nod
 
   const bool has_x_values = coordset.has_path("values/x");
   const conduit_cpp::Node values_x = has_x_values ? coordset["values/x"] : conduit_cpp::Node();
-
   const bool has_y_values = coordset.has_path("values/y");
   const conduit_cpp::Node values_y = has_y_values ? coordset["values/y"] : conduit_cpp::Node();
-
   const bool has_z_values = coordset.has_path("values/z");
   const conduit_cpp::Node values_z = has_z_values ? coordset["values/z"] : conduit_cpp::Node();
 
@@ -543,6 +544,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
   const conduit_cpp::DataType dtype0 = connectivity.dtype();
   const auto nb_cells = dtype0.number_of_elements();
   unstructured->SetPoints(CreatePoints(coordset));
+  vtkIdType numberOfPoints = unstructured->GetNumberOfPoints();
   const auto vtk_cell_type = GetCellType(topologyNode["elements/shape"].as_string());
   if (nb_cells > 0)
   {
@@ -553,9 +555,9 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
       conduit_cpp::Node t_elements = topologyNode["elements"];
       conduit_cpp::Node t_subelements = topologyNode["subelements"];
       auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        conduit_cpp::c_node(&t_elements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
       auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        conduit_cpp::c_node(&t_subelements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_subelements), "connectivity");
 
       SetPolyhedralCells(unstructured, elements, subelements);
     }
@@ -565,14 +567,14 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
       // differently.
       conduit_cpp::Node t_elements = topologyNode["elements"];
       auto cellArray = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        conduit_cpp::c_node(&t_elements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
       unstructured->SetCells(vtk_cell_type, cellArray);
     }
     else
     {
       const auto cell_size = GetNumberOfPointsInCellType(vtk_cell_type);
       auto cellArray = vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-        cell_size, conduit_cpp::c_node(&connectivity));
+        numberOfPoints, vtk_cell_type, cell_size, conduit_cpp::c_node(&connectivity));
       unstructured->SetCells(vtk_cell_type, cellArray);
     }
   }
@@ -694,6 +696,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   if (nCells > 0)
   {
     unstructured->SetPoints(CreatePoints(coords));
+    auto numberOfPoints = unstructured->GetNumberOfPoints();
 
     conduit_cpp::Node t_elements = topologyNode["elements"];
     conduit_cpp::Node t_elementShapes = topologyNode["elements/shapes"];
@@ -701,7 +704,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     auto shapes =
       vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&t_elementShapes));
     auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-      conduit_cpp::c_node(&t_elements), "connectivity");
+      numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
     if (!elements || !shapes)
     {
       throw std::runtime_error("elements or elements/shapes not available (nullptr)");
@@ -711,7 +714,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     {
       conduit_cpp::Node t_subelements = topologyNode["subelements"];
       auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        conduit_cpp::c_node(&t_subelements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_subelements), "connectivity");
       if (!subelements)
       {
         throw std::runtime_error("subelements not available (nullptr)");
