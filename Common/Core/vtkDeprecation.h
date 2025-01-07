@@ -31,12 +31,15 @@
 // In the implementation:
 //
 // ```cxx
-// // Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+// // Hide VTK_DEPRECATED_IN_X_Y_Z() warnings for this class.
 // #define VTK_DEPRECATION_LEVEL 0
+//
+// #include …
 // ```
 //
 // Please note the `VTK_DEPRECATED_IN_` version in the `VTK_DEPRECATION_LEVEL`
-// comment so that it can be removed when that version is finally removed.
+// comment so that it can be removed when that version is finally removed. The
+// macro should also be defined before any includes.
 //----------------------------------------------------------------------------
 
 // The level at which warnings should be made.
