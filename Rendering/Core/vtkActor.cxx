@@ -113,21 +113,21 @@ vtkTypeBool vtkActor::HasOpaqueGeometry()
     // force creation of a property
     this->GetProperty();
   }
-  bool is_opaque = (this->Property->GetOpacity() >= 1.0);
+  bool hasOpaque = (this->Property->GetOpacity() >= 1.0);
 
   // are we using an opaque texture, if any?
-  is_opaque = is_opaque && (this->Texture == nullptr || this->Texture->IsTranslucent() == 0);
+  hasOpaque = hasOpaque && (this->Texture == nullptr || this->Texture->IsTranslucent() == 0);
 
   // are we using an opaque scalar array, if any?
-  is_opaque = is_opaque && (this->Mapper == nullptr || this->Mapper->HasOpaqueGeometry());
+  hasOpaque = hasOpaque && (this->Mapper == nullptr || this->Mapper->HasOpaqueGeometry());
 
   // are we using a composite mapper that could have an opacity override per block?
   if (auto* cpdm = vtkCompositePolyDataMapper::SafeDownCast(this->Mapper))
   {
-    is_opaque = is_opaque || cpdm->HasOpaqueGeometry();
+    hasOpaque = hasOpaque || cpdm->HasOpaqueGeometry();
   }
 
-  return is_opaque ? 1 : 0;
+  return hasOpaque ? 1 : 0;
 }
 
 vtkTypeBool vtkActor::HasTranslucentPolygonalGeometry()
