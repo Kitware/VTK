@@ -44,7 +44,7 @@ configuration_flag(VTK_WRAP_PYTHON "python")
 
 # java
 configuration_flag(VTK_WRAP_JAVA "java")
-configuration_flag(VTK_JAVA_INSTALL "java")
+configuration_flag(VTK_BUILD_MAVEN_PKG "java")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
@@ -52,7 +52,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   # Naming is <arch-platform> since some maven versions fail to properly parse
   # the artifact name when numbers are trailing in the classifer name.
   set(MAVEN_NATIVE_ARTIFACTS "darwin-amd;darwin-arm;linux-amd;windows-amd" CACHE STRING "" FORCE)
-  set(MAVEN_VTK_ARTIFACT_SUFFIX "-java${VTK_JAVA_TARGET_VERSION}" CACHE STRING "")
+  set(MAVEN_VTK_ARTIFACT_SUFFIX "-java${VTK_JAVA_RELEASE_VERSION}" CACHE STRING "")
   # Disable snapshots for tag releases and also when the env variable
   # VTK_JAVA_FORCE_RELEASE is defined through the Gitlab schedule pipeline UI.
   # Note that VTK_JAVA_FORCE_RELEASE is used to create/override VTK java

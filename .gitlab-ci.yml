@@ -255,7 +255,7 @@ fedora39-java8:build:
     # The Java build extends the build time considerably.
     timeout: 4 hours
     variables:
-      VTK_JAVA_VERSION: 1.8
+      VTK_JAVA_VERSION: 8
     needs: []
 
 fedora39-java11:build:
@@ -2111,7 +2111,7 @@ macos-x86_64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 1.8
+      VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 
@@ -2135,7 +2135,7 @@ macos-arm64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 1.8
+      VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 
@@ -2159,7 +2159,7 @@ windows-x86_64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 1.8
+      VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 

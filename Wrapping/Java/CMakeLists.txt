@@ -24,8 +24,7 @@ vtk_module_wrap_java(
   # Update vtkSettings.java.in if this changes.
   JNILIB_DESTINATION  "${CMAKE_INSTALL_JNILIBDIR}")
 
-# TODO: Make FindJava.cmake use imported targets.
-find_package(Java REQUIRED COMPONENTS Development)
+# Needed for FindJOGL.cmake
 include(UseJava)
 
 option(VTK_JAVA_SWT_COMPONENT "Enable the SWT component for Java" OFF)
@@ -206,16 +205,11 @@ foreach (java_file IN LISTS java_configure_sources)
 endforeach ()
 
 # Set the javac source version
-set(VTK_JAVA_SOURCE_VERSION "<DEFAULT>" CACHE STRING "javac source version")
-mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
-set(VTK_JAVA_TARGET_VERSION "<DEFAULT>" CACHE STRING "javac target version")
-mark_as_advanced(VTK_JAVA_TARGET_VERSION)
+set(VTK_JAVA_RELEASE_VERSION "<DEFAULT>" CACHE STRING "javac release version")
+mark_as_advanced(VTK_JAVA_RELEASE_VERSION)
 
-if (VTK_JAVA_SOURCE_VERSION STREQUAL "<DEFAULT>")
-  set(VTK_JAVA_SOURCE_VERSION "1.7")
-endif ()
-if (VTK_JAVA_TARGET_VERSION STREQUAL "<DEFAULT>")
-  set(VTK_JAVA_TARGET_VERSION "1.7")
+if (VTK_JAVA_RELEASE_VERSION STREQUAL "<DEFAULT>")
+  set(VTK_JAVA_RELEASE_VERSION "8")
 endif ()
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_JARDIR}")
@@ -255,8 +249,7 @@ target_compile_options(vtkjava
   PRIVATE
     # TODO(java): Why does adding this to the include directories not work?
     "SHELL:-classpath \"${java_classpath}\""
-    "SHELL:-source ${VTK_JAVA_SOURCE_VERSION}"
-    "SHELL:-target ${VTK_JAVA_TARGET_VERSION}")
+    "SHELL:--release ${VTK_JAVA_RELEASE_VERSION}")
 target_link_libraries(vtkjava
   PRIVATE
     $<$<BOOL:${VTK_JAVA_SWT_COMPONENT}>:${SWT_ECLIPSE_LIBRARIES}>
@@ -295,9 +288,9 @@ if (NOT VTK_ABI_NAMESPACE_NAME STREQUAL "<DEFAULT>" AND NOT DEFINED ENV{CI})
 endif ()
 
 # Add the option to package VTK for custom Java packaging
-option(VTK_JAVA_INSTALL "Use the Java rules to build the native libraries." OFF)
+option(VTK_BUILD_MAVEN_PKG "Use the Java rules to build the native libraries." OFF)
 
-if (VTK_JAVA_INSTALL)
+if (VTK_BUILD_MAVEN_PKG)
   # Make sure we embed the runtime libraries when packaging the Java binaries
   if (WIN32)
     # install system runtimes.
@@ -328,7 +321,7 @@ if (VTK_JAVA_INSTALL)
   endif ()
 
   mark_as_advanced(
-    VTK_JAVA_INSTALL
+    VTK_BUILD_MAVEN_PKG
     MAVEN_LOCAL_REPOSITORY
     MAVEN_NATIVE_ARTIFACTS
     MAVEN_LOCAL_NATIVE_NAME
@@ -401,7 +394,7 @@ endif()
 # Post-Install script for Custom Java Packaging
 # This install rule MUST stay at the bottom of that CMakeLists file as
 # it has to be the last install rule that get executed
-if(VTK_JAVA_INSTALL)
+if(VTK_BUILD_MAVEN_PKG)
   set(MAVEN_NATIVE_ARTIFACT_XML)
   foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
     string(APPEND MAVEN_NATIVE_ARTIFACT_XML
