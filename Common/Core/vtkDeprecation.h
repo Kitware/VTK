@@ -33,17 +33,6 @@
 // ```cxx
 // // Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
 // #define VTK_DEPRECATION_LEVEL 0
-//
-// #include "vtkLegacy.h"
-//
-// void oldApi()
-// {
-//   // One of:
-//   VTK_LEGACY_BODY(oldApi, "VTK 9.1");
-//   VTK_LEGACY_REPLACED_BODY(oldApi, "VTK 9.1", newApi);
-//
-//   // Remaining implementation.
-// }
 // ```
 //
 // Please note the `VTK_DEPRECATED_IN_` version in the `VTK_DEPRECATION_LEVEL`
