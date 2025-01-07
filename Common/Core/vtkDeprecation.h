@@ -52,8 +52,8 @@
 #endif
 #endif
 
-// API deprecated before 9.1.0 have already been removed.
-#define VTK_MINIMUM_DEPRECATION_LEVEL VTK_VERSION_CHECK(9, 1, 0)
+// API deprecated before 9.3.0 have already been removed.
+#define VTK_MINIMUM_DEPRECATION_LEVEL VTK_VERSION_CHECK(9, 3, 0)
 
 // Force the deprecation level to be at least that of VTK's build
 // configuration.
