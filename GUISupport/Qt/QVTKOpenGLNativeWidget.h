@@ -144,6 +144,18 @@ public:
 
   ///@{
   /**
+   * Enable or disable support for touch event processing. When enabled, this widget
+   * will process Qt::TouchBegin/TouchUpdate/TouchEnd event, otherwise, these events
+   * will be ignored. For some vtk widgets like vtkDistanceWidget, if this option is
+   * enabled, it will received leftButtonPressed/leftButtonRelease twice for one touch,
+   * this breaks its designed logics.
+   */
+  void setEnableTouchEventProcessing(bool enable);
+  bool enableTouchEventProcesing() const { return this->EnableTouchEventProcessing; }
+  ///@}
+
+  ///@{
+  /**
    * Enable or disable support for HiDPI displays. When enabled, this enabled
    * DPI scaling i.e. `vtkWindow::SetDPI` will be called with a DPI value scaled
    * by the device pixel ratio every time the widget is resized. The unscaled
@@ -219,6 +231,7 @@ protected: // NOLINT(readability-redundant-access-specifiers)
 private:
   Q_DISABLE_COPY(QVTKOpenGLNativeWidget);
 
+  bool EnableTouchEventProcessing;
   bool EnableHiDPI;
   int UnscaledDPI;
   double CustomDevicePixelRatio;
