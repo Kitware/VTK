@@ -549,7 +549,7 @@ endforeach ()
 if (VTK_BUILD_VERSION LESS "20000101")
   set(VTK_EPOCH_VERSION "${VTK_BUILD_VERSION}")
 else ()
-  set(VTK_EPOCH_VERSION "20230101")
+  set(VTK_EPOCH_VERSION "20241009")
 endif ()
 
 set(nowrap_headers
