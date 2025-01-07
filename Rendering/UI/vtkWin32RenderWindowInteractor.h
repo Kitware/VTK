@@ -179,6 +179,17 @@ protected:
 private:
   vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) = delete;
   void operator=(const vtkWin32RenderWindowInteractor&) = delete;
+
+  // this structure is used in the callback internally
+  // instances have to live after calling InternalCreateTimer so we store them
+  // in a map until InternalDestroyTimer is called
+  struct TimerContext
+  {
+    HWND WindowId;
+    int TimerId;
+    HANDLE PlatformId;
+  };
+  std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -440,17 +440,47 @@ void vtkWin32RenderWindowInteractor::TerminateApp(void)
 
 //------------------------------------------------------------------------------
 int vtkWin32RenderWindowInteractor::InternalCreateTimer(
-  int timerId, int vtkNotUsed(timerType), unsigned long duration)
+  int timerId, int timerType, unsigned long duration)
 {
-  // Win32 always creates repeating timers
-  SetTimer(this->WindowId, timerId, duration, nullptr);
+  auto timerCallback = [](PVOID lpParameter, BOOLEAN)
+  {
+    vtkWin32RenderWindowInteractor::TimerContext* data =
+      static_cast<vtkWin32RenderWindowInteractor::TimerContext*>(lpParameter);
+    PostMessage(data->WindowId, WM_TIMER, data->TimerId, 0);
+  };
+
+  std::unique_ptr<vtkWin32RenderWindowInteractor::TimerContext> timerContext(
+    new vtkWin32RenderWindowInteractor::TimerContext);
+  timerContext->WindowId = this->WindowId;
+  timerContext->TimerId = timerId;
+
+  if (timerType == vtkRenderWindowInteractor::RepeatingTimer)
+  {
+    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, timerCallback, timerContext.get(),
+      duration, duration, WT_EXECUTEDEFAULT);
+  }
+  else
+  {
+    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, timerCallback, timerContext.get(),
+      duration, 0, WT_EXECUTEONLYONCE);
+  }
+
+  this->TimerContextMap[timerId] = std::move(timerContext);
+
   return timerId;
 }
 
 //------------------------------------------------------------------------------
 int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  return KillTimer(this->WindowId, platformTimerId);
+  auto it = this->TimerContextMap.find(platformTimerId);
+  if (it != this->TimerContextMap.end())
+  {
+    BOOL ret = DeleteTimerQueueTimer(nullptr, it->second->PlatformId, nullptr);
+    this->TimerContextMap.erase(it);
+    return ret;
+  }
+  return 0;
 }
 
 //-------------------------------------------------------------
@@ -641,15 +671,7 @@ int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
     return 0;
   }
   int tid = static_cast<int>(timerId);
-  const int ret = this->InvokeEvent(vtkCommand::TimerEvent, (void*)&tid);
-
-  // Here we deal with one-shot versus repeating timers
-  if (this->IsOneShotTimer(tid))
-  {
-    KillTimer(this->WindowId, tid); //'cause windows timers are always repeating
-  }
-
-  return ret;
+  return this->InvokeEvent(vtkCommand::TimerEvent, &tid);
 }
 
 //------------------------------------------------------------------------------
