@@ -831,7 +831,8 @@ bool vtkAMReXParticlesReader::ReadLevel(
   const int quotient = num_grids / num_pieces;
   const int remainder = num_grids % num_pieces;
 
-  const int start_grid_idx = (piece_idx * quotient) + ((piece_idx < remainder) ? 1 : 0);
+  const int start_grid_idx =
+    (piece_idx * quotient) + ((piece_idx < remainder) ? piece_idx : remainder);
   const int grids_count = quotient + ((piece_idx < remainder) ? 1 : 0);
 
   levelDS->SetNumberOfPieces(num_grids);
