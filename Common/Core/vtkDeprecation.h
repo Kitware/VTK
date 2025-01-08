@@ -31,23 +31,15 @@
 // In the implementation:
 //
 // ```cxx
-// // Hide VTK_DEPRECATED_IN_9_1_0() warnings for this class.
+// // Hide VTK_DEPRECATED_IN_X_Y_Z() warnings for this class.
 // #define VTK_DEPRECATION_LEVEL 0
 //
-// #include "vtkLegacy.h"
-//
-// void oldApi()
-// {
-//   // One of:
-//   VTK_LEGACY_BODY(oldApi, "VTK 9.1");
-//   VTK_LEGACY_REPLACED_BODY(oldApi, "VTK 9.1", newApi);
-//
-//   // Remaining implementation.
-// }
+// #include …
 // ```
 //
 // Please note the `VTK_DEPRECATED_IN_` version in the `VTK_DEPRECATION_LEVEL`
-// comment so that it can be removed when that version is finally removed.
+// comment so that it can be removed when that version is finally removed. The
+// macro should also be defined before any includes.
 //----------------------------------------------------------------------------
 
 // The level at which warnings should be made.
@@ -60,8 +52,8 @@
 #endif
 #endif
 
-// API deprecated before 9.1.0 have already been removed.
-#define VTK_MINIMUM_DEPRECATION_LEVEL VTK_VERSION_CHECK(9, 1, 0)
+// API deprecated before 9.3.0 have already been removed.
+#define VTK_MINIMUM_DEPRECATION_LEVEL VTK_VERSION_CHECK(9, 3, 0)
 
 // Force the deprecation level to be at least that of VTK's build
 // configuration.
