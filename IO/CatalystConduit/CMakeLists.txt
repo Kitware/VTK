@@ -5,14 +5,16 @@ set(classes
   vtkConduitArrayUtilities  
 )
 
-
-if (VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel)
-  set(classes_cuda vtkConduitArrayUtilities vtkConduitArrayUtilitiesDevice)
+set(private_classes)
+if (TARGET VTK::AcceleratorsVTKmDataModel)
+  set(private_classes_cuda vtkConduitArrayUtilitiesDevice)
+  set(private_classes ${private_classes} ${private_classes_cuda})
+  set(classes_cuda vtkConduitArrayUtilities ${private_classes_cuda})
 endif()
 
 vtk_module_add_module(VTK::IOCatalystConduit
   CLASSES ${classes}
-  PRIVATE_CLASSES vtkConduitArrayUtilitiesDevice
+  PRIVATE_CLASSES ${private_classes}
   SOURCES vtkConduitArrayUtilitiesInternals.cxx
   PRIVATE_HEADERS vtkConduitArrayUtilitiesInternals.h)
 

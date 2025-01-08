@@ -686,9 +686,11 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
 #warning "SYCL device pointers are not correctly detected"
   (void)ptr;
   return false;
-#endif // VTK_USE_CUDA
-#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#else // defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
   id = VTKM_DEVICE_ADAPTER_SERIAL;
+#endif
+#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  (void)id;
   (void)ptr;
   return false;
 }
