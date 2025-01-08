@@ -418,7 +418,7 @@ void vtkObjectManager::PruneUnusedBlobs()
   }
   for (const auto& iter : this->Context->States().items())
   {
-    const auto state = iter.value();
+    const auto& state = iter.value();
     auto hashIter = state.find("Hash");
     if (hashIter != state.end())
     {
