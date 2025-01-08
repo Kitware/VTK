@@ -142,7 +142,7 @@ static int isAsStringMethod(const char* name)
   if (isGetMethod(name))
   {
     n = strlen(name);
-    if (!strncmp(&name[n - 8], "AsString", 8))
+    if (n > 8 && !strncmp(&name[n - 8], "AsString", 8))
     {
       return 1;
     }
