@@ -25,7 +25,7 @@ std::string ReadFile(const std::string& filename)
   if (stream)
   {
     stream.seekg(0, std::ios::end);
-    long flength = static_cast<long>(stream.tellg());
+    const std::size_t flength = stream.tellg();
     stream.seekg(0, std::ios::beg);
     std::vector<char> data(flength + 1 + (flength + 1) % 8); // padded for better alignment.
     stream.read(data.data(), flength);
@@ -64,7 +64,7 @@ const std::vector<int>& RealDescriptor::orderarray() const&
   return ord;
 }
 
-long RealDescriptor::numBytes() const
+std::size_t RealDescriptor::numBytes() const
 {
   return (fr[0] + 7) >> 3;
 }
@@ -964,7 +964,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
     constexpr long ieee_float[] = { 32L, 8L, 23L, 0L, 1L, 9L, 0L, 0x7FL };
     constexpr long ieee_double[] = { 64L, 11L, 52L, 0L, 1L, 12L, 0L, 0x3FFL };
 
-    long offsetOfAttribute = this->GetOffsetOfAttribute(attribute);
+    vtkIdType offsetOfAttribute = this->GetOffsetOfAttribute(attribute);
     int theLevel = this->GetBlockLevel(blockIdx);
     int blockIdxWithinLevel = this->GetBlockIndexWithinLevel(blockIdx, theLevel);
     if (debugReader)
@@ -991,7 +991,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       RealDescriptor* ird = this->ReadRealDescriptor(is);
       std::vector<int> boxArray(3 * dimension);
       std::vector<int> boxArrayDim(dimension);
-      long numberOfPoints = ReadBoxArray(is, boxArray.data(), boxArrayDim.data());
+      const auto numberOfPoints = ReadBoxArray(is, boxArray.data(), boxArrayDim.data());
       // int numberOfAttributes =
       this->ReadNumberOfAttributes(is);
 
@@ -1000,7 +1000,7 @@ void vtkAMReXGridReaderInternal::GetBlockAttribute(
       // Jump to the desired attribute (offsetOfAttribute*(numberOfPoints*ird->numBytes()))
       // - Patrick O'Leary
       //
-      long linefeed = is.tellg();
+      const std::size_t linefeed = is.tellg();
 
       if (debugReader)
       {
@@ -1122,7 +1122,7 @@ void vtkAMReXGridReaderInternal::GetExtraMultiFabBlockAttribute(
       RealDescriptor* ird = this->ReadRealDescriptor(is);
       std::vector<int> boxArray(3 * dimension);
       std::vector<int> boxArrayDim(dimension);
-      int numberOfPoints = ReadBoxArray(is, boxArray.data(), boxArrayDim.data());
+      const auto numberOfPoints = ReadBoxArray(is, boxArray.data(), boxArrayDim.data());
       // int numberOfAttributes =
       this->ReadNumberOfAttributes(is);
 
@@ -1130,7 +1130,7 @@ void vtkAMReXGridReaderInternal::GetExtraMultiFabBlockAttribute(
       // Skip the Line Feed (linefeed+1)
       // Jump to the desired attribute (offsetOfAttribute*(numberOfPoints*ird->numBytes()))
       //
-      int linefeed = is.tellg();
+      const std::size_t linefeed = is.tellg();
 
       if (debugReader)
       {
@@ -1148,7 +1148,8 @@ void vtkAMReXGridReaderInternal::GetExtraMultiFabBlockAttribute(
       {
         int compIndex = this->Header->extraMultiFabParsedVarNames[attributeName][i];
         std::string compName = this->Header->extraMultiFabVariables[fabIndex][compIndex];
-        int offsetOfAttribute = this->GetAttributeOffsetExtraMultiFab(compName.c_str(), fabIndex);
+        const vtkIdType offsetOfAttribute =
+          this->GetAttributeOffsetExtraMultiFab(compName.c_str(), fabIndex);
         is.seekg((linefeed + 1) + (offsetOfAttribute * (numberOfPoints * ird->numBytes())));
         buffers[i].resize(numberOfPoints * ird->numBytes());
         this->ReadBlockAttribute(is, numberOfPoints, ird->numBytes(), buffers[i].data());
@@ -1198,7 +1199,7 @@ void vtkAMReXGridReaderInternal::GetExtraMultiFabBlockAttribute(
   }
 }
 
-int vtkAMReXGridReaderInternal::GetOffsetOfAttribute(const char* attribute)
+vtkIdType vtkAMReXGridReaderInternal::GetOffsetOfAttribute(const char* attribute)
 {
   long i = 0, position = 0;
   bool found = false;
@@ -1235,7 +1236,7 @@ int vtkAMReXGridReaderInternal::GetExtraMultiFabIndex(const char* attribute)
   return -1;
 }
 
-int vtkAMReXGridReaderInternal::GetAttributeOffsetExtraMultiFab(
+vtkIdType vtkAMReXGridReaderInternal::GetAttributeOffsetExtraMultiFab(
   const char* attribute, const int fabIndex)
 {
   std::string attr = attribute;
@@ -1360,7 +1361,8 @@ RealDescriptor* vtkAMReXGridReaderInternal::ReadRealDescriptor(std::istream& is)
   return new RealDescriptor(fmt.data(), ord.data(), static_cast<int>(ord.size()));
 }
 
-long vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim)
+std::size_t vtkAMReXGridReaderInternal::ReadBoxArray(
+  std::istream& is, int* boxArray, int* boxArrayDim)
 {
   char c;
   is >> c; // read '('
@@ -1385,7 +1387,7 @@ long vtkAMReXGridReaderInternal::ReadBoxArray(std::istream& is, int* boxArray, i
   //
   // block dimension - '(hi - lo + 1)' is the number of cells '+ 1' is the number of points
   //
-  long numberOfPoints = 1;
+  std::size_t numberOfPoints = 1;
   for (int i = 0; i < this->Header->dim; ++i)
   {
     boxArrayDim[i] =
@@ -1437,18 +1439,17 @@ int vtkAMReXGridReaderInternal::ReadNumberOfAttributes(std::istream& is)
 }
 
 void vtkAMReXGridReaderInternal::ReadBlockAttribute(
-  std::istream& is, long numberOfPoints, long size, char* buffer)
+  std::istream& is, std::size_t numberOfPoints, std::size_t size, char* buffer)
 {
   is.read(buffer, numberOfPoints * size);
 }
 
-void vtkAMReXGridReaderInternal::Convert(
-  void* out, const void* in, long nitems, const RealDescriptor& ord, const RealDescriptor& ird)
+void vtkAMReXGridReaderInternal::Convert(void* out, const void* in, std::size_t nitems,
+  const RealDescriptor& ord, const RealDescriptor& ird)
 {
   if (ord == ird)
   {
-    size_t n = size_t(nitems);
-    memcpy(out, in, n * ord.numBytes());
+    memcpy(out, in, nitems * ord.numBytes());
   }
   else if (ord.formatarray() == ird.formatarray())
   {
@@ -1462,8 +1463,8 @@ void vtkAMReXGridReaderInternal::Convert(
   }
 }
 
-void vtkAMReXGridReaderInternal::PermuteOrder(
-  void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE)
+void vtkAMReXGridReaderInternal::PermuteOrder(void* out, const void* in, std::size_t nitems,
+  const int* outord, const int* inord, std::size_t REALSIZE)
 {
   char const* pin = static_cast<char const*>(in);
   char* pout = static_cast<char*>(out);
@@ -1473,7 +1474,7 @@ void vtkAMReXGridReaderInternal::PermuteOrder(
 
   for (; nitems > 0; nitems--, pin += REALSIZE, pout += REALSIZE)
   {
-    for (int i = 0; i < REALSIZE; i++)
+    for (std::size_t i = 0; i < REALSIZE; i++)
       pout[outord[i]] = pin[inord[i]];
   }
 }
