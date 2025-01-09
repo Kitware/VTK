@@ -7,9 +7,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2011, Intel Corporation"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/eigen.git@for/vtk-20210726-3.3.9"
+      "git+https://gitlab.kitware.com/third-party/eigen.git@for/vtk-20250101-3.4.0"
     VERSION
-      "3.3.9"
+      "3.4.0"
     HEADER_ONLY
     STANDARD_INCLUDE_DIRS
   EXTERNAL
