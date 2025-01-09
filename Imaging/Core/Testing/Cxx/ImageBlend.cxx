@@ -35,18 +35,19 @@ int ImageBlend(int, char*[])
   {
     for (int y = 0; y < dims[1]; ++y)
     {
+      double val;
       if (x < dims[0] / 2)
       {
-        double val = abs((dims[0] - x - 100) * (dims[1] - y - 100));
-        imageData1->SetScalarComponentFromFloat(x, y, 0, 0, val);
-        imageData1->SetScalarComponentFromFloat(x, y, 0, 1, val);
-        imageData1->SetScalarComponentFromFloat(x, y, 0, 2, val);
-        imageData1->SetScalarComponentFromFloat(x, y, 0, 3, val);
+        val = std::abs((dims[0] - x - 100) * (dims[1] - y - 100));
       }
       else
       {
-        imageData1->SetScalarComponentFromFloat(x, y, 0, 0, 0);
+        val = 0;
       }
+      imageData1->SetScalarComponentFromFloat(x, y, 0, 0, val);
+      imageData1->SetScalarComponentFromFloat(x, y, 0, 1, val);
+      imageData1->SetScalarComponentFromFloat(x, y, 0, 2, val);
+      imageData1->SetScalarComponentFromFloat(x, y, 0, 3, val);
     }
   }
 
@@ -60,19 +61,20 @@ int ImageBlend(int, char*[])
   {
     for (int y = 0; y < dims[1]; ++y)
     {
+      double val;
       if (x > (dims[0] / 2) - 50 && x < (dims[0] / 2) + 50 && y > (dims[1] / 2) - 50 &&
         y < (dims[1] / 2) + 50)
       {
-        double val = x * y;
-        imageData2->SetScalarComponentFromFloat(x, y, 0, 0, val);
-        imageData2->SetScalarComponentFromFloat(x, y, 0, 1, val);
-        imageData2->SetScalarComponentFromFloat(x, y, 0, 2, val);
-        imageData2->SetScalarComponentFromFloat(x, y, 0, 3, val);
+        val = x * y;
       }
       else
       {
-        imageData2->SetScalarComponentFromFloat(x, y, 0, 0, 0);
+        val = 0;
       }
+      imageData2->SetScalarComponentFromFloat(x, y, 0, 0, val);
+      imageData2->SetScalarComponentFromFloat(x, y, 0, 1, val);
+      imageData2->SetScalarComponentFromFloat(x, y, 0, 2, val);
+      imageData2->SetScalarComponentFromFloat(x, y, 0, 3, val);
     }
   }
 
