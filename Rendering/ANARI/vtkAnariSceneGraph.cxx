@@ -65,7 +65,7 @@ struct vtkAnariSceneGraphInternals
 
   vtkAnariSceneGraph* Owner{ nullptr };
 
-  std::vector<u_char> ColorBuffer;
+  std::vector<uint8_t> ColorBuffer;
   std::vector<float> DepthBuffer;
 
   int ImageX;
@@ -216,8 +216,10 @@ void vtkAnariSceneGraph::InitAnariWorld()
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::UpdateAnariFrameSize()
 {
-  const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
-  if ((uint)this->Internal->ImageX == frameSize[0] && (uint)this->Internal->ImageY == frameSize[1])
+  const uvec2 frameSize = { static_cast<uint32_t>(this->Size[0]),
+    static_cast<uint32_t>(this->Size[1]) };
+  if ((uint32_t)this->Internal->ImageX == frameSize[0] &&
+    (uint32_t)this->Internal->ImageY == frameSize[1])
   {
     return;
   }
@@ -622,7 +624,7 @@ void vtkAnariSceneGraph::WriteLayer(
 
             for (int h = 0; h < 3; h++)
             {
-              *optr = static_cast<u_char>(((float)*iptr) * (A) + ((float)*optr) * (1 - A));
+              *optr = static_cast<uint8_t>(((float)*iptr) * (A) + ((float)*optr) * (1 - A));
               optr++;
               iptr++;
             }

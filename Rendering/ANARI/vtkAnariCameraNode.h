@@ -19,7 +19,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkAnariCameraNodeInternals;
+struct vtkAnariCameraNodeInternals;
 class vtkAnariSceneGraph;
 class vtkCamera;
 

@@ -20,6 +20,7 @@
 
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
+#include <vector>
 
 using vec3 = anari::std_types::vec3;
 
@@ -187,8 +188,8 @@ void vtkAnariVolumeMapperNodeInternals::UpdateTransferFunction(
 
   // Color
   int colorSize = this->Owner->GetColorSize();
-  float colorArray[colorSize * 3];
-  colorTF->GetTable(tfRange[0], tfRange[1], colorSize, &colorArray[0]);
+  std::vector<float> colorArray(colorSize * 3);
+  colorTF->GetTable(tfRange[0], tfRange[1], colorSize, colorArray.data());
 
   for (int i = 0, j = 0; i < colorSize; i++, j += 3)
   {
