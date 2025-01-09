@@ -137,6 +137,13 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
   vtkCellArray* cells, vtkPoints* points, vtkIdType vOffset, std::vector<unsigned char>* edgeArray,
   vtkDataArray* edgeFlags)
 {
+  const bool hasOnlyTriangles =
+    cells->GetNumberOfConnectivityIds() == cells->GetNumberOfCells() * 3;
+  if (hasOnlyTriangles)
+  {
+    indexArray.reserve(cells->GetNumberOfConnectivityIds());
+  }
+
   if (cells->GetNumberOfConnectivityIds() > cells->GetNumberOfCells() * 3)
   {
     size_t targetSize =
@@ -187,11 +194,26 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells
     this->IndexCount = 0;
     return 0;
   }
-  std::vector<unsigned int> indexArray;
-  AppendTriangleIndexBuffer(indexArray, cells, points, 0, edgeValues, edgeFlags);
-  this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
-  this->IndexCount = indexArray.size();
-  return indexArray.size();
+
+  const bool hasOnlyTriangles =
+    cells->GetNumberOfConnectivityIds() == cells->GetNumberOfCells() * 3;
+  if (!cells->IsStorage64Bit() && hasOnlyTriangles)
+  {
+    // If connectivity ids are 32-bits and we only have triangles, upload them as-is.
+    vtkCellArray::ArrayType32* array = cells->GetConnectivityArray32();
+    this->Upload(array->GetPointer(0), array->GetNumberOfValues(),
+      vtkOpenGLIndexBufferObject::ElementArrayBuffer);
+    this->IndexCount = array->GetNumberOfValues();
+  }
+  else
+  {
+    std::vector<unsigned int> indexArray;
+    AppendTriangleIndexBuffer(indexArray, cells, points, 0, edgeValues, edgeFlags);
+    this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
+    this->IndexCount = indexArray.size();
+  }
+
+  return this->IndexCount;
 }
 
 // used to create an IBO for point primitives
