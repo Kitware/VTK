@@ -31,8 +31,9 @@
 #include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
 
+#include "QQuickVTKInteractorAdapter.h"
+#include "QQuickVTKPinchEvent.h"
 #include "QVTKInteractor.h"
-#include "QVTKInteractorAdapter.h"
 #include "QVTKRenderWindowAdapter.h"
 
 // The Qt macro Q_D(X) creates a local variable named 'd' which shadows a private member variable in
@@ -74,7 +75,7 @@ public:
 
   QQueue<std::function<void(vtkRenderWindow*, QQuickVTKItem::vtkUserData)>> asyncDispatch;
 
-  QVTKInteractorAdapter qt2vtkInteractorAdapter;
+  QQuickVTKInteractorAdapter qt2vtkInteractorAdapter;
   bool scheduleRender = false;
 
   mutable QSGVtkObjectNode* node = nullptr;
@@ -588,6 +589,37 @@ bool QQuickVTKItem::event(QEvent* ev)
 
   return true;
 }
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKItem::pinchHandlerTranslate(const QPointF& position, const QVector2D& delta)
+{
+  Q_D(QQuickVTKItem);
+  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(
+    QQuickVTKPinchEvent::QQuickVTKPinch, QQuickVTKPinchEvent::QQUICKVTK_PAN, position, delta);
+  dispatch_async([d, c](vtkRenderWindow* vtkWindow, vtkUserData) mutable
+    { d->qt2vtkInteractorAdapter.ProcessEvent(c.data(), vtkWindow->GetInteractor()); });
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKItem::pinchHandlerScale(const QPointF& position, double delta)
+{
+  Q_D(QQuickVTKItem);
+  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(QQuickVTKPinchEvent::QQuickVTKPinch,
+    QQuickVTKPinchEvent::QQUICKVTK_SCALE, position, QVector2D(0, 0), delta);
+  dispatch_async([d, c](vtkRenderWindow* vtkWindow, vtkUserData) mutable
+    { d->qt2vtkInteractorAdapter.ProcessEvent(c.data(), vtkWindow->GetInteractor()); });
+}
+
+//-------------------------------------------------------------------------------------------------
+void QQuickVTKItem::pinchHandlerRotate(const QPointF& position, double delta)
+{
+  Q_D(QQuickVTKItem);
+  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(QQuickVTKPinchEvent::QQuickVTKPinch,
+    QQuickVTKPinchEvent::QQUICKVTK_ROTATE, position, QVector2D(0, 0), 1.0, delta);
+  dispatch_async([d, c](vtkRenderWindow* vtkWindow, vtkUserData) mutable
+    { d->qt2vtkInteractorAdapter.ProcessEvent(c.data(), vtkWindow->GetInteractor()); });
+}
+
 VTK_ABI_NAMESPACE_END
 
 #include "QQuickVTKItem.moc"

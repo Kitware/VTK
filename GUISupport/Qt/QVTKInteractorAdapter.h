@@ -52,7 +52,7 @@ public:
   // Description:
   // Process a QEvent and send it to the interactor
   // returns whether the event was recognized and processed
-  bool ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren);
+  virtual bool ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren);
 
 protected:
   int AccumulatedDelta;

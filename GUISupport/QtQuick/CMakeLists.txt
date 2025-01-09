@@ -1,5 +1,7 @@
 set(classes
+  QQuickVTKInteractorAdapter
   QQuickVTKItem
+  QQuickVTKPinchEvent
   )
 
 include(vtkQt)
