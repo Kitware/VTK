@@ -45,8 +45,13 @@ public:
   //- Constructor: create vector from tuple
 
   VerdictVector(const VerdictVector& tail, const VerdictVector& head);
+  VerdictVector(const double *tail, const double *head, int dimension);
+  VerdictVector(const double *tail, const double *head);
   //- Constructor for a VerdictVector starting at tail and pointing
   //- to head.
+
+  template <typename ARG1, typename ARG2, typename ARG3> VerdictVector(ARG1, ARG2, ARG3) = delete;
+  //- define this template to avoid ambiguity between the (double, double, double) and (double *, double *, int) constructors
 
   VerdictVector(const VerdictVector& copy_from); //- Copy Constructor
 
@@ -264,6 +269,20 @@ inline VerdictVector::VerdictVector()
   : xVal(0)
   , yVal(0)
   , zVal(0)
+{
+}
+
+inline VerdictVector::VerdictVector(const double *tail, const double *head, int dimension)
+  : xVal{head[0] - tail[0]}
+  , yVal{head[1] - tail[1]}
+  , zVal{dimension == 2 ? 0.0 : head[2] - tail[2]}
+{
+}
+
+inline VerdictVector::VerdictVector(const double *tail, const double *head)
+  : xVal{head[0] - tail[0]}
+  , yVal{head[1] - tail[1]}
+  , zVal{head[2] - tail[2]}
 {
 }
 
