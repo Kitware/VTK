@@ -57,6 +57,7 @@
 #include "vtkTextureObjectVS.h" // a pass through shader
 
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -847,6 +848,25 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   int rgba[4];
   this->GetColorBufferSizes(rgba);
   this->SetAlphaBitPlanes(rgba[3]);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderWindow::IsPrimIDBugPresent()
+{
+  if (this->Initialized)
+  {
+    const char* glVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+    if (!strcmp(glVendor, "Apple"))
+    {
+      if (strstr(glVersion, "Metal") != nullptr)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
