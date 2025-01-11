@@ -60,9 +60,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::FiltersModelingPython-TestCookieCutter$"
     "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
 
-    # Font rendering differences (new baseline?)
-    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
-
     # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
     "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
 
@@ -74,7 +71,12 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
-    # Matplotlib fails to render anything. See #19302.
+    # Matplotlib related issues. See #19302.
+    # Matplotlib fails to render anything.
+    "^VTK::RenderingMatplotlibCxx-TestContextMathTextImage$"
+    "^VTK::RenderingMatplotlibCxx-TestIndexedLookupScalarBar$"
+    "^VTK::RenderingMatplotlibCxx-TestMathTextActor$"
+    "^VTK::RenderingMatplotlibCxx-TestMathTextActor3D$"
     "^VTK::RenderingMatplotlibCxx-TestRenderString$"
     "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
     "^VTK::RenderingMatplotlibCxx-TestStringToPath$"
@@ -82,6 +84,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     "^VTK::RenderingMatplotlibPython-TestMathTextActor3D$"
     "^VTK::RenderingMatplotlibPython-TestRenderString$"
     "^VTK::RenderingMatplotlibPython-TestStringToPath$"
+    # Freetype, which depends on Matplotlib, fails to render anything
+    "^VTK::RenderingFreeTypeCxx-TestFontDPIScaling$"
+    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapper$"
+    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
+    "^VTK::RenderingFreeTypeCxx-TestMathTextFonts$"
+    "^VTK::RenderingFreeTypeCxx-TestMathTextFreeTypeTextRenderer$"
 
     # Consistent timeout. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19303
