@@ -791,4 +791,4 @@
             -s '/_:settings/servers/server' -t elem -n password -v '${env.MAVEN_PASSWORD}'
             "$HOME/.m2/settings.xml"
         - cd build/install
-        - mvn deploy -Dvtk.snapshots.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.snapshots.repo.id=github
+        - mvn deploy -Dvtk.maven.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.maven.repo.id=github
