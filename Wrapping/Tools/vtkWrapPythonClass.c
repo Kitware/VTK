@@ -308,7 +308,7 @@ static void vtkWrapPython_ExportVTKClass(FILE* fp, ClassInfo* data, const Hierar
   vtkWrapText_PythonName(data->Name, classname);
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
-  fprintf(fp, "extern \"C\" { PyObject *Py%s_ClassNew(); }\n\n", classname);
+  fprintf(fp, "extern \"C\" { %s PyObject *Py%s_ClassNew(); }\n\n", "VTK_ABI_HIDDEN", classname);
 
   /* declare ClassNew method for superclass, if it is in the same module */
   supername = vtkWrapPython_GetSuperClass(data, hinfo, &supermodule);

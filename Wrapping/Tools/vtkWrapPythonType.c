@@ -789,10 +789,10 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   /* export New method for use by subclasses */
   fprintf(fp,
     "#ifndef DECLARED_Py%s_TypeNew\n"
-    "extern \"C\" { PyObject *Py%s_TypeNew(); }\n"
+    "extern \"C\" { %s PyObject *Py%s_TypeNew(); }\n"
     "#define DECLARED_Py%s_TypeNew\n"
     "#endif\n\n",
-    classname, classname, classname);
+    classname, "VTK_ABI_HIDDEN", classname, classname);
 
   /* import New method of the superclass */
   if (has_superclass && !supermodule)
