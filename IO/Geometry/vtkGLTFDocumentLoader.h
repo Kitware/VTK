@@ -615,6 +615,39 @@ public:
   vtkGetMacro(GLBStart, vtkTypeInt64);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get whether to load animation keyframes from buffers
+   *
+   * Defaults to true
+   */
+  vtkSetMacro(LoadAnimation, bool);
+  vtkGetMacro(LoadAnimation, bool);
+  vtkBooleanMacro(LoadAnimation, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get whether to load images from filesystem and bufferView, if available
+   *
+   * Defaults to true
+   */
+  vtkSetMacro(LoadImages, bool);
+  vtkGetMacro(LoadImages, bool);
+  vtkBooleanMacro(LoadImages, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get whether to load inverse bind matrices from buffers into model's Skin structs
+   *
+   * Defaults to true
+   */
+  vtkSetMacro(LoadSkinMatrix, bool);
+  vtkGetMacro(LoadSkinMatrix, bool);
+  vtkBooleanMacro(LoadSkinMatrix, bool);
+  ///@}
+
 protected:
   vtkGLTFDocumentLoader() = default;
   ~vtkGLTFDocumentLoader() override = default;
@@ -675,6 +708,13 @@ private:
   static const std::vector<std::string> SupportedExtensions;
   std::vector<std::string> UsedExtensions;
   vtkTypeInt64 GLBStart = 0;
+
+  /**
+   * Selectively load model data
+   */
+  bool LoadAnimation = true;
+  bool LoadImages = true;
+  bool LoadSkinMatrix = true;
 };
 
 VTK_ABI_NAMESPACE_END
