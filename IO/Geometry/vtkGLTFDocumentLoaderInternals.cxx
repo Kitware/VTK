@@ -1473,6 +1473,12 @@ bool vtkGLTFDocumentLoaderInternals::LoadModelMetaData(
   if (!vtkGLTFUtils::GetIntValue(root, "scene", this->Self->GetInternalModel()->DefaultScene))
   {
     int nbScenes = static_cast<int>(this->Self->GetInternalModel()->Scenes.size());
+    if (nbScenes < 1)
+    {
+      // In case the file had no scenes, add an empty scene so that downstream code doesn't need to
+      // check that its default scene index is valid
+      this->Self->GetInternalModel()->Scenes.resize(1);
+    }
     if (this->Self->GetInternalModel()->DefaultScene < 0 ||
       this->Self->GetInternalModel()->DefaultScene >= nbScenes)
     {
