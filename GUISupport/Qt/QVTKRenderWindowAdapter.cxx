@@ -382,11 +382,6 @@ public:
                        : this->ParentWidget->setCursor(cursor);
   }
 
-  void setEnableTouchEventProcessing(bool val)
-  {
-    this->InteractorAdapter.SetEnableTouchEventProcessing(val);
-  }
-
   void setEnableHiDPI(bool val)
   {
     if (this->EnableHiDPI != val)
@@ -567,15 +562,6 @@ bool QVTKRenderWindowAdapter::handleEvent(QEvent* evt)
   return this->Internals ? this->Internals->InteractorAdapter.ProcessEvent(
                              evt, this->Internals->RenderWindow->GetInteractor())
                          : false;
-}
-
-//------------------------------------------------------------------------------
-void QVTKRenderWindowAdapter::setEnableTouchEventProcessing(bool value)
-{
-  if (this->Internals)
-  {
-    this->Internals->setEnableTouchEventProcessing(value);
-  }
 }
 
 //------------------------------------------------------------------------------
