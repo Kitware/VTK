@@ -162,5 +162,6 @@ StatementMacros:
 - VTKKWRCHelper_MIPSpaceLeapPopulateMulti
 - VTKKWRCHelper_MIPSpaceLeapCheckMulti
 - VTKKWRCHelper_InterpolateShading
-
+- vtkDGDispatchRange
+- vtkSetStringMacroBody
 ...

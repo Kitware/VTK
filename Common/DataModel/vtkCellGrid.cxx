@@ -594,7 +594,7 @@ std::vector<vtkSmartPointer<vtkCellAttribute>> vtkCellGrid::GetCellAttributeList
   for (const auto& entry : this->Attributes)
   {
     result.emplace_back(entry.second);
-  };
+  }
   return result;
 }
 

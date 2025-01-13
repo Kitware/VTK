@@ -662,22 +662,22 @@ bool vtkDGRangeResponder::Query(
   if (constantFS.find(cellTypeInfo.FunctionSpace) != constantFS.end())
   {
     vtkDGDispatchRange(
-      ConstantRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request);
+      ConstantRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request)
   }
   if (pointBasedFS.find(cellTypeInfo.FunctionSpace) != pointBasedFS.end())
   {
     vtkDGDispatchRange(
-      HGradRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request);
+      HGradRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request)
   }
   else if (edgeBasedFS.find(cellTypeInfo.FunctionSpace) != edgeBasedFS.end())
   {
     vtkDGDispatchRange(
-      HCurlRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request);
+      HCurlRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request)
   }
   else if (faceBasedFS.find(cellTypeInfo.FunctionSpace) != faceBasedFS.end())
   {
     vtkDGDispatchRange(
-      HDivRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request);
+      HDivRange, vtkDGCell::SafeDownCast(cellType), attribute, cellTypeInfo, values, request)
   }
   //clang-format on
 

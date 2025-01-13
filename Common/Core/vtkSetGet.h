@@ -401,6 +401,7 @@
 // Set"name"() (e.g., SetPoints()).
 //
 #define vtkSetObjectBodyMacro(name, type, args)                                                    \
+  do                                                                                               \
   {                                                                                                \
     vtkDebugMacro(<< " setting " #name " to " << args);                                            \
     if (this->name != args)                                                                        \
@@ -417,13 +418,14 @@
       }                                                                                            \
       this->Modified();                                                                            \
     }                                                                                              \
-  }
+  } while (0)
 
 //
 // This macro defines a body of set object macro with
 // a smart pointer class member.
 //
 #define vtkSetSmartPointerBodyMacro(name, type, args)                                              \
+  do                                                                                               \
   {                                                                                                \
     vtkDebugMacro(<< " setting " #name " to " << args);                                            \
     if (this->name != args)                                                                        \
@@ -431,7 +433,7 @@
       this->name = args;                                                                           \
       this->Modified();                                                                            \
     }                                                                                              \
-  }
+  } while (0)
 
 //
 // Set pointer to object; uses vtkObject reference counting methodology.

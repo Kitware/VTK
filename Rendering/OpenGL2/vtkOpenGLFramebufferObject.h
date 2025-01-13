@@ -137,6 +137,7 @@
 #define vtkStaticCheckFrameBufferStatusMacro(mode)
 #else
 #define vtkCheckFrameBufferStatusMacroImpl(macro, mode)                                            \
+  do                                                                                               \
   {                                                                                                \
     const char* eStr;                                                                              \
     bool ok = vtkOpenGLFramebufferObject::GetFrameBufferStatus(mode, eStr);                        \
@@ -144,7 +145,7 @@
     {                                                                                              \
       macro(<< "OpenGL ERROR. The FBO is incomplete : " << eStr);                                  \
     }                                                                                              \
-  }
+  } while (false)
 #define vtkCheckFrameBufferStatusMacro(mode) vtkCheckFrameBufferStatusMacroImpl(vtkErrorMacro, mode)
 #define vtkStaticCheckFrameBufferStatusMacro(mode)                                                 \
   vtkCheckFrameBufferStatusMacroImpl(vtkGenericWarningMacro, mode)
