@@ -476,32 +476,38 @@ std::string vtkJSONSceneExporter::WriteDataSet(
   dsWriter->SetInputData(dataset);
   dsWriter->GetArchiver()->SetArchiveName(dsPath.c_str());
 
-  // Disable all arrays by default, and select only the ones that we need.
-  dsWriter->GetPointArraySelection()->SetUnknownArraySetting(0);
-  dsWriter->GetCellArraySelection()->SetUnknownArraySetting(0);
-
-  // Parse MapPointArrays's list of arrays, filter the ones that start with "propName:X", and
-  // forward information about X to the writer
-  for (int id = 0; id < this->PointArraySelection->GetNumberOfArrays(); id++)
+  // When the dataset is given a name, ie when we're working with a named actor map,
+  // disable all arrays by default, and select only the ones that are mapped.
+  if (name)
   {
-    std::string currentName = this->PointArraySelection->GetArrayName(id);
-    if (currentName.find(name) != std::string::npos && currentName[std::string(name).size()] == ':')
+    dsWriter->GetPointArraySelection()->SetUnknownArraySetting(0);
+    dsWriter->GetCellArraySelection()->SetUnknownArraySetting(0);
+
+    // Parse MapPointArrays's list of arrays, filter the ones that start with "propName:X", and
+    // forward information about X to the writer
+    for (int id = 0; id < this->PointArraySelection->GetNumberOfArrays(); id++)
     {
-      std::string arrayName = currentName.substr(std::string(name).size() + 1);
-      dsWriter->GetPointArraySelection()->SetArraySetting(
-        arrayName.c_str(), this->PointArraySelection->ArrayIsEnabled(currentName.c_str()));
+      std::string currentName = this->PointArraySelection->GetArrayName(id);
+      if (currentName.find(name) != std::string::npos &&
+        currentName[std::string(name).size()] == ':')
+      {
+        std::string arrayName = currentName.substr(std::string(name).size() + 1);
+        dsWriter->GetPointArraySelection()->SetArraySetting(
+          arrayName.c_str(), this->PointArraySelection->ArrayIsEnabled(currentName.c_str()));
+      }
     }
-  }
 
-  // Same for cell arrays
-  for (int id = 0; id < this->CellArraySelection->GetNumberOfArrays(); id++)
-  {
-    std::string currentName = this->CellArraySelection->GetArrayName(id);
-    if (currentName.find(name) != std::string::npos && currentName[std::string(name).size()] == ':')
+    // Same for cell arrays
+    for (int id = 0; id < this->CellArraySelection->GetNumberOfArrays(); id++)
     {
-      std::string arrayName = currentName.substr(std::string(name).size() + 1);
-      dsWriter->GetCellArraySelection()->SetArraySetting(
-        arrayName.c_str(), this->CellArraySelection->ArrayIsEnabled(currentName.c_str()));
+      std::string currentName = this->CellArraySelection->GetArrayName(id);
+      if (currentName.find(name) != std::string::npos &&
+        currentName[std::string(name).size()] == ':')
+      {
+        std::string arrayName = currentName.substr(std::string(name).size() + 1);
+        dsWriter->GetCellArraySelection()->SetArraySetting(
+          arrayName.c_str(), this->CellArraySelection->ArrayIsEnabled(currentName.c_str()));
+      }
     }
   }
 
