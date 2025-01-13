@@ -6,6 +6,7 @@
 #include "vtkImageFlip.h"
 #include "vtkImagePermute.h"
 #include "vtkLookupTable.h"
+#include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -19,7 +20,7 @@ vtkStandardNewMacro(vtkHDRReader);
 
 #define HDR_DATA_SIZE 3
 
-// Matrix to convert from XYZ into linear RGB
+// The standard XYZ to linear RGB transformation matrix (for D65 illuminant)
 const float matrixXYZ2RGB[3][3] = { { 3.2404542f, -1.5371385f, -0.4985314f },
   { -0.9692660f, 1.8760108f, 0.0415560f }, { 0.0556434f, -0.2040259f, 1.0572252f } };
 
@@ -203,7 +204,7 @@ void vtkHDRReader::ConvertAllDataFromRGBToXYZ(float* outPtr, int size)
 {
   for (int i = 0; i < size; i += HDR_DATA_SIZE)
   {
-    vtkHDRReader::XYZ2RGB(matrixXYZ2RGB, outPtr[i], outPtr[i + 1], outPtr[i + 2]);
+    vtkHDRReader::XYZ2RGB(matrixXYZ2RGB, this->Gamma, outPtr[i], outPtr[i + 1], outPtr[i + 2]);
   }
 }
 
@@ -638,12 +639,42 @@ void vtkHDRReader::RGBE2Float(unsigned char* rgbe, float& r, float& g, float& b)
 }
 
 //------------------------------------------------------------------------------
-void vtkHDRReader::XYZ2RGB(const float convertMatrix[3][3], float& r, float& g, float& b)
+void vtkHDRReader::XYZ2RGB(
+  const float convertMatrix[3][3], double gamma, float& r, float& g, float& b)
 {
   // Copy initial xyz values
   float x = r, y = g, z = b;
-  r = convertMatrix[0][0] * x + convertMatrix[0][1] * y + convertMatrix[0][2] * z;
-  g = convertMatrix[1][0] * x + convertMatrix[1][1] * y + convertMatrix[1][2] * z;
-  b = convertMatrix[2][0] * x + convertMatrix[2][1] * y + convertMatrix[2][2] * z;
+
+  // Convert XYZ to linear RGB
+  float linearR = convertMatrix[0][0] * x + convertMatrix[0][1] * y + convertMatrix[0][2] * z;
+  float linearG = convertMatrix[1][0] * x + convertMatrix[1][1] * y + convertMatrix[1][2] * z;
+  float linearB = convertMatrix[2][0] * x + convertMatrix[2][1] * y + convertMatrix[2][2] * z;
+
+  // Use sRGB transfer function if gamma is approximately 1.0 (default)
+  // Otherwise use the custom gamma from the file
+  auto gammaTransfer = [gamma](float linear) -> float
+  {
+    if (vtkMathUtilities::NearlyEqual(gamma, 1.0))
+    {
+      // Standard sRGB transfer function (IEC 61966-2-1:1999)
+      return linear <= 0.0031308f ? 12.92f * linear
+                                  : 1.055f * std::pow(linear, 1.0f / 2.4f) - 0.055f;
+    }
+    else
+    {
+      // Custom gamma correction from file
+      return std::pow(linear, 1.0f / static_cast<float>(gamma));
+    }
+  };
+
+  // Apply gamma correction and store results
+  r = gammaTransfer(linearR);
+  g = gammaTransfer(linearG);
+  b = gammaTransfer(linearB);
+
+  // Clamp values to [0,1] range
+  r = std::max(0.0f, std::min(1.0f, r));
+  g = std::max(0.0f, std::min(1.0f, g));
+  b = std::max(0.0f, std::min(1.0f, b));
 }
 VTK_ABI_NAMESPACE_END

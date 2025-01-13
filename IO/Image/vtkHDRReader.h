@@ -146,7 +146,7 @@ protected:
    * Inplace version, r,g,b are in xyz color space in input, in rgb color space
    * in output
    */
-  static void XYZ2RGB(const float convertMatrix[3][3], float& r, float& g, float& b);
+  static void XYZ2RGB(const float convertMatrix[3][3], double gamma, float& r, float& g, float& b);
 
 private:
   vtkHDRReader(const vtkHDRReader&) = delete;
