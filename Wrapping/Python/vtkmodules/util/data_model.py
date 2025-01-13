@@ -773,21 +773,26 @@ class StructuredGrid(PointSet, vtkStructuredGrid):
         if not NUMPY_AVAILABLE:
             raise NotImplementedError("Only available with numpy")
 
-        return self.points[:, 0].reshape(self.dimensions, order="F")
+        dims = [0,0,0]
+        self.GetDimensions(dims)
+        return self.points[:, 0].reshape(dims, order="F")
 
     @property
     def y_coordinates(self):
         if not NUMPY_AVAILABLE:
             raise NotImplementedError("Only available with numpy")
 
-        return self.points[:, 1].reshape(self.dimensions, order="F")
+        dims = [0,0,0]
+        self.GetDimensions(dims)
+        return self.points[:, 1].reshape(dims, order="F")
 
     @property
     def z_coordinates(self):
         if not NUMPY_AVAILABLE:
             raise NotImplementedError("Only available with numpy")
-
-        return self.points[:, 2].reshape(self.dimensions, order="F")
+        dims = [0,0,0]
+        self.GetDimensions(dims)
+        return self.points[:, 2].reshape(dims, order="F")
 
 
 # -----------------------------------------------------------------------------
