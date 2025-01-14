@@ -362,7 +362,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
-    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
@@ -390,7 +393,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
     "^VTK::RenderingAnnotationPython-xyPlot$"
     "^VTK::RenderingAnnotationPython-xyPlot2$"
     "^VTK::RenderingAnnotationPython-xyPlot4$"
-    "^VTK::RenderingCorePython-pickImageData$")
+    "^VTK::RenderingCorePython-pickImageData$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")
