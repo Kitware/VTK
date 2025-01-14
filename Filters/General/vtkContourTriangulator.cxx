@@ -470,7 +470,7 @@ int vtkCCSTriangulate(const vtkCCSPoly& poly, vtkPoints* points, const vtkCCSPol
             }
           }
 
-          foundEar &= foundNegative;
+          foundEar = foundEar && foundNegative;
         }
 
         if (!foundEar)
@@ -502,14 +502,14 @@ int vtkCCSTriangulate(const vtkCCSPoly& poly, vtkPoints* points, const vtkCCSPol
           size_t kk = (k != 0 ? k - 1 : n - 1);
           points->GetPoint(poly[verts[kk].first], point);
           double kq = vtkCCSTriangleQuality(point, ppoint, npoint, normal);
-          concave -= ((verts[k].second < 0) & (kq >= 0));
+          concave -= ((verts[k].second < 0) && (kq >= 0));
           verts[k].second = kq;
 
           // re-compute quality of next point
           size_t jj = (j + 1 != n ? j + 1 : 0);
           points->GetPoint(poly[verts[jj].first], point);
           double jq = vtkCCSTriangleQuality(ppoint, npoint, point, normal);
-          concave -= ((verts[j].second < 0) & (jq >= 0));
+          concave -= ((verts[j].second < 0) && (jq >= 0));
           verts[j].second = jq;
         }
       }
@@ -913,16 +913,16 @@ int vtkCCSSplitAtPinchPoints(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
             // Make sure that splitting this poly won't create a hole poly
             double p1[3], p2[3], p3[3];
             size_t prevIdx = n + idx1 - 1;
-            size_t midIdx = idx1 + 1;
-            size_t nextIdx = idx2 + 1;
             if (prevIdx >= n)
             {
               prevIdx -= n;
             }
+            size_t midIdx = idx1 + 1;
             if (midIdx >= n)
             {
               midIdx -= n;
             }
+            size_t nextIdx = idx2 + 1;
             if (nextIdx >= n)
             {
               nextIdx -= n;
@@ -1237,9 +1237,9 @@ void vtkCCSFindTrueEdges(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
         cellCount = 1;
 
         // Rotate to the next point
-        p0[0] = p2[0];
-        p0[1] = p2[1];
-        p0[2] = p2[2];
+        p0[0] = p1[0];
+        p0[1] = p1[1];
+        p0[2] = p1[2];
         p1[0] = p2[0];
         p1[1] = p2[1];
         p1[2] = p2[2];
@@ -1853,11 +1853,11 @@ int vtkCCSCheckCut(const std::vector<vtkCCSPoly>& polys, vtkPoints* points, cons
     const vtkCCSPoly& poly = polys[polyId];
     size_t n = poly.size();
     size_t prevIdx = n - polyIdx - 1;
-    size_t nextIdx = polyIdx + 1;
     if (prevIdx >= n)
     {
       prevIdx -= n;
     }
+    size_t nextIdx = polyIdx + 1;
     if (nextIdx >= n)
     {
       nextIdx -= n;
