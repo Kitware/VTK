@@ -43,7 +43,7 @@ public:
   vtkTypeMacro(vtkFastLabeledDataMapper, vtkOpenGLPolyDataMapper);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
+  ///@{
   /**
    * Set/Get the format with which to print the labels.  This should
    * be a printf-style format string.
@@ -58,9 +58,9 @@ public:
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the component number to label if the data to print has
    * more than one component. For example, all the components of
@@ -70,17 +70,17 @@ public:
    */
   vtkSetMacro(LabeledComponent, int);
   vtkGetMacro(LabeledComponent, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the separator between components.
    */
   vtkSetMacro(ComponentSeparator, char);
   vtkGetMacro(ComponentSeparator, char);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the field data array to label. This instance variable is
    * only applicable if field data is labeled.  This will clear
@@ -88,9 +88,9 @@ public:
    */
   vtkSetClampMacro(FieldDataArray, int, 0, VTK_INT_MAX);
   vtkGetMacro(FieldDataArray, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the name of the field data array to label.  This instance
    * variable is only applicable if field data is labeled.  This will
@@ -98,9 +98,9 @@ public:
    */
   vtkSetStringMacro(FieldDataName)
   vtkGetStringMacro(FieldDataName);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Specify which data to plot: IDs, scalars, vectors, normals, texture coords,
    * tensors, or field data. If the data has more than one component, use
@@ -116,9 +116,9 @@ public:
   void SetLabelModeToLabelTCoords() { this->SetLabelMode(VTK_LABEL_TCOORDS); };
   void SetLabelModeToLabelTensors() { this->SetLabelMode(VTK_LABEL_TENSORS); };
   void SetLabelModeToLabelFieldData() { this->SetLabelMode(VTK_LABEL_FIELD_DATA); };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text property.
    * If an integer argument is provided, you may provide different text
@@ -129,7 +129,7 @@ public:
   virtual vtkTextProperty* GetLabelTextProperty() { return this->GetLabelTextProperty(0); }
   virtual void SetLabelTextProperty(vtkTextProperty* p, int type);
   virtual vtkTextProperty* GetLabelTextProperty(int type);
-  //@}
+  ///@}
 
   /**
    * Override TextProperty frame colors with a named, point aligned
@@ -138,7 +138,7 @@ public:
   vtkSetStringMacro(FrameColorsName);
   vtkGetStringMacro(FrameColorsName);
 
-  //@{
+  ///@{
   /**
    * Anchor option for labels. Default is LowerLeft.
    */
@@ -154,76 +154,76 @@ public:
     UpperEdge,     ///< Uses the upper edge center.
     Center         ///< Uses the exact center.
   };
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get the text to be displayed for each corner
    * \sa TextPosition
    */
   vtkSetMacro(TextAnchor, int);
   vtkGetMacro(TextAnchor, int);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to rebuild labels if necessary.
    */
   void RenderPiece(vtkRenderer* ren, vtkActor* act) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to setup textureobject.
    */
   void RenderPieceStart(vtkRenderer* ren, vtkActor* act) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to teardown textureobject.
    */
   void RenderPieceFinish(vtkRenderer* ren, vtkActor* act) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Set the input dataset to the mapper. This mapper handles any vtkDataSet.
    */
   virtual void SetInputData(vtkDataSet*);
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to take into account LabelTextProperty's mtime
    */
   vtkMTimeType GetMTime() override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to release internal textureobject.
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
-  //@}
+  ///@}
 
 protected:
   vtkFastLabeledDataMapper();
   ~vtkFastLabeledDataMapper() override;
 
-  //@{
+  ///@{
   /**
    * Overridden to set up uniforms for the shaders
    */
   void SetMapperShaderParameters(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
-  //@}
+  ///@}
 
-  //@{
+  ///@{
   /**
    * Overridden to declare support for any vtkDataSet, not just vtkPolyData
    */
   int FillInputPortInformation(int, vtkInformation*) override;
-  //@}
+  ///@}
 
   void AllocateLabels(int numLabels);
   void BuildLabels();
