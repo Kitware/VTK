@@ -195,13 +195,6 @@ public:
 
   //@{
   /**
-   * Uses GetInputDataObject() to get the input data set.
-   */
-  vtkDataSet* GetInput();
-  //@}
-
-  //@{
-  /**
    * Overridden to take into account LabelTextProperty's mtime
    */
   vtkMTimeType GetMTime() override;
