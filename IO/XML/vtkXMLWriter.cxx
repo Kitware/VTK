@@ -717,9 +717,9 @@ int vtkXMLWriter::WriteInternal()
 }
 
 //------------------------------------------------------------------------------
-vtkDataSet* vtkXMLWriter::GetInputAsDataSet()
+vtkDataSet* vtkXMLWriter::GetDataSetInput()
 {
-  return static_cast<vtkDataSet*>(this->GetInput());
+  return vtkDataSet::SafeDownCast(this->GetInput());
 }
 
 //------------------------------------------------------------------------------
