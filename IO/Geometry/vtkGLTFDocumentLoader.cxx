@@ -729,6 +729,11 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAttributes(Primitive& primitive)
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadAnimationData()
 {
+  if (!this->LoadAnimation)
+  {
+    // Skip loading animation key frames
+    return true;
+  }
   AccessorLoadingWorker worker;
   worker.Accessors = &(this->InternalModel->Accessors);
   worker.BufferViews = &(this->InternalModel->BufferViews);
@@ -801,6 +806,11 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadImageData()
 {
+  if (!this->LoadImages)
+  {
+    // Skip loading model images
+    return true;
+  }
   vtkNew<vtkImageReader2Factory> factory;
   size_t numberOfMeshes = this->InternalModel->Meshes.size();
   size_t numberOfImages = this->InternalModel->Images.size();
@@ -918,6 +928,11 @@ bool vtkGLTFDocumentLoader::LoadImageData()
 //------------------------------------------------------------------------------
 bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
 {
+  if (!this->LoadSkinMatrix)
+  {
+    // Skip loading the skin bind matrces
+    return true;
+  }
   AccessorLoadingWorker worker;
   worker.Accessors = &(this->InternalModel->Accessors);
   worker.BufferViews = &(this->InternalModel->BufferViews);
