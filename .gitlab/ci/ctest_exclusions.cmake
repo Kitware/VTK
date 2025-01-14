@@ -374,7 +374,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19555
     "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
     "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
-    "^VTK::CommonDataModelPython-TestClipPolyhedra$")
+    "^VTK::CommonDataModelPython-TestClipPolyhedra$"
+    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
