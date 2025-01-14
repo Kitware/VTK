@@ -27,6 +27,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 #include "vtkVector.h"
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitFrustumRepresentation);
@@ -805,65 +806,30 @@ void vtkImplicitFrustumRepresentation::UpdateFrustumTransform()
 
 //------------------------------------------------------------------------------
 void vtkImplicitFrustumRepresentation::AdjustHorizontalAngle(
-  const vtkVector3d& p1, const vtkVector3d& p2)
+  const vtkVector3d& vtkNotUsed(previous), const vtkVector3d& current)
 {
-  vtkVector3d delta = p2 - p1;
-  double dot = delta.Dot(this->GetRightAxis());
+  vtkVector3d edge = current - this->Origin;
+  double horizontalDistance = edge.Dot(this->GetRightAxis());
+  horizontalDistance = std::fabs(horizontalDistance);
+  const double length = edge.Norm();
 
-  /// @note: This uses a heuristic and takes into account the widget length to achieve similar
-  // results independently of the data bounds
-  // A better approach would involve calculating the angle so that the edge handle spaps to the
-  // mouse position
-  const double angleManipulationFactor = 8.;
-  double deltaAngle = delta.Norm() * angleManipulationFactor / this->Length;
+  double angle = std::asin(horizontalDistance / length);
 
-  if (dot == 0.)
-  {
-    return;
-  }
-
-  if (dot < 0.)
-  {
-    deltaAngle = -deltaAngle;
-  }
-
-  if (this->ActiveEdgeHandle == FrustumFace::Left)
-  {
-    deltaAngle = -deltaAngle;
-  }
-
-  double currentAngle = this->Frustum->GetHorizontalAngle();
-  this->Frustum->SetHorizontalAngle(currentAngle + deltaAngle);
+  this->SetHorizontalAngle(vtkMath::DegreesFromRadians(angle));
 }
 
 //------------------------------------------------------------------------------
 void vtkImplicitFrustumRepresentation::AdjustVerticalAngle(
-  const vtkVector3d& p1, const vtkVector3d& p2)
+  const vtkVector3d& vtkNotUsed(p1), const vtkVector3d& current)
 {
+  vtkVector3d edge = current - this->Origin;
+  double verticalDistance = edge.Dot(this->GetUpAxis());
+  verticalDistance = std::fabs(verticalDistance);
+  const double length = edge.Norm();
 
-  vtkVector3d delta = p2 - p1;
-  double dot = delta.Dot(this->GetUpAxis());
+  double angle = std::asin(verticalDistance / length);
 
-  const double angleManipulationFactor = 8.;
-  double deltaAngle = delta.Norm() * angleManipulationFactor / this->Length;
-
-  if (dot == 0.)
-  {
-    return;
-  }
-
-  if (dot < 0.)
-  {
-    deltaAngle = -deltaAngle;
-  }
-
-  if (this->ActiveEdgeHandle == FrustumFace::Bottom)
-  {
-    deltaAngle = -deltaAngle;
-  }
-
-  double currentAngle = this->Frustum->GetVerticalAngle();
-  this->Frustum->SetVerticalAngle(currentAngle + deltaAngle);
+  this->SetVerticalAngle(vtkMath::DegreesFromRadians(angle));
 }
 
 //------------------------------------------------------------------------------
