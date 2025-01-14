@@ -105,7 +105,7 @@ public:
    * only applicable if field data is labeled.  This will clear
    * FieldDataName when set.
    */
-  void SetFieldDataArray(int arrayIndex);
+  vtkSetClampMacro(FieldDataArray, int, 0, VTK_INT_MAX);
   vtkGetMacro(FieldDataArray, int);
   ///@}
 
@@ -115,7 +115,7 @@ public:
    * variable is only applicable if field data is labeled.  This will
    * override FieldDataArray when set.
    */
-  void SetFieldDataName(const char* arrayName);
+  vtkSetStringMacro(FieldDataName)
   vtkGetStringMacro(FieldDataName);
   ///@}
 
