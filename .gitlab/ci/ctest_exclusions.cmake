@@ -366,6 +366,10 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   list(APPEND test_exclusions
+    # line differences https://gitlab.kitware.com/vtk/vtk/-/issues/18229
+    "^VTK::FiltersSourcesCxx-TestHyperTreeGridPreConfiguredSource$"
+    "^VTK::FiltersSourcesCxx-TestRandomHyperTreeGridSource$"
+
     # geometry shader issues (observed on M4 hardware)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19555
     "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
