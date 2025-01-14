@@ -363,7 +363,9 @@ function (vtk_add_test_cxx exename _tests)
     # Insufficient graphics resources.
     "Attempt to use a texture buffer exceeding your hardware's limits"
     # Vulkan driver not setup correctly.
-    "vulkan: No DRI3 support detected - required for presentation")
+    "vulkan: No DRI3 support detected - required for presentation"
+    # OpenGL driver cannot render wide lines.
+    "a line width has been requested that is larger than your system supports")
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
