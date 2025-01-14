@@ -88,6 +88,8 @@ vtkStreamTracer::vtkStreamTracer()
   this->SerialExecution = false;
 
   this->UseLocalSeedSource = true;
+
+  this->InterpolatorType = vtkStreamTracer::INTERPOLATOR_WITH_DATASET_POINT_LOCATOR;
 }
 
 //------------------------------------------------------------------------------
@@ -156,20 +158,7 @@ void vtkStreamTracer::SetInterpolatorTypeToCellLocator()
 //------------------------------------------------------------------------------
 void vtkStreamTracer::SetInterpolatorType(int interpType)
 {
-  vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
-  if (interpType == INTERPOLATOR_WITH_CELL_LOCATOR)
-  {
-    // create an interpolator equipped with a cell locator
-    vtkNew<vtkCellLocatorStrategy> strategy;
-    cIVF->SetFindCellStrategy(strategy);
-  }
-  else
-  {
-    // create an interpolator equipped with a point locator (by default)
-    vtkNew<vtkClosestPointStrategy> strategy;
-    cIVF->SetFindCellStrategy(strategy);
-  }
-  this->SetInterpolatorPrototype(cIVF);
+  this->InterpolatorType = interpType;
 }
 
 //------------------------------------------------------------------------------
@@ -485,6 +474,44 @@ int vtkStreamTracer::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(this->InputData);
       amr->GenerateParentChildInformation();
+    }
+
+    // Set Interplation Type
+    if (vtkOverlappingAMR::SafeDownCast(this->InputData))
+    {
+      vtkNew<vtkAMRInterpolatedVelocityField> cIVF;
+      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
+      {
+        // create an interpolator equipped with a cell locator
+        vtkNew<vtkCellLocatorStrategy> strategy;
+        cIVF->SetFindCellStrategy(strategy);
+      }
+      else
+      {
+        // create an interpolator equipped with a point locator (by default)
+        vtkNew<vtkClosestPointStrategy> strategy;
+        cIVF->SetFindCellStrategy(strategy);
+      }
+
+      this->SetInterpolatorPrototype(cIVF);
+    }
+    else
+    {
+      vtkNew<vtkCompositeInterpolatedVelocityField> cIVF;
+      if (this->InterpolatorType == vtkStreamTracer::INTERPOLATOR_WITH_CELL_LOCATOR)
+      {
+        // create an interpolator equipped with a cell locator
+        vtkNew<vtkCellLocatorStrategy> strategy;
+        cIVF->SetFindCellStrategy(strategy);
+      }
+      else
+      {
+        // create an interpolator equipped with a point locator (by default)
+        vtkNew<vtkClosestPointStrategy> strategy;
+        cIVF->SetFindCellStrategy(strategy);
+      }
+
+      this->SetInterpolatorPrototype(cIVF);
     }
 
     // The data that is interpolated comes from the "shape" of the input

@@ -16,6 +16,7 @@ vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestStreamTracerImplicitArray.cxx,NO_VALID
   TestVortexCore.cxx,NO_VALID
   TestVectorFieldTopology.cxx
+  TestVectorFieldTopologyAMR.cxx
   TestVectorFieldTopologyNoIterativeSeeding.cxx
   )
 
