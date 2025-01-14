@@ -2,9 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkInteractorEventRecorder.h"
 
+#include "vtkActor2D.h"
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkRegularPolygonSource.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkStringArray.h"
 
 #include <algorithm>
@@ -42,6 +47,12 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 
   this->ReadFromInputString = 0;
   this->InputString = nullptr;
+
+  vtkNew<vtkRegularPolygonSource> disk;
+  disk->SetRadius(5);
+  vtkNew<vtkPolyDataMapper2D> mapper;
+  mapper->SetInputConnection(disk->GetOutputPort());
+  this->CursorActor->SetMapper(mapper);
 }
 
 //------------------------------------------------------------------------------
@@ -190,6 +201,14 @@ void vtkInteractorEventRecorder::Play()
       }
     }
 
+    if (this->ShowCursor)
+    {
+      vtkRenderWindow* win = this->Interactor->GetRenderWindow();
+      vtkRendererCollection* collec = win->GetRenderers();
+      vtkRenderer* ren = collec->GetFirstRenderer();
+      ren->AddActor(this->CursorActor);
+    }
+
     vtkDebugMacro(<< "Playing");
     this->State = vtkInteractorEventRecorder::Playing;
 
@@ -198,6 +217,14 @@ void vtkInteractorEventRecorder::Play()
     while (vtksys::SystemTools::GetLineFromStream(*this->InputStream, line))
     {
       this->ReadEvent(line);
+    }
+
+    if (this->ShowCursor)
+    {
+      vtkRenderWindow* win = this->Interactor->GetRenderWindow();
+      vtkRendererCollection* collec = win->GetRenderers();
+      vtkRenderer* ren = collec->GetFirstRenderer();
+      ren->RemoveActor(this->CursorActor);
     }
   }
 
@@ -473,6 +500,11 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
           }
           callData = stringArray.Get();
         }
+      }
+
+      if (this->ShowCursor)
+      {
+        this->CursorActor->SetPosition(pos[0], pos[1]);
       }
 
       this->Interactor->SetEventPosition(pos);
