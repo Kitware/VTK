@@ -406,11 +406,8 @@ function (_vtk_module_wrap_python_library name)
 
   set(_vtk_python_init_output
     "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}Init.cxx")
-  set(_vtk_python_init_impl_output
-    "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}InitImpl.cxx")
   list(APPEND _vtk_python_library_sources
-    "${_vtk_python_init_output}"
-    "${_vtk_python_init_impl_output}")
+    "${_vtk_python_init_output}")
 
   set(_vtk_python_wrap_target "VTK::WrapPythonInit")
   if (TARGET VTKCompileTools::WrapPythonInit)
@@ -429,12 +426,10 @@ function (_vtk_module_wrap_python_library name)
   endif()
   add_custom_command(
     OUTPUT  "${_vtk_python_init_output}"
-            "${_vtk_python_init_impl_output}"
     COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR}
             "$<TARGET_FILE:${_vtk_python_wrap_target}>"
             "${_vtk_python_init_data_file}"
             "${_vtk_python_init_output}"
-            "${_vtk_python_init_impl_output}"
     COMMENT "Generating the Python module initialization sources for ${name}"
     DEPENDS
       "${_vtk_python_init_data_file}"
