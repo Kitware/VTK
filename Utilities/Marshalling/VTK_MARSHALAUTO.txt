@@ -302,6 +302,7 @@ Rendering/OpenGL2/vtkDepthPeelingPass.h
 Rendering/OpenGL2/vtkDualDepthPeelingPass.h
 Rendering/OpenGL2/vtkEDLShading.h
 Rendering/OpenGL2/vtkEGLRenderWindow.h
+Rendering/OpenGL2/vtkFastLabeledDataMapper.h
 Rendering/OpenGL2/vtkFramebufferPass.h
 Rendering/OpenGL2/vtkGaussianBlurPass.h
 Rendering/OpenGL2/vtkHiddenLineRemovalPass.h
