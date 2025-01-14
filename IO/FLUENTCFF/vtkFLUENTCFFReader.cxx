@@ -108,9 +108,19 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Unable to read the Case CFF file. The structure of the file may have changed.");
     return 0;
   }
-  this->CleanCells();
-  this->PopulateCellNodes();
-  this->GetNumberOfCellZones();
+
+  try
+  {
+    this->CleanCells();
+    this->PopulateCellNodes();
+    this->GetNumberOfCellZones();
+  }
+  catch (std::runtime_error const& e)
+  {
+    vtkErrorMacro(<< e.what());
+    return 0;
+  }
+
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
   if (this->FileState == DataState::AVAILABLE)
@@ -1890,7 +1900,9 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
   // Throw error when number of face of hexahedron cell is below 4.
   // Number of face should be 6 but you can find the 8 corner points with at least 4 faces.
   if (this->Cells[i].faces.size() < 4)
+  {
     throw std::runtime_error("Some cells of the domain are incompatible with this reader.");
+  }
 
   if (this->Faces[this->Cells[i].faces[0]].c0 == i)
   {

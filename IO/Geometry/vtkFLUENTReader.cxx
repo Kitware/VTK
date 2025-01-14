@@ -479,7 +479,15 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     //  Removes unnecessary faces from the cells.
     this->CleanCells();
     // Fill cells with corresponding nodes.
-    this->PopulateCellNodes();
+    try
+    {
+      this->PopulateCellNodes();
+    }
+    catch (std::runtime_error const& e)
+    {
+      vtkErrorMacro(<< e.what());
+      return 0;
+    }
 
     this->ParseDataZones(areCellsEnabled);
   }
@@ -3928,7 +3936,9 @@ void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
   // Throw error when number of face of hexahedron cell is below 4.
   // Number of face should be 6 but you can find the 8 corner points with at least 4 faces.
   if (cell.faceIndices.size() < 4)
+  {
     throw std::runtime_error("Some cells of the domain are incompatible with this reader.");
+  }
 
   if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
