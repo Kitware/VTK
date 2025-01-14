@@ -343,6 +343,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     # floating point precision issues (fma optimizations change results)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
     "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
+    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
     "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
@@ -383,6 +384,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
   list(APPEND test_exclusions
     # floating point precision issues (fma optimizations change results)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersModelingPython-Hyper$"
     "^VTK::RenderingAnnotationPython-xyPlot$"
