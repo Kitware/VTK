@@ -35,6 +35,7 @@ PRIVATE_DEPENDS
   VTK::IOLegacy
 TEST_DEPENDS
   VTK::FiltersFlowPaths
+  VTK::FiltersParallelDIY2
   VTK::FiltersParallelImaging
   VTK::ImagingCore
   VTK::InteractionStyle
