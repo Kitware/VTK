@@ -16,7 +16,8 @@ else ()
   set(CMAKE_CXX_SIZEOF_DATA_PTR 4)
 endif ()
 
-option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." ${default_wasm_threads})
+option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." OFF)
+option(VTK_WEBASSEMBLY_EXCEPTIONS "Enable exception support in wasm. Adds -fexceptions compile and link flags." OFF)
 
 # wasm linking is already multithreaded. Here, we ensure targets are linked one at a time to avoid
 # OOM errors and file lock contention.

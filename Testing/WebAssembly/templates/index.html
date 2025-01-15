@@ -118,6 +118,13 @@
       let message = `Uncaught rejection from ${event.promise}: ${event.reason}`;
       console.error(message);
       wasmStdOutErr.push(message);
+      if (event.reason !== undefined)
+      {
+        if (event.reason.stack !== undefined)
+        {
+          wasmStdOutErr.push(`Uncaught exception : ${event.reason.message}\n ${event.reason.stack}`);
+        }
+      }
       finalize(1);
       return true;
     };
