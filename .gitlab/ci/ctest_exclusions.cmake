@@ -512,6 +512,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-TestGlyph3DMapperMasking$"
     "^VTK::RenderingCoreCxx-TestGlyph3DMapperOrientationArray$"
     "^VTK::RenderingCoreCxx-TestLabeledContourMapperWithActorMatrix$"
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19580
+    "^VTK::RenderingCoreCxx-TestMixedGeometryCellScalars$"
     "^VTK::RenderingCoreCxx-TestOpacity$"
     "^VTK::RenderingCoreCxx-TestPolyDataMapperNormals$"
     "^VTK::RenderingCoreCxx-TestRenderLinesAsTubes$"
