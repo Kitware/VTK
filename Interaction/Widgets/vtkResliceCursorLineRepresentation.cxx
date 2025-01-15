@@ -34,6 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+#include <array>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -182,10 +183,25 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
     const int* size = this->Renderer->GetSize();
     double dPos = e[1] - this->LastEventPosition[1];
     sf *= (1.0 + 2.0 * (dPos / size[1])); // scale factor of 2.0 is arbitrary
+    sf = sf < 0.0 ? 1.0 : sf; // prevent negative thickness with huge movement outside the window
+
+    std::array<double, 3> scale = { 1.0, 1.0, 1.0 };
+
+    if (this->IndependentThickness)
+    {
+      int axis = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+      axis = this->InteractionState == OnAxis1 ? this->GetCursorAlgorithm()->GetPlaneAxis1() : axis;
+      axis = this->InteractionState == OnAxis2 ? this->GetCursorAlgorithm()->GetPlaneAxis2() : axis;
+      scale[axis] = sf;
+    }
+    else
+    {
+      scale.fill(sf);
+    }
 
     double thickness[3];
     rc->GetThickness(thickness);
-    rc->SetThickness(thickness[0] * sf, thickness[1] * sf, thickness[2] * sf);
+    rc->SetThickness(thickness[0] * scale[0], thickness[1] * scale[1], thickness[2] * scale[2]);
 
     this->LastEventPosition[0] = e[0];
     this->LastEventPosition[1] = e[1];
