@@ -766,6 +766,36 @@ bool vtkBoundingBox::IntersectsLine(const double p1[3], const double p2[3]) cons
 }
 
 // ---------------------------------------------------------------------------
+void vtkBoundingBox::GetDistance(double point[3], double distance[3])
+{
+  for (int i = 0; i < 3; i++)
+  {
+    if (point[i] < this->MinPnt[i])
+    {
+      distance[i] = point[i] - this->MinPnt[i];
+    }
+    else if (point[i] > this->MaxPnt[i])
+    {
+      distance[i] = point[i] - this->MaxPnt[i];
+    }
+    else
+    {
+      distance[i] = 0;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+void vtkBoundingBox::Translate(double motion[3])
+{
+  for (int i = 0; i < 3; i++)
+  {
+    this->MinPnt[i] += motion[i];
+    this->MaxPnt[i] += motion[i];
+  }
+}
+
+// ---------------------------------------------------------------------------
 void vtkBoundingBox::ClampPoint(double point[3])
 {
   for (int i = 0; i < 3; i++)
