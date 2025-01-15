@@ -6,8 +6,8 @@
  * @brief Custom multitouch pinch event handler for QML PinchHandler
  */
 
-#ifndef QQUICK_VTK_PINCHEVENT_H
-#define QQUICK_VTK_PINCHEVENT_H
+#ifndef QQuickVTKPinchEvent_h
+#define QQuickVTKPinchEvent_h
 
 #include "vtkGUISupportQtQuickModule.h" // For export macro
 
@@ -84,5 +84,4 @@ private:
 
 VTK_ABI_NAMESPACE_END
 
-#endif // end QQUICK_VTK_PINCHEVENT_H
-// VTK-HeaderTest-Exclude: QQuickVTKPinchEvent.h
+#endif // end QQuickVTKPinchEvent_h
