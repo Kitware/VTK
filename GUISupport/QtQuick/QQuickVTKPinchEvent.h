@@ -23,7 +23,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKPinchEvent : public QEvent
 public:
   enum PinchTypes
   {
-    QQUICKVTK_TRANSLATE,
+    QQUICKVTK_TRANSLATE = 0,
     QQUICKVTK_SCALE,
     QQUICKVTK_ROTATE,
     QQUICKVTK_NONE
@@ -68,18 +68,18 @@ public:
 
   ///@{
   /**
-   * Set/get rotation angle
+   * Set/get rotation angle (in degrees)
    */
   virtual void setAngle(double angle);
   virtual double angle();
   ///@}
 
 private:
-  PinchTypes m_pinchEventType;
+  PinchTypes m_pinchEventType = QQUICKVTK_NONE;
   QPointF m_position;
   QVector2D m_translation;
-  double m_scale;
-  double m_angle;
+  double m_scale = 1.0;
+  double m_angle = 0.0;
 };
 
 VTK_ABI_NAMESPACE_END
