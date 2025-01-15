@@ -28,7 +28,7 @@ QQuickVTKPinchEvent::QQuickVTKPinchEvent(QEvent::Type type, PinchTypes pinchType
 //-------------------------------------------------------------------------------------------------
 void QQuickVTKPinchEvent::setPinchEventType(QQuickVTKPinchEvent::PinchTypes typ)
 {
-  if (typ < QQUICKVTK_PAN || typ > QQUICKVTK_NONE)
+  if (typ < QQUICKVTK_TRANSLATE || typ > QQUICKVTK_NONE)
   {
     return;
   }

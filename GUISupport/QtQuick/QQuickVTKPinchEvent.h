@@ -23,7 +23,7 @@ class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKPinchEvent : public QEvent
 public:
   enum PinchTypes
   {
-    QQUICKVTK_PAN,
+    QQUICKVTK_TRANSLATE,
     QQUICKVTK_SCALE,
     QQUICKVTK_ROTATE,
     QQUICKVTK_NONE

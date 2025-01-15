@@ -591,11 +591,11 @@ bool QQuickVTKItem::event(QEvent* ev)
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKItem::pinchHandlerTranslate(const QPointF& position, const QVector2D& delta)
+void QQuickVTKItem::pinchHandlerRotate(const QPointF& position, double delta)
 {
   Q_D(QQuickVTKItem);
-  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(
-    QQuickVTKPinchEvent::QQuickVTKPinch, QQuickVTKPinchEvent::QQUICKVTK_PAN, position, delta);
+  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(QQuickVTKPinchEvent::QQuickVTKPinch,
+    QQuickVTKPinchEvent::QQUICKVTK_ROTATE, position, QVector2D(0, 0), 1.0, delta);
   dispatch_async([d, c](vtkRenderWindow* vtkWindow, vtkUserData) mutable
     { d->qt2vtkInteractorAdapter.ProcessEvent(c.data(), vtkWindow->GetInteractor()); });
 }
@@ -611,11 +611,11 @@ void QQuickVTKItem::pinchHandlerScale(const QPointF& position, double delta)
 }
 
 //-------------------------------------------------------------------------------------------------
-void QQuickVTKItem::pinchHandlerRotate(const QPointF& position, double delta)
+void QQuickVTKItem::pinchHandlerTranslate(const QPointF& position, const QVector2D& delta)
 {
   Q_D(QQuickVTKItem);
-  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(QQuickVTKPinchEvent::QQuickVTKPinch,
-    QQuickVTKPinchEvent::QQUICKVTK_ROTATE, position, QVector2D(0, 0), 1.0, delta);
+  auto c = QSharedPointer<QQuickVTKPinchEvent>::create(
+    QQuickVTKPinchEvent::QQuickVTKPinch, QQuickVTKPinchEvent::QQUICKVTK_TRANSLATE, position, delta);
   dispatch_async([d, c](vtkRenderWindow* vtkWindow, vtkUserData) mutable
     { d->qt2vtkInteractorAdapter.ProcessEvent(c.data(), vtkWindow->GetInteractor()); });
 }

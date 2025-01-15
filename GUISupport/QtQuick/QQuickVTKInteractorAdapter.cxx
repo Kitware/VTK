@@ -36,7 +36,7 @@ bool QQuickVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteract
     }
     switch (e2->pinchEventType())
     {
-      case QQuickVTKPinchEvent::QQUICKVTK_PAN:
+      case QQuickVTKPinchEvent::QQUICKVTK_TRANSLATE:
       {
         double trans[2] = { e2->translation().x() * this->DevicePixelRatio +
             QVTKInteractorAdapter::DevicePixelRatioTolerance,

@@ -160,9 +160,9 @@ public Q_SLOTS:
    *
    * @endcode
    */
-  Q_INVOKABLE void pinchHandlerTranslate(const QPointF& position, const QVector2D& delta);
-  Q_INVOKABLE void pinchHandlerScale(const QPointF& position, double delta);
   Q_INVOKABLE void pinchHandlerRotate(const QPointF& position, double delta);
+  Q_INVOKABLE void pinchHandlerScale(const QPointF& position, double delta);
+  Q_INVOKABLE void pinchHandlerTranslate(const QPointF& position, const QVector2D& delta);
   ///@}
 
 protected:
