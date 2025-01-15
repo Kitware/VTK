@@ -6,8 +6,8 @@
  * @brief Interactor that handles relaying custom QML handler events to VTK
  */
 
-#ifndef QQUICK_VTK_INTERACTOR_ADAPTER_H
-#define QQUICK_VTK_INTERACTOR_ADAPTER_H
+#ifndef QQuickVTKInteractorAdapter_h
+#define QQuickVTKInteractorAdapter_h
 
 #include "QVTKInteractorAdapter.h"
 #include "vtkGUISupportQtQuickModule.h" // For export macro
@@ -19,7 +19,19 @@ class vtkRenderWindowInteractor;
 
 /**
  * \class QQuickVTKInteractorAdapter
- * \brief
+ * \brief Interactor that handles relaying custom QML handler events to VTK
+ *
+ * Handles translating the QQuickVTKPinchEvent::QQuickVTKPinch events to VTK events such that:
+ *
+ *   - QQUICKVTK_TRANSLATE ->   vtkCommand::PanEvent
+ *   - QQUICKVTK_SCALE     ->   vtkCommand::PinchEvent
+ *   - QQUICKVTK_ROTATE    ->   vtkCommand::RotateEvent
+ *
+ *  For more information on QQuickVTKPinchEvent, refer to QQuickVTKItem documentation.
+ *
+ *  \sa QQuickVTKItem::pinchHandlerTranslate, QQuickVTKItem::pinchHandlerScale,
+ *  QQuickVTKItem::pinchHandlerRotate,
+ *  \sa QQuickVTKPinchEvent
  */
 class VTKGUISUPPORTQTQUICK_EXPORT QQuickVTKInteractorAdapter : public QVTKInteractorAdapter
 {
@@ -40,5 +52,4 @@ private:
 
 VTK_ABI_NAMESPACE_END
 
-#endif // end QQUICK_VTK_INTERACTOR_ADAPTER_H
-// VTK-HeaderTest-Exclude: QQuickVTKInteractorAdapter.h
+#endif // QQuickVTKInteractorAdapter_h
