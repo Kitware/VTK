@@ -35,8 +35,8 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // returns empty string on failure.
-std::string ReadAndBroadCastFile(
-  const std::string& filename, vtkMultiProcessController* controller, vtkAMReXParticlesReader* self)
+std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessController* controller,
+  vtkAMReXParticlesReader* self, bool errorOnFailedToOpenFile = true)
 {
   std::string contents;
   if (controller == nullptr || controller->GetLocalProcessId() == 0)
@@ -62,7 +62,7 @@ std::string ReadAndBroadCastFile(
       delete[] data;
       data = nullptr;
     }
-    else
+    else if (errorOnFailedToOpenFile)
     {
       vtkErrorWithObjectMacro(self, "Failed to open file '" << filename << "'.");
     }
@@ -791,21 +791,25 @@ bool vtkAMReXParticlesReader::ReadMetaData()
 
   // read the top level header to get time information
   const std::string gridHdrFileName = this->PlotFileName + "/Header";
-  const auto gridHeaderData = ::ReadAndBroadCastFile(gridHdrFileName, this->Controller, this);
-  if (gridHeaderData.empty())
+  const auto gridHeaderData = ::ReadAndBroadCastFile(
+    gridHdrFileName, this->Controller, this, /*errorOnFailedToOpenFile=*/false);
+  if (!gridHeaderData.empty())
   {
-    return false;
-  }
-
-  auto gridHeaderPtr = new vtkAMReXGridHeader();
-  if (!gridHeaderPtr->Parse(gridHeaderData))
-  {
+    auto gridHeaderPtr = new vtkAMReXGridHeader();
+    if (!gridHeaderPtr->Parse(gridHeaderData))
+    {
+      delete gridHeaderPtr;
+      return false;
+    }
+    // Add time information.
+    this->dataTimeStep = gridHeaderPtr->time;
     delete gridHeaderPtr;
-    return false;
   }
-  // Add time information.
-  this->dataTimeStep = gridHeaderPtr->time;
-  delete gridHeaderPtr;
+  else
+  {
+    // there is no top level header.
+    this->dataTimeStep = 0;
+  }
 
   this->Header = headerPtr;
   this->Header->PopulatePointArraySelection(this->PointDataArraySelection);
@@ -827,7 +831,8 @@ bool vtkAMReXParticlesReader::ReadLevel(
   const int quotient = num_grids / num_pieces;
   const int remainder = num_grids % num_pieces;
 
-  const int start_grid_idx = (piece_idx * quotient) + ((piece_idx < remainder) ? 1 : 0);
+  const int start_grid_idx =
+    (piece_idx * quotient) + ((piece_idx < remainder) ? piece_idx : remainder);
   const int grids_count = quotient + ((piece_idx < remainder) ? 1 : 0);
 
   levelDS->SetNumberOfPieces(num_grids);

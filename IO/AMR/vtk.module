@@ -24,3 +24,6 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::TestingCore
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI
+  VTK::ParallelCore

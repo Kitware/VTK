@@ -104,6 +104,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
+  TestMixedGeometryCellScalars.cxx,NO_DATA
   TestOffAxisStereo.cxx
   TestOnAndOffScreenConeCxx.cxx
   TestOpacity.cxx

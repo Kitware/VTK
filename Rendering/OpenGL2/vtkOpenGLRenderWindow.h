@@ -245,6 +245,17 @@ public:
   virtual bool IsPointSpriteBugPresent() { return false; }
 
   /**
+   * On `gl_PrimitiveID`, the spec says it is a counter that is incremented after every individual
+   * point, line or triangle primitive is processed. Almost all OpenGL implementations increment the
+   * counter per input primitive type. However, there seems to be a bug in the OpenGL over Metal
+   * used in Apple silicon that overwrites any value that the shader writes into `gl_PrimitiveID`.
+   *
+   * This method returns true if the OpenGL driver has a bug that causes geometry shaders
+   * to ignore writes to the gl_PrimitiveID. It checks the OpenGL vendor string for Apple and Metal.
+   */
+  bool IsPrimIDBugPresent();
+
+  /**
    * Get a mapping of vtk data types to native texture formats for this window
    * we put this on the RenderWindow so that every texture does not have to
    * build these structures themselves
