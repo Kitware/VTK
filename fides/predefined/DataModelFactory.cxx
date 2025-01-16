@@ -64,6 +64,43 @@ bool DataModelFactory::UnregisterDataModel(DataModelTypes modelId)
   return this->Callbacks.erase(modelId) == 1;
 }
 
+struct GetDataSetTypeFunctor
+{
+  template <typename S>
+  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<S>&, DataModelTypes& type) const
+  {
+    type = DataModelTypes::UNSTRUCTURED_SINGLE;
+  }
+
+  template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
+    DataModelTypes& type) const
+  {
+    type = DataModelTypes::UNSTRUCTURED;
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet&, DataModelTypes& type) const
+  {
+    // in this case we didn't find an appropriate dataset type
+    type = DataModelTypes::UNSUPPORTED;
+  }
+};
+
+using CellSetSingleTypeList =
+  vtkm::List<vtkm::cont::CellSetSingleType<>,
+             vtkm::cont::CellSetSingleType<
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+
+using CellSetExplicitList =
+  vtkm::List<vtkm::cont::CellSetExplicit<>,
+             vtkm::cont::CellSetExplicit<
+               vtkm::cont::StorageTagBasic,
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>,
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+
+using FullCellSetExplicitList = vtkm::ListAppend<CellSetSingleTypeList, CellSetExplicitList>;
+
 std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
   const vtkm::cont::DataSet& ds)
 {
@@ -72,8 +109,6 @@ std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
     vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
                                             vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
                                             vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
-  using UnstructuredExplicitType = vtkm::cont::CellSetExplicit<>;
 
   DataModelTypes modelId;
   if (ds.GetCoordinateSystem().GetData().IsType<UniformCoordType>())
@@ -84,17 +119,14 @@ std::shared_ptr<PredefinedDataModel> DataModelFactory::CreateDataModel(
   {
     modelId = DataModelTypes::RECTILINEAR;
   }
-  else if (ds.GetCellSet().IsType<UnstructuredSingleType>())
-  {
-    modelId = DataModelTypes::UNSTRUCTURED_SINGLE;
-  }
-  else if (ds.GetCellSet().IsType<UnstructuredExplicitType>())
-  {
-    modelId = DataModelTypes::UNSTRUCTURED;
-  }
   else
   {
-    throw std::runtime_error("Unsupported data set type");
+    vtkm::cont::UncertainCellSet<FullCellSetExplicitList> uncertainCS(ds.GetCellSet());
+    uncertainCS.CastAndCall(GetDataSetTypeFunctor{}, modelId);
+    if (modelId == DataModelTypes::UNSUPPORTED)
+    {
+      throw std::runtime_error("Unsupported data set type");
+    }
   }
 
   auto it = this->CallbacksFromDS.find(modelId);

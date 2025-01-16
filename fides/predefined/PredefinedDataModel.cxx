@@ -646,6 +646,32 @@ UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(const vtkm::con
 {
 }
 
+using CellSetSingleTypeList =
+  vtkm::List<vtkm::cont::CellSetSingleType<>,
+             vtkm::cont::CellSetSingleType<
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+
+struct ProcessCellSetSingleTypeAttributesFunctor
+{
+  template <typename S>
+  void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
+                  std::unordered_map<std::string, std::vector<std::string>>& attrMap)
+  {
+    vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
+    std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
+    attrMap[CellTypeAttrName] = std::vector<std::string>(1, cellType);
+  }
+
+  void operator()(const vtkm::cont::CellSet& cellSet,
+                  std::unordered_map<std::string, std::vector<std::string>>&)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported in this functor";
+    throw std::runtime_error(err);
+  }
+};
+
+
 std::unordered_map<std::string, std::vector<std::string>>
 UnstructuredSingleTypeDataModel::GetAttributes()
 {
@@ -654,32 +680,52 @@ UnstructuredSingleTypeDataModel::GetAttributes()
   attrMap[CoordinatesAttrName] = std::vector<std::string>(1, "coordinates");
   attrMap[ConnectivityAttrName] = std::vector<std::string>(1, "connectivity");
 
-  const auto& cellSet = this->DataSetSource.GetCellSet().AsCellSet<UnstructuredSingleType>();
-  vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
-  std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
-  attrMap[CellTypeAttrName] = std::vector<std::string>(1, cellType);
+  this->DataSetSource.GetCellSet().CastAndCallForTypes<CellSetSingleTypeList>(
+    ProcessCellSetSingleTypeAttributesFunctor{}, attrMap);
   this->AddFieldAttributes(attrMap);
   return attrMap;
 }
+
+struct ProcessCellSetSingleTypeFunctor
+{
+  template <typename S>
+  void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
+                  rapidjson::Document& doc,
+                  rapidjson::Value& parent,
+                  bool& correctType)
+  {
+    correctType = true;
+    vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
+    std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
+
+    CreateUnstructuredSingleTypeCellset(doc.GetAllocator(), parent, "connectivity", cellType);
+  }
+
+  void operator()(const vtkm::cont::CellSet&,
+                  rapidjson::Document&,
+                  rapidjson::Value&,
+                  bool& correctType)
+  {
+    correctType = false;
+  }
+};
 
 void UnstructuredSingleTypeDataModel::CreateCellSet(rapidjson::Value& parent)
 {
   if (this->MetadataSource == nullptr)
   {
     auto dcellSet = this->DataSetSource.GetCellSet();
-    if (!dcellSet.IsType<UnstructuredSingleType>())
+    bool correctType = false;
+    this->DataSetSource.GetCellSet().CastAndCallForTypes<CellSetSingleTypeList>(
+      ProcessCellSetSingleTypeFunctor{}, this->Doc, parent, correctType);
+    if (!correctType)
     {
       throw std::runtime_error("Cellset is not UnstructuredSingleType");
     }
-    const auto& cellSet = this->DataSetSource.GetCellSet().AsCellSet<UnstructuredSingleType>();
-    vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
-    std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
-
-    CreateUnstructuredSingleTypeCellset(this->Doc.GetAllocator(), parent, "connectivity", cellType);
     return;
   }
 
-  // structured
+  // unstructured
   rapidjson::Value cellSet(rapidjson::kObjectType);
   cellSet.AddMember("cell_set_type", "single_type", this->Doc.GetAllocator());
 
