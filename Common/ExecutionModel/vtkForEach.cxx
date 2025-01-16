@@ -112,6 +112,18 @@ void vtkForEach::RegisterEndFor(vtkEndFor* endFor)
 }
 
 //------------------------------------------------------------------------------
+int vtkForEach::RequestDataObject(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (!this->Internal->Range)
+  {
+    vtkErrorMacro("Must set Range before requesting data object");
+    return 0;
+  }
+  return this->Internal->Range->RequestDataObject(inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
 int vtkForEach::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -161,18 +173,6 @@ int vtkForEach::RequestInformation(
   }
 
   return this->Internal->Range->RequestInformation(inputVector, outputVector);
-}
-
-//------------------------------------------------------------------------------
-int vtkForEach::RequestDataObject(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  if (!this->Internal->Range)
-  {
-    vtkErrorMacro("Must set Range before requesting data object");
-    return 0;
-  }
-  return this->Internal->Range->RequestDataObject(inputVector, outputVector);
 }
 
 //------------------------------------------------------------------------------

@@ -45,8 +45,8 @@ protected:
   vtkEndFor();
   ~vtkEndFor() override;
 
-  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestDataObject(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
