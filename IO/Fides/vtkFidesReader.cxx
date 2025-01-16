@@ -37,7 +37,6 @@ struct vtkFidesReader::vtkFidesReaderImpl
   std::unique_ptr<fides::io::DataSetReader> Reader;
   std::unordered_map<std::string, std::string> Paths;
   bool HasParsedDataModel{ false };
-  bool AllDataSourcesSet{ false };
   bool UsePresetModel{ false };
   bool SkipNextPrepareCall{ false };
   int NumberOfDataSources{ 0 };
@@ -201,12 +200,11 @@ void vtkFidesReader::ParseDataModel()
   }
   catch (std::exception& e)
   {
-    (void)e;
     // In some cases it's expected that reading will fail (e.g., not all properties have been set
     // yet), so we don't always want to output the exception. We'll just put it in vtkDebugMacro,
     // so we can just turn it on when we're experiencing some issue.
-    vtkDebugMacro(<< "Exception encountered when trying to set up Fides DataSetReader: "
-                  << e.what());
+    vtkWarningMacro(<< "Exception encountered when trying to set up Fides DataSetReader: "
+                    << e.what());
     this->Impl->HasParsedDataModel = false;
     return;
   }
@@ -224,11 +222,6 @@ void vtkFidesReader::SetDataSourcePath(const std::string& name, const std::strin
   vtkDebugMacro(<< "source " << name << "'s path is " << path);
   this->Impl->Paths[name] = path;
   this->Modified();
-  if (this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
-  {
-    vtkDebugMacro(<< "All data sources have now been set");
-    this->Impl->AllDataSourcesSet = true;
-  }
 }
 
 void vtkFidesReader::SetDataSourceEngine(const std::string& name, const std::string& engine)
@@ -253,7 +246,6 @@ void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Next step status: " << this->NextStepStatus << "\n";
   os << indent << "Use Preset model: " << this->Impl->UsePresetModel << "\n";
   os << indent << "Has parsed data model: " << this->Impl->HasParsedDataModel << "\n";
-  os << indent << "All data sources set: " << this->Impl->AllDataSourcesSet << "\n";
   os << indent << "Number of data sources: " << this->Impl->NumberOfDataSources << "\n";
   os << indent << "Create shared points: " << this->CreateSharedPoints << "\n";
 }
@@ -341,12 +333,6 @@ int vtkFidesReader::RequestInformation(
 
   // reset the number of data sources
   this->Impl->SetNumberOfDataSources();
-  if (!this->Impl->Paths.empty() &&
-    this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
-  {
-    vtkDebugMacro(<< "All data sources have now been set");
-    this->Impl->AllDataSourcesSet = true;
-  }
 
   // for generated data model, we have to set the paths for sources
   if (this->Impl->UsePresetModel)
@@ -410,11 +396,16 @@ int vtkFidesReader::RequestInformation(
     {
       metaData = this->Impl->Reader->ReadMetaData(this->Impl->Paths, groupName);
     }
-    catch (...)
+    catch (std::exception& e)
     {
       // it's possible that we were able to set Fides up, but reading metadata
       // failed, indicating that not all properties have been set before this
-      // RequestInformation call.
+      // RequestInformation call. This is not necessarily an error, but may
+      // indicate a problem with the JSON that will cause errors when reading
+      // the data.
+      vtkWarningMacro(<< "Exception encountered when trying to set up Fides DataSetReader: "
+                      << e.what());
+      this->Impl->HasParsedDataModel = false;
       return 1;
     }
     vtkDebugMacro(<< "MetaData has been read by Fides " << (groupName.empty() ? "for group " : "")
@@ -620,16 +611,11 @@ double vtkFidesReader::GetTimeOfCurrentStep()
   if (this->Impl->NumberOfDataSources == 0)
   {
     this->Impl->SetNumberOfDataSources();
-    if (this->Impl->Paths.size() == static_cast<size_t>(this->Impl->NumberOfDataSources))
-    {
-      vtkDebugMacro(<< "All data sources have now been set");
-      this->Impl->AllDataSourcesSet = true;
-    }
   }
 
-  if (!this->Impl->HasParsedDataModel || !this->Impl->AllDataSourcesSet)
+  if (!this->Impl->HasParsedDataModel)
   {
-    vtkErrorMacro(<< "data model has not been parsed or all data sources have not been set");
+    vtkErrorMacro(<< "data model has not been parsed");
     return 0.0;
   }
 
@@ -646,10 +632,9 @@ double vtkFidesReader::GetTimeOfCurrentStep()
 int vtkFidesReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  if (!this->Impl->HasParsedDataModel || !this->Impl->AllDataSourcesSet)
+  if (!this->Impl->HasParsedDataModel)
   {
-    vtkErrorMacro("RequestData() DataModel must be parsed and all data sources "
-                  "must be set before RequestData()");
+    vtkErrorMacro("RequestData() DataModel must be parsed before RequestData()");
     return 0;
   }
 
