@@ -749,39 +749,75 @@ struct SurfaceNets
 
       // Prepare to write scalar data. s0 is the triad origin.
       const T backgroundLabel = snet->BackgroundLabel;
-      const T s0 = snet->GetVoxelForTriad(i, row, slice);
+      const T s0Origin = snet->GetVoxelForTriad(i, row, slice);
 
       if (SurfaceNets::GenerateXYQuad(triad))
       {
-        *connIter++ = pointIds[4];
-        *connIter++ = pointIds[4] - 1;
-        *connIter++ = pointIds[3] - 1;
-        *connIter++ = pointIds[3]; // normal to the z triad edge
+        const vtkIdType& c0 = pointIds[4];
+        vtkIdType c1 = pointIds[4] - 1;
+        const vtkIdType c2 = pointIds[3] - 1;
+        vtkIdType c3 = pointIds[3];
 
-        const T s1 = snet->GetVoxelForTriad(i, row, slice + 1);
-        snet->WriteScalarTuple(s0, s1, backgroundLabel, quadId++);
+        T s0 = s0Origin;
+        T s1 = snet->GetVoxelForTriad(i, row, slice + 1);
+        if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
+        {
+          std::swap(s0, s1);
+          std::swap(c1, c3);
+        }
+
+        *connIter++ = c0;
+        *connIter++ = c1;
+        *connIter++ = c2;
+        *connIter++ = c3;
+
+        snet->WriteScalarTuple(s0, s1, quadId++);
       }
 
       if (SurfaceNets::GenerateXZQuad(triad))
       {
-        *connIter++ = pointIds[4];
-        *connIter++ = pointIds[1];
-        *connIter++ = pointIds[1] - 1;
-        *connIter++ = pointIds[4] - 1; // normal to the y edge
+        const vtkIdType& c0 = pointIds[4];
+        vtkIdType c1 = pointIds[1];
+        const vtkIdType c2 = pointIds[1] - 1;
+        vtkIdType c3 = pointIds[4] - 1;
 
-        const T s1 = snet->GetVoxelForTriad(i, row + 1, slice);
-        snet->WriteScalarTuple(s0, s1, backgroundLabel, quadId++);
+        T s0 = s0Origin;
+        T s1 = snet->GetVoxelForTriad(i, row + 1, slice);
+        if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
+        {
+          std::swap(s0, s1);
+          std::swap(c1, c3);
+        }
+
+        *connIter++ = c0;
+        *connIter++ = c1;
+        *connIter++ = c2;
+        *connIter++ = c3;
+
+        snet->WriteScalarTuple(s0, s1, quadId++);
       }
 
       if (SurfaceNets::GenerateYZQuad(triad))
       {
-        *connIter++ = pointIds[4];
-        *connIter++ = pointIds[3];
-        *connIter++ = pointIds[0];
-        *connIter++ = pointIds[1]; // quad is normal to the x edge
+        const vtkIdType& c0 = pointIds[4];
+        vtkIdType c1 = pointIds[3];
+        const vtkIdType c2 = pointIds[0];
+        vtkIdType c3 = pointIds[1];
 
-        const T s1 = snet->GetVoxelForTriad(i + 1, row, slice);
-        snet->WriteScalarTuple(s0, s1, backgroundLabel, quadId++);
+        T s0 = s0Origin;
+        T s1 = snet->GetVoxelForTriad(i + 1, row, slice);
+        if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
+        {
+          std::swap(s0, s1);
+          std::swap(c1, c3);
+        }
+
+        *connIter++ = c0;
+        *connIter++ = c1;
+        *connIter++ = c2;
+        *connIter = c3;
+
+        snet->WriteScalarTuple(s0, s1, quadId++);
       }
 
     } // operator()
@@ -882,17 +918,10 @@ struct SurfaceNets
   }
 
   // Helper function writes the scalar 2-tuple.
-  void WriteScalarTuple(T s0, T s1, T backgroundLabel, vtkIdType quadId)
+  void WriteScalarTuple(T s0, T s1, vtkIdType quadId)
   {
     T* scalars = this->NewScalars + 2 * quadId;
-
-    if (s0 == backgroundLabel || (s1 != backgroundLabel && s0 > s1))
-    {
-      // Background label is placed last; s0<s1 if both inside
-      std::swap(s0, s1);
-    }
-
-    scalars[0] = s0; // write 2-tuple
+    scalars[0] = s0;
     scalars[1] = s1;
   } // WriteScalarTuple
 
