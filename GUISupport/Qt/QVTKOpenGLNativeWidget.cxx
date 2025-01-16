@@ -312,15 +312,9 @@ void QVTKOpenGLNativeWidget::cleanupContext()
 //------------------------------------------------------------------------------
 bool QVTKOpenGLNativeWidget::event(QEvent* evt)
 {
-  bool EventProcessed = false;
   if (this->RenderWindowAdapter)
   {
-    EventProcessed = this->RenderWindowAdapter->handleEvent(evt);
-  }
-
-  if (EventProcessed)
-  {
-    return true;
+    this->RenderWindowAdapter->handleEvent(evt);
   }
   return this->Superclass::event(evt);
 }

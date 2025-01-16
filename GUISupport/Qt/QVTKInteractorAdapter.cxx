@@ -196,7 +196,6 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
           break;
       }
     }
-    e2->accept();
     return true;
   }
 
