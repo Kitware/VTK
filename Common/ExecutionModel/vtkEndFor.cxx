@@ -185,14 +185,11 @@ int vtkEndFor::RequestData(
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   this->Internal->Aggregator->Aggregate(input);
+  this->Internal->ForEach->Iter();
 
   using SDDP = vtkStreamingDemandDrivenPipeline;
   if (this->Internal->ForEach->IsIterating())
   {
-    // We need to "touch" the top of the sub-pipeline we want
-    // to loop.
-    this->Internal->ForEach->Modified();
-
     if (SDDP::SafeDownCast(this->GetExecutive()))
     {
       // Tell the executive that we want to continue

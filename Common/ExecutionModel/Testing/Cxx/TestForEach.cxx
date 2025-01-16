@@ -38,9 +38,11 @@ bool TestNoPipeline()
     return false;
   }
 
-  if (pdsc->GetNumberOfPartitionedDataSets() != ::NB_SOURCE_TIME_STEPS)
+  const auto nbPart = pdsc->GetNumberOfPartitionedDataSets();
+  if (nbPart != ::NB_SOURCE_TIME_STEPS)
   {
-    std::cerr << "Output did not have correct number of blocks" << std::endl;
+    std::cerr << "Output did not have correct number of blocks: " << nbPart
+              << " != " << ::NB_SOURCE_TIME_STEPS << std::endl;
     return false;
   }
   return true;
@@ -69,11 +71,14 @@ bool TestSimplePipeline()
     return false;
   }
 
-  if (pdsc->GetNumberOfPartitionedDataSets() != ::NB_SOURCE_TIME_STEPS)
+  const auto nbPart = pdsc->GetNumberOfPartitionedDataSets();
+  if (nbPart != ::NB_SOURCE_TIME_STEPS)
   {
-    std::cerr << "Output did not have correct number of blocks" << std::endl;
+    std::cerr << "Output did not have correct number of blocks: " << nbPart
+              << " != " << ::NB_SOURCE_TIME_STEPS << std::endl;
     return false;
   }
+
   return true;
 }
 
@@ -105,9 +110,11 @@ bool TestComplexPipeline()
     return false;
   }
 
-  if (pdsc->GetNumberOfPartitionedDataSets() != ::NB_SOURCE_TIME_STEPS)
+  const auto nbPart = pdsc->GetNumberOfPartitionedDataSets();
+  if (nbPart != ::NB_SOURCE_TIME_STEPS)
   {
-    std::cerr << "Output did not have correct number of blocks" << std::endl;
+    std::cerr << "Output did not have correct number of blocks: " << nbPart
+              << " != " << ::NB_SOURCE_TIME_STEPS << std::endl;
     return false;
   }
 

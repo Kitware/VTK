@@ -50,6 +50,11 @@ public:
   virtual bool IsIterating();
 
   /**
+   * Go to next iteration
+   */
+  void Iter();
+
+  /**
    * Method for registering the end of the loop vtkEndFor filter
    */
   virtual void RegisterEndFor(vtkEndFor*);

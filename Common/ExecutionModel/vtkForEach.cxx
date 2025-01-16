@@ -99,6 +99,13 @@ bool vtkForEach::IsIterating()
 }
 
 //------------------------------------------------------------------------------
+void vtkForEach::Iter()
+{
+  this->Internal->CurrentIteration++;
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkForEach::RegisterEndFor(vtkEndFor* endFor)
 {
   this->Internal->EndFor = endFor;
@@ -145,14 +152,13 @@ int vtkForEach::RequestInformation(
   }
 
   outInfo->Set(vtkForEach::FOR_EACH_FILTER(), this);
+  request->Append(vtkExecutive::KEYS_TO_COPY(), vtkForEach::FOR_EACH_FILTER());
 
   if (!this->Internal->Range)
   {
     vtkErrorMacro("Must set Range before requesting information");
     return 0;
   }
-
-  request->Append(vtkExecutive::KEYS_TO_COPY(), vtkForEach::FOR_EACH_FILTER());
 
   return this->Internal->Range->RequestInformation(inputVector, outputVector);
 }
@@ -194,6 +200,7 @@ int vtkForEach::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
 
   if (!this->IsIterating())
   {
+    // reset
     this->Internal->CurrentIteration = 0;
   }
 
@@ -201,7 +208,6 @@ int vtkForEach::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
 
   int res =
     this->Internal->Range->RequestData(this->Internal->CurrentIteration, inputVector, outputVector);
-  this->Internal->CurrentIteration++;
 
   return res;
 }
