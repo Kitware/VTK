@@ -112,7 +112,9 @@ set(all_tests
 if (TARGET VTK::ParallelMPI)
   set(vtkFiltersCoreCxxTests-MPI_NUMPROCS 2)
   vtk_add_test_mpi(vtkFiltersCoreCxxTests-MPI mpi_test
+    TESTING_DATA
     TestAppendFilterDistributed.cxx,NO_VALID
+    TestCleanPolyDataWithGhostCells.cxx
   )
 
   vtk_test_cxx_executable(vtkFiltersCoreCxxTests-MPI mpi_test)
