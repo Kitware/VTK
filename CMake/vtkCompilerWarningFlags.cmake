@@ -1,3 +1,13 @@
+# Silence spurious -Wattribute warnings on GCC < 9.1:
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89325
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+  CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1)
+  target_compile_options(vtkbuild
+    INTERFACE
+      "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:C>:-Wno-attributes>>"
+      "$<BUILD_INTERFACE:$<$<COMPILE_LANGUAGE:CXX>:-Wno-attributes>>")
+endif()
+
 # This module requires CMake 3.19 features (the `CheckCompilerFlag`
 # module). Just skip it for older CMake versions.
 if (CMAKE_VERSION VERSION_LESS "3.19")
