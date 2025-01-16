@@ -183,7 +183,7 @@
 
 .el7_mindeps:
     extends: .linux
-    image: "kitware/vtk:ci-el7-mindeps-20231201"
+    image: "kitware/vtk:ci-el7-mindeps-20250116"
 
     variables:
         VENV_ROOT: "/opt/python38/venv"
