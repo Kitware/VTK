@@ -44,7 +44,7 @@ public:
   // Description:
   // Process a QEvent and send it to the interactor
   // returns whether the event was recognized and processed
-  virtual bool ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren) override;
+  bool ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren) override;
 
 private:
   Q_DISABLE_COPY(QQuickVTKInteractorAdapter)

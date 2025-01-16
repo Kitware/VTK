@@ -134,7 +134,7 @@ public:
    */
   void scheduleRender();
 
-public Q_SLOTS:
+public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
   ///@{
   /**
    * Individual slots for the three pinch handler signals in QML namely,
