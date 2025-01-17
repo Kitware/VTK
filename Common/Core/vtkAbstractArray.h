@@ -45,6 +45,13 @@
  * Unless `Modified` is called, various cached entities, like array range,
  * map created for `LookupValue` may become obsolete and yield incorrect results.
  *
+ * @warning
+ * In VTK 9.4, new method `nlohmann::json vtkAbstractArray::SerializeValues()` was
+ * introduced which required exposing symbols from
+ * VTK::nlohmannjson library in public API. This method will be removed in VTK 9.5 as it caused
+ * difficulty for downstream projects that linked to a different nlohmannjson. It cannot be
+ * deprecated because doing so prevents fixing the underlying issue.
+ *
  * @sa
  * vtkDataArray vtkStringArray vtkCellArray
  */
