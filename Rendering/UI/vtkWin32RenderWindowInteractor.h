@@ -23,6 +23,10 @@
 #include "vtkWindows.h"           // For windows API.
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
+#include <atomic> // for std::atomic
+#include <map>    // for std::map
+#include <memory> // for std::unique_ptr
+
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
 #ifdef VTK_USE_TDX
 VTK_ABI_NAMESPACE_BEGIN
@@ -188,6 +192,7 @@ private:
     HWND WindowId;
     int TimerId;
     HANDLE PlatformId;
+    std::atomic<bool> Posted = false;
   };
   std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
 };
