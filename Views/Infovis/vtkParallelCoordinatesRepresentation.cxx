@@ -788,8 +788,7 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
     this->Axes[i]->SetLabelFactor(0.5);
     this->Axes[i]->TickVisibilityOff();
     this->Axes[i]->SetNumberOfLabels(this->NumberOfAxisLabels);
-    this->Axes[i]->SetTitlePosition(-.05);
-    this->Axes[i]->GetTitleTextProperty()->SetJustificationToRight();
+    this->Axes[i]->SetTitlePosition(0);
     this->Axes[i]->GetTitleTextProperty()->ItalicOff();
     this->Axes[i]->GetTitleTextProperty()->BoldOff();
     this->Axes[i]->GetLabelTextProperty()->ItalicOff();

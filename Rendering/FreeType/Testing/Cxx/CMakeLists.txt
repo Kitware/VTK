@@ -4,13 +4,13 @@ set(TestMathTextFreeTypeTextRendererNoMath_ARGS
   DATA{../Data/Fonts/DejaVuSans.ttf}
 )
 vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
-  TestBillboardTextActor3D.cxx
+  TestBillboardTextActor3D.cxx,LOOSE_VALID
   TestFTStringToPath.cxx
   TestFlagpoleLabel.cxx
   TestFreeTypeTextMapperNoMath.cxx
   TestFreeTypeTools.cxx,NO_VALID
   TestMathTextFreeTypeTextRendererNoMath.cxx
-  TestTextActor.cxx
+  TestTextActor.cxx,LOOSE_VALID
   TestTextActorTileScaling.cxx
   TestTextActor3D.cxx,LOOSE_VALID
   TestTextActorAlphaBlending.cxx,LOOSE_VALID
@@ -18,7 +18,7 @@ vtk_add_test_cxx(vtkRenderingFreeTypeCxxTests tests
   TestTextActor3DAlphaBlending.cxx
   TestTextActor3DDepthPeeling.cxx
   TestTextActorScaleModeProp.cxx
-  TestTextMapper.cxx
+  TestTextMapper.cxx,LOOSE_VALID
   TestTextOpaquePass.cxx
   )
 

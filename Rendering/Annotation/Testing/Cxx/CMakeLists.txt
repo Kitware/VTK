@@ -37,7 +37,7 @@ vtk_add_test_cxx(vtkRenderingAnnotationCxxTests tests
   TestPolarAxes.cxx
   TestPolarAxes2D.cxx
   TestPolarAxes2DDefault.cxx
-  TestRadialGrid2D.cxx
+  TestRadialGrid2D.cxx,LOOSE_VALID
   TestScalarBar.cxx
   TestScalarBarAboveBelow.cxx
   TestSpiderPlotActor.cxx

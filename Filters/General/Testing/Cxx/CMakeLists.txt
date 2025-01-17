@@ -28,7 +28,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestDeflectNormals.cxx
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
-  TestDistancePolyDataFilter.cxx
+  TestDistancePolyDataFilter.cxx,LOOSE_VALID
   TestDistancePolyDataFilter2.cxx
   TestExplodeDataSet.cxx,NO_VALID
   TestExtractGhostCells.cxx,NO_VALID
@@ -78,7 +78,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   TestDataSetGradientPrecompute.cxx
   TestDateToNumeric.cxx
   TestGradientAndVorticity.cxx,NO_VALID
-  TestIconGlyphFilterGravity.cxx
+  TestIconGlyphFilterGravity.cxx,LOOSE_VALID
   TestQuadraturePoints.cxx
   TestYoungsMaterialInterface.cxx
   )

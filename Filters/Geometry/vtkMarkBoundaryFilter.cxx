@@ -294,7 +294,7 @@ int PolyDataExecute(vtkDataSet* dsInput, const unsigned char* ghosts, unsigned c
     MarkCellBoundary marker(ghosts, bPoints, bCells, bFaces, self);
     auto iter = vtk::TakeSmartPointer(lines->NewIterator());
     vtkStaticCellLinksTemplate<vtkIdType> links;
-    links.ThreadedBuildLinks(numPts, numLines, lines);
+    links.BuildLinks(numPts, numLines, lines);
     for (cellId = 0; cellId < numLines; ++cellId)
     {
       iter->GetCellAtId(cellId, npts, pts);
@@ -316,7 +316,7 @@ int PolyDataExecute(vtkDataSet* dsInput, const unsigned char* ghosts, unsigned c
   if (numPolys > 0)
   {
     vtkStaticCellLinksTemplate<vtkIdType> links;
-    links.ThreadedBuildLinks(numPts, numPolys, polys);
+    links.BuildLinks(numPts, numPolys, polys);
     MarkPolys mark(
       input, ghosts, (numVerts + numLines), polys, &links, bPoints, bCells, bFaces, self);
     vtkSMPTools::For(0, numPolys, mark);

@@ -107,9 +107,13 @@ void vtkBoundedWidgetRepresentation::UpdateCenterAndBounds(double center[6])
 
     if (this->GetConstrainToWidgetBounds())
     {
-      // make sure that widget bounds still englobe center.
-      vtkBoundingBox centerBox(center, std::numeric_limits<double>::epsilon());
-      widgetBox.AddBox(centerBox);
+      // move box to still contains center.
+      if (!widgetBox.ContainsPoint(center))
+      {
+        double distance[3];
+        widgetBox.GetDistance(center, distance);
+        widgetBox.Translate(distance);
+      }
     }
   }
 

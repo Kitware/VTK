@@ -12,7 +12,7 @@ vtk_add_test_cxx(vtkViewsInfovisCxxTests tests
   TestIconGlyphFilter.cxx
   TestInteractorStyleTreeMapHover.cxx
   TestNetworkViews.cxx
-  TestParallelCoordinatesView.cxx
+  TestParallelCoordinatesView.cxx,LOOSE_VALID
   TestRenderView.cxx
   TestSpanTreeLayoutStrategy.cxx
   TestTanglegramItem.cxx

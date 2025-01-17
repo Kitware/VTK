@@ -60,9 +60,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "^VTK::FiltersModelingPython-TestCookieCutter$"
     "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$" # seems to just not work here
 
-    # Font rendering differences (new baseline?)
-    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
-
     # Flaky timeouts https://gitlab.kitware.com/vtk/vtk/-/issues/18861
     "^VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget$"
 
@@ -74,7 +71,12 @@ endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
-    # Matplotlib fails to render anything. See #19302.
+    # Matplotlib related issues. See #19302.
+    # Matplotlib fails to render anything.
+    "^VTK::RenderingMatplotlibCxx-TestContextMathTextImage$"
+    "^VTK::RenderingMatplotlibCxx-TestIndexedLookupScalarBar$"
+    "^VTK::RenderingMatplotlibCxx-TestMathTextActor$"
+    "^VTK::RenderingMatplotlibCxx-TestMathTextActor3D$"
     "^VTK::RenderingMatplotlibCxx-TestRenderString$"
     "^VTK::RenderingMatplotlibCxx-TestScalarBarCombinatorics$"
     "^VTK::RenderingMatplotlibCxx-TestStringToPath$"
@@ -82,6 +84,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     "^VTK::RenderingMatplotlibPython-TestMathTextActor3D$"
     "^VTK::RenderingMatplotlibPython-TestRenderString$"
     "^VTK::RenderingMatplotlibPython-TestStringToPath$"
+    # Freetype, which depends on Matplotlib, fails to render anything
+    "^VTK::RenderingFreeTypeCxx-TestFontDPIScaling$"
+    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapper$"
+    "^VTK::RenderingFreeTypeCxx-TestFreeTypeTextMapperWithColumns$"
+    "^VTK::RenderingFreeTypeCxx-TestMathTextFonts$"
+    "^VTK::RenderingFreeTypeCxx-TestMathTextFreeTypeTextRenderer$"
 
     # Consistent timeout. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19303
@@ -335,6 +343,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     # floating point precision issues (fma optimizations change results)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
     "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
+    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
     "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
@@ -353,16 +362,24 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18229
     "^VTK::FiltersHyperTreeCxx-TestHyperTreeGridBinaryClipPlanes$"
     "^VTK::RenderingAnnotationCxx-TestCubeAxes3$"
-    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$")
+    "^VTK::RenderingAnnotationCxx-TestCubeAxesWithYLines$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   list(APPEND test_exclusions
+    # line differences https://gitlab.kitware.com/vtk/vtk/-/issues/18229
+    "^VTK::FiltersSourcesCxx-TestHyperTreeGridPreConfiguredSource$"
+    "^VTK::FiltersSourcesCxx-TestRandomHyperTreeGridSource$"
+
     # geometry shader issues (observed on M4 hardware)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19555
     "^VTK::IOIOSSCxx-TestIOSSApplyDisplacementsCGNS$"
     "^VTK::IOADIOS2Cxx-TestADIOS2BPReaderSingleTimeStep$"
-    "^VTK::CommonDataModelPython-TestClipPolyhedra$")
+    "^VTK::CommonDataModelPython-TestClipPolyhedra$"
+    "^VTK::ImagingCoreCxx-TestStencilWithPolyDataContour$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
@@ -370,12 +387,16 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel_macos" AND
   list(APPEND test_exclusions
     # floating point precision issues (fma optimizations change results)
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
     "^VTK::FiltersCorePython-TestSphereTreeFilter$"
     "^VTK::FiltersModelingPython-Hyper$"
     "^VTK::RenderingAnnotationPython-xyPlot$"
     "^VTK::RenderingAnnotationPython-xyPlot2$"
     "^VTK::RenderingAnnotationPython-xyPlot4$"
-    "^VTK::RenderingCorePython-pickImageData$")
+    "^VTK::RenderingCorePython-pickImageData$"
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64")

@@ -6,10 +6,10 @@
 #include "vtkActor.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkTesting.h"
 
 #include <QImage>
 
@@ -76,7 +76,7 @@ int TestQtWithDisabledInteractor(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int retVal = vtktesting->RegressionTest(fileName, 0.05);
+  int retVal = vtktesting->RegressionTest(fileName, vtkRegressionTester::ErrorThreshold);
   switch (retVal)
   {
     case vtkTesting::DO_INTERACTOR:

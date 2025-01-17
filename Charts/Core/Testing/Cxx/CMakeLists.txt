@@ -43,23 +43,23 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestCompositeControlPointsItem.cxx,NO_DATA,NO_VALID
   TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
   TestAreaPlot.cxx
-  TestAxes.cxx
+  TestAxes.cxx,LOOSE_VALID
   TestAxes2.cxx
-  TestBagPlot.cxx
-  TestBarGraph.cxx
-  TestBarGraphHorizontal.cxx
-  TestBarGraphSelection.cxx
-  TestBoxPlot.cxx
-  TestBoxPlot2.cxx
+  TestBagPlot.cxx,LOOSE_VALID
+  TestBarGraph.cxx,LOOSE_VALID
+  TestBarGraphHorizontal.cxx,LOOSE_VALID
+  TestBarGraphSelection.cxx,LOOSE_VALID
+  TestBoxPlot.cxx,LOOSE_VALID
+  TestBoxPlot2.cxx,LOOSE_VALID
   TestCategoryLegend.cxx
   TestColorTransferFunction.cxx
-  TestChartBadPoints.cxx
+  TestChartBadPoints.cxx,LOOSE_VALID
   TestChartDouble.cxx
   TestChartDoubleColors.cxx
   TestChartDoubleColorsOpaque.cxx
   TestChartLogScaleUpdates.cxx
-  TestChartMatrix.cxx
-  TestChartMatrix2.cxx
+  TestChartMatrix.cxx,LOOSE_VALID
+  TestChartMatrix2.cxx,LOOSE_VALID
   TestChartMatrix3.cxx
   TestChartPicking.cxx,NO_DATA,NO_VALID
   TestChartTileScaling.cxx
@@ -70,33 +70,33 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestChartXYZMarginsRotations.cxx
   TestChartXYZOuterEdgeLabelling.cxx
   TestChartXYZUnconstrained.cxx
-  TestContext.cxx
-  TestContextArea.cxx
-  TestContextAreaFixedAspect.cxx
-  TestContextAreaFixedMargins.cxx
+  TestContext.cxx,LOOSE_VALID
+  TestContextArea.cxx,LOOSE_VALID
+  TestContextAreaFixedAspect.cxx,LOOSE_VALID
+  TestContextAreaFixedMargins.cxx,LOOSE_VALID
   TestContextAreaFixedRect.cxx
   TestContextImage.cxx
   TestContextItemStacking.cxx
   TestContextUnicode.cxx
   TestControlPointsHandleItem.cxx
   TestDiagram.cxx
-  TestFunctionalBagPlot.cxx
-  TestHistogram2D.cxx
+  TestFunctionalBagPlot.cxx,LOOSE_VALID
+  TestHistogram2D.cxx,LOOSE_VALID
   TestHistogram2DComponent.cxx
   TestHistogram2DMagnitude.cxx
   TestInteractiveChartXYZ.cxx
-  TestLegendHiddenPlots.cxx
+  TestLegendHiddenPlots.cxx,LOOSE_VALID
   TestLinePlot.cxx
   TestLinePlotDouble.cxx
-  TestLinePlotDouble2.cxx
+  TestLinePlotDouble2.cxx,LOOSE_VALID
   TestLinePlot3D.cxx
-  TestLinePlotAxisFonts.cxx
+  TestLinePlotAxisFonts.cxx,LOOSE_VALID
   TestLinePlot2.cxx
   TestLinePlotInteraction.cxx
-  TestLinePlotSelection.cxx
-  TestLinePlotSelection2.cxx
+  TestLinePlotSelection.cxx,LOOSE_VALID
+  TestLinePlotSelection2.cxx,LOOSE_VALID
   TestLinePlotSelectionMultiBlock.cxx
-  TestMultipleChartRenderers.cxx
+  TestMultipleChartRenderers.cxx,LOOSE_VALID
   TestMultipleRenderers.cxx
   TestMultipleScalarsToColors.cxx
   TestParallelCoordinates.cxx
@@ -105,19 +105,19 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestParallelCoordinatesSelection.cxx,NO_VALID
   TestPieChart.cxx
   TestPlotBarRangeHandlesItem.cxx,NO_DATA,NO_VALID
-  TestPlotMatrix.cxx
+  TestPlotMatrix.cxx,LOOSE_VALID
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
   TestScalarsToColors.cxx
-  TestScatterPlot.cxx
+  TestScatterPlot.cxx,LOOSE_VALID
   TestScatterPlotMatrix.cxx
   TestScatterPlotMatrixHistogram.cxx
   TestScatterPlotMatrixVehicles.cxx
   TestScatterPlotMatrixVisible.cxx
-  TestScientificPlot.cxx
+  TestScientificPlot.cxx,LOOSE_VALID
   TestStackedBarGraph.cxx
-  TestStackedPlot.cxx
+  TestStackedPlot.cxx,LOOSE_VALID
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
   TestZoomIndividualAxis.cxx

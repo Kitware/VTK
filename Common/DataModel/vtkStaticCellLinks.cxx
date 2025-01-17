@@ -28,7 +28,6 @@ void vtkStaticCellLinks::BuildLinks()
   {
     return;
   }
-  this->Impl->SetSequentialProcessing(this->SequentialProcessing);
   this->Impl->BuildLinks(this->DataSet);
   this->BuildTime.Modified();
 }
@@ -41,7 +40,6 @@ void vtkStaticCellLinks::DeepCopy(vtkAbstractCellLinks* src)
   {
     return;
   }
-  this->SetSequentialProcessing(staticCellLinks->GetSequentialProcessing());
   this->Impl->DeepCopy(staticCellLinks->Impl);
   this->BuildTime.Modified();
 }
@@ -54,7 +52,6 @@ void vtkStaticCellLinks::ShallowCopy(vtkAbstractCellLinks* src)
   {
     return;
   }
-  this->SetSequentialProcessing(staticCellLinks->GetSequentialProcessing());
   this->Impl->ShallowCopy(staticCellLinks->Impl);
   this->BuildTime.Modified();
 }

@@ -381,6 +381,20 @@ public:
    */
   void ClampPoint(double point[3]);
 
+  /**
+   * For each axis, get the minimum distance to put the point inside the box.
+   * A value of 0 means "between min and max" (for the given coordinates).
+   * This is useful to get the minimum translation to apply to contains a point.
+   * @see Translate.
+   */
+  void GetDistance(double point[3], double distance[3]);
+
+  /**
+   * Translate box from motion.
+   * The value of motion is added to MinPoint and MaxPoint.
+   */
+  void Translate(double motion[3]);
+
 protected:
   double MinPnt[3], MaxPnt[3];
 };
