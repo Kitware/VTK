@@ -479,7 +479,15 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     //  Removes unnecessary faces from the cells.
     this->CleanCells();
     // Fill cells with corresponding nodes.
-    this->PopulateCellNodes();
+    try
+    {
+      this->PopulateCellNodes();
+    }
+    catch (std::runtime_error const& e)
+    {
+      vtkErrorMacro(<< e.what());
+      return 0;
+    }
 
     this->ParseDataZones(areCellsEnabled);
   }
@@ -3925,6 +3933,13 @@ void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
   Cell& cell = this->Cells[cellIdx];
   cell.nodeIndices.resize(8);
 
+  // Throw error when number of face of hexahedron cell is below 4.
+  // Number of face should be 6 but you can find the 8 corner points with at least 4 faces.
+  if (cell.faceIndices.size() < 4)
+  {
+    throw std::runtime_error("Some cells of the domain are incompatible with this reader.");
+  }
+
   if (this->Faces[cell.faceIndices[0]].c0 == static_cast<int>(cellIdx))
   {
     for (int j = 0; j < 4; j++)
@@ -3941,7 +3956,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
   }
 
   //  Look for opposite face of hexahedron
-  for (int j = 1; j < 6; j++)
+  for (size_t j = 1; j < cell.faceIndices.size(); j++)
   {
     int flag = 0;
     for (int k = 0; k < 4; k++)
@@ -3975,7 +3990,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
 
   //  Find the face with points 0 and 1 in them.
   int f01[4] = { -1, -1, -1, -1 };
-  for (int j = 1; j < 6; j++)
+  for (size_t j = 1; j < cell.faceIndices.size(); j++)
   {
     int flag0 = 0;
     int flag1 = 0;
@@ -4011,7 +4026,7 @@ void vtkFLUENTReader::PopulateHexahedronCell(size_t cellIdx)
 
   //  Find faces with points 0 and 3 in them.
   int f03[4] = { -1, -1, -1, -1 };
-  for (int faceIdx = 1; faceIdx < 6; ++faceIdx)
+  for (size_t faceIdx = 1; faceIdx < cell.faceIndices.size(); ++faceIdx)
   {
     const Face& candidateFace = this->Faces[cell.faceIndices[faceIdx]];
 

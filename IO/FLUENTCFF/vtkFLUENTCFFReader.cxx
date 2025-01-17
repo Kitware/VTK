@@ -108,9 +108,19 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("Unable to read the Case CFF file. The structure of the file may have changed.");
     return 0;
   }
-  this->CleanCells();
-  this->PopulateCellNodes();
-  this->GetNumberOfCellZones();
+
+  try
+  {
+    this->CleanCells();
+    this->PopulateCellNodes();
+    this->GetNumberOfCellZones();
+  }
+  catch (std::runtime_error const& e)
+  {
+    vtkErrorMacro(<< e.what());
+    return 0;
+  }
+
   this->NumberOfScalars = 0;
   this->NumberOfVectors = 0;
   if (this->FileState == DataState::AVAILABLE)
@@ -1887,6 +1897,13 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
 {
   this->Cells[i].nodes.resize(8);
 
+  // Throw error when number of face of hexahedron cell is below 4.
+  // Number of face should be 6 but you can find the 8 corner points with at least 4 faces.
+  if (this->Cells[i].faces.size() < 4)
+  {
+    throw std::runtime_error("Some cells of the domain are incompatible with this reader.");
+  }
+
   if (this->Faces[this->Cells[i].faces[0]].c0 == i)
   {
     for (int j = 0; j < 4; j++)
@@ -1903,7 +1920,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
   }
 
   //  Look for opposite face of hexahedron
-  for (int j = 1; j < 6; j++)
+  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag = 0;
     for (int k = 0; k < 4; k++)
@@ -1937,7 +1954,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
 
   //  Find the face with points 0 and 1 in them.
   int f01[4] = { -1, -1, -1, -1 };
-  for (int j = 1; j < 6; j++)
+  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag0 = 0;
     int flag1 = 0;
@@ -1973,7 +1990,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
 
   //  Find the face with points 0 and 3 in them.
   int f03[4] = { -1, -1, -1, -1 };
-  for (int j = 1; j < 6; j++)
+  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag0 = 0;
     int flag1 = 0;
