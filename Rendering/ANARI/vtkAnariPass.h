@@ -34,6 +34,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAnariPassInternals;
 class vtkAnariSceneGraph;
 class vtkCameraPass;
+class vtkViewNodeFactory;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPass : public vtkRenderPass
 {
@@ -65,6 +66,12 @@ public:
    * the device .
    */
   vtkAnariRenderer* GetAnariRenderer();
+
+  /**
+   * Make the factory available to apps that need to replace object(s) in VTK with
+   * their own at runtime (e.g. VisIt).
+   */
+  virtual vtkViewNodeFactory* GetViewNodeFactory();
 
 private:
   /**

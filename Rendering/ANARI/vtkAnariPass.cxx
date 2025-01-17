@@ -262,6 +262,12 @@ vtkAnariRenderer* vtkAnariPass::GetAnariRenderer()
 }
 
 // ----------------------------------------------------------------------------
+vtkViewNodeFactory* vtkAnariPass::GetViewNodeFactory()
+{
+  return this->Internal->Factory;
+}
+
+// ----------------------------------------------------------------------------
 vtkAnariPass::vtkAnariPass()
 {
   this->Internal = vtkAnariPassInternals::New();
