@@ -1018,8 +1018,10 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
     if (!this->ContinueExecuting)
     {
       this->ContinueExecuting = 1;
+      // Update only once to avoid too much recursive call
+      // otherwise, windows tends to stackoverflow
+      this->Update(request->Get(FROM_OUTPUT_PORT()));
     }
-    this->Update(request->Get(FROM_OUTPUT_PORT()));
   }
   else
   {

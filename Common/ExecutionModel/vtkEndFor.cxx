@@ -84,6 +84,39 @@ void vtkEndFor::SetAggregator(vtkExecutionAggregator* aggregator)
 }
 
 //------------------------------------------------------------------------------
+int vtkEndFor::RequestDataObject(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+  {
+    vtkErrorMacro("Could not retrieve input information");
+    return 0;
+  }
+
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (!outInfo)
+  {
+    vtkErrorMacro("Could not retrieve output information");
+    return 0;
+  }
+
+  if (!this->Internal->Aggregator)
+  {
+    vtkErrorMacro("Must set Aggregator before requesting data object");
+    return 0;
+  }
+  vtkSmartPointer<vtkDataObject> output =
+    this->Internal->Aggregator->RequestDataObject(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (output)
+  {
+    outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkEndFor::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -128,39 +161,6 @@ int vtkEndFor::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkEndFor::RequestDataObject(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
-{
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  if (!inInfo)
-  {
-    vtkErrorMacro("Could not retrieve input information");
-    return 0;
-  }
-
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (!outInfo)
-  {
-    vtkErrorMacro("Could not retrieve output information");
-    return 0;
-  }
-
-  if (!this->Internal->Aggregator)
-  {
-    vtkErrorMacro("Must set Aggregator before requesting data object");
-    return 0;
-  }
-  vtkSmartPointer<vtkDataObject> output =
-    this->Internal->Aggregator->RequestDataObject(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (output)
-  {
-    outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
-  }
-  return 1;
-}
-
-//------------------------------------------------------------------------------
 int vtkEndFor::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -185,14 +185,11 @@ int vtkEndFor::RequestData(
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   this->Internal->Aggregator->Aggregate(input);
+  this->Internal->ForEach->Iter();
 
   using SDDP = vtkStreamingDemandDrivenPipeline;
   if (this->Internal->ForEach->IsIterating())
   {
-    // We need to "touch" the top of the sub-pipeline we want
-    // to loop.
-    this->Internal->ForEach->Modified();
-
     if (SDDP::SafeDownCast(this->GetExecutive()))
     {
       // Tell the executive that we want to continue
