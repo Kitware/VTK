@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Added due to deprecated vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkConduitToDataObject.h"
 
 #include "vtkAMRBox.h"
@@ -18,10 +22,13 @@
 #include "vtkParallelAMRUtilities.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSMPTools.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
+
+#include "vtksys/SystemTools.hxx"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
@@ -34,7 +41,64 @@ namespace vtkConduitToDataObject
 VTK_ABI_NAMESPACE_BEGIN
 
 //----------------------------------------------------------------------------
-bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
+struct FieldMetadata
+{
+  vtkSmartPointer<vtkDataArray> ValuesToReplace = nullptr;
+  vtkSmartPointer<vtkDataArray> ReplacementValues = nullptr;
+  std::string AttributeType;
+
+  static vtkDataSetAttributes::AttributeTypes GetDataSetAttributeType(
+    const std::string& otherAttributeTypeName)
+  {
+    for (int i = 0; i < vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES; ++i)
+    {
+      const std::string attributeTypeName = vtkDataSetAttributes::GetAttributeTypeAsString(i);
+      if (vtksys::SystemTools::UpperCase(otherAttributeTypeName) ==
+        vtksys::SystemTools::UpperCase(attributeTypeName))
+      {
+        return static_cast<vtkDataSetAttributes::AttributeTypes>(i);
+      }
+    }
+    return vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES;
+  }
+
+  static bool IsGhostsAttributeType(const std::string& otherAttributeTypeName)
+  {
+    return vtksys::SystemTools::UpperCase(otherAttributeTypeName) == "GHOSTS";
+  }
+};
+
+//----------------------------------------------------------------------------
+struct ReplaceValuesWorker
+{
+  template <typename Array1T, typename Array2T, typename Array3T>
+  void operator()(Array1T* valuesToReplace, Array2T* replacementValues, Array3T* array) const
+  {
+    const vtkIdType numValuesToReplace = valuesToReplace->GetNumberOfTuples();
+    auto valuesToReplaceRange = vtk::DataArrayValueRange(valuesToReplace);
+    auto replacementValuesRange = vtk::DataArrayValueRange(replacementValues);
+    auto arrayRange = vtk::DataArrayValueRange(array);
+
+    vtkSMPTools::For(0, array->GetNumberOfTuples(),
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        for (vtkIdType inputIdx = begin; inputIdx < end; ++inputIdx)
+        {
+          for (vtkIdType repValueId = 0; repValueId < numValuesToReplace; ++repValueId)
+          {
+            if (valuesToReplaceRange[repValueId] == arrayRange[inputIdx])
+            {
+              arrayRange[inputIdx] = replacementValuesRange[repValueId];
+              break;
+            }
+          }
+        }
+      });
+  }
+};
+
+//----------------------------------------------------------------------------
+bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
 #if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   // conduit verify_shape_node dereferences the pointer to
@@ -51,8 +115,7 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
   // process "topologies".
   auto topologies = node["topologies"];
 
-  conduit_index_t nchildren = topologies.number_of_children();
-  for (conduit_index_t i = 0; i < nchildren; ++i)
+  for (conduit_index_t i = 0, nchildren = topologies.number_of_children(); i < nchildren; ++i)
   {
     auto child = topologies.child(i);
     try
@@ -88,9 +151,73 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
     return true;
   }
 
+  // read "state/metadata/vtk_fields"
+  std::map<std::string, FieldMetadata> fieldMetadata;
+  if (node.has_path("state/metadata/vtk_fields"))
+  {
+    auto fieldsMetadata = node["state/metadata/vtk_fields"];
+    for (conduit_index_t i = 0, nchildren = fieldsMetadata.number_of_children(); i < nchildren; ++i)
+    {
+      auto fieldMetadataNode = fieldsMetadata.child(i);
+      const auto& name = fieldMetadataNode.name();
+      try
+      {
+        // read values_to_replace and replacement_values if they exist
+        if (fieldMetadataNode.has_path("values_to_replace") &&
+          fieldMetadataNode.has_path("replacement_values"))
+        {
+          auto valuesToReplace = fieldMetadataNode["values_to_replace"];
+          fieldMetadata[name].ValuesToReplace =
+            vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&valuesToReplace));
+          auto replacementValues = fieldMetadataNode["replacement_values"];
+          fieldMetadata[name].ReplacementValues =
+            vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&replacementValues));
+          if (fieldMetadata[name].ValuesToReplace->GetNumberOfTuples() !=
+            fieldMetadata[name].ReplacementValues->GetNumberOfTuples())
+          {
+            vtkLogF(ERROR,
+              "values_to_replace and replacement_values should have equal size for field '%s'.",
+              name.c_str());
+            return false;
+          }
+          if (fieldMetadata[name].ValuesToReplace->GetNumberOfComponents() != 1 ||
+            fieldMetadata[name].ReplacementValues->GetNumberOfComponents() != 1)
+          {
+            vtkLogF(ERROR,
+              "values_to_replace and replacement_values should have 1 component for field '%s'.",
+              name.c_str());
+            return false;
+          }
+        }
+        // read attribute type if it exists
+        if (fieldMetadataNode.has_path("attribute_type"))
+        {
+          const std::string& attributeType = fieldMetadataNode["attribute_type"].as_string();
+          // check if the attribute type is valid
+          if (FieldMetadata::GetDataSetAttributeType(attributeType) !=
+              vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES ||
+            FieldMetadata::IsGhostsAttributeType(attributeType))
+          {
+            fieldMetadata[name].AttributeType = attributeType;
+          }
+          else
+          {
+            vtkLogF(
+              ERROR, "invalid attribute type '%s' for '%s'.", attributeType.c_str(), name.c_str());
+            return false;
+          }
+        }
+      }
+      catch (std::exception& e)
+      {
+        vtkLogF(ERROR, "failed to process '../state/metadata/vtk_fields/%s'.", name.c_str());
+        vtkLogF(ERROR, "ERROR: \n%s\n", e.what());
+        return false;
+      }
+    }
+  }
   auto fields = node["fields"];
-  nchildren = fields.number_of_children();
-  for (conduit_index_t i = 0; i < nchildren; ++i)
+  for (conduit_index_t i = 0, nchildren = fields.number_of_children(); i < nchildren; ++i)
   {
     auto fieldNode = fields.child(i);
     const auto& fieldname = fieldNode.name();
@@ -111,25 +238,68 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
       }
       if (dataset_size > 0)
       {
-        vtkSmartPointer<vtkDataArray> array;
+        // This code path should be removed once MCGhostArrayToVTKGhostArray is removed.
         if (fieldname == "ascent_ghosts")
         {
           // convert ascent ghost information into VTK ghost information
           // the VTK array is named vtkDataSetAttributes::GhostArrayName()
           // and has different values.
-          array = vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
+          auto array = vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
             conduit_cpp::c_node(&values), dsa->IsA("vtkCellData"));
+          dsa->AddArray(array);
+          continue;
+        }
+        vtkSmartPointer<vtkDataArray> array =
+          vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
+        if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
+        {
+          throw std::runtime_error("mismatched tuple count!");
+        }
+        if (fieldMetadata.find(fieldname) != fieldMetadata.end())
+        {
+          const auto& metadata = fieldMetadata[fieldname];
+          // replace values if needed
+          if (metadata.ValuesToReplace && metadata.ReplacementValues)
+          {
+            ReplaceValuesWorker replaceValuesWorker;
+            if (!vtkArrayDispatch::Dispatch3SameValueType::Execute(metadata.ValuesToReplace.Get(),
+                  metadata.ReplacementValues.Get(), array.Get(), replaceValuesWorker))
+            {
+              replaceValuesWorker(
+                metadata.ValuesToReplace.Get(), metadata.ReplacementValues.Get(), array.Get());
+            }
+          }
+          // extract the attribute type, and change the array name if needed
+          auto dsaAttributeType = vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES;
+          if (!metadata.AttributeType.empty())
+          {
+            dsaAttributeType = FieldMetadata::GetDataSetAttributeType(metadata.AttributeType);
+            if (FieldMetadata::IsGhostsAttributeType(metadata.AttributeType))
+            {
+              // convert its name to the VTK ghost array name
+              array->SetName(vtkDataSetAttributes::GhostArrayName());
+              // ensure the array is unsigned char
+              if (!array->IsA("vtkUnsignedCharArray"))
+              {
+                auto ghostArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
+                ghostArray->DeepCopy(array);
+                array = ghostArray;
+              }
+            }
+          }
+          if (dsaAttributeType != vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES)
+          {
+            dsa->SetAttribute(array, dsaAttributeType);
+          }
+          else
+          {
+            dsa->AddArray(array);
+          }
         }
         else
         {
-          array =
-            vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
-          if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
-          {
-            throw std::runtime_error("mismatched tuple count!");
-          }
+          dsa->AddArray(array);
         }
-        dsa->AddArray(array);
       }
     }
     catch (std::exception& e)
@@ -141,6 +311,12 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
   }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& meshNode)
+{
+  return FillPartitionedDataSet(output, meshNode);
 }
 
 //----------------------------------------------------------------------------

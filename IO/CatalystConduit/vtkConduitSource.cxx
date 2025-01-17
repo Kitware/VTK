@@ -116,7 +116,7 @@ bool vtkConduitSource::GenerateAMR(vtkDataObject* output)
 bool vtkConduitSource::GeneratePartitionedDataSet(vtkDataObject* output)
 {
   vtkNew<vtkPartitionedDataSet> pd_output;
-  if (!vtkConduitToDataObject::FillPartionedDataSet(pd_output, this->Internals->Node))
+  if (!vtkConduitToDataObject::FillPartitionedDataSet(pd_output, this->Internals->Node))
   {
     vtkLogF(ERROR, "Failed reading mesh from '%s'", this->Internals->Node.name().c_str());
     output->Initialize();
@@ -141,7 +141,7 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
     const auto& child = pdc_node.child(cc);
     auto pd = pdc_output->GetPartitionedDataSet(static_cast<unsigned int>(cc));
     assert(pd != nullptr);
-    if (!vtkConduitToDataObject::FillPartionedDataSet(pd, child))
+    if (!vtkConduitToDataObject::FillPartitionedDataSet(pd, child))
     {
       vtkLogF(ERROR, "Failed reading mesh '%s'", child.name().c_str());
       output->Initialize();
