@@ -625,6 +625,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   // if arrays are stored in device memory, we'll get an error - however this case did not work
   // for the deprecated function.
   // leafname is always "connectivity"
+  (void)leafname;
   return O2MRelationToVTKCellArray(0, c_o2mrelation);
 }
 
