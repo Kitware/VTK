@@ -42,25 +42,38 @@
 
 namespace
 {
-// Fast Labels
-vtkNew<vtkPlaneSource> plane;
-vtkNew<vtkTransformPolyDataFilter> xform;
-vtkNew<vtkTransform> matrix;
-vtkNew<vtkGenerateIds> ids;
-vtkNew<vtkFastLabeledDataMapper> labelMapper;
-vtkNew<vtkActor> labelActor;
+struct TestContextData
+{
+  // Fast Labels
+  vtkNew<vtkPlaneSource> plane;
+  vtkNew<vtkTransformPolyDataFilter> xform;
+  vtkNew<vtkTransform> matrix;
+  vtkNew<vtkGenerateIds> ids;
+  vtkNew<vtkFastLabeledDataMapper> labelMapper;
+  vtkNew<vtkActor> labelActor;
 
-// Filtering Polydata Source Data
-vtkNew<vtkExtractSelection> filter;
-vtkNew<vtkFastLabeledDataMapper> filteredLabelMapper;
-vtkNew<vtkActor> filteredActor;
+  // Filtering Polydata Source Data
+  vtkNew<vtkExtractSelection> filter;
+  vtkNew<vtkFastLabeledDataMapper> filteredLabelMapper;
+  vtkNew<vtkActor> filteredActor;
 
-// Origin Points
-vtkNew<vtkPolyDataMapper> originPointMapper;
-vtkNew<vtkActor> originPointActor;
+  // Origin Points
+  vtkNew<vtkPolyDataMapper> originPointMapper;
+  vtkNew<vtkActor> originPointActor;
 
-// Status Text
-vtkNew<vtkTextActor> statusTextLabelActor;
+  // Status Text
+  vtkNew<vtkTextActor> statusTextLabelActor;
+};
+
+std::unique_ptr<TestContextData> testContext;
+
+class ScopedTestContextInitializer
+{
+public:
+  ScopedTestContextInitializer() { testContext.reset(new TestContextData()); }
+
+  ~ScopedTestContextInitializer() { testContext.reset(nullptr); }
+};
 
 const char* LABEL_TYPES = "types";
 const char* LABEL_TEXT_NAMES = "names";
@@ -112,8 +125,8 @@ void AddTextProperties(vtkSmartPointer<vtkFastLabeledDataMapper> mapper)
 //-----------------------------------------------------------------------------
 void UpdatePlaneArrays(int prefix = 0)
 {
-  plane->Update();
-  auto dataset = plane->GetOutput();
+  testContext->plane->Update();
+  auto dataset = testContext->plane->GetOutput();
   auto pointData = dataset->GetPointData();
 
   vtkNew<vtkIntArray> types;
@@ -146,7 +159,7 @@ void UpdatePlaneArrays(int prefix = 0)
   pointData->AddArray(names);
   pointData->AddArray(frames);
 
-  xform->Modified();
+  testContext->xform->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -387,40 +400,40 @@ public:
       default:
         std::cout << "Invalid Index " << cnt << std::endl;
     }
-    statusTextLabelActor->SetTextProperty(p);
-    labelMapper->SetLabelTextProperty(p, 1);
+    testContext->statusTextLabelActor->SetTextProperty(p);
+    testContext->labelMapper->SetLabelTextProperty(p, 1);
   }
 
   //-----------------------------------------------------------------------------
   void FontSize(int sizeDelta)
   {
-    vtkTextProperty* p = labelMapper->GetLabelTextProperty(0);
+    vtkTextProperty* p = testContext->labelMapper->GetLabelTextProperty(0);
     int fsize = p->GetFontSize();
     fsize += sizeDelta;
     std::cout << "Font Size: " << fsize << std::endl;
     p->SetFontSize(fsize);
-    statusTextLabelActor->SetTextProperty(p);
-    labelMapper->SetLabelTextProperty(p, 0);
+    testContext->statusTextLabelActor->SetTextProperty(p);
+    testContext->labelMapper->SetLabelTextProperty(p, 0);
   }
 
   //-----------------------------------------------------------------------------
   void MultiplyData(double multiplier)
   {
     int res[2];
-    plane->GetResolution(res[0], res[1]);
+    testContext->plane->GetResolution(res[0], res[1]);
     res[1] = static_cast<int>(static_cast<double>(res[1]) * multiplier);
     std::cout << "Plane Muliplier: " << multiplier << " Size: " << res[1] << std::endl;
-    plane->SetResolution(res[0], res[1]);
+    testContext->plane->SetResolution(res[0], res[1]);
     UpdatePlaneArrays();
   }
 
   //-----------------------------------------------------------------------------
   void Scale(double multiplier)
   {
-    matrix->GetScale(scale);
+    testContext->matrix->GetScale(scale);
     scale[0] = multiplier;
-    matrix->Scale(scale);
-    matrix->GetScale(scale);
+    testContext->matrix->Scale(scale);
+    testContext->matrix->GetScale(scale);
     std::cout << "Scale Muliplier: " << multiplier << " Size: " << scale[0] << std::endl;
   }
 
@@ -451,8 +464,8 @@ public:
           }
         }
 #endif
-    ids->Update();
-    this->selectionExtraction->SetInputData(0, ids->GetOutput());
+    testContext->ids->Update();
+    this->selectionExtraction->SetInputData(0, testContext->ids->GetOutput());
     this->selectionExtraction->SetInputData(1, selection);
 
     selection->Delete();
@@ -484,12 +497,12 @@ public:
     if (enlarge)
     {
       std::cout << "ToggleFilter: Enlarge" << std::endl;
-      filter->SetInputData(1, GetFilterSelection(0, 10));
+      testContext->filter->SetInputData(1, GetFilterSelection(0, 10));
     }
     else
     {
       std::cout << "ToggleFilter: Reduce" << std::endl;
-      filter->SetInputData(1, GetFilterSelection(3, 7));
+      testContext->filter->SetInputData(1, GetFilterSelection(3, 7));
     }
     enlarge = !enlarge;
   }
@@ -511,87 +524,90 @@ int TestLabeledDataMappers(int argc, char* argv[])
   //-----------------------------------------------------------------------------
   KeyPressInteractorStyle::PrintControls();
 
+  ::ScopedTestContextInitializer scopedTestContextInit;
+  (void)scopedTestContextInit;
+
   //-----------------------------------------------------------------------------
   // General Labels
 
   // Create some data to label
-  plane->SetResolution(10, 10);
+  testContext->plane->SetResolution(10, 10);
   UpdatePlaneArrays();
 
   // Scale data
-  xform->SetInputConnection(plane->GetOutputPort());
-  xform->SetTransform(matrix);
+  testContext->xform->SetInputConnection(testContext->plane->GetOutputPort());
+  testContext->xform->SetTransform(testContext->matrix);
 
   // Generate ids for labeling
-  ids->SetInputConnection(xform->GetOutputPort());
-  ids->PointIdsOn();
+  testContext->ids->SetInputConnection(testContext->xform->GetOutputPort());
+  testContext->ids->PointIdsOn();
 
   // Map labels
-  AddTextProperties(labelMapper);
-  labelMapper->SetLabelModeToLabelFieldData();
-  labelMapper->SetFieldDataName(LABEL_TEXT_NAMES);
-  labelMapper->SetInputArrayToProcess(
+  AddTextProperties(testContext->labelMapper);
+  testContext->labelMapper->SetLabelModeToLabelFieldData();
+  testContext->labelMapper->SetFieldDataName(LABEL_TEXT_NAMES);
+  testContext->labelMapper->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, LABEL_TYPES);
 #if 0
   // Disable: this to use TextProperty colors
-  // labelMapper->SetFrameColorsName(LABEL_FRAMES);
+  // testContext->labelMapper->SetFrameColorsName(LABEL_FRAMES);
 #endif
 #define INSRC 0
 #if INSRC == 0
-  labelMapper->SetInputConnection(ids->GetOutputPort());
+  testContext->labelMapper->SetInputConnection(testContext->ids->GetOutputPort());
 #endif
 #if INSRC == 1
   vtkNew<vtkPolyData> pd;
-  pd->ShallowCopy(ids->GetOutput());
-  labelMapper->SetInputData(pd);
+  pd->ShallowCopy(testContext->ids->GetOutput());
+  testContext->labelMapper->SetInputData(pd);
 #endif
 #if INSRC == 2
   vtkNew<vtkTrivialProducer> tp;
-  tp->SetOutput(ids->GetOutput());
-  labelMapper->SetInputConnection(tp->GetOutputPort());
+  tp->SetOutput(testContext->ids->GetOutput());
+  testContext->labelMapper->SetInputConnection(tp->GetOutputPort());
 #endif
-  labelActor->SetMapper(labelMapper);
+  testContext->labelActor->SetMapper(testContext->labelMapper);
 
   //-----------------------------------------------------------------------------
   // Filtered PolyData Labels
-  filter->SetInputData(0, GetFilteredPolyDataInput());
-  filter->SetInputData(1, GetFilterSelection(3, 7));
+  testContext->filter->SetInputData(0, GetFilteredPolyDataInput());
+  testContext->filter->SetInputData(1, GetFilterSelection(3, 7));
   vtkNew<vtkGeometryFilter> geometryFilter;
-  geometryFilter->SetInputConnection(filter->GetOutputPort());
+  geometryFilter->SetInputConnection(testContext->filter->GetOutputPort());
 
-  AddTextProperties(filteredLabelMapper);
-  filteredLabelMapper->SetLabelModeToLabelFieldData();
-  filteredLabelMapper->SetFieldDataName(LABEL_TEXT_NAMES);
-  filteredLabelMapper->SetInputArrayToProcess(
+  AddTextProperties(testContext->filteredLabelMapper);
+  testContext->filteredLabelMapper->SetLabelModeToLabelFieldData();
+  testContext->filteredLabelMapper->SetFieldDataName(LABEL_TEXT_NAMES);
+  testContext->filteredLabelMapper->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, LABEL_TYPES);
-  filteredLabelMapper->SetInputConnection(geometryFilter->GetOutputPort());
-  filteredActor->SetMapper(filteredLabelMapper);
+  testContext->filteredLabelMapper->SetInputConnection(geometryFilter->GetOutputPort());
+  testContext->filteredActor->SetMapper(testContext->filteredLabelMapper);
 
   //-----------------------------------------------------------------------------
   // Status Text Mapping
-  statusTextLabelActor->SetInput("0 1 3 12 Z_61_a 102");
+  testContext->statusTextLabelActor->SetInput("0 1 3 12 Z_61_a 102");
   vtkNew<vtkTextProperty> statusTextProperty;
   statusTextProperty->SetFontFamilyAsString("Arial");
   statusTextProperty->SetFontSize(24);
   statusTextProperty->SetColor(1.0, 1.0, 1.0);
   statusTextProperty->SetBackgroundColor(1.0, 0.0, 0.0);
-  statusTextLabelActor->SetTextProperty(statusTextProperty);
+  testContext->statusTextLabelActor->SetTextProperty(statusTextProperty);
 
   //-----------------------------------------------------------------------------
   // Origin Points
-  originPointMapper->SetInputConnection(ids->GetOutputPort());
-  originPointActor->SetMapper(originPointMapper);
-  originPointActor->GetProperty()->SetRepresentationToPoints();
-  originPointActor->GetProperty()->RenderPointsAsSpheresOn();
-  originPointActor->GetProperty()->SetPointSize(5);
+  testContext->originPointMapper->SetInputConnection(testContext->ids->GetOutputPort());
+  testContext->originPointActor->SetMapper(testContext->originPointMapper);
+  testContext->originPointActor->GetProperty()->SetRepresentationToPoints();
+  testContext->originPointActor->GetProperty()->RenderPointsAsSpheresOn();
+  testContext->originPointActor->GetProperty()->SetPointSize(5);
 
   //-----------------------------------------------------------------------------
   // Rendering setup
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(originPointActor);
-  ren->AddActor(labelActor);
-  ren->AddActor(filteredActor);
-  ren->AddActor(statusTextLabelActor);
+  ren->AddActor(testContext->originPointActor);
+  ren->AddActor(testContext->labelActor);
+  ren->AddActor(testContext->filteredActor);
+  ren->AddActor(testContext->statusTextLabelActor);
 
   ren->SetBackground(.5, .5, 6.);
 
@@ -609,8 +625,8 @@ int TestLabeledDataMappers(int argc, char* argv[])
   style->SetCurrentRenderer(ren);
 
   renWin->Render();
-  labelMapper->ReleaseGraphicsResources(renWin);
-  filteredLabelMapper->ReleaseGraphicsResources(renWin);
+  testContext->labelMapper->ReleaseGraphicsResources(renWin);
+  testContext->filteredLabelMapper->ReleaseGraphicsResources(renWin);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
@@ -620,6 +636,6 @@ int TestLabeledDataMappers(int argc, char* argv[])
   }
 
   style->SetCurrentRenderer(nullptr);
-  labelActor->SetMapper(nullptr);
+  testContext->labelActor->SetMapper(nullptr);
   return !retVal;
 }

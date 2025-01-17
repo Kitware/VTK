@@ -33,6 +33,8 @@ include("${VTK_SOURCE_DIR}/CMake/vtkEmscripten.cmake")
 # For -sMEMORY64=1, -pthread, etc.
 include("${VTK_SOURCE_DIR}/CMake/vtkCompilerPlatformFlags.cmake")
 include("${VTK_SOURCE_DIR}/CMake/vtkCompilerWarningFlags.cmake")
+# For OpenGL options
+include("${VTK_SOURCE_DIR}/CMake/vtkOpenGLOptions.cmake")
 
 # Allow VTK to be discovered because emscripten's toolchain file 
 # forces cmake to look only inside `CMAKE_FIND_ROOT_PATH`

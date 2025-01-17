@@ -9,13 +9,6 @@ vtk_module_test_data(
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(_vtk_test_cxx_wasm_enabled_in_browser ON)
-  set(_vtk_test_emscripten_extra_linker_args
-    # O2 or higher make wasm-opt terribly slow.
-    # test executables take a minute to link.
-    "-O1"
-    # we need emscripten to emit code that handles exit code and atexit(s)
-    "-sEXIT_RUNTIME=1"
-    "-sALLOW_MEMORY_GROWTH=1")
 endif ()
 vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestBlockVisibility.cxx
@@ -52,7 +45,6 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestGlyph3DMapperPickability.cxx,NO_DATA
   TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
   TestHiddenLineRemovalPass.cxx
-  TestLabeledDataMappers.cxx
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
   TestMultiTexturing.cxx
@@ -122,6 +114,12 @@ set_tests_properties(VTK::RenderingOpenGL2Cxx-TestFramebufferHDR
 
 if (VTK_USE_SDL2)
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
+endif ()
+
+if (NOT VTK_OPENGL_USE_GLES)
+  # vtkFastLabeledDataMapper needs geometry shaders and GLES does not have them.
+  vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
+    TestLabeledDataMappers.cxx)
 endif ()
 
 if (VTK_USE_WIN32_OPENGL)

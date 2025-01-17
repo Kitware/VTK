@@ -3,16 +3,17 @@
 ## Introduction
 
 This page describes how to build and install VTK using [emscripten](https://emscripten.org) on any platform.
-These steps can be followed inside a docker container that comes with preinstalled `emsdk` such as
-[dockcross/web-wasm](https://hub.docker.com/r/dockcross/web-wasm). In fact, the VTK CI stage `webassembly-build`
-uses that container to configure and build VTK wasm.
 
 ```{note}
 
 Guide created using
 
-- VTK v9.2.6-2535-gc8cebe56fb
-- dockcross/web-wasm:20230222-162287d
+- CMake 3.26.3
+- Ninja 1.10.2
+- Emscripten 3.1.64
+- NodeJS 22.0.0
+- VTK 9.4.1-742-g299088fe88
+- Chrome For Testing 130.0.6723.91
 ```
 
 ## Prerequisites
@@ -32,13 +33,17 @@ For this guide, you will need the following:
    platform.  Please download the SDK from
    [github.com/emscripten-core/emsdk.git](https://github.com/emscripten-core/emsdk). Then,
 
-   - Install latest toolchain with `./emsdk install latest`
-   - Activate the toolchain `./emsdk activate latest`
+   - Install 3.1.64 toolchain with `./emsdk install 3.1.64`
+   - Activate the toolchain `./emsdk activate 3.1.64`
    - Run `emsdk_env.bat` or `emsdk_env.ps1` (Windows) or `source ./emsdk_env.sh` (Linux and OS X) to set up the environment for the calling terminal.
 
    For more detailed instructions see  [emsdk/README.md](https://github.com/emscripten-core/emsdk#readme).
 
-3. **VTK source-code**: If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
+3. **Node.js**: Please download the Node.js 22.0.0 binaries from [vtk.org/files/support]
+  and ensure that the command `node -v` outputs "v22.0.0" in your console. VTK's CI tests
+  work with this version of Node.js, and other versions may not function correctly.
+
+4. **VTK source-code**: If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
    Download VTK source for the version you want from
    [https://vtk.org/download/](https://vtk.org/download/)  (zip or tar.gz (Do
    NOT download the exe - this is not the VTK library.) ) You will probably
@@ -49,51 +54,51 @@ For this guide, you will need the following:
    This is recommended only if you intent to make changes and contribute to
    VTK. Please refer to [git/develop.md](../developers_guide/git/develop.md) for help with `git`.
 
+5. **Chrome For Testing**: This is optional. It is useful if you intend to run the test suite with `ctest`.
+  This is a Chrome flavor that specifically targets web app testing and automation use cases.
+  Please download the 130.0.6723.91 version from [vtk.org/files/support](https://vtk.org/files/support)
+
 ## Build project
-
-These instructions use a specific convention for the source, build and install directories that is appropriate when building VTK for wasm inside
-a docker container. Please replace these _root-directory_ paths if VTK is being built outside a docker container.
-
-### Install emscripten ports (IMPORTANT!)
-
-Emscripten relies on SDL2 to link user input events from the browser's event subsystem to native C/C++ code. If this is your initial download of the EMSDK, you'll need to build the SDL2 port. The "embuilder" script will be accessible on the path if you've successfully installed and activated the EMSDK, as outlined in the prerequisites.
-
-```bash
-$ embuilder build sdl2
-```
 
 ### Build VTK
 
 1. Configure the project with CMake. `emcmake` tells CMake to use the `emscripten` toolchain for cross compilation.
 
 ```bash
-cd /work/src/build
+cd /path/to/VTK/build
 $ emcmake cmake \
   -S .. \
   -B . \
   -G "Ninja" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
-  -DVTK_ENABLE_LOGGING:BOOL=OFF \
-  -DVTK_ENABLE_WRAPPING:BOOL=OFF \
+  -DVTK_ENABLE_WEBGPU:BOOL=ON \
   -DVTK_MODULE_ENABLE_VTK_RenderingLICOpenGL2:STRING=DONT_WANT
+```
+
+In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,
+specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`.
+
+```{note}
+On windows, please disable `proj` with `-DVTK_MODULE_ENABLE_VTK_proj:STRING=NO` to avoid error message:
+"unable to open database lib/../share/vtk-9.4/proj/proj.db: unable to open database file".
 ```
 
 2. Compile.
 
-```
-$ cd /work/src/build
+```bash
+$ cd /path/to/VTK/build
 $ ninja
 ```
 
 3. Install the project.
 
-```
-$ cd /work/src/build
+```bash
+$ cd /path/to/VTK/build
 $ ninja install
 ```
 
-The binaries are now installed and you may use `-DVTK_DIR=/work/install/lib/cmake/vtk-9.2` to configure VTK wasm applications with CMake.
+The binaries are now installed and you may use `-DVTK_DIR=/path/to/VTK/install/lib/cmake/vtk-9.4` to configure VTK wasm applications with CMake.
 
 ## Verify installation
 
@@ -136,3 +141,64 @@ In order to execute VTK wasm64 applications, additional flags are required for:
 1. chrome/edge: `--js-flags=--experimental-wasm-memory64`.
 2. firefox: no flag, use nightly/beta.
 3. nodejs: `--experimental-wasm-memory64`.
+
+
+## Test project
+
+In order to run the unit tests, execute the `ctest` command in your build directory.
+
+```{warning}
+The `ctest` command will appear to hang if you did not specify the path to a web browser executable in the configure step with VTK_TESTING_WASM_ENGINE.
+```
+
+Sometimes, your MR may break a unit test in the wasm32/wasm64 test jobs. In that case, it is extremely helpful to view the full output of the unit tests and even run the test in interactive mode.
+
+### Viewing unit test output
+
+You may run the tests with the verbose flag to view all messages sent to `cout` and `cerr`.
+
+```bash
+$ ctest -R FooUnitTest -VV
+```
+
+### Running unit tests interactively
+
+In order to run the unit test interactively, you will need to determine the exact program and arguments that `ctest` uses to run your unit test. You can see the test command for a test named `FooUnitTest` by running `ctest -R FooUnitTest -N -VV`. Now, reconstruct the test command line and add a `-I` argument at the end. This will keep the browser open because the unit test is in interactive mode.
+
+Here's an example:
+```bash
+$ ctest -R TestUserShader2D -N -V
+
+836: Test command: /usr/bin/python3.10 "/path/to/vtk/Testing/WebAssembly/runner.py" "--engine=/path/to/vtk/.gitlab/chrome/chrome" "--exit" "/path/to/vtk/build/bin/vtkRenderingOpenGL2CxxTests.js" "TestUserShader2D" "-T" "/path/to/vtk/build/Testing/Temporary" "-V" "/path/to/vtk/build/ExternalData/Rendering/OpenGL2/Testing/Data/Baseline/TestUserShader2D.png"
+836: Working Directory: /path/to/vtk/build/Rendering/OpenGL2/Testing/Cxx
+836: Environment variables:
+836:  VTK_TESTING=1
+836:  VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID
+Labels: VTK::RenderingOpenGL2 vtkRenderingOpenGL2
+  Test #836: VTK::RenderingOpenGL2Cxx-TestUserShader2D
+
+Total Tests: 1
+```
+
+From the result, we can reconstruct the test command and run the unit test interactively.
+
+```bash
+/usr/bin/python3.10 \
+"/path/to/vtk/Testing/WebAssembly/runner.py" \
+"--engine=/path/to/vtk/.gitlab/chrome/chrome" \
+"--exit" \
+"/path/to/vtk/build/bin/vtkRenderingOpenGL2CxxTests.js" \
+"TestUserShader2D"
+"-I"
+```
+
+Let's breakdown the command. It is important to understand how the command can be customized with additional arguments to the unit test.
+The above command runs a python script `runner.py` with the engine argument pointing to `chrome` and the `--exit` flag to inform the runner that it
+should terminate the browser and stop the HTTP server after the unit test `int main(int, char*[])` function returns an exit code. Finally the python
+script is given a path to the test executable followed by arguments that will be passed to the unit test. You can explore all arguments of the `runner.py`
+script with the `--help` argument.
+
+```{note}
+If your test crashes with errors like "Uncaught rejection from [object Promise]: 3829048", "Received exit code 1", "Out of memory", you can
+force the test runner to keep the HTTP server active by not providing the `--exit` argument.
+```
