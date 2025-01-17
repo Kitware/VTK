@@ -181,10 +181,10 @@ protected:
   double LastEventPosition[2];
 
   // Methods to manipulate the cursor
-  void Translate(double eventPos[2]);
-  void Scale(double eventPos[2]);
-  void ShiftContour(double eventPos[2]);
-  void ScaleContour(double eventPos[2]);
+  virtual void Translate(double eventPos[2]);
+  virtual void Scale(double eventPos[2]);
+  virtual void ShiftContour(double eventPos[2]);
+  virtual void ScaleContour(double eventPos[2]);
 
   void ComputeCentroid(double* ioCentroid);
 
