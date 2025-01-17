@@ -446,7 +446,13 @@ int vtkWin32RenderWindowInteractor::InternalCreateTimer(
   {
     vtkWin32RenderWindowInteractor::TimerContext* data =
       static_cast<vtkWin32RenderWindowInteractor::TimerContext*>(lpParameter);
-    PostMessage(data->WindowId, WM_TIMER, data->TimerId, 0);
+
+    // Do not post another message for the same timer if already posted
+    // to avoid flooding the message queue
+    if (!data->Posted.exchange(true))
+    {
+      PostMessage(data->WindowId, WM_TIMER, data->TimerId, 0);
+    }
   };
 
   std::unique_ptr<vtkWin32RenderWindowInteractor::TimerContext> timerContext(
@@ -671,6 +677,7 @@ int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
     return 0;
   }
   int tid = static_cast<int>(timerId);
+  this->TimerContextMap[timerId]->Posted = false;
   return this->InvokeEvent(vtkCommand::TimerEvent, &tid);
 }
 
