@@ -51,19 +51,19 @@ public:
     this->WriteFieldSet = true;
   }
 
-protected:
-  class GenericWriter;
-  class UniformDataSetWriter;
-  class RectilinearDataSetWriter;
-  class UnstructuredSingleTypeDataSetWriter;
-  class UnstructuredExplicitDataSetWriter;
-
   const unsigned char DATASET_TYPE_NONE = 0x00;
   const unsigned char DATASET_TYPE_UNIFORM = 0x01;
   const unsigned char DATASET_TYPE_RECTILINEAR = 0x02;
   const unsigned char DATASET_TYPE_UNSTRUCTURED_SINGLE = 0x08;
   const unsigned char DATASET_TYPE_UNSTRUCTURED = 0x10;
   const unsigned char DATASET_TYPE_ERROR = 0xFF;
+
+protected:
+  class GenericWriter;
+  class UniformDataSetWriter;
+  class RectilinearDataSetWriter;
+  class UnstructuredSingleTypeDataSetWriter;
+  class UnstructuredExplicitDataSetWriter;
 
   void SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSets);
   unsigned char GetDataSetType(const vtkm::cont::DataSet& ds);
@@ -73,7 +73,6 @@ protected:
   std::set<std::string> FieldsToWrite;
   bool WriteFieldSet;
 };
-
 
 class FIDES_EXPORT DataSetAppendWriter : public DataSetWriter
 {

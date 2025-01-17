@@ -63,7 +63,7 @@ fides_generate_export_header(fides)
 
 if (FALSE) # XXX(kitware): use vtk_module system
 target_compile_definitions(fides PRIVATE ${MPI_DEFS} ${ADIOS_DEFS})
-set(VTKM_LIBS vtkm::cont)
+set(VTKM_LIBS vtkm::cont vtkm::filter_clean_grid)
 target_link_libraries(fides PUBLIC ${VTKM_LIBS} adios2::adios2 PRIVATE
   fides_rapidjson)
 

@@ -33,6 +33,7 @@
 #include <vtkm/cont/CellSetSingleType.h>
 #include <vtkm/cont/CoordinateSystem.h>
 #include <vtkm/cont/DataSet.h>
+#include <vtkm/cont/Logging.h>
 #include <vtkm/cont/UnknownCellSet.h>
 
 #include <fides/CellSet.h>
@@ -60,6 +61,417 @@ namespace fides
 {
 namespace io
 {
+
+namespace
+{
+
+// When VTK converts to VTK-m DataSet, it may do a cast of some arrays from 32-bit to 64-bit Integers.
+// I don't think we need to handle any other cases than what are in these lists.
+using CellSetSingleTypeList =
+  vtkm::List<vtkm::cont::CellSetSingleType<>,
+             vtkm::cont::CellSetSingleType<
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+
+using CellSetExplicitList =
+  vtkm::List<vtkm::cont::CellSetExplicit<>,
+             vtkm::cont::CellSetExplicit<
+               vtkm::cont::StorageTagBasic,
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>,
+               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+
+using FullCellSetExplicitList = vtkm::ListAppend<CellSetSingleTypeList, CellSetExplicitList>;
+
+struct GetDataSetTypeFunctor
+{
+  template <typename ConnectivityStorage>
+  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<ConnectivityStorage>&,
+                            unsigned char& type,
+                            DataSetWriter& self)
+  {
+    type = self.DATASET_TYPE_UNSTRUCTURED_SINGLE;
+  }
+
+  template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
+    unsigned char& type,
+    DataSetWriter& self)
+  {
+    type = self.DATASET_TYPE_UNSTRUCTURED;
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet&, unsigned char& type, DataSetWriter& self)
+  {
+    // in this case we didn't find an appropriate dataset type
+    type = self.DATASET_TYPE_ERROR;
+  }
+};
+
+// Create an ADIOS Variable based on the type of the ArrayHandle
+struct DefineVariableFunctor
+{
+  // in the case where we have an array that is casted, we'll just have adios use
+  // the original type, because when we read back in, Fides shouldn't care about
+  // the types (and if there's an issue, it's likely a bug). So this way, we don't
+  // have to actually create an array of the casted type in order to have adios write it
+  template <typename TCast, typename TOrig>
+  VTKM_CONT void operator()(
+    const vtkm::cont::ArrayHandle<TCast,
+                                  vtkm::cont::StorageTagCast<TOrig, vtkm::cont::StorageTagBasic>>&,
+    const std::vector<size_t>& shape,
+    const std::vector<size_t>& offset,
+    const std::vector<size_t>& size,
+    adios2::IO& io,
+    const std::string& name)
+  {
+    io.template DefineVariable<TOrig>(name, shape, offset, size);
+  }
+
+  template <typename T, typename S>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
+                            const std::vector<size_t>& shape,
+                            const std::vector<size_t>& offset,
+                            const std::vector<size_t>& size,
+                            adios2::IO& io,
+                            const std::string& name)
+  {
+    using ComponentType = typename vtkm::VecTraits<T>::ComponentType;
+    io.template DefineVariable<ComponentType>(name, shape, offset, size);
+  }
+};
+
+// For CellSets we have an extra step to do before we can define variables for
+// the necessary ArrayHandle(s)
+struct DefineCellsVariableFunctor
+{
+  template <typename S>
+  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
+                            const std::vector<size_t>& shape,
+                            const std::vector<size_t>& offset,
+                            const std::vector<size_t>& size,
+                            adios2::IO& io,
+                            const std::string& name)
+  {
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    DefineVariableFunctor functor;
+    functor(conn, shape, offset, size, io, name);
+  }
+
+  template <typename S>
+  VTKM_CONT void operator()(const vtkm::cont::CellSetExplicit<S>& cellSet,
+                            const std::vector<size_t>& shape,
+                            const std::vector<size_t>& offset,
+                            const std::vector<size_t>& size,
+                            adios2::IO& io,
+                            const std::string& name)
+  {
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    DefineVariableFunctor functor;
+    functor(conn, shape, offset, size, io, name);
+  }
+
+  template <typename ConnType>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<
+      vtkm::cont::StorageTagBasic,
+      vtkm::cont::StorageTagCast<ConnType, vtkm::cont::StorageTagBasic>,
+      vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>& cellSet,
+    const std::vector<size_t>& shape,
+    const std::vector<size_t>& offset,
+    const std::vector<size_t>& size,
+    adios2::IO& io,
+    const std::string& name)
+  {
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    DefineVariableFunctor functor;
+    functor(conn, shape, offset, size, io, name);
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
+                            const std::vector<size_t>&,
+                            const std::vector<size_t>&,
+                            const std::vector<size_t>&,
+                            adios2::IO&,
+                            const std::string&)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+    throw std::runtime_error(err);
+  }
+};
+
+struct WriteExplicitCoordsFunctor
+{
+  template <typename T>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>>& array,
+                            adios2::IO& io,
+                            adios2::Engine& engine,
+                            size_t& cOffset,
+                            size_t totalNumberOfCoords)
+  {
+    auto coordsVar = io.template InquireVariable<T>("coordinates");
+    coordsVar.SetShape({ totalNumberOfCoords, 3 });
+
+    vtkm::cont::ArrayHandleBasic<vtkm::Vec<T, 3>> arr(array);
+    const vtkm::Vec<T, 3>* buffVec = arr.GetReadPointer();
+    const T* buff = &buffVec[0][0];
+
+    std::size_t numCoords = static_cast<std::size_t>(array.GetNumberOfValues());
+    // This is a way you can write chunks in.
+    // Instead of buffering the entire dataset, and then writing it,
+    // you can buffer subsets, and specify a "Box" offset.
+    adios2::Box<adios2::Dims> sel({ cOffset, 0 }, { numCoords, 3 });
+
+    coordsVar.SetSelection(sel);
+    engine.template Put<T>(coordsVar, buff);
+
+    cOffset += numCoords;
+  }
+
+  template <typename T, typename S>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array,
+                            adios2::IO&,
+                            adios2::Engine&,
+                            size_t&,
+                            size_t)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(array)) + " is not supported";
+    throw std::runtime_error(err);
+  }
+};
+
+template <typename T>
+vtkm::cont::ArrayHandle<T> GetSourceConnectivityArray(const vtkm::cont::ArrayHandle<T>& conn)
+{
+  return conn;
+}
+
+template <typename TOrig, typename TCast>
+vtkm::cont::ArrayHandle<TOrig> GetSourceConnectivityArray(
+  const vtkm::cont::ArrayHandle<TCast,
+                                vtkm::cont::StorageTagCast<TOrig, vtkm::cont::StorageTagBasic>>&
+    conn)
+{
+  const vtkm::cont::ArrayHandleCast<TCast, vtkm::cont::ArrayHandle<TOrig>>& casted = conn;
+  return casted.GetSourceArray();
+}
+
+struct WriteSingleTypeCellsFunctor
+{
+  template <typename ConnectivityStorage>
+  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<ConnectivityStorage>& cellSet,
+                            adios2::IO& io,
+                            adios2::Engine& engine,
+                            size_t& offset,
+                            size_t totalNumberOfConnIds)
+  {
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& sourceConn = GetSourceConnectivityArray(conn);
+
+    std::size_t numConn = static_cast<std::size_t>(sourceConn.GetNumberOfValues());
+
+    using ConnType = typename std::remove_reference<decltype(sourceConn)>::type::ValueType;
+    auto connVar = io.template InquireVariable<ConnType>("connectivity");
+    connVar.SetShape({ totalNumberOfConnIds });
+
+    adios2::Box<adios2::Dims> sel({ offset }, { numConn });
+    connVar.SetSelection(sel);
+
+    vtkm::cont::ArrayHandleBasic<ConnType> arr(sourceConn);
+    const ConnType* buff = arr.GetReadPointer();
+    engine.Put<ConnType>(connVar, buff);
+
+    offset += numConn;
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
+                            adios2::IO&,
+                            adios2::Engine&,
+                            size_t&,
+                            size_t)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(cellSet)) + " is not yet supported";
+    throw std::runtime_error(err);
+  }
+};
+
+struct CheckCellSetExplicitTypeFunctor
+{
+  template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
+    bool& isType)
+  {
+    isType = true;
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet&, bool& isType) { isType = false; }
+};
+
+struct ComputeNumConnsFunctor
+{
+  template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>& cellSet,
+    vtkm::Id& numConn)
+  {
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    numConn += conn.GetNumberOfValues();
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet, vtkm::Id&) const
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+    throw std::runtime_error(err);
+  }
+};
+
+struct WriteExplicitCellsFunctor
+{
+  template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
+  VTKM_CONT void operator()(
+    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>& cellSet,
+    std::size_t& cellOffset,
+    std::size_t& connOffset,
+    std::vector<vtkm::IdComponent>& numVerts,
+    std::size_t& numVertsOffset,
+    vtkm::Id totalNumberOfConns,
+    adios2::Engine& engine,
+    adios2::IO& io)
+  {
+    size_t numCells = static_cast<size_t>(cellSet.GetNumberOfCells());
+
+    const auto& shapes =
+      cellSet.GetShapesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+
+    vtkm::cont::ArrayHandleBasic<uint8_t> shapes_arr(shapes);
+    const uint8_t* buffer = shapes_arr.GetReadPointer();
+    adios2::Box<adios2::Dims> shapesSelection({ cellOffset }, { numCells });
+
+    auto shapesVar = io.InquireVariable<uint8_t>("cell_types");
+    shapesVar.SetSelection(shapesSelection);
+    engine.Put<uint8_t>(shapesVar, buffer);
+
+    // Each offset must be converted to a number of vertices. See
+    // CellSetExplicit::PostRead
+    auto const& offsets =
+      cellSet.GetOffsetsArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    auto rp = offsets.ReadPortal();
+
+    for (vtkm::Id i = 0; static_cast<size_t>(i) < numCells; i++)
+    {
+      numVerts[numVertsOffset + i] = rp.Get(i + 1) - rp.Get(i);
+    }
+
+    adios2::Box<adios2::Dims> vertsVarSel({ cellOffset }, { numCells });
+    auto vertsVar = io.InquireVariable<vtkm::IdComponent>("num_verts");
+    vertsVar.SetSelection(vertsVarSel);
+    engine.Put(vertsVar, &(numVerts[numVertsOffset]));
+    cellOffset += numCells;
+    numVertsOffset += numCells;
+
+    const auto& conn =
+      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& sourceConn = GetSourceConnectivityArray(conn);
+
+    std::size_t numConn = static_cast<std::size_t>(sourceConn.GetNumberOfValues());
+
+    using ConnType = typename std::remove_reference<decltype(sourceConn)>::type::ValueType;
+    auto connVar = io.template InquireVariable<ConnType>("connectivity");
+    connVar.SetShape({ static_cast<size_t>(totalNumberOfConns) });
+
+    adios2::Box<adios2::Dims> connSelection({ connOffset }, { numConn });
+    connVar.SetSelection(connSelection);
+
+    // Now get the buffer:
+    vtkm::cont::ArrayHandleBasic<ConnType> conn_arr(sourceConn);
+    const ConnType* buff4 = conn_arr.GetReadPointer();
+    engine.Put<ConnType>(connVar, buff4);
+    connOffset += numConn;
+  }
+
+  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
+                            std::size_t&,
+                            std::size_t&,
+                            std::vector<vtkm::IdComponent>&,
+                            std::size_t&,
+                            vtkm::Id,
+                            adios2::Engine&,
+                            adios2::IO&)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+    throw std::runtime_error(err);
+  }
+};
+
+struct WriteFieldFunctor
+{
+  template <typename T>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>>& array,
+                            adios2::IO& io,
+                            adios2::Engine& engine,
+                            const std::string& name,
+                            size_t totalSize,
+                            size_t offset,
+                            size_t numValues)
+  {
+    auto var = io.template InquireVariable<T>(name);
+    var.SetShape({ totalSize, 3 });
+
+    adios2::Box<adios2::Dims> sel({ offset, 0 }, { numValues, 3 });
+    var.SetSelection(sel);
+
+    vtkm::cont::ArrayHandleBasic<vtkm::Vec<T, 3>> arr(array);
+    const vtkm::Vec<T, 3>* buffVec = arr.GetReadPointer();
+    const T* buff = &buffVec[0][0];
+    engine.template Put<T>(var, buff);
+  }
+
+  template <typename T>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T>& array,
+                            adios2::IO& io,
+                            adios2::Engine& engine,
+                            const std::string& name,
+                            size_t totalSize,
+                            size_t offset,
+                            size_t numValues)
+  {
+    auto var = io.template InquireVariable<T>(name);
+    var.SetShape({ totalSize });
+
+    adios2::Box<adios2::Dims> sel({ offset }, { numValues });
+    var.SetSelection(sel);
+
+    vtkm::cont::ArrayHandleBasic<T> arr(array);
+    const T* buff = arr.GetReadPointer();
+    engine.template Put<T>(var, buff);
+  }
+
+  template <typename T, typename S>
+  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array,
+                            adios2::IO&,
+                            adios2::Engine&,
+                            const std::string&,
+                            size_t,
+                            size_t,
+                            size_t)
+  {
+    std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
+      vtkm::cont::TypeToString(typeid(array)) + " is not supported";
+    throw std::runtime_error(err);
+  }
+};
+
+} // end anon namespace
 
 class DataSetWriter::GenericWriter
 {
@@ -139,7 +551,7 @@ public:
 
   virtual void WriteFields()
   {
-    for (auto& var : this->PointCenteredFieldVars)
+    for (const auto& varName : this->PointCenteredFieldVars)
     {
       std::size_t ptsOffset = this->DataSetPointsOffset;
       for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
@@ -147,54 +559,24 @@ public:
         const auto& ds = this->DataSets.GetPartition(i);
         std::size_t numPoints = static_cast<std::size_t>(ds.GetNumberOfPoints());
 
-        if (!ds.HasPointField(var.Name()))
+        if (!ds.HasPointField(varName))
         {
-          throw std::runtime_error("Variable " + var.Name() + " not in datasset.");
+          throw std::runtime_error("Variable " + varName + " not in datasset.");
         }
-        auto field = ds.GetField(var.Name());
-        std::size_t numComponents =
-          static_cast<std::size_t>(field.GetData().GetNumberOfComponents());
-
-        if (numComponents == 1)
-        {
-          if (i == 0) //Only set the shape for first dataset.
-          {
-            var.SetShape({ this->TotalNumberOfPoints });
-          }
-
-          adios2::Box<adios2::Dims> sel({ ptsOffset }, { numPoints });
-          var.SetSelection(sel);
-
-          auto arr =
-            field.GetData().AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>>();
-          const vtkm::FloatDefault* buff = arr.GetReadPointer();
-          this->Engine.Put<vtkm::FloatDefault>(var, buff);
-        }
-        else if (numComponents == 3)
-        {
-          if (i == 0) //Only set the shape for first dataset.
-          {
-            var.SetShape({ this->TotalNumberOfPoints, numComponents });
-          }
-
-          adios2::Box<adios2::Dims> sel({ ptsOffset, 0 }, { numPoints, 3 });
-          var.SetSelection(sel);
-
-          auto arr = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::Vec3f>>();
-          const vtkm::Vec3f* buffVec = arr.GetReadPointer();
-          const vtkm::FloatDefault* buff = &buffVec[0][0];
-          this->Engine.Put<vtkm::FloatDefault>(var, buff);
-        }
-        else
-        {
-          throw std::runtime_error("Unsupported number of components in " + var.Name());
-        }
-
+        auto field = ds.GetField(varName).GetData();
+        field.CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+          WriteFieldFunctor{},
+          this->IO,
+          this->Engine,
+          varName,
+          this->TotalNumberOfPoints,
+          ptsOffset,
+          numPoints);
         ptsOffset += numPoints;
       }
     }
 
-    for (auto& var : this->CellCenteredFieldVars)
+    for (const auto& varName : this->CellCenteredFieldVars)
     {
       std::size_t cellsOffset = this->DataSetCellsOffset;
 
@@ -203,50 +585,20 @@ public:
         const auto& ds = this->DataSets.GetPartition(i);
         std::size_t numCells = static_cast<std::size_t>(ds.GetCellSet().GetNumberOfCells());
 
-        if (!ds.HasCellField(var.Name()))
+        if (!ds.HasCellField(varName))
         {
-          throw std::runtime_error("Variable " + var.Name() + " not in datasset.");
+          throw std::runtime_error("Variable " + varName + " not in datasset.");
         }
 
-        auto field = ds.GetField(var.Name());
-        std::size_t numComponents =
-          static_cast<std::size_t>(field.GetData().GetNumberOfComponents());
-
-        if (numComponents == 1)
-        {
-          auto arr =
-            field.GetData().AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>>();
-          const vtkm::FloatDefault* buff = arr.GetReadPointer();
-
-          if (i == 0) //Only set the shape for first dataset.
-          {
-            var.SetShape({ this->TotalNumberOfCells });
-          }
-
-          adios2::Box<adios2::Dims> sel({ cellsOffset }, { numCells });
-          var.SetSelection(sel);
-          this->Engine.Put<vtkm::FloatDefault>(var, buff);
-        }
-        else if (numComponents == 3)
-        {
-          if (i == 0) //Only set the shape for first dataset.
-          {
-            var.SetShape({ this->TotalNumberOfCells, 3 });
-          }
-
-          adios2::Box<adios2::Dims> sel({ cellsOffset, 0 }, { numCells, 3 });
-          var.SetSelection(sel);
-
-          auto arr = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::Vec3f>>();
-          const vtkm::Vec3f* buffVec = arr.GetReadPointer();
-          const vtkm::FloatDefault* buff = &buffVec[0][0];
-          this->Engine.Put<vtkm::FloatDefault>(var, buff);
-        }
-        else
-        {
-          throw std::runtime_error("Unsupported number of components in " + var.Name());
-        }
-
+        auto field = ds.GetField(varName).GetData();
+        field.CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+          WriteFieldFunctor{},
+          this->IO,
+          this->Engine,
+          varName,
+          this->TotalNumberOfCells,
+          cellsOffset,
+          numCells);
         cellsOffset += numCells;
       }
     }
@@ -349,8 +701,9 @@ public:
           size = { numPoints, numComponents };
         }
 
-        auto var = this->IO.DefineVariable<vtkm::FloatDefault>(name, shape, offset, size);
-        this->PointCenteredFieldVars.push_back(var);
+        field.GetData().CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+          DefineVariableFunctor{}, shape, offset, size, this->IO, name);
+        this->PointCenteredFieldVars.push_back(name);
       }
       else if (field.GetAssociation() == vtkm::cont::Field::Association::Cells)
       {
@@ -366,8 +719,9 @@ public:
           offset = { this->DataSetCellsOffset, 0 };
           size = { numCells, numComponents };
         }
-        auto var = this->IO.DefineVariable<vtkm::FloatDefault>(name, shape, offset, size);
-        this->CellCenteredFieldVars.push_back(var);
+        field.GetData().CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+          DefineVariableFunctor{}, shape, offset, size, this->IO, name);
+        this->CellCenteredFieldVars.push_back(name);
       }
     }
   }
@@ -449,8 +803,8 @@ protected:
   adios2::IO IO;
   adios2::Engine Engine;
 
-  std::vector<adios2::Variable<vtkm::FloatDefault>> PointCenteredFieldVars;
-  std::vector<adios2::Variable<vtkm::FloatDefault>> CellCenteredFieldVars;
+  std::vector<std::string> PointCenteredFieldVars;
+  std::vector<std::string> CellCenteredFieldVars;
   bool FieldsToWriteSet;
   std::set<std::string> FieldsToWrite;
 
@@ -714,9 +1068,6 @@ private:
 
 class DataSetWriter::UnstructuredSingleTypeDataSetWriter : public DataSetWriter::GenericWriter
 {
-  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
-  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
-
 public:
   UnstructuredSingleTypeDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
@@ -735,65 +1086,39 @@ public:
     shape = { this->TotalNumberOfCoords, 3 };
     offset = { this->CoordOffset, 0 };
     size = { this->NumCoords, 3 };
-    this->CoordsVar =
-      this->IO.DefineVariable<vtkm::FloatDefault>("coordinates", shape, offset, size);
+    const auto& coords = this->DataSets.GetPartition(0).GetCoordinateSystem().GetData();
+    coords.CastAndCall(DefineVariableFunctor{}, shape, offset, size, this->IO, "coordinates");
 
     shape = { this->TotalNumberOfConnIds };
     offset = { this->CellConnOffset };
     size = { this->NumCells * this->NumPointsInCell };
-    this->ConnVar = this->IO.DefineVariable<vtkm::Id>("connectivity", shape, offset, size);
+    const auto& cells = this->DataSets.GetPartition(0).GetCellSet();
+    cells.template CastAndCallForTypes<CellSetSingleTypeList>(
+      DefineCellsVariableFunctor{}, shape, offset, size, this->IO, "connectivity");
   }
 
   void WriteCoordinates() override
   {
     std::size_t cOffset = this->CoordOffset;
 
-    this->CoordsVar.SetShape({ this->TotalNumberOfCoords, 3 });
-
     for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       const auto& coords = ds.GetCoordinateSystem().GetData();
-      const auto& arr = coords.AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::Vec3f>>();
-
-      const vtkm::Vec3f* buffVec = arr.GetReadPointer();
-      const vtkm::FloatDefault* buff = &buffVec[0][0];
-
-      std::size_t numCoords = static_cast<std::size_t>(coords.GetNumberOfValues());
-      // This is a way you can write chunks in.
-      // Instead of buffering the entire dataset, and then writing it,
-      // you can buffer subsets, and specify a "Box" offset.
-      adios2::Box<adios2::Dims> sel({ cOffset, 0 }, { numCoords, 3 });
-
-      this->CoordsVar.SetSelection(sel);
-      this->Engine.Put<vtkm::FloatDefault>(this->CoordsVar, buff);
-
-      cOffset += numCoords;
+      coords.CastAndCall(
+        WriteExplicitCoordsFunctor{}, this->IO, this->Engine, cOffset, this->TotalNumberOfCoords);
     }
   }
 
   void WriteCells() override
   {
     std::size_t offset = this->CellConnOffset;
-    this->ConnVar.SetShape({ this->TotalNumberOfConnIds });
 
     for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
-      const auto& cellSet = ds.GetCellSet().AsCellSet<UnstructuredSingleType>();
-      const auto& conn = cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{},
-                                                      vtkm::TopologyElementTagPoint{});
-
-      std::size_t numConn = static_cast<std::size_t>(conn.GetNumberOfValues());
-
-      adios2::Box<adios2::Dims> sel({ offset }, { numConn });
-      this->ConnVar.SetSelection(sel);
-
-      vtkm::cont::ArrayHandleBasic<vtkm::Id> arr(conn);
-      const vtkm::Id* buff = arr.GetReadPointer();
-      this->Engine.Put<vtkm::Id>(this->ConnVar, buff);
-
-      offset += numConn;
+      ds.GetCellSet().template CastAndCallForTypes<CellSetSingleTypeList>(
+        WriteSingleTypeCellsFunctor{}, this->IO, this->Engine, offset, this->TotalNumberOfConnIds);
     }
   }
 
@@ -815,16 +1140,14 @@ protected:
     for (std::size_t i = 0; i < numDS; i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
-      const auto& coords =
-        ds.GetCoordinateSystem().GetData().AsArrayHandle<UnstructuredCoordType>();
-      this->NumCoords += coords.GetNumberOfValues();
+      this->NumCoords += ds.GetCoordinateSystem().GetNumberOfPoints();
 
-      const auto& cellSet = ds.GetCellSet().AsCellSet<UnstructuredSingleType>();
+      const auto& cellSet = ds.GetCellSet();
       this->NumCells += cellSet.GetNumberOfCells();
       if (i == 0)
       {
         this->NumPointsInCell = cellSet.GetNumberOfPointsInCell(0);
-        this->CellShape = cellSet.GetCellShapeAsId();
+        this->CellShape = cellSet.GetCellShape(0);
       }
       else
       {
@@ -833,7 +1156,7 @@ protected:
           throw std::runtime_error("Number of points in cell for "
                                    "CellSetSingleType is not consistent.");
         }
-        if (cellSet.GetCellShapeAsId() != this->CellShape)
+        if (cellSet.GetCellShape(0) != this->CellShape)
         {
           throw std::runtime_error("Cell shape for CellSetSingleType is not consistent. 00");
         }
@@ -893,16 +1216,10 @@ private:
   vtkm::Id CellShape = 0;
   size_t CoordOffset = 0;
   size_t CellConnOffset = 0;
-
-  adios2::Variable<vtkm::FloatDefault> CoordsVar;
-  adios2::Variable<vtkm::Id> ConnVar;
 };
 
 class DataSetWriter::UnstructuredExplicitDataSetWriter : public DataSetWriter::GenericWriter
 {
-  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
-  using UnstructuredExplicitType = vtkm::cont::CellSetExplicit<>;
-
 public:
   UnstructuredExplicitDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
@@ -913,7 +1230,10 @@ public:
     // Validate that every partition has the same type:
     for (auto const& ds : dataSets)
     {
-      if (!ds.GetCellSet().IsType<UnstructuredExplicitType>())
+      bool isType;
+      ds.GetCellSet().CastAndCallForTypes<CellSetExplicitList>(CheckCellSetExplicitTypeFunctor{},
+                                                               isType);
+      if (!isType)
       {
         std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__);
         err += ": The CellSet of each partition of the PartitionedDataSet is "
@@ -929,7 +1249,9 @@ public:
     // The mental model should be that each partition is a piece of a larger
     // geometry.
     std::vector<std::size_t> shape = { static_cast<size_t>(this->TotalNumberOfCoords), 3 };
-    this->CoordsVar = this->IO.DefineVariable<vtkm::FloatDefault>("coordinates", shape);
+    const auto& coords = this->DataSets.GetPartition(0).GetCoordinateSystem().GetData();
+    coords.CastAndCall(
+      DefineVariableFunctor{}, shape, adios2::Dims(), adios2::Dims(), this->IO, "coordinates");
 
     // Now the shapes array.
     this->ShapesVar = this->IO.DefineVariable<uint8_t>(
@@ -937,35 +1259,27 @@ public:
     // VTK-m stores offsets, but Fides stores the number of vertices/cell.
     this->VertsVar = this->IO.DefineVariable<vtkm::IdComponent>(
       "num_verts", { static_cast<size_t>(this->TotalNumberOfCells) });
-    this->ConnVar = this->IO.DefineVariable<vtkm::Id>(
-      "connectivity", { static_cast<size_t>(this->TotalNumberOfConns) });
+
+    shape = { static_cast<size_t>(this->TotalNumberOfConns) };
+    const auto& cells = this->DataSets.GetPartition(0).GetCellSet();
+    cells.template CastAndCallForTypes<CellSetExplicitList>(DefineCellsVariableFunctor{},
+                                                            shape,
+                                                            adios2::Dims(),
+                                                            adios2::Dims(),
+                                                            this->IO,
+                                                            "connectivity");
   }
 
   void WriteCoordinates() override
   {
     std::size_t cOffset = this->CoordOffset;
 
-    this->CoordsVar.SetShape({ static_cast<size_t>(this->TotalNumberOfCoords), 3 });
-
-    for (auto const& ds : DataSets)
+    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
-      // VTK-m wants to think about this data as [[v0_x, v0_y, v0_z], [v1_x,
-      // v1_y, v1_z], ...] But ADIOS wants to think about it as a contiguous
-      // array. I've asked Norbert to support "array of structs" directly, but
-      // since this bit of hacking gets it done, there's not a huge incentive to
-      // do this.
+      const auto& ds = this->DataSets.GetPartition(i);
       const auto& coords = ds.GetCoordinateSystem().GetData();
-      const auto& arr = coords.AsArrayHandle<vtkm::cont::ArrayHandleBasic<vtkm::Vec3f>>();
-      const vtkm::Vec3f* buffVec = arr.GetReadPointer();
-      // buff will point to v0_x, and buff + 1 points to v0_y, so on.
-      const vtkm::FloatDefault* buff = &buffVec[0][0];
-
-      std::size_t numCoords = static_cast<std::size_t>(coords.GetNumberOfValues());
-      adios2::Box<adios2::Dims> sel({ cOffset, 0 }, { numCoords, 3 });
-
-      this->CoordsVar.SetSelection(sel);
-      this->Engine.Put<vtkm::FloatDefault>(this->CoordsVar, buff);
-      cOffset += numCoords;
+      coords.CastAndCall(
+        WriteExplicitCoordsFunctor{}, this->IO, this->Engine, cOffset, this->TotalNumberOfCoords);
     }
   }
 
@@ -977,7 +1291,6 @@ public:
     //Update the shape size for this step.
     this->ShapesVar.SetShape({ this->TotalNumberOfCells });
     this->VertsVar.SetShape({ this->TotalNumberOfCells });
-    this->ConnVar.SetShape({ static_cast<size_t>(this->TotalNumberOfConns) });
 
     size_t cellOffset = this->CellOffset;
     size_t connOffset = this->ConnOffset;
@@ -985,46 +1298,14 @@ public:
     for (auto const& ds : this->DataSets)
     {
       const vtkm::cont::UnknownCellSet& dCellSet = ds.GetCellSet();
-      const auto& cellSet = dCellSet.AsCellSet<vtkm::cont::CellSetExplicit<>>();
-      size_t numCells = static_cast<size_t>(cellSet.GetNumberOfCells());
-
-      const auto& shapes =
-        cellSet.GetShapesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
-
-      vtkm::cont::ArrayHandleBasic<uint8_t> shapes_arr(shapes);
-      const uint8_t* buffer = shapes_arr.GetReadPointer();
-      adios2::Box<adios2::Dims> shapesSelection({ cellOffset }, { numCells });
-      this->ShapesVar.SetSelection(shapesSelection);
-      this->Engine.Put<uint8_t>(this->ShapesVar, buffer);
-
-      // Each offset must be converted to a number of vertices. See
-      // CellSetExplicit::PostRead
-      auto const& offsets =
-        cellSet.GetOffsetsArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
-      auto rp = offsets.ReadPortal();
-
-      for (vtkm::Id i = 0; static_cast<size_t>(i) < numCells; i++)
-      {
-        this->NumVerts[numVertsOffset + i] = rp.Get(i + 1) - rp.Get(i);
-      }
-
-      adios2::Box<adios2::Dims> vertsVarSel({ cellOffset }, { numCells });
-      this->VertsVar.SetSelection(vertsVarSel);
-      this->Engine.Put(this->VertsVar, &(this->NumVerts[numVertsOffset]));
-      cellOffset += numCells;
-      numVertsOffset += numCells;
-
-      const auto& conn = cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{},
-                                                      vtkm::TopologyElementTagPoint{});
-      std::size_t numConn = static_cast<std::size_t>(conn.GetNumberOfValues());
-      adios2::Box<adios2::Dims> connSelection({ connOffset }, { numConn });
-      this->ConnVar.SetSelection(connSelection);
-
-      // Now get the buffer:
-      vtkm::cont::ArrayHandleBasic<vtkm::Id> conn_arr(conn);
-      const vtkm::Id* buff4 = conn_arr.GetReadPointer();
-      this->Engine.Put<vtkm::Id>(this->ConnVar, buff4);
-      connOffset += numConn;
+      dCellSet.CastAndCallForTypes<CellSetExplicitList>(WriteExplicitCellsFunctor{},
+                                                        cellOffset,
+                                                        connOffset,
+                                                        this->NumVerts,
+                                                        numVertsOffset,
+                                                        this->TotalNumberOfConns,
+                                                        this->Engine,
+                                                        this->IO);
     }
   }
 
@@ -1045,7 +1326,7 @@ protected:
       const auto& coords = ds.GetCoordinateSystem().GetData();
       this->NumCoords += coords.GetNumberOfValues();
 
-      const auto& cellSet = ds.GetCellSet().AsCellSet<UnstructuredExplicitType>();
+      const auto& cellSet = ds.GetCellSet();
       this->NumCells += cellSet.GetNumberOfCells();
     }
 
@@ -1054,11 +1335,7 @@ protected:
     for (auto const& ds : DataSets)
     {
       auto const& dCellSet = ds.GetCellSet();
-      const auto& cellSet = dCellSet.AsCellSet<UnstructuredExplicitType>();
-      const auto& conn = cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{},
-                                                      vtkm::TopologyElementTagPoint{});
-      std::size_t numConn = static_cast<std::size_t>(conn.GetNumberOfValues());
-      this->NumConns += numConn;
+      dCellSet.CastAndCallForTypes<CellSetExplicitList>(ComputeNumConnsFunctor{}, this->NumConns);
     }
 
     numCoordinates[this->Rank] = this->NumCoords;
@@ -1090,9 +1367,7 @@ protected:
   }
 
 private:
-  adios2::Variable<vtkm::FloatDefault> CoordsVar;
   adios2::Variable<uint8_t> ShapesVar;
-  adios2::Variable<vtkm::Id> ConnVar;
   adios2::Variable<vtkm::IdComponent> VertsVar;
   vtkm::Id NumCoords = 0;
   vtkm::Id NumCells = 0;
@@ -1118,9 +1393,6 @@ unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
     vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
                                             vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
                                             vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
-
-  using UnstructuredExplicitType = vtkm::cont::CellSetExplicit<>;
 
   const vtkm::cont::CoordinateSystem& coords = ds.GetCoordinateSystem();
   const vtkm::cont::UnknownCellSet& cellSet = ds.GetCellSet();
@@ -1143,17 +1415,12 @@ unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
       return DATASET_TYPE_ERROR;
     }
   }
-  else if (cellSet.IsType<UnstructuredSingleType>())
-  {
-    return DATASET_TYPE_UNSTRUCTURED_SINGLE;
-  }
-  else if (cellSet.IsType<UnstructuredExplicitType>())
-  {
-    return DATASET_TYPE_UNSTRUCTURED;
-  }
   else
   {
-    return DATASET_TYPE_ERROR;
+    vtkm::cont::UncertainCellSet<FullCellSetExplicitList> uncertainCS(ds.GetCellSet());
+    unsigned char type;
+    uncertainCS.CastAndCall(GetDataSetTypeFunctor{}, type, *this);
+    return type;
   }
 }
 
