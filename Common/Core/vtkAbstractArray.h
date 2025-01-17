@@ -58,9 +58,6 @@
 #include "vtkVariant.h"       // for variant arguments
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-#include "vtk_nlohmannjson.h"
-#include VTK_NLOHMANN_JSON(json_fwd.hpp)
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkArrayIterator;
 class vtkDataArray;
@@ -78,8 +75,6 @@ class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkAbstractArray : public vtkObject
 public:
   vtkTypeMacro(vtkAbstractArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  void PrintValues(ostream& os);
-  nlohmann::json SerializeValues();
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.

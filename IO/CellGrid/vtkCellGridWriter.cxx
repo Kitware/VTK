@@ -157,6 +157,56 @@ std::string dataTypeToString(int dataType)
   return "unhandled";
 }
 
+struct WriteDataArrayWorker
+{
+  WriteDataArrayWorker(nlohmann::json& result)
+    : m_result(result)
+  {
+  }
+
+  template <typename InArrayT>
+  void operator()(InArrayT* inArray)
+  {
+    using T = vtk::GetAPIType<InArrayT>;
+    const auto inRange = vtk::DataArrayValueRange(inArray);
+    T val;
+    for (const auto& value : inRange)
+    {
+      val = value;
+      m_result.push_back(val);
+    }
+  }
+
+  nlohmann::json& m_result;
+};
+
+nlohmann::json serializeArrayValues(vtkAbstractArray* arr)
+{
+  auto result = nlohmann::json::array();
+  if (!arr)
+  {
+    return result;
+  }
+
+  if (auto* darr = vtkDataArray::SafeDownCast(arr))
+  {
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+    WriteDataArrayWorker worker(result);
+    if (!Dispatcher::Execute(darr, worker))
+    {
+      worker(darr);
+    }
+  }
+  else
+  {
+    for (vtkIdType ii = 0; ii < arr->GetNumberOfValues(); ++ii)
+    {
+      result.push_back(arr->GetVariantValue(ii).ToString());
+    }
+  }
+  return result;
+}
+
 bool getCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribute* attribute,
   nlohmann::json& rangeInfo)
 {
@@ -233,7 +283,7 @@ bool vtkCellGridWriter::ToJSON(nlohmann::json& data, vtkCellGrid* grid)
       arrayLocations[arr] = groupName;
       nlohmann::json arrayRecord{ { "name", arr->GetName() },
         { "tuples", arr->GetNumberOfTuples() }, { "components", arr->GetNumberOfComponents() },
-        { "type", dataTypeToString(arr->GetDataType()) }, { "data", arr->SerializeValues() } };
+        { "type", dataTypeToString(arr->GetDataType()) }, { "data", serializeArrayValues(arr) } };
       if (arr == groupScalars)
       {
         arrayRecord["default_scalars"] = true;
