@@ -73,11 +73,13 @@ public:
     if (this->VideoDecodeContext)
     {
       avcodec_close(this->VideoDecodeContext);
+      avcodec_free_context(&this->VideoDecodeContext);
       this->VideoDecodeContext = nullptr;
     }
     if (this->AudioDecodeContext)
     {
       avcodec_close(this->AudioDecodeContext);
+      avcodec_free_context(&this->AudioDecodeContext);
       this->AudioDecodeContext = nullptr;
     }
     if (this->FormatContext)
