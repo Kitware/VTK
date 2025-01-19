@@ -28,7 +28,7 @@ list(APPEND CMAKE_MODULE_PATH "${VTK_TOP_DIR}/CMake")
 # wasm32/wasm64. Import the flag selection logic from VTK source tree.
 # For VTK_BUILD_TESTING, VTK_TESTING_WASM_ENGINE[,_ARGUMENTS]
 include("${VTK_SOURCE_DIR}/CMake/vtkTesting.cmake")
-# For VTK_WEBASSEMBLY_64_BIT, default_wasm_threads
+# For VTK_WEBASSEMBLY_64_BIT, VTK_WEBASSEMBLY_THREADS and VTK_WEBASSEMBLY_EXCEPTIONS
 include("${VTK_SOURCE_DIR}/CMake/vtkEmscripten.cmake")
 # For -sMEMORY64=1, -pthread, etc.
 include("${VTK_SOURCE_DIR}/CMake/vtkCompilerPlatformFlags.cmake")

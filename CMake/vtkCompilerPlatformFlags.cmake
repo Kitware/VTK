@@ -18,6 +18,16 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  if (VTK_WEBASSEMBLY_EXCEPTIONS)
+    # Enable exceptions because VTK and third part code rely on C++ exceptions.
+    # Allow C++ to catch exceptions. Emscripten disables it by default due to high overhead.
+    # Generate helper functions to get stack traces for uncaught exceptions
+    set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fexceptions -sDISABLE_EXCEPTION_CATCHING=0")
+    set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -fexceptions -sDISABLE_EXCEPTION_CATCHING=0")
+    set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -fexceptions -sDISABLE_EXCEPTION_CATCHING=0 -sEXCEPTION_STACK_TRACES=1")
+    set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -fexceptions -sDISABLE_EXCEPTION_CATCHING=0 -sEXCEPTION_STACK_TRACES=1")
+    set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -fexceptions -sDISABLE_EXCEPTION_CATCHING=0 -sEXCEPTION_STACK_TRACES=1")
+  endif ()
   if (VTK_WEBASSEMBLY_THREADS)
     # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
     # Set Wno flag globally because even though the flag is added in vtkCopmilerWarningFlags.cmake,

@@ -106,6 +106,11 @@ If everything went well then it should now be possible to compile and run the on
 Head over to [Examples/Emscripten/Cxx/Cone/README.md](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Examples/Emscripten/Cxx/Cone/README.md)
 and test the simple Cone example.
 
+## Exceptions
+
+By default, emscripten disables exception catching and enables exception throwing because of the overhead in size and speed. The [wasm-exceptions proposal](https://github.com/WebAssembly/exception-handling/blob/master/proposals/exception-handling/Exceptions.md) aims to resolve this issue.
+In VTK, you can configure exceptions with the CMake setting `VTK_WEBASSEMBLY_EXCEPTIONS` (default `OFF`). Please note that the WASM CI build scripts turn on exceptions for developer convenience, so that a stack trace can be obtained when a C++ unit test crashes due to an uncaught exception or `abort`.
+
 ## Multithreading
 
 Multithreading can be enabled in VTK wasm by turning on the CMake setting `VTK_WEBASSEMBLY_THREADS`.

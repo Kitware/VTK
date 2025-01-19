@@ -17,7 +17,6 @@ if ("$ENV{WASM_ARCHITECTURE}" MATCHES "wasm64")
   set(VTK_WEBASSEMBLY_64_BIT ON)
 endif ()
 
-
 # Use Emscripten toolchain
 get_filename_component(emsdk_dir "${CMAKE_CURRENT_LIST_DIR}/../emsdk" ABSOLUTE)
 file(TO_CMAKE_PATH "${emsdk_dir}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" toolchain_file)
@@ -30,6 +29,7 @@ set(cmake_args
   "-DVTK_USE_LARGE_DATA:BOOL=ON"
   "-DVTK_BUILD_TESTING:BOOL=ON"
   "-DVTK_WEBASSEMBLY_64_BIT:BOOL=${VTK_WEBASSEMBLY_64_BIT}"
+  "-DVTK_WEBASSEMBLY_EXCEPTIONS:BOOL=ON"
   "-DVTK_TESTING_WASM_ENGINE=${VTK_TESTING_WASM_ENGINE}"
   "--no-warn-unused-cli")
 
