@@ -38,7 +38,6 @@ const double QVTKInteractorAdapter::DevicePixelRatioTolerance = 1e-5;
 QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
   : QObject(parentObject)
   , AccumulatedDelta(0)
-  , EnableTouchProcessing(true)
   , DevicePixelRatio(1.0)
 {
 }
@@ -47,7 +46,7 @@ QVTKInteractorAdapter::~QVTKInteractorAdapter() = default;
 
 void QVTKInteractorAdapter::SetEnableTouchEventProcessing(bool val)
 {
-  this->EnableTouchProcessing = val;
+  this->EnableTouchEventProcessing = val;
 }
 
 void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInteractor* iren)
@@ -201,7 +200,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
 
   if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
   {
-    if (!this->EnableTouchProcessing)
+    if (!this->EnableTouchEventProcessing)
     {
       return false;
     }

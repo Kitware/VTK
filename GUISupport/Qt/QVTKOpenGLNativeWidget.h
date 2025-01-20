@@ -148,7 +148,7 @@ public:
    * will process Qt::TouchBegin/TouchUpdate/TouchEnd event, otherwise, these events
    * will be ignored. For some vtk widgets like vtkDistanceWidget, if this option is
    * enabled, it will received leftButtonPressed/leftButtonRelease twice for one touch,
-   * this breaks its designed logics.
+   * this breaks its designed logics. Default is true.
    */
   void setEnableTouchEventProcessing(bool enable);
   bool enableTouchEventProcesing() const { return this->EnableTouchEventProcessing; }
