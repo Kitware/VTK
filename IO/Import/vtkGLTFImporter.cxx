@@ -403,9 +403,9 @@ void vtkGLTFImporter::InitializeLoader()
 int vtkGLTFImporter::ImportBegin()
 {
   // Make sure we have a file to read.
-  if (!this->FileName)
+  if (!this->Stream && !this->FileName)
   {
-    vtkErrorMacro("A FileName must be specified.");
+    vtkErrorMacro("Neither FileName nor Stream has been specified.");
     return 0;
   }
 
@@ -422,21 +422,44 @@ int vtkGLTFImporter::ImportBegin()
 
   // Check extension
   std::vector<char> glbBuffer;
-  std::string extension = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
-  if (extension == ".glb")
+  if (this->Stream != nullptr)
   {
-    if (!this->Loader->LoadFileBuffer(this->FileName, glbBuffer))
+    // this->Stream is defined.
+    if (this->StreamIsBinary)
     {
-      vtkErrorMacro("Error loading binary data");
+      if (!this->Loader->LoadStreamBuffer(this->Stream, glbBuffer))
+      {
+        vtkErrorMacro("Error loading binary data");
+        return 0;
+      }
+    }
+
+    if (!this->Loader->LoadModelMetaDataFromStream(this->Stream, this->StreamURILoader))
+    {
+      vtkErrorMacro("Error loading model metadata");
+      return 0;
+    }
+  }
+  else
+  {
+    // this->FileName is defined.
+    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(this->FileName);
+    if (extension == ".glb")
+    {
+      if (!this->Loader->LoadFileBuffer(this->FileName, glbBuffer))
+      {
+        vtkErrorMacro("Error loading binary data");
+        return 0;
+      }
+    }
+
+    if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
+    {
+      vtkErrorMacro("Error loading model metadata");
       return 0;
     }
   }
 
-  if (!this->Loader->LoadModelMetaDataFromFile(this->FileName))
-  {
-    vtkErrorMacro("Error loading model metadata");
-    return 0;
-  }
   if (!this->Loader->LoadModelData(glbBuffer))
   {
     vtkErrorMacro("Error loading model data");
@@ -1037,7 +1060,16 @@ bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double fr
 void vtkGLTFImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent;
+  if (this->Stream != nullptr)
+  {
+    os << "Stream (" << (this->StreamIsBinary ? "binary" : "ascii") << ")";
+  }
+  else
+  {
+    os << "File Name: " << (this->FileName ? this->FileName : "(none)");
+  }
+  os << "\n";
 }
 
 //------------------------------------------------------------------------------
