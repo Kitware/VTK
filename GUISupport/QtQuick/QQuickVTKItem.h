@@ -71,7 +71,8 @@ public:
    */
   virtual vtkUserData initializeVTK(vtkRenderWindow* renderWindow)
   {
-    Q_UNUSED(renderWindow) return {};
+    Q_UNUSED(renderWindow)
+    return {};
   }
   ///@}
 
@@ -132,6 +133,37 @@ public:
    * programmatically to update the item.
    */
   void scheduleRender();
+
+public Q_SLOTS: // NOLINT(readability-redundant-access-specifiers)
+  ///@{
+  /**
+   * Individual slots for the three pinch handler signals in QML namely,
+   * translationChanged, scaleChanged, rotationChanged. This allows a multi-touch QtQuick
+   * application to interact with this QQuickVTKItem.
+   *
+   * To use in qml:
+   *
+   * @code{qml}
+   *
+   *   QVTKItem{
+   *     id: qvtkitem
+   *     anchors.fill: parent
+   *   }
+   *   PinchHandler {
+   *     id: pch
+   *     target: null
+   *     onRotationChanged: (delta) => qvtkitem.pinchHandlerRotate(pch.centroid.position, delta)
+   *     onScaleChanged: (delta) => qvtkitem.pinchHandlerScale(pch.centroid.position, delta)
+   *     onTranslationChanged: (delta) => qvtkitem.pinchHandlerTranslate(pch.centroid.position,
+   *      delta)
+   *   }
+   *
+   * @endcode
+   */
+  Q_INVOKABLE void pinchHandlerRotate(const QPointF& position, double delta);
+  Q_INVOKABLE void pinchHandlerScale(const QPointF& position, double delta);
+  Q_INVOKABLE void pinchHandlerTranslate(const QPointF& position, const QVector2D& delta);
+  ///@}
 
 protected:
   bool event(QEvent*) override;
