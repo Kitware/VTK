@@ -121,6 +121,12 @@ int vtkCleanPolyData::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
+bool vtkCleanPolyData::IsPointDataAlreadyCopied(vtkIdType ptId)
+{
+  return this->CopiedPoints.find(ptId) != this->CopiedPoints.end();
+}
+
+//------------------------------------------------------------------------------
 bool vtkCleanPolyData::IsPrimaryPoint(vtkPolyData* input, vtkIdType ptIndex)
 {
   return !input->HasAnyGhostPoints() ||
@@ -295,8 +301,9 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         else
         {
           this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]))
+          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
           {
+            this->CopiedPoints.insert(ptId);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
@@ -352,8 +359,9 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         else
         {
           this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]))
+          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
           {
+            this->CopiedPoints.insert(ptId);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
@@ -433,8 +441,9 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         else
         {
           this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]))
+          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
           {
+            this->CopiedPoints.insert(ptId);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }
@@ -535,8 +544,9 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
         else
         {
           this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]))
+          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
           {
+            this->CopiedPoints.insert(ptId);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
         }

@@ -19,6 +19,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendFilter);
@@ -477,19 +478,16 @@ void vtkAppendFilter::AppendArrays(int attributesType, vtkInformationVector** in
       bool checkGhostValue =
         attributesType == vtkDataObject::POINT && reallyMergePoints && dataSet->HasAnyGhostPoints();
       vtkUnsignedCharArray* ghostPointArray = dataSet->GetGhostArray(vtkDataObject::POINT);
+      std::unordered_set<vtkIdType> copiedPoints;
       const auto numberOfInputTuples = inputData->GetNumberOfTuples();
       for (vtkIdType id = 0; id < numberOfInputTuples; ++id)
       {
-        if (!checkGhostValue || ghostPointArray->GetValue(id) == 0)
+        vtkIdType toId = globalIds != nullptr ? globalIds[offset + id] : offset + id;
+        if (!checkGhostValue || ghostPointArray->GetValue(id) == 0 ||
+          copiedPoints.find(toId) == copiedPoints.end())
         {
-          if (globalIds != nullptr)
-          {
-            fieldList.CopyData(inputIndex, inputData, id, outputData, globalIds[offset + id]);
-          }
-          else
-          {
-            fieldList.CopyData(inputIndex, inputData, id, outputData, offset + id);
-          }
+          copiedPoints.insert(toId);
+          fieldList.CopyData(inputIndex, inputData, id, outputData, toId);
         }
       }
       offset += numberOfInputTuples;
