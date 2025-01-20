@@ -363,7 +363,9 @@ void vtkFFMPEGWriterInternal::End()
 
   if (this->avCodecContext)
   {
+#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 62
     avcodec_close(this->avCodecContext);
+#endif
     avcodec_free_context(&this->avCodecContext);
     this->avCodecContext = nullptr;
   }

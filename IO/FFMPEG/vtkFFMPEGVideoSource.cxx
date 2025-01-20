@@ -72,12 +72,18 @@ public:
     }
     if (this->VideoDecodeContext)
     {
+#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 62
       avcodec_close(this->VideoDecodeContext);
+#endif
+      avcodec_free_context(&this->VideoDecodeContext);
       this->VideoDecodeContext = nullptr;
     }
     if (this->AudioDecodeContext)
     {
+#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 62
       avcodec_close(this->AudioDecodeContext);
+#endif
+      avcodec_free_context(&this->AudioDecodeContext);
       this->AudioDecodeContext = nullptr;
     }
     if (this->FormatContext)
