@@ -12,6 +12,7 @@ DEPENDS
   VTK::CommonCore
   VTK::CommonExecutionModel
   VTK::CommonMisc
+  VTK::IOCore
   VTK::RenderingCore
   VTK::vtksys
 PRIVATE_DEPENDS

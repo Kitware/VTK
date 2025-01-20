@@ -64,7 +64,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCamera;
 class vtkGLTFDocumentLoader;
-class vtkResourceStream;
 class vtkTexture;
 class vtkURILoader;
 
