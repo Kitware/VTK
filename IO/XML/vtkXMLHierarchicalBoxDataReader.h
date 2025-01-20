@@ -19,10 +19,12 @@
 #ifndef vtkXMLHierarchicalBoxDataReader_h
 #define vtkXMLHierarchicalBoxDataReader_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkXMLUniformGridAMRReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLUniformGridAMRReader
+class VTK_DEPRECATED_IN_9_5_0("Please use `vtkXMLUniformGridAMRReader` instead.")
+  VTKIOXML_EXPORT vtkXMLHierarchicalBoxDataReader : public vtkXMLUniformGridAMRReader
 {
 public:
   static vtkXMLHierarchicalBoxDataReader* New();

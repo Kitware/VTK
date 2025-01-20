@@ -208,7 +208,7 @@ bool vtkCompositeDataPipeline::ShouldIterateOverInput(
 
         if (strcmp(inputType, "vtkCompositeDataSet") == 0 ||
           strcmp(inputType, "vtkDataObjectTree") == 0 ||
-          strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 ||
+          strcmp(inputType, "vtkHierarchicalBoxDataSet") == 0 || // VTK_DEPRECATED_IN_9_5_0
           strcmp(inputType, "vtkUniformGridAMR") == 0 ||
           strcmp(inputType, "vtkOverlappingAMR") == 0 ||
           strcmp(inputType, "vtkNonOverlappingAMR") == 0 ||
@@ -1005,6 +1005,7 @@ std::vector<vtkSmartPointer<vtkDataObject>> vtkCompositeDataPipeline::CreateOutp
   //      whether to create vtkHierarchicalBoxDataSet or vtkMultiBlockDataSet.
   std::vector<vtkSmartPointer<vtkDataObject>> outputVector;
 
+  // VTK_DEPRECATED_IN_9_5_0, remove vtkHierarchicalBoxDataSet on removal
   if (input->IsA("vtkHierarchicalBoxDataSet") || input->IsA("vtkOverlappingAMR") ||
     input->IsA("vtkNonOverlappingAMR"))
   {

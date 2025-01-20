@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_5_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCompositeDataReader.h"
 
 #include "vtkAMRBox.h"
@@ -162,7 +166,6 @@ int vtkCompositeDataReader::ReadMeshSimple(const std::string& fname, vtkDataObje
 
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(output);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(output);
-  vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::SafeDownCast(output);
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(output);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(output);
   vtkPartitionedDataSet* pd = vtkPartitionedDataSet::SafeDownCast(output);
@@ -186,10 +189,6 @@ int vtkCompositeDataReader::ReadMeshSimple(const std::string& fname, vtkDataObje
   else if (mp)
   {
     this->ReadCompositeData(mp);
-  }
-  else if (hb)
-  {
-    this->ReadCompositeData(hb);
   }
   else if (oamr)
   {
@@ -289,9 +288,9 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkMultiBlockDataSet* mb)
 }
 
 //------------------------------------------------------------------------------
-bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* hb)
+bool vtkCompositeDataReader::ReadCompositeData(vtkHierarchicalBoxDataSet* amr)
 {
-  (void)hb;
+  (void)amr;
   vtkErrorMacro("This isn't supported yet.");
   return false;
 }
@@ -461,9 +460,9 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
 }
 
 //------------------------------------------------------------------------------
-bool vtkCompositeDataReader::ReadCompositeData(vtkNonOverlappingAMR* hb)
+bool vtkCompositeDataReader::ReadCompositeData(vtkNonOverlappingAMR* amr)
 {
-  (void)hb;
+  (void)amr;
   vtkErrorMacro("This isn't supported yet.");
   return false;
 }

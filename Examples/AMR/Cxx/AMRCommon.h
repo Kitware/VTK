@@ -14,15 +14,14 @@
 
 #include "vtkCell.h"
 #include "vtkCompositeDataWriter.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkUniformGrid.h"
-#include "vtkXMLHierarchicalBoxDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+#include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUniformGridAMRWriter.h"
 
 namespace AMRCommon
@@ -68,12 +67,12 @@ void WriteAMRData(vtkOverlappingAMR* amrData, const std::string& prefix)
 //------------------------------------------------------------------------------
 // Description:
 // Reads AMR data to the given data-structure from the prescribed file.
-vtkHierarchicalBoxDataSet* ReadAMRData(const std::string& file)
+vtkOverlappingAMR* ReadAMRData(const std::string& file)
 {
   // Sanity check
   //  assert( "pre: AMR dataset is NULL!" && (amrData != NULL) );
 
-  vtkXMLHierarchicalBoxDataReader* myAMRReader = vtkXMLHierarchicalBoxDataReader::New();
+  vtkXMLUniformGridAMRReader* myAMRReader = vtkXMLUniformGridAMRReader::New();
   assert("pre: AMR Reader is NULL!" && (myAMRReader != nullptr));
 
   std::ostringstream oss;
@@ -87,8 +86,7 @@ vtkHierarchicalBoxDataSet* ReadAMRData(const std::string& file)
   myAMRReader->SetFileName(oss.str().c_str());
   myAMRReader->Update();
 
-  vtkHierarchicalBoxDataSet* amrData =
-    vtkHierarchicalBoxDataSet::SafeDownCast(myAMRReader->GetOutput());
+  vtkOverlappingAMR* amrData = vtkOverlappingAMR::SafeDownCast(myAMRReader->GetOutput());
   assert("post: AMR data read is NULL!" && (amrData != nullptr));
   return (amrData);
 }

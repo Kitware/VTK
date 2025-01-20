@@ -16,8 +16,8 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkAMRBox.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkOverlappingAMR.h"
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
@@ -88,7 +88,7 @@ const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] = {
   "vtkUnstructuredGrid",
   "NA",
   "NA",
-  "vtkHierarchicalBoxDataSet",
+  "vtkOverlappingAMR",
   "NA",
   "vtkMultiBlockDataSet",
   "NA",
@@ -644,7 +644,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
     {
       // Making octrees, structured can grid up space arbitrarily though
 
-      vtkHierarchicalBoxDataSet* hbo = vtkHierarchicalBoxDataSet::SafeDownCast(outData);
+      vtkOverlappingAMR* hbo = vtkOverlappingAMR::SafeDownCast(outData);
 
       std::vector<int> blocksPerLevel;
       std::vector<vtkInternalStructureCache*>::iterator git;

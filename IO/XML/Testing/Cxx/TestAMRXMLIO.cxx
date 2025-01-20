@@ -92,10 +92,7 @@ bool TestAMRXMLIO_OverlappingAMR3D(const std::string& output_dir)
 bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::string& output_dir)
 {
   std::string filename = input_dir + "/AMR/HierarchicalBoxDataset.v1.1.vthb";
-  // for vtkHierarchicalBoxDataSet, vtkXMLGenericDataObjectReader creates the
-  // legacy reader by default. For version 1.1, we should use the
-  // vtkXMLUniformGridAMRReader explicitly. vtkHierarchicalBoxDataSet itself is
-  // obsolete.
+
   vtkNew<vtkXMLUniformGridAMRReader> reader;
   reader->SetFileName(filename.c_str());
   reader->Update();

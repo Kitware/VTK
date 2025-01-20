@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkXMLPMultiBlockDataWriter
- * @brief   parallel writer for
- * vtkHierarchicalBoxDataSet.
+ * @brief   parallel writer for vtkMultiBlockDataSet.
  *
  * vtkXMLPCompositeDataWriter writes (in parallel or serially) the VTK XML
  * multi-group, multi-block hierarchical and hierarchical box files. XML

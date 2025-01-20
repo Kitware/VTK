@@ -10,7 +10,6 @@
 #include "vtkClipConvexPolyData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkLookupTable.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPiecewiseFunction.h"
@@ -29,7 +28,6 @@
 #include "vtkUniformGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkXMLHierarchicalBoxDataReader.h"
 
 int TestTessellatedBoxSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

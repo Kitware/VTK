@@ -14,7 +14,7 @@
  * In this case, these 4 pieces can be collected together using a
  * vtkMultiPieceDataSet.
  * Note that vtkMultiPieceDataSet is intended to be included in other composite
- * datasets eg. vtkMultiBlockDataSet, vtkHierarchicalBoxDataSet. Hence the lack
+ * datasets eg. vtkMultiBlockDataSet. Hence the lack
  * of algorithms producing vtkMultiPieceDataSet.
  */
 

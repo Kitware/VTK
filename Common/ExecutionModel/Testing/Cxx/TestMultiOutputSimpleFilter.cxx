@@ -3,11 +3,11 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkFieldData.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkOverlappingAMR.h"
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
@@ -196,7 +196,7 @@ int TestComposite(std::string& inputDataFile, bool isAMR)
   }
   else
   {
-    if (!vtkHierarchicalBoxDataSet::SafeDownCast(data1))
+    if (!vtkOverlappingAMR::SafeDownCast(data1))
     {
       std::cout << "Error: output 1 is not an AMR dataset after composite data pipeline run"
                 << std::endl;

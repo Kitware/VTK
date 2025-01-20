@@ -45,7 +45,7 @@ static struct PulseAttributes
 void SetPulse();
 
 // Description:
-// Constructs the vtkHierarchicalBoxDataSet.
+// Constructs the vtkOverlappingAMR.
 vtkOverlappingAMR* GetAMRDataSet();
 
 // Description:

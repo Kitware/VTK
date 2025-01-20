@@ -17,7 +17,7 @@
  * vtkMultiBlockDataSet consisting of three blocks: image data, poly data,
  * multi-block (empty). Hierarchical Box data sets additionally require
  * the notion of groups, declared within "()" braces, to specify AMR depth.
- * "HB[ (UF1)(UF1)(UF1) ]" will create a vtkHierarchicalBoxDataSet representing
+ * "HB[ (UF1)(UF1)(UF1) ]" will create a vtkOverlappingAMR representing
  * an octree that is three levels deep, in which the firstmost cell in each level
  * is refined.
  */

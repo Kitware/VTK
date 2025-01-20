@@ -11,7 +11,7 @@
  * volume fraction.
  *
  * I may also add block id and level as extra cell arrays.
- * This source produces a vtkHierarchicalBoxDataSet when
+ * This source produces a vtkOverlappingAMR when
  * GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
  */
 
@@ -25,7 +25,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataSet;
 class vtkDataSet;
-class vtkHierarchicalBoxDataSet;
+class vtkOverlappingAMR;
 class vtkIntArray;
 class vtkRectilinearGrid;
 class vtkUniformGrid;
@@ -176,11 +176,11 @@ protected:
   void SetBlockInfo(vtkUniformGrid* grid, int level, int* ext, int onFace[6]);
   void SetRBlockInfo(vtkRectilinearGrid* grid, int level, int* ext, int onFace[6]);
 
-  void AddVectorArray(vtkHierarchicalBoxDataSet* output);
-  void AddTestArray(vtkHierarchicalBoxDataSet* output);
+  void AddVectorArray(vtkOverlappingAMR* output);
+  void AddTestArray(vtkOverlappingAMR* output);
   void AddFractalArray(vtkCompositeDataSet* output);
-  void AddBlockIdArray(vtkHierarchicalBoxDataSet* output);
-  void AddDepthArray(vtkHierarchicalBoxDataSet* output);
+  void AddBlockIdArray(vtkOverlappingAMR* output);
+  void AddDepthArray(vtkOverlappingAMR* output);
 
   void AddGhostLevelArray(vtkDataSet* grid, int dim[3], int onFace[6]);
 
