@@ -231,7 +231,7 @@ vtkStandardNewMacro(vtkConduitArrayUtilities);
 #define IS_DEVICE_POINTER(memory)                                                                  \
   void* __ptr = memory;                                                                            \
   int8_t __id;                                                                                     \
-  bool idDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
 #endif
 
 //----------------------------------------------------------------------------
