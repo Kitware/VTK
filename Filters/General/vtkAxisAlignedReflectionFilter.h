@@ -135,14 +135,16 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
+  /**
+   * Compute the bounds of the input data object.
+   * It has to be virtual protected because in a distributed context,
+   * the bounds will need to be computed differently.
+   */
+  virtual void ComputeBounds(vtkDataObject* input, double bounds[6]);
+
 private:
   vtkAxisAlignedReflectionFilter(const vtkAxisAlignedReflectionFilter&) = delete;
   void operator=(const vtkAxisAlignedReflectionFilter&) = delete;
-
-  /**
-   * Compute the bounds of the input data object.
-   */
-  void ComputeBounds(vtkDataObject* input, double bounds[6]);
 
   /**
    * Find all the reflectable arrays in the input, then reflect them to the output

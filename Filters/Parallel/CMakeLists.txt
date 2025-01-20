@@ -3,6 +3,7 @@ set(classes
   vtkAggregateDataSetFilter
   vtkAlignImageDataSetFilter
   vtkAngularPeriodicFilter
+  vtkPAxisAlignedReflectionFilter
   vtkCleanArrays
   vtkCollectGraph
   vtkCollectPolyData
