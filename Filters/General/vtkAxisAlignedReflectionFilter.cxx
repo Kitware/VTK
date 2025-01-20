@@ -33,7 +33,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-vtkStandardNewMacro(vtkAxisAlignedReflectionFilter);
+vtkObjectFactoryNewMacro(vtkAxisAlignedReflectionFilter);
 
 //------------------------------------------------------------------------------
 void vtkAxisAlignedReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
