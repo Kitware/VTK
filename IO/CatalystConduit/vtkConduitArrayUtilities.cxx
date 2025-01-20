@@ -600,6 +600,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
       return nullptr;
     }
 #else
+    (void)cellType;
     (void)numberOfPoints; // avoid unused variable warning
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   }
