@@ -87,7 +87,8 @@ public:
    * Read a O2MRelation element
    */
   VTK_DEPRECATED_IN_9_4_0("Version with additional `numberOfPoints` parameter needed with "
-                          "zero-copy arrays stored on acceleration devices such as CUDA")
+                          "zero-copy arrays stored on acceleration devices such as CUDA. "
+                          "`leafname` is always connectivity, so it is removed in the new version.")
   static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
     const conduit_node* o2mrelation, const std::string& leafname);
   static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
