@@ -734,24 +734,6 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
-{
-  delete[] this->FieldDataName;
-  this->FieldDataName = nullptr;
-
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FieldDataArray to "
-                << arrayIndex);
-
-  if (this->FieldDataArray !=
-    (arrayIndex < 0 ? 0 : (arrayIndex > VTK_INT_MAX ? VTK_INT_MAX : arrayIndex)))
-  {
-    this->FieldDataArray =
-      (arrayIndex < 0 ? 0 : (arrayIndex > VTK_INT_MAX ? VTK_INT_MAX : arrayIndex));
-    this->Modified();
-  }
-}
-
-//------------------------------------------------------------------------------
 vtkMTimeType vtkLabeledDataMapper::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
@@ -775,33 +757,5 @@ const char* vtkLabeledDataMapper::GetLabelText(int label)
 {
   assert("label index range" && label >= 0 && label < this->NumberOfLabels);
   return this->TextMappers[label]->GetInput();
-}
-
-//------------------------------------------------------------------------------
-void vtkLabeledDataMapper::SetFieldDataName(const char* arrayName)
-{
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
-                << "FieldDataName"
-                << " to " << (arrayName ? arrayName : "(null)"));
-
-  if (this->FieldDataName == nullptr && arrayName == nullptr)
-  {
-    return;
-  }
-  if (this->FieldDataName && arrayName && (!strcmp(this->FieldDataName, arrayName)))
-  {
-    return;
-  }
-  delete[] this->FieldDataName;
-  if (arrayName)
-  {
-    this->FieldDataName = new char[strlen(arrayName) + 1];
-    strcpy(this->FieldDataName, arrayName);
-  }
-  else
-  {
-    this->FieldDataName = nullptr;
-  }
-  this->Modified();
 }
 VTK_ABI_NAMESPACE_END

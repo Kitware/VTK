@@ -548,12 +548,6 @@ void vtkFastLabeledDataMapper::SetInputData(vtkDataSet* input)
 }
 
 //----------------------------------------------------------------------------
-vtkDataSet* vtkFastLabeledDataMapper::GetInput()
-{
-  return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
-}
-
-//----------------------------------------------------------------------------
 void vtkFastLabeledDataMapper::SetLabelTextProperty(vtkTextProperty* prop, int type)
 {
   if (type >= MAXPROPS)
