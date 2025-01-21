@@ -28,7 +28,9 @@ set(_vtk_non_module_components
 
   vtkjava
   ParseJava
-  WrapJava)
+  WrapJava
+  
+  vtkWebAssemblyTestLinkOptions)
 foreach (_vtk_non_module_component IN LISTS _vtk_non_module_components)
   if (TARGET "VTK::${_vtk_non_module_component}")
     list(APPEND vtk_all_components
