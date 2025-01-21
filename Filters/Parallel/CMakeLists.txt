@@ -70,6 +70,11 @@ vtk_object_factory_declare(
   OVERRIDE vtkPConvertToMultiBlockDataSet
   )
 
+vtk_object_factory_declare(
+  BASE      vtkAxisAlignedReflectionFilter
+  OVERRIDE  vtkPAxisAlignedReflectionFilter
+  )
+
 vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
