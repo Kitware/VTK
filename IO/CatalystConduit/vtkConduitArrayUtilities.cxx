@@ -214,6 +214,26 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkConduitArrayUtilities);
+
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#define IS_DEVICE_POINTER(memory)                                                                  \
+  void* __ptr = memory;                                                                            \
+  int8_t __id;                                                                                     \
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);                   \
+  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__id);                                   \
+  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))               \
+  {                                                                                                \
+    vtkLogF(ERROR, "Device %d is not available at runtime", __id);                                 \
+    return nullptr;                                                                                \
+  }
+
+#else
+#define IS_DEVICE_POINTER(memory)                                                                  \
+  void* __ptr = memory;                                                                            \
+  int8_t __id;                                                                                     \
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
+#endif
+
 //----------------------------------------------------------------------------
 vtkConduitArrayUtilities::vtkConduitArrayUtilities() = default;
 
@@ -331,17 +351,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
   }
 
-  void* ptr = mcarray.child(0).element_ptr(0);
-  int8_t id;
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(ptr, id);
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
-  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))
-  {
-    vtkLogF(ERROR, "Device %d is not available at runtime", id);
-    return nullptr;
-  }
-#endif
+  IS_DEVICE_POINTER(mcarray.child(0).element_ptr(0));
 
   if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
   {
@@ -567,21 +577,34 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
 }
 
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-  vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray)
+  vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* c_mcarray)
 {
   auto connectivity =
-    vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, /*force_signed*/ true);
+    vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(c_mcarray, /*force_signed*/ true);
+  conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
+
+  IS_DEVICE_POINTER(mcarray.element_ptr(0));
+
   if (!connectivity)
   {
     return nullptr;
   }
   vtkNew<vtkCellArray> cellArray;
+  if (isDevicePointer)
+  {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMonoShapedCellArray(
-        numberOfPoints, cellType, cellSize, connectivity, cellArray))
+    if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMonoShapedCellArray(
+          numberOfPoints, cellType, cellSize, connectivity, cellArray))
+    {
+      vtkLogF(ERROR, "Cannot convert connectivity to a vtkmArray");
+      return nullptr;
+    }
 #else
-  (void)numberOfPoints; // avoid unused variable warning
+    (void)cellType;
+    (void)numberOfPoints; // avoid unused variable warning
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  }
+  else
   {
     // cell arrays are in host memory
     cellArray->SetData(cellSize, connectivity);
@@ -602,15 +625,20 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
   // if arrays are stored in device memory, we'll get an error - however this case did not work
   // for the deprecated function.
-  return O2MRelationToVTKCellArray(0, c_o2mrelation, leafname);
+  // leafname is always "connectivity"
+  (void)leafname;
+  return O2MRelationToVTKCellArray(0, c_o2mrelation);
 }
 
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-  vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname)
+  vtkIdType numberOfPoints, const conduit_node* c_o2mrelation)
 {
   const conduit_cpp::Node o2mrelation =
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
-  const auto leaf = o2mrelation[leafname];
+  const auto leaf = o2mrelation["connectivity"];
+
+  IS_DEVICE_POINTER(const_cast<void*>(leaf.element_ptr(0)));
+
   auto elements = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&leaf), /*force_signed*/ true);
   if (!elements)
@@ -626,16 +654,24 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   const auto node_offsets = o2mrelation["offsets"];
   auto offsets = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&node_offsets), /*force_signed*/ true);
-  const auto node_shapes = o2mrelation["shapes"];
-  auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-    conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
   vtkNew<vtkCellArray> cellArray;
+  if (isDevicePointer)
+  {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(
-        numberOfPoints, offsets, shapes, elements, cellArray))
+    const auto node_shapes = o2mrelation["shapes"];
+    auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
+      conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
+    if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(
+          numberOfPoints, offsets, shapes, elements, cellArray))
+    {
+      vtkLogF(ERROR, "Cannot convert connectivity to a vtkmArray");
+      return nullptr;
+    }
 #else
-  (void)numberOfPoints; // avoid unused variable warning
+    (void)numberOfPoints; // avoid unused variable warning
 #endif
+  }
+  else
   {
     // offsets and connectivity are in host memory
     using ConduitDispatcher =

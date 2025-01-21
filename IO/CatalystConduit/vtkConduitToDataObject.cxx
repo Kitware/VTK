@@ -731,9 +731,9 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
       conduit_cpp::Node t_elements = topologyNode["elements"];
       conduit_cpp::Node t_subelements = topologyNode["subelements"];
       auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_elements));
       auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        numberOfPoints, conduit_cpp::c_node(&t_subelements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_subelements));
 
       SetPolyhedralCells(unstructured, elements, subelements);
     }
@@ -743,7 +743,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
       // differently.
       conduit_cpp::Node t_elements = topologyNode["elements"];
       auto cellArray = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_elements));
       unstructured->SetCells(vtk_cell_type, cellArray);
     }
     else
@@ -880,7 +880,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     auto shapes =
       vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&t_elementShapes));
     auto elements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-      numberOfPoints, conduit_cpp::c_node(&t_elements), "connectivity");
+      numberOfPoints, conduit_cpp::c_node(&t_elements));
     if (!elements || !shapes)
     {
       throw std::runtime_error("elements or elements/shapes not available (nullptr)");
@@ -890,7 +890,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     {
       conduit_cpp::Node t_subelements = topologyNode["subelements"];
       auto subelements = vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-        numberOfPoints, conduit_cpp::c_node(&t_subelements), "connectivity");
+        numberOfPoints, conduit_cpp::c_node(&t_subelements));
       if (!subelements)
       {
         throw std::runtime_error("subelements not available (nullptr)");
