@@ -19,6 +19,8 @@ string(REPLACE "VTK::" "" vtk_all_components "${vtk_modules}")
 set(_vtk_non_module_components
   WrapHierarchy
 
+  vtkbuild
+  
   vtkpython
   pvtkpython
   WrapPython
