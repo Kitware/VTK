@@ -50,19 +50,7 @@ class vtkTestHTTPHandler(SimpleHTTPRequestHandler):
         logger.debug(format, *args)
 
     def end_headers(self):
-        # Opt in to cross-origin isolated state. We want this because wasm inside a
-        # WebWorker needs SharedArrayBuffer.
-        # All VTK unit tests use WebWorkers to run the main(argc, argv),
-        # in order to make synchronous XHR for test data files, baseline images, etc.
-        #
-        # NOTE: This is generally not a good idea because VTK is not thread-safe.
-        # TestGarbageCollector fails to defer collections.
-        # We could go back to main thread after JSPI moves to Phase 4 in https://github.com/WebAssembly/proposals
-        # It is in Phase 3 as on April 2024.
-        # JSPI: https://github.com/WebAssembly/js-promise-integration
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        # Do not allow client to use cache. Ideal for development where .wasm/.js may change.
         self.send_header('Cache-Control', 'no-store')
         super().end_headers()
 
