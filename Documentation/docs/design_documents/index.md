@@ -13,4 +13,6 @@ IOXMLInformationFormat
 IOXMLTimeInFieldData
 
 MomentInvariantsArchitecture
+
+WebAssemblyTestSuiteArchitecture
 ```
