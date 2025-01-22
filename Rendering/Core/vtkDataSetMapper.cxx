@@ -45,7 +45,7 @@ void vtkDataSetMapper::SetInputData(vtkDataSet* input)
 //------------------------------------------------------------------------------
 vtkDataSet* vtkDataSetMapper::GetInput()
 {
-  return this->Superclass::GetInputAsDataSet();
+  return this->Superclass::GetDataSetInput();
 }
 
 //------------------------------------------------------------------------------

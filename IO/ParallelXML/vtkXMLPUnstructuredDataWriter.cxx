@@ -23,7 +23,7 @@ void vtkXMLPUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkPointSet* vtkXMLPUnstructuredDataWriter::GetInputAsPointSet()
+vtkPointSet* vtkXMLPUnstructuredDataWriter::GetPointSetInput()
 {
   return static_cast<vtkPointSet*>(this->GetInput());
 }
@@ -47,7 +47,7 @@ void vtkXMLPUnstructuredDataWriter::WritePData(vtkIndent indent)
   {
     return;
   }
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
   this->WritePPoints(input->GetPoints(), indent);
 }
 VTK_ABI_NAMESPACE_END
