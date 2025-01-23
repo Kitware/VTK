@@ -192,7 +192,7 @@ private:
     HWND WindowId;
     int TimerId;
     HANDLE PlatformId;
-    std::atomic<bool> Posted = false;
+    std::atomic<bool> Posted{ false };
   };
   std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
 };
