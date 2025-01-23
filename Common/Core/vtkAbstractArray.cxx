@@ -3,8 +3,10 @@
 
 #include "vtkAbstractArray.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
@@ -58,6 +60,17 @@ VTK_ABI_NAMESPACE_END
 namespace
 {
 typedef std::vector<std::string*> vtkInternalComponentNameBase;
+
+struct PrintDataArrayWorker
+{
+  template <typename InArrayT>
+  void operator()(InArrayT* inArray, std::ostream& outStream)
+  {
+    using T = vtk::GetAPIType<InArrayT>;
+    const auto inRange = vtk::DataArrayValueRange(inArray);
+    std::copy(inRange.begin(), inRange.end(), std::ostream_iterator<T>(outStream, " "));
+  }
+};
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -895,5 +908,26 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
   params[0] = uncertainty;
   params[1] = minimumProminence;
   this->GetInformation()->Set(DISCRETE_VALUE_SAMPLE_PARAMETERS(), params, 2);
+}
+
+//------------------------------------------------------------------------------
+void vtkAbstractArray::PrintValues(ostream& os)
+{
+  if (auto* dataArray = vtkDataArray::SafeDownCast(this))
+  {
+    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+    ::PrintDataArrayWorker worker;
+    if (!Dispatcher::Execute(dataArray, worker, os))
+    {
+      worker(dataArray, os);
+    }
+  }
+  else
+  {
+    for (vtkIdType ii = 0; ii < this->GetNumberOfValues(); ++ii)
+    {
+      os << this->GetVariantValue(ii).ToString() << ' ';
+    }
+  }
 }
 VTK_ABI_NAMESPACE_END

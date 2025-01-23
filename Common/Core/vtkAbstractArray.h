@@ -84,6 +84,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * Print the array values to an `ostream` object.
+   */
+  void PrintValues(ostream& os);
+
+  /**
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that ext is no longer used.
    * This method will reset MaxId to -1 and resize the array capacity such that
