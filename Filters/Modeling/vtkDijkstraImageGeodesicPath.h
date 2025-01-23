@@ -38,6 +38,7 @@
 #ifndef vtkDijkstraImageGeodesicPath_h
 #define vtkDijkstraImageGeodesicPath_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkDijkstraGraphGeodesicPath.h"
 #include "vtkFiltersModelingModule.h" // For export macro
 
@@ -65,7 +66,9 @@ public:
    * Specify the image object which is used as a cost function.
    */
   void SetInputData(vtkDataObject*);
-  vtkImageData* GetInputAsImageData();
+  vtkImageData* GetImageDataInput();
+  VTK_DEPRECATED_IN_9_5_0("Use GetImageDataInput() instead.")
+  vtkImageData* GetInputAsImageData() { return this->GetImageDataInput(); }
   ///@}
 
   ///@{

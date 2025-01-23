@@ -51,7 +51,7 @@ void vtkXMLTableWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkTable* vtkXMLTableWriter::GetInputAsTable()
+vtkTable* vtkXMLTableWriter::GetTableInput()
 {
   return static_cast<vtkTable*>(this->Superclass::GetInput());
 }
@@ -132,7 +132,7 @@ vtkTypeBool vtkXMLTableWriter::ProcessRequest(
         return 0;
       }
 
-      if (this->GetInputAsDataSet() != nullptr)
+      if (this->GetDataSetInput() != nullptr)
       {
         // use the current version for the file.
         this->UsePreviousVersion = false;
@@ -407,7 +407,7 @@ int vtkXMLTableWriter::WriteInlineMode(vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkXMLTableWriter::WriteInlinePieceAttributes()
 {
-  vtkTable* input = this->GetInputAsTable();
+  vtkTable* input = this->GetTableInput();
   this->WriteScalarAttribute("NumberOfCols", input->GetNumberOfColumns());
   this->WriteScalarAttribute("NumberOfRows", input->GetNumberOfRows());
 }
@@ -415,7 +415,7 @@ void vtkXMLTableWriter::WriteInlinePieceAttributes()
 //------------------------------------------------------------------------------
 void vtkXMLTableWriter::WriteInlinePiece(vtkIndent indent)
 {
-  vtkTable* input = this->GetInputAsTable();
+  vtkTable* input = this->GetTableInput();
 
   // Split progress among row data arrays.
   float progressRange[2] = { 0, 0 };
@@ -457,7 +457,7 @@ void vtkXMLTableWriter::WriteAppendedPieceAttributes(int index)
 //------------------------------------------------------------------------------
 void vtkXMLTableWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
-  vtkTable* input = this->GetInputAsTable();
+  vtkTable* input = this->GetTableInput();
 
   this->WriteRowDataAppended(input->GetRowData(), indent, &this->RowsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -470,7 +470,7 @@ void vtkXMLTableWriter::WriteAppendedPiece(int index, vtkIndent indent)
 void vtkXMLTableWriter::WriteAppendedPieceData(int index)
 {
   ostream& os = *(this->Stream);
-  vtkTable* input = this->GetInputAsTable();
+  vtkTable* input = this->GetTableInput();
 
   std::streampos returnPosition = os.tellp();
 

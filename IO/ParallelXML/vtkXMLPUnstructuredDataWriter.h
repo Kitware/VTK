@@ -12,6 +12,7 @@
 #ifndef vtkXMLPUnstructuredDataWriter_h
 #define vtkXMLPUnstructuredDataWriter_h
 
+#include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"
 
@@ -29,7 +30,9 @@ protected:
   vtkXMLPUnstructuredDataWriter();
   ~vtkXMLPUnstructuredDataWriter() override;
 
-  vtkPointSet* GetInputAsPointSet();
+  vtkPointSet* GetPointSetInput();
+  VTK_DEPRECATED_IN_9_5_0("Use GetPointSetInput() instead.")
+  vtkPointSet* GetInputAsPointSet() { return this->GetPointSetInput(); }
   virtual vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() = 0;
   vtkXMLWriter* CreatePieceWriter(int index) override;
   void WritePData(vtkIndent indent) override;

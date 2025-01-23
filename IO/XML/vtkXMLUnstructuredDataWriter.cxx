@@ -73,7 +73,7 @@ void vtkXMLUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkPointSet* vtkXMLUnstructuredDataWriter::GetInputAsPointSet()
+vtkPointSet* vtkXMLUnstructuredDataWriter::GetPointSetInput()
 {
   return static_cast<vtkPointSet*>(this->Superclass::GetInput());
 }

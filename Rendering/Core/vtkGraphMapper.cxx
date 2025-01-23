@@ -406,7 +406,7 @@ void vtkGraphMapper::SetInputData(vtkGraph* input)
 //------------------------------------------------------------------------------
 vtkGraph* vtkGraphMapper::GetInput()
 {
-  vtkGraph* inputGraph = vtkGraph::SafeDownCast(this->Superclass::GetInputAsDataSet());
+  vtkGraph* inputGraph = vtkGraph::SafeDownCast(this->Superclass::GetDataSetInput());
   return inputGraph;
 }
 

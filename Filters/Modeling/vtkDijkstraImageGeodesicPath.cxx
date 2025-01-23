@@ -87,7 +87,7 @@ void vtkDijkstraImageGeodesicPath::SetInputData(vtkDataObject* input)
 }
 
 //------------------------------------------------------------------------------
-vtkImageData* vtkDijkstraImageGeodesicPath::GetInputAsImageData()
+vtkImageData* vtkDijkstraImageGeodesicPath::GetImageDataInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {

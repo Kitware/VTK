@@ -11,6 +11,7 @@
 #ifndef vtkXMLTableWriter_h
 #define vtkXMLTableWriter_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"
 
@@ -54,7 +55,9 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  vtkTable* GetInputAsTable();
+  vtkTable* GetTableInput();
+  VTK_DEPRECATED_IN_9_5_0("Use GetTableInput() instead.")
+  vtkTable* GetInputAsTable() { return this->GetTableInput(); }
   const char* GetDataSetName() override; // vtkTable isn't a DataSet but it's used by vtkXMLWriter
 
   /**
