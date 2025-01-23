@@ -18,6 +18,7 @@
 #include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkLookupTable.h"
+#include "vtkMathUtilities.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
@@ -100,6 +101,17 @@ public:
   vtkImagePlaneWidget* IPW[3];
   vtkResliceCursorWidget* RCW[3];
 };
+
+static const char* TestIndependentThicknessEvents =
+  "# StreamVersion 1.1\n"
+  // Reslice cursor thickness (Right click on axis)
+  "RightButtonPressEvent 201 152 0 0 0 0\n"
+  "MouseMoveEvent 201 152 0 0 0 0\n"
+  "MouseMoveEvent 201 168 0 0 0 0\n"
+  "MouseMoveEvent 205 187 0 0 0 0\n"
+  "MouseMoveEvent 219 210 0 0 0 0\n"
+  "MouseMoveEvent 232 233 0 0 0 0\n"
+  "RightButtonReleaseEvent 232 233 0 0 0 0\n";
 
 static const char* TestResliceCursorWidget3Events =
   "# StreamVersion 1.1\n"
@@ -331,10 +343,40 @@ int TestResliceCursorWidget3(int argc, char* argv[])
   iren->SetInteractorStyle(style);
   iren->Initialize();
 
+  // Test independent thickness
+  for (int i = 0; i < 3; i++)
+  {
+    resliceCursorRep[i]->IndependentThicknessOn();
+  }
+
   vtkNew<vtkInteractorEventRecorder> recorder;
   recorder->ReadFromInputStringOn();
-  recorder->SetInputString(TestResliceCursorWidget3Events);
+  recorder->SetInputString(TestIndependentThicknessEvents);
   recorder->SetInteractor(iren);
+  recorder->Play();
+  recorder->Off();
+
+  double expected_thickness[3] = { 10.0, 10.0, 16.585247 };
+  double thickness[3] = { 0.0, 0.0, 0.0 };
+  resliceCursorRep[0]->GetResliceCursor()->GetThickness(thickness);
+
+  for (int i = 0; i < 3; i++)
+  {
+    if (!vtkMathUtilities::NearlyEqual(thickness[i], expected_thickness[i], 1e-6))
+    {
+      std::cerr << "Error: Independent thickness is invalid " << thickness[i]
+                << " != " << expected_thickness[i] << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // Disable independent thickness
+    resliceCursorRep[i]->IndependentThicknessOff();
+  }
+  // Restore thickness
+  resliceCursor->SetThickness(10, 10, 10);
+
+  // Test interactions
+  recorder->SetInputString(TestResliceCursorWidget3Events);
   recorder->Play();
   recorder->Off();
 

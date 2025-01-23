@@ -7,6 +7,7 @@
 #include "vtkImageSlabReslice.h"
 #include "vtkObjectFactory.h"
 #include "vtkResliceCursor.h"
+#include "vtkResliceCursorPolyDataAlgorithm.h"
 #include <algorithm>
 #include <cmath>
 
@@ -60,7 +61,9 @@ void vtkResliceCursorThickLineRepresentation ::SetResliceParameters(
     thickReslice->SetOutputExtent(0, extentX - 1, 0, extentY - 1, 0, 0);
 
     vtkResliceCursor* rc = this->GetResliceCursor();
-    thickReslice->SetSlabThickness(rc->GetThickness()[0]);
+    int axis = this->GetCursorAlgorithm()->GetReslicePlaneNormal();
+    thickReslice->SetSlabThickness(rc->GetThickness()[axis]);
+
     double spacing[3];
     rc->GetImage()->GetSpacing(spacing);
 

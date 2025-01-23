@@ -881,9 +881,13 @@ void vtkResliceCursorRepresentation::ManageTextDisplay()
   }
   else if (this->ManipulationMode == vtkResliceCursorRepresentation::ResizeThickness)
   {
+    int axis = 0;
+    axis = this->InteractionState == OnAxis1 ? this->GetCursorAlgorithm()->GetPlaneAxis1() : axis;
+    axis = this->InteractionState == OnAxis2 ? this->GetCursorAlgorithm()->GetPlaneAxis2() : axis;
+
     // For now all the thickness' are the same anyway.
     snprintf(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF,
-      "Reslice Thickness: %g mm", this->GetResliceCursor()->GetThickness()[0]);
+      "Reslice Thickness: %g mm", this->GetResliceCursor()->GetThickness()[axis]);
   }
 
   this->TextActor->SetInput(this->TextBuff);
