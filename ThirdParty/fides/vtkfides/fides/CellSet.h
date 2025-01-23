@@ -258,6 +258,36 @@ private:
   bool PeriodicCellSet = true;
 };
 
+/// \brief Class to read GX cell set.
+///
+/// This class implements the \c CellSetBase API for reading
+/// \c CellSetBoutpp objects.
+struct CellSetGX : public CellSetBase
+{
+  CellSetGX()
+    : CellSetBase()
+  {
+  }
+
+  /// Overridden to handle CellSetGX specific items.
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override {}
+
+  /// Reads and returns the cell sets.
+  /// The paths are passed to the \c DataSources to create
+  /// file paths. \c selections restrict the data that is loaded.
+  std::vector<vtkm::cont::UnknownCellSet> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections) override;
+
+  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                        const fides::metadata::MetaData& selections) override;
+
+private:
+  vtkm::Id GetMetaDataValue(const vtkm::cont::DataSet& ds, const std::string& fieldNm) const;
+};
+
+
 }
 }
 #endif

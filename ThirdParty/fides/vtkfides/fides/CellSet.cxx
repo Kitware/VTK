@@ -17,9 +17,11 @@
 #include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 #include <vtkm/cont/CellSetExtrude.h>
 #include <vtkm/cont/UnknownArrayHandle.h>
+#include <vtkm/filter/clean_grid/CleanGrid.h>
 
 #include <vtkm/cont/Invoker.h>
 #include <vtkm/worklet/WorkletMapField.h>
+#include <vtkm/worklet/WorkletMapTopology.h>
 
 namespace fides
 {
@@ -78,7 +80,72 @@ private:
   vtkm::Float64 Phi0;
 };
 
+//Calculate the cell set connection IDs for GX Cellset
+class CalcGXCellSetConnIds : public vtkm::worklet::WorkletVisitCellsWithPoints
+{
+public:
+  CalcGXCellSetConnIds(const vtkm::Id& numSrfs,
+                       const vtkm::Id& numPlanes,
+                       const vtkm::Id& numTheta,
+                       const vtkm::Id& srfMinIdx)
+    : NumPlanes(numPlanes)
+    , NumSurfaces(numSrfs)
+    , NumTheta(numTheta)
+    , SurfaceMinIdx(srfMinIdx)
+  {
+    this->NumCellsPerSrf = (this->NumTheta - 1) * this->NumPlanes;
+    this->NumPointsPerSrf = this->NumTheta * this->NumPlanes;
+  }
+
+  using ControlSignature = void(CellSetIn cellSet,
+                                WholeArrayOut connectionIds,
+                                FieldOutCell srfIndexField);
+  using ExecutionSignature = void(InputIndex, _2, _3);
+  using InputDomain = _1;
+
+  template <typename ConnectionArrayType, typename SrfIndexType>
+  VTKM_EXEC void operator()(const vtkm::Id& cellId,
+                            ConnectionArrayType& resultIds,
+                            SrfIndexType& srfIndexField) const
+  {
+    vtkm::Id srfIdx = cellId / this->NumCellsPerSrf;
+    vtkm::Id plnIdx = cellId / (this->NumTheta - 1) % this->NumPlanes;
+    vtkm::Id cellIdx = cellId % (this->NumTheta - 1);
+    vtkm::Id srfOffset = srfIdx * this->NumPointsPerSrf;
+
+    // Offset for points on the first and second plane.
+    vtkm::Id offset0 = srfOffset + plnIdx * this->NumTheta;
+    vtkm::Id offset1 = srfOffset + (plnIdx + 1) * this->NumTheta;
+
+    // if last plane, wrap around to first plane.
+    if (plnIdx == this->NumPlanes - 1)
+      offset1 = srfOffset;
+
+    //connection ids for the 4 points of the quad.
+    // note: quad connection order is: p0, p1, p3, p4
+    auto p0 = offset0 + cellIdx + 0;
+    auto p1 = p0 + 1;
+    auto p2 = offset1 + cellIdx + 0;
+    auto p3 = p2 + 1;
+
+    vtkm::Id index = cellId * 4;
+    resultIds.Set(index + 0, p0);
+    resultIds.Set(index + 1, p1);
+    resultIds.Set(index + 2, p3);
+    resultIds.Set(index + 3, p2);
+
+    srfIndexField = this->SurfaceMinIdx + srfIdx;
+  }
+
+private:
+  vtkm::Id NumCellsPerSrf;
+  vtkm::Id NumPlanes;
+  vtkm::Id NumPointsPerSrf;
+  vtkm::Id NumSurfaces;
+  vtkm::Id NumTheta;
+  vtkm::Id SurfaceMinIdx;
 };
+} //namespace fides::datamodel::fusionutil
 
 void CellSet::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
@@ -106,6 +173,10 @@ void CellSet::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources
   else if (cellSetType == "gtc")
   {
     this->CellSetImpl.reset(new CellSetGTC());
+  }
+  else if (cellSetType == "gx")
+  {
+    this->CellSetImpl.reset(new CellSetGX());
   }
   else
   {
@@ -955,6 +1026,77 @@ void CellSetGTC::ComputeCellSet(vtkm::cont::DataSet& dataSet)
 
   this->CachedCellSet = cellSet;
   this->IsCached = true;
+}
+
+std::vector<vtkm::cont::UnknownCellSet> CellSetGX::Read(
+  const std::unordered_map<std::string, std::string>& fidesNotUsed(paths),
+  DataSourcesType& fidesNotUsed(sources),
+  const fides::metadata::MetaData& fidesNotUsed(selections))
+{
+  std::vector<vtkm::cont::UnknownCellSet> cellSets;
+  vtkm::cont::CellSetSingleType<> cellSet;
+  cellSets.push_back(cellSet);
+  return cellSets;
+}
+
+vtkm::Id CellSetGX::GetMetaDataValue(const vtkm::cont::DataSet& ds,
+                                     const std::string& fieldNm) const
+{
+  if (!ds.HasField(fieldNm, vtkm::cont::Field::Association::WholeDataSet))
+    throw std::runtime_error("Error: CellSetGX missing field " + fieldNm);
+
+  const auto& field = ds.GetField(fieldNm, vtkm::cont::Field::Association::WholeDataSet).GetData();
+  if (field.GetNumberOfValues() != 1)
+    throw std::runtime_error("Error: Wrong number of values in field " + fieldNm);
+  if (!field.IsType<vtkm::cont::ArrayHandle<vtkm::Id>>())
+    throw std::runtime_error("Error: Wrong type in field " + fieldNm);
+
+  return field.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>().ReadPortal().Get(0);
+}
+
+void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+                         const fides::metadata::MetaData& fidesNotUsed(selections))
+{
+  if (partitions.size() != 1)
+    throw std::runtime_error("Wrong number of datasets.");
+
+  auto& ds = partitions[0];
+
+  vtkm::Id numTheta = this->GetMetaDataValue(ds, "num_theta");
+  vtkm::Id numZeta = this->GetMetaDataValue(ds, "num_zeta");
+  vtkm::Id nfp = this->GetMetaDataValue(ds, "nfp");
+  vtkm::Id numSurfaces = this->GetMetaDataValue(ds, "num_surfaces");
+  vtkm::Id srfIdxMin = this->GetMetaDataValue(ds, "surface_min_index");
+
+  vtkm::Id ptsPerPlane = numTheta;
+  vtkm::Id numPlanes = numZeta * nfp;
+  vtkm::Id numCellsPerSurface = (ptsPerPlane - 1) * (numPlanes - 1);
+  vtkm::Id totNumCells = numSurfaces * numCellsPerSurface;
+  vtkm::Id totNumConnIds = totNumCells * 4;
+
+  //create cell with with empty connection ids.
+  auto cellSet = vtkm::cont::CellSetSingleType<>();
+  vtkm::cont::ArrayHandle<vtkm::Id> connIds, surfaceIndices;
+  connIds.Allocate(totNumCells * 4);
+  cellSet.Fill(ds.GetNumberOfPoints(), vtkm::CELL_SHAPE_QUAD, 4, connIds);
+
+  //call worklet to set the point ids for the cellset.
+  // create a cell centered variable with the surface index.
+  vtkm::cont::Invoker invoke;
+  fides::datamodel::fusionutil::CalcGXCellSetConnIds worklet(
+    numSurfaces, numPlanes, numTheta, srfIdxMin);
+  invoke(worklet, cellSet, connIds, surfaceIndices);
+
+  ds.SetCellSet(cellSet);
+  ds.AddCellField("SurfaceIndex", surfaceIndices);
+
+  //Call CleanGrid filter to remove duplicates and merge points.
+  vtkm::filter::clean_grid::CleanGrid cleaner;
+  cleaner.SetMergePoints(true);
+  cleaner.SetCompactPointFields(false);
+  cleaner.SetRemoveDegenerateCells(true);
+  cleaner.SetTolerance(1e-6);
+  ds = cleaner.Execute(ds);
 }
 
 }

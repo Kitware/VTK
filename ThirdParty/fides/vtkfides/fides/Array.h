@@ -423,6 +423,78 @@ private:
   bool IsCached = false;
 };
 
+
+/// \brief Class to read \c ArrayGXCoordinates objects.
+struct ArrayGXCoordinates : public ArrayBase
+{
+  /// Overridden to handle ArrayXGCCoordinates specific items.
+  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
+
+  /// Reads and returns array handles.
+  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+    const std::unordered_map<std::string, std::string>& paths,
+    DataSourcesType& sources,
+    const fides::metadata::MetaData& selections) override;
+
+  /// Returns the number of blocks in the underlying variable inside the given group.
+  /// Used by the reader to provide meta-data on blocks.
+  /// Uses the number of blocks in the first (x) array.
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
+                           DataSourcesType& sources,
+                           const std::string& groupName = "") override
+  {
+    return 1;
+  }
+
+  /// Returns the groups that have the underlying Array variable.
+  /// Used by the reader to provide group names
+  std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
+                                      DataSourcesType&) override
+  {
+    return std::set<std::string>();
+  }
+
+  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                const fides::metadata::MetaData& metaData) override;
+
+  // cuda does not like this being private, so moved it to public...
+  class PlaneInserter;
+
+private:
+  void ProcessJSONHelper(const rapidjson::Value& json,
+                         DataSourcesType& sources,
+                         const std::string& varName,
+                         std::unique_ptr<ArrayBasic>& array);
+
+  vtkm::Id NumTheta = 10;
+  vtkm::Id NumZeta = 10;
+  vtkm::Id NFP = 1;
+  bool FullTorus = true;
+  bool ThetaZeroMid = false;
+  bool ZetaZeroMid = false;
+  bool SurfaceMaxIdxSet = false;
+  bool SurfaceMinIdxSet = false;
+  vtkm::Id SurfaceMaxIdx = -1;
+  vtkm::Id SurfaceMinIdx = -1;
+
+  std::unique_ptr<ArrayBasic> CoordPoints = nullptr;
+  std::unique_ptr<ArrayBasic> rmnc = nullptr;
+  std::unique_ptr<ArrayBasic> zmns = nullptr;
+  std::unique_ptr<ArrayBasic> lmns = nullptr;
+  std::unique_ptr<ArrayBasic> xm = nullptr;
+  std::unique_ptr<ArrayBasic> xn = nullptr;
+  std::unique_ptr<ArrayBasic> nfp = nullptr;
+  std::unique_ptr<ArrayBasic> phi = nullptr;
+
+  vtkm::cont::UnknownArrayHandle XMArrayHandle;
+  vtkm::cont::UnknownArrayHandle XNArrayHandle;
+  vtkm::cont::UnknownArrayHandle NFPArrayHandle;
+  vtkm::cont::UnknownArrayHandle RMNCArrayHandle;
+  vtkm::cont::UnknownArrayHandle ZMNSArrayHandle;
+  vtkm::cont::UnknownArrayHandle LMNSArrayHandle;
+  vtkm::cont::UnknownArrayHandle PhiArrayHandle;
+};
+
 }
 }
 

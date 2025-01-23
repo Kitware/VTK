@@ -9,8 +9,11 @@
 //============================================================================
 
 #include <fides/Array.h>
+#include <vtkm/Math.h>
+#include <vtkm/cont/ArrayHandleCounting.h>
 #include <vtkm/cont/ArrayHandleSOA.h>
 #include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
+#include <vtkm/cont/ArrayHandleView.h>
 #include <vtkm/cont/ArrayHandleXGCCoordinates.h>
 
 #include <vtkm/Version.h>
@@ -21,8 +24,208 @@ namespace fides
 {
 namespace datamodel
 {
+
+static void Index1d_3d(const vtkm::Id& idx,
+                       const vtkm::Id& fidesNotUsed(nx),
+                       const vtkm::Id& ny,
+                       const vtkm::Id& nz,
+                       vtkm::Id& i,
+                       vtkm::Id& j,
+                       vtkm::Id& k)
+{
+  i = idx / (ny * nz);
+  j = (idx / nz) % ny;
+  k = idx % nz;
+}
+
 namespace fusionutil
 {
+
+class CalcCosSin : public vtkm::worklet::WorkletMapField
+{
+public:
+  CalcCosSin(const vtkm::Id numZeta, const vtkm::Id numTheta, const vtkm::Id& numAmplitudes)
+    : NumTheta(numTheta)
+    , NumZeta(numZeta)
+    , NumAmplitudes(numAmplitudes)
+  {
+  }
+
+  using ControlSignature = void(WholeArrayIn taxField,
+                                WholeArrayIn zaxField,
+                                WholeArrayIn xmField,
+                                WholeArrayIn xnField,
+                                FieldOut cosVal,
+                                FieldOut sinVal,
+                                FieldOut xVal);
+  using ExecutionSignature = void(InputIndex,
+                                  _1 zaxField,
+                                  _2 taxField,
+                                  _3 xmField,
+                                  _4 xnField,
+                                  _5 cosVal,
+                                  _6 sinVal,
+                                  _7 xVal);
+  using InputDomain = _5;
+
+  template <typename ZTArrayType, typename XMNArrayType, typename OutputArrayType>
+  VTKM_EXEC void operator()(const vtkm::Id& idx,
+                            const ZTArrayType& zaxField,
+                            const ZTArrayType& taxField,
+                            const XMNArrayType& xmField,
+                            const XMNArrayType& xnField,
+                            OutputArrayType& cosVal,
+                            OutputArrayType& sinVal,
+                            OutputArrayType& xVal) const
+  {
+    vtkm::Id index = idx * this->NumAmplitudes;
+    vtkm::Id zi, ti, xmi;
+    Index1d_3d(index, this->NumZeta, this->NumTheta, this->NumAmplitudes, zi, ti, xmi);
+
+    const auto& zeta = zaxField.Get(zi);
+    const auto& theta = taxField.Get(ti);
+    for (vtkm::IdComponent i = 0; i < this->NumAmplitudes; i++)
+    {
+      vtkm::Id idx_1d = zi * (this->NumTheta * this->NumAmplitudes) + ti * this->NumAmplitudes + i;
+      auto xm = xmField.Get(i);
+      auto xn = xnField.Get(i);
+      auto xx = xm * theta - xn * zeta;
+      auto cc = vtkm::Cos(xx);
+      auto ss = vtkm::Sin(xx);
+      xVal[i] = xx;
+      cosVal[i] = vtkm::Cos(xx);
+      sinVal[i] = vtkm::Sin(xx);
+    }
+  }
+
+private:
+  vtkm::Id NumTheta = 0;
+  vtkm::Id NumZeta = 0;
+  vtkm::Id NumAmplitudes = 0;
+};
+
+class CalcRZL : public vtkm::worklet::WorkletMapField
+{
+public:
+  CalcRZL(const vtkm::Id& numAmplitudes, const vtkm::Id& srfIndex)
+    : NumAmplitudes(numAmplitudes)
+    , SurfaceIndex(srfIndex)
+  {
+  }
+
+  using ControlSignature = void(FieldOut RZL,
+                                WholeArrayIn rmnc,
+                                WholeArrayIn zmns,
+                                WholeArrayIn lmns,
+                                FieldIn cosValues,
+                                FieldIn sinValues);
+  using ExecutionSignature = void(_1 RZL, _2 rmnc, _3 zmns, _4 lmns, _5 cosValues, _6 sinValues);
+  using InputDomain = _1;
+
+  template <typename OutputArrayType, typename InputArrayType, typename InputArrayType2>
+  void operator()(OutputArrayType& RZL,
+                  const InputArrayType& rmnc,
+                  const InputArrayType& zmns,
+                  const InputArrayType& lmns,
+                  const InputArrayType2& cosValues,
+                  const InputArrayType2& sinValues) const
+  {
+    RZL[0] = 0;
+    RZL[1] = 0;
+    RZL[2] = 0;
+    for (vtkm::Id i = 0; i < this->NumAmplitudes; i++)
+    {
+      RZL[0] += rmnc.Get(this->SurfaceIndex)[i] * cosValues[i][this->SurfaceIndex];
+      RZL[1] += zmns.Get(this->SurfaceIndex)[i] * sinValues[i][this->SurfaceIndex];
+      RZL[2] += lmns.Get(this->SurfaceIndex)[i] * sinValues[i][this->SurfaceIndex];
+    }
+  }
+
+private:
+  vtkm::Id NumAmplitudes = 0;
+  vtkm::Id SurfaceIndex = 0;
+};
+
+class CalcNFP : public vtkm::worklet::WorkletMapField
+{
+public:
+  CalcNFP(const vtkm::Id& numNFP, const vtkm::Id& numZeta, const vtkm::Id& numTheta)
+    : NumNFP(numNFP)
+    , NumZeta(numZeta)
+    , NumTheta(numTheta)
+  {
+  }
+
+  using ControlSignature =
+    void(WholeArrayIn RZL, WholeArrayIn Zn, WholeArrayIn Zeta, FieldOut Phi_n, FieldOut RZL_n);
+  using ExecutionSignature = void(InputIndex, _1 RZL, _2 Zn, _3 Zeta, _4 Phi_n, _5 RZL_n);
+  using InputDomain = _5;
+
+  template <typename RZLArrayType,
+            typename ZetaArrayType,
+            typename PhiOutputType,
+            typename RZLOutputType>
+  void operator()(const vtkm::Id& index,
+                  const RZLArrayType& RZL,
+                  const ZetaArrayType& Zn,
+                  const ZetaArrayType& Zeta,
+                  PhiOutputType& Phi_n,
+                  RZLOutputType& RZL_n) const
+  {
+    vtkm::Id nfp_i, zi, ti;
+    Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, nfp_i, zi, ti);
+    vtkm::Id idx0 = zi * this->NumTheta + ti;
+
+    auto z = Zn.Get(nfp_i);
+    Phi_n = Zeta.Get(zi) + z;
+    RZL_n = RZL.Get(idx0);
+  }
+
+private:
+  vtkm::Id NumNFP = 0;
+  vtkm::Id NumZeta = 0;
+  vtkm::Id NumTheta = 0;
+};
+
+class ConvertRZPhiToXYZ : public vtkm::worklet::WorkletMapField
+{
+public:
+  ConvertRZPhiToXYZ(const vtkm::Id& numNFP, const vtkm::Id& numZeta, const vtkm::Id& numTheta)
+    : NumNFP(numNFP)
+    , NumZeta(numZeta)
+    , NumTheta(numTheta)
+  {
+  }
+  using ControlSignature = void(FieldOut XYZ, FieldOut Lambda, WholeArrayIn Phi_n, FieldIn RZL);
+  using ExecutionSignature = void(InputIndex, _1, _2, _3, _4);
+  using InputDomain = _1;
+
+  template <typename XYZType, typename LambdaType, typename PhiType, typename RZLType>
+  VTKM_EXEC void operator()(const vtkm::Id& index,
+                            XYZType& xyz,
+                            LambdaType& lambda,
+                            const PhiType& Phi_n,
+                            const RZLType& rzl) const
+  {
+    //Phi_n is a of size: (nfp*numZeta, nTheta)
+    vtkm::Id xmi, zi, ti;
+    Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, xmi, zi, ti);
+    vtkm::Id idx2d = 0;
+
+    // X = R*cos(phi), Y= R*sin(phi)
+    xyz[0] = rzl[0] * vtkm::Cos(Phi_n.Get(index));
+    xyz[1] = rzl[0] * vtkm::Sin(Phi_n.Get(index));
+    xyz[2] = rzl[1];
+
+    lambda = rzl[2];
+  }
+
+private:
+  vtkm::Id NumNFP = 0;
+  vtkm::Id NumZeta = 0;
+  vtkm::Id NumTheta = 0;
+};
+
 class PlaneInserterField : public vtkm::worklet::WorkletMapField
 {
 public:
@@ -194,6 +397,10 @@ void Array::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
   else if (arrayType == "gtc_field")
   {
     this->ArrayImpl.reset(new ArrayGTCField());
+  }
+  else if (arrayType == "gx_coordinates")
+  {
+    this->ArrayImpl.reset(new ArrayGXCoordinates());
   }
   else
   {
@@ -594,16 +801,10 @@ size_t ArrayXGC::GetNumberOfBlocks(const std::unordered_map<std::string, std::st
   return this->CommonImpl->GetNumberOfBlocks();
 }
 
-void ArrayXGC::CheckEngineType(const std::unordered_map<std::string, std::string>& paths,
+void ArrayXGC::CheckEngineType(const std::unordered_map<std::string, std::string>&,
                                DataSourcesType& sources,
                                std::string& dataSourceName)
 {
-  auto itr = paths.find(dataSourceName);
-  if (itr == paths.end())
-  {
-    throw std::runtime_error("Could not find data_source with name " + dataSourceName +
-                             " among the input paths.");
-  }
   const auto& ds = sources[dataSourceName];
 
   if (ds->GetEngineType() == fides::io::EngineType::Inline)
@@ -1266,6 +1467,316 @@ void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
       throw std::runtime_error("Unsupported type for GTC field.");
     }
   }
+}
+
+static void PrintJSONValue(const rapidjson::Value& value, int indent = 0)
+{
+  // Add indentation for nested structures
+  std::string indentStr(indent, ' ');
+
+  if (value.IsObject())
+  {
+    std::cout << indentStr << "{\n";
+    for (rapidjson::Value::ConstMemberIterator itr = value.MemberBegin(); itr != value.MemberEnd();
+         ++itr)
+    {
+      std::cout << indentStr << "  \"" << itr->name.GetString() << "\": ";
+      PrintJSONValue(itr->value, indent + 4);
+    }
+    std::cout << indentStr << "}\n";
+  }
+  else if (value.IsArray())
+  {
+    std::cout << indentStr << "[\n";
+    for (rapidjson::SizeType i = 0; i < value.Size(); i++)
+    {
+      PrintJSONValue(value[i], indent + 4);
+    }
+    std::cout << indentStr << "]\n";
+  }
+  else if (value.IsString())
+  {
+    std::cout << "\"" << value.GetString() << "\"\n";
+  }
+  else if (value.IsBool())
+  {
+    std::cout << (value.GetBool() ? "true" : "false") << "\n";
+  }
+  else if (value.IsInt())
+  {
+    std::cout << value.GetInt() << "\n";
+  }
+  else if (value.IsUint())
+  {
+    std::cout << value.GetUint() << "\n";
+  }
+  else if (value.IsInt64())
+  {
+    std::cout << value.GetInt64() << "\n";
+  }
+  else if (value.IsUint64())
+  {
+    std::cout << value.GetUint64() << "\n";
+  }
+  else if (value.IsDouble())
+  {
+    std::cout << value.GetDouble() << "\n";
+  }
+  else if (value.IsNull())
+  {
+    std::cout << "null\n";
+  }
+}
+
+void ArrayGXCoordinates::ProcessJSONHelper(const rapidjson::Value& json,
+                                           DataSourcesType& sources,
+                                           const std::string& varName,
+                                           std::unique_ptr<ArrayBasic>& array)
+{
+  if (!json.HasMember(varName.c_str()) || !json[varName.c_str()].IsObject())
+  {
+    throw std::runtime_error(this->ObjectName + " must provide a " + varName + "object.");
+  }
+  array.reset(new ArrayBasic());
+  const auto& arrayJSON = json[varName.c_str()];
+  array->ProcessJSON(arrayJSON, sources);
+}
+
+
+/// Overridden to handle ArrayXGCCoordinates specific items.
+void ArrayGXCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
+{
+  this->ProcessJSONHelper(json, sources, "xm", this->xm);
+  this->ProcessJSONHelper(json, sources, "xn", this->xn);
+  this->ProcessJSONHelper(json, sources, "rmnc", this->rmnc);
+  this->ProcessJSONHelper(json, sources, "zmns", this->zmns);
+  this->ProcessJSONHelper(json, sources, "lmns", this->lmns);
+  this->ProcessJSONHelper(json, sources, "nfp", this->nfp);
+  this->ProcessJSONHelper(json, sources, "phi", this->phi);
+
+  if (json.HasMember("num_theta") && json["num_theta"].IsInt())
+  {
+    this->NumTheta = json["num_theta"].GetInt();
+  }
+  if (json.HasMember("num_zeta") && json["num_zeta"].IsInt())
+  {
+    this->NumZeta = json["num_zeta"].GetInt();
+  }
+  if (json.HasMember("surface_min_index") && json["surface_min_index"].IsInt())
+  {
+    this->SurfaceMinIdxSet = true;
+    this->SurfaceMinIdx = json["surface_min_index"].GetInt();
+  }
+  if (json.HasMember("surface_max_index") && json["surface_max_index"].IsInt())
+  {
+    this->SurfaceMaxIdxSet = true;
+    this->SurfaceMaxIdx = json["surface_max_index"].GetInt();
+  }
+  if (json.HasMember("full_torus") && json["full_torus"].IsBool())
+  {
+    this->FullTorus = json["full_torus"].GetBool();
+  }
+}
+
+std::vector<vtkm::cont::UnknownArrayHandle> ArrayGXCoordinates::Read(
+  const std::unordered_map<std::string, std::string>& paths,
+  DataSourcesType& sources,
+  const fides::metadata::MetaData& selections)
+{
+  auto xmArrays = this->xm->Read(paths, sources, selections);
+  auto xnArrays = this->xn->Read(paths, sources, selections);
+  auto rmncArrays = this->rmnc->Read(paths, sources, selections);
+  auto zmnsArrays = this->zmns->Read(paths, sources, selections);
+  auto lmnsArrays = this->lmns->Read(paths, sources, selections);
+  auto nfpArrays = this->nfp->Read(paths, sources, selections);
+  auto phiArrays = this->phi->Read(paths, sources, selections);
+
+  this->XMArrayHandle = xmArrays[0];
+  this->NFPArrayHandle = nfpArrays[0];
+  this->RMNCArrayHandle = rmncArrays[0];
+  this->ZMNSArrayHandle = zmnsArrays[0];
+  this->LMNSArrayHandle = lmnsArrays[0];
+  this->XNArrayHandle = xnArrays[0];
+  this->PhiArrayHandle = phiArrays[0];
+
+  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  return retVal;
+}
+
+void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+                                  const fides::metadata::MetaData& fidesNotUsed(metaData))
+{
+  if (!this->FullTorus)
+  {
+    throw std::runtime_error("Error: Only full torus case supported.");
+  }
+
+  if (dataSets.size() != 1)
+  {
+    throw std::runtime_error("Error: ArrayGXCoordinates must have 1 dataset.");
+  }
+
+  auto& dataSet = dataSets[0];
+
+  auto xm = this->XMArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+  auto xn = this->XNArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+  if (xm.GetNumberOfValues() != xn.GetNumberOfValues())
+    throw std::runtime_error("Error: Xm and Xn must be the same size.");
+
+  auto rmnc = this->RMNCArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
+  auto zmns = this->ZMNSArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
+  auto lmns = this->LMNSArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
+  if (rmnc.GetNumberOfValues() != zmns.GetNumberOfValues() ||
+      rmnc.GetNumberOfValues() != lmns.GetNumberOfValues() ||
+      rmnc.GetNumberOfComponents() != zmns.GetNumberOfComponents() ||
+      rmnc.GetNumberOfComponents() != lmns.GetNumberOfComponents())
+  {
+    throw std::runtime_error("Error: rmnc, zmns and lmns must be the same size.");
+  }
+
+  //auto phi = this->PhiArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+  vtkm::Id numSurfaces = this->RMNCArrayHandle.GetNumberOfValues();
+
+  vtkm::Id srfIdxMin = 0;
+  vtkm::Id srfIdxMax = srfIdxMin + numSurfaces;
+  if (this->SurfaceMinIdxSet)
+  {
+    srfIdxMin = this->SurfaceMinIdx;
+  }
+  if (this->SurfaceMaxIdxSet)
+  {
+    srfIdxMax = this->SurfaceMaxIdx;
+  }
+
+  if (srfIdxMax - srfIdxMin > numSurfaces)
+  {
+    throw std::runtime_error("Error: Number of surfaces exceeds the number in the file: " +
+                             std::to_string(numSurfaces));
+  }
+
+  numSurfaces = srfIdxMax - srfIdxMin;
+
+  this->NFP = static_cast<vtkm::Id>(
+    this->NFPArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<int>>().ReadPortal().Get(0));
+  auto z0 = vtkm::Pi() / this->NFP;
+
+  //Add num_theta, num_zeta and NFP to the dataset.
+  dataSet.AddField(vtkm::cont::make_Field("num_theta",
+                                          vtkm::cont::Field::Association::WholeDataSet,
+                                          &this->NumTheta,
+                                          1,
+                                          vtkm::CopyFlag::On));
+  dataSet.AddField(vtkm::cont::make_Field("num_zeta",
+                                          vtkm::cont::Field::Association::WholeDataSet,
+                                          &this->NumZeta,
+                                          1,
+                                          vtkm::CopyFlag::On));
+  dataSet.AddField(vtkm::cont::make_Field(
+    "nfp", vtkm::cont::Field::Association::WholeDataSet, &this->NFP, 1, vtkm::CopyFlag::On));
+  dataSet.AddField(vtkm::cont::make_Field("num_surfaces",
+                                          vtkm::cont::Field::Association::WholeDataSet,
+                                          &numSurfaces,
+                                          1,
+                                          vtkm::CopyFlag::On));
+  dataSet.AddField(vtkm::cont::make_Field("surface_min_index",
+                                          vtkm::cont::Field::Association::WholeDataSet,
+                                          &srfIdxMin,
+                                          1,
+                                          vtkm::CopyFlag::On));
+
+  vtkm::cont::ArrayHandleCounting<vtkm::Float64> tax, zax;
+  if (this->ThetaZeroMid)
+  {
+    tax = vtkm::cont::make_ArrayHandleCounting(
+      -vtkm::Pi(), vtkm::Pi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
+  }
+  else
+  {
+    tax = vtkm::cont::make_ArrayHandleCounting(
+      0.0, vtkm::TwoPi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
+  }
+
+  if (this->ZetaZeroMid)
+  {
+    zax = vtkm::cont::make_ArrayHandleCounting(
+      -z0, z0 / static_cast<double>(this->NumZeta - 1), this->NumZeta);
+  }
+  else
+  {
+    zax = vtkm::cont::make_ArrayHandleCounting(
+      0.0, 2 * z0 / static_cast<double>(this->NumZeta - 1), this->NumZeta);
+  }
+
+  vtkm::Id numZeta = zax.GetNumberOfValues();
+  vtkm::Id numTheta = tax.GetNumberOfValues();
+  vtkm::Id numZetaTheta = this->NumZeta * this->NumTheta;
+  vtkm::Id numAmplitudes = xm.GetNumberOfValues();
+
+  //Calculate Cos/Sin values.
+  vtkm::cont::ArrayHandle<vtkm::Float64> cosValuesBase, sinValuesBase, xValuesBase;
+  cosValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
+  sinValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
+  xValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
+  auto cosValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, cosValuesBase);
+  auto sinValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, sinValuesBase);
+  auto xValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, xValuesBase);
+  fides::datamodel::fusionutil::CalcCosSin calcCosSinWorklet(numZeta, numTheta, numAmplitudes);
+  vtkm::cont::Invoker invoke;
+  invoke(calcCosSinWorklet, zax, tax, xm, xn, cosValues, sinValues, xValues);
+
+  vtkm::cont::ArrayHandle<vtkm::Vec3f_64> RZLArrayBase;
+  vtkm::cont::ArrayHandle<vtkm::Float64> LambdaBase;
+  RZLArrayBase.Allocate(numZetaTheta * numSurfaces);
+  LambdaBase.Allocate(numZetaTheta * numSurfaces);
+
+  vtkm::cont::ArrayHandle<vtkm::Vec3f_64> RZLArray, XYZArrayGlobal;
+  vtkm::cont::ArrayHandle<vtkm::Float64> LambdaArrayGlobal;
+  RZLArray.Allocate(numZetaTheta);
+  XYZArrayGlobal.Allocate(numSurfaces * numZetaTheta * this->NFP);
+  LambdaArrayGlobal.Allocate(numSurfaces * numZetaTheta * this->NFP);
+
+  vtkm::cont::Invoker invoker;
+
+  vtkm::Id numPtsPerSrf = this->NumZeta * this->NumTheta * this->NFP;
+  vtkm::Id offset = 0;
+  auto zn = vtkm::cont::make_ArrayHandleCounting(
+    0.0, vtkm::TwoPi() / static_cast<double>(this->NFP), this->NFP);
+
+  for (vtkm::Id si = srfIdxMin; si < srfIdxMax; si++, offset += numPtsPerSrf)
+  {
+    //calc RZL for this surface.
+    fides::datamodel::fusionutil::CalcRZL calcRZLWorklet(numAmplitudes, si);
+    invoker(calcRZLWorklet, RZLArray, rmnc, zmns, lmns, cosValues, sinValues);
+
+    auto XYZArray = vtkm::cont::make_ArrayHandleView(XYZArrayGlobal, offset, numPtsPerSrf);
+    auto LambdaArray = vtkm::cont::make_ArrayHandleView(LambdaArrayGlobal, offset, numPtsPerSrf);
+
+    if (this->FullTorus)
+    {
+      auto Phi_n = vtkm::cont::ArrayHandle<vtkm::Float64>();
+      auto RZL_n = vtkm::cont::ArrayHandle<vtkm::Vec3f_64>();
+      Phi_n.Allocate(this->NFP * this->NumZeta * this->NumTheta);
+      RZL_n.Allocate(this->NFP * this->NumZeta * this->NumTheta);
+
+      fides::datamodel::fusionutil::CalcNFP calcNFPWorklet(
+        this->NFP, this->NumZeta, this->NumTheta);
+      vtkm::cont::Invoker invoker;
+      invoker(calcNFPWorklet, RZLArray, zn, zax, Phi_n, RZL_n);
+      //Convert RZPhi to XYZ
+      fides::datamodel::fusionutil::ConvertRZPhiToXYZ convertToXYZWorklet(
+        this->NFP, this->NumZeta, this->NumTheta);
+      invoker(convertToXYZWorklet, XYZArray, LambdaArray, Phi_n, RZL_n);
+    }
+    else
+    {
+      throw std::runtime_error("Error: Only full torus case supported.");
+    }
+  }
+
+  dataSet.AddCoordinateSystem(vtkm::cont::CoordinateSystem("coordinates", XYZArrayGlobal));
+
+  //Add lambda field.
+  dataSet.AddPointField("Lambda", LambdaArrayGlobal);
 }
 
 }
