@@ -50,19 +50,7 @@ class vtkTestHTTPHandler(SimpleHTTPRequestHandler):
         logger.debug(format, *args)
 
     def end_headers(self):
-        # Opt in to cross-origin isolated state. We want this because wasm inside a
-        # WebWorker needs SharedArrayBuffer.
-        # All VTK unit tests use WebWorkers to run the main(argc, argv),
-        # in order to make synchronous XHR for test data files, baseline images, etc.
-        #
-        # NOTE: This is generally not a good idea because VTK is not thread-safe.
-        # TestGarbageCollector fails to defer collections.
-        # We could go back to main thread after JSPI moves to Phase 4 in https://github.com/WebAssembly/proposals
-        # It is in Phase 3 as on April 2024.
-        # JSPI: https://github.com/WebAssembly/js-promise-integration
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        # Do not allow client to use cache. Ideal for development where .wasm/.js may change.
         self.send_header('Cache-Control', 'no-store')
         super().end_headers()
 
@@ -230,7 +218,21 @@ class vtkWebAssemblyTestRunner:
         # If a test did not send an exit code, this `join` will block. It can happen when a test is stuck.
         # In such scenario, the httpd loop will not break and `ctest`` will terminate us after the timeout interval
         # has elapsed.
-        self._httpd_thread.join()
+        try:
+            while self._httpd_thread.is_alive():
+                self._httpd_thread.join(timeout=1)
+        except KeyboardInterrupt:
+            # On windows, socket recv and select methods are uninterruptible, making CTRL+C unreliable. For that reason,
+            # our `httpd` thread cannot see sigint.
+            # See https://github.com/python/cpython/issues/79115 and https://github.com/python/cpython/issues/85609
+            # For this reason, handle SIGINT on main thread.
+            self._server_is_shutdown = True
+            self.exit_code = 1
+            # Attempt to safely join the thread and release sockets
+            self._httpd_thread.join(timeout=1000)
+            if self._httpd_thread.is_alive():
+                logger.warning(f"Port {self.port} may not be reusable. Failed to stop HTTP server at {self._url}")
+            logger.debug("Caught KeyboardInterrupt, exiting.")
 
         return self.exit_code if self.exit_code is not None else 1
 
@@ -264,10 +266,7 @@ class vtkWebAssemblyTestRunner:
         self._httpd_started.set()
 
         while not self._server_is_shutdown:
-            try:
-                self._process_one_http_request()
-            except KeyboardInterrupt:
-                break
+            self._process_one_http_request()
 
     def _process_one_http_request(self):
 

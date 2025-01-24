@@ -573,6 +573,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoat$"
     "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
+    "^VTK::RenderingOpenGL2Cxx-TestPBRIrradianceHDR$"
     "^VTK::RenderingOpenGL2Cxx-TestPointFillPass$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestPointGaussianMapperAnisotropic$"
