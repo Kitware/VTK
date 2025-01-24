@@ -1,9 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <atomic> // for std::atomic
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map> // for std::map
 
 #ifndef WINVER
 #define WINVER 0x0601 // for touch support, 0x0601 means target Windows 7 or later
@@ -198,9 +200,41 @@ void RecoverKeyEventInformation(
 
 }
 
+class vtkWin32RenderWindowInteractor::vtkInternals
+{
+public:
+  // this structure is used in the callback internally
+  // instances have to live after calling InternalCreateTimer so we store them
+  // in a map until InternalDestroyTimer is called
+  struct TimerContext
+  {
+    HWND WindowId;
+    int TimerId;
+    int TimerIdForPost;
+    HANDLE PlatformId;
+    std::atomic<bool> Posted{ false };
+  };
+  std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
+  bool IsRunning = false;
+
+  static void OnTimerFired(PVOID lpParameter, BOOLEAN)
+  {
+    auto* timerContext = static_cast<TimerContext*>(lpParameter);
+    // Do not post another message for the same timer if already posted
+    // to avoid flooding the message queue
+    if (!timerContext->Posted.exchange(true))
+    {
+      PostMessage(timerContext->WindowId, WM_TIMER, timerContext->TimerId, 0);
+    }
+  }
+
+  static void OnTimerMessageReceived(TimerContext* timerContext) { timerContext->Posted = false; }
+};
+
 //------------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
+  : Internals(new vtkInternals())
 {
   this->WindowId = 0;
   this->InstallMessageProc = 1;
@@ -252,8 +286,87 @@ void vtkWin32RenderWindowInteractor::ProcessEvents()
     return;
   }
 
+  /**
+   * NOTE:
+   * Defer processing the timer in next iteration because
+   * a WM_LBUTTONUP or other INPUT event may be wired up to
+   * a callback that destroys a timer. By exiting this loop,
+   * we give a chance to that input event's callback to run
+   * in the next invocation of `ProcessEvents()`.
+   * In this example, the left button down event is wired to a callback
+   * that creates a repeating timer for 10ms. This is a real use case in
+   * vtkInteractorStyle.cxx in the vtkInteractorStyle::StartState and
+   * vtkInteractorStyle::StopState methods.
+   * This diagram illustrates a problem with a single PeekMessage loop
+   * when a WM_TIMER was posted (via `PostMessage`) rather than using
+   * `SetTimer`.
+   *
+   * Time  |      Main thread            |  Timer thread
+   *       |Handle WM_LBUTTONDOWN        |
+   *   0ms | ->CreateRepeatingTimer(10ms)|
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *   10ms|                             | PostMessage(WM_TIMER, ...)
+   *       |Handle WM_TIMER              |
+   *   0ms |  ->OnTimer()                |
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *   10ms|                             | PostMessage(WM_TIMER, ...)
+   *       |Handle WM_TIMER              |
+   *   0ms |  ->OnTimer()                |
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *       |                             |
+   *   10ms|Handle WM_TIMER              | PostMessage(WM_TIMER, ...)
+   *   0ms |  ->OnTimer()                |
+   *       |                             |
+   *   4ms |New WM_LBUTTONUP generated   |
+   *       |  Cannot handle it because   |
+   *       |  we are seeing lots of      |
+   *       |  WM_TIMER                   |
+   *       |                             |
+   *   10ms|Handle WM_TIMER              | PostMessage(WM_TIMER, ...)
+   *   0ms |  ->OnTimer()                |
+   *
+   * For this reason, we split the PeekMessage loop into four sub-loops.
+   * 1. In the first pass, only process INPUT and PAINT events with the PM_QS_INPUT | PM_QS_PAINT
+   * mask.
+   * 2. In the second pass, process all messages that were posted via `PostMessage()`. This includes
+   * WM_TIMER. When this loop sees a WM_TIMER, it breaks immediately in order to give equal chance
+   * to other events that may be connected to callbacks which destroy timers.
+   * 3. In the final pass, process all messages that were sent via `SendMessage()`. This interactor
+   * does not use `SendMessage`, however, it is provided in case a custom app uses it.
+   */
+  auto& internals = (*this->Internals);
   MSG msg;
-  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+  // Process input events first
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_QS_INPUT | PM_QS_PAINT))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+  // Process timer and posted messages
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_QS_POSTMESSAGE))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+    if (msg.message == WM_QUIT)
+    {
+      internals.IsRunning = false;
+    }
+    if (msg.message == WM_TIMER)
+    {
+      // defer to next execution of `vtkWin32RenderWindowInteractor::ProcessEvents()`
+      break;
+    }
+  }
+  // Process sent messages
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_QS_SENDMESSAGE))
   {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -270,13 +383,11 @@ void vtkWin32RenderWindowInteractor::StartEventLoop()
   }
 
   this->StartedMessageLoop = 1;
-
-  MSG msg;
-  while (GetMessage(&msg, nullptr, 0, 0))
+  do
   {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
+    this->Internals->IsRunning = true;
+    this->ProcessEvents();
+  } while (this->Internals->IsRunning);
 }
 
 //------------------------------------------------------------------------------
@@ -442,36 +553,24 @@ void vtkWin32RenderWindowInteractor::TerminateApp(void)
 int vtkWin32RenderWindowInteractor::InternalCreateTimer(
   int timerId, int timerType, unsigned long duration)
 {
-  auto timerCallback = [](PVOID lpParameter, BOOLEAN)
-  {
-    vtkWin32RenderWindowInteractor::TimerContext* data =
-      static_cast<vtkWin32RenderWindowInteractor::TimerContext*>(lpParameter);
+  auto& internals = (*this->Internals);
 
-    // Do not post another message for the same timer if already posted
-    // to avoid flooding the message queue
-    if (!data->Posted.exchange(true))
-    {
-      PostMessage(data->WindowId, WM_TIMER, data->TimerId, 0);
-    }
-  };
-
-  std::unique_ptr<vtkWin32RenderWindowInteractor::TimerContext> timerContext(
-    new vtkWin32RenderWindowInteractor::TimerContext);
+  std::unique_ptr<vtkInternals::TimerContext> timerContext(new vtkInternals::TimerContext);
   timerContext->WindowId = this->WindowId;
   timerContext->TimerId = timerId;
 
   if (timerType == vtkRenderWindowInteractor::RepeatingTimer)
   {
-    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, timerCallback, timerContext.get(),
-      duration, duration, WT_EXECUTEDEFAULT);
+    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, vtkInternals::OnTimerFired,
+      timerContext.get(), duration, duration, WT_EXECUTEDEFAULT);
   }
   else
   {
-    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, timerCallback, timerContext.get(),
-      duration, 0, WT_EXECUTEONLYONCE);
+    CreateTimerQueueTimer(&timerContext->PlatformId, nullptr, vtkInternals::OnTimerFired,
+      timerContext.get(), duration, 0, WT_EXECUTEONLYONCE);
   }
 
-  this->TimerContextMap[timerId] = std::move(timerContext);
+  internals.TimerContextMap[timerId] = std::move(timerContext);
 
   return timerId;
 }
@@ -479,11 +578,12 @@ int vtkWin32RenderWindowInteractor::InternalCreateTimer(
 //------------------------------------------------------------------------------
 int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
-  auto it = this->TimerContextMap.find(platformTimerId);
-  if (it != this->TimerContextMap.end())
+  auto& internals = (*this->Internals);
+  auto it = internals.TimerContextMap.find(platformTimerId);
+  if (it != internals.TimerContextMap.end())
   {
     BOOL ret = DeleteTimerQueueTimer(nullptr, it->second->PlatformId, nullptr);
-    this->TimerContextMap.erase(it);
+    internals.TimerContextMap.erase(it);
     return ret;
   }
   return 0;
@@ -672,12 +772,18 @@ int vtkWin32RenderWindowInteractor::OnSize(HWND, UINT, int X, int Y)
 //------------------------------------------------------------------------------
 int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
 {
+  auto& internals = (*this->Internals);
   if (!this->Enabled)
   {
     return 0;
   }
   int tid = static_cast<int>(timerId);
-  this->TimerContextMap[timerId]->Posted = false;
+  auto it = internals.TimerContextMap.find(timerId);
+  if (it != internals.TimerContextMap.end())
+  {
+    vtkInternals::OnTimerMessageReceived(it->second.get());
+  }
+
   return this->InvokeEvent(vtkCommand::TimerEvent, &tid);
 }
 

@@ -23,8 +23,6 @@
 #include "vtkWindows.h"           // For windows API.
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
-#include <atomic> // for std::atomic
-#include <map>    // for std::map
 #include <memory> // for std::unique_ptr
 
 #include "vtkTDxConfigure.h" // defines VTK_USE_TDX
@@ -184,17 +182,8 @@ private:
   vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) = delete;
   void operator=(const vtkWin32RenderWindowInteractor&) = delete;
 
-  // this structure is used in the callback internally
-  // instances have to live after calling InternalCreateTimer so we store them
-  // in a map until InternalDestroyTimer is called
-  struct TimerContext
-  {
-    HWND WindowId;
-    int TimerId;
-    HANDLE PlatformId;
-    std::atomic<bool> Posted{ false };
-  };
-  std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internals;
 };
 
 VTK_ABI_NAMESPACE_END
