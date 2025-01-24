@@ -99,10 +99,11 @@ int vtkLegacyCellGridReader::ReadMeshSimple(const std::string& fname, vtkDataObj
       return 1;
     }
 
-    std::vector<std::uint8_t> raw;
+    // Use 'char' instead of 'uint8_t' to avoid the following clang >= 19 error:
+    // "implicit instantiation of undefined template 'std::char_traits<unsigned char>'"
+    std::vector<char> raw;
     raw.resize(contentLength);
-    if (!this->GetIStream()->read(
-          reinterpret_cast<char*>(raw.data()), static_cast<std::streamsize>(contentLength)))
+    if (!this->GetIStream()->read(raw.data(), static_cast<std::streamsize>(contentLength)))
     {
       vtkErrorMacro(<< "Cannot read encoded dataset.");
       this->CloseVTKFile();
