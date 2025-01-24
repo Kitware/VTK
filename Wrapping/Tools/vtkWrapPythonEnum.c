@@ -254,7 +254,7 @@ void vtkWrapPython_GenerateEnumType(
   /* conversion method: construct from enum value */
   fprintf(fp,
     "template<class T>\n"
-    "PyObject *Py%s_FromEnum(T val)\n"
+    "static PyObject *Py%s_FromEnum(T val)\n"
     "{\n"
     "  return PyVTKEnum_New(&Py%s_Type, static_cast<int>(val));\n"
     "}\n"
