@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAnariGlyph3DMapperNode
- * @brief   A Glyph mapper node for ANARI (ANAlytic Rendering Interface)
- *          instead of OpenGL.
+ * @brief   A Glyph mapper node for ANARI (ANAlytic Rendering Interface).
  *
  *
  * ANARI provides cross-vendor portability to diverse rendering engines,
- * including those using state-of-the-art ray tracing. This is a render
- * pass that can be put into a vtkRenderWindow which makes it use the
- * back-end loaded with ANARI instead of OpenGL to render. Adding or
- * removing the pass will swap back and forth between the two.
+ * including those using state-of-the-art ray tracing. This is the Glyph
+ * Mapper node class, which is the ANARI equivalent of the vtkGlyph3DMapper
+ * for glyphs. It is built on top of the vtkAnariCompositePolyDataMapperNode
+ * to reuse existing composite structure traversal and point/mesh rendering
+ * capabilities of ANARI.
  *
  * @par Thanks:
- * Kevin Griffin kgriffin@nvidia.com for creating and contributing the class
+ * Kees van Kooten kvankooten@nvidia.com for creating and contributing the class
  * and NVIDIA for supporting this work.
  *
  */
@@ -41,7 +41,9 @@
 #include "vtkQuaternion.h"
 #include "vtkSphereSource.h"
 
-namespace
+VTK_ABI_NAMESPACE_BEGIN
+
+namespace vtkAnariMath
 {
 void RotationToQuaternion(float* rot, float* quat)
 {
@@ -391,7 +393,7 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
         int orientMode = glyphMapper->GetOrientationMode();
         if (orientMode == vtkGlyph3DMapper::DIRECTION && orientArray->GetNumberOfComponents() == 3)
         {
-          auto dirToQuaternionF = DirectionToQuaternionX;
+          auto dirToQuaternionF = vtkAnariMath::DirectionToQuaternionX;
           if (orientArray->GetDataType() == VTK_FLOAT)
           {
             float* dirIn = reinterpret_cast<float*>(orientArray->GetVoidPointer(0));
@@ -422,7 +424,7 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
             float* rotIn = reinterpret_cast<float*>(orientArray->GetVoidPointer(0));
             for (uint64_t ptIdx = 0; ptIdx < numPoints; ++ptIdx, rotIn += 3)
             {
-              RotationToQuaternion(rotIn, quatOut + ptIdx * 4);
+              vtkAnariMath::RotationToQuaternion(rotIn, quatOut + ptIdx * 4);
             }
           }
           else
@@ -433,7 +435,7 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
               orientArray->GetTuple(ptIdx, rotInD);
 
               float rotIn[3] = { (float)rotInD[0], (float)rotInD[1], (float)rotInD[2] };
-              RotationToQuaternion(rotIn, quatOut + ptIdx * 4);
+              vtkAnariMath::RotationToQuaternion(rotIn, quatOut + ptIdx * 4);
             }
           }
         }
@@ -719,3 +721,5 @@ void vtkAnariGlyph3DMapperNode::Synchronize(bool prepass)
 
   this->Superclass::Synchronize(prepass);
 }
+
+VTK_ABI_NAMESPACE_END

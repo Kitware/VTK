@@ -304,61 +304,61 @@ void vtkAnariDevice::SetOnNewDeviceCallback(OnNewDeviceCallback&& cb)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, char* c)
+void vtkAnariDevice::SetParameterc(const char* param, char* c)
 {
   this->Internal->SetDeviceParameter(param, c);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, bool b)
+void vtkAnariDevice::SetParameterb(const char* param, bool b)
 {
   this->Internal->SetDeviceParameter(param, b);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, int x)
+void vtkAnariDevice::SetParameteri(const char* param, int x)
 {
   this->Internal->SetDeviceParameter(param, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, int x, int y)
+void vtkAnariDevice::SetParameter2i(const char* param, int x, int y)
 {
   this->Internal->SetDeviceParameter(param, ivec2{ x, y });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, int x, int y, int z)
+void vtkAnariDevice::SetParameter3i(const char* param, int x, int y, int z)
 {
   this->Internal->SetDeviceParameter(param, ivec3{ x, y, z });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, int x, int y, int z, int w)
+void vtkAnariDevice::SetParameter4i(const char* param, int x, int y, int z, int w)
 {
   this->Internal->SetDeviceParameter(param, ivec4{ x, y, z, w });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, float x)
+void vtkAnariDevice::SetParameterf(const char* param, float x)
 {
   this->Internal->SetDeviceParameter(param, x);
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, float x, float y)
+void vtkAnariDevice::SetParameter2f(const char* param, float x, float y)
 {
   this->Internal->SetDeviceParameter(param, vec2{ x, y });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, float x, float y, float z)
+void vtkAnariDevice::SetParameter3f(const char* param, float x, float y, float z)
 {
   this->Internal->SetDeviceParameter(param, vec3{ x, y, z });
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariDevice::SetParameter(const char* param, float x, float y, float z, float w)
+void vtkAnariDevice::SetParameter4f(const char* param, float x, float y, float z, float w)
 {
   this->Internal->SetDeviceParameter(param, vec4{ x, y, z, w });
 }

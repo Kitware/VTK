@@ -82,16 +82,16 @@ public:
    * anari::setParameter() and anari::commitParameters() directly as it is
    * equivalent.
    */
-  void SetParameter(const char* param, char*);
-  void SetParameter(const char* param, bool);
-  void SetParameter(const char* param, int);
-  void SetParameter(const char* param, int, int);
-  void SetParameter(const char* param, int, int, int);
-  void SetParameter(const char* param, int, int, int, int);
-  void SetParameter(const char* param, float);
-  void SetParameter(const char* param, float, float);
-  void SetParameter(const char* param, float, float, float);
-  void SetParameter(const char* param, float, float, float, float);
+  void SetParameterc(const char* param, char*);
+  void SetParameterb(const char* param, bool);
+  void SetParameteri(const char* param, int);
+  void SetParameter2i(const char* param, int, int);
+  void SetParameter3i(const char* param, int, int, int);
+  void SetParameter4i(const char* param, int, int, int, int);
+  void SetParameterf(const char* param, float);
+  void SetParameter2f(const char* param, float, float);
+  void SetParameter3f(const char* param, float, float, float);
+  void SetParameter4f(const char* param, float, float, float, float);
   void SetParameterd(const char* param, double);
   void CommitParameters();
   //@}

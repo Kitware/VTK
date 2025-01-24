@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkAnariGlyph3DMapperNode
- * @brief   A Glyph mapper node for ANARI (ANAlytic Rendering Interface)
- *          instead of OpenGL.
+ * @brief   A Glyph mapper node for ANARI (ANAlytic Rendering Interface).
  *
  *
  * ANARI provides cross-vendor portability to diverse rendering engines,
- * including those using state-of-the-art ray tracing. This is a render
- * pass that can be put into a vtkRenderWindow which makes it use the
- * back-end loaded with ANARI instead of OpenGL to render. Adding or
- * removing the pass will swap back and forth between the two.
+ * including those using state-of-the-art ray tracing. This is the Glyph
+ * Mapper node class, which is the ANARI equivalent of the vtkGlyph3DMapper
+ * for glyphs. It is built on top of the vtkAnariCompositePolyDataMapperNode
+ * to reuse existing composite structure traversal and point/mesh rendering
+ * capabilities of ANARI.
  *
  * @par Thanks:
- * Kevin Griffin kgriffin@nvidia.com for creating and contributing the class
+ * Kees van Kooten kvankooten@nvidia.com for creating and contributing the class
  * and NVIDIA for supporting this work.
  *
  */
@@ -23,6 +23,8 @@
 
 #include "vtkAnariCompositePolyDataMapperNode.h"
 #include "vtkRenderingAnariModule.h" // For export macro
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariGlyph3DMapperNodeInternals;
 class vtkCompositeDataDisplayAttributes;
@@ -55,5 +57,7 @@ private:
   vtkAnariGlyph3DMapperNode(const vtkAnariGlyph3DMapperNode&) = delete;
   void operator=(const vtkAnariGlyph3DMapperNode&) = delete;
 };
+
+VTK_ABI_NAMESPACE_END
 
 #endif

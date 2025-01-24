@@ -121,8 +121,9 @@ public:
 
   /**
    * Name of the node, used for debugging or representation
-   * metadata in case ANARI output is written out to intermediate
-   * authoring stages.
+   * metadata in case an ANARI backend is chosen which - instead
+   * of rendering to a screen - outputs to intermediate
+   * authoring stages (such as files or network resources).
    */
   static vtkInformationStringKey* ACTOR_NODE_NAME();
 
