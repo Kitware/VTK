@@ -40,11 +40,11 @@
 #define CG_BUILD_COMPLEX_C99_EXT @HAVE_COMPLEX_C99_EXT@
 
 #define CG_MAX_INT32 0x7FFFFFFF
-#ifdef _WIN32
-# define CG_LONG_T __int64
-#else
-# define CG_LONG_T @CGLONGT@
-#endif
+
+#include <stdint.h>   /* For C9x types */
+#include <inttypes.h> /* C99/POSIX.1 header for uint64_t, PRIu64 */
+#define CG_LONG_T @CGLONGT@
+#define CG_U_LONG_T @CGULONGT@
 
 #if CG_BUILD_HDF5
 
@@ -72,21 +72,28 @@
 #define  CG_HAVE_STAT64_STRUCT @HAVE_STAT64_STRUCT@
 
 #if CG_BUILD_LEGACY
+#include <limits.h>
 # define CG_SIZEOF_SIZE    32
 # define CG_SIZE_DATATYPE "I4"
 # define cgerr_t  int
 # define cgint_t  int
 # define cgsize_t int
 # define cgid_t   double
+# define PRIdCGSIZE "d"
+# define CG_SIZE_MAX INT_MAX
 #else
 # if CG_BUILD_64BIT
 #  define CG_SIZEOF_SIZE    64
 #  define CG_SIZE_DATATYPE "I8"
-   typedef CG_LONG_T cgsize_t;
+#  define PRIdCGSIZE PRId64
+   typedef int64_t cgsize_t;
+#  define CG_SIZE_MAX INT64_MAX
 # else
 #  define CG_SIZEOF_SIZE    32
 #  define CG_SIZE_DATATYPE "I4"
-   typedef int cgsize_t;
+#  define PRIdCGSIZE PRId32
+   typedef int32_t cgsize_t;
+#  define CG_SIZE_MAX INT32_MAX
 # endif
   typedef int cgerr_t;
   typedef int cgint_t;
@@ -103,6 +110,6 @@
 
 
 typedef CG_LONG_T cglong_t;
-typedef unsigned CG_LONG_T cgulong_t;
+typedef CG_U_LONG_T cgulong_t;
 
 #endif
