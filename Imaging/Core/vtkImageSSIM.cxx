@@ -18,6 +18,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <cstdint>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkImageSSIM);
