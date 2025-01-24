@@ -236,6 +236,7 @@ Common/DataModel/vtkCellGridRangeQuery.h
 Common/DataModel/vtkCellGridResponder.h
 Common/DataModel/vtkCellGridResponderBase.h
 Common/DataModel/vtkCellGridResponders.h
+Common/DataModel/vtkCellGridSidesCache.h
 Common/DataModel/vtkCellGridSidesQuery.h
 Common/DataModel/vtkCellIterator.h
 Common/DataModel/vtkCellLinks.h
@@ -277,6 +278,7 @@ Common/DataModel/vtkEmptyCell.h
 Common/DataModel/vtkExplicitStructuredGrid.h
 Common/DataModel/vtkExtractStructuredGridHelper.h
 Common/DataModel/vtkFindCellStrategy.h
+Common/DataModel/vtkFrustum.h
 Common/DataModel/vtkGenericAdaptorCell.h
 Common/DataModel/vtkGenericAttribute.h
 Common/DataModel/vtkGenericAttributeCollection.h
@@ -694,6 +696,7 @@ Rendering/Core/vtkInteractorEventRecorder.h
 Rendering/Core/vtkInteractorStyle3D.h
 Rendering/Core/vtkLODProp3D.h
 Rendering/Core/vtkLabeledContourMapper.h
+Rendering/Core/vtkLabeledDatatypeDefinitions.h
 Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightKit.h
 Rendering/Core/vtkLogLookupTable.h
@@ -763,8 +766,6 @@ Rendering/Label/vtkLabelSizeCalculator.h
 Rendering/Label/vtkPointSetToLabelHierarchy.h
 Rendering/OpenGL2/vtkArrayRenderer.h
 Rendering/OpenGL2/vtkCocoaGLView.h
-Rendering/OpenGL2/vtkCompositeMapperHelper2.h
-Rendering/OpenGL2/vtkCompositePolyDataMapper2.h
 Rendering/OpenGL2/vtkDataTransferHelper.h
 Rendering/OpenGL2/vtkDrawTexturedElements.h
 Rendering/OpenGL2/vtkDummyGPUInfoList.h
@@ -831,7 +832,6 @@ Rendering/OpenGL2/vtkWin32OpenGLDXRenderWindow.h
 Rendering/UI/vtkAndroidRenderWindowInteractor.h
 Rendering/UI/vtkCocoaMacOSXSDKCompatibility.h
 Rendering/UI/vtkIOSRenderWindowInteractor.h
-Rendering/UI/vtkSDL2RenderWindowInteractor.h
 Rendering/Volume/vtkAnariVolumeInterface.h
 Rendering/Volume/vtkBlockSortHelper.h
 Rendering/Volume/vtkDirectionEncoder.h
@@ -871,6 +871,7 @@ Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLRayCastImageDisplayHelper.h
+Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeGradientOpacityTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTables.h

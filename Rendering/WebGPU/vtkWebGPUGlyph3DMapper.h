@@ -12,13 +12,12 @@
 #include "vtkGlyph3DMapper.h"
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtkWrappingHints.h"         // for VTK_MARSHALAUT
 
 #include <memory> // for unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUGlyph3DMapper : public vtkGlyph3DMapper
+class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUGlyph3DMapper : public vtkGlyph3DMapper
 {
 public:
   static vtkWebGPUGlyph3DMapper* New();
