@@ -637,6 +637,7 @@ bool vtkOpenGLPolyDataMapper2D::HaveWideLines(vtkViewport* ren, vtkActor2D* acto
   return false;
 }
 
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   vtkOpenGLClearErrorMacro();

@@ -29,6 +29,7 @@ set(classes
   vtkWebGPURenderWindow
   vtkWebGPURenderPipelineCache
   vtkWebGPUPolyDataMapper
+  vtkWebGPUPolyDataMapper2D
   vtkWebGPUProperty
   vtkWebGPURenderer
   vtkWebGPURenderPass
@@ -48,6 +49,7 @@ set(private_headers
   "Private/vtkWebGPUConfigurationInternals.h"
   "Private/vtkWebGPUPipelineLayoutInternals.h"
   "Private/vtkWebGPUPointCloudMapperInternals.h"
+  "Private/vtkWebGPUPolyDataMapper2DInternals.h"
   "Private/vtkWebGPURenderPassCreateInfoInternals.h"
   "Private/vtkWebGPURenderPassDescriptorInternals.h"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
@@ -66,6 +68,7 @@ set(private_sources
   "Private/vtkWebGPUConfigurationInternals.cxx"
   "Private/vtkWebGPUPipelineLayoutInternals.cxx"
   "Private/vtkWebGPUPointCloudMapperInternals.cxx"
+  "Private/vtkWebGPUPolyDataMapper2DInternals.cxx"
   "Private/vtkWebGPURenderPassCreateInfoInternals.cxx"
   "Private/vtkWebGPURenderPassDescriptorInternals.cxx"
   "Private/vtkWebGPURenderPipelineDescriptorInternals.cxx"
@@ -88,7 +91,7 @@ set(webgpu_overrides
   Light
   # NI: PointGaussianMapper
   PolyDataMapper
-  # NI: PolyDataMapper2D
+  PolyDataMapper2D
   Property
   # NI: ShaderProperty
   # NI: Uniforms
@@ -121,6 +124,7 @@ set(private_shader_files
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
   wgsl/PointShader.wgsl
+  wgsl/PolyData2D.wgsl
   wgsl/SceneLight.wgsl
   wgsl/SceneTransform.wgsl
   wgsl/SurfaceMeshShader.wgsl

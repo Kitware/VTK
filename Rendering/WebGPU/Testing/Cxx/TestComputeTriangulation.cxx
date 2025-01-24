@@ -2,13 +2,20 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkLogger.h"
 #include "vtkMinimalStandardRandomSequence.h"
-#include "vtkWebGPUComputeBuffer.h"
-#include "vtkWebGPUComputePipeline.h"
+#include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "vtkWebGPUConfiguration.h"
 
-#include <array>
 #include <cstdlib>
 #include <sstream>
+
+// This unit test exercises vtkWebGPUCellToPrimitiveConverter.
+// You can run this using the `--verify` argument to ensure the output of
+// conversion compute pipeline matches the expected triangle IDs.
+// Additionally, this test can be run in a benchmark mode with the `--benchmark` flag.
+// In the benchmark mode, a couple of things occur:
+// - The existing log verbosity is bumped to INFO so that the timing information is visible in
+// console.
+// - The program runs over a set of parameters with a steady increase in the number of polygons.
 
 namespace
 {
@@ -36,59 +43,6 @@ std::vector<ParametersInfo> ParametersCollection = {
 #endif
 };
 
-const std::string Polys2TrisShader = R"(
-// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-License-Identifier: BSD-3-Clause
-
-@group(0) @binding(0) var<storage, read> connectivity: array<u32>;
-@group(0) @binding(1) var<storage, read> offsets: array<u32>;
-@group(0) @binding(2) var<storage, read> triangle_id_offsets: array<u32>;
-@group(0) @binding(3) var<storage, read_write> triangle_list: array<u32>;
-
-@compute @workgroup_size(64)
-fn polys2tris(
-    @builtin(workgroup_id) workgroup_id : vec3<u32>,
-    @builtin(local_invocation_index) local_invocation_index: u32,
-    @builtin(num_workgroups) num_workgroups: vec3<u32>)
-{
-  let workgroup_index =
-    workgroup_id.x +
-    workgroup_id.y * num_workgroups.x +
-    workgroup_id.z * num_workgroups.x * num_workgroups.y;
-  let cell_id: u32 =
-    workgroup_index * 64 +
-    local_invocation_index;
-  if (cell_id >= arrayLength(&offsets) - 1)
-  {
-    return;
-  }
-
-  let num_triangles_per_cell: u32 = triangle_id_offsets[cell_id + 1u] - triangle_id_offsets[cell_id];
-
-  // where to start writing point indices of a triangle.
-  var output_offset: u32 = triangle_id_offsets[cell_id] * 3u;
-
-  // where to obtain the point indices that describe connectivity of a polygon
-  let input_offset: u32 = offsets[cell_id];
-
-  for (var i: u32 = 0; i < num_triangles_per_cell; i++) {
-
-    let p0: u32 = connectivity[input_offset];
-    let p1: u32 = connectivity[input_offset + i + 1u];
-    let p2: u32 = connectivity[input_offset + i + 2u];
-
-    triangle_list[output_offset] = p0;
-    output_offset++;
-
-    triangle_list[output_offset] = p1;
-    output_offset++;
-
-    triangle_list[output_offset] = p2;
-    output_offset++;
-  }
-}
-)";
-
 vtkNew<vtkCellArray> BuildPolygons(
   const std::map<std::size_t, double> cellSizeDistributions, vtkIdType numberOfCells)
 {
@@ -111,44 +65,6 @@ vtkNew<vtkCellArray> BuildPolygons(
     }
   }
   return polygons;
-}
-
-// Function to factor the number into three multiples
-std::array<vtkTypeUInt32, 3> Factorize(
-  vtkTypeUInt32 n, vtkTypeUInt32 maxWorkGroupsPerDimension, bool& success)
-{
-  std::array<vtkTypeUInt32, 3> factors = { 1, 1, 1 };
-  if (n > maxWorkGroupsPerDimension)
-  {
-    factors[0] = maxWorkGroupsPerDimension;
-  }
-  else
-  {
-    factors[0] = n;
-    factors[1] = 1;
-    factors[2] = 1;
-    success = true;
-  }
-  if (n > (factors[0] * maxWorkGroupsPerDimension))
-  {
-    factors[1] = maxWorkGroupsPerDimension;
-  }
-  else
-  {
-    factors[1] = std::ceil(n / static_cast<double>(factors[0]));
-    factors[2] = 1;
-    success = true;
-  }
-  if (n > (factors[0] * factors[1] * maxWorkGroupsPerDimension))
-  {
-    success = false;
-  }
-  else
-  {
-    factors[2] = std::ceil(n / static_cast<double>(factors[0] * factors[1]));
-    success = true;
-  }
-  return factors;
 }
 
 std::string CellSizeWeightsToString(const ParametersInfo& parameters)
@@ -199,14 +115,18 @@ int TestComputeTriangulation(int argc, char* argv[])
     if (std::string(argv[i]) == "--benchmark")
     {
       runBenchmarks = true;
+      if (vtkLogger::GetCurrentVerbosityCutoff() < vtkLogger::VERBOSITY_INFO)
+      {
+        std::cout << "Bump logger verbosity to INFO\n";
+        vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_INFO);
+      }
     }
   }
-  vtkNew<vtkWebGPUConfiguration> wgpuConfig;
-  std::array<int, 4> bufferIndices = { -1, -1, -1, -1 };
-
   std::size_t numParameterGroups = runBenchmarks ? ::ParametersCollection.size() : 3;
   for (std::size_t i = 0; i < numParameterGroups; ++i)
   {
+    vtkNew<vtkWebGPUConfiguration> wgpuConfig;
+
     const auto& parameters = ::ParametersCollection[i];
     std::string scopeId = std::to_string(parameters.NumberOfCells) + " cells";
     vtkLogScopeF(INFO, "%s", scopeId.c_str());
@@ -216,134 +136,139 @@ int TestComputeTriangulation(int argc, char* argv[])
     auto polygons = BuildPolygons(parameters.CellSizeWeights, parameters.NumberOfCells);
     vtkLogEndScope("Build polygons");
 
+    struct MapData
+    {
+      wgpu::Buffer buffer;
+      std::size_t byteSize;
+      std::vector<vtkTypeUInt32> expectedValues;
+    };
+    MapData* mapData = new MapData();
+
+    // As the `vtkWebGPUCellToPrimitiveConverter` class is designed to convert 64-bit connectivity
+    // and offsets to 32-bit prior to dispatching the compute pipeline, the reported time taken for
+    // the dispatch call includes the time for conversion on the CPU. To avoid that, here, we
+    // prebuild 32-bit arrays so that the GPU timing excludes time taken to convert 64-bit arrays.
+    vtkLogStartScope(INFO, "Convert to 32-bit storage");
+    polygons->ConvertTo32BitStorage();
+    vtkLogEndScope("Convert to 32-bit storage");
+
     vtkLogStartScope(INFO, "Compute triangle lists in CPU");
-    auto iter = polygons->NewIterator();
-    std::vector<vtkTypeUInt32> expectedTris;
+    auto iter = vtk::TakeSmartPointer(polygons->NewIterator());
+
     for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
     {
       const vtkIdType* cellPts = nullptr;
+      const vtkIdType cellId = iter->GetCurrentCellId();
       vtkIdType cellSize;
       iter->GetCurrentCell(cellSize, cellPts);
       const int numSubTriangles = cellSize - 2;
       // save memory by not storing the point ids when verification is disabled
       for (int j = 0; j < numSubTriangles; ++j)
       {
-        expectedTris.emplace_back(cellPts[0]);
-        expectedTris.emplace_back(cellPts[j + 1]);
-        expectedTris.emplace_back(cellPts[j + 2]);
+        mapData->expectedValues.emplace_back(cellId);
+        mapData->expectedValues.emplace_back(cellPts[0]);
+        mapData->expectedValues.emplace_back(cellId);
+        mapData->expectedValues.emplace_back(cellPts[j + 1]);
+        mapData->expectedValues.emplace_back(cellId);
+        mapData->expectedValues.emplace_back(cellPts[j + 2]);
       }
     }
     vtkLogEndScope("Compute triangle lists in CPU");
     if (!verifyPointIds)
     {
-      expectedTris.clear();
+      mapData->expectedValues.clear();
     }
-
-    vtkLogStartScope(INFO, "Compute triangle ID offsets.");
-    vtkTypeUInt32 numTriangles = 0;
-    std::vector<vtkTypeUInt32> triangleIdOffsets;
-    for (iter->GoToFirstCell(); !iter->IsDoneWithTraversal(); iter->GoToNextCell())
+    vtkNew<vtkWebGPUCellToPrimitiveConverter> converter;
+    // prepare converter data.
+    struct ConverterData
     {
-      const vtkIdType* cellPts = nullptr;
-      vtkIdType cellSize;
-      iter->GetCurrentCell(cellSize, cellPts);
-      triangleIdOffsets.emplace_back(numTriangles);
-      numTriangles += (cellSize - 2u);
+      vtkTypeUInt32 VertexCount;
+      wgpu::Buffer TopologyBuffer;
+      wgpu::Buffer EdgeArrayBuffer;
+    } converterData[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+    vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
+    wgpu::Buffer*
+      topologyBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
+    wgpu::Buffer*
+      edgeArrayBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
+    for (int topologySourceTypeIdx = 0;
+         topologySourceTypeIdx < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES;
+         ++topologySourceTypeIdx)
+    {
+      vertexCounts[topologySourceTypeIdx] = &converterData[topologySourceTypeIdx].VertexCount;
+      topologyBuffers[topologySourceTypeIdx] = &converterData[topologySourceTypeIdx].TopologyBuffer;
+      edgeArrayBuffers[topologySourceTypeIdx] =
+        &converterData[topologySourceTypeIdx].EdgeArrayBuffer;
     }
-    triangleIdOffsets.emplace_back(numTriangles);
-    iter->Delete();
-    vtkLogEndScope("Compute triangle ID offsets.");
+    vtkLogStartScope(INFO, "Compute triangle lists in GPU");
+    converter->DispatchCellToPrimitiveComputePipeline(wgpuConfig, polygons, VTK_SURFACE,
+      VTK_POLYGON, 0, vertexCounts, topologyBuffers, edgeArrayBuffers);
+    vtkLogEndScope("Compute triangle lists in GPU");
 
-    if (polygons->IsStorage64Bit())
-    {
-      vtkLogScopeF(INFO, "Convert to 32-bit storage");
-      polygons->ConvertTo32BitStorage();
-    }
-
-    // create compute pipeline
-    vtkNew<vtkWebGPUComputePipeline> pipeline;
-    pipeline->SetWGPUConfiguration(wgpuConfig);
-    pipeline->SetLabel("triangulate polygons pipeline");
-
-    auto computePass = pipeline->CreateComputePass();
-    computePass->SetLabel("triangulate polygons pass");
-    computePass->SetShaderEntryPoint("polys2tris");
-    // set shader capable of triangulating polygons with 32-bit indices.
-    computePass->SetShaderSource(Polys2TrisShader);
-    // create input buffer for connectivity ids
-    vtkNew<vtkWebGPUComputeBuffer> connBuffer;
-    connBuffer->SetGroup(0);
-    connBuffer->SetBinding(0);
-    connBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-    connBuffer->SetData(polygons->GetConnectivityArray());
-    connBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
-
-    // create input buffer for offsets
-    vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
-    offsetsBuffer->SetGroup(0);
-    offsetsBuffer->SetBinding(1);
-    offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-    offsetsBuffer->SetData(polygons->GetOffsetsArray());
-    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
-
-    // create input buffer for triangle ID offsets
-    vtkNew<vtkWebGPUComputeBuffer> triangleIdOffsetsBuffer;
-    triangleIdOffsetsBuffer->SetGroup(0);
-    triangleIdOffsetsBuffer->SetBinding(2);
-    triangleIdOffsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-    triangleIdOffsetsBuffer->SetData(triangleIdOffsets);
-    triangleIdOffsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-
-    std::size_t outputBufferSize = numTriangles * 3 * sizeof(vtkTypeUInt32);
-    vtkNew<vtkWebGPUComputeBuffer> trisBuffer;
-    trisBuffer->SetGroup(0);
-    trisBuffer->SetBinding(3);
-    trisBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
-    trisBuffer->SetByteSize(outputBufferSize);
-
-    // add buffers to the compute pass
-    bufferIndices[0] = computePass->AddBuffer(connBuffer);
-    bufferIndices[1] = computePass->AddBuffer(offsetsBuffer);
-    bufferIndices[2] = computePass->AddBuffer(triangleIdOffsetsBuffer);
-    bufferIndices[3] = computePass->AddBuffer(trisBuffer);
-
-    // dispatch the problem size over sufficient number of workgroups
-    int numRequiredWorkGroups = std::ceil(polygons->GetNumberOfCells() / 64.0);
-    bool success = true;
-    const auto gridSize =
-      Factorize(numRequiredWorkGroups, /*maxWorkGroupsPerDimension=*/65535, success);
-    if (!success)
-    {
-      vtkLog(ERROR, << "Number of cells is too large to fit in available workgroups");
-      return EXIT_FAILURE;
-    }
-    vtkLog(INFO, << "Dispatch grid sz " << gridSize[0] << 'x' << gridSize[1] << 'x' << gridSize[2]);
-    computePass->SetWorkgroups(gridSize[0], gridSize[1], gridSize[2]);
-    computePass->Dispatch();
-
-    auto onBufferMapped = [](const void* mappedData, void* userdata)
-    {
-      vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
-      auto expected = *(reinterpret_cast<std::vector<vtkTypeUInt32>*>(userdata));
-      const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedData);
-      for (std::size_t j = 0; j < expected.size(); j++)
-      {
-        if (mappedDataAsU32[j] != expected[j])
-        {
-          vtkLog(ERROR, << "Point ID at location " << j << " does not match. Found "
-                        << mappedDataAsU32[j] << ", expected value " << expected[j]);
-          break;
-        }
-      }
-    };
     if (verifyPointIds)
     {
-      computePass->ReadBufferFromGPU(bufferIndices[3], onBufferMapped, &expectedTris);
+      auto& polygonData =
+        converterData[vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS];
+      // create new buffer to hold mapped data.
+      const auto byteSize = polygonData.TopologyBuffer.GetSize();
+      auto dstBuffer = wgpuConfig->CreateBuffer(
+        byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
+      // copy topology data from the output of compute pipeline into the dstBuffer
+      wgpu::CommandEncoder commandEncoder = wgpuConfig->GetDevice().CreateCommandEncoder();
+      commandEncoder.CopyBufferToBuffer(polygonData.TopologyBuffer, 0, dstBuffer, 0, byteSize);
+      auto copyCommand = commandEncoder.Finish();
+      wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
+      // map the destination buffer and verify it's contents.
+      auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata)
+      {
+        auto* userMapData = static_cast<MapData*>(userdata);
+        if (status == WGPUBufferMapAsyncStatus::WGPUBufferMapAsyncStatus_Success)
+        {
+          vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
+          const void* mappedRange =
+            userMapData->buffer.GetConstMappedRange(0, userMapData->byteSize);
+          const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedRange);
+          for (std::size_t j = 0; j < userMapData->expectedValues.size(); j++)
+          {
+            if (mappedDataAsU32[j] != userMapData->expectedValues[j])
+            {
+              vtkLog(ERROR, << "Value at location " << j << " does not match. Found "
+                            << mappedDataAsU32[j] << ", expected value "
+                            << userMapData->expectedValues[j]);
+              break;
+            }
+            else
+            {
+              vtkLog(TRACE, << "value: " << mappedDataAsU32[j] << "|"
+                            << "expected: " << userMapData->expectedValues[j]);
+            }
+          }
+          userMapData->buffer.Unmap();
+          delete userMapData;
+        }
+        else
+        {
+          vtkLogF(WARNING, "Could not map buffer with error status: %d", status);
+          delete userMapData;
+        }
+      };
+      mapData->buffer = dstBuffer;
+      mapData->byteSize = byteSize;
+      dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, onBufferMapped, mapData);
+      // wait for mapping to finish.
+      bool workDone = false;
+      wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
+        [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; },
+        &workDone);
+      while (!workDone)
+      {
+        wgpuConfig->ProcessEvents();
+      }
     }
-
-    vtkLogStartScope(INFO, "Compute triangle lists in GPU");
-    pipeline->Update();
-    vtkLogEndScope("Compute triangle lists in GPU");
+    else
+    {
+      delete mapData;
+    }
   }
   return EXIT_SUCCESS;
 }
