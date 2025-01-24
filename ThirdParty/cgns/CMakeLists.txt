@@ -15,9 +15,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "© Copyright 1991-2020, CGNS Steering Commmittee"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/cgns.git@for/vtk-20230531-4.2.0"
+      "git+https://gitlab.kitware.com/third-party/cgns.git@for/vtk-20250124-4.5.0-2"
     VERSION
-      "4.20"
+      "4.50"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE CGNS
