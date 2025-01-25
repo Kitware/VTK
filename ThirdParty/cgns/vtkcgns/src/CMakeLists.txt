@@ -4,37 +4,26 @@
 ##########
 
 if (WIN32)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif (WIN32)
-
-# Include the local directory
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR})
-if (CGNS_ENABLE_HDF5)
-  if (FALSE) # XXX(kitware): Handled by ParaView.
-  if (WIN32)
-    if (HDF5_LIBRARY)
-     # file(STRINGS ${HDF5_LIBRARY} HDF5isDLL REGEX "__imp__H5close")
-     # if (HDF5isDLL)
-        # this is only needed when using hdf5 dll libs
-        add_definitions(-DWIN32 -D_HDF5USEDLL_)
-     # endif (HDF5isDLL)
-    endif (HDF5_LIBRARY)
-  endif (WIN32)
-  if(HDF5_NEED_MPI AND MPI_INC)
-    include_directories(${MPI_INC})
-  endif(HDF5_NEED_MPI AND MPI_INC)
-  endif ()
-endif (CGNS_ENABLE_HDF5)
 
 ################################
 # create configured header files #
 ################################
 
-if ("${SIZEOF_LONG}" GREATER 4)
-  set(CGLONGT long)
-else ("${SIZEOF_LONG}" GREATER 4)
+if("${SIZEOF_INT64_T}" EQUAL "8")
+  set(CGLONGT "int64_t")
+  set(CGULONGT "uint64_t")
+elseif("${SIZEOF_LONG}" EQUAL "8")
+  set(CGLONGT "long")
+  set(CGULONGT "unsigned long")
+elseif("${SIZEOF_LONG_LONG}" EQUAL "8")
   set(CGLONGT "long long")
-endif ("${SIZEOF_LONG}" GREATER 4)
+  set(CGULONGT "unsigned long long")
+else()
+  message(FATAL_ERROR "Can't find suitable int64_t")
+endif()
+message(STATUS "Found int64_t: ${CGLONGT}")
 
 set(BUILDLEGACY 0)
 set(BUILD64BIT 0)
@@ -44,21 +33,21 @@ set(BUILDBASESCOPE 0)
 
 if (CGNS_ENABLE_LEGACY)
   set(BUILDLEGACY 1)
-else (CGNS_ENABLE_LEGACY)
+else ()
   if (CGNS_ENABLE_64BIT)
     set(BUILD64BIT 1)
-  else (CGNS_ENABLE_64BIT)
-  endif (CGNS_ENABLE_64BIT)
-endif (CGNS_ENABLE_LEGACY)
+  else ()
+  endif ()
+endif ()
 if (CGNS_ENABLE_SCOPING)
   set(BUILDSCOPE 1)
-endif (CGNS_ENABLE_SCOPING)
+endif ()
 if (CGNS_ENABLE_FORTRAN)
   set(BUILDFORTRAN 1)
-endif (CGNS_ENABLE_FORTRAN)
+endif ()
 if (CGNS_ENABLE_BASE_SCOPE)
   set(BUILDBASESCOPE 1)
-endif (CGNS_ENABLE_BASE_SCOPE)
+endif ()
 
 if (FALSE) # XXX(kitware): VTK handles flags better.
 set(SYSCFLAGS "")
@@ -70,10 +59,10 @@ file(TO_NATIVE_PATH ${CMAKE_INSTALL_PREFIX}/include INCLUDEDIR)
 file(TO_NATIVE_PATH ${CMAKE_C_COMPILER} CC)
 if (WIN32)
   set(CGNSLIB cgns.lib)
-else (WIN32)
+else ()
   set(CGNSLIB libcgns.a)
   set(LIBS -lm)
-endif (WIN32)
+endif ()
 endif ()
 
 set(CMAKE_C_STANDARD 99)
@@ -96,17 +85,26 @@ elseif (CMAKE_C_COMPILER_ID MATCHES "XL")
 elseif(CMAKE_C_COMPILER_ID MATCHES "Sun")
   check_and_add_compiler_option("-xc99")
 endif()
+endif ()
 
-string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug IS_DEBUG)
-if (IS_DEBUG)
-  set(BUILDDEBUG 1)
-  set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
-  set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
-else (IS_DEBUG)
+if (NOT DEFINED CMAKE_CONFIGURATION_TYPES)
+  # Buggy section used for generating buildConfig.def
+  # A CMake generator with conditional could be used
+  # as using CMAKE_BUILD_TYPE is not good practise
+  string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug IS_DEBUG)
+  if (IS_DEBUG)
+    set(BUILDDEBUG 1)
+    set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
+    set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+  else ()
+    set(BUILDDEBUG 0)
+    set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
+    set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
+  endif ()
+else ()
   set(BUILDDEBUG 0)
-  set(CFLAGS "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE}")
-  set(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-endif (IS_DEBUG)
+  set(CFLAGS "")
+  set(LDFLAGS "")
 endif ()
 
 set(BUILDHDF5 0)
@@ -156,16 +154,19 @@ if (BUILDFORTRAN)
 # The PGI compiler segfaults when va_start is called, so we need to add
 # a special compiler flag, see CGNS-40.
 #--------------------------------------------------------------------------
-IF (CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Mx,125,0x200")
-ENDIF()
+endif()
 
 #----------- Determine if the Fortran compiler NAG ------------------------
 # The NAG compiler needs an additional flag for Fortran calls to C APIs.
 #--------------------------------------------------------------------------
-IF (CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mismatch_all")
-ENDIF()
+ if ("${HDF5_VERSION}" VERSION_GREATER_EQUAL "1.14.3")
+    SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ieee=full")
+ endif()
+endif()
 
 ENABLE_LANGUAGE(Fortran)
 
@@ -173,45 +174,45 @@ ENABLE_LANGUAGE(Fortran)
 # The provided CMake Fortran macros don't provide a general check function
 # so use this one.
 #-----------------------------------------------------------------------------
-MACRO (CHECK_FORTRAN_FEATURE FUNCTION CODE VARIABLE)
-  IF (NOT DEFINED ${VARIABLE})
-    IF (CMAKE_REQUIRED_LIBRARIES)
-      SET (CHECK_FUNCTION_EXISTS_ADD_LIBRARIES
+macro (CHECK_FORTRAN_FEATURE FUNCTION CODE VARIABLE)
+  if(NOT DEFINED ${VARIABLE})
+    if(CMAKE_REQUIRED_LIBRARIES)
+      set (CHECK_FUNCTION_EXISTS_ADD_LIBRARIES
           "-DLINK_LIBRARIES:STRING=${CMAKE_REQUIRED_LIBRARIES}")
-    ELSE (CMAKE_REQUIRED_LIBRARIES)
-      SET (CHECK_FUNCTION_EXISTS_ADD_LIBRARIES)
-    ENDIF (CMAKE_REQUIRED_LIBRARIES)
-    FILE (WRITE
+    else()
+      set (CHECK_FUNCTION_EXISTS_ADD_LIBRARIES)
+    endif()
+    file (WRITE
         ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/testFortranCompiler.F90
         "${CODE}"
     )
-    TRY_COMPILE (${VARIABLE}
+    try_compile (${VARIABLE}
         ${CMAKE_BINARY_DIR}
         ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/testFortranCompiler.F90
         CMAKE_FLAGS "${CHECK_FUNCTION_EXISTS_ADD_LIBRARIES}"
         OUTPUT_VARIABLE OUTPUT
     )
 
-#    MESSAGE ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
-#    MESSAGE ( "Test result ${OUTPUT}")
-#    MESSAGE ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+#    message ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+#    message ( "Test result ${OUTPUT}")
+#    message ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
 
-    IF (${VARIABLE})
-      SET (${VARIABLE} 1 CACHE INTERNAL "Have Fortran function ${FUNCTION}")
-      MESSAGE (STATUS "Testing Fortran ${FUNCTION} - OK")
-      FILE (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+    if(${VARIABLE})
+      set (${VARIABLE} 1 CACHE INTERNAL "Have Fortran function ${FUNCTION}")
+      message (STATUS "Testing Fortran ${FUNCTION} - OK")
+      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
           "Determining if the Fortran ${FUNCTION} exists passed with the following output:\n"
           "${OUTPUT}\n\n"
       )
-    ELSE (${VARIABLE})
-      MESSAGE (STATUS "Testing Fortran ${FUNCTION} - Fail")
-      SET (${VARIABLE} "" CACHE INTERNAL "Have Fortran function ${FUNCTION}")
-      FILE (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+    else()
+      message (STATUS "Testing Fortran ${FUNCTION} - Fail")
+      set (${VARIABLE} "" CACHE INTERNAL "Have Fortran function ${FUNCTION}")
+      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
           "Determining if the Fortran ${FUNCTION} exists failed with the following output:\n"
           "${OUTPUT}\n\n")
-    ENDIF (${VARIABLE})
-  ENDIF (NOT DEFINED ${VARIABLE})
-ENDMACRO (CHECK_FORTRAN_FEATURE)
+    endif()
+  endif()
+endmacro (CHECK_FORTRAN_FEATURE)
 
 #-----------------------------------------------------------------------------
 # Configure Checks which require Fortran compilation must go in here
@@ -246,7 +247,7 @@ CHECK_FORTRAN_FEATURE(Fortran2003
 )
 if (CHECK_FORTRAN_2003)
   set(HAVE_FORTRAN_2003 1)
-endif (CHECK_FORTRAN_2003)
+endif ()
    
 
 if (HAVE_FORTRAN_2003)
@@ -293,7 +294,7 @@ CHECK_FORTRAN_FEATURE(Fortran2008
 )
 if (CHECK_FORTRAN_2008)
   set(HAVE_FORTRAN_2008 1)
-endif (CHECK_FORTRAN_2008)
+endif ()
 
 CHECK_FORTRAN_FEATURE(Sizeof_int
   "
@@ -332,9 +333,9 @@ CHECK_FORTRAN_FEATURE(Sizeof_int
 
 if (NOT CHECK_FORTRAN_DEFAULT_INTEGER_C_INT32_T)
   set(FORTRAN_DEFAULT_INTEGER_C_INT64_T 1)
-endif (NOT CHECK_FORTRAN_DEFAULT_INTEGER_C_INT32_T)
+endif ()
 
-else (HAVE_FORTRAN_2003)
+else ()
 
 CHECK_FORTRAN_FEATURE(Fortran95
   " 
@@ -348,8 +349,8 @@ CHECK_FORTRAN_FEATURE(Fortran95
 
 if (CHECK_FORTRAN_95)
   set(HAVE_FORTRAN_95 1)
-endif (CHECK_FORTRAN_95)
-endif (HAVE_FORTRAN_2003)
+endif ()
+endif ()
 
 CHECK_FORTRAN_FEATURE(FortranConcat
   "
@@ -364,33 +365,33 @@ CHECK_FORTRAN_FEATURE(FortranConcat
 )
 if (NOT CHECK_FORTRAN_CONCAT)
  SET(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -DNO_CONCATENATION")
-endif (NOT CHECK_FORTRAN_CONCAT)
+endif ()
 
-endif (BUILDFORTRAN)
+endif ()
 
 macro(native_paths INPUT_PATH_VARIABLE RESULT_VARIABLE)
   set(${RESULT_VARIABLE} "")
-  if (FALSE) # XXX(kitware): This hard-codes full paths into the build; removing.
+  if (FALSE) # XXX(kitware): This hard-codes full paths into the build
   foreach(PATH ${${INPUT_PATH_VARIABLE}})
     file(TO_NATIVE_PATH ${PATH} NATIVE_PATH)
     list(APPEND ${RESULT_VARIABLE} ${NATIVE_PATH})
-  endforeach(PATH ${${INPUT_PATH_VARIABLE}})
+  endforeach()
   endif ()
-endmacro(native_paths)
+endmacro()
 
 #-----------------------------------------------------------------------------
 # The provided CMake macros don't provide a general HDF5 check function
 # so use this one.
 #-----------------------------------------------------------------------------
 
-MACRO (CHECK_HDF5_FEATURE FUNCTION CODE VARIABLE)
-  IF (NOT DEFINED ${VARIABLE})
-    FILE (WRITE
+macro (CHECK_HDF5_FEATURE FUNCTION CODE VARIABLE)
+  if(NOT DEFINED ${VARIABLE})
+    file (WRITE
         ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/test_HDF.c
         "${CODE}"
     )
-SET (CHECK_FUNCTION_EXISTS_ADD_INCLUDE "-DINCLUDE_DIRECTORIES:STRING=${HDF5_INCLUDE_DIR}")
-    TRY_COMPILE (${VARIABLE}
+    set (CHECK_FUNCTION_EXISTS_ADD_INCLUDE "-DINCLUDE_DIRECTORIES:STRING=${HDF5_INCLUDE_DIR}")
+    try_compile (${VARIABLE}
         ${CMAKE_BINARY_DIR}
         ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/test_HDF.c
         LINK_LIBRARIES ${HDF5_LIBRARY}
@@ -398,83 +399,82 @@ SET (CHECK_FUNCTION_EXISTS_ADD_INCLUDE "-DINCLUDE_DIRECTORIES:STRING=${HDF5_INCL
         OUTPUT_VARIABLE OUTPUT
     )
 
-#    MESSAGE ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
-#    MESSAGE ( "Test result ${OUTPUT}")
-#    MESSAGE ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+#    message ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
+#    message ( "Test result ${OUTPUT}")
+#    message ( "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ")
 
-    IF (${VARIABLE})
-      SET (${VARIABLE} 1 CACHE INTERNAL "Have HDF5 function ${FUNCTION}")
-      MESSAGE (STATUS "Testing HDF5 ${FUNCTION} - OK")
-      FILE (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
+    if(${VARIABLE})
+      set (${VARIABLE} 1 CACHE INTERNAL "Have HDF5 function ${FUNCTION}")
+      message (STATUS "Testing HDF5 ${FUNCTION} - OK")
+      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
           "Determining if the HDF5 ${FUNCTION} exists passed with the following output:\n"
           "${OUTPUT}\n\n"
       )
-    ELSE (${VARIABLE})
-      MESSAGE (STATUS "Testing HDF5 ${FUNCTION} - NOT FOUND")
-      SET (${VARIABLE} "" CACHE INTERNAL "Have HDF5 function ${FUNCTION}")
-      FILE (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
+    else()
+      message (STATUS "Testing HDF5 ${FUNCTION} - NOT FOUND")
+      set (${VARIABLE} "" CACHE INTERNAL "Have HDF5 function ${FUNCTION}")
+      file (APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log
           "Determining if the HDF5 ${FUNCTION} exists failed with the following output:\n"
           "${OUTPUT}\n\n")
-    ENDIF (${VARIABLE})
-  ENDIF (NOT DEFINED ${VARIABLE})
-ENDMACRO (CHECK_HDF5_FEATURE)
+    endif()
+  endif()
+endmacro ()
 
 if (CGNS_ENABLE_HDF5)
   set(BUILDHDF5 1)
   if (HDF5_INCLUDE_PATH)
     native_paths(HDF5_INCLUDE_PATH HDF5INC)
-	include_directories(${HDF5INC})
-  endif (HDF5_INCLUDE_PATH)
+  endif ()
   if (HDF5_LIBRARY)
     native_paths(HDF5_LIBRARY HDF5LIB)
-  endif (HDF5_LIBRARY)
+  endif ()
   if (HDF5_NEED_SZIP)
     set(H5NEEDSZIP 1)
     if (SZIP_LIBRARY)
       native_paths(SZIP_LIBRARY SZIPLIB)
-    endif (SZIP_LIBRARY)
-  endif (HDF5_NEED_SZIP)
+    endif ()
+  endif ()
   if (HDF5_NEED_ZLIB)
     set(H5NEEDZLIB 1)
     if (ZLIB_LIBRARY)
       native_paths(ZLIB_LIBRARY ZLIBLIB)
-    endif (ZLIB_LIBRARY)
-  endif (HDF5_NEED_ZLIB)
+    endif ()
+  endif ()
   if (HDF5_NEED_MPI)
     set(H5NEEDMPI 1)
     if (MPI_INC)
       native_paths(MPI_INC MPIINC)
-    endif (MPI_INC)
+    endif ()
     if (MPI_LIBS)
       native_paths(MPI_LIBS MPILIBS)
-    endif (MPI_LIBS)
+    endif ()
     if (CGNS_ENABLE_PARALLEL)
       set(BUILDPARALLEL 1)
-    endif (CGNS_ENABLE_PARALLEL)
-  endif (HDF5_NEED_MPI)
+    endif ()
+  endif ()
 
   set(cgns_C_FILES ${cgns_C_FILES} adfh/ADFH.c)
   if (CGNS_ENABLE_PARALLEL)
     set(cgns_C_FILES ${cgns_C_FILES} pcgnslib.c)
-  endif (CGNS_ENABLE_PARALLEL)
+  endif ()
 
-  # Check if HDF5 library has multi-dataset read/write APIs
+  # Check if HDF5 library has multi-dataset read/write APIs, HDF5 >= 1.14.0
   # --------------------------------------------------------------------
 
 CHECK_HDF5_FEATURE(Multi_Dataset
   " 
  #include \"hdf5.h\"
- void main(void) 
+ int main(void)
 {
-  H5D_rw_multi_t *multi_info;
-  return;
+  H5Dwrite_multi(0, NULL, NULL, NULL, NULL, 0, NULL);
+  return 0;
 }
   "
    CHECK_HDF5_HAVE_MULTI_DATASETS
  )
  if (CHECK_HDF5_HAVE_MULTI_DATASETS)
    set(HDF5_HAVE_MULTI_DATASETS 1)
- endif (CHECK_HDF5_HAVE_MULTI_DATASETS)
+ endif ()
 
   # Check if HDF5 library has collective metadata APIs, HDF5 >= 1.10.0
   # --------------------------------------------------------------------
@@ -482,19 +482,19 @@ CHECK_HDF5_FEATURE(Multi_Dataset
 CHECK_HDF5_FEATURE(Collective_metadata
   " 
  #include \"hdf5.h\"
- void main(void)
+ int main(void)
  {
    hid_t foo;
    H5Pset_coll_metadata_write(foo, 1);
    H5Pset_all_coll_metadata_ops(foo, 1);
-   return;
+   return 0;
  }
   "
    CHECK_HDF5_HAVE_COLL_METADATA
  )
  if (CHECK_HDF5_HAVE_COLL_METADATA)
    set(HDF5_HAVE_COLL_METADATA 1)
- endif (CHECK_HDF5_HAVE_COLL_METADATA)
+ endif ()
 
  # Check if HDF5 library has H5Pset_file_space_strategy, HDF5 >= 1.10.1
  # --------------------------------------------------------------------
@@ -502,20 +502,20 @@ CHECK_HDF5_FEATURE(Collective_metadata
 CHECK_HDF5_FEATURE(H5Pset_file_space_strategy
   " 
  #include \"hdf5.h\"
- void main(void)
+ int main(void)
  {
    hid_t foo;
    H5Pset_file_space_strategy(foo, H5F_FSPACE_STRATEGY_FSM_AGGR, 1, (hsize_t)1);
-   return;
+   return 0;
  }
   "
    CHECK_HDF5_HAVE_FILE_SPACE_STRATEGY
  )
  if (CHECK_HDF5_HAVE_FILE_SPACE_STRATEGY)
    set(HDF5_HAVE_FILE_SPACE_STRATEGY 1)
- endif (CHECK_HDF5_HAVE_FILE_SPACE_STRATEGY)
+ endif ()
 
-endif (CGNS_ENABLE_HDF5)
+endif ()
 
   # Check for stat64 struct
   ## --------------------------------------------------------------------
@@ -525,14 +525,14 @@ if (NOT APPLE)
   include(CheckStructHasMember)
   if ( WIN32 )
     CHECK_STRUCT_HAS_MEMBER("struct _stat64" st_atime sys/stat.h  CHECK_HAVE_STAT64_STRUCT LANGUAGE C)
-  else ( WIN32 )
+  else ()
     CHECK_STRUCT_HAS_MEMBER("struct stat64" st_atime sys/stat.h  CHECK_HAVE_STAT64_STRUCT LANGUAGE C)
-  endif( WIN32)
+  endif()
 
   if (CHECK_HAVE_STAT64_STRUCT)
     set(HAVE_STAT64_STRUCT 1)
-  endif (CHECK_HAVE_STAT64_STRUCT)
-endif(NOT APPLE)
+  endif ()
+endif()
 
 #create these in build directory so it doesn't mess up the
 #source directory, then add the path to them
@@ -546,14 +546,13 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cgnstypes_f03.h.in
 endif ()
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cgnsconfig.h.in
 		${CMAKE_CURRENT_BINARY_DIR}/cgnsconfig.h )
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cg_hash_types.h.in
+		${CMAKE_CURRENT_BINARY_DIR}/cg_hash_types.h )
 if (FALSE) # XXX(kitware): No need for this.
+# The following is only useful with Unix Makefile Generator
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cgnsBuild.defs.in
 		${CMAKE_CURRENT_BINARY_DIR}/cgnsBuild.defs )
 endif ()
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/cg_hash_types.h.in
-		${CMAKE_CURRENT_BINARY_DIR}/cg_hash_types.h )
-
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
 
 ###########
 # Library #
@@ -571,15 +570,14 @@ set(cgns_C_FILES
 
 if (CGNS_ENABLE_MEM_DEBUG)
   set(cgns_C_FILES ${cgns_C_FILES} cg_malloc.c)
-  add_definitions("-DMEM_DEBUG")
-endif(CGNS_ENABLE_MEM_DEBUG)
+endif()
 
 if (CGNS_ENABLE_HDF5)
   set(cgns_C_FILES ${cgns_C_FILES} adfh/ADFH.c)
   if (CGNS_ENABLE_PARALLEL)
     set(cgns_C_FILES ${cgns_C_FILES} pcgnslib.c)
-  endif (CGNS_ENABLE_PARALLEL)
-endif (CGNS_ENABLE_HDF5)
+  endif ()
+endif ()
 
 # All the Fortran files need by the cgns library (if enabled)
 set(cgns_F_FILES
@@ -591,69 +589,112 @@ if (CGNS_ENABLE_FORTRAN)
   if (FORTRAN_NAMING)
     set_property(SOURCE ${cgns_F_FILES}
       PROPERTY COMPILE_DEFINITIONS ${FORTRAN_NAMING})
-  endif (FORTRAN_NAMING)
+  endif ()
   set(cgns_FILES ${cgns_C_FILES} ${cgns_F_FILES})
   add_library(cgns_f2c OBJECT cgns_f.F90)
-else (CGNS_ENABLE_FORTRAN)
+  # shared libraries need PIC
+  set_property(TARGET cgns_f2c PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+  target_include_directories(cgns_f2c BEFORE PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+else ()
   set(cgns_FILES ${cgns_C_FILES})
-endif (CGNS_ENABLE_FORTRAN)
+endif ()
 
 if (FALSE) # XXX(kitware): Handled by ParaView.
 option(CGNS_USE_SHARED "Link programs to the CGNS shared library" "ON")
 
 # Build a static version of the library
-if (CGNS_ENABLE_FORTRAN)
-  add_library(cgns_static STATIC ${cgns_FILES} $<TARGET_OBJECTS:cgns_f2c>)
-else (CGNS_ENABLE_FORTRAN)
-  add_library(cgns_static STATIC ${cgns_FILES})
-endif (CGNS_ENABLE_FORTRAN)
+add_library(cgns_static STATIC ${cgns_FILES} $<$<BOOL:${CGNS_ENABLE_FORTRAN}>:$<TARGET_OBJECTS:cgns_f2c>>)
+add_library(CGNS::cgns-static ALIAS cgns_static)
 # Needed to work around a CMake > 3.8 bug on Windows with MSVS and Intel Fortran
 set_property(TARGET cgns_static PROPERTY LINKER_LANGUAGE C)
+target_link_libraries(cgns_static PRIVATE $<$<BOOL:${CGNS_ENABLE_HDF5}>:hdf5-${CG_HDF5_LINK_TYPE}>)
 
 # Build a shared version of the library
 if(CGNS_BUILD_SHARED)
   mark_as_advanced(CLEAR CGNS_USE_SHARED)
-  if (CGNS_ENABLE_FORTRAN)
-    add_library(cgns_shared SHARED ${cgns_FILES} $<TARGET_OBJECTS:cgns_f2c>)
-  else (CGNS_ENABLE_FORTRAN)
-    add_library(cgns_shared SHARED ${cgns_FILES})
-  endif (CGNS_ENABLE_FORTRAN)
-  # under windows we need to define BUILD_DLL
-  # and link with the HDF5 libraries to build a dll
+  add_library(cgns_shared SHARED ${cgns_FILES} $<$<BOOL:${CGNS_ENABLE_FORTRAN}>:$<TARGET_OBJECTS:cgns_f2c>>)
+  add_library(CGNS::cgns-shared ALIAS cgns_shared)
+
+  if (MSVC AND CGNS_ENABLE_FORTRAN)
+    target_compile_definitions(cgns_f2c PRIVATE BUILD_CGNS_DLL)
+  endif()
+
   if (WIN32 OR CYGWIN)
     target_compile_definitions(cgns_shared PRIVATE -DBUILD_DLL)
     target_compile_definitions(cgns_shared INTERFACE -DUSE_DLL)
-  endif (WIN32 OR CYGWIN)
+  endif ()
   if (CGNS_ENABLE_HDF5 AND HDF5_LIBRARY)
-    target_link_libraries(cgns_shared ${HDF5_LIBRARY} ${CMAKE_DL_LIBS})
+    target_link_libraries(cgns_shared PUBLIC hdf5-${CG_HDF5_LINK_TYPE} $<$<NOT:$<PLATFORM_ID:Windows>>:${CMAKE_DL_LIBS}>)
     if(HDF5_NEED_ZLIB AND ZLIB_LIBRARY)
-      target_link_libraries(cgns_shared ${ZLIB_LIBRARY})
-    endif(HDF5_NEED_ZLIB AND ZLIB_LIBRARY)
+      target_link_libraries(cgns_shared PUBLIC ${ZLIB_LIBRARY})
+    endif()
     if(HDF5_NEED_SZIP AND SZIP_LIBRARY)
-      target_link_libraries(cgns_shared ${SZIP_LIBRARY})
-    endif(HDF5_NEED_SZIP AND SZIP_LIBRARY)
+      target_link_libraries(cgns_shared PUBLIC ${SZIP_LIBRARY})
+    endif()
     if(HDF5_NEED_MPI AND MPI_LIBS)
-      target_link_libraries(cgns_shared ${MPI_LIBS})
-    endif(HDF5_NEED_MPI AND MPI_LIBS)
-  endif (CGNS_ENABLE_HDF5 AND HDF5_LIBRARY)
-else(CGNS_BUILD_SHARED)
+      target_link_libraries(cgns_shared PUBLIC ${MPI_LIBS})
+    endif()
+  endif ()
+else()
   set(CGNS_USE_SHARED "OFF")
   mark_as_advanced(FORCE CGNS_USE_SHARED)
-endif(CGNS_BUILD_SHARED)
+endif()
+
+# Include the local directory
+target_include_directories(cgns_static BEFORE
+	PRIVATE
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+
+	INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>)
+if (CGNS_ENABLE_HDF5)
+  if(HDF5_NEED_MPI AND MPI_INC)
+    target_include_directories(cgns_static PRIVATE ${MPI_INC})
+  endif()
+endif ()
+
+if (CGNS_BUILD_SHARED)
+  target_include_directories(cgns_shared BEFORE
+        PRIVATE
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+
+	INTERFACE
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<INSTALL_INTERFACE:include>)
+  if (CGNS_ENABLE_HDF5)
+    if(HDF5_NEED_MPI AND MPI_INC)
+      target_include_directories(cgns_shared PRIVATE ${MPI_INC})
+    endif()
+  endif ()
+endif()
+
+if (CGNS_ENABLE_MEM_DEBUG)
+  target_compile_definitions(cgns_static PRIVATE "-DMEM_DEBUG")
+  if (CGNS_BUILD_SHARED)
+    target_compile_definitions(cgns_shared PRIVATE "-DMEM_DEBUG")
+  endif()
+endif()
+
 
 # Change the output name of the library to be libcgns
 set_target_properties(cgns_static PROPERTIES OUTPUT_NAME cgns)
 set_target_properties(cgns_static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 if(CGNS_BUILD_SHARED)
   # for windows we need to change the name of the shared library
-  # for both static and shared version to exist
-  if (WIN32 OR CYGWIN)
+  # for both static and shared version to coexist
+  if (CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
     set_target_properties(cgns_shared PROPERTIES OUTPUT_NAME cgnsdll)
-  else (WIN32 OR CYGWIN)
+  else ()
     set_target_properties(cgns_shared PROPERTIES OUTPUT_NAME cgns)
-  endif (WIN32 OR CYGWIN)
+  endif ()
   set_target_properties(cgns_shared PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-endif(CGNS_BUILD_SHARED)
+endif()
 
 # Set the version numbers
 set_target_properties(cgns_static PROPERTIES VERSION "${CGNS_VERSION}")
@@ -662,23 +703,27 @@ set_target_properties(cgns_static PROPERTIES SOVERSION "${CGNS_VERSION}")
 if(CGNS_BUILD_SHARED)
   set_target_properties(cgns_shared PROPERTIES VERSION "${CGNS_VERSION}")
   set_target_properties(cgns_shared PROPERTIES SOVERSION "${CGNS_VERSION}")
-endif(CGNS_BUILD_SHARED)
+endif()
 
-# Set the install path of the static library
-install(TARGETS cgns_static ARCHIVE DESTINATION lib)
-# Set the install path of the shared library
+
+set (install_targets cgns_static)
 if(CGNS_BUILD_SHARED)
-  # for windows, need to install both cgnsdll.dll and cgnsdll.lib
-  install (TARGETS cgns_shared LIBRARY DESTINATION lib
-                               ARCHIVE DESTINATION lib
-                               RUNTIME DESTINATION bin)
-endif(CGNS_BUILD_SHARED)
+  set(install_targets ${install_targets} cgns_shared)
+endif ()
+# Set the install path of the static and shared library
+# for windows, need to install both cgnsdll.dll and cgnsdll.lib
+install (TARGETS ${install_targets}
+         EXPORT cgns-targets
+         LIBRARY DESTINATION lib COMPONENT libraries
+         ARCHIVE DESTINATION lib COMPONENT libraries
+         RUNTIME DESTINATION bin COMPONENT libraries
+         INCLUDES DESTINATION include)
+
 else ()
 vtk_module_add_module(VTK::cgns
   SOURCES ${cgns_FILES})
 set_target_properties(cgns PROPERTIES DEFINE_SYMBOL BUILD_DLL)
 endif ()
-
 # Set the install path of the header files
 set(headers
   vtk_cgns_mangle.h
@@ -699,12 +744,12 @@ if (CGNS_ENABLE_FORTRAN)
     list(APPEND headers
       $<TARGET_FILE_DIR:cgns_static>/cgns.mod)
   endif()
-endif (CGNS_ENABLE_FORTRAN)
+endif ()
 
 if (CGNS_ENABLE_PARALLEL)
   list(APPEND headers
     pcgnslib.h)
-endif (CGNS_ENABLE_PARALLEL)
+endif ()
 
 if (CGNS_ENABLE_LEGACY)
   list(APPEND headers
@@ -712,18 +757,39 @@ if (CGNS_ENABLE_LEGACY)
   if (CGNS_ENABLE_HDF5)
     list(APPEND headers
       adfh/ADFH.h)
-  endif (CGNS_ENABLE_HDF5)
-endif (CGNS_ENABLE_LEGACY)
+  endif ()
+endif ()
 
 if (FALSE) # XXX(kitware): Use the VTK module system.
 # Set the install path of the header files
 install(FILES ${headers}
 	DESTINATION include)
+
+#if (NOT CGNS_EXTERNALLY_CONFIGURE)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/cgns-config-version.cmake
+  VERSION ${CGNS_VERSION}
+  COMPATIBILITY SameMajorVersion )
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cgns-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cgns-config.cmake
+  INSTALL_DESTINATION lib/cmake/cgns )
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cgns-config-version.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/cgns-config.cmake
+	DESTINATION lib/cmake/cgns)
+install(EXPORT cgns-targets
+	FILE cgns-targets.cmake
+	NAMESPACE CGNS::
+	DESTINATION lib/cmake/cgns
+	)
+#endif()
 else ()
 vtk_module_install_headers(
   FILES   ${headers}
   SUBDIR  "vtkcgns/src")
 endif ()
+
 
 #########
 # Tools #
@@ -739,11 +805,14 @@ add_subdirectory(tools)
 if (CGNS_ENABLE_TESTS)
   add_subdirectory(tests)
   add_subdirectory(Test_UserGuideCode/C_code)
+  if (CGNS_ENABLE_FORTRAN)
+    add_subdirectory(Test_UserGuideCode/Fortran_code)
+  endif ()
   if (CGNS_ENABLE_PARALLEL)
     add_subdirectory(ptests)
     add_subdirectory(Test_UserGuideCode/C_code_parallel)
-  endif (CGNS_ENABLE_PARALLEL)
-endif (CGNS_ENABLE_TESTS)
+  endif ()
+endif ()
 
 ##############
 # CGNS Tools #
@@ -753,5 +822,5 @@ endif (CGNS_ENABLE_TESTS)
 set(CGNS_BUILD_CGNSTOOLS "OFF" CACHE BOOL "Build the CGNSTools package")
 if(CGNS_BUILD_CGNSTOOLS)
   add_subdirectory(cgnstools)
-endif(CGNS_BUILD_CGNSTOOLS)
+endif()
 endif ()

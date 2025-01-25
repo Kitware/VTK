@@ -121,7 +121,7 @@ CGEXTERN int cgio_configure (
     void *value
 );
 
-CGEXTERN void cgio_cleanup ();
+CGEXTERN void cgio_cleanup (void);
 
 CGEXTERN int cgio_check_file (
     const char *filename,

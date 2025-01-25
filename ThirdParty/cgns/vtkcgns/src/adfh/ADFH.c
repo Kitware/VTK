@@ -21,7 +21,9 @@ freely, subject to the following restrictions:
 /*-------------------------------------------------------------------
  * HDF5 interface to ADF
  *-------------------------------------------------------------------*/
-
+#ifndef _WIN32
+  #define _POSIX_C_SOURCE 200112L
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -42,14 +44,12 @@ freely, subject to the following restrictions:
 #include "vtk_hdf5.h"
 #include "cgns_io.h" /* for cgio_find_file */
 
-extern char hdf5_access[64];
-
 #if CG_BUILD_PARALLEL
 #include "mpi.h"
-extern int pcg_mpi_initialized;
-extern MPI_Info pcg_mpi_info;
-extern hid_t default_pio_mode;
 #endif
+
+#include "cgio_internal_type.h" /* for cgns_io_ctx_t */
+extern cgns_io_ctx_t ctx_cgio; /* located in cgns_io.c */
 
 #define ADFH_FORCE_ID_CLOSE
 /*#define ADFH_H5F_CLOSE_STRONG*/
@@ -61,9 +61,7 @@ extern hid_t default_pio_mode;
 
 static int CompressData = -1;
 
-#if CG_BUILD_PARALLEL
-static MPI_Comm ParallelMPICommunicator = MPI_COMM_NULL;
-#endif
+#define ADFH_CONFIG_DEFAULT 0
 
 #if H5_VERSION_GE(1,10,3) && !defined(H5_USE_18_API) && !defined(H5_USE_16_API)
 #define ADFH_HDF5_HAVE_110_API 1
@@ -80,12 +78,20 @@ static MPI_Comm ParallelMPICommunicator = MPI_COMM_NULL;
 /*** HDF5's CORE FILE DRIVER PARAMETERS ****/
 
 /* Enables using the core file driver */
-static int core_vfd = 0;
+static int core_vfd = ADFH_CONFIG_DEFAULT;
 /* specifies the increment by which allocated memory is
  * to be increased each time more memory is required, 10MiB default. */
 static size_t core_vfd_increment = 10L*1024L*1024L;
 /* write the file contents to disk when the file is closed */
-static hbool_t core_vfd_backing_store = 0;
+static hbool_t core_vfd_backing_store = ADFH_CONFIG_DEFAULT;
+
+/** MISC. HDF5 OPTIMIZATION TUNING PARAMETERS */
+static hsize_t h5pset_alignment_threshold         = ADFH_CONFIG_DEFAULT;
+static hsize_t h5pset_alignment_alignment         = ADFH_CONFIG_DEFAULT;
+static hsize_t h5pset_meta_block_size_size        = ADFH_CONFIG_DEFAULT;
+static hsize_t h5pset_buffer_size_size            = ADFH_CONFIG_DEFAULT;
+static hsize_t h5pset_sieve_buf_size_size         = ADFH_CONFIG_DEFAULT;
+static unsigned h5pset_elink_file_cache_size_size = ADFH_CONFIG_DEFAULT;
 
 #define TO_UPPER( c ) ((islower(c))?(toupper(c)):(c))
 
@@ -164,10 +170,9 @@ printf aaa ; printf("\n"); fflush(stdout);
 #define ADFH_MODE_RDO 3
 
 /* the following keeps track of open and mounted files */
+#define ADFH_MAXIMUM_FILES 1024
 
-#define ADFH_MAXIMUM_FILES 128
-
-/* Start to prepare re-entrance into lib, gather statics in one global struct  */
+/* Start to prepare re-entrance into lib, gather static variables in one global struct  */
 /* Then, you'll just have to handle struct with something else but a static... */
 /* MTA stands for... Multi-Threads-Aware */
 typedef struct _ADFH_MTA {
@@ -187,6 +192,9 @@ typedef struct _ADFH_MTA {
 
   int   g_flags;
   hid_t g_files[ADFH_MAXIMUM_FILES];
+
+  /* tracking and indexing settings for link creation order */
+  unsigned int link_create_order;
 
 #ifndef ADFH_FORCE_ID_CLOSE
   /* object ids returned to API user that should be closed */
@@ -789,7 +797,7 @@ static int new_str_data(hid_t id, const char *name, const char *value,
   }
 
 #if CG_BUILD_PARALLEL
-  if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+  if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
     xfer_prp = H5Pcreate(H5P_DATASET_XFER);
     H5Pset_dxpl_mpio(xfer_prp, H5FD_MPIO_COLLECTIVE);
   }
@@ -798,7 +806,7 @@ static int new_str_data(hid_t id, const char *name, const char *value,
   status = H5Dwrite(did, H5T_NATIVE_CHAR, H5S_ALL, H5S_ALL, xfer_prp, value);
 
 #if CG_BUILD_PARALLEL
-  if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+  if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
     H5Pclose(xfer_prp);
   }
 #endif
@@ -1456,6 +1464,19 @@ static herr_t fix_dimensions(hid_t id, const char *name, const H5L_info_t* linfo
 
 void ADFH_Configure(const int option, const void *value, int *err)
 {
+    if (option == ADFH_CONFIG_RESET && (int)((size_t)value == ADFH_CONFIG_RESET_HDF5)) {
+      core_vfd                          = ADFH_CONFIG_DEFAULT;
+      h5pset_alignment_threshold        = ADFH_CONFIG_DEFAULT;
+      h5pset_alignment_alignment        = ADFH_CONFIG_DEFAULT;
+      h5pset_meta_block_size_size       = ADFH_CONFIG_DEFAULT;
+      h5pset_buffer_size_size           = ADFH_CONFIG_DEFAULT;
+      h5pset_sieve_buf_size_size        = ADFH_CONFIG_DEFAULT;
+      h5pset_elink_file_cache_size_size = ADFH_CONFIG_DEFAULT;
+
+      set_error(NO_ERROR, err);
+      return;
+    }
+
     if (option == ADFH_CONFIG_COMPRESS) {
         int compress = (int)((size_t)value);
         if (compress < 0)
@@ -1478,6 +1499,28 @@ void ADFH_Configure(const int option, const void *value, int *err)
         core_vfd_increment = (size_t)value;
         set_error(NO_ERROR, err);
     }
+    else if (option == ADFH_CONFIG_ALIGNMENT) {
+      const size_t* val = (const size_t*)value; 
+      h5pset_alignment_threshold = (hsize_t)(val[0]);
+      h5pset_alignment_alignment = (hsize_t)(val[1]);
+      set_error(NO_ERROR, err);
+    }
+    else if (option == ADFH_CONFIG_MD_BLOCK_SIZE) {
+      h5pset_meta_block_size_size = (hsize_t)value;
+      set_error(NO_ERROR, err);
+    }
+    else if (option == ADFH_CONFIG_HDF5_BUFFER) {
+      h5pset_buffer_size_size = (hsize_t)value;
+      set_error(NO_ERROR, err);
+    }
+    else if (option == ADFH_CONFIG_HDF5_SIEVE_BUF_SIZE) {
+      h5pset_sieve_buf_size_size = (hsize_t)value;
+      set_error(NO_ERROR, err);
+    }
+    else if (option == ADFH_CONFIG_ELINK_FILE_CACHE_SIZE) {
+      h5pset_elink_file_cache_size_size = (unsigned)((size_t)value);
+      set_error(NO_ERROR, err);
+    }
 #if CG_BUILD_PARALLEL
     else if (option == ADFH_CONFIG_MPI_COMM) {
       MPI_Comm* comm = (MPI_Comm*)value;
@@ -1485,7 +1528,7 @@ void ADFH_Configure(const int option, const void *value, int *err)
         set_error(ADFH_ERR_INVALID_USER_DATA, err);
       }
       else {
-        ParallelMPICommunicator = (MPI_Comm)*comm;
+        ctx_cgio.pcg_mpi_comm = (MPI_Comm)*comm;
         set_error(NO_ERROR, err);
       }
     }
@@ -1697,7 +1740,7 @@ void ADFH_Get_Label(const double  id,
 {
   hid_t hid;
   char bufflabel[ADF_LABEL_LENGTH+1] = "";
-  ADFH_DEBUG((">ADFH_Get_Label [%d]",id));
+  ADFH_DEBUG((">ADFH_Get_Label [%f]",id));
 
   if (label == NULL) {
     set_error(NULL_STRING_POINTER, err);
@@ -1887,9 +1930,9 @@ void ADFH_Number_of_Children(const double  id,
   *number = 0;
   if ((hid = open_node(id, err)) >= 0) {
 #if ADFH_HDF5_HAVE_112_API
-    H5Literate2(hid, H5_INDEX_CRT_ORDER, H5_ITER_NATIVE, &gskip, count_children, (void *)number);
+    H5Literate2(hid, mta_root->link_create_order, H5_ITER_NATIVE, &gskip, count_children, (void *)number);
 #else
-    H5Literate(hid, H5_INDEX_CRT_ORDER, H5_ITER_NATIVE, &gskip, count_children, (void *)number);
+    H5Literate(hid, mta_root->link_create_order, H5_ITER_NATIVE, &gskip, count_children, (void *)number);
 #endif
     H5Gclose(hid);
   }
@@ -1908,8 +1951,6 @@ void ADFH_Get_Node_ID(const double  pid,
   hid_t sid, hpid;
   to_HDF_ID(pid,hpid);
 
-  ADFH_DEBUG((">ADFH_Get_Node_ID [%s][%d]",name,hpid));
-
   if (name == NULL) {
     set_error(NULL_STRING_POINTER, err);
     return;
@@ -1918,6 +1959,8 @@ void ADFH_Get_Node_ID(const double  pid,
     set_error(NULL_NODEID_POINTER, err);
     return;
   }
+
+  ADFH_DEBUG((">ADFH_Get_Node_ID [%s][%d]",name,hpid));
 
   *id = 0;
   set_error(NO_ERROR, err);
@@ -1991,9 +2034,8 @@ void ADFH_Children_Names(const double pid,
 #ifdef ADFH_NO_ORDER
   mta_root->i_count = 0;
 #endif
-
   /*initialize names to null*/
-  memset(names, 0, ilen*name_length);
+  memset(names, 0, (size_t)ilen*(size_t)name_length);
   if ((hpid = open_node(pid, err)) >= 0) {
 #if ADFH_HDF5_HAVE_112_API
     H5Literate2(hpid,H5_INDEX_CRT_ORDER,H5_ITER_INC,
@@ -2046,21 +2088,16 @@ void ADFH_Children_IDs(const double pid,
 #endif
   if ((hpid = open_node(pid, err)) >= 0) {
 #if ADFH_HDF5_HAVE_112_API
-    H5Literate2(hpid,H5_INDEX_CRT_ORDER,H5_ITER_INC,
+    H5Literate2(hpid,mta_root->link_create_order,H5_ITER_INC,
                NULL,children_ids,(void *)IDs);
 #else
-    H5Literate(hpid,H5_INDEX_CRT_ORDER,H5_ITER_INC,
+    H5Literate(hpid,mta_root->link_create_order,H5_ITER_INC,
                NULL,children_ids,(void *)IDs);
 #endif
     if (IDs[0]==-1)
     {
-#if ADFH_HDF5_HAVE_112_API
-      H5Literate2(hpid,H5_INDEX_NAME,H5_ITER_INC,
-                 NULL,children_ids,(void *)IDs);
-#else
-      H5Literate(hpid,H5_INDEX_NAME,H5_ITER_INC,
-                 NULL,children_ids,(void *)IDs);
-#endif
+      set_error(CHILDREN_IDS_NOT_FOUND, err);
+      return;
     }
     H5Gclose(hpid);
   }
@@ -2094,8 +2131,6 @@ void ADFH_Database_Open(const char   *name,
   int i, pos, mode;
   hid_t g_propfileopen;
 
-  ADFH_DEBUG(("ADFH_Database_Open [%s]",name));
-
   /* to be thread safe, should have critical section here */
   if (mta_root==NULL)
   {
@@ -2107,6 +2142,8 @@ void ADFH_Database_Open(const char   *name,
      it is found set to 1 in *all* MLL-based HDF5 files
   */
   mta_root->g_flags = 1;
+
+  mta_root->link_create_order = H5_INDEX_CRT_ORDER;
 
 #ifndef ADFH_DEBUG_ON
   H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
@@ -2136,6 +2173,8 @@ void ADFH_Database_Open(const char   *name,
     return;
   }
 
+  ADFH_DEBUG(("ADFH_Database_Open [%s]",name));
+
   /* get open mode */
 
   strncpy(buff, stat, 9);
@@ -2143,33 +2182,13 @@ void ADFH_Database_Open(const char   *name,
   for (i = 0; buff[i]; i++)
     buff[i] = TO_UPPER(buff[i]);
 
-  if (0 == strcmp(buff, "UNKNOWN")) {
-    if (ACCESS(name, 0))
-      mode = ADFH_MODE_NEW;
-    else if (ACCESS(name, 2))
-      mode = ADFH_MODE_RDO;
-    else
-      mode = ADFH_MODE_OLD;
-  }
-  else if (0 == strcmp(buff, "NEW")) {
-    if (!ACCESS(name, 0)) {
-      set_error(REQUESTED_NEW_FILE_EXISTS, err);
-      return;
-    }
+  if (0 == strcmp(buff, "NEW")) {
     mode = ADFH_MODE_NEW;
   }
   else if (0 == strcmp(buff, "READ_ONLY")) {
-    if (ACCESS(name, 0)) {
-      set_error(REQUESTED_OLD_FILE_NOT_FOUND, err);
-      return;
-    }
     mode = ADFH_MODE_RDO;
   }
   else if (0 == strcmp(buff, "OLD")) {
-    if (ACCESS(name, 0)) {
-      set_error(REQUESTED_OLD_FILE_NOT_FOUND, err);
-      return;
-    }
     mode = ADFH_MODE_OLD;
   }
   else {
@@ -2208,32 +2227,50 @@ void ADFH_Database_Open(const char   *name,
 	
   g_propfileopen = H5Pcreate(H5P_FILE_ACCESS);
 
-  /* Patch from Manuel Gageik on IBM BLUEgene/Q systems for better cgp_open performance. */
-#ifdef JFC_PATCH_2015_2
+  /* HDF5 tuning parameters */
 
-  /* http://www.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_meta_block_size.htm
-   * default setting is 2048 bytes
+  /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title72
+   * 'Sets the minimum metadata block size.'
+   * Default setting is 2048 bytes.
    */
-  H5Pset_meta_block_size(g_propfileopen, 4096);  /* 1024*1024 */
-
-  /* http://hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_alignment.htm
-   * attention: this can increase filesize dramatically if lots of small datasets
+  if ( h5pset_meta_block_size_size != ADFH_CONFIG_DEFAULT ) {
+    H5Pset_meta_block_size(g_propfileopen, h5pset_meta_block_size_size);
+  }
+  /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title41
+   * 'Sets alignment properties of a file access property list.'
+   * Default is no alignment.
+   * ATTENTION: this can increase filesize dramatically if lots of small datasets
    */
-  H5Pset_alignment(g_propfileopen, 4096, 4096);
+  if ( h5pset_alignment_alignment != ADFH_CONFIG_DEFAULT ) {
+    H5Pset_alignment(g_propfileopen,
+                     h5pset_alignment_threshold,
+                     h5pset_alignment_alignment);
+  }
 
-  /* http://www.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_buffer.htm
-   * 1 MByte is default of hdf5
+  /* https://docs.hdfgroup.org/hdf5/develop/group___d_x_p_l.html#title16
+   * 'Sets type conversion and background buffers. 
+   * 1 MByte is default.
    */
-  void *tconv; void *bkg;
-  H5Pset_buffer(g_propfileopen, 10*1024*1024,tconv, bkg);
+  if ( h5pset_buffer_size_size != ADFH_CONFIG_DEFAULT ) {
+    void *tconv=NULL; void *bkg=NULL;
+    H5Pset_buffer(g_propfileopen, h5pset_buffer_size_size, tconv, bkg);
+  }
 
-  /* http://hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetSieveBufSize
-   * '..  used by file drivers that are capable of using data sieving'
-   *  1 MByte is default of hdf5
+  /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title78
+   * 'Used by file drivers that are capable of using data sieving.'
+   *  1 MByte is default.
    */
-  H5Pset_sieve_buf_size(g_propfileopen, 4*1024*1024);
+  if ( h5pset_sieve_buf_size_size != ADFH_CONFIG_DEFAULT ) {
+    H5Pset_sieve_buf_size(g_propfileopen, h5pset_sieve_buf_size_size);
+  }
 
-#endif
+  /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title48
+   * 'Sets the number of files that can be held open in an external link open file cache.'
+   *  0 size is default.
+   */
+  if ( h5pset_elink_file_cache_size_size != ADFH_CONFIG_DEFAULT ) {
+    H5Pset_elink_file_cache_size(g_propfileopen, h5pset_elink_file_cache_size_size);
+  }
 
 #ifdef ADFH_H5F_CLOSE_STRONG
   /* set access property to close all open accesses when file closed */
@@ -2250,12 +2287,12 @@ void ADFH_Database_Open(const char   *name,
     /* Set the access property list to use MPI */
     if (0 == strcmp(fmt, "PARALLEL")) {
 
-      if(!pcg_mpi_info) pcg_mpi_info = MPI_INFO_NULL;
+      if(!ctx_cgio.pcg_mpi_info) ctx_cgio.pcg_mpi_info = MPI_INFO_NULL;
 #if HDF5_HAVE_COLL_METADATA  
       H5Pset_coll_metadata_write(g_propfileopen, 1);
 #endif /*HDF5_HAVE_COLL_METADATA*/
 
-      H5Pset_fapl_mpio(g_propfileopen, ParallelMPICommunicator, pcg_mpi_info);
+      H5Pset_fapl_mpio(g_propfileopen, ctx_cgio.pcg_mpi_comm, ctx_cgio.pcg_mpi_info);
     }
   }
 #endif
@@ -2284,31 +2321,50 @@ void ADFH_Database_Open(const char   *name,
 
     hid_t g_propfilecreate = H5Pcreate(H5P_FILE_CREATE);
 
-#ifdef JFC_PATCH_2015_2
+    /* HDF5 tuning parameters */
 
-  /* http://www.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_meta_block_size.htm
-   * default setting is 2048 bytes
-   */
-  H5Pset_meta_block_size(g_propfilecreate, 4096);  // 1024*1024
+    /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title72
+     * 'Sets the minimum metadata block size.'
+     * Default setting is 2048 bytes.
+     */
+    if ( h5pset_meta_block_size_size != ADFH_CONFIG_DEFAULT ) {
+      H5Pset_meta_block_size(g_propfileopen, h5pset_meta_block_size_size);
+    }
+    /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title41
+     * 'Sets alignment properties of a file access property list.'
+     * Default is no alignment.
+     * ATTENTION: this can increase filesize dramatically if lots of small datasets
+     */
+    if ( h5pset_alignment_alignment != ADFH_CONFIG_DEFAULT ) {
+      H5Pset_alignment(g_propfileopen,
+                       h5pset_alignment_threshold,
+                       h5pset_alignment_alignment);
+    }
 
-  /* http://hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_alignment.htm
-   * attention: this can increase filesize dramatically if lots of small datasets
-   */
-  H5Pset_alignment(g_propfilecreate, 4096, 4096);
+    /* https://docs.hdfgroup.org/hdf5/develop/group___d_x_p_l.html#title16
+     * 'Sets type conversion and background buffers.
+     * 1 MByte is default.
+     */
+    if ( h5pset_buffer_size_size != ADFH_CONFIG_DEFAULT ) {
+      void *tconv=NULL; void *bkg=NULL;
+      H5Pset_buffer(g_propfileopen, h5pset_buffer_size_size, tconv, bkg);
+    }
 
-  /* http://www.hdfgroup.org/HDF5/doc/RM/H5P/H5Pset_buffer.htm
-   * 1 MByte is default of hdf5
-   */
-  void *tconv; void *bkg;
-  H5Pset_buffer(g_propfilecreate, 10*1024*1024,tconv, bkg);
+    /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title78
+     * 'Used by file drivers that are capable of using data sieving.'
+     *  1 MByte is default.
+     */
+    if ( h5pset_sieve_buf_size_size != ADFH_CONFIG_DEFAULT ) {
+      H5Pset_sieve_buf_size(g_propfileopen, h5pset_sieve_buf_size_size);
+    }
 
-  /* http://hdfgroup.org/HDF5/doc/RM/RM_H5P.html#Property-SetSieveBufSize
-   * '..  used by file drivers that are capable of using data sieving'
-   * 1 MByte is default of hdf5
-   */
-  H5Pset_sieve_buf_size(g_propfilecreate, 4*1024*1024);
-
-#endif
+    /* https://docs.hdfgroup.org/hdf5/develop/group___f_a_p_l.html#title48
+     * 'Sets the number of files that can be held open in an external link open file cache.'
+     *  0 size is default.
+     */
+    if ( h5pset_elink_file_cache_size_size != ADFH_CONFIG_DEFAULT ) {
+      H5Pset_elink_file_cache_size(g_propfileopen, h5pset_elink_file_cache_size_size);
+    }
 
 #if 0 /* MSB -- DISABLED as it is not compatible with HDF5 1.8 file format, need to resolve this CGNS-166 */
 #if HDF5_HAVE_FILE_SPACE_STRATEGY
@@ -2395,13 +2451,36 @@ void ADFH_Database_Open(const char   *name,
       set_error(FILE_OPEN_ERROR, err);
       return;
     }
+
+    /*
+      NOTE: Creation  order was set by  default  in CGNS 3.1.3, so a
+      CGNS file created by earlier versions will not have  this set.
+      Therefore, it should not be automatically assumed to be set in
+      H5Literate.
+    */
+
     gid = H5Gopen2(fid, "/", H5P_DEFAULT);
+
+    /* Obtain the group creation flags and check for link creation ordering. */
+    {
+      hid_t pid;
+      unsigned int crt_order_flags;
+      pid = H5Gget_create_plist(gid);
+      H5Pget_link_creation_order(pid, &crt_order_flags);
+      if (crt_order_flags == 0) {
+        mta_root->link_create_order = H5_INDEX_NAME;
+      } else {
+        mta_root->link_create_order = H5_INDEX_CRT_ORDER;
+      }
+      H5Pclose(pid);
+    }
+
 #ifdef ADFH_FORTRAN_INDEXING
     if (mode != ADFH_MODE_RDO && child_exists(gid, D_OLDVERS)) {
 #if ADFH_HDF5_HAVE_112_API
-      H5Literate2(gid, H5_INDEX_CRT_ORDER, H5_ITER_INC, NULL, fix_dimensions, NULL);
+      H5Literate2(gid, mta_root->link_create_order, H5_ITER_INC, NULL, fix_dimensions, NULL);
 #else
-      H5Literate(gid, H5_INDEX_CRT_ORDER, H5_ITER_INC, NULL, fix_dimensions, NULL);
+      H5Literate(gid, mta_root->link_create_order, H5_ITER_INC, NULL, fix_dimensions, NULL);
 #endif
       H5Lmove(gid, D_OLDVERS, gid, D_VERSION, H5P_DEFAULT, H5P_DEFAULT);
     }
@@ -2561,7 +2640,7 @@ void ADFH_Database_Close(const double  root,
 
     nobj = H5Fget_obj_count(fid, H5F_OBJ_DATATYPE|H5F_OBJ_LOCAL);
 #ifdef ADFH_DEBUG_ON
-    printf("%s close DataType [%d] HIDs\n",ADFH_PREFIX,nobj);
+    printf("%s close DataType [%zd] HIDs\n",ADFH_PREFIX,nobj);
 #endif
     if (nobj) {
       H5Fget_obj_ids(fid, H5F_OBJ_DATATYPE|H5F_OBJ_LOCAL, -1, objs);
@@ -2573,7 +2652,7 @@ void ADFH_Database_Close(const double  root,
 
     nobj = H5Fget_obj_count(fid, H5F_OBJ_DATASET|H5F_OBJ_LOCAL);
 #ifdef ADFH_DEBUG_ON
-    printf("%s close DataSet [%d] HIDs\n",ADFH_PREFIX,nobj);
+    printf("%s close DataSet [%zd] HIDs\n",ADFH_PREFIX,nobj);
 #endif
     if (nobj) {
       H5Fget_obj_ids(fid, H5F_OBJ_DATASET|H5F_OBJ_LOCAL, -1, objs);
@@ -2585,7 +2664,7 @@ void ADFH_Database_Close(const double  root,
 
     nobj = H5Fget_obj_count(fid, H5F_OBJ_ATTR|H5F_OBJ_LOCAL);
 #ifdef ADFH_DEBUG_ON
-    printf("%s close Attr [%d] HIDs\n",ADFH_PREFIX,nobj);
+    printf("%s close Attr [%zd] HIDs\n",ADFH_PREFIX,nobj);
 #endif
     if (nobj) {
       H5Fget_obj_ids(fid, H5F_OBJ_ATTR|H5F_OBJ_LOCAL, -1, objs);
@@ -2597,7 +2676,7 @@ void ADFH_Database_Close(const double  root,
 
     nobj = H5Fget_obj_count(fid, H5F_OBJ_GROUP|H5F_OBJ_LOCAL);
 #ifdef ADFH_DEBUG_ON
-    printf("%s close Group [%d] HIDs\n",ADFH_PREFIX,nobj);
+    printf("%s close Group [%zd] HIDs\n",ADFH_PREFIX,nobj);
 #endif
     if (nobj) {
       H5Fget_obj_ids(fid, H5F_OBJ_GROUP|H5F_OBJ_LOCAL, -1, objs);
@@ -3007,7 +3086,7 @@ void ADFH_Get_Link_Path(const double  id,
   }
 
 #if CG_BUILD_PARALLEL
-  if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+  if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
     xfer_prp = H5Pcreate(H5P_DATASET_XFER);
     ADFH_CHECK_HID(xfer_prp);
     H5Pset_dxpl_mpio(xfer_prp, H5FD_MPIO_COLLECTIVE);
@@ -3031,7 +3110,7 @@ void ADFH_Get_Link_Path(const double  id,
   }
 
 #if CG_BUILD_PARALLEL
-  if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+  if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
     H5Pclose(xfer_prp);
   }
 #endif
@@ -3218,7 +3297,7 @@ void ADFH_Library_Version(char *version,
     return;
   }
   H5get_libversion(&maj, &min, &rel);
-  sprintf(version, "HDF5 Version %d.%d.%d", maj, min, rel);
+  sprintf(version, "HDF5 Version %u.%u.%u", maj, min, rel);
   set_error(NO_ERROR, err);
 }
 
@@ -3528,7 +3607,7 @@ void ADFH_Read_Data(const double ID,
   if (driver_id == H5FD_MPIO) {
     xfer_prp = H5Pcreate(H5P_DATASET_XFER);
     ADFH_CHECK_HID(xfer_prp);
-    H5Pset_dxpl_mpio(xfer_prp, default_pio_mode);
+    H5Pset_dxpl_mpio(xfer_prp, ctx_cgio.default_pio_mode);
   }
 #endif
 
@@ -3577,7 +3656,7 @@ void ADFH_Read_All_Data(const double  id,
     }
     ADFH_CHECK_HID(mid);
 #if CG_BUILD_PARALLEL
-    if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+    if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
       xfer_prp = H5Pcreate(H5P_DATASET_XFER);
       ADFH_CHECK_HID(xfer_prp);
       H5Pset_dxpl_mpio(xfer_prp, H5FD_MPIO_COLLECTIVE);
@@ -3589,7 +3668,7 @@ void ADFH_Read_All_Data(const double  id,
       set_error(NO_ERROR, err);
 
 #if CG_BUILD_PARALLEL
-    if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+    if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
       H5Pclose(xfer_prp);
     }
 #endif
@@ -3870,7 +3949,7 @@ void ADFH_Write_Data(const double ID,
   if (driver_id == H5FD_MPIO) {
     xfer_prp = H5Pcreate(H5P_DATASET_XFER);
     ADFH_CHECK_HID(xfer_prp);
-    H5Pset_dxpl_mpio(xfer_prp, default_pio_mode);
+    H5Pset_dxpl_mpio(xfer_prp, ctx_cgio.default_pio_mode);
   }
 #endif
 
@@ -3930,7 +4009,7 @@ void ADFH_Write_All_Data(const double  id,
     }
     ADFH_CHECK_HID(mid);
 #if CG_BUILD_PARALLEL
-    if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+    if (ctx_cgio.pcg_mpi_initialized && strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
       xfer_prp = H5Pcreate(H5P_DATASET_XFER);
       ADFH_CHECK_HID(xfer_prp);
       if (H5Pset_dxpl_mpio(xfer_prp, H5FD_MPIO_COLLECTIVE) < 0)
@@ -3943,7 +4022,8 @@ void ADFH_Write_All_Data(const double  id,
     else
       set_error(NO_ERROR, err);
 #if CG_BUILD_PARALLEL
-    if (pcg_mpi_initialized && strcmp(hdf5_access, "PARALLEL") == 0) {
+    if (ctx_cgio.pcg_mpi_initialized &&
+        strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0) {
       H5Pclose(xfer_prp);
     }
 #endif
