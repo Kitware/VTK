@@ -359,7 +359,7 @@ int vtkWrapPython_WrapTemplatedClass(
     fprintf(fp, ";\n\n");
 
     fprintf(fp,
-      "PyObject *Py%s_TemplateNew()\n"
+      "static PyObject *Py%s_TemplateNew()\n"
       "{\n"
       "  PyObject *o;\n"
       "\n"
