@@ -48,11 +48,6 @@
 #include <iterator>
 #include <set>
 
-// clang-format off
-#include "vtk_nlohmannjson.h"
-#include VTK_NLOHMANN_JSON(json.hpp)
-// clang-format on
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkAbstractArray, GUI_HIDE, Integer);
 vtkInformationKeyMacro(vtkAbstractArray, PER_COMPONENT, InformationVector);
@@ -65,6 +60,17 @@ VTK_ABI_NAMESPACE_END
 namespace
 {
 typedef std::vector<std::string*> vtkInternalComponentNameBase;
+
+struct PrintDataArrayWorker
+{
+  template <typename InArrayT>
+  void operator()(InArrayT* inArray, std::ostream& outStream)
+  {
+    using T = vtk::GetAPIType<InArrayT>;
+    const auto inRange = vtk::DataArrayValueRange(inArray);
+    std::copy(inRange.begin(), inRange.end(), std::ostream_iterator<T>(outStream, " "));
+  }
+};
 }
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -792,29 +798,6 @@ void SampleProminentValues(std::vector<std::vector<vtkVariant>>& uniques, vtkIdT
     std::copy(si->begin(), si->end(), bi);
   }
 }
-
-struct WriteDataArrayWorker
-{
-  WriteDataArrayWorker(nlohmann::json& result)
-    : m_result(result)
-  {
-  }
-
-  template <typename InArrayT>
-  void operator()(InArrayT* inArray)
-  {
-    using T = vtk::GetAPIType<InArrayT>;
-    const auto inRange = vtk::DataArrayValueRange(inArray);
-    T val;
-    for (const auto& value : inRange)
-    {
-      val = value;
-      m_result.push_back(val);
-    }
-  }
-
-  nlohmann::json& m_result;
-};
 } // End anonymous namespace.
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -928,32 +911,23 @@ void vtkAbstractArray::UpdateDiscreteValueSet(double uncertainty, double minimum
 }
 
 //------------------------------------------------------------------------------
-nlohmann::json vtkAbstractArray::SerializeValues()
+void vtkAbstractArray::PrintValues(ostream& os)
 {
-  auto result = nlohmann::json::array();
-
-  if (auto* darr = vtkDataArray::SafeDownCast(this))
+  if (auto* dataArray = vtkDataArray::SafeDownCast(this))
   {
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-    WriteDataArrayWorker worker(result);
-    if (!Dispatcher::Execute(darr, worker))
+    ::PrintDataArrayWorker worker;
+    if (!Dispatcher::Execute(dataArray, worker, os))
     {
-      worker(darr);
+      worker(dataArray, os);
     }
   }
   else
   {
     for (vtkIdType ii = 0; ii < this->GetNumberOfValues(); ++ii)
     {
-      result.push_back(static_cast<std::string>(this->GetVariantValue(ii).ToString()));
+      os << this->GetVariantValue(ii).ToString() << ' ';
     }
   }
-  return result;
-}
-
-//------------------------------------------------------------------------------
-void vtkAbstractArray::PrintValues(ostream& os)
-{
-  os << this->SerializeValues().dump() << '\n';
 }
 VTK_ABI_NAMESPACE_END
