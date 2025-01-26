@@ -81,7 +81,7 @@ void vtkHyperTreeGridGeometry2DImpl::ProcessLeafCellWithOneInterface(
   /**
    * XXX: In practice, outputIndexPoints can be empty.
    * This is probably caused by the fact that the interface passes exactly through
-   * one of the "corner" points of the cell, but it must be verifyed.
+   * one of the "corner" points of the cell, but it must be verified.
    * Maximum number of points is 5, if one interface cuts 2 neighbouring edges
    * of the cell.
    */
@@ -221,7 +221,7 @@ void vtkHyperTreeGridGeometry2DImpl::ProcessLeafCellWithDoubleInterface(
   /**
    * XXX: In practice, outputIndexPoints can be empty.
    * This is probably caused by the fact that interfaces passes exactly through
-   * the "corner" points of the cell, but it must be verifyed.
+   * the "corner" points of the cell, but it must be verified.
    * Maximum number of points is 6, if 2 interfaces cuts 2 neighbouring edges
    * of the cell.
    */

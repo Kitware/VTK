@@ -119,7 +119,7 @@ int TestAnariPerspectiveParallel(int argc, char* argv[])
   SetParameterDefaults(anariPass, ren1, useDebugDevice, "TestAnariPerspectiveParallel");
 
   ren1->ResetCamera();
-  // Render composite. Default camera is perpective.
+  // Render composite. Default camera is perspective.
   renWin->Render();
 
   // Switch to parallel

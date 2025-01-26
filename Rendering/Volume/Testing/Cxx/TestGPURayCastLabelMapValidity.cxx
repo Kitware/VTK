@@ -64,7 +64,7 @@ void CreateTransferFunctions(vtkSmartPointer<vtkVolumeProperty> vprop)
   vprop->SetLabelScalarOpacity(1, opacityFunc1);
   vprop->SetLabelGradientOpacity(1, gradientOpacityFun1);
 
-  // Test re-using values
+  // Test reusing values
   vprop->SetLabelColor(2, ctf2);
   vprop->SetLabelScalarOpacity(2, opacityFunc1);
   vprop->SetLabelGradientOpacity(2, gradientOpacityFun1);

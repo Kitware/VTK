@@ -432,7 +432,7 @@ public:
 
   /**
    * This struct describes a glTF camera object.
-   * glTF can define both perpective or orthographic cameras.
+   * glTF can define both perspective or orthographic cameras.
    * Some of the struct's members will be unused depending on the camera type.
    */
   struct Camera
@@ -608,7 +608,7 @@ public:
   ///@{
   /**
    * Set/Get the Stream start, where the GLB starts. By default it is 0,
-   * but can be different than 0 for file formats have a GLB embeded in it,
+   * but can be different than 0 for file formats have a GLB embedded in it,
    * for instance 3D Tiles B3DM.
    */
   vtkSetMacro(GLBStart, vtkTypeInt64);

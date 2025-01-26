@@ -211,7 +211,7 @@ constexpr std::array<int, 13> ACCEPTABLE_LABELS = { 10, 12, 15, 18, 20, 25, 30, 
 
 /**
  * Compute an interval that split range depending on targetedNumTicks,
- * while beeing "rounded" for nice display. Actually, we snap the labels
+ * while being "rounded" for nice display. Actually, we snap the labels
  * to be one of the following, multiply by a power of ten:
  * [10, 12, 15, 18, 20, 25, 30, 40, 50, 60, 80, 90]
  * (see ACCEPTABLE_LABELS)

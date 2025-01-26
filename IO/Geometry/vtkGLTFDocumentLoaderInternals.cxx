@@ -586,7 +586,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadCamera(
     {
       if (camera.AspectRatio <= 0)
       {
-        vtkErrorWithObjectMacro(this->Self, "Invalid camera.perpective.aspectRatio value");
+        vtkErrorWithObjectMacro(this->Self, "Invalid camera.perspective.aspectRatio value");
         return false;
       }
     }

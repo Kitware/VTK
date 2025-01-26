@@ -615,7 +615,7 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 
         // Peel passes set -1 in pixels that contain only opaque geometry,
         // so the opaque depth is fetched in order to z-composite volumes
-        // with opaque goemetry. To do this, the end point of front is clamped
+        // with opaque geometry. To do this, the end point of front is clamped
         // to opaque-depth and back ray-cast is skipped altogether since it
         // would be covered by opaque geometry anyway.
 

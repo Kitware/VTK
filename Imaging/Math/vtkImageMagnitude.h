@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkImageMagnitude.h
- * @brief   Colapses components with magnitude function.
+ * @brief   Collapses components with magnitude function.
  *
  * vtkImageMagnitude takes the magnitude of the components.
  */

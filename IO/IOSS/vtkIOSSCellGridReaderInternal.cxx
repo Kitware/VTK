@@ -352,7 +352,7 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetNode
     return {};
   }
   // Fetch the IDs of the file-global points included in the node-set,
-  // offseting by -1 so they are 0-indexed:
+  // offsetting by -1 so they are 0-indexed:
   auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
   transform->set_property("offset", -1);
   auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform.get());

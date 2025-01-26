@@ -31,7 +31,7 @@ public:
   /**
    * Write version and type attributes to the root group
    * A root must be open for the operation to succeed
-   * Returns wether the operation was successful
+   * Returns whether the operation was successful
    * If the operation fails, some attributes may have been written
    */
   bool WriteHeader(hid_t group, const char* hdfType);
@@ -140,12 +140,12 @@ public:
   vtkHDF::ScopedH5GHandle CreateHdfGroupWithLinkOrder(hid_t group, const char* name);
 
   /**
-   * Create a soft link to the real group containing the block datatset.
+   * Create a soft link to the real group containing the block dataset.
    */
   herr_t CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
 
   /**
-   * Create an external link to the real group containing the block datatset.
+   * Create an external link to the real group containing the block dataset.
    */
   herr_t CreateExternalLink(
     hid_t group, const char* filename, const char* source, const char* targetLink);

@@ -182,7 +182,7 @@ rules that say "All code".
 
 1. Prefer overloading functions to default arguments.
 
-   Rationale: Default function arguments in C++ are a tempting way to add an argument to a function while maintaining easy backwards compatibility. However, if you later want to add another argument to the list in a way that preserves backwards compatibility, it, too, must be a default argument. To supply the second of these arguments in a call forces you to also supply the first argument, even if it is the default value. As a result, this is not a clean way to add a argument to a function. Insetad, function overloading should be preferred.
+   Rationale: Default function arguments in C++ are a tempting way to add an argument to a function while maintaining easy backwards compatibility. However, if you later want to add another argument to the list in a way that preserves backwards compatibility, it, too, must be a default argument. To supply the second of these arguments in a call forces you to also supply the first argument, even if it is the default value. As a result, this is not a clean way to add a argument to a function. Instead, function overloading should be preferred.
 
 ## Specific C++  Language Guidelines
 ### C++ Standard Library

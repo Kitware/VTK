@@ -435,7 +435,7 @@ private:
 //  input a local partition 'status' and outputs the globalStatus
 //  status = 0 - INACTIVE - particle queue is empty and all sent particles have been confirmed as
 //  being received status = 1 - ACTIVE - either the particle queue has particles or we are waiting
-//  on confirmation of pariticles
+//  on confirmation of particles
 //               being received.
 //  - each rank updates master when its status changes
 //  globalStatus is 0 when all partitions are INACTIVE and 1 if at least one partition is ACTIVE.
@@ -885,7 +885,7 @@ void vtkPLagrangianParticleTracker::GetParticleFeed(
     this->ReceiveTransferredParticleIds();
 
     // determine local status - active if queue is busy or we are waiting for receipt of sent
-    // pariticles
+    // particles
     status = !particleQueue.empty() ||
       this->StreamManager->GetSendCounter() !=
         this->TransferredParticleIdManager->GetReceivedCounter();

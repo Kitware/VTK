@@ -4,7 +4,7 @@
  * @class   vtkClosedSurfacePointPlacer
  * @brief   PointPlacer to constrain validity within a set of convex planes
  *
- * This placer takes a set of boudning planes and constraints the validity
+ * This placer takes a set of bounding planes and constraints the validity
  * within the supplied convex planes. It is used by the
  * ParallelopPipedRepresentation to place constraints on the motion the
  * handles within the parallelopiped.

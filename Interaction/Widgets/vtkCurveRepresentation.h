@@ -280,7 +280,7 @@ public:
 
   /**
    * Methods to make this class behave as a vtkProp. They are repeated here (from the
-   * vtkProp superclass) as a reminder to the widget implementor. Failure to implement
+   * vtkProp superclass) as a reminder to the widget implementer. Failure to implement
    * these methods properly may result in the representation not appearing in the scene
    * (i.e., not implementing the Render() methods properly) or leaking graphics resources
    * (i.e., not implementing ReleaseGraphicsResources() properly).

@@ -88,7 +88,7 @@ public:
   ///@}
 
   /**
-   * get the matricies for all the
+   * get the matrices for all the
    * shadow maps.
    */
   std::vector<double> ShadowMapTransforms() { return this->ShadowTransforms; }

@@ -223,7 +223,7 @@ public:
   int GetTransactionId() const { return this->Id; }
 
   /**
-   * Enable/diasable non-blocking communication
+   * Enable/disable non-blocking communication
    */
   void SetUseBlockingSend(int val) { this->UseBlockingSend = val; }
 
@@ -253,7 +253,7 @@ public:
   int Blit(int nComps, int srcType, void* srcData, int destType, void* destData);
 
 private:
-  // distpatch helper for vtk data type enum
+  // dispatch helper for vtk data type enum
   template <typename SOURCE_TYPE>
   int Execute(MPI_Comm comm, int rank, int nComps, SOURCE_TYPE* srcData, int destType,
     void* destData, std::vector<MPI_Request>& reqs, std::deque<MPI_Datatype>& types, int tag);

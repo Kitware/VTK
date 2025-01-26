@@ -100,7 +100,7 @@ public:
   vtkMatrix4x4* GetMatrix() override { return this->Matrix; }
 
   /**
-   * Returns the transformation from texture coordinates to data cooridinates
+   * Returns the transformation from texture coordinates to data coordinates
    * of the bounding-box. Since this class represents an axis-aligned bounding
    * -boxThis, this transformation only contains a scaling diagonal.
    */

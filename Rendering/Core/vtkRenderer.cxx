@@ -568,7 +568,7 @@ void vtkRenderer::AllocateTime()
   this->ComputeAspect();
 
   // It is very likely that the culler framework will call our
-  // GetActiveCamera (say, to get the view frustrum planes for example).
+  // GetActiveCamera (say, to get the view frustum planes for example).
   // This does not reset the camera anymore. If no camera has been
   // created though, we want it not only to be created but also reset
   // so that it behaves nicely for people who never bother with the camera
@@ -1506,7 +1506,7 @@ double vtkRenderer::GetZ(int x, int y)
 
   // Use a hardware selector because calling
   // this->RenderWindow->GetZbufferData when having multiple renderers always
-  // results in a z-buffer value from the last renderered renderer
+  // results in a z-buffer value from the last rendered renderer
   vtkNew<vtkHardwareSelector> hsel;
   hsel->SetActorPassOnly(true);
   hsel->SetCaptureZValues(true);

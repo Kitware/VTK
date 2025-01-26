@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkGLSLModifierFactory
- * @brief   This class empowers developers to write and use GLSL mods eaisly in VTK.
+ * @brief   This class empowers developers to write and use GLSL mods easily in VTK.
  *
  * For example, the mod classes could be registered via plugins.
  */

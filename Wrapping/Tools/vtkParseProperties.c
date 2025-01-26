@@ -900,7 +900,7 @@ static int methodMatchesProperty(
     return 0;
   }
 
-  /* if vtkObject, check that classes match or atleast one is derived from the other */
+  /* if vtkObject, check that classes match or at least one is derived from the other */
   if ((methType & VTK_PARSE_BASE_TYPE) == VTK_PARSE_OBJECT)
   {
     const HierarchyEntry* methEntry = vtkParseHierarchy_FindEntry(hinfo, meth->ClassName);

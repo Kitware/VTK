@@ -495,7 +495,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       // These types are not settable on any instance.
       // For example:
       //  `vtkPolyData::GetPointData()` exists, but there is no `SetPointData`.
-      //  The owning type, vtkPolyData, in this exmaple constructs and returns an instance of point
+      //  The owning type, vtkPolyData, in this example constructs and returns an instance of point
       //  data. Similar story for vtkRenderer::Cullers, vtkViewPort::ViewProps, etc.
       // To overcome the absence of a setter, this code retrieves the instance and registers it
       // as a weak reference before deserializing it.

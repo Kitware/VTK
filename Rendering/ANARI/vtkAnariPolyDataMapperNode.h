@@ -34,7 +34,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Ensure this node has been intialized.
+   * Ensure this node has been initialized.
    */
   void Build(bool prepass) override;
   /**

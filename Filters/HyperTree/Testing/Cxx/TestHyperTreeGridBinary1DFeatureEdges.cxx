@@ -79,13 +79,13 @@ int TestHyperTreeGridBinary1DFeatureEdges(int argc, char* argv[])
   mapper->SetInputData(geometry);
 
   // Actor's properties
-  vtkNew<vtkProperty> propety;
-  propety->SetLineWidth(2.0);
+  vtkNew<vtkProperty> property;
+  property->SetLineWidth(2.0);
 
   // Actors
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  actor->SetProperty(propety);
+  actor->SetProperty(property);
 
   // Renderer and camera
   vtkNew<vtkRenderer> renderer;

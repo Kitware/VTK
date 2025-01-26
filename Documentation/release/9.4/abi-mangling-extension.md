@@ -1,8 +1,8 @@
-## ABI Mangling extention for C/C++ ABI in VTK
+## ABI Mangling extension for C/C++ ABI in VTK
 
 Using the C++ feature `inline namespace` VTK is able to apply ABI mangling
 to VTK without affecting the API interface in code. This feature allows for
-separately compiled VTK libaries isolated in their own translation units to
+separately compiled VTK libraries isolated in their own translation units to
 be linked in the same application without symbol conflicts at runtime.
 
 This feature was "experimental" due to lack of  CI testing and
@@ -16,7 +16,7 @@ the injection of additional attributes into the namespace such as
 guarded to follow a subset of the C++ namespace naming rules (it must match the
 regular expression `^[a-zA-Z0-9_]+$`).
 
-* Must contain only lower-case or upper-letters, numbers, or undersores
+* Must contain only lower-case or upper-letters, numbers, or underscores
 * Must contain one(1) or more characters.
 * Cannot use nested or anonymous namespace names (ie. no `::` or empty names)
 
@@ -45,5 +45,5 @@ with these configurations, it is not recommended.
 
 Notes:
 * This change does not affect VTK builds that are not using the `VTK_ABI_NAMESPACE` feature.
-* Thirdparty libraries still do not support ABI mangling.
+* Third party libraries still do not support ABI mangling.
 * VTK Wrappings still do not support ABI mangling (ie. Python/Java/etc.).

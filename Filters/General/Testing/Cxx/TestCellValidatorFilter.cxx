@@ -114,7 +114,7 @@ int TestCellValidatorFilter(int, char*[])
 
   // test that ValidityState array is persistent when dataset is deleted.
   // This is done because the filters create an implicit array that called the dataset
-  // at each request. On dataset DeleteEvent, the array should instanciate an explicit
+  // at each request. On dataset DeleteEvent, the array should instantiate an explicit
   // copy of the values to stay valid.
   //
   // see vtkDataSetImplicitBackendInterface for more.

@@ -160,7 +160,7 @@ public:
   /**
    * When drawing splats as opposed to point mode (splats are bigger than a pixel)
    * this controls how large the splat bound primitive will be. By default it
-   * is large enough to contain a cicle of radius 3.0*scale which works
+   * is large enough to contain a circle of radius 3.0*scale which works
    * well for gaussian splats as after 3.0 standard deviations the
    * opacity is near zero. For custom shader codes a different
    * value can be used. Generally you should use the lowest value you can

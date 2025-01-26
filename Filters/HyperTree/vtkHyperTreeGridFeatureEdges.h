@@ -4,7 +4,7 @@
  * @class vtkHyperTreeGridFeatureEdges
  * @brief Generates feature edges from an Hyper Tree Grid
  *
- * vtkHyperTreeGridFeatureEdges generates feature edges from an intput vtkHyperTreeGrid.
+ * vtkHyperTreeGridFeatureEdges generates feature edges from an input vtkHyperTreeGrid.
  * The nature of feature edges in the case of HTGs depends on the dimension of the HTG:
  * - in 1D, it corresponds to the HTG geometry (HTG cells are already edges),
  * - in 2D, it corresponds to border edges (HTG cells are quads),

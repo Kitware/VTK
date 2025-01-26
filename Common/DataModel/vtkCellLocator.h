@@ -63,7 +63,7 @@ public:
   void SetNumberOfCellsPerBucket(int N) { this->SetNumberOfCellsPerNode(N); }
   int GetNumberOfCellsPerBucket() { return this->NumberOfCellsPerNode; }
 
-  // Re-use any superclass signatures that we don't override.
+  // Reuse any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;

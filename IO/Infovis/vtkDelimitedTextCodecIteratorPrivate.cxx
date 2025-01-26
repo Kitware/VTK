@@ -137,7 +137,7 @@ vtkDelimitedTextCodecIteratorPrivate& vtkDelimitedTextCodecIteratorPrivate::oper
   // Look for record delimiters ...
   if (this->RecordDelimiters.count(value))
   {
-    // optionnaly store current field
+    // optionaly store current field
     if (this->RecordsCount.AcceptingField())
     {
       this->InsertField();

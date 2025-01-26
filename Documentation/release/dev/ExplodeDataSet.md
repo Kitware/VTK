@@ -12,7 +12,7 @@ Also it relies on the threaded vtkExtractCells filter.
 
 This is useful to create composite data from structured array.
 Examples of usage include:
-  * spliting mesh from materials (as with OBJ groups)
+  * splitting mesh from materials (as with OBJ groups)
   * creating blocks from Connectivity array or (FeatureEdges)RegionIds
 
 > ![Blocks from FeatureEdges Region Ids](ExplodeDataSet.png)

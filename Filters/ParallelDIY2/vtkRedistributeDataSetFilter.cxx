@@ -515,7 +515,7 @@ int vtkRedistributeDataSetFilter::RequestData(
   std::vector<vtkDataSet*> resultVector = vtkCompositeDataSet::GetDataSets(result);
   for (vtkDataSet* ds : resultVector)
   {
-    // We cannot keep duplicate ghost points as the partitionning changed, invalidating previous
+    // We cannot keep duplicate ghost points as the partitioning changed, invalidating previous
     // duplicate ghost tagging
     if (vtkUnsignedCharArray* ghostArray = ds->GetPointData()->GetGhostArray())
     {

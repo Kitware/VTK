@@ -572,7 +572,7 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "Parameteric Center" << endl;
+    os << "Parametric Center" << endl;
   }
 
   os << indent << "Sort Scalars: " << (this->SortScalars ? "On\n" : "Off\n");

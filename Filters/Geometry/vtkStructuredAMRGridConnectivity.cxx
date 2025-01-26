@@ -25,7 +25,7 @@ namespace AMRBlockFace
 VTK_ABI_NAMESPACE_BEGIN
 enum
 {
-  FRONT = 0,  // (+k diretion)
+  FRONT = 0,  // (+k direction)
   BACK = 1,   // (-k direction)
   RIGHT = 2,  // (+i direction)
   LEFT = 3,   // (-i direction)

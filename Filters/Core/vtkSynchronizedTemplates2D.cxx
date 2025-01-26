@@ -423,7 +423,7 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // We have to compute the dimenisons from the update extent because
+  // We have to compute the dimensions from the update extent because
   // the extent may be larger.
   vtkStructuredData::GetDimensionsFromExtent(ext, dims);
   //

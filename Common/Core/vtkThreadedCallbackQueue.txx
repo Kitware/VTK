@@ -621,7 +621,7 @@ void vtkThreadedCallbackQueue::PushControl(FT&& f, ArgsT&&... args)
     // The queue is not running yet, we need to invoke by hand.
     if (this->Threads.empty())
     {
-      // No need to synchonize anything here. We are the only invoker that is allowed to run here.
+      // No need to synchronize anything here. We are the only invoker that is allowed to run here.
       invoker->Status.store(RUNNING, std::memory_order_relaxed);
       (*invoker)();
       return;

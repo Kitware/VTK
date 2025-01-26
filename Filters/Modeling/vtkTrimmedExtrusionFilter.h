@@ -158,7 +158,7 @@ public:
    *
    * Finally, note that any capping strategy other than INTERSECTION may
    * produce more points than expected because the output primitives may
-   * have to be "split apart" to satisy the capping constraint.
+   * have to be "split apart" to satisfy the capping constraint.
    */
   vtkSetMacro(CappingStrategy, int);
   vtkGetMacro(CappingStrategy, int);

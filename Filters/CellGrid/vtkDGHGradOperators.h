@@ -13,7 +13,7 @@ namespace basis
 {
 /// A function space for basis functions defined on corner vertices of cells.
 ///
-/// This function space is analagous to the traditional Lagrange shape functions.
+/// This function space is analogous to the traditional Lagrange shape functions.
 namespace hgrad
 {
 VTK_ABI_NAMESPACE_BEGIN

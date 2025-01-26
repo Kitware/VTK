@@ -67,7 +67,7 @@ public:
   /**
    * Specify the bin number to extract. If a non-negative value, then the
    * points from the bin number specified are extracted. If negative, then
-   * entire levels of points are extacted (assuming the Level is
+   * entire levels of points are extracted (assuming the Level is
    * non-negative). Note that the bin tree is flattened, a particular bin
    * number may refer to a bin on any level. Note that requesting a bin
    * greater than the associated vtkHierarchicalBinningFilter will clamp the

@@ -42,7 +42,7 @@ public:
 
   /**
    * New object in an unusable state. You'll have to call
-   * "Initilaize" to get the definition in to a usable state.
+   * "Initialize" to get the definition in to a usable state.
    */
   static vtkQuadratureSchemeDefinition* New();
 

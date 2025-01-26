@@ -27,13 +27,13 @@ class vtkCompositeDataSet;
  * This is specially useful when working with static meshes and transient data.
  *
  * ## Example of use case
- * Think about the vtkGeometryFilter. On first execution, it extracts boudaries
+ * Think about the vtkGeometryFilter. On first execution, it extracts boundaries
  * of an input mesh alongside with the associated data.
  * On the second execution, if the input mesh didn't change and neither did the
  * vtkGeometryFitlers own properties, then there is no need for boundary extraction:
  * previous output mesh can be reused. Only the associated data should be forwarded.
  *
- * Instead of implementing such logic itself, filtre like the vtkGeometryFilter can instead
+ * Instead of implementing such logic itself, filter like the vtkGeometryFilter can instead
  * rely on the vtkDataObjectMeshCache in order to easily reuse the previously computed mesh,
  * and forward the new data arrays.
  *
@@ -187,14 +187,14 @@ public:
   /**
    * Compute and returns the current cache status.
    * The cache status details whenever the cache is usable,
-   * with detailed informations.
+   * with detailed information.
    */
   Status GetStatus() const;
 
   /**
    * Fill given dataset with cached data.
    * If original ids are present, copy corresponding attributes.
-   * It is the user responsiblity to check the status before calling this.
+   * It is the user responsibility to check the status before calling this.
    */
   void CopyCacheToDataObject(vtkDataObject* output);
 

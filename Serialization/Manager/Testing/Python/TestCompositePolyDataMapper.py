@@ -25,7 +25,7 @@ class TestCompositePolyDataMapper(vtkTesting.vtkTest):
         cda = vtkCompositeDataDisplayAttributes()
         m.SetCompositeDataDisplayAttributes(cda)
 
-        # Override few display attribtues
+        # Override few display attributes
         m.SetBlockVisibility(11, False)
         m.SetBlockOpacity(10, 0.5)
 

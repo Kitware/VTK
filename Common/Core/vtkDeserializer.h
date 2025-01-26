@@ -38,7 +38,7 @@ public:
    * Constructs an object of type `className`.
    *
    * If a constructor is not found for `className`, the `GetConstructor` walks through each item
-   * in `superClassNames` and attempts to contruct an instance of that type.
+   * in `superClassNames` and attempts to construct an instance of that type.
    * This is useful when the VTK build of the serializer side and the deserializer side
    * are on entirely different platforms by taking advantage of the object factory mechanism.
    *
@@ -48,7 +48,7 @@ public:
    * Let's suppose in a Windows VTK application, the `vtkSerializer` serialized an instance of
    * `vtkWin32RenderWindowInteractor` into json which was then transferred over the network
    * to a macOS machine. Over there, seeing that the state refers to the
-   * `vtkWin32RenderWindowInteractor` calss the `vtkDeserializer` will attempt to find a constructor
+   * `vtkWin32RenderWindowInteractor` class the `vtkDeserializer` will attempt to find a constructor
    * for win32 class and fail. It then checks if the super class (here `vtkRenderWindowInteractor`)
    * has a constructor and constructs a new instance of that type. Due to the object factory
    * mechanism, the macOS build of VTK constructs a `vtkCocoaRenderWindowInteractor` and it all

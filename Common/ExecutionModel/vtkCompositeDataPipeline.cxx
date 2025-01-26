@@ -908,7 +908,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     // If it is not already, then we need to create a composite data object for the outputs
     // on that port to be placed into.  If the output is already a composite data object, it
     // is assumed that the composite data pipeline is being re-run and the data object from
-    // the last run can be re-used.
+    // the last run can be reused.
     bool needsToCreateCompositeOutput = false;
     for (int port = 0; port < outInfoVec->GetNumberOfInformationObjects(); ++port)
     {

@@ -189,7 +189,7 @@ public:
 
   ///@{
   /**
-   * Enable/disable loading of surface patches. In constrast to LoadBndPatch this loads elements of
+   * Enable/disable loading of surface patches. In contrast to LoadBndPatch this loads elements of
    * +++ that do not have an associated boundary condition patch. Defaults to false.
    */
   vtkSetMacro(LoadSurfacePatch, bool);

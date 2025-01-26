@@ -78,7 +78,7 @@ void vtkObjectFactory::RegisterDefaults() {}
 
 void vtkObjectFactory::LoadDynamicFactories()
 {
-  // follow PATH convensions
+  // follow PATH conventions
 #ifdef _WIN32
   char PathSeparator = ';';
 #else

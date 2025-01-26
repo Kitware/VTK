@@ -52,7 +52,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
   if (!strcmp(name, "part"))
   {
     if (!this->InDyna || this->InPart)
-    { // can't have loner parts or parts that contain parts
+    { // can't have longer parts or parts that contain parts
       this->ReportUnknownElement(name);
     }
     else

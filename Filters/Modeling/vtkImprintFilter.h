@@ -109,7 +109,7 @@ public:
   ///@{
   /**
    * Specify the first vtkPolyData input which defines the surface mesh to
-   * imprint (i.e., the taregt). The imprint surface is provided by the
+   * imprint (i.e., the target). The imprint surface is provided by the
    * second input.
    */
   void SetTargetData(vtkDataObject* target);
@@ -226,7 +226,7 @@ public:
    * imprint mesh; IMPRINTED_CELLS - output the target's imprinted cells
    * after intersection and triangulation with the imprint mesh;
    * PROJECTED_IMPRINT - project the imprint mesh onto the target mesh,
-   * modififying the imprint mesh point coordinates to lie on the target
+   * modifying the imprint mesh point coordinates to lie on the target
    * mesh; IMPRINTED_REGION - extract just the area of contact between the
    * target and imprint; and MERGED_IMPRINT - merge the target and imprint
    * mesh after the imprint operation. By default, MERGED_IMPRINT is

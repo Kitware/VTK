@@ -133,7 +133,7 @@ void vtkWebGPUConfigurationInternals::OnAdapterRequestCompleted(
       self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
     case WGPURequestAdapterStatus_Error:
-      vtkErrorWithObjectMacro(self, << "Error occured in wgpu::Instance::RequestAdapter");
+      vtkErrorWithObjectMacro(self, << "Error occurred in wgpu::Instance::RequestAdapter");
       self->InvokeEvent(vtkWebGPUConfiguration::AdapterRequestCompletedEvent, nullptr);
       break;
     case WGPURequestAdapterStatus_Unknown:
@@ -198,7 +198,7 @@ void vtkWebGPUConfigurationInternals::OnDeviceRequestCompleted(
       break;
 #endif
     case WGPURequestDeviceStatus_Error:
-      vtkErrorWithObjectMacro(self, << "Error occured in wgpu::Adapter::RequestDevice");
+      vtkErrorWithObjectMacro(self, << "Error occurred in wgpu::Adapter::RequestDevice");
       self->InvokeEvent(vtkWebGPUConfiguration::DeviceRequestCompletedEvent, cDevice);
       break;
     case WGPURequestDeviceStatus_Unknown:

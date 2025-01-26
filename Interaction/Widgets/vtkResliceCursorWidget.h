@@ -71,7 +71,7 @@ public:
   void CreateDefaultRepresentation() override;
 
   /**
-   * Methods for activiating this widget. This implementation extends the
+   * Methods for activating this widget. This implementation extends the
    * superclasses' in order to resize the widget handles due to a render
    * start event.
    */

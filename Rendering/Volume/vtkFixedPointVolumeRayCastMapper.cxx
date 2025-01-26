@@ -2799,7 +2799,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients(vtkVolume* vol)
 
   this->ComputeGradients(vol);
 
-  // Time to save the input used to update the tabes
+  // Time to save the input used to update the tables
   this->SavedGradientsInput = vtkImageData::SafeDownCast(this->GetInput());
   this->SavedGradientsMTime.Modified();
 

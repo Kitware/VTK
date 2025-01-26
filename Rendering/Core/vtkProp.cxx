@@ -112,7 +112,7 @@ vtkAssemblyPath* vtkProp::GetNextPath()
 void vtkProp::BuildPaths(vtkAssemblyPaths* paths, vtkAssemblyPath* path)
 {
   // This is a leaf node in the assembly hierarchy so we
-  // copy the path in preparation to assingning it to paths.
+  // copy the path in preparation to assigning it to paths.
   vtkAssemblyPath* childPath = vtkAssemblyPath::New();
   childPath->ShallowCopy(path);
 

@@ -19,7 +19,7 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
 
   vtkDataObject* output = vtkDataObject::New();
   this->SetOutput(output);
-  // Releasing data for pipeline parallism.
+  // Releasing data for pipeline parallelism.
   // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();

@@ -218,7 +218,7 @@ public:
    * representations through vtkAnnotationLink, possibly using the view.
    * For the superclass, we just return the same selection.
    * Subclasses may do something more fancy, like convert the selection
-   * from a frustrum to a list of pedigree ids.  If the selection cannot
+   * from a frustum to a list of pedigree ids.  If the selection cannot
    * be applied to this representation, return nullptr.
    */
   virtual vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection);

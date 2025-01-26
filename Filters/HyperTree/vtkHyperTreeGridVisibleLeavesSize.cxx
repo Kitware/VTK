@@ -213,7 +213,7 @@ public:
    */
   bool InsertSize(double cellSize, vtkIdType currentIndex)
   {
-    // Use a hash table for O(1) insertion and seach time instead of searching the VTK array
+    // Use a hash table for O(1) insertion and search time instead of searching the VTK array
     const auto& inserted = this->VolumeLookup.insert(
       std::make_pair(cellSize, static_cast<LevelType>(this->VolumeLookup.size())));
     if (inserted.second)

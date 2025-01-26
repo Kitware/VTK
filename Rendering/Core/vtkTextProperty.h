@@ -216,7 +216,7 @@ public:
 
   ///@{
   /**
-   * If this property is on, text is aligned to drawn pixels not to font metrix.
+   * If this property is on, text is aligned to drawn pixels not to font matrix.
    * If the text does not include descents, the bounding box will not extend below
    * the baseline. This option can be used to get centered labels. It does not
    * work well if the string changes as the string position will move around.

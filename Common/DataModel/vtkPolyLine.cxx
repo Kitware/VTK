@@ -126,7 +126,7 @@ void SlidingNormalsOnLine(vtkPoints* pts, vtkIdType npts, const vtkIdType* lineP
 
     if (sNextId >= npts) // only one valid segment
     {
-      // a little trick to find othogonal normal
+      // a little trick to find orthogonal normal
       for (int i = 0; i < 3; ++i)
       {
         if (sPrev[i] != 0.0)

@@ -5,7 +5,7 @@
  * @brief   1,2 or 3D distance map.
  *
  * vtkImageCityBlockDistance creates a distance map using the city block
- * (Manhatten) distance measure.  The input is a mask.  Zero values are
+ * (Manhattan) distance measure.  The input is a mask.  Zero values are
  * considered boundaries.  The output pixel is the minimum of the input pixel
  * and the distance to a boundary (or neighbor value + 1 unit).
  * distance values are calculated in pixels.

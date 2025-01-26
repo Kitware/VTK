@@ -76,7 +76,7 @@ protected:
     double) const = &CheckCriticalTimeWorker::Between;
 
 private:
-  // Returns true if value is comprised beetween the lower and upper thresholds
+  // Returns true if value is comprised between the lower and upper thresholds
   bool Between(double value) const
   {
     return (value >= this->LowerThreshold ? (value <= this->UpperThreshold ? true : false) : false);
@@ -436,7 +436,7 @@ int vtkCriticalTime::vtkCriticalTimeInternals::UpdateCriticalTimeArray(
   vtkDoubleArray* outTimeArray = this->GetCriticalTimeArray(outFd, inArray, CRITICAL_TIME_SUFFIX);
   if (!outTimeArray)
   {
-    vtkErrorWithObjectMacro(this->Self, "Unable to retrieve ouput critical time array.");
+    vtkErrorWithObjectMacro(this->Self, "Unable to retrieve output critical time array.");
     return 0;
   }
 

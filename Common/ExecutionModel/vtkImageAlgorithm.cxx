@@ -321,7 +321,7 @@ void vtkImageAlgorithm::CopyAttributeData(
       {
         output->GetCellData()->CopyAllocate(input->GetCellData(), output->GetNumberOfCells());
         // Cell extent is one less than point extent.
-        // Conditional to handle a colapsed axis (lower dimensional cells).
+        // Conditional to handle a collapsed axis (lower dimensional cells).
         if (inExt[0] < inExt[1])
         {
           --inExt[1];

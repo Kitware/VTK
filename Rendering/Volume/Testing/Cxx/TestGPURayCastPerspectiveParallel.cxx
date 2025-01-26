@@ -113,7 +113,7 @@ int TestGPURayCastPerspectiveParallel(int argc, char* argv[])
   {
     ren1->ResetCamera();
 
-    // Render composite. Default camera is perpective.
+    // Render composite. Default camera is perspective.
     renWin->Render();
 
     // Switch to parallel

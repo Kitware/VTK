@@ -173,7 +173,7 @@ public:
    * defaults to true.
 
    * A default, simple-minded implementation is provided for
-   * database backends that do not provde a way to escape
+   * database backends that do not provide a way to escape
    * strings for use inside queries.
    */
   virtual vtkStdString EscapeString(vtkStdString s, bool addSurroundingQuotes = true);

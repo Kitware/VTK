@@ -2,7 +2,7 @@
 # vtkTypeLists
 
 This module provides lists of (c++) data type supported by VTK.
-A CamelCase formated list is also provided to easily construct
+A CamelCase formatted list is also provided to easily construct
 class names.
 
 This is useful to generate template instantiation at configure time.

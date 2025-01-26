@@ -735,7 +735,7 @@ vtkTypeBool vtkBox::IntersectWithPlane(
 
   // Now sort the intersection points. We do this sort even for triangles to
   // provide consistent ordering (direction) around the plane normal. Note
-  // that anything less than three intesections is considered a
+  // that anything less than three intersections is considered a
   // non-intersection. Create a local coordinate system (xV, yV, n) with the
   // normal out of the polygon plane.
   int i;

@@ -117,10 +117,10 @@ bool TestTemporalStaticMesh(
   const std::string& tempDir, const std::string& baseName, int dataSetType)
 {
   /*
-   * At the time this test has been writen, the reader only support static mesh for partitioned data
-   * set. We can't use use both the merge parts & the cache at the same time, which cause every
-   * static to be read as a partitionned dataset with atleast one partition. The writer doesn't
-   * support writing partitionned dataset yet so we can't test static mesh writing properly since we
+   * At the time this test has been written, the reader only support static mesh for partitioned
+   * data set. We can't use use both the merge parts & the cache at the same time, which cause every
+   * static to be read as a partitioned dataset with at least one partition. The writer doesn't
+   * support writing partitioned dataset yet so we can't test static mesh writing properly since we
    * can't read non partitioned static data.
    */
   // Custom static mesh source
@@ -161,13 +161,13 @@ bool TestTemporalStaticMesh(
   HDFWriter->SetCompressionLevel(1);
   if (!HDFWriter->Write())
   {
-    vtkLog(ERROR, "An error occured while writing the static mesh HDF file");
+    vtkLog(ERROR, "An error occurred while writing the static mesh HDF file");
     return false;
   }
   /* TODO
    * Once the reader supports both MergeParts & UseCache used together,
    * this test will need to be updated by reading the output file and checking
-   * it corresponds to the source, aswell as checking the MeshMTime values.
+   * it corresponds to the source, as well as checking the MeshMTime values.
    */
   return true;
 }

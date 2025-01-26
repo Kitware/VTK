@@ -76,7 +76,7 @@ public:
   vtkGetMacro(NumberOfPointsPerBucket, int);
   ///@}
 
-  // Re-use any superclass signatures that we don't override.
+  // Reuse any superclass signatures that we don't override.
   using vtkAbstractPointLocator::FindClosestPoint;
 
   /**

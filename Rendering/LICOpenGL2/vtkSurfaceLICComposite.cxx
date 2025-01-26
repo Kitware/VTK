@@ -263,7 +263,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
   }
   else
   {
-    // when not normailzing during integration we need max(V) on the LIC
+    // when not normalizing during integration we need max(V) on the LIC
     // decomp. Each domain has the potential to require a unique number
     // of guard cells.
     vector<float> vectorMax;

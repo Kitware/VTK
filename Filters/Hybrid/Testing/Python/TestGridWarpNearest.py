@@ -69,7 +69,7 @@ thinPlate.SetSourceLandmarks(p2)
 thinPlate.SetTargetLandmarks(p1)
 thinPlate.SetBasisToR2LogR()
 # convert the thin plate spline into a grid
-# for nearest neighbor interpolation, the grid should precicely
+# for nearest neighbor interpolation, the grid should precisely
 # overlay the image you want to warp
 transformToGrid = vtkTransformToGrid()
 transformToGrid.SetInput(thinPlate)

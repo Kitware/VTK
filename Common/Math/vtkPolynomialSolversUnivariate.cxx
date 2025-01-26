@@ -475,7 +475,7 @@ static int vtkGetSignChanges(
 }
 
 // ----------------------------------------------------------
-// Gets the Habicht sequence. SSS and degrees and ofsets are expected to be
+// Gets the Habicht sequence. SSS and degrees and offsets are expected to be
 // large enough and the number of non-zero items is returned. P is expected to
 // have degree at least 1.
 //
@@ -2098,7 +2098,7 @@ int vtkPolynomialSolversUnivariate::SolveQuadratic(
 // Algebraically extracts REAL roots of the quadratic polynomial with
 // REAL coefficients c[0] X^2 + c[1] X + c[2]
 // and stores them (when they exist) and their respective multiplicities.
-// Returns either the number of roots, or -1 if ininite number of roots.
+// Returns either the number of roots, or -1 if infinite number of roots.
 int vtkPolynomialSolversUnivariate::SolveQuadratic(double* c, double* r, int* m)
 {
   if (c[0] == 0.0)

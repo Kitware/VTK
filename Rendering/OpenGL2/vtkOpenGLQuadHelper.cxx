@@ -97,7 +97,7 @@ void vtkOpenGLQuadHelper::ReleaseGraphicsResources(vtkWindow*)
     this->VAO->ReleaseGraphicsResources();
   }
 
-  // Owner is shader cache. When the render window releases it's graphic ressources,
+  // Owner is shader cache. When the render window releases it's graphic resources,
   // OpenGL state is deleted, so the cache is deleted as well.
   this->Program = nullptr;
 }

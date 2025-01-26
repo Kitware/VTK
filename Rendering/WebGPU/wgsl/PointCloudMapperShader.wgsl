@@ -74,7 +74,7 @@ fn pointCloudRenderEntryPoint(@builtin(global_invocation_id) id: vec3<u32>, @bui
         var color = vec4f(0.8f, 0.8f, 0.8f, 1.0f);
         if (pointIndex < arrayLength(&pointColorBuffer))
         {
-          // Unpacking the one u32 point color to independant RGBA channels
+          // Unpacking the one u32 point color to independent RGBA channels
           let r = f32((pointColorBuffer[pointIndex] & u32(0xFF <<  0)) >>  0) / 255.0f;
           let g = f32((pointColorBuffer[pointIndex] & u32(0xFF <<  8)) >>  8) / 255.0f;
           let b = f32((pointColorBuffer[pointIndex] & u32(0xFF << 16)) >> 16) / 255.0f;

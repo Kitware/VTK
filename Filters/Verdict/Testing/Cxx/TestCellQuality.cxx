@@ -114,7 +114,7 @@ bool CheckAreaMetricForPixel()
   cellQualityFilter->SetQualityMeasureToArea();
   cellQualityFilter->Update();
 
-  vtkLog(INFO, "Verify metrics outputed on some indices");
+  vtkLog(INFO, "Verify metrics outputted on some indices");
   std::array<int, 5> indicesChecked = { 0, 2, 4, 9, 14 };
   std::array<double, 5> expectedValues = { 0.5, 1, 2, 6, 10 };
 
@@ -152,7 +152,7 @@ bool CheckAreaMetricForTriangleStrip()
   cellQualityFilter->SetQualityMeasureToArea();
   cellQualityFilter->Update();
 
-  vtkLog(INFO, "Verify metrics outputed on some indices");
+  vtkLog(INFO, "Verify metrics outputted on some indices");
   std::array<double, 5> expectedValues = { 0.5, 0.875 };
 
   auto* result = vtkUnstructuredGrid::SafeDownCast(cellQualityFilter->GetOutputDataObject(0));

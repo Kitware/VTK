@@ -69,7 +69,7 @@ public:
    * always less than the input buffer size, so a good first order
    * approximation is to allocate the same size. Base64 encoding is about
    * 4/3 overhead, so a tighter bound is possible.
-   * Return the number of bytes atually placed into the output buffer.
+   * Return the number of bytes actually placed into the output buffer.
    */
   static size_t DecodeSafely(
     const unsigned char* input, size_t inputLen, unsigned char* output, size_t outputLen);

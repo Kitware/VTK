@@ -344,12 +344,12 @@ public:
   vtkIdType AddMeshVertex(vtkIdType vertexId, double scalar);
 
   // Description:
-  //   Add a triangle from the mesh to the Reeb grpah.
+  //   Add a triangle from the mesh to the Reeb graph.
   int AddMeshTriangle(
     vtkIdType vertex0Id, double f0, vtkIdType vertex1Id, double f1, vtkIdType vertex2Id, double f2);
 
   // Description:
-  //   Add a tetrahedron from the mesh to the Reeb grpah.
+  //   Add a tetrahedron from the mesh to the Reeb graph.
   int AddMeshTetrahedron(vtkIdType vertex0Id, double f0, vtkIdType vertex1Id, double f1,
     vtkIdType vertex2Id, double f2, vtkIdType vertex3Id, double f3);
 

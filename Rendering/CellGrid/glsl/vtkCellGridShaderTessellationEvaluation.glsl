@@ -7,7 +7,7 @@
 /// A comma separated list of strings with one or more of the following options:
 /// 1. The shape of the abstract patch which will be tessellated - isolines, triangles, quads.
 /// 2. The type of spacing between tessellated vertices - cw, ccw
-/// 3. The ordering of tesselated vertices that primitive generator must use - isolines, triangles, quads
+/// 3. The ordering of tessellated vertices that primitive generator must use - isolines, triangles, quads
 /// 4. Whether points must be rendered - point_mode
 layout({TessellationOptions}) in;
 

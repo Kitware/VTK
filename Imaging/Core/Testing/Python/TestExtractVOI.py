@@ -40,7 +40,7 @@ voi.SetInputData(im)
 voi.SetVOI(-11, 39, 5, 45, 0, 0)
 voi.SetSampleRate(5, 5, 1)
 
-# Get rid of ambiguous triagulation issues.
+# Get rid of ambiguous triangulation issues.
 surf = vtkDataSetSurfaceFilter()
 surf.SetInputConnection(voi.GetOutputPort())
 

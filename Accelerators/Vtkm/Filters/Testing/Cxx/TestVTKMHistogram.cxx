@@ -315,7 +315,7 @@ void testHistogramWithPointData(vtkmHistogram* filter, bool isPointType)
   VerifyHistogram(filter, isPointType);
 }
 
-} // anomynous namespace
+} // anonymous namespace
 
 int TestVTKMHistogram(int, char*[])
 {

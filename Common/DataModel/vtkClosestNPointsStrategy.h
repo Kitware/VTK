@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
 
-  // Re-use any superclass signatures that we don't override.
+  // Reuse any superclass signatures that we don't override.
   using vtkClosestPointStrategy::Initialize;
 
   /**

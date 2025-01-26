@@ -20,7 +20,7 @@ vtkImageStencilAlgorithm::vtkImageStencilAlgorithm()
   vtkImageStencilData* output = vtkImageStencilData::New();
   this->GetExecutive()->SetOutputData(0, output);
 
-  // Releasing data for pipeline parallism.
+  // Releasing data for pipeline parallelism.
   // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();

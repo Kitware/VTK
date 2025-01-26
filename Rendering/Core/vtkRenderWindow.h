@@ -164,7 +164,7 @@ public:
 
   ///@{
   /**
-   * Get/set whether or not the window has been initilized yet.
+   * Get/set whether or not the window has been initialized yet.
    */
   vtkGetMacro(Initialized, bool);
   ///@}

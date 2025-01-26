@@ -21,7 +21,7 @@ public:
     char const* message, void* userdata = nullptr);
 
   /**
-   * Callback called when an error occured in the manipulation of WGPU
+   * Callback called when an error occurred in the manipulation of WGPU
    */
   static void UncapturedErrorCallback(
     WGPUErrorType type, char const* message, void* userdata = nullptr);

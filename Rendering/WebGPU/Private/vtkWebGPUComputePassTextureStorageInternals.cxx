@@ -102,7 +102,7 @@ bool vtkWebGPUComputePassTextureStorageInternals::CheckTextureCorrectness(
     vtkLog(ERROR,
       "The texture with label "
         << textureLabel
-        << " had one of its size (width, heigh or depth) 0. Did you forget to call SetSize()?");
+        << " had one of its size (width, height or depth) 0. Did you forget to call SetSize()?");
 
     return false;
   }
@@ -859,7 +859,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
   wgpu::Extent3D copySize = { mipLevelWidth, mipLevelHeight, texture->GetDepth() };
   commandEncoder.CopyTextureToBuffer(&imageCopyTexture, &imageCopyBuffer, &copySize);
 
-  // Submitting the comand
+  // Submitting the command
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->ParentPassWGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 

@@ -38,7 +38,7 @@ public:
   void SetScalarModeToPointData() { this->SetCellScalarsFlag(0); }
   int GetScalarMode() { return this->CellScalarsFlag; }
 
-  // Dscription:
+  // Description:
   // This option uses a random mapping between pieces and scalar values.
   // The scalar values are chosen between 0 and 1.  By default, random mode is off.
   vtkSetMacro(RandomMode, vtkTypeBool);

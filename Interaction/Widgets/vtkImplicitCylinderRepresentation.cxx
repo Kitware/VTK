@@ -1237,7 +1237,7 @@ void vtkImplicitCylinderRepresentation::BuildCylinder()
   double n1[3], n2[3];
   for (i = 0; i < 3; i++)
   {
-    // a little trick to find an othogonal normal
+    // a little trick to find an orthogonal normal
     if (axis[i] != 0.0)
     {
       n1[(i + 2) % 3] = 0.0;

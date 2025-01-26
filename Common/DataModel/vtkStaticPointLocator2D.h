@@ -89,7 +89,7 @@ public:
   vtkGetVectorMacro(Divisions, int, 2);
   ///@}
 
-  // Re-use any superclass signatures that we don't override.
+  // Reuse any superclass signatures that we don't override.
   using vtkAbstractPointLocator::FindClosestNPoints;
   using vtkAbstractPointLocator::FindClosestPoint;
   using vtkAbstractPointLocator::FindPointsWithinRadius;

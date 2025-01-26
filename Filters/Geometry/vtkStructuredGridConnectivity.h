@@ -395,7 +395,7 @@ protected:
    * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
-   * <li> FRONT  = 0 (+k diretion)  </li>
+   * <li> FRONT  = 0 (+k direction) </li>
    * <li> BACK   = 1 (-k direction) </li>
    * <li> RIGHT  = 2 (+i direction) </li>
    * <li> LEFT   = 3 (-i direction) </li>
@@ -411,7 +411,7 @@ protected:
    * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
-   * <li> FRONT  = 0 (+k diretion)  </li>
+   * <li> FRONT  = 0 (+k direction) </li>
    * <li> BACK   = 1 (-k direction) </li>
    * <li> RIGHT  = 2 (+i direction) </li>
    * <li> LEFT   = 3 (-i direction) </li>
@@ -427,7 +427,7 @@ protected:
    * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
-   * <li> FRONT  = 0 (+k diretion)  </li>
+   * <li> FRONT  = 0 (+k direction) </li>
    * <li> BACK   = 1 (-k direction) </li>
    * <li> RIGHT  = 2 (+i direction) </li>
    * <li> LEFT   = 3 (-i direction) </li>

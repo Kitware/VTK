@@ -238,7 +238,7 @@ void compareResliceImage(vtkImagePlaneWidget* straightWidget, vtkImagePlaneWidge
     }
   }
 
-  vtkLogIf(ERROR, false, "Slices are differents");
+  vtkLogIf(ERROR, false, "Slices are different");
 }
 
 //------------------------------------------------------------------------------

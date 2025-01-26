@@ -126,7 +126,7 @@ int vtkXMLPartitionedDataSetCollectionWriter::RequestData(
       ++localOffset;
     }
 
-    // pass written filenames to root node. Returned valie is non empty only on root node.
+    // pass written filenames to root node. Returned value is non empty only on root node.
     allFilenames[pidx] = vtkXMLWriter2::Gather(controller, allFilenames[pidx], 0);
   }
 

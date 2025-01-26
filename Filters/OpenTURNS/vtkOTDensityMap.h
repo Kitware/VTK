@@ -100,7 +100,7 @@ public:
    * Methods to set / get number of points to compute
    * the contour values approximations using a LogPDF.
    * It ensure the DensityLogPDFSampleCache time is modified.
-   * Modyfying the parameter will trigger a recomputation of the
+   * Modifying the parameter will trigger a recomputation of the
    * LogPDF only, 600 by default
    */
   vtkGetMacro(ContourApproximationNumberOfPoints, int);

@@ -84,7 +84,7 @@ var vtkWebAssemblyRenderWindowInteractor = {
    * ```cpp
    * vtkCreateTimer(1000, true, callbackFunc, (void*)userData);
    * ```
-   * @param {number} duration in miliseconds
+   * @param {number} duration in milliseconds
    * @param {boolean} isOneShot whether the timer is one shot i.e, setTimeout vs setInterval
    * @param {number} callback pointer to a C/C++ callback function
    * @param {number} userData pointer to a a void* argument which will be passed to callback. This is a vtkWebAssemblyRenderWindowInteractor::TimerBridgeData

@@ -156,7 +156,7 @@ int vtkOFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   auto polys = vtkSmartPointer<vtkCellArray>::New();
   polys->Allocate(numPolys);
 
-  // scaling factor for the progess bar
+  // scaling factor for the progress bar
   double progressScale = 1.0 / double(numPoints + numPoints);
 
   // now let's try to parse the point coordinates

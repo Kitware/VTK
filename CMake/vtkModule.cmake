@@ -749,7 +749,7 @@ function (vtk_module_scan)
     endif ()
 
     # Throw error when mutually exclusive options are present.
-    # When a module opts into marshalling, it requries the hierarchy
+    # When a module opts into marshalling, it requires the hierarchy
     if (${_vtk_scan_module_name}_EXCLUDE_WRAP AND ${_vtk_scan_module_name}_INCLUDE_MARSHAL)
       message(FATAL_ERROR
         "The ${_vtk_scan_module_name} module can not declare `EXCLUDE_WRAP` and `INCLUDE_MARSHAL` at the same time.")
@@ -4204,7 +4204,7 @@ function (vtk_module_add_module name)
     # XXX(cmake-3.23): file sets
     if (NOT _vtk_build_USE_FILE_SETS OR
         CMAKE_VERSION VERSION_LESS "3.23" OR
-        # XXX(cmake-3.19): Using a non-`INTERACE` `FILE_SET`s with `INTERFACE`
+        # XXX(cmake-3.19): Using a non-`INTERFACE` `FILE_SET`s with `INTERFACE`
         # targets is not yet supported.
         (CMAKE_VERSION VERSION_LESS "3.19" AND
          _vtk_add_module_HEADER_ONLY))

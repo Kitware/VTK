@@ -223,7 +223,7 @@ vtkInformationVector* vtkExecutive::GetOutputInformation()
   int oldNumberOfPorts = this->OutputInformation->GetNumberOfInformationObjects();
   this->OutputInformation->SetNumberOfInformationObjects(this->GetNumberOfOutputPorts());
 
-  // For any new information obects, set the executive pointer and
+  // For any new information objects, set the executive pointer and
   // port number on the information object to tell it what produces
   // it.
   int nop = this->Algorithm->GetNumberOfOutputPorts();

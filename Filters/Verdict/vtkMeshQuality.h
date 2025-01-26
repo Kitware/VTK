@@ -107,7 +107,7 @@ public:
    * - SKEW: measures the angle between the principal axes
    * - TAPER: represents the ratio of the areas of two triangles separated by a
    *          diagonal within a quadrilateral face
-   * - WARPAGE: indicates that a face is not planar for 2D elments with 4 nodes.
+   * - WARPAGE: indicates that a face is not planar for 2D elements with 4 nodes.
    */
   enum class QualityMeasureTypes
   {

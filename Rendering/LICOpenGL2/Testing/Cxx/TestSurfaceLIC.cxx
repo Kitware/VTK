@@ -103,7 +103,7 @@ int TestSurfaceLIC(int argc, char* argv[])
   arg.AddArgument("--noise-gen-seed", argT::EQUAL_ARGUMENT, &noise_gen_seed,
     "(optional: default 1) set the seed to the random number generator");
   arg.AddArgument("--enhance-contrast", argT::EQUAL_ARGUMENT, &enhance_contrast,
-    "(optional: default 0) Nomralize colors after each pass");
+    "(optional: default 0) Normalize colors after each pass");
   arg.AddArgument("--low-lic-contrast-enhancement-factor", argT::EQUAL_ARGUMENT,
     &low_lic_contrast_enhancement_factor,
     "(optional: default 0) lower normalization factor 0 is the min");

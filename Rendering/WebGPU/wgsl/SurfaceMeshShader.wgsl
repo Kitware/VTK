@@ -288,7 +288,7 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
 
     let render_lines_as_tubes = getRenderLinesAsTubes(actor.render_options.flags);
     if (render_lines_as_tubes) {
-      if (d < 1.1 * half_linewidth) { // extend 10% to hide jagged artifacts on the edge-surface interace.
+      if (d < 1.1 * half_linewidth) { // extend 10% to hide jagged artifacts on the edge-surface interface.
         normal_vc.z = 1.0 - (d / half_linewidth);
       }
     }

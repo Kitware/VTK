@@ -816,7 +816,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport* viewport)
       this->LegendActor->ScalarVisibilityOff();
     }
 
-    // Rebuid text props
+    // Rebuild text props
     // Perform shallow copy here since each individual axis can be
     // accessed through the class API ( i.e. each individual axis text prop
     // can be changed ). Therefore, we can not just assign pointers otherwise

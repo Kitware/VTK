@@ -194,7 +194,7 @@ void TripAll(vtkHyperTreeGrid* htGrid)
 //    particular case -1 : checked all index (iTest == 0)
 //    0 to ... : checked neighbor index tree (iTest != 0)
 // allTreeIndex : expected result neighbor index tree
-// maskedRootCellsTree : indexs of cells masked
+// maskedRootCellsTree : indices of cells masked
 void Trip(vtkHyperTreeGrid* htGrid, const std::vector<double>& originHTG,
   const std::vector<vtkIdType>& inputTreeIndex,
 #ifndef NDEBUG
@@ -239,11 +239,11 @@ void Trip(vtkHyperTreeGrid* htGrid, const std::vector<double>& originHTG,
           GuruMeditation(iTest, "The level of origin cell of an HT is always 0 !"));
         assert(supercursor->GetGlobalNodeIndex(iC) <= htGrid->GetGlobalNodeIndexMax() ||
           GuruMeditation(iTest,
-            "The global node index of origin cell of an HT is always lower and egal than global "
+            "The global node index of origin cell of an HT is always lower and equal than global "
             "node index max !"));
         assert((htGrid->GetGlobalNodeIndexMax() + 1) == htGrid->GetNumberOfCells() ||
-          GuruMeditation(
-            iTest, "The global node index max more one is egal a number of cells, in this case !"));
+          GuruMeditation(iTest,
+            "The global node index max more one is equal a number of cells, in this case !"));
 #ifndef NDEBUG
         const vtkIdType crtTreeIndex =
 #endif
@@ -251,21 +251,21 @@ void Trip(vtkHyperTreeGrid* htGrid, const std::vector<double>& originHTG,
         if (!supercursor->IsMasked(iC))
         {
           assert(!maskedRootCellsTree[crtTreeIndex] ||
-            GuruMeditation(iTest, "expected neighboor not masked", htGrid, originHTG, supercursor));
+            GuruMeditation(iTest, "expected neighbor not masked", htGrid, originHTG, supercursor));
 
           assert(crtTreeIndex == allTreeIndex[iTest][iC] ||
-            GuruMeditation(iTest, "expected neighboor value", htGrid, originHTG, supercursor));
+            GuruMeditation(iTest, "expected neighbor value", htGrid, originHTG, supercursor));
         }
         else
         {
           assert(maskedRootCellsTree[crtTreeIndex] ||
-            GuruMeditation(iTest, "expected neighboor masked", htGrid, originHTG, supercursor));
+            GuruMeditation(iTest, "expected neighbor masked", htGrid, originHTG, supercursor));
         }
       }
       else
       {
         assert(allTreeIndex[iTest][iC] == -1 ||
-          GuruMeditation(iTest, "expected neighboor void", htGrid, originHTG, supercursor));
+          GuruMeditation(iTest, "expected neighbor void", htGrid, originHTG, supercursor));
       }
     } // _c
   }

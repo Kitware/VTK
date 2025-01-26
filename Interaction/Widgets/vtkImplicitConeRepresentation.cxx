@@ -1133,7 +1133,7 @@ void vtkImplicitConeRepresentation::BuildCone()
   }
   this->ConePD->Modified();
 
-  // Create the edges polydata manually (feature edge extractor generates an unecessary edge)
+  // Create the edges polydata manually (feature edge extractor generates an unnecessary edge)
   this->EdgesPD->Reset();
 
   // Copy all points except the cone origin

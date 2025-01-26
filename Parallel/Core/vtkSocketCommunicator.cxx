@@ -819,7 +819,7 @@ int vtkSocketCommunicator::ReceiveTagged(
         // data.
         if (this->LogStream)
         {
-          *this->LogStream << "Bufferring last message (" << recvTag << ")" << endl;
+          *this->LogStream << "Buffering last message (" << recvTag << ")" << endl;
         }
         this->ReceivedMessageBuffer->Push(recvTag, length, ptr);
       }

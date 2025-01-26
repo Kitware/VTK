@@ -351,7 +351,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState* s)
 
     if (colorTexGL != 0 && depthTexGL != 0 && windowOpenGL != nullptr)
     {
-      // for visRTX, re-use existing OpenGL texture provided
+      // for visRTX, reuse existing OpenGL texture provided
       this->Internal->SharedColorTexture->AssignToExistingTexture(colorTexGL, GL_TEXTURE_2D);
       this->Internal->SharedDepthTexture->AssignToExistingTexture(depthTexGL, GL_TEXTURE_2D);
 

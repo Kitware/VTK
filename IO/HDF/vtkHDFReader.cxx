@@ -1201,7 +1201,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
       for (const auto& numCell : numberOfCellsBefore[vtkHDFUtilities::POLY_DATA_TOPOS[iTopo]])
       {
         // No need to iterate if there is no offsetting on the connectivity. Otherwise, we
-        // accumulate the number of part until we reach the current offset, it's usefull to retrieve
+        // accumulate the number of part until we reach the current offset, it's useful to retrieve
         // the real cell offset
         if (numCellSum >= startingCellOffsets[iTopo])
         {
@@ -1707,7 +1707,7 @@ bool vtkHDFReader::AddOriginalIds(
 {
   if (attributes->GetAbstractArray(name.c_str()) != nullptr)
   {
-    return false; // An array with original ids (or atleast the same name) shouldn't exist already.
+    return false; // An array with original ids (or at least the same name) shouldn't exist already.
   }
   vtkNew<vtkAffineArray<vtkIdType>> ids;
   ids->SetBackend(std::make_shared<vtkAffineImplicitBackend<vtkIdType>>(1, 0));

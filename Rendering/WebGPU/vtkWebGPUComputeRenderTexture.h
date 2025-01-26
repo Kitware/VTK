@@ -26,7 +26,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * What type of texture of the vtk render pipeline is this ComputeRenderTexture refering to.
+   * What type of texture of the vtk render pipeline is this ComputeRenderTexture referring to.
    *
    * UNDEFINED: Undefined. Default.
    * DEPTH_BUFFER: When this ComputeRenderTexture refers to the depth buffer of a
@@ -90,7 +90,7 @@ private:
     vtkWebGPUComputeTextureView::TextureViewAspect::ASPECT_ALL;
 
   // We may want vtkWebGPUComputePipeline::AddTexture() not to create a new device texture for this
-  // vtkWebGPUComputeBuffer but rather use an exisiting one that has been created elsewhere (by a
+  // vtkWebGPUComputeBuffer but rather use an existing one that has been created elsewhere (by a
   // webGPUPolyDataMapper for example). This is the attribute that points to this 'already existing'
   // buffer.
   wgpu::Texture WebGPUTexture = nullptr;
@@ -105,7 +105,7 @@ private:
   vtkWeakPointer<vtkWebGPUComputePass> AssociatedComputePass = nullptr;
 
   /**
-   * What type of texture is this ComputeRenderTexture refering to.
+   * What type of texture is this ComputeRenderTexture referring to.
    */
   RenderTextureType Type = UNDEFINED;
 };

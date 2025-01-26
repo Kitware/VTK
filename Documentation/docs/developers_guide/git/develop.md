@@ -391,7 +391,7 @@ methods:
 
  1. Navigate to your fork (change the username in the URL): (https://gitlab.kitware.com/username/vtk/)
  2. Click on `Settings > General`, then expand "Visibility, project features, permissions"
- 3. Make sure `Project Visbility` is `Public` and `CI/CD` is enabled for `Everyone With Access`
+ 3. Make sure `Project Visibility` is `Public` and `CI/CD` is enabled for `Everyone With Access`
  4. Click on `Settings > CI/CD`, then expand `General`
  5. Make sure `Public Pipelines` is enabled
 

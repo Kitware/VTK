@@ -29,7 +29,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   this->DataSetType = VTK_POLY_DATA;
   vtkPolyData* output = vtkPolyData::New();
   this->GetExecutive()->SetOutputData(0, output);
-  // Releasing data for pipeline parallism.
+  // Releasing data for pipeline parallelism.
   // Filters will know it is empty.
   output->ReleaseData();
   output->Delete();

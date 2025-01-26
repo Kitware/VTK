@@ -12,7 +12,7 @@
  * This mapper assumes that the points are located on the x-y plane
  * and that the camera remains perpendicular to that plane with a y-up
  * axis (this can be constrained using vtkImageInteractor).
- * On the first render, the mapper computes the visiblility of all labels
+ * On the first render, the mapper computes the visibility of all labels
  * at all scales, and queries this information on successive renders.
  * This causes the first render to be much slower. The visibility algorithm
  * is a greedy approach based on the point id, so the label for a point

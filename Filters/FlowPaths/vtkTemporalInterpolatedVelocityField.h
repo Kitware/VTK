@@ -11,7 +11,7 @@
  * and uses them to obtain velocity values at time T0 and T1.
  *
  * In fact the class does quite a bit more than this because when the geometry
- * of the datasets is the same at T0 and T1, we can re-use cached cell Ids and
+ * of the datasets is the same at T0 and T1, we can reuse cached cell Ids and
  * weights used in the cell interpolation routines.
  * Additionally, the same weights can be used when interpolating (point) scalar
  * values and computing vorticity etc.

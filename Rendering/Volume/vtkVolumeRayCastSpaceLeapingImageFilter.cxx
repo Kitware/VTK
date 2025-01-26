@@ -815,7 +815,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
   const int nComponents = (this->GetIndependentComponents()) ? components : 1;
 
   // Clear the output if we are computing the min-max. In other cases, we
-  // will be re-using the cache. (See the method AllocateOutputData)
+  // will be reusing the cache. (See the method AllocateOutputData)
 
   if (this->ComputeMinMax)
   {

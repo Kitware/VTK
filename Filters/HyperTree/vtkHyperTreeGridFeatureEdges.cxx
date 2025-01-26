@@ -267,7 +267,7 @@ bool vtkHyperTreeGridFeatureEdges::ShouldAddEdge2D(
 
   // A leaf cell generate an edge if:
   // - The cell is visible and there is no visible neighbor (of same level) sharing the edge
-  // - The cell is masked and there is a visible neigbor of inferior level (leaf) sharing the edge
+  // - The cell is masked and there is a visible neighbor of inferior level (leaf) sharing the edge
   return (!cursor->IsMasked() && !neighborVisible(neighborId)) ||
     (cursor->IsMasked() && neighborVisible(neighborId) &&
       cursor->GetLevel(neighborId) < cursor->GetLevel());

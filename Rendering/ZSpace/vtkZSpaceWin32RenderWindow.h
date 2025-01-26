@@ -46,7 +46,7 @@ public:
 
   /**
    * Begin the rendering process.
-   * Overriden to notify the zSpace SDK for the beginning of a frame
+   * Overridden to notify the zSpace SDK for the beginning of a frame
    * as early as possible. This is useful to improve tracking.
    */
   void Start() override;
@@ -54,7 +54,7 @@ public:
   /**
    * Initialize the rendering window.  This will setup all system-specific
    * resources.
-   * Overriden to let the zSpace API create its internal OpenGL resources
+   * Overridden to let the zSpace API create its internal OpenGL resources
    * as well.
    */
   void Initialize() override;

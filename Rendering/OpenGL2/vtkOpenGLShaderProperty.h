@@ -97,7 +97,7 @@ public:
 
   /**
    * @brief GetAllShaderReplacements returns all user-specified shader
-   * replacements. It is provided for iteration purpuses only (const)
+   * replacements. It is provided for iteration purposes only (const)
    * and is mainly used by mappers when building the shaders.
    * @return const reference to internal map holding all replacements
    */

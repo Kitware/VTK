@@ -93,7 +93,7 @@ public:
 
 //------------------------------------------------------------------------------
 /**
- * Simple filter that will be our cache consummer.
+ * Simple filter that will be our cache consumer.
  * Only ShallowCopy input to output.
  */
 class vtkConsumerDataFilter : public vtkPassInputTypeAlgorithm
@@ -106,7 +106,7 @@ public:
     vtkInformationVector* outputVector) override;
 
   /**
-   * Get ouptut data as composite dataset.
+   * Get output data as composite dataset.
    */
   vtkCompositeDataSet* GetCompositeOutput();
 };

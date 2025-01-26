@@ -133,8 +133,8 @@ void vtkCameraOrientationWidget::SetParentRenderer(vtkRenderer* parentRen)
       // We do it like that because the viewport (xmin,xmax, ymin, ymax) of the DefaultRenderer
       // may be different than the previously computed values. Otherwise, in a
       // serialization/deserialization setup, the viewport values could revert back since a resize
-      // event is never trigerred upon deserialization. This approach is acceptable since the
-      // SquareResize method is qutie efficient.
+      // event is never triggered upon deserialization. This approach is acceptable since the
+      // SquareResize method is quite efficient.
       this->ResizeObserverTag = renWin->AddObserver(
         vtkCommand::StartEvent, this, &vtkCameraOrientationWidget::SquareResize);
     }

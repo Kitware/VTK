@@ -101,7 +101,7 @@ public:
 
   /**
    * Import the actors, cameras, lights and properties into a vtkRenderWindow
-   * and return if it was sucessful of not.
+   * and return if it was successful of not.
    */
   VTK_UNBLOCKTHREADS
   bool Update();
@@ -109,7 +109,7 @@ public:
   /**
    * Import the actors, cameras, lights and properties into a vtkRenderWindow
    */
-  VTK_DEPRECATED_IN_9_4_0("This method is deprected, please use Update instead")
+  VTK_DEPRECATED_IN_9_4_0("This method is deprecated, please use Update instead")
   void Read() { this->Update(); };
 
   /**
@@ -174,7 +174,7 @@ public:
   /**
    * Import the actors, camera, lights and properties at a specific time value.
    */
-  VTK_DEPRECATED_IN_9_4_0("This method is deprected, please use UpdateAtTimeValue instead")
+  VTK_DEPRECATED_IN_9_4_0("This method is deprecated, please use UpdateAtTimeValue instead")
   virtual void UpdateTimeStep(double timeValue);
 
   /**

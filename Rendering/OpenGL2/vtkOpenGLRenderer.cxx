@@ -122,7 +122,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   shaderProperty->AddFragmentShaderReplacement("//VTK::Color::Dec", true, "", false);
   shaderProperty->AddFragmentShaderReplacement("//VTK::Color::Impl", true, "", false);
 
-  // add gradient parameters as unforms.
+  // add gradient parameters as uniforms.
   shaderProperty->AddFragmentShaderReplacement("//VTK::CustomUniforms::Dec",
     /*replaceFirst=*/true,
     R"(

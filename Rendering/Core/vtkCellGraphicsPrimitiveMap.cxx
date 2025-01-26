@@ -37,7 +37,7 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
   if (mesh->GetVerts()->GetMaxCellSize() > 1)
   {
     vtkDebugWithObjectMacro(mesh, << "Might run out of memory because there are poly vertices.");
-    // tesselate polyverts into vertices only when there are polyverts with vertex count > 1
+    // tessellate polyverts into vertices only when there are polyverts with vertex count > 1
     // incurs extra memory, so warn about it.
     result.VertexIDs = vtkSmartPointer<vtkTypeInt32Array>::New();
     result.VertexIDs->SetNumberOfComponents(1);
@@ -78,7 +78,7 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
   result.PrimitiveSize = 2;
   if (mesh->GetLines()->GetMaxCellSize() > 2)
   {
-    // tesselate polylines into line segments only when there are polylines with vertex count > 2
+    // tessellate polylines into line segments only when there are polylines with vertex count > 2
     // incurs extra memory, so warn about it.
     vtkDebugWithObjectMacro(mesh, << "Might run out of memory because there are polylines.");
     result.VertexIDs = vtkSmartPointer<vtkTypeInt32Array>::New();
@@ -123,7 +123,7 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
   vtkDataArray* ef = mesh->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
   if (mesh->GetPolys()->GetMaxCellSize() > 3)
   {
-    // tesselate polygons into triangles only when there are polygons with vertex count > 3
+    // tessellate polygons into triangles only when there are polygons with vertex count > 3
     // incurs extra memory, so warn about it.
     vtkDebugWithObjectMacro(
       mesh, << "Might run out of memory because there are polygons with greater than 3 points.");

@@ -30,11 +30,11 @@
  *
  * There are cases where the user does not have access to the entire time series at once. This
  * compromises filters that have `IntegrateFullTimeSeries` ON, and which rely on knowledge provided
- * by the information key `TIME_STEPS()`. The implementation of this algorithm provides a specal
- * mode for such circumstences. All the user needs to do is set the information key
+ * by the information key `TIME_STEPS()`. The implementation of this algorithm provides a special
+ * mode for such circumstances. All the user needs to do is set the information key
  * `NO_PRIOR_TEMPORAL_ACCESS()` in the sources.
  * If the information key `NO_PRIOR_TEMPORAL_ACCESS()` is set on the first input on port 0,
- * then this class will assume that the user is requesing time
+ * then this class will assume that the user is requesting time
  * steps in chronological order using `UpdateTimeStep(double)` and will provide a complete
  * output at each temporal iteration. Effectively, at each iteration, `Execute` and `Finalize` are
  * called. `Initialize` is called at the first iteration, or when `NO_PRIOR_TEMPORAL_ACCESS()` is

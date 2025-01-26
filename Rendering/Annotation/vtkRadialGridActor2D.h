@@ -45,7 +45,7 @@ public:
   int RenderOverlay(vtkViewport* viewport) override;
 
   /**
-   * Overriden as a no-op. Needed to avoid warnings/errors from Superclass.
+   * Overridden as a no-op. Needed to avoid warnings/errors from Superclass.
    * Return 1.
    */
   int RenderOpaqueGeometry(vtkViewport*) override { return 1; }

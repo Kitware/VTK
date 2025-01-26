@@ -176,7 +176,7 @@ void vtkExodusIICache::Insert(vtkExodusIICacheKey& key, vtkDataArray* value)
     it->second->Value->Delete();
     it->second->Value = value;
     it->second->Value->Register(
-      nullptr); // Since we re-use the cache entry, the constructor's Register won't get called.
+      nullptr); // Since we reuse the cache entry, the constructor's Register won't get called.
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
     cout << "Replacing " << VTK_EXO_PRT_KEY(it->first) << VTK_EXO_PRT_ARR(value) << "\n";

@@ -8,7 +8,7 @@
  * This class provides processing subroutines for vtkHyperTreeGridGhostCellsGenerator.
  * It keeps an internal state shared across routines called sequentially.
  *
- * It should be instanciated by the ProcessTrees method of vtkHyperTreeGridGhostCellsGenerator,
+ * It should be instantiated by the ProcessTrees method of vtkHyperTreeGridGhostCellsGenerator,
  * after the output HTG has been copied from the input.
  */
 
@@ -46,7 +46,7 @@ public:
     vtkMultiProcessController* controller, vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG);
 
   /**
-   * Initilize the internal cell data implicit array handler, with the
+   * Initialize the internal cell data implicit array handler, with the
    * cell arrays as the first entries of as many implicit composite arrays.
    */
   void InitializeCellData();

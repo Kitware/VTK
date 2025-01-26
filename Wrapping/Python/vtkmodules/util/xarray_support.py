@@ -304,7 +304,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
             # https://docs.xarray.dev/en/latest/internals/internal-design.html
             if is_coord[i] or v in coords_bounds:
                 # if there is subsetting in xarray, self._dsxr[v].values is
-                # not contiguous. If the array is not contigous, a contigous
+                # not contiguous. If the array is not contiguous, a contiguous
                 # copy is created otherwise the contiguous array is simply returned
                 v_data = np.ascontiguousarray(self._dsxr[v].values)
                 if (

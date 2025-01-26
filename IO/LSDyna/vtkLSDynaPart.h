@@ -51,7 +51,7 @@ public:
   void BuildToplogy();
 
   // Description:
-  // Returns if the toplogy for this part has been constructed
+  // Returns if the topology for this part has been constructed
   bool IsTopologyBuilt() const { return TopologyBuilt; }
 
   // Description:

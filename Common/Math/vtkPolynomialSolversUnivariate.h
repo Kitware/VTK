@@ -234,7 +234,7 @@ public:
    * REAL coefficients c[0] X^2 + c[1] X + c[2]
    * and stores them (when they exist) and their respective multiplicities
    * in the \a r and \a m arrays.
-   * Returns either the number of roots, or -1 if ininite number of roots.
+   * Returns either the number of roots, or -1 if infinite number of roots.
    */
   static int SolveQuadratic(double* c, double* r, int* m);
 

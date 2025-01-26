@@ -33,7 +33,7 @@
  * When `AdjustLabels` is on, vtkAxisActor2D also decides how to create reasonable
  * tick marks and labels. However, it does not follow `NumberOfLabels` target.
  *
- * `SnapLabelsToGrid` is a similar mode and should be prefered. It uses `NumberOfLabels`
+ * `SnapLabelsToGrid` is a similar mode and should be preferred. It uses `NumberOfLabels`
  * as a target to produce the list of labels. The number of labels and the range of values
  * may not match the number specified, but should be close.
  *
@@ -218,7 +218,7 @@ public:
    * adjusted for "nice" numerical values to make it easier to read
    * the labels.
    *
-   * When on (default), the `Range` is sligthly modified (see `AdjustedRange`),
+   * When on (default), the `Range` is slightly modified (see `AdjustedRange`),
    * and it creates `AdjustedNumberOfLabels` ticks.
    * When `AdjustedRange` is larger than `Range`, some ticks may be
    * outside of `Range`. They are not displayed.
@@ -622,7 +622,7 @@ private:
 
   /**
    * Set the title font size.
-   * Return the width and heigth of the title as box, in its local coordinates
+   * Return the width and height of the title as box, in its local coordinates
    */
   void SetTitleFontSize(vtkViewport* viewport, int box[2]);
 

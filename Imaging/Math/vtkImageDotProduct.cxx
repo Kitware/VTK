@@ -25,7 +25,7 @@ vtkImageDotProduct::vtkImageDotProduct()
 }
 
 //------------------------------------------------------------------------------
-// Colapse the first axis
+// Collapse the first axis
 int vtkImageDotProduct::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {

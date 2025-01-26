@@ -342,12 +342,12 @@ int vtkVectorFieldTopology::ComputeCriticalPoints2D(
     }
     vtkIdType indices[3] = { cell->GetPointId(0), cell->GetPointId(1), cell->GetPointId(2) };
 
-    // array with the coordinates of the three triagle points: coords[point][component]
+    // array with the coordinates of the three triangle points: coords[point][component]
     vtkVector3d coords[3] = { vtkVector3d(tridataset->GetPoint(indices[0])),
       vtkVector3d(tridataset->GetPoint(indices[1])),
       vtkVector3d(tridataset->GetPoint(indices[2])) };
 
-    // array with the vector values at the three triagle points: values[point][component]
+    // array with the vector values at the three triangle points: values[point][component]
     vtkVector3d values[3] = {
       vtkVector3d(
         tridataset->GetPointData()->GetArray(this->NameOfVectorArray)->GetTuple(indices[0])),
@@ -2121,7 +2121,7 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
       }
       else
       {
-        vtkErrorMacro("Dimention has to be either 2 or 3.\n");
+        vtkErrorMacro("Dimension has to be either 2 or 3.\n");
         return 0;
       }
 

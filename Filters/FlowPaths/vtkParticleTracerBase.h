@@ -20,7 +20,7 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkSmartPointer.h"      // For vtkSmartPointer
-#include "vtkTemporalAlgorithm.h" // Fro vtkTemporalAlgorithm
+#include "vtkTemporalAlgorithm.h" // For vtkTemporalAlgorithm
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
 
 #include <list>          // STL Header
@@ -230,7 +230,7 @@ public:
   ///@{
   /**
    * if StaticSeeds is set and the mesh is static,
-   * then every time particles are injected we can re-use the same
+   * then every time particles are injected we can reuse the same
    * injection information. We classify particles according to
    * processor just once before start.
    * If StaticSeeds is set and a moving seed source is specified

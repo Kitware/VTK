@@ -186,7 +186,7 @@ private:
 
   // Bind group index
   vtkIdType Group = -1;
-  // Binding withing the bind group
+  // Binding within the bind group
   vtkIdType Binding = -1;
   // The mode of the buffer can be read only, write only, read/write, ...
   BufferMode Mode = BufferMode::UNDEFINED;

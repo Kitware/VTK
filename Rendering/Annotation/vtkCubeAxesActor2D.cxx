@@ -438,7 +438,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   this->ZAxis->SetFontFactor(AxisFontFactor);
   this->ZAxis->SetProperty(this->GetProperty());
 
-  // Rebuid text props
+  // Rebuild text props
   // Perform shallow copy here since each individual axis can be
   // accessed through the class API (i.e. each individual axis text prop
   // can be changed). Therefore, we can not just assign pointers otherwise
@@ -863,7 +863,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport* viewport, double pts[8][3], doub
     return 1;
   }
 
-  // Get the 6 planes defining the view frustrum
+  // Get the 6 planes defining the view frustum
   viewport->GetAspect(aspect);
   this->Camera->GetFrustumPlanes((aspect[0] / aspect[1]), planes);
 
@@ -920,7 +920,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport* viewport, double pts[8][3], doub
   }
 
   // Now iteratively scale the bounding box until all points are inside
-  // the frustrum. Use bisection method.
+  // the frustum. Use bisection method.
   scale = 1.0;
   scale2 = 0.00001;
   val = this->EvaluateBounds(planes, bounds);

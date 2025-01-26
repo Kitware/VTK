@@ -429,8 +429,8 @@ private:
    * This function is used for 3D data because the vtkGeometryFilter -> vtkDataSetSurfaceFilter ->
    * vtkCellDataToPointData -> vtkContourFilter pipeline in the
    * ComputeSeparatricesBoundarySwitchLines function copies those arrays.
-   * @param source: A source is the input to filter whose datatype equls to vtkDataSet
-   * @param target: A target is BoundarySwitchLines whose datatype equls to vtkPolyData
+   * @param source: A source is the input to filter whose datatype equals to vtkDataSet
+   * @param target: A target is BoundarySwitchLines whose datatype equals to vtkPolyData
    */
   static void CopyBoundarySwitchLinesArray(vtkDataSet* source, vtkPolyData* target);
 

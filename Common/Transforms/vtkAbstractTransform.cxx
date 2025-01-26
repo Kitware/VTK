@@ -769,7 +769,7 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation* concat)
     this->TransformList = newList;
   }
 
-  // save the PreMatrix and PostMatrix in case they can be re-used
+  // save the PreMatrix and PostMatrix in case they can be reused
   vtkSimpleTransform* oldPreMatrixTransform = nullptr;
   vtkSimpleTransform* oldPostMatrixTransform = nullptr;
 
@@ -984,7 +984,7 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation* concat)
     }
   }
 
-  // delete the old PreMatrix and PostMatrix transforms if not re-used
+  // delete the old PreMatrix and PostMatrix transforms if not reused
   if (oldPreMatrixTransform)
   {
     oldPreMatrixTransform->Delete();

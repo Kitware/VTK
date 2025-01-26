@@ -364,7 +364,7 @@ bool vtkGDALRasterConverter::CopyToGDAL(vtkImageData* input, GDALDataset* output
     worker(array, output);
   }
 
-  // Finis
+  // Finish
   return true;
 }
 

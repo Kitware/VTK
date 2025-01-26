@@ -272,7 +272,7 @@ void vtkPerspectiveTransform::Ortho(
 }
 
 //------------------------------------------------------------------------------
-// The frustrum perspective maps a frustum with the front plane at -znear
+// The frustum perspective maps a frustum with the front plane at -znear
 // which has extent [xmin,xmax],[ymin,ymax] and a back plane at -zfar
 // to [-1,+1], [-1,+1], [-1,+1].
 // From the OpenGL Programmer's guide, 2nd Ed.

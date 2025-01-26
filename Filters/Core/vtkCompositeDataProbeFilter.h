@@ -75,7 +75,7 @@ public:
 
   ///@{
   /**
-   * Get/Set wether or not the filter should use implicit arrays.
+   * Get/Set whether or not the filter should use implicit arrays.
    * If set to true, probed values will not be copied to the output
    * but retrieved from the source through indexation (thanks to indexed arrays).
    * This can lower the memory consumption, especially if the probed source contains

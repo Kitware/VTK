@@ -229,7 +229,7 @@ public:
    * shaderSupportsTextureInt is true if the shader has an alternate
    * implementation supporting sampler with integer values.
    * Even if the card supports texture int, it does not mean that
-   * the implementor of the shader made a version that supports texture int.
+   * the implementer of the shader made a version that supports texture int.
    */
   bool Create1D(int numComps, vtkPixelBufferObject* pbo, bool shaderSupportsTextureInt);
 

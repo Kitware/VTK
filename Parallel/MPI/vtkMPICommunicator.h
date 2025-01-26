@@ -346,7 +346,7 @@ protected:
    * duplicated with MPI_Comm_dup(). Therefore, although the
    * processes in the communicator remain the same, a new context
    * is created. This prevents the two communicators from
-   * intefering with each other during message send/receives even
+   * interfering with each other during message send/receives even
    * if the tags are the same.
    */
   void Duplicate(vtkMPICommunicator* source);

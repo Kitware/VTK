@@ -392,7 +392,7 @@ int vtkPOpenFOAMReader::RequestInformation(
   int returnCode = 1;
 
   // Set handle piece request for all cases. Even if the reconstructed case is not actually
-  // distributed, we need all processes to go through RequestData everytime in order to go through
+  // distributed, we need all processes to go through RequestData every time in order to go through
   // "Gather" functions.
   outputVector->GetInformationObject(0)->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
 

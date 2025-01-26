@@ -108,10 +108,10 @@ public:
 
   ///@{
   /**
-   * Set/Get wether or not the filter should use implicit arrays to store the
+   * Set/Get whether or not the filter should use implicit arrays to store the
    * output contour values (stored as point data of the output contour).
-   * Since these values are the same fo each isosurface, some memory can be saved
-   * by storing each value only once unsing an indexed array.
+   * Since these values are the same for each isosurface, some memory can be saved
+   * by storing each value only once using an indexed array.
    *
    * @attention This option have no effect if there is more than 256 contour values.
    */

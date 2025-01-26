@@ -204,7 +204,7 @@ public:
    * Compute the average L2 norm between all point data data arrays
    * of types float and double present in the data sets "dsA" and "dsB"
    * (this includes instances of vtkPoints) Compare the result of
-   * each L2 comutation to "tol".
+   * each L2 computation to "tol".
    */
   int CompareAverageOfL2Norm(vtkDataSet* dsA, vtkDataSet* dsB, double tol);
 
@@ -287,7 +287,7 @@ public:
   ///@}
 
   /**
-   * Is a valid image specified on the command line areguments?
+   * Is a valid image specified on the command line arguments?
    */
   int IsValidImageSpecified();
 

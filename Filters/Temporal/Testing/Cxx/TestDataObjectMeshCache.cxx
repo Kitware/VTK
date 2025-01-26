@@ -159,7 +159,7 @@ bool TestModifiedTime(TestPipelineInterface* pipeline)
 
   pipeline->UpdateInputData(details::modifiedData[0]);
   status = cache->GetStatus();
-  vtkLogIf(ERROR, status != expected, "ModifiedTime: error data mtime should not interfer.");
+  vtkLogIf(ERROR, status != expected, "ModifiedTime: error data mtime should not interfere.");
   vtkLogIf(ERROR, !status.enabled(), "ModifedTime: expect valid cache.");
 
   pipeline->MarkConsumerModified();

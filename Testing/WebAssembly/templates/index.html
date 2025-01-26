@@ -157,7 +157,7 @@
           if (text.length > 0) {
             wasmStdOutErr.push(text);
             console.error(text);
-            // Some VTK tests write to stderr when they should infact write to stdout.
+            // Some VTK tests write to stderr when they should in fact write to stdout.
             // This block only posts exit code when the message has the word "Error" in all it's case avatars.
             if (text.includes('ERROR') || text.includes("Error") || text.includes("error")) {
               // catch some more of those "ERROR" messages to give some context before finalizing.

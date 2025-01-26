@@ -930,7 +930,7 @@ bool vtkGLTFDocumentLoader::LoadSkinMatrixData()
 {
   if (!this->LoadSkinMatrix)
   {
-    // Skip loading the skin bind matrces
+    // Skip loading the skin bind matrices
     return true;
   }
   AccessorLoadingWorker worker;

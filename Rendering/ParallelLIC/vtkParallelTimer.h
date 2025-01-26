@@ -19,7 +19,7 @@
  *  The log class implements the singleton pattern so that it
  *  may be shared across class boundaries. If the log instance
  *  doesn't exist then one is created. It will be automatically
- *  destroyed at exit by the signleton destructor. It can be
+ *  destroyed at exit by the singleton destructor. It can be
  *  destroyed explicitly by calling DeleteGlobalInstance.
  */
 
@@ -154,7 +154,7 @@ public:
    * The log class implements the singleton pattern so that it
    * may be shared across class boundaries. If the log instance
    * doesn't exist then one is created. It will be automatically
-   * destroyed at exit by the signleton destructor. It can be
+   * destroyed at exit by the singleton destructor. It can be
    * destroyed explicitly by calling DeleteGlobalInstance.
    */
   static vtkParallelTimer* GetGlobalInstance();
