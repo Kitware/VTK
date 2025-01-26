@@ -193,10 +193,10 @@ protected:
 
   // These point to the core data structures
 
-  std::shared_ptr<TIds> LinkSharedPtr;    // contiguous runs of cell ids
-  TIds* Links;                            // Pointer to the links array
-  std::shared_ptr<TIds> OffsetsSharedPtr; // offsets for each point into the links array
-  TIds* Offsets;                          // Pointer to the offsets array
+  std::shared_ptr<TIds[]> LinkSharedPtr;    // contiguous runs of cell ids
+  TIds* Links;                              // Pointer to the links array
+  std::shared_ptr<TIds[]> OffsetsSharedPtr; // offsets for each point into the links array
+  TIds* Offsets;                            // Pointer to the offsets array
 
   // Support for execution
   int Type;

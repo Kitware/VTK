@@ -188,12 +188,12 @@ protected:
    */
   void InsertCellReference(vtkIdType ptId, vtkIdType pos, vtkIdType cellId);
 
-  std::shared_ptr<Link> ArraySharedPtr; // Shared Ptr to Array
-  Link* Array;                          // pointer to data
-  vtkIdType Size;                       // allocated size of data
-  vtkIdType MaxId;                      // maximum index inserted thus far
-  vtkIdType Extend;                     // grow array by this point
-  Link* Resize(vtkIdType sz);           // function to resize data
+  std::shared_ptr<Link[]> ArraySharedPtr; // Shared Ptr to Array
+  Link* Array;                            // pointer to data
+  vtkIdType Size;                         // allocated size of data
+  vtkIdType MaxId;                        // maximum index inserted thus far
+  vtkIdType Extend;                       // grow array by this point
+  Link* Resize(vtkIdType sz);             // function to resize data
 
   // Some information recorded at build time
   vtkIdType NumberOfPoints;
