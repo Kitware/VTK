@@ -32,8 +32,8 @@ public:
     vtkRenderer* renderer, vtkActor* actor, vtkOpenGLLowMemoryPolyDataMapper* mapper) const;
 
   virtual bool ImplementsVertexVisibilityPass() const = 0;
-  inline void BeginVertexVisibilityPass() { this->InVertexVisibilityPass = true; }
-  inline void EndVertexVisibilityPass() { this->InVertexVisibilityPass = false; }
+  void BeginVertexVisibilityPass() { this->InVertexVisibilityPass = true; }
+  void EndVertexVisibilityPass() { this->InVertexVisibilityPass = false; }
 
 protected:
   virtual void PreDrawInternal(

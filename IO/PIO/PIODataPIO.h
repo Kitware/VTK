@@ -48,7 +48,7 @@ public:
   bool set_scalar_field(std::valarray<int64_t>&, const char*) override;
   bool set_scalar_field(std::valarray<double>&, const char*) override;
   bool set_vector_field(std::valarray<std::valarray<double>>&, const char*) override;
-  inline bool good_read() override { return (pio_field != nullptr) ? true : false; }
+  bool good_read() override { return (pio_field != nullptr) ? true : false; }
   const char* get_name() const { return name; }
   bool get_reverse_endian() const { return reverse_endian; }
   int get_PIO_VERSION() const { return PIO_VERSION; }
@@ -125,7 +125,7 @@ private:
   void ReadPioFieldData(PIO_FIELD& pio_field);
   bool read(const char*, const std::list<std::string>* fields_to_read = nullptr);
   bool read(const std::list<std::string>* fields_to_read = nullptr);
-  inline void byte_flip(char* word, int64_t size)
+  void byte_flip(char* word, int64_t size)
   {
     if (size_buf < (size_t)size)
     {
@@ -139,7 +139,7 @@ private:
   } // End byte_flip
 
   template <class T>
-  inline T read_pio_word(T& val)
+  T read_pio_word(T& val)
   {
     double word;
     this->Infile->read((char*)&word, sizeof(word));
@@ -149,7 +149,7 @@ private:
     return val;
   } // End read_pio_word
 
-  inline bool read_pio_bool()
+  bool read_pio_bool()
   {
     double word;
     this->Infile->read((char*)&word, sizeof(word));
@@ -158,7 +158,7 @@ private:
     return (word != 0) ? true : false;
   } // End read_pio_bool
 
-  inline void fstr2Cstr(char* s, size_t len) const
+  void fstr2Cstr(char* s, size_t len) const
   {
     s[len] = '\0';
     size_t i = len - 1;
@@ -169,7 +169,7 @@ private:
     } while (i != 0);
   } // End fstr2Cstr
 
-  inline char* read_pio_char_string(size_t len)
+  char* read_pio_char_string(size_t len)
   {
     if (size_buf <= len)
     {
@@ -185,7 +185,7 @@ private:
     return val;
   } // End read_pio_char_string
 
-  inline void insert_VAR_MAP_pairs()
+  void insert_VAR_MAP_pairs()
   {
     for (int i = 0; i < pio_num; ++i)
     {
@@ -201,7 +201,7 @@ private:
     }
   } // End insert_VAR_MAP_pairs
 
-  inline bool read_field(const char* pio_name, const std::list<std::string>* fields_to_read)
+  bool read_field(const char* pio_name, const std::list<std::string>* fields_to_read)
   {
     std::string spio_name = std::string(pio_name);
     if (fields_to_read == nullptr)

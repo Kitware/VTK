@@ -73,23 +73,20 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkXMLWriterHelper
 {
 public:
-  static inline void SetProgressPartial(vtkXMLWriter* writer, double progress)
+  static void SetProgressPartial(vtkXMLWriter* writer, double progress)
   {
     writer->SetProgressPartial(progress);
   }
-  static inline int WriteBinaryDataBlock(
+  static int WriteBinaryDataBlock(
     vtkXMLWriter* writer, unsigned char* in_data, size_t numWords, int wordType)
   {
     return writer->WriteBinaryDataBlock(in_data, numWords, wordType);
   }
-  static inline void* GetInt32IdTypeBuffer(vtkXMLWriter* writer)
+  static void* GetInt32IdTypeBuffer(vtkXMLWriter* writer)
   {
     return static_cast<void*>(writer->Int32IdTypeBuffer);
   }
-  static inline unsigned char* GetByteSwapBuffer(vtkXMLWriter* writer)
-  {
-    return writer->ByteSwapBuffer;
-  }
+  static unsigned char* GetByteSwapBuffer(vtkXMLWriter* writer) { return writer->ByteSwapBuffer; }
 };
 
 namespace

@@ -30,7 +30,7 @@ public:
   };
 
   template <typename T>
-  static inline void EncodeFloatFI(vtkX3DExporterFIByteWriter* writer, T* value, size_t size)
+  static void EncodeFloatFI(vtkX3DExporterFIByteWriter* writer, T* value, size_t size)
   {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
@@ -65,7 +65,7 @@ public:
   }
 
   template <typename T>
-  static inline void EncodeIntegerFI(vtkX3DExporterFIByteWriter* writer, T* value, size_t size)
+  static void EncodeIntegerFI(vtkX3DExporterFIByteWriter* writer, T* value, size_t size)
   {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
@@ -86,8 +86,7 @@ public:
     EncodeNonEmptyByteString5(writer, bytes);
   }
 
-  static inline void EncodeCharacterString3(
-    vtkX3DExporterFIByteWriter* writer, const std::string& value)
+  static void EncodeCharacterString3(vtkX3DExporterFIByteWriter* writer, const std::string& value)
   {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
@@ -101,7 +100,7 @@ public:
 
   // ITU C.23: Encoding of the NonEmptyByteString starting
   // on the fifth bit of an byte
-  static inline void EncodeNonEmptyByteString5(
+  static void EncodeNonEmptyByteString5(
     vtkX3DExporterFIByteWriter* writer, const std::string& value)
   {
     int length = static_cast<int>(value.length());
@@ -125,7 +124,7 @@ public:
 
   // ITU C.27: Encoding of integers in the range 1 to 2^20
   // starting on the third bit of an byte
-  static inline void EncodeInteger3(vtkX3DExporterFIByteWriter* writer, unsigned int value)
+  static void EncodeInteger3(vtkX3DExporterFIByteWriter* writer, unsigned int value)
   {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
@@ -154,7 +153,7 @@ public:
 
   // ITU C.25: Encoding of integers in the range 1 to 2^20
   // starting on the second bit of an byte
-  static inline void EncodeInteger2(vtkX3DExporterFIByteWriter* writer, unsigned int value)
+  static void EncodeInteger2(vtkX3DExporterFIByteWriter* writer, unsigned int value)
   {
     // We want to start at position 2
     assert(writer->CurrentBytePos == 1);
@@ -176,7 +175,7 @@ public:
     }
   }
 
-  static inline void EncodeLineFeed(vtkX3DExporterFIByteWriter* writer)
+  static void EncodeLineFeed(vtkX3DExporterFIByteWriter* writer)
   {
     static bool firstTime = true;
     writer->FillByte();
@@ -211,7 +210,7 @@ class X3DEncoderFunctions
 
 public:
   template <typename T>
-  static inline void EncodeIntegerDeltaZ(vtkX3DExporterFIByteWriter* writer, T* value, size_t size,
+  static void EncodeIntegerDeltaZ(vtkX3DExporterFIByteWriter* writer, T* value, size_t size,
     vtkZLibDataCompressor* compressor, bool image = false)
   {
     // We want to start at position 3
@@ -310,8 +309,8 @@ public:
     }
   }
 
-  static inline void EncodeQuantizedzlibFloatArray(vtkX3DExporterFIByteWriter* writer,
-    const double* value, size_t size, vtkZLibDataCompressor* compressor)
+  static void EncodeQuantizedzlibFloatArray(vtkX3DExporterFIByteWriter* writer, const double* value,
+    size_t size, vtkZLibDataCompressor* compressor)
   {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);

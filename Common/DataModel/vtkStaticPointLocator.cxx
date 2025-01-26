@@ -694,7 +694,7 @@ struct BucketList : public vtkBucketList
     }
 
     // The core merging process around the point ptId.
-    inline void MergePoint(vtkIdType ptId, vtkIdList* nearby)
+    void MergePoint(vtkIdType ptId, vtkIdList* nearby)
     {
       vtkIdType* mergeMap = this->MergeMap;
 

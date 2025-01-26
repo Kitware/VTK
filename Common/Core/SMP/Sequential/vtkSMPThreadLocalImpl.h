@@ -150,9 +150,9 @@ private:
     std::fill(this->Initialized.begin(), this->Initialized.end(), false);
   }
 
-  inline int GetNumberOfThreads() { return 1; }
+  int GetNumberOfThreads() { return 1; }
 
-  inline int GetThreadID() { return 0; }
+  int GetThreadID() { return 0; }
 
   // disable copying
   vtkSMPThreadLocalImpl(const vtkSMPThreadLocalImpl&) = delete;

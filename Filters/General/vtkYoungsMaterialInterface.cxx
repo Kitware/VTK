@@ -375,7 +375,7 @@ struct vtkYoungsMaterialInterface_IndexedValue
 {
   double value;
   int index;
-  inline bool operator<(const vtkYoungsMaterialInterface_IndexedValue& iv) const
+  bool operator<(const vtkYoungsMaterialInterface_IndexedValue& iv) const
   {
     return value < iv.value;
   }
@@ -458,7 +458,7 @@ struct CellInfo
   bool triangulationOk;
   bool needTriangulation;
 
-  inline CellInfo()
+  CellInfo()
     : dim(2)
     , np(0)
     , nf(0)
@@ -3039,7 +3039,7 @@ struct CWVertex
   double coord[3];
   double weight;
   int eid[2];
-  inline bool operator<(const CWVertex& v) const { return angle < v.angle; }
+  bool operator<(const CWVertex& v) const { return angle < v.angle; }
 };
 VTK_ABI_NAMESPACE_END
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */

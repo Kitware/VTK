@@ -41,7 +41,7 @@ vtkSQLDatabase::vtkCallbackVector* vtkSQLDatabase::Callbacks = nullptr;
 class vtkSQLDatabaseCleanup
 {
 public:
-  inline void Use() {}
+  void Use() {}
   ~vtkSQLDatabaseCleanup() { vtkSQLDatabase::UnRegisterAllCreateFromURLCallbacks(); }
 };
 

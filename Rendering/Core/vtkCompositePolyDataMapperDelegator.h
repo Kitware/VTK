@@ -46,7 +46,7 @@ public:
   /**
    * Get a reference to the delegate.
    */
-  inline vtkSmartPointer<vtkPolyDataMapper> GetDelegate() noexcept { return this->Delegate; }
+  vtkSmartPointer<vtkPolyDataMapper> GetDelegate() noexcept { return this->Delegate; }
 
   // This class encapsulates rendering attributes for a vtkPolyData
   struct BatchElement
@@ -88,9 +88,9 @@ public:
    * Keep track of what data is being used as the structure
    * can change
    */
-  inline bool GetMarked() { return this->Marked; }
-  inline void Mark() { this->Marked = true; }
-  inline void Unmark()
+  bool GetMarked() { return this->Marked; }
+  void Mark() { this->Marked = true; }
+  void Unmark()
   {
     this->Marked = false;
     this->UnmarkBatchElements();

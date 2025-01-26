@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkImageReader2Factory);
 class vtkImageReader2FactoryCleanup
 {
 public:
-  inline void Use() {}
+  void Use() {}
   ~vtkImageReader2FactoryCleanup()
   {
     if (vtkImageReader2Factory::AvailableReaders)

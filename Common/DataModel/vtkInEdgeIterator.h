@@ -51,7 +51,7 @@ public:
   /**
    * Returns the next edge in the graph.
    */
-  inline vtkInEdgeType Next()
+  vtkInEdgeType Next()
   {
     vtkInEdgeType e = *this->Current;
     ++this->Current;

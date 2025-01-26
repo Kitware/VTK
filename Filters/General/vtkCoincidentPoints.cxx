@@ -54,7 +54,7 @@ public:
       this->coord[2] = z;
     }
 
-    inline bool operator<(const Coord& other) const
+    bool operator<(const Coord& other) const
     {
       return this->coord[0] < other.coord[0] ||
         (this->coord[0] == other.coord[0] &&

@@ -270,7 +270,7 @@ public:
     int NodeNumber;
     vtkIdType* NodeTable;
 
-    inline bool operator<(struct vtkReebPath const& E) const
+    bool operator<(struct vtkReebPath const& E) const
     {
       return !((SimplificationValue < E.SimplificationValue) ||
         (SimplificationValue == E.SimplificationValue && ArcNumber < E.ArcNumber) ||

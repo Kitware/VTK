@@ -26,7 +26,7 @@ VTK_ABI_NAMESPACE_BEGIN
 template <typename ObjectType>
 struct Name
 {
-  inline static std::string value()
+  static std::string value()
   {
     std::string result = typeid(ObjectType).name();
 #ifdef VTK_HAS_CXXABI_DEMANGLE
@@ -93,7 +93,7 @@ struct Name
   /// extensions, but because MSVC requires so much string
   /// manipulation, it is not possible until local variables
   /// are allowed in constexpr functions.
-  static inline vtkStringToken::Hash token()
+  static vtkStringToken::Hash token()
   {
     auto nameStr = Name<ObjectType>::value();
     auto result = vtkStringToken::StringHash(nameStr.c_str(), nameStr.size());

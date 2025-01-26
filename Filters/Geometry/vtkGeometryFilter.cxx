@@ -405,7 +405,7 @@ public:
     this->Initialize(pointIds);
   }
 
-  inline static constexpr int GetSize() { return TSize; }
+  static constexpr int GetSize() { return TSize; }
 
   template <int Size = TSize>
   typename std::enable_if<(Size == 3), void>::type Initialize(const vtkIdType* pointIds)
@@ -507,7 +507,7 @@ public:
     this->Initialize(pointIds);
   }
 
-  inline int GetSize() const { return this->NumberOfPoints; }
+  int GetSize() const { return this->NumberOfPoints; }
 
   void Initialize(const vtkIdType* pointIds)
   {
@@ -550,7 +550,7 @@ private:
   static constexpr bool EasyToComputeSize = !Is64BitsSystem || IsId64Bits;
   static constexpr int FSizeDivSizeId = FSize / SizeId;
 
-  inline static constexpr int SizeOfFace(const int& numberOfPoints)
+  static constexpr int SizeOfFace(const int& numberOfPoints)
   {
     return FaceMemoryPool::FSize +
       (FaceMemoryPool::EasyToComputeSize

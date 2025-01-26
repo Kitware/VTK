@@ -53,7 +53,7 @@ public:
   {
   }
 
-  inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+  T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
   {
     const vector_t x(parameters[0]);
 
@@ -107,7 +107,7 @@ public:
   {
   }
 
-  inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+  T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
   {
     const vector_t x(parameters[0]);
     const vector_t y(parameters[1]);
@@ -156,7 +156,7 @@ public:
   {
   }
 
-  inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+  T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
   {
     const vector_t x(parameters[0]);
     const vector_t y(parameters[1]);
@@ -205,7 +205,7 @@ public:
   {
   }
 
-  inline T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
+  T operator()(const std::size_t& ps_index, parameter_list_t parameters) override
   {
     const vector_t x(parameters[0]);
     const vector_t y(parameters[1]);

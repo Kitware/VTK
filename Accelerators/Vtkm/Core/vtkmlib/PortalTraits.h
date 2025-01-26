@@ -29,9 +29,9 @@ struct vtkPortalTraits
   using Type = ComponentType;
   static constexpr vtkm::IdComponent NUM_COMPONENTS = 1;
 
-  static inline void SetComponent(Type& t, vtkm::IdComponent, const ComponentType& v) { t = v; }
+  static void SetComponent(Type& t, vtkm::IdComponent, const ComponentType& v) { t = v; }
 
-  static inline ComponentType GetComponent(const Type& t, vtkm::IdComponent) { return t; }
+  static ComponentType GetComponent(const Type& t, vtkm::IdComponent) { return t; }
 };
 
 template <typename T, int N>
@@ -42,13 +42,13 @@ struct vtkPortalTraits<vtkm::Vec<T, N>>
   using Type = vtkm::Vec<T, N>;
   static constexpr vtkm::IdComponent NUM_COMPONENTS = N;
 
-  static inline void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
   {
     VTKM_ASSUME((i >= 0 && i < N));
     t[i] = v;
   }
 
-  static inline ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
   {
     VTKM_ASSUME((i >= 0 && i < N));
     return t[i];
@@ -63,13 +63,13 @@ struct vtkPortalTraits<const vtkm::Vec<T, N>>
   using Type = vtkm::Vec<T, N>;
   static constexpr vtkm::IdComponent NUM_COMPONENTS = N;
 
-  static inline void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
   {
     VTKM_ASSUME((i >= 0 && i < N));
     t[i] = v;
   }
 
-  static inline ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
   {
     VTKM_ASSUME((i >= 0 && i < N));
     return t[i];
@@ -87,7 +87,7 @@ struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M>>
   static constexpr vtkm::IdComponent NUM_COMPONENTS_OUTER = M;
   static constexpr vtkm::IdComponent NUM_COMPONENTS_INNER = N;
 
-  static inline void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
   {
     VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
@@ -95,7 +95,7 @@ struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M>>
     t[i / N][j] = v;
   }
 
-  static inline ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
   {
     VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
@@ -115,7 +115,7 @@ struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M>>
   static constexpr vtkm::IdComponent NUM_COMPONENTS_OUTER = M;
   static constexpr vtkm::IdComponent NUM_COMPONENTS_INNER = N;
 
-  static inline void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
   {
     VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
@@ -123,7 +123,7 @@ struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M>>
     t[i / N][j] = v;
   }
 
-  static inline ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
   {
     VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index

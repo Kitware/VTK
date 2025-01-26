@@ -73,11 +73,11 @@ public:
   }
 
   // Return the interpolated values at this pixel.
-  inline double* GetValues() { return this->Values; }
+  double* GetValues() { return this->Values; }
   // Return the interpolated z coordinate in view space at this pixel.
-  inline double GetZview() const { return this->Zview; }
+  double GetZview() const { return this->Zview; }
   // Return whether the fragment comes from an external face.
-  inline bool GetExitFace() const { return this->ExitFace; }
+  bool GetExitFace() const { return this->ExitFace; }
 
   vtkPixelListEntry* GetPrevious() { return this->Previous; }
   vtkPixelListEntry* GetNext() { return this->Next; }
@@ -1960,10 +1960,10 @@ public:
   }
 
   // Return the 3 face ids.
-  inline vtkIdType* GetFaceIds() { return this->FaceIds; }
+  vtkIdType* GetFaceIds() { return this->FaceIds; }
 
   // Return whether this face is external.
-  inline int GetExternalSide() { return this->ExternalSide; }
+  int GetExternalSide() { return this->ExternalSide; }
 
   // Are `this' and faceIds equal?
   int IsEqual(vtkIdType faceIds[3])

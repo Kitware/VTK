@@ -569,7 +569,7 @@ public:
   /**
    * Get label actors responsigle for drawing label text.
    */
-  inline vtkAxisFollower** GetLabelActors() { return this->LabelActors; }
+  vtkAxisFollower** GetLabelActors() { return this->LabelActors; }
 
   ///@{
   /**
@@ -582,7 +582,7 @@ public:
   /**
    * Get label actors responsigle for drawing label text.
    */
-  inline vtkProp3DAxisFollower** GetLabelProps3D() { return this->LabelProps3D; }
+  vtkProp3DAxisFollower** GetLabelProps3D() { return this->LabelProps3D; }
 
   ///@{
   /**

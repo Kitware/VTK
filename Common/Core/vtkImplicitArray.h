@@ -183,7 +183,7 @@ public:
   /**
    * Get the value at @a idx. @a idx assumes AOS ordering.
    */
-  inline ValueType GetValue(vtkIdType idx) const { return this->GetValueImpl<BackendT>(idx); }
+  ValueType GetValue(vtkIdType idx) const { return this->GetValueImpl<BackendT>(idx); }
 
   /**
    * Will not do anything for these read only arrays!
@@ -206,7 +206,7 @@ public:
   /**
    * Get component @a comp of the tuple at @a idx.
    */
-  inline ValueType GetTypedComponent(vtkIdType idx, int comp) const
+  ValueType GetTypedComponent(vtkIdType idx, int comp) const
   {
     return this->GetTypedComponentImpl<BackendT>(idx, comp);
   }
@@ -277,7 +277,7 @@ public:
    * Implicit array backends can implement the `getMemorySize` function to override the default
    * implementation, which always returns 1.
    */
-  inline unsigned long GetActualMemorySize() const override
+  unsigned long GetActualMemorySize() const override
   {
     return this->GetActualMemorySizeImpl<BackendT>();
   }

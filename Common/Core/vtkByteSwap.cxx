@@ -29,12 +29,12 @@ struct vtkByteSwapper;
 template <>
 struct vtkByteSwapper<1>
 {
-  static inline void Swap(char*) {}
+  static void Swap(char*) {}
 };
 template <>
 struct vtkByteSwapper<2>
 {
-  static inline void Swap(char* data)
+  static void Swap(char* data)
   {
     const uint16_t& ref16 = *reinterpret_cast<uint16_t*>(data);
     *reinterpret_cast<uint16_t*>(data) = (ref16 >> 8) | (ref16 << 8);
@@ -43,7 +43,7 @@ struct vtkByteSwapper<2>
 template <>
 struct vtkByteSwapper<4>
 {
-  static inline void Swap(char* data)
+  static void Swap(char* data)
   {
     const uint32_t& ref32 = *reinterpret_cast<uint32_t*>(data);
     *reinterpret_cast<uint32_t*>(data) =
@@ -53,7 +53,7 @@ struct vtkByteSwapper<4>
 template <>
 struct vtkByteSwapper<8>
 {
-  static inline void Swap(char* data)
+  static void Swap(char* data)
   {
     const uint64_t& ref64 = *reinterpret_cast<uint64_t*>(data);
     *reinterpret_cast<uint64_t*>(data) = (ref64 >> 56) | (ref64 << 56) |

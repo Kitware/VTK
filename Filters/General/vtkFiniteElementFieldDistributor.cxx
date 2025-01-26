@@ -1218,9 +1218,9 @@ public:
 
 private:
   // for convenient access to spec
-  inline ::vtkFiniteElementSpec& hCurlSpec() { return this->femSpecs["HCURL"]; }
-  inline ::vtkFiniteElementSpec& hDivSpec() { return this->femSpecs["HDIV"]; }
-  inline ::vtkFiniteElementSpec& hGradSpec() { return this->femSpecs["HGRAD"]; }
+  ::vtkFiniteElementSpec& hCurlSpec() { return this->femSpecs["HCURL"]; }
+  ::vtkFiniteElementSpec& hDivSpec() { return this->femSpecs["HDIV"]; }
+  ::vtkFiniteElementSpec& hGradSpec() { return this->femSpecs["HGRAD"]; }
 
   void AllocateGeometry(vtkPoints* newPoints, vtkIdType maxCellSize, vtkCellArray* newCells,
     vtkUnsignedCharArray* newCellTypes, vtkIdType numCells);

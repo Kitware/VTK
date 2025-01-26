@@ -477,7 +477,7 @@ struct MapOutput
   // set of contributing point ids, which becomes the single point id
   // associated with the bin. Since there are possibly multiple, simultaneous
   // writes to a bin, an atomic is used to prevent data races etc.
-  inline void WritePtId(std::atomic<TIds>& binId, vtkIdType ptId)
+  void WritePtId(std::atomic<TIds>& binId, vtkIdType ptId)
   {
     // Because of zero initialization, a negative ptId is written. The end result is
     // that we select the smallest point id from the set of points within a bin.

@@ -402,7 +402,7 @@ struct SurfaceNets
 
   // Return whether a triad, and its associated voxel cell, requires the
   // generation of a point.
-  inline bool ProducesPoint(TriadType triad) { return (triad & SurfaceNets::ProducePoint) > 0; }
+  bool ProducesPoint(TriadType triad) { return (triad & SurfaceNets::ProducePoint) > 0; }
 
   // Input and output data.
   T* Scalars;                // input image scalars
