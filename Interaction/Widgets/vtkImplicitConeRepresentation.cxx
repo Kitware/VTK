@@ -860,7 +860,7 @@ double* vtkImplicitConeRepresentation::GetAxis()
 //------------------------------------------------------------------------------
 void vtkImplicitConeRepresentation::GetAxis(double xyz[3])
 {
-  return this->Cone->GetAxis(xyz);
+  this->Cone->GetAxis(xyz);
 }
 
 //------------------------------------------------------------------------------

@@ -62,7 +62,8 @@ void vtkVRHMDCamera::GetKeyMatrices(vtkRenderer* ren, vtkMatrix4x4*& wcvc, vtkMa
 {
   if (ren->GetSelector())
   {
-    return this->Superclass::GetKeyMatrices(ren, wcvc, normMat, vcdc, wcdc);
+    this->Superclass::GetKeyMatrices(ren, wcvc, normMat, vcdc, wcdc);
+    return;
   }
 
   // has the camera changed?

@@ -923,7 +923,7 @@ double* vtkImplicitAnnulusRepresentation::GetAxis() const
 //------------------------------------------------------------------------------
 void vtkImplicitAnnulusRepresentation::GetAxis(double xyz[3]) const
 {
-  return this->Annulus->GetAxis(xyz);
+  this->Annulus->GetAxis(xyz);
 }
 
 //------------------------------------------------------------------------------

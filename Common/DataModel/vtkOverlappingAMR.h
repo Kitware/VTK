@@ -163,7 +163,7 @@ public:
    * Get/Set the internal representation of amr meta meta data
    */
   vtkAMRInformation* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
-  void SetAMRInfo(vtkAMRInformation* info) override { return Superclass::SetAMRInfo(info); }
+  void SetAMRInfo(vtkAMRInformation* info) override { Superclass::SetAMRInfo(info); }
 
   ///@{
   /**

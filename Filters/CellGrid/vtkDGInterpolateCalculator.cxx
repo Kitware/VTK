@@ -108,7 +108,8 @@ void vtkDGInterpolateCalculator::EvaluateDerivative(
   if (!this->AnalyticDerivative())
   {
     // We don't have an analytic derivative; approximate it.
-    return this->Superclass::EvaluateDerivative(cellId, rst, jacobian, neighborhood);
+    this->Superclass::EvaluateDerivative(cellId, rst, jacobian, neighborhood);
+    return;
   }
 
   vtkNew<vtkDoubleArray> result;

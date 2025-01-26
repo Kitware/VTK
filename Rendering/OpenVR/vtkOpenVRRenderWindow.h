@@ -138,7 +138,7 @@ public:
    */
   void GetOpenVRPose(vtkEventDataDevice dev, vr::TrackedDevicePose_t** pose)
   {
-    return this->GetOpenVRPose(dev, 0, pose);
+    this->GetOpenVRPose(dev, 0, pose);
   }
   void GetOpenVRPose(vtkEventDataDevice dev, uint32_t index, vr::TrackedDevicePose_t** pose);
   ///@}

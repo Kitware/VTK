@@ -82,7 +82,7 @@ public:
    */
   void SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSelection) override
   {
-    return this->Impl->SelectCells(minMaxDegree, cellSelection);
+    this->Impl->SelectCells(minMaxDegree, cellSelection);
   }
   ///@}
 

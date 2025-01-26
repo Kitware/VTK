@@ -1363,7 +1363,7 @@ void vtkCellTreeLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   {
     return;
   }
-  return this->Tree->FindCellsWithinBounds(bbox, cells);
+  this->Tree->FindCellsWithinBounds(bbox, cells);
 }
 
 //------------------------------------------------------------------------------

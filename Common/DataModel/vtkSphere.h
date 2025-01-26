@@ -105,11 +105,11 @@ public:
    */
   static void ComputeBoundingSphere(double* pts, vtkIdType numPts, double sphere[4])
   {
-    return vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
+    vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
   }
   static void ComputeBoundingSphere(float* pts, vtkIdType numPts, float sphere[4])
   {
-    return vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
+    vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
   }
   ///@}
 
@@ -122,11 +122,11 @@ public:
    */
   static void ComputeBoundingSphere(float** spheres, vtkIdType numSpheres, float sphere[4])
   {
-    return vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
+    vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
   }
   static void ComputeBoundingSphere(double** spheres, vtkIdType numSpheres, double sphere[4])
   {
-    return vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
+    vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
   }
   ///@}
 

@@ -712,7 +712,7 @@ public:
    */
   void ReplaceCellAtId(vtkIdType cellId, const std::initializer_list<vtkIdType>& cell)
   {
-    return this->ReplaceCellAtId(cellId, static_cast<vtkIdType>(cell.size()), cell.begin());
+    this->ReplaceCellAtId(cellId, static_cast<vtkIdType>(cell.size()), cell.begin());
   }
 
   /**

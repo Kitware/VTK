@@ -612,7 +612,7 @@ const vtkAMRBox& vtkAMRInformation::GetAMRBox(unsigned int level, unsigned int i
 
 void vtkAMRInformation::GetSpacing(unsigned int level, double spacing[3])
 {
-  return this->Spacing->GetTuple(level, spacing);
+  this->Spacing->GetTuple(level, spacing);
 }
 
 void vtkAMRInformation::CalculateParentChildRelationShip(unsigned int level,

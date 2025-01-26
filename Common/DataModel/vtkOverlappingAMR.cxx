@@ -123,7 +123,7 @@ void vtkOverlappingAMR::SetSpacing(unsigned int level, const double spacing[3])
 //------------------------------------------------------------------------------
 void vtkOverlappingAMR::GetSpacing(unsigned int level, double spacing[3])
 {
-  return this->AMRInfo->GetSpacing(level, spacing);
+  this->AMRInfo->GetSpacing(level, spacing);
 }
 
 //------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void vtkOverlappingAMR::GetOrigin(unsigned int level, unsigned int id, double or
 //------------------------------------------------------------------------------
 void vtkOverlappingAMR::SetOrigin(const double origin[3])
 {
-  return this->AMRInfo->SetOrigin(origin);
+  this->AMRInfo->SetOrigin(origin);
 }
 
 //------------------------------------------------------------------------------

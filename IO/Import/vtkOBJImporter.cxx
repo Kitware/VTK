@@ -107,7 +107,7 @@ void vtkOBJImporter::SetFileNameMTL(const char* arg)
 
 void vtkOBJImporter::SetTexturePath(const char* path)
 {
-  return this->Impl->SetTexturePath(path);
+  this->Impl->SetTexturePath(path);
 }
 
 const char* vtkOBJImporter::GetFileName() const

@@ -233,7 +233,8 @@ void vtkSortDataArray::GenerateSortIndices(
   // Specialized and faster for single component arrays
   if (numComp == 1)
   {
-    return vtkSortDataArray::GenerateSort1Indices(dataType, dataIn, numKeys, idx);
+    vtkSortDataArray::GenerateSort1Indices(dataType, dataIn, numKeys, idx);
+    return;
   }
 
   if (dataType == VTK_VARIANT)
@@ -279,7 +280,8 @@ void vtkSortDataArray::ShuffleArray(vtkIdType* idx, int dataType, vtkIdType numK
   // Specialized for single component arrays
   if (numComp == 1)
   {
-    return vtkSortDataArray::Shuffle1Array(idx, dataType, numKeys, arr, dataIn, dir);
+    vtkSortDataArray::Shuffle1Array(idx, dataType, numKeys, arr, dataIn, dir);
+    return;
   }
 
   if (dataType == VTK_VARIANT)
