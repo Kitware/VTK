@@ -293,10 +293,7 @@ vtkMTimeType vtkResliceCursorPolyDataAlgorithm::GetMTime()
   {
     vtkMTimeType time;
     time = this->ResliceCursor->GetMTime();
-    if (time > mTime)
-    {
-      mTime = time;
-    }
+    mTime = std::max(time, mTime);
   }
   return mTime;
 }

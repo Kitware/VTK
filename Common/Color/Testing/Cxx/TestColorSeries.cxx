@@ -77,8 +77,7 @@ int TestColorSeries(int argc, char* argv[])
   {
     palettes->SetColorScheme(p);
     int nc = palettes->GetNumberOfColors(); // in the current scheme
-    if (nc > mps)
-      mps = nc;
+    mps = std::max(nc, mps);
   }
   // Now size the test image properly and generate swatches
   pix->SetNumberOfTuples(np * 5 * mps * 5);

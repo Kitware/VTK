@@ -472,10 +472,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo* data, double time)
       return 1;
     }
     // check the ActiveFlag at least every 0.1 seconds
-    if (remaining > 0.1)
-    {
-      remaining = 0.1;
-    }
+    remaining = std::min(remaining, 0.1);
 
     // check to see if we are being told to quit
     int activeFlag;
@@ -927,14 +924,8 @@ int vtkVideoSource::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
   int numFrames = this->NumberOfOutputFrames;
-  if (numFrames < 1)
-  {
-    numFrames = 1;
-  }
-  if (numFrames > this->FrameBufferSize)
-  {
-    numFrames = this->FrameBufferSize;
-  }
+  numFrames = std::max(numFrames, 1);
+  numFrames = std::min(numFrames, this->FrameBufferSize);
 
   // multiply Z extent by number of frames to output
   extent[5] = extent[4] + (extent[5] - extent[4] + 1) * numFrames - 1;
@@ -1054,14 +1045,8 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
   int outY = frameExtentY - inPadY;
   int outZ; // do outZ later
 
-  if (outX > extentX - outPadX)
-  {
-    outX = extentX - outPadX;
-  }
-  if (outY > extentY - outPadY)
-  {
-    outY = extentY - outPadY;
-  }
+  outX = std::min(outX, extentX - outPadX);
+  outY = std::min(outY, extentY - outPadY);
 
   // if output extent has changed, need to initialize output to black
   for (i = 0; i < 3; i++)
@@ -1127,10 +1112,7 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
 
     outZ = frameExtentZ - inPadZ;
 
-    if (outZ > extentZ - outPadZ)
-    {
-      outZ = extentZ - outPadZ;
-    }
+    outZ = std::min(outZ, extentZ - outPadZ);
 
     if (this->FlipFrames)
     { // apply a vertical flip while copying to output

@@ -171,10 +171,7 @@ int vtkArcPlotter::RequestData(vtkInformation* vtkNotUsed(request),
     // Now average the normal calculation to get smoother results
     //
     vtkIdType window = npts / 100;
-    if (window < 5)
-    {
-      window = 5;
-    }
+    window = std::max<vtkIdType>(window, 5);
     // Start by computing an initial average normal
     aveNormal[0] = aveNormal[1] = aveNormal[2] = 0.0;
     for (i = 0; i < npts && i < window; i++)
@@ -337,14 +334,8 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData* pd)
     for (j = this->StartComp; j <= this->EndComp; j++)
     {
       range = this->DataRange + 2 * j;
-      if (this->Tuple[j] < range[0])
-      {
-        range[0] = this->Tuple[j];
-      }
-      if (this->Tuple[j] > range[1])
-      {
-        range[1] = this->Tuple[j];
-      }
+      range[0] = std::min(this->Tuple[j], range[0]);
+      range[1] = std::max(this->Tuple[j], range[1]);
     }
   }
 

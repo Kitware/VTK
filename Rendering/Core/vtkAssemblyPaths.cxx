@@ -19,10 +19,7 @@ vtkMTimeType vtkAssemblyPaths::GetMTime()
   for (this->InitTraversal(); (path = this->GetNextItem());)
   {
     vtkMTimeType pathMTime = path->GetMTime();
-    if (pathMTime > mtime)
-    {
-      mtime = pathMTime;
-    }
+    mtime = std::max(pathMTime, mtime);
   }
   return mtime;
 }

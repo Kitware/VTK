@@ -230,14 +230,8 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
     for (vtkIdType i = 0; i < numEdges; ++i)
     {
       double val = windowArr->GetTuple1(i);
-      if (val < range[0])
-      {
-        range[0] = val;
-      }
-      if (val > range[1])
-      {
-        range[1] = val;
-      }
+      range[0] = std::min(val, range[0]);
+      range[1] = std::max(val, range[1]);
     }
     double cutoff = range[1] - this->EdgeWindow;
     if (range[0] < cutoff)

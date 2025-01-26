@@ -287,14 +287,8 @@ bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox& other, int q)
   {
     return false;
   }
-  if (this->LoCorner[q] <= other.LoCorner[q])
-  {
-    this->LoCorner[q] = other.LoCorner[q];
-  }
-  if (this->HiCorner[q] >= other.HiCorner[q])
-  {
-    this->HiCorner[q] = other.HiCorner[q];
-  }
+  this->LoCorner[q] = std::max(this->LoCorner[q], other.LoCorner[q]);
+  this->HiCorner[q] = std::min(this->HiCorner[q], other.HiCorner[q]);
   if (this->LoCorner[q] > this->HiCorner[q])
   {
     return false;

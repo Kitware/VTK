@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkEuclideanClusterExtraction.h"
 
 #include "vtkAbstractPointLocator.h"
@@ -105,10 +107,7 @@ int vtkEuclideanClusterExtraction::RequestData(vtkInformation* vtkNotUsed(reques
   else
   {
     this->NeighborScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-    if (this->ScalarRange[1] < this->ScalarRange[0])
-    {
-      this->ScalarRange[1] = this->ScalarRange[0];
-    }
+    this->ScalarRange[1] = std::max(this->ScalarRange[1], this->ScalarRange[0]);
   }
 
   // Initialize.  Keep track of the points visited.

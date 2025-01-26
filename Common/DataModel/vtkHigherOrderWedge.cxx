@@ -623,10 +623,7 @@ double vtkHigherOrderWedge::GetParametricDistance(const double pcoords[3])
   for (int ii = 0; ii < 3; ++ii)
   {
     pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   return pDistMax;

@@ -116,14 +116,8 @@ void vtkPlotSurface::SetInputData(vtkTable* input)
       data[pos] = k;
       ++pos;
 
-      if (k < surfaceMin)
-      {
-        surfaceMin = k;
-      }
-      if (k > surfaceMax)
-      {
-        surfaceMax = k;
-      }
+      surfaceMin = std::min(k, surfaceMin);
+      surfaceMax = std::max(k, surfaceMax);
     }
   }
 

@@ -537,10 +537,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   int timeDimensions = (numTimeSteps > 1);
   int spatialDimensions = ((wholeExtent[0] < wholeExtent[1]) + (wholeExtent[2] < wholeExtent[3]) +
     (wholeExtent[4] < wholeExtent[5]));
-  if (spatialDimensions < 2)
-  {
-    spatialDimensions = 2;
-  }
+  spatialDimensions = std::max(spatialDimensions, 2);
   // Insert dimension names until we have all spatial dimensions
   while (static_cast<int>(dimensions.size()) < spatialDimensions + hasTimeDim)
   {
@@ -1733,14 +1730,8 @@ int vtkMINCImageWriter::WriteMINCData(
     }
     else
     {
-      if (chunkRange[0] < this->FileValidRange[0])
-      {
-        this->FileValidRange[0] = chunkRange[0];
-      }
-      if (chunkRange[1] > this->FileValidRange[1])
-      {
-        this->FileValidRange[1] = chunkRange[1];
-      }
+      this->FileValidRange[0] = std::min(chunkRange[0], this->FileValidRange[0]);
+      this->FileValidRange[1] = std::max(chunkRange[1], this->FileValidRange[1]);
     }
 
     // Increment the inPtr for the next chunk.

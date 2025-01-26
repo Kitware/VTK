@@ -68,10 +68,7 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  if (numPieces > this->ThetaResolution)
-  {
-    numPieces = this->ThetaResolution;
-  }
+  numPieces = std::min(numPieces, this->ThetaResolution);
   if (piece >= numPieces)
   {
     // Although the super class should take care of this,

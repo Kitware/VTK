@@ -339,18 +339,9 @@ void vtk3DSImporter::ImportProperties(vtkRenderer* vtkNotUsed(renderer))
     }
 
     phong_size = 0.7 * m->shininess;
-    if (phong_size < 1.0)
-    {
-      phong_size = 1.0;
-    }
-    if (phong_size > 30.0)
-    {
-      phong = 1.0;
-    }
-    else
-    {
-      phong = phong_size / 30.0;
-    }
+    phong_size = std::max(phong_size, 1.0f);
+    phong_size = std::min(phong_size, 30.0f);
+    phong = phong_size / 30.0;
     property = m->aProperty;
     property->SetAmbientColor(m->ambient.red, m->ambient.green, m->ambient.blue);
     property->SetAmbient(amb);

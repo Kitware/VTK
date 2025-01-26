@@ -20,6 +20,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cfloat>
 #include <map>
@@ -144,18 +145,9 @@ void vtkAMRFlashReader::ComputeStats(
   {
     FlashReaderBlock& theBlock = internal->Blocks[i];
     double* gridMin = theBlock.MinBounds;
-    if (gridMin[0] < min[0])
-    {
-      min[0] = gridMin[0];
-    }
-    if (gridMin[1] < min[1])
-    {
-      min[1] = gridMin[1];
-    }
-    if (gridMin[2] < min[2])
-    {
-      min[2] = gridMin[2];
-    }
+    min[0] = std::min(gridMin[0], min[0]);
+    min[1] = std::min(gridMin[1], min[1]);
+    min[2] = std::min(gridMin[2], min[2]);
     int level = theBlock.Level - 1;
     numBlocks[level]++;
   }

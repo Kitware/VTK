@@ -55,14 +55,8 @@ void vtkShadowMapBakerPass::PointNearFar(
   double dot = vtkMath::Dot(diff, dir);
   if (initialized)
   {
-    if (dot < mNear)
-    {
-      mNear = dot;
-    }
-    if (dot > mFar)
-    {
-      mFar = dot;
-    }
+    mNear = std::min(dot, mNear);
+    mFar = std::max(dot, mFar);
   }
   else
   {
@@ -294,10 +288,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
       while (p != nullptr)
       {
         vtkMTimeType mTime = p->GetMTime();
-        if (latestPropTime < mTime)
-        {
-          latestPropTime = mTime;
-        }
+        latestPropTime = std::max(latestPropTime, mTime);
         if (p->GetVisibility())
         {
           propArray[propArrayCount] = p;
@@ -671,10 +662,7 @@ void vtkShadowMapBakerPass::BuildCameraLight(
     lcamera->SetViewAngle(light->GetConeAngle() * 2.0);
     // initial clip=(0.1,1000). mNear>0, mFar>mNear);
     double mNearmin = (mFar - mNear) / 100.0;
-    if (mNear < mNearmin)
-    {
-      mNear = mNearmin;
-    }
+    mNear = std::max(mNear, mNearmin);
     if (mFar < mNearmin)
     {
       mFar = 2.0 * mNearmin;

@@ -682,10 +682,7 @@ void vtkProbeFilter::ProbeEmptyPoints(
     for (vtkIdType i = 0; i < 20 && i < source->GetNumberOfCells(); i++)
     {
       double cLength2 = source->GetCell(i)->GetLength2();
-      if (sLength2 < cLength2)
-      {
-        sLength2 = cLength2;
-      }
+      sLength2 = std::max(sLength2, cLength2);
     }
     // use 1% of the diagonal (1% has to be squared)
     tol2 = sLength2 * CELL_TOLERANCE_FACTOR_SQR;

@@ -288,10 +288,7 @@ int vtkPyramid::EvaluatePosition(const double x[3], double closestPoint[3], int&
     pt0 = pts + 3 * edges[i][0];
     pt1 = pts + 3 * edges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestEdge < d2)
-    {
-      longestEdge = d2;
-    }
+    longestEdge = std::max(longestEdge, d2);
   }
   // longestEdge value is already squared
   double volumeBound = longestEdge * std::sqrt(longestEdge);

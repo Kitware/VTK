@@ -493,10 +493,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(vtkInformation* vtkNotUsed(requ
   // previous chuck is copied to the first slice in the next chunk.
   // Stay within memory limit. There are 4 bytes per double.
   chunkSize = this->MemoryLimitInBytes / (gridSize[0] * gridSize[1] * 4);
-  if (chunkSize > gridSize[2])
-  {
-    chunkSize = gridSize[2];
-  }
+  chunkSize = std::min(chunkSize, gridSize[2]);
 
   currentSlice = 0;
   currentZ = contourBounds[4] - 1.0;

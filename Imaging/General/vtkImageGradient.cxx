@@ -101,14 +101,8 @@ int vtkImageGradient::RequestUpdateExtent(
     // input.
     if (this->HandleBoundaries)
     {
-      if (inUExt[idx * 2] < wholeExtent[idx * 2])
-      {
-        inUExt[idx * 2] = wholeExtent[idx * 2];
-      }
-      if (inUExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-      {
-        inUExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-      }
+      inUExt[idx * 2] = std::max(inUExt[idx * 2], wholeExtent[idx * 2]);
+      inUExt[idx * 2 + 1] = std::min(inUExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
     }
   }
 

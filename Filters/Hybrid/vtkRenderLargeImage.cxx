@@ -274,15 +274,9 @@ void vtkRenderLargeImage::RequestData(vtkInformation* vtkNotUsed(request),
 
       // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x * size[0];
-      if (colStart < 0)
-      {
-        colStart = 0;
-      }
+      colStart = std::max(colStart, 0);
       colEnd = size[0] - 1;
-      if (colEnd > (inExtent[1] - x * size[0]))
-      {
-        colEnd = inExtent[1] - x * size[0];
-      }
+      colEnd = std::min(colEnd, inExtent[1] - x * size[0]);
       rowSize = colEnd - colStart + 1;
 
       // get the output pointer and do arith on it if necessary
@@ -291,15 +285,9 @@ void vtkRenderLargeImage::RequestData(vtkInformation* vtkNotUsed(request),
         outPtr + (x * size[0] - inExtent[0]) * inIncr[0] + (y * size[1] - inExtent[2]) * inIncr[1];
 
       rowStart = inExtent[2] - y * size[1];
-      if (rowStart < 0)
-      {
-        rowStart = 0;
-      }
+      rowStart = std::max(rowStart, 0);
       rowEnd = size[1] - 1;
-      if (rowEnd > (inExtent[3] - y * size[1]))
-      {
-        rowEnd = (inExtent[3] - y * size[1]);
-      }
+      rowEnd = std::min(rowEnd, inExtent[3] - y * size[1]);
       for (row = rowStart; row <= rowEnd; row++)
       {
         memcpy(outPtr + row * inIncr[1] + colStart * inIncr[0],

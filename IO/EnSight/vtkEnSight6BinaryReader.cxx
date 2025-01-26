@@ -223,10 +223,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
       int maxId = 0;
       for (i = 0; i < this->NumberOfUnstructuredPoints; i++)
       {
-        if (pointIds[i] > maxId)
-        {
-          maxId = pointIds[i];
-        }
+        maxId = std::max(maxId, pointIds[i]);
       }
 
       this->UnstructuredNodeIds->Allocate(maxId);

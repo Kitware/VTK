@@ -269,14 +269,8 @@ int vtkImageMask::RequestInformation(vtkInformation* vtkNotUsed(request),
   inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext2);
   for (idx = 0; idx < 3; ++idx)
   {
-    if (ext2[idx * 2] > ext[idx * 2])
-    {
-      ext[idx * 2] = ext2[idx * 2];
-    }
-    if (ext2[idx * 2 + 1] < ext[idx * 2 + 1])
-    {
-      ext[idx * 2 + 1] = ext2[idx * 2 + 1];
-    }
+    ext[idx * 2] = std::max(ext2[idx * 2], ext[idx * 2]);
+    ext[idx * 2 + 1] = std::min(ext2[idx * 2 + 1], ext[idx * 2 + 1]);
   }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);

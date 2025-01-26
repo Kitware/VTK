@@ -44,15 +44,8 @@ void vtkBoundingBox::AddPoint(double p[3])
   int i;
   for (i = 0; i < 3; i++)
   {
-    if (p[i] < this->MinPnt[i])
-    {
-      this->MinPnt[i] = p[i];
-    }
-
-    if (p[i] > this->MaxPnt[i])
-    {
-      this->MaxPnt[i] = p[i];
-    }
+    this->MinPnt[i] = std::min(p[i], this->MinPnt[i]);
+    this->MaxPnt[i] = std::max(p[i], this->MaxPnt[i]);
   }
 }
 
@@ -81,35 +74,12 @@ void vtkBoundingBox::AddBounds(const double bounds[6])
     return;
   }
 
-  if (bounds[0] < this->MinPnt[0])
-  {
-    this->MinPnt[0] = bounds[0];
-  }
-
-  if (bounds[1] > this->MaxPnt[0])
-  {
-    this->MaxPnt[0] = bounds[1];
-  }
-
-  if (bounds[2] < this->MinPnt[1])
-  {
-    this->MinPnt[1] = bounds[2];
-  }
-
-  if (bounds[3] > this->MaxPnt[1])
-  {
-    this->MaxPnt[1] = bounds[3];
-  }
-
-  if (bounds[4] < this->MinPnt[2])
-  {
-    this->MinPnt[2] = bounds[4];
-  }
-
-  if (bounds[5] > this->MaxPnt[2])
-  {
-    this->MaxPnt[2] = bounds[5];
-  }
+  this->MinPnt[0] = std::min(bounds[0], this->MinPnt[0]);
+  this->MaxPnt[0] = std::max(bounds[1], this->MaxPnt[0]);
+  this->MinPnt[1] = std::min(bounds[2], this->MinPnt[1]);
+  this->MaxPnt[1] = std::max(bounds[3], this->MaxPnt[1]);
+  this->MinPnt[2] = std::min(bounds[4], this->MinPnt[2]);
+  this->MaxPnt[2] = std::max(bounds[5], this->MaxPnt[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -128,44 +98,26 @@ void vtkBoundingBox::SetBounds(
 void vtkBoundingBox::SetMinPoint(double x, double y, double z)
 {
   this->MinPnt[0] = x;
-  if (x > this->MaxPnt[0])
-  {
-    this->MaxPnt[0] = x;
-  }
+  this->MaxPnt[0] = std::max(x, this->MaxPnt[0]);
 
   this->MinPnt[1] = y;
-  if (y > this->MaxPnt[1])
-  {
-    this->MaxPnt[1] = y;
-  }
+  this->MaxPnt[1] = std::max(y, this->MaxPnt[1]);
 
   this->MinPnt[2] = z;
-  if (z > this->MaxPnt[2])
-  {
-    this->MaxPnt[2] = z;
-  }
+  this->MaxPnt[2] = std::max(z, this->MaxPnt[2]);
 }
 
 //------------------------------------------------------------------------------
 void vtkBoundingBox::SetMaxPoint(double x, double y, double z)
 {
   this->MaxPnt[0] = x;
-  if (x < this->MinPnt[0])
-  {
-    this->MinPnt[0] = x;
-  }
+  this->MinPnt[0] = std::min(x, this->MinPnt[0]);
 
   this->MaxPnt[1] = y;
-  if (y < this->MinPnt[1])
-  {
-    this->MinPnt[1] = y;
-  }
+  this->MinPnt[1] = std::min(y, this->MinPnt[1]);
 
   this->MaxPnt[2] = z;
-  if (z < this->MinPnt[2])
-  {
-    this->MinPnt[2] = z;
-  }
+  this->MinPnt[2] = std::min(z, this->MinPnt[2]);
 }
 
 //------------------------------------------------------------------------------

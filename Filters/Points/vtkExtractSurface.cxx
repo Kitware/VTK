@@ -17,6 +17,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 
@@ -1315,14 +1316,8 @@ int vtkExtractSurface::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] > exExt[2 * i])
-    {
-      exExt[2 * i] = inExt[2 * i];
-    }
-    if (inExt[2 * i + 1] < exExt[2 * i + 1])
-    {
-      exExt[2 * i + 1] = inExt[2 * i + 1];
-    }
+    exExt[2 * i] = std::max(inExt[2 * i], exExt[2 * i]);
+    exExt[2 * i + 1] = std::min(inExt[2 * i + 1], exExt[2 * i + 1]);
   }
   if (exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5])
   {

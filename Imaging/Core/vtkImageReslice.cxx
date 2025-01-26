@@ -684,15 +684,9 @@ int vtkImageReslice::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
       {
         double f;
         int k = vtkInterpolationMath::Floor(point[j], f);
-        if (k - extra < inExt[2 * j])
-        {
-          inExt[2 * j] = k - extra;
-        }
+        inExt[2 * j] = std::min(k - extra, inExt[2 * j]);
         k += (f != 0);
-        if (k + extra > inExt[2 * j + 1])
-        {
-          inExt[2 * j + 1] = k + extra;
-        }
+        inExt[2 * j + 1] = std::max(k + extra, inExt[2 * j + 1]);
       }
       // else is for kernels with odd size
       else
@@ -742,10 +736,7 @@ int vtkImageReslice::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
         // didn't hit any of the input extent
         inExt[2 * k] = wholeExtent[2 * k + 1];
         // finally, check for null input extent
-        if (inExt[2 * k] < wholeExtent[2 * k])
-        {
-          inExt[2 * k] = wholeExtent[2 * k];
-        }
+        inExt[2 * k] = std::max(inExt[2 * k], wholeExtent[2 * k]);
         this->HitInputExtent = 0;
       }
     }
@@ -883,14 +874,8 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(
 
     for (int j = 0; j < 3; ++j)
     {
-      if (point[j] > bounds[2 * j + 1])
-      {
-        bounds[2 * j + 1] = point[j];
-      }
-      if (point[j] < bounds[2 * j])
-      {
-        bounds[2 * j] = point[j];
-      }
+      bounds[2 * j + 1] = std::max(point[j], bounds[2 * j + 1]);
+      bounds[2 * j] = std::min(point[j], bounds[2 * j]);
     }
   }
 }

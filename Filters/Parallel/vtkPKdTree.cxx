@@ -1014,8 +1014,7 @@ int vtkPKdTree::Select(int dim, int L, int R)
   if ((this->MyId <= hasKleft) && (this->NumCells[this->MyId] > 0))
   {
     int start = this->EndVal[this->MyId];
-    if (start > K - 1)
-      start = K - 1;
+    start = std::min(start, K - 1);
 
     pt = this->GetLocalVal(start) + dim;
 
@@ -1215,10 +1214,8 @@ int* vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   int myL = this->StartVal[me];
   int myR = this->EndVal[me];
 
-  if (myL < L)
-    myL = L;
-  if (myR > R)
-    myR = R;
+  myL = std::max(myL, L);
+  myR = std::min(myR, R);
 
   // Get Kth element
 
@@ -1837,14 +1834,8 @@ void vtkPKdTree::GetLocalMinMax(int L, int R, int me, float* min, float* max)
   int from = this->StartVal[me];
   int to = this->EndVal[me];
 
-  if (L > from)
-  {
-    from = L;
-  }
-  if (R < to)
-  {
-    to = R;
-  }
+  from = std::max(L, from);
+  to = std::min(R, to);
 
   if (from <= to)
   {

@@ -44,10 +44,7 @@ public:
     {
       this->Resize(ptId + 1);
     }
-    if (ptId > this->MaxId)
-    {
-      this->MaxId = ptId;
-    }
+    this->MaxId = std::max(ptId, this->MaxId);
     return this->Array + ptId;
   }
   vtkSmoothPoint* Resize(vtkIdType sz); // reallocates data

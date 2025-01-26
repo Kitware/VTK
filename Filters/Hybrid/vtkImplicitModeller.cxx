@@ -409,14 +409,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend(void* arg)
   {
     outExt[i * 2] = (int)((adjBounds[2 * i] - origin[i]) / spacing[i]);
     outExt[i * 2 + 1] = (int)((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
-    if (outExt[i * 2] < 0)
-    {
-      outExt[i * 2] = 0;
-    }
-    if (outExt[i * 2 + 1] >= sampleDimensions[i])
-    {
-      outExt[i * 2 + 1] = sampleDimensions[i] - 1;
-    }
+    outExt[i * 2] = std::max(outExt[i * 2], 0);
+    outExt[i * 2 + 1] = std::min(outExt[i * 2 + 1], sampleDimensions[i] - 1);
   }
 
   // input not close enough to effect this slab
@@ -426,14 +420,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend(void* arg)
   }
 
   // adjust min/max to match slab
-  if (outExt[4] < slabMin)
-  {
-    outExt[4] = slabMin;
-  }
-  if (outExt[5] > slabMax)
-  {
-    outExt[5] = slabMax;
-  }
+  outExt[4] = std::max(outExt[4], slabMin);
+  outExt[5] = std::min(outExt[5], slabMax);
 
   vtkCellLocator* locator = vtkCellLocator::New();
 
@@ -505,10 +493,7 @@ void vtkImplicitModellerAppendExecute(
   //
   vtkCell* cell;
   updateTime = input->GetNumberOfCells() / 50; // update every 2%
-  if (updateTime < 1)
-  {
-    updateTime = 1;
-  }
+  updateTime = std::max(updateTime, 1);
 
   for (cellNum = 0; cellNum < input->GetNumberOfCells(); cellNum++)
   {
@@ -525,14 +510,8 @@ void vtkImplicitModellerAppendExecute(
     {
       outExt[i * 2] = (int)(adjBounds[2 * i] - origin[i]) / spacing[i];
       outExt[i * 2 + 1] = (int)((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
-      if (outExt[i * 2] < 0)
-      {
-        outExt[i * 2] = 0;
-      }
-      if (outExt[i * 2 + 1] >= sampleDimensions[i])
-      {
-        outExt[i * 2 + 1] = sampleDimensions[i] - 1;
-      }
+      outExt[i * 2] = std::max(outExt[i * 2], 0);
+      outExt[i * 2 + 1] = std::min(outExt[i * 2 + 1], sampleDimensions[i] - 1);
     }
 
     vtkImageIterator<OT> outIt(outData, outExt);
@@ -698,10 +677,7 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
 
           // get/clip input cells in this slab + maxDistance+
           minZ = spacing[2] * slabMin + origin[2] - this->InternalMaxDistance * 1.00001;
-          if (minZ < this->ModelBounds[4])
-          {
-            minZ = this->ModelBounds[4];
-          }
+          minZ = std::max(minZ, this->ModelBounds[4]);
 
           minPlane[i] = vtkPlane::New();
           minPlane[i]->SetNormal(0.0, 0.0, -1.0);
@@ -732,10 +708,7 @@ void vtkImplicitModeller::Append(vtkDataSet* input)
           }
 
           maxZ = spacing[2] * slabMax + origin[2] + this->InternalMaxDistance * 1.00001;
-          if (maxZ > this->ModelBounds[5])
-          {
-            maxZ = this->ModelBounds[5];
-          }
+          maxZ = std::min(maxZ, this->ModelBounds[5]);
           maxPlane[i] = vtkPlane::New();
           maxPlane[i]->SetNormal(0.0, 0.0, 1.0);
           maxPlane[i]->SetOrigin(0.0, 0.0, maxZ);
@@ -917,10 +890,7 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet* input)
 
   for (maxDist = 0.0, i = 0; i < 3; i++)
   {
-    if ((bounds[2 * i + 1] - bounds[2 * i]) > maxDist)
-    {
-      maxDist = bounds[2 * i + 1] - bounds[2 * i];
-    }
+    maxDist = std::max(bounds[2 * i + 1] - bounds[2 * i], maxDist);
   }
 
   // adjust bounds so model fits strictly inside (only if not set previously)

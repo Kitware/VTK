@@ -239,10 +239,8 @@ void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buc
     // account overlap.
     int splatProjMinZ = k - splatCenter[2];
     int splatProjMaxZ = splatProjMinZ + splatDims[2];
-    if (splatProjMinZ < 0)
-      splatProjMinZ = 0;
-    if (splatProjMaxZ > imageDims[2])
-      splatProjMaxZ = imageDims[2];
+    splatProjMinZ = std::max(splatProjMinZ, 0);
+    splatProjMaxZ = std::min(splatProjMaxZ, imageDims[2]);
 
     for (int j = 0; j < imageDims[1]; j++)
     {
@@ -250,10 +248,8 @@ void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buc
       // account overlap.
       int splatProjMinY = j - splatCenter[1];
       int splatProjMaxY = splatProjMinY + splatDims[1];
-      if (splatProjMinY < 0)
-        splatProjMinY = 0;
-      if (splatProjMaxY > imageDims[1])
-        splatProjMaxY = imageDims[1];
+      splatProjMinY = std::max(splatProjMinY, 0);
+      splatProjMaxY = std::min(splatProjMaxY, imageDims[1]);
 
       for (int i = 0; i < imageDims[0]; i++)
       {
@@ -272,10 +268,8 @@ void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buc
         // account overlap.
         int splatProjMinX = i - splatCenter[0];
         int splatProjMaxX = splatProjMinX + splatDims[0];
-        if (splatProjMinX < 0)
-          splatProjMinX = 0;
-        if (splatProjMaxX > imageDims[0])
-          splatProjMaxX = imageDims[0];
+        splatProjMinX = std::max(splatProjMinX, 0);
+        splatProjMaxX = std::min(splatProjMaxX, imageDims[0]);
 
         // Do the splat.
         for (int imageZ = splatProjMinZ; imageZ < splatProjMaxZ; imageZ++)

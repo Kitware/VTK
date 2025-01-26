@@ -359,10 +359,7 @@ void vtkQuadricClustering::AddPolygons(
   double total = polys->GetNumberOfCells();
   double curr = 0;
   double step = total / 10;
-  if (step < 1000.0)
-  {
-    step = 1000.0;
-  }
+  step = std::max(step, 1000.0);
   double cstep = step;
 
   for (polys->InitTraversal(); polys->GetNextCell(numPts, ptIds);)
@@ -741,10 +738,7 @@ void vtkQuadricClustering::AddVertices(
 
   numCells = verts->GetNumberOfCells();
   double cstep = (double)numCells / 10.0;
-  if (cstep < 1000.0)
-  {
-    cstep = 1000.0;
-  }
+  cstep = std::max(cstep, 1000.0);
   double next = cstep;
   double curr = 0;
 
@@ -908,10 +902,7 @@ void vtkQuadricClustering::EndAppend()
   double newPt[3];
   numBuckets = this->NumberOfDivisions[0] * this->NumberOfDivisions[1] * this->NumberOfDivisions[2];
   double step = (double)numBuckets / 10.0;
-  if (step < 1000.0)
-  {
-    step = 1000.0;
-  }
+  step = std::max(step, 1000.0);
   double cstep = 0;
 
   // Check for misuse of the Append methods.

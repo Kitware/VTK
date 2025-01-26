@@ -180,10 +180,7 @@ int vtkQuadraticWedge::EvaluatePosition(const double* x, double closestPoint[3],
     pt0 = pts + 3 * WedgeEdges[i][0];
     pt1 = pts + 3 * WedgeEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestEdge < d2)
-    {
-      longestEdge = d2;
-    }
+    longestEdge = std::max(longestEdge, d2);
   }
   // longestEdge value is already squared
   double volumeBound = longestEdge * std::sqrt(longestEdge);

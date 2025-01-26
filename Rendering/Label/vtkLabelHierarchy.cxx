@@ -611,10 +611,7 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
     if (node.Node->num_children() > 0)
     {
       ++level;
-      if (level > maxLevel)
-      {
-        maxLevel = level;
-      }
+      maxLevel = std::max(level, maxLevel);
       for (int c = 0; c < 8; ++c)
       {
         vtkHierarchyNode child;
@@ -1973,8 +1970,7 @@ void vtkLabelHierarchy::ComputeHierarchy()
   {
     center[i] = (bounds[2 * i] + bounds[2 * i + 1]) / 2.;
     delta = fabs(bounds[2 * i + 1] - bounds[2 * i]);
-    if (delta > maxDim)
-      maxDim = delta;
+    maxDim = std::max(delta, maxDim);
   }
   // Implementation::PriorityComparator comparator( this );
   // Implementation::LabelSet allAnchors( comparator );
@@ -2460,10 +2456,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor2(vtkIdType anchor)
     curs.down(child);
   }
   curs->value().Insert(anchor);
-  if (curs.level() > this->ActualDepth)
-  {
-    this->ActualDepth = curs.level();
-  }
+  this->ActualDepth = std::max(curs.level(), this->ActualDepth);
 
   this->SmudgeAnchor2(curs, anchor, x);
 }
@@ -2520,10 +2513,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor3(vtkIdType anchor)
     curs.down(child);
   }
   curs->value().Insert(anchor);
-  if (curs.level() > this->ActualDepth)
-  {
-    this->ActualDepth = curs.level();
-  }
+  this->ActualDepth = std::max(curs.level(), this->ActualDepth);
 
   this->SmudgeAnchor3(curs, anchor, x);
 }

@@ -120,10 +120,7 @@ int vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
           {
             return 0;
           }
-          if (pmtime > this->PipelineMTime)
-          {
-            this->PipelineMTime = pmtime;
-          }
+          this->PipelineMTime = std::max(pmtime, this->PipelineMTime);
         }
       }
     }

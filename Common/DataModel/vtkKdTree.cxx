@@ -813,30 +813,12 @@ void vtkKdTree::BuildLocatorInternal()
   {
     double setBounds[6];
     iset->GetBounds(setBounds);
-    if (setBounds[0] < volBounds[0])
-    {
-      volBounds[0] = setBounds[0];
-    }
-    if (setBounds[2] < volBounds[2])
-    {
-      volBounds[2] = setBounds[2];
-    }
-    if (setBounds[4] < volBounds[4])
-    {
-      volBounds[4] = setBounds[4];
-    }
-    if (setBounds[1] > volBounds[1])
-    {
-      volBounds[1] = setBounds[1];
-    }
-    if (setBounds[3] > volBounds[3])
-    {
-      volBounds[3] = setBounds[3];
-    }
-    if (setBounds[5] > volBounds[5])
-    {
-      volBounds[5] = setBounds[5];
-    }
+    volBounds[0] = std::min(setBounds[0], volBounds[0]);
+    volBounds[2] = std::min(setBounds[2], volBounds[2]);
+    volBounds[4] = std::min(setBounds[4], volBounds[4]);
+    volBounds[1] = std::max(setBounds[1], volBounds[1]);
+    volBounds[3] = std::max(setBounds[3], volBounds[3]);
+    volBounds[5] = std::max(setBounds[5], volBounds[5]);
   }
 
   double diff[3], aLittle = 0.0;
@@ -1486,10 +1468,7 @@ float vtkKdTree::FindMaxLeftHalf(int dim, float* c1, int K)
 
   for (i = 3; i < K * 3; i += 3)
   {
-    if (Xcomponent[i] > max)
-    {
-      max = Xcomponent[i];
-    }
+    max = std::max(Xcomponent[i], max);
   }
   return max;
 }
@@ -1758,30 +1737,12 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints** ptArrays, int numPtArrays)
     double tmpbounds[6];
     ptArrays[i]->GetBounds(tmpbounds);
 
-    if (tmpbounds[0] < bounds[0])
-    {
-      bounds[0] = tmpbounds[0];
-    }
-    if (tmpbounds[2] < bounds[2])
-    {
-      bounds[2] = tmpbounds[2];
-    }
-    if (tmpbounds[4] < bounds[4])
-    {
-      bounds[4] = tmpbounds[4];
-    }
-    if (tmpbounds[1] > bounds[1])
-    {
-      bounds[1] = tmpbounds[1];
-    }
-    if (tmpbounds[3] > bounds[3])
-    {
-      bounds[3] = tmpbounds[3];
-    }
-    if (tmpbounds[5] > bounds[5])
-    {
-      bounds[5] = tmpbounds[5];
-    }
+    bounds[0] = std::min(tmpbounds[0], bounds[0]);
+    bounds[2] = std::min(tmpbounds[2], bounds[2]);
+    bounds[4] = std::min(tmpbounds[4], bounds[4]);
+    bounds[1] = std::max(tmpbounds[1], bounds[1]);
+    bounds[3] = std::max(tmpbounds[3], bounds[3]);
+    bounds[5] = std::max(tmpbounds[5], bounds[5]);
   }
 
   this->MaxWidth = 0.0;

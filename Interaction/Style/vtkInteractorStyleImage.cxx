@@ -503,10 +503,7 @@ void vtkInteractorStyleImage::WindowLevel()
     double newWindow = dx + window;
     double newLevel = level - dy;
 
-    if (newWindow < 0.01)
-    {
-      newWindow = 0.01;
-    }
+    newWindow = std::max(newWindow, 0.01);
 
     this->CurrentImageProperty->SetColorWindow(newWindow);
     this->CurrentImageProperty->SetColorLevel(newLevel);

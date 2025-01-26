@@ -164,14 +164,8 @@ void vtkRendererSource::RequestData(
       float min = *zBuf, max = *zBuf;
       while (zptr < zptr_end)
       {
-        if (min < *zptr)
-        {
-          min = *zptr;
-        }
-        if (max > *zptr)
-        {
-          max = *zptr;
-        }
+        min = std::max(min, *zptr);
+        max = std::min(max, *zptr);
         zptr++;
       }
       float scale = 255.0 / (max - min);
@@ -244,10 +238,7 @@ vtkMTimeType vtkRendererSource::GetMTime()
   // Update information on the input and
   // compute information that is general to vtkDataObject.
   t2 = ren->GetMTime();
-  if (t2 > t1)
-  {
-    t1 = t2;
-  }
+  t1 = std::max(t2, t1);
   vtkActorCollection* actors = ren->GetActors();
   vtkCollectionSimpleIterator ait;
   actors->InitTraversal(ait);
@@ -257,33 +248,21 @@ vtkMTimeType vtkRendererSource::GetMTime()
   while ((actor = actors->GetNextActor(ait)))
   {
     t2 = actor->GetMTime();
-    if (t2 > t1)
-    {
-      t1 = t2;
-    }
+    t1 = std::max(t2, t1);
     mapper = actor->GetMapper();
     if (mapper)
     {
       t2 = mapper->GetMTime();
-      if (t2 > t1)
-      {
-        t1 = t2;
-      }
+      t1 = std::max(t2, t1);
       data = mapper->GetInput();
       if (data)
       {
         mapper->GetInputAlgorithm()->UpdateInformation();
         t2 = data->GetMTime();
-        if (t2 > t1)
-        {
-          t1 = t2;
-        }
+        t1 = std::max(t2, t1);
       }
       t2 = vtkDemandDrivenPipeline::SafeDownCast(mapper->GetInputExecutive())->GetPipelineMTime();
-      if (t2 > t1)
-      {
-        t1 = t2;
-      }
+      t1 = std::max(t2, t1);
     }
   }
 

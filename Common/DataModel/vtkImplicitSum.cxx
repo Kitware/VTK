@@ -37,20 +37,14 @@ vtkMTimeType vtkImplicitSum::GetMTime()
   vtkImplicitFunction* f;
 
   fMtime = this->Weights->GetMTime();
-  if (fMtime > mtime)
-  {
-    mtime = fMtime;
-  }
+  mtime = std::max(fMtime, mtime);
 
   vtkCollectionSimpleIterator sit;
   for (this->FunctionList->InitTraversal(sit);
        (f = this->FunctionList->GetNextImplicitFunction(sit));)
   {
     fMtime = f->GetMTime();
-    if (fMtime > mtime)
-    {
-      mtime = fMtime;
-    }
+    mtime = std::max(fMtime, mtime);
   }
   return mtime;
 }

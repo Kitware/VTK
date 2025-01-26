@@ -735,10 +735,7 @@ vtkMTimeType vtkTransformConcatenation::GetMaxMTime()
       mtime = tuple->InverseTransform->GetMTime();
     }
 
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
 
   return result;

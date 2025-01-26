@@ -145,11 +145,8 @@ double vtkBox::EvaluateFunction(double x[3])
         {
           dist = x[i] - maxP[i];
         }
-        if (dist > minDistance) // remember, it's negative
-        {
-          minDistance = dist;
-        }
-      } // if inside
+        minDistance = std::max(dist, minDistance); // remember, it's negative
+      }                                            // if inside
     }
     else
     {
@@ -513,14 +510,8 @@ int vtkBox::IntersectWithLine(const double bounds[6], const double p1[3], const 
         else
         {
           x[i] = p1[i] * (1.0 - t) + p2[i] * t;
-          if (x[i] < bounds[2 * i])
-          {
-            x[i] = bounds[2 * i];
-          }
-          if (x[i] > bounds[2 * i + 1])
-          {
-            x[i] = bounds[2 * i + 1];
-          }
+          x[i] = std::max(x[i], bounds[2 * i]);
+          x[i] = std::min(x[i], bounds[2 * i + 1]);
         }
       }
     }

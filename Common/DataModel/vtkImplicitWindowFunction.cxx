@@ -92,10 +92,7 @@ vtkMTimeType vtkImplicitWindowFunction::GetMTime()
   if (this->ImplicitFunction)
   {
     fMtime = this->ImplicitFunction->GetMTime();
-    if (fMtime > mtime)
-    {
-      mtime = fMtime;
-    }
+    mtime = std::max(fMtime, mtime);
   }
   return mtime;
 }

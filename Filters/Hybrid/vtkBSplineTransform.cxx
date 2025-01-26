@@ -186,38 +186,14 @@ int vtkBSplineTransformBorder(int gridId0[3], int gridId1[3], int gridId2[3], in
   {
     // clamp to the boundary limits
     int emax = ext[k];
-    if (gridId0[k] < 0)
-    {
-      gridId0[k] = 0;
-    }
-    if (gridId0[k] > emax)
-    {
-      gridId0[k] = emax;
-    }
-    if (gridId1[k] < 0)
-    {
-      gridId1[k] = 0;
-    }
-    if (gridId1[k] > emax)
-    {
-      gridId1[k] = emax;
-    }
-    if (gridId2[k] < 0)
-    {
-      gridId2[k] = 0;
-    }
-    if (gridId2[k] > emax)
-    {
-      gridId2[k] = emax;
-    }
-    if (gridId3[k] < 0)
-    {
-      gridId3[k] = 0;
-    }
-    if (gridId3[k] > emax)
-    {
-      gridId3[k] = emax;
-    }
+    gridId0[k] = std::max(gridId0[k], 0);
+    gridId0[k] = std::min(gridId0[k], emax);
+    gridId1[k] = std::max(gridId1[k], 0);
+    gridId1[k] = std::min(gridId1[k], emax);
+    gridId2[k] = std::max(gridId2[k], 0);
+    gridId2[k] = std::min(gridId2[k], emax);
+    gridId3[k] = std::max(gridId3[k], 0);
+    gridId3[k] = std::min(gridId3[k], emax);
   }
 
   return pointIsInvalid;

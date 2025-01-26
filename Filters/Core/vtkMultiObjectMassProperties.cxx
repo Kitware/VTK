@@ -425,10 +425,7 @@ int vtkMultiObjectMassProperties::RequestData(vtkInformation* vtkNotUsed(request
     this->NumberOfObjects = 0;
     for (vtkIdType polyId = 0; polyId < numPolys; ++polyId)
     {
-      if (this->NumberOfObjects < (objectIds[polyId] + 1))
-      {
-        this->NumberOfObjects = (objectIds[polyId] + 1);
-      }
+      this->NumberOfObjects = std::max(this->NumberOfObjects, objectIds[polyId] + 1);
     }
     this->ObjectValidity->SetNumberOfTuples(this->NumberOfObjects);
     valid = this->ObjectValidity->GetPointer(0);

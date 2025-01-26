@@ -106,10 +106,7 @@ vtkIdType* vtkIdList::WritePointer(const vtkIdType i, const vtkIdType number)
   {
     this->Resize(newSize);
   }
-  if (newSize > this->NumberOfIds)
-  {
-    this->NumberOfIds = newSize;
-  }
+  this->NumberOfIds = std::max(newSize, this->NumberOfIds);
   return this->Ids + i;
 }
 
@@ -206,10 +203,7 @@ vtkIdType* vtkIdList::Resize(const vtkIdType sz)
     return nullptr;
   }
 
-  if (this->NumberOfIds > newSize)
-  {
-    this->NumberOfIds = newSize;
-  }
+  this->NumberOfIds = std::min(this->NumberOfIds, newSize);
 
   if (this->Ids)
   {

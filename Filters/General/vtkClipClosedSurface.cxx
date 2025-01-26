@@ -152,20 +152,14 @@ int vtkClipClosedSurface::ComputePipelineMTime(vtkInformation* vtkNotUsed(reques
   if (planes)
   {
     vtkMTimeType planesMTime = planes->GetMTime();
-    if (planesMTime > mTime)
-    {
-      mTime = planesMTime;
-    }
+    mTime = std::max(planesMTime, mTime);
 
     vtkCollectionSimpleIterator iter;
     planes->InitTraversal(iter);
     while ((plane = planes->GetNextPlane(iter)))
     {
       vtkMTimeType planeMTime = plane->GetMTime();
-      if (planeMTime > mTime)
-      {
-        mTime = planeMTime;
-      }
+      mTime = std::max(planeMTime, mTime);
     }
   }
 
@@ -464,10 +458,7 @@ int vtkClipClosedSurface::RequestData(vtkInformation* vtkNotUsed(request),
     inPolys->InitTraversal();
     while (inPolys->GetNextCell(npts, pts))
     {
-      if (npts > polyMax)
-      {
-        polyMax = npts;
-      }
+      polyMax = std::max<vtkIdType>(npts, polyMax);
     }
   }
 
@@ -938,14 +929,8 @@ void vtkClipClosedSurface::CreateColorValues(const double color1[3], const doubl
     for (int j = 0; j < 3; j++)
     {
       double val = dcolors[i][j];
-      if (val < 0)
-      {
-        val = 0;
-      }
-      if (val > 1)
-      {
-        val = 1;
-      }
+      val = std::max(val, 0.);
+      val = std::min(val, 1.);
       colors[i][j] = static_cast<unsigned char>(val * 255);
     }
   }

@@ -925,10 +925,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
     if (refinedRadius < currentRadius && ii > 2) // always check ii==1
     {
       ii = static_cast<int>(static_cast<double>(ii) * (refinedRadius / currentRadius)) + 1;
-      if (ii < 2)
-      {
-        ii = 2;
-      }
+      ii = std::max(ii, 2);
     }
   } // for each radius in the radius schedule
 
@@ -1007,10 +1004,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
           ptId = ids[j].PtId;
           this->DataSet->GetPoint(ptId, pt);
           dist2 = Distance2BetweenPoints2D(x, pt);
-          if (dist2 > maxDist2)
-          {
-            maxDist2 = dist2;
-          }
+          maxDist2 = std::max(dist2, maxDist2);
           sortedPts.emplace_back(ptId, dist2);
         }
         // As soon as N points found, jump out.

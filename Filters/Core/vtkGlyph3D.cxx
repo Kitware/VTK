@@ -258,14 +258,8 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
       source = this->GetSource(i, sourceVector);
       if (source != nullptr)
       {
-        if (source->GetNumberOfPoints() > numSourcePts)
-        {
-          numSourcePts = source->GetNumberOfPoints();
-        }
-        if (source->GetNumberOfCells() > numSourceCells)
-        {
-          numSourceCells = source->GetNumberOfCells();
-        }
+        numSourcePts = std::max(source->GetNumberOfPoints(), numSourcePts);
+        numSourceCells = std::max(source->GetNumberOfCells(), numSourceCells);
         if (!(sourceNormals = source->GetPointData()->GetNormals()))
         {
           haveNormals = 0;

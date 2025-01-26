@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkGenericGlyph3DFilter.h"
 
 #include "vtkGenericAttribute.h"
@@ -293,14 +295,8 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       if (this->GetSource(i) != nullptr)
       {
-        if (this->GetSource(i)->GetNumberOfPoints() > numSourcePts)
-        {
-          numSourcePts = this->GetSource(i)->GetNumberOfPoints();
-        }
-        if (this->GetSource(i)->GetNumberOfCells() > numSourceCells)
-        {
-          numSourceCells = this->GetSource(i)->GetNumberOfCells();
-        }
+        numSourcePts = std::max(this->GetSource(i)->GetNumberOfPoints(), numSourcePts);
+        numSourceCells = std::max(this->GetSource(i)->GetNumberOfCells(), numSourceCells);
         if (!(sourceNormals = this->GetSource(i)->GetPointData()->GetNormals()))
         {
           haveNormals = 0;

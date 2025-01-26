@@ -329,10 +329,7 @@ const double* vtkRandomPool::GeneratePool()
     vtkNew<vtkMultiThreader> threader;
     threader->SetNumberOfThreads(numThreads);
     vtkIdType actualThreads = threader->GetNumberOfThreads();
-    if (actualThreads < numThreads) // readjust work load
-    {
-      numThreads = actualThreads;
-    }
+    numThreads = std::min(actualThreads, numThreads); // readjust work load
 
     // Now distribute work
     vtkRandomPoolInfo info(this->Pool, seqSize, seqChunk, numThreads, this->Sequence);

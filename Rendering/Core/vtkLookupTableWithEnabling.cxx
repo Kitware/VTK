@@ -132,14 +132,8 @@ inline unsigned char* vtkLinearLookup(
   double v, unsigned char* table, double maxIndex, double shift, double scale)
 {
   double findx = (v + shift) * scale;
-  if (findx < 0)
-  {
-    findx = 0;
-  }
-  if (findx > maxIndex)
-  {
-    findx = maxIndex;
-  }
+  findx = std::max<double>(findx, 0);
+  findx = std::min(findx, maxIndex);
   return &table[4 * static_cast<int>(findx)];
   /* round
   return &table[4*(int)(findx + 0.5f)];

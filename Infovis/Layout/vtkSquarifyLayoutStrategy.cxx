@@ -113,10 +113,7 @@ void vtkSquarifyLayoutStrategy::LayoutChildren(vtkTree* tree, vtkDataArray* coor
       float ratio1 = curHeight / width;
       float ratio2 = width / curHeight;
       float curError = (ratio1 > ratio2) ? ratio1 : ratio2;
-      if (curError > rowError)
-      {
-        rowError = curError;
-      }
+      rowError = std::max(curError, rowError);
     }
     cur++;
   }

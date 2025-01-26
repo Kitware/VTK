@@ -1982,12 +1982,12 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(
           voxelPoint[0] = bounds[i];
           vtkVRCMultiplyPointMacro(voxelPoint, viewPoint[idx], voxelsToViewMatrix);
 
-          minX = (viewPoint[idx][0] < minX) ? (viewPoint[idx][0]) : (minX);
-          minY = (viewPoint[idx][1] < minY) ? (viewPoint[idx][1]) : (minY);
-          maxX = (viewPoint[idx][0] > maxX) ? (viewPoint[idx][0]) : (maxX);
-          maxY = (viewPoint[idx][1] > maxY) ? (viewPoint[idx][1]) : (maxY);
-          minZ = (viewPoint[idx][2] < minZ) ? (viewPoint[idx][2]) : (minZ);
-          maxZ = (viewPoint[idx][2] > maxZ) ? (viewPoint[idx][2]) : (maxZ);
+          minX = std::min<float>(viewPoint[idx][0], minX);
+          minY = std::min<float>(viewPoint[idx][1], minY);
+          maxX = std::max<float>(viewPoint[idx][0], maxX);
+          maxY = std::max<float>(viewPoint[idx][1], maxY);
+          minZ = std::min<float>(viewPoint[idx][2], minZ);
+          maxZ = std::max<float>(viewPoint[idx][2], maxZ);
           idx++;
         }
       }
@@ -2195,14 +2195,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(
           xhigh = (xhigh < 0) ? (0) : (xhigh);
           xhigh = (xhigh > imageInUseSize[0] - 1) ? (imageInUseSize[0] - 1) : (xhigh);
 
-          if (xlow < this->RowBounds[j * 2])
-          {
-            this->RowBounds[j * 2] = xlow;
-          }
-          if (xhigh > this->RowBounds[j * 2 + 1])
-          {
-            this->RowBounds[j * 2 + 1] = xhigh;
-          }
+          this->RowBounds[j * 2] = std::min(xlow, this->RowBounds[j * 2]);
+          this->RowBounds[j * 2 + 1] = std::max(xhigh, this->RowBounds[j * 2 + 1]);
         }
       }
       // If they are the same this is either a point on the cube or

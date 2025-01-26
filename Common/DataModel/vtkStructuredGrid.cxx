@@ -462,14 +462,8 @@ void vtkStructuredGrid::ComputeScalarRange()
         if (this->IsPointVisible(id))
         {
           s = ptScalars->GetComponent(id, 0);
-          if (s < ptRange[0])
-          {
-            ptRange[0] = s;
-          }
-          if (s > ptRange[1])
-          {
-            ptRange[1] = s;
-          }
+          ptRange[0] = std::min(s, ptRange[0]);
+          ptRange[1] = std::max(s, ptRange[1]);
         }
       }
     }
@@ -484,14 +478,8 @@ void vtkStructuredGrid::ComputeScalarRange()
         if (this->IsCellVisible(id))
         {
           s = cellScalars->GetComponent(id, 0);
-          if (s < cellRange[0])
-          {
-            cellRange[0] = s;
-          }
-          if (s > cellRange[1])
-          {
-            cellRange[1] = s;
-          }
+          cellRange[0] = std::min(s, cellRange[0]);
+          cellRange[1] = std::max(s, cellRange[1]);
         }
       }
     }
@@ -525,15 +513,9 @@ void vtkStructuredGrid::Crop(const int* updateExtent)
   for (i = 0; i < 3; ++i)
   {
     uExt[i * 2] = updateExtent[i * 2];
-    if (uExt[i * 2] < extent[i * 2])
-    {
-      uExt[i * 2] = extent[i * 2];
-    }
+    uExt[i * 2] = std::max(uExt[i * 2], extent[i * 2]);
     uExt[i * 2 + 1] = updateExtent[i * 2 + 1];
-    if (uExt[i * 2 + 1] > extent[i * 2 + 1])
-    {
-      uExt[i * 2 + 1] = extent[i * 2 + 1];
-    }
+    uExt[i * 2 + 1] = std::min(uExt[i * 2 + 1], extent[i * 2 + 1]);
   }
 
   // If extents already match, then we need to do nothing.

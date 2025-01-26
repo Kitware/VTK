@@ -52,14 +52,8 @@ double vtkKochanekSpline::Evaluate(double t)
   }
 
   // clamp the function at both ends
-  if (t < intervals[0])
-  {
-    t = intervals[0];
-  }
-  if (t > intervals[size - 1])
-  {
-    t = intervals[size - 1];
-  }
+  t = std::max(t, intervals[0]);
+  t = std::min(t, intervals[size - 1]);
 
   // find pointer to cubic spline coefficient
   index = this->FindIndex(size, t);

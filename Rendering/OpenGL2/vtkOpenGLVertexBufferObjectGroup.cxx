@@ -378,10 +378,7 @@ vtkMTimeType vtkOpenGLVertexBufferObjectGroup::GetMTime()
   for (vboIter i = this->UsedVBOs.begin(); i != this->UsedVBOs.end(); ++i)
   {
     vtkMTimeType time = i->second->GetMTime();
-    if (time > mTime)
-    {
-      mTime = time;
-    }
+    mTime = std::max(time, mTime);
   }
 
   return mTime;

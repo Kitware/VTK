@@ -64,7 +64,8 @@
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingHybridModule.h" // For export macro
 
-#include <cmath> // for std::exp
+#include <algorithm> // std::min, std::max
+#include <cmath>     // for std::exp
 
 #define VTK_ACCUMULATION_MODE_MIN 0
 #define VTK_ACCUMULATION_MODE_MAX 1
@@ -251,16 +252,10 @@ public:
       switch (this->AccumulationMode)
       {
         case VTK_ACCUMULATION_MODE_MIN:
-          if (*sPtr > v)
-          {
-            *sPtr = v;
-          }
+          *sPtr = std::min(*sPtr, v);
           break;
         case VTK_ACCUMULATION_MODE_MAX:
-          if (*sPtr < v)
-          {
-            *sPtr = v;
-          }
+          *sPtr = std::max(*sPtr, v);
           break;
         case VTK_ACCUMULATION_MODE_SUM:
           *sPtr += v;

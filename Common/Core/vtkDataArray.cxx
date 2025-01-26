@@ -727,10 +727,7 @@ double vtkDataArray::GetMaxNorm()
   for (i = 0; i < this->GetNumberOfTuples(); i++)
   {
     norm = vtkMath::Norm(this->GetTuple(i), nComponents);
-    if (norm > maxNorm)
-    {
-      maxNorm = norm;
-    }
+    maxNorm = std::max(norm, maxNorm);
   }
 
   return maxNorm;

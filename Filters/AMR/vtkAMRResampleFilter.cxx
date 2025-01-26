@@ -943,10 +943,7 @@ void vtkAMRResampleFilter::ComputeLevelOfResolution(
   {
     double c1 = ((N[i] * h0[i]) / L[i]);
     int currentLevel = vtkMath::Floor(0.5 + (log(c1) / log(rf)));
-    if (currentLevel > this->LevelOfResolution)
-    {
-      this->LevelOfResolution = currentLevel;
-    }
+    this->LevelOfResolution = std::max(currentLevel, this->LevelOfResolution);
   } // END for all i
   std::cerr << "Requested Max Level = " << this->LevelOfResolution << "\n";
 }
@@ -993,10 +990,7 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
       dx = this->GridMax[i] - this->Min[i];
       endIndex = static_cast<int>(dx / Rh[i] + 1);
 
-      if (endIndex > N[i])
-      {
-        endIndex = N[i];
-      }
+      endIndex = std::min(endIndex, N[i]);
       int newN = endIndex - startIndex + 1;
       if (newN <= N[i])
       {

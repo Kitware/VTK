@@ -50,15 +50,9 @@ static void vtkOpaqueAtElementCentroid(
       point[1] = j / YScale;
       dist = vtkMath::Distance2BetweenPoints(point, v1);
       distToV2 = vtkMath::Distance2BetweenPoints(point, v2);
-      if (distToV2 < dist)
-      {
-        dist = distToV2;
-      }
+      dist = std::min(distToV2, dist);
       distToV3 = vtkMath::Distance2BetweenPoints(point, v3);
-      if (distToV3 < dist)
-      {
-        dist = distToV3;
-      }
+      dist = std::min(distToV3, dist);
 
       opacity = sqrt(dist) * ScaleFactor;
       if (opacity < .5)
@@ -101,15 +95,9 @@ static void vtkOpaqueAtVertices(
       point[1] = j / YScale;
       dist = vtkMath::Distance2BetweenPoints(point, v1);
       distToV2 = vtkMath::Distance2BetweenPoints(point, v2);
-      if (distToV2 < dist)
-      {
-        dist = distToV2;
-      }
+      dist = std::min(distToV2, dist);
       distToV3 = vtkMath::Distance2BetweenPoints(point, v3);
-      if (distToV3 < dist)
-      {
-        dist = distToV3;
-      }
+      dist = std::min(distToV3, dist);
 
       opacity = sqrt(dist) * ScaleFactor;
       if (opacity < .5)

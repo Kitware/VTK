@@ -11,6 +11,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -174,14 +175,8 @@ int vtkImageAccumulateExecute(vtkImageAccumulate* self, vtkImageData* inData, T*
             // gather statistics
             sum[idxC] += v;
             sumSqr[idxC] += v * v;
-            if (v > max[idxC])
-            {
-              max[idxC] = v;
-            }
-            if (v < min[idxC])
-            {
-              min[idxC] = v;
-            }
+            max[idxC] = std::max(v, max[idxC]);
+            min[idxC] = std::min(v, min[idxC]);
             (*voxelCount)++;
           }
 

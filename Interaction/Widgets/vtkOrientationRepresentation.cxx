@@ -24,6 +24,8 @@
 #include "vtkTransformFilter.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientationRepresentation);
 
@@ -264,10 +266,8 @@ int vtkOrientationRepresentation::ComputeInteractionState(int X, int Y, int vtkN
 void vtkOrientationRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkOrientationRepresentation::Outside
-      ? vtkOrientationRepresentation::Outside
-      : (state > vtkOrientationRepresentation::RotatingZ ? vtkOrientationRepresentation::RotatingZ
-                                                         : state));
+  state = std::clamp<int>(
+    state, vtkOrientationRepresentation::Outside, vtkOrientationRepresentation::RotatingZ);
 
   this->InteractionState = state;
   this->HighlightHandle();
@@ -361,9 +361,7 @@ double vtkOrientationRepresentation::GetOrientationZ()
 //------------------------------------------------------------------------------
 void vtkOrientationRepresentation::SetProperty(int axis, bool selected, vtkProperty* property)
 {
-  Axis clampedAxis = axis < Axis::X_AXIS
-    ? Axis::X_AXIS
-    : (axis > Axis::Z_AXIS ? Axis::Z_AXIS : static_cast<Axis>(axis));
+  Axis clampedAxis = static_cast<Axis>(std::clamp<int>(axis, Axis::X_AXIS, Axis::Z_AXIS));
   if (selected)
   {
     if (this->SelectedProperties[clampedAxis] != property)
@@ -387,9 +385,7 @@ void vtkOrientationRepresentation::SetProperty(int axis, bool selected, vtkPrope
 //------------------------------------------------------------------------------
 vtkProperty* vtkOrientationRepresentation::GetProperty(int axis, bool selected)
 {
-  Axis clampedAxis = axis < Axis::X_AXIS
-    ? Axis::X_AXIS
-    : (axis > Axis::Z_AXIS ? Axis::Z_AXIS : static_cast<Axis>(axis));
+  Axis clampedAxis = static_cast<Axis>(std::clamp<int>(axis, Axis::X_AXIS, Axis::Z_AXIS));
   return selected ? this->SelectedProperties[clampedAxis] : this->Properties[clampedAxis];
 }
 

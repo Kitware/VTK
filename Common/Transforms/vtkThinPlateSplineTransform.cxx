@@ -167,18 +167,12 @@ vtkMTimeType vtkThinPlateSplineTransform::GetMTime()
   if (this->SourceLandmarks)
   {
     mtime = this->SourceLandmarks->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
   if (this->TargetLandmarks)
   {
     mtime = this->TargetLandmarks->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
   return result;
 }
@@ -281,10 +275,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     for (i = 0; i < N + D + 1; i++)
     {
       double tmp = fabs(values[i]);
-      if (tmp > maxValue)
-      {
-        maxValue = tmp;
-      }
+      maxValue = std::max(tmp, maxValue);
     }
 
     for (i = 0; i < N + D + 1; i++)

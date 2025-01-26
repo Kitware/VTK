@@ -408,10 +408,7 @@ double vtkHigherOrderQuadrilateral::GetParametricDistance(const double pcoords[3
   for (int ii = 0; ii < 2; ++ii)
   {
     pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   // The quadrilateral's 3rd parametric coordinate should always be 0:

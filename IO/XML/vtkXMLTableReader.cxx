@@ -96,10 +96,7 @@ void vtkXMLTableReader::SetupUpdateExtent(int piece, int numberOfPieces)
 
   // If more pieces are requested than available, just return empty
   // pieces for the extra ones.
-  if (this->UpdateNumberOfPieces > this->NumberOfPieces)
-  {
-    this->UpdateNumberOfPieces = this->NumberOfPieces;
-  }
+  this->UpdateNumberOfPieces = std::min(this->UpdateNumberOfPieces, this->NumberOfPieces);
 
   // Find the range of pieces to read.
   if (this->UpdatedPiece < this->UpdateNumberOfPieces)

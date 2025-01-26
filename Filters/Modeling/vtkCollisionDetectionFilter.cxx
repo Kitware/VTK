@@ -344,18 +344,12 @@ static int ComputeCollisions(
       boundsB[1] = boundsB[3] = boundsB[5] = VTK_DOUBLE_MIN;
       for (v = 0; v < 9; v = v + 3)
       {
-        if (ptsB[v] < boundsB[0])
-          boundsB[0] = ptsB[v];
-        if (ptsB[v] > boundsB[1])
-          boundsB[1] = ptsB[v];
-        if (ptsB[v + 1] < boundsB[2])
-          boundsB[2] = ptsB[v + 1];
-        if (ptsB[v + 1] > boundsB[3])
-          boundsB[3] = ptsB[v + 1];
-        if (ptsB[v + 2] < boundsB[4])
-          boundsB[4] = ptsB[v + 2];
-        if (ptsB[v + 2] > boundsB[5])
-          boundsB[5] = ptsB[v + 2];
+        boundsB[0] = std::min(ptsB[v], boundsB[0]);
+        boundsB[1] = std::max(ptsB[v], boundsB[1]);
+        boundsB[2] = std::min(ptsB[v + 1], boundsB[2]);
+        boundsB[3] = std::max(ptsB[v + 1], boundsB[3]);
+        boundsB[4] = std::min(ptsB[v + 2], boundsB[4]);
+        boundsB[5] = std::max(ptsB[v + 2], boundsB[5]);
       }
       // Test for intersection
       if (contactcells1 && contactcells2 &&

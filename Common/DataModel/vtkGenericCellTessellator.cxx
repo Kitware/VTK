@@ -126,10 +126,7 @@ void vtkGenericCellTessellator::UpdateMaxError(
   {
     double error = e->GetError(leftPoint, midPoint, rightPoint, alpha);
     assert("check: positive_error" && error >= 0);
-    if (error > this->MaxErrors[i])
-    {
-      this->MaxErrors[i] = error;
-    }
+    this->MaxErrors[i] = std::max(error, this->MaxErrors[i]);
     e = static_cast<vtkGenericSubdivisionErrorMetric*>(this->ErrorMetrics->GetNextItemAsObject());
   }
 }

@@ -10,6 +10,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageStencilToImage);
 
@@ -62,22 +64,8 @@ void vtkImageStencilToImageExecute(vtkImageStencilToImage* self, vtkImageStencil
   double tmin = outData->GetScalarTypeMin();
   double tmax = outData->GetScalarTypeMax();
 
-  if (inValueD < tmin)
-  {
-    inValueD = tmin;
-  }
-  if (inValueD > tmax)
-  {
-    inValueD = tmax;
-  }
-  if (outValueD < tmin)
-  {
-    outValueD = tmin;
-  }
-  if (outValueD > tmax)
-  {
-    outValueD = tmax;
-  }
+  inValueD = std::clamp(inValueD, tmin, tmax);
+  outValueD = std::clamp(outValueD, tmin, tmax);
 
   T inValue = static_cast<T>(inValueD);
   T outValue = static_cast<T>(outValueD);

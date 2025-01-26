@@ -159,10 +159,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6], int startExt[6], int
       maxPieces *= maxdivs[axis2];
     }
   }
-  if (total > maxPieces)
-  {
-    total = maxPieces;
-  }
+  total = std::min<vtkTypeInt64>(total, maxPieces);
 
   if (mode == SLAB || pathlen < 2)
   {
@@ -210,10 +207,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6], int startExt[6], int
 
       // compute final division
       divs[axis0] = total / divs[axis1];
-      if (divs[axis0] > maxdivs[axis0])
-      {
-        divs[axis0] = maxdivs[axis0];
-      }
+      divs[axis0] = std::min(divs[axis0], maxdivs[axis0]);
       divs[axis1] = total / divs[axis0];
       if (divs[axis1] > maxdivs[axis1])
       {
@@ -292,20 +286,11 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6], int startExt[6], int
 
     // compute the final division
     divs[axis0] = total / (divs[axis1] * divs[axis2]);
-    if (divs[axis0] > maxdivs[axis0])
-    {
-      divs[axis0] = maxdivs[axis0];
-    }
+    divs[axis0] = std::min(divs[axis0], maxdivs[axis0]);
     divs[axis1] = total / (divs[axis0] * divs[axis2]);
-    if (divs[axis1] > maxdivs[axis1])
-    {
-      divs[axis1] = maxdivs[axis1];
-    }
+    divs[axis1] = std::min(divs[axis1], maxdivs[axis1]);
     divs[axis2] = total / (divs[axis0] * divs[axis1]);
-    if (divs[axis2] > maxdivs[axis2])
-    {
-      divs[axis2] = maxdivs[axis2];
-    }
+    divs[axis2] = std::min(divs[axis2], maxdivs[axis2]);
   }
 
   // compute new total from the chosen divisions

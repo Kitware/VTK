@@ -126,10 +126,7 @@ int vtkTreeFieldAggregator::RequestData(vtkInformation* vtkNotUsed(request),
       if (this->LogScale)
       {
         value = log10(value);
-        if (value < this->MinValue)
-        {
-          value = this->MinValue;
-        }
+        value = std::max(value, this->MinValue);
       }
     }
     else

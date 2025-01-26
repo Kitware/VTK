@@ -1051,16 +1051,16 @@ void vtkImageMapper3D::CheckerboardRGBA(unsigned char* data, int xsize, int ysiz
   originx += 1.0 + tol;
   originy += 1.0 + tol;
 
-  originx = (originx > minval ? originx : minval);
-  originx = (originx < maxval ? originx : maxval);
-  originy = (originy > minval ? originy : minval);
-  originy = (originy < maxval ? originy : maxval);
+  originx = std::max(originx, minval);
+  originx = std::min(originx, maxval);
+  originy = std::max(originy, minval);
+  originy = std::min(originy, maxval);
 
   spacingx = fabs(spacingx);
   spacingy = fabs(spacingy);
 
-  spacingx = (spacingx < maxval ? spacingx : maxval);
-  spacingy = (spacingy < maxval ? spacingy : maxval);
+  spacingx = std::min(spacingx, maxval);
+  spacingy = std::min(spacingy, maxval);
   spacingx = (spacingx != 0 ? spacingx : maxval);
   spacingy = (spacingy != 0 ? spacingy : maxval);
 

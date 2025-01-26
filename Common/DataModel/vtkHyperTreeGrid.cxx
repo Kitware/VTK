@@ -672,10 +672,7 @@ unsigned int vtkHyperTreeGrid::GetNumberOfLevels()
   while ((tree = it.GetNextTree()) != nullptr)
   {
     const vtkIdType nl = tree->GetNumberOfLevels();
-    if (nl > nLevels)
-    {
-      nLevels = nl;
-    }
+    nLevels = std::max(nl, nLevels);
   } // while (it.GetNextTree(inIndex))
 
   return nLevels;

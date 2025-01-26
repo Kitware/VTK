@@ -85,14 +85,8 @@ void vtkProp3DButtonRepresentation::SetState(int state)
 //------------------------------------------------------------------------------
 void vtkProp3DButtonRepresentation::SetButtonProp(int i, vtkProp3D* prop)
 {
-  if (i < 0)
-  {
-    i = 0;
-  }
-  if (i >= this->NumberOfStates)
-  {
-    i = this->NumberOfStates - 1;
-  }
+  i = std::max(i, 0);
+  i = std::min(i, this->NumberOfStates - 1);
 
   vtkScaledProp sprop;
   sprop.Prop = prop;
@@ -103,14 +97,8 @@ void vtkProp3DButtonRepresentation::SetButtonProp(int i, vtkProp3D* prop)
 //------------------------------------------------------------------------------
 vtkProp3D* vtkProp3DButtonRepresentation::GetButtonProp(int i)
 {
-  if (i < 0)
-  {
-    i = 0;
-  }
-  if (i >= this->NumberOfStates)
-  {
-    i = this->NumberOfStates - 1;
-  }
+  i = std::max(i, 0);
+  i = std::min(i, this->NumberOfStates - 1);
 
   vtkPropArrayIterator iter = this->PropArray->find(i);
   if (iter != this->PropArray->end())

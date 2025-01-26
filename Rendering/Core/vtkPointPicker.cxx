@@ -48,10 +48,7 @@ bool UpdateClosestPoint(double x[3], const double p1[3], double ray[3], double r
   {
     projXYZ[i] = p1[i] + t * ray[i];
     double dist = fabs(x[i] - projXYZ[i]);
-    if (dist > maxDist)
-    {
-      maxDist = dist;
-    }
+    maxDist = std::max(dist, maxDist);
   }
 
   if (maxDist <= tol && maxDist < distMin)

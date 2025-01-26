@@ -1097,10 +1097,7 @@ int vtkCubeAxesActor::Digits(double min, double max)
       // Anything more than 5 is just noise.  (and probably 5 is noise with
       // doubling point if the part before the decimal is big).
 
-      if (digitsPastDecimal > 5)
-      {
-        digitsPastDecimal = 5;
-      }
+      digitsPastDecimal = std::min<long>(digitsPastDecimal, 5);
     }
   }
 

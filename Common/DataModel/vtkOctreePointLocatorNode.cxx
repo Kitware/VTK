@@ -145,14 +145,8 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
       const double* max = this->Children[i]->GetMaxDataBounds();
       for (int j = 0; j < 3; j++)
       {
-        if (min[j] < this->MinDataBounds[j])
-        {
-          this->MinDataBounds[j] = min[j];
-        }
-        if (max[j] > this->MaxDataBounds[j])
-        {
-          this->MaxDataBounds[j] = max[j];
-        }
+        this->MinDataBounds[j] = std::min(min[j], this->MinDataBounds[j]);
+        this->MaxDataBounds[j] = std::max(max[j], this->MaxDataBounds[j]);
       }
     }
   }

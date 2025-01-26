@@ -462,8 +462,7 @@ int vtkPSLACReader::ReadTetrahedronInteriorArray(int meshFD, vtkIdTypeArray* con
   vtkIdType numTetsPerPiece = numTets / this->NumberOfPieces + 1;
   vtkIdType startTet = this->RequestedPiece * numTetsPerPiece;
   vtkIdType endTet = startTet + numTetsPerPiece;
-  if (endTet > numTets)
-    endTet = numTets;
+  endTet = std::min(endTet, numTets);
 
   size_t start[2];
   size_t count[2];
@@ -492,8 +491,7 @@ int vtkPSLACReader::ReadTetrahedronExteriorArray(int meshFD, vtkIdTypeArray* con
   vtkIdType numTetsPerPiece = numTets / this->NumberOfPieces + 1;
   vtkIdType startTet = this->RequestedPiece * numTetsPerPiece;
   vtkIdType endTet = startTet + numTetsPerPiece;
-  if (endTet > numTets)
-    endTet = numTets;
+  endTet = std::min(endTet, numTets);
 
   size_t start[2];
   size_t count[2];
@@ -964,10 +962,7 @@ int vtkPSLACReader::ReadMidpointCoordinates(
   vtkIdType numMidpointsPerPiece = this->NumberOfGlobalMidpoints / this->NumberOfPieces + 1;
   vtkIdType startMidpoint = this->RequestedPiece * numMidpointsPerPiece;
   vtkIdType endMidpoint = startMidpoint + numMidpointsPerPiece;
-  if (endMidpoint > this->NumberOfGlobalMidpoints)
-  {
-    endMidpoint = this->NumberOfGlobalMidpoints;
-  }
+  endMidpoint = std::min(endMidpoint, this->NumberOfGlobalMidpoints);
 
   size_t starts[2];
   size_t counts[2];

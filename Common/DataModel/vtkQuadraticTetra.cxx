@@ -150,10 +150,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
     pt0 = pts + 3 * TetraEdges[i][0];
     pt1 = pts + 3 * TetraEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestEdge < d2)
-    {
-      longestEdge = d2;
-    }
+    longestEdge = std::max(longestEdge, d2);
   }
   // longestEdge value is already squared
   double volumeBound = longestEdge * std::sqrt(longestEdge);
@@ -661,10 +658,7 @@ double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
     {
       pDist = 0.0;
     }
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   return pDistMax;

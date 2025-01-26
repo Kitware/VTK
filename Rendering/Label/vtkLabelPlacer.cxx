@@ -69,10 +69,8 @@ public:
         d2 = d2 < d3 ? d2 : d3;
         if (d0 < 1. && d2 < 1.)
         {
-          if (d0 < opacity)
-            opacity = d0;
-          if (d2 < opacity)
-            opacity = d2;
+          opacity = std::min(d0, opacity);
+          opacity = std::min(d2, opacity);
         }
       }
       return true;
@@ -633,15 +631,13 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       case HorizontalLeftBit:
         t1 = dispx[0] < kdbounds[0] ? kdbounds[0] : dispx[0];
         t2 = dispx[0] + sz[0];
-        if (t2 > kdbounds[1])
-          t2 = kdbounds[1];
+        t2 = std::min<double>(t2, kdbounds[1]);
         ll[0] = ul[0] = t1;
         lr[0] = ur[0] = t2;
         break;
       case HorizontalRightBit:
         t1 = dispx[0] - sz[0];
-        if (t1 < kdbounds[0])
-          t1 = kdbounds[0];
+        t1 = std::max<double>(t1, kdbounds[0]);
         t2 = dispx[0] > kdbounds[1] ? kdbounds[1] : dispx[0];
         ll[0] = ul[0] = t1;
         lr[0] = ur[0] = t2;
@@ -649,11 +645,9 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       default:
       case HorizontalCenterBit:
         t1 = dispx[0] - sz[0] / 2;
-        if (t1 < kdbounds[0])
-          t1 = kdbounds[0];
+        t1 = std::max<double>(t1, kdbounds[0]);
         t2 = dispx[0] + sz[0] / 2;
-        if (t2 > kdbounds[1])
-          t2 = kdbounds[1];
+        t2 = std::min<double>(t2, kdbounds[1]);
         ll[0] = ul[0] = t1;
         lr[0] = ur[0] = t2;
         break;
@@ -669,15 +663,13 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       case VerticalBaselineBit:
         t1 = dispx[1] < kdbounds[2] ? kdbounds[2] : dispx[1];
         t2 = dispx[1] + sz[1];
-        if (t2 > kdbounds[3])
-          t2 = kdbounds[3];
+        t2 = std::min<double>(t2, kdbounds[3]);
         ll[1] = lr[1] = t1;
         ul[1] = ur[1] = t2;
         break;
       case VerticalTopBit:
         t1 = dispx[1] - sz[1];
-        if (t1 < kdbounds[2])
-          t1 = kdbounds[2];
+        t1 = std::max<double>(t1, kdbounds[2]);
         t2 = dispx[1] > kdbounds[3] ? kdbounds[3] : dispx[1];
         ll[1] = lr[1] = t1;
         ul[1] = ur[1] = t2;
@@ -685,11 +677,9 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
       default:
       case VerticalCenterBit:
         t1 = dispx[1] - sz[1] / 2;
-        if (t1 < kdbounds[2])
-          t1 = kdbounds[2];
+        t1 = std::max<double>(t1, kdbounds[2]);
         t2 = dispx[1] + sz[1] / 2;
-        if (t2 > kdbounds[3])
-          t2 = kdbounds[3];
+        t2 = std::min<double>(t2, kdbounds[3]);
         ll[1] = lr[1] = t1;
         ul[1] = ur[1] = t2;
         break;

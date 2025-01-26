@@ -194,10 +194,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkCellArray* conn[2];
   conn[0] = vtkCellArray::New();
   conn[0]->AllocateEstimate(estimatedSize, 1);

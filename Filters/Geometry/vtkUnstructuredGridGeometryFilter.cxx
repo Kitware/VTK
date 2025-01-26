@@ -834,10 +834,7 @@ void vtkUnstructuredGridGeometryFilter::SetExtent(double extent[6])
     this->Modified();
     for (i = 0; i < 3; i++)
     {
-      if (extent[2 * i + 1] < extent[2 * i])
-      {
-        extent[2 * i + 1] = extent[2 * i];
-      }
+      extent[2 * i + 1] = std::max(extent[2 * i + 1], extent[2 * i]);
       this->Extent[2 * i] = extent[2 * i];
       this->Extent[2 * i + 1] = extent[2 * i + 1];
     }

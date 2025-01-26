@@ -214,14 +214,8 @@ void vtkChartXYZ::RecalculateBounds()
       const vtkVector3f& v = points[j];
       for (int k = 0; k < 3; ++k)
       {
-        if (v[k] < bounds[2 * k])
-        {
-          bounds[2 * k] = v[k];
-        }
-        if (v[k] > bounds[2 * k + 1])
-        {
-          bounds[2 * k + 1] = v[k];
-        }
+        bounds[2 * k] = std::min<double>(v[k], bounds[2 * k]);
+        bounds[2 * k + 1] = std::max<double>(v[k], bounds[2 * k + 1]);
       }
     }
   }
@@ -402,22 +396,10 @@ void vtkChartXYZ::ComputeDataBounds()
     {
       this->ContextTransform->TransformPoint(plot->GetDataBounds()[j].GetData(), transformedPoint);
 
-      if (transformedPoint[0] < xMin)
-      {
-        xMin = transformedPoint[0];
-      }
-      if (transformedPoint[0] > xMax)
-      {
-        xMax = transformedPoint[0];
-      }
-      if (transformedPoint[1] < yMin)
-      {
-        yMin = transformedPoint[1];
-      }
-      if (transformedPoint[1] > yMax)
-      {
-        yMax = transformedPoint[1];
-      }
+      xMin = std::min<double>(transformedPoint[0], xMin);
+      xMax = std::max<double>(transformedPoint[0], xMax);
+      yMin = std::min<double>(transformedPoint[1], yMin);
+      yMax = std::max<double>(transformedPoint[1], yMax);
     }
   }
 

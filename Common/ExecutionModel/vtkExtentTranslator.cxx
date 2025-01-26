@@ -107,30 +107,12 @@ int vtkExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces, int g
     resultExtent[4] -= ghostLevel;
     resultExtent[5] += ghostLevel;
 
-    if (resultExtent[0] < wholeExtent[0])
-    {
-      resultExtent[0] = wholeExtent[0];
-    }
-    if (resultExtent[1] > wholeExtent[1])
-    {
-      resultExtent[1] = wholeExtent[1];
-    }
-    if (resultExtent[2] < wholeExtent[2])
-    {
-      resultExtent[2] = wholeExtent[2];
-    }
-    if (resultExtent[3] > wholeExtent[3])
-    {
-      resultExtent[3] = wholeExtent[3];
-    }
-    if (resultExtent[4] < wholeExtent[4])
-    {
-      resultExtent[4] = wholeExtent[4];
-    }
-    if (resultExtent[5] > wholeExtent[5])
-    {
-      resultExtent[5] = wholeExtent[5];
-    }
+    resultExtent[0] = std::max(resultExtent[0], wholeExtent[0]);
+    resultExtent[1] = std::min(resultExtent[1], wholeExtent[1]);
+    resultExtent[2] = std::max(resultExtent[2], wholeExtent[2]);
+    resultExtent[3] = std::min(resultExtent[3], wholeExtent[3]);
+    resultExtent[4] = std::max(resultExtent[4], wholeExtent[4]);
+    resultExtent[5] = std::min(resultExtent[5], wholeExtent[5]);
   }
 
   return 1;

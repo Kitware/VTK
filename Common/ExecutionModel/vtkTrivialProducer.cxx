@@ -73,10 +73,7 @@ vtkMTimeType vtkTrivialProducer::GetMTime()
   if (this->Output)
   {
     vtkMTimeType omtime = this->Output->GetMTime();
-    if (omtime > mtime)
-    {
-      mtime = omtime;
-    }
+    mtime = std::max(omtime, mtime);
   }
   return mtime;
 }

@@ -1028,10 +1028,7 @@ double vtkCubeAxesActor2D::EvaluatePoint(double planes[24], double x[3])
     plane = planes + kk * 4;
     val = plane[0] * x[0] + plane[1] * x[1] + plane[2] * x[2] + plane[3];
 
-    if (val < minPlanesValue)
-    {
-      minPlanesValue = val;
-    }
+    minPlanesValue = std::min(val, minPlanesValue);
   } // for all planes
 
   return minPlanesValue;
@@ -1055,10 +1052,7 @@ double vtkCubeAxesActor2D::EvaluateBounds(double planes[24], double bounds[6])
       {
         x[0] = bounds[i];
         val = this->EvaluatePoint(planes, x);
-        if (val < minVal)
-        {
-          minVal = val;
-        }
+        minVal = std::min(val, minVal);
       }
     }
   } // loop over verts of bounding box

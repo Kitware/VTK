@@ -176,10 +176,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(vtkInformation* vtkNotUsed(request
   while (this->Streamlines->GetNumberOfItems())
   {
     int numberOfItems = this->Streamlines->GetNumberOfItems();
-    if (numberOfItems > maxNumberOfItems)
-    {
-      maxNumberOfItems = numberOfItems;
-    }
+    maxNumberOfItems = std::max(numberOfItems, maxNumberOfItems);
     if (processedSeedId % 10 == 0)
     {
       float progress = (static_cast<float>(maxNumberOfItems) - numberOfItems) / maxNumberOfItems;
@@ -325,10 +322,7 @@ bool vtkEvenlySpacedStreamlines2D::IsStreamlineLooping(
 
   // add the point to the list
   This->CurrentPoints[cellId].push_back(p0);
-  if (p0 < This->MinPointIds[cellId])
-  {
-    This->MinPointIds[cellId] = p0;
-  }
+  This->MinPointIds[cellId] = std::min(p0, This->MinPointIds[cellId]);
   return retVal;
 }
 
@@ -675,10 +669,7 @@ int vtkEvenlySpacedStreamlines2D::CheckInputs(
       if (inp)
       {
         int cellSize = inp->GetMaxCellSize();
-        if (cellSize > *maxCellSize)
-        {
-          *maxCellSize = cellSize;
-        }
+        *maxCellSize = std::max(cellSize, *maxCellSize);
         vtkCompositeInterpolatedVelocityField::SafeDownCast(func)->AddDataSet(inp);
       }
       iter->GoToNextItem();
@@ -786,17 +777,11 @@ void vtkEvenlySpacedStreamlines2D::GetBounds(vtkCompositeDataSet* cds, double bo
         input->GetBounds(b);
         for (int i : { 0, 2, 4 })
         {
-          if (b[i] < bounds[i])
-          {
-            bounds[i] = b[i];
-          }
+          bounds[i] = std::min(b[i], bounds[i]);
         }
         for (int i : { 1, 3, 5 })
         {
-          if (b[i] > bounds[i])
-          {
-            bounds[i] = b[i];
-          }
+          bounds[i] = std::max(b[i], bounds[i]);
         }
       }
       iter->GoToNextItem();

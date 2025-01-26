@@ -572,15 +572,9 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
   this->AdjustBounds(bds, bounds, center);
 
   radius = (bounds[1] - bounds[0]) / 2.0;
-  if (radius > ((bounds[3] - bounds[2]) / 2.0))
-  {
-    radius = (bounds[3] - bounds[2]) / 2.0;
-  }
+  radius = std::min(radius, (bounds[3] - bounds[2]) / 2.0);
   radius = (bounds[1] - bounds[0]) / 2.0;
-  if (radius > ((bounds[5] - bounds[4]) / 2.0))
-  {
-    radius = (bounds[5] - bounds[4]) / 2.0;
-  }
+  radius = std::min(radius, (bounds[5] - bounds[4]) / 2.0);
 
   this->SphereSource->SetCenter(center);
   this->SphereSource->SetRadius(radius);

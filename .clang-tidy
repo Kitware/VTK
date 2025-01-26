@@ -126,7 +126,6 @@ readability-*,\
 -readability-suspicious-call-argument,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
--readability-use-std-min-max,\
 "
 CheckOptions:
   - key: bugprone-unsafe-functions.ReportDefaultFunctions

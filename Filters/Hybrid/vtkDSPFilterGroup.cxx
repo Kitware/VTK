@@ -327,8 +327,8 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     double l_weight =
       this->FilterDefinitions->m_vector[a_whichFilter]->GetNumeratorWeight(i) / l_a1;
 
-    if (l_useThisTimestep < 0)
-      l_useThisTimestep = 0; // pre-time is considered infinite procession of input value at time 0
+    // pre-time is considered infinite procession of input value at time 0
+    l_useThisTimestep = std::max(l_useThisTimestep, 0);
 
     vtkFloatArray* l_input = this->GetCachedInput(a_whichFilter, l_useThisTimestep);
     float* l_outPtr = (float*)l_output->GetVoidPointer(0);

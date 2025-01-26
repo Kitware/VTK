@@ -304,14 +304,8 @@ private:
     void Add(const double& min, const double& max)
     {
       ++this->Cnt;
-      if (min < this->Min)
-      {
-        this->Min = min;
-      }
-      if (max > this->Max)
-      {
-        this->Max = max;
-      }
+      this->Min = std::min(min, this->Min);
+      this->Max = std::max(max, this->Max);
     }
   };
 

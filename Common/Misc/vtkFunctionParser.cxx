@@ -612,17 +612,13 @@ bool vtkFunctionParser::Evaluate()
         this->Stack[stackPosition] = tanh(this->Stack[stackPosition]);
         break;
       case VTK_PARSER_MIN:
-        if (this->Stack[stackPosition] < this->Stack[stackPosition - 1])
-        {
-          this->Stack[stackPosition - 1] = this->Stack[stackPosition];
-        }
+        this->Stack[stackPosition - 1] =
+          std::min(this->Stack[stackPosition], this->Stack[stackPosition - 1]);
         stackPosition--;
         break;
       case VTK_PARSER_MAX:
-        if (this->Stack[stackPosition] > this->Stack[stackPosition - 1])
-        {
-          this->Stack[stackPosition - 1] = this->Stack[stackPosition];
-        }
+        this->Stack[stackPosition - 1] =
+          std::max(this->Stack[stackPosition], this->Stack[stackPosition - 1]);
         stackPosition--;
         break;
       case VTK_PARSER_CROSS:
@@ -2178,18 +2174,9 @@ vtkMTimeType vtkFunctionParser::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if (this->ParseMTime > mTime)
-  {
-    mTime = this->ParseMTime;
-  }
-  if (this->FunctionMTime > mTime)
-  {
-    mTime = this->FunctionMTime;
-  }
-  if (this->CheckMTime > mTime)
-  {
-    mTime = this->CheckMTime;
-  }
+  mTime = std::max<vtkMTimeType>(this->ParseMTime, mTime);
+  mTime = std::max<vtkMTimeType>(this->FunctionMTime, mTime);
+  mTime = std::max<vtkMTimeType>(this->CheckMTime, mTime);
 
   return mTime;
 }

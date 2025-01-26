@@ -75,10 +75,7 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints* points)
     child = children->NextGraphEdge()->GetTarget();
     radii[i] = this->LocalPlacement(child, points);
     circum += radii[i] * 2.0;
-    if (radii[i] > largest)
-    {
-      largest = radii[i];
-    }
+    largest = std::max(radii[i], largest);
   }
   radius = circum / (2.0 * vtkMath::Pi());
 
@@ -139,14 +136,8 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints* points)
   delete[] radii;
 
   // Update statistics, used when height of cones is calculated.
-  if (radius < this->MinRadius)
-  {
-    this->MinRadius = radius;
-  }
-  if (radius > this->MaxRadius)
-  {
-    this->MaxRadius = radius;
-  }
+  this->MinRadius = std::min(radius, this->MinRadius);
+  this->MaxRadius = std::max(radius, this->MaxRadius);
   this->SumOfRadii += radius;
   this->NrCones++;
 

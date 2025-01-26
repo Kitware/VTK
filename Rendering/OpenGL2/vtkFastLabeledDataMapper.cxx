@@ -916,10 +916,7 @@ void vtkFastLabeledDataMapper::MakeupShaders(vtkOpenGLShaderProperty* sp)
 //----------------------------------------------------------------------------
 void vtkFastLabeledDataMapper::AllocateLabels(int numLabels)
 {
-  if (numLabels > this->NumberOfLabelsAllocated)
-  {
-    this->NumberOfLabelsAllocated = numLabels;
-  }
+  this->NumberOfLabelsAllocated = std::max(numLabels, this->NumberOfLabelsAllocated);
 }
 
 //----------------------------------------------------------------------------

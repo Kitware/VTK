@@ -182,10 +182,7 @@ void vtkImagePointDataIterator::Initialize(vtkImageData* image, const int extent
       startOffset += yOffset;
     }
 
-    if (stencilExtent[3] <= this->Extent[3])
-    {
-      this->Extent[3] = stencilExtent[3];
-    }
+    this->Extent[3] = std::min(stencilExtent[3], this->Extent[3]);
 
     int zOffset = this->Extent[4] - stencilExtent[4];
     if (zOffset < 0)
@@ -204,10 +201,7 @@ void vtkImagePointDataIterator::Initialize(vtkImageData* image, const int extent
       startOffset += zOffset * this->SpanSliceIncrement;
     }
 
-    if (stencilExtent[5] <= this->Extent[5])
-    {
-      this->Extent[5] = stencilExtent[5];
-    }
+    this->Extent[5] = std::min(stencilExtent[5], this->Extent[5]);
 
     if (this->Extent[2] <= this->Extent[3] && this->Extent[4] <= this->Extent[5])
     {
@@ -373,10 +367,7 @@ void vtkImagePointDataIterator::NextSpan()
     if (this->SpanIndex < spanCount)
     {
       int tmpIdX = (*this->SpanListPointer)[this->SpanIndex];
-      if (tmpIdX < endIdX)
-      {
-        endIdX = tmpIdX;
-      }
+      endIdX = std::min(tmpIdX, endIdX);
     }
 
     // Compute the end of the span

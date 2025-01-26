@@ -866,10 +866,7 @@ void vtkStructuredData::GetCellNeighbors(
 
   for (i = 0; i < 3; i++)
   {
-    if (cellDim[i] < 1)
-    {
-      cellDim[i] = 1;
-    }
+    cellDim[i] = std::max<vtkIdType>(cellDim[i], 1);
   }
 
   for (j = 0; j < 8; j++)

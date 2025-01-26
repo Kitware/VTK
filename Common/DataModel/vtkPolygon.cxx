@@ -25,6 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkVector.h"
 
+#include <algorithm>
 #include <limits> // For DBL_MAX
 #include <vector>
 
@@ -862,30 +863,12 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList* outTris)
   {
     this->Points->GetPoint(i, pt);
 
-    if (pt[0] < bounds[0])
-    {
-      bounds[0] = pt[0];
-    }
-    if (pt[1] < bounds[2])
-    {
-      bounds[2] = pt[1];
-    }
-    if (pt[2] < bounds[4])
-    {
-      bounds[4] = pt[2];
-    }
-    if (pt[0] > bounds[1])
-    {
-      bounds[1] = pt[0];
-    }
-    if (pt[1] > bounds[3])
-    {
-      bounds[3] = pt[1];
-    }
-    if (pt[2] > bounds[5])
-    {
-      bounds[5] = pt[2];
-    }
+    bounds[0] = std::min(pt[0], bounds[0]);
+    bounds[2] = std::min(pt[1], bounds[2]);
+    bounds[4] = std::min(pt[2], bounds[4]);
+    bounds[1] = std::max(pt[0], bounds[1]);
+    bounds[3] = std::max(pt[1], bounds[3]);
+    bounds[5] = std::max(pt[2], bounds[5]);
   }
 
   outTris->Reset();
@@ -2322,15 +2305,9 @@ vtkCellStatus vtkPolygon::ComputeCentroid(
     // ip2 will both be half-distances; their ratio will be correct
     // for comparison to tolerance.
     double oop = std::abs(dqx.Dot(normal)); // out-of-plane distance
-    if (oop > outOfPlane)
-    {
-      outOfPlane = oop;
-    }
+    outOfPlane = std::max(oop, outOfPlane);
     double ip2 = (dqx - oop * normal).SquaredNorm();
-    if (ip2 > inPlane2)
-    {
-      inPlane2 = ip2;
-    }
+    inPlane2 = std::max(ip2, inPlane2);
   }
   // Fail if the polygon is too far from planarity and the tolerance is "active":
   if (tolerance > 0. && outOfPlane / std::sqrt(inPlane2) > tolerance)

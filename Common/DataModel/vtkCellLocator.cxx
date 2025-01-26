@@ -448,10 +448,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
   radiusLevel = radiusLevels[1] > radiusLevel ? radiusLevels[1] : radiusLevel;
   radiusLevel = radiusLevels[2] > radiusLevel ? radiusLevels[2] : radiusLevel;
 
-  if (radiusLevel > this->NumberOfDivisions / 2)
-  {
-    radiusLevel = this->NumberOfDivisions / 2;
-  }
+  radiusLevel = std::min(radiusLevel, this->NumberOfDivisions / 2);
   if (radiusLevel == 0)
   {
     radiusLevel = 1;
@@ -539,10 +536,7 @@ vtkIdType vtkCellLocator::FindClosestPointWithinRadius(double x[3], double radiu
     if (refinedRadius < currentRadius && ii > 2) // always check ii==1
     {
       ii = static_cast<int>(static_cast<double>(ii) * (refinedRadius / currentRadius)) + 1;
-      if (ii < 2)
-      {
-        ii = 2;
-      }
+      ii = std::max(ii, 2);
     }
   } // for each radius in the radius schedule
 
@@ -791,14 +785,8 @@ void vtkCellLocator::BuildLocatorInternal()
       ijkMax[i] =
         static_cast<int>((cellBoundsPtr[2 * i + 1] - this->Bounds[2 * i] + hTol[i]) / this->H[i]);
 
-      if (ijkMin[i] < 0)
-      {
-        ijkMin[i] = 0;
-      }
-      if (ijkMax[i] >= ndivs)
-      {
-        ijkMax[i] = ndivs - 1;
-      }
+      ijkMin[i] = std::max(ijkMin[i], 0);
+      ijkMax[i] = std::min(ijkMax[i], ndivs - 1);
     }
 
     // each octant between min/max point may have cell in it

@@ -719,10 +719,7 @@ void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
     }
   }
   this->Array[id] = value;
-  if (id > this->MaxId)
-  {
-    this->MaxId = id;
-  }
+  this->MaxId = std::max(id, this->MaxId);
   this->DataElementChanged(id);
 }
 

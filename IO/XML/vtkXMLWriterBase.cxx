@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkXMLWriterBase.h"
 
 #include "vtkDataCompressor.h"
@@ -159,10 +161,7 @@ void vtkXMLWriterBase::SetBlockSize(size_t blockSize)
   if (remainder)
   {
     nbs -= remainder;
-    if (nbs < sizeof(LargestScalarType))
-    {
-      nbs = sizeof(LargestScalarType);
-    }
+    nbs = std::max(nbs, sizeof(LargestScalarType));
     vtkWarningMacro("BlockSize must be a multiple of "
       << int(sizeof(LargestScalarType)) << ".  Using " << nbs << " instead of " << blockSize
       << ".");

@@ -107,10 +107,7 @@ vtkMTimeType vtkCameraActor::GetMTime()
   {
     vtkMTimeType time;
     time = this->Camera->GetMTime();
-    if (time > mTime)
-    {
-      mTime = time;
-    }
+    mTime = std::max(time, mTime);
   }
   return mTime;
 }

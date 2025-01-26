@@ -239,10 +239,7 @@ unsigned long vtkPSphereSource::GetEstimatedMemorySize()
     thetaResolution /= numPieces;
   }
 
-  if (thetaResolution < 1)
-  {
-    thetaResolution = 1;
-  }
+  thetaResolution = std::max<unsigned long>(thetaResolution, 1);
 
   // ignore poles
   sz = thetaResolution;

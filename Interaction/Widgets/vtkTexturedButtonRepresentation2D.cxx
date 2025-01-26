@@ -80,14 +80,8 @@ vtkTexturedButtonRepresentation2D::~vtkTexturedButtonRepresentation2D()
 //------------------------------------------------------------------------------
 void vtkTexturedButtonRepresentation2D::SetButtonTexture(int i, vtkImageData* image)
 {
-  if (i < 0)
-  {
-    i = 0;
-  }
-  if (i >= this->NumberOfStates)
-  {
-    i = this->NumberOfStates - 1;
-  }
+  i = std::max(i, 0);
+  i = std::min(i, this->NumberOfStates - 1);
 
   (*this->TextureArray)[i] = image;
 }
@@ -95,14 +89,8 @@ void vtkTexturedButtonRepresentation2D::SetButtonTexture(int i, vtkImageData* im
 //------------------------------------------------------------------------------
 vtkImageData* vtkTexturedButtonRepresentation2D::GetButtonTexture(int i)
 {
-  if (i < 0)
-  {
-    i = 0;
-  }
-  if (i >= this->NumberOfStates)
-  {
-    i = this->NumberOfStates - 1;
-  }
+  i = std::max(i, 0);
+  i = std::min(i, this->NumberOfStates - 1);
 
   vtkTextureArrayIterator iter = this->TextureArray->find(i);
   if (iter != this->TextureArray->end())

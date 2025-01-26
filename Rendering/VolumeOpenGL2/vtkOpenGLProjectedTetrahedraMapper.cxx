@@ -353,10 +353,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer* renderer, vtkVolume
         input->GetPoint(pts[tet_edges[j][0]], p1);
         input->GetPoint(pts[tet_edges[j][1]], p2);
         float size2 = (float)vtkMath::Distance2BetweenPoints(p1, p2);
-        if (size2 > max_cell_size2)
-        {
-          max_cell_size2 = size2;
-        }
+        max_cell_size2 = std::max(size2, max_cell_size2);
       }
     }
 

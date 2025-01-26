@@ -229,10 +229,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     pt0 = pts + 3 * diagonals[i][0];
     pt1 = pts + 3 * diagonals[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestDiagonal < d2)
-    {
-      longestDiagonal = d2;
-    }
+    longestDiagonal = std::max(longestDiagonal, d2);
   }
   // longestDiagonal value is already squared
   double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);

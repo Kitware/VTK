@@ -200,14 +200,8 @@ void vtkHeatmapItem::InitializeLookupTables()
     for (vtkIdType row = 0; row < this->Table->GetNumberOfRows(); ++row)
     {
       double value = this->Table->GetValue(row, column).ToDouble();
-      if (value > max)
-      {
-        max = value;
-      }
-      if (value < min)
-      {
-        min = value;
-      }
+      max = std::max(value, max);
+      min = std::min(value, min);
     }
     this->ColumnRanges[column] = std::pair<double, double>(min, max);
   }
@@ -933,10 +927,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D* painter)
       }
       std::string name = this->RowNames->GetValue(row);
       painter->ComputeStringBounds(name, bounds);
-      if (bounds[2] > this->RowLabelWidth)
-      {
-        this->RowLabelWidth = bounds[2];
-      }
+      this->RowLabelWidth = std::max(bounds[2], this->RowLabelWidth);
     }
   }
 
@@ -953,10 +944,7 @@ void vtkHeatmapItem::ComputeLabelWidth(vtkContext2D* painter)
     }
     std::string name = this->Table->GetColumn(col)->GetName();
     painter->ComputeStringBounds(name, bounds);
-    if (bounds[2] > this->ColumnLabelWidth)
-    {
-      this->ColumnLabelWidth = bounds[2];
-    }
+    this->ColumnLabelWidth = std::max(bounds[2], this->ColumnLabelWidth);
   }
 
   // restore orientation

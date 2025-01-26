@@ -105,16 +105,10 @@ void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int* inExt, int* wholeE
   {
     radius = static_cast<int>(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
     inExt[idx * 2] -= radius;
-    if (inExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      inExt[idx * 2] = wholeExtent[idx * 2];
-    }
+    inExt[idx * 2] = std::max(inExt[idx * 2], wholeExtent[idx * 2]);
 
     inExt[idx * 2 + 1] += radius;
-    if (inExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      inExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
+    inExt[idx * 2 + 1] = std::min(inExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
   }
 }
 
@@ -292,10 +286,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData, int inE
     }
     // Right boundary condition
     kernelRightClip = (idxA + radius) - wholeMax;
-    if (kernelRightClip < 0)
-    {
-      kernelRightClip = 0;
-    }
+    kernelRightClip = std::max(kernelRightClip, 0);
 
     // We can only use previous kernel if it is not clipped and new
     // kernel is also not clipped.

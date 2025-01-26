@@ -110,23 +110,11 @@ struct BackToFront
     {
       int low = 2 * (i / 2);
       bboundsP[i] = bbounds[i];
-      if (bboundsP[i] < abounds[low])
-      {
-        bboundsP[i] = abounds[low];
-      }
-      if (bboundsP[i] > abounds[low + 1])
-      {
-        bboundsP[i] = abounds[low + 1];
-      }
+      bboundsP[i] = std::max(bboundsP[i], abounds[low]);
+      bboundsP[i] = std::min(bboundsP[i], abounds[low + 1]);
       aboundsP[i] = abounds[i];
-      if (aboundsP[i] < bbounds[low])
-      {
-        aboundsP[i] = bbounds[low];
-      }
-      if (aboundsP[i] > bbounds[low + 1])
-      {
-        aboundsP[i] = bbounds[low + 1];
-      }
+      aboundsP[i] = std::max(aboundsP[i], bbounds[low]);
+      aboundsP[i] = std::min(aboundsP[i], bbounds[low + 1]);
     }
 
     int dims = 0;

@@ -45,18 +45,12 @@ vtkImageMapToColors::~vtkImageMapToColors()
 //------------------------------------------------------------------------------
 vtkMTimeType vtkImageMapToColors::GetMTime()
 {
-  vtkMTimeType t1, t2;
-
-  t1 = this->Superclass::GetMTime();
+  vtkMTimeType t = this->Superclass::GetMTime();
   if (this->LookupTable)
   {
-    t2 = this->LookupTable->GetMTime();
-    if (t2 > t1)
-    {
-      t1 = t2;
-    }
+    t = std::max(t, this->LookupTable->GetMTime());
   }
-  return t1;
+  return t;
 }
 
 //------------------------------------------------------------------------------

@@ -20,50 +20,6 @@
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
-#if (defined(_MSC_VER) && (_MSC_VER < 2000)) ||                                                    \
-  (defined(__INTEL_COMPILER) && (__INTEL_COMPILER < 1700))
-namespace msvc
-{
-//----------------------------------------------------------------------------
-// Those min and max functions replace std ones because their
-// implementation used to generate very slow code with MSVC.
-// See https://randomascii.wordpress.com/2013/11/24/stdmin-causing-three-times-slowdown-on-vc/
-// The comparison expression in min/max are written so that if the "condition" is false,
-// the "left" value is returned. This is consistent with STL's implementations
-// and also handles the cases where the right value may be a NaN properly.
-// All code using these methods should ensure that the "left" value is never
-// NaN.
-// We use _MSC_VER < 2000 instead of 1900 not due to performance issues, but
-// because MSVC 2015 (_MSC_VER=1900) doesn't handle NaNs properly in optimized
-// builds.
-// icpc version 16 also doesn't handle NaNs properly.
-// The order is correct in icpc version 17.
-template <class ValueType>
-ValueType max(const ValueType& left, const ValueType& right)
-{
-  return right > left ? right : left;
-}
-
-template <class ValueType>
-ValueType min(const ValueType& left, const ValueType& right)
-{
-  return right <= left ? right : left;
-}
-}
-#endif
-
-namespace detail
-{
-#if (defined(_MSC_VER) && (_MSC_VER < 2000)) ||                                                    \
-  (defined(__INTEL_COMPILER) && (__INTEL_COMPILER < 1700))
-using msvc::max;
-using msvc::min;
-#else
-using std::max;
-using std::min;
-#endif
-}
-
 // avoid checking types that don't contain infinity.
 namespace detail
 {
@@ -122,8 +78,8 @@ public:
       auto& range = *itr;
       for (int i = 0, j = 0; i < NumComps; ++i, j += 2)
       {
-        this->ReducedRange[j] = detail::min(this->ReducedRange[j], range[j]);
-        this->ReducedRange[j + 1] = detail::max(this->ReducedRange[j + 1], range[j + 1]);
+        this->ReducedRange[j] = std::min(this->ReducedRange[j], range[j]);
+        this->ReducedRange[j + 1] = std::max(this->ReducedRange[j + 1], range[j + 1]);
       }
     }
   }
@@ -272,8 +228,8 @@ public:
       {
         squaredSum += value * value;
       }
-      range[0] = detail::min(range[0], squaredSum);
-      range[1] = detail::max(range[1], squaredSum);
+      range[0] = std::min(range[0], squaredSum);
+      range[1] = std::max(range[1], squaredSum);
     }
   }
 };
@@ -327,8 +283,8 @@ public:
       }
       if (!detail::isinf(squaredSum))
       {
-        range[0] = detail::min(range[0], squaredSum);
-        range[1] = detail::max(range[1], squaredSum);
+        range[0] = std::min(range[0], squaredSum);
+        range[1] = std::max(range[1], squaredSum);
       }
     }
   }
@@ -400,8 +356,8 @@ public:
       auto& range = *itr;
       for (int i = 0, j = 0; i < this->NumComps; ++i, j += 2)
       {
-        this->ReducedRange[j] = detail::min(this->ReducedRange[j], range[j]);
-        this->ReducedRange[j + 1] = detail::max(this->ReducedRange[j + 1], range[j + 1]);
+        this->ReducedRange[j] = std::min(this->ReducedRange[j], range[j]);
+        this->ReducedRange[j + 1] = std::max(this->ReducedRange[j + 1], range[j + 1]);
       }
     }
   }
@@ -445,8 +401,8 @@ public:
       size_t j = 0;
       for (const APIType value : tuple)
       {
-        range[j] = detail::min(range[j], value);
-        range[j + 1] = detail::max(range[j + 1], value);
+        range[j] = std::min(range[j], value);
+        range[j + 1] = std::max(range[j + 1], value);
         j += 2;
       }
     }
@@ -484,8 +440,8 @@ public:
       {
         if (!detail::isinf(value))
         {
-          range[j] = detail::min(range[j], value);
-          range[j + 1] = detail::max(range[j + 1], value);
+          range[j] = std::min(range[j], value);
+          range[j + 1] = std::max(range[j + 1], value);
         }
         j += 2;
       }

@@ -821,10 +821,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   // Polar Axis
   this->PolarAxis->GetAxisMajorTicksProperty()->SetLineWidth(this->PolarAxisMajorTickThickness);
   double minorThickness = this->PolarAxisTickRatioThickness * this->PolarAxisMajorTickThickness;
-  if (minorThickness < 1.0)
-  {
-    minorThickness = 1.0;
-  }
+  minorThickness = std::max(minorThickness, 1.0);
   this->PolarAxis->GetAxisMinorTicksProperty()->SetLineWidth(minorThickness);
 
   // Last arc
@@ -1235,10 +1232,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
 
       axis->GetAxisMajorTicksProperty()->SetLineWidth(this->LastRadialAxisMajorTickThickness);
       minorThickness = this->LastRadialAxisMajorTickThickness * LastAxisTickRatioThickness;
-      if (minorThickness < 1.0)
-      {
-        minorThickness = 1.0;
-      }
+      minorThickness = std::max(minorThickness, 1.0);
       axis->GetAxisMinorTicksProperty()->SetLineWidth(minorThickness);
     }
     else
@@ -1718,15 +1712,9 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
       continue;
     }
 
-    if (tickRangeVal < axis->GetRange()[0])
-    {
-      tickRangeVal = axis->GetRange()[0];
-    }
+    tickRangeVal = std::max(tickRangeVal, axis->GetRange()[0]);
 
-    if (tickRangeVal > axis->GetRange()[1])
-    {
-      tickRangeVal = axis->GetRange()[1];
-    }
+    tickRangeVal = std::min(tickRangeVal, axis->GetRange()[1]);
 
     // conversion range value to world value
     tickVal = (log10(tickRangeVal) - log10Range0) * rangeScaleLog;

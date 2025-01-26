@@ -904,15 +904,8 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
 
         // Move midpoint away from extreme ends of range to avoid
         // degenerate math
-        if (midpoint < 0.00001)
-        {
-          midpoint = 0.00001;
-        }
-
-        if (midpoint > 0.99999)
-        {
-          midpoint = 0.99999;
-        }
+        midpoint = std::max(midpoint, 0.00001);
+        midpoint = std::min(midpoint, 0.99999);
       }
     }
 
@@ -1976,10 +1969,7 @@ double vtkColorTransferFunction::FindMinimumXDistance()
   for (size_t i = 0; i < size - 1; i++)
   {
     double const currentDist = nodes[i + 1]->X - nodes[i]->X;
-    if (currentDist < distance)
-    {
-      distance = currentDist;
-    }
+    distance = std::min(currentDist, distance);
   }
 
   return distance;

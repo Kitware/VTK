@@ -876,22 +876,10 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
       y = hpoint[1] / hpoint[3];
 
       // Find min/max in slice coords
-      if (x < xmin)
-      {
-        xmin = x;
-      }
-      if (x > xmax)
-      {
-        xmax = x;
-      }
-      if (y < ymin)
-      {
-        ymin = y;
-      }
-      if (y > ymax)
-      {
-        ymax = y;
-      }
+      xmin = std::min(x, xmin);
+      xmax = std::max(x, xmax);
+      ymin = std::min(y, ymin);
+      ymax = std::max(y, ymax);
     }
 
     // The ResliceExtent is always set to the renderer size,
@@ -991,14 +979,8 @@ void vtkImageResliceMapper::UpdateResliceInformation(vtkRenderer* ren)
       xsize += 1;
       ysize += 1;
     }
-    if (xsize < 1)
-    {
-      xsize = 1;
-    }
-    if (ysize < 1)
-    {
-      ysize = 1;
-    }
+    xsize = std::max(xsize, 1);
+    ysize = std::max(ysize, 1);
 
     // Keep old size if possible, to avoid memory reallocation
     if ((xsize - 1) > extent[1] || (ysize - 1) > extent[3] || (0.9 * extent[1] / xsize) > 1.0 ||
@@ -1527,10 +1509,7 @@ vtkMTimeType vtkImageResliceMapper::GetMTime()
   if (interpolator)
   {
     vtkMTimeType mTime2 = interpolator->GetMTime();
-    if (mTime2 > mTime)
-    {
-      mTime = mTime2;
-    }
+    mTime = std::max(mTime2, mTime);
   }
 
   // Include camera in MTime so that REQUEST_INFORMATION

@@ -93,10 +93,7 @@ int vtkPDataSetWriter::Write()
     return 0;
   }
 
-  if (this->StartPiece < 0)
-  {
-    this->StartPiece = 0;
-  }
+  this->StartPiece = std::max(this->StartPiece, 0);
   if (this->NumberOfPieces < 0 || this->EndPiece < this->StartPiece)
   {
     vtkWarningMacro("No pieces to write.");

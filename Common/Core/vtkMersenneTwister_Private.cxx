@@ -26,6 +26,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
+
 #include "vtkType.h"
 #include "vtkStringFormatter.h"
 typedef vtkTypeUInt32 uint32_t;
@@ -474,9 +476,7 @@ static int pivot_reduction(eqdeg_t *eq, int v)
 
     min = lattice[0]->count;
     for (i = 1; i < v; i++) {
-        if (min > lattice[i]->count) {
-            min = lattice[i]->count;
-        }
+        min = std::min(min, lattice[i]->count);
     }
     free_lattice( lattice, v );
     return min;

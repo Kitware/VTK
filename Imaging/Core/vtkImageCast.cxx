@@ -61,14 +61,8 @@ void vtkImageCastExecute(
       {
         // Pixel operation
         val = static_cast<double>(*inSI);
-        if (val > typeMax)
-        {
-          val = typeMax;
-        }
-        if (val < typeMin)
-        {
-          val = typeMin;
-        }
+        val = std::min(val, typeMax);
+        val = std::max(val, typeMin);
         *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;

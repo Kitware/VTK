@@ -90,14 +90,8 @@ int vtkImageGradientMagnitude::RequestUpdateExtent(vtkInformation* vtkNotUsed(re
     if (this->HandleBoundaries)
     {
       // we must clip extent with whole extent is we handle boundaries.
-      if (inUExt[idx * 2] < wholeExtent[idx * 2])
-      {
-        inUExt[idx * 2] = wholeExtent[idx * 2];
-      }
-      if (inUExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-      {
-        inUExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-      }
+      inUExt[idx * 2] = std::max(inUExt[idx * 2], wholeExtent[idx * 2]);
+      inUExt[idx * 2 + 1] = std::min(inUExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
     }
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt, 6);

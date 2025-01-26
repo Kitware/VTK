@@ -476,10 +476,7 @@ void vtkMeasurementCubeHandleRepresentation3D::ScaleIfNecessary(vtkViewport* vie
 
     double relArea = fabs((displayMax[0] - displayMin[0]) * (displayMax[1] - displayMin[1]));
 
-    if (relArea > relativeArea)
-    {
-      relativeArea = relArea;
-    }
+    relativeArea = std::max(relArea, relativeArea);
   }
 
   // We rescale our cube using powers of our rescaling factor if it falls

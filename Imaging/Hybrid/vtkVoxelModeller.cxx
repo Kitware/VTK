@@ -169,14 +169,8 @@ int vtkVoxelModeller::RequestData(vtkInformation* vtkNotUsed(request),
     {
       min[i] = static_cast<int>((adjBounds[2 * i] - origin[i]) / spacing[i]);
       max[i] = static_cast<int>((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
-      if (min[i] < 0)
-      {
-        min[i] = 0;
-      }
-      if (max[i] >= this->SampleDimensions[i])
-      {
-        max[i] = this->SampleDimensions[i] - 1;
-      }
+      min[i] = std::max(min[i], 0);
+      max[i] = std::min(max[i], this->SampleDimensions[i] - 1);
     }
 
     jkFactor = this->SampleDimensions[0] * this->SampleDimensions[1];
@@ -233,10 +227,7 @@ double vtkVoxelModeller::ComputeModelBounds(double origin[3], double spacing[3])
 
   for (maxDist = 0.0, i = 0; i < 3; i++)
   {
-    if ((bounds[2 * i + 1] - bounds[2 * i]) > maxDist)
-    {
-      maxDist = bounds[2 * i + 1] - bounds[2 * i];
-    }
+    maxDist = std::max(bounds[2 * i + 1] - bounds[2 * i], maxDist);
   }
   maxDist *= this->MaximumDistance;
 

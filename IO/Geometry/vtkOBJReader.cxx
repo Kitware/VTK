@@ -730,10 +730,7 @@ int vtkOBJReader::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (faceScalars && vertexCount != 0)
       {
-        if (groupId < 0)
-        {
-          groupId = 0;
-        }
+        groupId = std::max(groupId, 0);
 
         faceScalars->InsertNextValue(groupId);
       }

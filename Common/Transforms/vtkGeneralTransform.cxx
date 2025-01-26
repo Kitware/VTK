@@ -287,16 +287,9 @@ vtkMTimeType vtkGeneralTransform::GetMTime()
   if (this->Input)
   {
     mtime2 = this->Input->GetMTime();
-    if (mtime2 > mtime)
-    {
-      mtime = mtime2;
-    }
+    mtime = std::max(mtime2, mtime);
   }
   mtime2 = this->Concatenation->GetMaxMTime();
-  if (mtime2 > mtime)
-  {
-    return mtime2;
-  }
-  return mtime;
+  return std::max(mtime2, mtime);
 }
 VTK_ABI_NAMESPACE_END

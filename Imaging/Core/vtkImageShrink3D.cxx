@@ -178,10 +178,7 @@ int vtkImageShrink3D::RequestInformation(vtkInformation* vtkNotUsed(request),
         static_cast<double>(this->ShrinkFactors[idx])));
     // make sure WholeExtent is valid when the ShrinkFactors are set on an
     // axis with no Extent beforehand
-    if (wholeExtent[2 * idx + 1] < wholeExtent[2 * idx])
-    {
-      wholeExtent[2 * idx + 1] = wholeExtent[2 * idx];
-    }
+    wholeExtent[2 * idx + 1] = std::max(wholeExtent[2 * idx + 1], wholeExtent[2 * idx]);
     // Change the data spacing
     spacing[idx] *= static_cast<double>(this->ShrinkFactors[idx]);
   }

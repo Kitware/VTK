@@ -649,18 +649,12 @@ void vtkCompassRepresentation::GetCenterAndUnitRadius(int center[2], double& rad
   int* p2 = this->Point2Coordinate->GetComputedViewportValue(this->Renderer);
 
   radius = abs(p1[0] - p2[0]);
-  if (abs(p1[1] - p2[1]) < radius)
-  {
-    radius = abs(p1[1] - p2[1]);
-  }
+  radius = std::min<double>(abs(p1[1] - p2[1]), radius);
   radius /= 2;
 
   // scale the rsize between 100% and 50%
   double scale = 1.0 - (radius - 40) / (radius + 100.0) * 0.5;
-  if (scale > 1.0)
-  {
-    scale = 1.0;
-  }
+  scale = std::min(scale, 1.0);
   radius *= scale;
 
   // stick to the upper right

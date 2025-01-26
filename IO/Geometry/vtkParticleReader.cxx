@@ -636,10 +636,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector* o
     }
     cnt++;
     cellLength = 1000;
-    if (cellLength > length)
-    {
-      cellLength = length;
-    }
+    cellLength = std::min(cellLength, length);
     length = length - cellLength;
     verts->InsertNextCell((int)cellLength);
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
@@ -812,10 +809,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector* ou
     }
     cnt++;
     cellLength = 1000;
-    if (cellLength > length)
-    {
-      cellLength = length;
-    }
+    cellLength = std::min(cellLength, length);
     length = length - cellLength;
     verts->InsertNextCell((int)cellLength);
     for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)

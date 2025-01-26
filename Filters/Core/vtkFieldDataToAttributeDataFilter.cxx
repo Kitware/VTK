@@ -997,14 +997,8 @@ int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray* da, int comp
   for (i = 0; i < n; i++)
   {
     compValue = fieldArray->GetComponent(min + i, fieldComp);
-    if (compValue < minValue)
-    {
-      minValue = compValue;
-    }
-    if (compValue > maxValue)
-    {
-      maxValue = compValue;
-    }
+    minValue = std::min(compValue, minValue);
+    maxValue = std::max(compValue, maxValue);
     da->SetComponent(i, comp, compValue);
   }
 
@@ -1032,10 +1026,7 @@ int vtkFieldDataToAttributeDataFilter::GetComponentsType(int numComp, vtkDataArr
   for (int i = 0; i < numComp; i++)
   {
     type = arrays[i]->GetDataType();
-    if (type > mostComplexType)
-    {
-      mostComplexType = type;
-    }
+    mostComplexType = std::max(type, mostComplexType);
   }
 
   return mostComplexType;

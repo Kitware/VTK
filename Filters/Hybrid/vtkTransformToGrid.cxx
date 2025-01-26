@@ -144,15 +144,8 @@ static void vtkTransformToGridMinMax(
         {
           displacement = newPoint[l] - point[l];
 
-          if (displacement > maxDisplacement)
-          {
-            maxDisplacement = displacement;
-          }
-
-          if (displacement < minDisplacement)
-          {
-            minDisplacement = displacement;
-          }
+          maxDisplacement = std::max(displacement, maxDisplacement);
+          minDisplacement = std::min(displacement, minDisplacement);
         }
       }
     }
@@ -394,10 +387,7 @@ vtkMTimeType vtkTransformToGrid::GetMTime()
   if (this->Input)
   {
     vtkMTimeType mtime2 = this->Input->GetMTime();
-    if (mtime2 > mtime)
-    {
-      mtime = mtime2;
-    }
+    mtime = std::max(mtime2, mtime);
   }
 
   return mtime;

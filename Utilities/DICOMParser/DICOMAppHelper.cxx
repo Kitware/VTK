@@ -809,14 +809,8 @@ void DICOMAppHelper::PixelDataCallback(
   DICOMParser*, doublebyte, doublebyte, DICOMParser::VRTypes, unsigned char* data, quadbyte len)
 {
   int numPixels = this->Dimensions[0] * this->Dimensions[1] * this->GetNumberOfComponents();
-  if (len < numPixels)
-  {
-    numPixels = len;
-  }
-  if (numPixels < 0)
-  {
-    numPixels = 0;
-  }
+  numPixels = std::min(len, numPixels);
+  numPixels = std::max(numPixels, 0);
 
 #ifdef DEBUG_DICOM_APP_HELPER
   std::cout << "numPixels : " << numPixels << std::endl;

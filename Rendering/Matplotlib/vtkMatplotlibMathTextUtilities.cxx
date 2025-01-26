@@ -562,22 +562,10 @@ void vtkMatplotlibMathTextUtilities::RotateCorners(
   bbox[3] = VTK_INT_MIN;
   for (int i = 0; i < 4; ++i)
   {
-    if (corners[i][0] < bbox[0])
-    {
-      bbox[0] = corners[i][0];
-    }
-    if (corners[i][0] > bbox[1])
-    {
-      bbox[1] = corners[i][0];
-    }
-    if (corners[i][1] < bbox[2])
-    {
-      bbox[2] = corners[i][1];
-    }
-    if (corners[i][1] > bbox[3])
-    {
-      bbox[3] = corners[i][1];
-    }
+    bbox[0] = std::min(corners[i][0], bbox[0]);
+    bbox[1] = std::max(corners[i][0], bbox[1]);
+    bbox[2] = std::min(corners[i][1], bbox[2]);
+    bbox[3] = std::max(corners[i][1], bbox[3]);
   }
 }
 
@@ -1627,22 +1615,10 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(
       return false;
     }
 
-    if (vert[0] < cbox[0])
-    {
-      cbox[0] = vert[0];
-    }
-    if (vert[1] < cbox[1])
-    {
-      cbox[1] = vert[1];
-    }
-    if (vert[0] > cbox[2])
-    {
-      cbox[2] = vert[0];
-    }
-    if (vert[1] > cbox[3])
-    {
-      cbox[3] = vert[1];
-    }
+    cbox[0] = std::min(vert[0], cbox[0]);
+    cbox[1] = std::min(vert[1], cbox[1]);
+    cbox[2] = std::max(vert[0], cbox[2]);
+    cbox[3] = std::max(vert[1], cbox[3]);
 
     code = PyLong_AsLong(pyCode);
     if (this->CheckForError())

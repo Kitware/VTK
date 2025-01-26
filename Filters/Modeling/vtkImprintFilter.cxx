@@ -2787,10 +2787,7 @@ struct ComputeEdgeLength
       auto lEnd = this->MinLength2.end();
       for (auto lItr = this->MinLength2.begin(); lItr != lEnd; ++lItr)
       {
-        if (*lItr < minLength2)
-        {
-          minLength2 = *lItr;
-        }
+        minLength2 = std::min(*lItr, minLength2);
       }
       this->MinEdgeLength = sqrt(minLength2);
     } // computing min edge length

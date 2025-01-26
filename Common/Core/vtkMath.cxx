@@ -888,20 +888,14 @@ double vtkMath::EstimateMatrixCondition(const double* const* A, int size)
   {
     for (j = i; j < size; ++j)
     {
-      if (std::abs(A[i][j]) > max)
-      {
-        max = std::abs(A[i][j]);
-      }
+      max = std::max(std::abs(A[i][j]), max);
     }
   }
 
   // find the minimum diagonal value
   for (i = 0; i < size; ++i)
   {
-    if (std::abs(A[i][i]) < min)
-    {
-      min = std::abs(A[i][i]);
-    }
+    min = std::min(std::abs(A[i][i]), min);
   }
 
   if (min == 0.0)
@@ -2778,32 +2772,17 @@ void vtkMath::XYZToRGB(double x, double y, double z, double* r, double* g, doubl
   // (since we can see colors outside of the display gamut), but this seems to
   // work well enough.
   double maxVal = *r;
-  if (maxVal < *g)
-  {
-    maxVal = *g;
-  }
-  if (maxVal < *b)
-  {
-    maxVal = *b;
-  }
+  maxVal = std::max(maxVal, *g);
+  maxVal = std::max(maxVal, *b);
   if (maxVal > 1.0)
   {
     *r /= maxVal;
     *g /= maxVal;
     *b /= maxVal;
   }
-  if (*r < 0)
-  {
-    *r = 0;
-  }
-  if (*g < 0)
-  {
-    *g = 0;
-  }
-  if (*b < 0)
-  {
-    *b = 0;
-  }
+  *r = std::max<double>(*r, 0);
+  *g = std::max<double>(*g, 0);
+  *b = std::max<double>(*b, 0);
 }
 
 //------------------------------------------------------------------------------

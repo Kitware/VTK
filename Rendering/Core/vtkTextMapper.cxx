@@ -253,10 +253,7 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport* viewport, int tar
     {
       mappers[i]->GetTextProperty()->SetFontSize(fontSize);
       aSize = mappers[i]->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
-      if (aSize < fontSize)
-      {
-        fontSize = aSize;
-      }
+      fontSize = std::min(aSize, fontSize);
     }
   }
 
@@ -268,14 +265,8 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport* viewport, int tar
     {
       mappers[i]->GetTextProperty()->SetFontSize(fontSize);
       mappers[i]->GetSize(viewport, tempi);
-      if (tempi[0] > maxResultingSize[0])
-      {
-        maxResultingSize[0] = tempi[0];
-      }
-      if (tempi[1] > maxResultingSize[1])
-      {
-        maxResultingSize[1] = tempi[1];
-      }
+      maxResultingSize[0] = std::max(tempi[0], maxResultingSize[0]);
+      maxResultingSize[1] = std::max(tempi[1], maxResultingSize[1]);
     }
   }
 

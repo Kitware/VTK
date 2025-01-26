@@ -51,15 +51,9 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
 
 void vtkSuperquadricSource::SetPhiResolution(int i)
 {
-  if (i < 4)
-  {
-    i = 4;
-  }
+  i = std::max(i, 4);
   i = (i + 3) / 4 * 4; // make it divisible by 4
-  if (i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
-  {
-    i = VTK_MAX_SUPERQUADRIC_RESOLUTION;
-  }
+  i = std::min(i, VTK_MAX_SUPERQUADRIC_RESOLUTION);
 
   if (this->PhiResolution != i)
   {
@@ -70,15 +64,9 @@ void vtkSuperquadricSource::SetPhiResolution(int i)
 
 void vtkSuperquadricSource::SetThetaResolution(int i)
 {
-  if (i < 8)
-  {
-    i = 8;
-  }
+  i = std::max(i, 8);
   i = (i + 7) / 8 * 8; // make it divisible by 8
-  if (i > VTK_MAX_SUPERQUADRIC_RESOLUTION)
-  {
-    i = VTK_MAX_SUPERQUADRIC_RESOLUTION;
-  }
+  i = std::min(i, VTK_MAX_SUPERQUADRIC_RESOLUTION);
 
   if (this->ThetaResolution != i)
   {
@@ -89,10 +77,7 @@ void vtkSuperquadricSource::SetThetaResolution(int i)
 
 void vtkSuperquadricSource::SetThetaRoundness(double e)
 {
-  if (e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-  {
-    e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-  }
+  e = std::max(e, VTK_MIN_SUPERQUADRIC_ROUNDNESS);
 
   if (this->ThetaRoundness != e)
   {
@@ -103,10 +88,7 @@ void vtkSuperquadricSource::SetThetaRoundness(double e)
 
 void vtkSuperquadricSource::SetPhiRoundness(double e)
 {
-  if (e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
-  {
-    e = VTK_MIN_SUPERQUADRIC_ROUNDNESS;
-  }
+  e = std::max(e, VTK_MIN_SUPERQUADRIC_ROUNDNESS);
 
   if (this->PhiRoundness != e)
   {
@@ -191,10 +173,7 @@ int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   int numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  if (numPieces > phiSubsegs)
-  {
-    numPieces = phiSubsegs;
-  }
+  numPieces = std::min(numPieces, phiSubsegs);
   if (piece >= numPieces)
   {
     // Although the super class should take care of this,

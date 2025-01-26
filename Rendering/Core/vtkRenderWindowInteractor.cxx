@@ -702,10 +702,7 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
     vtkCommand::EventIds gest = vtkCommand::NoEvent;
     double thresh = 0.01 *
       sqrt(static_cast<double>(this->Size[0] * this->Size[0] + this->Size[1] * this->Size[1]));
-    if (thresh < 15.0)
-    {
-      thresh = 15.0;
-    }
+    thresh = std::max(thresh, 15.0);
     double pinchDistance = fabs(newDistance - originalDistance);
     double rotateDistance = newDistance * vtkMath::Pi() * fabs(angleDeviation) / 360.0;
     double panDistance = sqrt(trans[0] * trans[0] + trans[1] * trans[1]);

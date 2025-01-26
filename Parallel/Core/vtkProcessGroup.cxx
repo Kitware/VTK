@@ -67,10 +67,7 @@ void vtkProcessGroup::SetCommunicator(vtkCommunicator* communicator)
   {
     newProcessIds = new int[communicator->GetNumberOfProcesses()];
     newNumberOfProcessIds = communicator->GetNumberOfProcesses();
-    if (newNumberOfProcessIds > this->NumberOfProcessIds)
-    {
-      newNumberOfProcessIds = this->NumberOfProcessIds;
-    }
+    newNumberOfProcessIds = std::min(newNumberOfProcessIds, this->NumberOfProcessIds);
   }
   if (this->ProcessIds)
   {

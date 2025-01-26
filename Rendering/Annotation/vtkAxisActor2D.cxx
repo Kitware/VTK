@@ -818,10 +818,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     }
 
     // Check if the label text has changed
-    if (this->LabelMappers[this->NumberOfLabelsBuilt - 1]->GetMTime() > labeltime)
-    {
-      labeltime = this->LabelMappers[this->NumberOfLabelsBuilt - 1]->GetMTime();
-    }
+    labeltime = std::max(this->LabelMappers[this->NumberOfLabelsBuilt - 1]->GetMTime(), labeltime);
   }
 
   // Copy prop and text prop eventually

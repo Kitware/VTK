@@ -440,10 +440,7 @@ int vtkNIFTIImageWriter::GenerateHeader(vtkInformation* info, bool singleFile)
     // use the header supplied by SetNIFTIHeader()
     this->NIFTIHeader->GetHeader(&hdr);
     version = hdr.magic[2] - '0';
-    if (version > 2)
-    {
-      version = 2;
-    }
+    version = std::min(version, 2);
   }
   else
   {

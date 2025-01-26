@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkImageCityBlockDistance.h"
 
 #include "vtkImageData.h"
@@ -137,19 +139,13 @@ int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
           if (*inPtr0 >= 0)
           {
             distN = 0;
-            if (distP > *inPtr0)
-            {
-              distP = *inPtr0;
-            }
+            distP = std::min(distP, *inPtr0);
             *outPtr0 = distP;
           }
           if (*inPtr0 <= 0)
           {
             distP = 0;
-            if (distN < *inPtr0)
-            {
-              distN = *inPtr0;
-            }
+            distN = std::max(distN, *inPtr0);
             *outPtr0 = distN;
           }
 
@@ -176,18 +172,12 @@ int vtkImageCityBlockDistance::IterativeRequestData(vtkInformation* vtkNotUsed(r
         {
           if (*outPtr0 >= 0)
           {
-            if (distP > *outPtr0)
-            {
-              distP = *outPtr0;
-            }
+            distP = std::min(distP, *outPtr0);
             *outPtr0 = distP;
           }
           if (*outPtr0 <= 0)
           {
-            if (distN < *outPtr0)
-            {
-              distN = *outPtr0;
-            }
+            distN = std::max(distN, *outPtr0);
             *outPtr0 = distN;
           }
 

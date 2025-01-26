@@ -122,10 +122,7 @@ vtkMTimeType vtkMNITagPointWriter::GetMTime()
     if (objects[i])
     {
       vtkMTimeType m = objects[i]->GetMTime();
-      if (m > mtime)
-      {
-        mtime = m;
-      }
+      mtime = std::max(m, mtime);
     }
   }
 
@@ -454,10 +451,7 @@ int vtkMNITagPointWriter::RequestData(
       if (input[idx])
       {
         vtkMTimeType updateTime = input[idx]->GetUpdateTime();
-        if (updateTime > lastUpdateTime)
-        {
-          lastUpdateTime = updateTime;
-        }
+        lastUpdateTime = std::max(updateTime, lastUpdateTime);
       }
     }
   }

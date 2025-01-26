@@ -140,10 +140,7 @@ int vtkConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    if (this->ScalarRange[1] < this->ScalarRange[0])
-    {
-      this->ScalarRange[1] = this->ScalarRange[0];
-    }
+    this->ScalarRange[1] = std::max(this->ScalarRange[1], this->ScalarRange[0]);
   }
 
   // Initialize.  Keep track of points and cells visited.
@@ -567,14 +564,8 @@ void vtkConnectivityFilter::TraverseAndMark(vtkDataSet* input)
               for (ii = 0; ii < numScalars; ii++)
               {
                 s = this->CellScalars->GetComponent(ii, 0);
-                if (s < range[0])
-                {
-                  range[0] = s;
-                }
-                if (s > range[1])
-                {
-                  range[1] = s;
-                }
+                range[0] = std::min(s, range[0]);
+                range[1] = std::max(s, range[1]);
               }
               if (range[1] >= this->ScalarRange[0] && range[0] <= this->ScalarRange[1])
               {

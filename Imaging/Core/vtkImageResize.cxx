@@ -282,15 +282,9 @@ int vtkImageResize::RequestUpdateExtent(
       {
         double f;
         int k = vtkInterpolationMath::Floor(range[ii], f);
-        if (k - extra < extent[2 * j])
-        {
-          extent[2 * j] = k - extra;
-        }
+        extent[2 * j] = std::min(k - extra, extent[2 * j]);
         k += (f != 0);
-        if (k + extra > extent[2 * j + 1])
-        {
-          extent[2 * j + 1] = k + extra;
-        }
+        extent[2 * j + 1] = std::max(k + extra, extent[2 * j + 1]);
       }
       // else is for kernels with odd size
       else
@@ -307,14 +301,8 @@ int vtkImageResize::RequestUpdateExtent(
       }
     }
 
-    if (extent[2 * j] < wholeExt[2 * j])
-    {
-      extent[2 * j] = wholeExt[2 * j];
-    }
-    if (extent[2 * j + 1] > wholeExt[2 * j + 1])
-    {
-      extent[2 * j + 1] = wholeExt[2 * j + 1];
-    }
+    extent[2 * j] = std::max(extent[2 * j], wholeExt[2 * j]);
+    extent[2 * j + 1] = std::min(extent[2 * j + 1], wholeExt[2 * j + 1]);
   }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);

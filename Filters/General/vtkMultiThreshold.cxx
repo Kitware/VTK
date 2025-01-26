@@ -77,8 +77,7 @@ static double vtkMultiThresholdLinfComponentNorm(
   for (int i = 0; i < nc; ++i)
   {
     xabs = fabs(x[i]);
-    if (xabs > norm)
-      norm = xabs;
+    norm = std::max(xabs, norm);
   }
   return norm;
 }

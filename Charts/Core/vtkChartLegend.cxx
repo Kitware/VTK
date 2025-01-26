@@ -198,10 +198,7 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D* painter)
     for (vtkIdType l = 0; labels && (l < labels->GetNumberOfTuples()); ++l)
     {
       painter->ComputeStringBounds(labels->GetValue(l), stringBounds->GetData());
-      if (stringBounds[1].GetX() > maxWidth)
-      {
-        maxWidth = stringBounds[1].GetX();
-      }
+      maxWidth = std::max(stringBounds[1].GetX(), maxWidth);
     }
   }
 

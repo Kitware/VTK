@@ -943,10 +943,7 @@ void vtkScalarBarActor::ComputeScalarBarThickness()
 
   // Now knock the thickness down and nudge the bar so the bar doesn't hug the frame.
   double nudge = this->P->ScalarBarBox.Size[0] / 8.;
-  if (nudge > this->TextPad)
-  {
-    nudge = this->TextPad;
-  }
+  nudge = std::min<double>(nudge, this->TextPad);
   this->P->ScalarBarBox.Size[0] = static_cast<int>(this->P->ScalarBarBox.Size[0] - nudge);
   this->P->ScalarBarBox.Posn[this->P->TL[0]] =
     static_cast<int>(this->P->ScalarBarBox.Posn[this->P->TL[0]] +
@@ -1501,15 +1498,9 @@ void vtkScalarBarActor::LayoutForUnconstrainedFont()
     for (size_t i = 0; i < this->P->TextActors.size(); ++i)
     {
       this->P->TextActors.at(i)->GetSize(this->P->Viewport, fontSize);
-      if (fontSize[0] > labelWidth)
-      {
-        labelWidth = fontSize[0];
-      }
+      labelWidth = std::max<double>(fontSize[0], labelWidth);
 
-      if (fontSize[1] > labelHeight)
-      {
-        labelHeight = fontSize[1];
-      }
+      labelHeight = std::max<double>(fontSize[1], labelHeight);
     }
 
     if (this->Orientation == VTK_ORIENT_VERTICAL)

@@ -80,10 +80,7 @@ void** vtkVoidArray::WritePointer(vtkIdType id, vtkIdType number)
   {
     this->ResizeAndExtend(newSize);
   }
-  if (newSize > this->NumberOfPointers)
-  {
-    this->NumberOfPointers = newSize;
-  }
+  this->NumberOfPointers = std::max(newSize, this->NumberOfPointers);
   return this->Array + id;
 }
 

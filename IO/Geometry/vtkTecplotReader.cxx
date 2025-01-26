@@ -2195,10 +2195,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
   }
   this->Internal->ASCIIStream.close();
 
-  if (this->Internal->TopologyDim > this->Internal->GeometryDim)
-  {
-    this->Internal->TopologyDim = this->Internal->GeometryDim;
-  }
+  this->Internal->TopologyDim = std::min(this->Internal->TopologyDim, this->Internal->GeometryDim);
 
   this->Internal->Completed = 1;
 }

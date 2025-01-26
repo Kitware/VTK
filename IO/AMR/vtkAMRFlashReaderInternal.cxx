@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMRFlashReaderInternal.h"
 
+#include <algorithm>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -812,35 +813,12 @@ void vtkFlashReaderInternal::ReadBlockBounds()
           this->Blocks[b].MaxBounds[d] = 0;
         }
 
-        if (this->Blocks[b].MinBounds[0] < this->MinBounds[0])
-        {
-          this->MinBounds[0] = this->Blocks[b].MinBounds[0];
-        }
-
-        if (this->Blocks[b].MinBounds[1] < this->MinBounds[1])
-        {
-          this->MinBounds[1] = this->Blocks[b].MinBounds[1];
-        }
-
-        if (this->Blocks[b].MinBounds[2] < this->MinBounds[2])
-        {
-          this->MinBounds[2] = this->Blocks[b].MinBounds[2];
-        }
-
-        if (this->Blocks[b].MaxBounds[0] > this->MaxBounds[0])
-        {
-          this->MaxBounds[0] = this->Blocks[b].MaxBounds[0];
-        }
-
-        if (this->Blocks[b].MaxBounds[1] > this->MaxBounds[1])
-        {
-          this->MaxBounds[1] = this->Blocks[b].MaxBounds[1];
-        }
-
-        if (this->Blocks[b].MaxBounds[2] > this->MaxBounds[2])
-        {
-          this->MaxBounds[2] = this->Blocks[b].MaxBounds[2];
-        }
+        this->MinBounds[0] = std::min(this->Blocks[b].MinBounds[0], this->MinBounds[0]);
+        this->MinBounds[1] = std::min(this->Blocks[b].MinBounds[1], this->MinBounds[1]);
+        this->MinBounds[2] = std::min(this->Blocks[b].MinBounds[2], this->MinBounds[2]);
+        this->MaxBounds[0] = std::max(this->Blocks[b].MaxBounds[0], this->MaxBounds[0]);
+        this->MaxBounds[1] = std::max(this->Blocks[b].MaxBounds[1], this->MaxBounds[1]);
+        this->MaxBounds[2] = std::max(this->Blocks[b].MaxBounds[2], this->MaxBounds[2]);
       }
 
       bbox_line = nullptr;
@@ -876,35 +854,12 @@ void vtkFlashReaderInternal::ReadBlockBounds()
         this->Blocks[b].MinBounds[d] = bbox_line[d * 2 + 0];
         this->Blocks[b].MaxBounds[d] = bbox_line[d * 2 + 1];
 
-        if (this->Blocks[b].MinBounds[0] < this->MinBounds[0])
-        {
-          this->MinBounds[0] = this->Blocks[b].MinBounds[0];
-        }
-
-        if (this->Blocks[b].MinBounds[1] < this->MinBounds[1])
-        {
-          this->MinBounds[1] = this->Blocks[b].MinBounds[1];
-        }
-
-        if (this->Blocks[b].MinBounds[2] < this->MinBounds[2])
-        {
-          this->MinBounds[2] = this->Blocks[b].MinBounds[2];
-        }
-
-        if (this->Blocks[b].MaxBounds[0] > this->MaxBounds[0])
-        {
-          this->MaxBounds[0] = this->Blocks[b].MaxBounds[0];
-        }
-
-        if (this->Blocks[b].MaxBounds[1] > this->MaxBounds[1])
-        {
-          this->MaxBounds[1] = this->Blocks[b].MaxBounds[1];
-        }
-
-        if (this->Blocks[b].MaxBounds[2] > this->MaxBounds[2])
-        {
-          this->MaxBounds[2] = this->Blocks[b].MaxBounds[2];
-        }
+        this->MinBounds[0] = std::min(this->Blocks[b].MinBounds[0], this->MinBounds[0]);
+        this->MinBounds[1] = std::min(this->Blocks[b].MinBounds[1], this->MinBounds[1]);
+        this->MinBounds[2] = std::min(this->Blocks[b].MinBounds[2], this->MinBounds[2]);
+        this->MaxBounds[0] = std::max(this->Blocks[b].MaxBounds[0], this->MaxBounds[0]);
+        this->MaxBounds[1] = std::max(this->Blocks[b].MaxBounds[1], this->MaxBounds[1]);
+        this->MaxBounds[2] = std::max(this->Blocks[b].MaxBounds[2], this->MaxBounds[2]);
       }
 
       bbox_line = nullptr;
@@ -1140,10 +1095,7 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
   {
     int level = refinement_array[b];
     this->Blocks[b].Level = level;
-    if (level > this->NumberOfLevels)
-    {
-      this->NumberOfLevels = level;
-    }
+    this->NumberOfLevels = std::max(level, this->NumberOfLevels);
   }
 
   H5Tclose(refinement_data_type);

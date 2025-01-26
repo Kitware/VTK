@@ -43,10 +43,7 @@ void vtkLICRandomNoise2D::GetValidDimensionAndGrainSize(int type, int& sideLen, 
   }
 
   // grains can't be larger than the patch
-  if (sideLen < grainSize)
-  {
-    sideLen = grainSize;
-  }
+  sideLen = std::max(sideLen, grainSize);
 
   // generate noise with agiven grainSize size on the patch
   if (sideLen % grainSize)
@@ -217,11 +214,11 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
   minVal = maxMinDiff == 0.0f ? 0.0f : minVal;
   maxMinDiff = maxMinDiff == 0.0f ? (maxVal == 0.0f ? 1.0f : maxVal) : maxMinDiff;
 
-  nLevels = nLevels < 1 ? 1 : nLevels;
+  nLevels = std::max(nLevels, 1);
   int maxLevel = nLevels - 1;
   float delta = maxLevel != 0 ? 1.0f / maxLevel : 0.0f;
-  minNoiseVal = minNoiseVal < 0.0f ? 0.0f : minNoiseVal;
-  maxNoiseVal = maxNoiseVal > 1.0f ? 1.0f : maxNoiseVal;
+  minNoiseVal = std::max(minNoiseVal, 0.0f);
+  maxNoiseVal = std::min(maxNoiseVal, 1.0f);
   float noiseRange = maxNoiseVal - minNoiseVal;
   for (int i = 0; i < sdim2; ++i)
   {

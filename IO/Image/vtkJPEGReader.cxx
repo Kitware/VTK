@@ -277,10 +277,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   jpeg_start_decompress(&cinfo);
 
   unsigned int maxChunk = cinfo.output_height;
-  if (maxChunk > 4096)
-  {
-    maxChunk = 4096;
-  }
+  maxChunk = std::min<unsigned int>(maxChunk, 4096);
   vtkIdType rowbytes = cinfo.output_components * cinfo.output_width;
   std::vector<unsigned char> tempImage(rowbytes * maxChunk);
   std::vector<JSAMPROW> row_pointers(maxChunk);

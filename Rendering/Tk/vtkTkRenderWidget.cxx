@@ -99,17 +99,8 @@ void vtkExtractImageData(unsigned char* buffer, T* inPtr, double shift, double s
       {
         // Clamp
         pixel = (*ImagePtr + shift) * scale;
-        if (pixel < 0)
-        {
-          pixel = 0;
-        }
-        else
-        {
-          if (pixel > 255)
-          {
-            pixel = 255;
-          }
-        }
+        pixel = std::max(pixel, 0.0f);
+        pixel = std::min(pixel, 255.0f);
         *BufferPtr = (unsigned char)pixel;
         ImagePtr++;
         BufferPtr++;

@@ -468,10 +468,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
   //
   estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   newPoints = vtkPoints::New();
   // set precision for the points in the output
@@ -717,10 +714,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
   //
   estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   newPoints = vtkPoints::New();
   vtkPointSet* inputPointSet = vtkPointSet::SafeDownCast(input);

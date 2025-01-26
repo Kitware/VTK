@@ -870,14 +870,8 @@ void vtkLineRepresentation::ClampPosition(double x[3])
 {
   for (int i = 0; i < 3; i++)
   {
-    if (x[i] < this->InitialBounds[2 * i])
-    {
-      x[i] = this->InitialBounds[2 * i];
-    }
-    if (x[i] > this->InitialBounds[2 * i + 1])
-    {
-      x[i] = this->InitialBounds[2 * i + 1];
-    }
+    x[i] = std::max(x[i], this->InitialBounds[2 * i]);
+    x[i] = std::min(x[i], this->InitialBounds[2 * i + 1]);
   }
 }
 

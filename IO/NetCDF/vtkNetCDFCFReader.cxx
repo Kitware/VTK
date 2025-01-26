@@ -72,10 +72,8 @@ static void GetRangeOfAllComponents(vtkDoubleArray* array, double range[2])
   {
     double componentRange[2];
     array->GetRange(componentRange, component);
-    if (componentRange[0] < range[0])
-      range[0] = componentRange[0];
-    if (componentRange[1] > range[1])
-      range[1] = componentRange[1];
+    range[0] = std::min(componentRange[0], range[0]);
+    range[1] = std::max(componentRange[1], range[1]);
   }
 }
 
@@ -1139,8 +1137,7 @@ void vtkNetCDFCFReader::AddRectilinearCoordinates(vtkImageData* imageOutput)
   spacing[0] = spacing[1] = spacing[2] = 1.0;
 
   int numDim = this->LoadingDimensions->GetNumberOfTuples();
-  if (numDim >= 3)
-    numDim = 3;
+  numDim = std::min(numDim, 3);
 
   for (int i = 0; i < numDim; i++)
   {

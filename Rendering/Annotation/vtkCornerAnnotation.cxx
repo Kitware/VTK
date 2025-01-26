@@ -15,6 +15,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cmath>
 
 //------------------------------------------------------------------------------
@@ -597,10 +598,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
 
       fontSize =
         static_cast<int>(pow((double)fontSize, NonlinearFontScaleFactor) * LinearFontScaleFactor);
-      if (fontSize > this->MaximumFontSize)
-      {
-        fontSize = this->MaximumFontSize;
-      }
+      fontSize = std::min(fontSize, this->MaximumFontSize);
       this->FontSize = fontSize;
       for (int i = 0; i < NumTextPositions; i++)
       {

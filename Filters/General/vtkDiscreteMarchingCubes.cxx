@@ -88,14 +88,8 @@ void vtkDiscreteMarchingCubesComputeGradient(vtkDiscreteMarchingCubes* self, T* 
   }
   for (min = max = values[0], i = 1; i < numValues; i++)
   {
-    if (values[i] < min)
-    {
-      min = values[i];
-    }
-    if (values[i] > max)
-    {
-      max = values[i];
-    }
+    min = std::min(values[i], min);
+    max = std::max(values[i], max);
   }
   //
   // Traverse all voxel cells, generating triangles
@@ -305,10 +299,7 @@ int vtkDiscreteMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize *= dims[2]; // which might be wider than "int"
   estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(estimatedSize), .75));
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize / 2);
