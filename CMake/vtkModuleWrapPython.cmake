@@ -618,6 +618,7 @@ endfunction ()
        MODULES <module>...
        [TARGET <target>]
        [WRAPPED_MODULES <varname>]
+       [WRAP_TARGET <target>]
 
        [BUILD_STATIC <ON|OFF>]
        [INSTALL_HEADERS <ON|OFF>]
@@ -656,6 +657,9 @@ endfunction ()
     These modules will have a ``INTERFACE_vtk_module_python_package`` property
     set on them which is the name that should be given to ``import`` statements
     in Python code.
+  * ``WRAP_TARGET``: If provided, a custom target with this name will be
+    created. It will depend on all wrapped Python modules and may be used
+    to ensure that Python wrapping has completed for further work.
   * ``BUILD_STATIC``: Defaults to ``${BUILD_SHARED_LIBS}``. Note that shared
     modules with a static build is not completely supported. For static Python
     module builds, a header named ``<TARGET>.h`` will be available with a
@@ -714,7 +718,7 @@ endfunction ()
 function (vtk_module_wrap_python)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_python
     ""
-    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES;HEADERS_DESTINATION;INTERPRETER"
+    "MODULE_DESTINATION;STATIC_MODULE_DESTINATION;LIBRARY_DESTINATION;PYTHON_PACKAGE;BUILD_STATIC;INSTALL_HEADERS;INSTALL_EXPORT;TARGET_SPECIFIC_COMPONENTS;TARGET;COMPONENT;WRAPPED_MODULES;CMAKE_DESTINATION;SOABI;USE_DEBUG_SUFFIX;REPLACE_DEBUG_SUFFIX;UTILITY_TARGET;BUILD_PYI_FILES;HEADERS_DESTINATION;INTERPRETER;WRAP_TARGET"
     "DEPENDS;MODULES;WARNINGS")
 
   if (_vtk_python_UNPARSED_ARGUMENTS)
@@ -1054,6 +1058,12 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
       # TODO: Install these targets.
       target_link_libraries("${_vtk_python_TARGET_NAME}"
         INTERFACE
+          ${_vtk_python_all_modules})
+    endif ()
+
+    if (_vtk_python_WRAP_TARGET)
+      add_custom_target("${_vtk_python_WRAP_TARGET}"
+        DEPENDS
           ${_vtk_python_all_modules})
     endif ()
 
