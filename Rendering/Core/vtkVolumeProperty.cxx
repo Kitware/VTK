@@ -11,6 +11,8 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVolumeProperty);
 
@@ -605,7 +607,7 @@ void vtkVolumeProperty::SetComponentWeight(int index, double value)
     return;
   }
 
-  double val = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value);
+  double val = std::min(std::max(value, 0.0), 1.0);
   if (this->ComponentWeight[index] != val)
   {
     this->ComponentWeight[index] = val;

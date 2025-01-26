@@ -39,7 +39,19 @@ int CellSizeFilter2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       filter->ComputeSumOn();
       filter->Update();
       const int cellDim = vtkCellTypes::GetDimension(cellType);
-      std::string sizeType = (cellDim == 1) ? "Length" : ((cellDim == 2) ? "Area" : "Volume");
+      std::string sizeType;
+      switch (cellDim)
+      {
+        case 1:
+          sizeType = "Length";
+          break;
+        case 2:
+          sizeType = "Area";
+          break;
+        default:
+          sizeType = "Volume";
+          break;
+      }
 
       const double size =
         vtkDoubleArray::SafeDownCast(vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())

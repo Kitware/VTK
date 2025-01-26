@@ -31,6 +31,7 @@
 #include "vtkVector.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1324,9 +1325,11 @@ void vtkTensorRepresentation::UpdateTensorEigenfunctions(double tensor[3][3])
   n[0] = vtkMath::Norm(tensor[0]);
   n[1] = vtkMath::Norm(tensor[1]);
   n[2] = vtkMath::Norm(tensor[2]);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   order[0] = (n[0] >= n[1] ? (n[0] >= n[2] ? 0 : 2) : (n[1] >= n[2] ? 1 : 2)); // max
-  order[2] = (n[0] < n[1] ? (n[0] < n[2] ? 0 : 2) : (n[1] < n[2] ? 1 : 2));    // min
-  order[1] = 3 - order[0] - order[2];                                          // neat trick ;-)
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+  order[2] = (n[0] < n[1] ? (n[0] < n[2] ? 0 : 2) : (n[1] < n[2] ? 1 : 2)); // min
+  order[1] = 3 - order[0] - order[2];                                       // neat trick ;-)
 
   this->Eigenvalues[0] = n[order[0]];
   this->Eigenvalues[1] = n[order[1]];
@@ -1535,9 +1538,8 @@ int vtkTensorRepresentation::ComputeComplexInteractionState(
 void vtkTensorRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkTensorRepresentation::Outside
-      ? vtkTensorRepresentation::Outside
-      : (state > vtkTensorRepresentation::Scaling ? vtkTensorRepresentation::Scaling : state));
+  state = std::min<int>(
+    std::max<int>(state, vtkTensorRepresentation::Outside), vtkTensorRepresentation::Scaling);
 
   // Depending on state, highlight appropriate parts of representation
   int handle;

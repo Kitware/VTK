@@ -144,8 +144,8 @@ struct vtkInternalSpanSpace
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (sMin - this->SMin) / this->Range);
     vtkIdType j =
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (sMax - this->SMin) / this->Range);
-    i = (i < 0 ? 0 : (i >= this->Dim ? this->Dim - 1 : i));
-    j = (j < 0 ? 0 : (j >= this->Dim ? this->Dim - 1 : j));
+    i = std::min(std::max<vtkIdType>(i, 0), this->Dim - 1);
+    j = std::min(std::max<vtkIdType>(j, 0), this->Dim - 1);
     this->Space[id].CellId = id;
     this->Space[id].Index = i + j * Dim;
   }

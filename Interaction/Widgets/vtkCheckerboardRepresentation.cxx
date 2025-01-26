@@ -220,6 +220,7 @@ void vtkCheckerboardRepresentation::BuildRepresentation()
   double t0 = bounds[1] - bounds[0];
   double t1 = bounds[3] - bounds[2];
   double t2 = bounds[5] - bounds[4];
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   this->OrthoAxis = (t0 < t1 ? (t0 < t2 ? 0 : 2) : (t1 < t2 ? 1 : 2));
   double o0 = t0 * this->CornerOffset;
   double o1 = t1 * this->CornerOffset;

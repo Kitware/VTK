@@ -125,6 +125,7 @@ void vtkPLYWriter::WriteData()
   {
     ply = vtkPLY::ply_open_for_writing_to_string(this->OutputString, 2, elemNames,
       this->FileType == VTK_BINARY
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         ? (this->DataByteOrder == VTK_LITTLE_ENDIAN ? PLY_BINARY_LE : PLY_BINARY_BE)
         : PLY_ASCII);
   }
@@ -132,6 +133,7 @@ void vtkPLYWriter::WriteData()
   {
     ply = vtkPLY::ply_open_for_writing(this->FileName, 2, elemNames,
       this->FileType == VTK_BINARY
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         ? (this->DataByteOrder == VTK_LITTLE_ENDIAN ? PLY_BINARY_LE : PLY_BINARY_BE)
         : PLY_ASCII);
   }

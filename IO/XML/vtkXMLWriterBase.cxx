@@ -134,11 +134,10 @@ void vtkXMLWriterBase::SetCompressionLevel(int compressionLevel)
   constexpr int max = 9;
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
                 << "CompressionLevel  to " << compressionLevel);
-  if (this->CompressionLevel !=
-    (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel)))
+  compressionLevel = std::clamp(compressionLevel, min, max);
+  if (this->CompressionLevel != compressionLevel)
   {
-    this->CompressionLevel =
-      (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
+    this->CompressionLevel = compressionLevel;
     if (this->Compressor)
     {
       this->Compressor->SetCompressionLevel(compressionLevel);

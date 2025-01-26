@@ -338,7 +338,7 @@ void vtkCameraOrientationRepresentation::ApplyInteractionState(const Interaction
 void vtkCameraOrientationRepresentation::ApplyInteractionState(const int& state)
 {
   // Clamp to allowable values
-  const int clamped = state < 0 ? 0 : (state > 2 ? 2 : state);
+  const int clamped = std::max(std::min(0, state), 2);
   this->ApplyInteractionState(static_cast<InteractionStateType>(clamped));
 }
 

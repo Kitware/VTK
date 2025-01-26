@@ -20,6 +20,7 @@ namespace
 {
 inline double Sign(const double& a)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   return a > 0.0 ? 1.0 : (a < 0 ? -1.0 : 0.0);
 }
 inline bool OppSign(const double& a, const double& b)

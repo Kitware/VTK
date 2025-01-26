@@ -73,6 +73,7 @@ struct AppendTrianglesWorker
             indexArray->push_back(static_cast<unsigned int>(id3 + vOffset));
             if (edgeArray)
             {
+              // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
               int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
               if (edgeFlags)
               {

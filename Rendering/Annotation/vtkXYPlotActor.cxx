@@ -30,6 +30,8 @@
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
+#include <algorithm>
+
 #define VTK_MAX_PLOTS 50
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2335,7 +2337,7 @@ int vtkXYPlotActor::IsInPlot(vtkViewport* viewport, double u, double v)
 //------------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotLines(int i, int isOn)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   int val = this->LinesOn->GetValue(i);
   if (val != isOn)
   {
@@ -2347,14 +2349,14 @@ void vtkXYPlotActor::SetPlotLines(int i, int isOn)
 //------------------------------------------------------------------------------
 int vtkXYPlotActor::GetPlotLines(int i)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   return this->LinesOn->GetValue(i);
 }
 
 //------------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotPoints(int i, int isOn)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   int val = this->PointsOn->GetValue(i);
   if (val != isOn)
   {
@@ -2366,7 +2368,7 @@ void vtkXYPlotActor::SetPlotPoints(int i, int isOn)
 //------------------------------------------------------------------------------
 int vtkXYPlotActor::GetPlotPoints(int i)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   return this->PointsOn->GetValue(i);
 }
 
@@ -2585,7 +2587,7 @@ void vtkXYPlotActor::ClipPlotData(int* pos, int* pos2, vtkPolyData* pd)
 //------------------------------------------------------------------------------
 void vtkXYPlotActor::SetDataObjectXComponent(int i, int comp)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   int val = this->XComponent->GetValue(i);
   if (val != comp)
   {
@@ -2597,14 +2599,14 @@ void vtkXYPlotActor::SetDataObjectXComponent(int i, int comp)
 //------------------------------------------------------------------------------
 int vtkXYPlotActor::GetDataObjectXComponent(int i)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   return this->XComponent->GetValue(i);
 }
 
 //------------------------------------------------------------------------------
 void vtkXYPlotActor::SetDataObjectYComponent(int i, int comp)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   int val = this->YComponent->GetValue(i);
   if (val != comp)
   {
@@ -2616,14 +2618,14 @@ void vtkXYPlotActor::SetDataObjectYComponent(int i, int comp)
 //------------------------------------------------------------------------------
 int vtkXYPlotActor::GetDataObjectYComponent(int i)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   return this->YComponent->GetValue(i);
 }
 
 //------------------------------------------------------------------------------
 void vtkXYPlotActor::SetPointComponent(int i, int comp)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   int val = this->XComponent->GetValue(i);
   if (val != comp)
   {
@@ -2635,7 +2637,7 @@ void vtkXYPlotActor::SetPointComponent(int i, int comp)
 //------------------------------------------------------------------------------
 int vtkXYPlotActor::GetPointComponent(int i)
 {
-  i = (i < 0 ? 0 : (i >= VTK_MAX_PLOTS ? VTK_MAX_PLOTS - 1 : i));
+  i = std::min(std::max(i, 0), VTK_MAX_PLOTS - 1);
   return this->XComponent->GetValue(i);
 }
 

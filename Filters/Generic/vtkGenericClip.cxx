@@ -324,7 +324,18 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
             break;
 
           case 2: // polygons are generated------------------------------
-            cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
+            if (npts == 3)
+            {
+              cellType = VTK_TRIANGLE;
+            }
+            else if (npts == 4)
+            {
+              cellType = VTK_QUAD;
+            }
+            else
+            {
+              cellType = VTK_POLYGON;
+            }
             break;
 
           case 3: // tetrahedra or wedges are generated------------------

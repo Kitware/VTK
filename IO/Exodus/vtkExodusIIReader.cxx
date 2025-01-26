@@ -2730,6 +2730,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
   {
     int blkType = (key.ObjectType == vtkExodusIIReader::ELEM_BLOCK_ATTRIB
         ? vtkExodusIIReader::ELEM_BLOCK
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         : (key.ObjectType == vtkExodusIIReader::FACE_BLOCK_ATTRIB ? vtkExodusIIReader::FACE_BLOCK
                                                                   : vtkExodusIIReader::EDGE_BLOCK));
     BlockInfoType* binfop = &this->BlockInfo[blkType][key.ObjectId];

@@ -482,8 +482,11 @@ double vtkKdNode::GetDistance2ToBoundaryPrivate(double x, double y, double z, //
   }
   else if (withinX || withinY || withinZ) // point is closest to an edge
   {
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[0] = (withinX ? x : (xless ? xmin : xmax));
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[1] = (withinY ? y : (yless ? ymin : ymax));
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[2] = (withinZ ? z : (zless ? zmin : zmax));
 
     pt3[0] = x;

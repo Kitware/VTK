@@ -33,6 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
+#include <algorithm>
 #include <cmath>
 #include <exception>
 
@@ -2003,7 +2004,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(
     insideFlag = 1;
   }
 
-  this->MinimumViewDistance = (minZ < 0.001) ? (0.001) : ((minZ > 0.999) ? (0.999) : (minZ));
+  this->MinimumViewDistance = std::min(std::max(minZ, 0.001f), 0.999f);
 
   int imageViewportSize[2];
   int imageOrigin[2];

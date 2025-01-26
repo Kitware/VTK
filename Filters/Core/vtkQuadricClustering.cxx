@@ -508,6 +508,7 @@ void vtkQuadricClustering::AddTriangle(vtkIdType* binIds, double* pt0, double* p
     {
       if (this->PreventDuplicateCells)
       {
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         vtkIdType minIdx = (binIds[0] < binIds[1] ? (binIds[0] < binIds[2] ? 0 : 2)
                                                   : (binIds[1] < binIds[2] ? 1 : 2));
         vtkIdType midIdx = 0;

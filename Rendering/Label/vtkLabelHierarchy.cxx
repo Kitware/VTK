@@ -945,7 +945,7 @@ struct vtkQuadtreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return da < db ? true : (da == db ? (a < b) : false);
+    return (da < db) || ((da == db) && (a < b));
   }
 };
 
@@ -1283,7 +1283,7 @@ struct vtkOctreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return da < db ? true : (da == db ? (a < b) : false);
+    return (da < db) || ((da == db) && (a < b));
   }
 };
 
@@ -1759,7 +1759,18 @@ extern "C"
   {
     const vtkDistNodeStruct* da = static_cast<const vtkDistNodeStruct*>(va);
     const vtkDistNodeStruct* db = static_cast<const vtkDistNodeStruct*>(vb);
-    return (da->Distance < db->Distance ? -1 : (da->Distance > db->Distance ? 1 : 0));
+    if (da->Distance < db->Distance)
+    {
+      return -1;
+    }
+    else if (da->Distance > db->Distance)
+    {
+      return 1;
+    }
+    else
+    {
+      return 0;
+    }
   }
 }
 

@@ -56,7 +56,8 @@ vtkQuadraticQuad::~vtkQuadraticQuad()
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticQuad::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 3 ? 3 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 3);
   int p = (edgeId + 1) % 4;
 
   // load point id's

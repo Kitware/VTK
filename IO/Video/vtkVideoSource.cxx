@@ -175,15 +175,26 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << ")\n";
 
-  os << indent << "OutputFormat: "
-     << (this->OutputFormat == VTK_RGBA
-            ? "RGBA"
-            : (this->OutputFormat == VTK_RGB
-                  ? "RGB"
-                  : (this->OutputFormat == VTK_LUMINANCE_ALPHA
-                        ? "LuminanceAlpha"
-                        : (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
-     << "\n";
+  const char* format = "Unknown";
+  switch (this->OutputFormat)
+  {
+    case VTK_RGBA:
+      format = "RGBA";
+      break;
+    case VTK_RGB:
+      format = "RGB";
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      format = "LuminanceAlpha";
+      break;
+    case VTK_LUMINANCE:
+      format = "Luminance";
+      break;
+    default:
+      format = "Unknown";
+      break;
+  }
+  os << indent << "OutputFormat: " << format << "\n";
 
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0];
   for (idx = 1; idx < 6; ++idx)

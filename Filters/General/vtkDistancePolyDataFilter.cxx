@@ -100,6 +100,7 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
   }
 
   auto DistanceWithSign = [&](const double& val)
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   { return this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val); };
 
   vtkSMPTools::For(0, numPts,

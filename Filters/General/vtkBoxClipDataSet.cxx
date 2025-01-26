@@ -444,6 +444,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
             break;
 
           case 2: // polygons are generated------------------------------
+                  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             break;
 

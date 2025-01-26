@@ -53,7 +53,7 @@ int vtkThreshold::Upper(double s) const
 //------------------------------------------------------------------------------
 int vtkThreshold::Between(double s) const
 {
-  return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
+  return (s >= this->LowerThreshold && s <= this->UpperThreshold) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------

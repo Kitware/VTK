@@ -28,6 +28,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTransformPolyDataFilter.h"
 
+#include <algorithm>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -731,10 +732,9 @@ constexpr double RelativeCubeScreenAreaLowerLimit = 1.e-6;
 //------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::SetMinRelativeCubeScreenArea(double d)
 {
-  if (this->MinRelativeCubeScreenArea !=
-    (d < RelativeCubeScreenAreaLowerLimit
-        ? RelativeCubeScreenAreaLowerLimit
-        : (d > RelativeCubeScreenAreaUpperLimit ? RelativeCubeScreenAreaUpperLimit : d)))
+  double clamp_d =
+    std::min(std::max(d, RelativeCubeScreenAreaLowerLimit), RelativeCubeScreenAreaUpperLimit);
+  if (this->MinRelativeCubeScreenArea != clamp_d)
   {
     this->MinRelativeCubeScreenArea = d;
     if (this->MaxRelativeCubeScreenArea < this->RescaleFactor * this->MinRelativeCubeScreenArea)
@@ -754,10 +754,9 @@ void vtkMeasurementCubeHandleRepresentation3D::SetMinRelativeCubeScreenArea(doub
 //------------------------------------------------------------------------------
 void vtkMeasurementCubeHandleRepresentation3D::SetMaxRelativeCubeScreenArea(double d)
 {
-  if (this->MaxRelativeCubeScreenArea !=
-    (d < RelativeCubeScreenAreaLowerLimit
-        ? RelativeCubeScreenAreaLowerLimit
-        : (d > RelativeCubeScreenAreaUpperLimit ? RelativeCubeScreenAreaUpperLimit : d)))
+  double clamp_d =
+    std::min(std::max(d, RelativeCubeScreenAreaLowerLimit), RelativeCubeScreenAreaUpperLimit);
+  if (this->MaxRelativeCubeScreenArea != clamp_d)
   {
     this->MaxRelativeCubeScreenArea = d;
     if (this->MaxRelativeCubeScreenArea < this->RescaleFactor * this->MinRelativeCubeScreenArea)

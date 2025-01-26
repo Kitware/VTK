@@ -243,12 +243,17 @@ void vtkVRRenderWindow::InitializeViewFromCamera(vtkCamera* srccam)
     srccam->GetDistance() / sin(vtkMath::RadiansFromDegrees(cam->GetViewAngle()) / 2.0);
 
   double* oldVup = srccam->GetViewUp();
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int maxIdx = fabs(oldVup[0]) > fabs(oldVup[1]) ? (fabs(oldVup[0]) > fabs(oldVup[2]) ? 0 : 2)
                                                  : (fabs(oldVup[1]) > fabs(oldVup[2]) ? 1 : 2);
 
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   cam->SetViewUp((maxIdx == 0 ? (oldVup[0] > 0 ? 1 : -1) : 0.0),
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (maxIdx == 1 ? (oldVup[1] > 0 ? 1 : -1) : 0.0), (maxIdx == 2 ? (oldVup[2] > 0 ? 1 : -1) : 0.0));
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   this->SetPhysicalViewUp((maxIdx == 0 ? (oldVup[0] > 0 ? 1 : -1) : 0.0),
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (maxIdx == 1 ? (oldVup[1] > 0 ? 1 : -1) : 0.0), (maxIdx == 2 ? (oldVup[2] > 0 ? 1 : -1) : 0.0));
 
   double* oldFP = srccam->GetFocalPoint();
@@ -259,10 +264,14 @@ void vtkVRRenderWindow::InitializeViewFromCamera(vtkCamera* srccam)
   this->SetPhysicalScale(distance);
 
   double* oldDOP = srccam->GetDirectionOfProjection();
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int dopMaxIdx = fabs(oldDOP[0]) > fabs(oldDOP[1]) ? (fabs(oldDOP[0]) > fabs(oldDOP[2]) ? 0 : 2)
                                                     : (fabs(oldDOP[1]) > fabs(oldDOP[2]) ? 1 : 2);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   this->SetPhysicalViewDirection((dopMaxIdx == 0 ? (oldDOP[0] > 0 ? 1 : -1) : 0.0),
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (dopMaxIdx == 1 ? (oldDOP[1] > 0 ? 1 : -1) : 0.0),
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (dopMaxIdx == 2 ? (oldDOP[2] > 0 ? 1 : -1) : 0.0));
   double* idop = this->GetPhysicalViewDirection();
   cam->SetPosition(

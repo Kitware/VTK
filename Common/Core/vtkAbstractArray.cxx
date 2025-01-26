@@ -607,10 +607,11 @@ void vtkAbstractArray::GetProminentComponentValues(
 
   bool justCreated = false;
   vtkInformation* info = this->GetInformation();
-  const double* lastParams = info
-    ? (info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()) ? info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS())
-                                                     : nullptr)
-    : nullptr;
+  const double* lastParams = nullptr;
+  if (info && info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()))
+  {
+    lastParams = info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS());
+  }
   if (comp >= 0 && info)
   {
     vtkInformationVector* infoVec = info->Get(PER_COMPONENT());

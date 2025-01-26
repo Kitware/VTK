@@ -1263,6 +1263,7 @@ double vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex* vtx)
     double l1 = vtkMath::Norm(v1);
     double l2 = vtkMath::Norm(v2);
     double l3 = vtkMath::Norm(v3);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     int longestEdge = (l1 > l2 ? (l1 > l3 ? 1 : 3) : (l2 > l3 ? 2 : 3));
     double shortest, longest;
     if (longestEdge == 1)
@@ -1331,6 +1332,7 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx)
   // the split line.
   int oneNegative = 0;
   val = vtkPlane::Evaluate(sN, sPt, next->next->x);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   currentSign = (val > tolerance ? 1 : (val < -tolerance ? -1 : 0));
   oneNegative = (currentSign < 0 ? 1 : 0); // very important
 
@@ -1338,6 +1340,7 @@ int vtkPolyVertexList::CanRemoveVertex(vtkLocalPolyVertex* currentVtx)
   for (vtx = next->next->next; vtx != previous; vtx = vtx->next)
   {
     val = vtkPlane::Evaluate(sN, sPt, vtx->x);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     sign = (val > tolerance ? 1 : (val < -tolerance ? -1 : 0));
     if (sign != currentSign)
     {
@@ -2170,6 +2173,7 @@ double vtkPolygon::ComputeArea(vtkPoints* p, vtkIdType numPts, const vtkIdType* 
     ny = (n[1] > 0.0 ? n[1] : -n[1]); // abs y-coord
     nz = (n[2] > 0.0 ? n[2] : -n[2]); // abs z-coord
 
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     coord = (nx > ny ? (nx > nz ? 0 : 2) : (ny > nz ? 1 : 2));
 
     // compute area of the 2D projection

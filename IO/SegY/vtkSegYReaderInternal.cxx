@@ -27,6 +27,7 @@ namespace
 const int FIRST_TRACE_START_POS = 3600; // this->Traces start after 3200 + 400 file header
 double decodeMultiplier(short multiplier)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   return (multiplier < 0) ? (-1.0 / multiplier) : (multiplier > 0 ? multiplier : 1.0);
 }
 }

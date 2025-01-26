@@ -203,7 +203,9 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
     // have a much larger value, after normalization the gaussian
     // distribution is compressed and localized near 1. We can fix this
     // by ignoring zero values.
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     minVal = impulseProb == 1.0 ? (rvals[i] < minVal ? rvals[i] : minVal)
+                                // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
                                 : (rvals[i] < minVal && rvals[i] > 0.0f ? rvals[i] : minVal);
 
     maxVal = rvals[i] > maxVal ? rvals[i] : maxVal;
@@ -212,6 +214,7 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
   // because we ignore zero when impulseProb<1 we have to be careful
   // here so that we can support one noise level.
   minVal = maxMinDiff == 0.0f ? 0.0f : minVal;
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   maxMinDiff = maxMinDiff == 0.0f ? (maxVal == 0.0f ? 1.0f : maxVal) : maxMinDiff;
 
   nLevels = std::max(nLevels, 1);
@@ -228,8 +231,9 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
     int l = static_cast<int>(val * nLevels);
     l = l > maxLevel ? maxLevel : l;
     rvals[i] = rvals[i] < minVal ? impulseBgNoiseVal
-      : nLevels == 1             ? maxNoiseVal
-                                 : minNoiseVal + (l * delta) * noiseRange;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      : nLevels == 1 ? maxNoiseVal
+                     : minNoiseVal + (l * delta) * noiseRange;
   }
 
   // map single pixel random values onto a patch of values of

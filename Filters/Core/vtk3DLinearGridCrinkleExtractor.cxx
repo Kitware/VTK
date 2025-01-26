@@ -159,6 +159,7 @@ struct PlaneClassifyPoints : public Classify
       eval = vtkPlane::Evaluate(n, o, p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }
@@ -214,6 +215,7 @@ struct FunctionClassifyPoints : public Classify
       eval = this->Function->FunctionValue(p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }

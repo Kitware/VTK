@@ -445,14 +445,11 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
     // Clamp data scale if enabled
     if (this->Clamping)
     {
-      scalex = (scalex < this->Range[0] ? this->Range[0]
-                                        : (scalex > this->Range[1] ? this->Range[1] : scalex));
+      scalex = std::clamp(scalex, this->Range[0], this->Range[1]);
       scalex = (scalex - this->Range[0]) / den;
-      scaley = (scaley < this->Range[0] ? this->Range[0]
-                                        : (scaley > this->Range[1] ? this->Range[1] : scaley));
+      scaley = std::clamp(scaley, this->Range[0], this->Range[1]);
       scaley = (scaley - this->Range[0]) / den;
-      scalez = (scalez < this->Range[0] ? this->Range[0]
-                                        : (scalez > this->Range[1] ? this->Range[1] : scalez));
+      scalez = std::clamp(scalez, this->Range[0], this->Range[1]);
       scalez = (scalez - this->Range[0]) / den;
     }
 
@@ -473,7 +470,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
       index = static_cast<int>((value - this->Range[0]) * numberOfSources / den);
-      index = (index < 0 ? 0 : (index >= numberOfSources ? (numberOfSources - 1) : index));
+      index = std::clamp(index, 0, numberOfSources - 1);
 
       if (this->GetSource(index) != nullptr)
       {

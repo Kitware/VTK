@@ -45,7 +45,8 @@ vtkBiQuadraticTriangle::~vtkBiQuadraticTriangle()
 //------------------------------------------------------------------------------
 vtkCell* vtkBiQuadraticTriangle::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 2 ? 2 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 2);
   int p = (edgeId + 1) % 3;
 
   // load point id's

@@ -21,6 +21,8 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGlyph3D);
 vtkCxxSetObjectMacro(vtkGlyph3D, SourceTransform, vtkTransform);
@@ -459,14 +461,11 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
     // Clamp data scale if enabled
     if (this->Clamping)
     {
-      scalex = (scalex < this->Range[0] ? this->Range[0]
-                                        : (scalex > this->Range[1] ? this->Range[1] : scalex));
+      scalex = std::min(std::max(scalex, this->Range[0]), this->Range[1]);
       scalex = (scalex - this->Range[0]) / den;
-      scaley = (scaley < this->Range[0] ? this->Range[0]
-                                        : (scaley > this->Range[1] ? this->Range[1] : scaley));
+      scaley = std::min(std::max(scaley, this->Range[0]), this->Range[1]);
       scaley = (scaley - this->Range[0]) / den;
-      scalez = (scalez < this->Range[0] ? this->Range[0]
-                                        : (scalez > this->Range[1] ? this->Range[1] : scalez));
+      scalez = std::min(std::max(scalez, this->Range[0]), this->Range[1]);
       scalez = (scalez - this->Range[0]) / den;
     }
 
@@ -483,7 +482,7 @@ bool vtkGlyph3D::Execute(vtkDataSet* input, vtkInformationVector* sourceVector, 
       }
 
       int index = static_cast<int>((value - this->Range[0]) * numberOfSources / den);
-      index = (index < 0 ? 0 : (index >= numberOfSources ? (numberOfSources - 1) : index));
+      index = std::min(std::max(index, 0), numberOfSources - 1);
 
       source = this->GetSource(index, sourceVector);
       if (source != nullptr)

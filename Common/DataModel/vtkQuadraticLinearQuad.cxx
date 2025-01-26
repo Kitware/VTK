@@ -68,7 +68,8 @@ int* vtkQuadraticLinearQuad::GetEdgeArray(vtkIdType edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticLinearQuad::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 3 ? 3 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 3);
 
   // We have 2 linear edges
   if (edgeId == 1 || edgeId == 3)

@@ -1713,7 +1713,8 @@ int vtkFunctionParser::FindEndOfMathFunction(int beginIndex)
   i++;
   for (parenthesisCount = 1; parenthesisCount > 0; ++i)
   {
-    parenthesisCount += (this->Function[i] == '(' ? 1 : (this->Function[i] == ')' ? -1 : 0));
+    parenthesisCount += this->Function[i] == '(';
+    parenthesisCount -= this->Function[i] == ')';
   }
   return i - 1;
 }

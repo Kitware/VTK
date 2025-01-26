@@ -67,6 +67,7 @@ void vtkHigherOrderTriangle::SetEdgeIdsAndPoints(int edgeId,
     // point, and then the remaining points in sequence. This loop iterates over
     // the edge in sequence starting with the first point. The following value
     // maps from this iteration loop to the edge's ordering.
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     vtkIdType edgeIndex = (i == 0 ? 0 : (i == order ? 1 : i + 1));
 
     set_ids_and_points(edgeIndex, triangleIndex);

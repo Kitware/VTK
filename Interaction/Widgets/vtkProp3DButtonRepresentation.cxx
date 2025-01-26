@@ -15,6 +15,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+
+#include <algorithm>
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -171,7 +173,7 @@ void vtkProp3DButtonRepresentation::PlaceWidget(double bds[6])
         s[i] = (bounds[2 * i + 1] - bounds[2 * i]) / (aBds[2 * i + 1] - aBds[2 * i]);
       }
     }
-    sMin = (s[0] < s[1] ? (s[0] < s[2] ? s[0] : s[2]) : (s[1] < s[2] ? s[1] : s[2]));
+    sMin = std::min({ s[0], s[1], s[2] });
 
     (*iter).second.Scale = sMin;
   }

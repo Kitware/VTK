@@ -220,10 +220,15 @@ int vtkBorderRepresentation::GetShowBorderMaxValue()
 //------------------------------------------------------------------------------
 int vtkBorderRepresentation::GetShowBorder()
 {
-  return this->GetShowVerticalBorder() != BORDER_OFF
-    ? this->GetShowVerticalBorder()
-    : (this->GetShowHorizontalBorder() != BORDER_OFF ? this->GetShowHorizontalBorder()
-                                                     : this->GetShowPolygonBackground());
+  if (this->GetShowVerticalBorder() != BORDER_OFF)
+  {
+    return this->GetShowVerticalBorder();
+  }
+  if (this->GetShowHorizontalBorder() != BORDER_OFF)
+  {
+    return this->GetShowHorizontalBorder();
+  }
+  return this->GetShowPolygonBackground();
 }
 
 //------------------------------------------------------------------------------
@@ -814,10 +819,8 @@ void vtkBorderRepresentation::BuildRepresentation()
     double sx = (pos2[0] - pos1[0]) / size[0];
     double sy = (pos2[1] - pos1[1]) / size[1];
 
-    sx = (sx < this->MinimumSize[0] ? this->MinimumSize[0]
-                                    : (sx > this->MaximumSize[0] ? this->MaximumSize[0] : sx));
-    sy = (sy < this->MinimumSize[1] ? this->MinimumSize[1]
-                                    : (sy > this->MaximumSize[1] ? this->MaximumSize[1] : sy));
+    sx = std::min<double>(std::max<double>(sx, this->MinimumSize[0]), this->MaximumSize[0]);
+    sy = std::min<double>(std::max<double>(sy, this->MinimumSize[1]), this->MaximumSize[1]);
 
     this->BWTransform->Identity();
     this->BWTransform->Translate(tx, ty, 0.0);

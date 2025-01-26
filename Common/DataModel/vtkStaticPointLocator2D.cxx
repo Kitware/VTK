@@ -16,6 +16,7 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -114,8 +115,8 @@ struct vtkBucketList2D
     vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - bX) * fX));
     vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
 
-    ij[0] = tmp0 < 0 ? 0 : (tmp0 >= xD ? xD - 1 : tmp0);
-    ij[1] = tmp1 < 0 ? 0 : (tmp1 >= yD ? yD - 1 : tmp1);
+    ij[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
+    ij[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);
   }
 
   //-----------------------------------------------------------------------------

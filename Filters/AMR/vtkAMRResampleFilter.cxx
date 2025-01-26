@@ -1013,6 +1013,7 @@ void vtkAMRResampleFilter::AdjustNumberOfSamplesInRegion(
     a[2] = fabs(this->BiasVector[2]);
 
     // Find the max component
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     int bdir = (a[0] > a[1]) ? ((a[0] > a[2]) ? 0 : 2) : ((a[1] > a[2]) ? 1 : 2);
 
     if (bdir == 0)

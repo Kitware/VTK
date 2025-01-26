@@ -24,6 +24,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
+
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -51,8 +53,7 @@ void vtkPOutlineCornerFilter::SetCornerFactor(double cornerFactor)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
                 << "CornerFactor to " << CornerFactor);
-  double tempCornerFactor =
-    (cornerFactor < 0.001 ? 0.001 : (cornerFactor > 0.5 ? 0.5 : cornerFactor));
+  double tempCornerFactor = std::min(std::max(cornerFactor, 0.001), 0.5);
 
   if (this->CornerFactor != tempCornerFactor)
   {

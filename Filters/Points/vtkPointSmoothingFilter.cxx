@@ -1179,10 +1179,22 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   int smoothingMode = UNIFORM_SMOOTHING;
   if (this->SmoothingMode == DEFAULT_SMOOTHING)
   {
-    smoothingMode = (frameField != nullptr
-        ? FRAME_FIELD_SMOOTHING
-        : (inTensors != nullptr ? TENSOR_SMOOTHING
-                                : (inScalars != nullptr ? SCALAR_SMOOTHING : UNIFORM_SMOOTHING)));
+    if (frameField)
+    {
+      smoothingMode = FRAME_FIELD_SMOOTHING;
+    }
+    else if (inTensors)
+    {
+      smoothingMode = TENSOR_SMOOTHING;
+    }
+    else if (inScalars)
+    {
+      smoothingMode = SCALAR_SMOOTHING;
+    }
+    else
+    {
+      smoothingMode = UNIFORM_SMOOTHING;
+    }
   }
   else if (this->SmoothingMode == GEOMETRIC_SMOOTHING)
   {

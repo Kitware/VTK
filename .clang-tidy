@@ -100,7 +100,6 @@ performance-*,\
 portability-*,\
 -portability-template-virtual-member-function,\
 readability-*,\
--readability-avoid-nested-conditional-operator,\
 -readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
 -readability-container-contains,\

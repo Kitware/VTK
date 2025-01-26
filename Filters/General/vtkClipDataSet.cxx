@@ -397,6 +397,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
           return (nPts > 2 ? VTK_POLY_LINE : VTK_LINE);
 
         case 2: // polygons are generated------------------------------
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           return (nPts == 3 ? VTK_TRIANGLE : (nPts == 4 ? VTK_QUAD : VTK_POLYGON));
 
         case 3: // tetrahedra or wedges are generated------------------

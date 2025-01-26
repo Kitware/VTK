@@ -8,6 +8,8 @@
 #include "vtkPlane.h"
 #include "vtkRenderer.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageActorPointPlacer);
 
@@ -226,9 +228,10 @@ int vtkImageActorPointPlacer::UpdateInternalState()
 //------------------------------------------------------------------------------
 void vtkImageActorPointPlacer::SetWorldTolerance(double tol)
 {
-  if (this->WorldTolerance != (tol < 0.0 ? 0.0 : (tol > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : tol)))
+  tol = std::min(std::max(tol, 0.0), VTK_DOUBLE_MAX);
+  if (this->WorldTolerance != tol)
   {
-    this->WorldTolerance = (tol < 0.0 ? 0.0 : (tol > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : tol));
+    this->WorldTolerance = tol;
     this->Placer->SetWorldTolerance(tol);
     this->Modified();
   }

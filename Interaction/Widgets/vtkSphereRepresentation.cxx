@@ -27,6 +27,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
+#include <algorithm>
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -672,9 +673,8 @@ void vtkSphereRepresentation::AdaptCenterCursorBounds()
 void vtkSphereRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkSphereRepresentation::Outside
-      ? vtkSphereRepresentation::Outside
-      : (state > vtkSphereRepresentation::Scaling ? vtkSphereRepresentation::Scaling : state));
+  state = std::min<int>(
+    std::max<int>(state, vtkSphereRepresentation::Outside), vtkSphereRepresentation::Scaling);
 
   // Depending on state, highlight appropriate parts of representation
   this->InteractionState = state;

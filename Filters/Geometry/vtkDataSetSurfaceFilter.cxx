@@ -2043,10 +2043,16 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecuteInternal(
       // projection of the non-interpolate points. numFacePtsToCopy is the number of points to be
       // copied, and numFacePts - numFacePtsToCopy will be the number of points that are
       // interpolated.
-      vtkIdType numFacePtsToCopy = !AllowInterpolation ||
-          (cellType != VTK_BEZIER_QUADRILATERAL && cellType != VTK_BEZIER_TRIANGLE)
-        ? numFacePts
-        : (cellType == VTK_BEZIER_QUADRILATERAL ? 4 : 3);
+      vtkIdType numFacePtsToCopy;
+      if (!this->AllowInterpolation ||
+        (cellType != VTK_BEZIER_QUADRILATERAL && cellType != VTK_BEZIER_TRIANGLE))
+      {
+        numFacePtsToCopy = numFacePts;
+      }
+      else
+      {
+        numFacePtsToCopy = (cellType == VTK_BEZIER_QUADRILATERAL ? 4 : 3);
+      }
       // Points that are copied:
       for (i = 0; i < numFacePtsToCopy; i++)
       {

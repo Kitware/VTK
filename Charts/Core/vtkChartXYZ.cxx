@@ -795,7 +795,9 @@ void vtkChartXYZ::NewDetermineWhichAxesToLabel()
         for (int j = 0; j < 2; j++)
         {
           vtkVector3f start(axis == 0 ? 0 : i,
-            axis == 1       ? 0
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+            axis == 1 ? 0
+              // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
               : (axis == 0) ? i
                             : j,
             axis == 2 ? 0 : j);

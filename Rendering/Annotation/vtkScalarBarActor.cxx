@@ -2424,6 +2424,7 @@ struct vtkScalarBarHLabelPlacer
     vtkScalarBarHLabelInfo& placement(this->Places[i]);
     unsigned farLo, farHi;
     int medNeighbor;
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     int posRelToCenter = (i == this->Ctr && this->HaveCtr) ? 0 : (i > this->Ctr ? 1 : -1);
 
     if (posRelToCenter == 0 || this->NumPlaced == 0)

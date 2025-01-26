@@ -1452,16 +1452,18 @@ public:
   float ToFloat() const noexcept
   {
     return this->Type == LABEL ? static_cast<float>(this->Int)
-      : this->Type == SCALAR   ? static_cast<float>(this->Double)
-                               : 0.0F;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      : this->Type == SCALAR ? static_cast<float>(this->Double)
+                             : 0.0F;
   }
 
   // Mostly the same as To<double>, with additional check
   double ToDouble() const noexcept
   {
     return this->Type == LABEL ? static_cast<double>(this->Int)
-      : this->Type == SCALAR   ? this->Double
-                               : 0.0;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      : this->Type == SCALAR ? this->Double
+                             : 0.0;
   }
 
   std::string ToString() const { return *this->StringPtr; }
@@ -6601,6 +6603,7 @@ namespace
 // - No change and first instance: it is "constant" time instance
 inline void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool changed)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   list[i] = changed ? i : (i == 0) ? TIMEINDEX_CONSTANT : list[i - 1];
 }
 
@@ -8186,8 +8189,9 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
     }
 
     const int vtkFaceType = (nFacePoints == 3 ? VTK_TRIANGLE
-        : nFacePoints == 4                    ? VTK_QUAD
-                                              : VTK_POLYGON);
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+        : nFacePoints == 4 ? VTK_QUAD
+                           : VTK_POLYGON);
     boundaryMesh->InsertNextCell(vtkFaceType, nFacePoints, facePointIds.data());
   }
 }
@@ -8639,6 +8643,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
           {
             *it = (*volIt > 0
                 ? *volIt
+                // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
                 : (*areaIt > 0 ? *areaIt : (*lenIt > 0 ? *lenIt : (*vcIt > 0 ? *vcIt : -1.0))));
           }
         });

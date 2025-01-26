@@ -115,9 +115,9 @@ struct UniformBinning
     ijk[1] = static_cast<int>(((x[1] - bY) * fY));
     ijk[2] = static_cast<int>(((x[2] - bZ) * fZ));
 
-    ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= xD ? xD - 1 : ijk[0]));
-    ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= yD ? yD - 1 : ijk[1]));
-    ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD - 1 : ijk[2]));
+    ijk[0] = std::clamp<int>(ijk[0], 0, xD - 1);
+    ijk[1] = std::clamp<int>(ijk[1], 0, yD - 1);
+    ijk[2] = std::clamp<int>(ijk[2], 0, zD - 1);
   }
 
   //-----------------------------------------------------------------------------
@@ -744,7 +744,7 @@ int vtkHierarchicalBinningFilter::RequestData(vtkInformation* vtkNotUsed(request
     h[0] = this->Bounds[1] - this->Bounds[0];
     h[1] = this->Bounds[3] - this->Bounds[2];
     h[2] = this->Bounds[5] - this->Bounds[4];
-    int min = (h[0] < h[1] ? (h[0] < h[2] ? 0 : 2) : (h[1] < h[2] ? 1 : 2));
+    int min = static_cast<int>(std::min_element(h, h + 3) - h);
     divs[min] = (h[min] > 0.0 ? 2 : 1);
     h[min] = (divs[min] == 1 ? 1.0 : h[min]);
     for (int i = 0; i < 3; ++i)

@@ -90,8 +90,9 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountFaces
         // we mark cells with no faces as having one face so that we can
         // parse them later.
         numberOfFaces += numberOfCellFaces > 0 ? numberOfCellFaces
-          : cellType != VTK_EMPTY_CELL         ? 1
-                                               : 0;
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+          : cellType != VTK_EMPTY_CELL ? 1
+                                       : 0;
       }
     }
   }

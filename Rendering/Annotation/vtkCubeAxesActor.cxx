@@ -2490,6 +2490,7 @@ void vtkCubeAxesActor::FindBoundaryEdge(int& xloc, int& yloc, int& zloc, double 
 
   // Find the final point by determining which global x-y-z axes have not
   // been represented, and then determine the point closest to the viewer.
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   zAxes = (xAxes != 0 && yAxes != 0 ? 0 : (xAxes != 1 && yAxes != 1 ? 1 : 2));
   if (pts[vtkCubeAxesActorConn[xIdx][zAxes]][2] < pts[vtkCubeAxesActorConn[yIdx][zAxes]][2])
   {

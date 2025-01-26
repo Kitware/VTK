@@ -30,6 +30,7 @@
 #include "vtkVector.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cassert>
 #ifndef NDEBUG
 #include <iterator>
@@ -1553,9 +1554,8 @@ int vtkBoxRepresentation::ComputeComplexInteractionState(
 void vtkBoxRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkBoxRepresentation::Outside
-      ? vtkBoxRepresentation::Outside
-      : (state > vtkBoxRepresentation::Scaling ? vtkBoxRepresentation::Scaling : state));
+  state = std::min<int>(
+    std::max<int>(state, vtkBoxRepresentation::Outside), vtkBoxRepresentation::Scaling);
 
   // Depending on state, highlight appropriate parts of representation
   int handle;

@@ -176,6 +176,7 @@ struct ClassifyPoints : public Classify
       *dist = vtkPlane::Evaluate(n, o, p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       *ioa++ = (*dist > 0.0 ? 2 : (*dist < 0.0 ? 1 : 0));
     }
   }

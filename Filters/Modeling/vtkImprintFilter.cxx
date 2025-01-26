@@ -2283,6 +2283,7 @@ struct Triangulate
     {
       npts = cInfo->OutCellsNPts[i];
       pts = conn + offset;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
       this->DebugOutput->InsertNextCell(cellType, npts, pts);
       offset += npts;
@@ -2681,6 +2682,7 @@ struct Triangulate
         {
           npts = cInfo->OutCellsNPts[i];
           pts = conn + offset;
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
           if (outputType != vtkImprintFilter::IMPRINTED_REGION ||
             cInfo->OutCellsClass[i] == ImprintCell)

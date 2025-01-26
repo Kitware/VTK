@@ -15,6 +15,8 @@
 
 #include "vtkDijkstraGraphInternals.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDijkstraImageGeodesicPath);
 
@@ -34,7 +36,7 @@ vtkDijkstraImageGeodesicPath::~vtkDijkstraImageGeodesicPath() = default;
 //------------------------------------------------------------------------------
 void vtkDijkstraImageGeodesicPath::SetImageWeight(double w)
 {
-  w = w < 0.0 ? 0.0 : (w > 1.0 ? 1.0 : w);
+  w = std::min(std::max(w, 0.0), 1.0);
   if (w != this->ImageWeight)
   {
     this->ImageWeight = w;
@@ -46,7 +48,7 @@ void vtkDijkstraImageGeodesicPath::SetImageWeight(double w)
 //------------------------------------------------------------------------------
 void vtkDijkstraImageGeodesicPath::SetEdgeLengthWeight(double w)
 {
-  w = w < 0.0 ? 0.0 : (w > 1.0 ? 1.0 : w);
+  w = std::min(std::max(w, 0.0), 1.0);
   if (w != this->EdgeLengthWeight)
   {
     this->EdgeLengthWeight = w;

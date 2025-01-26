@@ -89,11 +89,16 @@ struct SaveRgbArray
       std::array<char, 4> rgba = { { 0, 0, 0, 0 } };
       for (int j = 0; j < numberOfComponents; ++j)
       {
-        char c = a
-          ? (unsignedCharRange
-                ? static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j))
-                : static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j) / 256.0))
-          : static_cast<char>(array->GetTypedComponent(pointIds->GetId(i), j));
+        char c;
+        auto value = array->GetTypedComponent(pointIds->GetId(i), j);
+        if (a)
+        {
+          c = unsignedCharRange ? static_cast<char>(value) : static_cast<char>(value / 256.0);
+        }
+        else
+        {
+          c = static_cast<char>(value);
+        }
         rgba[j] = c;
       }
       out.write(rgba.data(), numberOfComponents);

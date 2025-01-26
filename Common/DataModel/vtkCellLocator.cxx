@@ -10,6 +10,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 
@@ -120,12 +121,12 @@ void vtkCellLocator::GetBucketIndices(const double x[3], int ijk[3])
   ijk[1] = static_cast<int>((x[1] - this->Bounds[2]) / this->H[1]);
   ijk[2] = static_cast<int>((x[2] - this->Bounds[4]) / this->H[2]);
 
-  ijk[0] =
-    (ijk[0] < 0 ? 0 : (ijk[0] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[0]));
-  ijk[1] =
-    (ijk[1] < 0 ? 0 : (ijk[1] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[1]));
-  ijk[2] =
-    (ijk[2] < 0 ? 0 : (ijk[2] >= this->NumberOfDivisions ? this->NumberOfDivisions - 1 : ijk[2]));
+  ijk[0] = std::max(ijk[0], 0);
+  ijk[0] = std::min(ijk[0], this->NumberOfDivisions - 1);
+  ijk[1] = std::max(ijk[1], 0);
+  ijk[1] = std::min(ijk[1], this->NumberOfDivisions - 1);
+  ijk[2] = std::max(ijk[2], 0);
+  ijk[2] = std::min(ijk[2], this->NumberOfDivisions - 1);
 }
 
 //------------------------------------------------------------------------------
@@ -1062,8 +1063,11 @@ double vtkCellLocator::Distance2ToBounds(const double x[3], double bounds[6])
     return 0.0;
   }
   double deltas[3];
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[0] = x[0] < bounds[0] ? bounds[0] - x[0] : (x[0] > bounds[1] ? x[0] - bounds[1] : 0.0);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[1] = x[1] < bounds[2] ? bounds[2] - x[1] : (x[1] > bounds[3] ? x[1] - bounds[3] : 0.0);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[2] = x[2] < bounds[4] ? bounds[4] - x[2] : (x[2] > bounds[5] ? x[2] - bounds[5] : 0.0);
   return vtkMath::SquaredNorm(deltas);
 }

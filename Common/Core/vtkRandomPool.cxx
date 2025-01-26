@@ -198,7 +198,8 @@ void vtkRandomPool::PopulateDataArray(
 
   vtkIdType size = da->GetNumberOfTuples();
   int numComp = da->GetNumberOfComponents();
-  compNum = (compNum < 0 ? 0 : (compNum >= numComp ? numComp - 1 : compNum));
+  compNum = std::max(compNum, 0);
+  compNum = std::min(compNum, numComp - 1);
 
   this->SetSize(size);
   this->SetNumberOfComponents(numComp);

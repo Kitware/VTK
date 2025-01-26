@@ -91,8 +91,11 @@ void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SplitMode: "
      << (this->SplitMode == SLAB
             ? "Slab\n"
-            : (this->SplitMode == BEAM ? "Beam\n"
-                                       : (this->SplitMode == BLOCK ? "Block\n" : "Unknown\n")));
+            // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+            : (this->SplitMode == BEAM
+                  ? "Beam\n"
+                  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+                  : (this->SplitMode == BLOCK ? "Block\n" : "Unknown\n")));
 }
 
 //------------------------------------------------------------------------------

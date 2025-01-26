@@ -253,7 +253,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double d
   }
 
   vtkLine::DistanceToLine(refWorldPos, ls[0], ls[1], t, worldPos);
-  t = (t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t));
+  t = std::min(std::max(t, 0.0), 1.0);
 
   // the point "worldPos", now lies within the object and on the line from
   // the eye along the direction of projection.

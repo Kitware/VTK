@@ -1464,7 +1464,15 @@ nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 
 std::string TreeInformation::ContentTypeExtension() const
 {
-  int index = this->ContentGLTF ? (this->ContentGLTFSaveGLB ? 1 : 2) : 0;
+  int index;
+  if (this->ContentGLTF)
+  {
+    index = this->ContentGLTFSaveGLB ? 1 : 2;
+  }
+  else
+  {
+    index = 0;
+  }
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:

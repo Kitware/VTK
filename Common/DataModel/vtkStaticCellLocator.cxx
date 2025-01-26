@@ -17,6 +17,7 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 
+#include <algorithm>
 #include <array>
 #include <queue>
 #include <vector>
@@ -134,9 +135,9 @@ struct vtkCellBinner
     ijk[1] = static_cast<int>(((x[1] - bY) * fY));
     ijk[2] = static_cast<int>(((x[2] - bZ) * fZ));
 
-    ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= xD ? xD - 1 : ijk[0]));
-    ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= yD ? yD - 1 : ijk[1]));
-    ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= zD ? zD - 1 : ijk[2]));
+    ijk[0] = std::min<int>(std::max(ijk[0], 0), xD - 1);
+    ijk[1] = std::min<int>(std::max(ijk[1], 0), yD - 1);
+    ijk[2] = std::min<int>(std::max(ijk[2], 0), zD - 1);
   }
 
   void GetBinIndices(vtkIdType binId, int ijk[3]) const
@@ -991,8 +992,11 @@ double Distance2ToBounds(const double x[3], const double bounds[6])
     return 0.0;
   }
   double deltas[3];
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[0] = x[0] < bounds[0] ? bounds[0] - x[0] : (x[0] > bounds[1] ? x[0] - bounds[1] : 0.0);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[1] = x[1] < bounds[2] ? bounds[2] - x[1] : (x[1] > bounds[3] ? x[1] - bounds[3] : 0.0);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   deltas[2] = x[2] < bounds[4] ? bounds[4] - x[2] : (x[2] > bounds[5] ? x[2] - bounds[5] : 0.0);
   return vtkMath::SquaredNorm(deltas);
 }

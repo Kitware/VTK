@@ -185,14 +185,17 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 {
   // static constexpr members
   static constexpr int CellSize = DataDescription == vtkStructuredData::VTK_STRUCTURED_XYZ_GRID ? 8
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : DataDescription == vtkStructuredData::VTK_STRUCTURED_XY_PLANE ||
       DataDescription == vtkStructuredData::VTK_STRUCTURED_YZ_PLANE ||
       DataDescription == vtkStructuredData::VTK_STRUCTURED_XZ_PLANE
     ? 4
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : DataDescription == vtkStructuredData::VTK_STRUCTURED_X_LINE ||
       DataDescription == vtkStructuredData::VTK_STRUCTURED_Y_LINE ||
       DataDescription == vtkStructuredData::VTK_STRUCTURED_Z_LINE
     ? 2
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : DataDescription == vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT ? 1
                                                                         : 0;
 

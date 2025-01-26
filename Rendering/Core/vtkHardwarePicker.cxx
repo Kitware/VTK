@@ -434,11 +434,16 @@ int vtkHardwarePicker::Pick(
           vtkSelectionNode::COMPOSITE_INDEX());
       }
       // define selected dataset
-      vtkDataSet* selectedDataSet = this->DataSet
-        ? this->DataSet
-        : (this->CompositeDataSet ? (vtkDataSet::SafeDownCast(this->CompositeDataSet->GetDataSet(
-                                      static_cast<unsigned int>(this->FlatBlockIndex))))
-                                  : nullptr);
+      vtkDataSet* selectedDataSet = nullptr;
+      if (this->DataSet)
+      {
+        selectedDataSet = this->DataSet;
+      }
+      if (!selectedDataSet && this->CompositeDataSet)
+      {
+        selectedDataSet = vtkDataSet::SafeDownCast(
+          this->CompositeDataSet->GetDataSet(static_cast<unsigned int>(this->FlatBlockIndex)));
+      }
       // define PointId/CellId
       vtkIdType selectionId =
         vtkIdTypeArray::SafeDownCast(this->HardwareSelection->GetNode(0)->GetSelectionList())
@@ -464,11 +469,16 @@ int vtkHardwarePicker::Pick(
       if (cellGrid || this->CompositeDataSet)
       {
         // define selected cellgrid
-        vtkCellGrid* selectedCellGrid = cellGrid
-          ? cellGrid
-          : (this->CompositeDataSet ? vtkCellGrid::SafeDownCast(this->CompositeDataSet->GetDataSet(
-                                        static_cast<unsigned int>(this->FlatBlockIndex)))
-                                    : nullptr);
+        vtkCellGrid* selectedCellGrid = nullptr;
+        if (cellGrid)
+        {
+          selectedCellGrid = cellGrid;
+        }
+        if (!selectedCellGrid && this->CompositeDataSet)
+        {
+          selectedCellGrid = vtkCellGrid::SafeDownCast(
+            this->CompositeDataSet->GetDataSet(static_cast<unsigned int>(this->FlatBlockIndex)));
+        }
         if (selectedCellGrid)
         {
           auto* selectionInfo = this->HardwareSelection->GetNode(0)->GetProperties();

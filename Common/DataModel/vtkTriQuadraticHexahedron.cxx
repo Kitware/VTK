@@ -13,6 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
+#include <algorithm>
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -98,7 +99,8 @@ const vtkIdType* vtkTriQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticHexahedron::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 11 ? 11 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 11);
 
   for (int i = 0; i < 3; i++)
   {
@@ -112,7 +114,8 @@ vtkCell* vtkTriQuadraticHexahedron::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 5);
 
   for (int i = 0; i < 9; i++)
   {
