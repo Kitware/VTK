@@ -980,7 +980,8 @@
     stage: upload
     script:
         - *before_script_java_linux
-        - cp .gitlab/maven/conf/settings.xml "$HOME/.m2/settings.xml"
+        - mkdir "$GIT_CLONE_PATH/.gitlab/m2"
+        - cp .gitlab/maven/conf/settings.xml "$GIT_CLONE_PATH/.gitlab/m2/settings.xml"
         - xmlstarlet ed -O -L
             -d '/_:settings/_:servers'
             -s '/_:settings' -t elem -n servers -v ""
@@ -988,7 +989,7 @@
             -s '/_:settings/servers/server' -t elem -n id -v "github"
             -s '/_:settings/servers/server' -t elem -n username -v '${vtk.github.username}'
             -s '/_:settings/servers/server' -t elem -n password -v '${vtk.github.token}'
-            "$HOME/.m2/settings.xml"
+            "$GIT_CLONE_PATH/.gitlab/m2/settings.xml"
         - cd build/install
         - mvn deploy
             -Dvtk.maven.repo=https://maven.pkg.github.com/kitware/vtk
