@@ -926,8 +926,7 @@
         - python -m pip install --upgrade --no-cache-dir pip setuptools
         - python -m pip install --upgrade --no-cache-dir sphinx readthedocs-sphinx-ext
         - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
-        - cd Documentation/docs
-        - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
+        - make -C Documentation/docs html |& tee sphinx_output.log
     interruptible: true
 
 .before_script_linux_emscripten: &before_script_linux_emscripten
