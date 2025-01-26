@@ -841,7 +841,6 @@ vtkTypeBool vtkJacobiN(T** a, int n, T* w, T** v)
 }
 
 #undef VTK_ROTATE
-#undef VTK_MAX_ROTATIONS
 
 //------------------------------------------------------------------------------
 vtkTypeBool vtkMath::JacobiN(float** a, int n, float* w, float** v)
