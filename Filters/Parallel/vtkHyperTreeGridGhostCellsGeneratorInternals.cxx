@@ -108,7 +108,7 @@ int GetNumberOfCellValues(vtkCellData* cellData)
  * inserted data.
  */
 vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitArray* isParent,
-  vtkBitArray* isMasked, vtkBitArray* outputMask, vtkIdType* indices, vtkIdType&& pos = 0)
+  vtkBitArray* isMasked, vtkBitArray* outputMask, vtkIdType* indices, vtkIdType& pos)
 {
   indices[pos] = outCursor->GetGlobalNodeIndex();
 
@@ -127,8 +127,7 @@ vtkIdType CreateGhostTree(vtkHyperTreeGridNonOrientedCursor* outCursor, vtkBitAr
     for (int ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
     {
       outCursor->ToChild(ichild);
-      ::CreateGhostTree(
-        outCursor, isParent, isMasked, outputMask, indices, std::forward<vtkIdType&&>(pos));
+      ::CreateGhostTree(outCursor, isParent, isMasked, outputMask, indices, pos);
       outCursor->ToParent();
     }
   }
@@ -556,8 +555,9 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeTreeDecomposition()
 
               outCursor->SetGlobalIndexStart(this->NumberOfVertices);
 
-              this->NumberOfVertices += ::CreateGhostTree(
-                outCursor, isParent, isMasked, this->OutputMask, recvTreeBuffer.indices.data());
+              vtkIdType pos = 0;
+              this->NumberOfVertices += ::CreateGhostTree(outCursor, isParent, isMasked,
+                this->OutputMask, recvTreeBuffer.indices.data(), pos);
 
               offset += (recvTreeBuffer.count / BITS_IN_UCHAR + 1) * maskFactor;
             }

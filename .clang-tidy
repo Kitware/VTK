@@ -28,7 +28,6 @@ bugprone-*,\
 -bugprone-suspicious-realloc-usage,\
 -bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
--bugprone-use-after-move,\
 clang-analyzer-*,\
 -clang-analyzer-core.BitwiseShift,\
 -clang-analyzer-core.CallAndMessage,\
