@@ -20,18 +20,18 @@
 #include <vector>
 
 // Some useful extent macros
-#define EMIN(ext, dim) (ext[2 * dim])
-#define EMAX(ext, dim) (ext[2 * dim + 1])
-#define IMIN(ext) (ext[0])
-#define IMAX(ext) (ext[1])
-#define JMIN(ext) (ext[2])
-#define JMAX(ext) (ext[3])
-#define KMIN(ext) (ext[4])
-#define KMAX(ext) (ext[5])
+#define EMIN(ext, dim) ((ext)[2 * (dim)])
+#define EMAX(ext, dim) ((ext)[2 * (dim) + 1])
+#define IMIN(ext) ((ext)[0])
+#define IMAX(ext) ((ext)[1])
+#define JMIN(ext) ((ext)[2])
+#define JMAX(ext) ((ext)[3])
+#define KMIN(ext) ((ext)[4])
+#define KMAX(ext) ((ext)[5])
 
-#define I(ijk) (ijk[0])
-#define J(ijk) (ijk[1])
-#define K(ijk) (ijk[2])
+#define I(ijk) ((ijk)[0])
+#define J(ijk) ((ijk)[1])
+#define K(ijk) ((ijk)[2])
 
 namespace vtk
 {
