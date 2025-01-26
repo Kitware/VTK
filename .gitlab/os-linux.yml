@@ -922,7 +922,8 @@
         - git fetch origin --force --prune --prune-tags --depth 50 # get tags so we can create releases page
         - asdf install python $PYTHON_VERSION
         - asdf global python $PYTHON_VERSION
-        - python -m venv env && source env/bin/activate
+        - python -m venv env
+        - source env/bin/activate
         - python -m pip install --upgrade --no-cache-dir pip setuptools
         - python -m pip install --upgrade --no-cache-dir sphinx readthedocs-sphinx-ext
         - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
@@ -956,7 +957,8 @@
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
-        - python3 -m venv build/ci-venv && source build/ci-venv/bin/activate
+        - python3 -m venv build/ci-venv
+        - source build/ci-venv/bin/activate
         - python3 -m pip install --upgrade --no-cache-dir pip
         - python3 -m pip install --exists-action=w --no-cache-dir -r .gitlab/ci/requirements-wasm.txt
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
