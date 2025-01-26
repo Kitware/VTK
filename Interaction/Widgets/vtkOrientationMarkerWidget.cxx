@@ -326,6 +326,8 @@ void vtkOrientationMarkerWidget::SetEnabled(int value)
     {
       this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
       this->Enabled = 0;
+      this->UnBindOrientationMarker();
+      this->UnBindRenderer();
       this->UnBindEvents();
       this->SetCurrentRenderer(nullptr);
     }
