@@ -257,7 +257,7 @@ inline void vtkGridRound(double val, float& rnd)
 
 inline void vtkGridRound(double val, double& rnd)
 {
-  rnd = (double)(val);
+  rnd = val;
 }
 
 //------------------------------------------------------------------------------

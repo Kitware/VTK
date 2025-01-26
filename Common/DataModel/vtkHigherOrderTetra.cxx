@@ -777,7 +777,7 @@ void vtkHigherOrderTetra::SetParametricCoords()
   if (this->PointParametricCoordinates->GetNumberOfPoints() != nPoints)
   {
     this->PointParametricCoordinates->Initialize();
-    double order_d = static_cast<vtkIdType>(this->GetOrder());
+    double order_d = this->GetOrder();
     this->PointParametricCoordinates->SetNumberOfPoints(nPoints);
 
 #ifdef ENABLE_CACHING

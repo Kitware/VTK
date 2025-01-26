@@ -286,7 +286,7 @@ void vtkContext2D::DrawPointSprites(
     vtkErrorMacro(<< "Attempted to color points with array of wrong length");
     return;
   }
-  int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
+  int nc_comps = colors->GetNumberOfComponents();
   // If the points are of type float then call OpenGL directly
   float* f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   unsigned char* c = colors->GetPointer(0);
@@ -367,7 +367,7 @@ void vtkContext2D::DrawMarkers(
     vtkErrorMacro(<< "Attempted to color points with array of wrong length");
     return;
   }
-  int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
+  int nc_comps = colors->GetNumberOfComponents();
   float* f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   unsigned char* c = colors->GetPointer(0);
   this->DrawMarkers(shape, highlight, f, n, c, nc_comps);

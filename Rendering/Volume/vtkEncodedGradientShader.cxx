@@ -249,8 +249,8 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   viewDirection[1] = cameraFocalPoint[1] - cameraPosition[1];
   viewDirection[2] = cameraFocalPoint[2] - cameraPosition[2];
 
-  mag = sqrt(static_cast<double>(viewDirection[0] * viewDirection[0] +
-    viewDirection[1] * viewDirection[1] + viewDirection[2] * viewDirection[2]));
+  mag = sqrt(viewDirection[0] * viewDirection[0] + viewDirection[1] * viewDirection[1] +
+    viewDirection[2] * viewDirection[2]);
 
   if (mag)
   {
@@ -318,8 +318,8 @@ void vtkEncodedGradientShader::UpdateShadingTable(
     lightDirection[1] = lightFocalPoint[1] - lightPosition[1];
     lightDirection[2] = lightFocalPoint[2] - lightPosition[2];
 
-    norm = sqrt(static_cast<double>(lightDirection[0] * lightDirection[0] +
-      lightDirection[1] * lightDirection[1] + lightDirection[2] * lightDirection[2]));
+    norm = sqrt(lightDirection[0] * lightDirection[0] + lightDirection[1] * lightDirection[1] +
+      lightDirection[2] * lightDirection[2]);
 
     lightDirection[0] /= -norm;
     lightDirection[1] /= -norm;
@@ -390,7 +390,7 @@ void vtkEncodedGradientShader::BuildShadingTable(int index, double lightDirectio
   half_y = ly - viewDirection[1];
   half_z = lz - viewDirection[2];
 
-  mag = sqrt(static_cast<double>(half_x * half_x + half_y * half_y + half_z * half_z));
+  mag = sqrt(half_x * half_x + half_y * half_y + half_z * half_z);
 
   if (mag != 0.0)
   {
@@ -517,8 +517,7 @@ void vtkEncodedGradientShader::BuildShadingTable(int index, double lightDirectio
 
         if (n_dot_h > 0.001)
         {
-          specular_value =
-            Ks_intensity * pow(static_cast<double>(n_dot_h), static_cast<double>(Es));
+          specular_value = Ks_intensity * pow(n_dot_h, Es);
           *(ssr_ptr) += static_cast<float>(specular_value * lightSpecularColor[0]);
           *(ssg_ptr) += static_cast<float>(specular_value * lightSpecularColor[1]);
           *(ssb_ptr) += static_cast<float>(specular_value * lightSpecularColor[2]);

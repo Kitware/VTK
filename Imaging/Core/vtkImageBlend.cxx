@@ -632,8 +632,8 @@ void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageDa
   }
   else
   {
-    minA = static_cast<double>(inData->GetScalarTypeMin());
-    maxA = static_cast<double>(inData->GetScalarTypeMax());
+    minA = inData->GetScalarTypeMin();
+    maxA = inData->GetScalarTypeMax();
   }
 
   r = opacity;
@@ -814,8 +814,8 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend* self, int extent[6], vt
   }
   else
   {
-    minA = static_cast<double>(outData->GetScalarTypeMin());
-    maxA = static_cast<double>(outData->GetScalarTypeMax());
+    minA = outData->GetScalarTypeMin();
+    maxA = outData->GetScalarTypeMax();
   }
 
   double* tmpPtr = tmpIter.BeginSpan();
@@ -948,7 +948,7 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       tmpData->SetExtent(outExt);
       tmpData->AllocateScalars(
         VTK_DOUBLE, (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
-      memset(static_cast<void*>(tmpData->GetScalarPointer()), 0,
+      memset(tmpData->GetScalarPointer(), 0,
         (outExt[1] - outExt[0] + 1) * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1) *
           tmpData->GetNumberOfScalarComponents() * tmpData->GetScalarSize());
 
@@ -960,7 +960,7 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
       }
       alphaWeightSum->SetExtent(outExt);
       alphaWeightSum->AllocateScalars(VTK_DOUBLE, 1);
-      memset(static_cast<void*>(alphaWeightSum->GetScalarPointer()), 0,
+      memset(alphaWeightSum->GetScalarPointer(), 0,
         (outExt[1] - outExt[0] + 1) * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1) *
           1 * alphaWeightSum->GetScalarSize());
       break;

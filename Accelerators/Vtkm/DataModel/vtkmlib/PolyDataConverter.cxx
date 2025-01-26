@@ -113,7 +113,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
       // 3 == tri, 4 == quad, else polygon
       vtkNew<vtkUnsignedCharArray> types;
       types->SetNumberOfComponents(1);
-      types->SetNumberOfTuples(static_cast<vtkIdType>(cells->GetNumberOfCells()));
+      types->SetNumberOfTuples(cells->GetNumberOfCells());
 
       cells->Visit(build_type_array{}, types.GetPointer());
 

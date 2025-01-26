@@ -597,6 +597,6 @@ void vtkOSOpenGLRenderWindow::SetNextWindowId(void* arg)
 // This probably has been moved to superclass.
 void* vtkOSOpenGLRenderWindow::GetGenericWindowId()
 {
-  return (void*)this->Internal->OffScreenWindow;
+  return this->Internal->OffScreenWindow;
 }
 VTK_ABI_NAMESPACE_END

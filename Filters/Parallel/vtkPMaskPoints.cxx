@@ -52,7 +52,7 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkMultiProcessController* vtkPMaskPoints::GetController()
 {
-  return (vtkMultiProcessController*)this->Controller;
+  return this->Controller;
 }
 
 //------------------------------------------------------------------------------

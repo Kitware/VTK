@@ -422,7 +422,7 @@ public:
       v = m[1] * rr;
       w = m[2] * rr;
       v2 = u * u + v * v + w * w;
-      Result->SetTuple1(i, sqrt((double)v2));
+      Result->SetTuple1(i, sqrt(v2));
     }
   }
 

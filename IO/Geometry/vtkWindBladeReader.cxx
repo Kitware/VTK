@@ -1222,8 +1222,7 @@ void vtkWindBladeReader::InitFieldData(
     this->NumberOfTuples *= this->SubDimension[dim];
 
   // Collect the time step requested
-  vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
 
   double dTime = 0.0;
   if (fieldInfo->Has(timeKey))
@@ -1309,8 +1308,7 @@ void vtkWindBladeReader::InitBladeData(vtkInformationVector* outVector)
   vtkUnstructuredGrid* blade = this->GetBladeOutput();
 
   // Collect the time step requested
-  vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
 
   double dTime = 0.0;
   if (bladeInfo->Has(timeKey))

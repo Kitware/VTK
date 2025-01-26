@@ -238,7 +238,7 @@ void ExchangeBlockStructuresForUnstructuredData(diy::Master& master)
         vtkPointSet::SafeDownCast(info.InterfaceExtractor->GetOutputDataObject(0));
       vtkIdTypeArray* interfaceGlobalPointIds = info.InterfaceGlobalPointIds;
 
-      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
 
@@ -6592,7 +6592,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
       QuaternionType q;
       vtkMath::Matrix3x3ToQuaternion(input->GetDirectionMatrix()->GetData(), q.GetData());
       double* qBuffer = q.GetData();
-      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
         cp.enqueue(blockId, &dimension, 1);
@@ -6684,7 +6684,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
       vtkDataArray* yCoordinates = info.YCoordinates;
       vtkDataArray* zCoordinates = info.ZCoordinates;
 
-      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
         cp.enqueue(blockId, &dimension, 1);
@@ -6769,7 +6769,7 @@ void vtkDIYGhostUtilities::ExchangeBlockStructures(
       int dimension = input->GetDataDimension();
       const ExtentType& extent = info.Extent;
 
-      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
         cp.enqueue(blockId, &dimension, 1);

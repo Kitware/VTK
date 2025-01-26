@@ -120,7 +120,7 @@ public:
   {
     double rgb[3];
     this->GetColor(x, rgb);
-    return static_cast<double>(rgb[0] * 0.30 + rgb[1] * 0.59 + rgb[2] * 0.11);
+    return rgb[0] * 0.30 + rgb[1] * 0.59 + rgb[2] * 0.11;
   }
 
   ///@{

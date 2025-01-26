@@ -201,8 +201,7 @@ struct MarkPolys : MarkCellBoundary
 
   void Initialize()
   {
-    this->CellIter.Local().TakeReference(
-      static_cast<vtkCellArrayIterator*>(this->Polys->NewIterator()));
+    this->CellIter.Local().TakeReference(this->Polys->NewIterator());
     this->Neighbors.Local().TakeReference(vtkIdList::New());
     this->Neighbors.Local()->Allocate(2);
   }

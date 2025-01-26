@@ -143,7 +143,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D* self, vtkImageData* inData, T* inPt
         sum = 2.0 * (*inPtrR - *inPtrL);
         sum += static_cast<double>(inPtrR[inInc0L] + inPtrR[inInc0R]);
         sum -= static_cast<double>(inPtrL[inInc0L] + inPtrL[inInc0R]);
-        *outPtrV = static_cast<double>(sum * r1);
+        *outPtrV = sum * r1;
 
         outPtr0 += outInc0;
         inPtr0 += inInc0;

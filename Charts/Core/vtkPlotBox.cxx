@@ -264,7 +264,7 @@ vtkIdType vtkPlotBox::GetNearestPoint(const vtkVector2f& point, const vtkVector2
         double y = (*this->Storage)[i][j] / scale + min;
         location->SetX(i);
         location->SetY(y);
-        return static_cast<int>(i);
+        return i;
       }
     }
   }

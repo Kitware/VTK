@@ -680,7 +680,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator>>(unsigned char& value)
 {
   assert(this->Internals->Data.front() == vtkInternals::uchar_value);
   this->Internals->Data.pop_front();
-  this->Internals->Pop(reinterpret_cast<unsigned char*>(&value), sizeof(unsigned char));
+  this->Internals->Pop(&value, sizeof(unsigned char));
   return (*this);
 }
 

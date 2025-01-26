@@ -107,7 +107,7 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev, double* xnex
       break;
     }
 
-    errRatio = static_cast<double>(estErr) / static_cast<double>(maxError);
+    errRatio = estErr / maxError;
     // Empirical formulae for calculating next step size
     // 0.9 is a safety factor to prevent infinite loops (see reference)
     if (errRatio == 0.0) // avoid pow errors

@@ -161,17 +161,17 @@ public:
 
     this->MainNodeTable.FreeZone = 1;
     // Clear node
-    this->GetNode(1)->ArcUpId = ((int)-2);
+    this->GetNode(1)->ArcUpId = -2;
     // Initialize DownArc
     this->GetNode(1)->ArcDownId = 0;
     this->MainArcTable.FreeZone = 1;
     // Clear Arc label 1
-    this->GetArc(1)->LabelId1 = ((int)-2);
+    this->GetArc(1)->LabelId1 = -2;
     // Initialize Arc label 0
     this->GetArc(1)->LabelId0 = 0;
     this->MainLabelTable.FreeZone = 1;
     // Clear label
-    this->GetLabel(1)->HNext = ((int)-2);
+    this->GetLabel(1)->HNext = -2;
     // Initialize Arc id
     this->GetLabel(1)->ArcId = 0;
 
@@ -622,20 +622,20 @@ void vtkReebGraph::Implementation::CollapseVertex(vtkIdType N, vtkReebNode* n)
       this->GetLabel(lb->VNext)->VPrev = lb->VPrev;
 
     // delete the label...
-    this->GetLabel(Lb)->HNext = ((int)-2);
+    this->GetLabel(Lb)->HNext = -2;
     this->GetLabel(Lb)->ArcId = this->MainLabelTable.FreeZone;
     this->MainLabelTable.FreeZone = (Lb);
     --(this->MainLabelTable.Number);
   }
 
   // delete the arc from the graph...
-  this->GetArc(A1)->LabelId1 = ((int)-2);
+  this->GetArc(A1)->LabelId1 = -2;
   this->GetArc(A1)->LabelId0 = this->MainArcTable.FreeZone;
   this->MainArcTable.FreeZone = (A1);
   --(this->MainArcTable.Number);
 
   // delete the node from the graph...
-  this->GetNode(N)->ArcUpId = ((int)-2);
+  this->GetNode(N)->ArcUpId = -2;
   this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
   this->MainNodeTable.FreeZone = (N);
   --(this->MainNodeTable.Number);
@@ -826,7 +826,7 @@ void vtkReebGraph::Implementation::FastArcSimplify(
   vtkReebGraphRemoveDownArc(this, nodeId1, arcId);
 
   // delete the arc from the graph...
-  this->GetArc(arcId)->LabelId1 = ((int)-2);
+  this->GetArc(arcId)->LabelId1 = -2;
   this->GetArc(arcId)->LabelId0 = this->MainArcTable.FreeZone;
   this->MainArcTable.FreeZone = (arcId);
   --(this->MainArcTable.Number);
@@ -1138,7 +1138,7 @@ int vtkReebGraph::Implementation::SimplifyLoops(
   {
     int A = this->ArcLoopTable[n];
 
-    if (this->GetArc(A)->LabelId1 == ((int)-2))
+    if (this->GetArc(A)->LabelId1 == -2)
       continue;
 
     double simplificationValue = 0;
@@ -1177,13 +1177,13 @@ int vtkReebGraph::Implementation::SimplifyLoops(
   // check for regular points
   for (int N = 1; N < this->MainNodeTable.Size; N++)
   {
-    if (this->GetNode(N)->ArcUpId == ((int)-2))
+    if (this->GetNode(N)->ArcUpId == -2)
       continue;
 
     if (this->GetNode(N)->ArcDownId == 0 && this->GetNode(N)->ArcUpId == 0)
     {
       // delete the node from the graph...
-      this->GetNode(N)->ArcUpId = ((int)-2);
+      this->GetNode(N)->ArcUpId = -2;
       this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
       this->MainNodeTable.FreeZone = (N);
       --(this->MainNodeTable.Number);
@@ -1287,7 +1287,7 @@ REDO:
 
   for (int N = 1; N < this->MainNodeTable.Size; ++N)
   {
-    if (this->GetNode(N)->ArcUpId == ((int)-2))
+    if (this->GetNode(N)->ArcUpId == -2)
       continue;
 
     vtkReebNode* n = this->GetNode(N);
@@ -1296,7 +1296,7 @@ REDO:
     if (!n->ArcDownId && !n->ArcUpId)
     {
       // delete the node from the graph...
-      this->GetNode(N)->ArcUpId = ((int)-2);
+      this->GetNode(N)->ArcUpId = -2;
       this->GetNode(N)->ArcDownId = this->MainNodeTable.FreeZone;
       this->MainNodeTable.FreeZone = (N);
       --(this->MainNodeTable.Number);
@@ -1347,7 +1347,7 @@ REDO:
       cont = step;
     }
 
-    if (this->GetArc(A)->LabelId1 == ((int)-2))
+    if (this->GetArc(A)->LabelId1 == -2)
       continue;
 
     cont++;
@@ -1391,18 +1391,16 @@ REDO:
       vtkReebGraphRemoveDownArc(this, M, A);
 
       // delete the arc from the graph...
-      this->GetArc(A)->LabelId1 = ((int)-2);
+      this->GetArc(A)->LabelId1 = -2;
       this->GetArc(A)->LabelId0 = this->MainArcTable.FreeZone;
       this->MainArcTable.FreeZone = (A);
       --(this->MainArcTable.Number);
 
-      if (!(this->GetNode(N)->ArcUpId == ((int)-2)) &&
-        vtkReebGraphIsRegular(this, this->GetNode(N)))
+      if (!(this->GetNode(N)->ArcUpId == -2) && vtkReebGraphIsRegular(this, this->GetNode(N)))
       {
         EndVertex(N);
       }
-      if (!(this->GetNode(M)->ArcUpId == ((int)-2)) &&
-        vtkReebGraphIsRegular(this, this->GetNode(M)))
+      if (!(this->GetNode(M)->ArcUpId == -2) && vtkReebGraphIsRegular(this, this->GetNode(M)))
       {
         EndVertex(M);
       }
@@ -1455,7 +1453,7 @@ REDO:
 
     if (simplified)
     {
-      if (!(this->GetNode(Down)->ArcUpId == ((int)-2)))
+      if (!(this->GetNode(Down)->ArcUpId == -2))
       {
         this->SimplifyLabels(Down);
 
@@ -1482,7 +1480,7 @@ REDO:
         }
       }
 
-      if (!(this->GetNode(Up)->ArcUpId == ((int)-2)))
+      if (!(this->GetNode(Up)->ArcUpId == -2))
       {
         this->SimplifyLabels(Up);
 
@@ -1545,11 +1543,11 @@ void vtkReebGraph::Implementation::ResizeMainNodeTable(int newSize)
     for (i = oldsize; i < this->MainNodeTable.Size - 1; i++)
     {
       this->GetNode(i)->ArcDownId = i + 1;
-      this->GetNode(i)->ArcUpId = ((int)-2);
+      this->GetNode(i)->ArcUpId = -2;
     }
 
     this->GetNode(i)->ArcDownId = this->MainNodeTable.FreeZone;
-    this->GetNode(i)->ArcUpId = ((int)-2);
+    this->GetNode(i)->ArcUpId = -2;
     this->MainNodeTable.FreeZone = oldsize;
   }
 }
@@ -1829,7 +1827,7 @@ void vtkReebGraph::Implementation::FlushLabels()
 {
   for (int A = 1; A < this->MainArcTable.Size; A++)
   {
-    if (!(this->GetArc(A)->LabelId1 == ((int)-2)))
+    if (!(this->GetArc(A)->LabelId1 == -2))
       this->GetArc(A)->LabelId0 = this->GetArc(A)->LabelId1 = 0;
   }
 
@@ -1842,7 +1840,7 @@ void vtkReebGraph::Implementation::FlushLabels()
   this->MainLabelTable.Size = 2;
   this->MainLabelTable.Number = 1;
   this->MainLabelTable.FreeZone = 1;
-  this->GetLabel(1)->HNext = ((int)-2);
+  this->GetLabel(1)->HNext = -2;
   this->GetLabel(1)->ArcId = 0;
 }
 
@@ -1957,7 +1955,7 @@ void vtkReebGraph::CloseStream()
   for (vtkIdType N = 1; N < this->Storage->MainNodeTable.Size; N++)
   {
     // clear the node
-    if (this->Storage->GetNode(N)->ArcUpId == ((int)-2))
+    if (this->Storage->GetNode(N)->ArcUpId == -2)
       continue;
 
     vtkReebGraph::Implementation::vtkReebNode* n = this->Storage->GetNode(N);
@@ -2181,7 +2179,7 @@ void vtkReebGraph::Implementation::FindLoops()
   for (int Node = 1; Node < this->MainNodeTable.Size; Node++)
   {
     // check that the node is clear
-    if (this->GetNode(Node)->ArcUpId == ((int)-2))
+    if (this->GetNode(Node)->ArcUpId == -2)
       continue;
 
     if (!Ntouch[Node])
@@ -2325,12 +2323,12 @@ void vtkReebGraph::Implementation::ResizeMainArcTable(int newSize)
     {
       this->GetArc(i)->LabelId0 = i + 1;
       // clear arc
-      this->GetArc(i)->LabelId1 = ((int)-2);
+      this->GetArc(i)->LabelId1 = -2;
     }
 
     this->GetArc(i)->LabelId0 = this->MainArcTable.FreeZone;
     // clear arc
-    this->GetArc(i)->LabelId1 = ((int)-2);
+    this->GetArc(i)->LabelId1 = -2;
     this->MainArcTable.FreeZone = oldsize;
   }
 }
@@ -2353,11 +2351,11 @@ void vtkReebGraph::Implementation::ResizeMainLabelTable(int newSize)
     for (i = oldsize; i < this->MainLabelTable.Size - 1; i++)
     {
       this->GetLabel(i)->ArcId = i + 1;
-      this->GetLabel(i)->HNext = ((int)-2);
+      this->GetLabel(i)->HNext = -2;
     }
 
     this->GetLabel(i)->ArcId = this->MainLabelTable.FreeZone;
-    this->GetLabel(i)->HNext = ((int)-2);
+    this->GetLabel(i)->HNext = -2;
     this->MainLabelTable.FreeZone = oldsize;
   }
 }
@@ -2486,7 +2484,7 @@ void vtkReebGraph::Implementation::Collapse(vtkIdType startingNode, vtkIdType en
       this->GetArc(A1)->LabelId1 = 0;
 
       // delete the arc from the graph...
-      this->GetArc(A1)->LabelId1 = ((int)-2);
+      this->GetArc(A1)->LabelId1 = -2;
       this->GetArc(A1)->LabelId0 = this->MainArcTable.FreeZone;
       this->MainArcTable.FreeZone = (A1);
       --(this->MainArcTable.Number);
@@ -2662,7 +2660,7 @@ void vtkReebGraph::Implementation::SimplifyLabels(
                 this->GetArc(CurA)->LabelId1 = lcur->HPrev;
 
               // delete the label
-              this->GetLabel(Lcur)->HNext = ((int)-2);
+              this->GetLabel(Lcur)->HNext = -2;
               this->GetLabel(Lcur)->ArcId = this->MainLabelTable.FreeZone;
               this->MainLabelTable.FreeZone = (Lcur);
               --(this->MainLabelTable.Number);
@@ -2675,7 +2673,7 @@ void vtkReebGraph::Implementation::SimplifyLabels(
 
   // Remove all Labels (paths) which start from here
 
-  if (goUp && !(this->GetNode(nodeId)->ArcUpId == ((int)-2)))
+  if (goUp && !(this->GetNode(nodeId)->ArcUpId == -2))
   {
     int Anext;
     for (vtkIdType A = n->ArcUpId; A; A = Anext)
@@ -2714,7 +2712,7 @@ void vtkReebGraph::Implementation::SimplifyLabels(
               }
 
               // delete the label...
-              this->GetLabel(Lcur)->HNext = ((int)-2);
+              this->GetLabel(Lcur)->HNext = -2;
               this->GetLabel(Lcur)->ArcId = this->MainLabelTable.FreeZone;
               this->MainLabelTable.FreeZone = (Lcur);
               --(this->MainLabelTable.Number);
@@ -2733,11 +2731,11 @@ void vtkReebGraph::Implementation::EndVertex(const vtkIdType N)
 
   n->IsFinalized = true;
 
-  if (!(this->GetNode(N)->ArcUpId == ((int)-2)))
+  if (!(this->GetNode(N)->ArcUpId == -2))
   {
     this->SimplifyLabels(N);
 
-    if (!(this->GetNode(N)->ArcUpId == ((int)-2)))
+    if (!(this->GetNode(N)->ArcUpId == -2))
     {
       // special case for regular point. A node is regular if it has one
       // arc down and one arc up. In this case it can disappear
@@ -3167,7 +3165,7 @@ int vtkReebGraph::Implementation::GetNumberOfArcs()
     for (vtkIdType arcId = 1; arcId < this->MainArcTable.Size; arcId++)
     {
       // check if arc is cleared
-      if (!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+      if (!(this->GetArc(arcId)->LabelId1 == -2))
         this->ArcNumber++;
     }
 
@@ -3189,7 +3187,7 @@ int vtkReebGraph::Implementation::GetNumberOfNodes()
     for (vtkIdType nodeId = 1; nodeId < this->MainNodeTable.Size; nodeId++)
     {
       // check if node is cleared
-      if (!(this->GetNode(nodeId)->ArcUpId == ((int)-2)))
+      if (!(this->GetNode(nodeId)->ArcUpId == -2))
         this->NodeNumber++;
     }
 
@@ -3202,7 +3200,7 @@ vtkIdType vtkReebGraph::Implementation::GetNextNodeId()
   for (vtkIdType nodeId = this->currentNodeId + 1; nodeId < this->MainNodeTable.Size; nodeId++)
   {
     // check if node is cleared
-    if (!(this->GetNode(nodeId)->ArcUpId == ((int)-2)))
+    if (!(this->GetNode(nodeId)->ArcUpId == -2))
     {
       this->currentNodeId = nodeId;
       return this->currentNodeId;
@@ -3223,7 +3221,7 @@ vtkIdType vtkReebGraph::Implementation::GetPreviousNodeId()
   for (vtkIdType nodeId = this->currentNodeId - 1; nodeId > 0; nodeId--)
   {
     // check if node is cleared
-    if (!(this->GetNode(nodeId)->ArcUpId == ((int)-2)))
+    if (!(this->GetNode(nodeId)->ArcUpId == -2))
     {
       this->currentNodeId = nodeId;
       return this->currentNodeId;
@@ -3239,7 +3237,7 @@ vtkIdType vtkReebGraph::Implementation::GetNextArcId()
   for (vtkIdType arcId = this->currentArcId + 1; arcId < this->MainArcTable.Size; arcId++)
   {
     // check if arc is cleared
-    if (!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+    if (!(this->GetArc(arcId)->LabelId1 == -2))
     {
       this->currentArcId = arcId;
       return this->currentArcId;
@@ -3260,7 +3258,7 @@ vtkIdType vtkReebGraph::Implementation::GetPreviousArcId()
   for (vtkIdType arcId = this->currentArcId - 1; arcId > 0; arcId--)
   {
     // check if arc is cleared
-    if (!(this->GetArc(arcId)->LabelId1 == ((int)-2)))
+    if (!(this->GetArc(arcId)->LabelId1 == -2))
     {
       this->currentArcId = arcId;
       return this->currentArcId;

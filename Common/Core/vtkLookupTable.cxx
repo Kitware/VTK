@@ -245,12 +245,12 @@ void vtkLookupTable::ForceBuild()
     {
       case VTK_RAMP_SCURVE:
       {
-        c_rgba[0] = static_cast<unsigned char>(
-          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[0])) * vtkMath::Pi())));
-        c_rgba[1] = static_cast<unsigned char>(
-          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[1])) * vtkMath::Pi())));
-        c_rgba[2] = static_cast<unsigned char>(
-          127.5 * (1.0 + cos((1.0 - static_cast<double>(rgba[2])) * vtkMath::Pi())));
+        c_rgba[0] =
+          static_cast<unsigned char>(127.5 * (1.0 + cos((1.0 - rgba[0]) * vtkMath::Pi())));
+        c_rgba[1] =
+          static_cast<unsigned char>(127.5 * (1.0 + cos((1.0 - rgba[1]) * vtkMath::Pi())));
+        c_rgba[2] =
+          static_cast<unsigned char>(127.5 * (1.0 + cos((1.0 - rgba[2]) * vtkMath::Pi())));
         c_rgba[3] = static_cast<unsigned char>(alpha * 255.0);
         /* same code, but with rounding for correctness
         c_rgba[0] = static_cast<unsigned char>

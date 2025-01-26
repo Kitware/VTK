@@ -364,7 +364,7 @@ void vtkDIYGhostUtilities::ExchangeBoundingBoxes(
       else
       {
         double minPoint[3], maxPoint[3];
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        for (int i = 0; i < srp.in_link().size(); ++i)
         {
           const diy::BlockID& blockId = srp.in_link().target(i);
           if (blockId.gid != myBlockId)
@@ -395,7 +395,7 @@ bool vtkDIYGhostUtilities::ExchangeGhosts(diy::Master& master, diy::Assigner& as
       int localId = master.lid(myBlockId);
       auto& input = inputs[localId];
 
-      for (int id = 0; id < static_cast<int>(cp.link()->size()); ++id)
+      for (int id = 0; id < cp.link()->size(); ++id)
       {
         const diy::BlockID& blockId = cp.link()->target(id);
         vtkDIYGhostUtilities::EnqueueGhosts(cp, blockId, input, block);

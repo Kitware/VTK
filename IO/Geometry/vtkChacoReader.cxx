@@ -1277,7 +1277,7 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
     if (ptr2 == nullptr)
     {
       *end_flag = -1;
-      return ((double)0.0);
+      return 0.0;
     }
 
     if (Line[this->Line_length - 1] == '\0' && this->Line[this->Line_length - 2] != '\0' &&
@@ -1325,7 +1325,7 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
     {
       FlushLine(infile);
     }
-    return ((double)0.0);
+    return 0.0;
   }
 
   ptr = &(Line[Offset]);
@@ -1335,7 +1335,7 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
   {
     this->Offset = 0;
     *end_flag = 1;
-    return ((double)0.0);
+    return 0.0;
   }
   else
   {

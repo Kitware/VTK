@@ -396,7 +396,7 @@ int vtkModelMetadata::BuildBlockAttributesIndex()
   for (int i = 0; i < nblocks; i++)
   {
     this->BlockAttributesIndex[i] = idx;
-    idx += (int)(nelts[i] * natts[i]);
+    idx += nelts[i] * natts[i];
   }
 
   this->SizeBlockAttributeArray = idx;

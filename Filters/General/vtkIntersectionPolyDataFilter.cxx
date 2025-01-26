@@ -2359,7 +2359,7 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // Set up the point merger for insertion of points into the intersection
   // lines. Tolerance is set to 1e-6
   vtkSmartPointer<vtkPointLocator> pointMerger = vtkSmartPointer<vtkPointLocator>::New();
-  pointMerger->SetTolerance(sqrt((double)2.0) * this->Tolerance);
+  pointMerger->SetTolerance(sqrt(2.0) * this->Tolerance);
   pointMerger->InitPointInsertion(outputIntersection->GetPoints(), bounds0);
   impl->PointMerger = pointMerger;
 

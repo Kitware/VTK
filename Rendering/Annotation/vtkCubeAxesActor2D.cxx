@@ -118,7 +118,7 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D* actor)
   this->SetLabelFormat(actor->GetLabelFormat());
   this->SetFontFactor(actor->GetFontFactor());
   this->SetCornerOffset(actor->GetCornerOffset());
-  this->SetInertia(static_cast<int>(actor->GetInertia()));
+  this->SetInertia(actor->GetInertia());
   this->SetXLabel(actor->GetXLabel());
   this->SetYLabel(actor->GetYLabel());
   this->SetZLabel(actor->GetZLabel());

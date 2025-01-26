@@ -157,7 +157,7 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->StartWrite)
   {
-    os << indent << "Start Write: (" << static_cast<void (*)(void*)>(this->StartWrite) << ")\n";
+    os << indent << "Start Write: (" << this->StartWrite << ")\n";
   }
   else
   {
@@ -166,7 +166,7 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->EndWrite)
   {
-    os << indent << "End Write: (" << static_cast<void (*)(void*)>(this->EndWrite) << ")\n";
+    os << indent << "End Write: (" << this->EndWrite << ")\n";
   }
   else
   {

@@ -97,7 +97,7 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState* s, int wi
       small = height;
     }
     double angle = vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
-    angle = 2.0 * atan(tan(angle / 2.0) * large / static_cast<double>(small));
+    angle = 2.0 * atan(tan(angle / 2.0) * large / small);
 
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
   }

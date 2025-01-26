@@ -238,8 +238,8 @@ public:
   }
   void SetScalar(vtkIdType idx, double dist2, double* sPtr)
   {
-    double v = (this->*SampleFactor)(this->S) *
-      std::exp(static_cast<double>(this->ExponentFactor * (dist2) / (this->Radius2)));
+    double v =
+      (this->*SampleFactor)(this->S) * std::exp(this->ExponentFactor * (dist2) / (this->Radius2));
     ///@}
 
     if (!this->Visited[idx])

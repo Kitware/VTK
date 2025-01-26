@@ -57,7 +57,7 @@ size_t vtkLZMADataCompressor::CompressBuffer(unsigned char const* uncompressedDa
       vtkErrorMacro("Unknown error.");
   }
 
-  return static_cast<size_t>(out_pos);
+  return out_pos;
 }
 
 //------------------------------------------------------------------------------
@@ -67,12 +67,11 @@ size_t vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedDa
   size_t in_pos = 0;
   size_t out_pos = 0;
   uint64_t memlim = UINT64_MAX;
-  lzma_ret lzma_ret_ =
-    lzma_stream_buffer_decode(reinterpret_cast<uint64_t*>(&memlim), // No memory limit
-      static_cast<uint32_t>(0),                                     // Don't use any decoder flags
-      nullptr, // Use default allocators (malloc/free)
-      reinterpret_cast<const uint8_t*>(compressedData), &in_pos, compressedSize,
-      reinterpret_cast<uint8_t*>(uncompressedData), &out_pos, uncompressedSize);
+  lzma_ret lzma_ret_ = lzma_stream_buffer_decode(&memlim, // No memory limit
+    static_cast<uint32_t>(0),                             // Don't use any decoder flags
+    nullptr,                                              // Use default allocators (malloc/free)
+    reinterpret_cast<const uint8_t*>(compressedData), &in_pos, compressedSize,
+    reinterpret_cast<uint8_t*>(uncompressedData), &out_pos, uncompressedSize);
   switch (lzma_ret_)
   {
     case LZMA_OK:
@@ -108,7 +107,7 @@ size_t vtkLZMADataCompressor::UncompressBuffer(unsigned char const* compressedDa
       vtkErrorMacro("Unknown error.");
   }
 
-  return static_cast<size_t>(out_pos);
+  return out_pos;
 }
 //------------------------------------------------------------------------------
 int vtkLZMADataCompressor::GetCompressionLevel()

@@ -989,7 +989,7 @@ double vtkDataArray::GetDataTypeMin(int type)
     case VTK_FLOAT:
       return static_cast<double>(VTK_FLOAT_MIN);
     case VTK_DOUBLE:
-      return static_cast<double>(VTK_DOUBLE_MIN);
+      return VTK_DOUBLE_MIN;
     case VTK_ID_TYPE:
       return static_cast<double>(VTK_ID_MIN);
     default:
@@ -1029,7 +1029,7 @@ double vtkDataArray::GetDataTypeMax(int type)
     case VTK_FLOAT:
       return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:
-      return static_cast<double>(VTK_DOUBLE_MAX);
+      return VTK_DOUBLE_MAX;
     case VTK_ID_TYPE:
       return static_cast<double>(VTK_ID_MAX);
     default:

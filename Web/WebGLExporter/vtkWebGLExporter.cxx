@@ -290,8 +290,7 @@ void vtkWebGLExporter::parseActor(
             vtkWebGLPolyData* newobj = vtkWebGLPolyData::New();
             double ccc[3];
             actor->GetProperty()->GetEdgeColor(&ccc[0]);
-            ((vtkWebGLPolyData*)newobj)
-              ->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, ccc);
+            newobj->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, ccc);
             newobj->SetId(ss.str() + "1");
             newobj->SetRendererId(static_cast<int>(rendererId));
             this->Internal->Objects.push_back(newobj);

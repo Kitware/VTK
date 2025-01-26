@@ -579,6 +579,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          auto* itemAsObject = vtkObject::SafeDownCast(subObject);\n");
+      fprintf(fp, "          /* NOLINTNEXTLINE(readability-redundant-casting) */\n");
       fprintf(fp, "          object->Add%s(reinterpret_cast<%s*>(itemAsObject));\n", keyName,
         propertyInfo->ClassName);
       fprintf(fp, "        }\n");

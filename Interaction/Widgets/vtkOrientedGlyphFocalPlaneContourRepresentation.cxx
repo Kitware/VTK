@@ -500,7 +500,7 @@ void vtkOrientedGlyphFocalPlaneContourRepresentation::Scale(double eventPos[2])
 
   // Compute the scale factor
   const int* size = this->Renderer->GetSize();
-  double dPos = static_cast<double>(eventPos[1] - this->LastEventPosition[1]);
+  double dPos = eventPos[1] - this->LastEventPosition[1];
   sf *= (1.0 + 2.0 * (dPos / size[1])); // scale factor of 2.0 is arbitrary
 
   // Scale the handle

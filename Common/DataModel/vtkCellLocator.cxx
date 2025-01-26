@@ -584,10 +584,8 @@ void vtkCellLocator::GetOverlappingBuckets(vtkNeighborCells& buckets, const doub
   // Determine the range of indices in each direction
   for (i = 0; i < 3; i++)
   {
-    minLevel[i] =
-      static_cast<int>(static_cast<double>(((x[i] - dist) - this->Bounds[2 * i]) / this->H[i]));
-    maxLevel[i] =
-      static_cast<int>(static_cast<double>(((x[i] + dist) - this->Bounds[2 * i]) / this->H[i]));
+    minLevel[i] = static_cast<int>(((x[i] - dist) - this->Bounds[2 * i]) / this->H[i]);
+    maxLevel[i] = static_cast<int>(((x[i] + dist) - this->Bounds[2 * i]) / this->H[i]);
 
     if (minLevel[i] < 0)
     {
@@ -758,9 +756,8 @@ void vtkCellLocator::BuildLocatorInternal()
 
   if (this->Automatic)
   {
-    this->Level =
-      static_cast<int>(std::ceil(std::log(static_cast<double>(numCells) / numCellsPerBucket) /
-        (std::log(static_cast<double>(8.0)))));
+    this->Level = static_cast<int>(
+      std::ceil(std::log(static_cast<double>(numCells) / numCellsPerBucket) / (std::log(8.0))));
   }
   this->Level = (this->Level > this->MaxLevel ? this->MaxLevel : this->Level);
 

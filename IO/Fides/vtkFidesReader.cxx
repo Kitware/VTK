@@ -680,7 +680,7 @@ int vtkFidesReader::RequestData(
     if (index == -1)
     {
       vtkErrorMacro(<< "Couldn't find index of time value " << step);
-      index = static_cast<int>(0);
+      index = 0;
     }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
                   << step << " with index " << index);

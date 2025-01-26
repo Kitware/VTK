@@ -650,7 +650,7 @@ void vtkHigherOrderTriangle::SetParametricCoords()
   {
     this->PointParametricCoordinates->Initialize();
 
-    double order_d = static_cast<vtkIdType>(order);
+    double order_d = order;
 
     this->PointParametricCoordinates->SetNumberOfPoints(nPoints);
 

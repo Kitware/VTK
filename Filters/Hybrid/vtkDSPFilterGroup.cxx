@@ -327,16 +327,15 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
   vtkFloatArray* l_output = vtkFloatArray::New();
   l_output->SetName(FilterDefinitions->m_vector[a_whichFilter]->GetOutputVariableName());
 
-  int l_numNumerators = (int)FilterDefinitions->m_vector[a_whichFilter]->GetNumNumeratorWeights();
+  int l_numNumerators = FilterDefinitions->m_vector[a_whichFilter]->GetNumNumeratorWeights();
   int l_numForwardNumerators =
-    (int)FilterDefinitions->m_vector[a_whichFilter]->GetNumForwardNumeratorWeights();
+    FilterDefinitions->m_vector[a_whichFilter]->GetNumForwardNumeratorWeights();
   if (!l_numNumerators && !l_numForwardNumerators)
   {
     printf("vtkDSPFilterGroup::GetOutput there are no numerator filter weights?\n");
     return (nullptr);
   }
-  int l_numDenominators =
-    (int)FilterDefinitions->m_vector[a_whichFilter]->GetNumDenominatorWeights();
+  int l_numDenominators = FilterDefinitions->m_vector[a_whichFilter]->GetNumDenominatorWeights();
 
   double l_a1 = 1.0;
   if (l_numDenominators)

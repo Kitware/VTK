@@ -171,8 +171,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance* self, vtkIma
   else
   // No initialization required. We just copy inData to outData.
   {
-    vtkImageEuclideanDistanceCopyData(
-      self, inData, static_cast<T*>(inPtr), outData, outExt, static_cast<double*>(outPtr));
+    vtkImageEuclideanDistanceCopyData(self, inData, inPtr, outData, outExt, outPtr);
   }
 }
 

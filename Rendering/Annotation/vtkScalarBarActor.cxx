@@ -1400,9 +1400,8 @@ void vtkScalarBarActor::LayoutTicks()
       }
 
       targetWidth = this->P->TickBox.Size[0];
-      targetHeight = static_cast<int>(
-        (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
-        this->NumberOfLabelsBuilt);
+      targetHeight = (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
+        this->NumberOfLabelsBuilt;
     }
     else
     { // NB. Size[1] = width, Size[0] = height
@@ -1421,9 +1420,8 @@ void vtkScalarBarActor::LayoutTicks()
       {
         this->P->TickBox.Posn[1] += this->P->ScalarBarBox.Size[0];
       }
-      targetWidth = static_cast<int>(
-        (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
-        this->NumberOfLabelsBuilt);
+      targetWidth = (this->P->TickBox.Size[1] - this->TextPad * (this->NumberOfLabelsBuilt - 1)) /
+        this->NumberOfLabelsBuilt;
       targetHeight = this->P->TickBox.Size[0];
     }
 

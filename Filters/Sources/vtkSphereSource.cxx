@@ -202,10 +202,10 @@ int vtkSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     for (j = jStart; j < jEnd; j++)
     {
       phi = startPhi + j * deltaPhi;
-      radius = this->Radius * sin((double)phi);
-      n[0] = radius * cos((double)theta);
-      n[1] = radius * sin((double)theta);
-      n[2] = this->Radius * cos((double)phi);
+      radius = this->Radius * sin(phi);
+      n[0] = radius * cos(theta);
+      n[1] = radius * sin(theta);
+      n[2] = this->Radius * cos(phi);
       x[0] = n[0] + this->Center[0];
       x[1] = n[1] + this->Center[1];
       x[2] = n[2] + this->Center[2];

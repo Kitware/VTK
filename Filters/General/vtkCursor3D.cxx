@@ -81,8 +81,8 @@ int vtkCursor3D::RequestData(vtkInformation* vtkNotUsed(request),
     for (i = 0; i < 3; i++)
     {
       this->FocalPoint[i] = this->ModelBounds[2 * i] +
-        fmod(static_cast<double>(this->FocalPoint[i] - this->ModelBounds[2 * i]),
-          static_cast<double>(this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]));
+        fmod(this->FocalPoint[i] - this->ModelBounds[2 * i],
+          this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]);
     }
   }
   else
@@ -444,8 +444,8 @@ void vtkCursor3D::SetFocalPoint(double x[3])
     else if (this->Wrap) // wrap
     {
       this->FocalPoint[i] = this->ModelBounds[2 * i] +
-        fmod(static_cast<double>(this->FocalPoint[i] - this->ModelBounds[2 * i]),
-          static_cast<double>(this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]));
+        fmod(this->FocalPoint[i] - this->ModelBounds[2 * i],
+          this->ModelBounds[2 * i + 1] - this->ModelBounds[2 * i]);
     }
     else // clamp
     {

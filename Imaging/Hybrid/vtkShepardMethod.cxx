@@ -392,10 +392,8 @@ int vtkShepardMethod::RequestData(vtkInformation* vtkNotUsed(request),
 
       for (i = 0; i < 3; i++) // compute dimensional bounds in data set
       {
-        min[i] = static_cast<int>(
-          static_cast<double>((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
-        max[i] = static_cast<int>(
-          static_cast<double>((splatF.X[i] + maxDistance) - origin[i]) / spacing[i]);
+        min[i] = static_cast<int>(((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
+        max[i] = static_cast<int>(((splatF.X[i] + maxDistance) - origin[i]) / spacing[i]);
         min[i] = (min[i] < 0 ? 0 : min[i]);
         max[i] = (max[i] >= this->SampleDimensions[i] ? this->SampleDimensions[i] - 1 : max[i]);
       }
@@ -425,10 +423,8 @@ int vtkShepardMethod::RequestData(vtkInformation* vtkNotUsed(request),
 
       for (i = 0; i < 3; i++) // compute dimensional bounds in data set
       {
-        min[i] = static_cast<int>(
-          static_cast<double>((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
-        max[i] = static_cast<int>(
-          static_cast<double>((splatF.X[i] + maxDistance) - origin[i]) / spacing[i]);
+        min[i] = static_cast<int>(((splatF.X[i] - maxDistance) - origin[i]) / spacing[i]);
+        max[i] = static_cast<int>(((splatF.X[i] + maxDistance) - origin[i]) / spacing[i]);
         min[i] = (min[i] < 0 ? 0 : min[i]);
         max[i] = (max[i] >= this->SampleDimensions[i] ? this->SampleDimensions[i] - 1 : max[i]);
       }

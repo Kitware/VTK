@@ -388,7 +388,7 @@ bool vtkPlotRangeHandlesItem::Hit(const vtkContextMouseEvent& mouse)
 bool vtkPlotRangeHandlesItem::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
 {
   vtkVector2f vpos = mouse.GetPos();
-  vtkVector2f tolerance = { 2.0f * static_cast<float>(this->HandleDelta), 0 };
+  vtkVector2f tolerance = { 2.0f * this->HandleDelta, 0 };
   this->ActiveHandle = this->FindRangeHandle(vpos, tolerance);
   if (this->ActiveHandle != vtkPlotRangeHandlesItem::NO_HANDLE)
   {

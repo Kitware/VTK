@@ -137,8 +137,8 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double bds[6])
   }
 
   double e[2];
-  e[0] = static_cast<double>(bounds[0]);
-  e[1] = static_cast<double>(bounds[2]);
+  e[0] = bounds[0];
+  e[1] = bounds[2];
   this->Balloon->StartWidgetInteraction(e);
   this->Balloon->SetImageSize(
     static_cast<int>(bounds[1] - bounds[0]), static_cast<int>(bounds[3] - bounds[2]));
@@ -162,8 +162,8 @@ void vtkTexturedButtonRepresentation2D::PlaceWidget(double anchor[3], int size[2
     double* p = this->Anchor->GetComputedDoubleDisplayValue(this->Renderer);
     this->Balloon->SetRenderer(this->Renderer);
     this->Balloon->StartWidgetInteraction(p);
-    e[0] = static_cast<double>(p[0]);
-    e[1] = static_cast<double>(p[1]);
+    e[0] = p[0];
+    e[1] = p[1];
   }
   else
   {

@@ -801,7 +801,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
       {
         self->ImageViewer->UnRegister(nullptr);
       }
-      self->ImageViewer = (vtkImageViewer*)(imgViewer);
+      self->ImageViewer = imgViewer;
       if (self->ImageViewer != nullptr)
       {
         self->ImageViewer->Register(nullptr);

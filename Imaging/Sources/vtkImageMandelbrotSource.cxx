@@ -372,8 +372,7 @@ int vtkImageMandelbrotSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
   {
-    p[a2] = static_cast<double>(origin[a2]) +
-      static_cast<double>(idx2) * (sample[a2] * this->SubsampleRate);
+    p[a2] = origin[a2] + static_cast<double>(idx2) * (sample[a2] * this->SubsampleRate);
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
     {
       if (!(count % target))
@@ -381,12 +380,10 @@ int vtkImageMandelbrotSource::RequestData(vtkInformation* vtkNotUsed(request),
         this->UpdateProgress(static_cast<double>(count) / (50.0 * static_cast<double>(target)));
       }
       count++;
-      p[a1] = static_cast<double>(origin[a1]) +
-        static_cast<double>(idx1) * (sample[a1] * this->SubsampleRate);
+      p[a1] = origin[a1] + static_cast<double>(idx1) * (sample[a1] * this->SubsampleRate);
       for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-        p[a0] = static_cast<double>(origin[a0]) +
-          static_cast<double>(idx0) * (sample[a0] * this->SubsampleRate);
+        p[a0] = origin[a0] + static_cast<double>(idx0) * (sample[a0] * this->SubsampleRate);
 
         *ptr = static_cast<float>(this->EvaluateSet(p));
 

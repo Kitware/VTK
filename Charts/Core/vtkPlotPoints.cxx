@@ -133,7 +133,7 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
     if (this->ScalarVisibility && this->Colors)
     {
       colors = this->Colors->GetPointer(0);
-      nColorComponents = static_cast<int>(this->Colors->GetNumberOfComponents());
+      nColorComponents = this->Colors->GetNumberOfComponents();
     }
 
     if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)

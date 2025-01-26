@@ -78,20 +78,20 @@ inline void vtkByteSwapRange(T* first, size_t num)
 inline bool vtkByteSwapRangeWrite(const char* first, size_t num, FILE* f, int)
 {
   // No need to swap segments of 1 byte.
-  size_t status = fwrite(first, sizeof(char), static_cast<size_t>(num), f);
-  return status == static_cast<size_t>(num);
+  size_t status = fwrite(first, sizeof(char), num, f);
+  return status == num;
 }
 inline bool vtkByteSwapRangeWrite(const signed char* first, size_t num, FILE* f, int)
 {
   // No need to swap segments of 1 byte.
-  size_t status = fwrite(first, sizeof(signed char), static_cast<size_t>(num), f);
-  return status == static_cast<size_t>(num);
+  size_t status = fwrite(first, sizeof(signed char), num, f);
+  return status == num;
 }
 inline bool vtkByteSwapRangeWrite(const unsigned char* first, size_t num, FILE* f, int)
 {
   // No need to swap segments of 1 byte.
-  size_t status = fwrite(first, sizeof(unsigned char), static_cast<size_t>(num), f);
-  return status == static_cast<size_t>(num);
+  size_t status = fwrite(first, sizeof(unsigned char), num, f);
+  return status == num;
 }
 template <class T>
 inline bool vtkByteSwapRangeWrite(const T* first, size_t num, FILE* f, long)
@@ -222,8 +222,8 @@ inline void vtkByteSwapLERange(T*, size_t)
 template <class T>
 inline bool vtkByteSwapLERangeWrite(const T* p, size_t num, FILE* f)
 {
-  size_t status = fwrite(p, sizeof(T), static_cast<size_t>(num), f);
-  return status == static_cast<size_t>(num);
+  size_t status = fwrite(p, sizeof(T), num, f);
+  return status == num;
 }
 template <class T>
 inline void vtkByteSwapLERangeWrite(const T* p, size_t num, ostream* os)

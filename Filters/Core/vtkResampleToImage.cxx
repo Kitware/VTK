@@ -143,9 +143,8 @@ inline void ComputeBoundingExtent(
   {
     if (spacing[i] != 0.0)
     {
-      extent[2 * i] = static_cast<int>(vtkMath::Floor((bounds[2 * i] - origin[i]) / spacing[i]));
-      extent[2 * i + 1] =
-        static_cast<int>(vtkMath::Ceil((bounds[2 * i + 1] - origin[i]) / spacing[i]));
+      extent[2 * i] = vtkMath::Floor((bounds[2 * i] - origin[i]) / spacing[i]);
+      extent[2 * i + 1] = vtkMath::Ceil((bounds[2 * i + 1] - origin[i]) / spacing[i]);
     }
     else
     {

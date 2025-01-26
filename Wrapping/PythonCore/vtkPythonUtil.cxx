@@ -687,7 +687,7 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
 #endif
     snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
       vtkPythonUtil::PythonicClassName(result_type),
-      vtkPythonUtil::PythonicClassName(((vtkObjectBase*)ptr)->GetClassName()));
+      vtkPythonUtil::PythonicClassName(ptr->GetClassName()));
     PyErr_SetString(PyExc_TypeError, error_string);
     return nullptr;
   }

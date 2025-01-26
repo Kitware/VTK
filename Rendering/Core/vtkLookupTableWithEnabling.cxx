@@ -73,13 +73,13 @@ static void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[
   }
   if (rmin < 0 && rmax < 0)
   {
-    logRange[0] = log10(-static_cast<double>(rmin));
-    logRange[1] = log10(-static_cast<double>(rmax));
+    logRange[0] = log10(-rmin);
+    logRange[1] = log10(-rmax);
   }
   else if (rmin > 0 && rmax > 0)
   {
-    logRange[0] = log10(static_cast<double>(rmin));
-    logRange[1] = log10(static_cast<double>(rmax));
+    logRange[0] = log10(rmin);
+    logRange[1] = log10(rmax);
   }
   else
   {
@@ -97,7 +97,7 @@ inline double vtkApplyLogScale(double v, double range[2], double logRange[2])
   {
     if (v < 0)
     {
-      v = log10(-static_cast<double>(v));
+      v = log10(-v);
     }
     else if (range[0] > range[1])
     {
@@ -112,7 +112,7 @@ inline double vtkApplyLogScale(double v, double range[2], double logRange[2])
   {
     if (v > 0)
     {
-      v = log10(static_cast<double>(v));
+      v = log10(v);
     }
     else if (range[0] < range[1])
     {

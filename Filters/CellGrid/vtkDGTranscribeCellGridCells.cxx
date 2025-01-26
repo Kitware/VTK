@@ -264,8 +264,8 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
           }
           ++pointCounts[outPointId];
           outConn.push_back(outPointId);
-          contribs.AddContribution(outPointId, static_cast<vtkIdType>(cc + source.Offset),
-            cellType->GetCornerParameter(pp));
+          contribs.AddContribution(
+            outPointId, cc + source.Offset, cellType->GetCornerParameter(pp));
           ++pp;
         }
         cellArray->InsertNextCell(outConn.size(), outConn.data());
@@ -293,12 +293,12 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
           shapePoints->GetTuple(inPointId, xx.data());
           if (locator->InsertUniquePoint(xx.data(), outPointId) != 0)
           {
-            pointMap[static_cast<vtkIdType>(inPointId)] = outPointId;
+            pointMap[inPointId] = outPointId;
           }
           ++pointCounts[outPointId];
           outConn.push_back(outPointId);
-          contribs.AddContribution(outPointId, static_cast<vtkIdType>(cc + source.Offset),
-            cellType->GetCornerParameter(sidePointId));
+          contribs.AddContribution(
+            outPointId, cc + source.Offset, cellType->GetCornerParameter(sidePointId));
         }
         cellArray->InsertNextCell(outConn.size(), outConn.data());
         cellTypes->InsertNextValue(sideShapeVTK);

@@ -5120,12 +5120,12 @@ int n;
 
 inline void *vtkVRMLYaccData::yy_flex_alloc( unsigned int size )
 {
-  return (void *) malloc( size );
+  return malloc( size );
 }
 
 inline void *vtkVRMLYaccData::yy_flex_realloc( void *ptr, unsigned int size )
 {
-  return (void *) realloc( ptr, size );
+  return realloc( ptr, size );
 }
 
 inline void vtkVRMLYaccData::yy_flex_free( void *ptr )

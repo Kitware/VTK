@@ -852,7 +852,7 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       {
         logX =
           logStart + (static_cast<double>(i) / static_cast<double>(size - 1)) * (logEnd - logStart);
-        x = pow(static_cast<double>(10.0), logX);
+        x = pow(10.0, logX);
       }
       else
       {
@@ -864,7 +864,7 @@ void vtkColorTransferFunction::GetTable(double xStart, double xEnd, int size, do
       if (usingLogScale)
       {
         logX = 0.5 * (logStart + logEnd);
-        x = pow(static_cast<double>(10.0), logX);
+        x = pow(10.0, logX);
       }
       else
       {

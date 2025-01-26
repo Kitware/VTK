@@ -804,14 +804,10 @@ const char* vtkEGLRenderWindow::ReportCapabilities()
   {
     return "Display ID not set";
   }
-  const char* eglVersion =
-    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_VERSION));
-  const char* eglVendor =
-    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_VENDOR));
-  const char* eglClientAPIs =
-    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_CLIENT_APIS));
-  const char* eglExtensions =
-    reinterpret_cast<const char*>(eglQueryString(internals.Display, EGL_EXTENSIONS));
+  const char* eglVersion = eglQueryString(internals.Display, EGL_VERSION);
+  const char* eglVendor = eglQueryString(internals.Display, EGL_VENDOR);
+  const char* eglClientAPIs = eglQueryString(internals.Display, EGL_CLIENT_APIS);
+  const char* eglExtensions = eglQueryString(internals.Display, EGL_EXTENSIONS);
   const char* glVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
   const char* glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
   const char* glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));

@@ -406,7 +406,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, double rad
   {
     a0 = int(double(a0) * this->Ratio[0]);
     b0 = int(double(b0) * this->Ratio[0]);
-    radius = int(double(radius) * this->Ratio[0]);
+    radius = int(radius * this->Ratio[0]);
   }
   if (this->Ratio[1] != 1.0)
   {
@@ -720,7 +720,7 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
   if (this->Ratio[0] != 1.0)
   {
     c0 = int(double(c0) * this->Ratio[0]);
-    radius = int(double(radius) * this->Ratio[0]);
+    radius = int(radius * this->Ratio[0]);
   }
   if (this->Ratio[1] != 1.0)
   {
@@ -1078,18 +1078,18 @@ void vtkImageCanvasSource2D::DrawSegment3D(double* a, double* b)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0)
   {
-    a[0] = static_cast<int>(static_cast<double>(a[0]) * this->Ratio[0]);
-    b[0] = static_cast<int>(static_cast<double>(b[0]) * this->Ratio[0]);
+    a[0] = static_cast<int>(a[0] * this->Ratio[0]);
+    b[0] = static_cast<int>(b[0] * this->Ratio[0]);
   }
   if (this->Ratio[1] != 1.0)
   {
-    a[1] = static_cast<int>(static_cast<double>(a[1]) * this->Ratio[1]);
-    b[1] = static_cast<int>(static_cast<double>(b[1]) * this->Ratio[1]);
+    a[1] = static_cast<int>(a[1] * this->Ratio[1]);
+    b[1] = static_cast<int>(b[1] * this->Ratio[1]);
   }
   if (this->Ratio[2] != 1.0)
   {
-    a[2] = static_cast<int>(static_cast<double>(a[2]) * this->Ratio[2]);
-    b[2] = static_cast<int>(static_cast<double>(b[2]) * this->Ratio[2]);
+    a[2] = static_cast<int>(a[2] * this->Ratio[2]);
+    b[2] = static_cast<int>(b[2] * this->Ratio[2]);
   }
 
   ptr = this->ImageData->GetScalarPointer(static_cast<int>(floor(b[0] + 0.5)),

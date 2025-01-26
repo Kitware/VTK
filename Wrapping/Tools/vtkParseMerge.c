@@ -643,7 +643,7 @@ void vtkParseMerge_MergeHelper(FileInfo* finfo, const NamespaceInfo* data,
   if (entry && entry->NumberOfTemplateParameters > 0)
   {
     /* extract the template arguments */
-    template_arg_count = (int)entry->NumberOfTemplateParameters;
+    template_arg_count = entry->NumberOfTemplateParameters;
     vtkParse_DecomposeTemplatedType(
       classname, &classname, template_arg_count, &template_args, entry->TemplateDefaults);
   }

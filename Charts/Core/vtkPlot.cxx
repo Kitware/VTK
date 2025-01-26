@@ -194,7 +194,7 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis* axis)
   {
     // If axes are set to logarithmic scale we need to convert the
     // axis value using 10^(axis value)
-    ostr << pow(double(10.0), double(position));
+    ostr << pow(10.0, position);
   }
   else
   {

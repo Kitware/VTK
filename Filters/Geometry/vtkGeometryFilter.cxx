@@ -1747,8 +1747,8 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       this->FaceOperator(faceBeginCellId, faceEndCellId);
       if (isFirst)
       {
-        this->Self->UpdateProgress(static_cast<double>(0.05 * (this->CurrentAxis + !this->MinFace) +
-          (0.05 * faceEndCellId / this->NumberOfFaces)));
+        this->Self->UpdateProgress(0.05 * (this->CurrentAxis + !this->MinFace) +
+          (0.05 * faceEndCellId / this->NumberOfFaces));
       }
     }
     else
@@ -1756,8 +1756,8 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       this->ShrinkingFacesOperator(faceBeginCellId, faceEndCellId);
       if (isFirst)
       {
-        this->Self->UpdateProgress(static_cast<double>(
-          0.1 * this->CurrentAxis + (0.1 * faceEndCellId / this->NumberOfFaces)));
+        this->Self->UpdateProgress(
+          0.1 * this->CurrentAxis + (0.1 * faceEndCellId / this->NumberOfFaces));
       }
     }
   } // operator()

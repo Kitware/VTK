@@ -3380,7 +3380,7 @@ public:
   // Construct for specified case -path
   vtkFoamIOobject(const std::string& casePath, vtkOpenFOAMReader* reader)
     : vtkFoamFile(casePath, reader)
-    , LagrangianPositionsExtraData_(static_cast<bool>(!reader->GetPositionsIsIn13Format()))
+    , LagrangianPositionsExtraData_(!reader->GetPositionsIsIn13Format())
   {
   }
 
@@ -7849,7 +7849,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
 
           cellPoints[0] = facePoints[(vertI == 2) ? static_cast<vtkIdType>(0)
                                                   : static_cast<vtkIdType>(nFacePoints - 1)];
-          cellPoints[4] = static_cast<vtkIdType>(this->NumPoints + nAdditionalPoints); // apex
+          cellPoints[4] = this->NumPoints + nAdditionalPoints; // apex
 
           // Decompose a face into quads in order (flipping decomposed face if owner)
           const size_t nQuadVerts = nFacePoints - 1 - nTris;
@@ -7886,7 +7886,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               cellPoints[1] = facePoints[vertI - 1];
               cellPoints[2] = facePoints[vertI];
             }
-            cellPoints[3] = static_cast<vtkIdType>(this->NumPoints + nAdditionalPoints);
+            cellPoints[3] = this->NumPoints + nAdditionalPoints;
 
             // Insert first decomposed cell into the original position,
             // subsequent ones are appended to the decomposed cell list

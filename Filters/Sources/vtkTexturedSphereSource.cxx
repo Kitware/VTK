@@ -92,10 +92,10 @@ int vtkTexturedSphereSource::RequestData(vtkInformation* vtkNotUsed(request),
     for (j = 0; j <= this->PhiResolution; j++)
     {
       phi = j * deltaPhi;
-      radius = this->Radius * sin((double)phi);
-      x[0] = radius * cos((double)theta);
-      x[1] = radius * sin((double)theta);
-      x[2] = this->Radius * cos((double)phi);
+      radius = this->Radius * sin(phi);
+      x[0] = radius * cos(theta);
+      x[1] = radius * sin(theta);
+      x[2] = this->Radius * cos(phi);
       newPoints->InsertNextPoint(x);
 
       if ((norm = vtkMath::Norm(x)) == 0.0)

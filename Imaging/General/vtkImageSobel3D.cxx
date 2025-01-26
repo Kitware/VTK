@@ -179,7 +179,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D* self, vtkImageData* inData, T* inPt
         sum -= static_cast<double>(0.586 *
           (inPtrL[inInc0L + inInc1L] + inPtrL[inInc0L + inInc1R] + inPtrL[inInc0R + inInc1L] +
             inPtrL[inInc0R + inInc1R]));
-        *outPtrV = static_cast<double>(sum * r2);
+        *outPtrV = sum * r2;
         ++outPtrV;
 
         outPtr0 += outInc0;

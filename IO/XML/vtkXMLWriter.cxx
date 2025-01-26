@@ -172,7 +172,7 @@ struct WriteBinaryDataBlockWorker
     size_t blockSize = this->Writer->GetBlockSize();
 
     // Prepare a pointer and counter to move through the data.
-    unsigned char* ptr = reinterpret_cast<unsigned char*>(data);
+    unsigned char* ptr = data;
     size_t totalBytes = (this->NumWords + 7) / 8;
     size_t bytesLeft = totalBytes;
 

@@ -684,7 +684,7 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray* scalars, int di
   // mark all pixels unvisited
   regionNumber = -1;
   this->Visited = new int[numPixels];
-  memset(this->Visited, (int)-1, numPixels * sizeof(int));
+  memset(this->Visited, -1, numPixels * sizeof(int));
 
   // set up the connected traversal
   wave = vtkIdList::New();

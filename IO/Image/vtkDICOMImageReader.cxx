@@ -79,7 +79,7 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkDICOMImageReader::CanReadFile(const char* fname)
 {
-  bool canOpen = this->Parser->OpenFile((const char*)fname);
+  bool canOpen = this->Parser->OpenFile(fname);
   if (!canOpen)
   {
     vtkErrorMacro("DICOMParser couldn't open : " << fname);

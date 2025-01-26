@@ -498,7 +498,7 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
   // Begin by initializing weights.
   for (int i = 0; i < numPts; i++)
   {
-    weights[i] = static_cast<double>(0.0);
+    weights[i] = 0.0;
   }
 
   // create local array for storing point-to-vertex vectors and distances

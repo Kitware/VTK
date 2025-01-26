@@ -321,7 +321,7 @@ double vtkDataSet::GetLength2()
   this->ComputeBounds();
   for (i = 0; i < 3; i++)
   {
-    diff = static_cast<double>(this->Bounds[2 * i + 1]) - static_cast<double>(this->Bounds[2 * i]);
+    diff = this->Bounds[2 * i + 1] - this->Bounds[2 * i];
     l += diff * diff;
   }
   return l;

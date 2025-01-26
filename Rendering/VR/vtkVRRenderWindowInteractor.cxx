@@ -410,9 +410,9 @@ void vtkVRRenderWindowInteractor::RecognizeComplexGesture(vtkEventDataDevice3D*)
 
     // Calculate rotations
     double originalAngle = vtkMath::DegreesFromRadians(
-      atan2((double)startVals[1][2] - startVals[0][2], (double)startVals[1][0] - startVals[0][0]));
+      atan2(startVals[1][2] - startVals[0][2], startVals[1][0] - startVals[0][0]));
     double newAngle = vtkMath::DegreesFromRadians(
-      atan2((double)posVals[1][2] - posVals[0][2], (double)posVals[1][0] - posVals[0][0]));
+      atan2(posVals[1][2] - posVals[0][2], posVals[1][0] - posVals[0][0]));
 
     // Angles are cyclic so watch for that (e.g. -179 and 179 are only 2 degrees apart)
     if (newAngle - originalAngle > 180.0)

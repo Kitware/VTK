@@ -737,7 +737,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
         {
           *x = rv[covIdxs[k]];
         }
-        *x = static_cast<double>(n);
+        *x = n;
       }
     } // arrIt, j
     vtkMultiCorrelativeCholesky(covPtrs, reqCovSize - 1);

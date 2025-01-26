@@ -562,10 +562,10 @@ int vtkLineRepresentation::ComputeInteractionState(int x, int y, int vtkNotUsed(
   double t, closest[3];
   xyz[0] = static_cast<double>(x);
   xyz[1] = static_cast<double>(y);
-  p1[0] = static_cast<double>(pos1[0]);
-  p1[1] = static_cast<double>(pos1[1]);
-  p2[0] = static_cast<double>(pos2[0]);
-  p2[1] = static_cast<double>(pos2[1]);
+  p1[0] = pos1[0];
+  p1[1] = pos1[1];
+  p2[0] = pos2[0];
+  p2[1] = pos2[1];
   xyz[2] = p1[2] = p2[2] = 0.0;
 
   double tol2 = this->Tolerance * this->Tolerance;

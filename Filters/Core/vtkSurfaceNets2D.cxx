@@ -1112,7 +1112,7 @@ struct NetsWorker
 
     // Compute the starting offset location for scalar data.  We may be operating
     // on a part of the image.
-    ValueType* scalars = static_cast<ValueType*>(static_cast<ST*>(scalarsArray)->GetPointer(0));
+    ValueType* scalars = static_cast<ValueType*>(scalarsArray->GetPointer(0));
     algo.Scalars = scalars + incs[0] * (updateExt[0] - ext[0]) + incs[1] * (updateExt[2] - ext[2]) +
       incs[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
 

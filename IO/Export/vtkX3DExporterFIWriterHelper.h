@@ -235,7 +235,7 @@ public:
       for (i = 0; i < size; i++)
       {
         int v = 1 + (value[i]);
-        int* vp = reinterpret_cast<int*>(&v);
+        int* vp = &v;
         f = vtkX3DExporterFIWriterHelper::ReverseBytes(vp);
         p = reinterpret_cast<unsigned char*>(&f);
         deltas.push_back(p[0]);
@@ -261,7 +261,7 @@ public:
       for (i = 0; i < static_cast<size_t>(span); i++)
       {
         int v = 1 + value[i];
-        int* vp = reinterpret_cast<int*>(&v);
+        int* vp = &v;
         f = vtkX3DExporterFIWriterHelper::ReverseBytes(vp);
 
         p = reinterpret_cast<unsigned char*>(&f);

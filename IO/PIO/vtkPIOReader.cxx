@@ -237,8 +237,7 @@ int vtkPIOReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
 
   // Collect the time step requested
   double requestedTimeStep(0);
-  vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
 
   double dTime = 0;
   int timeStep = 0;

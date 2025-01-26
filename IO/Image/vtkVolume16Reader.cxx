@@ -585,9 +585,9 @@ void vtkVolume16Reader::TransformSlice(
       {
         ijk[0] = i;
         this->Transform->MultiplyPoint(ijk, transformedIjk);
-        xyz[0] = (int)((double)transformedIjk[0] - bounds[0]);
-        xyz[1] = (int)((double)transformedIjk[1] - bounds[2]);
-        xyz[2] = (int)((double)transformedIjk[2] - bounds[4]);
+        xyz[0] = (int)(transformedIjk[0] - bounds[0]);
+        xyz[1] = (int)(transformedIjk[1] - bounds[2]);
+        xyz[2] = (int)(transformedIjk[2] - bounds[4]);
         index = xyz[0] + xyz[1] * xSize + xyz[2] * xySize;
         *(pixels + index) = *slice;
       }

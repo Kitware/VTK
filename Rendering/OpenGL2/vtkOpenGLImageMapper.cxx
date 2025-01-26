@@ -578,7 +578,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data,
   void* ptr0;
   double shift, scale;
 
-  vtkWindow* window = static_cast<vtkWindow*>(viewport->GetVTKWindow());
+  vtkWindow* window = viewport->GetVTKWindow();
   if (!window)
   {
     vtkErrorMacro(<< "vtkOpenGLImageMapper::RenderData - no window set for viewport");

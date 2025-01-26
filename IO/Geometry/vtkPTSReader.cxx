@@ -162,7 +162,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     int numArgs = sscanf(buffer.c_str(), "%d%s", &tempNumPts, junk);
     if (numArgs == 1)
     {
-      numPts = static_cast<vtkTypeInt32>(tempNumPts);
+      numPts = tempNumPts;
       break;
     }
     if (numArgs != -1)

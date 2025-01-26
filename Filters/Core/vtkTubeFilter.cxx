@@ -447,7 +447,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkIdT
     }
     else if (inVectors && this->VaryRadius == VTK_VARY_RADIUS_BY_VECTOR)
     {
-      sFactor = sqrt((double)maxSpeed / vtkMath::Norm(inVectors->GetTuple(pts[j])));
+      sFactor = sqrt(maxSpeed / vtkMath::Norm(inVectors->GetTuple(pts[j])));
       if (sFactor > this->RadiusFactor)
       {
         sFactor = this->RadiusFactor;

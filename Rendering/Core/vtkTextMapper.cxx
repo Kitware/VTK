@@ -420,8 +420,8 @@ void vtkTextMapper::UpdateQuad(vtkActor2D* actor, int dpi)
     float ih = static_cast<float>(dims[1]);
     float tcXMin = 0;
     float tcYMin = 0;
-    float tcXMax = static_cast<float>(tw) / iw;
-    float tcYMax = static_cast<float>(th) / ih;
+    float tcXMax = tw / iw;
+    float tcYMax = th / ih;
     if (vtkFloatArray* tc =
           vtkArrayDownCast<vtkFloatArray>(this->PolyData->GetPointData()->GetTCoords()))
     {

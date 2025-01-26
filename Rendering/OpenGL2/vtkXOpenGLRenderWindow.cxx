@@ -468,8 +468,8 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
   if ((this->Position[0] >= 0) && (this->Position[1] >= 0))
   {
     xsh.flags |= USPosition;
-    xsh.x = static_cast<int>(this->Position[0]);
-    xsh.y = static_cast<int>(this->Position[1]);
+    xsh.x = this->Position[0];
+    xsh.y = this->Position[1];
   }
 
   x = this->Position[0];

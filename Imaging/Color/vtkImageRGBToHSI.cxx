@@ -71,7 +71,7 @@ void vtkImageRGBToHSIExecute(
         S = max * (1.0 - (3.0 * temp / sumRGB));
       }
 
-      temp = static_cast<double>(R + G + B);
+      temp = R + G + B;
       // Intensity is easy
       I = temp / 3.0;
 

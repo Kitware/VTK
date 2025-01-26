@@ -1887,8 +1887,7 @@ void PIOAdaptor::load_variable_data_UG(
         else
         {
           // not a material variable, must be a normal variable
-          numberOfComponents =
-            static_cast<int>(this->pioData->get_num_components(this->variableName[var].c_str()));
+          numberOfComponents = this->pioData->get_num_components(this->variableName[var].c_str());
 
           const char* thisvar = this->variableName[var].c_str();
           // detect if this variable is a derived variable, if so, set number of components
@@ -2058,8 +2057,7 @@ void PIOAdaptor::load_variable_data_HTG(
         else
         {
           // not a material variable, must be a normal variable
-          numberOfComponents =
-            static_cast<int>(this->pioData->get_num_components(this->variableName[var].c_str()));
+          numberOfComponents = this->pioData->get_num_components(this->variableName[var].c_str());
           const char* thisvar = this->variableName[var].c_str();
           // detect if this variable is a derived variable, if so, set number of components
           // pioData->set_scalar_field() will know what to do with these variables

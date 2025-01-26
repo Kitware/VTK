@@ -3197,7 +3197,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   }
 
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  this->ResourceCallback->RegisterGraphicsResources(static_cast<vtkOpenGLRenderWindow*>(renWin));
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
   // Make sure the context is current
   renWin->MakeCurrent();
 

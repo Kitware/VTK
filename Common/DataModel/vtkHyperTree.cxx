@@ -436,6 +436,7 @@ public:
   unsigned long GetActualMemorySizeBytes() override
   {
     // in bytes
+    // NOLINTNEXTLINE(readability-redundant-casting): needed on Windows
     return static_cast<unsigned long>(
       sizeof(unsigned int) * this->CompactDatas->ParentToElderChild_stl.size() +
       sizeof(vtkIdType) * this->CompactDatas->GlobalIndexTable_stl.size() +

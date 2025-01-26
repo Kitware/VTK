@@ -346,7 +346,7 @@ void ExtractPolyhedralFaces(
       inFaceLocations->GetCellAtId(work.GetCellId(cc), nfaces, faces, faceIds);
       for (vtkIdType face = 0; face < nfaces; ++face)
       {
-        outFacesSize += static_cast<vtkIdType>(inFaces->GetCellSize(faces[face]));
+        outFacesSize += inFaces->GetCellSize(faces[face]);
         // Store local to global faceId for later reuse
         connectivityPoly->SetValue(facePos, faces[face]);
         facePos++;

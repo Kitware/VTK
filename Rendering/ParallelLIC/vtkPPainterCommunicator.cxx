@@ -251,7 +251,7 @@ void vtkPPainterCommunicator::SubsetCommunicator(vtkMPICommunicatorOpaqueComm* c
 
   if (this->MPIInitialized() && !this->MPIFinalized())
   {
-    MPI_Comm defaultComm = *((MPI_Comm*)comm->GetHandle());
+    MPI_Comm defaultComm = *(comm->GetHandle());
 
     // exchange include status
     // make list of active ranks
