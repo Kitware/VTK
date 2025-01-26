@@ -747,6 +747,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       "      deserializer->DeserializeJSON(identifier, subObject);\n"
       "      if (subObject != nullptr)\n");
     fprintf(fp, "      {\n");
+    fprintf(fp, "      /* NOLINTNEXTLINE(bugprone-casting-through-void) */\n");
     callSetterBeginMacro(fp, "        ");
     callSetterParameterMacro(fp, "static_cast<%s*>(static_cast<void*>(subObject))", val->Class);
     callSetterEndMacro(fp);
@@ -961,6 +962,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          subObject->Register(object);\n");
+      fprintf(fp, "          /* NOLINTNEXTLINE(bugprone-casting-through-void) */\n");
       fprintf(fp, "          map[%s] = static_cast<%s>(static_cast<void*>(subObject));\n",
         vtkWrap_IsInteger(&elements[0]) ? "std::stoi(item.first)" : "item.first",
         elements[1].Class);
