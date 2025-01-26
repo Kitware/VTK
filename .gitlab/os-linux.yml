@@ -881,7 +881,7 @@
 
 .cmake_source_tarballs:
     stage: build
-    image: "fedora:36"
+    image: "fedora:42"
     tags:
         - linux-x86_64
         - docker
@@ -898,7 +898,7 @@
 
 .cmake_doc_tarball:
     stage: release-prep
-    image: "fedora:36"
+    image: "fedora:42"
     tags:
         - linux-x86_64
         - docker

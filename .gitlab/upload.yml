@@ -1,7 +1,7 @@
 # Steps for uploading artifacts
 
 .rsync_upload:
-    image: "fedora:37"
+    image: "fedora:42"
     stage: upload
     tags:
         - docker
@@ -45,7 +45,7 @@
         RSYNC_KEY_PATH: $RSYNC_RELEASE_KEY
 
 .pypi_upload:
-    image: "fedora:37"
+    image: "fedora:42"
     stage: upload
     tags:
         - docker
@@ -64,7 +64,7 @@
         - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*
 
 .pypi_vtk_upload:
-    image: "fedora:37"
+    image: "fedora:42"
     stage: upload
     tags:
         - docker
