@@ -163,6 +163,7 @@ void vtkHyperTree::ComputeBreadthFirstOrderDescriptor(const unsigned int depthLi
 
   // Reducing maxDepth to squeeze out depths in which all subtrees are
   // entirely masked.
+  // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
   while (maxDepth && breadthFirstOrderIdMapPerDepth[--maxDepth].empty())
     ;
   ++maxDepth;

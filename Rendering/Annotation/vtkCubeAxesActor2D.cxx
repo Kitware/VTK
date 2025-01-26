@@ -288,7 +288,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   }
 
   // Take into account the inertia. Process only so often.
-  if (this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia))
+  if (this->RenderCount == 0 || !((this->RenderCount + 1) % this->Inertia))
   {
     // Okay, we have a bounding box, maybe clipped and scaled, that is visible.
     // We setup the axes depending on the fly mode.
@@ -417,6 +417,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
     yAxes = this->InertiaAxes[6];
     zAxes = this->InertiaAxes[7];
   }
+  ++this->RenderCount;
 
   // Setup the axes for plotting
   double xCoords[4], yCoords[4], zCoords[4], xRange[2], yRange[2], zRange[2];

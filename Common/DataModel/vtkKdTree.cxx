@@ -1550,6 +1550,7 @@ void vtkKdTree::Select_(int dim, float* X, int* ids, int L, int R, int K)
       {
       }
 
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       while ((J > L) && (Xcomponent[(--J) * 3] >= T))
       {
         if (!manyTValues && (J > L) && (Xcomponent[J * 3] == T))
@@ -1582,12 +1583,14 @@ void vtkKdTree::Select_(int dim, float* X, int* ids, int L, int R, int K)
 
       while (I < J)
       {
+        // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
         while ((++I < J) && (Xcomponent[I * 3] == T))
         {
         }
         if (I == J)
           break;
 
+        // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
         while ((--J > I) && (Xcomponent[J * 3] > T))
         {
         }

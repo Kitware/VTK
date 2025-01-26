@@ -2095,9 +2095,10 @@ public:
         case '$': // $-variable expansion
         {
           std::string variable;
-          while (++charI < nChars && (isalnum(pathIn[charI]) || pathIn[charI] == '_'))
+          ++charI; // skip the '$'
+          while (charI < nChars && (isalnum(pathIn[charI]) || pathIn[charI] == '_'))
           {
-            variable += pathIn[charI];
+            variable += pathIn[charI++];
           }
           if (variable == "FOAM_CASE") // discard path until the variable
           {
@@ -2138,10 +2139,11 @@ public:
           if (wasPathSeparator)
           {
             std::string userName;
-            while (++charI < nChars && (pathIn[charI] != '/' && pathIn[charI] != '\\') &&
+            ++charI; // skip the '~'
+            while (charI < nChars && (pathIn[charI] != '/' && pathIn[charI] != '\\') &&
               pathIn[charI] != '$')
             {
-              userName += pathIn[charI];
+              userName += pathIn[charI++];
             }
 
             std::string homeDir;
@@ -9939,7 +9941,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     const std::string displayName(selection->GetArrayName(itemi));
 
     auto slash = displayName.rfind('/');
-    if (slash == std::string::npos || displayName.compare(0, ++slash, regionCloudPrefix) != 0)
+    if (slash == std::string::npos)
+    {
+      continue;
+    }
+    ++slash;
+    if (displayName.compare(0, slash, regionCloudPrefix) != 0)
     {
       continue;
     }

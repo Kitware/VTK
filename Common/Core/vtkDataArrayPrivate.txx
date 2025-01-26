@@ -165,6 +165,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;
@@ -206,6 +207,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;
@@ -260,6 +262,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;
@@ -312,6 +315,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;
@@ -433,6 +437,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;
@@ -469,6 +474,7 @@ public:
     const unsigned char* ghostIt = this->Ghosts ? this->Ghosts + begin : nullptr;
     for (const auto tuple : tuples)
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       if (ghostIt && (*(ghostIt++) & this->GhostsToSkip))
       {
         continue;

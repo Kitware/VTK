@@ -1580,7 +1580,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport* viewport)
   }
 
   // Take into account the inertia. Process only so often.
-  if (this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia))
+  if (this->RenderCount == 0 || !((this->RenderCount + 1) % this->Inertia))
   {
     if (this->FlyMode == VTK_FLY_CLOSEST_TRIAD)
     {
@@ -1610,6 +1610,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport* viewport)
     yloc = this->InertiaLocs[1];
     zloc = this->InertiaLocs[2];
   }
+  ++this->RenderCount;
 
   // Set axes to be rendered
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;

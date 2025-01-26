@@ -15,10 +15,14 @@ int TestManyRenderWindows(int argc, char* argv[])
   int n = 300;
   for (int i = 0; i < argc; ++i)
   {
-    if (!strcmp(argv[i], "--count") && ++i < argc)
+    if (!strcmp(argv[i], "--count"))
     {
-      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], n, EXIT_FAILURE);
-      break;
+      ++i;
+      if (i < argc)
+      {
+        VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], n, EXIT_FAILURE);
+        break;
+      }
     }
   }
   std::cout << "Create " << n << " render windows\n";
