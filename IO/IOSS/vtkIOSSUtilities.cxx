@@ -302,10 +302,9 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   }
 
   // Check for Transient 2D data that should be 3D for WarpByVector/Glyphs
-  if (entity->type() == vtkioss_Ioss::NODEBLOCK &&
-    field.get_role() == vtkioss_Ioss::Field::RoleType::TRANSIENT && // Nodal / Elem Variables
-    entity->get_property("component_degree").get_int() == 2 &&      // dimension 2 mesh nodeblock
-    field.raw_storage()->component_count() == 2)                    // 2D Vector
+  bool isField2DTransientVector = field.get_role() == Ioss::Field::RoleType::TRANSIENT &&
+    field.raw_storage()->component_count() == 2;
+  if (isField2DTransientVector)
   {
     array = ChangeComponents(array, 3);
   }
