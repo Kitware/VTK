@@ -5,6 +5,7 @@
 #include "vtkParseSystem.h"
 
 #include <errno.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -981,7 +982,14 @@ static int preproc_evaluate_bitshift(
     {
       if (op == TOK_LSHIFT)
       {
-        *val = (preproc_int_t)((preproc_uint_t)*val << rval);
+        if (rval >= (preproc_int_t)(CHAR_BIT * sizeof(*val)))
+        {
+          result = VTK_PARSE_OUT_OF_BOUNDS;
+        }
+        else
+        {
+          *val = (preproc_int_t)((preproc_uint_t)*val << rval);
+        }
       }
       else if (op == TOK_RSHIFT)
       {
