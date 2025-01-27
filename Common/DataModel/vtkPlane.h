@@ -16,6 +16,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
 
+#include <cmath> // for std::abs
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints; // forward declaration
 
@@ -226,8 +228,7 @@ inline double vtkPlane::Evaluate(double normal[3], double origin[3], double x[3]
 // Assumes normal is normalized
 inline double vtkPlane::DistanceToPlane(double x[3], double n[3], double p0[3])
 {
-#define vtkPlaneAbs(x) ((x) < 0 ? -(x) : (x))
-  return (vtkPlaneAbs(n[0] * (x[0] - p0[0]) + n[1] * (x[1] - p0[1]) + n[2] * (x[2] - p0[2])));
+  return (std::abs(n[0] * (x[0] - p0[0]) + n[1] * (x[1] - p0[1]) + n[2] * (x[2] - p0[2])));
 }
 
 VTK_ABI_NAMESPACE_END
