@@ -176,7 +176,7 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray* input, vtkStringArrayVecto
         numericExtension = 0;
       }
     }
-    if (numericExtension && extension.length() != 0)
+    if (numericExtension && !extension.empty())
     {
       baseName.append(extension);
       extension = "";

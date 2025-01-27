@@ -215,7 +215,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
         if (file.c_str()[0] != '/' && file.c_str()[1] != ':')
         {
           std::string prefix = this->FilePath;
-          if (prefix.length())
+          if (!prefix.empty())
           {
             prefix += "/";
           }

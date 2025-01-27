@@ -200,7 +200,7 @@ std::string vtkXMLCompositeDataReader::GetFileNameFromXML(
   if (!(file[0] == '/' || file[1] == ':'))
   {
     fileName = filePath;
-    if (fileName.length())
+    if (!fileName.empty())
     {
       fileName += "/";
     }

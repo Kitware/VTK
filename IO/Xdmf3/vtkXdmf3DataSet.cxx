@@ -328,7 +328,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
-    if (attrName.length() == 0)
+    if (attrName.empty())
     {
       cerr << "Skipping unnamed array." << endl;
       continue;
@@ -576,7 +576,7 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(vtkDataObject* dObject, XdmfGrid* grid
         continue;
       }
       std::string attrName = vArray->GetName();
-      if (attrName.length() == 0)
+      if (attrName.empty())
       {
         cerr << "Skipping unnamed array." << endl;
         continue;
@@ -1719,7 +1719,7 @@ void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
-    if (attrName.length() == 0)
+    if (attrName.empty())
     {
       cerr << "Skipping unnamed array." << endl;
       continue;
@@ -1895,7 +1895,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
   {
     shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
     std::string attrName = xmfAttribute->getName();
-    if (attrName.length() == 0)
+    if (attrName.empty())
     {
       cerr << "Skipping unnamed array." << endl;
       continue;

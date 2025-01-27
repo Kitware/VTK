@@ -407,7 +407,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   {
     std::string localline(inBuf);
     localline = TrimString(localline);
-    if (localline.length() > 0)
+    if (!localline.empty())
     {
       if (localline[0] != '#' && localline[0] != '!')
       {

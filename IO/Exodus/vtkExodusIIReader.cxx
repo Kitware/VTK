@@ -4171,7 +4171,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         // num_entries = binfo.Size;
         binfo.FileOffset = blockEntryFileOffset;
         blockEntryFileOffset += binfo.Size;
-        if (binfo.Name.length() == 0)
+        if (binfo.Name.empty())
         {
           if (this->Parent->GetUseLegacyBlockNames())
           {
@@ -4181,7 +4181,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 #else
               "Unnamed block ID: %d Type: %s",
 #endif
-              ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "nullptr");
+              ids[obj], !binfo.TypeName.empty() ? binfo.TypeName.c_str() : "nullptr");
           }
           else
           {
@@ -4315,7 +4315,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         sinfo.FileOffset = setEntryFileOffset;
         setEntryFileOffset += sinfo.Size;
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
-        if (sinfo.Name.length() == 0)
+        if (sinfo.Name.empty())
         {
           snprintf(tmpName, sizeof(tmpName),
 #ifdef VTK_USE_64BIT_IDS
@@ -4352,7 +4352,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
             minfo.Size = 0;
         }
         minfo.Name = obj_names[obj];
-        if (minfo.Name.length() == 0)
+        if (minfo.Name.empty())
         {
           snprintf(tmpName, sizeof(tmpName),
 #ifdef VTK_USE_64BIT_IDS

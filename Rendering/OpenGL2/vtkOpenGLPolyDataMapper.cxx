@@ -1928,7 +1928,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
     }
 
     // geometry shader impl
-    if (GSSource.length())
+    if (!GSSource.empty())
     {
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec", "out vec4 clipVertexMC;");
       vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl", "  clipVertexMC =  vertexMC;\n");

@@ -183,7 +183,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
       bool ok;
       if (allInteger)
       {
-        if (str.length() == 0)
+        if (str.empty())
         {
           intArray->SetValue(i, this->DefaultIntegerValue);
           doubleArray->SetValue(i, this->DefaultDoubleValue);
@@ -203,7 +203,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
       }
       if (!allInteger)
       {
-        if (str.length() == 0)
+        if (str.empty())
         {
           doubleArray->SetValue(i, this->DefaultDoubleValue);
           continue;

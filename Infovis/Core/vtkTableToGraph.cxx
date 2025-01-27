@@ -599,7 +599,7 @@ int vtkTableToGraph::RequestData(
           //    This is to allow the empty string to indicate null entries.
           // 4. If it is numeric, it's value must be at least 0.
           //    This is to allow a negative value to indicate null entries.
-          if (vertexMap.count(value) == 0 && val.IsValid() && val.ToString().length() > 0 &&
+          if (vertexMap.count(value) == 0 && val.IsValid() && !val.ToString().empty() &&
             (!val.IsNumeric() || val.ToDouble() >= 0.0))
           {
             vertexMap[value] = i;

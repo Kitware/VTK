@@ -497,7 +497,7 @@ int PIOAdaptor::parsePIOFile(const char* PIOFileName)
     {
       std::string localline(inBuf);
       localline = trimString(localline);
-      if (localline.length() > 0)
+      if (!localline.empty())
       {
         if (localline[0] != '#' && localline[0] != '!')
         {
