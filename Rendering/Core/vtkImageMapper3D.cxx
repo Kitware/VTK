@@ -1044,9 +1044,9 @@ void vtkImageMapper3D::GetBackgroundColor(vtkImageProperty* property, double col
 void vtkImageMapper3D::CheckerboardRGBA(unsigned char* data, int xsize, int ysize, double originx,
   double originy, double spacingx, double spacingy)
 {
-  static double tol = 7.62939453125e-06;
-  static double maxval = 2147483647;
-  static double minval = -2147483647;
+  constexpr double tol = 7.62939453125e-06;
+  constexpr double maxval = 2147483647;
+  constexpr double minval = -2147483647;
 
   originx += 1.0 + tol;
   originy += 1.0 + tol;
