@@ -332,12 +332,15 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 #endif
     representation = GL_POINTS;
   }
-
-  bool draw_surface_with_edges =
-    (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE) && !selector;
+  int iEnd = vtkOpenGLPolyDataMapper::PrimitiveEnd;
+  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    // when selecting points, the selection pass renders points at a larger size.
+    // so don't show vertices as they might conflict with the selection pass.
+    iEnd = vtkOpenGLPolyDataMapper::PrimitiveVertices;
+  }
   int numVerts = this->VBOs->GetNumberOfTuples("vertexMC");
-  for (int i = PrimitiveStart;
-       i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
+  for (int i = PrimitiveStart; i < iEnd; i++)
   {
     this->DrawingVertices = i > PrimitiveTriStrips;
     if (this->Primitives[i].IBO->IndexCount)
@@ -424,10 +427,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
     this->InstanceBuffersBuildTime.Modified();
   }
 
-  bool draw_surface_with_edges =
-    (actor->GetProperty()->GetEdgeVisibility() && representation == VTK_SURFACE);
-  for (int i = PrimitiveStart;
-       i < (draw_surface_with_edges ? PrimitiveEnd : PrimitiveTriStrips + 1); i++)
+  for (int i = PrimitiveStart; i < vtkOpenGLPolyDataMapper::PrimitiveEnd; i++)
   {
     this->DrawingVertices = i > PrimitiveTriStrips;
     if (this->Primitives[i].IBO->IndexCount)
