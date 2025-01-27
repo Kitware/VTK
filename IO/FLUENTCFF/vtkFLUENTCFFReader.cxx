@@ -146,6 +146,13 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   this->Faces.clear();
 
+  // Transfer structures for VTK polyhedron cells
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIntArray> nodes;
+  vtkNew<vtkIntArray> nodesOffset;
+  nodes->SetNumberOfComponents(1);
+  nodesOffset->SetNumberOfComponents(1);
+
   // Convert Fluent format to VTK
   this->NumberOfCells = static_cast<vtkIdType>(this->Cells.size());
 
@@ -216,11 +223,6 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     else if (cell.type == 7)
     {
       vtkNew<vtkIdList> pointIds;
-      vtkNew<vtkCellArray> faces;
-      vtkNew<vtkIntArray> nodes;
-      vtkNew<vtkIntArray> nodesOffset;
-      nodes->SetNumberOfComponents(1);
-      nodesOffset->SetNumberOfComponents(1);
       nodes->SetArray(cell.nodes.data(), cell.nodes.size(), 1);
       nodesOffset->SetArray(cell.nodesOffset.data(), cell.nodesOffset.size(), 1);
       faces->SetData(nodesOffset, nodes);
