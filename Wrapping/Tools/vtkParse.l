@@ -1633,6 +1633,9 @@ void print_preprocessor_error(int result, const char* cp, size_t n)
     case VTK_PARSE_OUT_OF_MEMORY:
       text = "out of memory";
       break;
+    case VTK_PARSE_OUT_OF_BOUNDS:
+      text = "out of bounds computation";
+      break;
   }
 
   /* be silent about missing include files */

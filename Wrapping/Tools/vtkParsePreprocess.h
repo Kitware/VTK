@@ -115,7 +115,8 @@ typedef enum preproc_return_t_
   VTK_PARSE_FILE_READ_ERROR = 9, /* error during read */
   VTK_PARSE_MACRO_NUMARGS = 10,  /* wrong number of args to func macro */
   VTK_PARSE_SYNTAX_ERROR = 11,   /* any and all syntax errors */
-  VTK_PARSE_OUT_OF_MEMORY = 12   /* out-of-memory */
+  VTK_PARSE_OUT_OF_MEMORY = 12,  /* out-of-memory */
+  VTK_PARSE_OUT_OF_BOUNDS = 13   /* out-of-bounds */
 } preproc_return_t;
 
 /**
