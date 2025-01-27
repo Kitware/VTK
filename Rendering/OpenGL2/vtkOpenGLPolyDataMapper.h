@@ -118,6 +118,7 @@ public:
   vtkSetMacro(UseProgramPointSize, bool);
   vtkBooleanMacro(UseProgramPointSize, bool);
 
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum PrimitiveTypes
   {
     PrimitiveStart = 0,

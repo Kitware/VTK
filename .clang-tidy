@@ -104,7 +104,6 @@ readability-*,\
 -readability-container-contains,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
--readability-enum-initial-value,\
 -readability-identifier-length,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\

@@ -27,6 +27,7 @@ public:
   // specify their own errors.
   // if this list is adjusted, be sure to adjust vtkErrorCodeErrorStrings
   // in vtkErrorCode.cxx to match.
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum ErrorIds
   {
     NoError = 0,

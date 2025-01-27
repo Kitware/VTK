@@ -1,40 +1,25 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// VTK_DEPRECATED_IN_9_5_0()
+// VTK_DEPRECATED_IN_9_6_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkDataArray.h"
-#include "vtkAOSDataArrayTemplate.h" // For fast paths
-#include "vtkBitArray.h"
-#include "vtkCharArray.h"
-#include "vtkDataArrayPrivate.txx"
+
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkGenericDataArray.h"
-#include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkSOADataArrayTemplate.h" // For fast paths
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-#include "vtkScaledSOADataArrayTemplate.h" // For fast paths
-#endif
-#include "vtkSMPTools.h"
-#include "vtkShortArray.h"
-#include "vtkSignedCharArray.h"
 #include "vtkTypeTraits.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 
 #include <algorithm> // for min(), max()
-#include <vector>
+#include <vector>    // for std::vector
 
 namespace
 {
@@ -89,6 +74,27 @@ vtkDataArray::~vtkDataArray()
     this->LookupTable->Delete();
   }
   this->SetName(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case AoSDataArrayTemplate:
+      case SoADataArrayTemplate:
+      case ImplicitArray:
+      case TypedDataArray:
+      case DataArray:
+      case MappedDataArray:
+        return static_cast<vtkDataArray*>(source);
+      default:
+        break;
+    }
+  }
+  return nullptr;
 }
 
 //------------------------------------------------------------------------------

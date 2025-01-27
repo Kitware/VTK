@@ -111,11 +111,11 @@ protected:
   // The stages of this multipass render pass:
   enum ShaderStage
   {
-    InitializingDepth,
-    Peeling,
-    AlphaBlending,
+    InitializingDepth = 0,
+    Peeling = 1,
+    AlphaBlending = 2,
 
-    NumberOfPasses,
+    NumberOfPasses = 3,
     Inactive = -1,
   };
 

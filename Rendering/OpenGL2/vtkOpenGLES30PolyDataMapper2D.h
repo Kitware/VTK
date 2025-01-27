@@ -36,6 +36,7 @@ public:
   static vtkOpenGLES30PolyDataMapper2D* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum PrimitiveTypes
   {
     PrimitiveStart = 0,

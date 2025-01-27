@@ -69,14 +69,14 @@ public:
   enum
   {
     PAN = 0,
-    ZOOM,
-    ZOOM_AXIS,
-    SELECT,
+    ZOOM = 1,
+    ZOOM_AXIS = 2,
+    SELECT = 3,
     SELECT_RECTANGLE = SELECT,
-    SELECT_POLYGON,
-    CLICK_AND_DRAG,
-    NOTIFY,
-    ACTION_TYPES_COUNT
+    SELECT_POLYGON = 4,
+    CLICK_AND_DRAG = 5,
+    NOTIFY = 6,
+    ACTION_TYPES_COUNT = 7
   };
 
   /**
