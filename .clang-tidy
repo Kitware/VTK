@@ -26,7 +26,6 @@ bugprone-*,\
 -bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
 clang-analyzer-*,\
--clang-analyzer-core.BitwiseShift,\
 -clang-analyzer-core.CallAndMessage,\
 -clang-analyzer-core.DivideZero,\
 -clang-analyzer-core.NonNullParamChecker,\

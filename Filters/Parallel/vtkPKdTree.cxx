@@ -3022,7 +3022,7 @@ int vtkPKdTree::AssignRegionsContiguous()
   }
   floorLogP--;
 
-  int P = 1 << floorLogP;
+  int P = (floorLogP >= 0) ? (1 << floorLogP) : 0;
 
   if (nProcesses == P)
   {

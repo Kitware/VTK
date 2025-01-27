@@ -289,6 +289,7 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper* self, vtkImageData* d
     bitShift++;
   }
   bitShift--;
+  bitShift = std::max(bitShift, 0);
 
   long sscale = static_cast<long>(scale * (1 << bitShift));
   long sshift = static_cast<long>(sscale * shift);

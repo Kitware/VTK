@@ -19,6 +19,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
+#include <cassert> // for assert
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArrayLookup;
 
@@ -368,9 +370,11 @@ private:
 
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {
-  this->Array[id / 8] =
-    static_cast<unsigned char>((value != 0) ? (this->Array[id / 8] | (0x80 >> id % 8))
-                                            : (this->Array[id / 8] & (~(0x80 >> id % 8))));
+  const auto bitsetDiv = std::div(id, static_cast<vtkIdType>(8));
+  const vtkIdType &bitsetId = bitsetDiv.quot, bitId = bitsetDiv.rem;
+  unsigned char mask = 0x80 >> bitId; // NOLINT(clang-analyzer-core.BitwiseShift)
+  this->Array[bitsetId] = static_cast<unsigned char>(
+    (value != 0) ? (this->Array[bitsetId] | mask) : (this->Array[bitsetId] & (~mask)));
   this->DataChanged();
 }
 

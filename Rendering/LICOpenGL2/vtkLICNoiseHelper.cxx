@@ -38,8 +38,14 @@ void vtkLICRandomNoise2D::GetValidDimensionAndGrainSize(int type, int& sideLen, 
   // perlin noise both side len and grain size need to be powers of 2
   if (type == PERLIN)
   {
-    sideLen = 1 << ilog2(sideLen);
-    grainSize = 1 << ilog2(grainSize);
+    if (sideLen > 0)
+    {
+      sideLen = 1 << ilog2(sideLen);
+    }
+    if (grainSize > 0)
+    {
+      grainSize = 1 << ilog2(grainSize);
+    }
   }
 
   // grains can't be larger than the patch
