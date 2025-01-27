@@ -184,7 +184,6 @@ void vtkWebGLExporter::parseActor2D(
 
     if (actor->GetMapper())
     {
-      std::string name = actor->GetMapper()->GetClassName();
       if (vtkPolyDataMapper2D::SafeDownCast(actor->GetMapper()))
       {
       }

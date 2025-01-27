@@ -2124,7 +2124,9 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
             pos = tok.find('(');
             if (pos != std::string::npos)
             {
+#ifndef NDEBUG
               std::string exprName(tok.substr(0, pos));
+#endif
               std::string exprDef(tok.substr(pos, tok.size() - pos));
 
               exprDef.replace(0, 1, "{");

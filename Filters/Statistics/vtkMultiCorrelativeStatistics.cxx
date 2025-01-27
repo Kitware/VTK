@@ -426,7 +426,6 @@ void vtkMultiCorrelativeStatistics::Learn(
       if (idxIt != colNameToIdx.end())
       {
         vtkIdType colA = idxIt->second;
-        std::string colAName = idxIt->first;
         std::set<vtkStdString>::const_iterator colIt2;
         for (colIt2 = colIt; colIt2 != reqIt->end(); ++colIt2)
         {

@@ -167,7 +167,6 @@ void vtkDGCellCenterResponder::AllocateOutputVertices(vtkCellGridCellCenters::Qu
   vtkIdType nn = static_cast<vtkIdType>(offset);
 
   std::string rstname = "center parametric coordinates";
-  std::string xyzname = "center coordinates";
   std::string vcnname = "center conn";
 
   // Create a "connectivity" array of point IDs for all output vertices.

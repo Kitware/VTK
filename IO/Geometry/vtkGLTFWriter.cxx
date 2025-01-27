@@ -382,8 +382,6 @@ void WriteBufferAndView(vtkDataArray* inda, nlohmann::json& bufferViews, ostream
     da->DeepCopy(inda);
   }
 
-  std::string result;
-
   vtkGLTFWriterUtils::WriteValues(da, out);
 
   nlohmann::json buffer;
