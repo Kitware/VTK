@@ -13,6 +13,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* add a class to the MergeInfo */
 int vtkParseMerge_PushClass(MergeInfo* info, const char* classname)
@@ -853,4 +854,5 @@ MergeInfo* vtkParseMerge_MergeSuperClasses(
   return info;
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

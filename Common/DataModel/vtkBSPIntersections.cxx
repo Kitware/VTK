@@ -474,7 +474,7 @@ void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" << endl;
   }
   os << indent << "NumberOfRegions: " << this->NumberOfRegions << endl;
-  os << indent << "RegionList: " << this->RegionList << endl;
+  os << indent << "RegionList: " << reinterpret_cast<const void*>(this->RegionList) << endl;
   os << indent << "RegionListBuildTime: " << this->RegionListBuildTime << endl;
   os << indent
      << "ComputeIntersectionsUsingDataBounds: " << this->ComputeIntersectionsUsingDataBounds

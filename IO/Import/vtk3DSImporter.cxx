@@ -420,15 +420,15 @@ vtk3DSImporter::~vtk3DSImporter()
     }
     if (mesh->vertex)
     {
-      free(mesh->vertex);
+      free(mesh->vertex); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
     if (mesh->face)
     {
-      free(mesh->face);
+      free(mesh->face); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
     if (mesh->mtl)
     {
-      free(mesh->mtl);
+      free(mesh->mtl); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
   }
 

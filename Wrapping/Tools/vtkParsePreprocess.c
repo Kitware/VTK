@@ -16,6 +16,7 @@
 */
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 #define PREPROC_DEBUG 0
 
@@ -4818,4 +4819,5 @@ void vtkParsePreprocess_Free(PreprocessInfo* info)
   free(info);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

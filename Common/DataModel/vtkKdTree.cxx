@@ -4727,7 +4727,7 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DataSets: " << this->DataSets << endl;
 
   os << indent << "Top: " << this->Top << endl;
-  os << indent << "RegionList: " << this->RegionList << endl;
+  os << indent << "RegionList: " << reinterpret_cast<const void*>(this->RegionList) << endl;
 
   os << indent << "Timing: " << this->Timing << endl;
   os << indent << "TimerLog: " << this->TimerLog << endl;
@@ -4742,8 +4742,10 @@ void vtkKdTree::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "CellList.dataSet " << this->CellList.dataSet << endl;
     os << indent << "CellList.regionIds " << this->CellList.regionIds << endl;
     os << indent << "CellList.nRegions " << this->CellList.nRegions << endl;
-    os << indent << "CellList.cells " << this->CellList.cells << endl;
-    os << indent << "CellList.boundaryCells " << this->CellList.boundaryCells << endl;
+    os << indent << "CellList.cells " << reinterpret_cast<const void*>(this->CellList.cells)
+       << endl;
+    os << indent << "CellList.boundaryCells "
+       << reinterpret_cast<const void*>(this->CellList.boundaryCells) << endl;
   }
   os << indent << "CellRegionList: " << this->CellRegionList << endl;
 

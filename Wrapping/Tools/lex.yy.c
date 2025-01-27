@@ -1188,6 +1188,7 @@ int yy_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char* yytext;
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 /*
 
 The file 'lex.yy.c' is generated from 'vtkParse.l'.
@@ -4793,4 +4794,5 @@ void preprocessor_directive(const char* text, size_t l)
   }
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

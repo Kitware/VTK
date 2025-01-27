@@ -16,6 +16,7 @@
  */
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /** Array for quick lookup of char types */
 static const unsigned char parse_charbits[256] = {
@@ -925,4 +926,5 @@ unsigned int vtkParse_HashString(const char* cp, size_t l)
   return h;
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

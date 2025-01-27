@@ -387,7 +387,7 @@ void vtkImageSincInterpolator::InternalUpdate()
   }
 
   this->InterpolationInfo->InterpolationMode = mode;
-  this->InterpolationInfo->ExtraInfo = this->KernelLookupTable;
+  this->InterpolationInfo->ExtraInfo = reinterpret_cast<void*>(this->KernelLookupTable);
 }
 
 //------------------------------------------------------------------------------

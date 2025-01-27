@@ -12,6 +12,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* Regex-less algorithm to convert from PascalCase to snake_case
  * Caller must make sure to free the memory of the returned pointer after use. */
@@ -281,4 +282,5 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
   free(getSetsInfo);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

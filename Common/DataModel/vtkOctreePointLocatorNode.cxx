@@ -603,7 +603,7 @@ void vtkOctreePointLocatorNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
-  os << indent << "Children: " << this->Children << endl;
+  os << indent << "Children: " << reinterpret_cast<const void*>(this->Children) << endl;
   os << indent << "ID: " << this->ID << endl;
   os << indent << "MinID: " << this->MinID << endl;
   os << indent << "MinBounds: " << this->MinBounds[0] << " " << this->MinBounds[1] << " "

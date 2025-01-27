@@ -12,6 +12,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 typedef struct ParseDepends_
 {
@@ -153,4 +154,5 @@ void vtkParse_FinalizeDependencyTracking(void)
   vtkParse_FreeStringCache(&DepTracker.Strings);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

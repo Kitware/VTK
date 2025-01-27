@@ -2773,10 +2773,10 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       if (num_info > 0)
       {
         carr->SetNumberOfTuples(num_info);
-        char** info = (char**)calloc(num_info, sizeof(char*));
+        char** info = new char*[num_info](); // note the () at the end
 
         for (i = 0; i < num_info; ++i)
-          info[i] = (char*)calloc((MAX_LINE_LENGTH + 1), sizeof(char));
+          info[i] = new char[MAX_LINE_LENGTH + 1](); // () ensures '\0' initialization
 
         if (ex_get_info(exoid, info) < 0)
         {
@@ -2795,9 +2795,9 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
 
         for (i = 0; i < num_info; ++i)
         {
-          free(info[i]);
+          delete[] info[i];
         }
-        free(info);
+        delete[] info;
       }
       else
       {
@@ -4063,18 +4063,17 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     if (nids)
     {
       ids = (vtkIdType*)malloc(nids * sizeof(vtkIdType));
-      obj_names = (char**)malloc(nids * sizeof(char*));
+      obj_names = new char*[nids];
       for (obj = 0; obj < nids; ++obj)
       {
-        obj_names[obj] = (char*)malloc((maxNameLength + 1) * sizeof(char));
+        obj_names[obj] = new char[maxNameLength + 1](); // () → zero-initialized
       }
       if (OBJTYPE_IS_BLOCK(i))
       {
-        obj_typenames = (char**)malloc(nids * sizeof(char*));
+        obj_typenames = new char*[nids];
         for (obj = 0; obj < nids; ++obj)
         {
-          obj_typenames[obj] = (char*)malloc((maxNameLength + 1) * sizeof(char));
-          obj_typenames[obj][0] = '\0';
+          obj_typenames[obj] = new char[maxNameLength + 1](); // () → zero-initialized
         }
       }
     }
@@ -4127,9 +4126,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         VTK_EXO_FUNC(ex_get_var_tab(exoid, obj_typestr[i], nids, num_vars, truth_tab),
           "Could not read truth table.");
 
-        var_names = (char**)malloc(num_vars * sizeof(char*));
+        var_names = new char*[num_vars];
         for (j = 0; j < num_vars; ++j)
-          var_names[j] = (char*)malloc((maxNameLength + 1) * sizeof(char));
+          var_names[j] = new char[maxNameLength + 1](); // () → zero-initialized
 
         VTK_EXO_FUNC(ex_get_var_names(exoid, obj_typestr[i], num_vars, var_names),
           "Could not read variable names.");
@@ -4196,10 +4195,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
         if (binfo.AttributesPerEntry)
         {
-          char** attr_names;
-          attr_names = (char**)malloc(binfo.AttributesPerEntry * sizeof(char*));
+          char** attr_names = new char*[binfo.AttributesPerEntry];
           for (j = 0; j < binfo.AttributesPerEntry; ++j)
-            attr_names[j] = (char*)malloc((maxNameLength + 1) * sizeof(char));
+            attr_names[j] = new char[maxNameLength + 1](); // () → zero-initialized
 
           VTK_EXO_FUNC(ex_get_attr_names(
                          exoid, static_cast<ex_entity_type>(obj_types[i]), ids[obj], attr_names),
@@ -4212,8 +4210,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
           }
 
           for (j = 0; j < binfo.AttributesPerEntry; ++j)
-            free(attr_names[j]);
-          free(attr_names);
+            delete[] attr_names[j];
+          delete[] attr_names;
         }
 
         // Check to see if there is metadata that defines what part, material,
@@ -4378,8 +4376,8 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     if (var_names)
     {
       for (j = 0; j < num_vars; ++j)
-        free(var_names[j]);
-      free(var_names);
+        delete[] var_names[j];
+      delete[] var_names;
     }
     if (truth_tab)
       free(truth_tab);
@@ -4389,14 +4387,14 @@ int vtkExodusIIReaderPrivate::RequestInformation()
       free(ids);
 
       for (obj = 0; obj < nids; ++obj)
-        free(obj_names[obj]);
-      free(obj_names);
+        delete[] obj_names[obj];
+      delete[] obj_names;
 
       if (OBJTYPE_IS_BLOCK(i))
       {
         for (obj = 0; obj < nids; ++obj)
-          free(obj_typenames[obj]);
-        free(obj_typenames);
+          delete[] obj_typenames[obj];
+        delete[] obj_typenames;
       }
     }
 
@@ -4408,10 +4406,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     ex_get_var_param(exoid, "n", &num_vars), "Unable to read number of nodal variables.");
   if (num_vars > 0)
   {
-    var_names = (char**)malloc(num_vars * sizeof(char*));
+    var_names = new char*[num_vars];
     for (j = 0; j < num_vars; ++j)
     {
-      var_names[j] = (char*)malloc((maxNameLength + 1) * sizeof(char));
+      var_names[j] = new char[maxNameLength + 1](); // () → zero-initialized
     }
 
     VTK_EXO_FUNC(
@@ -4430,9 +4428,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     for (j = 0; j < num_vars; ++j)
     {
-      free(var_names[j]);
+      delete[] var_names[j];
     }
-    free(var_names);
+    delete[] var_names;
     var_names = nullptr;
   }
 
@@ -4441,10 +4439,10 @@ int vtkExodusIIReaderPrivate::RequestInformation()
     ex_get_var_param(exoid, "g", &num_vars), "Unable to read number of global variables.");
   if (num_vars > 0)
   {
-    var_names = (char**)malloc(num_vars * sizeof(char*));
+    var_names = new char*[num_vars];
     for (j = 0; j < num_vars; ++j)
     {
-      var_names[j] = (char*)malloc((maxNameLength + 1) * sizeof(char));
+      var_names[j] = new char[maxNameLength + 1](); // () → zero-initialized
     }
 
     VTK_EXO_FUNC(
@@ -4463,9 +4461,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
 
     for (j = 0; j < num_vars; ++j)
     {
-      free(var_names[j]);
+      delete[] var_names[j];
     }
-    free(var_names);
+    delete[] var_names;
     var_names = nullptr;
   }
 

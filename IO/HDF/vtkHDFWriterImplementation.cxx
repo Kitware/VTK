@@ -712,8 +712,8 @@ bool vtkHDFWriter::Implementation::AddOrCreateFieldDataSizeValueDataset(
   {
     // Dataset needs to be created
     std::vector<hsize_t> dimensions{ 2 };
-    return this->CreateAndWriteHdfDataset(
-             group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, dimensions, &value) != H5I_INVALID_HID;
+    return this->CreateAndWriteHdfDataset(group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, dimensions,
+             &value) != H5I_INVALID_HID; // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
   }
   else
   {
@@ -841,6 +841,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
       currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
 
     // Write new data to the dataset
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     if (H5Dwrite(dataset, datatype, dataspace, currentDataspace, H5P_DEFAULT, strArray.data()) < 0)
     {
       return false;

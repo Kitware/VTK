@@ -16,6 +16,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* -------------------------------------------------------------------- */
 /* convert a C++ templated type to pythonic dict form */
@@ -408,4 +409,5 @@ int vtkWrapPython_WrapTemplatedClass(
   return 0;
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

@@ -16,7 +16,6 @@ bugprone-*,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
 -bugprone-misplaced-widening-cast,\
--bugprone-multi-level-implicit-pointer-conversion,\
 -bugprone-narrowing-conversions,\
 -bugprone-not-null-terminated-result,\
 -bugprone-pointer-arithmetic-on-polymorphic-object,\

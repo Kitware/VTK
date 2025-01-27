@@ -612,7 +612,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
 
   // Initialize storage for signs and values
   // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  this->CellSigns = (vtkBitArray**)malloc(numContours * sizeof(*this->CellSigns));
+  this->CellSigns = new vtkBitArray*[numContours];
   this->Signs.resize(numContours, true);
   for (int c = 0; c < numContours; ++c)
   {
@@ -683,7 +683,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
       this->CellSigns[c]->Delete();
     }
   } // c
-  free(this->CellSigns);
+  delete[] this->CellSigns;
   delete this->Helper;
   this->CellScalars->Delete();
   newPts->Delete();

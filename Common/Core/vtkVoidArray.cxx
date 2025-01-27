@@ -69,7 +69,7 @@ void vtkVoidArray::DeepCopy(vtkVoidArray* va)
     this->Size = va->Size;
 
     this->Array = new voidPtr[this->Size];
-    memcpy(this->Array, va->GetVoidPointer(0), this->Size * sizeof(void*));
+    std::copy_n(va->Array, this->Size, this->Array);
   }
 }
 
@@ -157,7 +157,7 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->Array)
   {
-    os << indent << "Array: " << this->Array << "\n";
+    os << indent << "Array: " << static_cast<void*>(this->Array) << "\n";
   }
   else
   {

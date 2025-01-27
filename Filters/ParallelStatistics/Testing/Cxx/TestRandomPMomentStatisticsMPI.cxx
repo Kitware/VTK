@@ -801,6 +801,7 @@ int TestRandomPMomentStatisticsMPI(int argc, char* argv[])
   int ioRank;
   int flag;
 
+  // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
   MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_IO, &ioPtr, &flag);
 
   if ((!flag) || (*ioPtr == MPI_PROC_NULL))

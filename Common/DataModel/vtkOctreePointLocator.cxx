@@ -1278,7 +1278,7 @@ void vtkOctreePointLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumPointsPerRegion: " << this->MaximumPointsPerRegion << endl;
   os << indent << "NumberOfLeafNodes: " << this->NumberOfLeafNodes << endl;
   os << indent << "Top: " << this->Top << endl;
-  os << indent << "LeafNodeList: " << this->LeafNodeList << endl;
+  os << indent << "LeafNodeList: " << reinterpret_cast<const void*>(this->LeafNodeList) << endl;
   os << indent << "LocatorPoints: " << this->LocatorPoints << endl;
   os << indent << "NumberOfLocatorPoints: " << this->NumberOfLocatorPoints << endl;
   os << indent << "LocatorIds: " << this->LocatorIds << endl;

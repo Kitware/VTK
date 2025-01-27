@@ -36,6 +36,7 @@
 #endif
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /**
  * Helper to append a text line to an array of lines
@@ -968,4 +969,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   return vtkParse_FinalizeMain(retValue);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)
