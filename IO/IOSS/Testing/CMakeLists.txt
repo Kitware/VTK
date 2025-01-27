@@ -11,6 +11,7 @@ set(datasets
   Data/Exodus/can.e.4/can.e.4.1
   Data/Exodus/can.e.4/can.e.4.2
   Data/Exodus/can.e.4/can.e.4.3
+  Data/Exodus/exo_cell_vec2.e
   Data/Exodus/ExRestarts/blow.e
   Data/Exodus/ExRestarts/blow.e-s.001
   Data/Exodus/ExRestarts/blow.ex-timeseries
