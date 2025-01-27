@@ -226,11 +226,9 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       nodes->SetArray(cell.nodes.data(), cell.nodes.size(), 1);
       nodesOffset->SetArray(cell.nodesOffset.data(), cell.nodesOffset.size(), 1);
       faces->SetData(nodesOffset, nodes);
-      int numPts = static_cast<int>(cell.nodes.size());
-      for (int k = 0; k < numPts; ++k)
+      for (size_t j = 0; j < cell.nodes.size(); j++)
       {
-        vtkIdType ptId = static_cast<vtkIdType>(cell.nodes[k]);
-        pointIds->InsertUniqueId(ptId);
+        pointIds->InsertUniqueId(static_cast<vtkIdType>(cell.nodes[j]));
       }
       grid[location]->InsertNextCell(
         VTK_POLYHEDRON, pointIds->GetNumberOfIds(), pointIds->GetPointer(0), faces);
