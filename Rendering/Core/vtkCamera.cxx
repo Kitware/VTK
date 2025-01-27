@@ -11,6 +11,7 @@
 #include "vtkTimeStamp.h"
 #include "vtkTransform.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -877,9 +878,10 @@ void vtkCamera::SetViewAngle(double angle)
   double min = 0.00000001;
   double max = 179.0;
 
+  angle = std::min(std::max(angle, min), max);
   if (this->ViewAngle != angle)
   {
-    this->ViewAngle = (angle < min ? min : (angle > max ? max : angle));
+    this->ViewAngle = angle;
     this->Modified();
     this->ViewingRaysModified();
   }
