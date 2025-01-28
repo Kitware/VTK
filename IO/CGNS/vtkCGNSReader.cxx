@@ -3169,8 +3169,8 @@ int vtkCGNSReader::GetUnstructuredZone(
         for (vtkIdType nc = 0; nc < numCells; nc++)
         {
           int numCellFaces = cellElementsIdx[nc + 1] - cellElementsIdx[nc];
-          vtkNew<vtkIdList> faces;
-          faces->InsertNextId(numCellFaces);
+          vtkNew<vtkIdList> pointIds;
+          vtkNew<vtkCellArray> faces;
 
           for (vtkIdType nf = 0; nf < numCellFaces; ++nf)
           {
@@ -3199,7 +3199,7 @@ int vtkCGNSReader::GetUnstructuredZone(
             vtkIdType startNode = faceElementsIdx[faceId];
             vtkIdType endNode = faceElementsIdx[faceId + 1];
             vtkIdType numNodes = endNode - startNode;
-            faces->InsertNextId(numNodes);
+            faces->InsertNextCell(numNodes);
 
             // Each face is composed of multiple vertices
             if (mustReverse)
@@ -3208,7 +3208,8 @@ int vtkCGNSReader::GetUnstructuredZone(
               {
                 // Subtract 1 from node ID for zero-based indexing
                 vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
-                faces->InsertNextId(nodeID);
+                pointIds->InsertUniqueId(nodeID);
+                faces->InsertCellPoint(nodeID);
               }
             }
             else
@@ -3217,11 +3218,13 @@ int vtkCGNSReader::GetUnstructuredZone(
               {
                 // Subtract 1 from node ID for zero-based indexing
                 vtkIdType nodeID = faceElementsArr[startNode + nn] - 1;
-                faces->InsertNextId(nodeID);
+                pointIds->InsertUniqueId(nodeID);
+                faces->InsertCellPoint(nodeID);
               }
             }
           }
-          ugrid->InsertNextCell(VTK_POLYHEDRON, faces.GetPointer());
+          ugrid->InsertNextCell(
+            VTK_POLYHEDRON, pointIds->GetNumberOfIds(), pointIds->GetPointer(0), faces);
         }
       }
 
