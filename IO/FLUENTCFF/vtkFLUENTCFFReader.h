@@ -109,6 +109,7 @@ public:
     int parent;
     int child;
     std::vector<int> nodes;
+    std::vector<int> nodesOffset;
     std::vector<int> childId;
   };
   struct Face

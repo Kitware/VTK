@@ -159,7 +159,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     g = vtkUnstructuredGrid::New();
   }
 
-  for (const auto& cell : this->Cells)
+  for (auto& cell : this->Cells)
   {
     size_t location = std::find(this->CellZones.begin(), this->CellZones.end(), cell.zone) -
       this->CellZones.begin();
@@ -216,11 +216,22 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     else if (cell.type == 7)
     {
       vtkNew<vtkIdList> pointIds;
-      for (size_t j = 0; j < cell.nodes.size(); j++)
+      vtkNew<vtkCellArray> faces;
+      vtkNew<vtkIntArray> nodes;
+      vtkNew<vtkIntArray> nodesOffset;
+      nodes->SetNumberOfComponents(1);
+      nodesOffset->SetNumberOfComponents(1);
+      nodes->SetArray(cell.nodes.data(), cell.nodes.size(), 1);
+      nodesOffset->SetArray(cell.nodesOffset.data(), cell.nodesOffset.size(), 1);
+      faces->SetData(nodesOffset, nodes);
+      int numPts = static_cast<int>(cell.nodes.size());
+      for (int k = 0; k < numPts; ++k)
       {
-        pointIds->InsertNextId(static_cast<vtkIdType>(cell.nodes[j]));
+        vtkIdType ptId = static_cast<vtkIdType>(cell.nodes[k]);
+        pointIds->InsertUniqueId(ptId);
       }
-      grid[location]->InsertNextCell(VTK_POLYHEDRON, pointIds);
+      grid[location]->InsertNextCell(
+        VTK_POLYHEDRON, pointIds->GetNumberOfIds(), pointIds->GetPointer(0), faces);
     }
   }
 
@@ -2279,24 +2290,21 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
 void vtkFLUENTCFFReader::PopulatePolyhedronCell(int i)
 {
   // Reconstruct polyhedron cell for VTK
-  // For polyhedron cell, a special ptIds input format is required:
-  // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
-
-  this->Cells[i].nodes.push_back(static_cast<int>(this->Cells[i].faces.size()));
+  // For polyhedron cell, a special ptIds input format is used:
+  // nodes stores the nodeIds while nodesOffset stores the node Offset for each faces
+  int currentOffset = 0;
+  this->Cells[i].nodesOffset.push_back(currentOffset);
   for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     size_t numFacePts = this->Faces[this->Cells[i].faces[j]].nodes.size();
     if (numFacePts != 0)
     {
-      this->Cells[i].nodes.push_back(static_cast<int>(numFacePts));
+      currentOffset += static_cast<int>(numFacePts);
+      this->Cells[i].nodesOffset.push_back(currentOffset);
       for (size_t k = 0; k < numFacePts; k++)
       {
         this->Cells[i].nodes.push_back(this->Faces[this->Cells[i].faces[j]].nodes[k]);
       }
-    }
-    else
-    {
-      this->Cells[i].nodes[0]--;
     }
   }
 }
