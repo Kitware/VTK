@@ -33,6 +33,7 @@ void vtkHyperTreeGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent inden
 int vtkHyperTreeGridGhostCellsGenerator::FillOutputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSet");
   return 1;
 }
 
