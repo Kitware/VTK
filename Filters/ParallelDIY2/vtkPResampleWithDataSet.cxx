@@ -1008,8 +1008,8 @@ void ReceiveResampledPoints(
   int numBlocks = static_cast<int>(block->InputBlocks.size());
   std::vector<std::map<std::string, int>> arrayReceiveCounts(numBlocks);
 
-  diy::Master::IncomingQueues& in = *cp.incoming();
-  for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
+  auto& in = *cp.incoming();
+  for (diy::Master::Proxy::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
   {
     if (!i->second)
     {
