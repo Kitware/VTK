@@ -155,7 +155,7 @@ bytes   start   end   description      range / format
 
 
    Variable: min   32   Data-chunks
-(Minimum is 32 bytes, which cooresponds to the size required for a free-chunk)
+(Minimum is 32 bytes, which corresponds to the size required for a free-chunk)
 bytes   start   end   description      range / format
   4    0    3   "DaTa" boundary tag      Tag
  12    4   15   Pointer to End-of-Data-Tag
@@ -166,6 +166,9 @@ bytes   start   end   description      range / format
 /***********************************************************************
  	Includes
 ***********************************************************************/
+#ifndef _WIN32
+  #define _POSIX_C_SOURCE 200112L
+#endif
 #include <sys/types.h>
 #include <time.h>
 #include <stdio.h>
@@ -482,7 +485,7 @@ static void ADFI_convert_integers(
 	}
     }
     else {
-        memcpy(to_data, from_data, size * count);
+        memcpy(to_data, from_data, (size_t)size * (size_t)count);
     }
 }
 /*------------------------------------------------------------------------------------*/
@@ -7187,7 +7190,7 @@ NULL_STRING_POINTER
 ADF_FILE_NOT_OPENED
 PRISTK_NOT_FOUND
    Note: errors are only important for GET mode since you must then go ahead
-   and read the data fom the file. The stack is only meant to speed things
+   and read the data from the file. The stack is only meant to speed things
    up, not stop the process !!!
 ***********************************************************************/
 int     ADFI_stack_control( const unsigned int file_index,

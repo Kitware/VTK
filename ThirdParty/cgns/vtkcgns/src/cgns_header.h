@@ -471,6 +471,23 @@ typedef struct {            /* xxx Model_t node                     */
     cgns_user_data *user_data; /* User defined data.        */  /* V2.1 */
 } cgns_model;
 
+typedef struct {            /* xxx ParticleModel_t node             */  /* CPEX 0046 V4.5 */
+    char_33 name;           /* name of ADF node                     */
+    double id;              /* ADF ID number (address) of node      */
+    cgns_link *link;        /* link information                     */
+    int in_link;            /* set if child of a linked node        */
+    CGNS_ENUMT(ParticleModelType_t) type;
+    int ndescr;             /* no of Descriptor_t nodes             */
+    cgns_descr *descr;      /* ptrs to in-memory copy of descr      */
+    int narrays;            /* No of DataArray_t nodes              */
+    cgns_array *array;      /* ptrs to in-mem. copy of Data Arrays  */
+    CGNS_ENUMT(DataClass_t) data_class; /* Class of data            */
+    cgns_units *units;      /* ptrs to in-memory copy of units      */
+    int dim_vals;           /* dim. value for diffusion_model       */
+    int nuser_data;         /* number of user defined data nodes    */
+    cgns_user_data *user_data; /* User defined data.        */ 
+} cgns_pmodel;
+
 typedef struct {            /* GoverningEquations_t node            */
     char_33 name;           /* name of ADF node                     */
     double id;              /* ADF ID number (address) of node      */
@@ -509,6 +526,38 @@ typedef struct {            /* FlowEquationSet_t Node               */
     cgns_model *magnfield;  /* ptrs to in-mem. copy of EMMagneticFieldM. */
     cgns_model *emconduct;  /* ptrs to in-mem. copy of EMConductivityM. */
 } cgns_equations;
+
+typedef struct {            /* ParticleGoverningEquations_t node    */  /* CPEX 0046 V4.5 */
+    char_33 name;           /* name of ADF node                     */
+    double id;              /* ADF ID number (address) of node      */
+    cgns_link *link;        /* link information                     */
+    int in_link;            /* set if child of a linked node        */
+    CGNS_ENUMT(ParticleGoverningEquationsType_t) type;
+    int ndescr;             /* no of Descriptor_t nodes             */
+    cgns_descr *descr;      /* ptrs to in-memory copy of descr      */
+    int nuser_data;         /* number of user defined data nodes    */
+    cgns_user_data *user_data; /* User defined data.                */
+} cgns_pgoverning;
+
+typedef struct {            /* ParticleEquationSet_t Node           */  /* CPEX 0046 V4.5 */
+    char_33 name;           /* name of ADF node                     */
+    double id;              /* ADF ID number (address) of node      */
+    cgns_link *link;        /* link information                     */
+    int in_link;            /* set if child of a linked node        */
+    int ndescr;             /* no of Descriptor_t nodes             */
+    cgns_descr *descr;      /* ptrs to in-memory copy of descr      */
+    int equation_dim;       /* dimensionality of the governing equations */
+    cgns_pgoverning *governing; /* ptrs to in-mem. copy of ParticleGoverningEquations */
+    cgns_pmodel *collision;    /* ptrs to in-mem. copy of ParticleCollisionM.  */
+    cgns_pmodel *breakup;      /* ptrs to in-mem. copy of ParticleBreakupM.  */
+    cgns_pmodel *force;        /* ptrs to in-mem. copy of ParticleForceM. */
+    cgns_pmodel *wallinteract; /* ptrs to in-mem. copy of ParticleWallInteractionM. */
+    cgns_pmodel *phasechange;  /* ptrs to in-mem. copy of ParticlePhaseChnageM. */
+    CGNS_ENUMT(DataClass_t) data_class; /* Class of data                        */
+    cgns_units *units;      /* ptrs to in-memory copy of units      */
+    int nuser_data;         /* number of user defined data nodes    */
+    cgns_user_data *user_data; /* User defined data.        */
+} cgns_pequations;
 
 typedef struct {            /* BCData_t node            */
     char_33 name;           /* name of ADF node                     */
@@ -902,6 +951,63 @@ typedef struct cgns_family_s {            /* Family_t node            */
     struct cgns_family_s* family;
 } cgns_family;
 
+typedef struct {            /* ParticleCoordinates_t node           */ /* CPEX 0046 V4.5*/
+    char_33 name;           /* name of ADF node                     */
+    double id;              /* ADF ID number (address) of node      */
+    cgns_link *link;        /* link information                     */
+    int in_link;            /* set if child of a linked node        */
+    int ndescr;             /* no of Descriptor_t nodes             */
+    cgns_descr *descr;      /* ptrs to in-memory copy of descr      */
+    int ncoords;            /* number of coordinates arrays         */
+    cgns_array *coord;      /* ptrs to in-mem. copy of coord-arrays */
+    CGNS_ENUMT(DataClass_t) data_class; /* Class of data            */
+    cgns_units *units;      /* Dimensional Units                    */
+    int nuser_data;         /* number of user defined data nodes    */
+    cgns_user_data *user_data; /* User defined data.                */
+} cgns_pcoor;
+
+typedef struct {            /* ParticleSolution_t node              */ /* CPEX 0046 V4.5*/
+    char_33 name;           /* name of ADF node                     */
+    double id;              /* ADF ID number (address) of node      */
+    cgns_link *link;        /* link information                     */
+    int in_link;            /* set if child of a linked node        */
+    int ndescr;             /* no of Descriptor_t nodes             */
+    cgns_descr *descr;      /* ptrs to in-memory copy of descr      */
+    cgns_ptset *ptset;      /* PointList, PointRange                */
+    int nfields;            /* number of particle solution arrays   */
+    cgns_array *field;      /* ptrs to in-memory copies of sol.field*/
+    CGNS_ENUMT(DataClass_t) data_class; /* Class of data            */
+    cgns_units *units;      /* Dimensional Units                    */
+    int nuser_data;         /* number of user defined data nodes    */
+    cgns_user_data *user_data; /* User defined data.                */
+} cgns_psol;
+
+typedef struct {              /* ParticleZone_t node */ /* CPEX 0046 V4.5*/
+   char_33 name;              /* Particle zone name and name of ADF node */
+   double id;                 /* ADF ID number (address) of node    */
+   cgsize_t nparticles;       /* number of particles in this node */
+   int npcoor;                /* number of ParticleCoordinate_t nodes */
+   cgns_pcoor *pcoor;         /* ptrs to in-memory copies of pcoor */
+   cgns_link *link;           /* link information                  */
+   int in_link;               /* set if child of a linked node        */
+   int nfamname;              /* number of AdditionalFamily_t nodes  */
+   cgns_famname *famname;     /* ptrs to in-memory copies of famnames */ /* FAMILY TREE */
+   char_md family_name;       /* Family_t node name  */
+   cgns_state *state;         /* ptrs to in-memory copies of Ref.state*/
+   int nsols;                 /* number of ParticleSolution_t nodes   */
+   cgns_psol *sol;            /* ptrs to in-memory copies of sols */
+   int ndescr;                /* number of Descriptor_t nodes   */
+   cgns_descr *descr;         /* ptrs to in-memory copy of descr   */
+   CGNS_ENUMT(DataClass_t) data_class; /* Class of data        */
+   cgns_pequations *equations;/* ptrs to in-mem. copy of ParticleEqu.   */
+   cgns_units *units;         /* Dimensional Units */
+   int nintegrals;            /* number of IntegralData_t nodes   */
+   cgns_integral *integral;   /* ptrs to in-memory copy of integral   */
+   cgns_ziter *piter;         /* ptrs to in-mem. copies of ParticleIter.  */
+   int nuser_data;            /* number of user defined data nodes    */
+   cgns_user_data *user_data; /* User defined data.        */
+}cgns_pzone;
+
 typedef struct {            /* CGNSBase_t Node          */
     char_33 name;           /* name of ADF node                     */
     double id;              /* ADF ID number (address) of node      */
@@ -918,6 +1024,7 @@ typedef struct {            /* CGNSBase_t Node          */
     CGNS_ENUMT(DataClass_t) data_class; /* Class of data                        */
     cgns_units *units;      /* Dimensional Units            */
     cgns_equations *equations; /* ptrs to in-mem. copy of FlowEqu.  */
+    cgns_pequations *pequations; /* ptr to in-mem. copy of ParticleEqu. */ /* V4.5*/
     cgns_converg *converg;  /* ptrs to in-mem. copy of Conv.Hist.   */
     int nintegrals;         /* no of IntegralData_t nodes       */
     cgns_integral *integral;/* ptrs to in-mem. copy of integral data*/
@@ -929,6 +1036,9 @@ typedef struct {            /* CGNSBase_t Node          */
     cgns_gravity *gravity;  /* ptrs to in-memory copy of gravity    */      /* V2.2 */
     cgns_axisym *axisym;    /* ptrs to in-memory copy of Axisymmetry*/      /* V2.2 */
     cgns_rotating *rotating;/* ptrs to in-memory copy of Rot. Coord.*/      /* V2.2 */
+    int npzones;            /* number of ParticleZone_t nodes           */  /* V4.5 */
+    cgns_pzone *pzone;      /* ptrs to in-memory copy of ParticleZone_t nodes */ /* V4.5 */
+    cgns_hashmap_object *pzonemap; /* hashmap to check duplicate particle zone names */ /* V4.5 */
 } cgns_base;
 
 typedef struct {
@@ -956,13 +1066,6 @@ typedef struct {
     double id;
 } cgns_posit;
 
-/* need some of these routines exported for CGNStools */
-
-#if defined(_WIN32) && defined(BUILD_DLL)
-# define CGNSDLL __declspec(dllexport)
-#else
-# define CGNSDLL
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -1017,7 +1120,7 @@ CGNSDLL cgns_dataset   *cgi_get_dataset(cgns_file *cg, int B, int Z, int BC, int
 CGNSDLL cgns_bcdata    *cgi_get_bcdata (cgns_file *cg, int B, int Z, int BC, int Dset,
                                         CGNS_ENUMT(BCDataType_t) type);
 CGNSDLL cgns_model     *cgi_get_model  (cgns_file *cg, int B, int Z, char *model);
-CGNSDLL cgns_state     *cgi_get_state  (cgns_file *cg, int B, int Z, int ZBC, int BC, int Dset);
+CGNSDLL cgns_state     *cgi_get_state  (cgns_file *cg, int B, int Z, int P, int ZBC, int BC, int Dset);
 CGNSDLL cgns_converg   *cgi_get_converg(cgns_file *cg, int B, int Z);
 CGNSDLL cgns_equations *cgi_get_equations(cgns_file *cg, int B, int Z);
 CGNSDLL cgns_governing *cgi_get_governing(cgns_file *cg, int B, int Z);
@@ -1030,12 +1133,21 @@ CGNSDLL cgns_bprop     *cgi_get_bprop    (cgns_file *cg, int B, int Z, int BC);
 CGNSDLL cgns_cprop     *cgi_get_cprop    (cgns_file *cg, int B, int Z, int J);
 CGNSDLL cgns_subreg    *cgi_get_subreg   (cgns_file *cg, int B, int Z, int S);
 
+CGNSDLL cgns_pzone      *cgi_get_particle          (cgns_file *cg, int B, int P);
+CGNSDLL cgns_pcoor      *cgi_get_particle_pcoor    (cgns_file *cg, int B, int P, int C);
+CGNSDLL cgns_pcoor      *cgi_get_particle_pcoorPC  (cgns_file* cg, int B, int P);
+CGNSDLL cgns_psol       *cgi_get_particle_sol      (cgns_file *cg, int B, int P, int S);
+CGNSDLL cgns_array      *cgi_get_particle_field    (cgns_file *cg, int B, int P, int S, int F);
+CGNSDLL cgns_ziter      *cgi_get_piter             (cgns_file *cg, int B, int P);
+CGNSDLL cgns_pgoverning *cgi_get_particle_governing(cgns_file *cg, int B, int P);
+CGNSDLL cgns_pequations *cgi_get_particle_equations(cgns_file *cg, int B, int P);
+
 /* find position lead by the goto function */
 CGNSDLL int cgi_update_posit(int cnt, int *index, char **label);
 CGNSDLL int cgi_set_posit(int fn, int B, int n, int *index, char **label);
 CGNSDLL int cgi_posit_id(double *posit_id);
-CGNSDLL cgns_posit *cgi_get_posit();
-CGNSDLL int cgi_posit_index_dim();
+CGNSDLL cgns_posit *cgi_get_posit(void);
+CGNSDLL int cgi_posit_index_dim(void);
 
 /* retrieve memory address of multiple patch children knowing their parent label
    (posit_label) and their parent memory address (posit) */
@@ -1065,9 +1177,13 @@ cgns_rotating *cgi_rotating_address(int local_mode, int *ier);
 cgns_ptset *cgi_ptset_address(int local_mode, int *ier);
 cgns_dataset * cgi_bcdataset_address(int local_mode, int given_no,
     char const *given_name, int *ier);
+cgns_pequations *cgi_particle_equations_address(int local_mode, int *ier);
+cgns_pgoverning *cgi_particle_governing_address(int local_mode, int *ier);
+cgns_pmodel *cgi_particle_model_address(int local_mode, char const *ModelLabel, int *ier);
+
 
 /* read CGNS file into internal database */
-int cgi_read();
+int cgi_read(void);
 int cgi_read_base(cgns_base *base);
 int cgi_read_zone(cgns_zone *zone);
 int cgi_read_zonetype(double parent_id, char_33 parent_name, CGNS_ENUMT(ZoneType_t) *type);
@@ -1138,7 +1254,19 @@ CGNSDLL int cgi_datasize(int ndim, cgsize_t *dims,
 
 int cgi_read_node(double node_id, char_33 name, char_33 data_type,
                   int *ndim, cgsize_t *dim_vals, void **data, int data_flag);
+int cgi_read_node_data(double node_id, char_33 data_type,
+                  int* ndim, cgsize_t* dim_vals, void** data);
 CGNSDLL int cgi_get_nodes(double parent_id, char *label, int *nnodes, double **id);
+
+int cgi_read_particle(cgns_pzone *pzone);
+int cgi_read_particle_sol(int in_link, double parent_id, int *nsols, cgns_psol **sol);
+int cgi_read_particle_pcoor(int in_link, double parent_id, int *npcoor,
+                            cgns_pcoor **pcoor);
+int cgi_read_piter(int in_link, double parent_id, cgns_ziter **piter);
+int cgi_read_particle_model(int in_link, double parent_id, char *label,
+                            cgns_pmodel **model);
+int cgi_read_particle_equations(int in_link, double parent_id,
+                                cgns_pequations **equations);
 
 /* write ADF file from internal database */
 int cgi_write(int file_number);
@@ -1155,7 +1283,7 @@ int cgi_write_zboco(double parent_id, cgns_zboco *zboco);
 int cgi_write_boco(double parent_id, cgns_boco *boco);
 int cgi_write_dataset(double parent_id, const char *label,  cgns_dataset *dataset);
 int cgi_write_bcdata(double bcdata_id, cgns_bcdata *bcdata);
-int cgi_write_ptset(double id, char_33 name, cgns_ptset *ptset,
+int cgi_write_ptset(double id, char *name, cgns_ptset *ptset,
             int ndim, void *ptset_ptr);
 int cgi_write_equations(double parent_id, cgns_equations *equations);
 int cgi_write_model(double parent_id, cgns_model *model);
@@ -1182,6 +1310,12 @@ int cgi_write_cprop(double parent_id, cgns_cprop *cprop);
 int cgi_write_user_data(double parent_id, cgns_user_data *user_data);
 int cgi_write_link(double parent_id, char *name, cgns_link *link,
                    double *node_id);
+int cgi_write_particle(double parent_id, cgns_pzone *pzone);
+int cgi_write_pcoor(double parent_id, cgns_pcoor *pcoor);
+int cgi_write_particle_sol(double parent_id, cgns_psol *sol);
+int cgi_write_piter(double parent_id, cgns_ziter *piter);
+int cgi_write_particle_equations(double parent_id, cgns_pequations *equations);
+int cgi_write_particle_model(double parent_id, cgns_pmodel *model);
 
 CGNSDLL int cgi_new_node(double parent_id, char const *name, char const *label,
 	double *node_id, char const *data_type,
@@ -1241,6 +1375,7 @@ int cgi_SubstanceAmountUnits(char *Name, CGNS_ENUMT(SubstanceAmountUnits_t) *uni
 int cgi_LuminousIntensityUnits(char *Name, CGNS_ENUMT(LuminousIntensityUnits_t) *unit);
 int cgi_GoverningEquationsType(char *Name, CGNS_ENUMT(GoverningEquationsType_t) *type);
 int cgi_ModelType(char *Name, CGNS_ENUMT(ModelType_t) *type);
+int cgi_ParticleModelType(char *Name, CGNS_ENUMT(ParticleModelType_t) *type);
 int cgi_ZoneType(char *Name, CGNS_ENUMT(ZoneType_t) *type);
 int cgi_RigidGridMotionType(char *Name, CGNS_ENUMT(RigidGridMotionType_t) *type);
 int cgi_ArbitraryGridMotionType(char *Name, CGNS_ENUMT(ArbitraryGridMotionType_t) *type);
@@ -1248,18 +1383,19 @@ int cgi_SimulationType(char *Name, CGNS_ENUMT(SimulationType_t) *type);
 int cgi_WallFunctionType(char *Name, CGNS_ENUMT(WallFunctionType_t) *type);
 int cgi_AreaType(char *Name, CGNS_ENUMT(AreaType_t) *type);
 int cgi_AverageInterfaceType(char *Name, CGNS_ENUMT(AverageInterfaceType_t) *type);
+int cgi_ParticleGoverningEquationsType(char *Name, CGNS_ENUMT(ParticleGoverningEquationsType_t) *type);
 
 int cgi_zone_no(cgns_base *base, char *zonename, int *zone_no);
 
 /* miscellaneous */
 int cgi_sort_names(int n, double *ids);
-int size_of(const char_33 adf_type);
+size_t size_of(const char_33 adf_type);
 char *type_of(char_33 data_type);
 int cgi_check_strlen(char const * string);
 int cgi_check_strlen_x2(char const *string);
 int cgi_check_mode(char const * filename, int file_mode, int mode_wanted);
 const char *cgi_adf_datatype(CGNS_ENUMT(DataType_t) type);
-CGNSDLL CGNS_ENUMT(DataType_t) cgi_datatype(cchar_33 adf_type);
+CGNSDLL CGNS_ENUMT(DataType_t) cgi_datatype(const char *adf_type);
 int cgi_check_dimensions(int ndims, cglong_t *dims);
 int cgi_check_location(int dim, CGNS_ENUMT(ZoneType_t) type,
 	CGNS_ENUMT(GridLocation_t) loc);
@@ -1327,6 +1463,12 @@ void cgi_free_cperio(cgns_cperio *cperio);
 void cgi_free_caverage(cgns_caverage *caverage);
 void cgi_free_user_data(cgns_user_data *user_data);
 void cgi_free_subreg(cgns_subreg *subreg);
+void cgi_free_particle(cgns_pzone *pzone);
+void cgi_free_pcoor(cgns_pcoor *pcoor);
+void cgi_free_psol(cgns_psol *sol);
+void cgi_free_particle_model(cgns_pmodel *model);
+void cgi_free_particle_equations(cgns_pequations *equations);
+void cgi_free_particle_governing(cgns_pgoverning *governing);
 
 #ifdef __cplusplus
 }

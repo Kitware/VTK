@@ -26,8 +26,8 @@ https://cgnsorg.atlassian.net
    user@hostname:build_path$ ccmake .
    ```
    - The path to the HDF5 library should be specified with `CMAKE_PREFIX_PATH=$HDF_DIR` for linking with a specific HDF5 version.
-     - If HDF5 is built with parallel-IO support via MPI, the `HDF5_NEEDS_MPI` flag must be set to `true`.
-     - If HDF5 is built with `zlib` and `szip` support, these need to be flagged with `HDF5_NEEDS_ZLIB` and `HDF5_NEEDS_SZIP` as well as the paths for those libraries.
+     - If HDF5 is built with parallel-IO support via MPI, the `HDF5_NEED_MPI` flag must be set to `true`.
+     - If HDF5 is built with `zlib` and `szip` support, these need to be flagged with `HDF5_NEED_ZLIB` and `HDF5_NEED_SZIP` as well as the paths for those libraries.
    - Fortran can be enabled by toggling the `CGNS_ENABLE_FORTRAN` variable.
      - A view of the attempt to autodetect the correct interface between Fortran and C is show, setting the value of `FORTRAN_NAMING`.
      - For `gfortran` and `pgf90` the value of `FORTRAN_NAMING` should be `LOWERCASE_`.

@@ -204,10 +204,17 @@ cgi_estimate_keysize(map_ssize_t n)
  */
 #define GROWTH_RATE(d) ((d)->ma_used*2)
 
+/* Dirty trick for unsupported flexible array init */
+struct _static_hashmapobject {
+    map_ssize_t table_size; 
+    map_ssize_t map_usable;
+    map_ssize_t map_nentries;
+    char map_indices[8];  /* we define the size of the array to have a known struct at compile time */
+};
 /* This immutable, empty cgns_hashmap_keyobject is used for HashMap_Clear()
  * (which cannot fail and thus can do no allocation).
  */
-static cgns_hashmap_keyobject empty_keys_struct = {
+static struct _static_hashmapobject empty_keys_struct = {
         1, /* table_size */
         0, /* map_usable (immutable) */
         0, /* map_nentries */
@@ -215,7 +222,7 @@ static cgns_hashmap_keyobject empty_keys_struct = {
          MAPIX_EMPTY, MAPIX_EMPTY, MAPIX_EMPTY, MAPIX_EMPTY}, /* map_indices */
 };
 
-#define MAP_EMPTY_KEYS &empty_keys_struct
+#define MAP_EMPTY_KEYS (cgns_hashmap_keyobject *)&empty_keys_struct
 
 static cgns_hashmap_keyobject*
 cgi_new_keys_object(map_ssize_t size)

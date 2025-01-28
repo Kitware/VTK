@@ -59,6 +59,7 @@ freely, subject to the following restrictions:
 /* Flag for contiguous (0) or compact storage (1) */
 extern int HDF5storage_type;
 
+
 /***********************************************************************
  * global variable definitions
  ***********************************************************************/
@@ -66,6 +67,7 @@ int Idim;           /* current IndexDimension          */
 int Cdim;           /* current CellDimension           */
 int Pdim;           /* current PhysicalDimension           */
 cgsize_t CurrentDim[9]; /* current vertex, cell & bnd zone size*/
+cgsize_t CurrentParticleSize; /* current size of ParticleZone_t node */
 CGNS_ENUMT( ZoneType_t ) CurrentZoneType;     /* current zone type               */
 int NumberOfSteps;      /* Number of steps             */
 
@@ -121,14 +123,199 @@ int cgi_read()
     return CG_OK;
 }
 
+/* helpers to parse CGNSBase_t node */
+typedef enum {
+    LabelNull_t,
+    LabelFamily_t,
+    LabelReferenceState_t,
+    LabelGravity_t,
+    LabelAxisymmetry_t,
+    LabelRotatingCoordinates_t,
+    LabelConvergenceHistory_t,
+    LabelDescriptor_t,
+    LabelDataClass_t,
+    LabelDimensionalUnits_t,
+    LabelFlowEquationSet_t,
+    LabelIntegralData_t,
+    LabelSimulationType_t,
+    LabelBaseIterativeData_t,
+    LabelUserDefinedData_t,
+    LabelZone_t,
+    LabelParticleZone_t,
+    LabelParticleEquationSet_t
+} BaseLabel_t;
+
+#define NofBaseLabel 18
+
+static int get_base_label_type_as_enum(const char* nodelabel) {
+    if (0 == strcmp(nodelabel, "Zone_t")) {
+        return LabelZone_t;
+    }
+    else if (0 == strcmp(nodelabel, "Family_t")) {
+        return LabelFamily_t;
+    }
+    else if (0 == strcmp(nodelabel, "ReferenceState_t")) {
+        return LabelReferenceState_t;
+    }
+    else if (0 == strcmp(nodelabel, "Gravity_t")) {
+        return LabelGravity_t;
+    }
+    else if (0 == strcmp(nodelabel, "Axisymmetry_t")) {
+        return LabelAxisymmetry_t;
+    }
+    else if (0 == strcmp(nodelabel, "RotatingCoordinates_t")) {
+        return LabelRotatingCoordinates_t;
+    }
+    else if (0 == strcmp(nodelabel, "ConvergenceHistory_t")) {
+        return LabelConvergenceHistory_t;
+    }
+    else if (0 == strcmp(nodelabel, "Descriptor_t")) {
+        return LabelDescriptor_t;
+    }
+    else if (0 == strcmp(nodelabel, "DataClass_t")) {
+        return LabelDataClass_t;
+    }
+    else if (0 == strcmp(nodelabel, "DimensionalUnits_t")) {
+        return LabelDimensionalUnits_t;
+    }
+    else if (0 == strcmp(nodelabel, "FlowEquationSet_t")) {
+        return LabelFlowEquationSet_t;
+    }
+    else if (0 == strcmp(nodelabel, "IntegralData_t")) {
+        return LabelIntegralData_t;
+    }
+    else if (0 == strcmp(nodelabel, "SimulationType_t")) {
+        return LabelSimulationType_t;
+    }
+    else if (0 == strcmp(nodelabel, "BaseIterativeData_t")) {
+        return LabelBaseIterativeData_t;
+    }
+    else if (0 == strcmp(nodelabel, "UserDefinedData_t")) {
+        return LabelUserDefinedData_t;
+    }
+    else if (0 == strcmp(nodelabel, "ParticleZone_t")) {
+        return LabelParticleZone_t;
+    }
+    else if (0 == strcmp(nodelabel, "ParticleEquationSet_t")) {
+        return LabelParticleEquationSet_t;
+    }
+    else {
+        return LabelNull_t;
+    }
+}
+
+typedef struct _childnode {
+    double id;
+    int type;
+    char_33 name;
+} _childnode_t;
+
+static int sort_childnode_names(const void* v1, const void* v2)
+{
+    _childnode_t* p1 = (_childnode_t*)v1;
+    _childnode_t* p2 = (_childnode_t*)v2;
+
+    return (strcmp(p1->name, p2->name));
+}
+
+int cgi_read_all_base_children(double base_id, int* nnodes, _childnode_t** childnodes) {
+    int nid, n, nchildren, len;
+    char nodelabel[CGIO_MAX_NAME_LENGTH + 1];
+    double* idlist;
+    _childnode_t* childlist;
+    *nnodes = 0;
+
+    if (cgio_number_children(cg->cgio, base_id, &nchildren)) {
+        cg_io_error("cgio_number_children");
+        return CG_ERROR;
+    }
+    if (nchildren < 1) return CG_OK;
+    idlist = CGNS_NEW(double, nchildren);
+    if (cgio_children_ids(cg->cgio, base_id, 1, nchildren,
+        &len, idlist)) {
+        cg_io_error("cgio_children_ids");
+        return CG_ERROR;
+    }
+    if (len != nchildren) {
+        CGNS_FREE(idlist);
+        cgi_error("mismatch in number of base children and child IDs read");
+        return CG_ERROR;
+    }
+    childlist = CGNS_NEW(_childnode_t, nchildren);
+    nid = 0;
+    for (nid = 0, n = 0; n < nchildren; n++) {
+        /* Get the node label */
+        if (cgio_get_label(cg->cgio, idlist[n], nodelabel)) {
+            cg_io_error("cgio_get_label");
+            return CG_ERROR;
+        }
+        childlist[n].type = get_base_label_type_as_enum(nodelabel);
+
+        if (childlist[n].type != LabelNull_t) {
+            childlist[nid].id = idlist[n];
+            if (nid < n) {
+                childlist[nid].type = childlist[n].type;
+            }
+            /* Get also the node name */
+            if (cgio_get_name(cg->cgio, idlist[n], childlist[nid].name)) {
+                cg_io_error("cgio_get_name");
+                return CG_ERROR;
+            }
+            nid++;
+        }
+        else {
+            cgio_release_id(cg->cgio, idlist[n]);
+        }
+    }
+    CGNS_FREE(idlist);
+    if (nid > 0) {
+        *childnodes = childlist;
+        *nnodes = nid;
+    }
+    else {
+        CGNS_FREE(childlist);
+    }
+    return CG_OK;
+}
+
+int cgi_read_equations_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_equations** equations);
+int cgi_read_particle_equations_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_pequations** equations);
+int cgi_read_state_from_list(int in_link, const _childnode_t* nodelist, int nnodes, cgns_state** state);
+int cgi_read_gravity_from_list(int in_link, const _childnode_t* nodelist, const int nnodes, cgns_gravity** gravity);
+int cgi_read_axisym_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_axisym** axisym);
+int cgi_read_rotating_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_rotating** rotating);
+int cgi_read_converg_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_converg** converg);
+int cgi_read_integral_from_list(int in_link, _childnode_t* nodelist, int nnodes, int* nintegrals, cgns_integral** integral);
+int cgi_read_DDD_from_list(int in_link, _childnode_t* nodebylabel[NofBaseLabel], int ndescr, int ndata_class, int ndimensional_units, cgns_descr** descr, CGNS_ENUMV(DataClass_t)* data_class, cgns_units** units);
+int cgi_read_simulation_from_list(_childnode_t* nodelist, int nnodes, CGNS_ENUMT(SimulationType_t)* type, double* type_id);
+int cgi_read_biter_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_biter** biter);
+int cgi_read_user_data_from_list(int in_link, _childnode_t* nodelist, int nnodes, int* nuser_data, cgns_user_data** user_data);
+/* end of helpers */
+#define call_base_func(error) \
+    if (error) { \
+        for (m = 0; m < NofBaseLabel; m++) { \
+            if (childbylabel[m] == NULL) continue; \
+            CGNS_FREE(childbylabel[m]) \
+        } \
+        return CG_ERROR; \
+    }
+
 int cgi_read_base(cgns_base *base)
 {
     char_33 data_type;
     int ndim, *index;
-    double *id;
-    int n;
+    int n, m;
     void *vdata;
     cgsize_t dim_vals[12];
+    int nchildren;
+    _childnode_t* childlist = NULL;
+    int nchildbylabel[NofBaseLabel];
+    _childnode_t* childbylabel[NofBaseLabel];
+
+    for (n = 0; n < NofBaseLabel; n++) {
+        childbylabel[n] = NULL;
+        nchildbylabel[n] = 0;
+    }
 
      /* Read CGNSBase_t Node */
     if (cgi_read_node(base->id, base->name, data_type, &ndim, dim_vals,
@@ -187,73 +374,133 @@ int cgi_read_base(cgns_base *base)
         }
     }
 
-     /* Family_t */ /* -- FAMILY TREE -- */
-    if (cgi_get_nodes(base->id, "Family_t", &base->nfamilies, &id)) return CG_ERROR;
-    if (base->nfamilies>0) {
-         /* read & save families */
+    if (cgi_read_all_base_children(base->id, &nchildren, &childlist)) return CG_ERROR;
+    /* we now have all ids with label and name */
+    /* store them by label */
+    for (n = 0; n < nchildren; n++) {
+        nchildbylabel[childlist[n].type]++;
+    }
+    for (n = 0; n < NofBaseLabel; n++) {
+        if (nchildbylabel[n] == 0) continue;
+        childbylabel[n] = CGNS_NEW(_childnode_t, nchildbylabel[n]);
+        nchildbylabel[n] = 0;
+    }
+    for (n = 0; n < nchildren; n++) {
+        memcpy((void *)&(childbylabel[childlist[n].type][nchildbylabel[childlist[n].type]]),
+            ((void *)&childlist[n]), sizeof(_childnode_t));
+        nchildbylabel[childlist[n].type] ++;
+    }
+    CGNS_FREE(childlist);
+    /* now consume the childbylabel array for each label */
+
+    /* Family_t */ /* -- FAMILY TREE -- */
+    base->nfamilies = nchildbylabel[LabelFamily_t];
+    if (base->nfamilies > 0) {
+        /* read & save families */
         base->family = CGNS_NEW(cgns_family, base->nfamilies);
         for (n=0; n<base->nfamilies; n++) {
-            base->family[n].id = id[n];
-            base->family[n].link = cgi_read_link(id[n]);
+            base->family[n].id = childbylabel[LabelFamily_t][n].id;
+            base->family[n].link = cgi_read_link(childbylabel[LabelFamily_t][n].id);
             base->family[n].in_link = 0;
-            if (cgi_read_family(&base->family[n])) return CG_ERROR;
+            call_base_func(cgi_read_family(&base->family[n]))
         }
-        CGNS_FREE(id);
     }
 
-     /* ReferenceState_t */
-    if (cgi_read_state(0, base->id, &base->state)) return CG_ERROR;
+    /* ReferenceState_t */
+    call_base_func(cgi_read_state_from_list(0, childbylabel[LabelReferenceState_t],
+        nchildbylabel[LabelReferenceState_t], &base->state))
 
      /* Gravity_t */
-    if (cgi_read_gravity(0, base->id, &base->gravity)) return CG_ERROR;
+    call_base_func(cgi_read_gravity_from_list(0, childbylabel[LabelGravity_t],
+        nchildbylabel[LabelGravity_t], &base->gravity))
 
      /* Axisymmetry_t */
-    if (cgi_read_axisym(0, base->id, &base->axisym)) return CG_ERROR;
+    call_base_func(cgi_read_axisym_from_list(0, childbylabel[LabelAxisymmetry_t],
+        nchildbylabel[LabelAxisymmetry_t], &base->axisym))
 
      /* RotatingCoordinates_t */
-    if (cgi_read_rotating(0, base->id, &base->rotating)) return CG_ERROR;
+    call_base_func(cgi_read_rotating_from_list(0, childbylabel[LabelRotatingCoordinates_t], 
+        nchildbylabel[LabelRotatingCoordinates_t], &base->rotating))
 
      /* ConvergenceHistory_t */
-    if (cgi_read_converg(0, base->id, &base->converg)) return CG_ERROR;
+    call_base_func(cgi_read_converg_from_list(0, childbylabel[LabelConvergenceHistory_t],
+        nchildbylabel[LabelConvergenceHistory_t], &base->converg))
 
      /* Descriptor_t, DataClass_t, DimensionalUnits_t */
-    if (cgi_read_DDD(0, base->id, &base->ndescr, &base->descr,
-        &base->data_class, &base->units)) return CG_ERROR;
+    base->ndescr = nchildbylabel[LabelDescriptor_t];
+    call_base_func(cgi_read_DDD_from_list(0, childbylabel, nchildbylabel[LabelDescriptor_t],
+        nchildbylabel[LabelDataClass_t], nchildbylabel[LabelDimensionalUnits_t],  &base->descr,
+        &base->data_class, &base->units))
 
      /* FlowEquationSet_t */
-    if (cgi_read_equations(0, base->id, &base->equations)) return CG_ERROR;
+    call_base_func(cgi_read_equations_from_list(0, childbylabel[LabelFlowEquationSet_t],
+        nchildbylabel[LabelFlowEquationSet_t], &base->equations))
+
+     /* ParticleEquationSet_t */
+    call_base_func(cgi_read_particle_equations_from_list(0, childbylabel[LabelParticleEquationSet_t],
+        nchildbylabel[LabelParticleEquationSet_t], &base->pequations))
 
      /* IntegralData_t */
-    if (cgi_read_integral(0, base->id, &base->nintegrals,
-        &base->integral)) return CG_ERROR;
+    call_base_func(cgi_read_integral_from_list(0, childbylabel[LabelIntegralData_t],
+        nchildbylabel[LabelIntegralData_t], &base->nintegrals, &base->integral))
 
      /* SimulationType_t */
-    if (cgi_read_simulation(base->id, &base->type, &base->type_id)) return CG_ERROR;
+    call_base_func(cgi_read_simulation_from_list(childbylabel[LabelSimulationType_t],
+        nchildbylabel[LabelSimulationType_t], &base->type, &base->type_id))
 
      /* BaseIterativeData_t */
-    if (cgi_read_biter(0, base->id, &base->biter)) return CG_ERROR;
+    call_base_func(cgi_read_biter_from_list(0, childbylabel[LabelBaseIterativeData_t],
+        nchildbylabel[LabelBaseIterativeData_t], &base->biter))
 
      /* UserDefinedData_t */
-    if (cgi_read_user_data(0, base->id, &base->nuser_data,
-        &base->user_data)) return CG_ERROR;
+    call_base_func(cgi_read_user_data_from_list(0, childbylabel[LabelUserDefinedData_t],
+        nchildbylabel[LabelUserDefinedData_t], &base->nuser_data,
+        &base->user_data))
 
      /* Zone_t (depends on NumberOfSteps) */
-    if (cgi_get_nodes(base->id, "Zone_t", &base->nzones, &id)) return CG_ERROR;
+    childlist = childbylabel[LabelZone_t];
+    base->nzones = nchildbylabel[LabelZone_t];
     if (base->nzones>0) {
          /* Order zones alpha-numerically */
-        if (cgi_sort_names(base->nzones, id)) {
-            cgi_error("Error sorting zone names...");
-            return CG_ERROR;
-        }
-         /* read & save zones in sorted order */
+        qsort(childlist, base->nzones, sizeof(_childnode_t), sort_childnode_names);
+         /* populate zones in sorted order */
         base->zone = CGNS_NEW(cgns_zone, base->nzones);
         for (n=0; n<base->nzones; n++) {
-            base->zone[n].id = id[n];
-            base->zone[n].link = cgi_read_link(id[n]);
+            base->zone[n].id = childlist[n].id;
+            base->zone[n].link = cgi_read_link(childlist[n].id);
             base->zone[n].in_link = 0;
-            if (cgi_read_zone(&base->zone[n])) return CG_ERROR;
+            strcpy(base->zone[n].name, childlist[n].name);
         }
-        CGNS_FREE(id);
+    }
+
+     /* ParticleZone_t (depends on NumberOfSteps) */
+    childlist = childbylabel[LabelParticleZone_t];
+    base->npzones = nchildbylabel[LabelParticleZone_t];
+    if (base->npzones>0) {
+         /* Order particle zone names alpha-numerically */
+        qsort(childlist, base->npzones, sizeof(_childnode_t), sort_childnode_names);
+         /* populate particle zones in sorted order */
+        base->pzone = CGNS_NEW(cgns_pzone, base->npzones);
+        for (n=0; n<base->npzones; n++) {
+            base->pzone[n].id = childlist[n].id;
+            base->pzone[n].link = cgi_read_link(childlist[n].id);
+            base->pzone[n].in_link = 0;
+            strcpy(base->pzone[n].name, childlist[n].name);
+        }
+    }
+
+    for (m = 0; m < NofBaseLabel; m++) {
+        if (childbylabel[m] == NULL) continue;
+        CGNS_FREE(childbylabel[m])
+    }
+    /* read zones */
+    for (n = 0; n < base->nzones; n++) {
+        if (cgi_read_zone(&base->zone[n])) return CG_ERROR;
+    }
+
+    /* read particle zones */
+    for (n = 0; n < base->npzones; n++) {
+       if (cgi_read_particle(&base->pzone[n])) return CG_ERROR;
     }
     return CG_OK;
 }
@@ -267,9 +514,8 @@ int cgi_read_zone(cgns_zone *zone)
     double *id;
     cgsize_t dim_vals[12];
 
-     /* Zone_t */
-    if (cgi_read_node(zone->id, zone->name, data_type, &ndim, dim_vals,
-            &vdata, READ_DATA)) {
+     /* Zone_t, assume zone->name is already read */
+    if (cgi_read_node_data(zone->id, data_type, &ndim, dim_vals, &vdata)) {
         cgi_error("Error reading node Zone_t");
         return CG_ERROR;
     }
@@ -1916,7 +2162,7 @@ int cgi_read_conn(cgns_conn *conn)
      /* check */
     if (cg->filetype == CGIO_FILE_ADF || cg->filetype == CGIO_FILE_ADF2) {
       if (conn->ptset.id==0) {
-        cgi_error("Niether PointRange nor PointList defined for GridConnectivity_t '%s'",
+        cgi_error("Neither PointRange nor PointList defined for GridConnectivity_t '%s'",
 		  conn->name);
         return CG_ERROR;
       }
@@ -1926,7 +2172,7 @@ int cgi_read_conn(cgns_conn *conn)
       hid_t hid;
       to_HDF_ID(conn->ptset.id, hid);
       if (hid==0) {
-        cgi_error("Niether PointRange nor PointList defined for GridConnectivity_t '%s'",
+        cgi_error("Neither PointRange nor PointList defined for GridConnectivity_t '%s'",
 		  conn->name);
         return CG_ERROR;
       }
@@ -3146,7 +3392,7 @@ int cgi_read_ptset(double parent_id, cgns_ptset *ptset)
 
      /* verify dimension vector */
     if (!(ndim==2 && dim_vals[0]>0 && dim_vals[1]>0)) {
-        cgi_error("Invalid definition of point set:  ptset->type='%s', ndim=%d, dim_vals[0]=%ld",
+        cgi_error("Invalid definition of point set:  ptset->type='%s', ndim=%d, dim_vals[0]=%" PRIdCGSIZE ,
             PointSetTypeName[ptset->type], ndim, dim_vals[0]);
         return CG_ERROR;
     }
@@ -3211,35 +3457,21 @@ int cgi_read_ptset(double parent_id, cgns_ptset *ptset)
     return CG_OK;
 }
 
-int cgi_read_equations(int in_link, double parent_id,
-                       cgns_equations **equations)
+int cgi_read_equations_node(int linked, cgns_equations** equations)
 {
-    double *id;
-    int n, nnod, ndim, linked;
-    char *string_data;
+    double* id;
+    int n, nnod, ndim;
+    char* string_data;
     char_33 name, data_type;
     cgsize_t dim_vals[12];
-    void *vdata;
+    void* vdata;
 
-    if (cgi_get_nodes(parent_id, "FlowEquationSet_t", &nnod, &id)) return CG_ERROR;
-    if (nnod<=0) {
-        equations[0]=0;
-        return CG_OK;
-    }
-    equations[0] = CGNS_NEW(cgns_equations, 1);
-    equations[0]->id = id[0];
-    equations[0]->link = cgi_read_link(id[0]);
-    equations[0]->in_link = in_link;
-    linked = equations[0]->link ? 1 : in_link;
-    CGNS_FREE(id);
-    strcpy(equations[0]->name, "FlowEquationSet");
-
-     /* GoverningEquations_t */
+    /* GoverningEquations_t */
     equations[0]->governing = 0;
     if (cgi_get_nodes(equations[0]->id, "GoverningEquations_t", &nnod, &id))
         return CG_ERROR;
-    if (nnod>0) {
-        equations[0]->governing = CGNS_NEW(cgns_governing,1);
+    if (nnod > 0) {
+        equations[0]->governing = CGNS_NEW(cgns_governing, 1);
         equations[0]->governing->id = id[0];
         equations[0]->governing->link = cgi_read_link(id[0]);
         equations[0]->governing->in_link = linked;
@@ -3249,34 +3481,34 @@ int cgi_read_equations(int in_link, double parent_id,
         CGNS_FREE(string_data);
         CGNS_FREE(id);
 
-     /* initialize dependants */
-        equations[0]->governing->diffusion_model=0;
+        /* initialize dependants */
+        equations[0]->governing->diffusion_model = 0;
 
-     /* DiffusionModel */
+        /* DiffusionModel */
         if (cgi_get_nodes(equations[0]->governing->id,
             "\"int[1+...+IndexDimension]\"", &nnod, &id)) return CG_ERROR;
-        if (nnod>0) {
+        if (nnod > 0) {
             if (cgi_read_node(id[0], name, data_type, &ndim,
-                    dim_vals, &vdata, READ_DATA)) {
+                dim_vals, &vdata, READ_DATA)) {
                 cgi_error("Error reading diffusion model");
                 return CG_ERROR;
             }
-            if (ndim!=1 || dim_vals[0]<=0 ||
-                strcmp(data_type,"I4")) {
-                cgi_error("Diffusion Model '%s' defined incorrectly",name);
+            if (ndim != 1 || dim_vals[0] <= 0 ||
+                strcmp(data_type, "I4")) {
+                cgi_error("Diffusion Model '%s' defined incorrectly", name);
                 return CG_ERROR;
             }
             equations[0]->governing->dim_vals = (int)dim_vals[0],
-            equations[0]->governing->diffusion_model = (int *)vdata;
+                equations[0]->governing->diffusion_model = (int*)vdata;
             CGNS_FREE(id);
         }
 
-     /* Descriptor_t */
+        /* Descriptor_t */
         if (cgi_get_nodes(equations[0]->governing->id, "Descriptor_t",
             &equations[0]->governing->ndescr, &id)) return CG_ERROR;
-        if (equations[0]->governing->ndescr>0) {
+        if (equations[0]->governing->ndescr > 0) {
             equations[0]->governing->descr = CGNS_NEW(cgns_descr, equations[0]->governing->ndescr);
-            for (n=0; n<equations[0]->governing->ndescr; n++) {
+            for (n = 0; n < equations[0]->governing->ndescr; n++) {
                 equations[0]->governing->descr[n].id = id[n];
                 equations[0]->governing->descr[n].link = cgi_read_link(id[n]);
                 equations[0]->governing->descr[n].in_link = linked;
@@ -3286,90 +3518,90 @@ int cgi_read_equations(int in_link, double parent_id,
             CGNS_FREE(id);
         }
 
-     /* UserDefinedData_t */
+        /* UserDefinedData_t */
         if (cgi_read_user_data(linked, equations[0]->governing->id,
             &equations[0]->governing->nuser_data,
             &equations[0]->governing->user_data)) return CG_ERROR;
     }
 
-     /* GasModel_t */
+    /* GasModel_t */
     if (cgi_read_model(linked, equations[0]->id, "GasModel_t",
         &equations[0]->gas)) return CG_ERROR;
 
-     /* ViscosityModel_t */
+    /* ViscosityModel_t */
     if (cgi_read_model(linked, equations[0]->id, "ViscosityModel_t",
         &equations[0]->visc)) return CG_ERROR;
 
-     /* ThermalConductivityModel_t */
+    /* ThermalConductivityModel_t */
     if (cgi_read_model(linked, equations[0]->id, "ThermalConductivityModel_t",
         &equations[0]->conduct)) return CG_ERROR;
 
-     /* TurbulenceClosure_t */
+    /* TurbulenceClosure_t */
     if (cgi_read_model(linked, equations[0]->id, "TurbulenceClosure_t",
         &equations[0]->closure)) return CG_ERROR;
 
-     /* TurbulenceModel_t */
+    /* TurbulenceModel_t */
     if (cgi_read_model(linked, equations[0]->id, "TurbulenceModel_t",
         &equations[0]->turbulence)) return CG_ERROR;
 
-     /* initialize dependants */
+    /* initialize dependants */
     if (equations[0]->turbulence) {
-        equations[0]->turbulence->diffusion_model=0;
+        equations[0]->turbulence->diffusion_model = 0;
 
-     /* DiffusionModel */
+        /* DiffusionModel */
         if (cgi_get_nodes(equations[0]->turbulence->id,
             "\"int[1+...+IndexDimension]\"", &nnod, &id)) return CG_ERROR;
-        if (nnod>0) {
+        if (nnod > 0) {
             if (cgi_read_node(id[0], name, data_type, &ndim,
-                    dim_vals, &vdata, READ_DATA)) {
+                dim_vals, &vdata, READ_DATA)) {
                 cgi_error("Error reading Turbulence Diffusion Model");
                 return CG_ERROR;
             }
-            if (ndim!=1 || dim_vals[0]<=0 ||
-                strcmp(data_type,"I4")) {
-                cgi_error("Diffusion Model '%s' defined incorrectly",name);
+            if (ndim != 1 || dim_vals[0] <= 0 ||
+                strcmp(data_type, "I4")) {
+                cgi_error("Diffusion Model '%s' defined incorrectly", name);
                 return CG_ERROR;
             }
             equations[0]->turbulence->dim_vals = (int)dim_vals[0],
-            equations[0]->turbulence->diffusion_model = (int *)vdata;
+                equations[0]->turbulence->diffusion_model = (int*)vdata;
             CGNS_FREE(id);
         }
     }
 
-     /* ThermalRelaxationModel_t */
+    /* ThermalRelaxationModel_t */
     if (cgi_read_model(linked, equations[0]->id, "ThermalRelaxationModel_t",
         &equations[0]->relaxation)) return CG_ERROR;
 
-     /* ChemicalKineticsModel_t */
+    /* ChemicalKineticsModel_t */
     if (cgi_read_model(linked, equations[0]->id, "ChemicalKineticsModel_t",
         &equations[0]->chemkin)) return CG_ERROR;
 
-     /* EquationDimension */
+    /* EquationDimension */
     equations[0]->equation_dim = 0;
     if (cgi_get_nodes(equations[0]->id, "\"int\"", &nnod, &id)) return CG_ERROR;
-    if (nnod>0) {
+    if (nnod > 0) {
         if (cgi_read_node(id[0], name, data_type, &ndim, dim_vals,
-                &vdata, READ_DATA)) {
+            &vdata, READ_DATA)) {
             cgi_error("Error reading base");
             return CG_ERROR;
         }
-     /* verify data */
-        if (strcmp(name,"EquationDimension") || strcmp(data_type, "I4") ||
-            ndim!=1 || dim_vals[0]!=1) {
+        /* verify data */
+        if (strcmp(name, "EquationDimension") || strcmp(data_type, "I4") ||
+            ndim != 1 || dim_vals[0] != 1) {
             cgi_error("Error reading equation dimension for Flow Equation Set");
             return CG_ERROR;
         }
-        equations[0]->equation_dim = *((int *)vdata);
+        equations[0]->equation_dim = *((int*)vdata);
         CGNS_FREE(vdata);
         CGNS_FREE(id);
     }
 
-     /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
     if (cgi_read_DDD(linked, equations[0]->id, &equations[0]->ndescr,
         &equations[0]->descr, &equations[0]->data_class, &equations[0]->units))
         return CG_ERROR;
 
-     /* UserDefinedData_t */
+    /* UserDefinedData_t */
     if (cgi_read_user_data(linked, equations[0]->id, &equations[0]->nuser_data,
         &equations[0]->user_data)) return CG_ERROR;
 
@@ -3384,6 +3616,53 @@ int cgi_read_equations(int in_link, double parent_id,
     /* EMConductivityModel_t */
     if (cgi_read_model(linked, equations[0]->id, "EMConductivityModel_t",
         &equations[0]->emconduct)) return CG_ERROR;
+
+    return CG_OK;
+
+}
+
+int cgi_read_equations_from_list(int in_link, _childnode_t* nodelist, int nnodes,
+    cgns_equations** equations)
+{
+    int nnod, start, linked;
+
+    nnod = nnodes;
+    start = 0;
+    if (nnod <= 0) {
+        equations[0] = 0;
+        return CG_OK;
+    }
+    equations[0] = CGNS_NEW(cgns_equations, 1);
+    equations[0]->id = nodelist[start].id;
+    equations[0]->link = cgi_read_link(nodelist[start].id);
+    equations[0]->in_link = in_link;
+    linked = equations[0]->link ? 1 : in_link;
+    strcpy(equations[0]->name, "FlowEquationSet");
+
+    if (cgi_read_equations_node(linked, equations)) return CG_ERROR;
+    return  CG_OK;
+}
+
+int cgi_read_equations(int in_link, double parent_id,
+                       cgns_equations **equations)
+{
+    double *id;
+    int nnod, linked;
+
+    if (cgi_get_nodes(parent_id, "FlowEquationSet_t", &nnod, &id)) return CG_ERROR;
+    if (nnod<=0) {
+        equations[0]=0;
+        return CG_OK;
+    }
+    equations[0] = CGNS_NEW(cgns_equations, 1);
+    equations[0]->id = id[0];
+    equations[0]->link = cgi_read_link(id[0]);
+    equations[0]->in_link = in_link;
+    linked = equations[0]->link ? 1 : in_link;
+    CGNS_FREE(id);
+    strcpy(equations[0]->name, "FlowEquationSet");
+
+    if (cgi_read_equations_node(linked, equations)) return CG_ERROR;
 
     return CG_OK;
 }
@@ -3446,6 +3725,114 @@ int cgi_read_model(int in_link, double parent_id, char *label,
 
     return CG_OK;
 }
+
+int cgi_read_state_from_list(int in_link, const _childnode_t *nodelist, int nnodes, cgns_state** state)
+{
+    char_33 name;
+    int n, nnod, defined = 0, linked;
+    int start = 0;
+    char* string_data;
+    double* id;
+    
+    nnod = nnodes;    
+    if (nnod <= 0) {
+        state[0] = 0;
+        return CG_OK;
+    }
+    state[0] = CGNS_NEW(cgns_state, 1);
+    state[0]->id = nodelist[start].id;
+    state[0]->link = cgi_read_link(nodelist[start].id);
+    state[0]->in_link = in_link;
+    linked = state[0]->link ? 1 : in_link;
+
+    /* Name */
+    strcpy(state[0]->name, nodelist[start].name);
+
+    /* initialize dependents */
+    state[0]->data_class = CGNS_ENUMV(DataClassNull);
+    state[0]->StateDescription = 0;
+    state[0]->ndescr = 0;
+
+    /* Descriptor_t and ReferenceStateDescription */
+    if (cgi_get_nodes(state[0]->id, "Descriptor_t", &nnod, &id)) return CG_ERROR;
+
+    if (nnod > 0) {
+
+        for (n = 0; n < nnod; n++) {
+            if (cgio_get_name(cg->cgio, id[n], name)) {
+                cg_io_error("cgio_get_name");
+                return CG_ERROR;
+            }
+            if (strcmp(name, "ReferenceStateDescription")) {
+                if (state[0]->ndescr == 0) state[0]->descr = CGNS_NEW(cgns_descr, 1);
+                else state[0]->descr = CGNS_RENEW(cgns_descr, state[0]->ndescr + 1, state[0]->descr);
+
+                state[0]->descr[state[0]->ndescr].id = id[n];
+                state[0]->descr[state[0]->ndescr].link = cgi_read_link(id[n]);
+                state[0]->descr[state[0]->ndescr].in_link = linked;
+                if (cgi_read_string(id[n], state[0]->descr[state[0]->ndescr].name,
+                    &state[0]->descr[state[0]->ndescr].text)) return CG_ERROR;
+                state[0]->ndescr++;
+            }
+            else {
+                if (defined) {
+                    cgi_error("Reference State node may only hold one ReferenceStateDescription");
+                    return CG_ERROR;
+                }
+                state[0]->StateDescription = CGNS_NEW(cgns_descr, 1);
+                state[0]->StateDescription->id = id[n];
+                state[0]->StateDescription->link = cgi_read_link(id[n]);
+                state[0]->StateDescription->in_link = linked;
+                if (cgi_read_string(id[n], state[0]->StateDescription->name,
+                    &state[0]->StateDescription->text)) return CG_ERROR;
+                defined++;
+            }
+        }
+        CGNS_FREE(id);
+    }
+
+    /* DataClass_t */
+    if (cgi_get_nodes(state[0]->id, "DataClass_t", &nnod, &id)) return CG_ERROR;
+    if (nnod > 0) {
+        if (cgi_read_string(id[0], name, &string_data)) return CG_ERROR;
+        cgi_DataClass(string_data, &state[0]->data_class);
+        CGNS_FREE(string_data);
+        CGNS_FREE(id);
+    }
+
+    /* DimensionalUnits_t */
+    if (cgi_read_units(linked, state[0]->id, &state[0]->units)) return CG_ERROR;
+
+
+    /* DataArray_t */
+    if (cgi_get_nodes(state[0]->id, "DataArray_t", &state[0]->narrays, &id))
+        return CG_ERROR;
+    if (state[0]->narrays > 0) {
+        state[0]->array = CGNS_NEW(cgns_array, state[0]->narrays);
+        for (n = 0; n < state[0]->narrays; n++) {
+            state[0]->array[n].id = id[n];
+            state[0]->array[n].link = cgi_read_link(id[n]);
+            state[0]->array[n].in_link = linked;
+            if (cgi_read_array(&state[0]->array[n], "ReferenceState_t",
+                state[0]->id)) return CG_ERROR;
+
+            /* verify data */
+            if (state[0]->array[n].data_dim != 1 ||
+                state[0]->array[n].dim_vals[0] != 1) {
+                cgi_error("Wrong data dimension in Reference State definition");
+                return CG_ERROR;
+            }
+        }
+        CGNS_FREE(id);
+    }
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, state[0]->id, &state[0]->nuser_data,
+        &state[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
 
 int cgi_read_state(int in_link, double parent_id, cgns_state **state)
 {
@@ -3556,6 +3943,81 @@ int cgi_read_state(int in_link, double parent_id, cgns_state **state)
     return CG_OK;
 }
 
+int cgi_read_gravity_from_list(int in_link, const _childnode_t *nodelist, const int nnodes, cgns_gravity** gravity)
+{
+    int i, nnod, linked;
+    double* id;
+    char_33 temp_name;
+    
+    //Assume nodelist is full of LabelGravity_t
+    nnod = nnodes;
+    if (nnod <= 0) {
+        gravity[0] = 0;
+        return CG_OK;
+    }
+    gravity[0] = CGNS_NEW(cgns_gravity, 1);
+    gravity[0]->id = nodelist[0].id;
+    gravity[0]->link = cgi_read_link(nodelist[0].id);
+    gravity[0]->in_link = in_link;
+    linked = gravity[0]->link ? 1 : in_link;
+
+    /* Name */
+    strcpy(gravity[0]->name, nodelist[0].name);
+
+    /* initialize dependents */
+    gravity[0]->vector = 0;
+    gravity[0]->narrays = 0;
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, gravity[0]->id, &gravity[0]->ndescr,
+        &gravity[0]->descr, &gravity[0]->data_class, &gravity[0]->units))
+        return CG_ERROR;
+
+    /* DataArray_t:  GravityVector */
+    if (cgi_get_nodes(gravity[0]->id, "DataArray_t", &nnod, &id)) return CG_ERROR;
+    for (i = 0; i < nnod; i++) {
+        if (cgio_get_name(cg->cgio, id[i], temp_name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+
+        /* GravityVector */
+        if (strcmp(temp_name, "GravityVector") == 0) {
+            gravity[0]->vector = CGNS_NEW(cgns_array, 1);
+            gravity[0]->vector->id = id[i];
+            gravity[0]->vector->link = cgi_read_link(id[i]);
+            gravity[0]->vector->in_link = linked;
+            if (cgi_read_array(gravity[0]->vector, "Gravity_t",
+                gravity[0]->id)) return CG_ERROR;
+            gravity[0]->narrays = 1;
+
+            /* check data */
+            if (strcmp(gravity[0]->vector->data_type, "R4")) {
+                cgi_error("Datatype %s not supported for gravity vector", gravity[0]->vector->data_type);
+                return CG_ERROR;
+            }
+            if (gravity[0]->vector->data_dim != 1 || gravity[0]->vector->dim_vals[0] != Pdim) {
+                cgi_error("Error exit:  Gravity vector incorrectly dimensioned");
+                return CG_ERROR;
+            }
+        }
+    }   /* loop through DataArray_t */
+    if (nnod) CGNS_FREE(id);
+
+    /* check data */
+    if (gravity[0]->vector == 0) {
+        cgi_error("Error exit: Gravity vector undefined in Gravity_t node");
+        return CG_ERROR;
+    }
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, gravity[0]->id, &gravity[0]->nuser_data,
+        &gravity[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
+
 int cgi_read_gravity(int in_link, double parent_id, cgns_gravity **gravity)
 {
     int i, nnod, linked;
@@ -3629,6 +4091,135 @@ int cgi_read_gravity(int in_link, double parent_id, cgns_gravity **gravity)
      /* UserDefinedData_t */
     if (cgi_read_user_data(linked, gravity[0]->id, &gravity[0]->nuser_data,
         &gravity[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_read_axisym_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_axisym** axisym)
+{
+    int i, nnod, linked, ref_point_flag = 0, axis_flag = 0;
+    double* id;
+    char_33 temp_name;
+
+    nnod = nnodes;
+    if (nnod <= 0) {
+        axisym[0] = 0;
+        return CG_OK;
+    }
+    if (Pdim != 2) {
+        cgi_error("Error: Axisymmetry_t can only be defined for 2D data model");
+        return CG_ERROR;
+    }
+    axisym[0] = CGNS_NEW(cgns_axisym, 1);
+    axisym[0]->id = nodelist[0].id;
+    axisym[0]->link = cgi_read_link(nodelist[0].id);
+    axisym[0]->in_link = in_link;
+    linked = axisym[0]->link ? 1 : in_link;
+
+    /* Name */
+    strcpy(axisym[0]->name, nodelist[0].name);
+    
+    /* initialize dependents */
+    axisym[0]->narrays = 0;
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, axisym[0]->id, &axisym[0]->ndescr,
+        &axisym[0]->descr, &axisym[0]->data_class, &axisym[0]->units))
+        return CG_ERROR;
+
+    /* DataArray_t:
+    Required: AxisymmetryReferencePoint, AxisymmetryAxisVector
+    Optional: AxisymmetryAngle, CoordinateNames
+     */
+    if (cgi_get_nodes(axisym[0]->id, "DataArray_t", &nnod, &id)) return CG_ERROR;
+    if (nnod > 0) axisym[0]->array = CGNS_NEW(cgns_array, nnod);
+
+    for (i = 0; i < nnod; i++) {
+        if (cgio_get_name(cg->cgio, id[i], temp_name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+        /* AxisymmetryReferencePoint & AxisymmetryAxisVector */
+        if (strcmp(temp_name, "AxisymmetryReferencePoint") == 0 ||
+            strcmp(temp_name, "AxisymmetryAxisVector") == 0) {
+
+            if (strcmp(temp_name, "AxisymmetryReferencePoint") == 0) ref_point_flag = 1;
+            else if (strcmp(temp_name, "AxisymmetryAxisVector") == 0) axis_flag = 1;
+
+            axisym[0]->array[axisym[0]->narrays].id = id[i];
+            axisym[0]->array[axisym[0]->narrays].link = cgi_read_link(id[i]);
+            axisym[0]->array[axisym[0]->narrays].in_link = linked;
+            if (cgi_read_array(&axisym[0]->array[axisym[0]->narrays],
+                "Axisymmetry_t", axisym[0]->id)) return CG_ERROR;
+
+            /* check data */
+            if (strcmp(axisym[0]->array[axisym[0]->narrays].data_type, "R4")) {
+                cgi_error("Error: Datatype %s not supported for %s",
+                    axisym[0]->array[axisym[0]->narrays].data_type, temp_name);
+                return CG_ERROR;
+            }
+            if (axisym[0]->array[axisym[0]->narrays].data_dim != 1 ||
+                axisym[0]->array[axisym[0]->narrays].dim_vals[0] != Pdim) {
+                cgi_error("Error: %s incorrectly dimensioned", temp_name);
+                return CG_ERROR;
+            }
+            axisym[0]->narrays++;
+        }
+        /* AxisymmetryAngle */
+        else if (strcmp(temp_name, "AxisymmetryAngle") == 0) {
+            axisym[0]->array[axisym[0]->narrays].id = id[i];
+            axisym[0]->array[axisym[0]->narrays].link = cgi_read_link(id[i]);
+            axisym[0]->array[axisym[0]->narrays].in_link = linked;
+            if (cgi_read_array(&axisym[0]->array[axisym[0]->narrays],
+                "Axisymmetry_t", axisym[0]->id)) return CG_ERROR;
+
+            /* check data */
+            if (strcmp(axisym[0]->array[axisym[0]->narrays].data_type, "R4")) {
+                cgi_error("Error: Datatype %s not supported for %s",
+                    axisym[0]->array[axisym[0]->narrays].data_type, temp_name);
+                return CG_ERROR;
+            }
+            if (axisym[0]->array[axisym[0]->narrays].data_dim != 1 ||
+                axisym[0]->array[axisym[0]->narrays].dim_vals[0] != 1) {
+                cgi_error("Error: %s incorrectly dimensioned", temp_name);
+                return CG_ERROR;
+            }
+            axisym[0]->narrays++;
+        }
+        /* CoordinateNames */
+        else if (strcmp(temp_name, "CoordinateNames") == 0) {
+            axisym[0]->array[axisym[0]->narrays].id = id[i];
+            axisym[0]->array[axisym[0]->narrays].link = cgi_read_link(id[i]);
+            axisym[0]->array[axisym[0]->narrays].in_link = linked;
+            if (cgi_read_array(&axisym[0]->array[axisym[0]->narrays],
+                "Axisymmetry_t", axisym[0]->id)) return CG_ERROR;
+
+            /* check data */
+            if (strcmp(axisym[0]->array[axisym[0]->narrays].data_type, "C1")) {
+                cgi_error("Error: Datatype %s not supported for %s",
+                    axisym[0]->array[axisym[0]->narrays].data_type, temp_name);
+                return CG_ERROR;
+            }
+            if (axisym[0]->array[axisym[0]->narrays].data_dim != 2 ||
+                axisym[0]->array[axisym[0]->narrays].dim_vals[0] != 32 ||
+                axisym[0]->array[axisym[0]->narrays].dim_vals[1] != 2) {
+                cgi_error("Error: %s incorrectly dimensioned", temp_name);
+                return CG_ERROR;
+            }
+            axisym[0]->narrays++;
+        }
+    }   /* loop through DataArray_t */
+    if (nnod) CGNS_FREE(id);
+
+    /* check data */
+    if (!ref_point_flag || !axis_flag) {
+        cgi_error("Error: AxisymmetryReferencePoint & AxisymmetryAxisVector are required");
+        return CG_ERROR;
+    }
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, axisym[0]->id, &axisym[0]->nuser_data,
+        &axisym[0]->user_data)) return CG_ERROR;
 
     return CG_OK;
 }
@@ -3766,6 +4357,88 @@ int cgi_read_axisym(int in_link, double parent_id, cgns_axisym **axisym)
     return CG_OK;
 }
 
+int cgi_read_rotating_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_rotating** rotating)
+{
+    int i, nnod, linked, rot_rate_flag = 0, rot_center_flag = 0;
+    double* id;
+    char_33 temp_name;
+
+    nnod = nnodes;
+    if (nnod <= 0) {
+        rotating[0] = 0;
+        return CG_OK;
+    }
+    rotating[0] = CGNS_NEW(cgns_rotating, 1);
+    rotating[0]->id = nodelist[0].id;
+    rotating[0]->link = cgi_read_link(nodelist[0].id);
+    rotating[0]->in_link = in_link;
+    linked = rotating[0]->link ? 1 : in_link;
+
+    /* Name */
+    strcpy(rotating[0]->name, nodelist[0].name);
+    
+    /* initialize dependents */
+    rotating[0]->narrays = 0;
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, rotating[0]->id, &rotating[0]->ndescr,
+        &rotating[0]->descr, &rotating[0]->data_class, &rotating[0]->units))
+        return CG_ERROR;
+
+    /* DataArray_t:
+    Required: RotationCenter, RotationRateVector
+    Optional: none
+     */
+    if (cgi_get_nodes(rotating[0]->id, "DataArray_t", &nnod, &id)) return CG_ERROR;
+    if (nnod > 0) rotating[0]->array = CGNS_NEW(cgns_array, nnod);
+
+    for (i = 0; i < nnod; i++) {
+        if (cgio_get_name(cg->cgio, id[i], temp_name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+        /* RotationCenter, RotationRateVector */
+        if (strcmp(temp_name, "RotationCenter") == 0 ||
+            strcmp(temp_name, "RotationRateVector") == 0) {
+
+            if (strcmp(temp_name, "RotationCenter") == 0) rot_center_flag = 1;
+            else if (strcmp(temp_name, "RotationRateVector") == 0) rot_rate_flag = 1;
+
+            rotating[0]->array[rotating[0]->narrays].id = id[i];
+            rotating[0]->array[rotating[0]->narrays].link = cgi_read_link(id[i]);
+            rotating[0]->array[rotating[0]->narrays].in_link = linked;
+            if (cgi_read_array(&rotating[0]->array[rotating[0]->narrays],
+                "RotatingCoordinates_t", rotating[0]->id)) return CG_ERROR;
+
+            /* check data */
+            if (strcmp(rotating[0]->array[rotating[0]->narrays].data_type, "R4")) {
+                cgi_error("Error: Datatype %s not supported for %s",
+                    rotating[0]->array[rotating[0]->narrays].data_type, temp_name);
+                return CG_ERROR;
+            }
+            if (rotating[0]->array[rotating[0]->narrays].data_dim != 1 ||
+                rotating[0]->array[rotating[0]->narrays].dim_vals[0] != Pdim) {
+                cgi_error("Error: %s incorrectly dimensioned", temp_name);
+                return CG_ERROR;
+            }
+            rotating[0]->narrays++;
+        }
+    }   /* loop through DataArray_t */
+    if (nnod) CGNS_FREE(id);
+
+    /* check data */
+    if (!rot_rate_flag || !rot_center_flag) {
+        cgi_error("Error: RotationCenter & RotationRateVector are required");
+        return CG_ERROR;
+    }
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, rotating[0]->id, &rotating[0]->nuser_data,
+        &rotating[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
 int cgi_read_rotating(int in_link, double parent_id, cgns_rotating **rotating)
 {
     int i, nnod, linked, rot_rate_flag=0, rot_center_flag=0;
@@ -3848,6 +4521,122 @@ int cgi_read_rotating(int in_link, double parent_id, cgns_rotating **rotating)
      /* UserDefinedData_t */
     if (cgi_read_user_data(linked, rotating[0]->id, &rotating[0]->nuser_data,
         &rotating[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_read_converg_from_list(int in_link, _childnode_t *nodelist, int nnodes, cgns_converg** converg)
+{
+    char_33 data_type, name;
+    int ndim, n, nnod;
+    double* id;
+    char* string_data;
+    void* iterations;
+    int nnorm = 0, linked;
+    cgsize_t dim_vals[12];
+
+    nnod = nnodes;
+    if (nnod <= 0) {
+        converg[0] = 0;
+        return CG_OK;
+    }
+    converg[0] = CGNS_NEW(cgns_converg, 1);
+    converg[0]->id = nodelist[0].id;
+    converg[0]->link = cgi_read_link(nodelist[0].id);
+    converg[0]->in_link = in_link;
+    linked = converg[0]->link ? 1 : in_link;
+
+    if (cgi_read_node(converg[0]->id, converg[0]->name, data_type, &ndim,
+        dim_vals, &iterations, READ_DATA)) {
+        cgi_error("Error reading Convergence History node");
+        return CG_ERROR;
+    }
+     /* The check was modified because Bob was storing other type of data
+    at the level.  This is a temporary changed */
+    if (strcmp(data_type, "I4") == 0 && dim_vals[0] >= 1) {
+        converg[0]->iterations = *((int*)iterations);
+        CGNS_FREE(iterations);
+    }
+    else converg[0]->iterations = 0;
+
+    /* initialize dependents */
+    converg[0]->data_class = CGNS_ENUMV(DataClassNull);
+    converg[0]->NormDefinitions = 0;
+    converg[0]->ndescr = 0;
+
+    /* Descriptor_t and NormDefinitions */
+    if (cgi_get_nodes(converg[0]->id, "Descriptor_t", &nnod, &id)) return CG_ERROR;
+
+    if (nnod > 0) {
+        for (n = 0; n < nnod; n++) {
+            if (cgio_get_name(cg->cgio, id[n], name)) {
+                cg_io_error("cgio_get_name");
+                return CG_ERROR;
+            }
+            if (strcmp(name, "NormDefinitions")) {
+                if (converg[0]->ndescr == 0) converg[0]->descr = CGNS_NEW(cgns_descr, 1);
+                else converg[0]->descr = CGNS_RENEW(cgns_descr, converg[0]->ndescr + 1, converg[0]->descr);
+                converg[0]->descr[converg[0]->ndescr].id = id[n];
+                converg[0]->descr[converg[0]->ndescr].link = cgi_read_link(id[n]);
+                converg[0]->descr[converg[0]->ndescr].in_link = linked;
+                if (cgi_read_string(id[n], converg[0]->descr[converg[0]->ndescr].name,
+                    &converg[0]->descr[converg[0]->ndescr].text)) return CG_ERROR;
+                converg[0]->ndescr++;
+            }
+            else {
+                if (nnorm) {
+                    cgi_error("Convergence History may only hold one NormDefinitions Node");
+                    return CG_ERROR;
+                }
+                converg[0]->NormDefinitions = CGNS_NEW(cgns_descr, 1);
+                converg[0]->NormDefinitions->id = id[n];
+                converg[0]->NormDefinitions->link = cgi_read_link(id[n]);
+                converg[0]->NormDefinitions->in_link = linked;
+                if (cgi_read_string(id[n], converg[0]->NormDefinitions->name,
+                    &converg[0]->NormDefinitions->text)) return CG_ERROR;
+                nnorm++;
+            }
+        }
+        CGNS_FREE(id);
+    }
+
+    /* DataClass_t */
+    if (cgi_get_nodes(converg[0]->id, "DataClass_t", &nnod, &id)) return CG_ERROR;
+    if (nnod > 0) {
+        if (cgi_read_string(id[0], name, &string_data)) return CG_ERROR;
+        cgi_DataClass(string_data, &converg[0]->data_class);
+        CGNS_FREE(string_data);
+        CGNS_FREE(id);
+    }
+
+    /* DimensionalUnits_t */
+    if (cgi_read_units(linked, converg[0]->id, &converg[0]->units)) return CG_ERROR;
+
+    /* DataArray_t */
+    if (cgi_get_nodes(converg[0]->id, "DataArray_t", &converg[0]->narrays, &id))
+        return CG_ERROR;
+    if (converg[0]->narrays > 0) {
+        converg[0]->array = CGNS_NEW(cgns_array, converg[0]->narrays);
+        for (n = 0; n < converg[0]->narrays; n++) {
+            converg[0]->array[n].id = id[n];
+            converg[0]->array[n].link = cgi_read_link(id[n]);
+            converg[0]->array[n].in_link = linked;
+            if (cgi_read_array(&converg[0]->array[n], "ConvergenceHistory_t",
+                converg[0]->id)) return CG_ERROR;
+
+            /* verify data :  Temporiraly commented for Bob Bush
+           if (converg[0]->array[n].data_dim!=1) {
+               cgi_error("Wrong nr of dimension in Conversion History definition");
+               return CG_ERROR;
+           }
+             */
+        }
+        CGNS_FREE(id);
+    }
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, converg[0]->id, &converg[0]->nuser_data,
+        &converg[0]->user_data)) return CG_ERROR;
 
     return CG_OK;
 }
@@ -4081,6 +4870,60 @@ int cgi_read_discrete(int in_link, double parent_id, int *ndiscrete,
 
     return CG_OK;
 }
+
+int cgi_read_integral_from_list(int in_link, _childnode_t* nodelist, int nnodes, int* nintegrals,
+    cgns_integral** integral)
+{
+    double * idi;
+    int n, i, linked;
+
+    *nintegrals = nnodes;
+    if (*nintegrals <= 0) {
+        integral[0] = 0;
+        return CG_OK;
+    }
+
+    integral[0] = CGNS_NEW(cgns_integral, (*nintegrals));
+    for (n = 0; n < (*nintegrals); n++) {
+        integral[0][n].id = nodelist[n].id;
+        integral[0][n].link = cgi_read_link(nodelist[n].id);
+        integral[0][n].in_link = in_link;
+        linked = integral[0][n].link ? 1 : in_link;
+
+        /* IntegralData_t Name */
+        if (cgio_get_name(cg->cgio, integral[0][n].id, integral[0][n].name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+
+        /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+        if (cgi_read_DDD(linked, integral[0][n].id, &integral[0][n].ndescr,
+            &integral[0][n].descr, &integral[0][n].data_class,
+            &integral[0][n].units)) return CG_ERROR;
+
+        /* DataArray_t */
+        if (cgi_get_nodes(integral[0][n].id, "DataArray_t", &integral[0][n].narrays, &idi))
+            return CG_ERROR;
+        if (integral[0][n].narrays > 0) {
+            integral[0][n].array = CGNS_NEW(cgns_array, integral[0][n].narrays);
+            for (i = 0; i < integral[0][n].narrays; i++) {
+                integral[0][n].array[i].id = idi[i];
+                integral[0][n].array[i].link = cgi_read_link(idi[i]);
+                integral[0][n].array[i].in_link = linked;
+                if (cgi_read_array(&integral[0][n].array[i],
+                    "IntegralData_t", integral[0][n].id)) return CG_ERROR;
+            }
+            CGNS_FREE(idi);
+        }
+
+        /* UserDefinedData_t */
+        if (cgi_read_user_data(linked, integral[0][n].id,
+            &integral[0][n].nuser_data, &integral[0][n].user_data)) return CG_ERROR;
+    }
+
+    return CG_OK;
+}
+
 
 int cgi_read_integral(int in_link, double parent_id, int *nintegrals,
                       cgns_integral **integral)
@@ -4343,7 +5186,9 @@ int cgi_read_array(cgns_array *array, char *parent_label, double parent_id)
         strcmp(parent_label,"Elements_t")==0 ||
         strcmp(parent_label,"ZoneSubRegion_t")==0 ||
         strcmp(parent_label,"DiscreteData_t")==0 ||
-	strcmp(parent_label,"UserDefinedData_t")==0) {
+        strcmp(parent_label,"ParticleCoordinates_t")==0 ||
+        strcmp(parent_label,"ParticleSolution_t")==0 ||
+        strcmp(parent_label,"UserDefinedData_t")==0) {
         data_flag=SKIP_DATA;
         array->data=0;
     }
@@ -4530,26 +5375,15 @@ int cgi_read_exponents(int in_link, double parent_id, cgns_exponent **exponents)
     return CG_OK;
 }
 
-int cgi_read_units(int in_link, double parent_id, cgns_units **units)
+int cgi_read_units_node(int in_link, cgns_units** units)
 {
     char_33 unit_name;
-    char *string_data;
-    double *id;
+    char* string_data;
+    double* id;
     int nnod;
 
-    if (cgi_get_nodes(parent_id, "DimensionalUnits_t", &nnod, &id)) return CG_ERROR;
-    if (nnod<=0) {
-        units[0]=0;
-        return CG_OK;
-    }
-    units[0] = CGNS_NEW(cgns_units, 1);
-    units[0]->id = id[0];
-    units[0]->link = cgi_read_link(id[0]);
-    units[0]->in_link = in_link;
-    CGNS_FREE(id);
-
     if (cgi_read_string(units[0]->id, units[0]->name, &string_data)) return CG_ERROR;
-    if (strlen(string_data) != 32*5) {
+    if (strlen(string_data) != 32 * 5) {
         CGNS_FREE(string_data);
         cgi_error("Dimensional Units defined incorrectly.");
         return CG_ERROR;
@@ -4567,31 +5401,31 @@ int cgi_read_units(int in_link, double parent_id, cgns_units **units)
         }
     }
 
-    strncpy (unit_name, string_data, 32);
+    strncpy(unit_name, string_data, 32);
     unit_name[32] = 0;
     cgi_MassUnits(unit_name, &units[0]->mass);
 
-    strncpy (unit_name, &string_data[32], 32);
+    strncpy(unit_name, &string_data[32], 32);
     unit_name[32] = 0;
     cgi_LengthUnits(unit_name, &units[0]->length);
 
-    strncpy (unit_name, &string_data[64], 32);
+    strncpy(unit_name, &string_data[64], 32);
     unit_name[32] = 0;
     cgi_TimeUnits(unit_name, &units[0]->time);
 
-    strncpy (unit_name, &string_data[96], 32);
+    strncpy(unit_name, &string_data[96], 32);
     unit_name[32] = 0;
     cgi_TemperatureUnits(unit_name, &units[0]->temperature);
 
-    strncpy (unit_name, &string_data[128], 32);
+    strncpy(unit_name, &string_data[128], 32);
     unit_name[32] = 0;
     cgi_AngleUnits(unit_name, &units[0]->angle);
 
     CGNS_FREE(string_data);
 
-    units[0]->current = CGNS_ENUMV( ElectricCurrentUnitsNull );
-    units[0]->amount = CGNS_ENUMV( SubstanceAmountUnitsNull );
-    units[0]->intensity = CGNS_ENUMV( LuminousIntensityUnitsNull );
+    units[0]->current = CGNS_ENUMV(ElectricCurrentUnitsNull);
+    units[0]->amount = CGNS_ENUMV(SubstanceAmountUnitsNull);
+    units[0]->intensity = CGNS_ENUMV(LuminousIntensityUnitsNull);
 
     if (cgi_get_nodes(units[0]->id, "AdditionalUnits_t", &nnod, &id))
         return CG_ERROR;
@@ -4599,7 +5433,7 @@ int cgi_read_units(int in_link, double parent_id, cgns_units **units)
         int ierr = cgi_read_string(id[0], unit_name, &string_data);
         CGNS_FREE(id);
         if (ierr) return CG_ERROR;
-        if (strlen(string_data) != 32*3) {
+        if (strlen(string_data) != 32 * 3) {
             CGNS_FREE(string_data);
             cgi_error("AdditionalUnits for '%s' defined incorrectly.",
                 units[0]->name);
@@ -4607,20 +5441,41 @@ int cgi_read_units(int in_link, double parent_id, cgns_units **units)
         }
         units[0]->nunits = 8;
 
-        strncpy (unit_name, string_data, 32);
+        strncpy(unit_name, string_data, 32);
         unit_name[32] = 0;
         cgi_ElectricCurrentUnits(unit_name, &units[0]->current);
 
-        strncpy (unit_name, &string_data[32], 32);
+        strncpy(unit_name, &string_data[32], 32);
         unit_name[32] = 0;
         cgi_SubstanceAmountUnits(unit_name, &units[0]->amount);
 
-        strncpy (unit_name, &string_data[64], 32);
+        strncpy(unit_name, &string_data[64], 32);
         unit_name[32] = 0;
         cgi_LuminousIntensityUnits(unit_name, &units[0]->intensity);
 
         CGNS_FREE(string_data);
     }
+
+    return CG_OK;
+}
+
+int cgi_read_units(int in_link, double parent_id, cgns_units **units)
+{
+    double *id;
+    int nnod;
+
+    if (cgi_get_nodes(parent_id, "DimensionalUnits_t", &nnod, &id)) return CG_ERROR;
+    if (nnod<=0) {
+        units[0]=0;
+        return CG_OK;
+    }
+    units[0] = CGNS_NEW(cgns_units, 1);
+    units[0]->id = id[0];
+    units[0]->link = cgi_read_link(id[0]);
+    units[0]->in_link = in_link;
+    CGNS_FREE(id);
+
+    if (cgi_read_units_node(in_link, units)) return CG_ERROR;
 
     return CG_OK;
 }
@@ -4644,6 +5499,57 @@ int cgi_read_string(double id, char_33 name, char **string_data)
     for (n=0; n<ndim; n++) len *= length[n];
     string_data[0][len]='\0';
 
+    return CG_OK;
+}
+
+int cgi_read_DDD_from_list(int in_link, _childnode_t* nodebylabel[NofBaseLabel],
+    int ndescr, int ndata_class, int ndimensional_units,
+    cgns_descr** descr, CGNS_ENUMV(DataClass_t)* data_class,
+    cgns_units** units)
+{
+    int n;
+    char_33 name;
+    char* string_data;
+    _childnode_t *nodelist=NULL;
+
+    /* Descriptor_t */
+    descr[0] = 0;
+    nodelist = nodebylabel[LabelDescriptor_t];
+    if (ndescr > 0) {
+        descr[0] = CGNS_NEW(cgns_descr, ndescr);
+        for (n = 0; n < (ndescr); n++) {
+            descr[0][n].id = nodelist[n].id;
+            descr[0][n].link = cgi_read_link(nodelist[n].id);
+            descr[0][n].in_link = in_link;
+            if (cgi_read_string(nodelist[n].id, descr[0][n].name,
+                &descr[0][n].text)) return CG_ERROR;
+        }
+    }
+
+    /* DataClass_t */
+    *data_class = CGNS_ENUMV(DataClassNull);
+    nodelist = nodebylabel[LabelDataClass_t];
+    if (ndata_class > 0) {
+        if (cgi_read_string(nodelist[0].id, name, &string_data)) return CG_ERROR;
+        cgi_DataClass(string_data, data_class);
+        CGNS_FREE(string_data);
+    }
+
+
+    /* DimensionalUnits_t */
+    nodelist = nodebylabel[LabelDimensionalUnits_t];
+    if (ndimensional_units > 0) {
+        units[0] = CGNS_NEW(cgns_units, 1);
+        units[0]->id = nodelist[0].id;
+        units[0]->link = cgi_read_link(nodelist[0].id);
+        units[0]->in_link = in_link;
+        if (cgi_read_units_node(in_link, units)) return CG_ERROR;
+    }
+    else
+    {
+        units[0] = 0;
+    }
+    
     return CG_OK;
 }
 
@@ -4806,6 +5712,32 @@ int cgi_read_zonetype(double parent_id, char_33 parent_name,
     return CG_OK;
 }
 
+int cgi_read_simulation_from_list(_childnode_t* nodelist, int nnodes,
+    CGNS_ENUMT(SimulationType_t)* type, double* type_id)
+{
+    int nchild;
+    char* type_name;    /* allocated in cgi_read_node */
+    char_33 name;
+
+    /* initialize */
+    *type = CGNS_ENUMV(SimulationTypeNull);
+    *type_id = 0;
+
+    /* get number of SimulationType_t nodes and their ID */
+    nchild = nnodes;
+    if (nchild == 0) return CG_OK;
+    if (nchild > 1) {
+        cgi_error("File incorrect: multiple definition of SimulationType");
+        return CG_ERROR;
+    }
+    *type_id = nodelist[0].id;
+    if (cgi_read_string(nodelist[0].id, name, &type_name)) return CG_ERROR;
+
+    if (cgi_SimulationType(type_name, type)) return CG_ERROR;
+    CGNS_FREE(type_name);
+    return CG_OK;
+}
+
 int cgi_read_simulation(double parent_id, CGNS_ENUMT(SimulationType_t) *type,
                         double *type_id)
 {
@@ -4831,6 +5763,159 @@ int cgi_read_simulation(double parent_id, CGNS_ENUMT(SimulationType_t) *type,
 
     if (cgi_SimulationType(type_name, type)) return CG_ERROR;
     CGNS_FREE(type_name);
+    return CG_OK;
+}
+
+int cgi_read_biter_from_list(int in_link, _childnode_t* nodelist, int nnodes, cgns_biter** biter)
+{
+    double* id;
+    char_33 datatype;
+    cgns_array* array;
+    int ndim, * data, nnod;
+    int i, linked;
+    int nzones_max = 0, nfamilies_max = 0;
+    void* vdata;
+    cgsize_t dim_vals[12];
+
+    /* get number of BaseIterativeData_t node */
+    nnod = nnodes;
+    if (nnod <= 0) {
+        biter[0] = 0;
+        return CG_OK;
+    }
+    else if (nnod > 1) {
+        cgi_error("Error: Multiple BaseIterativeData_t found...");
+        return CG_ERROR;
+    }
+
+    biter[0] = CGNS_NEW(cgns_biter, 1);
+
+    biter[0]->id = nodelist[0].id;
+    biter[0]->link = cgi_read_link(nodelist[0].id);
+    biter[0]->in_link = in_link;
+    linked = biter[0]->link ? 1 : in_link;
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, biter[0]->id, &biter[0]->ndescr, &biter[0]->descr,
+        &biter[0]->data_class, &biter[0]->units)) return CG_ERROR;
+
+    /* Name and NumberOfSteps */
+    NumberOfSteps = biter[0]->nsteps = 0;
+    if (cgi_read_node(biter[0]->id, biter[0]->name, datatype, &ndim,
+        dim_vals, &vdata, READ_DATA)) {
+        cgi_error("Error reading BaseIterativeData_t");
+        return CG_ERROR;
+    }
+    if (ndim != 1 || dim_vals[0] != 1 || strcmp(datatype, "I4")) {
+        cgi_error("Error in data dimension or type for NumberOfSteps");
+        return CG_ERROR;
+    }
+    data = (int*)vdata;
+    if (data[0] < 0) {
+        cgi_error("Error in data:  NumberOfSteps<0!");
+        return CG_ERROR;
+    }
+    NumberOfSteps = biter[0]->nsteps = data[0];
+    if (biter[0]->nsteps == 0) return CG_OK;
+    CGNS_FREE(vdata);
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, biter[0]->id, &biter[0]->nuser_data,
+        &biter[0]->user_data)) return CG_ERROR;
+
+    /* DataArray_t */
+    if (cgi_get_nodes(biter[0]->id, "DataArray_t", &biter[0]->narrays, &id))
+        return CG_ERROR;
+    if (biter[0]->narrays == 0) return CG_OK; /* If no arrays we're done. */
+    biter[0]->array = CGNS_NEW(cgns_array, biter[0]->narrays);
+
+    for (i = 0; i < (biter[0]->narrays); i++) {
+        biter[0]->array[i].id = id[i];
+        biter[0]->array[i].link = cgi_read_link(id[i]);
+        biter[0]->array[i].in_link = linked;
+        if (cgi_read_array(&biter[0]->array[i], "BaseIterativeData_t",
+            biter[0]->id)) return CG_ERROR;
+        array = &biter[0]->array[i];
+
+        /* check data */
+        if (strcmp("TimeValues", array->name) == 0 ||
+            strcmp("IterationValues", array->name) == 0 ||
+            strcmp("NumberOfZones", array->name) == 0 ||
+            strcmp("NumberOfFamilies", array->name) == 0) {
+            if (array->data_dim != 1 || array->dim_vals[0] != biter[0]->nsteps) {
+                cgi_error("Error: Array '%s' incorrectly sized", array->name);
+                return CG_ERROR;
+            }
+            if ((strcmp("TimeValues", array->name) == 0 && strcmp(array->data_type, "R4") &&
+                strcmp(array->data_type, "R8")) ||
+                (strcmp("IterationValues", array->name) == 0 && strcmp(array->data_type, "I4"))) {
+                cgi_error("Incorrect data type for %s under %s", array->name, biter[0]->name);
+                return CG_ERROR;
+            }
+        }
+    }       /* loop through arrays */
+
+    CGNS_FREE(id);
+
+    /* check data: verify that at least one of {TimeValues or IterationValues} is defined */
+    for (i = 0; i < (biter[0]->narrays); i++) {
+        array = &biter[0]->array[i];
+        if (strcmp("TimeValues", array->name) == 0 || strcmp("IterationValues", array->name) == 0) break;
+        if (i == ((biter[0]->narrays) - 1)) {
+            cgi_error("Error:  TimeValues or IterationValues must be defined for '%s'", biter[0]->name);
+            return CG_ERROR;
+        }
+    }
+
+    /* check data: Compute nzones_max and nfamilies_max */
+    for (i = 0; i < (biter[0]->narrays); i++) {
+        int step;
+        array = &biter[0]->array[i];
+        if (strcmp("NumberOfZones", array->name) == 0) {
+            for (step = 0; step < biter[0]->nsteps; step++) {
+                int nzones = *((int*)(array->data) + step);
+                nzones_max = MAX(nzones_max, nzones);
+            }
+        }
+        else if (strcmp("NumberOfFamilies", array->name) == 0) {
+            for (step = 0; step < biter[0]->nsteps; step++) {
+                int nfamilies = *((int*)(array->data) + step);
+                nfamilies_max = MAX(nfamilies_max, nfamilies);
+            }
+        }
+    }
+
+    /* check data:  ZonePointers can't be defined without NumberOfZones and
+            FamilyPointers can't be defined without NumberOfFamilies */
+    for (i = 0; i < (biter[0]->narrays); i++) {
+        array = &biter[0]->array[i];
+        if (strcmp("ZonePointers", array->name) == 0) {
+            if (nzones_max == 0) {
+                cgi_error("NumberofZones (DataArray_t) missing under %s", biter[0]->name);
+                return CG_ERROR;
+            }
+            else {        /* check dimensions and data type */
+                if (array->data_dim != 3 || array->dim_vals[0] != 32 || array->dim_vals[1] != nzones_max ||
+                    array->dim_vals[2] != biter[0]->nsteps || strcmp(array->data_type, "C1")) {
+                    cgi_error("Incorrect definition of ZonePointers under %s", biter[0]->name);
+                    return CG_ERROR;
+                }
+            }
+        }
+        else if (strcmp("FamilyPointers", array->name) == 0) {
+            if (nfamilies_max == 0) {
+                cgi_error("NumberOfFamilies (DataArray_t) missing under %s", biter[0]->name);
+                return CG_ERROR;
+            }
+            else {           /* check dimensions and data type */
+                if (array->data_dim != 3 || array->dim_vals[0] != 32 || array->dim_vals[1] != nfamilies_max ||
+                    array->dim_vals[2] != biter[0]->nsteps || strcmp(array->data_type, "C1")) {
+                    cgi_error("Incorrect definition of FamilyPointers under %s", biter[0]->name);
+                    return CG_ERROR;
+                }
+            }
+        }
+    }
     return CG_OK;
 }
 
@@ -5066,6 +6151,158 @@ int cgi_read_ziter(int in_link, double parent_id, cgns_ziter **ziter)
     CGNS_FREE(id);
     return CG_ERROR;
 
+}
+
+int cgi_read_user_data_from_list(int in_link, _childnode_t* nodelist, int nnodes, int* nuser_data,
+    cgns_user_data** user_data) {
+    double* idi;
+    int n, i, linked;
+    double* IA_id, * IR_id;
+    int nIA_t, nIR_t, nn;
+    char_33 name;
+
+    *nuser_data = nnodes;
+    if (*nuser_data <= 0) {
+        user_data[0] = 0;
+        return CG_OK;
+    }
+
+    user_data[0] = CGNS_NEW(cgns_user_data, (*nuser_data));
+    for (n = 0; n < (*nuser_data); n++) {
+        user_data[0][n].id = nodelist[n].id;
+        user_data[0][n].link = cgi_read_link(nodelist[n].id);
+        user_data[0][n].in_link = in_link;
+        linked = user_data[0][n].link ? 1 : in_link;
+
+        /* UserDefinedData_t Name */
+        if (cgio_get_name(cg->cgio, user_data[0][n].id, user_data[0][n].name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+
+        /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+        if (cgi_read_DDD(linked, user_data[0][n].id, &user_data[0][n].ndescr,
+            &user_data[0][n].descr, &user_data[0][n].data_class,
+            &user_data[0][n].units)) return CG_ERROR;
+
+        /* DataArray_t */
+        if (cgi_get_nodes(user_data[0][n].id, "DataArray_t", &user_data[0][n].narrays,
+            &idi)) return CG_ERROR;
+        if (user_data[0][n].narrays > 0) {
+            user_data[0][n].array = CGNS_NEW(cgns_array, user_data[0][n].narrays);
+            for (i = 0; i < user_data[0][n].narrays; i++) {
+                user_data[0][n].array[i].id = idi[i];
+                user_data[0][n].array[i].link = cgi_read_link(idi[i]);
+                user_data[0][n].array[i].in_link = linked;
+                if (cgi_read_array(&user_data[0][n].array[i],
+                    "UserDefinedData_t", user_data[0][n].id)) return CG_ERROR;
+            }
+            CGNS_FREE(idi);
+        }
+
+        /* GridLocation_t */
+        if (cgi_read_location(user_data[0][n].id, user_data[0][n].name,
+            &user_data[0][n].location)) return CG_ERROR;
+
+        /* FamilyName_t */ /* -- FAMILY TREE -- */
+        if (cgi_read_family_name(linked, user_data[0][n].id,
+            user_data[0][n].name,
+            user_data[0][n].family_name))
+            return CG_ERROR;
+
+        /* CPEX 0034 - AdditionalFamilyNames */
+        if (cgi_get_nodes(user_data[0][n].id, "AdditionalFamilyName_t",
+            &user_data[0][n].nfamname, &idi)) return CG_ERROR;
+        if (user_data[0][n].nfamname > 0) {
+            char* fam;
+            user_data[0][n].famname = CGNS_NEW(cgns_famname,
+                user_data[0][n].nfamname);
+            for (i = 0; i < user_data[0][n].nfamname; i++) {
+                user_data[0][n].famname[i].id = idi[i];
+                if (cgi_read_string(idi[i], user_data[0][n].famname[i].name,
+                    &fam)) return CG_ERROR;
+                strncpy(user_data[0][n].famname[i].family, fam, (CG_MAX_GOTO_DEPTH * 33));
+                CGNS_FREE(fam);
+            }
+            CGNS_FREE(idi);
+        }
+
+        /* Ordinal_t */
+        if (cgi_read_ordinal(user_data[0][n].id, &user_data[0][n].ordinal))
+            return CG_ERROR;
+
+        /* PointSet */
+        /* get number of IndexArray_t and IndexRange_t nodes and their
+         * ID
+         */
+        if (cgi_get_nodes(user_data[0][n].id, "IndexArray_t", &nIA_t,
+            &IA_id)) return CG_ERROR;
+        if (cgi_get_nodes(user_data[0][n].id, "IndexRange_t", &nIR_t,
+            &IR_id)) return CG_ERROR;
+
+        /* initialized */
+        user_data[0][n].ptset = 0;
+
+        for (nn = 0; nn < nIR_t; nn++)
+        {
+            if (cgio_get_name(cg->cgio, IR_id[nn], name)) {
+                cg_io_error("cgio_get_name");
+                return CG_ERROR;
+            }
+            if (strcmp(name, "PointRange") && strcmp(name, "ElementRange")) {
+                cgi_error("Invalid name for IndexRange_t");
+                return CG_ERROR;
+            }
+            if (user_data[0][n].ptset != 0) {
+                cgi_error("Multiple definition of boundary patch found");
+                return CG_ERROR;
+            }
+            user_data[0][n].ptset = CGNS_NEW(cgns_ptset, 1);
+            if (strcmp(name, "ElementRange") == 0)
+                user_data[0][n].ptset->type = CGNS_ENUMV(ElementRange);
+            else
+                user_data[0][n].ptset->type = CGNS_ENUMV(PointRange);
+            user_data[0][n].ptset->id = IR_id[nn];
+            user_data[0][n].ptset->link = cgi_read_link(IR_id[nn]);
+            user_data[0][n].ptset->in_link = linked;
+            if (cgi_read_ptset(user_data[0][n].id, user_data[0][n].ptset))
+                return CG_ERROR;
+        }
+        if (nIR_t) CGNS_FREE(IR_id);
+
+        for (nn = 0; nn < nIA_t; nn++)
+        {
+            if (cgio_get_name(cg->cgio, IA_id[nn], name)) {
+                cg_io_error("cgio_get_name");
+                return CG_ERROR;
+            }
+            if (strcmp(name, "PointList") && strcmp(name, "ElementList"))
+                continue;
+
+            if (user_data[0][n].ptset != 0) {
+                cgi_error("Multiple definition of boundary patch found");
+                return CG_ERROR;
+            }
+            user_data[0][n].ptset = CGNS_NEW(cgns_ptset, 1);
+            if (strcmp(name, "ElementList") == 0)
+                user_data[0][n].ptset->type = CGNS_ENUMV(ElementList);
+            else
+                user_data[0][n].ptset->type = CGNS_ENUMV(PointList);
+            user_data[0][n].ptset->id = IA_id[nn];
+            user_data[0][n].ptset->link = cgi_read_link(IA_id[nn]);
+            user_data[0][n].ptset->in_link = linked;
+            if (cgi_read_ptset(user_data[0][n].id, user_data[0][n].ptset))
+                return CG_ERROR;
+        }
+
+        if (nIA_t) CGNS_FREE(IA_id);
+
+        /* UserDefinedData_t */
+        if (cgi_read_user_data(linked, user_data[0][n].id,
+            &user_data[0][n].nuser_data, &user_data[0][n].user_data)) return CG_ERROR;
+    }
+
+    return CG_OK;
 }
 
 int cgi_read_user_data(int in_link, double parent_id, int *nuser_data,
@@ -5434,6 +6671,49 @@ int cgi_read_subregion(int in_link, double parent_id, int *nsubreg,
     return CG_OK;
 }
 
+int cgi_read_node_data(double node_id, char_33 data_type,
+    int* ndim, cgsize_t* dim_vals, void** data)
+{
+    int n;
+    cgsize_t size = 1;
+
+    /* read node data type */
+    if (cgio_get_data_type(cg->cgio, node_id, data_type)) {
+        cg_io_error("cgio_get_data_type");
+        return CG_ERROR;
+    }
+
+    if (strcmp(data_type, "MT") == 0) {
+        *ndim = 0;
+        return CG_OK;
+    }
+
+    if (cgio_get_dimensions(cg->cgio, node_id, ndim, dim_vals)) {
+        cg_io_error("cgio_get_dimensions");
+        return CG_ERROR;
+    }
+
+    /* allocate data */
+    for (n = 0; n < (*ndim); n++) size *= dim_vals[n];
+    if (size <= 0) {
+        cgi_error("Error reading node data");
+        return CG_ERROR;
+    }
+    if (strcmp(data_type, "I4") == 0) data[0] = CGNS_NEW(int, size);
+    else if (strcmp(data_type, "I8") == 0) data[0] = CGNS_NEW(cglong_t, size);
+    else if (strcmp(data_type, "R4") == 0) data[0] = CGNS_NEW(float, size);
+    else if (strcmp(data_type, "R8") == 0) data[0] = CGNS_NEW(double, size);
+    else if (strcmp(data_type, "C1") == 0) data[0] = CGNS_NEW(char, size + 1);
+
+    /* read data */
+    if (cgio_read_all_data_type(cg->cgio, node_id, data_type, data[0])) {
+        cg_io_error("cgio_read_all_data_type");
+        return CG_ERROR;
+    }
+    return CG_OK;
+}
+
+
 int cgi_read_node(double node_id, char_33 name, char_33 data_type,
                   int *ndim, cgsize_t *dim_vals, void **data, int data_flag)
 {
@@ -5514,6 +6794,557 @@ cgns_link *cgi_read_link (double node_id)
         link->name_in_file[name_len] = 0;
         return link;
     }
+    return CG_OK;
+}
+
+int cgi_read_particle(cgns_pzone *pzone)
+{
+   int n, ndim;
+   int in_link = pzone->link ? 1 : pzone->in_link;
+   char_33 data_type;
+   void *vdata;
+   double *id;
+   cgsize_t dim_vals[12];
+
+    /* ParticleZone_t, assume pzone->name is already read */
+   if (cgi_read_node_data(pzone->id, data_type, &ndim, dim_vals, &vdata)) {
+       cgi_error("Error reading node ParticleZone_t");
+       return CG_ERROR;
+   }
+
+    /* verify data read */
+   if (ndim!=1) {
+       cgi_error("Wrong number of dimension for a ParticleZone_t node");
+       return CG_ERROR;
+   }
+   
+   /* Reset Idim so that cgi_* routines work properly with particles */ 
+   Idim = 1;
+
+   if (0 == strcmp(data_type, "I8")) {
+       cglong_t *particle_dim = (cglong_t *)vdata;
+#if CG_SIZEOF_SIZE == 32
+       if (particle_dim[0] > CG_MAX_INT32) {
+          cgi_error("array size exceeds that for a 32-bit integer");
+          return 1;
+       }
+#endif
+       pzone->nparticles = (cgsize_t)particle_dim[0];
+   }
+   else if (0 == strcmp(data_type, "I4")) {
+       int *particle_dim = (int *)vdata;
+       pzone->nparticles = (cgsize_t)particle_dim[0];
+   }
+   else {
+       cgi_error("Unsupported data type for ParticleZone_t node %s= %s",
+              pzone->name, data_type);
+       return CG_ERROR;
+   }
+   CGNS_FREE(vdata);
+
+   CurrentParticleSize = pzone->nparticles;
+
+   /* ParticleCoordinates_t - particle zone coords */
+   if (cgi_read_particle_pcoor(in_link, pzone->id, &pzone->npcoor, &pzone->pcoor))
+       return CG_ERROR;
+
+   /* FamilyName_t */ /* -- FAMILY TREE -- */
+   if (cgi_read_family_name(in_link, pzone->id, pzone->name, pzone->family_name))
+       return CG_ERROR;
+
+   /* CPEX 0034 */ /* -- FAMILY TREE -- */
+   if (cgi_get_nodes(pzone->id, "AdditionalFamilyName_t", &pzone->nfamname, &id))
+       return CG_ERROR;
+   if (pzone->nfamname > 0) {
+       char *fam;
+       pzone->famname = CGNS_NEW(cgns_famname, pzone->nfamname);
+       for (n = 0; n < pzone->nfamname; n++) {
+           pzone->famname[n].id = id[n];
+           if (cgi_read_string(id[n], pzone->famname[n].name, &fam)) return CG_ERROR;
+           strncpy(pzone->famname[n].family, fam, (CG_MAX_GOTO_DEPTH*(CGIO_MAX_NAME_LENGTH+1)));
+           CGNS_FREE(fam);
+       }
+       CGNS_FREE(id);
+   }
+
+    /* ParticleSolution_t */
+   if (cgi_read_particle_sol(in_link, pzone->id, &pzone->nsols, &pzone->sol))
+       return CG_ERROR;
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+   if (cgi_read_DDD(in_link, pzone->id, &pzone->ndescr, &pzone->descr,
+       &pzone->data_class, &pzone->units)) return CG_ERROR;
+
+    /* ParticleEquationSet_t */
+   if (cgi_read_particle_equations(in_link, pzone->id, &pzone->equations)) return CG_ERROR;
+
+    /* IntegralData_t */
+   if (cgi_read_integral(in_link, pzone->id, &pzone->nintegrals,
+       &pzone->integral)) return CG_ERROR;
+
+    /* ReferenceState_t */
+    if (cgi_read_state(in_link, pzone->id, &pzone->state)) return CG_ERROR;
+
+    /* ParticleIterativeData_t can only exist if BaseIterativeData_t exist because
+       it depends on it */
+   if (NumberOfSteps) {
+       if (cgi_read_piter(in_link, pzone->id, &pzone->piter)) return CG_ERROR;
+   } else pzone->piter = 0;
+
+    /* UserDefinedData_t */
+   if (cgi_read_user_data(in_link, pzone->id, &pzone->nuser_data,
+       &pzone->user_data)) return CG_ERROR;
+
+   return CG_OK;
+}
+
+int cgi_read_particle_sol(int in_link, double parent_id, int *nsols, cgns_psol **sol)
+{
+    double *id, *idf;
+    int s, z, linked;
+    cgsize_t DataCount = 0;
+
+    if (cgi_get_nodes(parent_id, "ParticleSolution_t", nsols, &id))
+        return CG_ERROR;
+    if (*nsols<=0) {
+        sol[0] = 0;
+        return CG_OK;
+    }
+
+    sol[0] = CGNS_NEW(cgns_psol, (*nsols));
+    for (s=0; s<(*nsols); s++) {
+        sol[0][s].id = id[s];
+        sol[0][s].link = cgi_read_link(id[s]);
+        sol[0][s].in_link = in_link;
+        linked = sol[0][s].link ? 1 : in_link;
+
+     /* ParticleSolution_t Name */
+        if (cgio_get_name(cg->cgio, sol[0][s].id, sol[0][s].name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+
+     /* check for PointList/PointRange */
+        if (cgi_read_one_ptset(linked, sol[0][s].id,
+                &sol[0][s].ptset)) return CG_ERROR;
+        if (sol[0][s].ptset != NULL) {
+            if (sol[0][s].ptset->type == CGNS_ENUMV(ElementList) ||
+                sol[0][s].ptset->type == CGNS_ENUMV(ElementRange)) {
+                cgi_error("ElementList/Range not supported under ParticleSolution");
+                return CG_ERROR;
+            }
+            DataCount = sol[0][s].ptset->size_of_patch;
+        }
+
+     /* DataArray_t */
+        if (cgi_get_nodes(sol[0][s].id, "DataArray_t", &sol[0][s].nfields,
+            &idf)) return CG_ERROR;
+        if (sol[0][s].nfields > 0) {
+            sol[0][s].field = CGNS_NEW(cgns_array, sol[0][s].nfields);
+            for (z=0; z<sol[0][s].nfields; z++) {
+                sol[0][s].field[z].id = idf[z];
+                sol[0][s].field[z].link = cgi_read_link(idf[z]);
+                sol[0][s].field[z].in_link = linked;
+
+                if (cgi_read_array(&sol[0][s].field[z],"ParticleSolution_t",
+                    sol[0][s].id)) return CG_ERROR;
+
+                /* check data */
+                if (sol[0][s].ptset == NULL) {
+                   if (sol[0][s].field[z].data_dim != 1) {
+                      cgi_error("Wrong number of dimension in DataArray %s",
+                                sol[0][s].field[z].name);
+                      return CG_ERROR;
+                   }
+                   if (sol[0][s].field[z].dim_vals[0] != CurrentParticleSize) {
+                      cgi_error("Invalid field array dimension");
+                      return CG_ERROR;
+                   }
+
+                } else {
+                    if (sol[0][s].field[z].data_dim != 1 ||
+                        sol[0][s].field[z].dim_vals[0] != DataCount) {
+                        cgi_error("Invalid field array dimension for ptset solution");
+                        return CG_ERROR;
+                    }
+                }
+                if (strcmp(sol[0][s].field[z].data_type,"I4") &&
+                    strcmp(sol[0][s].field[z].data_type,"I8") &&
+                    strcmp(sol[0][s].field[z].data_type,"R4") &&
+                    strcmp(sol[0][s].field[z].data_type,"R8") &&
+                    strcmp(sol[0][s].field[z].data_type,"X4") &&
+                    strcmp(sol[0][s].field[z].data_type,"X8")) {
+                    cgi_error("Datatype %s not supported for particle solutions",sol[0][s].field[z].data_type);
+                    return CG_ERROR;
+                }
+            }
+            CGNS_FREE(idf);
+        }
+
+     /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+        if (cgi_read_DDD(linked, sol[0][s].id, &sol[0][s].ndescr,
+            &sol[0][s].descr, &sol[0][s].data_class, &sol[0][s].units))
+            return CG_ERROR;
+
+     /* UserDefinedData_t */
+        if (cgi_read_user_data(linked, sol[0][s].id, &sol[0][s].nuser_data,
+            &sol[0][s].user_data)) return CG_ERROR;
+    }
+
+    CGNS_FREE(id);
+
+    return CG_OK;
+}
+
+int cgi_read_particle_pcoor(int in_link, double parent_id, int *npcoor, cgns_pcoor **pcoor)
+{
+    double *idg, *id;
+    int g, p, linked;
+
+    if (cgi_get_nodes(parent_id, "ParticleCoordinates_t", npcoor, &idg)) return CG_ERROR;
+    if ((*npcoor)<=0) return CG_OK;
+
+    pcoor[0] = CGNS_NEW(cgns_pcoor, (*npcoor));
+
+    for (g=0; g<(*npcoor); g++) {
+        pcoor[0][g].id = idg[g];
+        pcoor[0][g].link = cgi_read_link(idg[g]);
+        pcoor[0][g].in_link = in_link;
+        linked = pcoor[0][g].link ? 1 : in_link;
+
+         /* Name */
+        if (cgio_get_name(cg->cgio, pcoor[0][g].id, pcoor[0][g].name)) {
+            cg_io_error("cgio_get_name");
+            return CG_ERROR;
+        }
+
+        /* DataArray_t */
+        if (cgi_get_nodes(pcoor[0][g].id, "DataArray_t", &pcoor[0][g].ncoords,
+            &id)) return CG_ERROR;
+        if (pcoor[0][g].ncoords > 0) {
+            pcoor[0][g].coord = CGNS_NEW(cgns_array, pcoor[0][g].ncoords);
+            for (p=0; p<pcoor[0][g].ncoords; p++) {
+                pcoor[0][g].coord[p].id = id[p];
+                pcoor[0][g].coord[p].link = cgi_read_link(id[p]);
+                pcoor[0][g].coord[p].in_link = linked;
+                if (cgi_read_array(&pcoor[0][g].coord[p],"ParticleCoordinates_t",
+                    pcoor[0][g].id)) return CG_ERROR;
+
+                /* check data */
+                if (pcoor[0][g].coord[p].data_dim != 1) {
+                   cgi_error("Wrong number of dimension in DataArray %s",pcoor[0][g].coord[p].name);
+                   return CG_ERROR;
+                }
+                if (pcoor[0][g].coord[p].dim_vals[0] != CurrentParticleSize) {
+                   cgi_error("Invalid coordinates array dimension");
+                   return CG_ERROR;
+                }
+
+                if (strcmp(pcoor[0][g].coord[p].data_type,"R4") &&
+                    strcmp(pcoor[0][g].coord[p].data_type,"R8")) {
+                    cgi_error("Datatype %s not supported for particle zone coordinates",pcoor[0][g].coord[p].data_type);
+                    return CG_ERROR;
+                }
+            }
+            CGNS_FREE(id);
+        }
+
+         /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+        if (cgi_read_DDD(linked, pcoor[0][g].id, &pcoor[0][g].ndescr,
+            &pcoor[0][g].descr, &pcoor[0][g].data_class, &pcoor[0][g].units))
+            return CG_ERROR;
+
+         /* UserDefinedData_t */
+        if (cgi_read_user_data(linked, pcoor[0][g].id, &pcoor[0][g].nuser_data,
+            &pcoor[0][g].user_data)) return CG_ERROR;
+
+    }
+    CGNS_FREE(idg);
+
+    return CG_OK;
+}
+
+int cgi_read_piter(int in_link, double parent_id, cgns_ziter **piter)
+{
+    double *id = NULL;
+    cgns_array *array = NULL;
+    char_33 datatype;
+    int ndim, nnod;
+    void *data = NULL;
+    int i, linked;
+    cgsize_t dim_vals[12];
+
+    /* get number of ParticleIterativeData_t node */
+    if (cgi_get_nodes(parent_id, "ParticleIterativeData_t", &nnod, &id)) return CG_ERROR;
+    if (nnod<=0) {
+       piter[0]=0;
+       return CG_OK;
+    } else if (nnod>1) {
+       cgi_error("Error: Multiple ParticleIterativeData_t found...");
+       goto cleanup;
+    }
+
+    piter[0] = CGNS_NEW(cgns_ziter, 1);
+    piter[0]->id = id[0];
+    piter[0]->link = cgi_read_link(id[0]);
+    piter[0]->in_link = in_link;
+    linked = piter[0]->link ? 1 : in_link;
+
+     /* Name */
+    if (cgi_read_node(piter[0]->id, piter[0]->name, datatype, &ndim,
+        dim_vals, &data, READ_DATA)) {
+        cgi_error("Error reading ParticleIterativeData_t");
+        goto cleanup;
+    }
+    if (strcmp(datatype,"MT")) {
+        cgi_error("Error in ParticleIterativeData_t node");
+        goto cleanup;
+    }
+
+     /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, piter[0]->id, &piter[0]->ndescr, &piter[0]->descr,
+        &piter[0]->data_class, &piter[0]->units)) goto cleanup;
+
+     /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, piter[0]->id, &piter[0]->nuser_data,
+        &piter[0]->user_data)) goto cleanup;
+
+    /* DataArray_t */
+    CGNS_FREE(id);
+    if (cgi_get_nodes(piter[0]->id, "DataArray_t", &piter[0]->narrays, &id))
+       goto cleanup;
+    if (piter[0]->narrays==0) return CG_OK; /* If no arrays we're done. */
+    piter[0]->array = CGNS_NEW(cgns_array, piter[0]->narrays);
+
+    for (i=0; i<(piter[0]->narrays); i++) {
+       piter[0]->array[i].id = id[i];
+       piter[0]->array[i].link = cgi_read_link(id[i]);
+       piter[0]->array[i].in_link = linked;
+       if (cgi_read_array(&piter[0]->array[i], "ParticleIterativeData_t",
+                          piter[0]->id)) goto cleanup;
+       array = &piter[0]->array[i];
+
+       /* check data */
+       if (strcmp("ParticleSolutionPointers",array->name)==0){
+          if (array->data_dim!=2 || array->dim_vals[0]!=32 ||
+              array->dim_vals[1]!=NumberOfSteps) {
+             cgi_error("Error: Array '%s/%s' incorrectly sized", piter[0]->name, array->name);
+             goto cleanup;
+          }
+          if (strcmp(array->data_type,"C1")) {
+             cgi_error("Incorrect data type for %s under %s", array->name, piter[0]->name);
+             goto cleanup;
+          }
+       }
+    }       /* loop through arrays */
+    CGNS_FREE(id);
+    return CG_OK;
+
+ cleanup:
+    CGNS_FREE(id);
+    return CG_ERROR;
+
+}
+
+int cgi_read_particle_model(int in_link, double parent_id, char *label,
+                            cgns_pmodel **model)
+{
+    int n, nnod, linked;
+    double *id;
+    char *string_data;
+
+    if (cgi_get_nodes(parent_id, label, &nnod, &id)) return CG_ERROR;
+
+    if (nnod<=0) {
+        model[0]=0;
+        return CG_OK;
+    }
+    model[0] = CGNS_NEW(cgns_pmodel,1);
+    model[0]->id = id[0];
+    model[0]->link = cgi_read_link(id[0]);
+    model[0]->in_link = in_link;
+    linked = model[0]->link ? 1 : in_link;
+    CGNS_FREE(id);
+
+     /* Particle Model Type */
+    if (cgi_read_string(model[0]->id, model[0]->name, &string_data)) return CG_ERROR;
+    if (cgi_ParticleModelType(string_data, &model[0]->type)) return CG_ERROR;
+    CGNS_FREE(string_data);
+
+     /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, model[0]->id, &model[0]->ndescr,
+        &model[0]->descr, &model[0]->data_class, &model[0]->units)) return CG_ERROR;
+
+     /* DataArray_t */
+    if (cgi_get_nodes(model[0]->id, "DataArray_t", &model[0]->narrays, &id))
+        return CG_ERROR;
+
+    if (model[0]->narrays>0) {
+        model[0]->array = CGNS_NEW(cgns_array, model[0]->narrays);
+        for (n=0; n<model[0]->narrays; n++) {
+            model[0]->array[n].id = id[n];
+            model[0]->array[n].link = cgi_read_link(id[n]);
+            model[0]->array[n].in_link = linked;
+            if (cgi_read_array(&model[0]->array[n],"ParticleModel_t",
+                model[0]->id)) return CG_ERROR;
+
+             /* verify data */
+            if (model[0]->array[n].data_dim!=1 ||
+                model[0]->array[n].dim_vals[0]!=1) {
+                cgi_error("Wrong data dimension in %s definition",model[0]->name);
+                return CG_ERROR;
+            }
+        }
+        CGNS_FREE(id);
+    }
+
+     /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, model[0]->id, &model[0]->nuser_data,
+        &model[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_read_particle_equations_node(int linked, cgns_pequations** equations)
+{
+   double* id;
+   int n, nnod, ndim;
+   char* string_data;
+   char_33 name, data_type;
+   cgsize_t dim_vals[12];
+   void* vdata;
+
+    /* ParticleGoverningEquations_t */
+    equations[0]->governing = 0;
+    if (cgi_get_nodes(equations[0]->id, "ParticleGoverningEquations_t", &nnod, &id))
+        return CG_ERROR;
+    if (nnod > 0) {
+        equations[0]->governing = CGNS_NEW(cgns_pgoverning, 1);
+        equations[0]->governing->id = id[0];
+        equations[0]->governing->link = cgi_read_link(id[0]);
+        equations[0]->governing->in_link = linked;
+        if (cgi_read_string(id[0], equations[0]->governing->name, &string_data) ||
+            cgi_ParticleGoverningEquationsType(string_data, &equations[0]->governing->type))
+            return CG_ERROR;
+        CGNS_FREE(string_data);
+        CGNS_FREE(id);
+
+        /* Descriptor_t */
+        if (cgi_get_nodes(equations[0]->governing->id, "Descriptor_t",
+            &equations[0]->governing->ndescr, &id)) return CG_ERROR;
+        if (equations[0]->governing->ndescr > 0) {
+            equations[0]->governing->descr = CGNS_NEW(cgns_descr, equations[0]->governing->ndescr);
+            for (n = 0; n < equations[0]->governing->ndescr; n++) {
+                equations[0]->governing->descr[n].id = id[n];
+                equations[0]->governing->descr[n].link = cgi_read_link(id[n]);
+                equations[0]->governing->descr[n].in_link = linked;
+                if (cgi_read_string(id[n], equations[0]->governing->descr[n].name,
+                    &equations[0]->governing->descr[n].text)) return CG_ERROR;
+            }
+            CGNS_FREE(id);
+        }
+
+        /* UserDefinedData_t */
+        if (cgi_read_user_data(linked, equations[0]->governing->id,
+            &equations[0]->governing->nuser_data,
+            &equations[0]->governing->user_data)) return CG_ERROR;
+    }
+
+    /* ParticleCollisionModel_t */
+    if (cgi_read_particle_model(linked, equations[0]->id, "ParticleCollisionModel_t",
+        &equations[0]->collision)) return CG_ERROR;
+
+    /* ParticleBreakupModel_t */
+    if (cgi_read_particle_model(linked, equations[0]->id, "ParticleBreakupModel_t",
+        &equations[0]->breakup)) return CG_ERROR;
+
+    /* ParticleForceModel_t */
+    if (cgi_read_particle_model(linked, equations[0]->id, "ParticleForceModel_t",
+        &equations[0]->force)) return CG_ERROR;
+
+    /* ParticleWallInteractionModel_t */
+    if (cgi_read_particle_model(linked, equations[0]->id, "ParticleWallInteractionModel_t",
+        &equations[0]->wallinteract)) return CG_ERROR;
+
+    /* ParticlePhaseChangeModel_t */
+    if (cgi_read_particle_model(linked, equations[0]->id, "ParticlePhaseChangeModel_t",
+        &equations[0]->phasechange)) return CG_ERROR;
+
+    /* EquationDimension */
+    equations[0]->equation_dim = 0;
+    if (cgi_get_nodes(equations[0]->id, "\"int\"", &nnod, &id)) return CG_ERROR;
+    if (nnod > 0) {
+        if (cgi_read_node(id[0], name, data_type, &ndim, dim_vals,
+            &vdata, READ_DATA)) {
+            cgi_error("Error reading base");
+            return CG_ERROR;
+        }
+        /* verify data */
+        if (strcmp(name, "EquationDimension") || strcmp(data_type, "I4") ||
+            ndim != 1 || dim_vals[0] != 1) {
+            cgi_error("Error reading equation dimension for Particle Equation Set");
+            return CG_ERROR;
+        }
+        equations[0]->equation_dim = *((int*)vdata);
+        CGNS_FREE(vdata);
+        CGNS_FREE(id);
+    }
+
+    /* Descriptor_t, DataClass_t, DimensionalUnits_t */
+    if (cgi_read_DDD(linked, equations[0]->id, &equations[0]->ndescr,
+        &equations[0]->descr, &equations[0]->data_class, &equations[0]->units))
+        return CG_ERROR;
+
+    /* UserDefinedData_t */
+    if (cgi_read_user_data(linked, equations[0]->id, &equations[0]->nuser_data,
+        &equations[0]->user_data)) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_read_particle_equations_from_list(int in_link, _childnode_t* nodelist, int nnodes,
+                                          cgns_pequations** equations)
+{
+    int nnod, start, linked;
+
+    nnod = nnodes;
+    start = 0;
+    if (nnod <= 0) {
+        equations[0] = 0;
+        return CG_OK;
+    }
+    equations[0] = CGNS_NEW(cgns_pequations, 1);
+    equations[0]->id = nodelist[start].id;
+    equations[0]->link = cgi_read_link(nodelist[start].id);
+    equations[0]->in_link = in_link;
+    linked = equations[0]->link ? 1 : in_link;
+    strcpy(equations[0]->name, "ParticleEquationSet");
+
+    if (cgi_read_particle_equations_node(linked, equations)) return CG_ERROR;
+    return  CG_OK;
+}
+
+int cgi_read_particle_equations(int in_link, double parent_id,
+                                cgns_pequations **equations)
+{
+    double *id;
+    int nnod, linked;
+
+    if (cgi_get_nodes(parent_id, "ParticleEquationSet_t", &nnod, &id)) return CG_ERROR;
+    if (nnod<=0) {
+        equations[0]=0;
+        return CG_OK;
+    }
+    equations[0] = CGNS_NEW(cgns_pequations, 1);
+    equations[0]->id = id[0];
+    equations[0]->link = cgi_read_link(id[0]);
+    equations[0]->in_link = in_link;
+    linked = equations[0]->link ? 1 : in_link;
+    CGNS_FREE(id);
+    strcpy(equations[0]->name, "ParticleEquationSet");
+
+    if (cgi_read_particle_equations_node(linked, equations)) return CG_ERROR;
+
     return CG_OK;
 }
 
@@ -5670,7 +7501,7 @@ int cgi_read_offset_data_type(double id, char const *data_type, cgsize_t start, 
     else {
         if (cg->filetype == CGIO_FILE_ADF || cg->filetype == CGIO_FILE_ADF2) {
             void* conv_data = NULL;
-            conv_data = malloc((size_t)(cnt * size_of(data_type)));
+            conv_data = malloc(((size_t)cnt) * size_of(data_type));
             if (conv_data == NULL) {
                 cgi_error("Error allocating conv_data");
                 return CG_ERROR;
@@ -6041,6 +7872,10 @@ int cgi_write(int file_number)
         if (base->equations && cgi_write_equations(base->id, base->equations))
             return CG_ERROR;
 
+     /* ParticleEquationSet_t */
+        if (base->pequations && cgi_write_particle_equations(base->id, base->pequations))
+           return CG_ERROR;
+
      /* IntegralData_t */
         for (n=0; n<base->nintegrals; n++)
             if (cgi_write_integral(base->id, &base->integral[n])) return CG_ERROR;
@@ -6058,6 +7893,10 @@ int cgi_write(int file_number)
      /* UserDefinedData_t */
         for (n=0; n<base->nuser_data; n++)
             if (cgi_write_user_data(base->id, &base->user_data[n])) return CG_ERROR;
+
+     /* ParticleZone_t */
+        for (n=0; n<base->npzones; n++)
+             if (cgi_write_particle(base->id, &base->pzone[n])) return CG_ERROR;
 
     }
     return CG_OK;
@@ -7040,12 +8879,13 @@ int cgi_write_bcdata(double bcdata_id, cgns_bcdata *bcdata)
     return CG_OK;
 }
 
-int cgi_write_ptset(double parent_id, char_33 name, cgns_ptset *ptset,
+int cgi_write_ptset(double parent_id, char *name, cgns_ptset *ptset,
                     int ndim, void *ptset_ptr)
 {
     cgsize_t dim_vals[12];
     int num_dim;
     char_33 label;
+    int HDF5storage_type_original = HDF5storage_type;
 
     if (ptset->link) {
         return cgi_write_link(parent_id, name, ptset->link, &ptset->id);
@@ -7063,10 +8903,19 @@ int cgi_write_ptset(double parent_id, char_33 name, cgns_ptset *ptset,
     dim_vals[1]=ptset->npts;
     num_dim = 2;
 
+    // PointLists should be contiguous for parallel reading/writing
+    if (ptset->type == CGNS_ENUMV(PointList) ||
+        ptset->type == CGNS_ENUMV(PointListDonor) ||
+        ptset->type == CGNS_ENUMV(ElementList) ||
+        ptset->type == CGNS_ENUMV(CellListDonor)) {
+        HDF5storage_type = CG_CONTIGUOUS;
+    }
+
      /* Create the node */
     if (cgi_new_node(parent_id, name, label, &ptset->id,
         ptset->data_type, num_dim, dim_vals, ptset_ptr)) return CG_ERROR;
 
+    HDF5storage_type = HDF5storage_type_original;
     return CG_OK;
 }
 
@@ -7931,6 +9780,305 @@ int cgi_write_link(double parent_id, char *name, cgns_link *link, double *id)
     return CG_OK;
 }
 
+int cgi_write_particle(double parent_id, cgns_pzone *pzone)
+{
+    int n;
+    cgsize_t dim_vals[1];
+    double dummy_id;
+
+    if (pzone->link) {
+        return cgi_write_link(parent_id, pzone->name, pzone->link, &pzone->id);
+    }
+
+     /* Create the ParticleZone_t nodes */
+    dim_vals[0]= 1;
+    if (cgi_new_node(parent_id, pzone->name, "ParticleZone_t", &pzone->id,
+        CG_SIZE_DATATYPE, 1, dim_vals, &pzone->nparticles)) return CG_ERROR;
+
+     /* ParticleCoordinates_t */
+    for (n=0; n<pzone->npcoor; n++)
+        if (cgi_write_pcoor(pzone->id, &pzone->pcoor[n])) return CG_ERROR;
+
+     /* FamilyName_t */
+    if (pzone->family_name[0]!='\0') {
+        dim_vals[0] = (cgsize_t)strlen(pzone->family_name);
+        if (cgi_new_node(pzone->id, "FamilyName", "FamilyName_t", &dummy_id, "C1",
+            1, dim_vals, (void *)pzone->family_name)) return CG_ERROR;
+    }
+
+    /* CPEX 0034 */
+    for (n = 0; n < pzone->nfamname; n++) {
+        dim_vals[0] = (cgsize_t)strlen(pzone->famname[n].family);
+        if (cgi_new_node(pzone->id, pzone->famname[n].name, "AdditionalFamilyName_t",
+            &dummy_id, "C1", 1, dim_vals, (void *)pzone->famname[n].family)) return CG_ERROR;
+    }
+
+     /* Descriptor_t */
+    for (n=0; n<pzone->ndescr; n++)
+        if (cgi_write_descr(pzone->id, &pzone->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (pzone->data_class && cgi_write_dataclass(pzone->id, pzone->data_class))
+        return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (pzone->units && cgi_write_units(pzone->id, pzone->units))
+        return CG_ERROR;
+
+     /* IntegralData_t */
+    for (n=0; n<pzone->nintegrals; n++)
+        if (cgi_write_integral(pzone->id, &pzone->integral[n])) return CG_ERROR;
+
+     /* ParticleIterativeData_t */
+    if (pzone->piter && cgi_write_ziter(pzone->id, pzone->piter)) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<pzone->nuser_data; n++)
+        if (cgi_write_user_data(pzone->id, &pzone->user_data[n])) return CG_ERROR;
+
+     /* ParticleSolution_t */
+    for (n=0; n<pzone->nsols; n++)
+        if (cgi_write_particle_sol(pzone->id, &pzone->sol[n])) return CG_ERROR;
+
+     /* ParticleEquationSet_t */
+    if (pzone->equations && cgi_write_particle_equations(pzone->id, pzone->equations))
+           return CG_ERROR;
+
+
+    return CG_OK;
+}
+
+int cgi_write_pcoor(double parent_id, cgns_pcoor *pcoor)
+{
+    int n;
+
+    if (pcoor->link) {
+        return cgi_write_link(parent_id, pcoor->name,
+            pcoor->link, &pcoor->id);
+    }
+
+     /* ParticleCoordinates_t */
+    if (cgi_new_node(parent_id, pcoor->name, "ParticleCoordinates_t",
+        &pcoor->id, "MT", 0, 0, 0)) return CG_ERROR;
+
+     /* Descriptor_t */
+    for (n=0; n<pcoor->ndescr; n++)
+        if (cgi_write_descr(pcoor->id, &pcoor->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (pcoor->data_class &&
+        cgi_write_dataclass(pcoor->id, pcoor->data_class)) return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (pcoor->units && cgi_write_units(pcoor->id, pcoor->units)) return CG_ERROR;
+
+     /* DataArray_t */
+    for (n=0; n<pcoor->ncoords; n++)
+        if (cgi_write_array(pcoor->id, &pcoor->coord[n])) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<pcoor->nuser_data; n++)
+        if (cgi_write_user_data(pcoor->id, &pcoor->user_data[n])) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_write_particle_sol(double parent_id, cgns_psol *sol)
+{
+    int n;
+
+    if (sol->link) {
+        return cgi_write_link(parent_id, sol->name, sol->link, &sol->id);
+    }
+
+     /* ParticleSolution_t */
+    if (cgi_new_node(parent_id, sol->name, "ParticleSolution_t",
+        &sol->id, "MT", 0, 0, 0)) return CG_ERROR;
+
+     /* Descriptor_t */
+    for (n=0; n<sol->ndescr; n++)
+        if (cgi_write_descr(sol->id, &sol->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (sol->data_class &&
+        cgi_write_dataclass(sol->id, sol->data_class)) return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (sol->units && cgi_write_units(sol->id, sol->units)) return CG_ERROR;
+
+     /* DataArray_t */
+    for (n=0; n<sol->nfields; n++)
+        if (cgi_write_array(sol->id, &sol->field[n])) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<sol->nuser_data; n++)
+        if (cgi_write_user_data(sol->id, &sol->user_data[n])) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_write_piter(double parent_id, cgns_ziter *piter)
+{
+    int n;
+
+    if (piter->link) {
+        return cgi_write_link(parent_id, piter->name,
+            piter->link, &piter->id);
+    }
+
+     /* ParticleIterativeData_t name */
+    if (cgi_new_node(parent_id, piter->name, "ParticleIterativeData_t",
+        &piter->id, "MT", 0, 0, 0)) return CG_ERROR;
+
+     /* Descriptor_t */
+    for (n=0; n<piter->ndescr; n++)
+        if (cgi_write_descr(piter->id, &piter->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (piter->data_class &&
+        cgi_write_dataclass(piter->id, piter->data_class)) return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (piter->units &&
+        cgi_write_units(piter->id, piter->units)) return CG_ERROR;
+
+     /* DataArray_t */
+    for (n=0; n<piter->narrays; n++)
+        if (cgi_write_array(piter->id, &piter->array[n])) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<piter->nuser_data; n++)
+        if (cgi_write_user_data(piter->id, &piter->user_data[n])) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_write_particle_equations(double parent_id, cgns_pequations *equations)
+{
+    int n;
+    cgsize_t dim_vals;
+    double dummy_id;
+    cgns_pgoverning *governing;
+
+    if (equations->link) {
+        return cgi_write_link(parent_id, "ParticleEquationSet",
+            equations->link, &equations->id);
+    }
+
+     /* ParticleEquationSet_t */
+    if (cgi_new_node(parent_id, "ParticleEquationSet", "ParticleEquationSet_t",
+        &equations->id, "MT", 0, 0, 0)) return CG_ERROR;
+
+     /* EquationDimension */
+    if (equations->equation_dim) {
+        dim_vals=1;
+        if (cgi_new_node(equations->id, "EquationDimension", "\"int\"",
+            &dummy_id, "I4", 1, &dim_vals, (void *)&equations->equation_dim))
+            return CG_ERROR;
+    }
+
+     /* ParticleGoverningEquations_t */
+    if (equations->governing) {
+        governing = equations->governing;
+        if (governing->link) {
+            if (cgi_write_link(equations->id, "ParticleGoverningEquations",
+                governing->link, &governing->id)) return CG_ERROR;
+        }
+        else {
+            dim_vals = (cgsize_t)strlen(ParticleGoverningEquationsTypeName[governing->type]);
+            if (cgi_new_node(equations->id, "ParticleGoverningEquations",
+                "ParticleGoverningEquations_t", &governing->id, "C1", 1, &dim_vals,
+                ParticleGoverningEquationsTypeName[governing->type])) return CG_ERROR;
+
+         /* Descriptor_t */
+            for (n=0; n<governing->ndescr; n++)
+                if (cgi_write_descr(governing->id, &governing->descr[n])) return CG_ERROR;
+
+         /* UserDefinedData_t */
+            for (n=0; n<governing->nuser_data; n++)
+                if (cgi_write_user_data(governing->id, &governing->user_data[n])) return CG_ERROR;
+        }
+    }
+
+     /* ParticleCollisionModel_t */
+    if (equations->collision &&
+        cgi_write_particle_model(equations->id, equations->collision)) return CG_ERROR;
+
+     /* ParticleBreakupModel_t */
+    if (equations->breakup &&
+        cgi_write_particle_model(equations->id, equations->breakup)) return CG_ERROR;
+
+     /* ParticleForceModel_t */
+    if (equations->force &&
+        cgi_write_particle_model(equations->id, equations->force)) return CG_ERROR;
+
+     /* ParticleWallInteractionModel_t */
+    if (equations->wallinteract &&
+        cgi_write_particle_model(equations->id, equations->wallinteract)) return CG_ERROR;
+
+     /* ParticlePhaseChangeModel_t */
+    if (equations->phasechange &&
+        cgi_write_particle_model(equations->id, equations->phasechange)) return CG_ERROR;
+
+     /* Descriptor_t */
+    for (n=0; n<equations->ndescr; n++)
+        if (cgi_write_descr(equations->id, &equations->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (equations->data_class &&
+        cgi_write_dataclass(equations->id, equations->data_class)) return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (equations->units &&
+        cgi_write_units(equations->id, equations->units)) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<equations->nuser_data; n++)
+        if (cgi_write_user_data(equations->id, &equations->user_data[n])) return CG_ERROR;
+
+    return CG_OK;
+}
+
+int cgi_write_particle_model(double parent_id, cgns_pmodel *model)
+{
+    int n;
+    cgsize_t dim_vals;
+    char_33 label;
+
+    if (model->link) {
+        return cgi_write_link(parent_id, model->name,
+            model->link, &model->id);
+    }
+
+     /* xParticleModel_t */
+    sprintf(label,"%.30s_t",model->name);
+    dim_vals = (cgsize_t)strlen(ParticleModelTypeName[model->type]);
+
+    if (cgi_new_node(parent_id, model->name, label, &model->id,
+        "C1", 1, &dim_vals, ParticleModelTypeName[model->type])) return CG_ERROR;
+
+     /* Descriptor_t */
+    for (n=0; n<model->ndescr; n++)
+        if (cgi_write_descr(model->id, &model->descr[n])) return CG_ERROR;
+
+     /* DataClass_t */
+    if (model->data_class &&
+        cgi_write_dataclass(model->id, model->data_class)) return CG_ERROR;
+
+     /* DimensionalUnits_t */
+    if (model->units &&
+        cgi_write_units(model->id, model->units)) return CG_ERROR;
+
+     /* DataArray */
+    for (n=0; n<model->narrays; n++)
+        if (cgi_write_array(model->id, &model->array[n])) return CG_ERROR;
+
+     /* UserDefinedData_t */
+    for (n=0; n<model->nuser_data; n++)
+        if (cgi_write_user_data(model->id, &model->user_data[n])) return CG_ERROR;
+
+    return CG_OK;
+}
 
 /* cgi_new_node creates an ADF node under parent_id and returns node_id */
 int cgi_new_node(double parent_id, char const *name, char const *label,
@@ -8224,8 +10372,8 @@ int cgi_array_general_verify_range(
      /* both the file hyperslab and memory hyperslab must have same number of
       * points */
     if (s_numpt != m_numpt) {
-        cgi_error("Number of locations in range of memory array (%ld) do not "
-                  "match number of locations requested in range of file (%ld)",
+        cgi_error("Number of locations in range of memory array (%" PRIdCGSIZE ") do not "
+                  "match number of locations requested in range of file (%" PRIdCGSIZE ")",
                   m_numpt, s_numpt);
         return CG_ERROR;
     }
@@ -8326,7 +10474,7 @@ int cgi_array_general_read(
             return CG_ERROR;
         }
         void *conv_data;
-        conv_data = malloc((size_t)(numpt*size_of(array->data_type)));
+        conv_data = malloc(((size_t)numpt)*size_of(array->data_type));
         if (conv_data == NULL) {
             cgi_error("Error allocating conv_data");
             return CG_ERROR;
@@ -8516,7 +10664,7 @@ int cgi_array_general_write(
             return CG_ERROR;
         }
         void *conv_data;
-        conv_data = malloc((size_t)(numpt*size_of(array->data_type)));
+        conv_data = malloc(((size_t)numpt)*size_of(array->data_type));
         if (conv_data == NULL) {
             cgi_error("Error allocating conv_data");
             return CG_ERROR;
@@ -8676,7 +10824,7 @@ char *type_of(char_33 data_type)
     }
 }
 
-int size_of(const char_33 data_type)
+size_t size_of(const char_33 data_type)
 {
     if (strcmp(data_type, "I4") == 0) return sizeof(int);
     if (strcmp(data_type, "I8") == 0) return sizeof(cglong_t);
@@ -8703,15 +10851,15 @@ const char *cgi_adf_datatype(CGNS_ENUMV(DataType_t) type)
     return "NULL";
 }
 
-CGNS_ENUMT(DataType_t) cgi_datatype(cchar_33 adf_type)
+CGNS_ENUMT(DataType_t) cgi_datatype(char const *adf_type)
 {
-    if (strcmp(adf_type, "I4") == 0) return CGNS_ENUMV(Integer);
-    if (strcmp(adf_type, "I8") == 0) return CGNS_ENUMV(LongInteger);
-    if (strcmp(adf_type, "R4") == 0) return CGNS_ENUMV(RealSingle);
-    if (strcmp(adf_type, "R8") == 0) return CGNS_ENUMV(RealDouble);
-    if (strcmp(adf_type, "C1") == 0) return CGNS_ENUMV(Character);
-    if (strcmp(adf_type, "X4") == 0) return CGNS_ENUMV(ComplexSingle);
-    if (strcmp(adf_type, "X8") == 0) return CGNS_ENUMV(ComplexDouble);
+    if (strncmp(adf_type, "I4", 33) == 0) return CGNS_ENUMV(Integer);
+    if (strncmp(adf_type, "I8", 33) == 0) return CGNS_ENUMV(LongInteger);
+    if (strncmp(adf_type, "R4", 33) == 0) return CGNS_ENUMV(RealSingle);
+    if (strncmp(adf_type, "R8", 33) == 0) return CGNS_ENUMV(RealDouble);
+    if (strncmp(adf_type, "C1", 33) == 0) return CGNS_ENUMV(Character);
+    if (strncmp(adf_type, "X4", 33) == 0) return CGNS_ENUMV(ComplexSingle);
+    if (strncmp(adf_type, "X8", 33) == 0) return CGNS_ENUMV(ComplexDouble);
     return CGNS_ENUMV(DataTypeNull);
 }
 
@@ -9492,10 +11640,10 @@ cgns_amotion *cgi_get_amotion(cgns_file *cg, int B, int Z, int R)
     return &zone->amotion[R-1];
 }
 
-cgns_state *cgi_get_state(cgns_file *cg, int B, int Z, int ZBC, int BC, int Dset)
+cgns_state *cgi_get_state(cgns_file *cg, int B, int Z, int P, int ZBC, int BC, int Dset)
 {
      /* defined under CGNSBase_t */
-    if (Z==0 && ZBC==0 && BC==0 && Dset==0) {
+    if (Z==0 && P == 0 && ZBC==0 && BC==0 && Dset==0) {
         cgns_base *base = cgi_get_base(cg, B);
         if (base==0) return CG_OK;
         if (base->state==0) {
@@ -9503,14 +11651,22 @@ cgns_state *cgi_get_state(cgns_file *cg, int B, int Z, int ZBC, int BC, int Dset
             return CG_OK;
         } else return base->state;
      /* defined under Zone_t */
-    } else if (ZBC==0 && BC==0 && Dset==0) {
+    } else if (P== 0 && ZBC==0 && BC==0 && Dset==0) {
         cgns_zone *zone = cgi_get_zone(cg, B, Z);
         if (zone==0) return CG_OK;
         if (zone->state==0) {
             cgi_error("ReferenceState_t undefined under CGNSBase %d, Zone %d",B,Z);
             return CG_OK;
         } else return zone->state;
-     /* defined under ZoneBC_t */
+     /* defined under ParticleZone_t */
+    } else if (ZBC==0 && BC==0 && Dset==0) {
+       cgns_pzone *pzone = cgi_get_particle(cg, B, P);
+       if (pzone==0) return CG_OK;
+       if (pzone->state==0) {
+           cgi_error("ReferenceState_t undefined under CGNSBase %d, ParticleZone %d",B,P);
+           return CG_OK;
+       } else return pzone->state;
+    /* defined under ZoneBC_t */
     } else if (BC==0 && Dset==0) {
         cgns_zboco *zboco = cgi_get_zboco(cg, B, Z);
         if (zboco==0) return CG_OK;
@@ -9548,6 +11704,147 @@ cgns_subreg *cgi_get_subreg(cgns_file *cg, int B, int Z, int S)
 
     cgi_error("ZoneSubRegion node number %d invalid", S);
     return NULL;
+}
+
+cgns_pzone *cgi_get_particle(cgns_file *cg, int B, int P)
+{
+    cgns_base *base;
+
+    base = cgi_get_base(cg, B);
+    if (base==0) return CG_OK;
+
+    if (P>base->npzones || P<=0) {
+        cgi_error("ParticleZone number %d invalid", P);
+        return CG_OK;
+    }
+    return &(base->pzone[P-1]);
+}
+
+cgns_pcoor *cgi_get_particle_pcoor(cgns_file *cg, int B, int P, int C)
+{
+    cgns_pzone *pzone;
+
+    pzone = cgi_get_particle(cg, B, P);
+    if (pzone==0) return CG_OK;
+
+    if (C>pzone->npcoor || C<=0) {
+        cgi_error("ParticleCoordinates node number %d invalid", C);
+        return CG_OK;
+    }
+    return &(pzone->pcoor[C-1]);
+}
+
+cgns_pcoor *cgi_get_particle_pcoorPC(cgns_file *cg, int B, int P)
+{
+    cgns_pzone *pzone;
+    int i;
+
+    pzone = cgi_get_particle(cg, B, P);
+    if (pzone==0) return CG_OK;
+
+
+    if (pzone->npcoor == 0 && (cg->mode == CG_MODE_WRITE || cg->mode == CG_MODE_MODIFY)) {
+        pzone->pcoor = CGNS_NEW(cgns_pcoor, 1);
+        strcpy(pzone->pcoor->name, "ParticleCoordinates");
+        pzone->pcoor->id = 0;
+        pzone->pcoor->link = 0;
+        pzone->pcoor->ndescr = 0;
+        pzone->pcoor->ncoords = 0;
+        pzone->pcoor->data_class = CGNS_ENUMV( DataClassNull );
+        pzone->pcoor->units = 0;
+        pzone->pcoor->nuser_data = 0;
+
+        if (cg->mode == CG_MODE_MODIFY) {
+         /* Create node ParticleCoordinates_t node in file */
+            if (cgi_new_node(pzone->id, "ParticleCoordinates", "ParticleCoordinates_t",
+                 &pzone->pcoor->id, "MT", 0, 0, 0)) return CG_OK;
+        }
+        pzone->npcoor=1;
+        return pzone->pcoor;
+    } else {
+        for (i=0; i<pzone->npcoor; i++) {
+            if (strcmp(pzone->pcoor[i].name,"ParticleCoordinates")==0) {
+                return &pzone->pcoor[i];
+            }
+        }
+    }
+
+    return CG_OK;
+}
+
+cgns_psol *cgi_get_particle_sol(cgns_file *cg, int B, int P, int S)
+{
+   cgns_pzone *pzone;
+
+   pzone = cgi_get_particle(cg, B, P);
+   if (pzone == 0) return CG_OK;
+
+   if (S>pzone->nsols || S<=0) {
+       cgi_error("Particle solution number %d invalid", S);
+       return CG_OK;
+   }
+
+   return &(pzone->sol[S-1]);
+}
+
+cgns_array *cgi_get_particle_field(cgns_file *cg, int B, int P, int S, int F)
+{
+    cgns_psol *sol;
+
+    sol = cgi_get_particle_sol(cg, B, P, S);
+    if (sol==0) return CG_OK;
+
+    if (F>sol->nfields || F<=0) {
+        cgi_error("Particle solution array number  %d invalid", F);
+        return CG_OK;
+    }
+    return &(sol->field[F-1]);
+}
+
+cgns_ziter *cgi_get_piter(cgns_file *cg, int B, int P)
+{
+   cgns_pzone *pzone;
+
+   pzone = cgi_get_particle(cg, B, P);
+   if (pzone==0) return CG_OK;
+
+   if (pzone->piter == 0) {
+       cgi_error("ParticleIterativeData_t node doesn't exist under ParticleZone %d", P);
+       return CG_OK;
+   } else return pzone->piter;
+}
+
+cgns_pequations *cgi_get_particle_equations(cgns_file *cg, int B, int P)
+{
+    if (P==0) {
+        cgns_base *base=cgi_get_base(cg, B);
+        if (base==0) return CG_OK;
+
+        if (base->pequations == 0) {
+            cgi_error("ParticleEquationSet_t Node doesn't exist under CGNSBase %d",B);
+            return CG_OK;
+        } else return base->pequations;
+    } else {
+        cgns_pzone *pzone=cgi_get_particle(cg, B, P);
+        if (pzone==0) return CG_OK;
+
+        if (pzone->equations == 0) {
+            cgi_error("ParticleEquationSet_t Node doesn't exist under CGNSBase %d, ParticleZone %d",B,P);
+            return CG_OK;
+        } else return pzone->equations;
+    }
+}
+
+cgns_pgoverning *cgi_get_particle_governing(cgns_file *cg, int B, int P)
+{
+    cgns_pequations *eq=cgi_get_particle_equations(cg, B, P);
+    if (eq==0) return CG_OK;
+
+    if (eq->governing==0) {
+        if (P==0) cgi_error("ParticleGoverningEquations_t undefined for CGNSBase %d",B);
+        else cgi_error("ParticleGoverningEquations_t undefined for CGNSBase %d, Particle %d", B, P);
+        return CG_OK;
+    } else return eq->governing;
 }
 
 /******************* Functions related to cg_goto **********************************/
@@ -9589,6 +11886,20 @@ static int cgi_next_posit(char *label, int index, char *name)
                            label, index + 1, b->zone[index].id);
             }
         }
+        else if (0 == strcmp (label, "ParticleZone_t")) {
+           if (--index < 0) {
+               for (n = 0; n < b->npzones; n++) {
+                   if (0 == strcmp (b->pzone[n].name, name)) {
+                       index = n;
+                       break;
+                   }
+               }
+           }
+           if (index >= 0 && index < b->npzones) {
+               return cgi_add_posit((void *)&b->pzone[index],
+                          label, index + 1, b->pzone[index].id);
+           }
+       }
         else if (0 == strcmp (label, "ReferenceState_t")) {
             if (b->state &&
                 (index == 1 || 0 == strcmp (b->state->name, name))) {
@@ -9629,6 +11940,13 @@ static int cgi_next_posit(char *label, int index, char *name)
                 (index == 1 || 0 == strcmp (b->equations->name, name))) {
                 return cgi_add_posit((void *)b->equations,
                            label, 1, b->equations->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleEquationSet_t")) {
+            if (b->pequations &&
+                (index == 1 || 0 == strcmp (b->pequations->name, name))) {
+                return cgi_add_posit((void *)b->pequations,
+                           label, 1, b->pequations->id);
             }
         }
         else if (0 == strcmp (label, "IntegralData_t")) {
@@ -9874,6 +12192,91 @@ static int cgi_next_posit(char *label, int index, char *name)
             return CG_INCORRECT_PATH;
     }
 
+    /* ParticleZone_t*/
+
+    else if (0 == strcmp (posit->label, "ParticleZone_t")) {
+        cgns_pzone *p = (cgns_pzone *)posit->posit;
+        if (0 == strcmp (label, "ParticleCoordinates_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->npcoor; n++) {
+                    if (0 == strcmp (p->pcoor[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index <  p->npcoor) {
+                return cgi_add_posit((void *)&p->pcoor[index],
+                           label, index + 1, p->pcoor[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleIterativeData_t")) {
+            if (p->piter &&
+                (index == 1 || 0 == strcmp (p->piter->name, name))) {
+                return cgi_add_posit((void *)p->piter,
+                           label, 1, p->piter->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleSolution_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->nsols; n++) {
+                    if (0 == strcmp (p->sol[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < p->nsols) {
+                return cgi_add_posit((void *)&p->sol[index],
+                           label, index + 1, p->sol[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleEquationSet_t")) {
+            if (p->equations &&
+                (index == 1 || 0 == strcmp (p->equations->name, name))) {
+                return cgi_add_posit((void *)p->equations,
+                           label, 1, p->equations->id);
+            }
+        }
+        else if (0 == strcmp (label, "IntegralData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->nintegrals; n++) {
+                    if (0 == strcmp (p->integral[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < p->nintegrals) {
+                return cgi_add_posit((void *)&p->integral[index],
+                           label, index + 1, p->integral[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "ReferenceState_t")) {
+            if (p->state &&
+                (index == 1 || 0 == strcmp (p->state->name, name))) {
+                return cgi_add_posit((void *)p->state,
+                           label, 1, p->state->id);
+            }
+        }
+        else if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->nuser_data; n++) {
+                    if (0 == strcmp (p->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < p->nuser_data) {
+                return cgi_add_posit((void *)&p->user_data[index],
+                           label, index + 1, p->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
     /* GridCoordinates_t */
 
     else if (0 == strcmp (posit->label, "GridCoordinates_t")) {
@@ -9910,10 +12313,82 @@ static int cgi_next_posit(char *label, int index, char *name)
             return CG_INCORRECT_PATH;
     }
 
+    /* ParticleCoordinates_t */
+
+    else if (0 == strcmp (posit->label, "ParticleCoordinates_t")) {
+        cgns_pcoor *p = (cgns_pcoor *)posit->posit;
+        if (0 == strcmp (label, "DataArray_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->ncoords; n++) {
+                    if (0 == strcmp (p->coord[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < p->ncoords) {
+                return cgi_add_posit((void *)&p->coord[index],
+                           label, index + 1, p->coord[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < p->nuser_data; n++) {
+                    if (0 == strcmp (p->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < p->nuser_data) {
+                return cgi_add_posit((void *)&p->user_data[index],
+                           label, index + 1, p->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
     /* FlowSolution_t */
 
     else if (0 == strcmp (posit->label, "FlowSolution_t")) {
         cgns_sol *s = (cgns_sol *)posit->posit;
+        if (0 == strcmp (label, "DataArray_t")) {
+            if (--index < 0) {
+                for (n = 0; n < s->nfields; n++) {
+                    if (0 == strcmp (s->field[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < s->nfields) {
+                return cgi_add_posit((void *)&s->field[index],
+                           label, index + 1, s->field[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < s->nuser_data; n++) {
+                    if (0 == strcmp (s->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < s->nuser_data) {
+                return cgi_add_posit((void *)&s->user_data[index],
+                           label, index + 1, s->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
+    /* ParticleSolution_t */
+
+    else if (0 == strcmp (posit->label, "ParticleSolution_t")) {
+        cgns_psol *s = (cgns_psol *)posit->posit;
         if (0 == strcmp (label, "DataArray_t")) {
             if (--index < 0) {
                 for (n = 0; n < s->nfields; n++) {
@@ -10179,6 +12654,13 @@ static int cgi_next_posit(char *label, int index, char *name)
                            label, index + 1, b->user_data[index].id);
             }
         }
+        else if (0 == strcmp (label, "IndexArray_t")) {
+            if (b->ptset &&
+                (index == 1 || 0 == strcmp (b->ptset->name, name))) {
+                return cgi_add_posit((void *)b->ptset,
+                           label, 1, b->ptset->id);
+            }
+        }
         else
             return CG_INCORRECT_PATH;
     }
@@ -10440,6 +12922,138 @@ static int cgi_next_posit(char *label, int index, char *name)
              0 == strcmp (posit->label, "EMElectricFieldModel_t") ||
              0 == strcmp (posit->label, "EMMagneticFieldModel_t")) {
         cgns_model *m = (cgns_model *)posit->posit;
+        if (0 == strcmp (label, "DataArray_t")) {
+            if (--index < 0) {
+                for (n = 0; n < m->narrays; n++) {
+                    if (0 == strcmp (m->array[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < m->narrays) {
+                return cgi_add_posit((void *)&m->array[index],
+                           label, index + 1, m->array[index].id);
+            }
+        }
+        else if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < m->nuser_data; n++) {
+                    if (0 == strcmp (m->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < m->nuser_data) {
+                return cgi_add_posit((void *)&m->user_data[index],
+                           label, index + 1, m->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
+    /* ParticleEquationSet_t */
+
+    else if (0 == strcmp (posit->label, "ParticleEquationSet_t")) {
+        cgns_pequations *e = (cgns_pequations *)posit->posit;
+        if (0 == strcmp (label, "ParticleGoverningEquations_t")) {
+            if (e->governing &&
+                (index == 1 || 0 == strcmp (e->governing->name, name))) {
+                return cgi_add_posit((void *)e->governing,
+                           label, 1, e->governing->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleCollisionModel_t")) {
+            if (e->collision &&
+                (index == 1 || 0 == strcmp (e->collision->name, name))) {
+                return cgi_add_posit((void *)e->collision,
+                           label, 1, e->collision->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleBreakupModel_t")) {
+            if (e->breakup &&
+                (index == 1 || 0 == strcmp (e->breakup->name, name))) {
+                return cgi_add_posit((void *)e->breakup,
+                           label, 1, e->breakup->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleForceModel_t")) {
+            if (e->force &&
+                (index == 1 || 0 == strcmp (e->force->name, name))) {
+                return cgi_add_posit((void *)e->force,
+                           label, 1, e->force->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticleWallInteractionModel_t")) {
+            if (e->wallinteract &&
+                (index == 1 || 0 == strcmp (e->wallinteract->name, name))) {
+                return cgi_add_posit((void *)e->wallinteract,
+                           label, 1, e->wallinteract->id);
+            }
+        }
+        else if (0 == strcmp (label, "ParticlePhaseChangeModel_t")) {
+            if (e->phasechange &&
+                (index == 1 || 0 == strcmp (e->phasechange->name, name))) {
+                return cgi_add_posit((void *)e->phasechange,
+                           label, 1, e->phasechange->id);
+            }
+        }
+
+        else if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < e->nuser_data; n++) {
+                    if (0 == strcmp (e->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < e->nuser_data) {
+                return cgi_add_posit((void *)&e->user_data[index],
+                           label, index + 1, e->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
+    /* ParticleGoverningEquations_t */
+
+    else if (0 == strcmp (posit->label, "ParticleGoverningEquations_t")) {
+        cgns_pgoverning *g = (cgns_pgoverning *)posit->posit;
+        if (0 == strcmp (label, "UserDefinedData_t")) {
+            if (--index < 0) {
+                for (n = 0; n < g->nuser_data; n++) {
+                    if (0 == strcmp (g->user_data[n].name, name)) {
+                        index = n;
+                        break;
+                    }
+                }
+            }
+            if (index >= 0 && index < g->nuser_data) {
+                return cgi_add_posit((void *)&g->user_data[index],
+                           label, index + 1, g->user_data[index].id);
+            }
+        }
+        else
+            return CG_INCORRECT_PATH;
+    }
+
+
+    /* ParticleCollisionModel_t */
+    /* ParticleBreakupModel_t */
+    /* ParticleForceModel_t */
+    /* ParticleWallInteractionModel_t */
+    /* ParticlePhaseChangeModel_t */
+
+    else if (0 == strcmp (posit->label, "ParticleCollisionModel_t") ||
+             0 == strcmp (posit->label, "ParticleBreakupModel_t") ||
+             0 == strcmp (posit->label, "ParticleForceModel_t") ||
+             0 == strcmp (posit->label, "ParticleWallInteractionModel_t") ||
+             0 == strcmp (posit->label, "ParticlePhaseChangeModel_t")) {
+        cgns_pmodel *m = (cgns_pmodel *)posit->posit;
         if (0 == strcmp (label, "DataArray_t")) {
             if (--index < 0) {
                 for (n = 0; n < m->narrays; n++) {
@@ -10830,9 +13444,10 @@ static int cgi_next_posit(char *label, int index, char *name)
             return CG_INCORRECT_PATH;
     }
 
-    /* ZoneIterativeData_t */
+    /* ZoneIterativeData_t and ParticleIterativeData_t*/
 
-    else if (0 == strcmp (posit->label, "ZoneIterativeData_t")) {
+    else if (0 == strcmp (posit->label, "ZoneIterativeData_t") ||
+             0 == strcmp (posit->label, "ParticleIterativeData_t")) {
         cgns_ziter *z = (cgns_ziter *)posit->posit;
         if (0 == strcmp (label, "DataArray_t")) {
             if (--index < 0) {
@@ -11389,14 +14004,16 @@ cgns_descr *cgi_descr_address(int local_mode, int given_no,
  *  BCData_t, FlowEquationSet_t, GoverningEquations_t, GasModel_t,
  *  ViscosityModel_t, ThermalConductivityModel_t, TurbulenceClosure_t,
  *  TurbulenceModel_t, ThermalRelaxationModel_t, ChemicalKineticsModel_t,
- *  EMElectricFieldModel_t, EMMagneticFieldModel_t,
- *  ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
+ *  EMElectricFieldModel_t, EMMagneticFieldModel_t, ParticleCollisionModel_t,
+ *  ParticleBreakupModel_t, ParticleForceModel_t, ParticleWallInteractionModel_t,
+ *  ParticlePhaseChangeModel_t,  ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
  *  DataArray_t, Family_t, GeometryReference_t, RigidGridMotion_t,
  *  ArbitraryGridMotion_t, BaseIterativeData_t, ZoneIterativeData_t,
  *  UserDefinedData_t, Gravity_t, Axisymmetry_t, RotatingCoordinates_t,
  *  BCProperty_t, WallFunction_t, Area_t,
  *  GridConnectivityProperty_t, Periodic_t, AverageInterface_t
- *  FamilyBCDataSet_t
+ *  FamilyBCDataSet_t, ParticleZone_t, ParticleCoordinates_t,
+ *  ParticleSolution_t, ParticleGoverningEquations_t
  */
 
     if (strcmp(posit->label,"CGNSBase_t")==0)
@@ -11405,10 +14022,14 @@ cgns_descr *cgi_descr_address(int local_mode, int given_no,
         ADDRESS4MULTIPLE(cgns_zone, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"GridCoordinates_t")==0)
         ADDRESS4MULTIPLE(cgns_zcoor, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleCoordinates_t")==0)
+        ADDRESS4MULTIPLE(cgns_pcoor, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"Elements_t")==0)
         ADDRESS4MULTIPLE(cgns_section, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"FlowSolution_t")==0)
         ADDRESS4MULTIPLE(cgns_sol, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleSolution_t")==0)
+        ADDRESS4MULTIPLE(cgns_psol, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"DiscreteData_t")==0)
         ADDRESS4MULTIPLE(cgns_discrete, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"ZoneGridConnectivity_t")==0)
@@ -11443,6 +14064,16 @@ cgns_descr *cgi_descr_address(int local_mode, int given_no,
          strcmp(posit->label,"EMMagneticFieldModel_t")==0 ||
          strcmp(posit->label,"EMConductivityModel_t")==0)
         ADDRESS4MULTIPLE(cgns_model, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleEquationSet_t")==0)
+        ADDRESS4MULTIPLE(cgns_pequations, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleGoverningEquations_t")==0)
+        ADDRESS4MULTIPLE(cgns_pgoverning, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleCollisionModel_t")==0 ||
+         strcmp(posit->label,"ParticleBreakupModel_t")==0 ||
+         strcmp(posit->label,"ParticleForceModel_t")==0 ||
+         strcmp(posit->label,"ParticleWallInteractionModel_t")==0 ||
+         strcmp(posit->label,"ParticlePhaseChangeModel_t")==0)
+        ADDRESS4MULTIPLE(cgns_pmodel, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"ConvergenceHistory_t")==0)
         ADDRESS4MULTIPLE(cgns_converg, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"IntegralData_t")==0)
@@ -11461,7 +14092,8 @@ cgns_descr *cgi_descr_address(int local_mode, int given_no,
         ADDRESS4MULTIPLE(cgns_amotion, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"BaseIterativeData_t")==0)
         ADDRESS4MULTIPLE(cgns_biter, ndescr, descr, cgns_descr)
-    else if (strcmp(posit->label,"ZoneIterativeData_t")==0)
+    else if (strcmp(posit->label,"ZoneIterativeData_t")==0 ||
+             strcmp(posit->label,"ParticleIterativeData_t")==0)
         ADDRESS4MULTIPLE(cgns_ziter, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"UserDefinedData_t")==0)
         ADDRESS4MULTIPLE(cgns_user_data, ndescr, descr, cgns_descr)
@@ -11485,6 +14117,8 @@ cgns_descr *cgi_descr_address(int local_mode, int given_no,
         ADDRESS4MULTIPLE(cgns_caverage, ndescr, descr, cgns_descr)
     else if (strcmp(posit->label,"ZoneSubRegion_t")==0)
         ADDRESS4MULTIPLE(cgns_subreg, ndescr, descr, cgns_descr)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4MULTIPLE(cgns_pzone, ndescr, descr, cgns_descr)
     else {
         cgi_error("Descriptor_t node not supported under '%s' type node (cgi_descr_address)",
             posit->label);
@@ -11528,7 +14162,8 @@ char *cgi_famname_address(int local_mode, int *ier)
     }
 
 /* Possible parents of FamilyName_t node:
- *  Zone_t, BC_t, ZoneSubRegion_t, UserDefinedData_t
+ *  Zone_t, BC_t, ZoneSubRegion_t, UserDefinedData_t,
+ *  ParticleZone_t
  */
     if (strcmp(posit->label,"Zone_t")==0) {
         cgns_zone *zone = (cgns_zone *)posit->posit;
@@ -11546,10 +14181,14 @@ char *cgi_famname_address(int local_mode, int *ier)
         cgns_subreg *subreg = (cgns_subreg *)posit->posit;
         family_name = subreg->family_name;
         parent_id = subreg->id;
+    } else if (strcmp(posit->label,"ParticleZone_t")==0) {
+       cgns_pzone *pzone = (cgns_pzone *)posit->posit;
+       family_name = pzone->family_name;
+       parent_id = pzone->id;
     } else {
-        cgi_error("FamilyName_t node not supported under '%s' type node",posit->label);
-        (*ier) = CG_INCORRECT_PATH;
-        return CG_OK;
+       cgi_error("FamilyName_t node not supported under '%s' type node",posit->label);
+       (*ier) = CG_INCORRECT_PATH;
+       return CG_OK;
     }
     if (cg->mode == CG_MODE_MODIFY && local_mode == CG_MODE_WRITE) {
         if (cgi_get_nodes(parent_id, "FamilyName_t", &nnod, &id)) {/* -- FAMILY TREE -- */
@@ -11589,6 +14228,8 @@ cgns_famname *cgi_multfam_address(int local_mode, int given_no,
         ADDRESS4MULTIPLE(cgns_user_data, nfamname, famname, cgns_famname)
     else if (0 == strcmp(posit->label, "Family_t")) /* ** FAMILY TREE ** */
         ADDRESS4MULTIPLE(cgns_family, nfamname, famname, cgns_famname)
+    else if (0 == strcmp(posit->label, "ParticleZone_t"))
+        ADDRESS4MULTIPLE(cgns_pzone, nfamname, famname, cgns_famname)
     else {
         cgi_error("AdditionalFamilyName_t node not supported under '%s' type node",posit->label);
         (*ier) = CG_INCORRECT_PATH;
@@ -11633,11 +14274,13 @@ CGNS_ENUMV(DataClass_t) *cgi_dataclass_address(int local_mode, int *ier)
  *  ZoneBC_t, BC_t, BCDataSet_t, BCData_t, FlowEquationSet_t, GasModel_t,
  *  ViscosityModel_t, ThermalConductivityModel_t, TurbulenceClosure_t,
  *  TurbulenceModel_t, ThermalRelaxationModel_t, ChemicalKineticsModel_t,
- *  EMElectricFieldModel_t, EMMagneticFieldModel_t,
- *  ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
+ *  EMElectricFieldModel_t, EMMagneticFieldModel_t,  ParticleCollisionModel_t,
+ *  ParticleBreakupModel_t, ParticleForceModel_t, ParticleWallInteractionModel_t,
+ *  ParticlePhaseChangeModel_t, ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
  *  DataArray_t, RigidGridMotion_t, ArbitraryGridMotion_t, BaseIterativeData_t,
  *  ZoneIterativeData_t, UserDefinedData_t, Gravity_t, Axisymmetry_t
- *  RotatingCoordinates_t, Periodic_t, FamilyBCDataSet_t
+ *  RotatingCoordinates_t, Periodic_t, FamilyBCDataSet_t, ParticleZone_t,
+ *  ParticleCoordinates_t, ParticleSolution_t, ParticleIterativeData_t
  */
     if (strcmp(posit->label,"CGNSBase_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_base, data_class)
@@ -11645,8 +14288,12 @@ CGNS_ENUMV(DataClass_t) *cgi_dataclass_address(int local_mode, int *ier)
         ADDRESS4SINGLE_ALLOC(cgns_zone, data_class)
     else if (strcmp(posit->label,"GridCoordinates_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_zcoor, data_class)
+    else if (strcmp(posit->label,"ParticleCoordinates_t")==0)
+        ADDRESS4SINGLE_ALLOC(cgns_pcoor, data_class)
     else if (strcmp(posit->label,"FlowSolution_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_sol, data_class)
+   else if (strcmp(posit->label,"ParticleSolution_t")==0)
+        ADDRESS4SINGLE_ALLOC(cgns_psol, data_class)
     else if (strcmp(posit->label,"DiscreteData_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_discrete, data_class)
     else if (strcmp(posit->label,"ZoneBC_t")==0)
@@ -11671,6 +14318,14 @@ CGNS_ENUMV(DataClass_t) *cgi_dataclass_address(int local_mode, int *ier)
          strcmp(posit->label,"EMMagneticFieldModel_t")==0 ||
          strcmp(posit->label,"EMConductivityModel_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_model, data_class)
+    else if (strcmp(posit->label,"ParticleEquationSet_t")==0)
+        ADDRESS4SINGLE_ALLOC(cgns_pequations, data_class)
+    else if (strcmp(posit->label,"ParticleCollisionModel_t")==0 ||
+         strcmp(posit->label,"ParticleBreakupModel_t")==0 ||
+         strcmp(posit->label,"ParticleForceModel_t")==0 ||
+         strcmp(posit->label,"ParticleWallInteractionModel_t")==0 ||
+         strcmp(posit->label,"ParticlePhaseChangeModel_t")==0)
+        ADDRESS4SINGLE_ALLOC(cgns_pmodel, data_class)
     else if (strcmp(posit->label,"ConvergenceHistory_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_converg, data_class)
     else if (strcmp(posit->label,"IntegralData_t")==0)
@@ -11685,7 +14340,8 @@ CGNS_ENUMV(DataClass_t) *cgi_dataclass_address(int local_mode, int *ier)
         ADDRESS4SINGLE_ALLOC(cgns_amotion, data_class)
     else if (strcmp(posit->label,"BaseIterativeData_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_biter, data_class)
-    else if (strcmp(posit->label,"ZoneIterativeData_t")==0)
+    else if (strcmp(posit->label,"ZoneIterativeData_t")==0 ||
+             strcmp(posit->label,"ParticleIterativeData_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_ziter, data_class)
     else if (strcmp(posit->label,"UserDefinedData_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_user_data, data_class)
@@ -11699,6 +14355,8 @@ CGNS_ENUMV(DataClass_t) *cgi_dataclass_address(int local_mode, int *ier)
         ADDRESS4SINGLE_ALLOC(cgns_cperio, data_class)
     else if (strcmp(posit->label,"ZoneSubRegion_t")==0)
         ADDRESS4SINGLE_ALLOC(cgns_subreg, data_class)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4SINGLE_ALLOC(cgns_pzone, data_class)
     else {
         cgi_error("DataClass_t node not supported under '%s' type node",posit->label);
         (*ier) = CG_INCORRECT_PATH;
@@ -11735,11 +14393,17 @@ cgns_units *cgi_units_address(int local_mode, int *ier)
  *  ZoneBC_t, BC_t, BCDataSet_t, BCData_t, FlowEquationSet_t, GasModel_t,
  *  ViscosityModel_t, ThermalConductivityModel_t, TurbulenceClosure_t,
  *  TurbulenceModel_t, ThermalRelaxationModel_t, ChemicalKineticsModel_t,
- *  EMElectricFieldModel_t, EMMagneticFieldModel_t,
+ *  EMElectricFieldModel_t, EMMagneticFieldModel_t, ParticleEquationSet_t,
+ *  ParticleCollisionModel_t, ParticleBreakupModel_t, ParticleForceModel_t,
+ *  ParticleWallInteractionModel_t, ParticlePhaseChangeModel_t,
  *  ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
  *  DataArray_t, RigidGridMotion_t, ArbitraryGridMotion_t, BaseIterativeData_t,
  *  ZoneIterativeData_t, UserDefinedData_t, Gravity_t, Axisymmetry_t
- *  RotatingCoordinates_t, Periodic_t, FamilyBCDataSet_t
+ *  RotatingCoordinates_t, Periodic_t, FamilyBCDataSet_t, ParticleZone_t
+ *  ParticleCoordinates_t, ParticleSolution_t, ParticleIterativeData_t,
+ *  ParticleEquationSet_t, ParticleCollisionModel_t, ParticleBreakupModel_t,
+ *  ParticleForceModel_t, ParticleWallInteractionModel_t, ParticleWallInteractionModel_t,
+ *  ParticlePhaseChangeModel_t
  */
     if (strcmp(posit->label,"CGNSBase_t")==0)
         ADDRESS4SINGLE(cgns_base, units, cgns_units, 1)
@@ -11747,8 +14411,12 @@ cgns_units *cgi_units_address(int local_mode, int *ier)
         ADDRESS4SINGLE(cgns_zone, units, cgns_units, 1)
     else if (strcmp(posit->label,"GridCoordinates_t")==0)
         ADDRESS4SINGLE(cgns_zcoor, units, cgns_units, 1)
+    else if (strcmp(posit->label,"ParticleCoordinates_t")==0)
+        ADDRESS4SINGLE(cgns_pcoor, units, cgns_units, 1)
     else if (strcmp(posit->label,"FlowSolution_t")==0)
         ADDRESS4SINGLE(cgns_sol, units, cgns_units, 1)
+    else if (strcmp(posit->label,"ParticleSolution_t")==0)
+        ADDRESS4SINGLE(cgns_psol, units, cgns_units, 1)
     else if (strcmp(posit->label,"DiscreteData_t")==0)
         ADDRESS4SINGLE(cgns_discrete, units, cgns_units, 1)
     else if (strcmp(posit->label,"ZoneBC_t")==0)
@@ -11773,6 +14441,14 @@ cgns_units *cgi_units_address(int local_mode, int *ier)
         strcmp(posit->label,"EMMagneticFieldModel_t")==0 ||
         strcmp(posit->label,"EMConductivityModel_t")==0)
         ADDRESS4SINGLE(cgns_model, units, cgns_units, 1)
+    else if (strcmp(posit->label,"ParticleEquationSet_t")==0)
+        ADDRESS4SINGLE(cgns_pequations, units, cgns_units, 1)
+    else if (strcmp(posit->label,"ParticleCollisionModel_t")==0 ||
+        strcmp(posit->label,"ParticleBreakupModel_t")==0 ||
+        strcmp(posit->label,"ParticleForceModel_t")==0 ||
+        strcmp(posit->label,"ParticleWallInteractionModel_t")==0 ||
+        strcmp(posit->label,"ParticlePhaseChangeModel_t")==0)
+        ADDRESS4SINGLE(cgns_pmodel, units, cgns_units, 1)
     else if (strcmp(posit->label,"ConvergenceHistory_t")==0)
         ADDRESS4SINGLE(cgns_converg, units, cgns_units, 1)
     else if (strcmp(posit->label,"IntegralData_t")==0)
@@ -11787,7 +14463,8 @@ cgns_units *cgi_units_address(int local_mode, int *ier)
         ADDRESS4SINGLE(cgns_amotion, units, cgns_units, 1)
     else if (strcmp(posit->label,"BaseIterativeData_t")==0)
         ADDRESS4SINGLE(cgns_biter, units, cgns_units, 1)
-    else if (strcmp(posit->label,"ZoneIterativeData_t")==0)
+    else if (strcmp(posit->label,"ZoneIterativeData_t")==0 ||
+             strcmp(posit->label,"ParticleIterativeData_t")==0)
         ADDRESS4SINGLE(cgns_ziter, units, cgns_units, 1)
     else if (strcmp(posit->label,"UserDefinedData_t")==0)
         ADDRESS4SINGLE(cgns_user_data, units, cgns_units, 1)
@@ -11801,6 +14478,8 @@ cgns_units *cgi_units_address(int local_mode, int *ier)
         ADDRESS4SINGLE(cgns_cperio, units, cgns_units, 1)
     else if (strcmp(posit->label,"ZoneSubRegion_t")==0)
         ADDRESS4SINGLE(cgns_subreg, units, cgns_units, 1)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4SINGLE(cgns_pzone, units, cgns_units, 1)
 
     else {
         cgi_error("DimensionalUnits_t node not supported under '%s' type node",posit->label);
@@ -12103,12 +14782,14 @@ cgns_integral *cgi_integral_address(int local_mode, int given_no,
     }
 
 /* Possible parents of IntegralData_t node:
- *  CGNSBase_t, Zone_t
+ *  CGNSBase_t, Zone_t, ParticleZone_t
  */
     if (strcmp(posit->label,"CGNSBase_t")==0)
         ADDRESS4MULTIPLE(cgns_base, nintegrals, integral, cgns_integral)
     else if (strcmp(posit->label,"Zone_t")==0)
         ADDRESS4MULTIPLE(cgns_zone, nintegrals, integral, cgns_integral)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4MULTIPLE(cgns_pzone, nintegrals, integral, cgns_integral)
     else {
         cgi_error("IntegralData_t node not supported under '%s' type node",posit->label);
         (*ier) = CG_INCORRECT_PATH;
@@ -12196,7 +14877,7 @@ cgns_state *cgi_state_address(int local_mode, int *ier)
     }
 
 /* Possible parents: CGNSBase_t, Zone_t, ZoneBC_t, BC_t
- *           BCDataSet_t, FamilyBCDataSet_t
+ *           BCDataSet_t, FamilyBCDataSet_t, ParticleZone_t
  */
     if (strcmp(posit->label,"CGNSBase_t")==0)
         ADDRESS4SINGLE(cgns_base, state, cgns_state, 1)
@@ -12213,6 +14894,8 @@ cgns_state *cgi_state_address(int local_mode, int *ier)
     else if (strcmp(posit->label,"BCDataSet_t")==0 ||
              strcmp(posit->label,"FamilyBCDataSet_t")==0)
         ADDRESS4SINGLE(cgns_dataset, state, cgns_state, 1)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4SINGLE(cgns_pzone, state, cgns_state, 1)
 
     else {
         cgi_error("ReferenceState_t node not supported under '%s' type node",posit->label);
@@ -12401,11 +15084,13 @@ cgns_array *cgi_array_address(int local_mode, int allow_dup, int given_no,
  *  GridCoordinates_t, Elements_t, FlowSolution_t, DiscreteData_t, GridConnectivity_t, BC_t,
  *  BCData_t, GasModel_t, ViscosityModel_t, ThermalConductivityModel_t, TurbulenceClosure_t,
  *  TurbulenceModel_t, ThermalRelaxationModel_t, ChemicalKineticsModel_t,
- *  EMElectricFieldModel_t, EMMagneticFieldModel_t,
- *  ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
+ *  EMElectricFieldModel_t, EMMagneticFieldModel_t, ParticleCollisionModel_t,
+ *  ParticleBreakupModel_t, ParticleForceModel_t, ParticleWallInteractionModel_t,
+ *  ParticlePhaseChangeModel_t, ConvergenceHistory_t, IntegralData_t, ReferenceState_t,
  *  RigidGridMotion_t, ArbitraryGridMotion_t, BaseIterativeData_t, ZoneIterativeData_t,
  *  UserDefinedData_t, Gravity_t, Axisymmetry_t, RotatingCoordinates_t
- *  Area_t, Periodic_t, ZoneSubRegion_t
+ *  Area_t, Periodic_t, ZoneSubRegion_t, ParticleSolution_t, ParticleCoordinates_t,
+ *  ParticleIterativeData_t
  */
 
      /* 0,N DataArray_t under GridCoordinates_t */
@@ -12413,7 +15098,12 @@ cgns_array *cgi_array_address(int local_mode, int allow_dup, int given_no,
         ADDRESS4MULTIPLE(cgns_zcoor, ncoords, coord, cgns_array)
         array = coord;
 
-     /* 2 DataArray_t under Elements_t: connect and parent */
+        /* 0,N DataArray_t under ParticleCoordinates_t */
+    } else if (strcmp(posit->label,"ParticleCoordinates_t")==0) {
+       ADDRESS4MULTIPLE(cgns_pcoor, ncoords, coord, cgns_array)
+       array = coord;
+
+    /* 2 DataArray_t under Elements_t: connect and parent */
     } else if (strcmp(posit->label,"Elements_t")==0) {
         cgns_section *section= (cgns_section *)posit->posit;
         if (local_mode==CG_MODE_WRITE) {
@@ -12465,6 +15155,12 @@ cgns_array *cgi_array_address(int local_mode, int allow_dup, int given_no,
         ADDRESS4MULTIPLE(cgns_sol, nfields, field, cgns_array)
         array = field;
 
+     /* 0,N DataArray_t under ParticleSolution_t */
+    } else if (strcmp(posit->label,"ParticleSolution_t")==0) {
+        cgns_array *field;
+        ADDRESS4MULTIPLE(cgns_psol, nfields, field, cgns_array)
+        array = field;
+
      /* 0,N DataArray_t under DiscreteData_t */
     } else if (strcmp(posit->label,"DiscreteData_t")==0) {
         ADDRESS4MULTIPLE(cgns_discrete, narrays, array, cgns_array)
@@ -12503,6 +15199,14 @@ cgns_array *cgi_array_address(int local_mode, int allow_dup, int given_no,
         strcmp(posit->label,"EMConductivityModel_t")==0) {
         ADDRESS4MULTIPLE(cgns_model, narrays, array, cgns_array)
 
+     /* 0,N DataArray_t under all ParticleModel_t */
+    }  else if (strcmp(posit->label,"ParticleCollisionModel_t")==0 ||
+                strcmp(posit->label,"ParticleBreakupModel_t")==0 ||
+                strcmp(posit->label,"ParticleForceModel_t")==0 ||
+                strcmp(posit->label,"ParticleWallInteractionModel_t")==0 ||
+                strcmp(posit->label,"ParticlePhaseChangeModel_t")==0) {
+       ADDRESS4MULTIPLE(cgns_pmodel, narrays, array, cgns_array)
+
      /* 0,N DataArray_t under ConvergenceHistory_t <any name> */
     }  else if (strcmp(posit->label,"ConvergenceHistory_t")==0) {
         ADDRESS4MULTIPLE(cgns_converg, narrays, array, cgns_array)
@@ -12528,7 +15232,8 @@ cgns_array *cgi_array_address(int local_mode, int allow_dup, int given_no,
         ADDRESS4MULTIPLE(cgns_biter, narrays, array, cgns_array)
 
      /* 0,N DataArray_t under ZoneIterativeData_t:  <any name> */
-    } else if (strcmp(posit->label, "ZoneIterativeData_t")==0) {
+    } else if (strcmp(posit->label, "ZoneIterativeData_t")==0 ||
+               strcmp(posit->label, "ParticleIterativeData_t")==0) {
         ADDRESS4MULTIPLE(cgns_ziter, narrays, array, cgns_array)
 
      /* 0,N DataArray_t under UserDefinedData_t:  <any name> */
@@ -12742,7 +15447,11 @@ cgns_user_data *cgi_user_data_address(int local_mode, int given_no,
  *  Family_t, CGNSBase_t, Gravity_t, Axisymmetry_t, RotatingCoordinates_t
  *  BCProperty_t, WallFunction_t, Area_t,
  *  GridConnectivityProperty_t, Periodic_t, AverageInterface_t,
- *  UserDefinedData_t, ZoneSubRegion_t, FamilyBCDataSet_t
+ *  UserDefinedData_t, ZoneSubRegion_t, FamilyBCDataSet_t,
+ *  ParticleZone_t, ParticleCoordinates_t, ParticleSolution_t, ParticleIterativeData_t,
+ *  ParticleEquationSet_t, ParticleGoverningEquations_t, ParticleCollisionModel_t,
+ *  ParticleBreakupModel_t, ParticleForceModel_t, ParticleWallInteractionModel_t,
+ *  ParticlePhaseChangeModel_t, ParticleGoverningEquations_t
  */
     if (strcmp(posit->label,"IntegralData_t")==0)
         ADDRESS4MULTIPLE(cgns_integral, nuser_data, user_data, cgns_user_data)
@@ -12763,10 +15472,20 @@ cgns_user_data *cgi_user_data_address(int local_mode, int given_no,
         || (strcmp(posit->label,"EMMagneticFieldModel_t")==0)
         || (strcmp(posit->label,"EMConductivityModel_t")==0) )
         ADDRESS4MULTIPLE(cgns_model, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleCollisionModel_t")==0
+        || strcmp(posit->label,"ParticleBreakupModel_t")==0
+        || strcmp(posit->label,"ParticleForceModel_t")==0
+        || strcmp(posit->label,"ParticleWallInteractionModel_t")==0
+        || strcmp(posit->label,"ParticlePhaseChangeModel_t")==0)
+        ADDRESS4MULTIPLE(cgns_pmodel, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"GoverningEquations_t")==0)
         ADDRESS4MULTIPLE(cgns_governing, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"FlowEquationSet_t")==0)
         ADDRESS4MULTIPLE(cgns_equations, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleGoverningEquations_t")==0)
+        ADDRESS4MULTIPLE(cgns_pgoverning, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleEquationSet_t")==0)
+        ADDRESS4MULTIPLE(cgns_pequations, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"BCData_t")==0)
         ADDRESS4MULTIPLE(cgns_bcdata, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"BCDataSet_t")==0 ||
@@ -12788,18 +15507,25 @@ cgns_user_data *cgi_user_data_address(int local_mode, int given_no,
         ADDRESS4MULTIPLE(cgns_zconn, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"FlowSolution_t")==0)
         ADDRESS4MULTIPLE(cgns_sol, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleSolution_t")==0)
+        ADDRESS4MULTIPLE(cgns_psol, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"GridCoordinates_t")==0)
         ADDRESS4MULTIPLE(cgns_zcoor, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleCoordinates_t")==0)
+        ADDRESS4MULTIPLE(cgns_pcoor, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"RigidGridMotion_t")==0)
         ADDRESS4MULTIPLE(cgns_rmotion, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"ArbitraryGridMotion_t")==0)
         ADDRESS4MULTIPLE(cgns_amotion, nuser_data, user_data, cgns_user_data)
-    else if (strcmp(posit->label,"ZoneIterativeData_t")==0)
+    else if (strcmp(posit->label,"ZoneIterativeData_t")==0 ||
+             strcmp(posit->label,"ParticleIterativeData_t")==0)
         ADDRESS4MULTIPLE(cgns_ziter, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"BaseIterativeData_t")==0)
         ADDRESS4MULTIPLE(cgns_biter, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"Zone_t")==0)
         ADDRESS4MULTIPLE(cgns_zone, nuser_data, user_data, cgns_user_data)
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4MULTIPLE(cgns_pzone, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"GeometryReference_t")==0)
         ADDRESS4MULTIPLE(cgns_geo, nuser_data, user_data, cgns_user_data)
     else if (strcmp(posit->label,"Family_t")==0)
@@ -13041,6 +15767,9 @@ cgns_ptset *cgi_ptset_address(int local_mode, int *ier)
     else if (strcmp(posit->label,"FlowSolution_t")==0)
         ADDRESS4SINGLE(cgns_sol, ptset, cgns_ptset, 1)
 
+    else if (strcmp(posit->label,"ParticleSolution_t")==0)
+        ADDRESS4SINGLE(cgns_psol, ptset, cgns_ptset, 1)
+
     else if (strcmp(posit->label,"DiscreteData_t")==0)
         ADDRESS4SINGLE(cgns_discrete, ptset, cgns_ptset, 1)
 
@@ -13070,6 +15799,178 @@ cgns_ptset *cgi_ptset_address(int local_mode, int *ier)
 
     return ptset;
 }
+
+cgns_pequations *cgi_particle_equations_address(int local_mode, int *ier)
+{
+    cgns_pequations *equations=0;
+    double parent_id=0;
+    int error1=0;
+
+    /* check for valid posit */
+    if (posit == 0) {
+        cgi_error("No current position set by cg_goto\n");
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+
+/* Possible parents: CGNSBase_t, ParticleZone_t
+ */
+    if (strcmp(posit->label,"CGNSBase_t")==0) {
+        cgns_pequations *pequations = equations;
+        ADDRESS4SINGLE(cgns_base, pequations, cgns_pequations, 1)
+    }
+
+    else if (strcmp(posit->label,"ParticleZone_t")==0)
+        ADDRESS4SINGLE(cgns_pzone, equations, cgns_pequations, 1)
+
+    else {
+        cgi_error("ParticleEquationSet_t node not supported under '%s' type node",posit->label);
+        (*ier) = CG_INCORRECT_PATH;
+        return CG_OK;
+    }
+    if (error1==1) {
+        cgi_error("ParticleEquationSet_t already defined under %s",posit->label);
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+    if (!equations && local_mode == CG_MODE_READ) {
+        cgi_error("ParticleEquationSet_t Node doesn't exist under %s",posit->label);
+        (*ier) = CG_NODE_NOT_FOUND;
+        return CG_OK;
+    }
+    if (parent_id) {
+        if (cgi_delete_node (parent_id, equations->id)) {
+            (*ier) = CG_ERROR;
+            return CG_OK;
+        }
+        cgi_free_particle_equations(equations);
+    }
+    return equations;
+}
+
+cgns_pgoverning *cgi_particle_governing_address(int local_mode, int *ier)
+{
+    cgns_pgoverning *governing;
+    int error1=0;
+    double parent_id=0;
+
+    /* check for valid posit */
+    if (posit == 0) {
+        cgi_error("No current position set by cg_goto\n");
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+
+/* Possible parents for ParticleGoverningEquations_t:
+    ParticleEquationSet_t
+ */
+    if (strcmp(posit->label,"ParticleEquationSet_t")==0)
+        ADDRESS4SINGLE(cgns_pequations, governing, cgns_pgoverning,1)
+    else {
+        cgi_error("ParticleGoverningEquations_t node not supported under '%s' type node",posit->label);
+        (*ier) = CG_INCORRECT_PATH;
+        return CG_OK;
+    }
+    if (error1==1) {
+        cgi_error("ParticleGoverningEquations_t already defined under %s",posit->label);
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+    if (parent_id) {
+        if (cgi_delete_node (parent_id, governing->id)) {
+            (*ier) = CG_ERROR;
+            return CG_OK;
+        }
+        cgi_free_particle_governing(governing);
+    }
+    return governing;
+}
+
+cgns_pmodel *cgi_particle_model_address(int local_mode, char const *ModelLabel, int *ier)
+{
+    cgns_pmodel *model=0;
+    double parent_id=0;
+    int error1=0;
+
+    /* check for valid posit */
+    if (posit == 0) {
+        cgi_error("No current position set by cg_goto\n");
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+
+/* Possible parents for all xxxParticleModel_t */
+    if (strcmp(posit->label,"ParticleEquationSet_t")==0) {
+        if (strcmp(ModelLabel, "ParticleCollisionModel_t")==0) {
+            cgns_pmodel *collision;
+            ADDRESS4SINGLE(cgns_pequations, collision, cgns_pmodel, 1)
+            model = collision;
+
+        } else if (strcmp(ModelLabel, "ParticleBreakupModel_t")==0) {
+            cgns_pmodel *breakup;
+            ADDRESS4SINGLE(cgns_pequations, breakup, cgns_pmodel, 1)
+            model = breakup;
+
+        } else if (strcmp(ModelLabel, "ParticleForceModel_t")==0) {
+            cgns_pmodel *force;
+            ADDRESS4SINGLE(cgns_pequations, force, cgns_pmodel, 1)
+            model = force;
+
+        } else if (strcmp(ModelLabel, "ParticleWallInteractionModel_t")==0) {
+            cgns_pmodel *wallinteract;
+            ADDRESS4SINGLE(cgns_pequations, wallinteract, cgns_pmodel, 1)
+            model = wallinteract;
+
+        } else if (strcmp(ModelLabel, "ParticlePhaseChangeModel_t")==0) {
+            cgns_pmodel *phasechange;
+            ADDRESS4SINGLE(cgns_pequations, phasechange, cgns_pmodel, 1)
+            model = phasechange;
+        } else {
+            cgi_error("Incorrect model type %s",ModelLabel);
+            (*ier) = CG_ERROR;
+            return CG_OK;
+        }
+    } else {
+        cgi_error("%s node not supported under '%s' type node",ModelLabel,posit->label);
+        (*ier)=CG_INCORRECT_PATH;
+        return CG_OK;
+    }
+    if (!model && local_mode == CG_MODE_READ) {
+        cgi_error("%s node doesn't exist under %s",ModelLabel,posit->label);
+        (*ier) = CG_NODE_NOT_FOUND;
+        return CG_OK;
+    }
+    if (error1) {
+        cgi_error("%s node already defined under %s",ModelLabel,posit->label);
+        (*ier) = CG_ERROR;
+        return CG_OK;
+    }
+    if (parent_id) {
+        if (cgi_delete_node (parent_id, model->id)) {
+            (*ier) = CG_ERROR;
+            return CG_OK;
+        }
+        cgi_free_particle_model(model);
+    }
+    return model;
+}
+
+void cgi_free_particle_governing(cgns_pgoverning *governing)
+{
+    int n;
+    if (governing->link) CGNS_FREE(governing->link);
+    if (governing->ndescr) {
+        for (n=0; n<governing->ndescr; n++)
+            cgi_free_descr(&governing->descr[n]);
+        CGNS_FREE(governing->descr);
+    }
+    if (governing->nuser_data) {
+        for (n=0; n<governing->nuser_data; n++)
+            cgi_free_user_data(&governing->user_data[n]);
+        CGNS_FREE(governing->user_data);
+    }
+}
+
 
 /***********************************************************************\
  *            Free memory                      *
@@ -13151,6 +16052,15 @@ void cgi_free_base(cgns_base *base)
     if (base->rotating) {
         cgi_free_rotating(base->rotating);
         CGNS_FREE(base->rotating);
+    }
+    if (base->pzone) {
+        for(n=0; n<base->npzones; n++)
+            cgi_free_particle(&base->pzone[n]);
+        CGNS_FREE(base->pzone);
+    }
+    if (base->pzonemap) {
+        cgi_hashmap_clear(base->pzonemap);
+        CGNS_FREE(base->pzonemap);
     }
 }
 
@@ -14321,6 +17231,172 @@ void cgi_free_subreg(cgns_subreg *subreg)
     }
 }
 
+void cgi_free_particle(cgns_pzone *pzone)
+{
+   int n;
+   if (pzone->link) CGNS_FREE(pzone->link);
+   if (pzone->nfamname) {
+       for (n=0; n<pzone->nfamname; n++)
+            cgi_free_famname(pzone->famname);
+       CGNS_FREE(pzone->famname);
+   }
+   if (pzone->ndescr) {
+       for (n=0; n<pzone->ndescr; n++)
+            cgi_free_descr(&pzone->descr[n]);
+       CGNS_FREE(pzone->descr);
+   }
+   if (pzone->npcoor) {
+       for (n=0; n<pzone->npcoor; n++)
+           cgi_free_pcoor(&pzone->pcoor[n]);
+       CGNS_FREE(pzone->pcoor);
+   }
+   if (pzone->nsols) {
+       for (n=0; n<pzone->nsols; n++)
+            cgi_free_psol(&pzone->sol[n]);
+       CGNS_FREE(pzone->sol);
+   }
+   if (pzone->nintegrals) {
+       for (n=0; n<pzone->nintegrals; n++)
+            cgi_free_integral(pzone->integral);
+       CGNS_FREE(pzone->integral);
+   }
+   if (pzone->state) {
+       cgi_free_state(pzone->state);
+       CGNS_FREE(pzone->state);
+   }
+   if (pzone->units) {
+       cgi_free_units(pzone->units);
+       CGNS_FREE(pzone->units);
+   }
+   if (pzone->equations) {
+       cgi_free_particle_equations(pzone->equations);
+       CGNS_FREE(pzone->equations);
+   }
+   if (pzone->piter) {
+       cgi_free_ziter(pzone->piter);
+       CGNS_FREE(pzone->piter);
+   }
+   if (pzone->nuser_data) {
+      for (n=0; n<pzone->nuser_data; n++)
+           cgi_free_user_data(&pzone->user_data[n]);
+      CGNS_FREE(pzone->user_data)
+   }
+}
+
+void cgi_free_pcoor(cgns_pcoor *pcoor)
+{
+   int n;
+   if (pcoor->link) CGNS_FREE(pcoor->link);
+   if (pcoor->ndescr) {
+       for (n=0; n<pcoor->ndescr; n++)
+           cgi_free_descr(&pcoor->descr[n]);
+       CGNS_FREE(pcoor->descr);
+   }
+   if (pcoor->ncoords) {
+       for (n=0; n<pcoor->ncoords; n++)
+           cgi_free_array(&pcoor->coord[n]);
+       CGNS_FREE(pcoor->coord);
+   }
+   if (pcoor->units) {
+       cgi_free_units(pcoor->units);
+       CGNS_FREE(pcoor->units);
+   }
+   if (pcoor->nuser_data) {
+       for (n=0; n<pcoor->nuser_data; n++)
+           cgi_free_user_data(&pcoor->user_data[n]);
+       CGNS_FREE(pcoor->user_data);
+   }
+}
+
+void cgi_free_psol(cgns_psol *sol)
+{
+    int n;
+    if (sol->link) CGNS_FREE(sol->link);
+    if (sol->ndescr) {
+        for (n=0; n<sol->ndescr; n++)
+            cgi_free_descr(&sol->descr[n]);
+        CGNS_FREE(sol->descr);
+    }
+    if (sol->nfields) {
+        for (n=0; n<sol->nfields; n++)
+            cgi_free_array(&sol->field[n]);
+        CGNS_FREE(sol->field);
+    }
+    if (sol->units) {
+        cgi_free_units(sol->units);
+        CGNS_FREE(sol->units);
+    }
+    if (sol->nuser_data) {
+        for (n=0; n<sol->nuser_data; n++)
+            cgi_free_user_data(&sol->user_data[n]);
+        CGNS_FREE(sol->user_data);
+    }
+    if (sol->ptset) {
+        cgi_free_ptset(sol->ptset);
+        CGNS_FREE(sol->ptset);
+    }
+}
+
+void cgi_free_particle_model(cgns_pmodel *model)
+{
+    int n;
+    if (model->link) CGNS_FREE(model->link);
+    if (model->ndescr) {
+        for (n=0; n<model->ndescr; n++)
+            cgi_free_descr(&model->descr[n]);
+        CGNS_FREE(model->descr);
+    }
+    if (model->narrays) {
+        for (n=0; n<model->narrays; n++)
+            cgi_free_array(&model->array[n]);
+        CGNS_FREE(model->array);
+    }
+    if (model->units) {
+        cgi_free_units(model->units);
+        CGNS_FREE(model->units);
+    }
+    if (model->nuser_data) {
+        for (n=0; n<model->nuser_data; n++)
+            cgi_free_user_data(&model->user_data[n]);
+        CGNS_FREE(model->user_data);
+    }
+}
+
+void cgi_free_particle_equations(cgns_pequations *equations)
+{
+    int n;
+    if (equations->link) CGNS_FREE(equations->link);
+    if (equations->ndescr) {
+        for (n=0; n<equations->ndescr; n++)
+            cgi_free_descr(&equations->descr[n]);
+        CGNS_FREE(equations->descr);
+    }
+    if (equations->governing) {
+        cgi_free_particle_governing(equations->governing);
+        CGNS_FREE(equations->governing);
+    }
+    if (equations->collision) {
+        cgi_free_particle_model(equations->collision);
+        CGNS_FREE(equations->collision);
+    }
+    if (equations->breakup) {
+        cgi_free_particle_model(equations->breakup);
+        CGNS_FREE(equations->breakup);
+    }
+    if (equations->force) {
+        cgi_free_particle_model(equations->force);
+        CGNS_FREE(equations->force);
+    }
+    if (equations->wallinteract) {
+        cgi_free_particle_model(equations->wallinteract);
+        CGNS_FREE(equations->wallinteract);
+    }
+    if (equations->phasechange) {
+        cgi_free_particle_model(equations->phasechange);
+        CGNS_FREE(equations->phasechange);
+    }
+}
+
 /***********************************************************************\
  *            Return the string from enumeration           *
 \***********************************************************************/
@@ -14639,6 +17715,42 @@ int cgi_ModelType(char *Name, CGNS_ENUMT(ModelType_t) *type)
     return CG_ERROR;
 }
 
+int cgi_ParticleGoverningEquationsType(char *Name, CGNS_ENUMT(ParticleGoverningEquationsType_t) *type)
+{
+    int i;
+    for (i=0; i<NofValidParticleGoverningEquationsTypes; i++) {
+        if (strcmp(Name, ParticleGoverningEquationsTypeName[i])==0) {
+          (*type) = (CGNS_ENUMV( ParticleGoverningEquationsType_t )) i;
+            return CG_OK;
+        }
+    }
+    if (cg->version > CGNSLibVersion) {
+      (*type) = CGNS_ENUMV( ParticleGoverningEquationsUserDefined );
+        cgi_warning("Unrecognized Governing Equations Type '%s' replaced with 'UserDefined'",Name);
+        return CG_OK;
+    }
+    cgi_error("Unrecognized Governing Equations Type: %s", Name);
+    return CG_ERROR;
+}
+
+int cgi_ParticleModelType(char *Name, CGNS_ENUMT(ParticleModelType_t) *type)
+{
+    int i;
+    for (i=0; i<NofValidParticleModelTypes; i++) {
+        if (strcmp(Name, ParticleModelTypeName[i])==0) {
+          (*type) = (CGNS_ENUMV( ParticleModelType_t )) i;
+            return CG_OK;
+        }
+    }
+    if (cg->version > CGNSLibVersion) {
+      (*type) = CGNS_ENUMV( ParticleModelTypeUserDefined );
+        cgi_warning("Unrecognized Particle Model Type '%s' replaced with 'UserDefined'",Name);
+        return CG_OK;
+    }
+    cgi_error("Unrecognized Particle Model Type : %s", Name);
+    return CG_ERROR;
+}
+
 int cgi_ZoneType(char *Name, CGNS_ENUMT(ZoneType_t) *type)
 {
     int i;
@@ -14773,7 +17885,7 @@ void cgi_array_print(char *routine, cgns_array *array)
     printf("\t array->name='%s'\n",array->name);
     printf("\t array->dim_vals=");
     for (n=0; n<array->data_dim; n++)
-        printf("%ld ",(long)array->dim_vals[n]);
+        printf("%" PRIdCGSIZE " ",array->dim_vals[n]);
     printf("\n");
     printf("\t array->data_type='%s'\n",DataTypeName[cgi_datatype(array->data_type)]);
     printf("\t array->id=%13.6e\n",array->id);

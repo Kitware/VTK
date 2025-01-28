@@ -525,7 +525,7 @@ extern  void    ADFI_increment_array(
             cgulong_t *element_offset,
             int *error_return ) ;
 
-extern  void    ADFI_is_block_in_core() ;
+extern  void    ADFI_is_block_in_core(void) ;
 
 extern  void    ADFI_little_endian_to_cray(
 	    const char from_format,
@@ -591,7 +591,7 @@ extern  void    ADFI_read_data_translated(
             char *data,
             int *error_return ) ;
 
-extern  void    ADFI_read_disk_block() ;
+extern  void    ADFI_read_disk_block(void) ;
 
 extern  void    ADFI_read_disk_pointer_from_disk(
             const unsigned int file_index,
@@ -707,7 +707,7 @@ extern  void    ADFI_write_data_translated(
             const char *data,
             int *error_return ) ;
 
-extern  void    ADFI_write_disk_block() ;
+extern  void    ADFI_write_disk_block(void) ;
 
 extern  void    ADFI_write_disk_pointer_2_disk(
             const unsigned int file_index,
@@ -780,9 +780,9 @@ extern  int     ADFI_stack_control(
 	    const unsigned int data_length,
 	    char *stack_data ) ;
 
-
 // XXX(kitware): ParaView does not use the Fortran interface.
 #if 0
+
 /***********************************************************************
     Prototypes for the FORTRAN to C Interface Routines
 ***********************************************************************/
