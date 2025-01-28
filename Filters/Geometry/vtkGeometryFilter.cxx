@@ -411,13 +411,13 @@ public:
   typename std::enable_if<(Size == 3), void>::type Initialize(const vtkIdType* pointIds)
   {
     // Reorder to get smallest id in first.
-    if (pointIds[1] < pointIds[0] && pointIds[1] < pointIds[2])
+    if (pointIds[1] <= pointIds[0] && pointIds[1] <= pointIds[2])
     {
       this->PointIds[0] = static_cast<TInputIdType>(pointIds[1]);
       this->PointIds[1] = static_cast<TInputIdType>(pointIds[2]);
       this->PointIds[2] = static_cast<TInputIdType>(pointIds[0]);
     }
-    else if (pointIds[2] < pointIds[0] && pointIds[2] < pointIds[1])
+    else if (pointIds[2] <= pointIds[0] && pointIds[2] <= pointIds[1])
     {
       this->PointIds[0] = static_cast<TInputIdType>(pointIds[2]);
       this->PointIds[1] = static_cast<TInputIdType>(pointIds[0]);
@@ -435,21 +435,21 @@ public:
   typename std::enable_if<(Size == 4), void>::type Initialize(const vtkIdType* pointIds)
   {
     // Reorder to get smallest id in first.
-    if (pointIds[1] < pointIds[0] && pointIds[1] < pointIds[2] && pointIds[1] < pointIds[3])
+    if (pointIds[1] <= pointIds[0] && pointIds[1] <= pointIds[2] && pointIds[1] <= pointIds[3])
     {
       this->PointIds[0] = static_cast<TInputIdType>(pointIds[1]);
       this->PointIds[1] = static_cast<TInputIdType>(pointIds[2]);
       this->PointIds[2] = static_cast<TInputIdType>(pointIds[3]);
       this->PointIds[3] = static_cast<TInputIdType>(pointIds[0]);
     }
-    else if (pointIds[2] < pointIds[0] && pointIds[2] < pointIds[1] && pointIds[2] < pointIds[3])
+    else if (pointIds[2] <= pointIds[0] && pointIds[2] <= pointIds[1] && pointIds[2] <= pointIds[3])
     {
       this->PointIds[0] = static_cast<TInputIdType>(pointIds[2]);
       this->PointIds[1] = static_cast<TInputIdType>(pointIds[3]);
       this->PointIds[2] = static_cast<TInputIdType>(pointIds[0]);
       this->PointIds[3] = static_cast<TInputIdType>(pointIds[1]);
     }
-    else if (pointIds[3] < pointIds[0] && pointIds[3] < pointIds[1] && pointIds[3] < pointIds[2])
+    else if (pointIds[3] <= pointIds[0] && pointIds[3] <= pointIds[1] && pointIds[3] <= pointIds[2])
     {
       this->PointIds[0] = static_cast<TInputIdType>(pointIds[3]);
       this->PointIds[1] = static_cast<TInputIdType>(pointIds[0]);
