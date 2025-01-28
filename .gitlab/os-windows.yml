@@ -420,7 +420,7 @@
     - Set-Item -Force -Path "env:NODE_DIR" -Value "$pwdpath\.gitlab\node"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\node;$env:PATH"
     - node --version
-    - .gitlab\ci\emsdk.ps1
+    - cmake -P .gitlab/ci/download_emsdk.cmake
     - .gitlab\emsdk\emsdk.ps1 install latest
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\emsdk\upstream\bin;$env:PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\emsdk\upstream\emscripten;$env:PATH"
