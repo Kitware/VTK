@@ -99,14 +99,14 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestUpdateExtent(
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::SetCache(vtkImageData* cache)
+void vtkVolumeRayCastSpaceLeapingImageFilter::SetCache(vtkImageData* cache)
 {
   // Do not reference count it to avoid reference counting loops
   this->Cache = cache;
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::InternalRequestUpdateExtent(
+void vtkVolumeRayCastSpaceLeapingImageFilter::InternalRequestUpdateExtent(
   int* inExt, int* wholeExtent)
 {
   int dim[3];
@@ -154,7 +154,7 @@ static void vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeInputExtentsForOutput(
+void vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
   int inExt[6], int inDim[3], int outExt[6], vtkImageData* inData)
 {
   int inWholeExt[6];
@@ -717,7 +717,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarOpacityFlags(
+void vtkVolumeRayCastSpaceLeapingImageFilter::FillScalarOpacityFlags(
   vtkImageData* outData, int outExt[6])
 {
   // Get increments to march through the output
@@ -947,7 +947,7 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestInformation(
 }
 
 //------------------------------------------------------------------------------
-int vtkVolumeRayCastSpaceLeapingImageFilter ::GetNumberOfIndependentComponents()
+int vtkVolumeRayCastSpaceLeapingImageFilter::GetNumberOfIndependentComponents()
 {
   // the number of independent components for which we need to keep track of
   // min/max
@@ -960,7 +960,7 @@ int vtkVolumeRayCastSpaceLeapingImageFilter ::GetNumberOfIndependentComponents()
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeFirstNonZeroOpacityIndices()
+void vtkVolumeRayCastSpaceLeapingImageFilter::ComputeFirstNonZeroOpacityIndices()
 {
   // Find the first non-zero scalar opacity and gradient opacity points on
   // the respective transfer functions
@@ -1003,44 +1003,44 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeFirstNonZeroOpacityIndices
 }
 
 //------------------------------------------------------------------------------
-unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinNonZeroScalarIndex()
+unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter::GetMinNonZeroScalarIndex()
 {
   return this->MinNonZeroScalarIndex;
 }
 
 //------------------------------------------------------------------------------
-unsigned char* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinNonZeroGradientMagnitudeIndex()
+unsigned char* vtkVolumeRayCastSpaceLeapingImageFilter::GetMinNonZeroGradientMagnitudeIndex()
 {
   return this->MinNonZeroGradientMagnitudeIndex;
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::SetGradientMagnitude(
+void vtkVolumeRayCastSpaceLeapingImageFilter::SetGradientMagnitude(
   unsigned char** gradientMagnitude)
 {
   this->GradientMagnitude = gradientMagnitude;
 }
 
 //------------------------------------------------------------------------------
-unsigned char** vtkVolumeRayCastSpaceLeapingImageFilter ::GetGradientMagnitude()
+unsigned char** vtkVolumeRayCastSpaceLeapingImageFilter::GetGradientMagnitude()
 {
   return this->GradientMagnitude;
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::SetScalarOpacityTable(int c, unsigned short* t)
+void vtkVolumeRayCastSpaceLeapingImageFilter::SetScalarOpacityTable(int c, unsigned short* t)
 {
   this->ScalarOpacityTable[c] = t;
 }
 
 //------------------------------------------------------------------------------
-void vtkVolumeRayCastSpaceLeapingImageFilter ::SetGradientOpacityTable(int c, unsigned short* t)
+void vtkVolumeRayCastSpaceLeapingImageFilter::SetGradientOpacityTable(int c, unsigned short* t)
 {
   this->GradientOpacityTable[c] = t;
 }
 
 //------------------------------------------------------------------------------
-unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinMaxVolume(int size[4])
+unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter::GetMinMaxVolume(int size[4])
 {
   if (vtkImageData* output = this->GetOutput())
   {
@@ -1058,7 +1058,7 @@ unsigned short* vtkVolumeRayCastSpaceLeapingImageFilter ::GetMinMaxVolume(int si
 
 //------------------------------------------------------------------------------
 // Fill in the min-max space leaping information.
-vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeOffset(
+vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter::ComputeOffset(
   const int ext[6], const int wholeExt[6], int nComponents)
 {
   int wDim[3] = { wholeExt[1] - wholeExt[0] + 1, wholeExt[3] - wholeExt[2] + 1,
@@ -1079,7 +1079,7 @@ vtkIdType vtkVolumeRayCastSpaceLeapingImageFilter ::ComputeOffset(
 // Allocate the output data, caching if necessary. Caching may result in
 // invalid outputs and should be turned on, only when this filter is used
 // as an internal ivar of the vtkFixedPointVolumeRayCastMapper.
-void vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
+void vtkVolumeRayCastSpaceLeapingImageFilter::AllocateOutputData(
   vtkImageData* output, vtkInformation* outInfo, int* uExtent)
 {
   // set the extent to be the update extent
@@ -1113,7 +1113,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
 }
 
 //------------------------------------------------------------------------------
-vtkImageData* vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
+vtkImageData* vtkVolumeRayCastSpaceLeapingImageFilter::AllocateOutputData(
   vtkDataObject* output, vtkInformation* outInfo)
 {
   // Call the superclass method
@@ -1122,7 +1122,7 @@ vtkImageData* vtkVolumeRayCastSpaceLeapingImageFilter ::AllocateOutputData(
 
 //------------------------------------------------------------------------------
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
-void vtkVolumeRayCastSpaceLeapingImageFilter ::WriteMinMaxVolume(
+void vtkVolumeRayCastSpaceLeapingImageFilter::WriteMinMaxVolume(
   int component, unsigned short* minMaxVolume, int minMaxVolumeSize[4], const char* filename)
 {
   vtkImageData* image = vtkImageData::New();
