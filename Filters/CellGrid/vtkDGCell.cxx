@@ -63,12 +63,6 @@ vtkDGCell::Source::Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape s
 {
 }
 
-ostream& operator<<(ostream& os, const vtkDGCell::Shape& shape)
-{
-  os << vtkDGCell::GetShapeName(shape).Data();
-  return os;
-}
-
 vtkDGCell::vtkDGCell()
 {
   static bool registeredSideShapes = false;
