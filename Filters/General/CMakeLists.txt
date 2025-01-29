@@ -134,10 +134,6 @@ set(classes
   vtkWarpVector
   vtkYoungsMaterialInterface)
 
-set(private_classes
-  vtkTableBasedClipCases
-)
-
 set(templates
   vtkJoinTables.txx)
 
@@ -146,7 +142,6 @@ set(no_wrap_classes
 
 vtk_module_add_module(VTK::FiltersGeneral
   CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes}
   NOWRAP_CLASSES ${no_wrap_classes}
   TEMPLATES ${templates})
 vtk_add_test_mangling(VTK::FiltersGeneral)
