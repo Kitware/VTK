@@ -22,6 +22,7 @@
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkNew.h"
 #include "vtkWidgetRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 

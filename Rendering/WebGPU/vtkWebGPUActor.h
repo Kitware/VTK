@@ -22,6 +22,8 @@ public:
 
   void ReleaseGraphicsResources(vtkWindow* window) override;
 
+  void ShallowCopy(vtkProp* other) override;
+
   inline const void* GetCachedActorInformation() { return &(this->CachedActorInfo); }
   static std::size_t GetCacheSizeBytes() { return sizeof(ActorBlock); }
 

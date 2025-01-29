@@ -23,6 +23,7 @@ set(classes
   vtkWebGPUComputeTexture
   vtkWebGPUComputeTextureView
   vtkWebGPUConfiguration
+  vtkWebGPUGlyph3DMapper
   vtkWebGPUHardwareSelector
   vtkWebGPUHelpers
   vtkWebGPULight
@@ -34,6 +35,7 @@ set(classes
   vtkWebGPURenderer
   vtkWebGPURenderPass
   vtkWebGPUShaderDatabase
+  vtkWebGPUShaderProperty
   vtkWebGPUTexture
   vtkWebGPUTextureView)
 
@@ -86,14 +88,14 @@ set(webgpu_overrides
   HardwareSelector
   # NI: ImageMapper
   # NI: ImageSliceMapper
-  # NI: Glyph3DMapper
+  Glyph3DMapper
   # NI: HyperTreeGridMapper
   Light
   # NI: PointGaussianMapper
   PolyDataMapper
   PolyDataMapper2D
   Property
-  # NI: ShaderProperty
+  ShaderProperty
   # NI: Uniforms
   Renderer
   # NI: RenderTimerLog
@@ -113,6 +115,7 @@ set(private_shader_files
   wgsl/ActorTransform.wgsl
   wgsl/FrustumCullingShader.wgsl
   wgsl/LineFragmentShader.wgsl
+  wgsl/LineGlyphShader.wgsl
   wgsl/LineMiterJoinVertexShader.wgsl
   wgsl/LineRoundJoinVertexShader.wgsl
   wgsl/LineShaderOpaque.wgsl
@@ -123,10 +126,12 @@ set(private_shader_files
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
+  wgsl/PointGlyphShader.wgsl
   wgsl/PointShader.wgsl
   wgsl/PolyData2D.wgsl
   wgsl/SceneLight.wgsl
   wgsl/SceneTransform.wgsl
+  wgsl/SurfaceMeshGlyphShader.wgsl
   wgsl/SurfaceMeshShader.wgsl
   wgsl/Utilities.wgsl
   wgsl/VTKCellToGraphicsPrimitive.wgsl)

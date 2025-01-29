@@ -7,9 +7,8 @@
 #include "vtkBoundedWidgetRepresentation.h"
 #include "vtkEllipseArcSource.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
-#include "vtkSetGet.h"
-#include "vtkVector.h"        // For vtkVector3d
-#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include "vtkVector.h"                   // For vtkVector3d
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;

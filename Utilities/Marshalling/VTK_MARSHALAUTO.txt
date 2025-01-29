@@ -115,6 +115,7 @@ Interaction/Widgets/vtkBiDimensionalRepresentation.h
 Interaction/Widgets/vtkBiDimensionalWidget.h
 Interaction/Widgets/vtkBorderRepresentation.h
 Interaction/Widgets/vtkBorderWidget.h
+Interaction/Widgets/vtkBoundedWidgetRepresentation.h
 Interaction/Widgets/vtkBoxRepresentation.h
 Interaction/Widgets/vtkBoxWidget2.h
 Interaction/Widgets/vtkButtonRepresentation.h
@@ -154,6 +155,8 @@ Interaction/Widgets/vtkImplicitConeRepresentation.h
 Interaction/Widgets/vtkImplicitConeWidget.h
 Interaction/Widgets/vtkImplicitCylinderRepresentation.h
 Interaction/Widgets/vtkImplicitCylinderWidget.h
+Interaction/Widgets/vtkImplicitFrustumRepresentation.h
+Interaction/Widgets/vtkImplicitFrustumWidget.h
 Interaction/Widgets/vtkImplicitPlaneRepresentation.h
 Interaction/Widgets/vtkImplicitPlaneWidget2.h
 Interaction/Widgets/vtkLightRepresentation.h
