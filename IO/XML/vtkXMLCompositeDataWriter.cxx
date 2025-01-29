@@ -12,7 +12,6 @@
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"

@@ -8,7 +8,6 @@
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
@@ -82,7 +81,6 @@ void vtkCompositeDataWriter::WriteData()
   }
 
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(input);
-  vtkHierarchicalBoxDataSet* hb = vtkHierarchicalBoxDataSet::SafeDownCast(input);
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(input);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(input);
   vtkMultiPieceDataSet* mp = vtkMultiPieceDataSet::SafeDownCast(input);
@@ -94,14 +92,6 @@ void vtkCompositeDataWriter::WriteData()
     if (!this->WriteCompositeData(fp, mb))
     {
       vtkErrorMacro("Error writing multiblock dataset.");
-    }
-  }
-  else if (hb)
-  {
-    *fp << "DATASET HIERARCHICAL_BOX\n";
-    if (!this->WriteCompositeData(fp, hb))
-    {
-      vtkErrorMacro("Error writing hierarchical-box dataset.");
     }
   }
   else if (oamr)
@@ -283,10 +273,10 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkPartitionedDataS
 }
 
 //------------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxDataSet* hb)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxDataSet* amr)
 {
   (void)fp;
-  (void)hb;
+  (void)amr;
   vtkErrorMacro("This isn't supported yet.");
   return false;
 }
@@ -366,10 +356,10 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
 }
 
 //------------------------------------------------------------------------------
-bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkNonOverlappingAMR* hb)
+bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkNonOverlappingAMR* amr)
 {
   (void)fp;
-  (void)hb;
+  (void)amr;
   vtkErrorMacro("This isn't supported yet.");
   return false;
 }

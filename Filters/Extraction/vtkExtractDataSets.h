@@ -4,14 +4,14 @@
  * @class   vtkExtractDataSets
  * @brief   extracts a number of datasets.
  *
- * vtkExtractDataSets accepts a vtkHierarchicalBoxDataSet as input and extracts
+ * vtkExtractDataSets accepts a vtkUniformGridAMR as input and extracts
  * different datasets from different levels. The output is
  * vtkMultiBlockDataSet of vtkMultiPiece datasets. Each block corresponds to
  * a level in the vktHierarchicalBoxDataSet. Individual datasets, within a level,
  * are stored in a vtkMultiPiece dataset.
  *
  * @sa
- * vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
+ * vtkUniformGridAMR, vtkMultiBlockDataSet vtkMultiPieceDataSet
  */
 
 #ifndef vtkExtractDataSets_h

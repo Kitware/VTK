@@ -174,7 +174,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle, int tag)
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete
     case VTK_MULTIGROUP_DATA_SET:       // obsolete
     case VTK_HIERARCHICAL_DATA_SET:     // obsolete
     default:
@@ -368,7 +368,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle, in
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete.
     case VTK_MULTIGROUP_DATA_SET:       // obsolete.
     case VTK_HIERARCHICAL_DATA_SET:     // obsolete.
     default:
@@ -1197,7 +1197,7 @@ int vtkCommunicator::GatherV(
     case VTK_GENERIC_DATA_SET:
     case VTK_HYPER_OCTREE:
     case VTK_COMPOSITE_DATA_SET:
-    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // obsolete
     case VTK_MULTIGROUP_DATA_SET:       // obsolete
     case VTK_HIERARCHICAL_DATA_SET:     // obsolete
     default:

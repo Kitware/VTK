@@ -3,13 +3,13 @@
 #include "vtkExtractDataSets.h"
 
 #include "vtkCellData.h"
-#include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
+#include "vtkUniformGridAMR.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>

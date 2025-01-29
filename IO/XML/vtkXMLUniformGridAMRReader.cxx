@@ -364,7 +364,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
 
   if (this->GetFileMajorVersion() == -1 && this->GetFileMinorVersion() == -1)
   {
-    vtkErrorMacro("Version not supported. Use vtkXMLHierarchicalBoxDataReader instead.");
+    vtkErrorMacro("Version not supported.");
     return;
   }
 
@@ -465,8 +465,7 @@ vtkDataSet* vtkXMLUniformGridAMRReader::ReadDataset(
   vtkDataSet* ds = this->Superclass::ReadDataset(xmlElem, filePath);
   if (ds && ds->IsA("vtkImageData"))
   {
-    // Convert vtkImageData to vtkUniformGrid as needed by
-    // vtkHierarchicalBoxDataSet.
+    // Convert vtkImageData to vtkUniformGrid as needed by AMR datatypes
     vtkUniformGrid* ug = vtkUniformGrid::New();
     ug->ShallowCopy(ds);
     ds->Delete();

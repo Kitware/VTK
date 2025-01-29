@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_5_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkXMLGenericDataObjectReader.h"
 
 #include "vtkCommand.h"
@@ -8,6 +12,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
@@ -351,7 +356,15 @@ vtkDataObject* vtkXMLGenericDataObjectReader::GetOutput(int idx)
 //------------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet* vtkXMLGenericDataObjectReader::GetHierarchicalBoxDataSetOutput()
 {
+  vtkLogF(
+    WARNING, "GetHierarchicalBoxDataSetOutput is deprecated, use GetOverlappingAMROutput instead");
   return vtkHierarchicalBoxDataSet::SafeDownCast(this->GetOutput());
+}
+
+//------------------------------------------------------------------------------
+vtkOverlappingAMR* vtkXMLGenericDataObjectReader::GetOverlappingAMROutput()
+{
+  return vtkOverlappingAMR::SafeDownCast(this->GetOutput());
 }
 
 //------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 // This example demonstrates how hierarchical box (uniform rectilinear)
-// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
+// AMR datasets can be processed using the vtkOverlappingAMR class.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
@@ -10,11 +10,11 @@
 
 #include "vtkCamera.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkHierarchicalDataExtractLevel.h"
-#include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkHierarchicalPolyDataMapper.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkProperty.h"
@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 #include "vtkTestUtilities.h"
-#include "vtkXMLHierarchicalBoxDataReader.h"
+#include "vtkXMLUniformGridAMRReader.h"
 
 int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
@@ -47,12 +47,12 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
 
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/chombo3d/chombo3d.vtm");
 
-  vtkXMLHierarchicalBoxDataReader* reader = vtkXMLHierarchicalBoxDataReader::New();
+  vtkXMLUniformGridAMRReader* reader = vtkXMLUniformGridAMRReader::New();
   reader->SetFileName(cfname);
   delete[] cfname;
 
   // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom = vtkHierarchicalDataSetGeometryFilter::New();
+  vtkCompositeDataGeometryFilter* geom = vtkCompositeDataGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();

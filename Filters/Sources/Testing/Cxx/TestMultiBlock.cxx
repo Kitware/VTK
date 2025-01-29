@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// This example demonstrates how hierarchical box (uniform rectilinear)
-// AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will

@@ -58,6 +58,7 @@ protected:
 
   bool WriteCompositeData(ostream*, vtkMultiBlockDataSet*);
   bool WriteCompositeData(ostream*, vtkMultiPieceDataSet*);
+  VTK_DEPRECATED_IN_9_5_0("Please use `vtkOverlappingAMR` version instead.")
   bool WriteCompositeData(ostream*, vtkHierarchicalBoxDataSet*);
   bool WriteCompositeData(ostream*, vtkOverlappingAMR*);
   bool WriteCompositeData(ostream*, vtkNonOverlappingAMR*);

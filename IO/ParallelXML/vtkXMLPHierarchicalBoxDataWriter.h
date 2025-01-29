@@ -12,11 +12,13 @@
 #ifndef vtkXMLPHierarchicalBoxDataWriter_h
 #define vtkXMLPHierarchicalBoxDataWriter_h
 
+#include "vtkDeprecation.h"         // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPUniformGridAMRWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLPUniformGridAMRWriter
+class VTK_DEPRECATED_IN_9_5_0("Please use `vtkXMLPUniformGridAMRWriter` instead.")
+  VTKIOPARALLELXML_EXPORT vtkXMLPHierarchicalBoxDataWriter : public vtkXMLPUniformGridAMRWriter
 {
 public:
   static vtkXMLPHierarchicalBoxDataWriter* New();
