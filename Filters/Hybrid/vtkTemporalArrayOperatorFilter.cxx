@@ -5,6 +5,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTreeIterator.h"
@@ -12,7 +13,6 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -27,12 +27,6 @@ vtkStandardNewMacro(vtkTemporalArrayOperatorFilter);
 //------------------------------------------------------------------------------
 vtkTemporalArrayOperatorFilter::vtkTemporalArrayOperatorFilter()
 {
-  this->Operator = OperatorType::ADD;
-  this->NumberTimeSteps = 0;
-  this->FirstTimeStepIndex = 0;
-  this->SecondTimeStepIndex = 0;
-  this->OutputArrayNameSuffix = nullptr;
-
   // Set the default input data array that the algorithm will process (point scalars)
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);

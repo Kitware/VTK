@@ -85,15 +85,15 @@ protected:
   virtual vtkDataObject* ProcessDataObject(vtkDataObject*, vtkDataObject*);
   virtual vtkDataArray* ProcessDataArray(vtkDataArray*, vtkDataArray*);
 
-  int Operator;
-  int FirstTimeStepIndex;
-  int SecondTimeStepIndex;
-  int NumberTimeSteps;
-  char* OutputArrayNameSuffix;
-
 private:
   vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter&) = delete;
   void operator=(const vtkTemporalArrayOperatorFilter&) = delete;
+
+  int Operator = OperatorType::ADD;
+  int FirstTimeStepIndex = 0;
+  int SecondTimeStepIndex = 0;
+  int NumberTimeSteps = 0;
+  char* OutputArrayNameSuffix = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END
