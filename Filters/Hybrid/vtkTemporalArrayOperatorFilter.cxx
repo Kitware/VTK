@@ -41,7 +41,8 @@ vtkTemporalArrayOperatorFilter::~vtkTemporalArrayOperatorFilter()
 void vtkTemporalArrayOperatorFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Operator: " << this->Operator << endl;
+  os << indent << "Operator: " << this->GetOperatorAsString() << " (" << this->Operator << ")"
+     << endl;
   os << indent << "First time step: " << this->FirstTimeStepIndex << endl;
   os << indent << "Second time step: " << this->SecondTimeStepIndex << endl;
   os << indent << "Output array name suffix: "
@@ -355,31 +356,16 @@ vtkDataArray* vtkTemporalArrayOperatorFilter::ProcessDataArray(
   outputDataArray->SetNumberOfTuples(inputArray0->GetNumberOfTuples());
   outputDataArray->CopyComponentNames(inputArray0);
 
-  std::string s = inputArray0->GetName() ? inputArray0->GetName() : "input_array";
+  std::string arrayName = inputArray0->GetName() ? inputArray0->GetName() : "input_array";
   if (this->OutputArrayNameSuffix && strlen(this->OutputArrayNameSuffix) != 0)
   {
-    s += this->OutputArrayNameSuffix;
+    arrayName += this->OutputArrayNameSuffix;
   }
   else
   {
-    switch (this->Operator)
-    {
-      case SUB:
-        s += "_sub";
-        break;
-      case MUL:
-        s += "_mul";
-        break;
-      case DIV:
-        s += "_div";
-        break;
-      case ADD:
-      default:
-        s += "_add";
-        break;
-    }
+    arrayName += "_" + this->GetOperatorAsString();
   }
-  outputDataArray->SetName(s.c_str());
+  outputDataArray->SetName(arrayName.c_str());
 
   // Let's perform the operation on the array
   TemporalDataOperatorWorker worker(this->Operator);
@@ -392,4 +378,22 @@ vtkDataArray* vtkTemporalArrayOperatorFilter::ProcessDataArray(
 
   return outputDataArray;
 }
+
+//------------------------------------------------------------------------------
+std::string vtkTemporalArrayOperatorFilter::GetOperatorAsString()
+{
+  switch (this->Operator)
+  {
+    case OperatorType::SUB:
+      return "sub";
+    case OperatorType::MUL:
+      return "mul";
+    case OperatorType::DIV:
+      return "div";
+    case OperatorType::ADD:
+    default:
+      return "add";
+  }
+}
+
 VTK_ABI_NAMESPACE_END

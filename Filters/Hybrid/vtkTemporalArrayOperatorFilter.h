@@ -89,6 +89,11 @@ private:
   vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter&) = delete;
   void operator=(const vtkTemporalArrayOperatorFilter&) = delete;
 
+  /**
+   * Return a lower-case string for Operator
+   */
+  std::string GetOperatorAsString();
+
   int Operator = OperatorType::ADD;
   int FirstTimeStepIndex = 0;
   int SecondTimeStepIndex = 0;
