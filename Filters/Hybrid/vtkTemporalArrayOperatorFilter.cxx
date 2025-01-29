@@ -108,11 +108,41 @@ int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUse
     }
 
     double* inputTimes = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    double meshTime = inputTimes[this->FirstTimeStepIndex];
-    double outTime[1] = { meshTime };
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTime, 1);
-
-    double timeRange[2] = { meshTime, meshTime };
+    double timeRange[2] = { inputTimes[0], inputTimes[this->NumberTimeSteps - 1] };
+    if (this->RelativeMode)
+    {
+      int absoluteShift = std::abs(this->TimeStepShift);
+      if (absoluteShift >= this->NumberTimeSteps)
+      {
+        vtkErrorMacro(
+          << "Shift is too big: second timestep is always out of range. Absolute max is "
+          << this->NumberTimeSteps);
+        return 0;
+      }
+      int outNumberTimeSteps = this->NumberTimeSteps - absoluteShift;
+      if (this->TimeStepShift < 0)
+      {
+        // skip first timesteps
+        timeRange[0] = inputTimes[absoluteShift];
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &inputTimes[absoluteShift],
+          outNumberTimeSteps);
+      }
+      else
+      {
+        // skip last timesteps
+        outInfo->Set(
+          vtkStreamingDemandDrivenPipeline::TIME_STEPS(), inputTimes, outNumberTimeSteps);
+        timeRange[1] = inputTimes[outNumberTimeSteps - 1];
+      }
+    }
+    else
+    {
+      double meshTime = inputTimes[this->FirstTimeStepIndex];
+      double outTime[1] = { meshTime };
+      timeRange[0] = meshTime;
+      timeRange[1] = meshTime;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTime, 1);
+    }
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
   else
@@ -125,22 +155,51 @@ int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUse
 }
 
 //------------------------------------------------------------------------------
+void vtkTemporalArrayOperatorFilter::GetTimeStepsToUse(int timeSteps[2])
+{
+  if (this->RelativeMode)
+  {
+    vtkInformation* outInfo = this->GetOutputInformation(0);
+    double requestedTime = 0;
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+    {
+      requestedTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    }
+
+    vtkInformation* inputInfo = this->GetInputInformation();
+    double* inputTime = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    assert(inputTime);
+    for (int step = 0; step < this->NumberTimeSteps && inputTime[step] <= requestedTime; step++)
+    {
+      timeSteps[0] = step;
+    }
+    timeSteps[1] = timeSteps[0] + this->TimeStepShift;
+  }
+  else
+  {
+    timeSteps[0] = this->FirstTimeStepIndex;
+    timeSteps[1] = this->SecondTimeStepIndex;
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputInfoVector, vtkInformationVector* outputInfoVector)
 {
-  if (this->FirstTimeStepIndex < 0 || this->SecondTimeStepIndex < 0 ||
-    this->FirstTimeStepIndex >= this->NumberTimeSteps ||
-    this->SecondTimeStepIndex >= this->NumberTimeSteps)
+  int timeSteps[2];
+  this->GetTimeStepsToUse(timeSteps);
+
+  if (timeSteps[0] < 0 || timeSteps[1] < 0 || timeSteps[0] >= this->NumberTimeSteps ||
+    timeSteps[1] >= this->NumberTimeSteps)
   {
-    vtkErrorMacro(<< "Specified timesteps (" << this->FirstTimeStepIndex << " and "
-                  << this->SecondTimeStepIndex
+    vtkErrorMacro(<< "Specified timesteps (" << timeSteps[0] << " and " << timeSteps[1] << ") "
                   << "are outside the range of"
                      " available time steps ("
                   << this->NumberTimeSteps << ")");
     return 0;
   }
 
-  if (this->FirstTimeStepIndex == this->SecondTimeStepIndex)
+  if (timeSteps[0] == timeSteps[1])
   {
     vtkWarningMacro(<< "First and second time steps are the same.");
   }
@@ -150,17 +209,13 @@ int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUs
   if (outputInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     vtkInformation* inputInfo = inputInfoVector[0]->GetInformationObject(0);
-    // Get the available input times
     double* inputTime = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    if (inputTime)
-    {
-      // Request the two time steps upstream
-      double inputUpdateTimes[2] = { inputTime[this->FirstTimeStepIndex],
-        inputTime[this->SecondTimeStepIndex] };
+    assert(inputTime);
 
-      inputInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inputUpdateTimes, 2);
-    }
+    double inputUpdateTimes[2] = { inputTime[timeSteps[0]], inputTime[timeSteps[1]] };
+    inputInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inputUpdateTimes, 2);
   }
+
   return 1;
 }
 

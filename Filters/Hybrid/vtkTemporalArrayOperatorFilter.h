@@ -68,6 +68,36 @@ public:
   vtkGetStringMacro(OutputArrayNameSuffix);
   ///@}
 
+  ///@{
+  /**
+   * Set / Get relative mode.
+   * When relative mode is true, this filter operates between the timestep requested
+   * by the pipeline and a shifted timestep.
+   * When relative mode is false absolute timesteps are used as set by SetFirstTimeStepIndex and
+   * SetSecondTimeStepIndex. In that case current pipeline time request is ignored.
+   *
+   * Default is false.
+   *
+   * @see SetTimeStepShift
+   */
+  vtkSetMacro(RelativeMode, bool);
+  vtkGetMacro(RelativeMode, bool);
+  vtkBooleanMacro(RelativeMode, bool);
+  ///}
+
+  ///@{
+  /**
+   * Set / Get the timestep shift.
+   * When RelativeMode is true, TimeStepShift is used to get the second
+   * timestep to use, relatively to pipeline time.
+   * Default is -1 (uses previous timestep)
+   *
+   * @see SetRelativeMode
+   */
+  vtkSetMacro(TimeStepShift, int);
+  vtkGetMacro(TimeStepShift, int);
+  /// @}
+
 protected:
   vtkTemporalArrayOperatorFilter();
   ~vtkTemporalArrayOperatorFilter() override;
@@ -95,11 +125,21 @@ private:
    */
   std::string GetOperatorAsString();
 
+  /**
+   * Compute first and second timesteps.
+   * If RelativeMode is false, simply set First and SecondTimeStepIndex
+   * If RelativeMode is true, use input and output information associated to TimeStepShfit.
+   */
+  void GetTimeStepsToUse(int timeSteps[2]);
+
   int Operator = OperatorType::ADD;
   int FirstTimeStepIndex = 0;
   int SecondTimeStepIndex = 0;
   int NumberTimeSteps = 0;
   char* OutputArrayNameSuffix = nullptr;
+
+  bool RelativeMode = false;
+  int TimeStepShift = -1;
 };
 
 VTK_ABI_NAMESPACE_END
