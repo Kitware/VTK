@@ -11,6 +11,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkSetGet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
@@ -30,10 +31,10 @@ void vtkHyperTreeGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent inden
 }
 
 //------------------------------------------------------------------------------
-int vtkHyperTreeGridGhostCellsGenerator::FillOutputPortInformation(int, vtkInformation* info)
+int vtkHyperTreeGridGhostCellsGenerator::FillInputPortInformation(int, vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
   return 1;
 }
 
@@ -43,13 +44,37 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
 {
   this->UpdateProgress(0.);
 
-  // Retrieve input and output
-  vtkHyperTreeGrid* input = vtkHyperTreeGrid::GetData(inputVector[0], 0);
-  if (!input)
+  vtkHyperTreeGrid* inputHTG = vtkHyperTreeGrid::GetData(inputVector[0], 0);
+  vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::GetData(inputVector[0], 0);
+
+  if (!inputPDS && !inputHTG)
   {
-    vtkErrorMacro("No input available. Cannot proceed with hyper tree grid algorithm.");
+    vtkErrorMacro("Input data is neither HTG or PartitionedDataSet. Cannot proceed with ghost cell "
+                  "generation.");
     return 0;
   }
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  int myRank = info->Get(vtkDataObject::DATA_PIECE_NUMBER());
+  vtkWarningMacro("REQUEST DATA FOR PIECE" << myRank);
+
+  if (inputPDS)
+  {
+    for (unsigned int partId = 0; partId < inputPDS->GetNumberOfPartitions(); partId++)
+    {
+      auto partHTG = vtkHyperTreeGrid::SafeDownCast(inputPDS->GetPartitionAsDataObject(partId));
+      if (partHTG)
+      {
+        if (inputHTG)
+        {
+          vtkWarningMacro(
+            "Found more than one non-null HTG in the partitioned dataset for piece " << myRank);
+        }
+        inputHTG = partHTG;
+      }
+    }
+  }
+
   vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
   if (!outputDO)
   {
@@ -57,9 +82,9 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     return 0;
   }
 
-  int correctExtent = input->GetExtent()[0] <= input->GetExtent()[1] &&
-    input->GetExtent()[2] <= input->GetExtent()[3] &&
-    input->GetExtent()[4] <= input->GetExtent()[5];
+  int correctExtent = inputHTG->GetExtent()[0] <= inputHTG->GetExtent()[1] &&
+    inputHTG->GetExtent()[2] <= inputHTG->GetExtent()[3] &&
+    inputHTG->GetExtent()[4] <= inputHTG->GetExtent()[5];
 
   // Make sure every HTG piece has a correct extent and can be processed.
   // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
@@ -73,10 +98,10 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     vtkWarningMacro("Every individual distributed process does not have a valid HTG extent. No "
                     "ghost cells will be generated.");
     vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
-    output->ShallowCopy(input);
+    output->ShallowCopy(inputHTG);
     return 1;
   }
-  else if (!this->ProcessTrees(input, outputDO))
+  else if (!this->ProcessTrees(inputHTG, outputDO))
   {
     return 0;
   }

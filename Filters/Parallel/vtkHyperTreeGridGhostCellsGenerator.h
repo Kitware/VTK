@@ -49,9 +49,9 @@ protected:
   struct vtkInternals;
 
   /**
-   * For this algorithm the output is a vtkHyperTreeGrid instance
+   * Input must be either HTG or vtkPartitionnedDataSet composed of HTG partitions.
    */
-  int FillOutputPortInformation(int, vtkInformation*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   /**
    * Override RequestData, to make sure every HTG piece can be processed, hence avoiding that one
