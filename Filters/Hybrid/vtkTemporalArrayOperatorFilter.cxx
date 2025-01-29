@@ -7,6 +7,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataObject.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
@@ -89,10 +90,11 @@ int vtkTemporalArrayOperatorFilter::RequestDataObject(vtkInformation* vtkNotUsed
 
 //------------------------------------------------------------------------------
 int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputInfoVector, vtkInformationVector* vtkNotUsed(outputInfoVector))
+  vtkInformationVector** inputInfoVector, vtkInformationVector* outputInfoVector)
 {
   // Get input and output information objects
   vtkInformation* inputInfo = inputInfoVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputInfoVector->GetInformationObject(0);
 
   // Check for presence more than one time step
   if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
@@ -104,6 +106,14 @@ int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUse
       vtkErrorMacro(<< "Not enough numbers of time steps: " << this->NumberTimeSteps);
       return 0;
     }
+
+    double* inputTimes = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double meshTime = inputTimes[this->FirstTimeStepIndex];
+    double outTime[1] = { meshTime };
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTime, 1);
+
+    double timeRange[2] = { meshTime, meshTime };
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
   else
   {
