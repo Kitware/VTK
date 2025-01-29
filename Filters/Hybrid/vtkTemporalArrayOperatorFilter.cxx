@@ -4,19 +4,16 @@
 #include "vtkTemporalArrayOperatorFilter.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTreeIterator.h"
-#include "vtkDataSet.h"
-#include "vtkGraph.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTable.h"
 
 #include <algorithm>
 #include <functional>
@@ -279,59 +276,20 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
   vtkDataObject* outputDataObject = inputData0->NewInstance();
   outputDataObject->ShallowCopy(inputData1);
 
-  vtkDataSet* outputDataSet = vtkDataSet::SafeDownCast(outputDataObject);
-  vtkGraph* outputGraph = vtkGraph::SafeDownCast(outputDataObject);
-  vtkTable* outputTable = vtkTable::SafeDownCast(outputDataObject);
-
   vtkSmartPointer<vtkDataArray> outputArray;
   outputArray.TakeReference(this->ProcessDataArray(inputArray0, inputArray1));
 
-  switch (this->GetInputArrayAssociation())
+  vtkFieldData* field =
+    outputDataObject->GetAttributesAsFieldData(this->GetInputArrayAssociation());
+  if (!field)
   {
-    case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      if (!outputDataSet)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputDataSet->GetCellData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_NONE:
-      outputDataObject->GetFieldData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_VERTICES:
-      if (!outputGraph)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputGraph->GetVertexData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_EDGES:
-      if (!outputGraph)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputGraph->GetEdgeData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_ROWS:
-      if (!outputTable)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputTable->GetRowData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-    default:
-      if (!outputDataSet)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputDataSet->GetPointData()->AddArray(outputArray);
-      break;
+    vtkErrorMacro(<< "Bad input association ("
+                  << vtkDataObject::GetAssociationTypeAsString(this->GetInputArrayAssociation())
+                  << ") for input data object (" << outputDataObject->GetClassName() << ")");
+  }
+  else
+  {
+    field->AddArray(outputArray);
   }
 
   this->CheckAbort();
