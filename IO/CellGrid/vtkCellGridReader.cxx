@@ -399,7 +399,9 @@ int vtkCellGridReader::RequestData(
     file.seekg(0, std::ios::end);
     auto end = file.tellg();
     file.seekg(start, std::ios::beg);
-    std::vector<std::uint8_t> data;
+    // Use 'char' instead of 'uint8_t' to avoid the following clang >= 19 error:
+    // "implicit instantiation of undefined template 'std::char_traits<unsigned char>'"
+    std::vector<char> data;
     data.resize(end - start);
     auto readSize = data.size() / sizeof(std::istream::char_type) +
       (data.size() % sizeof(std::istream::char_type) ? 1 : 0);

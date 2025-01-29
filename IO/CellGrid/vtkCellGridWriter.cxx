@@ -422,7 +422,8 @@ void vtkCellGridWriter::WriteData()
       case Format::MessagePack:
       {
         output << "vtkCellGrid\nMessagePack\nv1\n";
-        std::vector<std::uint8_t> mpack = nlohmann::json::to_msgpack(data);
+        std::vector<char> mpack;
+        nlohmann::json::to_msgpack(data, mpack);
         auto writeSize = mpack.size() / sizeof(std::istream::char_type) +
           (mpack.size() % sizeof(std::istream::char_type) ? 1 : 0);
         output.write(reinterpret_cast<std::ostream::char_type*>(mpack.data()), writeSize);
