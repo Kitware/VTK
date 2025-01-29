@@ -201,7 +201,7 @@ nlohmann::json serializeArrayValues(vtkAbstractArray* arr)
   {
     for (vtkIdType ii = 0; ii < arr->GetNumberOfValues(); ++ii)
     {
-      result.push_back(arr->GetVariantValue(ii).ToString());
+      result.push_back(static_cast<std::string>(arr->GetVariantValue(ii).ToString()));
     }
   }
   return result;
