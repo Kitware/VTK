@@ -96,7 +96,7 @@ int TestTemporalArrayOperatorFilter(int, char*[])
 
   double range[2];
   diff->GetPointData()->GetArray("timeData")->GetRange(range);
-  if (range[0] != 0 && range[1] != 20)
+  if (range[0] != 3 && range[1] != 83)
   {
     std::cerr << "Bad initial range:" << range[0] << ";" << range[1] << endl;
     return EXIT_FAILURE;

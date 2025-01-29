@@ -6,6 +6,7 @@
  *
  * This filter computes a simple operation between two time steps of one
  * data array.
+ * The mesh of the first time step is used.
  *
  * @sa
  * vtkArrayCalulator

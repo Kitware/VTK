@@ -275,7 +275,7 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
 
   // Copy input structure into output
   vtkDataObject* outputDataObject = inputData0->NewInstance();
-  outputDataObject->ShallowCopy(inputData1);
+  outputDataObject->ShallowCopy(inputData0);
 
   vtkSmartPointer<vtkDataArray> outputArray;
   outputArray.TakeReference(this->ProcessDataArray(inputArray0, inputArray1));
