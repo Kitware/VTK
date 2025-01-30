@@ -2,15 +2,21 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHyperTreeGridGhostCellsGenerator
- * @brief   Generated ghost cells (HyperTree's distributed).
+ * @brief   Generate ghost cells for distributed vtkHyperTreeGrids
  *
- * This filter generates ghost cells for vtkHyperTreeGrid type data. The input vtkHyperTreeGrid
- * should have hyper trees distributed to a single process. This filter produces ghost hyper trees
- * at the interfaces between different processes, only composed of the nodes and leafs at this
- * interface to avoid data waste.
+ * This filter generates ghost cells for vtkHyperTreeGrid type data.
+ * It can also take a vtkPartitionedDataSet composed of HyperTreeGrid partition,
+ * where each process has a single non-null partition. In case of a PartitionedDataSet, the output
+ * structure is identical to the input structure.
+ *
+ * This filter produces ghost hyper trees at the interfaces between different processes,
+ * only composed of the nodes and leaves at this interface to avoid data waste.
  *
  * This filter should be used in a multi-processes environment, and is only required if wanting to
  * filter a vtkHyperTreeGrid with algorithms using Von Neumann or Moore supercursors afterwards.
+ *
+ * All processes should have a single HTG with a correct extent, even if it does not contain any
+ * actual unmasked cells.
  *
  * @par Thanks:
  * This class was written by Jacques-Bernard Lekien, 2019

@@ -44,6 +44,10 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
 {
   this->UpdateProgress(0.);
 
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  int currentPiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+  // Make sure input is either a HTG or a PartitionedDataSet that contains a HTG piece.
   vtkHyperTreeGrid* inputHTG = vtkHyperTreeGrid::GetData(inputVector[0], 0);
   vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::GetData(inputVector[0], 0);
 
@@ -54,11 +58,19 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     return 0;
   }
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  int myRank = info->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  vtkWarningMacro("REQUEST DATA FOR PIECE" << myRank);
+  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::GetData(outputVector, 0);
+  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::GetData(outputVector, 0);
+  if (outputPDS)
+  {
+    outputPDS->CopyStructure(inputPDS);
+  }
 
-  if (inputPDS)
+  // When the filter receives a PartitionedDataSet, the data for the current rank can be in either
+  // partition, depending on the data generation method. We survey the partitions to find the one
+  // that contains the actual data. There should be exactly one non-null HTG partition in each
+  // piece. If we find multiple, the HTG structure is not capable of merging multiple grids, so we
+  // simply use the last one.
+  if (inputPDS && outputPDS)
   {
     for (unsigned int partId = 0; partId < inputPDS->GetNumberOfPartitions(); partId++)
     {
@@ -67,28 +79,35 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
       {
         if (inputHTG)
         {
-          vtkWarningMacro(
-            "Found more than one non-null HTG in the partitioned dataset for piece " << myRank);
+          vtkWarningMacro("Found more than one non-null HTG in the partitioned dataset for piece "
+            << currentPiece << ". Generating ghost data only for partition " << partId);
         }
         inputHTG = partHTG;
+        vtkNew<vtkHyperTreeGrid> newOutputHTG;
+        outputPDS->SetPartition(partId, newOutputHTG);
+        outputHTG = newOutputHTG; // Not dangling, outputPDS maintains a reference.
       }
     }
   }
 
-  vtkDataObject* outputDO = vtkDataObject::GetData(outputVector, 0);
-  if (!outputDO)
+  if (!outputHTG && !outputPDS)
   {
     vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
     return 0;
   }
 
-  int correctExtent = inputHTG->GetExtent()[0] <= inputHTG->GetExtent()[1] &&
-    inputHTG->GetExtent()[2] <= inputHTG->GetExtent()[3] &&
-    inputHTG->GetExtent()[4] <= inputHTG->GetExtent()[5];
-
   // Make sure every HTG piece has a correct extent and can be processed.
   // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
   // or by none, and avoids getting stuck on barriers.
+  int correctExtent = inputHTG && inputHTG->GetExtent()[0] <= inputHTG->GetExtent()[1] &&
+    inputHTG->GetExtent()[2] <= inputHTG->GetExtent()[3] &&
+    inputHTG->GetExtent()[4] <= inputHTG->GetExtent()[5];
+
+  if (!correctExtent)
+  {
+    vtkWarningMacro("Piece " << currentPiece << " does not have a valid extend. Cannot process.");
+  }
+
   int allCorrect = 1; // Reduction operation cannot be done on bools
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   controller->AllReduce(&correctExtent, &allCorrect, 1, vtkCommunicator::LOGICAL_AND_OP);
@@ -97,11 +116,10 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
   {
     vtkWarningMacro("Every individual distributed process does not have a valid HTG extent. No "
                     "ghost cells will be generated.");
-    vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
-    output->ShallowCopy(inputHTG);
+    outputHTG->ShallowCopy(inputHTG);
     return 1;
   }
-  else if (!this->ProcessTrees(inputHTG, outputDO))
+  else if (!this->ProcessTrees(inputHTG, outputHTG))
   {
     return 0;
   }
