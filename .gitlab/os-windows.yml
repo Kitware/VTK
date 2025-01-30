@@ -251,17 +251,19 @@
     - git submodule sync --recursive
     - git submodule update --init --recursive
 
+.before_script_windows_openxr_deps: &before_script_windows_openxr_deps
+    - cmake -P .gitlab/ci/download_openxr.cmake
+    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxr;$env:CMAKE_PREFIX_PATH"
+    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\openxr\x64\bin;$env:PATH"
+    - cmake -P .gitlab/ci/download_openxrremoting.cmake
+    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxrremoting\build\native;$env:CMAKE_PREFIX_PATH"
+
 .before_script_windows_deps: &before_script_windows_deps
     - cmake -P .gitlab/ci/download_qt.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\qt\bin;$env:PATH"
     - cmake -P .gitlab/ci/download_python.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
     - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
-    - cmake -P .gitlab/ci/download_openxr.cmake
-    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxr;$env:CMAKE_PREFIX_PATH"
-    - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\openxr\x64\bin;$env:PATH"
-    - cmake -P .gitlab/ci/download_openxrremoting.cmake
-    - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\openxrremoting\build\native;$env:CMAKE_PREFIX_PATH"
     - cmake -P .gitlab/ci/download_tbb.cmake
     - Set-Item -Force -Path "env:CMAKE_PREFIX_PATH" -Value "$pwdpath\.gitlab\tbb;$env:CMAKE_PREFIX_PATH"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\tbb\redist\$env:TBB_REDIST_DIR;$env:PATH"
@@ -299,6 +301,7 @@
     script:
         - *before_script_windows
         - *before_script_windows_deps
+        - *before_script_windows_openxr_deps
         - *script_windows
     interruptible: true
 
@@ -308,6 +311,7 @@
     script:
         - *before_script_windows
         - *before_script_windows_deps
+        - *before_script_windows_openxr_deps
         # Reuse the venv from the build step (avoids version changes between
         # build and testing). This is set up manually because Activate.ps1
         # doesn't seem to work for our extracted Python tarball.
@@ -325,6 +329,7 @@
     script:
         - *before_script_windows
         - *before_script_windows_deps
+        - *before_script_windows_openxr_deps
         # Reuse the venv from the build step (avoids version changes between
         # build and testing). This is set up manually because Activate.ps1
         # doesn't seem to work for our extracted Python tarball.
@@ -343,6 +348,7 @@
 
     script:
         - *before_script_windows
+        - *before_script_windows_openxr_deps
         - cmake -P .gitlab/ci/download_wheel_python.cmake
         - Set-Item -Force -Path "env:PYTHON_PREFIX" -Value "$pwdpath\.gitlab\python"
         - Invoke-Expression -Command .gitlab/ci/buildcache.ps1
@@ -376,6 +382,7 @@
 
     script:
         - *before_script_windows
+        - *before_script_windows_openxr_deps
         - cmake -P .gitlab/ci/download_osmesa_windows.cmake
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\osmesa\bin;$env:PATH"
         - cmake -P .gitlab/ci/download_wheel_python.cmake
@@ -453,5 +460,6 @@
     script:
         - *before_script_windows
         - *before_script_windows_deps
+        - *before_script_windows_openxr_deps
         - *before_script_java_windows
         - *script_windows
