@@ -1,4 +1,5 @@
 vtk_module_test_data(
+  Data/degenerated-hexahedrons.vtu
   Data/explicitStructuredGrid.vtu
   Data/ghost_cells.vtu
   Data/quadraticTetra01.vtu
