@@ -84,13 +84,21 @@ XdmfValuesHDF::Read(XdmfArray *anArray){
                 XdmfInt64  Start[ XDMF_MAX_DIMENSION ];
                 XdmfInt64  Stride[ XDMF_MAX_DIMENSION ];
                 XdmfInt64  Count[ XDMF_MAX_DIMENSION ];
-        
+
                 // Select the HyperSlab from HDF5
                 Rank = this->DataDesc->GetHyperSlab( Start, Stride, Count );
                 H5.SelectHyperSlab( Start, Stride, Count );
                 if(RetArray->GetSelectionSize() < H5.GetSelectionSize()){
                     XdmfErrorMessage("Return Array No Large Enough to Hold Selected Data");
                     RetArray->SetShapeFromSelection(&H5);
+                }
+                if (Rank != H5.GetRank())
+                {
+                  XdmfErrorMessage("Dataset has rank " << Rank << " with dimensions ["
+                    << this->DataDesc->GetShapeAsString() << "] but " << DataSetName
+                    <<" array's selection has rank " << H5.GetRank() << " with dimensions ["
+                    << H5.GetShapeAsString() << "]");
+                  // Error will be handled later, no need to do it here.
                 }
                 // RetArray->SetShape(Rank, Count);
                 // RetArray->SelectAll();
