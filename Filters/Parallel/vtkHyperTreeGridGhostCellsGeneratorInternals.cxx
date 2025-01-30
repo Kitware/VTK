@@ -15,6 +15,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <cassert>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
