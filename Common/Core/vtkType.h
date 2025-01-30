@@ -4,8 +4,9 @@
 #define vtkType_h
 
 #include "vtkABINamespace.h"
-#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
-#include "vtkOptions.h"  // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
+#include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
+#include "vtkOptions.h"     // for VTK_USE_64BIT_IDS, VTK_USE_64BIT_TIMESTAMPS, VTK_USE_FUTURE_BOOL
 #include "vtk_kwiml.h"
 
 #define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
@@ -58,60 +59,76 @@
 // deleted value
 // #define VTK_UNICODE_STRING 22 <==== do not use
 
+// vtkTypes.h can be included in C code directly, which does not support
+// deprecation of enum values
+#if defined(__cplusplus)
+#define VTK_DEPRECATED_IN_9_5_0_TYPE(reason) VTK_DEPRECATED_IN_9_5_0(reason)
+#else
+#define VTK_DEPRECATED_IN_9_5_0_TYPE(reason)
+#endif
 /*--------------------------------------------------------------------------*/
-/* Define a unique integer identifier for each vtkDataObject type.          */
-/* When adding a new data type here, make sure to update                    */
-/* vtkDataObjectTypes as well.                                              */
-#define VTK_POLY_DATA 0
-#define VTK_STRUCTURED_POINTS 1
-#define VTK_STRUCTURED_GRID 2
-#define VTK_RECTILINEAR_GRID 3
-#define VTK_UNSTRUCTURED_GRID 4
-#define VTK_PIECEWISE_FUNCTION 5
-#define VTK_IMAGE_DATA 6
-#define VTK_DATA_OBJECT 7
-#define VTK_DATA_SET 8
-#define VTK_POINT_SET 9
-#define VTK_UNIFORM_GRID 10
-#define VTK_COMPOSITE_DATA_SET 11
-#define VTK_MULTIGROUP_DATA_SET 12
-#define VTK_MULTIBLOCK_DATA_SET 13
-#define VTK_HIERARCHICAL_DATA_SET 14     // OBSOLETE
-#define VTK_HIERARCHICAL_BOX_DATA_SET 15 // OBSOLETE
-#define VTK_GENERIC_DATA_SET 16
-#define VTK_HYPER_OCTREE 17
-#define VTK_TEMPORAL_DATA_SET 18
-#define VTK_TABLE 19
-#define VTK_GRAPH 20
-#define VTK_TREE 21
-#define VTK_SELECTION 22
-#define VTK_DIRECTED_GRAPH 23
-#define VTK_UNDIRECTED_GRAPH 24
-#define VTK_MULTIPIECE_DATA_SET 25
-#define VTK_DIRECTED_ACYCLIC_GRAPH 26
-#define VTK_ARRAY_DATA 27
-#define VTK_REEB_GRAPH 28
-#define VTK_UNIFORM_GRID_AMR 29
-#define VTK_NON_OVERLAPPING_AMR 30
-#define VTK_OVERLAPPING_AMR 31
-#define VTK_HYPER_TREE_GRID 32
-#define VTK_MOLECULE 33
-#define VTK_PISTON_DATA_OBJECT 34
-#define VTK_PATH 35
-#define VTK_UNSTRUCTURED_GRID_BASE 36
-#define VTK_PARTITIONED_DATA_SET 37
-#define VTK_PARTITIONED_DATA_SET_COLLECTION 38
-#define VTK_UNIFORM_HYPER_TREE_GRID 39
-#define VTK_EXPLICIT_STRUCTURED_GRID 40
-#define VTK_DATA_OBJECT_TREE 41
-#define VTK_ABSTRACT_ELECTRONIC_DATA 42
-#define VTK_OPEN_QUBE_ELECTRONIC_DATA 43
-#define VTK_ANNOTATION 44
-#define VTK_ANNOTATION_LAYERS 45
-#define VTK_BSP_CUTS 46
-#define VTK_GEO_JSON_FEATURE 47
-#define VTK_IMAGE_STENCIL_DATA 48
-#define VTK_CELL_GRID 49
+// Define a unique integer identifier for each vtkDataObject type.
+// When adding a new data type here, make sure to update vtkDataObjectTypes as well.
+// Do not use values between 0 and current max, but add new values after the max,
+// as values in between may already have been used in the past and been removed since.
+enum vtkTypesDataObject
+{
+  VTK_POLY_DATA = 0,
+  VTK_STRUCTURED_POINTS = 1,
+  VTK_STRUCTURED_GRID = 2,
+  VTK_RECTILINEAR_GRID = 3,
+  VTK_UNSTRUCTURED_GRID = 4,
+  VTK_PIECEWISE_FUNCTION = 5,
+  VTK_IMAGE_DATA = 6,
+  VTK_DATA_OBJECT = 7,
+  VTK_DATA_SET = 8,
+  VTK_POINT_SET = 9,
+  VTK_UNIFORM_GRID = 10,
+  VTK_COMPOSITE_DATA_SET = 11,
+  VTK_MULTIGROUP_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
+    12,
+  VTK_MULTIBLOCK_DATA_SET = 13,
+  VTK_HIERARCHICAL_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE(
+    "This type has been removed, do not use.") = 14,
+  VTK_HIERARCHICAL_BOX_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE(
+    "This type has been removed, please use vtkOverlappingAMR instead.") = 15,
+  VTK_GENERIC_DATA_SET = 16,
+  VTK_HYPER_OCTREE VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") = 17,
+  VTK_TEMPORAL_DATA_SET VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
+    18,
+  VTK_TABLE = 19,
+  VTK_GRAPH = 20,
+  VTK_TREE = 21,
+  VTK_SELECTION = 22,
+  VTK_DIRECTED_GRAPH = 23,
+  VTK_UNDIRECTED_GRAPH = 24,
+  VTK_MULTIPIECE_DATA_SET = 25,
+  VTK_DIRECTED_ACYCLIC_GRAPH = 26,
+  VTK_ARRAY_DATA = 27,
+  VTK_REEB_GRAPH = 28,
+  VTK_UNIFORM_GRID_AMR = 29,
+  VTK_NON_OVERLAPPING_AMR = 30,
+  VTK_OVERLAPPING_AMR = 31,
+  VTK_HYPER_TREE_GRID = 32,
+  VTK_MOLECULE = 33,
+  VTK_PISTON_DATA_OBJECT VTK_DEPRECATED_IN_9_5_0_TYPE("This type has been removed, do not use.") =
+    34,
+  VTK_PATH = 35,
+  VTK_UNSTRUCTURED_GRID_BASE = 36,
+  VTK_PARTITIONED_DATA_SET = 37,
+  VTK_PARTITIONED_DATA_SET_COLLECTION = 38,
+  VTK_UNIFORM_HYPER_TREE_GRID = 39,
+  VTK_EXPLICIT_STRUCTURED_GRID = 40,
+  VTK_DATA_OBJECT_TREE = 41,
+  VTK_ABSTRACT_ELECTRONIC_DATA = 42,
+  VTK_OPEN_QUBE_ELECTRONIC_DATA = 43,
+  VTK_ANNOTATION = 44,
+  VTK_ANNOTATION_LAYERS = 45,
+  VTK_BSP_CUTS = 46,
+  VTK_GEO_JSON_FEATURE = 47,
+  VTK_IMAGE_STENCIL_DATA = 48,
+  VTK_CELL_GRID = 49
+};
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
