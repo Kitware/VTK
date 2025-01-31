@@ -16,7 +16,9 @@
 #include "vtkXMLMultiBlockDataReader.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOXML_EXPORT vtkXMLMultiGroupDataReader : public vtkXMLMultiBlockDataReader
+class VTK_DEPRECATED_IN_9_5_0(
+  "Please use `vtkXMLMultiBlockDataReader` instead.") VTKIOXML_EXPORT vtkXMLMultiGroupDataReader
+  : public vtkXMLMultiBlockDataReader
 {
 public:
   static vtkXMLMultiGroupDataReader* New();

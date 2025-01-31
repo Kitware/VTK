@@ -126,10 +126,6 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_MDLOPT_POINT 1
 #define LS_MDLOPT_CELL 2
 
-#ifdef VTK_LSDYNA_DBG_MULTIBLOCK
-static void vtkDebugMultiBlockStructure(vtkIndent indent, vtkMultiGroupDataSet* mbds);
-#endif // VTK_LSDYNA_DBG_MULTIBLOCK
-
 namespace
 {
 const char* vtkLSDynaCellTypes[] = { "Point", "Beam", "Shell", "Thick Shell", "Solid", "Rigid Body",
