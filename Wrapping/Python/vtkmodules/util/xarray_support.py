@@ -23,6 +23,7 @@ class VtkAccessor:
         self._dsxr = dsxr
         self._reader = vtkXArrayCFReader()
 
+    @property
     def reader(self):
         '''
         Returns a vtkXArrayCFReader that reads data from the XArray
