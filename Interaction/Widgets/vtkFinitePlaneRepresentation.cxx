@@ -28,6 +28,8 @@
 #include "vtkTubeFilter.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFinitePlaneRepresentation);
 
@@ -856,16 +858,14 @@ void vtkFinitePlaneRepresentation::SetHighlightNormal(int highlight)
 //------------------------------------------------------------------------------
 void vtkFinitePlaneRepresentation::SetRepresentationState(int state)
 {
+  // Clamp the state
+  state = std::min<int>(std::max<int>(state, vtkFinitePlaneRepresentation::Outside),
+    vtkFinitePlaneRepresentation::Pushing);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  // Clamp the state
-  state = (state < vtkFinitePlaneRepresentation::Outside
-      ? vtkFinitePlaneRepresentation::Outside
-      : (state > vtkFinitePlaneRepresentation::Pushing ? vtkFinitePlaneRepresentation::Pushing
-                                                       : state));
 
   this->RepresentationState = state;
   this->Modified();

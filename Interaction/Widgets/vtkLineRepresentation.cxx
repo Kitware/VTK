@@ -24,6 +24,8 @@
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLineRepresentation);
 
@@ -594,14 +596,13 @@ int vtkLineRepresentation::ComputeInteractionState(int x, int y, int vtkNotUsed(
 //------------------------------------------------------------------------------
 void vtkLineRepresentation::SetRepresentationState(int state)
 {
+  state = std::min<int>(
+    std::max<int>(state, vtkLineRepresentation::Outside), vtkLineRepresentation::Scaling);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  state = (state < vtkLineRepresentation::Outside
-      ? vtkLineRepresentation::Outside
-      : (state > vtkLineRepresentation::Scaling ? vtkLineRepresentation::Scaling : state));
 
   this->RepresentationState = state;
   this->Modified();

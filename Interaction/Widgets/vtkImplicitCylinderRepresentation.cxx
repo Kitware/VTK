@@ -308,17 +308,14 @@ int vtkImplicitCylinderRepresentation::ComputeInteractionState(int X, int Y, int
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
 {
+  // Clamp the state
+  state = std::min<int>(std::max<int>(state, vtkImplicitCylinderRepresentation::Outside),
+    vtkImplicitCylinderRepresentation::Scaling);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  // Clamp the state
-  state = (state < vtkImplicitCylinderRepresentation::Outside
-      ? vtkImplicitCylinderRepresentation::Outside
-      : (state > vtkImplicitCylinderRepresentation::Scaling
-            ? vtkImplicitCylinderRepresentation::Scaling
-            : state));
 
   this->RepresentationState = state;
   this->Modified();
