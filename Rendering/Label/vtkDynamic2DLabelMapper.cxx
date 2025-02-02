@@ -30,6 +30,7 @@
 #include "vtkViewport.h"
 #include "vtksys/FStream.hxx"
 
+#include <cmath>
 #include <fstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -523,8 +524,8 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport* viewport, vtkAct
       {
         vtkIdType indexJ = index->GetValue(j);
         float* ptj = reinterpret_cast<float*>(pts->GetVoidPointer(3 * indexJ));
-        float absX = (pti[0] - ptj[0]) > 0 ? (pti[0] - ptj[0]) : -(pti[0] - ptj[0]);
-        float absY = (pti[1] - ptj[1]) > 0 ? (pti[1] - ptj[1]) : -(pti[1] - ptj[1]);
+        float absX = std::abs(pti[0] - ptj[0]);
+        float absY = std::abs(pti[1] - ptj[1]);
         float xScale = 2 * absX / (this->LabelWidth[indexI] + this->LabelWidth[indexJ]);
         float yScale = 2 * absY / (this->LabelHeight[indexI] + this->LabelHeight[indexJ]);
         float maxScale = xScale < yScale ? yScale : xScale;
