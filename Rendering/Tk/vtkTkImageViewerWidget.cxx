@@ -254,24 +254,6 @@ extern "C"
   }
 }
 
-//------------------------------------------------------------------------------
-char* vtkTkImageViewerWidget_IV(const struct vtkTkImageViewerWidget* self)
-{
-  return self->IV;
-}
-
-//------------------------------------------------------------------------------
-int vtkTkImageViewerWidget_Width(const struct vtkTkImageViewerWidget* self)
-{
-  return self->Width;
-}
-
-//------------------------------------------------------------------------------
-int vtkTkImageViewerWidget_Height(const struct vtkTkImageViewerWidget* self)
-{
-  return self->Height;
-}
-
 extern "C"
 {
   void vtkTkImageViewerWidget_Destroy(char* memPtr)
