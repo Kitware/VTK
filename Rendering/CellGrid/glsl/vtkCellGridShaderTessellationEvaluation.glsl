@@ -71,7 +71,7 @@ void main()
   vec4 position;
   vec3 vertexNormalVC;
   float coordinateArray[{ShapeNumValPP}];
-  vec3 eyeNormalMC = vec3(0.0f, 0.0f, 1.0f); 
+  vec3 eyeNormalMC = vec3(0.0f, 0.0f, 1.0f);
 
   if ({PatchSize} == 2)
   {{
