@@ -5,22 +5,19 @@
 #include "vtkMathConfigure.h"
 
 #include <array>
+#include <cmath>
 #include <limits>
-
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
 
 template <class A>
 bool fuzzyCompare1DWeak(A a, A b)
 {
-  return ABS(a - b) < .0001;
+  return std::abs(a - b) < .0001;
 }
 
 template <class A>
 bool fuzzyCompare1D(A a, A b)
 {
-  return ABS(a - b) < std::numeric_limits<A>::epsilon();
+  return std::abs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 template <class A>
@@ -67,12 +64,12 @@ public:
   bool operator==(const Triple& triple) const { return *this == triple.data; }
   bool operator==(const double* triple) const
   {
-    return ((this->data[0] - triple[0] <= 0.01 * ABS(data[0]) + 0.02) &&
-      (this->data[0] - triple[0] >= -0.01 * ABS(data[0]) - 0.02) &&
-      (this->data[1] - triple[1] <= 0.01 * ABS(data[1]) + 0.02) &&
-      (this->data[1] - triple[1] >= -0.01 * ABS(data[1]) - 0.02) &&
-      (this->data[2] - triple[2] <= 0.01 * ABS(data[2]) + 0.02) &&
-      (this->data[2] - triple[2] >= -0.01 * ABS(data[2]) - 0.02));
+    return ((this->data[0] - triple[0] <= 0.01 * std::abs(data[0]) + 0.02) &&
+      (this->data[0] - triple[0] >= -0.01 * std::abs(data[0]) - 0.02) &&
+      (this->data[1] - triple[1] <= 0.01 * std::abs(data[1]) + 0.02) &&
+      (this->data[1] - triple[1] >= -0.01 * std::abs(data[1]) - 0.02) &&
+      (this->data[2] - triple[2] <= 0.01 * std::abs(data[2]) + 0.02) &&
+      (this->data[2] - triple[2] >= -0.01 * std::abs(data[2]) - 0.02));
   }
   bool operator!=(const Triple& triple) const { return *this != triple.data; }
   bool operator!=(const double* triple) const { return !(*this == triple); }
