@@ -52,6 +52,8 @@
 #include "vtkTransform.h"
 #include "vtkType.h"
 
+#include <cmath>
+
 // This macro can be wrapped around MPI function calls to easily report errors.
 // Reporting errors is more important with file I/O because, unlike network I/O,
 // they usually don't terminate the program.
@@ -111,12 +113,6 @@ void vtkPNrrdReaderMaskBits(double*, vtkIdType, vtkTypeUInt64)
 #ifdef VTK_USE_MPI_IO
 namespace
 {
-template <class T>
-inline T MY_ABS(T x)
-{
-  return (x < 0) ? -x : x;
-}
-
 template <class T>
 inline T MY_MIN(T x, T y)
 {
@@ -349,8 +345,8 @@ void vtkPNrrdReader::TransformData(vtkImageData* data)
   {
     dataMinExtent[i] = MY_MIN(dataExtent[2 * i], dataExtent[2 * i + 1]);
     fileMinExtent[i] = MY_MIN(fileExtent[2 * i], fileExtent[2 * i + 1]);
-    dataExtentSize[i] = MY_ABS(dataExtent[2 * i + 1] - dataExtent[2 * i]) + 1;
-    fileExtentSize[i] = MY_ABS(fileExtent[2 * i + 1] - fileExtent[2 * i]) + 1;
+    dataExtentSize[i] = std::abs(dataExtent[2 * i + 1] - dataExtent[2 * i]) + 1;
+    fileExtentSize[i] = std::abs(fileExtent[2 * i + 1] - fileExtent[2 * i]) + 1;
   }
 
   for (vtkIdType file_k = 0; file_k < fileExtentSize[2]; file_k++)
@@ -454,8 +450,8 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInform
   // Instead, we just recompute them.
   // this->ComputeInverseTransformedIncrements(inIncrements, outIncrements);
   outIncrements[0] = inIncrements[0];
-  outIncrements[1] = outIncrements[0] * (MY_ABS(outExtent[1] - outExtent[0]) + 1);
-  outIncrements[2] = outIncrements[1] * (MY_ABS(outExtent[3] - outExtent[2]) + 1);
+  outIncrements[1] = outIncrements[0] * (std::abs(outExtent[1] - outExtent[0]) + 1);
+  outIncrements[2] = outIncrements[1] * (std::abs(outExtent[3] - outExtent[2]) + 1);
 
   this->ComputeDataIncrements();
 
