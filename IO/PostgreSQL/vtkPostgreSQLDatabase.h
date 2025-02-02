@@ -282,9 +282,10 @@ vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase, ConnectOptions, URLMTime);
 inline void vtkPostgreSQLDatabase::SetServerPort(int _arg)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ServerPort to " << _arg);
-  if (this->ServerPort != (_arg < 0 ? 0 : (_arg > VTK_INT_MAX ? VTK_INT_MAX : _arg)))
+  _arg = std::min(std::max(_arg, 0), VTK_INT_MAX);
+  if (this->ServerPort != _arg)
   {
-    this->ServerPort = (_arg < 0 ? 0 : (_arg > VTK_INT_MAX ? VTK_INT_MAX : _arg));
+    this->ServerPort = _arg;
     this->Modified();
     this->URLMTime.Modified();
     this->Close(); // Force a re-open on next query
