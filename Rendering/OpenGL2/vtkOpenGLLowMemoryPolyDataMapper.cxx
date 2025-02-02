@@ -1146,7 +1146,14 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         "in vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Impl",
         " vec3 vertexNormalVCVS = normalVCVSOutput;\n"
-        " if (gl_FrontFacing == false) vertexNormalVCVS = -vertexNormalVCVS;\n"
+        // Ensure normal is pointing towards camera for points so that both
+        // the back face and front face are lit up and colored by
+        // the vertex color.
+        " if (primitiveSize == 1) vertexNormalVCVS = vec3(0.0, 0.0, 1.0);\n"
+        // In similar vein, enforce non-negative components for the normal of
+        // line segments to ensure the backside of lines do not appear black.
+        " else if (primitiveSize == 2) vertexNormalVCVS = abs(vertexNormalVCVS);\n"
+        " else if (gl_FrontFacing == false) vertexNormalVCVS = -vertexNormalVCVS;\n"
         "//VTK::Normal::Impl");
       if (this->HasClearCoat)
       {
@@ -1268,7 +1275,14 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         "in vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Impl",
         "vec3 vertexNormalVCVS = normalVCVSOutput;\n"
-        "if (gl_FrontFacing == false) vertexNormalVCVS = -vertexNormalVCVS;\n"
+        // Ensure normal is pointing towards camera for points so that both
+        // the back face and front face are lit up and colored by
+        // the vertex color.
+        " if (primitiveSize == 1) vertexNormalVCVS = vec3(0.0, 0.0, 1.0);\n"
+        // In similar vein, enforce non-negative components for the normal of
+        // line segments to ensure the backside of lines do not appear black.
+        " else if (primitiveSize == 2) vertexNormalVCVS = abs(vertexNormalVCVS);\n"
+        " else if (gl_FrontFacing == false) vertexNormalVCVS = -vertexNormalVCVS;\n"
         "//VTK::Normal::Impl");
       if (this->HasClearCoat)
       {
