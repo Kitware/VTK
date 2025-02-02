@@ -13,6 +13,7 @@
 #define vtkXMLReader_h
 
 #include "vtkAlgorithm.h"
+#include "vtkDeprecation.h"  // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOXMLModule.h"  // For export macro
 #include "vtkSmartPointer.h" // for vtkSmartPointer.
 
@@ -330,7 +331,9 @@ protected:
    * Utility methods for subclasses.
    */
   int IntersectExtents(int* extent1, int* extent2, int* result);
+  VTK_DEPRECATED_IN_9_5_0("Use std::min instead")
   int Min(int a, int b);
+  VTK_DEPRECATED_IN_9_5_0("Use std::max instead")
   int Max(int a, int b);
   void ComputePointDimensions(int* extent, int* dimensions);
   void ComputePointIncrements(int* extent, vtkIdType* increments);
