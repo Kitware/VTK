@@ -65,7 +65,7 @@ vec4 interpolate(vec4 v0, vec4 v1, vec4 v2)
 }
 
 void main()
-{ 
+{
   vec3 position = interpolate(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position).xyz;
   gl_Position = vec4(position, 1.0);
   positionES = position;
@@ -93,7 +93,7 @@ void main()
   vec3 A = positionES[2] - positionES[0];
   vec3 B = positionES[1] - positionES[0];
   faceNormalGS = normalMatrix * normalize(cross(A, B));
-  
+
   patchDistanceGS = patchDistanceES[0];
   triDistanceGS = vec3(1, 0, 0);
   gl_Position = MCDCMatrix * gl_in[0].gl_Position;

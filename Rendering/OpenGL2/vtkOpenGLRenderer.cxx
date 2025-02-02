@@ -154,7 +154,7 @@ else if(gradientMode == GRADIENT_HORIZONTAL)
 }
 else if(gradientMode == GRADIENT_RADIAL_VIEWPORT_FARTHEST_SIDE)
 {
-  value = clamp(length(tcoordVCVSOutput - vec2(0.5f, 0.5f)) * 2.0f, 0.0f, 1.0f);              
+  value = clamp(length(tcoordVCVSOutput - vec2(0.5f, 0.5f)) * 2.0f, 0.0f, 1.0f);
 }
 else if(gradientMode == GRADIENT_RADIAL_VIEWPORT_FARTHEST_CORNER)
 {
