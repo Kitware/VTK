@@ -3654,7 +3654,7 @@ endfunction ()
 
   Write wrap hierarchy files for the module currently being built. This also
   installs the hierarchy file for use by dependent projects if ``INSTALL_HEADERS``
-  is set. This function honors the ``HEADERS_COMPONENT``, and 
+  is set. This function honors the ``HEADERS_COMPONENT``, and
   ``HEADERS_EXCLUDE_FROM_ALL`` arguments to :cmake:command:`vtk_module_build`.
 
   .. code-block:: cmake

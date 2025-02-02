@@ -343,7 +343,7 @@ if (VTK_WRAP_SERIALIZATION)
     vtkPiecewiseFunctionSerDesHelper.cxx
     vtkTableSerDesHelper.cxx
     vtkUnstructuredGridSerDesHelper.cxx)
-endif ()    
+endif ()
 
 set(sources
   ${serialization_helper_sources}

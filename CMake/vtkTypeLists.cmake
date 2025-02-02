@@ -31,7 +31,7 @@ set(vtk_numeric_types
 This is a function to generate the CamelCase version of the c++ type name.
 
 vtkIdType is converted to IdType, losing the "vtk" prefix.
-#]==] 
+#]==]
 function(vtk_type_to_camel_case type output)
   if (type STREQUAL "vtkIdType")
     set("${output}" "IdType" PARENT_SCOPE )

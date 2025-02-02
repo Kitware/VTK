@@ -108,19 +108,19 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --ortho
-  TestRenderPointsAsSpheresOrthoCamera,TestRenderPointsAsSpheres.cxx,NO_DATA) 
+  TestRenderPointsAsSpheresOrthoCamera,TestRenderPointsAsSpheres.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --ortho
-  TestRenderLinesAsTubesOrthoCamera,TestRenderLinesAsTubes.cxx,NO_DATA) 
+  TestRenderLinesAsTubesOrthoCamera,TestRenderLinesAsTubes.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --point-colors
-  TestPolyDataMapper2DPointScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA) 
+  TestPolyDataMapper2DPointScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA)
 
 vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   --cell-colors
-  TestPolyDataMapper2DCellScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA) 
+  TestPolyDataMapper2DCellScalarColorMapping,TestPolyDataMapper2D.cxx,NO_DATA)
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")

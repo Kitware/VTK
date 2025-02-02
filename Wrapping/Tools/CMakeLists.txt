@@ -149,7 +149,7 @@ if (NOT TARGET WrapSerDes)
   target_link_libraries(WrapSerDes
     PRIVATE
       "${ns}::WrappingTools")
-  
+
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # allows WrapSerDes to access host file system for headers, generated sources, etc.
     # permit memory growth to generate arbitrary sized vtkClassNameSerDes.cxx files
