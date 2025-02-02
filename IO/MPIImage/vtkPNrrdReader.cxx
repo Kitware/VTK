@@ -52,6 +52,7 @@
 #include "vtkTransform.h"
 #include "vtkType.h"
 
+#include <algorithm>
 #include <cmath>
 
 // This macro can be wrapped around MPI function calls to easily report errors.
@@ -107,18 +108,6 @@ template <>
 void vtkPNrrdReaderMaskBits(double*, vtkIdType, vtkTypeUInt64)
 {
 }
-#endif // VTK_USE_MPI_IO
-
-//------------------------------------------------------------------------------
-#ifdef VTK_USE_MPI_IO
-namespace
-{
-template <class T>
-inline T MY_MIN(T x, T y)
-{
-  return (x < y) ? x : y;
-}
-};
 #endif // VTK_USE_MPI_IO
 
 //------------------------------------------------------------------------------
@@ -343,8 +332,8 @@ void vtkPNrrdReader::TransformData(vtkImageData* data)
   vtkIdType fileExtentSize[3];
   for (int i = 0; i < 3; i++)
   {
-    dataMinExtent[i] = MY_MIN(dataExtent[2 * i], dataExtent[2 * i + 1]);
-    fileMinExtent[i] = MY_MIN(fileExtent[2 * i], fileExtent[2 * i + 1]);
+    dataMinExtent[i] = std::min(dataExtent[2 * i], dataExtent[2 * i + 1]);
+    fileMinExtent[i] = std::min(fileExtent[2 * i], fileExtent[2 * i + 1]);
     dataExtentSize[i] = std::abs(dataExtent[2 * i + 1] - dataExtent[2 * i]) + 1;
     fileExtentSize[i] = std::abs(fileExtent[2 * i + 1] - fileExtent[2 * i]) + 1;
   }
