@@ -536,24 +536,6 @@ extern "C"
   }
 }
 
-//------------------------------------------------------------------------------
-const char* vtkTkRenderWidget_RW(const struct vtkTkRenderWidget* self)
-{
-  return self->RW;
-}
-
-//------------------------------------------------------------------------------
-int vtkTkRenderWidget_Width(const struct vtkTkRenderWidget* self)
-{
-  return self->Width;
-}
-
-//------------------------------------------------------------------------------
-int vtkTkRenderWidget_Height(const struct vtkTkRenderWidget* self)
-{
-  return self->Height;
-}
-
 /*
  *----------------------------------------------------------------------
  *
