@@ -1,3 +1,6 @@
+#ifndef DIY_MPI_OPTIONAL_HPP
+#define DIY_MPI_OPTIONAL_HPP
+
 namespace diy
 {
 namespace mpi
@@ -34,8 +37,8 @@ namespace mpi
       const void*   address() const             { return buf_; }
 
     private:
+      alignas(T) char buf_[sizeof(T)];
       bool init_;
-      char buf_[sizeof(T)];
   };
 }
 }
@@ -53,3 +56,5 @@ operator=(const optional& o)
 
   return *this;
 }
+
+#endif // DIY_MPI_OPTIONAL_HPP

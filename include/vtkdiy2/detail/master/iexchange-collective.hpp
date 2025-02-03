@@ -1,18 +1,26 @@
+#include <atomic>
+
 namespace diy
 {
     struct Master::IExchangeInfoCollective: public IExchangeInfo
     {
-      using IExchangeInfo::IExchangeInfo;
+                        IExchangeInfoCollective(mpi::communicator c, stats::Profiler& p):
+                            IExchangeInfo(c, p)
+      {
+          local_work_ = 0;
+          dirty = 0;
+          state = 0;
+      }
 
       inline bool       all_done() override;                    // get global all done status
       inline void       add_work(int work) override;            // add work to global work counter
       inline void       control() override;
 
-      int               local_work_ = 0;
-      int               dirty = 0;
+      std::atomic<int>  local_work_;
+      std::atomic<int>  dirty;
       int               local_dirty, all_dirty;
 
-      int               state = 0;
+      std::atomic<int>  state;
       mpi::request      r;
 
       // debug

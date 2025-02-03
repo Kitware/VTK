@@ -22,19 +22,35 @@ class SharedOutFile: public std::ostringstream
 
         void    close()
         {
-            auto str = this->str();
-            std::vector<char> contents(str.begin(), str.end());
-            if (world_.rank() == root_)
+            if (root_ >= 0)
             {
-                std::vector<std::vector<char>> all_contents;
-                diy::mpi::gather(world_, contents, all_contents, root_);
+                auto str = this->str();
+                std::vector<char> contents(str.begin(), str.end());
+                if (world_.rank() == root_)
+                {
+                    std::vector<std::vector<char>> all_contents;
+                    diy::mpi::gather(world_, contents, all_contents, root_);
 
-                // write the file serially
-                std::ofstream out(filename_);
-                for (auto& contents : all_contents)
-                    out.write(contents.data(), contents.size());
+                    // write the file serially
+                    std::ofstream fout(filename_);
+                    for (auto& cntnts : all_contents)
+                        fout.write(cntnts.data(), cntnts.size());
+                } else
+                    diy::mpi::gather(world_, contents, root_);
             } else
-                diy::mpi::gather(world_, contents, root_);
+            {
+                int x = 0;
+                if (world_.rank() > 0)
+                    world_.recv(world_.rank() - 1, 0, x);
+
+                std::ofstream fout(filename_, std::ios_base::app);
+                fout << this->str();
+
+                if (world_.rank() < world_.size() - 1)
+                    world_.send(world_.rank() + 1, 0, x);
+
+                world_.barrier();
+            }
         }
 
     private:

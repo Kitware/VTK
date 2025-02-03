@@ -1,50 +1,29 @@
+#ifndef DIY_MPI_REQUEST_HPP
+#define DIY_MPI_REQUEST_HPP
+
+#include "config.hpp"
+#include "status.hpp"
+#include "optional.hpp"
+
 namespace diy
 {
 namespace mpi
 {
   struct request
   {
-    inline
-    status              wait();
-    inline
-    optional<status>    test();
-    inline
-    void                cancel();
+    DIY_MPI_EXPORT_FUNCTION                  request();
+    DIY_MPI_EXPORT_FUNCTION status           wait();
+    DIY_MPI_EXPORT_FUNCTION optional<status> test();
+    DIY_MPI_EXPORT_FUNCTION void             cancel();
 
-    MPI_Request         r;
+    DIY_MPI_Request handle;
   };
-}
-}
 
-diy::mpi::status
-diy::mpi::request::wait()
-{
-#ifndef DIY_NO_MPI
-  status s;
-  MPI_Wait(&r, &s.s);
-  return s;
-#else
-  DIY_UNSUPPORTED_MPI_CALL(diy::mpi::request::wait);
-#endif
 }
+} // diy::mpi
 
-diy::mpi::optional<diy::mpi::status>
-diy::mpi::request::test()
-{
-#ifndef DIY_NO_MPI
-  status s;
-  int flag;
-  MPI_Test(&r, &flag, &s.s);
-  if (flag)
-    return s;
+#ifndef DIY_MPI_AS_LIB
+#include "request.cpp"
 #endif
-  return optional<status>();
-}
 
-void
-diy::mpi::request::cancel()
-{
-#ifndef DIY_NO_MPI
-  MPI_Cancel(&r);
-#endif
-}
+#endif // DIY_MPI_REQUEST_HPP

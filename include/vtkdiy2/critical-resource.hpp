@@ -17,6 +17,9 @@ namespace diy
       const T&  operator*() const                           { return x_; }
       const T*  operator->() const                          { return &x_; }
 
+      void      lock()                                      { lock_.lock(); }
+      void      unlock()                                    { lock_.unlock(); }
+
     private:
       T&                        x_;
       lock_guard<Mutex>         lock_;
@@ -33,6 +36,8 @@ namespace diy
                         critical_resource()                 {}
                         critical_resource(const T& x):
                             x_(x)                           {}
+                        critical_resource(T&& x):
+                            x_(std::move(x))                {}
 
       accessor          access()                            { return accessor(x_, m_); }
       const_accessor    const_access() const                { return const_accessor(x_, m_); }

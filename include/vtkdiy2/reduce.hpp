@@ -16,13 +16,13 @@ struct ReduceProxy: public Master::Proxy
 {
     typedef     std::vector<int>                            GIDVector;
 
-    ReduceProxy(const Master::Proxy&    proxy, //!< parent proxy
+    ReduceProxy(Master::Proxy&&         proxy, //!< parent proxy
                 void*                   block, //!< diy block
                 unsigned                round, //!< current round
                 const Assigner&         assigner, //!< assigner
                 const GIDVector&        incoming_gids, //!< incoming gids in this group
                 const GIDVector&        outgoing_gids): //!< outgoing gids in this group
-      Master::Proxy(proxy),
+      Master::Proxy(std::move(proxy)),
       block_(block),
       round_(round),
       assigner_(assigner)
@@ -46,13 +46,13 @@ struct ReduceProxy: public Master::Proxy
       }
     }
 
-    ReduceProxy(const Master::Proxy&    proxy, //!< parent proxy
+    ReduceProxy(Master::Proxy&&         proxy, //!< parent proxy
                 void*                   block, //!< diy block
                 unsigned                round, //!< current round
                 const Assigner&         assigner,
                 const Link&             in_link,
                 const Link&             out_link):
-      Master::Proxy(proxy),
+      Master::Proxy(std::move(proxy)),
       block_(block),
       round_(round),
       assigner_(assigner),
@@ -138,7 +138,7 @@ void reduce(Master&                    master,        //!< master object
       }
     }
     master.set_expected(expected);
-    master.flush();
+    master.flush(false);
   }
   // final round
   log->debug("Round {}", round);
@@ -170,7 +170,7 @@ namespace detail
   {
     using Callback = std::function<void(Block*, const ReduceProxy&, const Partners&)>;
 
-                ReductionFunctor(unsigned round_, const Callback& reduce_, const Partners& partners_, const Assigner& assigner_):
+                ReductionFunctor(int round_, const Callback& reduce_, const Partners& partners_, const Assigner& assigner_):
                     round(round_), reduce(reduce_), partners(partners_), assigner(assigner_)        {}
 
     void        operator()(Block* b, const Master::ProxyWithLink& cp) const
@@ -180,20 +180,20 @@ namespace detail
       std::vector<int> incoming_gids, outgoing_gids;
       if (round > 0)
           partners.incoming(round, cp.gid(), incoming_gids, *cp.master());        // receive from the previous round
-      if (round < partners.rounds())
+      if (round < static_cast<int>(partners.rounds()))
           partners.outgoing(round, cp.gid(), outgoing_gids, *cp.master());        // send to the next round
 
-      ReduceProxy   rp(cp, b, round, assigner, incoming_gids, outgoing_gids);
+      ReduceProxy   rp(std::move(const_cast<Master::ProxyWithLink&>(cp)), b, round, assigner, incoming_gids, outgoing_gids);
       reduce(b, rp, partners);
 
       // touch the outgoing queues to make sure they exist
-      Master::OutgoingQueues& outgoing = *cp.outgoing();
-      if (outgoing.size() < (size_t) rp.out_link().size())
-        for (int j = 0; j < rp.out_link().size(); ++j)
-          outgoing[rp.out_link().target(j)];       // touch the outgoing queue, creating it if necessary
+      Master::Proxy::OutgoingQueues& outgoing = *rp.outgoing();
+      if (outgoing.size() < static_cast<size_t>(rp.out_link().size()))
+        for (BlockID target : rp.out_link().neighbors())
+          outgoing[target];       // touch the outgoing queue, creating it if necessary
     }
 
-    unsigned        round;
+    int             round;
     Callback        reduce;
     Partners        partners;
     const Assigner& assigner;

@@ -4,8 +4,8 @@
 #ifndef DIY_USE_SPDLOG
 
 #include <memory>
-#include "fmt/format.h"
-#include "fmt/ostream.h"
+#include "thirdparty/fmt/format.h"
+#include "thirdparty/fmt/ostream.h"
 
 namespace diy
 {
@@ -55,8 +55,8 @@ set_logger(Args...)
 #include <spdlog/sinks/null_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 
-#include <spdlog/fmt/bundled/format.h>
-#include <spdlog/fmt/bundled/ostream.h>
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/ostr.h>
 
 namespace diy
 {

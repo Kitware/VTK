@@ -74,7 +74,7 @@ operator()(Block* b, const diy::ReduceProxy& srp, const KDTreePartners& partners
         dim = partners.dim(srp.round() - 1);
 
     if (srp.round() == partners.rounds())
-        update_links(b, srp, dim, partners.sub_round(srp.round() - 2), partners.swap_rounds(), partners.wrap, partners.domain); // -1 would be the "uninformative" link round
+        update_links(b, srp, dim, partners.sub_round((int)srp.round() - 2), (int)partners.swap_rounds(), partners.wrap, partners.domain); // -1 would be the "uninformative" link round
     else if (partners.swap_round(srp.round()) && partners.sub_round(srp.round()) < 0)       // link round
     {
         dequeue_exchange(b, srp, dim);         // from the swap round
@@ -92,7 +92,7 @@ operator()(Block* b, const diy::ReduceProxy& srp, const KDTreePartners& partners
             int prev_dim = dim - 1;
             if (prev_dim < 0)
                 prev_dim += dim_;
-            update_links(b, srp, prev_dim, partners.sub_round(srp.round() - 2), partners.swap_rounds(), partners.wrap, partners.domain);    // -1 would be the "uninformative" link round
+            update_links(b, srp, prev_dim, partners.sub_round((int)srp.round() - 2), (int)partners.swap_rounds(), partners.wrap, partners.domain);    // -1 would be the "uninformative" link round
         }
 
         compute_local_samples(b, srp, dim);
@@ -134,7 +134,7 @@ divide_gid(int gid, bool lower, int round, int rounds) const
 template<class Block, class Point>
 void
 diy::detail::KDTreeSamplingPartition<Block,Point>::
-update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int rounds, bool wrap, const Bounds& domain) const
+update_links(Block*, const diy::ReduceProxy& srp, int dim, int round, int rounds, bool wrap, const Bounds& domain) const
 {
     auto        log  = get_logger();
     int         gid  = srp.gid();
@@ -253,7 +253,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
 template<class Block, class Point>
 void
 diy::detail::KDTreeSamplingPartition<Block,Point>::
-split_to_neighbors(Block* b, const diy::ReduceProxy& srp, int dim) const
+split_to_neighbors(Block*, const diy::ReduceProxy& srp, int) const
 {
     int         lid  = srp.master()->lid(srp.gid());
     RCLink*     link = static_cast<RCLink*>(srp.master()->link(lid));
@@ -290,7 +290,7 @@ compute_local_samples(Block* b, const diy::ReduceProxy& srp, int dim) const
 template<class Block, class Point>
 void
 diy::detail::KDTreeSamplingPartition<Block,Point>::
-add_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
+add_samples(Block*, const diy::ReduceProxy& srp, Samples& samples) const
 {
     // dequeue and combine the samples
     for (int i = 0; i < srp.in_link().size(); ++i)
@@ -307,7 +307,7 @@ add_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
 template<class Block, class Point>
 void
 diy::detail::KDTreeSamplingPartition<Block,Point>::
-receive_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
+receive_samples(Block*, const diy::ReduceProxy& srp, Samples& samples) const
 {
     srp.dequeue(srp.in_link().target(0).gid, samples);
 }
@@ -315,7 +315,7 @@ receive_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
 template<class Block, class Point>
 void
 diy::detail::KDTreeSamplingPartition<Block,Point>::
-forward_samples(Block* b, const diy::ReduceProxy& srp, const Samples& samples) const
+forward_samples(Block*, const diy::ReduceProxy& srp, const Samples& samples) const
 {
     for (int i = 0; i < srp.out_link().size(); ++i)
         srp.enqueue(srp.out_link().target(i), samples);

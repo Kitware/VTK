@@ -23,31 +23,38 @@ namespace detail
       }
     }
 
-    void operator()(Block* b, const ReduceProxy& srp, const RegularSwapPartners& partners) const
+    void operator()(Block* b, const ReduceProxy& srp, const RegularSwapPartners&) const
     {
       int k_in  = srp.in_link().size();
       int k_out = srp.out_link().size();
 
       if (k_in == 0 && k_out == 0)  // special case of a single block
       {
-          ReduceProxy all_srp_out(srp, srp.block(), 0, srp.assigner(), empty_link,         all_neighbors_link);
-          ReduceProxy all_srp_in (srp, srp.block(), 1, srp.assigner(), all_neighbors_link, empty_link);
+          ReduceProxy all_srp(std::move(const_cast<ReduceProxy&>(srp)), srp.block(), 0, srp.assigner(), empty_link, all_neighbors_link);
 
-          op(b, all_srp_out);
-          MemoryBuffer& in_queue = all_srp_in.incoming(all_srp_in.in_link().target(0).gid);
-          in_queue.swap(all_srp_out.outgoing(all_srp_out.out_link().target(0)));
+          op(b, all_srp);
+
+          MemoryBuffer& in_queue = all_srp.incoming(all_srp.out_link().target(0).gid);
+          in_queue.swap(all_srp.outgoing(all_srp.out_link().target(0)));
           in_queue.reset();
+          all_srp.outgoing()->clear();
 
-          op(b, all_srp_in);
+          // change to incoming proxy
+          all_srp.set_round(1);
+          auto& in_link  = const_cast<Link&>(all_srp.in_link());
+          auto& out_link = const_cast<Link&>(all_srp.out_link());
+          in_link.swap(out_link);
+
+          op(b, all_srp);
           return;
       }
 
       if (k_in == 0)                // initial round
       {
-        ReduceProxy all_srp(srp, srp.block(), 0, srp.assigner(), empty_link, all_neighbors_link);
+        ReduceProxy all_srp(std::move(const_cast<ReduceProxy&>(srp)), srp.block(), 0, srp.assigner(), empty_link, all_neighbors_link);
         op(b, all_srp);
 
-        Master::OutgoingQueues all_queues;
+        Master::Proxy::OutgoingQueues all_queues;
         all_queues.swap(*all_srp.outgoing());       // clears out the queues and stores them locally
 
         // enqueue outgoing
@@ -67,10 +74,10 @@ namespace detail
       } else if (k_out == 0)        // final round
       {
         // dequeue incoming + reorder into the correct order
-        ReduceProxy all_srp(srp, srp.block(), 1, srp.assigner(), all_neighbors_link, empty_link);
+        ReduceProxy all_srp(std::move(const_cast<ReduceProxy&>(srp)), srp.block(), 1, srp.assigner(), all_neighbors_link, empty_link);
 
-        Master::IncomingQueues all_incoming;
-        all_incoming.swap(*srp.incoming());
+        Master::Proxy::IncomingQueues all_incoming;
+        all_incoming.swap(*all_srp.incoming());
 
         std::pair<int, int> range;      // all the ranges should be the same
         for (int i = 0; i < k_in; ++i)
