@@ -60,8 +60,11 @@ void vtkAbstractPicker::AddPickList(vtkProp* a)
 // Delete an actor from the pick list.
 void vtkAbstractPicker::DeletePickList(vtkProp* a)
 {
-  this->Modified();
-  this->PickList->RemoveItem(a);
+  if (a)
+  {
+    this->Modified();
+    this->PickList->RemoveItem(a);
+  }
 }
 
 void vtkAbstractPicker::PrintSelf(ostream& os, vtkIndent indent)
