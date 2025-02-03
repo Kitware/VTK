@@ -119,7 +119,7 @@ void AddTextProperties(vtkSmartPointer<vtkFastLabeledDataMapper> mapper)
   AddTextProperty(
     mapper, 8, VTK_TIMES, 18, 1, { 0., 1., 1., 1. }, { 0., 0., 0., 1. }, { 1., 1., 1., 1. });
   AddTextProperty(
-    mapper, 9, VTK_ARIAL, 24, 4, { 1., 5., 5., 1. }, { .5, .5, 1., 1. }, { .5, 1., .5, 1. });
+    mapper, 9, VTK_ARIAL, 24, 4, { 1., .5, .5, 1. }, { .5, .5, 1., 1. }, { .5, 1., .5, 1. });
 }
 
 //-----------------------------------------------------------------------------
