@@ -463,6 +463,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     vtkWebGPURenderPipelineDescriptorInternals descriptor;
     descriptor.vertex.bufferCount = 0;
     descriptor.cFragment.entryPoint = "fragmentMain";
+    descriptor.EnableBlending(0);
     descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
     ///@{ TODO: Only for valid depth stencil formats
     auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());

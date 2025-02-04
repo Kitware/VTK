@@ -203,19 +203,20 @@ void vtkWebGPURenderer::Clear()
 
   for (int i = 0; i < vtkWebGPURenderPipelineDescriptorInternals::kMaxColorAttachments; ++i)
   {
+    auto* blendState = bkgPipelineDescriptor.EnableBlending(i);
     if (this->Transparent())
     {
-      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::One;
-      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::One;
+      blendState->color.srcFactor = wgpu::BlendFactor::Zero;
+      blendState->color.dstFactor = wgpu::BlendFactor::One;
+      blendState->alpha.srcFactor = wgpu::BlendFactor::Zero;
+      blendState->alpha.dstFactor = wgpu::BlendFactor::One;
     }
     else
     {
-      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Constant;
-      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Constant;
-      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::Zero;
+      blendState->color.srcFactor = wgpu::BlendFactor::Constant;
+      blendState->color.dstFactor = wgpu::BlendFactor::Zero;
+      blendState->alpha.srcFactor = wgpu::BlendFactor::Constant;
+      blendState->alpha.dstFactor = wgpu::BlendFactor::Zero;
     }
   }
   const auto pipelineKey =

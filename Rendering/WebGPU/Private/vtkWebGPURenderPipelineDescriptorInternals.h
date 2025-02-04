@@ -31,6 +31,9 @@ public:
     wgpu::TextureFormat format = wgpu::TextureFormat::Depth24PlusStencil8);
   void DisableDepthStencil();
 
+  wgpu::BlendState* EnableBlending(std::size_t colorTargetId);
+  void DisableBlending(std::size_t colorTargetId);
+
   std::array<wgpu::VertexBufferLayout, kMaxVertexBuffers> cBuffers;
   std::array<wgpu::VertexAttribute, kMaxVertexAttributes> cAttributes;
   std::array<wgpu::ColorTargetState, kMaxColorAttachments> cTargets;

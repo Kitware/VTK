@@ -1126,6 +1126,7 @@ public:
     descriptor.vertex.entryPoint = "vertexMain";
     descriptor.vertex.bufferCount = 0;
     descriptor.cFragment.entryPoint = "fragmentMain";
+    descriptor.EnableBlending(0);
     descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
     auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
     depthState->depthWriteEnabled = true;

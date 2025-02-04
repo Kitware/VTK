@@ -91,7 +91,6 @@ vtkWebGPURenderPipelineDescriptorInternals::vtkWebGPURenderPipelineDescriptorInt
     for (uint32_t i = 0; i < kMaxColorAttachments; ++i)
     {
       cTargets[i].format = wgpu::TextureFormat::RGBA8Unorm;
-      cTargets[i].blend = &cBlends[i];
       cTargets[i].writeMask = wgpu::ColorWriteMask::All;
 
       cBlends[i].color = blendComponent;
@@ -114,4 +113,17 @@ void vtkWebGPURenderPipelineDescriptorInternals::DisableDepthStencil()
 {
   this->depthStencil = nullptr;
 }
+
+wgpu::BlendState* vtkWebGPURenderPipelineDescriptorInternals::EnableBlending(
+  std::size_t colorTargetId)
+{
+  this->cTargets[colorTargetId].blend = &cBlends[colorTargetId];
+  return &cBlends[colorTargetId];
+}
+
+void vtkWebGPURenderPipelineDescriptorInternals::DisableBlending(std::size_t colorTargetId)
+{
+  this->cTargets[colorTargetId].blend = nullptr;
+}
+
 VTK_ABI_NAMESPACE_END
