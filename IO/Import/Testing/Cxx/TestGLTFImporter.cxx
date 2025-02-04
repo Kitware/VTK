@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkFileResourceStream.h>
 #include <vtkGLTFImporter.h>
 #include <vtkLightCollection.h>
 #include <vtkRegressionTestImage.h>
@@ -11,19 +12,42 @@
 
 int TestGLTFImporter(int argc, char* argv[])
 {
-  if (argc < 6)
+  if (argc < 7)
   {
-    std::cout << "Usage: " << argv[0]
-              << " <gltf file> <camera index> <expected nb of actors> <expected nb of lights> "
-                 "<expected nb of cameras>"
-              << std::endl;
+    std::cout
+      << "Usage: " << argv[0]
+      << " <gltf file> <use_stream> <camera index> <expected nb of actors> <expected nb of lights> "
+         "<expected nb of cameras>"
+      << std::endl;
     return EXIT_FAILURE;
   }
 
-  vtkIdType cameraIndex = atoi(argv[2]);
+  vtkIdType cameraIndex = atoi(argv[3]);
 
   vtkNew<vtkGLTFImporter> importer;
-  importer->SetFileName(argv[1]);
+  if (atoi(argv[2]) > 0)
+  {
+    bool is_binary = false;
+    std::string extension = vtksys::SystemTools::GetFilenameLastExtension(argv[1]);
+    if (extension == ".glb")
+    {
+      is_binary = true;
+    }
+    vtkNew<vtkFileResourceStream> file;
+    file->Open(argv[1]);
+    if (file->EndOfStream())
+    {
+      std::cerr << "Can not open test file " << argv[1] << std::endl;
+      return EXIT_FAILURE;
+    }
+    importer->SetStream(file);
+    importer->SetStreamIsBinary(is_binary);
+  }
+  else
+  {
+    importer->SetFileName(argv[1]);
+  }
+
   importer->ImportArmatureOn();
 
   vtkNew<vtkRenderWindow> renderWindow;
@@ -43,19 +67,19 @@ int TestGLTFImporter(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  if (importer->GetImportedActors()->GetNumberOfItems() != atoi(argv[3]))
+  if (importer->GetImportedActors()->GetNumberOfItems() != atoi(argv[4]))
   {
     std::cerr << "ERROR: Unexpected number of imported actors: "
               << importer->GetImportedActors()->GetNumberOfItems() << "\n";
     return EXIT_FAILURE;
   }
-  if (importer->GetImportedLights()->GetNumberOfItems() != atoi(argv[4]))
+  if (importer->GetImportedLights()->GetNumberOfItems() != atoi(argv[5]))
   {
     std::cerr << "ERROR: Unexpected number of imported lights: "
               << importer->GetImportedActors()->GetNumberOfItems() << "\n";
     return EXIT_FAILURE;
   }
-  if (importer->GetImportedCameras()->GetNumberOfItems() != atoi(argv[5]))
+  if (importer->GetImportedCameras()->GetNumberOfItems() != atoi(argv[6]))
   {
     std::cerr << "ERROR: Unexpected number of imported cameras: "
               << importer->GetImportedActors()->GetNumberOfItems() << "\n";
