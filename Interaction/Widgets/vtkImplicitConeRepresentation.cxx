@@ -31,6 +31,8 @@
 #include "vtkType.h"
 #include "vtkVector.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitConeRepresentation);
 
@@ -225,16 +227,14 @@ int vtkImplicitConeRepresentation::ComputeInteractionState(int X, int Y, int vtk
 //------------------------------------------------------------------------------
 void vtkImplicitConeRepresentation::SetRepresentationState(InteractionStateType state)
 {
+  // Clamp the state
+  state = std::min(
+    std::max(state, InteractionStateType::Outside), InteractionStateType::TranslatingOrigin);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  // Clamp the state
-  state = (state < InteractionStateType::Outside
-      ? InteractionStateType::Outside
-      : (state > InteractionStateType::TranslatingOrigin ? InteractionStateType::TranslatingOrigin
-                                                         : state));
 
   this->RepresentationState = state;
   this->Modified();

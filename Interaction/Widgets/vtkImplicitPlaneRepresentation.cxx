@@ -32,6 +32,7 @@
 #include "vtkTubeFilter.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cfloat> //for FLT_EPSILON
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -429,16 +430,14 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
 //------------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::SetRepresentationState(int state)
 {
+  // Clamp the state
+  state = std::min<int>(std::max<int>(state, vtkImplicitPlaneRepresentation::Outside),
+    vtkImplicitPlaneRepresentation::Scaling);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  // Clamp the state
-  state = (state < vtkImplicitPlaneRepresentation::Outside
-      ? vtkImplicitPlaneRepresentation::Outside
-      : (state > vtkImplicitPlaneRepresentation::Scaling ? vtkImplicitPlaneRepresentation::Scaling
-                                                         : state));
 
   this->RepresentationState = state;
   this->Modified();

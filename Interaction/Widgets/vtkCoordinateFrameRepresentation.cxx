@@ -31,6 +31,8 @@
 #include "vtkTransform.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCoordinateFrameRepresentation);
 
@@ -337,17 +339,14 @@ int vtkCoordinateFrameRepresentation::ComputeInteractionState(int X, int Y, int 
 //------------------------------------------------------------------------------
 void vtkCoordinateFrameRepresentation::SetRepresentationState(int state)
 {
+  // Clamp the state
+  state = std::min<int>(std::max<int>(state, vtkCoordinateFrameRepresentation::Outside),
+    vtkCoordinateFrameRepresentation::ModifyingLockerZVector);
+
   if (this->RepresentationState == state)
   {
     return;
   }
-
-  // Clamp the state
-  state = (state < vtkCoordinateFrameRepresentation::Outside
-      ? vtkCoordinateFrameRepresentation::Outside
-      : (state > vtkCoordinateFrameRepresentation::ModifyingLockerZVector
-            ? vtkCoordinateFrameRepresentation::ModifyingLockerZVector
-            : state));
 
   this->RepresentationState = state;
   this->Modified();
