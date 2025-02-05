@@ -273,9 +273,9 @@ struct FragmentOutput {
 
 //-------------------------------------------------------------------
 @fragment
-fn fragmentMain(vertex_output: VertexOutput) -> FragmentOutput {
+fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
-  output.color = vertex_output.color;
-  output.cell_id = vertex_output.cell_id;
+  output.color = vertex.color;
+  output.cell_id = vertex.cell_id;
   return output;
 }

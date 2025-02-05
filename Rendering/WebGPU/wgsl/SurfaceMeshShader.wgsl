@@ -213,19 +213,6 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 }
 
 //-------------------------------------------------------------------
-struct FragmentInput {
-  @builtin(position) frag_coord: vec4<f32>,
-  @builtin(front_facing) is_front_facing: bool,
-  @location(0) color: vec4<f32>,
-  @location(1) position_vc: vec4<f32>, // in view coordinate system.
-  @location(2) normal_vc: vec3<f32>, // in view coordinate system.
-  @location(3) tangent_vc: vec3<f32>, // in view coordinate system.
-  @location(4) edge_dists: vec3<f32>,
-  @location(5) @interpolate(flat) cell_id: u32,
-  @location(6) @interpolate(flat) hide_edge: f32,
-}
-
-//-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
   @location(1) cell_id: u32
@@ -233,12 +220,14 @@ struct FragmentOutput {
 
 //-------------------------------------------------------------------
 @fragment
-fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
+fn fragmentMain(
+  @builtin(front_facing) is_front_facing: bool,
+  vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
   var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
-  var normal_vc: vec3<f32> = normalize(fragment.normal_vc);
+  var normal_vc: vec3<f32> = normalize(vertex.normal_vc);
 
   var opacity: f32;
 
@@ -251,9 +240,9 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     diffuse_color = mesh.override_colors.diffuse_color.rgb;
     opacity = mesh.override_colors.opacity;
   } else if (has_mapped_colors) {
-    ambient_color = fragment.color.rgb;
-    diffuse_color = fragment.color.rgb;
-    opacity = fragment.color.a;
+    ambient_color = vertex.color.rgb;
+    diffuse_color = vertex.color.rgb;
+    opacity = vertex.color.a;
   } else {
     ambient_color = actor.color_options.ambient_color;
     diffuse_color = actor.color_options.diffuse_color;
@@ -269,14 +258,14 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     let use_line_width_for_edge_thickness = getUseLineWidthForEdgeThickness(actor.render_options.flags);
     let linewidth: f32 = select(actor.render_options.edge_width, actor.render_options.line_width, use_line_width_for_edge_thickness);
     // Undo perspective correction.
-    let dist_vec = fragment.edge_dists.xyz * fragment.frag_coord.w;
+    let dist_vec = vertex.edge_dists.xyz * vertex.position.w;
     var d: f32 = 0.0;
     // Compute the shortest distance to the edge
-    if fragment.hide_edge == 2.0 {
+    if vertex.hide_edge == 2.0 {
         d = min(dist_vec[0], dist_vec[2]);
-    } else if fragment.hide_edge == 1.0 {
+    } else if vertex.hide_edge == 1.0 {
         d = dist_vec[0];
-    } else if fragment.hide_edge == 0.0 {
+    } else if vertex.hide_edge == 0.0 {
         d = min(dist_vec[0], dist_vec[1]);
     } else { // no edge is hidden
         d = min(dist_vec[0], min(dist_vec[1], dist_vec[2]));
@@ -297,9 +286,9 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   ///------------------------///
   // Normals
   ///------------------------///
-  if !fragment.is_front_facing {
+  if !is_front_facing {
     if (normal_vc.z < 0.0) {
-      normal_vc = -fragment.normal_vc;
+      normal_vc = -vertex.normal_vc;
       normal_vc = normalize(normal_vc);
     }
   } else if normal_vc.z < 0.0 {
@@ -343,6 +332,6 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = fragment.cell_id;
+  output.cell_id = vertex.cell_id;
   return output;
 }

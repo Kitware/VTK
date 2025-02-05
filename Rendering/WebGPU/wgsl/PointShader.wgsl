@@ -190,18 +190,6 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 }
 
 //-------------------------------------------------------------------
-struct FragmentInput {
-  @builtin(position) frag_coord: vec4<f32>,
-  @builtin(front_facing) is_front_facing: bool,
-  @location(0) color: vec4<f32>,
-  @location(1) position_vc: vec4<f32>, // in view coordinate system.
-  @location(2) normal_vc: vec3<f32>, // in view coordinate system.
-  @location(3) tangent_vc: vec3<f32>, // in view coordinate system.
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) local_position: vec2<f32>,
-}
-
-//-------------------------------------------------------------------
 struct FragmentOutput {
   @builtin(frag_depth) frag_depth: f32,
   @location(0) color: vec4<f32>,
@@ -210,7 +198,7 @@ struct FragmentOutput {
 
 //-------------------------------------------------------------------
 @fragment
-fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
+fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
   var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
@@ -233,16 +221,16 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     diffuse_color = mesh.override_colors.diffuse_color.rgb;
     opacity = mesh.override_colors.opacity;
   } else if (has_mapped_colors) {
-    ambient_color = fragment.color.rgb;
-    diffuse_color = fragment.color.rgb;
-    opacity = fragment.color.a;
+    ambient_color = vertex.color.rgb;
+    diffuse_color = vertex.color.rgb;
+    opacity = vertex.color.a;
   } else {
     ambient_color = actor.color_options.ambient_color;
     diffuse_color = actor.color_options.diffuse_color;
     opacity = actor.color_options.opacity;
   }
 
-  let d = length(fragment.local_position); // distance of fragment from the input vertex.
+  let d = length(vertex.local_position); // distance of fragment from the input vertex.
   let point_2d_shape = getPoint2DShape(actor.render_options.flags);
   let render_points_as_spheres = getRenderPointsAsSpheres(actor.render_options.flags);
   if (((point_2d_shape == POINT_2D_ROUND) || render_points_as_spheres) && (d > 1)) {
@@ -250,12 +238,12 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
 
   let point_size = clamp(actor.render_options.point_size, 1.0f, 100000.0f);
-  var normal_vc = normalize(fragment.normal_vc);
+  var normal_vc = normalize(vertex.normal_vc);
   if (render_points_as_spheres) {
     if (d > 1) {
       discard;
     }
-    normal_vc = normalize(vec3f(fragment.local_position, 1));
+    normal_vc = normalize(vec3f(vertex.local_position, 1));
     normal_vc.z = sqrt(1.0f - d * d);
     // Pushes the fragment in order to fake a sphere.
     // See Rendering/OpenGL2/PixelsToZBufferConversion.txt for the math behind this. Note that,
@@ -264,17 +252,17 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
     let r = point_size / (scene_transform.viewport.z * scene_transform.projection[0][0]);
     if (getUseParallelProjection(scene_transform.flags)) {
       let s = scene_transform.projection[2][2];
-      output.frag_depth = fragment.frag_coord.z + normal_vc.z * r * s;
+      output.frag_depth = vertex.position.z + normal_vc.z * r * s;
     }
     else
     {
       let s = -scene_transform.projection[2][2];
-      output.frag_depth = (s - fragment.frag_coord.z) / (normal_vc.z * r - 1.0) + s;
+      output.frag_depth = (s - vertex.position.z) / (normal_vc.z * r - 1.0) + s;
     }
   }
   else
   {
-    output.frag_depth = fragment.frag_coord.z;
+    output.frag_depth = vertex.position.z;
   }
 
   ///------------------------///
@@ -322,6 +310,6 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = fragment.cell_id;
+  output.cell_id = vertex.cell_id;
   return output;
 }
