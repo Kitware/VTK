@@ -21,10 +21,8 @@ from vtkmodules.util.vtkAlgorithm import VTKPythonAlgorithmBase
 class VtkAccessor:
     def __init__(self, dsxr):
         self._dsxr = dsxr
-        self._reader = vtkXArrayCFReader()
 
-    @property
-    def reader(self):
+    def create_reader(self):
         '''
         Returns a vtkXArrayCFReader that reads data from the XArray
         (using zero-copy when possible). At the moment, data is copied
@@ -35,8 +33,9 @@ class VtkAccessor:
         Time is passed to VTK either as an int64 for datetime64 or timedelta64,
         or as a double (using cftime.toordinal) for cftime.
         '''
-        self._reader.SetXArray(self._dsxr)
-        return self._reader
+        reader = vtkXArrayCFReader()
+        reader.SetXArray(self._dsxr)
+        return reader
 
 
 class vtkXArrayCFReader(VTKPythonAlgorithmBase):
@@ -325,7 +324,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
                 else:
                     self._arrays[v] = v_data
                 acclog.debug(f"{v=} {v_data.shape=} {v_data.dtype} {self._dsxr[v].dims=}")
-                acclog.debug(f"address:{hex(v_data.ctypes.data)} {v_data=}")
+                acclog.debug(f"address:{hex(v_data.ctypes.data)}")
                 accessor.SetVarValue(i, v_data)
                 accessor.SetVarType(i, vtkXArrayCFReader._get_nc_type(v_data.dtype))
             else:
