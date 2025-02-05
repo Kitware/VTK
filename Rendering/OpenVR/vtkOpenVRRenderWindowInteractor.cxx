@@ -381,29 +381,4 @@ void vtkOpenVRRenderWindowInteractor::AddAction(
   }
 }
 
-//------------------------------------------------------------------------------
-// Purpose: Returns true if the action is active and its state is true
-//------------------------------------------------------------------------------
-bool GetDigitalActionState(
-  vr::VRActionHandle_t action, vr::VRInputValueHandle_t* pDevicePath = nullptr)
-{
-  vr::InputDigitalActionData_t actionData;
-  vr::VRInput()->GetDigitalActionData(
-    action, &actionData, sizeof(actionData), vr::k_ulInvalidInputValueHandle);
-  if (pDevicePath)
-  {
-    *pDevicePath = vr::k_ulInvalidInputValueHandle;
-    if (actionData.bActive)
-    {
-      vr::InputOriginInfo_t originInfo;
-      if (vr::VRInputError_None ==
-        vr::VRInput()->GetOriginTrackedDeviceInfo(
-          actionData.activeOrigin, &originInfo, sizeof(originInfo)))
-      {
-        *pDevicePath = originInfo.devicePath;
-      }
-    }
-  }
-  return actionData.bActive && actionData.bState;
-}
 VTK_ABI_NAMESPACE_END

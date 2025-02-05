@@ -40,9 +40,9 @@ public:
 };
 
 //------------------------------------------------------------------------------
+#ifdef VTK_USE_MEMKIND
 void* vtkCustomMalloc(size_t size)
 {
-#ifdef VTK_USE_MEMKIND
   if (MemkindHandle == nullptr)
   {
     vtkGenericWarningMacro(<< "memkind_malloc() called before memkind initialized.");
@@ -51,16 +51,14 @@ void* vtkCustomMalloc(size_t size)
   {
     return memkind_malloc(MemkindHandle, size);
   }
-#else
-  (void)size;
-#endif
   return nullptr;
 }
+#endif
 
 //------------------------------------------------------------------------------
+#ifdef VTK_USE_MEMKIND
 void* vtkCustomRealloc(void* p, size_t size)
 {
-#ifdef VTK_USE_MEMKIND
   if (MemkindHandle == nullptr)
   {
     vtkGenericWarningMacro(<< "memkind_realloc() called before memkind initialized.");
@@ -69,12 +67,9 @@ void* vtkCustomRealloc(void* p, size_t size)
   {
     return memkind_realloc(MemkindHandle, p, size);
   }
-#else
-  (void)p;
-  (void)size;
-#endif
   return nullptr;
 }
+#endif
 
 //------------------------------------------------------------------------------
 void vtkCustomFree(void* addr)

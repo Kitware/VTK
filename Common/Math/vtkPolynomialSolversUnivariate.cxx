@@ -633,25 +633,20 @@ static int vtkGetSturmSequence(
   return nSSS + 1;
 }
 
-extern "C"
+int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b)
 {
-
-  static int vtkPolynomialSolversUnivariateCompareRoots(const void* a, const void* b)
+  double aa = *static_cast<const double*>(a);
+  double bb = *static_cast<const double*>(b);
+  if (aa < bb)
   {
-    double aa = *static_cast<const double*>(a);
-    double bb = *static_cast<const double*>(b);
-    if (aa < bb)
-    {
-      return -1;
-    }
-    if (aa > bb)
-    {
-      return 1;
-    }
-    return 0;
+    return -1;
   }
-
-} // extern "C"
+  if (aa > bb)
+  {
+    return 1;
+  }
+  return 0;
+}
 
 // ------------------------------------------------------------
 // upperBnds is expected to be large enough.

@@ -374,67 +374,6 @@ int vtkXMLUnstructuredDataWriter::WriteHeader()
 
   return 1;
 }
-namespace
-{
-struct FaceStreamVisitor
-{
-  // Insert full cell
-  template <typename CellStateT>
-  vtkIdType operator()(CellStateT& state, vtkIdTypeArray* faceStream)
-  {
-    vtkIdType count = 0;
-    vtkIdType NumberOfFaces = state.GetNumberOfCells();
-    count = 1 + NumberOfFaces;
-    faceStream->InsertNextValue(NumberOfFaces);
-    for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
-    {
-      const vtkIdType beginOffset = state.GetBeginOffset(faceNum);
-      const vtkIdType endOffset = state.GetEndOffset(faceNum);
-      const vtkIdType nFaceVerts = endOffset - beginOffset;
-      const auto facePoints = state.GetConnectivity()->GetPointer(beginOffset);
-      faceStream->InsertNextValue(nFaceVerts);
-      count += nFaceVerts;
-      for (vtkIdType j = 0; j < nFaceVerts; ++j)
-      {
-        faceStream->InsertNextValue(static_cast<vtkIdType>(facePoints[j]));
-      }
-    }
-    return count;
-  }
-};
-}
-
-void CreateFaceStream(
-  vtkCellIterator* cellIter, vtkIdTypeArray* faceStream, vtkIdTypeArray* faceOffsets)
-{
-  vtkNew<vtkGenericCell> cell;
-
-  faceStream->Reset();
-  faceOffsets->Reset();
-
-  vtkIdType offset(0);
-  for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
-  {
-    vtkIdType ct = cellIter->GetCellType();
-    if (ct != VTK_POLYHEDRON)
-    {
-      faceOffsets->InsertNextValue(-1);
-      continue;
-    }
-    cellIter->GetCell(cell.GetPointer());
-    vtkCell* theCell = cell->GetRepresentativeCell();
-    vtkPolyhedron* poly = vtkPolyhedron::SafeDownCast(theCell);
-    if (!poly || !poly->GetNumberOfFaces())
-    {
-      continue;
-    }
-
-    vtkCellArray* faces = poly->GetCellFaces();
-    // create offset in vtkUnstructuredGrid fashion, this will later be converted using ConvertFaces
-    faceOffsets->InsertNextValue(offset);
-    offset += faces->Visit(FaceStreamVisitor{}, faceStream);
-  }
-}
 
 void CreatePolyFace(
   vtkCellIterator* cellIter, vtkCellArray* faceArray, vtkCellArray* polyhedronArray)

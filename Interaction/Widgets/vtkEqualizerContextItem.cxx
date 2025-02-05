@@ -57,14 +57,8 @@ struct EqualizerPoint
   }
 
   //------------------------------------------------------------------------------
-  bool operator<(const EqualizerPoint& point) { return this->freq < point.freq; }
+  bool operator<(const EqualizerPoint& point) const { return this->freq < point.freq; }
 };
-
-//------------------------------------------------------------------------------
-bool operator<(const EqualizerPoint& lhs, const EqualizerPoint& rhs)
-{
-  return lhs.freq < rhs.freq;
-}
 
 //------------------------------------------------------------------------------
 bool isNear(vtkVector2f pos1, vtkVector2f pos2, double radius)

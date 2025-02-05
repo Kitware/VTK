@@ -773,43 +773,7 @@ const char* GetVectorLookupProgram(int normalize)
   return getVecSrc;
 }
 
-// Description
-// find min/max of unmasked fragments across all regions
-// download the entire screen then search each region
-void FindMinMax(vtkTextureObject* tex, const deque<vtkPixelExtent>& extents, float& min, float& max)
-{
-  // download entire screen
-  int size0 = tex->GetWidth();
-  vtkPixelBufferObject* colors = tex->Download();
-  float* pColors = static_cast<float*>(colors->MapPackedBuffer());
-  // search each region
-  size_t nExtents = extents.size();
-  for (size_t q = 0; q < nExtents; ++q)
-  {
-    const vtkPixelExtent& extent = extents[q];
-    for (int j = extent[2]; j <= extent[3]; ++j)
-    {
-      for (int i = extent[0]; i <= extent[1]; ++i)
-      {
-        int id = 4 * (j * size0 + i);
-        bool masked = pColors[id + 1] != 0.0f;
-        bool ceskip = pColors[id + 2] != 0.0f;
-        if (!masked && !ceskip)
-        {
-          float color = pColors[id];
-          min = min > color ? color : min;
-          max = max < color ? color : max;
-        }
-      }
-    }
-  }
-  colors->UnmapPackedBuffer();
-  colors->Delete();
-#if vtkLineIntegralConvolution2DDEBUG >= 1
-  cerr << "min=" << min << " max=" << max << endl;
-#endif
-}
-
+#ifdef STREAMING_MIN_MAX
 // Description
 // find min/max of unmasked fragments across all regions
 // download each search each region individually
@@ -860,6 +824,44 @@ void StreamingFindMinMax(vtkOpenGLFramebufferObject* fbo, vtkTextureObject* tex,
   cerr << "min=" << min << " max=" << max << endl;
 #endif
 }
+#else
+// Description
+// find min/max of unmasked fragments across all regions
+// download the entire screen then search each region
+void FindMinMax(vtkTextureObject* tex, const deque<vtkPixelExtent>& extents, float& min, float& max)
+{
+  // download entire screen
+  int size0 = tex->GetWidth();
+  vtkPixelBufferObject* colors = tex->Download();
+  float* pColors = static_cast<float*>(colors->MapPackedBuffer());
+  // search each region
+  size_t nExtents = extents.size();
+  for (size_t q = 0; q < nExtents; ++q)
+  {
+    const vtkPixelExtent& extent = extents[q];
+    for (int j = extent[2]; j <= extent[3]; ++j)
+    {
+      for (int i = extent[0]; i <= extent[1]; ++i)
+      {
+        int id = 4 * (j * size0 + i);
+        bool masked = pColors[id + 1] != 0.0f;
+        bool ceskip = pColors[id + 2] != 0.0f;
+        if (!masked && !ceskip)
+        {
+          float color = pColors[id];
+          min = min > color ? color : min;
+          max = max < color ? color : max;
+        }
+      }
+    }
+  }
+  colors->UnmapPackedBuffer();
+  colors->Delete();
+#if vtkLineIntegralConvolution2DDEBUG >= 1
+  cerr << "min=" << min << " max=" << max << endl;
+#endif
+}
+#endif
 
 VTK_ABI_NAMESPACE_END
 }
