@@ -129,10 +129,6 @@ void vtkWebGPUCamera::UpdateViewport(vtkRenderer* renderer)
     rpassEncoder.SetScissorRect(
       lowerLeft[0], lowerLeft[1], static_cast<uint32_t>(width), static_cast<uint32_t>(height));
   }
-  if ((renderer->GetRenderWindow())->GetErase() && renderer->GetErase())
-  {
-    renderer->Clear();
-  }
 }
 
 //------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
 #include "vtkFrameBufferObjectBase.h"
@@ -15,10 +16,8 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkType.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
-#include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUConfiguration.h"
@@ -64,17 +63,6 @@ const char* backgroundShaderSource = R"(
       return output;
     }
   )";
-
-vtkWebGPURenderPass* MakeClearDrawPass()
-{
-  auto* pass = vtkWebGPUClearDrawPass::New();
-  // do not clear color because doing so would erase the contents of the entire
-  // color attachment, including other renderer's viewports!
-  pass->SetClearColor(false);
-  pass->SetClearDepth(false);
-  pass->SetClearStencil(false);
-  return pass;
-}
 }
 
 //------------------------------------------------------------------------------
@@ -178,7 +166,7 @@ void vtkWebGPURenderer::CreateBuffers()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::Clear()
 {
-  if (!this->DoClearPass)
+  if (!this->DrawBackgroundInClearPass)
   {
     return;
   }
@@ -247,12 +235,44 @@ void vtkWebGPURenderer::DeviceRender()
   this->ConfigureComputePipelines();
   this->PreRenderComputePipelines();
 
-  this->BeginRecording(); // all pipelines execute in single render pass, for now.
-  this->ActiveCamera->UpdateViewport(this);
-  this->UpdateGeometry();
-  this->EndRecording();
+  this->RecordRenderCommands();
 
-  this->DoClearPass = true;
+  this->DrawBackgroundInClearPass = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::RecordRenderCommands()
+{
+  vtkRenderState state(this);
+  state.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+  state.SetFrameBuffer(nullptr);
+
+  if (auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow))
+  {
+    vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
+      { wgpuRenderWindow->GetOffscreenColorAttachmentView() },
+      wgpuRenderWindow->GetDepthStencilView(),
+      /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
+    renderPassDescriptor.label = "vtkWebGPURenderer::RecordRenderCommands";
+    this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(renderPassDescriptor);
+    this->BeginRecording();
+    // 1. Draw the background color/texture.
+    // updates viewport and scissor rectangles on the render pass encoder.
+    this->ActiveCamera->UpdateViewport(this);
+    // clear the viewport rectangle to background color.
+    if (this->RenderWindow->GetErase() && this->Erase)
+    {
+      this->Clear();
+    }
+    // 2. Now render all opaque and translucent props.
+    this->UpdateGeometry();
+    this->EndRecording();
+  }
+  else
+  {
+    vtkErrorMacro(
+      << "Cannot record render commands because RenderWindow is not a vtkWebGPURenderWindow!");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -288,7 +308,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 {
   int i;
 
-  if (this->DoClearPass)
+  if (this->DrawBackgroundInClearPass)
   {
     this->PropsRendered.clear();
     this->NumberOfPropsRendered = 0;
@@ -771,10 +791,7 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   this->PropArray = propList;
   this->PropArrayCount = listLength;
 
-  this->BeginRecording();
-  this->ActiveCamera->UpdateViewport(this);
-  this->UpdateGeometry();
-  this->EndRecording();
+  this->RecordRenderCommands();
 
   // Restoring
   this->PropArray = propArrayBackup;
@@ -789,7 +806,7 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   // it's ready to be used again by someone else
   renderWindow->CreateCommandEncoder();
 
-  this->DoClearPass = false;
+  this->DrawBackgroundInClearPass = false;
   return commandBuffer;
 }
 
@@ -798,12 +815,8 @@ void vtkWebGPURenderer::BeginRecording()
 {
   vtkDebugMacro(<< __func__);
   this->RenderStage = RenderStageEnum::RecordingCommands;
-  vtkRenderState state(this);
-  state.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-  state.SetFrameBuffer(nullptr);
-  this->Pass = ::MakeClearDrawPass();
+  assert(this->WGPURenderEncoder != nullptr);
 
-  this->WGPURenderEncoder = vtkWebGPURenderPass::SafeDownCast(this->Pass)->Begin(&state);
 #ifndef NDEBUG
   this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
 #endif
@@ -895,8 +908,6 @@ void vtkWebGPURenderer::EndRecording()
 #endif
   this->WGPURenderEncoder.End();
   this->WGPURenderEncoder = nullptr;
-  this->Pass->Delete();
-  this->Pass = nullptr;
 }
 
 //------------------------------------------------------------------------------

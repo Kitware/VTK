@@ -28,6 +28,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The super class repeatedly renders the frame for different passes.
+   * We do not wish to do that as it is quite expensive. This class
+   * leverages webgpu features to achieve selection within a single pass.
+   */
+  bool CaptureBuffers() override{};
+
+  /**
    * Called by the mapper before and after
    * rendering each prop.
    */

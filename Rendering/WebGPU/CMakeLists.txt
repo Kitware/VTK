@@ -9,7 +9,6 @@ set(classes
   vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
   vtkWebGPUCellToPrimitiveConverter
-  vtkWebGPUClearDrawPass
   vtkWebGPUCommandEncoderDebugGroup
   vtkWebGPUCompositePolyDataMapperDelegator
   vtkWebGPUComputeBuffer
@@ -33,7 +32,6 @@ set(classes
   vtkWebGPUPolyDataMapper2D
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
   vtkWebGPUTexture

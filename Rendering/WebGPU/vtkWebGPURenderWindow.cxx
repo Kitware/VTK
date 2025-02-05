@@ -19,7 +19,6 @@
 #include "vtkRendererCollection.h"
 #include "vtkTypeUInt8Array.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderer.h"
 
