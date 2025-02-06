@@ -18,7 +18,7 @@ def get_reader(file_name):
             Testing.skip()
         ds_xr = xr.open_dataset(file_name)
         ds_xrs.append(ds_xr)
-        reader = ds_xr.vtk.reader()
+        reader = ds_xr.vtk.create_reader()
     else:
         print(f"Using NetCDFCFReader on: {file_name}")
         reader = vtkNetCDFCFReader()
