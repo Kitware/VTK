@@ -51,7 +51,6 @@ int TestShadowMapBakerPass(int argc, char* argv[])
   delete[] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
-  // mapper->SetInputConnection(norms->GetOutputPort());
   actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
