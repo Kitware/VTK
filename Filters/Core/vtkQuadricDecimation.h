@@ -26,7 +26,8 @@
  * constraints prevent further reduction. Note that this basic algorithm can
  * be extended to higher dimensions by
  * taking into account variation in attributes (i.e., scalars, vectors, and
- * so on).
+ * so on). Attributes are interpolated during the edge collapse,
+ * except for vtkIdType arrays: values of removed points are discarded.
  *
  * This paper is based on the work of Garland and Heckbert who first
  * presented the quadric error measure at Siggraph '97 "Surface
@@ -137,6 +138,8 @@ public:
   ///@{
   /**
    * Getter/Setter for mapping point data to the output during decimation.
+   * Attributes are interpolated during edge collapses, except for
+   * vtkIdType array where each collapse lead to a single id being kept.
    */
   vtkGetMacro(MapPointData, bool);
   vtkSetMacro(MapPointData, bool);

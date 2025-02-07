@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkActor.h>
+#include <vtkAffineArray.h>
 #include <vtkCamera.h>
 #include <vtkDataSet.h>
 #include <vtkDoubleArray.h>
@@ -43,6 +44,13 @@ int TestQuadricDecimationMapPointData(int argc, char* argv[])
     {
       dRange[iP] = std::sin(3.0 * (ptRange[iP * 3] + ptRange[iP * 3 + 1] + ptRange[iP * 3 + 2]));
     }
+
+    vtkNew<vtkAffineArray<vtkIdType>> affine;
+    affine->SetNumberOfTuples(output->GetNumberOfPoints());
+    affine->ConstructBackend(1, 0);
+    affine->SetName("IdsTypeArray");
+
+    output->GetPointData()->AddArray(affine);
     output->GetPointData()->AddArray(scalars);
     output->GetPointData()->SetScalars(scalars);
   }
@@ -60,6 +68,9 @@ int TestQuadricDecimationMapPointData(int argc, char* argv[])
     vtkDataSet* output = vtkDataSet::SafeDownCast(decimator->GetOutput(0));
     nCellsAfter = output->GetNumberOfCells();
     std::cout << "NCells after decimation: " << nCellsAfter << std::endl;
+
+    auto idArr = output->GetPointData()->GetArray("IdsTypeArray");
+    std::cout << idArr->GetTuple1(0) << std::endl;
   }
 
   if (nCellsAfter != 952)
