@@ -81,7 +81,7 @@ public:
 
   /// Set this to a json file on your file system. Look inside
   /// Rendering/CellGrid/LiveGLSLDebugSample/ for an example.
-  inline void SetSubstitutionJSONFileName(const std::string& filename)
+  void SetSubstitutionJSONFileName(const std::string& filename)
   {
     this->SubstitutionJSONFileName = filename;
   }

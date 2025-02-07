@@ -24,6 +24,6 @@ void InitializeVTKm()
 
 vtkmInitializer::vtkmInitializer()
 {
-  (void)InitializeVTKm();
+  InitializeVTKm();
 }
 VTK_ABI_NAMESPACE_END

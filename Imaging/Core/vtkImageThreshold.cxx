@@ -129,13 +129,13 @@ void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtk
   IT temp;
 
   // Make sure the thresholds are valid for the input scalar range
-  if (static_cast<double>(self->GetLowerThreshold()) < inData->GetScalarTypeMin())
+  if (self->GetLowerThreshold() < inData->GetScalarTypeMin())
   {
     lowerThreshold = static_cast<IT>(inData->GetScalarTypeMin());
   }
   else
   {
-    if (static_cast<double>(self->GetLowerThreshold()) > inData->GetScalarTypeMax())
+    if (self->GetLowerThreshold() > inData->GetScalarTypeMax())
     {
       lowerThreshold = static_cast<IT>(inData->GetScalarTypeMax());
     }
@@ -144,13 +144,13 @@ void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtk
       lowerThreshold = static_cast<IT>(self->GetLowerThreshold());
     }
   }
-  if (static_cast<double>(self->GetUpperThreshold()) > inData->GetScalarTypeMax())
+  if (self->GetUpperThreshold() > inData->GetScalarTypeMax())
   {
     upperThreshold = static_cast<IT>(inData->GetScalarTypeMax());
   }
   else
   {
-    if (static_cast<double>(self->GetUpperThreshold()) < inData->GetScalarTypeMin())
+    if (self->GetUpperThreshold() < inData->GetScalarTypeMin())
     {
       upperThreshold = static_cast<IT>(inData->GetScalarTypeMin());
     }
@@ -161,13 +161,13 @@ void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtk
   }
 
   // Make sure the replacement values are within the output scalar range
-  if (static_cast<double>(self->GetInValue()) < outData->GetScalarTypeMin())
+  if (self->GetInValue() < outData->GetScalarTypeMin())
   {
     inValue = static_cast<OT>(outData->GetScalarTypeMin());
   }
   else
   {
-    if (static_cast<double>(self->GetInValue()) > outData->GetScalarTypeMax())
+    if (self->GetInValue() > outData->GetScalarTypeMax())
     {
       inValue = static_cast<OT>(outData->GetScalarTypeMax());
     }
@@ -176,13 +176,13 @@ void vtkImageThresholdExecute(vtkImageThreshold* self, vtkImageData* inData, vtk
       inValue = static_cast<OT>(self->GetInValue());
     }
   }
-  if (static_cast<double>(self->GetOutValue()) > outData->GetScalarTypeMax())
+  if (self->GetOutValue() > outData->GetScalarTypeMax())
   {
     outValue = static_cast<OT>(outData->GetScalarTypeMax());
   }
   else
   {
-    if (static_cast<double>(self->GetOutValue()) < outData->GetScalarTypeMin())
+    if (self->GetOutValue() < outData->GetScalarTypeMin())
     {
       outValue = static_cast<OT>(outData->GetScalarTypeMin());
     }

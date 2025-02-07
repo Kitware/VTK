@@ -1907,11 +1907,11 @@ void vtkStaticPointLocator2D::FindClosestNPoints(int N, const double x[3], vtkId
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->FindClosestNPoints(N, x, result);
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->FindClosestNPoints(N, x, result);
   }
   else
   {
-    return static_cast<BucketList2D<int>*>(this->Buckets)->FindClosestNPoints(N, x, result);
+    static_cast<BucketList2D<int>*>(this->Buckets)->FindClosestNPoints(N, x, result);
   }
 }
 
@@ -1926,12 +1926,11 @@ void vtkStaticPointLocator2D::FindPointsWithinRadius(double R, const double x[3]
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)
-      ->FindPointsWithinRadius(R, x, result);
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
   }
   else
   {
-    return static_cast<BucketList2D<int>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
+    static_cast<BucketList2D<int>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
   }
 }
 
@@ -1994,11 +1993,11 @@ void vtkStaticPointLocator2D::GenerateRepresentation(int level, vtkPolyData* pd)
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->GenerateRepresentation(level, pd);
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->GenerateRepresentation(level, pd);
   }
   else
   {
-    return static_cast<BucketList2D<int>*>(this->Buckets)->GenerateRepresentation(level, pd);
+    static_cast<BucketList2D<int>*>(this->Buckets)->GenerateRepresentation(level, pd);
   }
 }
 
@@ -2022,11 +2021,11 @@ void vtkStaticPointLocator2D::GetBucketIds(vtkIdType bNum, vtkIdList* bList)
 {
   if (this->LargeIds)
   {
-    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->GetIds(bNum, bList);
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->GetIds(bNum, bList);
   }
   else
   {
-    return static_cast<BucketList2D<int>*>(this->Buckets)->GetIds(bNum, bList);
+    static_cast<BucketList2D<int>*>(this->Buckets)->GetIds(bNum, bList);
   }
 }
 
@@ -2042,11 +2041,11 @@ void vtkStaticPointLocator2D::MergePoints(double tol, vtkIdType* pointMap)
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->MergePoints(tol, pointMap);
+    static_cast<BucketList2D<vtkIdType>*>(this->Buckets)->MergePoints(tol, pointMap);
   }
   else
   {
-    return static_cast<BucketList2D<int>*>(this->Buckets)->MergePoints(tol, pointMap);
+    static_cast<BucketList2D<int>*>(this->Buckets)->MergePoints(tol, pointMap);
   }
 }
 

@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkPolyDataSilhouette, Camera, vtkCamera);
 
 struct vtkOrderedEdge
 {
-  inline vtkOrderedEdge(vtkIdType a, vtkIdType b)
+  vtkOrderedEdge(vtkIdType a, vtkIdType b)
   {
     if (a <= b)
     {
@@ -42,7 +42,7 @@ struct vtkOrderedEdge
       p2 = a;
     }
   }
-  inline bool operator<(const vtkOrderedEdge& oe) const
+  bool operator<(const vtkOrderedEdge& oe) const
   {
     return (p1 < oe.p1) || ((p1 == oe.p1) && (p2 < oe.p2));
   }
@@ -53,7 +53,7 @@ struct vtkTwoNormals
 {
   double leftNormal[3];  // normal of the left polygon
   double rightNormal[3]; // normal of the right polygon
-  inline vtkTwoNormals()
+  vtkTwoNormals()
   {
     leftNormal[0] = 0.0;
     leftNormal[1] = 0.0;
@@ -72,7 +72,7 @@ public:
   std::map<vtkOrderedEdge, vtkTwoNormals> edges;
   bool* edgeFlag;
   vtkCellArray* lines;
-  inline vtkPolyDataEdges()
+  vtkPolyDataEdges()
     : edgeFlag(nullptr)
     , lines(nullptr)
   {

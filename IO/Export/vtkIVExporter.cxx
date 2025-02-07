@@ -400,7 +400,7 @@ void vtkIVExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     bpp = mappedScalars->GetNumberOfComponents();
     fprintf(fp, "%simage %d %d %d\n", indent, xsize, ysize, bpp);
     VTK_INDENT_MORE;
-    txtrData = static_cast<vtkUnsignedCharArray*>(mappedScalars)->GetPointer(0);
+    txtrData = mappedScalars->GetPointer(0);
     totalValues = xsize * ysize;
     fprintf(fp, "%s", indent);
     for (i = 0; i < totalValues; i++)

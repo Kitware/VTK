@@ -925,7 +925,7 @@ void vtkImageInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[
         {
           positions[step * i + 1] = inId[1] * inInc;
           constants[step * i] = static_cast<F>(1.0 - f);
-          constants[step * i + 1] = static_cast<F>(f);
+          constants[step * i + 1] = f;
         }
         else if (interpMode == VTK_CUBIC_INTERPOLATION)
         {

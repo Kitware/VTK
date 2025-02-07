@@ -127,18 +127,18 @@ int vtkMNITagPointReader::ReadLineAfterComments(
     {
       ++pos;
     }
-    if (linetext.length() != 0 && linetext[0] == '%')
+    if (!linetext.empty() && linetext[0] == '%')
     {
-      if (comments.length() > 0)
+      if (!comments.empty())
       {
         comments.push_back('\n');
       }
-      if (linetext.length())
+      if (!linetext.empty())
       {
         comments.append(linetext);
       }
     }
-    else if (linetext.length() != 0 && pos != linetext.end())
+    else if (!linetext.empty() && pos != linetext.end())
     {
       delete[] this->Comments;
       this->Comments = new char[comments.length() + 1];

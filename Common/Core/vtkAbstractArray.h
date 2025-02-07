@@ -189,7 +189,7 @@ public:
    * result in an incomplete trailing tuple.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  inline vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
+  vtkIdType GetNumberOfValues() const { return (this->MaxId + 1); }
 
   /**
    * Set the tuple at dstTupleIdx in this array to the tuple at srcTupleIdx in
@@ -739,7 +739,7 @@ private:
 template <typename ArrayT>
 struct vtkArrayDownCast_impl
 {
-  inline ArrayT* operator()(vtkAbstractArray* array) { return ArrayT::SafeDownCast(array); }
+  ArrayT* operator()(vtkAbstractArray* array) { return ArrayT::SafeDownCast(array); }
 };
 ///@}
 

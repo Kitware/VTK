@@ -350,9 +350,9 @@ void vtkNIFTIImageHeader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SclSlope: " << this->SclSlope << "\n";
   os << indent << "SclInter: " << this->SclInter << "\n";
   os << indent << "SliceEnd: " << this->SliceEnd << "\n";
-  os << indent << "SliceCode: " << static_cast<int>(this->SliceCode) << "\n";
+  os << indent << "SliceCode: " << this->SliceCode << "\n";
   os.setf(std::ios::hex, std::ios::basefield);
-  os << indent << "XYZTUnits: 0x" << static_cast<int>(this->XYZTUnits) << "\n";
+  os << indent << "XYZTUnits: 0x" << this->XYZTUnits << "\n";
   os.unsetf(std::ios::hex);
   os << indent << "CalMax: " << this->CalMax << "\n";
   os << indent << "CalMin: " << this->CalMin << "\n";

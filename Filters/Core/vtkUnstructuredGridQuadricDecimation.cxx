@@ -1569,7 +1569,7 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(vtkInformation* vtkNotUsed
   myMesh.noDoubling = !this->AutoAddCandidates;
   myMesh.boundaryWeight = this->BoundaryWeight;
   myMesh.filter = this;
-  int err = myMesh.LoadUnstructuredGrid((vtkUnstructuredGrid*)(input), this->ScalarsName);
+  int err = myMesh.LoadUnstructuredGrid(input, this->ScalarsName);
   if (err != vtkUnstructuredGridQuadricDecimation::NON_ERROR)
   {
     this->ReportError(err);

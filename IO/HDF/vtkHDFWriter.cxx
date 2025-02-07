@@ -64,7 +64,6 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
 std::string GetExternalBlockFileName(const std::string&& filename, const std::string& blockname)
 {
   size_t lastDotPos = filename.find_last_of('.');
-  std::string subfileName;
   if (lastDotPos != std::string::npos)
   {
     // <FileStem>_<BlockName>.<extension>

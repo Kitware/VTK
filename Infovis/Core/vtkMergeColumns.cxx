@@ -80,7 +80,7 @@ int vtkMergeColumns::RequestData(
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
       {
         std::string combined = col1Str->GetValue(i);
-        if (col1Str->GetValue(i).length() > 0 && col2Str->GetValue(i).length() > 0)
+        if (!col1Str->GetValue(i).empty() && !col2Str->GetValue(i).empty())
         {
           combined += " ";
         }

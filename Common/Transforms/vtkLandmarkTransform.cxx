@@ -199,7 +199,7 @@ void vtkLandmarkTransform::InternalUpdate()
   else
   {
     // compute required scaling factor (if desired)
-    double scale = (double)sqrt(sb / sa);
+    double scale = sqrt(sb / sa);
 
     // -- build the 4x4 matrix N --
 

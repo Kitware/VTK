@@ -112,11 +112,11 @@ void vtkMutableGraphHelper::RemoveVertex(vtkIdType v)
   }
   if (this->DirectedGraph)
   {
-    return this->DirectedGraph->RemoveVertex(v);
+    this->DirectedGraph->RemoveVertex(v);
   }
   else
   {
-    return this->UndirectedGraph->RemoveVertex(v);
+    this->UndirectedGraph->RemoveVertex(v);
   }
 }
 
@@ -129,11 +129,11 @@ void vtkMutableGraphHelper::RemoveVertices(vtkIdTypeArray* verts)
   }
   if (this->DirectedGraph)
   {
-    return this->DirectedGraph->RemoveVertices(verts);
+    this->DirectedGraph->RemoveVertices(verts);
   }
   else
   {
-    return this->UndirectedGraph->RemoveVertices(verts);
+    this->UndirectedGraph->RemoveVertices(verts);
   }
 }
 
@@ -146,11 +146,11 @@ void vtkMutableGraphHelper::RemoveEdge(vtkIdType e)
   }
   if (this->DirectedGraph)
   {
-    return this->DirectedGraph->RemoveEdge(e);
+    this->DirectedGraph->RemoveEdge(e);
   }
   else
   {
-    return this->UndirectedGraph->RemoveEdge(e);
+    this->UndirectedGraph->RemoveEdge(e);
   }
 }
 
@@ -163,11 +163,11 @@ void vtkMutableGraphHelper::RemoveEdges(vtkIdTypeArray* edges)
   }
   if (this->DirectedGraph)
   {
-    return this->DirectedGraph->RemoveEdges(edges);
+    this->DirectedGraph->RemoveEdges(edges);
   }
   else
   {
-    return this->UndirectedGraph->RemoveEdges(edges);
+    this->UndirectedGraph->RemoveEdges(edges);
   }
 }
 

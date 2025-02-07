@@ -33,7 +33,7 @@ vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
   this->RotationMode = VTK_ROTATION_MODE_DIRECT_ANGLE;
   this->RotationAngle = 180.;
   this->RotationArrayName = nullptr;
-  this->RotationAxis = static_cast<int>(VTK_PERIODIC_ARRAY_AXIS_X);
+  this->RotationAxis = VTK_PERIODIC_ARRAY_AXIS_X;
   this->Center[0] = 0;
   this->Center[1] = 0;
   this->Center[2] = 0;

@@ -118,7 +118,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D* painter)
   int ncComps(0);
   if (this->ScalarVisibility && this->Colors)
   {
-    ncComps = static_cast<int>(this->Colors->GetNumberOfComponents());
+    ncComps = this->Colors->GetNumberOfComponents();
   }
   if (this->ScalarVisibility && this->Colors && ncComps == 4)
   {

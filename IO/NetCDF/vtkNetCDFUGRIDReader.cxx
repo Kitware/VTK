@@ -239,13 +239,13 @@ const char* vtkNetCDFUGRIDReader::GetCellArrayName(int index)
 //--------------------------------------------------------------------------------------------------
 int vtkNetCDFUGRIDReader::GetPointArrayStatus(const char* name)
 {
-  return static_cast<int>(this->PointDataArraySelection->GetArraySetting(name));
+  return this->PointDataArraySelection->GetArraySetting(name);
 }
 
 //--------------------------------------------------------------------------------------------------
 int vtkNetCDFUGRIDReader::GetCellArrayStatus(const char* name)
 {
-  return static_cast<int>(this->CellDataArraySelection->GetArraySetting(name));
+  return this->CellDataArraySelection->GetArraySetting(name);
 }
 
 //--------------------------------------------------------------------------------------------------

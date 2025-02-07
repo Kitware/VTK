@@ -140,7 +140,7 @@ int vtkContinuousScatterplot::RequestData(
     // Collect field ranges for later use.
     fieldInterval[0] = array->GetRange()[1] - array->GetRange()[0];
     // Interval between cutting planes in this field.
-    fragWidth[0] = (float)fieldInterval[0] / this->ResX;
+    fragWidth[0] = fieldInterval[0] / this->ResX;
   }
   else
   {
@@ -156,7 +156,7 @@ int vtkContinuousScatterplot::RequestData(
     // The range interval of the field.
     fieldInterval[1] = array->GetRange()[1] - array->GetRange()[0];
     // Interval between cutting planes in this field.
-    fragWidth[1] = (float)fieldInterval[1] / this->ResY;
+    fragWidth[1] = fieldInterval[1] / this->ResY;
   }
   else
   {

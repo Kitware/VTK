@@ -825,8 +825,7 @@ bool vtkGLSLModLight::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShader
 bool vtkGLSLModLight::IsUpToDate(
   vtkOpenGLRenderer* renderer, vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor)
 {
-  auto stats =
-    vtkGLSLModLight::GetBasicLightStats(static_cast<vtkOpenGLRenderer*>(renderer), actor);
+  auto stats = vtkGLSLModLight::GetBasicLightStats(renderer, actor);
   if (this->LastLightComplexity != stats.Complexity || this->LastLightCount != stats.Count)
   {
     // lighting is not up to date.

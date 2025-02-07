@@ -426,7 +426,6 @@ void vtkMultiCorrelativeStatistics::Learn(
       if (idxIt != colNameToIdx.end())
       {
         vtkIdType colA = idxIt->second;
-        std::string colAName = idxIt->first;
         std::set<vtkStdString>::const_iterator colIt2;
         for (colIt2 = colIt; colIt2 != reqIt->end(); ++colIt2)
         {
@@ -737,7 +736,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
         {
           *x = rv[covIdxs[k]];
         }
-        *x = static_cast<double>(n);
+        *x = n;
       }
     } // arrIt, j
     vtkMultiCorrelativeCholesky(covPtrs, reqCovSize - 1);

@@ -443,8 +443,7 @@ int vtkResliceCursorPicker::IntersectPolyDataWithLine(
       }
 
       int cellPicked = 0;
-      cellPicked = this->Cell->IntersectWithLine(
-        const_cast<double*>(p1), const_cast<double*>(p2), tol, t, x, pcoords, newSubId);
+      cellPicked = this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, newSubId);
 
       if (cellPicked)
       {

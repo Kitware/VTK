@@ -354,11 +354,11 @@ private:
   vtkURI(const vtkURI&) = delete;
   vtkURI& operator=(const vtkURI&) = delete;
 
-  vtkURIComponent Scheme{};
-  vtkURIComponent Authority{};
+  vtkURIComponent Scheme;
+  vtkURIComponent Authority;
   vtkURIComponent Path{ "" }; // path is defined but empty by default
-  vtkURIComponent Query{};
-  vtkURIComponent Fragment{};
+  vtkURIComponent Query;
+  vtkURIComponent Fragment;
 };
 
 VTK_ABI_NAMESPACE_END

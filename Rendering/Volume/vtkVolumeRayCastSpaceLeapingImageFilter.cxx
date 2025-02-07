@@ -118,7 +118,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter ::InternalRequestUpdateExtent(
     dim[i] = wholeExtent[2 * i + 1] - wholeExtent[2 * i] + 1;
 
     inExt[2 * i] = 0; // The output extent is 0 based.
-    inExt[2 * i + 1] = (dim[i] < 2) ? (0) : (static_cast<int>((dim[i] - 2) / VTK_SL_BLK));
+    inExt[2 * i + 1] = (dim[i] < 2) ? (0) : ((dim[i] - 2) / VTK_SL_BLK);
   }
 }
 

@@ -96,7 +96,7 @@ public:
    * associated with this id, a warning is given and a sequence is generated
    * with default values.
    */
-  void Next() override { return this->Next(0); }
+  void Next() override { this->Next(0); }
 
 protected:
   vtkMersenneTwister();

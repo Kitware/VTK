@@ -82,33 +82,27 @@ struct vtkCellTree
       return ((dir[2] > 0) ? POS_Z : NEG_Z);
     }
   }
-  inline static double _getMinDistPOS_X(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistPOS_X(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[0] - origin[0]) / dir[0]);
   }
-  inline static double _getMinDistNEG_X(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistNEG_X(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[1] - origin[0]) / dir[0]);
   }
-  inline static double _getMinDistPOS_Y(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistPOS_Y(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[2] - origin[1]) / dir[1]);
   }
-  inline static double _getMinDistNEG_Y(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistNEG_Y(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[3] - origin[1]) / dir[1]);
   }
-  inline static double _getMinDistPOS_Z(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistPOS_Z(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[4] - origin[2]) / dir[2]);
   }
-  inline static double _getMinDistNEG_Z(
-    const double origin[3], const double dir[3], const double B[6])
+  static double _getMinDistNEG_Z(const double origin[3], const double dir[3], const double B[6])
   {
     return ((B[5] - origin[2]) / dir[2]);
   }
@@ -135,31 +129,31 @@ struct CellTreeNode
   /**
    * b is an array containing left max and right min values
    */
-  inline void MakeNode(const T& left, const T& d, const double b[2])
+  void MakeNode(const T& left, const T& d, const double b[2])
   {
     this->Index = (d & 3) | (left << 2);
     this->LeftMax = b[0];
     this->RightMin = b[1];
   }
-  inline void SetChildren(const T& left)
+  void SetChildren(const T& left)
   {
     // In index 2 LSBs (Least Significant Bits) store the dimension. MSBs store the position
     this->Index = this->GetDimension() | (left << 2);
   }
-  inline bool IsNode() const
+  bool IsNode() const
   {
     return (this->Index & 3) != 3; // For a leaf 2 LSBs in index is 3
   }
-  inline T GetLeftChildIndex() const { return (this->Index >> 2); }
-  inline T GetRightChildIndex() const
+  T GetLeftChildIndex() const { return (this->Index >> 2); }
+  T GetRightChildIndex() const
   {
     // Right child node is adjacent to the Left child node in the data structure
     return (this->Index >> 2) + 1;
   }
-  inline T GetDimension() const { return this->Index & 3; }
-  inline const double& GetLeftMaxValue() const { return this->LeftMax; }
-  inline const double& GetRightMinValue() const { return this->RightMin; }
-  inline void MakeLeaf(const T& start, const T& size)
+  T GetDimension() const { return this->Index & 3; }
+  const double& GetLeftMaxValue() const { return this->LeftMax; }
+  const double& GetRightMinValue() const { return this->RightMin; }
+  void MakeLeaf(const T& start, const T& size)
   {
     this->Index = 3;
     this->Sz = size;
@@ -307,7 +301,7 @@ private:
     {
     }
 
-    inline void Add(const double& min, const double& max)
+    void Add(const double& min, const double& max)
     {
       ++this->Cnt;
       if (min < this->Min)
@@ -336,7 +330,7 @@ private:
     {
     }
 
-    inline bool operator()(const CellInfo& pc0, const CellInfo& pc1)
+    bool operator()(const CellInfo& pc0, const CellInfo& pc1)
     {
       return (pc0.Min[this->D] + pc0.Max[this->D]) < (pc1.Min[this->D] + pc1.Max[this->D]);
     }
@@ -352,10 +346,7 @@ private:
     {
     }
 
-    inline bool operator()(const CellInfo& pc)
-    {
-      return pc.Min[this->D] + pc.Max[this->D] < this->P;
-    }
+    bool operator()(const CellInfo& pc) { return pc.Min[this->D] + pc.Max[this->D] < this->P; }
   };
 
   struct SplitInfo
@@ -1372,7 +1363,7 @@ void vtkCellTreeLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   {
     return;
   }
-  return this->Tree->FindCellsWithinBounds(bbox, cells);
+  this->Tree->FindCellsWithinBounds(bbox, cells);
 }
 
 //------------------------------------------------------------------------------

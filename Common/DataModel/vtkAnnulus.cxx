@@ -38,7 +38,7 @@ double vtkAnnulus::EvaluateFunction(double x[3])
 //------------------------------------------------------------------------------
 void vtkAnnulus::EvaluateGradient(double x[3], double g[3])
 {
-  return this->BooleanOp->EvaluateGradient(x, g);
+  this->BooleanOp->EvaluateGradient(x, g);
 }
 
 //------------------------------------------------------------------------------

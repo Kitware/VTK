@@ -275,7 +275,7 @@ void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
 
     for (int i = 0; i < 6; ++i)
     {
-      uExt[i] = static_cast<int>(roundToInt(uExtB.GetBound(i)));
+      uExt[i] = roundToInt(uExtB.GetBound(i));
     }
 
     // Find the first and last indices in the map that are

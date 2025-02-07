@@ -2381,7 +2381,7 @@ void vtkMPASReader::OutputCells()
       int* connections;
 
       // check if it is a mirror cell, if so, get original
-      if (static_cast<size_t>(j) >= this->NumberOfCells + this->CellOffset)
+      if (j >= this->NumberOfCells + this->CellOffset)
       {
         size_t origCellNum = *(this->CellMap + (j - this->NumberOfCells - this->CellOffset));
         connections = this->OrigConnections + (origCellNum * this->PointsPerCell);

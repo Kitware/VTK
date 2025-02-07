@@ -402,7 +402,7 @@ struct SurfaceNets
 
   // Return whether a triad, and its associated voxel cell, requires the
   // generation of a point.
-  inline bool ProducesPoint(TriadType triad) { return (triad & SurfaceNets::ProducePoint) > 0; }
+  bool ProducesPoint(TriadType triad) { return (triad & SurfaceNets::ProducePoint) > 0; }
 
   // Input and output data.
   T* Scalars;                // input image scalars
@@ -1185,7 +1185,7 @@ void SurfaceNets<T>::ClassifyXEdges(
     else
     {
       // Processing triads which are associated with voxels.
-      s1 = static_cast<T>(inPtr[i * this->Inc0]);
+      s1 = inPtr[i * this->Inc0];
       isLV1 = (s0 == s1 ? isLV0 : lMap->IsLabelValue(s1));
     }
 
@@ -1755,7 +1755,7 @@ struct NetsWorker
 
     // Compute the starting offset location for scalar data.  We may be operating
     // on a part of the volume.
-    ValueType* scalars = static_cast<ValueType*>(static_cast<ST*>(scalarsArray)->GetPointer(0));
+    ValueType* scalars = static_cast<ValueType*>(scalarsArray->GetPointer(0));
     algo.Scalars = scalars + incs[0] * (updateExt[0] - ext[0]) + incs[1] * (updateExt[2] - ext[2]) +
       incs[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
 

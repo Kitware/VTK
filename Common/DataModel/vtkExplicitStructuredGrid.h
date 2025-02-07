@@ -105,7 +105,7 @@ public:
   /**
    * Return the dimensionality of the data.
    */
-  inline int GetDataDimension() { return 3; }
+  int GetDataDimension() { return 3; }
 
   ///@{
   /**

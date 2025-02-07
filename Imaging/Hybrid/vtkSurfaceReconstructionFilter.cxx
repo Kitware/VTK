@@ -390,9 +390,9 @@ int vtkSurfaceReconstructionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     if (this->SampleSpacing <= 0.0)
     {
       // spacing guessed as cube root of (volume divided by number of points)
-      this->SampleSpacing = pow(static_cast<double>(bounds[1] - bounds[0]) *
-          (bounds[3] - bounds[2]) * (bounds[5] - bounds[4]) / static_cast<double>(COUNT),
-        static_cast<double>(1.0 / 3.0));
+      this->SampleSpacing = pow((bounds[1] - bounds[0]) * (bounds[3] - bounds[2]) *
+          (bounds[5] - bounds[4]) / static_cast<double>(COUNT),
+        1.0 / 3.0);
 
       vtkDebugMacro(<< "Estimated sample spacing as: " << this->SampleSpacing);
     }

@@ -1960,8 +1960,8 @@ void vtkTextureObject::CopyToFrameBuffer(vtkShaderProgram* program, vtkOpenGLVer
 {
   // the following math really only works when texture
   // and viewport are of the same dimensions
-  float minXTexCoord = static_cast<float>(static_cast<double>(0.5) / this->Width);
-  float minYTexCoord = static_cast<float>(static_cast<double>(0.5) / this->Height);
+  float minXTexCoord = static_cast<float>(0.5 / this->Width);
+  float minYTexCoord = static_cast<float>(0.5 / this->Height);
 
   float maxXTexCoord = static_cast<float>(static_cast<double>(this->Width - 0.5) / this->Width);
   float maxYTexCoord = static_cast<float>(static_cast<double>(this->Height - 0.5) / this->Height);

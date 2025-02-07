@@ -271,7 +271,7 @@ bool vtkXdmfReader::PrepareDocument()
   }
   else
   {
-    this->XdmfDocument->SetActiveDomain(static_cast<int>(0));
+    this->XdmfDocument->SetActiveDomain(0);
   }
 
   if (this->XdmfDocument->GetActiveDomain() &&

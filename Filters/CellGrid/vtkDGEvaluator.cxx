@@ -117,8 +117,6 @@ bool vtkDGEvaluator::Query(
 {
   (void)caches;
 
-  std::string cellTypeName = cellType->GetClassName();
-
   switch (request->GetPhasesToPerform())
   {
     case vtkCellGridEvaluator::Phases::ClassifyAndInterpolate:

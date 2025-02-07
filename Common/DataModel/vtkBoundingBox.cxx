@@ -1003,7 +1003,7 @@ struct SerialBoundsPointUsesFunctor : public BaseBoundsFunctor<TPointsArray>
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = VTK_DOUBLE_MIN;
 
     const auto points = vtk::DataArrayTupleRange<3>(this->PointsArray);
-    const TUsed* used = static_cast<const TUsed*>(this->PointUses);
+    const TUsed* used = this->PointUses;
     double point[3];
 
     for (vtkIdType i = 0; i < numberOfPoints; ++i)

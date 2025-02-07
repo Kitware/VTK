@@ -468,7 +468,7 @@ void vtkTemporalPathLineFilter::AccumulateTrails(vtkDataSet* input, vtkDataSet* 
   // This is a way to give limited friendness privileges to the worker without making them friends.
   // The worker is able to call processTrail without issues if you pass it as a parameter.
   auto processTrail = [this](vtkDataSet* ds, vtkIdType pointId, vtkIdType gid)
-  { return this->IncrementTrail(this->GetTrail(gid), ds, pointId); };
+  { this->IncrementTrail(this->GetTrail(gid), ds, pointId); };
 
   if (selectionIds && ids)
   {

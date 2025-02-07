@@ -1606,7 +1606,7 @@ void vtkCamera::DeepCopy(vtkCamera* source)
     if (this->ExplicitProjectionTransformMatrix == nullptr)
     {
       this->ExplicitProjectionTransformMatrix =
-        static_cast<vtkMatrix4x4*>(source->ExplicitProjectionTransformMatrix->NewInstance());
+        source->ExplicitProjectionTransformMatrix->NewInstance();
     }
     this->ExplicitProjectionTransformMatrix->DeepCopy(source->ExplicitProjectionTransformMatrix);
   }
@@ -1728,8 +1728,7 @@ void vtkCamera::DeepCopy(vtkCamera* source)
   {
     if (this->ModelTransformMatrix == nullptr)
     {
-      this->ModelTransformMatrix =
-        static_cast<vtkMatrix4x4*>(source->ModelTransformMatrix->NewInstance());
+      this->ModelTransformMatrix = source->ModelTransformMatrix->NewInstance();
     }
     this->ModelTransformMatrix->DeepCopy(source->ModelTransformMatrix);
   }
@@ -1746,8 +1745,7 @@ void vtkCamera::DeepCopy(vtkCamera* source)
   {
     if (this->EyeTransformMatrix == nullptr)
     {
-      this->EyeTransformMatrix =
-        static_cast<vtkMatrix4x4*>(source->EyeTransformMatrix->NewInstance());
+      this->EyeTransformMatrix = source->EyeTransformMatrix->NewInstance();
     }
     this->EyeTransformMatrix->DeepCopy(source->EyeTransformMatrix);
   }
@@ -1765,7 +1763,7 @@ void vtkCamera::DeepCopy(vtkCamera* source)
     if (this->ProjectionPlaneOrientationMatrix == nullptr)
     {
       this->ProjectionPlaneOrientationMatrix =
-        static_cast<vtkMatrix4x4*>(source->ProjectionPlaneOrientationMatrix->NewInstance());
+        source->ProjectionPlaneOrientationMatrix->NewInstance();
     }
     this->ProjectionPlaneOrientationMatrix->DeepCopy(source->ProjectionPlaneOrientationMatrix);
   }

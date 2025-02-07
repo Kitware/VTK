@@ -120,7 +120,8 @@ void vtkPWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
   {
-    return this->Superclass::CalculatePressure(pressure, prespre, tempg, density);
+    this->Superclass::CalculatePressure(pressure, prespre, tempg, density);
+    return;
   }
   float *pressureData = nullptr, *prespreData = nullptr;
   this->InitPressureData(pressure, prespre, pressureData, prespreData);
@@ -154,7 +155,10 @@ void vtkPWindBladeReader::CalculatePressure(int pressure, int prespre, int tempg
 void vtkPWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
-    return this->Superclass::CalculateVorticity(vort, uvw, density);
+  {
+    this->Superclass::CalculateVorticity(vort, uvw, density);
+    return;
+  }
 
   // Set the number of components and tuples for the requested data
   this->Data[vort]->SetNumberOfComponents(1);
@@ -194,7 +198,10 @@ void vtkPWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
 void vtkPWindBladeReader::LoadVariableData(int var)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
-    return this->Superclass::LoadVariableData(var);
+  {
+    this->Superclass::LoadVariableData(var);
+    return;
+  }
 
   this->Data[var]->Delete();
   this->Data[var] = vtkFloatArray::New();
@@ -344,7 +351,10 @@ bool vtkPWindBladeReader::FindVariableOffsets()
 void vtkPWindBladeReader::CreateZTopography(float* zValues)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
-    return this->Superclass::CreateZTopography(zValues);
+  {
+    this->Superclass::CreateZTopography(zValues);
+    return;
+  }
 
   // Read the x,y topography data file
   std::ostringstream fileName;
@@ -375,7 +385,10 @@ void vtkPWindBladeReader::CreateZTopography(float* zValues)
 void vtkPWindBladeReader::SetupBladeData()
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
-    return this->Superclass::SetupBladeData();
+  {
+    this->Superclass::SetupBladeData();
+    return;
+  }
 
   // Load the tower information
   std::ostringstream fileName;
@@ -530,7 +543,10 @@ void vtkPWindBladeReader::SetupBladeData()
 void vtkPWindBladeReader::LoadBladeData(int timeStep)
 {
   if (!vtkMPIController::GetGlobalController()->IsA("vtkMPIController"))
-    return this->Superclass::LoadBladeData(timeStep);
+  {
+    this->Superclass::LoadBladeData(timeStep);
+    return;
+  }
 
   this->BPoints->Delete();
   this->BPoints = vtkPoints::New();

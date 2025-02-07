@@ -44,7 +44,7 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 struct vtkTableFFT::vtkInternal
 {
-  std::vector<vtkFFT::ScalarNumber> Window = {};
+  std::vector<vtkFFT::ScalarNumber> Window;
   vtkTimeStamp WindowTimeStamp;
   vtkMTimeType WindowLastUpdated = 0;
   double SampleRate = 1.0e4;

@@ -85,9 +85,8 @@ struct ReductionChecker
     VType span = *maxElem - *minElem;
     double nBytes = static_cast<double>(vtkMath::CeilLog2(span)) / 8.0;
     nBytes = *std::upper_bound(BYTE_SIZES.begin(), BYTE_SIZES.end(), nBytes);
-    reduction = (nBytes < sizeof(VType)
-        ? vtkToImplicitStrategy::Optional(static_cast<double>(nBytes) / sizeof(VType))
-        : vtkToImplicitStrategy::Optional());
+    reduction = (nBytes < sizeof(VType) ? vtkToImplicitStrategy::Optional(nBytes / sizeof(VType))
+                                        : vtkToImplicitStrategy::Optional());
   }
 };
 

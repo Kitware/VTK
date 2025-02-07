@@ -39,7 +39,7 @@ void vtkOpenGLVolumeLookupTables<T>::PrintSelf(ostream& os, vtkIndent indent)
 template <class T>
 void vtkOpenGLVolumeLookupTables<T>::Create(std::size_t numberOfTables)
 {
-  this->Tables.reserve(static_cast<std::size_t>(numberOfTables));
+  this->Tables.reserve(numberOfTables);
   for (std::size_t i = 0; i < numberOfTables; ++i)
   {
     auto* const table = T::New();

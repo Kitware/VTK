@@ -42,7 +42,6 @@ static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int
   SQLRETURN status;
   SQLCHAR state[SQL_SQLSTATE_SIZE + 1];
   SQLCHAR description[SQL_MAX_MESSAGE_LENGTH + 1];
-  std::string finalResult;
   int i = 1;
 
   // There may be several error messages queued up so we need to loop

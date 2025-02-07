@@ -196,8 +196,7 @@ double vtkImageCroppingRegionsWidget::GetSlicePosition()
   double* origin = vtkImageData::SafeDownCast(this->VolumeMapper->GetInput())->GetOrigin();
   double* spacing = vtkImageData::SafeDownCast(this->VolumeMapper->GetInput())->GetSpacing();
 
-  return (double)origin[this->SliceOrientation] +
-    ((double)this->Slice) * (double)spacing[this->SliceOrientation];
+  return origin[this->SliceOrientation] + ((double)this->Slice) * spacing[this->SliceOrientation];
 }
 
 //------------------------------------------------------------------------------
@@ -1075,9 +1074,9 @@ int vtkImageCroppingRegionsWidget::ComputeWorldCoordinate(int x, int y, double* 
   double* worldPoint = this->CurrentRenderer->GetWorldPoint();
   if (worldPoint[3] != 0.0)
   {
-    worldPoint[0] = (double)((double)worldPoint[0] / (double)worldPoint[3]);
-    worldPoint[1] = (double)((double)worldPoint[1] / (double)worldPoint[3]);
-    worldPoint[2] = (double)((double)worldPoint[2] / (double)worldPoint[3]);
+    worldPoint[0] = worldPoint[0] / worldPoint[3];
+    worldPoint[1] = worldPoint[1] / worldPoint[3];
+    worldPoint[2] = worldPoint[2] / worldPoint[3];
   }
 
   coord[0] = worldPoint[0];

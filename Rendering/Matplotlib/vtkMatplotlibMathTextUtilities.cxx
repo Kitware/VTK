@@ -1144,9 +1144,9 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           colIdx, bbox[2] + this->HorizontalLinesPosition[lineIdx] + extraLineIdx, 0));
-        ptr[0] = static_cast<unsigned char>(color[0]);
-        ptr[1] = static_cast<unsigned char>(color[1]);
-        ptr[2] = static_cast<unsigned char>(color[2]);
+        ptr[0] = color[0];
+        ptr[1] = color[1];
+        ptr[2] = color[2];
         ptr[3] = 255;
       }
     }
@@ -1169,9 +1169,9 @@ bool vtkMatplotlibMathTextUtilities::DrawInteriorLines(
       {
         unsigned char* ptr = static_cast<unsigned char*>(image->GetScalarPointer(
           bbox[0] + this->VerticalLinesPosition[lineIdx] + extraLineIdx, rowIdx, 0));
-        ptr[0] = static_cast<unsigned char>(color[0]);
-        ptr[1] = static_cast<unsigned char>(color[1]);
-        ptr[2] = static_cast<unsigned char>(color[2]);
+        ptr[0] = color[0];
+        ptr[1] = color[1];
+        ptr[2] = color[2];
         ptr[3] = 255;
       }
     }

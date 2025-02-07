@@ -2861,12 +2861,12 @@ vtkTypeBool vtkMath::GetAdjustedScalarRange(vtkDataArray* array, int comp, doubl
   switch (array->GetDataType())
   {
     case VTK_UNSIGNED_CHAR:
-      range[0] = static_cast<double>(array->GetDataTypeMin());
-      range[1] = static_cast<double>(array->GetDataTypeMax());
+      range[0] = array->GetDataTypeMin();
+      range[1] = array->GetDataTypeMax();
       break;
 
     case VTK_UNSIGNED_SHORT:
-      range[0] = static_cast<double>(array->GetDataTypeMin());
+      range[0] = array->GetDataTypeMin();
       if (range[1] <= 4095.0)
       {
         if (range[1] > VTK_UNSIGNED_CHAR_MAX)
@@ -2876,7 +2876,7 @@ vtkTypeBool vtkMath::GetAdjustedScalarRange(vtkDataArray* array, int comp, doubl
       }
       else
       {
-        range[1] = static_cast<double>(array->GetDataTypeMax());
+        range[1] = array->GetDataTypeMax();
       }
       break;
     default:

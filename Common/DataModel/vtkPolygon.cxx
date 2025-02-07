@@ -200,7 +200,7 @@ void vtkPolygon::ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, d
 // polygons.
 void vtkPolygon::ComputeNormal(vtkIdTypeArray* ids, vtkPoints* p, double n[3])
 {
-  return vtkPolygon::ComputeNormal(p, ids->GetNumberOfTuples(), ids->GetPointer(0), n);
+  vtkPolygon::ComputeNormal(p, ids->GetNumberOfTuples(), ids->GetPointer(0), n);
 }
 
 //------------------------------------------------------------------------------
@@ -208,7 +208,7 @@ void vtkPolygon::ComputeNormal(vtkIdTypeArray* ids, vtkPoints* p, double n[3])
 // will handle non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkPoints* p, double* n)
 {
-  return vtkPolygon::ComputeNormal(p, p->GetNumberOfPoints(), nullptr, n);
+  vtkPolygon::ComputeNormal(p, p->GetNumberOfPoints(), nullptr, n);
 }
 
 //------------------------------------------------------------------------------
@@ -498,7 +498,7 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(const double x[3], double* weights
   // Begin by initializing weights.
   for (int i = 0; i < numPts; i++)
   {
-    weights[i] = static_cast<double>(0.0);
+    weights[i] = 0.0;
   }
 
   // create local array for storing point-to-vertex vectors and distances
@@ -1164,7 +1164,7 @@ void vtkPolyVertexList::RemoveVertex(
 // into the priority queue.
 void vtkPolyVertexList::RemoveVertex(int i, vtkIdList* tris, vtkPriorityQueue* queue)
 {
-  return this->RemoveVertex(this->Array + i, tris, queue);
+  this->RemoveVertex(this->Array + i, tris, queue);
 }
 
 //------------------------------------------------------------------------------

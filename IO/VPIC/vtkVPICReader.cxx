@@ -380,8 +380,7 @@ int vtkVPICReader::RequestData(vtkInformation* vtkNotUsed(reqInfo),
 
   // Collect the time step requested
   double requestedTimeStep(0);
-  vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
 
   // Actual time for the time step
   double dTime = this->TimeSteps[0];

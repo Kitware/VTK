@@ -1318,8 +1318,6 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
 vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   hid_t group, const char* name)
 {
-  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
-
   if (std::find(PATH::SINGLE_VALUES.begin(), PATH::SINGLE_VALUES.end(), name) !=
     PATH::SINGLE_VALUES.end())
   {

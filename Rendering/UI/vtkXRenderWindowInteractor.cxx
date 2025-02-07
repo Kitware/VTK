@@ -886,7 +886,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       // Recover filepaths from uris and invoke DropFilesEvent
       std::stringstream uris(data);
       std::string uri, protocol, hostname, filePath;
-      std::string unused0, unused1, unused2, unused3;
+      std::string unused0, unused1, unused3;
       vtkNew<vtkStringArray> filePaths;
       while (std::getline(uris, uri, '\n'))
       {

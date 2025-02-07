@@ -52,7 +52,7 @@ public:
   /**
    * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
    */
-  inline ValueType GetValue(vtkIdType valueIdx) const
+  ValueType GetValue(vtkIdType valueIdx) const
   {
     vtkIdType tupleIdx;
     int comp;
@@ -65,7 +65,7 @@ public:
   /**
    * Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
    */
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  void SetValue(vtkIdType valueIdx, ValueType value)
   {
     vtkIdType tupleIdx;
     int comp;
@@ -77,7 +77,7 @@ public:
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -97,7 +97,7 @@ public:
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -117,7 +117,7 @@ public:
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
    */
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -129,7 +129,7 @@ public:
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
-  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -271,7 +271,7 @@ private:
   vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) = delete;
   void operator=(const vtkSOADataArrayTemplate&) = delete;
 
-  inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
+  void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
   {
     tupleIdx = valueIdx / this->NumberOfComponents;
     comp = valueIdx % this->NumberOfComponents;

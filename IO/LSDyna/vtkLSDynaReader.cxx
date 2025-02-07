@@ -2090,7 +2090,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; g < numGroups; ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g + 1));
+          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
           p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
           extraValues--;
         }
@@ -2100,7 +2100,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; hasMass && (g < numGroups); ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g + 1));
+          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
           p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
           extraValues--;
         }
@@ -2266,7 +2266,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; g < numGroups; ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g + 1));
+          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
           p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
           extraValues--;
         }
@@ -2276,7 +2276,7 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; hasMass && (g < numGroups); ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g + 1));
+          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
           p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
           extraValues--;
         }

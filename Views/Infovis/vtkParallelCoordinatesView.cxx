@@ -475,7 +475,7 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double* p1, double* p2)
   }
 
   // find the points that line (p1-p2) intersects on the left/right axes
-  double m = (double)(p2y - p1y) / (double)(p2x - p1x);
+  double m = (p2y - p1y) / (p2x - p1x);
   double lefty = p1y - m * (p1x - xs[left]);
   double righty = p1y - m * (p1x - xs[right]);
 
@@ -495,11 +495,11 @@ int vtkParallelCoordinatesView::SetBrushLine(int line, double* p1, double* p2)
 
   int pointOffset = line * this->MaximumNumberOfBrushPoints;
 
-  double dx = (double)(p2x - p1x) / (this->MaximumNumberOfBrushPoints - 1);
+  double dx = (p2x - p1x) / (this->MaximumNumberOfBrushPoints - 1);
 
   if (!rep->GetUseCurves())
   {
-    double dy = (double)(p2y - p1y) / (this->MaximumNumberOfBrushPoints - 1);
+    double dy = (p2y - p1y) / (this->MaximumNumberOfBrushPoints - 1);
 
     for (int i = 0; i < this->MaximumNumberOfBrushPoints; i++)
     {

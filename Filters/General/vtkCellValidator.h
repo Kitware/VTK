@@ -135,17 +135,17 @@ public:
     FacesAreOrientedIncorrectly = 0x20,
   };
 
-  friend inline State operator&(State a, State b)
+  friend State operator&(State a, State b)
   {
     return static_cast<State>(static_cast<short>(a) & static_cast<short>(b));
   }
-  friend inline State operator|(State a, State b)
+  friend State operator|(State a, State b)
   {
     return static_cast<State>(static_cast<short>(a) | static_cast<short>(b));
   }
-  friend inline State& operator&=(State& a, State b) { return a = a & b; }
+  friend State& operator&=(State& a, State b) { return a = a & b; }
 
-  friend inline State& operator|=(State& a, State b) { return a = a | b; }
+  friend State& operator|=(State& a, State b) { return a = a | b; }
 
   static void PrintState(State state, ostream& os, vtkIndent indent);
 

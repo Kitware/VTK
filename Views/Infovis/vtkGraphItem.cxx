@@ -281,7 +281,7 @@ void vtkGraphItem::ProcessEvents(
       // We must filter the events to ensure we actually get the timer event we
       // created. I would love signals and slots...
       int timerId = *static_cast<int*>(callerData); // Seems to work.
-      if (self->Internal->Animating && timerId == static_cast<int>(self->Internal->TimerId))
+      if (self->Internal->Animating && timerId == self->Internal->TimerId)
       {
         self->UpdateLayout();
         vtkIdType v = self->HitVertex(self->Internal->LastMousePos);

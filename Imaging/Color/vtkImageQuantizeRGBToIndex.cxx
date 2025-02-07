@@ -216,8 +216,7 @@ void vtkImageQuantizeRGBToIndexHistogram(
           value[0] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[0];
           value[1] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[2];
           value[2] = static_cast<int>(*(rgbPtr++) * 255.5) - bounds[4];
-          if (static_cast<int>(value[0]) < max[0] && static_cast<int>(value[1]) < max[1] &&
-            static_cast<int>(value[2]) < max[2])
+          if (value[0] < max[0] && value[1] < max[1] && value[2] < max[2])
           {
             histogram[0][value[0]]++;
             histogram[1][value[1]]++;
@@ -578,7 +577,7 @@ void vtkColorQuantizeNode::Divide(int axis, int nextIndex)
   this->Child1->SetBounds(newBounds);
 
   newBounds[axis * 2] = static_cast<int>(this->Median[axis] + 1);
-  newBounds[axis * 2 + 1] = static_cast<int>(this->Bounds[axis * 2 + 1]);
+  newBounds[axis * 2 + 1] = this->Bounds[axis * 2 + 1];
   this->Child2->SetBounds(newBounds);
 
   this->SplitPoint = static_cast<int>(this->Median[axis]);

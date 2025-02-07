@@ -397,8 +397,6 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   std::string hdfBaseName;               // base name to use for data files
   std::vector<std::string> hdfDirectory; // directories holding data files
   int numCycleDigits = 6;                // number of digits used for cycle number, default is 6
-  std::string::size_type pos = hdfRageFileName.rfind('.');
-  std::string suffix = hdfRageFileName.substr(pos + 1);
   char inBuf[256];
   std::string rest;
   std::string keyword;
@@ -407,7 +405,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
   {
     std::string localline(inBuf);
     localline = TrimString(localline);
-    if (localline.length() > 0)
+    if (!localline.empty())
     {
       if (localline[0] != '#' && localline[0] != '!')
       {

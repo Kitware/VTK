@@ -93,7 +93,7 @@ public:
    * NumberOfComponents is known to the compiler (See vtkAssume.h).
    * @ingroup vtkGDAConceptMethods
    */
-  inline ValueType GetValue(vtkIdType valueIdx) const
+  ValueType GetValue(vtkIdType valueIdx) const
   {
     return static_cast<const DerivedT*>(this)->GetValue(valueIdx);
   }
@@ -335,7 +335,7 @@ protected:
    * all data is freed.
    * @ingroup vtkGDAConceptMethods
    */
-  inline bool AllocateTuples(vtkIdType numTuples)
+  bool AllocateTuples(vtkIdType numTuples)
   {
     return static_cast<DerivedT*>(this)->AllocateTuples(numTuples);
   }
@@ -345,7 +345,7 @@ protected:
    * all data is freed.
    * @ingroup vtkGDAConceptMethods
    */
-  inline bool ReallocateTuples(vtkIdType numTuples)
+  bool ReallocateTuples(vtkIdType numTuples)
   {
     return static_cast<DerivedT*>(this)->ReallocateTuples(numTuples);
   }

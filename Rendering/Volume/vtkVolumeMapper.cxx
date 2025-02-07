@@ -178,7 +178,7 @@ double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3], in
   double avgNumVoxels =
     pow(static_cast<double>((inputExtent[1] - inputExtent[0]) * (inputExtent[3] - inputExtent[2]) *
           (inputExtent[5] - inputExtent[4])),
-      static_cast<double>(0.333));
+      0.333);
 
   if (avgNumVoxels < 100)
   {

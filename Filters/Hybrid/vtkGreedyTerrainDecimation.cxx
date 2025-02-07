@@ -204,9 +204,9 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(
   this->ComputeImageCoordinates(p3, ij3);
 
   double h[4]; // extra entry added for interpolated value
-  h[0] = (double)this->Heights->GetTuple1(p1);
-  h[1] = (double)this->Heights->GetTuple1(p2);
-  h[2] = (double)this->Heights->GetTuple1(p3);
+  h[0] = this->Heights->GetTuple1(p1);
+  h[1] = this->Heights->GetTuple1(p2);
+  h[2] = this->Heights->GetTuple1(p3);
 
   this->UpdateTriangle(triId, ij1, ij2, ij3, h);
 }
@@ -486,7 +486,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
   // Start off by determining the image coordinates and the position
   this->ComputeImageCoordinates(inputPtId, ij);
   this->GetTerrainPoint(ij[0], ij[1], x);
-  x[2] = (double)this->Heights->GetTuple1(inputPtId);
+  x[2] = this->Heights->GetTuple1(inputPtId);
 
   // Seed the search
   nei[0] = (*this->TerrainInfo)[inputPtId].TriangleId;
@@ -743,8 +743,8 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   double* spacing = input->GetSpacing();
   for (int ii = 0; ii < 3; ii++)
   {
-    this->Origin[ii] = (double)origin[ii];
-    this->Spacing[ii] = (double)spacing[ii];
+    this->Origin[ii] = origin[ii];
+    this->Spacing[ii] = spacing[ii];
   }
   this->Length = input->GetLength();
   this->MaximumNumberOfTriangles = 2 * (this->Dimensions[0] - 1) * (this->Dimensions[1] - 1);
@@ -762,7 +762,7 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   // Top element of VTK's priority queue returns the minimum error value. Since we want the
   // maximum error, we use 1/error relationship to insert errors.
   this->TerrainError = vtkPriorityQueue::New();
-  this->TerrainError->Allocate(numInputPts, (vtkIdType)((double)0.25 * numInputPts));
+  this->TerrainError->Allocate(numInputPts, (vtkIdType)(0.25 * numInputPts));
 
   // Initialize the triangle mesh data structures. Double precision point coordinates
   // are required because of the numerical requirements on the Delaunay algorithm.
@@ -801,25 +801,25 @@ int vtkGreedyTerrainDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   inputPtId = 0;
   newPts->InsertPoint(0, bounds[0], bounds[2],
-    (double)this->Heights->GetTuple1(inputPtId)); // ptId=0
+    this->Heights->GetTuple1(inputPtId)); // ptId=0
   this->OutputPD->CopyData(this->InputPD, inputPtId, 0);
   (*this->PointInfo)[0] = inputPtId;
 
   inputPtId = this->Dimensions[0] - 1;
   newPts->InsertPoint(1, bounds[1], bounds[2],
-    (double)this->Heights->GetTuple1(inputPtId)); // ptId=1
+    this->Heights->GetTuple1(inputPtId)); // ptId=1
   this->OutputPD->CopyData(this->InputPD, inputPtId, 1);
   (*this->PointInfo)[1] = inputPtId;
 
   inputPtId = this->Dimensions[0] * this->Dimensions[1] - 1;
   newPts->InsertPoint(2, bounds[1], bounds[3],
-    (double)this->Heights->GetTuple1(inputPtId)); // ptId=2
+    this->Heights->GetTuple1(inputPtId)); // ptId=2
   this->OutputPD->CopyData(this->InputPD, inputPtId, 2);
   (*this->PointInfo)[2] = inputPtId;
 
   inputPtId = this->Dimensions[0] * (this->Dimensions[1] - 1);
   newPts->InsertPoint(3, bounds[0], bounds[3],
-    (double)this->Heights->GetTuple1(inputPtId)); // ptId=3
+    this->Heights->GetTuple1(inputPtId)); // ptId=3
   this->OutputPD->CopyData(this->InputPD, inputPtId, 3);
   (*this->PointInfo)[3] = inputPtId;
   this->CurrentPointId = 4;
@@ -999,7 +999,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(
             {
               error = hL;
             }
-            error = fabs((double)this->Heights->GetTuple1(inputPtId) - error);
+            error = fabs(this->Heights->GetTuple1(inputPtId) - error);
             if (error > maxError)
             {
               maxError = error;
@@ -1040,7 +1040,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(
             {
               error = hL;
             }
-            error = fabs((double)this->Heights->GetTuple1(inputPtId) - error);
+            error = fabs(this->Heights->GetTuple1(inputPtId) - error);
             if (error > maxError)
             {
               maxError = error;

@@ -247,7 +247,7 @@ vtkOpenGLLowMemoryPolyDataMapper::~vtkOpenGLLowMemoryPolyDataMapper()
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  return this->Superclass::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------------

@@ -639,7 +639,7 @@ void vtkVolume::UpdateTransferFunctions(vtkRenderer* vtkNotUsed(ren))
       float low = -bias;
       float high = 255 / scale - bias;
 
-      gotf->GetTable(low, high, static_cast<int>(0x100), this->GradientOpacityArray[c]);
+      gotf->GetTable(low, high, 0x100, this->GradientOpacityArray[c]);
 
       if (!strcmp(gotf->GetType(), "Constant"))
       {

@@ -346,7 +346,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
   while (true)
   {
     getline(header, line);
-    if (line.length() < 1)
+    if (line.empty())
       break;
 
     if (line[0] == '#')
@@ -416,7 +416,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
           {
             getline(header, line);
             trim(line);
-            if (line.length() < 1)
+            if (line.empty())
               break;
             this->DataFiles->InsertNextValue(line);
           }

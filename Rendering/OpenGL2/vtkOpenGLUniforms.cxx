@@ -891,33 +891,32 @@ void vtkOpenGLUniforms::SetUniformMatrix(const char* name, vtkMatrix4x4* v)
 
 bool vtkOpenGLUniforms::GetUniformi(const char* name, int& v)
 {
-  return this->Internals->GetUniformValue<int, UniformScalari>(name, reinterpret_cast<int*>(&v));
+  return this->Internals->GetUniformValue<int, UniformScalari>(name, &v);
 }
 
 bool vtkOpenGLUniforms::GetUniformf(const char* name, float& v)
 {
-  return this->Internals->GetUniformValue<float, UniformScalarf>(
-    name, reinterpret_cast<float*>(&v));
+  return this->Internals->GetUniformValue<float, UniformScalarf>(name, &v);
 }
 
 bool vtkOpenGLUniforms::GetUniform2i(const char* name, int v[2])
 {
-  return this->Internals->GetUniformValue<int, UniformVec2i>(name, reinterpret_cast<int*>(v));
+  return this->Internals->GetUniformValue<int, UniformVec2i>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform2f(const char* name, float v[2])
 {
-  return this->Internals->GetUniformValue<float, UniformVec2f>(name, reinterpret_cast<float*>(v));
+  return this->Internals->GetUniformValue<float, UniformVec2f>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform3f(const char* name, float v[3])
 {
-  return this->Internals->GetUniformValue<float, UniformVec3f>(name, reinterpret_cast<float*>(v));
+  return this->Internals->GetUniformValue<float, UniformVec3f>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniform4f(const char* name, float v[4])
 {
-  return this->Internals->GetUniformValue<float, UniformVec4f>(name, reinterpret_cast<float*>(v));
+  return this->Internals->GetUniformValue<float, UniformVec4f>(name, v);
 }
 
 bool vtkOpenGLUniforms::GetUniformMatrix3x3(const char* name, float* v)

@@ -1002,7 +1002,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport* viewport)
           this->YTitleActor->SetOrientation(0.);
           // YTitleActor might exceed actor bounds
           ytitlePos[0] = yaxis_p1[0] - this->YTitleDelta - this->YTitleSize[0];
-          ytitlePos[1] = (int)(yaxis_p2[1] + yaxis_ymiddle - ytitle_half_height);
+          ytitlePos[1] = yaxis_p2[1] + yaxis_ymiddle - ytitle_half_height;
           break;
         }
         case VTK_XYPLOT_Y_AXIS_VCENTER:
@@ -2462,7 +2462,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int* pos, int* pos2)
   n[0] = 0.;
   n[1] = -1.;
   normals->SetTuple(0, n);
-  x[0] = (double).5 * (pos[0] + pos2[0]);
+  x[0] = .5 * (pos[0] + pos2[0]);
   x[1] = (double)pos[1];
   pts->SetPoint(0, x);
 
@@ -2471,14 +2471,14 @@ void vtkXYPlotActor::GenerateClipPlanes(int* pos, int* pos2)
   n[1] = 0.;
   normals->SetTuple(1, n);
   x[0] = (double)pos2[0];
-  x[1] = (double).5 * (pos[1] + pos2[1]);
+  x[1] = .5 * (pos[1] + pos2[1]);
   pts->SetPoint(1, x);
 
   // third
   n[0] = 0.;
   n[1] = 1.;
   normals->SetTuple(2, n);
-  x[0] = (double).5 * (pos[0] + pos2[0]);
+  x[0] = .5 * (pos[0] + pos2[0]);
   x[1] = (double)pos2[1];
   pts->SetPoint(2, x);
 
@@ -2487,7 +2487,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int* pos, int* pos2)
   n[1] = 0.;
   normals->SetTuple(3, n);
   x[0] = (double)pos[0];
-  x[1] = (double).5 * (pos[1] + pos2[1]);
+  x[1] = .5 * (pos[1] + pos2[1]);
   pts->SetPoint(3, x);
 }
 

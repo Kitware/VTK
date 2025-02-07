@@ -41,8 +41,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
         }
       if (ii < ac-1 && strcmp(av[ii], \"-E\") == 0)
         {
-        vtkTestingInteractor::ErrorThreshold =
-            static_cast<double>(atof(av[++ii]));
+        vtkTestingInteractor::ErrorThreshold = atof(av[++ii]);
         continue;
         }
       if (ii < ac-1 && strcmp(av[ii], \"-v\") == 0)

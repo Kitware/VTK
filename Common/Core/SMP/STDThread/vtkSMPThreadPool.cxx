@@ -32,22 +32,22 @@ struct vtkSMPThreadPool::ThreadJob
   {
   }
 
-  ProxyData* Proxy{};               // Proxy that allocated this job
-  std::function<void()> Function{}; // Actual user job
-  std::promise<void> Promise{};     // Set when job is done
+  ProxyData* Proxy{};             // Proxy that allocated this job
+  std::function<void()> Function; // Actual user job
+  std::promise<void> Promise;     // Set when job is done
 };
 
 struct vtkSMPThreadPool::ThreadData
 {
   // stack of jobs, any thread can push, and only push, jobs (and Mutex must be locked)
-  std::vector<ThreadJob> Jobs{};
+  std::vector<ThreadJob> Jobs;
   // Current job (used to map thread to Proxy), using an index is okay as only this thread can
   // erase the job and other threads can only push back new jobs not insert. This constraint could
   // be relaxed by using unique ids instead.
   std::size_t RunningJob{ NoRunningJob };
-  std::thread SystemThread{};                  // the system thread, not really used
-  std::mutex Mutex{};                          // thread mutex, used for Jobs manipulation
-  std::condition_variable ConditionVariable{}; // thread cv, used to wake up the thread
+  std::thread SystemThread;                  // the system thread, not really used
+  std::mutex Mutex;                          // thread mutex, used for Jobs manipulation
+  std::condition_variable ConditionVariable; // thread cv, used to wake up the thread
 };
 
 struct vtkSMPThreadPool::ProxyThreadData
@@ -67,12 +67,12 @@ struct vtkSMPThreadPool::ProxyThreadData
 
 struct vtkSMPThreadPool::ProxyData
 {
-  vtkSMPThreadPool* Pool{};                     // Pool that created this proxy
-  ProxyData* Parent{};                          // either null (for top level) or the parent
-  std::vector<ProxyThreadData> Threads{};       // Threads used by this
-  std::size_t NextThread{};                     // Round-robin thread for jobs
-  std::vector<std::future<void>> JobsFutures{}; // Used to know when job is done
-  std::mutex Mutex{};                           // Used to synchronize
+  vtkSMPThreadPool* Pool{};                   // Pool that created this proxy
+  ProxyData* Parent{};                        // either null (for top level) or the parent
+  std::vector<ProxyThreadData> Threads;       // Threads used by this
+  std::size_t NextThread{};                   // Round-robin thread for jobs
+  std::vector<std::future<void>> JobsFutures; // Used to know when job is done
+  std::mutex Mutex;                           // Used to synchronize
 };
 
 void vtkSMPThreadPool::RunJob(

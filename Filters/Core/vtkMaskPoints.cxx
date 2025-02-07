@@ -313,7 +313,7 @@ double vtkMaskPoints::GetLocalAreaFactor(double localArea, int np)
   if (np > 1)
   {
     double globalArea;
-    double send = (double)localArea;
+    double send = localArea;
     double* recv = new double[np];
 
     this->InternalGather(&send, recv, 1, 0);
@@ -443,7 +443,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         }
 
         for (vtkIdType ptId = this->Offset; (ptId < numPts) && (id < localMaxPts) && !abort;
-             ptId += (1 + static_cast<int>(static_cast<double>(vtkMath::Random()) * cap)))
+             ptId += (1 + static_cast<int>(vtkMath::Random() * cap)))
         {
           input->GetPoint(ptId, x);
           id = newPts->InsertNextPoint(x);

@@ -404,7 +404,7 @@ public:
   {
     // Implemented here by calling GetBounds() to support plot
     // subclasses that do no log-scaling or plot orientation.
-    return this->GetBounds(bounds);
+    this->GetBounds(bounds);
   }
 
   ///@{

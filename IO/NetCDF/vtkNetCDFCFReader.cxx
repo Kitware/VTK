@@ -1126,7 +1126,7 @@ void vtkNetCDFCFReader::GetUpdateExtentForOutput(vtkDataSet* output, int extent[
   }
   else
   {
-    return this->Superclass::GetUpdateExtentForOutput(output, extent);
+    this->Superclass::GetUpdateExtentForOutput(output, extent);
   }
 }
 

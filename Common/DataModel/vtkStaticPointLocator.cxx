@@ -694,7 +694,7 @@ struct BucketList : public vtkBucketList
     }
 
     // The core merging process around the point ptId.
-    inline void MergePoint(vtkIdType ptId, vtkIdList* nearby)
+    void MergePoint(vtkIdType ptId, vtkIdList* nearby)
     {
       vtkIdType* mergeMap = this->MergeMap;
 
@@ -2210,11 +2210,11 @@ void vtkStaticPointLocator::FindClosestNPoints(int N, const double x[3], vtkIdLi
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->FindClosestNPoints(N, x, result);
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)->FindClosestNPoints(N, x, result);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)->FindClosestNPoints(N, x, result);
+    static_cast<BucketList<int>*>(this->Buckets)->FindClosestNPoints(N, x, result);
   }
 }
 
@@ -2229,11 +2229,11 @@ void vtkStaticPointLocator::FindPointsWithinRadius(double R, const double x[3], 
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
+    static_cast<BucketList<int>*>(this->Buckets)->FindPointsWithinRadius(R, x, result);
   }
 }
 
@@ -2275,11 +2275,11 @@ void vtkStaticPointLocator::GenerateRepresentation(int level, vtkPolyData* pd)
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->GenerateRepresentation(level, pd);
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)->GenerateRepresentation(level, pd);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)->GenerateRepresentation(level, pd);
+    static_cast<BucketList<int>*>(this->Buckets)->GenerateRepresentation(level, pd);
   }
 }
 
@@ -2316,11 +2316,11 @@ void vtkStaticPointLocator::GetBucketIds(vtkIdType bNum, vtkIdList* bList)
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->GetIds(bNum, bList);
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)->GetIds(bNum, bList);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)->GetIds(bNum, bList);
+    static_cast<BucketList<int>*>(this->Buckets)->GetIds(bNum, bList);
   }
 }
 
@@ -2336,13 +2336,12 @@ void vtkStaticPointLocator::MergePoints(double tol, vtkIdType* pointMap)
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)
       ->MergePoints(tol, pointMap, this->TraversalOrder);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)
-      ->MergePoints(tol, pointMap, this->TraversalOrder);
+    static_cast<BucketList<int>*>(this->Buckets)->MergePoints(tol, pointMap, this->TraversalOrder);
   }
 }
 
@@ -2358,11 +2357,11 @@ void vtkStaticPointLocator::MergePointsWithData(vtkDataArray* data, vtkIdType* p
 
   if (this->LargeIds)
   {
-    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->MergePointsWithData(data, pointMap);
+    static_cast<BucketList<vtkIdType>*>(this->Buckets)->MergePointsWithData(data, pointMap);
   }
   else
   {
-    return static_cast<BucketList<int>*>(this->Buckets)->MergePointsWithData(data, pointMap);
+    static_cast<BucketList<int>*>(this->Buckets)->MergePointsWithData(data, pointMap);
   }
 }
 

@@ -2251,13 +2251,13 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
 //------------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 {
-  return this->Impl->ConvertTextureToImageData(this->Impl->RTTDepthTextureObject, output);
+  this->Impl->ConvertTextureToImageData(this->Impl->RTTDepthTextureObject, output);
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 {
-  return this->Impl->ConvertTextureToImageData(this->Impl->RTTColorTextureObject, output);
+  this->Impl->ConvertTextureToImageData(this->Impl->RTTColorTextureObject, output);
 }
 
 //------------------------------------------------------------------------------
@@ -3197,7 +3197,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren, vtkVolume* vol
   }
 
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-  this->ResourceCallback->RegisterGraphicsResources(static_cast<vtkOpenGLRenderWindow*>(renWin));
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
   // Make sure the context is current
   renWin->MakeCurrent();
 

@@ -1393,7 +1393,7 @@ void vtkStaticCellLocator::FindCellsWithinBounds(double* bbox, vtkIdList* cells)
   {
     return;
   }
-  return this->Processor->FindCellsWithinBounds(bbox, cells);
+  this->Processor->FindCellsWithinBounds(bbox, cells);
 }
 
 //------------------------------------------------------------------------------
@@ -1405,7 +1405,7 @@ void vtkStaticCellLocator::FindCellsAlongPlane(
   {
     return;
   }
-  return this->Processor->FindCellsAlongPlane(o, n, tol, cells);
+  this->Processor->FindCellsAlongPlane(o, n, tol, cells);
 }
 
 //------------------------------------------------------------------------------

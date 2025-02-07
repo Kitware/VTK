@@ -51,12 +51,12 @@ struct AllElementsWork
   vtkIdType NumberOfCells;
 
   // PointWork API
-  inline vtkIdType GetNumberOfPoints() const { return this->NumberOfPoints; }
-  inline vtkIdType GetPointId(vtkIdType index) const { return index; }
+  vtkIdType GetNumberOfPoints() const { return this->NumberOfPoints; }
+  vtkIdType GetPointId(vtkIdType index) const { return index; }
 
   // CellWork API
-  inline vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
-  inline vtkIdType GetCellId(vtkIdType index) const { return index; }
+  vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
+  vtkIdType GetCellId(vtkIdType index) const { return index; }
 };
 
 struct SubsetCellsWork
@@ -65,19 +65,16 @@ struct SubsetCellsWork
   const vtkIdType* PointMapPtr;
   vtkIdType NumberOfCells;
 
-  inline vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
-  inline vtkIdType GetCellId(vtkIdType index) const { return this->CellListPtr[index]; }
-  inline vtkIdType GetPointId(vtkIdType id) const { return this->PointMapPtr[id]; }
+  vtkIdType GetNumberOfCells() const { return this->NumberOfCells; }
+  vtkIdType GetCellId(vtkIdType index) const { return this->CellListPtr[index]; }
+  vtkIdType GetPointId(vtkIdType id) const { return this->PointMapPtr[id]; }
 };
 
 struct SubsetPointsWork
 {
   const vtkSmartPointer<vtkIdList>& PointIdsToExtract;
-  inline vtkIdType GetNumberOfPoints() const { return this->PointIdsToExtract->GetNumberOfIds(); }
-  inline vtkIdType GetPointId(vtkIdType index) const
-  {
-    return this->PointIdsToExtract->GetId(index);
-  }
+  vtkIdType GetNumberOfPoints() const { return this->PointIdsToExtract->GetNumberOfIds(); }
+  vtkIdType GetPointId(vtkIdType index) const { return this->PointIdsToExtract->GetId(index); }
 };
 
 //=============================================================================
@@ -349,7 +346,7 @@ void ExtractPolyhedralFaces(
       inFaceLocations->GetCellAtId(work.GetCellId(cc), nfaces, faces, faceIds);
       for (vtkIdType face = 0; face < nfaces; ++face)
       {
-        outFacesSize += static_cast<vtkIdType>(inFaces->GetCellSize(faces[face]));
+        outFacesSize += inFaces->GetCellSize(faces[face]);
         // Store local to global faceId for later reuse
         connectivityPoly->SetValue(facePos, faces[face]);
         facePos++;

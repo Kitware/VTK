@@ -509,7 +509,7 @@ int vtkSQLDatabaseSchema::GetColumnSizeFromHandle(int tblHandle, int colHandle)
     return -1;
   }
 
-  return static_cast<int>(this->Internals->Tables[tblHandle].Columns[colHandle].Size);
+  return this->Internals->Tables[tblHandle].Columns[colHandle].Size;
 }
 
 //------------------------------------------------------------------------------

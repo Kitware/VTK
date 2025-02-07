@@ -266,7 +266,7 @@ void vtkHyperTreeGridPreConfiguredSource::Preprocess(vtkHyperTreeGrid* htg, unsi
     vtkErrorMacro("Supplied extent is not long enough");
     return;
   }
-  if (subdivisions.size() < static_cast<unsigned int>(dim))
+  if (subdivisions.size() < dim)
   {
     vtkErrorMacro("Supplied subdivisions is not long enough");
     return;

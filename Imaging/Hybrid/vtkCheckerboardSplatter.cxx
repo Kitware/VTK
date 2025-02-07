@@ -240,8 +240,7 @@ public:
   void SetScalar(vtkIdType ptId, double pd[3], double x[3], TScalars* sPtr)
   {
     double dist2 = (this->*Sample)(ptId, x, pd);
-    double v = (this->*SampleFactor)(ptId)*exp(
-      static_cast<double>(this->ExponentFactor * (dist2) / (this->R2)));
+    double v = (this->*SampleFactor)(ptId)*exp(this->ExponentFactor * (dist2) / (this->R2));
 
     TScalars Tv = static_cast<TScalars>(v);
     switch (this->AccumulationMode)

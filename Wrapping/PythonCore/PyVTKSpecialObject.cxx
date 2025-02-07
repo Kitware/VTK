@@ -95,8 +95,7 @@ PyObject* PyVTKSpecialObject_Repr(PyObject* self)
   // otherwise just print address of object
   else if (obj->vtk_ptr)
   {
-    s = PyUnicode_FromFormat(
-      "<%s(%p) at %p>", name, static_cast<void*>(obj->vtk_ptr), static_cast<void*>(obj));
+    s = PyUnicode_FromFormat("<%s(%p) at %p>", name, obj->vtk_ptr, static_cast<void*>(obj));
   }
 
   return s;

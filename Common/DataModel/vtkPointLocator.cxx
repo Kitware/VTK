@@ -1192,7 +1192,7 @@ int vtkPointLocator::InitPointInsertion(
     hmin = (this->H[i] < hmin ? this->H[i] : hmin);
     maxDivs = (maxDivs > this->Divisions[i] ? maxDivs : this->Divisions[i]);
   }
-  this->InsertionLevel = ceil(static_cast<double>(this->Tolerance) / hmin);
+  this->InsertionLevel = ceil(this->Tolerance / hmin);
   this->InsertionLevel = (this->InsertionLevel > maxDivs ? maxDivs : this->InsertionLevel);
 
   // Update internal performance variables

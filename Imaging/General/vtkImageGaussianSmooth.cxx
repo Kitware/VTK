@@ -303,8 +303,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData, int inE
     currentClipped = kernelLeftClip + kernelRightClip;
     if (currentClipped || previousClipped)
     {
-      this->ComputeKernel(kernel, -radius + kernelLeftClip, radius - kernelRightClip,
-        static_cast<double>(this->StandardDeviations[axis]));
+      this->ComputeKernel(
+        kernel, -radius + kernelLeftClip, radius - kernelRightClip, this->StandardDeviations[axis]);
       kernelSize = size - kernelLeftClip - kernelRightClip;
     }
     previousClipped = currentClipped;

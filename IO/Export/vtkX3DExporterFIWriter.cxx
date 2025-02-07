@@ -265,7 +265,6 @@ void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkX3DExporterFIWriter::OpenFile(const char* file)
 {
-  std::string t(file);
   this->CloseFile();
 
   // Delegate to vtkX3DExporterFIByteWriter

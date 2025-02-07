@@ -69,11 +69,8 @@ public:
   /// Return the computed range (after the query is evaluated).
   void GetRange(int component, double* range) VTK_SIZEHINT(2);
   const std::array<double, 2>& GetRange(int component) const;
-  inline void GetRange(double* range) VTK_SIZEHINT(2)
-  {
-    return this->GetRange(this->Component, range);
-  }
-  inline const std::array<double, 2>& GetRange() const { return this->GetRange(this->Component); }
+  void GetRange(double* range) VTK_SIZEHINT(2) { this->GetRange(this->Component, range); }
+  const std::array<double, 2>& GetRange() const { return this->GetRange(this->Component); }
 
   /// Used by query-responders to update the range during evaluation.
   ///

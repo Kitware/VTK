@@ -202,7 +202,7 @@ void vtkExtentRCBPartitioner::SplitExtent(int parent[6], int s1[6], int s2[6], i
   }
 
   numNodes = (parent[maxIdx] - parent[minIdx]) + 1;
-  mid = (int)vtkMath::Floor(0.5 * numNodes);
+  mid = vtkMath::Floor(0.5 * numNodes);
 
   if (this->DuplicateNodes == 1)
   {

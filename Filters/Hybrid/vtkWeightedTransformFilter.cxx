@@ -517,8 +517,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (tiArray != nullptr)
       {
-        transformIndices =
-          reinterpret_cast<vtkUnsignedShortArray*>(tiArray)->GetPointer(p * pdComponents);
+        transformIndices = tiArray->GetPointer(p * pdComponents);
       }
 
       // for each transform...
@@ -682,8 +681,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
       weights = reinterpret_cast<vtkFloatArray*>(cdArray)->GetPointer(p * cdComponents);
       if (cdtiArray != nullptr)
       {
-        transformIndices =
-          reinterpret_cast<vtkUnsignedShortArray*>(cdtiArray)->GetPointer(p * cdComponents);
+        transformIndices = cdtiArray->GetPointer(p * cdComponents);
       }
 
       // for each transform...

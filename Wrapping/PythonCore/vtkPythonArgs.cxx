@@ -911,7 +911,7 @@ PyObject* vtkPythonArgs::BuildTuple(const vtkSmartPointerBase* a, size_t n)
 
 void vtkPythonArgs::DeleteVTKObject(void* v)
 {
-  return static_cast<vtkObjectBase*>(v)->Delete();
+  static_cast<vtkObjectBase*>(v)->Delete();
 }
 
 PyObject* vtkPythonArgs::BuildVTKObject(const void* v)

@@ -1143,10 +1143,8 @@ void vtkAxis::GenerateTickLabels(double min, double max)
     bool niceTickMark = false;
     int minOrder = 0;
     int maxOrder = 0;
-    double minValue =
-      LogScaleTickMark(pow(double(10.0), double(min)), true, niceTickMark, minOrder);
-    double maxValue =
-      LogScaleTickMark(pow(double(10.0), double(max)), false, niceTickMark, maxOrder);
+    double minValue = LogScaleTickMark(pow(10.0, min), true, niceTickMark, minOrder);
+    double maxValue = LogScaleTickMark(pow(10.0, max), false, niceTickMark, maxOrder);
 
     // We generate the tick marks for all orders of magnitude
     if (maxOrder - minOrder == 0)
@@ -1285,7 +1283,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       // Make a tick mark label for the tick
       if (this->LogScaleActive)
       {
-        value = pow(double(10.0), double(value));
+        value = pow(10.0, value);
       }
       // Now create a label for the tick position
       if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
@@ -1312,7 +1310,7 @@ void vtkAxis::GenerateTickLabels()
     // Make a tick mark label for the tick
     if (this->LogScaleActive)
     {
-      value = pow(double(10.0), double(value));
+      value = pow(10.0, value);
     }
     this->TickLabels->InsertNextValue(this->GenerateSimpleLabel(value));
   }
@@ -1573,9 +1571,9 @@ double vtkAxis::NiceMinMax(double& min, double& max, float pixelRange, float tic
   double tickSpacing = range / maxTicks;
 
   int order = static_cast<int>(floor(log10(tickSpacing)));
-  double normTickSpacing = tickSpacing * pow(double(10.0), -order);
+  double normTickSpacing = tickSpacing * pow(10.0, -order);
   double niceTickSpacing = vtkAxis::NiceNumber(normTickSpacing, true);
-  niceTickSpacing *= pow(double(10.0), order);
+  niceTickSpacing *= pow(10.0, order);
 
   if (isNegative)
   {

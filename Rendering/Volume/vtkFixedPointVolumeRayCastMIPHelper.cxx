@@ -317,7 +317,7 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin(T* dataPtr, int threadID
           (!mapper->GetFlipMIPComparison() && val > maxValue)))
       {
         maxValue = val;
-        maxIdx = static_cast<unsigned short>(maxValue);
+        maxIdx = maxValue;
         maxValueDefined = 1;
       }
     }
@@ -383,7 +383,7 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin(T* dataPtr, int threadID, int 
         (!mapper->GetFlipMIPComparison() && val > maxValue)))
     {
       maxValue = val;
-      maxIdx = static_cast<unsigned short>(maxValue);
+      maxIdx = maxValue;
       maxValueDefined = 1;
     }
   }

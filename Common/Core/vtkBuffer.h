@@ -32,8 +32,8 @@ public:
   /**
    * Access the buffer as a scalar pointer.
    */
-  inline ScalarType* GetBuffer() { return this->Pointer; }
-  inline const ScalarType* GetBuffer() const { return this->Pointer; }
+  ScalarType* GetBuffer() { return this->Pointer; }
+  const ScalarType* GetBuffer() const { return this->Pointer; }
 
   /**
    * Set the memory buffer that this vtkBuffer object will manage. @a array
@@ -63,7 +63,7 @@ public:
   /**
    * Return the number of elements the current buffer can hold.
    */
-  inline vtkIdType GetSize() const { return this->Size; }
+  vtkIdType GetSize() const { return this->Size; }
 
   /**
    * Allocate a new buffer that holds @a size elements. Old data is not saved.

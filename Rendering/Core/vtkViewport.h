@@ -278,7 +278,7 @@ public:
   /**
    * Convert world point coordinates to display (or screen) coordinates.
    */
-  inline void WorldToDisplay(double& x, double& y, double& z)
+  void WorldToDisplay(double& x, double& y, double& z)
   {
     this->WorldToView(x, y, z);
     this->ViewToDisplay(x, y, z);

@@ -147,7 +147,7 @@ int vtkMNITransformReader::ReadLineAfterComments(istream& infile, char result[25
     }
     if (result[0] == '%')
     {
-      if (comments.length() > 0)
+      if (!comments.empty())
       {
         comments.append("\n");
       }

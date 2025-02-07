@@ -416,7 +416,7 @@ void vtkRenderer::Render()
   {
     // Measure the actual RenderTime
     t2 = vtkTimerLog::GetUniversalTime();
-    this->LastRenderTimeInSeconds = static_cast<double>(t2 - t1);
+    this->LastRenderTimeInSeconds = t2 - t1;
 
     if (this->LastRenderTimeInSeconds == 0.0)
     {

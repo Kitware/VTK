@@ -236,9 +236,9 @@ bool CheckSchemeSyntax(const vtkURIComponent& comp)
 
 struct AuthorityInfo
 {
-  std::string UserInfo{};
-  std::string Host{};
-  std::string Port{};
+  std::string UserInfo;
+  std::string Host;
+  std::string Port;
 };
 
 AuthorityInfo ExtractAuthorityInfo(const char* auth, const char* end)

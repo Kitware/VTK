@@ -820,7 +820,7 @@ PyTypeObject PyVTKNumberReference_Type = {
   PyVTKReference_Methods,              // tp_methods
   nullptr,                             // tp_members
   nullptr,                             // tp_getset
-  (PyTypeObject*)&PyVTKReference_Type, // tp_base
+  &PyVTKReference_Type,                // tp_base
   nullptr,                             // tp_dict
   nullptr,                             // tp_descr_get
   nullptr,                             // tp_descr_set
@@ -873,7 +873,7 @@ PyTypeObject PyVTKStringReference_Type = {
   PyVTKReference_Methods,              // tp_methods
   nullptr,                             // tp_members
   nullptr,                             // tp_getset
-  (PyTypeObject*)&PyVTKReference_Type, // tp_base
+  &PyVTKReference_Type, // tp_base
   nullptr,                             // tp_dict
   nullptr,                             // tp_descr_get
   nullptr,                             // tp_descr_set
@@ -926,7 +926,7 @@ PyTypeObject PyVTKTupleReference_Type = {
   PyVTKReference_Methods,              // tp_methods
   nullptr,                             // tp_members
   nullptr,                             // tp_getset
-  (PyTypeObject*)&PyVTKReference_Type, // tp_base
+  &PyVTKReference_Type, // tp_base
   nullptr,                             // tp_dict
   nullptr,                             // tp_descr_get
   nullptr,                             // tp_descr_set

@@ -216,9 +216,12 @@ void vtkHyperTreeGridNonOrientedSuperCursor::GetBounds(unsigned int icursor, dou
 {
   if (icursor == this->IndiceCentralCursor)
   {
-    return this->CentralCursor->GetBounds(bounds);
+    this->CentralCursor->GetBounds(bounds);
   }
-  return this->Entries[this->GetIndiceEntry(icursor)].GetBounds(bounds);
+  else
+  {
+    this->Entries[this->GetIndiceEntry(icursor)].GetBounds(bounds);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -232,9 +235,12 @@ void vtkHyperTreeGridNonOrientedSuperCursor::GetPoint(unsigned int icursor, doub
 {
   if (icursor == this->IndiceCentralCursor)
   {
-    return this->CentralCursor->GetPoint(point);
+    this->CentralCursor->GetPoint(point);
   }
-  return this->Entries[this->GetIndiceEntry(icursor)].GetPoint(point);
+  else
+  {
+    this->Entries[this->GetIndiceEntry(icursor)].GetPoint(point);
+  }
 }
 
 //------------------------------------------------------------------------------

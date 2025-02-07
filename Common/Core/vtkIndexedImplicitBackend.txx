@@ -110,8 +110,7 @@ struct IdListWrapper
 
   unsigned long getMemorySize() const
   {
-    unsigned long bytes =
-      static_cast<unsigned long>(sizeof(vtkIdType)) * this->Handles->GetNumberOfIds();
+    size_t bytes = sizeof(vtkIdType) * this->Handles->GetNumberOfIds();
     return std::ceil(bytes / 1024.0);
   }
 

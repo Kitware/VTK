@@ -20,7 +20,7 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 struct vtkURILoader::vtkInternals
 {
-  vtkSmartPointer<vtkURI> BaseURI{};
+  vtkSmartPointer<vtkURI> BaseURI;
 };
 
 //------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ namespace
 // Data URI "header" info
 struct DataURIInfo
 {
-  std::string Type{};  // <mediatype>
+  std::string Type;    // <mediatype>
   bool base64{};       // true if ;base64 has been specified at the end of parameters
   const char* Begin{}; // pointer to the first character of the data stream (raw or base64)
   const char* End{};   // pointer one past the last character of the data stream

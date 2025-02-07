@@ -106,7 +106,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF(
       }
       unsigned int nSets = grid->getNumberSets();
       std::string name = grid->getName();
-      if (name.length() != 0 && (nSets > 0 || parentVertex != -1))
+      if (!name.empty() && (nSets > 0 || parentVertex != -1))
       {
         std::string uName = this->UniqueName(name, true);
         grid->setName(uName);
@@ -127,7 +127,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF(
     if (graph)
     {
       std::string name = graph->getName();
-      if (name.length() != 0 && parentVertex != -1)
+      if (!name.empty() && parentVertex != -1)
       {
         std::string uName = this->UniqueName(name, true);
         graph->setName(uName);
@@ -163,7 +163,7 @@ void vtkXdmf3LightDataHandler::InspectXDMF(
     if (!isTemporal && !isDomain)
     {
       std::string name = asGC->getName();
-      if (name.length() != 0 && !this->SILBuilder->IsMaxedOut())
+      if (!name.empty() && !this->SILBuilder->IsMaxedOut())
       {
         silVertex = this->SILBuilder->AddVertex(name.c_str());
         vtkIdType parent = parentVertex;
@@ -249,7 +249,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
     {
       shared_ptr<XdmfAttribute> xmfAttribute = grid->getAttribute(cc);
       std::string attrName = xmfAttribute->getName();
-      if (attrName.length() == 0)
+      if (attrName.empty())
       {
         std::cerr << "Skipping unnamed array." << std::endl;
         continue;
@@ -292,7 +292,7 @@ void vtkXdmf3LightDataHandler::InspectArrays(shared_ptr<XdmfItem> item)
       {
         shared_ptr<XdmfAttribute> xmfAttribute = graph->getAttribute(cc);
         std::string attrName = xmfAttribute->getName();
-        if (attrName.length() == 0)
+        if (attrName.empty())
         {
           std::cerr << "Skipping unnamed array." << std::endl;
           continue;

@@ -1870,8 +1870,7 @@ void vtkDisplaySizedImplicitPlaneRepresentation::SizeHandles()
     double diagonal = 0.0;
     for (int i = 0; i < 3; i++)
     {
-      double diff = static_cast<double>(this->WidgetBounds[2 * i + 1]) -
-        static_cast<double>(this->WidgetBounds[2 * i]);
+      double diff = this->WidgetBounds[2 * i + 1] - this->WidgetBounds[2 * i];
       diagonal += diff * diff;
     }
     diagonal = std::sqrt(diagonal);

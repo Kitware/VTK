@@ -150,7 +150,7 @@ extern "C"
       vtkUnsignedCharArray* uc = self->GetResult();
       // we must grow the array
       vtkIdType oldSize = uc->GetSize();
-      uc->Resize(static_cast<vtkIdType>(oldSize + oldSize / 2));
+      uc->Resize(oldSize + oldSize / 2);
       // Resize do grow the array but it is not the size we expect
       vtkIdType newSize = uc->GetSize();
       cinfo->dest->next_output_byte = uc->GetPointer(oldSize);

@@ -90,7 +90,7 @@ void vtkChartLegend::Update()
   for (int i = 0; i < this->Storage->Chart->GetNumberOfPlots(); ++i)
   {
     if (this->Storage->Chart->GetPlot(i)->GetVisible() &&
-      this->Storage->Chart->GetPlot(i)->GetLabel().length() > 0)
+      !this->Storage->Chart->GetPlot(i)->GetLabel().empty())
     {
       this->Storage->ActivePlots.push_back(this->Storage->Chart->GetPlot(i));
     }

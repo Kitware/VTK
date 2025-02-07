@@ -84,7 +84,7 @@ void vtkTableToArray::AddColumn(vtkIdType index)
 
 void vtkTableToArray::AddAllColumns()
 {
-  this->Implementation->Columns.emplace_back(static_cast<char>('A'));
+  this->Implementation->Columns.emplace_back('A');
   this->Modified();
 }
 

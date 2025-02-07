@@ -138,7 +138,7 @@ int vtkTextureMapToCylinder::RequestData(vtkInformation* vtkNotUsed(request),
     }
     vtkMath::Normalize(v);
 
-    thetaX = acos((double)vtkMath::Dot(v, vec));
+    thetaX = acos(vtkMath::Dot(v, vec));
     vtkMath::Cross(vec, v, vP);
     thetaY = vtkMath::Dot(axis, vP); // not really interested in angle, just +/- sign
 

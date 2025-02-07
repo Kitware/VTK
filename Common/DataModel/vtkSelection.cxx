@@ -216,7 +216,7 @@ class vtkSelection::vtkInternals
   }
 
   // higher the value, higher the precedence.
-  inline int precedence(char op) const
+  int precedence(char op) const
   {
     switch (op)
     {

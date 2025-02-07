@@ -601,7 +601,7 @@ protected:
     std::vector<XrCompositionLayerProjectionView> ProjectionLayerViews;
     std::vector<XrCompositionLayerDepthInfoKHR> DepthInfoViews;
   };
-  std::unique_ptr<RenderResources_t> RenderResources{};
+  std::unique_ptr<RenderResources_t> RenderResources;
   ///@}
 
   // There is one subaction path for each hand.

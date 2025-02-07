@@ -451,7 +451,6 @@ static std::string GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int
   SQLRETURN status;
   SQLCHAR state[SQL_SQLSTATE_SIZE + 1];
   SQLCHAR description[SQL_MAX_MESSAGE_LENGTH + 1];
-  std::string finalResult;
   int i = 1;
 
   // There may be several error messages queued up so we need to loop
@@ -1332,7 +1331,6 @@ bool vtkODBCQuery::CacheStringColumn(int column)
   SQLRETURN status;
   SQLLEN bufferLength;
   SQLLEN indicator;
-  std::string result;
   std::ostringstream outbuf;
 
   bufferLength = 65536; // this is a pretty reasonable compromise
@@ -1418,7 +1416,6 @@ bool vtkODBCQuery::CacheStringColumn(int column)
 bool vtkODBCQuery::CacheBinaryColumn(int column)
 {
   SQLRETURN status;
-  std::string result;
 
   SQLSMALLINT nameLength;
   SQLSMALLINT columnType;

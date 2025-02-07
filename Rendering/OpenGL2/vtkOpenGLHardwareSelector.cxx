@@ -103,7 +103,7 @@ void vtkOpenGLHardwareSelector::BeginSelection()
     this->Renderer->PreserveDepthBufferOn();
   }
 
-  return this->Superclass::BeginSelection();
+  this->Superclass::BeginSelection();
 }
 
 //------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void vtkOpenGLHardwareSelector::EndSelection()
   vtkOpenGLState* ostate = rwin->GetState();
   ostate->Pop();
 
-  return this->Superclass::EndSelection();
+  this->Superclass::EndSelection();
 }
 
 //------------------------------------------------------------------------------

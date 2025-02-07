@@ -627,7 +627,7 @@ void vtkHDRReader::RGBE2Float(unsigned char* rgbe, float& r, float& g, float& b)
 {
   if (rgbe[3]) /*nonzero pixel*/
   {
-    float f = std::ldexp(1.0, rgbe[3] - static_cast<int>(128 + 8)) / this->Exposure;
+    float f = std::ldexp(1.0, rgbe[3] - (128 + 8)) / this->Exposure;
     r = rgbe[0] * f;
     g = rgbe[1] * f;
     b = rgbe[2] * f;

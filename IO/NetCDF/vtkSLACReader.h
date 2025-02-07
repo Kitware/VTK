@@ -170,9 +170,9 @@ public:
         this->MaxEndPoint = endpointA;
       }
     }
-    inline vtkIdType GetMinEndPoint() const { return this->MinEndPoint; }
-    inline vtkIdType GetMaxEndPoint() const { return this->MaxEndPoint; }
-    inline bool operator==(const EdgeEndpoints& other) const
+    vtkIdType GetMinEndPoint() const { return this->MinEndPoint; }
+    vtkIdType GetMaxEndPoint() const { return this->MaxEndPoint; }
+    bool operator==(const EdgeEndpoints& other) const
     {
       return ((this->GetMinEndPoint() == other.GetMinEndPoint()) &&
         (this->GetMaxEndPoint() == other.GetMaxEndPoint()));

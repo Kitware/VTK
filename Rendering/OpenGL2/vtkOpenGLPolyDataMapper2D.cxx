@@ -415,7 +415,7 @@ void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
     float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
     double* dColor = actor->GetProperty()->GetColor();
     float diffuseColor[4] = { static_cast<float>(dColor[0]), static_cast<float>(dColor[1]),
-      static_cast<float>(dColor[2]), static_cast<float>(opacity) };
+      static_cast<float>(dColor[2]), opacity };
 
     program->SetUniform4f("diffuseColor", diffuseColor);
   }

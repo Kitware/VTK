@@ -746,8 +746,8 @@ int vtkNetCDFCAMReader::RequestData(
   size_t numLocalCells = endCell - beginCell;
   size_t numLocalLevels = endLevel - beginLevel + 1;
   std::vector<int> cellConnectivity(4 * numLocalCells);
-  size_t start_conn[] = { 0, static_cast<size_t>(beginCell) };
-  size_t count_conn[] = { 4, static_cast<size_t>(numLocalCells) };
+  size_t start_conn[] = { 0, beginCell };
+  size_t count_conn[] = { 4, numLocalCells };
   if (this->Internals->nc_err(nc_get_vara_int(
         this->Internals->nc_connectivity, connid, start_conn, count_conn, cellConnectivity.data())))
   {
@@ -874,8 +874,7 @@ int vtkNetCDFCAMReader::RequestData(
   this->UpdateProgress(.5); // educated guess for progress
 
   // Collect the time step requested
-  vtkInformationDoubleKey* timeKey =
-    static_cast<vtkInformationDoubleKey*>(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  vtkInformationDoubleKey* timeKey = vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP();
 
   double dTime = 0.0;
   if (outInfo->Has(timeKey))
@@ -1012,8 +1011,7 @@ int vtkNetCDFCAMReader::RequestData(
     {
       for (size_t lev = 0; lev < numLocalLevels; lev++)
       {
-        size_t start[] = { static_cast<size_t>(timeStep), static_cast<size_t>(lev + beginLevel),
-          0 };
+        size_t start[] = { timeStep, lev + beginLevel, 0 };
         size_t count[] = { 1, 1, numFilePoints };
         if (doubleArray)
         {
@@ -1037,7 +1035,7 @@ int vtkNetCDFCAMReader::RequestData(
     }
     else
     {
-      size_t start[] = { static_cast<size_t>(timeStep), 0 };
+      size_t start[] = { timeStep, 0 };
       size_t count[] = { 1, numFilePoints };
       if (doubleArray)
       {
@@ -1083,8 +1081,8 @@ int vtkNetCDFCAMReader::RequestData(
   if (this->VerticalDimension != VERTICAL_DIMENSION_SINGLE_LAYER)
   {
     std::vector<float> levelData(numLocalLevels);
-    size_t start[] = { static_cast<size_t>(beginLevel) };
-    size_t count[] = { static_cast<size_t>(numLocalLevels) };
+    size_t start[] = { beginLevel };
+    size_t count[] = { numLocalLevels };
     if (this->Internals->nc_err(
           nc_get_vara_float(this->Internals->nc_points, levelsid, start, count, levelData.data())))
     {

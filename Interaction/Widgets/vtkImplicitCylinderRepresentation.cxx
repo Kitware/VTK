@@ -947,7 +947,7 @@ double* vtkImplicitCylinderRepresentation::GetCenter()
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetCenter(double xyz[3])
 {
-  return this->Cylinder->GetCenter(xyz);
+  this->Cylinder->GetCenter(xyz);
 }
 
 //------------------------------------------------------------------------------
@@ -985,7 +985,7 @@ double* vtkImplicitCylinderRepresentation::GetAxis()
 //------------------------------------------------------------------------------
 void vtkImplicitCylinderRepresentation::GetAxis(double xyz[3])
 {
-  return this->Cylinder->GetAxis(xyz);
+  this->Cylinder->GetAxis(xyz);
 }
 
 //------------------------------------------------------------------------------

@@ -91,7 +91,7 @@ struct BackToFront
   //  0 if unknown
   //  1 if second is farther than first
   template <typename TT>
-  inline int CompareOrderWithUncertainty(TT& first, TT& second)
+  int CompareOrderWithUncertainty(TT& first, TT& second)
   {
     double abounds[6], bbounds[6];
     vtkBlockSortHelper::GetBounds<TT>(first, abounds);
@@ -102,7 +102,7 @@ struct BackToFront
   // -1 if first is closer than second
   //  0 if unknown
   //  1 if second is farther than first
-  inline int CompareBoundsOrderWithUncertainty(const double abounds[6], const double bbounds[6])
+  int CompareBoundsOrderWithUncertainty(const double abounds[6], const double bbounds[6])
   {
     double bboundsP[6];
     double aboundsP[6];

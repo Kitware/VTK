@@ -1908,14 +1908,14 @@ void vtkUnstructuredGrid::GetCellNeighbors(
     using CellLinksType = vtkStaticCellLinks;
     using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    return this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
+    this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
   else
   {
     using CellLinksType = vtkCellLinks;
     using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    return this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
+    this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
 }
 

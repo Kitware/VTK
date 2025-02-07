@@ -74,7 +74,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
 
   if (static_cast<Backend>(backend) == Detect)
   {
-    backend = static_cast<int>(this->DetectBackend(str));
+    backend = this->DetectBackend(str);
   }
 
   switch (static_cast<Backend>(backend))
@@ -131,7 +131,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(vtkTextProperty* tprop,
 
   if (static_cast<Backend>(backend) == Detect)
   {
-    backend = static_cast<int>(this->DetectBackend(str));
+    backend = this->DetectBackend(str);
   }
 
   switch (static_cast<Backend>(backend))
@@ -182,7 +182,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(vtkTextProperty* tpro
 
   if (static_cast<Backend>(backend) == Detect)
   {
-    backend = static_cast<int>(this->DetectBackend(str));
+    backend = this->DetectBackend(str);
   }
 
   switch (static_cast<Backend>(backend))
@@ -233,7 +233,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(const vtkStd
 
   if (static_cast<Backend>(backend) == Detect)
   {
-    backend = static_cast<int>(this->DetectBackend(str));
+    backend = this->DetectBackend(str);
   }
 
   switch (static_cast<Backend>(backend))
@@ -285,7 +285,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
 
   if (static_cast<Backend>(backend) == Detect)
   {
-    backend = static_cast<int>(this->DetectBackend(str));
+    backend = this->DetectBackend(str);
   }
 
   switch (static_cast<Backend>(backend))

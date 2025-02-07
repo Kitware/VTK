@@ -526,7 +526,7 @@ int vtkHardwarePicker::Pick(
     double* displayCoord = this->Renderer->GetDisplayPoint();
 
     // Handle display to world conversion
-    double display[3] = { (double)selectionX, (double)selectionY, displayCoord[2] };
+    double display[3] = { selectionX, selectionY, displayCoord[2] };
     this->Renderer->SetDisplayPoint(display);
     this->Renderer->DisplayToWorld();
     const double* world = this->Renderer->GetWorldPoint();
