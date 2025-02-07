@@ -621,6 +621,13 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
   this->ImplFloat->ValueFBO = vtkOpenGLFramebufferObject::New();
   this->ImplFloat->ValueFBO->SetContext(renWin);
   renWin->GetState()->PushFramebufferBindings();
+
+  // vtkOpenGLFramebufferObject::InitializeViewport disables blending, scissor test and
+  // depth test. Save and restore them in scoped variables.
+  vtkOpenGLState* glstate = renWin->GetState();
+  vtkOpenGLState::ScopedglEnableDisable blendState(glstate, GL_BLEND);
+  vtkOpenGLState::ScopedglEnableDisable depthTestState(glstate, GL_DEPTH_TEST);
+  vtkOpenGLState::ScopedglEnableDisable scissorTestState(glstate, GL_SCISSOR_TEST);
   this->ImplFloat->ValueFBO->Bind();
   this->ImplFloat->ValueFBO->InitializeViewport(size[0], size[1]);
   /* GL_COLOR_ATTACHMENT0 */
@@ -635,7 +642,7 @@ bool vtkValuePass::InitializeFBO(vtkRenderer* ren)
     return false;
   }
 
-  renWin->GetState()->PopFramebufferBindings();
+  glstate->PopFramebufferBindings();
   this->ImplFloat->FBOAllocated = true;
 
   return true;
