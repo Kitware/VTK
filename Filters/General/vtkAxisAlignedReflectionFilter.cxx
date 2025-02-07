@@ -35,6 +35,18 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkObjectFactoryNewMacro(vtkAxisAlignedReflectionFilter);
 
+namespace
+{
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkPartitionedDataSet> CreatePartitionedDataSet(vtkDataObject* dataObject)
+{
+  vtkNew<vtkPartitionedDataSet> parts;
+  parts->SetNumberOfPartitions(1);
+  parts->SetPartition(0, dataObject);
+  return parts;
+}
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 void vtkAxisAlignedReflectionFilter::ComputeBounds(vtkDataObject* input, double bounds[6])
 {
@@ -52,19 +64,44 @@ void vtkAxisAlignedReflectionFilter::ComputeBounds(vtkDataObject* input, double 
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkPartitionedDataSet> CreatePartitionedDataSet(vtkDataObject* dataObject)
+void vtkAxisAlignedReflectionFilter::AddPartitionedDataSet(
+  vtkPartitionedDataSetCollection* outputPDSC, vtkDataObject* dObj, vtkInformation* inputMetadata,
+  const int nodeId, const bool isParentMultiblock, const bool isInputCopy)
 {
-  vtkNew<vtkPartitionedDataSet> parts;
-  parts->SetNumberOfPartitions(1);
-  parts->SetPartition(0, dataObject);
-  return parts;
+  vtkDataAssembly* outputHierarchy = outputPDSC->GetDataAssembly();
+  outputPDSC->SetPartitionedDataSet(this->PartitionIndex, ::CreatePartitionedDataSet(dObj));
+  std::string nodeName;
+  int& count = isInputCopy ? this->InputCount : this->ReflectionCount;
+  const std::string nodeNamePrefix = isInputCopy ? "Input_" : "Reflection_";
+  const std::string nodeNamePrefixMeta = isInputCopy ? "" : "Reflection_";
+  if (inputMetadata && inputMetadata->Has(vtkCompositeDataSet::NAME()))
+  {
+    nodeName = nodeNamePrefixMeta +
+      outputHierarchy->MakeValidNodeName(inputMetadata->Get(vtkCompositeDataSet::NAME()));
+  }
+  else
+  {
+    nodeName = nodeNamePrefix + std::to_string(count++);
+  }
+
+  outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), nodeName.c_str());
+  if (isParentMultiblock)
+  {
+    int dsNodeId = outputHierarchy->AddNode(nodeName.c_str(), nodeId);
+    outputHierarchy->AddDataSetIndex(dsNodeId, this->PartitionIndex);
+  }
+  else
+  {
+    outputHierarchy->AddDataSetIndex(nodeId, this->PartitionIndex);
+  }
+  this->PartitionIndex++;
 }
 
 //------------------------------------------------------------------------------
 bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetCollection* outputPDSC,
-  vtkCompositeDataSet* inputCD, double bounds[6], int inputNodeId, int reflectionNodeId,
-  vtkDataAssembly* outputHierarchy, int& partitionIndex, int& inputCount, int& reflectionCount)
+  vtkCompositeDataSet* inputCD, double bounds[6], int inputNodeId, int reflectionNodeId)
 {
+
   vtkDataObjectTree* inputTree = vtkDataObjectTree::SafeDownCast(inputCD);
   if (!inputTree)
   {
@@ -78,6 +115,8 @@ bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetColle
   iter.TakeReference(inputTree->NewTreeIterator());
   iter->SetVisitOnlyLeaves(false);
   iter->SetTraverseSubTree(false);
+  iter->SetSkipEmptyNodes(false);
+
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
     if (this->CheckAbort())
@@ -85,15 +124,18 @@ bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetColle
       break;
     }
 
+    vtkInformation* inputMetadata =
+      inputTree->HasMetaData(iter) ? inputTree->GetMetaData(iter) : nullptr;
+
     vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (cds)
     {
+      vtkDataAssembly* outputHierarchy = outputPDSC->GetDataAssembly();
       std::string compositeNodeName = "Composite";
-      if (inputTree->HasMetaData(iter) &&
-        inputTree->GetMetaData(iter)->Has(vtkCompositeDataSet::NAME()))
+      if (inputMetadata && inputMetadata->Has(vtkCompositeDataSet::NAME()))
       {
-        compositeNodeName = outputHierarchy->MakeValidNodeName(
-          inputTree->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME()));
+        compositeNodeName =
+          outputHierarchy->MakeValidNodeName(inputMetadata->Get(vtkCompositeDataSet::NAME()));
       }
 
       int compositeInputNodeId = -1;
@@ -104,13 +146,25 @@ bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetColle
       int compositeReflectionNodeId =
         outputHierarchy->AddNode(compositeNodeName.c_str(), reflectionNodeId);
 
-      if (!ProcessComposite(outputPDSC, cds, bounds, compositeInputNodeId,
-            compositeReflectionNodeId, outputHierarchy, partitionIndex, inputCount,
-            reflectionCount))
+      if (!ProcessComposite(
+            outputPDSC, cds, bounds, compositeInputNodeId, compositeReflectionNodeId))
       {
         vtkErrorMacro("Failed to process composite dataset " << cds->GetClassName());
         return false;
       }
+      continue;
+    }
+
+    // Handle empty nodes
+    if (iter->GetCurrentDataObject() == nullptr)
+    {
+      if (this->CopyInput)
+      {
+        this->AddPartitionedDataSet(
+          outputPDSC, nullptr, inputMetadata, inputNodeId, mb != nullptr, true);
+      }
+      this->AddPartitionedDataSet(
+        outputPDSC, nullptr, inputMetadata, reflectionNodeId, mb != nullptr, false);
       continue;
     }
 
@@ -129,31 +183,9 @@ bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetColle
     {
       vtkSmartPointer<vtkDataObject> inputCopy = dObj->NewInstance();
       inputCopy->ShallowCopy(dObj);
-      outputPDSC->SetPartitionedDataSet(partitionIndex, CreatePartitionedDataSet(inputCopy));
-      std::string nodeName;
-      if (inputTree->HasMetaData(iter) &&
-        inputTree->GetMetaData(iter)->Has(vtkCompositeDataSet::NAME()))
-      {
-        nodeName = "Input_" +
-          outputHierarchy->MakeValidNodeName(
-            inputTree->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME()));
-      }
-      else
-      {
-        nodeName = "Input_" + std::to_string(inputCount++);
-      }
-      outputPDSC->GetMetaData(partitionIndex)->Set(vtkCompositeDataSet::NAME(), nodeName.c_str());
-      if (mb)
-      {
-        int dsNodeId = outputHierarchy->AddNode(nodeName.c_str(), inputNodeId);
-        outputHierarchy->AddDataSetIndex(dsNodeId, partitionIndex);
-      }
-      else
-      {
-        outputHierarchy->AddDataSetIndex(inputNodeId, partitionIndex);
-      }
+      this->AddPartitionedDataSet(
+        outputPDSC, inputCopy, inputMetadata, inputNodeId, mb != nullptr, true);
       inputCopy->Delete();
-      partitionIndex++;
     }
 
     if (!this->ProcessLeaf(dObj, outputObj, bounds))
@@ -163,31 +195,8 @@ bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetColle
       return false;
     }
 
-    outputPDSC->SetPartitionedDataSet(partitionIndex, CreatePartitionedDataSet(outputObj));
-    std::string nodeName;
-    if (inputTree->HasMetaData(iter) &&
-      inputTree->GetMetaData(iter)->Has(vtkCompositeDataSet::NAME()))
-    {
-      nodeName = outputHierarchy->MakeValidNodeName(
-        inputTree->GetMetaData(iter)->Get(vtkCompositeDataSet::NAME()));
-    }
-    else
-    {
-      nodeName = "Reflection_" + std::to_string(reflectionCount++);
-    }
-
-    outputPDSC->GetMetaData(partitionIndex)->Set(vtkCompositeDataSet::NAME(), nodeName.c_str());
-    if (mb)
-    {
-      int dsNodeId = outputHierarchy->AddNode(nodeName.c_str(), reflectionNodeId);
-      outputHierarchy->AddDataSetIndex(dsNodeId, partitionIndex);
-    }
-    else
-    {
-      outputHierarchy->AddDataSetIndex(reflectionNodeId, partitionIndex);
-    }
-    partitionIndex++;
-
+    this->AddPartitionedDataSet(
+      outputPDSC, outputObj, inputMetadata, reflectionNodeId, mb != nullptr, false);
     outputObj->Delete();
   }
   return true;
@@ -244,16 +253,16 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   if (inputDS || inputHtg)
   {
     vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
-    int partitionIndex = 0;
     if (this->CopyInput)
     {
       vtkSmartPointer<vtkDataObject> inputCopy = inputDO->NewInstance();
       inputCopy->ShallowCopy(inputDO);
-      outputPDSC->SetPartitionedDataSet(partitionIndex, CreatePartitionedDataSet(inputCopy));
-      outputPDSC->GetMetaData(partitionIndex)->Set(vtkCompositeDataSet::NAME(), "Input");
-      outputHierarchy->AddDataSetIndex(inputNodeId, partitionIndex);
+      outputPDSC->SetPartitionedDataSet(
+        this->PartitionIndex, ::CreatePartitionedDataSet(inputCopy));
+      outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), "Input");
+      outputHierarchy->AddDataSetIndex(inputNodeId, this->PartitionIndex);
       inputCopy->Delete();
-      partitionIndex++;
+      this->PartitionIndex++;
     }
 
     double bounds[6];
@@ -261,9 +270,9 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     vtkSmartPointer<vtkDataObject> outputDO = inputDO->NewInstance();
     if (this->ProcessLeaf(inputDO, outputDO, bounds))
     {
-      outputPDSC->SetPartitionedDataSet(partitionIndex, CreatePartitionedDataSet(outputDO));
-      outputPDSC->GetMetaData(partitionIndex)->Set(vtkCompositeDataSet::NAME(), "Reflection");
-      outputHierarchy->AddDataSetIndex(reflectionNodeId, partitionIndex);
+      outputPDSC->SetPartitionedDataSet(this->PartitionIndex, ::CreatePartitionedDataSet(outputDO));
+      outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), "Reflection");
+      outputHierarchy->AddDataSetIndex(reflectionNodeId, this->PartitionIndex);
       outputDO->Delete();
     }
     else
@@ -278,14 +287,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     double bounds[6];
     this->ComputeBounds(inputCD, bounds);
 
-    int partitionIndex = 0;
-
-    // For naming purposes
-    int inputCount = 0;
-    int reflectionCount = 0;
-
-    if (!ProcessComposite(outputPDSC, inputCD, bounds, inputNodeId, reflectionNodeId,
-          outputHierarchy, partitionIndex, inputCount, reflectionCount))
+    if (!ProcessComposite(outputPDSC, inputCD, bounds, inputNodeId, reflectionNodeId))
     {
       vtkErrorMacro("Failed to process composite dataset " << inputCD->GetClassName());
       return 0;

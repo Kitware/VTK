@@ -29,7 +29,6 @@
 #include "vtkSmartPointer.h"         // for smart pointer
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataAssembly;
 class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkExplicitStructuredGrid;
@@ -39,7 +38,6 @@ class vtkPartitionedDataSetCollection;
 class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
-class vtkUnstructuredGrid;
 
 class VTKFILTERSGENERAL_EXPORT vtkAxisAlignedReflectionFilter : public vtkCompositeDataSetAlgorithm
 {
@@ -122,7 +120,7 @@ public:
 
   /**
    * Get the last modified time of this filter.
-   * This time also depends on the the modified
+   * This time also depends on the modified
    * time of the internal ReflectionFunction instance.
    */
   vtkMTimeType GetMTime() override;
@@ -153,6 +151,12 @@ private:
     int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9]);
 
   /**
+   * Add `dObj` as a new partitioned dataset of `outputPDSC` and update the assembly.
+   */
+  void AddPartitionedDataSet(vtkPartitionedDataSetCollection* outputPDSC, vtkDataObject* dObj,
+    vtkInformation* inputMetadata, int nodeId, bool isParentMultiblock, bool isInputCopy);
+
+  /**
    * Process composite inputs.
    * A "Composite" node is added as child of reflectionNodeId, and for each child of the composite
    * input, a node with the same name is added to the "Composite" node. If CopyInput is on, the same
@@ -160,8 +164,7 @@ private:
    * name.
    */
   bool ProcessComposite(vtkPartitionedDataSetCollection* outputPDSC, vtkCompositeDataSet* inputCD,
-    double bounds[6], int inputNodeId, int reflectionNodeId, vtkDataAssembly* outputHierarchy,
-    int& partitionIndex, int& inputCount, int& reflectionCount);
+    double bounds[6], int inputNodeId, int reflectionNodeId);
   /**
    * Process non-composite inputs (datasets and hyper tree grids).
    */
@@ -194,6 +197,12 @@ private:
 
   PlaneAxis PlaneAxisInternal = X_PLANE;
   double PlaneOriginInternal[3] = { 0.0, 0.0, 0.0 };
+
+  // For naming purposes
+  int InputCount = 0;
+  int ReflectionCount = 0;
+
+  int PartitionIndex = 0;
 };
 
 VTK_ABI_NAMESPACE_END
