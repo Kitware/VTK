@@ -15,6 +15,7 @@
 #ifndef vtkCPExodusIINodalCoordinatesTemplate_h
 #define vtkCPExodusIINodalCoordinatesTemplate_h
 
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkMappedDataArray.h"
 
@@ -22,7 +23,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkCPExodusIINodalCoordinatesTemplate : public vtkMappedDataArray<Scalar>
+class VTK_DEPRECATED_IN_9_5_0(
+  "Please use the SetArray functionality of `vtkSOADataArrayTemplate` instead.")
+  vtkCPExodusIINodalCoordinatesTemplate : public vtkMappedDataArray<Scalar>
 {
 public:
   vtkAbstractTemplateTypeMacro(

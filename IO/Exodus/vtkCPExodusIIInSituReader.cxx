@@ -2,11 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCPExodusIIInSituReader.h"
-#include "vtkCPExodusIINodalCoordinatesTemplate.h"
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCPExodusIIElementBlock.h"
-#include "vtkCPExodusIINodalCoordinatesTemplate.h"
 #include "vtkCellData.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
@@ -16,6 +14,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkSOADataArrayTemplate.h"
 
 #include "vtk_exodusII.h"
 
@@ -277,7 +276,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
 bool vtkCPExodusIIInSituReader::ExGetCoords()
 {
   this->Points->Reset();
-  vtkNew<vtkCPExodusIINodalCoordinatesTemplate<double>> nodeCoords;
+  vtkNew<vtkSOADataArrayTemplate<double>> nodeCoords;
 
   // Get coordinates
   double* x(new double[this->NumberOfNodes]);
@@ -296,7 +295,13 @@ bool vtkCPExodusIIInSituReader::ExGetCoords()
   }
 
   // NodalCoordinates takes ownership of the arrays.
-  nodeCoords->SetExodusScalarArrays(x, y, z, this->NumberOfNodes);
+  nodeCoords->SetNumberOfComponents(this->NumberOfDimensions);
+  nodeCoords->SetArray(0, x, this->NumberOfNodes, /*updateMaxId=*/true,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+  nodeCoords->SetArray(1, y, this->NumberOfNodes, /*updateMaxId=*/false,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+  nodeCoords->SetArray(2, z, this->NumberOfNodes, /*updateMaxId=*/false,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
   this->Points->SetData(nodeCoords);
   return true;
 }
