@@ -4,19 +4,17 @@
 #include "vtkTemporalArrayOperatorFilter.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
+#include "vtkDataObject.h"
 #include "vtkDataObjectTreeIterator.h"
-#include "vtkDataSet.h"
-#include "vtkGraph.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkFieldData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTable.h"
 
 #include <algorithm>
 #include <functional>
@@ -27,12 +25,6 @@ vtkStandardNewMacro(vtkTemporalArrayOperatorFilter);
 //------------------------------------------------------------------------------
 vtkTemporalArrayOperatorFilter::vtkTemporalArrayOperatorFilter()
 {
-  this->Operator = OperatorType::ADD;
-  this->NumberTimeSteps = 0;
-  this->FirstTimeStepIndex = 0;
-  this->SecondTimeStepIndex = 0;
-  this->OutputArrayNameSuffix = nullptr;
-
   // Set the default input data array that the algorithm will process (point scalars)
   this->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -50,7 +42,8 @@ vtkTemporalArrayOperatorFilter::~vtkTemporalArrayOperatorFilter()
 void vtkTemporalArrayOperatorFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Operator: " << this->Operator << endl;
+  os << indent << "Operator: " << this->GetOperatorAsString() << " (" << this->Operator << ")"
+     << endl;
   os << indent << "First time step: " << this->FirstTimeStepIndex << endl;
   os << indent << "Second time step: " << this->SecondTimeStepIndex << endl;
   os << indent << "Output array name suffix: "
@@ -97,10 +90,11 @@ int vtkTemporalArrayOperatorFilter::RequestDataObject(vtkInformation* vtkNotUsed
 
 //------------------------------------------------------------------------------
 int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputInfoVector, vtkInformationVector* vtkNotUsed(outputInfoVector))
+  vtkInformationVector** inputInfoVector, vtkInformationVector* outputInfoVector)
 {
   // Get input and output information objects
   vtkInformation* inputInfo = inputInfoVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputInfoVector->GetInformationObject(0);
 
   // Check for presence more than one time step
   if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
@@ -112,6 +106,44 @@ int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUse
       vtkErrorMacro(<< "Not enough numbers of time steps: " << this->NumberTimeSteps);
       return 0;
     }
+
+    double* inputTimes = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    double timeRange[2] = { inputTimes[0], inputTimes[this->NumberTimeSteps - 1] };
+    if (this->RelativeMode)
+    {
+      int absoluteShift = std::abs(this->TimeStepShift);
+      if (absoluteShift >= this->NumberTimeSteps)
+      {
+        vtkErrorMacro(
+          << "Shift is too big: second timestep is always out of range. Absolute max is "
+          << this->NumberTimeSteps);
+        return 0;
+      }
+      int outNumberTimeSteps = this->NumberTimeSteps - absoluteShift;
+      if (this->TimeStepShift < 0)
+      {
+        // skip first timesteps
+        timeRange[0] = inputTimes[absoluteShift];
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &inputTimes[absoluteShift],
+          outNumberTimeSteps);
+      }
+      else
+      {
+        // skip last timesteps
+        outInfo->Set(
+          vtkStreamingDemandDrivenPipeline::TIME_STEPS(), inputTimes, outNumberTimeSteps);
+        timeRange[1] = inputTimes[outNumberTimeSteps - 1];
+      }
+    }
+    else
+    {
+      double meshTime = inputTimes[this->FirstTimeStepIndex];
+      double outTime[1] = { meshTime };
+      timeRange[0] = meshTime;
+      timeRange[1] = meshTime;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), outTime, 1);
+    }
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
   }
   else
   {
@@ -123,22 +155,51 @@ int vtkTemporalArrayOperatorFilter::RequestInformation(vtkInformation* vtkNotUse
 }
 
 //------------------------------------------------------------------------------
+void vtkTemporalArrayOperatorFilter::GetTimeStepsToUse(int timeSteps[2])
+{
+  if (this->RelativeMode)
+  {
+    vtkInformation* outInfo = this->GetOutputInformation(0);
+    double requestedTime = 0;
+    if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
+    {
+      requestedTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+    }
+
+    vtkInformation* inputInfo = this->GetInputInformation();
+    double* inputTime = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    assert(inputTime);
+    for (int step = 0; step < this->NumberTimeSteps && inputTime[step] <= requestedTime; step++)
+    {
+      timeSteps[0] = step;
+    }
+    timeSteps[1] = timeSteps[0] + this->TimeStepShift;
+  }
+  else
+  {
+    timeSteps[0] = this->FirstTimeStepIndex;
+    timeSteps[1] = this->SecondTimeStepIndex;
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputInfoVector, vtkInformationVector* outputInfoVector)
 {
-  if (this->FirstTimeStepIndex < 0 || this->SecondTimeStepIndex < 0 ||
-    this->FirstTimeStepIndex >= this->NumberTimeSteps ||
-    this->SecondTimeStepIndex >= this->NumberTimeSteps)
+  int timeSteps[2];
+  this->GetTimeStepsToUse(timeSteps);
+
+  if (timeSteps[0] < 0 || timeSteps[1] < 0 || timeSteps[0] >= this->NumberTimeSteps ||
+    timeSteps[1] >= this->NumberTimeSteps)
   {
-    vtkErrorMacro(<< "Specified timesteps (" << this->FirstTimeStepIndex << " and "
-                  << this->SecondTimeStepIndex
+    vtkErrorMacro(<< "Specified timesteps (" << timeSteps[0] << " and " << timeSteps[1] << ") "
                   << "are outside the range of"
                      " available time steps ("
                   << this->NumberTimeSteps << ")");
     return 0;
   }
 
-  if (this->FirstTimeStepIndex == this->SecondTimeStepIndex)
+  if (timeSteps[0] == timeSteps[1])
   {
     vtkWarningMacro(<< "First and second time steps are the same.");
   }
@@ -148,17 +209,13 @@ int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUs
   if (outputInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     vtkInformation* inputInfo = inputInfoVector[0]->GetInformationObject(0);
-    // Get the available input times
     double* inputTime = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    if (inputTime)
-    {
-      // Request the two time steps upstream
-      double inputUpdateTimes[2] = { inputTime[this->FirstTimeStepIndex],
-        inputTime[this->SecondTimeStepIndex] };
+    assert(inputTime);
 
-      inputInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inputUpdateTimes, 2);
-    }
+    double inputUpdateTimes[2] = { inputTime[timeSteps[0]], inputTime[timeSteps[1]] };
+    inputInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inputUpdateTimes, 2);
   }
+
   return 1;
 }
 
@@ -283,61 +340,22 @@ vtkDataObject* vtkTemporalArrayOperatorFilter::ProcessDataObject(
 
   // Copy input structure into output
   vtkDataObject* outputDataObject = inputData0->NewInstance();
-  outputDataObject->ShallowCopy(inputData1);
-
-  vtkDataSet* outputDataSet = vtkDataSet::SafeDownCast(outputDataObject);
-  vtkGraph* outputGraph = vtkGraph::SafeDownCast(outputDataObject);
-  vtkTable* outputTable = vtkTable::SafeDownCast(outputDataObject);
+  outputDataObject->ShallowCopy(inputData0);
 
   vtkSmartPointer<vtkDataArray> outputArray;
   outputArray.TakeReference(this->ProcessDataArray(inputArray0, inputArray1));
 
-  switch (this->GetInputArrayAssociation())
+  vtkFieldData* field =
+    outputDataObject->GetAttributesAsFieldData(this->GetInputArrayAssociation());
+  if (!field)
   {
-    case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      if (!outputDataSet)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputDataSet->GetCellData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_NONE:
-      outputDataObject->GetFieldData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_VERTICES:
-      if (!outputGraph)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputGraph->GetVertexData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_EDGES:
-      if (!outputGraph)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputGraph->GetEdgeData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_ROWS:
-      if (!outputTable)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputTable->GetRowData()->AddArray(outputArray);
-      break;
-    case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-    default:
-      if (!outputDataSet)
-      {
-        vtkErrorMacro(<< "Bad input association for input data object.");
-        return nullptr;
-      }
-      outputDataSet->GetPointData()->AddArray(outputArray);
-      break;
+    vtkErrorMacro(<< "Bad input association ("
+                  << vtkDataObject::GetAssociationTypeAsString(this->GetInputArrayAssociation())
+                  << ") for input data object (" << outputDataObject->GetClassName() << ")");
+  }
+  else
+  {
+    field->AddArray(outputArray);
   }
 
   this->CheckAbort();
@@ -403,31 +421,16 @@ vtkDataArray* vtkTemporalArrayOperatorFilter::ProcessDataArray(
   outputDataArray->SetNumberOfTuples(inputArray0->GetNumberOfTuples());
   outputDataArray->CopyComponentNames(inputArray0);
 
-  std::string s = inputArray0->GetName() ? inputArray0->GetName() : "input_array";
+  std::string arrayName = inputArray0->GetName() ? inputArray0->GetName() : "input_array";
   if (this->OutputArrayNameSuffix && strlen(this->OutputArrayNameSuffix) != 0)
   {
-    s += this->OutputArrayNameSuffix;
+    arrayName += this->OutputArrayNameSuffix;
   }
   else
   {
-    switch (this->Operator)
-    {
-      case SUB:
-        s += "_sub";
-        break;
-      case MUL:
-        s += "_mul";
-        break;
-      case DIV:
-        s += "_div";
-        break;
-      case ADD:
-      default:
-        s += "_add";
-        break;
-    }
+    arrayName += "_" + this->GetOperatorAsString();
   }
-  outputDataArray->SetName(s.c_str());
+  outputDataArray->SetName(arrayName.c_str());
 
   // Let's perform the operation on the array
   TemporalDataOperatorWorker worker(this->Operator);
@@ -440,4 +443,22 @@ vtkDataArray* vtkTemporalArrayOperatorFilter::ProcessDataArray(
 
   return outputDataArray;
 }
+
+//------------------------------------------------------------------------------
+std::string vtkTemporalArrayOperatorFilter::GetOperatorAsString()
+{
+  switch (this->Operator)
+  {
+    case OperatorType::SUB:
+      return "sub";
+    case OperatorType::MUL:
+      return "mul";
+    case OperatorType::DIV:
+      return "div";
+    case OperatorType::ADD:
+    default:
+      return "add";
+  }
+}
+
 VTK_ABI_NAMESPACE_END
