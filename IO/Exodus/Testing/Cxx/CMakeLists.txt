@@ -1,6 +1,6 @@
 set(extra_tests)
-# We need typed arrays to be supported by the dispatcher to run the insitu test:
-if(VTK_DISPATCH_TYPED_ARRAYS)
+# We need soa arrays to be supported by the dispatcher to run the insitu test:
+if(VTK_DISPATCH_SOA_ARRAYS)
   list(APPEND extra_tests
     TestInSituExodus.cxx,NO_VALID
   )

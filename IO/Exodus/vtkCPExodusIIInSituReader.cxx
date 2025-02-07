@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCPExodusIIInSituReader.h"
+#include "vtkCPExodusIINodalCoordinatesTemplate.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCPExodusIIElementBlock.h"
 #include "vtkCPExodusIINodalCoordinatesTemplate.h"
-#include "vtkCPExodusIIResultsArrayTemplate.h"
 #include "vtkCellData.h"
 #include "vtkDemandDrivenPipeline.h"
 #include "vtkDoubleArray.h"
@@ -310,9 +311,9 @@ bool vtkCPExodusIIInSituReader::ExGetNodalVars()
     double* nodalVars = new double[this->NumberOfNodes];
     int error = ex_get_nodal_var(
       this->FileId, this->CurrentTimeStep + 1, nodalVarIndex + 1, this->NumberOfNodes, nodalVars);
-    std::vector<double*> varsVector(1, nodalVars);
-    vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> nodalVarArray;
-    nodalVarArray->SetExodusScalarArrays(varsVector, this->NumberOfNodes);
+    vtkNew<vtkAOSDataArrayTemplate<double>> nodalVarArray;
+    nodalVarArray->SetArray(nodalVars, this->NumberOfNodes,
+      /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
     nodalVarArray->SetName(this->NodalVariableNames[nodalVarIndex].c_str());
 
     if (error < 0)
@@ -383,9 +384,9 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
       double* elemVars = new double[numElem];
       error = ex_get_elem_var(this->FileId, this->CurrentTimeStep + 1, elemVarIndex + 1,
         this->ElementBlockIds[blockInd], numElem, elemVars);
-      std::vector<double*> varsVector(1, elemVars);
-      vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> elemVarArray;
-      elemVarArray->SetExodusScalarArrays(varsVector, numElem);
+      vtkNew<vtkAOSDataArrayTemplate<double>> elemVarArray;
+      elemVarArray->SetArray(elemVars, numElem,
+        /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
       elemVarArray->SetName(this->ElementVariableNames[elemVarIndex].c_str());
 
       if (error < 0)

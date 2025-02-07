@@ -1,11 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCPExodusIIElementBlock.h"
 #include "vtkCPExodusIIInSituReader.h"
-#include "vtkCPExodusIINodalCoordinatesTemplate.h"
-#include "vtkCPExodusIIResultsArrayTemplate.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkConeSource.h"
@@ -18,7 +16,7 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkPolyData.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
@@ -388,11 +386,9 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
     ref->GetPoint(pointId, point);
     refScalars->InsertNextTuple1((sin(point[0] * point[1]) + cos(point[2])));
   }
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testScalars;
+  vtkNew<vtkAOSDataArrayTemplate<double>> testScalars;
   testScalars->SetName("test-scalars");
-  double* testScalarArray = new double[numPoints];
-  memcpy(testScalarArray, refScalars->GetVoidPointer(0), numPoints * sizeof(double));
-  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray), numPoints);
+  testScalars->SetArray(refScalars->GetPointer(0), numPoints, /*save=*/true);
 
   ref->GetPointData()->SetScalars(refScalars);
   test->GetPointData()->SetScalars(testScalars);
@@ -425,13 +421,15 @@ void populateAttributes(vtkDataSet* ref, vtkDataSet* test)
     }
     refNormals->SetTuple(pointId, normal);
   }
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testNormals;
+  vtkNew<vtkSOADataArrayTemplate<double>> testNormals;
   testNormals->SetName("test-normals");
-  std::vector<double*> testNormalVector;
-  testNormalVector.push_back(testNormalArrayX);
-  testNormalVector.push_back(testNormalArrayY);
-  testNormalVector.push_back(testNormalArrayZ);
-  testNormals->SetExodusScalarArrays(testNormalVector, numPoints);
+  testNormals->SetNumberOfComponents(3);
+  testNormals->SetArray(0, testNormalArrayX, numPoints, /*updateMaxId=*/true,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+  testNormals->SetArray(1, testNormalArrayY, numPoints, /*updateMaxId=*/false,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
+  testNormals->SetArray(2, testNormalArrayZ, numPoints, /*updateMaxId=*/false,
+    /*save=*/false, /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
 
   ref->GetPointData()->SetNormals(refNormals);
   test->GetPointData()->SetNormals(testNormals);
@@ -868,7 +866,7 @@ bool testCopies(vtkUnstructuredGridBase* test)
 void testSaveArrays()
 {
   vtkIdType numPoints = 1000;
-  vtkNew<vtkCPExodusIIResultsArrayTemplate<double>> testScalars;
+  vtkNew<vtkAOSDataArrayTemplate<double>> testScalars;
   testScalars->SetName("test-scalars");
   double* testScalarArray = new double[numPoints];
   for (int i = 0; i < numPoints; i++)
@@ -878,9 +876,10 @@ void testSaveArrays()
   // Call SetExodusScalarArrays a couple of times to make sure
   // we don't free the same memory multiple times. The final call
   // is the one that should actually free the array.
-  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray), numPoints, true);
-  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray), numPoints, true);
-  testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray), numPoints, false);
+  testScalars->SetArray(testScalarArray, numPoints, /*save=*/true);
+  testScalars->SetArray(testScalarArray, numPoints, /*save=*/true);
+  testScalars->SetArray(testScalarArray, numPoints, /*save=*/false,
+    /*deletMethod*/ vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
 }
 
 int TestInSituExodus(int argc, char* argv[])
