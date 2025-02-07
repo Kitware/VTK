@@ -7,6 +7,8 @@
 #include "vtkVariant.h"
 #include "vtkXdmfDataArray.h"
 
+#include <algorithm>
+
 #define USE_IMAGE_DATA // otherwise uniformgrid
 
 // As soon as num-grids (sub-grids and all) grows beyond this number, we assume
@@ -17,12 +19,6 @@
 using namespace xdmf2;
 
 VTK_ABI_NAMESPACE_BEGIN
-template <class T>
-T vtkMAX(T a, T b)
-{
-  return (a > b ? a : b);
-}
-
 //------------------------------------------------------------------------------
 vtkXdmfDocument::vtkXdmfDocument()
 {
@@ -415,9 +411,9 @@ bool vtkXdmfDomain::GetWholeExtent(XdmfGrid* xmfGrid, int extents[6])
   }
 
   // vtk Dims are i,j,k XDMF are k,j,i
-  extents[5] = vtkMAX(static_cast<XdmfInt64>(0), dimensions[0] - 1);
-  extents[3] = vtkMAX(static_cast<XdmfInt64>(0), dimensions[1] - 1);
-  extents[1] = vtkMAX(static_cast<XdmfInt64>(0), dimensions[2] - 1);
+  extents[5] = std::max<XdmfInt64>(0, dimensions[0] - 1);
+  extents[3] = std::max<XdmfInt64>(0, dimensions[1] - 1);
+  extents[1] = std::max<XdmfInt64>(0, dimensions[2] - 1);
   return true;
 }
 

@@ -15,6 +15,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTreeLayoutStrategy.h"
 
+#include <cmath>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -46,7 +48,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     output->GetPoint(i, pt);
     double dist = pt[0] * pt[0] + pt[1] * pt[1] - 1.0;
-    dist = dist > 0 ? dist : -dist;
+    dist = std::abs(dist);
     if (dist > eps || pt[2] != 0.0)
     {
       cerr << "ERROR: Point " << i << " is not on the unit circle." << endl;

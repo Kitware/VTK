@@ -17,8 +17,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkColorTransferFunction);
 
-#define MY_MAX(x, y) ((x) > (y) ? (x) : (y))
-
 //=============================================================================
 class vtkCTFNode
 {
@@ -159,8 +157,8 @@ inline void vtkColorTransferFunctionInterpolateDiverging(
   {
     // Insert the white midpoint by setting one end to white and adjusting the
     // scalar value.
-    double Mmid = MY_MAX(msh1[0], msh2[0]);
-    Mmid = MY_MAX(88.0, Mmid);
+    double Mmid = std::max(msh1[0], msh2[0]);
+    Mmid = std::max(88.0, Mmid);
     if (s < 0.5)
     {
       msh2[0] = Mmid;

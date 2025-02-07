@@ -9,16 +9,13 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
+#include <cmath>
 #include <limits>
-
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
 
 template <class A>
 bool fuzzyCompare1D(A a, A b)
 {
-  return ABS(a - b) < std::numeric_limits<A>::epsilon();
+  return std::abs(a - b) < std::numeric_limits<A>::epsilon();
 }
 
 template <class A>

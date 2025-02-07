@@ -1621,12 +1621,12 @@ int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
   }
 
   // Get the intersection of the extents.
-  result[0] = this->Max(extent1[0], extent2[0]);
-  result[1] = this->Min(extent1[1], extent2[1]);
-  result[2] = this->Max(extent1[2], extent2[2]);
-  result[3] = this->Min(extent1[3], extent2[3]);
-  result[4] = this->Max(extent1[4], extent2[4]);
-  result[5] = this->Min(extent1[5], extent2[5]);
+  result[0] = std::max(extent1[0], extent2[0]);
+  result[1] = std::min(extent1[1], extent2[1]);
+  result[2] = std::max(extent1[2], extent2[2]);
+  result[3] = std::min(extent1[3], extent2[3]);
+  result[4] = std::max(extent1[4], extent2[4]);
+  result[5] = std::min(extent1[5], extent2[5]);
 
   return 1;
 }
@@ -1634,13 +1634,13 @@ int vtkXMLReader::IntersectExtents(int* extent1, int* extent2, int* result)
 //------------------------------------------------------------------------------
 int vtkXMLReader::Min(int a, int b)
 {
-  return (a < b) ? a : b;
+  return std::min(a, b);
 }
 
 //------------------------------------------------------------------------------
 int vtkXMLReader::Max(int a, int b)
 {
-  return (a > b) ? a : b;
+  return std::max(a, b);
 }
 
 //------------------------------------------------------------------------------

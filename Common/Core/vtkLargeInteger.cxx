@@ -10,6 +10,7 @@
 #include "vtkLargeInteger.h"
 
 #include <algorithm>
+#include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
 const unsigned int BIT_INCREMENT = 32;
@@ -34,7 +35,7 @@ vtkLargeInteger::vtkLargeInteger()
 vtkLargeInteger::vtkLargeInteger(long long n)
 {
   this->Negative = n < 0 ? 1 : 0;
-  n = n < 0 ? -n : n; // strip of sign
+  n = std::abs(n); // strip of sign
   this->Number = new char[BIT_INCREMENT];
   for (unsigned int i = 0; i < BIT_INCREMENT; i++)
   {
@@ -63,7 +64,7 @@ vtkLargeInteger::vtkLargeInteger(unsigned long long n)
 vtkLargeInteger::vtkLargeInteger(long n)
 {
   this->Negative = n < 0 ? 1 : 0;
-  n = n < 0 ? -n : n; // strip of sign
+  n = std::abs(n); // strip of sign
   this->Number = new char[BIT_INCREMENT];
   for (unsigned int i = 0; i < BIT_INCREMENT; i++)
   {
@@ -106,7 +107,7 @@ vtkLargeInteger::vtkLargeInteger(unsigned int n)
 vtkLargeInteger::vtkLargeInteger(int n)
 {
   this->Negative = n < 0 ? 1 : 0;
-  n = n < 0 ? -n : n; // strip of sign
+  n = std::abs(n); // strip of sign
   this->Number = new char[BIT_INCREMENT];
   for (unsigned int i = 0; i < BIT_INCREMENT; i++)
   {

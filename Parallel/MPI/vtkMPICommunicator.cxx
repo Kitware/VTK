@@ -13,6 +13,7 @@
 #include "vtkStructuredGrid.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+#include <algorithm>
 #include <cassert>
 #include <type_traits> // for std::is_pointer
 #include <vector>
@@ -992,12 +993,6 @@ int vtkMPICommunicator::SendVoidArray(
 }
 
 //------------------------------------------------------------------------------
-inline vtkIdType vtkMPICommunicatorMin(vtkIdType a, vtkIdType b)
-{
-  return (a > b) ? b : a;
-}
-
-//------------------------------------------------------------------------------
 int vtkMPICommunicator::ReceiveVoidArray(
   void* data, vtkIdType maxlength, int type, int remoteProcessId, int tag)
 {
@@ -1042,9 +1037,9 @@ int vtkMPICommunicator::ReceiveVoidArray(
   vtkMPICommunicatorReceiveDataInfo info;
   info.Handle = this->MPIComm->Handle;
   info.DataType = mpiType;
-  while (CheckForMPIError(this->ReceiveDataInternal(byteData,
-           vtkMPICommunicatorMin(maxlength, maxReceive), sizeOfType, remoteProcessId, tag, &info,
-           vtkCommunicator::UseCopy, this->LastSenderId)) != 0)
+  while (
+    CheckForMPIError(this->ReceiveDataInternal(byteData, std::min<vtkIdType>(maxlength, maxReceive),
+      sizeOfType, remoteProcessId, tag, &info, vtkCommunicator::UseCopy, this->LastSenderId)) != 0)
   {
     remoteProcessId = this->LastSenderId;
 

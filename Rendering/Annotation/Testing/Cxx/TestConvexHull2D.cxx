@@ -5,16 +5,14 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include <limits>
 
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
+#include <cmath>
+#include <limits>
 
 template <class A>
 bool fuzzyCompare1Dweak(A a, A b)
 {
-  return ABS(a - b) < 0.000001;
+  return std::abs(a - b) < 0.000001;
 }
 
 template <class A>
