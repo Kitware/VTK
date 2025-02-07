@@ -23,11 +23,14 @@
 #ifndef vtkMappedDataArray_h
 #define vtkMappedDataArray_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkTypedDataArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkMappedDataArray : public vtkTypedDataArray<Scalar>
+class VTK_DEPRECATED_IN_9_5_0("Please use the SetArray functionality of `vtkAOSDataArrayTemplate` "
+                              "for 1 component or `vtkSOADataArrayTemplate` for more "
+                              "instead.") vtkMappedDataArray : public vtkTypedDataArray<Scalar>
 {
 public:
   vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>);
