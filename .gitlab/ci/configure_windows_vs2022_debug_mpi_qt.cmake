@@ -17,7 +17,7 @@ set(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS ON CACHE BOOL "")
 # way. Until this is fixed (#19213), disable dispatching even though the
 # template instantiation logic is more important for this CI configuration
 # because `VTK::TestingCore` needs `VTK::FiltersHyperTree`.
-set(VTK_DISPATCH_TYPED_ARRAYS OFF CACHE BOOL "")
+set(VTK_DISPATCH_TYPED_ARRAYS OFF CACHE BOOL "") # VTK_DEPRECATED_IN_9_5_0
 
 # Disable VTK-m as the artifacts are too large.
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "")

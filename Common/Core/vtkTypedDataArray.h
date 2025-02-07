@@ -27,6 +27,7 @@
 #include "vtkGenericDataArray.h"
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkTypeTraits.h"       // For type metadata
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -34,7 +35,9 @@ template <class Scalar>
 class vtkTypedDataArrayIterator;
 
 template <class Scalar>
-class vtkTypedDataArray : public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
+class VTK_DEPRECATED_IN_9_5_0(
+  "This class has been made obsolete by the newer vtkGenericDataArray.") vtkTypedDataArray
+  : public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
 {
   typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar> GenericDataArrayType;
 

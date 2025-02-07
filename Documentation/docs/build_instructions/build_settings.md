@@ -276,7 +276,7 @@ currently exist for use with the VTK dispatch mechanism:
   * `VTK_DISPATCH_SOA_ARRAYS` (default `OFF`): includes dispatching for "structure-of-array"
     ordered arrays derived from `vtkSOADataArrayTemplate`
   * `VTK_DISPATCH_TYPED_ARRAYS` (default `OFF`): includes dispatching for arrays derived
-    from `vtkTypedDataArray`
+    from `vtkTypedDataArray` (VTK_DEPRECATED_IN_9_5_0).
   * `VTK_DISPATCH_AFFINE_ARRAYS` (default `OFF`): includes dispatching for linearly varying
     `vtkAffineArray`s as part of the implicit array framework
   * `VTK_DISPATCH_CONSTANT_ARRAYS` (default `OFF`): includes dispatching for constant arrays

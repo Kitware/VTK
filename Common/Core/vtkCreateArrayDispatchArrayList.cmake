@@ -11,7 +11,7 @@
 # - VTK_DISPATCH_SOA_ARRAYS (default: OFF)
 #   Include vtkSOADataArrayTemplate<ValueType> for the basic types supported
 #   by VTK.
-# - VTK_DISPATCH_TYPED_ARRAYS (default: OFF)
+# - VTK_DISPATCH_TYPED_ARRAYS (default: OFF) VTK_DEPRECATED_IN_9_5_0
 #   Include vtkTypedDataArray<ValueType> for the basic types supported
 #   by VTK. This enables the old-style in-situ vtkMappedDataArray subclasses
 #   to be used.
@@ -163,7 +163,7 @@ _vtkCreateArrayDispatch(_dispatch_scaled_soa_arrays "vtkScaledSOADataArrayTempla
   "${vtk_numeric_types}")
 
 _vtkCreateArrayDispatch(VTK_DISPATCH_TYPED_ARRAYS "vtkTypedDataArray"
-  "${vtk_numeric_types}")
+  "${vtk_numeric_types}") # VTK_DEPRECATED_IN_9_5_0
 
 macro(_vtkCreateArrayDispatchImplicit var class types)
   if (${var})

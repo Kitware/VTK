@@ -9,7 +9,6 @@
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeInt32Array.h"
-#include "vtkTypedDataArray.h"
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif
