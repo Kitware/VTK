@@ -7,13 +7,14 @@
 
 #include "vtkProperty.h"              // for VTK_FLAT
 #include "vtkRenderingWebGPUModule.h" // for export macro
-#include "vtk_wgpu.h"                 // for return
+
+#include <memory> // for unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix3x3;
 class vtkWebGPUConfiguration;
 class vtkWebGPURenderPipelineCache;
-
+class vtkWebGPUActorInternals;
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUActor : public vtkActor
 {
 public:
@@ -25,28 +26,10 @@ public:
 
   void ShallowCopy(vtkProp* other) override;
 
-  inline const void* GetCachedActorInformation() { return &(this->CachedActorInfo); }
-  static std::size_t GetCacheSizeBytes() { return sizeof(ActorBlock); }
-
   /**
    * Actual actor render method.
    */
   void Render(vtkRenderer* renderer, vtkMapper* mapper) override;
-
-  /**
-   * Returns true if the actor supports rendering with render bundles, false otherwise.
-   *
-   * This is mainly used for the point cloud mapper. This mapper doesn't use the rasterization
-   * pipeline for the rendering and thus doesn't support render bundles.
-   */
-  bool SupportRenderBundles();
-
-  inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
-  {
-    layouts.emplace_back(this->ActorBindGroupLayout);
-  }
-
-  virtual bool UpdateKeyMatrices();
 
   ///@{
   /**
@@ -70,106 +53,36 @@ protected:
   vtkWebGPUActor();
   ~vtkWebGPUActor() override;
 
+private:
+  // for accessing SupportsRenderBundles
+  friend class vtkWebGPURenderer;
+  // for accessing vtkWebGPUActorInternals::PopulateBindGroupLayouts
+  friend class vtkWebGPUPolyDataMapper;
+  friend class vtkWebGPUGlyph3DMapperHelper;
+
+  vtkWebGPUActor(const vtkWebGPUActor&) = delete;
+  void operator=(const vtkWebGPUActor&) = delete;
+
+  std::unique_ptr<vtkWebGPUActorInternals> Internals;
+
+  /**
+   * Returns true if the actor supports rendering with render bundles, false otherwise.
+   *
+   * This is mainly used for the point cloud mapper. This mapper doesn't use the rasterization
+   * pipeline for the rendering and thus doesn't support render bundles.
+   */
+  bool SupportRenderBundles();
+
+  bool UpdateKeyMatrices();
+
+  const void* GetCachedActorInformation();
+  static std::size_t GetCacheSizeBytes();
+
   bool CacheActorTransforms();
   bool CacheActorRenderOptions();
   bool CacheActorShadeOptions();
 
   void AllocateResources(vtkWebGPUConfiguration* renderer);
-
-  struct ActorBlock
-  {
-    struct TransformInfo
-    {
-      vtkTypeFloat32 World[4][4] = {};
-      vtkTypeFloat32 Normal[3][4] = {};
-    } Transform;
-
-    struct RenderOptions
-    {
-      // Point size in pixels - applicable when points are visible.
-      vtkTypeFloat32 PointSize = 0;
-      // Line width in pixels - applicable when lines/edges are visible.
-      vtkTypeFloat32 LineWidth = 0;
-      // Edge width in pixels - applicable when edges are visible and UseLineWidthForEdgeThickness
-      // is false.
-      vtkTypeFloat32 EdgeWidth = 0;
-      // Custom flags used to encode various integer/boolean properties.
-      vtkTypeUInt32 Flags = 0;
-    } RenderOpts;
-
-    struct ShadeOptions
-    {
-      // Material ambient color - applicable when shading type is global.
-      vtkTypeFloat32 AmbientColor[3] = {};
-      vtkTypeUInt32 Pad1 = 0;
-      // Material diffuse color - applicable when shading type is global.
-      vtkTypeFloat32 DiffuseColor[3] = {};
-      vtkTypeUInt32 Pad2 = 0;
-      // Material specular color - applicable when shading type is global.
-      vtkTypeFloat32 SpecularColor[3] = {};
-      vtkTypeUInt32 Pad3 = 0;
-      // Edge color
-      vtkTypeFloat32 EdgeColor[3] = {};
-      vtkTypeUInt32 Pad4 = 0;
-      // Vertex color
-      vtkTypeFloat32 VertexColor[3] = {};
-      // Material ambient color intensity.
-      vtkTypeFloat32 AmbientIntensity = 0;
-      // Material diffuse color intensity.
-      vtkTypeFloat32 DiffuseIntensity = 1;
-      // Material specular color intensity.
-      vtkTypeFloat32 SpecularIntensity = 0;
-      // Material specular power.
-      vtkTypeFloat32 SpecularPower = 0;
-      // Opacity level
-      vtkTypeFloat32 Opacity = 0;
-      // Interpolation type
-      vtkTypeUInt32 InterpolationType = VTK_FLAT;
-    } ShadeOpts;
-  };
-
-  ActorBlock CachedActorInfo;
-
-  vtkNew<vtkMatrix4x4> MCWCMatrix;
-  vtkNew<vtkMatrix3x3> NormalMatrix;
-  vtkNew<vtkTransform> NormalTransform;
-
-  vtkTimeStamp ModelTransformsBuildTimestamp;
-  vtkTimeStamp ShadingOptionsBuildTimestamp;
-  vtkTimeStamp RenderOptionsBuildTimestamp;
-
-  wgpu::BindGroupLayout ActorBindGroupLayout;
-  wgpu::BindGroup ActorBindGroup;
-  wgpu::Buffer ActorBuffer;
-
-  class MapperBooleanCache
-  {
-    bool Value = false;
-    vtkTimeStamp TimeStamp;
-
-  public:
-    /**
-     * Update the cached value with the new value. This also increments the TimeStamp.
-     */
-    void SetValue(bool newValue);
-
-    /**
-     * Returns the cached `Value`.
-     */
-    inline bool GetValue() { return Value; }
-
-    /**
-     * Returns true if the timestamp of the cached value is older than the mapper's MTime.
-     */
-    bool IsOutdated(vtkMapper* mapper);
-  };
-
-  MapperBooleanCache MapperHasOpaqueGeometry;
-  MapperBooleanCache MapperHasTranslucentPolygonalGeometry;
-
-private:
-  vtkWebGPUActor(const vtkWebGPUActor&) = delete;
-  void operator=(const vtkWebGPUActor&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

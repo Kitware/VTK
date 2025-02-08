@@ -38,6 +38,7 @@ set(classes
   vtkWebGPUTextureView)
 
 set(private_headers
+  "Private/vtkWebGPUActorInternals.h"
   "Private/vtkWebGPUBindGroupInternals.h"
   "Private/vtkWebGPUBindGroupLayoutInternals.h"
   "Private/vtkWebGPUBufferInternals.h"

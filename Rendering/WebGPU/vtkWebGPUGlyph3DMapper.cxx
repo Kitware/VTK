@@ -30,6 +30,7 @@
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
+#include "Private/vtkWebGPUActorInternals.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
@@ -1146,7 +1147,7 @@ public:
 
     std::vector<wgpu::BindGroupLayout> bgls;
     wgpuRenderer->PopulateBindgroupLayouts(bgls);
-    wgpuActor->PopulateBindgroupLayouts(bgls);
+    wgpuActor->Internals->PopulateBindgroupLayouts(bgls);
     bgls.emplace_back(
       this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroupLayout"));
     bgls.emplace_back(this->CreateTopologyBindGroupLayout(device, "TopologyBindGroupLayout"));
