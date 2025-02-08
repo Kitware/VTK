@@ -112,6 +112,7 @@ set(private_shader_files
   wgsl/ActorColorOptions.wgsl
   wgsl/ActorRenderOptions.wgsl
   wgsl/ActorTransform.wgsl
+  wgsl/CopyDepthTextureToBuffer.wgsl
   wgsl/FrustumCullingShader.wgsl
   wgsl/LineFragmentShader.wgsl
   wgsl/LineGlyphShader.wgsl

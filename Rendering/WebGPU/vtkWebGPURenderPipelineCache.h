@@ -34,6 +34,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPURenderer;
+class vtkWebGPURenderWindow;
 class vtkWindow;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderPipelineCache : public vtkObject
@@ -64,6 +65,9 @@ public:
    */
   void CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
     vtkWebGPURenderer* wgpuRenderer, const char* shaderSource);
+
+  void CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+    vtkWebGPURenderWindow* wgpuRenderWindow, const char* shaderSource);
 
   /**
    * Destroy the render pipeline associated with the given hash.

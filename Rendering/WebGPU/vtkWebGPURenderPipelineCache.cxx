@@ -137,7 +137,13 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDesc
   vtkWebGPURenderer* wgpuRenderer, const char* shaderSource)
 {
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
+  this->CreateRenderPipeline(descriptor, wgpuRenderWindow, shaderSource);
+}
 
+//------------------------------------------------------------------------------
+void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDescriptor* descriptor,
+  vtkWebGPURenderWindow* wgpuRenderWindow, const char* shaderSource)
+{
   // apply all shader source replacements.
   const auto source = wgpuRenderWindow->PreprocessShaderSource(shaderSource);
 

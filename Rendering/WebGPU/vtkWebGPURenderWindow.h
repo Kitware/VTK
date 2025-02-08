@@ -85,11 +85,6 @@ public:
 
   const char* GetRenderingBackend() override;
 
-  /**
-   * Reads pixels into the `CachedPixelBytes` variable.
-   */
-  void ReadPixels();
-
   ///@{
   /**
    * Set/Get the pixel data of an image, transmitted as RGBRGB...
@@ -269,6 +264,9 @@ public:
   vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireFramebufferRenderTexture();
   ///@}
 
+  using TextureMapCallback =
+    std::function<void(const void* mappedData, int bytesPerRow, void* userdata)>;
+
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;
@@ -289,14 +287,14 @@ protected:
   void ConfigureSurface();
   void UnconfigureSurface();
 
-  void CreateOffscreenColorAttachments();
-  void DestroyOffscreenColorAttachments();
+  void CreateOffscreenColorAttachment();
+  void DestroyOffscreenColorAttachment();
 
-  void CreateDepthStencilTexture();
-  void DestroyDepthStencilTexture();
+  void CreateDepthStencilAttachment();
+  void DestroyDepthStencilAttachment();
 
-  void CreateFSQGraphicsPipeline();
-  void DestroyFSQGraphicsPipeline();
+  void CreateColorCopyPipeline();
+  void DestroyColorCopyPipeline();
 
   void RecreateComputeRenderTextures();
 
@@ -309,23 +307,22 @@ protected:
   int SurfaceConfiguredSize[2];
   wgpu::TextureFormat PreferredSurfaceTextureFormat = wgpu::TextureFormat::BGRA8Unorm;
 
-  struct vtkWGPUDeptStencil
+  struct vtkWGPUDepthStencil
   {
     wgpu::Texture Texture;
     wgpu::TextureView View;
     wgpu::TextureFormat Format;
     bool HasStencil;
   };
-  vtkWGPUDeptStencil DepthStencil;
+  vtkWGPUDepthStencil DepthStencilAttachment;
 
-  struct vtkWGPUColorAttachment
+  struct vtkWGPUAttachment
   {
     wgpu::Texture Texture;
     wgpu::TextureView View;
     wgpu::TextureFormat Format;
-    wgpu::Buffer OffscreenBuffer;
   };
-  vtkWGPUColorAttachment ColorAttachment;
+  vtkWGPUAttachment ColorAttachment;
 
   struct vtkWGPUUserStagingPixelData
   {
@@ -338,24 +335,19 @@ protected:
 
   struct vtkWGPUFullScreenQuad
   {
-    wgpu::RenderPipeline Pipeline;
+    std::string Key;
     wgpu::BindGroup BindGroup;
   };
+  vtkWGPUFullScreenQuad ColorCopyRenderPipeline;
 
-  vtkWGPUFullScreenQuad FSQ;
-
-  struct MappingContext
-  {
-    vtkSmartPointer<vtkTypeUInt8Array> dst;
-    wgpu::Buffer src;
-    unsigned long size;
-    vtkWebGPURenderWindow* window;
-  } BufferMapReadContext;
-
-  vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
   vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
+
+  vtkSmartPointer<vtkWebGPUComputePipeline> DepthCopyPipeline;
+  vtkSmartPointer<vtkWebGPUComputePass> DepthCopyPass;
+  int DepthCopyBufferIndex = 0;
+  int DepthCopyTextureIndex = 0;
 
   int ScreenSize[2];
 
@@ -389,11 +381,12 @@ private:
    */
   void PostRasterizationRender();
 
-  /**
-   * Copies the current framebuffer to the offscreen buffer (used for screenshotting the render
-   * window for example)
-   */
-  void CopyFramebufferToOffscreenBuffer();
+  void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
+    std::size_t mipLevel, wgpu::TextureAspect aspect, wgpu::Origin3D offsets,
+    wgpu::Extent3D extents, TextureMapCallback callback, void* userData);
+
+  void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
+    std::size_t mipLevel, wgpu::TextureAspect aspect, TextureMapCallback callback, void* userData);
 
   // Render textures acquired by the user on this render window. They are kept here in case the
   // render window is resized, in which case, we'll need to resize the render textures --> We need
