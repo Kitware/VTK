@@ -201,7 +201,7 @@
         FC: ifx
 
 .fedora_cuda_addon:
-    image: "kitware/vtk:ci-fedora39-cuda-20240412"
+    image: "kitware/vtk:ci-fedora39-cuda-20250109"
     variables:
         CUDACC: "/usr/local/cuda-12.4/bin/nvcc"
         CUDACXX: "/usr/local/cuda-12.4/bin/nvcc"
