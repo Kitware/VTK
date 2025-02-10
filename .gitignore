@@ -2,6 +2,9 @@
 .ExternalData_*
 .ExternalData/config
 
+# Do not commit baseline image files.
+**/Testing/Data/Baseline/*.png
+
 # Exclude compiled Python objects.
 *.pyc
 *.pyo
