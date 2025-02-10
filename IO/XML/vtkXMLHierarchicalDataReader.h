@@ -26,7 +26,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkHierarchicalDataSet;
 
 class VTK_DEPRECATED_IN_9_5_0(
-  "Please use `vtkXMLMultiGroupDataReader` instead.") VTKIOXML_EXPORT vtkXMLHierarchicalDataReader
+  "Please use `vtkXMLMultiBlockDataReader` instead.") VTKIOXML_EXPORT vtkXMLHierarchicalDataReader
   : public vtkXMLMultiGroupDataReader
 {
 public:
