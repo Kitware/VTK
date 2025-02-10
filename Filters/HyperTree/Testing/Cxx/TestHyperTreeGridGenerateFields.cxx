@@ -4,9 +4,9 @@
 #include "vtkCellData.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridGenerateFields.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
-#include "vtkHyperTreeGridVisibleLeavesSize.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
@@ -113,12 +113,12 @@ bool TestMaskGhostSizes(int argc, char* argv[])
   inputHTG->SetMask(maskArray);
 
   // Compute visible leaves volume
-  vtkNew<vtkHyperTreeGridVisibleLeavesSize> leavesFilter;
-  leavesFilter->SetCellSizeArrayName("Vol");
-  leavesFilter->SetValidCellArrayName("Valid");
-  leavesFilter->SetInputData(inputHTG);
-  leavesFilter->Update();
-  vtkHyperTreeGrid* leavesVolumeHTG = leavesFilter->GetHyperTreeGridOutput();
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetCellSizeArrayName("Vol");
+  generateFields->SetValidCellArrayName("Valid");
+  generateFields->SetInputData(inputHTG);
+  generateFields->Update();
+  vtkHyperTreeGrid* leavesVolumeHTG = generateFields->GetHyperTreeGridOutput();
 
   // Iterate over the input tree, and check the output fields
   vtkIdType index = 0;
@@ -172,10 +172,10 @@ bool TestDifferentVolumes()
   }
 
   // Apply our filter
-  vtkNew<vtkHyperTreeGridVisibleLeavesSize> leavesFilter;
-  leavesFilter->SetInputData(inputHTG);
-  leavesFilter->Update();
-  vtkHyperTreeGrid* outputHTG = leavesFilter->GetHyperTreeGridOutput();
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputData(inputHTG);
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
 
   // Check volume values
   vtkDataArray* volumeField =
@@ -207,7 +207,7 @@ bool TestDifferentVolumes()
 
 }
 
-int TestHyperTreeGridVisibleLeavesSize(int argc, char* argv[])
+int TestHyperTreeGridGenerateFields(int argc, char* argv[])
 {
   bool result = true;
   result &= ::TestMaskGhostSizes(argc, argv);
