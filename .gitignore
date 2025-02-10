@@ -9,17 +9,3 @@ __pycache__/
 
 # Exclude macOS .DS_Store files.
 .DS_Store
-
-# Exclude some Xcode stuff.
-xcuserdata
-*.xcuserdatad
-
-# Exclude VSCode settings and configuration folder
-*.vscode*
-
-# Exclude Visual Studio stuff
-.vs*
-CMakeSettings.json
-
-# Exclude QtCreator files ...
-CMakeLists.txt.user*
