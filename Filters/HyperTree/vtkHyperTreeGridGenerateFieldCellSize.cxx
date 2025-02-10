@@ -8,40 +8,57 @@
 #include "vtkIndexedImplicitBackend.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldCellSize)
 
-namespace
+  namespace
 {
-/**
- * Return the size of the cell pointed by the cursor.
- * In practice, we multiply every non-null size value for the current cell.
- */
-double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
-{
-  double cellSize = 1.0;
-  bool nullSize = true;
-  double* size = cursor->GetSize();
-  std::vector<double> dimensions(size, size + 3);
-  for (auto& edgeSize : dimensions)
+  /**
+   * Return the size of the cell pointed by the cursor.
+   * In practice, we multiply every non-null size value for the current cell.
+   */
+  double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor * cursor)
   {
-    if (edgeSize != 0.0)
+    double cellSize = 1.0;
+    bool nullSize = true;
+    double* size = cursor->GetSize();
+    std::vector<double> dimensions(size, size + 3);
+    for (auto& edgeSize : dimensions)
     {
-      nullSize = false;
-      cellSize *= edgeSize;
+      if (edgeSize != 0.0)
+      {
+        nullSize = false;
+        cellSize *= edgeSize;
+      }
     }
+    if (nullSize)
+    {
+      // Every size coordinate is null, so the cell size is also null
+      cellSize = 0.0;
+    }
+    return cellSize;
   }
-  if (nullSize)
-  {
-    // Every size coordinate is null, so the cell size is also null
-    cellSize = 0.0;
-  }
-  return cellSize;
 }
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridGenerateFieldCellSize::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseIndexedVolume: " << this->UseIndexedVolume << "\n";
+  os << indent << "VolumeLookup size: " << this->VolumeLookup.size() << "\n";
+  os << indent << "SizeIndirectionTable size: "
+     << (this->SizeIndirectionTable ? this->SizeIndirectionTable->GetNumberOfTuples() : 0) << "\n";
+  os << indent << "SizeDiscreteValues size: "
+     << (this->SizeDiscreteValues ? this->SizeDiscreteValues->GetNumberOfTuples() : 0) << "\n";
+  os << indent << "SizeFullValues size: "
+     << (this->SizeFullValues ? this->SizeFullValues->GetNumberOfTuples() : 0) << "\n";
+  os << indent << "OutputSizeArray size: "
+     << (this->OutputSizeArray ? this->OutputSizeArray->GetNumberOfTuples() : 0) << "\n";
 }
 
 //------------------------------------------------------------------------------
 bool vtkHyperTreeGridGenerateFieldCellSize::InsertSize(double cellSize, vtkIdType currentIndex)
 {
-  // Use a hash table for O(1) insertion and seach time instead of searching the VTK array
+  // Use a hash table for O(1) insertion and search time instead of searching the VTK array
   const auto& inserted = this->VolumeLookup.insert(
     std::make_pair(cellSize, static_cast<unsigned char>(this->VolumeLookup.size())));
   if (inserted.second)

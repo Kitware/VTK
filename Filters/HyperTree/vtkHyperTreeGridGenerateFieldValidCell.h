@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkHyperTreeGridGenerateFieldValidCell
- * @brief vtkHyperTreeGridGenerateFields internal class to define ValidCell field
+ * @brief Define the ValidCell field used in vtkHyperTreeGridGenerateFields
  *
- * This is an internal class used by vtkHyperTreeGridGenerateFields to add and compute the ValidCell
+ * This is a class used by vtkHyperTreeGridGenerateFields to add and compute the ValidCell
  * field.
  *
  * This field has a value of 1.0 for leaf (non-refined) cells
@@ -19,13 +19,15 @@
 #include "vtkHyperTreeGridGenerateField.h"
 #include "vtkImplicitArray.h"
 
+VTK_ABI_NAMESPACE_BEGIN
+
 /**
- * Implicit array implementation unpacking a bool array to an array of type `ValueType`,
- * reducing the memory footprint of the array by a factor of 8 * 8 if `ValueType` is `double`,
+ * Implicit array implementation unpacking a bool array to an array of type double,
+ * reducing the memory footprint of the array by a factor of 8 * 8
  * while still guaranteeing fast element access using static dispatch.
  */
 template <typename ValueType>
-struct vtkScalarBooleanImplicitBackend final
+struct vtkScalarBooleanImplicitBackend
 {
   /**
    * Build the implicit array using a bit vector to be unpacked.
@@ -43,21 +45,20 @@ struct vtkScalarBooleanImplicitBackend final
    * @param _index: Array element id
    * \return Array element in the templated type
    */
-  ValueType operator()(const int _index) const { return static_cast<ValueType>(Values[_index]); }
+  ValueType operator()(const int _index) const
+  {
+    return static_cast<ValueType>(this->Values[_index]);
+  }
 
   const std::vector<bool> Values;
 };
 
-template <typename T>
-using vtkScalarBooleanArray = vtkImplicitArray<vtkScalarBooleanImplicitBackend<T>>;
-
 class vtkHyperTreeGridGenerateFieldValidCell : public vtkHyperTreeGridGenerateField
 {
 public:
-  explicit vtkHyperTreeGridGenerateFieldValidCell(std::string arrayName)
-    : vtkHyperTreeGridGenerateField(arrayName)
-  {
-  }
+  static vtkHyperTreeGridGenerateFieldValidCell* New();
+  vtkTypeMacro(vtkHyperTreeGridGenerateFieldValidCell, vtkHyperTreeGridGenerateField)
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkHyperTreeGrid* inputHTG) override;
   void Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor) override;
@@ -84,7 +85,8 @@ private:
   std::vector<bool> PackedValidCellArray;
 
   // Output array
-  vtkNew<::vtkScalarBooleanArray<double>> ValidCellsImplicitArray;
+  vtkNew<vtkImplicitArray<vtkScalarBooleanImplicitBackend<double>>> ValidCellsImplicitArray;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGenerateFieldValidCell_h

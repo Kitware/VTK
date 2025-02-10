@@ -9,6 +9,8 @@ set(classes
   vtkHyperTreeGridExtractGhostCells
   vtkHyperTreeGridFeatureEdges
   vtkHyperTreeGridGenerateFields
+  vtkHyperTreeGridGenerateFieldCellSize
+  vtkHyperTreeGridGenerateFieldValidCell
   vtkHyperTreeGridGeometry
   vtkHyperTreeGridGradient
   vtkHyperTreeGridPlaneCutter
@@ -20,9 +22,11 @@ set(classes
   vtkImageDataToHyperTreeGrid
 )
 
+set(headers
+  vtkHyperTreeGridGenerateField.h
+)
+
 set(private_classes
-  vtkHyperTreeGridGenerateFieldCellSize
-  vtkHyperTreeGridGenerateFieldValidCell
   vtkHyperTreeGridGeometryImpl
   vtkHyperTreeGridGeometry1DImpl
   vtkHyperTreeGridGeometry2DImpl
@@ -30,12 +34,8 @@ set(private_classes
   vtkHyperTreeGridGeometrySmallDimensionsImpl
 )
 
-set(private_headers
-  vtkHyperTreeGridGenerateField.h
-)
-
 vtk_module_add_module(VTK::FiltersHyperTree
   CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes}
-  PRIVATE_HEADERS ${private_headers})
+  HEADERS ${headers}
+  PRIVATE_CLASSES ${private_classes})
 vtk_add_test_mangling(VTK::FiltersHyperTree)

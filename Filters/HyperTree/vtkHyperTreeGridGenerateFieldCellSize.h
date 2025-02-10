@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkHyperTreeGridGenerateFieldCellSize
- * @brief vtkHyperTreeGridGenerateFields internal class to define CellSize field
+ * @brief  Define the CellSize field used in vtkHyperTreeGridGenerateFields
  *
- * This is an internal class used by vtkHyperTreeGridGenerateFields to add and compute the CellSize
+ * This is a class used by vtkHyperTreeGridGenerateFields to add and compute the CellSize
  * field.
  *
  * This field is set to the size (volume) of the cell for 3D HTGs,
@@ -25,13 +25,14 @@
 
 #include <unordered_map>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 class vtkHyperTreeGridGenerateFieldCellSize : public vtkHyperTreeGridGenerateField
 {
 public:
-  explicit vtkHyperTreeGridGenerateFieldCellSize(std::string arrayName)
-    : vtkHyperTreeGridGenerateField(arrayName)
-  {
-  }
+  static vtkHyperTreeGridGenerateFieldCellSize* New();
+  vtkTypeMacro(vtkHyperTreeGridGenerateFieldCellSize, vtkHyperTreeGridGenerateField)
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkHyperTreeGrid* inputHTG) override;
   /**
@@ -66,4 +67,5 @@ private:
   vtkNew<vtkIndexedArray<double>> OutputSizeArray;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGenerateFieldCellSize_h

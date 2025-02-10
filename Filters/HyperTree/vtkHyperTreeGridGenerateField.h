@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkHyperTreeGridGenerateField
- * @brief vtkHyperTreeGridGenerateFields internal abstract class for field definition
+ * @brief Abstract class for field definition used by vtkHyperTreeGridGenerateFields
  *
- * This is an internal class (that doesn't inherit vtkObject) used by vtkHyperTreeGridGenerateFields
+ * This is a class used by vtkHyperTreeGridGenerateFields
  * to define the methods that need to be overridden in order to compute new fields for a HTG.
  */
 
@@ -13,15 +13,17 @@
 
 #include "vtkHyperTreeGrid.h"
 
-class vtkHyperTreeGridGenerateField
+VTK_ABI_NAMESPACE_BEGIN
+
+class vtkHyperTreeGridGenerateField : public vtkObject
 {
 public:
-  explicit vtkHyperTreeGridGenerateField(std::string arrayName)
-    : ArrayName(arrayName)
+  vtkAbstractTypeMacro(vtkHyperTreeGridGenerateField, vtkObject)
+  void PrintSelf(ostream& os, vtkIndent indent) override
   {
+    this->Superclass::PrintSelf(os, indent);
+    os << indent << "Array name: " << this->ArrayName << "\n";
   }
-
-  virtual ~vtkHyperTreeGridGenerateField() = default;
 
   /**
    * Initialize internal structures based on the given input HTG.
@@ -48,4 +50,5 @@ protected:
   std::string ArrayName;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // vtkHyperTreeGridGenerateField_h

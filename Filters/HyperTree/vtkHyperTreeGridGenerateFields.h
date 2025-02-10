@@ -79,7 +79,7 @@ private:
    */
   void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
-  std::unordered_map<std::string, std::unique_ptr<vtkHyperTreeGridGenerateField>> Fields;
+  std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateField>> Fields;
 };
 
 VTK_ABI_NAMESPACE_END

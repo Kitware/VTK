@@ -8,6 +8,22 @@
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldValidCell)
+
+  //------------------------------------------------------------------------------
+  void vtkHyperTreeGridGenerateFieldValidCell::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "InputMask size: " << (this->InputMask ? this->InputMask->GetNumberOfTuples() : 0)
+     << "\n";
+  os << indent
+     << "InputGhost size: " << (this->InputGhost ? this->InputGhost->GetNumberOfTuples() : 0)
+     << "\n";
+  os << indent << "PackedValidCellArray size: " << this->PackedValidCellArray.size() << "\n";
+  os << indent << "ValidCellsImplicitArray size: "
+     << (this->ValidCellsImplicitArray ? this->ValidCellsImplicitArray->GetNumberOfTuples() : 0)
+     << "\n";
+}
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGenerateFieldValidCell::SetLeafValidity(const vtkIdType& index)

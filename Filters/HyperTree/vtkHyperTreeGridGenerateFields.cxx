@@ -26,15 +26,15 @@
 #define vtkHTGGenerateFieldsGetFieldNameMacro(name)                                                \
   std::string vtkHyperTreeGridGenerateFields::Get##name##ArrayName() VTK_FUTURE_CONST              \
   {                                                                                                \
-    return this->Fields[#name].get()->GetArrayName();                                              \
+    return this->Fields[#name]->GetArrayName();                                                    \
   }
 
 #define vtkHTGGenerateFieldsSetFieldNameMacro(name)                                                \
   void vtkHyperTreeGridGenerateFields::Set##name##ArrayName(std::string _arg)                      \
   {                                                                                                \
-    if (this->Fields[#name].get()->GetArrayName() != _arg)                                         \
+    if (this->Fields[#name]->GetArrayName() != _arg)                                               \
     {                                                                                              \
-      this->Fields[#name].get()->SetArrayName(_arg);                                               \
+      this->Fields[#name]->SetArrayName(_arg);                                                     \
       this->Modified();                                                                            \
     }                                                                                              \
   }
@@ -50,13 +50,13 @@ vtkHTGGenerateFieldsSetFieldNameMacro(ValidCell);
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
 {
-  this->Fields.emplace("CellSize",
-    std::unique_ptr<vtkHyperTreeGridGenerateFieldCellSize>(
-      new vtkHyperTreeGridGenerateFieldCellSize("CellSize")));
+  vtkNew<vtkHyperTreeGridGenerateFieldCellSize> cellSize;
+  cellSize->SetArrayName("CellSize");
+  this->Fields.emplace("CellSize", cellSize);
 
-  this->Fields.emplace("ValidCell",
-    std::unique_ptr<vtkHyperTreeGridGenerateFieldValidCell>(
-      new vtkHyperTreeGridGenerateFieldValidCell("ValidCell")));
+  vtkNew<vtkHyperTreeGridGenerateFieldValidCell> validCell;
+  validCell->SetArrayName("ValidCell");
+  this->Fields.emplace("ValidCell", validCell);
 
   this->AppropriateOutput = true;
 };
@@ -67,7 +67,8 @@ void vtkHyperTreeGridGenerateFields::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   for (const auto& field : this->Fields)
   {
-    os << indent << field.first << " array name: " << field.second->GetArrayName() << "\n";
+    os << indent << field.first << "\n";
+    field.second->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
