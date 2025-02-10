@@ -1,9 +1,91 @@
+#ifndef DIY_MPI_WINODW_HPP
+#define DIY_MPI_WINODW_HPP
+
+#include "config.hpp"
+#include "communicator.hpp"
+#include "operations.hpp"
+
 #include <type_traits>
+#include <vector>
 
 namespace diy
 {
 namespace mpi
 {
+
+#ifndef DIY_MPI_AS_LIB
+constexpr int nocheck  = MPI_MODE_NOCHECK;
+#else
+DIY_MPI_EXPORT extern const int nocheck;
+#endif
+
+namespace detail
+{
+
+DIY_MPI_EXPORT_FUNCTION
+DIY_MPI_Win win_allocate(const communicator& comm, void** base, unsigned size, int disp);
+
+DIY_MPI_EXPORT_FUNCTION
+DIY_MPI_Win win_create(const communicator& comm, void* base, unsigned size, int disp);
+
+DIY_MPI_EXPORT_FUNCTION
+void win_free(DIY_MPI_Win& win);
+
+DIY_MPI_EXPORT_FUNCTION
+void put(const DIY_MPI_Win& win,
+         const void* data, int count, const datatype& type,
+         int rank, unsigned offset);
+
+DIY_MPI_EXPORT_FUNCTION
+void get(const DIY_MPI_Win& win,
+         void* data, int count, const datatype& type,
+         int rank, unsigned offset);
+
+DIY_MPI_EXPORT_FUNCTION
+void fence(const DIY_MPI_Win& win, int assert);
+
+DIY_MPI_EXPORT_FUNCTION
+void lock(const DIY_MPI_Win& win, int lock_type, int rank, int assert);
+
+DIY_MPI_EXPORT_FUNCTION
+void unlock(const DIY_MPI_Win& win, int rank);
+
+DIY_MPI_EXPORT_FUNCTION
+void lock_all(const DIY_MPI_Win& win, int assert);
+
+DIY_MPI_EXPORT_FUNCTION
+void unlock_all(const DIY_MPI_Win& win);
+
+DIY_MPI_EXPORT_FUNCTION
+void fetch_and_op(const DIY_MPI_Win& win,
+                  const void* origin, void* result, const datatype& type,
+                  int rank, unsigned offset,
+                  const operation& op);
+
+DIY_MPI_EXPORT_FUNCTION
+void fetch(const DIY_MPI_Win& win, void* result, const datatype& type, int rank, unsigned offset);
+
+DIY_MPI_EXPORT_FUNCTION
+void replace(const DIY_MPI_Win& win,
+             const void* value, const datatype& type,
+             int rank, unsigned offset);
+
+DIY_MPI_EXPORT_FUNCTION
+void sync(const DIY_MPI_Win& win);
+
+DIY_MPI_EXPORT_FUNCTION
+void flush(const DIY_MPI_Win& win, int rank);
+
+DIY_MPI_EXPORT_FUNCTION
+void flush_all(const DIY_MPI_Win& win);
+
+DIY_MPI_EXPORT_FUNCTION
+void flush_local(const DIY_MPI_Win& win, int rank);
+
+DIY_MPI_EXPORT_FUNCTION
+void flush_local_all(const DIY_MPI_Win& win);
+
+} // detail
 
     //! \ingroup MPI
     //! Simple wrapper around MPI window functions.
@@ -17,8 +99,8 @@ namespace mpi
             inline ~window();
 
             // moving is Ok
-            window(window&&)      = default;
-            window& operator=(window&&) = default;
+            inline window(window&&);
+            inline window& operator=(window&&);
 
             // cannot copy because of the buffer_
             window(const window&) = delete;
@@ -38,7 +120,7 @@ namespace mpi
             inline void lock_all(int assert = 0);
             inline void unlock_all();
 
-            inline void fetch_and_op(const T* origin, T* result, int rank, unsigned offset, MPI_Op op);
+            inline void fetch_and_op(const T* origin, T* result, int rank, unsigned offset, const operation& op);
             inline void fetch(T& result, int rank, unsigned offset);
             inline void replace(const T& value, int rank, unsigned offset);
 
@@ -50,32 +132,57 @@ namespace mpi
             inline void flush_local_all();
 
         private:
-            std::vector<T>      buffer_;
+            void*               buffer_;
             int                 rank_;
-#ifndef DIY_NO_MPI
-            MPI_Win             window_;
-#endif
+            DIY_MPI_Win         window_;
     };
+
 } // mpi
 } // diy
 
 template<class T>
 diy::mpi::window<T>::
-window(const communicator& comm, unsigned size):
-  buffer_(size), rank_(comm.rank())
+window(const diy::mpi::communicator& comm, unsigned size):
+  buffer_(nullptr), rank_(comm.rank())
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_create(buffer_.data(), buffer_.size()*sizeof(T), sizeof(T), MPI_INFO_NULL, comm, &window_);
-#endif
+  window_ = detail::win_allocate(comm, &buffer_, static_cast<unsigned>(size*sizeof(T)), static_cast<int>(sizeof(T)));
 }
 
 template<class T>
 diy::mpi::window<T>::
 ~window()
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_free(&window_);
-#endif
+  if (buffer_)
+    detail::win_free(window_);
+}
+
+template<class T>
+diy::mpi::window<T>::
+window(window&& rhs):
+  buffer_(rhs.buffer_), rank_(rhs.rank_), window_(std::move(rhs.window_))
+{
+  rhs.buffer_ = nullptr;
+  rhs.window_.reset();
+}
+
+template<class T>
+diy::mpi::window<T>&
+diy::mpi::window<T>::
+operator=(window&& rhs)
+{
+  if (this == &rhs)
+    return *this;
+
+  if (buffer_)
+    detail::win_free(window_);
+
+  buffer_ = rhs.buffer_;
+  rhs.buffer_ = nullptr;
+  rank_ = rhs.rank_;
+  window_ = std::move(rhs.window_);
+  rhs.window_.reset();
+
+  return *this;
 }
 
 template<class T>
@@ -83,15 +190,7 @@ void
 diy::mpi::window<T>::
 put(const T& x, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    MPI_Put(address(x), count(x), datatype(x),
-            rank,
-            offset,
-            count(x), datatype(x),
-            window_);
-#else
-    buffer_[offset] = x;
-#endif
+  detail::put(window_, address(x), count(x), datatype_of(x), rank, offset);
 }
 
 template<class T>
@@ -99,16 +198,7 @@ void
 diy::mpi::window<T>::
 put(const std::vector<T>& x, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    MPI_Put(address(x), count(x), datatype(x),
-            rank,
-            offset,
-            count(x), datatype(x),
-            window_);
-#else
-    for (size_t i = 0; i < x.size(); ++i)
-        buffer_[offset + i] = x[i];
-#endif
+  detail::put(window_, address(x), count(x), datatype_of(x), rank, offset);
 }
 
 template<class T>
@@ -116,15 +206,7 @@ void
 diy::mpi::window<T>::
 get(T& x, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    MPI_Get(address(x), count(x), datatype(x),
-            rank,
-            offset,
-            count(x), datatype(x),
-            window_);
-#else
-    x = buffer_[offset];
-#endif
+  detail::get(window_, address(x), count(x), datatype_of(x), rank, offset);
 }
 
 template<class T>
@@ -132,16 +214,7 @@ void
 diy::mpi::window<T>::
 get(std::vector<T>& x, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    MPI_Get(address(x), count(x), datatype(x),
-            rank,
-            offset,
-            count(x), datatype(x),
-            window_);
-#else
-    for (size_t i = 0; i < x.size(); ++i)
-        x[i] = buffer_[offset + i];
-#endif
+  detail::get(window_, address(x), count(x), datatype_of(x), rank, offset);
 }
 
 template<class T>
@@ -149,9 +222,7 @@ void
 diy::mpi::window<T>::
 fence(int assert)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_fence(assert, window_);
-#endif
+  detail::fence(window_, assert);
 }
 
 template<class T>
@@ -159,9 +230,7 @@ void
 diy::mpi::window<T>::
 lock(int lock_type, int rank, int assert)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_lock(lock_type, rank, assert, window_);
-#endif
+  detail::lock(window_, lock_type, rank, assert);
 }
 
 template<class T>
@@ -169,9 +238,7 @@ void
 diy::mpi::window<T>::
 unlock(int rank)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_unlock(rank, window_);
-#endif
+  detail::unlock(window_, rank);
 }
 
 template<class T>
@@ -179,9 +246,7 @@ void
 diy::mpi::window<T>::
 lock_all(int assert)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_lock_all(assert, window_);
-#endif
+  detail::lock_all(window_, assert);
 }
 
 template<class T>
@@ -189,20 +254,15 @@ void
 diy::mpi::window<T>::
 unlock_all()
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_unlock_all(window_);
-#endif
+  detail::unlock_all(window_);
 }
+
 template<class T>
 void
 diy::mpi::window<T>::
-fetch_and_op(const T* origin, T* result, int rank, unsigned offset, MPI_Op op)
+fetch_and_op(const T* origin, T* result, int rank, unsigned offset, const diy::mpi::operation& op)
 {
-#ifndef DIY_NO_MPI
-    MPI_Fetch_and_op(origin, result, datatype(*origin), rank, offset, op, window_);
-#else
-    DIY_UNSUPPORTED_MPI_CALL(MPI_Fetch_and_op);
-#endif
+  detail::fetch_and_op(window_, origin, result, datatype_of(*origin), rank, offset, op);
 }
 
 template<class T>
@@ -210,12 +270,7 @@ void
 diy::mpi::window<T>::
 fetch(T& result, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    T unused;
-    fetch_and_op(&unused, &result, rank, offset, MPI_NO_OP);
-#else
-    result = buffer_[offset];
-#endif
+  detail::fetch(window_, &result, datatype_of(result), rank, offset);
 }
 
 template<class T>
@@ -223,12 +278,7 @@ void
 diy::mpi::window<T>::
 replace(const T& value, int rank, unsigned offset)
 {
-#ifndef DIY_NO_MPI
-    T unused;
-    fetch_and_op(&value, &unused, rank, offset, MPI_REPLACE);
-#else
-    buffer_[offset] = value;
-#endif
+  detail::replace(window_, &value, datatype_of(value), rank, offset);
 }
 
 template<class T>
@@ -236,9 +286,7 @@ void
 diy::mpi::window<T>::
 sync()
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_sync(window_);
-#endif
+  detail::sync(window_);
 }
 
 template<class T>
@@ -246,9 +294,7 @@ void
 diy::mpi::window<T>::
 flush(int rank)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_flush(rank, window_);
-#endif
+  detail::flush(window_, rank);
 }
 
 template<class T>
@@ -256,9 +302,7 @@ void
 diy::mpi::window<T>::
 flush_all()
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_flush_all(window_);
-#endif
+  detail::flush_all(window_);
 }
 
 template<class T>
@@ -266,9 +310,7 @@ void
 diy::mpi::window<T>::
 flush_local(int rank)
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_flush_local(rank, window_);
-#endif
+  detail::flush_local(window_, rank);
 }
 
 template<class T>
@@ -276,7 +318,11 @@ void
 diy::mpi::window<T>::
 flush_local_all()
 {
-#ifndef DIY_NO_MPI
-    MPI_Win_flush_local_all(window_);
-#endif
+  detail::flush_local_all(window_);
 }
+
+#ifndef DIY_MPI_AS_LIB
+#include "window.cpp"
+#endif
+
+#endif // DIY_MPI_WINODW_HPP

@@ -84,7 +84,7 @@ namespace diy
       // direction
       int       direction(Direction dir) const;         // convert direction to a neighbor (-1 if no neighbor)
       Direction direction(int i) const                  { return dir_vec_[i]; }
-      void      add_direction(Direction dir)            { int c = dir_map_.size(); dir_map_[dir] = c; dir_vec_.push_back(dir); }
+      void      add_direction(Direction dir)            { auto c = static_cast<int>(dir_map_.size()); dir_map_[dir] = c; dir_vec_.push_back(dir); }
 
       // wrap
       void       add_wrap(Direction dir)                { wrap_.push_back(dir); }

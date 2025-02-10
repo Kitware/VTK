@@ -10,7 +10,7 @@ namespace detail
     template<class F>
     struct block_traits
     {
-        typedef typename std::remove_pointer<typename function_traits<F>::template arg<0>::type>::type type;
+        typedef typename std::remove_pointer<typename std::remove_reference<typename function_traits<F>::template arg<0>::type>::type>::type type;
     };
 
     // matches block member functions

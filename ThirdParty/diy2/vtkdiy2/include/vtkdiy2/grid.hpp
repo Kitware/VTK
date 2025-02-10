@@ -55,7 +55,7 @@ struct GridRef
         inline
         Vertex      vertex(Index idx) const;
 
-        Index       index(const Vertex& v) const                { Index idx = 0; for (unsigned i = 0; i < D; ++i) { idx += ((Index) v[i]) * ((Index) stride_[i]); } return idx; }
+        Index       index(const Vertex& v) const                { Index idx = 0; for (unsigned i = 0; i < D; ++i) { idx += ((Index) v[i]) * stride_[i]; } return idx; }
 
         Index       size() const                                { return size(shape()); }
         void        swap(GridRef& other)                        { std::swap(data_, other.data_); std::swap(shape_, other.shape_); std::swap(stride_, other.stride_); std::swap(c_order_, other.c_order_); }
@@ -65,6 +65,8 @@ struct GridRef
         static constexpr
         unsigned    dimension()                                 { return D; }
 
+        bool        contains(const Vertex& v)                   { for (unsigned i = 0; i < D; ++i) { if (v[i] < 0 || v[i] >= shape_[i]) return false;} return true; }
+
     protected:
         static Index
                 size(const Vertex& v)                           { Index res = 1; for (unsigned i = 0; i < D; ++i) res *= v[i]; return res; }
@@ -73,10 +75,9 @@ struct GridRef
         {
             Index cur = 1;
             if (c_order_)
-                for (unsigned i = D; i > 0; --i) { stride_[i-1] = cur; cur *= shape_[i-1]; }
+                for (unsigned i = D; i > 0; --i) { stride_[i-1] = cur; cur *= static_cast<Index>(shape_[i-1]); }
             else
-                for (unsigned i = 0; i < D; ++i) { stride_[i] = cur; cur *= shape_[i]; }
-
+                for (unsigned i = 0; i < D; ++i) { stride_[i] = cur; cur *= static_cast<Index>(shape_[i]); }
         }
         void    set_shape(const Vertex& v)                      { shape_ = v; set_stride(); }
         void    set_data(C* data)                               { data_ = data; }
@@ -85,7 +86,7 @@ struct GridRef
     private:
         C*      data_;
         Vertex  shape_;
-        Vertex  stride_;
+        diy::Point<Index, D> stride_;
         bool    c_order_;
 };
 
@@ -107,8 +108,8 @@ struct Grid: public GridRef<C,D>
                 Grid():
                     Parent(new C[0], Vertex::zero())            {}
         template<class Int>
-                Grid(const Point<Int, D>& shape, bool c_order = true):
-                    Parent(new C[size(shape)], shape, c_order)
+                Grid(const Point<Int, D>& s, bool c_order = true):
+                    Parent(new C[size(s)], s, c_order)
                 {}
 
                 Grid(Grid&& g): Grid()                          { Parent::swap(g); }
@@ -147,11 +148,11 @@ struct Grid: public GridRef<C,D>
 
     private:
         template<class OC>
-        void    copy_data(const OC* data)
+        void    copy_data(const OC* data_)
         {
             Index s = size(shape());
             for (Index i = 0; i < s; ++i)
-                Parent::data()[i] = data[i];
+                Parent::data()[i] = data_[i];
         }
 };
 
@@ -181,13 +182,13 @@ vertex(typename GridRef<C, D>::Index idx) const
     if (c_order())
         for (unsigned i = 0; i < D; ++i)
         {
-            v[i] = idx / stride_[i];
+            v[i] = static_cast<int>(idx / stride_[i]);
             idx %= stride_[i];
         }
     else
         for (int i = D-1; i >= 0; --i)
         {
-            v[i] = idx / stride_[i];
+            v[i] = static_cast<int>(idx / stride_[i]);
             idx %= stride_[i];
         }
     return v;

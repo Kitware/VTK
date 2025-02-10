@@ -1,31 +1,42 @@
-// A C++ interface to POSIX functions.
+// Formatting library for C++ - optional OS-specific functionality
 //
-// Copyright (c) 2012 - 2016, Victor Zverovich
+// Copyright (c) 2012 - present, Victor Zverovich
 // All rights reserved.
 //
 // For the license information refer to format.h.
 
-#ifndef FMT_POSIX_H_
-#define FMT_POSIX_H_
+#ifndef FMT_OS_H_
+#define FMT_OS_H_
 
 #if defined(__MINGW32__) || defined(__CYGWIN__)
 // Workaround MinGW bug https://sourceforge.net/p/mingw/bugs/2024/.
 #  undef __STRICT_ANSI__
 #endif
 
-#include <errno.h>
-#include <fcntl.h>   // for O_RDONLY
-#include <locale.h>  // for locale_t
-#include <stdio.h>
-#include <stdlib.h>  // for strtod_l
-
+#include <cerrno>
+#include <clocale>  // for locale_t
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>  // for strtod_l
 
 #if defined __APPLE__ || defined(__FreeBSD__)
 #  include <xlocale.h>  // for LC_NUMERIC_MASK on OS X
 #endif
 
 #include "format.h"
+
+// UWP doesn't provide _pipe.
+#if FMT_HAS_INCLUDE("winapifamily.h")
+#  include <winapifamily.h>
+#endif
+#if (FMT_HAS_INCLUDE(<fcntl.h>) || defined(__APPLE__) || \
+     defined(__linux__)) &&                              \
+    (!defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP))
+#  include <fcntl.h>  // for O_RDONLY
+#  define FMT_USE_FCNTL 1
+#else
+#  define FMT_USE_FCNTL 0
+#endif
 
 #ifndef FMT_POSIX
 #  if defined(_WIN32) && !defined(__MINGW32__)
@@ -40,7 +51,7 @@
 #ifdef FMT_SYSTEM
 #  define FMT_POSIX_CALL(call) FMT_SYSTEM(call)
 #else
-#  define FMT_SYSTEM(call) call
+#  define FMT_SYSTEM(call) ::call
 #  ifdef _WIN32
 // Fix warnings about deprecated symbols.
 #    define FMT_POSIX_CALL(call) ::_##call
@@ -54,8 +65,8 @@
 #ifndef _WIN32
 #  define FMT_RETRY_VAL(result, expression, error_result) \
     do {                                                  \
-      result = (expression);                              \
-    } while (result == error_result && errno == EINTR)
+      (result) = (expression);                            \
+    } while ((result) == (error_result) && errno == EINTR)
 #else
 #  define FMT_RETRY_VAL(result, expression, error_result) result = (expression)
 #endif
@@ -122,6 +133,78 @@ class error_code {
   int get() const FMT_NOEXCEPT { return value_; }
 };
 
+#ifdef _WIN32
+namespace detail {
+// A converter from UTF-16 to UTF-8.
+// It is only provided for Windows since other systems support UTF-8 natively.
+class utf16_to_utf8 {
+ private:
+  memory_buffer buffer_;
+
+ public:
+  utf16_to_utf8() {}
+  FMT_API explicit utf16_to_utf8(wstring_view s);
+  operator string_view() const { return string_view(&buffer_[0], size()); }
+  size_t size() const { return buffer_.size() - 1; }
+  const char* c_str() const { return &buffer_[0]; }
+  std::string str() const { return std::string(&buffer_[0], size()); }
+
+  // Performs conversion returning a system error code instead of
+  // throwing exception on conversion error. This method may still throw
+  // in case of memory allocation error.
+  FMT_API int convert(wstring_view s);
+};
+
+FMT_API void format_windows_error(buffer<char>& out, int error_code,
+                                  string_view message) FMT_NOEXCEPT;
+}  // namespace detail
+
+/** A Windows error. */
+class windows_error : public system_error {
+ private:
+  FMT_API void init(int error_code, string_view format_str, format_args args);
+
+ public:
+  /**
+   \rst
+   Constructs a :class:`fmt::windows_error` object with the description
+   of the form
+
+   .. parsed-literal::
+     *<message>*: *<system-message>*
+
+   where *<message>* is the formatted message and *<system-message>* is the
+   system message corresponding to the error code.
+   *error_code* is a Windows error code as given by ``GetLastError``.
+   If *error_code* is not a valid error code such as -1, the system message
+   will look like "error -1".
+
+   **Example**::
+
+     // This throws a windows_error with the description
+     //   cannot open file 'madeup': The system cannot find the file specified.
+     // or similar (system message may vary).
+     const char *filename = "madeup";
+     LPOFSTRUCT of = LPOFSTRUCT();
+     HFILE file = OpenFile(filename, &of, OF_READ);
+     if (file == HFILE_ERROR) {
+       throw fmt::windows_error(GetLastError(),
+                                "cannot open file '{}'", filename);
+     }
+   \endrst
+  */
+  template <typename... Args>
+  windows_error(int error_code, string_view message, const Args&... args) {
+    init(error_code, message, make_format_args(args...));
+  }
+};
+
+// Reports a Windows error without throwing an exception.
+// Can be used to report errors from destructors.
+FMT_API void report_windows_error(int error_code,
+                                  string_view message) FMT_NOEXCEPT;
+#endif  // _WIN32
+
 // A buffered file.
 class buffered_file {
  private:
@@ -132,15 +215,14 @@ class buffered_file {
   explicit buffered_file(FILE* f) : file_(f) {}
 
  public:
+  buffered_file(const buffered_file&) = delete;
+  void operator=(const buffered_file&) = delete;
+
   // Constructs a buffered_file object which doesn't represent any file.
   buffered_file() FMT_NOEXCEPT : file_(nullptr) {}
 
   // Destroys the object closing the file it represents if any.
   FMT_API ~buffered_file() FMT_NOEXCEPT;
-
- private:
-  buffered_file(const buffered_file&) = delete;
-  void operator=(const buffered_file&) = delete;
 
  public:
   buffered_file(buffered_file&& other) FMT_NOEXCEPT : file_(other.file_) {
@@ -177,6 +259,7 @@ class buffered_file {
   }
 };
 
+#if FMT_USE_FCNTL
 // A file. Closed file is represented by a file object with descriptor -1.
 // Methods that are not declared with FMT_NOEXCEPT may throw
 // fmt::system_error in case of failure. Note that some errors such as
@@ -195,7 +278,9 @@ class file {
   enum {
     RDONLY = FMT_POSIX(O_RDONLY),  // Open for reading only.
     WRONLY = FMT_POSIX(O_WRONLY),  // Open for writing only.
-    RDWR = FMT_POSIX(O_RDWR)       // Open for reading and writing.
+    RDWR = FMT_POSIX(O_RDWR),      // Open for reading and writing.
+    CREATE = FMT_POSIX(O_CREAT),   // Create if the file doesn't exist.
+    APPEND = FMT_POSIX(O_APPEND)   // Open in append mode.
   };
 
   // Constructs a file object which doesn't represent any file.
@@ -204,14 +289,13 @@ class file {
   // Opens a file and constructs a file object representing this file.
   FMT_API file(cstring_view path, int oflag);
 
- private:
+ public:
   file(const file&) = delete;
   void operator=(const file&) = delete;
 
- public:
   file(file&& other) FMT_NOEXCEPT : fd_(other.fd_) { other.fd_ = -1; }
 
-  file& operator=(file&& other) {
+  file& operator=(file&& other) FMT_NOEXCEPT {
     close();
     fd_ = other.fd_;
     other.fd_ = -1;
@@ -232,10 +316,10 @@ class file {
   FMT_API long long size() const;
 
   // Attempts to read count bytes from the file into the specified buffer.
-  FMT_API std::size_t read(void* buffer, std::size_t count);
+  FMT_API size_t read(void* buffer, size_t count);
 
   // Attempts to write count bytes from the specified buffer to the file.
-  FMT_API std::size_t write(const void* buffer, std::size_t count);
+  FMT_API size_t write(const void* buffer, size_t count);
 
   // Duplicates a file descriptor with the dup function and returns
   // the duplicate as a file object.
@@ -261,38 +345,122 @@ class file {
 // Returns the memory page size.
 long getpagesize();
 
+namespace detail {
+
+struct buffer_size {
+  size_t value = 0;
+  buffer_size operator=(size_t val) const {
+    auto bs = buffer_size();
+    bs.value = val;
+    return bs;
+  }
+};
+
+struct ostream_params {
+  int oflag = file::WRONLY | file::CREATE;
+  size_t buffer_size = BUFSIZ > 32768 ? BUFSIZ : 32768;
+
+  ostream_params() {}
+
+  template <typename... T>
+  ostream_params(T... params, int oflag) : ostream_params(params...) {
+    this->oflag = oflag;
+  }
+
+  template <typename... T>
+  ostream_params(T... params, detail::buffer_size bs)
+      : ostream_params(params...) {
+    this->buffer_size = bs.value;
+  }
+};
+}  // namespace detail
+
+static constexpr detail::buffer_size buffer_size;
+
+// A fast output stream which is not thread-safe.
+class ostream final : private detail::buffer<char> {
+ private:
+  file file_;
+
+  void flush() {
+    if (size() == 0) return;
+    file_.write(data(), size());
+    clear();
+  }
+
+  FMT_API void grow(size_t) override final;
+
+  ostream(cstring_view path, const detail::ostream_params& params)
+      : file_(path, params.oflag) {
+    set(new char[params.buffer_size], params.buffer_size);
+  }
+
+ public:
+  ostream(ostream&& other)
+      : detail::buffer<char>(other.data(), other.size(), other.capacity()),
+        file_(std::move(other.file_)) {
+    other.set(nullptr, 0);
+  }
+  ~ostream() {
+    flush();
+    delete[] data();
+  }
+
+  template <typename... T>
+  friend ostream output_file(cstring_view path, T... params);
+
+  void close() {
+    flush();
+    file_.close();
+  }
+
+  template <typename S, typename... Args>
+  void print(const S& format_str, const Args&... args) {
+    format_to(detail::buffer_appender<char>(*this), format_str, args...);
+  }
+};
+
+/**
+  Opens a file for writing. Supported parameters passed in `params`:
+  * ``<integer>``: Output flags (``file::WRONLY | file::CREATE`` by default)
+  * ``buffer_size=<integer>``: Output buffer size
+ */
+template <typename... T>
+inline ostream output_file(cstring_view path, T... params) {
+  return {path, detail::ostream_params(params...)};
+}
+#endif  // FMT_USE_FCNTL
+
 #ifdef FMT_LOCALE
 // A "C" numeric locale.
-class Locale {
+class locale {
  private:
 #  ifdef _WIN32
   using locale_t = _locale_t;
 
-  enum { LC_NUMERIC_MASK = LC_NUMERIC };
+  static void freelocale(locale_t loc) { _free_locale(loc); }
 
-  static locale_t newlocale(int category_mask, const char* locale, locale_t) {
-    return _create_locale(category_mask, locale);
-  }
-
-  static void freelocale(locale_t locale) { _free_locale(locale); }
-
-  static double strtod_l(const char* nptr, char** endptr, _locale_t locale) {
-    return _strtod_l(nptr, endptr, locale);
+  static double strtod_l(const char* nptr, char** endptr, _locale_t loc) {
+    return _strtod_l(nptr, endptr, loc);
   }
 #  endif
 
   locale_t locale_;
 
-  Locale(const Locale&) = delete;
-  void operator=(const Locale&) = delete;
-
  public:
   using type = locale_t;
+  locale(const locale&) = delete;
+  void operator=(const locale&) = delete;
 
-  Locale() : locale_(newlocale(LC_NUMERIC_MASK, "C", nullptr)) {
+  locale() {
+#  ifndef _WIN32
+    locale_ = FMT_SYSTEM(newlocale(LC_NUMERIC_MASK, "C", nullptr));
+#  else
+    locale_ = _create_locale(LC_NUMERIC, "C");
+#  endif
     if (!locale_) FMT_THROW(system_error(errno, "cannot create locale"));
   }
-  ~Locale() { freelocale(locale_); }
+  ~locale() { freelocale(locale_); }
 
   type get() const { return locale_; }
 
@@ -305,7 +473,8 @@ class Locale {
     return result;
   }
 };
+using Locale FMT_DEPRECATED_ALIAS = locale;
 #endif  // FMT_LOCALE
 FMT_END_NAMESPACE
 
-#endif  // FMT_POSIX_H_
+#endif  // FMT_OS_H_

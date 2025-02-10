@@ -68,10 +68,10 @@ struct diy::detail::KDTreePartners
                         wrap(wrap_),
                         domain(domain_)
   {
-    for (unsigned i = 0; i < swap.rounds(); ++i)
+    for (int i = 0; i < swap.rounds(); ++i)
     {
       // fill histogram rounds
-      for (unsigned j = 0; j < histogram.rounds(); ++j)
+      for (int j = 0; j < histogram.rounds(); ++j)
       {
         rounds_.push_back(std::make_pair(false, j));
         dim_.push_back(i % dim);
@@ -115,7 +115,7 @@ struct diy::detail::KDTreePartners
     else if (swap_round(round) && sub_round(round) < 0)       // link round
         swap.incoming(sub_round(round - 1) + 1, gid, partners, m);
     else if (swap_round(round))
-        histogram.incoming(histogram.rounds(), gid, partners, m);
+        histogram.incoming(static_cast<int>(histogram.rounds()), gid, partners, m);
     else
     {
         if (round > 0 && sub_round(round) == 0)
@@ -177,7 +177,7 @@ operator()(Block* b, const diy::ReduceProxy& srp, const KDTreePartners& partners
         dim = partners.dim(srp.round() - 1);
 
     if (srp.round() == partners.rounds())
-        update_links(b, srp, dim, partners.sub_round(srp.round() - 2), partners.swap_rounds(), partners.wrap, partners.domain); // -1 would be the "uninformative" link round
+        update_links(b, srp, dim, partners.sub_round((int)srp.round() - 2), (int)partners.swap_rounds(), partners.wrap, partners.domain); // -1 would be the "uninformative" link round
     else if (partners.swap_round(srp.round()) && partners.sub_round(srp.round()) < 0)       // link round
     {
         dequeue_exchange(b, srp, dim);         // from the swap round
@@ -195,7 +195,7 @@ operator()(Block* b, const diy::ReduceProxy& srp, const KDTreePartners& partners
             int prev_dim = dim - 1;
             if (prev_dim < 0)
                 prev_dim += dim_;
-            update_links(b, srp, prev_dim, partners.sub_round(srp.round() - 2), partners.swap_rounds(), partners.wrap, partners.domain);    // -1 would be the "uninformative" link round
+            update_links(b, srp, prev_dim, partners.sub_round((int)srp.round() - 2), (int)partners.swap_rounds(), partners.wrap, partners.domain);    // -1 would be the "uninformative" link round
         }
 
         compute_local_histogram(b, srp, dim);
@@ -229,7 +229,7 @@ divide_gid(int gid, bool lower, int round, int rounds) const
 template<class Block, class Point>
 void
 diy::detail::KDTreePartition<Block,Point>::
-update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int rounds, bool wrap, const Bounds& domain) const
+update_links(Block*, const diy::ReduceProxy& srp, int dim, int round, int rounds, bool wrap, const Bounds& domain) const
 {
     int         gid  = srp.gid();
     int         lid  = srp.master()->lid(gid);
@@ -346,7 +346,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
 template<class Block, class Point>
 void
 diy::detail::KDTreePartition<Block,Point>::
-split_to_neighbors(Block* b, const diy::ReduceProxy& srp, int dim) const
+split_to_neighbors(Block*, const diy::ReduceProxy& srp, int) const
 {
     int         lid  = srp.master()->lid(srp.gid());
     RCLink*     link = static_cast<RCLink*>(srp.master()->link(lid));
@@ -366,20 +366,23 @@ void
 diy::detail::KDTreePartition<Block,Point>::
 compute_local_histogram(Block* b, const diy::ReduceProxy& srp, int dim) const
 {
+    auto udim = static_cast<unsigned>(dim);
     int         lid  = srp.master()->lid(srp.gid());
     RCLink*     link = static_cast<RCLink*>(srp.master()->link(lid));
 
     // compute and enqueue local histogram
     Histogram histogram(bins_);
 
-    float   width = (link->core().max[dim] - link->core().min[dim])/bins_;
+    float   width = (link->core().max[udim] - link->core().min[udim])/bins_;
     for (size_t i = 0; i < (b->*points_).size(); ++i)
     {
-        float x = (b->*points_)[i][dim];
-        int loc = (x - link->core().min[dim]) / width;
-        if (loc < 0)
-            throw std::runtime_error(fmt::format("{} {} {}", loc, x, link->core().min[dim]));
-        if (loc >= (int) bins_)
+        float x = (b->*points_)[i][udim];
+        float floc = (x - link->core().min[udim]) / width;
+        if (floc < 0)
+            throw std::runtime_error(fmt::format("{} {} {}", floc, x, link->core().min[udim]));
+
+        auto loc = static_cast<size_t>(floc);
+        if (loc >= bins_)
             loc = bins_ - 1;
         ++(histogram[loc]);
     }
@@ -390,7 +393,7 @@ compute_local_histogram(Block* b, const diy::ReduceProxy& srp, int dim) const
 template<class Block, class Point>
 void
 diy::detail::KDTreePartition<Block,Point>::
-add_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const
+add_histogram(Block*, const diy::ReduceProxy& srp, Histogram& histogram) const
 {
     // dequeue and add up the histograms
     for (int i = 0; i < srp.in_link().size(); ++i)
@@ -407,7 +410,7 @@ add_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const
 template<class Block, class Point>
 void
 diy::detail::KDTreePartition<Block,Point>::
-receive_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const
+receive_histogram(Block*, const diy::ReduceProxy& srp, Histogram& histogram) const
 {
     srp.dequeue(srp.in_link().target(0).gid, histogram);
 }
@@ -415,7 +418,7 @@ receive_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) c
 template<class Block, class Point>
 void
 diy::detail::KDTreePartition<Block,Point>::
-forward_histogram(Block* b, const diy::ReduceProxy& srp, const Histogram& histogram) const
+forward_histogram(Block*, const diy::ReduceProxy& srp, const Histogram& histogram) const
 {
     for (int i = 0; i < srp.out_link().size(); ++i)
         srp.enqueue(srp.out_link().target(i), histogram);
@@ -445,22 +448,26 @@ enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram
     size_t cur   = 0;
     float  width = (link->core().max[dim] - link->core().min[dim])/bins_;
     float  split = 0;
-    size_t i = 0;
-    for (; i < histogram.size(); ++i)
+
+    // scope-block for variable `i`
     {
-        if (cur + histogram[i] > total/2)
-            break;
-        cur += histogram[i];
+        size_t i = 0;
+        for (; i < histogram.size(); ++i)
+        {
+            if (cur + histogram[i] > total/2)
+                break;
+            cur += histogram[i];
+        }
+        if (i == 0)
+            ++i;
+        else if (i >= histogram.size() - 1)
+            i = histogram.size() - 2;
+        split = link->core().min[dim] + width*i;
+        log->trace("Found split: {} (dim={}) in {} - {}", split, dim, link->core().min[dim], link->core().max[dim]);
     }
-    if (i == 0)
-        ++i;
-    else if (i >= histogram.size() - 1)
-        i = histogram.size() - 2;
-    split = link->core().min[dim] + width*i;
-    log->trace("Found split: {} (dim={}) in {} - {}", split, dim, link->core().min[dim], link->core().max[dim]);
 
     // subset and enqueue
-    std::vector< std::vector<Point> > out_points(srp.out_link().size());
+    std::vector< std::vector<Point> > out_points(static_cast<size_t>(srp.out_link().size()));
     for (size_t i = 0; i < (b->*points_).size(); ++i)
     {
       float x = (b->*points_)[i][dim];

@@ -18,6 +18,8 @@ namespace diy
     template<class Function, class... Args>
     explicit            thread(Function&& f, Args&&... args)      { f(args...); }       // not ideal, since it doesn't support member functions
 
+    thread&             operator=(thread&&)                       = default;
+
     void                join()                                    {}
 
     static unsigned     hardware_concurrency()                    { return 1; }
@@ -31,7 +33,12 @@ namespace diy
   struct lock_guard
   {
       lock_guard(T&)        {}
+      void lock()           {}
+      void unlock()         {}
   };
+
+  template<class T, class U>
+  using concurrent_map = std::map<T,U>;
 
   namespace this_thread
   {

@@ -5,6 +5,8 @@
 #include <direct.h>
 #include <io.h>
 #include <share.h>
+#define NOMINMAX
+#include <windows.h>
 #else
 #include <unistd.h>     // mkstemp() on Mac
 #include <dirent.h>
