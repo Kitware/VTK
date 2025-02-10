@@ -486,10 +486,6 @@ struct EvaluatePoints
   }
 };
 
-//-----------------------------------------------------------------------------
-template <typename TInputIdType, bool InsideOut>
-constexpr TInputIdType EvaluatePoints<TInputIdType, InsideOut>::InsideOutValues[2];
-
 // 8 because of hexahedron.
 constexpr int MAX_CELL_SIZE = 8;
 
