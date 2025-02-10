@@ -137,7 +137,7 @@ public:
   ///@{
   /**
    * Enable/disable Qt touch event processing. Basic QEvent::TouchBegin/
-   TouchUpdate/TouchEnd event will be/not be processed.
+   TouchUpdate/TouchEnd event will be/not be processed. Default is true.
    */
   void setEnableTouchEventProcessing(bool value);
   ///@}

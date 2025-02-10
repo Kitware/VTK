@@ -187,7 +187,7 @@ protected: // NOLINT(readability-redundant-access-specifiers)
 
 private:
   Q_DISABLE_COPY(QVTKOpenGLWindow);
-  bool EnableTouchEventProcessing;
+  bool EnableTouchEventProcessing = true;
   bool EnableHiDPI;
   int UnscaledDPI;
   double CustomDevicePixelRatio;

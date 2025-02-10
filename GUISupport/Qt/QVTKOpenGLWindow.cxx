@@ -45,7 +45,6 @@ QVTKOpenGLWindow::QVTKOpenGLWindow(vtkGenericOpenGLRenderWindow* renderWin,
   : Superclass(shareContext, ub, p)
   , RenderWindow(nullptr)
   , RenderWindowAdapter(nullptr)
-  , EnableTouchEventProcessing(true)
   , EnableHiDPI(true)
   , UnscaledDPI(72)
   , CustomDevicePixelRatio(0.0)

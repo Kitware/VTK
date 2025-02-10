@@ -37,7 +37,6 @@ QVTKOpenGLNativeWidget::QVTKOpenGLNativeWidget(
   : Superclass(parentWdg, f)
   , RenderWindow(nullptr)
   , RenderWindowAdapter(nullptr)
-  , EnableTouchEventProcessing(true)
   , EnableHiDPI(true)
   , UnscaledDPI(72)
   , CustomDevicePixelRatio(0.0)
