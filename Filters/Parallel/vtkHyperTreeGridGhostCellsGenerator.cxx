@@ -17,11 +17,25 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGhostCellsGenerator);
+vtkCxxSetObjectMacro(vtkHyperTreeGridGhostCellsGenerator, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGhostCellsGenerator::vtkHyperTreeGridGhostCellsGenerator()
 {
   this->AppropriateOutput = true;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
+}
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridGhostCellsGenerator::~vtkHyperTreeGridGhostCellsGenerator()
+{
+  this->SetController(nullptr);
+}
+
+//------------------------------------------------------------------------------
+vtkMultiProcessController* vtkHyperTreeGridGhostCellsGenerator::GetController()
+{
+  return this->Controller.Get();
 }
 
 //------------------------------------------------------------------------------
@@ -96,6 +110,11 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
     return 0;
   }
 
+  if (!inputHTG)
+  {
+    vtkWarningMacro("Incorrect HTG for piece " << currentPiece);
+  }
+
   // Make sure every HTG piece has a correct extent and can be processed.
   // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
   // or by none, and avoids getting stuck on barriers.
@@ -109,14 +128,16 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
   }
 
   int allCorrect = 1; // Reduction operation cannot be done on bools
-  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-  controller->AllReduce(&correctExtent, &allCorrect, 1, vtkCommunicator::LOGICAL_AND_OP);
+  this->Controller->AllReduce(&correctExtent, &allCorrect, 1, vtkCommunicator::LOGICAL_AND_OP);
 
   if (!allCorrect)
   {
     vtkWarningMacro("Every individual distributed process does not have a valid HTG extent. No "
                     "ghost cells will be generated.");
-    outputHTG->ShallowCopy(inputHTG);
+    if (outputHTG)
+    {
+      outputHTG->ShallowCopy(inputHTG);
+    }
     return 1;
   }
   else if (!this->ProcessTrees(inputHTG, outputHTG))
@@ -133,8 +154,7 @@ int vtkHyperTreeGridGhostCellsGenerator::RequestData(vtkInformation* vtkNotUsed(
 int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
   vtkHyperTreeGrid* input, vtkDataObject* outputDO)
 {
-  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
-  int numberOfProcesses = controller->GetNumberOfProcesses();
+  int numberOfProcesses = this->Controller->GetNumberOfProcesses();
 
   vtkHyperTreeGrid* output = vtkHyperTreeGrid::SafeDownCast(outputDO);
   if (!output)
@@ -164,7 +184,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     output->GetCellData()->CopyStructure(input->GetCellData());
   }
 
-  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this, controller, input, output };
+  vtkHyperTreeGridGhostCellsGeneratorInternals subroutines{ this, this->Controller, input, output };
   subroutines.InitializeCellData();
   this->UpdateProgress(0.1);
 
@@ -183,7 +203,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     vtkErrorMacro("Failure during size exchange, aborting.");
     return 0;
   }
-  controller->Barrier();
+  this->Controller->Barrier();
   this->UpdateProgress(0.4);
 
   vtkDebugMacro("Exchange tree decomposition and masks with neighbors");
@@ -192,7 +212,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
     vtkErrorMacro("Failure during mask exchange, aborting.");
     return 0;
   }
-  controller->Barrier();
+  this->Controller->Barrier();
   this->UpdateProgress(0.6);
 
   vtkDebugMacro("Exchange cell data with neighbors");
@@ -202,7 +222,7 @@ int vtkHyperTreeGridGhostCellsGenerator::ProcessTrees(
 
     return 0;
   }
-  controller->Barrier();
+  this->Controller->Barrier();
   this->UpdateProgress(0.8);
 
   vtkDebugMacro("Create ghost array and set output mask");

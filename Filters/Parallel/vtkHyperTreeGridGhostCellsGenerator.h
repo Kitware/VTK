@@ -29,6 +29,7 @@
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkWeakPointer.h" // for vtkWeakPointer
 
 #include <vector> // For vtkHypertreeGridGhostCellsGenerator::ExtractInterface
 
@@ -48,9 +49,18 @@ public:
   vtkTypeMacro(vtkHyperTreeGridGhostCellsGenerator, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /**
+   * Get/Set the controller to use. By default
+   * vtkMultiProcessController::GlobalController will be used.
+   */
+  virtual void SetController(vtkMultiProcessController*);
+  vtkMultiProcessController* GetController();
+  ///@}
+
 protected:
   vtkHyperTreeGridGhostCellsGenerator();
-  ~vtkHyperTreeGridGhostCellsGenerator() override = default;
+  ~vtkHyperTreeGridGhostCellsGenerator() override;
 
   struct vtkInternals;
 
@@ -103,6 +113,8 @@ protected:
 private:
   vtkHyperTreeGridGhostCellsGenerator(const vtkHyperTreeGridGhostCellsGenerator&) = delete;
   void operator=(const vtkHyperTreeGridGhostCellsGenerator&) = delete;
+
+  vtkWeakPointer<vtkMultiProcessController> Controller;
 };
 
 VTK_ABI_NAMESPACE_END
