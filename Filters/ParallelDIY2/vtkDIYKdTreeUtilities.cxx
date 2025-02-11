@@ -263,7 +263,7 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
       }
       else
       {
-        block->BlockBounds.resize(srp.in_link().size());
+        block->BlockBounds.resize(srp.in_link().size(), diy::ContinuousBounds(0));
         for (int i = 0; i < srp.in_link().size(); ++i)
         {
           assert(i == srp.in_link().target(i).gid);

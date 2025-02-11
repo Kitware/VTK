@@ -79,21 +79,21 @@ parse_npy_header(BOV::Shape& shape, bool& fortran_order)
     header = header.substr(11, nl - 11 + 1);
     size_t header_size = nl + 1;
 
-    int loc1, loc2;
+    size_t loc1, loc2;
 
     //fortran order
     loc1 = header.find("fortran_order")+16;
     fortran_order = (header.substr(loc1,4) == "True" ? true : false);
 
     //shape
-    unsigned ndims;
+    size_t ndims;
     loc1 = header.find("(");
     loc2 = header.find(")");
     std::string str_shape = header.substr(loc1+1,loc2-loc1-1);
     if(str_shape[str_shape.size()-1] == ',') ndims = 1;
     else ndims = std::count(str_shape.begin(),str_shape.end(),',')+1;
     shape.resize(ndims);
-    for(unsigned int i = 0;i < ndims;i++) {
+    for(size_t i = 0;i < ndims;i++) {
         loc1 = str_shape.find(",");
         shape[i] = atoi(str_shape.substr(0,loc1).c_str());
         str_shape = str_shape.substr(loc1+1);

@@ -28,9 +28,15 @@ DIY is a header-only library. It does not need to be built; you can simply
 include it in your project. The examples can be built using `cmake` from the
 top-level directory.
 
+## Development
+
+Development happens in the [DIY repo](https://gitlab.kitware.com/diatomic/diy)
+on Kitware's GitLab. Please submit merge requests there. Issues should
+be submitted in the GitHub repo.
+
 ## Documentation
 
-[Doxygen pages](https://diatomic.github.io/diy)
+[DIY project](https://diatomic.github.io/diy)
 
 ## Example
 

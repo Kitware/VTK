@@ -337,8 +337,8 @@ void Redistribute(
   unsigned round = srp.round();
 
   // step 1: dequeue all the incoming points and add them to this block's vector
-  diy::Master::IncomingQueues& in = *srp.incoming();
-  for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
+  auto& in = *srp.incoming();
+  for (diy::Master::Proxy::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
   {
     while (i->second)
     {

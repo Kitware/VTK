@@ -109,7 +109,7 @@ namespace diy
                       Assigner(size__, nblocks__),
                       comm_(comm),
                       div_(nblocks__ / size__ + ((nblocks__ % size__) == 0 ? 0 : 1)),   // NB: same size window everywhere means the last rank may allocate extra space
-                      rank_map_(comm_, div_)                                            { rank_map_.lock_all(MPI_MODE_NOCHECK); }
+                      rank_map_(comm_, div_)                                            { rank_map_.lock_all(mpi::nocheck); }
                     ~DynamicAssigner()                                                  { rank_map_.unlock_all(); }
 
       inline
@@ -189,7 +189,7 @@ set_nblocks(int nblocks__)
 
     rank_map_.unlock_all();
     rank_map_ = mpi::window<int>(comm_, div_);
-    rank_map_.lock_all(MPI_MODE_NOCHECK);
+    rank_map_.lock_all(mpi::nocheck);
 }
 
 std::tuple<bool,int>

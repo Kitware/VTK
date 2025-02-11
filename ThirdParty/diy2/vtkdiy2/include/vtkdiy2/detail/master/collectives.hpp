@@ -20,7 +20,7 @@ namespace diy
 
           void  init()                                    { out_ = in_; }
           void  update(const CollectiveOp& other)         { out_ = op_(out_, static_cast<const AllReduceOp&>(other).in_); }
-          void  global(const mpi::communicator& comm)     { T res; mpi::all_reduce(comm, out_, res, op_); out_ = res; }
+          void  global(const mpi::communicator& comm)     { T res{}; mpi::all_reduce(comm, out_, res, op_); out_ = res; }
           void  copy_from(const CollectiveOp& other)      { out_ = static_cast<const AllReduceOp&>(other).out_; }
           void  result_out(void* dest) const              { *reinterpret_cast<T*>(dest) = out_; }
 

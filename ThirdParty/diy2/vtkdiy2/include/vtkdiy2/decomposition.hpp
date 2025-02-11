@@ -63,8 +63,8 @@ namespace detail
     static Coordinate   from(int i, int n, Coordinate min, Coordinate max, bool)      { return min + (max - min)/n * i; }
     static Coordinate   to  (int i, int n, Coordinate min, Coordinate max, bool)      { return min + (max - min)/n * (i+1); }
 
-    static int          lower(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; Coordinate res = std::floor((x - min)/width); if (min + res*width == x) return (res - 1); else return res; }
-    static int          upper(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; Coordinate res = std::ceil ((x - min)/width); if (min + res*width == x) return (res + 1); else return res; }
+    static int          lower(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; auto res = static_cast<int>(std::floor((x - min)/width)); if (min + res*width == x) return (res - 1); else return res; }
+    static int          upper(Coordinate x, int n, Coordinate min, Coordinate max, bool)   { Coordinate width = (max - min)/n; auto res = static_cast<int>(std::ceil ((x - min)/width)); if (min + res*width == x) return (res + 1); else return res; }
   };
 }
 
@@ -123,6 +123,7 @@ namespace detail
     template<class Point>
     int             lowest_gid(const Point& p) const;
 
+    DivisionsVector gid_to_coords(int gid) const                                { DivisionsVector coords; gid_to_coords(gid, coords); return coords; }
     void            gid_to_coords(int gid, DivisionsVector& coords) const       { gid_to_coords(gid, coords, divisions); }
     int             coords_to_gid(const DivisionsVector& coords) const          { return coords_to_gid(coords, divisions); }
     void            fill_divisions(std::vector<int>& divisions) const;
@@ -131,8 +132,8 @@ namespace detail
     void            fill_bounds(Bounds& bounds, int gid, bool add_ghosts = false) const;
 
     static bool     all(const std::vector<int>& v, int x);
-    static void     gid_to_coords(int gid, DivisionsVector& coords, const DivisionsVector& divisions);
-    static int      coords_to_gid(const DivisionsVector& coords, const DivisionsVector& divisions);
+    static void     gid_to_coords(int gid, DivisionsVector& coords, const DivisionsVector& divs);
+    static int      coords_to_gid(const DivisionsVector& coords, const DivisionsVector& divs);
 
     static void     factor(std::vector<unsigned>& factors, int n);
 
@@ -409,25 +410,25 @@ all(const std::vector<int>& v, int x)
 template<class Bounds>
 void
 diy::RegularDecomposer<Bounds>::
-gid_to_coords(int gid, DivisionsVector& coords, const DivisionsVector& divisions)
+gid_to_coords(int gid, DivisionsVector& coords, const DivisionsVector& divs)
 {
-  int dim = static_cast<int>(divisions.size());
-  for (int i = 0; i < dim; ++i)
+  coords.clear();
+  for (int i = 0; i < static_cast<int>(divs.size()); ++i)
   {
-    coords.push_back(gid % divisions[i]);
-    gid /= divisions[i];
+    coords.push_back(gid % divs[i]);
+    gid /= divs[i];
   }
 }
 
 template<class Bounds>
 int
 diy::RegularDecomposer<Bounds>::
-coords_to_gid(const DivisionsVector& coords, const DivisionsVector& divisions)
+coords_to_gid(const DivisionsVector& coords, const DivisionsVector& divs)
 {
   int gid = 0;
   for (int i = static_cast<int>(coords.size()) - 1; i >= 0; --i)
   {
-    gid *= divisions[i];
+    gid *= divs[i];
     gid += coords[i];
   }
   return gid;
@@ -552,8 +553,7 @@ fill_divisions(std::vector<int>& divisions_) const
     }
 
     // iterate over factorization of number of blocks (factors are sorted smallest to largest)
-    // NB: using int instead of size_t because must be negative in order to break out of loop
-    for (int i = factors.size() - 1; i >= 0; --i)
+    for (auto f = factors.rbegin(); f != factors.rend(); ++f)
     {
         // fill in missing divs by dividing dimension w/ largest block size
         // except when this would be illegal (resulting in bounds.max < bounds.min;
@@ -565,19 +565,19 @@ fill_divisions(std::vector<int>& divisions_) const
         // split the dimension with the largest block size (first element in vector)
         Coordinate min =
             detail::BoundsHelper<Bounds>::from(0,
-                                               missing_divs[0].nb * factors[i],
+                                               missing_divs[0].nb * (*f),
                                                domain.min[missing_divs[0].dim],
                                                domain.max[missing_divs[0].dim],
                                                share_face[missing_divs[0].dim]);
         Coordinate max =
             detail::BoundsHelper<Bounds>::to(0,
-                                             missing_divs[0].nb * factors[i],
+                                             missing_divs[0].nb * (*f),
                                              domain.min[missing_divs[0].dim],
                                              domain.max[missing_divs[0].dim],
                                              share_face[missing_divs[0].dim]);
         if (max >= min)
         {
-            missing_divs[0].nb    *= factors[i];
+            missing_divs[0].nb    *= (*f);
             missing_divs[0].b_size = max - min;
         }
         else

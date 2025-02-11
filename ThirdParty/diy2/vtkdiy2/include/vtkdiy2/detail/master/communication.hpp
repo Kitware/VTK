@@ -5,11 +5,13 @@ namespace diy
         int from, to;
         int nparts;
         int round;
+        int nblobs;
     };
 
     struct Master::InFlightSend
     {
         std::shared_ptr<MemoryBuffer> message;
+        BinaryBlob                    blob;
         mpi::request                  request;
 
         MessageInfo info;           // for debug purposes
@@ -18,12 +20,18 @@ namespace diy
     struct Master::InFlightRecv
     {
         MemoryBuffer    message;
-        MessageInfo     info { -1, -1, -1, -1 };
+        MessageInfo     info { -1, -1, -1, -1, -1 };
         bool            done = false;
+        MemoryManagement mem;
 
         inline bool     recv(mpi::communicator& comm, const mpi::status& status);
         inline void     place(IncomingRound* in, bool unload, ExternalStorage* storage, IExchangeInfo* iexchange);
-        void            reset()     { *this = InFlightRecv(); }
+        void            reset()
+        {
+            MemoryManagement mem_ = mem;
+            *this = InFlightRecv();
+            mem = mem_;
+        }
     };
 
     struct Master::InFlightRecvsMap: public std::map<int, InFlightRecv>
@@ -63,7 +71,7 @@ namespace diy
         struct mpi_datatype< diy::detail::VectorWindow<T> >
         {
             using VecWin = diy::detail::VectorWindow<T>;
-            static MPI_Datatype         datatype()                { return get_mpi_datatype<T>(); }
+            static diy::mpi::datatype   datatype()                { return get_mpi_datatype<T>(); }
             static const void*          address(const VecWin& x)  { return x.begin; }
             static void*                address(VecWin& x)        { return x.begin; }
             static int                  count(const VecWin& x)    { return static_cast<int>(x.count); }
@@ -111,7 +119,7 @@ recv(mpi::communicator& comm, const mpi::status& status)
 
         result = true;
     }
-    else
+    else if (info.nparts > 0)
     {
         size_t start_idx = message.buffer.size();
         size_t count = status.count<char>();
@@ -124,9 +132,24 @@ recv(mpi::communicator& comm, const mpi::status& status)
         comm.recv(status.source(), status.tag(), window);
 
         info.nparts--;
+    } else if (info.nblobs > 0)
+    {
+        size_t count = status.count<char>();
+        detail::VectorWindow<char> window;
+
+        char* buffer = mem.allocate(info.to, count);
+
+        window.begin = buffer;
+        window.count = count;
+
+        comm.recv(status.source(), status.tag(), window);
+
+        message.save_binary_blob(buffer, count, mem.deallocate);
+
+        info.nblobs--;
     }
 
-    if (info.nparts == 0)
+    if (info.nparts == 0 && info.nblobs == 0)
         done = true;
 
     return result;
@@ -135,35 +158,21 @@ recv(mpi::communicator& comm, const mpi::status& status)
 // once the InFlightRecv is done, place it either out of core or in the appropriate incoming queue
 void
 diy::Master::InFlightRecv::
-place(IncomingRound* in, bool unload, ExternalStorage* storage, IExchangeInfo* iexchange)
+place(IncomingRound* in, bool unload, ExternalStorage* storage, IExchangeInfo*)
 {
-    size_t size     = message.size();
     int from        = info.from;
     int to          = info.to;
-    int external    = -1;
+
+    message.reset();
+
+    auto access = in->map[to][from].access();
+    access->emplace_back(std::move(message));
 
     if (unload)
     {
         get_logger()->debug("Directly unloading queue {} <- {}", to, from);
-        external = storage->put(message);       // unload directly
+        access->back().unload(storage);
     }
-    else if (!iexchange)
-    {
-        in->map[to].queues[from].swap(message);
-        in->map[to].queues[from].reset();       // buffer position = 0
-    }
-    else    // iexchange
-    {
-        auto log = get_logger();
-        log->debug("[{}] Received queue {} <- {}", iexchange->comm.rank(), to, from);
-
-        iexchange->not_done(to);
-        in->map[to].queues[from].append_binary(&message.buffer[0], message.size());        // append instead of overwrite
-
-        iexchange->dec_work();
-        log->debug("[{}] Decrementing work after receiving\n", to);
-    }
-    in->map[to].records[from] = QueueRecord(size, external);
 
     ++(in->received);
 }

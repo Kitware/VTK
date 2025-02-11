@@ -1,49 +1,42 @@
+#ifndef DIY_MPI_STATUS_HPP
+#define DIY_MPI_STATUS_HPP
+
+#include "config.hpp"
+#include "datatypes.hpp"
+
 namespace diy
 {
 namespace mpi
 {
   struct status
   {
-    int             source() const          { return s.MPI_SOURCE; }
-    int             tag() const             { return s.MPI_TAG; }
-    int             error() const           { return s.MPI_ERROR; }
+    status() = default;
+    status(const DIY_MPI_Status& s) : handle(s) {}
 
-    inline
-    bool            cancelled() const;
+#ifndef DIY_MPI_AS_LIB // only available in header-only mode
+    status(const MPI_Status& s) : handle(s) {}
+    operator MPI_Status() { return handle; }
+#endif
 
-    template<class T>
-    int             count() const;
+    DIY_MPI_EXPORT_FUNCTION int  source() const;
+    DIY_MPI_EXPORT_FUNCTION int  tag() const;
+    DIY_MPI_EXPORT_FUNCTION int  error() const;
+    DIY_MPI_EXPORT_FUNCTION bool cancelled() const;
+    DIY_MPI_EXPORT_FUNCTION int  count(const datatype& type) const;
 
-                    operator MPI_Status&()              { return s; }
-                    operator const MPI_Status&() const  { return s; }
+    template<class T>       int count() const
+    {
+      return this->count(detail::get_mpi_datatype<T>());
+    }
 
-    MPI_Status      s;
+    DIY_MPI_Status handle;
   };
-}
-}
 
+}
+} // diy::mpi
 
-bool
-diy::mpi::status::cancelled() const
-{
-#ifndef DIY_NO_MPI
-  int flag;
-  MPI_Test_cancelled(const_cast<MPI_Status*>(&s), &flag);
-  return flag;
-#else
-  DIY_UNSUPPORTED_MPI_CALL(diy::mpi::status::cancelled);
+#ifndef DIY_MPI_AS_LIB
+#include "status.cpp"
 #endif
-}
 
-template<class T>
-int
-diy::mpi::status::count() const
-{
-#ifndef DIY_NO_MPI
-  int c;
-  MPI_Get_count(const_cast<MPI_Status*>(&s), detail::get_mpi_datatype<T>(), &c);
-  return c;
-#else
-  DIY_UNSUPPORTED_MPI_CALL(diy::mpi::status::count);
-#endif
-}
+#endif // DIY_MPI_STATUS_HPP

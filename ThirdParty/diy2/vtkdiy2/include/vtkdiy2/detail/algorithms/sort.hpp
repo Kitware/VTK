@@ -85,29 +85,29 @@ struct SampleSort<Block,T,Cmp>::Sampler
                     Sampler(ValuesVector values_, ValuesVector dividers_, const Cmp& cmp_, size_t num_samples_):
                         values(values_), dividers(dividers_), cmp(cmp_), num_samples(num_samples_)    {}
 
-    void            operator()(Block* b, const ReduceProxy& srp, const RegularSwapPartners& partners) const
+    void            operator()(Block* b, const ReduceProxy& srp, const RegularSwapPartners&) const
     {
         int k_in  = srp.in_link().size();
         int k_out = srp.out_link().size();
 
-        std::vector<T> samples;
+        std::vector<T> samps;
 
         if (k_in == 0)
         {
             // draw random samples
             for (size_t i = 0; i < num_samples; ++i)
-                samples.push_back((b->*values)[std::rand() % (b->*values).size()]);
+                samps.push_back((b->*values)[std::rand() % (b->*values).size()]);
         } else
-            dequeue_values(samples, srp, false);
+            dequeue_values(samps, srp, false);
 
         if (k_out == 0)
         {
             // pick subsamples that separate quantiles
-            std::sort(samples.begin(), samples.end(), cmp);
+            std::sort(samps.begin(), samps.end(), cmp);
             std::vector<T>  subsamples(srp.nblocks() - 1);
-            int step = samples.size() / srp.nblocks();       // NB: subsamples.size() + 1
+            size_t step = samps.size() / srp.nblocks();       // NB: subsamples.size() + 1
             for (size_t i = 0; i < subsamples.size(); ++i)
-                subsamples[i] = samples[(i+1)*step];
+                subsamples[i] = samps[(i+1)*step];
             (b->*dividers).swap(subsamples);
         }
         else
@@ -115,7 +115,7 @@ struct SampleSort<Block,T,Cmp>::Sampler
             for (int i = 0; i < k_out; ++i)
             {
                 MemoryBuffer& out = srp.outgoing(srp.out_link().target(i));
-                save(out, &samples[0], samples.size());
+                save(out, &samps[0], samps.size());
             }
         }
     }
@@ -139,7 +139,7 @@ struct SampleSort<Block,T,Cmp>::Exchanger
             // enqueue values to the correct locations
             for (size_t i = 0; i < (b->*values).size(); ++i)
             {
-                int to = std::lower_bound((b->*samples).begin(), (b->*samples).end(), (b->*values)[i], cmp) - (b->*samples).begin();
+                int to = static_cast<int>(std::lower_bound((b->*samples).begin(), (b->*samples).end(), (b->*values)[i], cmp) - (b->*samples).begin());
                 rp.enqueue(rp.out_link().target(to), (b->*values)[i]);
             }
             (b->*values).clear();

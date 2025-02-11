@@ -17,10 +17,10 @@ namespace diy
       typedef       std::vector<Element>                        Elements;
       typedef       critical_resource<int, recursive_mutex>     CInt;
 
-      typedef       void* (*Create)();
-      typedef       void  (*Destroy)(void*);
-      typedef       detail::Save                                Save;
-      typedef       detail::Load                                Load;
+      using Create  = std::function<void*()>;
+      using Destroy = std::function<void(void*)>;
+      using Save    = detail::Save;
+      using Load    = detail::Load;
 
     public:
                     Collection(Create               create__,
@@ -40,9 +40,10 @@ namespace diy
       inline void   clear();
 
       int           add(Element e)                  { elements_.push_back(e); external_.push_back(-1); ++(*in_memory_.access()); return static_cast<int>(elements_.size()) - 1; }
-      void*         release(int i)                  { void* e = get(i); elements_[static_cast<size_t>(i)] = 0; return e; }
+      inline void*  release(int i);
 
       void*         find(int i) const               { return elements_[static_cast<size_t>(i)]; }                        // possibly returns 0, if the element is unloaded
+      void* const&  reference(int i) const          { return elements_[static_cast<size_t>(i)]; }
       void*         get(int i)                      { if (!find(i)) load(i); return find(i); }      // loads the element first, and then returns its address
 
       int           available() const               { int i = 0; for (; i < (int)size(); ++i) if (find(i) != 0) break; return i; }
@@ -85,6 +86,23 @@ clear()
   elements_.clear();
   external_.clear();
   *in_memory_.access() = 0;
+}
+
+void*
+diy::Collection::
+release(int i)
+{
+  void* e = get(i);
+
+  elements_[static_cast<size_t>(i)] = 0;
+  std::swap(elements_[static_cast<size_t>(i)], elements_.back());
+  elements_.pop_back();
+
+  std::swap(external_[static_cast<size_t>(i)], external_.back());
+  external_.pop_back();
+  --(*in_memory_.access());
+
+  return e;
 }
 
 void

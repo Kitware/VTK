@@ -205,12 +205,11 @@ namespace io
         extra.reset();
 
         // Get local gids from assigner
-        size_t size = all_offset_counts.size();
-        assigner.set_nblocks(size);
+        assigner.set_nblocks(static_cast<int>(all_offset_counts.size()));
         std::vector<int> gids;
         assigner.local_gids(comm.rank(), gids);
 
-        for (unsigned i = 0; i < gids.size(); ++i)
+        for (size_t i = 0; i < gids.size(); ++i)
         {
             if (gids[i] != all_offset_counts[gids[i]].gid)
                 get_logger()->warn("gids don't match in diy::io::read_blocks(), {} vs {}",
@@ -342,7 +341,7 @@ namespace split
     }
 
     // Get local gids from assigner
-    assigner.set_nblocks(size);
+    assigner.set_nblocks(static_cast<int>(size));
     std::vector<int> gids;
     assigner.local_gids(comm.rank(), gids);
 
