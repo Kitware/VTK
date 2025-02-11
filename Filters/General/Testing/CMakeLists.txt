@@ -13,6 +13,7 @@ vtk_module_test_data(
   Data/fullhead15.png
   Data/hexa.vtk
   Data/mb-of-mps.vtm
+  Data/mb_single_piece_empty_data.vtm
   Data/mine_with_dates.vtp
   Data/quadraticTetra01.vtu
   Data/rectGrid.vtr

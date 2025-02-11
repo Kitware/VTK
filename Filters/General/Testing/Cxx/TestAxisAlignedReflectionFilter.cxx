@@ -395,6 +395,19 @@ int TestMultiBlockOnlyDataSets(int argc, char* argv[])
   return EXIT_SUCCESS;
 }
 
+int TestMultiBlockEmptyPiece(int argc, char* argv[])
+{
+  ReadFileMacro("Data/mb_single_piece_empty_data.vtm", vtkXMLMultiBlockDataReader);
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output =
+    Reflect(reader->GetOutputPort(), true, true, vtkAxisAlignedReflectionFilter::X_MIN);
+
+  AssertMacro(output->GetNumberOfPartitionedDataSets() == 2, output->GetClassName(),
+    "Incorrect number of partitioned datasets")
+
+    return EXIT_SUCCESS;
+}
+
 // This function tests all the input types, and each input type will test a different plane mode.
 int TestAxisAlignedReflectionFilter(int argc, char* argv[])
 {
@@ -402,5 +415,5 @@ int TestAxisAlignedReflectionFilter(int argc, char* argv[])
     TestRectilinearGrid(argc, argv) || TestExplicitStructuredGrid(argc, argv) ||
     TestStructuredGrid(argc, argv) || TestPolyData(argc, argv) || TestHyperTreeGrid(argc, argv) ||
     TestPartitionedDataSetCollection(argc, argv) || TestMultiBlockMultiPiece(argc, argv) ||
-    TestMultiBlockOnlyDataSets(argc, argv);
+    TestMultiBlockOnlyDataSets(argc, argv) || TestMultiBlockEmptyPiece(argc, argv);
 }
