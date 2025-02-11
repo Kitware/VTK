@@ -48,12 +48,16 @@ void vtkHyperTreeGridTotalVisibleVolumeStrategy::Compute(
 
   auto validCellBoolArray =
     vtkImplicitArray<vtkScalarBooleanImplicitBackend<double>>::SafeDownCast(validCellArray);
+
+  // Type may change depending on the number of values
   auto cellSizeIndexedArray = vtkIndexedArray<double>::SafeDownCast(cellSizeArray);
+  auto cellSizeDoubleArray = vtkDoubleArray::SafeDownCast(cellSizeArray);
 
   const vtkIdType currentId = cursor->GetGlobalNodeIndex();
   if (validCellBoolArray->GetValue(currentId))
   {
-    this->TotalVisibleVolume += cellSizeIndexedArray->GetValue(currentId);
+    this->TotalVisibleVolume += cellSizeIndexedArray ? cellSizeIndexedArray->GetValue(currentId)
+                                                     : cellSizeDoubleArray->GetValue(currentId);
   }
 }
 

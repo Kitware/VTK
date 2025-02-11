@@ -1,7 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+#include <vtkHyperTreeGridSource.h>
+
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGenerateFields.h"
@@ -205,6 +209,48 @@ bool TestDifferentVolumes()
   return true;
 }
 
+bool TestTotalVolume()
+{
+  // Create a pseudo-random HTG
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->SetDimensions(3, 4, 1);
+  source->SetMaxDepth(2);
+  source->SetDescriptor("RRRRR.|.... .... .... .... ....");
+  source->Update();
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(source->GetOutputPort());
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
+
+  double totalVisibleVolume =
+    vtkDoubleArray::SafeDownCast(outputHTG->GetFieldData()->GetAbstractArray("TotalVisibleVolume"))
+      ->GetTuple1(0);
+  if (totalVisibleVolume != 6.0)
+  {
+    std::cerr << "Total visible volume is " << totalVisibleVolume << " but expected " << 6.0
+              << std::endl;
+    return false;
+  }
+
+  source->UseMaskOn();
+  source->SetMask("111111|1110 1111 1111 1111 1111");
+  generateFields->Update();
+
+  totalVisibleVolume =
+    vtkDoubleArray::SafeDownCast(outputHTG->GetFieldData()->GetAbstractArray("TotalVisibleVolume"))
+      ->GetTuple1(0);
+  if (totalVisibleVolume != 5.75)
+  {
+    std::cerr << "Total visible volume is " << totalVisibleVolume << " but expected " << 5.75
+              << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
 }
 
 int TestHyperTreeGridGenerateFields(int argc, char* argv[])
@@ -212,6 +258,7 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   bool result = true;
   result &= ::TestMaskGhostSizes(argc, argv);
   result &= ::TestDifferentVolumes();
+  result &= ::TestTotalVolume();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
