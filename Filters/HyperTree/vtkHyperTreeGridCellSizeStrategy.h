@@ -15,8 +15,8 @@
  * filter.
  */
 
-#ifndef vtkHyperTreeGridGenerateFieldCellSize_h
-#define vtkHyperTreeGridGenerateFieldCellSize_h
+#ifndef vtkHyperTreeGridCellSizeStrategy_h
+#define vtkHyperTreeGridCellSizeStrategy_h
 
 #include "vtkDoubleArray.h"
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
@@ -34,7 +34,12 @@ public:
   vtkTypeMacro(vtkHyperTreeGridCellSizeStrategy, vtkHyperTreeGridGenerateFieldStrategy)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * Init internal variables from `inputHTG`.
+   */
   void Initialize(vtkHyperTreeGrid* inputHTG) override;
+
+  using vtkHyperTreeGridGenerateFieldStrategy::Compute;
   /**
    * Record the depth of the cell pointed by the cursor in an internal structure.
    * While we have less different size values than an unsigned char can hold, use an index implicit
@@ -43,6 +48,11 @@ public:
    * This method does not guarantee thread-safety.
    */
   void Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor) override;
+
+  /**
+   * If `UseIndexedVolume` is true, build and return the output as an implicit indexed array.
+   * Otherwise, return the output as a VTK double array.
+   */
   vtkDataArray* GetAndFinalizeArray() override;
 
 private:
@@ -68,4 +78,4 @@ private:
 };
 
 VTK_ABI_NAMESPACE_END
-#endif // vtkHyperTreeGridGenerateFieldCellSize_h
+#endif // vtkHyperTreeGridCellSizeStrategy_h

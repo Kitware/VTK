@@ -26,7 +26,6 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 
-#include <memory> // unique_ptr
 #include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -61,12 +60,21 @@ public:
   virtual void SetValidCellArrayName(std::string name);
   ///@}
 
+  ///@{
+  /**
+   * Get/Set the name used for the total visible volume array.
+   * Defaults to 'TotalVisibleVolume'
+   */
+  virtual std::string GetTotalVisibleVolumeArrayName();
+  virtual void SetTotalVisibleVolumeArrayName(std::string name);
+  ///@}
+
 protected:
   vtkHyperTreeGridGenerateFields();
   ~vtkHyperTreeGridGenerateFields() override = default;
 
   /**
-   * Main filter routine : iterate over the trees and fill output array structures.
+   * Main filter routine : process the HTG cell data and then field data
    */
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
@@ -75,11 +83,26 @@ private:
   void operator=(const vtkHyperTreeGridGenerateFields&) = delete;
 
   /**
+   * Iterate over the trees and fill output array structures. Output arrays are used as CellData or
+   * FieldData depending on `type`.
+   */
+  void ProcessFields(vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, DataArrayType type);
+
+  /**
    * Process a single tree, recursively descending into the tree, down to leaves
    */
-  void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor*);
+  void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, DataArrayType type,
+    vtkCellData* outputCellData);
+
+  // Cell Data
+  const char* DefaultCellSizeArrayName = "CellSize";
+  const char* DefaultValidCellArrayName = "ValidCell";
+
+  // Field Data
+  const char* DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";
 
   std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateFieldStrategy>> Fields;
+  std::unordered_map<std::string, std::string> FieldsNameMap;
 };
 
 VTK_ABI_NAMESPACE_END

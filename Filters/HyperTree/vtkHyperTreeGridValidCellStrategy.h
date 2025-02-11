@@ -13,45 +13,14 @@
  * filter.
  */
 
-#ifndef vtkHyperTreeGridGenerateFieldValidCell_h
-#define vtkHyperTreeGridGenerateFieldValidCell_h
+#ifndef vtkHyperTreeGridValidCellStrategy_h
+#define vtkHyperTreeGridValidCellStrategy_h
 
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkImplicitArray.h"
+#include "vtkScalarBooleanImplicitBackend.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-
-/**
- * Implicit array implementation unpacking a bool array to an array of type double,
- * reducing the memory footprint of the array by a factor of 8 * 8
- * while still guaranteeing fast element access using static dispatch.
- */
-template <typename ValueType>
-struct vtkScalarBooleanImplicitBackend
-{
-  /**
-   * Build the implicit array using a bit vector to be unpacked.
-   *
-   * @param values Lookup vector to use
-   */
-  vtkScalarBooleanImplicitBackend(const std::vector<bool>& values)
-    : Values(values)
-  {
-  }
-
-  /**
-   * Templated method called for element access
-   *
-   * @param _index: Array element id
-   * \return Array element in the templated type
-   */
-  ValueType operator()(const int _index) const
-  {
-    return static_cast<ValueType>(this->Values[_index]);
-  }
-
-  const std::vector<bool> Values;
-};
 
 class vtkHyperTreeGridValidCellStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {
@@ -60,8 +29,18 @@ public:
   vtkTypeMacro(vtkHyperTreeGridValidCellStrategy, vtkHyperTreeGridGenerateFieldStrategy)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  /**
+   * Init internal variables from `inputHTG`.
+   */
   void Initialize(vtkHyperTreeGrid* inputHTG) override;
+
+  using vtkHyperTreeGridGenerateFieldStrategy::Compute;
+  /**
+   * Compute validity of the current cell.
+   * A cell is valid if it is a leaf (non-refined) cell that is neither masked nor ghost.
+   */
   void Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor) override;
+
   /**
    * Build valid cell field double array using a vtkScalarBooleanImplicitBackend implicit array
    * unpacking the bit array built before. This cell field has a value of 1.0 for valid (leaf,
@@ -89,4 +68,4 @@ private:
 };
 
 VTK_ABI_NAMESPACE_END
-#endif // vtkHyperTreeGridGenerateFieldValidCell_h
+#endif // vtkHyperTreeGridValidCellStrategy_h

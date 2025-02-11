@@ -19,11 +19,13 @@ set(classes
   vtkHyperTreeGridToUnstructuredGrid
   vtkHyperTreeGridValidCellStrategy
   vtkHyperTreeGridVisibleLeavesSize
+  vtkHyperTreeGridTotalVisibleVolumeStrategy
   vtkImageDataToHyperTreeGrid
 )
 
 set(headers
   vtkHyperTreeGridGenerateFieldStrategy.h
+  vtkScalarBooleanImplicitBackend.h
 )
 
 set(private_classes
