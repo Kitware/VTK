@@ -368,6 +368,7 @@ void vtkCameraOrientationRepresentation::BuildRepresentation()
   {
     this->CreateDefaultGeometry();
     this->PositionHandles();
+    this->HighlightHandle();
     this->BuildTime.Modified();
   }
 }
@@ -618,7 +619,6 @@ vtkTransform* vtkCameraOrientationRepresentation::GetTransform()
 int vtkCameraOrientationRepresentation::RenderOpaqueGeometry(vtkViewport* vp)
 {
   this->BuildRepresentation();
-  this->HighlightHandle();
 
   int count = 0;
 

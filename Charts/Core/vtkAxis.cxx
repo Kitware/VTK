@@ -1769,11 +1769,11 @@ void vtkAxis::GenerateLogScaleTickMarks(int order, double min, double max, bool 
   }
   if (min > 9.0)
   {
-    min = 1.0;
+    min = 9.0;
   }
   if (max < 1.0)
   {
-    max = 9.0;
+    max = 1.0;
   }
   if (max > 9.0)
   {

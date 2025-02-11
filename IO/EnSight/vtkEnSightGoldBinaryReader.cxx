@@ -131,8 +131,7 @@ public:
 
         vtkNew<vtkFloatArray> pbuffer;
         pbuffer->SetNumberOfTuples(partialIndices->GetNumberOfIds());
-        self->ReadFloatArray(
-          pbuffer->GetPointer(0), static_cast<int>(partialIndices->GetNumberOfIds()));
+        self->ReadFloatArray(pbuffer->GetPointer(0), partialIndices->GetNumberOfIds());
 
         // now copy the tuples over from pbuffer to buffer.
         vtkNew<vtkIdList> srcIds;
@@ -735,8 +734,8 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
-  int i;
-  int numElements;
+  vtkIdType i;
+  vtkIdType numElements;
   int cellType;
 
   while (lineRead && strncmp(line, "part", 4) != 0)
@@ -1881,10 +1880,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
   int partId, char line[80], const char* name, vtkMultiBlockDataSet* compositeOutput)
 {
   int lineRead = 1;
-  int i, j;
+  vtkIdType i, j;
   int* nodeIdList;
-  int numElements;
-  int idx, cellId, cellType;
+  vtkIdType numElements, cellId;
+  int idx, cellType;
   float *xCoords, *yCoords, *zCoords;
 
   this->NumberOfNewOutputs++;
@@ -3327,9 +3326,11 @@ int vtkEnSightGoldBinaryReader::ReadPartId(int* result)
 
 // Internal function to read a single integer.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadInt(int* result)
+template <typename T>
+int vtkEnSightGoldBinaryReader::ReadInt(T* result)
 {
   char dummy[4];
+  int resultInt;
   if (this->Fortran)
   {
     if (!this->GoldIFile->read(dummy, 4))
@@ -3339,7 +3340,7 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
     }
   }
 
-  if (!this->GoldIFile->read((char*)result, sizeof(int)))
+  if (!this->GoldIFile->read(reinterpret_cast<char*>(&resultInt), sizeof(int)))
   {
     vtkErrorMacro("Read failed");
     return 0;
@@ -3347,11 +3348,11 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
 
   if (this->ByteOrder == FILE_LITTLE_ENDIAN)
   {
-    vtkByteSwap::Swap4LE(result);
+    vtkByteSwap::Swap4LE(&resultInt);
   }
   else if (this->ByteOrder == FILE_BIG_ENDIAN)
   {
-    vtkByteSwap::Swap4BE(result);
+    vtkByteSwap::Swap4BE(&resultInt);
   }
 
   if (this->Fortran)
@@ -3362,6 +3363,8 @@ int vtkEnSightGoldBinaryReader::ReadInt(int* result)
       return 0;
     }
   }
+
+  *result = static_cast<T>(resultInt);
 
   return 1;
 }
@@ -3496,7 +3499,7 @@ int vtkEnSightGoldBinaryReader::ReadLong(vtkTypeInt64* result)
 
 // Internal function to read a float array.
 // Returns zero if there was an error.
-int vtkEnSightGoldBinaryReader::ReadFloatArray(float* result, int numFloats)
+int vtkEnSightGoldBinaryReader::ReadFloatArray(float* result, vtkIdType numFloats)
 {
   if (numFloats <= 0)
   {

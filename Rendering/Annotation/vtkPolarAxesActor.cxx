@@ -224,13 +224,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 vtkPolarAxesActor::vtkPolarAxesActor()
 {
-  // Default bounds
-  this->Bounds[0] = -1.0;
-  this->Bounds[1] = 1.0;
-  this->Bounds[2] = -1.0;
-  this->Bounds[3] = 1.0;
-  this->Bounds[4] = -1.0;
-  this->Bounds[5] = 1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
 
   // Text properties of polar axis title and labels, with default color white
   // Properties of the radial axes, with default color black

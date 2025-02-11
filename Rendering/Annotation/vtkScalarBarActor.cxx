@@ -523,7 +523,8 @@ int vtkScalarBarActor::RebuildLayoutIfNeeded(vtkViewport* viewport)
     this->LabelTextProperty->GetMTime() > this->BuildTime ||
     this->TitleTextProperty->GetMTime() > this->BuildTime ||
     this->BackgroundProperty->GetMTime() > this->BuildTime ||
-    this->FrameProperty->GetMTime() > this->BuildTime)
+    this->FrameProperty->GetMTime() > this->BuildTime ||
+    (this->OpacityFunction && this->OpacityFunction->GetMTime() > this->BuildTime))
 
   {
     this->RebuildLayout(viewport);

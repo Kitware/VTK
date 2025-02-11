@@ -24,6 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -113,9 +114,10 @@ void vtkImplicitModeller::SetCapValue(double value)
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CapValue to " << value);
   // clamp to between 0 and max for scalar type
   double max = this->GetScalarTypeMax(this->OutputScalarType);
-  if (this->CapValue != (value < 0 ? 0 : (value > max ? max : value)))
+  value = std::min(std::max(value, 0.0), max);
+  if (this->CapValue != value)
   {
-    this->CapValue = (value < 0 ? 0 : (value > max ? max : value));
+    this->CapValue = value;
     this->Modified();
   }
 }

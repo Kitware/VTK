@@ -1111,7 +1111,7 @@ void vtkPiecewiseFunction::SetCustomSearchMethod(int type)
     vtkGenericWarningMacro("enum out of scope, binary search will be applied");
 
     // set to binary search because it is the most general searchMethod
-    this->Internal->CustomSearchMethod = BINARY_SEARCH;
+    type = BINARY_SEARCH;
   }
 
   this->Internal->CustomSearchMethod = static_cast<SearchMethod>(type);

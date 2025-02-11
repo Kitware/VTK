@@ -703,10 +703,11 @@ void vtkCamera3DRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << "(" << this->InitialBounds[0] << "," << this->InitialBounds[1] << ") "
      << "(" << this->InitialBounds[2] << "," << this->InitialBounds[3] << ") "
      << "(" << this->InitialBounds[4] << "," << this->InitialBounds[5] << ")\n";
+  double* bounds = this->BoundingBox->GetBounds();
   os << indent << "Bounding Box: "
-     << "(" << this->BoundingBox[0] << "," << this->BoundingBox[1] << ") "
-     << "(" << this->BoundingBox[2] << "," << this->BoundingBox[3] << ") "
-     << "(" << this->BoundingBox[4] << "," << this->BoundingBox[5] << ")\n";
+     << "(" << bounds[0] << "," << bounds[1] << ") "
+     << "(" << bounds[2] << "," << bounds[3] << ") "
+     << "(" << bounds[4] << "," << bounds[5] << ")\n";
   os << indent << "Translating All Enabled: " << (this->TranslatingAll ? "On\n" : "Off\n");
   os << indent << "Translation Axis: " << this->TranslationAxis << "\n";
   os << indent << "Front Handle Distance: " << this->FrontHandleDistance << "\n";
