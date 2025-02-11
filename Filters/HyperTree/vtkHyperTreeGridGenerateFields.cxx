@@ -9,10 +9,10 @@
 #include "vtkDataObject.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGenerateFieldCellSize.h"
-#include "vtkHyperTreeGridGenerateFieldValidCell.h"
+#include "vtkHyperTreeGridCellSizeStrategy.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridScales.h"
+#include "vtkHyperTreeGridValidCellStrategy.h"
 #include "vtkImplicitArray.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
@@ -50,11 +50,11 @@ vtkHTGGenerateFieldsSetFieldNameMacro(ValidCell);
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
 {
-  vtkNew<vtkHyperTreeGridGenerateFieldCellSize> cellSize;
+  vtkNew<vtkHyperTreeGridCellSizeStrategy> cellSize;
   cellSize->SetArrayName("CellSize");
   this->Fields.emplace("CellSize", cellSize);
 
-  vtkNew<vtkHyperTreeGridGenerateFieldValidCell> validCell;
+  vtkNew<vtkHyperTreeGridValidCellStrategy> validCell;
   validCell->SetArrayName("ValidCell");
   this->Fields.emplace("ValidCell", validCell);
 

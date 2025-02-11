@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class vtkHyperTreeGridGenerateFieldCellSize
+ * @class vtkHyperTreeGridCellSizeStrategy
  * @brief  Define the CellSize field used in vtkHyperTreeGridGenerateFields
  *
  * This is a class used by vtkHyperTreeGridGenerateFields to add and compute the CellSize
@@ -19,7 +19,7 @@
 #define vtkHyperTreeGridGenerateFieldCellSize_h
 
 #include "vtkDoubleArray.h"
-#include "vtkHyperTreeGridGenerateField.h"
+#include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkIndexedArray.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -27,11 +27,11 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkHyperTreeGridGenerateFieldCellSize : public vtkHyperTreeGridGenerateField
+class vtkHyperTreeGridCellSizeStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {
 public:
-  static vtkHyperTreeGridGenerateFieldCellSize* New();
-  vtkTypeMacro(vtkHyperTreeGridGenerateFieldCellSize, vtkHyperTreeGridGenerateField)
+  static vtkHyperTreeGridCellSizeStrategy* New();
+  vtkTypeMacro(vtkHyperTreeGridCellSizeStrategy, vtkHyperTreeGridGenerateFieldStrategy)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkHyperTreeGrid* inputHTG) override;

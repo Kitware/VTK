@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class vtkHyperTreeGridGenerateFieldValidCell
+ * @class vtkHyperTreeGridValidCellStrategy
  * @brief Define the ValidCell field used in vtkHyperTreeGridGenerateFields
  *
  * This is a class used by vtkHyperTreeGridGenerateFields to add and compute the ValidCell
@@ -16,7 +16,7 @@
 #ifndef vtkHyperTreeGridGenerateFieldValidCell_h
 #define vtkHyperTreeGridGenerateFieldValidCell_h
 
-#include "vtkHyperTreeGridGenerateField.h"
+#include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkImplicitArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -53,11 +53,11 @@ struct vtkScalarBooleanImplicitBackend
   const std::vector<bool> Values;
 };
 
-class vtkHyperTreeGridGenerateFieldValidCell : public vtkHyperTreeGridGenerateField
+class vtkHyperTreeGridValidCellStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {
 public:
-  static vtkHyperTreeGridGenerateFieldValidCell* New();
-  vtkTypeMacro(vtkHyperTreeGridGenerateFieldValidCell, vtkHyperTreeGridGenerateField)
+  static vtkHyperTreeGridValidCellStrategy* New();
+  vtkTypeMacro(vtkHyperTreeGridValidCellStrategy, vtkHyperTreeGridGenerateFieldStrategy)
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkHyperTreeGrid* inputHTG) override;

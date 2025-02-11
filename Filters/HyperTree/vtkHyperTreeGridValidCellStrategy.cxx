@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkHyperTreeGridGenerateFieldValidCell.h"
+#include "vtkHyperTreeGridValidCellStrategy.h"
 
 #include "vtkBitArray.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldValidCell)
+vtkStandardNewMacro(vtkHyperTreeGridValidCellStrategy)
 
   //------------------------------------------------------------------------------
-  void vtkHyperTreeGridGenerateFieldValidCell::PrintSelf(ostream& os, vtkIndent indent)
+  void vtkHyperTreeGridValidCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputMask size: " << (this->InputMask ? this->InputMask->GetNumberOfTuples() : 0)
@@ -26,7 +26,7 @@ vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldValidCell)
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldValidCell::SetLeafValidity(const vtkIdType& index)
+void vtkHyperTreeGridValidCellStrategy::SetLeafValidity(const vtkIdType& index)
 {
   bool validity = true;
   if (this->InputMask != nullptr && this->InputMask->GetTuple1(index) != 0)
@@ -41,7 +41,7 @@ void vtkHyperTreeGridGenerateFieldValidCell::SetLeafValidity(const vtkIdType& in
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldValidCell::Initialize(vtkHyperTreeGrid* inputHTG)
+void vtkHyperTreeGridValidCellStrategy::Initialize(vtkHyperTreeGrid* inputHTG)
 {
   this->PackedValidCellArray.clear();
   this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), false);
@@ -51,8 +51,7 @@ void vtkHyperTreeGridGenerateFieldValidCell::Initialize(vtkHyperTreeGrid* inputH
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldValidCell::Compute(
-  vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+void vtkHyperTreeGridValidCellStrategy::Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   if (cursor->IsLeaf())
   {
@@ -62,7 +61,7 @@ void vtkHyperTreeGridGenerateFieldValidCell::Compute(
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkHyperTreeGridGenerateFieldValidCell::GetAndFinalizeArray()
+vtkDataArray* vtkHyperTreeGridValidCellStrategy::GetAndFinalizeArray()
 {
   this->ValidCellsImplicitArray->ConstructBackend(this->PackedValidCellArray);
   this->ValidCellsImplicitArray->SetName(this->ArrayName.c_str());

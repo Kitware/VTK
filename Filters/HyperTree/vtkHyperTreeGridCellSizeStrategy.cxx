@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkHyperTreeGridGenerateFieldCellSize.h"
+#include "vtkHyperTreeGridCellSizeStrategy.h"
 
 #include "vtkBitArray.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkIndexedImplicitBackend.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldCellSize)
+vtkStandardNewMacro(vtkHyperTreeGridCellSizeStrategy)
 
   namespace
 {
@@ -40,7 +40,7 @@ vtkStandardNewMacro(vtkHyperTreeGridGenerateFieldCellSize)
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldCellSize::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridCellSizeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "UseIndexedVolume: " << this->UseIndexedVolume << "\n";
@@ -56,7 +56,7 @@ void vtkHyperTreeGridGenerateFieldCellSize::PrintSelf(ostream& os, vtkIndent ind
 }
 
 //------------------------------------------------------------------------------
-bool vtkHyperTreeGridGenerateFieldCellSize::InsertSize(double cellSize, vtkIdType currentIndex)
+bool vtkHyperTreeGridCellSizeStrategy::InsertSize(double cellSize, vtkIdType currentIndex)
 {
   // Use a hash table for O(1) insertion and search time instead of searching the VTK array
   const auto& inserted = this->VolumeLookup.insert(
@@ -72,7 +72,7 @@ bool vtkHyperTreeGridGenerateFieldCellSize::InsertSize(double cellSize, vtkIdTyp
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldCellSize::ConvertSizes()
+void vtkHyperTreeGridCellSizeStrategy::ConvertSizes()
 {
   // Dump the volume values from the map keys
   std::vector<double> temp_volume;
@@ -93,7 +93,7 @@ void vtkHyperTreeGridGenerateFieldCellSize::ConvertSizes()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldCellSize::Initialize(vtkHyperTreeGrid* inputHTG)
+void vtkHyperTreeGridCellSizeStrategy::Initialize(vtkHyperTreeGrid* inputHTG)
 {
   this->UseIndexedVolume = true;
   this->SizeDiscreteValues->SetNumberOfComponents(
@@ -114,8 +114,7 @@ void vtkHyperTreeGridGenerateFieldCellSize::Initialize(vtkHyperTreeGrid* inputHT
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGenerateFieldCellSize::Compute(
-  vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+void vtkHyperTreeGridCellSizeStrategy::Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
   double cellSize = ::GetCellSize(cursor);
   vtkIdType currentIndex = cursor->GetGlobalNodeIndex();
@@ -141,7 +140,7 @@ void vtkHyperTreeGridGenerateFieldCellSize::Compute(
 }
 
 //------------------------------------------------------------------------------
-vtkDataArray* vtkHyperTreeGridGenerateFieldCellSize::GetAndFinalizeArray()
+vtkDataArray* vtkHyperTreeGridCellSizeStrategy::GetAndFinalizeArray()
 {
   if (this->UseIndexedVolume)
   {

@@ -3,14 +3,13 @@ set(classes
   vtkHyperTreeGridAxisCut
   vtkHyperTreeGridAxisReflection
   vtkHyperTreeGridCellCenters
+  vtkHyperTreeGridCellSizeStrategy
   vtkHyperTreeGridContour
   vtkHyperTreeGridDepthLimiter
   vtkHyperTreeGridEvaluateCoarse
   vtkHyperTreeGridExtractGhostCells
   vtkHyperTreeGridFeatureEdges
   vtkHyperTreeGridGenerateFields
-  vtkHyperTreeGridGenerateFieldCellSize
-  vtkHyperTreeGridGenerateFieldValidCell
   vtkHyperTreeGridGeometry
   vtkHyperTreeGridGradient
   vtkHyperTreeGridPlaneCutter
@@ -18,12 +17,13 @@ set(classes
   vtkHyperTreeGridThreshold
   vtkHyperTreeGridToDualGrid
   vtkHyperTreeGridToUnstructuredGrid
+  vtkHyperTreeGridValidCellStrategy
   vtkHyperTreeGridVisibleLeavesSize
   vtkImageDataToHyperTreeGrid
 )
 
 set(headers
-  vtkHyperTreeGridGenerateField.h
+  vtkHyperTreeGridGenerateFieldStrategy.h
 )
 
 set(private_classes

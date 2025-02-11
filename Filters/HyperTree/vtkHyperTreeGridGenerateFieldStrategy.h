@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class vtkHyperTreeGridGenerateField
+ * @class vtkHyperTreeGridGenerateFieldStrategy
  * @brief Abstract class for field definition used by vtkHyperTreeGridGenerateFields
  *
  * This is a class used by vtkHyperTreeGridGenerateFields
  * to define the methods that need to be overridden in order to compute new fields for a HTG.
  */
 
-#ifndef vtkHyperTreeGridGenerateField_h
-#define vtkHyperTreeGridGenerateField_h
+#ifndef vtkHyperTreeGridGenerateFieldStrategy_h
+#define vtkHyperTreeGridGenerateFieldStrategy_h
 
 #include "vtkHyperTreeGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkHyperTreeGridGenerateField : public vtkObject
+class vtkHyperTreeGridGenerateFieldStrategy : public vtkObject
 {
 public:
-  vtkAbstractTypeMacro(vtkHyperTreeGridGenerateField, vtkObject)
+  vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent) override
   {
     this->Superclass::PrintSelf(os, indent);
@@ -51,4 +51,4 @@ protected:
 };
 
 VTK_ABI_NAMESPACE_END
-#endif // vtkHyperTreeGridGenerateField_h
+#endif // vtkHyperTreeGridGenerateFieldStrategy_h

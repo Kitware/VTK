@@ -10,8 +10,8 @@
  * Note that the filter needs to be run again if cells are refined after its execution.
  *
  * @sa
- * vtkHyperTreeGridGenerateFieldCellSize vtkHyperTreeGridGenerateFieldValidCell
- * vtkHyperTreeGridGenerateField vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
+ * vtkHyperTreeGridCellSizeStrategy vtkHyperTreeGridValidCellStrategy
+ * vtkHyperTreeGridGenerateFieldStrategy vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
  * This class was originally written by Jacques-Bernard Lekien, 2023
@@ -24,7 +24,7 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkHyperTreeGridGenerateField.h"
+#include "vtkHyperTreeGridGenerateFieldStrategy.h"
 
 #include <memory> // unique_ptr
 #include <unordered_map>
@@ -79,7 +79,7 @@ private:
    */
   void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor*);
 
-  std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateField>> Fields;
+  std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateFieldStrategy>> Fields;
 };
 
 VTK_ABI_NAMESPACE_END
