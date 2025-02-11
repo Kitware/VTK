@@ -79,8 +79,7 @@ void vtkArcGridActorPrivate::BuildGrid(vtkViewport* viewport)
 
   const double totalAngle = vtkMath::RadiansFromDegrees(this->Angle);
 
-  std::vector<vtkIdType> pids;
-  pids.reserve(this->Resolution);
+  std::vector<vtkIdType> pids(this->Resolution);
   for (int arc = 0; arc < nbArcs; arc++)
   {
     pids[0] = polyDataPoints->InsertNextPoint(this->TicksStart->GetPoint(arc));

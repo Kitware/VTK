@@ -250,11 +250,11 @@ int vtkImageToStructuredPoints::RequestInformation(vtkInformation* vtkNotUsed(re
     {
       whole[1] = tmp[1];
     }
-    if (tmp[3] < whole[1])
+    if (tmp[3] < whole[3])
     {
       whole[3] = tmp[3];
     }
-    if (tmp[5] < whole[1])
+    if (tmp[5] < whole[5])
     {
       whole[5] = tmp[5];
     }
