@@ -205,8 +205,8 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
     std::vector<double> testTuple(testNumComponents);
     for (vtkIdType i = 0; i < testNumTuples; ++i)
     {
-      refArray->GetTuple(i, &refTuple[0]);
-      testArray->GetTuple(i, &testTuple[0]);
+      refArray->GetTuple(i, refTuple.data());
+      testArray->GetTuple(i, testTuple.data());
       if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(), fuzzyEqual<double>))
       {
         std::stringstream refString;
@@ -350,8 +350,8 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
     std::vector<double> testTuple(testNumComponents);
     for (vtkIdType i = 0; i < testNumTuples; ++i)
     {
-      refArray->GetTuple(i, &refTuple[0]);
-      testArray->GetTuple(i, &testTuple[0]);
+      refArray->GetTuple(i, refTuple.data());
+      testArray->GetTuple(i, testTuple.data());
       if (!std::equal(refTuple.begin(), refTuple.end(), testTuple.begin(), fuzzyEqual<double>))
       {
         std::stringstream refString;
