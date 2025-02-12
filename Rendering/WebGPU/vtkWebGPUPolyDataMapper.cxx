@@ -604,7 +604,6 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Dev
   const std::string& label,
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
-  vtkGenericWarningMacro(<< __func__);
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
   {
     auto layout = this->CreateTopologyBindGroupLayout(device, label + "_LAYOUT");
