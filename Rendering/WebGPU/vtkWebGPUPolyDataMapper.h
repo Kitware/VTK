@@ -442,8 +442,6 @@ protected:
     int LastRepresentation = VTK_SURFACE;
     bool LastHasRenderingTranslucentGeometry = false;
   };
-  std::map<std::pair<vtkWeakPointer<vtkActor>, vtkWeakPointer<vtkRenderer>>, ActorState>
-    CachedActorRendererProperties;
 
 private:
   friend class vtkWebGPUComputeRenderBuffer;
@@ -487,6 +485,8 @@ private:
   const CellDataAttributes CellDataAttributesOrder[CellDataAttributes::CELL_NB_ATTRIBUTES] = {
     CellDataAttributes::CELL_COLORS, CellDataAttributes::CELL_NORMALS
   };
+
+  std::map<std::pair<vtkActor*, vtkRenderer*>, ActorState> CachedActorRendererProperties;
 
   vtkWebGPUPolyDataMapper(const vtkWebGPUPolyDataMapper&) = delete;
   void operator=(const vtkWebGPUPolyDataMapper&) = delete;
