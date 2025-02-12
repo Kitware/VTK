@@ -232,7 +232,7 @@ public:
   {
     using std::placeholders::_1;
 
-    std::function<void(ObjType*)> func = std::bind(setter, _1, value);
+    std::function<void(ObjType*)> func = [setter, value](ObjType* obj) { (obj->*setter)(value); };
     Option& opt = this->FindOrCreateOption(optionName);
     opt.Values.emplace_back(valueName, func);
     this->OptionTime.Modified();

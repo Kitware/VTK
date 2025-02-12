@@ -217,7 +217,8 @@ vtkThreadedTaskQueue<R, Args...>::~vtkThreadedTaskQueue()
 template <typename R, typename... Args>
 void vtkThreadedTaskQueue<R, Args...>::Push(Args&&... args)
 {
-  this->Tasks->Push(std::bind(this->Worker, args...));
+  this->Tasks->Push([this, arguments = std::make_tuple(std::forward<Args>(args)...)]()
+    { return std::apply(this->Worker, arguments); });
 }
 
 //-----------------------------------------------------------------------------
@@ -320,7 +321,8 @@ vtkThreadedTaskQueue<void, Args...>::~vtkThreadedTaskQueue()
 template <typename... Args>
 void vtkThreadedTaskQueue<void, Args...>::Push(Args&&... args)
 {
-  this->Tasks->Push(std::bind(this->Worker, args...));
+  this->Tasks->Push([this, arguments = std::make_tuple(std::forward<Args>(args)...)]()
+    { std::apply(this->Worker, arguments); });
 }
 
 //-----------------------------------------------------------------------------

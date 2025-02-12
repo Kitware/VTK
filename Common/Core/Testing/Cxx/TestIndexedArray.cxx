@@ -25,7 +25,9 @@ int TestIndexedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   handles->SetNumberOfIds(100);
   std::random_device randdev;
   std::mt19937 generator(randdev());
-  auto index_rand = std::bind(std::uniform_int_distribution<vtkIdType>(0, 999), generator);
+
+  std::uniform_int_distribution<vtkIdType> dist(0, 999);
+  auto index_rand = [&]() { return dist(generator); };
   for (vtkIdType idx = 0; idx < 100; idx++)
   {
     handles->SetId(idx, index_rand());

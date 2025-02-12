@@ -193,7 +193,7 @@ struct Spread
           // point_data /= denum
           auto dstTuple = dstTuples[pid];
           std::transform(dstTuple.cbegin(), dstTuple.cend(), dstTuple.begin(),
-            std::bind(std::divides<T>(), std::placeholders::_1, denom));
+            [denom](T value) { return value / denom; });
         }
       }
     }
