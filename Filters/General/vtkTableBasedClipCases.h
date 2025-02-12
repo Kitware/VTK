@@ -116,41 +116,26 @@ protected:
     { { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N }, { N, N } },
   };
 
-#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
-// XXX(gcc-4.8.5)
-// GCC 4.8.5 has the following bugs
-// internal compiler error: unexpected expression 'static_cast<int16_t>(-1)' of kind static_cast_expr internal compiler error: unexpected expression '(int16_t)((-1))' of kind cast_expr
-#define VTK_CLIP_CAST(type, value) value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnarrowing"
-#else
-#define VTK_CLIP_CAST(type, value) static_cast<type>(value)
-#endif
-
   // index into StartCellCases for each cell
   static constexpr int16_t CellCasesStartIndexLookUp[NUM_CELL_TYPES] = {
-    VTK_CLIP_CAST(int16_t, -1),  // 0 = VTK_EMPTY_CELL
-    VTK_CLIP_CAST(int16_t, 0),   // 1 = VTK_VERTEX
-    VTK_CLIP_CAST(int16_t, -1),  // 2 = VTK_POLY_VERTEX
-    VTK_CLIP_CAST(int16_t, 2),   // 3 = VTK_LINE
-    VTK_CLIP_CAST(int16_t, -1),  // 4 = VTK_POLY_LINE
-    VTK_CLIP_CAST(int16_t, 6),   // 5 = VTK_TRIANGLE
-    VTK_CLIP_CAST(int16_t, -1),  // 6 = VTK_TRIANGLE_STRIP
-    VTK_CLIP_CAST(int16_t, -1),  // 7 = VTK_POLYGON
-    VTK_CLIP_CAST(int16_t, 14),  // 8 = VTK_PIXEL
-    VTK_CLIP_CAST(int16_t, 30),  // 9 = VTK_QUAD
-    VTK_CLIP_CAST(int16_t, 46),  // 10 = VTK_TETRA
-    VTK_CLIP_CAST(int16_t, 62),  // 11 = VTK_VOXEL
-    VTK_CLIP_CAST(int16_t, 318), // 12 = VTK_HEXAHEDRON
-    VTK_CLIP_CAST(int16_t, 574), // 13 = VTK_WEDGE
-    VTK_CLIP_CAST(int16_t, 638), // 14 = VTK_PYRAMID
-    VTK_CLIP_CAST(int16_t, -1),  // 15 = VTK_PENTAGONAL_PRISM
-    VTK_CLIP_CAST(int16_t, -1),  // 16 = VTK_HEXAGONAL_PRISM
+    static_cast<int16_t>(-1),  // 0 = VTK_EMPTY_CELL
+    static_cast<int16_t>(0),   // 1 = VTK_VERTEX
+    static_cast<int16_t>(-1),  // 2 = VTK_POLY_VERTEX
+    static_cast<int16_t>(2),   // 3 = VTK_LINE
+    static_cast<int16_t>(-1),  // 4 = VTK_POLY_LINE
+    static_cast<int16_t>(6),   // 5 = VTK_TRIANGLE
+    static_cast<int16_t>(-1),  // 6 = VTK_TRIANGLE_STRIP
+    static_cast<int16_t>(-1),  // 7 = VTK_POLYGON
+    static_cast<int16_t>(14),  // 8 = VTK_PIXEL
+    static_cast<int16_t>(30),  // 9 = VTK_QUAD
+    static_cast<int16_t>(46),  // 10 = VTK_TETRA
+    static_cast<int16_t>(62),  // 11 = VTK_VOXEL
+    static_cast<int16_t>(318), // 12 = VTK_HEXAHEDRON
+    static_cast<int16_t>(574), // 13 = VTK_WEDGE
+    static_cast<int16_t>(638), // 14 = VTK_PYRAMID
+    static_cast<int16_t>(-1),  // 15 = VTK_PENTAGONAL_PRISM
+    static_cast<int16_t>(-1),  // 16 = VTK_HEXAGONAL_PRISM
   };
-
-#if defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION <= 40805
-#pragma GCC diagnostic pop
-#endif
 
 public:
   /**

@@ -11,7 +11,6 @@
 
 int otherCellGrid(int, char*[])
 {
-#if !defined(VTK_COMPILER_GCC) || VTK_COMPILER_GCC_VERSION > 40805
   std::string space;
   double dim;
   int hs = -42;
@@ -90,7 +89,6 @@ int otherCellGrid(int, char*[])
     vtkLog(ERROR, "Unexpected results parsing vtkCellAttribute space.");
     return EXIT_FAILURE;
   }
-#endif
 
   vtkNew<vtkCellGrid> cg;
   if (cg->SupportsGhostArray(vtkDataObject::POINT) || !cg->SupportsGhostArray(vtkDataObject::CELL))
