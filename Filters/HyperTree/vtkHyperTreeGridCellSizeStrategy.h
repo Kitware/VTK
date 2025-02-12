@@ -18,14 +18,16 @@
 #ifndef vtkHyperTreeGridCellSizeStrategy_h
 #define vtkHyperTreeGridCellSizeStrategy_h
 
-#include "vtkDoubleArray.h"
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkIndexedArray.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkNew.h"
 
 #include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkDoubleArray;
+class vtkUnsignedCharArray;
 
 class vtkHyperTreeGridCellSizeStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {
@@ -62,9 +64,10 @@ private:
    * values and we should switch to traditional size storage.
    */
   bool InsertSize(double cellSize, vtkIdType currentIndex);
+
   /**
    * Convert indexed cell values to direct values using a double array.
-   * Should be used When switching from indexed implicit array to full-size cell size array.
+   * Should be used when switching from indexed implicit array to full-size cell size array.
    */
   void ConvertSizes();
 

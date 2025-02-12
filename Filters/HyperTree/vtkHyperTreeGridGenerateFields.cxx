@@ -2,27 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridGenerateFields.h"
 
-#include "vtkBitArray.h"
 #include "vtkCellData.h"
-#include "vtkDataArray.h"
-#include "vtkDataArrayMeta.h" // for GetAPIType
-#include "vtkDataObject.h"
-#include "vtkHyperTree.h"
-#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridCellSizeStrategy.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkHyperTreeGridScales.h"
 #include "vtkHyperTreeGridTotalVisibleVolumeStrategy.h"
 #include "vtkHyperTreeGridValidCellStrategy.h"
-#include "vtkImplicitArray.h"
-#include "vtkIndent.h"
-#include "vtkInformation.h"
-#include "vtkNew.h"
-#include "vtkObject.h"
-#include "vtkObjectFactory.h"
-
-#include <memory>
-#include <vector>
 
 #define vtkHTGGenerateFieldsGetFieldNameMacro(name)                                                \
   std::string vtkHyperTreeGridGenerateFields::Get##name##ArrayName() VTK_FUTURE_CONST              \
@@ -58,13 +42,13 @@ vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
 
   vtkNew<vtkHyperTreeGridCellSizeStrategy> cellSize;
   cellSize->SetArrayName(this->DefaultCellSizeArrayName);
-  cellSize->SetArrayType(DataArrayType::CELL_DATA);
+  cellSize->SetArrayType(vtkDataObject::AttributeTypes::CELL);
   this->FieldsNameMap.emplace("CellSize", this->DefaultCellSizeArrayName);
   this->Fields.emplace("CellSize", cellSize);
 
   vtkNew<vtkHyperTreeGridValidCellStrategy> validCell;
   validCell->SetArrayName(this->DefaultValidCellArrayName);
-  validCell->SetArrayType(DataArrayType::CELL_DATA);
+  validCell->SetArrayType(vtkDataObject::AttributeTypes::CELL);
   this->FieldsNameMap.emplace("ValidCell", this->DefaultValidCellArrayName);
   this->Fields.emplace("ValidCell", validCell);
 
@@ -72,7 +56,7 @@ vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
 
   vtkNew<vtkHyperTreeGridTotalVisibleVolumeStrategy> totalVisibleVolume;
   totalVisibleVolume->SetArrayName(this->DefaultTotalVisibleVolumeArrayName);
-  totalVisibleVolume->SetArrayType(DataArrayType::FIELD_DATA);
+  totalVisibleVolume->SetArrayType(vtkDataObject::AttributeTypes::FIELD);
   this->FieldsNameMap.emplace("TotalVisibleVolume", this->DefaultTotalVisibleVolumeArrayName);
   this->Fields.emplace("TotalVisibleVolume", totalVisibleVolume);
 
@@ -94,7 +78,7 @@ void vtkHyperTreeGridGenerateFields::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGenerateFields::ProcessFields(
-  vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, const DataArrayType type)
+  vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, const vtkDataObject::AttributeTypes type)
 {
   for (const auto& field : this->Fields)
   {
@@ -125,11 +109,11 @@ void vtkHyperTreeGridGenerateFields::ProcessFields(
     if (field.second->GetArrayType() == type)
     {
       vtkDataArray* resultArray = field.second->GetAndFinalizeArray();
-      if (type == DataArrayType::CELL_DATA)
+      if (type == vtkDataObject::AttributeTypes::CELL)
       {
         outputHTG->GetCellData()->AddArray(resultArray);
       }
-      else if (type == DataArrayType::FIELD_DATA)
+      else if (type == vtkDataObject::AttributeTypes::FIELD)
       {
         outputHTG->GetFieldData()->AddArray(resultArray);
       }
@@ -150,9 +134,9 @@ int vtkHyperTreeGridGenerateFields::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
 
   outputHTG->ShallowCopy(input);
 
-  this->ProcessFields(outputHTG, input, DataArrayType::CELL_DATA);
+  this->ProcessFields(outputHTG, input, vtkDataObject::AttributeTypes::CELL);
 
-  this->ProcessFields(outputHTG, input, DataArrayType::FIELD_DATA);
+  this->ProcessFields(outputHTG, input, vtkDataObject::AttributeTypes::FIELD);
 
   this->UpdateProgress(1.);
   return 1;
@@ -160,17 +144,17 @@ int vtkHyperTreeGridGenerateFields::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridGenerateFields::ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
-  const DataArrayType type, vtkCellData* outputCellData)
+  const vtkDataObject::AttributeTypes type, vtkCellData* outputCellData)
 {
   for (const auto& field : this->Fields)
   {
     if (field.second->GetArrayType() == type)
     {
-      if (type == DataArrayType::CELL_DATA)
+      if (type == vtkDataObject::AttributeTypes::CELL)
       {
         field.second->Compute(cursor);
       }
-      else if (type == DataArrayType::FIELD_DATA)
+      else if (type == vtkDataObject::AttributeTypes::FIELD)
       {
         field.second->Compute(cursor, outputCellData, this->FieldsNameMap);
       }

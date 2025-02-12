@@ -3,15 +3,11 @@
 
 #include "vtkHyperTreeGridTotalVisibleVolumeStrategy.h"
 
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkHyperTreeGridValidCellStrategy.h>
-#include <vtkImplicitArray.h>
-#include <vtkIndexedArray.h>
-#include <vtkLogger.h>
-
+#include "vtkBitArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkUnsignedCharArray.h"
+#include "vtkIndexedArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy)
@@ -21,6 +17,9 @@ vtkStandardNewMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "TotalVisibleVolume: " << this->TotalVisibleVolume << "\n";
+  os << indent << "TotalVisibleVolumeArray size: "
+     << (this->TotalVisibleVolumeArray ? this->TotalVisibleVolumeArray->GetNumberOfTuples() : 0)
+     << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -46,8 +45,7 @@ void vtkHyperTreeGridTotalVisibleVolumeStrategy::Compute(
     return;
   }
 
-  auto validCellBoolArray =
-    vtkImplicitArray<vtkScalarBooleanImplicitBackend<double>>::SafeDownCast(validCellArray);
+  auto validCellBoolArray = vtkBitArray::SafeDownCast(validCellArray);
 
   // Type may change depending on the number of values
   auto cellSizeIndexedArray = vtkIndexedArray<double>::SafeDownCast(cellSizeArray);

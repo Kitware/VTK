@@ -7,20 +7,21 @@
  * This is a class used by vtkHyperTreeGridGenerateFields to add and compute the ValidCell
  * field.
  *
- * This field has a value of 1.0 for leaf (non-refined) cells
- * that are neither masked nor ghost, and 0.0 otherwise.
- * This field is implemented as an implicit array, in order to lower the memory footprint of the
- * filter.
+ * This field has a value of 1 for leaf (non-refined) cells
+ * that are neither masked nor ghost, and 0 otherwise.
  */
 
 #ifndef vtkHyperTreeGridValidCellStrategy_h
 #define vtkHyperTreeGridValidCellStrategy_h
 
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
-#include "vtkImplicitArray.h"
-#include "vtkScalarBooleanImplicitBackend.h"
+
+#include <vtkNew.h>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkBitArray;
+class vtkUnsignedCharArray;
 
 class vtkHyperTreeGridValidCellStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {
@@ -42,9 +43,7 @@ public:
   void Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor) override;
 
   /**
-   * Build valid cell field double array using a vtkScalarBooleanImplicitBackend implicit array
-   * unpacking the bit array built before. This cell field has a value of 1.0 for valid (leaf,
-   * non-ghost, non-masked) cells, and 0.0 for the others.
+   * Return a vtkBitArray containing the validity of each cell.
    */
   vtkDataArray* GetAndFinalizeArray() override;
 
@@ -59,12 +58,8 @@ private:
   vtkBitArray* InputMask = nullptr;
   vtkUnsignedCharArray* InputGhost = nullptr;
 
-  // Operations on bool vector are not atomic. This structure needs to change if this filter is
-  // parallelized.
-  std::vector<bool> PackedValidCellArray;
-
   // Output array
-  vtkNew<vtkImplicitArray<vtkScalarBooleanImplicitBackend<double>>> ValidCellsImplicitArray;
+  vtkNew<vtkBitArray> ValidCellsArray;
 };
 
 VTK_ABI_NAMESPACE_END

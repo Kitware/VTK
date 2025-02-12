@@ -15,8 +15,15 @@
 #define vtkHyperTreeGridTotalVisibleVolumeStrategy_h
 
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
+#include "vtkNew.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkCellData;
+class vtkDataArray;
+class vtkDoubleArray;
+class vtkHyperTreeGrid;
+class vtkHyperTreeGridNonOrientedGeometryCursor;
 
 class vtkHyperTreeGridTotalVisibleVolumeStrategy : public vtkHyperTreeGridGenerateFieldStrategy
 {

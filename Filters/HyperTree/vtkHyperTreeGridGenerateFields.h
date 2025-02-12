@@ -29,9 +29,7 @@
 #include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataObject;
-class vtkIndent;
-class vtkInformation;
+class vtkCellData;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 
@@ -86,20 +84,21 @@ private:
    * Iterate over the trees and fill output array structures. Output arrays are used as CellData or
    * FieldData depending on `type`.
    */
-  void ProcessFields(vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, DataArrayType type);
+  void ProcessFields(
+    vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, vtkDataObject::AttributeTypes type);
 
   /**
    * Process a single tree, recursively descending into the tree, down to leaves
    */
-  void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, DataArrayType type,
-    vtkCellData* outputCellData);
+  void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
+    vtkDataObject::AttributeTypes type, vtkCellData* outputCellData);
 
   // Cell Data
-  const char* DefaultCellSizeArrayName = "CellSize";
-  const char* DefaultValidCellArrayName = "ValidCell";
+  std::string DefaultCellSizeArrayName = "CellSize";
+  std::string DefaultValidCellArrayName = "ValidCell";
 
   // Field Data
-  const char* DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";
+  std::string DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";
 
   std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateFieldStrategy>> Fields;
   std::unordered_map<std::string, std::string> FieldsNameMap;

@@ -25,7 +25,6 @@ set(classes
 
 set(headers
   vtkHyperTreeGridGenerateFieldStrategy.h
-  vtkScalarBooleanImplicitBackend.h
 )
 
 set(private_classes

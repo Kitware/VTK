@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHyperTreeGridVisibleLeavesSize.h"
 
-#include <vtkObjectFactory.h>
+#include "vtkObjectFactory.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridVisibleLeavesSize)

@@ -3,9 +3,9 @@
 
 #include "vtkHyperTreeGridCellSizeStrategy.h"
 
-#include "vtkBitArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
-#include "vtkIndexedImplicitBackend.h"
+#include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridCellSizeStrategy)

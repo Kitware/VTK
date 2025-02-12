@@ -19,10 +19,8 @@ vtkStandardNewMacro(vtkHyperTreeGridValidCellStrategy)
   os << indent
      << "InputGhost size: " << (this->InputGhost ? this->InputGhost->GetNumberOfTuples() : 0)
      << "\n";
-  os << indent << "PackedValidCellArray size: " << this->PackedValidCellArray.size() << "\n";
-  os << indent << "ValidCellsImplicitArray size: "
-     << (this->ValidCellsImplicitArray ? this->ValidCellsImplicitArray->GetNumberOfTuples() : 0)
-     << "\n";
+  os << indent << "ValidCellsArray size: "
+     << (this->ValidCellsArray ? this->ValidCellsArray->GetNumberOfTuples() : 0) << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -37,14 +35,16 @@ void vtkHyperTreeGridValidCellStrategy::SetLeafValidity(const vtkIdType& index)
   {
     validity = false;
   }
-  this->PackedValidCellArray[index] = validity;
+  this->ValidCellsArray->SetTuple1(index, validity ? 1 : 0);
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridValidCellStrategy::Initialize(vtkHyperTreeGrid* inputHTG)
 {
-  this->PackedValidCellArray.clear();
-  this->PackedValidCellArray.resize(inputHTG->GetNumberOfCells(), false);
+  this->ValidCellsArray->SetName(this->ArrayName.c_str());
+  this->ValidCellsArray->SetNumberOfComponents(1);
+  this->ValidCellsArray->SetNumberOfTuples(inputHTG->GetNumberOfCells());
+  this->ValidCellsArray->Fill(0);
 
   this->InputMask = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
   this->InputGhost = inputHTG->GetGhostCells();
@@ -63,17 +63,7 @@ void vtkHyperTreeGridValidCellStrategy::Compute(vtkHyperTreeGridNonOrientedGeome
 //------------------------------------------------------------------------------
 vtkDataArray* vtkHyperTreeGridValidCellStrategy::GetAndFinalizeArray()
 {
-  this->ValidCellsImplicitArray->ConstructBackend(this->PackedValidCellArray);
-  this->ValidCellsImplicitArray->SetName(this->ArrayName.c_str());
-  this->ValidCellsImplicitArray->SetNumberOfComponents(1);
-  this->ValidCellsImplicitArray->SetNumberOfTuples(this->PackedValidCellArray.size());
-  for (vtkIdType iCell = 0; iCell < static_cast<vtkIdType>(this->PackedValidCellArray.size());
-       ++iCell)
-  {
-    this->ValidCellsImplicitArray->SetTuple1(iCell, this->PackedValidCellArray[iCell]);
-  }
-  this->PackedValidCellArray.clear();
-  return this->ValidCellsImplicitArray;
+  return this->ValidCellsArray;
 }
 
 VTK_ABI_NAMESPACE_END

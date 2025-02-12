@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <vtkHyperTreeGridSource.h>
-
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -11,6 +9,7 @@
 #include "vtkHyperTreeGridGenerateFields.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
