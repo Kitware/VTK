@@ -136,6 +136,14 @@ public:
 
   ///@{
   /**
+   * Enable/disable Qt touch event processing. Basic QEvent::TouchBegin/
+   TouchUpdate/TouchEnd event will be/not be processed. Default is true.
+   */
+  void setEnableTouchEventProcessing(bool value);
+  ///@}
+
+  ///@{
+  /**
    * Enable/disable DPI scaling. When enabled call to `resize` (which must
    * happen any time the `devicePixelRatio`, in addition to the size may
    * change), will result in updating the DPI on the

@@ -44,6 +44,11 @@ QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
 
 QVTKInteractorAdapter::~QVTKInteractorAdapter() = default;
 
+void QVTKInteractorAdapter::SetEnableTouchEventProcessing(bool val)
+{
+  this->EnableTouchEventProcessing = val;
+}
+
 void QVTKInteractorAdapter::SetDevicePixelRatio(float ratio, vtkRenderWindowInteractor* iren)
 {
   if (ratio != DevicePixelRatio)
@@ -192,8 +197,14 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     }
     return true;
   }
+
   if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
   {
+    if (!this->EnableTouchEventProcessing)
+    {
+      return false;
+    }
+
     QTouchEvent* e2 = dynamic_cast<QTouchEvent*>(e);
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Q_FOREACH (const QTouchEvent::TouchPoint& point, e2->touchPoints())
