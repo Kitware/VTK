@@ -61,7 +61,6 @@ template <typename MutableGraph, typename Done, typename EdgeCentralityMap, type
 void betweenness_centrality_clustering(MutableGraph& g, Done done,
   EdgeCentralityMap edge_centrality, EdgeWeightMap edge_weight_map, VertexIndexMap vertex_index)
 {
-  typedef typename property_traits<EdgeCentralityMap>::value_type centrality_type;
   typedef typename graph_traits<MutableGraph>::edge_iterator edge_iterator;
   typedef typename graph_traits<MutableGraph>::edge_descriptor edge_descriptor;
 
