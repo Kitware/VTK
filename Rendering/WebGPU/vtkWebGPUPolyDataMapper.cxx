@@ -198,7 +198,8 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   switch (wgpuRenderer->GetRenderStage())
   {
     case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
-    { // update (i.e, create and write) GPU buffers if the data is outdated.
+    {
+      // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       auto* mesh = this->CurrentInput;
       vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
@@ -215,7 +216,6 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       bool updateTopologyBindGroup =
         this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
           displayProperty->GetRepresentation(), vertexCounts, topologyBuffers, edgeArrayBuffers);
-
       // Handle vertex visibility.
       if (displayProperty->GetVertexVisibility() &&
         // avoids dispatching the cell-to-vertex pipeline again.
@@ -868,11 +868,16 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
     // so that the previous colors are invalidated.
     this->LastScalarVisibility = this->ScalarVisibility;
     this->LastScalarMode = this->ScalarMode;
+    vtkDebugMacro(<< "RemapScalar reason: no mesh");
     return true;
   }
   int cellFlag = 0;
-  vtkAbstractArray* scalars = vtkAbstractMapper::GetAbstractScalars(
-    mesh, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  vtkAbstractArray* scalars = nullptr;
+  if (this->ScalarVisibility)
+  {
+    scalars = vtkAbstractMapper::GetAbstractScalars(
+      mesh, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+  }
 
   if (!scalars)
   {
@@ -886,11 +891,15 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
   if (this->LastScalarVisibility != this->ScalarVisibility)
   {
     this->LastScalarVisibility = this->ScalarVisibility;
+    vtkDebugMacro(<< "RemapScalar reason: LastScalarVisibility (" << this->LastScalarVisibility
+                  << ") != ScalarVisibility (" << this->ScalarVisibility << ")");
     remapScalars |= true;
   }
   if (this->LastScalarMode != this->ScalarMode)
   {
     this->LastScalarMode = this->ScalarMode;
+    vtkDebugMacro(<< "RemapScalar reason: LastScalarMode (" << this->LastScalarMode
+                  << ") != ScalarMode (" << this->ScalarMode << ")");
     remapScalars |= true;
   }
   if (this->ScalarVisibility)
@@ -899,10 +908,12 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
     {
       if (mesh->GetCellData()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
       {
+        vtkDebugMacro(<< "RemapScalar reason: cell data newer than cell color build tstamp");
         remapScalars |= true;
       }
       if (this->GetLookupTable()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
       {
+        vtkDebugMacro(<< "RemapScalar reason: lut newer than cell color build tstamp");
         remapScalars |= true;
       }
     }
@@ -910,10 +921,12 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
     {
       if (mesh->GetPointData()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
       {
+        vtkDebugMacro(<< "RemapScalar reason: point data newer than point color build tstamp");
         remapScalars |= true;
       }
       if (this->GetLookupTable()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
       {
+        vtkDebugMacro(<< "RemapScalar reason: lut newer than point color build tstamp");
         remapScalars |= true;
       }
     }
