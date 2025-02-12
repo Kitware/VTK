@@ -51,7 +51,7 @@ int TestRemoveActors(int argc, char* argv[])
   }
 
   renderer->ResetCamera();
-  renderer->SetBackground(0.1, 0.1, 0.1);
+  renderer->SetBackground(1, 1, 1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
@@ -62,6 +62,20 @@ int TestRemoveActors(int argc, char* argv[])
 
   renderer->RemoveAllViewProps();
   renWin->Render();
+  vtkNew<vtkUnsignedCharArray> pixels;
+  renWin->GetRGBACharPixelData(0, 0, renWin->GetSize()[0] - 1, renWin->GetSize()[1] - 1, 0, pixels);
+  for (vtkIdType i = 0; i < pixels->GetNumberOfTuples(); ++i)
+  {
+    for (int c = 0; c < pixels->GetNumberOfComponents() - 1; ++c)
+    {
+      const auto value = pixels->GetComponent(i, c);
+      if (value != 255)
+      {
+        std::cerr << "Unexpected pixel value " << int(value) << '\n';
+        return EXIT_FAILURE;
+      }
+    }
+  }
 
   const int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

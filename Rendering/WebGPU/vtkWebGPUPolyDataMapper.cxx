@@ -1512,6 +1512,13 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   }
   this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
+  for (auto& it : this->CachedActorRendererProperties)
+  {
+    if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(it.first.second))
+    {
+      wgpuRenderer->InvalidateBundle();
+    }
+  }
   this->CachedActorRendererProperties.clear();
 }
 
