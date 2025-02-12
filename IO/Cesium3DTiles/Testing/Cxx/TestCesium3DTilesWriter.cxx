@@ -266,8 +266,8 @@ vtkSmartPointer<vtkMultiBlockDataSet> tiler(const std::vector<std::string>& inpu
       polyData->GetPointData()->SetScalars(rgb);
     }
   }
-  std::transform(fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(),
-    std::plus<double>());
+  std::transform(
+    fileOffset.begin(), fileOffset.end(), inputOffset.begin(), fileOffset.begin(), std::plus<>());
   std::string textureBaseDirectory = SystemTools::GetFilenamePath(files[0]);
 
   vtkNew<vtkCesium3DTilesWriter> writer;

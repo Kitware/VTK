@@ -77,7 +77,7 @@ int MPIGetSize()
 
 std::size_t TotalElements(const std::vector<std::size_t>& dimensions) noexcept
 {
-  return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<std::size_t>());
+  return std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<>());
 }
 
 void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,

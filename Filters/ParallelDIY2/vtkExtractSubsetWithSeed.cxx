@@ -588,7 +588,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         cp.collectives()->clear();
 
         const int has_seeds = static_cast<int>(!next_seeds.empty());
-        cp.all_reduce(has_seeds, std::logical_or<int>());
+        cp.all_reduce(has_seeds, std::logical_or<>());
       });
     vtkLogF(TRACE, "r=%d, exchange", round);
     master.exchange();

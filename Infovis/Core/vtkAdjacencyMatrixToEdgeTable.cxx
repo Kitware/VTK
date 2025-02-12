@@ -118,7 +118,7 @@ int vtkAdjacencyMatrixToEdgeTable::RequestData(
     coordinates[source_dimension] = i;
 
     // Create a sorted list of source values ...
-    typedef std::multimap<double, vtkIdType, std::greater<double>> sorted_values_t;
+    typedef std::multimap<double, vtkIdType, std::greater<>> sorted_values_t;
     sorted_values_t sorted_values;
     for (vtkIdType j = input_extents[target_dimension].GetBegin();
          j != input_extents[target_dimension].GetEnd(); ++j)
