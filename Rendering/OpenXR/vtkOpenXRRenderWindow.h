@@ -140,6 +140,16 @@ public:
   std::string& GetCurrentInteractionProfile(uint32_t);
   void SetCurrentInteractionProfile(uint32_t, const std::string& profile);
 
+  ///@{
+  /**
+   * Get/Set a custom path to look for the controllers models.
+   * Default is empty, only the parent of the directory containing the library/executable is
+   * checked.
+   */
+  std::string& GetModelsManifestDirectory();
+  void SetModelsManifestDirectory(const std::string& path);
+  ///@}
+
 protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;
