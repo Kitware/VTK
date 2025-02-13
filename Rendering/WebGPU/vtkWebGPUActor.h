@@ -5,6 +5,7 @@
 
 #include "vtkActor.h"
 
+#include "vtkProperty.h"              // for VTK_FLAT
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtk_wgpu.h"                 // for return
 
@@ -98,6 +99,20 @@ protected:
 
     struct ShadeOptions
     {
+      // Material ambient color - applicable when shading type is global.
+      vtkTypeFloat32 AmbientColor[3] = {};
+      vtkTypeUInt32 Pad1 = 0;
+      // Material diffuse color - applicable when shading type is global.
+      vtkTypeFloat32 DiffuseColor[3] = {};
+      vtkTypeUInt32 Pad2 = 0;
+      // Material specular color - applicable when shading type is global.
+      vtkTypeFloat32 SpecularColor[3] = {};
+      vtkTypeUInt32 Pad3 = 0;
+      // Edge color
+      vtkTypeFloat32 EdgeColor[3] = {};
+      vtkTypeUInt32 Pad4 = 0;
+      // Vertex color
+      vtkTypeFloat32 VertexColor[3] = {};
       // Material ambient color intensity.
       vtkTypeFloat32 AmbientIntensity = 0;
       // Material diffuse color intensity.
@@ -108,18 +123,8 @@ protected:
       vtkTypeFloat32 SpecularPower = 0;
       // Opacity level
       vtkTypeFloat32 Opacity = 0;
-      // So that `AmbientColor` starts at 16-byte boundary.
-      vtkTypeUInt32 Pad[3];
-      // Material ambient color - applicable when shading type is global.
-      vtkTypeFloat32 AmbientColor[4] = {};
-      // Material diffuse color - applicable when shading type is global.
-      vtkTypeFloat32 DiffuseColor[4] = {};
-      // Material specular color - applicable when shading type is global.
-      vtkTypeFloat32 SpecularColor[4] = {};
-      // Edge color
-      vtkTypeFloat32 EdgeColor[4] = {};
-      // Vertex color
-      vtkTypeFloat32 VertexColor[4] = {};
+      // Interpolation type
+      vtkTypeUInt32 InterpolationType = VTK_FLAT;
     } ShadeOpts;
   };
 

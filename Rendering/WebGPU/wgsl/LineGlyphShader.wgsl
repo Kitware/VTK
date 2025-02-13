@@ -314,37 +314,45 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   ///------------------------///
   // Lights
   ///------------------------///
-  if scene_lights.count == 0u {
-    // allow post-processing this pixel.
+  if (actor.color_options.interpolation_type == VTK_FLAT && !render_lines_as_tubes) {
+    // when interpolation type is flag, do not use normal vector and light direction to compute color.
     output.color = vec4<f32>(
       actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
       opacity
     );
-  } else if scene_lights.count == 1u {
-    let light: SceneLight = scene_lights.values[0];
-    if light.positional == 1u {
-      // TODO: positional
+  } else {
+    if scene_lights.count == 0u {
+      // allow post-processing this pixel.
       output.color = vec4<f32>(
-          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-          opacity
+        actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+        opacity
       );
+    } else if scene_lights.count == 1u {
+      let light: SceneLight = scene_lights.values[0];
+      if light.positional == 1u {
+        // TODO: positional
+        output.color = vec4<f32>(
+            actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+            opacity
+        );
+      } else {
+        // headlight
+        let df: f32 = max(0.000001f, normal_vc.z);
+        let sf: f32 = pow(df, actor.color_options.specular_power);
+        diffuse_color = df * diffuse_color * light.color;
+        specular_color = sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light.color;
+        output.color = vec4<f32>(
+            actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color + specular_color,
+            opacity
+        );
+      }
     } else {
-      // headlight
-      let df: f32 = max(0.000001f, normal_vc.z);
-      let sf: f32 = pow(df, actor.color_options.specular_power);
-      diffuse_color = df * diffuse_color * light.color;
-      specular_color = sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light.color;
+      // TODO: light kit
       output.color = vec4<f32>(
-          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color + specular_color,
-          opacity
+        actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+        opacity
       );
     }
-  } else {
-    // TODO: light kit
-    output.color = vec4<f32>(
-      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      opacity
-    );
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
