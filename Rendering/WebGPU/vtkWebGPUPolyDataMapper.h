@@ -193,13 +193,6 @@ protected:
     vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder);
 
   /**
-   * Determines whether this mapper should re-map scalars on the mesh to colors.
-   * The scalars must be remapped to colors when the scalar mode/visibility/active array has
-   * changed.
-   */
-  bool GetNeedToRemapScalars(vtkPolyData* mesh);
-
-  /**
    * Looks at the point/cell data of `vtkPolyData` object and determines
    * which attributes are available. Scalars should have been mapped if required.
    */

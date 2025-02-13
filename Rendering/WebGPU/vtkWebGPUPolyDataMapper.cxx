@@ -861,80 +861,6 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
-{
-  if (mesh == nullptr)
-  {
-    // so that the previous colors are invalidated.
-    this->LastScalarVisibility = this->ScalarVisibility;
-    this->LastScalarMode = this->ScalarMode;
-    vtkDebugMacro(<< "RemapScalar reason: no mesh");
-    return true;
-  }
-  int cellFlag = 0;
-  vtkAbstractArray* scalars = nullptr;
-  if (this->ScalarVisibility)
-  {
-    scalars = vtkAbstractMapper::GetAbstractScalars(
-      mesh, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-  }
-
-  if (!scalars)
-  {
-    // so that the previous colors are invalidated.
-    this->LastScalarVisibility = this->ScalarVisibility;
-    this->LastScalarMode = this->ScalarMode;
-    return true;
-  }
-
-  bool remapScalars = false;
-  if (this->LastScalarVisibility != this->ScalarVisibility)
-  {
-    this->LastScalarVisibility = this->ScalarVisibility;
-    vtkDebugMacro(<< "RemapScalar reason: LastScalarVisibility (" << this->LastScalarVisibility
-                  << ") != ScalarVisibility (" << this->ScalarVisibility << ")");
-    remapScalars |= true;
-  }
-  if (this->LastScalarMode != this->ScalarMode)
-  {
-    this->LastScalarMode = this->ScalarMode;
-    vtkDebugMacro(<< "RemapScalar reason: LastScalarMode (" << this->LastScalarMode
-                  << ") != ScalarMode (" << this->ScalarMode << ")");
-    remapScalars |= true;
-  }
-  if (this->ScalarVisibility)
-  {
-    if (cellFlag)
-    {
-      if (mesh->GetCellData()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
-      {
-        vtkDebugMacro(<< "RemapScalar reason: cell data newer than cell color build tstamp");
-        remapScalars |= true;
-      }
-      if (this->GetLookupTable()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
-      {
-        vtkDebugMacro(<< "RemapScalar reason: lut newer than cell color build tstamp");
-        remapScalars |= true;
-      }
-    }
-    else
-    {
-      if (mesh->GetPointData()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
-      {
-        vtkDebugMacro(<< "RemapScalar reason: point data newer than point color build tstamp");
-        remapScalars |= true;
-      }
-      if (this->GetLookupTable()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
-      {
-        vtkDebugMacro(<< "RemapScalar reason: lut newer than point color build tstamp");
-        remapScalars |= true;
-      }
-    }
-  }
-  return remapScalars;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::DeducePointCellAttributeAvailability(vtkPolyData* mesh)
 {
   this->ResetPointCellAttributeState();
@@ -1028,40 +954,12 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     return;
   }
 
-  const bool remapScalars = this->GetNeedToRemapScalars(this->CurrentInput);
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
   // and ColorTextureMap as a side effect.
-  if (remapScalars)
-  {
-    // Get rid of old texture color coordinates if any
-    if (this->ColorCoordinates)
-    {
-      this->ColorCoordinates->UnRegister(this);
-      this->ColorCoordinates = nullptr;
-    }
-    // Get rid of old texture color coordinates if any
-    if (this->Colors)
-    {
-      this->Colors->UnRegister(this);
-      this->Colors = nullptr;
-    }
-    int cellFlag = 0;
-    this->MapScalars(this->CurrentInput, 1.0, cellFlag);
-  }
+  int cellFlag = 0;
+  this->MapScalars(this->CurrentInput, 1.0, cellFlag);
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
-  ///@{ TODO:
-  // // If we are coloring by texture, then load the texture map.
-  // if (this->ColorTextureMap)
-  // {
-  //   if (this->InternalColorTexture == nullptr)
-  //   {
-  //     this->InternalColorTexture = vtkOpenGLTexture::New();
-  //     this->InternalColorTexture->RepeatOff();
-  //   }
-  //   this->InternalColorTexture->SetInputData(this->ColorTextureMap);
-  // }
-  ///@}
 
   MeshAttributeDescriptor meshAttrDescriptor;
 
