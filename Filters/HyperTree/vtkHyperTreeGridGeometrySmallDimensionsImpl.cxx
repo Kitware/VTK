@@ -15,9 +15,9 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridGeometrySmallDimensionsImpl::vtkHyperTreeGridGeometrySmallDimensionsImpl(
   vtkHyperTreeGrid* input, vtkPoints* outPoints, vtkCellArray* outCells,
   vtkDataSetAttributes* inCellDataAttributes, vtkDataSetAttributes* outCellDataAttributes,
-  bool passThroughCellIds, const std::string& originalCellIdArrayName)
+  bool passThroughCellIds, const std::string& originalCellIdArrayName, bool fillMaterial)
   : vtkHyperTreeGridGeometryImpl(input, outPoints, outCells, inCellDataAttributes,
-      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName)
+      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName, fillMaterial)
 {
 }
 
@@ -96,7 +96,10 @@ void vtkHyperTreeGridGeometrySmallDimensionsImpl::ProcessLeafCellWithInterface(
 {
   if (!this->ProbeForCellInterface(cursor->GetGlobalNodeIndex(), false))
   { // case type >= 2, pure cell
-    this->ProcessLeafCellWithoutInterface(cursor);
+    if (this->FillMaterial)
+    {
+      this->ProcessLeafCellWithoutInterface(cursor);
+    }
     return;
   }
 

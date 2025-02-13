@@ -14,9 +14,9 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridGeometry1DImpl::vtkHyperTreeGridGeometry1DImpl(vtkHyperTreeGrid* input,
   vtkPoints* outPoints, vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
   vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-  const std::string& originalCellIdArrayName)
+  const std::string& originalCellIdArrayName, bool fillMaterial)
   : vtkHyperTreeGridGeometrySmallDimensionsImpl(input, outPoints, outCells, inCellDataAttributes,
-      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName)
+      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName, fillMaterial)
 {
   // The orientation value indicates the axis on which the HTG 1D is oriented.
   this->Axis = this->Input->GetOrientation();
