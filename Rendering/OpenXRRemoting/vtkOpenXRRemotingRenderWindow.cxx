@@ -44,6 +44,22 @@ void vtkOpenXRRemotingRenderWindow::SetRemotingIPAddress(const char* host)
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenXRRemotingRenderWindow::SetRemotingXRDirectory(const char* path)
+{
+  vtkOpenXRManagerRemoteConnection* connectionStrategy =
+    vtkOpenXRManagerRemoteConnection::SafeDownCast(
+      vtkOpenXRManager::GetInstance().GetConnectionStrategy());
+
+  if (!connectionStrategy)
+  {
+    vtkWarningMacro(<< "Unexpected connection strategy used by vtkOpenXRManager.");
+    return;
+  }
+
+  connectionStrategy->SetRemotingXRDirectory(path);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenXRRemotingRenderWindow::Initialize()
 {
   if (this->VRInitialized)
