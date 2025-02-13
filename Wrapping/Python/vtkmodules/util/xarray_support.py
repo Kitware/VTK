@@ -109,9 +109,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
         VTKPythonAlgorithmBase.__init__(
             self, nInputPorts=0, nOutputPorts=1, outputType="vtkDataObject"
         )
-        logging.basicConfig(level=logging.DEBUG)
         self._log = logging.getLogger("vtkXArrayCFReader")
-        self._log.setLevel(logging.DEBUG)
         self._filename = None
         self._timesteps = None
         self._timeindex = None
@@ -130,7 +128,6 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
                 self.Modified()
             return getattr(self._reader, name)
         else:
-            logging.error(f"Attribute '{name}' is not forwarded.")
             raise AttributeError()
 
     def SetFileName(self, name):
