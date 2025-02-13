@@ -15,7 +15,7 @@ int TestOBJReaderMaterials(int argc, char* argv[])
   int retVal = 0;
 
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_with_materials.obj");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/checkerboard_colorful.obj");
   vtkSmartPointer<vtkOBJReader> reader = vtkSmartPointer<vtkOBJReader>::New();
   reader->SetFileName(fname);
   reader->Update();
@@ -42,14 +42,19 @@ int TestOBJReaderMaterials(int argc, char* argv[])
     std::cerr << "missing material id array" << std::endl;
     return 1;
   }
-  if (data->GetNumberOfCells() != 2)
+  if (data->GetNumberOfCells() != 648)
   {
     std::cerr << "wrong number of cells" << std::endl;
     return 1;
   }
-  int matid = mia->GetVariantValue(1).ToInt();
+  int matid = mia->GetVariantValue(40).ToInt();
+  if (matid != mia->GetVariantValue(41).ToInt())
+  {
+    std::cerr << "wrong material id" << std::endl;
+    return 1;
+  }
   std::string matname = mna->GetVariantValue(matid).ToString();
-  if (matname != "Air")
+  if (matname != "cb_odd")
   {
     std::cerr << "wrong material for" << std::endl;
     return 1;
