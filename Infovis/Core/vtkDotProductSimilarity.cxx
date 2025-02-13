@@ -30,9 +30,9 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename KeyT, typename ValueT>
-class threshold_multimap : public std::multimap<KeyT, ValueT, std::less<KeyT>>
+class threshold_multimap : public std::multimap<KeyT, ValueT, std::less<>>
 {
-  typedef std::multimap<KeyT, ValueT, std::less<KeyT>> container_t;
+  typedef std::multimap<KeyT, ValueT, std::less<>> container_t;
 
 public:
   threshold_multimap(KeyT minimum_threshold, size_t minimum_count, size_t maximum_count)

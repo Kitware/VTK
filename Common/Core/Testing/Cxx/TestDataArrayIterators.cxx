@@ -1,51 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// VTK_DEPRECATED_IN_9_5_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkTimerLog.h"
-#include "vtkTypedDataArray.h"
-#include "vtkTypedDataArrayIterator.h"
 
 #include <cassert>
 #include <iostream>
 
 // undefine this to print benchmark results:
 #define SILENT
-
-// Create a subclass of vtkTypedDataArray:
-namespace
-{
-class MyArray : public vtkTypedDataArray<float>
-{
-  vtkFloatArray* Data;
-
-public:
-  static MyArray* New() { VTK_STANDARD_NEW_BODY(MyArray); }
-  void Init(vtkFloatArray* array)
-  {
-    this->Data = array;
-    this->NumberOfComponents = array->GetNumberOfComponents();
-    this->MaxId = array->GetMaxId();
-  }
-  ValueType& GetValueReference(vtkIdType idx) override { return *this->Data->GetPointer(idx); }
-
-  // These pure virtuals are no-op -- all we care about is GetValueReference
-  // to test the iterator.
-  void SetTypedTuple(vtkIdType, const ValueType*) override {}
-  void InsertTypedTuple(vtkIdType, const ValueType*) override {}
-  vtkIdType InsertNextTypedTuple(const ValueType*) override { return 0; }
-  vtkIdType LookupTypedValue(ValueType) override { return 0; }
-  void LookupTypedValue(ValueType, vtkIdList*) override {}
-  ValueType GetValue(vtkIdType) const override { return 0; }
-  void SetValue(vtkIdType, ValueType) override {}
-  void GetTypedTuple(vtkIdType, ValueType*) const override {}
-  vtkIdType InsertNextValue(ValueType) override { return 0; }
-  void InsertValue(vtkIdType, ValueType) override {}
-  vtkTypeBool Allocate(vtkIdType, vtkIdType) override { return 0; }
-  vtkTypeBool Resize(vtkIdType) override { return 0; }
-};
-}
 
 int TestDataArrayIterators(int, char*[])
 {
@@ -64,10 +31,11 @@ int TestDataArrayIterators(int, char*[])
     array->SetValue(i, i % 97);
   }
 
-  // Create the vtkTypedDataArray testing implementation:
-  vtkNew<MyArray> tdaContainer;
-  MyArray* tda = tdaContainer;
-  tda->Init(array);
+  // Create the vtkAOSDataArrayTemplate testing implementation:
+  vtkNew<vtkAOSDataArrayTemplate<float>> tdaContainer;
+  vtkAOSDataArrayTemplate<float>* tda = tdaContainer;
+  tda->SetNumberOfComponents(numComps);
+  tda->SetArray(arrayContainer->GetPointer(0), numValues, 1);
 
   // should be vtkAOSDataArrayTemplate<float>::Iterator (float*):
   vtkFloatArray::Iterator datBegin = array->Begin();
@@ -79,13 +47,14 @@ int TestDataArrayIterators(int, char*[])
   }
 
   // should be vtkTypedDataArrayIterator<float>:
-  vtkTypedDataArray<float>::Iterator tdaBegin =
-    vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
-  vtkTypedDataArray<float>::Iterator tdaIter = vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
-  if (typeid(tdaBegin) != typeid(vtkTypedDataArrayIterator<float>))
+  vtkAOSDataArrayTemplate<float>::Iterator tdaBegin =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(tda)->Begin();
+  vtkAOSDataArrayTemplate<float>::Iterator tdaIter =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(tda)->Begin();
+  if (typeid(tdaBegin) != typeid(float*))
   {
-    std::cerr << "Error: vtkTypedDataArray<float>::Iterator is not a "
-                 "vtkTypedDataArrayIterator<float>.";
+    std::cerr << "Error: vtkAOSDataArrayTemplate<float>::Iterator is not a "
+                 "float*.";
     return EXIT_FAILURE;
   }
 
@@ -131,8 +100,8 @@ int TestDataArrayIterators(int, char*[])
   timer->StopTimer();
   double datTime = timer->GetElapsedTime();
 
-  // vtkTypedDataArrayIterator:
-  vtkTypedDataArray<float>::Iterator tdaEnd = tda->End();
+  // vtkAOSDataArrayTemplate<float>::Iterator:
+  vtkAOSDataArrayTemplate<float>::Iterator tdaEnd = tda->End();
   float tdaSum = 0.f;
   timer->StartTimer();
   while (tdaBegin != tdaEnd)

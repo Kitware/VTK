@@ -2289,9 +2289,9 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   std::function<bool(double, double)> c = [insideOut](double a, double b)
   {
     if (insideOut)
-      return std::less_equal<double>()(a, b);
+      return std::less_equal<>()(a, b);
 
-    return std::greater_equal<double>()(a, b);
+    return std::greater_equal<>()(a, b);
   };
 
   bool all(true);

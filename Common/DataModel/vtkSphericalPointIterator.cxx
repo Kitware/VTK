@@ -154,7 +154,7 @@ struct vtkSphericalPointIterator::SphericalPointIterator
     }
     if (dir == vtkSphericalPointIterator::SORT_DESCENDING)
     {
-      std::sort(radialSort.begin(), radialSort.end(), std::greater<RadialTuple>());
+      std::sort(radialSort.begin(), radialSort.end(), std::greater<>());
     }
     else // ascending
     {

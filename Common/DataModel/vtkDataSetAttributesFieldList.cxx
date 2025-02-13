@@ -264,7 +264,7 @@ std::array<const detail::FieldInfo*, vtkDataSetAttributes::NUM_ATTRIBUTES> GetAt
     for (const auto& inattrs : finfo->AttributeTypes)
     {
       std::transform(accumulated_attrs.begin(), accumulated_attrs.end(), inattrs.begin(),
-        accumulated_attrs.begin(), std::logical_and<bool>());
+        accumulated_attrs.begin(), std::logical_and<>());
     }
 
     std::transform(attrs.begin(), attrs.end(), accumulated_attrs.begin(), attrs.begin(),

@@ -449,7 +449,7 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
   vtkIdType global_offset = 0;
 
   diy::mpi::communicator comm = vtkDIYUtilities::GetCommunicator(controller);
-  diy::mpi::scan(comm, total_local_cells, global_offset, std::plus<vtkIdType>());
+  diy::mpi::scan(comm, total_local_cells, global_offset, std::plus<>());
   // convert to exclusive scan since mpi_scan is inclusive.
   global_offset -= total_local_cells;
 
@@ -460,7 +460,7 @@ bool vtkDIYKdTreeUtilities::GenerateGlobalCellIds(vtkPartitionedDataSet* parts,
 
     // need an Allreduce to get the offset for next time
     vtkIdType total_global_cells = 0;
-    diy::mpi::all_reduce(comm, total_local_cells, total_global_cells, std::plus<vtkIdType>());
+    diy::mpi::all_reduce(comm, total_local_cells, total_global_cells, std::plus<>());
     (*mb_offset) += total_global_cells;
   }
 

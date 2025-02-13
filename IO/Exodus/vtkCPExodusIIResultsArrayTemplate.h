@@ -15,13 +15,17 @@
 #ifndef vtkCPExodusIIResultsArrayTemplate_h
 #define vtkCPExodusIIResultsArrayTemplate_h
 
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkMappedDataArray.h"
 
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkCPExodusIIResultsArrayTemplate : public vtkMappedDataArray<Scalar>
+class VTK_DEPRECATED_IN_9_5_0("Please use the SetArray functionality of `vtkAOSDataArrayTemplate` "
+                              "for 1 component or `vtkSOADataArrayTemplate` for more "
+                              "instead.") vtkCPExodusIIResultsArrayTemplate
+  : public vtkMappedDataArray<Scalar>
 {
 public:
   vtkAbstractTemplateTypeMacro(

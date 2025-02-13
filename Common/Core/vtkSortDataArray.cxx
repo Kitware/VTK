@@ -41,7 +41,7 @@ void vtkSortDataArray::Sort(vtkIdList* keys, int dir)
   }
   else
   {
-    vtkSMPTools::Sort(data, data + numKeys, std::greater<vtkIdType>());
+    vtkSMPTools::Sort(data, data + numKeys, std::greater<>());
   }
 }
 
@@ -75,7 +75,7 @@ void vtkSortDataArray::Sort(vtkAbstractArray* keys, int dir)
     switch (keys->GetDataType())
     {
       vtkExtendedTemplateMacro(vtkSMPTools::Sort(
-        static_cast<VTK_TT*>(data), static_cast<VTK_TT*>(data) + numKeys, std::greater<VTK_TT>()));
+        static_cast<VTK_TT*>(data), static_cast<VTK_TT*>(data) + numKeys, std::greater<>()));
     }
   }
 }

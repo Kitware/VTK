@@ -48,7 +48,7 @@ protected:
 private:
   vtkSmartPointer<vtkPointSet> Points;
   std::map<vtkIdType, std::vector<vtkIdType>> Paths;
-  std::priority_queue<vtkIdType, std::vector<vtkIdType>, std::greater<vtkIdType>> UnusedIndices;
+  std::priority_queue<vtkIdType, std::vector<vtkIdType>, std::greater<>> UnusedIndices;
 };
 
 VTK_ABI_NAMESPACE_END
