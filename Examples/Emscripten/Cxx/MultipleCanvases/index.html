@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    html,
+    body {
+      /*remove default margin*/
+      margin: 0;
+      /* make body fill the browser */
+      height: 100%;
+    }
+
+    #outer {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: auto;
+    }
+
+    .canvas {
+      display: inline-block;
+      padding: 1em;
+      background: #888;
+      margin: 1em;
+    }
+
+    .size0>canvas {
+      width: 300px;
+      height: 300px;
+    }
+
+    .size1>canvas {
+      width: 400px;
+      height: 300px;
+    }
+
+    .size2>canvas {
+      width: 300px;
+      height: 400px;
+    }
+
+    .size3>canvas {
+      width: 400px;
+      height: 400px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="outer">
+  </div>
+  <script>
+    const numCanvases = 16;
+    /**
+     * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
+     * resize events from the parent HTML element.
+     */
+    function lockCanvasSize(wasmRuntime) {
+      try {
+        if (typeof wasmRuntime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
+          wasmRuntime._setDefaultExpandVTKCanvasToContainer(false);
+        }
+        if (typeof wasmRuntime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
+          wasmRuntime._setDefaultInstallHTMLResizeObserver(false);
+        }
+      } catch (_e) {}
+    }
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const canvas = entry.target;
+        const width = entry.contentBoxSize[0].inlineSize;
+        const height = entry.contentBoxSize[0].blockSize;
+        const scaledWidth = Math.max(
+          1,
+          width * window.devicePixelRatio + 0.5
+        );
+        const scaledHeight = Math.max(
+          1,
+          height * window.devicePixelRatio + 0.5
+        );
+        Module._updateSize(canvas.internalIndex, scaledWidth, scaledHeight);
+        Module._render(canvas.internalIndex);
+      }
+    });
+
+    function rand(min, max) {
+      if (min === undefined) {
+        max = 1;
+        min = 0;
+      } else if (max === undefined) {
+        max = min;
+        min = 0;
+      }
+      return Math.random() * (max - min) + min;
+    }
+
+    function addCanvas(canvasId, sourceName, iCanvas) {
+      canvasId = maybeCStringToJsString(canvasId);
+      sourceName = maybeCStringToJsString(sourceName);
+      const outerElem = document.body.querySelector("#outer");
+      // making this
+      // <div class="product size?">
+      //   <canvas></canvas>
+      //   <div>Canvas#: ?</div>
+      // </div>
+      const newCanvas = document.createElement('canvas');
+      newCanvas.id = canvasId;
+      newCanvas.oncontextmenu = (event) => event.preventDefault();
+      newCanvas.tabIndex = -1;
+      newCanvas.internalIndex = iCanvas;
+      resizeObserver.observe(newCanvas);
+
+      const container = document.createElement('div');
+      container.className = `canvas size${Math.floor(rand(1, 4))}`;
+
+      const description = document.createElement('div');
+      description.textContent = `Canvas #: ${iCanvas + 1} ${sourceName}`;
+
+      container.onmouseenter = () => {
+        Module._startEventLoop(iCanvas);
+        newCanvas.focus();
+      };
+      container.onmouseleave = () => {
+        Module._stopEventLoop(iCanvas);
+      };
+      container.appendChild(newCanvas);
+      container.appendChild(description);
+      outerElem.appendChild(container);
+      setTimeout((i) => Module._render(i), 1000, iCanvas);
+    }
+
+    var vtkWasmRuntime = null;
+    var Module = {
+      arguments: [`${numCanvases}`],
+      preRun: (runtime) => {
+        // cache the VTK wasm runtime instance.
+        vtkWasmRuntime = runtime;
+        vtkWasmRuntime.ENV.VTK_GRAPHICS_BACKEND = "WEBGPU";
+      },
+      onRuntimeInitialized: () => {
+        if (vtkWasmRuntime !== null) {
+          lockCanvasSize(vtkWasmRuntime);
+        }
+      },
+    };
+  </script>
+  {{{ SCRIPT }}}
+</body>
+
+</html>
