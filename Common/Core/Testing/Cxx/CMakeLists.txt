@@ -188,20 +188,22 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestStdFunctionArray.cxx
   TestStructuredPointArray.cxx)
 
-# Special test to check whether disabling loguru signal handling, i.e.,
-# stack trace printing when it catches a signal, works. We add an
-# executable where the stack trace is disabled. The actual test is a
-# CMake script that runs the test executable and analyzes the output to
-# determine whether a stack trace was printed or not.
-add_executable(TestLoggerDisableSignalHandlerCxx
-  TestLoggerDisableSignalHandler.cxx)
-target_link_libraries(TestLoggerDisableSignalHandlerCxx
-  PRIVATE VTK::CommonCore VTK::CommonDataModel)
-add_test(NAME TestLoggerDisableSignalHandler
-  COMMAND ${CMAKE_COMMAND}
-  -DEXECUTABLE_PATH:FILEPATH=$<TARGET_FILE:TestLoggerDisableSignalHandlerCxx>
-  -P ${CMAKE_CURRENT_SOURCE_DIR}/TestLoggerDisableSignalHandler.cmake)
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  # On emscripten platform, loguru does not have stack trace ability.
+  # Special test to check whether disabling loguru signal handling, i.e.,
+  # stack trace printing when it catches a signal, works. We add an
+  # executable where the stack trace is disabled. The actual test is a
+  # CMake script that runs the test executable and analyzes the output to
+  # determine whether a stack trace was printed or not.
+  add_executable(TestLoggerDisableSignalHandlerCxx
+    TestLoggerDisableSignalHandler.cxx)
+  target_link_libraries(TestLoggerDisableSignalHandlerCxx
+    PRIVATE VTK::CommonCore VTK::CommonDataModel)
+  add_test(NAME TestLoggerDisableSignalHandler
+    COMMAND ${CMAKE_COMMAND}
+    -DEXECUTABLE_PATH:FILEPATH=$<TARGET_FILE:TestLoggerDisableSignalHandlerCxx>
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/TestLoggerDisableSignalHandler.cmake)
+endif ()
 
 vtk_test_cxx_executable(vtkCommonCoreCxxTests tests
-  vtkTestNewVar.cxx
-  )
+  vtkTestNewVar.cxx)
