@@ -606,18 +606,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_windows_chrome_
     "^VTK::WebAssemblyJavaScript")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm64")
-  list (APPEND test_exclusions
-    # WebGPU tests fail in wasm64 architecture. The tests
-    # fail because of a bug in the library_webgpu.js file
-    # that is fixed in the commit https://github.com/emscripten-core/emscripten/commit/01f89dcd3cb505f3fdfa3b2bd3d4ef654c753f0a
-    # which is available in emsdk >= 3.1.72
-    # See this issue which tracks the emsdk version update.
-    # https://gitlab.kitware.com/vtk/vtk/-/issues/19523
-    "^VTK::RenderingWebGPUCxx")
-endif ()
-
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "debug")
   # Timeouts from debug builds (even with 5 minute limits). See #19212
