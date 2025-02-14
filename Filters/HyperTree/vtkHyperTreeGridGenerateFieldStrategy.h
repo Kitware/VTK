@@ -12,7 +12,7 @@
 #define vtkHyperTreeGridGenerateFieldStrategy_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGrid.h"          // For vtkHyperTreeGrid
 #include "vtkObject.h"
 
 #include <unordered_map>
@@ -22,6 +22,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFieldStrategy : public vtkObject
 {
 public:
+  vtkHyperTreeGridGenerateFieldStrategy() = default;
   vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject)
   void PrintSelf(ostream& os, vtkIndent indent) override
   {
@@ -84,6 +85,10 @@ public:
 protected:
   std::string ArrayName;
   vtkDataObject::AttributeTypes ArrayType = vtkDataObject::AttributeTypes::CELL;
+
+private:
+  void operator=(const vtkHyperTreeGridGenerateFieldStrategy&) = delete;
+  vtkHyperTreeGridGenerateFieldStrategy(const vtkHyperTreeGridGenerateFieldStrategy&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

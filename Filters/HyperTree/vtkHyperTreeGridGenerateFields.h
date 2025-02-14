@@ -24,7 +24,7 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
-#include "vtkHyperTreeGridGenerateFieldStrategy.h"
+#include "vtkHyperTreeGridGenerateFieldStrategy.h" // For vtkHyperTreeGridGenerateFieldStrategy
 
 #include <unordered_map>
 
@@ -38,7 +38,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFields : public vtkHype
 public:
   static vtkHyperTreeGridGenerateFields* New();
   vtkTypeMacro(vtkHyperTreeGridGenerateFields, vtkHyperTreeGridAlgorithm)
-  void PrintSelf(ostream& ost, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
   /**

@@ -16,8 +16,7 @@
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
-
-#include <vtkNew.h>
+#include "vtkNew.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
