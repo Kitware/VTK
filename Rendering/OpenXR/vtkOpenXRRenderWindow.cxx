@@ -68,6 +68,12 @@ public:
     fileGlobber->SetDirectory(rootSearchDir.c_str());
     fileGlobber->SetRecurse(true);
     fileGlobber->AddFileNames(modelsFile.c_str());
+    if (!this->ModelsManifestDirectory.empty())
+    {
+      std::string fullpath =
+        vtksys::SystemTools::JoinPath({ this->ModelsManifestDirectory, modelsFile });
+      fileGlobber->AddFileNames(fullpath.c_str());
+    }
     if (fileGlobber->GetNumberOfFileNames() <= 0)
     {
       vtkWarningWithObjectMacro(
@@ -139,6 +145,8 @@ public:
 
   std::map<uint32_t, std::string> CurrentInteractionProfiles;
   std::map<std::string, std::map<uint32_t, std::string>> ProfileToModelMapping;
+
+  std::string ModelsManifestDirectory;
 };
 
 vtkStandardNewMacro(vtkOpenXRRenderWindow);
@@ -540,6 +548,18 @@ void vtkOpenXRRenderWindow::SetCurrentInteractionProfile(uint32_t hand, const st
   {
     this->Internal->CurrentInteractionProfiles[hand] = profile;
   }
+}
+
+//------------------------------------------------------------------------------
+std::string& vtkOpenXRRenderWindow::GetModelsManifestDirectory()
+{
+  return this->Internal->ModelsManifestDirectory;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenXRRenderWindow::SetModelsManifestDirectory(const std::string& path)
+{
+  this->Internal->ModelsManifestDirectory = path;
 }
 
 VTK_ABI_NAMESPACE_END

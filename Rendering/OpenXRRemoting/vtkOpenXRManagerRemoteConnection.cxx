@@ -41,7 +41,8 @@ bool vtkOpenXRManagerRemoteConnection::Initialize()
   // If found, set the XR_RUNTIME_JSON environment variable. It will be used by the OpenXR loader
   // to not use the system default OpenXR runtime but instead redirect to the Holographic Remoting
   // OpenXR runtime.
-  std::string remotingXRPath = vtksys::SystemTools::FindFile("RemotingXR.json", { libDir, exeDir });
+  std::string remotingXRPath =
+    vtksys::SystemTools::FindFile("RemotingXR.json", { libDir, exeDir, this->RemotingXRDirectory });
   if (remotingXRPath.empty())
   {
     return false;

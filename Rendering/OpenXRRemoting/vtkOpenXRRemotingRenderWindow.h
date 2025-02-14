@@ -26,6 +26,15 @@ public:
   void SetRemotingIPAddress(const char* host);
 
   /**
+   * Set a custom path to look for the RemotingXR.json file provided by the
+   * microsoft.holographic.remoting.openxr package.
+   * This file sets the XR_RUNTIME_JSON environment variable used by the OpenXR loader to not use
+   * the system default OpenXR runtime but instead redirect to the Holographic Remoting runtime.
+   * Default is empty. Calling this method after the window initialization has no effect.
+   */
+  void SetRemotingXRDirectory(const char* path);
+
+  /**
    * Initialize helper window resources.
    */
   void Initialize() override;
