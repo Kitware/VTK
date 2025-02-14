@@ -32,6 +32,7 @@ PRIVATE_DEPENDS
   VTK::vtksys
   VTK::nlohmannjson
 TEST_DEPENDS
+  VTK::CommonColor
   VTK::CommonSystem
   VTK::FiltersExtraction
   VTK::FiltersGeneral
