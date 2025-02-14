@@ -13,6 +13,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy);
 
 //------------------------------------------------------------------------------
+vtkHyperTreeGridTotalVisibleVolumeStrategy::vtkHyperTreeGridTotalVisibleVolumeStrategy() = default;
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridTotalVisibleVolumeStrategy::~vtkHyperTreeGridTotalVisibleVolumeStrategy() = default;
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridTotalVisibleVolumeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

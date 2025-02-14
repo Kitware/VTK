@@ -49,6 +49,9 @@ public:
   vtkDataArray* GetAndFinalizeArray() override;
 
 private:
+  vtkHyperTreeGridValidCellStrategy();
+  ~vtkHyperTreeGridValidCellStrategy() override;
+
   /**
    * Set the valid cell array value to true if the HTG leaf cell `index` is a non-ghost and
    * non-masked cell.

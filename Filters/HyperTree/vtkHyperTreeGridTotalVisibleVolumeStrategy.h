@@ -53,6 +53,9 @@ public:
   vtkDataArray* GetAndFinalizeArray() override;
 
 private:
+  vtkHyperTreeGridTotalVisibleVolumeStrategy();
+  ~vtkHyperTreeGridTotalVisibleVolumeStrategy() override;
+
   // Aggregated volume
   double TotalVisibleVolume = 0;
 

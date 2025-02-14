@@ -11,6 +11,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridValidCellStrategy);
 
 //------------------------------------------------------------------------------
+vtkHyperTreeGridValidCellStrategy::vtkHyperTreeGridValidCellStrategy() = default;
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridValidCellStrategy::~vtkHyperTreeGridValidCellStrategy() = default;
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridValidCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

@@ -40,6 +40,12 @@ double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 }
 
 //------------------------------------------------------------------------------
+vtkHyperTreeGridCellSizeStrategy::vtkHyperTreeGridCellSizeStrategy() = default;
+
+//------------------------------------------------------------------------------
+vtkHyperTreeGridCellSizeStrategy::~vtkHyperTreeGridCellSizeStrategy() = default;
+
+//------------------------------------------------------------------------------
 void vtkHyperTreeGridCellSizeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

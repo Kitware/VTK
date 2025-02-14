@@ -60,6 +60,9 @@ public:
   vtkDataArray* GetAndFinalizeArray() override;
 
 private:
+  vtkHyperTreeGridCellSizeStrategy();
+  ~vtkHyperTreeGridCellSizeStrategy() override;
+
   /**
    * Insert size double value into internal storage structures when using indexed arrays.
    * Return true if insertion was successful, and false if the internal structure has one too many
