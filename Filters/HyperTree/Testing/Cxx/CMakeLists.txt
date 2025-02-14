@@ -11,6 +11,7 @@
 
 set(test_sources
   TestHyperTreeGrid2DInterfaceShift.cxx
+  TestHyperTreeGrid2DGeometryFillMaterial.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGrid3DAxisCutCoincidentPlane.cxx
   TestHyperTreeGrid3DIntercepts.cxx
   TestHyperTreeGrid3DInterface.cxx

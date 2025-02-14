@@ -34,7 +34,7 @@ public:
   vtkHyperTreeGridGeometryImpl(vtkHyperTreeGrid* input, vtkPoints* outPoints,
     vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
     vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-    const std::string& originalCellIdArrayName);
+    const std::string& originalCellIdArrayName, bool fillMaterial);
 
   virtual ~vtkHyperTreeGridGeometryImpl() = default;
 
@@ -88,17 +88,18 @@ protected:
   /**
    * Input parameters retrieved from constructor
    */
-  vtkHyperTreeGrid* Input;
-  vtkPoints* OutPoints;
-  vtkCellArray* OutCells;
-  vtkDataSetAttributes* InCellDataAttributes;
-  vtkDataSetAttributes* OutCellDataAttributes;
+  vtkHyperTreeGrid* Input = nullptr;
+  vtkPoints* OutPoints = nullptr;
+  vtkCellArray* OutCells = nullptr;
+  vtkDataSetAttributes* InCellDataAttributes = nullptr;
+  vtkDataSetAttributes* OutCellDataAttributes = nullptr;
+  bool FillMaterial = true;
 
   /**
    * Retrieved from input for quick access
    */
-  vtkDataArray* InIntercepts;
-  vtkDataArray* InNormals;
+  vtkDataArray* InIntercepts = nullptr;
+  vtkDataArray* InNormals = nullptr;
 
   /**
    * True if input HTG have an interface and if
@@ -133,8 +134,8 @@ private:
   /**
    * Retrieved from input for quick access
    */
-  vtkUnsignedCharArray* InGhostArray;
-  vtkBitArray* InMaskArray;
+  vtkUnsignedCharArray* InGhostArray = nullptr;
+  vtkBitArray* InMaskArray = nullptr;
 
   /**
    * Input parameters retrieved from constructor

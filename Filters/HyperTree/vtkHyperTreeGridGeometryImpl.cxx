@@ -18,12 +18,13 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridGeometryImpl::vtkHyperTreeGridGeometryImpl(vtkHyperTreeGrid* input,
   vtkPoints* outPoints, vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
   vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-  const std::string& originalCellIdArrayName)
+  const std::string& originalCellIdArrayName, bool fillMaterial)
   : Input(input)
   , OutPoints(outPoints)
   , OutCells(outCells)
   , InCellDataAttributes(inCellDataAttributes)
   , OutCellDataAttributes(outCellDataAttributes)
+  , FillMaterial(fillMaterial)
   , PassThroughCellIds(passThroughCellIds)
   , OriginalCellIdArrayName(originalCellIdArrayName)
 {

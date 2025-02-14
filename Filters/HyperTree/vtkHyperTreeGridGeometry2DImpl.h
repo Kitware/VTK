@@ -23,7 +23,7 @@ public:
   vtkHyperTreeGridGeometry2DImpl(vtkHyperTreeGrid* input, vtkPoints* outPoints,
     vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
     vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-    const std::string& originalCellIdArrayName);
+    const std::string& originalCellIdArrayName, bool fillMaterial);
 
   ~vtkHyperTreeGridGeometry2DImpl() override = default;
 

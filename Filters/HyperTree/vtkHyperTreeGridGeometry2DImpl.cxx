@@ -6,7 +6,6 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkPoints.h"
-#include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -14,9 +13,9 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkHyperTreeGridGeometry2DImpl::vtkHyperTreeGridGeometry2DImpl(vtkHyperTreeGrid* input,
   vtkPoints* outPoints, vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
   vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-  const std::string& originalCellIdArrayName)
+  const std::string& originalCellIdArrayName, bool fillMaterial)
   : vtkHyperTreeGridGeometrySmallDimensionsImpl(input, outPoints, outCells, inCellDataAttributes,
-      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName)
+      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName, fillMaterial)
 {
   /**
    * The Orientation value indicates the plane on which the HTG 2D is oriented:
@@ -63,7 +62,7 @@ void vtkHyperTreeGridGeometry2DImpl::ProcessLeafCellWithOneInterface(
     valCrt = valNext;
     vtkIdType niPt = (iPt + 1) % 4;
     valNext = distancesToInterface[niPt];
-    if (sign * valCrt >= 0.)
+    if (this->FillMaterial && sign * valCrt >= 0.)
     {
       outputIndexPoints.emplace_back(this->OutPoints->InsertNextPoint(xyzCrt));
     }

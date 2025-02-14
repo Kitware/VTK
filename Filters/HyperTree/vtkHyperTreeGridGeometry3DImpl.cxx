@@ -76,9 +76,9 @@ struct vtkHyperTreeGridGeometry3DImpl::HTG3DPoint
 vtkHyperTreeGridGeometry3DImpl::vtkHyperTreeGridGeometry3DImpl(bool mergePoints,
   vtkHyperTreeGrid* input, vtkPoints* outPoints, vtkCellArray* outCells,
   vtkDataSetAttributes* inCellDataAttributes, vtkDataSetAttributes* outCellDataAttributes,
-  bool passThroughCellIds, const std::string& originalCellIdArrayName)
+  bool passThroughCellIds, const std::string& originalCellIdArrayName, bool fillMaterial)
   : vtkHyperTreeGridGeometryImpl(input, outPoints, outCells, inCellDataAttributes,
-      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName)
+      outCellDataAttributes, passThroughCellIds, originalCellIdArrayName, fillMaterial)
 {
   if (mergePoints)
   {

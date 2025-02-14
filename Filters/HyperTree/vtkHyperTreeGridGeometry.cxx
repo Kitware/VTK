@@ -70,17 +70,18 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
     case 1:
       implementation = std::unique_ptr<vtkHyperTreeGridGeometry1DImpl>(
         new vtkHyperTreeGridGeometry1DImpl(input, outPoints, outCells, this->InData, this->OutData,
-          this->PassThroughCellIds, this->OriginalCellIdArrayName));
+          this->PassThroughCellIds, this->OriginalCellIdArrayName, this->FillMaterial));
       break;
     case 2:
       implementation = std::unique_ptr<vtkHyperTreeGridGeometry2DImpl>(
         new vtkHyperTreeGridGeometry2DImpl(input, outPoints, outCells, this->InData, this->OutData,
-          this->PassThroughCellIds, this->OriginalCellIdArrayName));
+          this->PassThroughCellIds, this->OriginalCellIdArrayName, this->FillMaterial));
       break;
     case 3:
-      implementation = std::unique_ptr<vtkHyperTreeGridGeometry3DImpl>(
-        new vtkHyperTreeGridGeometry3DImpl(this->Merging, input, outPoints, outCells, this->InData,
-          this->OutData, this->PassThroughCellIds, this->OriginalCellIdArrayName));
+      implementation =
+        std::unique_ptr<vtkHyperTreeGridGeometry3DImpl>(new vtkHyperTreeGridGeometry3DImpl(
+          this->Merging, input, outPoints, outCells, this->InData, this->OutData,
+          this->PassThroughCellIds, this->OriginalCellIdArrayName, this->FillMaterial));
       break;
     default:
       vtkErrorMacro("Incorrect dimension of input: " << dimension);
@@ -92,7 +93,7 @@ int vtkHyperTreeGridGeometry::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObjec
 
   // Set output geometry and topology
   output->SetPoints(outPoints);
-  if (dimension == 1)
+  if (dimension == 1 || !this->FillMaterial)
   {
     output->SetLines(outCells);
   }

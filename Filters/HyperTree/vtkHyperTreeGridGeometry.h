@@ -60,7 +60,7 @@ public:
   vtkGetMacro(Merging, bool);
   ///@}
 
-  //@{
+  ///@{
   /**
    * Set/Get for the PassThroughCellIds boolean.
    *
@@ -73,7 +73,9 @@ public:
   vtkSetMacro(PassThroughCellIds, bool);
   vtkGetMacro(PassThroughCellIds, bool);
   vtkBooleanMacro(PassThroughCellIds, bool);
+  ///@}
 
+  ///@{
   /**
    * Set/Get the OriginalCellIdArrayName string.
    *
@@ -84,7 +86,19 @@ public:
    */
   vtkSetMacro(OriginalCellIdArrayName, std::string);
   vtkGetMacro(OriginalCellIdArrayName, std::string);
-  //@}
+  ///@}
+
+  ///@{
+  /**
+   * If false, only draw the interface (lines).
+   * Otherwise, draw the full cell with interface (poly).
+   *
+   * default is true
+   */
+  vtkSetMacro(FillMaterial, bool);
+  vtkGetMacro(FillMaterial, bool);
+  vtkBooleanMacro(FillMaterial, bool);
+  ///@}
 
 protected:
   vtkHyperTreeGridGeometry() = default;
@@ -123,6 +137,8 @@ protected:
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;
   void operator=(const vtkHyperTreeGridGeometry&) = delete;
+
+  bool FillMaterial = true;
 };
 
 VTK_ABI_NAMESPACE_END

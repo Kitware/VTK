@@ -29,7 +29,7 @@ public:
   vtkHyperTreeGridGeometrySmallDimensionsImpl(vtkHyperTreeGrid* input, vtkPoints* outPoints,
     vtkCellArray* outCells, vtkDataSetAttributes* inCellDataAttributes,
     vtkDataSetAttributes* outCellDataAttributes, bool passThroughCellIds,
-    const std::string& originalCellIdArrayName);
+    const std::string& originalCellIdArrayName, bool fillMaterial);
 
   ~vtkHyperTreeGridGeometrySmallDimensionsImpl() override = default;
 
