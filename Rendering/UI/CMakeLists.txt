@@ -82,8 +82,7 @@ vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKRENDERINGUI_EXPORT"
-  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
-  INITIAL_CODE ${intial_cpp_code})
+  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>")
 
 vtk_module_add_module(VTK::RenderingUI
   CLASSES ${classes}

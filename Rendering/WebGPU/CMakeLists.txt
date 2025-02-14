@@ -281,10 +281,10 @@ else ()
     vtk_module_link(VTK::RenderingWebGPU PUBLIC X11::X11)
     if (TARGET X11::Xcursor)
       vtk_module_link(VTK::RenderingWebGPU PRIVATE X11::Xcursor)
-    else()
+    else ()
       message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
-    endif()
-    set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
+    endif ()
+    set_property(SOURCE vtkXWebGPURenderWindow.cxx APPEND
       PROPERTY
         COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
     )
@@ -294,7 +294,6 @@ else ()
     # TODO
   endif ()
   vtk_module_find_package(PACKAGE Dawn)
-  # Must include these source files here.
   vtk_module_link(VTK::RenderingWebGPU
     PUBLIC
       dawn::webgpu_dawn)
