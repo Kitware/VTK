@@ -11,6 +11,7 @@
 #ifndef vtkHyperTreeGridGenerateFieldStrategy_h
 #define vtkHyperTreeGridGenerateFieldStrategy_h
 
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGrid.h"
 #include "vtkObject.h"
 
@@ -18,7 +19,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class vtkHyperTreeGridGenerateFieldStrategy : public vtkObject
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFieldStrategy : public vtkObject
 {
 public:
   vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject)

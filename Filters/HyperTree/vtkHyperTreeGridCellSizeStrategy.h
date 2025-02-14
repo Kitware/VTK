@@ -18,6 +18,7 @@
 #ifndef vtkHyperTreeGridCellSizeStrategy_h
 #define vtkHyperTreeGridCellSizeStrategy_h
 
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkIndexedArray.h"
 #include "vtkNew.h"
@@ -29,7 +30,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
 
-class vtkHyperTreeGridCellSizeStrategy : public vtkHyperTreeGridGenerateFieldStrategy
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellSizeStrategy
+  : public vtkHyperTreeGridGenerateFieldStrategy
 {
 public:
   static vtkHyperTreeGridCellSizeStrategy* New();

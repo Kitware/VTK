@@ -10,10 +10,10 @@
 #include "vtkIndexedArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy)
+vtkStandardNewMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy);
 
-  //------------------------------------------------------------------------------
-  void vtkHyperTreeGridTotalVisibleVolumeStrategy::PrintSelf(ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridTotalVisibleVolumeStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "TotalVisibleVolume: " << this->TotalVisibleVolume << "\n";

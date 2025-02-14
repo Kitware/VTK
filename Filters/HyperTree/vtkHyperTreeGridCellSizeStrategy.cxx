@@ -8,35 +8,35 @@
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridCellSizeStrategy)
+vtkStandardNewMacro(vtkHyperTreeGridCellSizeStrategy);
 
-  namespace
+namespace
 {
-  /**
-   * Return the size of the cell pointed by the cursor.
-   * In practice, we multiply every non-null size value for the current cell.
-   */
-  double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor * cursor)
+/**
+ * Return the size of the cell pointed by the cursor.
+ * In practice, we multiply every non-null size value for the current cell.
+ */
+double GetCellSize(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+{
+  double cellSize = 1.0;
+  bool nullSize = true;
+  double* size = cursor->GetSize();
+  std::vector<double> dimensions(size, size + 3);
+  for (auto& edgeSize : dimensions)
   {
-    double cellSize = 1.0;
-    bool nullSize = true;
-    double* size = cursor->GetSize();
-    std::vector<double> dimensions(size, size + 3);
-    for (auto& edgeSize : dimensions)
+    if (edgeSize != 0.0)
     {
-      if (edgeSize != 0.0)
-      {
-        nullSize = false;
-        cellSize *= edgeSize;
-      }
+      nullSize = false;
+      cellSize *= edgeSize;
     }
-    if (nullSize)
-    {
-      // Every size coordinate is null, so the cell size is also null
-      cellSize = 0.0;
-    }
-    return cellSize;
   }
+  if (nullSize)
+  {
+    // Every size coordinate is null, so the cell size is also null
+    cellSize = 0.0;
+  }
+  return cellSize;
+}
 }
 
 //------------------------------------------------------------------------------

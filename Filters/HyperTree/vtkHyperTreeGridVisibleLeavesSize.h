@@ -8,6 +8,7 @@
 #ifndef vtkHyperTreeGridVisibleLeavesSize_h
 #define vtkHyperTreeGridVisibleLeavesSize_h
 
+#include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
 #include "vtkHyperTreeGridGenerateFields.h"

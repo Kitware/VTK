@@ -26,9 +26,9 @@
   }
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridGenerateFields)
+vtkStandardNewMacro(vtkHyperTreeGridGenerateFields);
 
-  vtkHTGGenerateFieldsGetFieldNameMacro(CellSize);
+vtkHTGGenerateFieldsGetFieldNameMacro(CellSize);
 vtkHTGGenerateFieldsSetFieldNameMacro(CellSize);
 vtkHTGGenerateFieldsGetFieldNameMacro(ValidCell);
 vtkHTGGenerateFieldsSetFieldNameMacro(ValidCell);

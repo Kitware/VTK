@@ -14,6 +14,7 @@
 #ifndef vtkHyperTreeGridValidCellStrategy_h
 #define vtkHyperTreeGridValidCellStrategy_h
 
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 
 #include <vtkNew.h>
@@ -23,7 +24,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkUnsignedCharArray;
 
-class vtkHyperTreeGridValidCellStrategy : public vtkHyperTreeGridGenerateFieldStrategy
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridValidCellStrategy
+  : public vtkHyperTreeGridGenerateFieldStrategy
 {
 public:
   static vtkHyperTreeGridValidCellStrategy* New();

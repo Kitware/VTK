@@ -14,6 +14,7 @@
 #ifndef vtkHyperTreeGridTotalVisibleVolumeStrategy_h
 #define vtkHyperTreeGridTotalVisibleVolumeStrategy_h
 
+#include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperTreeGridGenerateFieldStrategy.h"
 #include "vtkNew.h"
 
@@ -25,7 +26,8 @@ class vtkDoubleArray;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 
-class vtkHyperTreeGridTotalVisibleVolumeStrategy : public vtkHyperTreeGridGenerateFieldStrategy
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridTotalVisibleVolumeStrategy
+  : public vtkHyperTreeGridGenerateFieldStrategy
 {
 public:
   static vtkHyperTreeGridTotalVisibleVolumeStrategy* New();

@@ -8,10 +8,10 @@
 #include "vtkUnsignedCharArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkHyperTreeGridValidCellStrategy)
+vtkStandardNewMacro(vtkHyperTreeGridValidCellStrategy);
 
-  //------------------------------------------------------------------------------
-  void vtkHyperTreeGridValidCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridValidCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "InputMask size: " << (this->InputMask ? this->InputMask->GetNumberOfTuples() : 0)
