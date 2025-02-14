@@ -150,6 +150,30 @@ public:
   void SetModelsManifestDirectory(const std::string& path);
   ///@}
 
+  ///@{
+  /**
+   * Enable or disable `XR_KHR_composition_layer_depth` extension when available.
+   *
+   * This must be set before initializing the render window.
+   * If the extension is unavailable, this setting has no effect.
+   *
+   * Depth information enhances augmented reality experiences, particularly on
+   * devices like the HoloLens 2. When enabled and the extension is available,
+   * the render window's depth texture is submitted to the runtime, improving
+   * hologram stability on supported devices.
+   *
+   * \note Enabling this option when no depth information are available could reduce stability.
+   * This will be the case when translucent actors are in the scene.
+   * When partial depth information are available,
+   * which may happen when having translucent and opaque actors in the scene,
+   * stability could be reduced **and** translucent actors may be distorded.
+   *
+   * Default value: `false`
+   */
+  vtkSetMacro(UseDepthExtension, bool);
+  vtkGetMacro(UseDepthExtension, bool);
+  ///@}
+
 protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;
@@ -174,6 +198,8 @@ private:
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Internal;
+
+  bool UseDepthExtension = false;
 };
 
 VTK_ABI_NAMESPACE_END

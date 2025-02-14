@@ -89,15 +89,19 @@ public:
 
   ///@{
   /**
+   * Internal API. Managed by `vtkOpenXRRenderWindow`.
+   *
    * Initialize the OpenXR SDK to render images in a virtual reality device.
-   * The helper window must be a vtkWin32OpenGLRenderWindow if the platform is Win32,
+   * The HelperWindow of xrWindow must be a vtkWin32OpenGLRenderWindow if the platform is Win32,
    * else a vtkXOpenGLRenderWindow if the platform is X.
    */
-  bool Initialize(vtkOpenGLRenderWindow*);
+  bool Initialize(vtkOpenXRRenderWindow* xrWindow);
   ///@}
 
   ///@{
   /**
+   * Internal API. Managed by `vtkOpenXRRenderWindow`.
+   *
    * End the OpenXR session and destroy it and the OpenXR instance.
    */
   void Finalize();
@@ -383,25 +387,16 @@ public:
   vtkOpenXRManagerConnection* GetConnectionStrategy() { return this->ConnectionStrategy; }
   ///@}
 
-  ///@{
+  VTK_DEPRECATED_IN_9_5_0(
+    "Use vtkOpenXRRenderWindow::SetUseDepthExtension instead. This has no effect!")
+  void SetUseDepthExtension(bool) {}
+  VTK_DEPRECATED_IN_9_5_0(
+    "Use vtkOpenXRRenderWindow::GetUseDepthExtension instead. This returns false!")
+  bool GetUseDepthExtension() const { return false; }
+
   /**
-   * Enable or disable XR_KHR_composition_layer_depth extension even when it is available.
-   *
-   * This must be set before vtkOpenXRManager initialization.
-   * Do nothing if XR_KHR_composition_layer_depth isn't available.
-   *
-   * Depth information is useful for augmented reality devices such as the Hololens 2.
-   * When enabled and XR_KHR_composition_layer_depth is available,
-   * the depth texture of the render window is submitted to the runtime.
-   * The runtime will use this information increase hologram stability of the Hololens 2.
-   *
-   * Note: enabling this option without providing the depth information could reduce stability.
-   *
-   * Default value: `false`
+   * Return OpenXR System ID associated with the XrSession
    */
-  void SetUseDepthExtension(bool value) { this->UseDepthExtension = value; }
-  bool GetUseDepthExtension() const { return this->UseDepthExtension; }
-  ///@}
 
 protected:
   vtkOpenXRManager();
@@ -413,8 +408,8 @@ protected:
    * This is where we select the extensions using
    * SelectExtensions
    */
-  bool CreateInstance();
-  std::vector<const char*> SelectExtensions();
+  bool CreateInstance(vtkOpenXRRenderWindow* window);
+  std::vector<const char*> SelectExtensions(vtkOpenXRRenderWindow* window);
   ///@}
 
   ///@{
@@ -616,7 +611,6 @@ protected:
    */
   XrTime PredictedDisplayTime;
 
-  bool UseDepthExtension = false;
   bool SessionRunning = false;
   // Following each WaitAndBeginFrame operation, the OpenXR runtime may indicate
   // whether the current frame should be rendered using the `XrFrameState.shouldRender`
