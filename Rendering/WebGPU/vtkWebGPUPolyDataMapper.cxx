@@ -198,7 +198,8 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   switch (wgpuRenderer->GetRenderStage())
   {
     case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
-    { // update (i.e, create and write) GPU buffers if the data is outdated.
+    {
+      // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       auto* mesh = this->CurrentInput;
       vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
@@ -215,7 +216,6 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       bool updateTopologyBindGroup =
         this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
           displayProperty->GetRepresentation(), vertexCounts, topologyBuffers, edgeArrayBuffers);
-
       // Handle vertex visibility.
       if (displayProperty->GetVertexVisibility() &&
         // avoids dispatching the cell-to-vertex pipeline again.
@@ -604,7 +604,6 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Dev
   const std::string& label,
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
-  vtkGenericWarningMacro(<< __func__);
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
   {
     auto layout = this->CreateTopologyBindGroupLayout(device, label + "_LAYOUT");
@@ -862,67 +861,6 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::GetNeedToRemapScalars(vtkPolyData* mesh)
-{
-  if (mesh == nullptr)
-  {
-    // so that the previous colors are invalidated.
-    this->LastScalarVisibility = this->ScalarVisibility;
-    this->LastScalarMode = this->ScalarMode;
-    return true;
-  }
-  int cellFlag = 0;
-  vtkAbstractArray* scalars = vtkAbstractMapper::GetAbstractScalars(
-    mesh, this->ScalarMode, this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
-
-  if (!scalars)
-  {
-    // so that the previous colors are invalidated.
-    this->LastScalarVisibility = this->ScalarVisibility;
-    this->LastScalarMode = this->ScalarMode;
-    return true;
-  }
-
-  bool remapScalars = false;
-  if (this->LastScalarVisibility != this->ScalarVisibility)
-  {
-    this->LastScalarVisibility = this->ScalarVisibility;
-    remapScalars |= true;
-  }
-  if (this->LastScalarMode != this->ScalarMode)
-  {
-    this->LastScalarMode = this->ScalarMode;
-    remapScalars |= true;
-  }
-  if (this->ScalarVisibility)
-  {
-    if (cellFlag)
-    {
-      if (mesh->GetCellData()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
-      {
-        remapScalars |= true;
-      }
-      if (this->GetLookupTable()->GetMTime() > this->CellAttributesBuildTimestamp[CELL_COLORS])
-      {
-        remapScalars |= true;
-      }
-    }
-    else
-    {
-      if (mesh->GetPointData()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
-      {
-        remapScalars |= true;
-      }
-      if (this->GetLookupTable()->GetMTime() > this->PointAttributesBuildTimestamp[POINT_COLORS])
-      {
-        remapScalars |= true;
-      }
-    }
-  }
-  return remapScalars;
-}
-
-//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::DeducePointCellAttributeAvailability(vtkPolyData* mesh)
 {
   this->ResetPointCellAttributeState();
@@ -1016,40 +954,12 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     return;
   }
 
-  const bool remapScalars = this->GetNeedToRemapScalars(this->CurrentInput);
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
   // and ColorTextureMap as a side effect.
-  if (remapScalars)
-  {
-    // Get rid of old texture color coordinates if any
-    if (this->ColorCoordinates)
-    {
-      this->ColorCoordinates->UnRegister(this);
-      this->ColorCoordinates = nullptr;
-    }
-    // Get rid of old texture color coordinates if any
-    if (this->Colors)
-    {
-      this->Colors->UnRegister(this);
-      this->Colors = nullptr;
-    }
-    int cellFlag = 0;
-    this->MapScalars(this->CurrentInput, 1.0, cellFlag);
-  }
+  int cellFlag = 0;
+  this->MapScalars(this->CurrentInput, 1.0, cellFlag);
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
-  ///@{ TODO:
-  // // If we are coloring by texture, then load the texture map.
-  // if (this->ColorTextureMap)
-  // {
-  //   if (this->InternalColorTexture == nullptr)
-  //   {
-  //     this->InternalColorTexture = vtkOpenGLTexture::New();
-  //     this->InternalColorTexture->RepeatOff();
-  //   }
-  //   this->InternalColorTexture->SetInputData(this->ColorTextureMap);
-  // }
-  ///@}
 
   MeshAttributeDescriptor meshAttrDescriptor;
 
@@ -1500,6 +1410,13 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   }
   this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
+  for (auto& it : this->CachedActorRendererProperties)
+  {
+    if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(it.first.second))
+    {
+      wgpuRenderer->InvalidateBundle();
+    }
+  }
   this->CachedActorRendererProperties.clear();
 }
 

@@ -172,7 +172,11 @@ public:
    * @note This does not use vtkSetMacro because the actor MTime should not be affected when a
    * render bundle is invalidated.
    */
-  inline void InvalidateBundle() { this->RebuildRenderBundle = true; }
+  inline void InvalidateBundle()
+  {
+    this->RebuildRenderBundle = true;
+    this->Bundle = nullptr;
+  }
 
   /**
    * Get whether the render bundle associated with this actor must be reset by the renderer.

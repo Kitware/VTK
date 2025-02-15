@@ -43,6 +43,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestPointScalarMappedColors.cxx,NO_DATA
   TestPolyDataMapper2D.cxx,NO_DATA
   TestReadPixels.cxx,NO_DATA,NO_VALID
+  TestRemoveActors.cxx,NO_DATA,NO_VALID
   TestRenderPointsAsSpheres.cxx,NO_DATA
   TestRenderLinesAsTubes.cxx,NO_DATA
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
