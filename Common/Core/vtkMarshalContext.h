@@ -243,7 +243,7 @@ protected:
    * Return `true` if `identifier` has been through `PushParent`, but not yet
    * been through `PopParent`, false otherwise.
    */
-  bool IsProcessing(vtkTypeUInt32 identfier);
+  bool IsProcessing(vtkTypeUInt32 identifier);
 
   /**
    * Returns`true` if `identifier` exists in the genealogy of object(s)/state(s),
@@ -255,10 +255,10 @@ protected:
    * Records `identifier` in the list of children of the 'active' identifier.
    *
    * @note
-   * 1. This parent-child relationship is not commited into the genealogy until
+   * 1. This parent-child relationship is not committed into the genealogy until
    * `PopParent` is invoked.
    *
-   * 2. This method does nothing if there is no 'active' identfier, i.e,
+   * 2. This method does nothing if there is no 'active' identifier, i.e,
    * when `PushParent(identifier)` was never called.
    */
   void AddChild(vtkTypeUInt32 identifier);

@@ -27,7 +27,7 @@ class vtkTuple
 {
 public:
   /**
-   * The default constructor does not initialize values. If initializtion is
+   * The default constructor does not initialize values. If initialization is
    * desired, this should be done explicitly using the constructors for scalar
    * initialization, or other suitable constructors taking arguments.
    */

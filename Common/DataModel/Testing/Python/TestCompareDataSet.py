@@ -12,6 +12,6 @@ try:
     # pass
     assert w1 == w2
 except:
-    # When numpy is not availabe fall back to the default VTK behavior which
+    # When numpy is not available fall back to the default VTK behavior which
     # only tests for identity. In that case w1 and w2 are not considered equal
     assert w1 != w2

@@ -70,7 +70,7 @@ void vtkRendererSource::RequestData(
   vtkRenderWindow* renWin = this->Input->GetRenderWindow();
   if (renWin == nullptr)
   {
-    vtkErrorMacro(<< "Renderer needs to be associated with renderin window!");
+    vtkErrorMacro(<< "Renderer needs to be associated with rendering window!");
     return;
   }
 

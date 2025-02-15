@@ -22,7 +22,7 @@
  * possible. By default the normal vector is n={0,0,1} but may be user
  * specified. Note also that some filters require that the loops are located
  * in the z=constant or z=0 plane. Hence a transform filter of some sort may
- * be necesssary to project the loops to a plane.
+ * be necessary to project the loops to a plane.
  *
  * @warning
  * Note that lines that do not close in on themselves can be optionally
@@ -32,7 +32,7 @@
  * different closure modes: 1) do not close (and hence reject the polygon);
  * 2) close along the dataset boundaries (i.e., the bounding box of a dataset
  * used to generate the contour lines); and 3) close all open loops by
- * connectiong the first and last point. If Option #2 is chosen, only loops
+ * connecting the first and last point. If Option #2 is chosen, only loops
  * that start and end on either a horizontal or vertical boundary are closed.
  *
  * @warning

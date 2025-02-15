@@ -4940,7 +4940,7 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
     }
     // read all the following values as arbitrary entryValues
     // the alphaContactAngle b.c. in multiphaseInterFoam/damBreak4phase
-    // reaquires this treatment (reading by readList() is not enough)
+    // requires this treatment (reading by readList() is not enough)
     do
     {
       this->Superclass::EntryValuePtrs->push_back(new vtkFoamEntryValue(this->UpperEntryPtr));

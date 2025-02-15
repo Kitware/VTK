@@ -26,7 +26,7 @@ class vtkIdTypeArray;
  *          to details on the cells that claim the corresponding side.
  *
  * This class is created by filters such as vtkCellGridComputeSides and
- * vtkCellGridExtractCrinkle; it can be re-used by the same filter and
+ * vtkCellGridExtractCrinkle; it can be reused by the same filter and
  * any others that process the same input (since it is stored in a
  * cache available to them).
  */

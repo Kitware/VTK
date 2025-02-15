@@ -31,7 +31,7 @@ public:
    * This function will increase modified time.
    *
    * @param path the file path
-   * @return true if file was succefully opened, false otherwise.
+   * @return true if file was successfully opened, false otherwise.
    * Return false if path is nullptr.
    */
   bool Open(VTK_FILEPATH const char* path);

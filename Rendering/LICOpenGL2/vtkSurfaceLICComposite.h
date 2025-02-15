@@ -90,7 +90,7 @@ public:
 
   /**
    * Get the extent of the domain over which to compute the LIC. This can
-   * be querried only after the Composite takes place.
+   * be queried only after the Composite takes place.
    */
   const vtkPixelExtent& GetGuardExtent(int i = 0) const { return this->GuardExt[i]; }
 
@@ -98,7 +98,7 @@ public:
 
   /**
    * Get the extent of the domain over which to compute the LIC. This can
-   * be querried only after the Composite takes place.
+   * be queried only after the Composite takes place.
    */
   const vtkPixelExtent& GetDisjointGuardExtent(int i = 0) const
   {
@@ -109,7 +109,7 @@ public:
 
   /**
    * Get the extent of the domain over which to compute the LIC. This can
-   * be querried only after the Composite takes place.
+   * be queried only after the Composite takes place.
    */
   const vtkPixelExtent& GetCompositeExtent(int i = 0) const { return this->CompositeExt[i]; }
 
@@ -235,7 +235,7 @@ protected:
 
   double StepSize;           // window coordinates step size
   int NumberOfSteps;         // number of integration steps
-  int NormalizeVectors;      // does integrator normailze
+  int NormalizeVectors;      // does integrator normalize
   int NumberOfGuardLevels;   // 1.5 if enhanced LIC 1 otherwise
   int NumberOfEEGuardPixels; // 1 if enhanced LIC 0 otherwise
   int NumberOfAAGuardPixels; // n antialias passes

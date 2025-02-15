@@ -2264,7 +2264,7 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(
   if (!blend)
   {
     this->GetState()->vtkglDisable(GL_BLEND);
-    this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data); // TODO replace dprecated function
+    this->DrawPixels(x1, y1, x2, y2, 4, VTK_FLOAT, data); // TODO replace deprecated function
     this->GetState()->vtkglEnable(GL_BLEND);
   }
   else

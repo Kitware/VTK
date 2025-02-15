@@ -272,7 +272,7 @@ bool vtkDGSidesResponder::SummarizeSides(vtkCellGridSidesQuery* query, vtkDGCell
                   continue; // Do not output evenly paired edges.
                 }
               }
-              // else: always ouput vertices.
+              // else: always output vertices.
 #else
               switch (firstSide.SideShape.GetId())
               {
@@ -284,7 +284,7 @@ bool vtkDGSidesResponder::SummarizeSides(vtkCellGridSidesQuery* query, vtkDGCell
                   }
                   break;
                 default:
-                  // Always ouput vertices.
+                  // Always output vertices.
                   break;
               }
 #endif

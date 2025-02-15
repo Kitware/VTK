@@ -610,7 +610,7 @@ class wxVTKRenderWindowInteractor(baseClass):
             topParent = wx.GetTopLevelParent(self)
             if topParent:
                 # if it exists, check whether it's enabled
-                # if it's not enabeld, RenderAllowed will be false
+                # if it's not enabled, RenderAllowed will be false
                 RenderAllowed = topParent.IsEnabled()
 
         if RenderAllowed:

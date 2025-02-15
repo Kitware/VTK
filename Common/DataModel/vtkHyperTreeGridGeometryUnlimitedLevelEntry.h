@@ -181,7 +181,7 @@ public:
   bool IsRealLeaf(const vtkHyperTreeGrid* grid) const;
 
   /**
-   * Is the cursor pointing to a virually subdivided leaf?
+   * Is the cursor pointing to a virtually subdivided leaf?
    * \pre not_tree: tree
    */
   bool IsVirtualLeaf(const vtkHyperTreeGrid* grid) const;

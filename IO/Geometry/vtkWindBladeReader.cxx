@@ -1899,7 +1899,7 @@ void vtkWindBladeReader::ReadBladeData(std::stringstream& inStr)
     }
 
     // compute blade's various drag/lift/etc vectors;
-    // re-use for all cross-sections per blade.
+    // reuse for all cross-sections per blade.
     int sectionNum = (firstPoint / NUM_PART_SIDES) % 100;
     if (sectionNum == 0)
     {

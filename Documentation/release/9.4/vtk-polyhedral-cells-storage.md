@@ -14,7 +14,7 @@ So here's the current storage structure:
 
 Contrast this with how this information was previously stored:
 * **Connectivity** (`vtkCellArray`): simply stores point ids for all points for each polyhedral element (same as in the new proposal)
-* **(Legacy)Faces** (`vtkIdTypeArray`): an interlaved array of the form `(numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)`
+* **(Legacy)Faces** (`vtkIdTypeArray`): an interleaved array of the form `(numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)`
 * **(Legacy)FaceLocations** (`vtkIdTypeArray`): offset array into **(Legacy)Faces** array indicating where the faces for a corresponding cell are stored
 
 

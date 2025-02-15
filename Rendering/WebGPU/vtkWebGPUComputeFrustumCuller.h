@@ -88,7 +88,7 @@ private:
 
   /**
    * Resizes the scratch list used by the OutputObjectIndicesMapCallback and fills it with the
-   * adresses of the props of the propList
+   * addresses of the props of the propList
    */
   void ResizeScratchList(vtkProp** propList, int listLength);
 
@@ -134,7 +134,7 @@ private:
    * example:
    * - If the indices to copy are [0, 2, 1] and the prop list (list of addresses) is
    * [0x10, 0x20, 0x30], the final prop list is going to be [0x10, 0x30, 0x30] because the index '1'
-   * at the end of the indices to copy now refers to 0x30 whereas it should have been refering to
+   * at the end of the indices to copy now refers to 0x30 whereas it should have been referring to
    * 0x20.
    *
    * The scratch list helps us prevent this issue by keeping a "sane" list of props to read from

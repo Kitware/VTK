@@ -346,7 +346,7 @@ void EnSightFile::CheckForBeginTimeStepLine()
   }
 
   // Adding positions to TimeStepBeginPositions should always happen in SetTimeStepToRead,
-  // but just incase it doesn't, we can add it here.
+  // but just in case it doesn't, we can add it here.
   auto& beginPositions = this->TimeStepBeginPositions[this->CurrentFileIndex];
   if (std::find(beginPositions.begin(), beginPositions.end(), this->GetCurrentPosition()) ==
     beginPositions.end())
@@ -450,7 +450,7 @@ bool EnSightFile::OpenFile(const std::string& filename, bool isCaseFile /* = fal
   else
   {
     // wasn't C Binary, check for Fortran Binary
-    // Fortan files have 4 bytes on each side of each read
+    // Fortran files have 4 bytes on each side of each read
     this->Stream->seekg(0, ios::beg);
     result = this->ReadLine(88);
     auto& fline = result.second;

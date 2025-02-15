@@ -17,7 +17,7 @@ foreach (_vtk_serdes_module IN LISTS vtk_modules) # Comes from top-level CMakeLi
   if (NOT _vtk_serdes_module_include_marshal)
     continue ()
   endif ()
-  if (NOT "${_vtk_serdes_module}" IN_LIST _vtk_serialization_manager_optional_deps 
+  if (NOT "${_vtk_serdes_module}" IN_LIST _vtk_serialization_manager_optional_deps
       AND NOT "${_vtk_serdes_module}" IN_LIST _vtk_serialization_manager_public_deps)
     message(FATAL_ERROR
       "${_vtk_serdes_module} has `INCLUDE_MARSHAL` but it is not a dependency of VTK::SerializationManager")

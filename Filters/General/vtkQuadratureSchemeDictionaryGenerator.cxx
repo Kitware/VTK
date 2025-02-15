@@ -197,7 +197,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkDataSet* usgOut)
       break;
     }
     int cellType = cellTypes->GetCellType(typeId);
-    // Initiaze a definition for this particular cell type.
+    // Initialize a definition for this particular cell type.
     vtkSmartPointer<vtkQuadratureSchemeDefinition> def =
       vtkSmartPointer<vtkQuadratureSchemeDefinition>::New();
     switch (cellType)

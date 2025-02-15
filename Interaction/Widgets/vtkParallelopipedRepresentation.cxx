@@ -29,7 +29,7 @@
 // This class manages topological information for a parallelopiped with a
 // chair etched out at any node.
 // README : Uncomment the line that reads "PrintTopology(cout) to
-//          understand what the class does. The goal of the class is succintly
+//          understand what the class does. The goal of the class is succinctly
 //          described in that one line.
 VTK_ABI_NAMESPACE_BEGIN
 class vtkParallelopipedTopology
@@ -127,12 +127,12 @@ public:
     {
     }
 
-    // README : The goal of the class is succintly described by the line below
+    // README : The goal of the class is succinctly described by the line below
     // PrintTopology( cout );
   }
 
   // Populate topology into a vtkCellArray.
-  // If configuration is 0, the topoology populated is that of a parallelopiped.
+  // If configuration is 0, the topology populated is that of a parallelopiped.
   // If configuration > 0, the topology populated is that of a parallelopiped
   // with a chair at node = (configuration - 1).
   void PopulateTopology(int configuration, vtkCellArray* cellArray) const

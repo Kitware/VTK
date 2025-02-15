@@ -2,7 +2,7 @@ set(classes
   vtkConduitSource
   vtkConduitToDataObject
   vtkDataObjectToConduit
-  vtkConduitArrayUtilities  
+  vtkConduitArrayUtilities
 )
 
 set(private_classes)

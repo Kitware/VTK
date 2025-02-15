@@ -2,7 +2,7 @@
 # vtkTypeLists
 
 This module provides lists of (c++) data type supported by VTK.
-A CamelCase formated list is also provided to easily construct
+A CamelCase formatted list is also provided to easily construct
 class names.
 
 This is useful to generate template instantiation at configure time.
@@ -31,7 +31,7 @@ set(vtk_numeric_types
 This is a function to generate the CamelCase version of the c++ type name.
 
 vtkIdType is converted to IdType, losing the "vtk" prefix.
-#]==] 
+#]==]
 function(vtk_type_to_camel_case type output)
   if (type STREQUAL "vtkIdType")
     set("${output}" "IdType" PARENT_SCOPE )

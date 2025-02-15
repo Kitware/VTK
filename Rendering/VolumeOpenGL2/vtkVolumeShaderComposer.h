@@ -895,7 +895,7 @@ inline std::string ComputeRGBA2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(
     }
     else
     {
-      // Dependent compoennts (RGBA) || Single component
+      // Dependent components (RGBA) || Single component
       functionBody +=
         "  vec4 yscalar = texture3D(in_transfer2DYAxis, g_dataPos);\n"
         "  yscalar.r = yscalar.r * in_transfer2DYAxis_scale.r + in_transfer2DYAxis_bias.r;\n"
@@ -2230,7 +2230,7 @@ inline std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
   {
     if (useGradient)
     {
-      // Dependent compoennts (RGBA) || Single component
+      // Dependent components (RGBA) || Single component
       toString << "float computeOpacity(vec4 scalar)\n"
                   "{\n"
                   "  return texture2D(" +
@@ -2241,7 +2241,7 @@ inline std::string ComputeOpacity2DDeclaration(vtkRenderer* vtkNotUsed(ren),
     }
     else
     {
-      // Dependent compoennts (RGBA) || Single component
+      // Dependent components (RGBA) || Single component
       toString
         << "float computeOpacity(vec4 scalar)\n"
            "{\n"

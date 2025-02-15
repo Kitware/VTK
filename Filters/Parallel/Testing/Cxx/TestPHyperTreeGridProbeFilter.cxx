@@ -126,7 +126,7 @@ void MyProcess::Execute()
   {
     vtkCamera* camera = renderer->GetActiveCamera();
     camera->SetPosition(-15, -15, -15);
-    // All camera should be reseted. If not, only root node
+    // All camera should be reset. If not, only root node
     // will update the pipeline, and reducing operation in
     // vtkPHyperTreeGridProbeFilter will be blocked.
     crm->ResetAllCameras();

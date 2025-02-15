@@ -4,7 +4,7 @@
 // vtkHardwareSelector.
 // This test renders volume data along with polydata objects and selects
 // the volume.
-// Use 'p' for poin picking and 'r' for area selection.
+// Use 'p' for point picking and 'r' for area selection.
 
 #include "vtkInteractorStyleRubberBandPick.h"
 #include "vtkRenderedAreaPicker.h"

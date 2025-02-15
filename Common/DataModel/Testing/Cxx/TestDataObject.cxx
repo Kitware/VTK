@@ -55,7 +55,7 @@ bool TestGhostArray()
 {
   bool ret = true;
 
-  // Test using a concret vtkPolyData instance
+  // Test using a concrete vtkPolyData instance
   vtkNew<vtkPolyData> pd;
   for (int type = 0; type < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES; type++)
   {

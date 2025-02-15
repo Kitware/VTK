@@ -21,7 +21,7 @@
  * On() method, the user may also wish to use the PlaceWidget() to initially
  * position it. The 'i' (for "interactor") keypresses also can be used to
  * turn the widgets on and off (methods exist to change the key value
- * and enable keypress activiation).
+ * and enable keypress activation).
  *
  * To support interactive manipulation of objects, this class (and
  * subclasses) invoke the events StartInteractionEvent, InteractionEvent, and

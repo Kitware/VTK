@@ -592,7 +592,7 @@ bool vtkWebGPUConfiguration::Initialize()
   while (!internals.DeviceReady)
   {
     const auto start = std::chrono::steady_clock::now();
-    vtkDebugMacro(<< "Wait for device initalization ... (" << elapsed << "ms)");
+    vtkDebugMacro(<< "Wait for device initialization ... (" << elapsed << "ms)");
     this->ProcessEvents();
     const auto end = std::chrono::steady_clock::now();
     elapsed += std::chrono::duration<double, std::milli>(end - start).count();

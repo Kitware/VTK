@@ -222,7 +222,7 @@ pieces of information until rendering the first frame / calling `Dispatch()`.
 ### Buffer/Textures registration
 
 Because it may be useful to use a buffer created for a compute pass in another compute pass,
-everytime a buffer (or texture or any object) is added to a compute pass, it is also registered
+every time a buffer (or texture or any object) is added to a compute pass, it is also registered
 in the compute pipeline associated with the compute pass. This is so that next time the same
 buffer is added to another compute pass, it is found in the "registry" of the compute pipeline
 and can be reused for that compute pass without creating a new WebGPU object.

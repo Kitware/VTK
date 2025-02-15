@@ -31,9 +31,9 @@
  * rotate vtkBoxWidget, pick a face (but not a face handle) and move the left
  * mouse. (Note: the mouse button must be held down during manipulation.)
  * Events that occur outside of the widget (i.e., no part of the widget is
- * picked) are propagated to any other registered obsevers (such as the
+ * picked) are propagated to any other registered observes (such as the
  * interaction style).  Turn off the widget by pressing the "i" key again.
- * (See the superclass documentation on key press activiation.)
+ * (See the superclass documentation on key press activation.)
  *
  * The vtkBoxWidget is very flexible. It can be used to select, cut, clip, or
  * perform any other operation that depends on an implicit function (use the

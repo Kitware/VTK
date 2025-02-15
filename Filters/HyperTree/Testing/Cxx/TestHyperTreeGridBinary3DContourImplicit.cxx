@@ -50,13 +50,13 @@ int TestHyperTreeGridBinary3DContourImplicit(int argc, char* argv[])
     contour->SetValue(i, isovalue);
   }
 
-  // Use implict arrays to store contouring values ("Depth") in the output contour
+  // Use implicit arrays to store contouring values ("Depth") in the output contour
   contour->SetUseImplicitArrays(true);
   contour->Update();
 
   // Since the output "Depth" array have been replaced by an implicit array,
   // the input "Depth" scalars status is not preserved.
-  // We should explicitely set the scalars here
+  // We should explicitly set the scalars here
   vtkPolyData* contourPd = contour->GetPolyDataOutput();
   contourPd->GetPointData()->SetScalars(contourPd->GetPointData()->GetArray("Depth"));
 

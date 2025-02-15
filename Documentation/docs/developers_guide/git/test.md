@@ -269,7 +269,7 @@ your local disk outside all build trees, e.g. `/home/user/.ExternalData`:
 
 The [ExternalData][] module will store downloaded objects in the local
 store instead of the build tree.  Once an object has been downloaded
-by one build it will persist in the local store for re-use by other
+by one build it will persist in the local store for reuse by other
 builds without downloading again.
 
 Discussion

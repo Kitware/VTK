@@ -115,7 +115,7 @@ public:
    * Compute error metrics of a provided scalars.
    * Error is defined as the maximum of all individual values within the used method.
    * Errors are computed using Minkownski and Wasserstein distances.
-   * Method used are euclidian (tight) or manhattan / earth's mover (loose)
+   * Method used are euclidean (tight) or manhattan / earth's mover (loose)
    */
   static void ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose);
 

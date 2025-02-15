@@ -108,7 +108,7 @@ private:
   void InsertField();
 
   /**
-   * Utility struct to count records and get associated informations.
+   * Utility struct to count records and get associated information.
    * A "Record" is usually a line (see RecordDelimiters)
    */
   struct RecordsCounter

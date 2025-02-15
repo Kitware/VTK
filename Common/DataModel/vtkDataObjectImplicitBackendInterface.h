@@ -31,7 +31,7 @@
  * # Inheritance
  * When inheriting from vtkDataObjectImplicitBackendInterface, `operator()`
  * should not be defined by the child class.
- * Only `GetValueFromDataObject()` should be overriden to return the expected value.
+ * Only `GetValueFromDataObject()` should be overridden to return the expected value.
  *
  * Once the vtkDataObject is deleted, the parent class handle the memory allocation
  * and initialization. Then `operator()` uses the allocated memory instead

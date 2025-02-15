@@ -231,7 +231,7 @@ public:
 
 private:
   /*
-   * Estimate the number of independent variables in the resulting compressed array accoutning for
+   * Estimate the number of independent variables in the resulting compressed array accounting for
    * constant arrays
    */
   std::size_t EstimateCompressedSize(vtkDataArray* arr, double tol)

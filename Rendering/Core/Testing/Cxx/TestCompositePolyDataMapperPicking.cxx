@@ -202,7 +202,7 @@ int TestCompositePolyDataMapperPicking(int argc, char* argv[])
             lines->InsertCellPoint(19);
             poly->SetLines(lines);
             // note this strip is coincident with the cylinder and
-            // with cell colors will resultin in some rendering
+            // with cell colors will resulting in some rendering
             // artifacts/flickering
             vtkNew<vtkCellArray> strips;
             strips->InsertNextCell(5);

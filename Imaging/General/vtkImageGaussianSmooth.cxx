@@ -234,7 +234,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis, vtkImageData* inData, int inE
   int idxA, max;
   int wholeExtent[6], wholeMax, wholeMin;
   double* kernel;
-  // previousClip and currentClip rembers that the previous was not clipped
+  // previousClip and currentClip remembers that the previous was not clipped
   // keeps from recomputing kernels for center pixels.
   int kernelSize = 0;
   int kernelLeftClip, kernelRightClip;

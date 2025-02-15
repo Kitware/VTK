@@ -464,7 +464,7 @@ struct CellIter
   }
 
   // Decode the case table. (See previous documentation of case table
-  // organization.) Note that bounds/range chacking is not performed
+  // organization.) Note that bounds/range checking is not performed
   // for efficiency.
   const unsigned short* GetCase(unsigned char caseNum)
   {

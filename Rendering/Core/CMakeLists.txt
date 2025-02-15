@@ -197,7 +197,7 @@ if (VTK_WRAP_SERIALIZATION)
     vtkCompositeDataDisplayAttributesSerDesHelper.cxx
     vtkDataSetMapperSerDesHelper.cxx
     vtkTextureSerDesHelper.cxx)
-endif ()    
+endif ()
 
 vtk_module_add_module(VTK::RenderingCore
   CLASSES ${classes}

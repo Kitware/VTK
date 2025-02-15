@@ -39,12 +39,12 @@ int TestHyperTreeGridBinary3DContourImplicitInteger(int argc, char* argv[])
   contour->SetInputConnection(reader->GetOutputPort());
   int nContours = 3;
   contour->SetNumberOfContours(nContours);
-  // Explicitely set floating values
+  // Explicitly set floating values
   contour->SetValue(0, 2.5);
   contour->SetValue(1, 3.5);
   contour->SetValue(2, 3.);
 
-  // Use implict arrays to store contouring values in the output contour
+  // Use implicit arrays to store contouring values in the output contour
   contour->SetUseImplicitArrays(true);
   contour->Update();
 

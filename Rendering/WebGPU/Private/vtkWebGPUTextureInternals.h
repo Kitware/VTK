@@ -23,7 +23,7 @@ public:
     const char* description = nullptr);
 
   /**
-   * Uploads a maximum of bytesToUpload from a vtkDataArray to a texure assuming bytesPerRow bytes
+   * Uploads a maximum of bytesToUpload from a vtkDataArray to a texture assuming bytesPerRow bytes
    * of data per row of the texture.
    */
   static void UploadFromDataArray(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,

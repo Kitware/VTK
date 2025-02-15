@@ -612,7 +612,7 @@ int vtkTableToGraph::RequestData(
       else
       {
         // If the domain is hidden, we look through the edge table to
-        // find new hidden vertices which will not be correllated to the
+        // find new hidden vertices which will not be correlated to the
         // vertex table.
         vtkStdString column = linkColumn->GetValue(c);
         vtkAbstractArray* edgeArr = edgeTable->GetColumnByName(column.c_str());

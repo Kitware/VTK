@@ -110,7 +110,7 @@ public:
 
   ///@{
   /**
-   * These functions are overriden by vtkZSpaceCoreCompatibility (specific to zSpace Inspire).
+   * These functions are overridden by vtkZSpaceCoreCompatibility (specific to zSpace Inspire).
    * @see vtkZSpaceCoreCompatibility
    */
   virtual void EnableGraphicsBinding(){};

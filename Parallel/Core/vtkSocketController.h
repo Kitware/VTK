@@ -43,7 +43,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * This method is for initialiazing sockets.
+   * This method is for initializing sockets.
    * One of these is REQUIRED for Windows.
    */
   void Initialize(int* argc, char*** argv, int) override { this->Initialize(argc, argv); }

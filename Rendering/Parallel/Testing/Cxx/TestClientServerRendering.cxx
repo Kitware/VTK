@@ -180,7 +180,7 @@ bool MyProcess::Execute(int argc, char** argv)
   // enable alpha bit-planes.
   renWin->AlphaBitPlanesOn();
 
-  // use double bufferring.
+  // use double buffering.
   renWin->DoubleBufferOn();
 
   // don't waste time swapping buffers unless needed.

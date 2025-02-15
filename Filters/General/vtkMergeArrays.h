@@ -72,7 +72,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
-   * Gets the metadata from input informations and aggregates time information to the output.
+   * Gets the metadata from input information and aggregates time information to the output.
    */
   int RequestInformation(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

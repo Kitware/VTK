@@ -27,7 +27,7 @@ public:
 
 private:
   /**
-   * Returns the data type that would be approriate to create a vtkImageData from the data of a
+   * Returns the data type that would be appropriate to create a vtkImageData from the data of a
    * texture. This function can typically be called to get the 'dataType' argument of
    * vtkImageData::AllocateScalars()
    */

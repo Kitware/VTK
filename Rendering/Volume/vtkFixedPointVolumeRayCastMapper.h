@@ -22,7 +22,7 @@
  *   - it does only maximum scalar value MIP
  *
  * This mapper handles all data type from unsigned char through double.
- * However, some of the internal calcultions are performed in float and
+ * However, some of the internal calculations are performed in float and
  * therefore even the full float range may cause problems for this mapper
  * (both in scalar data values and in spacing between samples).
  *

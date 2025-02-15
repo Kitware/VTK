@@ -374,7 +374,7 @@ int vtkHyperTreeGridSource::RequestData(
   output->Initialize();
 
   // A mask is required when using UseMask or when assigning trees to pieces,
-  // so we create it everytime.
+  // so we create it every time.
   vtkNew<vtkBitArray> mask;
   output->SetMask(mask);
 

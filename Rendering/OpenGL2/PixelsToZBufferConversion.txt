@@ -117,7 +117,7 @@ Z1 = -D/(C + Zdc1)
 Z2 = Z1 -W*Z1/A
 Zdc2 = -C - D/Z2;
 
-Which can be expanded out and simplied as follows
+Which can be expanded out and simplified as follows
 
 Z1 = -D/(C + Zdc1)
 

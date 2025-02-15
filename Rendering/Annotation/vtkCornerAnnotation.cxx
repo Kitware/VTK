@@ -435,7 +435,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport* viewport)
     // Only adjust size then the text changes due to non w/l slice reasons
     if (viewport_size_has_changed || tprop_has_changed || this->GetMTime() > this->BuildTime)
     {
-      // Rebuid text props.
+      // Rebuild text props.
       // Perform shallow copy here since each individual corner has a
       // different alignment/size but they share the other this->TextProperty
       // attributes.

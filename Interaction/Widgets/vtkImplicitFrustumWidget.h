@@ -18,8 +18,8 @@
  *
  * - LeftButtonPressEvent - select a widget handle
  * - LeftButtonReleaseEvent - release the currently held widget handle
- * - MouseMoveEvent - dependant on the current manipulation mode:
- *  - Origin handle: Translate the frustum origin (constrained to the the x, y or z axis one of the
+ * - MouseMoveEvent - dependent on the current manipulation mode:
+ *  - Origin handle: Translate the frustum origin (constrained to the x, y or z axis one of the
  * corresponding key is held)
  *  - Near plane edges handle: Adjust the near plane distance
  *  - Far plane edges handle: Adjust the horizontal/vertical frustum angles

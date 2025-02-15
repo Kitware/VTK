@@ -271,7 +271,7 @@ bool VectorsAreNearlyEqual(VectorT1&& u, VectorT2&& v, double toleranceFactor)
 }
 
 //============================================================================
-// This class is used to provide access to wanted informations when testing tuples between 2 arrays.
+// This class is used to provide access to wanted information when testing tuples between 2 arrays.
 // One can custom design when to stop iterating over the array with Aborter and set a state
 // to variables accessible to the user with Decider
 template <class DeciderT, class AborterT>

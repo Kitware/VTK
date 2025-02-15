@@ -35,7 +35,7 @@ void vtkShrinkFilter::PrintSelf(ostream& os, vtkIndent indent)
 int vtkShrinkFilter::FillInputPortInformation(int, vtkInformation* info)
 {
   // This filter uses the vtkDataSet cell traversal methods so it
-  // suppors any data set type as input.
+  // supports any data set type as input.
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }

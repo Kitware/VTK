@@ -7,14 +7,14 @@
  * vtkFLUENTReader creates an unstructured grid multiblock dataset.
  * It reads .cas (with associated .dat) and .msh files stored in FLUENT native format.
  * When multiple zone sections are defined in the file they are provided in separate blocks.
- * Each zone section can be unselected so that it won't be part of the outputed multiblock dataset.
+ * Each zone section can be unselected so that it won't be part of the outputted multiblock dataset.
  *
  * Keep in mind that all intermediate structures are cached by default to avoid re-parsing the file
  * when the zone selections change. If you wish to avoid caching to lower memory usage at the
  * expense of IO performances, you can set CacheData to false.
  *
  * Because of zone sections interdependency in the FLUENT format, some unselected zone sections may
- * still need to be read from the file, even if they are not part of the outputed multiblock. Here
+ * still need to be read from the file, even if they are not part of the outputted multiblock. Here
  * is the general file parsing logic:
  * - If any cell zone is enabled, the whole file needs to be read
  * - Otherwise, only the necessary zones are read (nodes, faces, data arrays,...)

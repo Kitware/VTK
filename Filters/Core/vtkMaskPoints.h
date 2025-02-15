@@ -96,7 +96,7 @@ public:
    * a statistically random sample - the closest would be algorithm S)
    * 1 - random sample: create a statistically random sample using Vitter's
    * incremental algorithm D without A described in Vitter
-   * "Faster Mthods for Random Sampling", Communications of the ACM
+   * "Faster Methods for Random Sampling", Communications of the ACM
    * Volume 27, Issue 7, 1984
    * (OnRatio and Offset are ignored) O(sample size)
    * 2 - spatially stratified random sample: create a spatially

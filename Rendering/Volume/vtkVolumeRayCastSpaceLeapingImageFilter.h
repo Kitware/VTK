@@ -239,7 +239,7 @@ protected:
   ///@{
   /**
    * Allocate the output data. If we have a cache with the same metadata as
-   * the output we are going to generate, re-use the cache as we may not be
+   * the output we are going to generate, reuse the cache as we may not be
    * updating all data in the min-max structure.
    */
   void AllocateOutputData(vtkImageData* out, vtkInformation* outInfo, int* uExtent) override;

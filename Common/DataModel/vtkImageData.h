@@ -692,7 +692,7 @@ protected:
   void ComputeIncrements(int numberOfComponents);
   void ComputeIncrements(vtkDataArray* scalars);
 
-  // The first method assumes Acitive Scalars
+  // The first method assumes Active Scalars
   void ComputeIncrements(vtkIdType inc[3]);
   // This one is given the number of components of the
   // scalar field explicitly

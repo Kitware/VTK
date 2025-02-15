@@ -7,7 +7,7 @@
  * vtkArcGridActorPrivate is designed for use by vtkPolarAxes2D, to draw
  * the arcs between the axes.
  *
- * Starting at an orignal axis points, it draws arcs around the given center
+ * Starting at an original axis points, it draws arcs around the given center
  * until a given Angle.
  * The number of points for each axes is defined by Resolution.
  */

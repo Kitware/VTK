@@ -148,8 +148,8 @@ void vtkWebGPUComputePipeline::Update()
 
   // clang-format off
   this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone([](WGPUQueueWorkDoneStatus, void* userdata)
-  { 
-    *static_cast<bool*>(userdata) = true; 
+  {
+    *static_cast<bool*>(userdata) = true;
   }, &workDone);
   // clang-format on
 

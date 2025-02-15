@@ -18,7 +18,7 @@
  * to supply an instance of vtkPoints and an instance of vtkDataArray. (The
  * points define a point on the plane, and the normals corresponding plane
  * normals.) Two other specialized ways are to 1) supply six planes defining
- * the view frustrum of a camera, and 2) provide a bounding box.
+ * the view frustum of a camera, and 2) provide a bounding box.
  *
  * @sa
  * vtkImplicitBoolean vtkSpheres vtkFrustrumSource vtkCamera
@@ -80,7 +80,7 @@ public:
 
   /**
    * An alternative method to specify six planes defined by the camera view
-   * frustrum. See vtkCamera::GetFrustumPlanes() documentation.
+   * frustum. See vtkCamera::GetFrustumPlanes() documentation.
    */
   void SetFrustumPlanes(double planes[24]);
 

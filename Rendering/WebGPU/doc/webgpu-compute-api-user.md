@@ -397,7 +397,7 @@ Some comments on the parameters used during the configuration of the texture & t
   RGBA 8-bit per channel format.
 - Mode: Read/write/read-write/mappable etc... This works the same way as buffers
 - Sample type: This parameter defines what is going to be returned when sampling the texture in
-  a shader. In such a situtation, the aspect allows to choose whether you're only interested
+  a shader. In such a situation, the aspect allows to choose whether you're only interested
   in sampling the depth part of the depth + stencil texture or only the stencil part.
   For typical color textures, `ASPECT_ALL` is the one to use and is the default.
 - Aspect: This is useful for textures that contains multiple type of information such as a depth + stencil texture for example.
@@ -462,7 +462,7 @@ before the rendering process, allowing for the changes to the geometry to be ref
 On the other hand, if you need the depth buffer of the render window for your compute pipeline, you will want to add
 the compute pipeline so that it executes after the frame is rendered (so that the depth buffer has been constructed).
 
-You can decide that throug the `AddPreRenderComputePipeline()` and `AddPostRenderComputePipeline()` functions.
+You can decide that through the `AddPreRenderComputePipeline()` and `AddPostRenderComputePipeline()` functions.
 
 ```c++
 vtkWebGPURenderer* wegpuRenderer = vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
@@ -483,7 +483,7 @@ This is done automatically by the rendering pipeline on each frame.
 
 `vtkWebGPURenderWindow` also exposes methods to access render textures used by the rendering pipeline such as the depth buffer
 (only texture exposed for now). These textures are accessible through `vtkWebGPUComputeRenderTexture`s (analogous to `vtkWebGPUComputeRenderBuffer`s).
-They can be aquired with methods such as `AcquireDepthBufferRenderTexture()`. Here again, you will need to call `vtkRenderWindow::Initialize()` before
+They can be acquired with methods such as `AcquireDepthBufferRenderTexture()`. Here again, you will need to call `vtkRenderWindow::Initialize()` before
 calling `AcquireDepthBufferRenderTexture()` because it is the `Initialize()` method that creates the textures of the render window.
 
 Render textures are used as regular textures. Add them to a compute pass with `vtkWebGPUComputePass::AddRenderTexture()`. Store the

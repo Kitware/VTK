@@ -757,7 +757,7 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       // add 3d renderer to render window.
       renWin->AddRenderer(this->Private->BigChart3DRenderer);
       // DO NOT ERASE main scene renderer. Allow the 2D scatter plots to remain on the color
-      // attachment. we don't want to draw those unncessarily during animation because it tanks
+      // attachment. we don't want to draw those unnecessarily during animation because it tanks
       // framerate.
       this->Scene->GetRenderer()->EraseOff();
       this->Private->CurrentAngle = 0.0;

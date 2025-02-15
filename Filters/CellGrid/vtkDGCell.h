@@ -223,7 +223,7 @@ public:
   ///
   /// This method simply averages corner-point coordinates.
   /// It is not fast, since it averages values each time it
-  /// is called. If you need to re-use this information, you
+  /// is called. If you need to reuse this information, you
   /// are responsible for caching it locally.
   virtual vtkVector3d GetParametricCenterOfSide(int sideId) const;
 

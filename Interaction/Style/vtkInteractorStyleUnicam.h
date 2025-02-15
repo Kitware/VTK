@@ -40,7 +40,7 @@
  * Rotations can be done without placing a focus dot first by moving the
  * mouse cursor to within 10% of the window border & pressing and holding the
  * left button followed by dragging the mouse.  The last focus dot position
- * will be re-used.
+ * will be reused.
  *
  * 2. PAN:
  *

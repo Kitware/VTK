@@ -95,7 +95,7 @@ struct ComputeMeanDistance
           y[2] = static_cast<double>(*py);
           sum += sqrt(vtkMath::Distance2BetweenPoints(x, y));
         }
-      } // sum the lengths of all samples exclusing current point
+      } // sum the lengths of all samples excluding current point
 
       // Average the lengths; again exclude ourselves
       if (numPts > 0)

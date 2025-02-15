@@ -14,7 +14,7 @@
  * after ParaView 1.4.0.
  *
  * This filter rifles through all the cells in an input vtkDataSet. It
- * tesselates each cell and uses the vtkStreamingTessellator and
+ * tessellates each cell and uses the vtkStreamingTessellator and
  * vtkDataSetEdgeSubdivisionCriterion classes to generate simplices that
  * approximate the nonlinear mesh using some approximation metric (encoded
  * in the particular vtkDataSetEdgeSubdivisionCriterion::EvaluateLocationAndFields

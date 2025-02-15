@@ -85,7 +85,7 @@ set(serialization_helper_sources)
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkAlgorithmSerDesHelper.cxx)
-endif ()    
+endif ()
 
 vtk_module_add_module(VTK::CommonExecutionModel
   CLASSES ${classes}

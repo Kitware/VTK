@@ -57,7 +57,7 @@ endfunction ()
 # Opt-in option from projects using VTK to activate SSIM baseline comparison
 if (DEFINED DEFAULT_USE_SSIM_IMAGE_COMP AND DEFAULT_USE_SSIM_IMAGE_COMP)
   set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
-# We are compiling VTK standalone if we succed the following condition
+# We are compiling VTK standalone if we succeed the following condition
 elseif (DEFINED VTK_VERSION)
   set(default_image_compare "VTK_TESTING_IMAGE_COMPARE_METHOD=TIGHT_VALID")
 else()
@@ -321,7 +321,7 @@ C++ tests
     current source directory. If alternate baseline images are required,
     ``<NAME>`` may be suffixed by ``_1``, ``_2``, etc. The valid image is passed via
     the ``-V`` flag.
-    - ``TIGHT_VALID``: Uses euclidian type metrics to compare baselines. Baseline
+    - ``TIGHT_VALID``: Uses euclidean type metrics to compare baselines. Baseline
     comparison is sensitive to outliers in this setting.
     - ``LOOSE_VALID``: Uses L1 type metrics to compare baselines. Baseline comparison
     is somewhat more forgiving. Typical use cases involve rendering that is highly GPU
@@ -710,7 +710,7 @@ Options:
 - ``JUST_VALID``: Only applies when neither ``NO_VALID`` or ``NO_RT`` are present.
   If it is not specified, the test is run via ``vtkmodules.test.rtImageTest``.
 - ``TIGHT_VALID``: Default behavior if legacy image comparison method is turned off by default.
-  The baseline is tested using an euclidian metric, which is sensitive to outliers.
+  The baseline is tested using an euclidean metric, which is sensitive to outliers.
 - ``LOOSE_VALID``: The baseline is tested using an norm-1 metric, which is less sensitive to
   outliers. It should typically be used when comparing text or when testing rendering that
   varies a lot depending on the GPU drivers.

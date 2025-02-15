@@ -241,7 +241,7 @@ protected:
   void InsertEdge(
     vtkIdType e1, vtkIdType e2, vtkIdType cellId, int ref, int toSplit, vtkIdType& ptId);
 
-  // Hash table that contiain entry based on edges:
+  // Hash table that contain entry based on edges:
   vtkEdgeTableEdge* EdgeTable;
 
   // At end of process we should be able to retrieve points coord based on pointid

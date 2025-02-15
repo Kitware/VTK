@@ -1,6 +1,6 @@
 ## Add Hint to Improve Python Concurrency
 
-The new `VTK_UNBLOCKTHREADS` wrappper hint indicates methods for which we
+The new `VTK_UNBLOCKTHREADS` wrapper hint indicates methods for which we
 want to release the GIL and allow Python thread concurrency.  In particular,
 we want to hint the `Update()` methods so that they can run concurrently
 from different Python threads, and more importantly, so that the Python

@@ -18,7 +18,7 @@ namespace
 {
 /**
  * Recursively process the tree to mask ghost cells. Return true if the current cell has been
- * masked (i.e. already masked in inMask, ghost in inGhost, or all chilren masked and/or ghost).
+ * masked (i.e. already masked in inMask, ghost in inGhost, or all children masked and/or ghost).
  */
 bool RecursivelyMaskGhost(
   vtkHyperTreeGridNonOrientedCursor* cursor, vtkBitArray* inMask, vtkUnsignedCharArray* inGhost)

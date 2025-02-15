@@ -603,7 +603,7 @@ public:
    * Please note KeySym may NOT be fully reliable across platforms, especially for special
    * characters with modifiers. Please check the actual KeySym on supported platform before relying
    * on it. However, KeySym is intended to always correspond to the key the user intended to press,
-   * even accross layouts and platforms.
+   * even across layouts and platforms.
    *
    * Default is nullptr.
    */

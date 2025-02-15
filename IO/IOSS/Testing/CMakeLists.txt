@@ -33,7 +33,7 @@ if (VTK_WRAP_PYTHON)
   )
 endif ()
 
-# functino to add conduit data. it passes the dataset_name, num_mpi_nodes, and num_timesteps as arguments
+# function to add conduit data. it passes the dataset_name, num_mpi_nodes, and num_timesteps as arguments
 function(vtk_add_conduit_data dataset_name num_mpi_nodes num_timesteps)
   set(local_datasets)
   math(EXPR max_mpi_node "${num_mpi_nodes} - 1")

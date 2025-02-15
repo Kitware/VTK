@@ -141,7 +141,7 @@ double FindEpsilon(vtkDataArray* contourValues)
     double difference = contourValue2 - contourValue1;
     contourValue1 = contourValue2; // For next iteration
 
-    // Avoid dupplicated contour values (compare using std::numeric_limits<double>::epsilon)
+    // Avoid duplicated contour values (compare using std::numeric_limits<double>::epsilon)
     if (vtkMathUtilities::FuzzyCompare(difference, 0.))
     {
       continue;
@@ -198,7 +198,7 @@ vtkSmartPointer<vtkUnsignedCharArray> GenerateHandles(
 }
 
 // Given the contour array, the contour values and the output attributes,
-// replace the contour array found in the attibutes by an implicit array.
+// replace the contour array found in the attributes by an implicit array.
 struct ConvertToIndexedArrayWorker
 {
   template <typename ArrayType>
@@ -263,7 +263,7 @@ struct ConvertToIndexedArrayWorker
 };
 
 // Given the contour array name, the contour values and the output attributes,
-// replace the contour array found in the attibutes by an indexed array.
+// replace the contour array found in the attributes by an indexed array.
 // If there are less than 256 contour values:
 // - store these values in a new array, removing duplicates
 // - use a vtkUnsignedCharArray to index these values (handles)

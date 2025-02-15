@@ -142,7 +142,7 @@ protected:
   bool Tracers;       // Create UnstructuredGrid for tracer info
   bool Float64;       // Load variable data as 64 bit float
 
-  // Controls initializing and querrying MPI
+  // Controls initializing and querying MPI
   void SetController(vtkMultiProcessController*);
   vtkMultiProcessController* Controller;
 

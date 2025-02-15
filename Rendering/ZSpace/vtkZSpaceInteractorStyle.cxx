@@ -557,7 +557,7 @@ std::string vtkZSpaceInteractorStyle::GetPickedText(vtkDataSet* ds, const vtkIdT
     // Cell type
     vtkCell* cell = ds->GetCell(aid);
 
-    // XXX Can be inproved by printing the type of the cell as a string
+    // XXX Can be improved by printing the type of the cell as a string
     // (see vtkSMCoreUtilities::GetStringForCellType in ParaView)
     ssPickedText << "Cell type: " << cell->GetCellType() << "\n";
   }

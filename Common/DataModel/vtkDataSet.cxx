@@ -892,7 +892,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
           { // Special case for last tile.
             di = i - zeroExt[1] + 1;
           }
-          // Compute Manhatten distance.
+          // Compute Manhattan distance.
           dist = di;
           if (dj > dist)
           {
@@ -949,7 +949,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
 
   // Loop
   for (k = extent[4]; k < extent[5]; ++k)
-  { // Determine the Manhatten distances to zero extent.
+  { // Determine the Manhattan distances to zero extent.
     dk = 0;
     if (k < zeroExt[4])
     {
@@ -981,7 +981,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
         {
           di = i - zeroExt[1] + 1;
         }
-        // Compute Manhatten distance.
+        // Compute Manhattan distance.
         dist = di;
         if (dj > dist)
         {

@@ -864,7 +864,7 @@ bool vtkDGRenderResponder::DrawShapes(vtkCellGridRenderRequest* request, vtkDGCe
 
     // specify farthest distance of a vertex to the camera for distance-based tessellation
     double bounds[6];
-    vtkVector4d cornersWC[8], cornersVC[8]; // WC: Wolrd Coordinate, VC: View coord
+    vtkVector4d cornersWC[8], cornersVC[8]; // WC: World Coordinate, VC: View coord
     auto* wcvc = renderer->GetActiveCamera()->GetModelViewTransformMatrix();
     double maxDistance = VTK_DOUBLE_MIN;
     renderer->ComputeVisiblePropBounds(bounds);

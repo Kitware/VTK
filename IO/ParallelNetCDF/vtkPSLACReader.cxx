@@ -391,7 +391,7 @@ int vtkPSLACReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   // It would be more efficient to read the meta data on just process 0 and
-  // propgate to the rest.  However, this will probably have a profound effect
+  // propagate to the rest.  However, this will probably have a profound effect
   // only on big jobs accessing parallel file systems.  Until we need that,
   // I'm not going to bother.
   if (!this->Superclass::RequestInformation(request, inputVector, outputVector))

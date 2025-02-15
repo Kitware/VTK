@@ -331,7 +331,7 @@ int TestCell(VTKCellType cellType, vtkSmartPointer<T> aCell)
   }
 
   std::cout << "  Testing EvaluatePosition pcoord matches vertex...";
-  // Each vertex should corrrespond to a pcoord.
+  // Each vertex should correspond to a pcoord.
   int subId = 0;
   int status6 = 0;
   double* weights = new double[aCell->GetNumberOfPoints()];

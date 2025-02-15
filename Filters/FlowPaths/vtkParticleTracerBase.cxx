@@ -967,7 +967,7 @@ int vtkParticleTracerBase::Execute(
   // These hold reference to the inputs. Release them.
   this->DataReferenceT[0] = this->DataReferenceT[1] = nullptr;
 
-  // save some locator building, by re-using them as time progresses
+  // save some locator building, by reusing them as time progresses
   this->Interpolator->AdvanceOneTimeStep();
 
   this->CachedTimeStep = this->GetCurrentTimeStep();

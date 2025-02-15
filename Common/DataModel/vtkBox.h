@@ -90,7 +90,7 @@ public:
 
   /**
    * Intersect a line with the box.  Give the endpoints of the line in
-   * p1 and p2.  The parameteric distances from p1 to the entry and exit
+   * p1 and p2.  The parametric distances from p1 to the entry and exit
    * points are returned in t1 and t2, where t1 and t2 are clamped to the
    * range [0,1].  The entry and exit planes are returned in plane1 and
    * plane2 where integers (0, 1, 2, 3, 4, 5) stand for the

@@ -27,7 +27,7 @@ import vtkmodules.vtkRenderingOpenGL2  # noqa
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa
 
 
-# The scene to test. In some platforms re-using the window & renderer across
+# The scene to test. In some platforms reusing the window & renderer across
 # the two test cases causes segfault. We start all tests from a clean state by
 # creating the scene from scratch each time.
 class Scene:

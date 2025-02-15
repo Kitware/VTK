@@ -35,7 +35,7 @@ public:
 
   /**
    * Compute cartesian coordinates of point in the quad
-   * using parameteric coordinates
+   * using parametric coordinates
    */
   vtkVector3d ComputeCartesianCoordinates(double u, double v);
 

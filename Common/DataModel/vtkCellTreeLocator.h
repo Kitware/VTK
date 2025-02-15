@@ -96,7 +96,7 @@ public:
    */
   bool GetLargeIds() { return this->LargeIds; }
 
-  // Re-use any superclass signatures that we don't override.
+  // Reuse any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
   using vtkAbstractCellLocator::IntersectWithLine;
 

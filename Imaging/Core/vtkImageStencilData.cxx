@@ -1098,7 +1098,7 @@ void vtkImageStencilRaster::PrepareForNewData(const int allocateExtent[2])
 {
   if (this->UsedExtent[1] >= this->UsedExtent[0])
   {
-    // reset and re-use the allocated raster lines
+    // reset and reuse the allocated raster lines
     size_t imin = static_cast<size_t>(this->UsedExtent[0] - this->Extent[0]);
     size_t imax = static_cast<size_t>(this->UsedExtent[1] - this->Extent[0]);
     for (size_t i = imin; i <= imax; i++)

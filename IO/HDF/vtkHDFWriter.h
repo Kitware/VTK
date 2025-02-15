@@ -365,7 +365,7 @@ private:
   bool HasGeometryChangedFromPreviousStep(vtkDataSet* input);
 
   /**
-   * Update the time value of the MeshMTime which wiil be used in the next time step
+   * Update the time value of the MeshMTime which will be used in the next time step
    */
   void UpdatePreviousStepMeshMTime(vtkDataObject* input);
 

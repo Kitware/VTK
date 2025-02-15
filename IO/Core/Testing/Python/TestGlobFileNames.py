@@ -50,7 +50,7 @@ class TestGlobFileNames(vtkmodules.test.Testing.vtkTest):
                 print("string does not match pattern quarter.*:", filename)
 
 
-        # check that we can re-use the Glob object
+        # check that we can reuse the Glob object
         globFileNames.Reset()
         globFileNames.SetDirectory(VTK_DATA_ROOT + "/Data/")
         globFileNames.AddFileNames(VTK_DATA_ROOT + "/Data/financial.*")

@@ -60,4 +60,4 @@ The command line for a unit test is set by the CMake functions in vtkModuleTesti
 ## Reference Server-side implementation in VTK:
 
 1. The `vtkTestHTTPHandler.translate_path` method implements the `/preload`, `/filename.{js,wasm}` and `/favicon.ico` routes.
-2. The `vtkTestHTTPHandler.do_POST` method implements routes like `/dump`, `/console_output` and `/exit`. These are triggerred when the wasm application wants to write a file to disk through `fwrite`, print messages to `cout`/`cerr` and `exit(code)` respectively.
+2. The `vtkTestHTTPHandler.do_POST` method implements routes like `/dump`, `/console_output` and `/exit`. These are triggered when the wasm application wants to write a file to disk through `fwrite`, print messages to `cout`/`cerr` and `exit(code)` respectively.

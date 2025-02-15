@@ -100,7 +100,7 @@ public:
    * Set/Get the exponential constant for the Exponential Shadow Maps. The
    * default value differs from the value recommended by the authors of the Exponential
    * Shadow Map paper, VTK uses 11.f instead of 80.f. Empirically this improves rendering
-   * preformance with minimal tradeoff in shadow resolution.
+   * performance with minimal tradeoff in shadow resolution.
    *
    * The author's recommended value of 80.f represents the maximum practical value for
    * 32-bit floating point precision in the shadow map. Values that are too

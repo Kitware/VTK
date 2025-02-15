@@ -791,7 +791,7 @@ size_t getFileSize(const std::string& path)
 //------------------------------------------------------------------------------
 std::string vtkJSONSceneExporter::WriteTexture(vtkTexture* texture)
 {
-  // If this texture has already been written, just re-use the one
+  // If this texture has already been written, just reuse the one
   // we have.
   if (this->TextureStrings.find(texture) != this->TextureStrings.end())
   {
@@ -827,7 +827,7 @@ std::string vtkJSONSceneExporter::WriteTexture(vtkTexture* texture)
 //------------------------------------------------------------------------------
 std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
 {
-  // If this texture has already been written, just re-use the one
+  // If this texture has already been written, just reuse the one
   // we have.
   if (this->TextureLODStrings.find(texture) != this->TextureLODStrings.end())
   {

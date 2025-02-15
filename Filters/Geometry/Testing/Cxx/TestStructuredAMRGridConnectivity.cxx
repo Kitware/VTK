@@ -95,7 +95,7 @@ void GetPoint(const int i, const int j, const int k, double h[3], double pnt[3])
 void GetGridExtent(const int blockIdx, const int dim, const int ratio, int ext[6])
 {
   assert("pre: block index is out-of-bounds" && (blockIdx >= 0) && (blockIdx < NumPatches));
-  assert("pre: dimensino is out-of-bounds" && (dim >= 2) && (dim <= 3));
+  assert("pre: dimension is out-of-bounds" && (dim >= 2) && (dim <= 3));
 
   // STEP 0: Initialize the extent
   for (int i = 0; i < 6; ++i)

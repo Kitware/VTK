@@ -81,7 +81,7 @@ protected:
   double CameraLookAt[10];            // Camera Look At (fov, position[3], up[3], eye[3])
   bool GradientBackground;            // If the scene use a gradient background
   double Background1[3];              // Background color of the rendering screen (RGB)
-  double Background2[3];              // Scond background color
+  double Background2[3];              // Second background color
   double SceneSize[3];                // Size of the bounding box of the scene
   std::string SceneId;                // Id of the parsed scene
   float CenterOfRotation[3];          // Center Of Rotation

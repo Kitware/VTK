@@ -223,7 +223,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   for (int treeId : hyperTrees)
   {
     /* Initialize RNG per tree to make it easier to distribute,
-     * also make the RNG piece dependent to avoid biais accross
+     * also make the RNG piece dependent to avoid bias across
      * distributed data.
      */
     this->NodeRNG->Initialize(this->Seed + treeId + piece);
@@ -250,7 +250,7 @@ int vtkRandomHyperTreeGridSource::RequestData(
   for (int treeId : hyperTrees)
   {
     /* Initialize RNG per tree to make it easier to distribute,
-     * also make the RNG piece dependent to avoid biais accross
+     * also make the RNG piece dependent to avoid bias across
      * distributed data.
      */
     this->MaskRNG->Initialize(this->Seed + treeId + piece);

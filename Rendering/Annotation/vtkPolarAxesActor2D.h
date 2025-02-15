@@ -53,7 +53,7 @@ public:
   int RenderOverlay(vtkViewport* viewport) override;
 
   /**
-   * Overriden as a no-op. Needed to avoid warnings/errors from Superclass
+   * Overridden as a no-op. Needed to avoid warnings/errors from Superclass
    * that expects a Mapper to be defined. It is not the case here as
    * everything is delegated to other internal actors.
    * Return 1.

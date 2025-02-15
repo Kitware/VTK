@@ -3144,14 +3144,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
 
   this->UseSet->SetNotRendered();
 
-  int aborded = 0;
+  int aborted = 0;
   // for each vertex of the "event list"
   while (this->EventList->GetNumberOfItems() > 0)
   {
     this->UpdateProgress(static_cast<double>(progressCount) / sum);
 
-    aborded = renWin->CheckAbortStatus();
-    if (aborded)
+    aborted = renWin->CheckAbortStatus();
+    if (aborted)
     {
       break;
     }
@@ -3303,7 +3303,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
     } // if useset of vertex is not null
   }   // while(eventList->GetNumberOfItems()>0)
 
-  if (!aborded)
+  if (!aborted)
   {
     // Here a final compositing
     vtkDebugMacro(<< "Flush Compositing");

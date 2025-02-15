@@ -59,7 +59,7 @@ public:
   ///@{
   /**
    * This class works with the class vtkWidgetEventTranslator to set up the
-   * initial coorespondence between VTK events, widget events, and callbacks.
+   * initial correspondence between VTK events, widget events, and callbacks.
    * Different flavors of the SetCallbackMethod() are available depending on
    * what sort of modifiers are to be associated with a particular event.
    * Typically the widgets should use this method to set up their event

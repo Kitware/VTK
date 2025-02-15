@@ -127,7 +127,7 @@ public:
     auto nchar = vtkSmartPointer<vtkImageData>::New();
     int textdims[2];
 
-    // temporily make settings to get a consistent result
+    // temporarily make settings to get a consistent result
     auto tren = vtkFreeTypeTools::GetInstance();
     bool lasts2p2 = tren->GetScaleToPowerTwo();
     tren->ScaleToPowerTwoOff();

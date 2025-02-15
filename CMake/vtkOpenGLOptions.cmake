@@ -75,7 +75,7 @@ mark_as_advanced(VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 set(vtk_can_do_offscreen FALSE)
 set(vtk_can_do_onscreen FALSE)
 # VTK OSMesa support is always built on major desktop platforms because it's far cheaper and simpler
-# to just build software-only support rather than making `vtkOpenGLRenderWindow` handle situations when 
+# to just build software-only support rather than making `vtkOpenGLRenderWindow` handle situations when
 # neither the hardware accelerated on/offscreen backends, nor the software-only backends are available.
 set(vtk_can_do_headless TRUE)
 

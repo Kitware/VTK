@@ -83,7 +83,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 # (vtk/vtk#19097) This test is skipped on wasm architecture.
-if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten") 
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
 endif ()

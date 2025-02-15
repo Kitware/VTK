@@ -51,7 +51,7 @@ public:
   ///@{
   /**
    * Does this prop have opaque/translucent polygonal geometry?
-   * These methods are overriden to skip redundant checks
+   * These methods are overridden to skip redundant checks
    * in different rendering stages.
    *
    * If the mapper has already been checked for opaque geometry and the mapper

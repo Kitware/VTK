@@ -39,7 +39,7 @@ vtkAMRVolumeMapper::vtkAMRVolumeMapper()
   this->NumberOfSamples[0] = 128;
   this->NumberOfSamples[1] = 128;
   this->NumberOfSamples[2] = 128;
-  this->RequestedResamplingMode = 0; // Frustrum Mode
+  this->RequestedResamplingMode = 0; // Frustum Mode
   this->FreezeFocalPoint = false;
   this->LastFocalPointPosition[0] = this->LastFocalPointPosition[1] =
     this->LastFocalPointPosition[2] = 0.0;

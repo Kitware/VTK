@@ -36,7 +36,7 @@ include("${VTK_SOURCE_DIR}/CMake/vtkCompilerWarningFlags.cmake")
 # For OpenGL options
 include("${VTK_SOURCE_DIR}/CMake/vtkOpenGLOptions.cmake")
 
-# Allow VTK to be discovered because emscripten's toolchain file 
+# Allow VTK to be discovered because emscripten's toolchain file
 # forces cmake to look only inside `CMAKE_FIND_ROOT_PATH`
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE_saved ${CMAKE_FIND_ROOT_PATH_MODE_PACKAGE})
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)

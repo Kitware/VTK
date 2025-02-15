@@ -80,7 +80,7 @@ protected:
   void PreRender(const vtkRenderState* s);
 
   /**
-   * Called in PreRender to give a chance to subclasses to set additonal information keys.
+   * Called in PreRender to give a chance to subclasses to set additional information keys.
    * This will be called for each filtered prop in the state.
    */
   virtual void PreRenderProp(vtkProp* prop);

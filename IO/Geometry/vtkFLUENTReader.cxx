@@ -282,7 +282,7 @@ bool vtkFLUENTReader::FillMultiblock(std::vector<unsigned int>& disabledZones,
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs)
 {
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
-  // In this case, we generate a multiblock using the faces informations so we can
+  // In this case, we generate a multiblock using the faces information so we can
   // still display the surface of this mesh.
   if (this->CurrentCells.empty() && !this->CurrentFaces.empty() &&
     this->Points->GetNumberOfPoints() > 0)
@@ -499,7 +499,7 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   // zone ID -> block idx lookup map
   std::vector<size_t> zoneIDToBlockIdx(this->CurrentZoneSections.size());
 
-  // fast access to block UGs to avoid unecessary SafeDowncast while looping over cells/faces
+  // fast access to block UGs to avoid unnecessary SafeDowncast while looping over cells/faces
   std::vector<vtkSmartPointer<vtkUnstructuredGrid>> blockUGs(this->CurrentZoneSections.size());
 
   this->InitOutputBlocks(output, zoneIDToBlockIdx, blockUGs);

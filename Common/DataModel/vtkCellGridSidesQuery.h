@@ -57,7 +57,7 @@ public:
     EdgesOfInputs = 0x14,      //!< Produce edges of inputs of higher dimension.
     VerticesOfInputs = 0x0b,   //!< Produce vertices of inputs of higher dimension.
     AllSides = 0x3f,           //!< Produce all sides of inputs that have any sides.
-    NextLowestDimension = 0x25 //!< Given an input of dimenson D, produce sides of dimension D-1.
+    NextLowestDimension = 0x25 //!< Given an input of dimension D, produce sides of dimension D-1.
   };
 
   /// An enum specifying the work responders should perform for each pass.

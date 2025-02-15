@@ -262,7 +262,7 @@ public:
   // be specified in the subclass.
   virtual void OnKeyDown() {}
 
-  // OnKeyUp is triggered by releaseing any key (identical to OnKeyRelease()).
+  // OnKeyUp is triggered by releasing any key (identical to OnKeyRelease()).
   // An empty implementation is provided. The behavior of this function should
   // be specified in the subclass.
   virtual void OnKeyUp() {}

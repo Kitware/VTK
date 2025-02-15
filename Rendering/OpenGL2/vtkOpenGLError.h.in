@@ -82,7 +82,7 @@ const char *vtkOpenGLStrError(unsigned int code)
 }
 
 /**
- * Check for OpenGL errors. Error status is querried until
+ * Check for OpenGL errors. Error status is queried until
  * OpenGL reports no errors. The list of errors and their
  * descriptions are returned in the user supplied arrays.
  * User passes the size of the arrays as the first argument.

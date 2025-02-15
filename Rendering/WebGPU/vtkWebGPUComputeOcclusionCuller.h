@@ -30,7 +30,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * between the quad of the actor (projection of its bounding box on the viewport) more efficient, a
  * mipmap chain of the depth buffer is used. Without this mipmap chain, we would have to compare the
  * depth of all the pixels (there could be dozens to hundreds of thousands depending on the
- * screen-space size of the actor) of the projected bouding box of the actor against the depth
+ * screen-space size of the actor) of the projected bounding box of the actor against the depth
  * buffer which would be way too expensive. Using a mipmap chain allows us to choose the right
  * mipmap so that we only have to check a few (~4 +/- 2) pixels for the depth.
  *
@@ -200,7 +200,7 @@ private:
    *
    * For a prop to be written to the propList that will be rendered, it needs to have passed the
    * culling test but also not having been rendered in the first pass (because rendering it twice is
-   * useless so we're not adding a prop that was alredy rendered to the list of props that need to
+   * useless so we're not adding a prop that was already rendered to the list of props that need to
    * be rendered).
    */
   static void FillObjectsToDrawCallback(const void* mappedData, void* data);

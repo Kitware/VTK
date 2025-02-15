@@ -25,7 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * CellShape: one of "vtkDGHex"_token, "vtkDGQuad"_token, etc. but may also include
  *    "vtkDeRhamCell"_token, or "vtkDGCell"_token. In this way, if a cell does not
  *    have its own operator it can see whether a more generic version exists.
- *    This accomodates the "constant" function space where all shapes produce the
+ *    This accommodates the "constant" function space where all shapes produce the
  *    same function.
  */
 class VTKFILTERSCELLGRID_EXPORT vtkDGOperatorEntry

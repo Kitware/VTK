@@ -127,7 +127,7 @@ struct TupleComp
 // array to a final, post-sorted array, Implementation note: the direction of
 // sort (dir) is treated here rather than in the std::sort() function to
 // reduce object file .obj size; e.g., running std::sort with a different
-// comporator function causes inline expansion to produce very large object
+// comparator function causes inline expansion to produce very large object
 // files.
 template <typename T>
 void Shuffle1Tuples(vtkIdType* idx, vtkIdType sze, vtkAbstractArray* arrayIn, T* preSort, int dir)

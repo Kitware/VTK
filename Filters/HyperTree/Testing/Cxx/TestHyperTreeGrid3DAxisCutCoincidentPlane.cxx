@@ -21,7 +21,7 @@
 /**
  * Test the behavior of vtkHyperTreeGridAxisCut when the cutting plane is coincident with some faces
  * of the HTG cells geometry. In such cases, the plan should be considered as "inside" if it is
- * coincident with the oposite faces of the cell origin.
+ * coincident with the opposite faces of the cell origin.
  */
 int TestHyperTreeGrid3DAxisCutCoincidentPlane(int argc, char* argv[])
 {

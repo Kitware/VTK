@@ -66,7 +66,7 @@ private:
   /**
    * Create a partition from input cells and given points.
    * If input is a vtkPolyData, returns a vtkPolyData. Otherwise returns a vtkUnstructuredGrid.
-   * Caller is responisble for deletion.
+   * Caller is responsible for deletion.
    */
   vtkPointSet* CreatePartition(vtkDataSet* input, vtkIdList* partCellIds);
 };

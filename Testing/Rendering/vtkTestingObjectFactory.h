@@ -10,7 +10,7 @@
  * Some vtk examples and tests need to perform differently when they
  * are run as tests versus when they are run as individual
  * programs. Many tests/examples are interactive and eventually call
- * vtkRenderWindowInteration::Start() to initialie the
+ * vtkRenderWindowInteration::Start() to initialize the
  * interaction. But, when run as tests, these programs should
  * exit. This factory overrides vtkRenderWindowInteractor so that the
  * Start() method just returns.

@@ -269,7 +269,7 @@ int TestSetGet()
     ++status;
   }
 
-  // Now change the spline tyeps
+  // Now change the spline types
   vtkSmartPointer<vtkKochanekSpline> xSpline = vtkSmartPointer<vtkKochanekSpline>::New();
   pspline->SetXSpline(xSpline);
   className = pspline->GetXSpline()->GetClassName();

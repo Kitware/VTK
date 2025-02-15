@@ -8,12 +8,12 @@
  *
  * The output data is a multiblock dataset containing one block per input dataset.
  * The output timesteps is the union (or the intersection) of each input timestep lists.
- * Duplicates time values are removed, dependending on a tolerance, either absolute or relative.
+ * Duplicates time values are removed, depending on a tolerance, either absolute or relative.
  *
  * When source time is exactly 0., absolute tolerance is used even in relative mode.
  *
  * Note that the actual merge of timesteps is done during the RequestInformation pass.
- * In the 'Relative' mode, inputs are processed in order and compararison is done with
+ * In the 'Relative' mode, inputs are processed in order and comparison is done with
  * previously processed inputs.
  */
 

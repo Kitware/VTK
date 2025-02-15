@@ -241,7 +241,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
 
   // If we were to allocate this callbackData locally on the stack, it would be destroyed when going
   // out of scope (at the end of this function). The callback, called asynchronously would then be
-  // refering to data that has been destroyed (since it was allocated locally). This is why we're
+  // referring to data that has been destroyed (since it was allocated locally). This is why we're
   // allocating it dynamically with a new
   InternalMapBufferAsyncData* internalCallbackData = new InternalMapBufferAsyncData;
   internalCallbackData->buffer = mappedBuffer;

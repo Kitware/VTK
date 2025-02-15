@@ -887,7 +887,7 @@ int TestPolyDataTemporalPartitionedWithCache(
     {
       if (meshMTime[0] == meshMTime[1])
       {
-        std::cerr << "MTime: Failed MeshMTime souldn't be equal - previous = " << meshMTime[1]
+        std::cerr << "MTime: Failed MeshMTime shouldn't be equal - previous = " << meshMTime[1]
                   << " while current = " << meshMTime[0] << std::endl;
         return EXIT_FAILURE;
       }

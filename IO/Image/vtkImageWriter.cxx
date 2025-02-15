@@ -340,7 +340,7 @@ void vtkImageWriter::RecursiveWrite(
     return;
   }
 
-  // if the current region is too high a dimension forthe file
+  // if the current region is too high a dimension for the file
   // the we will split the current axis
   int* updateExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   cache->GetAxisUpdateExtent(axis, min, max, updateExtent);

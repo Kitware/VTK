@@ -79,7 +79,7 @@ mergeMapArray.SetNumberOfTuples(polydata.GetNumberOfPoints())
 mergeMap = vtk_to_numpy(mergeMapArray)
 
 # Test the point merging process - 0 tolerance. The traversal
-# ordering mode is irrelavant.
+# ordering mode is irrelevant.
 timer.StartTimer()
 sclean.MergePoints(0.0, mergeMap)
 timer.StopTimer()

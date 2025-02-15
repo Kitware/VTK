@@ -21,7 +21,7 @@ vtkModuleSerialization
       REGISTRAR_HEADER   <registrar_header>
       REGISTRAR_SOURCE   <registrar_source>
       CLASSES            <class>...)
-  
+
   Declares registrar function for ``MODULE`` in ``REGISTRAR_HEADER`` and
   writes implementation of the registrar in ``REGISTRAR_SOURCE``.
 
@@ -113,7 +113,7 @@ endfunction ()
       REGISTRAR_SOURCE   <registrar_source>
       [MANDATORY_MODULES  <module>...]
       [OPTIONAL_MODULES   <module>...])
-  
+
   Invokes registrar functions for all modules from ``OPTIONAL_MODULES`` and ``MANDATORY_MODULES``.
   Code is generated in ``REGISTRAR_SOURCE``.
 
@@ -206,7 +206,7 @@ endfunction ()
       MODULE              <module>
       SERIALIZED_CLASSES  <serialzied_classes>
       SERDES_SOURCES      <serdes_sources>)
-  
+
   * ``MODULE``: Generates serialization sources for all classes in ``MODULE``
   * ``SERIALIZED_CLASSES``: This variable will contain the list of all classes that
     were serialized.
@@ -219,7 +219,7 @@ function (_vtk_module_serdes_generate_sources)
     ""
     "MODULE;SERIALIZED_CLASSES;SERDES_SOURCES"
     "")
-  
+
   if (_vtk_serdes_UNPARSED_ARGUMENTS)
     message (FATAL_ERROR
       "Unparsed arguments for _vtk_module_serdes_generate_sources: "
@@ -415,7 +415,7 @@ endfunction ()
       REGISTRAR_HEADER  <header>
       REGISTRAR_SOURCE  <source>
       SERDES_SOURCES    <serdes_sources>)
-  
+
   * ``MODULE``: The name of a module.
   * ``EXPORT_MACRO_NAME``: The name of the export macro for ``MODULE``.
   * ``EXPORT_FILE_NAME``: The name of the header file which defines ``EXPORT_MACRO_NAME``

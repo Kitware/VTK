@@ -1484,7 +1484,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName, const char* d
     if (strcmp(line, "block") == 0)
     {
       assert(false);
-      // Code belows does not make sense and is not tested
+      // Code below does not make sense and is not tested
 
       numLines = numCells / 6;
       moreTensors = numCells % 6;

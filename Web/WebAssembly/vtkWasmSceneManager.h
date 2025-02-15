@@ -33,7 +33,7 @@ public:
 
   /**
    * Set the size of the `vtkRenderWindow` object at `identifier` to
-   * the supplied dimesions.
+   * the supplied dimensions.
    *
    * Returns `true` if the object at `identifier` is a `vtkRenderWindow`
    * with a `vtkRenderWindowInteractor` attached to it,

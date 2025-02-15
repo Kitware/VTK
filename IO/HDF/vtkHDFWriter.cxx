@@ -662,7 +662,7 @@ bool vtkHDFWriter::UpdateStepsGroup(vtkPolyData* input)
   connectivityOffsetvtkArray->SetNumberOfComponents(NUM_POLY_DATA_TOPOS);
   connectivityOffsetvtkArray->SetArray(connectivityOffsetArray.data(), NUM_POLY_DATA_TOPOS, 1);
 
-  // When the geometry changes the previous offset needs to be overriden
+  // When the geometry changes the previous offset needs to be overridden
   if (geometryUpdated)
   {
     // Need to deep copy the data since the pointer will be taken

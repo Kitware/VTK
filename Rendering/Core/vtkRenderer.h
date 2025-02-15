@@ -563,7 +563,7 @@ public:
    * Given a pixel location, return the Z value. The z value is
    * normalized (0,1) between the front and back clipping planes.
    * By default this functions accesses the `vtkRenderWindow`'s depth buffer
-   * that is only valid right after this specific renderer has renderered.
+   * that is only valid right after this specific renderer has rendered.
    * If `SafeGetZ` is On, this function will use a `vtkHardwareSelector` to
    * get the depth information in flight. This approach always works,
    * but takes more time as it invokes a render on the whole scene.

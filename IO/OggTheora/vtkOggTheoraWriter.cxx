@@ -49,7 +49,7 @@ private:
   th_ycbcr_buffer thImage;   // the Y'CbCr image buffer
   ogg_stream_state oggState; // the ogg stream state (has to be cleared)
   FILE* outFile;             // the output file stream
-  bool haveImageData;        // indicater whether a frame has to be encoded
+  bool haveImageData;        // indicator whether a frame has to be encoded
                              // (for the leap-frogging)
 
   int openedFile;

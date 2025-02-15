@@ -855,7 +855,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
       // alpha and beta are in the range [0,1] within the line segment.
       VEC3SUB(A, P2, P1);
       VEC3SUB(B, P4, P3);
-      // The lines intersect when the values of the two parameteric equations
+      // The lines intersect when the values of the two parametric equations
       // are equal.  Setting them equal and moving everything to one side:
       //        0 = C + beta(B) - alpha(A)
       // where C = P3 - P1.

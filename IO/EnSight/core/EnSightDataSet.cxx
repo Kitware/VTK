@@ -2304,7 +2304,7 @@ void EnSightDataSet::CreateStructuredGridOutput(const GridOptions& opts, vtkStru
     this->ProcessGhostCells(numCells, output);
   }
 
-  // it's not clear in the user manual if it is required for the node id section to be preceeded by
+  // it's not clear in the user manual if it is required for the node id section to be preceded by
   // 'node_ids'. The old reader makes this assumption
   auto result = this->GeometryFile.ReadNextLine();
   if (result.second.find("node_ids") != std::string::npos)
@@ -2659,7 +2659,7 @@ void EnSightDataSet::ReadOptionalValues(int numVals, int* array, std::string sec
 void EnSightDataSet::CheckForOptionalHeader(const std::string& sectionName)
 {
   // some data has an optional string before it. e.g., for ghost flags,
-  // there may be a string "ghost_flags" preceeding it
+  // there may be a string "ghost_flags" preceding it
   if (!sectionName.empty())
   {
     auto result = this->GeometryFile.ReadNextLine();
@@ -3308,7 +3308,7 @@ bool EnSightDataSet::ReadRigidBodyEulerParameterFile(const std::string& path)
   vtkLog(TRACE, "number of timesteps: " << numTimes);
 
   // if we don't have any time info from regular time sets, then we'll create time steps
-  // using the euler tranformations
+  // using the euler transformations
   this->UseEulerTimeSteps = this->TimeSetInfoMap.empty();
   if (this->UseEulerTimeSteps)
   {

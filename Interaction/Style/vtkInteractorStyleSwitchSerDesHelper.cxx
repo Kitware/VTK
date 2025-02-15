@@ -38,7 +38,7 @@ static nlohmann::json Serialize_vtkInteractorStyleSwitch(
     state = f(object, serializer);
   }
   state["SuperClassNames"].push_back("vtkInteractorStyleSwitchBase");
-  // vtkInteractorStyleSwitchBase::GetInteractor is overriden to always return `nullptr`
+  // vtkInteractorStyleSwitchBase::GetInteractor is overridden to always return `nullptr`
   // extract the interactor from it's grandparent class vtkInteractorStyle.
   if (auto* interactor = object->vtkInteractorStyle::GetInteractor())
   {

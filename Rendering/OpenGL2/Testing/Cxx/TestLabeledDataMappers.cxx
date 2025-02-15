@@ -280,7 +280,7 @@ public:
     {
       Scale(2.0);
     }
-    if (key == "b") // "b" for "s"maller tranform?
+    if (key == "b") // "b" for "s"maller transform?
     {
       Scale(0.5);
     }
@@ -422,7 +422,7 @@ public:
     int res[2];
     testContext->plane->GetResolution(res[0], res[1]);
     res[1] = static_cast<int>(static_cast<double>(res[1]) * multiplier);
-    std::cout << "Plane Muliplier: " << multiplier << " Size: " << res[1] << std::endl;
+    std::cout << "Plane Multiplier: " << multiplier << " Size: " << res[1] << std::endl;
     testContext->plane->SetResolution(res[0], res[1]);
     UpdatePlaneArrays();
   }
@@ -434,7 +434,7 @@ public:
     scale[0] = multiplier;
     testContext->matrix->Scale(scale);
     testContext->matrix->GetScale(scale);
-    std::cout << "Scale Muliplier: " << multiplier << " Size: " << scale[0] << std::endl;
+    std::cout << "Scale Multiplier: " << multiplier << " Size: " << scale[0] << std::endl;
   }
 
   //-----------------------------------------------------------------------------
