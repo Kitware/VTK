@@ -282,32 +282,8 @@ public:
     this->CellTypes(cellTypes);
     return cellTypes;
   }
-  std::vector<vtkStringToken> CellTypeArray() const
-  {
-#if defined(_MSC_VER) && _MSC_VER >= 1930 && _MSC_VER < 1940 /*17.4+*/
-    // MSVC 2022 bombs when an exported method uses thread_local in its implementation.
-    // See https://github.com/pytorch/pytorch/issues/87957 for more. We omit the
-    // thread_local here, which makes this method non-threadsafe on Windows, which
-    // should be OK in most cases.
-    static std::vector<vtkStringToken> cellTypes;
-#else
-    static thread_local std::vector<vtkStringToken> cellTypes;
-#endif
-    cellTypes.clear();
-    this->CellTypes(cellTypes);
-    return cellTypes;
-  }
-  std::vector<std::string> GetCellTypes() const
-  {
-    auto cta = this->CellTypeArray();
-    std::vector<std::string> result;
-    result.reserve(cta.size());
-    for (const auto& cellTypeToken : cta)
-    {
-      result.push_back(cellTypeToken.Data());
-    }
-    return result;
-  }
+  std::vector<vtkStringToken> CellTypeArray() const;
+  std::vector<std::string> GetCellTypes() const;
   ///@}
 
   ///@{
