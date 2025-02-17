@@ -60,6 +60,15 @@ public:
 
   ///@{
   /**
+   * Get/Set the name used for the cell center array.
+   * Defaults to 'CellCenter'
+   */
+  virtual std::string GetCellCenterArrayName();
+  virtual void SetCellCenterArrayName(std::string name);
+  ///@}
+
+  ///@{
+  /**
    * Get/Set the name used for the total visible volume array.
    * Defaults to 'TotalVisibleVolume'
    */
@@ -96,6 +105,7 @@ private:
   // Cell Data
   std::string DefaultCellSizeArrayName = "CellSize";
   std::string DefaultValidCellArrayName = "ValidCell";
+  std::string DefaultCellCenterArrayName = "CellCenter";
 
   // Field Data
   std::string DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";

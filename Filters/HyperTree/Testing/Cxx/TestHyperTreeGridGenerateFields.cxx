@@ -165,7 +165,7 @@ bool TestDifferentVolumes()
   vtkNew<vtkHyperTreeGridOrientedCursor> cursor;
   inputHTG->SetDepthLimiter(MAX_DEPTH);
   inputHTG->InitializeOrientedCursor(cursor, 0);
-  cursor->SetGlobalIndexStart(inputHTG->GetNumberOfCells());
+  cursor->SetGlobalIndexStart(inputHTG->GetNumberOfCells() - 1);
   std::vector<int> levelIds(MAX_DEPTH, 0);
   for (int i = 0; i < MAX_DEPTH; i++)
   {
@@ -250,6 +250,45 @@ bool TestTotalVolume()
   return true;
 }
 
+bool TestCellCenter()
+{
+  // Create a pseudo-random HTG
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->SetDimensions(3, 4, 1);
+  source->SetMaxDepth(2);
+  source->SetDescriptor("RRRRR.|.... .... .... .... ....");
+  source->UseMaskOn();
+  source->SetMask("111111|1110 1111 1111 1111 1111");
+  source->Update();
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(source->GetOutputPort());
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
+
+  vtkSmartPointer<vtkDoubleArray> cellCenterArray =
+    vtkDoubleArray::SafeDownCast(outputHTG->GetCellData()->GetAbstractArray("CellCenter"));
+  std::cout << cellCenterArray->GetNumberOfTuples() << std::endl;
+
+  double* pt = cellCenterArray->GetTuple3(8);
+  if (pt[0] != 0.25 || pt[1] != 0.75)
+  {
+    std::cerr << "CellCenter is " << pt[0] << " " << pt[1] << " but expected 0.25 0.75"
+              << std::endl;
+    return false;
+  }
+
+  pt = cellCenterArray->GetTuple3(5);
+  if (pt[0] != 1.5 || pt[1] != 2.5)
+  {
+    std::cerr << "CellCenter is " << pt[0] << " " << pt[1] << " but expected 1.5 2.5" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
 }
 
 int TestHyperTreeGridGenerateFields(int argc, char* argv[])
@@ -258,6 +297,7 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   result &= ::TestMaskGhostSizes(argc, argv);
   result &= ::TestDifferentVolumes();
   result &= ::TestTotalVolume();
+  result &= ::TestCellCenter();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

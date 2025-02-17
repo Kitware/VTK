@@ -3,6 +3,7 @@
 #include "vtkHyperTreeGridGenerateFields.h"
 
 #include "vtkCellData.h"
+#include "vtkHyperTreeGridCellCenterStrategy.h"
 #include "vtkHyperTreeGridCellSizeStrategy.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridTotalVisibleVolumeStrategy.h"
@@ -32,6 +33,8 @@ vtkHTGGenerateFieldsGetFieldNameMacro(CellSize);
 vtkHTGGenerateFieldsSetFieldNameMacro(CellSize);
 vtkHTGGenerateFieldsGetFieldNameMacro(ValidCell);
 vtkHTGGenerateFieldsSetFieldNameMacro(ValidCell);
+vtkHTGGenerateFieldsGetFieldNameMacro(CellCenter);
+vtkHTGGenerateFieldsSetFieldNameMacro(CellCenter);
 vtkHTGGenerateFieldsGetFieldNameMacro(TotalVisibleVolume);
 vtkHTGGenerateFieldsSetFieldNameMacro(TotalVisibleVolume);
 
@@ -51,6 +54,12 @@ vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
   validCell->SetArrayType(vtkDataObject::AttributeTypes::CELL);
   this->FieldsNameMap.emplace("ValidCell", this->DefaultValidCellArrayName);
   this->Fields.emplace("ValidCell", validCell);
+
+  vtkNew<vtkHyperTreeGridCellCenterStrategy> cellCenter;
+  cellCenter->SetArrayName(this->DefaultCellCenterArrayName);
+  cellCenter->SetArrayType(vtkDataObject::AttributeTypes::CELL);
+  this->FieldsNameMap.emplace("CellCenter", this->DefaultCellCenterArrayName);
+  this->Fields.emplace("CellCenter", cellCenter);
 
   // Field Data
 
