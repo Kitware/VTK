@@ -211,7 +211,8 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   this->FileName = "";
   this->MTLFileName = "";
   this->DefaultMTLFileName = true;
-  this->TexturePath = "./";
+  this->TexturePath = "";
+  this->DefaultTexturePath = true;
   this->VertexScale = 1.0;
   this->SuccessParsingFiles = 1;
   this->SetNumberOfInputPorts(0);
@@ -481,6 +482,11 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkErrorMacro(<< "The MTL file " << this->MTLFileName << " could not be found");
     }
+  }
+
+  if (this->DefaultTexturePath)
+  {
+    this->SetTexturePath(vtksys::SystemTools::GetFilenamePath(this->FileName).c_str());
   }
 
   int mtlParseResult;
