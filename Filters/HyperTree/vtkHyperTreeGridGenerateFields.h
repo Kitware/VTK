@@ -37,7 +37,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFields : public vtkHype
 {
 public:
   static vtkHyperTreeGridGenerateFields* New();
-  vtkTypeMacro(vtkHyperTreeGridGenerateFields, vtkHyperTreeGridAlgorithm)
+  vtkTypeMacro(vtkHyperTreeGridGenerateFields, vtkHyperTreeGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{

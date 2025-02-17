@@ -28,7 +28,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridValidCellStrategy
 {
 public:
   static vtkHyperTreeGridValidCellStrategy* New();
-  vtkTypeMacro(vtkHyperTreeGridValidCellStrategy, vtkHyperTreeGridGenerateFieldStrategy)
+  vtkTypeMacro(vtkHyperTreeGridValidCellStrategy, vtkHyperTreeGridGenerateFieldStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

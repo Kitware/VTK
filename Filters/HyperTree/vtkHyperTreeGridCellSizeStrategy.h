@@ -35,7 +35,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellSizeStrategy
 {
 public:
   static vtkHyperTreeGridCellSizeStrategy* New();
-  vtkTypeMacro(vtkHyperTreeGridCellSizeStrategy, vtkHyperTreeGridGenerateFieldStrategy)
+  vtkTypeMacro(vtkHyperTreeGridCellSizeStrategy, vtkHyperTreeGridGenerateFieldStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

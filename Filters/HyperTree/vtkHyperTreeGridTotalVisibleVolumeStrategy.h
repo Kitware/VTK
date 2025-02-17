@@ -31,7 +31,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridTotalVisibleVolumeStrategy
 {
 public:
   static vtkHyperTreeGridTotalVisibleVolumeStrategy* New();
-  vtkTypeMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy, vtkHyperTreeGridGenerateFieldStrategy)
+  vtkTypeMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy, vtkHyperTreeGridGenerateFieldStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**

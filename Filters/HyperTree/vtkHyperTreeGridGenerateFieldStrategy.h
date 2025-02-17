@@ -23,7 +23,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFieldStrategy : public 
 {
 public:
   vtkHyperTreeGridGenerateFieldStrategy() = default;
-  vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject)
+  vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override
   {
     this->Superclass::PrintSelf(os, indent);
@@ -33,10 +33,12 @@ public:
        << "\n";
   }
 
+  ///@{
   /**
    * Reimplement to initialize internal structures based on the given input HTG.
    */
   virtual void Initialize(vtkHyperTreeGrid* inputHTG) = 0;
+  ///@}
 
   ///@{
   /**
@@ -53,18 +55,11 @@ public:
   }
   ///@}
 
+  ///@{
   /**
    * Reimplement to build the output array from internally stored values.
    */
   virtual vtkDataArray* GetAndFinalizeArray() = 0;
-
-  ///@{
-  /**
-   * Get/Set the name of the array containing the data.
-   * Default is empty.
-   */
-  std::string GetArrayName() { return this->ArrayName; }
-  void SetArrayName(std::string arrayName) { this->ArrayName = arrayName; }
   ///@}
 
   ///@{
@@ -80,6 +75,15 @@ public:
       arrayType == vtkDataObject::AttributeTypes::FIELD);
     this->ArrayType = arrayType;
   }
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the name of the array containing the data.
+   * Default is empty.
+   */
+  std::string GetArrayName() { return this->ArrayName; }
+  void SetArrayName(std::string arrayName) { this->ArrayName = arrayName; }
   ///@}
 
 protected:

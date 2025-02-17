@@ -21,7 +21,7 @@ class VTK_DEPRECATED_IN_9_5_0("Please use `vtkHyperTreeGridGenerateFields` inste
 {
 public:
   static vtkHyperTreeGridVisibleLeavesSize* New();
-  vtkTypeMacro(vtkHyperTreeGridVisibleLeavesSize, vtkHyperTreeGridGenerateFields)
+  vtkTypeMacro(vtkHyperTreeGridVisibleLeavesSize, vtkHyperTreeGridGenerateFields);
 
 protected:
   vtkHyperTreeGridVisibleLeavesSize() = default;
