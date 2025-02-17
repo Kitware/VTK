@@ -18,6 +18,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  OBJImport-mtllib-texturepath,TestOBJImporter.cxx
+    DATA{../Data/Input/cube-scene.obj}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImport-MixedOrder1,TestOBJImporter.cxx
     DATA{../Data/Input/boxes_2.obj}
     DATA{../Data/Input/boxes_2.obj.mtl}
