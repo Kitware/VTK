@@ -45,8 +45,16 @@ int TestOBJImporter(int argc, char* argv[])
 
   vtkNew<vtkOBJImporter> importer;
   importer->SetFileName(filenameOBJ.data());
-  importer->SetFileNameMTL(filenameMTL.data());
-  importer->SetTexturePath(texfile1.data());
+
+  if (!filenameMTL.empty())
+  {
+    importer->SetFileNameMTL(filenameMTL.data());
+  }
+
+  if (!texfile1.empty())
+  {
+    importer->SetTexturePath(texfile1.data());
+  }
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
