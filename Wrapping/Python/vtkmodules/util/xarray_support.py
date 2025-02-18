@@ -190,7 +190,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
             self._log.debug("Whole extent: {}".format(ext))
             oi.Set(vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT(), ext, 6)
         if roi.Has(vtkAlgorithm.CAN_HANDLE_PIECE_REQUEST()):
-            roi.Set(vtkAlgorithm.CAN_HANDLE_PIECE_REQUEST(), 1)
+            oi.Set(vtkAlgorithm.CAN_HANDLE_PIECE_REQUEST(), 1)
         if roi.Has(vtkAlgorithm.CAN_PRODUCE_SUB_EXTENT()):
             oi.Set(vtkAlgorithm.CAN_PRODUCE_SUB_EXTENT(), 1)
         return 1
