@@ -192,7 +192,6 @@
 .windows_vs2022_java:
     extends: .windows_vs2022
     variables:
-        CMAKE_BUILD_TYPE: Release
         CMAKE_CONFIGURATION: windows_vs2022_java
         VTK_INSTALL: 1
 
