@@ -63,9 +63,10 @@ public:
 
   ///@{
   /**
-   * Set/Get for active the bounding box selection viewport (default false)
-   * JB C'est un facteur supplementaire d'acceleration possible
-   * JB uniquement si l'on ne peut faire de rotation dans la vue.
+   * Set/Get activate the bounding box selection viewport
+   * This is a possible acceleration factor only if the view cannot rotate.
+   *
+   * Default is false.
    */
   vtkSetMacro(BBSelection, bool);
   vtkGetMacro(BBSelection, bool);
@@ -73,7 +74,9 @@ public:
 
   ///@{
   /**
-   * JB Activation de la dependance au point de vue. Par defaut a True.
+   * Set/Get the dependence to the point of view.
+   *
+   * Default is true.
    */
   vtkSetMacro(ViewPointDepend, bool);
   vtkGetMacro(ViewPointDepend, bool);
@@ -89,9 +92,11 @@ public:
 
   ///@{
   /**
-   * JB Set/Get the scale factor influence le calcul de l'adaptive view.
-   * JB Pour un raffinement de 2, donner Scale=2*X revient a faire un
-   * JB appel a DynamicDecimateLevelMax avec la valeur X. (defaut 1)
+   * Set/Get the scale factor that influences the adaptive view computation.
+   * For a refinement of 2, giving Scale=2*X amounts to calling DynamicDecimateLevelMax with the
+   * value X.
+   *
+   * Default is 1.0.
    */
   vtkSetMacro(Scale, double);
   vtkGetMacro(Scale, double);
@@ -99,9 +104,10 @@ public:
 
   ///@{
   /**
-   * JB Set/Get reduit de autant le niveau max de profondeur, calcule
-   * JB dynamiquement a parcourir dans la
-   * JB representation HTG. (defaut 0)
+   * Set/Get the dynamic decimate level max.
+   * This value is subtracted to the max depth level (LevelMax).
+   *
+   * Default is 0.
    */
   vtkSetMacro(DynamicDecimateLevelMax, int);
   vtkGetMacro(DynamicDecimateLevelMax, int);
@@ -124,7 +130,7 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTreeNot3D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
+  void RecursivelyProcessTree1DAnd2D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
   void RecursivelyProcessTree3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, int);
 
   /**
@@ -206,7 +212,7 @@ protected:
   int LastRendererSize[2];
 
   /**
-   * JB Activation de la dependance au point de vue
+   * Depend on point of view
    */
   bool ViewPointDepend;
 
@@ -236,12 +242,12 @@ protected:
   double Radius;
 
   /**
-   * Product cell when in nounding box selection
+   * Product cell when in bounding box selection
    */
   bool BBSelection;
 
   /**
-   * JB Forced, fixed the level depth, ignored automatic determination
+   * Forced, fixed the level depth, ignored automatic determination
    */
   int FixedLevelMax;
 
@@ -251,13 +257,22 @@ protected:
   double Scale;
 
   /**
-   * JB Decimate level max after automatic determination
+   * Decimate level max after automatic determination
    */
   int DynamicDecimateLevelMax;
 
 private:
   vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
   void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+
+  /**
+   * Compute the max cell level.
+   * If the input in 2 dimensions, dynamically compute the value.
+   * Otherwise, select all levels (max level is 65536)
+   * @param input hyper tree grid input
+   * @return maximum cell level
+   */
+  int ComputeMaxLevel(vtkHyperTreeGrid* input);
 };
 
 VTK_ABI_NAMESPACE_END

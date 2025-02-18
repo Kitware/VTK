@@ -9,10 +9,8 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
-#include "vtkUnsignedCharArray.h"
 
 #include "vtkIncrementalPointLocator.h"
 #include "vtkMergePoints.h"
@@ -67,7 +65,7 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 
   // vtkGeometryFilter allows an optional 2nd input. Need to
   // disable this.
-  this->SetNumberOfInputPorts(1);
+  this->vtkAlgorithm::SetNumberOfInputPorts(1);
 }
 
 //------------------------------------------------------------------------------
@@ -148,13 +146,76 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData(
   vtkDataObject* input = vtkDataObject::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int MeshType = input->GetDataObjectType();
-  if (MeshType != VTK_HYPER_TREE_GRID)
+  int objType = input->GetDataObjectType();
+  if (objType != VTK_HYPER_TREE_GRID)
   {
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
 
   return this->DataObjectExecute(input, output);
+}
+
+//------------------------------------------------------------------------------
+int vtkAdaptiveDataSetSurfaceFilter::ComputeMaxLevel(vtkHyperTreeGrid* input)
+{
+  int levelMax;
+
+  vtkCamera* cam = this->Renderer->GetActiveCamera();
+
+  unsigned int gridSize[3];
+  input->GetCellDims(gridSize);
+
+  double bounds[6];
+  input->GetBounds(bounds);
+
+  int f = input->GetBranchFactor();
+
+  // Compute the depth-first-search depth for display
+  if (this->Dimension == 2)
+  {
+    // Average size of a level 0 cell in real coordinates along each direction.
+    double worldCellAverageScaleAxis1 = (bounds[(2 * this->Axis1) + 1] - bounds[2 * this->Axis1]) /
+      static_cast<double>(gridSize[this->Axis1]) / this->Scale;
+    double worldCellAverageScaleAxis2 = (bounds[(2 * this->Axis2) + 1] - bounds[2 * this->Axis2]) /
+      static_cast<double>(gridSize[this->Axis2]) / this->Scale;
+
+    // Window size in real coordinates (GetParallelScale) along each direction
+    double worldWindScaleAxis1 = cam->GetParallelScale() * this->LastRendererSize[0] /
+      static_cast<double>(this->LastRendererSize[1]);
+    double worldWindScaleAxis2 = cam->GetParallelScale();
+
+    // Window size in screen pixels along each direction
+    double windScaleAxis1 = this->LastRendererSize[0];
+    double windScaleAxis2 = this->LastRendererSize[1];
+
+    // Compute how many levels of the tree we should process by direction
+    // 1) Application of Thales' theorem; the ratio of the size of a level 0 cell
+    // to the window size is identical whether the calculation is done in real
+    // coordinates or in screen (pixel) coordinates.
+    // 2) The size of a level L cell is equal to the size of a level 0 cell
+    // divided by the refinement factor raised to the power of L.
+    // 3) Ultimately, the following calculation aims to determine when a cell
+    // will correspond to a single pixel.
+
+    double levelMaxiAxis1 =
+      (log(windScaleAxis1) + log(worldCellAverageScaleAxis1) - log(worldWindScaleAxis1)) / log(f);
+    double levelMaxiAxis2 =
+      (log(windScaleAxis2) + log(worldCellAverageScaleAxis2) - log(worldWindScaleAxis2)) / log(f);
+
+    // Select highest level
+    levelMax = std::ceil(std::max(levelMaxiAxis1, levelMaxiAxis2));
+  }
+  else
+  {
+    // In 3D, by default, select all levels.
+    levelMax = 65536;
+  }
+
+  // The selected max level can be reduced. It can be useful for different LODs
+  levelMax -= this->DynamicDecimateLevelMax;
+  levelMax = std::max(levelMax, 0);
+
+  return levelMax;
 }
 
 //------------------------------------------------------------------------------
@@ -164,9 +225,6 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   vtkHyperTreeGrid* input = vtkHyperTreeGrid::SafeDownCast(inputDS);
   if (!input)
   {
-    // DDM&&JB Nous perdons cette facilite d'appeler ce service par defaut qui nous
-    // redirige ensuite vers un service plus adapte si pas HTG
-    // return vtkDataSetSurfaceFilter::DataSetExecute( inputDS, output );
     vtkErrorMacro("pre: input_not_HyperTreeGrid: " << inputDS->GetClassName());
     return 0;
   }
@@ -180,110 +238,38 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   this->OutData = static_cast<vtkDataSetAttributes*>(output->GetCellData());
   this->OutData->CopyAllocate(this->InData);
 
-  // DDM&&JB Nous perdons aussi cette fonctionnalite sous cette nouvelle forme
-  /*
-  if ( this->PassThroughCellIds )
-  {
-    this->OriginalCellIds = vtkIdTypeArray::New();
-    this->OriginalCellIds->SetName( this->GetOriginalCellIdsName() );
-    this->OriginalCellIds->SetNumberOfComponents( 1 );
-    this->OutData->AddArray( this->OriginalCellIds );
-  }
-  */
-
   // Init renderer information
   if (this->ViewPointDepend && this->ParallelProjection && this->Renderer)
   {
-    // Generate planes XY, XZ o YZ
-    unsigned int gridSize[3];
-    input->GetCellDims(gridSize);
-
-    bool isInit = false;
     if (this->Dimension == 2)
     {
       input->Get2DAxes(this->Axis1, this->Axis2);
-      isInit = true;
     }
 
-    // Compute the zoom of the camera
-    vtkCamera* cam = this->Renderer->GetActiveCamera();
-
-    // Compute the bounding box
-    double bounds[6];
-    input->GetBounds(bounds);
-
-    int f = input->GetBranchFactor();
-
-    // Compute the depth-first-search depth for display
-    if (isInit)
-    {
-      // JB Taille Moyenne d'une maille du niveau 0 dans les coordonnees reelles suivant chaque
-      // direction
-      double worldCellAverageScaleAxis1 = (bounds[2 * this->Axis1 + 1] - bounds[2 * this->Axis1]) /
-        (double)(gridSize[this->Axis1]) / this->Scale;
-      double worldCellAverageScaleAxis2 = (bounds[2 * this->Axis2 + 1] - bounds[2 * this->Axis2]) /
-        (double)(gridSize[this->Axis2]) / this->Scale;
-
-      // JB Taille de la fenetre dans les coordonnees reelles (GetParallelScale) suivant chaque
-      // direction
-      double worldWindScaleAxis1 =
-        cam->GetParallelScale() * this->LastRendererSize[0] / (double)(this->LastRendererSize[1]);
-      double worldWindScaleAxis2 = cam->GetParallelScale();
-
-      // JB Taille de la fenetre en pixel, ecran, suivant chaque direction
-      double windScaleAxis1 = this->LastRendererSize[0];
-      double windScaleAxis2 = this->LastRendererSize[1];
-
-      // JB Compute how many levels of the tree we should process by direction
-      // JB 1) application du theoreme de Thales ; le rapport taille d'une maille de niveau 0 par la
-      // taille de la fenetre est identique si le
-      // JB calcul se fait en coordonnees reelles ou en coordonnees ecran (pixel)
-      // JB 2) la taille d'une maille de niveau L vaut la taille d'une maille de niveau 0 divisee
-      // par le facteur de raffinement eleve a la puissance L
-      // JB 3) au final, le calcul qui suit a pour objet de determiner quand une maille fera un
-      // pixel
-      double levelMaxiAxis1 =
-        (log(windScaleAxis1) + log(worldCellAverageScaleAxis1) - log(worldWindScaleAxis1)) / log(f);
-      double levelMaxiAxis2 =
-        (log(windScaleAxis2) + log(worldCellAverageScaleAxis2) - log(worldWindScaleAxis2)) / log(f);
-
-      // JB On opte pour le niveau le plus eleve
-      this->LevelMax = std::ceil(std::max(levelMaxiAxis1, levelMaxiAxis2));
-    }
-    else
-    {
-      // JB En 3D, par defaut, on prend tous les niveaux
-      this->LevelMax = 65536;
-    }
-
-    // JB Par option, on peut reduire cette valeur... tres utile pour avoir un LOD leger.
-    this->LevelMax -= this->DynamicDecimateLevelMax;
-    if (this->LevelMax < 0)
-    {
-      this->LevelMax = 0;
-    }
-
-    // JB Par option, on peut fixer le niveau max independemment du calcul dynamique realise
-    // precedemment
+    // The selected max level can be forced.
     if (this->FixedLevelMax >= 0)
     {
       this->LevelMax = this->FixedLevelMax;
     }
+    else
+    {
+      this->LevelMax = this->ComputeMaxLevel(input);
+    }
 
-    // JB Le calcul qui suit a pour objet de determiner le rayon du cercle dans les coordonnees
-    // reelles incluant la projection
-    // JB de la fenetre. L'activation de CircleSelection permettra de ne produire que les mailles
-    // intersectant ce cercle centre
-    // JB au camera focal point.
-    // JB LastCameraFocalPoint retourne le centre de l'ecran dans les coordonnees reelles
-    double ratio = this->LastRendererSize[0] / (double)(this->LastRendererSize[1]);
-    this->Radius = cam->GetParallelScale() * sqrt(1 + ratio * ratio);
+    vtkCamera* cam = this->Renderer->GetActiveCamera();
 
-    // JB Le calcul qui suit a pour objet de determiner la boite englobante dans les coordonnees
-    // reelles (et sans tenir compte
-    // JB d'un point de vue qui aurait tourne) incluant la projection de la fenetre. L'activation de
-    // BBSelection permettra de ne
-    // JB produire que les mailles intersectant cette boite englobante.
+    // The following calculation aims to determine the radius of the circle in real
+    // coordinates, including the projection of the window. Activating CircleSelection
+    // will ensure that only the cells intersecting this circle, centered at the
+    // camera focal point, are produced.
+    // LastCameraFocalPoint returns the center of the screen in real coordinates.
+    double ratio = this->LastRendererSize[0] / static_cast<double>(this->LastRendererSize[1]);
+    this->Radius = cam->GetParallelScale() * sqrt(1 + (ratio * ratio));
+
+    // The following calculation aims to determine the bounding box in real
+    // coordinates (without considering a rotated viewpoint), including the projection
+    // of the window. Activating BBSelection will ensure that only the cells
+    // intersecting this bounding box are produced.
     this->WindowBounds[0] = this->LastCameraFocalPoint[0] - cam->GetParallelScale() * ratio;
     this->WindowBounds[1] = this->LastCameraFocalPoint[0] + cam->GetParallelScale() * ratio;
     this->WindowBounds[2] = this->LastCameraFocalPoint[1] - cam->GetParallelScale();
@@ -320,14 +306,14 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   // Create storage for corners of leaf cells
   this->Points = vtkPoints::New();
 
-  // Create storage for untructured leaf cells
+  // Create storage for unstructured leaf cells
   if (this->Cells)
   {
     this->Cells->Delete();
   }
   this->Cells = vtkCellArray::New();
 
-  // JB Initialize a Locator
+  // Initialize a Locator
   if (this->Merging)
   {
     this->Locator = vtkMergePoints::New();
@@ -336,13 +322,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
 
   // Retrieve material mask
   this->Mask = input->HasMask() ? input->GetMask() : nullptr;
-
-  //
-  vtkUnsignedCharArray* ghost = nullptr; // DDM input->GetPointGhostArray();
-  if (ghost)
-  {
-    this->OutData->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
-  }
 
   // Iterate over all hyper trees
   if (this->Dimension == 3)
@@ -359,14 +338,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       }
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursorLight(cursor, index);
-      // If this is not a ghost tree
-      if (!ghost || !ghost->GetTuple1(cursor->GetGlobalNodeIndex()))
-      {
-        // Build geometry recursively
-        this->RecursivelyProcessTree3D(cursor, 0);
-      }
-    } // it
-  }   // if ( this->Dimension == 3 )
+      this->RecursivelyProcessTree3D(cursor, 0);
+    }
+  }
   else
   {
     vtkIdType index;
@@ -381,14 +355,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       }
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
-      // If this is not a ghost tree
-      if (!ghost || !ghost->GetTuple1(cursor->GetGlobalNodeIndex()))
-      {
-        // Build geometry recursively
-        this->RecursivelyProcessTreeNot3D(cursor, 0);
-      }
-    } // it
-  }   // else
+      this->RecursivelyProcessTree1DAnd2D(cursor, 0);
+    }
+  }
 
   // Set output geometry and topology
   output->SetPoints(this->Points);
@@ -414,7 +383,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
 }
 
 //------------------------------------------------------------------------------
-void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
+void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
 {
   bool insideBB = (this->LevelMax == -1);
@@ -426,71 +395,68 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
     double halfAxis2 = cursor->GetSize()[this->Axis2] / 2;
     if (this->CircleSelection)
     {
-      // JB On determine si la maille correspondant au current node of the tree
-      // JB is going to be rendered.
-      // JB Pour cela, on fait une premiere approximation en considerant la maille
-      // JB carre qui l'englobe en conservant la meme origine et en fixant sa demi-largeur
-      // JB a la valeur maximale entre les valeurs de demi-largeur et demi-longueur.
+      // We determine if the cell corresponding to the current node of the tree
+      // is going to be rendered.
+      // To do this, we make an initial approximation by considering the square cell
+      // that encloses it, keeping the same origin and setting its half-width
+      // to the maximum value between the half-width and half-length.
       double half = std::max(halfAxis1, halfAxis2);
-      // JB This cell must be rendered si le centre de cette maille se trouve a moins de
-      // JB Radius + half * sqrt(2) du camera focal point. Radius est le rayon minimal du cercle
-      // JB centre sur la camera focal point couvrant la fenetre de rendu.
-      // JB Le centre de la maille se trouve a Origin + half, par direction.
-      // JB La comparaison se fait sur les distances au carre afin d'eviter le calcul
-      // JB couteux de racines carres.
-      insideBB = (pow(originAxis1 + half - this->LastCameraFocalPoint[this->Axis1], 2) +
-                   pow(originAxis2 + half - this->LastCameraFocalPoint[this->Axis2], 2)) <
-        // pow( this->Radius + half * sqrt(2.), 2 );
-        pow(this->Radius + half * 1.414213562, 2);
-    }
-    else
-    {
-      insideBB = true;
-    }
 
-    if (insideBB && this->BBSelection)
+      // This cell must be rendered if the center of this cell is within a distance of
+      // Radius + half * sqrt(2) from the camera focal point. Radius is the minimal radius
+      // of the circle centered at the camera focal point that covers the rendering window.
+      // The center of the cell is located at Origin + half, in each direction.
+      // The comparison is made on squared distances to avoid the costly calculation
+      // of square roots.
+      insideBB = pow(originAxis1 + half - this->LastCameraFocalPoint[this->Axis1], 2) +
+          pow(originAxis2 + half - this->LastCameraFocalPoint[this->Axis2], 2) <
+        pow(this->Radius + (half * 1.414213562), 2);
+    }
+    else if (this->BBSelection)
     {
-      // JB On determine si la maille correspondant au current node of the tree
-      // JB is going to be rendered.
-      // JB Pour cela, on verifie si la maille est dans une boite englobante correspondant a la
-      // JB projection de l'ecran dans le monde du maillage.
-      insideBB = ((originAxis1 + 2 * halfAxis1 >= this->WindowBounds[0]) &&
-        (originAxis1 <= this->WindowBounds[1]) &&
-        (originAxis2 + 2 * halfAxis2 >= this->WindowBounds[2]) &&
-        (originAxis2 <= this->WindowBounds[3]));
+      // We determine if the cell corresponding to the current node of the tree
+      // is going to be rendered.
+      // To do this, we check if the cell is within a bounding box corresponding to the
+      // projection of the screen into the mesh world.
+      insideBB = originAxis1 + 2 * halfAxis1 >= this->WindowBounds[0] &&
+        originAxis1 <= this->WindowBounds[1] &&
+        originAxis2 + 2 * halfAxis2 >= this->WindowBounds[2] &&
+        originAxis2 <= this->WindowBounds[3];
     }
   }
-  if (insideBB)
+
+  // We only process those nodes than are going to be rendered
+  if (!insideBB)
   {
-    // We only process those nodes than are going to be rendered
-    if (cursor->IsLeaf() || (this->LevelMax != -1 && level >= this->LevelMax))
+    return;
+  }
+
+  if (cursor->IsLeaf() || (this->LevelMax != -1 && level >= this->LevelMax))
+  {
+    if (this->Dimension == 2)
     {
-      if (this->Dimension == 2)
-      {
-        this->ProcessLeaf2D(cursor);
-      }
-      else
-      {
-        this->ProcessLeaf1D(cursor);
-      } // else
-    }   // if ( cursor->IsLeaf() || ( this->LevelMax!=-1 && level >= this->LevelMax ) )
+      this->ProcessLeaf2D(cursor);
+    }
     else
     {
-      // Cursor is not at leaf, recurse to all children
-      int numChildren = cursor->GetNumberOfChildren();
-      for (int ichild = 0; ichild < numChildren; ++ichild)
+      this->ProcessLeaf1D(cursor);
+    }
+  }
+  else
+  {
+    // Cursor is not at leaf, recurse to all children
+    int numChildren = cursor->GetNumberOfChildren();
+    for (int ichild = 0; ichild < numChildren; ++ichild)
+    {
+      if (this->CheckAbort())
       {
-        if (this->CheckAbort())
-        {
-          break;
-        }
-        cursor->ToChild(ichild);
-        // Recurse
-        this->RecursivelyProcessTreeNot3D(cursor, level + 1);
-        cursor->ToParent();
-      } // ichild
-    }   // else
-  }     // if( insideBB )
+        break;
+      }
+      cursor->ToChild(ichild);
+      this->RecursivelyProcessTree1DAnd2D(cursor, level + 1);
+      cursor->ToParent();
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -518,7 +484,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
     case 6: // 2 + 4
       pt[0] += cursor->GetSize()[0];
       break;
-  } // switch
+    default:
+      break;
+  }
   id[1] = this->Points->InsertNextPoint(pt);
 
   // Insert edge into 1D geometry
@@ -528,7 +496,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
 //------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
-
 {
   // Cell at cursor center is a leaf, retrieve its global index
   vtkIdType id = cursor->GetGlobalNodeIndex();
@@ -553,7 +520,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   if (cursor->IsLeaf())
   {
     this->ProcessLeaf3D(cursor);
-  } // if ( cursor->IsLeaf() )
+  }
   else
   {
     // Cursor is not at leaf, recurse to all children
@@ -565,11 +532,10 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
         break;
       }
       cursor->ToChild(ichild);
-      // Recurse
       this->RecursivelyProcessTree3D(cursor, level + 1);
       cursor->ToParent();
-    } // child
-  }   // else
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -603,9 +569,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
     }
 
     // In 3D masked and unmasked cells are handled differently:
-    // . If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
+    // - If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
     //   exists, then generate face.
-    // . If cell is masked, and face neighbor exists and is an unmasked leaf, then
+    // - If cell is masked, and face neighbor exists and is an unmasked leaf, then
     //   generate face, breaking ties at same level. This ensures that faces between
     //   unmasked and masked cells will be generated once and only once.
     if ((!masked && (!treeN || (leafN && maskedN))) ||
@@ -615,7 +581,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
       this->AddFace(idcenter, superCursor->GetOrigin(), superCursor->GetSize(),
         VonNeumannOffsets3D[c], VonNeumannOrientations3D[c]);
     }
-  } // c
+  }
 }
 
 //------------------------------------------------------------------------------
