@@ -1,4 +1,4 @@
-set(vtk_nodejs_min_version "22.0.0")
+set(vtk_nodejs_min_version "23.8.0")
 find_package(NodeJS "${vtk_nodejs_min_version}" REQUIRED)
 if (VTK_WEBASSEMBLY_64_BIT)
   set(_vtk_node_args "--experimental-wasm-memory64")

@@ -733,7 +733,7 @@
     - export NODE_DIR=$PWD/.gitlab/node
     - export PATH=$PWD/.gitlab/node/bin:$PATH
     - node --version
-    - $PWD/.gitlab/ci/emsdk.sh
+    - cmake -P .gitlab/ci/download_emsdk.cmake
     # Fetches clang, wasm link tools and emscripten
     - $PWD/.gitlab/emsdk/emsdk install latest
     - export PATH=$PWD/.gitlab/emsdk/upstream/bin:$PWD/.gitlab/emsdk/upstream/emscripten:$PATH

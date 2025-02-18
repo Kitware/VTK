@@ -185,7 +185,6 @@ class vtkWebAssemblyTestRunner:
                     "--disable-restore-session-state",
                     "--new-window",
                     "--incognito",
-                    "--js-flags=--experimental-wasm-memory64",
                     "--no-default-browser-check",
                     "--no-first-run",
                 ]

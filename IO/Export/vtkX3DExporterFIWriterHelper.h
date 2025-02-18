@@ -175,22 +175,6 @@ public:
     }
   }
 
-  static void EncodeLineFeed(vtkX3DExporterFIByteWriter* writer)
-  {
-    static bool firstTime = true;
-    writer->FillByte();
-    if (firstTime)
-    {
-      writer->PutBits("1001000000001010");
-      firstTime = false;
-    }
-    else
-    {
-      // cout << "Encode NOT the first time" << endl;
-      writer->PutBits("10100000");
-    }
-  }
-
 private:
   static int ReverseBytes(int* x)
   {
