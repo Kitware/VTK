@@ -222,13 +222,18 @@ public:
   virtual void GetDimensions(vtkIdType dims[3]);
 #endif
 
+  ///@{
   /**
    * Convenience function computes the structured coordinates for a point x[3].
    * The voxel is specified by the array ijk[3], and the parametric coordinates
    * in the cell are specified with pcoords[3]. The function returns a 0 if the
-   * point x is outside of the volume, and a 1 if inside the volume.
+   * point x is outside of the volume, and a 1 if inside the volume, using squared tolerance tol2
+   * (1e-12 if not provided).
    */
   virtual int ComputeStructuredCoordinates(const double x[3], int ijk[3], double pcoords[3]);
+  virtual int ComputeStructuredCoordinates(
+    const double x[3], int ijk[3], double pcoords[3], double tol2);
+  ///@}
 
   /**
    * Given structured coordinates (i,j,k) for a voxel cell, compute the eight

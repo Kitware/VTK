@@ -1012,16 +1012,15 @@ void vtkImageData::SetDimensions(const int dim[3])
 }
 
 //------------------------------------------------------------------------------
-// Convenience function computes the structured coordinates for a point x[3].
-// The voxel is specified by the array ijk[3], and the parametric coordinates
-// in the cell are specified with pcoords[3]. The function returns a 0 if the
-// point x is outside of the volume, and a 1 if inside the volume.
 int vtkImageData::ComputeStructuredCoordinates(const double x[3], int ijk[3], double pcoords[3])
 {
-  // tolerance is needed for floating points error margin
-  // (this is squared tolerance)
-  const double tol2 = 1e-12;
+  return this->ComputeStructuredCoordinates(x, ijk, pcoords, 1e-12);
+}
 
+//------------------------------------------------------------------------------
+int vtkImageData::ComputeStructuredCoordinates(
+  const double x[3], int ijk[3], double pcoords[3], double tol2)
+{
   //
   //  Compute the ijk location
   //
