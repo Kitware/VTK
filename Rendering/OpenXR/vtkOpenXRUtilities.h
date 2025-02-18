@@ -17,6 +17,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenXR.h"
 
+#include <cmath> // for std::tanf
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRUtilities : public vtkObject
 {
@@ -82,11 +84,11 @@ inline const XrPosef& vtkOpenXRUtilities::GetIdentityPose()
 inline void vtkOpenXRUtilities::CreateProjectionFov(
   vtkMatrix4x4* result, const XrFovf fov, const float nearZ, const float farZ)
 {
-  const float tanAngleLeft = tanf(fov.angleLeft);
-  const float tanAngleRight = tanf(fov.angleRight);
+  const float tanAngleLeft = std::tanf(fov.angleLeft);
+  const float tanAngleRight = std::tanf(fov.angleRight);
 
-  const float tanAngleDown = tanf(fov.angleDown);
-  const float tanAngleUp = tanf(fov.angleUp);
+  const float tanAngleDown = std::tanf(fov.angleDown);
+  const float tanAngleUp = std::tanf(fov.angleUp);
 
   const float tanAngleWidth = tanAngleRight - tanAngleLeft;
 
