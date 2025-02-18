@@ -71,7 +71,7 @@ def get_vtk_array_type(numpy_array_type):
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
-    _vtk_np = {vtkConstants.VTK_BIT:numpy.uint8, # conversion not implemented
+    _vtk_np = {vtkConstants.VTK_BIT:numpy.uint8,
                 vtkConstants.VTK_CHAR:numpy.int8,
                 vtkConstants.VTK_SIGNED_CHAR:numpy.int8,
                 vtkConstants.VTK_UNSIGNED_CHAR:numpy.uint8,
@@ -204,8 +204,6 @@ def vtk_to_numpy(vtk_array):
     appropriate numpy array containing the same data -- it actually
     points to the same data.
 
-    WARNING: This does not work for bit arrays.
-
     Parameters
 
     vtk_array
@@ -215,7 +213,6 @@ def vtk_to_numpy(vtk_array):
     typ = vtk_array.GetDataType()
     assert typ in get_vtk_to_numpy_typemap().keys(), \
            "Unsupported array type %s"%typ
-    assert typ != vtkConstants.VTK_BIT, 'Bit arrays are not supported.'
 
     shape = vtk_array.GetNumberOfTuples(), \
             vtk_array.GetNumberOfComponents()
@@ -223,7 +220,10 @@ def vtk_to_numpy(vtk_array):
     # Get the data via the buffer interface
     dtype = get_numpy_array_type(typ)
     try:
-        result = numpy.frombuffer(vtk_array, dtype=dtype)
+        if typ != vtkConstants.VTK_BIT:
+            result = numpy.frombuffer(vtk_array, dtype=dtype)
+        else:
+            result = numpy.unpackbits(vtk_array, count=shape[0])
     except ValueError:
         # http://mail.scipy.org/pipermail/numpy-tickets/2011-August/005859.html
         # numpy 1.5.1 (and maybe earlier) has a bug where if frombuffer is

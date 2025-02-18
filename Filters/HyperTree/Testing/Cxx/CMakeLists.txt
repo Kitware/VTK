@@ -56,6 +56,7 @@ set(test_sources
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridEvaluateCoarse.cxx,NO_VALID,NO_OUPUT
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
+  TestHyperTreeGridGenerateFields.cxx,NO_VALID,NO_OUPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
   TestHyperTreeGridRemoveGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridTernary2D.cxx
@@ -101,7 +102,6 @@ set(test_sources
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   TestHyperTreeGridThresholdMethods.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridToDualGrid.cxx
-  TestHyperTreeGridVisibleLeavesSize.cxx,NO_VALID,NO_OUPUT
   )
 
 vtk_add_test_cxx(vtkFiltersHyperTreeCxxTests tests ${test_sources})

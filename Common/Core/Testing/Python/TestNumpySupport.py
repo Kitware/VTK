@@ -83,6 +83,16 @@ class TestNumpySupport(Testing.vtkTest):
                 self.assertEqual(len(z1.shape), 1)
             self.assertEqual(sum(numpy.ravel(z) - numpy.ravel(z1)), 0)
 
+        vtk_arr = vtkBitArray()
+        bits = [0, 1, 0, 1, 1, 1, 0, 0, 1, 0]
+        for bit in bits:
+            vtk_arr.InsertNextValue(bit)
+
+        res = vtk_to_numpy(vtk_arr)
+        self._check_arrays(res, vtk_arr)
+        vtk_arr = numpy_to_vtk(res)
+        self._check_arrays(res, vtk_arr)
+
     def testNumpyView(self):
         "Test if the numpy and VTK array share the same data."
         # ----------------------------------------
@@ -104,14 +114,6 @@ class TestNumpySupport(Testing.vtkTest):
         # reflected in the VTK array.
         a[0] = [10.0, 20.0, 30.0]
         self.assertEqual(vtk_arr.GetTuple3(0), (1., 2., 3.))
-
-    def testExceptions(self):
-        "Test if the right assertion errors are raised."
-        # Test if bit arrays raise an exception.
-        vtk_arr = vtkBitArray()
-        vtk_arr.InsertNextValue(0)
-        vtk_arr.InsertNextValue(1)
-        self.assertRaises(AssertionError, vtk_to_numpy, vtk_arr)
 
     def testNonContiguousArray(self):
         "Test if the non contiguous array are supported"
