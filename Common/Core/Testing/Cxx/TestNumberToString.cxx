@@ -5,10 +5,12 @@
 
 #include "vtkNumberToString.h"
 #include "vtkTypeTraits.h"
+
 #include <cmath>
 #include <limits>
+#include <random>
 #include <sstream>
-#include <vtkMinimalStandardRandomSequence.h>
+
 namespace
 {
 template <typename T>
@@ -18,63 +20,77 @@ int TestConvertLowHigh(unsigned int samples);
 template <typename T>
 int TestConvertNotations(unsigned int samples);
 template <typename T>
-int ConvertNumericLimitsValue(const char* t, T);
+int ConvertNumericLimitsValue();
 }
 int TestNumberToString(int, char*[])
 {
   int status = EXIT_SUCCESS;
 
   std::cout << "Testing <numeric_limits>..." << std::endl;
-  if (ConvertNumericLimitsValue("unsigned short", static_cast<unsigned short>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<unsigned short>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("short", static_cast<short>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<short>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("unsigned int", static_cast<unsigned int>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<unsigned int>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("int", 0) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<int>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("unsigned long", static_cast<unsigned long>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<unsigned long>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("long", static_cast<long>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<long>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("float", static_cast<float>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<float>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("double", static_cast<double>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue<double>() == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
-
   if (status == EXIT_FAILURE)
   {
     return status;
   }
 
   unsigned int samples = 10000;
-  if (TestConvertPrecision<float>(samples) || TestConvertPrecision<double>(samples))
+  std::cout << "Testing convertion precision..." << std::endl;
+  if (TestConvertPrecision<float>(samples) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestConvertPrecision<double>(samples) == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
   }
 
-  if (TestConvertLowHigh<float>(samples) || TestConvertLowHigh<double>(samples))
+  std::cout << "Testing convertion low high..." << std::endl;
+  if (TestConvertLowHigh<float>(samples) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestConvertLowHigh<float>(samples) == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
   }
 
-  if (TestConvertNotations<float>(samples) || TestConvertNotations<double>(samples))
+  std::cout << "Testing convertion notations..." << std::endl;
+  if (TestConvertNotations<float>(samples) == EXIT_FAILURE)
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestConvertNotations<double>(samples) == EXIT_FAILURE)
   {
     return EXIT_FAILURE;
   }
@@ -87,7 +103,8 @@ namespace
 template <typename T>
 int TestConvertPrecision(unsigned int samples)
 {
-  std::cout << "Testing type: " << typeid(T).name() << std::endl;
+  const char* t = typeid(T).name();
+  std::cout << "Testing type: " << t << std::endl;
   vtkNumberToString converter;
   for (int p = 5; p < 20; ++p)
   {
@@ -97,11 +114,11 @@ int TestConvertPrecision(unsigned int samples)
     // Now convert numbers to strings. Read the strings as floats and doubles
     // and compare the results with the original values.
     {
-      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
+      std::mt19937 gen(1); // Mersenne Twister engine
+      std::uniform_real_distribution<T> dist(-1.0, 1.0);
       for (unsigned int i = 0; i < samples; ++i)
       {
-        randomSequence->Next();
-        T value = randomSequence->GetRangeValue(-1.0, 1.0);
+        T value = dist(gen);
         std::stringstream convertedStr;
         convertedStr << converter.Convert(value);
         std::stringstream rawStr;
@@ -132,8 +149,7 @@ int TestConvertPrecision(unsigned int samples)
     }
     if (matches == samples)
     {
-      std::cout << "The minimum precision for type " << typeid(T).name() << " is " << p
-                << std::endl;
+      std::cout << "The minimum precision for type " << t << " is " << p << std::endl;
       break;
     }
   }
@@ -154,14 +170,16 @@ int TestConvertLowHigh(unsigned int samples)
       vtkNumberToString converter;
       converter.SetLowExponent(iLow);
       converter.SetHighExponent(iHigh);
-      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
+      std::mt19937 gen(1); // Mersenne Twister engine
+      std::uniform_real_distribution<T> dist(
+        std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
       for (unsigned int i = 0; i < samples; ++i)
       {
-        randomSequence->Next();
-        T value = randomSequence->GetRangeValue(
-          std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
-        std::string str = converter.Convert(value);
-        T convertedValue = std::stod(str);
+        T value = dist(gen);
+
+        std::istringstream convertedStream(converter.Convert(value));
+        T convertedValue;
+        convertedStream >> convertedValue;
         if (convertedValue != value)
         {
           std::cout << "ERROR: " << value << " != " << convertedValue << std::endl;
@@ -187,19 +205,20 @@ int TestConvertNotations(unsigned int samples)
       vtkNumberToString converter;
       converter.SetNotation(notation);
       converter.SetPrecision(precision);
-      vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
+      std::mt19937 gen(1); // Mersenne Twister engine
+      std::uniform_real_distribution<T> dist(
+        std::numeric_limits<T>::min() * 2, std::numeric_limits<T>::max() / 2);
       for (unsigned int i = 0; i < samples; ++i)
       {
-        randomSequence->Next();
-        T value = randomSequence->GetRangeValue(
-          std::numeric_limits<T>::min() * 2, std::numeric_limits<T>::max() / 2);
+        T value = dist(gen);
 
         if (notation == vtkNumberToString::Fixed && (value > 9e59 || value < 9e-59))
         {
           continue; // Fixed-point can't have more than 60 characters before point.
         }
-        std::string str = converter.Convert(value);
-        T convertedValue = std::stod(str);
+        std::istringstream convertedStream(converter.Convert(value));
+        T convertedValue;
+        convertedStream >> convertedValue;
         T acceptablePrecision =
           2 * std::pow(10, std::floor(std::log10(convertedValue)) - precision);
         if (std::abs(convertedValue - value) >= acceptablePrecision)
@@ -216,9 +235,10 @@ int TestConvertNotations(unsigned int samples)
 }
 
 template <typename T>
-int ConvertNumericLimitsValue(const char* t, T)
+int ConvertNumericLimitsValue()
 {
   vtkNumberToString converter;
+  const char* t = typeid(T).name();
   int status = EXIT_SUCCESS;
   {
     T value = std::numeric_limits<T>::max();

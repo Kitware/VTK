@@ -27,8 +27,6 @@ DEPENDS
   VTK::scn
   VTK::token
   VTK::vtksys
-PRIVATE_DEPENDS
-  VTK::doubleconversion
 OPTIONAL_DEPENDS
   VTK::loguru
 TEST_DEPENDS

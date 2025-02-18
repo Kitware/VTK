@@ -781,7 +781,7 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     for (int i = 0; i < nbOfLabels; i++)
     {
       double val = this->TickValues[i];
-      if (this->GetNotation() == 0)
+      if (this->GetNotation() == vtkNumberToString::Mixed)
       {
         // Use default legend notation : don't use vtkNumberToString
         // for the default setting in order to ensure retrocompatibility

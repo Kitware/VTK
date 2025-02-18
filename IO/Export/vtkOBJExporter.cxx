@@ -13,7 +13,6 @@
 #include "vtkImageFlip.h"
 #include "vtkMapper.h"
 #include "vtkNew.h"
-#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
@@ -21,6 +20,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
@@ -183,22 +183,18 @@ void vtkOBJExporter::WriteAnActor(
     return;
   }
   double temp;
-  vtkNumberToString converter;
   fpMtl << "newmtl mtl" << idStart << "\n";
   tempd = prop->GetAmbientColor();
   temp = prop->GetAmbient();
-  fpMtl << "Ka " << converter.Convert(temp * tempd[0]) << " " << converter.Convert(temp * tempd[1])
-        << " " << converter.Convert(temp * tempd[2]) << "\n";
+  fpMtl << vtk::format("Ka {} {} {}\n", temp * tempd[0], temp * tempd[1], temp * tempd[2]);
   tempd = prop->GetDiffuseColor();
   temp = prop->GetDiffuse();
-  fpMtl << "Kd " << converter.Convert(temp * tempd[0]) << " " << converter.Convert(temp * tempd[1])
-        << " " << converter.Convert(temp * tempd[2]) << "\n";
+  fpMtl << vtk::format("Kd {} {} {}\n", temp * tempd[0], temp * tempd[1], temp * tempd[2]);
   tempd = prop->GetSpecularColor();
   temp = prop->GetSpecular();
-  fpMtl << "Ks " << converter.Convert(temp * tempd[0]) << " " << converter.Convert(temp * tempd[1])
-        << " " << converter.Convert(temp * tempd[2]) << "\n";
-  fpMtl << "Ns " << converter.Convert(prop->GetSpecularPower()) << "\n";
-  fpMtl << "Tr " << converter.Convert(prop->GetOpacity()) << "\n";
+  fpMtl << vtk::format("Ks {} {} {}\n", temp * tempd[0], temp * tempd[1], temp * tempd[2]);
+  fpMtl << "Ns " << vtk::to_string(prop->GetSpecularPower()) << "\n";
+  fpMtl << "Tr " << vtk::to_string(prop->GetOpacity()) << "\n";
   fpMtl << "illum 3\n";
 
   // Actor has the texture
@@ -255,8 +251,7 @@ void vtkOBJExporter::WriteAnActor(
   for (i = 0; i < points->GetNumberOfPoints(); i++)
   {
     p = points->GetPoint(i);
-    fpObj << "v " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
-          << converter.Convert(p[2]) << "\n";
+    fpObj << vtk::format("v {} {} {}\n", p[0], p[1], p[2]);
   }
   idNext = idStart + static_cast<int>(points->GetNumberOfPoints());
   points->Delete();
@@ -271,8 +266,7 @@ void vtkOBJExporter::WriteAnActor(
     for (i = 0; i < normals->GetNumberOfTuples(); i++)
     {
       p = normals->GetTuple(i);
-      fpObj << "vn " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
-            << converter.Convert(p[2]) << "\n";
+      fpObj << vtk::format("vn {} {} {}\n", p[0], p[1], p[2]);
     }
   }
 
@@ -282,8 +276,7 @@ void vtkOBJExporter::WriteAnActor(
     for (i = 0; i < tcoords->GetNumberOfTuples(); i++)
     {
       p = tcoords->GetTuple(i);
-      fpObj << "vt " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " " << 0.0
-            << "\n";
+      fpObj << vtk::format("vt {} {} {}\n", p[0], p[1], 0.0);
     }
   }
 
