@@ -755,64 +755,24 @@ void vtkProbeFilter::ProbeEmptyPoints(
 }
 
 //------------------------------------------------------------------------------
-static void GetPointIdsInRange(double rangeMin, double rangeMax, double start, double stepsize,
-  int numSteps, int& minid, int& maxid)
-{
-  if (stepsize == 0)
-  {
-    minid = maxid = 0;
-    return;
-  }
-
-  minid = vtkMath::Ceil((rangeMin - start) / stepsize);
-  if (minid < 0)
-  {
-    minid = 0;
-  }
-
-  maxid = vtkMath::Floor((rangeMax - start) / stepsize);
-  if (maxid > numSteps - 1)
-  {
-    maxid = numSteps - 1;
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cellId,
-  vtkDataSet* source, int srcBlockId, const double start[3], const double spacing[3],
-  const int dim[3], vtkPointData* outPD, char* maskArray, double* wtsBuff)
+  vtkDataSet* source, int srcBlockId, vtkImageData* input, vtkPointData* outPD, char* maskArray,
+  double* wtsBuff)
 {
   vtkPointData* pd = source->GetPointData();
+  // 1. get coordinates of sampling grids
 
-  // get coordinates of sampling grids
+  // Recover cell bounds
   double cellBounds[6];
   source->GetCellBounds(cellId, cellBounds);
+  vtkBoundingBox cellBB(cellBounds);
 
-  int idxBounds[6];
-  GetPointIdsInRange(
-    cellBounds[0], cellBounds[1], start[0], spacing[0], dim[0], idxBounds[0], idxBounds[1]);
-  GetPointIdsInRange(
-    cellBounds[2], cellBounds[3], start[1], spacing[1], dim[1], idxBounds[2], idxBounds[3]);
-  GetPointIdsInRange(
-    cellBounds[4], cellBounds[5], start[2], spacing[2], dim[2], idxBounds[4], idxBounds[5]);
-
-  if ((idxBounds[1] - idxBounds[0]) < 0 || (idxBounds[3] - idxBounds[2]) < 0 ||
-    (idxBounds[5] - idxBounds[4]) < 0)
-  {
-    return;
-  }
-
-  source->GetCell(cellId, cell);
-
-  double cpbuf[3];
-  double dist2 = 0;
-  double* closestPoint = cpbuf;
-  const bool is3D = cell->GetCellDimension() == 3;
-  if (is3D)
-  {
-    // we only care about closest point and its distance for 2D cells
-    closestPoint = nullptr;
-  }
+  // Recover input bounds, we already know they intersect, but reduce cellbounds
+  // to input bounds to ensure ComputeStructuredCoordinates works as expected on
+  // the edges of the input bounds
+  double inBounds[6];
+  input->GetBounds(inBounds);
+  cellBB.IntersectBox(inBounds);
 
   // If ComputeTolerance is set, compute a tolerance proportional to the
   // cell length. Otherwise, use the user specified absolute tolerance.
@@ -826,23 +786,70 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkGenericCell* cell, vtkIdType cell
   {
     tol2 = this->Tolerance * this->Tolerance;
   }
-  for (vtkIdType iz = idxBounds[4]; iz <= idxBounds[5]; iz++)
+
+  // Iterate on each point of the bounding box
+  // to identify the covered grid
+  int* inputExtent = input->GetExtent();
+  int idxBounds[6] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
+    std::numeric_limits<int>::max(), std::numeric_limits<int>::min(),
+    std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
+  double corner[3];
+  int ijk[3];
+  double pCoords[3];
+  bool found = false;
+  for (int i = 0; i < 8; i++)
   {
-    double p[3];
-    p[2] = start[2] + iz * spacing[2];
-    for (vtkIdType iy = idxBounds[2]; iy <= idxBounds[3]; iy++)
+    cellBB.GetCorner(i, corner);
+    if (input->ComputeStructuredCoordinates(corner, ijk, pCoords, tol2))
     {
-      p[1] = start[1] + iy * spacing[1];
-      for (vtkIdType ix = idxBounds[0]; ix <= idxBounds[1]; ix++)
+      found = true;
+      for (int j = 0; j < 3; j++)
+      {
+        idxBounds[2 * j] = std::min(ijk[j], idxBounds[2 * j]);
+
+        // Force a +1 here to ensure we get even the edge of the input
+        // In some case that can be outside of the input image
+        int externalExtent = std::min(ijk[j] + 1, inputExtent[2 * j + 1]);
+        idxBounds[2 * j + 1] = std::max(externalExtent, idxBounds[2 * j + 1]);
+      }
+    }
+  }
+
+  if (!found)
+  {
+    return;
+  }
+
+  // 2. Recover the cell to process
+  source->GetCell(cellId, cell);
+
+  double cpbuf[3];
+  double dist2 = 0;
+  double* closestPoint = cpbuf;
+  const bool is3D = cell->GetCellDimension() == 3;
+  if (is3D)
+  {
+    // we only care about closest point and its distance for 2D cells
+    closestPoint = nullptr;
+  }
+
+  // 3. Check each indices from the grid
+  for (ijk[2] = idxBounds[4]; ijk[2] <= idxBounds[5]; ijk[2]++)
+  {
+    for (ijk[1] = idxBounds[2]; ijk[1] <= idxBounds[3]; ijk[1]++)
+    {
+      for (ijk[0] = idxBounds[0]; ijk[0] <= idxBounds[1]; ijk[0]++)
       {
         // skip processed points
-        const vtkIdType ptId = ix + dim[0] * (iy + dim[1] * iz);
+        const vtkIdType ptId = input->ComputePointId(ijk);
         if (maskArray[ptId] == 1)
         {
           continue;
         }
-        // For each grid point within the cell bound, interpolate values
-        p[0] = start[0] + ix * spacing[0];
+
+        // record point coordinates
+        double p[3];
+        input->GetPoint(ptId, p);
 
         double pcoords[3];
         int subId;
@@ -876,14 +883,11 @@ class vtkProbeFilter::ProbeImageDataWorklet
 {
 public:
   ProbeImageDataWorklet(vtkProbeFilter* probeFilter, vtkDataSet* source, int srcBlockId,
-    const double start[3], const double spacing[3], const int dim[3], vtkPointData* outPD,
-    char* maskArray, int maxCellSize)
+    vtkImageData* input, vtkPointData* outPD, char* maskArray, int maxCellSize)
     : ProbeFilter(probeFilter)
     , Source(source)
+    , Input(input)
     , SrcBlockId(srcBlockId)
-    , Start(start)
-    , Spacing(spacing)
-    , Dim(dim)
     , OutPointData(outPD)
     , MaskArray(maskArray)
     , MaxCellSize(maxCellSize)
@@ -924,7 +928,7 @@ public:
       }
 
       this->ProbeFilter->ProbeImagePointsInCell(cell, cellId, this->Source, this->SrcBlockId,
-        this->Start, this->Spacing, this->Dim, this->OutPointData, this->MaskArray, weights);
+        this->Input, this->OutPointData, this->MaskArray, weights);
     }
   }
 
@@ -933,10 +937,8 @@ public:
 private:
   vtkProbeFilter* ProbeFilter;
   vtkDataSet* Source;
+  vtkImageData* Input;
   int SrcBlockId;
-  const double* Start;
-  const double* Spacing;
-  const int* Dim;
   vtkPointData* OutPointData;
   char* MaskArray;
   int MaxCellSize;
@@ -952,25 +954,11 @@ void vtkProbeFilter::ProbePointsImageData(
   vtkPointData* outPD = output->GetPointData();
   char* maskArray = this->MaskPoints->GetPointer(0);
 
-  //----------------------------------------
-  double spacing[3];
-  input->GetSpacing(spacing);
-  int extent[6];
-  input->GetExtent(extent);
-  int dim[3];
-  input->GetDimensions(dim);
-  double start[3];
-  input->GetOrigin(start);
-  start[0] += static_cast<double>(extent[0]) * spacing[0];
-  start[1] += static_cast<double>(extent[2]) * spacing[1];
-  start[2] += static_cast<double>(extent[4]) * spacing[2];
-
   vtkIdType numSrcCells = source->GetNumberOfCells();
-
   if (numSrcCells > 0)
   {
     ProbeImageDataWorklet worklet(
-      this, source, srcIdx, start, spacing, dim, outPD, maskArray, source->GetMaxCellSize());
+      this, source, srcIdx, input, outPD, maskArray, source->GetMaxCellSize());
     vtkSMPTools::For(0, numSrcCells, worklet);
   }
 
