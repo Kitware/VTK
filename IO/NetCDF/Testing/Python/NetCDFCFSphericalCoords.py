@@ -27,7 +27,9 @@ reader = get_reader(VTK_DATA_ROOT + "/Data/tos_O1_2001-2002.nc")
 reader.UpdateInformation()
 info = reader.GetOutputInformation(0)
 assert info.Has(vtkStreamingDemandDrivenPipeline.TIME_STEPS()), "Time dependent dataset does not have TIME_STEPS key"
-# the exact times are not the same between NetCDFCF and XArray accessors, because XArray uses
+# the exact times are not the same between NetCDFCF and XArray
+# accessors, because XArray converts the original NetCDF datetime
+# (based on a certain calendar) to numpy datetime64.
 times = info.Get(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
 assert len(times) == 24 and (times[23]) - times[0] == (705.0 - 15.0), "Number of time steps or time values are wrong."
 reader.SetVariableArrayStatus("tos",1)
