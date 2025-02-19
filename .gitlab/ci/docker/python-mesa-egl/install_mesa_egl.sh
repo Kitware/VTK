@@ -12,7 +12,7 @@ readonly llvm_url="https://github.com/llvm/llvm-project/releases/download/llvmor
 readonly mesa_version="22.3.2"
 readonly mesa_sha256sum="c15df758a8795f53e57f2a228eb4593c22b16dffd9b38f83901f76cd9533140b"
 readonly mesa_filename="mesa-$mesa_version.tar.xz"
-readonly mesa_url="https://archive.mesa3d.org/$mesa_filename"
+readonly mesa_url="https://archive.mesa3d.org/older-versions/22.x/$mesa_filename"
 
 readonly mesa_root="$HOME/mesa"
 readonly mesa_prefix="/opt/mesa"
