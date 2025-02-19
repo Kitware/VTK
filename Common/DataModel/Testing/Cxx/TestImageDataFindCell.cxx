@@ -133,6 +133,20 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
         cerr << "pcoords[" << i << "] = " << pcoords[i] << ", should be " << pcoords2[i] << "\n";
         return 1;
       }
+
+      // Test with bigger tolerance
+      double y[3];
+      y[0] = x[0] + 1e-5;
+      y[1] = x[1];
+      y[2] = x[2];
+      if (image->ComputeStructuredCoordinates(y, idx, pcoords2, 1e-8) == 0)
+      {
+        cerr << "ComputeStructuredCoordinates with tolerance failed for "
+             << "point (" << y[0] << ", " << y[1] << ", " << y[2] << ")"
+             << " and bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
+             << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ")\n";
+        return 1;
+      }
     }
   }
 
