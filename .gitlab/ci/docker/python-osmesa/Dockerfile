@@ -1,4 +1,5 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+ARG ARCH
+FROM quay.io/pypa/manylinux2014_$ARCH
 MAINTAINER Ben Boeckel <ben.boeckel@kitware.com>
 
 COPY install_deps.sh /root/install_deps.sh
