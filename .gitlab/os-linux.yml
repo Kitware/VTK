@@ -326,6 +326,10 @@
     extends: .linux
     image: "kitware/vtk:ci-fedora39-x86_64-20240828"
 
+.fedora41_aarch64:
+    extends: .linux
+    image: "kitware/vtk:ci-fedora41-aarch64-20250220"
+
 .el7_x86_64_mindeps:
     extends: .linux
     image: "kitware/vtk:ci-el7-x86_64-mindeps-20250116"
@@ -359,6 +363,11 @@
         MPIR_CVAR_NOLOCAL: 1
         # Fails inside of CI containers.
         PSM3_KASSIST_MODE: none
+
+.fedora_mpich_aarch64_addon:
+    extends: .fedora_mpich_addon
+    variables:
+        MODULES: mpi/mpich-aarch64
 
 .fedora_mpich_x86_64_addon:
     extends: .fedora_mpich_addon
@@ -394,6 +403,15 @@
 
     variables:
         CMAKE_CONFIGURATION: el8_x86_64_icc_python
+
+.fedora41_aarch64_mpi_python:
+    extends:
+        - .fedora41_aarch64
+        - .fedora_mpich_aarch64_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora41_aarch64_mpi_python
+        VTK_INSTALL: 1
 
 .fedora39_x86_64_doxygen_mpi_python_qt_tbb:
     extends:

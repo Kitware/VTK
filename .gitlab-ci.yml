@@ -117,6 +117,25 @@ el8-x86_64-python:test:
     needs:
         - el8-x86_64-python:build
 
+fedora41-aarch64-mpi-python:build:
+    extends:
+        - .fedora41_aarch64_mpi_python
+        - .cmake_build_linux
+        - .linux_aarch64_builder_tags
+        - .cmake_build_artifacts
+        - .run_manually
+    needs: []
+
+fedora41-aarch64-mpi-python:test:
+    extends:
+        - .fedora41_aarch64_mpi_python
+        - .cmake_test_linux
+        - .linux_aarch64_tester_tags
+        - .cmake_test_artifacts
+        - .run_automatically
+    needs:
+        - fedora41-aarch64-mpi-python:build
+
 fedora39-x86_64-mpi-renderless:build:
     extends:
         - .fedora39_x86_64_mpi_renderless
