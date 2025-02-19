@@ -327,7 +327,7 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Csd(vtkScalarNumberArray* 
   vtkSMPTools::Fill(averageRange.begin(), averageRange.end(), 0.0);
 
   auto resRange = vtk::DataArrayTupleRange(result);
-  using ConstTupleRef = decltype(resRange)::ConstTupleReferenceType;
+  using ConstTupleRef = typename decltype(resRange)::ConstTupleReferenceType;
   for (unsigned int i = 0; i < shape[0]; ++i)
   {
     auto begin = resRange.cbegin() + i * shape[1];
