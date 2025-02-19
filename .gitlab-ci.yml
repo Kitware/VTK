@@ -67,7 +67,7 @@ readthedocs:build:
     stage: test
     extends:
         - .readthedocs
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .make_sphinx_docs
         - .sphinx_artifacts
         - .run_automatically
@@ -80,7 +80,7 @@ el7-mindeps-debug-python-qt5:build:
     extends:
         - .el7_mindeps_debug_python_qt5
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     stage: quick
@@ -92,7 +92,7 @@ el7-mindeps-debug-python-qt5:build:
 #     extends:
 #         - .el7_mindeps_debug_python_qt5
 #         - .cmake_test_linux
-#         - .linux_tester_tags
+#         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
@@ -102,7 +102,7 @@ el8-python:build:
     extends:
         - .el8_icc_python
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
@@ -111,7 +111,7 @@ el8-python:test:
     extends:
         - .el8_icc_python
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -121,7 +121,7 @@ fedora39-mpi-renderless:build:
     extends:
         - .fedora39_mpi_renderless
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
@@ -130,7 +130,7 @@ fedora39-mpi-renderless:test:
     extends:
         - .fedora39_mpi_renderless
         - .cmake_test_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -140,7 +140,7 @@ vtk:fedora39-mpi-renderless:test-ext:
     extends:
         - .fedora39_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
@@ -151,7 +151,7 @@ fedora39-cuda-mpi:build:
         - .fedora39_cuda_mpi
         - .cmake_build_linux
         - .cmake_build_artifacts
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .run_manually
     variables:
         CTEST_MAX_PARALLELISM: 4
@@ -163,7 +163,7 @@ fedora39-cuda-mpi:test:
         - .fedora39_cuda_mpi
         - .cmake_test_linux
         - .cmake_test_artifacts
-        - .linux_cuda_tester_tags
+        - .linux_x86_64_cuda_tester_tags
         - .run_automatically
     needs:
         - fedora39-cuda-mpi:build
@@ -176,7 +176,7 @@ vtk:fedora39-cuda-mpi:test-ext:
         - .fedora39_cuda_mpi_ext_vtk
         - .cmake_test_external_linux
         - .cmake_tidy_artifacts
-        - .linux_cuda_tester_tags
+        - .linux_x86_64_cuda_tester_tags
         - .run_automatically
     needs:
         - fedora39-cuda-mpi:test
@@ -188,7 +188,7 @@ fedora39-helide-mpi-python-qt-tbb:build:
     extends:
         - .fedora39_helide_mpi_python_qt_tbb
         - .cmake_build_linux
-        - .linux_fast_builder_tags
+        - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -198,7 +198,7 @@ fedora39-helide-mpi-python-qt-tbb:test:
     extends:
         - .fedora39_helide_mpi_python_qt_tbb
         - .cmake_test_linux
-        - .linux_fast_tester_tags
+        - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -208,7 +208,7 @@ fedora39-mpi-offscreen-osmesa-python:test:
     extends:
         - .fedora39_mpi_offscreen_osmesa_python
         - .cmake_test_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -218,7 +218,7 @@ vtk:fedora39-mpi-offscreen-osmesa-python:test-ext:
     extends:
         - .fedora39_mpi_offscreen_osmesa_python_ext_vtk
         - .cmake_test_external_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
@@ -229,7 +229,7 @@ fedora39-mpi-ospray-python-qt-tbb:build:
     extends:
         - .fedora39_mpi_ospray_python_qt_tbb
         - .cmake_build_linux
-        - .linux_fast_builder_tags
+        - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -239,7 +239,7 @@ fedora39-mpi-ospray-python-qt-tbb:test:
     extends:
         - .fedora39_mpi_ospray_python_qt_tbb
         - .cmake_test_linux
-        - .linux_fast_tester_tags
+        - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -249,7 +249,7 @@ fedora39-java8:build:
     extends:
         - .fedora39_java
         - .cmake_build_java_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .weekly_upload_only
     timeout: 2 hours
@@ -261,7 +261,7 @@ fedora39-java11:build:
     extends:
         - .fedora39_java
         - .cmake_build_java_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 2 hours
@@ -273,7 +273,7 @@ fedora39-mpi-python-qt-tbb:build:
     extends:
         - .fedora39_mpi_python_qt_tbb
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -283,7 +283,7 @@ fedora39-mpi-python-qt-tbb:test:
     extends:
         - .fedora39_mpi_python_qt_tbb
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -293,7 +293,7 @@ vtk:fedora39-mpi-python-qt-tbb:test-ext:
     extends:
         - .fedora39_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
@@ -305,7 +305,7 @@ fedora39-mpi-python-qt-stdthread:test:
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -315,7 +315,7 @@ fedora39-mangling:build:
     extends:
         - .fedora39_mangling
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -325,7 +325,7 @@ fedora39-mangling:test:
     extends:
         - .fedora39_mangling
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -335,7 +335,7 @@ fedora39-mpi-python-vtkmoverride:build:
     extends:
         - .fedora39_mpi_python_vtkmoverride
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -345,7 +345,7 @@ fedora39-mpi-python-vtkmoverride:test:
     extends:
         - .fedora39_mpi_python_vtkmoverride
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
@@ -356,7 +356,7 @@ fedora39-webgpu:build:
     extends:
         - .fedora39_webgpu
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     timeout: 90 minutes
@@ -366,7 +366,7 @@ fedora39-webgpu:test:
     extends:
         - .fedora39_webgpu
         - .cmake_test_linux
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     timeout: 90 minutes
@@ -378,7 +378,7 @@ wasm32-emscripten-linux:build:
     extends:
         - .wasm32_emscripten_linux
         - .cmake_build_wasm_emscripten_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
         - .run_manually
     needs: []
@@ -388,7 +388,7 @@ wasm32-emscripten:package:
     extends:
         - .wasm32_emscripten_linux
         - .cmake_package_wasm_emscripten_linux
-        - .linux_packager_tags
+        - .linux_x86_64_packager_tags
         - .cmake_webassembly_artifacts
         - .run_automatically
     needs:
@@ -407,7 +407,7 @@ wasm64-emscripten-linux:build:
     extends:
         - .wasm64_emscripten_linux
         - .cmake_build_wasm_emscripten_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
         - .run_manually
     needs: []
@@ -453,13 +453,13 @@ wasm64-emscripten-windows-chrome:test-ext:
     needs:
         - wasm64-emscripten-linux:build
 
-## Python wheel builds
+## Python x86_64 wheel builds
 
 wheel-linux-python38-x86_64:build:
     extends:
         - .wheel_linux38_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .scheduled_only
     needs: []
@@ -468,7 +468,7 @@ wheel-linux-python38-x86_64:test:
     extends:
         - .wheel_linux38_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -478,7 +478,7 @@ wheel-linux-python38-x86_64:test-x11:
     extends:
         - .wheel_linux38_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -488,7 +488,7 @@ wheel-linux-python38-x86_64-osmesa:test:
     extends:
         - .wheel_linux38_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -498,7 +498,7 @@ wheel-linux-python38-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux38_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -508,7 +508,7 @@ wheel-linux-python38-x86_64-egl:test:
     extends:
         - .wheel_linux38_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -518,7 +518,7 @@ wheel-linux-python38-x86_64-egl:test-x11:
     extends:
         - .wheel_linux38_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -528,7 +528,7 @@ wheel-linux-python39-x86_64:build:
     extends:
         - .wheel_linux39_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .scheduled_only
     needs: []
@@ -537,7 +537,7 @@ wheel-linux-python39-x86_64:test:
     extends:
         - .wheel_linux39_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -547,7 +547,7 @@ wheel-linux-python39-x86_64:test-x11:
     extends:
         - .wheel_linux39_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -557,7 +557,7 @@ wheel-linux-python39-x86_64-osmesa:test:
     extends:
         - .wheel_linux39_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -567,7 +567,7 @@ wheel-linux-python39-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux39_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -577,7 +577,7 @@ wheel-linux-python39-x86_64-egl:test:
     extends:
         - .wheel_linux39_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -587,7 +587,7 @@ wheel-linux-python39-x86_64-egl:test-x11:
     extends:
         - .wheel_linux39_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -597,7 +597,7 @@ wheel-linux-python310-x86_64:build:
     extends:
         - .wheel_linux310_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .scheduled_only
     needs: []
@@ -606,7 +606,7 @@ wheel-linux-python310-x86_64:test:
     extends:
         - .wheel_linux310_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -616,7 +616,7 @@ wheel-linux-python310-x86_64:test-x11:
     extends:
         - .wheel_linux310_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -626,7 +626,7 @@ wheel-linux-python310-x86_64-osmesa:test:
     extends:
         - .wheel_linux310_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -636,7 +636,7 @@ wheel-linux-python310-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux310_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -646,7 +646,7 @@ wheel-linux-python310-x86_64-egl:test:
     extends:
         - .wheel_linux310_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -656,7 +656,7 @@ wheel-linux-python310-x86_64-egl:test-x11:
     extends:
         - .wheel_linux310_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -666,7 +666,7 @@ wheel-linux-python311-x86_64:build:
     extends:
         - .wheel_linux311_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .scheduled_only
     needs: []
@@ -675,7 +675,7 @@ wheel-linux-python311-x86_64:test:
     extends:
         - .wheel_linux311_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -685,7 +685,7 @@ wheel-linux-python311-x86_64:test-x11:
     extends:
         - .wheel_linux311_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -695,7 +695,7 @@ wheel-linux-python311-x86_64-osmesa:test:
     extends:
         - .wheel_linux311_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -705,7 +705,7 @@ wheel-linux-python311-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux311_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -715,7 +715,7 @@ wheel-linux-python311-x86_64-egl:test:
     extends:
         - .wheel_linux311_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -725,7 +725,7 @@ wheel-linux-python311-x86_64-egl:test-x11:
     extends:
         - .wheel_linux311_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
@@ -735,7 +735,7 @@ wheel-linux-python312-x86_64:build:
     extends:
         - .wheel_linux312_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .merged_only
     needs: []
@@ -744,7 +744,7 @@ wheel-linux-python312-x86_64:test:
     extends:
         - .wheel_linux312_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -754,7 +754,7 @@ wheel-linux-python312-x86_64:test-x11:
     extends:
         - .wheel_linux312_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -764,7 +764,7 @@ wheel-linux-python312-x86_64-osmesa:test:
     extends:
         - .wheel_linux312_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -774,7 +774,7 @@ wheel-linux-python312-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux312_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -784,7 +784,7 @@ wheel-linux-python312-x86_64-egl:test:
     extends:
         - .wheel_linux312_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -794,7 +794,7 @@ wheel-linux-python312-x86_64-egl:test-x11:
     extends:
         - .wheel_linux312_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .merged_only
         - .cdash_annotations_artifacts
     needs:
@@ -804,7 +804,7 @@ wheel-linux-python313-x86_64:build:
     extends:
         - .wheel_linux313_x86_64
         - .cmake_build_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
         - .run_manually
     needs: []
@@ -813,7 +813,7 @@ wheel-linux-python313-x86_64:test:
     extends:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -823,7 +823,7 @@ wheel-linux-python313-x86_64:test-x11:
     extends:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -833,7 +833,7 @@ wheel-linux-python313-x86_64-osmesa:test:
     extends:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -843,7 +843,7 @@ wheel-linux-python313-x86_64-osmesa:test-x11:
     extends:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -853,7 +853,7 @@ wheel-linux-python313-x86_64-egl:test:
     extends:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -863,7 +863,7 @@ wheel-linux-python313-x86_64-egl:test-x11:
     extends:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux_x11
-        - .linux_tester_tags
+        - .linux_x86_64_tester_tags
         - .run_automatically
         - .cdash_annotations_artifacts
     needs:
@@ -1259,7 +1259,7 @@ fedora39-tidy:build:
     extends:
         - .fedora39_tidy
         - .cmake_build_linux
-        - .linux_fast_builder_tags
+        - .linux_x86_64_fast_builder_tags
         - .cmake_tidy_artifacts
         - .run_manually
     # Use fast builder tag as tidy can takes a very long time on slow machine
@@ -1279,7 +1279,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_asan
 #         - .cmake_build_linux
-#         - .linux_builder_tags
+#         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
@@ -1288,7 +1288,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_asan
 #         - .cmake_memcheck_linux
-#         - .linux_tester_priv_tags
+#         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
@@ -1298,7 +1298,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_tsan
 #         - .cmake_build_linux
-#         - .linux_builder_tags
+#         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
@@ -1307,7 +1307,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_tsan
 #         - .cmake_memcheck_linux
-#         - .linux_tester_priv_tags
+#         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
@@ -1317,7 +1317,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_ubsan
 #         - .cmake_build_linux
-#         - .linux_builder_tags
+#         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
@@ -1326,7 +1326,7 @@ fedora39-tidy:build:
 #     extends:
 #         - .fedora39_ubsan
 #         - .cmake_memcheck_linux
-#         - .linux_tester_priv_tags
+#         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
@@ -1338,7 +1338,7 @@ documentation:build:
     extends:
         - .fedora39_doxygen_mpi_python_qt_tbb
         - .cmake_build_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .cmake_doxygen_artifacts
         - .run_manually
     needs: []
@@ -2178,7 +2178,7 @@ java8:upload:
     extends:
         - .fedora39_java
         - .java_upload_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
         - fedora39-java8:build
@@ -2192,7 +2192,7 @@ java11:upload:
     extends:
         - .fedora39_java
         - .java_upload_linux
-        - .linux_builder_tags
+        - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
         - fedora39-java11:build
