@@ -76,9 +76,9 @@ readthedocs:build:
 
 ## Basic builds
 
-el7-mindeps-debug-python-qt5:build:
+el7-x86_64-mindeps-debug-python-qt5:build:
     extends:
-        - .el7_mindeps_debug_python_qt5
+        - .el7_x86_64_mindeps_debug_python_qt5
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -88,67 +88,67 @@ el7-mindeps-debug-python-qt5:build:
 # Disable testing for now. Even with a modern Mesa and the llvmpipe backend,
 # modern enough OpenGL is just not working in CI. Rather than disabling just
 # about everything in the test suite, just skip testing altogether.
-# el7-mindeps-debug-python-qt5:test:
+# el7-x86_64-mindeps-debug-python-qt5:test:
 #     extends:
-#         - .el7_mindeps_debug_python_qt5
+#         - .el7_x86_64_mindeps_debug_python_qt5
 #         - .cmake_test_linux
 #         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
-#         - el7-mindeps-python-qt5:build
+#         - el7-x86_64-mindeps-python-qt5:build
 
-el8-python:build:
+el8-x86_64-python:build:
     extends:
-        - .el8_icc_python
+        - .el8_x86_64_icc_python
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
 
-el8-python:test:
+el8-x86_64-python:test:
     extends:
-        - .el8_icc_python
+        - .el8_x86_64_icc_python
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - el8-python:build
+        - el8-x86_64-python:build
 
-fedora39-mpi-renderless:build:
+fedora39-x86_64-mpi-renderless:build:
     extends:
-        - .fedora39_mpi_renderless
+        - .fedora39_x86_64_mpi_renderless
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
         - .run_manually
     needs: []
 
-fedora39-mpi-renderless:test:
+fedora39-x86_64-mpi-renderless:test:
     extends:
-        - .fedora39_mpi_renderless
+        - .fedora39_x86_64_mpi_renderless
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-renderless:build
+        - fedora39-x86_64-mpi-renderless:build
 
-vtk:fedora39-mpi-renderless:test-ext:
+vtk:fedora39-x86_64-mpi-renderless:test-ext:
     extends:
-        - .fedora39_mpi_renderless_ext_vtk
+        - .fedora39_x86_64_mpi_renderless_ext_vtk
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-renderless:test
+        - fedora39-x86_64-mpi-renderless:test
 
-fedora39-cuda-mpi:build:
+fedora39-x86_64-cuda-mpi:build:
     extends:
-        - .fedora39_cuda_mpi
+        - .fedora39_x86_64_cuda_mpi
         - .cmake_build_linux
         - .cmake_build_artifacts
         - .linux_x86_64_builder_tags
@@ -158,35 +158,35 @@ fedora39-cuda-mpi:build:
     timeout: 8 hours
     needs: []
 
-fedora39-cuda-mpi:test:
+fedora39-x86_64-cuda-mpi:test:
     extends:
-        - .fedora39_cuda_mpi
+        - .fedora39_x86_64_cuda_mpi
         - .cmake_test_linux
         - .cmake_test_artifacts
         - .linux_x86_64_cuda_tester_tags
         - .run_automatically
     needs:
-        - fedora39-cuda-mpi:build
+        - fedora39-x86_64-cuda-mpi:build
     variables:
         CTEST_MAX_PARALLELISM: 8
     timeout: 2 hours
 
-vtk:fedora39-cuda-mpi:test-ext:
+vtk:fedora39-x86_64-cuda-mpi:test-ext:
     extends:
-        - .fedora39_cuda_mpi_ext_vtk
+        - .fedora39_x86_64_cuda_mpi_ext_vtk
         - .cmake_test_external_linux
         - .cmake_tidy_artifacts
         - .linux_x86_64_cuda_tester_tags
         - .run_automatically
     needs:
-        - fedora39-cuda-mpi:test
+        - fedora39-x86_64-cuda-mpi:test
     variables:
         CTEST_MAX_PARALLELISM: 8
     timeout: 150 minutes
 
-fedora39-helide-mpi-python-qt-tbb:build:
+fedora39-x86_64-helide-mpi-python-qt-tbb:build:
     extends:
-        - .fedora39_helide_mpi_python_qt_tbb
+        - .fedora39_x86_64_helide_mpi_python_qt_tbb
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
@@ -194,40 +194,40 @@ fedora39-helide-mpi-python-qt-tbb:build:
     timeout: 90 minutes
     stage: quick
 
-fedora39-helide-mpi-python-qt-tbb:test:
+fedora39-x86_64-helide-mpi-python-qt-tbb:test:
     extends:
-        - .fedora39_helide_mpi_python_qt_tbb
+        - .fedora39_x86_64_helide_mpi_python_qt_tbb
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-helide-mpi-python-qt-tbb:build
+        - fedora39-x86_64-helide-mpi-python-qt-tbb:build
 
-fedora39-mpi-offscreen-osmesa-python:test:
+fedora39-x86_64-mpi-offscreen-osmesa-python:test:
     extends:
-        - .fedora39_mpi_offscreen_osmesa_python
+        - .fedora39_x86_64_mpi_offscreen_osmesa_python
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-python-qt-tbb:build
+        - fedora39-x86_64-mpi-python-qt-tbb:build
 
-vtk:fedora39-mpi-offscreen-osmesa-python:test-ext:
+vtk:fedora39-x86_64-mpi-offscreen-osmesa-python:test-ext:
     extends:
-        - .fedora39_mpi_offscreen_osmesa_python_ext_vtk
+        - .fedora39_x86_64_mpi_offscreen_osmesa_python_ext_vtk
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-offscreen-osmesa-python:test
+        - fedora39-x86_64-mpi-offscreen-osmesa-python:test
     timeout: 90 minutes
 
-fedora39-mpi-ospray-python-qt-tbb:build:
+fedora39-x86_64-mpi-ospray-python-qt-tbb:build:
     extends:
-        - .fedora39_mpi_ospray_python_qt_tbb
+        - .fedora39_x86_64_mpi_ospray_python_qt_tbb
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
@@ -235,19 +235,19 @@ fedora39-mpi-ospray-python-qt-tbb:build:
     timeout: 90 minutes
     stage: quick
 
-fedora39-mpi-ospray-python-qt-tbb:test:
+fedora39-x86_64-mpi-ospray-python-qt-tbb:test:
     extends:
-        - .fedora39_mpi_ospray_python_qt_tbb
+        - .fedora39_x86_64_mpi_ospray_python_qt_tbb
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-ospray-python-qt-tbb:build
+        - fedora39-x86_64-mpi-ospray-python-qt-tbb:build
 
-fedora39-java8:build:
+fedora39-x86_64-java8:build:
     extends:
-        - .fedora39_java
+        - .fedora39_x86_64_java
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -257,9 +257,9 @@ fedora39-java8:build:
         VTK_JAVA_VERSION: 8
     needs: []
 
-fedora39-java11:build:
+fedora39-x86_64-java11:build:
     extends:
-        - .fedora39_java
+        - .fedora39_x86_64_java
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -269,9 +269,9 @@ fedora39-java11:build:
         VTK_JAVA_VERSION: 11
     needs: []
 
-fedora39-mpi-python-qt-tbb:build:
+fedora39-x86_64-mpi-python-qt-tbb:build:
     extends:
-        - .fedora39_mpi_python_qt_tbb
+        - .fedora39_x86_64_mpi_python_qt_tbb
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -279,29 +279,29 @@ fedora39-mpi-python-qt-tbb:build:
     timeout: 90 minutes
     needs: []
 
-fedora39-mpi-python-qt-tbb:test:
+fedora39-x86_64-mpi-python-qt-tbb:test:
     extends:
-        - .fedora39_mpi_python_qt_tbb
+        - .fedora39_x86_64_mpi_python_qt_tbb
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-python-qt-tbb:build
+        - fedora39-x86_64-mpi-python-qt-tbb:build
 
-vtk:fedora39-mpi-python-qt-tbb:test-ext:
+vtk:fedora39-x86_64-mpi-python-qt-tbb:test-ext:
     extends:
-        - .fedora39_mpi_python_qt_tbb_ext_vtk
+        - .fedora39_x86_64_mpi_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
         - .linux_x86_64_tester_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-python-qt-tbb:test
+        - fedora39-x86_64-mpi-python-qt-tbb:test
 
-fedora39-mpi-python-qt-stdthread:test:
+fedora39-x86_64-mpi-python-qt-stdthread:test:
     extends:
-        - .fedora39_mpi_python_qt_stdthread
+        - .fedora39_x86_64_mpi_python_qt_stdthread
         - .smp_backend_stdthread_env_variable
         - .ctest_new_cdash_submission
         - .cmake_test_linux
@@ -309,11 +309,11 @@ fedora39-mpi-python-qt-stdthread:test:
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-python-qt-tbb:build
+        - fedora39-x86_64-mpi-python-qt-tbb:build
 
-fedora39-mangling:build:
+fedora39-x86_64-mangling:build:
     extends:
-        - .fedora39_mangling
+        - .fedora39_x86_64_mangling
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -321,19 +321,19 @@ fedora39-mangling:build:
     timeout: 90 minutes
     stage: quick
 
-fedora39-mangling:test:
+fedora39-x86_64-mangling:test:
     extends:
-        - .fedora39_mangling
+        - .fedora39_x86_64_mangling
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mangling:build
+        - fedora39-x86_64-mangling:build
 
-fedora39-mpi-python-vtkmoverride:build:
+fedora39-x86_64-mpi-python-vtkmoverride:build:
     extends:
-        - .fedora39_mpi_python_vtkmoverride
+        - .fedora39_x86_64_mpi_python_vtkmoverride
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -341,20 +341,20 @@ fedora39-mpi-python-vtkmoverride:build:
     timeout: 90 minutes
     needs: []
 
-fedora39-mpi-python-vtkmoverride:test:
+fedora39-x86_64-mpi-python-vtkmoverride:test:
     extends:
-        - .fedora39_mpi_python_vtkmoverride
+        - .fedora39_x86_64_mpi_python_vtkmoverride
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-mpi-python-vtkmoverride:build
+        - fedora39-x86_64-mpi-python-vtkmoverride:build
 
 ## WebGPU backend
-fedora39-webgpu:build:
+fedora39-x86_64-webgpu:build:
     extends:
-        - .fedora39_webgpu
+        - .fedora39_x86_64_webgpu
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -362,16 +362,16 @@ fedora39-webgpu:build:
     timeout: 90 minutes
     needs: []
 
-fedora39-webgpu:test:
+fedora39-x86_64-webgpu:test:
     extends:
-        - .fedora39_webgpu
+        - .fedora39_x86_64_webgpu
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     timeout: 90 minutes
     needs:
-        - fedora39-webgpu:build
+        - fedora39-x86_64-webgpu:build
 
 ## Cross compile for the 'wasm32-emscripten' architecture on a linux host
 wasm32-emscripten-linux:build:
@@ -1701,9 +1701,9 @@ wheel-sdk:upload:
 
 ## Static analysis builds
 
-fedora39-tidy:build:
+fedora39-x86_64-tidy:build:
     extends:
-        - .fedora39_tidy
+        - .fedora39_x86_64_tidy
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_tidy_artifacts
@@ -1721,68 +1721,68 @@ fedora39-tidy:build:
 
 ## Sanitizer builds
 
-# fedora39-asan:build:
+# fedora39-x86_64-asan:build:
 #     extends:
-#         - .fedora39_asan
+#         - .fedora39_x86_64_asan
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
 #
-# fedora39-asan:test:
+# fedora39-x86_64-asan:test:
 #     extends:
-#         - .fedora39_asan
+#         - .fedora39_x86_64_asan
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
-#         - fedora39-asan:build
+#         - fedora39-x86_64-asan:build
 #
-# fedora39-tsan:build:
+# fedora39-x86_64-tsan:build:
 #     extends:
-#         - .fedora39_tsan
+#         - .fedora39_x86_64_tsan
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
 #
-# fedora39-tsan:test:
+# fedora39-x86_64-tsan:test:
 #     extends:
-#         - .fedora39_tsan
+#         - .fedora39_x86_64_tsan
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
-#         - fedora39-tsan:build
+#         - fedora39-x86_64-tsan:build
 #
-# fedora39-ubsan:build:
+# fedora39-x86_64-ubsan:build:
 #     extends:
-#         - .fedora39_ubsan
+#         - .fedora39_x86_64_ubsan
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
 #         - .run_manually
 #     needs: []
 #
-# fedora39-ubsan:test:
+# fedora39-x86_64-ubsan:test:
 #     extends:
-#         - .fedora39_ubsan
+#         - .fedora39_x86_64_ubsan
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
 #         - .run_automatically
 #     needs:
-#         - fedora39-ubsan:build
+#         - fedora39-x86_64-ubsan:build
 
 ## Documentation
 
 documentation:build:
     extends:
-        - .fedora39_doxygen_mpi_python_qt_tbb
+        - .fedora39_x86_64_doxygen_mpi_python_qt_tbb
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_doxygen_artifacts
@@ -2700,12 +2700,12 @@ windows-x86_64-java11:build:
 
 java8:upload:
     extends:
-        - .fedora39_java
+        - .fedora39_x86_64_java
         - .java_upload_linux
         - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
-        - fedora39-java8:build
+        - fedora39-x86_64-java8:build
         - macos-x86_64-java8:build
         - macos-arm64-java8:build
         - windows-x86_64-java8:build
@@ -2714,12 +2714,12 @@ java8:upload:
 
 java11:upload:
     extends:
-        - .fedora39_java
+        - .fedora39_x86_64_java
         - .java_upload_linux
         - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
-        - fedora39-java11:build
+        - fedora39-x86_64-java11:build
         - macos-x86_64-java11:build
         - macos-arm64-java11:build
         - windows-x86_64-java11:build

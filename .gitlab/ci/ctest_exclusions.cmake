@@ -11,7 +11,7 @@ if (NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" OR
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
   list(APPEND test_exclusions
     # See this issue to track the status of these tests.
@@ -101,7 +101,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "el8")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64")
   list(APPEND test_exclusions
     # See this issue to track the status of these tests.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/18098
@@ -128,7 +128,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_x86_64" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
