@@ -21,7 +21,7 @@
 
 #include <algorithm> /* std::remove */
 #include <cassert>
-#include <cctype> /* isspace */
+#include <cctype> /* isspace, isascii */
 #include <map>
 #include <string>
 
@@ -729,7 +729,7 @@ int vtkGenericEnSightReader::ReadNextDataLine(char result[256])
     {
       size_t len = strlen(result);
       unsigned int i = 0;
-      while (i < len && (static_cast<unsigned int>(result[i]) <= 255) && isspace(result[i]))
+      while (i < len && isascii(result[i]) && isspace(result[i]))
       {
         ++i;
       }
