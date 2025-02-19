@@ -1,16 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOBJImporterInternals.h"
-#include "vtkBMPReader.h"
-#include "vtkJPEGReader.h"
+#include "vtkImageReader2.h"
+#include "vtkImageReader2Factory.h"
 #include "vtkOBJImporter.h"
-#include "vtkPNGReader.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTIFFReader.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtksys/FStream.hxx"
@@ -402,71 +400,34 @@ bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRender
     // For each named material, load and bind the texture, add it to the renderer
 
     std::string textureFilename = reader->GetTextureFilename(port_idx);
-
-    auto kti = knownTextures.find(textureFilename);
-    if (kti == knownTextures.end())
+    if (!textureFilename.empty())
     {
-      vtkSmartPointer<vtkTIFFReader> tex_tiff_Loader = vtkSmartPointer<vtkTIFFReader>::New();
-      vtkSmartPointer<vtkBMPReader> tex_bmp_Loader = vtkSmartPointer<vtkBMPReader>::New();
-      vtkSmartPointer<vtkJPEGReader> tex_jpg_Loader = vtkSmartPointer<vtkJPEGReader>::New();
-      vtkSmartPointer<vtkPNGReader> tex_png_Loader = vtkSmartPointer<vtkPNGReader>::New();
-      int bIsReadableBMP = tex_bmp_Loader->CanReadFile(textureFilename.c_str());
-      int bIsReadableJPEG = tex_jpg_Loader->CanReadFile(textureFilename.c_str());
-      int bIsReadablePNG = tex_png_Loader->CanReadFile(textureFilename.c_str());
-      int bIsReadableTIFF = tex_tiff_Loader->CanReadFile(textureFilename.c_str());
-
-      if (!textureFilename.empty())
+      auto kti = knownTextures.find(textureFilename);
+      if (kti == knownTextures.end())
       {
-        if (bIsReadableJPEG)
+        vtkSmartPointer<vtkImageReader2> imgReader;
+        imgReader.TakeReference(
+          vtkImageReader2Factory::CreateImageReader2(textureFilename.c_str()));
+
+        if (!imgReader)
         {
-          tex_jpg_Loader->SetFileName(textureFilename.c_str());
-          tex_jpg_Loader->Update();
-          vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
-          vtk_texture->AddInputConnection(tex_jpg_Loader->GetOutputPort());
-          actor->SetTexture(vtk_texture);
-          knownTextures[textureFilename] = vtk_texture;
-        }
-        else if (bIsReadablePNG)
-        {
-          tex_png_Loader->SetFileName(textureFilename.c_str());
-          tex_png_Loader->Update();
-          vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
-          vtk_texture->AddInputConnection(tex_png_Loader->GetOutputPort());
-          actor->SetTexture(vtk_texture);
-          knownTextures[textureFilename] = vtk_texture;
-        }
-        else if (bIsReadableBMP)
-        {
-          tex_bmp_Loader->SetFileName(textureFilename.c_str());
-          tex_bmp_Loader->Update();
-          vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
-          vtk_texture->AddInputConnection(tex_bmp_Loader->GetOutputPort());
-          actor->SetTexture(vtk_texture);
-          knownTextures[textureFilename] = vtk_texture;
-        }
-        else if (bIsReadableTIFF)
-        {
-          tex_tiff_Loader->SetFileName(textureFilename.c_str());
-          tex_tiff_Loader->Update();
-          vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
-          vtk_texture->AddInputConnection(tex_tiff_Loader->GetOutputPort());
-          actor->SetTexture(vtk_texture);
-          knownTextures[textureFilename] = vtk_texture;
+          vtkErrorWithObjectMacro(
+            reader, "Cannot instantiate image reader for texture: " << textureFilename);
         }
         else
         {
-          if (!textureFilename
-                 .empty()) // OK to have no texture image, but if its not empty it ought to exist.
-          {
-            vtkErrorWithObjectMacro(
-              reader, "Nonexistent texture image type!? imagefile: " << textureFilename);
-          }
+          imgReader->SetFileName(textureFilename.c_str());
+
+          vtkSmartPointer<vtkTexture> vTexture = vtkSmartPointer<vtkTexture>::New();
+          vTexture->SetInputConnection(imgReader->GetOutputPort());
+          actor->SetTexture(vTexture);
+          knownTextures[textureFilename] = vTexture;
         }
       }
-    }
-    else // this is a texture we already have seen
-    {
-      actor->SetTexture(kti->second);
+      else // this is a texture we already have seen
+      {
+        actor->SetTexture(kti->second);
+      }
     }
 
     vtkSmartPointer<vtkProperty> properties = vtkSmartPointer<vtkProperty>::New();

@@ -57,7 +57,7 @@ public:
     {
       return;
     }
-    FileName = std::string(arg);
+    this->FileName = std::string(arg);
   }
   void SetMTLfileName(const char* arg)
   {
@@ -69,27 +69,32 @@ public:
     {
       return;
     }
-    MTLFileName = std::string(arg);
+    this->MTLFileName = std::string(arg);
     this->DefaultMTLFileName = false;
   }
   void SetTexturePath(const char* arg)
   {
-    TexturePath = std::string(arg);
-    if (TexturePath.empty())
+    this->TexturePath = std::string(arg);
+    if (this->TexturePath.empty())
+    {
       return;
+    }
 #if defined(_WIN32)
     const char sep = '\\';
 #else
     const char sep = '/';
 #endif
-    if (TexturePath.at(TexturePath.size() - 1) != sep)
-      TexturePath += sep;
+    if (this->TexturePath.at(this->TexturePath.size() - 1) != sep)
+    {
+      this->TexturePath += sep;
+    }
+    this->DefaultTexturePath = false;
   }
-  const std::string& GetTexturePath() const { return TexturePath; }
+  const std::string& GetTexturePath() const { return this->TexturePath; }
 
-  const std::string& GetFileName() const { return FileName; }
+  const std::string& GetFileName() const { return this->FileName; }
 
-  const std::string& GetMTLFileName() const { return MTLFileName; }
+  const std::string& GetMTLFileName() const { return this->MTLFileName; }
 
   vtkSetMacro(VertexScale, double);
   vtkGetMacro(VertexScale, double);
@@ -132,8 +137,9 @@ protected:
 
   std::string FileName;    // filename (.obj) being read
   std::string MTLFileName; // associated .mtl to *.obj, typically it is *.obj.mtl
-  bool DefaultMTLFileName; // tells whether default of *.obj.mtl to be used
+  bool DefaultMTLFileName; // tells whether default MTL should be used
   std::string TexturePath;
+  bool DefaultTexturePath; // tells whether default texture path should be used
   int SuccessParsingFiles;
 
 private:

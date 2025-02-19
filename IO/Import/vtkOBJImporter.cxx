@@ -211,7 +211,8 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   this->FileName = "";
   this->MTLFileName = "";
   this->DefaultMTLFileName = true;
-  this->TexturePath = "./";
+  this->TexturePath = "";
+  this->DefaultTexturePath = true;
   this->VertexScale = 1.0;
   this->SuccessParsingFiles = 1;
   this->SetNumberOfInputPorts(0);
@@ -366,23 +367,112 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     delete this->parsedMTLs[k];
   }
 
-  // If the MTLFileName is not set explicitly, we assume *.obj.mtl as the MTL
-  // filename
+  // If the MTLFileName is not set explicitly, we look for a mtllib in the obj
+  // if not available we look for .mtl or *.obj.mtl as the MTL filename
   std::string mtlname = this->MTLFileName;
+  char *pLine, *pEnd, *cmd;
+  auto _extractLine = [&](char* rawLine)
+  {
+    pLine = rawLine;
+    pEnd = rawLine + strlen(rawLine);
+
+    // watch for BOM
+    if (pEnd - pLine > 3 && pLine[0] == -17 && pLine[1] == -69 && pLine[2] == -65)
+    {
+      pLine += 3;
+    }
+
+    // find the first non-whitespace character
+    while (isspace(*pLine) && pLine < pEnd)
+    {
+      pLine++;
+    }
+
+    // this first non-whitespace is the command
+    cmd = pLine;
+
+    // skip over non-whitespace
+    while (!isspace(*pLine) && pLine < pEnd)
+    {
+      pLine++;
+    }
+
+    // terminate command
+    if (pLine < pEnd)
+    {
+      *pLine = '\0';
+      pLine++;
+    }
+  };
+
   if (this->DefaultMTLFileName)
   {
-    mtlname = this->FileName + ".mtl";
-    if (vtksys::SystemTools::FileExists(mtlname))
-    {
-      this->MTLFileName = mtlname;
+    bool mtllibDefined = false;
+    { // (make a local scope section to emphasise that the variables below are only used here)
+
+      const int MAX_LINE = 100000;
+      char rawLine[MAX_LINE];
+
+      while (fgets(rawLine, MAX_LINE, in) != nullptr)
+      {
+        _extractLine(rawLine);
+
+        // in the OBJ format the first characters determine how to interpret the line:
+        // Skip comments
+        if (strcmp(cmd, "#") == 0)
+        {
+          continue;
+        }
+        // mtllib is the first non-commmented line
+        else if (strcmp(cmd, "mtllib") == 0)
+        {
+          while (isspace(*pLine) && pLine < pEnd)
+          {
+            pLine++;
+          }
+          // Recover the mtllib without the \n at the end
+          mtlname = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/" +
+            std::string(pLine, strlen(pLine) - 1);
+          mtllibDefined = true;
+          break;
+        }
+        // no mtllib in this file, just break;
+        else
+        {
+          break;
+        }
+      }
+      // Reset file position
+      rewind(in);
     }
-    else
+
+    if (mtllibDefined)
     {
-      mtlname = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/" +
-        vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName) + ".mtl";
       if (vtksys::SystemTools::FileExists(mtlname))
       {
         this->MTLFileName = mtlname;
+      }
+      else
+      {
+        vtkErrorMacro(<< "The MTL file set by the mtllib command " << mtlname
+                      << " could not be found");
+      }
+    }
+    else
+    {
+      mtlname = this->FileName + ".mtl";
+      if (vtksys::SystemTools::FileExists(mtlname))
+      {
+        this->MTLFileName = mtlname;
+      }
+      else
+      {
+        mtlname = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/" +
+          vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName) + ".mtl";
+        if (vtksys::SystemTools::FileExists(mtlname))
+        {
+          this->MTLFileName = mtlname;
+        }
       }
     }
   }
@@ -394,8 +484,13 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  if (this->DefaultTexturePath)
+  {
+    this->SetTexturePath(vtksys::SystemTools::GetFilenamePath(this->FileName).c_str());
+  }
+
   int mtlParseResult;
-  this->parsedMTLs = ParseOBJandMTL(MTLFileName, mtlParseResult);
+  this->parsedMTLs = ParseOBJandMTL(this->MTLFileName, mtlParseResult);
   if (this->parsedMTLs.empty())
   { // construct a default material to define the single polydata's actor.
     this->parsedMTLs.push_back(new vtkOBJImportedMaterial);
@@ -463,36 +558,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
     { /** While OK and there is another line in the file */
       lineNr++;
-      char* pLine = rawLine;
-      char* pEnd = rawLine + strlen(rawLine);
-
-      // watch for BOM
-      if (pEnd - pLine > 3 && pLine[0] == -17 && pLine[1] == -69 && pLine[2] == -65)
-      {
-        pLine += 3;
-      }
-
-      // find the first non-whitespace character
-      while (isspace(*pLine) && pLine < pEnd)
-      {
-        pLine++;
-      }
-
-      // this first non-whitespace is the command
-      const char* cmd = pLine;
-
-      // skip over non-whitespace
-      while (!isspace(*pLine) && pLine < pEnd)
-      {
-        pLine++;
-      }
-
-      // terminate command
-      if (pLine < pEnd)
-      {
-        *pLine = '\0';
-        pLine++;
-      }
+      _extractLine(rawLine);
 
       // in the OBJ format the first characters determine how to interpret the line:
       static long lastVertexIndex = 0;
