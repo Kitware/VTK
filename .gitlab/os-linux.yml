@@ -724,7 +724,6 @@
         - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
     interruptible: true
 
-
 .before_script_linux_emscripten: &before_script_linux_emscripten
     - *before_script_linux
     # Fetch node

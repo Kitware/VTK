@@ -254,7 +254,7 @@ fedora39-java8:build:
         - .weekly_upload_only
     timeout: 2 hours
     variables:
-      VTK_JAVA_VERSION: 8
+        VTK_JAVA_VERSION: 8
     needs: []
 
 fedora39-java11:build:
@@ -266,7 +266,7 @@ fedora39-java11:build:
         - .run_manually
     timeout: 2 hours
     variables:
-      VTK_JAVA_VERSION: 11
+        VTK_JAVA_VERSION: 11
     needs: []
 
 fedora39-mpi-python-qt-tbb:build:
@@ -2110,7 +2110,7 @@ macos-x86_64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 8
+        VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 
@@ -2122,7 +2122,7 @@ macos-x86_64-java11:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 11
+        VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
 
@@ -2134,7 +2134,7 @@ macos-arm64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 8
+        VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 
@@ -2146,7 +2146,7 @@ macos-arm64-java11:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 11
+        VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
 
@@ -2158,7 +2158,7 @@ windows-x86_64-java8:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 8
+        VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
 
@@ -2170,7 +2170,7 @@ windows-x86_64-java11:build:
         - .cmake_build_artifacts
         - .weekly_upload_only
     variables:
-      VTK_JAVA_VERSION: 11
+        VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
 
