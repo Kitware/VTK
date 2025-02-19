@@ -268,7 +268,7 @@ vtkSmartPointer<vtkCompositeDataSet> vtkHyperTreeGridMapper::UpdateWithDecimatio
     vtkDataObject* leaf = iter->GetCurrentDataObject();
     if (auto* htg = vtkHyperTreeGrid::SafeDownCast(leaf))
     {
-      if (useAdapt && htg->GetDimension() == 2)
+      if (useAdapt)
       {
         // use adaptive decimation
         adaptiveGeometryFilter->SetInputDataObject(htg);

@@ -24,10 +24,13 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkGeometryFilter.h"
 
+#include <set>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCamera;
 class vtkHyperTreeGrid;
+class vtkMatrix4x4;
 class vtkRenderer;
 
 class vtkHyperTreeGridNonOrientedGeometryCursor;
@@ -57,7 +60,11 @@ public:
   /**
    * Set/Get for active the circle selection viewport (default true)
    */
+  VTK_DEPRECATED_IN_9_5_0(
+    "CircleSelection is deprecated. A single new selection method has been implemented.")
   vtkSetMacro(CircleSelection, bool);
+  VTK_DEPRECATED_IN_9_5_0(
+    "CircleSelection is deprecated. A single new selection method has been implemented.")
   vtkGetMacro(CircleSelection, bool);
   ///@}
 
@@ -68,7 +75,11 @@ public:
    *
    * Default is false.
    */
+  VTK_DEPRECATED_IN_9_5_0(
+    "BBSelection is deprecated. A single new selection method has been implemented.")
   vtkSetMacro(BBSelection, bool);
+  VTK_DEPRECATED_IN_9_5_0(
+    "BBSelection is deprecated. A single new selection method has been implemented.")
   vtkGetMacro(BBSelection, bool);
   ///@}
 
@@ -98,7 +109,9 @@ public:
    *
    * Default is 1.0.
    */
+  VTK_DEPRECATED_IN_9_5_0("Scale is deprecated. Please use ForcedLevelMax if needed.")
   vtkSetMacro(Scale, double);
+  VTK_DEPRECATED_IN_9_5_0("Scale is deprecated. Please use ForcedLevelMax if needed.")
   vtkGetMacro(Scale, double);
   ///@}
 
@@ -109,7 +122,11 @@ public:
    *
    * Default is 0.
    */
+  VTK_DEPRECATED_IN_9_5_0(
+    "DynamicDecimateLevelMax is deprecated. Please use ForcedLevelMax if needed.")
   vtkSetMacro(DynamicDecimateLevelMax, int);
+  VTK_DEPRECATED_IN_9_5_0(
+    "DynamicDecimateLevelMax is deprecated. Please use ForcedLevelMax if needed.")
   vtkGetMacro(DynamicDecimateLevelMax, int);
   ///@}
 
@@ -197,16 +214,6 @@ protected:
   unsigned int Axis2;
 
   /**
-   * Maximum depth parameter for adaptive view
-   */
-  int LevelMax;
-
-  /**
-   * Parallel projection parameter for adaptive view
-   */
-  bool ParallelProjection;
-
-  /**
    * Last renderer size parameters for adaptive view
    */
   int LastRendererSize[2];
@@ -217,31 +224,13 @@ protected:
   bool ViewPointDepend;
 
   /**
-   * Last camera focal point coordinates for adaptive view
-   */
-  double LastCameraFocalPoint[3];
-
-  /**
-   * Last camera parallel scale for adaptive view
-   */
-  double LastCameraParallelScale;
-
-  /**
-   * Bounds windows in the real coordinates
-   */
-  double WindowBounds[4];
-
-  /**
+   * DEPRECATED
    * Product cell when in circle selection
    */
   bool CircleSelection;
 
   /**
-   * Radius parameter for adaptive view
-   */
-  double Radius;
-
-  /**
+   * DEPRECATED
    * Product cell when in bounding box selection
    */
   bool BBSelection;
@@ -262,17 +251,20 @@ protected:
   int DynamicDecimateLevelMax;
 
 private:
+  int debug2D = 0; // TODO REMOVE DEBUG VARIABLE
+  int debug3D = 0; // TODO REMOVE DEBUG VARIABLE
   vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
   void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
 
   /**
-   * Compute the max cell level.
-   * If the input in 2 dimensions, dynamically compute the value.
-   * Otherwise, select all levels (max level is 65536)
-   * @param input hyper tree grid input
-   * @return maximum cell level
+   * Check whether a shape is visible on the screen.
+   * @param points Points of the shape
+   * @return Whether the shape is visible on the screen (fully or partially).
    */
-  int ComputeMaxLevel(vtkHyperTreeGrid* input);
+  bool IsShapeVisible(const std::set<std::array<double, 3>>& points);
+
+  vtkSmartPointer<vtkMatrix4x4> ModelViewMatrix;
+  vtkSmartPointer<vtkMatrix4x4> ProjectionMatrix;
 };
 
 VTK_ABI_NAMESPACE_END
