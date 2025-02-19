@@ -7,15 +7,22 @@ readonly mindeps_prefix="cmake-mindeps"
 readonly latest_version="3.26.3"
 readonly latest_prefix="cmake"
 
-case "$( uname -s )" in
-    Linux)
+case "$( uname -s )-$( uname -m )" in
+    Linux-x86_64)
         shatool="sha256sum"
         mindeps_sha256sum="486edd6710b5250946b4b199406ccbf8f567ef0e23cfe38f7938b8c78a2ffa5f"
         mindeps_platform="Linux-x86_64"
         latest_sha256sum="28d4d1d0db94b47d8dfd4f7dec969a3c747304f4a28ddd6fd340f553f2384dc2"
         latest_platform="linux-x86_64"
         ;;
-    Darwin)
+    Linux-aarch64)
+        shatool="sha256sum"
+        mindeps_sha256sum="UNSUPPORTED"
+        mindeps_platform="UNSUPPORTED"
+        latest_sha256sum="7a4fbe374475db1a098b632b54e3c9180973e8a791c700deabe5408ae23ea3ce"
+        latest_platform="linux-aarch64"
+        ;;
+    Darwin-*)
         shatool="shasum -a 256"
         mindeps_sha256sum="95d76c00ccb9ecb5cb51de137de00965c5e8d34b2cf71556cf8ba40577d1cff3"
         mindeps_platform="Darwin-x86_64"
@@ -23,7 +30,7 @@ case "$( uname -s )" in
         latest_platform="macos-universal"
         ;;
     *)
-        echo "Unrecognized platform $( uname -s )"
+        echo "Unrecognized platform $( uname -s )-$( uname -m )"
         exit 1
         ;;
 esac
