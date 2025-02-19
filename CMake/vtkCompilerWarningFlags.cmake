@@ -162,5 +162,9 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   vtk_add_flag(-Wno-nonnull ${langs}) # issue 19462
   vtk_add_flag(-Wno-strict-aliasing ${langs}) # issue 19463
 
+  # Irrelevant as GCC6 is not supported
+  # https://stackoverflow.com/questions/48149323/
+  vtk_add_flag(-Wno-psabi ${langs})
+
   # Fortran flags.
 endif ()
