@@ -447,13 +447,6 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_webgpu
 
-.linux_fast_builder_tags:
-    tags:
-        - build
-        - docker
-        - linux-x86_64-v3
-        - vtk
-
 .wasm32_emscripten_linux:
     extends:
         - .fedora39
@@ -471,6 +464,13 @@
         CMAKE_CONFIGURATION: wasm64_emscripten_linux
         WASM_ARCHITECTURE: wasm64-emscripten
         VTK_INSTALL: 1
+
+.linux_fast_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux-x86_64-v3
+        - vtk
 
 .linux_builder_tags:
     tags:
