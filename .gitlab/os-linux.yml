@@ -21,6 +21,13 @@
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
         VTK_INSTALL: 1
 
+.manylinux_2_28_aarch64:
+    image: "quay.io/pypa/manylinux_2_28_aarch64"
+
+    variables:
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+        VTK_INSTALL: 1
+
 .manylinux_2_28_x86_64:
     extends: .manylinux2014_x86_64
     image: "quay.io/pypa/manylinux_2_28_x86_64"
@@ -176,6 +183,144 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux313_x86_64_egl
+
+.wheel_linux38_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_aarch64
+        PYTHON_PREFIX: /opt/python/cp38-cp38
+
+.wheel_linux38_aarch64_osmesa:
+    extends:
+        - .wheel_linux38_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_aarch64_osmesa
+
+.wheel_linux38_aarch64_egl:
+    extends:
+        - .wheel_linux38_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux38_aarch64_egl
+
+.wheel_linux39_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_aarch64
+        PYTHON_PREFIX: /opt/python/cp39-cp39
+
+.wheel_linux39_aarch64_osmesa:
+    extends:
+        - .wheel_linux39_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_aarch64_osmesa
+
+.wheel_linux39_aarch64_egl:
+    extends:
+        - .wheel_linux39_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux39_aarch64_egl
+
+.wheel_linux310_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_aarch64
+        PYTHON_PREFIX: /opt/python/cp310-cp310
+
+.wheel_linux310_aarch64_osmesa:
+    extends:
+        - .wheel_linux310_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_aarch64_osmesa
+
+.wheel_linux310_aarch64_egl:
+    extends:
+        - .wheel_linux310_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux310_aarch64_egl
+
+.wheel_linux311_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_aarch64
+        PYTHON_PREFIX: /opt/python/cp311-cp311
+
+.wheel_linux311_aarch64_osmesa:
+    extends:
+        - .wheel_linux311_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_aarch64_osmesa
+
+.wheel_linux311_aarch64_egl:
+    extends:
+        - .wheel_linux311_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux311_aarch64_egl
+
+.wheel_linux312_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_aarch64
+        PYTHON_PREFIX: /opt/python/cp312-cp312
+
+.wheel_linux312_aarch64_osmesa:
+    extends:
+        - .wheel_linux312_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_aarch64_osmesa
+
+.wheel_linux312_aarch64_egl:
+    extends:
+        - .wheel_linux312_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux312_aarch64_egl
+
+.wheel_linux313_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_aarch64
+        PYTHON_PREFIX: /opt/python/cp313-cp313
+
+.wheel_linux313_aarch64_osmesa:
+    extends:
+        - .wheel_linux313_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_aarch64_osmesa
+
+.wheel_linux313_aarch64_egl:
+    extends:
+        - .wheel_linux313_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_aarch64_egl
 
 .fedora39:
     extends: .linux
@@ -517,6 +662,22 @@
         - linux-x86_64
         - vtk
 
+# Linux aarch64 tags
+
+.linux_aarch64_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux-aarch64
+        - vtk
+
+.linux_aarch64_tester_tags:
+    tags:
+        - docker
+        - linux-aarch64
+        - x11
+        - vtk
+
 ## Linux-specific scripts
 
 .before_script_linux: &before_script_linux
@@ -638,10 +799,8 @@
         # Pull from `.cmake_test_wheel_linux_x11` when merging happens.
     interruptible: true
 
-.cmake_test_wheel_linux_x11:
+.common_test_wheel_linux_x11: &common_test_wheel_linux_x11
     stage: test
-    image: "quay.io/pypa/manylinux_2_28_x86_64"
-
     script:
         # Set `LD_LIBRARY_PATH` for osmesa wheels.
         - cmake -P .gitlab/ci/download_osmesa.cmake
@@ -666,6 +825,14 @@
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
+
+.cmake_test_wheel_linux_x11:
+    extends: .common_test_wheel_linux_x11
+    image: "quay.io/pypa/manylinux_2_28_x86_64"
+
+.cmake_test_wheel_linux_x11_aarch64:
+    extends: .common_test_wheel_linux_x11
+    image: "quay.io/pypa/manylinux_2_28_aarch64"
 
 .cmake_build_java_linux:
     stage: build
