@@ -34,10 +34,11 @@ public:
   vtkTypeMacro(vtkHyperTreeGridTotalVisibleVolumeStrategy, vtkHyperTreeGridGenerateFieldStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using vtkHyperTreeGridGenerateFieldStrategy::Initialize;
   /**
    * Init internal variables from `inputHTG`.
    */
-  void Initialize(vtkHyperTreeGrid* inputHTG) override;
+  bool Initialize(std::unordered_map<std::string, Field> fieldMap) override;
 
   using vtkHyperTreeGridGenerateFieldStrategy::Compute;
   /**
@@ -45,7 +46,7 @@ public:
    * `cellData` to check if the current cell is visible and get its volume.
    */
   void Compute(vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkCellData* cellData,
-    std::unordered_map<std::string, std::string> nameMap) override;
+    std::unordered_map<std::string, Field> fieldMap) override;
 
   /**
    * Set a unique tuple of `TotalVisibleVolumeArray` to `TotalVisibleVolume` and return the array.

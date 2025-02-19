@@ -22,6 +22,15 @@ VTK_ABI_NAMESPACE_BEGIN
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGenerateFieldStrategy : public vtkObject
 {
 public:
+  struct Field
+  {
+    std::string name;
+    vtkSmartPointer<vtkHyperTreeGridGenerateFieldStrategy> strategy;
+    bool enabled;      // Whether the user asked for this array to be computed.
+    bool valid = true; // Whether the array can be computed. Only make sense for Field Data (Cell
+                       // Data fields are always valid if enabled).
+  };
+
   vtkHyperTreeGridGenerateFieldStrategy() = default;
   vtkAbstractTypeMacro(vtkHyperTreeGridGenerateFieldStrategy, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override
@@ -36,8 +45,12 @@ public:
   ///@{
   /**
    * Reimplement to initialize internal structures based on the given input HTG.
+   * Only one of these methods should be reimplemented:
+   *  - If the strategy creates a cell data array, use `Initialize` with a void return type
+   *  - If the strategy creates a field data array, use `Initialize` with a bool return type
    */
-  virtual void Initialize(vtkHyperTreeGrid* inputHTG) = 0;
+  virtual void Initialize(vtkHyperTreeGrid* vtkMaybeUnused(inputHTG)) {}
+  virtual bool Initialize(std::unordered_map<std::string, Field>) { return true; }
   ///@}
 
   ///@{
@@ -50,7 +63,7 @@ public:
    */
   virtual void Compute(vtkHyperTreeGridNonOrientedGeometryCursor*) {}
   virtual void Compute(vtkHyperTreeGridNonOrientedGeometryCursor*, vtkCellData*,
-    std::unordered_map<std::string, std::string>)
+    std::unordered_map<std::string, Field>)
   {
   }
   ///@}

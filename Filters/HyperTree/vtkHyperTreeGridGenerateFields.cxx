@@ -9,19 +9,29 @@
 #include "vtkHyperTreeGridTotalVisibleVolumeStrategy.h"
 #include "vtkHyperTreeGridValidCellStrategy.h"
 
-#define vtkHTGGenerateFieldsGetFieldNameMacro(name)                                                \
-  std::string vtkHyperTreeGridGenerateFields::Get##name##ArrayName() VTK_FUTURE_CONST              \
+#define fieldMacros(Name)                                                                          \
+  std::string vtkHyperTreeGridGenerateFields::Get##Name##ArrayName() VTK_FUTURE_CONST              \
   {                                                                                                \
-    return this->Fields[#name]->GetArrayName();                                                    \
-  }
-
-#define vtkHTGGenerateFieldsSetFieldNameMacro(name)                                                \
-  void vtkHyperTreeGridGenerateFields::Set##name##ArrayName(std::string _arg)                      \
+    return this->Fields[#Name].strategy->GetArrayName();                                           \
+  }                                                                                                \
+  void vtkHyperTreeGridGenerateFields::Set##Name##ArrayName(std::string _arg)                      \
   {                                                                                                \
-    if (this->Fields[#name]->GetArrayName() != _arg)                                               \
+    if (this->Fields[#Name].strategy->GetArrayName() != _arg)                                      \
     {                                                                                              \
-      this->Fields[#name]->SetArrayName(_arg);                                                     \
-      this->FieldsNameMap[#name] = _arg;                                                           \
+      this->Fields[#Name].name = _arg;                                                             \
+      this->Fields[#Name].strategy->SetArrayName(_arg);                                            \
+      this->Modified();                                                                            \
+    }                                                                                              \
+  }                                                                                                \
+  bool vtkHyperTreeGridGenerateFields::GetCompute##Name##Array() VTK_FUTURE_CONST                  \
+  {                                                                                                \
+    return this->Fields[#Name].enabled;                                                            \
+  }                                                                                                \
+  void vtkHyperTreeGridGenerateFields::SetCompute##Name##Array(bool _arg)                          \
+  {                                                                                                \
+    if (this->Fields[#Name].enabled != _arg)                                                       \
+    {                                                                                              \
+      this->Fields[#Name].enabled = _arg;                                                          \
       this->Modified();                                                                            \
     }                                                                                              \
   }
@@ -29,14 +39,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridGenerateFields);
 
-vtkHTGGenerateFieldsGetFieldNameMacro(CellSize);
-vtkHTGGenerateFieldsSetFieldNameMacro(CellSize);
-vtkHTGGenerateFieldsGetFieldNameMacro(ValidCell);
-vtkHTGGenerateFieldsSetFieldNameMacro(ValidCell);
-vtkHTGGenerateFieldsGetFieldNameMacro(CellCenter);
-vtkHTGGenerateFieldsSetFieldNameMacro(CellCenter);
-vtkHTGGenerateFieldsGetFieldNameMacro(TotalVisibleVolume);
-vtkHTGGenerateFieldsSetFieldNameMacro(TotalVisibleVolume);
+fieldMacros(CellSize);
+fieldMacros(ValidCell);
+fieldMacros(CellCenter);
+fieldMacros(TotalVisibleVolume);
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
@@ -46,28 +52,25 @@ vtkHyperTreeGridGenerateFields::vtkHyperTreeGridGenerateFields()
   vtkNew<vtkHyperTreeGridCellSizeStrategy> cellSize;
   cellSize->SetArrayName(this->DefaultCellSizeArrayName);
   cellSize->SetArrayType(vtkDataObject::AttributeTypes::CELL);
-  this->FieldsNameMap.emplace("CellSize", this->DefaultCellSizeArrayName);
-  this->Fields.emplace("CellSize", cellSize);
+  this->Fields["CellSize"] = { this->DefaultCellSizeArrayName, cellSize, true };
 
   vtkNew<vtkHyperTreeGridValidCellStrategy> validCell;
   validCell->SetArrayName(this->DefaultValidCellArrayName);
   validCell->SetArrayType(vtkDataObject::AttributeTypes::CELL);
-  this->FieldsNameMap.emplace("ValidCell", this->DefaultValidCellArrayName);
-  this->Fields.emplace("ValidCell", validCell);
+  this->Fields["ValidCell"] = { this->DefaultValidCellArrayName, validCell, true };
 
   vtkNew<vtkHyperTreeGridCellCenterStrategy> cellCenter;
   cellCenter->SetArrayName(this->DefaultCellCenterArrayName);
   cellCenter->SetArrayType(vtkDataObject::AttributeTypes::CELL);
-  this->FieldsNameMap.emplace("CellCenter", this->DefaultCellCenterArrayName);
-  this->Fields.emplace("CellCenter", cellCenter);
+  this->Fields["CellCenter"] = { this->DefaultCellCenterArrayName, cellCenter, true };
 
   // Field Data
 
   vtkNew<vtkHyperTreeGridTotalVisibleVolumeStrategy> totalVisibleVolume;
   totalVisibleVolume->SetArrayName(this->DefaultTotalVisibleVolumeArrayName);
   totalVisibleVolume->SetArrayType(vtkDataObject::AttributeTypes::FIELD);
-  this->FieldsNameMap.emplace("TotalVisibleVolume", this->DefaultTotalVisibleVolumeArrayName);
-  this->Fields.emplace("TotalVisibleVolume", totalVisibleVolume);
+  this->Fields["TotalVisibleVolume"] = { this->DefaultTotalVisibleVolumeArrayName,
+    totalVisibleVolume, true };
 
   this->AppropriateOutput = true;
 };
@@ -78,10 +81,13 @@ void vtkHyperTreeGridGenerateFields::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Fields:"
      << "\n";
-  for (const auto& field : this->Fields)
+  for (const auto& [key, field] : this->Fields)
   {
-    os << indent << field.first << "\n";
-    field.second->PrintSelf(os, indent.GetNextIndent());
+    os << indent << key << "\n";
+    indent = indent.GetNextIndent();
+    os << indent << "Enabled: " << field.enabled << "\n";
+    os << indent << "Valid: " << field.valid << "\n";
+    field.strategy->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
@@ -89,11 +95,20 @@ void vtkHyperTreeGridGenerateFields::PrintSelf(ostream& os, vtkIndent indent)
 void vtkHyperTreeGridGenerateFields::ProcessFields(
   vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, const vtkDataObject::AttributeTypes type)
 {
-  for (const auto& field : this->Fields)
+  for (auto& [key, field] : this->Fields)
   {
-    if (field.second->GetArrayType() == type)
+    field.valid = false;
+    if (field.enabled && field.strategy->GetArrayType() == type)
     {
-      field.second->Initialize(input);
+      if (type == vtkDataObject::AttributeTypes::CELL)
+      {
+        field.strategy->Initialize(input);
+        field.valid = true;
+      }
+      else if (type == vtkDataObject::AttributeTypes::FIELD)
+      {
+        field.valid = field.strategy->Initialize(this->Fields);
+      }
     }
   }
 
@@ -113,11 +128,11 @@ void vtkHyperTreeGridGenerateFields::ProcessFields(
   }
 
   // Append all field arrays to the output
-  for (const auto& field : this->Fields)
+  for (const auto& [key, field] : this->Fields)
   {
-    if (field.second->GetArrayType() == type)
+    if (field.valid && field.strategy->GetArrayType() == type)
     {
-      vtkDataArray* resultArray = field.second->GetAndFinalizeArray();
+      vtkDataArray* resultArray = field.strategy->GetAndFinalizeArray();
       if (type == vtkDataObject::AttributeTypes::CELL)
       {
         outputHTG->GetCellData()->AddArray(resultArray);
@@ -155,17 +170,17 @@ int vtkHyperTreeGridGenerateFields::ProcessTrees(vtkHyperTreeGrid* input, vtkDat
 void vtkHyperTreeGridGenerateFields::ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
   const vtkDataObject::AttributeTypes type, vtkCellData* outputCellData)
 {
-  for (const auto& field : this->Fields)
+  for (const auto& [key, field] : this->Fields)
   {
-    if (field.second->GetArrayType() == type)
+    if (field.valid && field.strategy->GetArrayType() == type)
     {
       if (type == vtkDataObject::AttributeTypes::CELL)
       {
-        field.second->Compute(cursor);
+        field.strategy->Compute(cursor);
       }
       else if (type == vtkDataObject::AttributeTypes::FIELD)
       {
-        field.second->Compute(cursor, outputCellData, this->FieldsNameMap);
+        field.strategy->Compute(cursor, outputCellData, this->Fields);
       }
     }
   }

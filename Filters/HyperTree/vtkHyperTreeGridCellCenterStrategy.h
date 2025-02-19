@@ -29,6 +29,7 @@ public:
   vtkTypeMacro(vtkHyperTreeGridCellCenterStrategy, vtkHyperTreeGridGenerateFieldStrategy);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  using vtkHyperTreeGridGenerateFieldStrategy::Initialize;
   /**
    * Init internal variables from `inputHTG`.
    */

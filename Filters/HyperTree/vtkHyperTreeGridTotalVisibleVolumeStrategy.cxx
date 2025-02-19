@@ -29,21 +29,30 @@ void vtkHyperTreeGridTotalVisibleVolumeStrategy::PrintSelf(ostream& os, vtkInden
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridTotalVisibleVolumeStrategy::Initialize(vtkHyperTreeGrid* vtkNotUsed(inputHTG))
+bool vtkHyperTreeGridTotalVisibleVolumeStrategy::Initialize(
+  std::unordered_map<std::string, Field> fieldMap)
 {
+  if (!fieldMap["ValidCell"].enabled || !fieldMap["CellSize"].enabled)
+  {
+    vtkWarningMacro("ValidCell and CellSize arrays must be enabled to compute TotalVisibleVolume");
+    return false;
+  }
+
   this->TotalVisibleVolume = 0;
   this->TotalVisibleVolumeArray->SetNumberOfComponents(1);
   this->TotalVisibleVolumeArray->SetNumberOfTuples(1);
   this->TotalVisibleVolumeArray->SetName(this->ArrayName.c_str());
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridTotalVisibleVolumeStrategy::Compute(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, vtkCellData* cellData,
-  std::unordered_map<std::string, std::string> nameMap)
+  std::unordered_map<std::string, Field> fieldMap)
 {
-  vtkAbstractArray* validCellArray = cellData->GetAbstractArray(nameMap["ValidCell"].c_str());
-  vtkAbstractArray* cellSizeArray = cellData->GetAbstractArray(nameMap["CellSize"].c_str());
+  vtkAbstractArray* validCellArray = cellData->GetAbstractArray(fieldMap["ValidCell"].name.c_str());
+  vtkAbstractArray* cellSizeArray = cellData->GetAbstractArray(fieldMap["CellSize"].name.c_str());
 
   if (!validCellArray || !cellSizeArray)
   {

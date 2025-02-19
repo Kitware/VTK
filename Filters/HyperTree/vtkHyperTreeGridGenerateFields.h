@@ -42,11 +42,31 @@ public:
 
   ///@{
   /**
+   * Enable/disable the computation of the CellSize array.
+   * Default is true.
+   */
+  virtual bool GetComputeCellSizeArray();
+  virtual void SetComputeCellSizeArray(bool enable);
+  vtkBooleanMacro(ComputeCellSizeArray, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get/Set the name used for the cell size array.
    * Defaults to 'CellSize'
    */
   virtual std::string GetCellSizeArrayName();
   virtual void SetCellSizeArrayName(std::string name);
+  ///@}
+
+  ///@{
+  /**
+   * Enable/disable the computation of the ValidCell array.
+   * Default is true.
+   */
+  virtual bool GetComputeValidCellArray();
+  virtual void SetComputeValidCellArray(bool enable);
+  vtkBooleanMacro(ComputeValidCellArray, bool);
   ///@}
 
   ///@{
@@ -60,11 +80,31 @@ public:
 
   ///@{
   /**
+   * Enable/disable the computation of the CellCenter array.
+   * Default is true.
+   */
+  virtual bool GetComputeCellCenterArray();
+  virtual void SetComputeCellCenterArray(bool enable);
+  vtkBooleanMacro(ComputeCellCenterArray, bool);
+  ///@}
+
+  ///@{
+  /**
    * Get/Set the name used for the cell center array.
    * Defaults to 'CellCenter'
    */
   virtual std::string GetCellCenterArrayName();
   virtual void SetCellCenterArrayName(std::string name);
+  ///@}
+
+  ///@{
+  /**
+   * Enable/disable the computation of the TotalVisibleVolume array.
+   * Default is true.
+   */
+  virtual bool GetComputeTotalVisibleVolumeArray();
+  virtual void SetComputeTotalVisibleVolumeArray(bool enable);
+  vtkBooleanMacro(ComputeTotalVisibleVolumeArray, bool);
   ///@}
 
   ///@{
@@ -110,8 +150,7 @@ private:
   // Field Data
   std::string DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";
 
-  std::unordered_map<std::string, vtkSmartPointer<vtkHyperTreeGridGenerateFieldStrategy>> Fields;
-  std::unordered_map<std::string, std::string> FieldsNameMap;
+  std::unordered_map<std::string, vtkHyperTreeGridGenerateFieldStrategy::Field> Fields;
 };
 
 VTK_ABI_NAMESPACE_END
