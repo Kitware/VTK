@@ -1243,7 +1243,7 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(
 
   std::vector<hsize_t> start{ static_cast<unsigned long>(part) }, count{ 1 }, result{ 0 };
   int dimension = 1;
-  if (this->HdfType == "PolyData" && primitive != -1)
+  if (this->HdfType == "PolyData" && primitive != (char)0xff)
   {
     start.emplace_back(static_cast<hsize_t>(primitive));
     count.emplace_back(1);
