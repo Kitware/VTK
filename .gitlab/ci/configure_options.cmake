@@ -49,20 +49,9 @@ configuration_flag(VTK_JAVA_INSTALL "java")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "java")
   set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
   set(JOGL_VERSION "2.3.2" CACHE STRING "")
-
-  # Naming is <arch-platform-build_type> we avoid adding numbers in the arch
-  # such as 64/86 since some maven versions fail to properly parse it.
-  string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type)
-  set(native_artifacts
-    darwin-amd-${build_type}
-    darwin-arm-${build_type}
-    linux-amd-${build_type}
-    windows-amd-${build_type}
-  )
-  set(MAVEN_NATIVE_ARTIFACTS "${native_artifacts}" CACHE STRING "" FORCE)
-  unset(build_type)
-  unset(native_artifacts)
-
+  # Naming is <arch-platform> since some maven versions fail to properly parse
+  # the artifact name when numbers are trailing in the classifer name.
+  set(MAVEN_NATIVE_ARTIFACTS "darwin-amd;darwin-arm;linux-amd;windows-amd" CACHE STRING "" FORCE)
   set(MAVEN_VTK_ARTIFACT_SUFFIX "-java${VTK_JAVA_TARGET_VERSION}" CACHE STRING "")
   # Disable snapshots for tag releases and also when the env variable
   # VTK_JAVA_FORCE_RELEASE is defined through the Gitlab schedule pipeline UI.
