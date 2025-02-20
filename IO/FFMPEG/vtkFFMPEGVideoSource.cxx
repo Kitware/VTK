@@ -72,7 +72,7 @@ public:
     }
     if (this->VideoDecodeContext)
     {
-#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 62
+#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 60
       avcodec_close(this->VideoDecodeContext);
 #endif
       avcodec_free_context(&this->VideoDecodeContext);
@@ -80,7 +80,7 @@ public:
     }
     if (this->AudioDecodeContext)
     {
-#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 62
+#if defined(LIBAVCODEC_VERSION_MAJOR) && LIBAVCODEC_VERSION_MAJOR < 60
       avcodec_close(this->AudioDecodeContext);
 #endif
       avcodec_free_context(&this->AudioDecodeContext);
