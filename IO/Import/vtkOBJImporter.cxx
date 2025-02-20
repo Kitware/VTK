@@ -418,8 +418,8 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         _extractLine(rawLine);
 
         // in the OBJ format the first characters determine how to interpret the line:
-        // Skip comments
-        if (strcmp(cmd, "#") == 0)
+        // Skip comments and empty lines
+        if (cmd[0] == '#' || cmd[0] == '\0')
         {
           continue;
         }
@@ -430,9 +430,13 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
           {
             pLine++;
           }
-          // Recover the mtllib without the \n at the end
+          while (isspace(*(pEnd - 1)) && pLine < pEnd)
+          {
+            pEnd--;
+          }
+          // Recover the mtllib
           mtlname = vtksys::SystemTools::GetFilenamePath(this->FileName) + "/" +
-            std::string(pLine, strlen(pLine) - 1);
+            std::string(pLine, pEnd - pLine);
           mtllibDefined = true;
           break;
         }
