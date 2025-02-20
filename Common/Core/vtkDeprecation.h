@@ -74,7 +74,7 @@
 #define VTK_DEPRECATION(reason) [[vtk::deprecated(reason)]]
 #else
 #if defined(_WIN32) || defined(_WIN64)
-#define VTK_DEPRECATION(reason) __declspec(deprecated(reason))
+#define VTK_DEPRECATION(reason) [[deprecated(reason)]]
 #elif defined(__clang__)
 #if __has_extension(attribute_deprecated_with_message)
 #define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
