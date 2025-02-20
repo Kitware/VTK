@@ -1,5 +1,6 @@
+ARG TARGET=manylinux2014
 ARG ARCH
-FROM quay.io/pypa/manylinux2014_$ARCH
+FROM quay.io/pypa/${TARGET}_$ARCH
 MAINTAINER Ben Boeckel <ben.boeckel@kitware.com>
 
 COPY install_deps.sh /root/install_deps.sh
