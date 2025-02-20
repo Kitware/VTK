@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkLogger.h>
+
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -32,8 +34,8 @@ bool CheckCellValidity(double expectedValidity, vtkIdType currentId, vtkHyperTre
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Valid"));
   if (expectedValidity != visibilityField->GetTuple1(currentId))
   {
-    std::cerr << "Cell id " << currentId << " expected validity is " << expectedValidity
-              << " but got " << visibilityField->GetTuple1(currentId) << std::endl;
+    vtkLogF(ERROR, "Cell id %lld expected validity is %.1f but got %.1f\n", currentId,
+      expectedValidity, visibilityField->GetTuple1(currentId));
     return false;
   }
   return true;
@@ -50,9 +52,8 @@ bool CheckVolume(vtkIdType currentId, vtkHyperTreeGrid* outputHTG)
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Depth"));
   if (::expectedVolumes[depthField->GetTuple1(currentId)] != volumeField->GetTuple1(currentId))
   {
-    std::cerr << "Cell id " << currentId << " expected volume is " << std::setprecision(15)
-              << ::expectedVolumes[depthField->GetTuple1(currentId)] << " but got "
-              << volumeField->GetTuple1(currentId) << " instead." << std::endl;
+    vtkLogF(ERROR, "Cell id %lld expected volume is %f but got %f instead.\n", currentId,
+      ::expectedVolumes[depthField->GetTuple1(currentId)], volumeField->GetTuple1(currentId));
     return false;
   }
   return true;
@@ -133,7 +134,7 @@ bool TestMaskGhostSizes(int argc, char* argv[])
     leavesVolumeHTG->InitializeNonOrientedGeometryCursor(outCursor, index);
     if (!::CheckTree(outCursor, leavesVolumeHTG))
     {
-      std::cerr << "Node " << index << " failed validation." << std::endl;
+      vtkLogF(ERROR, "Node %lld failed validation.\n", index);
       return false;
     }
   }
@@ -165,7 +166,7 @@ bool TestDifferentVolumes()
   vtkNew<vtkHyperTreeGridOrientedCursor> cursor;
   inputHTG->SetDepthLimiter(MAX_DEPTH);
   inputHTG->InitializeOrientedCursor(cursor, 0);
-  cursor->SetGlobalIndexStart(inputHTG->GetNumberOfCells());
+  cursor->SetGlobalIndexStart(inputHTG->GetNumberOfCells() - 1);
   std::vector<int> levelIds(MAX_DEPTH, 0);
   for (int i = 0; i < MAX_DEPTH; i++)
   {
@@ -189,8 +190,8 @@ bool TestDifferentVolumes()
   volumeField->GetRange(sizeRange.data());
   if (sizeRange[0] != 0.0 || sizeRange[1] != expectedVolumeValue)
   {
-    std::cerr << "Range is [" << sizeRange[0] << ":" << sizeRange[1]
-              << "] but expected [0.0:" << expectedVolumeValue << "]" << std::endl;
+    vtkLogF(ERROR, "Range is [%f:%f] but expected [0.0:%f]\n", sizeRange[0], sizeRange[1],
+      expectedVolumeValue);
     return false;
   }
   for (int i = 0; i < MAX_DEPTH; i++)
@@ -198,9 +199,8 @@ bool TestDifferentVolumes()
     expectedVolumeValue /= 8.0;
     if (volumeField->GetTuple1(levelIds[i]) != expectedVolumeValue)
     {
-      std::cerr << "Cell id " << levelIds[i] << " expected volume is " << std::setprecision(15)
-                << expectedVolumeValue << " but got " << volumeField->GetTuple1(levelIds[i])
-                << std::endl;
+      vtkLogF(ERROR, "Cell id %d expected volume is %f but got %f\n", levelIds[i],
+        expectedVolumeValue, volumeField->GetTuple1(levelIds[i]));
       return false;
     }
   }
@@ -210,7 +210,7 @@ bool TestDifferentVolumes()
 
 bool TestTotalVolume()
 {
-  // Create a pseudo-random HTG
+  // Create a HTG
   vtkNew<vtkHyperTreeGridSource> source;
   source->SetDimensions(3, 4, 1);
   source->SetMaxDepth(2);
@@ -228,8 +228,7 @@ bool TestTotalVolume()
       ->GetTuple1(0);
   if (totalVisibleVolume != 6.0)
   {
-    std::cerr << "Total visible volume is " << totalVisibleVolume << " but expected " << 6.0
-              << std::endl;
+    vtkLogF(ERROR, "Total visible volume is %f but expected 6.0\n", totalVisibleVolume);
     return false;
   }
 
@@ -242,8 +241,128 @@ bool TestTotalVolume()
       ->GetTuple1(0);
   if (totalVisibleVolume != 5.75)
   {
-    std::cerr << "Total visible volume is " << totalVisibleVolume << " but expected " << 5.75
-              << std::endl;
+    vtkLogF(ERROR, "Total visible volume is %f but expected 5.75\n", totalVisibleVolume);
+    return false;
+  }
+
+  return true;
+}
+
+bool TestCellCenter()
+{
+  // Create a HTG
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->SetDimensions(3, 4, 1);
+  source->SetMaxDepth(2);
+  source->SetDescriptor("RRRRR.|.... .... .... .... ....");
+  source->UseMaskOn();
+  source->SetMask("111111|1110 1111 1111 1111 1111");
+  source->Update();
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(source->GetOutputPort());
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
+
+  auto cellCenterArray =
+    vtkDoubleArray::SafeDownCast(outputHTG->GetCellData()->GetAbstractArray("CellCenter"));
+
+  double* pt = cellCenterArray->GetTuple3(8);
+  if (pt[0] != 0.25 || pt[1] != 0.75)
+  {
+    vtkLogF(ERROR, "CellCenter is %f %f but expected 0.25 0.75\n", pt[0], pt[1]);
+    return false;
+  }
+
+  pt = cellCenterArray->GetTuple3(5);
+  if (pt[0] != 1.5 || pt[1] != 2.5)
+  {
+    vtkLogF(ERROR, "CellCenter is %f %f but expected 1.5 2.5\n", pt[0], pt[1]);
+    return false;
+  }
+
+  return true;
+}
+
+// Check if array `arrayName` existence matches `shouldExist` in htg cell or field data depending on
+// `isFieldData`.
+bool CheckArray(std::string arrayName, vtkHyperTreeGrid* htg, bool shouldExist, bool isFieldData)
+{
+  if ((isFieldData &&
+        htg->GetFieldData()->HasArray(arrayName.c_str()) !=
+          static_cast<vtkTypeBool>(shouldExist)) ||
+    (!isFieldData &&
+      htg->GetCellData()->HasArray(arrayName.c_str()) != static_cast<vtkTypeBool>(shouldExist)))
+  {
+    if (shouldExist)
+    {
+      vtkLogF(ERROR, "Missing array %s in htg %s\n", arrayName.c_str(),
+        isFieldData ? "field data" : "cell data");
+    }
+    else
+    {
+      vtkLogF(ERROR, "Array %s should exist in %s\n", arrayName.c_str(),
+        isFieldData ? "field data" : "cell data");
+    }
+    return false;
+  }
+  return true;
+}
+
+bool TestArrayDisabling()
+{
+  // Create a pseudo-random HTG
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetDimensions(3, 3, 3);
+  source->SetOutputBounds(-10, 10, -10, 10, -10, 10);
+  source->SetSplitFraction(0.5);
+  source->SetMaskedFraction(0);
+  source->SetSeed(0);
+  source->Update();
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(source->GetOutputPort());
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
+
+  bool valid = true;
+  valid &= CheckArray("ValidCell", outputHTG, true, false);
+  valid &= CheckArray("CellSize", outputHTG, true, false);
+  valid &= CheckArray("CellCenter", outputHTG, true, false);
+  valid &= CheckArray("TotalVisibleVolume", outputHTG, true, true);
+
+  if (!valid)
+  {
+    return false;
+  }
+
+  generateFields->ComputeCellCenterArrayOff();
+  generateFields->Update();
+
+  valid = true;
+  valid &= CheckArray("ValidCell", outputHTG, true, false);
+  valid &= CheckArray("CellSize", outputHTG, true, false);
+  valid &= CheckArray("CellCenter", outputHTG, false, false);
+  valid &= CheckArray("TotalVisibleVolume", outputHTG, true, true);
+
+  if (!valid)
+  {
+    return false;
+  }
+
+  generateFields->ComputeValidCellArrayOff();
+  generateFields->Update();
+
+  valid = true;
+  valid &= CheckArray("ValidCell", outputHTG, false, false);
+  valid &= CheckArray("CellSize", outputHTG, true, false);
+  valid &= CheckArray("CellCenter", outputHTG, false, false);
+  valid &= CheckArray("TotalVisibleVolume", outputHTG, false, true);
+
+  if (!valid)
+  {
     return false;
   }
 
@@ -258,6 +377,8 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   result &= ::TestMaskGhostSizes(argc, argv);
   result &= ::TestDifferentVolumes();
   result &= ::TestTotalVolume();
+  result &= ::TestCellCenter();
+  result &= ::TestArrayDisabling();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
