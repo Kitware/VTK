@@ -396,18 +396,36 @@ bool vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(const std::set<std::array<d
   double maxY = VTK_DOUBLE_MIN;
   double minZ = VTK_DOUBLE_MAX;
   double maxZ = VTK_DOUBLE_MIN;
+
+  bool isParallel = (this->ProjectionMatrix->GetElement(3, 3) == 1.0);
+
   for (auto point : points)
   {
     double pointWorld[4] = { point[0], point[1], point[2], 1.0 };
     double* pointCam = this->ModelViewMatrix->MultiplyDoublePoint(pointWorld);
     double* pointClip = this->ProjectionMatrix->MultiplyDoublePoint(pointCam);
 
-    minX = std::min(minX, pointClip[0]);
-    minY = std::min(minY, pointClip[1]);
-    minZ = std::min(minZ, pointClip[2]);
-    maxX = std::max(maxX, pointClip[0]);
-    maxY = std::max(maxY, pointClip[1]);
-    maxZ = std::max(maxZ, pointClip[2]);
+    double x = pointClip[0];
+    double y = pointClip[1];
+    double z = pointClip[2];
+    double w = pointClip[3];
+
+    if (!isParallel)
+    {
+      if (w != 0.0)
+      {
+        x /= w;
+        y /= w;
+        z /= w;
+      }
+    }
+
+    minX = std::min(minX, x);
+    minY = std::min(minY, y);
+    minZ = std::min(minZ, z);
+    maxX = std::max(maxX, x);
+    maxY = std::max(maxY, y);
+    maxZ = std::max(maxZ, z);
   }
 
   double minXScreen = (minX + 1) * (this->LastRendererSize[0] / 2);
