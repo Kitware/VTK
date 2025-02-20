@@ -474,6 +474,16 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "wheel")
       "^VTK::FiltersCellGridPython-TestUnstructuredGridToCellGrid$"
     )
   endif ()
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux.*_aarch64")
+    list(APPEND test_exclusions
+      # floating point precision issues (fma optimizations change results)
+      # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+      "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+      "^VTK::RenderingAnnotationPython-xyPlot$"
+      "^VTK::RenderingAnnotationPython-xyPlot2$"
+      "^VTK::RenderingAnnotationPython-xyPlot4$"
+      "^VTK::RenderingCorePython-pickImageData$")
+  endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos.*_x86_64")
     list(APPEND test_exclusions
       # MacOS OpenGL issue (intermittent). See #19372.
