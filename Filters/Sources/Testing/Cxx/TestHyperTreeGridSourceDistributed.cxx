@@ -23,7 +23,7 @@ struct SourceConfig
   std::array<double, 3> GridScale;
   std::string Descriptor;
   std::string Mask;
-  std::array<char, NbTrees> ExpectedProcess;
+  std::array<int8_t, NbTrees> ExpectedProcess;
 };
 }
 
