@@ -8,7 +8,7 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    ninja-build
+    cmake ninja-build
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \

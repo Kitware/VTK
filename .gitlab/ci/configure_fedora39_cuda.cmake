@@ -23,7 +23,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # OpenXR
 set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
-set(VTK_ENABLE_CATALYST OFF CACHE BOOL "") # catalyst
 
 # These are all tested in the non-CUDA CI job instead. This focuses on the CUDA
 # bits.
