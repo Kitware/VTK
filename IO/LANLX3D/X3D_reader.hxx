@@ -87,7 +87,7 @@ public:
       \param filename name of X3D file
       \param version number
   */
-  explicit Reader(const std::string& filename, const Version version = Version::v1_3);
+  explicit Reader(const std::string& filename, Version version = Version::v1_3);
 
   // Header Data Block
   Header header() const { return size; }
