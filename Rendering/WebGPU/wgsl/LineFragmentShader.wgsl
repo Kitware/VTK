@@ -1,7 +1,7 @@
 //-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
 }
 
 //-------------------------------------------------------------------
@@ -13,6 +13,11 @@ fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
 
   var opacity: f32;
+
+  output.ids.x = vertex.cell_id + 1;
+  output.ids.y = vertex.prop_id + 1;
+  output.ids.z = vertex.composite_id + 1;
+  output.ids.w = vertex.process_id + 1;
 
   let distance_from_centerline = abs(vertex.distance_from_centerline);
 
@@ -27,10 +32,10 @@ fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
   ///------------------------///
   let has_mapped_colors: bool = mesh.point_color.num_tuples > 0u || mesh.cell_color.num_tuples > 0u;
-  if (mesh.override_colors.apply_override_colors == 1u) {
-    ambient_color = mesh.override_colors.ambient_color.rgb;
-    diffuse_color = mesh.override_colors.diffuse_color.rgb;
-    opacity = mesh.override_colors.opacity;
+  if (mesh.apply_override_colors == 1u) {
+    ambient_color = mesh.ambient_color.rgb;
+    diffuse_color = mesh.diffuse_color.rgb;
+    opacity = mesh.opacity;
   } else if (has_mapped_colors) {
     ambient_color = vertex.color.rgb;
     diffuse_color = vertex.color.rgb;
@@ -86,6 +91,5 @@ fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = vertex.cell_id;
   return output;
 }

@@ -35,14 +35,6 @@ struct MeshAttributeArrayDescriptor {
 }
 
 //-------------------------------------------------------------------
-struct OverrideColorDescriptor {
-  apply_override_colors: u32,
-  opacity: f32,
-  ambient_color: vec3<f32>,
-  diffuse_color: vec3<f32>
-}
-
-//-------------------------------------------------------------------
 struct MeshDescriptor {
   position: MeshAttributeArrayDescriptor,
   point_color: MeshAttributeArrayDescriptor,
@@ -51,7 +43,12 @@ struct MeshDescriptor {
   point_uv: MeshAttributeArrayDescriptor,
   cell_color: MeshAttributeArrayDescriptor,
   cell_normal: MeshAttributeArrayDescriptor,
-  override_colors: OverrideColorDescriptor
+  apply_override_colors: u32,
+  opacity: f32,
+  composite_id: u32,
+  ambient_color: vec3<f32>,
+  process_id: u32,
+  diffuse_color: vec3<f32>,
 }
 
 //-------------------------------------------------------------------
@@ -100,8 +97,11 @@ struct VertexOutput {
   @location(2) normal_vc: vec3<f32>,
   @location(3) tangent_vc: vec3<f32>,
   @location(4) edge_dists: vec3<f32>,
-  @location(5) @interpolate(flat) cell_id: u32,
-  @location(6) @interpolate(flat) hide_edge: f32,
+  @location(5) @interpolate(flat) hide_edge: f32,
+  @location(6) @interpolate(flat) cell_id: u32,
+  @location(7) @interpolate(flat) prop_id: u32,
+  @location(8) @interpolate(flat) composite_id: u32,
+  @location(9) @interpolate(flat) process_id: u32,
 }
 
 //-------------------------------------------------------------------
@@ -113,11 +113,17 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   ///------------------------///
   let pull_vertex_id: u32 = vertex.vertex_id;
   // get CellID from vertex ID -> VTK cell map.
-  output.cell_id = topology[pull_vertex_id].cell_id;
+  let cell_id = topology[pull_vertex_id].cell_id;
   // pull the point id
   let point_id = topology[pull_vertex_id].point_id;
   // pull the position for this vertex.
   let vertex_mc = vec4<f32>(getTuple3F32(point_id, mesh.position.start, &point_data.values), 1.0);
+
+  // Write indices
+  output.cell_id = cell_id;
+  output.prop_id = actor.id;
+  output.composite_id = mesh.composite_id;
+  output.process_id = 0u;
 
   ///------------------------///
   // NDC transforms
@@ -133,7 +139,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
     output.color = getTuple4F32(point_id, mesh.point_color.start, &point_data.values);
   } else if mesh.cell_color.num_tuples > 0u {
     // Flat shading
-    output.color = getTuple4F32(output.cell_id, mesh.cell_color.start, &cell_data.values);
+    output.color = getTuple4F32(cell_id, mesh.cell_color.start, &cell_data.values);
   }
 
   ///------------------------///
@@ -188,7 +194,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   ///------------------------///
   if mesh.cell_normal.num_tuples > 0u {
     // pull normal of this vertex from cell normals
-    let normal_mc = getTuple3F32(output.cell_id, mesh.cell_normal.start, &cell_data.values);
+    let normal_mc = getTuple3F32(cell_id, mesh.cell_normal.start, &cell_data.values);
     output.normal_vc = scene_transform.normal * actor.transform.normal * normal_mc;
   } else if mesh.point_tangent.num_tuples > 0u {
     // pull tangent of this vertex from point tangents
@@ -216,7 +222,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 //-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
 }
 
 //-------------------------------------------------------------------
@@ -232,14 +238,19 @@ fn fragmentMain(
 
   var opacity: f32;
 
+  output.ids.x = vertex.cell_id + 1;
+  output.ids.y = vertex.prop_id + 1;
+  output.ids.z = vertex.composite_id + 1;
+  output.ids.w = vertex.process_id + 1;
+
   ///------------------------///
   // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
   ///------------------------///
   let has_mapped_colors: bool = mesh.point_color.num_tuples > 0u || mesh.cell_color.num_tuples > 0u;
-  if (mesh.override_colors.apply_override_colors == 1u) {
-    ambient_color = mesh.override_colors.ambient_color.rgb;
-    diffuse_color = mesh.override_colors.diffuse_color.rgb;
-    opacity = mesh.override_colors.opacity;
+  if (mesh.apply_override_colors == 1u) {
+    ambient_color = mesh.ambient_color.rgb;
+    diffuse_color = mesh.diffuse_color.rgb;
+    opacity = mesh.opacity;
   } else if (has_mapped_colors) {
     ambient_color = vertex.color.rgb;
     diffuse_color = vertex.color.rgb;
@@ -333,6 +344,5 @@ fn fragmentMain(
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = vertex.cell_id;
   return output;
 }
