@@ -53,13 +53,15 @@ const char* backgroundShaderSource = R"(
       @builtin(position) position: vec4<f32>
     };
     struct FragmentOutput {
-      @location(0) color: vec4<f32>
+      @location(0) color: vec4<f32>,
+      @location(1) ids: vec4<u32>,
     };
 
     @fragment
     fn fragmentMain() -> FragmentOutput {
       var output: FragmentOutput;
       output.color = vec4<f32>(1, 1, 1, 1);
+      output.ids = vec4<u32>(0u);
       return output;
     }
   )";
@@ -207,6 +209,11 @@ void vtkWebGPURenderer::Clear()
       blendState->alpha.dstFactor = wgpu::BlendFactor::Zero;
     }
   }
+  // Prepare selection ids output.
+  bkgPipelineDescriptor.cTargets[1].format =
+    wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  bkgPipelineDescriptor.cFragment.targetCount++;
+  bkgPipelineDescriptor.DisableBlending(1);
   const auto pipelineKey =
     wgpuPipelineCache->GetPipelineKey(&bkgPipelineDescriptor, backgroundShaderSource);
   wgpuPipelineCache->CreateRenderPipeline(&bkgPipelineDescriptor, this, backgroundShaderSource);
@@ -250,7 +257,8 @@ void vtkWebGPURenderer::RecordRenderCommands()
   if (auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow))
   {
     vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
-      { wgpuRenderWindow->GetOffscreenColorAttachmentView() },
+      { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
+        wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
       wgpuRenderWindow->GetDepthStencilView(),
       /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
     renderPassDescriptor.label = "vtkWebGPURenderer::RecordRenderCommands";
