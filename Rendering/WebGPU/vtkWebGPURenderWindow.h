@@ -16,7 +16,6 @@
 #include "vtkRenderWindow.h"
 
 #include "vtkRenderingWebGPUModule.h"      // for export macro
-#include "vtkTypeUInt8Array.h"             // for ivar
 #include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
 #include "vtkWebGPURenderPipelineCache.h"  // for vtkWebGPURenderPipelineCache
@@ -27,7 +26,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUConfiguration;
-
+class vtkImageData;
+class vtkTypeUInt32Array;
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderWindow : public vtkRenderWindow
 {
 public:
@@ -273,6 +273,15 @@ public:
   using TextureMapCallback =
     std::function<void(const void* mappedData, int bytesPerRow, void* userdata)>;
 
+  enum class AttachmentTypeForVTISnapshot
+  {
+    ColorRGBA,
+    ColorRGB,
+    Depth,
+    Ids,
+  };
+  vtkSmartPointer<vtkImageData> SaveAttachmentToVTI(AttachmentTypeForVTISnapshot type);
+
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;
@@ -364,6 +373,8 @@ protected:
 private:
   // For accessing SubmitCommandBuffer to submit custom prop render work
   friend class vtkWebGPUComputeOcclusionCuller;
+  // For accessing HardwareSelectorAttachment
+  friend class vtkWebGPUHardwareSelector;
 
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;

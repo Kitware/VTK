@@ -3,20 +3,17 @@
 #include "vtkWebGPURenderWindow.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
-#include "Private/vtkWebGPUBufferInternals.h"
-#include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
-#include "Private/vtkWebGPURenderPassCreateInfoInternals.h"
+#include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
-#include "Private/vtkWebGPUShaderModuleInternals.h"
-#include "vtkCamera.h"
 #include "vtkCollectionRange.h"
 #include "vtkFloatArray.h"
-#include "vtkObject.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
-#include "vtkRect.h"
+#include "vtkPointData.h"
 #include "vtkRendererCollection.h"
+#include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderer.h"
@@ -2085,6 +2082,50 @@ std::string vtkWebGPURenderWindow::PreprocessShaderSource(const std::string& sou
     }
   }
   return os.str();
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkImageData> vtkWebGPURenderWindow::SaveAttachmentToVTI(
+  AttachmentTypeForVTISnapshot type)
+{
+  auto image = vtk::TakeSmartPointer(vtkImageData::New());
+  vtkNew<vtkFloatArray> colorF32;
+  vtkNew<vtkUnsignedCharArray> colorU8;
+  vtkNew<vtkTypeUInt32Array> colorU32;
+  std::array<int, 3> dims = { 0, 0, 1 };
+
+  switch (type)
+  {
+    case AttachmentTypeForVTISnapshot::ColorRGBA:
+      dims[0] = this->ColorAttachment.Texture.GetWidth();
+      dims[1] = this->ColorAttachment.Texture.GetHeight();
+      image->SetDimensions(dims.data());
+      this->GetRGBAPixelData(0, 0, dims[0] - 1, dims[1] - 1, 0, colorF32, 0);
+      image->GetPointData()->SetScalars(colorF32);
+      break;
+    case AttachmentTypeForVTISnapshot::ColorRGB:
+      dims[0] = this->ColorAttachment.Texture.GetWidth();
+      dims[1] = this->ColorAttachment.Texture.GetHeight();
+      image->SetDimensions(dims.data());
+      this->GetPixelData(0, 0, dims[0] - 1, dims[1] - 1, 0, colorU8, 0);
+      image->GetPointData()->SetScalars(colorU8);
+      break;
+    case AttachmentTypeForVTISnapshot::Depth:
+      dims[0] = this->DepthStencilAttachment.Texture.GetWidth();
+      dims[1] = this->DepthStencilAttachment.Texture.GetHeight();
+      image->SetDimensions(dims.data());
+      this->GetZbufferData(0, 0, dims[0] - 1, dims[1] - 1, colorF32);
+      image->GetPointData()->SetScalars(colorF32);
+      break;
+    case AttachmentTypeForVTISnapshot::Ids:
+      dims[0] = this->IdsAttachment.Texture.GetWidth();
+      dims[1] = this->IdsAttachment.Texture.GetHeight();
+      image->SetDimensions(dims.data());
+      this->GetIdsData(0, 0, dims[0] - 1, dims[1] - 1, colorU32);
+      image->GetPointData()->SetScalars(colorU32);
+      break;
+  }
+  return image;
 }
 
 VTK_ABI_NAMESPACE_END
