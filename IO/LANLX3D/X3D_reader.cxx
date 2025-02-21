@@ -101,7 +101,7 @@ Reader::Reader(const string& filename_, const Version version_)
   Xformat x3(3);
   Aformat a23(23);
   Iformat i10(10);
-  for (auto key : HEADER_KEYS)
+  for (auto const& key : HEADER_KEYS)
   {
     file >> x3 >> a23 >> i10 >> eat_endl; // (3X, A23, I10)
     if (key != a23())                     // unexpected key
