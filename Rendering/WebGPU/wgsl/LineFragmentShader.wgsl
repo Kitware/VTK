@@ -14,10 +14,13 @@ fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
 
   var opacity: f32;
 
-  output.ids.x = vertex.cell_id + 1;
-  output.ids.y = vertex.prop_id + 1;
-  output.ids.z = vertex.composite_id + 1;
-  output.ids.w = vertex.process_id + 1;
+  if (mesh.pickable == 1u)
+  {
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;
+  }
 
   let distance_from_centerline = abs(vertex.distance_from_centerline);
 

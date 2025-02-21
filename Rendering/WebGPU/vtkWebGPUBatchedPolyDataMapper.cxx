@@ -12,6 +12,7 @@
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+#include <cstddef>
 
 namespace
 {
@@ -200,20 +201,21 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   }
 
   // write to the `OverrideColorDescriptor` portion of the `MeshAttributeDescriptor` buffer only if
-  // colors/opacity per block changed.
+  // colors/opacity/pickability per block changed.
   if ((this->Parent->GetMTime() > this->OverrideColorUploadTimestamp) ||
     (this->LastUseNanColor != useNanColor))
   {
     if (useNanColor)
     {
       this->UpdateMeshDescriptor(wgpuConfiguration, true, batchElement.Opacity,
-        vtkColor3d{ nanColor }, vtkColor3d{ nanColor }, batchElement.FlatIndex);
+        vtkColor3d{ nanColor }, vtkColor3d{ nanColor }, batchElement.FlatIndex,
+        batchElement.Pickability);
     }
     else
     {
       this->UpdateMeshDescriptor(wgpuConfiguration, batchElement.OverridesColor,
         batchElement.Opacity, batchElement.AmbientColor, batchElement.DiffuseColor,
-        batchElement.FlatIndex);
+        batchElement.FlatIndex, batchElement.Pickability);
     }
   }
   this->LastUseNanColor = useNanColor;
@@ -223,7 +225,7 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
 void vtkWebGPUBatchedPolyDataMapper::UpdateMeshDescriptor(
   vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, bool applyOverrides,
   double overrideOpacity, const vtkColor3d& overrideAmbientColor,
-  const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId)
+  const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable)
 {
   if (this->AttributeDescriptorBuffer != nullptr)
   {
@@ -251,6 +253,10 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshDescriptor(
 
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
       offsetof(MeshAttributeDescriptor, Diffuse), &diffuseColor, sizeof(diffuseColor));
+
+    vtkTypeUInt32 pickableAsUInt32 = pickable ? 1u : 0u;
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32));
   }
   this->OverrideColorUploadTimestamp.Modified();
 }

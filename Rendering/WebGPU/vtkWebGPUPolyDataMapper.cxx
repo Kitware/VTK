@@ -963,6 +963,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
 
   MeshAttributeDescriptor meshAttrDescriptor = {};
+  meshAttrDescriptor.Pickable = true;
 
   vtkPointData* pointData = this->CurrentInput->GetPointData();
   vtkDataArray* pointPositions = this->CurrentInput->GetPoints()->GetData();

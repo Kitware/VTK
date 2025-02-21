@@ -373,7 +373,7 @@ protected:
     vtkTypeFloat32 Ambient[3] = {};
     vtkTypeUInt32 ProcessId = 0;
     vtkTypeFloat32 Diffuse[3] = {};
-    vtkTypeUInt8 Padding[4];
+    vtkTypeUInt32 Pickable = false;
   };
   wgpu::Buffer AttributeDescriptorBuffer;
 

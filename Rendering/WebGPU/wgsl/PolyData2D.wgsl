@@ -268,7 +268,7 @@ fn polygonVertexMain(vertex: VertexInput) -> VertexOutput {
 //-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
 }
 
 //-------------------------------------------------------------------
@@ -276,6 +276,6 @@ struct FragmentOutput {
 fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
   output.color = vertex.color;
-  output.cell_id = vertex.cell_id;
+  output.ids.x = vertex.cell_id;
   return output;
 }

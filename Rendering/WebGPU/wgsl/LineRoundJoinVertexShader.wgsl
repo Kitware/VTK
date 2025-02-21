@@ -82,7 +82,6 @@ struct ActorBlock {
   transform: ActorTransform,
   render_options: ActorRenderOptions,
   color_options: ActorColorOptions,
-  id: u32,
 }
 
 //-------------------------------------------------------------------
@@ -117,6 +116,7 @@ struct MeshDescriptor {
   ambient_color: vec3<f32>,
   process_id: u32,
   diffuse_color: vec3<f32>,
+  pickable: u32,
 }
 
 //-------------------------------------------------------------------
@@ -225,7 +225,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 
   // Write indices
   output.cell_id = cell_id;
-  output.prop_id = actor.id;
+  output.prop_id = actor.color_options.id;
   output.composite_id = mesh.composite_id;
   output.process_id = 2u;
 

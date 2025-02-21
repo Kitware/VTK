@@ -14,7 +14,6 @@ struct ActorBlock {
   transform: ActorTransform,
   render_options: ActorRenderOptions,
   color_options: ActorColorOptions,
-  id: u32,
 }
 
 //-------------------------------------------------------------------
@@ -49,6 +48,7 @@ struct MeshDescriptor {
   ambient_color: vec3<f32>,
   process_id: u32,
   diffuse_color: vec3<f32>,
+  pickable: u32,
 }
 
 //-------------------------------------------------------------------
@@ -121,7 +121,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 
   // Write indices
   output.cell_id = cell_id;
-  output.prop_id = actor.id;
+  output.prop_id = actor.color_options.id;
   output.composite_id = mesh.composite_id;
   output.process_id = 0u;
 
@@ -238,10 +238,13 @@ fn fragmentMain(
 
   var opacity: f32;
 
-  output.ids.x = vertex.cell_id + 1;
-  output.ids.y = vertex.prop_id + 1;
-  output.ids.z = vertex.composite_id + 1;
-  output.ids.w = vertex.process_id + 1;
+  if (mesh.pickable == 1u)
+  {
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;
+  }
 
   ///------------------------///
   // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.

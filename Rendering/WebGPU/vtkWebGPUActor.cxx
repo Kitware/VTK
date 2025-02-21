@@ -337,7 +337,7 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
   if (displayProperty->GetMTime() > internals.ShadingOptionsBuildTimestamp ||
     this->GetMTime() > internals.ShadingOptionsBuildTimestamp)
   {
-    auto& so = internals.CachedActorInfo.ShadeOpts;
+    auto& so = internals.CachedActorInfo.ColorOpts;
     so.AmbientIntensity = displayProperty->GetAmbient();
     so.DiffuseIntensity = displayProperty->GetDiffuse();
     so.SpecularIntensity = displayProperty->GetSpecular();
@@ -361,9 +361,9 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
 bool vtkWebGPUActor::CacheActorId()
 {
   auto& internals = (*this->Internals);
-  if (internals.CachedActorInfo.Id != internals.Id)
+  if (internals.CachedActorInfo.ColorOpts.Id != internals.Id)
   {
-    internals.CachedActorInfo.Id = internals.Id;
+    internals.CachedActorInfo.ColorOpts.Id = internals.Id;
     return true;
   }
   return false;

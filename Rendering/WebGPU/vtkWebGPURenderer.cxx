@@ -327,47 +327,6 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
     return 0;
   }
 
-  if (this->Selector)
-  {
-    // When selector is present, we are performing a selection,
-    // so do the selection rendering pass instead of the normal passes.
-    // Delegate the rendering of the props to the selector itself.
-
-    // use pickfromprops ?
-    if (this->PickFromProps)
-    {
-      vtkProp** pa;
-      vtkProp* aProp;
-      if (this->PickFromProps->GetNumberOfItems() > 0)
-      {
-        pa = new vtkProp*[this->PickFromProps->GetNumberOfItems()];
-        int pac = 0;
-
-        vtkCollectionSimpleIterator pit;
-        for (this->PickFromProps->InitTraversal(pit);
-             (aProp = this->PickFromProps->GetNextProp(pit));)
-        {
-          if (aProp->GetVisibility())
-          {
-            pa[pac++] = aProp;
-          }
-        }
-
-        this->NumberOfPropsRendered = this->Selector->Render(this, pa, pac);
-        delete[] pa;
-      }
-    }
-    else
-    {
-      this->NumberOfPropsRendered =
-        this->Selector->Render(this, this->PropArray, this->PropArrayCount);
-    }
-
-    this->RenderTime.Modified();
-    vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors");
-    return this->NumberOfPropsRendered;
-  }
-
   // We can render everything because if it was
   // not visible it would not have been put in the
   // list in the first place, and if it was allocated
@@ -843,12 +802,15 @@ void vtkWebGPURenderer::BeginRecording()
     // create a new bundle encoder.
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-    const auto colorFormat = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+    const std::vector<wgpu::TextureFormat> colorFormats = {
+      wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
+      wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
+    };
     const int sampleCount =
       wgpuRenderWindow->GetMultiSamples() ? wgpuRenderWindow->GetMultiSamples() : 1;
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
-    bundleEncDesc.colorFormatCount = 1;
-    bundleEncDesc.colorFormats = &colorFormat;
+    bundleEncDesc.colorFormatCount = colorFormats.size();
+    bundleEncDesc.colorFormats = colorFormats.data();
     bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
     bundleEncDesc.sampleCount = sampleCount;
     bundleEncDesc.depthReadOnly = false;

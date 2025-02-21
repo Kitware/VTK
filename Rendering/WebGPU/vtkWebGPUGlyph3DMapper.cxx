@@ -13,7 +13,6 @@
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkGlyph3DMapper.h"
-#include "vtkHardwareSelector.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -138,6 +137,9 @@ class vtkWebGPUGlyph3DMapperHelper : public vtkPolyDataMapper
     AttributeDescriptor InstanceColors;
     AttributeDescriptor InstanceTransforms;
     AttributeDescriptor InstanceNormalTransforms;
+    vtkTypeUInt32 CompositeId;
+    vtkTypeUInt32 ProcessId;
+    vtkTypeUInt32 Pickable;
   };
   wgpu::Buffer AttributeDescriptorBuffer;
   wgpu::BindGroup MeshAttributeBindGroup;
@@ -177,6 +179,9 @@ class vtkWebGPUGlyph3DMapperHelper : public vtkPolyDataMapper
   std::vector<vtkTypeFloat32>* InstanceColors;
   std::vector<vtkTypeFloat32>* InstanceTransforms;
   std::vector<vtkTypeFloat32>* InstanceNormalTransforms;
+  vtkTypeUInt32 FlatIndex = 0;
+  bool Pickable = false;
+  bool PickingAttributesModified = false;
   vtkMTimeType GlyphStructuresBuildTime = 0;
 
   struct ActorState
@@ -750,7 +755,10 @@ public:
   void UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenderWindow)
   {
     this->DeducePointCellAttributeAvailability(this->CurrentInput);
-    MeshAttributeDescriptor meshAttrDescriptor;
+    MeshAttributeDescriptor meshAttrDescriptor = {};
+    meshAttrDescriptor.CompositeId = this->FlatIndex;
+    meshAttrDescriptor.Pickable = this->Pickable ? 1u : 0u;
+    meshAttrDescriptor.ProcessId = 0;
 
     vtkPointData* pointData = this->CurrentInput->GetPointData();
     vtkDataArray* pointPositions = this->CurrentInput->GetPoints()->GetData();
@@ -1091,6 +1099,14 @@ public:
         wgpuConfiguration->GetDevice(), "MeshAttributeBindGroup");
       this->RebuildGraphicsPipelines = true;
     }
+    else if (this->PickingAttributesModified)
+    {
+      // update only the portion of the buffer relevant to picking attributes.
+      const auto* data = reinterpret_cast<void*>(&meshAttrDescriptor.CompositeId);
+      constexpr auto offset = offsetof(MeshAttributeDescriptor, CompositeId);
+      constexpr auto size = sizeof(MeshAttributeDescriptor) - offset;
+      wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer, offset, data, size);
+    }
   }
   ///@}
 
@@ -1102,11 +1118,11 @@ public:
     switch (graphicsPipelineType)
     {
       case GFX_PIPELINE_POINTS:
-        return "GFX_PIPELINE_POINTS";
+        return "GFX_PIPELINE_GLYPH_POINTS";
       case GFX_PIPELINE_LINES:
-        return "GFX_PIPELINE_LINES";
+        return "GFX_PIPELINE_GLYPH_LINES";
       case GFX_PIPELINE_TRIANGLES:
-        return "GFX_PIPELINE_TRIANGLES";
+        return "GFX_PIPELINE_GLYPH_TRIANGLES";
       default:
         return "";
     }
@@ -1129,9 +1145,15 @@ public:
     descriptor.cFragment.entryPoint = "fragmentMain";
     descriptor.EnableBlending(0);
     descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+    ///@{ TODO: Only for valid depth stencil formats
     auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
     depthState->depthWriteEnabled = true;
     depthState->depthCompare = wgpu::CompareFunction::Less;
+    ///@}
+    // Prepare selection ids output.
+    descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+    descriptor.cFragment.targetCount++;
+    descriptor.DisableBlending(1);
 
     // Update local parameters that decide whether a pipeline must be rebuilt.
     this->RebuildGraphicsPipelines = false;
@@ -1356,13 +1378,23 @@ public:
   //------------------------------------------------------------------------------
   void Initialize(vtkPolyData* mesh, int numPoints, std::vector<vtkTypeFloat32>* colors,
     std::vector<vtkTypeFloat32>* transforms, std::vector<vtkTypeFloat32>* normalTransforms,
-    vtkMTimeType buildMTime)
+    vtkTypeUInt32 flatIndex, bool pickable, vtkMTimeType buildMTime)
   {
     this->CurrentInput = mesh;
     this->NumberOfGlyphPoints = numPoints;
     this->InstanceColors = colors;
     this->InstanceTransforms = transforms;
     this->InstanceNormalTransforms = normalTransforms;
+    if (flatIndex != this->FlatIndex)
+    {
+      this->PickingAttributesModified = true;
+      this->FlatIndex = flatIndex;
+    }
+    if (pickable != this->Pickable)
+    {
+      this->PickingAttributesModified = true;
+      this->Pickable = pickable;
+    }
     this->GlyphStructuresBuildTime = buildMTime;
   }
 
@@ -1561,7 +1593,7 @@ public:
 
     if (auto* inputDataSet = vtkDataSet::SafeDownCast(inputDataObject))
     {
-      this->Render(renderer, actor, inputDataSet);
+      this->RenderDataSet(renderer, actor, inputDataSet, 0, true);
     }
     else if (auto* inputCompositeDataSet = vtkCompositeDataSet::SafeDownCast(inputDataObject))
     {
@@ -1591,7 +1623,8 @@ public:
   }
 
   //------------------------------------------------------------------------------
-  void Render(vtkRenderer* renderer, vtkActor* actor, vtkDataSet* inputDataSet)
+  void RenderDataSet(vtkRenderer* renderer, vtkActor* actor, vtkDataSet* inputDataSet,
+    unsigned int flatIndex, bool pickable)
   {
     const auto numPoints = inputDataSet->GetNumberOfPoints();
     if (numPoints < 1)
@@ -1771,7 +1804,7 @@ public:
           auto mapper = glyphParameters->Mappers[mapperIdx];
           mapper->StaticOn();
           mapper->Initialize(mesh, glyphParameters->NumberOfPoints, &glyphParameters->Colors,
-            &glyphParameters->Transforms, &glyphParameters->NormalTransforms,
+            &glyphParameters->Transforms, &glyphParameters->NormalTransforms, flatIndex, pickable,
             glyphParameters->BuildTime);
           mapper->RenderPiece(renderer, actor);
         }
@@ -1850,19 +1883,13 @@ public:
       // Skip invisible blocks and unpickable ones when performing selection:
       bool blockVis = this->BlockState.Visibility.top();
       bool blockPick = this->BlockState.Pickability.top();
-      auto selector = renderer->GetSelector();
-      bool skip = (!blockVis || (selector && !blockPick));
-      if (!skip)
+      if (blockVis)
       {
         if (ds)
         {
-          if (selector)
-          {
-            selector->RenderCompositeIndex(originalFlatIndex);
-          }
           actor->GetProperty()->SetColor(this->BlockState.Color.top().GetData());
           actor->GetProperty()->SetOpacity(this->BlockState.Opacity.top());
-          this->Render(renderer, actor, ds);
+          this->RenderDataSet(renderer, actor, ds, originalFlatIndex, blockPick);
         }
         else
         {
