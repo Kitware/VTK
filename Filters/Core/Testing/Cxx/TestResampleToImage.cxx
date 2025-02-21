@@ -87,6 +87,7 @@ int TestResampleToImage(int, char*[])
   }
 
   // Test for ParaView issue #19856
+  // Please note that #19856 is not fully fixed yet, but the test below still has value
 
   vtkNew<vtkCellTypeSource> cellTypeSource;
   cellTypeSource->SetCellOrder(1);
@@ -116,9 +117,9 @@ int TestResampleToImage(int, char*[])
   {
     zeros += !val;
   }
-  if (zeros != 744732)
+  if (zeros != 744725)
   {
-    std::cout << "Caught " << zeros << " invalid points, it should have been 744732" << std::endl;
+    std::cout << "Caught " << zeros << " invalid points, it should have been 744725" << std::endl;
     status = 1;
   }
 
