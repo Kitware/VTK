@@ -106,7 +106,6 @@ public:
   */
   explicit Aformat(unsigned int w = 0)
     : width(w)
-    , value()
   {
   }
 

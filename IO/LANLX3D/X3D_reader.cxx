@@ -46,13 +46,13 @@ streampos Reader::offset_of(const string& block)
     size_t num_cached_blocks = offset.size();
     if (num_cached_blocks)
     { // some blocks cached; start after them...
-      string last_block = TOP_BLOCK[num_cached_blocks - 1];
+      string const& last_block = TOP_BLOCK[num_cached_blocks - 1];
       if (file.tellg() < offset.at(last_block)) // ...unless beyond them
         file.seekg(offset.at(last_block));      // move to last cached block
     }
     for (size_t i = num_cached_blocks; i < TOP_BLOCK.size(); i++)
     {
-      string next_block = TOP_BLOCK[i]; // look for next uncached block
+      string const& next_block = TOP_BLOCK[i]; // look for next uncached block
       streampos position;
       while ((position = file.tellg()) > 0)
       {
@@ -94,14 +94,14 @@ Reader::Reader(const string& filename_, const Version version_)
   expect_starts_with(MAGIC_STRING); // match X3D header line
 
   // Read Header Block
-  string block = TOP_BLOCK[0];
+  string const& block = TOP_BLOCK[0];
   file.seekg(offset_of(block));
   expect_starts_with(block);
 
   Xformat x3(3);
   Aformat a23(23);
   Iformat i10(10);
-  for (auto key : HEADER_KEYS)
+  for (auto const& key : HEADER_KEYS)
   {
     file >> x3 >> a23 >> i10 >> eat_endl; // (3X, A23, I10)
     if (key != a23())                     // unexpected key
