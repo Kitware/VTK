@@ -71,6 +71,7 @@ public:
       // Interpolation type
       vtkTypeUInt32 InterpolationType = VTK_FLAT;
     } ShadeOpts;
+    vtkTypeUInt32 Id = 0;
   };
 
   class MapperBooleanCache
@@ -115,6 +116,8 @@ public:
   wgpu::BindGroupLayout ActorBindGroupLayout;
   wgpu::BindGroup ActorBindGroup;
   wgpu::Buffer ActorBuffer;
+
+  vtkTypeUInt32 Id = 0;
 
   inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
   {

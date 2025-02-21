@@ -416,6 +416,10 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {
+        if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
+        {
+          wgpuActor->SetId(i);
+        }
         this->PropArray[i]->RenderOpaqueGeometry(this);
       }
       result += this->PropArrayCount;
@@ -452,6 +456,10 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {
+        if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
+        {
+          wgpuActor->SetId(i);
+        }
         this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
       }
       result += this->PropArrayCount;

@@ -32,7 +32,8 @@ const TRIANGLE_VERTS = array(
 struct ActorBlock {
   transform: ActorTransform,
   render_options: ActorRenderOptions,
-  color_options: ActorColorOptions
+  color_options: ActorColorOptions,
+  id: u32,
 }
 
 //-------------------------------------------------------------------

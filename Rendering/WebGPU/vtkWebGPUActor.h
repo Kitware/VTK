@@ -72,6 +72,7 @@ private:
    * pipeline for the rendering and thus doesn't support render bundles.
    */
   bool SupportRenderBundles();
+  void SetId(vtkTypeUInt32 id);
 
   bool UpdateKeyMatrices();
 
@@ -81,6 +82,7 @@ private:
   bool CacheActorTransforms();
   bool CacheActorRenderOptions();
   bool CacheActorShadeOptions();
+  bool CacheActorId();
 
   void AllocateResources(vtkWebGPUConfiguration* renderer);
 };
