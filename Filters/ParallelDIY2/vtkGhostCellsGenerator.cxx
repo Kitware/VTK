@@ -190,8 +190,14 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
       error = true;
     }
 
-    if (vtkHyperTreeGrid::SafeDownCast(inputPartition) ||
-      vtkExplicitStructuredGrid::SafeDownCast(inputPartition))
+    if (vtkHyperTreeGrid::SafeDownCast(inputPartition))
+    {
+      error = true;
+      vtkErrorMacro(<< "vtkHyperTreeGrid is not supported by this filter. Please use the "
+                       "appropriate vtkHyperTreeGridGhostCellsGenerator filter instead.");
+    }
+
+    if (vtkExplicitStructuredGrid::SafeDownCast(inputPartition))
     {
       error = true;
       vtkErrorMacro(<< "Input data set type " << inputPartition->GetClassName()

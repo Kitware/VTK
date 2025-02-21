@@ -14,6 +14,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLHyperTreeGridReader.h"
+#include <vtkPartitionedDataSet.h>
 
 namespace
 {
@@ -310,7 +311,6 @@ int TestGhostNullPart(vtkMPIController* controller)
 
   // Create GCG
   vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
-  generator->SetDebug(true);
   generator->SetInputConnection(htgSource->GetOutputPort());
   vtkSmartPointer<vtkHyperTreeGrid> htg(generator->GetHyperTreeGridOutput());
   if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
@@ -356,8 +356,6 @@ int TestGhostNullPart(vtkMPIController* controller)
  */
 int TestGhostSinglePiece(vtkMPIController* controller, const std::string& filename)
 {
-  int ret = EXIT_SUCCESS;
-
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
@@ -386,8 +384,106 @@ int TestGhostSinglePiece(vtkMPIController* controller, const std::string& filena
     vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
                                      << myRank << ". Has " << nbCellsAfter << " but expect "
                                      << nbCellsBefore);
-    ret = EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
+  return EXIT_SUCCESS;
+}
+
+/**
+ * HTG GhostCells should handle properly data separated in multiple partitions inside of a
+ * PartitionedDataSet (PDS). It should not matter whether the PDS has a single partition containing
+ * the data for all ranks, or multiple, that may or may not correspond to the number of ranks. This
+ * can happen for example when you write the PDS in an MPI setting of X ranks, but open it back with
+ * Y ranks.
+ *
+ * `config` sets up different PDS configuration schemes:
+ *  - 0 will test the classic case of 1 different partition for each piece
+ *  - 1 will test with only 1 partition containing a distributed HTG
+ *  - 2 will test a PDS with 2 partitions, containing HTGs on 2 ranks each
+ */
+int TestPartitionedHTG(vtkMPIController* controller, int config)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  vtkNew<vtkRandomHyperTreeGridSource> htgSource;
+  htgSource->SetSeed(3);
+  htgSource->SetMaxDepth(3);
+  htgSource->SetDimensions(3, 3, 3);
+  htgSource->UpdatePiece(myRank, nbRanks, 0);
+  vtkNew<vtkPartitionedDataSet> pdsSource;
+
+  vtkHyperTreeGrid* inputHTG = htgSource->GetHyperTreeGridOutput();
+
+  // In which partition to place data
+  const std::array<unsigned int, 4> configPartition = { static_cast<unsigned int>(myRank), 0,
+    static_cast<unsigned int>(myRank % 2) };
+  pdsSource->SetPartition(configPartition[config], inputHTG);
+
+  // How many parts total
+  const std::array<unsigned int, 3> configNumberOfParts = { static_cast<unsigned int>(nbRanks), 1,
+    2 };
+  pdsSource->SetNumberOfPartitions(configNumberOfParts[config]);
+
+  // Create and execute GCG
+  vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
+  generator->SetDebug(true);
+  generator->SetInputData(pdsSource);
+  vtkSmartPointer<vtkPartitionedDataSet> outputPDS =
+    vtkPartitionedDataSet::SafeDownCast(generator->GetOutputDataObject(0));
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  if (outputPDS->GetNumberOfPartitions() != configNumberOfParts[config])
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, << "Expected 4 partitions in output PartitionedDataSet but got "
+               << outputPDS->GetNumberOfPartitions());
+    return EXIT_FAILURE;
+  }
+
+  int ret = EXIT_SUCCESS;
+
+  // Only one partition on each rank is expected to be non-null.
+  const std::array<vtkIdType, 4> expectedNbOfCells = { 336, 288, 408, 240 };
+  for (unsigned int partId = 0; partId < outputPDS->GetNumberOfPartitions(); partId++)
+  {
+    vtkHyperTreeGrid* partHTG =
+      vtkHyperTreeGrid::SafeDownCast(outputPDS->GetPartitionAsDataObject(partId));
+    if (partId != configPartition[config])
+    {
+      if (partHTG)
+      {
+        vtkErrorWithObjectMacro(nullptr,
+          << "Partition " << partId << " on rank " << myRank << " should be null, but is not.");
+        ret = EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      if (!partHTG)
+      {
+        vtkErrorWithObjectMacro(
+          nullptr, << "Partition " << partId << " on rank " << myRank << " should not be null.");
+        ret = EXIT_FAILURE;
+      }
+      else
+      {
+        vtkIdType nbCellsAfterGCG = partHTG->GetNumberOfCells();
+        if (expectedNbOfCells[myRank] != nbCellsAfterGCG)
+        {
+          vtkErrorWithObjectMacro(nullptr, << "Wrong number of ghost cells generated for process "
+                                           << myRank << ". Has " << nbCellsAfterGCG
+                                           << " but expect " << expectedNbOfCells[myRank]);
+          ret = EXIT_FAILURE;
+        }
+      }
+    }
+  }
+
   return ret;
 }
 }
@@ -426,6 +522,9 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   ret |= ::TestGhost2D(controller);
   ret |= ::TestGhostNullPart(controller);
   ret |= ::TestGhostSinglePiece(controller, htgFileName);
+  ret |= ::TestPartitionedHTG(controller, 0);
+  ret |= ::TestPartitionedHTG(controller, 1);
+  ret |= ::TestPartitionedHTG(controller, 2);
 
   controller->Finalize();
   return ret;
