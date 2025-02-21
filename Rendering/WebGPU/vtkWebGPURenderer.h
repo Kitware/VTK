@@ -214,7 +214,7 @@ protected:
   wgpu::RenderBundleEncoder WGPUBundleEncoder;
   wgpu::Buffer SceneTransformBuffer;
   wgpu::Buffer SceneLightsBuffer;
-  std::size_t LastActorBufferSize = 0;
+
   wgpu::BindGroup SceneBindGroup;
   wgpu::BindGroupLayout SceneBindGroupLayout;
 

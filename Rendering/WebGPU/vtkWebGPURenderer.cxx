@@ -747,7 +747,6 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   this->WGPURenderEncoder = nullptr;
   this->SceneTransformBuffer = nullptr;
   this->SceneLightsBuffer = nullptr;
-  this->LastActorBufferSize = 0;
   this->SceneBindGroup = nullptr;
   this->SceneBindGroupLayout = nullptr;
 }
