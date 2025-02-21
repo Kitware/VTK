@@ -218,6 +218,7 @@ public:
    * Get a view of the color attachment used in the offscreen render target.
    */
   wgpu::TextureView GetOffscreenColorAttachmentView();
+  wgpu::TextureView GetHardwareSelectorAttachmentView();
 
   /**
    * Get a view of the depth-stencil attachment used in the offscreen render target.
@@ -248,6 +249,11 @@ public:
    * Get the texture format preferred for the surface.
    */
   wgpu::TextureFormat GetPreferredSurfaceTextureFormat();
+
+  /**
+   * Get the texture format preferred for selector IDs.
+   */
+  wgpu::TextureFormat GetPreferredSelectorIdsTextureFormat();
 
   ///@{
   /**
@@ -290,6 +296,9 @@ protected:
   void CreateOffscreenColorAttachment();
   void DestroyOffscreenColorAttachment();
 
+  void CreateIdsAttachment();
+  void DestroyIdsAttachment();
+
   void CreateDepthStencilAttachment();
   void DestroyDepthStencilAttachment();
 
@@ -306,7 +315,7 @@ protected:
   wgpu::CommandEncoder CommandEncoder;
   int SurfaceConfiguredSize[2];
   wgpu::TextureFormat PreferredSurfaceTextureFormat = wgpu::TextureFormat::BGRA8Unorm;
-
+  wgpu::TextureFormat PreferredSelectorIdsTextureFormat = wgpu::TextureFormat::RGBA32Uint;
   struct vtkWGPUDepthStencil
   {
     wgpu::Texture Texture;
@@ -323,6 +332,7 @@ protected:
     wgpu::TextureFormat Format;
   };
   vtkWGPUAttachment ColorAttachment;
+  vtkWGPUAttachment IdsAttachment;
 
   struct vtkWGPUUserStagingPixelData
   {
@@ -387,6 +397,9 @@ private:
 
   void ReadTextureFromGPU(wgpu::Texture& wgpuTexture, wgpu::TextureFormat format,
     std::size_t mipLevel, wgpu::TextureAspect aspect, TextureMapCallback callback, void* userData);
+
+  void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32* values);
+  void GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUInt32Array* data);
 
   // Render textures acquired by the user on this render window. They are kept here in case the
   // render window is resized, in which case, we'll need to resize the render textures --> We need
