@@ -64,6 +64,7 @@ int TestHyperTreeGridTernary3DAdaptiveDataSetSurfaceFilterMaterial(int argc, cha
   vtkNew<vtkRenderer> renderer;
   surface->SetRenderer(renderer);
   surface->SetInputConnection(htGrid->GetOutputPort());
+  surface->SetViewPointDepend(false);
   surface->Update();
   vtkPolyData* pd = surface->GetOutput();
   double* range = pd->GetCellData()->GetArray("Depth")->GetRange();
@@ -108,6 +109,9 @@ int TestHyperTreeGridTernary3DAdaptiveDataSetSurfaceFilterMaterial(int argc, cha
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
+
+  surface->SetViewPointDepend(true);
+  surface->Update();
 
   // Render and test
   renWin->Render();
