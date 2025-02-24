@@ -12,6 +12,7 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -81,6 +82,10 @@ vtkDataArray* NewVtkDataArray()
   if (std::is_same<T, char>::value)
   {
     return vtkCharArray::New();
+  }
+  else if (std::is_same<T, signed char>::value)
+  {
+    return vtkSignedCharArray::New();
   }
   else if (std::is_same<T, unsigned char>::value)
   {
@@ -227,6 +232,7 @@ using TypeReaderMap = std::map<::TypeDescription, ArrayReader*>;
   ::TypeReaderMap readerMap;
 
   readerMap[::GetTypeDescription(H5T_NATIVE_CHAR)] = &::NewArray<char>;
+  readerMap[::GetTypeDescription(H5T_NATIVE_SCHAR)] = &::NewArray<signed char>;
   readerMap[::GetTypeDescription(H5T_NATIVE_UCHAR)] = &::NewArray<unsigned char>;
   readerMap[::GetTypeDescription(H5T_NATIVE_SHORT)] = &::NewArray<short>;
   readerMap[::GetTypeDescription(H5T_NATIVE_USHORT)] = &::NewArray<unsigned short>;
