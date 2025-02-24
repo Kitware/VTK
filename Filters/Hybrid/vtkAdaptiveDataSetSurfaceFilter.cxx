@@ -21,8 +21,6 @@
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
 
-#include "vtkLogger.h"
-
 VTK_ABI_NAMESPACE_BEGIN
 static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
 static const unsigned int VonNeumannOrientations3D[] = { 2, 1, 0, 0, 1, 2 };
@@ -234,7 +232,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursorLight(cursor, index);
       this->RecursivelyProcessTree3D(cursor, 0);
-      vtkLogF(INFO, "3D: Nb cells inside view: %d\n", this->debug3D);
     }
   }
   else
@@ -252,7 +249,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
       this->RecursivelyProcessTree1DAnd2D(cursor, 0);
-      vtkLogF(INFO, "2D: Nb cells inside view: %d\n", this->debug2D);
     }
   }
 
@@ -299,8 +295,6 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
   {
     return;
   }
-
-  this->debug2D++;
 
   if (cursor->IsLeaf() || (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
@@ -464,8 +458,6 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   {
     return;
   }
-
-  this->debug3D++;
 
   // Create geometry output if cursor is at leaf
   if (cursor->IsLeaf() || (this->Mask && this->Mask->GetValue(cursor->GetGlobalNodeIndex())) ||

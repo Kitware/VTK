@@ -251,8 +251,6 @@ protected:
   int DynamicDecimateLevelMax;
 
 private:
-  int debug2D = 0; // TODO REMOVE DEBUG VARIABLE
-  int debug3D = 0; // TODO REMOVE DEBUG VARIABLE
   vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
   void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
 
