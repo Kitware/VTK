@@ -468,7 +468,8 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   this->debug3D++;
 
   // Create geometry output if cursor is at leaf
-  if (cursor->IsLeaf() || (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
+  if (cursor->IsLeaf() || (this->Mask && this->Mask->GetValue(cursor->GetGlobalNodeIndex())) ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
     this->ProcessLeaf3D(cursor);
   }
@@ -513,19 +514,19 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
     vtkIdType idN;
     vtkHyperTree* treeN = superCursor->GetInformation(VonNeumannCursors3D[c], levelN, leafN, idN);
 
-    int maskedN = 1;
+    int maskedN = 0;
     if (treeN)
     {
       maskedN = this->Mask ? this->Mask->GetValue(idN) : 0;
     }
 
     // In 3D masked and unmasked cells are handled differently:
-    // - If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
+    // - If cell is unmasked, and face neighbor is masked, or no such neighbor
     //   exists, then generate face.
     // - If cell is masked, and face neighbor exists and is an unmasked leaf, then
     //   generate face, breaking ties at same level. This ensures that faces between
     //   unmasked and masked cells will be generated once and only once.
-    if ((!masked && (!treeN || (leafN && maskedN))) ||
+    if ((!masked && (!treeN || maskedN)) ||
       (masked && treeN && leafN && levelN < level && !maskedN))
     {
       // Generate face with corresponding normal and offset
