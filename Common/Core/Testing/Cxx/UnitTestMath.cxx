@@ -2234,7 +2234,7 @@ int QuaternionToMatrix3x3()
   for (int n = 0; n < 1000; ++n)
   {
     quat[0] = vtkMath::Random(-vtkMath::Pi(), vtkMath::Pi());
-    for (int i = 1; i < 2; ++i)
+    for (int i = 1; i < 4; ++i)
     {
       quat[i] = vtkMath::Random(-10.0, 10.0);
     }
