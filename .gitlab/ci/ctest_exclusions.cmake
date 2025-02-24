@@ -338,6 +338,35 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "osmesa")
     "^VTK::InteractionWidgetsPython-TestInteractorEventRecorder$")
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_aarch64")
+  list(APPEND test_exclusions
+    # floating point precision issues (fma optimizations change results)
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19418
+    "^VTK::CommonDataModelCxx-TestHyperTreeGridGeometricLocator$"
+    "^VTK::ChartsCoreCxx-TestLinePlot3D$"
+    "^VTK::FiltersCoreCxx-TestImplicitPolyDataDistanceCube$"
+    "^VTK::FiltersCorePython-TestSphereTreeFilter$"
+    "^VTK::FiltersFlowPathsCxx-TestEvenlySpacedStreamlines2D$"
+    "^VTK::FiltersFlowPathsCxx-TestParticleTracers$"
+    "^VTK::RenderingCorePython-pickImageData$"
+
+    # MPI detects bad memory handling
+    "^VTK::IOPIOPython-MPI-TestPIOReader$"
+
+    # Numerical issue?
+    "^VTK::ImagingColorCxx-TestRGBToLAB$"
+    # "incoherent result" from HTG line intersection. numerical?
+    "^VTK::FiltersParallelDIY2Cxx-MPI-TestProbeLineFilter$"
+    "^VTK::IOHDFCxx-TestHDFWriter$"
+
+    # Baseline failures.
+    "^VTK::InteractionWidgetsPython-TestTensorWidget2$"
+    "^VTK::RenderingExternalCxx-TestGLUTRenderWindow$" # also leaks
+
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19578
+    "^VTK::FiltersGeneralCxx-TestContourTriangulatorHoles$")
+endif ()
+
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   list(APPEND test_exclusions
     # floating point precision issues (fma optimizations change results)
