@@ -73,9 +73,9 @@ protected:
   bool LastBlockVisibility = true;
   bool LastUseNanColor = false;
 
-  void WriteOverrideColorBuffer(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
+  void UpdateMeshDescriptor(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
     bool applyOverrides, double overrideOpacity, const vtkColor3d& overrideAmbientColor,
-    const vtkColor3d& overrideDiffuseColor);
+    const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable);
 
 private:
   vtkWebGPUBatchedPolyDataMapper(const vtkWebGPUBatchedPolyDataMapper&) = delete;

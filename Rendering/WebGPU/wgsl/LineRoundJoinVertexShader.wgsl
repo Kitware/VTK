@@ -81,7 +81,7 @@ const TRIANGLE_VERTS = array(
 struct ActorBlock {
   transform: ActorTransform,
   render_options: ActorRenderOptions,
-  color_options: ActorColorOptions
+  color_options: ActorColorOptions,
 }
 
 //-------------------------------------------------------------------
@@ -102,14 +102,6 @@ struct MeshAttributeArrayDescriptor {
 }
 
 //-------------------------------------------------------------------
-struct OverrideColorDescriptor {
-  apply_override_colors: u32,
-  opacity: f32,
-  ambient_color: vec3<f32>,
-  diffuse_color: vec3<f32>
-}
-
-//-------------------------------------------------------------------
 struct MeshDescriptor {
   position: MeshAttributeArrayDescriptor,
   point_color: MeshAttributeArrayDescriptor,
@@ -118,7 +110,13 @@ struct MeshDescriptor {
   point_uv: MeshAttributeArrayDescriptor,
   cell_color: MeshAttributeArrayDescriptor,
   cell_normal: MeshAttributeArrayDescriptor,
-  override_colors: OverrideColorDescriptor
+  apply_override_colors: u32,
+  opacity: f32,
+  composite_id: u32,
+  ambient_color: vec3<f32>,
+  process_id: u32,
+  diffuse_color: vec3<f32>,
+  pickable: u32,
 }
 
 //-------------------------------------------------------------------
@@ -165,8 +163,11 @@ struct VertexOutput {
   @location(1) position_vc: vec4<f32>,
   @location(2) normal_vc: vec3<f32>,
   @location(3) tangent_vc: vec3<f32>,
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) distance_from_centerline: f32,
+  @location(4) distance_from_centerline: f32,
+  @location(5) @interpolate(flat) cell_id: u32,
+  @location(6) @interpolate(flat) prop_id: u32,
+  @location(7) @interpolate(flat) composite_id: u32,
+  @location(8) @interpolate(flat) process_id: u32,
 }
 
 
@@ -220,7 +221,13 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   // pull the point id
   let point_id = topology[vertex_id].point_id;
   // get CellID from vertex ID -> VTK cell map.
-  output.cell_id = topology[vertex_id].cell_id;
+  let cell_id = topology[vertex_id].cell_id;
+
+  // Write indices
+  output.cell_id = cell_id;
+  output.prop_id = actor.color_options.id;
+  output.composite_id = mesh.composite_id;
+  output.process_id = 2u;
 
   ///------------------------///
   // Smooth/Flag shading
@@ -230,7 +237,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
     output.color = getTuple4F32(point_id, mesh.point_color.start, &point_data.values);
   } else if mesh.cell_color.num_tuples > 0u {
     // Flat shading
-    output.color = getTuple4F32(output.cell_id, mesh.cell_color.start, &cell_data.values);
+    output.color = getTuple4F32(cell_id, mesh.cell_color.start, &cell_data.values);
   }
 
   ///------------------------///
@@ -239,7 +246,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   ///------------------------///
   if mesh.cell_normal.num_tuples > 0u {
     // pull normal of this vertex from cell normals
-    let normal_mc = getTuple3F32(output.cell_id, mesh.cell_normal.start, &cell_data.values);
+    let normal_mc = getTuple3F32(cell_id, mesh.cell_normal.start, &cell_data.values);
     output.normal_vc = scene_transform.normal * actor.transform.normal * normal_mc;
   } else if mesh.point_tangent.num_tuples > 0u {
     // pull tangent of this vertex from point tangents

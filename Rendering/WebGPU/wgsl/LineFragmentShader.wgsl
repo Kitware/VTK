@@ -1,24 +1,12 @@
 //-------------------------------------------------------------------
-struct FragmentInput {
-  @builtin(position) frag_coord: vec4<f32>,
-  @builtin(front_facing) is_front_facing: bool,
-  @location(0) color: vec4<f32>,
-  @location(1) position_vc: vec4<f32>, // in view coordinate system.
-  @location(2) normal_vc: vec3<f32>, // in view coordinate system.
-  @location(3) tangent_vc: vec3<f32>, // in view coordinate system.
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) distance_from_centerline: f32,
-}
-
-//-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
 }
 
 //-------------------------------------------------------------------
 @fragment
-fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
+fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
   var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
@@ -26,10 +14,18 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
 
   var opacity: f32;
 
-  let distance_from_centerline = abs(fragment.distance_from_centerline);
+  if (mesh.pickable == 1u)
+  {
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;
+  }
+
+  let distance_from_centerline = abs(vertex.distance_from_centerline);
 
   // adjust z component of normal in order to emulate a tube if necessary.
-  var normal_vc: vec3<f32> = normalize(fragment.normal_vc);
+  var normal_vc: vec3<f32> = normalize(vertex.normal_vc);
   let render_lines_as_tubes = getRenderLinesAsTubes(actor.render_options.flags);
   if (render_lines_as_tubes) {
     normal_vc.z = 1.0 - 2.0 * distance_from_centerline;
@@ -39,14 +35,14 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   // Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
   ///------------------------///
   let has_mapped_colors: bool = mesh.point_color.num_tuples > 0u || mesh.cell_color.num_tuples > 0u;
-  if (mesh.override_colors.apply_override_colors == 1u) {
-    ambient_color = mesh.override_colors.ambient_color.rgb;
-    diffuse_color = mesh.override_colors.diffuse_color.rgb;
-    opacity = mesh.override_colors.opacity;
+  if (mesh.apply_override_colors == 1u) {
+    ambient_color = mesh.ambient_color.rgb;
+    diffuse_color = mesh.diffuse_color.rgb;
+    opacity = mesh.opacity;
   } else if (has_mapped_colors) {
-    ambient_color = fragment.color.rgb;
-    diffuse_color = fragment.color.rgb;
-    opacity = fragment.color.a;
+    ambient_color = vertex.color.rgb;
+    diffuse_color = vertex.color.rgb;
+    opacity = vertex.color.a;
   } else {
     ambient_color = actor.color_options.ambient_color;
     diffuse_color = actor.color_options.diffuse_color;
@@ -98,6 +94,5 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = fragment.cell_id;
   return output;
 }

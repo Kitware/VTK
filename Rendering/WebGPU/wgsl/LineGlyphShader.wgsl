@@ -33,7 +33,7 @@ const TRIANGLE_VERTS = array(
 struct ActorBlock {
   transform: ActorTransform,
   render_options: ActorRenderOptions,
-  color_options: ActorColorOptions
+  color_options: ActorColorOptions,
 }
 
 //-------------------------------------------------------------------
@@ -54,14 +54,6 @@ struct AttributeArrayDescriptor {
 }
 
 //-------------------------------------------------------------------
-struct OverrideColorDescriptor {
-  apply_override_colors: u32,
-  opacity: f32,
-  ambient_color: vec3<f32>,
-  diffuse_color: vec3<f32>
-}
-
-//-------------------------------------------------------------------
 struct MeshDescriptor {
   position: AttributeArrayDescriptor,
   point_normal: AttributeArrayDescriptor,
@@ -70,7 +62,10 @@ struct MeshDescriptor {
   cell_normal: AttributeArrayDescriptor,
   instance_colors: AttributeArrayDescriptor,
   instance_transforms: AttributeArrayDescriptor,
-  instance_normal_transforms: AttributeArrayDescriptor
+  instance_normal_transforms: AttributeArrayDescriptor,
+  composite_id: u32,
+  process_id: u32,
+  pickable: u32,
 }
 
 //-------------------------------------------------------------------
@@ -119,8 +114,11 @@ struct VertexOutput {
   @location(1) position_vc: vec4<f32>,
   @location(2) normal_vc: vec3<f32>,
   @location(3) tangent_vc: vec3<f32>,
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) distance_from_centerline: f32,
+  @location(4) distance_from_centerline: f32,
+  @location(5) @interpolate(flat) cell_id: u32,
+  @location(6) @interpolate(flat) prop_id: u32,
+  @location(7) @interpolate(flat) composite_id: u32,
+  @location(8) @interpolate(flat) process_id: u32,
 }
 
 //-------------------------------------------------------------------
@@ -146,7 +144,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   // pull the point id
   let point_id = topology[p].point_id;
   // get CellID from vertex ID -> VTK cell map.
-  output.cell_id = topology[p].cell_id;
+  let cell_id = topology[p].cell_id;
 
   var is_polyline_rl: bool = false; // whether polyline is going from right -> left in the topology buffer.
   var is_polyline_lr: bool = false; // whether polyline is going from left -> right in the topology buffer.
@@ -242,6 +240,12 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   output.position_vc = scene_transform.inverted_projection * output.position;
   output.distance_from_centerline = local_position.y;
 
+  // Write indices
+  output.cell_id = cell_id;
+  output.prop_id = actor.color_options.id;
+  output.composite_id = mesh.composite_id;
+  output.process_id = 0u;
+
   ///------------------------///
   // color
   ///------------------------///
@@ -253,7 +257,7 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
   ///------------------------///
   if mesh.cell_normal.num_tuples > 0u {
     // pull normal of this vertex from cell normals
-    let normal_mc = getTuple3F32(output.cell_id, mesh.cell_normal.start, &cell_data.values);
+    let normal_mc = getTuple3F32(cell_id, mesh.cell_normal.start, &cell_data.values);
     output.normal_vc = scene_transform.normal * actor.transform.normal * glyph_normal_transform * normal_mc;
   } else if mesh.point_tangent.num_tuples > 0u {
     // pull tangent of this vertex from point tangents
@@ -271,26 +275,14 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput {
 }
 
 //-------------------------------------------------------------------
-struct FragmentInput {
-  @builtin(position) frag_coord: vec4<f32>,
-  @builtin(front_facing) is_front_facing: bool,
-  @location(0) color: vec4<f32>,
-  @location(1) position_vc: vec4<f32>, // in view coordinate system.
-  @location(2) normal_vc: vec3<f32>, // in view coordinate system.
-  @location(3) tangent_vc: vec3<f32>, // in view coordinate system.
-  @location(4) @interpolate(flat) cell_id: u32,
-  @location(5) distance_from_centerline: f32,
-}
-
-//-------------------------------------------------------------------
 struct FragmentOutput {
   @location(0) color: vec4<f32>,
-  @location(1) cell_id: u32
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
 }
 
 //-------------------------------------------------------------------
 @fragment
-fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
+fn fragmentMain(vertex: VertexOutput) -> FragmentOutput {
   var output: FragmentOutput;
   var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
@@ -298,18 +290,26 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
 
   var opacity: f32;
 
-  let distance_from_centerline = abs(fragment.distance_from_centerline);
+  if (mesh.pickable == 1u)
+  {
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;
+  }
+
+  let distance_from_centerline = abs(vertex.distance_from_centerline);
 
   // adjust z component of normal in order to emulate a tube if necessary.
-  var normal_vc: vec3<f32> = normalize(fragment.normal_vc);
+  var normal_vc: vec3<f32> = normalize(vertex.normal_vc);
   let render_lines_as_tubes = getRenderLinesAsTubes(actor.render_options.flags);
   if (render_lines_as_tubes) {
     normal_vc.z = 1.0 - 2.0 * distance_from_centerline;
   }
 
-  ambient_color = fragment.color.rgb;
-  diffuse_color = fragment.color.rgb;
-  opacity = fragment.color.a;
+  ambient_color = vertex.color.rgb;
+  diffuse_color = vertex.color.rgb;
+  opacity = vertex.color.a;
 
   ///------------------------///
   // Lights
@@ -356,6 +356,5 @@ fn fragmentMain(fragment: FragmentInput) -> FragmentOutput {
   }
   // pre-multiply colors
   output.color = vec4(output.color.rgb * opacity, opacity);
-  output.cell_id = fragment.cell_id;
   return output;
 }

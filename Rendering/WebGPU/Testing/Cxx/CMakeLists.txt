@@ -32,6 +32,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestGlyph3DMapperOrientationArray.cxx,NO_DATA
   TestGlyph3DMapperQuaternionArray.cxx,NO_DATA
   TestGlyph3DMapperTreeIndexing.cxx,NO_DATA
+  TestHardwareSelector.cxx,NO_DATA,NO_VALID
   TestLineRendering.cxx,NO_DATA
   TestLowPowerRenderWindow.cxx,NO_DATA
   TestNActorsNMappersOneInput.cxx,NO_DATA

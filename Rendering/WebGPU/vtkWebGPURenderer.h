@@ -203,7 +203,7 @@ protected:
   // Create scene bind group.
   void SetupSceneBindGroup();
 
-  // Start, finish recording commands with render pass encoder
+  // Start, finish recording commands.
   void BeginRecording();
   void EndRecording();
 
@@ -214,7 +214,7 @@ protected:
   wgpu::RenderBundleEncoder WGPUBundleEncoder;
   wgpu::Buffer SceneTransformBuffer;
   wgpu::Buffer SceneLightsBuffer;
-  std::size_t LastActorBufferSize = 0;
+
   wgpu::BindGroup SceneBindGroup;
   wgpu::BindGroupLayout SceneBindGroupLayout;
 
@@ -311,6 +311,13 @@ private:
   wgpu::CommandBuffer EncodePropListRenderCommand(vtkProp** propList, int listLength);
 
   /**
+   * Records commands into a render pass encoder.
+   * This method records commands which draw the background texture/clear color
+   * and commands which render all the props contained in this renderer.
+   */
+  void RecordRenderCommands();
+
+  /**
    * Whether the compute render buffers of the mappers of the actors of this renderer have already
    * been initialized or not
    */
@@ -325,7 +332,7 @@ private:
   /**
    * Whether to clear the depth/stencil/color buffer before rendering
    */
-  bool DoClearPass = true;
+  bool DrawBackgroundInClearPass = true;
 
   /**
    * List of the actors rendered last frame. Mainly used by the occlusion culler when we want to

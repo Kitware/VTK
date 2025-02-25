@@ -5,7 +5,7 @@
  * @brief   manager for OpenGL-based selection.
  *
  * vtkHardwareSelector is a helper that orchestrates color buffer based
- * selection. This relies on OpenGL.
+ * selection.
  * vtkHardwareSelector can be used to select visible cells or points within a
  * given rectangle of the RenderWindow.
  * To use it, call in order:
@@ -198,7 +198,7 @@ public:
    * It is possible to use the vtkHardwareSelector for a custom picking. (Look
    * at vtkScenePicker). In that case instead of Select() on can use
    * CaptureBuffers() to render the selection buffers and then get information
-   * about pixel locations suing GetPixelInformation(). Use ClearBuffers() to
+   * about pixel locations using GetPixelInformation(). Use ClearBuffers() to
    * clear buffers after one's done with the scene.
    * The optional final parameter maxDist will look for a cell within the specified
    * number of pixels from display_position. When using the overload with the
@@ -336,7 +336,7 @@ public:
    * returns the prop associated with a ID. This is valid only until
    * ReleasePixBuffers() gets called.
    */
-  vtkProp* GetPropFromID(int id);
+  virtual vtkProp* GetPropFromID(int id);
 
   // it is very critical that these passes happen in the right order
   // this is because of two complexities
@@ -441,7 +441,7 @@ protected:
    * \c pos must be relative to the lower-left corner of this->Area.
    */
   int Convert(unsigned int pos[2], unsigned char* pb) { return this->Convert(pos[0], pos[1], pb); }
-  int Convert(int xx, int yy, unsigned char* pb)
+  virtual int Convert(int xx, int yy, unsigned char* pb)
   {
     if (!pb)
     {
@@ -500,7 +500,7 @@ protected:
   /**
    * Clears all pixel buffers.
    */
-  void ReleasePixBuffers();
+  virtual void ReleasePixBuffers();
   vtkRenderer* Renderer;
   unsigned int Area[4];
   int FieldAssociation;

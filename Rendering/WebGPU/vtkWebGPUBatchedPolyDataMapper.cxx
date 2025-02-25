@@ -12,6 +12,7 @@
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+#include <cstddef>
 
 namespace
 {
@@ -200,43 +201,62 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   }
 
   // write to the `OverrideColorDescriptor` portion of the `MeshAttributeDescriptor` buffer only if
-  // colors/opacity per block changed.
+  // colors/opacity/pickability per block changed.
   if ((this->Parent->GetMTime() > this->OverrideColorUploadTimestamp) ||
     (this->LastUseNanColor != useNanColor))
   {
     if (useNanColor)
     {
-      this->WriteOverrideColorBuffer(wgpuConfiguration, true, batchElement.Opacity,
-        vtkColor3d{ nanColor }, vtkColor3d{ nanColor });
+      this->UpdateMeshDescriptor(wgpuConfiguration, true, batchElement.Opacity,
+        vtkColor3d{ nanColor }, vtkColor3d{ nanColor }, batchElement.FlatIndex,
+        batchElement.Pickability);
     }
     else
     {
-      this->WriteOverrideColorBuffer(wgpuConfiguration, batchElement.OverridesColor,
-        batchElement.Opacity, batchElement.AmbientColor, batchElement.DiffuseColor);
+      this->UpdateMeshDescriptor(wgpuConfiguration, batchElement.OverridesColor,
+        batchElement.Opacity, batchElement.AmbientColor, batchElement.DiffuseColor,
+        batchElement.FlatIndex, batchElement.Pickability);
     }
   }
   this->LastUseNanColor = useNanColor;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUBatchedPolyDataMapper::WriteOverrideColorBuffer(
+void vtkWebGPUBatchedPolyDataMapper::UpdateMeshDescriptor(
   vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, bool applyOverrides,
   double overrideOpacity, const vtkColor3d& overrideAmbientColor,
-  const vtkColor3d& overrideDiffuseColor)
+  const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable)
 {
-  OverrideColorDescriptor overrideColorDescriptor = {};
-  overrideColorDescriptor.ApplyOverrideColors = applyOverrides ? 1 : 0;
-  overrideColorDescriptor.Opacity = overrideOpacity;
-  for (int i = 0; i < 3; ++i)
-  {
-    overrideColorDescriptor.Ambient[i] = overrideAmbientColor[i];
-    overrideColorDescriptor.Diffuse[i] = overrideDiffuseColor[i];
-  }
   if (this->AttributeDescriptorBuffer != nullptr)
   {
+    vtkTypeUInt32 applyOverrideColors = applyOverrides ? 1 : 0;
+    vtkTypeFloat32 opacity = overrideOpacity;
+    vtkTypeFloat32 ambientColor[3];
+    vtkTypeFloat32 diffuseColor[3];
+    for (int i = 0; i < 3; ++i)
+    {
+      ambientColor[i] = overrideAmbientColor[i];
+      diffuseColor[i] = overrideDiffuseColor[i];
+    }
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, OverrideColors), &overrideColorDescriptor,
-      sizeof(overrideColorDescriptor));
+      offsetof(MeshAttributeDescriptor, ApplyOverrideColors), &applyOverrideColors,
+      sizeof(vtkTypeUInt32));
+
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, Opacity), &opacity, sizeof(vtkTypeFloat32));
+
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, CompositeId), &compositeId, sizeof(vtkTypeUInt32));
+
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, Ambient), &ambientColor, sizeof(ambientColor));
+
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, Diffuse), &diffuseColor, sizeof(diffuseColor));
+
+    vtkTypeUInt32 pickableAsUInt32 = pickable ? 1u : 0u;
+    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
+      offsetof(MeshAttributeDescriptor, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32));
   }
   this->OverrideColorUploadTimestamp.Modified();
 }

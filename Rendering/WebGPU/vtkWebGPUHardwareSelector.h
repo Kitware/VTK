@@ -28,46 +28,75 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
+   * The super class repeatedly renders the frame for different passes.
+   * We do not wish to do that as it is quite expensive. This class
+   * leverages webgpu features to achieve selection within a single pass.
+   */
+  bool CaptureBuffers() override;
+
+  /**
    * Called by the mapper before and after
    * rendering each prop.
    */
-  void BeginRenderProp() override;
-  void EndRenderProp() override;
+  void BeginRenderProp() override{};
+  void EndRenderProp() override{};
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
    * Currently indices >= 0xffffff are not supported.
    */
-  void RenderCompositeIndex(unsigned int index) override;
+  void RenderCompositeIndex(unsigned int /*index*/) override{};
 
   /**
    * Called by any vtkMapper or subclass to render process id. This has any
    * effect when this->UseProcessIdFromData is true.
    */
-  void RenderProcessId(unsigned int processid) override;
+  void RenderProcessId(unsigned int /*processid*/) override{};
 
   // we need to initialize the depth buffer
   void BeginSelection() override;
   void EndSelection() override;
 
+  /**
+   * returns the prop associated with a ID. This is valid only until
+   * ReleasePixBuffers() gets called.
+   */
+  vtkProp* GetPropFromID(int id) override;
+
+  PixelInformation GetPixelInformation(const unsigned int inDisplayPosition[2], int maxDist,
+    unsigned int outSelectedPosition[2]) override;
+
 protected:
   vtkWebGPUHardwareSelector();
   ~vtkWebGPUHardwareSelector() override;
 
-  void PreCapturePass(int pass) override;
-  void PostCapturePass(int pass) override;
+  void PreCapturePass(int /*pass*/) override{};
+  void PostCapturePass(int /*pass*/) override{};
 
-  // Called internally before each prop is rendered
-  // for device specific configuration/preparation etc.
-  void BeginRenderProp(vtkRenderWindow*) override;
-  void EndRenderProp(vtkRenderWindow*) override;
+  void BeginRenderProp(vtkRenderWindow*) override{};
+  void EndRenderProp(vtkRenderWindow*) override{};
 
-  void SavePixelBuffer(int passNo) override;
+  void SavePixelBuffer(int) override{};
 
-  int OriginalMultiSample;
-  bool OriginalBlending;
+  void ReleasePixBuffers() override;
+
+  int Convert(int xx, int yy, unsigned char* pb) override;
 
 private:
+  friend class vtkWebGPURenderWindow;
+  struct Ids
+  {
+    vtkTypeUInt32 AttributeId;
+    vtkTypeUInt32 PropId;
+    vtkTypeUInt32 CompositeId;
+    vtkTypeUInt32 ProcessId;
+  };
+
+  bool MapReady = false;
+  std::vector<Ids> IdBuffer;
+
+  vtkProp** PropArray = nullptr;
+
   vtkWebGPUHardwareSelector(const vtkWebGPUHardwareSelector&) = delete;
   void operator=(const vtkWebGPUHardwareSelector&) = delete;
 };

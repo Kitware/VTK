@@ -36,6 +36,7 @@
 #include "PointShader.h"
 #include "SurfaceMeshShader.h"
 
+#include "Private/vtkWebGPUActorInternals.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
@@ -961,7 +962,8 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   this->MapScalars(this->CurrentInput, 1.0, cellFlag);
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
 
-  MeshAttributeDescriptor meshAttrDescriptor;
+  MeshAttributeDescriptor meshAttrDescriptor = {};
+  meshAttrDescriptor.Pickable = true;
 
   vtkPointData* pointData = this->CurrentInput->GetPointData();
   vtkDataArray* pointPositions = this->CurrentInput->GetPoints()->GetData();
@@ -1309,12 +1311,17 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   descriptor.vertex.entryPoint = "vertexMain";
   descriptor.vertex.bufferCount = 0;
   descriptor.cFragment.entryPoint = "fragmentMain";
+  descriptor.EnableBlending(0);
   descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
   ///@{ TODO: Only for valid depth stencil formats
   auto depthState = descriptor.EnableDepthStencil(wgpuRenderWindow->GetDepthStencilFormat());
   depthState->depthWriteEnabled = true;
   depthState->depthCompare = wgpu::CompareFunction::Less;
   ///@}
+  // Prepare selection ids output.
+  descriptor.cTargets[1].format = wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  descriptor.cFragment.targetCount++;
+  descriptor.DisableBlending(1);
 
   // Update local parameters that decide whether a pipeline must be rebuilt.
   this->RebuildGraphicsPipelines = false;
@@ -1330,7 +1337,7 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 
   std::vector<wgpu::BindGroupLayout> bgls;
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
-  wgpuActor->PopulateBindgroupLayouts(bgls);
+  wgpuActor->Internals->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(
     this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroupLayout"));
   bgls.emplace_back(this->CreateTopologyBindGroupLayout(device, "TopologyBindGroupLayout"));

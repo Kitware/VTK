@@ -358,14 +358,6 @@ protected:
     vtkTypeUInt32 NumTuples = 0;
     vtkTypeUInt32 NumComponents = 0;
   };
-  struct OverrideColorDescriptor
-  {
-    vtkTypeUInt32 ApplyOverrideColors = 0;
-    vtkTypeFloat32 Opacity = 0;
-    vtkTypeUInt8 Padding1[8];
-    vtkTypeFloat32 Ambient[4] = {}; // last component is padding for 16-byte alignment
-    vtkTypeFloat32 Diffuse[4] = {}; // last component is padding for 16-byte alignment
-  };
   struct MeshAttributeDescriptor
   {
     AttributeDescriptor Positions;
@@ -375,8 +367,13 @@ protected:
     AttributeDescriptor UVs;
     AttributeDescriptor CellColors;
     AttributeDescriptor CellNormals;
-    vtkTypeUInt8 Padding[12];
-    OverrideColorDescriptor OverrideColors;
+    vtkTypeUInt32 ApplyOverrideColors = 0;
+    vtkTypeFloat32 Opacity = 0;
+    vtkTypeUInt32 CompositeId = 0;
+    vtkTypeFloat32 Ambient[3] = {};
+    vtkTypeUInt32 ProcessId = 0;
+    vtkTypeFloat32 Diffuse[3] = {};
+    vtkTypeUInt32 Pickable = false;
   };
   wgpu::Buffer AttributeDescriptorBuffer;
 

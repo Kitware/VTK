@@ -4,6 +4,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include "Private/vtkWebGPURenderPassDescriptorInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkAbstractMapper.h"
 #include "vtkFrameBufferObjectBase.h"
@@ -15,10 +16,8 @@
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
-#include "vtkType.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
-#include "vtkWebGPUClearDrawPass.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUConfiguration.h"
@@ -54,27 +53,18 @@ const char* backgroundShaderSource = R"(
       @builtin(position) position: vec4<f32>
     };
     struct FragmentOutput {
-      @location(0) color: vec4<f32>
+      @location(0) color: vec4<f32>,
+      @location(1) ids: vec4<u32>,
     };
 
     @fragment
     fn fragmentMain() -> FragmentOutput {
       var output: FragmentOutput;
       output.color = vec4<f32>(1, 1, 1, 1);
+      output.ids = vec4<u32>(0u);
       return output;
     }
   )";
-
-vtkWebGPURenderPass* MakeClearDrawPass()
-{
-  auto* pass = vtkWebGPUClearDrawPass::New();
-  // do not clear color because doing so would erase the contents of the entire
-  // color attachment, including other renderer's viewports!
-  pass->SetClearColor(false);
-  pass->SetClearDepth(false);
-  pass->SetClearStencil(false);
-  return pass;
-}
 }
 
 //------------------------------------------------------------------------------
@@ -178,7 +168,7 @@ void vtkWebGPURenderer::CreateBuffers()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::Clear()
 {
-  if (!this->DoClearPass)
+  if (!this->DrawBackgroundInClearPass)
   {
     return;
   }
@@ -203,21 +193,27 @@ void vtkWebGPURenderer::Clear()
 
   for (int i = 0; i < vtkWebGPURenderPipelineDescriptorInternals::kMaxColorAttachments; ++i)
   {
+    auto* blendState = bkgPipelineDescriptor.EnableBlending(i);
     if (this->Transparent())
     {
-      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::One;
-      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::One;
+      blendState->color.srcFactor = wgpu::BlendFactor::Zero;
+      blendState->color.dstFactor = wgpu::BlendFactor::One;
+      blendState->alpha.srcFactor = wgpu::BlendFactor::Zero;
+      blendState->alpha.dstFactor = wgpu::BlendFactor::One;
     }
     else
     {
-      bkgPipelineDescriptor.cBlends[i].color.srcFactor = wgpu::BlendFactor::Constant;
-      bkgPipelineDescriptor.cBlends[i].color.dstFactor = wgpu::BlendFactor::Zero;
-      bkgPipelineDescriptor.cBlends[i].alpha.srcFactor = wgpu::BlendFactor::Constant;
-      bkgPipelineDescriptor.cBlends[i].alpha.dstFactor = wgpu::BlendFactor::Zero;
+      blendState->color.srcFactor = wgpu::BlendFactor::Constant;
+      blendState->color.dstFactor = wgpu::BlendFactor::Zero;
+      blendState->alpha.srcFactor = wgpu::BlendFactor::Constant;
+      blendState->alpha.dstFactor = wgpu::BlendFactor::Zero;
     }
   }
+  // Prepare selection ids output.
+  bkgPipelineDescriptor.cTargets[1].format =
+    wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat();
+  bkgPipelineDescriptor.cFragment.targetCount++;
+  bkgPipelineDescriptor.DisableBlending(1);
   const auto pipelineKey =
     wgpuPipelineCache->GetPipelineKey(&bkgPipelineDescriptor, backgroundShaderSource);
   wgpuPipelineCache->CreateRenderPipeline(&bkgPipelineDescriptor, this, backgroundShaderSource);
@@ -246,12 +242,45 @@ void vtkWebGPURenderer::DeviceRender()
   this->ConfigureComputePipelines();
   this->PreRenderComputePipelines();
 
-  this->BeginRecording(); // all pipelines execute in single render pass, for now.
-  this->ActiveCamera->UpdateViewport(this);
-  this->UpdateGeometry();
-  this->EndRecording();
+  this->RecordRenderCommands();
 
-  this->DoClearPass = true;
+  this->DrawBackgroundInClearPass = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPURenderer::RecordRenderCommands()
+{
+  vtkRenderState state(this);
+  state.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+  state.SetFrameBuffer(nullptr);
+
+  if (auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->RenderWindow))
+  {
+    vtkWebGPURenderPassDescriptorInternals renderPassDescriptor(
+      { wgpuRenderWindow->GetOffscreenColorAttachmentView(),
+        wgpuRenderWindow->GetHardwareSelectorAttachmentView() },
+      wgpuRenderWindow->GetDepthStencilView(),
+      /*clearColor=*/false, /*clearDepth=*/false, /*clearStencil=*/false);
+    renderPassDescriptor.label = "vtkWebGPURenderer::RecordRenderCommands";
+    this->WGPURenderEncoder = wgpuRenderWindow->NewRenderPass(renderPassDescriptor);
+    this->BeginRecording();
+    // 1. Draw the background color/texture.
+    // updates viewport and scissor rectangles on the render pass encoder.
+    this->ActiveCamera->UpdateViewport(this);
+    // clear the viewport rectangle to background color.
+    if (this->RenderWindow->GetErase() && this->Erase)
+    {
+      this->Clear();
+    }
+    // 2. Now render all opaque and translucent props.
+    this->UpdateGeometry();
+    this->EndRecording();
+  }
+  else
+  {
+    vtkErrorMacro(
+      << "Cannot record render commands because RenderWindow is not a vtkWebGPURenderWindow!");
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -287,7 +316,7 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
 {
   int i;
 
-  if (this->DoClearPass)
+  if (this->DrawBackgroundInClearPass)
   {
     this->PropsRendered.clear();
     this->NumberOfPropsRendered = 0;
@@ -296,47 +325,6 @@ int vtkWebGPURenderer::UpdateGeometry(vtkFrameBufferObjectBase* /*fbo=nullptr*/)
   if (this->PropArrayCount == 0)
   {
     return 0;
-  }
-
-  if (this->Selector)
-  {
-    // When selector is present, we are performing a selection,
-    // so do the selection rendering pass instead of the normal passes.
-    // Delegate the rendering of the props to the selector itself.
-
-    // use pickfromprops ?
-    if (this->PickFromProps)
-    {
-      vtkProp** pa;
-      vtkProp* aProp;
-      if (this->PickFromProps->GetNumberOfItems() > 0)
-      {
-        pa = new vtkProp*[this->PickFromProps->GetNumberOfItems()];
-        int pac = 0;
-
-        vtkCollectionSimpleIterator pit;
-        for (this->PickFromProps->InitTraversal(pit);
-             (aProp = this->PickFromProps->GetNextProp(pit));)
-        {
-          if (aProp->GetVisibility())
-          {
-            pa[pac++] = aProp;
-          }
-        }
-
-        this->NumberOfPropsRendered = this->Selector->Render(this, pa, pac);
-        delete[] pa;
-      }
-    }
-    else
-    {
-      this->NumberOfPropsRendered =
-        this->Selector->Render(this, this->PropArray, this->PropArrayCount);
-    }
-
-    this->RenderTime.Modified();
-    vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors");
-    return this->NumberOfPropsRendered;
   }
 
   // We can render everything because if it was
@@ -395,6 +383,10 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {
+        if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
+        {
+          wgpuActor->SetId(i);
+        }
         this->PropArray[i]->RenderOpaqueGeometry(this);
       }
       result += this->PropArrayCount;
@@ -431,6 +423,10 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {
+        if (auto* wgpuActor = vtkWebGPUActor::SafeDownCast(this->PropArray[i]))
+        {
+          wgpuActor->SetId(i);
+        }
         this->PropArray[i]->RenderTranslucentPolygonalGeometry(this);
       }
       result += this->PropArrayCount;
@@ -726,7 +722,6 @@ void vtkWebGPURenderer::ReleaseGraphicsResources(vtkWindow* w)
   this->WGPURenderEncoder = nullptr;
   this->SceneTransformBuffer = nullptr;
   this->SceneLightsBuffer = nullptr;
-  this->LastActorBufferSize = 0;
   this->SceneBindGroup = nullptr;
   this->SceneBindGroupLayout = nullptr;
 }
@@ -770,10 +765,7 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   this->PropArray = propList;
   this->PropArrayCount = listLength;
 
-  this->BeginRecording();
-  this->ActiveCamera->UpdateViewport(this);
-  this->UpdateGeometry();
-  this->EndRecording();
+  this->RecordRenderCommands();
 
   // Restoring
   this->PropArray = propArrayBackup;
@@ -788,7 +780,7 @@ wgpu::CommandBuffer vtkWebGPURenderer::EncodePropListRenderCommand(
   // it's ready to be used again by someone else
   renderWindow->CreateCommandEncoder();
 
-  this->DoClearPass = false;
+  this->DrawBackgroundInClearPass = false;
   return commandBuffer;
 }
 
@@ -797,12 +789,8 @@ void vtkWebGPURenderer::BeginRecording()
 {
   vtkDebugMacro(<< __func__);
   this->RenderStage = RenderStageEnum::RecordingCommands;
-  vtkRenderState state(this);
-  state.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-  state.SetFrameBuffer(nullptr);
-  this->Pass = ::MakeClearDrawPass();
+  assert(this->WGPURenderEncoder != nullptr);
 
-  this->WGPURenderEncoder = vtkWebGPURenderPass::SafeDownCast(this->Pass)->Begin(&state);
 #ifndef NDEBUG
   this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
 #endif
@@ -814,12 +802,15 @@ void vtkWebGPURenderer::BeginRecording()
     // create a new bundle encoder.
     const std::string label = this->GetObjectDescription();
     auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(this->GetRenderWindow());
-    const auto colorFormat = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
+    const std::vector<wgpu::TextureFormat> colorFormats = {
+      wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
+      wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
+    };
     const int sampleCount =
       wgpuRenderWindow->GetMultiSamples() ? wgpuRenderWindow->GetMultiSamples() : 1;
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
-    bundleEncDesc.colorFormatCount = 1;
-    bundleEncDesc.colorFormats = &colorFormat;
+    bundleEncDesc.colorFormatCount = colorFormats.size();
+    bundleEncDesc.colorFormats = colorFormats.data();
     bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
     bundleEncDesc.sampleCount = sampleCount;
     bundleEncDesc.depthReadOnly = false;
@@ -894,8 +885,6 @@ void vtkWebGPURenderer::EndRecording()
 #endif
   this->WGPURenderEncoder.End();
   this->WGPURenderEncoder = nullptr;
-  this->Pass->Delete();
-  this->Pass = nullptr;
 }
 
 //------------------------------------------------------------------------------

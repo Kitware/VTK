@@ -459,7 +459,7 @@ int vtkOpenGLRenderer::UpdateGeometry(vtkFrameBufferObjectBase* fbo)
     return this->NumberOfPropsRendered;
   }
 
-  // if we are suing shadows then let the renderpasses handle it
+  // if we are using shadows then let the renderpasses handle it
   // for opaque and translucent
   int hasTranslucentPolygonalGeometry = 0;
   if (this->UseShadows)

@@ -30,4 +30,6 @@ struct ActorColorOptions {
   opacity: f32,
   // One of VTK_FLAT, VTK_GOURAUD, VTK_PHONG and VTK_PBR
   interpolation_type: u32,
+  // Id to color by
+  id: u32,
 }

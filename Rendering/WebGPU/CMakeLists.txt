@@ -9,7 +9,6 @@ set(classes
   vtkWebGPUBatchedPolyDataMapper
   vtkWebGPUCamera
   vtkWebGPUCellToPrimitiveConverter
-  vtkWebGPUClearDrawPass
   vtkWebGPUCommandEncoderDebugGroup
   vtkWebGPUCompositePolyDataMapperDelegator
   vtkWebGPUComputeBuffer
@@ -33,13 +32,13 @@ set(classes
   vtkWebGPUPolyDataMapper2D
   vtkWebGPUProperty
   vtkWebGPURenderer
-  vtkWebGPURenderPass
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
   vtkWebGPUTexture
   vtkWebGPUTextureView)
 
 set(private_headers
+  "Private/vtkWebGPUActorInternals.h"
   "Private/vtkWebGPUBindGroupInternals.h"
   "Private/vtkWebGPUBindGroupLayoutInternals.h"
   "Private/vtkWebGPUBufferInternals.h"
@@ -113,6 +112,7 @@ set(private_shader_files
   wgsl/ActorColorOptions.wgsl
   wgsl/ActorRenderOptions.wgsl
   wgsl/ActorTransform.wgsl
+  wgsl/CopyDepthTextureToBuffer.wgsl
   wgsl/FrustumCullingShader.wgsl
   wgsl/LineFragmentShader.wgsl
   wgsl/LineGlyphShader.wgsl
