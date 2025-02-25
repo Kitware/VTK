@@ -312,7 +312,6 @@
         - .fedora_mpich_addon
 
     variables:
-        CMAKE_BUILD_TYPE: Release
         CMAKE_CONFIGURATION: fedora39_java
         VTK_INSTALL: 1
 
