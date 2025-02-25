@@ -45,7 +45,7 @@ public:
    * Enable/disable the computation of the CellSize array.
    * Default is true.
    */
-  virtual bool GetComputeCellSizeArray();
+  virtual bool GetComputeCellSizeArray() VTK_FUTURE_CONST;
   virtual void SetComputeCellSizeArray(bool enable);
   vtkBooleanMacro(ComputeCellSizeArray, bool);
   ///@}
@@ -55,7 +55,7 @@ public:
    * Get/Set the name used for the cell size array.
    * Defaults to 'CellSize'
    */
-  virtual std::string GetCellSizeArrayName();
+  virtual std::string GetCellSizeArrayName() VTK_FUTURE_CONST;
   virtual void SetCellSizeArrayName(std::string name);
   ///@}
 
@@ -64,7 +64,7 @@ public:
    * Enable/disable the computation of the ValidCell array.
    * Default is true.
    */
-  virtual bool GetComputeValidCellArray();
+  virtual bool GetComputeValidCellArray() VTK_FUTURE_CONST;
   virtual void SetComputeValidCellArray(bool enable);
   vtkBooleanMacro(ComputeValidCellArray, bool);
   ///@}
@@ -74,7 +74,7 @@ public:
    * Get/Set the name used for the cell validity array.
    * Defaults to 'ValidCell'
    */
-  virtual std::string GetValidCellArrayName();
+  virtual std::string GetValidCellArrayName() VTK_FUTURE_CONST;
   virtual void SetValidCellArrayName(std::string name);
   ///@}
 
@@ -83,7 +83,7 @@ public:
    * Enable/disable the computation of the CellCenter array.
    * Default is true.
    */
-  virtual bool GetComputeCellCenterArray();
+  virtual bool GetComputeCellCenterArray() VTK_FUTURE_CONST;
   virtual void SetComputeCellCenterArray(bool enable);
   vtkBooleanMacro(ComputeCellCenterArray, bool);
   ///@}
@@ -93,7 +93,7 @@ public:
    * Get/Set the name used for the cell center array.
    * Defaults to 'CellCenter'
    */
-  virtual std::string GetCellCenterArrayName();
+  virtual std::string GetCellCenterArrayName() VTK_FUTURE_CONST;
   virtual void SetCellCenterArrayName(std::string name);
   ///@}
 
@@ -102,7 +102,7 @@ public:
    * Enable/disable the computation of the TotalVisibleVolume array.
    * Default is true.
    */
-  virtual bool GetComputeTotalVisibleVolumeArray();
+  virtual bool GetComputeTotalVisibleVolumeArray() VTK_FUTURE_CONST;
   virtual void SetComputeTotalVisibleVolumeArray(bool enable);
   vtkBooleanMacro(ComputeTotalVisibleVolumeArray, bool);
   ///@}
@@ -112,7 +112,7 @@ public:
    * Get/Set the name used for the total visible volume array.
    * Defaults to 'TotalVisibleVolume'
    */
-  virtual std::string GetTotalVisibleVolumeArrayName();
+  virtual std::string GetTotalVisibleVolumeArrayName() VTK_FUTURE_CONST;
   virtual void SetTotalVisibleVolumeArrayName(std::string name);
   ///@}
 

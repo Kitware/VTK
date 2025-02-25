@@ -12,7 +12,7 @@
 #define fieldMacros(Name)                                                                          \
   std::string vtkHyperTreeGridGenerateFields::Get##Name##ArrayName() VTK_FUTURE_CONST              \
   {                                                                                                \
-    return this->Fields[#Name].strategy->GetArrayName();                                           \
+    return this->Fields.at(#Name).strategy->GetArrayName();                                        \
   }                                                                                                \
   void vtkHyperTreeGridGenerateFields::Set##Name##ArrayName(std::string _arg)                      \
   {                                                                                                \
@@ -25,7 +25,7 @@
   }                                                                                                \
   bool vtkHyperTreeGridGenerateFields::GetCompute##Name##Array() VTK_FUTURE_CONST                  \
   {                                                                                                \
-    return this->Fields[#Name].enabled;                                                            \
+    return this->Fields.at(#Name).enabled;                                                         \
   }                                                                                                \
   void vtkHyperTreeGridGenerateFields::SetCompute##Name##Array(bool _arg)                          \
   {                                                                                                \
