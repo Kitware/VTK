@@ -31,6 +31,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   if (range[1] - range[0] < 0.01)
   {
     cerr << "Error resampling along X" << endl;
+    return EXIT_FAILURE;
   }
 
   // test on Y
@@ -41,6 +42,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   if (range[1] - range[0] < 0.01)
   {
     cerr << "Error resampling along Y" << endl;
+    return EXIT_FAILURE;
   }
 
   // test on Z
@@ -51,6 +53,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   if (range[1] - range[0] < 0.01)
   {
     cerr << "Error resampling along Z" << endl;
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

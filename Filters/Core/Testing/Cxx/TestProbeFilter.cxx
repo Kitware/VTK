@@ -4,18 +4,20 @@
 #include "vtkArrayCalculator.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkImageData.h"
 #include "vtkLineSource.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkProbeFilter.h"
+#include "vtkRTAnalyticSource.h"
 
 // Gets the number of points the probe filter counted as valid.
 // The parameter should be the output of the probe filter
-int GetNumberOfValidPoints(vtkDataSet* pd)
+vtkIdType GetNumberOfValidPoints(vtkDataSet* pd)
 {
   vtkDataArray* data = pd->GetPointData()->GetScalars("vtkValidPointMask");
-  int numValid = 0;
-  for (int i = 0; i < data->GetNumberOfTuples(); ++i)
+  vtkIdType numValid = 0;
+  for (vtkIdType i = 0; i < data->GetNumberOfTuples(); ++i)
   {
     if (data->GetVariantValue(i).ToDouble() == 1)
     {
@@ -25,8 +27,27 @@ int GetNumberOfValidPoints(vtkDataSet* pd)
   return numValid;
 }
 
+bool TestProbeFilterWithProvidedData(
+  vtkDataSet* input, vtkDataSet* source, vtkIdType expectedNValidPoints)
+{
+  vtkNew<vtkProbeFilter> probe;
+  probe->SetInputData(input);
+  probe->SetSourceData(source);
+  probe->Update();
+
+  vtkIdType nValidPoints = GetNumberOfValidPoints(probe->GetOutput());
+  if (nValidPoints != expectedNValidPoints)
+  {
+    std::cerr << "Unexpected number of valid points, got " << nValidPoints << " instead of "
+              << expectedNValidPoints << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
 // Tests the CompteThreshold and Threshold parameters on the vtkProbeFilter
-int TestProbeFilterThreshold()
+bool TestProbeFilterThreshold()
 {
   vtkNew<vtkLineSource> line1;
   line1->SetPoint1(-1, 0, 0);
@@ -51,7 +72,7 @@ int TestProbeFilterThreshold()
   int validDefault = GetNumberOfValidPoints(probe->GetOutput());
   if (validDefault != 2)
   {
-    return 1;
+    return false;
   }
   // turn off computing tolerance and set it to 11 times what is was.
   // 11 is magic number to get all the points within line1 selected.
@@ -63,19 +84,56 @@ int TestProbeFilterThreshold()
 
   if (validNext != 11)
   {
-    return 1;
+    return false;
   }
   // threshold is still set high, but we tell it to ignore it
   probe->SetComputeTolerance(true);
   probe->Update();
 
   int validIgnore = GetNumberOfValidPoints(probe->GetOutput());
-  return (validIgnore == 2) ? 0 : 1;
+  return (validIgnore == 2) ? true : false;
+}
+
+// Test probing one image into another
+bool TestProbeFilterWithImages()
+{
+  // Create Pipeline
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->SetWholeExtent(0, 16, 0, 16, 0, 16);
+  wavelet->SetCenter(8, 8, 8);
+  wavelet->Update();
+
+  vtkNew<vtkImageData> img;
+  img->SetExtent(1, 15, 1, 15, 1, 15);
+  img->SetOrigin(1, 1, 1);
+
+  return TestProbeFilterWithProvidedData(img, wavelet->GetOutput(), 3375);
+}
+
+// Test probing one image into an oriented one
+bool TestProbeFilterWithOrientedImages()
+{
+  // Create Pipeline
+  vtkNew<vtkRTAnalyticSource> wavelet;
+  wavelet->SetWholeExtent(0, 16, 0, 16, 0, 16);
+  wavelet->SetCenter(8, 8, 8);
+  wavelet->Update();
+
+  vtkNew<vtkImageData> img;
+  img->SetExtent(1, 15, 1, 15, 1, 15);
+  img->SetOrigin(1, 1, 1);
+  img->SetDirectionMatrix(0.7, -0.7, 0, 0.7, 0.7, 0, 0, 0, 1);
+
+  return TestProbeFilterWithProvidedData(img, wavelet->GetOutput(), 1575);
 }
 
 // Currently only tests the ComputeThreshold and Threshold.  Other tests
 // should be added
 int TestProbeFilter(int, char*[])
 {
-  return TestProbeFilterThreshold();
+  bool status = true;
+  status &= TestProbeFilterThreshold();
+  status &= TestProbeFilterWithImages();
+  status &= TestProbeFilterWithOrientedImages();
+  return status ? EXIT_SUCCESS : EXIT_FAILURE;
 }
