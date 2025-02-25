@@ -7,7 +7,10 @@ set(classes
   vtkOpenXRControlsHelper
   vtkOpenXRModel
   vtkOpenXRRenderer
-  vtkOpenXRInteractorStyle)
+  vtkOpenXRInteractorStyle
+  vtkOpenXRSceneObserver
+  vtkOpenXRSceneComponent
+  )
 
 set(nowrap_classes
   vtkOpenXRManager

@@ -30,6 +30,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLRenderWindow;
 class vtkOpenXRRenderWindow;
+class vtkOpenXRSceneObserver;
 
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRManager
 {
@@ -173,9 +174,21 @@ public:
   ///@{
   /**
    * Return true if the runtime supports the depth extension.
+   *
+   * This value is defined by `vtkOpenXRManager::Initialize`.
    */
   bool IsDepthExtensionSupported() { return this->OptionalExtensions.DepthExtensionSupported; }
   ///@}
+
+  /**
+   * Return true if the runtime supports the scene understanding extension.
+   *
+   * This value is defined by `vtkOpenXRManager::Initialize`.
+   */
+  bool IsSceneUnderstandingSupported()
+  {
+    return this->OptionalExtensions.SceneUnderstandingSupported;
+  }
 
   ///@{
   /**
@@ -397,6 +410,19 @@ public:
   /**
    * Return OpenXR System ID associated with the XrSession
    */
+  XrSystemId GetSystemID() const { return this->SystemId; }
+
+  /**
+   * Return XrSpace associated with the XrSession
+   */
+  XrSpace GetReferenceSpace() const { return this->ReferenceSpace; }
+
+  /**
+   * Return runtime predicted display time for next frame.
+   * This may be needed for some OpenXR API calls that requires time information.
+   * This is updated by `WaitAndBeginFrame()`
+   */
+  XrTime GetPredictedDisplayTime() const { return this->PredictedDisplayTime; }
 
 protected:
   vtkOpenXRManager();
@@ -560,6 +586,8 @@ protected:
     bool HandInteractionSupported{ false };
     bool HandTrackingSupported{ false };
     bool RemotingSupported{ false };
+    bool SceneUnderstandingSupported{ false };
+    bool SceneMarkerSupported{ false };
   } OptionalExtensions;
   ///@}
 

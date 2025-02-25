@@ -8,6 +8,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRManagerOpenGLGraphics.h"
 #include "vtkOpenXRRenderWindow.h"
+#include "vtkOpenXRSceneObserver.h"
 #include "vtkOpenXRUtilities.h"
 #include "vtkRendererCollection.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
@@ -752,6 +753,16 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions(vtkOpenXRRenderWindo
       EnableExtensionIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME);
   }
 
+  if (window->GetEnableSceneUnderstanding())
+  {
+    this->OptionalExtensions.SceneUnderstandingSupported =
+      EnableExtensionIfSupported(XR_MSFT_SCENE_UNDERSTANDING_EXTENSION_NAME);
+
+    this->OptionalExtensions.SceneMarkerSupported =
+      this->OptionalExtensions.SceneUnderstandingSupported &&
+      EnableExtensionIfSupported(XR_MSFT_SCENE_MARKER_EXTENSION_NAME);
+  }
+
   this->PrintOptionalExtensions();
 
   return enabledExtensions;
@@ -787,6 +798,14 @@ void vtkOpenXRManager::PrintOptionalExtensions()
   if (this->OptionalExtensions.RemotingSupported)
   {
     std::cout << "Optional extensions Remoting is supported" << std::endl;
+  }
+  if (this->OptionalExtensions.SceneUnderstandingSupported)
+  {
+    std::cout << "Optional extensions Scene Understanding is supported" << std::endl;
+  }
+  if (this->OptionalExtensions.SceneMarkerSupported)
+  {
+    std::cout << "Optional extensions Scene Marker is supported" << std::endl;
   }
 }
 
