@@ -2,7 +2,9 @@ set(VTK_JAVA_RELEASE_VERSION $ENV{VTK_JAVA_VERSION} CACHE STRING "" FORCE)
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_macos.cmake")
 
-set(MAVEN_LOCAL_NATIVE_NAME "darwin-amd" CACHE STRING "" FORCE)
+string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type)
+set(MAVEN_LOCAL_NATIVE_NAME "darwin-amd-${cmake_build_type}" CACHE STRING "" FORCE)
+unset(cmake_build_type)
 
 # Ensure that we're targeting 11.0.
 set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")

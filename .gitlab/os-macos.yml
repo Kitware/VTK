@@ -148,14 +148,12 @@
 .macos_x86_64_java:
     extends: .macos_build
     variables:
-        CMAKE_BUILD_TYPE: Release
         CMAKE_CONFIGURATION: macos_x86_64_java
         VTK_INSTALL: 1
 
 .macos_arm64_java:
     extends: .macos_build
     variables:
-        CMAKE_BUILD_TYPE: Release
         CMAKE_CONFIGURATION: macos_arm64_java
         VTK_INSTALL: 1
 
