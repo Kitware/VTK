@@ -220,7 +220,33 @@ static unsigned int methodCategory(const MethodAttributes* meth, int shortForm)
   const char* name;
   name = meth->Name;
 
-  if (isSetMethod(name))
+  if (isSetNthMethod(name))
+  {
+    if (meth->IsEnumerated)
+    {
+      /* SetNthSomethingToEnumValue(idx) not supported */
+    }
+    else if (meth->IsIndexed)
+    {
+      return VTK_METHOD_SET_NTH;
+    }
+  }
+  else if (isGetNthMethod(name))
+  {
+    if (isAsStringMethod(name))
+    {
+      /* GetNthSomethingAsString(idx) not supported */
+    }
+    else if (meth->IsIndexed && meth->IsRHS)
+    {
+      return VTK_METHOD_GET_NTH_RHS;
+    }
+    else if (meth->IsIndexed)
+    {
+      return VTK_METHOD_GET_NTH;
+    }
+  }
+  else if (isSetMethod(name))
   {
     if (meth->IsEnumerated)
     {
@@ -228,14 +254,7 @@ static unsigned int methodCategory(const MethodAttributes* meth, int shortForm)
     }
     else if (meth->IsIndexed)
     {
-      if (isSetNthMethod(name))
-      {
-        return VTK_METHOD_SET_NTH;
-      }
-      else
-      {
-        return VTK_METHOD_SET_IDX;
-      }
+      return VTK_METHOD_SET_IDX;
     }
     else if (meth->IsMultiValue)
     {
@@ -278,25 +297,11 @@ static unsigned int methodCategory(const MethodAttributes* meth, int shortForm)
     }
     else if (meth->IsIndexed && meth->IsRHS)
     {
-      if (isGetNthMethod(name))
-      {
-        return VTK_METHOD_GET_NTH_RHS;
-      }
-      else
-      {
-        return VTK_METHOD_GET_IDX_RHS;
-      }
+      return VTK_METHOD_GET_IDX_RHS;
     }
     else if (meth->IsIndexed)
     {
-      if (isGetNthMethod(name))
-      {
-        return VTK_METHOD_GET_NTH;
-      }
-      else
-      {
-        return VTK_METHOD_GET_IDX;
-      }
+      return VTK_METHOD_GET_IDX;
     }
     else if (meth->IsMultiValue)
     {
@@ -532,7 +537,7 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
     /* methods of the form "type GetValue(int i)" */
     if ((!func->ReturnValue ||
           (func->ReturnValue->Type & VTK_PARSE_UNQUALIFIED_TYPE) != VTK_PARSE_VOID) &&
-      func->NumberOfParameters == 1)
+      isGetMethod(func->Name) && func->NumberOfParameters == 1)
     {
       indexed = 1;
     }
