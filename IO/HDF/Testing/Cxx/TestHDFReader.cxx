@@ -205,7 +205,7 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
   reader->SetFileName(fileName.c_str());
   reader->Update();
 
-  vtkUnstructuredGrid* data;
+  vtkNew<vtkUnstructuredGrid> data;
   if (parallel)
   {
     auto pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
@@ -221,11 +221,11 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
     }
     appender->Update();
 
-    data = vtkUnstructuredGrid::SafeDownCast(appender->GetOutput());
+    data->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(appender->GetOutput()));
   }
   else
   {
-    data = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+    data->ShallowCopy(vtkUnstructuredGrid::SafeDownCast(reader->GetOutput()));
   }
 
   oreader->SetFileName(expectedName.c_str());
