@@ -3,7 +3,6 @@
 
 #include "vtkWebGPUConfiguration.h"
 #include "Private/vtkWebGPUBufferInternals.h"
-#include "Private/vtkWebGPUCallbacksInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
