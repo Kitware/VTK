@@ -1,80 +1,38 @@
 # VTK::RenderingWebGPU
-## vtkRenderingWebGPU - WebGPU backend for rendering
+
+## vtkRenderingWebGPU - WebGPU Backend for Rendering
 
 ### Description
 
-This module contains the WebGPU native backend for `RenderingCore`. At the moment, only polygonal geometry can be rendered in different representations with point/cell scalar mapped colors.
+This module contains the WebGPU native backend for `RenderingCore`. Currently, it supports rendering polygonal geometry in different representations with point/cell scalar-mapped colors.
 
-#### Available features
-Here is a list of currently implemented features:
-1. Polygonal geometry rendering with point, line and triangle primitives.
-2. Point scalar mapped coloring of surfaces.
-3. Cell scalar mapped coloring.
-4. Draw actors with the actor representation = `VTK_POINTS`, `VTK_WIREFRAME`, `VTK_SURFACE` and `VTK_SURFACE` with edge visibility.
-5. Lighting based on VTK headlights and point/cell normals.
-6. Point size adjustments.
-7. Line width adjustments for wireframe and surface with edges.
-8. `vtkWebAssemblyWebGPURenderWindow` is a reference implementation of `vtkWebGPURenderWindow` that works on WebAssembly and desktop.
-9. `vtkXWebGPURenderWindow` is an implementation of `vtkWebGPURenderWindow` that uses X11 for Linux desktop rendering.
-10. Depth testing.
+When both the `RenderingOpenGL2` and `RenderingWebGPU` libraries are linked, the user must set the
+`VTK_GRAPHICS_BACKEND` environment variable to either `WEBGPU` or `OPENGL` in order to activate
+the intended object factories. In the future, we plan to enhance the object factory mechanism to accept command
+line arguments.
 
-###### Compute shader API
+---
 
-The compute shader API allows offloading work from the CPU onto the GPU using WebGPU compute shaders.
-User-level information about the usage of the API can be found [here](./webgpu-compute-api-user.md).
-Developper-level information about the API can be found [here](./webgpu-compute-api-dev.md).
+### Building VTK with Dawn (Highly Experimental)
 
-#### Future work
-Since WebGPU is already an abstraction over graphics APIs, this module doesn't create another level of abstraction. It uses WebGPU's C++ flavor
-for it's object-oriented API and RAII. There are helper classes in the `vtkWebGPUInternals...` files for convenience and to make the bind group
-initialization code look clean.
+#### Prerequisites
 
-A lot of work remains to be done. Selections, volume mappers, textures, dual-depth peeling, fancy lights, platform native render windows are few that come to mind.
+- Git
+- tools for building VTK
 
-#### References
-Here are some very interesting references to learn WebGPU from examples if you prefer code over spec.
-1. https://toji.github.io/webgpu-gltf-case-study/
-  A case-study that slowly builds up an efficient gltf renderer in WebGPU using javascript. The author describes downfalls in
-  certain methods and proposes alternative ways when applicable.
-2. https://github.com/samdauwe/webgpu-native-examples
-  A curated list of single file examples if you want to see how to do X with Y like constraints using WebGPU C API.
-3. https://eliemichel.github.io/LearnWebGPU/index.html
-  Similar to LearnOpenGL or the vulka-tutorial.com. Walks you through getting a window, triangle, buffers, textures and 3D rendering.
-  This tutorial has good coverage and the author provides a simple to use WebGPU C++ distribution.
-4. https://sotrh.github.io/learn-wgpu/
-  A very nice coverage of the beginner concepts of webgpu. This tutorial uses wgpu.rs
-5. https://alain.xyz/blog/raw-webgpu
-  Another small tutorial that lets you break the ice with WebGPU and get comfy with the concepts. This tutorial targets javascript API.
-6. https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/
-  A detailed, yet fun to read explanation of the swapchain and image presentation process. The author has several other
-  targeted posts on WebGPU concepts.
-7. https://webgpu.rocks/
-  You want to look at the WebGPU API, but are afraid of reading the spec and do not want to read C headers. This website
-  presents the WebGPU API and WGSL summary in a fancy way with syntax highlights.
+This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm. You can either build Dawn from scratch or download pre-built releases for your machine from [kitware:utils/ci-utilities/dawn-v7037-20250226.0](https://gitlab.kitware.com/utils/ci-utilities/-/releases/dawn%2Fv7037-20250226.0)
 
-Finally, for wgsl, the spec does a good job https://www.w3.org/TR/WGSL/
+#### Cloning and Building Dawn
 
-
-#### How to build VTK with Dawn (Highly experimental)
-
-Things you'll need:
-  1. git
-  2. [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up)
-
-This module uses Dawn-C++ WebGPU implementation when VTK is built outside emscripten. First grab [Dawn](https://dawn.googlesource.com/dawn/) and follow their
-build instructions using `gn`, not CMake.
-
-To build VTK with Dawn, you need to build Dawn at tag [chromium/6594](https://dawn.googlesource.com/dawn.git/+show/chromium/6594).
-Subsequent commits have changed the public API of Dawn to a great extent, making it incompatible with VTK.
-Dawn uses the Chromium build system and dependency management so you need to install [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) and add it to the PATH.
+Dawn should be built at tag [chromium/7037](https://dawn.googlesource.com/dawn.git/+show/chromium/7037).
 
 ```sh
-# Clone the repo as "dawn"
+# Clone the repo and checkout the required version
 git clone https://dawn.googlesource.com/dawn dawn && cd dawn
-git checkout chromium/6594
+git checkout chromium/7037
 ```
 
-##### Build Dawn with `cmake` and `ninja`
+##### Build Dawn with `CMake` and `Ninja`
 
 ```sh
 cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
@@ -82,10 +40,10 @@ cmake --build out/Debug
 cmake --install out/Debug --prefix /path/to/install/dawn
 ```
 
-##### Configure and build VTK
+#### Configuring and Building VTK
 
 ```sh
-$ cmake \
+cmake \
 -S /path/to/vtk/src \
 -B /path/to/vtk/build \
 -GNinja \
@@ -93,32 +51,134 @@ $ cmake \
 -DDawn_DIR=/path/to/where/dawn/is/installed/lib/cmake/Dawn \
 -DVTK_BUILD_TESTING=ON
 
-$ cmake --build
+cmake --build
 ```
 
-##### Run the WebGPU tests
-These are not regression tested with image comparisons.
+---
+
+### Running Tests
+
+#### WebGPU Tests
+
 ```sh
-$ ./bin/vtkRenderingWebGPUCxxTests
+./bin/vtkRenderingWebGPUCxxTests
+```
+
 Available tests:
-  0. TestCellScalarMappedColors
-  1. TestConesBenchmark
-  2. TestLineRendering
-  3. TestPointScalarMappedColors
-  4. TestSurfacePlusEdges
-  5. TestTheQuad
-  6. TestTheQuadPointRepresentation
-  7. TestTheQuadWireframeRepresentation
-  8. TestTheTriangle
-  9. TestTheTrianglePointRepresentation
- 10. TestTheTriangleWireframeRepresentation
- 11. TestVertexRendering
- 12. TestWireframe
+
+```
+0. TestActorFaceCullingProperty
+1. TestAxesActor
+2. TestCellScalarMappedColors
+3. TestCompositePolyDataMapper
+..
+..
 ```
 
-##### Run the Rendering Core tests
-The RenderingCore vtk.module can be edited to link the unit tests with `VTK::RenderingWebGPU` module. After uncommenting the module name under `TEST_DEPENDS`, rebuild and run the tests. Very few of these pass.
+#### Rendering Core Tests
+
+To run the `RenderingCore` tests with `VTK::RenderingWebGPU`, edit `vtk.module` to link unit tests with `TEST_DEPENDS`:
+
+1. Uncomment the module name under `TEST_DEPENDS`.
+2. Rebuild and run the tests (only a few pass currently).
+3. Set the `VTK_GRAPHICS_BACKEND` environment variable to `WEBGPU`
+
 ```sh
-$ export VTK_GRAPHICS_BACKEND=WEBGPU
-$ ./bin/vtkRenderingCoreCxxTests
+export VTK_GRAPHICS_BACKEND=WEBGPU
+./bin/vtkRenderingCoreCxxTests
 ```
+
+---
+
+### Features
+
+The following features are currently implemented:
+
+- **vtkPolyData Rendering**: Supports point, line, and triangle primitives.
+- **Glyph Rendering**: Supports point, line, and triangle primitives.
+- **Composite vtkPolyData Rendering**: Supports point, line, and triangle primitives.
+- **Scalar Mapped Coloring**:
+  - Point scalar mapped coloring of surfaces.
+  - Cell scalar mapped coloring.
+- **Actor Representations**:
+  - `VTK_POINTS`
+  - `VTK_WIREFRAME`
+  - `VTK_SURFACE`
+  - `VTK_SURFACE` with edge visibility
+- **Lighting**:
+  - Based on VTK headlights.
+  - Supports point/cell normals.
+- **Rendering Adjustments**:
+  - Point size adjustments.
+  - Line width adjustments for wireframe and surface with edges.
+- **Rendering Backends**:
+  - `vtkWebAssemblyWebGPURenderWindow`: A reference implementation of `vtkWebGPURenderWindow` for WebAssembly and desktop.
+  - `vtkXWebGPURenderWindow`: Implementation using X11 for Linux desktop rendering.
+- **Depth Testing**: Enables correct rendering of 3D objects.
+- **Selections**: Hardware selector can pick cells, composite datasets and actors.
+---
+
+### Compute Shader API
+
+The compute shader API allows offloading work from the CPU to the GPU using WebGPU compute shaders.
+
+- **User-level information**: [Compute API User Guide](./doc/webgpu-compute-api-user.md)
+- **Developer-level information**: [Compute API Developer Guide](./doc/webgpu-compute-api-dev.md)
+
+---
+
+### Future Work
+
+Since WebGPU is already an abstraction over graphics APIs, this module avoids creating another level of abstraction. It leverages WebGPU's C++ flavor for its object-oriented API and RAII. Helper classes in the `vtkWebGPUInternals...` files ensure cleaner bind group initialization code.
+
+Planned improvements include:
+
+- Volume mappers
+- Textures
+- Dual-depth peeling
+- Advanced lighting
+- Platform-native render windows for Windows, macOS, Android, iOS and wayland.
+
+---
+
+### References
+
+Here are some valuable resources for learning WebGPU:
+
+1. **[WebGPU Fundamentals](https://webgpufundamentals.org/)**
+
+   - Complete introduction to using WebGPU
+
+2. **[WebGPU GLTF Case Study](https://toji.github.io/webgpu-gltf-case-study/)**
+
+   - Builds an efficient glTF renderer in WebGPU using JavaScript.
+   - Discusses various rendering pitfalls and optimizations.
+
+3. **[WebGPU Native Examples](https://github.com/samdauwe/webgpu-native-examples/)**
+
+   - A collection of single-file examples demonstrating various WebGPU use cases in C.
+
+4. **[Learn WebGPU](https://eliemichel.github.io/LearnWebGPU/index.html)**
+
+   - Similar to LearnOpenGL and Vulkan tutorials.
+   - Covers window setup, triangle rendering, buffers, textures, and 3D rendering.
+
+5. **[Learn WGPU](https://sotrh.github.io/learn-wgpu/)**
+
+   - Beginner-friendly tutorial using wgpu.rs.
+
+6. **[Raw WebGPU](https://alain.xyz/blog/raw-webgpu)**
+
+   - Introductory tutorial covering WebGPU concepts using JavaScript.
+
+7. **[How to Render a WebGPU Triangle (Series)](https://carmencincotti.com/2022-12-19/how-to-render-a-webgpu-triangle-series-part-three-video/)**
+
+   - Explains swapchain and image presentation in detail.
+
+8. **[WebGPU Rocks](https://webgpu.rocks/)**
+
+   - A well-organized WebGPU API and WGSL summary.
+
+For WGSL specification, refer to: [WGSL Spec](https://www.w3.org/TR/WGSL/)
+
+---
