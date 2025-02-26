@@ -76,8 +76,6 @@ int TestCompositePolyDataMapper(int argc, char* argv[])
   iren->SetInteractorStyle(style);
   style->SetDefaultRenderer(renderer);
 
-  renWin->Render();
-
   const int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

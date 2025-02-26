@@ -57,7 +57,6 @@ int TestNActorsNMappersOneInput(int argc, char* argv[])
   }
 
   renderer->ResetCamera();
-  renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);

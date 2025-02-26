@@ -63,7 +63,6 @@ int TestLowPowerRenderWindow(int argc, char* argv[])
   renderer->AddActor(actor);
 
   renderer->ResetCamera();
-  renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
