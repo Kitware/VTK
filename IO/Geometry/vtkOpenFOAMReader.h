@@ -394,7 +394,7 @@ protected:
 
   char* FileName;
   vtkCharArray* CasePath;
-  vtkCollection* Readers;
+  std::vector<vtkSmartPointer<vtkObject>> Readers;
 
   // DataArraySelection for Patch / Region Data
   vtkDataArraySelection* PatchDataArraySelection;
@@ -423,8 +423,6 @@ protected:
   // paths to Lagrangians
   vtkStringArray* LagrangianPaths;
 
-  // number of reader instances
-  int NumberOfReaders;
   // index of the active reader
   int CurrentReaderIndex;
 

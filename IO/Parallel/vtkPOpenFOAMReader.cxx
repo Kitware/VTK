@@ -462,8 +462,7 @@ int vtkPOpenFOAMReader::RequestInformation(
     }
 
     *this->Superclass::FileNameOld = this->FileName;
-    this->Superclass::Readers->RemoveAllItems();
-    this->Superclass::NumberOfReaders = 0;
+    this->Superclass::Readers.clear();
 
     // Recreate case information
     vtkStdString masterCasePath, controlDictPath;
@@ -507,7 +506,7 @@ int vtkPOpenFOAMReader::RequestInformation(
             returnCode = 0;
             break; // Failed
           }
-          this->Superclass::Readers->AddItem(masterReader);
+          this->Superclass::Readers.emplace_back(masterReader);
           timeNames = masterReader->GetTimeNames();
           timeValues = masterReader->GetTimeValues();
         }
@@ -570,7 +569,7 @@ int vtkPOpenFOAMReader::RequestInformation(
       if (subReader->MakeInformationVector(nullptr, procDirName, timeNames, timeValues) &&
         subReader->MakeMetaDataAtTimeStep(true))
       {
-        this->Superclass::Readers->AddItem(subReader);
+        this->Superclass::Readers.emplace_back(subReader);
       }
       else
       {
@@ -638,7 +637,7 @@ int vtkPOpenFOAMReader::RequestData(
     return returnCode;
   }
 
-  if (this->Superclass::Readers->GetNumberOfItems())
+  if (!this->Superclass::Readers.empty())
   {
     int nTimes = 0; // Also used for logic
     double requestedTimeValue = 0;
@@ -662,12 +661,14 @@ int vtkPOpenFOAMReader::RequestData(
     vtkAppendCompositeDataLeaves* append = vtkAppendCompositeDataLeaves::New();
     // append->AppendFieldDataOn();
 
-    vtkOpenFOAMReader* reader;
     this->Superclass::CurrentReaderIndex = 0;
-    this->Superclass::Readers->InitTraversal();
-    while ((reader = vtkOpenFOAMReader::SafeDownCast(
-              this->Superclass::Readers->GetNextItemAsObject())) != nullptr)
+    for (auto& readerObj : this->Superclass::Readers)
     {
+      vtkOpenFOAMReader* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
+      if (!reader)
+      {
+        continue;
+      }
       // even if the child readers themselves are not modified, mark
       // them as modified if "this" has been modified, since they
       // refer to the property of "this"

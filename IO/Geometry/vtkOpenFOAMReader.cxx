@@ -11014,9 +11014,6 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   // Case path
   this->CasePath = vtkCharArray::New();
 
-  // Child readers
-  this->Readers = vtkCollection::New();
-
   // VTK CLASSES
   this->PatchDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
@@ -11065,7 +11062,6 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
   this->LagrangianPaths = vtkStringArray::New();
 
   this->CurrentReaderIndex = 0;
-  this->NumberOfReaders = 0;
   this->Use64BitLabels = false;
   this->Use64BitFloats = true;
   this->Use64BitLabelsOld = false;
@@ -11083,7 +11079,6 @@ vtkOpenFOAMReader::~vtkOpenFOAMReader()
   this->PointDataArraySelection->Delete();
   this->LagrangianDataArraySelection->Delete();
 
-  this->Readers->Delete();
   this->CasePath->Delete();
 
   this->SetFileName(nullptr);
@@ -11125,12 +11120,11 @@ void vtkOpenFOAMReader::SetUse64BitFloats(bool val)
 void vtkOpenFOAMReader::PrintTimes(ostream& os, vtkIndent indent, bool full) const
 {
   os << indent << "TimeInformation (SkipZeroTime: " << this->SkipZeroTime << ")\n";
-  this->Readers->InitTraversal();
-  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
+  for (auto& readerObj : this->Readers)
   {
     // Is private implementation
     {
-      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
       if (reader)
       {
         reader->PrintTimes(os, indent.GetNextIndent(), full);
@@ -11139,7 +11133,7 @@ void vtkOpenFOAMReader::PrintTimes(ostream& os, vtkIndent indent, bool full) con
     }
     // Is sub-reader for derived type
     {
-      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
       if (reader)
       {
         reader->PrintTimes(os, indent.GetNextIndent(), full);
@@ -11163,11 +11157,10 @@ void vtkOpenFOAMReader::PrintSelf(ostream& os, vtkIndent indent)
   this->PrintTimes(os, indent);
 
   // PrintSelf for any type of sub-readers
-  this->Readers->InitTraversal();
-  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
+  for (auto& readerObj : this->Readers)
   {
-    os << indent << "Reader instance " << static_cast<void*>(obj) << ": \n";
-    obj->PrintSelf(os, indent.GetNextIndent());
+    os << indent << "Reader instance " << static_cast<void*>(readerObj) << ": \n";
+    readerObj->PrintSelf(os, indent.GetNextIndent());
   }
 }
 
@@ -11256,7 +11249,7 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // Reset NumberOfReaders here so that the variable will not be
     // reset unwantedly when MakeInformationVector() is called from
     // vtkPOpenFOAMReader
-    this->NumberOfReaders = 0;
+    this->Readers.clear();
 
     if (!this->MakeInformationVector(outputVector, {}) || !this->MakeMetaDataAtTimeStep(true))
     {
@@ -11311,20 +11304,21 @@ int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkOpenFOAMReaderPrivate* reader;
 
   // Avoid wrapping single region as a multiblock dataset
-  if (this->Readers->GetNumberOfItems() == 1 &&
-    (reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers->GetItemAsObject(0)))
-      ->GetRegionName()
-      .empty())
+  if (this->Readers.size() == 1 &&
+    (reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers[0]))->GetRegionName().empty())
   {
     ret = reader->RequestData(output);
     this->Parent->CurrentReaderIndex++;
   }
   else
   {
-    this->Readers->InitTraversal();
-    while ((reader = vtkOpenFOAMReaderPrivate::SafeDownCast(
-              this->Readers->GetNextItemAsObject())) != nullptr)
+    for (auto& readerObj : this->Readers)
     {
+      reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
+      if (!reader)
+      {
+        continue;
+      }
       auto subOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
       if (reader->RequestData(subOutput))
       {
@@ -11385,7 +11379,7 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
   this->FileNameOld->assign(this->FileName);
 
   // Clear prior case information
-  this->Readers->RemoveAllItems();
+  this->Readers.clear();
 
   // Recreate case information
   vtkStdString casePath, controlDictPath;
@@ -11474,7 +11468,7 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
 
   if (hasDefaultRegion)
   {
-    this->Readers->AddItem(masterReader);
+    this->Readers.emplace_back(masterReader);
   }
 
   // Add subregions
@@ -11482,10 +11476,8 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
   {
     auto subReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
     subReader->SetupInformation(casePath, regionName, procName, masterReader);
-    this->Readers->AddItem(subReader);
+    this->Readers.emplace_back(subReader);
   }
-
-  this->Parent->NumberOfReaders += this->Readers->GetNumberOfItems();
 
   if (outputVector != nullptr)
   {
@@ -11564,12 +11556,11 @@ void vtkOpenFOAMReader::AddSelectionNames(
 bool vtkOpenFOAMReader::SetTimeValue(double timeValue)
 {
   bool modified = false;
-  this->Readers->InitTraversal();
-  for (vtkObject* obj; (obj = this->Readers->GetNextItemAsObject()) != nullptr;)
+  for (auto& readerObj : this->Readers)
   {
     // Is private implementation
     {
-      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
       if (reader)
       {
         const vtkMTimeType mTime = reader->GetMTime();
@@ -11583,7 +11574,7 @@ bool vtkOpenFOAMReader::SetTimeValue(double timeValue)
     }
     // Is sub-reader for derived type
     {
-      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
       if (reader)
       {
         if (reader->SetTimeValue(timeValue))
@@ -11600,13 +11591,13 @@ bool vtkOpenFOAMReader::SetTimeValue(double timeValue)
 //------------------------------------------------------------------------------
 double vtkOpenFOAMReader::GetTimeValue() const
 {
-  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+  vtkObject* readerObj = !this->Readers.empty() ? this->Readers[0] : nullptr;
 
-  if (obj)
+  if (readerObj)
   {
     // Is private implementation
     {
-      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeValue();
@@ -11614,7 +11605,7 @@ double vtkOpenFOAMReader::GetTimeValue() const
     }
     // Is sub-reader for derived type
     {
-      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeValue();
@@ -11628,13 +11619,13 @@ double vtkOpenFOAMReader::GetTimeValue() const
 //------------------------------------------------------------------------------
 vtkStringArray* vtkOpenFOAMReader::GetTimeNames()
 {
-  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+  vtkObject* readerObj = !this->Readers.empty() ? this->Readers[0] : nullptr;
 
-  if (obj)
+  if (readerObj)
   {
     // Is private implementation
     {
-      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeNames();
@@ -11642,7 +11633,7 @@ vtkStringArray* vtkOpenFOAMReader::GetTimeNames()
     }
     // Is sub-reader for derived type
     {
-      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeNames();
@@ -11656,13 +11647,13 @@ vtkStringArray* vtkOpenFOAMReader::GetTimeNames()
 //------------------------------------------------------------------------------
 vtkDoubleArray* vtkOpenFOAMReader::GetTimeValues()
 {
-  vtkObject* obj = this->Readers->GetNumberOfItems() ? this->Readers->GetItemAsObject(0) : nullptr;
+  vtkObject* readerObj = !this->Readers.empty() ? this->Readers[0] : nullptr;
 
-  if (obj)
+  if (readerObj)
   {
     // Is private implementation
     {
-      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeValues();
@@ -11670,7 +11661,7 @@ vtkDoubleArray* vtkOpenFOAMReader::GetTimeValues()
     }
     // Is sub-reader for derived type
     {
-      auto* reader = vtkOpenFOAMReader::SafeDownCast(obj);
+      auto* reader = vtkOpenFOAMReader::SafeDownCast(readerObj);
       if (reader)
       {
         return reader->GetTimeValues();
@@ -11699,11 +11690,13 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
   }
 
   int ret = 1;
-  vtkOpenFOAMReaderPrivate* reader;
-  this->Readers->InitTraversal();
-  while ((reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers->GetNextItemAsObject())) !=
-    nullptr)
+  for (auto& readerObj : this->Readers)
   {
+    vtkOpenFOAMReaderPrivate* reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj);
+    if (!reader)
+    {
+      continue;
+    }
     ret *= reader->MakeMetaDataAtTimeStep(
       cellDataNames, pointDataNames, lagrangianDataNames, listNextTimeStep);
 
@@ -11758,7 +11751,7 @@ void vtkOpenFOAMReader::UpdateProgress(double amount)
 {
   this->vtkAlgorithm::UpdateProgress(
     (static_cast<double>(this->Parent->CurrentReaderIndex) + amount) /
-    static_cast<double>(this->Parent->NumberOfReaders));
+    static_cast<double>(this->Parent->Readers.size()));
 }
 
 VTK_ABI_NAMESPACE_END
