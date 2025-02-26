@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Input variables.
-set(openxr_version "1.0.29")
+set(openxr_version "1.1.45")
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(openxr_platform "windows")
   set(openxr_ext "zip")
-  set(openxr_hash "88bbba650cccdca089ff956783ff18530e2d1e650b340dc89227364a360c736e")
+  set(openxr_hash "b4806737309ed09ecda0b03eb11d037b6f00d83d0458c8f08f9f38ad6042171f")
 else ()
   message(FATAL_ERROR
     "Unknown platform for OpenXR")

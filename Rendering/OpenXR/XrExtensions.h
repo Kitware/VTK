@@ -75,7 +75,7 @@
 #define FOR_EACH_SPATIAL_GRAPH_BRIDGE_FUNCTION(_)
 #endif
 
-#if XR_MSFT_scene_understanding_preview2
+#if XR_MSFT_scene_understanding
 #define FOR_EACH_SCENE_UNDERSTANDING_FUNCTION(_)                                                   \
   _(xrCreateSceneObserverMSFT)                                                                     \
   _(xrDestroySceneObserverMSFT)                                                                    \
@@ -85,9 +85,18 @@
   _(xrGetSceneComputeStateMSFT)                                                                    \
   _(xrGetSceneComponentsMSFT)                                                                      \
   _(xrLocateSceneComponentsMSFT)                                                                   \
-  _(xrGetSceneMeshBuffersMSFT)
+  _(xrGetSceneMeshBuffersMSFT)                                                                     \
+  _(xrEnumerateSceneComputeFeaturesMSFT)
 #else
 #define FOR_EACH_SCENE_UNDERSTANDING_FUNCTION(_)
+#endif
+
+#if XR_MSFT_scene_marker
+#define FOR_EACH_SCENE_MARKER_FUNCTION(_)                                                          \
+  _(xrGetSceneMarkerRawDataMSFT)                                                                   \
+  _(xrGetSceneMarkerDecodedStringMSFT)
+#else
+#define FOR_EACH_SCENE_MARKER_FUNCTION(_)
 #endif
 
 #if XR_MSFT_scene_understanding_serialization_preview
@@ -108,7 +117,8 @@
   FOR_EACH_CONTROLLER_MODEL_EXTENSION_FUNCTION(_)                                                  \
   FOR_EACH_PERCEPTION_ANCHOR_INTEROP_FUNCTION(_)                                                   \
   FOR_EACH_SCENE_UNDERSTANDING_FUNCTION(_)                                                         \
-  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)
+  FOR_EACH_SCENE_UNDERSTANDING_SERIALIZATION_FUNCTION(_)                                           \
+  FOR_EACH_SCENE_MARKER_FUNCTION(_)
 
 #define GET_INSTANCE_PROC_ADDRESS(name)                                                            \
   (void)xrGetInstanceProcAddr(                                                                     \

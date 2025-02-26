@@ -17,6 +17,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenXR.h"
 
+#include <cmath> // for tanf
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenXRUtilities : public vtkObject
 {

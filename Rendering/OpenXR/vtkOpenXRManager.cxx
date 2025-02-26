@@ -8,6 +8,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenXRManagerOpenGLGraphics.h"
 #include "vtkOpenXRRenderWindow.h"
+#include "vtkOpenXRSceneObserver.h"
 #include "vtkOpenXRUtilities.h"
 #include "vtkRendererCollection.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
@@ -95,15 +96,17 @@ vtkOpenXRManager::vtkOpenXRManager()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenXRManager::Initialize(vtkOpenGLRenderWindow* helperWindow)
+bool vtkOpenXRManager::Initialize(vtkOpenXRRenderWindow* xrWindow)
 {
+  vtkOpenGLRenderWindow* helperWindow = xrWindow->GetHelperWindow();
+
   if (!this->ConnectionStrategy->Initialize())
   {
     vtkWarningWithObjectMacro(nullptr, "Failed to initialize connection strategy.");
     return false;
   }
 
-  if (!this->CreateInstance())
+  if (!this->CreateInstance(xrWindow))
   {
     vtkWarningWithObjectMacro(nullptr, "Initialize failed to CreateInstance");
     return false;
@@ -690,7 +693,7 @@ bool vtkOpenXRManager::PrintReferenceSpaces()
 }
 
 //------------------------------------------------------------------------------
-std::vector<const char*> vtkOpenXRManager::SelectExtensions()
+std::vector<const char*> vtkOpenXRManager::SelectExtensions(vtkOpenXRRenderWindow* window)
 {
   // Fetch the list of extensions supported by the runtime.
   uint32_t extensionCount;
@@ -744,10 +747,20 @@ std::vector<const char*> vtkOpenXRManager::SelectExtensions()
   this->OptionalExtensions.RemotingSupported =
     EnableExtensionIfSupported(this->ConnectionStrategy->GetExtensionName());
 
-  if (this->UseDepthExtension)
+  if (window->GetUseDepthExtension())
   {
     this->OptionalExtensions.DepthExtensionSupported =
       EnableExtensionIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME);
+  }
+
+  if (window->GetEnableSceneUnderstanding())
+  {
+    this->OptionalExtensions.SceneUnderstandingSupported =
+      EnableExtensionIfSupported(XR_MSFT_SCENE_UNDERSTANDING_EXTENSION_NAME);
+
+    this->OptionalExtensions.SceneMarkerSupported =
+      this->OptionalExtensions.SceneUnderstandingSupported &&
+      EnableExtensionIfSupported(XR_MSFT_SCENE_MARKER_EXTENSION_NAME);
   }
 
   this->PrintOptionalExtensions();
@@ -786,15 +799,23 @@ void vtkOpenXRManager::PrintOptionalExtensions()
   {
     std::cout << "Optional extensions Remoting is supported" << std::endl;
   }
+  if (this->OptionalExtensions.SceneUnderstandingSupported)
+  {
+    std::cout << "Optional extensions Scene Understanding is supported" << std::endl;
+  }
+  if (this->OptionalExtensions.SceneMarkerSupported)
+  {
+    std::cout << "Optional extensions Scene Marker is supported" << std::endl;
+  }
 }
 
 //------------------------------------------------------------------------------
 // Instance and extensions
 //------------------------------------------------------------------------------
-bool vtkOpenXRManager::CreateInstance()
+bool vtkOpenXRManager::CreateInstance(vtkOpenXRRenderWindow* window)
 {
   // Start by selection available extensions
-  const std::vector<const char*> enabledExtensions = this->SelectExtensions();
+  const std::vector<const char*> enabledExtensions = this->SelectExtensions(window);
 
   // Check that the requested rendering backend is supported
   if (!this->RenderingBackendExtensionSupported)
