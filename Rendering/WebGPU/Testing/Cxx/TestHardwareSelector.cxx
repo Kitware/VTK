@@ -179,6 +179,7 @@ int TestHardwareSelector(int argc, char* argv[])
         {
           std::cerr << "Expected selected Ids = " << oss.str()
                     << " got 4 5 6 7 67 76 77 86 87 88 89 \n";
+          return EXIT_FAILURE;
         }
       }
     }
@@ -294,6 +295,7 @@ int TestHardwareSelector(int argc, char* argv[])
                "4733 4734 4735 4736 4737 4738 4739 4740 4742 4743 4744 4745 4746 4747 4748 4749 "
                "4751 4752 4753 4755 4756 4757 4758 4759 4761 4783 4787 4789 4790 4795 4796 4797 "
                "4798 \n";
+          return EXIT_FAILURE;
         }
       }
     }
@@ -319,6 +321,7 @@ int TestHardwareSelector(int argc, char* argv[])
         if (oss.str() != "3 4 5 ")
         {
           std::cerr << "Expected selected Ids = " << oss.str() << " got 3 4 5 \n";
+          return EXIT_FAILURE;
         }
       }
     }
