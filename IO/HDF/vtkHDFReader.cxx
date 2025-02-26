@@ -4,7 +4,6 @@
 #include "vtkHDFReader.h"
 #include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
-#include "vtkAppendDataSets.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
@@ -521,10 +520,17 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
                                         "this reader supports "
                                      << vtkHDFMajorVersion << "." << vtkHDFMinorVersion);
   }
+
+  if (this->MergeParts)
+  {
+    vtkWarningMacro("MergeParts option will be ignored. Please use vtkMergeBlocks instead.");
+  }
+
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
+  int numPieces = this->Impl->GetNumberOfPieces(this->Step);
   this->SetHasTemporalData(this->NumberOfSteps > 1);
   int dataSetType = this->Impl->GetDataSetType();
-  if (!output || !output->IsA(typeNameMap[dataSetType].c_str()) || !this->MergeParts)
+  if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
   {
     vtkSmartPointer<vtkDataObject> newOutput = nullptr;
     if (dataSetType == VTK_IMAGE_DATA)
@@ -533,7 +539,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     }
     else if (dataSetType == VTK_UNSTRUCTURED_GRID)
     {
-      if (this->MergeParts)
+      if (numPieces <= 1)
       {
         newOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
       }
@@ -548,7 +554,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
     }
     else if (dataSetType == VTK_POLY_DATA)
     {
-      if (this->MergeParts)
+      if (numPieces <= 1)
       {
         newOutput = vtkSmartPointer<vtkPolyData>::New();
       }
@@ -1087,16 +1093,9 @@ int vtkHDFReader::Read(
   }
   else if (data)
   {
-    for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
-    {
-      vtkNew<vtkAppendDataSets> append;
-      append->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
-      append->AddInputData(data);
-      append->AddInputData(pieces.back());
-      append->Update();
-      data->ShallowCopy(append->GetOutput());
-      pieces.pop_back();
-    }
+    // Only single piece datasets should have a non-partitioned output structure
+    assert(pieces.size() == 1);
+    data->ShallowCopy(pieces.back());
   }
   else
   {
@@ -1305,16 +1304,9 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   }
   else if (data)
   {
-    for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
-    {
-      vtkNew<vtkAppendDataSets> append;
-      append->SetOutputDataSetType(VTK_POLY_DATA);
-      append->AddInputData(data);
-      append->AddInputData(pieces.back());
-      append->Update();
-      data->ShallowCopy(append->GetOutput());
-      pieces.pop_back();
-    }
+    // Only single piece datasets should have a non-partitioned output structure
+    assert(pieces.size() == 1);
+    data->ShallowCopy(pieces.back());
   }
   else
   {
@@ -1622,12 +1614,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!output)
   {
-    return 0;
-  }
-
-  if (this->MergeParts && this->UseCache)
-  {
-    vtkErrorMacro(<< "Merge Parts and Use Cache are both enabled which is not supported for now.");
     return 0;
   }
 
