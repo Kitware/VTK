@@ -145,6 +145,7 @@ void vtkParse_InitFunction(FunctionInfo* func)
   func->IsExcluded = 0;
   func->IsDeprecated = 0;
   func->IsMarshalExcluded = 0;
+  func->IsPropExcluded = 0;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *
@@ -238,6 +239,7 @@ void vtkParse_CopyFunction(FunctionInfo* func, const FunctionInfo* orig)
   func->IsExcluded = orig->IsExcluded;
   func->IsDeprecated = orig->IsDeprecated;
   func->IsMarshalExcluded = orig->IsMarshalExcluded;
+  func->IsPropExcluded = orig->IsPropExcluded;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
   /* everything below here is legacy information, *

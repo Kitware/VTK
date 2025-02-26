@@ -488,7 +488,8 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
   attrs->IsNoDiscard = 0;
 
   /* check for major issues with the function */
-  if (!func->Name || func->IsOperator || (func->ReturnValue && func->ReturnValue->Function) ||
+  if (!func->Name || func->IsOperator || func->IsExcluded || func->IsPropExcluded ||
+    (func->ReturnValue && func->ReturnValue->Function) ||
     (func->ReturnValue && func->ReturnValue->NumberOfDimensions > 1))
   {
     return 0;

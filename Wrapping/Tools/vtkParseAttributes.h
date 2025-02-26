@@ -17,6 +17,7 @@
 #define VTK_PARSE_MARSHALAUTO 0x00000040    /* [[vtk::marshalauto]]*/
 #define VTK_PARSE_MARSHALMANUAL 0x00000080  /* [[vtk::marshalmanual]]*/
 #define VTK_PARSE_UNBLOCKTHREADS 0x00000100 /* [[vtk::unblockthreads]] */
+#define VTK_PARSE_PROPEXCLUDE 0x00000200    /* [[vtk::propexclude]] */
 
 #endif
 /* VTK-HeaderTest-Exclude: vtkParseAttributes.h */
