@@ -10,6 +10,7 @@
 #include "vtkOpenXRSceneComponent.h"
 #include "vtkOpenXRUtilities.h"
 
+#include <algorithm>
 #include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
