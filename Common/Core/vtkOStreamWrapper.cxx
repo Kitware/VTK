@@ -82,6 +82,13 @@ vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string const& s)
 }
 
 //------------------------------------------------------------------------------
+vtkOStreamWrapper& vtkOStreamWrapper::operator<<(std_string_view const& s)
+{
+  this->ostr << reinterpret_cast<std::string_view const&>(s);
+  return *this;
+}
+
+//------------------------------------------------------------------------------
 #if defined(__IBMCPP__)
 vtkOStreamWrapper& vtkOStreamWrapper::WriteInternal(const char* a)
 {
