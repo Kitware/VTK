@@ -18,18 +18,18 @@ public:
    * Callback called when the WGPU device is lost
    */
   static void DeviceLostCallback(const WGPUDevice* device, WGPUDeviceLostReason reason,
-    char const* message, void* userdata = nullptr);
+    WGPUStringView message, void* userdata = nullptr);
 
   /**
    * Callback called when an error occurred in the manipulation of WGPU
    */
   static void UncapturedErrorCallback(
-    WGPUErrorType type, char const* message, void* userdata = nullptr);
+    WGPUErrorType type, WGPUStringView message, void* userdata = nullptr);
 
   /*
    * Logs a VTK error based on the WGPU error type and message given
    */
-  static void PrintWGPUError(WGPUErrorType type, const char* message, void* userdata = nullptr);
+  static void PrintWGPUError(WGPUErrorType type, WGPUStringView message, void* userdata = nullptr);
 };
 
 VTK_ABI_NAMESPACE_END

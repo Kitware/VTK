@@ -219,10 +219,9 @@ int TestComputeTriangulation(int argc, char* argv[])
       auto copyCommand = commandEncoder.Finish();
       wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
       // map the destination buffer and verify it's contents.
-      auto onBufferMapped = [](WGPUBufferMapAsyncStatus status, void* userdata)
+      auto onBufferMapped = [](wgpu::MapAsyncStatus status, wgpu::StringView, MapData* userMapData)
       {
-        auto* userMapData = static_cast<MapData*>(userdata);
-        if (status == WGPUBufferMapAsyncStatus::WGPUBufferMapAsyncStatus_Success)
+        if (status == wgpu::MapAsyncStatus::Success)
         {
           vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
           const void* mappedRange =
@@ -248,17 +247,20 @@ int TestComputeTriangulation(int argc, char* argv[])
         }
         else
         {
-          vtkLogF(WARNING, "Could not map buffer with error status: %d", status);
+          vtkLogF(
+            WARNING, "Could not map buffer with error status: %u", static_cast<uint32_t>(status));
           delete userMapData;
         }
       };
       mapData->buffer = dstBuffer;
       mapData->byteSize = byteSize;
-      dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, onBufferMapped, mapData);
+      dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, wgpu::CallbackMode::AllowProcessEvents,
+        onBufferMapped, mapData);
       // wait for mapping to finish.
       bool workDone = false;
       wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
-        [](WGPUQueueWorkDoneStatus, void* userdata) { *static_cast<bool*>(userdata) = true; },
+        wgpu::CallbackMode::AllowProcessEvents,
+        [](wgpu::QueueWorkDoneStatus, bool* userdata) { *static_cast<bool*>(userdata) = true; },
         &workDone);
       while (!workDone)
       {

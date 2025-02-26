@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUHardwareSelector.h"
 
-#include "vtkCellGridMapper.h"
 #include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
 #include "vtkObjectFactory.h"
@@ -50,22 +49,20 @@ bool vtkWebGPUHardwareSelector::CaptureBuffers()
       const auto& queryYMin = this->Area[1];
       const auto& queryXMax = this->Area[2];
       const auto& queryYMax = this->Area[3];
-      this->MapReady = false;
       auto onTextureMapped = [queryYMax, queryYMin](
                                const void* mappedData, int bytesPerRow, void* userData)
       {
-        auto* self = reinterpret_cast<vtkWebGPUHardwareSelector*>(userData);
+        auto* idBuffer = reinterpret_cast<std::vector<Ids>*>(userData);
         const Ids* mappedDataAsIds = reinterpret_cast<const Ids*>(mappedData);
         std::copy(mappedDataAsIds,
           mappedDataAsIds + (queryYMax - queryYMin + 1) * bytesPerRow / sizeof(Ids),
-          std::back_inserter(self->IdBuffer));
-        self->MapReady = true;
+          std::back_inserter(*idBuffer));
       };
       wgpuRenderWindow->ReadTextureFromGPU(wgpuRenderWindow->IdsAttachment.Texture,
         wgpuRenderWindow->IdsAttachment.Format, /*mipLevel=*/0, wgpu::TextureAspect::All,
         wgpu::Origin3D{ queryXMin, queryYMin, 0 },
         wgpu::Extent3D{ queryXMax - queryXMin + 1, queryYMax - queryYMin + 1, 1 }, onTextureMapped,
-        reinterpret_cast<void*>(this));
+        reinterpret_cast<void*>(&(this->IdBuffer)));
       // Wait for texture copy to buffer.
       wgpuRenderWindow->WaitForCompletion();
       this->BuildPropHitList(this->PixBuffer[ACTOR_PASS]);

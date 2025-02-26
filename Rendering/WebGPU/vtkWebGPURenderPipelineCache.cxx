@@ -31,7 +31,7 @@ public:
   ~vtkInternals() { vtksysMD5_Delete(this->md5); }
 
   //-----------------------------------------------------------------------------
-  void ComputeMD5(std::initializer_list<const char*> contents, std::string& hash)
+  void ComputeMD5(std::initializer_list<std::string_view> contents, std::string& hash)
   {
     unsigned char digest[16];
     char md5Hash[33];
@@ -40,10 +40,10 @@ public:
     vtksysMD5_Initialize(this->md5);
     for (const auto& content : contents)
     {
-      if (content)
+      if (!content.empty())
       {
-        vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char*>(content),
-          static_cast<int>(strlen(content)));
+        vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char*>(content.data()),
+          static_cast<int>(content.length()));
       }
     }
     vtksysMD5_Finalize(this->md5, digest);
@@ -126,7 +126,7 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(
     std::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
       descriptor->primitive.cullMode));
   std::string hash;
-  this->Internals->ComputeMD5({ shaderSource, cullModeStr.c_str(), topologyStr.c_str(),
+  this->Internals->ComputeMD5({ shaderSource, cullModeStr, topologyStr,
                                 descriptor->vertex.entryPoint, descriptor->fragment->entryPoint },
     hash);
   return hash;
@@ -149,7 +149,7 @@ void vtkWebGPURenderPipelineCache::CreateRenderPipeline(wgpu::RenderPipelineDesc
 
   // compute md5sum for the final shader source code.
   std::string shaderHash;
-  this->Internals->ComputeMD5({ source.c_str() }, shaderHash);
+  this->Internals->ComputeMD5({ source }, shaderHash);
   wgpu::ShaderModule shaderModule = this->Internals->HasShaderModule(shaderHash);
   if (shaderModule == nullptr)
   {

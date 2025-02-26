@@ -11,7 +11,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUsed(device),
-  WGPUDeviceLostReason reason, char const* message, void* userdata)
+  WGPUDeviceLostReason reason, WGPUStringView message, void* userdata)
 {
   std::string reasonStr;
   bool warn = false;
@@ -20,8 +20,6 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
     case WGPUDeviceLostReason_Destroyed:
       reasonStr = "Destroyed";
       break;
-#ifndef __EMSCRIPTEN__
-      // XXX(emwebgpu-update) Remove this ifdef after emscripten's webgpu.h catches up.
     case WGPUDeviceLostReason_InstanceDropped:
       reasonStr = "InstanceDropped";
       break;
@@ -29,7 +27,6 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
       reasonStr = "FailedCreation";
       warn = true;
       break;
-#endif
     default:
       reasonStr = "Unknown";
       warn = true;
@@ -40,25 +37,26 @@ void vtkWebGPUCallbacksInternals::DeviceLostCallback(const WGPUDevice* vtkNotUse
     if (userdata)
     {
       vtkWarningWithObjectMacro(reinterpret_cast<vtkObject*>(userdata),
-        << "WebGPU device lost: \"" << message << "\" with reason \"" << reasonStr << "\"");
+        << "WebGPU device lost: \"" << message.data << "\" with reason \"" << reasonStr << "\"");
     }
     else
     {
-      vtkLogF(WARNING, "WebGPU device lost: \"%s\" with reason \"%s\"", message, reasonStr.c_str());
+      vtkLogF(
+        WARNING, "WebGPU device lost: \"%s\" with reason \"%s\"", message.data, reasonStr.c_str());
     }
   }
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUCallbacksInternals::UncapturedErrorCallback(
-  WGPUErrorType type, char const* message, void* userdata)
+  WGPUErrorType type, WGPUStringView message, void* userdata)
 {
   vtkWebGPUCallbacksInternals::PrintWGPUError(type, message, userdata);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUCallbacksInternals::PrintWGPUError(
-  WGPUErrorType type, const char* message, void* userdata)
+  WGPUErrorType type, WGPUStringView message, void* userdata)
 {
   std::string typeStr;
   switch (type)
@@ -75,8 +73,8 @@ void vtkWebGPUCallbacksInternals::PrintWGPUError(
       typeStr = "Unknown";
       break;
 
-    case WGPUErrorType_DeviceLost:
-      typeStr = "Device lost";
+    case WGPUErrorType_Internal:
+      typeStr = "Internal";
       break;
 
     default:
@@ -86,9 +84,9 @@ void vtkWebGPUCallbacksInternals::PrintWGPUError(
   std::stringstream logString;
   logString << "Uncaptured device error: type " << typeStr;
 
-  if (message)
+  if (message.data)
   {
-    logString << " with message: \"" << message << "\"";
+    logString << " with message: \"" << message.data << "\"";
   }
 
   if (userdata)

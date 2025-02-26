@@ -67,9 +67,9 @@ void vtkWebGPUTextureInternals::UploadFromDataArray(
 }
 
 //------------------------------------------------------------------------------
-wgpu::ImageCopyTexture vtkWebGPUTextureInternals::GetImageCopyTexture(wgpu::Texture texture)
+wgpu::TexelCopyTextureInfo vtkWebGPUTextureInternals::GetTexelCopyTextureInfo(wgpu::Texture texture)
 {
-  wgpu::ImageCopyTexture copyTexture;
+  wgpu::TexelCopyTextureInfo copyTexture;
   copyTexture.aspect = wgpu::TextureAspect::All;
   copyTexture.mipLevel = 0;
   copyTexture.origin = { 0, 0, 0 };
@@ -78,11 +78,10 @@ wgpu::ImageCopyTexture vtkWebGPUTextureInternals::GetImageCopyTexture(wgpu::Text
   return copyTexture;
 }
 //------------------------------------------------------------------------------
-wgpu::TextureDataLayout vtkWebGPUTextureInternals::GetDataLayout(
+wgpu::TexelCopyBufferLayout vtkWebGPUTextureInternals::GetDataLayout(
   wgpu::Texture texture, uint32_t bytesPerRow)
 {
-  wgpu::TextureDataLayout textureDataLayout;
-  textureDataLayout.nextInChain = nullptr;
+  wgpu::TexelCopyBufferLayout textureDataLayout;
   textureDataLayout.bytesPerRow = bytesPerRow;
   textureDataLayout.offset = 0;
   textureDataLayout.rowsPerImage = texture.GetHeight();

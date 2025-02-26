@@ -447,7 +447,7 @@ bool vtkXWebGPURenderWindow::WindowSetup()
 
   if (this->WGPUInit())
   {
-    wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc = {};
+    wgpu::SurfaceSourceXlibWindow x11SurfDesc = {};
     x11SurfDesc.display = this->GetDisplayId();
     x11SurfDesc.window = this->GetWindowId();
     wgpu::SurfaceDescriptor surfDesc = {};

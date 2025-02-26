@@ -798,68 +798,71 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
   wgpu::Buffer buffer = this->WGPUConfiguration->CreateBuffer(bufferDescriptor);
 
   // Parameters for copying the texture
-  wgpu::ImageCopyTexture imageCopyTexture;
-  imageCopyTexture.mipLevel = mipLevel;
-  imageCopyTexture.origin = offsets;
-  imageCopyTexture.texture = wgpuTexture;
-  imageCopyTexture.aspect = aspect;
+  wgpu::TexelCopyTextureInfo texelCopyTexture;
+  texelCopyTexture.mipLevel = mipLevel;
+  texelCopyTexture.origin = offsets;
+  texelCopyTexture.texture = wgpuTexture;
+  texelCopyTexture.aspect = aspect;
 
   // Parameters for copying the buffer
   unsigned int mipLevelWidth = std::floor(extents.width / std::pow(2, mipLevel));
   unsigned int mipLevelHeight = std::floor(extents.height / std::pow(2, mipLevel));
-  wgpu::ImageCopyBuffer imageCopyBuffer;
-  imageCopyBuffer.buffer = buffer;
-  imageCopyBuffer.layout.nextInChain = nullptr;
-  imageCopyBuffer.layout.offset = 0;
-  imageCopyBuffer.layout.rowsPerImage = mipLevelHeight;
-  imageCopyBuffer.layout.bytesPerRow = bytesPerRow;
+  wgpu::TexelCopyBufferInfo texelCopyBuffer;
+  texelCopyBuffer.buffer = buffer;
+  texelCopyBuffer.layout.offset = 0;
+  texelCopyBuffer.layout.rowsPerImage = mipLevelHeight;
+  texelCopyBuffer.layout.bytesPerRow = bytesPerRow;
 
   // Copying the texture to the buffer
   wgpu::CommandEncoder commandEncoder = this->WGPUConfiguration->GetDevice().CreateCommandEncoder();
   wgpu::Extent3D copySize = { mipLevelWidth, mipLevelHeight, extents.depthOrArrayLayers };
-  commandEncoder.CopyTextureToBuffer(&imageCopyTexture, &imageCopyBuffer, &copySize);
+  commandEncoder.CopyTextureToBuffer(&texelCopyTexture, &texelCopyBuffer, &copySize);
 
   // Submitting the comand
   wgpu::CommandBuffer commandBuffer = commandEncoder.Finish();
   this->WGPUConfiguration->GetDevice().GetQueue().Submit(1, &commandBuffer);
 
-  auto bufferMapCallback = [](WGPUBufferMapAsyncStatus status, void* userData2)
+  auto bufferMapCallback =
+    [](wgpu::MapAsyncStatus status, wgpu::StringView message, InternalMapTextureAsyncData* mapData)
   {
-    InternalMapTextureAsyncData* mapData =
-      reinterpret_cast<InternalMapTextureAsyncData*>(userData2);
-
-    if (status == WGPUBufferMapAsyncStatus_Success)
+    if (status == wgpu::MapAsyncStatus::Success)
     {
       const void* mappedRange = mapData->buffer.GetConstMappedRange(0, mapData->byteSize);
       mapData->userCallback(mappedRange, mapData->bytesPerRow, mapData->userData);
-
       mapData->buffer.Unmap();
-      // Freeing the callbackData structure as it was dynamically allocated
-      delete mapData;
     }
     else
     {
-      vtkLogF(WARNING, "Could not map texture '%s' with error status: %d",
-        mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel.c_str(), status);
-
-      // Freeing the callbackData structure as it was dynamically allocated
-      delete mapData;
+      vtkLog(WARNING, << "Failed to map [Texture \'"
+                      << (mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel)
+                      << "\'] with error=" << static_cast<std::uint32_t>(status) << ". "
+                      << std::string_view(message));
     }
+#if defined(__EMSCRIPTEN__)
+    wgpuBufferRelease(mapData->buffer.Get());
+#endif
+    // Freeing the callbackData structure as it was dynamically allocated
+    delete mapData;
   };
 
   // Now mapping the buffer that contains the texture data to the CPU
   // Dynamically allocating here because we callbackData to stay alive even after exiting this
   // function (because buffer.MapAsync is asynchronous). buffer.MapAsync() also takes a raw pointer
   // so we cannot use smart pointers here
-  InternalMapTextureAsyncData* callbackData = new InternalMapTextureAsyncData;
+  InternalMapTextureAsyncData* callbackData = new InternalMapTextureAsyncData();
   callbackData->buffer = buffer;
-  callbackData->bufferLabel = "ReadTextureFromGPU map buffer";
+  callbackData->bufferLabel = this->GetObjectDescription() + " ReadTextureFromGPU map buffer";
   callbackData->byteSize = bufferDescriptor.size;
   callbackData->bytesPerRow = bytesPerRow;
   callbackData->userCallback = callback;
   callbackData->userData = userData;
-
-  buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size, bufferMapCallback, callbackData);
+#if defined(__EMSCRIPTEN__)
+  // keep buffer alive for map.
+  // See https://issues.chromium.org/issues/399131918
+  wgpuBufferAddRef(callbackData->buffer.Get());
+#endif
+  callbackData->buffer.MapAsync(wgpu::MapMode::Read, 0, bufferDescriptor.size,
+    wgpu::CallbackMode::AllowProcessEvents, bufferMapCallback, callbackData);
 }
 
 //------------------------------------------------------------------------------
@@ -887,12 +890,12 @@ void vtkWebGPURenderWindow::GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUI
     int yMax;
   };
 
-  CallbackData callbackData;
-  callbackData.outputValues = values;
-  callbackData.xMin = x1;
-  callbackData.xMax = x2;
-  callbackData.yMin = y1;
-  callbackData.yMax = y2;
+  auto* callbackData = new CallbackData();
+  callbackData->outputValues = values;
+  callbackData->xMin = x1;
+  callbackData->xMax = x2;
+  callbackData->yMin = y1;
+  callbackData->yMax = y2;
 
   auto onTextureMapped = [inNumberOfComponents](
                            const void* mappedData, int bytesPerRow, void* userData)
@@ -917,10 +920,11 @@ void vtkWebGPURenderWindow::GetIdsData(int x1, int y1, int x2, int y2, vtkTypeUI
         outputValues[dstIdx++] = mappedDataAsUInt32[mappedIndex * inNumberOfComponents + 3];
       }
     }
+    delete callbackDataPtr;
   };
 
   this->ReadTextureFromGPU(this->IdsAttachment.Texture, this->IdsAttachment.Format, 0,
-    wgpu::TextureAspect::All, onTextureMapped, &callbackData);
+    wgpu::TextureAspect::All, onTextureMapped, reinterpret_cast<void*>(callbackData));
   this->WaitForCompletion();
 }
 
@@ -1192,13 +1196,13 @@ void vtkWebGPURenderWindow::End()
       return;
     }
     // copy data to texture.
-    wgpu::ImageCopyTexture destination;
+    wgpu::TexelCopyTextureInfo destination;
     destination.texture = this->ColorAttachment.Texture;
     destination.mipLevel = 0;
     destination.origin = this->StagingPixelData.Origin;
     destination.aspect = wgpu::TextureAspect::All;
 
-    wgpu::ImageCopyBuffer source;
+    wgpu::TexelCopyBufferInfo source;
     source.buffer = this->StagingPixelData.Buffer;
     source.layout = this->StagingPixelData.Layout;
     this->Start();
@@ -1243,31 +1247,35 @@ unsigned char* vtkWebGPURenderWindow::GetPixelData(
     int yMax;
     int componentMap[3] = {};
   };
-  CallbackData callbackData;
-  callbackData.outputValues = new unsigned char[width * height * outNumberOfComponents];
-  callbackData.xMin = x1;
-  callbackData.xMax = x2;
-  callbackData.yMin = y1;
-  callbackData.yMax = y2;
+  auto* pixels = new unsigned char[width * height * outNumberOfComponents];
+  // Dynamically allocating here because we callbackData to stay alive even after exiting this
+  // function.
+  auto* callbackData = new CallbackData();
+  callbackData->outputValues = pixels;
+  callbackData->xMin = x1;
+  callbackData->xMax = x2;
+  callbackData->yMin = y1;
+  callbackData->yMax = y2;
   if (this->ColorAttachment.Format == wgpu::TextureFormat::BGRA8Unorm)
   {
-    callbackData.componentMap[0] = 2;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 0;
+    callbackData->componentMap[0] = 2;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 0;
     inNumberOfComponents = 4;
   }
   else if (this->ColorAttachment.Format == wgpu::TextureFormat::RGBA8Unorm)
   {
-    callbackData.componentMap[0] = 0;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 2;
+    callbackData->componentMap[0] = 0;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 2;
     inNumberOfComponents = 4;
   }
   else
   {
     // TODO: Handle other formats.
     vtkErrorMacro(<< "Unsupported offscreen texture format!");
-    return callbackData.outputValues;
+    delete callbackData;
+    return pixels;
   }
 
   auto onTextureMapped = [inNumberOfComponents](
@@ -1294,12 +1302,13 @@ unsigned char* vtkWebGPURenderWindow::GetPixelData(
         }
       }
     }
+    delete callbackDataPtr;
   };
 
   this->ReadTextureFromGPU(this->ColorAttachment.Texture, this->ColorAttachment.Format, 0,
-    wgpu::TextureAspect::All, onTextureMapped, &callbackData);
+    wgpu::TextureAspect::All, onTextureMapped, reinterpret_cast<void*>(callbackData));
   this->WaitForCompletion();
-  return callbackData.outputValues;
+  return pixels;
 }
 
 //------------------------------------------------------------------------------
@@ -1430,33 +1439,35 @@ float* vtkWebGPURenderWindow::GetRGBAPixelData(
     int yMax;
     int componentMap[4] = {};
   };
-  CallbackData callbackData;
-  callbackData.outputValues = new float[width * height * outNumberOfComponents];
-  callbackData.xMin = x1;
-  callbackData.xMax = x2;
-  callbackData.yMin = y1;
-  callbackData.yMax = y2;
+  auto* pixels = new float[width * height * outNumberOfComponents];
+  auto* callbackData = new CallbackData();
+  callbackData->outputValues = pixels;
+  callbackData->xMin = x1;
+  callbackData->xMax = x2;
+  callbackData->yMin = y1;
+  callbackData->yMax = y2;
   if (this->ColorAttachment.Format == wgpu::TextureFormat::BGRA8Unorm)
   {
-    callbackData.componentMap[0] = 2;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 0;
-    callbackData.componentMap[3] = 3;
+    callbackData->componentMap[0] = 2;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 0;
+    callbackData->componentMap[3] = 3;
     inNumberOfComponents = 4;
   }
   else if (this->ColorAttachment.Format == wgpu::TextureFormat::RGBA8Unorm)
   {
-    callbackData.componentMap[0] = 0;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 2;
-    callbackData.componentMap[3] = 3;
+    callbackData->componentMap[0] = 0;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 2;
+    callbackData->componentMap[3] = 3;
     inNumberOfComponents = 4;
   }
   else
   {
     // TODO: Handle other formats.
     vtkErrorMacro(<< "Unsupported offscreen texture format!");
-    return callbackData.outputValues;
+    delete callbackData;
+    return pixels;
   }
 
   auto onTextureMapped = [inNumberOfComponents](
@@ -1483,12 +1494,13 @@ float* vtkWebGPURenderWindow::GetRGBAPixelData(
         }
       }
     }
+    delete callbackDataPtr;
   };
 
   this->ReadTextureFromGPU(this->ColorAttachment.Texture, this->ColorAttachment.Format, 0,
-    wgpu::TextureAspect::All, onTextureMapped, &callbackData);
+    wgpu::TextureAspect::All, onTextureMapped, reinterpret_cast<void*>(callbackData));
   this->WaitForCompletion();
-  return callbackData.outputValues;
+  return pixels;
 }
 
 //------------------------------------------------------------------------------
@@ -1630,33 +1642,35 @@ unsigned char* vtkWebGPURenderWindow::GetRGBACharPixelData(
     int yMax;
     int componentMap[4] = {};
   };
-  CallbackData callbackData;
-  callbackData.outputValues = new unsigned char[width * height * outNumberOfComponents];
-  callbackData.xMin = x1;
-  callbackData.xMax = x2;
-  callbackData.yMin = y1;
-  callbackData.yMax = y2;
+  auto* pixels = new unsigned char[width * height * outNumberOfComponents];
+  auto* callbackData = new CallbackData();
+  callbackData->outputValues = pixels;
+  callbackData->xMin = x1;
+  callbackData->xMax = x2;
+  callbackData->yMin = y1;
+  callbackData->yMax = y2;
   if (this->ColorAttachment.Format == wgpu::TextureFormat::BGRA8Unorm)
   {
-    callbackData.componentMap[0] = 2;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 0;
-    callbackData.componentMap[3] = 3;
+    callbackData->componentMap[0] = 2;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 0;
+    callbackData->componentMap[3] = 3;
     inNumberOfComponents = 4;
   }
   else if (this->ColorAttachment.Format == wgpu::TextureFormat::RGBA8Unorm)
   {
-    callbackData.componentMap[0] = 0;
-    callbackData.componentMap[1] = 1;
-    callbackData.componentMap[2] = 2;
-    callbackData.componentMap[3] = 3;
+    callbackData->componentMap[0] = 0;
+    callbackData->componentMap[1] = 1;
+    callbackData->componentMap[2] = 2;
+    callbackData->componentMap[3] = 3;
     inNumberOfComponents = 4;
   }
   else
   {
     // TODO: Handle other formats.
     vtkErrorMacro(<< "Unsupported offscreen texture format!");
-    return callbackData.outputValues;
+    delete callbackData;
+    return pixels;
   }
 
   auto onTextureMapped = [inNumberOfComponents](
@@ -1683,12 +1697,13 @@ unsigned char* vtkWebGPURenderWindow::GetRGBACharPixelData(
         }
       }
     }
+    delete callbackDataPtr;
   };
 
   this->ReadTextureFromGPU(this->ColorAttachment.Texture, this->ColorAttachment.Format, 0,
-    wgpu::TextureAspect::All, onTextureMapped, &callbackData);
+    wgpu::TextureAspect::All, onTextureMapped, reinterpret_cast<void*>(callbackData));
   this->WaitForCompletion();
-  return callbackData.outputValues;
+  return pixels;
 }
 
 //------------------------------------------------------------------------------
@@ -1895,15 +1910,15 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   };
   auto onBufferMapped = [](const void* mappedData, void* userData)
   {
-    CallbackData* callbackData = reinterpret_cast<CallbackData*>(userData);
-    float* outputValues = callbackData->outputValues;
+    CallbackData* callbackDataPtr = reinterpret_cast<CallbackData*>(userData);
+    float* outputValues = callbackDataPtr->outputValues;
     const float* mappedDataAsF32 = reinterpret_cast<const float*>(mappedData);
     vtkIdType dstIdx = 0;
-    for (int y = callbackData->yMin; y <= callbackData->yMax; y++)
+    for (int y = callbackDataPtr->yMin; y <= callbackDataPtr->yMax; y++)
     {
-      for (int x = callbackData->xMin; x <= callbackData->xMax; x++)
+      for (int x = callbackDataPtr->xMin; x <= callbackDataPtr->xMax; x++)
       {
-        const int mappedIndex = x + y * callbackData->width;
+        const int mappedIndex = x + y * callbackDataPtr->width;
         outputValues[dstIdx++] = mappedDataAsF32[mappedIndex];
       }
     }
@@ -1962,21 +1977,24 @@ void vtkWebGPURenderWindow::WaitForCompletion()
     vtkErrorMacro(<< "Cannot wait for completion because WebGPU device is not ready!");
     return;
   }
-  bool done = false;
   if (auto queue = device.GetQueue())
   {
-    device.GetQueue().OnSubmittedWorkDone(
-#if defined(__EMSCRIPTEN__) &&                                                                     \
-  ((__EMSCRIPTEN_major__ < 3) || ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ < 1)) ||    \
-    ((__EMSCRIPTEN_major__ <= 3) && (__EMSCRIPTEN_minor__ <= 1) && (__EMSCRIPTEN_tiny__ < 54)))
-      // https://github.com/emscripten-core/emscripten/commit/6daa18bc5ab19730421d2d63b69ddf41f11f1e85
-      // removed unused signalValue argument from 3.1.54 onwards.
-      0u,
-#endif
-      [](WGPUQueueWorkDoneStatus, void* userData) { *static_cast<bool*>(userData) = true; }, &done);
+    wgpu::QueueWorkDoneStatus workStatus = wgpu::QueueWorkDoneStatus::Error;
+    bool done = false;
+    this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone(
+      wgpu::CallbackMode::AllowProcessEvents,
+      [&workStatus, &done](wgpu::QueueWorkDoneStatus status)
+      {
+        workStatus = status;
+        done = true;
+      });
     while (!done)
     {
       this->WGPUConfiguration->ProcessEvents();
+    }
+    if (workStatus != wgpu::QueueWorkDoneStatus::Success)
+    {
+      vtkErrorMacro(<< "Submitted work did not complete!");
     }
   }
   else
@@ -2030,6 +2048,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   this->DestroyDepthStencilAttachment();
   this->DestroyOffscreenColorAttachment();
   this->UnconfigureSurface();
+  this->Surface = nullptr;
 }
 
 //------------------------------------------------------------------------------

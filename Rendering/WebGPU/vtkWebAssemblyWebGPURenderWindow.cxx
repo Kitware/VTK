@@ -82,7 +82,7 @@ bool vtkWebAssemblyWebGPURenderWindow::WindowSetup()
   if (this->WGPUInit())
   {
     // render into canvas elememnt
-    wgpu::SurfaceDescriptorFromCanvasHTMLSelector htmlSurfDesc;
+    wgpu::EmscriptenSurfaceSourceCanvasHTMLSelector htmlSurfDesc;
     htmlSurfDesc.selector = this->CanvasSelector;
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK HTML5 surface";

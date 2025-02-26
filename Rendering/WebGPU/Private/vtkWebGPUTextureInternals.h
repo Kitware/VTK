@@ -33,13 +33,13 @@ public:
   /**
    * Get the image copy texture from the given texture for use in uploading data to the texture
    */
-  static wgpu::ImageCopyTexture GetImageCopyTexture(wgpu::Texture texture);
+  static wgpu::TexelCopyTextureInfo GetTexelCopyTextureInfo(wgpu::Texture texture);
 
   /**
    * Get the texture data layout from the given texture and bytes per row for use in uploading data
    * to the texture
    */
-  static wgpu::TextureDataLayout GetDataLayout(wgpu::Texture texture, uint32_t bytesPerRow);
+  static wgpu::TexelCopyBufferLayout GetDataLayout(wgpu::Texture texture, uint32_t bytesPerRow);
 };
 
 VTK_ABI_NAMESPACE_END
