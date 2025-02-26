@@ -43,7 +43,6 @@ class vtkCollection;
 class vtkCharArray;
 class vtkDataArraySelection;
 class vtkDoubleArray;
-class vtkStdString;
 class vtkStringArray;
 
 class vtkOpenFOAMReaderPrivate;
@@ -365,6 +364,7 @@ protected:
 
   // for decomposing polyhedra on-the-fly
   vtkTypeBool DecomposePolyhedra;
+  vtkGetMacro(DecomposePolyhedra, vtkTypeBool);
 
   // for lagrangian/positions without extra data (OF 1.4 - 2.4)
   vtkTypeBool PositionsIsIn13Format;
@@ -404,21 +404,35 @@ protected:
 
   // old selection status
   vtkMTimeType PatchSelectionMTimeOld;
+  vtkGetMacro(PatchSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType CellSelectionMTimeOld;
+  vtkGetMacro(CellSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType PointSelectionMTimeOld;
+  vtkGetMacro(PointSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType LagrangianSelectionMTimeOld;
+  vtkGetMacro(LagrangianSelectionMTimeOld, vtkMTimeType);
 
   // preserved old information
-  vtkStdString* FileNameOld;
+  std::string FileNameOld;
+  vtkGetMacro(FileNameOld, std::string);
   bool SkipZeroTimeOld;
+  vtkGetMacro(SkipZeroTimeOld, bool);
   int ListTimeStepsByControlDictOld;
+  vtkGetMacro(ListTimeStepsByControlDictOld, int);
   int CreateCellToPointOld;
+  vtkGetMacro(CreateCellToPointOld, int);
   int DecomposePolyhedraOld;
+  vtkGetMacro(DecomposePolyhedraOld, int);
   int PositionsIsIn13FormatOld;
+  vtkGetMacro(PositionsIsIn13FormatOld, int);
   int AddDimensionsToArrayNamesOld;
+  vtkGetMacro(AddDimensionsToArrayNamesOld, int);
   int ReadZonesOld;
+  vtkGetMacro(ReadZonesOld, int);
   bool Use64BitLabelsOld;
+  vtkGetMacro(Use64BitLabelsOld, bool);
   bool Use64BitFloatsOld;
+  vtkGetMacro(Use64BitFloatsOld, bool);
 
   // paths to Lagrangians
   vtkStringArray* LagrangianPaths;

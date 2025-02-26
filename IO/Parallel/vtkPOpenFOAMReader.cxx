@@ -444,15 +444,15 @@ int vtkPOpenFOAMReader::RequestInformation(
 
   // Handle the decomposed case
 
-  if (*this->Superclass::FileNameOld != this->Superclass::FileName ||
+  if (this->Superclass::FileNameOld != this->Superclass::FileName ||
     this->Superclass::ListTimeStepsByControlDict !=
       this->Superclass::ListTimeStepsByControlDictOld ||
     this->Superclass::SkipZeroTime != this->Superclass::SkipZeroTimeOld ||
     this->Superclass::Refresh)
   {
     // retain selection status when just refreshing a case
-    if (!this->Superclass::FileNameOld->empty() &&
-      *this->Superclass::FileNameOld != this->Superclass::FileName)
+    if (!this->Superclass::FileNameOld.empty() &&
+      this->Superclass::FileNameOld != this->Superclass::FileName)
     {
       // clear selections
       this->Superclass::CellDataArraySelection->RemoveAllArrays();
@@ -461,7 +461,7 @@ int vtkPOpenFOAMReader::RequestInformation(
       this->Superclass::PatchDataArraySelection->RemoveAllArrays();
     }
 
-    *this->Superclass::FileNameOld = this->FileName;
+    this->Superclass::FileNameOld = this->FileName;
     this->Superclass::Readers.clear();
 
     // Recreate case information

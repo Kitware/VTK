@@ -6156,7 +6156,8 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
 
     // User selection changed
     const bool selectChanged = topoChanged ||
-      (this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld);
+      (this->Parent->PatchDataArraySelection->GetMTime() !=
+        this->Parent->GetPatchSelectionMTimeOld());
 
     bool addInternalSelection = false;
 
@@ -8024,7 +8025,7 @@ vtkUnstructuredGrid* vtkOpenFOAMReaderPrivate::MakeInternalMesh(
   internalMesh->Allocate(this->NumCells);
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-  if (this->Parent->DecomposePolyhedra)
+  if (this->Parent->GetDecomposePolyhedra())
   {
     // For polyhedral decomposition
     this->NumTotalAdditionalCells = 0;
@@ -8427,7 +8428,7 @@ bool vtkOpenFOAMReaderPrivate::MoveInternalMesh(
   const auto nOldPoints = internalMesh->GetPoints()->GetNumberOfPoints();
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-  if (this->Parent->DecomposePolyhedra && this->AdditionalCellPoints &&
+  if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
     !this->AdditionalCellPoints->empty())
   {
     const auto& addCellPoints = *this->AdditionalCellPoints;
@@ -9090,7 +9091,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   if (internalMesh != nullptr)
   {
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-    if (this->Parent->DecomposePolyhedra && this->NumTotalAdditionalCells > 0)
+    if (this->Parent->GetDecomposePolyhedra() && this->NumTotalAdditionalCells > 0)
     {
       // Add values for decomposed cells
       const vtkIdType nTuples = this->AdditionalCellIds->GetNumberOfTuples();
@@ -9125,7 +9126,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       }
 
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-      if (this->Parent->DecomposePolyhedra)
+      if (this->Parent->GetDecomposePolyhedra())
       {
         // assign cell values to additional points
         const vtkIdType nAddPoints = this->AdditionalCellIds->GetNumberOfTuples();
@@ -9140,7 +9141,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   }
 
   // Handle cell zones
-  if (this->Parent->CopyDataToCellZones && this->CellZoneMesh)
+  if (this->Parent->GetCopyDataToCellZones() && this->CellZoneMesh)
   {
     auto* zoneMesh = this->CellZoneMesh;
     auto& zoneMap = this->cellZoneMap;
@@ -9404,7 +9405,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   }
 
   // Handle face zones, only possible if FaceOwner has not been truncated
-  if (this->Parent->CopyDataToCellZones && this->FaceZoneMesh && this->FaceNeigh)
+  if (this->Parent->GetCopyDataToCellZones() && this->FaceZoneMesh && this->FaceNeigh)
   {
     auto& zoneMap = this->faceZoneMap;
     auto* zoneMesh = this->FaceZoneMesh;
@@ -9584,7 +9585,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   if (internalMesh != nullptr)
   {
 #if VTK_FOAMFILE_DECOMPOSE_POLYHEDRA
-    if (this->Parent->DecomposePolyhedra && this->AdditionalCellPoints &&
+    if (this->Parent->GetDecomposePolyhedra() && this->AdditionalCellPoints &&
       !this->AdditionalCellPoints->empty())
     {
       // The point-to-cell interpolation to additional cell centroidal points for decomposed cells
@@ -10002,7 +10003,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
   std::unique_ptr<vtkFoamLabelListList>& meshCellsPtr, const vtkFoamLabelListList& meshFaces,
   vtkPoints* points)
 {
-  const bool supportFields = this->Parent->CopyDataToCellZones;
+  const bool supportFields = this->Parent->GetCopyDataToCellZones();
 
   typedef vtkUnstructuredGrid zoneVtkType;
   constexpr const char* const zonePrefix = "cellZone";
@@ -10127,7 +10128,7 @@ bool vtkOpenFOAMReaderPrivate::GetCellZoneMesh(vtkMultiBlockDataSet* zoneMesh,
 bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
   vtkMultiBlockDataSet* zoneMesh, const vtkFoamLabelListList& meshFaces, vtkPoints* points)
 {
-  const bool supportFields = this->Parent->CopyDataToCellZones;
+  const bool supportFields = this->Parent->GetCopyDataToCellZones();
 
   typedef vtkPolyData zoneVtkType;
   constexpr const char* const zonePrefix = "faceZone";
@@ -10272,7 +10273,7 @@ bool vtkOpenFOAMReaderPrivate::GetFaceZoneMesh(
 
 bool vtkOpenFOAMReaderPrivate::GetPointZoneMesh(vtkMultiBlockDataSet* zoneMesh, vtkPoints* points)
 {
-  const bool supportFields = false; // this->Parent->CopyDataToCellZones;
+  const bool supportFields = false; // this->Parent->GetCopyDataToCellZones();
 
   typedef vtkPolyData zoneVtkType;
   constexpr const char* const zonePrefix = "pointZone";
@@ -10501,8 +10502,8 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
 
   // Basics
   const bool changedStorageType =
-    (this->Parent->Use64BitLabels != this->Parent->Use64BitLabelsOld) ||
-    (this->Parent->Use64BitFloats != this->Parent->Use64BitFloatsOld);
+    (this->Parent->GetUse64BitLabels() != this->Parent->GetUse64BitLabelsOld()) ||
+    (this->Parent->GetUse64BitFloats() != this->Parent->GetUse64BitFloatsOld());
 
   // Mesh changes
   const bool topoChanged = (this->TimeStepOld < 0) || (this->FaceOwner == nullptr) ||
@@ -10514,9 +10515,11 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
       this->PolyMeshTimeIndexPoints[this->TimeStepOld]);
 
   // Internal mesh
-  bool recreateInternalMesh = (changedStorageType) || (topoChanged) || (!this->Parent->CacheMesh) ||
-    (this->Parent->SkipZeroTime != this->Parent->SkipZeroTimeOld) ||
-    (this->Parent->ListTimeStepsByControlDict != this->Parent->ListTimeStepsByControlDictOld);
+  bool recreateInternalMesh = (changedStorageType) || (topoChanged) ||
+    (!this->Parent->GetCacheMesh()) ||
+    (this->Parent->GetSkipZeroTime() != this->Parent->GetSkipZeroTimeOld()) ||
+    (this->Parent->GetListTimeStepsByControlDict() !=
+      this->Parent->GetListTimeStepsByControlDictOld());
 
   // Internal mesh - selection changes
   recreateInternalMesh |=
@@ -10527,28 +10530,32 @@ int vtkOpenFOAMReaderPrivate::RequestData(vtkMultiBlockDataSet* output)
   {
     // Cell representation changed that affects the internalMesh
     recreateInternalMesh |=
-      (this->Parent->DecomposePolyhedra != this->Parent->DecomposePolyhedraOld);
+      (this->Parent->GetDecomposePolyhedra() != this->Parent->GetDecomposePolyhedraOld());
   }
 #endif
 
   // NOTE: this is still not quite right for zones, but until we get better separation
   // - can remove zones without triggering reread
-  recreateInternalMesh |=
-    (this->Parent->ReadZones && (this->Parent->ReadZones != this->Parent->ReadZonesOld));
+  recreateInternalMesh |= (this->Parent->GetReadZones() &&
+    (this->Parent->GetReadZones() != this->Parent->GetReadZonesOld()));
 
   // Boundary mesh
   bool recreateBoundaryMesh = (changedStorageType) ||
-    (this->Parent->PatchDataArraySelection->GetMTime() != this->Parent->PatchSelectionMTimeOld) ||
-    (this->Parent->CreateCellToPoint != this->Parent->CreateCellToPointOld);
+    (this->Parent->PatchDataArraySelection->GetMTime() !=
+      this->Parent->GetPatchSelectionMTimeOld()) ||
+    (this->Parent->GetCreateCellToPoint() != this->Parent->GetCreateCellToPointOld());
 
   // Fields
   bool updateVariables = (changedStorageType) || (this->TimeStep != this->TimeStepOld) ||
-    (this->Parent->CellDataArraySelection->GetMTime() != this->Parent->CellSelectionMTimeOld) ||
-    (this->Parent->PointDataArraySelection->GetMTime() != this->Parent->PointSelectionMTimeOld) ||
+    (this->Parent->CellDataArraySelection->GetMTime() !=
+      this->Parent->GetCellSelectionMTimeOld()) ||
+    (this->Parent->PointDataArraySelection->GetMTime() !=
+      this->Parent->GetPointSelectionMTimeOld()) ||
     (this->Parent->LagrangianDataArraySelection->GetMTime() !=
-      this->Parent->LagrangianSelectionMTimeOld) ||
-    (this->Parent->PositionsIsIn13Format != this->Parent->PositionsIsIn13FormatOld) ||
-    (this->Parent->AddDimensionsToArrayNames != this->Parent->AddDimensionsToArrayNamesOld);
+      this->Parent->GetLagrangianSelectionMTimeOld()) ||
+    (this->Parent->GetPositionsIsIn13Format() != this->Parent->GetPositionsIsIn13FormatOld()) ||
+    (this->Parent->GetAddDimensionsToArrayNames() !=
+      this->Parent->GetAddDimensionsToArrayNamesOld());
 
   // Apply these changes too
   recreateBoundaryMesh |= recreateInternalMesh;
@@ -11001,7 +11008,6 @@ vtkOpenFOAMReader::vtkOpenFOAMReader()
 
   // initialize file name
   this->FileName = nullptr;
-  this->FileNameOld = new vtkStdString;
 
   // Case path
   this->CasePath = vtkCharArray::New();
@@ -11074,7 +11080,6 @@ vtkOpenFOAMReader::~vtkOpenFOAMReader()
   this->CasePath->Delete();
 
   this->SetFileName(nullptr);
-  delete this->FileNameOld;
 }
 
 //------------------------------------------------------------------------------
@@ -11224,12 +11229,12 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   }
 
   if (this->Parent == this &&
-    ((*this->FileNameOld != this->FileName) || this->Refresh ||
-      (this->ListTimeStepsByControlDict != this->ListTimeStepsByControlDictOld) ||
-      (this->SkipZeroTime != this->SkipZeroTimeOld)))
+    ((this->FileNameOld != this->FileName) || this->Refresh ||
+      (this->ListTimeStepsByControlDict != this->GetListTimeStepsByControlDictOld()) ||
+      (this->SkipZeroTime != this->GetSkipZeroTimeOld())))
   {
     // Retain selection status when just refreshing a case
-    if (!this->FileNameOld->empty() && *this->FileNameOld != this->FileName)
+    if (!this->FileNameOld.empty() && this->FileNameOld != this->FileName)
     {
       // Clear selections
       this->CellDataArraySelection->RemoveAllArrays();
@@ -11368,7 +11373,7 @@ void vtkOpenFOAMReader::SetTimeInformation(
 int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
   const vtkStdString& procName, vtkStringArray* timeNames, vtkDoubleArray* timeValues)
 {
-  this->FileNameOld->assign(this->FileName);
+  this->FileNameOld.assign(this->FileName);
 
   // Clear prior case information
   this->Readers.clear();
@@ -11727,15 +11732,15 @@ void vtkOpenFOAMReader::UpdateStatus()
   this->CellSelectionMTimeOld = this->CellDataArraySelection->GetMTime();
   this->PointSelectionMTimeOld = this->PointDataArraySelection->GetMTime();
   this->LagrangianSelectionMTimeOld = this->LagrangianDataArraySelection->GetMTime();
-  this->CreateCellToPointOld = this->CreateCellToPoint;
-  this->DecomposePolyhedraOld = this->DecomposePolyhedra;
-  this->PositionsIsIn13FormatOld = this->PositionsIsIn13Format;
-  this->ReadZonesOld = this->ReadZones;
-  this->SkipZeroTimeOld = this->SkipZeroTime;
-  this->ListTimeStepsByControlDictOld = this->ListTimeStepsByControlDict;
-  this->AddDimensionsToArrayNamesOld = this->AddDimensionsToArrayNames;
-  this->Use64BitLabelsOld = this->Use64BitLabels;
-  this->Use64BitFloatsOld = this->Use64BitFloats;
+  this->CreateCellToPointOld = this->GetCreateCellToPoint();
+  this->DecomposePolyhedraOld = this->GetDecomposePolyhedra();
+  this->PositionsIsIn13FormatOld = this->GetPositionsIsIn13Format();
+  this->ReadZonesOld = this->GetReadZones();
+  this->SkipZeroTimeOld = this->GetSkipZeroTime();
+  this->ListTimeStepsByControlDictOld = this->GetListTimeStepsByControlDict();
+  this->AddDimensionsToArrayNamesOld = this->GetAddDimensionsToArrayNames();
+  this->Use64BitLabelsOld = this->GetUse64BitLabels();
+  this->Use64BitFloatsOld = this->GetUse64BitFloats();
 }
 
 //------------------------------------------------------------------------------
