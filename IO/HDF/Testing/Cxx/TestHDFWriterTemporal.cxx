@@ -237,6 +237,11 @@ bool TestTemporalStaticMesh(
     vtkLog(ERROR, "An error occurred while writing the static mesh HDF file");
     return false;
   }
+  /* TODO
+   * Once the reader supports both MergeParts & UseCache used together,
+   * this test will need to be updated by reading the output file and checking
+   * it corresponds to the source, as well as checking the MeshMTime values.
+   */
   return true;
 }
 
