@@ -104,7 +104,7 @@ struct OpenerWorklet
 {
 public:
   OpenerWorklet(const std::string& filePath, bool mergeParts = true)
-    : mergeParts(mergeParts)
+    : MergeParts(mergeParts)
   {
     this->Reader->SetFileName(filePath.c_str());
     this->Reader->Update();
@@ -113,7 +113,7 @@ public:
   {
     this->Reader->SetStep(timeStep);
     this->Reader->Update();
-    if (this->mergeParts)
+    if (this->MergeParts)
     {
       return this->MergeBlocksIfNeeded(this->Reader->GetOutputDataObject(0));
     }
@@ -159,7 +159,7 @@ public:
 
 private:
   vtkNew<vtkHDFReader> Reader;
-  bool mergeParts = true;
+  bool MergeParts = true;
 };
 
 struct CheckerWorklet

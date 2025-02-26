@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkHDFReader.h"
 #include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
@@ -364,6 +366,18 @@ vtkHDFReader::~vtkHDFReader()
     this->DataArraySelection[i]->Delete();
   }
   this->SelectionObserver->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::MergePartsOn()
+{
+  this->SetMergeParts(true);
+}
+
+//----------------------------------------------------------------------------
+void vtkHDFReader::MergePartsOff()
+{
+  this->SetMergeParts(false);
 }
 
 //----------------------------------------------------------------------------

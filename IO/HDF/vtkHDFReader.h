@@ -172,7 +172,9 @@ public:
   VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
   vtkSetMacro(MergeParts, bool);
   VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
-  vtkBooleanMacro(MergeParts, bool);
+  virtual void MergePartsOn();
+  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
+  virtual void MergePartsOff();
   ///@}
 
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
