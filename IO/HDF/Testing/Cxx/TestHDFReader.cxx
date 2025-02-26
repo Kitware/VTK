@@ -7,6 +7,7 @@
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
+#include "vtkMergeBlocks.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -27,6 +28,23 @@
 #include <cstdlib>
 #include <iterator>
 #include <string>
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> GetMergedBlocks(vtkHDFReader* reader, int output_type)
+{
+  reader->Update();
+  vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+
+  // Emulate the late "MergeParts" option of the VTKHDF Reader
+  vtkNew<vtkAppendDataSets> append;
+  append->SetOutputDataSetType(output_type);
+  for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
+  {
+    append->AddInputData(pds->GetPartition(iPiece));
+  }
+  append->Update();
+  return append->GetOutputDataObject(0);
+}
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkImageData> ReadImageData(const std::string& fileName)
@@ -131,13 +149,32 @@ int TestUnstructuredGrid(const std::string& dataRoot, bool parallel)
   }
   reader->SetFileName(fileName.c_str());
   reader->Update();
-  vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(reader->GetOutputAsDataSet());
+
+  if (parallel)
+  {
+    vtkPartitionedDataSet* pds =
+      vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+    if (pds->GetNumberOfPartitions() != 3)
+    {
+      std::cerr << "Error: expected 3 partitions in unstructured grid but got "
+                << pds->GetNumberOfPartitions() << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
 
   oreader->SetFileName(expectedName.c_str());
   oreader->Update();
   vtkUnstructuredGrid* expectedData =
     vtkUnstructuredGrid::SafeDownCast(oreader->GetOutputAsDataSet());
-  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
+  if (parallel)
+  {
+    return !vtkTestUtilities::CompareDataObjects(
+      GetMergedBlocks(reader, VTK_UNSTRUCTURED_GRID), expectedData);
+  }
+  else
+  {
+    return !vtkTestUtilities::CompareDataObjects(reader->GetOutputDataObject(0), expectedData);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -166,23 +203,30 @@ int TestPartitionedUnstructuredGrid(const std::string& dataRoot, bool parallel)
     return EXIT_FAILURE;
   }
   reader->SetFileName(fileName.c_str());
-  reader->SetMergeParts(false);
   reader->Update();
 
-  auto pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
-  if (!pds)
+  vtkUnstructuredGrid* data;
+  if (parallel)
   {
-    return EXIT_FAILURE;
-  }
-  vtkNew<vtkAppendDataSets> appender;
-  for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
-  {
-    auto piece = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(iPiece));
-    appender->AddInputData(piece);
-  }
-  appender->Update();
+    auto pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
+    if (!pds)
+    {
+      return EXIT_FAILURE;
+    }
+    vtkNew<vtkAppendDataSets> appender;
+    for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
+    {
+      auto piece = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(iPiece));
+      appender->AddInputData(piece);
+    }
+    appender->Update();
 
-  auto data = vtkUnstructuredGrid::SafeDownCast(appender->GetOutput());
+    data = vtkUnstructuredGrid::SafeDownCast(appender->GetOutput());
+  }
+  else
+  {
+    data = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+  }
 
   oreader->SetFileName(expectedName.c_str());
   oreader->Update();
@@ -204,9 +248,17 @@ int TestPolyData(const std::string& dataRoot)
   vtkNew<vtkHDFReader> reader;
   reader->SetFileName(fileName.c_str());
   reader->Update();
-  auto data = vtkPolyData::SafeDownCast(reader->GetOutputAsDataSet());
 
-  return !vtkTestUtilities::CompareDataObjects(data, expectedData);
+  vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  if (pds->GetNumberOfPartitions() != 2)
+  {
+    std::cerr << "Error: expected 2 partitions in polydata but got " << pds->GetNumberOfPartitions()
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return !vtkTestUtilities::CompareDataObjects(
+    GetMergedBlocks(reader, VTK_POLY_DATA), expectedData);
 }
 
 //----------------------------------------------------------------------------
@@ -220,7 +272,6 @@ int TestPartitionedPolyData(const std::string& dataRoot)
 
   const std::string fileName = dataRoot + "/Data/test_poly_data.hdf";
   vtkNew<vtkHDFReader> reader;
-  reader->SetMergeParts(false);
   reader->SetFileName(fileName.c_str());
   reader->Update();
 

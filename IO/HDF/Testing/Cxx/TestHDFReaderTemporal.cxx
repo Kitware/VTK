@@ -103,7 +103,8 @@ double Sin11T(double time, const Vec& point)
 struct OpenerWorklet
 {
 public:
-  OpenerWorklet(const std::string& filePath)
+  OpenerWorklet(const std::string& filePath, bool mergeParts = true)
+    : mergeParts(mergeParts)
   {
     this->Reader->SetFileName(filePath.c_str());
     this->Reader->Update();
@@ -112,8 +113,14 @@ public:
   {
     this->Reader->SetStep(timeStep);
     this->Reader->Update();
-    vtkSmartPointer<vtkDataObject> res = this->Reader->GetOutputDataObject(0);
-    return res;
+    if (this->mergeParts)
+    {
+      return this->MergeBlocksIfNeeded(this->Reader->GetOutputDataObject(0));
+    }
+    else
+    {
+      return this->Reader->GetOutputDataObject(0);
+    }
   }
 
   vtkOverlappingAMR* GetDataObjectAsAMR()
@@ -129,8 +136,30 @@ public:
 
   vtkHDFReader* GetReader() { return this->Reader; }
 
+  vtkSmartPointer<vtkDataObject> MergeBlocksIfNeeded(vtkDataObject* data)
+  {
+    vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(data);
+
+    if (!pds)
+    {
+      return data; // No merging to do
+    }
+
+    vtkNew<vtkAppendDataSets> append;
+    append->SetOutputDataSetType(pds->GetPartition(0)->GetDataObjectType());
+    for (unsigned int iPiece = 0; iPiece < pds->GetNumberOfPartitions(); ++iPiece)
+    {
+      append->AddInputData(pds->GetPartition(iPiece));
+    }
+    append->Update();
+    vtkDataObject* merged = append->GetOutputDataObject(0);
+    merged->SetFieldData(pds->GetFieldData());
+    return merged;
+  }
+
 private:
   vtkNew<vtkHDFReader> Reader;
+  bool mergeParts = true;
 };
 
 struct CheckerWorklet
@@ -536,8 +565,7 @@ int TestUGTemporalPartitioned(
 //------------------------------------------------------------------------------
 int TestUGTemporalPartitionedNoCache(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
-  opener.GetReader()->SetMergeParts(false);
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf", false);
   return TestUGTemporalPartitioned(opener, dataRoot, false);
 }
 
@@ -551,9 +579,8 @@ int TestUGTemporal(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestUGTemporalWithCachePartitioned(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf");
+  OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf", false);
   opener.GetReader()->UseCacheOn();
-  opener.GetReader()->SetMergeParts(false);
   return TestUGTemporalPartitioned(opener, dataRoot, true);
 }
 
@@ -662,7 +689,6 @@ int TestImageDataTemporalWithCache(const std::string& dataRoot)
 {
   OpenerWorklet opener(dataRoot + "/Data/transient_wavelet.hdf");
   opener.GetReader()->UseCacheOn();
-  opener.GetReader()->SetMergeParts(false);
   return TestImageDataTemporalBase(opener);
 }
 
@@ -929,9 +955,8 @@ int TestPolyDataTemporal(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestPolyDataTemporalWithCache(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf");
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data.hdf", false);
   opener.GetReader()->UseCacheOn();
-  opener.GetReader()->SetMergeParts(false);
 
   // We should be able to activate the MeshMTime testing once the cache can store
   // the intermediate vtkPoints and vtkCellArrays
@@ -1014,7 +1039,7 @@ int TestPolyDataTemporalWithOffset(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestPolyDataTemporalFieldData(const std::string& dataRoot)
 {
-  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data_field_data.vtkhdf");
+  OpenerWorklet opener(dataRoot + "/Data/test_transient_poly_data_field_data.vtkhdf", false);
 
   // Generic Time data checks
   if (opener.GetReader()->GetNumberOfSteps() != 10)
