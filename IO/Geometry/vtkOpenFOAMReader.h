@@ -38,6 +38,8 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include <mutex> // For std::mutex
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCharArray;
@@ -68,6 +70,19 @@ public:
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get If sequential (instead of multithreaded) processing is utilized for reading each case
+   * files.
+   *
+   * Defaults to on. Off is usually better for reading data on local drives. Enable to
+   * potentially improve performance reading files from high-latency network drives.
+   */
+  vtkSetMacro(SequentialProcessing, bool);
+  vtkGetMacro(SequentialProcessing, bool);
+  vtkBooleanMacro(SequentialProcessing, bool);
   ///@}
 
   /**
@@ -349,9 +364,16 @@ public:
 
   int MakeMetaDataAtTimeStep(bool);
 
+  /**
+   * Compute the progress of the reader.
+   */
+  virtual double ComputeProgress();
+
 protected:
   // refresh flag
   bool Refresh;
+
+  bool SequentialProcessing;
 
   // for creating cell-to-point translated data
   vtkTypeBool CreateCellToPoint;
@@ -434,12 +456,6 @@ protected:
   bool Use64BitFloatsOld;
   vtkGetMacro(Use64BitFloatsOld, bool);
 
-  // paths to Lagrangians
-  vtkStringArray* LagrangianPaths;
-
-  // index of the active reader
-  int CurrentReaderIndex;
-
   vtkOpenFOAMReader();
   ~vtkOpenFOAMReader() override;
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -449,7 +465,7 @@ protected:
   void SetTimeInformation(vtkInformationVector*, vtkDoubleArray*);
   void CreateCharArrayFromString(vtkCharArray*, const char*, vtkStdString&);
   void UpdateStatus();
-  void UpdateProgress(double);
+  void UpdateProgress(vtkOpenFOAMReaderPrivate* reader, double progress);
 
 private:
   vtkOpenFOAMReader* Parent;
@@ -468,6 +484,9 @@ private:
 
   // Print some time information (names, current time-step)
   void PrintTimes(std::ostream& os, vtkIndent indent = vtkIndent(), bool full = false) const;
+
+  std::mutex ArraySelectionMutex;
+  std::mutex ProgressMutex;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -54,6 +54,11 @@ public:
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
 
+  /**
+   * Compute the progress of the reader.
+   */
+  double ComputeProgress() override;
+
 protected:
   vtkPOpenFOAMReader();
   ~vtkPOpenFOAMReader() override;
