@@ -83,6 +83,8 @@ static int NetCDFTypeToVTKType(nc_type type)
       return VTK_SHORT;
     case NC_INT:
       return VTK_INT;
+    case NC_INT64:
+      return VTK_LONG_LONG;
     case NC_FLOAT:
       return VTK_FLOAT;
     case NC_DOUBLE:
