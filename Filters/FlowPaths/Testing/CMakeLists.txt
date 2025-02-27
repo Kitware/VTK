@@ -1,9 +1,12 @@
 vtk_module_test_data(
   Data/clt.vtm
   Data/clt/,REGEX:.*
-  Data/ParticleTracers/pathline.vtp
-  Data/ParticleTracers/streakline.vtp
-  Data/ParticleTracers/tracer.vtp)
+  Data/ParticleTracers/image_pathline.vtp
+  Data/ParticleTracers/image_streakline.vtp
+  Data/ParticleTracers/image_tracer.vtp
+  Data/ParticleTracers/ug_pathline.vtp
+  Data/ParticleTracers/ug_streakline.vtp
+  Data/ParticleTracers/ug_tracer.vtp)
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)

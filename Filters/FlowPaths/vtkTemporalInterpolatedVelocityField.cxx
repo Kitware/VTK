@@ -254,7 +254,7 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
   // Now initialize the new strategies
   for (size_t i = 0; i < datasets.size(); ++i)
   {
-    assert(datasets.size() == locations.size());
+    assert(datasets.size() == locators.size());
 
     auto& datasetInfo = ivf->DataSetsInfo[i];
     if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
