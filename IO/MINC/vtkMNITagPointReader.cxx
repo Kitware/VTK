@@ -243,9 +243,9 @@ int vtkMNITagPointReader::ParseStringValue(
           static char ctrltable[] = { '\a', 'a', '\b', 'b', '\f', 'f', '\n', 'n', '\r', 'r', '\t',
             't', '\v', 'v', '\\', '\\', '\"', '\"', '\0', '\0' };
 
-          if (*pos >= 0 && *pos <= 9)
+          if (isdigit(*pos))
           {
-            for (int j = 0; j < 3 && pos != linetext.end() && *pos >= 0 && *pos <= 9; ++j, ++pos)
+            for (int j = 0; j < 3 && pos != linetext.end() && isdigit(*pos); ++j, ++pos)
             {
               c = ((c << 3) | (*pos - '0'));
             }

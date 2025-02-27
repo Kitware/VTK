@@ -148,7 +148,7 @@ namespace
 
 // This enums assigns a classification to the points, both imprint and
 // target points.
-enum PointClassification
+enum PointClassification : int8_t
 {
   TargetOutside = -4, // Target pt is outside the imprint region
   TargetInside = -3,  // Target pt is inside the imprint region
@@ -171,8 +171,8 @@ using vtkCellEdgeType = EdgeTuple<vtkIdType, double>;
 // and imprint edges.
 struct vtkPointInfo
 {
-  char Classification; // Type of point
-  vtkIdType VTKPtId;   // Which target VTK point/vertex does this map to? or is assigned?
+  PointClassification Classification; // Type of point
+  vtkIdType VTKPtId; // Which target VTK point/vertex does this map to? or is assigned?
   vtkIdType
     Cells[2]; // Which cell(s) does this point project to? <0 if misses target (e.g., Outside)
   vtkCellEdgeType TargetEdge;  // What target cell edge does this point lie on? (if applicable)
@@ -189,8 +189,8 @@ struct vtkPointInfo
     this->ImprintEdge.V0 = this->ImprintEdge.V1 = -1;
     this->ImprintEdge.Data = 0.0;
   }
-  vtkPointInfo(char classification, vtkIdType ptId, vtkIdType* cells, vtkIdType u0, vtkIdType u1,
-    double tt, vtkIdType v0, vtkIdType v1, double ti, double x[3])
+  vtkPointInfo(PointClassification classification, vtkIdType ptId, vtkIdType* cells, vtkIdType u0,
+    vtkIdType u1, double tt, vtkIdType v0, vtkIdType v1, double ti, double x[3])
     : Classification(classification)
     , VTKPtId(ptId)
   {
@@ -597,11 +597,23 @@ struct vtkTriEdgeList : public std::vector<vtkTriEdge>
 
 }; // vtkTriEdgeList
 
+// Support classification / labeling of output triangles. A TargetCell is a cell
+// that was initially part of the target and was not imprinted. An ImprintCell is
+// cell that is within the imprinted region. A TransitionCell is not within the
+// imprinted region, but it is a cell that transitions the target cells to the
+// imprinted cells.
+enum CellClassification : int8_t
+{
+  TargetCell = 0,
+  TransitionCell = 1,
+  ImprintCell = 2,
+};
+
 // Convenience typedefs for local representation of the
 // output of the triangulation process.
 using vtkOutCellsConn = std::vector<vtkIdType>;
 using vtkOutCellsNPts = std::vector<vtkIdType>;
-using vtkOutTrisClass = std::vector<char>;
+using vtkOutTrisClass = std::vector<CellClassification>;
 
 // Below is the information gathered for target candidate cells that require
 // tessellation. (Some target cells, initially identified through a bounding
@@ -869,7 +881,7 @@ struct BoundsCull
   vtkBoundingBox ImprintBounds;
   // CellMarks is used to mark cells to include as part of the output
   // candidate cells.
-  std::vector<char> CellMarks;
+  std::vector<int8_t> CellMarks;
   // If requested in the constructor, a CellMap is created which
   // maps the candidate cells back to their originating target cell id.
   vtkCellMapType* CellMap;
@@ -1002,7 +1014,7 @@ struct vtkTargetPointClassifier
   // Keep track of the classification of points. Because of potential simultaneous
   // accesses to point classifications, need to mutex.
   std::vector<vtkAtomicMutex> PtLocks;
-  std::vector<char> PtClassification;
+  std::vector<PointClassification> PtClassification;
 
   // Scratch object for classifying points in parallel
   vtkSMPThreadLocal<vtkSmartPointer<vtkGenericCell>> Cell;
@@ -1024,15 +1036,15 @@ struct vtkTargetPointClassifier
 
   // Set the classification of a target point. It retains the most specialized
   // classification value.
-  void SetClassification(vtkIdType ptId, char c)
+  void SetClassification(vtkIdType ptId, PointClassification c)
   {
-    char initialClass = this->PtClassification[ptId];
+    PointClassification initialClass = this->PtClassification[ptId];
     if (initialClass == PointClassification::Unknown)
       this->PtClassification[ptId] = c;
   }
 
   // Get the classification of a target point.
-  char GetClassification(vtkIdType ptId) { return this->PtClassification[ptId]; }
+  PointClassification GetClassification(vtkIdType ptId) { return this->PtClassification[ptId]; }
 
   // Classify remaining unclassified candidate target points
   // using geometric operations.
@@ -1156,7 +1168,7 @@ struct vtkPointClassifier
   }
 
   // Given a VTK point id, get its classification.
-  char GetPointClassification(vtkIdType ptId)
+  PointClassification GetPointClassification(vtkIdType ptId)
   {
     if (ptId < this->TargetOffset)
     {
@@ -2161,18 +2173,6 @@ struct vtkPerimeterPoint
 };
 using vtkPerimeterList = std::vector<vtkPerimeterPoint>;
 
-// Support classification / labeling of output triangles. A TargetCell is a cell
-// that was initially part of the target and was not imprinted. An ImprintCell is
-// cell that is within the imprinted region. A TransitionCell is not within the
-// imprinted region, but it is a cell that transitions the target cells to the
-// imprinted cells.
-enum CellClassification
-{
-  TargetCell = 0,
-  TransitionCell = 1,
-  ImprintCell = 2,
-};
-
 // Threaded triangulation of target candidate cells. Only the candidate cells
 // which contain projected points, edge intersection points, and/or edge
 // fragments, are processed. After triangulation, the output is sent to
@@ -2382,7 +2382,7 @@ struct Triangulate
   // Classify a cell based on its vertex classifications. Basically, a
   // cell is outside it one of its points is classified as being
   // outside; otherwise it is an imprint cell.
-  char ClassifyCell(vtkOutCellsConn& outCell)
+  CellClassification ClassifyCell(vtkOutCellsConn& outCell)
   {
     vtkPointClassifier* pc = this->PtClassifier;
     for (auto itr : outCell)
@@ -2399,7 +2399,7 @@ struct Triangulate
   // Classify a cell based on its vertex classifications. Basically, a
   // cell is outside it one of its points is classified as being
   // outside; otherwise it is an imprint cell.
-  char ClassifyCell(vtkIdType npts, const vtkIdType* pts)
+  CellClassification ClassifyCell(vtkIdType npts, const vtkIdType* pts)
   {
     vtkPointClassifier* pc = this->PtClassifier;
     for (auto i = 0; i < npts; ++i)
@@ -2445,7 +2445,7 @@ struct Triangulate
   void AddCell(vtkCandidateInfo* cInfo, vtkOutCellsConn& outCell)
   {
     auto npts = outCell.size();
-    char cellClassification = this->ClassifyCell(outCell);
+    CellClassification cellClassification = this->ClassifyCell(outCell);
 
     // See if triangulation is required
     if (cellClassification == CellClassification::TransitionCell ||
@@ -2656,7 +2656,7 @@ struct Triangulate
       // in which case make sure the cell is in the imprinted region).
       if (cInfo == nullptr)
       {
-        char cellClassification = CellClassification::TargetCell;
+        CellClassification cellClassification = CellClassification::TargetCell;
         cellType = this->Candidates->GetCellType(cellId);
         this->Candidates->GetCellPoints(cellId, npts, pts);
         if (outputType != vtkImprintFilter::IMPRINTED_REGION ||

@@ -265,8 +265,8 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   in.read(&contents[0], contents.size());
   in.close();
 
-  // watch for BOM
-  if (contents[0] == -17 && contents[1] == -69 && contents[2] == -65)
+  // watch for UTF-8 BOM
+  if (std::string_view(contents.data(), 3) == "\xef\xbb\xbf")
   {
     result_code = parseMTL(contents.c_str() + 3, tokens);
   }

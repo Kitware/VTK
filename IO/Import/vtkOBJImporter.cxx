@@ -376,8 +376,8 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     pLine = rawLine;
     pEnd = rawLine + strlen(rawLine);
 
-    // watch for BOM
-    if (pEnd - pLine > 3 && pLine[0] == -17 && pLine[1] == -69 && pLine[2] == -65)
+    // watch for UTF-8 BOM
+    if (pEnd - pLine > 3 && std::string_view(pLine, 3) == "\xef\xbb\xbf")
     {
       pLine += 3;
     }

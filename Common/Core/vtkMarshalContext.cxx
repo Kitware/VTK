@@ -246,7 +246,7 @@ bool vtkMarshalContext::RegisterBlob(vtkSmartPointer<vtkTypeUInt8Array> blob, st
     return false;
   }
   using namespace nlohmann;
-  const auto& blobRange = vtk::DataArrayValueRange(blob.Get());
+  const auto blobRange = vtk::DataArrayValueRange(blob.Get());
   auto binaryContainer =
     json::binary(std::vector<json::binary_t::value_type>(blobRange.begin(), blobRange.end()));
   if (hash.empty())

@@ -107,6 +107,10 @@ hid_t vtkHDFUtilities::TemplateTypeToHdfNativeType()
   {
     return H5T_NATIVE_CHAR;
   }
+  if (std::is_same<T, signed char>::value)
+  {
+    return H5T_NATIVE_SCHAR;
+  }
   else if (std::is_same<T, unsigned char>::value)
   {
     return H5T_NATIVE_UCHAR;

@@ -2234,7 +2234,7 @@ int QuaternionToMatrix3x3()
   for (int n = 0; n < 1000; ++n)
   {
     quat[0] = vtkMath::Random(-vtkMath::Pi(), vtkMath::Pi());
-    for (int i = 1; i < 2; ++i)
+    for (int i = 1; i < 4; ++i)
     {
       quat[i] = vtkMath::Random(-10.0, 10.0);
     }
@@ -3265,9 +3265,25 @@ int TestGetScalarTypeFittingRange()
     ++status;
   }
 
+#if CHAR_MIN < 0
+  auto expected_schar = VTK_CHAR;
+  auto expected_uchar = VTK_UNSIGNED_CHAR;
+#else
+  auto expected_schar = VTK_SIGNED_CHAR;
+  auto expected_uchar = VTK_CHAR;
+#endif
+
+  rangeMin = (double)std::numeric_limits<signed char>::min();
+  rangeMax = (double)std::numeric_limits<signed char>::max();
+  if (vtkMath::GetScalarTypeFittingRange(rangeMin, rangeMax, 1.0, 0.0) != expected_schar)
+  {
+    std::cout << " Bad fitting range for VTK_CHAR" << std::endl;
+    ++status;
+  }
+
   rangeMin = (double)std::numeric_limits<unsigned char>::min();
   rangeMax = (double)std::numeric_limits<unsigned char>::max();
-  if (vtkMath::GetScalarTypeFittingRange(rangeMin, rangeMax, 1.0, 0.0) != VTK_UNSIGNED_CHAR)
+  if (vtkMath::GetScalarTypeFittingRange(rangeMin, rangeMax, 1.0, 0.0) != expected_uchar)
   {
     std::cout << " Bad fitting range for VTK_UNSIGNED_CHAR " << std::endl;
     ++status;

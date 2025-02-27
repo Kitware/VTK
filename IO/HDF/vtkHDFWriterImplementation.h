@@ -327,7 +327,7 @@ private:
    * Unless `primitive` is specified, assume that the array is 1-D.
    */
   hsize_t GetSubfileNumberOf(
-    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = -1);
+    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = 0xff);
 
   /**
    * Return true if the given dataset exists in the given existing group.
