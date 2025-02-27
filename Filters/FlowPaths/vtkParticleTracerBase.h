@@ -45,6 +45,7 @@ class vtkInitialValueProblemSolver;
 class vtkIntArray;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
+class vtkPartitionedDataSet;
 class vtkPointData;
 class vtkPoints;
 class vtkPolyData;
@@ -579,9 +580,6 @@ protected:
   // The velocity interpolator
   vtkSmartPointer<vtkTemporalInterpolatedVelocityField> Interpolator;
 
-  // Data for time step CurrentTimeStep-1 and CurrentTimeStep
-  vtkSmartPointer<vtkCompositeDataSet> CachedData[2];
-
   // MPI controller needed when running in parallel
   vtkSmartPointer<vtkMultiProcessController> Controller;
 
@@ -639,6 +637,13 @@ protected:
   friend class StreaklineFilterInternal;
 
   static const double Epsilon;
+
+private:
+  // Internal method to initialize CachedData[1] using the provided input
+  void InitializeNextCachedData(vtkDataObject* input);
+
+  // Data for time step CurrentTimeStep-1 and CurrentTimeStep
+  vtkSmartPointer<vtkPartitionedDataSet> CachedData[2];
 };
 
 VTK_ABI_NAMESPACE_END
