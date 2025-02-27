@@ -727,7 +727,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
         break;
       }
     }
-    if (unique and dimEncoding != "()")
+    if (unique && dimEncoding != "()")
       this->AllDimensions->InsertNextValue(dimEncoding);
   }
 
