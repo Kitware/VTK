@@ -723,6 +723,8 @@
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
     # Load a venv
     - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
+    # activate does not set PYTHONPATH which is needed for vtkpython to pickup packages installed in a separate venv.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19539
     - '[ -n "$VENV_ROOT" ] && export PYTHONPATH=$VENV_ROOT/lib/$SITE_PACKAGES_DIR/site-packages'
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
