@@ -212,6 +212,9 @@ class vtkWebAssemblyTestRunner:
                 logger.error(e)
                 self._server_is_shutdown = True
                 self.exit_code = 1
+            except KeyboardInterrupt:
+                self.exit_code = 1
+                self._server_is_shutdown = True
         else:
             logger.info(f"An engine was not specified. Script may appear to hang but it is actually running a http server.")
         # If a test did not send an exit code, this `join` will block. It can happen when a test is stuck.
