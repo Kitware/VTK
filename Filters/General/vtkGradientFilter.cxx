@@ -423,6 +423,7 @@ struct PointGradients : public GradientsBase<TData>
     , Links(links)
     , MaxSpatialDimension(
         cellOption == vtkGradientFilter::DataSetMax ? input->GetMaxSpatialDimension() : 0)
+    , CellOption(cellOption)
   {
   }
 
