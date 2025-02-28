@@ -324,7 +324,7 @@
 
 .fedora39_x86_64:
     extends: .linux
-    image: "danlipsa/vtk:ci-fedora39-x86_64-20241116"
+    image: "kitware/vtk:ci-fedora39-x86_64-20241116"
 
 .fedora41_aarch64:
     extends: .linux
@@ -341,7 +341,7 @@
 
 .el8_x86_64_icc:
     extends: .linux
-    image: "danlipsa/vtk:ci-el8-x86_64-icc-20241116"
+    image: "kitware/vtk:ci-el8-x86_64-icc-20241116"
 
     variables:
         VENV_ROOT: "/opt/python311/venv"
