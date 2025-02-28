@@ -551,11 +551,11 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
       writeSuccess &= this->Impl->WriteHeader(group, "MultiBlockDataSet");
     }
 
-    // For interoperability with PDC, we need to keep track of
-    // the number of datasets (non-subtree) in the structure.
-    // TODO: Only create group on timestep 0
-    writeSuccess &=
-      this->AppendMultiblock(this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly"), mb);
+    if (this->CurrentTimeIndex == 0)
+    {
+      this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly");
+    }
+    writeSuccess &= this->AppendMultiblock(this->Impl->OpenExistingGroup(group, "Assembly"), mb);
   }
   else
   {
@@ -1347,7 +1347,6 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
 
     if (this->UseExternalComposite)
     {
-      // External block writes for all timesteps independently, so only
       if (this->AppendExternalBlock(currentBlock, currentName))
       {
         return false;
@@ -1471,8 +1470,12 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
     {
       // Create a subgroup and recurse
       auto subTree = vtkMultiBlockDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
+      if (this->CurrentTimeIndex == 0)
+      {
+        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str());
+      }
       this->AppendMultiblock(
-        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str()), subTree);
+        this->Impl->OpenExistingGroup(assemblyGroup, subTreeName.c_str()), subTree);
     }
     else
     {
@@ -1486,18 +1489,26 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
       }
       else
       {
-        // Create a subgroup to root, write the data into it and softlink it to the assembly
-        vtkHDF::ScopedH5GHandle datasetGroup =
-          this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
-        this->DispatchDataObject(datasetGroup, treeIter->GetCurrentDataObject());
+        // Create a subgroup in root, write the data into it and softlink it to the assembly
+        if (this->CurrentTimeIndex == 0)
+        {
+          vtkHDF::ScopedH5GHandle datasetGroup =
+            this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
+        }
+        this->DispatchDataObject(
+          this->Impl->OpenExistingGroup(this->Impl->GetRoot(), subTreeName.c_str()),
+          treeIter->GetCurrentDataObject());
       }
 
-      const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
-      const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
+      // Create a soft-link from the dataset on root group to the hierarchy positions where it
+      // belongs
+      if (this->CurrentTimeIndex == 0)
+      {
+        const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
+        const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
 
-      this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
-      vtkHDF::ScopedH5GHandle linkedGroup =
-        this->Impl->OpenExistingGroup(this->Impl->GetRoot(), linkTarget.c_str());
+        this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
+      }
     }
   }
 
