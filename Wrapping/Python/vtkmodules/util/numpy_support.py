@@ -158,7 +158,11 @@ def numpy_to_vtk(num_array, deep=0, array_type=None):
     else:
         result_array.SetNumberOfComponents(shape[1])
 
-    result_array.SetNumberOfTuples(shape[0])
+    # We don't need to call result_array.SetNumberOfTuples(shape[0])
+    # because we will use result_array.SetVoidPointer
+    # which takes care of setting the NumberOfTuples
+    # Calling SetNumberOfTuples will result in a memory allocation
+    # that will be deleted on SetVoidPointer.
 
     # Ravel the array appropriately.
     arr_dtype = get_numpy_array_type(vtk_typecode)
