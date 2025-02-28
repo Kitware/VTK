@@ -83,6 +83,8 @@ static int NetCDFTypeToVTKType(nc_type type)
       return VTK_SHORT;
     case NC_INT:
       return VTK_INT;
+    case NC_INT64:
+      return VTK_LONG_LONG;
     case NC_FLOAT:
       return VTK_FLOAT;
     case NC_DOUBLE:
@@ -297,7 +299,11 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   for (int i = 0; i < 3; i++)
   {
     this->WholeExtent[2 * i] = 0;
-    if (i < this->LoadingDimensions->GetNumberOfTuples())
+    vtkIdType ndims = this->LoadingDimensions->GetNumberOfTuples();
+    // if there are 0 dimensions
+    // generate an empty image with (0, -1, 0 -1, 0, -1)
+    int maxExtent = ndims > 0 ? 0 : -1;
+    if (i < ndims)
     {
       size_t dimlength;
       // Remember that netCDF arrays are indexed backward from VTK images.
@@ -310,7 +316,7 @@ int vtkNetCDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     }
     else
     {
-      this->WholeExtent[2 * i + 1] = 0;
+      this->WholeExtent[2 * i + 1] = maxExtent;
     }
   }
   vtkDebugMacro(<< "Whole extents: " << this->WholeExtent[0] << ", " << this->WholeExtent[1] << ", "
@@ -737,7 +743,7 @@ int vtkNetCDFReader::FillVariableDimensions(int ncFD)
         break;
       }
     }
-    if (unique)
+    if (unique && dimEncoding != "()")
       this->AllDimensions->InsertNextValue(dimEncoding);
   }
 

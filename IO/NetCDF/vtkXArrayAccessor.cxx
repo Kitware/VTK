@@ -323,9 +323,9 @@ void vtkXArrayAccessor::PrintVarValue(
 bool vtkXArrayAccessor::IsContiguous(int varid, const size_t* startp, const size_t* countp)
 {
   // the last dim is the most rapidly varying
-  size_t ndims = this->VarDims[varid].size();
-  size_t contiguousDims = 0;
-  for (int i = static_cast<int>(ndims - 1); i >= 0; --i)
+  int ndims = static_cast<int>(this->VarDims[varid].size());
+  int contiguousDims = 0;
+  for (int i = ndims - 1; i >= 0; --i)
   {
     if (startp[i] == 0 && countp[i] == this->DimLen[this->VarDims[varid][i]])
     {
@@ -343,11 +343,14 @@ std::vector<size_t> vtkXArrayAccessor::GetDimIncrement(int varid)
 {
   size_t ndims = this->VarDims[varid].size();
   std::vector<size_t> dimIncrement;
-  dimIncrement.resize(ndims);
-  dimIncrement[ndims - 1] = 1;
-  for (size_t i = ndims - 1; i >= 1; --i)
+  if (ndims > 0)
   {
-    dimIncrement[i - 1] = dimIncrement[i] * this->DimLen[this->VarDims[varid][i]];
+    dimIncrement.resize(ndims);
+    dimIncrement[ndims - 1] = 1;
+    for (size_t i = ndims - 1; i >= 1; --i)
+    {
+      dimIncrement[i - 1] = dimIncrement[i] * this->DimLen[this->VarDims[varid][i]];
+    }
   }
   return dimIncrement;
 }

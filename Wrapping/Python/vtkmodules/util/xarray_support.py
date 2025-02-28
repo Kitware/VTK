@@ -1,7 +1,7 @@
 import cftime
-import inspect
 import logging
 import numpy as np
+from os.path import basename, splitext, exists
 import xarray as xr
 from vtkmodules.vtkCommonCore import (
     vtkVariant,
@@ -50,7 +50,6 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
     '''
 
     _FORWARD_GET = {
-        "CanReadFile",
         "GetAccessor",
         "GetAllDimensions",
 
@@ -138,6 +137,21 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
 
     def GetFileName(self):
         return self._filename
+
+    def CanReadFile(self, filepath):
+        ext = splitext(filepath)[1]
+        filename = basename(filepath)
+        correct_name = False
+        if ext == '.nc' or ext == '.grib' or ext == '.h5':
+            correct_name = True
+        else:
+            if ext == '' and filename == '.zgroup':
+                correct_name = True
+        if correct_name and exists(filepath):
+            return 1
+        else:
+            return 0
+
 
     def SetNode(self, node):
         if self._node != node:
