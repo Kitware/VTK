@@ -8,7 +8,7 @@ readonly name="libproj"
 readonly ownership="Proj Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/proj.git"
-readonly tag="for/vtk-20230920-8.1.0"
+readonly tag="for/vtk-20250505-8.1.0-1"
 readonly paths="
 .gitattributes
 ChangeLog
