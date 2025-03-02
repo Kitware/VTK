@@ -559,13 +559,13 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     float col[3];
 
     int lineNr = 0;
+    long lastVertexIndex = 0;
     while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
     { /** While OK and there is another line in the file */
       lineNr++;
       _extractLine(rawLine);
 
       // in the OBJ format the first characters determine how to interpret the line:
-      static long lastVertexIndex = 0;
       if (strcmp(cmd, "v") == 0)
       {
         // this is a vertex definition, expect three floats (six if vertex color), separated by
