@@ -529,6 +529,18 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
     this->SetUseExternalComposite(true);
   }
 
+  if (this->IsTemporal)
+  {
+    // Temporal + composite writing can currently only be done in a single file.
+    // The current writer implementation makes External<X> difficult when time is involved,
+    // because we rely on writers outside of the current pipeline that simply write a data object.
+    // Supporting these cases would require to give the writer the ability to add timesteps to an
+    // existing file.
+    this->SetUseExternalTimeSteps(false);
+    this->SetUseExternalComposite(false);
+    this->SetUseExternalPartitions(false);
+  }
+
   auto* pdc = vtkPartitionedDataSetCollection::SafeDownCast(input);
   auto* mb = vtkMultiBlockDataSet::SafeDownCast(input);
   if (pdc)

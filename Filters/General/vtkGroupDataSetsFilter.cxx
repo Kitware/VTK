@@ -4,7 +4,6 @@
 
 #include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkConvertToPartitionedDataSetCollection.h"
-#include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
