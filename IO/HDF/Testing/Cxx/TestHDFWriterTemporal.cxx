@@ -128,13 +128,12 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
   }
 
   // Compare the data at each timestep from both readers
-  for (int i = 0; i < totalTimeStepsXML; i++)
+  for (int step = 0; step < totalTimeStepsXML; step++)
   {
-    std::cout << "Comparing timestep " << i << std::endl;
-    HDFReaderBaseline->SetStep(i);
+    HDFReaderBaseline->SetStep(step);
     HDFReaderBaseline->Update();
 
-    HDFReader->SetStep(i);
+    HDFReader->SetStep(step);
     HDFReader->Update();
 
     // Time values must be the same
@@ -149,7 +148,7 @@ bool TestTemporalData(const std::string& tempDir, const std::string& dataRoot,
     if (!vtkTestUtilities::CompareDataObjects(
           HDFReaderBaseline->GetOutput(), HDFReader->GetOutput()))
     {
-      vtkLog(ERROR, "data objects do not match");
+      vtkLog(ERROR, << "data objects do not match for time step " << step);
       return false;
     }
   }
@@ -248,7 +247,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   HDFWriterGrouped->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
       ? addAssembly->GetOutputPort()
       : groupDataSets->GetOutputPort());
-  // HDFWriterGrouped->SetInputConnection(addAssembly->GetOutputPort());
+
   std::string tempPath = tempDir + "/HDFWriter_";
   tempPath += "composite" + std::to_string(compositeType) + ".vtkhdf";
   HDFWriterGrouped->SetFileName(tempPath.c_str());
@@ -277,11 +276,15 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
     }
   }
 
+  // Make sure we now control time manually using SetStep, don't let the pipeline handle it anymore
+  for (auto& reader : baselineReaders)
+  {
+    reader->GetOutputInformation(0)->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+  }
+
   // Compare the data at each timestep
   for (int step = 0; step < totalTimeStepsGrouped; step++)
   {
-    std::cout << "Comparing timestep " << step << std::endl;
-
     readerGrouped->SetStep(step);
     readerGrouped->Update();
 
@@ -313,7 +316,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
 
       if (!vtkTestUtilities::CompareDataObjects(currentGroupedDO, baselineDO))
       {
-        vtkLog(ERROR, "data objects do not match");
+        vtkLog(ERROR, << "data objects do not match for time step " << step);
         return false;
       }
 
@@ -357,23 +360,21 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   {
     for (const auto& fileName : baseNames)
     {
-      // result &= TestTemporalData(tempDir, dataRoot, fileName, config);
+      result &= TestTemporalData(tempDir, dataRoot, fileName, config);
     }
   }
 
-  // result &= TestTemporalComposite(tempDir, dataRoot, VTK_PARTITIONED_DATA_SET_COLLECTION);
-
-  std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
+  // Use a modified version of transient_harmonics to make sure that the time values match between
+  // both datasets
+  std::vector<std::string> baseNamesComposite = { "transient_sphere",
+    "transient_harmonics_timevalues" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
-  // result &=
-  // TestTemporalComposite(tempDir, dataRoot, baseNamesComposite,
-  // VTK_PARTITIONED_DATA_SET_COLLECTION);
+  result &= TestTemporalComposite(
+    tempDir, dataRoot, baseNamesComposite, VTK_PARTITIONED_DATA_SET_COLLECTION);
 
-  // result &= TestTemporalStaticMesh(
-  //   tempDir, "transient_static_sphere_ug_source",
-  //   ::supportedDataSetTypes::vtkUnstructuredGridType);
-  // result &= TestTemporalStaticMesh(
-  //   tempDir, "transient_static_sphere_polydata_source",
-  //   ::supportedDataSetTypes::vtkPolyDataType);
+  result &= TestTemporalStaticMesh(
+    tempDir, "transient_static_sphere_ug_source", ::supportedDataSetTypes::vtkUnstructuredGridType);
+  result &= TestTemporalStaticMesh(
+    tempDir, "transient_static_sphere_polydata_source", ::supportedDataSetTypes::vtkPolyDataType);
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
