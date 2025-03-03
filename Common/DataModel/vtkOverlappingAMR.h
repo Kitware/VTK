@@ -2,15 +2,25 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOverlappingAMR
- * @brief   hierarchical dataset of vtkUniformGrids
+ * @brief   a multi-resolution dataset based on vtkUniformGrid allowing overlaps
  *
+ * vtkOverlappingAMR groups vtkUniformGrid into level of different refinement
+ * (AMR stands for Adaptive Mesh Refinement). See SetDataSet to add a new grid.
  *
- * vtkOverlappingAMR extends vtkUniformGridAMR by exposing access to the
- * amr meta data, which stores all structural information represented
- * by an vtkAMRInformation object
+ * The grids of a level are expected to have the same spacing and refinement ratio.
+ * The refinement ratio represent the spacing factor between a level and the
+ * previous one. This class does not ensure the link between spacing and refinement
+ * ratio: please set them carefully.
+ *
+ * Associated to each grid, a vtkAMRBox object describes the main information
+ * of the grid: origin, extent, spacing. When creating a vtkOverlappingAMR,
+ * you should call SetAMRBox for each block of each level.
+ *
+ * In a distributed environement, the structure should be shared across all rank:
+ * the vtkAMRInformation and vtkAMRBox should be duplicated as needed.
  *
  * @sa
- * vtkAMRInformation
+ * vtkAMRInformation, vtkNonOverlappingAMR, vtkUniformGridAMR, vtkAMRBox
  */
 
 #ifndef vtkOverlappingAMR_h
@@ -54,7 +64,16 @@ public:
 
   ///@{
   /**
-   * Get/Set the grid spacing at a given level
+   * Get/Set the grid spacing at a given level.
+   * Note that is expected (but not enforeced) that spacing evolves according
+   * to RefinementRatio factor from previous level to current.
+   * In pseudo code, you should ensure the following:
+   * ```
+   * GetSpacing(lvl, spacing)
+   * SetSpacing(lvl + 1, spacing / RefinementRatio)
+   * ```
+   *
+   * See SetRefinementRatio.
    */
   void SetSpacing(unsigned int level, const double spacing[3]);
   void GetSpacing(unsigned int level, double spacing[3]);

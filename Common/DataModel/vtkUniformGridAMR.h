@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkUniformGridAMR
- * @brief   a concrete implementation of vtkCompositeDataSet
+ * @brief   a multi-resolution dataset based on vtkUniformGrid
  *
- * vtkUniformGridAMR is an AMR (hierarchical) composite dataset that holds vtkUniformGrids.
+ * vtkUniformGridAMR (AMR stands for Adaptive Mesh Refinement)
+ * is a container for vtkUniformGrid. Each grid is added as a block of a given level.
+ *
+ * The structure of the container is described in a vtkAMRInformation object.
  *
  * @sa
- * vtkUniformGridAMRDataIterator
+ * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkAMRInformation, vtkUniformGridAMRDataIterator
  */
 
 #ifndef vtkUniformGridAMR_h
