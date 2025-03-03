@@ -250,7 +250,7 @@ fedora39-java8:build:
         - .fedora39_java
         - .cmake_build_java_linux
         - .linux_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     # The Java build extends the build time considerably.
     timeout: 4 hours
@@ -263,7 +263,7 @@ fedora39-java11:build:
         - .fedora39_java
         - .cmake_build_java_linux
         - .linux_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     # The Java build extends the build time considerably.
     timeout: 4 hours
@@ -2127,7 +2127,7 @@ macos-x86_64-java8:build:
         - .macos_x86_64_java
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 1.8
@@ -2139,7 +2139,7 @@ macos-x86_64-java11:build:
         - .macos_x86_64_java
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 11
@@ -2151,7 +2151,7 @@ macos-arm64-java8:build:
         - .macos_arm64_java
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 1.8
@@ -2163,7 +2163,7 @@ macos-arm64-java11:build:
         - .macos_arm64_java
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 11
@@ -2175,7 +2175,7 @@ windows-x86_64-java8:build:
         - .windows_vs2022_java
         - .cmake_build_java_windows
         - .windows_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 1.8
@@ -2187,7 +2187,7 @@ windows-x86_64-java11:build:
         - .windows_vs2022_java
         - .cmake_build_java_windows
         - .windows_builder_tags
-        - .cmake_build_artifacts
+        - .cmake_maven_artifacts
         - .weekly_upload_only
     variables:
       VTK_JAVA_VERSION: 11
