@@ -1,20 +1,7 @@
 # This file should always contain exact version references so that we know what
 # we are actually testing at any given point.
 
-# numpy
-numpy==1.26.4
-
-# Web modules
-aiohttp==3.9.5
-wslink==1.9.1
-
-# For wasm test runner
-Jinja2==3.1.3
-
-# setuptools required for distutils since python 3.12+
-setuptools==75.5.0
-
 # For XArray to vtkNetCDFCFReader connector
-xarray==2024.10.0
+xarray==2024.7.0
 netcdf4==1.7.2
 cftime==1.6.4.post1

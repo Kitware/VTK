@@ -324,7 +324,7 @@
 
 .fedora39_x86_64:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-x86_64-20240828"
+    image: "kitware/vtk:ci-fedora39-x86_64-20241116"
 
 .fedora41_aarch64:
     extends: .linux
@@ -336,14 +336,16 @@
 
     variables:
         VENV_ROOT: "/opt/python38/venv"
+        SITE_PACKAGES_DIR: python3.8
         LAUNCHER: "scl enable rh-python38 devtoolset-8 --"
 
 .el8_x86_64_icc:
     extends: .linux
-    image: "kitware/vtk:ci-el8-x86_64-icc-20231201"
+    image: "kitware/vtk:ci-el8-x86_64-icc-20241116"
 
     variables:
         VENV_ROOT: "/opt/python311/venv"
+        SITE_PACKAGES_DIR: python3.11
 
         CC: icx
         CXX: icpx
@@ -721,6 +723,9 @@
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
     # Load a venv
     - '[ -n "$VENV_ROOT" ] && . $VENV_ROOT/bin/activate'
+    # activate does not set PYTHONPATH which is needed for vtkpython to pickup packages installed in a separate venv.
+    # https://gitlab.kitware.com/vtk/vtk/-/issues/19539
+    - '[ -n "$VENV_ROOT" ] && export PYTHONPATH=$VENV_ROOT/lib/$SITE_PACKAGES_DIR/site-packages'
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
@@ -842,6 +847,7 @@
         -  '[[ "$CMAKE_CONFIGURATION" =~ (osmesa|egl) ]] || yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl'
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
+        - pip install -r $PWD/.gitlab/ci/requirements-wheel-test.txt
         - pip install twine
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
