@@ -251,7 +251,7 @@ void DistributeAMRBoxes(
   {
     return;
   }
-  std::vector<vtkIdType> boxBoundsOffsets(globalInfo.NbOfProcesses);
+  std::vector<vtkIdType> boxBoundsOffsets(globalInfo.NbOfProcesses, 0);
   std::vector<vtkIdType> boxBoundsCounts(globalInfo.NbOfProcesses);
   std::vector<int> boxExtentsLocal(8 * rankInfo.NbOfBlocks, 0);
   std::vector<int> boxExtentsGlobal(8 * globalInfo.NbOfBlocks, 0);
