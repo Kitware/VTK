@@ -58,33 +58,6 @@ public:
 
   ///@{
   /**
-   * Set/Get for active the circle selection viewport (default true)
-   */
-  VTK_DEPRECATED_IN_9_5_0(
-    "CircleSelection is deprecated. A single new selection method has been implemented.")
-  vtkSetMacro(CircleSelection, bool);
-  VTK_DEPRECATED_IN_9_5_0(
-    "CircleSelection is deprecated. A single new selection method has been implemented.")
-  vtkGetMacro(CircleSelection, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get activate the bounding box selection viewport
-   * This is a possible acceleration factor only if the view cannot rotate.
-   *
-   * Default is false.
-   */
-  VTK_DEPRECATED_IN_9_5_0(
-    "BBSelection is deprecated. A single new selection method has been implemented.")
-  vtkSetMacro(BBSelection, bool);
-  VTK_DEPRECATED_IN_9_5_0(
-    "BBSelection is deprecated. A single new selection method has been implemented.")
-  vtkGetMacro(BBSelection, bool);
-  ///@}
-
-  ///@{
-  /**
    * Set/Get the dependence to the point of view.
    *
    * Default is true.
@@ -101,35 +74,6 @@ public:
   vtkGetMacro(FixedLevelMax, int);
   ///@}
 
-  ///@{
-  /**
-   * Set/Get the scale factor that influences the adaptive view computation.
-   * For a refinement of 2, giving Scale=2*X amounts to calling DynamicDecimateLevelMax with the
-   * value X.
-   *
-   * Default is 1.0.
-   */
-  VTK_DEPRECATED_IN_9_5_0("Scale is deprecated. Please use ForcedLevelMax if needed.")
-  vtkSetMacro(Scale, double);
-  VTK_DEPRECATED_IN_9_5_0("Scale is deprecated. Please use ForcedLevelMax if needed.")
-  vtkGetMacro(Scale, double);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get the dynamic decimate level max.
-   * This value is subtracted to the max depth level (LevelMax).
-   *
-   * Default is 0.
-   */
-  VTK_DEPRECATED_IN_9_5_0(
-    "DynamicDecimateLevelMax is deprecated. Please use ForcedLevelMax if needed.")
-  vtkSetMacro(DynamicDecimateLevelMax, int);
-  VTK_DEPRECATED_IN_9_5_0(
-    "DynamicDecimateLevelMax is deprecated. Please use ForcedLevelMax if needed.")
-  vtkGetMacro(DynamicDecimateLevelMax, int);
-  ///@}
-
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
   ~vtkAdaptiveDataSetSurfaceFilter() override;
@@ -138,6 +82,22 @@ protected:
     vtkInformationVector* outputVector) override;
   int DataObjectExecute(vtkDataObject* input, vtkPolyData* output);
   int FillInputPortInformation(int port, vtkInformation* info) override;
+
+private:
+  vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+  void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+
+  enum class ShapeState : uint8_t;
+
+  /**
+   * Check whether a shape is visible on the screen.
+   * @param points Points of the shape
+   * @param nbPoints Number of points to be read in `points` (not all 8 are necessarily defined).
+   * @param level The current depth level of the cell
+   * @return Whether the shape is visible on the screen (fully or partially).
+   */
+  ShapeState IsShapeVisible(
+    const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level);
 
   /**
    * Main routine to generate external boundary
@@ -224,50 +184,19 @@ protected:
   bool ViewPointDepend;
 
   /**
-   * DEPRECATED
-   * Product cell when in circle selection
-   */
-  bool CircleSelection;
-
-  /**
-   * DEPRECATED
-   * Product cell when in bounding box selection
-   */
-  bool BBSelection;
-
-  /**
    * Forced, fixed the level depth, ignored automatic determination
    */
   int FixedLevelMax;
 
   /**
-   * Scale factor for adaptive view
+   * Whether ParallelProjection is enabled on the renderer's camera
    */
-  double Scale;
-
-  /**
-   * Decimate level max after automatic determination
-   */
-  int DynamicDecimateLevelMax;
-
-private:
-  int MaxLevel = VTK_INT_MAX;
   bool IsParallel = false;
 
-  enum class ShapeState : uint8_t;
-
-  vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
-  void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
-
   /**
-   * Check whether a shape is visible on the screen.
-   * @param points Points of the shape
-   * @param nbPoints Number of points to be read in `points` (not all 8 are necessarily defined).
-   * @param level The current depth level of the cell
-   * @return Whether the shape is visible on the screen (fully or partially).
+   * Max depth to be rendered, any deeper is smaller than one pixel.
    */
-  ShapeState IsShapeVisible(
-    const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level);
+  int MaxLevel = VTK_INT_MAX;
 
   vtkSmartPointer<vtkMatrix4x4> ModelViewMatrix;
   vtkSmartPointer<vtkMatrix4x4> ProjectionMatrix;
