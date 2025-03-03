@@ -512,7 +512,7 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       boxBoundsCounts[p] = num_blocks * 8;
       if (p > 0)
       {
-        boxBoundsOffsets[p] = num_blocks * 8 + boxBoundsOffsets[p - 1];
+        boxBoundsOffsets[p] = boxBoundsCounts[p - 1] + boxBoundsOffsets[p - 1];
       }
     }
 
