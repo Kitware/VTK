@@ -28,6 +28,13 @@ static const unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
 
 vtkStandardNewMacro(vtkAdaptiveDataSetSurfaceFilter);
 
+enum class vtkAdaptiveDataSetSurfaceFilter::ShapeState : uint8_t
+{
+  VISIBLE = 0,
+  OUT_OF_SCREEN = 1,
+  SUB_PIXEL = 2,
+};
+
 //------------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 {
@@ -175,6 +182,8 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   double aspect = this->LastRendererSize[0] / static_cast<double>(this->LastRendererSize[1]);
   this->ProjectionMatrix = cam->GetProjectionTransformMatrix(aspect, -1, 1);
 
+  this->IsParallel = this->ProjectionMatrix->GetElement(3, 3) == 1.0;
+
   // Extract geometry from hyper tree grid
   this->ProcessTrees(input, output);
 
@@ -282,21 +291,32 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
   double originAxis1 = cursor->GetOrigin()[this->Axis1];
   double originAxis2 = cursor->GetOrigin()[this->Axis2];
 
-  std::set<std::array<double, 3>> corners = {
-    { originAxis1, originAxis2, 0.0 },
-    { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2, 0.0 },
-    { originAxis1, originAxis2 + cursor->GetSize()[this->Axis2], 0.0 },
-    { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2 + cursor->GetSize()[this->Axis2],
-      0.0 },
+  // For signature purposes, the array must be of size 8, but we only set the first 4 since the rest
+  // will not be used or accessed as IsShapeVisible will be called with nbPoints = 4.
+  std::array<std::array<double, 3>, 8> corners = {
+    originAxis1,
+    originAxis2,
+    0.0,
+    originAxis1 + cursor->GetSize()[this->Axis1],
+    originAxis2,
+    0.0,
+    originAxis1,
+    originAxis2 + cursor->GetSize()[this->Axis2],
+    0.0,
+    originAxis1 + cursor->GetSize()[this->Axis1],
+    originAxis2 + cursor->GetSize()[this->Axis2],
+    0.0,
   };
 
-  // We only process those nodes than are going to be rendered
-  if (!this->IsShapeVisible(corners))
+  // We only process the nodes than are going to be rendered
+  if (level < this->MaxLevel &&
+    this->IsShapeVisible(corners, 4, level) == ShapeState::OUT_OF_SCREEN)
   {
     return;
   }
 
-  if (cursor->IsLeaf() || (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
+  if (cursor->IsLeaf() || level >= this->MaxLevel ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
     if (this->Dimension == 2)
     {
@@ -378,11 +398,12 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
 }
 
 //------------------------------------------------------------------------------
-bool vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(const std::set<std::array<double, 3>>& points)
+vtkAdaptiveDataSetSurfaceFilter::ShapeState vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(
+  const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level)
 {
   if (!this->ViewPointDepend)
   {
-    return true;
+    return ShapeState::VISIBLE;
   }
   double minX = VTK_DOUBLE_MAX;
   double minY = VTK_DOUBLE_MAX;
@@ -391,10 +412,9 @@ bool vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(const std::set<std::array<d
   double minZ = VTK_DOUBLE_MAX;
   double maxZ = VTK_DOUBLE_MIN;
 
-  bool isParallel = (this->ProjectionMatrix->GetElement(3, 3) == 1.0);
-
-  for (auto point : points)
+  for (int i = 0; i < nbPoints; ++i)
   {
+    std::array<double, 3> point = points[i];
     double pointWorld[4] = { point[0], point[1], point[2], 1.0 };
     double* pointCam = this->ModelViewMatrix->MultiplyDoublePoint(pointWorld);
     double* pointClip = this->ProjectionMatrix->MultiplyDoublePoint(pointCam);
@@ -404,14 +424,11 @@ bool vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(const std::set<std::array<d
     double z = pointClip[2];
     double w = pointClip[3];
 
-    if (!isParallel)
+    if (!this->IsParallel && w != 0.0)
     {
-      if (w != 0.0)
-      {
-        x /= w;
-        y /= w;
-        z /= w;
-      }
+      x /= w;
+      y /= w;
+      z /= w;
     }
 
     minX = std::min(minX, x);
@@ -422,18 +439,26 @@ bool vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(const std::set<std::array<d
     maxZ = std::max(maxZ, z);
   }
 
-  double minXScreen = (minX + 1) * (this->LastRendererSize[0] / 2);
-  double maxXScreen = (maxX + 1) * (this->LastRendererSize[0] / 2);
-  double minYScreen = (minY + 1) * (this->LastRendererSize[1] / 2);
-  double maxYScreen = (maxY + 1) * (this->LastRendererSize[1] / 2);
+  double minXScreen = (minX + 1) / 2 * this->LastRendererSize[0];
+  double maxXScreen = (maxX + 1) / 2 * this->LastRendererSize[0];
+  double minYScreen = (1 - minY) / 2 * this->LastRendererSize[1];
+  double maxYScreen = (1 - maxY) / 2 * this->LastRendererSize[1];
 
-  // Cell is smaller than one pixel
-  if (maxXScreen - minXScreen < 1 || maxYScreen - minYScreen < 1)
+  // Cell is smaller than one pixel, return true to process this cell but set MaxLevel so that we
+  // don't compute this for other cells >= MaxLevel.
+  if (maxXScreen - minXScreen < 1.0 && maxYScreen - minYScreen < 1.0)
   {
-    return false;
+    // Only used for 2D and 1D.
+    this->MaxLevel = level;
+
+    return ShapeState::SUB_PIXEL;
   }
 
-  return maxX >= -1 && minX <= 1 && maxY >= -1 && minY <= 1 && maxZ >= -1 && minZ <= 1;
+  if (maxX >= -1 && minX <= 1 && maxY >= -1 && minY <= 1 && maxZ >= -1 && minZ <= 1)
+  {
+    return ShapeState::VISIBLE;
+  }
+  return ShapeState::OUT_OF_SCREEN;
 }
 
 //------------------------------------------------------------------------------
@@ -442,25 +467,42 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
 {
   double* origin = cursor->GetOrigin();
 
-  std::set<std::array<double, 3>> corners = {
-    { origin[0], origin[1], origin[2] },
-    { origin[0], origin[1], origin[2] + cursor->GetSize()[2] },
-    { origin[0] + cursor->GetSize()[0], origin[1], origin[2] },
-    { origin[0] + cursor->GetSize()[0], origin[1], origin[2] + cursor->GetSize()[2] },
-    { origin[0], origin[1] + cursor->GetSize()[1], origin[2] },
-    { origin[0], origin[1] + cursor->GetSize()[1], origin[2] + cursor->GetSize()[2] },
-    { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1], origin[2] },
-    { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1],
-      origin[2] + cursor->GetSize()[2] },
+  std::array<std::array<double, 3>, 8> corners = {
+    origin[0],
+    origin[1],
+    origin[2],
+    origin[0],
+    origin[1],
+    origin[2] + cursor->GetSize()[2],
+    origin[0] + cursor->GetSize()[0],
+    origin[1],
+    origin[2],
+    origin[0] + cursor->GetSize()[0],
+    origin[1],
+    origin[2] + cursor->GetSize()[2],
+    origin[0],
+    origin[1] + cursor->GetSize()[1],
+    origin[2],
+    origin[0],
+    origin[1] + cursor->GetSize()[1],
+    origin[2] + cursor->GetSize()[2],
+    origin[0] + cursor->GetSize()[0],
+    origin[1] + cursor->GetSize()[1],
+    origin[2],
+    origin[0] + cursor->GetSize()[0],
+    origin[1] + cursor->GetSize()[1],
+    origin[2] + cursor->GetSize()[2],
   };
 
-  if (!this->IsShapeVisible(corners))
+  ShapeState shapeState = this->IsShapeVisible(corners, 8, level);
+  if (shapeState == ShapeState::OUT_OF_SCREEN)
   {
     return;
   }
 
   // Create geometry output if cursor is at leaf
-  if (cursor->IsLeaf() || (this->Mask && this->Mask->GetValue(cursor->GetGlobalNodeIndex())) ||
+  if (cursor->IsLeaf() || shapeState == ShapeState::SUB_PIXEL ||
+    (this->Mask && this->Mask->GetValue(cursor->GetGlobalNodeIndex())) ||
     (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
     this->ProcessLeaf3D(cursor);

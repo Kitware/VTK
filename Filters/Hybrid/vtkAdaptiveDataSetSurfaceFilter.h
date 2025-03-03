@@ -251,15 +251,23 @@ protected:
   int DynamicDecimateLevelMax;
 
 private:
+  int MaxLevel = VTK_INT_MAX;
+  bool IsParallel = false;
+
+  enum class ShapeState : uint8_t;
+
   vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
   void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
 
   /**
    * Check whether a shape is visible on the screen.
    * @param points Points of the shape
+   * @param nbPoints Number of points to be read in `points` (not all 8 are necessarily defined).
+   * @param level The current depth level of the cell
    * @return Whether the shape is visible on the screen (fully or partially).
    */
-  bool IsShapeVisible(const std::set<std::array<double, 3>>& points);
+  ShapeState IsShapeVisible(
+    const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level);
 
   vtkSmartPointer<vtkMatrix4x4> ModelViewMatrix;
   vtkSmartPointer<vtkMatrix4x4> ProjectionMatrix;
