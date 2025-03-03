@@ -223,8 +223,6 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
   amr->SetDataSet(
     level, rankInfo.DomainBlockLevelIds.at(domain_id).second + rankInfo.BlockOffsets[level], ug);
 
-  const int default_refinement_ratio = 2;
-  amr->SetRefinementRatio(level, default_refinement_ratio);
   if (child.has_path("nestsets/nest/windows"))
   {
     const auto& windows = child["nestsets/nest/windows"];
@@ -302,8 +300,25 @@ void DistributeAMRBoxes(
     vtkAMRBox box(dims[0], dims[1], dims[2], dims[3], dims[4], dims[5]);
     amr->SetAMRBox(level, id, box);
   }
-}
 
+  // set homogeneous spacing
+  std::vector<double> local_spacings(globalInfo.NbOfLevels, 0.);
+  for (int lvl = 0; lvl < globalInfo.NbOfLevels; lvl++)
+  {
+    double lvl_spacing[3];
+    amr->GetSpacing(lvl, lvl_spacing);
+    local_spacings[lvl] = lvl_spacing[0];
+  }
+  std::vector<double> global_spacing(globalInfo.NbOfLevels);
+  controller->AllReduce(
+    local_spacings.data(), global_spacing.data(), globalInfo.NbOfLevels, vtkCommunicator::MAX_OP);
+  for (int lvl = 0; lvl < globalInfo.NbOfLevels; lvl++)
+  {
+    // spacing is homogeneous in all 3 directions.
+    double lvl_spacing[3] = { global_spacing[lvl], global_spacing[lvl], global_spacing[lvl] };
+    amr->SetSpacing(lvl, lvl_spacing);
+  }
+}
 };
 
 namespace vtkConduitToDataObject
