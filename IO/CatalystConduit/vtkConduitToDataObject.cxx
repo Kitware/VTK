@@ -344,6 +344,10 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
   double origin[3] = { 0, 0, 0 };
   double spacing[3] = { 0, 0, 0 };
 
+  // ---------------------
+  // construct structure: nb of blocks per levels, and origin.
+  // Local origin is the min of all origins found:
+  // so we will get a Global Origin with a simple min reduction
   for (conduit_index_t cc = 0; cc < leaves_on_node; ++cc)
   {
     const auto child = node.child(cc);
@@ -372,6 +376,9 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       }
     }
   }
+
+  // ---------------------
+  // MPI comm: reduce nb of levels, blocks and origin
 
   const vtkIdType levels_local = vtkIdType(blocksPerLevelLocal.size());
 
@@ -420,6 +427,11 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
       offset_local[l] = offset;
     }
   }
+
+  // ---------------------
+  // initialize AMR: each rank has same structure
+  // nb of Levels and nb of Blocks per level.
+  // init each bloc with nullptr
   std::vector<int> blocksPerLevelGlobal(levels_global, 0);
   for (vtkIdType l = 0; l < levels_global; l++)
   {
@@ -440,6 +452,8 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
   // set origin
   amr->SetOrigin(global_origin);
 
+  // ---------------------
+  // Fill local data
   for (conduit_index_t cc = 0; cc < leaves_on_node; ++cc)
   {
     // set the spacing for each level via amr->SetSpacing();
