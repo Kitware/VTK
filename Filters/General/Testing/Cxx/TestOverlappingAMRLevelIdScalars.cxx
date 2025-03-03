@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAMRBox.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkNew.h"
@@ -18,10 +19,39 @@ int TestOverlappingAMRLevelIdScalars(int, char*[])
   // Attach datasets to the AMR
   vtkNew<vtkUniformGrid> root;
   root->SetDimensions(3, 3, 3);
-  root->SetSpacing(1.0, 1.0, 1.0);
+  double spacing[3] = { 1, 1, 1 };
+  double origin[3] = { 0, 0, 0 };
+  root->SetSpacing(spacing);
+  root->SetOrigin(origin);
+  amr->SetOrigin(origin);
+
+  // AMR level 0
+  amr->SetSpacing(0, spacing);
   amr->SetDataSet(0, 0, root);
+  vtkAMRBox box(
+    root->GetOrigin(), root->GetDimensions(), spacing, origin, amr->GetGridDescription());
+  amr->SetAMRBox(0, 0, box);
+
   amr->SetDataSet(0, 1, root);
-  amr->SetDataSet(1, 0, root);
+  vtkAMRBox box1(
+    root->GetOrigin(), root->GetDimensions(), spacing, origin, amr->GetGridDescription());
+  amr->SetAMRBox(0, 1, box1);
+
+  // AMR level 1
+  spacing[0] /= 2.;
+  spacing[1] /= 2.;
+  spacing[2] /= 2.;
+  amr->SetSpacing(1, spacing);
+  vtkNew<vtkUniformGrid> block;
+  block->SetDimensions(3, 3, 3);
+  block->SetOrigin(origin);
+  block->SetSpacing(spacing);
+  amr->SetDataSet(1, 0, block);
+  vtkAMRBox box2(
+    block->GetOrigin(), block->GetDimensions(), spacing, origin, amr->GetGridDescription());
+  amr->SetAMRBox(1, 0, box2);
+
+  amr->Audit();
 
   // Apply id filter
   vtkNew<vtkOverlappingAMRLevelIdScalars> levelIdFilter;
