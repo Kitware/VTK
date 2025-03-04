@@ -1355,6 +1355,401 @@ bool ValidateMeshTypeMixed()
   return true;
 }
 
+struct O2MRelation
+{
+  std::vector<unsigned int> Connectivity;
+  std::vector<unsigned int> Sizes;
+  std::vector<unsigned int> Offsets;
+
+  size_t GetNumberOfElements() const { return this->Sizes.size(); }
+
+  unsigned int AddElement(const unsigned int* ptIds, const std::vector<unsigned int>& lids)
+  {
+    auto index = this->Sizes.size();
+    assert(this->Sizes.size() == this->Offsets.size());
+
+    this->Sizes.push_back(static_cast<unsigned int>(lids.size()));
+    this->Offsets.push_back(static_cast<unsigned int>(this->Connectivity.size()));
+
+    this->Connectivity.resize(this->Connectivity.size() + lids.size());
+    std::transform(lids.begin(), lids.end(),
+      std::next(this->Connectivity.begin(), this->Offsets.back()),
+      [&ptIds](unsigned int idx) { return ptIds ? ptIds[idx] : idx; });
+
+    return index;
+  }
+};
+
+class Grid
+{
+public:
+  Grid();
+  void Initialize(const unsigned int numPoints[3], const double spacing[3]);
+
+  size_t GetNumberOfPoints() const;
+  size_t GetNumberOfCells() const;
+
+  const double* GetPoint(size_t id) const;
+  const std::vector<double>& GetPoints() const { return this->Points; }
+  const O2MRelation& GetPolyhedralCells() const { return this->PolyhedralCells; }
+  const O2MRelation& GetPolygonalFaces() const { return this->PolygonalFaces; }
+
+private:
+  std::vector<double> Points;
+  O2MRelation PolyhedralCells;
+  O2MRelation PolygonalFaces;
+
+  void AppendHex(const unsigned int pointIds[8]);
+};
+
+class Attributes
+{
+  // A class for generating and storing point and cell fields.
+  // Velocity is stored at the points and pressure is stored
+  // for the cells. The current velocity profile is for a
+  // shearing flow with U(y,t) = y*t, V = 0 and W = 0.
+  // Pressure is constant through the domain.
+public:
+  Attributes();
+  void Initialize(Grid* grid);
+  void UpdateFields(double time);
+  double* GetVelocityArray();
+  float* GetPressureArray();
+
+private:
+  std::vector<double> Velocity;
+  std::vector<float> Pressure;
+  Grid* GridPtr;
+};
+
+Grid::Grid() = default;
+
+void Grid::Initialize(const unsigned int numPoints[3], const double spacing[3])
+{
+  if (numPoints[0] == 0 || numPoints[1] == 0 || numPoints[2] == 0)
+  {
+    std::cerr << "Must have a non-zero amount of points in each direction.\n";
+  }
+
+  this->Points.clear();
+
+  // in parallel, we do a simple partitioning in the x-direction.
+  int mpiSize = 1;
+  int mpiRank = 0;
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
+#endif
+
+  unsigned int startXPoint = mpiRank * numPoints[0] / mpiSize;
+  unsigned int endXPoint = (mpiRank + 1) * numPoints[0] / mpiSize;
+  if (mpiSize != mpiRank + 1)
+  {
+    endXPoint++;
+  }
+
+  // create the points -- slowest in the x and fastest in the z directions
+  double coord[3] = { 0, 0, 0 };
+  for (unsigned int i = startXPoint; i < endXPoint; i++)
+  {
+    coord[0] = i * spacing[0];
+    for (unsigned int j = 0; j < numPoints[1]; j++)
+    {
+      coord[1] = j * spacing[1];
+      for (unsigned int k = 0; k < numPoints[2]; k++)
+      {
+        coord[2] = k * spacing[2];
+        // add the coordinate to the end of the vector
+        std::copy(coord, coord + 3, std::back_inserter(this->Points));
+      }
+    }
+  }
+  // create the hex cells
+  unsigned int cellPoints[8];
+  unsigned int numXPoints = endXPoint - startXPoint;
+  for (unsigned int i = 0; i < numXPoints - 1; i++)
+  {
+    for (unsigned int j = 0; j < numPoints[1] - 1; j++)
+    {
+      for (unsigned int k = 0; k < numPoints[2] - 1; k++)
+      {
+        cellPoints[0] = i * numPoints[1] * numPoints[2] + j * numPoints[2] + k;
+        cellPoints[1] = (i + 1) * numPoints[1] * numPoints[2] + j * numPoints[2] + k;
+        cellPoints[2] = (i + 1) * numPoints[1] * numPoints[2] + (j + 1) * numPoints[2] + k;
+        cellPoints[3] = i * numPoints[1] * numPoints[2] + (j + 1) * numPoints[2] + k;
+        cellPoints[4] = i * numPoints[1] * numPoints[2] + j * numPoints[2] + k + 1;
+        cellPoints[5] = (i + 1) * numPoints[1] * numPoints[2] + j * numPoints[2] + k + 1;
+        cellPoints[6] = (i + 1) * numPoints[1] * numPoints[2] + (j + 1) * numPoints[2] + k + 1;
+        cellPoints[7] = i * numPoints[1] * numPoints[2] + (j + 1) * numPoints[2] + k + 1;
+
+        this->AppendHex(cellPoints);
+      }
+    }
+  }
+}
+
+void Grid::AppendHex(const unsigned int pointIds[8])
+{
+  // add a hex as a polyhedral cell, i.e. a cell with 6 quads
+
+  // add the quads; since I couldn't confirm how the face normal should point,
+  // I am making them all point outward.
+  std::vector<unsigned int> faces;
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 0, 3, 2, 1 })); // bottom
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 0, 1, 5, 4 }));
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 1, 2, 6, 5 }));
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 2, 3, 7, 6 }));
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 3, 0, 4, 7 }));
+  faces.push_back(this->PolygonalFaces.AddElement(pointIds, { 4, 5, 6, 7 })); // top
+
+  this->PolyhedralCells.AddElement(nullptr, faces);
+}
+
+size_t Grid::GetNumberOfPoints() const
+{
+  return this->Points.size() / 3;
+}
+size_t Grid::GetNumberOfCells() const
+{
+  return this->PolyhedralCells.GetNumberOfElements();
+}
+
+const double* Grid::GetPoint(size_t pointId) const
+{
+  if (pointId >= this->Points.size())
+  {
+    return nullptr;
+  }
+  return &(this->Points[pointId * 3]);
+}
+
+Attributes::Attributes()
+{
+  this->GridPtr = nullptr;
+}
+
+void Attributes::Initialize(Grid* grid)
+{
+  this->GridPtr = grid;
+}
+
+void Attributes::UpdateFields(double time)
+{
+  size_t numPoints = this->GridPtr->GetNumberOfPoints();
+  this->Velocity.resize(numPoints * 3);
+  for (size_t pt = 0; pt < numPoints; pt++)
+  {
+    const double* coord = this->GridPtr->GetPoint(pt);
+    this->Velocity[pt] = coord[1] * time;
+  }
+  std::fill(this->Velocity.begin() + numPoints, this->Velocity.end(), 0.);
+  size_t numCells = this->GridPtr->GetNumberOfCells();
+  this->Pressure.resize(numCells);
+  std::fill(this->Pressure.begin(), this->Pressure.end(), 1.f);
+}
+
+double* Attributes::GetVelocityArray()
+{
+  if (this->Velocity.empty())
+  {
+    return nullptr;
+  }
+  return &this->Velocity[0];
+}
+
+float* Attributes::GetPressureArray()
+{
+  if (this->Pressure.empty())
+  {
+    return nullptr;
+  }
+  return &this->Pressure[0];
+}
+
+void CreatePolyhedra(unsigned int nx, unsigned int ny, unsigned int nz, conduit_cpp::Node& mesh)
+{
+  Grid grid;
+  unsigned int numPoints[3] = { nx, ny, nz };
+  double spacing[3] = { 1, 1.1, 1.3 };
+  grid.Initialize(numPoints, spacing);
+  Attributes attribs;
+  attribs.Initialize(&grid);
+
+  mesh["coordsets/coords/type"].set("explicit");
+
+  mesh["coordsets/coords/values/x"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+    grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(double));
+  mesh["coordsets/coords/values/y"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+    grid.GetNumberOfPoints(),
+    /*offset=*/sizeof(double), /*stride=*/3 * sizeof(double));
+  mesh["coordsets/coords/values/z"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+    grid.GetNumberOfPoints(),
+    /*offset=*/2 * sizeof(double), /*stride=*/3 * sizeof(double));
+
+  // Next, add topology
+  mesh["topologies/mesh/type"].set("unstructured");
+  mesh["topologies/mesh/coordset"].set("coords");
+
+  // add elements
+  using VecT = std::vector<unsigned int>;
+
+  mesh["topologies/mesh/elements/shape"].set("polyhedral");
+  mesh["topologies/mesh/elements/connectivity"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Connectivity));
+  mesh["topologies/mesh/elements/sizes"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Sizes));
+  mesh["topologies/mesh/elements/offsets"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Offsets));
+
+  // add faces (aka subelements)
+  mesh["topologies/mesh/subelements/shape"].set("polygonal");
+  mesh["topologies/mesh/subelements/connectivity"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Connectivity));
+  mesh["topologies/mesh/subelements/sizes"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Sizes));
+  mesh["topologies/mesh/subelements/offsets"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Offsets));
+
+  // Finally, add fields.
+  auto fields = mesh["fields"];
+  fields["velocity/association"].set("vertex");
+  fields["velocity/topology"].set("mesh");
+  fields["velocity/volume_dependent"].set("false");
+
+  // velocity is stored in non-interlaced form (unlike points).
+  fields["velocity/values/x"].set_external(
+    attribs.GetVelocityArray(), grid.GetNumberOfPoints(), /*offset=*/0);
+  fields["velocity/values/y"].set_external(attribs.GetVelocityArray(), grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(double));
+  fields["velocity/values/z"].set_external(attribs.GetVelocityArray(), grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(double) * 2);
+
+  // pressure is cell-data.
+  fields["pressure/association"].set("element");
+  fields["pressure/topology"].set("mesh");
+  fields["pressure/volume_dependent"].set("false");
+  fields["pressure/values"].set_external(attribs.GetPressureArray(), grid.GetNumberOfCells());
+}
+
+bool ValidatePolyhedra()
+{
+  conduit_cpp::Node mesh;
+  constexpr int nX = 4, nY = 8, nZ = 6;
+  CreatePolyhedra(nX, nY, nZ, mesh);
+  auto data = Convert(mesh);
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+
+  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
+    ug->GetNumberOfPoints());
+
+  // 160 cells expected: 4 layers of
+  //                     - 2 columns with 4 hexahedra
+  //                     - 2 columns with 4 polyhedra (wedges) and 12 tetra
+  //                     96 tetras + 32 hexas + 32 polyhedra
+  VERIFY(ug->GetNumberOfCells() == 160, "expected 160 cells, got %lld", ug->GetNumberOfCells());
+
+  // check cell types
+  auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+
+  int nPolyhedra(0), nTetra(0), nHexa(0), nCells(0);
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  {
+    ++nCells;
+    const int cellType = it->GetCellType();
+    switch (cellType)
+    {
+      case VTK_POLYHEDRON:
+      {
+        ++nPolyhedra;
+        const vtkIdType nFaces = it->GetNumberOfFaces();
+        VERIFY(nFaces == 5, "Expected 5 faces, got %lld", nFaces);
+        break;
+      }
+      case VTK_HEXAHEDRON:
+      {
+        ++nHexa;
+        break;
+      }
+      case VTK_TETRA:
+      {
+        ++nTetra;
+        break;
+      }
+      default:
+      {
+        vtkLog(ERROR, "Expected only tetras, hexas and polyhedra.");
+        return false;
+      }
+    }
+  }
+
+  VERIFY(nCells == 160, "Expected 160 cells, got %d", nCells);
+  VERIFY(nTetra == 96, "Expected 96 tetras, got %d", nTetra);
+  VERIFY(nHexa == 32, "Expected 32 hexahedra, got %d", nHexa);
+  VERIFY(nPolyhedra == 32, "Expected 32 polyhedra, got %d", nPolyhedra);
+
+  // Test Wedge and Pyramid cell type
+  conduit_cpp::Node mesh2;
+  CreateWedgeAndPyramidUnstructuredMesh(5, 5, 5, mesh2);
+  data = Convert(mesh2);
+
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+
+  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
+    ug->GetNumberOfPoints());
+
+  // 64 cells expected: 4 layers of
+  //                     - 2 columns with 4 pyramids
+  //                     - 2 columns with 4 wedges
+  //                     32 pyramids + 32 wedges
+  VERIFY(ug->GetNumberOfCells() == 64, "expected 64 cells, got %lld", ug->GetNumberOfCells());
+
+  // check cell types
+  it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+
+  int nPyramids(0), nWedges(0);
+  nCells = 0;
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  {
+    ++nCells;
+    const int cellType = it->GetCellType();
+    switch (cellType)
+    {
+      case VTK_PYRAMID:
+      {
+        ++nPyramids;
+        break;
+      }
+      case VTK_WEDGE:
+      {
+        ++nWedges;
+        break;
+      }
+      default:
+      {
+        vtkLog(ERROR, "Expected only pyramids and wedges.");
+        return false;
+      }
+    }
+  }
+
+  VERIFY(nCells == 64, "Expected 64 cells, got %d", nCells);
+  VERIFY(nPyramids == 32, "Expected 32 pyramids, got %d", nPyramids);
+  VERIFY(nWedges == 32, "Expected 32 wedges, got %d", nWedges);
+
+  return true;
+}
+
 } // end namespace
 
 //----------------------------------------------------------------------------
@@ -1376,7 +1771,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
-      ValidateDistributedAMR()
+      ValidateDistributedAMR() && ValidatePolyhedra()
 
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
