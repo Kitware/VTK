@@ -1,9 +1,8 @@
 ## HTG Surface Representation improvements
 
-- Rewrite french comments to english
-- Generify cell visibility test to work in 3D as well as 1D and 2D, and not necessarily with parallel projection.
-- Support masks in 2D and 3D
-- Update and add vtkAdaptiveDataSetSurfaceFilter tests
+Cells outside the camera frustum are now decimated in 3D as well as 1D and 2D in HTG Surface Representation. The method to check their visibility has been
+generified to work in all cases, including without parallel projection (which was required before), and with masks. Existing tests have been updated and new ones
+created to cover these functionalities.
 
 Some protected members of `vtkAdaptiveDataSetSurfaceFilter` have been moved to private or completely removed:
 - Removed:

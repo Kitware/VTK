@@ -24,8 +24,6 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkGeometryFilter.h"
 
-#include <set>
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCamera;
@@ -68,7 +66,9 @@ public:
 
   ///@{
   /**
-   * Set/Get for forced a fixed the level max (lost dynamicity) (default -1)
+   * Set/Get for forced a fixed the level max (lost dynamicity)
+   *
+   * Default is -1
    */
   vtkSetMacro(FixedLevelMax, int);
   vtkGetMacro(FixedLevelMax, int);
@@ -92,12 +92,11 @@ private:
   /**
    * Check whether a shape is visible on the screen.
    * @param points Points of the shape
-   * @param nbPoints Number of points to be read in `points` (not all 8 are necessarily defined).
    * @param level The current depth level of the cell
    * @return Whether the shape is visible on the screen (fully or partially).
    */
-  ShapeState IsShapeVisible(
-    const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level);
+  template <int N>
+  ShapeState IsShapeVisible(const std::array<std::array<double, 3>, N>& points, int level);
 
   /**
    * Main routine to generate external boundary
@@ -107,7 +106,8 @@ private:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTree1DAnd2D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
+  void RecursivelyProcessTree1D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
+  void RecursivelyProcessTree2D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
   void RecursivelyProcessTree3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, int);
 
   /**
@@ -130,18 +130,18 @@ private:
    */
   void AddFace(vtkIdType, const double*, const double*, int, unsigned int);
 
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
+  vtkDataSetAttributes* InData = nullptr;
+  vtkDataSetAttributes* OutData = nullptr;
 
   /**
    * Dimension of input grid
    */
-  unsigned int Dimension;
+  unsigned int Dimension = 0;
 
   /**
    * Orientation of input grid when dimension < 3
    */
-  unsigned int Orientation;
+  unsigned int Orientation = 0;
 
   /**
    * Visibility Mask
@@ -151,17 +151,17 @@ private:
   /**
    * Storage for points of output unstructured mesh
    */
-  vtkPoints* Points;
+  vtkPoints* Points = nullptr;
 
   /**
    * Storage for cells of output unstructured mesh
    */
-  vtkCellArray* Cells;
+  vtkCellArray* Cells = nullptr;
 
   /**
    * Pointer to the renderer in use
    */
-  vtkRenderer* Renderer;
+  vtkRenderer* Renderer = nullptr;
 
   /**
    * First axis parameter for adaptive view
@@ -176,17 +176,17 @@ private:
   /**
    * Last renderer size parameters for adaptive view
    */
-  int LastRendererSize[2];
+  int LastRendererSize[2] = { 0, 0 };
 
   /**
-   * Depend on point of view
+   * Whether to use the camera frustum to decimate cells.
    */
-  bool ViewPointDepend;
+  bool ViewPointDepend = true;
 
   /**
    * Forced, fixed the level depth, ignored automatic determination
    */
-  int FixedLevelMax;
+  int FixedLevelMax = -1;
 
   /**
    * Whether ParallelProjection is enabled on the renderer's camera

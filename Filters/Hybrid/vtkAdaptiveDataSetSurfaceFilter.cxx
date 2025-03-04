@@ -38,27 +38,6 @@ enum class vtkAdaptiveDataSetSurfaceFilter::ShapeState : uint8_t
 //------------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 {
-  this->InData = nullptr;
-  this->OutData = nullptr;
-  this->Points = nullptr;
-  this->Cells = nullptr;
-
-  // Default dimension is 0
-  this->Dimension = 0;
-
-  // Default orientation is 0
-  this->Orientation = 0;
-
-  this->Renderer = nullptr;
-
-  this->LastRendererSize[0] = 0;
-  this->LastRendererSize[1] = 0;
-
-  this->FixedLevelMax = -1;
-
-  this->ViewPointDepend = true;
-
-  // Default Locator is 0
   this->Merging = false;
 
   // vtkGeometryFilter allows an optional 2nd input. Need to
@@ -171,7 +150,11 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   this->OutData = static_cast<vtkDataSetAttributes*>(output->GetCellData());
   this->OutData->CopyAllocate(this->InData);
 
-  if (this->Dimension == 2)
+  if (this->Dimension == 1)
+  {
+    input->Get1DAxis(this->Axis1);
+  }
+  else if (this->Dimension == 2)
   {
     input->Get2DAxes(this->Axis1, this->Axis2);
   }
@@ -257,7 +240,14 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       }
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
-      this->RecursivelyProcessTree1DAnd2D(cursor, 0);
+      if (this->Dimension == 1)
+      {
+        this->RecursivelyProcessTree1D(cursor, 0);
+      }
+      else
+      {
+        this->RecursivelyProcessTree2D(cursor, 0);
+      }
     }
   }
 
@@ -285,32 +275,17 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
 }
 
 //------------------------------------------------------------------------------
-void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
+void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
 {
-  double originAxis1 = cursor->GetOrigin()[this->Axis1];
-  double originAxis2 = cursor->GetOrigin()[this->Axis2];
+  double origin = cursor->GetOrigin()[this->Axis1];
 
-  // For signature purposes, the array must be of size 8, but we only set the first 4 since the rest
-  // will not be used or accessed as IsShapeVisible will be called with nbPoints = 4.
-  std::array<std::array<double, 3>, 8> corners = {
-    originAxis1,
-    originAxis2,
-    0.0,
-    originAxis1 + cursor->GetSize()[this->Axis1],
-    originAxis2,
-    0.0,
-    originAxis1,
-    originAxis2 + cursor->GetSize()[this->Axis2],
-    0.0,
-    originAxis1 + cursor->GetSize()[this->Axis1],
-    originAxis2 + cursor->GetSize()[this->Axis2],
-    0.0,
-  };
+  std::array<std::array<double, 3>, 2> corners = { { { { origin, 0.0, 0.0 } },
+    { { origin + cursor->GetSize()[this->Axis1], 0.0, 0.0 } } } };
 
   // We only process the nodes than are going to be rendered
   if (level < this->MaxLevel &&
-    this->IsShapeVisible(corners, 4, level) == ShapeState::OUT_OF_SCREEN)
+    this->IsShapeVisible<2>(corners, level) == ShapeState::OUT_OF_SCREEN)
   {
     return;
   }
@@ -318,14 +293,7 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
   if (cursor->IsLeaf() || level >= this->MaxLevel ||
     (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
-    if (this->Dimension == 2)
-    {
-      this->ProcessLeaf2D(cursor);
-    }
-    else
-    {
-      this->ProcessLeaf1D(cursor);
-    }
+    this->ProcessLeaf1D(cursor);
   }
   else
   {
@@ -338,7 +306,49 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
         break;
       }
       cursor->ToChild(iChild);
-      this->RecursivelyProcessTree1DAnd2D(cursor, level + 1);
+      this->RecursivelyProcessTree1D(cursor, level + 1);
+      cursor->ToParent();
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree2D(
+  vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
+{
+  double originAxis1 = cursor->GetOrigin()[this->Axis1];
+  double originAxis2 = cursor->GetOrigin()[this->Axis2];
+
+  std::array<std::array<double, 3>, 4> corners = { { { { originAxis1, originAxis2, 0.0 } },
+    { { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2, 0.0 } },
+    { { originAxis1, originAxis2 + cursor->GetSize()[this->Axis2], 0.0 } },
+    { { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2 + cursor->GetSize()[this->Axis2],
+      0.0 } } } };
+
+  // We only process the nodes than are going to be rendered
+  if (level < this->MaxLevel &&
+    this->IsShapeVisible<4>(corners, level) == ShapeState::OUT_OF_SCREEN)
+  {
+    return;
+  }
+
+  if (cursor->IsLeaf() || level >= this->MaxLevel ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
+  {
+    this->ProcessLeaf2D(cursor);
+  }
+  else
+  {
+    // Cursor is not at leaf, recurse to all children
+    const int numChildren = cursor->GetNumberOfChildren();
+    for (int iChild = 0; iChild < numChildren; ++iChild)
+    {
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      cursor->ToChild(iChild);
+      this->RecursivelyProcessTree2D(cursor, level + 1);
       cursor->ToParent();
     }
   }
@@ -348,6 +358,11 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1DAnd2D(
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
+  vtkIdType globalId = cursor->GetGlobalNodeIndex();
+  if (this->Mask && this->Mask->GetValue(globalId))
+  {
+    return;
+  }
   // In 1D the geometry is composed of edges, create storage for endpoint IDs
   vtkIdType id[2];
 
@@ -358,24 +373,12 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   // Second endpoint is at origin of cursor plus its length
   double pt[3];
   memcpy(pt, origin, 3 * sizeof(double));
-  switch (this->Orientation)
-  {
-    case 3: // 1 + 2
-      pt[2] += cursor->GetSize()[2];
-      break;
-    case 5: // 1 + 4
-      pt[1] += cursor->GetSize()[1];
-      break;
-    case 6: // 2 + 4
-      pt[0] += cursor->GetSize()[0];
-      break;
-    default:
-      break;
-  }
+  pt[this->Orientation] += cursor->GetSize()[this->Orientation];
   id[1] = this->Points->InsertNextPoint(pt);
 
   // Insert edge into 1D geometry
-  this->Cells->InsertNextCell(2, id);
+  vtkIdType outId = this->Cells->InsertNextCell(2, id);
+  this->OutData->CopyData(this->InData, globalId, outId);
 }
 
 //------------------------------------------------------------------------------
@@ -398,8 +401,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
 }
 
 //------------------------------------------------------------------------------
+template <int N>
 vtkAdaptiveDataSetSurfaceFilter::ShapeState vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(
-  const std::array<std::array<double, 3>, 8>& points, int nbPoints, int level)
+  const std::array<std::array<double, 3>, N>& points, int level)
 {
   if (!this->ViewPointDepend)
   {
@@ -412,7 +416,7 @@ vtkAdaptiveDataSetSurfaceFilter::ShapeState vtkAdaptiveDataSetSurfaceFilter::IsS
   double minZ = VTK_DOUBLE_MAX;
   double maxZ = VTK_DOUBLE_MIN;
 
-  for (int i = 0; i < nbPoints; ++i)
+  for (int i = 0; i < N; ++i)
   {
     std::array<double, 3> point = points[i];
     double pointWorld[4] = { point[0], point[1], point[2], 1.0 };
@@ -467,34 +471,19 @@ void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
 {
   double* origin = cursor->GetOrigin();
 
-  std::array<std::array<double, 3>, 8> corners = {
-    origin[0],
-    origin[1],
-    origin[2],
-    origin[0],
-    origin[1],
-    origin[2] + cursor->GetSize()[2],
-    origin[0] + cursor->GetSize()[0],
-    origin[1],
-    origin[2],
-    origin[0] + cursor->GetSize()[0],
-    origin[1],
-    origin[2] + cursor->GetSize()[2],
-    origin[0],
-    origin[1] + cursor->GetSize()[1],
-    origin[2],
-    origin[0],
-    origin[1] + cursor->GetSize()[1],
-    origin[2] + cursor->GetSize()[2],
-    origin[0] + cursor->GetSize()[0],
-    origin[1] + cursor->GetSize()[1],
-    origin[2],
-    origin[0] + cursor->GetSize()[0],
-    origin[1] + cursor->GetSize()[1],
-    origin[2] + cursor->GetSize()[2],
-  };
+  std::array<std::array<double, 3>, 8> corners = { {
+    { { origin[0], origin[1], origin[2] } },
+    { { origin[0], origin[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1], origin[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0], origin[1] + cursor->GetSize()[1], origin[2] } },
+    { { origin[0], origin[1] + cursor->GetSize()[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1], origin[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1],
+      origin[2] + cursor->GetSize()[2] } },
+  } };
 
-  ShapeState shapeState = this->IsShapeVisible(corners, 8, level);
+  ShapeState shapeState = this->IsShapeVisible<8>(corners, level);
   if (shapeState == ShapeState::OUT_OF_SCREEN)
   {
     return;

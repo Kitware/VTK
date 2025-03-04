@@ -308,7 +308,7 @@ public:
 
   ///@{
   /**
-   * Augmented services on Coordinates.
+   * Utility methods to set coordinates.
    */
   virtual void CopyCoordinates(const vtkHyperTreeGrid* output);
   virtual void SetFixedCoordinates(unsigned int axis, double value);
