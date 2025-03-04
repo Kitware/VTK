@@ -47,7 +47,7 @@ class VTKRENDERINGLABEL_EXPORT VTK_MARSHALAUTO vtkDynamic2DLabelMapper : public 
 public:
   ///@{
   /**
-   * Instantiate object with %%-#6.3g label format. By default, point ids
+   * Instantiate object with {:<#6.3g} label format. By default, point ids
    * are labeled.
    */
   static vtkDynamic2DLabelMapper* New();

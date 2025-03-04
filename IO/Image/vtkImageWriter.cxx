@@ -12,6 +12,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -30,8 +31,8 @@ vtkImageWriter::vtkImageWriter()
   this->FileNumber = 0;
   this->FileDimensionality = 2;
 
-  this->FilePattern = new char[strlen("%s.%d") + 1];
-  strcpy(this->FilePattern, "%s.%d");
+  this->FilePattern = new char[strlen("{:s}.{:d}") + 1];
+  strcpy(this->FilePattern, "{:s}.{:d}");
 
   this->FileLowerLeft = 0;
 
@@ -65,6 +66,20 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
   os << indent << "WriteToMemory: " << this->WriteToMemory << "\n";
+}
+
+void vtkImageWriter::SetFilePattern(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(FilePattern, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -161,19 +176,23 @@ void vtkImageWriter::RecursiveWrite(
     // determine the name
     if (this->FileName)
     {
-      snprintf(this->InternalFileName, this->InternalFileNameSize, "%s", this->FileName);
+      auto result = vtk::format_to_n(
+        this->InternalFileName, this->InternalFileNameSize, "{:s}", this->FileName);
+      *result.out = '\0';
     }
     else
     {
       if (this->FilePrefix)
       {
-        snprintf(this->InternalFileName, this->InternalFileNameSize, this->FilePattern,
-          this->FilePrefix, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, this->FilePrefix, this->FileNumber);
+        *result.out = '\0';
       }
       else
       {
-        snprintf(
-          this->InternalFileName, this->InternalFileNameSize, this->FilePattern, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, "", this->FileNumber);
+        *result.out = '\0';
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
@@ -273,19 +292,23 @@ void vtkImageWriter::RecursiveWrite(
     // determine the name
     if (this->FileName)
     {
-      snprintf(this->InternalFileName, this->InternalFileNameSize, "%s", this->FileName);
+      auto result = vtk::format_to_n(
+        this->InternalFileName, this->InternalFileNameSize, "{:s}", this->FileName);
+      *result.out = '\0';
     }
     else
     {
       if (this->FilePrefix)
       {
-        snprintf(this->InternalFileName, this->InternalFileNameSize, this->FilePattern,
-          this->FilePrefix, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, this->FilePrefix, this->FileNumber);
+        *result.out = '\0';
       }
       else
       {
-        snprintf(
-          this->InternalFileName, this->InternalFileNameSize, this->FilePattern, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, "", this->FileNumber);
+        *result.out = '\0';
       }
       if (this->FileNumber < this->MinimumFileNumber)
       {
@@ -483,7 +506,7 @@ void vtkImageWriter::DeleteFiles()
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         VTK_ASSUME(fileName.data() != nullptr); // silence warning.
-        snprintf(fileName.data(), fileNameLength, this->FilePattern, this->FilePrefix, i);
+        vtk::format_to_n(fileName.data(), fileName.size(), this->FilePattern, this->FilePrefix, i);
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }
@@ -494,7 +517,7 @@ void vtkImageWriter::DeleteFiles()
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        snprintf(fileName.data(), fileNameLength, this->FilePattern, i);
+        vtk::format_to_n(fileName.data(), fileName.size(), this->FilePattern, i);
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }

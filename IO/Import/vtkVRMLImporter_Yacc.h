@@ -14,6 +14,7 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkPoints.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkVRML.h"
 #include "vtkVRMLImporter.h"
@@ -383,12 +384,11 @@ VrmlNodeType::addField(const char *nodeName, int type)
 inline void
 VrmlNodeType::addExposedField(const char *nodeName, int type)
 {
-  size_t length = 20 + strlen(nodeName);
-  std::vector<char> tmp(length);
+  std::string tmp;
   add(fields, nodeName, type);
-  snprintf(tmp.data(), length, "set_%s", nodeName);
+  vtk::format_to(std::back_inserter(tmp), "set_{:s}", nodeName);
   add(eventIns, tmp.data(), type);
-  snprintf(tmp.data(), length, "%s_changed", nodeName);
+  vtk::format_to(std::back_inserter(tmp), "{:s}_changed", nodeName);
   add(eventOuts, tmp.data(), type);
 }
 

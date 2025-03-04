@@ -12,6 +12,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 
 #include <cassert>
 
@@ -151,7 +152,7 @@ bool vtkGroupTimeStepsFilter::AddTimeStep(
   const auto idx = pdc->GetNumberOfPartitionedDataSets();
   pdc->SetPartition(idx, 0, data);
 
-  const auto name = "timestep" + std::to_string(timeStep);
+  const auto name = "timestep" + vtk::to_string(timeStep);
   auto assembly = pdc->GetDataAssembly();
   auto node = assembly->AddNode(name.c_str());
   assembly->AddDataSetIndex(node, idx);
@@ -173,7 +174,7 @@ bool vtkGroupTimeStepsFilter::AddTimeStep(
   const auto idx = pdc->GetNumberOfPartitionedDataSets();
   pdc->SetPartitionedDataSet(idx, data);
 
-  const auto name = "timestep" + std::to_string(timeStep);
+  const auto name = "timestep" + vtk::to_string(timeStep);
   auto assembly = pdc->GetDataAssembly();
   auto node = assembly->AddNode(name.c_str());
   assembly->AddDataSetIndex(node, idx);
@@ -202,7 +203,7 @@ bool vtkGroupTimeStepsFilter::AddTimeStep(
     }
   }
 
-  const auto name = "timestep" + std::to_string(timeStep);
+  const auto name = "timestep" + vtk::to_string(timeStep);
   auto assembly = pdc->GetDataAssembly();
   auto node = assembly->AddNode(name.c_str());
   assembly->AddDataSetIndexRange(
@@ -237,7 +238,7 @@ bool vtkGroupTimeStepsFilter::AddTimeStep(
   const auto idx = mb->GetNumberOfBlocks();
   mb->SetBlock(idx, data);
 
-  const auto name = "timestep" + std::to_string(timeStep);
+  const auto name = "timestep" + vtk::to_string(timeStep);
   mb->GetMetaData(idx)->Set(vtkCompositeDataSet::NAME(), name.c_str());
   return true;
 }

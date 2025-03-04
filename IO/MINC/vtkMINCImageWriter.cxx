@@ -8,19 +8,16 @@
 
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkShortArray.h"
-#include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkType.h"
@@ -376,11 +373,9 @@ std::string vtkMINCImageWriterCreateIdentString()
   ident.append(itemsep);
 
   // Get the local time
-  char buf[1024];
-  time_t t;
-  time(&t);
-  strftime(buf, sizeof(buf), "%Y.%m.%d.%H.%M.%S", localtime(&t));
-  ident.append(buf);
+  std::time_t t = std::time(nullptr);
+  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", vtk::localtime(t));
+  ident.append(date);
   ident.append(itemsep);
 
   // Get the process ID and the counter for this process.
@@ -389,8 +384,8 @@ std::string vtkMINCImageWriterCreateIdentString()
 #else
   int processId = getpid();
 #endif
-  snprintf(buf, 1024, "%i%s%i", processId, itemsep, identx++);
-  ident.append(buf);
+  auto process = vtk::format("{:d}{:s}{:d}", processId, itemsep, identx++);
+  ident.append(process);
 
   return ident;
 }

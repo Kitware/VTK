@@ -12,8 +12,8 @@
 #include "vtkPlotBox.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 
 //------------------------------------------------------------------------------
@@ -34,10 +34,9 @@ int TestBoxPlot(int, char*[])
 
   for (int i = 0; i < numParam; i++)
   {
-    char num[10];
-    snprintf(num, sizeof(num), "P%d", i);
+    auto num = vtk::format("P{:d}", i);
     vtkNew<vtkIntArray> arrIndex;
-    arrIndex->SetName(num);
+    arrIndex->SetName(num.c_str());
     inputBoxPlotTable->AddColumn(arrIndex);
   }
 

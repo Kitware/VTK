@@ -18,6 +18,7 @@
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkStringArray.h>
+#include <vtkStringFormatter.h>
 #include <vtkStringScanner.h>
 
 #include <vtksys/FStream.hxx>
@@ -165,7 +166,7 @@ int vtkSEPReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   {
     this->AllDimensions->SetValue(i, this->Label[i]);
     this->AllRanges->SetValue((i + 1) * 2, this->Label[i]);
-    this->AllRanges->SetValue((i + 1) * 2 + 1, std::to_string(this->Dimensions[i]));
+    this->AllRanges->SetValue((i + 1) * 2 + 1, vtk::to_string(this->Dimensions[i]));
     this->FixedDimRange[1] = std::max(this->FixedDimRange[1], this->Dimensions[i]);
   }
 
@@ -394,7 +395,7 @@ bool vtkSEPReader::ReadHeader()
   {
     if (this->Label[i].empty())
     {
-      this->Label[i] = "Dimension " + std::to_string(i + 1);
+      this->Label[i] = "Dimension " + vtk::to_string(i + 1);
     }
   }
 
@@ -460,9 +461,9 @@ bool vtkSEPReader::ReadData(vtkImageData* imageData, int updateExtents[6])
     {
       if (fixedValue >= dimensionArrayId)
       {
-        vtkWarningMacro("Value entered for fixed dimension 1 (" + std::to_string(fixedValue) +
+        vtkWarningMacro("Value entered for fixed dimension 1 (" + vtk::to_string(fixedValue) +
           ") is greater than the size of the chosen dimension (" +
-          std::to_string(dimensionArrayId) + ").");
+          vtk::to_string(dimensionArrayId) + ").");
         return dimensionArrayId;
       }
 

@@ -3,15 +3,11 @@
 
 #include "EnSightFile.h"
 
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
 #include <cctype> // for std::tolower
 #include <regex>
-
-#include <vtk_fmt.h>
-// clang-format off
-#include VTK_FMT(fmt/format.h)
-// clang-format on
 
 namespace ensight_gold
 {
@@ -122,7 +118,7 @@ std::string replaceWildcards(const std::string& pattern, int num)
   if (std::regex_search(pattern, sm, exp))
   {
     auto numWildcards = sm.length(0);
-    filename = fmt::format(
+    filename = vtk::format(
       "{}{:0{}d}{}", std::string(sm.prefix()), num, numWildcards, std::string(sm.suffix()));
   }
 

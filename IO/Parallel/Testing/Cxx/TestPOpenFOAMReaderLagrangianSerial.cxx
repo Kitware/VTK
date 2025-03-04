@@ -9,15 +9,14 @@
 
 #include "vtkPOpenFOAMReader.h"
 
-#include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSetMapper.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -56,7 +55,7 @@ int TestPOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
 #endif
   controller->Initialize(&argc, &argv);
   int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank=" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank=" + vtk::to_string(rank));
   vtkMultiProcessController::SetGlobalController(controller);
 
   // Read file name.

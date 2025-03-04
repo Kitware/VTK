@@ -824,12 +824,7 @@ void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* c
     // Modify the measure axis
     this->Distance->GetPoint1WorldPosition(pos1);
     this->Distance->GetPoint2WorldPosition(pos2);
-    double dist = sqrt(vtkMath::Distance2BetweenPoints(pos1, pos2));
-
-    char title[256];
-    //    this->Distance->GetAxis()->SetRange(0.0,dist);
-    snprintf(title, sizeof(title), "%-#6.3g", dist);
-    //    this->Distance->GetAxis()->SetTitle(title);
+    // double dist = sqrt(vtkMath::Distance2BetweenPoints(pos1, pos2));
   }
   else
   {

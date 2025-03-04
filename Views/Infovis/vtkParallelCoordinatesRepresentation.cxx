@@ -5,58 +5,45 @@
 #include "vtkParallelCoordinatesRepresentation.h"
 
 #include "vtkAbstractArray.h"
-#include "vtkActor.h"
 #include "vtkActor2D.h"
 #include "vtkAnnotationLink.h"
 #include "vtkArray.h"
-#include "vtkArrayData.h"
-#include "vtkArrayExtents.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkArrayToTable.h"
 #include "vtkAxisActor2D.h"
 #include "vtkBivariateLinearTableThreshold.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCollection.h"
 #include "vtkConeSource.h"
 #include "vtkCoordinate.h"
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
-#include "vtkDataSetMapper.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
-#include "vtkInteractorObserver.h"
-#include "vtkLookupTable.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutlineCornerSource.h"
 #include "vtkParallelCoordinatesView.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkPolyLine.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderView.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSCurveSpline.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
-#include "vtkThreshold.h"
 #include "vtkTimeStamp.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkViewTheme.h"
@@ -769,7 +756,8 @@ int vtkParallelCoordinatesRepresentation::UpdatePlotProperties(vtkStringArray* i
     for (int i = 0; i < this->NumberOfAxes; i++)
     {
       char title[16];
-      snprintf(title, sizeof(title), "%c", i + 65);
+      auto result = vtk::format_to_n(title, sizeof(title), "{:c}", i + 65);
+      *result.out = '\0';
       this->AxisTitles->InsertNextValue(title);
     }
   }
@@ -1543,9 +1531,10 @@ void vtkParallelCoordinatesRepresentation::AngleSelect(
 
     char buf[256];
     double b = xy[1] - slope * xy[0];
-    snprintf(buf, sizeof(buf), "%s = %f * %s %s %f\n",
-      this->AxisTitles->GetValue(position + 1).c_str(), slope,
-      this->AxisTitles->GetValue(position).c_str(), (b < 0) ? "-" : "+", fabs(b));
+    auto result = vtk::format_to_n(buf, sizeof(buf), "{:s} = {:f} * {:s} {:s} {:f}\n",
+      this->AxisTitles->GetValue(position + 1), slope, this->AxisTitles->GetValue(position),
+      (b < 0) ? "-" : "+", std::abs(b));
+    *result.out = '\0';
 
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();
@@ -1598,9 +1587,10 @@ void vtkParallelCoordinatesRepresentation::FunctionSelect(
     double m = (xy1[1] - xy2[1]) / (xy1[0] - xy2[0]);
     double b = xy1[1] - (xy1[1] - xy2[1]) / (xy1[0] - xy2[0]) * xy1[0];
     char buf[256];
-    snprintf(buf, sizeof(buf), "%s = %f * %s %s %f\n",
+    auto result = vtk::format_to_n(buf, sizeof(buf), "{:s} = {:f} * {:s} {:s} {:f}\n",
       this->AxisTitles->GetValue(position + 1).c_str(), m,
-      this->AxisTitles->GetValue(position).c_str(), (b < 0) ? "-" : "+", fabs(b));
+      this->AxisTitles->GetValue(position).c_str(), (b < 0) ? "-" : "+", std::abs(b));
+    *result.out = '\0';
 
     this->FunctionTextMapper->SetInput(buf);
     this->FunctionTextActor->VisibilityOn();

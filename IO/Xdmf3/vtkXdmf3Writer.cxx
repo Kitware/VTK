@@ -14,6 +14,7 @@
 #include "vtkPointSet.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkXdmf3DataSet.h"
 
@@ -343,9 +344,9 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
       } // end if(this->MyRank == 0)
       std::string rankFileName = choppedFileName;
       rankFileName.append(".");
-      rankFileName.append(std::to_string(this->NumberOfProcesses));
+      rankFileName.append(vtk::to_string(this->NumberOfProcesses));
       rankFileName.append(".");
-      rankFileName.append(std::to_string(this->MyRank));
+      rankFileName.append(vtk::to_string(this->MyRank));
       rankFileName.append(".xmf");
       this->Internal->InitWriterName(rankFileName.c_str(), this->LightDataLimit);
     }
@@ -370,9 +371,9 @@ void vtkXdmf3Writer::WriteDataInternal(vtkInformation* request)
     {
       std::string rankFileName = choppedFileName;
       rankFileName.append(".");
-      rankFileName.append(std::to_string(this->NumberOfProcesses));
+      rankFileName.append(vtk::to_string(this->NumberOfProcesses));
       rankFileName.append(".");
-      rankFileName.append(std::to_string(rankCount));
+      rankFileName.append(vtk::to_string(rankCount));
       rankFileName.append(".xmf");
       std::string rankGridName = "/Xdmf/Domain/Grid[1]";
 

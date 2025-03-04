@@ -19,6 +19,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkType.h"
 #include "vtkUnsignedIntArray.h"
@@ -976,7 +977,7 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(unsigned int element_degree,
   cerr << "Finite element function of family " << element_family
        << " and "
           "degree "
-       << std::to_string(element_degree) << " on " << topologyType->getName()
+       << vtk::to_string(element_degree) << " on " << topologyType->getName()
        << " is not supported." << endl;
   return 0;
 }

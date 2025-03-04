@@ -19,6 +19,9 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkTextActor.h"
+#include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkViewport.h"
@@ -50,8 +53,9 @@ vtkAxisActor::vtkAxisActor()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1;
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->TitleTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleTextProperty->SetColor(0., 0., 0.);
@@ -109,6 +113,21 @@ vtkAxisActor::~vtkAxisActor()
 
   delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

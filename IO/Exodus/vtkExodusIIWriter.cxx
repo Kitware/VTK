@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
@@ -533,14 +534,12 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     }
     else
     {
-      char* myFileName = new char[VTK_MAXPATH];
-      snprintf(myFileName, VTK_MAXPATH, "%s-s.%06d", this->FileName, this->CurrentTimeIndex);
-      this->fid = ex_create(myFileName, EX_CLOBBER, &compWordSize, &IOWordSize);
-      if (fid <= 0)
+      auto myFileName = vtk::format("{}-s.{:06d}", this->FileName, this->CurrentTimeIndex);
+      this->fid = ex_create(myFileName.c_str(), EX_CLOBBER, &compWordSize, &IOWordSize);
+      if (this->fid <= 0)
       {
         vtkErrorMacro(<< "vtkExodusIIWriter: CreateNewExodusFile can't create " << myFileName);
       }
-      delete[] myFileName;
     }
   }
   else
@@ -1142,15 +1141,12 @@ int vtkExodusIIWriter::CreateDefaultMetadata()
 
   vtkModelMetadata* em = vtkModelMetadata::New();
 
-  char* title = new char[MAX_LINE_LENGTH + 1];
   time_t currentTime = time(nullptr);
   char* stime = ctime(&currentTime);
 
-  snprintf(title, MAX_LINE_LENGTH + 1, "Created by vtkExodusIIWriter, %s", stime);
+  auto title = vtk::format("Created by vtkExodusIIWriter, {}", stime);
 
-  em->SetTitle(title);
-
-  delete[] title;
+  em->SetTitle(title.c_str());
 
   char** dimNames = new char*[3];
   dimNames[0] = vtkExodusIIWriter::StrDupWithNew("X");
@@ -2294,8 +2290,7 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
   {
     std::string s(root);
     // assume largest for 32 bit decimal representation
-    char n[12];
-    snprintf(n, sizeof(n), "%10d", component);
+    auto n = vtk::format("{:10d}", component);
     s.append(n);
     return s;
   }

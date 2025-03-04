@@ -18,6 +18,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkStringFormatter.h>
 #include <vtkSynchronizedRenderWindows.h>
 #include <vtkTestUtilities.h>
 
@@ -52,7 +53,7 @@ int TestIOSSExodusPartitionedFiles(int argc, char* argv[])
   for (int cc = 0; cc < 4; ++cc)
   {
     auto fname =
-      GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.") + std::to_string(cc));
+      GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.") + vtk::to_string(cc));
     reader->AddFileName(fname.c_str());
   }
 

@@ -3,6 +3,7 @@
 #include "vtkWin32VideoSource.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -164,7 +165,8 @@ LRESULT PASCAL vtkWin32VideoSourceErrorCallbackProc(HWND hwndC, int ErrID, LPSTR
   if (ErrID)
   {
     char buff[84];
-    snprintf(buff, sizeof(buff), "Error# %d", ErrID);
+    auto result = vtk::format_to_n(buff, sizeof(buff), "Error# {:d}", ErrID);
+    *result.out = '\0';
     MessageBox(hwndC, lpErrorText, buff, MB_OK | MB_ICONEXCLAMATION);
     // vtkGenericWarningMacro(<< buff << ' ' << lpErrorText);
   }
@@ -213,7 +215,8 @@ void vtkWin32VideoSource::Initialize()
       break;
     }
     // try again with a slightly different name
-    snprintf(this->WndClassName, 16, "VTKVideo %d", i);
+    auto result = vtk::format_to_n(this->WndClassName, 16, "VTKVideo {:d}", i);
+    *result.out = '\0';
   }
 
   if (i > 10)
@@ -1046,8 +1049,8 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
   }
   else
   {
-    char fourcchex[16], fourcc[8];
-    snprintf(fourcchex, sizeof(fourcchex), "0x%08x", compression);
+    char fourcc[8];
+    auto fourcchex = vtk::format("0x{:08x}", compression);
     for (int i = 0; i < 4; i++)
     {
       fourcc[i] = (compression >> (8 * i)) & 0xff;

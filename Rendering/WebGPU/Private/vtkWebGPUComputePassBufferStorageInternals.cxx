@@ -7,6 +7,7 @@
 #include "vtkWebGPUHelpers.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -58,7 +59,7 @@ int vtkWebGPUComputePassBufferStorageInternals::AddBuffer(
   // Giving the buffer a default label if it doesn't have one already
   if (buffer->GetLabel().empty())
   {
-    buffer->SetLabel("Buffer " + std::to_string(this->Buffers.size()));
+    buffer->SetLabel("Buffer " + vtk::to_string(this->Buffers.size()));
   }
 
   std::string bufferLabel = buffer->GetLabel();

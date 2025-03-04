@@ -32,24 +32,17 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
-#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
-#include "vtksys/Encoding.hxx"
-#include "vtksys/FStream.hxx"
+#include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
-#include <cassert>
-#include <cctype>
-#include <functional>
-#include <locale>
 #include <numeric>
 #include <sstream>
 #include <vector>
-
-#include "vtkPointData.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFReader);
@@ -129,7 +122,7 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
 {
   auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size)
   {
-    std::string modifier = "_" + std::to_string(filePiece) + "_" + compositePath;
+    std::string modifier = "_" + vtk::to_string(filePiece) + "_" + compositePath;
     return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
   };
   vtkSmartPointer<vtkDataArray> pointArray;
@@ -884,7 +877,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   auto readFromFileOrCache =
     [&](int tag, std::string name, vtkIdType offset, vtkIdType size, bool mData)
   {
-    std::string modifier = "_" + std::to_string(filePiece) + "_" + this->CompositeCachePath;
+    std::string modifier = "_" + vtk::to_string(filePiece) + "_" + this->CompositeCachePath;
     return ::ReadFromFileOrCache(
       this->Impl, this->UseCache ? this->Cache : nullptr, tag, name, modifier, offset, size, mData);
   };
@@ -1266,7 +1259,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
           }
           vtkSmartPointer<vtkDataArray> array;
           if ((array = ::ReadFromFileOrCache(this->Impl, this->UseCache ? this->Cache : nullptr,
-                 attributeType, name, "_" + std::to_string(filePiece), arrayOffset,
+                 attributeType, name, "_" + vtk::to_string(filePiece), arrayOffset,
                  numberOf[attributeType], false)) == nullptr)
           {
             vtkErrorMacro("Error reading array " << name);

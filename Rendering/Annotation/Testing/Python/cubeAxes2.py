@@ -123,9 +123,9 @@ axes = vtkCubeAxesActor()
 axes.SetBounds(
   bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 axes.SetCamera(ren1.GetActiveCamera())
-axes.SetXLabelFormat("%6.1f")
-axes.SetYLabelFormat("%6.1f")
-axes.SetZLabelFormat("%6.1f")
+axes.SetXLabelFormat("{:6.1f}")
+axes.SetYLabelFormat("{:6.1f}")
+axes.SetZLabelFormat("{:6.1f}")
 axes.SetFlyModeToOuterEdges()
 
 ren1.AddViewProp(axes)

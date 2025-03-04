@@ -9,7 +9,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
-#include "vtkCylinder.h"
 #include "vtkCylinderSource.h"
 #include "vtkEvent.h"
 #include "vtkInteractorObserver.h"
@@ -21,9 +20,9 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkVectorText.h"
@@ -539,7 +538,8 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     else
     {
       char label[256];
-      snprintf(label, sizeof(label), this->LabelFormat, this->Value);
+      auto result = vtk::format_to_n(label, sizeof(label), this->LabelFormat, this->Value);
+      *result.out = '\0';
       double bounds[6];
       this->LabelActor->VisibilityOn();
       this->LabelText->SetText(label);

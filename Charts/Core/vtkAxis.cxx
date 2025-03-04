@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_6_0()
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkAxis.h"
 
@@ -12,14 +14,15 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
 
-#include "vtkObjectFactory.h"
 #include <sstream>
 
 #include "vtksys/RegularExpression.hxx"
@@ -77,8 +80,8 @@ vtkAxis::vtkAxis()
   this->TicksVisible = true;
   this->AxisVisible = true;
   this->Precision = 2;
-  this->LabelFormat = "%g";
-  this->RangeLabelFormat = "%g";
+  this->LabelFormat = "{:g}";
+  this->RangeLabelFormat = "{:g}";
   this->Notation = vtkAxis::STANDARD_NOTATION;
   this->Behavior = vtkAxis::AUTO;
   this->TitleAppended = false;
@@ -366,10 +369,17 @@ bool vtkAxis::Paint(vtkContext2D* painter)
   // Optionally draw min/max labels
   if (this->RangeLabelsVisible)
   {
-    vtkStdString minString =
-      this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
-    vtkStdString maxString =
-      this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    vtkStdString minString, maxString;
+    if (this->GetNotation() == STD_FORMAT_NOTATION)
+    {
+      minString = this->GenerateStdFormatLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+      maxString = this->GenerateStdFormatLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    }
+    else
+    {
+      minString = this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+      maxString = this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    }
 
     painter->ComputeJustifiedStringBounds(minString.c_str(), minLabelBounds);
     painter->ComputeJustifiedStringBounds(maxString.c_str(), maxLabelBounds);
@@ -989,11 +999,17 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 
   if (this->RangeLabelsVisible)
   {
-    // Add in the range labels
-    vtkStdString minLabel =
-      this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
-    vtkStdString maxLabel =
-      this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    vtkStdString minLabel, maxLabel;
+    if (this->GetNotation() == STD_FORMAT_NOTATION)
+    {
+      minLabel = this->GenerateStdFormatLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+      maxLabel = this->GenerateStdFormatLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    }
+    else
+    {
+      minLabel = this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+      maxLabel = this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+    }
 
     painter->ComputeStringBounds(minLabel, bounds.GetData());
     widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
@@ -1321,30 +1337,26 @@ void vtkAxis::GenerateTickLabels()
 vtkStdString vtkAxis::GenerateSimpleLabel(double val)
 {
   vtkStdString result;
-  if (this->Notation == PRINTF_NOTATION)
-  { // Use the C-style printf specification:
-    result = this->GenerateSprintfLabel(val, this->LabelFormat);
+  switch (this->Notation)
+  {
+    case STD_FORMAT_NOTATION:
+      result = this->GenerateStdFormatLabel(val, this->LabelFormat);
+      break;
+    case PRINTF_NOTATION:
+      // Use the C-style printf specification:
+      result = this->GenerateSprintfLabel(val, this->LabelFormat);
+      break;
+    case SCIENTIFIC_NOTATION:
+      result = vtk::format(FMT_STRING("{:.{}e}"), val, this->Precision);
+      break;
+    case FIXED_NOTATION:
+      result = vtk::format(FMT_STRING("{:.{}f}"), val, this->Precision);
+      break;
+    case STANDARD_NOTATION:
+    default:
+      result = vtk::format(FMT_STRING("{:g}"), val);
+      break;
   }
-  else
-  { // Use the C++ style stream format specification:
-    std::ostringstream ostr;
-    ostr.imbue(std::locale::classic());
-    if (this->Notation != STANDARD_NOTATION)
-    {
-      ostr.precision(this->Precision);
-      if (this->Notation == SCIENTIFIC_NOTATION)
-      {
-        ostr.setf(std::ios::scientific, std::ios::floatfield);
-      }
-      else if (this->Notation == FIXED_NOTATION)
-      {
-        ostr.setf(ios::fixed, ios::floatfield);
-      }
-    }
-    ostr << val;
-    result = vtkStdString(ostr.str());
-  }
-
   // Strip out leading zeros on the exponent:
   vtksys::RegularExpression regExp("[Ee][+-]");
   if (regExp.find(result))
@@ -1373,7 +1385,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
       double numF;
       VTK_FROM_CHARS_IF_ERROR_RETURN(regExp2.match(0), numF, "");
       long num = std::lround(numF);
-      result = std::to_string(num);
+      result = vtk::to_string(num);
       vtkStdString::iterator it = tmp.begin();
       for (int i = 0; i < regExp2.end() - regExp2.start(); ++i)
       {
@@ -1521,15 +1533,14 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
 //------------------------------------------------------------------------------
 vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string& format)
 {
-  // Use the C-style printf specification:
-  const int buffSize = 1024;
-  char buffer[buffSize];
+  // the format is expected to be in printf style format, so it's converted to std::format
+  return vtk::format(vtk::printf_to_std_format(format), value);
+}
 
-  snprintf(buffer, buffSize, format.c_str(), value);
-
-  vtkStdString result = vtkStdString(buffer);
-
-  return result;
+//------------------------------------------------------------------------------
+vtkStdString vtkAxis::GenerateStdFormatLabel(double value, const std::string& format)
+{
+  return vtk::format(format, value);
 }
 
 //------------------------------------------------------------------------------
@@ -1740,23 +1751,21 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
     this->TickPositions->InsertNextValue(log10(value));
 
     // Now create a label for the tick position
-    std::ostringstream ostr;
-    ostr.imbue(std::locale::classic());
-    if (this->Notation > 0)
+    switch (this->Notation)
     {
-      ostr.precision(this->Precision);
+      case SCIENTIFIC_NOTATION:
+        this->TickLabels->InsertNextValue(
+          vtk::format(FMT_STRING("{:.{}e}"), value, this->Precision));
+        break;
+      case FIXED_NOTATION:
+        this->TickLabels->InsertNextValue(
+          vtk::format(FMT_STRING("{:.{}f}"), value, this->Precision));
+        break;
+      case STANDARD_NOTATION:
+      default:
+        this->TickLabels->InsertNextValue(vtk::format(FMT_STRING("{:g}"), value));
+        break;
     }
-    if (this->Notation == SCIENTIFIC_NOTATION)
-    {
-      ostr.setf(std::ios::scientific, std::ios::floatfield);
-    }
-    else if (this->Notation == FIXED_NOTATION)
-    {
-      ostr.setf(ios::fixed, ios::floatfield);
-    }
-    ostr << value;
-
-    this->TickLabels->InsertNextValue(ostr.str());
   }
 }
 
@@ -1904,6 +1913,10 @@ void vtkAxis::PrintSelf(ostream& os, vtkIndent indent)
 
     case PRINTF_NOTATION:
       os << "PRINTF_NOTATION";
+      break;
+
+    case STD_FORMAT_NOTATION:
+      os << "STD_FORMAT_NOTATION";
       break;
 
     default:

@@ -38,6 +38,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
+#include "vtkStringFormatter.h"
 
 #include <algorithm>
 #include <vector>
@@ -372,7 +373,7 @@ protected:
   {
     for (int j = 0; j < this->NumComp; ++j)
     {
-      this->Output[outId * this->NumComp + j] = std::to_string(this->NullValue);
+      this->Output[outId * this->NumComp + j] = vtk::to_string(this->NullValue);
     }
   }
 

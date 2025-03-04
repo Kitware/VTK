@@ -17,6 +17,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
@@ -596,7 +597,8 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         // Copy filename (relative path?)
         if (val[0] != '/' && val[1] != ':' && dirLength > 0)
         { // Must be a relative path.
-          snprintf(this->PieceFileNames[i], 512, "%s%s", dir, val);
+          auto result = vtk::format_to_n(this->PieceFileNames[i], 512, "{:s}{:s}", dir, val);
+          *result.out = '\0';
         }
         else
         {

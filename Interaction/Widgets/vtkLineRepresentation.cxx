@@ -8,7 +8,6 @@
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
 #include "vtkFollower.h"
-#include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
@@ -20,6 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkVector.h"
 #include "vtkVectorText.h"
 #include "vtkWindow.h"
@@ -103,8 +103,9 @@ vtkLineRepresentation::vtkLineRepresentation()
   // The distance text annotation
   this->DistanceAnnotationVisibility = 0;
   this->Distance = 0.0;
-  this->DistanceAnnotationFormat = new char[8];
-  snprintf(this->DistanceAnnotationFormat, 8, "%s", "%-#6.3g");
+  this->DistanceAnnotationFormat = new char[10];
+  auto result = vtk::format_to_n(this->DistanceAnnotationFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
   this->TextInput = vtkVectorText::New();
   this->TextInput->SetText("0");
   this->TextMapper = vtkPolyDataMapper::New();
@@ -185,6 +186,21 @@ vtkLineRepresentation::~vtkLineRepresentation()
   this->TextMapper->Delete();
   this->TextActor->Delete();
   this->LinePicker->Delete();
+}
+
+//------------------------------------------------------------------------------
+void vtkLineRepresentation::SetDistanceAnnotationFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(DistanceAnnotationFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -748,9 +764,8 @@ void vtkLineRepresentation::BuildRepresentation()
 
     // Place the DistanceAnnotation right in between the two points.
     double x[3] = { (x1[0] + x2[0]) / 2.0, (x1[1] + x2[1]) / 2.0, (x1[2] + x2[2]) / 2.0 };
-    char string[512];
-    snprintf(string, sizeof(string), this->DistanceAnnotationFormat, this->Distance);
-    this->TextInput->SetText(string);
+    auto string = vtk::format(this->DistanceAnnotationFormat, this->Distance);
+    this->TextInput->SetText(string.c_str());
     this->TextActor->SetPosition(x);
     if (this->Renderer)
     {

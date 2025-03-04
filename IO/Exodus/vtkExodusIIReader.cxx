@@ -29,6 +29,7 @@
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -3417,7 +3418,8 @@ void vtkExodusIIReaderPrivate::RemoveBeginningAndTrailingSpaces(
 
     if (cend < cbegin)
     {
-      snprintf(names[i], maxNameLength + 1, "null_%d", i);
+      auto result = vtk::format_to_n(names[i], maxNameLength, "null_{:d}", i);
+      *result.out = '\0';
       continue;
     }
 
@@ -3501,7 +3503,8 @@ const char* vtkExodusIIReaderPrivate::GetPartBlockInfo(int idx)
   std::vector<int> blkIndices = this->PartInfo[idx].BlockIndices;
   for (unsigned int i = 0; i < blkIndices.size(); i++)
   {
-    snprintf(buffer, sizeof(buffer), "%d, ", blkIndices[i]);
+    auto result = vtk::format_to_n(buffer, sizeof(buffer), "{:d}, ", blkIndices[i]);
+    *result.out = '\0';
     blocks += buffer;
   }
 
@@ -4174,21 +4177,16 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         {
           if (this->Parent->GetUseLegacyBlockNames())
           {
-            snprintf(tmpName, sizeof(tmpName),
-#ifdef VTK_USE_64BIT_IDS
-              "Unnamed block ID: %lld Type: %s",
-#else
-              "Unnamed block ID: %d Type: %s",
-#endif
-              ids[obj], !binfo.TypeName.empty() ? binfo.TypeName.c_str() : "nullptr");
+            auto result =
+              vtk::format_to_n(tmpName, sizeof(tmpName), "Unnamed block ID: {:d} Type: {}",
+                ids[obj], !binfo.TypeName.empty() ? binfo.TypeName.c_str() : "nullptr");
+            *result.out = '\0';
           }
           else
           {
-#ifdef VTK_USE_64BIT_IDS
-            snprintf(tmpName, sizeof(tmpName), "Unnamed block ID: %lld", ids[obj]);
-#else
-            snprintf(tmpName, sizeof(tmpName), "Unnamed block ID: %d", ids[obj]);
-#endif
+            auto result =
+              vtk::format_to_n(tmpName, sizeof(tmpName), "Unnamed block ID: {:d}", ids[obj]);
+            *result.out = '\0';
           }
           binfo.Name = tmpName;
         }
@@ -4316,13 +4314,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.empty())
         {
-          snprintf(tmpName, sizeof(tmpName),
-#ifdef VTK_USE_64BIT_IDS
-            "Unnamed set ID: %lld",
-#else
-            "Unnamed set ID: %d",
-#endif
-            ids[obj]);
+          auto result =
+            vtk::format_to_n(tmpName, sizeof(tmpName), "Unnamed set ID: {:d}", ids[obj]);
+          *result.out = '\0';
           sinfo.Name = tmpName;
         }
         sortedObjects[sinfo.Id] = (int)this->SetInfo[obj_types[i]].size();
@@ -4353,13 +4347,9 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Name = obj_names[obj];
         if (minfo.Name.empty())
         {
-          snprintf(tmpName, sizeof(tmpName),
-#ifdef VTK_USE_64BIT_IDS
-            "Unnamed map ID: %lld",
-#else
-            "Unnamed map ID: %d",
-#endif
-            ids[obj]);
+          auto result =
+            vtk::format_to_n(tmpName, sizeof(tmpName), "Unnamed map ID: {:d}", ids[obj]);
+          *result.out = '\0';
           minfo.Name = tmpName;
         }
         sortedObjects[minfo.Id] = (int)this->MapInfo[obj_types[i]].size();

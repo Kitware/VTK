@@ -6,7 +6,9 @@
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFVersion.h"
 #include "vtkLogger.h"
+#include "vtkStringFormatter.h"
 #include "vtkType.h"
+
 #include "vtk_hdf5.h"
 
 #include <algorithm>
@@ -583,7 +585,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
   if (size <= 1)
   {
     vtkLog(
-      WARNING, "Size given in this method shouldn't be less than 2, got : " + std::to_string(size));
+      WARNING, "Size given in this method shouldn't be less than 2, got : " + vtk::to_string(size));
     return false;
   }
 

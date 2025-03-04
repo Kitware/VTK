@@ -5,6 +5,7 @@
 #include "vtkMultiVolume.h"
 #include "vtkObjectBase.h"
 #include "vtkSerializer.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkVariant.h"
 #include "vtkVolume.h"
@@ -48,7 +49,7 @@ static nlohmann::json Serialize_vtkMultiVolume(vtkObjectBase* objectBase, vtkSer
   auto& dst = state["AllVolumes"] = json::object();
   for (const auto& pair : map)
   {
-    dst[std::to_string(pair.first)] =
+    dst[vtk::to_string(pair.first)] =
       serializer->SerializeJSON(reinterpret_cast<vtkObjectBase*>(pair.second));
   }
   (void)serializer;

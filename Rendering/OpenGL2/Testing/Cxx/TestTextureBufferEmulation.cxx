@@ -9,6 +9,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShaderProgram.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextureObject.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -51,7 +52,7 @@ int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
     "int i = int(pixelCoord.x);\n"
     "int j = int(pixelCoord.y);\n"
     "int idx = i + j * " +
-      std::to_string(width) +
+      vtk::to_string(width) +
       ";\n"
       "gl_FragData[0] = texelFetch(aTexture, ivec2(idx, 0), 0) / 255.0f;\n"
       // gotta use texCoord, so that program is linked

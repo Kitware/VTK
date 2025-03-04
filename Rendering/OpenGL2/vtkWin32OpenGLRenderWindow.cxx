@@ -15,6 +15,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringOutputWindow.h"
 #include "vtkStringScanner.h"
 #include "vtkWin32RenderWindowInteractor.h"
@@ -915,7 +916,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       if (this->GetWindowName() == DEFAULT_BASE_WINDOW_NAME)
       {
         static int count = 1;
-        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + std::to_string(count++)).c_str());
+        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + vtk::to_string(count++)).c_str());
       }
 
       int x = this->Position[0];

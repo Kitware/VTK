@@ -5,9 +5,12 @@
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUTextureInternals.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderWindow.h"
+
 #include "vtksys/SystemInformation.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -160,7 +163,7 @@ std::string AsHex(uint32_t val)
 
 std::string FormatNumber(uint64_t num)
 {
-  auto s = std::to_string(num);
+  auto s = vtk::to_string(num);
   std::stringstream ret;
   auto remainder = s.length() % 3;
   ret << s.substr(0, remainder);

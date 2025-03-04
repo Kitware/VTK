@@ -3,18 +3,18 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridGenerateGlobalIds.h"
 #include "vtkHyperTreeGridGhostCellsGenerator.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLHyperTreeGridReader.h"
-#include <vtkPartitionedDataSet.h>
 
 namespace
 {
@@ -511,7 +511,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
 
   // Initialize log
   std::string threadName = "rank #";
-  threadName += std::to_string(controller->GetLocalProcessId());
+  threadName += vtk::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
   std::string htgFileName{ vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/AMR/htg3d.htg") };

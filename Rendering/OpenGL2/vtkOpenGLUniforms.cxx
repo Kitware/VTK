@@ -5,6 +5,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkShaderProgram.h"
+#include "vtkStringFormatter.h"
+
 #include <cmath>
 #include <cstring>
 #include <vector>
@@ -12,21 +14,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLUniforms);
 VTK_ABI_NAMESPACE_END
-
-// temporary patch: Some Android builds don't have std::to_string
-#include <sstream>
-namespace patch
-{
-VTK_ABI_NAMESPACE_BEGIN
-template <typename T>
-std::string to_string(const T& n)
-{
-  std::ostringstream stm;
-  stm << n;
-  return stm.str();
-}
-VTK_ABI_NAMESPACE_END
-}
 
 VTK_ABI_NAMESPACE_BEGIN
 class Uniform
@@ -252,8 +239,7 @@ class Uniform1iv : public Uniformi<vtkUniforms::TupleTypeScalar, 1>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform int ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
-      "];\n";
+    return std::string("uniform int ") + name + "[" + vtk::to_string(GetNumberOfTuples()) + "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
   {
@@ -266,7 +252,7 @@ class Uniform1fv : public Uniformf<vtkUniforms::TupleTypeScalar, 1>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform float ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
+    return std::string("uniform float ") + name + "[" + vtk::to_string(GetNumberOfTuples()) +
       "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
@@ -280,8 +266,7 @@ class Uniform2fv : public Uniformf<vtkUniforms::TupleTypeVector, 2>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform vec2 ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
-      "];\n";
+    return std::string("uniform vec2 ") + name + "[" + vtk::to_string(GetNumberOfTuples()) + "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
   {
@@ -295,8 +280,7 @@ class Uniform3fv : public Uniformf<vtkUniforms::TupleTypeVector, 3>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform vec3 ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
-      "];\n";
+    return std::string("uniform vec3 ") + name + "[" + vtk::to_string(GetNumberOfTuples()) + "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
   {
@@ -310,8 +294,7 @@ class Uniform4fv : public Uniformf<vtkUniforms::TupleTypeVector, 4>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform vec4 ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
-      "];\n";
+    return std::string("uniform vec4 ") + name + "[" + vtk::to_string(GetNumberOfTuples()) + "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
   {
@@ -325,8 +308,7 @@ class UniformMat4fv : public Uniformf<vtkUniforms::TupleTypeMatrix, 16>
 public:
   std::string GetGlslDeclaration(const char* name) override
   {
-    return std::string("uniform mat4 ") + name + "[" + patch::to_string(GetNumberOfTuples()) +
-      "];\n";
+    return std::string("uniform mat4 ") + name + "[" + vtk::to_string(GetNumberOfTuples()) + "];\n";
   }
   bool SetUniform(const char* name, vtkShaderProgram* p) override
   {

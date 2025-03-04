@@ -4,21 +4,13 @@
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
 #include "vtkHandleRepresentation.h"
-#include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointHandleRepresentation2D.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
-#include "vtkTextMapper.h"
-#include "vtkTextProperty.h"
-#include "vtkWindow.h"
+#include "vtkStringFormatter.h"
 
 #include <sstream>
 
@@ -41,8 +33,9 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
   this->Line1Visibility = 1;
   this->Line2Visibility = 1;
 
-  this->LabelFormat = new char[6];
-  snprintf(this->LabelFormat, 6, "%s", "%0.3g");
+  this->LabelFormat = new char[8];
+  auto result = vtk::format_to_n(this->LabelFormat, 8, "{}", "{:0.3g}");
+  *result.out = '\0';
 
   this->ID = VTK_ID_MAX;
   this->IDInitialized = 0;
@@ -101,6 +94,21 @@ void vtkBiDimensionalRepresentation ::SetHandleRepresentation(vtkHandleRepresent
   this->Point4Representation = nullptr;
 
   this->InstantiateHandleRepresentation();
+}
+
+//------------------------------------------------------------------------------
+void vtkBiDimensionalRepresentation::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

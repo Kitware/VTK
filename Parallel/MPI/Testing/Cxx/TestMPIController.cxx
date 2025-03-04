@@ -4,6 +4,8 @@
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkProcessGroup.h"
+#include "vtkStringFormatter.h"
+
 #include <vtk_mpi.h>
 
 #include "vtkSmartPointer.h"
@@ -197,7 +199,7 @@ int TestMPIController(int argc, char* argv[])
   VTK_CREATE(vtkMPIController, controller);
   controller->Initialize(&argc, &argv, 1);
 
-  vtkLogger::SetThreadName("rank: " + std::to_string(controller->GetLocalProcessId()));
+  vtkLogger::SetThreadName("rank: " + vtk::to_string(controller->GetLocalProcessId()));
   int retval = TestExerciseMultiProcessController(controller);
 
   retval = retval | ExerciseNoBlockCommunications(controller);

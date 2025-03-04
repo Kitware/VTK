@@ -26,6 +26,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -381,9 +382,8 @@ void ExerciseType(vtkMultiProcessController* controller)
     sourceArrays[i] = vtkSmartPointer<arrayType>::New();
     sourceArrays[i]->SetNumberOfComponents(1);
     sourceArrays[i]->SetNumberOfTuples(arraySize);
-    char name[80];
-    snprintf(name, sizeof(name), "%lf", vtkMath::Random());
-    sourceArrays[i]->SetName(name);
+    auto name = vtk::format("{:f}", vtkMath::Random());
+    sourceArrays[i]->SetName(name.c_str());
     double min = std::is_unsigned<baseType>() ? 0.0 : -16.0;
     for (int j = 0; j < arraySize; j++)
     {

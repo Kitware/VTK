@@ -7,7 +7,6 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCompositeDataPipeline.h"
 #include "vtkDataArraySelection.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -18,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
@@ -1829,14 +1829,11 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
       int numConnectedBoundaryFaces(-1);
       int totalNumBoundaryConnections(-1);
       int numElements = 0;
-      char untitledZoneName[40];
-      snprintf(untitledZoneName, sizeof(untitledZoneName), "zone%05d", zoneIndex);
 
       std::string format;
       std::string elemType;
       std::string zoneType;
-      std::string ZoneName = untitledZoneName;
-
+      std::string ZoneName = vtk::format("zone{:05d}", zoneIndex);
       tok = this->Internal->GetNextToken();
       // instead of looking for known keywords, read the zone header until the first numeric token
       while (tok.front() != '-' && tok.front() != '.' && !isdigit(tok.front()))

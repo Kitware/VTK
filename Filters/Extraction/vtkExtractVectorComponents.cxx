@@ -14,6 +14,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractVectorComponents);
@@ -227,46 +228,30 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  const char* name;
-  if (vectors)
+  const char* name = nullptr;
+  if (vectors && vectors->GetName())
   {
     name = vectors->GetName();
   }
-  else if (vectorsc)
+  else if (vectorsc && vectorsc->GetName())
   {
     name = vectorsc->GetName();
   }
-  else
-  {
-    name = nullptr;
-  }
-
-  size_t newNameSize;
-  if (name)
-  {
-    newNameSize = strlen(name) + 10;
-  }
-  else
-  {
-    newNameSize = 10;
-    name = "";
-  }
-  char* newName = new char[newNameSize];
 
   if (vectors)
   {
     vx = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vx->SetNumberOfTuples(numVectors);
-    snprintf(newName, newNameSize, "%s-x", name);
-    vx->SetName(newName);
+    auto newName = vtk::format("{}-x", name);
+    vx->SetName(newName.c_str());
     vy = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vy->SetNumberOfTuples(numVectors);
-    snprintf(newName, newNameSize, "%s-y", name);
-    vy->SetName(newName);
+    newName = vtk::format("{}-y", name);
+    vy->SetName(newName.c_str());
     vz = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vz->SetNumberOfTuples(numVectors);
-    snprintf(newName, newNameSize, "%s-z", name);
-    vz->SetName(newName);
+    newName = vtk::format("{}-z", name);
+    vz->SetName(newName.c_str());
 
     if (!vtkArrayDispatch::Dispatch::Execute(
           vectors, ExtractVectorComponentsWorker{}, vx, vy, vz, this))
@@ -302,16 +287,16 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vxc->SetNumberOfTuples(numVectorsc);
-    snprintf(newName, newNameSize, "%s-x", name);
-    vxc->SetName(newName);
+    auto newName = vtk::format("{}-x", name);
+    vxc->SetName(newName.c_str());
     vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vyc->SetNumberOfTuples(numVectorsc);
-    snprintf(newName, newNameSize, "%s-y", name);
-    vyc->SetName(newName);
+    newName = vtk::format("{}-y", name);
+    vyc->SetName(newName.c_str());
     vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vzc->SetNumberOfTuples(numVectorsc);
-    snprintf(newName, newNameSize, "%s-z", name);
-    vzc->SetName(newName);
+    newName = vtk::format("{}-z", name);
+    vzc->SetName(newName.c_str());
 
     if (!vtkArrayDispatch::Dispatch::Execute(
           vectorsc, ExtractVectorComponentsWorker{}, vxc, vyc, vzc, this))
@@ -342,7 +327,6 @@ int vtkExtractVectorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     vyc->Delete();
     vzc->Delete();
   }
-  delete[] newName;
 
   this->CheckAbort();
 

@@ -20,6 +20,7 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -77,7 +78,7 @@ int TestPOpenFOAMReaderGlobalFaceZone(int argc, char* argv[])
 
   controller->Initialize(&argc, &argv);
   int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank=" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank=" + vtk::to_string(rank));
   vtkMultiProcessController::SetGlobalController(controller);
 
   // Read file name

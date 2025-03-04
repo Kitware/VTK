@@ -18,6 +18,7 @@
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
@@ -276,11 +277,13 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->ArcTickActor->SetMapper(this->ArcTickPolyDataMapper);
   this->ArcMinorTickActor->SetMapper(this->ArcMinorTickPolyDataMapper);
 
-  this->PolarLabelFormat = new char[8];
-  snprintf(this->PolarLabelFormat, 8, "%s", "%-#6.3g");
+  this->PolarLabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->PolarLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
-  this->RadialAngleFormat = new char[8];
-  snprintf(this->RadialAngleFormat, 8, "%s", "%-#3.1f");
+  this->RadialAngleFormat = new char[10];
+  result = vtk::format_to_n(this->RadialAngleFormat, 10, "{:s}", "{:<#3.1f}");
+  *result.out = '\0';
 }
 
 //------------------------------------------------------------------------------
@@ -293,6 +296,36 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   delete[] this->RadialAngleFormat;
   this->RadialAngleFormat = nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkPolarAxesActor::SetPolarLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(PolarLabelFormat, formatStr);
+}
+
+//------------------------------------------------------------------------------
+void vtkPolarAxesActor::SetRadialAngleFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(RadialAngleFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -1159,7 +1192,9 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
       axis->SetTitleVisibility(this->RadialTitleVisibility);
       std::ostringstream title;
       title.setf(std::ios::fixed, std::ios::floatfield);
-      snprintf(titleValue, sizeof(titleValue), this->RadialAngleFormat, actualAngle);
+      auto result =
+        vtk::format_to_n(titleValue, sizeof(titleValue), this->RadialAngleFormat, actualAngle);
+      *result.out = '\0';
       title << titleValue << (this->RadialUnits ? " deg" : "");
       axis->SetTitle(title.str());
 
@@ -1592,7 +1627,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
+      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+      *result.out = '\0';
       labels->SetValue(i, label);
     }
   }
@@ -1831,7 +1867,8 @@ void vtkPolarAxesActor::BuildLabelsLog()
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
+      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+      *result.out = '\0';
       labels->SetValue(i, label);
     }
   }
@@ -1967,7 +2004,8 @@ void vtkPolarAxesActor::GetSignificantPartFromValues(
     char label[64];
     if (this->ExponentLocation == VTK_EXPONENT_LABELS)
     {
-      snprintf(label, sizeof(label), this->PolarLabelFormat, *itList);
+      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+      *result.out = '\0';
       valuesStr->SetValue(i, label);
     }
     else

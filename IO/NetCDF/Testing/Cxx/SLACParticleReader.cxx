@@ -16,6 +16,7 @@
 #include "vtkSLACParticleReader.h"
 #include "vtkSLACReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
@@ -35,14 +36,11 @@ int SLACParticleReader(int argc, char* argv[])
   VTK_CREATE(vtkSLACReader, meshReader);
   meshReader->SetMeshFileName(meshFileName.c_str());
 
-  size_t modeFileNameLength = directory.size() + 32;
-  char* modeFileName = new char[modeFileNameLength];
   for (int i = 0; i < 9; i++)
   {
-    snprintf(modeFileName, modeFileNameLength, "%sfields_%d.mod", directory.c_str(), i);
-    meshReader->AddModeFileName(modeFileName);
+    auto modeFileName = vtk::format("{:s}fields_{:d}.mod", directory, i);
+    meshReader->AddModeFileName(modeFileName.c_str());
   }
-  delete[] modeFileName;
 
   meshReader->ReadInternalVolumeOn();
   meshReader->ReadExternalSurfaceOff();

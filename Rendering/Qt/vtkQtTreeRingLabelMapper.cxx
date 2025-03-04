@@ -18,6 +18,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToPlane.h"
@@ -64,7 +65,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->LabelTextProperty->SetItalic(1);
   this->LabelTextProperty->SetShadow(1);
   this->LabelTextProperty->SetFontFamilyToArial();
-  this->SetLabelFormat("%s");
+  this->SetLabelFormat("{:s}");
 
   this->WindowSize[0] = this->WindowSize[1] = 0;
 
@@ -582,19 +583,21 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* nu
     {
       if (numericData->GetDataType() == VTK_CHAR)
       {
-        if (strcmp(this->LabelFormat, "%c") != 0)
+        if (strcmp(this->LabelFormat, "{:c}") != 0)
         {
-          vtkErrorMacro(<< "Label format must be %c to use with char");
+          vtkErrorMacro(<< "Label format must be {:c} to use with char");
           string[0] = '\0';
           return;
         }
-        snprintf(string, stringSize, this->LabelFormat,
+        auto result = vtk::format_to_n(string, stringSize, this->LabelFormat,
           static_cast<char>(numericData->GetComponent(vertex, activeComp)));
+        *result.out = '\0';
       }
       else
       {
-        snprintf(
+        auto result = vtk::format_to_n(
           string, stringSize, this->LabelFormat, numericData->GetComponent(vertex, activeComp));
+        *result.out = '\0';
       }
     }
     else
@@ -603,29 +606,36 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(vtkIdType vertex, vtkDataArray* nu
       strcat(format, this->LabelFormat);
       for (j = 0; j < (numComps - 1); j++)
       {
-        snprintf(string, stringSize, format, numericData->GetComponent(vertex, j));
+        auto result =
+          vtk::format_to_n(string, stringSize, format, numericData->GetComponent(vertex, j));
+        *result.out = '\0';
         strcpy(format, string);
         strcat(format, ", ");
         strcat(format, this->LabelFormat);
       }
-      snprintf(string, stringSize, format, numericData->GetComponent(vertex, numComps - 1));
+      auto result = vtk::format_to_n(
+        string, stringSize, format, numericData->GetComponent(vertex, numComps - 1));
+      *result.out = '\0';
       strcat(string, ")");
     }
   }
   else if (stringData) // rendering string data
   {
-    if (strcmp(this->LabelFormat, "%s") != 0)
+    if (strcmp(this->LabelFormat, "{:s}") != 0)
     {
-      vtkErrorMacro(<< "Label format must be %s to use with strings");
+      vtkErrorMacro(<< "Label format must be {:s} to use with strings");
       string[0] = '\0';
       return;
     }
-    snprintf(string, stringSize, this->LabelFormat, stringData->GetValue(vertex).c_str());
+    auto result =
+      vtk::format_to_n(string, stringSize, this->LabelFormat, stringData->GetValue(vertex).c_str());
+    *result.out = '\0';
   }
   else // Use the vertex id
   {
     val = static_cast<double>(vertex);
-    snprintf(string, stringSize, this->LabelFormat, val);
+    auto result = vtk::format_to_n(string, stringSize, this->LabelFormat, val);
+    *result.out = '\0';
   }
 }
 

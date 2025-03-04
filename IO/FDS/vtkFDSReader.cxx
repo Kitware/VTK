@@ -25,6 +25,7 @@
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTable.h"
 
@@ -1568,7 +1569,7 @@ bool vtkFDSReader::ParseGRID(const std::vector<int>& baseNodes)
   for (vtkIdType iBlock = 0; iBlock < nBlockages; ++iBlock)
   {
     auto& oData = gridBoundaries[iBlock];
-    std::string blockageName = gridName + "_Blockage_" + std::to_string(oData.BlockageNumber);
+    std::string blockageName = gridName + "_Blockage_" + vtk::to_string(oData.BlockageNumber);
     blockageName = this->SanitizeName(blockageName);
     const int bIdx = this->Assembly->AddNode(blockageName.c_str(), baseNodes[::BOUNDARIES]);
     this->Internals->Boundaries.emplace(bIdx, oData);

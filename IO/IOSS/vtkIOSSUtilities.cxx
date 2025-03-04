@@ -19,11 +19,10 @@
 #include "vtkHigherOrderTetra.h"
 #include "vtkHigherOrderTriangle.h"
 #include "vtkHigherOrderWedge.h"
-#include "vtkIdTypeArray.h"
 #include "vtkLogger.h"
-#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStringFormatter.h"
 
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -33,7 +32,6 @@
 // clang-format off
 #include VTK_IOSS(Ioss_ElementTopology.h)
 #include VTK_IOSS(Ioss_Field.h)
-#include VTK_IOSS(Ioss_NodeBlock.h)
 #include VTK_IOSS(Ioss_SideBlock.h)
 #include VTK_IOSS(Ioss_SideSet.h)
 #include VTK_IOSS(Ioss_TransformFactory.h)
@@ -217,7 +215,7 @@ Ioss::EntityType GetIOSSEntityType(vtkIOSSReader::EntityType vtk_type)
     case vtkIOSSReader::SIDESET:
       return Ioss::EntityType::SIDESET;
     default:
-      throw std::runtime_error("Invalid entity type " + std::to_string(vtk_type));
+      throw std::runtime_error("Invalid entity type " + vtk::to_string(static_cast<int>(vtk_type)));
   }
 }
 
@@ -239,7 +237,8 @@ vtkSmartPointer<vtkDataArray> CreateArray(const Ioss::Field& field)
       array.TakeReference(vtkTypeInt64Array::New());
       break;
     default:
-      throw std::runtime_error("Unsupported field type " + std::to_string(field.get_type()));
+      throw std::runtime_error(
+        "Unsupported field type " + vtk::to_string(static_cast<int>(field.get_type())));
   }
   array->SetName(field.get_name().c_str());
   array->SetNumberOfComponents(field.raw_storage()->component_count());

@@ -25,6 +25,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -976,7 +977,7 @@ bool vtkHDFReader::Implementation::ReadAMRTopology(vtkOverlappingAMR* data, unsi
 
   while (level < maxLevel)
   {
-    std::string levelGroupName = "Level" + std::to_string(level);
+    std::string levelGroupName = "Level" + vtk::to_string(level);
     if (H5Lexists(this->VTKGroup, levelGroupName.c_str(), H5P_DEFAULT) <= 0)
     {
       break;
@@ -1000,7 +1001,7 @@ bool vtkHDFReader::Implementation::ReadAMRData(vtkOverlappingAMR* data, unsigned
 {
   while (level < maxLevel)
   {
-    std::string levelGroupName = "Level" + std::to_string(level);
+    std::string levelGroupName = "Level" + vtk::to_string(level);
     if (H5Lexists(this->VTKGroup, levelGroupName.c_str(), H5P_DEFAULT) <= 0)
     {
       break;

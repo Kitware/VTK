@@ -1,12 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCharArray.h"
-#include "vtkDebugLeaks.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 
 #include <sstream>
 
@@ -36,7 +34,7 @@ int doStringArrayTest(ostream& strm, int size)
   vtkStdString* strings = new vtkStdString[SIZE];
   for (int i = 0; i < SIZE; ++i)
   {
-    strings[i] = "string entry " + std::to_string(i);
+    strings[i] = "string entry " + vtk::to_string(i);
   }
 
   strm << "\tResize(0)...";

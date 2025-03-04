@@ -8,6 +8,8 @@
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
+
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
@@ -178,7 +180,8 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&examnumber);
-  snprintf(tmpStr, sizeof(tmpStr), "%d", examnumber);
+  auto result = vtk::format_to_n(tmpStr, sizeof(tmpStr), "{:d}", examnumber);
+  *result.out = '\0';
   // this->SetStudyNumber(tmpStr);
   // Patient ID
   fseek(fp, examHdrOffset + 84, SEEK_SET);
@@ -212,7 +215,8 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&patientage);
-  snprintf(tmpStr, sizeof(tmpStr), "%d", patientage);
+  result = vtk::format_to_n(tmpStr, sizeof(tmpStr), "{:d}", patientage);
+  *result.out = '\0';
   this->GetMedicalImageProperties()->SetPatientAge(tmpStr);
   // Patient Sex
   fseek(fp, examHdrOffset + 126, SEEK_SET);
@@ -225,7 +229,8 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&patientsex);
-  snprintf(tmpStr, sizeof(tmpStr), "%d", patientsex);
+  result = vtk::format_to_n(tmpStr, sizeof(tmpStr), "{:d}", patientsex);
+  *result.out = '\0';
   this->GetMedicalImageProperties()->SetPatientSex(tmpStr);
   // Modality
   fseek(fp, examHdrOffset + 305, SEEK_SET);
@@ -251,7 +256,8 @@ void vtkGESignaReader::ExecuteInformation()
     return;
   }
   vtkByteSwap::Swap2BE(&series);
-  snprintf(tmpStr, sizeof(tmpStr), "%d", series);
+  result = vtk::format_to_n(tmpStr, sizeof(tmpStr), "{:d}", series);
+  *result.out = '\0';
   this->SetSeries(tmpStr);
   // scan protocol name
   fseek(fp, seriesHdrOffset + 92, SEEK_SET);

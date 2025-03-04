@@ -15,6 +15,7 @@
 #include "vtkPolyData.h"
 #include "vtkQuadraturePointInterpolator.h"
 #include "vtkQuadratureSchemeDefinition.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -663,7 +664,7 @@ std::string vtkIntegrationGaussianStrategy::GenerateUniqueArrayName(const std::s
   int i = 0;
   while (this->Intermediate->GetCellData()->GetArray(finalName.c_str()) != nullptr)
   {
-    finalName = baseName + std::to_string(i++);
+    finalName = baseName + vtk::to_string(i++);
   }
   return finalName;
 }

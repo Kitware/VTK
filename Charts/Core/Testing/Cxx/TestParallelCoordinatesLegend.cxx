@@ -14,6 +14,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -67,7 +68,7 @@ int TestParallelCoordinatesLegend(int, char*[])
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, tan(i * inc) + 0.5);
     colorsArr->SetTypedTuple(i, lut->MapValue(i));
-    const std::string label = "Label " + std::to_string(i);
+    const std::string label = "Label " + vtk::to_string(i);
     labelsArr->InsertNextValue(label.c_str());
   }
 

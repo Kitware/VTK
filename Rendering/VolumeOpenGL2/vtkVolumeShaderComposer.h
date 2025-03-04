@@ -3,11 +3,13 @@
 
 #ifndef vtkVolumeShaderComposer_h
 #define vtkVolumeShaderComposer_h
+
 #include <vtkCamera.h>
 #include <vtkImplicitFunction.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRectilinearGrid.h>
 #include <vtkRenderer.h>
+#include <vtkStringFormatter.h>
 #include <vtkUniformGrid.h>
 #include <vtkVolume.h>
 #include <vtkVolumeInputHelper.h>
@@ -273,8 +275,8 @@ uniform float in_volumetricScatteringBlending;
 
   if (totalNumberOfLights > 0)
   {
-    std::string totalLights = std::to_string(totalNumberOfLights);
-    std::string positionalLights = std::to_string(numberPositionalLights);
+    std::string totalLights = vtk::to_string(totalNumberOfLights);
+    std::string positionalLights = vtk::to_string(numberPositionalLights);
 
     if (!defaultLighting)
     {
@@ -863,13 +865,13 @@ inline std::string ComputeRGBA2DWithGradientDeclaration(vtkRenderer* vtkNotUsed(
           // we take the same grad for all components so we have to be sure that
           //  the one given as a parameter is computed wrt the right component
           ? "grad.w"
-          : std::string("yscalar[") + std::to_string(i) + "]");
+          : std::string("yscalar[") + vtk::to_string(i) + "]");
 
-      functionBody += "  if(component == " + std::to_string(i) +
+      functionBody += "  if(component == " + vtk::to_string(i) +
         ")\n"
         "  {\n"
         "    return texture2D(" +
-        opacityTableMap[i] + ",\n" + "    vec2(scalar[" + std::to_string(i) + "], " + secondAxis +
+        opacityTableMap[i] + ",\n" + "    vec2(scalar[" + vtk::to_string(i) + "], " + secondAxis +
         "))\n" + "  }\n";
     }
   }
@@ -1743,7 +1745,7 @@ inline std::string ComputeColorUniforms(vtkOpenGLGPUVolumeRayCastMapper::VolumeI
       auto& map = item.second.RGBTablesMap;
       const auto numComp = map.size();
       resStr +=
-        "uniform sampler2D " + ArrayBaseName(map[0]) + "[" + std::to_string(numComp) + "];\n";
+        "uniform sampler2D " + ArrayBaseName(map[0]) + "[" + vtk::to_string(numComp) + "];\n";
     }
   }
   else
@@ -1752,7 +1754,7 @@ inline std::string ComputeColorUniforms(vtkOpenGLGPUVolumeRayCastMapper::VolumeI
     if (volProp->GetTransferFunctionMode() == vtkVolumeProperty::TF_1D)
     {
       resStr += "uniform sampler2D " + ArrayBaseName(inputs[0].RGBTablesMap[0]) + "[" +
-        std::to_string(noOfComponents) + "];\n";
+        vtk::to_string(noOfComponents) + "];\n";
     }
     // in case of TF_2D, the texture needed is defined with computeOpacity
   }

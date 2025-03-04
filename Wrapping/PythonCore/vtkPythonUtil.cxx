@@ -12,6 +12,7 @@
 #ifdef PY_LIMITED_API
 #include "vtkSmartPyObject.h"
 #endif
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkSystemIncludes.h"
 #include "vtkVariant.h"
@@ -685,9 +686,11 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
-    snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
+    auto result = vtk::format_to_n(error_string, sizeof(error_string),
+      "method requires a {:.500s}, a {:.500s} was provided.",
       vtkPythonUtil::PythonicClassName(result_type),
       vtkPythonUtil::PythonicClassName(ptr->GetClassName()));
+    *result.out = '\0';
     PyErr_SetString(PyExc_TypeError, error_string);
     return nullptr;
   }
@@ -759,9 +762,10 @@ PyObject* vtkPythonUtil::GetObjectFromObject(PyObject* arg, const char* type)
     if (!ptr->IsA(type))
     {
       char error_string[2048];
-      snprintf(error_string, sizeof(error_string),
-        "method requires a %.500s address, a %.500s address was provided.", type,
+      auto result = vtk::format_to_n(error_string, sizeof(error_string),
+        "method requires a {:.500s} address, a {:.500s} address was provided.", type,
         ptr->GetClassName());
+      *result.out = '\0';
       Py_XDECREF(tmp);
       PyErr_SetString(PyExc_TypeError, error_string);
       return nullptr;
@@ -827,8 +831,9 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     {
       char error_text[2048];
       Py_DECREF(sobj);
-      snprintf(error_text, sizeof(error_text), "cannot pass %.500s as a non-const %.500s reference",
-        object_type, result_type);
+      auto result = vtk::format_to_n(error_text, sizeof(error_text),
+        "cannot pass {:.500s} as a non-const {:.500s} reference", object_type, result_type);
+      *result.out = '\0';
       PyErr_SetString(PyExc_TypeError, error_text);
       return nullptr;
     }
@@ -853,8 +858,9 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
 #endif
 
   char error_string[2048];
-  snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
-    result_type, object_type);
+  auto result = vtk::format_to_n(error_string, sizeof(error_string),
+    "method requires a {:.500s}, a {:.500s} was provided.", result_type, object_type);
+  *result.out = '\0';
   PyErr_SetString(PyExc_TypeError, error_string);
 
   return nullptr;
@@ -1068,8 +1074,9 @@ char* vtkPythonUtil::ManglePointer(const void* ptr, const char* type)
   int ndigits = 2 * (int)sizeof(void*);
   union vtkPythonUtilConstPointerUnion u;
   u.p = ptr;
-  snprintf(ptrText, sizeof(ptrText), "_%*.*llx_%s", ndigits, ndigits,
-    static_cast<unsigned long long>(u.l), type);
+  auto result = vtk::format_to_n(
+    ptrText, sizeof(ptrText), "_{:0{}x}_{}", static_cast<unsigned long long>(u.l), ndigits, type);
+  *result.out = '\0';
 
   return ptrText;
 }

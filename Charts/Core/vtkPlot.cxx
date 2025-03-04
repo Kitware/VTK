@@ -18,8 +18,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkTransform2D.h"
+
+#include <vtksys/SystemTools.hxx>
+
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -48,7 +52,7 @@ vtkPlot::vtkPlot()
   this->XAxis = nullptr;
   this->YAxis = nullptr;
 
-  this->TooltipDefaultLabelFormat = "%l: %x,  %y";
+  this->TooltipDefaultLabelFormat = "{l}: {x},  {y}";
   this->TooltipNotation = vtkAxis::STANDARD_NOTATION;
   this->TooltipPrecision = 6;
 
@@ -121,86 +125,79 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& vtkNotUsed(point),
 }
 
 //------------------------------------------------------------------------------
-vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType)
+vtkStdString vtkPlot::GetTooltipLabel(
+  const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {
-  std::string tooltipLabel;
-  std::string& format =
+  const std::string& format =
     this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
-  // Parse TooltipLabelFormat and build tooltipLabel
-  bool escapeNext = false;
-  for (size_t i = 0; i < format.length(); ++i)
+  // find all the format tags by parsing it once
+  fmt::dynamic_format_arg_store<fmt::format_context> args;
+  for (std::size_t cc = 0; cc + 2 < format.size(); ++cc)
   {
-    if (escapeNext)
+    if (format[cc] == '{' && format[cc + 2] == '}')
     {
-      switch (format[i])
+      switch (format[cc + 1])
       {
         case 'x':
-          tooltipLabel += this->GetNumber(plotPos.GetX(), this->XAxis);
+        {
+          const std::string x = this->GetNumber(plotPos.GetX(), this->XAxis);
+          args.push_back(fmt::arg("x", x));
           break;
+        }
         case 'y':
-          tooltipLabel += this->GetNumber(plotPos.GetY(), this->YAxis);
+        {
+          const std::string y = this->GetNumber(plotPos.GetY(), this->YAxis);
+          args.push_back(fmt::arg("y", y));
           break;
-        case 'i':
-          if (this->IndexedLabels && seriesIndex >= 0 &&
-            seriesIndex < this->IndexedLabels->GetNumberOfTuples())
-          {
-            tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
-          }
-          break;
+        }
         case 'l':
-          // GetLabel() is GetLabel(0) in this implementation
-          tooltipLabel += this->GetLabel();
+        {
+          const std::string l = this->GetLabel();
+          args.push_back(fmt::arg("l", l));
           break;
-        default: // If no match, insert the entire format tag
-          tooltipLabel += "%";
-          tooltipLabel += format[i];
+        }
+        case 'i':
+        {
+          const std::string i = this->IndexedLabels && seriesIndex >= 0 &&
+              seriesIndex < this->IndexedLabels->GetNumberOfTuples()
+            ? this->IndexedLabels->GetValue(seriesIndex)
+            : "";
+          args.push_back(fmt::arg("i", i));
           break;
-      }
-      escapeNext = false;
-    }
-    else
-    {
-      if (format[i] == '%')
-      {
-        escapeNext = true;
-      }
-      else
-      {
-        tooltipLabel += format[i];
+        }
+        case 's':
+        {
+          const std::string s = segmentIndex >= 0 && this->GetLabels() &&
+              segmentIndex < this->GetLabels()->GetNumberOfTuples()
+            ? this->GetLabels()->GetValue(segmentIndex)
+            : "";
+          args.push_back(fmt::arg("s", s));
+          break;
+        }
+        default:
+          break;
       }
     }
   }
-  return tooltipLabel;
+  return fmt::vformat(format, args);
 }
 
 //------------------------------------------------------------------------------
 vtkStdString vtkPlot::GetNumber(double position, vtkAxis* axis)
 {
+  // If axes are set to logarithmic scale we need to convert the
+  // axis value using 10^(axis value)
+  const double value = axis && axis->GetLogScaleActive() ? pow(10.0, position) : position;
   // Determine and format the X and Y position in the chart
-  std::ostringstream ostr;
-  ostr.imbue(std::locale::classic());
-  ostr.precision(this->GetTooltipPrecision());
-
-  if (this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)
+  switch (this->GetTooltipNotation())
   {
-    ostr.setf(ios::scientific, ios::floatfield);
+    case vtkAxis::SCIENTIFIC_NOTATION:
+      return vtk::format(FMT_STRING("{:.{}e}"), value, this->GetTooltipPrecision());
+    case vtkAxis::FIXED_NOTATION:
+      return vtk::format(FMT_STRING("{:.{}f}"), value, this->GetTooltipPrecision());
+    default:
+      return vtk::format(FMT_STRING("{:g}"), value);
   }
-  else if (this->GetTooltipNotation() == vtkAxis::FIXED_NOTATION)
-  {
-    ostr.setf(ios::fixed, ios::floatfield);
-  }
-
-  if (axis && axis->GetLogScaleActive())
-  {
-    // If axes are set to logarithmic scale we need to convert the
-    // axis value using 10^(axis value)
-    ostr << pow(10.0, position);
-  }
-  else
-  {
-    ostr << position;
-  }
-  return ostr.str();
 }
 
 //------------------------------------------------------------------------------
@@ -376,11 +373,11 @@ vtkStringArray* vtkPlot::GetLabels()
   {
     return this->Labels;
   }
-  else if (this->AutoLabels)
+  if (this->AutoLabels)
   {
     return this->AutoLabels;
   }
-  else if (this->Data->GetInput() &&
+  if (this->Data->GetInput() &&
     this->Data->GetInformation()->Get(vtkAlgorithm::INPUT_ARRAYS_TO_PROCESS()) &&
     this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
   {
@@ -389,23 +386,12 @@ vtkStringArray* vtkPlot::GetLabels()
       this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
     return this->AutoLabels;
   }
-  else
-  {
-    return nullptr;
-  }
+  return nullptr;
 }
 //------------------------------------------------------------------------------
 int vtkPlot::GetNumberOfLabels()
 {
-  vtkStringArray* labels = this->GetLabels();
-  if (labels)
-  {
-    return labels->GetNumberOfValues();
-  }
-  else
-  {
-    return 0;
-  }
+  return this->GetLabels() ? this->GetLabels()->GetNumberOfValues() : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -418,11 +404,11 @@ void vtkPlot::SetIndexedLabels(vtkStringArray* labels)
 
   if (labels)
   {
-    this->TooltipDefaultLabelFormat = "%i: %x,  %y";
+    this->TooltipDefaultLabelFormat = "{i}: {x},  {y}";
   }
   else
   {
-    this->TooltipDefaultLabelFormat = "%l: %x,  %y";
+    this->TooltipDefaultLabelFormat = "{l}: {x},  {y}";
   }
 
   this->IndexedLabels = labels;
@@ -441,6 +427,29 @@ vtkContextMapper2D* vtkPlot::GetData()
   return this->Data;
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+bool is_old_tooltip_label_format(const std::string& format)
+{
+  return format.find("%x") != std::string::npos || format.find("%y") != std::string::npos ||
+    format.find("%l") != std::string::npos || format.find("%i") != std::string::npos ||
+    format.find("%s") != std::string::npos;
+}
+
+//------------------------------------------------------------------------------
+std::string old_to_new_tooltip_label_format(const std::string& format)
+{
+  auto newFormat = format;
+  vtksys::SystemTools::ReplaceString(newFormat, "%x", "{x}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%y", "{y}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%l", "{l}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%i", "{i}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%s", "{s}");
+  return newFormat;
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
 {
@@ -448,8 +457,18 @@ void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
   {
     return;
   }
+  auto tooltipLabelFormat = labelFormat;
+  if (::is_old_tooltip_label_format(labelFormat))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << labelFormat
+                    << " is a printf style format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
 
-  this->TooltipLabelFormat = labelFormat;
+    tooltipLabelFormat = ::old_to_new_tooltip_label_format(labelFormat);
+  }
+
+  this->TooltipLabelFormat = tooltipLabelFormat;
   this->Modified();
 }
 

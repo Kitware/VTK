@@ -6,6 +6,7 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 
 #include <atomic>
 #include <chrono>
@@ -35,8 +36,8 @@ void RunThreads(int nthreadsBegin, int nthreadsEnd)
     queue->Push(
       [&count](const int& n, const double&&, char, vtkIntArray* a1, vtkIntArray* a2)
       {
-        a1->SetName(std::to_string(n).c_str());
-        a2->SetName(std::to_string(n).c_str());
+        a1->SetName(vtk::to_string(n).c_str());
+        a2->SetName(vtk::to_string(n).c_str());
         ++count;
       },
       i, 0, 'a', vtkNew<vtkIntArray>(), array);

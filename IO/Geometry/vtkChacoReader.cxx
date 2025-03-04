@@ -12,6 +12,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -32,8 +33,6 @@ vtkChacoReader::vtkChacoReader()
   this->GenerateGlobalNodeIdArray = 1;
   this->GenerateVertexWeightArrays = 0;
   this->GenerateEdgeWeightArrays = 0;
-  this->EarrayName = nullptr;
-  this->VarrayName = nullptr;
   this->Dimensionality = -1;
   this->NumberOfVertices = 0;
   this->NumberOfEdges = 0;
@@ -73,25 +72,14 @@ vtkChacoReader::~vtkChacoReader()
 //------------------------------------------------------------------------------
 void vtkChacoReader::ClearWeightArrayNames()
 {
-  int i = 0;
-  if (this->VarrayName)
+  if (!this->VarrayName.empty())
   {
-    for (i = 0; i < this->NumberOfVertexWeights; i++)
-    {
-      delete[] this->VarrayName[i];
-    }
-    delete[] this->VarrayName;
-    this->VarrayName = nullptr;
+    this->VarrayName.clear();
   }
 
-  if (this->EarrayName)
+  if (!this->EarrayName.empty())
   {
-    for (i = 0; i < this->NumberOfEdgeWeights; i++)
-    {
-      delete[] this->EarrayName[i];
-    }
-    delete[] this->EarrayName;
-    this->EarrayName = nullptr;
+    this->EarrayName.clear();
   }
 }
 
@@ -101,20 +89,18 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
   int i = 0;
   if (nv > 0)
   {
-    this->VarrayName = new char*[nv];
+    this->VarrayName.resize(static_cast<size_t>(nv));
     for (i = 0; i < nv; i++)
     {
-      this->VarrayName[i] = new char[64];
-      snprintf(this->VarrayName[i], 64, "VertexWeight%d", i + 1);
+      this->VarrayName[i] = vtk::format("VertexWeight{:d}", i + 1);
     }
   }
   if (ne > 0)
   {
-    this->EarrayName = new char*[ne];
+    this->EarrayName.resize(static_cast<size_t>(ne));
     for (i = 0; i < ne; i++)
     {
-      this->EarrayName[i] = new char[64];
-      snprintf(this->EarrayName[i], 64, "EdgeWeight%d", i + 1);
+      this->EarrayName[i] = vtk::format("EdgeWeight{:d}", i + 1);
     }
   }
 }
@@ -125,7 +111,7 @@ const char* vtkChacoReader::GetVertexWeightArrayName(int weight)
   if (this->GetGenerateVertexWeightArrays() && (weight > 0) &&
     (weight <= this->NumberOfVertexWeights))
   {
-    return this->VarrayName[weight - 1];
+    return this->VarrayName[weight - 1].c_str();
   }
 
   return nullptr;
@@ -136,7 +122,7 @@ const char* vtkChacoReader::GetEdgeWeightArrayName(int weight)
 {
   if (this->GetGenerateEdgeWeightArrays() && (weight > 0) && (weight <= this->NumberOfEdgeWeights))
   {
-    return this->EarrayName[weight - 1];
+    return this->EarrayName[weight - 1].c_str();
   }
 
   return nullptr;
@@ -233,7 +219,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
   if (ncells && (this->NumberOfVertexWeights > 0))
   {
     vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(
-      this->DataCache->GetPointData()->GetArray(this->VarrayName[0]));
+      this->DataCache->GetPointData()->GetArray(this->VarrayName[0].c_str()));
 
     haveVertexWeightArrays = (da != nullptr);
   }
@@ -241,7 +227,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
   if (ncells && (this->NumberOfEdgeWeights > 0))
   {
     vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(
-      this->DataCache->GetCellData()->GetArray(this->EarrayName[0]));
+      this->DataCache->GetCellData()->GetArray(this->EarrayName[0].c_str()));
 
     haveEdgeWeightArrays = (da != nullptr);
   }
@@ -294,7 +280,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
     {
       for (i = 0; i < this->NumberOfVertexWeights; i++)
       {
-        this->DataCache->GetPointData()->RemoveArray(this->VarrayName[i]);
+        this->DataCache->GetPointData()->RemoveArray(this->VarrayName[i].c_str());
       }
 
       this->NumberOfPointWeightArrays = 0;
@@ -304,7 +290,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid* output)
     {
       for (i = 0; i < this->NumberOfEdgeWeights; i++)
       {
-        this->DataCache->GetCellData()->RemoveArray(this->EarrayName[i]);
+        this->DataCache->GetCellData()->RemoveArray(this->EarrayName[i].c_str());
       }
 
       this->NumberOfCellWeightArrays = 0;
@@ -500,7 +486,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     {
       varrays[i] = vtkDoubleArray::New();
       varrays[i]->SetNumberOfValues(this->NumberOfVertices);
-      varrays[i]->SetName(this->VarrayName[i]);
+      varrays[i]->SetName(this->VarrayName[i].c_str());
     }
     vwgt = vweights;
   }
@@ -512,7 +498,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     {
       earrays[i] = vtkDoubleArray::New();
       earrays[i]->SetNumberOfValues(this->NumberOfEdges);
-      earrays[i]->SetName(this->EarrayName[i]);
+      earrays[i]->SetName(this->EarrayName[i].c_str());
     }
     ewgt = eweights;
   }
@@ -804,26 +790,20 @@ int vtkChacoReader::OpenCurrentFile()
 
   if (this->CurrentGeometryFP == nullptr)
   {
-    int len = static_cast<int>(strlen(this->BaseName));
-    char* buf = new char[len + 64];
-    snprintf(buf, len + 64, "%s.coords", this->BaseName);
-
-    this->CurrentGeometryFP = vtksys::SystemTools::Fopen(buf, "r");
-
+    auto coordsFilename = vtk::format("{:s}.coords", this->BaseName);
+    this->CurrentGeometryFP = vtksys::SystemTools::Fopen(coordsFilename, "r");
     if (this->CurrentGeometryFP == nullptr)
     {
-      vtkErrorMacro(<< "Problem opening " << buf);
+      vtkErrorMacro(<< "Problem opening " << coordsFilename.c_str());
       this->SetCurrentBaseName(nullptr);
     }
     else
     {
-      snprintf(buf, len + 64, "%s.graph", this->BaseName);
-
-      this->CurrentGraphFP = vtksys::SystemTools::Fopen(buf, "r");
-
+      auto graphFilename = vtk::format("{:s}.graph", this->BaseName);
+      this->CurrentGraphFP = vtksys::SystemTools::Fopen(graphFilename, "r");
       if (this->CurrentGraphFP == nullptr)
       {
-        vtkErrorMacro(<< "Problem opening " << buf);
+        vtkErrorMacro(<< "Problem opening " << graphFilename.c_str());
         this->SetCurrentBaseName(nullptr);
         fclose(this->CurrentGeometryFP);
         this->CurrentGeometryFP = nullptr;
@@ -834,7 +814,6 @@ int vtkChacoReader::OpenCurrentFile()
         result = 1;
       }
     }
-    delete[] buf;
   }
 
   return result;

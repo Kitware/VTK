@@ -14,9 +14,9 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkType.h"
 
-#include <cmath>
 #include <string>
 #include <vector>
 
@@ -219,7 +219,7 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
         {
           output->SetBlock(idx + i, inputMB->GetBlock(i));
           const char* blockName = inputMB->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
-          std::string safeName = blockName ? std::string(blockName) : "Block" + std::to_string(i);
+          std::string safeName = blockName ? std::string(blockName) : "Block" + vtk::to_string(i);
           output->GetMetaData(idx + i)->Set(
             vtkCompositeDataSet::NAME(), input.first + "_" + safeName);
         }
@@ -270,7 +270,7 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
           }
           else
           {
-            partitionName = input.first + "_" + std::to_string(i);
+            partitionName = input.first + "_" + vtk::to_string(i);
           }
           output->GetMetaData(idx)->Set(vtkCompositeDataSet::NAME(), partitionName.c_str());
         }

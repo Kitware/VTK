@@ -93,12 +93,11 @@ visPts.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 
 ldm = vtkLabeledDataMapper()
 ldm.SetInputConnection(visPts.GetOutputPort())
-#    ldm.SetLabelFormat.("%g")
 #    ldm.SetLabelModeToLabelScalars()
 #    ldm.SetLabelModeToLabelNormals()
 ldm.SetLabelModeToLabelFieldData()
 #    ldm.SetLabeledComponent(0)
-ldm.SetFieldDataName("vtkPointIds");
+ldm.SetFieldDataName("vtkPointIds")
 
 pointLabels = vtkActor2D()
 pointLabels.SetMapper(ldm)
@@ -115,11 +114,10 @@ visCells.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 
 cellMapper = vtkLabeledDataMapper()
 cellMapper.SetInputConnection(visCells.GetOutputPort())
-#    cellMapper.SetLabelFormat("%g")
 #    cellMapper.SetLabelModeToLabelScalars()
 #    cellMapper.SetLabelModeToLabelNormals()
 cellMapper.SetLabelModeToLabelFieldData()
-cellMapper.SetFieldDataName("vtkCellIds");
+cellMapper.SetFieldDataName("vtkCellIds")
 cellMapper.GetLabelTextProperty().SetColor(0, 1, 0)
 
 cellLabels = vtkActor2D()

@@ -16,8 +16,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -745,7 +746,7 @@ int vtkAMReXParticlesReader::RequestData(
     vtkNew<vtkMultiPieceDataSet> piece;
     output->SetBlock(cc, piece);
     output->GetMetaData(cc)->Set(
-      vtkCompositeDataSet::NAME(), (std::string("Level ") + std::to_string(cc)).c_str());
+      vtkCompositeDataSet::NAME(), (std::string("Level ") + vtk::to_string(cc)).c_str());
     this->ReadLevel(cc, piece, update_piece, update_num_pieces);
   }
 

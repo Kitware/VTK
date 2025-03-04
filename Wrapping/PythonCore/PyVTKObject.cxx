@@ -23,6 +23,7 @@
 #include "vtkObjectBase.h"
 #include "vtkPythonCommand.h"
 #include "vtkPythonUtil.h"
+#include "vtkStringFormatter.h"
 
 #include <cstddef>
 #include <dictobject.h>
@@ -462,7 +463,8 @@ static PyObject* PyVTKObject_GetThis(PyObject* op, void*)
   {
     classname = vtkPythonUtil::StripModuleFromObject(op);
   }
-  snprintf(buf, sizeof(buf), "p_%.500s", classname);
+  auto result = vtk::format_to_n(buf, sizeof(buf), "p_{:.500s}", classname);
+  *result.out = '\0';
   return PyUnicode_FromString(vtkPythonUtil::ManglePointer(self->vtk_ptr, buf));
 }
 

@@ -10,6 +10,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkXMLCompositeDataSetWriterHelper.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataWriterHelper.h"
@@ -17,8 +18,6 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
-#include <map>
-#include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLPartitionedDataSetWriter);
@@ -105,7 +104,7 @@ int vtkXMLPartitionedDataSetWriter::RequestData(
   const auto filenameNoExt = vtksys::SystemTools::GetFilenameWithoutLastExtension(filename);
   for (size_t cc = 0; cc < localDataSets.size(); ++cc)
   {
-    const auto prefix = artifactsDir + "/" + filenameNoExt + "_" + std::to_string(localOffset + cc);
+    const auto prefix = artifactsDir + "/" + filenameNoExt + "_" + vtk::to_string(localOffset + cc);
     auto fname = helper->WriteDataSet(path, prefix, localDataSets[cc]);
     localFilenames.push_back(fname);
     if (!fname.empty())

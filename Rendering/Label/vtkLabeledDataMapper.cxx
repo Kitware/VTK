@@ -8,7 +8,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
-#include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
@@ -17,11 +16,10 @@
 #include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
-#include "vtkTable.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
-#include "vtkTypeTraits.h"
 
 #include <map>
 
@@ -40,9 +38,10 @@ vtkCxxSetObjectMacro(vtkLabeledDataMapper, Transform, vtkTransform);
 
 template <typename T>
 void vtkLabeledDataMapper_PrintComponent(
-  char* output, size_t outputSize, const char* format, int index, const T* array)
+  char* output, size_t outputSize, const std::string_view format, int index, const T* array)
 {
-  snprintf(output, outputSize, format, array[index]);
+  auto result = vtk::format_to_n(output, outputSize, format, array[index]);
+  *result.out = '\0';
 }
 
 //------------------------------------------------------------------------------
@@ -102,6 +101,21 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
   this->SetFieldDataName(nullptr);
   this->SetTransform(nullptr);
   delete this->Implementation;
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledDataMapper::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -450,7 +464,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   }
 
   std::string FormatString;
-  if (this->LabelFormat)
+  if (this->LabelFormat && !std::string_view(this->LabelFormat).empty())
   {
     // The user has specified a format string.
     vtkDebugMacro(<< "Using user-specified format string " << this->LabelFormat);
@@ -461,58 +475,38 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
     // Try to come up with some sane default.
     if (pointIdLabels)
     {
-      FormatString = "%d";
+      FormatString = "{:d}";
     }
     else if (numericData)
     {
       switch (numericData->GetDataType())
       {
         case VTK_VOID:
-          FormatString = "0x%x";
+          FormatString = "0x{:x}";
           break;
-
-          // don't use vtkTypeTraits::ParseFormat for character types as parse formats
-          // aren't the same as print formats for these types.
         case VTK_BIT:
-        case VTK_SIGNED_CHAR:
-        case VTK_UNSIGNED_CHAR:
         case VTK_SHORT:
         case VTK_UNSIGNED_SHORT:
         case VTK_INT:
         case VTK_UNSIGNED_INT:
-          FormatString = "%d";
+          FormatString = "{:d}";
           break;
-
         case VTK_CHAR:
-          FormatString = "%c";
+        case VTK_SIGNED_CHAR:
+        case VTK_UNSIGNED_CHAR:
+          FormatString = "{:c}";
           break;
-
         case VTK_LONG:
-          FormatString = vtkTypeTraits<long>::ParseFormat();
-          break;
         case VTK_UNSIGNED_LONG:
-          FormatString = vtkTypeTraits<unsigned long>::ParseFormat();
-          break;
-
         case VTK_ID_TYPE:
-          FormatString = vtkTypeTraits<vtkIdType>::ParseFormat();
-          break;
-
         case VTK_LONG_LONG:
-          FormatString = vtkTypeTraits<long long>::ParseFormat();
-          break;
         case VTK_UNSIGNED_LONG_LONG:
-          FormatString = vtkTypeTraits<unsigned long long>::ParseFormat();
+          FormatString = "{:d}";
           break;
-
         case VTK_FLOAT:
-          FormatString = vtkTypeTraits<float>::ParseFormat();
-          break;
-
         case VTK_DOUBLE:
-          FormatString = vtkTypeTraits<double>::ParseFormat();
+          FormatString = "{:f}";
           break;
-
         default:
           FormatString = "BUG - UNKNOWN DATA FORMAT";
           break;
@@ -544,7 +538,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   // Now we actually construct the label strings
   //
 
-  const char* LiveFormatString = FormatString.c_str();
   char TempString[1024];
 
   vtkIntArray* typeArr =
@@ -555,7 +548,8 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
 
     if (pointIdLabels)
     {
-      snprintf(TempString, sizeof(TempString), LiveFormatString, i);
+      auto result = vtk::format_to_n(TempString, sizeof(TempString), FormatString, i);
+      *result.out = '\0';
       ResultString = TempString;
     }
     else
@@ -569,7 +563,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           switch (numericData->GetDataType())
           {
             vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString, sizeof(TempString),
-              LiveFormatString, activeComp, static_cast<VTK_TT*>(rawData)));
+              FormatString, activeComp, static_cast<VTK_TT*>(rawData)));
           }
           ResultString = TempString;
         }
@@ -582,8 +576,8 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           {
             switch (numericData->GetDataType())
             {
-              vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(TempString, sizeof(TempString),
-                LiveFormatString, j, static_cast<VTK_TT*>(rawData)));
+              vtkTemplateMacro(vtkLabeledDataMapper_PrintComponent(
+                TempString, sizeof(TempString), FormatString, j, static_cast<VTK_TT*>(rawData)));
             }
             ResultString += TempString;
 
@@ -600,15 +594,16 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       }
       else // rendering string data
       {
-        // If the user hasn't given us a custom format string then
-        // we'll sidestep a lot of snprintf nonsense.
-        if (this->LabelFormat == nullptr)
+        // If the user hasn't given us a custom format string then just save the value.
+        if (!this->LabelFormat || std::string_view(this->LabelFormat).empty())
         {
           ResultString = stringData->GetValue(i);
         }
         else // the user specified a label format
         {
-          snprintf(TempString, 1023, LiveFormatString, stringData->GetValue(i).c_str());
+          auto result = vtk::format_to_n(
+            TempString, sizeof(TempString), FormatString, stringData->GetValue(i).c_str());
+          *result.out = '\0';
           ResultString = TempString;
         } // done printing strings with label format
       }   // done printing strings

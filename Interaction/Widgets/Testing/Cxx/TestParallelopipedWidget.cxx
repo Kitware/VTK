@@ -121,7 +121,7 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkCubeAxesActor2D> axes = vtkSmartPointer<vtkCubeAxesActor2D>::New();
   axes->SetInputConnection(transformFilter->GetOutputPort());
   axes->SetCamera(renderer->GetActiveCamera());
-  axes->SetLabelFormat("%6.1f");
+  axes->SetLabelFormat("{:6.1f}");
   axes->SetFlyModeToOuterEdges();
   axes->SetFontFactor(0.8);
   renderer->AddViewProp(axes);

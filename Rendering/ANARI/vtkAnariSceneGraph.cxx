@@ -32,6 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 
 #include <cmath>
@@ -257,7 +258,7 @@ void vtkAnariSceneGraph::UpdateAnariLights()
   {
     for (size_t i = 0; i < lightState.size(); i++)
     {
-      std::string lightName = "vtk_light_" + std::to_string(i);
+      std::string lightName = "vtk_light_" + vtk::to_string(i);
       anari::setParameter(anariDevice, lightState[i], "name", lightName.c_str());
       anari::commitParameters(anariDevice, lightState[i]);
     }
@@ -310,7 +311,7 @@ void vtkAnariSceneGraph::UpdateAnariVolumes()
   {
     for (size_t i = 0; i < volumeState.size(); i++)
     {
-      std::string volumeName = "vtk_volume_" + std::to_string(i);
+      std::string volumeName = "vtk_volume_" + vtk::to_string(i);
       anari::setParameter(anariDevice, volumeState[i], "name", volumeName.c_str());
       anari::commitParameters(anariDevice, volumeState[i]);
     }

@@ -10,6 +10,7 @@
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
 #include "vtkViewport.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1212,7 +1213,8 @@ static int cgmCgmPic(cgmImagePtr im, int sticky)
   head = headerp;
 
   /*** Attribute: BegPic; Elem Class 0; Elem ID 3 */
-  snprintf(tb, 4 * 4, "picture %d", im->picnum);
+  auto result = vtk::format_to_n(tb, 4 * 4, "picture {:d}", im->picnum);
+  *result.out = '\0';
   buf = reinterpret_cast<unsigned char*>(tb);
   /* buf = (unsigned char *) "picture 1"; */
   blen = static_cast<int>(strlen(reinterpret_cast<char*>(buf)));
@@ -4351,11 +4353,14 @@ static int cgmImageAddFont(cgmImagePtr im, const char* fontname)
   }
   if (oldfonts)
   {
-    snprintf((char*)im->fontlist, listsize, "%s%s%s", (char*)oldfonts, ",", fontname);
+    auto result = vtk::format_to_n(
+      (char*)im->fontlist, listsize "{:s}{:s}{:s}", (char*)oldfonts, ",", fontname);
+    *result.out = '\0';
   }
   else
   {
-    snprintf((char*)im->fontlist, listsize, "%s", fontname);
+    auto result = vtk::format_to_n((char*)im->fontlist, listsize, "{:s}", fontname);
+    *result.out = '\0';
   }
   im->numfonts++;
   if (oldfonts)

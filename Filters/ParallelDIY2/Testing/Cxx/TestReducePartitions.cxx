@@ -23,6 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPartitionedDataSetReader.h"
@@ -161,7 +162,7 @@ void RedistributeAndCheck(vtkDataObject* dataset, vtkProcessGroup* subGroup)
   rdsc->Update();
   t2 = MPI_Wtime();
   elapsedTime = t2 - t1;
-  LogMessage("elapsed time: " + std::to_string(elapsedTime));
+  LogMessage("elapsed time: " + vtk::to_string(elapsedTime));
 
   for (int r = 0; r < nProcs; ++r)
   {

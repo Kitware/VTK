@@ -16,6 +16,7 @@
 #include "vtkMPICommunicator.h"
 #endif
 #include "vtkMultiProcessController.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
 #include <vtksys/FStream.hxx>
@@ -243,8 +244,8 @@ types::DataSet XMLInitDataSet(
       VTK_FROM_CHARS_IF_ERROR_BREAK(xmlNumberOfComponents.value(), components);
       if (dataArray.VectorVariables.size() != components)
       {
-        throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +
-          " and variable names found " + std::to_string(dataArray.VectorVariables.size()) +
+        throw std::runtime_error("ERROR: NumberOfComponents " + vtk::to_string(components) +
+          " and variable names found " + vtk::to_string(dataArray.VectorVariables.size()) +
           " inside DataArray node " + std::string(xmlName.name()) + " in ADIOS2 VTK XML schema");
       }
     }

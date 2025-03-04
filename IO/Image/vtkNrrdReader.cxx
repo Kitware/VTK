@@ -11,6 +11,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
 #include <vtksys/FStream.hxx>
@@ -437,14 +438,12 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
           {
             VTK_FROM_CHARS_IF_ERROR_RETURN(filepatterninfo[4], subDimension, 0);
           }
-          size_t filenamelen = format.size() + 20;
-          char* filename = new char[filenamelen];
           for (int i = min; i <= max; i += step)
           {
-            snprintf(filename, filenamelen, format.c_str(), i);
+            // the format is expected to be in printf style format, so it's converted to std::format
+            auto filename = vtk::format(vtk::printf_to_std_format(format), i);
             this->DataFiles->InsertNextValue(filename);
           }
-          delete[] filename;
         }
         else
         {

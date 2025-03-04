@@ -95,7 +95,7 @@ public:
   /**
    * Specify the format to use for labelling information during
    * transformation. Note that an empty string results in no label, or a
-   * format string without a "%" character will not print numeric values.
+   * format string without a "{}" character will not print numeric values.
    */
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);

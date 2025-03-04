@@ -145,7 +145,7 @@ void vtkWebGLWidget::GetDataFromColorMap(vtkActor2D* actor)
     v += s;
   }
 
-  this->textFormat = scalarbar->GetLabelFormat();    // Float Format ex.: %-#6.3g
+  this->textFormat = scalarbar->GetLabelFormat();    // Float Format ex.: {:<#6.3g}
   this->textPosition = scalarbar->GetTextPosition(); // Orientacao dos textos; 1;
   double* thePos = scalarbar->GetPosition();
   double* theSize = scalarbar->GetPosition2();

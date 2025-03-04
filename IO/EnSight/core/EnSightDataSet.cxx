@@ -25,6 +25,7 @@
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransformFilter.h"
@@ -3044,7 +3045,7 @@ bool EnSightDataSet::ReadRigidBodyGeometryFile()
     {
       // Need to make sure that we remove any quotes from the partId
       partId = vtk::scan_int<int>(partName)->value() - 1; // EnSight starts #ing at 1.
-      partName = std::to_string(partId);
+      partName = vtk::to_string(partId);
     }
 
     // num of transformations
@@ -3448,7 +3449,7 @@ bool EnSightDataSet::ApplyRigidBodyTransforms(int partId, std::string partName, 
   if (!this->UsePartNamesRB)
   {
     // need to first convert part id to a string and use that as the partName
-    partName = std::to_string(partId);
+    partName = vtk::to_string(partId);
   }
   if (this->RigidBodyTransforms.find(partName) == this->RigidBodyTransforms.end())
   {

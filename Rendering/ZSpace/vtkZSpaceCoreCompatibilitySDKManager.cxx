@@ -7,6 +7,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform.h"
 #include "vtkVector.h"
 
@@ -37,7 +38,7 @@ vtkStandardNewMacro(vtkZSpaceCoreCompatibilitySDKManager);
       std::string(#fn) +                                                                           \
       "\" failed with error "                                                                      \
       "code " +                                                                                    \
-      std::to_string(error) + ".";                                                                 \
+      vtk::to_string(static_cast<int>(error)) + ".";                                               \
     vtkErrorMacro(<< "vtkZSpaceCoreCompatibilitySDKManager::" << #fn << " error : " << error);     \
   }
 

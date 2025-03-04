@@ -7,6 +7,7 @@
 #include "vtkObjectBase.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
@@ -140,11 +141,11 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
   if ((idIter != state.end()) && idIter->is_number_unsigned())
   {
     const auto identifier = idIter->get<vtkTypeUInt32>();
-    const auto key = std::to_string(identifier);
+    const auto key = vtk::to_string(identifier);
     auto stateIter = internals.States.find(key);
     if (stateIter == internals.States.end())
     {
-      return internals.States.emplace(std::to_string(identifier), std::move(state)).second;
+      return internals.States.emplace(vtk::to_string(identifier), std::move(state)).second;
     }
     else
     {
@@ -167,14 +168,14 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
 //------------------------------------------------------------------------------
 bool vtkMarshalContext::UnRegisterState(vtkTypeUInt32 identifier)
 {
-  return this->Internals->States.erase(std::to_string(identifier)) == 1;
+  return this->Internals->States.erase(vtk::to_string(identifier)) == 1;
 }
 
 //------------------------------------------------------------------------------
 nlohmann::json& vtkMarshalContext::GetState(vtkTypeUInt32 identifier) const
 {
   auto& internals = (*this->Internals);
-  auto stateIter = internals.States.find(std::to_string(identifier));
+  auto stateIter = internals.States.find(vtk::to_string(identifier));
   if (stateIter != internals.States.end())
   {
     return stateIter.value();
@@ -260,7 +261,7 @@ bool vtkMarshalContext::RegisterBlob(vtkSmartPointer<vtkTypeUInt8Array> blob, st
     json::binary(std::vector<json::binary_t::value_type>(blobRange.begin(), blobRange.end()));
   if (hash.empty())
   {
-    hash = std::to_string(std::hash<json>{}(binaryContainer));
+    hash = vtk::to_string(std::hash<json>{}(binaryContainer));
   }
   if (internals.Blobs.contains(hash))
   {

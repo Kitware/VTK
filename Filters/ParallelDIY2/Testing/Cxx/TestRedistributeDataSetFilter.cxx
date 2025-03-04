@@ -21,6 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -166,7 +167,7 @@ int TestRedistributeDataSetFilter(int argc, char* argv[])
   }
 
   const int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank:" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank:" + vtk::to_string(rank));
 
   vtkNew<vtkUnstructuredGrid> data;
   if (rank == 0)

@@ -206,7 +206,7 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
 
   vtkNew<vtkScalarBarActor> scalarBar;
   scalarBar->SetLookupTable(mapper1->GetLookupTable());
-  scalarBar->SetLabelFormat("%.0f");
+  scalarBar->SetLabelFormat("{:.0f}");
   scalarBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar->GetPositionCoordinate()->SetValue(.80, .32);
   scalarBar->SetTitle("  id  ");

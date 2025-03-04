@@ -69,6 +69,7 @@
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
@@ -128,17 +129,17 @@ std::string ProcessorDirName(const vtkIntArray* dirs, int index)
     const auto first = dirs->GetTypedComponent(index, 1);
     const auto size = dirs->GetTypedComponent(index, 2);
 
-    std::string stem("processors" + std::to_string(nprocs));
+    std::string stem("processors" + vtk::to_string(nprocs));
     if (size)
     {
       const auto last = (first + size - 1); // inclusive range
-      return (stem + "_" + std::to_string(first) + "-" + std::to_string(last));
+      return (stem + "_" + vtk::to_string(first) + "-" + vtk::to_string(last));
     }
     return stem;
   }
 
   // Uncollated name
-  return std::string("processor" + std::to_string(dirs->GetValue(index)));
+  return std::string("processor" + vtk::to_string(dirs->GetValue(index)));
 }
 
 #if VTK_FOAMFILE_COLLATED_FORMAT

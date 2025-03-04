@@ -70,7 +70,7 @@ public:
    * This file pattern uses the file name and piece number
    * to construct a file name for the piece file.
    */
-  vtkSetFilePathMacro(FilePattern);
+  virtual void SetFilePattern(VTK_FILEPATH const char*);
   vtkGetFilePathMacro(FilePattern);
   ///@}
 

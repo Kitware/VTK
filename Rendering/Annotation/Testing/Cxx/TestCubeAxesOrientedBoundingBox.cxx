@@ -61,9 +61,9 @@ int TestCubeAxesOrientedBoundingBox(int argc, char* argv[])
   axes->SetAxisBaseForY(baseY);
   axes->SetAxisBaseForZ(baseZ);
   axes->SetCamera(ren2->GetActiveCamera());
-  axes->SetXLabelFormat("%6.1f");
-  axes->SetYLabelFormat("%6.1f");
-  axes->SetZLabelFormat("%6.1f");
+  axes->SetXLabelFormat("{:6.1f}");
+  axes->SetYLabelFormat("{:6.1f}");
+  axes->SetZLabelFormat("{:6.1f}");
   axes->SetScreenSize(15.);
   axes->SetFlyModeToClosestTriad();
   axes->SetDrawXGridlines(true);

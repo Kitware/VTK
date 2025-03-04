@@ -21,6 +21,7 @@
 #include "vtkNew.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
@@ -554,8 +555,10 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject* object, vtkCharArray* buff
       id->GetExtent(extent);
     }
     char extentHeader[EXTENT_HEADER_SIZE];
-    snprintf(extentHeader, sizeof(extentHeader), "EXTENT %d %d %d %d %d %d", extent[0], extent[1],
-      extent[2], extent[3], extent[4], extent[5]);
+    auto result =
+      vtk::format_to_n(extentHeader, sizeof(extentHeader), "EXTENT {:d} {:d} {:d} {:d} {:d} {:d}",
+        extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
+    *result.out = '\0';
 
     buffer->SetNumberOfTuples(size + EXTENT_HEADER_SIZE);
     memcpy(buffer->GetPointer(0), extentHeader, EXTENT_HEADER_SIZE);

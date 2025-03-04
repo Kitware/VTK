@@ -9,6 +9,8 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
+
 #include "vtk_tiff.h"
 
 #include "vtksys/Encoding.hxx"
@@ -61,26 +63,33 @@ void vtkTIFFWriter::Write()
     (this->FilePattern ? strlen(this->FilePattern) : 1) + 256;
   this->InternalFileName = new char[internalFileNameSize];
   this->InternalFileName[0] = 0;
-  int bytesPrinted = 0;
+  std::size_t bytesPrinted = 0;
   // determine the name
   if (this->FileName)
   {
-    bytesPrinted = snprintf(this->InternalFileName, internalFileNameSize, "%s", this->FileName);
+    auto result =
+      vtk::format_to_n(this->InternalFileName, internalFileNameSize, "{:s}", this->FileName);
+    *result.out = '\0';
+    bytesPrinted = result.size;
   }
   else
   {
     if (this->FilePrefix)
     {
-      bytesPrinted = snprintf(this->InternalFileName, internalFileNameSize, this->FilePattern,
-        this->FilePrefix, this->FileNumber);
+      auto result = vtk::format_to_n(this->InternalFileName, internalFileNameSize,
+        this->FilePattern, this->FilePrefix, this->FileNumber);
+      *result.out = '\0';
+      bytesPrinted = result.size;
     }
     else
     {
-      bytesPrinted =
-        snprintf(this->InternalFileName, internalFileNameSize, this->FilePattern, this->FileNumber);
+      auto result = vtk::format_to_n(
+        this->InternalFileName, internalFileNameSize, this->FilePattern, "", this->FileNumber);
+      *result.out = '\0';
+      bytesPrinted = result.size;
     }
   }
-  if (static_cast<size_t>(bytesPrinted) >= internalFileNameSize)
+  if (bytesPrinted >= internalFileNameSize)
   {
     // Add null terminating character just to be safe.
     this->InternalFileName[internalFileNameSize - 1] = 0;

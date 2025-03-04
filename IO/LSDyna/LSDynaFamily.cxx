@@ -3,6 +3,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "LSDynaFamily.h"
+
+#include "vtkStringFormatter.h"
+
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
@@ -10,8 +13,6 @@
 #include <cerrno>
 
 #include <algorithm>
-#include <map>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -59,9 +60,7 @@ std::string vtkLSGetFamilyFileName(
 
   if (number > 0)
   {
-    char n[12];
-    snprintf(n, sizeof(n), "%02d", number);
-    blorb += n;
+    blorb += vtk::format("{:02d}", number);
   }
 
   return blorb;

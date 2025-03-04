@@ -23,6 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToPlane.h"
@@ -202,7 +203,7 @@ void ProjectElement::ProcessDataFields(
               }
               else
               {
-                stringData->InsertNextValue(std::to_string(val));
+                stringData->InsertNextValue(vtk::to_string(val));
               }
             }
             setFieldDataArray(stringData, output, location, name);

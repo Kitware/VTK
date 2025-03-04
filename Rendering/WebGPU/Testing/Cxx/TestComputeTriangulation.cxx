@@ -2,6 +2,7 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkLogger.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkStringFormatter.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "vtkWebGPUConfiguration.h"
 
@@ -128,7 +129,7 @@ int TestComputeTriangulation(int argc, char* argv[])
     vtkNew<vtkWebGPUConfiguration> wgpuConfig;
 
     const auto& parameters = ::ParametersCollection[i];
-    std::string scopeId = std::to_string(parameters.NumberOfCells) + " cells";
+    std::string scopeId = vtk::to_string(parameters.NumberOfCells) + " cells";
     vtkLogScopeF(INFO, "%s", scopeId.c_str());
     vtkLog(INFO, << CellSizeWeightsToString(parameters));
 

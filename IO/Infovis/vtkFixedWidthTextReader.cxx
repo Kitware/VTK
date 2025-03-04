@@ -9,8 +9,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <algorithm>
@@ -111,7 +113,8 @@ int vtkFixedWidthTextReader::RequestData(
     for (unsigned int i = 0; i < firstLineFields.size(); ++i)
     {
       char fieldName[64];
-      snprintf(fieldName, sizeof(fieldName), "Field %u", i);
+      auto result = vtk::format_to_n(fieldName, sizeof(fieldName), "Field {:d}", i);
+      *result.out = '\0';
       headers.emplace_back(fieldName);
     }
   }

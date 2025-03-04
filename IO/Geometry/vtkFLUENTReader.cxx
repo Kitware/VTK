@@ -29,6 +29,7 @@
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
@@ -2750,7 +2751,7 @@ void vtkFLUENTReader::ParseZone(int index)
       break;
     default:
       vtkWarningMacro(
-        "Unsupported/Unrecognized index found while parsing file: " + std::to_string(index));
+        "Unsupported/Unrecognized index found while parsing file: " + vtk::to_string(index));
       break;
   }
 }
@@ -2817,7 +2818,7 @@ void vtkFLUENTReader::ParseDataZone(int index)
 
     default:
       vtkWarningMacro(
-        "Unsupported/Unrecognized index found while parsing data file: " + std::to_string(index));
+        "Unsupported/Unrecognized index found while parsing data file: " + vtk::to_string(index));
       break;
   }
 }

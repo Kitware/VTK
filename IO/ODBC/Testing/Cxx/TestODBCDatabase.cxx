@@ -9,6 +9,7 @@
 #include "vtkODBCDatabase.h"
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLQuery.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
@@ -61,8 +62,7 @@ int TestODBCDatabase(int, char** const)
   query->SetQuery(placeholders);
   for (i = 21; i < 40; i++)
   {
-    char name[20];
-    snprintf(name, sizeof(name), "John Doe %d", i);
+    auto name = vtk::format("John Doe {:d}", i);
     bool bind1 = query->BindParameter(0, name);
     bool bind2 = query->BindParameter(1, i);
     bool bind3 = query->BindParameter(2, 10.1 * i);

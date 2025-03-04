@@ -12,6 +12,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
@@ -1828,7 +1829,7 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
       this->SanitizeFileName(partName);
       VTK_FROM_CHARS_IF_ERROR_RETURN(partName, partId, 0);
       --partId; // EnSight starts #ing at 1.
-      partName = std::to_string(partId);
+      partName = vtk::to_string(partId);
     }
 
     this->ReadNextDataLine(line); // num of transformations
@@ -2264,7 +2265,7 @@ int vtkEnSightReader::ApplyRigidBodyTransforms(int partId, const char* name, vtk
   if (!this->UsePartNamesRB)
   {
     // need to first convert part id to a string and use that as the partName
-    partName = std::to_string(partId);
+    partName = vtk::to_string(partId);
   }
   if (this->RigidBodyTransforms.find(partName) == this->RigidBodyTransforms.end())
   {

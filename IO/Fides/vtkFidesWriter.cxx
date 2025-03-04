@@ -17,6 +17,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -353,7 +354,7 @@ void vtkFidesWriter::WriteData()
     if (inputPDC->GetNumberOfPartitionedDataSets() > 1)
     {
       pathComponents[pathComponents.size() - 1] =
-        fileBase + "-p" + std::to_string(pdsIdx) + fileExt;
+        fileBase + "-p" + vtk::to_string(pdsIdx) + fileExt;
       fname = vtksys::SystemTools::JoinPath(pathComponents);
     }
     vtkLog(TRACE, "fname " << fname);

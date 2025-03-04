@@ -10,6 +10,7 @@
 #include "vtkIdList.h"
 #include "vtkLogger.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 
 namespace
@@ -168,12 +169,11 @@ int otherFieldData(int, char*[])
 
   vtkFloatArray* fa;
 
-  char name[128];
   for (i = 0; i < 5; i++)
   {
-    snprintf(name, sizeof(name), "Array%d", i);
+    auto name = vtk::format("Array{}", i);
     fa = vtkFloatArray::New();
-    fa->SetName(name);
+    fa->SetName(name.c_str());
     // the tuples must be set before being read to avoid a UMR
     // this must have been a UMR in the past that was suppressed
     fa->Allocate(20);

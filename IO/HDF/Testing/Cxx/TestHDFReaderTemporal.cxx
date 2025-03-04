@@ -4,7 +4,6 @@
 #include "vtkDataObject.h"
 #include "vtkHDFReader.h"
 
-#include "vtkAMRBox.h"
 #include "vtkAppendDataSets.h"
 #include "vtkAppendFilter.h"
 #include "vtkCellData.h"
@@ -22,6 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUniformGrid.h"
@@ -486,7 +486,7 @@ int TestUGTemporalPartitioned(
     // Reference Geometry
     vtkNew<vtkXMLPartitionedDataSetReader> refReader;
     refReader->SetFileName((dataRoot + "/Data/hdf_transient_partitioned_ug_twin/transient_sphere_" +
-      std::to_string(iStep) + ".vtpd")
+      vtk::to_string(iStep) + ".vtpd")
                              .c_str());
     vtkPartitionedDataSet* refGeometry =
       vtkPartitionedDataSet::SafeDownCast(refReader->GetOutputDataObject(0));
@@ -743,7 +743,7 @@ int TestPolyDataTemporalBase(
     vtkNew<vtkXMLPolyDataReader> refReader;
     refReader->SetFileName(
       (dataRoot + "/Data/hdf_transient_poly_data_twin/hdf_transient_poly_data_twin_00" +
-        std::to_string(iStep) + ".vtp")
+        vtk::to_string(iStep) + ".vtp")
         .c_str());
     refReader->Update();
 
@@ -854,7 +854,7 @@ int TestPolyDataTemporalPartitionedWithCache(
     vtkNew<vtkXMLPartitionedDataSetReader> refReader;
     refReader->SetFileName(
       (dataRoot + "/Data/hdf_transient_partitioned_poly_data_twin/transient_sphere_" +
-        std::to_string(iStep) + ".vtpd")
+        vtk::to_string(iStep) + ".vtpd")
         .c_str());
     refReader->Update();
 
@@ -1276,7 +1276,7 @@ int TestOverlappingAMRTemporalBase(OpenerWorklet& opener, const std::string& dat
 
     vtkNew<vtkXMLUniformGridAMRReader> outputReader;
     std::string expectedFileName = dataRoot +
-      "/Data/vtkHDF/Transient/transient_expected_overlapping_amr_" + std::to_string(iStep) +
+      "/Data/vtkHDF/Transient/transient_expected_overlapping_amr_" + vtk::to_string(iStep) +
       ".vthb";
     outputReader->SetFileName(expectedFileName.c_str());
     outputReader->SetMaximumLevelsToReadByDefault(0);

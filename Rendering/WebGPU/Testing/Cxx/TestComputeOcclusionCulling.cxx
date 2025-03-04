@@ -27,6 +27,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUComputeOcclusionCuller.h"
 #include "vtkWebGPURenderWindow.h"
@@ -90,8 +91,8 @@ void CheckRenderCount(
       std::string actualSequence;
       for (std::size_t seqIndex = 0; seqIndex < renderedPropCounts.size(); seqIndex++)
       {
-        expectedSequence += std::to_string(renderedPropCountsReference[seqIndex]) + ", ";
-        actualSequence += std::to_string(renderedPropCounts[seqIndex]) + ", ";
+        expectedSequence += vtk::to_string(renderedPropCountsReference[seqIndex]) + ", ";
+        actualSequence += vtk::to_string(renderedPropCounts[seqIndex]) + ", ";
       }
 
       vtkLog(ERROR,

@@ -16,6 +16,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkWebAssemblyOpenGLRenderWindow.h"
 #include "vtkWebAssemblyRenderWindowInteractor.h"
@@ -57,7 +58,7 @@ int main(int argc, char* argv[])
 
   for (int iCanvas = 0; iCanvas < numCanvases; ++iCanvas)
   {
-    const std::string canvasId = "canvas" + std::to_string(iCanvas);
+    const std::string canvasId = "canvas" + vtk::to_string(iCanvas);
     const std::string canvasSelector = "#" + canvasId;
     vtkNew<vtkRenderWindow> renderWindow;
     vtkNew<vtkRenderWindowInteractor> interactor;

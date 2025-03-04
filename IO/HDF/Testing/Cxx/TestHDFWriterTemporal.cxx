@@ -9,7 +9,6 @@
 #include "vtkDataSet.h"
 #include "vtkExtractSurface.h"
 #include "vtkForceStaticMesh.h"
-#include "vtkGenerateTimeSteps.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
@@ -21,15 +20,14 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-#include "vtkPassArrays.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkSpatioTemporalHarmonicsSource.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridWriter.h"
@@ -266,7 +264,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
       : groupDataSets->GetOutputPort());
 
   std::string tempPath = tempDir + "/HDFWriter_";
-  tempPath += "composite" + std::to_string(compositeType) + ".vtkhdf";
+  tempPath += "composite" + vtk::to_string(compositeType) + ".vtkhdf";
   HDFWriterGrouped->SetFileName(tempPath.c_str());
   HDFWriterGrouped->SetWriteAllTimeSteps(true);
   HDFWriterGrouped->Write();

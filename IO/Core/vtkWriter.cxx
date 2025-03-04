@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_6_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkWriter.h"
 
 #include "vtkCommand.h"
@@ -8,6 +12,7 @@
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkStringFormatter.h"
 
 #include <sstream>
 
@@ -102,14 +107,29 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+void vtkWriter::EncodeString(char* resname, const char* name)
+{
+  std::ostringstream str;
+  vtkWriter::EncodeWriteString(&str, name);
+  const auto string = str.str();
+  std::copy_n(string.c_str(), string.size() + 1, resname);
+}
+
 void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent)
 {
-  if (!name || !resname)
+  std::ostringstream str;
+  vtkWriter::EncodeWriteString(&str, name, doublePercent);
+  const auto string = str.str();
+  std::copy_n(string.c_str(), string.size() + 1, resname);
+}
+
+void vtkWriter::EncodeWriteString(ostream* out, const char* name)
+{
+  if (!name)
   {
     return;
   }
   int cc = 0;
-  std::ostringstream str;
 
   char buffer[10];
 
@@ -119,24 +139,17 @@ void vtkWriter::EncodeString(char* resname, const char* name, bool doublePercent
     // The reader does not support spaces in strings.
     if (name[cc] < 33 || name[cc] > 126 || name[cc] == '\"' || name[cc] == '%')
     {
-      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
-      if (doublePercent)
-      {
-        str << "%%";
-      }
-      else
-      {
-        str << "%";
-      }
-      str << buffer;
+      auto result =
+        vtk::format_to_n(buffer, sizeof(buffer), "{:02X}", static_cast<unsigned char>(name[cc]));
+      *result.out = '\0';
+      *out << "%" << buffer;
     }
     else
     {
-      str << name[cc];
+      *out << name[cc];
     }
     cc++;
   }
-  strcpy(resname, str.str().c_str());
 }
 
 void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePercent)
@@ -155,7 +168,9 @@ void vtkWriter::EncodeWriteString(ostream* out, const char* name, bool doublePer
     // The reader does not support spaces in strings.
     if (name[cc] < 33 || name[cc] > 126 || name[cc] == '\"' || name[cc] == '%')
     {
-      snprintf(buffer, sizeof(buffer), "%02X", static_cast<unsigned char>(name[cc]));
+      auto result =
+        vtk::format_to_n(buffer, sizeof(buffer), "{:02X}", static_cast<unsigned char>(name[cc]));
+      *result.out = '\0';
       if (doublePercent)
       {
         *out << "%%";

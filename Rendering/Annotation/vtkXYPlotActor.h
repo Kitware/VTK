@@ -123,7 +123,7 @@ public:
   /**
    * Instantiate object with autorange computation; bold, italic, and shadows
    * on; arial font family; the number of labels set to 5 for the x and y
-   * axes; a label format of "%-#6.3g"; and x coordinates computed from point
+   * axes; a label format of "{:<#6.3g}"; and x coordinates computed from point
    * ids.
    */
   static vtkXYPlotActor* New();

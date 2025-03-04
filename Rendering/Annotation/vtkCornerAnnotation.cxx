@@ -9,6 +9,7 @@
 #include "vtkImageMapper3D.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
@@ -147,11 +148,14 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          snprintf(text2, textSize, "%sImage: %i%s", text, slice, rpos + 7);
+          auto result =
+            vtk::format_to_n(text2, textSize, "{:s}Image: {:d}{:s}", text, slice, rpos + 7);
+          *result.out = '\0';
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 7);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 7);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -165,11 +169,14 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          snprintf(text2, textSize, "%sImage: %i / %i%s", text, slice, slice_max, rpos + 15);
+          auto result = vtk::format_to_n(
+            text2, textSize, "{:s}Image: {:d} / {:d}{:s}", text, slice, slice_max, rpos + 15);
+          *result.out = '\0';
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 15);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 15);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -183,11 +190,14 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          snprintf(text2, textSize, "%sSlice: %i%s", text, slice, rpos + 7);
+          auto result =
+            vtk::format_to_n(text2, textSize, "{:s}Slice: {:d}{:s}", text, slice, rpos + 7);
+          *result.out = '\0';
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 7);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 7);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -201,11 +211,14 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          snprintf(text2, textSize, "%sSlice: %i / %i%s", text, slice, slice_max, rpos + 15);
+          auto result = vtk::format_to_n(
+            text2, textSize, "{:s}Slice: {:d} / {:d}{:s}", text, slice, slice_max, rpos + 15);
+          *result.out = '\0';
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 15);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 15);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -234,11 +247,13 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
           {
             pos = dbounds[4];
           }
-          snprintf(text2, textSize, "%s%g%s", text, pos, rpos + 11);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:g}{:s}", text, pos, rpos + 11);
+          *result.out = '\0';
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 11);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 11);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -254,16 +269,21 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         {
           if (input_type_is_float)
           {
-            snprintf(text2, textSize, "%sWindow: %g%s", text, window, rpos + 8);
+            auto result =
+              vtk::format_to_n(text2, textSize, "{:s}Window: {:g}{:s}", text, window, rpos + 8);
+            *result.out = '\0';
           }
           else
           {
-            snprintf(text2, textSize, "%sWindow: %li%s", text, windowi, rpos + 8);
+            auto result =
+              vtk::format_to_n(text2, textSize, "{:s}Window: {:d}{:s}", text, windowi, rpos + 8);
+            *result.out = '\0';
           }
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 8);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 8);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -279,16 +299,21 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         {
           if (input_type_is_float)
           {
-            snprintf(text2, textSize, "%sLevel: %g%s", text, level, rpos + 7);
+            auto result =
+              vtk::format_to_n(text2, textSize, "{:s}Level: {:g}{:s}", text, level, rpos + 7);
+            *result.out = '\0';
           }
           else
           {
-            snprintf(text2, textSize, "%sLevel: %li%s", text, leveli, rpos + 7);
+            auto result =
+              vtk::format_to_n(text2, textSize, "{:s}Level: {:d}{:s}", text, leveli, rpos + 7);
+            *result.out = '\0';
           }
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 7);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 7);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;
@@ -304,16 +329,21 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor* ia, vtkImageMapToWindowLeve
         {
           if (input_type_is_float)
           {
-            snprintf(text2, textSize, "%sWW/WL: %g / %g%s", text, window, level, rpos + 14);
+            auto result = vtk::format_to_n(
+              text2, textSize, "{:s}WW/WL: {:g} / {:g}{:s}", text, window, level, rpos + 14);
+            *result.out = '\0';
           }
           else
           {
-            snprintf(text2, textSize, "%sWW/WL: %li / %li%s", text, windowi, leveli, rpos + 14);
+            auto result = vtk::format_to_n(
+              text2, textSize, "{:s}WW/WL: {:d} / {:d}{:s}", text, windowi, leveli, rpos + 14);
+            *result.out = '\0';
           }
         }
         else
         {
-          snprintf(text2, textSize, "%s%s", text, rpos + 14);
+          auto result = vtk::format_to_n(text2, textSize, "{:s}{:s}", text, rpos + 14);
+          *result.out = '\0';
         }
         tmp = text;
         text = text2;

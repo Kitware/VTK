@@ -15,6 +15,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkRandomHyperTreeGridSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkType.h"
 
 namespace
@@ -306,7 +307,7 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   }
 
   std::string threadName = "rank #";
-  threadName += std::to_string(controller->GetLocalProcessId());
+  threadName += vtk::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
   success &= ::TestRedistributeHTG3D(controller);

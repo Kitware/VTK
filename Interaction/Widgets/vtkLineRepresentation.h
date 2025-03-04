@@ -258,11 +258,11 @@ public:
 
   ///@{
   /**
-   * Specify the format to use for labelling the line. Note that an empty
-   * string results in no label, or a format string without a "%" character
+   * Specify the std::format style format to use for labelling the line. Note that an empty
+   * string results in no label, or a format string without a "{}" character
    * will not print the angle value.
    */
-  vtkSetStringMacro(DistanceAnnotationFormat);
+  void SetDistanceAnnotationFormat(const char* format);
   vtkGetStringMacro(DistanceAnnotationFormat);
   ///@}
 

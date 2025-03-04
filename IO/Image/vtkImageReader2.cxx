@@ -13,6 +13,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
@@ -27,8 +28,8 @@ vtkStandardNewMacro(vtkImageReader2);
 vtkImageReader2::vtkImageReader2()
 {
   this->FilePrefix = nullptr;
-  this->FilePattern = new char[strlen("%s.%d") + 1];
-  strcpy(this->FilePattern, "%s.%d");
+  this->FilePattern = new char[strlen("{:s}.{:d}") + 1];
+  strcpy(this->FilePattern, "{:s}.{:d}");
   this->File = nullptr;
 
   this->DataScalarType = VTK_SHORT;
@@ -110,13 +111,15 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     auto filename = this->FileNames->GetValue(slice);
     size_t size = filename.size() + 10;
     this->InternalFileName = new char[size];
-    snprintf(this->InternalFileName, size, "%s", filename.c_str());
+    auto result = vtk::format_to_n(this->InternalFileName, size, "{:s}", filename);
+    *result.out = '\0';
   }
   else if (this->FileName)
   {
     size_t size = strlen(this->FileName) + 10;
     this->InternalFileName = new char[size];
-    snprintf(this->InternalFileName, size, "%s", this->FileName);
+    auto result = vtk::format_to_n(this->InternalFileName, size, "{:s}", this->FileName);
+    *result.out = '\0';
   }
   else
   {
@@ -125,30 +128,16 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
     {
       size_t size = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
       this->InternalFileName = new char[size];
-      snprintf(this->InternalFileName, size, this->FilePattern, this->FilePrefix, slicenum);
+      auto result = vtk::format_to_n(
+        this->InternalFileName, size, this->FilePattern, this->FilePrefix, slicenum);
+      *result.out = '\0';
     }
     else if (this->FilePattern)
     {
       size_t size = strlen(this->FilePattern) + 10;
       this->InternalFileName = new char[size];
-      int len = static_cast<int>(strlen(this->FilePattern));
-      int hasPercentS = 0;
-      for (int i = 0; i < len - 1; ++i)
-      {
-        if (this->FilePattern[i] == '%' && this->FilePattern[i + 1] == 's')
-        {
-          hasPercentS = 1;
-          break;
-        }
-      }
-      if (hasPercentS)
-      {
-        snprintf(this->InternalFileName, size, this->FilePattern, "", slicenum);
-      }
-      else
-      {
-        snprintf(this->InternalFileName, size, this->FilePattern, slicenum);
-      }
+      auto result = vtk::format_to_n(this->InternalFileName, size, this->FilePattern, "", slicenum);
+      *result.out = '\0';
     }
     else
     {
@@ -221,68 +210,21 @@ void vtkImageReader2::SetFileNames(vtkStringArray* filenames)
 }
 
 //------------------------------------------------------------------------------
-// This function sets the prefix of the file name. "image" would be the
-// name of a series: image.1, image.2 ...
-void vtkImageReader2::SetFilePrefix(const char* prefix)
-{
-  if (this->FilePrefix && prefix && (!strcmp(this->FilePrefix, prefix)))
-  {
-    return;
-  }
-  if (!prefix && !this->FilePrefix)
-  {
-    return;
-  }
-  delete[] this->FilePrefix;
-  this->FilePrefix = nullptr;
-  if (prefix)
-  {
-    this->FilePrefix = new char[strlen(prefix) + 1];
-    strcpy(this->FilePrefix, prefix);
-
-    delete[] this->FileName;
-    this->FileName = nullptr;
-    if (this->FileNames)
-    {
-      this->FileNames->Delete();
-      this->FileNames = nullptr;
-    }
-  }
-
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
 // This function sets the pattern of the file name which turn a prefix
 // into a file name. "%s.%03d" would be the
 // pattern of a series: image.001, image.002 ...
-void vtkImageReader2::SetFilePattern(const char* pattern)
+void vtkImageReader2::SetFilePattern(const char* formatArg)
 {
-  if (this->FilePattern && pattern && (!strcmp(this->FilePattern, pattern)))
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
   {
-    return;
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
   }
-  if (!pattern && !this->FilePattern)
-  {
-    return;
-  }
-  delete[] this->FilePattern;
-  this->FilePattern = nullptr;
-  if (pattern)
-  {
-    this->FilePattern = new char[strlen(pattern) + 1];
-    strcpy(this->FilePattern, pattern);
-
-    delete[] this->FileName;
-    this->FileName = nullptr;
-    if (this->FileNames)
-    {
-      this->FileNames->Delete();
-      this->FileNames = nullptr;
-    }
-  }
-
-  this->Modified();
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(FilePattern, formatStr);
 }
 
 //------------------------------------------------------------------------------

@@ -245,9 +245,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the polar axis labels.
+   * Set/Get the std::format style format  with which to print the polar axis labels.
    */
-  vtkSetStringMacro(PolarLabelFormat);
+  void SetPolarLabelFormat(const char* format);
   vtkGetStringMacro(PolarLabelFormat);
   ///@}
 
@@ -270,9 +270,9 @@ public:
 
   ///@{
   /**
-   * String to format angle values displayed on the radial axes.
+   * String the std::format style format angle values displayed on the radial axes.
    */
-  vtkSetStringMacro(RadialAngleFormat);
+  void SetRadialAngleFormat(const char* format);
   vtkGetStringMacro(RadialAngleFormat);
   ///@}
 

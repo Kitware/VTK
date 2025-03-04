@@ -12,9 +12,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 
 #include <set>
 #include <vector>
@@ -36,7 +36,7 @@ bool vtkMergeArrays::GetOutputArrayName(
   {
     return false;
   }
-  outputArrayName = std::string(arrayName) + "_input_" + std::to_string(inputIndex);
+  outputArrayName = std::string(arrayName) + "_input_" + vtk::to_string(inputIndex);
   return true;
 }
 

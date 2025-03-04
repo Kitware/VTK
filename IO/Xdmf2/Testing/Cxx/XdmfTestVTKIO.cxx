@@ -15,8 +15,8 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
-#include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 #include "vtkTimeSourceExample.h"
 #include "vtkXdmfReader.h"
 #include "vtkXdmfWriter.h"
@@ -126,17 +126,14 @@ bool DoDataObjectsDiffer(vtkDataObject* dobj1, vtkDataObject* dobj2)
 
 bool TestXDMFConversion(vtkDataObject* input, char* prefix)
 {
-  char xdmffile[VTK_MAXPATH];
-  char hdf5file[VTK_MAXPATH];
-  char vtkfile[VTK_MAXPATH];
-  snprintf(xdmffile, sizeof(xdmffile), "%s.xmf", prefix);
-  snprintf(hdf5file, sizeof(hdf5file), "%s.h5", prefix);
-  snprintf(vtkfile, sizeof(vtkfile), "%s.vtk", prefix);
+  auto xdmffile = vtk::format("{:s}.xmf", prefix);
+  auto hdf5file = vtk::format("{:s}.h5", prefix);
+  auto vtkfile = vtk::format("{:s}.vtk", prefix);
 
   vtkXdmfWriter* xwriter = vtkXdmfWriter::New();
   xwriter->SetLightDataLimit(10000);
   xwriter->WriteAllTimeStepsOn();
-  xwriter->SetFileName(xdmffile);
+  xwriter->SetFileName(xdmffile.c_str());
   xwriter->SetInputData(input);
   xwriter->Write();
 
@@ -145,13 +142,13 @@ bool TestXDMFConversion(vtkDataObject* input, char* prefix)
   if (ds)
   {
     vtkDataSetWriter* dsw = vtkDataSetWriter::New();
-    dsw->SetFileName(vtkfile);
+    dsw->SetFileName(vtkfile.c_str());
     dsw->SetInputData(ds);
     dsw->Write();
     dsw->Delete();
   }
 
-  if (!DoFilesExist(xdmffile, nullptr, false))
+  if (!DoFilesExist(xdmffile.c_str(), nullptr, false))
   {
     cerr << "Writer did not create " << xdmffile << endl;
     return true;
@@ -159,7 +156,7 @@ bool TestXDMFConversion(vtkDataObject* input, char* prefix)
 
   // TODO: Once it works, enable this
   vtkXdmfReader* xreader = vtkXdmfReader::New();
-  xreader->SetFileName(xdmffile);
+  xreader->SetFileName(xdmffile.c_str());
   xreader->Update();
   vtkDataObject* rOutput = xreader->GetOutputDataObject(0);
 
@@ -167,9 +164,9 @@ bool TestXDMFConversion(vtkDataObject* input, char* prefix)
   if (!fail && CleanUpGood)
   {
     // test passed!
-    unlink(xdmffile);
-    unlink(hdf5file);
-    unlink(vtkfile);
+    unlink(xdmffile.c_str());
+    unlink(hdf5file.c_str());
+    unlink(vtkfile.c_str());
   }
 
   xreader->Delete();
@@ -194,12 +191,11 @@ int XdmfTestVTKIO(int ac, char* av[])
   int i = 0;
   while (!fail && i < NUMTESTS)
   {
-    char filename[VTK_MAXPATH];
-    snprintf(filename, sizeof(filename), "xdmfIOtest_%d", i);
+    auto filename = vtk::format("xdmfIOtest_{:d}", i);
     cerr << "Test vtk object " << testobject[i] << endl;
     dog->SetProgram(testobject[i]);
     dog->Update();
-    fail = TestXDMFConversion(dog->GetOutput(), filename);
+    fail = TestXDMFConversion(dog->GetOutput(), filename.data());
     i++;
   }
 

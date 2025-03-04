@@ -63,7 +63,7 @@ int TestAxes(int, char*[])
   axesVertical[2]->SetPrecision(0);
   axesVertical[2]->SetRange(3.2, 97.0);
   axesVertical[2]->SetRangeLabelsVisible(true);
-  axesVertical[2]->SetRangeLabelFormat("%3.1f");
+  axesVertical[2]->SetRangeLabelFormat("{:3.1f}");
 
   axesVertical[3]->SetTitle("Custom vertical labels");
   axesVertical[3]->SetCustomTickPositions(positions, labels);

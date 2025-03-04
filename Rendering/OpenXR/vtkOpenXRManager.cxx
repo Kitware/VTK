@@ -11,6 +11,7 @@
 #include "vtkOpenXRSceneObserver.h"
 #include "vtkOpenXRUtilities.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkWindows.h" // Does nothing if we are not on windows
 
 #include <cstring>
@@ -233,9 +234,9 @@ std::string vtkOpenXRManager::GetOpenXRPropertiesAsString()
   }
 
   std::string properties = std::string(instanceProperties.runtimeName) + " " +
-    std::to_string(XR_VERSION_MAJOR(instanceProperties.runtimeVersion)) + "." +
-    std::to_string(XR_VERSION_MINOR(instanceProperties.runtimeVersion)) + "." +
-    std::to_string(XR_VERSION_PATCH(instanceProperties.runtimeVersion));
+    vtk::to_string(XR_VERSION_MAJOR(instanceProperties.runtimeVersion)) + "." +
+    vtk::to_string(XR_VERSION_MINOR(instanceProperties.runtimeVersion)) + "." +
+    vtk::to_string(XR_VERSION_PATCH(instanceProperties.runtimeVersion));
 
   return properties;
 }

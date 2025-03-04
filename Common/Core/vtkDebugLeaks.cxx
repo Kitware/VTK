@@ -5,6 +5,7 @@
 #include "vtkDebug.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkWindows.h"
 
 #include <vtksys/Encoding.hxx>
@@ -99,9 +100,8 @@ void vtkDebugLeaksHashTable::PrintTable(std::string& os)
   {
     if (iter->second > 0 && !vtkDebugLeaksIgnoreClassesCheck(iter->first))
     {
-      char tmp[256];
-      snprintf(tmp, 256, "\" has %u %s still around.\n", iter->second,
-        (iter->second == 1) ? "instance" : "instances");
+      auto tmp = vtk::format(
+        " has {} {} still around.\n", iter->second, (iter->second == 1) ? "instance" : "instances");
       os += "Class \"";
       os += iter->first;
       os += tmp;

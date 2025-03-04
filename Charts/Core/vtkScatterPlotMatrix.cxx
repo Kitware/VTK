@@ -508,7 +508,7 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i& pos)
           if (this->Private->IndexedLabelsArray)
           {
             plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
-            plot->SetTooltipLabelFormat("%i");
+            plot->SetTooltipLabelFormat("{i}");
           }
         }
         if (xy && active)
@@ -535,7 +535,7 @@ bool vtkScatterPlotMatrix::SetActivePlot(const vtkVector2i& pos)
         if (this->Private->IndexedLabelsArray)
         {
           plot->SetIndexedLabels(this->Private->IndexedLabelsArray);
-          plot->SetTooltipLabelFormat("%i");
+          plot->SetTooltipLabelFormat("{i}");
         }
       }
       plot->SetInputData(this->Input, column, row);

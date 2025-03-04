@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
@@ -34,8 +35,6 @@
 
 #include <map>
 #include <vector>
-
-#include <cstdio> // for snprintf
 
 #undef VTK_DBG_LAYOUT
 
@@ -52,7 +51,7 @@ vtkCxxSetObjectMacro(vtkScalarBarActor, FrameProperty, vtkProperty2D);
 vtkCxxSetObjectMacro(vtkScalarBarActor, CustomLabels, vtkDoubleArray);
 
 //------------------------------------------------------------------------------
-// Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
+// Instantiate object with 64 maximum colors; 5 labels; {:<#6.3g} label
 // format, no title, and vertical orientation. The initial scalar bar
 // size is (0.05 x 0.8) of the viewport size.
 vtkScalarBarActor::vtkScalarBarActor()
@@ -93,8 +92,9 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->TitleActor = vtkTextActor::New();
   this->TitleActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
@@ -260,6 +260,21 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->UnconstrainedFontSize = false;
 
   this->ForceVerticalTitle = false;
+}
+
+//------------------------------------------------------------------------------
+void vtkScalarBarActor::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -1355,7 +1370,8 @@ void vtkScalarBarActor::LayoutTicks()
       }
     }
 
-    snprintf(string, 511, this->LabelFormat, val);
+    auto result = vtk::format_to_n(string, 512, this->LabelFormat, val);
+    *result.out = '\0'; // null terminate the string
     this->P->TextActors[i]->SetInput(string);
 
     // Shallow copy here so that the size of the label prop is not affected

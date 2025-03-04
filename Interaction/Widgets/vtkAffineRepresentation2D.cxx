@@ -2,11 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAffineRepresentation2D.h"
 #include "vtkActor2D.h"
-#include "vtkAssemblyPath.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
-#include "vtkCursor2D.h"
-#include "vtkGlyph2D.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLeaderActor2D.h"
 #include "vtkLine.h"
@@ -17,6 +14,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -562,8 +560,9 @@ void vtkAffineRepresentation2D::Translate(double eventPos[2])
   if (this->DisplayText)
   {
     char str[256];
-    snprintf(
-      str, sizeof(str), "(%0.2g, %0.2g)", this->CurrentTranslation[0], this->CurrentTranslation[1]);
+    auto result = vtk::format_to_n(str, sizeof(str), "({:0.2g}, {:0.2g})",
+      this->CurrentTranslation[0], this->CurrentTranslation[1]);
+    *result.out = '\0';
     this->UpdateText(str, eventPos);
   }
 }
@@ -650,7 +649,9 @@ void vtkAffineRepresentation2D::Scale(double eventPos[2])
   if (this->DisplayText)
   {
     char str[256];
-    snprintf(str, sizeof(str), "(%0.2g, %0.2g)", this->CurrentScale[0], this->CurrentScale[1]);
+    auto result = vtk::format_to_n(
+      str, sizeof(str), "({:0.2g}, {:0.2g})", this->CurrentScale[0], this->CurrentScale[1]);
+    *result.out = '\0';
     this->UpdateText(str, eventPos);
   }
 }
@@ -720,7 +721,8 @@ void vtkAffineRepresentation2D::Rotate(double eventPos[2])
   {
     char str[256];
     double angle = vtkMath::DegreesFromRadians(deltaAngle);
-    snprintf(str, sizeof(str), "(%1.1f)", angle);
+    auto result = vtk::format_to_n(str, sizeof(str), "({:.1f})", angle);
+    *result.out = '\0';
     this->UpdateText(str, eventPos);
   }
 }
@@ -803,7 +805,8 @@ void vtkAffineRepresentation2D::Shear(double eventPos[2])
   if (this->DisplayText)
   {
     char str[256];
-    snprintf(str, sizeof(str), "(%0.2g)", angle);
+    auto result = vtk::format_to_n(str, sizeof(str), "({:0.2g})", angle);
+    *result.out = '\0';
     this->UpdateText(str, eventPos);
   }
 }

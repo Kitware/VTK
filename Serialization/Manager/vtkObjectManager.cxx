@@ -8,6 +8,7 @@
 #include "vtkMarshalContext.h"
 #include "vtkObjectFactory.h"
 #include "vtkSerializer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTypeUInt8Array.h"
 
 // clang-format off
@@ -361,7 +362,7 @@ std::vector<std::string> vtkObjectManager::GetBlobHashes(const std::vector<vtkTy
   }
   for (const auto& id : ids)
   {
-    auto stateIter = states.find(std::to_string(id));
+    auto stateIter = states.find(vtk::to_string(id));
     if (stateIter != states.end())
     {
       const auto iter = stateIter.value().find("Hash");
@@ -434,7 +435,7 @@ void vtkObjectManager::PruneUnusedObjects()
     for (const auto& object : iter.second)
     {
       auto identifier = this->Context->GetId(object);
-      auto key = std::to_string(identifier);
+      auto key = vtk::to_string(identifier);
       if (!this->Context->States().contains(key))
       {
         staleStrongObjects[iter.first].insert(object);

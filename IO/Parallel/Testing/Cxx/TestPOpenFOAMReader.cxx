@@ -19,13 +19,13 @@
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkUnstructuredGrid.h"
-
-#include "vtkRegressionTestImage.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 
 int TestPOpenFOAMReader(int argc, char* argv[])
 {
@@ -36,7 +36,7 @@ int TestPOpenFOAMReader(int argc, char* argv[])
 #endif
   controller->Initialize(&argc, &argv);
   int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank=" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank=" + vtk::to_string(rank));
   vtkMultiProcessController::SetGlobalController(controller);
 
   // Read file name.

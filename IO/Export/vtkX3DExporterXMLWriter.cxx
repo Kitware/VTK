@@ -8,8 +8,10 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
+
 #include <vtksys/FStream.hxx>
 
 #include <cassert>
@@ -259,7 +261,9 @@ void vtkX3DExporterXMLWriter::SetField(int attributeID, const int* values, size_
 
     while (i < size)
     {
-      snprintf(buffer, sizeof(buffer), "0x%.8x", static_cast<unsigned int>(values[i]));
+      auto result =
+        vtk::format_to_n(buffer, sizeof(buffer), "0x{:08x}", static_cast<unsigned int>(values[i]));
+      *result.out = '\0';
       *this->OutputStream << buffer;
 
       if (j % (8 * bpp))

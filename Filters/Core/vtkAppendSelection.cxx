@@ -4,11 +4,8 @@
 #include "vtkAppendSelection.h"
 
 #include "vtkAlgorithmOutput.h"
-#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
@@ -16,6 +13,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <vtksys/RegularExpression.hxx>
@@ -345,7 +343,7 @@ int vtkAppendSelection::RequestData(vtkInformation* vtkNotUsed(request),
           continue;
         }
         // set the selection name
-        const std::string subSelectionName = "S" + std::to_string(inputId);
+        const std::string subSelectionName = "S" + vtk::to_string(inputId);
         for (unsigned int subNodeId = 0; subNodeId < sel->GetNumberOfNodes(); ++subNodeId)
         {
           vtkSelectionNode* inputNode = sel->GetNode(subNodeId);

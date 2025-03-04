@@ -7,6 +7,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkQtSQLQuery.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkVariant.h"
 
@@ -305,7 +306,7 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += std::to_string(this->GetDbPort());
+  url += vtk::to_string(this->GetDbPort());
   url += "/";
   url += this->GetDatabaseName();
   return url;

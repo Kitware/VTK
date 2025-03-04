@@ -35,6 +35,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTesting.h"
 
 #include <adios2.h>
@@ -85,8 +86,8 @@ void WriteBPFile3DVars(const std::string& fileName, const adios2::Dims& shape,
 {
   const size_t totalElements = TotalElements(count);
 
-  const std::string extent = "0 " + std::to_string(shape[0]) + " " + "0 " +
-    std::to_string(shape[1]) + " " + "0 " + std::to_string(shape[2]);
+  const std::string extent = "0 " + vtk::to_string(shape[0]) + " " + "0 " +
+    vtk::to_string(shape[1]) + " " + "0 " + vtk::to_string(shape[2]);
 
   const std::string imageSchema = R"( <?xml version="1.0"?>
       <VTKFile type="ImageData" version="0.1" byte_order="LittleEndian">

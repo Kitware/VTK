@@ -119,25 +119,6 @@ void vtkTimerLog::ResetLog()
 }
 
 //------------------------------------------------------------------------------
-// Record a timing event.  The event is represented by a formatted
-// string.
-void vtkTimerLog::FormatAndMarkEvent(const char* format, ...)
-{
-  if (!vtkTimerLog::Logging)
-  {
-    return;
-  }
-
-  static char event[4096];
-  va_list var_args;
-  va_start(var_args, format);
-  vsnprintf(event, sizeof(event), format, var_args);
-  va_end(var_args);
-
-  vtkTimerLog::MarkEventInternal(event, vtkTimerLogEntry::STANDALONE);
-}
-
-//------------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
 void vtkTimerLog::MarkEvent(const char* event)
 {

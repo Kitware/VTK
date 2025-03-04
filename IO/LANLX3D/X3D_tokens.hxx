@@ -21,6 +21,7 @@
 #define X3D_TOKENS_HXX
 
 #include "vtkABINamespace.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
 #include <istream>
@@ -49,7 +50,7 @@ public:
   {
   }
   explicit ScanError(std::string unexpect, std::streamoff where)
-    : std::runtime_error((unexpect + std::to_string(where)).c_str())
+    : std::runtime_error((unexpect + vtk::to_string(where)).c_str())
   {
   }
 };

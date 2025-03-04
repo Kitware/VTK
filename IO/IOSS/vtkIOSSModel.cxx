@@ -20,6 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -959,7 +960,7 @@ protected:
     {
       for (int comp = 0; comp < numComponents; ++comp)
       {
-        const auto compName = name + std::to_string(comp + 1);
+        const auto compName = name + vtk::to_string(comp + 1);
         block->put_field_data(compName, worker.SOAData[comp]);
       }
     }
@@ -996,7 +997,7 @@ protected:
         {
           for (int comp = 0; comp < numComponents; ++comp)
           {
-            const auto compName = name + std::to_string(comp + 1);
+            const auto compName = name + vtk::to_string(comp + 1);
             block->field_add(Ioss::Field(compName, type, IOSS_SCALAR(), role, elementCount));
           }
         }
@@ -2115,7 +2116,7 @@ vtkIOSSModel::vtkIOSSModel(vtkPartitionedDataSetCollection* pdc, vtkIOSSWriter* 
   for (unsigned int pidx = 0; pidx < dataset->GetNumberOfPartitionedDataSets(); ++pidx)
   {
     blockIds[pidx] = pidx + 1;
-    blockNames[pidx] = "block_" + std::to_string(blockIds[pidx]);
+    blockNames[pidx] = "block_" + vtk::to_string(blockIds[pidx]);
     if (auto info = dataset->GetMetaData(pidx))
     {
       if (info->Has(vtkCompositeDataSet::NAME()))

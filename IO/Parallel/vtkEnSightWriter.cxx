@@ -19,36 +19,24 @@
 #include "vtkCharArray.h"
 #include "vtkCommand.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
-#include "vtkLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
-
-#include "vtkPriorityQueue.h"
-
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cerrno>
 #include <cmath>
-
-#include <algorithm>
 #include <list>
 #include <map>
 #include <vector>
@@ -242,8 +230,9 @@ void vtkEnSightWriter::WriteData()
   int* elementIDs = nullptr;
   char charBuffer[1024];
   char fileBuffer[512];
-  snprintf(charBuffer, sizeof(charBuffer), "%s/%s.%d.%05d.geo", this->Path, this->BaseName,
-    this->ProcessNumber, this->TimeStep);
+  auto result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "{:s}/{:s}.{:d}.{:05d}.geo",
+    this->Path, this->BaseName, this->ProcessNumber, this->TimeStep);
+  *result.out = '\0';
 
   // open the geometry file
   // only if timestep 0 and not transient geometry or transient geometry
@@ -261,8 +250,9 @@ void vtkEnSightWriter::WriteData()
   {
     strcpy(fileBuffer, input->GetPointData()->GetArray(i)->GetName());
     this->SanitizeFileName(fileBuffer);
-    snprintf(charBuffer, sizeof(charBuffer), "%s/%s.%d.%05d_n.%s", this->Path, this->BaseName,
-      this->ProcessNumber, this->TimeStep, fileBuffer);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "{:s}/{:s}.{:d}.{:05d}_n.{:s}",
+      this->Path, this->BaseName, this->ProcessNumber, this->TimeStep, fileBuffer);
+    *result.out = '\0';
     FILE* ftemp = OpenFile(charBuffer);
     if (!ftemp)
     {
@@ -283,8 +273,9 @@ void vtkEnSightWriter::WriteData()
 
     strcpy(fileBuffer, input->GetCellData()->GetArray(i)->GetName());
     this->SanitizeFileName(fileBuffer);
-    snprintf(charBuffer, sizeof(charBuffer), "%s/%s.%d.%05d_c.%s", this->Path, this->BaseName,
-      this->ProcessNumber, this->TimeStep, fileBuffer);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "{:s}/{:s}.{:d}.{:05d}_c.{:s}",
+      this->Path, this->BaseName, this->ProcessNumber, this->TimeStep, fileBuffer);
+    *result.out = '\0';
     FILE* ftemp = OpenFile(charBuffer);
     if (!ftemp)
     {
@@ -848,7 +839,9 @@ void vtkEnSightWriter::WriteData()
 
           if (exodusIndex != -1 && blockNames)
           {
-            snprintf(charBuffer, sizeof(charBuffer), "Exodus-%s-%d", blockNames[exodusIndex], part);
+            result = vtk::format_to_n(
+              charBuffer, sizeof(charBuffer), "Exodus-{:s}-{:d}", blockNames[exodusIndex], part);
+            *result.out = '\0';
             this->WriteStringToFile(charBuffer, fd);
           }
           else
@@ -911,8 +904,9 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   }
 
   char charBuffer[1024];
-  snprintf(charBuffer, sizeof(charBuffer), "%s/%s.%d.case", this->Path, this->BaseName,
-    this->ProcessNumber);
+  auto result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "{:s}/{:s}.{:d}.case", this->Path,
+    this->BaseName, this->ProcessNumber);
+  *result.out = '\0';
 
   // open the geometry file
   FILE* fd = nullptr;
@@ -928,14 +922,16 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   // write the geometry file
   if (!this->TransientGeometry)
   {
-    snprintf(charBuffer, sizeof(charBuffer), "model: %s.%d.00000.geo\n", this->BaseName,
-      this->ProcessNumber);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "model: {:s}.{:d}.00000.geo\n",
+      this->BaseName, this->ProcessNumber);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
   }
   else
   {
-    snprintf(charBuffer, sizeof(charBuffer), "model: 1 %s.%d.*****.geo\n", this->BaseName,
-      this->ProcessNumber);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "model: 1 {:s}.{:d}.*****.geo\n",
+      this->BaseName, this->ProcessNumber);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
   }
 
@@ -981,13 +977,17 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     }
     if (TotalTimeSteps <= 1)
     {
-      snprintf(charBuffer, sizeof(charBuffer), "%s per node: %s_n %s.%d.00000_n.%s\n", SmallBuffer,
-        fileBuffer, this->BaseName, this->ProcessNumber, fileBuffer);
+      result = vtk::format_to_n(charBuffer, sizeof(charBuffer),
+        "{:s} per node: {:s}_n {:s}.{:d}.00000_n.{:s}\n", SmallBuffer, fileBuffer, this->BaseName,
+        this->ProcessNumber, fileBuffer);
+      *result.out = '\0';
     }
     else
     {
-      snprintf(charBuffer, sizeof(charBuffer), "%s per node: 1 %s_n %s.%d.*****_n.%s\n",
-        SmallBuffer, fileBuffer, this->BaseName, this->ProcessNumber, fileBuffer);
+      result = vtk::format_to_n(charBuffer, sizeof(charBuffer),
+        "{:s} per node: 1 {:s}_n {:s}.{:d}.*****_n.{:s}\n", SmallBuffer, fileBuffer, this->BaseName,
+        this->ProcessNumber, fileBuffer);
+      *result.out = '\0';
     }
     this->WriteTerminatedStringToFile(charBuffer, fd);
   }
@@ -1030,13 +1030,17 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     }
     if (TotalTimeSteps <= 1)
     {
-      snprintf(charBuffer, sizeof(charBuffer), "%s per element: %s_c %s.%d.00000_c.%s\n",
-        SmallBuffer, fileBuffer, this->BaseName, this->ProcessNumber, fileBuffer);
+      result = vtk::format_to_n(charBuffer, sizeof(charBuffer),
+        "{:s} per element: {:s}_c {:s}.{:d}.00000_c.{:s}\n", SmallBuffer, fileBuffer,
+        this->BaseName, this->ProcessNumber, fileBuffer);
+      *result.out = '\0';
     }
     else
     {
-      snprintf(charBuffer, sizeof(charBuffer), "%s per element: 1 %s_c %s.%d.*****_c.%s\n",
-        SmallBuffer, fileBuffer, this->BaseName, this->ProcessNumber, fileBuffer);
+      result = vtk::format_to_n(charBuffer, sizeof(charBuffer),
+        "{:s} per element: 1 {:s}_c {:s}.{:d}.*****_c.{:s}\n", SmallBuffer, fileBuffer,
+        this->BaseName, this->ProcessNumber, fileBuffer);
+      *result.out = '\0';
     }
     this->WriteTerminatedStringToFile(charBuffer, fd);
   }
@@ -1046,7 +1050,9 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
   {
     this->WriteTerminatedStringToFile("\nTIME\n", fd);
     this->WriteTerminatedStringToFile("time set: 1\n", fd);
-    snprintf(charBuffer, sizeof(charBuffer), "number of steps: %d\n", TotalTimeSteps);
+    result =
+      vtk::format_to_n(charBuffer, sizeof(charBuffer), "number of steps: {:d}\n", TotalTimeSteps);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
     this->WriteTerminatedStringToFile("filename start number: 00000\n", fd);
     this->WriteTerminatedStringToFile("filename increment: 00001\n", fd);
@@ -1055,7 +1061,8 @@ void vtkEnSightWriter::WriteCaseFile(int TotalTimeSteps)
     {
       double timestep = i;
 
-      snprintf(charBuffer, sizeof(charBuffer), "%f ", timestep);
+      result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "{:f} ", timestep);
+      *result.out = '\0';
       this->WriteTerminatedStringToFile(charBuffer, fd);
       if (i % 6 == 0 && i > 0)
       {
@@ -1084,7 +1091,9 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   this->SanitizeFileName(this->BaseName);
 
   char charBuffer[512];
-  snprintf(charBuffer, sizeof(charBuffer), "%s/%s.case.sos", this->Path, this->BaseName);
+  auto result = vtk::format_to_n(
+    charBuffer, sizeof(charBuffer), "{:s}/{:s}.case.sos", this->Path, this->BaseName);
+  *result.out = '\0';
 
   FILE* fd = nullptr;
   if (!(fd = OpenFile(charBuffer)))
@@ -1094,7 +1103,9 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   this->WriteTerminatedStringToFile("type: master_server gold\n\n", fd);
 
   this->WriteTerminatedStringToFile("SERVERS\n", fd);
-  snprintf(charBuffer, sizeof(charBuffer), "number of servers: %d\n\n", numProcs);
+  result =
+    vtk::format_to_n(charBuffer, sizeof(charBuffer), "number of servers: {:d}\n\n", numProcs);
+  *result.out = '\0';
   this->WriteTerminatedStringToFile(charBuffer, fd);
 
   // write the servers section with placeholders for the ensight server
@@ -1102,16 +1113,21 @@ void vtkEnSightWriter::WriteSOSCaseFile(int numProcs)
   int i = 0;
   for (i = 0; i < numProcs; i++)
   {
-    snprintf(charBuffer, sizeof(charBuffer), "#Server %d\n", i);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "#Server {:d}\n", i);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
     this->WriteTerminatedStringToFile("#-------\n", fd);
-    snprintf(charBuffer, sizeof(charBuffer), "machine id: MID%05d\n", i);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "machine id: MID{:05d}\n", i);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
 
     this->WriteTerminatedStringToFile("executable: MEX\n", fd);
-    snprintf(charBuffer, sizeof(charBuffer), "data_path: %s\n", this->Path);
+    result = vtk::format_to_n(charBuffer, sizeof(charBuffer), "data_path: {:s}\n", this->Path);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
-    snprintf(charBuffer, sizeof(charBuffer), "casefile: %s.%d.case\n\n", this->BaseName, i);
+    result = vtk::format_to_n(
+      charBuffer, sizeof(charBuffer), "casefile: {:s}.{:d}.case\n\n", this->BaseName, i);
+    *result.out = '\0';
     this->WriteTerminatedStringToFile(charBuffer, fd);
   }
 

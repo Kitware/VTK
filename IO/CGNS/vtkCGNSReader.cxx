@@ -39,6 +39,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTypeInt32Array.h"
@@ -4932,7 +4933,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
         std::string result;
         for (const auto& [zoneIdx, surfaces] : mapping)
         {
-          result += std::to_string(zoneIdx) + ":";
+          result += vtk::to_string(zoneIdx) + ":";
           for (const auto& surface : surfaces)
           {
             result += surface + ",";

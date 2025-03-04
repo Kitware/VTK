@@ -81,9 +81,9 @@ int TestCubeAxesWithXInnerGrids(int argc, char* argv[])
   axes2->SetXAxisRange(20, 300);
   axes2->SetYAxisRange(-0.01, 0.01);
   axes2->SetCamera(ren2->GetActiveCamera());
-  axes2->SetXLabelFormat("%6.1f");
-  axes2->SetYLabelFormat("%6.1f");
-  axes2->SetZLabelFormat("%6.1f");
+  axes2->SetXLabelFormat("{:6.1f}");
+  axes2->SetYLabelFormat("{:6.1f}");
+  axes2->SetZLabelFormat("{:6.1f}");
   axes2->SetScreenSize(15.0);
   axes2->SetFlyModeToClosestTriad();
   axes2->SetCornerOffset(0.0);

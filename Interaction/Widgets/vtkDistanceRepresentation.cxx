@@ -5,12 +5,11 @@
 #include "vtkCoordinate.h"
 #include "vtkEventData.h"
 #include "vtkHandleRepresentation.h"
-#include "vtkInteractorObserver.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkWindow.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkDistanceRepresentation, HandleRepresentation, vtkHandleRepresentation);
@@ -28,8 +27,9 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
   this->Tolerance = 5;
   this->Placed = 0;
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->Scale = 1.0;
   this->RulerMode = 0;
@@ -55,6 +55,21 @@ vtkDistanceRepresentation::~vtkDistanceRepresentation()
 
   delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkDistanceRepresentation::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

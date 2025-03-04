@@ -23,6 +23,7 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
+#include <vtkStringFormatter.h>
 #include <vtkUnstructuredGrid.h>
 
 #include <cmath>
@@ -135,7 +136,7 @@ int TestPolyhedronDecompose(int argc, char* argv[])
     constexpr double expectedValues[7] = { 2.75, 3, 2, 3.25, 2.25, 2.5, 2.625 };
     for (int i = 0; i < 7; i++)
     {
-      if (!testValue("point data (\"Doubles\") at index " + std::to_string(i),
+      if (!testValue("point data (\"Doubles\") at index " + vtk::to_string(i),
             doubleArray->GetValue(i + 8), expectedValues[i]))
       {
         return EXIT_FAILURE;
@@ -159,7 +160,7 @@ int TestPolyhedronDecompose(int argc, char* argv[])
 
     for (int i = 0; i < 7; i++)
     {
-      if (!testValue("point data (\"Strings\") at index " + std::to_string(i),
+      if (!testValue("point data (\"Strings\") at index " + vtk::to_string(i),
             stringArray->GetValue(i + 8), vtkStdString()))
       {
         return EXIT_FAILURE;
@@ -183,7 +184,7 @@ int TestPolyhedronDecompose(int argc, char* argv[])
     for (int i = 0; i < 7; i++)
     {
       if (!testValue(
-            "point data (\"Bits\") at index " + std::to_string(i), bitArray->GetValue(i + 8), 0))
+            "point data (\"Bits\") at index " + vtk::to_string(i), bitArray->GetValue(i + 8), 0))
       {
         return EXIT_FAILURE;
       }

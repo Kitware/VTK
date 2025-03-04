@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
+#include <chrono>
 #include <map>
 #include <set>
 #include <string>
@@ -11,7 +13,7 @@
 
 #include <cassert>
 #include <cctype> // for isdigit
-#include <ctime>  // for strftime
+#include <ctime>  // for std::tm
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -762,18 +764,6 @@ int vtkMedicalImageProperties::GetDateAsFields(const char* date, int& year, int&
   return 1;
 }
 
-//------------------------------------------------------------------------------
-// Some  buggy versions of gcc complain about the use of %c: warning: `%c'
-// yields only last 2 digits of year in some locales.  Of course  program-
-// mers  are  encouraged  to  use %c, it gives the preferred date and time
-// representation. One meets all kinds of strange obfuscations to  circum-
-// vent this gcc problem. A relatively clean one is to add an intermediate
-// function. This is described as bug #3190 in gcc bugzilla:
-// [-Wformat-y2k doesn't belong to -Wall - it's hard to avoid]
-inline size_t my_strftime(char* s, size_t max, const char* fmt, const struct tm* tm)
-{
-  return strftime(s, max, fmt, tm);
-}
 // Helper function to convert a DICOM iso date format into a locale one
 // locale buffer should be typically char locale[200]
 int vtkMedicalImageProperties::GetDateAsLocale(const char* iso, char* locale)
@@ -787,14 +777,24 @@ int vtkMedicalImageProperties::GetDateAsLocale(const char* iso, char* locale)
     }
     else
     {
-      struct tm date;
-      memset(&date, 0, sizeof(date));
+      std::tm date = {};
       date.tm_mday = day;
       // month are expressed in the [0-11] range:
       date.tm_mon = month - 1;
       // structure is date starting at 1900
       date.tm_year = year - 1900;
-      my_strftime(locale, 200, "%x", &date);
+      std::time_t t = std::mktime(&date);
+      if (t != -1)
+      {
+        // convert to std::tm back using localtime to ensure the date is correct
+        auto result = vtk::format_to(locale, "{:%x}", vtk::localtime(t));
+        *result = '\0';
+      }
+      else
+      {
+        auto result = vtk::format_to(locale, "\0");
+        *result = '\0';
+      }
     }
     return 1;
   }

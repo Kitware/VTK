@@ -24,10 +24,12 @@
 #include "vtkRIBProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
@@ -88,19 +90,14 @@ void vtkRIBExporter::WriteData()
     return;
   }
 
-  size_t ribFileNameSize = strlen(this->FilePrefix) + strlen(".rib") + 1;
-  char* ribFileName = new char[ribFileNameSize];
-  snprintf(ribFileName, ribFileNameSize, "%s%s", this->FilePrefix, ".rib");
+  auto ribFileName = vtk::format("{}{}", this->FilePrefix, ".rib");
 
   this->FilePtr = vtksys::SystemTools::Fopen(ribFileName, "w");
   if (this->FilePtr == nullptr)
   {
     vtkErrorMacro(<< "Cannot open " << ribFileName);
-    delete[] ribFileName;
     return;
   }
-
-  delete[] ribFileName;
 
   //
   //  Write Header
@@ -209,12 +206,10 @@ void vtkRIBExporter::WriteHeader(vtkRenderer* aRen)
 {
 
   // create a FileName to hold the rendered image
-  size_t length = strlen(this->FilePrefix) + strlen(".tif") + 1;
-  char* imageFileName = new char[length];
-  snprintf(imageFileName, length, "%s%s", this->FilePrefix, ".tif");
+  auto imageFileName = vtk::format("{}{}", this->FilePrefix, ".tif");
 
   fprintf(this->FilePtr, "FrameBegin %d\n", 1);
-  fprintf(this->FilePtr, "Display \"%s\" \"file\" \"rgb\"\n", imageFileName);
+  fprintf(this->FilePtr, "Display \"%s\" \"file\" \"rgb\"\n", imageFileName.c_str());
   fprintf(this->FilePtr, "Declare \"color\" \"uniform color\"\n");
   if (this->Background)
   {
@@ -223,8 +218,6 @@ void vtkRIBExporter::WriteHeader(vtkRenderer* aRen)
       this->FilePtr, "Imager \"background\" \"color\" [%f %f %f]\n", color[0], color[1], color[2]);
   }
   fprintf(this->FilePtr, "PixelSamples %d %d\n", this->PixelSamples[0], this->PixelSamples[1]);
-
-  delete[] imageFileName;
 }
 
 void vtkRIBExporter::WriteTrailer()
@@ -1318,15 +1311,17 @@ static char textureName[4096];
 
 char* vtkRIBExporter::GetTIFFName(vtkTexture* aTexture)
 {
-  snprintf(tiffName, 4096, "%s_%p_%d.tif", this->TexturePrefix, (void*)aTexture,
-    (int)aTexture->GetMTime());
+  auto result = vtk::format_to_n(tiffName, sizeof(tiffName), "{}_{:p}_{:d}.tif",
+    this->TexturePrefix, static_cast<void*>(aTexture), static_cast<int>(aTexture->GetMTime()));
+  *result.out = '\0';
   return tiffName;
 }
 
 char* vtkRIBExporter::GetTextureName(vtkTexture* aTexture)
 {
-  snprintf(textureName, 4096, "%s_%p_%d.txt", this->TexturePrefix, (void*)aTexture,
-    (int)aTexture->GetMTime());
+  auto result = vtk::format_to_n(textureName, sizeof(textureName), "{}_{:p}_{:d}.txt",
+    this->TexturePrefix, static_cast<void*>(aTexture), static_cast<int>(aTexture->GetMTime()));
+  *result.out = '\0';
   return textureName;
 }
 

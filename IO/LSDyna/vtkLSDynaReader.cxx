@@ -53,6 +53,7 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -65,7 +66,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_DEATH "Death"
 #define LS_ARRAYNAME_USERID "UserID"
 #define LS_ARRAYNAME_SPECIES_BLNK "SpeciesXX"
-#define LS_ARRAYNAME_SPECIES_FMT "Species%02d"
+#define LS_ARRAYNAME_SPECIES_FMT "Species{:02d}"
 #define LS_ARRAYNAME_SPECIES_01 "Species01"
 #define LS_ARRAYNAME_SPECIES_02 "Species02"
 #define LS_ARRAYNAME_SPECIES_03 "Species03"
@@ -116,9 +117,9 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_PLASTICSTRAIN "PlasticStrain"
 #define LS_ARRAYNAME_THICKNESS "Thickness"
 #define LS_ARRAYNAME_MASS "Mass"
-#define LS_ARRAYNAME_VOLUME_FRACTION_FMT "VolumeFraction%02d"
+#define LS_ARRAYNAME_VOLUME_FRACTION_FMT "VolumeFraction{:02d}"
 #define LS_ARRAYNAME_DOMINANT_GROUP "DominantGroup"
-#define LS_ARRAYNAME_SPECIES_MASS_FMT "SpeciesMass%02d"
+#define LS_ARRAYNAME_SPECIES_MASS_FMT "SpeciesMass{:02d}"
 #define LS_ARRAYNAME_MATERIAL "Material"
 
 // Possible material options
@@ -1660,15 +1661,18 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
   {
     if (iddtmp & (static_cast<vtkIdType>(1) << itmp))
     {
-      snprintf(sname, sizeof(sname), LS_ARRAYNAME_SPECIES_FMT, itmp);
+      auto result = vtk::format_to_n(sname, sizeof(sname), LS_ARRAYNAME_SPECIES_FMT, itmp);
+      *result.out = '\0';
       p->AddPointArray(sname, 1, 1);
       p->StateSize += p->NumberOfNodes * p->Fam.GetWordSize();
-      snprintf(sname, sizeof(sname), "cfdSpec%02d", itmp);
+      result = vtk::format_to_n(sname, sizeof(sname), "cfdSpec{:02d}", itmp);
+      *result.out = '\0';
       p->Dict[sname] = 1;
     }
     else
     {
-      snprintf(sname, sizeof(sname), "cfdSpec%02d", itmp);
+      auto result = vtk::format_to_n(sname, sizeof(sname), "cfdSpec{:02d}", itmp);
+      *result.out = '\0';
       p->Dict[sname] = 0;
     }
   }
@@ -1802,7 +1806,8 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
       for (itmp = 2; itmp <= sphAttributes; ++itmp)
       {
         int numComponents = p->Fam.GetNextWordAsInt();
-        snprintf(ctmp, sizeof(ctmp), "isphfg(%d)", itmp);
+        auto result = vtk::format_to_n(ctmp, sizeof(ctmp), "isphfg({:d})", itmp);
+        *result.out = '\0';
         p->Dict[ctmp] = numComponents;
         statePerParticle += numComponents;
       }
@@ -2086,7 +2091,9 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; g < numGroups; ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
+          auto result =
+            vtk::format_to_n(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
+          *result.out = '\0';
           p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
           extraValues--;
         }
@@ -2096,7 +2103,8 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; hasMass && (g < numGroups); ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
+          auto result = vtk::format_to_n(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
+          *result.out = '\0';
           p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
           extraValues--;
         }
@@ -2126,17 +2134,23 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
     {
       if (p->Dict["IOSHL(1)"])
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1);
+        auto result =
+          vtk::format_to_n(ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_STRESS, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 6, 1);
       }
       if (p->Dict["IOSHL(2)"])
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+        auto result =
+          vtk::format_to_n(ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::SHELL, ctmp, 1, 1);
       }
       if (neips)
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+        auto result = vtk::format_to_n(
+          ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::SHELL, ctmp, neips, 1);
       }
     }
@@ -2184,7 +2198,9 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
       }
       for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_STRESS, itmp + 1);
+        auto result =
+          vtk::format_to_n(ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_STRESS, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 6, 1);
       }
     }
@@ -2198,7 +2214,9 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
       }
       for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+        auto result =
+          vtk::format_to_n(ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_EPSTRAIN, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 1, 1);
       }
     }
@@ -2216,7 +2234,9 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
       }
       for (itmp = 3; itmp < p->Dict["_MAXINT_"]; ++itmp)
       {
-        snprintf(ctmp, sizeof(ctmp), "%sIntPt%d", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+        auto result = vtk::format_to_n(
+          ctmp, sizeof(ctmp), "{:s}IntPt{:d}", LS_ARRAYNAME_INTEGRATIONPOINT, itmp + 1);
+        *result.out = '\0';
         p->AddCellArray(LSDynaMetaData::THICK_SHELL, ctmp, 6, 1);
       }
     }
@@ -2262,7 +2282,9 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; g < numGroups; ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
+          auto result =
+            vtk::format_to_n(ctmp, sizeof(ctmp), LS_ARRAYNAME_VOLUME_FRACTION_FMT, g + 1);
+          *result.out = '\0';
           p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
           extraValues--;
         }
@@ -2272,7 +2294,8 @@ int vtkLSDynaReader::ReadHeaderInformation(int curAdapt)
 
         for (int g = 0; hasMass && (g < numGroups); ++g)
         {
-          snprintf(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
+          auto result = vtk::format_to_n(ctmp, sizeof(ctmp), LS_ARRAYNAME_SPECIES_MASS_FMT, g + 1);
+          *result.out = '\0';
           p->AddCellArray(LSDynaMetaData::SOLID, ctmp, 1, 1);
           extraValues--;
         }
@@ -3107,12 +3130,15 @@ void vtkLSDynaReader::ResetPartInfo()
         {                                                                                          \
           realMat = mat;                                                                           \
         }                                                                                          \
-        snprintf(partLabel, sizeof(partLabel), fmt " (Matl%d)", mat, realMat);                     \
+        auto result =                                                                              \
+          vtk::format_to_n(partLabel, sizeof(partLabel), fmt " (Matl{:d})", mat, realMat);         \
+        *result.out = '\0';                                                                        \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
         realMat = mat;                                                                             \
-        snprintf(partLabel, sizeof(partLabel), fmt, mat);                                          \
+        auto result = vtk::format_to_n(partLabel, sizeof(partLabel), fmt, mat);                    \
+        *result.out = '\0';                                                                        \
       }                                                                                            \
       p->PartNames.emplace_back(partLabel);                                                        \
       p->PartIds.emplace_back(realMat);                                                            \
@@ -3121,13 +3147,13 @@ void vtkLSDynaReader::ResetPartInfo()
     }                                                                                              \
   } while (false)
 
-  VTK_LSDYNA_PARTLABEL("NUMMAT8", "Part%d"); // was "PartSolid%d
-  VTK_LSDYNA_PARTLABEL("NUMMATT", "Part%d"); // was "PartThickShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT4", "Part%d"); // was "PartShell%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT2", "Part%d"); // was "PartBeam%d
-  VTK_LSDYNA_PARTLABEL("NGPSPH", "Part%d");  // was "PartParticle%d
-  VTK_LSDYNA_PARTLABEL("NSURF", "Part%d");   // was "PartRoadSurface%d
-  VTK_LSDYNA_PARTLABEL("NUMMAT", "Part%d");  // was "PartRigidBody%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT8", "Part{:d}"); // was "PartSolid%d
+  VTK_LSDYNA_PARTLABEL("NUMMATT", "Part{:d}"); // was "PartThickShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT4", "Part{:d}"); // was "PartShell%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT2", "Part{:d}"); // was "PartBeam%d
+  VTK_LSDYNA_PARTLABEL("NGPSPH", "Part{:d}");  // was "PartParticle%d
+  VTK_LSDYNA_PARTLABEL("NSURF", "Part{:d}");   // was "PartRoadSurface%d
+  VTK_LSDYNA_PARTLABEL("NUMMAT", "Part{:d}");  // was "PartRigidBody%d
 
 #undef VTK_LSDYNA_PARTLABEL
 }

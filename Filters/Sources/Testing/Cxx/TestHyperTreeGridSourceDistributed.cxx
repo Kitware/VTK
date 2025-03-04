@@ -7,6 +7,7 @@
 #include "vtkHyperTreeGridSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkStringFormatter.h"
 
 #include <sstream>
 
@@ -174,7 +175,7 @@ int TestHyperTreeGridSourceDistributed(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  std::string threadName = "rank-" + std::to_string(controller->GetLocalProcessId());
+  std::string threadName = "rank-" + vtk::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
   SourceConfig<6> source1{ 6, 2, { 3, 4, 1 }, { 1.5, 1., 10. },

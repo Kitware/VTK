@@ -15,7 +15,7 @@
  * visible including the line, the tick marks, the labels, and the title. It
  * is also possible to control gridlines, and specify on which 'side' the
  * tickmarks are drawn (again with respect to the underlying assumed
- * bounding box). You can also specify the label format (a printf style format).
+ * bounding box). You can also specify the label format (a std::format style format).
  *
  * This class decides how to locate the labels, and how to create reasonable
  * tick marks and labels.
@@ -120,9 +120,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on the axis.
+   * Set/Get the std::format style format with which to print the labels on the axis.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 
