@@ -36,8 +36,10 @@ if (TARGET vtkm::cuda)
     CUDA_ARCHITECTURES OFF
     POSITION_INDEPENDENT_CODE ON
     )
+if (TARGET VTK::ParallelMPI)
   set_target_properties(vtkConduitCxxTests-MPI PROPERTIES
     CUDA_ARCHITECTURES OFF
     POSITION_INDEPENDENT_CODE ON
     )
+endif()
 endif()
