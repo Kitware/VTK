@@ -282,6 +282,57 @@ bool TestCellCenter()
     return false;
   }
 
+  // CellCenter should be computed even for coarse cells
+  pt = cellCenterArray->GetTuple3(0);
+  if (pt[0] != 0.5 || pt[1] != 0.5)
+  {
+    vtkLogF(ERROR, "CellCenter is %f %f but expected 0.5 0.5\n", pt[0], pt[1]);
+    return false;
+  }
+
+  // CellCenter should NOT be computed for masked cells
+  pt = cellCenterArray->GetTuple3(9);
+  if (pt[0] != 0.0 || pt[1] != 0.0)
+  {
+    vtkLogF(ERROR, "CellCenter should not be computed for masked cells\n");
+    return false;
+  }
+
+  return true;
+}
+
+bool TestValidCell()
+{
+  // Create a HTG
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->SetDimensions(3, 4, 1);
+  source->SetMaxDepth(2);
+  source->SetDescriptor("RRRRR.|.... .... .... .... ....");
+  source->UseMaskOn();
+  source->SetMask("111111|1110 1111 1111 1111 1111");
+  source->Update();
+
+  // Apply our filter
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(source->GetOutputPort());
+  generateFields->Update();
+  vtkHyperTreeGrid* outputHTG = generateFields->GetHyperTreeGridOutput();
+
+  auto validCellArray =
+    vtkBitArray::SafeDownCast(outputHTG->GetCellData()->GetAbstractArray("ValidCell"));
+
+  if (validCellArray->GetTuple1(8) == 0)
+  {
+    vtkLogF(ERROR, "Unmasked leaf should be valid");
+    return false;
+  }
+
+  if (validCellArray->GetTuple1(9) == 1)
+  {
+    vtkLogF(ERROR, "Masked cell should be invalid");
+    return false;
+  }
+
   return true;
 }
 
@@ -379,6 +430,7 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   result &= ::TestTotalVolume();
   result &= ::TestCellCenter();
   result &= ::TestArrayDisabling();
+  result &= ::TestValidCell();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

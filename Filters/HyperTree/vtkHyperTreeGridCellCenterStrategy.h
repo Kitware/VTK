@@ -51,7 +51,6 @@ private:
   ~vtkHyperTreeGridCellCenterStrategy() override;
 
   // Input data
-  vtkBitArray* InputMask = nullptr;
   vtkUnsignedCharArray* InputGhost = nullptr;
 
   // Output array

@@ -20,28 +20,11 @@ vtkHyperTreeGridValidCellStrategy::~vtkHyperTreeGridValidCellStrategy() = defaul
 void vtkHyperTreeGridValidCellStrategy::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "InputMask size: " << (this->InputMask ? this->InputMask->GetNumberOfTuples() : 0)
-     << "\n";
   os << indent
      << "InputGhost size: " << (this->InputGhost ? this->InputGhost->GetNumberOfTuples() : 0)
      << "\n";
   os << indent << "ValidCellsArray size: "
      << (this->ValidCellsArray ? this->ValidCellsArray->GetNumberOfTuples() : 0) << "\n";
-}
-
-//------------------------------------------------------------------------------
-void vtkHyperTreeGridValidCellStrategy::SetLeafValidity(const vtkIdType& index)
-{
-  bool validity = true;
-  if (this->InputMask != nullptr && this->InputMask->GetTuple1(index) != 0)
-  {
-    validity = false;
-  }
-  if (this->InputGhost != nullptr && this->InputGhost->GetTuple1(index) != 0)
-  {
-    validity = false;
-  }
-  this->ValidCellsArray->SetTuple1(index, validity ? 1 : 0);
 }
 
 //------------------------------------------------------------------------------
@@ -52,7 +35,6 @@ void vtkHyperTreeGridValidCellStrategy::Initialize(vtkHyperTreeGrid* inputHTG)
   this->ValidCellsArray->SetNumberOfTuples(inputHTG->GetNumberOfCells());
   this->ValidCellsArray->Fill(0);
 
-  this->InputMask = inputHTG->HasMask() ? inputHTG->GetMask() : nullptr;
   this->InputGhost = inputHTG->GetGhostCells();
 }
 
@@ -61,8 +43,16 @@ void vtkHyperTreeGridValidCellStrategy::Compute(vtkHyperTreeGridNonOrientedGeome
 {
   if (cursor->IsLeaf())
   {
-    vtkIdType currentId = cursor->GetGlobalNodeIndex();
-    this->SetLeafValidity(currentId);
+    const vtkIdType currentId = cursor->GetGlobalNodeIndex();
+    if (cursor->IsMasked())
+    {
+      return;
+    }
+    if (this->InputGhost != nullptr && this->InputGhost->GetTuple1(currentId) != 0)
+    {
+      return;
+    }
+    this->ValidCellsArray->SetTuple1(currentId, 1);
   }
 }
 
