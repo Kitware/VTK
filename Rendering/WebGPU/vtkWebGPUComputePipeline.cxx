@@ -144,20 +144,22 @@ void vtkWebGPUComputePipeline::Update()
 {
   this->EnsureConfigured();
 
-  bool workDone = false;
-
-  // clang-format off
-  this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone([](WGPUQueueWorkDoneStatus, void* userdata)
-  {
-    *static_cast<bool*>(userdata) = true;
-  }, &workDone);
-  // clang-format on
-
-  // Waiting for the compute pipeline to complete all its work. The callback that will set workDone
-  // to true will be called when all the work has been dispatched to the GPU and completed.
-  while (!workDone)
+  wgpu::QueueWorkDoneStatus workStatus = wgpu::QueueWorkDoneStatus::Error;
+  bool done = false;
+  this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone(
+    wgpu::CallbackMode::AllowProcessEvents,
+    [&workStatus, &done](wgpu::QueueWorkDoneStatus status)
+    {
+      workStatus = status;
+      done = true;
+    });
+  while (!done)
   {
     this->WGPUConfiguration->ProcessEvents();
+  }
+  if (workStatus != wgpu::QueueWorkDoneStatus::Success)
+  {
+    vtkErrorMacro(<< "Submitted work did not complete!");
   }
 }
 

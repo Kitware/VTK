@@ -42,7 +42,6 @@ set(private_headers
   "Private/vtkWebGPUBindGroupInternals.h"
   "Private/vtkWebGPUBindGroupLayoutInternals.h"
   "Private/vtkWebGPUBufferInternals.h"
-  "Private/vtkWebGPUCallbacksInternals.h"
   "Private/vtkWebGPUComputeBufferInternals.h"
   "Private/vtkWebGPUComputePassInternals.h"
   "Private/vtkWebGPUComputePassTextureStorageInternals.h"
@@ -61,7 +60,6 @@ set(private_sources
   "Private/vtkWebGPUBindGroupInternals.cxx"
   "Private/vtkWebGPUBindGroupLayoutInternals.cxx"
   "Private/vtkWebGPUBufferInternals.cxx"
-  "Private/vtkWebGPUCallbacksInternals.cxx"
   "Private/vtkWebGPUComputeBufferInternals.cxx"
   "Private/vtkWebGPUComputePassInternals.cxx"
   "Private/vtkWebGPUComputePassTextureStorageInternals.cxx"
@@ -263,9 +261,8 @@ vtk_module_compile_features(VTK::RenderingWebGPU
     cxx_std_17)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_link_options(VTK::RenderingWebGPU
-    PUBLIC
-      "-sUSE_WEBGPU=1")
+  vtk_module_find_package(PACKAGE emdawnwebgpu)
+  vtk_module_link(VTK::RenderingWebGPU PUBLIC emdawnwebgpu)
   # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2WebGPURenderWindow is removed.
   if (VTK_USE_SDL2)
     vtk_module_compile_options(VTK::RenderingWebGPU

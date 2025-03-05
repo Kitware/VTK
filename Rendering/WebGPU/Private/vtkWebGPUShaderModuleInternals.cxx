@@ -7,7 +7,7 @@ VTK_ABI_NAMESPACE_BEGIN
 wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromWGSL(
   const wgpu::Device& device, const std::string& source)
 {
-  wgpu::ShaderModuleWGSLDescriptor wgslDesc;
+  wgpu::ShaderSourceWGSL wgslDesc;
   wgslDesc.code = source.c_str();
 
   wgpu::ShaderModuleDescriptor descriptor;
@@ -20,7 +20,7 @@ wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromWGSL(
 wgpu::ShaderModule vtkWebGPUShaderModuleInternals::CreateFromSPIRV(
   const wgpu::Device& device, const uint32_t* code)
 {
-  wgpu::ShaderModuleSPIRVDescriptor sprivDescriptor;
+  wgpu::ShaderSourceSPIRV sprivDescriptor;
   sprivDescriptor.code = code;
 
   wgpu::ShaderModuleDescriptor descriptor;

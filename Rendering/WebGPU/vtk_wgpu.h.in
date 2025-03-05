@@ -10,7 +10,6 @@
  * We need an up-to-date version of Emscripten for the API support.
  */
 #include "webgpu/webgpu_cpp.h"
-#include <emscripten/html5_webgpu.h>
 #if __EMSCRIPTEN_major__ == 1 &&                                                                   \
   (__EMSCRIPTEN_minor__ < 40 || (__EMSCRIPTEN_minor__ == 40 && __EMSCRIPTEN_tiny__ < 1))
 #error "Emscripten 1.40.1 or higher required"

@@ -55,6 +55,15 @@ var vtkEmscriptenTestUtilities = {
     const byteArray = HEAPU8.subarray(data, data + nbytes);
     req.send(new Uint8Array(byteArray));
   },
+
+  /**
+   * Send the exit code to the server.
+   */
+  vtkPostExitCode__sig: "vi",
+  vtkPostExitCode: (code) => {
+    // this function is defined in Testing/WebAssembly/templates/index.html
+    finalize(code)
+  },
 };
 
 mergeInto(LibraryManager.library, vtkEmscriptenTestUtilities);

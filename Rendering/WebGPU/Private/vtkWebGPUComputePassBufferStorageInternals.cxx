@@ -5,6 +5,7 @@
 #include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
+#include <type_traits>
 
 #include "vtkObjectFactory.h"
 
@@ -255,32 +256,42 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
     this->WebGPUBuffers[bufferIndex], 0, internalCallbackData->buffer, 0, byteSize);
   this->ParentComputePass->Internals->SubmitCommandEncoderToQueue(commandEncoder);
 
-  auto internalCallback = [](WGPUBufferMapAsyncStatus status, void* wgpuUserData)
+  auto internalCallback =
+    [](wgpu::MapAsyncStatus status, wgpu::StringView message, void* wgpuUserData)
   {
     InternalMapBufferAsyncData* callbackData =
       reinterpret_cast<InternalMapBufferAsyncData*>(wgpuUserData);
 
-    if (status == WGPUBufferMapAsyncStatus::WGPUBufferMapAsyncStatus_Success)
+    if (status == wgpu::MapAsyncStatus::Success)
     {
       const void* mappedRange = callbackData->buffer.GetConstMappedRange(0, callbackData->byteSize);
       callbackData->userCallback(mappedRange, callbackData->userdata);
 
       callbackData->buffer.Unmap();
-      // Freeing the callbackData structure as it was dynamically allocated
-      delete callbackData;
     }
     else
     {
-      vtkLogF(WARNING, "Could not map buffer '%s' with error status: %d",
-        callbackData->bufferLabel.empty() ? "(nolabel)" : callbackData->bufferLabel.c_str(),
-        status);
-
-      delete callbackData;
+      vtkLog(
+        WARNING, << "Failed to map [Buffer \'"
+                 << (callbackData->bufferLabel.empty() ? "(nolabel)" : callbackData->bufferLabel)
+                 << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
+                 << std::string_view(message));
     }
+#if defined(__EMSCRIPTEN__)
+    wgpuBufferRelease(callbackData->buffer.Get());
+#endif
+    // Freeing the callbackData structure as it was dynamically allocated
+    delete callbackData;
   };
 
-  internalCallbackData->buffer.MapAsync(
-    wgpu::MapMode::Read, 0, byteSize, internalCallback, internalCallbackData);
+#if defined(__EMSCRIPTEN__)
+  // keep buffer alive for map.
+  // See https://issues.chromium.org/issues/399131918
+  wgpuBufferAddRef(internalCallbackData->buffer.Get());
+#endif
+  internalCallbackData->buffer.MapAsync(wgpu::MapMode::Read, 0, byteSize,
+    wgpu::CallbackMode::AllowProcessEvents, internalCallback,
+    static_cast<void*>(internalCallbackData));
 }
 
 //------------------------------------------------------------------------------

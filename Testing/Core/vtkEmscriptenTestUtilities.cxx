@@ -89,5 +89,10 @@ void vtkEmscriptenTestUtilities::DumpFile(
   const auto* bytes = reinterpret_cast<const uint8_t*>(data);
   vtkDumpFile(hostFilePath.c_str(), bytes, n);
 }
+
+void vtkEmscriptenTestUtilities::PostExitCode(int code)
+{
+  vtkPostExitCode(code);
+}
 VTK_ABI_NAMESPACE_END
 #endif // __EMSCRIPTEN__

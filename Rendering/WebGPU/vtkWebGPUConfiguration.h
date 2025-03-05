@@ -296,10 +296,6 @@ protected:
 
   vtkLogger::Verbosity GPUMemoryLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
-  void AcquireAdapter(vtkObject* caller, unsigned long event, void* calldata);
-
-  void AcquireDevice(vtkObject* caller, unsigned long event, void* calldata);
-
 private:
   vtkWebGPUConfiguration(const vtkWebGPUConfiguration&) = delete;
   void operator=(const vtkWebGPUConfiguration&) = delete;

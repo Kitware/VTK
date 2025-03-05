@@ -14,7 +14,8 @@
 
 #include <vtkLogger.h> // for logging
 
-#include "vtkWindowsTestUtilities.h" // for windows stack trace
+#include "vtkEmscriptenTestUtilities.h" // for wasm I/O and exit helper
+#include "vtkWindowsTestUtilities.h"    // for windows stack trace
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTestDriver.h

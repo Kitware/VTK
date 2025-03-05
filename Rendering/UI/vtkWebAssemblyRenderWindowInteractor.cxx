@@ -213,7 +213,7 @@ void vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector(const char* value)
   }
   vtkSetStringBodyMacro(CanvasSelector, value);
   // add callbacks to new target
-  if (reInstallUICallbacks)
+  if (reInstallUICallbacks && value)
   {
     this->RegisterUICallbacks();
   }

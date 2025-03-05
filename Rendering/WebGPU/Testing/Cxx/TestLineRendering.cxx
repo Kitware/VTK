@@ -64,7 +64,6 @@ int TestLineRendering(int argc, char* argv[])
 
   renderer->ResetCamera();
   renderer->SetBackground(0.2, 0.3, 0.4);
-  renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);

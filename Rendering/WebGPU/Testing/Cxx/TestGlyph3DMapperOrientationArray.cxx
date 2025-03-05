@@ -104,8 +104,6 @@ int TestGlyph3DMapperOrientationArray(int argc, char* argv[])
   win->Render();
   ren->GetActiveCamera()->Zoom(1.5);
 
-  win->Render();
-
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

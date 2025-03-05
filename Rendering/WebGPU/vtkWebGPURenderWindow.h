@@ -347,7 +347,7 @@ protected:
   {
     wgpu::Origin3D Origin;
     wgpu::Extent3D Extent;
-    wgpu::TextureDataLayout Layout;
+    wgpu::TexelCopyBufferLayout Layout;
     wgpu::Buffer Buffer; // for SetPixelData
   };
   vtkWGPUUserStagingPixelData StagingPixelData;

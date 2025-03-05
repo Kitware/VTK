@@ -52,7 +52,6 @@ int TestSurfacePlusEdges(int argc, char* argv[])
 
   renderer->ResetCamera();
   renderer->SetBackground(0.1, 0.1, 0.1);
-  renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
