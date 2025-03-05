@@ -7,6 +7,7 @@ set(classes
   vtkAreaContourSpectrumFilter
   vtkAxes
   vtkAxisAlignedReflectionFilter
+  vtkAxisAlignedTransformFilter
   vtkBlankStructuredGrid
   vtkBlankStructuredGridWithImage
   vtkBlockIdScalars
