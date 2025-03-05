@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWrapSerDesClass.h"
 #include "vtkWrap.h"
+#include "vtkWrapSerDesFunction.h"
 #include "vtkWrapSerDesProperty.h"
 
 #include <stdlib.h>
@@ -67,31 +68,63 @@ const char* vtkWrapSerDes_GetSuperClass(
 /* Define registrar functions for this class */
 static void vtkWrapSerDes_DefineClassRegistrars(FILE* fp, const ClassInfo* classInfo)
 {
-  fprintf(fp,
-    "int RegisterHandlers_%sSerDes(void* ser, void* deser)\n"
-    "{\n"
-    "  int success = 0;\n"
-    "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))\n"
-    "  {\n"
-    "    if (auto* serializer = vtkSerializer::SafeDownCast(asObjectBase))\n"
-    "    {\n"
-    "      serializer->RegisterHandler(typeid(%s), Serialize_%s);\n"
-    "      success = 1;\n"
-    "    }\n"
-    "  }\n"
-    "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(deser))\n"
-    "  {\n"
-    "    if (auto* deserializer = vtkDeserializer::SafeDownCast(asObjectBase))\n"
-    "    {\n"
-    "      deserializer->RegisterHandler(typeid(%s), Deserialize_%s);\n"
-    "      deserializer->RegisterConstructor(\"%s\", []() { return %s::New(); });\n"
-    "      success = 1;\n"
-    "    }\n"
-    "  }\n"
-    "  return success;\n"
-    "}\n",
-    classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name,
-    classInfo->Name, classInfo->Name);
+  switch (classInfo->MarshalType)
+  {
+    case VTK_MARSHAL_NONE:
+      abort();
+    case VTK_MARSHAL_AUTO_MODE:
+      fprintf(fp,
+        "int RegisterHandlers_%sSerDes(void* ser, void* deser, void* invoker)\n"
+        "{\n"
+        "  int success = 0;\n"
+        "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))\n"
+        "  {\n"
+        "    if (auto* serializer = vtkSerializer::SafeDownCast(asObjectBase))\n"
+        "    {\n"
+        "      serializer->RegisterHandler(typeid(%s), Serialize_%s);\n"
+        "      success = 1;\n"
+        "    }\n"
+        "  }\n"
+        "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(deser))\n"
+        "  {\n"
+        "    if (auto* deserializer = vtkDeserializer::SafeDownCast(asObjectBase))\n"
+        "    {\n"
+        "      deserializer->RegisterHandler(typeid(%s), Deserialize_%s);\n"
+        "      deserializer->RegisterConstructor(\"%s\", []() { return %s::New(); });\n"
+        "      success = 1;\n"
+        "    }\n"
+        "  }\n"
+        "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(invoker))\n"
+        "  {\n"
+        "    if (auto* invokerObject = vtkInvoker::SafeDownCast(asObjectBase))\n"
+        "    {\n"
+        "      invokerObject->RegisterHandler(typeid(%s), Invoke_%s);\n"
+        "      success = 1;\n"
+        "    }\n"
+        "  }\n"
+        "  return success;\n"
+        "}\n",
+        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name,
+        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name);
+      break;
+    case VTK_MARSHAL_MANUAL_MODE:
+      fprintf(fp,
+        "int RegisterHandlers_%sSerDes(void* ser, void* deser, void* invoker)\n"
+        "{\n"
+        "  int success = 0;\n"
+        "  if (auto* asObjectBase = static_cast<vtkObjectBase*>(invoker))\n"
+        "  {\n"
+        "    if (auto* invokerObject = vtkInvoker::SafeDownCast(asObjectBase))\n"
+        "    {\n"
+        "      invokerObject->RegisterHandler(typeid(%s), Invoke_%s);\n"
+        "      success = 1;\n"
+        "    }\n"
+        "  }\n"
+        "  return success && RegisterHandlers_%sSerDesHelper(ser, deser, invoker);\n"
+        "}\n",
+        classInfo->Name, classInfo->Name, classInfo->Name, classInfo->Name);
+      break;
+  }
 }
 
 /* start serializer */
@@ -178,6 +211,72 @@ static void vtkWrapSerDes_EndDeserializer(FILE* fp)
   fprintf(fp, "}\n\n");
 }
 
+/* Call superclass' invoker with 'methodName' and 'args' */
+void vtkWrapSerDes_WriteSuperClassMemberFunctionCall(FILE* fp, ClassInfo* classInfo)
+{
+  if (strcmp(classInfo->Name, "vtkObjectBase") != 0)
+  {
+    fprintf(fp,
+      "  if (auto f = invoker->GetHandler(typeid(%s::Superclass)))\n"
+      "  {\n"
+      "    vtkVLog(invoker->GetInvokerLogVerbosity(), \"Try superclass \" << methodName);\n"
+      "    const auto result = f(invoker, objectBase, methodName, args);\n"
+      "    if (result[\"Success\"].get<bool>())\n"
+      "    {\n"
+      "      vtkVLog(invoker->GetInvokerLogVerbosity(), \"Succeeded calling superclass \" << "
+      "methodName);\n"
+      "      return result;\n"
+      "    }\n"
+      "  }\n",
+      classInfo->Name);
+  }
+}
+
+/* begin invoker */
+static void vtkWrapSerDes_BeginInvoker(FILE* fp, ClassInfo* classInfo)
+{
+  fprintf(fp,
+    "static nlohmann::json Invoke_%s(vtkInvoker* invoker, vtkObjectBase* "
+    "objectBase, const char* methodName, const nlohmann::json& args)\n",
+    classInfo->Name);
+  fprintf(fp, "{\n");
+  vtkWrapSerDes_WriteSuperClassMemberFunctionCall(fp, classInfo);
+  fprintf(fp, "  using json = nlohmann::json;\n");
+  fprintf(fp, "  auto context = invoker->GetContext();\n");
+  fprintf(fp,
+    "  if (context == nullptr) { vtkErrorWithObjectMacro(invoker, << \"Marshal context is "
+    "null!\"); }\n");
+  // might not be used, so silence unused-variable warnings
+  fprintf(fp, "  (void)context;\n");
+  fprintf(fp, "  (void)invoker;\n");
+  if (!strcmp(classInfo->Name, "vtkObjectBase"))
+  {
+    fprintf(fp, "  auto* object = objectBase;\n");
+  }
+  else
+  {
+    fprintf(fp, "  auto* object = %s::SafeDownCast(objectBase);\n", classInfo->Name);
+  }
+  // might not be used, so silence unused-variable warnings
+  fprintf(fp, "  (void)object;\n");
+}
+
+/* end invoker */
+static void vtkWrapSerDes_EndInvoker(FILE* fp)
+{
+  fprintf(fp, "}\n\n");
+}
+
+static void vtkWrapSerDes_ExportClassRegistrarHelpers(FILE* fp, const char* name)
+{
+  fprintf(fp,
+    "extern \"C\"\n"
+    "{\n"
+    "  int RegisterHandlers_%sSerDesHelper(void* ser, void* deser, void* invoker);\n"
+    "}\n",
+    name);
+}
+
 /* -------------------------------------------------------------------- */
 void vtkWrapSerDes_ExportClassRegistrars(FILE* fp, const char* name)
 {
@@ -188,11 +287,12 @@ void vtkWrapSerDes_ExportClassRegistrars(FILE* fp, const char* name)
     "   * Register the (de)serialization handlers of classes from all serialized libraries.\n"
     "   * @param ser   a vtkSerializer instance\n"
     "   * @param deser a vtkDeserializer instance\n"
+    "   * @param invoker a vtkInvoker instance\n"
     "   * @param error when registration fails, the error message is pointed to by `error`. Use it "
     "for logging purpose.\n"
     "   * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.\n"
     "   */\n"
-    "  int RegisterHandlers_%sSerDes(void* ser, void* deser);\n"
+    "  int RegisterHandlers_%sSerDes(void* ser, void* deser, void* invoker);\n"
     "}\n",
     name);
 }
@@ -201,11 +301,29 @@ void vtkWrapSerDes_ExportClassRegistrars(FILE* fp, const char* name)
 void vtkWrapSerDes_Class(FILE* fp, const HierarchyInfo* hinfo, ClassInfo* classInfo)
 {
   vtkWrapSerDes_ExportClassRegistrars(fp, classInfo->Name);
-  vtkWrapSerDes_BeginSerializer(fp, hinfo, classInfo);
-  vtkWrapSerDes_Properties(fp, classInfo, hinfo, &vtkWrapSerDes_WritePropertySerializer);
-  vtkWrapSerDes_EndSerializer(fp);
-  vtkWrapSerDes_BeginDeserializer(fp, classInfo);
-  vtkWrapSerDes_Properties(fp, classInfo, hinfo, &vtkWrapSerDes_WritePropertyDeserializer);
-  vtkWrapSerDes_EndDeserializer(fp);
+  switch (classInfo->MarshalType)
+  {
+    case VTK_MARSHAL_NONE:
+      abort();
+    case VTK_MARSHAL_AUTO_MODE:
+      vtkWrapSerDes_BeginSerializer(fp, hinfo, classInfo);
+      vtkWrapSerDes_Properties(fp, classInfo, hinfo, &vtkWrapSerDes_WritePropertySerializer);
+      vtkWrapSerDes_EndSerializer(fp);
+      vtkWrapSerDes_BeginDeserializer(fp, classInfo);
+      vtkWrapSerDes_Properties(fp, classInfo, hinfo, &vtkWrapSerDes_WritePropertyDeserializer);
+      vtkWrapSerDes_EndDeserializer(fp);
+      vtkWrapSerDes_BeginInvoker(fp, classInfo);
+      vtkWrapSerDes_Functions(fp, classInfo, hinfo);
+      vtkWrapSerDes_EndInvoker(fp);
+      break;
+    case VTK_MARSHAL_MANUAL_MODE:
+      // Export additional registrar 'helper' function which is defined by
+      // vtkClassNameSerDesHelper.cxx
+      vtkWrapSerDes_ExportClassRegistrarHelpers(fp, classInfo->Name);
+      vtkWrapSerDes_BeginInvoker(fp, classInfo);
+      vtkWrapSerDes_Functions(fp, classInfo, hinfo);
+      vtkWrapSerDes_EndInvoker(fp);
+      break;
+  }
   vtkWrapSerDes_DefineClassRegistrars(fp, classInfo);
 }

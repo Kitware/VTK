@@ -290,6 +290,7 @@ set(classes
   vtkInformationVariantVectorKey
   vtkInformationVector
   vtkIntArray
+  vtkInvoker
   vtkLargeInteger
   vtkLogger
   vtkLongArray

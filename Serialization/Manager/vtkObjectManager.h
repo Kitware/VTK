@@ -19,6 +19,7 @@
 #include "vtkObject.h"
 
 #include "vtkDeserializer.h"               // for vtkDeserializer
+#include "vtkInvoker.h"                    // for vtkInvoker
 #include "vtkLogger.h"                     // for vtkLogger::Verbosity enum
 #include "vtkNew.h"                        // for vtkNew
 #include "vtkSerializationManagerModule.h" // for export macro
@@ -50,7 +51,8 @@ public:
   /**
    * Loads user provided handlers
    */
-  using RegistrarType = std::function<int(void* ser, void* deser, const char** error)>;
+  using RegistrarType =
+    std::function<int(void* ser, void* deser, void* invoker, const char** error)>;
   bool InitializeExtensionModuleHandlers(const std::vector<RegistrarType>& registrars);
 
   /**
@@ -162,6 +164,11 @@ public:
    */
   void Clear();
 
+  std::string Invoke(
+    vtkTypeUInt32 identifier, const std::string& methodName, const std::string& args);
+  nlohmann::json Invoke(
+    vtkTypeUInt32 identifier, const std::string& methodName, const nlohmann::json& args);
+
   std::size_t GetTotalBlobMemoryUsage();
   std::size_t GetTotalVTKDataObjectMemoryUsage();
 
@@ -182,6 +189,7 @@ public:
 
   vtkGetSmartPointerMacro(Serializer, vtkSerializer);
   vtkGetSmartPointerMacro(Deserializer, vtkDeserializer);
+  vtkGetSmartPointerMacro(Invoker, vtkInvoker);
 
   ///@{
   /**
@@ -207,6 +215,7 @@ protected:
   vtkSmartPointer<vtkMarshalContext> Context;
   vtkNew<vtkDeserializer> Deserializer;
   vtkNew<vtkSerializer> Serializer;
+  vtkNew<vtkInvoker> Invoker;
   vtkLogger::Verbosity ObjectManagerLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
   static const char* OWNERSHIP_KEY() { return "manager"; }

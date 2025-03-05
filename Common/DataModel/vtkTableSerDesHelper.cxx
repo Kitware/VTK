@@ -17,7 +17,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkTableSerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkTableSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 static nlohmann::json Serialize_vtkTable(vtkObjectBase* objectBase, vtkSerializer* serializer)
@@ -69,7 +69,7 @@ static void Deserialize_vtkTable(
   }
 }
 
-int RegisterHandlers_vtkTableSerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkTableSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))

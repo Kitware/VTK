@@ -18,7 +18,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkDataSetMapperSerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkDataSetMapperSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 static nlohmann::json Serialize_vtkDataSetMapper(
@@ -57,7 +57,7 @@ static void Deserialize_vtkDataSetMapper(
     ExtractedPolyData, InputData, vtkPolyData, state, object, deserializer);
 }
 
-int RegisterHandlers_vtkDataSetMapperSerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkDataSetMapperSerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))

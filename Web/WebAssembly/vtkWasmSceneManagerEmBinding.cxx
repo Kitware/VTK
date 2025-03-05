@@ -122,6 +122,15 @@ void clear()
 }
 
 //-------------------------------------------------------------------------------
+val invoke(vtkTypeUInt32 identifier, const std::string& methodName, val args)
+{
+  CHECK_INIT;
+  const auto stringified = JSON.call<val>("stringify", args);
+  return JSON.call<val>(
+    "parse", Manager->Invoke(identifier, methodName, stringified.as<std::string>()));
+}
+
+//-------------------------------------------------------------------------------
 val getAllDependencies(vtkTypeUInt32 identifier)
 {
   CHECK_INIT;
@@ -241,6 +250,17 @@ void setDeserializerLogVerbosity(const std::string& verbosityStr)
 }
 
 //-------------------------------------------------------------------------------
+void setInvokerLogVerbosity(const std::string& verbosityStr)
+{
+  CHECK_INIT;
+  const auto verbosity = vtkLogger::ConvertToVerbosity(verbosityStr.c_str());
+  if (verbosity != vtkLogger::VERBOSITY_INVALID)
+  {
+    Manager->GetInvoker()->SetInvokerLogVerbosity(verbosity);
+  }
+}
+
+//-------------------------------------------------------------------------------
 void setObjectManagerLogVerbosity(const std::string& verbosityStr)
 {
   CHECK_INIT;
@@ -293,6 +313,7 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
   function("pruneUnusedBlobs", ::pruneUnusedBlobs);
 
   function("clear", ::clear);
+  function("invoke", ::invoke);
 
   function("getAllDependencies", ::getAllDependencies);
 
@@ -319,6 +340,7 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
   function("printSceneManagerInformation", ::printSceneManagerInformation);
   // accepts JS strings like "INFO", "WARNING", "TRACE", "ERROR"
   function("setDeserializerLogVerbosity", ::setDeserializerLogVerbosity);
+  function("setInvokerLogVerbosity", ::setInvokerLogVerbosity);
   function("setObjectManagerLogVerbosity", ::setObjectManagerLogVerbosity);
   function("setSerializerLogVerbosity", ::setSerializerLogVerbosity);
 

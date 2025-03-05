@@ -7,15 +7,17 @@ The `vtkWrapSerDes` executable makes use of the `WrappingTools` package to autom
   `nlohmann:json Serialize_vtkClassName(vtkObjectBase*, vtkSerializer*)`
 2. A deserializer function with signature
   `void(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)`
-3. A registrar function that registers
+3. A invoker function with signature
+  `nlohmann::json(vtkMarshalContext* context, vtkObjectBase* objectBase, const char* methodName, nlohmann::json args)`
+4. A registrar function that registers
     - the serializer function with a serializer instance
     - the deserializer function with a deserializer instance
     - the constructor of the VTK class with a deserializer instance
     - It's signature is
-      `int RegisterHandlers_vtkClassNameSerDes(void* ser, void* deser)`
+      `int RegisterHandlers_vtkClassNameSerDes(void* ser, void* deser, void* invoker)`
     - It more or less looks like:
       ```c++
-      int RegisterHandlers_vtkObjectSerDes(void* ser, void* deser)
+      int RegisterHandlers_vtkObjectSerDes(void* ser, void* deser, void* invoker)
       {
         int success = 0;
         if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))
@@ -32,6 +34,14 @@ The `vtkWrapSerDes` executable makes use of the `WrappingTools` package to autom
           {
             deserializer->RegisterHandler(typeid(vtkObject), Deserialize_vtkObject);
             deserializer->RegisterConstructor("vtkObject", []() { return vtkObject::New(); });
+            success = 1;
+          }
+        }
+        if (auto* asObjectBase = static_cast<vtkObjectBase*>(invoker))
+        {
+          if (auto* invokerObject = vtkDeserializer::SafeDownCast(asObjectBase))
+          {
+            invokerObject->RegisterHandler(typeid(vtkObject), Invoke_vtkObject);
             success = 1;
           }
         }

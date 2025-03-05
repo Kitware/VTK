@@ -1,16 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkParseData.h"
-#include "vtkWrapSerDesClass.h"
-
 #include "vtkParse.h"
+#include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 #include "vtkParseMain.h"
+#include "vtkParseString.h"
 #include "vtkParseSystem.h"
 #include "vtkWrap.h"
+#include "vtkWrapSerDesClass.h"
 
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -62,6 +63,10 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
      what types each templated class is instantiated for (that info
      might be in the .cxx files, which we cannot access here) */
   types[numTypes++] = "vtkVariant";
+  /* the header file for the marshalled class */
+  types[numTypes++] = "vtkDeserializer";
+  types[numTypes++] = "vtkInvoker";
+  types[numTypes++] = "vtkSerializer";
 
   nn = file_info->Contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
@@ -92,6 +97,10 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
           {
             continue;
           }
+          if (!strcmp(val->Class, "vtkIndent"))
+          {
+            continue;
+          }
 
           classname = 0;
           if (vtkWrap_IsString(val))
@@ -99,6 +108,19 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
             classname = val->Class;
           }
           else if (vtkWrap_IsObject(val) && !vtkWrap_IsRef(val))
+          {
+            if (!strncmp(val->Class, "vtkSmartPointer<", 16))
+            {
+              const size_t numCharacters = strlen(val->Class) - 1 - 16; // -1 for trailing '>'
+              classname = vtkParse_CacheString(file_info->Strings, val->Class + 16, numCharacters);
+            }
+            else
+            {
+              classname = val->Class;
+            }
+          }
+          else if (!strncmp(val->Class, "vtkVector", 9) || !strncmp(val->Class, "vtkTuple", 8) ||
+            !strncmp(val->Class, "vtkColor", 8) || !strncmp(val->Class, "vtkRect", 7))
           {
             classname = val->Class;
           }
@@ -119,7 +141,7 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
               if (numTypes > 0 && (numTypes % 1000) == 0)
               {
                 types =
-                  (const char**)realloc((char**)types, (numTypes + 1000) * sizeof(const char*));
+                  (const char**)realloc((void*)types, (numTypes + 1000) * sizeof(const char*));
               }
               types[numTypes++] = classname;
             }
@@ -151,8 +173,7 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
   /* for each unique type found in the file */
   for (i = 0; i < numTypes; i++)
   {
-    const char* incfile;
-    incfile = vtkWrapSerDes_ClassHeader(hinfo, types[i]);
+    const char* incfile = vtkWrapSerDes_ClassHeader(hinfo, types[i]);
 
     if (incfile)
     {
@@ -184,28 +205,9 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
     }
   }
 
-  free((char**)includedHeaders);
+  free((void*)includedHeaders);
   includedHeaders = NULL;
-
-  /* special case for the way vtkGenericDataArray template is used */
-  if (data && strcmp(data->Name, "vtkGenericDataArray") == 0)
-  {
-    fprintf(fp,
-      "#include \"vtkSOADataArrayTemplate.h\"\n"
-      "#include \"vtkAOSDataArrayTemplate.h\"\n"
-      "#ifdef VTK_USE_SCALED_SOA_ARRAYS\n"
-      "#include \"vtkScaledSOADataArrayTemplate.h\"\n"
-      "#endif\n");
-  }
-  /* special case for the way vtkGenericDataArray template is used */
-  if (data && strcmp(data->Name, "vtkAlgorithm") == 0)
-  {
-    fprintf(fp, "#include \"vtkAlgorithmOutput.h\"\n");
-    fprintf(fp, "#include \"vtkTrivialProducer.h\"\n");
-    fprintf(fp, "#include \"vtkDataObject.h\"\n");
-  }
-
-  free((char**)types);
+  free((void*)types);
 }
 
 /* -------------------------------------------------------------------- */
@@ -380,7 +382,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       // Write a placeholder registrar that always succeeds.
       vtkWrapSerDes_ExportClassRegistrars(fp, name);
       fprintf(fp,
-        "int RegisterHandlers_%sSerDes(void* /*ser*/, void* /*deser*/)\n"
+        "int RegisterHandlers_%sSerDes(void* /*ser*/, void* /*deser*/, void* /*invoker*/)\n"
         "{\n"
         "  return 1;\n"
         "}\n",
@@ -396,27 +398,9 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
       {
         continue;
       }
-      if (classInfo->MarshalType == VTK_MARSHAL_MANUAL_MODE)
-      {
-        vtkWrapSerDes_ExportClassRegistrars(fp, name);
-        fprintf(fp,
-          "extern \"C\"\n"
-          "{\n"
-          "  int RegisterHandlers_%sSerDesHelper(void* ser, void* deser);\n"
-          "}\n"
-          "int RegisterHandlers_%sSerDes(void* ser, void* deser)\n"
-          "{\n"
-          "  return RegisterHandlers_%sSerDesHelper(ser, deser);\n"
-          "}\n",
-          classInfo->Name, classInfo->Name, classInfo->Name);
-        registrarsExist = 1;
-      }
-      else if (!registrarsExist)
+      if (!registrarsExist)
       {
         vtkWrapSerDes_GenerateSpecialHeaders(fp, file_info, hinfo);
-        /* the header file for the marshalled class */
-        fprintf(fp, "#include \"vtkDeserializer.h\"\n");
-        fprintf(fp, "#include \"vtkSerializer.h\"\n");
         fprintf(fp, "#include \"%s.h\"\n", name);
         fprintf(fp, "//clang-format off\n");
         fprintf(fp, "#include \"vtk_nlohmannjson.h\"\n");
@@ -424,10 +408,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         fprintf(fp, "//clang-format on\n");
         registrarsExist = 1;
       }
-      if (classInfo->MarshalType == VTK_MARSHAL_AUTO_MODE)
-      {
-        vtkWrapSerDes_Class(fp, hinfo, classInfo);
-      }
+      vtkWrapSerDes_Class(fp, hinfo, classInfo);
     }
     /* generate handler code for templates/unmarshalled classes */
     for (i = 0; i < contents->NumberOfClasses; ++i)
@@ -446,7 +427,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
         // For templates, the cmake code uses the file name in regsitrar.
         vtkWrapSerDes_ExportClassRegistrars(fp, name);
         fprintf(fp,
-          "int RegisterHandlers_%sSerDes(void* /*ser*/, void* /*deser*/)\n"
+          "int RegisterHandlers_%sSerDes(void* /*ser*/, void* /*deser*/, void* /*invoker*/)\n"
           "{\n"
           "  return 1;\n"
           "}\n",

@@ -1,0 +1,14 @@
+NAME
+  VTK::TestingSerialization
+LIBRARY_NAME
+  vtkTestingSerialization
+DESCRIPTION
+  Utilities to aid testing of VTK::SerializationManager module.
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::SerializationManager
+  VTK::CommonDataModel
+INCLUDE_MARSHAL

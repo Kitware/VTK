@@ -14,11 +14,12 @@ public:
    * Register the (de)serialization handlers of classes in a serialized library.
    * @param serializer   a vtkSerializer instance
    * @param deserializer a vtkDeserializer instance
+   * @param invoker      a vtkInvoker instance
    * @param error        when registration fails, the error message is pointed to by `error`. Use it
    * for logging purpose.
    * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.
    */
-  static int RegisterClasses(void* serializer, void* deserializer, const char** error);
+  static int RegisterClasses(void* serializer, void* deserializer, void* invoker, const char** error);
 };
 VTK_ABI_NAMESPACE_END
 #endif

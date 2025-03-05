@@ -100,7 +100,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkAbstractWidgetSerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkAbstractWidgetSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 static nlohmann::json Serialize_vtkAbstractWidget(
@@ -220,7 +220,8 @@ static void Deserialize_vtkAbstractWidget(
   VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(Parent, vtkAbstractWidget, state, object, deserializer);
 }
 
-int RegisterHandlers_vtkAbstractWidgetSerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkAbstractWidgetSerDesHelper(
+  void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))
