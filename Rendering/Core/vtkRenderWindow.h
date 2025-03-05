@@ -270,54 +270,6 @@ public:
 
   ///@{
   /**
-   * Turn on/off stereo rendering.
-   */
-  vtkGetMacro(StereoRender, vtkTypeBool);
-  void SetStereoRender(vtkTypeBool stereo);
-  vtkBooleanMacro(StereoRender, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off the use of alpha bitplanes.
-   */
-  vtkSetMacro(AlphaBitPlanes, vtkTypeBool);
-  vtkGetMacro(AlphaBitPlanes, vtkTypeBool);
-  vtkBooleanMacro(AlphaBitPlanes, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off point smoothing. Default is off.
-   * This must be applied before the first Render.
-   */
-  vtkSetMacro(PointSmoothing, vtkTypeBool);
-  vtkGetMacro(PointSmoothing, vtkTypeBool);
-  vtkBooleanMacro(PointSmoothing, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off line smoothing. Default is off.
-   * This must be applied before the first Render.
-   */
-  vtkSetMacro(LineSmoothing, vtkTypeBool);
-  vtkGetMacro(LineSmoothing, vtkTypeBool);
-  vtkBooleanMacro(LineSmoothing, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Turn on/off polygon smoothing. Default is off.
-   * This must be applied before the first Render.
-   */
-  vtkSetMacro(PolygonSmoothing, vtkTypeBool);
-  vtkGetMacro(PolygonSmoothing, vtkTypeBool);
-  vtkBooleanMacro(PolygonSmoothing, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
    * Set/Get what type of stereo rendering to use.  CrystalEyes
    * mode uses frame-sequential capabilities available in OpenGL
    * to drive LCD shutter glasses and stereo projectors.  RedBlue
@@ -362,6 +314,54 @@ public:
    */
   const char* GetStereoTypeAsString();
   static const char* GetStereoTypeAsString(int type);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off stereo rendering.
+   */
+  vtkGetMacro(StereoRender, vtkTypeBool);
+  void SetStereoRender(vtkTypeBool stereo);
+  vtkBooleanMacro(StereoRender, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off the use of alpha bitplanes.
+   */
+  vtkSetMacro(AlphaBitPlanes, vtkTypeBool);
+  vtkGetMacro(AlphaBitPlanes, vtkTypeBool);
+  vtkBooleanMacro(AlphaBitPlanes, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off point smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
+  vtkSetMacro(PointSmoothing, vtkTypeBool);
+  vtkGetMacro(PointSmoothing, vtkTypeBool);
+  vtkBooleanMacro(PointSmoothing, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off line smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
+  vtkSetMacro(LineSmoothing, vtkTypeBool);
+  vtkGetMacro(LineSmoothing, vtkTypeBool);
+  vtkBooleanMacro(LineSmoothing, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off polygon smoothing. Default is off.
+   * This must be applied before the first Render.
+   */
+  vtkSetMacro(PolygonSmoothing, vtkTypeBool);
+  vtkGetMacro(PolygonSmoothing, vtkTypeBool);
+  vtkBooleanMacro(PolygonSmoothing, vtkTypeBool);
   ///@}
 
   /**
