@@ -8,12 +8,12 @@ This page describes how to build and install VTK using [emscripten](https://emsc
 
 Guide created using
 
-- CMake 3.26.3
-- Ninja 1.10.2
-- Emscripten 3.1.64
-- NodeJS 22.0.0
-- VTK 9.4.1-742-g299088fe88
-- Chrome For Testing 130.0.6723.91
+- CMake 3.31.3
+- Ninja 1.12.1
+- Emscripten 4.0.3
+- NodeJS 23.8.0
+- VTK 9.4.1-1509-g9986a84c8a
+- Chrome For Testing 133.0.6943.98
 ```
 
 ## Prerequisites
@@ -33,14 +33,14 @@ For this guide, you will need the following:
    platform.  Please download the SDK from
    [github.com/emscripten-core/emsdk.git](https://github.com/emscripten-core/emsdk). Then,
 
-   - Install 3.1.64 toolchain with `./emsdk install 3.1.64`
-   - Activate the toolchain `./emsdk activate 3.1.64`
+   - Install 4.0.3 toolchain with `./emsdk install 4.0.3`
+   - Activate the toolchain `./emsdk activate 4.0.3`
    - Run `emsdk_env.bat` or `emsdk_env.ps1` (Windows) or `source ./emsdk_env.sh` (Linux and OS X) to set up the environment for the calling terminal.
 
    For more detailed instructions see  [emsdk/README.md](https://github.com/emscripten-core/emsdk#readme).
 
-3. **Node.js**: Please download the Node.js 22.0.0 binaries from [vtk.org/files/support]
-  and ensure that the command `node -v` outputs "v22.0.0" in your console. VTK's CI tests
+3. **Node.js**: Please download the Node.js 23.8.0 binaries from [vtk.org/files/support]
+  and ensure that the command `node -v` outputs "v23.8.0" in your console. VTK's CI tests
   work with this version of Node.js, and other versions may not function correctly.
 
 4. **VTK source-code**: If you have these then you can skip the rest of this section and proceed to [Build project](#build-project).
@@ -58,7 +58,7 @@ For this guide, you will need the following:
 
 5. **Chrome For Testing**: This is optional. It is useful if you intend to run the test suite with `ctest`.
   This is a Chrome flavor that specifically targets web app testing and automation use cases.
-  Please download the 130.0.6723.91 version from [vtk.org/files/support](https://vtk.org/files/support)
+  Please download the 133.0.6943.98 version from [vtk.org/files/support](https://vtk.org/files/support)
 
 ## Build project
 
@@ -137,16 +137,14 @@ and [settings_reference/offscreencanvas-support](https://emscripten.org/docs/too
 
 ## 64-bit
 
-*This feature is experimental.*
-
 VTK, by default compiles for the `wasm32-emscripten` architecture. When a 32-bit VTK wasm application
 loads and renders very large datasets, it can report out-of-memory errors because the maximum
 addressable memory is 4GB. You can overcome this problem by turning on the CMake setting `VTK_WEBASSEMBLY_64_BIT`.
-This option compiles VTK for the `wasm64-emscripten` architecture and the maximum addressable memory is 16GB.
+This option compiles VTK for the `wasm64-emscripten` architecture which increases the maximum addressable memory upto 16GB.
 
 In order to execute VTK wasm64 applications, additional flags are required for:
-1. chrome/edge: `--js-flags=--experimental-wasm-memory64`.
-2. firefox: no flag, use nightly/beta.
+1. chrome/edge: no flag since v133.
+2. firefox: no flag since v134.
 3. nodejs: `--experimental-wasm-memory64`.
 
 
@@ -176,7 +174,7 @@ Here's an example:
 ```bash
 $ ctest -R TestUserShader2D -N -V
 
-836: Test command: /usr/bin/python3.10 "/path/to/vtk/Testing/WebAssembly/runner.py" "--engine=/path/to/vtk/.gitlab/chrome/chrome" "--exit" "/path/to/vtk/build/bin/vtkRenderingOpenGL2CxxTests.js" "TestUserShader2D" "-T" "/path/to/vtk/build/Testing/Temporary" "-V" "/path/to/vtk/build/ExternalData/Rendering/OpenGL2/Testing/Data/Baseline/TestUserShader2D.png"
+836: Test command: /usr/bin/python3 "/path/to/vtk/Testing/WebAssembly/runner.py" "--engine=/path/to/vtk/.gitlab/chrome/chrome" "--exit" "/path/to/vtk/build/bin/vtkRenderingOpenGL2CxxTests.js" "TestUserShader2D" "-T" "/path/to/vtk/build/Testing/Temporary" "-V" "/path/to/vtk/build/ExternalData/Rendering/OpenGL2/Testing/Data/Baseline/TestUserShader2D.png"
 836: Working Directory: /path/to/vtk/build/Rendering/OpenGL2/Testing/Cxx
 836: Environment variables:
 836:  VTK_TESTING=1
@@ -190,7 +188,7 @@ Total Tests: 1
 From the result, we can reconstruct the test command and run the unit test interactively.
 
 ```bash
-/usr/bin/python3.10 \
+/usr/bin/python3 \
 "/path/to/vtk/Testing/WebAssembly/runner.py" \
 "--engine=/path/to/vtk/.gitlab/chrome/chrome" \
 "--exit" \

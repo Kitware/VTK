@@ -20,7 +20,6 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 logger = logging.getLogger("vtkWebAssemblyTestRunner")
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
 # /VTK/Testing/WebAssembly
 BASE_DIR = Path(__file__).parent.absolute().resolve()
@@ -159,7 +158,10 @@ class vtkWebAssemblyTestRunner:
         self.port = args.port
         self.test_executable = args.test_executable
         self.test_args = args.test_args
-
+        if args.verbose:
+            logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(filename)s:%(lineno)d %(message)s")
+        else:
+            logging.basicConfig(level=logging.INFO, format="%(asctime)s %(filename)s:%(lineno)d %(message)s")
         # The exit code is set when a unit test POSTs an /exit message
         self.exit_code = None
 
@@ -212,6 +214,9 @@ class vtkWebAssemblyTestRunner:
                 logger.error(e)
                 self._server_is_shutdown = True
                 self.exit_code = 1
+            except KeyboardInterrupt:
+                self.exit_code = 1
+                self._server_is_shutdown = True
         else:
             logger.info(f"An engine was not specified. Script may appear to hang but it is actually running a http server.")
         # If a test did not send an exit code, this `join` will block. It can happen when a test is stuck.
@@ -319,6 +324,13 @@ if __name__ == "__main__":
         action='store_true',
         default=False,
         required=False)
+    parser.add_argument(
+        "-v", "--verbose",
+        help="Enable verbose output",
+        action='store_true',
+        default=False,
+        required=False
+    )
 
     cmdline_options = parser.parse_args()
     runner = vtkWebAssemblyTestRunner(cmdline_options)
