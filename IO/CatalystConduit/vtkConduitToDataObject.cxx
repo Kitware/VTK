@@ -57,6 +57,251 @@ struct GlobalInfo
   double Origin[3] = { vtkMath::Inf(), vtkMath::Inf(), vtkMath::Inf() };
   vtkIdType NbOfLevels = 0;
 };
+
+// ---------------------
+// construct structure: nb of blocks per levels, and origin.
+// Local origin is the min of all origins found:
+// so we will get a Global Origin with a simple min reduction
+void ConstructLocalInfo(const conduit_cpp::Node& node, LocalInfo& rankInfo)
+{
+  double origin[3] = { 0, 0, 0 };
+
+  for (conduit_index_t cc = 0; cc < rankInfo.NbOfLeaves; ++cc)
+  {
+    const auto child = node.child(cc);
+    if (child.has_path("state"))
+    {
+      const int level = child["state/level"].to_int32();
+      const int domain_id = child["state/domain_id"].to_int32();
+      if (std::size_t(level) >= rankInfo.BlocksPerLevel.size())
+      {
+        rankInfo.BlocksPerLevel.resize(level + 1);
+        rankInfo.BlocksPerLevel[level] = 0;
+      }
+      rankInfo.DomainBlockLevelIds[domain_id] = { level, rankInfo.BlocksPerLevel[level] };
+      rankInfo.BlocksPerLevel[level]++;
+
+      origin[0] = child["coordsets/coords/origin/x"].to_float64();
+      origin[1] = child["coordsets/coords/origin/y"].to_float64();
+      origin[2] = child["coordsets/coords/origin/z"].to_float64();
+      // check global origin
+      if (origin[0] <= rankInfo.Origin[0] && origin[1] <= rankInfo.Origin[1] &&
+        origin[2] <= rankInfo.Origin[2])
+      {
+        rankInfo.Origin[0] = origin[0];
+        rankInfo.Origin[1] = origin[1];
+        rankInfo.Origin[2] = origin[2];
+      }
+    }
+  }
+}
+
+// ---------------------
+// MPI comm: reduce nb of levels, blocks and origin
+void GatherInfos(LocalInfo& rankInfo, GlobalInfo& globalInfo)
+{
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+
+  const vtkIdType levels_local = vtkIdType(rankInfo.BlocksPerLevel.size());
+
+  if (globalInfo.NbOfProcesses == 1)
+  {
+    globalInfo.NbOfLevels = levels_local;
+    std::copy(rankInfo.Origin, rankInfo.Origin + 3, globalInfo.Origin);
+  }
+  else if (controller)
+  {
+    controller->AllReduce(&levels_local, &globalInfo.NbOfLevels, 1, vtkCommunicator::MAX_OP);
+    controller->AllReduce(rankInfo.Origin, globalInfo.Origin, 3, vtkCommunicator::MIN_OP);
+  }
+
+  // need the total number of blocks across all processes
+  rankInfo.BlocksPerLevel.resize(globalInfo.NbOfLevels, 0); // set the extra values created to 0
+  globalInfo.BlocksPerLevelAndRank.resize(globalInfo.NbOfLevels * globalInfo.NbOfProcesses);
+  // the ordering of the blocks for AMR is first all level 0 blocks, then all level 1 blocks, ...
+  // at each level we order based on proc rank first and then local id
+  if (globalInfo.NbOfProcesses == 1)
+  {
+    globalInfo.BlocksPerLevelAndRank = rankInfo.BlocksPerLevel;
+  }
+  else if (controller)
+  {
+    controller->AllGather(rankInfo.BlocksPerLevel.data(), globalInfo.BlocksPerLevelAndRank.data(),
+      globalInfo.NbOfLevels);
+  }
+
+  rankInfo.NbOfBlocks = vtkIdType(rankInfo.DomainBlockLevelIds.size());
+  globalInfo.NbOfBlocks = std::accumulate(
+    globalInfo.BlocksPerLevelAndRank.begin(), globalInfo.BlocksPerLevelAndRank.end(), 0);
+
+  // the offset for the start of each block at each level
+  rankInfo.BlockOffsets.resize(globalInfo.NbOfLevels, 0);
+  if (globalInfo.NbOfProcesses > 1)
+  {
+    for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
+    {
+      vtkIdType offset(0);
+      for (int p = 0; p < rankInfo.Rank; p++)
+      {
+        offset += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+      }
+      rankInfo.BlockOffsets[l] = offset;
+    }
+  }
+}
+
+// ---------------------
+// initialize AMR: each rank has same structure
+// nb of Levels and nb of Blocks per level.
+// init each bloc with nullptr
+void InitializeLocalAMR(LocalInfo& rankInfo, GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
+{
+  std::vector<int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
+  for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
+  {
+    for (int p = 0; p < globalInfo.NbOfProcesses; p++)
+    {
+      blocksPerLevelGlobal[l] += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+    }
+  }
+  amr->Initialize(globalInfo.NbOfLevels, blocksPerLevelGlobal.data());
+  for (int l = 0; l < globalInfo.NbOfLevels; ++l)
+  {
+    for (int b = 0; b < blocksPerLevelGlobal[l]; ++b)
+    {
+      amr->SetDataSet(l, b, nullptr);
+    }
+  }
+
+  // set origin
+  amr->SetOrigin(globalInfo.Origin);
+}
+
+// ---------------------
+// Fill local data
+void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
+  const GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
+{
+  double origin[3];
+  double spacing[3];
+
+  // set the spacing for each level via amr->SetSpacing();
+  if (child.has_path("state"))
+  {
+    int pdims[3] = { 0, 0, 0 };
+    const int domain_id = child["state/domain_id"].to_int32();
+    const int level = child["state/level"].to_int32();
+
+    origin[0] = child["coordsets/coords/origin/x"].to_float64();
+    origin[1] = child["coordsets/coords/origin/y"].to_float64();
+    origin[2] = child["coordsets/coords/origin/z"].to_float64();
+    spacing[0] = child["coordsets/coords/spacing/dx"].to_float64();
+    spacing[1] = child["coordsets/coords/spacing/dy"].to_float64();
+    spacing[2] = child["coordsets/coords/spacing/dz"].to_float64();
+    pdims[0] = child["coordsets/coords/dims/i"].to_int32();
+    pdims[1] = child["coordsets/coords/dims/j"].to_int32();
+    pdims[2] = child["coordsets/coords/dims/k"].to_int32();
+
+    vtkNew<vtkUniformGrid> ug;
+    ug->Initialize();
+    ug->SetOrigin(origin);
+    ug->SetSpacing(spacing);
+    ug->SetDimensions(pdims);
+
+    const auto fields = child["fields"];
+    vtkConduitToDataObject::AddFieldData(ug, fields, true);
+
+    vtkAMRBox box(origin, pdims, spacing, globalInfo.Origin, amr->GetGridDescription());
+    // set level spacing
+    amr->SetSpacing(level, spacing);
+    amr->SetAMRBox(level,
+      rankInfo.DomainBlockLevelIds.at(domain_id).second +
+        rankInfo.BlockOffsets[rankInfo.DomainBlockLevelIds.at(domain_id).first],
+      box);
+    amr->SetDataSet(
+      level, rankInfo.DomainBlockLevelIds.at(domain_id).second + rankInfo.BlockOffsets[level], ug);
+
+    const int default_refinement_ratio = 2;
+    amr->SetRefinementRatio(level, default_refinement_ratio);
+    if (child.has_path("nestsets/nest/windows"))
+    {
+      const auto& windows = child["nestsets/nest/windows"];
+      const auto window_count = windows.number_of_children();
+      for (int i = 0; i < window_count; ++i)
+      {
+        const auto& window = windows.child(i);
+        if (window.has_path("ratio") && window.has_path("domain_type"))
+        {
+          amr->SetRefinementRatio(level, window["ratio/i"].to_int32());
+          break;
+        }
+      }
+    }
+  }
+}
+
+// distribute AMRBoxes to all processes
+void DistributeAMRBoxes(
+  const LocalInfo& rankInfo, const GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
+{
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+
+  if (globalInfo.NbOfProcesses > 1 && controller)
+  {
+    std::vector<vtkIdType> boxBoundsOffsets(globalInfo.NbOfProcesses);
+    std::vector<vtkIdType> boxBoundsCounts(globalInfo.NbOfProcesses);
+    std::vector<int> boxExtentsLocal(8 * rankInfo.NbOfBlocks, 0);
+    std::vector<int> boxExtentsGlobal(8 * globalInfo.NbOfBlocks, 0);
+
+    for (int p = 0; p < globalInfo.NbOfProcesses; ++p)
+    {
+      int num_blocks = 0;
+      for (int l = 0; l < globalInfo.NbOfLevels; l++)
+      {
+        num_blocks += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+      }
+      boxBoundsCounts[p] = num_blocks * 8;
+      if (p > 0)
+      {
+        boxBoundsOffsets[p] = boxBoundsCounts[p - 1] + boxBoundsOffsets[p - 1];
+      }
+    }
+
+    int local_index = 0;
+    for (std::map<int, std::pair<int, int>>::const_iterator it =
+           rankInfo.DomainBlockLevelIds.begin();
+         it != rankInfo.DomainBlockLevelIds.end(); ++it)
+    {
+      int level = it->second.first;
+      int id = it->second.second + rankInfo.BlockOffsets[level];
+
+      vtkAMRBox box = amr->GetAMRBox(level, id);
+      const int* loCorner = box.GetLoCorner();
+      const int* hiCorner = box.GetHiCorner();
+      int offset = 8 * local_index;
+      boxExtentsLocal[offset + 0] = level;
+      boxExtentsLocal[offset + 1] = id;
+      boxExtentsLocal[offset + 2] = loCorner[0];
+      boxExtentsLocal[offset + 3] = loCorner[1];
+      boxExtentsLocal[offset + 4] = loCorner[2];
+      boxExtentsLocal[offset + 5] = hiCorner[0];
+      boxExtentsLocal[offset + 6] = hiCorner[1];
+      boxExtentsLocal[offset + 7] = hiCorner[2];
+      ++local_index;
+    }
+
+    controller->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
+      boxBoundsCounts.data(), boxBoundsOffsets.data());
+    for (int i = 0; i < globalInfo.NbOfBlocks; ++i)
+    {
+      int level = boxExtentsGlobal[8 * i + 0];
+      int id = boxExtentsGlobal[8 * i + 1];
+      int* dims = &boxExtentsGlobal[8 * i + 2];
+      vtkAMRBox box(dims[0], dims[1], dims[2], dims[3], dims[4], dims[5]);
+      amr->SetAMRBox(level, id, box);
+    }
+  }
+}
 };
 
 namespace vtkConduitToDataObject
@@ -250,7 +495,7 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
       const auto vtk_association = GetAssociation(fieldNode["association"].as_string());
       auto dsa = dataset->GetAttributes(vtk_association);
       auto values = fieldNode["values"];
-      size_t dataset_size;
+      std::size_t dataset_size;
       if (values.number_of_children() == 0)
       {
         dataset_size = values.dtype().number_of_elements();
@@ -347,7 +592,6 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
 {
   LocalInfo rankInfo;
   GlobalInfo globalInfo;
-  const int default_refinement_ratio = 2;
 
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   if (controller)
@@ -361,232 +605,20 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
 
   rankInfo.NbOfLeaves = node.number_of_children();
 
-  double origin[3] = { 0, 0, 0 };
-  double spacing[3] = { 0, 0, 0 };
+  ::ConstructLocalInfo(node, rankInfo);
 
-  // ---------------------
-  // construct structure: nb of blocks per levels, and origin.
-  // Local origin is the min of all origins found:
-  // so we will get a Global Origin with a simple min reduction
+  ::GatherInfos(rankInfo, globalInfo);
+
+  ::InitializeLocalAMR(rankInfo, globalInfo, amr);
+
   for (conduit_index_t cc = 0; cc < rankInfo.NbOfLeaves; ++cc)
   {
     const auto child = node.child(cc);
-    if (child.has_path("state"))
-    {
-      const int level = child["state/level"].to_int32();
-      const int domain_id = child["state/domain_id"].to_int32();
-      if (size_t(level) >= rankInfo.BlocksPerLevel.size())
-      {
-        rankInfo.BlocksPerLevel.resize(level + 1);
-        rankInfo.BlocksPerLevel[level] = 0;
-      }
-      rankInfo.DomainBlockLevelIds[domain_id] = { level, rankInfo.BlocksPerLevel[level] };
-      rankInfo.BlocksPerLevel[level]++;
-
-      origin[0] = child["coordsets/coords/origin/x"].to_float64();
-      origin[1] = child["coordsets/coords/origin/y"].to_float64();
-      origin[2] = child["coordsets/coords/origin/z"].to_float64();
-      // check global origin
-      if (origin[0] <= rankInfo.Origin[0] && origin[1] <= rankInfo.Origin[1] &&
-        origin[2] <= rankInfo.Origin[2])
-      {
-        rankInfo.Origin[0] = origin[0];
-        rankInfo.Origin[1] = origin[1];
-        rankInfo.Origin[2] = origin[2];
-      }
-    }
+    ::FillLocalData(child, rankInfo, globalInfo, amr);
   }
 
-  // ---------------------
-  // MPI comm: reduce nb of levels, blocks and origin
+  ::DistributeAMRBoxes(rankInfo, globalInfo, amr);
 
-  const vtkIdType levels_local = vtkIdType(rankInfo.BlocksPerLevel.size());
-
-  if (globalInfo.NbOfProcesses == 1)
-  {
-    globalInfo.NbOfLevels = levels_local;
-    std::copy(rankInfo.Origin, rankInfo.Origin + 3, globalInfo.Origin);
-  }
-  else if (controller)
-  {
-    controller->AllReduce(&levels_local, &globalInfo.NbOfLevels, 1, vtkCommunicator::MAX_OP);
-    controller->AllReduce(rankInfo.Origin, globalInfo.Origin, 3, vtkCommunicator::MIN_OP);
-  }
-
-  // need the total number of blocks across all processes
-  rankInfo.BlocksPerLevel.resize(globalInfo.NbOfLevels, 0); // set the extra values created to 0
-  globalInfo.BlocksPerLevelAndRank.resize(globalInfo.NbOfLevels * globalInfo.NbOfProcesses);
-  // the ordering of the blocks for AMR is first all level 0 blocks, then all level 1 blocks, ...
-  // at each level we order based on proc rank first and then local id
-  if (globalInfo.NbOfProcesses == 1)
-  {
-    globalInfo.BlocksPerLevelAndRank = rankInfo.BlocksPerLevel;
-  }
-  else if (controller)
-  {
-    controller->AllGather(rankInfo.BlocksPerLevel.data(), globalInfo.BlocksPerLevelAndRank.data(),
-      globalInfo.NbOfLevels);
-  }
-
-  rankInfo.NbOfBlocks = vtkIdType(rankInfo.DomainBlockLevelIds.size());
-  globalInfo.NbOfBlocks = std::accumulate(
-    globalInfo.BlocksPerLevelAndRank.begin(), globalInfo.BlocksPerLevelAndRank.end(), 0);
-
-  // the offset for the start of each block at each level
-  rankInfo.BlockOffsets.resize(globalInfo.NbOfLevels, 0);
-  if (globalInfo.NbOfProcesses > 1)
-  {
-    for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
-    {
-      vtkIdType offset(0);
-      for (int p = 0; p < rankInfo.Rank; p++)
-      {
-        offset += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
-      }
-      rankInfo.BlockOffsets[l] = offset;
-    }
-  }
-
-  // ---------------------
-  // initialize AMR: each rank has same structure
-  // nb of Levels and nb of Blocks per level.
-  // init each bloc with nullptr
-  std::vector<int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
-  for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
-  {
-    for (int p = 0; p < globalInfo.NbOfProcesses; p++)
-    {
-      blocksPerLevelGlobal[l] += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
-    }
-  }
-  amr->Initialize(globalInfo.NbOfLevels, blocksPerLevelGlobal.data());
-  for (int l = 0; l < globalInfo.NbOfLevels; ++l)
-  {
-    for (int b = 0; b < blocksPerLevelGlobal[l]; ++b)
-    {
-      amr->SetDataSet(l, b, nullptr);
-    }
-  }
-
-  // set origin
-  amr->SetOrigin(globalInfo.Origin);
-
-  // ---------------------
-  // Fill local data
-  for (conduit_index_t cc = 0; cc < rankInfo.NbOfLeaves; ++cc)
-  {
-    // set the spacing for each level via amr->SetSpacing();
-    const auto child = node.child(cc);
-    if (child.has_path("state"))
-    {
-      int pdims[3] = { 0, 0, 0 };
-      const int domain_id = child["state/domain_id"].to_int32();
-      const int level = child["state/level"].to_int32();
-
-      origin[0] = child["coordsets/coords/origin/x"].to_float64();
-      origin[1] = child["coordsets/coords/origin/y"].to_float64();
-      origin[2] = child["coordsets/coords/origin/z"].to_float64();
-      spacing[0] = child["coordsets/coords/spacing/dx"].to_float64();
-      spacing[1] = child["coordsets/coords/spacing/dy"].to_float64();
-      spacing[2] = child["coordsets/coords/spacing/dz"].to_float64();
-      pdims[0] = child["coordsets/coords/dims/i"].to_int32();
-      pdims[1] = child["coordsets/coords/dims/j"].to_int32();
-      pdims[2] = child["coordsets/coords/dims/k"].to_int32();
-
-      vtkNew<vtkUniformGrid> ug;
-      ug->Initialize();
-      ug->SetOrigin(origin);
-      ug->SetSpacing(spacing);
-      ug->SetDimensions(pdims);
-
-      const auto fields = child["fields"];
-      AddFieldData(ug, fields, true);
-
-      vtkAMRBox box(origin, pdims, spacing, globalInfo.Origin, amr->GetGridDescription());
-      // set level spacing
-      amr->SetSpacing(level, spacing);
-      amr->SetAMRBox(rankInfo.DomainBlockLevelIds[domain_id].first,
-        rankInfo.DomainBlockLevelIds[domain_id].second +
-          rankInfo.BlockOffsets[rankInfo.DomainBlockLevelIds[domain_id].first],
-        box);
-      amr->SetDataSet(rankInfo.DomainBlockLevelIds[domain_id].first,
-        rankInfo.DomainBlockLevelIds[domain_id].second +
-          rankInfo.BlockOffsets[rankInfo.DomainBlockLevelIds[domain_id].first],
-        ug);
-      amr->SetRefinementRatio(level, default_refinement_ratio);
-      if (child.has_path("nestsets/nest/windows"))
-      {
-        const auto& windows = child["nestsets/nest/windows"];
-        const auto window_count = windows.number_of_children();
-        for (int i = 0; i < window_count; ++i)
-        {
-          const auto& window = windows.child(i);
-          if (window.has_path("ratio") && window.has_path("domain_type"))
-          {
-            amr->SetRefinementRatio(level, window["ratio/i"].to_int32());
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  // distribute AMRBoxes to all processes
-  if (globalInfo.NbOfProcesses > 1 && controller)
-  {
-    std::vector<vtkIdType> boxBoundsOffsets(globalInfo.NbOfProcesses);
-    std::vector<vtkIdType> boxBoundsCounts(globalInfo.NbOfProcesses);
-    std::vector<int> boxExtentsLocal(8 * rankInfo.NbOfBlocks, 0);
-    std::vector<int> boxExtentsGlobal(8 * globalInfo.NbOfBlocks, 0);
-
-    for (int p = 0; p < globalInfo.NbOfProcesses; ++p)
-    {
-      int num_blocks = 0;
-      for (int l = 0; l < globalInfo.NbOfLevels; l++)
-      {
-        num_blocks += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
-      }
-      boxBoundsCounts[p] = num_blocks * 8;
-      if (p > 0)
-      {
-        boxBoundsOffsets[p] = boxBoundsCounts[p - 1] + boxBoundsOffsets[p - 1];
-      }
-    }
-
-    int local_index = 0;
-    for (std::map<int, std::pair<int, int>>::const_iterator it =
-           rankInfo.DomainBlockLevelIds.begin();
-         it != rankInfo.DomainBlockLevelIds.end(); ++it)
-    {
-      int level = it->second.first;
-      int id = it->second.second + rankInfo.BlockOffsets[level];
-
-      vtkAMRBox box = amr->GetAMRBox(level, id);
-      const int* loCorner = box.GetLoCorner();
-      const int* hiCorner = box.GetHiCorner();
-      int offset = 8 * local_index;
-      boxExtentsLocal[offset + 0] = level;
-      boxExtentsLocal[offset + 1] = id;
-      boxExtentsLocal[offset + 2] = loCorner[0];
-      boxExtentsLocal[offset + 3] = loCorner[1];
-      boxExtentsLocal[offset + 4] = loCorner[2];
-      boxExtentsLocal[offset + 5] = hiCorner[0];
-      boxExtentsLocal[offset + 6] = hiCorner[1];
-      boxExtentsLocal[offset + 7] = hiCorner[2];
-      ++local_index;
-    }
-
-    controller->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
-      boxBoundsCounts.data(), boxBoundsOffsets.data());
-    for (int i = 0; i < globalInfo.NbOfBlocks; ++i)
-    {
-      int level = boxExtentsGlobal[8 * i + 0];
-      int id = boxExtentsGlobal[8 * i + 1];
-      int* dims = &boxExtentsGlobal[8 * i + 2];
-      vtkAMRBox box(dims[0], dims[1], dims[2], dims[3], dims[4], dims[5]);
-      amr->SetAMRBox(level, id, box);
-    }
-  }
   if (globalInfo.NbOfProcesses == 1)
   {
     vtkAMRUtilities::BlankCells(amr);
@@ -957,7 +989,7 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
 
     try
     {
-      size_t dataset_size = 0;
+      std::size_t dataset_size = 0;
       if (field_node.number_of_children() == 0)
       {
         dataset_size = field_node.dtype().number_of_elements();
