@@ -1,0 +1,13 @@
+NAME
+  VTK::IOAvmesh
+LIBRARY_NAME
+  vtkIOAvmesh
+KIT
+  VTK::IO
+GROUPS
+  STANDALONE
+DEPENDS
+  VTK::CommonCore
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
