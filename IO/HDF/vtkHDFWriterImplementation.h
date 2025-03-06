@@ -140,13 +140,15 @@ public:
 
   /**
    * Create a soft link to the real group containing the block dataset.
+   * Return true if the operation succeeded.
    */
-  herr_t CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
+  bool CreateSoftLink(hid_t group, const char* groupName, const char* targetLink);
 
   /**
    * Create an external link to the real group containing the block dataset.
+   * Return true if the operation succeeded.
    */
-  herr_t CreateExternalLink(
+  bool CreateExternalLink(
     hid_t group, const char* filename, const char* source, const char* targetLink);
 
   /**

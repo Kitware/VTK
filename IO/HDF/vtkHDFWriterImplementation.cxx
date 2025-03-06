@@ -357,17 +357,17 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroupWithLinkOrde
 }
 
 //------------------------------------------------------------------------------
-herr_t vtkHDFWriter::Implementation::CreateSoftLink(
+bool vtkHDFWriter::Implementation::CreateSoftLink(
   hid_t group, const char* groupName, const char* targetLink)
 {
-  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT);
+  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT) >= 0;
 }
 
 //------------------------------------------------------------------------------
-herr_t vtkHDFWriter::Implementation::CreateExternalLink(
+bool vtkHDFWriter::Implementation::CreateExternalLink(
   hid_t group, const char* filename, const char* source, const char* targetLink)
 {
-  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT);
+  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT) >= 0;
 }
 
 //------------------------------------------------------------------------------

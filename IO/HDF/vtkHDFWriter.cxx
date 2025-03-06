@@ -1359,7 +1359,7 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
 
     if (this->UseExternalComposite)
     {
-      if (this->AppendExternalBlock(currentBlock, currentName))
+      if (!this->AppendExternalBlock(currentBlock, currentName))
       {
         return false;
       }
@@ -1408,7 +1408,7 @@ bool vtkHDFWriter::AppendExternalBlock(vtkDataObject* block, const std::string& 
 
   // Create external link, only done once
   if (this->CurrentTimeIndex == 0 &&
-    this->Impl->CreateExternalLink(
+    !this->Impl->CreateExternalLink(
       this->Impl->GetRoot(), subfileName.c_str(), "VTKHDF", blockName.c_str()))
   {
     vtkErrorMacro(<< "Could not create external link to file " << subfileName);
@@ -1448,7 +1448,11 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
       const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
       const std::string linkSource =
         vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly/" + nodePath + "/" + datasetName;
-      this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
+      if (!this->Impl->CreateSoftLink(
+            this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str()))
+      {
+        return false;
+      }
     }
   }
 
@@ -1519,7 +1523,11 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
         const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
         const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
 
-        this->Impl->CreateSoftLink(this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str());
+        if (!this->Impl->CreateSoftLink(
+              this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str()))
+        {
+          return false;
+        }
       }
     }
   }
@@ -1646,7 +1654,6 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 bool vtkHDFWriter::HasGeometryChangedFromPreviousStep(vtkDataSet* input)
 {
   return this->CurrentTimeIndex != 0 && input->GetMeshMTime() != this->PreviousStepMeshMTime;
-  // return input->GetMeshMTime() != this->PreviousStepMeshMTime;
 }
 
 //------------------------------------------------------------------------------
