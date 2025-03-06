@@ -122,6 +122,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestUserShader2.cxx
   TestUserShader2D.cxx,NO_DATA
   TestValuePassFloatingPoint.cxx
+  TestValuePassFloatingPoint2.cxx
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
   TestWindowBlits.cxx
