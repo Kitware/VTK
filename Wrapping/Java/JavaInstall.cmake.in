@@ -1,0 +1,79 @@
+# Set native Jar name based on OS and Architecture
+set(NATIVE_NAME "natives-@MAVEN_LOCAL_NATIVE_NAME@")
+
+message("Package VTK for Java - ${NATIVE_NAME}")
+
+set(install_prefix_dir "${CMAKE_INSTALL_PREFIX}")
+
+if (DEFINED ENV{DESTDIR} AND UNIX)
+  string(PREPEND cmake_install_prefix "$ENV{DESTDIR}")
+endif()
+
+# Only for windows but no harm to do it always
+file (INSTALL "${install_prefix_dir}/bin/"
+      DESTINATION "${install_prefix_dir}/${NATIVE_NAME}"
+      FILES_MATCHING
+      PATTERN *.dll
+      PATTERN *.cmake
+      PATTERN *.txt
+      PATTERN *.in
+      PATTERN *Test* EXCLUDE
+      PATTERN *test* EXCLUDE
+)
+
+# If LIBDIR already contains JNILIBDIR do not install JNI libs again
+set(install_jni_libs_separately TRUE)
+string(REGEX MATCH "^@CMAKE_INSTALL_LIBDIR@" matched_libdir_path "@CMAKE_INSTALL_JNILIBDIR@")
+if (matched_libdir_path STREQUAL "@CMAKE_INSTALL_LIBDIR@")
+  set(install_jni_libs_separately FALSE)
+endif()
+
+# Install native VTK libs
+file (INSTALL
+      "${install_prefix_dir}/@CMAKE_INSTALL_LIBDIR@/"
+      DESTINATION "${install_prefix_dir}/${NATIVE_NAME}"
+      FOLLOW_SYMLINK_CHAIN
+      FILES_MATCHING
+      PATTERN *.dll
+      PATTERN *.so
+      PATTERN *.dylib
+      PATTERN *.cmake
+      PATTERN *.in
+      PATTERN *.txt
+      PATTERN *Test* EXCLUDE
+      PATTERN *test* EXCLUDE
+)
+
+if (install_jni_libs_separately)
+  # Install native VTK JAVA libs
+  file (INSTALL
+        "${install_prefix_dir}/@CMAKE_INSTALL_JNILIBDIR@/"
+        DESTINATION "${install_prefix_dir}/${NATIVE_NAME}/@CMAKE_INSTALL_JNILIBDIR@"
+        FILES_MATCHING
+        PATTERN *.dll
+        PATTERN *.so
+        PATTERN *.dylib
+        PATTERN *Test* EXCLUDE
+        PATTERN *test* EXCLUDE
+  )
+endif()
+
+# Rename vtk.jar with version number
+file(RENAME
+  "${install_prefix_dir}/@CMAKE_INSTALL_JARDIR@/vtk.jar"
+  "${install_prefix_dir}/vtk-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.jar"
+)
+
+# Create the jar file
+execute_process(
+  COMMAND "@JAVA_ARCHIVE@" -cf "${install_prefix_dir}/vtk@MAVEN_VTK_ARTIFACT_SUFFIX@-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@-${NATIVE_NAME}.jar" -C "${install_prefix_dir}/${NATIVE_NAME}" .
+)
+
+# Copy maven files
+file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/pom.xml" "@CMAKE_CURRENT_BINARY_DIR@/MAVEN-README.txt" DESTINATION "${install_prefix_dir}")
+file(RENAME
+  "${install_prefix_dir}/MAVEN-README.txt"
+  "${install_prefix_dir}/README.txt"
+)
+
+message("Java repackaging done")

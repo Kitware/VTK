@@ -13,7 +13,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <algorithm>
 #include <boost/graph/johnson_all_pairs_shortest.hpp>

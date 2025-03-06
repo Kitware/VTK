@@ -43,24 +43,26 @@ struct vtkAnimateModesWorker
       scale = scale - 1.0;
     }
 
-    vtkSMPTools::For(0, numTuples, [&](vtkIdType start, vtkIdType end) {
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, numTuples,
+      [&](vtkIdType start, vtkIdType end)
       {
-        if (isFirst)
+        bool isFirst = vtkSMPTools::GetSingleThread();
+        for (vtkIdType cc = start; cc < end; ++cc)
         {
-          self->CheckAbort();
+          if (isFirst)
+          {
+            self->CheckAbort();
+          }
+          if (self->GetAbortOutput())
+          {
+            break;
+          }
+          for (int comp = 0; comp < numComps; ++comp)
+          {
+            opts.Set(cc, comp, ipts.Get(cc, comp) + disp.Get(cc, comp) * scale);
+          }
         }
-        if (self->GetAbortOutput())
-        {
-          break;
-        }
-        for (int comp = 0; comp < numComps; ++comp)
-        {
-          opts.Set(cc, comp, ipts.Get(cc, comp) + disp.Get(cc, comp) * scale);
-        }
-      }
-    });
+      });
   }
 };
 
@@ -151,7 +153,8 @@ int vtkAnimateModes::RequestData(
     : 0;
 
   // functor to animate block.
-  auto executeBlock = [this, modeShapeTime](vtkPointSet* block) {
+  auto executeBlock = [this, modeShapeTime](vtkPointSet* block)
+  {
     auto displacement = this->GetInputArrayToProcess(0, block);
     if (!displacement)
     {

@@ -811,20 +811,30 @@ bool vtkGLTFDocumentLoader::LoadImageData()
     image.ImageData = vtkSmartPointer<vtkImageData>::New();
     std::vector<std::uint8_t> buffer;
 
-    // If mime-type is defined, get appropriate reader here (only two possible values)
-    if (image.MimeType == "image/jpeg")
-    {
-      reader = vtkSmartPointer<vtkJPEGReader>::New();
-    }
-    else if (image.MimeType == "image/png")
-    {
-      reader = vtkSmartPointer<vtkPNGReader>::New();
-    }
-
     // If image is defined via bufferview index
     if (image.BufferView >= 0 &&
       image.BufferView < static_cast<int>(this->InternalModel->BufferViews.size()))
     {
+      // mime-type must be defined with BufferView to get appropriate reader here (only two possible
+      // values)
+      if (image.MimeType == "image/jpeg")
+      {
+        reader = vtkSmartPointer<vtkJPEGReader>::New();
+      }
+      else if (image.MimeType == "image/png")
+      {
+        reader = vtkSmartPointer<vtkPNGReader>::New();
+      }
+      else
+      {
+        // Extensions allow other image types.
+        // It is perfectly valid to declare other extension-supported image types
+        // so long as they are never required by the scene. Therefore, the possible
+        // error is deferred until later.
+        image.ImageData = nullptr;
+        continue;
+      }
+
       BufferView& bufferView = this->InternalModel->BufferViews[image.BufferView];
       int bufferId = bufferView.Buffer;
       if (bufferId < 0 || bufferId >= static_cast<int>(this->InternalModel->Buffers.size()))
@@ -867,8 +877,12 @@ bool vtkGLTFDocumentLoader::LoadImageData()
       }
       else
       {
-        vtkErrorMacro("Invalid image format");
-        return false;
+        // Extensions allow other image types.
+        // It is perfectly valid to use other image formats
+        // so long as they are never required by the scene. Therefore, the possible
+        // error is deferred until later.
+        image.ImageData = nullptr;
+        continue;
       }
 
       stream->Seek(0, vtkResourceStream::SeekDirection::End);
@@ -1001,6 +1015,12 @@ bool vtkGLTFDocumentLoader::ApplyAnimation(float t, int animationId, bool forceS
   const Animation& animation = this->InternalModel->Animations[animationId];
   for (const Animation::Channel& channel : animation.Channels)
   {
+    if (channel.TargetNode >= static_cast<int>(this->InternalModel->Nodes.size()))
+    {
+      vtkErrorMacro("Invalid target node");
+      return false;
+    }
+
     Node& node = this->InternalModel->Nodes[channel.TargetNode];
     const Animation::Sampler& sampler = animation.Samplers[channel.Sampler];
 
@@ -1058,6 +1078,12 @@ void vtkGLTFDocumentLoader::ResetAnimation(int animationId)
   const Animation& animation = this->InternalModel->Animations[animationId];
   for (const Animation::Channel& channel : animation.Channels)
   {
+    if (channel.TargetNode >= static_cast<int>(this->InternalModel->Nodes.size()))
+    {
+      vtkWarningMacro("Invalid target node, skipping reset");
+      continue;
+    }
+
     Node& node = this->InternalModel->Nodes[channel.TargetNode];
     switch (channel.TargetPath)
     {

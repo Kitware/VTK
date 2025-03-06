@@ -54,7 +54,8 @@ struct DotWorker
     using NormalConstRef = typename decltype(normals)::ConstTupleReferenceType;
     using VectorConstRef = typename decltype(vectors)::ConstTupleReferenceType;
 
-    auto computeScalars = [&](NormalConstRef n, VectorConstRef v) -> float {
+    auto computeScalars = [&](NormalConstRef n, VectorConstRef v) -> float
+    {
       const float s = static_cast<float>(n[0] * v[0] + n[1] * v[1] + n[2] * v[2]);
 
       min = std::min(min, s);

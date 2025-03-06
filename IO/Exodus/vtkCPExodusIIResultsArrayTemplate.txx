@@ -497,7 +497,7 @@ vtkCPExodusIIResultsArrayTemplate<Scalar>::~vtkCPExodusIIResultsArrayTemplate()
   {
     for (ArrayIterator it = this->Arrays.begin(), itEnd = this->Arrays.end(); it != itEnd; ++it)
     {
-      delete[] * it;
+      delete[] *it;
     }
   }
   delete[] this->TempDoubleArray;

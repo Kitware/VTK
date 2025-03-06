@@ -860,7 +860,10 @@ inline PyObject* vtkPythonBuildTuple(const T* a, size_t n)
 }
 
 #define VTK_PYTHON_BUILD_TUPLE(T)                                                                  \
-  PyObject* vtkPythonArgs::BuildTuple(const T* a, size_t n) { return vtkPythonBuildTuple(a, n); }
+  PyObject* vtkPythonArgs::BuildTuple(const T* a, size_t n)                                        \
+  {                                                                                                \
+    return vtkPythonBuildTuple(a, n);                                                              \
+  }
 
 VTK_PYTHON_BUILD_TUPLE(bool)
 VTK_PYTHON_BUILD_TUPLE(float)
@@ -1083,7 +1086,10 @@ bool vtkPythonArgs::GetVTKObject(PyObject* o, vtkSmartPointerBase& v, const char
     return false;                                                                                  \
   }                                                                                                \
                                                                                                    \
-  bool vtkPythonArgs::GetValue(PyObject* o, T& a) { return vtkPythonGetValue(o, a); }
+  bool vtkPythonArgs::GetValue(PyObject* o, T& a)                                                  \
+  {                                                                                                \
+    return vtkPythonGetValue(o, a);                                                                \
+  }
 
 VTK_PYTHON_GET_ARG(const char*)
 VTK_PYTHON_GET_ARG(std::string)
@@ -1121,7 +1127,10 @@ VTK_PYTHON_GET_ARG(unsigned long long)
     return false;                                                                                  \
   }                                                                                                \
                                                                                                    \
-  bool vtkPythonArgs::GetFilePath(PyObject* o, T& a) { return vtkPythonGetFilePath(o, a); }
+  bool vtkPythonArgs::GetFilePath(PyObject* o, T& a)                                               \
+  {                                                                                                \
+    return vtkPythonGetFilePath(o, a);                                                             \
+  }
 
 VTK_PYTHON_GET_FILEPATH_ARG(const char*)
 VTK_PYTHON_GET_FILEPATH_ARG(std::string)

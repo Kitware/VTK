@@ -288,22 +288,26 @@ void UpdateCellArrayConnectivity(vtkCellArray* ca, vtkIdType* ptMap)
   if (ca->IsStorage64Bit())
   {
     vtkTypeInt64* c = ca->GetConnectivityArray64()->GetPointer(0);
-    vtkSMPTools::For(0, numConn, [&, c, ptMap](vtkIdType id, vtkIdType endId) {
-      for (; id < endId; ++id)
+    vtkSMPTools::For(0, numConn,
+      [&, c, ptMap](vtkIdType id, vtkIdType endId)
       {
-        c[id] = ptMap[c[id]];
-      }
-    }); // end lambda
+        for (; id < endId; ++id)
+        {
+          c[id] = ptMap[c[id]];
+        }
+      }); // end lambda
   }
   else
   {
     vtkTypeInt32* c = ca->GetConnectivityArray32()->GetPointer(0);
-    vtkSMPTools::For(0, numConn, [&, c, ptMap](vtkIdType id, vtkIdType endId) {
-      for (; id < endId; ++id)
+    vtkSMPTools::For(0, numConn,
+      [&, c, ptMap](vtkIdType id, vtkIdType endId)
       {
-        c[id] = ptMap[c[id]];
-      }
-    }); // end lambda
+        for (; id < endId; ++id)
+        {
+          c[id] = ptMap[c[id]];
+        }
+      }); // end lambda
   }
 }
 

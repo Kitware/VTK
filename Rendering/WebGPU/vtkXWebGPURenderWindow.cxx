@@ -5,8 +5,8 @@
 #include "vtkImageData.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
-#include "vtkWGPUContext.h"
-#include "vtkWebGPURenderer.h"
+#include "vtkWebGPUConfiguration.h"
+#include "vtkWebGPURenderWindow.h"
 #include "vtkXWebGPURenderWindow.h"
 
 // STL includes
@@ -55,16 +55,19 @@ vtkXWebGPURenderWindow::vtkXWebGPURenderWindow()
 // free up memory & close the window
 vtkXWebGPURenderWindow::~vtkXWebGPURenderWindow()
 {
-  // close-down all system-specific drawing resources
-  this->Finalize();
-
   vtkRenderer* ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ((ren = this->Renderers->GetNextRenderer(rit)))
   {
+    ren->ReleaseGraphicsResources(this);
     ren->SetRenderWindow(nullptr);
   }
+  this->Renderers->RemoveAllItems();
+  // Finalize in turn destroys the WGPUInstance. As a result, it must be called after all renderers
+  // are destroyed. Otherwise, the destructors of WGPU objects held on to by the vtkRenderer will
+  // occur after WGPUInstance is gone, which can crash applications.
+  this->Finalize();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -97,7 +100,12 @@ bool vtkXWebGPURenderWindow::InitializeFromCurrentContext()
 //------------------------------------------------------------------------------------------------
 void vtkXWebGPURenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
-  if (!this->Device)
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+  }
+  if (!this->WGPUConfiguration->GetDevice().Get())
   {
     this->Superclass::SetStereoCapableWindow(capable);
   }
@@ -166,7 +174,15 @@ void vtkXWebGPURenderWindow::SetShowWindow(bool val)
 //------------------------------------------------------------------------------------------------
 std::string vtkXWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 {
-  return std::string("Visualization Toolkit - ") + "X11 " + this->GetBackendTypeAsString();
+  if (this->WGPUConfiguration)
+  {
+    return std::string("Visualization Toolkit - ") + "X11 " +
+      this->WGPUConfiguration->GetBackendInUseAsString();
+  }
+  else
+  {
+    return "Visualization Toolkit - X11 undefined backend";
+  }
 }
 
 //------------------------------------------------------------------------------------------------
@@ -196,16 +212,10 @@ void vtkXWebGPURenderWindow::CreateAWindow()
   xsh.height = height;
 
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    this->OwnDisplay = 1;
+    vtkErrorMacro(<< "Aborting in CreateAWindow(), no Display\n");
+    abort();
   }
 
   attr.override_redirect = False;
@@ -421,8 +431,14 @@ void vtkXWebGPURenderWindow::WindowInitialize()
 
 //------------------------------------------------------------------------------------------------
 // Initialize the rendering window.
-bool vtkXWebGPURenderWindow::Initialize()
+bool vtkXWebGPURenderWindow::WindowSetup()
 {
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+    return false;
+  }
   if (!this->WindowId || !this->DisplayId)
   {
     // initialize the window
@@ -431,10 +447,13 @@ bool vtkXWebGPURenderWindow::Initialize()
 
   if (this->WGPUInit())
   {
-    wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc;
+    wgpu::SurfaceDescriptorFromXlibWindow x11SurfDesc = {};
     x11SurfDesc.display = this->GetDisplayId();
     x11SurfDesc.window = this->GetWindowId();
-    this->Surface = vtkWGPUContext::CreateSurface(x11SurfDesc);
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK X11 surface";
+    surfDesc.nextInChain = &x11SurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
     return true;
   }
   return false;
@@ -443,7 +462,7 @@ bool vtkXWebGPURenderWindow::Initialize()
 //------------------------------------------------------------------------------------------------
 void vtkXWebGPURenderWindow::Finalize()
 {
-  if (this->WGPUInitialized)
+  if (this->Initialized)
   {
     this->WGPUFinalize();
   }
@@ -663,19 +682,11 @@ vtkTypeBool vtkXWebGPURenderWindow::GetEventPending()
 int* vtkXWebGPURenderWindow::GetScreenSize()
 {
   // get the default display connection
-  if (!this->DisplayId)
+  if (!this->EnsureDisplay())
   {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
+    this->ScreenSize[0] = 0;
+    this->ScreenSize[1] = 0;
+    return this->ScreenSize;
   }
 
   this->ScreenSize[0] = XDisplayWidth(this->DisplayId, XDefaultScreen(this->DisplayId));
@@ -716,6 +727,26 @@ Display* vtkXWebGPURenderWindow::GetDisplayId()
   vtkDebugMacro(<< "Returning DisplayId of " << static_cast<void*>(this->DisplayId) << "\n");
 
   return this->DisplayId;
+}
+
+//------------------------------------------------------------------------------------------------
+bool vtkXWebGPURenderWindow::EnsureDisplay()
+{
+  if (!this->DisplayId)
+  {
+    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
+    if (this->DisplayId == nullptr)
+    {
+      vtkWarningMacro(<< "bad X server connection. DISPLAY="
+                      << vtksys::SystemTools::GetEnv("DISPLAY"));
+    }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
+
+  return this->DisplayId != nullptr;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -782,24 +813,10 @@ void vtkXWebGPURenderWindow::SetWindowId(Window arg)
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkXWebGPURenderWindow::SetWindowInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
 
   this->SetWindowId(static_cast<Window>(tmp));
@@ -819,24 +836,10 @@ void vtkXWebGPURenderWindow::SetNextWindowInfo(const char* info)
 // Sets the X window id of the window that WILL BE created.
 void vtkXWebGPURenderWindow::SetParentInfo(const char* info)
 {
+  // note: potential Display/Window mismatch here
+  this->EnsureDisplay();
+
   int tmp;
-
-  // get the default display connection
-  if (!this->DisplayId)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId == nullptr)
-    {
-      vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                    << ". Aborting.\n");
-      abort();
-    }
-    else
-    {
-      this->OwnDisplay = 1;
-    }
-  }
-
   sscanf(info, "%i", &tmp);
 
   this->SetParentId(static_cast<Window>(tmp));

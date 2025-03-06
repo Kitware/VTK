@@ -139,22 +139,22 @@ public:
   static vtkCompactHyperTree* New();
 
   //---------------------------------------------------------------------------
-  void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
+  void ComputeBreadthFirstOrderDescriptor(const unsigned int depthLimiter, vtkBitArray* inputMask,
     vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) override
   {
     int maxDepth = this->GetNumberOfLevels();
+
     std::vector<std::vector<bool>> descriptorPerDepth(maxDepth);
     std::vector<std::vector<vtkIdType>> breadthFirstOrderIdMapPerDepth(maxDepth);
 
     this->ComputeBreadthFirstOrderDescriptorImpl(
-      inputMask, 0, 0, descriptorPerDepth, breadthFirstOrderIdMapPerDepth);
+      depthLimiter, inputMask, 0, 0, descriptorPerDepth, breadthFirstOrderIdMapPerDepth);
 
     // Reducing maxDepth to squeeze out depths in which all subtrees are
     // entirely masked.
     while (maxDepth && breadthFirstOrderIdMapPerDepth[--maxDepth].empty())
       ;
-
     ++maxDepth;
 
     for (int idepth = 0; idepth < maxDepth; ++idepth)
@@ -323,7 +323,7 @@ public:
   //---------------------------------------------------------------------------
   void SetGlobalIndexStart(vtkIdType start) override
   {
-    assert("pre: not_global_index_start_if_use_global_index_from_local" &&
+    assert("pre: not_globalindex_start_if_use_globalindex_from_local" &&
       this->CompactDatas->GlobalIndexTable_stl.size() == 0);
 
     this->Datas->GlobalIndexStart = start;
@@ -332,7 +332,7 @@ public:
   //---------------------------------------------------------------------------
   void SetGlobalIndexFromLocal(vtkIdType index, vtkIdType global) override
   {
-    assert("pre: not_global_index_from_local_if_use_global_index_start" &&
+    assert("pre: not_globalindex_from_local_if_use_globalindex_start" &&
       this->Datas->GlobalIndexStart < 0);
 
     // If local index outside map range, resize the latter
@@ -353,15 +353,15 @@ public:
     if (!this->CompactDatas->GlobalIndexTable_stl.empty())
     {
       // Case explicit global node index
-      assert("pre: not_valid_index" && index >= 0 &&
+      assert("pre: not_validindex" && index >= 0 &&
         index < (vtkIdType)this->CompactDatas->GlobalIndexTable_stl.size());
       assert(
-        "pre: not_positive_global_index" && this->CompactDatas->GlobalIndexTable_stl[index] >= 0);
+        "pre: not_positive_globalindex" && this->CompactDatas->GlobalIndexTable_stl[index] >= 0);
       return this->CompactDatas->GlobalIndexTable_stl[index];
     }
     // Case implicit global node index
-    assert("pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0);
-    assert("pre: not_valid_index" && index >= 0);
+    assert("pre: not_positive_startindex" && this->Datas->GlobalIndexStart >= 0);
+    assert("pre: not_validindex" && index >= 0);
     return this->Datas->GlobalIndexStart + index;
   }
 
@@ -375,12 +375,12 @@ public:
         this->CompactDatas->GlobalIndexTable_stl.end();
       const std::vector<vtkIdType>::iterator elt_found =
         std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end);
-      assert("pre: not_positive_global_index" &&
+      assert("pre: not_positive_globalindex" &&
         (*std::max_element(this->CompactDatas->GlobalIndexTable_stl.begin(), it_end)) >= 0);
       return *elt_found;
     }
     // Case implicit global node index
-    assert("pre: not_positive_start_index" && this->Datas->GlobalIndexStart >= 0);
+    assert("pre: not_positive_startindex" && this->Datas->GlobalIndexStart >= 0);
     return this->Datas->GlobalIndexStart + this->Datas->NumberOfVertices - 1;
   }
 
@@ -408,7 +408,7 @@ public:
   //---------------------------------------------------------------------------
   void SubdivideLeaf(vtkIdType index, unsigned int depth) override
   {
-    assert("pre: not_valid_index" && index < static_cast<vtkIdType>(this->Datas->NumberOfVertices));
+    assert("pre: not_validindex" && index < static_cast<vtkIdType>(this->Datas->NumberOfVertices));
     assert("pre: not_leaf" && this->IsLeaf(index));
     // The leaf becomes a node and is not anymore a leaf
     // Nodes get constructed with leaf flags set to 1.
@@ -550,19 +550,21 @@ protected:
    * The descriptor is a binary array associated to each depth such that leaf vertices
    * are mapped to zero, while non leaf vertices are mapped to one.
    */
-  void ComputeBreadthFirstOrderDescriptorImpl(vtkBitArray* inputMask, int depth, vtkIdType index,
+  void ComputeBreadthFirstOrderDescriptorImpl(const unsigned int depthLimiter,
+    vtkBitArray* inputMask, const unsigned int depth, vtkIdType index,
     std::vector<std::vector<bool>>& descriptorPerDepth,
     std::vector<std::vector<vtkIdType>>& breadthFirstOrderIdMapPerDepth)
   {
     vtkIdType idg = this->GetGlobalIndexFromLocal(index);
     bool mask = inputMask ? inputMask->GetValue(idg) : false;
     breadthFirstOrderIdMapPerDepth[depth].emplace_back(idg);
-    if (!this->IsLeaf(index) && !mask)
+    assert("pre: depth valid" && depth < std::numeric_limits<unsigned int>::max());
+    if (!this->IsLeaf(index) && !mask && depth < depthLimiter)
     {
       descriptorPerDepth[depth].push_back(true);
       for (int iChild = 0; iChild < this->NumberOfChildren; ++iChild)
       {
-        this->ComputeBreadthFirstOrderDescriptorImpl(inputMask, depth + 1,
+        this->ComputeBreadthFirstOrderDescriptorImpl(depthLimiter, inputMask, depth + 1,
           this->GetElderChildIndex(index) + iChild, descriptorPerDepth,
           breadthFirstOrderIdMapPerDepth);
       }

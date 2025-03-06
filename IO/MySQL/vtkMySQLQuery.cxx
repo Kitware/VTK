@@ -112,7 +112,10 @@ MYSQL_BIND BuildNullParameterStruct()
 //------------------------------------------------------------------------------
 
 #define VTK_MYSQL_TYPENAME_MACRO(type, return_type)                                                \
-  enum enum_field_types vtkMySQLTypeName(type) { return return_type; }
+  enum enum_field_types vtkMySQLTypeName(type)                                                     \
+  {                                                                                                \
+    return return_type;                                                                            \
+  }
 
 VTK_MYSQL_TYPENAME_MACRO(signed char, MYSQL_TYPE_TINY);
 VTK_MYSQL_TYPENAME_MACRO(unsigned char, MYSQL_TYPE_TINY);

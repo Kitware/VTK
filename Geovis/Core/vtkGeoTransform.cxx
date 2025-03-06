@@ -73,8 +73,16 @@ void vtkGeoTransform::TransformPoints(vtkPoints* srcPts, vtkPoints* dstPts)
   vtkDoubleArray* srcCoords = vtkArrayDownCast<vtkDoubleArray>(srcPts->GetData());
   vtkDoubleArray* dstCoords = vtkArrayDownCast<vtkDoubleArray>(dstPts->GetData());
   if (!srcCoords || !dstCoords)
-  { // data not in a form we can use directly anyway...
-    this->Superclass::TransformPoints(srcPts, dstPts);
+  {
+    // data not in a form we can use directly anyway...
+    double coord[3];
+    vtkIdType numPts = srcPts->GetNumberOfPoints();
+    for (vtkIdType ptId = 0; ptId < numPts; ++ptId)
+    {
+      srcPts->GetPoint(ptId, coord);
+      this->InternalTransformPoint(coord, coord);
+      dstPts->InsertNextPoint(coord);
+    }
     return;
   }
   dstCoords->DeepCopy(srcCoords);
@@ -99,6 +107,19 @@ void vtkGeoTransform::TransformPoints(vtkPoints* srcPts, vtkPoints* dstPts)
     dstCoords->GetPointer(0), dstCoords->GetNumberOfTuples(), dstCoords->GetNumberOfComponents());
 }
 
+void vtkGeoTransform::TransformPointsNormalsVectors(vtkPoints* srcPts, vtkPoints* dstPts,
+  vtkDataArray* srcNms, vtkDataArray*, vtkDataArray* srcVrs, vtkDataArray*, int nOptionalVectors,
+  vtkDataArray**, vtkDataArray**)
+{
+  this->TransformPoints(srcPts, dstPts);
+
+  if (srcNms || srcVrs || nOptionalVectors)
+  {
+    vtkErrorMacro("Error: Normal transformation is not implemented. Please remove normals"
+                  " using vtkPassSelectedArrays and regenerate normals after the transform.");
+  }
+}
+
 void vtkGeoTransform::Inverse()
 {
   vtkGeoProjection* tmp = this->SourceProjection;
@@ -107,16 +128,27 @@ void vtkGeoTransform::Inverse()
   this->Modified();
 }
 
+void vtkGeoTransform::InternalDeepCopy(vtkAbstractTransform* transform)
+{
+  vtkGeoTransform* t = static_cast<vtkGeoTransform*>(transform);
+  this->SetSourceProjection(t->GetSourceProjection());
+  this->SetDestinationProjection(t->GetDestinationProjection());
+  this->SetTransformZCoordinate(t->GetTransformZCoordinate());
+}
+
 void vtkGeoTransform::InternalTransformPoint(const float in[3], float out[3])
 {
   double ind[3];
   double oud[3];
-  int i;
-  for (i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
+  {
     ind[i] = in[i];
+  }
   this->InternalTransformPoint(ind, oud);
-  for (i = 0; i < 3; ++i)
+  for (int i = 0; i < 3; ++i)
+  {
     out[i] = static_cast<float>(oud[i]);
+  }
 }
 
 void vtkGeoTransform::InternalTransformPoint(const double in[3], double out[3])
@@ -151,11 +183,11 @@ void vtkGeoTransform::InternalTransformDerivative(
 void vtkGeoTransform::InternalTransformDerivative(
   const double in[3], double out[3], double derivative[3][3])
 {
+  this->InternalTransformPoint(in, out);
+
   // FIXME: Need to use pj_factors for both source and inverted dest projection
-  (void)in;
-  (void)out;
-  (void)derivative;
-  vtkErrorMacro("Error: Normal transfomation is not implemented. Please remove normals"
+  vtkMath::Identity3x3(derivative);
+  vtkErrorMacro("Error: Normal transformation is not implemented. Please remove normals"
                 " using vtkPassSelectedArrays and regenerate normals after the transform.");
 }
 

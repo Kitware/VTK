@@ -10,7 +10,7 @@
 #include "vtkShader.h"
 #include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 #include "vtksys/FStream.hxx"
 
 #include <cassert>

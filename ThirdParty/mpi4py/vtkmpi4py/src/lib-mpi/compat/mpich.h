@@ -2,141 +2,166 @@
 #define PyMPI_COMPAT_MPICH_H
 #if defined(MPICH_NUMVERSION)
 
-#if (MPICH_NUMVERSION >= 30400000 && MPICH_NUMVERSION < 40000000)
+/* -------------------------------------------------------------------------- */
 
-static int PyMPI_MPICH_MPI_Win_get_attr(MPI_Win win,
-                                        int keyval,
-                                        void *attrval,
-                                        int *flag)
+/* https://github.com/pmodels/mpich/pull/5467 */
+
+#undef  MPI_MAX_PORT_NAME
+#define MPI_MAX_PORT_NAME 1024
+
+static int PyMPI_MPICH_port_info(MPI_Info info, MPI_Info *port_info)
 {
-  int ierr; static MPI_Aint zero[1] = {0}; zero[0] = 0;
-  ierr = MPI_Win_get_attr(win, keyval, attrval, flag); if (ierr) return ierr;
-  if (keyval == MPI_WIN_SIZE && flag && *flag && attrval)
-    if (**((MPI_Aint**)attrval) == -1) *((void**)attrval) = zero;
+  int ierr;
+# define pympi_str_(s) #s
+# define pympi_str(s) pympi_str_(s)
+  const char *key = "port_name_size";
+  const char *val = pympi_str(MPI_MAX_PORT_NAME);
+# undef pympi_str_
+# undef pympi_str
+  if (info == MPI_INFO_NULL) {
+    ierr = MPI_Info_create(port_info); if (ierr) return ierr;
+  } else {
+    ierr = MPI_Info_dup(info, port_info); if (ierr) return ierr;
+  }
+  ierr = MPI_Info_set(*port_info, key, val);
+  if (ierr) (void) MPI_Info_free(port_info);
   return ierr;
 }
-#define MPI_Win_get_attr PyMPI_MPICH_MPI_Win_get_attr
+
+static int PyMPI_MPICH_MPI_Open_port(MPI_Info info, char *port_name)
+{
+  int ierr;
+  ierr = PyMPI_MPICH_port_info(info, &info); if (ierr) return ierr;
+  ierr = MPI_Open_port(info, port_name);
+  (void) MPI_Info_free(&info);
+  return ierr;
+}
+#undef  MPI_Open_port
+#define MPI_Open_port PyMPI_MPICH_MPI_Open_port
+
+static int PyMPI_MPICH_MPI_Lookup_name(const char *service_name,
+                                       MPI_Info   info,
+                                       char       *port_name)
+{
+  int ierr;
+  ierr = PyMPI_MPICH_port_info(info, &info); if (ierr) return ierr;
+  ierr = MPI_Lookup_name(service_name, info, port_name);
+  (void) MPI_Info_free(&info);
+  return ierr;
+}
+#undef  MPI_Lookup_name
+#define MPI_Lookup_name PyMPI_MPICH_MPI_Lookup_name
+
+/* -------------------------------------------------------------------------- */
+
+/* https://github.com/pmodels/mpich/issues/6981 */
+
+#if MPI_VERSION == 4 && MPI_SUBVERSION <= 1
+
+#if (MPICH_NUMVERSION < 40300300) || defined(CIBUILDWHEEL)
+static int PyMPI_MPICH_MPI_Info_free(MPI_Info *info)
+{
+  if (info && *info == MPI_INFO_ENV) {
+    (void) MPI_Comm_call_errhandler(MPI_COMM_SELF, MPI_ERR_INFO);
+    return MPI_ERR_INFO;
+  }
+  return MPI_Info_free(info);
+}
+#undef  MPI_Info_free
+#define MPI_Info_free PyMPI_MPICH_MPI_Info_free
+#endif
 
 #endif
 
-#if (MPICH_NUMVERSION == 30101300)
+/* -------------------------------------------------------------------------- */
 
-static int PyMPI_MPICH_MPI_Status_c2f(const MPI_Status *c_status,
-                                      MPI_Fint *f_status)
+/* https://github.com/pmodels/mpich/issues/5413 */
+/* https://github.com/pmodels/mpich/pull/6146   */
+
+#if MPI_VERSION == 4 && MPI_SUBVERSION == 0
+
+#if (MPICH_NUMVERSION < 40003300) || defined(CIBUILDWHEEL)
+static int PyMPI_MPICH_MPI_Status_set_elements_c(MPI_Status *status,
+                                                 MPI_Datatype datatype,
+                                                 MPI_Count elements)
 {
-  if (c_status == MPI_STATUS_IGNORE ||
-      c_status == MPI_STATUSES_IGNORE) return MPI_ERR_OTHER;
-  *(MPI_Status *)f_status = *c_status;
-  return MPI_SUCCESS;
+  return MPI_Status_set_elements_x(status, datatype, elements);
 }
+#undef  MPI_Status_set_elements_c
+#define MPI_Status_set_elements_c PyMPI_MPICH_MPI_Status_set_elements_c
+#endif
+
+#if defined(CIBUILDWHEEL) && defined(__linux__)
+#undef MPI_Status_set_elements_c
+extern int MPI_Status_set_elements_c(MPI_Status *, MPI_Datatype, MPI_Count)
+__attribute__((weak, alias("PyMPI_MPICH_MPI_Status_set_elements_c")));
+#endif
+
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+/* https://github.com/pmodels/mpich/issues/6351 */
+/* https://github.com/pmodels/mpich/pull/6354   */
+
+#if MPI_VERSION == 4 && MPI_SUBVERSION == 0
+
+#if (MPICH_NUMVERSION < 40100300) || defined(CIBUILDWHEEL)
+static int PyMPI_MPICH_MPI_Reduce_c(const void *sendbuf, void *recvbuf,
+                                    MPI_Count count, MPI_Datatype datatype,
+                                    MPI_Op op, int root, MPI_Comm comm)
+{
+  const char dummy[1] = {0};
+  if (!sendbuf && (root == MPI_ROOT || root == MPI_PROC_NULL)) sendbuf = dummy;
+  return MPI_Reduce_c(sendbuf, recvbuf, count, datatype, op, root, comm);
+}
+#undef  MPI_Reduce_c
+#define MPI_Reduce_c PyMPI_MPICH_MPI_Reduce_c
+#endif
+
+#endif
+
+/* -------------------------------------------------------------------------- */
+
+#if defined(CIBUILDWHEEL)
+
+#define PyMPI_MPICH_CALL_WEAK_SYMBOL(function, ...) \
+  if (function) return function(__VA_ARGS__); \
+  return PyMPI_UNAVAILABLE(#function, __VA_ARGS__); \
+
+#undef MPI_Type_create_f90_integer
+#pragma weak MPI_Type_create_f90_integer
+static int PyMPI_MPICH_MPI_Type_create_f90_integer(int r, MPI_Datatype *t)
+{ PyMPI_MPICH_CALL_WEAK_SYMBOL(MPI_Type_create_f90_integer, r, t); }
+#define MPI_Type_create_f90_integer PyMPI_MPICH_MPI_Type_create_f90_integer
+
+#undef MPI_Type_create_f90_real
+#pragma weak MPI_Type_create_f90_real
+static int PyMPI_MPICH_MPI_Type_create_f90_real(int p, int r, MPI_Datatype *t)
+{ PyMPI_MPICH_CALL_WEAK_SYMBOL(MPI_Type_create_f90_real, p, r, t); }
+#define MPI_Type_create_f90_real PyMPI_MPICH_MPI_Type_create_f90_real
+
+#undef MPI_Type_create_f90_complex
+#pragma weak MPI_Type_create_f90_complex
+static int PyMPI_MPICH_MPI_Type_create_f90_complex(int p, int r, MPI_Datatype *t)
+{ PyMPI_MPICH_CALL_WEAK_SYMBOL(MPI_Type_create_f90_complex, p, r, t); }
+#define MPI_Type_create_f90_complex PyMPI_MPICH_MPI_Type_create_f90_complex
+
+#undef MPI_Status_c2f
+#pragma weak MPI_Status_c2f
+static int PyMPI_MPICH_MPI_Status_c2f(const MPI_Status *cs, MPI_Fint *fs)
+{ PyMPI_MPICH_CALL_WEAK_SYMBOL(MPI_Status_c2f, cs, fs); }
 #define MPI_Status_c2f PyMPI_MPICH_MPI_Status_c2f
 
-#endif
-
-#if (MPICH_NUMVERSION < 30100301)
-
-static int PyMPI_MPICH_MPI_Add_error_class(int *errorclass)
-{
-  int ierr; char errstr[1] = {0};
-  ierr = MPI_Add_error_class(errorclass); if (ierr) return ierr;
-  return MPI_Add_error_string(*errorclass,errstr);
-}
-#undef  MPI_Add_error_class
-#define MPI_Add_error_class PyMPI_MPICH_MPI_Add_error_class
-
-static int PyMPI_MPICH_MPI_Add_error_code(int errorclass,
-                                          int *errorcode)
-{
-  int ierr; char errstr[1] = {0};
-  ierr = MPI_Add_error_code(errorclass,errorcode); if (ierr) return ierr;
-  return MPI_Add_error_string(*errorcode,errstr);
-}
-#undef  MPI_Add_error_code
-#define MPI_Add_error_code PyMPI_MPICH_MPI_Add_error_code
+#undef MPI_Status_f2c
+#pragma weak MPI_Status_f2c
+static int PyMPI_MPICH_MPI_Status_f2c(const MPI_Fint *fs, MPI_Status *cs)
+{ PyMPI_MPICH_CALL_WEAK_SYMBOL(MPI_Status_f2c, fs, cs); }
+#define MPI_Status_f2c PyMPI_MPICH_MPI_Status_f2c
 
 #endif
 
-#if (MPICH_NUMVERSION < 30100000)
-
-static int PyMPI_MPICH_MPI_Type_size_x(MPI_Datatype datatype,
-                                       MPI_Count *size)
-{
-  int ierr = MPI_Type_commit(&datatype); if (ierr) return ierr;
-  return MPI_Type_size_x(datatype,size);
-}
-#undef  MPI_Type_size_x
-#define MPI_Type_size_x PyMPI_MPICH_MPI_Type_size_x
-
-static int PyMPI_MPICH_MPI_Type_get_extent_x(MPI_Datatype datatype,
-                                             MPI_Count *lb,
-                                             MPI_Count *extent)
-{
-  int ierr = MPI_Type_commit(&datatype); if (ierr) return ierr;
-  return MPI_Type_get_extent_x(datatype,lb,extent);
-}
-#undef  MPI_Type_get_extent_x
-#define MPI_Type_get_extent_x PyMPI_MPICH_MPI_Type_get_extent_x
-
-static int PyMPI_MPICH_MPI_Type_get_true_extent_x(MPI_Datatype datatype,
-                                                  MPI_Count *lb,
-                                                  MPI_Count *extent)
-{
-  int ierr = MPI_Type_commit(&datatype); if (ierr) return ierr;
-  return MPI_Type_get_true_extent_x(datatype,lb,extent);
-}
-#undef  MPI_Type_get_true_extent_x
-#define MPI_Type_get_true_extent_x PyMPI_MPICH_MPI_Type_get_true_extent_x
-
-static int PyMPI_MPICH_MPI_Get_accumulate(const void *origin_addr,
-                                          int origin_count,
-                                          MPI_Datatype origin_datatype,
-                                          void *result_addr,
-                                          int result_count,
-                                          MPI_Datatype result_datatype,
-                                          int target_rank,
-                                          MPI_Aint target_disp,
-                                          int target_count,
-                                          MPI_Datatype target_datatype,
-                                          MPI_Op op, MPI_Win win)
-{
-  double origin_buf, result_buf;
-  if (!origin_addr && !origin_count) origin_addr = (const void *)&origin_buf;
-  if (!result_addr && !result_count) result_addr = (void *)&result_buf;
-  return MPI_Get_accumulate(origin_addr, origin_count, origin_datatype,
-                            result_addr, result_count, result_datatype,
-                            target_rank,
-                            target_disp, target_count, target_datatype,
-                            op, win);
-}
-#undef  MPI_Get_accumulate
-#define MPI_Get_accumulate PyMPI_MPICH_MPI_Get_accumulate
-
-static int PyMPI_MPICH_MPI_Rget_accumulate(const void *origin_addr,
-                                           int origin_count,
-                                           MPI_Datatype origin_datatype,
-                                           void *result_addr,
-                                           int result_count,
-                                           MPI_Datatype result_datatype,
-                                           int target_rank,
-                                           MPI_Aint target_disp,
-                                           int target_count,
-                                           MPI_Datatype target_datatype,
-                                           MPI_Op op, MPI_Win win,
-                                           MPI_Request *request)
-{
-  double origin_buf, result_buf;
-  if (!origin_addr && !origin_count) origin_addr = (const void *)&origin_buf;
-  if (!result_addr && !result_count) result_addr = (void *)&result_buf;
-  return MPI_Rget_accumulate(origin_addr, origin_count, origin_datatype,
-                             result_addr, result_count, result_datatype,
-                             target_rank,
-                             target_disp, target_count, target_datatype,
-                             op, win, request);
-}
-#undef  MPI_Rget_accumulate
-#define MPI_Rget_accumulate PyMPI_MPICH_MPI_Rget_accumulate
-
-#endif
+/* -------------------------------------------------------------------------- */
 
 #endif /* !MPICH_NUMVERSION      */
 #endif /* !PyMPI_COMPAT_MPICH_H */

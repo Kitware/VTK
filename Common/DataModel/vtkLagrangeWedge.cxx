@@ -17,7 +17,6 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkWedge.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -35,11 +34,13 @@ void vtkLagrangeWedge::PrintSelf(ostream& os, vtkIndent indent)
 vtkCell* vtkLagrangeWedge::GetEdge(int edgeId)
 {
   vtkLagrangeCurve* result = EdgeCell;
-  const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+  const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+  {
     result->Points->SetNumberOfPoints(npts);
     result->PointIds->SetNumberOfIds(npts);
   };
-  const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+  const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void
+  {
     result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
     result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
   };
@@ -53,11 +54,13 @@ vtkCell* vtkLagrangeWedge::GetFace(int faceId)
   if (faceId < 2)
   {
     vtkLagrangeTriangle* result = BdyTri;
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
     };
@@ -69,11 +72,13 @@ vtkCell* vtkLagrangeWedge::GetFace(int faceId)
   else
   {
     vtkLagrangeQuadrilateral* result = BdyQuad;
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
     };

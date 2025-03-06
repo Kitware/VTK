@@ -17,7 +17,6 @@
 #include "vtkStdString.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

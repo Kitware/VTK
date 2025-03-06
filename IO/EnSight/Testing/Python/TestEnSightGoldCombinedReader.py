@@ -103,7 +103,7 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.renderAndCompare(mapper, img_file)
 
 
-  def streamlinePipeline(self, casefile, img_file, pos):
+  def streamlinePipeline(self, casefile, img_file, pos, forward):
     reader = self.setupReader(casefile)
 
     streamer = vtkStreamTracer()
@@ -111,7 +111,10 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     streamer.SetStartPosition(pos)
     streamer.SetMaximumPropagation(500)
     streamer.SetInitialIntegrationStep(0.1)
-    streamer.SetIntegrationDirectionToBoth()
+    if forward == True:
+      streamer.SetIntegrationDirectionToForward()
+    else:
+      streamer.SetIntegrationDirectionToBoth()
 
     mapper = self.setupMapper(streamer)
     self.renderAndCompare(mapper, img_file)
@@ -148,9 +151,27 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
 
   def checkParticles(self, casefile):
     reader = self.setupReader(casefile)
+    # first check that we have all partitions loaded
+    reader.Update()
+
+    data = reader.GetOutput()
+    self.assertEqual(data.GetNumberOfPartitionedDataSets(), 4)
+
+    pds = data.GetPartitionedDataSet(3)
+    self.assertEqual(pds.GetNumberOfPartitions(), 1)
+
+    part = pds.GetPartition(0)
+    arr = part.GetPointData().GetArray("test-scalar")
+    self.assertIsNotNone(arr)
+    self.assertEqual(arr.GetNumberOfComponents(), 1)
+    arr = part.GetPointData().GetArray("test-vector")
+    self.assertIsNotNone(arr)
+    self.assertEqual(arr.GetNumberOfComponents(), 3)
+
+    # now check for when we only load the particle data
     reader.UpdateInformation()
     reader.GetPartSelection().DisableAllArrays()
-    reader.GetPartSelection().EnableArray("particles")
+    reader.GetPartSelection().EnableArray("measured particles")
     reader.Update()
 
     data = reader.GetOutput()
@@ -243,16 +264,16 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
     self.basicPipeline("ensight-gold-test-bin.case", "TestEnSightGoldCombinedReader_11.png")
 
   def testOfficeASCII(self):
-    self.streamlinePipeline("office_ascii.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5])
+    self.streamlinePipeline("office_ascii.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5], True)
 
   def testOfficeBinary(self):
-    self.streamlinePipeline("office_bin.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5])
+    self.streamlinePipeline("office_bin.case", "TestEnSightGoldCombinedReader_12.png", [0.1, 2.1, 0.5], True)
 
   def testRectGridASCII(self):
-    self.streamlinePipeline("RectGrid_ascii.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4])
+    self.streamlinePipeline("RectGrid_ascii.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4], False)
 
   def testRectGridBinary(self):
-    self.streamlinePipeline("RectGrid_bin.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4])
+    self.streamlinePipeline("RectGrid_bin.case", "TestEnSightGoldCombinedReader_13.png", [0, -0.078125, 0.4], False)
 
   def testNfacedBinary(self):
     self.basicPipeline("TEST_bin.case", "TestEnSightGoldCombinedReader_14.png", var="Pressure", arrRange=[0.121168,0.254608])
@@ -329,6 +350,37 @@ class TestEnSightGoldCombinedReader(Testing.vtkTest):
 
   def testSOSReader(self):
     self.basicPipeline("mandelbrot.sos", "TestEnSightGoldCombinedReader_18.png", var="Iterations", arrRange=[1.9,100])
+
+  def checkTimeStep(self, reader, time, img_file, var, pos):
+    outInfo = reader.GetOutputInformation(0)
+    outInfo.Set(vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), time)
+    reader.Update()
+
+    geom = self.geomPipeline(reader)
+    mapper = self.setupMapper(geom, var)
+    self.renderAndCompare(mapper, img_file, pos)
+
+  def testTimeWithTimeSets(self):
+    reader = self.setupReader("blow2_ascii.case")
+    reader.UpdateInformation()
+
+    outInfo = reader.GetOutputInformation(0)
+    numSteps = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+    self.assertEqual(numSteps, 2)
+
+    self.checkTimeStep(reader, 0.0, "TestEnSightGoldCombinedReader_3.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+    self.checkTimeStep(reader, 0.1, "TestEnSightGoldCombinedReader_19.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+
+  def testTimeWithFileSets(self):
+    reader = self.setupReader("blow1_ascii.case")
+    reader.UpdateInformation()
+
+    outInfo = reader.GetOutputInformation(0)
+    numSteps = outInfo.Length(vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+    self.assertEqual(numSteps, 2)
+
+    self.checkTimeStep(reader, 0.0, "TestEnSightGoldCombinedReader_3.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
+    self.checkTimeStep(reader, 0.1, "TestEnSightGoldCombinedReader_19.png", var="displacement", pos=[99.3932,17.6571,-22.6071])
 
 
 if __name__ == "__main__":

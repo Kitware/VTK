@@ -1,17 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-/**
- * @class   vtkCellGridSidesQuery
- * @brief   Compute external faces of a cell-grid.
- */
-
 #ifndef vtkCellGridSidesQuery_h
 #define vtkCellGridSidesQuery_h
 
 #include "vtkCellGridQuery.h"
 
-#include "vtkHashCombiner.h" // For templated AddSide() method.
-#include "vtkStringToken.h"  // For API.
+#include "vtkStringToken.h" // For API.
 
 #include <functional>
 #include <map>
@@ -21,6 +15,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkCellGridSidesCache;
 class vtkIdTypeArray;
 
 /**\brief A cell-grid query for enumerating sides of cells.
@@ -30,9 +25,8 @@ class vtkIdTypeArray;
  * + In the first pass, responders invoke the AddSides() method on
  *   this query, entries are added to this->Hashes storage indicating
  *   the cells which are bounded by a given shape + connectivity.
- * + In the second pass, responders consume the entries created above
- *   (removing them as they are processed) and replace them with
- *   entries in this->Sides. This reorganizes the hashes into groups
+ * + In the second pass, responders mark the entries created above and
+ *   add entries in this->Sides. This reorganizes the hashes into groups
  *   more amenable to output as side arrays. This pass is called
  *   "Summarization," since not every input side identified will be
  *   output.
@@ -70,10 +64,10 @@ public:
   enum PassWork : int
   {
     /// Responders should call AddSide() on each cell's sides to insert
-    /// entries into this->Hashes.
+    /// entries into this->SideCache.
     HashSides = 0,
-    /// Responders should claim entries in this->Hashes by transcribing them
-    /// to this->Sides and then deleting the entry in this->Hashes to prevent
+    /// Responders should claim entries in this->SideCache by transcribing them
+    /// to this->Sides and then deleting the entry in this->SideCache to prevent
     /// multiple responders from processing them.
     Summarize = 1,
     /// Responders should insert new side sets into their parent cell-grid
@@ -105,36 +99,6 @@ public:
   {
     Input, //!< Input shapes should be selected when output sides are picked.
     Output //!< Output sides should be selected when they are picked.
-  };
-
-  /// Records held by a hash-entry that represent the side of one cell.
-  ///
-  /// All instances of Side owned by a single hash-entry have the same
-  /// hash but correspond to distinct sides of different cells.
-  struct Side
-  {
-    /// The type of cell whose side is hashed.
-    vtkStringToken CellType;
-    /// The shape of the side being hashed.
-    vtkStringToken SideShape;
-    /// The degree of freedom starting the hash sequence.
-    vtkIdType DOF;
-    /// The ID of the side being hashed.
-    int SideId;
-
-    /// Compare side-hashes to allow set insertion.
-    bool operator<(const Side& other) const
-    {
-      return (this->CellType < other.CellType) ||
-        (this->CellType == other.CellType &&
-          ((this->DOF < other.DOF) || (this->DOF == other.DOF && this->SideId < other.SideId)));
-    }
-  };
-
-  /// Each hash entry corresponds to one or more sides of one or more cells.
-  struct Entry
-  {
-    std::set<Side> Sides;
   };
 
   /// A structure created by the GetSideSetArrays() method for responders to use.
@@ -184,7 +148,7 @@ public:
   vtkBooleanMacro(OutputDimensionControl, int);
 
   /// Set/get the strategy responders should use to generate entries in
-  /// Sides from entries in Hashes.
+  /// Sides from entries in SideCache.
   ///
   /// The default is BoundaryStrategy.
   vtkSetEnumMacro(Strategy, SummaryStrategy);
@@ -192,6 +156,11 @@ public:
   void SetStrategyToWinding() { this->SetStrategy(SummaryStrategy::Winding); }
   void SetStrategyToAnyOccurrence() { this->SetStrategy(SummaryStrategy::AnyOccurrence); }
   void SetStrategyToBoundary() { this->SetStrategy(SummaryStrategy::Boundary); }
+  /// This method exists for ParaView to set the strategy.
+  virtual void SetStrategy(int strategy)
+  {
+    this->SetStrategy(static_cast<SummaryStrategy>(strategy));
+  }
 
   /// Set/get whether the extracted sides should be marked as selectable
   /// or whether their originating data should be selectable.
@@ -205,17 +174,16 @@ public:
   /// Other values indicate the generated output sides should be selected.
   vtkSetEnumMacro(SelectionType, SelectionMode);
   vtkGetEnumMacro(SelectionType, SelectionMode);
+  /// This method exists for ParaView to set the selection mode.
+  virtual void SetSelectionType(int selnType)
+  {
+    this->SetSelectionType(static_cast<SelectionMode>(selnType));
+  }
 
   bool Initialize() override;
   void StartPass() override;
   bool IsAnotherPassRequired() override;
   bool Finalize() override;
-
-  /// Return the map of hashed side information.
-  ///
-  /// This is public so that responders may edit it
-  /// during the PassWork::Summarize pass.
-  std::unordered_map<std::size_t, Entry>& GetHashes() { return this->Hashes; }
 
   std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>&
@@ -223,117 +191,6 @@ public:
   {
     return this->Sides;
   }
-  // std::map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>& GetSides() { return
-  // this->Sides; }
-
-  /// Add a \a side with the given \a shape and connectivity to the request's state.
-  ///
-  /// The \a shape, \a conn size, and \a conn entries are hashed together into a key
-  /// which is mapped to a set of all the matching sides.
-  /// The \a cellType and \a cell ID are also stored with each matching side; these
-  /// are used during Finalize() to generate the output map-of-maps returned
-  /// by GetSides() so that the sides are reported by cell type, cell ID, and then side ID.
-  ///
-  /// Note that the \a conn entries are hashed in a particular canonical order so
-  /// that the same hash is generated for sides with point IDs that have been shifted
-  /// and/or reversed.
-  /// The hash always starts at the smallest entry of \a conn and goes
-  /// in the direction that has the largest next entry.
-  /// Examples:
-  ///   (3, 2, 0, 1) → starts at index 2 (0) and hashes backwards: (0, 2, 3, 1)
-  ///   (4, 5, 6, 7) → starts at index 0 (4) and hashes backwards: (4, 7, 6, 5)
-  ///   (7, 3, 6, 2) → starts at index 3 (2) and hashes forwards:  (2, 7, 3, 6)
-  //
-  /// By storing the \a cellType, we avoid requiring a global-to-local cell numbering
-  /// in vtkCellGrid instances (as vtkPolyData incurs) which may hold multiple types of cells.
-  //@{
-  template <typename T, std::size_t NN>
-  void AddSide(vtkStringToken cellType, vtkIdType cell, int side, vtkStringToken shape,
-    const std::array<T, NN>& conn)
-  {
-    // Find where we should start hashing and in what direction.
-    std::size_t ss = 0;
-    T smin = conn[0];
-    for (std::size_t jj = 1; jj < NN; ++jj)
-    {
-      if (conn[jj] < smin)
-      {
-        smin = conn[jj];
-        ss = jj;
-      }
-    }
-    bool forward = conn[(ss + 1) % NN] > conn[(ss + NN - 1) % NN];
-
-    std::size_t hashedValue = std::hash<std::size_t>{}(NN);
-    vtkHashCombiner()(hashedValue, shape.GetId());
-    if (forward)
-    {
-      for (std::size_t ii = 0; ii < NN; ++ii)
-      {
-        std::size_t hashedToken = std::hash<T>{}(conn[(ss + ii) % NN]);
-        vtkHashCombiner()(hashedValue, hashedToken);
-      }
-    }
-    else // backward
-    {
-      for (std::size_t ii = 0; ii < NN; ++ii)
-      {
-        std::size_t hashedToken = std::hash<T>{}(conn[(ss + NN - ii) % NN]);
-        // hashedValue = hashedValue ^ (hashedToken << (ii + 1));
-        vtkHashCombiner()(hashedValue, hashedToken);
-      }
-    }
-    this->Hashes[hashedValue].Sides.insert(Side{ cellType, shape, cell, side });
-  }
-
-  template <typename T>
-  void AddSide(vtkStringToken cellType, vtkIdType cell, int side, vtkStringToken shape,
-    const std::vector<T>& conn)
-  {
-    std::size_t ss = 0;
-    std::size_t NN = conn.size();
-    if (NN == 0)
-    {
-      return;
-    }
-
-    T smin = conn[0];
-    for (std::size_t jj = 1; jj < NN; ++jj)
-    {
-      if (conn[jj] < smin)
-      {
-        smin = conn[jj];
-        ss = jj;
-      }
-    }
-    bool forward = conn[(ss + 1) % NN] > conn[(ss + NN - 1) % NN];
-
-    std::size_t hashedValue = std::hash<std::size_t>{}(NN);
-    vtkHashCombiner()(hashedValue, shape.GetId());
-    // std::cout << "Hash(" << (forward ? "F" : "R") << ")";
-    if (forward)
-    {
-      for (std::size_t ii = 0; ii < NN; ++ii)
-      {
-        std::size_t hashedToken = std::hash<T>{}(conn[(ss + ii) % NN]);
-        vtkHashCombiner()(hashedValue, hashedToken);
-        // std::cout << " " << conn[(ss + ii) % NN];
-      }
-    }
-    else // backward
-    {
-      for (std::size_t ii = 0; ii < NN; ++ii)
-      {
-        std::size_t hashedToken = std::hash<T>{}(conn[(ss + NN - ii) % NN]);
-        // hashedValue = hashedValue ^ (hashedToken << (ii + 1));
-        vtkHashCombiner()(hashedValue, hashedToken);
-        // std::cout << " " << conn[(ss + NN - ii) % NN];
-      }
-    }
-    // std::cout << " = " << std::hex << hashedValue << std::dec << "\n";
-    this->Hashes[hashedValue].Sides.insert(Side{ cellType, shape, cell, side });
-  }
-  //@}
 
   /// Return arrays of cell+side IDs for the given \a cellType.
   std::vector<SideSetArray> GetSideSetArrays(vtkStringToken cellType);
@@ -346,16 +203,29 @@ public:
   static vtkStringToken SummaryStrategyToLabel(SummaryStrategy strategy);
   static SummaryStrategy SummaryStrategyFromLabel(vtkStringToken token);
 
+  /// Set/get cached hashtable of sides.
+  ///
+  /// The idea is that vtkCellGridSidesCache is generic enough to accommodate
+  /// a wide variety of cell types and that many of them will be capable of
+  /// having sides that are conformal to cells of different types that may
+  /// reside in the same cell-grid. Filters may own this cache or they may
+  /// attach it to a collection of cell-grid objects that participate by inserting
+  /// their cells' sides into the cache. (For example, all the cell-grids within
+  /// a partitioned dataset collection may wish to insert sides in the same cache.)
+  vtkGetObjectMacro(SideCache, vtkCellGridSidesCache);
+  virtual void SetSideCache(vtkCellGridSidesCache* cache);
+
 protected:
   vtkCellGridSidesQuery() = default;
-  ~vtkCellGridSidesQuery() override = default;
+  ~vtkCellGridSidesQuery() override;
 
   vtkTypeBool PreserveRenderableInputs{ false };
   vtkTypeBool OmitSidesForRenderableInputs{ false };
   int OutputDimensionControl{ SideFlags::SurfacesOfInputs };
   SelectionMode SelectionType{ SelectionMode::Input };
   SummaryStrategy Strategy{ SummaryStrategy::Boundary };
-  std::unordered_map<std::size_t, Entry> Hashes;
+  vtkCellGridSidesCache* SideCache{ nullptr };
+  bool TemporarySideCache{ false };
   std::unordered_map<vtkStringToken,
     std::unordered_map<vtkStringToken, std::unordered_map<vtkIdType, std::set<int>>>>
     Sides;

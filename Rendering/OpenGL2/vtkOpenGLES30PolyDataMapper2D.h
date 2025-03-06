@@ -24,10 +24,12 @@
 
 #include "vtkOpenGLVertexBufferObjectGroup.h" // for ivar
 #include "vtkRenderingOpenGL2Module.h"        // for export macro
+#include "vtkWrappingHints.h"                 // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLES30PolyDataMapper2D : public vtkOpenGLPolyDataMapper2D
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLES30PolyDataMapper2D
+  : public vtkOpenGLPolyDataMapper2D
 {
 public:
   vtkTypeMacro(vtkOpenGLES30PolyDataMapper2D, vtkOpenGLPolyDataMapper2D);

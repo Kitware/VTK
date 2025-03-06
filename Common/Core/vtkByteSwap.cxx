@@ -103,7 +103,8 @@ inline bool vtkByteSwapRangeWrite(const T* first, size_t num, FILE* f, long)
   for (const T* p = first; p != last && result; ++p)
   {
     // Use a union to avoid breaking C++ aliasing rules.
-    union {
+    union
+    {
       T value;
       char data[sizeof(T)];
     } temp = { *p };
@@ -137,7 +138,8 @@ inline void vtkByteSwapRangeWrite(const T* first, size_t num, ostream* os, long)
   for (const T* p = first; p != last; ++p)
   {
     // Use a union to avoid breaking C++ aliasing rules.
-    union {
+    union
+    {
       T value;
       char data[sizeof(T)];
     } temp = { *p };
@@ -232,10 +234,22 @@ inline void vtkByteSwapLERangeWrite(const T* p, size_t num, ostream* os)
 
 //------------------------------------------------------------------------------
 #define VTK_BYTE_SWAP_IMPL(T)                                                                      \
-  void vtkByteSwap::SwapLE(T* p) { vtkByteSwapLE(p); }                                             \
-  void vtkByteSwap::SwapBE(T* p) { vtkByteSwapBE(p); }                                             \
-  void vtkByteSwap::SwapLERange(T* p, size_t num) { vtkByteSwapLERange(p, num); }                  \
-  void vtkByteSwap::SwapBERange(T* p, size_t num) { vtkByteSwapBERange(p, num); }                  \
+  void vtkByteSwap::SwapLE(T* p)                                                                   \
+  {                                                                                                \
+    vtkByteSwapLE(p);                                                                              \
+  }                                                                                                \
+  void vtkByteSwap::SwapBE(T* p)                                                                   \
+  {                                                                                                \
+    vtkByteSwapBE(p);                                                                              \
+  }                                                                                                \
+  void vtkByteSwap::SwapLERange(T* p, size_t num)                                                  \
+  {                                                                                                \
+    vtkByteSwapLERange(p, num);                                                                    \
+  }                                                                                                \
+  void vtkByteSwap::SwapBERange(T* p, size_t num)                                                  \
+  {                                                                                                \
+    vtkByteSwapBERange(p, num);                                                                    \
+  }                                                                                                \
   bool vtkByteSwap::SwapLERangeWrite(const T* p, size_t num, FILE* file)                           \
   {                                                                                                \
     return vtkByteSwapLERangeWrite(p, num, file);                                                  \

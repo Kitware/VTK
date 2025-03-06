@@ -28,7 +28,7 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPoints.h"
 #include "vtkUniformGrid.h"
-//#define DEBUG_ON
+// #define DEBUG_ON
 
 //------------------------------------------------------------------------------
 // Debugging utilities. Must link vtkIOXML to work

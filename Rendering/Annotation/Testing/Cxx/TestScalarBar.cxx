@@ -7,6 +7,7 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkDoubleArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkNew.h"
@@ -171,6 +172,39 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar6->SetDrawFrame(1);
   scalarBar6->SetTextureGridWidth(20);
 
+  // Need a vtkLookupTable to test GetIndex with problematic values
+  double range_min = 1.0;
+  double range_max = 6.019831813928703;
+  vtkNew<vtkLookupTable> lut2;
+  lut2->SetRange(range_min, range_max);
+  lut2->SetNumberOfColors(4);
+  lut2->Build();
+
+  vtkNew<vtkScalarBarActor> scalarBar7;
+  scalarBar7->SetTitle("distinct linear");
+  scalarBar7->SetLookupTable(lut2);
+  scalarBar7->SetWidth(0.15);
+  scalarBar7->SetHeight(0.4);
+  scalarBar7->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar7->GetPositionCoordinate()->SetValue(.6, .6);
+  scalarBar7->SetMaximumNumberOfColors(4);
+
+  double range_max_log = pow(10.0, range_max);
+  vtkNew<vtkLookupTable> lut3;
+  lut3->SetRange(range_min, range_max_log);
+  lut3->SetNumberOfColors(4);
+  lut3->SetScaleToLog10();
+  lut3->Build();
+
+  vtkNew<vtkScalarBarActor> scalarBar8;
+  scalarBar8->SetTitle("distinct log");
+  scalarBar8->SetLookupTable(lut3);
+  scalarBar8->SetWidth(0.15);
+  scalarBar8->SetHeight(0.4);
+  scalarBar8->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+  scalarBar8->GetPositionCoordinate()->SetValue(.8, .6);
+  scalarBar8->SetMaximumNumberOfColors(4);
+
   vtkNew<vtkCamera> camera;
   camera->SetFocalPoint(8, 0, 30);
   camera->SetPosition(6, 0, 50);
@@ -183,6 +217,8 @@ int TestScalarBar(int argc, char* argv[])
   ren1->AddActor(scalarBar4);
   ren1->AddActor(scalarBar5);
   ren1->AddActor(scalarBar6);
+  ren1->AddActor(scalarBar7);
+  ren1->AddActor(scalarBar8);
   ren1->GradientBackgroundOn();
   ren1->SetBackground(.5, .5, .5);
   ren1->SetBackground2(.0, .0, .0);

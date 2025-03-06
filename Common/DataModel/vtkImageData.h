@@ -535,9 +535,6 @@ public:
   virtual void TransformPhysicalPointToContinuousIndex(const double xyz[3], double ijk[3]);
   ///@}
 
-  static void ComputeIndexToPhysicalMatrix(
-    double const origin[3], double const spacing[3], double const direction[9], double result[16]);
-
   ///@{
   /**
    * Convert normal from physical space (xyz) to index space (ijk).
@@ -550,6 +547,21 @@ public:
    * n(x-xo)=0; or using a four component normal: pplane=( nx,ny,nz,-(n(x0)) ).
    */
   virtual void TransformPhysicalPlaneToContinuousIndex(double const pplane[4], double iplane[4]);
+
+  ///@{
+  /**
+   * Static method to compute the IndexToPhysicalMatrix.
+   */
+  static void ComputeIndexToPhysicalMatrix(
+    double const origin[3], double const spacing[3], double const direction[9], double result[16]);
+
+  ///@{
+  /**
+   * Static method to compute the PhysicalToIndexMatrix.
+   */
+  static void ComputePhysicalToIndexMatrix(
+    double const origin[3], double const spacing[3], double const direction[9], double result[16]);
+  ///@}
 
   static void SetScalarType(int, vtkInformation* meta_data);
   static int GetScalarType(vtkInformation* meta_data);

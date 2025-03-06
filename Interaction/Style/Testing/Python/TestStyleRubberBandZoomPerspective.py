@@ -76,8 +76,7 @@ class TestStyleRubberBandZoomPerspective(vtkmodules.test.Testing.vtkTest):
 
     def compare(self, suffix):
         img_file = "TestStyleRubberBandZoomPerspective-%s.png" % suffix
-        vtkmodules.test.Testing.compareImage(self.renderWindow,
-                vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
+        vtkmodules.test.Testing.compareImage(self.renderWindow, vtkmodules.test.Testing.getAbsImagePath(img_file))
         vtkmodules.test.Testing.interact()
 
     def testDefault(self):

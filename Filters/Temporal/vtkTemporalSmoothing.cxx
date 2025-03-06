@@ -184,7 +184,8 @@ int vtkTemporalSmoothing::RequestInformation(vtkInformation* vtkNotUsed(request)
   // Available time steps are clipped on each side
   // to only allow requests on time steps where the full time window fits.
   auto firstAvailableTime = this->Internals->InputTimeSteps.begin() + this->TemporalWindowHalfWidth;
-  auto lastAvailableTime = this->Internals->InputTimeSteps.end() - this->TemporalWindowHalfWidth;
+  auto lastAvailableTime =
+    this->Internals->InputTimeSteps.end() - this->TemporalWindowHalfWidth - 1;
   this->Internals->AvailableTimeRange[0] = *firstAvailableTime;
   this->Internals->AvailableTimeRange[1] = *lastAvailableTime;
 

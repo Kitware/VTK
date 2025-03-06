@@ -124,6 +124,9 @@ public:
     vtkProp* Prop;
     unsigned int CompositeID;
     vtkIdType AttributeID;
+    vtkIdType CellGridCellTypeID;
+    vtkIdType CellGridSourceSpecID;
+    vtkIdType CellGridTupleID;
     PixelInformation()
       : Valid(false)
       , ProcessID(-1)
@@ -131,6 +134,9 @@ public:
       , Prop(nullptr)
       , CompositeID(0)
       , AttributeID(-1)
+      , CellGridCellTypeID(-1)
+      , CellGridSourceSpecID(-1)
+      , CellGridTupleID(-1)
     {
     }
   };
@@ -234,6 +240,7 @@ public:
    */
   virtual void UpdateMaximumCellId(vtkIdType attribid);
   virtual void UpdateMaximumPointId(vtkIdType attribid);
+  virtual void UpdateMaximumCellGridTupleId(vtkIdType attribid);
   ///@}
 
   /**
@@ -357,7 +364,12 @@ public:
     CELL_ID_LOW24,
     CELL_ID_HIGH24, // if needed
 
-    MAX_KNOWN_PASS = CELL_ID_HIGH24,
+    CELLGRID_CELL_TYPE_INDEX_PASS,
+    CELLGRID_SOURCE_INDEX_PASS,
+    CELLGRID_TUPLE_ID_LOW24,
+    CELLGRID_TUPLE_ID_HIGH24,
+
+    MAX_KNOWN_PASS = CELLGRID_TUPLE_ID_HIGH24,
     MIN_KNOWN_PASS = ACTOR_PASS
   };
 
@@ -384,6 +396,10 @@ public:
   // does the selection process have high point data
   // requiring a high24 pass
   bool HasHighPointIds();
+
+  // deos the selection process have high cell grid tuple ids
+  // requiring a high24 pass
+  bool HasHighCellGridTupleIds();
 
 protected:
   vtkHardwareSelector();
@@ -491,11 +507,12 @@ protected:
   bool UseProcessIdFromData;
   vtkIdType MaximumPointId;
   vtkIdType MaximumCellId;
+  vtkIdType MaximumCellGridTupleId;
   ///@}
 
-  // At most 10 passes.
-  unsigned char* PixBuffer[10];
-  unsigned char* RawPixBuffer[10];
+  // At most 11 passes.
+  unsigned char* PixBuffer[11];
+  unsigned char* RawPixBuffer[11];
   int ProcessID;
   int CurrentPass;
   int Iteration;

@@ -13,7 +13,7 @@
 #include <locale> // C++ locale
 #include <sstream>
 
-//#define ARRAY_SIZE (2*1024*1024)
+// #define ARRAY_SIZE (2*1024*1024)
 #define ARRAY_SIZE 2048
 
 int TestSortDataArray(int, char*[])

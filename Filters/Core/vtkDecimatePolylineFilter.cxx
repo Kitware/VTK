@@ -138,6 +138,13 @@ int vtkDecimatePolylineFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
+  if (!this->DecimationStrategy->IsStateValid(input))
+  {
+    vtkWarningMacro(
+      "Decimation Strategy is not in a valid state. The decimation cannot be performed.");
+    return 1;
+  }
+
   // Allocate memory and prepare for data processing
   vtkNew<vtkPoints> newPts;
 

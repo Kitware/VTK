@@ -329,6 +329,7 @@ set(classes
   vtkStringToken
   vtkTimePointUtility
   vtkTimeStamp
+  vtkThreadedCallbackQueue
   vtkUnsignedCharArray
   vtkUnsignedIntArray
   vtkUnsignedLongArray
@@ -354,6 +355,7 @@ set(template_classes
   vtkMappedDataArray
   vtkSOADataArrayTemplate
   vtkSparseArray
+  vtkThreadedTaskQueue
   vtkTypedArray
   vtkTypedDataArray)
 
@@ -432,6 +434,7 @@ set(headers
   vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
+  vtkThreadedTaskQueue.h
   vtkType.h
   vtkTypeTraits.h
   vtkTypedDataArrayIterator.h
@@ -456,6 +459,7 @@ set(private_headers
 
 set(templates
   vtkArrayIteratorTemplateImplicit.txx
+  vtkThreadedCallbackQueue.txx
   ${vtk_smp_templates})
 
 set(private_templates
@@ -501,6 +505,11 @@ elseif (CMAKE_USE_PTHREADS_INIT)
   set(VTK_USE_PTHREADS 1)
 elseif (CMAKE_USE_WIN32_THREADS_INIT)
   set(VTK_USE_WIN32_THREADS 1)
+endif ()
+
+# Honor `VTK_WEBASSEMBLY_THREADS` option.
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(VTK_USE_PTHREADS ${VTK_WEBASSEMBLY_THREADS})
 endif ()
 
 if(WIN32)

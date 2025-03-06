@@ -38,17 +38,19 @@ struct ProjectToCoordinatePlaneWorker
     const auto ipts = vtk::DataArrayTupleRange<3>(in);
     auto opts = vtk::DataArrayTupleRange<3>(out);
 
-    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, numPts,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        const auto xi = ipts[ptId];
-        auto xo = opts[ptId];
+        for (; ptId < endPtId; ++ptId)
+        {
+          const auto xi = ipts[ptId];
+          auto xo = opts[ptId];
 
-        xo[idx[0]] = xi[idx[0]];
-        xo[idx[1]] = xi[idx[1]];
-        xo[idx[2]] = pc;
-      }
-    }); // lambda
+          xo[idx[0]] = xi[idx[0]];
+          xo[idx[1]] = xi[idx[1]];
+          xo[idx[2]] = pc;
+        }
+      }); // lambda
   }
 };
 
@@ -80,24 +82,26 @@ struct ProjectToPlaneWorker
     const auto ipts = vtk::DataArrayTupleRange<3>(in);
     auto opts = vtk::DataArrayTupleRange<3>(out);
 
-    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
-      double x[3], xProj[3];
-      for (; ptId < endPtId; ++ptId)
+    vtkSMPTools::For(0, numPts,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        const auto xi = ipts[ptId];
-        auto xo = opts[ptId];
+        double x[3], xProj[3];
+        for (; ptId < endPtId; ++ptId)
+        {
+          const auto xi = ipts[ptId];
+          auto xo = opts[ptId];
 
-        x[0] = xi[0];
-        x[1] = xi[1];
-        x[2] = xi[2];
+          x[0] = xi[0];
+          x[1] = xi[1];
+          x[2] = xi[2];
 
-        vtkPlane::ProjectPoint(x, o, n, xProj);
+          vtkPlane::ProjectPoint(x, o, n, xProj);
 
-        xo[0] = xProj[0];
-        xo[1] = xProj[1];
-        xo[2] = xProj[2];
-      }
-    }); // lambda
+          xo[0] = xProj[0];
+          xo[1] = xProj[1];
+          xo[2] = xProj[2];
+        }
+      }); // lambda
   }
 };
 

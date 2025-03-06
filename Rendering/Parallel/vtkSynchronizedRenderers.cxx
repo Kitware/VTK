@@ -23,8 +23,13 @@
 #include "vtkPNGWriter.h"
 #include "vtkParallelRenderManager.h"
 #include "vtkRenderWindow.h"
+#include "vtkSynchronizableActors.h"
+#include "vtkSynchronizableAvatars.h"
+#include "vtkTextProperty.h"
 
 #include <cassert>
+#include <map>
+#include <string>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -62,6 +67,66 @@ public:
   vtkSynchronizedRenderers* Target;
 };
 
+class vtkSynchronizedRenderers::vtkInternals
+{
+public:
+  vtkInternals()
+    : SynchronizableActorsEnabled(false)
+  {
+  }
+
+  void InitializeRenderer(vtkRenderer* ren)
+  {
+    if (this->SynchronizableActorsEnabled)
+    {
+      for (auto iter = this->SynchronizedActors.begin(); iter != this->SynchronizedActors.end();
+           iter++)
+      {
+        (*iter)->InitializeRenderer(ren);
+      }
+    }
+  }
+
+  void CleanUpRenderer(vtkRenderer* ren)
+  {
+    if (this->SynchronizableActorsEnabled)
+    {
+      for (auto iter = this->SynchronizedActors.begin(); iter != this->SynchronizedActors.end();
+           iter++)
+      {
+        (*iter)->CleanUpRenderer(ren);
+      }
+    }
+  }
+
+  void Save(vtkMultiProcessStream& stream, vtkRenderer* ren)
+  {
+    if (this->SynchronizableActorsEnabled)
+    {
+      for (auto iter = this->SynchronizedActors.begin(); iter != this->SynchronizedActors.end();
+           iter++)
+      {
+        (*iter)->SaveToStream(stream, ren);
+      }
+    }
+  }
+
+  void Restore(vtkMultiProcessStream& stream, vtkRenderer* ren)
+  {
+    if (this->SynchronizableActorsEnabled)
+    {
+      for (auto iter = this->SynchronizedActors.begin(); iter != this->SynchronizedActors.end();
+           iter++)
+      {
+        (*iter)->RestoreFromStream(stream, ren);
+      }
+    }
+  }
+
+  std::vector<vtkSmartPointer<vtkSynchronizableActors>> SynchronizedActors;
+  bool SynchronizableActorsEnabled;
+};
+
 vtkStandardNewMacro(vtkSynchronizedRenderers);
 vtkCxxSetObjectMacro(vtkSynchronizedRenderers, ParallelController, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkSynchronizedRenderers, CaptureDelegate, vtkSynchronizedRenderers);
@@ -72,6 +137,7 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   , LastTexturedBackground(false)
   , LastGradientBackground(false)
   , FixBackground(false)
+  , Internal(new vtkSynchronizedRenderers::vtkInternals())
 {
   this->Observer = vtkSynchronizedRenderers::vtkObserver::New();
   this->Observer->Target = this;
@@ -112,6 +178,36 @@ vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
 }
 
 //------------------------------------------------------------------------------
+void vtkSynchronizedRenderers::EnableSynchronizableActors(bool enabled)
+{
+  if (enabled != this->Internal->SynchronizableActorsEnabled)
+  {
+    this->Internal->SynchronizableActorsEnabled = enabled;
+
+    if (enabled)
+    {
+      this->Internal->SynchronizedActors.emplace_back(
+        vtkSmartPointer<vtkSynchronizableAvatars>::New());
+      // In the future, we can add any other instances that can synchronize
+      // collections of actors here, e.g. controller models, desktop camera
+      // model, etc.
+      if (this->Renderer)
+      {
+        this->Internal->InitializeRenderer(this->Renderer);
+      }
+    }
+    else
+    {
+      if (this->Renderer)
+      {
+        this->Internal->CleanUpRenderer(this->Renderer);
+      }
+      this->Internal->SynchronizedActors.clear();
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
 {
   if (this->Renderer != renderer)
@@ -119,6 +215,8 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
     if (this->Renderer)
     {
       this->Renderer->RemoveObserver(this->Observer);
+
+      this->Internal->CleanUpRenderer(this->Renderer);
     }
 
     // The renderer should be OpenGL ...
@@ -136,6 +234,8 @@ void vtkSynchronizedRenderers::SetRenderer(vtkRenderer* renderer)
       this->Renderer->AddObserver(vtkCommand::StartEvent, this->Observer);
       this->Renderer->AddObserver(vtkCommand::EndEvent, this->Observer);
       // this->Renderer->AddObserver(vtkCommand::AbortCheckEvent, this->Observer);
+
+      this->Internal->InitializeRenderer(this->Renderer);
     }
   }
 }
@@ -205,6 +305,8 @@ void vtkSynchronizedRenderers::MasterStartRender()
   vtkMultiProcessStream stream;
   renInfo.Save(stream);
 
+  this->Internal->Save(stream, this->Renderer);
+
   this->ParallelController->Broadcast(stream, this->RootProcessId);
 }
 
@@ -217,6 +319,9 @@ void vtkSynchronizedRenderers::SlaveStartRender()
   RendererInfo renInfo;
   renInfo.Restore(stream);
   renInfo.CopyTo(this->Renderer);
+
+  this->Internal->Restore(stream, this->Renderer);
+
   this->SetImageReductionFactor(renInfo.ImageReductionFactor);
 }
 

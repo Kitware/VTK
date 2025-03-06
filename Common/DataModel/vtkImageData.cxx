@@ -2338,40 +2338,15 @@ void vtkImageData::TransformPhysicalPlaneToContinuousIndex(
 //------------------------------------------------------------------------------
 void vtkImageData::ComputeTransforms()
 {
-  vtkMatrix4x4* m4 = vtkMatrix4x4::New();
   this->DirectionMatrixIsIdentity = this->DirectionMatrix->IsIdentity();
-  if (this->DirectionMatrixIsIdentity)
-  {
-    m4->Zero();
-    m4->SetElement(0, 0, this->Spacing[0]);
-    m4->SetElement(1, 1, this->Spacing[1]);
-    m4->SetElement(2, 2, this->Spacing[2]);
-    m4->SetElement(3, 3, 1);
-  }
-  else
-  {
-    const double* m3 = this->DirectionMatrix->GetData();
-    m4->SetElement(0, 0, m3[0] * this->Spacing[0]);
-    m4->SetElement(0, 1, m3[1] * this->Spacing[1]);
-    m4->SetElement(0, 2, m3[2] * this->Spacing[2]);
-    m4->SetElement(1, 0, m3[3] * this->Spacing[0]);
-    m4->SetElement(1, 1, m3[4] * this->Spacing[1]);
-    m4->SetElement(1, 2, m3[5] * this->Spacing[2]);
-    m4->SetElement(2, 0, m3[6] * this->Spacing[0]);
-    m4->SetElement(2, 1, m3[7] * this->Spacing[1]);
-    m4->SetElement(2, 2, m3[8] * this->Spacing[2]);
-    m4->SetElement(3, 0, 0);
-    m4->SetElement(3, 1, 0);
-    m4->SetElement(3, 2, 0);
-    m4->SetElement(3, 3, 1);
-  }
-  m4->SetElement(0, 3, this->Origin[0]);
-  m4->SetElement(1, 3, this->Origin[1]);
-  m4->SetElement(2, 3, this->Origin[2]);
 
-  this->IndexToPhysicalMatrix->DeepCopy(m4);
-  vtkMatrix4x4::Invert(m4, this->PhysicalToIndexMatrix);
-  m4->Delete();
+  vtkImageData::ComputeIndexToPhysicalMatrix(this->Origin, this->Spacing,
+    this->DirectionMatrix->GetData(), this->IndexToPhysicalMatrix->GetData());
+  this->IndexToPhysicalMatrix->Modified();
+
+  vtkImageData::ComputePhysicalToIndexMatrix(this->Origin, this->Spacing,
+    this->DirectionMatrix->GetData(), this->PhysicalToIndexMatrix->GetData());
+  this->PhysicalToIndexMatrix->Modified();
 }
 
 //------------------------------------------------------------------------------
@@ -2388,10 +2363,45 @@ void vtkImageData::ComputeIndexToPhysicalMatrix(
   result[3] = origin[0];
   result[7] = origin[1];
   result[11] = origin[2];
-  result[12] = 0;
-  result[13] = 0;
-  result[14] = 0;
-  result[15] = 1;
+  result[12] = 0.0;
+  result[13] = 0.0;
+  result[14] = 0.0;
+  result[15] = 1.0;
+}
+
+//------------------------------------------------------------------------------
+void vtkImageData::ComputePhysicalToIndexMatrix(
+  double const origin[3], double const spacing[3], double const direction[9], double result[16])
+{
+  double invDirection[9];
+  vtkMatrix3x3::Invert(direction, invDirection);
+
+  double invOrigin[3] = { -origin[0], -origin[1], -origin[2] };
+  vtkMatrix3x3::MultiplyPoint(invDirection, invOrigin, invOrigin);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    if (spacing[i] != 0.0)
+    {
+      result[i * 4] = invDirection[i * 3] / spacing[i];
+      result[i * 4 + 1] = invDirection[i * 3 + 1] / spacing[i];
+      result[i * 4 + 2] = invDirection[i * 3 + 2] / spacing[i];
+      result[i * 4 + 3] = invOrigin[i] / spacing[i];
+    }
+    else
+    {
+      // if spacing is zero, result is pseudoinverse of IndexToPhysicalMatrix
+      result[i * 4] = 0.0;
+      result[i * 4 + 1] = 0.0;
+      result[i * 4 + 2] = 0.0;
+      result[i * 4 + 3] = 0.0;
+    }
+  }
+
+  result[12] = 0.0;
+  result[13] = 0.0;
+  result[14] = 0.0;
+  result[15] = 1.0;
 }
 
 //------------------------------------------------------------------------------

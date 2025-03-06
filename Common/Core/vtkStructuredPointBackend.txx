@@ -1,8 +1,32 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkStructuredPointBackend_txx
+#define vtkStructuredPointBackend_txx
+
 #include "vtkStructuredPointBackend.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+
+//----------------------------------------------------------------------------
+template <typename ValueType>
+vtkStructuredPointBackend<ValueType>::vtkStructuredPointBackend() = default;
+
+//----------------------------------------------------------------------------
+template <typename ValueType>
+vtkStructuredPointBackend<ValueType>::~vtkStructuredPointBackend() = default;
+
+//----------------------------------------------------------------------------
+template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
+  int DataDescription, bool UseDirMatrix>
+vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
+  UseDirMatrix>::vtkStructuredTPointBackend() = default;
+
+//----------------------------------------------------------------------------
+template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
+  int DataDescription, bool UseDirMatrix>
+vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
+  UseDirMatrix>::~vtkStructuredTPointBackend() = default;
+
 //----------------------------------------------------------------------------
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
@@ -498,3 +522,5 @@ ValueType vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTyp
   return this->mapComponent(div.quot, div.rem);
 }
 VTK_ABI_NAMESPACE_END
+
+#endif // vtkStructuredPointBackend_txx

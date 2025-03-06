@@ -15,7 +15,7 @@ from vtkmodules.vtkCommonMisc import vtkErrorCode
 try:
     import vtkmodules.vtkIOEnSight as ensight
 except ImportError:
-    ensight is None
+    ensight = None
 
 from vtkmodules.test import Testing
 

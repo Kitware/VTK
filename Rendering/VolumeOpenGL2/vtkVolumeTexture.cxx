@@ -20,7 +20,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTexture.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkVolumeTexture::vtkVolumeTexture()
@@ -120,10 +120,7 @@ bool vtkVolumeTexture::LoadVolume(
     {
       vtkRectilinearGrid* singleBlock = vtkRectilinearGrid::New();
       singleBlock->ShallowCopy(rGrid);
-      // Do not update the block extent at this time.
-      // We need the full block extent in ComputeBounds later on.
-      // Leaving the following commented line in as a reminder.
-      // singleBlock->SetExtent(this->FullExtent.GetData());
+      singleBlock->SetExtent(this->FullExtent.GetData());
       this->ImageDataBlocks.push_back(singleBlock);
     }
   }
@@ -225,22 +222,16 @@ void vtkVolumeTexture::CreateBlocks(unsigned int format, unsigned int internalFo
     vtkDataSet* dataset = this->ImageDataBlocks.at(i);
     vtkImageData* imData = vtkImageData::SafeDownCast(dataset);
     vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(dataset);
-    Size6 ext;
+    int* ext = nullptr;
     if (imData)
     {
-      imData->GetExtent(ext.GetData());
+      ext = imData->GetExtent();
     }
     else if (rGrid)
     {
-      rGrid->GetExtent(ext.GetData());
-      if (this->IsCellData)
-      {
-        // The block extents for rectilinear grids were not overridden before. Hence, this
-        // additional step of adjusting them here.
-        this->AdjustExtentForCell(ext);
-      }
+      ext = rGrid->GetExtent();
     }
-    Size3 const texSize = this->ComputeBlockSize(ext.GetData());
+    Size3 const texSize = this->ComputeBlockSize(ext);
     VolumeBlock* block = new VolumeBlock(dataset, this->Texture, texSize);
 
     // Compute tuple index (array aligned in x -> Y -> Z)
@@ -1000,14 +991,9 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
     rGrid->GetExtent(block->Extents);
     if (this->IsCellData)
     {
-      for (int i = 0; i < 3; ++i)
-      {
-        // The block extents for rectilinear grids were not overridden before.        // Hence, this
-        // additional step of adjusting them here.
-        block->Extents[2 * i + 1] -= 1;
-        // Re-computing spacing with the updated extents/dimensions.
-        spacing[i] = (bounds[2 * i + 1] - bounds[2 * i]) / (dims[i] - 1);
-      }
+      block->Extents[1]--;
+      block->Extents[3]--;
+      block->Extents[5]--;
     }
   }
 

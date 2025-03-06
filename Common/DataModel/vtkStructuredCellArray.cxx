@@ -166,15 +166,15 @@ template <int DataDescription, bool UsePixelVoxelOrientation>
 struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredCellBackend
 {
   // static constexpr members
-  static constexpr int CellSize = DataDescription == VTK_XYZ_GRID
-    ? 8
+  static constexpr int CellSize = DataDescription == VTK_XYZ_GRID ? 8
     : DataDescription == VTK_XY_PLANE || DataDescription == VTK_YZ_PLANE ||
-        DataDescription == VTK_XZ_PLANE
-      ? 4
-      : DataDescription == VTK_X_LINE || DataDescription == VTK_Y_LINE ||
-          DataDescription == VTK_Z_LINE
-        ? 2
-        : DataDescription == VTK_SINGLE_POINT ? 1 : 0;
+      DataDescription == VTK_XZ_PLANE
+    ? 4
+    : DataDescription == VTK_X_LINE || DataDescription == VTK_Y_LINE ||
+      DataDescription == VTK_Z_LINE
+    ? 2
+    : DataDescription == VTK_SINGLE_POINT ? 1
+                                          : 0;
 
   static constexpr vtkIdType ValidCellSize =
     vtkStructuredTCellBackend::CellSize > 0 ? vtkStructuredTCellBackend::CellSize : 1;

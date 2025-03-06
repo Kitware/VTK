@@ -121,7 +121,8 @@ inline int vtkInterpolationMath::Floor(double x, F& f)
   return static_cast<int>(i - 103079215104LL);
 #elif !defined VTK_WORDS_BIGENDIAN
   // same as above, but avoid doing any 64-bit integer arithmetic
-  union {
+  union
+  {
     double d;
     unsigned short s[4];
     unsigned int i[2];
@@ -131,7 +132,8 @@ inline int vtkInterpolationMath::Floor(double x, F& f)
   return static_cast<int>((dual.i[1] << 16) | ((dual.i[0]) >> 16));
 #else
   // and again for big-endian architectures
-  union {
+  union
+  {
     double d;
     unsigned short s[4];
     unsigned int i[2];
@@ -151,7 +153,8 @@ inline int vtkInterpolationMath::Round(double x)
   return static_cast<int>(i - 103079215104LL);
 #elif !defined VTK_WORDS_BIGENDIAN
   // same as above, but avoid doing any 64-bit integer arithmetic
-  union {
+  union
+  {
     double d;
     unsigned int i[2];
   } dual;
@@ -159,7 +162,8 @@ inline int vtkInterpolationMath::Round(double x)
   return static_cast<int>((dual.i[1] << 16) | ((dual.i[0]) >> 16));
 #else
   // and again for big-endian architectures
-  union {
+  union
+  {
     double d;
     unsigned int i[2];
   } dual;

@@ -23,6 +23,7 @@
 #undef vtkXMLOffsetsManager_DoNotInclude
 
 #include <cassert>
+#include <limits>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
@@ -650,7 +651,8 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     vtkTypeInt64Array* nbVerticesByLevel = vtkTypeInt64Array::New();
     vtkBitArray* descriptor = vtkBitArray::New();
     vtkIdList* ids = vtkIdList::New();
-    tree->ComputeBreadthFirstOrderDescriptor(input->GetMask(), nbVerticesByLevel, descriptor, ids);
+    tree->ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::max(),
+      input->GetMask(), nbVerticesByLevel, descriptor, ids);
 
     // squeezing last zeros of last row out of descriptor
     if (vtkIdType lastNonZeroId = descriptor->GetNumberOfValues())
@@ -827,8 +829,8 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_2(vtkIndent indent)
     metaData.TreeIds->SetValue(currentId, inIndex);
 
     vtkIdType previousSize = metaData.NumberOfVerticesPerDepth->GetNumberOfValues();
-    tree->ComputeBreadthFirstOrderDescriptor(input->GetMask(), metaData.NumberOfVerticesPerDepth,
-      metaData.Descriptors, metaData.BreadthFirstIdMap);
+    tree->ComputeBreadthFirstOrderDescriptor(input->GetDepthLimiter(), input->GetMask(),
+      metaData.NumberOfVerticesPerDepth, metaData.Descriptors, metaData.BreadthFirstIdMap);
     metaData.DepthPerTree->SetValue(
       currentId++, metaData.NumberOfVerticesPerDepth->GetNumberOfValues() - previousSize);
   }

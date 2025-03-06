@@ -41,7 +41,7 @@
 
 // Define this to work around "glommed" point/cell data in the reference data.
 #undef GLOM_WORKAROUND
-//#define GLOM_WORKAROUND
+// #define GLOM_WORKAROUND
 
 // See issue #
 #define vtkContourFilter_IS_FIXED 0
@@ -666,11 +666,11 @@ void printTimingInfo(
 
 // Define this to profile a particular filter (see testFilters(...)).
 #undef PROFILE
-//#define PROFILE CURRENT_TEST
+// #define PROFILE CURRENT_TEST
 
 // Define this to benchmark a particular filter (see testFilters(...)).
 #undef BENCHMARK
-//#define BENCHMARK CURRENT_TEST
+// #define BENCHMARK CURRENT_TEST
 
 bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
 {

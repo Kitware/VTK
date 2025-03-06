@@ -22,6 +22,7 @@
 #include "vtkCellGridResponders.h" // For vtkCellGridResponders::TagSet.
 #include "vtkCellMetadata.h"
 #include "vtkDGOperatorEntry.h" // For GetOperatorEntry API.
+#include "vtkDataArray.h"       // for vtkDataArray::PrintValues
 #include "vtkStringToken.h"     // For vtkStringToken::Hash.
 #include "vtkVector.h"          // For IsInside, GetParametricCenterOfSide APIs.
 
@@ -53,7 +54,7 @@ public:
   /// the function space and its order are also indexed.
   ///
   /// vtkDGInterpolateCalculator and other query-responders should use
-  /// this map along with vtkDGInvokeOperator to perform interpolation
+  /// this map along with vtkDGOperation to perform interpolation
   /// or other work requiring basis-function computation.
   using OperatorMap = std::unordered_map<vtkStringToken, // operator name
     std::unordered_map<vtkStringToken,                   // function space
@@ -92,6 +93,20 @@ public:
     Source& operator=(const Source&) = default;
     /// Override the destructor to de-reference Connectivity, NodalGhostMarks.
     virtual ~Source() = default;
+
+    friend ostream& operator<<(ostream& os, const Source& source)
+    {
+      os << "vtkDGCell::Source(" << &source << ")\n";
+      source.Connectivity->PrintValues(os);
+      os << "Connectivity: " << source.Connectivity << '\n';
+      os << "NodalGhostMarks: " << source.NodalGhostMarks << '\n';
+      os << "Offset: " << source.Offset << '\n';
+      os << "Blanked: " << (source.Blanked ? "T\n" : "F\n");
+      os << "SourceShape: " << source.SourceShape << '\n';
+      os << "SideType: " << source.SideType << '\n';
+      os << "SelectionType: " << source.SelectionType << '\n';
+      return os;
+    }
 
     /// An array holding cell connectivity or (cell-id, side-id) tuples.
     ///
@@ -141,6 +156,7 @@ public:
 
   /// Provide access to cell specifications in a uniform way (for both cells and sides).
   const Source& GetCellSource(int sideType = -1) const;
+  Source& GetCellSource(int sideType = -1);
 
   /// Python-accessible method to identify number of cell sources.
   std::size_t GetNumberOfCellSources() const { return this->SideSpecs.size(); }
@@ -262,6 +278,15 @@ public:
   /// representing its quadrilateral faces, plus twelve 2-tuples representing its
   /// edges, plus 8 1-tuples representing its corners.
   /// Thus, a hexahedron has 6 + 12 + 8 = 26 sides (plus its interior).
+  ///
+  /// Passing a dimension of -1 will return 1 side; DG cells use a -1-dimensional
+  /// side to indicate an entire cell should be treated as a side. This is useful
+  /// for subsetting cells without re-writing the arrays holding connectivity and
+  /// field values; it also allows a vtkDGCell instance to hold both sides of input
+  /// cells mixed with a subset of the input cells. For example, given 3 triangles
+  /// as input, generating an output with 1 input triangle unchanged and edges or
+  /// vertices from the other two triangles requires per-cell blanking or subsetting
+  /// of cells.
   virtual int GetNumberOfSidesOfDimension(int dimension) const = 0;
 
   /// For a given \a side, return its cell shape.

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDeserializer.h"
 #include "vtkInteractorStyleSwitch.h"
+#include "vtkRenderWindowInteractor.h"
 #include "vtkSerializer.h"
 
 // clang-format off
@@ -37,7 +38,13 @@ static nlohmann::json Serialize_vtkInteractorStyleSwitch(
     state = f(object, serializer);
   }
   state["SuperClassNames"].push_back("vtkInteractorStyleSwitchBase");
-  if (auto currentStyle = object->GetCurrentStyle())
+  // vtkInteractorStyleSwitchBase::GetInteractor is overriden to always return `nullptr`
+  // extract the interactor from it's grandparent class vtkInteractorStyle.
+  if (auto* interactor = object->vtkInteractorStyle::GetInteractor())
+  {
+    state["Interactor"] = serializer->SerializeJSON(interactor);
+  }
+  if (auto* currentStyle = object->GetCurrentStyle())
   {
     vtkTypeUInt8 styleIndex = 0;
     for (const auto& styleName : possibleStyles)

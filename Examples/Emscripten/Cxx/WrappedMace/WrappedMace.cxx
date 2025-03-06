@@ -57,9 +57,8 @@ EMSCRIPTEN_BINDINGS(webtest)
       emscripten::allow_raw_pointers())
     .function("SetInputConnection",
       emscripten::select_overload<void(vtkAlgorithm&, vtkAlgorithmOutput*)>(
-        [](vtkAlgorithm& self, vtkAlgorithmOutput* ptr) {
-          self.vtkAlgorithm::SetInputConnection(ptr);
-        }),
+        [](vtkAlgorithm& self, vtkAlgorithmOutput* ptr)
+        { self.vtkAlgorithm::SetInputConnection(ptr); }),
       emscripten::allow_raw_pointers());
 
   // vtkAlgorithmOutput -----------------------------------------------
@@ -78,9 +77,8 @@ EMSCRIPTEN_BINDINGS(webtest)
     .function("SetScaleFactor", &vtkGlyph3D::SetScaleFactor)
     .function("SetSourceConnection",
       emscripten::select_overload<void(vtkGlyph3D&, vtkAlgorithmOutput*)>(
-        [](vtkGlyph3D& self, vtkAlgorithmOutput* ptr) {
-          self.vtkGlyph3D::SetSourceConnection(ptr);
-        }),
+        [](vtkGlyph3D& self, vtkAlgorithmOutput* ptr)
+        { self.vtkGlyph3D::SetSourceConnection(ptr); }),
       emscripten::allow_raw_pointers());
 
   // vtkMapper --------------------------------------------------------
@@ -110,6 +108,10 @@ EMSCRIPTEN_BINDINGS(webtest)
 
   // vtkRenderWindowInteractor ----------------------------------------
   emscripten::class_<vtkRenderWindowInteractor>("vtkRenderWindowInteractor")
+    .constructor(&vtkRenderWindowInteractor::New, emscripten::allow_raw_pointers())
+    .class_function("configure",
+      emscripten::select_overload<void()>(
+        []() { vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false; }))
     .function("Start", &vtkRenderWindowInteractor::Start)
     .function("SetRenderWindow", &vtkRenderWindowInteractor::SetRenderWindow,
       emscripten::allow_raw_pointers());
@@ -124,7 +126,6 @@ EMSCRIPTEN_BINDINGS(webtest)
   emscripten::class_<vtkViewport>("vtkViewport")
     .function("SetBackground",
       emscripten::select_overload<void(vtkViewport&, double, double, double)>(
-        [](vtkViewport& self, double r, double g, double b) {
-          self.vtkViewport::SetBackground(r, g, b);
-        }));
+        [](vtkViewport& self, double r, double g, double b)
+        { self.vtkViewport::SetBackground(r, g, b); }));
 }

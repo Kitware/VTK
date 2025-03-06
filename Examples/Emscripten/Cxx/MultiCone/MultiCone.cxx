@@ -94,7 +94,10 @@ extern "C"
     std::cout << "c++::stop - end" << std::endl;
   }
 
-  int getConeResolution() { return coneSource->GetResolution(); }
+  int getConeResolution()
+  {
+    return coneSource->GetResolution();
+  }
 
   void setConeResolution(int resolution)
   {
@@ -114,7 +117,7 @@ int main(int argc, char* argv[])
 
   // Start rendering app
   renderer->SetBackground(0.2, 0.3, 0.4);
-  renderWindow->SetSize(600, 600);
+  // renderWindow->SetSize(600, 600);
   renderWindow->Render();
 
   // Start event loop

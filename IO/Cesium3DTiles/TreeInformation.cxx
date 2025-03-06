@@ -648,31 +648,32 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
       // accumulate all texture file names and tcoords
       std::function<bool(vtkPolyData*)> accumulateNamesAndTCoords =
         [&meshes, &numberOfTextures, &meshTextureFileNames, &meshTCoords, &meshesWithTexture](
-          vtkPolyData* pd) {
-          auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
-          if (pdTextureFileNames.empty())
+          vtkPolyData* pd)
+      {
+        auto pdTextureFileNames = vtkGLTFWriter::GetFieldAsStringVector(pd, "texture_uri");
+        if (pdTextureFileNames.empty())
+        {
+          meshes.push_back(pd);
+        }
+        else
+        {
+          if (numberOfTextures && numberOfTextures != pdTextureFileNames.size())
           {
-            meshes.push_back(pd);
+            vtkLog(ERROR,
+              "Different polydata in the tile have different "
+              "number of textures "
+                << pdTextureFileNames.size() << " expecting " << numberOfTextures);
+            // disable texture merging
+            numberOfTextures = 0;
+            return false;
           }
-          else
-          {
-            if (numberOfTextures && numberOfTextures != pdTextureFileNames.size())
-            {
-              vtkLog(ERROR,
-                "Different polydata in the tile have different "
-                "number of textures "
-                  << pdTextureFileNames.size() << " expecting " << numberOfTextures);
-              // disable texture merging
-              numberOfTextures = 0;
-              return false;
-            }
-            numberOfTextures = pdTextureFileNames.size();
-            meshesWithTexture.push_back(pd);
-            meshTextureFileNames.push_back(pdTextureFileNames);
-            meshTCoords.push_back(pd->GetPointData()->GetTCoords());
-          }
-          return true;
-        };
+          numberOfTextures = pdTextureFileNames.size();
+          meshesWithTexture.push_back(pd);
+          meshTextureFileNames.push_back(pdTextureFileNames);
+          meshTCoords.push_back(pd->GetPointData()->GetTCoords());
+        }
+        return true;
+      };
       this->ForEachBuilding(node, accumulateNamesAndTCoords);
 
       // how many polydata textures along one side of the merged texture
@@ -698,8 +699,9 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
           // sorted on decreasing height of textures
           std::vector<size_t> textureIds(tileTextures.size());
           std::iota(textureIds.begin(), textureIds.end(), 0);
-          std::sort(
-            textureIds.begin(), textureIds.end(), [tileTextures](size_t first, size_t second) {
+          std::sort(textureIds.begin(), textureIds.end(),
+            [tileTextures](size_t first, size_t second)
+            {
               double* firstBounds = tileTextures[first]->GetBounds();
               double* secondBounds = tileTextures[second]->GetBounds();
               return (firstBounds[3] - firstBounds[2]) > (secondBounds[3] - secondBounds[2]);
@@ -857,9 +859,8 @@ vtkSmartPointer<vtkImageData> TreeInformation::SplitTileTexture(
   }
   // sort decreasing on height of the BB
   std::sort(scatteredRegions.begin(), scatteredRegions.end(),
-    [](const RegionCellId& first, const RegionCellId& second) {
-      return (first.Region[3] - first.Region[2]) > (second.Region[3] - second.Region[2]);
-    });
+    [](const RegionCellId& first, const RegionCellId& second)
+    { return (first.Region[3] - first.Region[2]) > (second.Region[3] - second.Region[2]); });
   // approximate the width in pixels of the new image
   float average = 0.0f;
   for (size_t i = 0; i < scatteredRegions.size(); ++i)
@@ -1510,7 +1511,8 @@ bool TreeInformation::ConvertTileCartesianBuildings(vtkIncrementalOctreeNode* no
   P = P_for_GIS;
 
   // transform points to Cartesian coordinates
-  std::function<bool(vtkPolyData*)> transformPointToCartesian = [P](vtkPolyData* pd) {
+  std::function<bool(vtkPolyData*)> transformPointToCartesian = [P](vtkPolyData* pd)
+  {
     vtkDataArray* points = pd->GetPoints()->GetData();
     vtkNew<vtkDoubleArray> newPoints;
     vtkDoubleArray* da = vtkArrayDownCast<vtkDoubleArray>(points);

@@ -92,7 +92,8 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   vtkLogStartScope(TRACE, "extract points");
   auto datasets = vtkCompositeDataSet::GetDataSets(dobj);
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(),
-                   [&cell_centers](vtkDataSet* ds) {
+                   [&cell_centers](vtkDataSet* ds)
+                   {
                      return ds == nullptr || ds->GetNumberOfPoints() == 0 ||
                        (cell_centers && ds->GetNumberOfCells() == 0);
                    }),
@@ -151,71 +152,79 @@ static bool GenerateIds(vtkDataObject* dobj, vtkGenerateGlobalIds* self, bool ce
   // now communicate point ownership information and assign ids to locally owned
   // points.
   vtkLogStartScope(TRACE, "exchange-ownership-ids");
-  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
-    if (rp.round() == 0)
+  diy::all_to_all(master, assigner,
+    [](ElementBlockT* b, const diy::ReduceProxy& rp)
     {
-      // now enqueue ownership information.
-      b->EnqueueOwnershipInformation(rp);
-    }
-    else
-    {
-      // now dequeue ownership information and process locally to assign ids
-      // to locally owned points and flag ghost points.
-      b->DequeueOwnershipInformation(rp);
-    }
-  });
+      if (rp.round() == 0)
+      {
+        // now enqueue ownership information.
+        b->EnqueueOwnershipInformation(rp);
+      }
+      else
+      {
+        // now dequeue ownership information and process locally to assign ids
+        // to locally owned points and flag ghost points.
+        b->DequeueOwnershipInformation(rp);
+      }
+    });
   vtkLogEndScope("exchange-ownership-ids");
 
   // exchange unique ids count so that we can determine global id offsets
   vtkLogStartScope(TRACE, "exchange-unique-ids");
-  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
-    if (rp.round() == 0)
+  diy::all_to_all(master, assigner,
+    [](ElementBlockT* b, const diy::ReduceProxy& rp)
     {
-      for (int i = rp.gid() + 1; i < rp.nblocks(); ++i)
+      if (rp.round() == 0)
       {
-        rp.enqueue(rp.out_link().target(i), b->UniqueElementsCount);
+        for (int i = rp.gid() + 1; i < rp.nblocks(); ++i)
+        {
+          rp.enqueue(rp.out_link().target(i), b->UniqueElementsCount);
+        }
       }
-    }
-    else
-    {
-      vtkIdType offset = 0;
-      for (int src_gid = 0; src_gid < rp.gid(); ++src_gid)
+      else
       {
-        vtkIdType msg;
-        rp.dequeue(src_gid, msg);
-        offset += msg;
+        vtkIdType offset = 0;
+        for (int src_gid = 0; src_gid < rp.gid(); ++src_gid)
+        {
+          vtkIdType msg;
+          rp.dequeue(src_gid, msg);
+          offset += msg;
+        }
+        b->AddOffset(offset);
       }
-      b->AddOffset(offset);
-    }
-  });
+    });
   vtkLogEndScope("exchange-unique-ids");
 
   // exchange assigned ids.
   vtkLogStartScope(TRACE, "exchange-assigned-ids");
-  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
-    if (rp.round() == 0)
+  diy::all_to_all(master, assigner,
+    [](ElementBlockT* b, const diy::ReduceProxy& rp)
     {
-      b->EnqueueReplies(rp);
-    }
-    else
-    {
-      b->DequeueReplies(rp);
-    }
-  });
+      if (rp.round() == 0)
+      {
+        b->EnqueueReplies(rp);
+      }
+      else
+      {
+        b->DequeueReplies(rp);
+      }
+    });
   vtkLogEndScope("exchange-assigned-ids");
 
   // final back communication to assign ids to ghosted points.
   vtkLogStartScope(TRACE, "exchange-ghosted-ids");
-  diy::all_to_all(master, assigner, [](ElementBlockT* b, const diy::ReduceProxy& rp) {
-    if (rp.round() == 0)
+  diy::all_to_all(master, assigner,
+    [](ElementBlockT* b, const diy::ReduceProxy& rp)
     {
-      b->EnqueueGhostedIds(rp);
-    }
-    else
-    {
-      b->DequeueGhostedIds(rp);
-    }
-  });
+      if (rp.round() == 0)
+      {
+        b->EnqueueGhostedIds(rp);
+      }
+      else
+      {
+        b->DequeueGhostedIds(rp);
+      }
+    });
   vtkLogEndScope("exchange-ghosted-ids");
   self->UpdateProgress(1.0);
   return true;
@@ -283,8 +292,9 @@ struct PointTT
   {
     std::vector<PointTT> elems;
     elems.resize(pts->GetNumberOfPoints());
-    vtkSMPTools::For(
-      0, pts->GetNumberOfPoints(), [&elems, pts, gid](vtkIdType start, vtkIdType end) {
+    vtkSMPTools::For(0, pts->GetNumberOfPoints(),
+      [&elems, pts, gid](vtkIdType start, vtkIdType end)
+      {
         for (vtkIdType cc = start; cc < end; ++cc)
         {
           auto& pt = elems[cc];
@@ -301,10 +311,12 @@ struct PointTT
     // let's sort the points by source-id. This ensures that when a point is
     // duplicated among multiple blocks, the block with lower block-id owns the
     // point. Thus, keeping the numbering consistent.
-    std::sort(points.begin(), points.end(), [](const PointTT& a, const PointTT& b) {
-      return (a.source_gid == b.source_gid) ? (a.source_id < b.source_id)
-                                            : (a.source_gid < b.source_gid);
-    });
+    std::sort(points.begin(), points.end(),
+      [](const PointTT& a, const PointTT& b)
+      {
+        return (a.source_gid == b.source_gid) ? (a.source_id < b.source_id)
+                                              : (a.source_gid < b.source_gid);
+      });
   }
 
   static std::vector<vtkIdType> GenerateMergeMap(
@@ -322,12 +334,14 @@ struct PointTT
     vtkNew<vtkPoints> pts;
     pts->SetDataTypeToDouble();
     pts->SetNumberOfPoints(numPts);
-    vtkSMPTools::For(0, numPts, [&](vtkIdType start, vtkIdType end) {
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, numPts,
+      [&](vtkIdType start, vtkIdType end)
       {
-        pts->SetPoint(cc, points[cc].coords.GetData());
-      }
-    });
+        for (vtkIdType cc = start; cc < end; ++cc)
+        {
+          pts->SetPoint(cc, points[cc].coords.GetData());
+        }
+      });
     grid->SetPoints(pts);
 
     vtkNew<vtkStaticPointLocator> locator;
@@ -373,23 +387,25 @@ struct CellTT
 
     auto pt_gids = vtkIdTypeArray::SafeDownCast(ds->GetPointData()->GetGlobalIds());
     assert(ncells == 0 || pt_gids != nullptr);
-    vtkSMPTools::For(0, ncells, [&](vtkIdType start, vtkIdType end) {
-      auto ids = tlIdList.Local();
-      for (vtkIdType cc = start; cc < end; ++cc)
+    vtkSMPTools::For(0, ncells,
+      [&](vtkIdType start, vtkIdType end)
       {
-        auto& cell = elems[cc];
-        centers->GetPoint(cc, cell.center.GetData());
-        cell.source_gid = gid;
-        cell.source_id = cc;
-
-        ds->GetCellPoints(cc, ids);
-        cell.point_ids.resize(ids->GetNumberOfIds());
-        for (vtkIdType kk = 0, max = ids->GetNumberOfIds(); kk < max; ++kk)
+        auto ids = tlIdList.Local();
+        for (vtkIdType cc = start; cc < end; ++cc)
         {
-          cell.point_ids[kk] = pt_gids->GetTypedComponent(ids->GetId(kk), 0);
+          auto& cell = elems[cc];
+          centers->GetPoint(cc, cell.center.GetData());
+          cell.source_gid = gid;
+          cell.source_id = cc;
+
+          ds->GetCellPoints(cc, ids);
+          cell.point_ids.resize(ids->GetNumberOfIds());
+          for (vtkIdType kk = 0, max = ids->GetNumberOfIds(); kk < max; ++kk)
+          {
+            cell.point_ids[kk] = pt_gids->GetTypedComponent(ids->GetId(kk), 0);
+          }
         }
-      }
-    });
+      });
 
     return elems;
   }
@@ -399,10 +415,12 @@ struct CellTT
     // here, we are sorting such that for duplicated cells, we always order the
     // cell on the lower block before the one on the higher block. This is
     // essential to keep the cell numbering consistent.
-    std::sort(cells.begin(), cells.end(), [](const CellTT& lhs, const CellTT& rhs) {
-      return (lhs.point_ids == rhs.point_ids ? lhs.source_gid < rhs.source_gid
-                                             : lhs.point_ids < rhs.point_ids);
-    });
+    std::sort(cells.begin(), cells.end(),
+      [](const CellTT& lhs, const CellTT& rhs)
+      {
+        return (lhs.point_ids == rhs.point_ids ? lhs.source_gid < rhs.source_gid
+                                               : lhs.point_ids < rhs.point_ids);
+      });
   }
 
   static std::vector<vtkIdType> GenerateMergeMap(
@@ -596,8 +614,9 @@ public:
     {
       return;
     }
-    vtkSMPTools::For(
-      0, this->GlobalIds->GetNumberOfTuples(), [&offset, this](vtkIdType start, vtkIdType end) {
+    vtkSMPTools::For(0, this->GlobalIds->GetNumberOfTuples(),
+      [&offset, this](vtkIdType start, vtkIdType end)
+      {
         for (vtkIdType cc = start; cc < end; ++cc)
         {
           const auto id = this->GlobalIds->GetTypedComponent(cc, 0);

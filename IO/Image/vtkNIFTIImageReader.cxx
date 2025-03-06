@@ -664,7 +664,8 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   int scalarType = 0;
   int numComponents = 0;
 
-  for (int i = 0; typeMap[2] != nullptr; i++)
+  // the end of the typemap has been reached when typeMap[i][2] is 0
+  for (int i = 0; typeMap[i][2] != 0; i++)
   {
     if (hdr2->datatype == typeMap[i][0])
     {

@@ -26,6 +26,7 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
+#include "vtkAnariTestUtilities.h"
 
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
                                                "EnterEvent 299 0 0 0 0 0 0\n"
@@ -1083,22 +1084,7 @@ int TestAnariVolumeWavelet(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariVolumeWavelet";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", renderer);
-  vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
-  vtkAnariRendererNode::SetLightFalloff(.5, renderer);
-  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
-  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
+  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariVolumeWavelet");
 
   renderer->ResetCamera();
   renderWindow->Render();

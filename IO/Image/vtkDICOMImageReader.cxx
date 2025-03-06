@@ -86,6 +86,7 @@ int vtkDICOMImageReader::CanReadFile(const char* fname)
     return 0;
   }
   bool canRead = this->Parser->IsDICOMFile();
+  this->Parser->CloseFile();
   if (canRead)
   {
     return 1;

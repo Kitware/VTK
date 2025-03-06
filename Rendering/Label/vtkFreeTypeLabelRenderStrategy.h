@@ -44,6 +44,7 @@ public:
    */
   void ComputeLabelBounds(vtkTextProperty* tprop, vtkStdString label, double bds[4]) override;
 
+  using vtkLabelRenderStrategy::RenderLabel;
   /**
    * Render a label at a location in world coordinates.
    * Must be performed between StartFrame() and EndFrame() calls.

@@ -20,7 +20,10 @@
   template <>                                                                                      \
   struct mpi_type<ctype>                                                                           \
   {                                                                                                \
-    static MPI_Datatype type() { return mpitype; }                                                 \
+    static MPI_Datatype type()                                                                     \
+    {                                                                                              \
+      return mpitype;                                                                              \
+    }                                                                                              \
   };
 
 VTK_ABI_NAMESPACE_BEGIN

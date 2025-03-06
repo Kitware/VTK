@@ -7,6 +7,12 @@ from vtkmodules.vtkFiltersGeneral import vtkTableBasedClipDataSet
 from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
 from vtkmodules.util.execution_model import select_ports
 
+NUMPY_AVAILABLE = True
+try:
+  import numpy
+except:
+  NUMPY_AVAILABLE = False
+
 class TestUpdateAndCall(vtkTesting.vtkTest):
     def testAll(self):
         w = vtkRTAnalyticSource(whole_extent=(0, 10, 0, 10, 0, 10))
@@ -14,7 +20,12 @@ class TestUpdateAndCall(vtkTesting.vtkTest):
         w2 = w.update().output
         self.assertEqual(w1.number_of_cells, 1000)
         self.assertEqual(w2.number_of_cells, 1000)
-        self.assertTrue(w1 != w2)
+        if NUMPY_AVAILABLE:
+            # If numpy is not available VTK only tests for identity
+            self.assertTrue(w1 == w2)
+        else:
+            # If numpy available VTK checks similarity of data arrays as well
+            self.assertTrue(w1 != w2)
 
         c = vtkContourFilter()
         c.SetNumberOfContours(1)

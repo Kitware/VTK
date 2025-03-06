@@ -16,5 +16,6 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::FiltersSources
+  VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::ViewsInfovis

@@ -29,6 +29,7 @@ public:
   vtkTypeMacro(vtkInteractorStyleSwitchBase, vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkRenderWindowInteractor* GetInteractor() override;
 
 protected:

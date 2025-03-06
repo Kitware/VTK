@@ -71,6 +71,8 @@ public:
   /// Set/get the strategy used to determine which input sides appear in the output.
   virtual void SetStrategy(SummaryStrategy strategy);
   SummaryStrategy GetStrategy();
+  /// This method exists for ParaView to set the strategy.
+  virtual void SetStrategy(int strategy);
 
   /// Re-export the bit-values that SetOutputDimensionControl accepts.
   using SelectionMode = vtkCellGridSidesQuery::SelectionMode;
@@ -81,6 +83,8 @@ public:
   /// this filter are picked by a user.
   virtual void SetSelectionType(SelectionMode selectionType);
   SelectionMode GetSelectionType();
+  /// This method exists for ParaView to set the selection mode.
+  virtual void SetSelectionType(int selnType);
 
   static vtkStringToken GetSideAttribute();
 

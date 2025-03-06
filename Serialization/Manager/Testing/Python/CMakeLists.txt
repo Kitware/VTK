@@ -1,4 +1,5 @@
 vtk_add_test_python(
+  TestBiDirectionalSerialization.py,NO_VALID
   TestBlobs.py,NO_VALID
   TestCompositeDataSets.py,NO_VALID
   TestCompositePolyDataMapper.py,NO_VALID
@@ -11,7 +12,9 @@ vtk_add_test_python(
   # TestSilhouette.py,NO_VALID vtkPolyDataSilhouette.cxx needs to mark cells as modified.
   TestSingleUpdate.py,NO_VALID
   TestTexture.py,NO_VALID
-  TestSkybox.py,NO_VALID,
+  TestSkybox.py,NO_VALID
+  TestUpdateObjectFromState.py,NO_DATA,NO_VALID
+  TestUpdateStateFromObject.py,NO_DATA,NO_VALID
 )
 
 # vtkFixedPointVolumeRayCastMapper needs inspection before using either of VTK_MARSHAL(AUTO|MANUAL).

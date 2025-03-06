@@ -268,9 +268,8 @@ std::array<const detail::FieldInfo*, vtkDataSetAttributes::NUM_ATTRIBUTES> GetAt
     }
 
     std::transform(attrs.begin(), attrs.end(), accumulated_attrs.begin(), attrs.begin(),
-      [&](const detail::FieldInfo* prev, bool isattr) {
-        return isattr && prev == nullptr ? finfo : prev;
-      });
+      [&](const detail::FieldInfo* prev, bool isattr)
+      { return isattr && prev == nullptr ? finfo : prev; });
   }
   return attrs;
 }
@@ -457,9 +456,8 @@ void vtkDataSetAttributesFieldList::IntersectFieldList(vtkDataSetAttributes* dsa
   // second, remove fields from accumulate collection with names not in the
   // intersection set.
   detail::remove_if(accfields, accfields.begin(), accfields.end(),
-    [&](const std::pair<std::string, detail::FieldInfo>& pair) {
-      return rkeys.find(pair.first) == rkeys.end();
-    });
+    [&](const std::pair<std::string, detail::FieldInfo>& pair)
+    { return rkeys.find(pair.first) == rkeys.end(); });
 
   // now, since multiple fields can have same name (including empty names),
   // we do second intersection for fields with same names (or no names).

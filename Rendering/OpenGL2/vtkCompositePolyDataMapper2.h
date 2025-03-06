@@ -18,7 +18,7 @@
 #include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
-#include "vtk_glew.h"                  // for OpenGL enums
+#include "vtk_glad.h"                  // for OpenGL enums
 
 #include "vtkColor.h" // used for ivars
 #include <map>        // use for ivars

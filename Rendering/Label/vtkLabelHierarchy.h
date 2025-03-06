@@ -212,6 +212,7 @@ public:
   vtkCell* GetCell(vtkIdType) override;
   void GetCell(vtkIdType, vtkGenericCell*) override;
   int GetCellType(vtkIdType) override;
+  using vtkDataSet::GetCellPoints;
   void GetCellPoints(vtkIdType, vtkIdList*) override;
   void GetPointCells(vtkIdType, vtkIdList*) override;
   vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*) override;

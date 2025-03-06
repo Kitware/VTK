@@ -218,7 +218,7 @@ const char TestSphereHandleWidgetEventLog[] = "# StreamVersion 1\n"
                                               "MouseMoveEvent 272 170 0 0 0 0 0\n"
                                               "MouseMoveEvent 271 170 0 0 0 0 0\n";
 
-//#define RECORD
+// #define RECORD
 
 int TestSphereHandleWidget(int argc, char* argv[])
 {

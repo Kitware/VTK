@@ -30,7 +30,7 @@ static inline double** NewMatrix(int rows, int cols)
 //------------------------------------------------------------------------------
 static inline void DeleteMatrix(double** m)
 {
-  delete[] * m;
+  delete[] *m;
   delete[] m;
 }
 

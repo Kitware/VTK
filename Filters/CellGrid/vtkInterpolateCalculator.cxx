@@ -6,7 +6,7 @@
 #include "vtkCellAttribute.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

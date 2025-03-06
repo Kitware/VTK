@@ -118,9 +118,15 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   vtk_add_flag(-Wreorder-ctor ${langs})
   vtk_add_flag(-Wunused-lambda-capture ${langs})
   vtk_add_flag(-Wunused-private-field ${langs})
+  vtk_add_flag(-Woverloaded-virtual ${langs})
 
   # C and C++ flags.
   set(langs C CXX)
+  if (NOT MSVC) # MSVC supports Wall but there are just too many to handle
+    vtk_add_flag(-Wall ${langs})
+  endif ()
+  vtk_add_flag(-Wextra ${langs})
+  vtk_add_flag(-Wshadow ${langs})
   vtk_add_flag(-Wabsolute-value ${langs})
   vtk_add_flag(-Wlogical-op ${langs})
   vtk_add_flag(-Wsign-compare ${langs})
@@ -138,6 +144,13 @@ elseif (VTK_ENABLE_EXTRA_BUILD_WARNINGS)
   # Need overflow checks in various places.
   vtk_add_flag(-Wno-alloc-size-larger-than ${langs}) # issue 19308
   vtk_add_flag(-Wno-free-nonheap-object ${langs}) # issue 19309
+  vtk_add_flag(-Wno-maybe-uninitialized ${langs}) # issue 19457
+  vtk_add_flag(-Wno-catch-value ${langs}) # issue 19458
+  vtk_add_flag(-Wno-array-bounds ${langs}) # issue 19459
+  vtk_add_flag(-Wno-missing-field-initializers ${langs}) # issue 19460
+  vtk_add_flag(-Wno-cast-function-type ${langs}) # issue 19461
+  vtk_add_flag(-Wno-nonnull ${langs}) # issue 19462
+  vtk_add_flag(-Wno-strict-aliasing ${langs}) # issue 19463
 
   # Fortran flags.
 endif ()

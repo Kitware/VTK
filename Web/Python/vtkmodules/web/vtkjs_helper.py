@@ -39,7 +39,7 @@ def convertDirectoryToZipFile(directoryPath):
 # -----------------------------------------------------------------------------
 
 
-def addDataToViewer(dataPath, srcHtmlPath):
+def addDataToViewer(dataPath, srcHtmlPath, disableGirder=False):
     if os.path.isfile(dataPath) and os.path.exists(srcHtmlPath):
         dstDir = os.path.dirname(dataPath)
         dstHtmlPath = os.path.join(dstDir, "%s.html" % os.path.basename(dataPath)[:-6])
@@ -54,6 +54,19 @@ def addDataToViewer(dataPath, srcHtmlPath):
         with open(srcHtmlPath, mode="r", encoding="utf-8") as srcHtml:
             with open(dstHtmlPath, mode="w", encoding="utf-8") as dstHtml:
                 for line in srcHtml:
+                    if disableGirder and "</title>" in line:
+                        dstHtml.write(
+                            """
+    <script>
+        // Force reloading the page if we want to disable girder before anything else.
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('noGirder') != 'true') {
+            urlParams.set('noGirder', 'true');
+            window.location.search = urlParams;
+        }
+    </script>
+                                      """
+                        )
                     if "</body>" in line:
                         dstHtml.write("<script>\n")
                         dstHtml.write('var contentToLoad = "%s";\n\n' % base64Content)

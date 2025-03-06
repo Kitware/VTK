@@ -20,6 +20,7 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
+#include "vtkAnariTestUtilities.h"
 
 // Test for multiblock data sets with field data arrays defined on
 // only a subset of the blocks. The expected behavior is to have
@@ -118,22 +119,8 @@ int TestAnariMultiBlockPartialArrayFieldData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  if (useDebugDevice)
-  {
-    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
-    vtkNew<vtkTesting> testing;
-
-    std::string traceDir = testing->GetTempDirectory();
-    traceDir += "/anari-trace";
-    traceDir += "/TestAnariMultiBlockPartialArrayFieldData";
-    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
-  }
-
-  vtkAnariRendererNode::SetLibraryName("environment", ren);
-  vtkAnariRendererNode::SetSamplesPerPixel(4, ren);
-  vtkAnariRendererNode::SetLightFalloff(.5, ren);
-  vtkAnariRendererNode::SetUseDenoiser(1, ren);
-  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
+  SetAnariRendererParameterDefaults(
+    ren, useDebugDevice, "TestAnariMultiBlockPartialArrayFieldData");
 
   ren->AddActor(actor);
   win->SetSize(400, 400);

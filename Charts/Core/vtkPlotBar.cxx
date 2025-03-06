@@ -651,7 +651,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
     bounds[valuesHigh] = 0.0;
   }
 
-  if (!unscaled)
+  if (unscaled)
   {
     vtkAxis* axes[2];
     axes[seriesLow / 2] = this->GetXAxis();
@@ -674,13 +674,13 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
 //------------------------------------------------------------------------------
 void vtkPlotBar::GetBounds(double bounds[4])
 {
-  this->GetBounds(bounds, /*unscaled=*/false);
+  this->GetBounds(bounds, false);
 }
 
 //------------------------------------------------------------------------------
 void vtkPlotBar::GetUnscaledInputBounds(double bounds[4])
 {
-  this->GetBounds(bounds, /*unscaled=*/true);
+  this->GetBounds(bounds, true);
 }
 
 //------------------------------------------------------------------------------

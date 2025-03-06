@@ -1060,6 +1060,7 @@ bool vtkMatplotlibMathTextUtilities::RenderOneCell(vtkImageData* image, int bbox
       else
       {
         // item is borrowed, no need for a smart wrapper
+        vtkPythonScopeGilEnsurer gilEnsurer;
         PyObject* item = PyList_GetItem(pythonData, ind++);
         if (this->CheckForError(item))
         {

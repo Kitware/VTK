@@ -8,10 +8,12 @@ layout(vertices = {PatchSize}) out;
 
 flat in int cellIdVSOutput[];
 flat in int sideIdVSOutput[];
+flat in int instanceIdVSOutput[];
 smooth in vec3 pcoordVSOutput[];
 
 patch out int cellIdTCSOutput;
 patch out int sideIdTCSOutput;
+patch out int instanceIdTCSOutput;
 out vec3 pcoordTCSOutput[];
 
 uniform ivec2 tessellation_levels_range;
@@ -131,6 +133,7 @@ void main()
     sideIdTCSOutput = sideIdVSOutput[0];
   }}
  
+  instanceIdTCSOutput = instanceIdVSOutput[gl_InvocationID];
   gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
   pcoordTCSOutput[gl_InvocationID] = pcoordVSOutput[gl_InvocationID];
 }}

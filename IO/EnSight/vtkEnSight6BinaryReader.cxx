@@ -18,33 +18,13 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #include <cctype>
 #include <string>
-#include <sys/stat.h>
 
-#if defined(_WIN32)
-#define VTK_STAT_STRUCT struct _stat64
-#define VTK_STAT_FUNC _stat64
-#elif defined _DARWIN_FEATURE_64_BIT_INODE || defined __FreeBSD__ || defined __NetBSD__ ||         \
-  defined __OpenBSD__
-// The BSDs use stat().
-#define VTK_STAT_STRUCT struct stat
-#define VTK_STAT_FUNC stat
-#elif defined __EMSCRIPTEN__
-#if defined _LARGEFILE64_SOURCE
-#define VTK_STAT_STRUCT struct stat64
-#define VTK_STAT_FUNC stat64
-#else
-#define VTK_STAT_STRUCT struct stat
-#define VTK_STAT_FUNC stat
-#endif
-#else
-// here, we're relying on _FILE_OFFSET_BITS defined in vtkWin32Header.h to help
-// us on POSIX without resorting to using stat64.
-#define VTK_STAT_STRUCT struct stat64
-#define VTK_STAT_FUNC stat64
-#endif
+#define VTK_STAT_STRUCT vtksys::SystemTools::Stat_t
+#define VTK_STAT_FUNC vtksys::SystemTools::Stat
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
@@ -2741,7 +2721,8 @@ int vtkEnSight6BinaryReader::ReadIntNumber(int* result)
     // Compare to file size, being careful not to overflow the
     // multiplication (by doing 64 bit math). Also check for overflow errors.
     // Use negative value as an indication of bad number.
-    auto checkByteOrderConsistency = [&](int& temporarySize) {
+    auto checkByteOrderConsistency = [&](int& temporarySize)
+    {
       if (temporarySize < 0)
       {
         temporarySize = -1;

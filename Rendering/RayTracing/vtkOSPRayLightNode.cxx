@@ -71,7 +71,7 @@ void vtkOSPRayLightNode::SetIsAmbient(int value, vtkLight* light)
 //------------------------------------------------------------------------------
 int vtkOSPRayLightNode::GetIsAmbient(vtkLight* light)
 {
-  if (!light || !light->GetSwitch())
+  if (!light)
   {
     return 0;
   }
@@ -147,7 +147,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
 
     vtkLight* light = vtkLight::SafeDownCast(this->GetRenderable());
 
-    double attenuationCompensation = 1.0;
     float color[3] = { 0.0, 0.0, 0.0 };
     if (light->GetSwitch())
     {
@@ -212,14 +211,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
 
         double direction[3];
         vtkMath::Subtract(focalPoint, position, direction);
-        double attenuation[3];
-        light->GetAttenuationValues(attenuation);
-        double dist = vtkMath::Norm(direction);
-        double distSq = dist * dist;
-        // OSPRay spot/point light has a quadratic attenuation i.e. the light intensity decreases
-        // proportional to the squared distance from the source. To support the different
-        // attenuation modes supported by vtkLight, we compensate here.
-        attenuationCompensation = attenuation[0] * distSq + attenuation[1] * dist + attenuation[2];
         vtkMath::Normalize(direction);
 
         ospSetVec3f(ospLight, "direction", direction[0], direction[1], direction[2]);
@@ -228,8 +219,9 @@ void vtkOSPRayLightNode::Render(bool prepass)
         // TODO: penumbraAngle
       }
       ospSetVec3f(ospLight, "color", color[0], color[1], color[2]);
-      float fI = static_cast<float>(vtkOSPRayLightNode::LightScale * light->GetIntensity() *
-        vtkMath::Pi() * attenuationCompensation);
+      float fI =
+        static_cast<float>(vtkOSPRayLightNode::LightScale * light->GetIntensity() * vtkMath::Pi());
+      ospSetInt(ospLight, "isVisible", 0);
       ospSetFloat(ospLight, "intensity", fI);
 
       ospSetVec3f(ospLight, "position", position[0], position[1], position[2]);

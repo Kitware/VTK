@@ -21,6 +21,8 @@
 #define VTK_ZEROCOPY [[vtk::zerocopy]]
 // The parameter is a path on the filesystem.
 #define VTK_FILEPATH [[vtk::filepath]]
+// Release Python GIL for the duration of the call
+#define VTK_UNBLOCKTHREADS [[vtk::unblockthreads]]
 // Set preconditions for a function
 #define VTK_EXPECTS(x) [[vtk::expects(x)]]
 // Set size hint for parameter or return value
@@ -42,6 +44,7 @@
 #define VTK_NEWINSTANCE
 #define VTK_ZEROCOPY
 #define VTK_FILEPATH
+#define VTK_UNBLOCKTHREADS
 #define VTK_EXPECTS(x)
 #define VTK_SIZEHINT(...)
 #define VTK_MARSHALAUTO

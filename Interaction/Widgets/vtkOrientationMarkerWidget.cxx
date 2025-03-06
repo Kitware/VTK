@@ -19,8 +19,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
 
-vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
-
 class vtkOrientationMarkerWidgetObserver : public vtkCommand
 {
 public:
@@ -103,7 +101,9 @@ vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
 {
   if (this->Enabled)
   {
-    this->TearDownWindowInteraction();
+    this->UnBindOrientationMarker();
+    this->UnBindRenderer();
+    this->UnBindEvents();
   }
 
   this->Observer->Delete();
@@ -116,76 +116,96 @@ vtkOrientationMarkerWidget::~vtkOrientationMarkerWidget()
 }
 
 //------------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::SetEnabled(int value)
+void vtkOrientationMarkerWidget::BindOrientationMarker()
 {
-  if (!this->Interactor)
+  if (this->OrientationMarkerBound)
   {
-    vtkErrorMacro("The interactor must be set prior to enabling/disabling widget");
+    return;
   }
-
-  if (value != this->Enabled)
+  if (this->Renderer && this->OrientationMarker)
   {
-    if (value)
+    this->OrientationMarker->VisibilityOn();
+    this->Renderer->AddActor(this->OrientationMarker);
+    this->OrientationMarkerBound = true;
+  }
+  if (this->CurrentRenderer)
+  {
+    this->CurrentRenderer->AddViewProp(this->OutlineActor);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::UnBindOrientationMarker()
+{
+  this->OrientationMarkerBound = false;
+  if (this->Renderer && this->OrientationMarker)
+  {
+    this->OrientationMarker->VisibilityOff();
+    this->Renderer->RemoveActor(this->OrientationMarker);
+  }
+  if (this->CurrentRenderer)
+  {
+    this->CurrentRenderer->RemoveViewProp(this->OutlineActor);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::BindRenderer()
+{
+  if (this->RendererBound)
+  {
+    return;
+  }
+  if (this->CurrentRenderer && this->Renderer)
+  {
+    if (auto renWin = this->CurrentRenderer->GetRenderWindow())
     {
-      if (!this->OrientationMarker)
+      renWin->AddRenderer(this->Renderer);
+      if (renWin->GetNumberOfLayers() < 2)
       {
-        vtkErrorMacro("An orientation marker must be set prior to enabling/disabling widget");
-        return;
+        renWin->SetNumberOfLayers(2);
       }
-
-      if (!this->CurrentRenderer)
-      {
-        int* pos = this->Interactor->GetLastEventPosition();
-        this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(pos[0], pos[1]));
-
-        if (this->CurrentRenderer == nullptr)
-        {
-          return;
-        }
-      }
-
-      this->UpdateInternalViewport();
-
-      this->SetupWindowInteraction();
-      this->Enabled = 1;
-      this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
-    }
-    else
-    {
-      this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
-      this->Enabled = 0;
-      this->TearDownWindowInteraction();
-      this->SetCurrentRenderer(nullptr);
+      this->RendererBound = true;
     }
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::SetupWindowInteraction()
+void vtkOrientationMarkerWidget::UnBindRenderer()
 {
-  vtkRenderWindow* renwin = this->CurrentRenderer->GetRenderWindow();
-  renwin->AddRenderer(this->Renderer);
-  if (renwin->GetNumberOfLayers() < 2)
+  this->RendererBound = false;
+  if (this->CurrentRenderer && this->Renderer)
   {
-    renwin->SetNumberOfLayers(2);
+    if (auto renWin = this->CurrentRenderer->GetRenderWindow())
+    {
+      renWin->RemoveRenderer(this->Renderer);
+    }
   }
+}
 
-  this->CurrentRenderer->AddViewProp(this->OutlineActor);
-
-  this->Renderer->AddViewProp(this->OrientationMarker);
-  this->OrientationMarker->VisibilityOn();
-
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::BindEvents()
+{
+  if (this->EventsBound || !this->Enabled)
+  {
+    return;
+  }
+  if (!(this->Interactor && this->Renderer && this->CurrentRenderer))
+  {
+    return;
+  }
   if (this->Interactive)
   {
-    vtkRenderWindowInteractor* interactor = this->Interactor;
     if (this->EventCallbackCommand)
     {
+      auto* interactor = this->Interactor;
       interactor->AddObserver(
         vtkCommand::MouseMoveEvent, this->EventCallbackCommand, this->Priority);
       interactor->AddObserver(
         vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand, this->Priority);
       interactor->AddObserver(
         vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand, this->Priority);
+      this->EventsBound = true;
     }
   }
 
@@ -203,25 +223,112 @@ void vtkOrientationMarkerWidget::SetupWindowInteraction()
 }
 
 //------------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::TearDownWindowInteraction()
+void vtkOrientationMarkerWidget::UnBindEvents()
 {
+  this->EventsBound = false;
+  if (!(this->CurrentRenderer && this->Interactor))
+  {
+    return;
+  }
   if (this->StartEventObserverId != 0)
   {
     this->CurrentRenderer->RemoveObserver(this->StartEventObserverId);
   }
 
   this->Interactor->RemoveObserver(this->EventCallbackCommand);
+}
 
-  this->OrientationMarker->VisibilityOff();
-  this->Renderer->RemoveViewProp(this->OrientationMarker);
-
-  this->CurrentRenderer->RemoveViewProp(this->OutlineActor);
-
-  // if the render window is still around, remove our renderer from it
-  vtkRenderWindow* renwin = this->CurrentRenderer->GetRenderWindow();
-  if (renwin)
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::SetRenderer(vtkRenderer* renderer)
+{
+  if (this->Renderer != renderer)
   {
-    renwin->RemoveRenderer(this->Renderer);
+    auto* tempRenderer = this->Renderer;
+    this->UnBindOrientationMarker();
+    this->UnBindRenderer();
+    this->UnBindEvents();
+    this->Renderer = renderer;
+    if (this->Renderer != nullptr)
+    {
+      this->Renderer->Register(this);
+    }
+    if (tempRenderer != nullptr)
+    {
+      tempRenderer->UnRegister(this);
+    }
+    this->BindOrientationMarker();
+    this->BindRenderer();
+    this->BindEvents();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkRenderer* vtkOrientationMarkerWidget::GetRenderer()
+{
+  return this->Renderer;
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::SetOrientationMarker(vtkProp* marker)
+{
+  if (this->OrientationMarker != marker)
+  {
+    vtkProp* tempMarker = this->OrientationMarker;
+    this->UnBindOrientationMarker();
+    this->OrientationMarker = marker;
+    if (this->OrientationMarker != nullptr)
+    {
+      this->OrientationMarker->Register(this);
+    }
+    if (tempMarker != nullptr)
+    {
+      tempMarker->UnRegister(this);
+    }
+    this->BindOrientationMarker();
+    this->BindRenderer();
+    this->BindEvents();
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::SetEnabled(int value)
+{
+  if (!this->Interactor)
+  {
+    vtkErrorMacro("The interactor must be set prior to enabling/disabling widget");
+  }
+
+  if (value != this->Enabled)
+  {
+    if (value)
+    {
+      if (!this->CurrentRenderer)
+      {
+        int* pos = this->Interactor->GetLastEventPosition();
+        this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(pos[0], pos[1]));
+
+        if (this->CurrentRenderer == nullptr)
+        {
+          return;
+        }
+      }
+
+      this->UpdateInternalViewport();
+      this->Enabled = 1;
+      this->BindOrientationMarker();
+      this->BindRenderer();
+      this->BindEvents();
+      this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
+    }
+    else
+    {
+      this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
+      this->Enabled = 0;
+      this->UnBindEvents();
+      this->SetCurrentRenderer(nullptr);
+    }
   }
 }
 

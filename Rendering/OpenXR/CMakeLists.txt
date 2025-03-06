@@ -47,7 +47,7 @@ set(openxr_input_files
 foreach(inputfile ${openxr_input_files})
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/${inputfile}
-    ${CMAKE_CURRENT_BINARY_DIR}/${input_file}
+    ${CMAKE_CURRENT_BINARY_DIR}/${inputfile}
     COPYONLY)
 endforeach()
 

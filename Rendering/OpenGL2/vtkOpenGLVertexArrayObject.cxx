@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLVertexArrayObject);
@@ -170,7 +170,7 @@ void vtkOpenGLVertexArrayObject::Bind()
 #ifdef GL_ES_VERSION_3_0
             glVertexAttribDivisor(attrIt->Index + i, 1);
 #else
-            if (GLEW_ARB_instanced_arrays)
+            if (GLAD_GL_ARB_instanced_arrays)
             {
               glVertexAttribDivisorARB(attrIt->Index + i, 1);
             }
@@ -205,7 +205,7 @@ void vtkOpenGLVertexArrayObject::Release()
 #ifdef GL_ES_VERSION_3_0
             glVertexAttribDivisor(attrIt->Index + i, 0);
 #else
-            if (GLEW_ARB_instanced_arrays)
+            if (GLAD_GL_ARB_instanced_arrays)
             {
               glVertexAttribDivisorARB(attrIt->Index + i, 0);
             }
@@ -316,7 +316,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram* 
 #ifdef GL_ES_VERSION_3_0
     glVertexAttribDivisor(attribs.Index, 1);
 #else
-    if (GLEW_ARB_instanced_arrays)
+    if (GLAD_GL_ARB_instanced_arrays)
     {
       glVertexAttribDivisorARB(attribs.Index, 1);
     }
@@ -382,7 +382,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(vtkShaderProgram*
 #ifdef GL_ES_VERSION_3_0
       glVertexAttribDivisor(attribs.Index + i, 1);
 #else
-      if (GLEW_ARB_instanced_arrays)
+      if (GLAD_GL_ARB_instanced_arrays)
       {
         glVertexAttribDivisorARB(attribs.Index + i, 1);
       }

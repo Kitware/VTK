@@ -7,6 +7,7 @@
 #include "vtkDataSet.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLine.h"
@@ -1604,5 +1605,12 @@ void vtkSphereTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Levels: " << this->NumberOfLevels << "\n";
   os << indent << "Maximum Number Of Levels: " << this->MaxLevel << "\n";
   os << indent << "Build Hierarchy: " << (this->BuildHierarchy ? "On\n" : "Off\n");
+}
+
+//------------------------------------------------------------------------------
+void vtkSphereTree::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->DataSet, "DataSet");
 }
 VTK_ABI_NAMESPACE_END

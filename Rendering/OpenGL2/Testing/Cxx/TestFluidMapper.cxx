@@ -48,7 +48,7 @@ constexpr static float g_ParticleRadius = 0.03f;
 
 //------------------------------------------------------------------------------
 // Enable this for interactive demonstration
-//#define INTERACTIVE_DEMO
+// #define INTERACTIVE_DEMO
 #ifdef INTERACTIVE_DEMO
 #include "TestFluidDemo.cxx"
 #endif

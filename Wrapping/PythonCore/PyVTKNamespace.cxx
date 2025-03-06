@@ -112,8 +112,10 @@ PyObject* PyVTKNamespace_New(const char* name)
   {
     // make sure python has readied the type object
     PyType_Ready(&PyVTKNamespace_Type);
-    // call the allocator provided by python for this type
-    self = PyVTKNamespace_Type.tp_alloc(&PyVTKNamespace_Type, 0);
+    // call the superclass new function
+    PyObject* empty = PyTuple_New(0);
+    self = PyVTKNamespace_Type.tp_base->tp_new(&PyVTKNamespace_Type, empty, nullptr);
+    Py_DECREF(empty);
     // call the superclass init function
     PyObject* pyname = PyUnicode_FromString(name);
     PyObject* args = PyTuple_Pack(1, pyname);

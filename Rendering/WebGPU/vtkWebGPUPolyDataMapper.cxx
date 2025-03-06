@@ -1,6 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUPolyDataMapper.h"
+#include "Private/vtkWebGPUBindGroupInternals.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+#include "Private/vtkWebGPUBufferInternals.h"
+#include "Private/vtkWebGPUPipelineLayoutInternals.h"
+#include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+#include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
@@ -16,15 +22,9 @@
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkTypeFloat32Array.h"
-#include "vtkWGPUContext.h"
 #include "vtkWebGPUActor.h"
 #include "vtkWebGPUCamera.h"
-#include "vtkWebGPUInternalsBindGroup.h"
-#include "vtkWebGPUInternalsBindGroupLayout.h"
-#include "vtkWebGPUInternalsBuffer.h"
-#include "vtkWebGPUInternalsPipelineLayout.h"
-#include "vtkWebGPUInternalsRenderPipelineDescriptor.h"
-#include "vtkWebGPUInternalsShaderModule.h"
+#include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 #include <type_traits>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -49,6 +50,18 @@ vtkWebGPUPolyDataMapper::~vtkWebGPUPolyDataMapper() = default;
 void vtkWebGPUPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "InitializedPipeline: " << (this->InitializedPipeline ? "On\n" : "Off\n");
+  os << indent << "UpdatedPrimitiveSizes: " << (this->UpdatedPrimitiveSizes ? "On\n" : "Off\n");
+  os << indent << "UpdatedGeometryBuffers: " << (this->UpdatedGeometryBuffers ? "On\n" : "Off\n");
+  os << indent << "UpdatedPrimitiveBuffers: " << (this->UpdatedPrimitiveBuffers ? "On\n" : "Off\n");
+  os << indent << "HasPointColors: " << (this->HasPointColors ? "On\n" : "Off\n");
+  os << indent << "HasPointNormals: " << (this->HasPointNormals ? "On\n" : "Off\n");
+  os << indent << "HasPointTangents: " << (this->HasPointTangents ? "On\n" : "Off\n");
+  os << indent << "HasPointUVs: " << (this->HasPointUVs ? "On\n" : "Off\n");
+  os << indent << "HasCellColors: " << (this->HasCellColors ? "On\n" : "Off\n");
+  os << indent << "HasCellNormals: " << (this->HasCellNormals ? "On\n" : "Off\n");
+  os << indent << "LastScalarVisibility: " << (this->LastScalarVisibility ? "On\n" : "Off\n");
+  os << indent << "LastScalarMode: " << this->LastScalarMode << '\n';
 }
 
 //------------------------------------------------------------------------------
@@ -76,7 +89,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
     {
       // update (i.e, create and write) GPU buffers if the data is outdated.
       bool buffersRecreated = false;
-      buffersRecreated |= this->UpdateMeshGeometryBuffers(device, actor);
+      buffersRecreated |= this->UpdateMeshGeometryBuffers(wgpuRenWin, device, actor);
       buffersRecreated |= this->UpdateMeshIndexBuffers(device);
       // setup pipeline
       if (!this->InitializedPipeline)
@@ -151,7 +164,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     passEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->LinePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -164,7 +177,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     passEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -224,7 +237,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     bundleEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->LinePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->LinePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -237,7 +250,7 @@ void vtkWebGPUPolyDataMapper::EncodeRenderCommands(
     bundleEncoder.PopDebugGroup();
 #endif
   }
-  else if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
+  if (this->TrianglePrimitiveBGInfo.Pipeline.Get() != nullptr &&
     this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
 #ifndef NDEBUG
@@ -257,7 +270,7 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
   const wgpu::Device& device, vtkRenderer* renderer, vtkActor*)
 {
   this->MeshAttributeBindGroupLayout =
-    vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
       {
         // clang-format off
         // MeshAttributeArrayDescriptor
@@ -269,7 +282,7 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
         // clang-format on
       });
   this->MeshAttributeBindGroupLayout.SetLabel("MeshAttributeBindGroupLayout");
-  this->PrimitiveBindGroupLayout = vtkWebGPUInternalsBindGroupLayout::MakeBindGroupLayout(device,
+  this->PrimitiveBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
     {
       // clang-format off
         // Primitive size
@@ -290,7 +303,7 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
   wgpuRenderer->PopulateBindgroupLayouts(bgls);
   bgls.emplace_back(this->MeshAttributeBindGroupLayout);
   bgls.emplace_back(this->PrimitiveBindGroupLayout);
-  this->PipelineLayout = vtkWebGPUInternalsPipelineLayout::MakePipelineLayout(device, bgls);
+  this->PipelineLayout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(device, bgls);
   ///@}
 }
 
@@ -298,7 +311,7 @@ void vtkWebGPUPolyDataMapper::SetupPipelineLayout(
 void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRenderer*)
 {
   this->MeshAttributeBindGroup =
-    vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->MeshAttributeBindGroupLayout,
+    vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->MeshAttributeBindGroupLayout,
       {
         // clang-format off
           { 0, this->AttributeDescriptorBuffer, 0},
@@ -312,13 +325,13 @@ void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRen
   {
     vtkTypeUInt32 primitiveSizes[3] = { 1, 2, 3 };
     this->PointPrimitiveBGInfo.PrimitiveSizeBuffer =
-      vtkWebGPUInternalsBuffer::Upload(device, 0, &primitiveSizes[0], sizeof(vtkTypeUInt32),
+      vtkWebGPUBufferInternals::Upload(device, 0, &primitiveSizes[0], sizeof(vtkTypeUInt32),
         wgpu::BufferUsage::Uniform, "Primitive size for VTK_POINT");
     this->LinePrimitiveBGInfo.PrimitiveSizeBuffer =
-      vtkWebGPUInternalsBuffer::Upload(device, 0, &primitiveSizes[1], sizeof(vtkTypeUInt32),
+      vtkWebGPUBufferInternals::Upload(device, 0, &primitiveSizes[1], sizeof(vtkTypeUInt32),
         wgpu::BufferUsage::Uniform, "Primitive size for VTK_LINE");
     this->TrianglePrimitiveBGInfo.PrimitiveSizeBuffer =
-      vtkWebGPUInternalsBuffer::Upload(device, 0, &primitiveSizes[2], sizeof(vtkTypeUInt32),
+      vtkWebGPUBufferInternals::Upload(device, 0, &primitiveSizes[2], sizeof(vtkTypeUInt32),
         wgpu::BufferUsage::Uniform, "Primitive size for VTK_TRIANGLE");
     this->UpdatedPrimitiveSizes = true;
   }
@@ -326,7 +339,7 @@ void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRen
   if (!this->PointPrimitiveBGInfo.BindGroup.Get() && this->PointPrimitiveBGInfo.VertexCount > 0)
   {
     this->PointPrimitiveBGInfo.BindGroup =
-      vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
+      vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
         {
           // clang-format off
           { 0, this->PointPrimitiveBGInfo.PrimitiveSizeBuffer, 0},
@@ -338,7 +351,7 @@ void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRen
   if (!this->LinePrimitiveBGInfo.BindGroup.Get() && this->LinePrimitiveBGInfo.VertexCount > 0)
   {
     this->LinePrimitiveBGInfo.BindGroup =
-      vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
+      vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
         {
           // clang-format off
           { 0, this->LinePrimitiveBGInfo.PrimitiveSizeBuffer, 0},
@@ -351,7 +364,7 @@ void vtkWebGPUPolyDataMapper::SetupBindGroups(const wgpu::Device& device, vtkRen
     this->TrianglePrimitiveBGInfo.VertexCount > 0)
   {
     this->TrianglePrimitiveBGInfo.BindGroup =
-      vtkWebGPUInternalsBindGroup::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
+      vtkWebGPUBindGroupInternals::MakeBindGroup(device, this->PrimitiveBindGroupLayout,
         {
           // clang-format off
           { 0, this->TrianglePrimitiveBGInfo.PrimitiveSizeBuffer, 0},
@@ -442,6 +455,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeByteSize(
         const vtkIdType* pts = nullptr;
         vtkIdType npts = 0;
         polysIter->GetCurrentCell(npts, pts);
+
         size += (npts - 2) * sizeof(vtkTypeFloat32);
         this->EdgeArrayCount += (npts - 2);
       }
@@ -606,7 +620,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
   result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_TANGENTS);
   result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_UVS);
 
-  result = vtkWGPUContext::Align(result, 32);
+  result = vtkWebGPUConfiguration::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }
@@ -620,7 +634,7 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
   result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_NORMALS);
   result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_EDGES);
 
-  result = vtkWGPUContext::Align(result, 32);
+  result = vtkWebGPUConfiguration::Align(result, 32);
   vtkDebugMacro(<< __func__ << "=" << result);
   return result;
 }
@@ -628,7 +642,6 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
 //------------------------------------------------------------------------------
 std::vector<unsigned long> vtkWebGPUPolyDataMapper::GetExactConnecitivityBufferSizes()
 {
-  unsigned long result = 0;
   std::vector<unsigned long> results;
   this->PointPrimitiveBGInfo.VertexCount = 0;
   this->LinePrimitiveBGInfo.VertexCount = 0;
@@ -636,55 +649,45 @@ std::vector<unsigned long> vtkWebGPUPolyDataMapper::GetExactConnecitivityBufferS
 
   const vtkIdType* pts = nullptr;
   vtkIdType npts = 0;
+  // loop over verts as there may be some VTK_POLY_VERTEX cells.
   {
-    result = 0;
     auto vertsIter = vtk::TakeSmartPointer(this->CurrentInput->GetVerts()->NewIterator());
     for (vertsIter->GoToFirstCell(); !vertsIter->IsDoneWithTraversal(); vertsIter->GoToNextCell())
     {
       vertsIter->GetCurrentCell(npts, pts);
       this->PointPrimitiveBGInfo.VertexCount += npts;
-      // the first '2' is to count these twice. once for cell_ids and once more for point_ids
-      result += (2 * npts * sizeof(vtkTypeUInt32));
     }
-    results.emplace_back(result);
+    // the first '2' is to count these twice. once for cell_ids and once more for point_ids
+    results.emplace_back(2 * this->PointPrimitiveBGInfo.VertexCount * sizeof(vtkTypeUInt32));
   }
 
   {
-    result = 0;
     auto linesIter = vtk::TakeSmartPointer(this->CurrentInput->GetLines()->NewIterator());
     for (linesIter->GoToFirstCell(); !linesIter->IsDoneWithTraversal(); linesIter->GoToNextCell())
     {
       linesIter->GetCurrentCell(npts, pts);
-      const int numSubLines = npts - 1;
-      this->LinePrimitiveBGInfo.VertexCount += numSubLines * 2;
-      // the first '2' is to count these twice. once for cell_ids and once more for point_ids
-      result += (2 * numSubLines * 2 * sizeof(vtkTypeUInt32));
+      this->LinePrimitiveBGInfo.VertexCount += (npts - 1) * 2; // 2 points per line segment.
     }
-    results.emplace_back(result);
+    // the first '2' is to count these twice. once for cell_ids and once more for point_ids
+    results.emplace_back(2 * this->LinePrimitiveBGInfo.VertexCount * sizeof(vtkTypeUInt32));
   }
 
   {
-    result = 0;
     auto polysIter = vtk::TakeSmartPointer(this->CurrentInput->GetPolys()->NewIterator());
     for (polysIter->GoToFirstCell(); !polysIter->IsDoneWithTraversal(); polysIter->GoToNextCell())
     {
       polysIter->GetCurrentCell(npts, pts);
-      const int numSubTriangles = npts - 2;
-      this->TrianglePrimitiveBGInfo.VertexCount += numSubTriangles * 3;
-      // the first '2' is to count these twice. once for cell_ids and once more for point_ids
-      result += (2 * numSubTriangles * 3 * sizeof(vtkTypeUInt32));
+      this->TrianglePrimitiveBGInfo.VertexCount += (npts - 2) * 3; // 3 points per triangle.
     }
     auto stripsIter = vtk::TakeSmartPointer(this->CurrentInput->GetStrips()->NewIterator());
     for (stripsIter->GoToFirstCell(); !stripsIter->IsDoneWithTraversal();
          stripsIter->GoToNextCell())
     {
       stripsIter->GetCurrentCell(npts, pts);
-      const int numSubTriangles = npts - 1;
-      this->TrianglePrimitiveBGInfo.VertexCount += numSubTriangles * 3;
-      // the first '2' is to count these twice. once for cell_ids and once more for point_ids
-      result += (2 * numSubTriangles * 3 * sizeof(vtkTypeUInt32));
+      this->TrianglePrimitiveBGInfo.VertexCount += (npts - 1) * 3; // 3 points per triangle.
     }
-    results.emplace_back(result);
+    // the first '2' is to count these twice. once for cell_ids and once more for point_ids
+    results.emplace_back(2 * this->TrianglePrimitiveBGInfo.VertexCount * sizeof(vtkTypeUInt32));
   }
 
   vtkDebugMacro(<< __func__ << "[verts]=" << this->PointPrimitiveBGInfo.VertexCount);
@@ -743,7 +746,8 @@ vtkTypeFloat32Array* vtkWebGPUPolyDataMapper::ComputeEdgeArray(vtkCellArray* pol
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& device, vtkActor* actor)
+bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(
+  vtkWebGPURenderWindow* wgpuRenWin, const wgpu::Device& device, vtkActor* actor)
 {
   if (this->CachedInput == nullptr)
   {
@@ -777,7 +781,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     this->CurrentInput->GetPointData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
     this->CurrentInput->GetCellData()->GetMTime() > this->PointCellAttributesBuildTimestamp ||
     this->LastScalarVisibility != this->ScalarVisibility ||
-    this->LastScalarMode != this->ScalarMode || this->LastColors != this->Colors;
+    this->LastScalarMode != this->ScalarMode || this->LastColors != this->Colors ||
+    !this->UpdatedGeometryBuffers;
 
   if (!updateGeometry)
   {
@@ -855,7 +860,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   pointBufDescriptor.label = "Upload point buffer";
   pointBufDescriptor.mappedAtCreation = false;
   pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-  this->MeshSSBO.Point.Buffer = device.CreateBuffer(&pointBufDescriptor);
+  this->MeshSSBO.Point.Buffer = wgpuRenWin->CreateDeviceBuffer(pointBufDescriptor);
 
   ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer, device, 1. };
 
@@ -950,7 +955,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
   cellBufDescriptor.label = "Upload cell buffer";
   cellBufDescriptor.mappedAtCreation = false;
   cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-  this->MeshSSBO.Cell.Buffer = device.CreateBuffer(&cellBufDescriptor);
+  this->MeshSSBO.Cell.Buffer = wgpuRenWin->CreateDeviceBuffer(cellBufDescriptor);
 
   ::WriteTypedArray<vtkTypeFloat32> cellBufWriter{ 0, this->MeshSSBO.Cell.Buffer, device, 1. };
 
@@ -1020,21 +1025,18 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
     }
   }
 
+  this->UpdatedGeometryBuffers = true;
   {
 
     this->AttributeDescriptorBuffer =
-      vtkWebGPUInternalsBuffer::Upload(device, 0, &meshAttrDescriptor, sizeof(meshAttrDescriptor),
+      vtkWebGPUBufferInternals::Upload(device, 0, &meshAttrDescriptor, sizeof(meshAttrDescriptor),
         wgpu::BufferUsage::Uniform, "Mesh attribute descriptor");
 
     using DMEnum = vtkWebGPUActor::DirectionalMaskEnum;
     vtkTypeUInt32 dirMask = DMEnum::NoNormals;
-    dirMask = this->HasPointNormals ? DMEnum::PointNormals : 0;
+    dirMask |= this->HasPointNormals ? DMEnum::PointNormals : dirMask;
     dirMask |= this->HasPointTangents ? DMEnum::PointTangents : dirMask;
     dirMask |= this->HasCellNormals ? DMEnum::CellNormals : dirMask;
-    if (dirMask == 0)
-    {
-      dirMask = DMEnum::NoNormals;
-    }
     wgpuActor->SetDirectionalMaskType(dirMask);
 
     this->PointCellAttributesBuildTimestamp.Modified();
@@ -1046,7 +1048,8 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(const wgpu::Device& devi
 //------------------------------------------------------------------------------
 bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
 {
-  bool updateIndices = this->CurrentInput->GetMeshMTime() > this->Primitive2CellIDsBuildTimestamp;
+  bool updateIndices = this->CurrentInput->GetMeshMTime() > this->Primitive2CellIDsBuildTimestamp ||
+    !this->UpdatedPrimitiveBuffers;
   if (!updateIndices)
   {
     return false;
@@ -1081,7 +1084,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         }
       }
       const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
-      this->PointPrimitiveBGInfo.Buffer = vtkWebGPUInternalsBuffer::Upload(device, 0,
+      this->PointPrimitiveBGInfo.Buffer = vtkWebGPUBufferInternals::Upload(device, 0,
         indices->GetPointer(0), sizeBytes, wgpu::BufferUsage::Storage, "Upload vtkPolyData::Verts");
     }
     vtkDebugMacro(<< "[Verts] "
@@ -1113,7 +1116,7 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
         }
       }
       const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
-      this->LinePrimitiveBGInfo.Buffer = vtkWebGPUInternalsBuffer::Upload(device, 0,
+      this->LinePrimitiveBGInfo.Buffer = vtkWebGPUBufferInternals::Upload(device, 0,
         indices->GetPointer(0), sizeBytes, wgpu::BufferUsage::Storage, "Upload vtkPolyData::Lines");
     }
     vtkDebugMacro(<< "[Lines] "
@@ -1171,13 +1174,14 @@ bool vtkWebGPUPolyDataMapper::UpdateMeshIndexBuffers(const wgpu::Device& device)
       }
       const std::size_t sizeBytes = indices->GetDataSize() * indices->GetDataTypeSize();
       this->TrianglePrimitiveBGInfo.Buffer =
-        vtkWebGPUInternalsBuffer::Upload(device, 0, indices->GetPointer(0), sizeBytes,
+        vtkWebGPUBufferInternals::Upload(device, 0, indices->GetPointer(0), sizeBytes,
           wgpu::BufferUsage::Storage, "Upload vtkPolyData::{Tris,Strips}");
     }
   }
   vtkDebugMacro(<< "[Triangles] "
                 << "-- " << sizes[2] << " bytes ");
   this->Primitive2CellIDsBuildTimestamp.Modified();
+  this->UpdatedPrimitiveBuffers = true;
   vtkDebugMacro(<< __func__ << " bufferModifiedTime=" << this->Primitive2CellIDsBuildTimestamp);
   return true;
 }
@@ -1192,11 +1196,11 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
   wgpu::ShaderModule shaderModule = wgpuRenderer->HasShaderCache(PolyData);
   if (shaderModule == nullptr)
   {
-    shaderModule = vtkWebGPUInternalsShaderModule::CreateFromWGSL(device, PolyData);
+    shaderModule = vtkWebGPUShaderModuleInternals::CreateFromWGSL(device, PolyData);
     wgpuRenderer->InsertShader(PolyData, shaderModule);
   }
 
-  vtkWebGPUInternalsRenderPipelineDescriptor descriptor;
+  vtkWebGPURenderPipelineDescriptorInternals descriptor;
   descriptor.layout = this->PipelineLayout;
   descriptor.vertex.module = shaderModule;
   descriptor.vertex.entryPoint = "vertexMain";
@@ -1247,7 +1251,30 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipeline(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow*) {}
+void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
+{
+  this->Superclass::ReleaseGraphicsResources(w);
+  this->PipelineLayout = nullptr;
+  this->Shader = nullptr;
+  this->MeshSSBO.Point.Buffer = nullptr;
+  this->MeshSSBO.Cell.Buffer = nullptr;
+  this->AttributeDescriptorBuffer = nullptr;
+  this->MeshAttributeBindGroup = nullptr;
+  this->MeshAttributeBindGroupLayout = nullptr;
+  this->PrimitiveBindGroupLayout = nullptr;
+  for (auto* bgInfo :
+    { &this->PointPrimitiveBGInfo, &this->LinePrimitiveBGInfo, &this->TrianglePrimitiveBGInfo })
+  {
+    bgInfo->PrimitiveSizeBuffer = nullptr;
+    bgInfo->Buffer = nullptr;
+    bgInfo->BindGroup = nullptr;
+    bgInfo->Pipeline = nullptr;
+  }
+  this->InitializedPipeline = false;
+  this->UpdatedGeometryBuffers = false;
+  this->UpdatedPrimitiveSizes = false;
+  this->UpdatedPrimitiveBuffers = false;
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ShallowCopy(vtkAbstractMapper*) {}

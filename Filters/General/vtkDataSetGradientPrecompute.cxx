@@ -22,7 +22,7 @@
 
 #define VTK_DATASET_GRADIENT_TETRA_OPTIMIZATION
 #define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
-//#define DEBUG
+// #define DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataSetGradientPrecompute);

@@ -188,22 +188,22 @@ class vtkWebAssemblyTestRunner:
         self._server_is_shutdown = False
 
     def run(self):
-        if not self.engine:
-            # Skip when no engine executable was specified.
-            return 125
 
         # Run the browser after http server is ready to accept connections.
         self._httpd_thread.start()
         self._wait_for_server_start()
-        subprocess_args = [self.engine] + shlex.split(self.engine_args) + [self._url]
-        logger.info(f"Running subprocess '{' '.join(subprocess_args)}'")
-        try:
-            subprocess.run(subprocess_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except Exception as e:
-            logger.error("An error occurred while launching engine subprocess!")
-            logger.error(e)
-            self._server_is_shutdown = True
-            self.exit_code = 1
+        if self.engine:
+            subprocess_args = [self.engine] + shlex.split(self.engine_args) + [self._url]
+            logger.info(f"Running subprocess '{' '.join(subprocess_args)}'")
+            try:
+                subprocess.run(subprocess_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception as e:
+                logger.error("An error occurred while launching engine subprocess!")
+                logger.error(e)
+                self._server_is_shutdown = True
+                self.exit_code = 1
+        else:
+            logger.info(f"An engine was not specified. Script may appear to hang but it is actually running a http server.")
         # If a test did not send an exit code, this `join` will block. It can happen when a test is stuck.
         # In such scenario, the httpd loop will not break and `ctest`` will terminate us after the timeout interval
         # has elapsed.
@@ -270,11 +270,9 @@ if __name__ == "__main__":
         title="WebAssembly Engine",
         description="Arguments that specify the webassembly engine used to run unit tests")
     engine_grp.add_argument("--engine",
-                            help="Path to a webassembly execution engine. Technically, this can point to a web browser or a webview runtime like tauri/wry application.",
-                            required=True)
+                            help="Path to a webassembly execution engine. Technically, this can point to a web browser or a webview runtime like tauri/wry application.")
     engine_grp.add_argument("--engine-args",
-                            help="Additional arguments that will be passed to the engine",
-                            required=True)
+                            help="Additional arguments that will be passed to the engine")
 
     httpd_grp = parser.add_argument_group(
         title="HTTP Server",

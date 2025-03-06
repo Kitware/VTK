@@ -27,9 +27,11 @@
 
 .wheel_linux_egl_addon:
     variables:
-        # Exclude the built development EGL libraries from the wheel; the user
-        # must provide them.
-        WHEEL_EXCLUSIONS: "--exclude libEGL.so.1 --exclude libglapi.so.0 --exclude libgbm.so.1"
+        VTK_DEFAULT_OPENGL_WINDOW: vtkEGLRenderWindow
+
+.wheel_linux_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
 
 .wheel_linux38_x86_64:
     extends: .manylinux2014_x86_64
@@ -39,7 +41,9 @@
         PYTHON_PREFIX: /opt/python/cp38-cp38
 
 .wheel_linux38_x86_64_osmesa:
-    extends: .wheel_linux38_x86_64
+    extends:
+        - .wheel_linux38_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux38_x86_64_osmesa
@@ -61,7 +65,9 @@
         PYTHON_PREFIX: /opt/python/cp39-cp39
 
 .wheel_linux39_x86_64_osmesa:
-    extends: .wheel_linux39_x86_64
+    extends:
+        - .wheel_linux39_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux39_x86_64_osmesa
@@ -83,7 +89,9 @@
         PYTHON_PREFIX: /opt/python/cp310-cp310
 
 .wheel_linux310_x86_64_osmesa:
-    extends: .wheel_linux310_x86_64
+    extends:
+        - .wheel_linux310_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux310_x86_64_osmesa
@@ -105,7 +113,9 @@
         PYTHON_PREFIX: /opt/python/cp311-cp311
 
 .wheel_linux311_x86_64_osmesa:
-    extends: .wheel_linux311_x86_64
+    extends:
+        - .wheel_linux311_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux311_x86_64_osmesa
@@ -127,7 +137,9 @@
         PYTHON_PREFIX: /opt/python/cp312-cp312
 
 .wheel_linux312_x86_64_osmesa:
-    extends: .wheel_linux312_x86_64
+    extends:
+        - .wheel_linux312_x86_64
+        - .wheel_linux_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_osmesa
@@ -141,9 +153,33 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux312_x86_64_egl
 
+.wheel_linux313_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64
+        PYTHON_PREFIX: /opt/python/cp313-cp313
+
+.wheel_linux313_x86_64_osmesa:
+    extends:
+        - .wheel_linux313_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64_osmesa
+
+.wheel_linux313_x86_64_egl:
+    extends:
+        - .wheel_linux313_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux313_x86_64_egl
+
 .fedora39:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-20240529"
+    image: "kitware/vtk:ci-fedora39-20240828"
 
 .el7_mindeps:
     extends: .linux
@@ -180,6 +216,10 @@
         # Fails inside of CI containers.
         PSM3_KASSIST_MODE: none
 
+.fedora_osmesa_addon:
+    variables:
+        VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
+
 .fedora_openmpi_addon:
     variables:
         # Needed to work with OpenMPI
@@ -187,12 +227,13 @@
         OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
         MODULES: mpi/openmpi-x86_64
 
-.el7_mindeps_python_qt5:
+.el7_mindeps_debug_python_qt5:
     extends:
         - .el7_mindeps
 
     variables:
-        CMAKE_CONFIGURATION: el7_mindeps_python_qt5
+        CMAKE_CONFIGURATION: el7_mindeps_debug_python_qt5
+        CMAKE_BUILD_TYPE: Debug
 
 .el8_icc_python:
     extends:
@@ -214,6 +255,7 @@
         - .fedora39
         - .fedora_cuda_addon
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_cuda_mpi_offscreen_osmesa
@@ -232,6 +274,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python
@@ -241,6 +284,7 @@
     extends:
         - .fedora39
         - .fedora_mpich_addon
+        - .fedora_osmesa_addon
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_offscreen_osmesa_python_ext_vtk
@@ -262,13 +306,14 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_renderless_ext_vtk
 
-.fedora39_java_mpi_qt_tbb:
+.fedora39_java:
     extends:
         - .fedora39
         - .fedora_mpich_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora39_java_mpi_qt_tbb
+        CMAKE_CONFIGURATION: fedora39_java
+        VTK_INSTALL: 1
 
 .fedora39_mpi_python_qt_tbb:
     extends:
@@ -302,6 +347,15 @@
 
     variables:
         CMAKE_CONFIGURATION: fedora39_mpi_ospray_python_qt_tbb
+
+.fedora39_helide_mpi_python_qt_tbb:
+    extends:
+        - .fedora39
+        - .fedora_mpich_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora39_helide_mpi_python_qt_tbb
+        ANARI_LIBRARY: helide
 
 .fedora39_mpi_python_qt_stdthread:
     extends:
@@ -386,6 +440,13 @@
         # around ASan not being first in the initial library list.
         CMAKE_CONFIGURATION: fedora39_mpi_python_qt_tbb_ubsan
 
+.fedora39_webgpu:
+    extends:
+        - .fedora39
+
+    variables:
+        CMAKE_CONFIGURATION: fedora39_webgpu
+
 .linux_fast_builder_tags:
     tags:
         - build
@@ -393,21 +454,43 @@
         - linux-x86_64-v3
         - vtk
 
-.wasm32_emscripten_linux_chrome:
+.wasm32_emscripten_linux:
     extends:
         - .fedora39
 
     variables:
-        CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome
-        WASM_WORDSIZE: 32
+        CMAKE_CONFIGURATION: wasm32_emscripten_linux
+        WASM_ARCHITECTURE: wasm32-emscripten
+        VTK_INSTALL: 1
 
-.wasm64_emscripten_linux_chrome:
+.wasm64_emscripten_linux:
     extends:
         - .fedora39
 
     variables:
-        CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome
-        WASM_WORDSIZE: 64
+        CMAKE_CONFIGURATION: wasm64_emscripten_linux
+        WASM_ARCHITECTURE: wasm64-emscripten
+        VTK_INSTALL: 1
+
+.wasm32_emscripten_linux_chrome_ext_vtk:
+    extends:
+        - .fedora39
+
+    variables:
+        CMAKE_CONFIGURATION: wasm32_emscripten_linux_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm32-emscripten
+        VTK_INSTALL: 1
+        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader"
+
+.wasm64_emscripten_linux_chrome_ext_vtk:
+    extends:
+        - .fedora39
+
+    variables:
+        CMAKE_CONFIGURATION: wasm64_emscripten_linux_chrome_ext_vtk
+        WASM_ARCHITECTURE: wasm64-emscripten
+        VTK_INSTALL: 1
+        VTK_TESTING_WASM_ENGINE_ARGUMENTS: "--disable-restore-session-state --no-default-browser-check --no-sandbox --no-first-run --incognito --disable-application-cache --new-tab --enable-unsafe-webgpu --enable-features=Vulkan,VulkanFromANGLE --use-angle=swiftshader --js-flags=--experimental-wasm-memory64"
 
 .linux_builder_tags:
     tags:
@@ -472,21 +555,35 @@
     # Enable the Intel compiler if required.
     - '[ "$CC" = "icx" ] && source /opt/intel/oneapi/setvars.sh || true'
 
+.before_script_java_linux: &before_script_java_linux
+    - *before_script_linux
+    - cmake -P .gitlab/ci/download_maven.cmake
+    - export PATH="$PWD/.gitlab/maven/bin:$PATH"
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-linux-amd64"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
+    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-linux-amd64"'
+
+.before_script_linux_deps: &before_script_linux_deps
+    - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+
+.script_linux: &script_linux
+    - .gitlab/ci/clang-tidy-cache.sh
+    - .gitlab/ci/sccache.sh
+    - sccache --start-server
+    - sccache --show-stats
+    - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
+    - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
+    - sccache --show-stats
+    - exec .gitlab/ci/check_warnings.sh .
+
 .cmake_build_linux:
     stage: build
     extends: .warning_policy
-
     script:
         - *before_script_linux
-        - .gitlab/ci/clang-tidy-cache.sh
-        - .gitlab/ci/sccache.sh
-        - sccache --start-server
-        - sccache --show-stats
-        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
-        - sccache --show-stats
-        - exec .gitlab/ci/check_warnings.sh .
-
+        - *before_script_linux_deps
+        - *script_linux
     interruptible: true
 
 .cmake_test_linux:
@@ -494,6 +591,7 @@
 
     script:
         - *before_script_linux
+        - *before_script_linux_deps
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
 
     interruptible: true
@@ -522,29 +620,19 @@
     extends: .warning_policy
 
     script:
-        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel mesa-libGL-devel mesa-libGLU-devel git-core git-lfs gcc-c++
+        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel git-core git-lfs gcc-c++
         - *before_script_linux
         - .gitlab/ci/sccache.sh
-        - cmake -P .gitlab/ci/download_osmesa.cmake
-        - cmake -P .gitlab/ci/download_mesa_egl.cmake
         - sccache --start-server
         - sccache --show-stats
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
-        # Set `LD_LIBRARY_PATH` for osmesa wheels. Note that we do *not* want
-        # to use rpaths here because we do not want the rpaths to end up in the
-        # wheel binaries and they should instead be bundled.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
-        # Set `LD_LIBRARY_PATH` for egl wheels. Note that we do *not* want
-        # to use rpaths here because we do not want the rpaths to end up in the
-        # wheel binaries and they should instead be bundled.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "egl" ]] && export LD_LIBRARY_PATH=/opt/mesa/lib'
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
         - cd build
         - "$PYTHON_PREFIX/bin/python -m pip install -U setuptools wheel"
         - "$PYTHON_PREFIX/bin/python setup.py bdist_wheel"
         - auditwheel show dist/*.whl > $GIT_CLONE_PATH/wheel_output.log
-        - auditwheel repair $WHEEL_EXCLUSIONS dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
+        - auditwheel repair dist/*.whl >> $GIT_CLONE_PATH/wheel_output.log
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
@@ -573,10 +661,18 @@
     image: "quay.io/pypa/manylinux_2_28_x86_64"
 
     script:
-        # Install `Xcursor` library.
+        # Set `LD_LIBRARY_PATH` for osmesa wheels.
+        - cmake -P .gitlab/ci/download_osmesa.cmake
+        - '[[ "$CMAKE_CONFIGURATION" =~ "osmesa" ]] && export LD_LIBRARY_PATH=/opt/osmesa/lib'
+        # Set `LD_LIBRARY_PATH` for egl wheels.
+        - cmake -P .gitlab/ci/download_mesa_egl.cmake
+        - '[[ "$CMAKE_CONFIGURATION" =~ "egl" ]] && export LD_LIBRARY_PATH=/opt/mesa/lib'
+        # Install `Xcursor` library. This is needed because of the X render window interactor.
         - yum install -y --setopt=install_weak_deps=False libXcursor
-        # Install EGL runtime.
-        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl
+        # Make sure that GLX can work in the container. Install per-job to:
+        # - show that it doesn't affect wheel installation and importing
+        # - we do not need to manually update the wheel for any manylinux* rebase
+        -  '[[ "$CMAKE_CONFIGURATION" =~ (osmesa|egl) ]] || yum install -y --setopt=install_weak_deps=False mesa-dri-drivers libglvnd-egl'
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
         - pip install twine
@@ -584,14 +680,18 @@
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
-        # Make sure that X11 can work in the container. Install per-job to:
-        # - show that it doesn't affect wheel installation and importing
-        # - we do not need to manually update the wheel for any manylinux* rebase
-        - yum install -y --setopt=install_weak_deps=False mesa-dri-drivers
         - *before_script_linux
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
+
+.cmake_build_java_linux:
+    stage: build
+    extends: .cmake_build_linux
+    script:
+        - *before_script_linux
+        - *before_script_java_linux
+        - *script_linux
 
 .cmake_source_tarballs:
     stage: build
@@ -648,14 +748,12 @@
 .before_script_linux_emscripten: &before_script_linux_emscripten
     - *before_script_linux
     # Fetch node
-    - .gitlab/ci/node.sh
+    - cmake -P .gitlab/ci/download_node.cmake
     - export NODE_DIR=$PWD/.gitlab/node
     - export PATH=$PWD/.gitlab/node/bin:$PATH
     - node --version
     - $PWD/.gitlab/ci/emsdk.sh
     # Fetches clang, wasm link tools and emscripten
-    # need `xz` to extract `wasm_binaries.tar.xz` downloaded by `emsdk install`
-    - dnf install -y --setopt=install_weak_deps=False xz
     - $PWD/.gitlab/emsdk/emsdk install latest
     - export PATH=$PWD/.gitlab/emsdk/upstream/bin:$PWD/.gitlab/emsdk/upstream/emscripten:$PATH
     - clang --version
@@ -691,22 +789,45 @@
         - .gitlab/ci/cmake.sh latest
         - export PATH=$PWD/.gitlab/cmake/bin:$PATH
         - cmake --version
-        - .gitlab/ci/node.sh
+        - cmake -P .gitlab/ci/download_node.cmake
         - export PATH=$PWD/.gitlab/node/bin:$PATH
         - node --version
-        - .gitlab/ci/create_webassembly_archive.sh $WASM_WORDSIZE
+        - .gitlab/ci/create_webassembly_archive.sh $WASM_ARCHITECTURE
 
     interruptible: true
 
-.cmake_test_wasm_emscripten_linux:
-    stage: test
+.cmake_test_wasm_emscripten_linux_chrome_ext:
+    stage: test-ext
     extends: .warning_policy
 
     script:
         - *before_script_linux_emscripten
+        - .gitlab/ci/clang-tidy-cache.sh
+        - .gitlab/ci/sccache.sh
+        - sccache --start-server
         # Fetch chrome-for-testing
         - cmake -P .gitlab/ci/download_chrome.cmake
+        - export VTK_TESTING_WASM_ENGINE=$PWD/.gitlab/chrome/chrome
+        # Activate python virtual env, we need Jinja2 package.
         - source build/ci-venv/bin/activate
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test.cmake
+        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wasm.cmake
+        - sccache --show-stats
+        - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWasm
 
     interruptible: true
+
+.java_upload_linux:
+    stage: upload
+    script:
+        - *before_script_java_linux
+        - cp .gitlab/maven/conf/settings.xml "$HOME/.m2/settings.xml"
+        - xmlstarlet ed -O -L
+            -d '/_:settings/_:servers'
+            -s '/_:settings' -t elem -n servers -v ""
+            -s '/_:settings/servers' -t elem -n server -v ""
+            -s '/_:settings/servers/server' -t elem -n id -v "github"
+            -s '/_:settings/servers/server' -t elem -n username -v '${env.MAVEN_USERNAME}'
+            -s '/_:settings/servers/server' -t elem -n password -v '${env.MAVEN_PASSWORD}'
+            "$HOME/.m2/settings.xml"
+        - cd build/install
+        - mvn deploy -Dvtk.maven.repo=https://maven.pkg.github.com/kitware/vtk -Dvtk.maven.repo.id=github

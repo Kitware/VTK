@@ -158,6 +158,20 @@ void updateStatesFromObjects()
 }
 
 //-------------------------------------------------------------------------------
+void updateObjectFromState(const std::string& state)
+{
+  CHECK_INIT;
+  Manager->UpdateObjectFromState(state);
+}
+
+//-------------------------------------------------------------------------------
+void updateStateFromObject(vtkTypeUInt32 identifier)
+{
+  CHECK_INIT;
+  Manager->UpdateStateFromObject(identifier);
+}
+
+//-------------------------------------------------------------------------------
 bool setSize(vtkTypeUInt32 identifier, int width, int height)
 {
   CHECK_INIT;
@@ -247,6 +261,9 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("updateObjectsFromStates", ::updateObjectsFromStates);
   function("updateStatesFromObjects", ::updateStatesFromObjects);
+
+  function("updateObjectFromState", ::updateObjectFromState);
+  function("updateStateFromObject", ::updateStateFromObject);
 
   function("setSize", ::setSize);
   function("render", ::render);

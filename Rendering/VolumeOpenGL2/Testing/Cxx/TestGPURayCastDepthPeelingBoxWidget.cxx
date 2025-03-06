@@ -1417,7 +1417,7 @@ int TestGPURayCastDepthPeelingBoxWidget(int argc, char* argv[])
   iren->Initialize();
   renWin->Render();
 
-//#define RECORD
+// #define RECORD
 #ifdef RECORD
   recorder->SetFileName("/tmp/events.log");
   recorder->Record();

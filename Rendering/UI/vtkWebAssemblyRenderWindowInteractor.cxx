@@ -7,29 +7,22 @@
 #include "vtkWeakPointer.h"
 
 #include <cstdint>
+#include <deque>
+#include <map>
+#include <pthread.h>
+
 #include <emscripten/emscripten.h>
 #include <emscripten/eventloop.h>
 #include <emscripten/html5.h>
+#include <emscripten/proxying.h>
+#include <emscripten/threading.h>
+
+// This interactor creates timers with custom callback which injects
+// a special event type in the queue. We use an eventType = 0 for timer events.
+// This macro is a convenience similar to other EMSCRIPTEN_EVENT_* macros.
+#define EMSCRIPTEN_EVENT_VTK_TIMER 0
 
 VTK_ABI_NAMESPACE_BEGIN
-
-class vtkEmscriptenEventHandler
-{
-public:
-  explicit vtkEmscriptenEventHandler(vtkWebAssemblyRenderWindowInteractor* interactor)
-  {
-    this->Interactor = interactor;
-  }
-
-  //------------------------------------------------------------------------------
-  void PushEvent(int eventType, const void* e)
-  {
-    this->Interactor->Events.push_back(vtkWebAssemblyRenderWindowInteractor::Event{ eventType, e });
-  }
-
-private:
-  vtkWeakPointer<vtkWebAssemblyRenderWindowInteractor> Interactor;
-};
 
 namespace
 {
@@ -52,92 +45,119 @@ int EmscriptenMouseButtonDblClickEventMap[3] = { vtkCommand::LeftButtonDoubleCli
   vtkCommand::MiddleButtonDoubleClickEvent, vtkCommand::RightButtonDoubleClickEvent };
 
 //------------------------------------------------------------------------------
-EM_BOOL HandleResize(int eventType, const EmscriptenUiEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleMouseMove(int eventType, const EmscriptenMouseEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleMouseButton(int eventType, const EmscriptenMouseEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleTouch(int eventType, const EmscriptenTouchEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleMouseFocus(int eventType, const EmscriptenMouseEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleWheel(int eventType, const EmscriptenWheelEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleFocus(int eventType, const EmscriptenFocusEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleKey(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
-EM_BOOL HandleKeyPress(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
-{
-  auto handler = reinterpret_cast<vtkEmscriptenEventHandler*>(userData);
-  handler->PushEvent(eventType, e);
-  return EM_TRUE;
-}
-
-//------------------------------------------------------------------------------
 void spinOnce(void* arg)
 {
   vtkWebAssemblyRenderWindowInteractor* iren =
     static_cast<vtkWebAssemblyRenderWindowInteractor*>(arg);
   iren->ProcessEvents();
 }
+} // namespace
+
+class vtkWebAssemblyRenderWindowInteractor::vtkInternals
+{
+public:
+  class EventDataWrapper
+  {
+    int Type = -1; // Takes on values that are defined in emscripten/html5.h `EMSCRIPTEN_EVENT_NAME`
+    std::unique_ptr<std::uint8_t> Data = nullptr;
+
+  public:
+    explicit EventDataWrapper(int type, const void* data, std::size_t size)
+      : Type(type)
+    {
+      // copies the event data because the event processing is deferred.
+      this->Data.reset(new std::uint8_t[size]);
+      auto* src = reinterpret_cast<const std::uint8_t*>(data);
+      std::copy(src, src + size, this->Data.get());
+    }
+
+    /// provides read-only access to prevent accidental manipulation of events.
+    inline const std::uint8_t* data() { return this->Data.get(); }
+
+    /// A value of > 1 implies the `Data` pointer describes an emscripten event. A value of 0 is
+    /// reserved for forwarding timer events.
+    inline int type() { return this->Type; }
+  };
+
+  /// Bridge data structure used to forward VTK timer ID from JS to C++.
+  struct TimerBridgeData
+  {
+    std::shared_ptr<vtkWebAssemblyRenderWindowInteractor::vtkInternals> Internals;
+    int TimerId;
+  };
+
+  // Push the event into queue.
+  void EnqueueEvent(std::shared_ptr<EventDataWrapper> eventData);
+
+  /// Wraps the given event with EventDataWrapper and push into the event queue.
+  /// This method takes care of proxying the event if `Start()` was called from
+  /// another thread that is not the browser UI thread.
+  template <typename EventDataType>
+  static EM_BOOL MaybeProxyEvent(int eventType, const EventDataType* e, void* userdata);
+
+  /// Since emscripten does not handle timer events,
+  /// the companion JavaScript code invokes this function to push timer events into
+  /// the event queue.
+  static void ForwardTimerEvent(void* param);
+
+  std::deque<std::shared_ptr<EventDataWrapper>> Events;
+  std::map<int, TimerBridgeData> Timers;
+  std::map<int, int> VTKToPlatformTimerMap;
+
+  pthread_t EventProcessingThread = 0;
+  emscripten::ProxyingQueue EventProxyingQueue;
+
+  bool StartedMessageLoop = false;
+  bool RegisteredUICallbacks = false;
+  bool ResizeObserverInstalled = false;
+  bool ExpandedCanvasToContainerElement = false;
+  int RepeatCounter = 0;
+};
 
 //------------------------------------------------------------------------------
-void onTimerEvent(void* param)
+void vtkWebAssemblyRenderWindowInteractor::vtkInternals::EnqueueEvent(
+  std::shared_ptr<EventDataWrapper> eventData)
 {
-  auto bridge = reinterpret_cast<vtkWebAssemblyRenderWindowInteractor::TimerBridgeData*>(param);
-  bridge->Handler->PushEvent(0, reinterpret_cast<void*>(bridge->TimerId));
+  // swallow the previous event if it was a mouse move event.
+  if (!this->Events.empty() && eventData->type() == EMSCRIPTEN_EVENT_MOUSEMOVE &&
+    this->Events.back()->type() == EMSCRIPTEN_EVENT_MOUSEMOVE)
+  {
+    this->Events.pop_back();
+  }
+  this->Events.push_back(eventData);
 }
-} // namespace
+
+//------------------------------------------------------------------------------
+template <typename EventDataType>
+EM_BOOL vtkWebAssemblyRenderWindowInteractor::vtkInternals::MaybeProxyEvent(
+  int type, const EventDataType* event, void* userdata)
+{
+  if (userdata == nullptr)
+  {
+    vtkGenericWarningMacro(<< "MaybeProxyEvent received null user data!");
+    return EM_TRUE;
+  }
+  auto* self = reinterpret_cast<vtkInternals*>(userdata);
+  auto eventData = std::make_shared<EventDataWrapper>(type, event, sizeof(EventDataType));
+  // if `Start()` was called on main thread, no need to proxy the event.
+  if (self->EventProcessingThread == emscripten_main_runtime_thread_id())
+  {
+    self->EnqueueEvent(eventData);
+    return EM_TRUE;
+  }
+  self->EventProxyingQueue.proxyAsync(
+    self->EventProcessingThread, [eventData, self]() { self->EnqueueEvent(eventData); });
+  return EM_TRUE;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::vtkInternals::ForwardTimerEvent(void* param)
+{
+  auto bridge = reinterpret_cast<TimerBridgeData*>(param);
+  auto eventData =
+    std::make_shared<EventDataWrapper>(EMSCRIPTEN_EVENT_VTK_TIMER, &bridge->TimerId, sizeof(int));
+  bridge->Internals->EnqueueEvent(eventData);
+}
 
 extern "C"
 {
@@ -161,10 +181,10 @@ vtkStandardNewMacro(vtkWebAssemblyRenderWindowInteractor);
 
 //------------------------------------------------------------------------------
 vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor()
-  : Handler(std::make_shared<vtkEmscriptenEventHandler>(this))
+  : Internals(std::make_shared<vtkInternals>())
 {
   // default is #canvas unless explicitly set by application.
-  this->SetCanvasId("#canvas");
+  this->SetCanvasSelector("#canvas");
   this->ExpandCanvasToContainer = ::DefaultExpandVTKCanvasToContainer;
   this->InstallHTMLResizeObserver = ::DefaultInstallHTMLResizeObserver;
 }
@@ -172,78 +192,211 @@ vtkWebAssemblyRenderWindowInteractor::vtkWebAssemblyRenderWindowInteractor()
 //------------------------------------------------------------------------------
 vtkWebAssemblyRenderWindowInteractor::~vtkWebAssemblyRenderWindowInteractor()
 {
-  for (const auto& timerIds : this->VTKToPlatformTimerMap)
+  for (const auto& timerIds : this->Internals->VTKToPlatformTimerMap)
   {
     auto& tid = timerIds.first;
     auto& platformTimerId = timerIds.second;
     vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
   }
-  this->SetCanvasId(nullptr);
+  this->SetCanvasSelector(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::SetCanvasSelector(const char* value)
+{
+  auto& internals = (*this->Internals);
+  // remove callbacks from previous target
+  const bool reInstallUICallbacks = internals.RegisteredUICallbacks;
+  if (internals.RegisteredUICallbacks)
+  {
+    this->UnRegisterUICallbacks();
+  }
+  vtkSetStringBodyMacro(CanvasSelector, value);
+  // add callbacks to new target
+  if (reInstallUICallbacks)
+  {
+    this->RegisterUICallbacks();
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyRenderWindowInteractor::ProcessEvents()
 {
+  // initialize if not already done.
+  if (!this->Initialized)
+  {
+    this->Initialize();
+  }
   if (!this->Enabled)
   {
     return;
   }
-
-  Event event;
-  std::vector<Event> filteredEvents;
-
-  while (!this->Events.empty())
+  auto& internals = (*this->Internals);
+  // register UI callbacks if not already done. This can happen when the end-user application
+  // bypasses `vtkRenderWindowInteractor::Start` and directly invokes `ProcessEvents`.
+  if (!internals.RegisteredUICallbacks)
   {
-    event = this->Events.front();
-    if (event.Type == EMSCRIPTEN_EVENT_MOUSEMOVE && !filteredEvents.empty() &&
-      filteredEvents.back().Type == event.Type)
-    {
-      // refresh the event with the latest mouse move.
-      filteredEvents.back() = event;
-    }
-    else
-    {
-      // push new event.
-      filteredEvents.push_back(event);
-    }
-    this->Events.pop_front();
+    this->RegisterUICallbacks();
   }
-
-  for (auto& ev : filteredEvents)
+  while (!internals.Events.empty())
   {
-    if (this->ProcessEvent(&ev))
-    {
-      break;
-    }
+    auto& event = (*internals.Events.front());
+    this->ProcessEvent(event.type(), event.data());
+    internals.Events.pop_front();
+  }
+  if (!internals.ExpandedCanvasToContainerElement)
+  {
+    vtkInitializeCanvasElement(this->CanvasSelector, this->ExpandCanvasToContainer);
+    internals.ExpandedCanvasToContainerElement = true;
   }
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
+void vtkWebAssemblyRenderWindowInteractor::RegisterUICallbacks()
 {
-  switch (event->Type)
+  auto& internals = (*this->Internals);
+  if (internals.RegisteredUICallbacks)
   {
-    case 0: // user event
+    // already registered.
+    return;
+  }
+  internals.EventProcessingThread = pthread_self();
+
+  const char* canvas = this->CanvasSelector;
+  if (this->InstallHTMLResizeObserver)
+  {
+    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, &internals, 0,
+      vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+    internals.ResizeObserverInstalled = true;
+  }
+
+  emscripten_set_mousemove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mousedown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchmove_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchstart_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchend_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchcancel_callback_on_thread(canvas, &internals, 0,
+    vtkInternals::MaybeProxyEvent, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mouseenter_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseleave_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_wheel_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_focus_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_blur_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_keydown_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keyup_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keypress_callback_on_thread(canvas, &internals, 0, vtkInternals::MaybeProxyEvent,
+    EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  internals.RegisteredUICallbacks = true;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::UnRegisterUICallbacks()
+{
+  auto& internals = (*this->Internals);
+  if (!internals.RegisteredUICallbacks)
+  {
+    // already unregistered
+    return;
+  }
+  const char* canvas = this->CanvasSelector;
+  if (this->InstallHTMLResizeObserver && internals.ResizeObserverInstalled)
+  {
+    emscripten_set_resize_callback_on_thread(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr,
+      EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+    internals.ResizeObserverInstalled = false;
+  }
+  emscripten_set_mousemove_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mousedown_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseup_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchmove_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_touchstart_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchend_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_touchcancel_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_mouseenter_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_mouseleave_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_wheel_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_focus_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_blur_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  emscripten_set_keydown_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keyup_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+  emscripten_set_keypress_callback_on_thread(
+    canvas, nullptr, 0, nullptr, EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD);
+
+  internals.RegisteredUICallbacks = false;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uint8_t* event)
+{
+  auto& internals = (*this->Internals);
+  const double dpr = emscripten_get_device_pixel_ratio();
+
+  switch (type)
+  {
+    case EMSCRIPTEN_EVENT_VTK_TIMER:
     {
-      const int tid = reinterpret_cast<std::intptr_t>(event->Data);
-      auto iter = this->VTKToPlatformTimerMap.find(tid);
-      if (iter != this->VTKToPlatformTimerMap.end())
+      auto* timerId = reinterpret_cast<const int*>(event);
+      auto iter = internals.VTKToPlatformTimerMap.find(*timerId);
+      if (iter != internals.VTKToPlatformTimerMap.end())
       {
-        this->InvokeEvent(vtkCommand::TimerEvent, (void*)&tid);
-        int ptid = (*iter).second;
+        this->InvokeEvent(vtkCommand::TimerEvent, (void*)timerId);
+        int platformTimerId = (*iter).second;
         // Here we deal with one-shot versus repeating timers
-        if (this->IsOneShotTimer(tid))
+        if (this->IsOneShotTimer(*timerId))
         {
-          vtkDestroyTimer(ptid, true);
-          this->Timers.erase(tid);
-          this->VTKToPlatformTimerMap.erase(iter);
+          vtkDestroyTimer(platformTimerId, true);
+          internals.Timers.erase(*timerId);
+          internals.VTKToPlatformTimerMap.erase(iter);
         }
       }
       break;
     }
     case EMSCRIPTEN_EVENT_RESIZE:
     {
-      auto* size = vtkGetParentElementBoundingRectSize(this->CanvasId);
+      auto* size = vtkGetParentElementBoundingRectSize(this->CanvasSelector);
       this->UpdateSize(size[0], size[1]);
       free(size);
       this->Render();
@@ -261,80 +414,91 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
     case EMSCRIPTEN_EVENT_FOCUSOUT:
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
     {
+      // resets repeat counter when focus is lost while a key is being pressed in order to
+      // prevent overflow.
+      internals.RepeatCounter = 0;
       this->InvokeEvent(vtkCommand::LeaveEvent);
       break;
     }
-    case EMSCRIPTEN_EVENT_KEYUP:
-    case EMSCRIPTEN_EVENT_KEYDOWN:
     case EMSCRIPTEN_EVENT_KEYPRESS:
+      // EMSCRIPTEN_EVENT_KEYDOWN tracks these
+      break;
+    case EMSCRIPTEN_EVENT_KEYDOWN:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event);
       const size_t nChar = strlen(emEvent->key);
       char keyCode = 0;
       if (nChar == 1)
       {
         keyCode = emEvent->key[0];
       }
-      int eventVTK = 0;
-      if (event->Type == EMSCRIPTEN_EVENT_KEYDOWN)
-      {
-        eventVTK = vtkCommand::KeyPressEvent;
-      }
-      else if (event->Type == EMSCRIPTEN_EVENT_KEYUP)
-      {
-        this->RepeatCounter = 0;
-        eventVTK = vtkCommand::KeyReleaseEvent;
-      }
-      else // EMSCRIPTEN_EVENT_KEYPRESS
-      {
-        ++this->RepeatCounter;
-        eventVTK = vtkCommand::CharEvent;
-      }
+      // track repeated presses as long as the keydown event is sent
+      ++internals.RepeatCounter;
       this->SetAltKey(emEvent->altKey);
       this->SetKeyEventInformation(
-        emEvent->ctrlKey, emEvent->shiftKey, keyCode, this->RepeatCounter, emEvent->key);
-      this->InvokeEvent(eventVTK, nullptr);
+        emEvent->ctrlKey, emEvent->shiftKey, keyCode, internals.RepeatCounter, emEvent->key);
+      this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
+      // additionally invokes CharEvent to satisfy observers that listen to it.
+      // this is similar to other interactors.
+      this->InvokeEvent(vtkCommand::CharEvent, nullptr);
+      break;
+    }
+    case EMSCRIPTEN_EVENT_KEYUP:
+    {
+      auto emEvent = reinterpret_cast<const EmscriptenKeyboardEvent*>(event);
+      const size_t nChar = strlen(emEvent->key);
+      char keyCode = 0;
+      if (nChar == 1)
+      {
+        keyCode = emEvent->key[0];
+      }
+      // reset repeat counter
+      internals.RepeatCounter = 0;
+      this->SetAltKey(emEvent->altKey);
+      this->SetKeyEventInformation(
+        emEvent->ctrlKey, emEvent->shiftKey, keyCode, internals.RepeatCounter, emEvent->key);
+      this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
       break;
     }
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
       break;
     }
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonDownEventMap[emEvent->button]);
       break;
     }
     case EMSCRIPTEN_EVENT_MOUSEUP:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonUpEventMap[emEvent->button]);
       break;
     }
     case EMSCRIPTEN_EVENT_DBLCLICK:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenMouseEvent*>(event);
       this->SetEventInformationFlipY(
-        emEvent->targetX, emEvent->targetY, emEvent->ctrlKey, emEvent->shiftKey);
+        emEvent->targetX * dpr, emEvent->targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey);
       this->SetAltKey(emEvent->altKey);
       this->InvokeEvent(::EmscriptenMouseButtonDblClickEventMap[emEvent->button]);
       break;
     }
     case EMSCRIPTEN_EVENT_WHEEL:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenWheelEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenWheelEvent*>(event);
       this->SetEventInformationFlipY(emEvent->mouse.targetX, emEvent->mouse.targetY,
         emEvent->mouse.ctrlKey, emEvent->mouse.shiftKey);
       this->SetAltKey(emEvent->mouse.altKey);
@@ -346,11 +510,12 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
     }
     case EMSCRIPTEN_EVENT_TOUCHSTART:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->LeftButtonPressEvent();
       break;
@@ -358,31 +523,32 @@ bool vtkWebAssemblyRenderWindowInteractor::ProcessEvent(Event* event)
     case EMSCRIPTEN_EVENT_TOUCHCANCEL:
     case EMSCRIPTEN_EVENT_TOUCHEND:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->LeftButtonReleaseEvent();
       break;
     }
     case EMSCRIPTEN_EVENT_TOUCHMOVE:
     {
-      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event->Data);
+      auto emEvent = reinterpret_cast<const EmscriptenTouchEvent*>(event);
       for (int idx = 0; idx < emEvent->numTouches; idx++)
       {
-        this->SetEventInformationFlipY(emEvent->touches[idx].targetX, emEvent->touches[idx].targetY,
-          emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr, idx);
+        this->SetEventInformationFlipY(emEvent->touches[idx].targetX * dpr,
+          emEvent->touches[idx].targetY * dpr, emEvent->ctrlKey, emEvent->shiftKey, 0, 0, nullptr,
+          idx);
       }
       this->MouseMoveEvent();
       break;
     }
     default:
-      vtkWarningMacro(<< "Unhandled event " << event->Type);
+      vtkWarningMacro(<< "Unhandled event " << type);
       break;
   }
-  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -413,7 +579,7 @@ void vtkWebAssemblyRenderWindowInteractor::Initialize()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
-  vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
+  vtkInitializeCanvasElement(this->CanvasSelector, this->ExpandCanvasToContainer);
 }
 
 //------------------------------------------------------------------------------
@@ -425,45 +591,21 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
     return;
   }
 
-  const char* canvas = this->CanvasId;
-
-  if (this->InstallHTMLResizeObserver)
+  auto& internals = (*this->Internals);
+  if (internals.StartedMessageLoop)
   {
-    emscripten_set_resize_callback(
-      EMSCRIPTEN_EVENT_TARGET_WINDOW, this->Handler.get(), 0, ::HandleResize);
-    this->ResizeObserverInstalled = true;
+    vtkWarningMacro(<< "An event loop has already been started!");
+    return;
   }
 
-  emscripten_set_mousemove_callback(canvas, this->Handler.get(), 0, ::HandleMouseMove);
+  this->RegisterUICallbacks();
 
-  emscripten_set_mousedown_callback(canvas, this->Handler.get(), 0, ::HandleMouseButton);
-  emscripten_set_mouseup_callback(canvas, this->Handler.get(), 0, ::HandleMouseButton);
-
-  emscripten_set_touchmove_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
-
-  emscripten_set_touchstart_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
-  emscripten_set_touchend_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
-  emscripten_set_touchcancel_callback(canvas, this->Handler.get(), 0, ::HandleTouch);
-
-  emscripten_set_mouseenter_callback(canvas, this->Handler.get(), 0, ::HandleMouseFocus);
-  emscripten_set_mouseleave_callback(canvas, this->Handler.get(), 0, ::HandleMouseFocus);
-
-  emscripten_set_wheel_callback(canvas, this->Handler.get(), 0, ::HandleWheel);
-
-  emscripten_set_focus_callback(canvas, this->Handler.get(), 0, ::HandleFocus);
-  emscripten_set_blur_callback(canvas, this->Handler.get(), 0, ::HandleFocus);
-
-  emscripten_set_keydown_callback(canvas, this->Handler.get(), 0, ::HandleKey);
-  emscripten_set_keyup_callback(canvas, this->Handler.get(), 0, ::HandleKey);
-  emscripten_set_keypress_callback(canvas, this->Handler.get(), 0, ::HandleKeyPress);
-
-  if (!this->StartedMessageLoop)
+  if (!internals.StartedMessageLoop)
   {
-    this->StartedMessageLoop = true;
+    internals.StartedMessageLoop = true;
     emscripten_set_main_loop_arg(
       &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
   }
-  vtkInitializeCanvasElement(this->CanvasId, this->ExpandCanvasToContainer);
 }
 
 //------------------------------------------------------------------------------
@@ -471,65 +613,44 @@ void vtkWebAssemblyRenderWindowInteractor::TerminateApp(void)
 {
   this->Done = true;
 
-  const char* canvas = this->CanvasId;
-  if (this->InstallHTMLResizeObserver && this->ResizeObserverInstalled)
-  {
-    emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, nullptr);
-    this->ResizeObserverInstalled = false;
-  }
-  emscripten_set_mousemove_callback(canvas, nullptr, 0, nullptr);
+  auto& internals = (*this->Internals);
 
-  emscripten_set_mousedown_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_mouseup_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_touchmove_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_touchstart_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_touchend_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_touchcancel_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_mouseenter_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_mouseleave_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_wheel_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_focus_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_blur_callback(canvas, nullptr, 0, nullptr);
-
-  emscripten_set_keydown_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_keyup_callback(canvas, nullptr, 0, nullptr);
-  emscripten_set_keypress_callback(canvas, nullptr, 0, nullptr);
+  this->UnRegisterUICallbacks();
 
   // Only post a quit message if Start was called...
-  if (this->StartedMessageLoop)
+  if (internals.StartedMessageLoop)
   {
     emscripten_cancel_main_loop();
-    this->StartedMessageLoop = false;
+    internals.StartedMessageLoop = false;
   }
+  internals.ExpandedCanvasToContainerElement = false;
 }
 
 //------------------------------------------------------------------------------
 int vtkWebAssemblyRenderWindowInteractor::InternalCreateTimer(
   int timerId, int timerType, unsigned long duration)
 {
-  this->Timers.insert(std::make_pair(timerId, TimerBridgeData{ this->Handler, timerId }));
-  auto& userData = this->Timers[timerId];
+  auto& internals = (*this->Internals);
+  internals.Timers.insert(
+    std::make_pair(timerId, vtkInternals::TimerBridgeData{ this->Internals, timerId }));
+  auto& userData = internals.Timers[timerId];
   int platformTimerId = -1;
   auto* timerBridgePtr = reinterpret_cast<void*>(&userData);
-  platformTimerId = vtkCreateTimer(
-    duration, timerType == vtkRenderWindowInteractor::OneShotTimer, ::onTimerEvent, timerBridgePtr);
-  this->VTKToPlatformTimerMap[timerId] = platformTimerId;
+  platformTimerId = vtkCreateTimer(duration, timerType == vtkRenderWindowInteractor::OneShotTimer,
+    vtkInternals::ForwardTimerEvent, timerBridgePtr);
+  internals.VTKToPlatformTimerMap[timerId] = platformTimerId;
   return platformTimerId;
 }
 
 //------------------------------------------------------------------------------
 int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
+  auto& internals = (*this->Internals);
   int tid = this->GetVTKTimerId(platformTimerId);
   vtkDestroyTimer(platformTimerId, this->IsOneShotTimer(tid));
-  this->Timers.erase(tid);
-  auto i = this->VTKToPlatformTimerMap.find(tid);
-  this->VTKToPlatformTimerMap.erase(i);
+  internals.Timers.erase(tid);
+  auto i = internals.VTKToPlatformTimerMap.find(tid);
+  internals.VTKToPlatformTimerMap.erase(i);
   return 0;
 }
 
@@ -537,11 +658,11 @@ int vtkWebAssemblyRenderWindowInteractor::InternalDestroyTimer(int platformTimer
 void vtkWebAssemblyRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "CanvasId: " << this->CanvasId << endl;
+  os << indent << "CanvasSelector: " << this->CanvasSelector << endl;
   os << indent << "ExpandCanvasToContainer: " << this->ExpandCanvasToContainer << endl;
   os << indent << "InstallHTMLResizeObserver: " << this->InstallHTMLResizeObserver << endl;
-  os << indent << "StartedMessageLoop: " << this->StartedMessageLoop << endl;
-  os << indent << "ResizeObserverInstalled: " << this->ResizeObserverInstalled << endl;
+  os << indent << "StartedMessageLoop: " << this->Internals->StartedMessageLoop << endl;
+  os << indent << "ResizeObserverInstalled: " << this->Internals->ResizeObserverInstalled << endl;
 }
 
 //------------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 #include "vtkStringArray.h"
 #include "vtkStringToken.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridFieldAnnotations.h"
 
 #include <cmath>
 #include <cstdlib>
@@ -715,8 +716,8 @@ void vtkDGTranscribeUnstructuredCells::AddCellAttributes(TranscribeQuery* query,
   {
     // I. Loop over annotations provided by the query which indicate how
     //    individual input arrays should be related to DG cell-attributes.
-    auto it = query->Annotations.find(query->FlatIndex);
-    auto& localAnnotations(it == query->Annotations.end() ? empty : it->second);
+    auto it = query->Annotations->Data.find(query->FlatIndex);
+    auto& localAnnotations(it == query->Annotations->Data.end() ? empty : it->second);
 #ifdef VTK_DBG_TRANSCRIBE
     std::cout << "Block " << query->FlatIndex << " has " << localAnnotations.size()
               << " annotations.\n"

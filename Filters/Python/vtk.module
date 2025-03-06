@@ -6,6 +6,8 @@ CONDITION
   VTK_WRAP_PYTHON
 GROUPS
   StandAlone
+DESCRIPTION
+  Provide a python base class for writing VTK algorithms in python.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

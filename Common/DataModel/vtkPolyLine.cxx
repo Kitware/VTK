@@ -15,7 +15,6 @@
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 
@@ -229,19 +228,21 @@ int vtkPolyLine::GenerateSlidingNormals(
   // will occur.
   if (threading)
   {
-    vtkSMPTools::For(0, numLines, [&](vtkIdType lineId, vtkIdType endLineId) {
-      vtkSmartPointer<vtkCellArrayIterator> cellIter;
-      cellIter.TakeReference(lines->NewIterator());
-      vtkIdType npts;
-      const vtkIdType* linePts;
-
-      vtkVector3d normal(0.0, 0.0, 1.0); // arbitrary default value
-      for (; lineId < endLineId; ++lineId)
+    vtkSMPTools::For(0, numLines,
+      [&](vtkIdType lineId, vtkIdType endLineId)
       {
-        cellIter->GetCellAtId(lineId, npts, linePts);
-        SlidingNormalsOnLine(pts, npts, linePts, normals, firstNormal, normal);
-      }
-    }); // lambda
+        vtkSmartPointer<vtkCellArrayIterator> cellIter;
+        cellIter.TakeReference(lines->NewIterator());
+        vtkIdType npts;
+        const vtkIdType* linePts;
+
+        vtkVector3d normal(0.0, 0.0, 1.0); // arbitrary default value
+        for (; lineId < endLineId; ++lineId)
+        {
+          cellIter->GetCellAtId(lineId, npts, linePts);
+          SlidingNormalsOnLine(pts, npts, linePts, normals, firstNormal, normal);
+        }
+      }); // lambda
   }
   else
   {
@@ -454,7 +455,8 @@ void vtkPolyLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
   vtkNew<vtkCellArray> lines;
   vtkIdType numberOfCurrentLines, numberOfPreviousLines = 0;
 
-  const auto appendLines = [&]() {
+  const auto appendLines = [&]()
+  {
     // copy the previous lines to the output
     const auto numberOfPointsOfPolyLine = numberOfCurrentLines + 1;
 #ifdef VTK_USE_64BIT_IDS

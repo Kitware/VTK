@@ -18,7 +18,6 @@
 // Work-around to get forward declarations of C typedef of anonymous
 // structs working. We do not want to include XUtil.h in the header as
 // it populates the global namespace.
-#include "GL/glx.h"
 #include <X11/Xutil.h>
 VTK_ABI_NAMESPACE_BEGIN
 struct vtkXVisualInfo : public XVisualInfo

@@ -145,19 +145,19 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Sort(
 
 //--------------------------------------------------------------------------------
 template <>
-void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int);
+VTKCOMMONCORE_EXPORT void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int);
 
 //--------------------------------------------------------------------------------
 template <>
-int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads();
+VTKCOMMONCORE_EXPORT int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
-int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
+VTKCOMMONCORE_EXPORT int vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
-bool vtkSMPToolsImpl<BackendType::OpenMP>::GetSingleThread();
+VTKCOMMONCORE_EXPORT bool vtkSMPToolsImpl<BackendType::OpenMP>::GetSingleThread();
 
 VTK_ABI_NAMESPACE_END
 } // namespace smp

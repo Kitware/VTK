@@ -2,19 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkConeSource.h"
-#include "vtkElevationFilter.h"
+#include "vtkCellArray.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkScalarsToColors.h"
-#include "vtkSphereSource.h"
 
 int TestVertexRendering(int argc, char* argv[])
 {
@@ -25,7 +22,7 @@ int TestVertexRendering(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
 
-  // the one and only true triangle
+  // create a sequence of points
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->InsertPoint(0, -1, -1, 0);
@@ -70,6 +67,10 @@ int TestVertexRendering(int argc, char* argv[])
 
   renWin->Render();
 
-  iren->Start();
-  return 0;
+  const int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    iren->Start();
+  }
+  return !retVal;
 }

@@ -22,7 +22,9 @@
   }
 
 // PyTypeObject compatibility
-#if PY_VERSION_HEX >= 0x030C0000
+#if PY_VERSION_HEX >= 0x030D0000
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED nullptr, 0, nullptr, nullptr, 0, 0,
+#elif PY_VERSION_HEX >= 0x030C0000
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED nullptr, 0, nullptr, nullptr, 0,
 #elif PY_VERSION_HEX >= 0x03090000
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED nullptr, 0, nullptr, nullptr,

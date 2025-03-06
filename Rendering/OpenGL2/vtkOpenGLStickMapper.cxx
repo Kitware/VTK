@@ -26,7 +26,7 @@
 #include "vtkSimpleSplatVS.h"
 #include "vtkStickMapperGS.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN

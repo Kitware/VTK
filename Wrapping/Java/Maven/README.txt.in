@@ -25,7 +25,7 @@ file.
 In order to generate a custom pom.xml the user can configure those properties
 within CMake otherwise decent automatically value will be set.
 
-     MAVEN_VTK_GROUP_ID:STRING=kitware.community
+     MAVEN_VTK_GROUP_ID:STRING=vtk.org
 
      MAVEN_LOCAL_NATIVE_NAME:STRING=Win32
 
@@ -59,12 +59,12 @@ will only include the native artifacts for that platform. Running the command:
 
   $ mvn deploy
 
-The deployment url is defined by the property `vtk.snapshots.repo`. By default
-this is set to `file://${user.home}/vtk-maven-repos/snapshots`. To deploy
+The deployment url is defined by the property `vtk.maven.repo`. By default
+this is set to `file://${user.home}/vtk-maven-repos`. To deploy
 to an internal artifact server (e.g. Nexus, Artifactory, etc.), you can set
 this property on the command line to the deployment URL, e.g.:
 
-  $ mvn deploy -Dvtk.snapshots.repo=http://maven.yoyodyne.com/repos/snapshots
+  $ mvn deploy -Dvtk.maven.repo=http://maven.yoyodyne.com/repos/snapshots
 
 
 # ----------------------------------------------------------------------------

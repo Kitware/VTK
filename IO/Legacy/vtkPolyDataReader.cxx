@@ -48,7 +48,8 @@ int vtkPolyDataReader::ReadMeshSimple(const std::string& fname, vtkDataObject* d
   vtkPolyData* output = vtkPolyData::SafeDownCast(doOutput);
 
   // Helper function to handle legacy cell data fallback:
-  auto readCellArray = [&](vtkSmartPointer<vtkCellArray>& cellArray) -> bool {
+  auto readCellArray = [&](vtkSmartPointer<vtkCellArray>& cellArray) -> bool
+  {
     if (this->FileMajorVersion >= 5)
     { // Cells are written as offsets + connectivity arrays:
       return this->ReadCells(cellArray) != 0;

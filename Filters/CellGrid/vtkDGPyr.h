@@ -58,6 +58,10 @@ public:
   static const std::array<std::vector<vtkIdType>, 19> SidesOfSides;
   static const std::array<int, Dimension + 3> SideOffsets;
   static const std::array<Shape, Dimension + 3> SideShapes;
+  // Because pyramids have sides of different types but the same dimension,
+  // we store a table of the number of sides by dimension rather than computing
+  // these values based on SideOffsets/SideShapes entries:
+  static const std::array<int, Dimension + 1> SidesOfDimension;
 
 protected:
   vtkDGPyr();

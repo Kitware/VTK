@@ -9,7 +9,7 @@
 #include "vtkColor.h"                  // class uses vtkColor
 #include "vtkDeprecation.h"            // For VTK_DEPRECATED_IN_9_3_0
 #include "vtkRenderingOpenGL2Module.h" // for export macro
-#include "vtk_glew.h"                  // for OpenGL enums
+#include "vtk_glad.h"                  // for OpenGL enums
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 class vtkCompositePolyDataMapper2;

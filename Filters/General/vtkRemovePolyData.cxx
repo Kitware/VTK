@@ -237,12 +237,14 @@ struct MarkDeletedCells
     if (cellIdsPtr != nullptr)
     {
       vtkIdType numCellIds = cellIds->GetNumberOfTuples();
-      vtkSMPTools::For(0, numCellIds, [&, cellIdsPtr, cellMap](vtkIdType idx, vtkIdType endIdx) {
-        for (; idx < endIdx; ++idx)
+      vtkSMPTools::For(0, numCellIds,
+        [&, cellIdsPtr, cellMap](vtkIdType idx, vtkIdType endIdx)
         {
-          (*cellMap)[cellIdsPtr[idx]] = (-1);
-        }
-      }); // end lambda
+          for (; idx < endIdx; ++idx)
+          {
+            (*cellMap)[cellIdsPtr[idx]] = (-1);
+          }
+        }); // end lambda
     }
 
     // Now process any additional polydata inputs, as well is point

@@ -84,6 +84,23 @@ bool vtkCellGridCopyQuery::Initialize()
 
 bool vtkCellGridCopyQuery::Finalize()
 {
+  // Copy cell-attribute range caches, but only when performing shallow
+  // copies as deep copies indicate that values will likely be changed
+  // downstream.
+  if (this->CopyArrays && this->CopyArrayValues && !this->DeepCopyArrays)
+  {
+    const auto& sourceRangeCache(this->Source->GetRangeCache());
+    auto& targetRangeCache(this->Target->GetRangeCache());
+    for (const auto& entry : this->AttributeMap)
+    {
+      auto it = sourceRangeCache.find(entry.first);
+      if (it != sourceRangeCache.end())
+      {
+        targetRangeCache[entry.second] = it->second;
+      }
+    }
+  }
+
   this->ArrayMap.clear();
   this->AttributeMap.clear();
 
@@ -258,6 +275,11 @@ vtkCellAttribute* vtkCellGridCopyQuery::CopyOrUpdateAttributeRecord(
   else
   {
     targetAttribute = amit->second;
+  }
+
+  if (!this->CopyCellTypes)
+  {
+    return targetAttribute;
   }
 
   // Regardless of whether the attribute pre-existed or not,

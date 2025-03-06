@@ -1,9 +1,9 @@
 # Note: if you change any of the settings here, please reformat the entire
-# codebase as part of the same commit, that will prevent subsequent commits
-# from being flagged as being improperly formatted.
+# codebase as part of the same merge request, that will prevent subsequent
+# commits from being flagged as being improperly formatted.
 
 ---
-# This configuration requires clang-format 8.0 or higher.
+# This configuration requires clang-format 16 or higher.
 BasedOnStyle: Mozilla
 AlignAfterOpenBracket: DontAlign
 AlignOperands: false
@@ -14,7 +14,7 @@ BinPackArguments: true
 BinPackParameters: true
 ColumnLimit: 100
 SpaceAfterTemplateKeyword: true
-Standard: Cpp11
+Standard: c++17
 StatementMacros:
 - DefineScopedHandle
 - DefineToNumeric

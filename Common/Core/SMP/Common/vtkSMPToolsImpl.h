@@ -43,7 +43,7 @@ const BackendType DefaultBackend = BackendType::OpenMP;
 #endif
 
 template <BackendType Backend>
-class VTKCOMMONCORE_EXPORT vtkSMPToolsImpl
+class vtkSMPToolsImpl
 {
 public:
   //--------------------------------------------------------------------------------
@@ -56,13 +56,13 @@ public:
   int GetEstimatedDefaultNumberOfThreads();
 
   //--------------------------------------------------------------------------------
-  void SetNestedParallelism(bool isNested) { this->NestedActivated = isNested; }
+  void SetNestedParallelism(bool isNested);
 
   //--------------------------------------------------------------------------------
-  bool GetNestedParallelism() { return this->NestedActivated; }
+  bool GetNestedParallelism();
 
   //--------------------------------------------------------------------------------
-  bool IsParallelScope() { return this->IsParallel; }
+  bool IsParallelScope();
 
   //--------------------------------------------------------------------------------
   bool GetSingleThread();
@@ -93,30 +93,57 @@ public:
   void Sort(RandomAccessIterator begin, RandomAccessIterator end, Compare comp);
 
   //--------------------------------------------------------------------------------
-  vtkSMPToolsImpl()
-    : NestedActivated(true)
-    , IsParallel(false)
-  {
-  }
+  vtkSMPToolsImpl();
 
   //--------------------------------------------------------------------------------
-  vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
-    : NestedActivated(other.NestedActivated)
-    , IsParallel(other.IsParallel.load())
-  {
-  }
+  vtkSMPToolsImpl(const vtkSMPToolsImpl& other);
 
   //--------------------------------------------------------------------------------
-  void operator=(const vtkSMPToolsImpl& other)
-  {
-    this->NestedActivated = other.NestedActivated;
-    this->IsParallel = other.IsParallel.load();
-  }
+  void operator=(const vtkSMPToolsImpl& other);
 
 private:
   bool NestedActivated = false;
   std::atomic<bool> IsParallel{ false };
 };
+
+template <BackendType Backend>
+void vtkSMPToolsImpl<Backend>::SetNestedParallelism(bool isNested)
+{
+  this->NestedActivated = isNested;
+}
+
+template <BackendType Backend>
+bool vtkSMPToolsImpl<Backend>::GetNestedParallelism()
+{
+  return this->NestedActivated;
+}
+
+template <BackendType Backend>
+bool vtkSMPToolsImpl<Backend>::IsParallelScope()
+{
+  return this->IsParallel;
+}
+
+template <BackendType Backend>
+vtkSMPToolsImpl<Backend>::vtkSMPToolsImpl()
+  : NestedActivated(true)
+  , IsParallel(false)
+{
+}
+
+template <BackendType Backend>
+vtkSMPToolsImpl<Backend>::vtkSMPToolsImpl(const vtkSMPToolsImpl& other)
+  : NestedActivated(other.NestedActivated)
+  , IsParallel(other.IsParallel.load())
+{
+}
+
+template <BackendType Backend>
+void vtkSMPToolsImpl<Backend>::operator=(const vtkSMPToolsImpl& other)
+{
+  this->NestedActivated = other.NestedActivated;
+  this->IsParallel = other.IsParallel.load();
+}
 
 using ExecuteFunctorPtrType = void (*)(void*, vtkIdType, vtkIdType, vtkIdType);
 

@@ -5,7 +5,6 @@
 
 #include "vtkMathUtilities.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 
 //------------------------------------------------------------------------------
 int TestVector(int, char*[])

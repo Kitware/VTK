@@ -66,7 +66,7 @@
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
     vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView getInteractor] -> SetInteractorStyle(intStyle);
+  [thisView getInteractor]->SetInteractorStyle(intStyle);
 
   // Create a cone, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
@@ -80,7 +80,7 @@
   vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
   coneActor->SetMapper(coneMapper);
 
-  [thisView getRenderer] -> AddActor(coneActor);
+  [thisView getRenderer]->AddActor(coneActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -96,7 +96,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.0, 0.5, 0.0);
-  [thisView getRenderer] -> AddViewProp(textActor);
+  [thisView getRenderer]->AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];
@@ -122,7 +122,7 @@
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
     vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView getInteractor] -> SetInteractorStyle(intStyle);
+  [thisView getInteractor]->SetInteractorStyle(intStyle);
 
   // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
@@ -134,7 +134,7 @@
   vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
   cylinderActor->SetMapper(cylinderMapper);
 
-  [thisView getRenderer] -> AddActor(cylinderActor);
+  [thisView getRenderer]->AddActor(cylinderActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -150,7 +150,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.3, 0.5, 0.0);
-  [thisView getRenderer] -> AddViewProp(textActor);
+  [thisView getRenderer]->AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];
@@ -177,7 +177,7 @@
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle =
     vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [thisView renderWindowInteractor] -> SetInteractorStyle(intStyle);
+  [thisView renderWindowInteractor]->SetInteractorStyle(intStyle);
 
   // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
@@ -189,7 +189,7 @@
   vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
   cylinderActor->SetMapper(cylinderMapper);
 
-  [thisView renderer] -> AddActor(cylinderActor);
+  [thisView renderer]->AddActor(cylinderActor);
 
   // Create a text actor.
   NSString* string = @"日本語";
@@ -205,7 +205,7 @@
   vtkCoordinate* coord = textActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToWorld();
   coord->SetValue(0.3, 0.5, 0.0);
-  [thisView renderer] -> AddViewProp(textActor);
+  [thisView renderer]->AddViewProp(textActor);
 
   // Tell the system that the view needs to be redrawn
   [thisView setNeedsDisplay:YES];

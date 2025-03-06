@@ -6,6 +6,8 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+DESCRIPTION
+  Filters to create and process selections of VTK data.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -26,14 +27,28 @@ int TestVRMLImporter(int argc, char* argv[])
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WineGlass.wrl");
   importer->SetFileName(fname);
-  importer->Read();
+  if (!importer->Update())
+  {
+    std::cerr << "ERROR: Importer failed to update\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetImportedActors()->GetNumberOfItems() != 1)
+  {
+    std::cerr << "ERROR: Unexpected number of imported actors\n";
+    return EXIT_FAILURE;
+  }
+
   // delete the importer and see if it can be run again
   importer->Delete();
 
   importer = vtkVRMLImporter::New();
   importer->SetRenderWindow(renWin);
   importer->SetFileName(fname);
-  importer->Read();
+  if (!importer->Update())
+  {
+    std::cerr << "ERROR: Importer failed to update\n";
+    return EXIT_FAILURE;
+  }
   importer->Delete();
 
   delete[] fname;
@@ -42,5 +57,5 @@ int TestVRMLImporter(int argc, char* argv[])
   renWin->Delete();
   ren1->Delete();
 
-  return 0;
+  return EXIT_SUCCESS;
 }

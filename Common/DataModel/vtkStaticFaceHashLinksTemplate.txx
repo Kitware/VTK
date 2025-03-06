@@ -89,8 +89,9 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountFaces
         numberOfCellFaces = this->Input->GetCellNumberOfFaces(cellId, cellType, cell);
         // we mark cells with no faces as having one face so that we can
         // parse them later.
-        numberOfFaces +=
-          numberOfCellFaces > 0 ? numberOfCellFaces : cellType != VTK_EMPTY_CELL ? 1 : 0;
+        numberOfFaces += numberOfCellFaces > 0 ? numberOfCellFaces
+          : cellType != VTK_EMPTY_CELL         ? 1
+                                               : 0;
       }
     }
   }
@@ -429,22 +430,24 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::PrefixSum
     {
       this->ThreadSum[threadId] += this->ThreadSum[threadId - 1];
     }
-    vtkSMPTools::For(1, this->NumberOfThreads, [&](vtkIdType beginThread, vtkIdType endThread) {
-      const vtkIdType lastThreadId = this->NumberOfThreads - 1;
-      auto faceOffsets = this->FaceOffsets.get();
-      for (vtkIdType threadId = beginThread; threadId < endThread; ++threadId)
+    vtkSMPTools::For(1, this->NumberOfThreads,
+      [&](vtkIdType beginThread, vtkIdType endThread)
       {
-        const vtkIdType begin = threadId * this->NumberOfHashes / this->NumberOfThreads;
-        const vtkIdType end = lastThreadId != threadId
-          ? (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads
-          : this->NumberOfHashes;
-        const auto& threadLocalSum = this->ThreadSum[threadId - 1];
-        for (vtkIdType pointId = begin + 1; pointId <= end; ++pointId)
+        const vtkIdType lastThreadId = this->NumberOfThreads - 1;
+        auto faceOffsets = this->FaceOffsets.get();
+        for (vtkIdType threadId = beginThread; threadId < endThread; ++threadId)
         {
-          faceOffsets[pointId] += threadLocalSum;
+          const vtkIdType begin = threadId * this->NumberOfHashes / this->NumberOfThreads;
+          const vtkIdType end = lastThreadId != threadId
+            ? (threadId + 1) * this->NumberOfHashes / this->NumberOfThreads
+            : this->NumberOfHashes;
+          const auto& threadLocalSum = this->ThreadSum[threadId - 1];
+          for (vtkIdType pointId = begin + 1; pointId <= end; ++pointId)
+          {
+            faceOffsets[pointId] += threadLocalSum;
+          }
         }
-      }
-    });
+      });
   }
 };
 

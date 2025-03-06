@@ -97,6 +97,7 @@ wchar_t* vtk_Py_UTF8ToWide(const char* arg)
   return result;
 }
 
+#if PY_VERSION_HEX < 0x03080000
 std::string vtk_Py_WideToUTF8(const wchar_t* arg)
 {
   std::string result;
@@ -110,6 +111,7 @@ std::string vtk_Py_WideToUTF8(const wchar_t* arg)
 
   return result;
 }
+#endif
 
 std::vector<vtkWeakPointer<vtkPythonInterpreter>>* GlobalInterpreters;
 std::vector<std::string> PythonPaths;
@@ -335,12 +337,21 @@ void SetupPythonPaths(bool isolated, std::string vtklib, const char* landmark)
   if (vtklib.empty())
   {
     VTKPY_DEBUG_MESSAGE(
-      "`GetVTKVersion` library couldn't be found. Will use `Py_GetProgramName` next.");
+      "`GetVTKVersion` library couldn't be found. Will use `sys.executable` next.");
   }
 
   if (vtklib.empty())
   {
+#if PY_VERSION_HEX >= 0x03080000
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    PyObject* executable_path = PySys_GetObject("executable");
+    if (executable_path != Py_None)
+    {
+      vtklib = PyUnicode_AsUTF8AndSize(executable_path, nullptr);
+    }
+#else
     vtklib = vtk_Py_WideToUTF8(Py_GetProgramName());
+#endif
   }
 
   vtklib = systools::CollapseFullPath(vtklib);
@@ -771,9 +782,8 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
         PyObject* minor = PyObject_GetAttrString(version_info, "minor");
         PyObject* micro = PyObject_GetAttrString(version_info, "micro");
 
-        auto py_number_cmp = [](PyObject* obj, long expected) {
-          return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected;
-        };
+        auto py_number_cmp = [](PyObject* obj, long expected)
+        { return obj && PyLong_Check(obj) && PyLong_AsLong(obj) == expected; };
 
         // Only 3.7.0 has this issue. Any failures to get the version
         // information is OK; we'll just crash later anyways if the version is

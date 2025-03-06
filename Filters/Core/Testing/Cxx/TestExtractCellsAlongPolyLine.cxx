@@ -78,9 +78,9 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
   auto RTData = vtkArrayDownCast<vtkFloatArray>(image->GetPointData()->GetAbstractArray("RTData"));
 
   auto outputCellIds =
-    vtkArrayDownCast<vtkIdTypeArray>(output->GetCellData()->GetAbstractArray("CellIds"));
+    vtkArrayDownCast<vtkDataArray>(output->GetCellData()->GetAbstractArray("CellIds"));
   auto outputRTData =
-    vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetAbstractArray("RTData"));
+    vtkArrayDownCast<vtkDataArray>(output->GetPointData()->GetAbstractArray("RTData"));
 
   for (vtkIdType cellId = 0; cellId < NUMBER_OF_OUTPUT_CELLS; ++cellId)
   {
@@ -113,7 +113,8 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
     imageLocator->FindPointsWithinRadius(1e-6, p, results);
     vtkIdType imageCellId = results->GetId(0);
 
-    if (cellIds->GetValue(imageCellId) != outputCellIds->GetValue(centerCellId))
+    if (cellIds->GetValue(imageCellId) !=
+      static_cast<vtkIdType>(outputCellIds->GetTuple1(centerCellId)))
     {
       vtkLog(ERROR, "Output cell data is wrong.");
       retVal = false;
@@ -141,7 +142,7 @@ bool TestOutput(vtkImageData* image, vtkUnstructuredGrid* output)
       vtkIdType imagePointId = imagePointIds->GetId(id);
       vtkIdType outputPointId = outputPointIds->GetId(id);
 
-      if (RTData->GetValue(imagePointId) != outputRTData->GetValue(outputPointId))
+      if (RTData->GetValue(imagePointId) != outputRTData->GetTuple1(outputPointId))
       {
         vtkLog(ERROR, "Output point data is wrong.");
         retVal = false;

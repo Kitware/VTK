@@ -1312,7 +1312,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkIn
 
   switch (fileType)
   {
-    vtkMINCImageReaderTemplateMacro(delete[]((VTK_TT*)buffer));
+    vtkMINCImageReaderTemplateMacro(delete[] ((VTK_TT*)buffer));
   }
 
   this->CloseNetCDFFile(ncid);

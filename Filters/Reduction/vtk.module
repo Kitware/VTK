@@ -6,6 +6,8 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+DESCRIPTION
+  Tools to convert explicit (tabular) arrays into implicit (procedural) arrays, which can reduce memory consumption.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

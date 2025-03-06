@@ -7,7 +7,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
-#include "vtkWGPUContext.h"
+#include "vtkWebGPUConfiguration.h"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -19,7 +19,7 @@ vtkStandardNewMacro(vtkWebAssemblyWebGPURenderWindow);
 //------------------------------------------------------------------------------
 vtkWebAssemblyWebGPURenderWindow::vtkWebAssemblyWebGPURenderWindow()
 {
-  this->SetCanvasId("#canvas");
+  this->SetCanvasSelector("#canvas");
   this->SetStencilCapable(1);
 
   // set position to -1 to let SDL place the window
@@ -41,6 +41,7 @@ vtkWebAssemblyWebGPURenderWindow::~vtkWebAssemblyWebGPURenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+  this->SetCanvasSelector(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -53,12 +54,27 @@ void vtkWebAssemblyWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------------------------
 std::string vtkWebAssemblyWebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 {
-  return std::string("Visualization Toolkit - ") + "Emscripten " + this->GetBackendTypeAsString();
+  if (this->WGPUConfiguration)
+  {
+    return std::string("Visualization Toolkit - ") + "Emscripten " +
+      this->WGPUConfiguration->GetBackendInUseAsString();
+  }
+  else
+  {
+    return "Visualization Toolkit - Emscripten undefined backend";
+  }
 }
 
 //------------------------------------------------------------------------------
-bool vtkWebAssemblyWebGPURenderWindow::Initialize()
+bool vtkWebAssemblyWebGPURenderWindow::WindowSetup()
 {
+  vtkDebugMacro(<< __func__);
+  if (!this->WGPUConfiguration)
+  {
+    vtkErrorMacro(
+      << "vtkWebGPUConfiguration is null! Please provide one with SetWGPUConfiguration");
+    return false;
+  }
   if (!this->WindowId)
   {
     this->CreateAWindow();
@@ -67,18 +83,19 @@ bool vtkWebAssemblyWebGPURenderWindow::Initialize()
   {
     // render into canvas elememnt
     wgpu::SurfaceDescriptorFromCanvasHTMLSelector htmlSurfDesc;
-    htmlSurfDesc.selector = "#canvas";
-    this->Surface = vtkWGPUContext::CreateSurface(htmlSurfDesc);
-    return this->Surface.Get() != nullptr;
+    htmlSurfDesc.selector = this->CanvasSelector;
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK HTML5 surface";
+    surfDesc.nextInChain = &htmlSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-
-  return false;
+  return this->Surface != nullptr;
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::Finalize()
 {
-  if (this->WGPUInitialized)
+  if (this->Initialized)
   {
     this->WGPUFinalize();
   }
@@ -88,7 +105,8 @@ void vtkWebAssemblyWebGPURenderWindow::Finalize()
 namespace
 {
 //------------------------------------------------------------------------------
-EM_BOOL HandleCanvasResize(int eventType, const void* reserved, void* userData)
+EM_BOOL HandleCanvasResize(
+  int vtkNotUsed(eventType), const void* vtkNotUsed(reserved), void* userData)
 {
   // this is used during fullscreen changes
   auto window = reinterpret_cast<vtkWebAssemblyWebGPURenderWindow*>(userData);
@@ -134,7 +152,7 @@ void vtkWebAssemblyWebGPURenderWindow::SetFullScreen(vtkTypeBool arg)
     strategy.canvasResizedCallback = ::HandleCanvasResize;
     strategy.canvasResizedCallbackUserData = this;
 
-    result = emscripten_request_fullscreen_strategy(this->CanvasId, 1, &strategy);
+    result = emscripten_request_fullscreen_strategy(this->CanvasSelector, 1, &strategy);
   }
   else
   {
@@ -162,7 +180,7 @@ void vtkWebAssemblyWebGPURenderWindow::SetSize(int width, int height)
   {
     this->Size[0] = width;
     this->Size[1] = height;
-    emscripten_set_canvas_element_size(this->CanvasId, this->Size[0], this->Size[1]);
+    emscripten_set_canvas_element_size(this->CanvasSelector, this->Size[0], this->Size[1]);
     if (this->Interactor)
     {
       this->Interactor->SetSize(this->Size[0], this->Size[1]);
@@ -183,13 +201,6 @@ int* vtkWebAssemblyWebGPURenderWindow::GetScreenSize()
 int* vtkWebAssemblyWebGPURenderWindow::GetPosition()
 {
   return this->Position;
-}
-
-//------------------------------------------------------------------------------
-void vtkWebAssemblyWebGPURenderWindow::SetWindowName(const char* title)
-{
-  this->Superclass::SetWindowName(title);
-  emscripten_set_window_title(title);
 }
 
 //------------------------------------------------------------------------------
@@ -221,29 +232,29 @@ int vtkWebAssemblyWebGPURenderWindow::GetColorBufferSizes(int* rgba)
   return (rgba[0] > 0) && (rgba[1] > 0) && (rgba[2] > 0) && (rgba[3] > 0);
 }
 
+namespace
+{
+void setCursorVisibility(const char* target, bool visible)
+{
+  // clang-format off
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
+    MAIN_THREAD_EM_ASM({findCanvasEventTarget($0).style.cursor = $1 ? 'default' : 'none'; }, target, visible);
+#pragma clang diagnostic pop
+  // clang-format on
+}
+}
+
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::HideCursor()
 {
-  // clang-format off
-  MAIN_THREAD_EM_ASM(
-    if (Module['canvas']) {
-      Module['canvas'].style['cursor'] = 'none';
-    }
-  );
-  // clang-format on
+  ::setCursorVisibility(this->CanvasSelector, false);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::ShowCursor()
 {
-  // clang-format off
-  MAIN_THREAD_EM_ASM({
-      if (Module['canvas']) {
-        Module['canvas'].style['cursor'] = 'default';
-      }
-    }
-  );
-  // clang-format on
+  ::setCursorVisibility(this->CanvasSelector, true);
 }
 
 //------------------------------------------------------------------------------
@@ -258,12 +269,10 @@ void vtkWebAssemblyWebGPURenderWindow::CleanUpRenderers()
 //------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::CreateAWindow()
 {
-  int x = ((this->Position[0] >= 0) ? this->Position[0] : -1);
-  int y = ((this->Position[1] >= 0) ? this->Position[1] : -1);
   int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
   int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
   this->SetSize(width, height);
-  this->WindowId = const_cast<void*>(static_cast<const void*>(this->CanvasId));
+  this->WindowId = const_cast<void*>(static_cast<const void*>(this->CanvasSelector));
 }
 
 //------------------------------------------------------------------------------

@@ -14,16 +14,19 @@ DEPENDS
   VTK::RenderingCore
   VTK::RenderingOpenGL2
   VTK::RenderingVR
-  VTK::glew
+  VTK::glad
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+  VTK::CommonMisc
   VTK::CommonSystem
   VTK::CommonTransforms
   VTK::FiltersSources
+  VTK::FiltersTexture
   VTK::ImagingSources
   VTK::InteractionWidgets
+  VTK::IOCore
+  VTK::IOGeometry
   VTK::jsoncpp
-  VTK::opengl
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonCore

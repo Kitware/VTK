@@ -5,7 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include <vtkglad/include/glad/wgl.h>
 
 #include <d3d11.h> // For D3D11 interface
 #include <dxgi.h>
@@ -82,9 +82,9 @@ void vtkWin32OpenGLDXRenderWindow::Initialize()
 void vtkWin32OpenGLDXRenderWindow::InitializeDX()
 {
   // Require NV_DX_interop OpenGL extension
-  if (!WGLEW_NV_DX_interop)
+  if (!GLAD_WGL_NV_DX_interop)
   {
-    vtkErrorMacro("OpenGL extension WGLEW_NV_DX_interop unsupported.");
+    vtkErrorMacro("OpenGL extension GLAD_WGL_NV_DX_interop unsupported.");
     return;
   }
 
@@ -153,7 +153,7 @@ bool vtkWin32OpenGLDXRenderWindow::CreateTexture(
   textureDesc.MipLevels = 1;
   textureDesc.ArraySize = 1;
   textureDesc.Format = static_cast<DXGI_FORMAT>(format);
-  textureDesc.SampleDesc.Count = this->MultiSamples > 1 ? this->MultiSamples : 1;
+  textureDesc.SampleDesc.Count = this->SharedTextureSamples > 1 ? this->SharedTextureSamples : 1;
   textureDesc.Usage = D3D11_USAGE_DEFAULT;
   textureDesc.BindFlags = bindFlags;
   textureDesc.CPUAccessFlags = 0;
@@ -270,12 +270,22 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture(unsigned int colorId, u
     this->Initialize();
   }
 
+  // Make sure the shared textures use the same number of multisamples
+  int samples = -1;
+  glGetTextureLevelParameteriv(colorId, 0, GL_TEXTURE_SAMPLES, &samples);
+  if (this->SharedTextureSamples != samples)
+  {
+    this->SharedTextureSamples = samples;
+    this->UpdateTextures();
+  }
+
   this->Impl->ColorTexture.Id = colorId;
   this->Impl->DepthTexture.Id = depthId;
 
   this->Impl->ColorTexture.Handle = wglDXRegisterObjectNV(this->Impl->DeviceHandle,
     this->Impl->D3DSharedColorTexture.Get(), this->Impl->ColorTexture.Id,
-    this->MultiSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
+    this->SharedTextureSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D,
+    WGL_ACCESS_READ_WRITE_NV);
 
   if (!this->Impl->ColorTexture.Handle)
   {
@@ -286,7 +296,8 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture(unsigned int colorId, u
   {
     this->Impl->DepthTexture.Handle = wglDXRegisterObjectNV(this->Impl->DeviceHandle,
       this->Impl->D3DSharedDepthTexture.Get(), this->Impl->DepthTexture.Id,
-      this->MultiSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, WGL_ACCESS_READ_WRITE_NV);
+      this->SharedTextureSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D,
+      WGL_ACCESS_READ_WRITE_NV);
 
     if (!this->Impl->DepthTexture.Handle)
     {
@@ -300,6 +311,20 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture()
 {
   this->RegisterSharedTexture(
     this->GetRenderFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32OpenGLDXRenderWindow::RegisterSharedRenderFramebuffer()
+{
+  this->RegisterSharedTexture(
+    this->GetRenderFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32OpenGLDXRenderWindow::RegisterSharedDisplayFramebuffer()
+{
+  this->RegisterSharedTexture(
+    this->GetDisplayFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
 }
 
 //------------------------------------------------------------------------------
@@ -333,16 +358,6 @@ void vtkWin32OpenGLDXRenderWindow::SetSize(int width, int height)
 }
 
 //------------------------------------------------------------------------------
-void vtkWin32OpenGLDXRenderWindow::SetMultiSamples(int samples)
-{
-  if (this->MultiSamples != samples)
-  {
-    this->Superclass::SetMultiSamples(samples);
-    this->UpdateTextures();
-  }
-}
-
-//------------------------------------------------------------------------------
 void vtkWin32OpenGLDXRenderWindow::BlitToTexture(ID3D11Texture2D* color, ID3D11Texture2D* depth)
 {
   if (!this->Impl->D3DDeviceContext || !color || !this->Impl->D3DSharedColorTexture)
@@ -353,7 +368,7 @@ void vtkWin32OpenGLDXRenderWindow::BlitToTexture(ID3D11Texture2D* color, ID3D11T
   color->GetDesc(&desc);
 
   // Resolve texture if needed
-  if (this->MultiSamples > 1 && desc.SampleDesc.Count <= 1)
+  if (this->SharedTextureSamples > 1 && desc.SampleDesc.Count <= 1)
   {
     this->Impl->D3DDeviceContext->ResolveSubresource(color, // destination
       0,                                                    // destination subresource id

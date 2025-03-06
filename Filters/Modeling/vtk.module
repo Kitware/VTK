@@ -6,6 +6,8 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+DESCRIPTION
+  Geometric modeling tools for VTK.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

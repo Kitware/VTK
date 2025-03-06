@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFindCellStrategy
- * @brief   helper class to manage the vtkPointSet::FindCell() METHOD
+ * @brief   helper class to manage the vtkPointSet::FindCell() method
  *
  * vtkFindCellStrategy is a helper class to manage the use of locators for
  * locating cells containing a query point x[3], the so-called FindCell()

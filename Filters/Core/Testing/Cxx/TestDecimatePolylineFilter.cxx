@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: Copyright 2004 Sandia Corporation
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
+#include "vtkPolyLineSource.h"
 #include "vtkRegressionTestImage.h"
 #include <vtkActor.h>
 #include <vtkCellArray.h>
@@ -24,6 +25,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkTestErrorObserver.h>
 
 namespace
 {
@@ -345,6 +347,31 @@ int TestDecimatePolylineFilter(int argc, char* argv[])
 
   // Test Custom field strategy
   {
+    {
+      // Test wrong parameters
+      vtkNew<vtkPolyLineSource> lineSource;
+      lineSource->SetNumberOfPoints(10);
+
+      vtkNew<vtkDecimatePolylineCustomFieldStrategy> strategy;
+      strategy->SetFieldName("not_an_array");
+
+      vtkNew<vtkDecimatePolylineFilter> decimate;
+      decimate->SetInputConnection(lineSource->GetOutputPort());
+      decimate->SetDecimationStrategy(strategy);
+
+      vtkNew<vtkTest::ErrorObserver> observer;
+      decimate->AddObserver(vtkCommand::WarningEvent, observer);
+
+      decimate->Update();
+      if (!observer->GetWarning())
+      {
+        vtkErrorWithObjectMacro(nullptr,
+          "CustomFieldStrategy with wrong "
+          "array name parameter is expected to early return with a warning");
+        return EXIT_FAILURE;
+      }
+    }
+
     vtkNew<vtkRenderer> renderer;
     renderer->SetViewport(0, 0, 0.5, 0.5);
 

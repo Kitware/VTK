@@ -317,24 +317,6 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
       shaders[i.first.ShaderType]->SetSource(ssrc);
     }
   }
-
-  // Fix gl_PrimitiveID in fragment shader after all shader replacements.
-  // When oglRenderWindow->IsPrimIDBugPresent() returns true, the geometry shader
-  // ignores values written into gl_PrimitiveID and increments it per output primitive.
-  // So, here, undo the two increments per line segment with a divide-by-2.
-  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-  if (this->HaveWideLines(ren, actor))
-  {
-    if (auto oglRenderWindow = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()))
-    {
-      if (oglRenderWindow->IsPrimIDBugPresent())
-      {
-        vtkShaderProgram::Substitute(FSSource, "gl_PrimitiveID", "gl_PrimitiveID / 2");
-      }
-    }
-  }
-
-  shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
 //------------------------------------------------------------------------------
@@ -2129,9 +2111,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
       // normal mapping
       std::vector<texinfo> textures = this->GetTextures(actor);
-      bool normalMapping = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
-        return tex.second == "normalTex";
-      }) != textures.end();
+      bool normalMapping =
+        std::find_if(textures.begin(), textures.end(),
+          [](const texinfo& tex) { return tex.second == "normalTex"; }) != textures.end();
       bool coatNormalMapping = hasClearCoat &&
         std::find_if(textures.begin(), textures.end(),
           [](const texinfo& tex) { return tex.second == "coatNormalTex"; }) != textures.end();
@@ -2173,9 +2155,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "//VTK::Normal::Dec\n"
             "uniform float anisotropyRotationUniform;\n");
 
-          bool rotationMap = std::find_if(textures.begin(), textures.end(), [](const texinfo& tex) {
-            return tex.second == "anisotropyTex";
-          }) != textures.end();
+          bool rotationMap =
+            std::find_if(textures.begin(), textures.end(),
+              [](const texinfo& tex) { return tex.second == "anisotropyTex"; }) != textures.end();
           if (rotationMap)
           {
             // Sample the texture
@@ -4164,7 +4146,8 @@ void vtkOpenGLPolyDataMapper::AddPointIdsToSelectionPrimitives(vtkPolyData* poly
   const char* arrayName, unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId)
 {
   // point selection
-  auto addPointId = [this](vtkIdType id) {
+  auto addPointId = [this](vtkIdType id)
+  {
     for (vtkIdType p = vtkOpenGLPolyDataMapper::PrimitiveStart;
          p <= vtkOpenGLPolyDataMapper::PrimitiveTriStrips; p++)
     {
@@ -4193,7 +4176,8 @@ void vtkOpenGLPolyDataMapper::AddCellIdsToSelectionPrimitives(vtkPolyData* poly,
   const char* arrayName, unsigned int processId, unsigned int compositeIndex, vtkIdType selectedId)
 {
 
-  auto addCellId = [this, poly](vtkIdType id) {
+  auto addCellId = [this, poly](vtkIdType id)
+  {
     vtkIdType npts;
     const vtkIdType* pts;
     vtkIdType nbVerts = poly->GetVerts() ? poly->GetVerts()->GetNumberOfCells() : 0;

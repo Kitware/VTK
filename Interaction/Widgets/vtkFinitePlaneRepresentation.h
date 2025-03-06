@@ -20,6 +20,7 @@
 #define vtkFinitePlaneRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkNew.h"                      // For member variable
 #include "vtkWidgetRepresentation.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -89,6 +90,16 @@ public:
   vtkSetMacro(Tubing, bool);
   vtkGetMacro(Tubing, bool);
   vtkBooleanMacro(Tubing, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off enforcing a rectangular shape when moving the vectors
+   * v1, and v2. Off by default.
+   */
+  vtkSetMacro(RectangularShape, bool);
+  vtkGetMacro(RectangularShape, bool);
+  vtkBooleanMacro(RectangularShape, bool);
   ///@}
 
   ///@{
@@ -232,9 +243,9 @@ protected:
   int RepresentationState;
 
   // the origin
-  vtkSphereSource* OriginGeometry;
-  vtkPolyDataMapper* OriginMapper;
-  vtkActor* OriginActor;
+  vtkNew<vtkSphereSource> OriginGeometry;
+  vtkNew<vtkPolyDataMapper> OriginMapper;
+  vtkNew<vtkActor> OriginActor;
   double Origin[3];
 
   // the normal
@@ -244,73 +255,74 @@ protected:
   double PreviousNormal[3];
 
   // the rotation transform
-  vtkTransform* Transform;
+  vtkNew<vtkTransform> Transform;
 
   // the X Vector
-  vtkSphereSource* V1Geometry;
-  vtkPolyDataMapper* V1Mapper;
-  vtkActor* V1Actor;
+  vtkNew<vtkSphereSource> V1Geometry;
+  vtkNew<vtkPolyDataMapper> V1Mapper;
+  vtkNew<vtkActor> V1Actor;
   double V1[3];
 
   // the Y Vector
-  vtkSphereSource* V2Geometry;
-  vtkPolyDataMapper* V2Mapper;
-  vtkActor* V2Actor;
+  vtkNew<vtkSphereSource> V2Geometry;
+  vtkNew<vtkPolyDataMapper> V2Mapper;
+  vtkNew<vtkActor> V2Actor;
   double V2[3];
 
   // The + normal cone
-  vtkConeSource* ConeSource;
-  vtkPolyDataMapper* ConeMapper;
-  vtkActor* ConeActor;
+  vtkNew<vtkConeSource> ConeSource;
+  vtkNew<vtkPolyDataMapper> ConeMapper;
+  vtkNew<vtkActor> ConeActor;
 
   // The + normal line
-  vtkLineSource* LineSource;
-  vtkPolyDataMapper* LineMapper;
-  vtkActor* LineActor;
+  vtkNew<vtkLineSource> LineSource;
+  vtkNew<vtkPolyDataMapper> LineMapper;
+  vtkNew<vtkActor> LineActor;
 
   // The - normal cone
-  vtkConeSource* ConeSource2;
-  vtkPolyDataMapper* ConeMapper2;
-  vtkActor* ConeActor2;
+  vtkNew<vtkConeSource> ConeSource2;
+  vtkNew<vtkPolyDataMapper> ConeMapper2;
+  vtkNew<vtkActor> ConeActor2;
 
   // The - normal line
-  vtkLineSource* LineSource2;
-  vtkPolyDataMapper* LineMapper2;
-  vtkActor* LineActor2;
+  vtkNew<vtkLineSource> LineSource2;
+  vtkNew<vtkPolyDataMapper> LineMapper2;
+  vtkNew<vtkActor> LineActor2;
 
   // The finite plane
-  vtkPolyData* PlanePolyData;
-  vtkPolyDataMapper* PlaneMapper;
-  vtkActor* PlaneActor;
+  vtkNew<vtkPolyData> PlanePolyData;
+  vtkNew<vtkPolyDataMapper> PlaneMapper;
+  vtkNew<vtkActor> PlaneActor;
 
   // Optional tubes are represented by extracting boundary edges
-  vtkFeatureEdges* Edges;
-  vtkTubeFilter* EdgesTuber;
-  vtkPolyDataMapper* EdgesMapper;
-  vtkActor* EdgesActor;
-  bool Tubing;    // control whether tubing is on
-  bool DrawPlane; // control whether plane is on
+  vtkNew<vtkFeatureEdges> Edges;
+  vtkNew<vtkTubeFilter> EdgesTuber;
+  vtkNew<vtkPolyDataMapper> EdgesMapper;
+  vtkNew<vtkActor> EdgesActor;
+  bool Tubing = true;            // control whether tubing is on
+  bool RectangularShape = false; // control whether rectangular shape is enforced
+  bool DrawPlane = true;         // control whether plane is on
 
   // Picking objects
-  vtkCellPicker* HandlePicker;
+  vtkNew<vtkCellPicker> HandlePicker;
   vtkActor* CurrentHandle;
 
   // Transform the planes (used for rotations)
-  vtkTransform* TransformRotation;
+  vtkNew<vtkTransform> TransformRotation;
 
   // Support GetBounds() method
-  vtkBox* BoundingBox;
+  vtkNew<vtkBox> BoundingBox;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
-  vtkProperty* OriginHandleProperty;
-  vtkProperty* V1HandleProperty;
-  vtkProperty* V2HandleProperty;
-  vtkProperty* SelectedHandleProperty;
-  vtkProperty* PlaneProperty;
-  vtkProperty* SelectedPlaneProperty;
-  vtkProperty* NormalProperty;
-  vtkProperty* SelectedNormalProperty;
+  vtkNew<vtkProperty> OriginHandleProperty;
+  vtkNew<vtkProperty> V1HandleProperty;
+  vtkNew<vtkProperty> V2HandleProperty;
+  vtkNew<vtkProperty> SelectedHandleProperty;
+  vtkNew<vtkProperty> PlaneProperty;
+  vtkNew<vtkProperty> SelectedPlaneProperty;
+  vtkNew<vtkProperty> NormalProperty;
+  vtkNew<vtkProperty> SelectedNormalProperty;
 
 private:
   vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&) = delete;

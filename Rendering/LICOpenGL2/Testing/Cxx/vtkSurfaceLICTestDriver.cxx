@@ -23,7 +23,7 @@
 #include "vtkSurfaceLICInterface.h"
 #include "vtkSurfaceLICMapper.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include <string>
 #include <vector>

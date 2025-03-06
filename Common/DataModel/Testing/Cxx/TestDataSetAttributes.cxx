@@ -16,7 +16,8 @@ int TestDataSetAttributes(int, char*[])
     const int EXTENT[] = { 0, EXT - 1, 0, EXT - 1, 0, EXT - 1 };
     constexpr int GHOST_INDICES[] = { 3, 15, 30, 40, -1 };
 
-    auto makeGhostArray = [&](unsigned char ghostType) {
+    auto makeGhostArray = [&](unsigned char ghostType)
+    {
       vtkNew<vtkUnsignedCharArray> ghosts;
       ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
       ghosts->SetNumberOfValues(N);
@@ -30,7 +31,8 @@ int TestDataSetAttributes(int, char*[])
       return ghosts;
     };
 
-    auto makeFD = [&](unsigned char ghostType) {
+    auto makeFD = [&](unsigned char ghostType)
+    {
       vtkNew<vtkDataSetAttributes> fd;
       fd->AddArray(makeGhostArray(ghostType));
       return fd;
@@ -44,7 +46,8 @@ int TestDataSetAttributes(int, char*[])
     vtkNew<vtkDataSetAttributes> destPD, destCD;
 
     auto testCopyStructuredData = [&](vtkDataSetAttributes* from, vtkDataSetAttributes* to,
-                                    vtkDataSetAttributes* ref, unsigned char ghostType) {
+                                    vtkDataSetAttributes* ref, unsigned char ghostType)
+    {
       to->CopyAllocate(ref);
       // Copying multiple arrays sharing ghosts should have DUPLICATEPOINT or DUPLICATECELL
       // disappear from the output (bit is turned OFF by ref)

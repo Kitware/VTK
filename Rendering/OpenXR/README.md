@@ -63,6 +63,53 @@ VTK-build > cmake -DVTK_MODULE_ENABLE_VTK_RenderingOpenXR:STRING=YES -DOpenXR_IN
 VTK-build > cmake --build . --config "Release"
 ```
 
+## Controller Model Rendering
+
+OpenXR does not yet provide any api for rendering controller models in the same way that OpenVR does, though work towards that goal has been in progress for a long time.  Until that materializes, VTK provides a way to render glTF controller models by using the currently active interaction profile to index into a customizable lookup table of rendering assets.
+
+Out of the box, VTK does not come with any controller models for the `VTK::RenderingOpenXR` module to render, but a data archive containing models for a subset of the currently supported interaction profiles is available from [here](https://www.paraview.org/files/data/OpenXRControllerModels-0.1.tgz).  Those models are included by default in ParaView binary downloads, but can be extracted into any build or install tree, and VTK will automatically find and use them.
+
+Though some of the contents are omitted below for expository purposes, the structure of the default model archive is mostly as follows:
+
+```
+OpenXRControllerModels-<version>/
+OpenXRControllerModels-<version>/openxr_controllermodels.json
+OpenXRControllerModels-<version>/valve_index/
+OpenXRControllerModels-<version>/valve_index/left/
+OpenXRControllerModels-<version>/valve_index/left/scene.gltf
+OpenXRControllerModels-<version>/valve_index/right/
+OpenXRControllerModels-<version>/valve_index/right/scene.gltf
+OpenXRControllerModels-<version>/htc_vive/
+OpenXRControllerModels-<version>/htc_vive/scene.gltf
+```
+
+Models are also accompanied by a binary file containing geometry, a base color image, and a license file detailing model attribution and the terms under which the model is distributed.
+
+The contents of `openxr_controllermodels.json` looks like this:
+
+```
+[
+  {
+    "interaction_profile": "/interaction_profiles/htc/vive_controller",
+    "asset_paths": {
+      "left_controller": "htc_vive/scene.gltf",
+      "right_controller": "htc_vive/scene.gltf"
+    }
+  },
+  {
+    "interaction_profile": "/interaction_profiles/valve/index_controller",
+    "asset_paths": {
+      "left_controller": "valve_index/left/scene.gltf",
+      "right_controller": "valve_index/right/scene.gltf"
+    }
+  }
+]
+```
+
+Note it's just a json array of objects. Each object contains an interaction profile, which should match one of those referenced in the binding files found in `VTK/Rendering/OpenxR/` or `ParaView/Plugins/XRInterface/Plugin/`. Each object also contains a dictionary indicating relative path (from the root of the model archive) to glTF models for left and right controllers.
+
+By extracting this archive (or a sufficiently similar one) into your VTK or ParaView build or install tree, the `VTK::RenderingOpenXR` module will be able to render the supplied models in place of the default green pyramids. Note that downloaded ParaView binaries come with this default set of controller models already installed.
+
 ## Testing
 
 Minimum OpenXR examples are available in the [`Testing/Cxx`](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/Testing/Cxx) directory for testing.

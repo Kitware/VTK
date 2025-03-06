@@ -460,8 +460,9 @@ std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequenc
 
   // Defining a lambda function to compare two pairs. It will compare
   // two pairs using second field
-  Comparator compFunctor = [](const std::pair<std::string, int>& elem1,
-                             const std::pair<std::string, int>& elem2) {
+  Comparator compFunctor =
+    [](const std::pair<std::string, int>& elem1, const std::pair<std::string, int>& elem2)
+  {
     if (elem1.second == elem2.second)
     {
       return elem1.first.length() > elem2.first.length();

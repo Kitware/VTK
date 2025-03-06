@@ -4,7 +4,8 @@
 
 #include "vtkIOSSReaderInternal.h"
 
-#include "vtkCellAttribute.h" // For CellTypeInfo.
+#include "vtkCellAttribute.h"                    // For CellTypeInfo.
+#include "vtkUnstructuredGridFieldAnnotations.h" // For Annotations.
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -31,6 +32,10 @@ public:
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
     vtkIOSSCellGridReader* self);
 
+  std::vector<vtkSmartPointer<vtkCellGrid>> GetElementBlock(const std::string& blockName,
+    const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
+    vtkIOSSCellGridReader* self);
+
   std::vector<vtkSmartPointer<vtkCellGrid>> GetSideSet(const std::string& blockName,
     vtkIOSSReader::EntityType vtk_entity_type, const DatabaseHandle& handle, int timestep,
     vtkIOSSCellGridReader* self);
@@ -43,14 +48,19 @@ public:
     int shape_conn_size, int shape_order, vtkDGCell* dg);
 
   void GetNodalAttributes(vtkDataArraySelection* fieldSelection, vtkDataSetAttributes* arrayGroup,
-    vtkCellGrid* grid, vtkDGCell* meta, Ioss::GroupingEntity* group_entity, Ioss::Region* region,
-    const DatabaseHandle& handle, int timestep, bool read_ioss_ids,
+    vtkCellGrid* grid, vtkDGCell* meta, const Ioss::GroupingEntity* group_entity,
+    Ioss::Region* region, const DatabaseHandle& handle, int timestep, bool read_ioss_ids,
     const std::string& cache_key_suffix);
 
   void GetElementAttributes(vtkDataArraySelection* fieldSelection, vtkDataSetAttributes* arrayGroup,
-    vtkCellGrid* grid, vtkDGCell* meta, Ioss::GroupingEntity* group_entity, Ioss::Region* region,
-    const DatabaseHandle& handle, int timestep, bool read_ioss_ids,
+    vtkCellGrid* grid, vtkDGCell* meta, const Ioss::GroupingEntity* group_entity,
+    Ioss::Region* region, const DatabaseHandle& handle, int timestep, bool read_ioss_ids,
     const std::string& cache_key_suffix);
+
+  bool ApplyDisplacements(vtkCellGrid* grid, Ioss::Region* region,
+    const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep);
+
+  vtkNew<vtkUnstructuredGridFieldAnnotations> Annotations;
 };
 
 VTK_ABI_NAMESPACE_END

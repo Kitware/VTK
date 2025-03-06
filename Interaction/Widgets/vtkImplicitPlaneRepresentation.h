@@ -239,6 +239,7 @@ public:
    * vtkImplicitFunction, meaning that it can be used by a variety of filters
    * to perform clipping, cutting, and selection of data.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void GetPlane(vtkPlane* plane);
 
   /**
@@ -246,6 +247,7 @@ public:
    * the plane provided is copied into the internal instance of the class
    * cutting vtkPlane.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetPlane(vtkPlane* plane);
 
   /**

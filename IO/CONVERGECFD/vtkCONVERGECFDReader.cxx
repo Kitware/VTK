@@ -1295,9 +1295,8 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
 
   // Sort files and times by time
   std::sort(timesAndFiles.begin(), timesAndFiles.end(),
-    [](const std::pair<double, std::string>& left, const std::pair<double, std::string>& right) {
-      return left.first < right.first;
-    });
+    [](const std::pair<double, std::string>& left, const std::pair<double, std::string>& right)
+    { return left.first < right.first; });
 
   std::vector<double> times;
   // Reset the FileNames vector in chronological order

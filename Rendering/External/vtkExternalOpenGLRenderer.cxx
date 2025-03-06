@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExternalOpenGLRenderer.h"
 
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"

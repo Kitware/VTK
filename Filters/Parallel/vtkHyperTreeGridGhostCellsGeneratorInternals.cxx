@@ -3,9 +3,47 @@
 
 #include "vtkHyperTreeGridGhostCellsGeneratorInternals.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkCellData.h"
+#include "vtkCommunicator.h"
+#include "vtkCompositeArray.h"
+#include "vtkDataArray.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkMath.h"
+#include "vtkMultiProcessController.h"
+#include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
+#include "vtkUnsignedCharArray.h"
+
+#include <vector>
+
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
+
+using CellDataArray = vtkHyperTreeGridGhostCellsGeneratorInternals::CellDataArray;
+using CellDataAttributes = vtkHyperTreeGridGhostCellsGeneratorInternals::CellDataAttributes;
+
+/**
+ * build the output celldata with composite array for each input cell data
+ */
+struct AddIndexedArrayWorker
+{
+  template <typename ArrayType>
+  void operator()(ArrayType* inputArray, CellDataArray& cdHandler, vtkCellData* outputCD) const
+  {
+    using ValueType = vtk::GetAPIType<ArrayType>;
+    std::vector<vtkDataArray*> arrayList = { cdHandler.InternalArray, cdHandler.GhostCDBuffer };
+
+    vtkSmartPointer<vtkCompositeArray<ValueType>> compositeArr =
+      vtk::ConcatenateDataArrays<ValueType>(arrayList);
+    compositeArr->SetName(inputArray->GetName());
+    cdHandler.GhostCDBuffer->UnRegister(inputArray); // transfer ownership to composite
+
+    // Replace existing array
+    outputCD->AddArray(compositeArr);
+  }
+};
 
 /**
  * Probe for the given tag.
@@ -155,18 +193,59 @@ const int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
 //------------------------------------------------------------------------------
 vtkHyperTreeGridGhostCellsGeneratorInternals::vtkHyperTreeGridGhostCellsGeneratorInternals(
   vtkHyperTreeGridGhostCellsGenerator* self, vtkMultiProcessController* controller,
-  vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG, vtkBitArray* outputMask,
-  vtkIdType totalVertices)
+  vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG)
   : Self(self)
   , Controller(controller)
   , InputHTG(inputHTG)
   , OutputHTG(outputHTG)
-  , OutputMask(outputMask)
-  , NumberOfVertices(totalVertices)
 {
   unsigned int cellDims[3];
   this->InputHTG->GetCellDims(cellDims);
   this->HyperTreesMapToProcesses.resize(cellDims[0] * cellDims[1] * cellDims[2]);
+  this->NumberOfVertices = inputHTG->GetNumberOfElements(vtkHyperTreeGrid::CELL);
+  this->InitialNumberOfVertices = this->NumberOfVertices;
+
+  if (inputHTG->HasMask())
+  {
+    this->OutputMask.TakeReference(vtkBitArray::New());
+    this->OutputMask->DeepCopy(inputHTG->GetMask());
+  }
+  outputHTG->ShallowCopy(inputHTG);
+  outputHTG->SetMask(nullptr); // externally handled
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridGhostCellsGeneratorInternals::InitializeCellData()
+{
+  int nbArrays = this->InputHTG->GetCellData()->GetNumberOfArrays();
+  auto nbCells = this->InputHTG->GetNumberOfCells();
+  // estimate boundary size from # cells:
+  // in 2D: root square of nb cells
+  // in 3D: pow (2/3)
+  vtkIdType alloc =
+    std::pow(nbCells, (this->InputHTG->GetDimension() - 1.0) / this->InputHTG->GetDimension());
+
+  for (int iA = 0; iA < nbArrays; iA++)
+  {
+    auto da = vtkDataArray::SafeDownCast(this->InputHTG->GetCellData()->GetAbstractArray(iA));
+    if (!da || !da->GetName()) // Name are required here
+    {
+      continue;
+    }
+    if (this->ImplicitCD.count(da->GetName()) == 0)
+    {
+      CellDataArray cdHandler;
+      cdHandler.InternalArray = da;
+      cdHandler.GhostCDBuffer = da->NewInstance();
+      cdHandler.GhostCDBuffer->SetNumberOfComponents(da->GetNumberOfComponents());
+      cdHandler.GhostCDBuffer->SetNumberOfTuples(0);
+      cdHandler.GhostCDBuffer->Allocate(alloc);
+      this->ImplicitCD.emplace(da->GetName(), cdHandler);
+    }
+  }
+
+  // Also set the structure to the output cell data for later use
+  this->OutputHTG->GetCellData()->CopyStructure(this->InputHTG->GetCellData());
 }
 
 //------------------------------------------------------------------------------
@@ -207,6 +286,7 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::DetermineNeighbors()
   vtkHyperTreeGrid::vtkHyperTreeGridIterator inputIterator;
   vtkIdType inTreeIndex = 0;
   unsigned int i, j, k = 0;
+  int thisProcessId = this->Controller->GetLocalProcessId();
   this->InputHTG->InitializeTreeIterator(inputIterator);
   switch (this->InputHTG->GetDimension())
   {
@@ -221,20 +301,20 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::DetermineNeighbors()
         {
           for (int ri = ((i > 0) ? -1 : 0); ri < (((i + 1) < cellDims[0]) ? 2 : 1); ++ri)
           {
-            vtkIdType neighbor = -1;
-            this->InputHTG->GetIndexFromLevelZeroCoordinates(neighbor, i + ri, j + rj, 0);
-            int id = this->HyperTreesMapToProcesses[neighbor];
-            if (id >= 0 && id != this->Controller->GetLocalProcessId())
+            vtkIdType neighTreeId = -1;
+            this->InputHTG->GetIndexFromLevelZeroCoordinates(neighTreeId, i + ri, j + rj, 0);
+            int neighProcessId = this->HyperTreesMapToProcesses[neighTreeId];
+            if (neighProcessId >= 0 && neighProcessId != thisProcessId)
             {
               // Build a neighborhood mask to extract the interface in
               // ExtractInterface later on.
               // Same encoding as vtkHyperTreeGrid::GetChildMask
-              this->SendBuffer[id][inTreeIndex].mask |= 1
+              this->SendBuffer[neighProcessId][inTreeIndex].mask |= 1
                 << (8 * sizeof(int) - 1 - (ri + 1 + (rj + 1) * 3));
               // Not receiving anything from this guy since we will send him stuff
-              this->RecvBuffer[id][neighbor].count = 0;
+              this->RecvBuffer[neighProcessId][neighTreeId].count = 0;
               // Process not treated yet, yielding the flag
-              this->Flags[id] = NOT_TREATED;
+              this->Flags[neighProcessId] = NOT_TREATED;
             }
           }
         }
@@ -257,7 +337,7 @@ void vtkHyperTreeGridGhostCellsGeneratorInternals::DetermineNeighbors()
               vtkIdType neighbor = -1;
               this->InputHTG->GetIndexFromLevelZeroCoordinates(neighbor, i + ri, j + rj, k + rk);
               int id = this->HyperTreesMapToProcesses[neighbor];
-              if (id >= 0 && id != this->Controller->GetLocalProcessId())
+              if (id >= 0 && id != thisProcessId)
               {
                 // Build a neighborhood mask to extract the interface in
                 // ExtractInterface later on.
@@ -313,7 +393,6 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeSizes()
               ::ExtractInterface(inCursor, sendTreeBuffer.isParent, sendTreeBuffer.isMasked,
                 sendTreeBuffer.indices, this->InputHTG, sendTreeBuffer.mask, sendTreeBuffer.count);
             }
-            // Telling my neighbors how much data I will send later
             counts[cpt++] = sendTreeBuffer.count;
           }
         }
@@ -568,7 +647,7 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
         auto&& recvTreeMap = targetRecvBuffer->second;
         if (this->Flags[process] == INITIALIZE_TREE)
         {
-          vtkCellData* cellData = OutputHTG->GetCellData();
+          vtkCellData* cellData = this->OutputHTG->GetCellData();
 
           // Compute total length to be received
           unsigned long totalLength = 0;
@@ -580,20 +659,24 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
 
           Controller->Receive(buf.data(), totalLength, process, HTGGCG_DATA2_EXCHANGE_TAG);
 
-          // Fill output arrays using data received
+          // Fill ImplicitCD using data received
           vtkIdType readOffset = 0;
           for (auto&& recvTreeBufferPair : recvTreeMap)
           {
             auto&& recvTreeBuffer = recvTreeBufferPair.second;
             for (int arrayId = 0; arrayId < cellData->GetNumberOfArrays(); ++arrayId)
             {
-              vtkDataArray* outArray = cellData->GetArray(arrayId);
+              std::string arrName = cellData->GetArrayName(arrayId);
+              vtkDataArray* outArray = this->ImplicitCD.at(arrName).GhostCDBuffer;
+              assert(outArray);
+              vtkIdType offset = this->ImplicitCD.at(arrName).InternalArray->GetNumberOfTuples();
               for (vtkIdType tupleId = 0; tupleId < recvTreeBuffer.count; ++tupleId)
               {
                 for (int compIdx = 0; compIdx < outArray->GetNumberOfComponents(); compIdx++)
                 {
-                  outArray->InsertComponent(
-                    recvTreeBuffer.indices[tupleId], compIdx, buf[readOffset++]);
+                  vtkIdType implicitComponent = recvTreeBuffer.indices[tupleId] - offset;
+                  assert(implicitComponent >= 0);
+                  outArray->InsertComponent(implicitComponent, compIdx, buf[readOffset++]);
                 }
               }
             }
@@ -605,29 +688,54 @@ int vtkHyperTreeGridGhostCellsGeneratorInternals::ExchangeCellData()
       }
     }
   }
+
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridGhostCellsGeneratorInternals::AppendGhostArray(vtkIdType nonGhostVertices)
+void vtkHyperTreeGridGhostCellsGeneratorInternals::FinalizeCellData()
 {
+  using SupportedTypes = vtkTypeList::Append<vtkArrayDispatch::AllTypes, std::string>::Result;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<SupportedTypes>;
+
+  AddIndexedArrayWorker worker;
+  vtkCellData* outputCD = this->OutputHTG->GetCellData();
+
+  int nbArrays = outputCD->GetNumberOfArrays();
+  for (int iA = 0; iA < nbArrays; iA++)
+  {
+    auto da = vtkDataArray::SafeDownCast(outputCD->GetAbstractArray(iA));
+    if (!da)
+    {
+      continue;
+    }
+
+    if (!Dispatcher::Execute(da, worker, this->ImplicitCD[da->GetName()], outputCD))
+    {
+      worker(da, this->ImplicitCD[da->GetName()], outputCD); // fallback
+    }
+  }
+
+  // Adding the ghost array
   vtkDebugWithObjectMacro(this->Self,
-    "Adding ghost array: ghost from id " << nonGhostVertices << " to " << this->NumberOfVertices);
+    "Adding ghost array: ghost from id " << this->InitialNumberOfVertices << " to "
+                                         << this->NumberOfVertices);
 
   vtkNew<vtkUnsignedCharArray> scalars;
   scalars->SetNumberOfComponents(1);
   scalars->SetName(vtkDataSetAttributes::GhostArrayName());
   scalars->SetNumberOfTuples(this->NumberOfVertices);
 
-  for (vtkIdType ii = 0; ii < nonGhostVertices; ++ii)
+  for (vtkIdType ii = 0; ii < this->InitialNumberOfVertices; ++ii)
   {
     scalars->InsertValue(ii, 0);
   }
-  for (vtkIdType ii = nonGhostVertices; ii < this->NumberOfVertices; ++ii)
+  for (vtkIdType ii = this->InitialNumberOfVertices; ii < this->NumberOfVertices; ++ii)
   {
     scalars->InsertValue(ii, 1);
   }
   this->OutputHTG->GetCellData()->AddArray(scalars);
+  this->OutputHTG->SetMask(this->OutputMask);
 }
 
 VTK_ABI_NAMESPACE_END

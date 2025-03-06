@@ -4,13 +4,14 @@
  * @class   vtkWebAssemblyRenderWindowInteractor
  * @brief   Handles user interaction in web browsers.
  *
- * The class is implemented using SDL2 and emscripten APIs.
- * The SDL2 library is an implementation detail and may be changed
- * in the future to use WASI or other APIs.
+ * The interactor intercepts user interaction events from a HTML page in a web browser
+ * and sends them to VTK using the Emscripten HTML5 C API.
  *
  * Contrary to the documentation of `Start`, this interactor's event loop
- * does not block in order to return control to the browser so that it can render graphics, UI, etc.
- * See https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
+ * can be configured to not block in order to return control to the browser so that it can render
+ * graphics, UI, etc. See
+ * https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop See
+ * vtkRenderWindowInteractor::InteractorManagesTheEventLoop
  */
 
 #ifndef vtkWebAssemblyRenderWindowInteractor_h
@@ -23,11 +24,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
-#include <deque>                  // for ivar
-#include <map>                    // for ivar
+#include <memory>                 // for shared_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkEmscriptenEventHandler;
 
 class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWebAssemblyRenderWindowInteractor
   : public vtkRenderWindowInteractor
@@ -68,8 +67,8 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasId);
-  vtkSetStringMacro(CanvasId);
+  vtkGetStringMacro(CanvasSelector);
+  virtual void SetCanvasSelector(const char* value);
 
   /**
    * When true (default), the style of the parent element of canvas will be adjusted
@@ -78,12 +77,6 @@ public:
   vtkGetMacro(ExpandCanvasToContainer, bool);
   vtkSetMacro(ExpandCanvasToContainer, bool);
   vtkBooleanMacro(ExpandCanvasToContainer, bool);
-
-  struct TimerBridgeData
-  {
-    std::shared_ptr<vtkEmscriptenEventHandler> Handler;
-    int TimerId;
-  };
 
   /**
    * When true (default), a JavaScript `ResizeObserver` is installed on the parent element of
@@ -98,18 +91,20 @@ protected:
   vtkWebAssemblyRenderWindowInteractor();
   ~vtkWebAssemblyRenderWindowInteractor() override;
 
-  using EventType = int;
-  using EventData = const void*;
-  struct Event
-  {
-    EventType Type;
-    EventData Data;
-  };
-  std::deque<Event> Events;
+  ///@{
+  /**
+   * Register/UnRegister callback functions for all recognized events on the document.
+   * This function calls `emscripten_set_xyz_callback_on_thread` with the `CanvasSelector` as the
+   * target and the thread parameter equal to EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD.
+   *
+   * Basically, the pumping process works like this, events are received on the main UI thread into
+   * a queue. The event is then processed during the next `requestAnimationFrame` call.
+   */
+  void RegisterUICallbacks();
+  void UnRegisterUICallbacks();
+  ///@}
 
-  std::map<int, TimerBridgeData> Timers;
-
-  bool ProcessEvent(Event* event);
+  void ProcessEvent(int type, const std::uint8_t* event);
 
   ///@{
   /**
@@ -122,14 +117,12 @@ protected:
   int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
-  std::map<int, int> VTKToPlatformTimerMap;
-
   /**
    * This will start up the event loop without blocking the main thread.
    */
   void StartEventLoop() override;
 
-  char* CanvasId = nullptr;
+  char* CanvasSelector = nullptr;
   bool ExpandCanvasToContainer;
   bool InstallHTMLResizeObserver;
 
@@ -137,13 +130,9 @@ private:
   vtkWebAssemblyRenderWindowInteractor(const vtkWebAssemblyRenderWindowInteractor&) = delete;
   void operator=(const vtkWebAssemblyRenderWindowInteractor&) = delete;
 
-  bool StartedMessageLoop = false;
-  bool ResizeObserverInstalled = false;
-
-  friend class vtkEmscriptenEventHandler;
-  std::shared_ptr<vtkEmscriptenEventHandler> Handler;
-
-  int RepeatCounter = 0;
+  friend class vtkInternals;
+  class vtkInternals;
+  std::shared_ptr<vtkInternals> Internals; // the pointer is also shared with timer's callback data.
 };
 
 extern "C"

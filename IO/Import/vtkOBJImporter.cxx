@@ -77,7 +77,15 @@ void vtkOBJImporter::ReadData()
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
-    bindTexturedPolydataToRenderWindow(this->RenderWindow, this->Renderer, Impl);
+    if (!bindTexturedPolydataToRenderWindow(
+          this->RenderWindow, this->Renderer, Impl, this->ActorCollection))
+    {
+      this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+    }
+  }
+  else
+  {
+    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
   }
 }
 
@@ -1118,7 +1126,15 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               }
               // copy the vertex into the new structure and update
               // the vertex index in the polys structure (pts is a pointer into it)
-              tmpCell->SetId(j, new_points->InsertNextPoint(points->GetPoint(pts[j])));
+              if (pts[j] < points->GetNumberOfPoints())
+              {
+                tmpCell->SetId(j, new_points->InsertNextPoint(points->GetPoint(pts[j])));
+              }
+              else
+              {
+                vtkErrorMacro(<< "Error reading point with index: " << pts[j]);
+                everything_ok = false;
+              }
             }
             polys->ReplaceCellAtId(i, tmpCell);
             // copy this poly (pointing at the new points) into the new polys list

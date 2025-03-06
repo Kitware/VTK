@@ -38,6 +38,7 @@ class vtkHexahedron;
 class vtkPyramid;
 class vtkWedge;
 class vtkConvexPointSet;
+class vtkUnstructuredGrid;
 
 class VTKIOGEOMETRY_EXPORT vtkFLUENTReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -195,9 +196,11 @@ private:
    * that only contains faces without cells.
    * It supports triangles and quads.
    *
-   * @param output Multiblock to be filled with faces information
+   * @param blockUGs per-bloc unstructured grid objects
+   * @param zoneIDToBlockIdx Lookup map used to convert zone ID to block index.
    */
-  void FillMultiBlockFromFaces(vtkMultiBlockDataSet* output);
+  void FillMultiBlockFromFaces(std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
+    const std::vector<size_t>& zoneIDToBlockIdx);
 
   vtkFLUENTReader(const vtkFLUENTReader&) = delete;
   void operator=(const vtkFLUENTReader&) = delete;

@@ -33,6 +33,7 @@ smooth in vec3 primDistanceGSOutput;
 #endif
 
 flat in int cellIdVSOutput;
+flat in int instanceIdVSOutput;
 
 uniform sampler2D color_map;
 uniform vec3 color_range;
@@ -67,6 +68,18 @@ uniform float power_specular;
 uniform float power_specular_bf; // backface
 uniform int enable_specular;
 
+// Picking
+/// Picking pass that the renderer is currently in.
+uniform int picking_pass;
+/// This corresponds to index of a value in vtkCellGrid::GetCellTypes() for the cell being rendered.
+uniform int celltype_idx;
+/// x: Index of a vtkDGCell::Source spec object. y: Index of the offset into connectivity array.
+/// A spec object corresponds to elements of `std::vector<vtkDGCell::Source>`.
+/// For side-specs the index starts from 1. 0 is reserved for cell-spec object.
+uniform int sidespec_idx;
+/// Index for actor/composite/process pass
+uniform vec3 mapper_idx_components;
+
 // debugging
 uniform int color_override_type;
 
@@ -83,6 +96,18 @@ float amplify(float d, float scale, float offset)
   return d;
 }}
 #endif
+
+/// Split the 32-bit integer into 4 individual 8-bit integers.
+/// The LSBs are stored in 'red' component and the MSBs are output in 'alpha' component.
+vec4 split_integer_components(int value)
+{{
+  vec4 result;
+  result.r = float(value % 256)/255.0f;
+  result.g = float((value / 256) % 256)/255.0f;
+  result.b = float((value / 65536) % 256)/255.0f;
+  result.a = float(value) / 255.0;
+  return result;
+}}
 
 void main()
 {{
@@ -271,4 +296,45 @@ void main()
 #endif
 #endif
   //VTK::DepthPeeling::Impl
+  switch (picking_pass)
+  {{
+    case -1:
+      break;
+    case 0: // ACTOR_PASS
+    case 1: // COMPOSITE_INDEX_PASS
+    case 4: // PROCESS_PASS
+      gl_FragData[0].rgb = mapper_idx_components;
+      gl_FragData[0].a = 1.0;
+      break;
+    case 2: // POINT_ID_LOW24
+    case 3: // POINT_ID_HIGH24
+    case 5: // CELL_ID_LOW24
+    case 6: // CELL_ID_HIGH24
+      break;
+    case 7: // CELLGRID_CELL_TYPE_INDEX_PASS
+      gl_FragData[0].rgb = split_integer_components(celltype_idx).rgb;
+      gl_FragData[0].a = 1.0;
+      break;
+    case 8: // CELLGRID_SOURCE_INDEX_PASS
+      if ({DrawingCellsNotSides})
+      {{
+        gl_FragData[0].rgb = vec3(0.0);
+      }}
+      else
+      {{
+        gl_FragData[0].rgb = split_integer_components(sidespec_idx).rgb;
+      }}
+      gl_FragData[0].a = 1.0;
+      break;
+    case 9: // CELLGRID_TUPLE_ID_LOW24
+      gl_FragData[0].rgb = split_integer_components(instanceIdVSOutput).rgb;
+      gl_FragData[0].a = 1.0;
+      break;
+    case 10: // CELLGRID_TUPLE_ID_HIGH24
+      gl_FragData[0].r = split_integer_components(instanceIdVSOutput).a;
+      gl_FragData[0].gba = vec3(0.0, 0.0, 1.0);
+      break;
+    default:
+      break;
+  }}
 }}

@@ -35,9 +35,9 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkImageSSIMThreadData;
 class vtkImageSSIMSMPThreadLocal;
-
 class VTKIMAGINGCORE_EXPORT vtkImageSSIM : public vtkThreadedImageAlgorithm
 {
 public:
@@ -66,10 +66,22 @@ public:
   void SetInputToRGB();
 
   /**
+   * Assume the input is in RGBA format, using integers from 0 to 255.
+   * This will set appropriate constants c1 and c2 for each input channel
+   */
+  void SetInputToRGBA();
+
+  /**
    * Assume the input is in grayscale, using integers from 0 to 255.
    * This will set appropriate constants c1 and c2
    */
   void SetInputToGrayscale();
+
+  /**
+   * The c1 and c2 constant will be computed automatically based on the range of each individual
+   * components Please note the resulting SSIM can be NaN in specific cases.
+   */
+  void SetInputToAuto();
 
   /**
    * Setup the range of each components of the input scalars. If the range has not been set, or if
@@ -99,6 +111,14 @@ public:
   vtkGetMacro(PatchRadius, double);
   ///@}
 
+  /**
+   * Compute error metrics of a provided scalars.
+   * Error is defined as the maximum of all individual values within the used method.
+   * Errors are computed using Minkownski and Wasserstein distances.
+   * Method used are euclidian (tight) or manhattan / earth's mover (loose)
+   */
+  static void ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose);
+
 protected:
   vtkImageSSIM();
   ~vtkImageSSIM() override = default;
@@ -117,7 +137,9 @@ protected:
     vtkInformationVector* outputVector) override;
 
 private:
+  void SetInputToAdditiveChar(unsigned int size);
   void GrowExtent(int* uExt, int* wholeExtent);
+
   int PatchRadius = 6;
   bool ClampNegativeValues = false;
 
@@ -125,10 +147,12 @@ private:
   {
     MODE_LAB,
     MODE_RGB,
+    MODE_RGBA,
     MODE_GRAYSCALE,
-    MODE_NONE
+    MODE_AUTO,
+    MODE_INPUT_RANGE
   };
-  int Mode = MODE_NONE;
+  int Mode = MODE_AUTO;
 
   /**
    * Regularization constants. They are set depending on the range of the input data.

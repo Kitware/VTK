@@ -116,10 +116,12 @@ gl_FragData[0] = vec4(sin(tcoordVCVSOutput.xy * time * 0.01), 0.0, 1.0);
     vtkNew<vtkCallbackCommand> timerCmd;
     timerCmd->SetClientData(timerData);
     timerCmd->SetCallback(::TestUserShader2D_OnTimerCallback);
-    timerCmd->SetClientDataDeleteCallback([](void* dPtr) {
-      auto tdPtr = static_cast<TestUserShader2D_TimerData*>(dPtr);
-      delete tdPtr;
-    });
+    timerCmd->SetClientDataDeleteCallback(
+      [](void* dPtr)
+      {
+        auto tdPtr = static_cast<TestUserShader2D_TimerData*>(dPtr);
+        delete tdPtr;
+      });
     iren->AddObserver(vtkCommand::TimerEvent, timerCmd);
     iren->Start();
   }

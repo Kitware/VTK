@@ -96,6 +96,40 @@ public:
     double** spheres, vtkIdType numSpheres, double sphere[4], vtkIdType hints[2]);
   ///@}
 
+  ///@{
+  /**
+   * Create a bounding sphere from a set of points. The set of points is
+   * defined by an array of doubles or an array of floats, in the order of x-y-z
+   * (which repeats for each point). The output sphere consists of a
+   * center (x-y-z) and a radius.
+   */
+  static void ComputeBoundingSphere(double* pts, vtkIdType numPts, double sphere[4])
+  {
+    return vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
+  }
+  static void ComputeBoundingSphere(float* pts, vtkIdType numPts, float sphere[4])
+  {
+    return vtkSphere::ComputeBoundingSphere(pts, numPts, sphere, nullptr);
+  }
+  ///@}
+
+  ///@{
+  /**
+   * Create a bounding sphere from a set of spheres. The set of input spheres
+   * is defined by an array of pointers to spheres. Each sphere is defined by
+   * the 4-tuple: center(x-y-z)+radius. The output sphere consists of a
+   * center (x-y-z) and a radius.
+   */
+  static void ComputeBoundingSphere(float** spheres, vtkIdType numSpheres, float sphere[4])
+  {
+    return vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
+  }
+  static void ComputeBoundingSphere(double** spheres, vtkIdType numSpheres, double sphere[4])
+  {
+    return vtkSphere::ComputeBoundingSphere(spheres, numSpheres, sphere, nullptr);
+  }
+  ///@}
+
 protected:
   vtkSphere();
   ~vtkSphere() override = default;

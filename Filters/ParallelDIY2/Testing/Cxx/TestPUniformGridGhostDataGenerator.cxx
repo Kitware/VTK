@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkXMLPMultiBlockDataWriter.h"
 
-//#define DEBUG_ON
+// #define DEBUG_ON
 
 namespace
 {

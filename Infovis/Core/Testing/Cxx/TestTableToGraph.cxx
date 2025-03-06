@@ -38,7 +38,7 @@
 
 // Uncomment the following line to show Qt tables of
 // the vertex and edge tables.
-//#define SHOW_QT_DATA_TABLES 1
+// #define SHOW_QT_DATA_TABLES 1
 
 #ifdef SHOW_QT_DATA_TABLES
 #include "vtkQtTableView.h"

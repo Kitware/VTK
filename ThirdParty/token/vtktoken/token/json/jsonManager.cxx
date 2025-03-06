@@ -83,7 +83,7 @@ void from_json(const json& j, std::shared_ptr<Manager>& m)
         m->addTranslation(oldHash, newHash);
       }
     }
-    auto sit = j.find("sets");
+    sit = j.find("sets");
     if (sit != j.end())
     {
       for (const auto& element : sit->items())

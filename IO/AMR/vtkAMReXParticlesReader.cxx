@@ -35,8 +35,8 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // returns empty string on failure.
-std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessController* controller,
-  vtkAMReXParticlesReader* self, bool errorOnFailedToOpenFile = true)
+std::string ReadAndBroadCastFile(
+  const std::string& filename, vtkMultiProcessController* controller, vtkAMReXParticlesReader* self)
 {
   std::string contents;
   if (controller == nullptr || controller->GetLocalProcessId() == 0)
@@ -62,7 +62,7 @@ std::string ReadAndBroadCastFile(const std::string& filename, vtkMultiProcessCon
       delete[] data;
       data = nullptr;
     }
-    else if (errorOnFailedToOpenFile)
+    else
     {
       vtkErrorWithObjectMacro(self, "Failed to open file '" << filename << "'.");
     }
@@ -791,25 +791,21 @@ bool vtkAMReXParticlesReader::ReadMetaData()
 
   // read the top level header to get time information
   const std::string gridHdrFileName = this->PlotFileName + "/Header";
-  const auto gridHeaderData = ::ReadAndBroadCastFile(
-    gridHdrFileName, this->Controller, this, /*errorOnFailedToOpenFile=*/false);
-  if (!gridHeaderData.empty())
+  const auto gridHeaderData = ::ReadAndBroadCastFile(gridHdrFileName, this->Controller, this);
+  if (gridHeaderData.empty())
   {
-    auto gridHeaderPtr = new vtkAMReXGridHeader();
-    if (!gridHeaderPtr->Parse(gridHeaderData))
-    {
-      delete gridHeaderPtr;
-      return false;
-    }
-    // Add time information.
-    this->dataTimeStep = gridHeaderPtr->time;
+    return false;
+  }
+
+  auto gridHeaderPtr = new vtkAMReXGridHeader();
+  if (!gridHeaderPtr->Parse(gridHeaderData))
+  {
     delete gridHeaderPtr;
+    return false;
   }
-  else
-  {
-    // there is no top level header.
-    this->dataTimeStep = 0;
-  }
+  // Add time information.
+  this->dataTimeStep = gridHeaderPtr->time;
+  delete gridHeaderPtr;
 
   this->Header = headerPtr;
   this->Header->PopulatePointArraySelection(this->PointDataArraySelection);
@@ -831,8 +827,7 @@ bool vtkAMReXParticlesReader::ReadLevel(
   const int quotient = num_grids / num_pieces;
   const int remainder = num_grids % num_pieces;
 
-  const int start_grid_idx =
-    (piece_idx * quotient) + ((piece_idx < remainder) ? piece_idx : remainder);
+  const int start_grid_idx = (piece_idx * quotient) + ((piece_idx < remainder) ? 1 : 0);
   const int grids_count = quotient + ((piece_idx < remainder) ? 1 : 0);
 
   levelDS->SetNumberOfPieces(num_grids);

@@ -2,8 +2,6 @@ NAME
   VTK::IOEnSight
 LIBRARY_NAME
   vtkIOEnSight
-KIT
-  VTK::IO
 GROUPS
   StandAlone
 SPDX_LICENSE_IDENTIFIER
@@ -16,7 +14,15 @@ PRIVATE_DEPENDS
   VTK::FiltersGeneral
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::FiltersTemporal
   VTK::fmt
+  VTK::ParallelCore
+OPTIONAL_DEPENDS
+  VTK::ParallelMPI
 TEST_DEPENDS
+  VTK::FiltersGeometry
   VTK::RenderingOpenGL2
+  VTK::RenderingParallel
   VTK::TestingRendering
+TEST_OPTIONAL_DEPENDS
+  VTK::ParallelMPI

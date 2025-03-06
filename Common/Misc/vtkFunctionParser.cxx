@@ -2404,7 +2404,7 @@ bool vtkFunctionParser::GetVectorVariableNeeded(const char* inVariableName)
   else
   {
     vtkErrorMacro(
-      "GetVectorVariableNeeded: scalar variable name " << variableName << " does not exist");
+      "GetVectorVariableNeeded: scalar variable name " << inVariableName << " does not exist");
     return false;
   }
 }

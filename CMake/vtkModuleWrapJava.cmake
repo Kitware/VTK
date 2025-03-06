@@ -192,7 +192,7 @@ $<$<BOOL:${_vtk_java_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_java_hierarchy_
     set(_vtk_java_java_source_output
       "${_vtk_java_JAVA_OUTPUT}/${_vtk_java_basename}.java")
     set(_vtk_java_parse_depfile
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java.dir/${_vtk_java_basename}.java.d")
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_java_library_name}Java/${_vtk_java_basename}.java.d")
     list(APPEND _vtk_java_java_sources
       "${_vtk_java_java_source_output}")
 
@@ -270,10 +270,37 @@ function (_vtk_module_wrap_java_library name)
     list(APPEND _vtk_java_library_java_sources
       ${_vtk_java_java_sources})
 
+    set_source_files_properties(${_vtk_java_java_sources} PROPERTIES GENERATED TRUE)
+
     _vtk_module_get_module_property("${_vtk_java_module}"
       PROPERTY  "depends"
       VARIABLE  _vtk_java_module_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "private_depends"
+      VARIABLE  _vtk_java_module_private_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "optional_depends"
+      VARIABLE  _vtk_java_module_optional_depends)
+    _vtk_module_get_module_property("${_vtk_java_module}"
+      PROPERTY  "implements"
+      VARIABLE  _vtk_java_module_implements)
+
+    list(APPEND _vtk_java_module_depends
+      ${_vtk_java_module_private_depends}
+      ${_vtk_java_module_implements})
+
+    foreach (_vtk_java_optional_depend IN LISTS _vtk_java_module_optional_depends)
+      if (TARGET "${_vtk_java_optional_depend}")
+        list(APPEND _vtk_java_module_depends "${_vtk_java_optional_depend}")
+      endif ()
+    endforeach ()
+
     foreach (_vtk_java_module_depend IN LISTS _vtk_java_module_depends)
+      # Remove self dependency, this is needed for self-implementing modules
+      if (_vtk_java_module_depend STREQUAL _vtk_java_module)
+        continue()
+      endif()
+
       _vtk_module_get_module_property("${_vtk_java_module_depend}"
         PROPERTY  "exclude_wrap"
         VARIABLE  _vtk_java_module_depend_exclude_wrap)
@@ -328,11 +355,6 @@ function (_vtk_module_wrap_java_library name)
     set_property(TARGET "${_vtk_java_target}"
       PROPERTY
         PREFIX "")
-  endif ()
-  if (APPLE)
-    set_property(TARGET "${_vtk_java_target}"
-      PROPERTY
-        SUFFIX ".jnilib")
   endif ()
   set_property(TARGET "${_vtk_java_target}"
     PROPERTY

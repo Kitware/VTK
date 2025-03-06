@@ -163,32 +163,34 @@ vtkPartitioningStrategy::PartitionInformation CutsToPartition(
   vtkSMPThreadLocalObject<vtkGenericCell> gcellLO;
   vtkSMPThreadLocal<std::vector<double>> weightsLO;
   const int maxCellSize = dataset->GetMaxCellSize();
-  vtkSMPTools::For(0, numCells, [&](vtkIdType first, vtkIdType last) {
-    auto gcell = gcellLO.Local();
-    auto weights = weightsLO.Local();
-    weights.resize(static_cast<size_t>(maxCellSize));
-    for (vtkIdType cellId = first; cellId < last; ++cellId)
+  vtkSMPTools::For(0, numCells,
+    [&](vtkIdType first, vtkIdType last)
     {
-      if (ghostCells != nullptr &&
-        ((ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0))
+      auto gcell = gcellLO.Local();
+      auto weights = weightsLO.Local();
+      weights.resize(static_cast<size_t>(maxCellSize));
+      for (vtkIdType cellId = first; cellId < last; ++cellId)
       {
-        // skip ghost cells, they will not be extracted since they will be
-        // extracted on ranks where they are not marked as ghosts.
-        continue;
-      }
-      dataset->GetCell(cellId, gcell);
-      double cellBounds[6];
-      dataset->GetCellBounds(cellId, cellBounds);
-      for (int cutId = 0; cutId < static_cast<int>(kdnodes.size()); ++cutId)
-      {
-        if (kdnodes[cutId]->IntersectsCell(
-              gcell, /*useDataBounds*/ 0, /*cellRegion*/ -1, cellBounds))
+        if (ghostCells != nullptr &&
+          ((ghostCells->GetTypedComponent(cellId, 0) & vtkDataSetAttributes::DUPLICATECELL) != 0))
         {
-          cellRegions[cellId].emplace_back(cutId);
+          // skip ghost cells, they will not be extracted since they will be
+          // extracted on ranks where they are not marked as ghosts.
+          continue;
+        }
+        dataset->GetCell(cellId, gcell);
+        double cellBounds[6];
+        dataset->GetCellBounds(cellId, cellBounds);
+        for (int cutId = 0; cutId < static_cast<int>(kdnodes.size()); ++cutId)
+        {
+          if (kdnodes[cutId]->IntersectsCell(
+                gcell, /*useDataBounds*/ 0, /*cellRegion*/ -1, cellBounds))
+          {
+            cellRegions[cellId].emplace_back(cutId);
+          }
         }
       }
-    }
-  });
+    });
 
   vtkPartitioningStrategy::PartitionInformation res;
   ::PartitionDistributionWorklet worker(&res, dataset, &cuts, &cellRegions);

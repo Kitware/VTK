@@ -6,18 +6,18 @@
 
 #include "GLTFSampler.h"         // For Sampler
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkObjectBase.h"
-#include "vtkSetGet.h"       // For vtkBaseTypeMacro
+#include "vtkObject.h"
+#include "vtkSetGet.h"       // For vtkTypeMacro
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkTexture;
 
-class VTKIOGEOMETRY_EXPORT vtkGLTFTexture : public vtkObjectBase
+class VTKIOGEOMETRY_EXPORT vtkGLTFTexture : public vtkObject
 {
 public:
-  vtkBaseTypeMacro(vtkGLTFTexture, vtkObjectBase);
+  vtkTypeMacro(vtkGLTFTexture, vtkObject);
   static vtkGLTFTexture* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkSmartPointer<vtkImageData> Image;

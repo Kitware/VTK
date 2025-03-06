@@ -111,7 +111,7 @@ set(classes
   vtkSubPixelPositionEdgels
   vtkSubdivisionFilter
   vtkSynchronizeTimeFilter
-  vtkTableBasedClipCases
+
   vtkTableBasedClipDataSet
   vtkTableFFT
   vtkTableToPolyData
@@ -132,10 +132,15 @@ set(classes
   vtkWarpVector
   vtkYoungsMaterialInterface)
 
+set(private_classes
+  vtkTableBasedClipCases
+)
+
 set(templates
   vtkJoinTables.txx)
 
 vtk_module_add_module(VTK::FiltersGeneral
   CLASSES ${classes}
+  PRIVATE_CLASSES ${private_classes}
   TEMPLATES ${templates})
 vtk_add_test_mangling(VTK::FiltersGeneral)

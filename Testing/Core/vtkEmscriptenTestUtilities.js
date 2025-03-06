@@ -21,13 +21,13 @@ var vtkEmscriptenTestUtilities = {
   vtkPreloadDataFileIntoMemory: (hostPathFile) => {
     hostPathFile = UTF8ToString(hostPathFile);
     const req = new XMLHttpRequest;
+    req.overrideMimeType('text/plain; charset=x-user-defined');
     req.open("GET", `preload?file=${hostPathFile}`, false);
-    req.responseType = "arraybuffer";
     req.send(null);
     if (!(req.status >= 200 && req.status < 300)) {
       return 0;
     } else if (req.response !== undefined) {
-      let data = new Uint8Array(req.response || []);
+      let data = Uint8Array.from(req.response, c => c.charCodeAt(0));
       const fileContentPtr = _malloc(data.length);
       HEAPU8.set(data, fileContentPtr);
       const payloadPtr = _malloc(4 + {{{ POINTER_SIZE }}});

@@ -8,15 +8,23 @@
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
 #include "vtkEnSightGoldCombinedReader.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
 #include "vtksys/SystemTools.hxx"
+
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPICommunicator.h"
+#endif
 
 #include <string>
 #include <vector>
@@ -58,12 +66,95 @@ void addSelectionArrays(
 void updateSelectionArrays(
   vtkDataArraySelection* readerSelection, vtkDataArraySelection* fullSelection)
 {
-  for (int i = 0; i < readerSelection->GetNumberOfArrays(); i++)
+  for (int i = 0; i < fullSelection->GetNumberOfArrays(); i++)
   {
-    auto name = readerSelection->GetArrayName(i);
+    // this may add parts to this reader's selection, if the part name was not found
+    // during this reader's GetPartInfo, but this shouldn't cause any issues. In this case,
+    // it helps the reader know that it should create an empty vtkPartitionedDataSet for this part
+    // (if the part is enabled) so that the vtkPartitionedDataSetCollection structure matches across
+    // ranks when running in parallel.
+    auto name = fullSelection->GetArrayName(i);
     readerSelection->SetArraySetting(name, fullSelection->ArrayIsEnabled(name));
   }
 }
+
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+template <class T>
+bool syncValues(T* data, int numValues, int numPieces, vtkMultiProcessController* controller)
+{
+  // Compare values on all processes that will read real pieces.
+  // Returns whether the values match.  If they match, all processes'
+  // values are modified to match that of node 0.  This will leave the
+  // values unchanged on processes that will read real data, but
+  // inform the other processes of the proper values.
+
+  if (!controller)
+  {
+    return true;
+  }
+
+  vtkMPICommunicator* communicator =
+    vtkMPICommunicator::SafeDownCast(controller->GetCommunicator());
+
+  if (!communicator)
+  {
+    if (controller->GetNumberOfProcesses() == 1)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  int numProcs = controller->GetNumberOfProcesses();
+  int myid = controller->GetLocalProcessId();
+
+  // Collect all the values to node 0.
+  T* values = new T[numProcs * numValues];
+  communicator->Gather(data, values, numValues, 0);
+
+  int result = VTK_OK;
+  // Node 0 compares its values to those from other processes that
+  // will actually be reading data.
+  if (myid == 0)
+  {
+    for (int i = 1; result && (i < numPieces); i++)
+    {
+      for (int j = 0; result && (j < numValues); j++)
+      {
+        if (values[i * numValues + j] != values[j])
+        {
+          result = VTK_ERROR;
+        }
+      }
+    }
+  }
+
+  // Free buffer where values were collected.
+  delete[] values;
+
+  // Broadcast result of comparison to all processes.
+  communicator->Broadcast(&result, 1, 0);
+
+  // If the results were okay, broadcast the correct values to all
+  // processes so that those that will not read can have the correct
+  // values.
+  if (result == VTK_OK)
+  {
+    communicator->Broadcast(data, numValues, 0);
+  }
+
+  return true;
+}
+#else
+template <class T>
+bool syncValues(T*, int, int, vtkMultiProcessController*)
+{
+  return true;
+}
+#endif
 
 } // end anon namespace
 
@@ -75,7 +166,27 @@ struct vtkEnSightSOSGoldReader::ReaderImpl
   ensight_gold::EnSightFile SOSFile;
   std::string FilePath;
   std::vector<std::string> CaseFileNames;
-  int NumberOfPieces = 0;
+
+  // the index in the output vtkPartitionedDataSetCollection for each part.
+  // an element is -1 if that part will not be loaded. This is passed on to
+  // EnSightDataSet so that every rank can put the parts in the vtkPartitionedDataSetCollection in
+  // the same way
+  vtkNew<vtkIdTypeArray> PartPDCIndex;
+
+  int Rank;
+  int NumberOfProcesses;
+
+  // this is the total number of casefiles for this dataset
+  // but not necessarily how many casefiles this rank will read
+  int TotalNumberOfCaseFiles = 0;
+
+  // CaseFileStart and CaseFileEnd determine which casefiles we'll actually read on this rank
+  int CaseFileStart = -1;
+  int CaseFileEnd = -1;
+
+  // total number of unique parts across all casefiles.
+  int TotalNumberOfParts = 0;
+
   vtkNew<vtkDataArraySelection> PartSelection;
   vtkNew<vtkDataArraySelection> PointArraySelection;
   vtkNew<vtkDataArraySelection> CellArraySelection;
@@ -180,21 +291,36 @@ struct vtkEnSightSOSGoldReader::ReaderImpl
       return false;
     }
 
-    this->NumberOfPieces = numServers;
+    this->TotalNumberOfCaseFiles = numServers;
 
     return true;
   }
 
   bool SetupReaders()
   {
+    vtkLogScopeFunction(TRACE);
     this->Readers.clear();
-    if (this->NumberOfPieces < 0)
+    if (this->TotalNumberOfCaseFiles < 0)
     {
       return false;
     }
 
-    this->Readers.resize(this->NumberOfPieces);
-    for (int i = 0; i < this->NumberOfPieces; i++)
+    // determine which files we will actually read on this rank
+    int localNumberOfCaseFiles = this->TotalNumberOfCaseFiles;
+    int remainder = localNumberOfCaseFiles % this->NumberOfProcesses;
+    localNumberOfCaseFiles /= this->NumberOfProcesses;
+    this->CaseFileStart = this->Rank * localNumberOfCaseFiles + std::min(this->Rank, remainder);
+    this->CaseFileEnd =
+      (this->Rank + 1) * localNumberOfCaseFiles + std::min(this->Rank + 1, remainder);
+    vtkLog(TRACE, "casefile start " << CaseFileStart << ", casefile end " << CaseFileEnd);
+    localNumberOfCaseFiles = this->CaseFileEnd - this->CaseFileStart;
+
+    // We set up readers for all casefiles on all ranks so we can get the metadata (part names,
+    // array names) on all ranks.
+    // When we actually read, we'll use CaseFileStart and CaseFileEnd to only read the appropriate
+    // casefile(s)
+    this->Readers.resize(this->TotalNumberOfCaseFiles);
+    for (int i = 0; i < this->TotalNumberOfCaseFiles; i++)
     {
       if (!this->Readers[i])
       {
@@ -202,8 +328,10 @@ struct vtkEnSightSOSGoldReader::ReaderImpl
       }
       this->Readers[i]->SetCaseFileName(this->CaseFileNames[i].c_str());
       this->Readers[i]->SetFilePath(this->FilePath.c_str());
+      this->Readers[i]->SetPartOfSOSFile(true);
       this->Readers[i]->UpdateInformation();
     }
+
     return true;
   }
 
@@ -236,9 +364,50 @@ struct vtkEnSightSOSGoldReader::ReaderImpl
       updateSelectionArrays(selection, this->FieldArraySelection);
     }
   }
+
+  vtkSmartPointer<vtkStringArray> UpdatePartIndices()
+  {
+    vtkLogScopeFunction(TRACE);
+    vtkNew<vtkStringArray> loadedPartNames;
+    loadedPartNames->Initialize();
+    this->PartPDCIndex->Initialize();
+    this->PartPDCIndex->SetNumberOfTuples(this->TotalNumberOfParts);
+    this->PartPDCIndex->FillValue(-1);
+    int pdcIndex = 0;
+    for (vtkEnSightGoldCombinedReader* reader : this->Readers)
+    {
+      vtkLogScopeF(TRACE, "reader loop");
+      vtkSmartPointer<vtkStringArray> partNames = reader->GetPartNames();
+      for (int i = 0; i < partNames->GetNumberOfValues(); i++)
+      {
+        auto part = partNames->GetValue(i);
+        vtkLog(TRACE, "partName: " << part);
+        if (part.empty())
+        {
+          continue;
+        }
+        if (this->PartSelection->ArrayIsEnabled(part.c_str()) &&
+          this->PartPDCIndex->GetValue(i) == -1)
+        {
+          this->PartPDCIndex->SetValue(i, pdcIndex);
+          vtkLog(TRACE, "part " << part << " has a PDC index of " << PartPDCIndex[i]);
+          loadedPartNames->InsertNextValue(part);
+          pdcIndex++;
+        }
+      }
+    }
+
+    return loadedPartNames;
+  }
 };
 
 vtkStandardNewMacro(vtkEnSightSOSGoldReader);
+
+vtkCxxSetObjectMacro(vtkEnSightSOSGoldReader, Controller, vtkMultiProcessController);
+vtkMultiProcessController* vtkEnSightSOSGoldReader::GetController()
+{
+  return this->Controller;
+}
 
 //------------------------------------------------------------------------------
 vtkEnSightSOSGoldReader::vtkEnSightSOSGoldReader()
@@ -246,6 +415,10 @@ vtkEnSightSOSGoldReader::vtkEnSightSOSGoldReader()
   this->SetNumberOfInputPorts(0);
   this->CaseFileName = nullptr;
   this->Impl = new ReaderImpl;
+  this->Controller = nullptr;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
+  this->Impl->Rank = this->Controller ? this->Controller->GetLocalProcessId() : 0;
+  this->Impl->NumberOfProcesses = this->Controller ? this->Controller->GetNumberOfProcesses() : 1;
 }
 
 //------------------------------------------------------------------------------
@@ -253,19 +426,29 @@ vtkEnSightSOSGoldReader::~vtkEnSightSOSGoldReader()
 {
   this->SetCaseFileName(nullptr);
   delete this->Impl;
+  this->SetController(nullptr);
 }
 
 //------------------------------------------------------------------------------
 int vtkEnSightSOSGoldReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (!this->Impl->ParseSOSFile(this->CaseFileName))
+  vtkLogScopeFunction(TRACE);
+
+  int parseResults = this->Impl->ParseSOSFile(this->CaseFileName);
+  if (!syncValues(&parseResults, 1, this->Impl->NumberOfProcesses, this->Controller) ||
+    !parseResults)
   {
     vtkErrorMacro("Problem parsing the SOS file");
     return 0;
   }
 
-  if (!this->Impl->SetupReaders())
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
+
+  parseResults = this->Impl->SetupReaders();
+  if (!syncValues(&parseResults, 1, this->Impl->NumberOfProcesses, this->Controller) ||
+    !parseResults)
   {
     vtkErrorMacro("Problem setting up the readers");
     return 0;
@@ -273,9 +456,13 @@ int vtkEnSightSOSGoldReader::RequestInformation(vtkInformation* vtkNotUsed(reque
 
   this->Impl->AddSelections();
 
+  // now we can set the total number of parts in the dataset
+  // this includes the measured part if any
+  this->Impl->TotalNumberOfParts = this->Impl->PartSelection->GetNumberOfArrays();
+  vtkLog(TRACE, "total number of parts " << this->Impl->TotalNumberOfParts);
+
   auto timeSteps = this->Impl->Readers[0]->GetAllTimeSteps();
 
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (timeSteps && timeSteps->GetNumberOfValues() > 0)
   {
     int numSteps = timeSteps->GetNumberOfValues();
@@ -300,12 +487,21 @@ int vtkEnSightSOSGoldReader::RequestInformation(vtkInformation* vtkNotUsed(reque
 int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  vtkLogScopeFunction(TRACE);
   if (this->Impl->Readers.empty())
   {
     // we don't have anything to read
     return 1;
   }
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  int piece = outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+    ? outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+    : 0;
+  int npieces = outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES())
+    ? outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES())
+    : 1;
+  vtkLog(TRACE, "piece: " << piece << ", number of pieces: " << npieces);
+
   vtkPartitionedDataSetCollection* output =
     vtkPartitionedDataSetCollection::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -333,6 +529,7 @@ int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   this->Impl->UpdateSelections();
+  auto partNames = this->Impl->UpdatePartIndices();
 
   // With SOS files, each casefile must contain all parts of the dataset, however the part in a
   // given casefile does not have to be the full data, and can even be empty. Thus each portion of a
@@ -349,10 +546,11 @@ int vtkEnSightSOSGoldReader::RequestData(vtkInformation* vtkNotUsed(request),
   // respective vtkPartitionedDataSet.
   vtkNew<vtkDataAssembly> fullAssembly;
   fullAssembly->SetRootNodeName("vtkPartitionedDataSetCollection");
-  for (size_t block = 0; block < this->Impl->Readers.size(); block++)
+  for (int block = this->Impl->CaseFileStart; block < this->Impl->CaseFileEnd; block++)
   {
     this->Impl->Readers[block]->SetTimeValue(timeValue);
     this->Impl->Readers[block]->UpdateInformation();
+    this->Impl->Readers[block]->SetPDCInfoForLoadedParts(this->Impl->PartPDCIndex, partNames);
     this->Impl->Readers[block]->Update();
 
     vtkPartitionedDataSetCollection* readerPDSC = this->Impl->Readers[block]->GetOutput();
@@ -460,5 +658,8 @@ void vtkEnSightSOSGoldReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "SOS filename: " << this->CaseFileName << endl;
+  os << indent << "Total number of case files: " << this->Impl->TotalNumberOfCaseFiles << endl;
+  os << indent << "Case file start index: " << this->Impl->CaseFileStart << endl;
+  os << indent << "Case file end index: " << this->Impl->CaseFileEnd << endl;
 }
 VTK_ABI_NAMESPACE_END

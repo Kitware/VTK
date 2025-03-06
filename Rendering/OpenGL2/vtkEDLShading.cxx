@@ -24,7 +24,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 #include <cassert>
 #include <sstream>
 #include <string>
@@ -34,7 +34,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkEDLShadeFS.h"
 #include "vtkTextureObjectVS.h"
 
-//#define VTK_EDL_SHADING_DEBUG
+// #define VTK_EDL_SHADING_DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

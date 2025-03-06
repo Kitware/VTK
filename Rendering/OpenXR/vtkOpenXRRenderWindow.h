@@ -35,7 +35,9 @@
 
 #include "vtkEventData.h" // for method sig
 
-#include <array> // array
+#include <array>  // array
+#include <memory> // unique_ptr
+#include <string> // string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
@@ -132,6 +134,12 @@ public:
    */
   void RenderModels() override;
 
+  /**
+   * Get/Set the current interaction profile for a hand
+   */
+  std::string& GetCurrentInteractionProfile(uint32_t);
+  void SetCurrentInteractionProfile(uint32_t, const std::string& profile);
+
 protected:
   vtkOpenXRRenderWindow();
   ~vtkOpenXRRenderWindow() override;
@@ -153,6 +161,9 @@ protected:
 private:
   vtkOpenXRRenderWindow(const vtkOpenXRRenderWindow&) = delete;
   void operator=(const vtkOpenXRRenderWindow&) = delete;
+
+  class vtkInternals;
+  std::unique_ptr<vtkInternals> Internal;
 };
 
 VTK_ABI_NAMESPACE_END

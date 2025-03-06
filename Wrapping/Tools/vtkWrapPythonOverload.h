@@ -9,7 +9,7 @@
 #include "vtkParseHierarchy.h"
 
 /* output the method table for all overloads of a particular method */
-void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, ClassInfo* data,
+void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
   const int* overloadMap, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences);
 

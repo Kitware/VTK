@@ -7,7 +7,7 @@ set(CMAKE_AUTORCC ON)
 
 vtk_add_test_cxx(vtkGUISupportQtQuickCxxTests tests
   TestQQuickVTKItem_1.cxx
-  TestQQuickVTKItem_2.cxx
+  TestQQuickVTKItem_2.cxx,LOOSE_VALID
   TestQQuickVTKItem_3.cxx
   # VTK_DEPRECATED_IN_9_3_0 applies to these three tests
   TestQQuickVTKRenderItem.cxx

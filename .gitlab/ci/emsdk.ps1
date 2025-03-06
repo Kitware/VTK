@@ -1,8 +1,8 @@
 $erroractionpreference = "stop"
 
 $prefix = "emsdk"
-$version = "3.1.58"
-$sha256sum = "B612123122A2747682F6E80091E973956E38C34CEA35C867CAA1BB740EC910B4"
+$version = "3.1.64"
+$sha256sum = "2A61FC9D271CAB441918B9495D1103C56B5062FD46C721E2D988A6DBBDF6CD01"
 $filename = "$prefix-$version"
 $tarball = "$filename.zip"
 

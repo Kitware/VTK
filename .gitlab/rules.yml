@@ -49,18 +49,6 @@
           start_in: 4 hours
         - when: never
 
-.old_python_wheel_rules:
-    rules:
-        - if: '$RUN_OLD_PYTHON_WHEELS == "true"'
-          when: manual
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "vtk/vtk"'
-          when: never
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          when: never
-        - when: never
-
 .merged_only:
     rules:
         - if: '$CI_MERGE_REQUEST_ID'

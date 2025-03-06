@@ -382,30 +382,44 @@ bool TestUnsupportedInputs()
   vtkNew<vtkTest::ErrorObserver> observer;
   cache->AddObserver(vtkCommand::WarningEvent, observer);
 
-  // wrong dataset: image data
+  // image data is supported, but does not make use of the cache (for now)
   vtkNew<vtkImageData> image;
   cache->SetOriginalDataObject(image);
-  int nbOfFailures = observer->CheckWarningMessage("Unsupported input type: vtkImageData");
+
+  vtkLogIf(ERROR, !cache->IsSupportedData(image), "ImageData is expected to be supported.");
+  vtkLogIf(ERROR, observer->GetWarning() || observer->GetError(),
+    "Using ImageData shouldn't raise errors or warnings.");
 
   // non dataset: vtkTable
   vtkNew<vtkTable> table;
   cache->SetOriginalDataObject(table);
-  nbOfFailures += observer->CheckWarningMessage("Unsupported input type: vtkTable");
+  int nbOfFailures = observer->CheckWarningMessage("Unsupported input type: vtkTable");
 
   // wrong composite: htg
   vtkNew<vtkHyperTreeGrid> htg;
   cache->SetOriginalDataObject(htg);
   nbOfFailures += observer->CheckWarningMessage("Unsupported input type: vtkHyperTreeGrid");
 
+  observer->Clear();
   // composite of wrong dataset: image data
   vtkNew<vtkPartitionedDataSetCollection> pdc;
   pdc->SetPartition(0, 0, image);
   cache->SetOriginalDataObject(pdc);
-  nbOfFailures += observer->CheckWarningMessage(
-    "Composite vtkPartitionedDataSetCollection has unsupported block(s).");
+  vtkLogIf(ERROR, !cache->IsSupportedData(pdc),
+    "Composite dataset with ImageData is expected to be supported.");
+  vtkLogIf(ERROR, observer->GetWarning() || observer->GetError(),
+    "Composite dataset with ImageData is expected to not raise errors or warnings.");
 
   // composite with a mix of unsupported/supported leaves
   vtkNew<vtkPolyData> polydata;
+  pdc->SetPartition(1, 0, polydata);
+  cache->SetOriginalDataObject(pdc);
+  vtkLogIf(ERROR, !cache->IsSupportedData(pdc),
+    "Composite dataset with ImageData and PolyData is expected to be supported.");
+  vtkLogIf(ERROR, observer->GetWarning() || observer->GetError(),
+    "Composite dataset with ImageData and PolyData is expected to not raise errors or warnings.");
+
+  pdc->SetPartition(0, 0, table);
   pdc->SetPartition(1, 0, polydata);
   cache->SetOriginalDataObject(pdc);
   nbOfFailures += observer->CheckWarningMessage(

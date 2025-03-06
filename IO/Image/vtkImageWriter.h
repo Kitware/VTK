@@ -71,6 +71,7 @@ public:
   /**
    * The main interface which triggers the writer to start.
    */
+  VTK_UNBLOCKTHREADS
   virtual void Write();
 
   void DeleteFiles();

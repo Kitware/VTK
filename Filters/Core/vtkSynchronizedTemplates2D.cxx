@@ -348,7 +348,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
       // now compute the last column, use s2 since it is around
       if (j < max1)
       {
-        s2 = *(inPtr + dim0);
+        s2 = *(inPtr + inc1);
         v2 = (s2 < value ? 0 : 1);
         *(isect2Ptr + 1) = -1;
         if (v1 ^ v2)

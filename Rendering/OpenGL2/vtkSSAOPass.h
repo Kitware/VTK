@@ -120,6 +120,26 @@ public:
   vtkSetClampMacro(VolumeOpacityThreshold, double, 0.0, 1.0);
   ///@}
 
+  ///@{
+  /**
+   * Control intensity of darkening.
+   * Default is 1.0. Larger value causes stronger darkening. 0 means no darkening at all.
+   */
+  vtkGetMacro(IntensityScale, double);
+  vtkSetMacro(IntensityScale, double);
+  ///@}
+
+  ///@{
+  /**
+   * Control intensity of darkening.
+   * Range is between 0.0 and 1.0. Default is 0.0. Larger value prevents darkening
+   * lightly occluded regions, which can be particularly noticeable when IntensityScale is set to a
+   * higher value.
+   */
+  vtkGetMacro(IntensityShift, double);
+  vtkSetClampMacro(IntensityShift, double, 0.0, 1.0);
+  ///@}
+
 protected:
   vtkSSAOPass() = default;
   ~vtkSSAOPass() override = default;
@@ -161,6 +181,9 @@ protected:
   bool Blur = false;
 
   double VolumeOpacityThreshold = 0.9;
+
+  double IntensityScale = 1.0;
+  double IntensityShift = 0.0;
 
 private:
   vtkSSAOPass(const vtkSSAOPass&) = delete;

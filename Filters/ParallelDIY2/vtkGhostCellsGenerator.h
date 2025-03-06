@@ -81,6 +81,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkMultiProcessController;
+class vtkDataObjectMeshCache;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkGhostCellsGenerator : public vtkPassInputTypeAlgorithm
 {
@@ -162,6 +163,19 @@ public:
   vtkBooleanMacro(SynchronizeOnly, bool);
   ///@}
 
+  ///@{
+  /**
+   * Specify if the filter should keep a cache of the output geometry.
+   * Ghost cells will be generated once on the first update, and following updates
+   * will only regenerate them if the input mesh has changed.
+   * This should allow faster execution in cases where the mesh is the same.
+   * Default is TRUE.
+   */
+  vtkSetMacro(UseStaticMeshCache, bool);
+  vtkGetMacro(UseStaticMeshCache, bool);
+  vtkBooleanMacro(UseStaticMeshCache, bool);
+  ///@}
+
 protected:
   vtkGhostCellsGenerator();
   ~vtkGhostCellsGenerator() override;
@@ -196,9 +210,18 @@ private:
    */
   bool CanSynchronize(vtkDataObject* input, bool& canSyncCell, bool& canSyncPoint);
 
+  int GenerateGhostCells(
+    vtkDataObject* input, vtkDataObject* output, int reqGhostLayers, bool syncOnly);
+
+  void UpdateCache(vtkDataObject* updatedOutput);
+  bool UseCacheIfPossible(vtkDataObject* input, vtkDataObject* output);
+
   bool GenerateGlobalIds = false;
   bool GenerateProcessIds = false;
   bool SynchronizeOnly = false;
+
+  bool UseStaticMeshCache = true;
+  vtkNew<vtkDataObjectMeshCache> MeshCache;
 };
 
 VTK_ABI_NAMESPACE_END

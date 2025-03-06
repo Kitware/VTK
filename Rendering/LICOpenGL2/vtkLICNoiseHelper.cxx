@@ -230,9 +230,9 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
     // restrict
     int l = static_cast<int>(val * nLevels);
     l = l > maxLevel ? maxLevel : l;
-    rvals[i] = rvals[i] < minVal
-      ? impulseBgNoiseVal
-      : nLevels == 1 ? maxNoiseVal : minNoiseVal + (l * delta) * noiseRange;
+    rvals[i] = rvals[i] < minVal ? impulseBgNoiseVal
+      : nLevels == 1             ? maxNoiseVal
+                                 : minNoiseVal + (l * delta) * noiseRange;
   }
 
   // map single pixel random values onto a patch of values of

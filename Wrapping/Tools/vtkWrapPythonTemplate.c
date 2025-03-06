@@ -114,7 +114,7 @@ size_t vtkWrapPython_PyTemplateName(const char* name, char* pname)
     }
   }
 
-  strncpy(pname, name, i);
+  memcpy(pname, name, i);
 
   if (name[i] != '<')
   {

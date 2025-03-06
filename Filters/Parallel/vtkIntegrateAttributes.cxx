@@ -705,7 +705,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData1(
   vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, double k,
   vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  auto f = [pt1Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+  auto f = [pt1Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
+  {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
     vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
@@ -730,7 +731,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData2(
   vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, vtkIdType pt2Id,
   double k, vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  auto f = [pt1Id, pt2Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+  auto f = [pt1Id, pt2Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
+  {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
     vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
@@ -757,7 +759,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData3(
   vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, vtkIdType pt2Id,
   vtkIdType pt3Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
 {
-  auto f = [pt1Id, pt2Id, pt3Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+  auto f = [pt1Id, pt2Id, pt3Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
+  {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
     vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)
@@ -785,8 +788,8 @@ void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData4(
   vtkIdType pt3Id, vtkIdType pt4Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList,
   int index)
 {
-  auto f = [pt1Id, pt2Id, pt3Id, pt4Id, k](
-             vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray) {
+  auto f = [pt1Id, pt2Id, pt3Id, pt4Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
+  {
     vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
     vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
     if (inArray && outArray)

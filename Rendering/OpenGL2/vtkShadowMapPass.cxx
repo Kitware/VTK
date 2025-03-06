@@ -31,7 +31,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 // debugging
 #include "vtkTimerLog.h"
@@ -41,8 +41,8 @@
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkShadowMapPass developers.
-//#define VTK_SHADOW_MAP_PASS_DEBUG
-//#define DONT_DUPLICATE_LIGHTS
+// #define VTK_SHADOW_MAP_PASS_DEBUG
+// #define DONT_DUPLICATE_LIGHTS
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShadowMapPass);
@@ -264,7 +264,8 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram* program, vtkAbstrac
   float transform[16];
   std::ostringstream toString;
 
-  program->SetUniformf("depthC", 11.0);
+  // We have to use the same exponential constant that was used when baking.
+  program->SetUniformf("depthC", this->ShadowMapBakerPass->GetExponentialConstant());
   for (size_t i = 0; i < numLights; i++)
   {
     if (this->ShadowTextureUnits[i] >= 0)

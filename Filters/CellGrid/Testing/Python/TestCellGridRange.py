@@ -8,6 +8,17 @@ from vtkmodules import vtkIOCellGrid as io
 from vtkmodules.test import Testing
 import os
 
+# Avoid Unicode console output on Windows:
+L1n='L1 norm'
+L2n='L2 norm'
+try:
+    import platform
+    if platform.system() != 'Windows':
+        L1n='L₁ norm'
+        L2n='L₂ norm'
+finally:
+    pass
+
 class TestCellGridRange(Testing.vtkTest):
 
     def setUp(self):
@@ -27,6 +38,7 @@ class TestCellGridRange(Testing.vtkTest):
     def checkRangeForFile(self, filename, expectedRanges):
         self.reader.SetFileName(filename)
         self.reader.Update()
+        self.source.ClearRangeCache()
         validated = {}
         print('\n## Testing range computation on %s.\n' % filename)
         for attribute in self.source.GetCellAttributeList():
@@ -41,7 +53,7 @@ class TestCellGridRange(Testing.vtkTest):
             for comp in range(numComp + 2):
                 cr = [1, -1]
                 self.source.GetCellAttributeRange(attribute, comp - 2, cr, True)
-                compName = 'L₂ norm' if comp == 0 else 'L₁ norm' if comp == 1 else '%d' % (comp - 2)
+                compName = L2n if comp == 0 else L1n if comp == 1 else '%d' % (comp - 2)
                 print('  %s: [ %g, %g ]' % (compName, cr[0], cr[1]))
                 if comp - 2 in expectedComponentRanges:
                     expectedRange = expectedComponentRanges[comp - 2]
@@ -61,7 +73,8 @@ class TestCellGridRange(Testing.vtkTest):
         tests = {
             # dgHexahedra.dg tests the range-responder for HCurl fields with the curl1 attribute:
             'dgHexahedra.dg': {
-                'curl1':     { 0: [0, 1.39024], 1: [0, 1], 2: [-0.0487805, 0.0701754], -1: [-0.0487805, 1.39024], -2: [0, 1.4448] },
+                'curl1':     { 0: [0, 2.88889], 1: [0, 2], 2: [-0.5, 0.888889], -1: [-0.5, 2.88889], -2: [0, 3.0952] },
+                'div1':      { 0: [-1, 4], 1: [-5.33333, 1.06667], 2: [-1.77778, 0], -1: [-5.33333, 4 ], -2: [0, 5.89622] },
                 'quadratic': { 0: [0, 6], -1: [0, 6], -2: [0, 6] },
                 'scalar0':   { 0: [0, 1] },
                 'scalar1':   { 0: [0, 3] },
@@ -70,6 +83,8 @@ class TestCellGridRange(Testing.vtkTest):
                 'shape':     { -2: [0.353553, 2.56174], -1: [0, 2], 0: [0, 2], 1: [0, 1.25], 2: [0, 1] }
                 },
             'dgTetrahedra.dg': {
+                'curl1':     { 0: [-4, 4], 1: [-4, 4], 2: [-2, 6], -1: [-4, 6], -2: [0, 7.48331] },
+                'div1':      { 0: [-5, 3], 1: [-5, 3], 2: [-1, 3], -1: [-5, 3], -2: [0, 5.91608] },
                 'scalar0': { -2: [0, 1], -1: [0, 1], 0: [0, 1] },
                 'scalar1': { -2: [0, 3], -1: [0, 3], 0: [0, 3] },
                 'scalar2': { -2: [0, 2], -1: [0, 2], 0: [0, 2] },

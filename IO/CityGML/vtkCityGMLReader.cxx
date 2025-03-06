@@ -228,7 +228,7 @@ public:
     transformFilter->SetInputDataObject(it->second);
     transformFilter->Update();
     vtkDataObject* obj = transformFilter->GetOutputDataObject(0);
-    vtkCityGMLReader::Implementation::SetField(obj, "element", element);
+    vtkCityGMLReader::SetField(obj, "element", element);
     output->SetBlock(output->GetNumberOfBlocks(), obj);
   }
 
@@ -236,7 +236,7 @@ public:
     const char* gmlNamespace, const char* feature)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    vtkCityGMLReader::Implementation::SetField(b, "element", "grp:CityObjectGroup");
+    vtkCityGMLReader::SetField(b, "element", "grp:CityObjectGroup");
     auto ximplicitGeometry =
       doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" + gmlNamespace +
         ":" + "lod" + std::to_string(this->LOD) + "ImplicitRepresentation/core:ImplicitGeometry")
@@ -566,37 +566,6 @@ public:
     components->push_back(value);
   }
 
-  static void SetField(vtkDataObject* obj, const char* name, const char* value)
-  {
-    vtkFieldData* fd = obj->GetFieldData();
-    if (!fd)
-    {
-      vtkNew<vtkFieldData> newfd;
-      obj->SetFieldData(newfd);
-    }
-    vtkNew<vtkStringArray> sa;
-    sa->SetNumberOfTuples(1);
-    sa->SetValue(0, value);
-    sa->SetName(name);
-    fd->AddArray(sa);
-  }
-
-  static void SetField(vtkDataObject* obj, const char* name, double* value, vtkIdType components)
-  {
-    vtkFieldData* fd = obj->GetFieldData();
-    if (!fd)
-    {
-      vtkNew<vtkFieldData> newfd;
-      obj->SetFieldData(newfd);
-    }
-    vtkNew<vtkDoubleArray> da;
-    da->SetNumberOfTuples(1);
-    da->SetNumberOfComponents(components);
-    da->SetTypedTuple(0, value);
-    da->SetName(name);
-    fd->AddArray(da);
-  }
-
   /**
    * This can read gml:MultiSurface and gml:CompositeSurface with texture
    * read from app:ParameterizedTexture
@@ -639,26 +608,22 @@ public:
         vtkNew<vtkCellArray> cells;
         if (gmlIdAttribute)
         {
-          vtkCityGMLReader::Implementation::SetField(polyData, "gml_id", exteriorId);
+          vtkCityGMLReader::SetField(polyData, "gml_id", exteriorId);
         }
         polyData->SetPoints(points);
         nodeInterior ? polyData->SetLines(cells) : polyData->SetPolys(cells);
         switch (polygonType)
         {
           case PolygonType::TEXTURE:
-            vtkCityGMLReader::Implementation::SetField(polyData, "texture_uri", imageURI.c_str());
+            vtkCityGMLReader::SetField(polyData, "texture_uri", imageURI.c_str());
             break;
           case PolygonType::MATERIAL:
           {
             Material material = this->Materials[materialIndex];
-            vtkCityGMLReader::Implementation::SetField(
-              polyData, "diffuse_color", material.Diffuse.data(), 3);
-            vtkCityGMLReader::Implementation::SetField(
-              polyData, "specular_color", material.Specular.data(), 3);
-            vtkCityGMLReader::Implementation::SetField(
-              polyData, "transparency", &material.Transparency, 1);
-            vtkCityGMLReader::Implementation::SetField(
-              polyData, "shininess", &material.Shininess, 1);
+            vtkCityGMLReader::SetField(polyData, "diffuse_color", material.Diffuse.data(), 3);
+            vtkCityGMLReader::SetField(polyData, "specular_color", material.Specular.data(), 3);
+            vtkCityGMLReader::SetField(polyData, "transparency", &material.Transparency, 1);
+            vtkCityGMLReader::SetField(polyData, "shininess", &material.Shininess, 1);
             break;
           }
           case PolygonType::NONE:
@@ -908,12 +873,12 @@ public:
       if (groupBlock->GetNumberOfBlocks())
       {
         output->SetBlock(output->GetNumberOfBlocks(), groupBlock);
-        vtkCityGMLReader::Implementation::SetField(groupBlock, "element", element.c_str());
+        vtkCityGMLReader::SetField(groupBlock, "element", element.c_str());
         pugi::xml_attribute gmlIdAttribute = featureNode.node().attribute("gml:id");
         auto gmlId = gmlIdAttribute.value();
         if (gmlId)
         {
-          vtkCityGMLReader::Implementation::SetField(groupBlock, "gml_id", gmlId);
+          vtkCityGMLReader::SetField(groupBlock, "gml_id", gmlId);
         }
       }
     }
@@ -959,7 +924,7 @@ public:
         vtkNew<vtkPolyData> polyData;
         polyData->SetPoints(points);
         polyData->SetPolys(polys);
-        vtkCityGMLReader::Implementation::SetField(polyData, "element", "dem:ReliefFeature");
+        vtkCityGMLReader::SetField(polyData, "element", "dem:ReliefFeature");
         output->SetBlock(output->GetNumberOfBlocks(), polyData);
       }
     }
@@ -968,7 +933,7 @@ public:
   void ReadWaterBody(pugi::xml_document& doc, vtkMultiBlockDataSet* output)
   {
     vtkNew<vtkMultiBlockDataSet> b;
-    vtkCityGMLReader::Implementation::SetField(b, "element", "wtr:WaterBody");
+    vtkCityGMLReader::SetField(b, "element", "wtr:WaterBody");
     auto xWaterSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterSurface/wtr:lod" +
       std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
                                             .c_str());
@@ -1124,5 +1089,39 @@ int vtkCityGMLReader::RequestData(
 void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+void vtkCityGMLReader::SetField(vtkDataObject* obj, const char* name, const char* value)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
+  {
+    vtkNew<vtkFieldData> newfd;
+    obj->SetFieldData(newfd);
+  }
+  vtkNew<vtkStringArray> sa;
+  sa->SetNumberOfTuples(1);
+  sa->SetValue(0, value);
+  sa->SetName(name);
+  fd->AddArray(sa);
+}
+
+//------------------------------------------------------------------------------
+void vtkCityGMLReader::SetField(
+  vtkDataObject* obj, const char* name, double* value, vtkIdType components)
+{
+  vtkFieldData* fd = obj->GetFieldData();
+  if (!fd)
+  {
+    vtkNew<vtkFieldData> newfd;
+    obj->SetFieldData(newfd);
+  }
+  vtkNew<vtkDoubleArray> da;
+  da->SetNumberOfTuples(1);
+  da->SetNumberOfComponents(components);
+  da->SetTypedTuple(0, value);
+  da->SetName(name);
+  fd->AddArray(da);
 }
 VTK_ABI_NAMESPACE_END

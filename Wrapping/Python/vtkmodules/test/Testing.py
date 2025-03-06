@@ -20,13 +20,13 @@ class vtkTest:
    Subclass this for your tests.  It also has a few useful internal
    functions that can be used to do some simple blackbox testing.
 
-compareImage(renwin, img_fname, threshold=0.15):
+compareImage(renwin, img_fname, threshold=0.05):
    Compares renwin with image and generates image if it does not
    exist.  The threshold determines how closely the images must match.
    The function also handles multiple images and finds the best
    matching image.
 
-compareImageWithSavedImage(src_img, img_fname, threshold=0.15):
+compareImageWithSavedImage(src_img, img_fname, threshold=0.05):
    Compares given source image (in the form of a vtkImageData) with
    saved image and generates the image if it does not exist.  The
    threshold determines how closely the images must match.  The
@@ -68,11 +68,11 @@ from __future__ import absolute_import
 import sys, os, time
 import os.path
 import unittest, getopt
-from vtkmodules.vtkCommonCore import vtkCommand, vtkDebugLeaks
+from vtkmodules.vtkCommonCore import vtkCommand, vtkDebugLeaks, reference
 from vtkmodules.vtkCommonSystem import vtkTimerLog
-from vtkmodules.vtkIOImage import vtkPNGReader, vtkPNGWriter
-from vtkmodules.vtkImagingCore import vtkImageDifference, vtkImageShiftScale
+from vtkmodules.vtkIOImage import vtkPNGWriter
 from vtkmodules.vtkRenderingCore import vtkWindowToImageFilter
+from vtkmodules.vtkTestingRendering import vtkTesting
 from . import BlackBox
 
 # location of the VTK data files.  Set via command line args or
@@ -298,7 +298,21 @@ def _getTempImagePath(img_fname):
     x = os.path.join(VTK_TEMP_DIR, os.path.split(img_fname)[1])
     return os.path.abspath(x)
 
-def compareImageWithSavedImage(src_img, img_fname, threshold=0.15):
+
+def _GetController():
+    try:
+        from vtkmodules.vtkParallelMPI import vtkMPIController
+        controller = vtkMPIController();
+
+        # If MPI was not initialized, we do not want to use MPI
+        if not controller.GetCommunicator():
+            return None
+        return controller
+    except:
+        pass
+    return None
+
+def compareImageWithSavedImage(src_img, img_fname, threshold=0.05):
     """Compares a source image (src_img, which is a vtkImageData) with
     the saved image file whose name is given in the second argument.
     If the image file does not exist the image is generated and
@@ -306,80 +320,38 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=0.15):
     figure.  This function also handles multiple images and finds the
     best matching image.
     """
-    global _NO_IMAGE
+    global _NO_IMAGE, VTK_TEMP_DIR
     if _NO_IMAGE:
         return
 
-    f_base, f_ext = os.path.splitext(img_fname)
+    # create the testing class to do the work
+    rtTester = vtkTesting()
 
-    if not os.path.isfile(img_fname):
-        # generate the image
-        pngw = vtkPNGWriter()
-        pngw.SetFileName(_getTempImagePath(img_fname))
-        pngw.SetInputConnection(src_img.GetOutputPort())
-        pngw.Write()
-        _printCDashImageNotFoundError(img_fname)
-        msg = "Missing baseline image: " + img_fname + "\nTest image created: " + _getTempImagePath(img_fname)
-        sys.tracebacklimit = 0
-        raise RuntimeError(msg)
+    # Set the controller if possible
+    try:
+        rtTester.SetController(_GetController())
+    except:
+        pass
 
-    pngr = vtkPNGReader()
-    pngr.SetFileName(img_fname)
-    pngr.Update()
+    # Add temp directory to the arguments
+    if len(VTK_TEMP_DIR) != 0:
+        rtTester.AddArgument("-T")
+        rtTester.AddArgument(VTK_TEMP_DIR)
+    # Add image file name to the arguments
+    rtTester.AddArgument("-V")
+    rtTester.AddArgument(img_fname)
 
-    idiff = vtkImageDifference()
-    idiff.SetInputConnection(src_img.GetOutputPort())
-    idiff.SetImageConnection(pngr.GetOutputPort())
-    idiff.Update()
+    output_string =  reference("")
+    result = rtTester.RegressionTest(src_img, threshold, output_string)
 
-    min_err = idiff.GetThresholdedError()
-    img_err = min_err
+    # If the test failed, raise an exception
+    if result == vtkTesting.FAILED:
+        raise RuntimeError(output_string.get())
+    # If the test passed, print the output
+    else:
+        print(output_string.get())
 
-    err_index = 0
-    count = 0
-    if min_err > threshold:
-        count = 1
-        test_failed = 1
-        err_index = -1
-        while 1: # keep trying images till we get the best match.
-            new_fname = f_base + "_%d.png"%count
-            if not os.path.exists(new_fname):
-                # no other image exists.
-                break
-            # since file exists check if it matches.
-            pngr.SetFileName(new_fname)
-            pngr.Update()
-            idiff.Update()
-            alt_err = idiff.GetThresholdedError()
-            if alt_err < threshold:
-                # matched,
-                err_index = count
-                test_failed = 0
-                min_err = alt_err
-                img_err = alt_err
-                break
-            else:
-                if alt_err < min_err:
-                    # image is a better match.
-                    err_index = count
-                    min_err = alt_err
-                    img_err = alt_err
-
-            count = count + 1
-        # closes while loop.
-
-        if test_failed:
-            _handleFailedImage(idiff, pngr, img_fname)
-            # Print for CDash.
-            _printCDashImageError(img_err, err_index, f_base)
-            msg = "Failed image test: %f\n"%idiff.GetThresholdedError()
-            sys.tracebacklimit = 0
-            raise RuntimeError(msg)
-    # output the image error even if a test passed
-    _printCDashImageSuccess(img_err, err_index)
-
-
-def compareImage(renwin, img_fname, threshold=0.15):
+def compareImage(renwin, img_fname, threshold=0.05):
     """Compares renwin's (a vtkRenderWindow) contents with the image
     file whose name is given in the second argument.  If the image
     file does not exist the image is generated and stored.  If not the
@@ -401,70 +373,6 @@ def compareImage(renwin, img_fname, threshold=0.15):
         w2if.ReadFrontBufferOn()
         compareImageWithSavedImage(w2if, img_fname, threshold)
     return
-
-
-def _printCDashImageError(img_err, err_index, img_base):
-    """Prints the XML data necessary for CDash."""
-    img_base = _getTempImagePath(img_base)
-    print("Failed image test with error: %f"%img_err)
-    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
-          "%f </DartMeasurement>"%img_err)
-    if err_index <= 0:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
-    else:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
-              "%d </DartMeasurement>"%err_index)
-
-    print("<DartMeasurementFile name=\"TestImage\" type=\"image/png\"> "
-          "%s </DartMeasurementFile>"%(img_base + '.png'))
-
-    print("<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\"> "
-          "%s </DartMeasurementFile>"%(img_base + '.diff.png'))
-    print("<DartMeasurementFile name=\"ValidImage\" type=\"image/png\"> "
-          "%s </DartMeasurementFile>"%(img_base + '.valid.png'))
-
-def _printCDashImageNotFoundError(img_fname):
-    """Prints the XML data necessary for Dart when the baseline image is not found."""
-    print("<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" + img_fname + "</DartMeasurement>")
-
-def _printCDashImageSuccess(img_err, err_index):
-    "Prints XML data for Dart when image test succeeded."
-    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
-          "%f </DartMeasurement>"%img_err)
-    if err_index <= 0:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
-    else:
-       print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
-             "%d </DartMeasurement>"%err_index)
-
-
-def _handleFailedImage(idiff, pngr, img_fname):
-    """Writes all the necessary images when an image comparison
-    failed."""
-    f_base, f_ext = os.path.splitext(img_fname)
-
-    # write the difference image gamma adjusted for the dashboard.
-    gamma = vtkImageShiftScale()
-    gamma.SetInputConnection(idiff.GetOutputPort())
-    gamma.SetShift(0)
-    gamma.SetScale(10)
-
-    pngw = vtkPNGWriter()
-    pngw.SetFileName(_getTempImagePath(f_base + ".diff.png"))
-    pngw.SetInputConnection(gamma.GetOutputPort())
-    pngw.Write()
-
-    # Write out the image that was generated.  Write it out as full so that
-    # it may be used as a baseline image if the tester deems it valid.
-    pngw.SetInputConnection(idiff.GetInputConnection(0,0))
-    pngw.SetFileName(_getTempImagePath(f_base + ".png"))
-    pngw.Write()
-
-    # write out the valid image that matched.
-    pngw.SetInputConnection(idiff.GetInputConnection(1,0))
-    pngw.SetFileName(_getTempImagePath(f_base + ".valid.png"))
-    pngw.Write()
-
 
 def main(cases):
     """ Pass a list of tuples containing test classes and the starting
@@ -515,8 +423,10 @@ def test(cases):
     """
     # Make the test suites from the arguments.
     suites = []
-    for case in cases:
-        suites.append(unittest.makeSuite(case[0], case[1]))
+    loader = unittest.TestLoader()
+    # the "name" is ignored (it was always just 'test')
+    for test,name in cases:
+        suites.append(loader.loadTestsFromTestCase(test))
     test_suite = unittest.TestSuite(suites)
 
     # Now run the tests.

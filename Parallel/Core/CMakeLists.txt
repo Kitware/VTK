@@ -13,13 +13,7 @@ set(classes
   vtkSocketController
   vtkSubCommunicator
   vtkSubGroup
-  vtkThreadedCallbackQueue)
-
-set(templates
-  vtkThreadedCallbackQueue.txx)
-
-set(template_classes
-  vtkThreadedTaskQueue)
+)
 
 include(vtkHashSource)
 # Generate "vtkSocketCommunicatorHash.h".
@@ -31,8 +25,6 @@ vtk_hash_source(
 vtk_module_add_module(VTK::ParallelCore
   CLASSES           ${classes}
   NOWRAP_HEADERS    vtkMultiProcessStreamSerialization.h
-  TEMPLATES         ${templates}
-  TEMPLATE_CLASSES  ${template_classes}
   PRIVATE_HEADERS   ${hash_header}
   # This generated header doesn't contain anything with copyright.
   SPDX_SKIP_REGEX   "vtkSocketCommunicatorHash")

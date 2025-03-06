@@ -116,6 +116,25 @@ public:
   // is this instance connected to a collaboration server?
   bool GetConnected() { return this->Connected; }
 
+  ///@{
+  /**
+   * Get/Set initial up vector to use for new avatars, default is [0, 1, 0].
+   */
+  vtkSetVector3Macro(AvatarInitialUpVector, double);
+  vtkGetVector3Macro(AvatarInitialUpVector, double);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the object to which this class will add an observer for Move3D
+   * events (based upon which, pose information is sent out to collaborators).
+   * The default is to use the associated render window, if it is a
+   * vtkVRRenderWindow.
+   */
+  vtkObject* GetMoveEventSource();
+  void SetMoveEventSource(vtkObject*);
+  ///@}
+
 protected:
   vtkVRCollaborationClient();
   ~vtkVRCollaborationClient() override;
@@ -170,6 +189,8 @@ protected:
     std::array<double, 4> Orientation;
   };
   Pose DevicePoses[vtkEventDataNumberOfDevices];
+
+  double AvatarInitialUpVector[3];
 
   // dynamic set of avatars, keyed on IDs sent with updates.
   std::map<std::string, vtkSmartPointer<vtkOpenGLAvatar>> Avatars;

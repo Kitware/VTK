@@ -6,7 +6,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-//#include "vtkCellArray.h"
+// #include "vtkCellArray.h"
 #include "vtkFramebufferPass.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextureObject.h"
-#include "vtk_glew.h"
+#include "vtk_glad.h"
 
 //------------------------------------------------------------------------------
 int TestFramebufferHDR(int argc, char* argv[])

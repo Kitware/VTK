@@ -582,9 +582,9 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D* painter)
         break;
     }
 
-    if (!name.empty() && this->SceneBottomLeft[0] < labelStartX &&
-      this->SceneTopRight[0] > labelStartX && this->SceneBottomLeft[1] < labelStartY &&
-      this->SceneTopRight[1] > labelStartY)
+    if (!name.empty() &&
+      this->SceneBottomLeft[0]<labelStartX&& this->SceneTopRight[0]> labelStartX &&
+      this->SceneBottomLeft[1]<labelStartY&& this->SceneTopRight[1]> labelStartY)
     {
       painter->DrawString(labelStartX, labelStartY, name);
     }
@@ -664,8 +664,8 @@ void vtkHeatmapItem::PaintBuffers(vtkContext2D* painter)
     }
 
     std::string columnName = this->Table->GetColumn(column)->GetName();
-    if (this->SceneBottomLeft[0] < labelStartX && this->SceneTopRight[0] > labelStartX &&
-      this->SceneBottomLeft[1] < labelStartY && this->SceneTopRight[1] > labelStartY)
+    if (this->SceneBottomLeft[0]<labelStartX&& this->SceneTopRight[0]> labelStartX &&
+      this->SceneBottomLeft[1]<labelStartY&& this->SceneTopRight[1]> labelStartY)
     {
       painter->DrawString(labelStartX, labelStartY, columnName);
     }

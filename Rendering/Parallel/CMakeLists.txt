@@ -10,6 +10,8 @@ set(classes
   vtkImageRenderManager
   vtkParallelRenderManager
   vtkPHardwareSelector
+  vtkSynchronizableActors
+  vtkSynchronizableAvatars
   vtkSynchronizedRenderers
   vtkSynchronizedRenderWindows
   vtkTreeCompositer)

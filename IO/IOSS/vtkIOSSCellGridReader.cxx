@@ -41,7 +41,6 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -139,6 +138,13 @@ int vtkIOSSCellGridReader::ReadMetaData(vtkInformation* metadata)
   }
 
   metadata->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
+  if (internals.HaveRestartFiles())
+  {
+    // All meta-data have been read successfully, so we can release all the regions.
+    // Subsequent ReadMesh calls create only the requested regions (if needed) and release previous
+    // regions (if no longer needed).
+    internals.ReleaseRegions();
+  }
   return 1;
 }
 
@@ -186,6 +192,16 @@ int vtkIOSSCellGridReader::ReadMesh(
   // dbaseHandles are handles for individual files this instance will to read to
   // satisfy the request. Can be >= 0.
   const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+  // If we have restart files, and the previously read regions are no longer needed.
+  if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
+  {
+    // … then we need to release them and, if requested, clear their cached information
+    internals.ReleaseRegions();
+    if (!this->GetCaching())
+    {
+      internals.ClearCache();
+    }
+  }
 
   // Read global data. Since this should be same on all ranks, we only read on
   // root node and broadcast it to all. This helps us easily handle the case
@@ -193,124 +209,28 @@ int vtkIOSSCellGridReader::ReadMesh(
   auto controller = this->GetController();
   const auto rank = controller ? controller->GetLocalProcessId() : 0;
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
-  if (!dbaseHandles.empty() && rank == 0)
+  if (rank == 0)
   {
-    // Read global data. Since global data is expected to be identical on all
-    // files in a partitioned collection, we can read it from the first
-    // dbaseHandle alone.
-    if (this->GetReadGlobalFields())
+    if (!dbaseHandles.empty())
     {
-      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-    }
-
-    if (this->GetReadQAAndInformationRecords())
-    {
-      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
-    }
-
-    // Handle assemblies.
-    internals.ReadAssemblies(collection, dbaseHandles[0]);
-  }
-
-#if 0
-  // check if we are gonna merge all of the blocks/sets of an entity type into a single one
-  const bool mergeEntityBlocks =
-    internals.GetFormat() == vtkIOSSUtilities::DatabaseFormatType::EXODUS &&
-    this->GetMergeExodusEntityBlocks();
-  if (!mergeEntityBlocks)
-#endif
-  {
-    for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
-    {
-      const std::string blockName(
-        collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
-      const auto entity_type = collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE());
-      const auto vtk_entity_type = static_cast<vtkIOSSCellGridReader::EntityType>(entity_type);
-
-      auto selection = this->GetEntitySelection(vtk_entity_type);
-      if (!selection->ArrayIsEnabled(blockName.c_str()) &&
-        selectedAssemblyIndices.find(pdsIdx) == selectedAssemblyIndices.end())
+      // Read global data. Since global data is expected to be identical on all
+      // files in a partitioned collection, we can read it from the first
+      // dbaseHandle alone.
+      if (this->GetReadGlobalFields())
       {
-        // skip disabled blocks.
-        continue;
+        internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
       }
 
-      auto pds = collection->GetPartitionedDataSet(pdsIdx);
-      assert(pds != nullptr);
-      for (const auto& handle : dbaseHandles)
+      if (this->GetReadQAAndInformationRecords())
       {
-        try
-        {
-          auto cellgrids =
-            internals.GetCellGrids(blockName, vtk_entity_type, handle, timestep, this);
-          for (auto& cg : cellgrids)
-          {
-            pds->SetPartition(pds->GetNumberOfPartitions(), cg);
-          }
-        }
-        catch (const std::runtime_error& e)
-        {
-          vtkLogF(ERROR,
-            "Error reading entity block (or set) named '%s' from '%s'; skipping. Details: %s",
-            blockName.c_str(), internals.GetRawFileName(handle).c_str(), e.what());
-        }
-        // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging purposes
-        // internals.ReleaseHandles();
+        internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
       }
+
+      // Handle assemblies.
+      internals.ReadAssemblies(collection, dbaseHandles[0]);
     }
   }
-#if 0
-  else
-  {
-    for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
-    {
-      const auto entity_type = collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE());
-      const auto vtk_entity_type = static_cast<vtkIOSSCellGridReader::EntityType>(entity_type);
-      auto selection = this->GetEntitySelection(vtk_entity_type);
-
-      // get all the active block names for this entity type.
-      std::vector<std::string> blockNames;
-      for (int i = 0; i < selection->GetNumberOfArrays(); ++i)
-      {
-        if (selection->ArrayIsEnabled(selection->GetArrayName(i)))
-        {
-          blockNames.emplace_back(selection->GetArrayName(i));
-        }
-      }
-
-      if (blockNames.empty())
-      {
-        // skip disabled blocks.
-        continue;
-      }
-
-      auto pds = collection->GetPartitionedDataSet(pdsIdx);
-      assert(pds != nullptr);
-      for (const auto& handle : dbaseHandles)
-      {
-        try
-        {
-          auto dataset =
-            internals.GetExodusEntityDataSet(blockNames, vtk_entity_type, handle, timestep, this);
-          if (dataset != nullptr)
-          {
-            pds->SetPartition(pds->GetNumberOfPartitions(), dataset);
-          }
-        }
-        catch (const std::runtime_error& e)
-        {
-          vtkLogF(ERROR, "Error reading entity named '%s' from '%s'; skipping. Details: %s",
-            vtkIOSSCellGridReader::GetDataAssemblyNodeNameForEntityType(entity_type),
-            internals.GetRawFileName(handle).c_str(), e.what());
-        }
-        // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging
-        // purposes internals.ReleaseHandles();
-      }
-    }
-  }
-#endif
-  internals.ReleaseHandles();
-
+  // Transmit assembly and QA records to all ranks.
   if (numRanks > 1)
   {
     vtkNew<vtkUnstructuredGrid> temp;
@@ -331,9 +251,48 @@ int vtkIOSSCellGridReader::ReadMesh(
       collection->GetDataAssembly()->InitializeFromXML(xml.c_str());
     }
   }
+  // All ranks now have assembly and QA records; extract field-glomming information.
+  internals.Annotations->FetchAnnotations(
+    collection->GetFieldData(), collection->GetDataAssembly());
 
+  for (unsigned int pdsIdx = 0; pdsIdx < collection->GetNumberOfPartitionedDataSets(); ++pdsIdx)
+  {
+    const std::string blockName(collection->GetMetaData(pdsIdx)->Get(vtkCompositeDataSet::NAME()));
+    const auto entity_type = collection->GetMetaData(pdsIdx)->Get(ENTITY_TYPE());
+    const auto vtk_entity_type = static_cast<vtkIOSSCellGridReader::EntityType>(entity_type);
+
+    auto selection = this->GetEntitySelection(vtk_entity_type);
+    if (!selection->ArrayIsEnabled(blockName.c_str()) &&
+      selectedAssemblyIndices.find(pdsIdx) == selectedAssemblyIndices.end())
+    {
+      // skip disabled blocks.
+      continue;
+    }
+
+    auto pds = collection->GetPartitionedDataSet(pdsIdx);
+    assert(pds != nullptr);
+    for (const auto& handle : dbaseHandles)
+    {
+      try
+      {
+        auto cellgrids = internals.GetCellGrids(blockName, vtk_entity_type, handle, timestep, this);
+        for (auto& cg : cellgrids)
+        {
+          pds->SetPartition(pds->GetNumberOfPartitions(), cg);
+        }
+      }
+      catch (const std::runtime_error& e)
+      {
+        vtkLogF(ERROR,
+          "Error reading entity block (or set) named '%s' from '%s'; skipping. Details: %s",
+          blockName.c_str(), internals.GetRawFileName(handle).c_str(), e.what());
+      }
+      // Note: Consider using the inner ReleaseHandles (and not the outer) for debugging purposes
+      // internals.ReleaseHandles();
+    }
+  }
+  internals.ReleaseHandles();
   internals.ClearCacheUnused();
-  internals.ReleaseRegions();
   return 1;
 }
 

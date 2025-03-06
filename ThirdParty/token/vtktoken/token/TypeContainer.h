@@ -110,11 +110,27 @@ public:
     return value;
   }
 
+  /// Obtain a key hash ID for \a Type without managing its string.
+  ///
+  /// This is safe to call even after the token::Manager has been
+  /// destroyed during finalization since it does not attempt to
+  /// insert the string into the token::Manager. It should be used
+  /// when removing or testing the existence of entries, but not for
+  /// inserting entries since then the key-names will be unavailable.
+  template<typename Type>
+  KeyType safeKeyId() const
+  {
+    (void)this; // Prevent clang-tidy from complaining this could be class-static.
+    std::string keyName = typeName<Type>();
+    KeyType value = Token::stringHash(keyName.c_str(), keyName.size());
+    return value;
+  }
+
   /// Check if a Type is present in the TypeContainer.
   template<typename Type>
   bool contains() const
   {
-    return (m_container.find(this->keyId<Type>()) != m_container.end());
+    return (m_container.find(this->safeKeyId<Type>()) != m_container.end());
   }
 
   /// Insert a Type instance into the TypeContainer.
@@ -216,13 +232,13 @@ public:
   template<typename Type>
   bool erase()
   {
-    return m_container.erase(this->keyId<Type>()) > 0;
+    return m_container.erase(this->safeKeyId<Type>()) > 0;
   }
 
   /// Return true if the container holds no objects and false otherwise.
   bool empty() const noexcept { return m_container.empty(); }
 
-  /// Return the nubmer of objects held by the container.
+  /// Return the number of objects held by the container.
   std::size_t size() const noexcept { return m_container.size(); }
 
   /// Erase all objects held by the container.

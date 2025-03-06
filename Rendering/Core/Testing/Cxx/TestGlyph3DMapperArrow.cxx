@@ -22,7 +22,7 @@
 
 // If USE_FILTER is defined, glyph3D->PolyDataMapper is used instead of
 // Glyph3DMapper.
-//#define USE_FILTER
+// #define USE_FILTER
 
 #ifdef USE_FILTER
 #include "vtkGlyph3D.h"

@@ -50,7 +50,8 @@ int vtkStitchImageDataWithGhosts::RequestData(
   auto dualInputDO = vtkSmartPointer<vtkDataObject>::Take(inputDO->NewInstance());
   dualInputDO->ShallowCopy(inputDO);
 
-  auto extractImageData = [](vtkDataObject* dObj) {
+  auto extractImageData = [](vtkDataObject* dObj)
+  {
     if (auto cds = vtkCompositeDataSet::SafeDownCast(dObj))
     {
       return vtkCompositeDataSet::GetDataSets<vtkImageData>(cds);

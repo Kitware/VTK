@@ -1,0 +1,7 @@
+NAME
+  VTK::glad
+LIBRARY_NAME
+  vtkglad
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY

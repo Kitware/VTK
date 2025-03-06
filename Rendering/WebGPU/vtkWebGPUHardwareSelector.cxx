@@ -7,7 +7,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-//#define vtkWebGPUHardwareSelectorDEBUG
+// #define vtkWebGPUHardwareSelectorDEBUG
 #ifdef vtkWebGPUHardwareSelectorDEBUG
 #include "vtkImageImport.h"
 #include "vtkNew.h"

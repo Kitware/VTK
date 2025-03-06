@@ -41,6 +41,16 @@ public:
   virtual double ComputeError(
     vtkPointSet* dataset, vtkIdType originId, vtkIdType p1Id, vtkIdType p2Id) = 0;
 
+  /**
+   * @brief Returns whether this decimation strategy is in
+   * a valid state and ready to compute errors.
+   * Subclasses are expected to implement this method if they need to
+   * have to ensure that some of their state is set correctly. Strategies in invalid
+   * state will cause the filter to early return.
+   * Returns `true` by default.
+   */
+  virtual bool IsStateValid(vtkPointSet* vtkNotUsed(dataset)) const { return true; }
+
 protected:
   vtkDecimatePolylineStrategy() = default;
   ~vtkDecimatePolylineStrategy() override = default;

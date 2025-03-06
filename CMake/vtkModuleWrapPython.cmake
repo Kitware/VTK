@@ -35,8 +35,8 @@ Known limitations include:
      vtk_module_python_default_destination(<var>
       [MAJOR_VERSION <major>])
 
-  By default, the destination is ``${CMAKE_INSTALL_BINDIR}/Lib/site-packages`` on
-  Windows and ``${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages`` otherwise.
+  By default, the destination is ``Lib/site-packages`` on Windows
+  and ``${CMAKE_INSTALL_LIBDIR}/python<VERSION>/site-packages`` otherwise.
 
   ``<MAJOR_VERSION>``, if specified, must be ``3``.
 #]==]
@@ -63,7 +63,11 @@ function (vtk_module_python_default_destination var)
   endif ()
 
   if (MSVC)
-    set(destination "${CMAKE_INSTALL_BINDIR}/Lib/site-packages")
+    if (CMAKE_INSTALL_LIBDIR STREQUAL "lib")
+      set(destination "lib/site-packages")
+    else ()
+      set(destination "Lib/site-packages")
+    endif ()
   else ()
     if (NOT DEFINED "Python3_VERSION_MAJOR" OR
         NOT DEFINED "Python3_VERSION_MINOR")

@@ -17,7 +17,6 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
-#include "vtkVectorOperators.h"
 #include "vtkWedge.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -37,12 +36,14 @@ vtkCell* vtkBezierWedge::GetEdge(int edgeId)
   vtkBezierCurve* result = EdgeCell;
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->SetNumberOfTuples(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
       result->GetRationalWeights()->SetValue(edge_id, this->GetRationalWeights()->GetValue(vol_id));
@@ -51,12 +52,14 @@ vtkCell* vtkBezierWedge::GetEdge(int edgeId)
   }
   else
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+    {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->Reset();
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void {
+    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& vol_id) -> void
+    {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(vol_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(vol_id));
     };
@@ -76,12 +79,14 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
     vtkBezierTriangle* result = BdyTri;
     if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
     {
-      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+      {
         result->Points->SetNumberOfPoints(npts);
         result->PointIds->SetNumberOfIds(npts);
         result->GetRationalWeights()->SetNumberOfTuples(npts);
       };
-      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+      {
         result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
         result->GetRationalWeights()->SetValue(
@@ -90,12 +95,14 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
     }
     else
     {
-      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+      {
         result->Points->SetNumberOfPoints(npts);
         result->PointIds->SetNumberOfIds(npts);
         result->GetRationalWeights()->Reset();
       };
-      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+      {
         result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       };
@@ -110,12 +117,14 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
     vtkBezierQuadrilateral* result = BdyQuad;
     if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
     {
-      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+      {
         result->Points->SetNumberOfPoints(npts);
         result->PointIds->SetNumberOfIds(npts);
         result->GetRationalWeights()->SetNumberOfTuples(npts);
       };
-      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+      {
         result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
         result->GetRationalWeights()->SetValue(
@@ -124,12 +133,14 @@ vtkCell* vtkBezierWedge::GetFace(int faceId)
     }
     else
     {
-      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
+      set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
+      {
         result->Points->SetNumberOfPoints(npts);
         result->PointIds->SetNumberOfIds(npts);
         result->GetRationalWeights()->Reset();
       };
-      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void {
+      set_ids_and_points = [&](const vtkIdType& face_id, const vtkIdType& vol_id) -> void
+      {
         result->Points->SetPoint(face_id, this->Points->GetPoint(vol_id));
         result->PointIds->SetId(face_id, this->PointIds->GetId(vol_id));
       };

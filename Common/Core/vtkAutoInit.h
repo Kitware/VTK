@@ -18,7 +18,10 @@
     static struct M##_AutoInit                                                                     \
     {                                                                                              \
       /* Call every <mod>_AutoInit_Construct during initialization.  */                            \
-      M##_AutoInit() { VTK_AUTOINIT_CONSTRUCT_##T }                                                \
+      M##_AutoInit()                                                                               \
+      {                                                                                            \
+        VTK_AUTOINIT_CONSTRUCT_##T                                                                 \
+      }                                                                                            \
     } M##_AutoInit_Instance; /* NOLINT(misc-definitions-in-headers) */                             \
   }
 
@@ -81,7 +84,10 @@
   static struct M##_ModuleInit                                                                     \
   {                                                                                                \
     /* Call <mod>_AutoInit_Construct during initialization.  */                                    \
-    M##_ModuleInit() { VTK_AUTOINIT_CONSTRUCT(M) }                                                 \
+    M##_ModuleInit()                                                                               \
+    {                                                                                              \
+      VTK_AUTOINIT_CONSTRUCT(M)                                                                    \
+    }                                                                                              \
   } M##_ModuleInit_Instance;                                                                       \
   }
 

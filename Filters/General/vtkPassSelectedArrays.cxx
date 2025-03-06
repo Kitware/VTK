@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPassSelectedArrays.h"
 
+#include "vtkCellGrid.h"
 #include "vtkCommand.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSetAttributes.h"
@@ -48,6 +49,7 @@ int vtkPassSelectedArrays::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
   info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCellGrid");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
   info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
@@ -67,6 +69,11 @@ int vtkPassSelectedArrays::RequestData(
   if (!this->Enabled)
   {
     return 1;
+  }
+
+  if (auto* cellGrid = vtkCellGrid::SafeDownCast(output))
+  {
+    return this->HandleCellGridAttributes(cellGrid);
   }
 
   // now filter arrays for each of the associations.
@@ -119,6 +126,36 @@ int vtkPassSelectedArrays::RequestData(
     }
   }
 
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkPassSelectedArrays::HandleCellGridAttributes(vtkCellGrid* output)
+{
+  if (!output)
+  {
+    return 0;
+  }
+
+  auto* shape = output->GetShapeAttribute();
+  auto* selection = this->GetCellDataArraySelection();
+  std::set<vtkCellAttribute*> removeAttributes;
+  for (const auto& attribute : output->GetCellAttributeList())
+  {
+    // Never remove the shape attribute:
+    if (attribute == shape)
+    {
+      continue;
+    }
+    if (!selection->ArrayIsEnabled(attribute->GetName().Data().c_str()))
+    {
+      removeAttributes.insert(attribute);
+    }
+  }
+  for (const auto& attribute : removeAttributes)
+  {
+    output->RemoveCellAttribute(attribute);
+  }
   return 1;
 }
 

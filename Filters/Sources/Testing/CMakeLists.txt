@@ -1,6 +1,7 @@
 vtk_module_test_data(
   Data/mbwavelet_ascii.q
   Data/mbwavelet_ascii.xyz
+  Data/goldenBallBaseline200.vtu
 )
 
 if (NOT vtk_testing_cxx_disabled)

@@ -6,6 +6,8 @@ KIT
   VTK::Filters
 GROUPS
   StandAlone
+DESCRIPTION
+  Filters that process time-varying data.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
@@ -15,6 +17,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+  VTK::CommonExecutionModel
 TEST_DEPENDS
   VTK::CommonExecutionModel
   VTK::FiltersGeneral

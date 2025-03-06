@@ -20,4 +20,4 @@ PRIVATE_DEPENDS
   VTK::IOLegacy
   VTK::ParallelCore
   VTK::RenderingCore
-  VTK::glew
+  VTK::glad

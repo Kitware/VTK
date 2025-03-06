@@ -645,7 +645,8 @@ bool vtkHyperTreeGridGeometricLocator::ConstructCell(
     cell->PointIds->SetId(iP, iP);
   }
 
-  auto cubePoint = [dim, origin, size](std::bitset<3>& pos, std::vector<double>* cubePt) {
+  auto cubePoint = [dim, origin, size](std::bitset<3>& pos, std::vector<double>* cubePt)
+  {
     for (unsigned int d = 0; d < dim; d++)
     {
       cubePt->at(d) = origin[d] + pos[d] * size[d];
@@ -674,7 +675,8 @@ void vtkHyperTreeGridGeometricLocator::GetZeroLevelOriginAndSize(
   double* origin, double* sizes) const
 {
   unsigned int dim = this->HTG->GetDimension();
-  auto getOriginSize = [](vtkDataArray* compArray, double& ori, double& s) {
+  auto getOriginSize = [](vtkDataArray* compArray, double& ori, double& s)
+  {
     ori = compArray->GetComponent(0, 0);
     s = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0) - ori;
   };

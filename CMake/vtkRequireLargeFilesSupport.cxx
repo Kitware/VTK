@@ -5,8 +5,10 @@
 #define _FILE_OFFSET_BITS 64
 #include <cassert>
 #include <cstdio>
-#include <sys/stat.h>
 #include <sys/types.h>
+
+// include sys/stat.h after sys/types.h to ensure correct off_t definition
+#include <sys/stat.h>
 
 int main(int, char** argv)
 {

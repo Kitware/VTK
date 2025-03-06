@@ -85,7 +85,7 @@ public:
    * method is useful if there is no orientation or
    * spacing to apply.
    */
-  static void TranslatePoints(double* t, vtkDataArray* da);
+  static void TranslatePoints(const double t[3], vtkDataArray* da);
 
   /**
    * Given x-y-z points represented by a vtkDataArray,
@@ -97,7 +97,7 @@ public:
    * Given three-component normals represented by a vtkDataArray,
    * transform the normals using the matrix provided.
    */
-  static void TransformNormals(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da);
+  static void TransformNormals(vtkMatrix3x3* m3, const double spacing[3], vtkDataArray* da);
 
   /**
    * Given three-component vectors represented by a vtkDataArray, transform
@@ -107,7 +107,7 @@ public:
    * as velocity or displacement unless the spacing is (1,1,1) and the
    * direction matrix is orthonormal.
    */
-  static void TransformVectors(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da);
+  static void TransformVectors(vtkMatrix3x3* m3, const double spacing[3], vtkDataArray* da);
 
 protected:
   vtkImageTransform() = default;
