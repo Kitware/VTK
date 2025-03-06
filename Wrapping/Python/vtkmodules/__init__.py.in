@@ -11,12 +11,18 @@ from importlib.abc import MetaPathFinder
 from importlib.machinery import ExtensionFileLoader
 
 LOADING_STACK = []
+LIB_EXTS = [".pyd", ".so"]
 
 def find_lib_path(paths, vtk_module_name):
-    for ext in [".pyd", ".so"]:
+    for ext in LIB_EXTS:
         for base_path in paths:
-            for f in Path(base_path).glob(f"{vtk_module_name}.*{ext}"):
-                return str(f.resolve())
+            # vtk-wheel => vtkCommonCore.cpython-310-darwin.so
+            # paraview  => vtkCommonCore.so
+            # Caution: vtkIOXML vs vtkIOXMLParser
+            for f in Path(base_path).glob(f"{vtk_module_name}[.-]*"):
+                resolved_file = f.resolve()
+                if resolved_file.is_file() and ext in resolved_file.suffixes:
+                    return str(resolved_file)
 
 
 class VTKMetaHook(MetaPathFinder):
