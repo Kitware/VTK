@@ -15,6 +15,7 @@ DEPENDS
   VTK::ImagingColor
   VTK::IOXML
   VTK::RenderingCore
+  VTK::SerializationManager
   VTK::TestingCore
 PRIVATE_DEPENDS
   VTK::CommonDataModel

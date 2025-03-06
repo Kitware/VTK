@@ -23,6 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkObjectManager.h"
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
@@ -1097,7 +1098,34 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
   {
     testing->SetRenderWindow(rw);
 
-    return testing->RegressionTest(thresh, std::cout);
+    int res = testing->RegressionTest(thresh, std::cout);
+
+    if (res == PASSED)
+    {
+      vtkNew<vtkObjectManager> serManager;
+      serManager->Initialize();
+
+      vtkTypeUInt32 rwId = serManager->RegisterObject(rw);
+      serManager->UpdateStatesFromObjects();
+
+      vtkNew<vtkObjectManager> desManager;
+      desManager->Initialize();
+
+      vector<vtkTypeUInt32> ids = serManager->GetAllDependencies(0);
+      for (vtkTypeUInt32 id : ids)
+      {
+        desManager->RegisterState(serManager->GetState(id));
+      }
+      for (const string& hash : serManager->GetBlobHashes(ids))
+      {
+        desManager->RegisterBlob(hash, serManager->GetBlob(hash));
+      }
+
+      desManager->UpdateObjectsFromStates();
+      testing->SetRenderWindow(vtkRenderWindow::SafeDownCast(desManager->GetObjectAtId(rwId)));
+      res = testing->RegressionTest(thresh, std::cout);
+    }
+    return res;
   }
   return NOT_RUN;
 }
