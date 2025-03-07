@@ -48,7 +48,7 @@ public:
   void SetSwap(bool val);
 
 private:
-  std::ifstream& fin;
+  std::ifstream fin;
   bool NeedSwap;
 };
 

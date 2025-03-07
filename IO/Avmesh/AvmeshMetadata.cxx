@@ -1,7 +1,7 @@
 #include "AvmeshMetadata.h"
 
 AvmeshPatch::AvmeshPatch()
-  : id(0)
+  : pid(0)
   , label("")
   , type("")
 {

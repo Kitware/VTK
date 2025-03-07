@@ -6,6 +6,8 @@
 
 struct AvmeshPatch
 {
+  AvmeshPatch();
+
   int pid;
   char label[32];
   char type[16];
@@ -13,6 +15,8 @@ struct AvmeshPatch
 
 struct AvmeshMetadata
 {
+  AvmeshMetadata();
+
   // File header
   char magicString[6];
   int magicNumber;

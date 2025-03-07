@@ -6,7 +6,7 @@ BinaryFile::BinaryFile(const char* fname)
 {
 }
 
-BinaryFile::~BinaryFile() {}
+BinaryFile::~BinaryFile() = default;
 
 bool BinaryFile::good() const
 {
@@ -23,7 +23,7 @@ double BinaryFile::ReadDouble()
   return ReadOne<double>();
 }
 
-void BinaryFile::ReadCString(char* s, size_t n = 128)
+void BinaryFile::ReadCString(char* s, size_t n)
 {
   fin.read(s, n);
 }
@@ -31,12 +31,12 @@ void BinaryFile::ReadCString(char* s, size_t n = 128)
 std::string BinaryFile::ReadStdString()
 {
   int len = ReadInt();
-  std::string s(len);
-  ReadCString(s.data(), n);
+  std::string s(len, '\0');
+  ReadCString(s.data(), len);
   return s;
 }
 
-int BinaryFile::SwapInt(int x) const
+int BinaryFile::SwapInt(int x)
 {
 #ifdef VTK_WORDS_BIGENDIAN
   vtkByteSwap::SwapLE(&x);
