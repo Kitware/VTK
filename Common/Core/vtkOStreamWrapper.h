@@ -33,7 +33,6 @@ class vtkStdString;
 class VTKCOMMONCORE_EXPORT VTK_WRAPEXCLUDE vtkOStreamWrapper
 {
   class std_string;
-  class std_string_view;
 
 public:
   ///@{
@@ -115,13 +114,6 @@ public:
     return *this;
   }
 
-  // Accept std::string_view without a declaration.
-  template <template <typename, typename> class SV>
-  vtkOStreamWrapper& operator<<(const SV<char, std::char_traits<char>>& sv)
-  {
-    return *this << reinterpret_cast<std_string_view const&>(sv);
-  }
-
   /**
    * Forward the write method to the real stream.
    */
@@ -163,7 +155,6 @@ protected:
 private:
   vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) = delete;
   vtkOStreamWrapper& operator<<(std_string const&);
-  vtkOStreamWrapper& operator<<(std_string_view const&);
 };
 
 VTK_ABI_NAMESPACE_END
