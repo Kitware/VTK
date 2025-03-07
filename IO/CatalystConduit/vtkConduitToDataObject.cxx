@@ -36,7 +36,7 @@
 #include <numeric>
 #include <set>
 
-namespace
+namespace AMRUtils
 {
 struct LocalInfo
 {
@@ -156,7 +156,7 @@ void GatherInfos(LocalInfo& rankInfo, GlobalInfo& globalInfo)
 // initialize AMR: each rank has same structure
 // nb of Levels and nb of Blocks per level.
 // init each bloc with nullptr
-void InitializeLocalAMR(LocalInfo& rankInfo, GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
+void InitializeLocalAMR(GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
 {
   std::vector<int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
   for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
@@ -610,8 +610,8 @@ bool FillPartionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node
 //----------------------------------------------------------------------------
 bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
 {
-  LocalInfo rankInfo;
-  GlobalInfo globalInfo;
+  AMRUtils::LocalInfo rankInfo;
+  AMRUtils::GlobalInfo globalInfo;
 
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   if (controller)
@@ -621,19 +621,19 @@ bool FillAMRMesh(vtkOverlappingAMR* amr, const conduit_cpp::Node& node)
     globalInfo.NbOfProcesses = controller->GetNumberOfProcesses();
     rankInfo.Rank = controller->GetLocalProcessId();
   }
-  ::ConstructLocalInfo(node, rankInfo);
+  AMRUtils::ConstructLocalInfo(node, rankInfo);
 
-  ::GatherInfos(rankInfo, globalInfo);
+  AMRUtils::GatherInfos(rankInfo, globalInfo);
 
-  ::InitializeLocalAMR(rankInfo, globalInfo, amr);
+  AMRUtils::InitializeLocalAMR(globalInfo, amr);
 
   for (conduit_index_t cc = 0; cc < rankInfo.NbOfLeaves; ++cc)
   {
     const auto child = node.child(cc);
-    ::FillLocalData(child, rankInfo, globalInfo, amr);
+    AMRUtils::FillLocalData(child, rankInfo, globalInfo, amr);
   }
 
-  ::DistributeAMRBoxes(rankInfo, globalInfo, amr);
+  AMRUtils::DistributeAMRBoxes(rankInfo, globalInfo, amr);
 
   if (globalInfo.NbOfProcesses == 1)
   {
