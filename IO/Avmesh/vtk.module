@@ -11,3 +11,7 @@ DEPENDS
   VTK::IOCore
 PRIVATE_DEPENDS
   VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::CommonDataModel
+  VTK::TestingCore
+  VTK::FiltersVerdict
