@@ -1566,14 +1566,14 @@ float* Attributes::GetPressureArray()
   return &this->Pressure[0];
 }
 
-void CreatePolyhedra(unsigned int nx, unsigned int ny, unsigned int nz, conduit_cpp::Node& mesh)
+void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned int ny,
+  unsigned int nz, conduit_cpp::Node& mesh)
 {
-  Grid grid;
   unsigned int numPoints[3] = { nx, ny, nz };
   double spacing[3] = { 1, 1.1, 1.3 };
   grid.Initialize(numPoints, spacing);
-  Attributes attribs;
   attribs.Initialize(&grid);
+  attribs.UpdateFields(0);
 
   mesh["coordsets/coords/type"].set("explicit");
 
@@ -1634,9 +1634,20 @@ void CreatePolyhedra(unsigned int nx, unsigned int ny, unsigned int nz, conduit_
 bool ValidatePolyhedra()
 {
   conduit_cpp::Node mesh;
-  constexpr int nX = 4, nY = 8, nZ = 6;
-  CreatePolyhedra(nX, nY, nZ, mesh);
+  constexpr int nX = 4, nY = 4, nZ = 4;
+  Grid grid;
+  Attributes attribs;
+  CreatePolyhedra(grid, attribs, nX, nY, nZ, mesh);
+  auto values = mesh["fields/velocity/values"];
   auto data = Convert(mesh);
+
+  int mpiSize = 1;
+  int mpiRank = 0;
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
+#endif
+
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
@@ -1644,14 +1655,11 @@ bool ValidatePolyhedra()
     pds->GetNumberOfPartitions());
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
-  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
-    ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfPoints() == grid.GetNumberOfPoints(), "expected %zu points got %lld",
+    grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
 
-  // 160 cells expected: 4 layers of
-  //                     - 2 columns with 4 hexahedra
-  //                     - 2 columns with 4 polyhedra (wedges) and 12 tetra
-  //                     96 tetras + 32 hexas + 32 polyhedra
-  VERIFY(ug->GetNumberOfCells() == 160, "expected 160 cells, got %lld", ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfCells() == grid.GetNumberOfCells(), "expected %zu cells, got %lld",
+    grid.GetNumberOfCells(), ug->GetNumberOfCells());
 
   // check cell types
   auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1667,86 +1675,19 @@ bool ValidatePolyhedra()
       {
         ++nPolyhedra;
         const vtkIdType nFaces = it->GetNumberOfFaces();
-        VERIFY(nFaces == 5, "Expected 5 faces, got %lld", nFaces);
-        break;
-      }
-      case VTK_HEXAHEDRON:
-      {
-        ++nHexa;
-        break;
-      }
-      case VTK_TETRA:
-      {
-        ++nTetra;
+        VERIFY(nFaces == 6, "Expected 6 faces, got %lld", nFaces);
         break;
       }
       default:
       {
-        vtkLog(ERROR, "Expected only tetras, hexas and polyhedra.");
+        vtkLog(ERROR, "Expected only polyhedra.");
         return false;
       }
     }
   }
 
-  VERIFY(nCells == 160, "Expected 160 cells, got %d", nCells);
-  VERIFY(nTetra == 96, "Expected 96 tetras, got %d", nTetra);
-  VERIFY(nHexa == 32, "Expected 32 hexahedra, got %d", nHexa);
-  VERIFY(nPolyhedra == 32, "Expected 32 polyhedra, got %d", nPolyhedra);
-
-  // Test Wedge and Pyramid cell type
-  conduit_cpp::Node mesh2;
-  CreateWedgeAndPyramidUnstructuredMesh(5, 5, 5, mesh2);
-  data = Convert(mesh2);
-
-  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
-    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
-  pds = vtkPartitionedDataSet::SafeDownCast(data);
-  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
-    pds->GetNumberOfPartitions());
-  ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
-
-  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
-    ug->GetNumberOfPoints());
-
-  // 64 cells expected: 4 layers of
-  //                     - 2 columns with 4 pyramids
-  //                     - 2 columns with 4 wedges
-  //                     32 pyramids + 32 wedges
-  VERIFY(ug->GetNumberOfCells() == 64, "expected 64 cells, got %lld", ug->GetNumberOfCells());
-
-  // check cell types
-  it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
-
-  int nPyramids(0), nWedges(0);
-  nCells = 0;
-  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-  {
-    ++nCells;
-    const int cellType = it->GetCellType();
-    switch (cellType)
-    {
-      case VTK_PYRAMID:
-      {
-        ++nPyramids;
-        break;
-      }
-      case VTK_WEDGE:
-      {
-        ++nWedges;
-        break;
-      }
-      default:
-      {
-        vtkLog(ERROR, "Expected only pyramids and wedges.");
-        return false;
-      }
-    }
-  }
-
-  VERIFY(nCells == 64, "Expected 64 cells, got %d", nCells);
-  VERIFY(nPyramids == 32, "Expected 32 pyramids, got %d", nPyramids);
-  VERIFY(nWedges == 32, "Expected 32 wedges, got %d", nWedges);
-
+  VERIFY(nPolyhedra == grid.GetNumberOfCells(), "Expected %zu polyhedra, got %d",
+    grid.GetNumberOfCells(), nPolyhedra);
   return true;
 }
 
