@@ -1,10 +1,13 @@
 #include "vtkAvmeshReader.h"
 #include "AvmeshMetadata.h"
-#include "vtkCellType.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkUnstructuredGrid.h"
+#include "BinaryFile.h"
+
+#include <vtkCellType.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
+#include <vtkMultiBlockDataSet.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtksys/SystemTools.hxx>
 
 vtkAvmeshReader::vtkAvmeshReader()
   : FileName("")
@@ -16,19 +19,7 @@ vtkAvmeshReader::~vtkAvmeshReader() = default;
 
 int vtkAvmeshReader::CanReadFile(VTK_FILEPATH const char* filename)
 {
-  std::ifstream fin(filename, std::ios::binary);
-
-  if (fin.good())
-  {
-    char buff[6];
-    fin.read(buff, sizeof(buff));
-    if (strncmp(buff, "AVMESH", 6) == 0)
-    {
-      return 1;
-    }
-  }
-
-  return 0;
+  return vtksys::SystemTools::TestFileAccess(filename, vtksys::TEST_FILE_READ);
 }
 
 int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
@@ -40,7 +31,7 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Make surf the file is ready for reading
-  std::ifstream fin(FileName.c_str(), std::ios::binary);
+  BinaryFile fin(FileName.c_str());
   if (!fin.good())
   {
     vtkErrorMacro(<< "Could not open AVMESH file");
@@ -105,89 +96,100 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-bool vtkAvmeshReader::ReadMetadata(std::ifstream& fin, AvmeshMetadata& meta) const
+bool vtkAvmeshReader::ReadMetadata(BinaryFile& fin, AvmeshMetadata& meta) const
 {
   // File header
-  ReadString(fin, meta.magicString, 6);
+  // Make sure the magic string is in place
+  fin.ReadCString(meta.magicString, 6);
   if (strncmp(meta.magicString, "AVMESH", 6) != 0)
   {
     return false;
   }
 
-  meta.magicNumber = ReadInt(fin); // FIXME need to allow for byteswapping
+  // Use the magic number to determine if byte-swapping is needed.  NOTE: while
+  // the AVMESH standard theoretically allows for big-endian files, practically
+  // speaking, they're always little-endian.
+  meta.magicNumber = fin.ReadInt();
   if (meta.magicNumber != 1)
   {
-    return false;
+    if (BinaryFile::SwapInt(meta.magicNumber) == 1)
+    {
+      fin.SetSwap(true);
+    }
+    else
+    {
+      return false;
+    }
   }
 
-  meta.version = ReadInt(fin);
-  meta.meshCount = ReadInt(fin);
-  ReadString(fin, meta.contactInfo);
-  meta.precision = ReadInt(fin);
-  meta.dimensions = ReadInt(fin);
-  ReadVarString(fin, meta.description);
+  meta.version = fin.ReadInt(); // must be 1 or 2, but we'll verify this later
+  meta.meshCount = fin.ReadInt();
+  fin.ReadCString(meta.contactInfo);
+  meta.precision = fin.ReadInt();
+  meta.dimensions = fin.ReadInt();
+  meta.description = fin.ReadStdString();
 
   // Mesh header
-  ReadString(fin, meta.meshName);
-  ReadString(fin, meta.meshType);
-  ReadString(fin, meta.meshGenerator);
-  ReadString(fin, meta.coordinateSystem);
-  meta.scale = ReadDouble(fin);
-  ReadString(fin, meta.units);
+  fin.ReadCString(meta.meshName);
+  fin.ReadCString(meta.meshType); // must be "unstruc", but we'll check later
+  fin.ReadCString(meta.meshGenerator);
+  fin.ReadCString(meta.coordinateSystem);
+  meta.scale = fin.ReadDouble();
+  fin.ReadCString(meta.units);
 
   if (meta.version == 1)
   {
-    meta.refLen[0] = ReadDouble(fin);
+    meta.refLen[0] = fin.ReadDouble();
     meta.refLen[1] = meta.refLen[0];
     meta.refLen[2] = meta.refLen[0];
   }
   else
   {
-    ReadArray(fin, meta.refLen, 3);
+    fin.ReadArray(meta.refLen, 3);
   }
 
-  meta.refArea = ReadDouble(fin);
-  ReadArray(fin, meta.refPoint, 3);
-  ReadString(fin, meta.refDescription);
+  meta.refArea = fin.ReadDouble();
+  fin.ReadArray(meta.refPoint, 3);
+  fin.ReadCString(meta.refDescription);
 
-  meta.refined = (meta.version == 2) ? ReadInt(fin) : 0;
+  meta.refined = (meta.version == 2) ? fin.ReadInt() : 0;
 
-  ReadString(fin, meta.meshDescription);
+  fin.ReadCString(meta.meshDescription);
 
   // Unstruc header
-  meta.nNodes = ReadInt(fin);
-  meta.nFaces = ReadInt(fin);
-  meta.nCells = ReadInt(fin);
-  meta.nMaxNodesPerFace = ReadInt(fin);
-  meta.nMaxNodesPerCell = ReadInt(fin);
-  meta.nMaxFacesPerCell = ReadInt(fin);
+  meta.nNodes = fin.ReadInt();
+  meta.nFaces = fin.ReadInt();
+  meta.nCells = fin.ReadInt();
+  meta.nMaxNodesPerFace = fin.ReadInt();
+  meta.nMaxNodesPerCell = fin.ReadInt();
+  meta.nMaxFacesPerCell = fin.ReadInt();
 
   if (meta.version == 2)
   {
-    ReadString(fin, meta.elementScheme, sizeof(meta.elementScheme));
-    meta.facePolyOrder = ReadInt(fin);
-    meta.cellPolyOrder = ReadInt(fin);
+    fin.ReadCString(meta.elementScheme, sizeof(meta.elementScheme));
+    meta.facePolyOrder = fin.ReadInt();
+    meta.cellPolyOrder = fin.ReadInt();
   }
 
-  meta.nPatches = ReadInt(fin);
-  meta.nHexCells = ReadInt(fin);
-  meta.nTetCells = ReadInt(fin);
-  meta.nPriCells = ReadInt(fin);
-  meta.nPyrCells = ReadInt(fin);
+  meta.nPatches = fin.ReadInt();
+  meta.nHexCells = fin.ReadInt();
+  meta.nTetCells = fin.ReadInt();
+  meta.nPriCells = fin.ReadInt();
+  meta.nPyrCells = fin.ReadInt();
 
-  meta.nPolyCells = (meta.version == 1) ? ReadInt(fin) : 0;
+  meta.nPolyCells = (meta.version == 1) ? fin.ReadInt() : 0;
 
-  meta.nBndTriFaces = ReadInt(fin);
-  meta.nTriFaces = ReadInt(fin);
-  meta.nBndQuadFaces = ReadInt(fin);
-  meta.nQuadFaces = ReadInt(fin);
+  meta.nBndTriFaces = fin.ReadInt();
+  meta.nTriFaces = fin.ReadInt();
+  meta.nBndQuadFaces = fin.ReadInt();
+  meta.nQuadFaces = fin.ReadInt();
 
   if (meta.version == 1)
   {
-    meta.nBndPolyCells = ReadInt(fin);
-    meta.nPolyFaces = ReadInt(fin);
-    meta.bndPolyFacesSize = ReadInt(fin);
-    meta.polyFacesSize = ReadInt(fin);
+    meta.nBndPolyCells = fin.ReadInt();
+    meta.nPolyFaces = fin.ReadInt();
+    meta.bndPolyFacesSize = fin.ReadInt();
+    meta.polyFacesSize = fin.ReadInt();
   }
   else
   {
@@ -197,19 +199,19 @@ bool vtkAvmeshReader::ReadMetadata(std::ifstream& fin, AvmeshMetadata& meta) con
     meta.polyFacesSize = 0;
   }
 
-  meta.nEdges = ReadInt(fin);
-  meta.nNodesOnGeometry = ReadInt(fin);
-  meta.nEdgesOnGeometry = ReadInt(fin);
-  meta.nFacesOnGeometry = ReadInt(fin);
-  meta.geomRegionId = ReadInt(fin);
+  meta.nEdges = fin.ReadInt();
+  meta.nNodesOnGeometry = fin.ReadInt();
+  meta.nEdgesOnGeometry = fin.ReadInt();
+  meta.nFacesOnGeometry = fin.ReadInt();
+  meta.geomRegionId = fin.ReadInt();
 
   // Patch info
   meta.patches.resize(meta.nPatches);
   for (auto& patch : meta.patches)
   {
-    patch.pid = ReadInt(fin);
-    ReadString(fin, patch.label, sizeof(patch.label));
-    ReadString(fin, patch.type, sizeof(patch.type));
+    patch.pid = fin.ReadInt();
+    fin.ReadCString(patch.label, sizeof(patch.label));
+    fin.ReadCString(patch.type, sizeof(patch.type));
   }
 
   return true;
@@ -219,6 +221,8 @@ bool vtkAvmeshReader::CheckAssumptions(AvmeshMetadata const& meta) const
 {
   bool readable = true;
 
+  // rev0 is a weird face-based format that nobody uses anymore,
+  // and rev3 doesn't exist yet
   if (meta.version < 1 || meta.version > 2)
   {
     vtkErrorMacro("Only AVMESH rev1 and rev2 allowed");
@@ -231,6 +235,7 @@ bool vtkAvmeshReader::CheckAssumptions(AvmeshMetadata const& meta) const
     readable = false;
   }
 
+  // Never seen a single precision one in the wild
   if (meta.precision != 2)
   {
     vtkErrorMacro("Only double precision supported");
@@ -243,6 +248,7 @@ bool vtkAvmeshReader::CheckAssumptions(AvmeshMetadata const& meta) const
     readable = false;
   }
 
+  // Never seen a multi-mesh AVMESH file in the wild
   if (meta.meshCount > 1)
   {
     vtkWarningMacro("Multi-mesh AVMESH file detected.  Only the first mesh will be read.");
@@ -254,12 +260,16 @@ bool vtkAvmeshReader::CheckAssumptions(AvmeshMetadata const& meta) const
     readable = false;
   }
 
+  // Higher order AVMESH grids do exist in practice for use with COFFE,
+  // but we're not going to support that here.
   if (meta.facePolyOrder != 1 || meta.cellPolyOrder != 1)
   {
     vtkErrorMacro("Only linear (P1) meshes allowed");
     readable = false;
   }
 
+  // Arbitrary poly AVMESH files don't exist in practice since neither Kestrel
+  // nor Helios support it.
   if (meta.nPolyCells != 0 || meta.nBndPolyCells != 0 || meta.nPolyFaces != 0 ||
     meta.bndPolyFacesSize != 0 || meta.polyFacesSize != 0)
   {
@@ -270,14 +280,14 @@ bool vtkAvmeshReader::CheckAssumptions(AvmeshMetadata const& meta) const
   return readable;
 }
 
-vtkSmartPointer<vtkPoints> vtkAvmeshReader::ReadVolumeVerts(std::ifstream& fin, int nNodes) const
+vtkSmartPointer<vtkPoints> vtkAvmeshReader::ReadVolumeVerts(BinaryFile& fin, int nNodes) const
 {
   auto points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(nNodes);
   double* buff = (double*)(points->GetVoidPointer(0));
   size_t nitems = (size_t)nNodes * 3;
-  ReadArray(fin, buff, nitems);
+  fin.ReadArray(buff, nitems);
   return points;
 }
 
@@ -292,18 +302,19 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkAvmeshReader::AddBlock(
 }
 
 void vtkAvmeshReader::Read2DSurfaceConn(
-  std::ifstream& fin, int nbnd, BfaceList& bfaces, bool fileHasNeighbors) const
+  BinaryFile& fin, int nbnd, BfaceList& bfaces, bool fileHasNeighbors) const
 {
-  // For 2D grids, we read the boundary edges as if they are triangles
+  // For 2D grids, we read the boundary edges as if they are triangles,
+  // but only the first two nodes are significant.
   for (int i = 0; i < nbnd; ++i)
   {
-    ReadArray(fin, &bfaces[i][0], 3);
+    fin.ReadArray(&bfaces[i][0], 3);
     bfaces[i][3] = bfaces[i][2] = bfaces[i][1]; // duplicate nodes to mark it as a line
     if (fileHasNeighbors)
     {
-      (void)ReadInt(fin);
+      (void)fin.ReadInt();
     }
-    bfaces[i][4] = ReadInt(fin);
+    bfaces[i][4] = fin.ReadInt();
   }
 
   // Convert from 1-based to 0-based connectivity
@@ -317,29 +328,29 @@ void vtkAvmeshReader::Read2DSurfaceConn(
 }
 
 void vtkAvmeshReader::Read3DSurfaceConn(
-  std::ifstream& fin, int ntri, int nquad, BfaceList& bfaces, bool fileHasNeighbors) const
+  BinaryFile& fin, int ntri, int nquad, BfaceList& bfaces, bool fileHasNeighbors) const
 {
   // tris
   for (int i = 0; i < ntri; ++i)
   {
-    ReadArray(fin, &bfaces[i][0], 3);
+    fin.ReadArray(&bfaces[i][0], 3);
     bfaces[i][3] = bfaces[i][2]; // duplicate nodes to mark it as a triangle
     if (fileHasNeighbors)
     {
-      (void)ReadInt(fin);
+      (void)fin.ReadInt();
     }
-    bfaces[i][4] = ReadInt(fin);
+    bfaces[i][4] = fin.ReadInt();
   }
 
   // quads
   for (int i = ntri; i < ntri + nquad; ++i)
   {
-    ReadArray(fin, &bfaces[i][0], 4);
+    fin.ReadArray(&bfaces[i][0], 4);
     if (fileHasNeighbors)
     {
-      (void)ReadInt(fin);
+      (void)fin.ReadInt();
     }
-    bfaces[i][4] = ReadInt(fin);
+    bfaces[i][4] = fin.ReadInt();
   }
 
   // Convert from 1-based to 0-based connectivity
@@ -353,7 +364,7 @@ void vtkAvmeshReader::Read3DSurfaceConn(
 }
 
 void vtkAvmeshReader::Read2DVolumeConn(
-  std::ifstream& fin, int nquad, int ntri, vtkUnstructuredGrid* ugrid) const
+  BinaryFile& fin, int nquad, int ntri, vtkUnstructuredGrid* ugrid) const
 {
   size_t ncell = (size_t)nquad + (size_t)ntri;
   size_t connSize = 4 * (size_t)nquad + 3 * (size_t)ntri;
@@ -361,6 +372,7 @@ void vtkAvmeshReader::Read2DVolumeConn(
   ugrid->GetCells()->Use32BitStorage();
   ugrid->AllocateExact(ncell, connSize);
 
+  // Connectivity in the file is 32-bit ints, but InsertNextCell requires vtkIdType.
   int cell[8];
   vtkIdType nodeids[8];
 
@@ -368,10 +380,10 @@ void vtkAvmeshReader::Read2DVolumeConn(
   // 4 nodes are significant.
   for (int i = 0; i < nquad; ++i)
   {
-    ReadArray(fin, cell, 8);
+    fin.ReadArray(cell, 8);
     for (int j = 0; j < 4; ++j)
     {
-      nodeids[j] = cell[j] - 1;
+      nodeids[j] = cell[j] - 1; // convert to 0-based connectivity
     }
     ugrid->InsertNextCell(VTK_QUAD, 4, nodeids);
   }
@@ -380,17 +392,17 @@ void vtkAvmeshReader::Read2DVolumeConn(
   // 3 nodes are significant.
   for (int i = 0; i < ntri; ++i)
   {
-    ReadArray(fin, cell, 4); // tris are stored as tets
+    fin.ReadArray(cell, 4);
     for (int j = 0; j < 3; ++j)
     {
-      nodeids[j] = cell[j] - 1;
+      nodeids[j] = cell[j] - 1; // convert to 0-based connectivity
     }
     ugrid->InsertNextCell(VTK_TRIANGLE, 3, nodeids);
   }
 }
 
 void vtkAvmeshReader::Read3DVolumeConn(
-  std::ifstream& fin, int nhex, int ntet, int npri, int npyr, vtkUnstructuredGrid* ugrid) const
+  BinaryFile& fin, int nhex, int ntet, int npri, int npyr, vtkUnstructuredGrid* ugrid) const
 {
   size_t ncell = (size_t)nhex + (size_t)ntet + (size_t)npri + (size_t)npyr;
   size_t connSize = 8 * (size_t)nhex + 4 * (size_t)ntet + 6 * (size_t)npri + 5 * (size_t)npyr;
@@ -405,20 +417,21 @@ void vtkAvmeshReader::Read3DVolumeConn(
 }
 
 void vtkAvmeshReader::Read3DVolumeConnOfType(
-  std::ifstream& fin, int etype, int ncell, vtkUnstructuredGrid* ugrid) const
+  BinaryFile& fin, int etype, int ncell, vtkUnstructuredGrid* ugrid) const
 {
-  int nNodesPerCell = NodesPerCell(etype);
+  // Connectivity in the file is 32-bit ints, but InsertNextCell requires vtkIdType.
   int cell[8];
   vtkIdType nodeids[8];
+  int nNodesPerCell = NodesPerCell(etype);
   for (int i = 0; i < ncell; ++i)
   {
-    ReadArray(fin, cell, nNodesPerCell);
+    fin.ReadArray(cell, nNodesPerCell);
     for (int j = 0; j < nNodesPerCell; ++j)
     {
-      nodeids[j] = cell[j] - 1;
+      nodeids[j] = cell[j] - 1; // convert to 0-based connectivity
     }
-    if (etype == VTK_WEDGE)
-    {
+    if (etype == VTK_WEDGE) // wedges are the only cell type with a winding
+    {                       // order that doesn't match VTK's
       std::swap(nodeids[1], nodeids[2]);
       std::swap(nodeids[4], nodeids[5]);
     }
@@ -449,6 +462,10 @@ int vtkAvmeshReader::NodesPerCell(int etype) const
 void vtkAvmeshReader::BuildBoundaryBlocks(vtkMultiBlockDataSet* output, vtkPoints* volPoints,
   std::vector<AvmeshPatch> const& patches, BfaceList& bfaces) const
 {
+  // There is no guarantee that the boundary connectivity and patch IDs will be
+  // in any particular order.  So we need to group them together by patch ID.
+  // Once we have all the faces that belong to a patch, we can construct a block
+  // for that patch.
   auto firstFace = bfaces.begin();
   for (auto const& patch : patches)
   {
@@ -470,6 +487,8 @@ void vtkAvmeshReader::BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid,
   vtkPoints* volPoints, BfaceList::const_iterator firstFace,
   BfaceList::const_iterator lastFace) const
 {
+  // Start by constructing a surface-to-volume mapping.  This maps a surface
+  // node ID for this patch to a volume node ID for the whole grid.
   int nface = lastFace - firstFace;
   std::vector<int> s2v;
   s2v.reserve(4 * nface);
@@ -479,8 +498,11 @@ void vtkAvmeshReader::BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid,
   }
   makeUnique(s2v);
 
+  // Number of unique nodes on this patch
   int pnnode = s2v.size();
 
+  // Now construct the volume-to-surface mapping, which maps a volume node ID
+  // from the whole grid to a surface node ID on this patch.
   int nmax = *std::max_element(s2v.begin(), s2v.end());
   std::vector<int> v2s(nmax + 1);
   for (int i = 0; i < pnnode; ++i)
@@ -488,6 +510,8 @@ void vtkAvmeshReader::BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid,
     v2s[s2v[i]] = i;
   }
 
+  // Now use the surface-to-volume mapping to extract the points needed for
+  // this patch.
   auto surfPoints = vtkSmartPointer<vtkPoints>::New();
   surfPoints->SetDataTypeToDouble();
   surfPoints->Allocate(pnnode);
@@ -498,6 +522,8 @@ void vtkAvmeshReader::BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid,
   }
   surfGrid->SetPoints(surfPoints);
 
+  // Use the volume-to-surface mapping to construct this patch's connectivty
+  // based on this patch's node IDs.
   surfGrid->Allocate(nface);
   for (BfaceList::const_iterator face = firstFace; face != lastFace; ++face)
   {
@@ -523,30 +549,4 @@ void vtkAvmeshReader::BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid,
     }
     surfGrid->InsertNextCell(etype, nodesPer, nodeids);
   }
-}
-
-void vtkAvmeshReader::ReadString(std::ifstream& fin, char* str, int length) const
-{
-  fin.read(str, length);
-}
-
-void vtkAvmeshReader::ReadVarString(std::ifstream& fin, std::string& s) const
-{
-  int n = ReadInt(fin);
-  s.resize(n);
-  ReadString(fin, s.data(), n);
-}
-
-int vtkAvmeshReader::ReadInt(std::ifstream& fin) const
-{
-  int n;
-  ReadArray(fin, &n, 1);
-  return n;
-}
-
-double vtkAvmeshReader::ReadDouble(std::ifstream& fin) const
-{
-  double x;
-  ReadArray(fin, &x, 1);
-  return x;
 }
