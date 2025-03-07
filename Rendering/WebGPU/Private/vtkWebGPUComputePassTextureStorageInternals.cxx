@@ -7,7 +7,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkWebGPUComputePass.h"
-#include "vtkWebGPUComputePipeline.h"
+#include "vtkWebGPUHelpers.h"
 
 #include <algorithm> // for std::remove_if
 
@@ -880,7 +880,7 @@ void vtkWebGPUComputePassTextureStorageInternals::ReadTextureFromGPU(std::size_t
       vtkLog(WARNING, << "Failed to map [Texture \'"
                       << (mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel)
                       << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
-                      << std::string_view(message));
+                      << vtkWebGPUHelpers::StringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(mapData->buffer.Get());

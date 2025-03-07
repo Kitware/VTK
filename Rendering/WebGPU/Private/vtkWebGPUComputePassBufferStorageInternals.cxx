@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "Private/vtkWebGPUComputePassBufferStorageInternals.h"
-#include "Private/vtkWebGPUBufferInternals.h"
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "Private/vtkWebGPUComputePassInternals.h"
-#include <type_traits>
+#include "vtkWebGPUHelpers.h"
 
 #include "vtkObjectFactory.h"
 
@@ -275,7 +274,7 @@ void vtkWebGPUComputePassBufferStorageInternals::ReadBufferFromGPU(
         WARNING, << "Failed to map [Buffer \'"
                  << (callbackData->bufferLabel.empty() ? "(nolabel)" : callbackData->bufferLabel)
                  << "\'] with error status: " << static_cast<std::uint32_t>(status) << " "
-                 << std::string_view(message));
+                 << vtkWebGPUHelpers::StringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(callbackData->buffer.Get());
