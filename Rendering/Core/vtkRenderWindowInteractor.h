@@ -167,11 +167,12 @@ public:
   ///@}
 
   /**
-   * Event loop notification member for window size change.
-   * Window size is measured in pixels.
+   * When the event loop notifies the interactor that the window size has
+   * changed, this method is called to update the Size of the interactor
+   * and its vtkRenderWindow.
    *
-   * If the size has changed, this method will fire
-   * vtkCommand::WindowResizeEvent.
+   * The interactor will fire vtkCommand::ConfigureEvent after the size has
+   * updated.
    */
   virtual void UpdateSize(int x, int y);
 
