@@ -399,6 +399,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
       auto* size = vtkGetParentElementBoundingRectSize(this->CanvasSelector);
       this->UpdateSize(size[0], size[1]);
       free(size);
+      this->InvokeEvent(vtkCommand::ConfigureEvent);
       this->Render();
       this->InvokeEvent(vtkCommand::WindowResizeEvent);
       break;
