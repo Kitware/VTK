@@ -6,11 +6,11 @@
 #include "Private/vtkWebGPUConfigurationInternals.h"
 #include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkObjectFactory.h"
+#include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtksys/SystemInformation.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include <chrono>
 #include <sstream>
 #include <webgpu/webgpu_cpp.h>
 
@@ -542,7 +542,8 @@ bool vtkWebGPUConfiguration::Initialize()
         default:
           break;
       }
-      vtkLog(INFO, << "Device lost, reason=" << reasonName << ". " << std::string_view(message));
+      vtkLog(INFO, << "Device lost, reason=" << reasonName << ". "
+                   << vtkWebGPUHelpers::StringViewToStdString(message));
     });
   deviceDescriptor.SetUncapturedErrorCallback(
     [](const wgpu::Device&, wgpu::ErrorType type, wgpu::StringView message)
@@ -565,7 +566,8 @@ bool vtkWebGPUConfiguration::Initialize()
         default:
           break;
       }
-      vtkGenericWarningMacro(<< errorTypeName << " error: " << std::string_view(message));
+      vtkGenericWarningMacro(<< errorTypeName
+                             << " error: " << vtkWebGPUHelpers::StringViewToStdString(message));
     });
 
   // Populating limits of the device
@@ -838,7 +840,7 @@ wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& 
     vtkWarningMacro(<< "Cannot create buffer because device is not ready.");
     return nullptr;
   }
-  auto label = std::string_view(bufferDescriptor.label);
+  const auto label = vtkWebGPUHelpers::StringViewToStdString(bufferDescriptor.label);
   if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
   {
     wgpu::SupportedLimits supportedDeviceLimits;
@@ -902,7 +904,7 @@ wgpu::Texture vtkWebGPUConfiguration::CreateTexture(
     vtkWarningMacro(<< "Cannot create texture because device is not ready.");
     return nullptr;
   }
-  auto label = std::string_view(textureDescriptor.label);
+  const auto label = vtkWebGPUHelpers::StringViewToStdString(textureDescriptor.label);
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
     "Create texture {label=" << label << "\",size=" << textureDescriptor.size.width << 'x'
                              << textureDescriptor.size.height << 'x'

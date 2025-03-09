@@ -16,6 +16,7 @@
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUConfiguration.h"
+#include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -836,7 +837,7 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
       vtkLog(WARNING, << "Failed to map [Texture \'"
                       << (mapData->bufferLabel.empty() ? "(nolabel)" : mapData->bufferLabel)
                       << "\'] with error=" << static_cast<std::uint32_t>(status) << ". "
-                      << std::string_view(message));
+                      << vtkWebGPUHelpers::StringViewToStdString(message));
     }
 #if defined(__EMSCRIPTEN__)
     wgpuBufferRelease(mapData->buffer.Get());
