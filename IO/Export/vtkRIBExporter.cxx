@@ -139,7 +139,7 @@ void vtkRIBExporter::WriteData()
   //
   this->WriteCamera(ren->GetActiveCamera());
 
-  fprintf(this->FilePtr, "WorldBegin\n");
+  vtk::print(this->FilePtr, "WorldBegin\n");
 
   //
   // Write all lights
@@ -190,7 +190,7 @@ void vtkRIBExporter::WriteData()
   }
 
   //  RiWorldEnd ();
-  fprintf(this->FilePtr, "WorldEnd\n");
+  vtk::print(this->FilePtr, "WorldEnd\n");
   //
   // Write trailer
   //
@@ -208,21 +208,22 @@ void vtkRIBExporter::WriteHeader(vtkRenderer* aRen)
   // create a FileName to hold the rendered image
   auto imageFileName = vtk::format("{}{}", this->FilePrefix, ".tif");
 
-  fprintf(this->FilePtr, "FrameBegin %d\n", 1);
-  fprintf(this->FilePtr, "Display \"%s\" \"file\" \"rgb\"\n", imageFileName.c_str());
-  fprintf(this->FilePtr, "Declare \"color\" \"uniform color\"\n");
+  vtk::print(this->FilePtr, "FrameBegin {:d}\n", 1);
+  vtk::print(this->FilePtr, "Display \"{:s}\" \"file\" \"rgb\"\n", imageFileName.c_str());
+  vtk::print(this->FilePtr, "Declare \"color\" \"uniform color\"\n");
   if (this->Background)
   {
     double* color = aRen->GetBackground();
-    fprintf(
-      this->FilePtr, "Imager \"background\" \"color\" [%f %f %f]\n", color[0], color[1], color[2]);
+    vtk::print(this->FilePtr, "Imager \"background\" \"color\" [{:f} {:f} {:f}]\n", color[0],
+      color[1], color[2]);
   }
-  fprintf(this->FilePtr, "PixelSamples %d %d\n", this->PixelSamples[0], this->PixelSamples[1]);
+  vtk::print(
+    this->FilePtr, "PixelSamples {:d} {:d}\n", this->PixelSamples[0], this->PixelSamples[1]);
 }
 
 void vtkRIBExporter::WriteTrailer()
 {
-  fprintf(this->FilePtr, "FrameEnd\n");
+  vtk::print(this->FilePtr, "FrameEnd\n");
 }
 
 void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
@@ -239,11 +240,12 @@ void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
   opacity[0] = Opacity;
   opacity[1] = Opacity;
   opacity[2] = Opacity;
-  fprintf(this->FilePtr, "Opacity [%f %f %f]\n", opacity[0], opacity[1], opacity[2]);
+  vtk::print(this->FilePtr, "Opacity [{:f} {:f} {:f}]\n", opacity[0], opacity[1], opacity[2]);
 
   // set the color of the surface
   DiffuseColor = aProperty->GetDiffuseColor();
-  fprintf(this->FilePtr, "Color [%f %f %f]\n", DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
+  vtk::print(
+    this->FilePtr, "Color [{:f} {:f} {:f}]\n", DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
 
   // set the shader parameters
   Ambient = aProperty->GetAmbient();
@@ -262,7 +264,7 @@ void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
     mapName = this->GetTextureName(aTexture);
     if (mapName)
     {
-      fprintf(this->FilePtr, "Declare \"texturename\" \"uniform string\"\n");
+      vtk::print(this->FilePtr, "Declare \"texturename\" \"uniform string\"\n");
     }
   }
   //
@@ -273,58 +275,59 @@ void vtkRIBExporter::WriteProperty(vtkProperty* aProperty, vtkTexture* aTexture)
     vtkRIBProperty* aRIBProperty = (vtkRIBProperty*)aProperty;
     if (aRIBProperty->GetDeclarations())
     {
-      fprintf(this->FilePtr, "%s", aRIBProperty->GetDeclarations());
+      vtk::print(this->FilePtr, "{:s}", aRIBProperty->GetDeclarations());
     }
     if (aRIBProperty->GetSurfaceShader())
     {
-      fprintf(this->FilePtr, "%s \"%s\" ", "Surface", aRIBProperty->GetSurfaceShader());
+      vtk::print(this->FilePtr, "{:s} \"{:s}\" ", "Surface", aRIBProperty->GetSurfaceShader());
       if (aRIBProperty->GetSurfaceShaderUsesDefaultParameters())
       {
-        fprintf(this->FilePtr, "\"Ka\" [%f] ", Ambient);
-        fprintf(this->FilePtr, "\"Kd\" [%f] ", Diffuse);
-        fprintf(this->FilePtr, "\"Ks\" [%f] ", Specular);
-        fprintf(this->FilePtr, "\"roughness\" [%f] ", Roughness);
-        fprintf(this->FilePtr, "\"specularcolor\" [%f %f %f]\n", SpecularColor[0], SpecularColor[1],
-          SpecularColor[2]);
+        vtk::print(this->FilePtr, "\"Ka\" [{:f}] ", Ambient);
+        vtk::print(this->FilePtr, "\"Kd\" [{:f}] ", Diffuse);
+        vtk::print(this->FilePtr, "\"Ks\" [{:f}] ", Specular);
+        vtk::print(this->FilePtr, "\"roughness\" [{:f}] ", Roughness);
+        vtk::print(this->FilePtr, "\"specularcolor\" [{:f} {:f} {:f}]\n", SpecularColor[0],
+          SpecularColor[1], SpecularColor[2]);
         if (mapName)
         {
-          fprintf(this->FilePtr, " \"texturename\" [\"%s\"]", mapName);
+          vtk::print(this->FilePtr, " \"texturename\" [\"{:s}\"]", mapName);
         }
       }
       if (aRIBProperty->GetSurfaceShaderParameters())
       {
-        fprintf(this->FilePtr, "%s\n", aRIBProperty->GetSurfaceShaderParameters());
+        vtk::print(this->FilePtr, "{:s}\n", aRIBProperty->GetSurfaceShaderParameters());
       }
     }
     if (aRIBProperty->GetDisplacementShader())
     {
-      fprintf(this->FilePtr, "%s \"%s\" ", "Displacement", aRIBProperty->GetDisplacementShader());
+      vtk::print(
+        this->FilePtr, "{:s} \"{:s}\" ", "Displacement", aRIBProperty->GetDisplacementShader());
       if (mapName)
       {
-        fprintf(this->FilePtr, " \"texturename\" [\"%s\"]", mapName);
+        vtk::print(this->FilePtr, " \"texturename\" [\"{:s}\"]", mapName);
       }
       if (aRIBProperty->GetDisplacementShaderParameters())
       {
-        fprintf(this->FilePtr, "%s", aRIBProperty->GetDisplacementShaderParameters());
+        vtk::print(this->FilePtr, "{:s}", aRIBProperty->GetDisplacementShaderParameters());
       }
-      fprintf(this->FilePtr, "\n");
+      vtk::print(this->FilePtr, "\n");
     }
   }
   // Default Property
   else
   {
-    fprintf(this->FilePtr, "Surface \"%s\" ", mapName ? "paintedplastic" : "plastic");
-    fprintf(this->FilePtr, "\"Ka\" [%f] ", Ambient);
-    fprintf(this->FilePtr, "\"Kd\" [%f] ", Diffuse);
-    fprintf(this->FilePtr, "\"Ks\" [%f] ", Specular);
-    fprintf(this->FilePtr, "\"roughness\" [%f] ", Roughness);
-    fprintf(this->FilePtr, "\"specularcolor\" [%f %f %f] ", SpecularColor[0], SpecularColor[1],
-      SpecularColor[2]);
+    vtk::print(this->FilePtr, "Surface \"{:s}\" ", mapName ? "paintedplastic" : "plastic");
+    vtk::print(this->FilePtr, "\"Ka\" [{:f}] ", Ambient);
+    vtk::print(this->FilePtr, "\"Kd\" [{:f}] ", Diffuse);
+    vtk::print(this->FilePtr, "\"Ks\" [{:f}] ", Specular);
+    vtk::print(this->FilePtr, "\"roughness\" [{:f}] ", Roughness);
+    vtk::print(this->FilePtr, "\"specularcolor\" [{:f} {:f} {:f}] ", SpecularColor[0],
+      SpecularColor[1], SpecularColor[2]);
     if (mapName)
     {
-      fprintf(this->FilePtr, " \"texturename\" [\"%s\"]", mapName);
+      vtk::print(this->FilePtr, " \"texturename\" [\"{:s}\"]", mapName);
     }
-    fprintf(this->FilePtr, "\n");
+    vtk::print(this->FilePtr, "\n");
   }
 }
 
@@ -354,17 +357,18 @@ void vtkRIBExporter::WriteLight(vtkLight* aLight, int count)
     if (((vtkRIBLight*)aLight)->GetShadows())
 
     {
-      fprintf(this->FilePtr, "Attribute \"light\" \"shadows\" \"on\"\n");
+      vtk::print(this->FilePtr, "Attribute \"light\" \"shadows\" \"on\"\n");
     }
   }
   // define the light source
   if (!aLight->GetPositional())
   {
-    fprintf(this->FilePtr, "LightSource \"distantlight\" %d ", count);
-    fprintf(this->FilePtr, "\"intensity\" [%f] ", Intensity);
-    fprintf(this->FilePtr, "\"lightcolor\" [%f %f %f] ", color[0], color[1], color[2]);
-    fprintf(this->FilePtr, "\"from\" [%f %f %f] ", Position[0], Position[1], Position[2]);
-    fprintf(this->FilePtr, "\"to\" [%f %f %f]\n", FocalPoint[0], FocalPoint[1], FocalPoint[2]);
+    vtk::print(this->FilePtr, "LightSource \"distantlight\" {:d} ", count);
+    vtk::print(this->FilePtr, "\"intensity\" [{:f}] ", Intensity);
+    vtk::print(this->FilePtr, "\"lightcolor\" [{:f} {:f} {:f}] ", color[0], color[1], color[2]);
+    vtk::print(this->FilePtr, "\"from\" [{:f} {:f} {:f}] ", Position[0], Position[1], Position[2]);
+    vtk::print(
+      this->FilePtr, "\"to\" [{:f} {:f} {:f}]\n", FocalPoint[0], FocalPoint[1], FocalPoint[2]);
   }
   else
   {
@@ -372,27 +376,28 @@ void vtkRIBExporter::WriteLight(vtkLight* aLight, int count)
     double coneAngleRadians = vtkMath::RadiansFromDegrees(coneAngle);
 
     double exponent = aLight->GetExponent();
-    fprintf(this->FilePtr, "LightSource \"spotlight\" %d ", count);
-    fprintf(this->FilePtr, "\"intensity\" [%f] ", Intensity);
-    fprintf(this->FilePtr, "\"lightcolor\" [%f %f %f] ", color[0], color[1], color[2]);
-    fprintf(this->FilePtr, "\"from\" [%f %f %f] ", Position[0], Position[1], Position[2]);
-    fprintf(this->FilePtr, "\"to\" [%f %f %f]\n", FocalPoint[0], FocalPoint[1], FocalPoint[2]);
-    fprintf(this->FilePtr, "\"coneangle\" [%f]\n", coneAngleRadians);
-    fprintf(this->FilePtr, "\"beamdistribution\" [%f]\n", exponent);
-    fprintf(this->FilePtr, "\"conedeltaangle\" [%f]\n", 0.0);
+    vtk::print(this->FilePtr, "LightSource \"spotlight\" {:d} ", count);
+    vtk::print(this->FilePtr, "\"intensity\" [{:f}] ", Intensity);
+    vtk::print(this->FilePtr, "\"lightcolor\" [{:f} {:f} {:f}] ", color[0], color[1], color[2]);
+    vtk::print(this->FilePtr, "\"from\" [{:f} {:f} {:f}] ", Position[0], Position[1], Position[2]);
+    vtk::print(
+      this->FilePtr, "\"to\" [{:f} {:f} {:f}]\n", FocalPoint[0], FocalPoint[1], FocalPoint[2]);
+    vtk::print(this->FilePtr, "\"coneangle\" [{:f}]\n", coneAngleRadians);
+    vtk::print(this->FilePtr, "\"beamdistribution\" [{:f}]\n", exponent);
+    vtk::print(this->FilePtr, "\"conedeltaangle\" [{:f}]\n", 0.0);
   }
   if (strcmp("vtkRIBLight", aLight->GetClassName()) == 0)
   {
     if (((vtkRIBLight*)aLight)->GetShadows())
     {
-      fprintf(this->FilePtr, "Attribute \"light\" \"shadows\" \"off\"\n");
+      vtk::print(this->FilePtr, "Attribute \"light\" \"shadows\" \"off\"\n");
     }
   }
 }
 
 void vtkRIBExporter::WriteAmbientLight(int count)
 {
-  fprintf(this->FilePtr, "LightSource \"ambientlight\" %d\n", count);
+  vtk::print(this->FilePtr, "LightSource \"ambientlight\" {:d}\n", count);
 }
 
 void vtkRIBExporter::WriteViewport(vtkRenderer* ren, int size[2])
@@ -411,13 +416,15 @@ void vtkRIBExporter::WriteViewport(vtkRenderer* ren, int size[2])
     bottom = (int)(vport[1] * (size[1] - 1));
     top = (int)(vport[3] * (size[1] - 1));
 
-    fprintf(this->FilePtr, "Format %d %d 1\n", size[0], size[1]);
+    vtk::print(this->FilePtr, "Format {:d} {:d} 1\n", size[0], size[1]);
 
-    fprintf(this->FilePtr, "CropWindow %f %f %f %f\n", vport[0], vport[2], vport[1], vport[3]);
+    vtk::print(
+      this->FilePtr, "CropWindow {:f} {:f} {:f} {:f}\n", vport[0], vport[2], vport[1], vport[3]);
 
     aspect[0] = (double)(right - left + 1) / (double)(top - bottom + 1);
     aspect[1] = 1.0;
-    fprintf(this->FilePtr, "ScreenWindow %f %f %f %f\n", -aspect[0], aspect[0], -1.0, 1.0);
+    vtk::print(
+      this->FilePtr, "ScreenWindow {:f} {:f} {:f} {:f}\n", -aspect[0], aspect[0], -1.0, 1.0);
   }
 }
 
@@ -438,10 +445,10 @@ void vtkRIBExporter::WriteCamera(vtkCamera* aCamera)
   vtkMath::Normalize(direction);
 
   RtFloat angle = aCamera->GetViewAngle();
-  fprintf(this->FilePtr, "Projection \"perspective\" \"fov\" [%f]\n", angle);
+  vtk::print(this->FilePtr, "Projection \"perspective\" \"fov\" [{:f}]\n", angle);
   PlaceCamera(this->FilePtr, position, direction, aCamera->GetRoll());
 
-  fprintf(this->FilePtr, "Orientation \"rh\"\n");
+  vtk::print(this->FilePtr, "Orientation \"rh\"\n");
 }
 
 /*
@@ -457,16 +464,18 @@ static double cameraMatrix[4][4] = { { -1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1,
 
 void PlaceCamera(FILE* filePtr, RtPoint position, RtPoint direction, double roll)
 {
-  fprintf(filePtr, "Identity\n");
-  fprintf(filePtr, "Transform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
+  vtk::print(filePtr, "Identity\n");
+  vtk::print(filePtr,
+    "Transform [{:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} "
+    "]\n",
     cameraMatrix[0][0], cameraMatrix[0][1], cameraMatrix[0][2], cameraMatrix[0][3],
     cameraMatrix[1][0], cameraMatrix[1][1], cameraMatrix[1][2], cameraMatrix[1][3],
     cameraMatrix[2][0], cameraMatrix[2][1], cameraMatrix[2][2], cameraMatrix[2][3],
     cameraMatrix[3][0], cameraMatrix[3][1], cameraMatrix[3][2], cameraMatrix[3][3]);
 
-  fprintf(filePtr, "Rotate %f %f %f %f\n", -roll, 0.0, 0.0, 1.0);
+  vtk::print(filePtr, "Rotate {:f} {:f} {:f} {:f}\n", -roll, 0.0, 0.0, 1.0);
   AimZ(filePtr, direction);
-  fprintf(filePtr, "Translate %f %f %f\n", -position[0], -position[1], -position[2]);
+  vtk::print(filePtr, "Translate {:f} {:f} {:f}\n", -position[0], -position[1], -position[2]);
 }
 
 /*
@@ -509,20 +518,20 @@ static void AimZ(FILE* filePtr, RtPoint direction)
 
   if (direction[1] > 0)
   {
-    fprintf(filePtr, "Rotate %f %f %f %f\n", xrot, 1.0, 0.0, 0.0);
+    vtk::print(filePtr, "Rotate {:f} {:f} {:f} {:f}\n", xrot, 1.0, 0.0, 0.0);
   }
   else
   {
-    fprintf(filePtr, "Rotate %f %f %f %f\n", -xrot, 1.0, 0.0, 0.0);
+    vtk::print(filePtr, "Rotate {:f} {:f} {:f} {:f}\n", -xrot, 1.0, 0.0, 0.0);
   }
   /* The last rotation declared gets performed first */
   if (direction[0] > 0)
   {
-    fprintf(filePtr, "Rotate %f %f %f %f\n", -yrot, 0.0, 1.0, 0.0);
+    vtk::print(filePtr, "Rotate {:f} {:f} {:f} {:f}\n", -yrot, 0.0, 1.0, 0.0);
   }
   else
   {
-    fprintf(filePtr, "Rotate %f %f %f %f\n", yrot, 0.0, 1.0, 0.0);
+    vtk::print(filePtr, "Rotate {:f} {:f} {:f} {:f}\n", yrot, 0.0, 1.0, 0.0);
   }
 }
 
@@ -539,9 +548,9 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
     return;
   }
 
-  fprintf(this->FilePtr, "AttributeBegin\n");
+  vtk::print(this->FilePtr, "AttributeBegin\n");
 
-  fprintf(this->FilePtr, "TransformBegin\n");
+  vtk::print(this->FilePtr, "TransformBegin\n");
 
   // write out the property
   this->WriteProperty(anActor->GetProperty(), anActor->GetTexture());
@@ -552,7 +561,9 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
   matrix->Transpose();
 
   // insert model transformation
-  fprintf(this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
+  vtk::print(this->FilePtr,
+    "ConcatTransform [{:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} {:f} "
+    "{:f} ]\n",
     matrix->Element[0][0], matrix->Element[0][1], matrix->Element[0][2], matrix->Element[0][3],
     matrix->Element[1][0], matrix->Element[1][1], matrix->Element[1][2], matrix->Element[1][3],
     matrix->Element[2][0], matrix->Element[2][1], matrix->Element[2][2], matrix->Element[2][3],
@@ -583,7 +594,7 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
         vtkDataArray* array = pointData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n", buffer);
+        vtk::print(this->FilePtr, "Declare \"{:s}\" \"varying double\"\n", buffer);
       }
     }
     vtkCellData* cellData = polyData->GetCellData();
@@ -595,7 +606,7 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
         vtkDataArray* array = cellData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n", buffer);
+        vtk::print(this->FilePtr, "Declare \"{:s}\" \"varying double\"\n", buffer);
       }
     }
     vtkFieldData* fieldData = polyData->GetFieldData();
@@ -607,7 +618,7 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
         vtkDataArray* array = fieldData->GetArray(cc);
         char buffer[1024];
         this->ModifyArrayName(buffer, array->GetName());
-        fprintf(this->FilePtr, "Declare \"%s\" \"varying double\"\n", buffer);
+        vtk::print(this->FilePtr, "Declare \"{:s}\" \"varying double\"\n", buffer);
       }
     }
   }
@@ -620,8 +631,8 @@ void vtkRIBExporter::WriteActor(vtkActor* anActor)
   {
     this->WriteStrips(polyData, anActor->GetMapper()->MapScalars(1.0), anActor->GetProperty());
   }
-  fprintf(this->FilePtr, "TransformEnd\n");
-  fprintf(this->FilePtr, "AttributeEnd\n");
+  vtk::print(this->FilePtr, "TransformEnd\n");
+  vtk::print(this->FilePtr, "AttributeEnd\n");
   if (geometryFilter)
   {
     geometryFilter->Delete();
@@ -737,41 +748,41 @@ void vtkRIBExporter::WritePolygons(
       vertexPoints[k][1] = points[1];
       vertexPoints[k][2] = points[2];
     }
-    fprintf(this->FilePtr, "Polygon ");
-    fprintf(this->FilePtr, "\"P\" [");
+    vtk::print(this->FilePtr, "Polygon ");
+    vtk::print(this->FilePtr, "\"P\" [");
     for (kk = 0; kk < npts; kk++)
     {
-      fprintf(
-        this->FilePtr, "%f %f %f ", vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
+      vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexPoints[kk][0], vertexPoints[kk][1],
+        vertexPoints[kk][2]);
     }
-    fprintf(this->FilePtr, "] ");
+    vtk::print(this->FilePtr, "] ");
 
-    fprintf(this->FilePtr, "\"N\" [");
+    vtk::print(this->FilePtr, "\"N\" [");
     for (kk = 0; kk < npts; kk++)
     {
-      fprintf(this->FilePtr, "%f %f %f ", vertexNormals[kk][0], vertexNormals[kk][1],
+      vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexNormals[kk][0], vertexNormals[kk][1],
         vertexNormals[kk][2]);
     }
-    fprintf(this->FilePtr, "] ");
+    vtk::print(this->FilePtr, "] ");
 
     if (c)
     {
-      fprintf(this->FilePtr, "\"Cs\" [");
+      vtk::print(this->FilePtr, "\"Cs\" [");
       for (kk = 0; kk < npts; kk++)
       {
-        fprintf(this->FilePtr, "%f %f %f ", vertexColors[kk][0], vertexColors[kk][1],
+        vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexColors[kk][0], vertexColors[kk][1],
           vertexColors[kk][2]);
       }
-      fprintf(this->FilePtr, "] ");
+      vtk::print(this->FilePtr, "] ");
     }
     if (t)
     {
-      fprintf(this->FilePtr, "\"st\" [");
+      vtk::print(this->FilePtr, "\"st\" [");
       for (kk = 0; kk < npts; kk++)
       {
-        fprintf(this->FilePtr, "%f %f ", vertexTCoords[kk][0], vertexTCoords[kk][1]);
+        vtk::print(this->FilePtr, "{:f} {:f} ", vertexTCoords[kk][0], vertexTCoords[kk][1]);
       }
-      fprintf(this->FilePtr, "] ");
+      vtk::print(this->FilePtr, "] ");
     }
 
     if (this->ExportArrays)
@@ -797,7 +808,7 @@ void vtkRIBExporter::WritePolygons(
           }
           str_with_warning_C4701 << "] ";
         }
-        fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+        vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
       }
 
       if (cellData)
@@ -821,7 +832,7 @@ void vtkRIBExporter::WritePolygons(
           }
           str_with_warning_C4701 << "] ";
         }
-        fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+        vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
       }
 
       if (fieldData)
@@ -846,11 +857,11 @@ void vtkRIBExporter::WritePolygons(
           }
           str_with_warning_C4701 << "] ";
         }
-        fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+        vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
       }
     }
 
-    fprintf(this->FilePtr, "\n");
+    vtk::print(this->FilePtr, "\n");
   }
   polygon->Delete();
 }
@@ -984,41 +995,41 @@ void vtkRIBExporter::WriteStrips(
         vertexPoints[k][1] = points[1];
         vertexPoints[k][2] = points[2];
       }
-      fprintf(this->FilePtr, "Polygon ");
-      fprintf(this->FilePtr, "\"P\" [");
+      vtk::print(this->FilePtr, "Polygon ");
+      vtk::print(this->FilePtr, "\"P\" [");
       for (kk = 0; kk < 3; kk++)
       {
-        fprintf(this->FilePtr, "%f %f %f ", vertexPoints[kk][0], vertexPoints[kk][1],
+        vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexPoints[kk][0], vertexPoints[kk][1],
           vertexPoints[kk][2]);
       }
-      fprintf(this->FilePtr, "] ");
+      vtk::print(this->FilePtr, "] ");
 
-      fprintf(this->FilePtr, "\"N\" [");
+      vtk::print(this->FilePtr, "\"N\" [");
       for (kk = 0; kk < 3; kk++)
       {
-        fprintf(this->FilePtr, "%f %f %f ", vertexNormals[kk][0], vertexNormals[kk][1],
+        vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexNormals[kk][0], vertexNormals[kk][1],
           vertexNormals[kk][2]);
       }
-      fprintf(this->FilePtr, "] ");
+      vtk::print(this->FilePtr, "] ");
 
       if (c)
       {
-        fprintf(this->FilePtr, "\"Cs\" [");
+        vtk::print(this->FilePtr, "\"Cs\" [");
         for (kk = 0; kk < 3; kk++)
         {
-          fprintf(this->FilePtr, "%f %f %f ", vertexColors[kk][0], vertexColors[kk][1],
+          vtk::print(this->FilePtr, "{:f} {:f} {:f} ", vertexColors[kk][0], vertexColors[kk][1],
             vertexColors[kk][2]);
         }
-        fprintf(this->FilePtr, "] ");
+        vtk::print(this->FilePtr, "] ");
       }
       if (t)
       {
-        fprintf(this->FilePtr, "\"st\" [");
+        vtk::print(this->FilePtr, "\"st\" [");
         for (kk = 0; kk < 3; kk++)
         {
-          fprintf(this->FilePtr, "%f %f ", vertexTCoords[kk][0], vertexTCoords[kk][1]);
+          vtk::print(this->FilePtr, "{:f} {:f} ", vertexTCoords[kk][0], vertexTCoords[kk][1]);
         }
-        fprintf(this->FilePtr, "] ");
+        vtk::print(this->FilePtr, "] ");
       }
 
       if (this->ExportArrays)
@@ -1044,7 +1055,7 @@ void vtkRIBExporter::WriteStrips(
             }
             str_with_warning_C4701 << "] ";
           }
-          fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+          vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
         }
 
         if (cellData)
@@ -1068,7 +1079,7 @@ void vtkRIBExporter::WriteStrips(
             }
             str_with_warning_C4701 << "] ";
           }
-          fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+          vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
         }
 
         if (fieldData)
@@ -1092,10 +1103,10 @@ void vtkRIBExporter::WriteStrips(
             }
             str_with_warning_C4701 << "] ";
           }
-          fprintf(this->FilePtr, "%s", str_with_warning_C4701.str().c_str());
+          vtk::print(this->FilePtr, "{:s}", str_with_warning_C4701.str().c_str());
         }
       }
-      fprintf(this->FilePtr, "\n");
+      vtk::print(this->FilePtr, "\n");
       // Get ready for next triangle
       p1 = p2;
       p2 = p3;
@@ -1150,10 +1161,10 @@ void vtkRIBExporter::WriteTexture(vtkTexture* aTexture)
   //                   1, 1,
   //                   RI_NULL);
   const char* wrap = aTexture->GetRepeat() ? "periodic" : "clamp";
-  fprintf(this->FilePtr, "MakeTexture \"%s\" ", this->GetTIFFName(aTexture));
-  fprintf(this->FilePtr, "\"%s\" ", this->GetTextureName(aTexture));
-  fprintf(this->FilePtr, "\"%s\" \"%s\" ", wrap, wrap);
-  fprintf(this->FilePtr, "\"%s\" 1 1\n", "box");
+  vtk::print(this->FilePtr, "MakeTexture \"{:s}\" ", this->GetTIFFName(aTexture));
+  vtk::print(this->FilePtr, "\"{:s}\" ", this->GetTextureName(aTexture));
+  vtk::print(this->FilePtr, "\"{:s}\" \"{:s}\" ", wrap, wrap);
+  vtk::print(this->FilePtr, "\"{:s}\" 1 1\n", "box");
 
   // do an Update and get some info
   if (aTexture->GetInput() == nullptr)

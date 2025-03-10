@@ -7,11 +7,10 @@
 #include "vtkCellData.h"
 #include "vtkDSPFilterDefinition.h"
 #include "vtkFloatArray.h"
-#include "vtkIdList.h"
 #include "vtkIntArray.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 
 #include <cctype>
@@ -107,23 +106,6 @@ void vtkDSPFilterGroup::AddFilter(vtkDSPFilterDefinition* filter)
   std::vector<int> l_cachedOutTimesForThisFilter;
   l_cachedOutTimesForThisFilter.resize(0);
   this->CachedOutputTimesteps->m_vector.push_back(l_cachedOutTimesForThisFilter);
-
-#if 0
-  printf("**********************FILTERS AFTER ADDING FILTER***********************\n");
-  for(int i=0;i<this->GetNumFilters();i++)
-  {
-      vtkDSPFilterDefinition *filterfromlist = this->FilterDefinitions->m_vector[i];
-      printf("vtkDSPFilterGroup::AddFilter %d of %d  input=%s output=%s nums=%d dens=%d forwardnums=%d    this=%p\n",
-       i,this->GetNumFilters(),
-       filterfromlist->GetInputVariableName(),
-       filterfromlist->GetOutputVariableName(),
-       filterfromlist->GetNumNumeratorWeights(),
-       filterfromlist->GetNumDenominatorWeights(),
-       filterfromlist->GetNumForwardNumeratorWeights(),
-       this);
-  }
-  printf("************************************************************************\n");
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -151,22 +133,6 @@ void vtkDSPFilterGroup::RemoveFilter(const char* a_outputVariableName)
     ++l_cachedOutputsIter;
     ++l_cachedOutputTimesIter;
   }
-
-#if 0
-  printf("**********************FILTERS AFTER REMOVING FILTER*********************\n");
-  for(int i=0;i<this->GetNumFilters();i++)
-  {
-      vtkDSPFilterDefinition *filterfromlist = this->FilterDefinitions[i];
-      printf("vtkDSPFilterGroup::RemoveFilter %d of %d  input=%s output=%s nums=%d dens=%d    this=%p\n",
-       i,this->GetNumFilters(),
-       filterfromlist->GetInputVariableName(),
-       filterfromlist->GetOutputVariableName(),
-       filterfromlist->GetNumNumeratorWeights(),
-       filterfromlist->GetNumDenominatorWeights(),
-       this);
-  }
-  printf("************************************************************************\n");
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -255,15 +221,8 @@ vtkFloatArray* vtkDSPFilterGroup::GetCachedOutput(int a_whichFilter, int a_which
       if (!strcmp(l_tmp->GetName(),
             this->FilterDefinitions->m_vector[a_whichFilter]->GetOutputVariableName()))
       {
-        // printf("vtkDSPFilterGroup::GetCachedOutput found time %d output in
-        // cache\n",a_whichTimestep);
         return (l_tmp);
       }
-
-      // else printf("vtkDSPFilterGroup::GetCachedOutput DID NOT FIND time %d output in cache %s
-      // %s\n",a_whichTimestep,
-      //        l_tmp->GetName(), this->FilterDefinitions[a_whichFilter]->OutputVariableName.c_str()
-      //        );
     }
   }
 
@@ -298,7 +257,6 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
   if ((int)this->CachedOutputs->m_vector.size() < l_numFilters)
   {
     // this shouldn't happen with saf. Should happen 1 time with exodus.
-    // printf("vtkDSPFilterGroup::GetOutput resizing cache vector\n");
 
     int l_numNow = (int)this->CachedOutputs->m_vector.size();
     for (i = l_numNow; i < l_numFilters; i++)
@@ -317,12 +275,8 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
   vtkFloatArray* l_tmp = this->GetCachedOutput(a_whichFilter, a_whichTimestep);
   if (l_tmp)
   {
-    // printf("vtkDSPFilterGroup::GetOutput found time %d output in cache\n",a_whichTimestep);
     return (l_tmp);
   }
-  // else printf("vtkDSPFilterGroup::GetOutput DID NOT FIND time %d output in cache (%d cache
-  // slots)\n",
-  //      a_whichTimestep,(int)this->CachedOutputs[a_whichFilter].size() );
 
   vtkFloatArray* l_output = vtkFloatArray::New();
   l_output->SetName(FilterDefinitions->m_vector[a_whichFilter]->GetOutputVariableName());
@@ -332,7 +286,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     FilterDefinitions->m_vector[a_whichFilter]->GetNumForwardNumeratorWeights();
   if (!l_numNumerators && !l_numForwardNumerators)
   {
-    printf("vtkDSPFilterGroup::GetOutput there are no numerator filter weights?\n");
+    vtk::print("vtkDSPFilterGroup::GetOutput there are no numerator filter weights?\n");
     return (nullptr);
   }
   int l_numDenominators = FilterDefinitions->m_vector[a_whichFilter]->GetNumDenominatorWeights();
@@ -343,15 +297,13 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     l_a1 = FilterDefinitions->m_vector[a_whichFilter]->GetDenominatorWeight(0);
   }
 
-  // printf("vtkDSPFilterGroup::GetOutput numerators=%d forwardnums=%d dens=%d\n",
-  //   l_numNumerators,l_numForwardNumerators,l_numDenominators);
-
   // There should always be a valid input at the same time as an output
   vtkFloatArray* l_firstInput = this->GetCachedInput(a_whichFilter, a_whichTimestep);
 
   if (!l_firstInput)
   {
-    printf("\n  vtkDSPFilterGroup::GetOutput error time %d has no input\n\n", a_whichTimestep);
+    vtk::print(
+      "\n  vtkDSPFilterGroup::GetOutput error time {:d} has no input\n\n", a_whichTimestep);
     return (nullptr);
   }
 
@@ -360,14 +312,11 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
   if (!l_numEntries || !l_numComponents)
   {
-    printf(
-      "\n  vtkDSPFilterGroup::GetOutput error time %d, l_numEntries=%d, l_numComponents=%d\n\n",
+    vtk::print("\n  vtkDSPFilterGroup::GetOutput error time {:d}, l_numEntries={:d}, "
+               "l_numComponents={:d}\n\n",
       a_whichTimestep, l_numEntries, l_numComponents);
     return (nullptr);
   }
-
-  // printf("vtkDSPFilterGroup::GetOutput first input entries=%d
-  // comps=%d\n",l_numEntries,l_numComponents);
 
   l_output->SetNumberOfComponents(l_numComponents);
   l_output->SetNumberOfTuples(l_numEntries);
@@ -380,9 +329,6 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     if (l_useThisTimestep < 0)
       l_useThisTimestep = 0; // pre-time is considered infinite procession of input value at time 0
-
-    // printf("vtkDSPFilterGroup::GetOutput numerator weight %d is %e (incl a1=%e)
-    // time=%d\n",i,l_weight,l_a1,l_useThisTimestep);
 
     vtkFloatArray* l_input = this->GetCachedInput(a_whichFilter, l_useThisTimestep);
     float* l_outPtr = (float*)l_output->GetVoidPointer(0);
@@ -408,7 +354,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     }
     else
     {
-      printf("error vtkDSPFilterGroup::GetOutput can't get input %d\n", l_useThisTimestep);
+      vtk::print("error vtkDSPFilterGroup::GetOutput can't get input {:d}\n", l_useThisTimestep);
     }
   }
 
@@ -419,9 +365,6 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     if (a_whichTimestep - i < 0)
       break; // pre-time outputs are considered to be zero
-
-    // printf("vtkDSPFilterGroup::GetOutput denominator weight %d is %e (incl a1=%e)
-    // time=%d\n",i,l_weight,l_a1,a_whichTimestep-i);
 
     vtkFloatArray* l_input =
       this->GetOutput(a_whichFilter, a_whichTimestep - i, a_instancesCalculated);
@@ -456,8 +399,6 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     while (!l_input && l_useThisTimestep >= 0)
     {
-      // printf("         time %d failed......trying prev time.....\n",l_useThisTimestep);
-
       // Try the timestep before: all post-time inputs are considered to be the same as the last
       // input
       l_useThisTimestep--;
@@ -466,10 +407,6 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     if (l_input)
     {
-
-      // printf("vtkDSPFilterGroup::GetOutput forward numerator weight %d is %e (incl a1=%e)
-      // time=%d\n",i,l_weight,l_a1,l_useThisTimestep);
-
       float* l_inPtr = (float*)l_input->GetVoidPointer(0);
       for (j = 0; j < l_numEntries; j++)
       {
@@ -483,44 +420,12 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     }
     else
     {
-      printf(
-        "\nerror vtkDSPFilterGroup::GetOutput can't get forward input %d\n\n", l_useThisTimestep);
+      vtk::print(
+        "\nerror vtkDSPFilterGroup::GetOutput can't get forward input {:d}\n\n", l_useThisTimestep);
     }
   }
 
-#if 0 // debug print
-  {
-     float *l_outPtr = (float *)l_output->GetVoidPointer(0);
-     float *l_inPtr = (float *)l_firstInput->GetVoidPointer(0);
-     float l_maxDiff=0;
-     for(j=0;j<l_numEntries;j++)
-     {
-   for(k=0;k<l_numComponents;k++)
-   {
-       if( l_inPtr[0] - l_outPtr[0] )
-       {
-     if( fabs(l_inPtr[0] - l_outPtr[0]) > l_maxDiff ) l_maxDiff = fabs(l_inPtr[0] - l_outPtr[0]);
-
-
-     printf("j=%d k=%d \t in=%f \t out=%f \t diff=%e   maxdiff=%e   diffperc=%f\n",j,k,
-               l_inPtr[0],l_outPtr[0],l_inPtr[0] - l_outPtr[0],l_maxDiff,
-      fabs(l_inPtr[0] - l_outPtr[0]) / fabs(l_inPtr[0]) );
-
-       }
-       l_inPtr++;
-       l_outPtr++;
-   }
-     }
-  }
-
-#endif
-
   a_instancesCalculated++;
-
-  // printf("****vtkDSPFilterGroup::GetOutput calculated  filter=%d time=%d entries=%d comps=%d***
-  // out cache was %d slots\n",a_whichFilter,
-  // a_whichTimestep,l_numEntries,l_numComponents,
-  // this->CachedOutputs[a_whichFilter].size()  );
 
   this->CachedOutputs->m_vector[a_whichFilter].push_back(l_output);
   this->CachedOutputTimesteps->m_vector[a_whichFilter].push_back(a_whichTimestep);

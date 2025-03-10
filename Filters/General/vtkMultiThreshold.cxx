@@ -569,10 +569,6 @@ int vtkMultiThreshold::RequestData(
         ival = aacn->second[iival];
         // See if the intervals overlap properly
         int match = ival->Match(cellNorm);
-#if 0
-        fprintf( stderr, "Cell %5llu [%10.4f,%10.4f] in [%10.4f,%10.4f]: %d\n",
-          inCell, cellNorm[0], cellNorm[1], ival->EndpointValues[0], ival->EndpointValues[1], match );
-#endif // 0
         setStates[ival->Id] = match ? INCLUDE : EXCLUDE;
         if (ival->OutputId >= 0)
         {
@@ -594,15 +590,6 @@ int vtkMultiThreshold::RequestData(
           ival->Id, unresolvedOutputs, setStates, inCellData, inCell, cell, outv);
       } // ival
     }
-
-#if 0
-    fprintf( stderr, "Cell %5lld [", inCell );
-    for ( i = 0; i < (int)this->Sets.size(); ++i )
-    {
-      fprintf( stderr, "%d", setStates[i] == INCLUDE ? 1 : 0 );
-    }
-    fprintf( stderr, "]\n" );
-#endif // 0
   }
 
   cell->Delete();

@@ -174,7 +174,7 @@ extern "C"
 {
   static void vtkPNGWriteWarningFunction(png_structp /*png_ptr*/, png_const_charp warning_msg)
   {
-    fprintf(stderr, "libpng warning: %s\n", warning_msg);
+    vtk::print(stderr, "libpng warning: {:s}\n", warning_msg);
   }
 }
 

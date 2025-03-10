@@ -4,6 +4,7 @@
 #include "vtkFloatingPointExceptions.h"
 
 #include "vtkFloatingPointExceptionsConfigure.h"
+#include "vtkStringFormatter.h"
 
 #if defined(VTK_USE_FENV)
 #include <csignal>
@@ -22,7 +23,7 @@
 extern "C" void signal_handler(int signal)
 {
   // NOLINTNEXTLINE(bugprone-signal-handler)
-  fprintf(stderr, "Error: Floating point exception detected. Signal %d\n", signal);
+  vtk::println(stderr, "Error: Floating point exception detected. Signal {}", signal);
   // Call `abort()` so that a backtrace is created. We already broke signal
   // handler rules by calling `fprintf`, so any kind of "recovery" is
   // ill-advised.

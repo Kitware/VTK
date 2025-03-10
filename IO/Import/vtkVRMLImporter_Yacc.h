@@ -992,7 +992,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    fprintf(stderr, "Starting parse\n");
+    vtk::print(stderr, "Starting parse\n");
 #endif
 
   yystate = 0;
@@ -1081,7 +1081,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
     if (yydebug)
-      fprintf(stderr, "Stack size increased to %d\n", yystacksize);
+      vtk::print(stderr, "Stack size increased to {:d}\n", yystacksize);
 #endif
 
     if (yyssp >= yyss + yystacksize - 1)
@@ -1090,7 +1090,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    fprintf(stderr, "Entering state %d\n", yystate);
+    vtk::print(stderr, "Entering state {:d}\n", yystate);
 #endif
 
   goto yybackup;
@@ -1115,7 +1115,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   {
 #if YYDEBUG != 0
     if (yydebug)
-      fprintf(stderr, "Reading a token: ");
+      vtk::print(stderr, "Reading a token: ");
 #endif
     yychar = yylex(self);
   }
@@ -1129,7 +1129,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
     if (yydebug)
-      fprintf(stderr, "Now at end of input.\n");
+      vtk::print(stderr, "Now at end of input.\n");
 #endif
   }
   else
@@ -1139,13 +1139,13 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 #if YYDEBUG != 0
     if (yydebug)
     {
-      fprintf (stderr, "Next token is %d (%s", yychar, yytname[yychar1]);
+      vtk::print (stderr, "Next token is {:d} ({:s}", yychar, yytname[yychar1]);
       /* Give the individual parser a way to print the precise meaning
          of a token, for further debugging info.  */
 #ifdef YYPRINT
       YYPRINT (stderr, yychar, yylval);
 #endif
-      fprintf (stderr, ")\n");
+      vtk::print (stderr, ")\n");
     }
 #endif
   }
@@ -1180,7 +1180,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    fprintf(stderr, "Shifting token %d (%s), ", yychar, yytname[yychar1]);
+    vtk::print(stderr, "Shifting token {:d} ({:s}), ", yychar, yytname[yychar1]);
 #endif
 
   /* Discard the token being shifted unless it is eof.  */
@@ -1218,13 +1218,13 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   {
     int i;
 
-    fprintf (stderr, "Reducing via rule %d (line %d), ",
+    vtk::print (stderr, "Reducing via rule {:d} (line {:d}), ",
              yyn, yyrline[yyn]);
 
     /* Print the symbols being reduced, and their result.  */
     for (i = yyprhs[yyn]; yyrhs[i] > 0; i++)
-      fprintf (stderr, "%s ", yytname[yyrhs[i]]);
-    fprintf (stderr, " -> %s\n", yytname[yyr1[yyn]]);
+      vtk::print (stderr, "{:s} ", yytname[yyrhs[i]]);
+    vtk::print (stderr, " -> {:s}\n", yytname[yyr1[yyn]]);
   }
 #endif
 
@@ -1362,10 +1362,10 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   if (yydebug)
   {
     short *ssp1 = yyss - 1;
-    fprintf (stderr, "state stack now");
+    vtk::print (stderr, "state stack now");
     while (ssp1 != yyssp)
-      fprintf (stderr, " %d", *++ssp1);
-    fprintf (stderr, "\n");
+      vtk::print (stderr, " {:d}", *++ssp1);
+    vtk::print (stderr, "\n");
   }
 #endif
 
@@ -1467,7 +1467,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
     if (yydebug)
-      fprintf(stderr, "Discarding token %d (%s).\n", yychar, yytname[yychar1]);
+      vtk::print(stderr, "Discarding token {:d} ({:s}).\n", yychar, yytname[yychar1]);
 #endif
 
     yychar = YYEMPTY;
@@ -1502,10 +1502,10 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
   if (yydebug)
   {
     short *ssp1 = yyss - 1;
-    fprintf (stderr, "Error: state stack now");
+    vtk::print (stderr, "Error: state stack now");
     while (ssp1 != yyssp)
-      fprintf (stderr, " %d", *++ssp1);
-    fprintf (stderr, "\n");
+      vtk::print (stderr, " {:d}", *++ssp1);
+    vtk::print (stderr, "\n");
   }
 #endif
 
@@ -1535,7 +1535,7 @@ inline int vtkVRMLYaccData::yyparse(vtkVRMLImporter* self)
 
 #if YYDEBUG != 0
   if (yydebug)
-    fprintf(stderr, "Shifting error token, ");
+    vtk::print(stderr, "Shifting error token, ");
 #endif
 
   *++yyvsp = yylval;
@@ -4174,7 +4174,7 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
   /* and should expect a field value (or IS) */
   if (expectToken != 0) {
   if (yy_flex_debug)
-    fprintf(stderr,"LEX--> Start State %d\n", expectToken);
+    vtk::print(stderr,"LEX--> Start State {:d}\n", expectToken);
 
   /*
    * Annoying.  This big switch is necessary because
@@ -4286,17 +4286,17 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
     if ( yy_flex_debug )
     {
       if ( yy_act == 0 )
-        fprintf( stderr, "--scanner backing up\n" );
+        vtk::print( stderr, "--scanner backing up\n" );
       else if ( yy_act < 49 )
-        fprintf( stderr, "--accepting rule at line %d (\"%s\")\n",
+        vtk::print( stderr, "--accepting rule at line {:d} (\"{:s}\")\n",
                  yy_rule_linenum[yy_act], yytext );
       else if ( yy_act == 49 )
-        fprintf( stderr, "--accepting default rule (\"%s\")\n",
+        vtk::print( stderr, "--accepting default rule (\"{:s}\")\n",
                  yytext );
       else if ( yy_act == 50 )
-        fprintf( stderr, "--(end of buffer or a NUL)\n" );
+        vtk::print( stderr, "--(end of buffer or a NUL)\n" );
       else
-        fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
+        vtk::print( stderr, "--EOF (start condition {:d})\n", YY_START );
     }
 
     switch ( yy_act )
@@ -5075,7 +5075,7 @@ inline void vtkVRMLYaccData::yy_init_buffer( YY_BUFFER_STATE b, FILE *file )
 
 inline void vtkVRMLYaccData::yy_fatal_error( const char msg[] )
 {
-  (void) fprintf( stderr, "%s\n", msg );
+  vtk::print( stderr, "{:s}\n", msg );
   exit( 1 );
 }
 

@@ -66,8 +66,6 @@ protected:
 private:
   vtkPOVExporter(const vtkPOVExporter&) = delete;
   void operator=(const vtkPOVExporter&) = delete;
-
-  vtkPOVInternals* Internals;
 };
 
 VTK_ABI_NAMESPACE_END

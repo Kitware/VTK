@@ -444,19 +444,18 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
   Controller->AllReduce(&rcLocal, &rc, 1, vtkCommunicator::SUM_OP);
   if (rc > 0)
   {
-    vtkMPIUtilities::Printf(
-      vtkMPIController::SafeDownCast(Controller), "ERROR: Check grid failed!");
+    vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller), "ERROR: Check grid failed!");
   }
 
   gridConnectivity->EstablishConnectivity();
 
   if (gridConnectivity->HasImplicitConnectivity())
   {
-    vtkMPIUtilities::Printf(
+    vtkMPIUtilities::Print(
       vtkMPIController::SafeDownCast(Controller), "ERROR: output grid still has a gap!\n");
     ++rc;
   }
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller), "Grid has no gaps!\n");
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller), "Grid has no gaps!\n");
   gridConnectivity->Delete();
 
   return (rc);
@@ -468,7 +467,7 @@ int TestImplicitGridConnectivity2DYZ()
 {
   assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller),
     "=======================\nTesting 2-D Dataset on the YZ-plane\n");
 
   int rc = 0;
@@ -513,9 +512,8 @@ int TestImplicitGridConnectivity2DYZ()
   // print the neighboring information from each process
   std::ostringstream oss;
   gridConnectivity->Print(oss);
-  vtkMPIUtilities::SynchronizedPrintf(
-    vtkMPIController::SafeDownCast(Controller), "%s\n", oss.str().c_str());
-
+  vtkMPIUtilities::SynchronizedPrint(
+    vtkMPIController::SafeDownCast(Controller), "{:s}\n", oss.str());
   if (!gridConnectivity->HasImplicitConnectivity())
   {
     ++rc;
@@ -553,7 +551,7 @@ int TestImplicitGridConnectivity2DXZ()
 {
   assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller),
     "=======================\nTesting 2-D Dataset on the XZ-plane\n");
 
   int rc = 0;
@@ -598,8 +596,9 @@ int TestImplicitGridConnectivity2DXZ()
   // print the neighboring information from each process
   std::ostringstream oss;
   gridConnectivity->Print(oss);
-  vtkMPIUtilities::SynchronizedPrintf(
-    vtkMPIController::SafeDownCast(Controller), "%s\n", oss.str().c_str());
+
+  vtkMPIUtilities::SynchronizedPrint(
+    vtkMPIController::SafeDownCast(Controller), "{:s}\n", oss.str());
 
   if (!gridConnectivity->HasImplicitConnectivity())
   {
@@ -638,7 +637,7 @@ int TestImplicitGridConnectivity2DXY()
 {
   assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller),
     "=======================\nTesting 2-D Dataset on the XY-plane\n");
 
   int rc = 0;
@@ -683,8 +682,8 @@ int TestImplicitGridConnectivity2DXY()
   // print the neighboring information from each process
   std::ostringstream oss;
   gridConnectivity->Print(oss);
-  vtkMPIUtilities::SynchronizedPrintf(
-    vtkMPIController::SafeDownCast(Controller), "%s\n", oss.str().c_str());
+  vtkMPIUtilities::SynchronizedPrint(
+    vtkMPIController::SafeDownCast(Controller), "{:s}\n", oss.str());
 
   if (!gridConnectivity->HasImplicitConnectivity())
   {
@@ -723,7 +722,7 @@ int TestImplicitGridConnectivity3D()
 {
   assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  vtkMPIUtilities::Printf(
+  vtkMPIUtilities::Print(
     vtkMPIController::SafeDownCast(Controller), "=======================\nTesting 3-D Dataset\n");
 
   int rc = 0;
@@ -769,8 +768,8 @@ int TestImplicitGridConnectivity3D()
   // print the neighboring information from each process
   std::ostringstream oss;
   gridConnectivity->Print(oss);
-  vtkMPIUtilities::SynchronizedPrintf(
-    vtkMPIController::SafeDownCast(Controller), "%s\n", oss.str().c_str());
+  vtkMPIUtilities::SynchronizedPrint(
+    vtkMPIController::SafeDownCast(Controller), "{:s}\n", oss.str());
 
   if (!gridConnectivity->HasImplicitConnectivity())
   {
@@ -808,7 +807,7 @@ int TestRectGridImplicitConnectivity3D()
 {
   assert("pre: MPI Controller is nullptr!" && (Controller != nullptr));
 
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller),
     "=======================\nTesting 3-D Rectilinear Grid Dataset\n");
 
   int rc = 0;
@@ -853,8 +852,8 @@ int TestRectGridImplicitConnectivity3D()
   // print the neighboring information from each process
   std::ostringstream oss;
   gridConnectivity->Print(oss);
-  vtkMPIUtilities::SynchronizedPrintf(
-    vtkMPIController::SafeDownCast(Controller), "%s\n", oss.str().c_str());
+  vtkMPIUtilities::SynchronizedPrint(
+    vtkMPIController::SafeDownCast(Controller), "{:s}\n", oss.str());
 
   if (!gridConnectivity->HasImplicitConnectivity())
   {
@@ -901,8 +900,9 @@ int TestImplicitConnectivity(int argc, char* argv[])
 
   Rank = Controller->GetLocalProcessId();
   NumberOfProcessors = Controller->GetNumberOfProcesses();
-  vtkMPIUtilities::Printf(
-    vtkMPIController::SafeDownCast(Controller), "Rank=%d NumRanks=%d\n", Rank, NumberOfProcessors);
+
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller), "Rank={:d} NumRanks={:d}\n",
+    Rank, NumberOfProcessors);
   assert("pre: NumberOfProcessors >= 1" && (NumberOfProcessors >= 1));
   assert("pre: Rank is out-of-bounds" && (Rank >= 0));
 
@@ -927,7 +927,7 @@ int TestImplicitConnectivity(int argc, char* argv[])
   Controller->Barrier();
 
   // STEP 3: Deallocate controller and exit
-  vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller), "Finalizing...\n");
+  vtkMPIUtilities::Print(vtkMPIController::SafeDownCast(Controller), "Finalizing...\n");
   Controller->Finalize();
   Controller->Delete();
 

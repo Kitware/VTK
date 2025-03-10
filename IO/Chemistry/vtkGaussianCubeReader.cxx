@@ -12,6 +12,7 @@
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
@@ -99,7 +100,7 @@ int vtkGaussianCubeReader::RequestData(vtkInformation* vtkNotUsed(request),
       tokens[2] += ":" + tokens[token];
     }
     strcpy(data_name, tokens[2].c_str());
-    fprintf(stderr, "label = %s\n", data_name);
+    vtk::print(stderr, "label = {:s}\n", data_name);
   }
 
   if (!fgets(title, 256, fp))

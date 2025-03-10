@@ -8,20 +8,14 @@
 
 #include "vtkContinuousScatterplot.h"
 #include "vtkTestUtilities.h"
-#include <vtkActor.h>
-#include <vtkImageActor.h>
 #include <vtkImageData.h>
-#include <vtkImageMapper3D.h>
 #include <vtkImageWriter.h>
-#include <vtkJPEGWriter.h>
-#include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringFormatter.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtkXMLImageDataWriter.h>
 #include <vtkXMLUnstructuredGridReader.h>
 
 int TestContinuousScatterPlot(int argc, char* argv[])
@@ -228,13 +222,13 @@ int TestContinuousScatterPlot(int argc, char* argv[])
     {
       pass = false;
       { // writing to file
-        printf("\n\n/**************************************/");
-        printf("\n/********Test Unsuccessful*************/");
-        printf("\nInput Data: %s", (std::string(inputFile).substr(6, 49)).c_str());
-        printf("\nCS Plot test case %d x %d \n", ResX[cmpIndex], ResY[cmpIndex]);
-        printf("\nString to compare: %s", dataToCompare[cmpIndex].c_str());
-        printf("\nOutput String     : %s", outputString.c_str());
-        printf("\n/**************************************/");
+        vtk::print("\n\n/**************************************/");
+        vtk::print("\n/********Test Unsuccessful*************/");
+        vtk::print("\nInput Data: {:s}", (std::string(inputFile).substr(6, 49)));
+        vtk::print("\nCS Plot test case {:d} x {:d} \n", ResX[cmpIndex], ResY[cmpIndex]);
+        vtk::print("\nString to compare: {:s}", dataToCompare[cmpIndex]);
+        vtk::print("\nOutput String     : {:s}", outputString);
+        vtk::print("\n/**************************************/");
       } // end of writing
     }
 

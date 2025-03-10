@@ -206,7 +206,6 @@ void vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth* self, int axis, doubl
           *pcycle -= target;
           *pcount += target;
           self->UpdateProgress(static_cast<double>(*pcount) / static_cast<double>(total));
-          // fprintf(stderr, "count: %d, total: %d, progress: %f\n",
           //*pcount, total, (double)(*pcount) / (double)total);
         }
       }

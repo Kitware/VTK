@@ -2356,7 +2356,6 @@ int vtkLSDynaReader::ScanDatabaseTimeSteps()
       {
         p->Fam.MarkTimeStep();
         p->TimeValues.push_back(time);
-        // fprintf( stderr, "%d %f\n", (int) p->TimeValues.size() - 1, time ); fflush(stderr);
         if (p->Fam.SkipToWord(LSDynaFamily::TimeStepSection, ntimesteps++, p->Fam.GetStateSize()))
         {
           itmp = 0;
@@ -3283,7 +3282,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
           this->P->PartIds[curPart] = partId;
           this->P->PartMaterials[curPart] = partMaterial;
           this->P->PartStatus[curPart] = 1;
-          fprintf(stderr, "%2d: Part: \"%s\" Id: %d\n", curPart, partName.c_str(), partId);
+          vtk::print(stderr, "{:2d}: Part: \"{:s}\" Id: {:d}\n", curPart, partName, partId);
           ++curPart;
         }
         else

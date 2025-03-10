@@ -97,11 +97,6 @@ bool vtkEdgeSubdivisionCriterion::ViewDependentEval(const double* p0, double* p1
   Transform->MultiplyPoint(real_p1, real_p1t);
   Transform->MultiplyPoint(p1, intr_p1t);
   double eprod = fabs(AllowableChordError * real_p1t[3] * intr_p1t[3]);
-  /*
-     fprintf( stderr, "eprod=%g, compare to <%g,%g>\n", eprod,
-     fabs(real_p1t[0]*intr_p1t[3]-intr_p1t[0]*real_p1t[3])/PixelSize[0],
-     fabs(real_p1t[1]*intr_p1t[3]-intr_p1t[1]*real_p1t[3])/PixelSize[1] );
-   */
   if ((real_p1t[0] > real_p1t[3]) || (real_p1t[0] < -real_p1t[3]) || (real_p1t[1] > real_p1t[3]) ||
     (real_p1t[1] < -real_p1t[3]))
   {

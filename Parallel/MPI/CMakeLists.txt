@@ -1,10 +1,11 @@
 set(classes
   vtkMPICommunicator
   vtkMPIController
-  vtkMPIUtilities)
+)
 
 set(nowrap_headers
-  vtkMPI.h)
+  vtkMPI.h
+  vtkMPIUtilities.h)
 
 vtk_module_add_module(VTK::ParallelMPI
   CLASSES ${classes}

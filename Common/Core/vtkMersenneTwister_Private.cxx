@@ -27,6 +27,7 @@
 #include <cstring>
 
 #include "vtkType.h"
+#include "vtkStringFormatter.h"
 typedef vtkTypeUInt32 uint32_t;
 typedef vtkTypeUInt8 uint8_t;
 
@@ -493,13 +494,13 @@ static Vector *newVector_t(int nnn)
 
     v = (Vector *)malloc( sizeof( Vector ) );
     if( v == nullptr ){
-        printf("malloc error in \"newVector_t()\"\n");
+        vtk::print("malloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
     v->cf = (uint32_t *)calloc( nnn, sizeof( uint32_t ) );
     if( v->cf == nullptr ){
-        printf("calloc error in \"newVector_t()\"\n");
+        vtk::print("calloc error in \"newVector_t()\"\n");
         exit(1);
     }
 
@@ -551,7 +552,7 @@ static Vector **make_lattice(eqdeg_t *eq, int v)
 
     lattice = (Vector **)malloc( (v+1) * sizeof( Vector *) );
     if( nullptr == lattice ){
-        printf("malloc error in \"make_lattice\"\n");
+        vtk::print("malloc error in \"make_lattice\"\n");
         exit(1);
     }
 
@@ -608,7 +609,7 @@ static MaskNode *cons_MaskNode(MaskNode *head, uint32_t b, uint32_t c, int leng)
 
     t = (MaskNode*)malloc(sizeof(MaskNode));
     if (t == nullptr) {
-        printf("malloc error in \"cons_MaskNode\"\n");
+        vtk::print("malloc error in \"cons_MaskNode\"\n");
         exit(1);
     }
 
@@ -836,21 +837,21 @@ static mt_struct *init_mt_search(check32_t *ck, prescr_t *pre, int w, int p)
     mt_struct *mts;
 
     if ( (w>32) || (w<31) ) {
-        printf ("Sorry, currently only w = 32 or 31 is allowded.\n");
+        vtk::print ("Sorry, currently only w = 32 or 31 is allowded.\n");
         return nullptr;
     }
 
     if ( !proper_mersenne_exponent(p) ) {
         if (p<521) {
-            printf ("\"p\" is too small.\n");
+            vtk::print ("\"p\" is too small.\n");
             return nullptr;
         }
         else if (p>44497){
-            printf ("\"p\" is too large.\n");
+            vtk::print ("\"p\" is too large.\n");
             return nullptr;
         }
         else {
-            printf ("\"p\" is not a Mersenne exponent.\n");
+            vtk::print ("\"p\" is not a Mersenne exponent.\n");
             return nullptr;
         }
     }
@@ -921,11 +922,11 @@ mt_struct *get_mt_parameter_id_st(int w, int p, int id, uint32_t seed)
 
     sgenrand_dc_(&org, seed);
     if (id > 0xffff) {
-        printf("\"id\" must be less than 65536\n");
+        vtk::print("\"id\" must be less than 65536\n");
         return nullptr;
     }
     if (id < 0) {
-        printf("\"id\" must be positive\n");
+        vtk::print("\"id\" must be positive\n");
         return nullptr;
     }
 
@@ -1079,21 +1080,21 @@ void InitPrescreening_dc_(prescr_t *pre, int m, int n, int r, int w)
     pre->preModPolys = (Polynomial **)malloc(
         (pre->sizeofA+1)*(sizeof(Polynomial*)));
     if (nullptr == pre->preModPolys) {
-        printf ("malloc error in \"InitPrescreening\"\n");
+        vtk::print ("malloc error in \"InitPrescreening\"\n");
         exit(1);
     }
     MakepreModPolys(pre, m,n,r,w);
 
     pre->modlist = (uint32_t**)malloc(NIRREDPOLY * sizeof(uint32_t*));
     if (nullptr == pre->modlist) {
-        printf ("malloc error in \"InitPrescreening()\"\n");
+        vtk::print ("malloc error in \"InitPrescreening()\"\n");
         exit(1);
     }
     for (i=0; i<NIRREDPOLY; i++) {
         pre->modlist[i]
             = (uint32_t*)malloc( (pre->sizeofA + 1) * (sizeof(uint32_t)) );
         if (nullptr == pre->modlist[i]) {
-            printf ("malloc error in \"InitPrescreening()\"\n");
+            vtk::print ("malloc error in \"InitPrescreening()\"\n");
             exit(1);
         }
     }
@@ -1196,7 +1197,7 @@ static Polynomial *NewPoly(int degree)
 
     p = (Polynomial *)calloc( 1, sizeof(Polynomial));
     if( p==nullptr ){
-        printf("calloc error in \"NewPoly()\"\n");
+        vtk::print("calloc error in \"NewPoly()\"\n");
         exit(1);
     }
     p->deg = degree;
@@ -1208,7 +1209,7 @@ static Polynomial *NewPoly(int degree)
 
     p->x = (int *)calloc( degree + 1, sizeof(int));
     if( p->x == nullptr ){
-        printf("calloc error\n");
+        vtk::print("calloc error\n");
         exit(1);
     }
 
@@ -1418,13 +1419,13 @@ int CheckPeriod_dc_(check32_t *ck, org_state_ *st,
     p = n*w-r;
     x = (uint32_t*) malloc (2*p*sizeof(uint32_t));
     if (nullptr==x) {
-        printf("malloc error in \"CheckPeriod_dc_()\"\n");
+        vtk::print("malloc error in \"CheckPeriod_dc_()\"\n");
         exit(1);
     }
 
     init = (uint32_t*) malloc (n*sizeof(uint32_t));
     if (nullptr==init) {
-        printf("malloc error \"CheckPeriod_dc_()\"\n");
+        vtk::print("malloc error \"CheckPeriod_dc_()\"\n");
         free(x);
         exit(1);
     }

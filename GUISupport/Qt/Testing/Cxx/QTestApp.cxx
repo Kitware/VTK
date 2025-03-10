@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "QTestApp.h"
+#include "vtkStringFormatter.h"
 
 #include <stdio.h>
 
@@ -57,21 +58,21 @@ void QTestApp::messageHandler(
   switch (type)
   {
     case QtDebugMsg:
-      fprintf(stderr, "Debug: %s\n", msg);
+      vtk::print(stderr, "Debug: {:s}\n", msg);
       break;
     case QtInfoMsg:
-      fprintf(stderr, "Info: %s\n", msg);
+      vtk::print(stderr, "Info: {:s}\n", msg);
       break;
     case QtWarningMsg:
-      fprintf(stderr, "Warning: %s\n", msg);
+      vtk::print(stderr, "Warning: {:s}\n", msg);
       Error++;
       break;
     case QtCriticalMsg:
-      fprintf(stderr, "Critical: %s\n", msg);
+      vtk::print(stderr, "Critical: {:s}\n", msg);
       Error++;
       break;
     case QtFatalMsg:
-      fprintf(stderr, "Fatal: %s\n", msg);
+      vtk::print(stderr, "Fatal: {:s}\n", msg);
       abort();
   }
 }

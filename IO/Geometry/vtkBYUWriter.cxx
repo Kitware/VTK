@@ -8,6 +8,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
+
 #include <vtksys/SystemTools.hxx>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -171,16 +173,8 @@ void vtkBYUWriter::WriteGeometryFile(FILE* geomFile, int numPts)
     numEdges += npts;
   }
 
-  if (fprintf(geomFile, "%d %d %d %d\n", 1, numPts, numPolys, numEdges) < 0)
-  {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    return;
-  }
-  if (fprintf(geomFile, "%d %d\n", 1, numPolys) < 0)
-  {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    return;
-  }
+  vtk::print(geomFile, "{:d} {:d} {:d} {:d}\n", 1, numPts, numPolys, numEdges);
+  vtk::print(geomFile, "{:d} {:d}\n", 1, numPolys);
 
   //
   // Write data
@@ -189,27 +183,15 @@ void vtkBYUWriter::WriteGeometryFile(FILE* geomFile, int numPts)
   for (i = 0; i < numPts; i++)
   {
     x = inPts->GetPoint(i);
-    if (fprintf(geomFile, "%e %e %e ", x[0], x[1], x[2]) < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      return;
-    }
+    vtk::print(geomFile, "{:e} {:e} {:e} ", x[0], x[1], x[2]);
     if ((i % 2))
     {
-      if (fprintf(geomFile, "\n") < 0)
-      {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-        return;
-      }
+      vtk::print(geomFile, "\n");
     }
   }
   if ((numPts % 2))
   {
-    if (fprintf(geomFile, "\n") < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      return;
-    }
+    vtk::print(geomFile, "\n");
   }
 
   // write poly data. Remember 1-offset.
@@ -219,17 +201,9 @@ void vtkBYUWriter::WriteGeometryFile(FILE* geomFile, int numPts)
     // treating vtkIdType as int
     for (i = 0; i < (npts - 1); i++)
     {
-      if (fprintf(geomFile, "%d ", static_cast<int>(pts[i] + 1)) < 0)
-      {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-        return;
-      }
+      vtk::print(geomFile, "{:d} ", static_cast<int>(pts[i] + 1));
     }
-    if (fprintf(geomFile, "%d\n", static_cast<int>(-(pts[npts - 1] + 1))) < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      return;
-    }
+    vtk::print(geomFile, "{:d}\n", static_cast<int>(-(pts[npts - 1] + 1)));
   }
 
   vtkDebugMacro(<< "Wrote " << numPts << " points, " << numPolys << " polygons");
@@ -263,20 +237,10 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   for (i = 0; i < numPts; i++)
   {
     v = inVectors->GetTuple(i);
-    if (fprintf(dispFp, "%e %e %e", v[0], v[1], v[2]) < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      fclose(dispFp);
-      return;
-    }
+    vtk::print(dispFp, "{:e} {:e} {:e}", v[0], v[1], v[2]);
     if ((i % 2))
     {
-      if (fprintf(dispFp, "\n") < 0)
-      {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-        fclose(dispFp);
-        return;
-      }
+      vtk::print(dispFp, "\n");
     }
   }
 
@@ -312,20 +276,10 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   for (i = 0; i < numPts; i++)
   {
     s = inScalars->GetComponent(i, 0);
-    if (fprintf(scalarFp, "%e ", s) < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      fclose(scalarFp);
-      return;
-    }
+    vtk::print(scalarFp, "{:e} ", s);
     if (i != 0 && !(i % 6))
     {
-      if (fprintf(scalarFp, "\n") < 0)
-      {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-        fclose(scalarFp);
-        return;
-      }
+      vtk::print(scalarFp, "\n");
     }
   }
 
@@ -362,20 +316,10 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   {
     if (i != 0 && !(i % 3))
     {
-      if (fprintf(textureFp, "\n") < 0)
-      {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-        fclose(textureFp);
-        return;
-      }
+      vtk::print(textureFp, "\n");
     }
     t = inTCoords->GetTuple(i);
-    if (fprintf(textureFp, "%e %e", t[0], t[1]) < 0)
-    {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      fclose(textureFp);
-      return;
-    }
+    vtk::print(textureFp, "{:e} {:e}", t[0], t[1]);
   }
 
   fclose(textureFp);

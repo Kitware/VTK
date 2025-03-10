@@ -5,6 +5,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkReebGraphSimplificationMetric);
@@ -32,7 +33,7 @@ double vtkReebGraphSimplificationMetric::ComputeMetric(vtkDataSet* vtkNotUsed(me
   vtkDataArray* vtkNotUsed(scalarField), vtkIdType vtkNotUsed(startCriticalPoint),
   vtkAbstractArray* vtkNotUsed(vertexList), vtkIdType vtkNotUsed(endCriticalPoint))
 {
-  printf("too bad, wrong code\n");
+  vtk::print("too bad, wrong code\n");
   return 0;
 }
 VTK_ABI_NAMESPACE_END

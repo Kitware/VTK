@@ -34,6 +34,7 @@
 
 //------------------------------------------------------------------------------
 
+#include "vtkStringFormatter.h"
 #include "vtkSystemIncludes.h"
 
 //------------------------------------------------------------------------------
@@ -452,7 +453,7 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 {
   (void)type;
   (void)retVal;
-  fprintf(stderr, message);
+  vtk::print(stderr, message);
   exit(1);
 }
 #endif

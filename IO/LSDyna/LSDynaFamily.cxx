@@ -569,9 +569,6 @@ void LSDynaFamily::MarkSectionStart(int adaptLevel, SectionType m)
     this->AdaptationsMarkers.emplace_back();
   }
   this->AdaptationsMarkers[adaptLevel].Marks[m] = mark;
-
-  // fprintf( stderr, "Mark \"%s\" is (%d,%d)\n", SectionTypeToString(m), mark.FileNumber,
-  // mark.Offset );
 }
 
 //------------------------------------------------------------------------------

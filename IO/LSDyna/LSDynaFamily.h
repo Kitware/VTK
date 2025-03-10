@@ -13,6 +13,7 @@
 #ifndef __LSDynaFamily_h
 #define __LSDynaFamily_h
 
+#include "vtkStringFormatter.h"
 #include "vtkType.h"
 
 #include <fcntl.h>
@@ -252,7 +253,7 @@ protected:
 inline char* LSDynaFamily::GetNextWordAsChars()
 {
   if (this->ChunkWord >= this->ChunkValid)
-    fprintf(stderr, "Read char past end of buffer\n");
+    vtk::print(stderr, "Read char past end of buffer\n");
   return (char*)(&this->Chunk[(this->ChunkWord++) * this->WordSize]);
 }
 
@@ -260,7 +261,7 @@ inline char* LSDynaFamily::GetNextWordAsChars()
 inline double LSDynaFamily::GetNextWordAsFloat()
 {
   if (this->ChunkWord >= this->ChunkValid)
-    fprintf(stderr, "Read float past end of buffer\n");
+    vtk::print(stderr, "Read float past end of buffer\n");
   switch (this->WordSize)
   {
     case 4:
@@ -284,7 +285,7 @@ inline vtkIdType LSDynaFamily::GetNextWordAsInt()
 {
   if (this->ChunkWord >= this->ChunkValid)
   {
-    fprintf(stderr, "Read int past end of buffer\n");
+    vtk::print(stderr, "Read int past end of buffer\n");
   }
   switch (this->WordSize)
   {

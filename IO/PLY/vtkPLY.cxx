@@ -28,6 +28,7 @@ chars representing red, green and blue.
 #include "vtkMath.h"
 #include "vtkMemoryResourceStream.h"
 #include "vtkResourceParser.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 
 #include <vtksys/FStream.hxx>
@@ -918,8 +919,8 @@ void vtkPLY::ply_get_element_setup(
     prop = find_property(elem, prop_list[i].name, &index);
     if (prop == nullptr)
     {
-      fprintf(stderr, "Warning:  Can't find property '%s' in element '%s'\n", prop_list[i].name,
-        elem_name);
+      vtk::print(stderr, "Warning:  Can't find property '{:s}' in element '{:s}'\n",
+        prop_list[i].name, elem_name);
       continue;
     }
 
@@ -961,7 +962,8 @@ void vtkPLY::ply_get_property(PlyFile* plyfile, const char* elem_name, PlyProper
   prop_ptr = find_property(elem, prop->name, &index);
   if (prop_ptr == nullptr)
   {
-    fprintf(stderr, "Warning:  Can't find property '%s' in element '%s'\n", prop->name, elem_name);
+    vtk::print(
+      stderr, "Warning:  Can't find property '{:s}' in element '{:s}'\n", prop->name, elem_name);
     return;
   }
   prop_ptr->internal_type = prop->internal_type;
@@ -1726,7 +1728,7 @@ void vtkPLY::write_scalar_type(std::ostream* os, int code)
 
   if (code <= PLY_START_TYPE || code >= PLY_END_TYPE)
   {
-    fprintf(stderr, "write_scalar_type: bad data code = %d\n", code);
+    vtk::print(stderr, "write_scalar_type: bad data code = {:d}\n", code);
     assert(0);
   }
 
@@ -1902,7 +1904,7 @@ double vtkPLY::get_item_value(const char* item, int type)
       return (value);
     }
   }
-  fprintf(stderr, "get_item_value: bad type = %d\n", type);
+  vtk::print(stderr, "get_item_value: bad type = {:d}\n", type);
   return 0;
 }
 
@@ -1979,7 +1981,7 @@ void vtkPLY::write_binary_item(
       os->write(reinterpret_cast<char*>(&double_val), sizeof(double_val));
       break;
     default:
-      fprintf(stderr, "write_binary_item: bad type = %d\n", type);
+      vtk::print(stderr, "write_binary_item: bad type = {:d}\n", type);
       assert(0);
   }
 }
@@ -2024,7 +2026,7 @@ void vtkPLY::write_ascii_item(
       *os << std::setprecision(std::numeric_limits<double>::max_digits10) << double_val << " ";
       break;
     default:
-      fprintf(stderr, "write_ascii_item: bad type = %d\n", type);
+      vtk::print(stderr, "write_ascii_item: bad type = {:d}\n", type);
       assert(0);
   }
 }
@@ -2110,7 +2112,7 @@ double vtkPLY::old_write_ascii_item(std::ostream* os, char* item, int type)
       return value;
     }
   }
-  fprintf(stderr, "old_write_ascii_item: bad type = %d\n", type);
+  vtk::print(stderr, "old_write_ascii_item: bad type = {:d}\n", type);
   return 0.0;
 }
 
@@ -2215,7 +2217,7 @@ void vtkPLY::get_stored_item(
       break;
     }
     default:
-      fprintf(stderr, "get_stored_item: bad type = %d\n", type);
+      vtk::print(stderr, "get_stored_item: bad type = {:d}\n", type);
       assert(0);
   }
 }
@@ -2393,7 +2395,7 @@ bool vtkPLY::get_binary_item(
     }
     break;
     default:
-      fprintf(stderr, "get_binary_item: bad type = %d\n", type);
+      vtk::print(stderr, "get_binary_item: bad type = {:d}\n", type);
       assert(0);
       return false;
   }
@@ -2448,7 +2450,7 @@ void vtkPLY::get_ascii_item(
       break;
 
     default:
-      fprintf(stderr, "get_ascii_item: bad type = %d\n", type);
+      vtk::print(stderr, "get_ascii_item: bad type = {:d}\n", type);
       assert(0);
   }
 }
@@ -2528,7 +2530,7 @@ void vtkPLY::store_item(char* item, int type, int int_val, unsigned int uint_val
       break;
     }
     default:
-      fprintf(stderr, "store_item: bad type = %d\n", type);
+      vtk::print(stderr, "store_item: bad type = {:d}\n", type);
       assert(0);
   }
 }
@@ -2708,7 +2710,7 @@ void* vtkPLY::my_alloc(size_t size, int lnum, const char* fname)
 
   if (ptr == nullptr)
   {
-    fprintf(stderr, "Memory allocation bombed on line %d in %s\n", lnum, fname);
+    vtk::print(stderr, "Memory allocation bombed on line {:d} in {:s}\n", lnum, fname);
   }
 
   return (ptr);

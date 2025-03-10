@@ -15,6 +15,7 @@
 
 #include "vtkImageDecomposeFilter.h"
 #include "vtkImagingFourierModule.h" // For export macro
+#include "vtkStringFormatter.h"      // For vtk::print
 
 /*******************************************************************
                         COMPLEX number stuff
@@ -45,7 +46,7 @@ using vtkImageComplex = struct vtkImageComplex_t;
 #define vtkImageComplexPrint(C)                                                                    \
   do                                                                                               \
   {                                                                                                \
-    printf("(%.3f, %.3f)", (C).Real, (C).Imag);                                                    \
+    vtk::print("({:.3f}, {:.3f})", (C).Real, (C).Imag);                                            \
   } while (false)
 
 #define vtkImageComplexScale(cOut, S, cIn)                                                         \

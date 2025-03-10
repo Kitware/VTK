@@ -1192,7 +1192,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
     double minDist = -1;
     for (int cnt = 0; cnt < tsLength; cnt++)
     {
-      // fprintf(stderr, "RequestData: steps[%d]=%f\n", cnt, steps[cnt]);
       double tdist = (steps[cnt] - this->TimeValue > this->TimeValue - steps[cnt])
         ? steps[cnt] - this->TimeValue
         : this->TimeValue - steps[cnt];

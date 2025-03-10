@@ -22,6 +22,7 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
@@ -94,7 +95,7 @@ static hid_t H5PartGetDiskShape(H5PartFile* f, hid_t dataset)
     r = H5Sselect_hyperslab(space, H5S_SELECT_SET, range, &stride, &count, nullptr);
     if (r < 0)
     {
-      fprintf(stderr, "Abort: Selection Failed!\n");
+      vtk::print(stderr, "Abort: Selection Failed!\n");
       return space;
     }
   }
