@@ -20,7 +20,6 @@ vtk_module_test_data(
   Data/transient_sphere.hdf
   Data/temporal_unstructured_grid.vtkhdf
   Data/transient_harmonics.hdf
-  Data/transient_harmonics_timevalues.hdf
   Data/transient_wavelet.hdf
   Data/wavelet_cell_data.hdf
   Data/wavelet_cell_data.vti

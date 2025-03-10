@@ -54,10 +54,6 @@ class vtkAddAssembly : public vtkPartitionedDataSetCollectionAlgorithm
 public:
   static vtkAddAssembly* New();
   vtkTypeMacro(vtkAddAssembly, vtkDataObjectAlgorithm);
-  vtkAddAssembly()
-    : vtkPartitionedDataSetCollectionAlgorithm(){
-
-    };
 
 protected:
   int RequestData(
@@ -252,7 +248,6 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   tempPath += "composite" + std::to_string(compositeType) + ".vtkhdf";
   HDFWriterGrouped->SetFileName(tempPath.c_str());
   HDFWriterGrouped->SetWriteAllTimeSteps(true);
-  HDFWriterGrouped->SetUseExternalComposite(false); // TODO: variabilize
   HDFWriterGrouped->Write();
 
   // Read back the grouped dataset
@@ -366,8 +361,7 @@ int TestHDFWriterTemporal(int argc, char* argv[])
 
   // Use a modified version of transient_harmonics to make sure that the time values match between
   // both datasets
-  std::vector<std::string> baseNamesComposite = { "transient_sphere",
-    "transient_harmonics_timevalues" };
+  std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
   result &= TestTemporalComposite(
     tempDir, dataRoot, baseNamesComposite, VTK_PARTITIONED_DATA_SET_COLLECTION);
