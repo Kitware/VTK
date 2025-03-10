@@ -9,7 +9,6 @@
 #include "vtkAMRBox.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
-#include "vtkCellData.h"
 #include "vtkConduitArrayUtilities.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -140,14 +139,14 @@ void GatherInfos(LocalInfo& rankInfo, GlobalInfo& globalInfo)
   rankInfo.BlockOffsets.resize(globalInfo.NbOfLevels, 0);
   if (globalInfo.NbOfProcesses > 1)
   {
-    for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
+    for (vtkIdType level = 0; level < globalInfo.NbOfLevels; level++)
     {
       vtkIdType offset(0);
-      for (int p = 0; p < rankInfo.Rank; p++)
+      for (int rank = 0; rank < rankInfo.Rank; rank++)
       {
-        offset += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+        offset += globalInfo.BlocksPerLevelAndRank[level + rank * globalInfo.NbOfLevels];
       }
-      rankInfo.BlockOffsets[l] = offset;
+      rankInfo.BlockOffsets[level] = offset;
     }
   }
 }
@@ -159,19 +158,20 @@ void GatherInfos(LocalInfo& rankInfo, GlobalInfo& globalInfo)
 void InitializeLocalAMR(GlobalInfo& globalInfo, vtkOverlappingAMR* amr)
 {
   std::vector<int> blocksPerLevelGlobal(globalInfo.NbOfLevels, 0);
-  for (vtkIdType l = 0; l < globalInfo.NbOfLevels; l++)
+  for (vtkIdType level = 0; level < globalInfo.NbOfLevels; level++)
   {
-    for (int p = 0; p < globalInfo.NbOfProcesses; p++)
+    for (int rank = 0; rank < globalInfo.NbOfProcesses; rank++)
     {
-      blocksPerLevelGlobal[l] += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+      blocksPerLevelGlobal[level] +=
+        globalInfo.BlocksPerLevelAndRank[level + rank * globalInfo.NbOfLevels];
     }
   }
   amr->Initialize(globalInfo.NbOfLevels, blocksPerLevelGlobal.data());
-  for (int l = 0; l < globalInfo.NbOfLevels; ++l)
+  for (int level = 0; level < globalInfo.NbOfLevels; ++level)
   {
-    for (int b = 0; b < blocksPerLevelGlobal[l]; ++b)
+    for (int block = 0; block < blocksPerLevelGlobal[level]; ++block)
     {
-      amr->SetDataSet(l, b, nullptr);
+      amr->SetDataSet(level, block, nullptr);
     }
   }
 
@@ -257,17 +257,17 @@ void DistributeAMRBoxes(
   std::vector<int> boxExtentsLocal(8 * rankInfo.NbOfBlocks, 0);
   std::vector<int> boxExtentsGlobal(8 * globalInfo.NbOfBlocks, 0);
 
-  for (int p = 0; p < globalInfo.NbOfProcesses; ++p)
+  for (int rank = 0; rank < globalInfo.NbOfProcesses; ++rank)
   {
     int num_blocks = 0;
-    for (int l = 0; l < globalInfo.NbOfLevels; l++)
+    for (int level = 0; level < globalInfo.NbOfLevels; level++)
     {
-      num_blocks += globalInfo.BlocksPerLevelAndRank[l + p * globalInfo.NbOfLevels];
+      num_blocks += globalInfo.BlocksPerLevelAndRank[level + rank * globalInfo.NbOfLevels];
     }
-    boxBoundsCounts[p] = num_blocks * 8;
-    if (p > 0)
+    boxBoundsCounts[rank] = num_blocks * 8;
+    if (rank > 0)
     {
-      boxBoundsOffsets[p] = boxBoundsCounts[p - 1] + boxBoundsOffsets[p - 1];
+      boxBoundsOffsets[rank] = boxBoundsCounts[rank - 1] + boxBoundsOffsets[rank - 1];
     }
   }
 
@@ -295,31 +295,31 @@ void DistributeAMRBoxes(
 
   controller->AllGatherV(boxExtentsLocal.data(), boxExtentsGlobal.data(), boxExtentsLocal.size(),
     boxBoundsCounts.data(), boxBoundsOffsets.data());
-  for (int i = 0; i < globalInfo.NbOfBlocks; ++i)
+  for (int block = 0; block < globalInfo.NbOfBlocks; ++block)
   {
-    int level = boxExtentsGlobal[8 * i + 0];
-    int id = boxExtentsGlobal[8 * i + 1];
-    int* dims = &boxExtentsGlobal[8 * i + 2];
+    int level = boxExtentsGlobal[8 * block];
+    int id = boxExtentsGlobal[8 * block + 1];
+    int* dims = &boxExtentsGlobal[8 * block + 2];
     vtkAMRBox box(dims[0], dims[1], dims[2], dims[3], dims[4], dims[5]);
     amr->SetAMRBox(level, id, box);
   }
 
   // set homogeneous spacing
   std::vector<double> local_spacings(globalInfo.NbOfLevels, 0.);
-  for (int lvl = 0; lvl < globalInfo.NbOfLevels; lvl++)
+  for (int level = 0; level < globalInfo.NbOfLevels; level++)
   {
     double lvl_spacing[3];
-    amr->GetSpacing(lvl, lvl_spacing);
-    local_spacings[lvl] = lvl_spacing[0];
+    amr->GetSpacing(level, lvl_spacing);
+    local_spacings[level] = lvl_spacing[0];
   }
   std::vector<double> global_spacing(globalInfo.NbOfLevels);
   controller->AllReduce(
     local_spacings.data(), global_spacing.data(), globalInfo.NbOfLevels, vtkCommunicator::MAX_OP);
-  for (int lvl = 0; lvl < globalInfo.NbOfLevels; lvl++)
+  for (int level = 0; level < globalInfo.NbOfLevels; level++)
   {
     // spacing is homogeneous in all 3 directions.
-    double lvl_spacing[3] = { global_spacing[lvl], global_spacing[lvl], global_spacing[lvl] };
-    amr->SetSpacing(lvl, lvl_spacing);
+    double lvl_spacing[3] = { global_spacing[level], global_spacing[level], global_spacing[level] };
+    amr->SetSpacing(level, lvl_spacing);
   }
 }
 };
