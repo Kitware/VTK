@@ -74,11 +74,18 @@ static void Deserialize_vtkMultiBlockDataSet(
       {
         const std::string name = blockState.at("Name").get<std::string>();
         const auto& block = blockState.at("DataObject");
-        auto* context = deserializer->GetContext();
-        const auto identifier = block.at("Id").get<vtkTypeUInt32>();
-        auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
-        object->SetBlock(i, vtkDataObject::SafeDownCast(subObject));
+        if (!block.empty())
+        {
+          auto* context = deserializer->GetContext();
+          const auto identifier = block.at("Id").get<vtkTypeUInt32>();
+          auto subObject = context->GetObjectAtId(identifier);
+          deserializer->DeserializeJSON(identifier, subObject);
+          object->SetBlock(i, vtkDataObject::SafeDownCast(subObject));
+        }
+        else
+        {
+          object->SetBlock(i, nullptr);
+        }
         object->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name);
         i++;
       }
