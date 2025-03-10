@@ -24,12 +24,13 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkMapper;
 
-class VTKRENDERINGCORE_EXPORT vtkProp3DFollower : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp3DFollower : public vtkProp3D
 {
 public:
   /**

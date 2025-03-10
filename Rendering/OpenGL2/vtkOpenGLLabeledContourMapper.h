@@ -12,12 +12,14 @@
 
 #include "vtkLabeledContourMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkOpenGLHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper : public vtkLabeledContourMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLLabeledContourMapper
+  : public vtkLabeledContourMapper
 {
 public:
   static vtkOpenGLLabeledContourMapper* New();

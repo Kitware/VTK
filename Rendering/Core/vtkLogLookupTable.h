@@ -16,9 +16,10 @@
 
 #include "vtkLookupTable.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkLogLookupTable : public vtkLookupTable
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLogLookupTable : public vtkLookupTable
 {
 public:
   static vtkLogLookupTable* New();

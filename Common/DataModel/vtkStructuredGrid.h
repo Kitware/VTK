@@ -32,6 +32,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkStructuredData.h" // Needed for inline methods
 
@@ -43,7 +44,7 @@ class vtkQuad;
 class vtkUnsignedCharArray;
 class vtkVertex;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkStructuredGrid : public vtkPointSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkStructuredGrid : public vtkPointSet
 {
 public:
   static vtkStructuredGrid* New();
