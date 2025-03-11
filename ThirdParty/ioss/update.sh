@@ -8,7 +8,7 @@ readonly name="ioss"
 readonly ownership="Seacas Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/seacas.git"
-readonly tag="ioss/for/vtk-20241009-v2024-06-27"
+readonly tag="ioss/for/vtk-20250313-v2025-02-27"
 readonly paths="
 packages/seacas/libraries/ioss/src/CMakeLists.vtk.txt
 packages/seacas/libraries/ioss/cmake/SEACASIoss_config.h.in
@@ -61,6 +61,8 @@ extract_source () {
     mv -v packages/seacas/libraries/ioss/cmake .
     mv -v packages/seacas/libraries/ioss/src/* .
     rm -rvf packages
+    rm -rvf adios
+    rm -rvf visualization
     mv -v CMakeLists.vtk.txt CMakeLists.txt
     popd
 }
