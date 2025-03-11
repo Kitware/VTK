@@ -8,7 +8,7 @@ readonly name="diy2"
 readonly ownership="Diy2 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/diy2.git"
-readonly tag="for/vtk-20250203-0cde57f9b"
+readonly tag="for/vtk-20250313-e5f2edf6f"
 readonly paths="
 .gitattributes
 CMakeLists.vtk.txt
