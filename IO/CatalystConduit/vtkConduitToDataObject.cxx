@@ -212,8 +212,11 @@ void FillLocalData(const conduit_cpp::Node& child, const LocalInfo& rankInfo,
   ug->SetSpacing(spacing);
   ug->SetDimensions(pdims);
 
-  const auto fields = child["fields"];
-  vtkConduitToDataObject::AddFieldData(ug, fields, true);
+  if (child.has_path("fields"))
+  {
+    const auto fields = child["fields"];
+    vtkConduitToDataObject::AddFieldData(ug, fields, true);
+  }
 
   vtkAMRBox box(origin, pdims, spacing, globalInfo.Origin, amr->GetGridDescription());
   // set level spacing
