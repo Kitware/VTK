@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2024 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -59,12 +59,12 @@
 #endif
 
 /* EXODUS version number */
-#define EXODUS_VERSION       "9.00"
+#define EXODUS_VERSION       "9.04"
 #define EXODUS_VERSION_MAJOR 9
-#define EXODUS_VERSION_MINOR 0
-#define EXODUS_RELEASE_DATE  "May 30, 2024"
+#define EXODUS_VERSION_MINOR 4
+#define EXODUS_RELEASE_DATE  "November 5, 2024"
 
-#define EX_API_VERS       9.00f
+#define EX_API_VERS       9.04f
 #define EX_API_VERS_NODOT (100 * EXODUS_VERSION_MAJOR + EXODUS_VERSION_MINOR)
 #define EX_VERS           EX_API_VERS
 
@@ -219,6 +219,7 @@ enum ex_inquiry {
   EX_INQ_NUM_ELEM_SET_VAR    = 69, /**< number of element set variables */
   EX_INQ_NUM_SIDE_SET_VAR    = 70, /**< number of sideset variables */
   EX_INQ_NUM_GLOBAL_VAR      = 71, /**< number of global variables */
+  EX_INQ_FILE_FORMAT         = 72, /**< netCDF file format */
   EX_INQ_INVALID             = -1
 };
 
@@ -246,9 +247,11 @@ NetCDF-4.?.? and later
 enum ex_option_type {
   EX_OPT_MAX_NAME_LENGTH =
       1, /**< Maximum length of names that will be returned/passed via api call. */
-  EX_OPT_COMPRESSION_TYPE,    /**<  Not currently used; default is gzip */
-  EX_OPT_COMPRESSION_LEVEL,   /**<  In the range [0..9]. A value of 0 indicates no compression */
+  EX_OPT_COMPRESSION_TYPE,    /**<  Default is gzip */
+  EX_OPT_COMPRESSION_LEVEL,   /**<  Range depends on compression type. */
   EX_OPT_COMPRESSION_SHUFFLE, /**<  1 if enabled, 0 if disabled */
+  EX_OPT_QUANTIZE_NSD,        /**< if > 0, Number of significant digits to retain in lossy quantize
+                                 compression */
   EX_OPT_INTEGER_SIZE_API, /**<  4 or 8 indicating byte size of integers used in api functions. */
   EX_OPT_INTEGER_SIZE_DB,  /**<  Query only, returns 4 or 8 indicating byte size of integers stored
                              on  the database. */
@@ -259,6 +262,8 @@ enum ex_compression_type {
   EX_COMPRESS_ZLIB = 1, /**< Use ZLIB-based compression (if available) */
   EX_COMPRESS_GZIP = 1, /**< Same as ZLIB, but typical alias used */
   EX_COMPRESS_SZIP,     /**< Use SZIP-based compression (if available) */
+  EX_COMPRESS_ZSTD,     /**< Use ZStandard compression (if available) */
+  EX_COMPRESS_BZ2,      /**< Use BZ2 / Bzip2 compression (if available) */
 };
 typedef enum ex_compression_type ex_compression_type;
 /** @}*/
@@ -345,13 +350,13 @@ typedef struct ex_basis
   /*
    clang-format off
    *
-   * subc_dim: dimension of the subcell associated with the specified DoF ordinal 
+   * subc_dim: dimension of the subcell associated with the specified DoF ordinal
    *      -- 0 node, 1 edge, 2 face, 3 volume [Range: 0..3]
    * subc_ordinal: ordinal of the subcell relative to its parent cell
-   *      -- 0..n for each ordinal with the same subc dim [Range: <= DoF ordinal] 
-   * subc_dof_ordinal: ordinal of the DoF relative to the subcell 
-   * subc_num_dof: cardinality of the DoF set associated with this subcell. 
-   * xi, eta, mu (ξ, η, ζ): Parametric coordinate location of the DoF 
+   *      -- 0..n for each ordinal with the same subc dim [Range: <= DoF ordinal]
+   * subc_dof_ordinal: ordinal of the DoF relative to the subcell
+   * subc_num_dof: cardinality of the DoF set associated with this subcell.
+   * xi, eta, mu (ξ, η, ζ): Parametric coordinate location of the DoF
    *      -- (Only first ndim values are valid)
    *
    clang-format on
@@ -971,7 +976,7 @@ EXODUS_EXPORT int ex_get_block(int exoid, ex_entity_type blk_type, ex_entity_id 
 /*  Read Edge Face or Element Block Parameters */
 EXODUS_EXPORT int ex_get_block_param(int exoid, ex_block *block);
 
-EXODUS_EXPORT int ex_put_block_param(int exoid, const ex_block block);
+EXODUS_EXPORT int ex_put_block_param(int exoid, ex_block block);
 
 EXODUS_EXPORT int ex_get_block_params(int exoid, size_t block_count, struct ex_block **blocks);
 
@@ -1037,34 +1042,35 @@ EXODUS_EXPORT int ex_put_attr_names(int exoid, ex_entity_type blk_type, ex_entit
 EXODUS_EXPORT int ex_get_attr_names(int exoid, ex_entity_type obj_type, ex_entity_id obj_id,
                                     char **names);
 
-EXODUS_EXPORT int ex_put_assembly(int exoid, const struct ex_assembly assembly);
+EXODUS_EXPORT int ex_put_assembly(int exoid, struct ex_assembly assembly);
 EXODUS_EXPORT int ex_get_assembly(int exoid, struct ex_assembly *assembly);
 
 EXODUS_EXPORT int ex_put_assemblies(int exoid, size_t count, const struct ex_assembly *assemblies);
 EXODUS_EXPORT int ex_get_assemblies(int exoid, struct ex_assembly *assemblies);
 
-EXODUS_EXPORT int ex_put_blob(int exoid, const struct ex_blob blob);
+EXODUS_EXPORT int ex_put_blob(int exoid, struct ex_blob blob);
 EXODUS_EXPORT int ex_get_blob(int exoid, struct ex_blob *blob);
 
 EXODUS_EXPORT int ex_put_blobs(int exoid, size_t count, const struct ex_blob *blobs);
 EXODUS_EXPORT int ex_get_blobs(int exoid, struct ex_blob *blobs);
 
-EXODUS_EXPORT int ex_put_field_metadata(int exoid, const ex_field field);
-EXODUS_EXPORT int ex_put_field_suffices(int exoid, const ex_field field, const char *suffices);
+EXODUS_EXPORT int ex_put_multi_field_metadata(int exoid, const ex_field *field, int field_count);
+EXODUS_EXPORT int ex_put_field_metadata(int exoid, ex_field field);
+EXODUS_EXPORT int ex_put_field_suffices(int exoid, ex_field field, const char *suffices);
 EXODUS_EXPORT int ex_get_field_metadata(int exoid, ex_field *field);
 EXODUS_EXPORT int ex_get_field_metadata_count(int exoid, ex_entity_type obj_type, ex_entity_id id);
-EXODUS_EXPORT int ex_get_field_suffices(int exoid, const ex_field field, char *suffices);
+EXODUS_EXPORT int ex_get_field_suffices(int exoid, ex_field field, char *suffices);
 
 EXODUS_EXPORT int ex_get_basis_count(int exoid);
 EXODUS_EXPORT int ex_get_basis(int exoid, ex_basis **pbasis, int *num_basis);
-EXODUS_EXPORT int ex_put_basis(int exoid, const ex_basis basis);
+EXODUS_EXPORT int ex_put_basis(int exoid, ex_basis basis);
 
 EXODUS_EXPORT int ex_get_quadrature_count(int exoid);
 EXODUS_EXPORT int ex_get_quadrature(int exoid, ex_quadrature **pquad, int *num_quad);
-EXODUS_EXPORT int ex_put_quadrature(int exoid, const ex_quadrature quad);
+EXODUS_EXPORT int ex_put_quadrature(int exoid, ex_quadrature quad);
 
 /*  Write arbitrary integer, double, or text attributes on an entity */
-EXODUS_EXPORT int ex_put_attribute(int exoid, const ex_attribute attributes);
+EXODUS_EXPORT int ex_put_attribute(int exoid, ex_attribute attributes);
 EXODUS_EXPORT int ex_put_attributes(int exoid, size_t attr_count, const ex_attribute *attributes);
 
 EXODUS_EXPORT int ex_put_double_attribute(int exoid, ex_entity_type obj_type, ex_entity_id id,
@@ -1318,10 +1324,10 @@ EXODUS_EXPORT int ex_initialize_quadrature_struct(ex_quadrature *quad, size_t nu
 EXODUS_EXPORT const char *ex_component_field_name(ex_field *field,
                                                   int       component[EX_MAX_FIELD_NESTING]);
 EXODUS_EXPORT const char *ex_field_component_suffix(ex_field *field, int nest_level, int component);
-EXODUS_EXPORT int         ex_field_cardinality(const ex_field_type field_type);
-EXODUS_EXPORT const char *ex_field_type_name(const ex_field_type field_type);
+EXODUS_EXPORT int         ex_field_cardinality(ex_field_type field_type);
+EXODUS_EXPORT const char *ex_field_type_name(ex_field_type field_type);
 EXODUS_EXPORT ex_field_type ex_string_to_field_type_enum(const char *field_name);
-EXODUS_EXPORT const char   *ex_field_type_enum_to_string(const ex_field_type field_type);
+EXODUS_EXPORT const char   *ex_field_type_enum_to_string(ex_field_type field_type);
 
 /*! @} */
 
@@ -1958,6 +1964,8 @@ enum ex_error_return_code {
   EX_NULLENTITY    = -1006, /**< null entity found                        */
   EX_NOENTITY      = -1007, /**< no entities of that type on database    */
   EX_NOTFOUND      = -1008, /**< could not find requested variable on database */
+  EX_INTSIZEMISMATCH =
+      -1009, /**< integer sizes do not match on input/output databases in ex_copy  */
 
   EX_FATAL = -1, /**< fatal error flag def                     */
   EX_NOERR = 0,  /**< no error flag def                        */

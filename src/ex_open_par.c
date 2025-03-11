@@ -222,6 +222,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "issue \n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #else
       /* This is an hdf5 (netcdf4) file. If NC_HAS_HDF5 is not defined,
          then we either don't have hdf5 support in this netcdf version,
@@ -238,6 +240,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "other issue \n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #endif
     }
     else if (type == 4) {
@@ -249,6 +253,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "issue \n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #else
       /* This is an cdf5 (64BIT_DATA) file. If NC_64BIT_DATA is not defined,
          then we either don't have cdf5 support in this netcdf version,
@@ -265,6 +271,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "other issue \n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #endif
     }
     else if (type == 1 || type == 2) {
@@ -277,6 +285,8 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "issue \n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #else
       /* This is an normal NetCDF format file, for parallel reading, the PNetCDF
          library is required but that is not compiled into this version.
@@ -287,14 +297,16 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
                "built with PNetCDF support as required for parallel access to this file.\n",
                canon_path);
       ex_err(__func__, errmsg, status);
+      free(canon_path);
+      EX_FUNC_LEAVE(EX_FATAL);
 #endif
     }
 
     snprintf(errmsg, MAX_ERR_LENGTH,
-             "ERROR: failed to open %s for read/write.\n\tEither the file "
-             "does not exist,\n\tor there is a permission or file format "
-             "issue.",
-             canon_path);
+             "ERROR: failed to open %s of type %d for reading.\n\t\tThe "
+             "file does not exist, or there is a permission or file "
+             "format issue.",
+             canon_path, type);
     ex_err(__func__, errmsg, status);
     free(canon_path);
     EX_FUNC_LEAVE(EX_FATAL);
@@ -313,7 +325,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
   if (mode & EX_WRITE) { /* Appending */
     /* turn off automatic filling of netCDF variables */
     if (is_pnetcdf) {
-      if ((status = nc_redef(exoid)) != NC_NOERR) {
+      if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
         free(canon_path);
@@ -359,7 +371,7 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
     }
 
     if (in_redef) {
-      if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
+      if ((status = nc_enddef(exoid)) != NC_NOERR) {
         free(canon_path);
         EX_FUNC_LEAVE(EX_FATAL);
       }
@@ -384,12 +396,10 @@ int ex_open_par_int(const char *path, int mode, int *comp_ws, int *io_ws, float 
     int ngatts;   /* number of global attributes */
     int recdimid; /* id of unlimited dimension */
 
-    int varid;
-
     /* Determine number of variables on the database... */
     nc_inq(exoid, &ndims, &nvars, &ngatts, &recdimid);
 
-    for (varid = 0; varid < nvars; varid++) {
+    for (int varid = 0; varid < nvars; varid++) {
       struct ncvar var;
       nc_inq_var(exoid, varid, var.name, &var.type, &var.ndims, var.dims, &var.natts);
 

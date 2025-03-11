@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -32,9 +32,9 @@
 int ex_put_ss_param_global(int exoid, const void_int *global_ids, const void_int *side_cnts,
                            const void_int *df_cnts)
 {
-  int varid;
+  int varid = 0;
 
-  int  status;
+  int  status = 0;
   char errmsg[MAX_ERR_LENGTH];
   /*-----------------------------Execution begins-----------------------------*/
 

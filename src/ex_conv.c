@@ -37,7 +37,7 @@ struct exi_file_item *exi_find_file_item(int exoid)
     }
     ptr = ptr->next;
   }
-  return (ptr);
+  return ptr;
 }
 
 #define EX__MAX_PATHLEN 8192
@@ -80,7 +80,8 @@ int exi_check_valid_file_id(int exoid, const char *func)
   }
 #if !defined BUILT_IN_SIERRA
   else {
-    struct exi_file_item *file = exi_find_file_item(exoid);
+    int                   rootid = exoid & EX_FILE_ID_MASK;
+    struct exi_file_item *file   = exi_find_file_item(rootid);
 
     if (!file) {
       error = true;
@@ -93,13 +94,14 @@ int exi_check_valid_file_id(int exoid, const char *func)
     if (old_opt & EX_ABORT) {
       ex_opts(EX_VERBOSE | EX_ABORT);
     }
+    int  rootid = exoid & EX_FILE_ID_MASK;
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: In \"%s\", the file id %d was not obtained via a call "
              "to \"ex_open\" or \"ex_create\".\n\t\tIt does not refer to a "
              "valid open exodus file.\n\t\tAborting to avoid file "
              "corruption or data loss or other potential problems.",
-             func, exoid);
+             func, rootid);
     ex_err(__func__, errmsg, EX_BADFILEID);
     ex_opts(old_opt);
     return EX_FATAL;
@@ -231,7 +233,7 @@ int exi_conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  new_file->file_id               = exoid;
+  new_file->file_id               = (unsigned)exoid & EX_FILE_ID_MASK;
   new_file->user_compute_wordsize = *comp_wordsize == 4 ? 0 : 1;
   new_file->int64_status          = int64_status;
   new_file->maximum_name_length   = exi_default_max_name_length;
@@ -240,6 +242,7 @@ int exi_conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
   new_file->assembly_count        = 0;
   new_file->blob_count            = 0;
   new_file->compression_level     = 0;
+  new_file->quantize_nsd          = 0;
   new_file->shuffle               = 0;
   new_file->file_type             = filetype - 1;
   new_file->is_parallel           = is_parallel;
@@ -249,6 +252,8 @@ int exi_conv_init(int exoid, int *comp_wordsize, int *io_wordsize, int file_word
   new_file->has_edges             = 1;
   new_file->has_faces             = 1;
   new_file->has_elems             = 1;
+  new_file->in_define_mode        = 0;
+  new_file->persist_define_mode   = 0;
   new_file->is_write              = is_write;
 
   new_file->next = file_list;
@@ -282,9 +287,11 @@ void exi_conv_exit(int exoid)
   struct exi_file_item *file = file_list;
   struct exi_file_item *prev = NULL;
 
+  int root_id = (unsigned)exoid & EX_FILE_ID_MASK;
+
   EX_FUNC_ENTER();
   while (file) {
-    if (file->file_id == exoid) {
+    if (file->file_id == root_id) {
       break;
     }
 
@@ -441,18 +448,75 @@ int ex_set_option(int exoid, ex_option_type option, int option_value)
           char errmsg[MAX_ERR_LENGTH];
           snprintf(errmsg, MAX_ERR_LENGTH,
                    "ERROR: invalid value %d for SZIP Compression.  Must be even and 4 <= value <= "
-                   "32. Ignoring.",
+                   "32. Setting value to 4.",
                    value);
           ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-          EX_FUNC_LEAVE(EX_FATAL);
+          value = 4;
         }
       }
+      else if (file->compression_algorithm == EX_COMPRESS_ZSTD) {
+#if NC_HAS_ZSTD == 1
+        if (value < -131072 || value > 22) {
+          char errmsg[MAX_ERR_LENGTH];
+          snprintf(errmsg, MAX_ERR_LENGTH,
+                   "ERROR: invalid value %d for ZSTD Compression.  Must be between -131072 and 22. "
+                   "Setting value to 4",
+                   value);
+          ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+          value = 4;
+        }
+#else
+        char errmsg[MAX_ERR_LENGTH];
+        snprintf(
+            errmsg, MAX_ERR_LENGTH,
+            "ERROR: Zstandard compression is not supported in this version of netCDF library.");
+        ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+#endif
+      }
+      else if (file->compression_algorithm == EX_COMPRESS_BZ2) {
+#if NC_HAS_BZ2 == 1
+        if (value < 0 || value > 9) {
+          char errmsg[MAX_ERR_LENGTH];
+          snprintf(errmsg, MAX_ERR_LENGTH,
+                   "ERROR: invalid value %d for BZIP2 Compression.  Must be between 0 and 9 "
+                   "inclusive. Setting value to 1.",
+                   value);
+          ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+          value = 1;
+        }
+#else
+        char errmsg[MAX_ERR_LENGTH];
+        snprintf(errmsg, MAX_ERR_LENGTH,
+                 "ERROR: Bzip2 compression is not supported in this version of netCDF library.");
+        ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+#endif
+      }
       file->compression_level = value;
-      assert(value == file->compression_level);
     }
     else {
       file->compression_level = 0;
     }
+    break;
+  case EX_OPT_QUANTIZE_NSD:
+#if NC_HAS_QUANTIZE == 1
+    if (option_value > 15) {
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH,
+               "ERROR: invalid value %d for Quantize NSD.  Must be less than or equal to 15.  "
+               "Setting value to 15.",
+               option_value);
+      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+      option_value = 15;
+    }
+    file->quantize_nsd = option_value;
+#else
+  {
+    char errmsg[MAX_ERR_LENGTH];
+    snprintf(errmsg, MAX_ERR_LENGTH,
+             "ERROR: Quanitzation is not supported in this version of netCDF library.");
+    ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+  }
+#endif
     break;
   case EX_OPT_COMPRESSION_SHUFFLE: /* 0 (disabled); 1 (enabled) */
     file->shuffle = option_value != 0 ? 1 : 0;
@@ -486,10 +550,10 @@ int exi_comp_ws(int exoid)
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d", exoid);
     ex_err(__func__, errmsg, EX_BADFILEID);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
   /* Stored as 0 for 4-byte; 1 for 8-byte */
-  return ((file->user_compute_wordsize + 1) * 4);
+  return (file->user_compute_wordsize + 1) * 4;
 }
 
 /*!

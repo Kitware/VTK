@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -88,7 +88,7 @@ int exi_put_nodal_var_time(int exoid, int nodal_var_index, int64_t num_nodes, in
     snprintf(errmsg, MAX_ERR_LENGTH, "Warning: could not find nodal variable %d in file id %d",
              nodal_var_index, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_WARN);
+    return EX_WARN;
   }
   start[0] = --beg_time_step;
   start[1] = 0;
@@ -106,7 +106,7 @@ int exi_put_nodal_var_time(int exoid, int nodal_var_index, int64_t num_nodes, in
   if (status != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store nodal variables in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -90,7 +90,7 @@ int ex_get_partial_id_map(int exoid, ex_entity_type map_type, int64_t start_enti
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (start_entity_num + num_entities - 1 > num_entries) {
+  if (start_entity_num + num_entities - 1 > (int64_t)num_entries) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: start index (%" PRId64 ") + entity count (%" PRId64
              ") is larger than total number of entities (%zu) in file id %d",

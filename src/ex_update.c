@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -20,7 +20,7 @@
 
 #include "exodusII.h"     // for ex_err, etc
 #include "exodusII_int.h" // for EX_FATAL, EX_NOERR
-
+#include <assert.h>
 /*!
  * \ingroup Utilities
  * updates an opened EXODUS file (or EXODUS history file)
@@ -34,6 +34,11 @@ int ex_update(int exoid)
   if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
   }
+
+#ifndef NDEBUG
+  struct exi_file_item *file = exi_find_file_item(exoid);
+  assert(!file->in_define_mode && file->persist_define_mode == 0);
+#endif
 
   int status;
   if ((status = nc_sync(exoid)) != NC_NOERR) {

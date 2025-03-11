@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -86,7 +86,7 @@ int ex_put_qa(int exoid, int num_qa_records, char *qa_record[][4])
     if (status != NC_NOERR) {
 
       /*   put file into define mode  */
-      if ((status = nc_redef(rootid)) != NC_NOERR) {
+      if ((status = exi_redef(rootid, __func__)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode",
                  rootid);
         ex_err_fn(exoid, __func__, errmsg, status);

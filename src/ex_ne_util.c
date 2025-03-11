@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -46,7 +46,7 @@ int nei_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id n
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable ID for \"%s\" in file ID %d",
              ne_var_name, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   /* check if I need the length for this variable */
@@ -62,7 +62,7 @@ int nei_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id n
                "in file ID %d",
                ne_var_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     /* Get the length of this variable */
@@ -73,7 +73,7 @@ int nei_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id n
                "ERROR: failed to find dimension for variable \"%s\" in file ID %d", ne_var_name,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     idx[1] = length;
@@ -94,7 +94,7 @@ int nei_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id n
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to find variable \"%s\" in file ID %d",
                ne_var_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if (id_val == ne_var_id) {
@@ -102,7 +102,7 @@ int nei_id_lkup(int exoid, const char *ne_var_name, int64_t *idx, ex_entity_id n
       break;
     }
   }
-  return (ret);
+  return ret;
 }
 
 /*****************************************************************************/

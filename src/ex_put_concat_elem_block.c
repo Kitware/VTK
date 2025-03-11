@@ -80,13 +80,13 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *const
   }
 
   if (ex_int64_status(exoid) & EX_IDS_INT64_API) {
-    for (i = 0; i < num_elem_blk; i++) {
-      eb_array[i] = (((int64_t *)num_elem_this_blk)[i] == 0) ? 0 : 1;
+    for (int ib = 0; ib < num_elem_blk; ib++) {
+      eb_array[ib] = (((int64_t *)num_elem_this_blk)[ib] == 0) ? 0 : 1;
     }
   }
   else {
-    for (i = 0; i < num_elem_blk; i++) {
-      eb_array[i] = (((int *)num_elem_this_blk)[i] == 0) ? 0 : 1;
+    for (int ib = 0; ib < num_elem_blk; ib++) {
+      eb_array[ib] = (((int *)num_elem_this_blk)[ib] == 0) ? 0 : 1;
     }
   }
 
@@ -144,7 +144,7 @@ int ex_put_concat_elem_block(int exoid, const void_int *elem_blk_id, char *const
   }
 
   /* put netcdf file into define mode  */
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to place file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     free(eb_array);

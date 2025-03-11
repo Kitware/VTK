@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -36,5 +36,5 @@ int ex_get_var_param(int exoid, const char *var_type, int *num_vars)
 {
   ex_entity_type obj_type;
   obj_type = ex_var_type_to_ex_entity_type(*var_type);
-  return (ex_get_variable_param(exoid, obj_type, num_vars));
+  return ex_get_variable_param(exoid, obj_type, num_vars);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -171,7 +171,6 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
                           void_int *side_sets_elem_list, void_int *side_sets_node_list,
                           void_int *side_sets_side_list)
 {
-  size_t    i, j, k, n;
   int       num_side_sets, num_elem_blks;
   int64_t   tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0, ndim;
   void_int *elem_blk_ids     = NULL;
@@ -179,7 +178,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   void_int *ss_elem_ndx      = NULL;
   void_int *ss_elem_node_ndx = NULL;
   void_int *ss_parm_ndx      = NULL;
-  size_t    elem_ctr, node_ctr, elem_num_pos;
+  int64_t   elem_ctr, node_ctr, elem_num_pos;
   int       num_nodes_per_elem, num_node_per_side;
 
   int *same_elem_type = NULL;
@@ -255,12 +254,12 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
   /* First count up # of elements in the side sets*/
   if (ints_64) {
-    for (i = 0; i < num_side_sets; i++) {
+    for (int i = 0; i < num_side_sets; i++) {
       tot_num_ss_elem += ((int64_t *)num_elem_per_set)[i];
     }
   }
   else {
-    for (i = 0; i < num_side_sets; i++) {
+    for (int i = 0; i < num_side_sets; i++) {
       tot_num_ss_elem += ((int *)num_elem_per_set)[i];
     }
   }
@@ -279,7 +278,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   if (int_size == sizeof(int64_t)) {
     /* Sort side set element list into index array  - non-destructive */
     int64_t *elems = (int64_t *)ss_elem_ndx;
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
     exi_iqsort64(side_sets_elem_list, elems, tot_num_ss_elem);
@@ -287,7 +286,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   else {
     /* Sort side set element list into index array  - non-destructive */
     int *elems = (int *)ss_elem_ndx;
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
     exi_iqsort(side_sets_elem_list, elems, tot_num_ss_elem);
@@ -325,7 +324,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     goto cleanup;
   }
   elem_ctr = 0;
-  for (i = 0; i < num_elem_blks; i++) {
+  for (int i = 0; i < num_elem_blks; i++) {
     ex_entity_id id;
     if (ints_64) {
       id = ((int64_t *)elem_blk_ids)[i];
@@ -383,9 +382,10 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   same_elem_type[0] = true;
   if (ints_64) {
     elem_ctr = ((int64_t *)num_elem_per_set)[0];
-    for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
+    for (int64_t i = 0, k = 0; i < tot_num_ss_elem; i++) {
       int64_t elem = ((int64_t *)side_sets_elem_list)[i];
-      for (j = 0; j < num_elem_blks; j++) {
+      int     j    = 0;
+      for (; j < num_elem_blks; j++) {
         if (elem <= elem_blk_parms[j].elem_ctr) {
           break;
         }
@@ -420,10 +420,12 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     */
     node_ctr = 0;
     elem_ctr = ((int64_t *)num_elem_per_set)[0];
-    for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
+    int i    = 0;
+    for (int k = 0; i < tot_num_ss_elem; i++) {
       int64_t elem = ((int64_t *)side_sets_elem_list)[i];
 
-      for (j = 0; j < num_elem_blks; j++) {
+      int j = 0;
+      for (; j < num_elem_blks; j++) {
         if (elem <= elem_blk_parms[j].elem_ctr) {
           break;
         }
@@ -460,10 +462,11 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
   }
   else {
     elem_ctr = ((int *)num_elem_per_set)[0];
-    for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
+    for (int i = 0, k = 0; i < tot_num_ss_elem; i++) {
       int elem = ((int *)side_sets_elem_list)[i];
 
-      for (j = 0; j < num_elem_blks; j++) {
+      int j = 0;
+      for (; j < num_elem_blks; j++) {
         if (elem <= elem_blk_parms[j].elem_ctr) {
           break;
         }
@@ -498,10 +501,12 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
     */
     node_ctr = 0;
     elem_ctr = ((int *)num_elem_per_set)[0];
-    for (i = 0, k = 0; i < tot_num_ss_elem; i++) {
+    int i    = 0;
+    for (int k = 0; i < tot_num_ss_elem; i++) {
       int elem = ((int *)side_sets_elem_list)[i];
 
-      for (j = 0; j < num_elem_blks; j++) {
+      int j = 0;
+      for (; j < num_elem_blks; j++) {
         if (elem <= elem_blk_parms[j].elem_ctr) {
           break;
         }
@@ -541,7 +546,7 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
   elem_ctr = 0;
 
-  for (j = 0; j < tot_num_ss_elem; j++) {
+  for (int j = 0; j < tot_num_ss_elem; j++) {
     int64_t elem;
     int64_t idx;
     int64_t ss_node0, ss_node1;
@@ -617,7 +622,8 @@ int ex_cvt_nodes_to_sides(int exoid, void_int *num_elem_per_set, void_int *num_n
 
     num_nodes_per_elem = elem_blk_parms[p_ndx].num_nodes_per_elem;
 
-    for (n = 0; n < num_nodes_per_elem; n++) {
+    int n = 0;
+    for (; n < num_nodes_per_elem; n++) {
       /* find node in connectivity array that matches first node in side set */
       if (((int_size == sizeof(int64_t)) &&
            (ss_node0 == ((int64_t *)connect)[num_nodes_per_elem * (elem_num_pos) + n])) ||

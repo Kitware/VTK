@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -57,7 +57,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
   }
 
   --start_node_num;
-  if (start_node_num + num_nodes > num_nod) {
+  if (start_node_num + num_nodes > (int64_t)num_nod) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: start index (%" PRId64 ") + node count (%" PRId64
              ") is larger than total number of nodes (%zu) in file id %d",
@@ -71,7 +71,7 @@ int ex_get_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (component > num_dim) {
+  if (component > (int64_t)num_dim) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: Component (%d) is larger than number of dimensions (%zu) in file id %d",
              component, num_dim, exoid);
