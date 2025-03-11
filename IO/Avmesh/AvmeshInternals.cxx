@@ -13,6 +13,8 @@ AvmeshError::AvmeshError(std::string msg)
 {
 }
 
+namespace
+{
 typedef std::array<int, 5> Bface; // enough to hold a quad plus a patch ID
 typedef std::vector<Bface> BfaceList;
 
@@ -395,7 +397,7 @@ void makeUnique(std::vector<int>& vec)
   vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
-void BuildSurfaceBlock(int pid, vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
+void BuildSurfaceBlock(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
   BfaceList::const_iterator firstFace, BfaceList::const_iterator lastFace)
 {
   // Start by constructing a surface-to-volume mapping.  This maps a surface
@@ -475,10 +477,12 @@ void BuildBoundaryBlocks(vtkMultiBlockDataSet* output, vtkPoints* volPoints,
     auto lastFace = std::stable_partition(
       firstFace, bfaces.end(), [&patch](Bface const& face) { return face[4] == patch.pid; });
     auto surfGrid = AddBlock(output, patch.label);
-    BuildSurfaceBlock(patch.pid, surfGrid, volPoints, firstFace, lastFace);
+    BuildSurfaceBlock(surfGrid, volPoints, firstFace, lastFace);
+    patch.ToFieldData(surfGrid->GetFieldData());
     firstFace = lastFace;
   }
 }
+} // namespace
 
 void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly)
 {
@@ -494,6 +498,9 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
 
   // Make sure the metadata conforms to our assumptions (could throw exception)
   CheckAssumptions(meta);
+
+  // Add metadata to output as field data
+  meta.ToFieldData(output->GetFieldData());
 
   // Read all the points.  Need to read them all even if we're in surface-only
   // mode because there is no guarantee that the surface points will come first.

@@ -4,18 +4,24 @@
 #include <string>
 #include <vector>
 
+class vtkFieldData;
+
 struct AvmeshPatch
 {
   AvmeshPatch();
 
-  int pid;
+  void ToFieldData(vtkFieldData* fieldData) const;
+
   char label[32];
   char type[16];
+  int pid;
 };
 
 struct AvmeshMetadata
 {
   AvmeshMetadata();
+
+  void ToFieldData(vtkFieldData* fieldData) const;
 
   // File header
   char magicString[6];
