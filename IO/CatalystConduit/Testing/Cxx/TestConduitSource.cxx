@@ -1641,13 +1641,6 @@ bool ValidatePolyhedra()
   auto values = mesh["fields/velocity/values"];
   auto data = Convert(mesh);
 
-  int mpiSize = 1;
-  int mpiRank = 0;
-#if VTK_MODULE_ENABLE_VTK_ParallelMPI
-  MPI_Comm_rank(MPI_COMM_WORLD, &mpiRank);
-  MPI_Comm_size(MPI_COMM_WORLD, &mpiSize);
-#endif
-
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
     "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
   auto pds = vtkPartitionedDataSet::SafeDownCast(data);
