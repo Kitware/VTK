@@ -339,10 +339,10 @@ private:
 
   /**
    * Append assembly and blocks of a multiblock dataset to the selected HDF5 group (usually root).
-   * datasetCount needs to be initialized to 0 beforehand. It is used to track the number of
+   * leafIndex needs to be initialized to 0 beforehand. It is used to track the number of
    * datasets during recursion.
    */
-  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb);
+  bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb, int& leafIndex);
 
   ///@{
   /**
