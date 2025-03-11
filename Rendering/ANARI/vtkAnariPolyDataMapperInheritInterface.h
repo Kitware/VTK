@@ -34,6 +34,8 @@ using mat4 = anari::std_types::mat4;
 class vtkAnariPolyDataMapperInheritInterface
 {
 public:
+  virtual ~vtkAnariPolyDataMapperInheritInterface();
+
   /**
    * Specifies parameter flags, which can be used by inheriting
    * classes to specify which parameter it takes responsibility for.

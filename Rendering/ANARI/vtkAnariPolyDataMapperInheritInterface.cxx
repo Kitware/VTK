@@ -5,9 +5,10 @@
 
 #include "vtkProperty.h"
 
-/**
- * Set the ANARI device to write to.
- */
+//----------------------------------------------------------------------------
+vtkAnariPolyDataMapperInheritInterface::~vtkAnariPolyDataMapperInheritInterface() {}
+
+//----------------------------------------------------------------------------
 void vtkAnariPolyDataMapperInheritInterface::SetDevice(
   anari::Device& device, anari::Extensions& extensions, const char* const* anariExtensionStrings)
 {
