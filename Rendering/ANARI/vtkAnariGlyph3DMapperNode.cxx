@@ -225,7 +225,7 @@ void vtkAnariGlyph3DMapperNodeInternals::UpdateGlyphs()
         scale[1] = arrow->GetShaftRadius();
         scale[2] = arrow->GetTipRadius();
       }
-      else if (vtkLineSource* line = vtkLineSource::SafeDownCast(sourceAlg))
+      else if (/*vtkLineSource* line =*/vtkLineSource::SafeDownCast(sourceAlg))
       {
         newGlyphShape = SHAPE_ARROW;
 
