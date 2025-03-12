@@ -4,12 +4,15 @@ async function testInvoke() {
   // manager.setDeserializerLogVerbosity("INFO");
   // manager.setObjectManagerLogVerbosity("INFO");
   // manager.setInvokerLogVerbosity("INFO");
-  manager.registerState(JSON.stringify({ "ClassName": "vtkCamera", "SuperClassNames": ["vtkObject"], "vtk-object-manager-kept-alive": true, "Id": 1 }));
+  manager.registerStateJSON({
+    "ClassName": "vtkCamera", "SuperClassNames": ["vtkObject"], "vtk-object-manager-kept-alive": true, "Id": 1
+  });
 
   manager.updateObjectsFromStates();
 
   manager.updateStateFromObject(1);
-  if (JSON.stringify(manager.getState(1)["Position"]) != JSON.stringify([0, 0, 1])) {
+  let state = manager.getState(1);
+  if (JSON.stringify(state.Position) != JSON.stringify([0, 0, 1])) {
     throw new Error("Failed to initialize camera state");
   }
 
@@ -17,7 +20,8 @@ async function testInvoke() {
   manager.invoke(1, "Elevation", [10.0]);
 
   manager.updateStateFromObject(1);
-  if (JSON.stringify(manager.getState(1)["Position"]) != JSON.stringify([0, 0.17364817766693033, 0.9848077530122081])) {
+  state = manager.getState(1);
+  if (JSON.stringify(state.Position) != JSON.stringify([0, 0.17364817766693033, 0.9848077530122081])) {
     throw new Error("vtkCamera::Elevation(10) did not work!");
   }
 }

@@ -5,9 +5,16 @@ if (VTK_WEBASSEMBLY_64_BIT)
 endif ()
 set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
-list(APPEND _vtk_node_args
-  --import "$<TARGET_FILE:VTK::WasmSceneManager>")
+if (CMAKE_HOST_WIN32)
+  list(APPEND _vtk_node_args
+    --import "file://$<TARGET_FILE:VTK::WasmSceneManager>")
+else ()
+  list(APPEND _vtk_node_args
+    --import "$<TARGET_FILE:VTK::WasmSceneManager>")
+endif ()
 vtk_add_test_module_javascript_node(
+  testBlobs.mjs
   testInitialize.mjs,NO_DATA
-  testBlobs.mjs,
+  testInvoke.mjs
+  testSkipProperty.mjs
   testStates.mjs)
