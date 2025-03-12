@@ -42,7 +42,6 @@
 // Keep clang-format from adding spaces around the '/' path separator:
 // clang-format off
 #include VTK_FMT(fmt/args.h)
-#include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
 // clang-format on

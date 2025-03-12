@@ -8,7 +8,7 @@
 
 #include <vtk_fmt.h>
 // clang-format off
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 // clang-format on
 
 namespace ensight_gold

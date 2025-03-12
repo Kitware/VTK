@@ -8,7 +8,7 @@
 #include <vector>
 
 // clang-format off
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/base.h)
 #include VTK_FMT(fmt/ranges.h)
 // clang-format on
 
