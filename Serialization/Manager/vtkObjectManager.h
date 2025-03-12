@@ -67,6 +67,7 @@ public:
    */
   bool UnRegisterObject(vtkTypeUInt32 identifier);
 
+  ///@{
   /**
    * Adds `state` into an internal container and returns a unique identifier.
    * The state
@@ -74,6 +75,8 @@ public:
    *  2. must have a key-value pair `{'Id': n}` where n is an integer of type `std::string`.
    */
   bool RegisterState(const std::string& state);
+  bool RegisterState(const nlohmann::json& state);
+  ///@}
 
   /**
    * Removes a state at `id`.
@@ -146,10 +149,13 @@ public:
    */
   void UpdateStatesFromObjects();
 
+  ///@{
   /**
    * Deserialize the state into vtk object.
    */
   void UpdateObjectFromState(const std::string& state);
+  void UpdateObjectFromState(const nlohmann::json& state);
+  ///@}
 
   /**
    * Serialize object at `identifier` into the state.

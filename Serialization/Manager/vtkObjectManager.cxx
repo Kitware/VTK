@@ -245,7 +245,13 @@ bool vtkObjectManager::RegisterState(const std::string& state)
     vtkErrorMacro(<< "Failed to parse state!");
     return false;
   }
-  if (!this->Context->RegisterState(std::move(stateJson)))
+  return this->RegisterState(stateJson);
+}
+
+//------------------------------------------------------------------------------
+bool vtkObjectManager::RegisterState(const nlohmann::json& stateJson)
+{
+  if (!this->Context->RegisterState(stateJson))
   {
     vtkErrorMacro(<< "Failed to register state!");
     return false;
@@ -570,10 +576,16 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
     vtkErrorMacro(<< "Failed to parse state=" << state);
     return;
   }
+  this->UpdateObjectFromState(stateJson);
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectManager::UpdateObjectFromState(const nlohmann::json& stateJson)
+{
   const auto identifier = stateJson.at("Id").get<vtkTypeUInt32>();
-  if (!this->Context->RegisterState(std::move(stateJson)))
+  if (!this->Context->RegisterState(stateJson))
   {
-    vtkErrorMacro(<< "Failed to register state=" << state);
+    vtkErrorMacro(<< "Failed to register state=" << stateJson.dump());
     return;
   }
   auto object = this->Context->GetObjectAtId(identifier);
@@ -586,7 +598,8 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
   }
   if (!this->Deserializer->DeserializeJSON(identifier, object))
   {
-    vtkErrorMacro(<< "Failed to update object at id=" << identifier << " from state=" << state);
+    vtkErrorMacro(<< "Failed to update object at id=" << identifier
+                  << " from state=" << stateJson.dump());
   }
   else
   {
