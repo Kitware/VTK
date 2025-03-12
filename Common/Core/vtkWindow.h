@@ -104,7 +104,6 @@ public:
   /**
    * Show or not Show the window
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetMacro(ShowWindow, bool);
   vtkSetMacro(ShowWindow, bool);
   vtkBooleanMacro(ShowWindow, bool);
@@ -116,7 +115,6 @@ public:
    * All four combinations of ShowWindow and UseOffScreenBuffers
    * should work for most rendering backends.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkSetMacro(UseOffScreenBuffers, bool);
   vtkGetMacro(UseOffScreenBuffers, bool);
   vtkBooleanMacro(UseOffScreenBuffers, bool);
