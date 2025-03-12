@@ -32,6 +32,7 @@
 #include "vtkm/cont/ArrayHandleCounting.h"
 #include "vtkm/cont/DeviceAdapterTag.h"
 #include "vtkm/cont/ErrorBadValue.h"
+#include "vtkm/cont/Initialize.h"
 #include "vtkm/cont/Invoker.h"
 #include "vtkm/cont/RuntimeDeviceInformation.h"
 #include "vtkm/cont/RuntimeDeviceTracker.h"
@@ -1567,6 +1568,7 @@ bool ValidatePolyhedra()
 
 int TestConduitSourceDeviceMemory(int argc, char** argv)
 {
+  vtkm::cont::Initialize(argc, argv);
 #if defined(VTKM_ENABLE_CUDA)
   // We really want to use unmanaged memory to exercise external memory space code paths.
   SCOPED_CUDA_DISABLE_MANAGED_MEMORY;
