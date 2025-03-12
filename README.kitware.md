@@ -6,3 +6,6 @@ into another source tree.
 
   * Add attributes to pass commit checks within VTK.
   * Add a CMake file to install headers into VTK's install tree.
+  * Use VTK's MPI library.
+  * Use VTK's fmt library.
+  * Definition of template functions in header files should be inline.
