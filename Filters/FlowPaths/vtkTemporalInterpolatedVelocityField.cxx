@@ -21,6 +21,8 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <cassert>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTemporalInterpolatedVelocityField);
@@ -252,6 +254,8 @@ void vtkTemporalInterpolatedVelocityField::InitializeWithLocators(
   // Now initialize the new strategies
   for (size_t i = 0; i < datasets.size(); ++i)
   {
+    assert(datasets.size() == locators.size());
+
     auto& datasetInfo = ivf->DataSetsInfo[i];
     if (auto pointSet = vtkPointSet::SafeDownCast(datasetInfo.DataSet))
     {
@@ -328,6 +332,12 @@ void vtkTemporalInterpolatedVelocityField::Initialize(
   }
   else // t0 != t1
   {
+    if (this->Locators[1].size() != datasets[1].size())
+    {
+      vtkErrorMacro("Locators have not been initialized as expected, aborting");
+      return;
+    }
+
     datasets[0] = vtkCompositeDataSet::GetDataSets(t0);
     switch (this->MeshOverTime)
     {

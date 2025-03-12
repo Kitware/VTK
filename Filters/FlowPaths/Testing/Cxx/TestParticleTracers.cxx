@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAppendDataSets.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGradientFilter.h"
+#include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkParticlePathFilter.h"
@@ -21,12 +23,14 @@
 namespace
 {
 template <class TracerT>
-bool Execute(vtkAlgorithm* input, vtkPolyData* seeds, vtkSmartPointer<vtkDataObject>&& expected)
+bool Execute(vtkAlgorithm* input, vtkPolyData* seeds, bool vorticity,
+  vtkSmartPointer<vtkDataObject>&& expected)
 {
   vtkNew<TracerT> tracer;
   tracer->SetInputConnection(0, input->GetOutputPort());
   tracer->SetInputData(1, seeds);
   tracer->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Gradients");
+  tracer->SetComputeVorticity(vorticity);
 
   for (int t = 0; t < 10; ++t)
   {
@@ -43,7 +47,8 @@ bool Execute(vtkAlgorithm* input, vtkPolyData* seeds, vtkSmartPointer<vtkDataObj
 }
 } // anonymous namespace
 
-int TestParticleTracers(int argc, char* argv[])
+bool TestParticleTracersInput(
+  int argc, char* argv[], vtkDataSet* input, std::string_view prefix, bool vorticity)
 {
   auto getBaseline = [&](std::string&& name)
   {
@@ -54,10 +59,8 @@ int TestParticleTracers(int argc, char* argv[])
     return vtkSmartPointer<vtkDataObject>(reader->GetOutputDataObject(0));
   };
 
-  vtkNew<vtkRTAnalyticSource> wavelet;
   vtkNew<vtkGradientFilter> gradient;
   vtkNew<vtkGenerateTimeSteps> temporal;
-  vtkNew<vtkParticleTracer> tracer;
 
   vtkNew<vtkPolyData> seeds;
   vtkNew<vtkPoints> points;
@@ -71,15 +74,42 @@ int TestParticleTracers(int argc, char* argv[])
   std::iota(timesteps.begin(), timesteps.end(), 0);
   temporal->SetTimeStepValues(10, timesteps.data());
 
-  gradient->SetInputConnection(wavelet->GetOutputPort());
+  gradient->SetInputData(input);
   temporal->SetInputConnection(gradient->GetOutputPort());
 
+  bool retVal = true;
+  ::Execute<vtkParticleTracer>(
+    temporal, seeds, vorticity, getBaseline(std::string(prefix) + "tracer.vtp"));
+  retVal &= ::Execute<vtkParticlePathFilter>(
+    temporal, seeds, vorticity, getBaseline(std::string(prefix) + "pathline.vtp"));
+  retVal &= ::Execute<vtkStreaklineFilter>(
+    temporal, seeds, vorticity, getBaseline(std::string(prefix) + "streakline.vtp"));
+
+  if (!retVal)
+  {
+    vtkLog(ERROR, "With an input of type " << input->GetClassName());
+  }
+  return retVal;
+}
+
+int TestParticleTracers(int argc, char* argv[])
+{
+  bool retVal = true;
+
+  // Test image input
+  vtkNew<vtkRTAnalyticSource> wavelet;
   // mimicking catalyst environment
   wavelet->SetNoPriorTemporalAccessInformationKey();
+  wavelet->Update();
+  retVal &= ::TestParticleTracersInput(argc, argv, wavelet->GetOutput(), "image_", true);
 
-  bool retVal = ::Execute<vtkParticleTracer>(temporal, seeds, getBaseline("tracer.vtp"));
-  retVal &= ::Execute<vtkParticlePathFilter>(temporal, seeds, getBaseline("pathline.vtp"));
-  retVal &= ::Execute<vtkStreaklineFilter>(temporal, seeds, getBaseline("streakline.vtp"));
+  // Test unstructured grid input
+  vtkNew<vtkAppendDataSets> append;
+  append->SetInputConnection(wavelet->GetOutputPort());
+  append->Update();
+
+  // Because of https://gitlab.kitware.com/vtk/vtk/-/issues/19632, disable vorticity computation
+  retVal &= ::TestParticleTracersInput(argc, argv, append->GetOutput(), "ug_", false);
 
   return retVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -135,12 +135,7 @@ vtkParticleTracerBase::~vtkParticleTracerBase()
 {
   this->SetParticleWriter(nullptr);
   this->SetParticleFileName(nullptr);
-
-  this->CachedData[0] = nullptr;
-  this->CachedData[1] = nullptr;
-
   this->SetIntegrator(nullptr);
-
   this->SetController(nullptr);
 }
 
@@ -764,19 +759,6 @@ int vtkParticleTracerBase::Initialize(
     return 0;
   }
 
-  // TODO DUPLICATE CODE FIXME
-  if (auto composite = vtkCompositeDataSet::SafeDownCast(input))
-  {
-    this->CachedData[1]->ShallowCopy(composite);
-  }
-  else
-  {
-    auto pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
-    pds->SetNumberOfPartitions(1);
-    pds->SetPartition(0, input);
-    this->CachedData[1] = pds;
-  }
-
   this->OutputPointData->InterpolateAllocate(inputs.front()->GetPointData());
 
   this->ParticleAge->Initialize();
@@ -876,6 +858,21 @@ int vtkParticleTracerBase::Initialize(
 }
 
 //------------------------------------------------------------------------------
+void vtkParticleTracerBase::InitializeNextCachedData(vtkDataObject* input)
+{
+  this->CachedData[1].TakeReference(vtkPartitionedDataSet::New());
+  if (auto composite = vtkCompositeDataSet::SafeDownCast(input))
+  {
+    this->CachedData[1]->CompositeShallowCopy(composite);
+  }
+  else
+  {
+    this->CachedData[1]->SetNumberOfPartitions(1);
+    this->CachedData[1]->SetPartition(0, input);
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkParticleTracerBase::Execute(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
 {
@@ -889,18 +886,21 @@ int vtkParticleTracerBase::Execute(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   double currentTimeStep = this->GetCurrentTimeStep();
-  std::swap(this->CachedData[0], this->CachedData[1]);
 
-  if (auto composite = vtkCompositeDataSet::SafeDownCast(input))
+  if (this->CachedData[0].Get() == nullptr || this->CachedData[1].Get() == nullptr)
   {
-    this->CachedData[1]->ShallowCopy(composite);
+    // First execution
+    // Initialize the next cached data then copy it to current cached data
+    this->InitializeNextCachedData(input);
+    this->CachedData[0] = this->CachedData[1];
   }
   else
   {
-    auto pds = vtkSmartPointer<vtkPartitionedDataSet>::New();
-    pds->SetNumberOfPartitions(1);
-    pds->SetPartition(0, input);
-    this->CachedData[1] = pds;
+    // Not the first execution:
+    // Copy next data to current data then initialized
+    // next cached data with input
+    this->CachedData[0] = this->CachedData[1];
+    this->InitializeNextCachedData(input);
   }
 
   if (this->InitializeInterpolator() != VTK_OK)
