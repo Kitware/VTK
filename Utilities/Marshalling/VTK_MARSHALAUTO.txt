@@ -248,6 +248,7 @@ Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
 Rendering/Core/vtkCuller.h
 Rendering/Core/vtkCullerCollection.h
+Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkFrustumCoverageCuller.h
 Rendering/Core/vtkFXAAOptions.h
 Rendering/Core/vtkGlyph3DMapper.h
