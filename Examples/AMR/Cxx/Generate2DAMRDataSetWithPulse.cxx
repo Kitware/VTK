@@ -65,11 +65,10 @@ int main(int argc, char** argv)
   SetPulse();
 
   // STEP 1: Get the AMR dataset
-  vtkOverlappingAMR* amrDataSet = GetAMRDataSet();
+  auto amrDataSet = vtkSmartPointer<vtkOverlappingAMR>::Take(GetAMRDataSet());
   assert("pre: nullptr AMR dataset" && (amrDataSet != nullptr));
 
   AMRCommon::WriteAMRData(amrDataSet, "Gaussian2D");
-  amrDataSet->Delete();
   return 0;
 }
 
@@ -89,7 +88,7 @@ void AttachPulseToGrid(vtkUniformGrid* grid)
 {
   assert("pre: grid is nullptr!" && (grid != nullptr));
 
-  vtkDoubleArray* xyz = vtkDoubleArray::New();
+  vtkNew<vtkDoubleArray> xyz;
   xyz->SetName("GaussianPulse");
   xyz->SetNumberOfComponents(1);
   xyz->SetNumberOfTuples(grid->GetNumberOfCells());
@@ -111,7 +110,6 @@ void AttachPulseToGrid(vtkUniformGrid* grid)
   } // END for all cells
 
   grid->GetCellData()->AddArray(xyz);
-  xyz->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -123,7 +121,7 @@ vtkOverlappingAMR* GetAMRDataSet()
   origin[0] = origin[1] = -2.0;
   origin[2] = 0.0;
 
-  vtkOverlappingAMR* data = vtkOverlappingAMR::New();
+  vtkNew<vtkOverlappingAMR> data;
   data->Initialize(NumLevels, BlocksPerLevel);
   data->SetOrigin(origin);
   data->SetGridDescription(VTK_XY_PLANE);
@@ -139,14 +137,13 @@ vtkOverlappingAMR* GetAMRDataSet()
 
   int blockId = 0;
   int level = 0;
-  vtkUniformGrid* root = AMRCommon::GetGrid(origin, h, ndim);
+  auto root = vtkSmartPointer<vtkUniformGrid>::Take(AMRCommon::GetGrid(origin, h, ndim));
   vtkAMRBox box(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid(root);
 
   data->SetSpacing(level, h);
   data->SetAMRBox(level, blockId, box);
   data->SetDataSet(level, blockId, root);
-  root->Delete();
 
   // Block 1,0
   ndim[0] = ndim[1] = 9;
@@ -156,14 +153,13 @@ vtkOverlappingAMR* GetAMRDataSet()
   origin[2] = 0.0;
   blockId = 0;
   level = 1;
-  vtkUniformGrid* grid1 = AMRCommon::GetGrid(origin, h, ndim);
+  auto grid1 = vtkSmartPointer<vtkUniformGrid>::Take(AMRCommon::GetGrid(origin, h, ndim));
   vtkAMRBox box1(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid(grid1);
 
   data->SetSpacing(level, h);
   data->SetAMRBox(level, blockId, box1);
   data->SetDataSet(level, blockId, grid1);
-  grid1->Delete();
 
   // Block 1,1
   ndim[0] = ndim[1] = 9;
@@ -173,14 +169,13 @@ vtkOverlappingAMR* GetAMRDataSet()
   origin[1] = origin[2] = 0.0;
   blockId = 1;
   level = 1;
-  vtkUniformGrid* grid3 = AMRCommon::GetGrid(origin, h, ndim);
-  vtkAMRBox box3(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
+  auto grid2 = vtkSmartPointer<vtkUniformGrid>::Take(AMRCommon::GetGrid(origin, h, ndim));
+  vtkAMRBox box2(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
 
-  AttachPulseToGrid(grid3);
+  AttachPulseToGrid(grid2);
   data->SetSpacing(level, h);
-  data->SetAMRBox(level, blockId, box3);
-  data->SetDataSet(level, blockId, grid3);
-  grid3->Delete();
+  data->SetAMRBox(level, blockId, box2);
+  data->SetDataSet(level, blockId, grid2);
 
   vtkAMRUtilities::BlankCells(data);
   data->Audit();

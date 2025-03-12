@@ -16,6 +16,7 @@
 #include "vtkCompositeDataWriter.h"
 #include "vtkImageToStructuredGrid.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkUniformGrid.h"
@@ -35,15 +36,13 @@ void WriteUniformGrid(vtkUniformGrid* g, const std::string& prefix)
 {
   assert("pre: Uniform grid (g) is NULL!" && (g != nullptr));
 
-  vtkXMLImageDataWriter* imgWriter = vtkXMLImageDataWriter::New();
+  vtkNew<vtkXMLImageDataWriter> imgWriter;
 
   std::ostringstream oss;
   oss << prefix << "." << imgWriter->GetDefaultFileExtension();
   imgWriter->SetFileName(oss.str().c_str());
   imgWriter->SetInputData(g);
   imgWriter->Write();
-
-  imgWriter->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -54,14 +53,13 @@ void WriteAMRData(vtkOverlappingAMR* amrData, const std::string& prefix)
   // Sanity check
   assert("pre: AMR dataset is NULL!" && (amrData != nullptr));
 
-  vtkCompositeDataWriter* writer = vtkCompositeDataWriter::New();
+  vtkNew<vtkCompositeDataWriter> writer;
 
   std::ostringstream oss;
   oss << prefix << ".vthb";
   writer->SetFileName(oss.str().c_str());
   writer->SetInputData(amrData);
   writer->Write();
-  writer->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -98,7 +96,7 @@ void WriteMultiBlockData(vtkMultiBlockDataSet* mbds, const std::string& prefix)
 {
   // Sanity check
   assert("pre: Multi-block dataset is NULL" && (mbds != nullptr));
-  vtkXMLMultiBlockDataWriter* writer = vtkXMLMultiBlockDataWriter::New();
+  vtkNew<vtkXMLMultiBlockDataWriter> writer;
 
   std::ostringstream oss;
   oss.str("");
@@ -107,7 +105,6 @@ void WriteMultiBlockData(vtkMultiBlockDataSet* mbds, const std::string& prefix)
   writer->SetFileName(oss.str().c_str());
   writer->SetInputData(mbds);
   writer->Write();
-  writer->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -115,7 +112,7 @@ void WriteMultiBlockData(vtkMultiBlockDataSet* mbds, const std::string& prefix)
 // origin, grid spacing and dimensions.
 vtkUniformGrid* GetGrid(double* origin, double* h, int* ndim)
 {
-  vtkUniformGrid* grd = vtkUniformGrid::New();
+  vtkNew<vtkUniformGrid> grd;
   grd->Initialize();
   grd->SetOrigin(origin);
   grd->SetSpacing(h);
@@ -136,10 +133,9 @@ void ComputeCellCenter(vtkUniformGrid* grid, const int cellIdx, double c[3])
   assert("post: cell is NULL" && (myCell != nullptr));
 
   double pCenter[3];
-  double* weights = new double[myCell->GetNumberOfPoints()];
+  std::vector<double> weights(myCell->GetNumberOfPoints());
   int subId = myCell->GetParametricCenter(pCenter);
-  myCell->EvaluateLocation(subId, pCenter, c, weights);
-  delete[] weights;
+  myCell->EvaluateLocation(subId, pCenter, c, weights.data());
 }
 
 VTK_ABI_NAMESPACE_END

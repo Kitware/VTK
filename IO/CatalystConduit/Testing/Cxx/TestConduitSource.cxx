@@ -494,6 +494,60 @@ bool CheckFieldDataMeshConversion(conduit_cpp::Node& mesh_node, int expected_num
 }
 
 //----------------------------------------------------------------------------
+bool ValidateDistributedAMR()
+{
+  auto controller = vtkMultiProcessController::GetGlobalController();
+  auto rank = controller->GetLocalProcessId();
+
+  conduit_cpp::Node amrmesh;
+
+  auto domain = amrmesh["domain0"];
+
+  // Each rank contains a new level
+  int level = rank;
+
+  domain["state/domain_id"] = rank;
+  domain["state/cycle"] = 0;
+  domain["state/time"] = 0;
+  domain["state/level"] = level;
+
+  auto coords = domain["coordsets/coords"];
+  coords["type"] = "uniform";
+  coords["dims/i"] = 3;
+  coords["dims/j"] = 3;
+  coords["dims/k"] = 3;
+  // spacing depends on level
+  coords["spacing/dx"] = 1. / std::pow(2, level);
+  coords["spacing/dy"] = 1. / std::pow(2, level);
+  coords["spacing/dz"] = 1. / std::pow(2, level);
+  coords["origin/x"] = 0.0;
+  coords["origin/y"] = 0.0;
+  coords["origin/z"] = 0.0;
+
+  auto topo = domain["topologies/topo"];
+  topo["type"] = "uniform";
+  topo["coordset"] = "coords";
+
+  vtkNew<vtkConduitSource> source;
+  source->SetUseAMRMeshProtocol(true);
+  source->SetNode(conduit_cpp::c_node(&amrmesh));
+  source->Update();
+  auto data = source->GetOutputDataObject(0);
+
+  VERIFY(vtkOverlappingAMR::SafeDownCast(data) != nullptr,
+    "Incorrect data type, expected vtkOverlappingAMR, got %s", vtkLogIdentifier(data));
+
+  auto amr = vtkOverlappingAMR::SafeDownCast(data);
+  amr->Audit();
+  int generatedLevels = amr->GetNumberOfLevels();
+  auto nbOfProcess = controller->GetNumberOfProcesses();
+  VERIFY(generatedLevels == nbOfProcess, "Incorrect number of levels, expexts %d but has %d",
+    generatedLevels, nbOfProcess);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 bool ValidateMeshTypeAMR(const std::string& file)
 {
   conduit_cpp::Node mesh;
@@ -1321,7 +1375,8 @@ int TestConduitSource(int argc, char** argv)
       ValidateMeshTypeStructured() && ValidateMeshTypeUnstructured() && ValidateFieldData() &&
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
-      ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints()
+      ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
+      ValidateDistributedAMR()
 
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
