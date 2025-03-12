@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-
 #include <array>
 #include <iterator>
 #include <vtkXMLUniformGridAMRWriter.h>
@@ -1594,10 +1592,3 @@ int TestConduitSourceDeviceMemory(int argc, char** argv)
 
   return ret;
 }
-#else
-#include <cstdlib>
-int TestConduitSourceDeviceMemory(int, char**)
-{
-  return EXIT_SUCCESS;
-}
-#endif
