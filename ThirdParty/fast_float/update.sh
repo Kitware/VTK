@@ -8,7 +8,7 @@ readonly name="fast_float"
 readonly ownership="fast_float Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/fast_float.git"
-readonly tag="for/vtk-20230309-3.9.0"
+readonly tag="for/vtk-20250313-8.0.2"
 readonly paths="
 include/fast_float/*
 .gitattributes
