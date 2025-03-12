@@ -87,6 +87,7 @@ public:
    * The position variable controls the lower left corner of the Actor2D
    */
   vtkViewportCoordinateMacro(Position);
+  vtkSetObjectMacro(PositionCoordinate, vtkCoordinate);
   ///@}
 
   /**
@@ -102,6 +103,7 @@ public:
    * Some 2D actor subclasses ignore the position2 variable
    */
   vtkViewportCoordinateMacro(Position2);
+  vtkSetObjectMacro(Position2Coordinate, vtkCoordinate);
   ///@}
 
   ///@{
