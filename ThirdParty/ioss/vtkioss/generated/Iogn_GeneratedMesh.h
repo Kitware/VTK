@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-, 20252025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -328,7 +328,9 @@ namespace Iogn {
      */
     IOSS_NODISCARD int64_t shell_element_count_proc(ShellLocation /*loc*/) const;
 
-    IOSS_NODISCARD int timestep_count() const { return timestepCount; }
+    IOSS_NODISCARD int    timestep_count() const { return timestepCount; }
+    IOSS_NODISCARD double timestep_initial() const { return timestepInitial; }
+    IOSS_NODISCARD double timestep_interval() const { return timestepInterval; }
     /**
      * Return number of elements in the element block with id
      * `block_number`. The `block_number` ranges from `1` to
@@ -453,7 +455,7 @@ namespace Iogn {
      */
     virtual void sideset_elem_sides(int64_t id, Ioss::Int64Vector &elem_sides) const;
 
-    virtual Ioss::NameList sideset_touching_blocks(int64_t set_id) const;
+    IOSS_NODISCARD virtual Ioss::NameList sideset_touching_blocks(int64_t set_id) const;
 
     IOSS_NODISCARD int64_t get_num_x() const { return numX; }
     IOSS_NODISCARD int64_t get_num_y() const { return numY; }
@@ -485,6 +487,8 @@ namespace Iogn {
     int myProcessor{0};
 
     int                                timestepCount{0};
+    double                             timestepInitial{0.0};
+    double                             timestepInterval{1.0};
     std::map<Ioss::EntityType, size_t> variableCount;
 
     double offX{0}, offY{0}, offZ{0}; /** Offsets in X, Y, and Z directions */

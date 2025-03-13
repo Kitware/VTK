@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -161,15 +161,12 @@ namespace Ioex {
         isSerialParallel = true;
       }
       else {
-        std::ostringstream errmsg;
-        fmt::print(
-            errmsg,
+        IOSS_ERROR(
             "ERROR: Processor id and processor count are specified via the "
             "'processor_count' and 'processor_id' properties which indicates that this "
             "database is "
             "being run in 'serial-parallel' mode, but the database constructor was passed an "
             "mpi communicator which has more than 1 processor. This is not allowed.\n");
-        IOSS_ERROR(errmsg);
       }
     }
   }
@@ -242,9 +239,7 @@ namespace Ioex {
           *bad_count = std::count_if(status.begin(), status.end(), [](int i) { return i < 0; });
         }
         if (abort_if_error) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Cannot {} file '{}'\n", open_create, get_filename());
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: Cannot {} file '{}'\n", open_create, get_filename()));
         }
       }
       return false;
@@ -374,6 +369,11 @@ namespace Ioex {
     if (is_ok) {
       ex_set_max_name_length(m_exodusFilePtr, maximumNameLength);
 
+      if (fileExists) {
+        open_root_group_nl();
+        open_child_group_nl(0);
+      }
+
       // Check properties handled post-create/open...
       if (properties.exists("COMPRESSION_METHOD")) {
         auto method                    = properties.get("COMPRESSION_METHOD").get_string();
@@ -389,17 +389,48 @@ namespace Ioex {
 #if NC_HAS_SZIP_WRITE
           exo_method = EX_COMPRESS_SZIP;
 #else
-          fmt::print(Ioss::WarnOut(), "The NetCDF library does not have SZip compression enabled."
-                                      " 'zlib' will be used instead.\n\n");
+          if (myProcessor == 0) {
+            fmt::print(Ioss::WarnOut(), "The NetCDF library does not have SZip compression enabled."
+                                        " 'zlib' will be used instead.\n\n");
+          }
+#endif
+        }
+        else if (method == "zstd") {
+#if NC_HAS_ZSTD == 1
+          exo_method = EX_COMPRESS_ZSTD;
+#else
+          if (myProcessor == 0) {
+            fmt::print(Ioss::WarnOut(),
+                       "The NetCDF library does not have ZStandard compression enabled."
+                       " 'zlib' will be used instead.\n\n");
+          }
+#endif
+        }
+        else if (method == "bzip2") {
+#if NC_HAS_BZ2 == 1
+          exo_method = EX_COMPRESS_BZ2;
+#else
+          if (myProcessor == 0) {
+            fmt::print(Ioss::WarnOut(),
+                       "The NetCDF library does not have Bzip2 / BZ2 compression enabled."
+                       " 'zlib' will be used instead.\n\n");
+          }
 #endif
         }
         else {
-          fmt::print(Ioss::WarnOut(),
-                     "Unrecognized compression method specified: '{}'."
-                     " 'zlib' will be used instead.\n\n",
-                     method);
+          if (myProcessor == 0) {
+            fmt::print(Ioss::WarnOut(),
+                       "Unrecognized compression method specified: '{}'."
+                       " 'zlib' will be used instead.\n\n",
+                       method);
+          }
         }
         ex_set_option(m_exodusFilePtr, EX_OPT_COMPRESSION_TYPE, exo_method);
+      }
+
+      if (properties.exists("COMPRESSION_QUANTIZE_NSD")) {
+        int quant_level = properties.get("COMPRESSION_QUANTIZE_NSD").get_int();
+        ex_set_option(m_exodusFilePtr, EX_OPT_QUANTIZE_NSD, quant_level);
       }
 
       if (properties.exists("COMPRESSION_LEVEL")) {
@@ -422,17 +453,13 @@ namespace Ioex {
     // Checks that the file is open and if not, opens it first.
     if (Ioss::SerializeIO::isEnabled()) {
       if (!Ioss::SerializeIO::inBarrier()) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Process {} is attempting to do I/O without serialized I/O",
-                   Ioss::SerializeIO::getRank());
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Process {} is attempting to do I/O without serialized I/O",
+                               Ioss::SerializeIO::getRank()));
       }
 
       if (!Ioss::SerializeIO::inMyGroup()) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Process {} is attempting to do I/O while {} owns the token",
-                   Ioss::SerializeIO::getRank(), Ioss::SerializeIO::getOwner());
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Process {} is attempting to do I/O while {} owns the token",
+                               Ioss::SerializeIO::getRank(), Ioss::SerializeIO::getOwner()));
       }
     }
 
@@ -559,12 +586,9 @@ namespace Ioex {
     }
     else if (nodeCount < 0) {
       // NOTE: Code will not continue past this call...
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: Negative node count was found in the model\n"
-                 "       File: '{}'.\n",
-                 decoded_filename());
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format("ERROR: Negative node count was found in the model\n"
+                             "       File: '{}'.\n",
+                             decoded_filename()));
     }
 
     if (elementCount == 0 && info.num_blob == 0) {
@@ -574,22 +598,16 @@ namespace Ioex {
 
     if (elementCount < 0) {
       // NOTE: Code will not continue past this call...
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: Negative element count was found in the model\n"
-                 "       File: '{}'.\n",
-                 decoded_filename());
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format("ERROR: Negative element count was found in the model\n"
+                             "       File: '{}'.\n",
+                             decoded_filename()));
     }
 
     if (elementCount > 0 && m_groupCount[EX_ELEM_BLOCK] <= 0) {
       // NOTE: Code will not continue past this call...
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: No element blocks were found in the model\n"
-                 "       File: '{}'.\n",
-                 decoded_filename());
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format("ERROR: No element blocks were found in the model\n"
+                             "       File: '{}'.\n",
+                             decoded_filename()));
     }
 
     Ioss::Region *this_region = get_region();
@@ -639,18 +657,24 @@ namespace Ioex {
     }
   }
 
-  void DatabaseIO::get_step_times_nl()
+  std::vector<double> DatabaseIO::internal_get_step_times_nl(bool setRegionTimeSteps)
   {
-    bool                exists         = false;
-    double              last_time      = DBL_MAX;
-    int                 timestep_count = 0;
+    bool                exists     = false;
+    double              last_time  = DBL_MAX;
+    int                 tstepCount = 0;
     std::vector<double> tsteps(0);
+
+    // Use reference to make sure that no Region modifications occur based on the input flag
+    // setRegionTimeSteps flag determines whether we are actually populating the region
+    // timesteps or just querying the timesteps that are on a specific database without
+    // populating the regions timesteps data and setting the number of timesteps on the region
+    int &timestepCount = setRegionTimeSteps ? m_timestepCount : tstepCount;
 
     if (dbUsage == Ioss::WRITE_HISTORY) {
       if (myProcessor == 0) {
-        timestep_count = ex_inquire_int(get_file_pointer(), EX_INQ_TIME);
-        if (timestep_count <= 0) {
-          return;
+        timestepCount = ex_inquire_int(get_file_pointer(), EX_INQ_TIME);
+        if (timestepCount <= 0) {
+          return tsteps;
         }
 
         // For an exodus file, timesteps are global and are stored in the region.
@@ -658,64 +682,96 @@ namespace Ioex {
         // Read the timesteps and add them to the region.
         // Since we can't access the Region's stateCount directly, we just add
         // all of the steps and assume the Region is dealing with them directly...
-        tsteps.resize(timestep_count);
+        tsteps.resize(timestepCount);
 
         int error = ex_get_all_times(get_file_pointer(), Data(tsteps));
         if (error < 0) {
           Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
         }
 
-        int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestep_count);
-        max_step     = std::min(max_step, timestep_count);
+        int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestepCount);
+        max_step     = std::min(max_step, timestepCount);
 
         double max_time =
             properties.get_optional("APPEND_OUTPUT_AFTER_TIME", std::numeric_limits<double>::max());
 
         Ioss::Region *this_region = get_region();
+        int           numSteps    = 0;
         for (int i = 0; i < max_step; i++) {
           if (tsteps[i] <= max_time) {
-            this_region->add_state_nl(tsteps[i] * timeScaleFactor);
+            if (setRegionTimeSteps) {
+              this_region->add_state_nl(tsteps[i] * timeScaleFactor);
+            }
+
+            tsteps[i] *= timeScaleFactor;
+            numSteps++;
           }
         }
+        tsteps.resize(numSteps);
       }
     }
     else {
       {
         Ioss::SerializeIO serializeIO_(this);
-        timestep_count = ex_inquire_int(get_file_pointer(), EX_INQ_TIME);
-        if (timestep_count <= 0) {
-          return;
-        }
-
-        // For an exodus file, timesteps are global and are stored in the region.
-        // Read the timesteps and add to the region
-        tsteps.resize(timestep_count, -std::numeric_limits<double>::max());
-
-        // The `EXODUS_CALL_GET_ALL_TIMES=NO` is typically only used in
-        // isSerialParallel mode and the client is responsible for
-        // making sure that the step times are handled correctly.  All
-        // databases will know about the number of timesteps, but if
-        // this is skipped, then the times will all be zero.  Use case
-        // is that in isSerialParallel, each call to
-        // `ex_get_all_times` for all files is performed sequentially,
-        // so if you have hundreds to thousands of files, the time for
-        // the call is additive and since timesteps are record
-        // variables in netCDF, accessing the data for all timesteps
-        // involves lseeks throughout the file.
-        bool call_ex_get_all_times = true;
-        Ioss::Utils::check_set_bool_property(properties, "EXODUS_CALL_GET_ALL_TIMES",
-                                             call_ex_get_all_times);
-        if (call_ex_get_all_times) {
-          int error = ex_get_all_times(get_file_pointer(), Data(tsteps));
-          if (error < 0) {
-            Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
+        timestepCount = ex_inquire_int(get_file_pointer(), EX_INQ_TIME);
+      }
+      int exTimestepCount = timestepCount;
+      // Need to sync timestep count across ranks if parallel...
+      if (isParallel) {
+        auto min_timestep_count = util().global_minmax(timestepCount, Ioss::ParallelUtils::DO_MIN);
+        if (min_timestep_count == 0) {
+          auto max_timestep_count =
+              util().global_minmax(timestepCount, Ioss::ParallelUtils::DO_MAX);
+          if (max_timestep_count != 0) {
+            if (myProcessor == 0) {
+              // NOTE: Don't want to warn on all processors if the
+              // timestep count is zero on some, but not all ranks.
+              fmt::print(Ioss::WarnOut(),
+                         "At least one database has no timesteps.  No times will be read on ANY"
+                         " database for consistency.\n");
+            }
           }
         }
+        timestepCount = min_timestep_count;
+      }
 
-        // See if the "last_written_time" attribute exists and if it
-        // does, check that it matches the largest time in 'tsteps'.
+      if (timestepCount <= 0) {
+        return tsteps;
+      }
+
+      // For an exodus file, timesteps are global and are stored in the region.
+      // Read the timesteps and add to the region
+      tsteps.resize(exTimestepCount, -std::numeric_limits<double>::max());
+
+      // The `EXODUS_CALL_GET_ALL_TIMES=NO` is typically only used in
+      // isSerialParallel mode and the client is responsible for
+      // making sure that the step times are handled correctly.  All
+      // databases will know about the number of timesteps, but if
+      // this is skipped, then the times will all be zero.  Use case
+      // is that in isSerialParallel, each call to
+      // `ex_get_all_times` for all files is performed sequentially,
+      // so if you have hundreds to thousands of files, the time for
+      // the call is additive and since timesteps are record
+      // variables in netCDF, accessing the data for all timesteps
+      // involves lseeks throughout the file.
+      bool call_ex_get_all_times = true;
+      Ioss::Utils::check_set_bool_property(properties, "EXODUS_CALL_GET_ALL_TIMES",
+                                           call_ex_get_all_times);
+      if (call_ex_get_all_times) {
+        Ioss::SerializeIO serializeIO_(this);
+        int               error = ex_get_all_times(get_file_pointer(), Data(tsteps));
+        if (error < 0) {
+          Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
+        }
+      }
+
+      // See if the "last_written_time" attribute exists and if it
+      // does, check that it matches the largest time in 'tsteps'.
+      {
+        Ioss::SerializeIO serializeIO_(this);
         exists = Ioex::read_last_time_attribute(get_file_pointer(), &last_time);
       }
+
       if (exists && isParallel) {
         // Assume that if it exists on 1 processor, it exists on
         // all... Sync value among processors since could have a
@@ -735,17 +791,23 @@ namespace Ioex {
       // One use case is that job is restarting at a time prior to what has been
       // written to the results file, so want to start appending after
       // restart time instead of at end time on database.
-      int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestep_count);
-      max_step     = std::min(max_step, timestep_count);
+      int max_step = properties.get_optional("APPEND_OUTPUT_AFTER_STEP", timestepCount);
+      max_step     = std::min(max_step, timestepCount);
 
       double max_time =
           properties.get_optional("APPEND_OUTPUT_AFTER_TIME", std::numeric_limits<double>::max());
       last_time = std::min(last_time, max_time);
 
       Ioss::Region *this_region = get_region();
+      int           numSteps    = 0;
       for (int i = 0; i < max_step; i++) {
         if (tsteps[i] <= last_time) {
-          this_region->add_state_nl(tsteps[i] * timeScaleFactor);
+          if (setRegionTimeSteps) {
+            this_region->add_state_nl(tsteps[i] * timeScaleFactor);
+          }
+
+          tsteps[i] *= timeScaleFactor;
+          numSteps++;
         }
         else {
           if (myProcessor == 0 && max_time == std::numeric_limits<double>::max()) {
@@ -762,8 +824,19 @@ namespace Ioex {
           }
         }
       }
+
+      tsteps.resize(numSteps);
     }
+
+    return tsteps;
   }
+
+  std::vector<double> DatabaseIO::get_db_step_times_nl()
+  {
+    return internal_get_step_times_nl(false);
+  }
+
+  void DatabaseIO::get_step_times_nl() { internal_get_step_times_nl(true); }
 
   void DatabaseIO::read_communication_metadata()
   {
@@ -797,10 +870,8 @@ namespace Ioex {
       // Not a nemesis file
       nemesis_file = false;
       if (isParallel && util().parallel_size() > 1) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Exodus file '{}' does not contain nemesis information.\n",
-                   get_filename());
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Exodus file '{}' does not contain nemesis information.\n",
+                               get_filename()));
       }
       file_type[0] = 'p';
     }
@@ -815,30 +886,22 @@ namespace Ioex {
     }
 
     if (isParallel && num_proc != util().parallel_size() && util().parallel_size() > 1) {
-      std::ostringstream errmsg;
-      fmt::print(
-          errmsg,
+      IOSS_ERROR(fmt::format(
           "ERROR: Exodus file '{}' was decomposed for {} processors; application is currently "
           "being run on {} processors",
-          get_filename(), num_proc, util().parallel_size());
-      IOSS_ERROR(errmsg);
+          get_filename(), num_proc, util().parallel_size()));
     }
     if (num_proc_in_file != 1) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: Exodus file '{}' contains data for {} processors; application requires 1 "
-                 "processor per file.",
-                 get_filename(), num_proc_in_file);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format(
+          "ERROR: Exodus file '{}' contains data for {} processors; application requires 1 "
+          "processor per file.",
+          get_filename(), num_proc_in_file));
     }
     if (file_type[0] != 'p') {
-      std::ostringstream errmsg;
-      fmt::print(
-          errmsg,
+      IOSS_ERROR(fmt::format(
           "ERROR: Exodus file '{}' contains scalar nemesis data; application requires parallel "
           "nemesis data.",
-          get_filename());
-      IOSS_ERROR(errmsg);
+          get_filename()));
     }
 
     bool minimal_nemesis = false;
@@ -952,11 +1015,9 @@ namespace Ioex {
     case EX_EDGE_SET: return get_map(edgeMap, edgeCount, EX_EDGE_MAP, EX_INQ_EDGE_MAP);
 
     default:
-      std::ostringstream errmsg;
-      fmt::print(errmsg, "INTERNAL ERROR: Invalid map type. "
-                         "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
-                         "Please report.\n");
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR("INTERNAL ERROR: Invalid map type. "
+                 "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
+                 "Please report.\n");
     }
   }
 
@@ -973,11 +1034,9 @@ namespace Ioex {
       case EX_FACE_MAP: read_exodus_map = !properties.exists("IGNORE_FACE_MAP"); break;
       case EX_EDGE_MAP: read_exodus_map = !properties.exists("IGNORE_EDGE_MAP"); break;
       default:
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "INTERNAL ERROR: Invalid map type. "
-                           "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
-                           "Please report.\n");
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR("INTERNAL ERROR: Invalid map type. "
+                   "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
+                   "Please report.\n");
       }
 
       if (is_input() || open_create_behavior() == Ioss::DB_APPEND) {
@@ -1126,12 +1185,11 @@ namespace Ioex {
     Ioss::Int64Vector counts(m_groupCount[entity_type] * 4);
     Ioss::Int64Vector local_X_count(m_groupCount[entity_type]);
     Ioss::Int64Vector global_X_count(m_groupCount[entity_type]);
-    int               iblk;
 
     {
       Ioss::SerializeIO serializeIO_(this);
 
-      for (iblk = 0; iblk < m_groupCount[entity_type]; iblk++) {
+      for (int iblk = 0; iblk < m_groupCount[entity_type]; iblk++) {
         int     index = 4 * iblk;
         int64_t id    = X_block_ids[iblk];
 
@@ -1185,7 +1243,7 @@ namespace Ioex {
                                                 // querying if none.
     int nmap = std::numeric_limits<int>::max(); // Number of 'block' vars on database. Used to skip
                                                 // querying if none.
-    for (iblk = 0; iblk < m_groupCount[entity_type]; iblk++) {
+    for (int iblk = 0; iblk < m_groupCount[entity_type]; iblk++) {
       int     index       = 4 * iblk;
       int64_t nodes_per_X = counts[index + 0];
       int64_t edges_per_X = counts[index + 1];
@@ -1266,9 +1324,7 @@ namespace Ioex {
         get_region()->add(eblock);
       }
       else {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Invalid type in get_blocks()");
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR("ERROR: Invalid type in get_blocks()");
       }
 
       // See which connectivity options were defined for this block.
@@ -1775,12 +1831,10 @@ namespace Ioex {
               else if (split_type == Ioss::SPLIT_BY_ELEMENT_BLOCK) {
                 block = get_region()->get_element_block(topo_or_block_name);
                 if (block == nullptr || Ioss::Utils::block_is_omitted(block)) {
-                  std::ostringstream errmsg;
-                  fmt::print(errmsg,
-                             "INTERNAL ERROR: Could not find element block '{}' Something is wrong "
-                             "in the Ioex::DatabaseIO class. Please report.\n",
-                             topo_or_block_name);
-                  IOSS_ERROR(errmsg);
+                  IOSS_ERROR(fmt::format(
+                      "INTERNAL ERROR: Could not find element block '{}' Something is wrong "
+                      "in the Ioex::DatabaseIO class. Please report.\n",
+                      topo_or_block_name));
                 }
                 elem_topo = block->topology();
               }
@@ -1791,13 +1845,10 @@ namespace Ioex {
                 elem_topo = Ioss::ElementTopology::factory(topo_or_block_name);
               }
               else {
-                std::ostringstream errmsg;
-                fmt::print(
-                    errmsg,
+                IOSS_ERROR(fmt::format(
                     "INTERNAL ERROR: Invalid setting for `split_type` {}. Something is wrong "
                     "in the Ioex::DatabaseIO class. Please report.\n",
-                    static_cast<int>(split_type));
-                IOSS_ERROR(errmsg);
+                    static_cast<int>(split_type)));
               }
               assert(elem_topo != nullptr);
 
@@ -3092,9 +3143,7 @@ namespace Ioex {
             }
           }
           else {
-            std::ostringstream errmsg;
-            fmt::print(errmsg, "ERROR: Invalid commset type {}", type);
-            IOSS_ERROR(errmsg);
+            IOSS_ERROR(fmt::format("ERROR: Invalid commset type {}", type));
           }
         }
         else if (field.get_name() == "ids") {
@@ -3118,9 +3167,7 @@ namespace Ioex {
       int64_t id           = Ioex::get_id(fb, &ids_);
       int64_t entity_count = fb->entity_count();
       if (num_to_get != entity_count) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Partial field input not yet implemented for side blocks");
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR("ERROR: Partial field input not yet implemented for side blocks");
       }
 
       ex_set set_param[1];
@@ -3211,14 +3258,11 @@ namespace Ioex {
             for (int64_t iel = 0; iel < 2 * entity_count; iel += 2) {
               int64_t new_id = static_cast<int64_t>(10) * els[iel] + els[iel + 1];
               if (new_id > int_max) {
-                std::ostringstream errmsg;
-                fmt::print(errmsg,
-                           "ERROR: Process {} accessing the sideset field 'ids'\n"
-                           "\t\thas exceeded the integer bounds for entity {}, local side id {}"
-                           ".\n\t\tTry using 64-bit mode to read the file '{}'.\n",
-                           Ioss::SerializeIO::getRank(), els[iel], els[iel + 1],
-                           decoded_filename());
-                IOSS_ERROR(errmsg);
+                IOSS_ERROR(fmt::format(
+                    "ERROR: Process {} accessing the sideset field 'ids'\n"
+                    "\t\thas exceeded the integer bounds for entity {}, local side id {}"
+                    ".\n\t\tTry using 64-bit mode to read the file '{}'.\n",
+                    Ioss::SerializeIO::getRank(), els[iel], els[iel + 1], decoded_filename()));
               }
 
               ids[idx++] = static_cast<int>(new_id);
@@ -3524,10 +3568,8 @@ namespace Ioex {
 
     Ioss::Field::BasicType ioss_type = field.get_type();
     if (ioss_type == Ioss::Field::INTEGER || ioss_type == Ioss::Field::INT64) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg, "INTERNAL ERROR: Integer attribute fields are not yet handled for read. "
-                         "Please report.\n");
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR("INTERNAL ERROR: Integer attribute fields are not yet handled for read. "
+                 "Please report.\n");
     }
 
     int            attribute_count = ge->get_property("attribute_count").get_int();
@@ -3607,9 +3649,7 @@ namespace Ioex {
 
       auto var_iter = variables.find(var_name);
       if (var_iter == variables.end()) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Could not find field '{}'\n", var_name);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Could not find field '{}'\n", var_name));
       }
       size_t var_index = var_iter->second;
       assert(var_index > 0);
@@ -3630,9 +3670,7 @@ namespace Ioex {
         int     ierr     = 0;
         auto    var_iter = variables.find(var_name);
         if (var_iter == variables.end()) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Could not find field '{}'\n", var_name);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: Could not find field '{}'\n", var_name));
         }
         size_t var_index = var_iter->second;
         assert(var_index > 0);
@@ -3662,12 +3700,10 @@ namespace Ioex {
           }
         }
         else {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "IOSS_ERROR: Field storage type must be either integer or double.\n"
-                     "       Field '{}' is invalid.\n",
-                     field.get_name());
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(
+              fmt::format("IOSS_ERROR: Field storage type must be either integer or double.\n"
+                          "       Field '{}' is invalid.\n",
+                          field.get_name()));
         }
         assert(k == num_entity);
       }
@@ -3699,9 +3735,7 @@ namespace Ioex {
       int  ierr     = 0;
       auto var_iter = m_variables[EX_SIDE_SET].find(var_name);
       if (var_iter == m_variables[EX_SIDE_SET].end()) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Could not find Sideset field '{}'\n", var_name);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Could not find Sideset field '{}'\n", var_name));
       }
       size_t var_index = var_iter->second;
       assert(var_index > 0);
@@ -3741,12 +3775,9 @@ namespace Ioex {
         }
       }
       else {
-        std::ostringstream errmsg;
-        fmt::print(errmsg,
-                   "IOSS_ERROR: Field storage type must be either integer or double.\n"
-                   "       Field '{}' is invalid.\n",
-                   field.get_name());
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("IOSS_ERROR: Field storage type must be either integer or double.\n"
+                               "       Field '{}' is invalid.\n",
+                               field.get_name()));
       }
       if (i + 1 == comp_count) {
         num_valid_sides = j / comp_count;
@@ -3908,17 +3939,14 @@ namespace Ioex {
       // Verify that number_distribution_factors is sane...
       if (number_sides * nfnodes != number_distribution_factors &&
           number_sides != number_distribution_factors) {
-        std::ostringstream errmsg;
-        fmt::print(
-            errmsg,
+        IOSS_ERROR(fmt::format(
             "ERROR: SideBlock '{}' in file '{}'\n"
             "\thas incorrect distribution factor count.\n"
             "\tThere are {} '{}' sides with "
             "{} nodes per side, but there are {} distribution factors which is not correct.\n"
             "\tThere should be either {} or {} distribution factors.\n",
             fb->name(), get_filename(), number_sides, ftopo->name(), nfnodes,
-            number_distribution_factors, number_sides, number_sides * nfnodes);
-        IOSS_ERROR(errmsg);
+            number_distribution_factors, number_sides, number_sides * nfnodes));
       }
       return ex_get_set_dist_fact(get_file_pointer(), EX_SIDE_SET, id, dist_fact);
     }
@@ -4011,21 +4039,17 @@ namespace Ioex {
       }
 
       if (block == nullptr) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg,
-                   "INTERNAL ERROR: Could not find element block containing element with id {}. "
-                   "Something is wrong in the Ioex::DatabaseIO class. Please report.\n",
-                   elem_id);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format(
+            "INTERNAL ERROR: Could not find element block containing element with id {}. "
+            "Something is wrong in the Ioex::DatabaseIO class. Please report.\n",
+            elem_id));
       }
 
       const Ioss::ElementTopology *topo = block->topology()->boundary_type(side_id);
 
       if (topo == nullptr) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "INTERNAL ERROR: Could not find topology of element block boundary. "
-                           "Something is wrong in the Ioex::DatabaseIO class. Please report.\n");
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR("INTERNAL ERROR: Could not find topology of element block boundary. "
+                   "Something is wrong in the Ioex::DatabaseIO class. Please report.\n");
       }
 
       int nside_nodes = topo->number_nodes();
@@ -4673,9 +4697,7 @@ namespace Ioex {
 
         auto var_iter = m_variables[EX_NODE_BLOCK].find(var_name);
         if (var_iter == m_variables[EX_NODE_BLOCK].end()) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Could not find nodal variable '{}'\n", var_name);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: Could not find nodal variable '{}'\n", var_name));
         }
         var_index = var_iter->second;
 
@@ -4697,12 +4719,10 @@ namespace Ioex {
         }
 
         if (num_out != nodeCount) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "ERROR: Problem outputting nodal variable '{}' with index = {} to file '{}'\n"
-                     "Should have output {} values, but instead only output {} values.\n",
-                     var_name, var_index, decoded_filename(), nodeCount, num_out);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format(
+              "ERROR: Problem outputting nodal variable '{}' with index = {} to file '{}'\n"
+              "Should have output {} values, but instead only output {} values.\n",
+              var_name, var_index, decoded_filename(), nodeCount, num_out));
         }
 
         // Write the variable...
@@ -4773,9 +4793,7 @@ namespace Ioex {
       std::string var_name = get_component_name(field, Ioss::Field::InOut::OUTPUT, 1);
       auto        var_iter = m_variables[type].find(var_name);
       if (var_iter == m_variables[type].end()) {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Could not find field '{}'\n", var_name);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Could not find field '{}'\n", var_name));
       }
       int var_index = var_iter->second;
       assert(var_index > 0);
@@ -4804,9 +4822,7 @@ namespace Ioex {
 
         auto var_iter = m_variables[type].find(var_name);
         if (var_iter == m_variables[type].end()) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Could not find field '{}'\n", var_name);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: Could not find field '{}'\n", var_name));
         }
         int var_index = var_iter->second;
         assert(var_index > 0);
@@ -5093,9 +5109,7 @@ namespace Ioex {
         }
       }
       else {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Invalid commset type {}", type);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(fmt::format("ERROR: Invalid commset type {}", type));
       }
     }
     else if (field.get_name() == "ids") {
@@ -5224,10 +5238,8 @@ namespace Ioex {
               }
             }
             catch (const std::runtime_error &x) {
-              std::ostringstream errmsg;
-              fmt::print(errmsg, "{}On SideBlock `{}` while outputting field `elem_side`\n",
-                         x.what(), fb->name());
-              IOSS_ERROR(errmsg);
+              IOSS_ERROR(fmt::format("{}On SideBlock `{}` while outputting field `elem_side`\n",
+                                     x.what(), fb->name()));
             }
 
             int ierr = ex_put_partial_set(get_file_pointer(), EX_SIDE_SET, id, offset + 1,
@@ -5248,10 +5260,8 @@ namespace Ioex {
               }
             }
             catch (const std::runtime_error &x) {
-              std::ostringstream errmsg;
-              fmt::print(errmsg, "{}On SideBlock `{}` while outputting field `elem_side`\n",
-                         x.what(), fb->name());
-              IOSS_ERROR(errmsg);
+              IOSS_ERROR(fmt::format("{}On SideBlock `{}` while outputting field `elem_side`\n",
+                                     x.what(), fb->name()));
             }
 
             int ierr = ex_put_partial_set(get_file_pointer(), EX_SIDE_SET, id, offset + 1,
@@ -5475,9 +5485,7 @@ namespace Ioex {
           meta->elementMap.emplace_back(id, count, 'e');
         }
         else {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "Internal Program Error...");
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR("Internal Program Error...");
         }
       }
     }

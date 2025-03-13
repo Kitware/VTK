@@ -11,6 +11,7 @@
 #include "Ioss_Hex8.h"
 #include "Ioss_Property.h" // for Property
 #include "Ioss_SmartAssert.h"
+#include "Ioss_Sort.h"
 #include "Ioss_StructuredBlock.h"
 #include <cmath>
 #include <cstddef> // for size_t
@@ -534,25 +535,46 @@ namespace Ioss {
       same = false;
     }
 
-    // NOTE: this comparison assumes that the elements of this vector will
-    // appear in the same order in two databases that are equivalent.
     if (quiet && this->m_zoneConnectivity != rhs.m_zoneConnectivity) {
       return false;
     }
-    if (!vec_equal(this->m_zoneConnectivity, rhs.m_zoneConnectivity)) {
-      fmt::print(Ioss::OUTPUT(), "StructuredBlock: Zone Connectivity mismatch (size {} vs {})\n",
-                 this->m_zoneConnectivity.size(), rhs.m_zoneConnectivity.size());
-      same = false;
+    {
+      auto lhzc = this->m_zoneConnectivity;
+      auto rhzc = rhs.m_zoneConnectivity;
+      Ioss::sort(lhzc.begin(), lhzc.end(),
+                 [](const ZoneConnectivity &l, const ZoneConnectivity &r) {
+                   return l.m_connectionName < r.m_connectionName;
+                 });
+      Ioss::sort(rhzc.begin(), rhzc.end(),
+                 [](const ZoneConnectivity &l, const ZoneConnectivity &r) {
+                   return l.m_connectionName < r.m_connectionName;
+                 });
+      if (!vec_equal(lhzc, rhzc)) {
+        fmt::print(Ioss::OUTPUT(), "StructuredBlock: Zone Connectivity mismatch (size {} vs {})\n",
+                   this->m_zoneConnectivity.size(), rhs.m_zoneConnectivity.size());
+        same = false;
+      }
     }
 
-    // NOTE: this comparison assumes that the elements of this vector will
-    // appear in the same order in two databases that are equivalent.
     if (quiet && this->m_boundaryConditions != rhs.m_boundaryConditions) {
       return false;
     }
-    if (!vec_equal(this->m_boundaryConditions, rhs.m_boundaryConditions)) {
-      fmt::print(Ioss::OUTPUT(), "StructuredBlock: Boundary Conditions mismatch\n");
-      same = false;
+
+    {
+      auto lhbc = this->m_boundaryConditions;
+      auto rhbc = rhs.m_boundaryConditions;
+      Ioss::sort(lhbc.begin(), lhbc.end(),
+                 [](const BoundaryCondition &l, const BoundaryCondition &r) {
+                   return l.m_bcName < r.m_bcName;
+                 });
+      Ioss::sort(rhbc.begin(), rhbc.end(),
+                 [](const BoundaryCondition &l, const BoundaryCondition &r) {
+                   return l.m_bcName < r.m_bcName;
+                 });
+      if (!vec_equal(lhbc, rhbc)) {
+        fmt::print(Ioss::OUTPUT(), "StructuredBlock: Boundary Conditions mismatch\n");
+        same = false;
+      }
     }
 
     if (!quiet) {

@@ -145,7 +145,7 @@ namespace Ioss {
     template <typename T> void broadcast(T &my_value, int root = 0) const;
     template <typename T> void broadcast(std::vector<T> &my_value, int root = 0) const;
 
-    void progress(const std::string &output) const;
+    void progress(std::string_view output) const;
 
   private:
     Ioss_MPI_Comm communicator_{comm_world()};

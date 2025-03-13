@@ -164,10 +164,8 @@ Ioss::Property Ioss::GroupingEntity::get_implicit_property(const std::string &my
   }
 
   // End of the line. No property of this name exists.
-  std::ostringstream errmsg;
-  fmt::print(errmsg, "\nERROR: Property '{}' does not exist on {} {}\n\n", my_name, type_string(),
-             name());
-  IOSS_ERROR(errmsg);
+  IOSS_ERROR(fmt::format("\nERROR: Property '{}' does not exist on {} {}\n\n", my_name,
+                         type_string(), name()));
 }
 
 bool Ioss::GroupingEntity::check_for_duplicate(const Ioss::Field &new_field) const
@@ -230,14 +228,12 @@ void Ioss::GroupingEntity::field_add(Ioss::Field new_field)
     new_field.reset_count(entity_size);
   }
   else if (entity_size != field_size && type() != REGION) {
-    std::string        filename = get_database()->get_filename();
-    std::ostringstream errmsg;
-    fmt::print(errmsg,
-               "IO System error: The {} '{}' has a size of {},\nbut the field '{}' which is being "
-               "output on that entity has a size of {}\non database '{}'.\nThe sizes must match.  "
-               "This is an application error that should be reported.",
-               type_string(), name(), entity_size, new_field.get_name(), field_size, filename);
-    IOSS_ERROR(errmsg);
+    std::string filename = get_database()->get_filename();
+    IOSS_ERROR(fmt::format(
+        "IO System error: The {} '{}' has a size of {},\nbut the field '{}' which is being "
+        "output on that entity has a size of {}\non database '{}'.\nThe sizes must match.  "
+        "This is an application error that should be reported.",
+        type_string(), name(), entity_size, new_field.get_name(), field_size, filename));
   }
   if (!check_for_duplicate(new_field)) {
     fields.add(new_field);
@@ -349,11 +345,10 @@ void Ioss::GroupingEntity::verify_field_exists(const std::string &field_name,
                                                const std::string &inout) const
 {
   if (!field_exists(field_name)) {
-    std::string        filename = get_database()->get_filename();
-    std::ostringstream errmsg;
-    fmt::print(errmsg, "\nERROR: On database '{}', Field '{}' does not exist for {} on {} {}\n\n",
-               filename, field_name, inout, type_string(), name());
-    IOSS_ERROR(errmsg);
+    std::string filename = get_database()->get_filename();
+    IOSS_ERROR(
+        fmt::format("\nERROR: On database '{}', Field '{}' does not exist for {} on {} {}\n\n",
+                    filename, field_name, inout, type_string(), name()));
   }
 }
 

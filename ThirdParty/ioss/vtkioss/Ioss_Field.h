@@ -8,10 +8,6 @@
 
 #include "Ioss_CodeTypes.h"
 #include <cstddef> // for size_t
-#if !defined BUILT_IN_SIERRA
-#include "vtk_fmt.h"
-#include VTK_FMT(fmt/ostream.h)
-#endif
 #include <stdint.h>
 #include <string> // for string
 #include <vector> // for vector
@@ -249,13 +245,3 @@ namespace Ioss {
   };
   IOSS_EXPORT std::ostream &operator<<(std::ostream &os, const Field &fld);
 } // namespace Ioss
-
-#if !defined BUILT_IN_SIERRA
-#if FMT_VERSION >= 90000
-namespace fmt {
-  template <> struct formatter<Ioss::Field> : ostream_formatter
-  {
-  };
-} // namespace fmt
-#endif
-#endif

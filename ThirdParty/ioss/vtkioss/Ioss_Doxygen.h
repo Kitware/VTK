@@ -13,7 +13,6 @@ For bug reports, documentation errors, and enhancement suggestions, contact:
 - WEB:   https://github.com/sandialabs/seacas
 - EMAIL: gdsjaar@sandia.gov
 - EMAIL: gsjaardema@gmail.com
-- PHONE: (505) 844-2701 (office)
 
 \section db_types Database Types
 
@@ -38,7 +37,7 @@ adios            | Input/Output  | Adaptable Input/Output system, (https://adios
 faodel           | Input/Output  | (https://github.com/faodel/faodel)
 exodusii         | Input/Output  | alias for exodus
 genesis          | Input/Output  | alias for exodus
-par_cgns         | Input/Output  | alias for parallel CGNS 
+par_cgns         | Input/Output  | alias for parallel CGNS
 
 \section properties Properties
 
@@ -137,7 +136,7 @@ PARALLEL_IO_MODE | netcdf4, hdf5, pnetcdf, (mpiio and mpiposix are deprecated)
 The `overlay` specifies the number of output steps which will be
 overlaid on top of the currently written step before advancing to the
 next step on the database.
-     
+
 For example, if output every 0.1 seconds and the overlay count is
 specified as 2, then IOSS will write time 0.1 to step 1 of the
 database.  It will then write 0.2 and 0.3 also to step 1.  It will
@@ -146,7 +145,7 @@ then increment the database step and write 0.4 to step 2 and overlay
 to completion), the database would have times 0.3, 0.6, 0.9,
 ... However, if there were a problem during the analysis, the last
 step on the database would contain an intermediate step.
-     
+
 The `cycle_count` specifies the number of restart steps which will be
 written to the restart database before previously written steps are
 overwritten.  For example, if the `cycle` count is 5 and output is
@@ -156,16 +155,16 @@ with data from time 0.6, the second with time 0.7.  At time 0.8, the
 database would contain data at times 0.6, 0.7, 0.8, 0.4, 0.5.  Note
 that time will not necessarily be monotonically increasing on a
 database that specifies the cycle count.
-     
+
 The cycle count and overlay count can both be used at the same time
 also.  The basic formula is:
-```     
+```
    db_step = (((output_step - 1) / overlay) % cycle) + 1
-```     
+```
 where `output_step` is the step that this would have been on the
 database in a normal write (1,2,3,....) and `db_step` is the step
 number that this will be written to.
-    
+
 If you only want the last step available on the database,
 use `set_cycle_count(1)`.
 
@@ -177,7 +176,7 @@ timesteps will be written to each file.  If we have `cycle=2` and
 file. Then, the first file will be reopened and steps 0.7, 0.8, and
 0.9 will be written to the first file.
 
- 
+
 ## Properties for the heartbeat output
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
@@ -198,9 +197,9 @@ file. Then, the first file will be reopened and steps 0.7, 0.8, and
 
  Property              | Value  | Description
 -----------------------|:------:|-----------------------------------------------------------
-MEMORY_READ        | on/[off]   | experimental
-MEMORY_WRITE       | on/[off]   | experimental
-ENABLE_FILE_GROUPS | on/[off]   | experimental
+MEMORY_READ        | on/[off]   | experimental. Read a file into memory at open time, operate on it without disk accesses.
+MEMORY_WRITE       | on/[off]   | experimental. Open and read a file into memory or create and optionally write it back out to disk when nc_close() is called.
+ENABLE_FILE_GROUPS | on/[off]   | experimental.  Opens database in netcdf-4 non-classic mode which is what is required to support groups at netCDF level.
 MINIMAL_NEMESIS_INFO | on/[off] | special case, omit all nemesis data except for nodal communication map
 OMIT_EXODUS_NUM_MAPS | on/[off] | special case, do not output the node and element numbering map.
 EXODUS_CALL_GET_ALL_TIMES| [on] / off | special case -- should the `ex_get_all_times()` function be called.  See below.

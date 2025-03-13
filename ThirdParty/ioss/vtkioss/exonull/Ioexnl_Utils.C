@@ -208,7 +208,7 @@ namespace Ioexnl {
         auto errmsg =
             fmt::format("Error: failed to read processor info attribute from file {}", filename);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL) != 0;
+        return EX_FATAL != 0;
       }
     }
     return matches;
@@ -489,7 +489,7 @@ namespace Ioexnl {
     }
     nodes.resize(active);
     nodes.shrink_to_fit(); // shrink to fit
-    return (active != orig_size);
+    return active != orig_size;
   }
 
   void filter_element_list(Ioss::Region *region, Ioss::Int64Vector &elements,

@@ -43,8 +43,7 @@
 // NOLINTBEGIN
 #include "robin_growth_policy.h"
 
-namespace tsl {
-namespace detail_robin_hash {
+namespace tsl::detail_robin_hash {
 
   template <typename T> struct make_void
   {
@@ -1579,8 +1578,7 @@ namespace detail_robin_hash {
     bool m_try_shrink_on_next_insert{false};
   };
 
-} // namespace detail_robin_hash
-} // namespace tsl
+} // namespace tsl::detail_robin_hash
 // NOLINTEND
 
 #endif

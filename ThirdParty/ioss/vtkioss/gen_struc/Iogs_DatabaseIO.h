@@ -98,7 +98,9 @@ namespace Iogs {
 
     bool begin_state_nl(int state, double time) override;
 
-    void get_step_times_nl() override;
+    void                get_step_times_nl() override;
+    std::vector<double> get_db_step_times_nl() override;
+
     void get_nodeblocks();
     void get_structured_blocks();
     void get_nodesets();

@@ -22,32 +22,35 @@ namespace Iocatalyst {
     enum mState { mInit, mExecute, mFinalize };
     enum pState { pWaitExecute, pExecute, pFinalize };
 
-    static const std::string ARGS;
-    static const std::string CATALYST;
-    static const std::string CATALYST_BLOCK_PARSE_INPUT_DECK_NAME;
-    static const std::string CATALYST_BLOCK_PARSE_JSON_STRING;
-    static const std::string CATALYST_DEBUG_LEVEL;
-    static const std::string CATALYST_ENABLE_LOGGING;
-    static const std::string CATALYST_OUTPUT_DIRECTORY;
-    static const std::string CATALYST_OUTPUT_DEFAULT;
-    static const std::string CATALYST_INPUT_NAME;
-    static const std::string CATALYST_INPUT_DEFAULT;
-    static const std::string CATALYST_MULTI_INPUT_PIPELINE_NAME;
-    static const std::string CATALYST_SCRIPT;
-    static const std::string CATALYST_SCRIPT_EXTRA_FILE;
-    static const std::string CHANNELS;
-    static const std::string CYCLE;
-    static const std::string DATA;
-    static const std::string PHACTORI_JSON_SCRIPT;
-    static const std::string PIPELINES;
-    static const std::string FILENAME;
-    static const std::string FS;
-    static const std::string IOSS;
-    static const std::string SCRIPTS;
-    static const std::string STATE;
-    static const std::string TIME;
-    static const std::string TIMESTEP;
-    static const std::string TYPE;
+    inline static const std::string ARGS     = "args";
+    inline static const std::string CATALYST = "catalyst";
+    inline static const std::string CATALYST_BLOCK_PARSE_INPUT_DECK_NAME =
+        "CATALYST_BLOCK_PARSE_INPUT_DECK_NAME";
+    inline static const std::string CATALYST_BLOCK_PARSE_JSON_STRING =
+        "CATALYST_BLOCK_PARSE_JSON_STRING";
+    inline static const std::string CATALYST_DEBUG_LEVEL      = "CATALYST_DEBUG_LEVEL";
+    inline static const std::string CATALYST_ENABLE_LOGGING   = "CATALYST_ENABLE_LOGGING";
+    inline static const std::string CATALYST_OUTPUT_DIRECTORY = "CATALYST_OUTPUT_DIRECTORY";
+    inline static const std::string CATALYST_OUTPUT_DEFAULT   = "CatalystOutput";
+    inline static const std::string CATALYST_INPUT_NAME       = "CATALYST_INPUT_NAME";
+    inline static const std::string CATALYST_INPUT_DEFAULT    = "input";
+    inline static const std::string CATALYST_MULTI_INPUT_PIPELINE_NAME =
+        "CATALYST_MULTI_INPUT_PIPELINE_NAME";
+    inline static const std::string CATALYST_SCRIPT            = "CATALYST_SCRIPT";
+    inline static const std::string CATALYST_SCRIPT_EXTRA_FILE = "CATALYST_SCRIPT_EXTRA_FILE";
+    inline static const std::string CHANNELS                   = "channels";
+    inline static const std::string CYCLE                      = "cycle";
+    inline static const std::string DATA                       = "data";
+    inline static const std::string PHACTORI_JSON_SCRIPT       = "PHACTORI_JSON_SCRIPT";
+    inline static const std::string PIPELINES                  = "pipelines";
+    inline static const std::string FILENAME                   = "filename";
+    inline static const std::string FS                         = "/";
+    inline static const std::string IOSS                       = "ioss";
+    inline static const std::string SCRIPTS                    = "scripts";
+    inline static const std::string STATE                      = "state";
+    inline static const std::string TIME                       = "time";
+    inline static const std::string TIMESTEP                   = "timestep";
+    inline static const std::string TYPE                       = "type";
 
     static CatalystManager &getInstance()
     {

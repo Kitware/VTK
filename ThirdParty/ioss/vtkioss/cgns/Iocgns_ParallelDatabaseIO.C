@@ -808,6 +808,15 @@ namespace Iocgns {
                           myProcessor);
   }
 
+  std::vector<double> ParallelDatabaseIO::get_db_step_times_nl()
+  {
+    std::vector<double> timesteps;
+
+    Utils::get_step_times(get_file_pointer(), timesteps, nullptr, timeScaleFactor, myProcessor);
+
+    return timesteps;
+  }
+
   void ParallelDatabaseIO::write_adjacency_data()
   {
     // Determine adjacency information between unstructured blocks.
@@ -2265,7 +2274,8 @@ namespace Iocgns {
 
         // ========================================================================
         // Repetitive code for each coordinate direction; use a lambda to consolidate...
-        auto coord_lambda = [=, &coord](const char *ordinate, int ordinal) {
+        auto coord_lambda = [&coord, phys_dimension, rmax, rmin, base, zone, &rdata, num_to_get,
+                             this](const char *ordinate, int ordinal) {
           // Data required by upper classes store x0, y0, z0, ... xn,
           // yn, zn. Data stored in cgns file is x0, ..., xn, y0,
           // ..., yn, z0, ..., zn so we have to allocate some scratch

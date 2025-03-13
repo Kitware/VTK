@@ -59,11 +59,6 @@ namespace {
     //        returns -1 if faces have differing topology
     static constexpr int edges_per_face[nface + 1] = {4, 4, 4, 4, 4, 4, 4};
   };
-  constexpr int Constants::edge_node_order[nedge][nedgenode];
-  constexpr int Constants::face_node_order[nface][nfacenode];
-  constexpr int Constants::face_edge_order[nface][nfaceedge];
-  constexpr int Constants::nodes_per_face[nface + 1];
-  constexpr int Constants::edges_per_face[nface + 1];
 } // namespace
 
 void Ioss::Hex8::factory()

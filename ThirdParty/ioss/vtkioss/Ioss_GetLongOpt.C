@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021, 2023, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -315,7 +315,7 @@ namespace Ioss {
     }
 
     switch (c->type) {
-    case GetLongOption::NoValue:
+    case GetLongOption::OptType::NoValue:
       if (*valtoken == '=') {
         fmt::print(stderr, "{}: unsolicited value for flag {}{}\n", name, optmarker, c->option);
         return -1; /* unsolicited value specification */
@@ -324,7 +324,7 @@ namespace Ioss {
       // gives out-of-range warnings on some systems...
       c->value = (char *)1;
       return 0;
-    case GetLongOption::OptionalValue:
+    case GetLongOption::OptType::OptionalValue:
       if (*valtoken == '=') {
         c->value = ++valtoken;
         return 0;
@@ -337,7 +337,7 @@ namespace Ioss {
         c->value = c->opt_value;
         return 0;
       }
-    case GetLongOption::MandatoryValue:
+    case GetLongOption::OptType::MandatoryValue:
       if (*valtoken == '=') {
         c->value = ++valtoken;
         return 0;
@@ -379,10 +379,10 @@ namespace Ioss {
       fmt::print(out, fmt::emphasis::bold, "\nusage: {} {}\n", pname, ustring);
       for (Cell *t = table; t != nullptr; t = t->next) {
         fmt::print(out, fmt::emphasis::bold, "\t{}{}", optmarker, t->option);
-        if (t->type == GetLongOption::MandatoryValue) {
+        if (t->type == GetLongOption::OptType::MandatoryValue) {
           fmt::print(out, fmt::emphasis::italic | fmt::emphasis::bold, " <$val>");
         }
-        else if (t->type == GetLongOption::OptionalValue) {
+        else if (t->type == GetLongOption::OptType::OptionalValue) {
           fmt::print(out, fmt::emphasis::italic | fmt::emphasis::bold, " [$val]");
         }
         fmt::print(out, " ({})\n", t->description);
@@ -395,10 +395,10 @@ namespace Ioss {
       fmt::print(outfile, "\nusage: {} {}\n", pname, ustring);
       for (Cell *t = table; t != nullptr; t = t->next) {
         fmt::print(outfile, "\t{}{}", optmarker, t->option);
-        if (t->type == GetLongOption::MandatoryValue) {
+        if (t->type == GetLongOption::OptType::MandatoryValue) {
           fmt::print(outfile, " <$val>");
         }
-        else if (t->type == GetLongOption::OptionalValue) {
+        else if (t->type == GetLongOption::OptType::OptionalValue) {
           fmt::print(outfile, " [$val]");
         }
         fmt::print(outfile, " ({})\n", t->description);

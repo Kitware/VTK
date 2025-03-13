@@ -52,100 +52,100 @@ namespace Iocatalyst {
 
   namespace detail {
 
-    static const std::string ASSEMBLIES       = "assemblies";
-    static const std::string BLOBS            = "blobs";
-    static const std::string COMMSETS         = "commsets";
-    static const std::string EDGEBLOCKS       = "edgeblocks";
-    static const std::string EDGESETS         = "edgesets";
-    static const std::string ELEMENTBLOCKS    = "elementblocks";
-    static const std::string ELEMENTSETS      = "elementsets";
-    static const std::string FACEBLOCKS       = "faceblocks";
-    static const std::string FACESETS         = "facesets";
-    static const std::string NODEBLOCKS       = "nodeblocks";
-    static const std::string NODESETS         = "nodesets";
-    static const std::string REGION           = "region";
-    static const std::string SIDESETS         = "sidesets";
-    static const std::string STRUCTUREDBLOCKS = "structuredblocks";
+    inline static const std::string ASSEMBLIES       = "assemblies";
+    inline static const std::string BLOBS            = "blobs";
+    inline static const std::string COMMSETS         = "commsets";
+    inline static const std::string EDGEBLOCKS       = "edgeblocks";
+    inline static const std::string EDGESETS         = "edgesets";
+    inline static const std::string ELEMENTBLOCKS    = "elementblocks";
+    inline static const std::string ELEMENTSETS      = "elementsets";
+    inline static const std::string FACEBLOCKS       = "faceblocks";
+    inline static const std::string FACESETS         = "facesets";
+    inline static const std::string NODEBLOCKS       = "nodeblocks";
+    inline static const std::string NODESETS         = "nodesets";
+    inline static const std::string REGION           = "region";
+    inline static const std::string SIDESETS         = "sidesets";
+    inline static const std::string STRUCTUREDBLOCKS = "structuredblocks";
 
-    static const std::string BLOCKLOCNODEIND    = "blocklocalnodeindex";
-    static const std::string BOUNDARYCONDS      = "boundaryconditions";
-    static const std::string CATCONDNODE        = "CATALYST_CONDUIT_NODE";
-    static const std::string CATDUMPDIR         = "CATALYST_DATA_DUMP_DIRECTORY";
-    static const std::string CATREADTIMESTEP    = "CATALYST_READER_TIME_STEP";
-    static const std::string CELLIDS            = "cell_ids";
-    static const std::string CELLNODEIDS        = "cell_node_ids";
-    static const std::string COMPONENTCOUNT     = "component_count";
-    static const std::string COMPONENTDEGREE    = "component_degree";
-    static const std::string COUNT              = "count";
-    static const std::string CONNECTIVITY       = "connectivity";
-    static const std::string CONNECTIVITYRAW    = "connectivity_raw";
-    static const char        DASH_CHAR          = '-';
-    static const std::string DATABASE           = "database";
-    static const std::string DOT                = ".";
-    static const std::string ENTITYCOUNT        = "entity_count";
-    static const std::string ENTITYTYPE         = "entity_type";
-    static const std::string EXECUTE_INVC       = "execute_invc";
-    static const std::string FIELDS             = "fields";
-    static const std::string FS                 = "/";
-    static const char        FS_CHAR            = '/';
-    static const std::string GLOBALIDMAP        = "globalidmap";
-    static const std::string KEY                = "key";
-    static const std::string INTBYTESIZEAPI     = "int_byte_size_api";
-    static const std::string IOSSCONTAINEDIN    = "IOSS_INTERNAL_CONTAINED_IN";
-    static const std::string MEMBERS            = "members";
-    static const std::string MEMBER_TYPE        = "member_type";
-    static const std::string MESHMODCO          = "mesh_model_coordinates";
-    static const std::string MESHMODCOX         = "mesh_model_coordinates_x";
-    static const std::string MESHMODCOY         = "mesh_model_coordinates_y";
-    static const std::string MESHMODCOZ         = "mesh_model_coordinates_z";
-    static const std::string NAME               = "name";
-    static const std::string NI                 = "ni";
-    static const std::string NJ                 = "nj";
-    static const std::string NK                 = "nk";
-    static const std::string NIGLOBAL           = "ni_global";
-    static const std::string NJGLOBAL           = "nj_global";
-    static const std::string NKGLOBAL           = "nk_global";
-    static const std::string NODEBLOCKONE       = "nodeblock_1";
-    static const std::string IDS                = "ids";
-    static const std::string INDEX              = "index";
-    static const std::string OFFSET_I           = "offset_i";
-    static const std::string OFFSET_J           = "offset_j";
-    static const std::string OFFSET_K           = "offset_k";
-    static const std::string ORIGIN             = "origin";
-    static const std::string PARAMS_CONDUIT_BIN = "_params.conduit_bin.";
-    static const std::string PARENTTOPOLOGYTYPE = "parent_topology_type";
-    static const std::string PROPERTIES         = "properties";
-    static const std::string REGION_ZERO        = "region_0";
-    static const std::string ROLE               = "role";
-    static const std::string SHALLOWCOPYFIELDS  = "SHALLOW_COPY_FIELDS";
-    static const std::string SIDEBLOCKS         = "sideblocks";
-    static const std::string STORAGE            = "storage";
-    static const std::string TIME               = "time";
-    static const std::string TOPOLOGYTYPE       = "topology_type";
-    static const std::string TYPE               = "type";
-    static const std::string VALUE              = "value";
-    static const std::string ZONECONNECTIVITY   = "zoneconnectivity";
+    inline static const std::string BLOCKLOCNODEIND    = "blocklocalnodeindex";
+    inline static const std::string BOUNDARYCONDS      = "boundaryconditions";
+    inline static const std::string CATCONDNODE        = "CATALYST_CONDUIT_NODE";
+    inline static const std::string CATDUMPDIR         = "CATALYST_DATA_DUMP_DIRECTORY";
+    inline static const std::string CATREADTIMESTEP    = "CATALYST_READER_TIME_STEP";
+    inline static const std::string CELLIDS            = "cell_ids";
+    inline static const std::string CELLNODEIDS        = "cell_node_ids";
+    inline static const std::string COMPONENTCOUNT     = "component_count";
+    inline static const std::string COMPONENTDEGREE    = "component_degree";
+    inline static const std::string COUNT              = "count";
+    inline static const std::string CONNECTIVITY       = "connectivity";
+    inline static const std::string CONNECTIVITYRAW    = "connectivity_raw";
+    inline static const char        DASH_CHAR          = '-';
+    inline static const std::string DATABASE           = "database";
+    inline static const std::string DOT                = ".";
+    inline static const std::string ENTITYCOUNT        = "entity_count";
+    inline static const std::string ENTITYTYPE         = "entity_type";
+    inline static const std::string EXECUTE_INVC       = "execute_invc";
+    inline static const std::string FIELDS             = "fields";
+    inline static const std::string FS                 = "/";
+    inline static const char        FS_CHAR            = '/';
+    inline static const std::string GLOBALIDMAP        = "globalidmap";
+    inline static const std::string KEY                = "key";
+    inline static const std::string INTBYTESIZEAPI     = "int_byte_size_api";
+    inline static const std::string IOSSCONTAINEDIN    = "IOSS_INTERNAL_CONTAINED_IN";
+    inline static const std::string MEMBERS            = "members";
+    inline static const std::string MEMBER_TYPE        = "member_type";
+    inline static const std::string MESHMODCO          = "mesh_model_coordinates";
+    inline static const std::string MESHMODCOX         = "mesh_model_coordinates_x";
+    inline static const std::string MESHMODCOY         = "mesh_model_coordinates_y";
+    inline static const std::string MESHMODCOZ         = "mesh_model_coordinates_z";
+    inline static const std::string NAME               = "name";
+    inline static const std::string NI                 = "ni";
+    inline static const std::string NJ                 = "nj";
+    inline static const std::string NK                 = "nk";
+    inline static const std::string NIGLOBAL           = "ni_global";
+    inline static const std::string NJGLOBAL           = "nj_global";
+    inline static const std::string NKGLOBAL           = "nk_global";
+    inline static const std::string NODEBLOCKONE       = "nodeblock_1";
+    inline static const std::string IDS                = "ids";
+    inline static const std::string INDEX              = "index";
+    inline static const std::string OFFSET_I           = "offset_i";
+    inline static const std::string OFFSET_J           = "offset_j";
+    inline static const std::string OFFSET_K           = "offset_k";
+    inline static const std::string ORIGIN             = "origin";
+    inline static const std::string PARAMS_CONDUIT_BIN = "_params.conduit_bin.";
+    inline static const std::string PARENTTOPOLOGYTYPE = "parent_topology_type";
+    inline static const std::string PROPERTIES         = "properties";
+    inline static const std::string REGION_ZERO        = "region_0";
+    inline static const std::string ROLE               = "role";
+    inline static const std::string SHALLOWCOPYFIELDS  = "SHALLOW_COPY_FIELDS";
+    inline static const std::string SIDEBLOCKS         = "sideblocks";
+    inline static const std::string STORAGE            = "storage";
+    inline static const std::string TIME               = "time";
+    inline static const std::string TOPOLOGYTYPE       = "topology_type";
+    inline static const std::string TYPE               = "type";
+    inline static const std::string VALUE              = "value";
+    inline static const std::string ZONECONNECTIVITY   = "zoneconnectivity";
 
-    static const std::string CONNECTIONNAME = "m_connectionName";
-    static const std::string DONORNAME      = "m_donorName";
-    static const std::string TRANSFORM      = "m_transform";
-    static const std::string OWNERRANGEBEG  = "m_ownerRangeBeg";
-    static const std::string OWNERRANGEEND  = "m_ownerRangeEnd";
-    static const std::string OWNEROFFSET    = "m_ownerOffset";
-    static const std::string DONORRANGEBEG  = "m_donorRangeBeg";
-    static const std::string DONORRANGEEND  = "m_donorRangeEnd";
-    static const std::string DONOROFFSET    = "m_donorOffset";
-    static const std::string OWNERZONE      = "m_ownerZone";
-    static const std::string DONORZONE      = "m_donorZone";
-    static const std::string FROMDECOMP     = "m_fromDecomp";
+    inline static const std::string CONNECTIONNAME = "m_connectionName";
+    inline static const std::string DONORNAME      = "m_donorName";
+    inline static const std::string TRANSFORM      = "m_transform";
+    inline static const std::string OWNERRANGEBEG  = "m_ownerRangeBeg";
+    inline static const std::string OWNERRANGEEND  = "m_ownerRangeEnd";
+    inline static const std::string OWNEROFFSET    = "m_ownerOffset";
+    inline static const std::string DONORRANGEBEG  = "m_donorRangeBeg";
+    inline static const std::string DONORRANGEEND  = "m_donorRangeEnd";
+    inline static const std::string DONOROFFSET    = "m_donorOffset";
+    inline static const std::string OWNERZONE      = "m_ownerZone";
+    inline static const std::string DONORZONE      = "m_donorZone";
+    inline static const std::string FROMDECOMP     = "m_fromDecomp";
 
-    static const std::string BCNAME   = "m_bcName";
-    static const std::string FAMNAME  = "m_famName";
-    static const std::string RANGEBEG = "m_rangeBeg";
-    static const std::string RANGEEND = "m_rangeEnd";
-    static const std::string FACE     = "m_face";
+    inline static const std::string BCNAME   = "m_bcName";
+    inline static const std::string FAMNAME  = "m_famName";
+    inline static const std::string RANGEBEG = "m_rangeBeg";
+    inline static const std::string RANGEEND = "m_rangeEnd";
+    inline static const std::string FACE     = "m_face";
 
-    static const std::string SURFACESPLITTYPE = "surface_split_type";
+    inline static const std::string SURFACESPLITTYPE = "surface_split_type";
 
     std::string getValuePath(const std::string &prop)
     {
@@ -356,6 +356,16 @@ namespace Iocatalyst {
         region->add_state(node[getTimePath()].as_float64());
       }
       return true;
+    }
+
+    std::vector<double> getTime()
+    {
+      std::vector<double> times;
+      auto               &node = this->DBNode;
+      if (node.has_path(getTimePath())) {
+        times.push_back(node[getTimePath()].as_float64());
+      }
+      return times;
     }
 
     int64_t putField(const std::string &containerName, const Ioss::GroupingEntity *entityGroup,
@@ -1425,6 +1435,12 @@ namespace Iocatalyst {
 
     auto &impl = (*this->Impl.get());
     impl.readTime(region);
+  }
+
+  std::vector<double> DatabaseIO::get_db_step_times_nl()
+  {
+    auto &impl = (*this->Impl.get());
+    return impl.getTime();
   }
 
   void *DatabaseIO::get_catalyst_conduit_node()

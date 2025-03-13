@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -43,6 +43,8 @@ namespace {
                        "\tvariables:type,count,...  "
                        "type=global|element|node|nodal|nodeset|nset|sideset|sset|surface\n"
                        "\ttimes:count (number of timesteps to generate)\n"
+                       "\ttinit:t0 (start time, default 0.0)\n"
+                       "\ttdelta:delta (delta between timesteps, default 1.0)\n"
                        "\tshow -- show mesh parameters\n"
                        "\thelp -- show this list\n\n");
   }
@@ -80,13 +82,10 @@ namespace Iogn {
     numZ = std::stoull(tokens[2]);
 
     if (numX <= 0 || numY <= 0 || numZ <= 0) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: (Iogn::GeneratedMesh::GeneratedMesh)\n"
-                 "       All interval counts must be greater than 0.\n"
-                 "       numX = {}, numY = {}, numZ = {}\n",
-                 numX, numY, numZ);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format("ERROR: (Iogn::GeneratedMesh::GeneratedMesh)\n"
+                             "       All interval counts must be greater than 0.\n"
+                             "       numX = {}, numY = {}, numZ = {}\n",
+                             numX, numY, numZ));
     }
     initialize();
     parse_options(groups);
@@ -97,15 +96,13 @@ namespace Iogn {
   void GeneratedMesh::initialize()
   {
     if (processorCount > numZ) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: (Iogn::GeneratedMesh::initialize)\n"
-                 "       The number of mesh intervals in the Z direction ({})\n"
-                 "       must be at least as large as the number of processors ({}).\n"
-                 "       The current parameters do not meet that requirement. Execution will "
-                 "terminate.\n",
-                 numZ, processorCount);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(
+          fmt::format("ERROR: (Iogn::GeneratedMesh::initialize)\n"
+                      "       The number of mesh intervals in the Z direction ({})\n"
+                      "       must be at least as large as the number of processors ({}).\n"
+                      "       The current parameters do not meet that requirement. Execution will "
+                      "terminate.\n",
+                      numZ, processorCount));
     }
 
     if (processorCount > 1) {
@@ -178,13 +175,10 @@ namespace Iogn {
     // specified later in the option list, you may not get the
     // desired bounding box.
     if (numX == 0 || numY == 0 || numZ == 0) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: (Iogn::GeneratedMesh::set_bbox)\n"
-                 "       All interval counts must be greater than 0.\n"
-                 "       numX = {}, numY = {}, numZ = {}\n",
-                 numX, numY, numZ);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format("ERROR: (Iogn::GeneratedMesh::set_bbox)\n"
+                             "       All interval counts must be greater than 0.\n"
+                             "       numX = {}, numY = {}, numZ = {}\n",
+                             numX, numY, numZ));
     }
 
     double x_range = xmax - xmin;
@@ -232,10 +226,7 @@ namespace Iogn {
           case 'Y': add_shell_block(PY); break;
           case 'z': add_shell_block(MZ); break;
           case 'Z': add_shell_block(PZ); break;
-          default:
-            std::ostringstream errmsg;
-            fmt::print(errmsg, "ERROR: Unrecognized shell location option '{}'.", opt);
-            IOSS_ERROR(errmsg);
+          default: IOSS_ERROR(fmt::format("ERROR: Unrecognized shell location option '{}'.", opt));
           }
         }
       }
@@ -252,9 +243,7 @@ namespace Iogn {
           case 'z': add_nodeset(MZ); break;
           case 'Z': add_nodeset(PZ); break;
           default:
-            std::ostringstream errmsg;
-            fmt::print(errmsg, "ERROR: Unrecognized nodeset location option '{}'.", opt);
-            IOSS_ERROR(errmsg);
+            IOSS_ERROR(fmt::format("ERROR: Unrecognized nodeset location option '{}'.", opt));
           }
         }
       }
@@ -271,9 +260,7 @@ namespace Iogn {
           case 'z': add_sideset(MZ); break;
           case 'Z': add_sideset(PZ); break;
           default:
-            std::ostringstream errmsg;
-            fmt::print(errmsg, "ERROR: Unrecognized sideset location option '{}'.", opt);
-            IOSS_ERROR(errmsg);
+            IOSS_ERROR(fmt::format("ERROR: Unrecognized sideset location option '{}'.", opt));
           }
         }
       }
@@ -345,6 +332,14 @@ namespace Iogn {
         timestepCount = std::stoull(option[1]);
       }
 
+      else if (option[0] == "tinit") {
+        timestepInitial = std::stod(option[1]);
+      }
+
+      else if (option[0] == "tdelta") {
+        timestepInterval = std::stod(option[1]);
+      }
+
       else if (option[0] == "tets") {
         createTets = true;
       }
@@ -352,10 +347,8 @@ namespace Iogn {
       else if (option[0] == "pyramids") {
         createPyramids = true;
         if (processorCount > 1) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Pyramid option can currently only be used in a serial run. "
-                             "Parallel not supported yet.\n");
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR("ERROR: Pyramid option can currently only be used in a serial run. "
+                     "Parallel not supported yet.\n");
         }
       }
 
@@ -382,9 +375,8 @@ namespace Iogn {
       }
 
       else {
-        std::ostringstream errmsg;
-        fmt::print(errmsg, "ERROR: Unrecognized option '{}'.  It will be ignored.\n", option[0]);
-        IOSS_ERROR(errmsg);
+        IOSS_ERROR(
+            fmt::format("ERROR: Unrecognized option '{}'.  It will be ignored.\n", option[0]));
       }
     }
   }
@@ -414,7 +406,7 @@ namespace Iogn {
         fmt::print(Ioss::OUTPUT(), "\tRotation Matrix: \n\t");
         for (const auto &elem : rotmat) {
           for (double jj : elem) {
-            fmt::print(Ioss::OUTPUT(), "{:14.e}\t", jj);
+            fmt::print(Ioss::OUTPUT(), fmt::runtime("{:14.e}\t"), jj);
           }
           fmt::print(Ioss::OUTPUT(), "\n\t");
         }
@@ -1686,13 +1678,11 @@ namespace Iogn {
       variableCount[Ioss::SIDEBLOCK] = count;
     }
     else {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: (Iogn::GeneratedMesh::set_variable_count)\n"
-                 "       Unrecognized variable type '{}'. Valid types are:\n"
-                 "       global, element, node, nodal, nodeset, nset, surface, sideset, sset.\n",
-                 type);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(fmt::format(
+          "ERROR: (Iogn::GeneratedMesh::set_variable_count)\n"
+          "       Unrecognized variable type '{}'. Valid types are:\n"
+          "       global, element, node, nodal, nodeset, nset, surface, sideset, sset.\n",
+          type));
     }
   }
 

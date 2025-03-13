@@ -17,8 +17,6 @@ namespace Ioss {
 
   template <typename INT> struct chain_entry_t
   {
-    chain_entry_t() = default;
-    chain_entry_t(int64_t el, int lnk) : element(el), link(lnk) {}
     IOSS_NODISCARD bool operator==(const chain_entry_t<INT> &other) const
     {
       return (other.element == element);

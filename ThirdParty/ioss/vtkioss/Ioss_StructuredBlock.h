@@ -12,10 +12,6 @@
 #include "Ioss_NodeBlock.h"
 #include "Ioss_Property.h"
 #include "Ioss_ZoneConnectivity.h"
-#if !defined BUILT_IN_SIERRA
-#include "vtk_fmt.h"
-#include VTK_FMT(fmt/ostream.h)
-#endif
 #include <array>
 #include <cassert>
 #include <iosfwd>
@@ -27,18 +23,6 @@
 #include "Ioss_EntityType.h"
 #include "ioss_export.h"
 #include "vtk_ioss_mangle.h"
-
-#if defined(SEACAS_HAVE_CGNS) && !defined(BUILT_IN_SIERRA)
-#include <vtk_cgns.h> // xxx(kitware)
-#include VTK_CGNS(cgnstypes.h)
-
-using IOSS_SB_INT = cgsize_t;
-#else
-// If this is not being built with CGNS, then default to using 32-bit integers.
-// Currently there is no way to input/output a structured mesh without CGNS,
-// so this block is simply to get things to compile and probably has no use.
-using IOSS_SB_INT = int;
-#endif
 
 namespace Ioss {
   class Region;
@@ -242,14 +226,6 @@ namespace Ioss {
       return get_local_node_offset(index[0], index[1], index[2]);
     }
 
-    IOSS_NODISCARD std::vector<IOSS_SB_INT> get_cell_node_ids(bool add_offset) const
-    {
-      size_t                   node_count = get_property("node_count").get_int();
-      std::vector<IOSS_SB_INT> ids(node_count);
-      get_cell_node_ids(Data(ids), add_offset);
-      return ids;
-    }
-
     template <typename INT_t> size_t get_cell_node_ids(INT_t *idata, bool add_offset) const
     {
       // Fill 'idata' with the cell node ids which are the
@@ -373,13 +349,3 @@ namespace Ioss {
     }
   };
 } // namespace Ioss
-
-#if !defined BUILT_IN_SIERRA
-#if FMT_VERSION >= 90000
-namespace fmt {
-  template <> struct formatter<Ioss::BoundaryCondition> : ostream_formatter
-  {
-  };
-} // namespace fmt
-#endif
-#endif

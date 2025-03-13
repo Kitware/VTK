@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -44,6 +44,6 @@ namespace Ioss {
 
   protected:
     Node();
-    bool validate_permutation_nodes() const override { return false; }
+    IOSS_NODISCARD bool validate_permutation_nodes() const override { return false; }
   };
 } // namespace Ioss
