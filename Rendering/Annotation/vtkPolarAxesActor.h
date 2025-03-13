@@ -1287,16 +1287,6 @@ protected:
   vtkTimeStamp BuildTime;
 
   /**
-   * Title scale factor
-   */
-  double TitleScale = -1.0;
-
-  /**
-   * Label scale factor
-   */
-  double LabelScale = -1.0;
-
-  /**
    * Text screen size
    */
   double ScreenSize = 10.0;

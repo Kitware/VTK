@@ -22,8 +22,6 @@
 
 #include <sstream>
 
-#define VTK_EXPONENT_AXES_ACTOR_RTOL (1. - 10. * VTK_DBL_EPSILON)
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolarAxesActor);
 vtkCxxSetSmartPointerMacro(vtkPolarAxesActor, Camera, vtkCamera);
@@ -82,8 +80,6 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Polar Axis Title: " << this->PolarAxisTitle << "\n";
   os << indent << "Polar Label Format: " << this->PolarLabelFormat << "\n";
-  os << indent << "Title Scale: " << this->TitleScale << "\n";
-  os << indent << "Label Scale: " << this->LabelScale << "\n";
   os << indent << "Polar title offset: " << this->PolarTitleOffset[0] << ", "
      << this->PolarTitleOffset[1] << "\n";
   os << indent << "Radial title offset: " << this->RadialTitleOffset[0] << ", "

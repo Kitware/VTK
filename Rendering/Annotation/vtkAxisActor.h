@@ -51,12 +51,10 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
-class vtkFollower;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProp3DAxisFollower;
-class vtkProperty2D;
 class vtkStringArray;
 class vtkTextActor;
 class vtkTextActor3D;
@@ -861,7 +859,6 @@ private:
 
   bool TickVisibilityChanged();
   vtkProperty* NewTitleProperty();
-  vtkProperty2D* NewTitleProperty2D();
   vtkProperty* NewLabelProperty();
 
   bool BoundsDisplayCoordinateChanged(vtkViewport* viewport);
