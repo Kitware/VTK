@@ -232,8 +232,8 @@ private:
   /**
    * For temporal data, update the steps group with information relevant to the current timestep.
    */
-  bool UpdateStepsGroup(vtkUnstructuredGrid* input);
-  bool UpdateStepsGroup(vtkPolyData* input);
+  bool UpdateStepsGroup(hid_t group, vtkUnstructuredGrid* input);
+  bool UpdateStepsGroup(hid_t group, vtkPolyData* input);
   ///@}
 
   ///@{
@@ -241,8 +241,8 @@ private:
    * Initialize the `Steps` group for temporal data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
-  bool InitializeTemporalPolyData();
-  bool InitializeTemporalUnstructuredGrid();
+  bool InitializeTemporalPolyData(hid_t group);
+  bool InitializeTemporalUnstructuredGrid(hid_t group);
   ///@}
 
   ///@{
@@ -348,10 +348,10 @@ private:
   /**
    * Append the offset data in the steps group for the current array for temporal data
    */
-  bool AppendDataArrayOffset(
-    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
-  bool AppendDataArraySizeOffset(
-    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
+  bool AppendDataArrayOffset(hid_t baseGroup, vtkAbstractArray* array, const std::string& arrayName,
+    const std::string& offsetsGroupName);
+  bool AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* array,
+    const std::string& arrayName, const std::string& offsetsGroupName);
   ///@}
 
   /**

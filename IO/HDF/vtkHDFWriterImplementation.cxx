@@ -202,17 +202,24 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::Implementation::CreateStepsGroup()
+bool vtkHDFWriter::Implementation::CreateStepsGroup(hid_t group)
 {
   vtkHDF::ScopedH5GHandle stepsGroup{ H5Gcreate(
-    this->Root, "Steps", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
-  if (stepsGroup == H5I_INVALID_HID)
-  {
-    return false;
-  }
+    group, "Steps", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+  return stepsGroup != H5I_INVALID_HID;
+}
 
-  this->StepsGroup = std::move(stepsGroup);
-  return true;
+//------------------------------------------------------------------------------
+hid_t vtkHDFWriter::Implementation::GetStepsGroup(hid_t currentGroup)
+{
+  if (H5Lexists(currentGroup, "Steps", H5P_DEFAULT))
+  {
+    // Store the last steps group accessed. There can be multiple for a given file
+    // if it composite. This Steps group is only used internally.
+    this->StepsGroup = H5Gopen(currentGroup, "Steps", H5P_DEFAULT);
+    return this->StepsGroup;
+  }
+  return H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------
@@ -350,17 +357,17 @@ vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::CreateHdfGroupWithLinkOrde
 }
 
 //------------------------------------------------------------------------------
-herr_t vtkHDFWriter::Implementation::CreateSoftLink(
+bool vtkHDFWriter::Implementation::CreateSoftLink(
   hid_t group, const char* groupName, const char* targetLink)
 {
-  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT);
+  return H5Lcreate_soft(targetLink, group, groupName, H5P_DEFAULT, H5P_DEFAULT) >= 0;
 }
 
 //------------------------------------------------------------------------------
-herr_t vtkHDFWriter::Implementation::CreateExternalLink(
+bool vtkHDFWriter::Implementation::CreateExternalLink(
   hid_t group, const char* filename, const char* source, const char* targetLink)
 {
-  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT);
+  return H5Lcreate_external(filename, source, group, targetLink, H5P_DEFAULT, H5P_DEFAULT) >= 0;
 }
 
 //------------------------------------------------------------------------------
