@@ -3,45 +3,9 @@
 ## Classes
 
 VTK auto generates (de)serialization code in C++ for classes annotated by
-the `VTK_MARSHALAUTO` wrapping hint.
-
-On the other hand, the `VTK_MARSHALMANUAL` macro is used to indicate that a class
-will take part in marshalling, but it cannot trivially (de)serialize it's properties.
-This is because one or more of the class's properties may not have an appropriate
-setter/getter function that is recognized by the VTK property parser.
-
-For such classes, a developer is expected to provide the code to serialize and deserialize the class in `vtkClassNameSerDes.cxx`. This file must satisfy four conditions:
-
-1. It must live in the same module as `vtkClassName`.
-2. It must export a function `int RegisterHandlers_vtkClassNameSerDesHelper(void*, void*)` with C linkage.
-3. It must define and declare these four C++ functions:
-
-    1. A serializer function
-
-        ```c++
-        nlohmann:json Serialize_vtkClassName(vtkObjectBase*, vtkSerializer*)
-        ```
-    2. A deserializer function
-
-        ```c++
-        void Deserialize_vtkClassName(const nlohmann::json&, vtkObjectBase*, vtkDeserializer*)
-        ```
-        ```
-    3. An invoker function
-
-        ```c++
-        nlohmann::json Invoker_vtkClassName(vtkMarshalContext* context, vtkObjectBase* objectBase, const char* methodName, nlohmann::json args)
-        ```
-    3. A registrar function
-
-        ```c++
-        int RegisterHandlers_vtkClassNameSerDesHelper(void* ser, void* deser, void* invoker)
-        ```
-        that registers:
-        - a serializer function with a serializer instance
-        - a deserializer function with a deserializer instance
-        - a constructor of the VTK class with a deserializer instance
-        - a function that can call methods by name on an object with an invoker instance
+the `VTK_MARSHALAUTO` wrapping hint. Additionally, classes that are annotated with
+`VTK_MARSHALMANUAL` require manual code. Please refer to [manual-marshal-code](/advanced/object_serialization.html#manual-marshal-code)
+which explains everything you need to consider when opting out of the automated marshalling code generation process.
 
 ## Properties
 
