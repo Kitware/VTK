@@ -61,9 +61,10 @@ vtkAxisActor::vtkAxisActor()
   this->TitleTextProperty->SetVerticalJustificationToCentered();
   this->TitleTextProperty->SetJustificationToCentered();
 
-  this->TitleMapper->SetInputConnection(this->TitleVector->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> titleMapper;
+  titleMapper->SetInputConnection(this->TitleVector->GetOutputPort());
   this->TitleActor->SetAxis(this);
-  this->TitleActor->SetMapper(this->TitleMapper);
+  this->TitleActor->SetMapper(titleMapper);
   this->TitleActor->SetEnableDistanceLOD(0);
 
   this->TitleProp3D->SetAxis(this);
@@ -77,9 +78,10 @@ vtkAxisActor::vtkAxisActor()
   this->LabelTextProperty->SetVerticalJustificationToBottom();
   this->LabelTextProperty->SetJustificationToLeft();
 
-  this->ExponentMapper->SetInputConnection(this->ExponentVector->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> exponentMapper;
+  exponentMapper->SetInputConnection(this->ExponentVector->GetOutputPort());
   this->ExponentActor->SetAxis(this);
-  this->ExponentActor->SetMapper(this->ExponentMapper);
+  this->ExponentActor->SetMapper(exponentMapper);
   this->ExponentActor->SetEnableDistanceLOD(0);
 
   this->ExponentProp3D->SetAxis(this);
@@ -87,23 +89,31 @@ vtkAxisActor::vtkAxisActor()
   this->ExponentProp3D->SetProp3D(this->ExponentActor3D);
 
   // Main line of axis
-  this->AxisLinesMapper->SetInputData(this->AxisLines);
-  this->AxisLinesActor->SetMapper(this->AxisLinesMapper);
+  vtkNew<vtkPolyDataMapper> axisLinesMapper;
+  axisLinesMapper->SetInputData(this->AxisLines);
+  this->AxisLinesActor->SetMapper(axisLinesMapper);
 
   // Major ticks
-  this->AxisMajorTicksMapper->SetInputData(this->AxisMajorTicks);
-  this->AxisMajorTicksActor->SetMapper(this->AxisMajorTicksMapper);
+  vtkNew<vtkPolyDataMapper> axisMajorTicksMapper;
+  axisMajorTicksMapper->SetInputData(this->AxisMajorTicks);
+  this->AxisMajorTicksActor->SetMapper(axisMajorTicksMapper);
 
   // Minor ticks
-  this->AxisMinorTicksMapper->SetInputData(this->AxisMinorTicks);
-  this->AxisMinorTicksActor->SetMapper(this->AxisMinorTicksMapper);
+  vtkNew<vtkPolyDataMapper> axisMinorTicksMapper;
+  axisMinorTicksMapper->SetInputData(this->AxisMinorTicks);
+  this->AxisMinorTicksActor->SetMapper(axisMinorTicksMapper);
 
-  this->GridlinesMapper->SetInputData(this->Gridlines);
-  this->GridlinesActor->SetMapper(this->GridlinesMapper);
-  this->InnerGridlinesMapper->SetInputData(this->InnerGridlines);
-  this->InnerGridlinesActor->SetMapper(this->InnerGridlinesMapper);
-  this->GridpolysMapper->SetInputData(this->Gridpolys);
-  this->GridpolysActor->SetMapper(this->GridpolysMapper);
+  vtkNew<vtkPolyDataMapper> gridlinesMapper;
+  gridlinesMapper->SetInputData(this->Gridlines);
+  this->GridlinesActor->SetMapper(gridlinesMapper);
+
+  vtkNew<vtkPolyDataMapper> innerGridlinesMapper;
+  innerGridlinesMapper->SetInputData(this->InnerGridlines);
+  this->InnerGridlinesActor->SetMapper(innerGridlinesMapper);
+
+  vtkNew<vtkPolyDataMapper> gridpolysMapper;
+  gridpolysMapper->SetInputData(this->Gridpolys);
+  this->GridpolysActor->SetMapper(gridpolysMapper);
 }
 
 //------------------------------------------------------------------------------

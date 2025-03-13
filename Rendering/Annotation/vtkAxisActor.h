@@ -772,10 +772,8 @@ protected:
   double GridlineZLength = 1.0;
 
   bool DrawInnerGridlines = false;
-  bool LastDrawInnerGridlines = false;
 
   bool DrawGridpolys = false;
-  bool LastDrawGridpolys = false;
 
   bool AxisVisibility = true;
   bool TickVisibility = true;
@@ -899,7 +897,6 @@ private:
   vtkNew<vtkPoints> GridpolyPts;
 
   vtkNew<vtkVectorText> TitleVector;
-  vtkNew<vtkPolyDataMapper> TitleMapper;
   vtkNew<vtkAxisFollower> TitleActor;
   vtkNew<vtkTextActor> TitleActor2D;
   vtkNew<vtkProp3DAxisFollower> TitleProp3D;
@@ -911,7 +908,6 @@ private:
    * Mapper/Actor used to display a common exponent of the label values
    */
   vtkNew<vtkVectorText> ExponentVector;
-  vtkNew<vtkPolyDataMapper> ExponentMapper;
   vtkNew<vtkAxisFollower> ExponentActor;
   vtkNew<vtkTextActor> ExponentActor2D;
   vtkNew<vtkProp3DAxisFollower> ExponentProp3D;
@@ -920,6 +916,7 @@ private:
 
   vtkSmartPointer<vtkVectorText>* LabelVectors = nullptr;
   vtkSmartPointer<vtkPolyDataMapper>* LabelMappers = nullptr;
+
   vtkAxisFollower** LabelActors = nullptr;
   vtkProp3DAxisFollower** LabelProps3D = nullptr;
   vtkSmartPointer<vtkTextActor>* LabelActors2D = nullptr;
@@ -928,22 +925,17 @@ private:
 
   // Main line axis
   vtkNew<vtkPolyData> AxisLines;
-  vtkNew<vtkPolyDataMapper> AxisLinesMapper;
   vtkNew<vtkActor> AxisLinesActor;
 
   // Ticks of the axis
   vtkNew<vtkPolyData> AxisMajorTicks, AxisMinorTicks;
-  vtkNew<vtkPolyDataMapper> AxisMajorTicksMapper, AxisMinorTicksMapper;
   vtkNew<vtkActor> AxisMajorTicksActor, AxisMinorTicksActor;
 
   vtkNew<vtkPolyData> Gridlines;
-  vtkNew<vtkPolyDataMapper> GridlinesMapper;
   vtkNew<vtkActor> GridlinesActor;
   vtkNew<vtkPolyData> InnerGridlines;
-  vtkNew<vtkPolyDataMapper> InnerGridlinesMapper;
   vtkNew<vtkActor> InnerGridlinesActor;
   vtkNew<vtkPolyData> Gridpolys;
-  vtkNew<vtkPolyDataMapper> GridpolysMapper;
   vtkNew<vtkActor> GridpolysActor;
 
   vtkSmartPointer<vtkCamera> Camera;
