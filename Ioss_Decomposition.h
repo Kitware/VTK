@@ -259,7 +259,7 @@ namespace Ioss {
       return I->second;
     }
 
-    void show_progress(const std::string &message) const
+    void show_progress(std::string_view message) const
     {
       if (m_showProgress) {
         Ioss::ParallelUtils pu(m_comm);

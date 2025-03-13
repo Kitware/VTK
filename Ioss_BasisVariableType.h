@@ -76,13 +76,13 @@ namespace Ioss {
 typedef struct ex_basis
 {
   /*
-   * subc_dim: dimension of the subcell associated with the specified DoF ordinal 
+   * subc_dim: dimension of the subcell associated with the specified DoF ordinal
    *      -- 0 node, 1 edge, 2 face, 3 volume [Range: 0..3]
    * subc_ordinal: ordinal of the subcell relative to its parent cell
-   *      -- 0..n for each ordinal with the same subc dim [Range: <= DoF ordinal] 
-   * subc_dof_ordinal: ordinal of the DoF relative to the subcell 
-   * subc_num_dof: cardinality of the DoF set associated with this subcell. 
-   * xi, eta, mu (ξ, η, ζ): Parametric coordinate location of the DoF 
+   *      -- 0..n for each ordinal with the same subc dim [Range: <= DoF ordinal]
+   * subc_dof_ordinal: ordinal of the DoF relative to the subcell
+   * subc_num_dof: cardinality of the DoF set associated with this subcell.
+   * xi, eta, mu (ξ, η, ζ): Parametric coordinate location of the DoF
    *      -- (Only first ndim values are valid)
    */
   char    name[EX_MAX_NAME + 1];

@@ -50,7 +50,7 @@ namespace Ioss {
 namespace Ioexnl {
   using EntityIdSet = std::set<std::pair<int64_t, int64_t>>;
   using SideSetSet  = std::set<std::string>;
-  using SideSetMap  = std::map<std::string, const std::string, std::less<std::string>>;
+  using SideSetMap  = std::map<std::string, const std::string, std::less<>>;
 
   using NameTopoKey = std::pair<std::string, const Ioss::ElementTopology *>;
   struct IOEXNL_EXPORT NameTopoKeyCompare

@@ -167,9 +167,7 @@ namespace Iohb {
         new_this->logStream = open_stream(get_filename(), &(new_this->streamNeedsDelete), append);
 
         if (new_this->logStream == nullptr) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "ERROR: Could not create heartbeat file '{}'\n", get_filename());
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: Could not create heartbeat file '{}'\n", get_filename()));
         }
       }
 
@@ -266,7 +264,7 @@ namespace Iohb {
       }
 
       if (showLegend) {
-        new_this->legend_.reset(new Layout(false, precision_, separator_, fieldWidth_));
+        new_this->legend_ = std::make_unique<Layout>(false, precision_, separator_, fieldWidth_);
         if (!tsFormat.empty()) {
           new_this->legend_->add_literal("+");
           new_this->legend_->add_literal(time_stamp(tsFormat));
@@ -296,8 +294,8 @@ namespace Iohb {
     // If this is the first time, open the output stream and see if user wants a legend
     initialize();
 
-    layout_.reset(new Layout(showLabels, precision_, separator_, fieldWidth_));
-    if (tsFormat != "") {
+    layout_ = std::make_unique<Layout>(showLabels, precision_, separator_, fieldWidth_);
+    if (!tsFormat.empty()) {
       layout_->add_literal("+");
       layout_->add_literal(time_stamp(tsFormat));
       layout_->add_literal(" ");
@@ -393,9 +391,7 @@ namespace Iohb {
       }
       else {
         if (layout_ == nullptr) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg, "INTERNAL ERROR: Unexpected nullptr layout.\n");
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR("INTERNAL ERROR: Unexpected nullptr layout.\n");
         }
         if (field.get_type() == Ioss::Field::INTEGER) {
           assert(field.transformed_count() == 1);
@@ -418,10 +414,7 @@ namespace Iohb {
       }
     }
     else {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: Can not handle non-TRANSIENT or non-REDUCTION fields on regions.\n");
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR("ERROR: Can not handle non-TRANSIENT or non-REDUCTION fields on regions.\n");
     }
     return num_to_get;
   }

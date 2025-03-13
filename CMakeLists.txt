@@ -31,6 +31,8 @@ set(classes
   Ioss_Assembly
   Ioss_Blob
   Ioss_ChainGenerator
+  Ioss_ChangeSet
+  Ioss_ChangeSetFactory
   Ioss_CommSet
   Ioss_Compare
   Ioss_ComposedVariableType
@@ -40,6 +42,11 @@ set(classes
   Ioss_CoordinateFrame
   Ioss_CopyDatabase
   Ioss_DatabaseIO
+  Ioss_DynamicTopologyBroker
+  Ioss_DynamicTopologyFileControl
+  Ioss_DynamicTopologyNotifier
+  Ioss_DynamicTopologyObserver
+  Ioss_DynamicTopologyStateLocator
   Ioss_EdgeBlock
   Ioss_EdgeSet
   Ioss_ElementBlock
@@ -195,6 +202,7 @@ endif ()
 if (SEACAS_HAVE_EXODUS)
   list(APPEND classes
     exodus/Ioex_BaseDatabaseIO
+    exodus/Ioex_ChangeSet
     exodus/Ioex_DatabaseIO
     exodus/Ioex_Internals
     exodus/Ioex_IOFactory
@@ -255,6 +263,7 @@ list(APPEND headers
   Ioss_DataSize.h
   Ioss_DBUsage.h
   Ioss_Doxygen.h
+  Ioss_DynamicTopology.h
   Ioss_ElementVariableType.h
   Ioss_EntityType.h
   Ioss_Enumerate.h
@@ -268,6 +277,7 @@ list(APPEND headers
   Ioss_State.h
   Ioss_SubSystem.h
   Ioss_SurfaceSplit.h
+  Ioss_use_fmt.h
   Ioss_Version.h
 
   pdqsort.h

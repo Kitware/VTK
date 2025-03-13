@@ -247,38 +247,81 @@ namespace Ioss {
       flush_database_nl();
     }
 
-    /** \brief If a database type supports groups and if the database
-     *         contains groups, open the specified group.
-     *
-     *  If the group_name begins with '/', it specifies the absolute path
-     *  name from the root with '/' separating groups.  Otherwise, the
-     *  group_name specifies a child group of the currently active group.
-     *  If group_name == "/" then the root group is opened.
-     *
-     *  \param[in] group_name The name of the group to open.
-     *  \returns True if successful.
-     */
-    bool open_group(const std::string &group_name)
+    void reset_database()
     {
       IOSS_FUNC_ENTER(m_);
-      return open_group_nl(group_name);
+      progress(__func__);
+      reset_database_nl();
     }
 
-    /** \brief If a database type supports groups, create the specified
-     *        group as a child of the current group.
+    /** \brief If a database type supports internal change sets and if the database
+     *         contains internal change sets, open the specified set.
      *
-     *  The name of the group must not contain a '/' character.
-     *  If the command is successful, then the group will be the
-     *  active group for all subsequent writes to the database.
-     *
-     *  \param[in] group_name The name of the subgroup to create.
+     *  \param[in] set_name The name of the set to open.
      *  \returns True if successful.
      */
-    bool create_subgroup(const std::string &group_name)
+    bool open_internal_change_set(const std::string &set_name)
     {
       IOSS_FUNC_ENTER(m_);
-      return create_subgroup_nl(group_name);
+      return open_internal_change_set_nl(set_name);
     }
+
+    /** \brief If a database type supports internal change sets, create the
+     *         specified set.
+     *
+     *  \param[in] set_name The name of the set to create.
+     *  \returns True if successful.
+     */
+    bool create_internal_change_set(const std::string &set_name)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return create_internal_change_set_nl(set_name);
+    }
+
+    /** \brief If a database type supports internal change sets, and if the database
+     *         contains internal change sets, return the number of change sets.
+     */
+    int num_internal_change_set()
+    {
+      IOSS_FUNC_ENTER(m_);
+      return num_internal_change_set_nl();
+    }
+
+    /** \brief If a database type supports internal change sets, open the change set
+     *         specified [zero-based] index
+     *
+     *  \param[in] child_index The [zero-based] index of the internal change set to open.
+     *  \returns True if successful.
+     */
+    bool open_internal_change_set(int set_index)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return open_internal_change_set_nl(set_index);
+    }
+
+    /** \brief If a database type supports internal change sets, return a list of set names
+     *
+     *  \param[in] return_full_names Flag to control return of relative
+     *             or full set name paths.
+     *  \returns True if successful.
+     */
+    Ioss::NameList internal_change_set_describe(bool return_full_names = false)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return internal_change_set_describe_nl(return_full_names);
+    }
+
+    /** \brief Checks if a database type supports internal change sets
+     *
+     *  \returns True if successful.
+     */
+    bool supports_internal_change_set()
+    {
+      IOSS_FUNC_ENTER(m_);
+      return supports_internal_change_set_nl();
+    }
+
+    IOSS_NODISCARD virtual std::string get_internal_change_set_name() const { return ""; }
 
     /** \brief Set the database to the given State.
      *
@@ -333,7 +376,23 @@ namespace Ioss {
     void get_step_times()
     {
       IOSS_FUNC_ENTER(m_);
-      return get_step_times_nl();
+      get_step_times_nl();
+    }
+
+    /** \brief Return the list of timesteps in the database contingent on certain
+     *         controlling properties.
+     *
+     *  This is different from get_step_times() in that it does not set timestep
+     *  data on the region. If the database supports change sets, it will return the
+     *  timestep data for the current change set
+     *
+     *  \returns timesteps.
+     *
+     */
+    std::vector<double> get_db_step_times()
+    {
+      IOSS_FUNC_ENTER(m_);
+      return get_db_step_times_nl();
     }
 
     IOSS_NODISCARD virtual bool internal_edges_available() const { return false; }
@@ -503,6 +562,7 @@ namespace Ioss {
     IOSS_NODISCARD virtual int int_byte_size_db() const = 0; //! Returns 4 or 8
     IOSS_NODISCARD int         int_byte_size_api() const;    //! Returns 4 or 8
     virtual void               set_int_byte_size_api(Ioss::DataSize size) const;
+    IOSS_NODISCARD Ioss::DataSize int_byte_size_data_size() const;
 
     /*!
      * The owning region of this database.
@@ -738,6 +798,10 @@ namespace Ioss {
     virtual void closeDatabase_nl() const;
     virtual void flush_database_nl() const {}
 
+    virtual void release_memory_nl();
+
+    virtual void reset_database_nl();
+
   private:
     virtual bool ok_nl(bool /* write_message */, std::string * /* error_message */,
                        int *bad_count) const
@@ -758,22 +822,22 @@ namespace Ioss {
       return elemMap.global_to_local(global);
     }
 
-    virtual void release_memory_nl()
+    virtual bool supports_internal_change_set_nl() { return false; }
+    virtual bool open_internal_change_set_nl(const std::string & /* set_name */) { return false; }
+    virtual bool open_internal_change_set_nl(int /* index */) { return false; }
+    virtual bool create_internal_change_set_nl(const std::string & /* set_name */) { return false; }
+    virtual int  num_internal_change_set_nl() { return 0; }
+    virtual Ioss::NameList internal_change_set_describe_nl(bool /* return_full_names */)
     {
-      nodeMap.release_memory();
-      edgeMap.release_memory();
-      faceMap.release_memory();
-      elemMap.release_memory();
+      return Ioss::NameList();
     }
-
-    virtual bool open_group_nl(const std::string & /* group_name */) { return false; }
-    virtual bool create_subgroup_nl(const std::string & /* group_name */) { return false; }
 
     virtual bool begin_nl(Ioss::State state) = 0;
     virtual bool end_nl(Ioss::State state)   = 0;
 
-    virtual void read_meta_data_nl() = 0;
-    virtual void get_step_times_nl() {}
+    virtual void                read_meta_data_nl() = 0;
+    virtual void                get_step_times_nl() {}
+    virtual std::vector<double> get_db_step_times_nl() { return std::vector<double>(); }
 
     virtual bool begin_state_nl(int state, double time);
     virtual bool end_state_nl(int state, double time);

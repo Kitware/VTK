@@ -9,8 +9,7 @@
 #include "ionit_export.h"
 #include "vtk_ioss_mangle.h"
 
-namespace Ioss {
-namespace Init {
+namespace Ioss::Init {
   /** \brief Initialization of the Ioss library.
    *
    *  An object of this type must be created before using any other
@@ -25,5 +24,4 @@ namespace Init {
     // Copy constructor
     // Assignment operator
   };
-} // namespace Init
-} // namespace Ioss
+} // namespace Ioss::Init

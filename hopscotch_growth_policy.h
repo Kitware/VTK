@@ -69,8 +69,7 @@
 #endif
 #endif
 
-namespace tsl {
-namespace hh {
+namespace tsl::hh {
 
   /**
    * Grow the hash table by a factor of GrowthFactor keeping the bucket count to a
@@ -392,7 +391,6 @@ namespace hh {
                   "The type of m_iprime is not big enough.");
   };
 
-} // namespace hh
-} // namespace tsl
+} // namespace tsl::hh
 
 #endif

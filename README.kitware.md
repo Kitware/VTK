@@ -13,4 +13,3 @@ to avoid conflicts with other copies of the library within a single process.
   * Use VTK's MPI library.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtkioss_` prefix.
-  * Remove c++14 code.

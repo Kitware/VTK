@@ -50,6 +50,7 @@
 #include "Ioss_State.h"
 #include "Ioss_Utils.h"
 #include "Ioss_VariableType.h"
+#include "Ioss_use_fmt.h"
 
 #if defined(__IOSS_WINDOWS__)
 #include <io.h>
@@ -171,6 +172,23 @@ void Ioss::Utils::time_and_date(char *time_string, char *date_string, size_t len
   }
   copy_string(time_string, time, 9);
   copy_string(date_string, date, length + 1);
+}
+
+bool Ioss::Utils::check_valid_change_set_name(const std::string  &cs_name,
+                                              const Ioss::Region &region, int rank)
+{
+  auto cs_names = region.get_database()->internal_change_set_describe();
+  auto it       = std::find(cs_names.cbegin(), cs_names.cend(), cs_name);
+  if (it == cs_names.cend()) {
+    if (rank == 0) {
+      fmt::print(stderr,
+                 "ERROR: Change set {}, not found in database {}. Valid change sets are:\n"
+                 "       {}\n",
+                 cs_name, region.get_database()->get_filename(), fmt::join(cs_names, ", "));
+    }
+    return false;
+  }
+  return true;
 }
 
 void Ioss::Utils::check_non_null(void *ptr, const char *type, const std::string &name,
@@ -367,7 +385,7 @@ std::string Ioss::Utils::local_filename(const std::string &relative_filename,
 }
 
 int Ioss::Utils::field_warning(const Ioss::GroupingEntity *ge, const Ioss::Field &field,
-                               const std::string &inout)
+                               std::string_view inout)
 {
   if (field.get_name() != "ids") {
     fmt::print(Ioss::WarnOut(), "{} '{}'. Unknown {} field '{}'\n", ge->type_string(), ge->name(),
@@ -940,12 +958,10 @@ void Ioss::Utils::calculate_sideblock_membership(IntVector             &face_is_
   }
 }
 
-int64_t Ioss::Utils::get_side_offset(const Ioss::SideBlock *sb)
+int64_t Ioss::Utils::get_side_offset(const Ioss::ElementTopology *parent_topo,
+                                     const Ioss::ElementTopology *side_topo)
 {
-
-  const Ioss::ElementTopology *side_topo   = sb->topology();
-  const Ioss::ElementTopology *parent_topo = sb->parent_element_topology();
-  int64_t                      side_offset = 0;
+  int64_t side_offset = 0;
   if ((side_topo != nullptr) && (parent_topo != nullptr)) {
     int side_topo_dim = side_topo->parametric_dimension();
     int elem_topo_dim = parent_topo->parametric_dimension();
@@ -956,6 +972,13 @@ int64_t Ioss::Utils::get_side_offset(const Ioss::SideBlock *sb)
     }
   }
   return side_offset;
+}
+
+int64_t Ioss::Utils::get_side_offset(const Ioss::SideBlock *sb)
+{
+  const Ioss::ElementTopology *side_topo   = sb->topology();
+  const Ioss::ElementTopology *parent_topo = sb->parent_element_topology();
+  return get_side_offset(parent_topo, side_topo);
 }
 
 std::string Ioss::Utils::shape_to_string(const Ioss::ElementShape &shape)
@@ -1359,7 +1382,7 @@ void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::Role
   // Iterate through results fields. Get max width of a name...
   size_t max_width = 0;
   for (const auto &field_name : fields) {
-    max_width = max_width > field_name.length() ? max_width : field_name.length();
+    max_width = std::max(max_width, field_name.length());
   }
 
   size_t width   = Ioss::Utils::term_width();
@@ -1367,10 +1390,15 @@ void Ioss::Utils::info_fields(const Ioss::GroupingEntity *ige, Ioss::Field::Role
   if (!header.empty()) {
     cur_out = header.size() + suffix.size() + 16; // Assume 2 tabs...
   }
+
   for (const auto &field_name : fields) {
     if (detail) {
       const auto &field_ref = ige->get_fieldref(field_name);
+#if defined(__NVCC__)
+      std::cout << field_ref << suffix;
+#else
       fmt::print("{}{}", field_ref, suffix);
+#endif
     }
     else {
       const Ioss::VariableType *var_type   = ige->get_field(field_name).raw_storage();

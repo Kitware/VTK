@@ -11,25 +11,19 @@
 #if defined PARALLEL_AWARE_EXODUS
 
 #include "Ioss_CodeTypes.h"
+#include <string>
 #include <vector>
 
 #include "ioexnl_export.h"
 #include "vtk_ioss_mangle.h"
-#if !defined(NO_PARMETIS_SUPPORT)
-#include <parmetis.h>
-#endif
 
-#undef MPICPP
-#if !defined(NO_ZOLTAN_SUPPORT)
-#include <zoltan_cpp.h>
-#endif
 #include "Ioss_Decomposition.h"
-#include "Ioss_Map.h"
-#include "Ioss_PropertyManager.h"
 
 namespace Ioss {
   class Field;
-}
+  class Map;
+  class PropertyManager;
+} // namespace Ioss
 namespace Ioexnl {
 
   class IOEXNL_EXPORT DecompositionDataBase

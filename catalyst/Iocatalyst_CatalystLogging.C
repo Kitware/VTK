@@ -5,10 +5,10 @@
 // See packages/seacas/LICENSE for details
 
 #include <Ioss_Utils.h>
+#include <catalyst/Iocatalyst_CatalystLogging.h>
 #include <fstream>
 #include <iostream>
 #include <time.h>
-#include <catalyst/Iocatalyst_CatalystLogging.h>
 
 namespace Iocatalyst {
 

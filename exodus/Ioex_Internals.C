@@ -387,7 +387,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
 
     int status = nc_set_fill(exodusFilePtr, NC_NOFILL, &old_fill);
     if (status != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     status = nc_put_att_text(exodusFilePtr, NC_GLOBAL, "base_database",
@@ -398,7 +398,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
       std::string errmsg = fmt::format(
           "Error: failed to define 'base_database' attribute to file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Time Dimension...
@@ -407,7 +407,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
       std::string errmsg =
           fmt::format("Error: failed to define time dimension in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Name String Length...
@@ -418,7 +418,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
       std::string errmsg =
           fmt::format("Error: failed to define 'name string length' in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Nodes (Node Block) ...
@@ -430,7 +430,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
         std::string errmsg =
             fmt::format("Error: failed to define number of nodes in file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -449,11 +449,11 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
         std::string errmsg =
             fmt::format("Error: failed to define number of elements in file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       if (define_netcdf_vars(exodusFilePtr, "element block", mesh.elemblocks.size(), DIM_NUM_EL_BLK,
                              VAR_STAT_EL_BLK, VAR_ID_EL_BLK, VAR_NAME_EL_BLK) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -470,11 +470,11 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
         std::string errmsg =
             fmt::format("Error: failed to define number of faces in file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       if (define_netcdf_vars(exodusFilePtr, "face block", mesh.faceblocks.size(), DIM_NUM_FA_BLK,
                              VAR_STAT_FA_BLK, VAR_ID_FA_BLK, VAR_NAME_FA_BLK) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -491,11 +491,11 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
         std::string errmsg =
             fmt::format("Error: failed to define number of edges in file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       if (define_netcdf_vars(exodusFilePtr, "edge block", mesh.edgeblocks.size(), DIM_NUM_ED_BLK,
                              VAR_STAT_ED_BLK, VAR_ID_ED_BLK, VAR_NAME_ED_BLK) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -504,28 +504,28 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
     if (var_params.num_nset > 0) {
       if (define_netcdf_vars(exodusFilePtr, "node set", mesh.nodesets.size(), DIM_NUM_NS,
                              VAR_NS_STAT, VAR_NS_IDS, VAR_NAME_NS) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
     if (var_params.num_eset > 0) {
       if (define_netcdf_vars(exodusFilePtr, "edge set", mesh.edgesets.size(), DIM_NUM_ES,
                              VAR_ES_STAT, VAR_ES_IDS, VAR_NAME_ES) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
     if (var_params.num_fset > 0) {
       if (define_netcdf_vars(exodusFilePtr, "face set", mesh.facesets.size(), DIM_NUM_FS,
                              VAR_FS_STAT, VAR_FS_IDS, VAR_NAME_FS) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
     if (var_params.num_elset > 0) {
       if (define_netcdf_vars(exodusFilePtr, "element set", mesh.elemsets.size(), DIM_NUM_ELS,
                              VAR_ELS_STAT, VAR_ELS_IDS, VAR_NAME_ELS) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -534,7 +534,7 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
     if (var_params.num_sset > 0) {
       if (define_netcdf_vars(exodusFilePtr, "side set", mesh.sidesets.size(), DIM_NUM_SS,
                              VAR_SS_STAT, VAR_SS_IDS, VAR_NAME_SS) != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -587,13 +587,13 @@ int Internals::initialize_state_file(Mesh &mesh, const ex_var_params &var_params
     }
 
     int        varid;
-    std::array<int, 1> dim{timedim};
+    std::array dim{timedim};
     if ((status = nc_def_var(exodusFilePtr, VAR_WHOLE_TIME, nc_flt_code(exodusFilePtr), 1,
                              Data(dim), &varid)) != NC_NOERR) {
       std::string errmsg = fmt::format(
           "Error: failed to define whole time step variable in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     struct exi_file_item *file = exi_find_file_item(exodusFilePtr);
@@ -1064,7 +1064,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     std::string errmsg =
         fmt::format("Error: initialization already done for file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), EX_MSG);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (rootid == exodusFilePtr) {
@@ -1079,20 +1079,20 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define title attribute to file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // For use later as a consistency check, define the number of processors and
     // the current processor id as an attribute of the file...
     if (comm.outputNemesis && comm.processorCount > 1) {
-      std::array<int, 2> ltempsv{comm.processorCount, comm.processorId};
+      std::array ltempsv{comm.processorCount, comm.processorId};
       status = nc_put_att_int(rootid, NC_GLOBAL, "processor_info", NC_INT, 2, Data(ltempsv));
       if (status != NC_NOERR) {
         ex_opts(EX_VERBOSE);
         std::string errmsg = fmt::format(
             "Error: failed to define processor info attribute to file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1106,7 +1106,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg = fmt::format(
             "Error: failed to define 'last_written_time' attribute to file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1121,7 +1121,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg = fmt::format(
             "Error: failed to define ATT_MAX_NAME_LENGTH attribute to file id {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
   }
@@ -1137,7 +1137,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define name string length in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
 
@@ -1147,23 +1147,23 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     std::string errmsg =
         fmt::format("Error: failed to define number of dimensions in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if ((status = nc_def_dim(exodusFilePtr, DIM_TIME, NC_UNLIMITED, &timedim)) != NC_NOERR) {
     std::string errmsg =
         fmt::format("Error: failed to define time dimension in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  std::array<int, 1> dim{timedim};
+  std::array dim{timedim};
   if ((status = nc_def_var(exodusFilePtr, VAR_WHOLE_TIME, nc_flt_code(exodusFilePtr), 1, Data(dim),
                            &varid)) != NC_NOERR) {
     std::string errmsg = fmt::format(
         "Error: failed to define whole time step variable in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
   {
     struct exi_file_item *file = exi_find_file_item(exodusFilePtr);
@@ -1180,12 +1180,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define number of nodes in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Define the node map here to avoid a later redefine call
     if (mesh.use_node_map) {
-      std::array<int, 1> dims1{numnoddim};
+      std::array dims1{numnoddim};
       status = nc_def_var(exodusFilePtr, VAR_NODE_NUM_MAP, map_type, 1, Data(dims1), &varid);
       if (status != NC_NOERR) {
         ex_opts(EX_VERBOSE);
@@ -1199,7 +1199,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
               "Error: failed to create node numbering map array in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 1);
     }
@@ -1216,10 +1216,10 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
                       " in file id {}",
                       static_cast<entity_id>(mesh.nodeblocks[0].id), exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
-    std::array<int, 2> dims{numnoddim, numattrdim};
+    std::array dims{numnoddim, numattrdim};
     status =
         nc_def_var(exodusFilePtr, VAR_NATTRIB, nc_flt_code(exodusFilePtr), 2, Data(dims), &varid);
     if (status != NC_NOERR) {
@@ -1228,7 +1228,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
           fmt::format("Error:  failed to define attributes for node block {} in file id {}",
                       mesh.nodeblocks[0].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 2);
 
@@ -1244,7 +1244,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
                       " in file id {}",
                       mesh.nodeblocks[0].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_set_compact_storage(exodusFilePtr, varid);
   }
@@ -1262,12 +1262,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define number of elements in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Define the element map here to avoid a later redefine call
     if (mesh.use_elem_map) {
-      std::array<int, 1> dims{numelemdim};
+      std::array dims{numelemdim};
       varid  = 0;
       status = nc_def_var(exodusFilePtr, VAR_ELEM_NUM_MAP, map_type, 1, Data(dims), &varid);
       if (status != NC_NOERR) {
@@ -1282,7 +1282,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
               "Error: failed to create element numbering map in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 1);
     }
@@ -1301,12 +1301,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define number of faces in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Define the face map here to avoid a later redefine call
     if (mesh.use_face_map) {
-      std::array<int, 1> dims{numfacedim};
+      std::array dims{numfacedim};
       varid  = 0;
       status = nc_def_var(exodusFilePtr, VAR_FACE_NUM_MAP, map_type, 1, Data(dims), &varid);
       if (status != NC_NOERR) {
@@ -1321,7 +1321,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
               "Error: failed to create face numbering map in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 1);
     }
@@ -1340,12 +1340,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       std::string errmsg =
           fmt::format("Error: failed to define number of edges in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Define the edge map here to avoid a later redefine call
     if (mesh.use_edge_map) {
-      std::array<int, 1> dims{numedgedim};
+      std::array dims{numedgedim};
       varid  = 0;
       status = nc_def_var(exodusFilePtr, VAR_EDGE_NUM_MAP, map_type, 1, Data(dims), &varid);
       if (status != NC_NOERR) {
@@ -1360,7 +1360,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
               "Error: failed to create edge numbering map in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 1);
     }
@@ -1370,53 +1370,53 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
   // Blocks...
   if (define_netcdf_vars(exodusFilePtr, "edge block", mesh.edgeblocks.size(), DIM_NUM_ED_BLK,
                          VAR_STAT_ED_BLK, VAR_ID_ED_BLK, VAR_NAME_ED_BLK) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (define_netcdf_vars(exodusFilePtr, "face block", mesh.faceblocks.size(), DIM_NUM_FA_BLK,
                          VAR_STAT_FA_BLK, VAR_ID_FA_BLK, VAR_NAME_FA_BLK) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (define_netcdf_vars(exodusFilePtr, "element block", mesh.elemblocks.size(), DIM_NUM_EL_BLK,
                          VAR_STAT_EL_BLK, VAR_ID_EL_BLK, VAR_NAME_EL_BLK) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // ========================================================================
   // Sets...
   if (define_netcdf_vars(exodusFilePtr, "node set", mesh.nodesets.size(), DIM_NUM_NS, VAR_NS_STAT,
                          VAR_NS_IDS, VAR_NAME_NS) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (define_netcdf_vars(exodusFilePtr, "edge set", mesh.edgesets.size(), DIM_NUM_ES, VAR_ES_STAT,
                          VAR_ES_IDS, VAR_NAME_ES) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (define_netcdf_vars(exodusFilePtr, "face set", mesh.facesets.size(), DIM_NUM_FS, VAR_FS_STAT,
                          VAR_FS_IDS, VAR_NAME_FS) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (define_netcdf_vars(exodusFilePtr, "element set", mesh.elemsets.size(), DIM_NUM_ELS,
                          VAR_ELS_STAT, VAR_ELS_IDS, VAR_NAME_ELS) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // ========================================================================
   // side sets...
   if (define_netcdf_vars(exodusFilePtr, "side set", mesh.sidesets.size(), DIM_NUM_SS, VAR_SS_STAT,
                          VAR_SS_IDS, VAR_NAME_SS) != EX_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // ========================================================================
   if (!mesh.nodeblocks.empty()) {
     if (define_coordinate_vars(exodusFilePtr, mesh.nodeblocks[0].entityCount, numnoddim,
                                mesh.dimensionality, numdimdim, namestrdim) != EX_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
 
@@ -1433,7 +1433,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
           std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file ID {}",
                                            DIM_NUM_PROCS, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
     }
@@ -1449,7 +1449,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file ID {}",
                                          DIM_NUM_PROCS_F, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1462,7 +1462,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg =
             fmt::format("Error: failed to define file type in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     exi_set_compact_storage(exodusFilePtr, varid);
@@ -1483,7 +1483,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file ID {}",
                                          DIM_NUM_NODES_GLOBAL, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1497,7 +1497,7 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
         std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file ID {}",
                                          DIM_NUM_ELEMS_GLOBAL, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1506,12 +1506,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     // by this quantity.
     {
       std::array<const char *, 3> vars{VAR_ELBLK_IDS_GLOBAL, VAR_ELBLK_CNT_GLOBAL, nullptr};
-      const std::array<int, 2>            types{ids_type, bulk_type};
+      const std::array            types{ids_type, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.globalElementBlocks),
                                 DIM_NUM_ELBLK_GLOBAL, Data(vars), Data(types));
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1521,12 +1521,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     {
       std::array<const char *, 4> vars{VAR_NS_IDS_GLOBAL, VAR_NS_NODE_CNT_GLOBAL,
                                        VAR_NS_DF_CNT_GLOBAL, nullptr};
-      const std::array<int, 3>            types{ids_type, bulk_type, bulk_type};
+      const std::array            types{ids_type, bulk_type, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.globalNodeSets),
                                 DIM_NUM_NS_GLOBAL, Data(vars), Data(types));
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1536,12 +1536,12 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     {
       std::array<const char *, 4> vars{VAR_SS_IDS_GLOBAL, VAR_SS_SIDE_CNT_GLOBAL,
                                        VAR_SS_DF_CNT_GLOBAL, nullptr};
-      const std::array<int, 3>            types{ids_type, bulk_type, bulk_type};
+      const std::array            types{ids_type, bulk_type, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.globalSideSets),
                                 DIM_NUM_SS_GLOBAL, Data(vars), Data(types));
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1550,21 +1550,21 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       status = conditional_define_variable(exodusFilePtr, VAR_INT_N_STAT, dimid_npf,
                                            &nodeMapVarID[0], NC_INT);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Border node status
       status = conditional_define_variable(exodusFilePtr, VAR_BOR_N_STAT, dimid_npf,
                                            &nodeMapVarID[1], NC_INT);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // External Node status
       status = conditional_define_variable(exodusFilePtr, VAR_EXT_N_STAT, dimid_npf,
                                            &nodeMapVarID[2], NC_INT);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define the variable IDs for the elemental status vectors
@@ -1572,49 +1572,49 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       status = conditional_define_variable(exodusFilePtr, VAR_INT_E_STAT, dimid_npf,
                                            &elementMapVarID[0], NC_INT);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Border elements
       status = conditional_define_variable(exodusFilePtr, VAR_BOR_E_STAT, dimid_npf,
                                            &elementMapVarID[1], NC_INT);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define variable for the internal element information
       status = define_variable(exodusFilePtr, comm.elementsInternal, DIM_NUM_INT_ELEMS,
                                VAR_ELEM_MAP_INT, bulk_type);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define variable for the border element information
       status = define_variable(exodusFilePtr, comm.elementsBorder, DIM_NUM_BOR_ELEMS,
                                VAR_ELEM_MAP_BOR, bulk_type);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define variable for vector of internal FEM node IDs
       status = define_variable(exodusFilePtr, comm.nodesInternal, DIM_NUM_INT_NODES,
                                VAR_NODE_MAP_INT, bulk_type);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define variable for vector of border FEM node IDs
       status = define_variable(exodusFilePtr, comm.nodesBorder, DIM_NUM_BOR_NODES, VAR_NODE_MAP_BOR,
                                bulk_type);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // Define dimension for vector of external FEM node IDs
       status = define_variable(exodusFilePtr, comm.nodesExternal, DIM_NUM_EXT_NODES,
                                VAR_NODE_MAP_EXT, bulk_type);
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1628,22 +1628,22 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
     {
       std::array<const char *, 4> vars{VAR_N_COMM_IDS, VAR_N_COMM_STAT, VAR_N_COMM_DATA_IDX,
                                        nullptr};
-      const std::array<int, 3>            types{ids_type, NC_INT, bulk_type};
+      const std::array            types{ids_type, NC_INT, bulk_type};
 
       status = define_variables(exodusFilePtr, static_cast<int>(comm.nodeMap.size()),
                                 DIM_NUM_N_CMAPS, Data(vars), Data(types));
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     {
       std::array<const char *, 3> vars{VAR_N_COMM_NIDS, VAR_N_COMM_PROC, nullptr};
-      const std::array<int, 2>            types{ids_type, NC_INT};
+      const std::array            types{ids_type, NC_INT};
 
       // Add dimensions for all of the nodal communication maps
       status = define_variables(exodusFilePtr, ncnt_cmap, DIM_NCNT_CMAP, Data(vars), Data(types));
       if (status != EX_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1657,26 +1657,26 @@ int Internals::put_metadata(const Mesh &mesh, const CommunicationMetaData &comm)
       {
         std::array<const char *, 4> vars{VAR_E_COMM_IDS, VAR_E_COMM_STAT, VAR_E_COMM_DATA_IDX,
                                          nullptr};
-        const std::array<int, 3>            types{ids_type, NC_INT, bulk_type};
+        const std::array            types{ids_type, NC_INT, bulk_type};
 
         status = define_variables(exodusFilePtr, static_cast<int>(comm.elementMap.size()),
                                   DIM_NUM_E_CMAPS, Data(vars), Data(types));
         if (status != EX_NOERR) {
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
       {
         std::array<const char *, 4> vars{VAR_E_COMM_EIDS, VAR_E_COMM_PROC, VAR_E_COMM_SIDS,
                                          nullptr};
-        const std::array<int, 3>            types{ids_type, NC_INT, bulk_type};
+        const std::array            types{ids_type, NC_INT, bulk_type};
         status = define_variables(exodusFilePtr, ecnt_cmap, DIM_ECNT_CMAP, Data(vars), Data(types));
         if (status != EX_NOERR) {
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_metadata(const std::vector<Assembly> &assemblies)
@@ -1688,7 +1688,7 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
   if ((status = exi_check_valid_file_id(exodusFilePtr, __func__)) != EX_NOERR) {
     std::string errmsg = fmt::format("Error: Invalid exodus file handle: {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   int int_type = NC_INT;
@@ -1707,18 +1707,18 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
       std::string errmsg = fmt::format(
           "Error: failed to define number of entities in assembly in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     /* create variable array in which to store the entry lists */
     int        entlst_id;
-    std::array<int, 1> dims{dimid};
+    std::array dims{dimid};
     if ((status = nc_def_var(exodusFilePtr, VAR_ENTITY_ASSEMBLY(assembly.id), int_type, 1,
                              Data(dims), &entlst_id)) != NC_NOERR) {
       std::string errmsg = fmt::format(
           "Error: failed to define entity assembly variable in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, entlst_id, 1);
 
@@ -1735,7 +1735,7 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
       std::string errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
                                        EX_ATTRIBUTE_ID, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     int type = assembly.type;
@@ -1745,7 +1745,7 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
       std::string errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
                                        EX_ATTRIBUTE_TYPE, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     status = nc_put_att_text(exodusFilePtr, entlst_id, EX_ATTRIBUTE_NAME, assembly.name.size() + 1,
@@ -1755,7 +1755,7 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
       std::string errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
                                        EX_ATTRIBUTE_NAME, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     {
@@ -1767,7 +1767,7 @@ int Internals::put_metadata(const std::vector<Assembly> &assemblies)
         std::string errmsg = fmt::format("Error: failed to define '{}' attribute to file id {}",
                                          EX_ATTRIBUTE_TYPENAME, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1794,7 +1794,7 @@ int Internals::put_metadata(const std::vector<Blob> &blobs)
     std::string errmsg =
         fmt::format("Error: failed to define number \"1\" dimension in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   for (const auto &blob : blobs) {
@@ -1808,19 +1808,19 @@ int Internals::put_metadata(const std::vector<Blob> &blobs)
           fmt::format("Error: failed to define number of entries in blob {} in file id {}", blob.id,
                       exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // create a variable just as a way to have a blob and its attributes; values not used for
     // anything
-    std::array<int, 1> dims{n1dim};
+    std::array dims{n1dim};
     int        entlst;
     if ((status = nc_def_var(exodusFilePtr, VAR_ENTITY_BLOB(blob.id), NC_INT, 1, Data(dims),
                              &entlst)) != NC_NOERR) {
       std::string errmsg = fmt::format("Error: failed to create entity for blob {} in file id {}",
                                        blob.id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_set_compact_storage(exodusFilePtr, entlst);
 
@@ -1836,7 +1836,7 @@ int Internals::put_metadata(const std::vector<Blob> &blobs)
       std::string errmsg =
           fmt::format("Error: failed to store blob id {} in file id {}", blob.id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if ((status = nc_put_att_text(exodusFilePtr, entlst, EX_ATTRIBUTE_NAME, blob.name.length() + 1,
@@ -1844,10 +1844,10 @@ int Internals::put_metadata(const std::vector<Blob> &blobs)
       std::string errmsg = fmt::format("Error: failed to store blob name {} in file id {}",
                                        blob.name, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_only)
@@ -1855,7 +1855,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
   int status = 0; // clear error code
 
   if (blocks.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
@@ -1869,7 +1869,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: no element blocks defined in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   int namestrdim;
@@ -1879,7 +1879,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   status = nc_inq_dimlen(exodusFilePtr, dimid, &num_elem_blk);
@@ -1888,7 +1888,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get number of element blocks in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   SMART_ASSERT(blocks.size() == num_elem_blk);
@@ -1920,7 +1920,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
@@ -1936,12 +1936,12 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                       " in file id {}",
                       blocks[iblk].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // element connectivity array
     {
-      std::array<int, 2> dims{numelbdim, nelnoddim};
+      std::array dims{numelbdim, nelnoddim};
       int        connid = 0;
       status = nc_def_var(exodusFilePtr, VAR_CONN(iblk + 1), bulk_type, 2, Data(dims), &connid);
       if (status != NC_NOERR) {
@@ -1950,7 +1950,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                                          " in file id {}",
                                          blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, connid, 1);
 
@@ -1964,7 +1964,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
             fmt::format("Error: failed to store element type name {} in file id {}",
                         blocks[iblk].elType, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -1979,11 +1979,11 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                         " in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // element->edge connectivity array
-      std::array<int, 2> dims{numelbdim, neledgdim};
+      std::array dims{numelbdim, neledgdim};
 
       int connid = 0;
       status = nc_def_var(exodusFilePtr, VAR_ECONN(iblk + 1), bulk_type, 2, Data(dims), &connid);
@@ -1994,7 +1994,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                         " in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, connid, 1);
     }
@@ -2010,11 +2010,11 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                         " in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // element->face connectivity array
-      std::array<int, 2> dims{numelbdim, nelfacdim};
+      std::array dims{numelbdim, nelfacdim};
 
       int connid = 0;
       status = nc_def_var(exodusFilePtr, VAR_FCONN(iblk + 1), bulk_type, 2, Data(dims), &connid);
@@ -2025,7 +2025,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                         " in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, connid, 1);
     }
@@ -2041,11 +2041,11 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                                          " in file id {}",
                                          blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{numelbdim, numattrdim};
+        std::array dims{numelbdim, numattrdim};
         int        varid = 0;
         status = nc_def_var(exodusFilePtr, VAR_ATTRIB(iblk + 1), nc_flt_code(exodusFilePtr), 2,
                             Data(dims), &varid);
@@ -2056,7 +2056,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                           " in file id {}",
                           blocks[iblk].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
 
@@ -2076,7 +2076,7 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
 
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
         int        varid = 0;
         status =
             nc_def_var(exodusFilePtr, VAR_NAME_ATTRIB(iblk + 1), NC_CHAR, 2, Data(dims), &varid);
@@ -2087,13 +2087,13 @@ int Internals::put_metadata(const std::vector<ElemBlock> &blocks, bool count_onl
                           " in file id {}",
                           blocks[iblk].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_only)
@@ -2103,7 +2103,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
 
   if (blocks.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Get number of face blocks defined for this file
@@ -2114,7 +2114,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
     ex_opts(EX_VERBOSE);
     std::string errmsg = fmt::format("Error: no face blocks defined in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   int namestrdim;
@@ -2124,7 +2124,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   status = nc_inq_dimlen(exodusFilePtr, dimid, &num_face_blk);
@@ -2133,7 +2133,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get number of face blocks in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   SMART_ASSERT(blocks.size() == num_face_blk);
@@ -2165,7 +2165,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
@@ -2180,7 +2180,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
                                        " in file id {}",
                                        blocks[iblk].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // face attribute array
@@ -2194,11 +2194,11 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
                                          " in file id {}",
                                          blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{numelbdim, numattrdim};
+        std::array dims{numelbdim, numattrdim};
         int        varid = 0;
         status = nc_def_var(exodusFilePtr, VAR_FATTRIB(iblk + 1), nc_flt_code(exodusFilePtr), 2,
                             Data(dims), &varid);
@@ -2208,13 +2208,13 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
               fmt::format("Error:  failed to define attributes for face block {} in file id {}",
                           blocks[iblk].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
         int        varid = 0;
 
         status =
@@ -2226,7 +2226,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
                           " in file id {}",
                           blocks[iblk].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
@@ -2234,7 +2234,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
 
     {
       // face connectivity array
-      std::array<int, 2> dims{numelbdim, nelnoddim};
+      std::array dims{numelbdim, nelnoddim};
       int        connid = 0;
       status = nc_def_var(exodusFilePtr, VAR_FBCONN(iblk + 1), bulk_type, 2, Data(dims), &connid);
       if (status != NC_NOERR) {
@@ -2243,7 +2243,7 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
             fmt::format("Error: failed to create connectivity array for block {} in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, connid, 1);
 
@@ -2257,17 +2257,17 @@ int Internals::put_metadata(const std::vector<FaceBlock> &blocks, bool count_onl
             fmt::format("Error: failed to store element type name {} in file id {}",
                         blocks[iblk].elType, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_only)
 {
   if (blocks.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Get number of edge blocks defined for this file
@@ -2278,7 +2278,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
     ex_opts(EX_VERBOSE);
     std::string errmsg = fmt::format("Error: no edge blocks defined in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   int namestrdim;
@@ -2288,7 +2288,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   status = nc_inq_dimlen(exodusFilePtr, dimid, &num_edge_blk);
@@ -2297,7 +2297,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get number of edge blocks in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   SMART_ASSERT(blocks.size() == num_edge_blk);
@@ -2329,7 +2329,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
@@ -2345,7 +2345,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
                       " in file id {}",
                       blocks[iblk].nodesPerEntity, blocks[iblk].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // edge attribute array
@@ -2359,10 +2359,10 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
                                          " in file id {}",
                                          blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
-      std::array<int, 2> dims{numelbdim, numattrdim};
+      std::array dims{numelbdim, numattrdim};
       int        varid = 0;
       status = nc_def_var(exodusFilePtr, VAR_EATTRIB(iblk + 1), nc_flt_code(exodusFilePtr), 2,
                           Data(dims), &varid);
@@ -2372,7 +2372,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
             fmt::format("Error:  failed to define attributes for edge block {} in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 2);
 
@@ -2389,13 +2389,13 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
                         " in file id {}",
                         blocks[iblk].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_set_compact_storage(exodusFilePtr, varid);
     }
 
     // edge connectivity array
-    std::array<int, 2> dims{numelbdim, nelnoddim};
+    std::array dims{numelbdim, nelnoddim};
 
     int connid    = 0;
     int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
@@ -2406,7 +2406,7 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
           fmt::format("Error: failed to create connectivity array for block {} in file id {}",
                       blocks[iblk].id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, connid, 1);
 
@@ -2419,10 +2419,10 @@ int Internals::put_metadata(const std::vector<EdgeBlock> &blocks, bool count_onl
       std::string errmsg = fmt::format("Error: failed to store element type name {} in file id {}",
                                        blocks[iblk].elType, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_nemesis_data)
@@ -2439,7 +2439,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
       std::string errmsg =
           fmt::format("Error: failed to locate file type in file ID {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     int lftype = 0; // Parallel file...
@@ -2449,7 +2449,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
       std::string errmsg =
           fmt::format("Error: unable to output file type variable in file ID {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if (full_nemesis_data) {
@@ -2460,7 +2460,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         std::string errmsg = fmt::format(
             "Error: failed to output status for internal node map in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       nmstat = comm.nodesBorder == 0 ? 0 : 1;
@@ -2470,7 +2470,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         std::string errmsg = fmt::format(
             "Error: failed to output status for border node map in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       nmstat = comm.nodesExternal == 0 ? 0 : 1;
@@ -2480,7 +2480,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         std::string errmsg = fmt::format(
             "Error: failed to output status for external node map in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       nmstat = comm.elementsInternal == 0 ? 0 : 1;
@@ -2490,7 +2490,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         std::string errmsg = fmt::format(
             "Error: failed to output status for internal elem map in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       nmstat = comm.elementsBorder == 0 ? 0 : 1;
@@ -2500,7 +2500,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         std::string errmsg = fmt::format(
             "Error: failed to output status for border elem map in file ID {}", exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -2518,13 +2518,13 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
             fmt::format("Error: failed to find variable ID for \"{}\" in file ID {}",
                         VAR_N_COMM_STAT, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       long long nl_ncnt_cmap = 0;
       for (size_t icm = 0; icm < comm.nodeMap.size(); icm++) {
 
-        std::array<size_t, 1> start{icm};
+        std::array start{icm};
         int        nmstat = comm.nodeMap[icm].entityCount > 0 ? 1 : 0;
         status            = nc_put_var1_int(exodusFilePtr, n_varid, Data(start), &nmstat);
         if (status != NC_NOERR) {
@@ -2532,7 +2532,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg =
               fmt::format("Error: unable to output variable in file ID {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         // increment to the next starting position
@@ -2545,7 +2545,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg = fmt::format(
               "Error: failed to locate node communication map in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         status = nc_put_var1_longlong(exodusFilePtr, commIndexVar, Data(start), &nl_ncnt_cmap);
 
@@ -2554,7 +2554,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg = fmt::format(
               "Error: failed to output node communication map index in file ID {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       } // End "for(icm=0; icm < num_n_comm_maps; icm++)"
 
@@ -2564,7 +2564,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         node_cmap_ids[i] = comm.nodeMap[i].id;
       }
       if (put_id_array(exodusFilePtr, VAR_N_COMM_IDS, node_cmap_ids) != NC_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     // Set the status of the elemental communication maps
@@ -2584,13 +2584,13 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
             fmt::format("Error: failed to find variable ID for \"{}\" in file ID {}",
                         VAR_E_COMM_STAT, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       long long nl_ecnt_cmap = 0; // reset this for index
       for (size_t icm = 0; icm < comm.elementMap.size(); icm++) {
 
-        std::array<size_t, 1> start{icm};
+        std::array start{icm};
         auto       nmstat = comm.elementMap[icm].entityCount > 0 ? 1 : 0;
 
         status = nc_put_var1_int(exodusFilePtr, e_varid, Data(start), &nmstat);
@@ -2599,7 +2599,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg =
               fmt::format("Error: unable to output variable in file ID {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         // increment to the next starting position
@@ -2612,7 +2612,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg = fmt::format(
               "Error: failed to locate element communication map in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         status = nc_put_var1_longlong(exodusFilePtr, elemCommIndexVar, Data(start), &nl_ecnt_cmap);
         if (status != NC_NOERR) {
@@ -2620,7 +2620,7 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
           std::string errmsg = fmt::format(
               "Error: failed to output int elem map index in file ID {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
       } // End "for(icm=0; icm < num_e_comm_maps; icm++)"
 
@@ -2630,11 +2630,11 @@ int Internals::put_non_define_data(const CommunicationMetaData &comm, bool full_
         elem_cmap_ids[i] = comm.elementMap[i].id;
       }
       if (put_id_array(exodusFilePtr, VAR_E_COMM_IDS, elem_cmap_ids) != NC_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<Blob> &blobs)
@@ -2650,7 +2650,7 @@ int Internals::put_non_define_data(const std::vector<Blob> &blobs)
           fmt::format("Error: failed to locate entity list array for blob {} in file id {}",
                       blob.id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     long dummy = 0;
@@ -2658,7 +2658,7 @@ int Internals::put_non_define_data(const std::vector<Blob> &blobs)
       std::string errmsg = fmt::format(
           "Error: failed to output dummy value for blob {} in file id {}", blob.id, exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
   exi_update_max_name_length(exodusFilePtr, name_length);
@@ -2680,7 +2680,7 @@ int Internals::put_non_define_data(const std::vector<Assembly> &assemblies)
             fmt::format("Error: failed to locate entity list for assembly {} in file id {}",
                         assembly.id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       if ((status = nc_put_var_longlong(exodusFilePtr, entlst_id,
                                         (long long int *)Data(assembly.memberIdList))) !=
@@ -2709,12 +2709,12 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool ou
     }
 
     if (put_id_array(exodusFilePtr, VAR_ID_EL_BLK, elem_blk_id) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if (output_global_data) {
       if (put_id_array(exodusFilePtr, VAR_ELBLK_IDS_GLOBAL, elem_blk_id) != NC_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       std::vector<int64_t> counts(num_elem_blk);
@@ -2722,7 +2722,7 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool ou
         counts[iblk] = blocks[iblk].globalEntityCount;
       }
       if (put_int_array(exodusFilePtr, VAR_ELBLK_CNT_GLOBAL, counts) != NC_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
 
@@ -2733,7 +2733,7 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool ou
     }
 
     if (put_int_array(exodusFilePtr, VAR_STAT_EL_BLK, elem_blk_status) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // TODO: Is this code correct?  `text` is never set...
@@ -2750,7 +2750,7 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool ou
           std::string errmsg = fmt::format(
               "Error: failed to locate variable name attribute in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         for (int i = 0; i < blocks[iblk].attributeCount; i++) {
@@ -2760,7 +2760,7 @@ int Internals::put_non_define_data(const std::vector<ElemBlock> &blocks, bool ou
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<FaceBlock> &blocks)
@@ -2775,7 +2775,7 @@ int Internals::put_non_define_data(const std::vector<FaceBlock> &blocks)
     }
 
     if (put_id_array(exodusFilePtr, VAR_ID_FA_BLK, face_blk_id) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Now, write the face block status array
@@ -2785,7 +2785,7 @@ int Internals::put_non_define_data(const std::vector<FaceBlock> &blocks)
     }
 
     if (put_int_array(exodusFilePtr, VAR_STAT_FA_BLK, face_blk_status) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // TODO: Is this code correct?  `text` is never set...
@@ -2802,7 +2802,7 @@ int Internals::put_non_define_data(const std::vector<FaceBlock> &blocks)
           std::string errmsg = fmt::format(
               "Error: failed to locate face variable name attribute in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         for (int i = 0; i < blocks[iblk].attributeCount; i++) {
@@ -2812,7 +2812,7 @@ int Internals::put_non_define_data(const std::vector<FaceBlock> &blocks)
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<EdgeBlock> &blocks)
@@ -2827,7 +2827,7 @@ int Internals::put_non_define_data(const std::vector<EdgeBlock> &blocks)
     }
 
     if (put_id_array(exodusFilePtr, VAR_ID_ED_BLK, edge_blk_id) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // Now, write the edge block status array
@@ -2837,7 +2837,7 @@ int Internals::put_non_define_data(const std::vector<EdgeBlock> &blocks)
     }
 
     if (put_int_array(exodusFilePtr, VAR_STAT_ED_BLK, edge_blk_status) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // TODO: Is this code correct?  `text` is never set...
@@ -2854,7 +2854,7 @@ int Internals::put_non_define_data(const std::vector<EdgeBlock> &blocks)
               fmt::format("Error: failed to locate element variable name attribute in file id {}",
                           exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         for (int i = 0; i < blocks[iblk].attributeCount; i++) {
@@ -2864,14 +2864,14 @@ int Internals::put_non_define_data(const std::vector<EdgeBlock> &blocks)
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 // ========================================================================
 int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_only)
 {
   if (nodesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
@@ -2891,7 +2891,7 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
           fmt::format("Error: failed to locate node sets defined in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // inquire how many node sets are to be stored
@@ -2904,7 +2904,7 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   SMART_ASSERT(static_cast<int>(nodesets.size()) == num_node_sets);
@@ -2934,14 +2934,14 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                         nodesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
     }
 
     // define variable to store node set node list here instead of in expns
-    std::array<int, 1> dims1{dimid};
+    std::array dims1{dimid};
     int        varid;
     status = nc_def_var(exodusFilePtr, VAR_NODE_NS(cur_num_node_sets + 1), bulk_type, 1,
                         Data(dims1), &varid);
@@ -2959,7 +2959,7 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                         nodesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -2974,7 +2974,7 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                                          nodesets[i].dfCount, nodesets[i].entityCount,
                                          nodesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       // create variable for distribution factors
       status = nc_def_var(exodusFilePtr, VAR_FACT_NS(cur_num_node_sets + 1),
@@ -2993,7 +2993,7 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                           nodesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 2);
     }
@@ -3009,11 +3009,11 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                         " in file id {}",
                         nodesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{dimid, numattrdim};
+        std::array dims{dimid, numattrdim};
         status = nc_def_var(exodusFilePtr, VAR_NSATTRIB(cur_num_node_sets + 1),
                             nc_flt_code(exodusFilePtr), 2, Data(dims), &varid);
         if (status != NC_NOERR) {
@@ -3023,14 +3023,14 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                           " in file id {}",
                           nodesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
 
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
 
         status = nc_def_var(exodusFilePtr, VAR_NAME_NSATTRIB(cur_num_node_sets + 1), NC_CHAR, 2,
                             Data(dims), &varid);
@@ -3041,20 +3041,20 @@ int Internals::put_metadata(const std::vector<NodeSet> &nodesets, bool count_onl
                           " in file id {}",
                           nodesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 // ========================================================================
 int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_only)
 {
   if (edgesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
 
@@ -3073,7 +3073,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
           fmt::format("Error: failed to locate edge sets defined in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // inquire how many edge sets are to be stored
@@ -3088,7 +3088,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   for (int i = 0; i < num_edge_sets; i++) {
@@ -3116,14 +3116,14 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                         edgesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
     }
 
     // define variable to store edge set edge list here instead of in expns
-    std::array<int, 1> dims1{dimid};
+    std::array dims1{dimid};
     int        varid;
     status = nc_def_var(exodusFilePtr, VAR_EDGE_ES(cur_num_edge_sets + 1), bulk_type, 1,
                         Data(dims1), &varid);
@@ -3141,7 +3141,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                         edgesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3162,7 +3162,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                         edgesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3177,7 +3177,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                                          edgesets[i].dfCount, edgesets[i].entityCount,
                                          edgesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       // create variable for distribution factors
       status = nc_def_var(exodusFilePtr, VAR_FACT_ES(cur_num_edge_sets + 1),
@@ -3196,7 +3196,7 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                           edgesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 2);
     }
@@ -3211,11 +3211,11 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                         " in file id {}",
                         edgesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{dimid, numattrdim};
+        std::array dims{dimid, numattrdim};
         status = nc_def_var(exodusFilePtr, VAR_ESATTRIB(cur_num_edge_sets + 1),
                             nc_flt_code(exodusFilePtr), 2, Data(dims), &varid);
         if (status != NC_NOERR) {
@@ -3225,14 +3225,14 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                           " in file id {}",
                           edgesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
 
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
 
         status = nc_def_var(exodusFilePtr, VAR_NAME_ESATTRIB(cur_num_edge_sets + 1), NC_CHAR, 2,
                             Data(dims), &varid);
@@ -3243,20 +3243,20 @@ int Internals::put_metadata(const std::vector<EdgeSet> &edgesets, bool count_onl
                           " in file id {}",
                           edgesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 // ========================================================================
 int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_only)
 {
   if (facesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
 
@@ -3275,7 +3275,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
           fmt::format("Error: failed to locate face sets defined in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // inquire how many face sets are to be stored
@@ -3290,7 +3290,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   for (int i = 0; i < num_face_sets; i++) {
@@ -3318,14 +3318,14 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                         facesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
     }
 
     // define variable to store face set face list here instead of in expns
-    std::array<int, 1> dims1{dimid};
+    std::array dims1{dimid};
     int        varid;
     status = nc_def_var(exodusFilePtr, VAR_FACE_FS(cur_num_face_sets + 1), bulk_type, 1,
                         Data(dims1), &varid);
@@ -3343,7 +3343,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                         facesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3364,7 +3364,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                         facesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3379,7 +3379,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                                          facesets[i].dfCount, facesets[i].entityCount,
                                          facesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       // create variable for distribution factors
       status = nc_def_var(exodusFilePtr, VAR_FACT_FS(cur_num_face_sets + 1),
@@ -3398,7 +3398,7 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                           facesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 2);
     }
@@ -3413,11 +3413,11 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                         " in file id {}",
                         facesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{dimid, numattrdim};
+        std::array dims{dimid, numattrdim};
         status = nc_def_var(exodusFilePtr, VAR_FSATTRIB(cur_num_face_sets + 1),
                             nc_flt_code(exodusFilePtr), 2, Data(dims), &varid);
         if (status != NC_NOERR) {
@@ -3427,14 +3427,14 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                           " in file id {}",
                           facesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
 
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
 
         status = nc_def_var(exodusFilePtr, VAR_NAME_FSATTRIB(cur_num_face_sets + 1), NC_CHAR, 2,
                             Data(dims), &varid);
@@ -3445,20 +3445,20 @@ int Internals::put_metadata(const std::vector<FaceSet> &facesets, bool count_onl
                           " in file id {}",
                           facesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 // ========================================================================
 int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_only)
 {
   if (elemsets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
   // Get number of element sets defined for this file
   int dimid;
@@ -3476,7 +3476,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
           fmt::format("Error: failed to locate element sets defined in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // inquire how many element sets are to be stored
@@ -3491,7 +3491,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
     std::string errmsg =
         fmt::format("Error: failed to get string length in file id {}", exodusFilePtr);
     ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   for (int i = 0; i < num_elem_sets; i++) {
@@ -3519,14 +3519,14 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                         elemsets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
     }
 
     // define variable to store element set element list here instead of in expns
-    std::array<int, 1> dims1{dimid};
+    std::array dims1{dimid};
     int        varid;
     status = nc_def_var(exodusFilePtr, VAR_ELEM_ELS(cur_num_elem_sets + 1),
                         get_type(exodusFilePtr, EX_BULK_INT64_DB), 1, Data(dims1), &varid);
@@ -3545,7 +3545,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                         elemsets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3560,7 +3560,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                                          elemsets[i].dfCount, elemsets[i].entityCount,
                                          elemsets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       // create variable for distribution factors
       status = nc_def_var(exodusFilePtr, VAR_FACT_ELS(cur_num_elem_sets + 1),
@@ -3579,7 +3579,7 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                           elemsets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 2);
     }
@@ -3594,11 +3594,11 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                         " in file id {}",
                         elemsets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       {
-        std::array<int, 2> dims{dimid, numattrdim};
+        std::array dims{dimid, numattrdim};
         status = nc_def_var(exodusFilePtr, VAR_ESATTRIB(cur_num_elem_sets + 1),
                             nc_flt_code(exodusFilePtr), 2, Data(dims), &varid);
         if (status != NC_NOERR) {
@@ -3608,14 +3608,14 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                           " in file id {}",
                           elemsets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
 
       {
         // Attribute name array...
-        std::array<int, 2> dims{numattrdim, namestrdim};
+        std::array dims{numattrdim, namestrdim};
 
         status = nc_def_var(exodusFilePtr, VAR_NAME_ESATTRIB(cur_num_elem_sets + 1), NC_CHAR, 2,
                             Data(dims), &varid);
@@ -3626,19 +3626,19 @@ int Internals::put_metadata(const std::vector<ElemSet> &elemsets, bool count_onl
                           " in file id {}",
                           elemsets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
       }
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets, bool output_global_data)
 {
   if (nodesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Output nodeset ids...
@@ -3649,12 +3649,12 @@ int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets, bool ou
   }
 
   if (put_id_array(exodusFilePtr, VAR_NS_IDS, nodeset_id) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (output_global_data) {
     if (put_id_array(exodusFilePtr, VAR_NS_IDS_GLOBAL, nodeset_id) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     std::vector<int64_t> counts(num_nodesets);
@@ -3662,7 +3662,7 @@ int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets, bool ou
       counts[iset] = nodesets[iset].globalEntityCount;
     }
     if (put_int_array(exodusFilePtr, VAR_NS_NODE_CNT_GLOBAL, counts) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
 
@@ -3673,16 +3673,16 @@ int Internals::put_non_define_data(const std::vector<NodeSet> &nodesets, bool ou
   }
 
   if (put_int_array(exodusFilePtr, VAR_NS_STAT, status) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<EdgeSet> &edgesets)
 {
   if (edgesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Output edgeset ids...
@@ -3693,7 +3693,7 @@ int Internals::put_non_define_data(const std::vector<EdgeSet> &edgesets)
   }
 
   if (put_id_array(exodusFilePtr, VAR_ES_IDS, edgeset_id) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // Now, write the status array
@@ -3703,16 +3703,16 @@ int Internals::put_non_define_data(const std::vector<EdgeSet> &edgesets)
   }
 
   if (put_int_array(exodusFilePtr, VAR_ES_STAT, status) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<FaceSet> &facesets)
 {
   if (facesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Output faceset ids...
@@ -3723,7 +3723,7 @@ int Internals::put_non_define_data(const std::vector<FaceSet> &facesets)
   }
 
   if (put_id_array(exodusFilePtr, VAR_FS_IDS, faceset_id) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // Now, write the status array
@@ -3733,16 +3733,16 @@ int Internals::put_non_define_data(const std::vector<FaceSet> &facesets)
   }
 
   if (put_int_array(exodusFilePtr, VAR_FS_STAT, status) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<ElemSet> &elemsets)
 {
   if (elemsets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Output elemset ids...
@@ -3753,7 +3753,7 @@ int Internals::put_non_define_data(const std::vector<ElemSet> &elemsets)
   }
 
   if (put_id_array(exodusFilePtr, VAR_ELS_IDS, elemset_id) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // Now, write the status array
@@ -3763,17 +3763,17 @@ int Internals::put_non_define_data(const std::vector<ElemSet> &elemsets)
   }
 
   if (put_int_array(exodusFilePtr, VAR_ELS_STAT, status) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 // ========================================================================
 int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_only)
 {
   if (sidesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
   int bulk_type = get_type(exodusFilePtr, EX_BULK_INT64_DB);
 
@@ -3792,7 +3792,7 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
           fmt::format("Error: failed to locate side sets defined in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   // inquire how many side sets are to be stored
@@ -3825,13 +3825,13 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
                         sidesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count_only) {
       continue;
     }
 
-    std::array<int, 1> dims{dimid};
+    std::array dims{dimid};
     int        varid = 0;
     status = nc_def_var(exodusFilePtr, VAR_ELEM_SS(cur_num_side_sets + 1), bulk_type, 1, Data(dims),
                         &varid);
@@ -3849,7 +3849,7 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
                         sidesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3870,7 +3870,7 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
                         sidesets[i].id, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
       }
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_compress_variable(exodusFilePtr, varid, 1);
 
@@ -3892,7 +3892,7 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
                           sidesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       // create distribution factor list variable for side set
@@ -3914,18 +3914,18 @@ int Internals::put_metadata(const std::vector<SideSet> &sidesets, bool count_onl
                           sidesets[i].id, exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
         }
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     exi_compress_variable(exodusFilePtr, varid, 2);
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 int Internals::put_non_define_data(const std::vector<SideSet> &sidesets, bool output_global_data)
 {
   if (sidesets.empty()) {
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   // Output sideset ids...
@@ -3936,12 +3936,12 @@ int Internals::put_non_define_data(const std::vector<SideSet> &sidesets, bool ou
   }
 
   if (put_id_array(exodusFilePtr, VAR_SS_IDS, sideset_id) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   if (output_global_data) {
     if (put_id_array(exodusFilePtr, VAR_SS_IDS_GLOBAL, sideset_id) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     std::vector<int64_t> counts(num_sidesets);
@@ -3949,7 +3949,7 @@ int Internals::put_non_define_data(const std::vector<SideSet> &sidesets, bool ou
       counts[iset] = sidesets[iset].globalEntityCount;
     }
     if (put_int_array(exodusFilePtr, VAR_SS_SIDE_CNT_GLOBAL, counts) != NC_NOERR) {
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
 
@@ -3960,10 +3960,10 @@ int Internals::put_non_define_data(const std::vector<SideSet> &sidesets, bool ou
   }
 
   if (put_int_array(exodusFilePtr, VAR_SS_STAT, status) != NC_NOERR) {
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 namespace {
@@ -3987,7 +3987,7 @@ namespace {
       }
       return (ex_put_names(exoid, ent_type, Data(names)));
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int conditional_define_variable(int exodusFilePtr, const char *var, int dimid, int *varid,
@@ -4001,11 +4001,11 @@ namespace {
         std::string errmsg = fmt::format("Error: Failed to define variable \"{}\" in file ID {}",
                                          var, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     exi_compress_variable(exodusFilePtr, *varid, 1);
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int define_variable(int exodusFilePtr, int64_t size, const char *dim, const char *var,
@@ -4020,7 +4020,7 @@ namespace {
         std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file id {}",
                                          DIM_NUM_BOR_ELEMS, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       int varid;
@@ -4030,11 +4030,11 @@ namespace {
         std::string errmsg = fmt::format("Error: failed to define variable \"{}\" in file ID {}",
                                          VAR_ELEM_MAP_BOR, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_compress_variable(exodusFilePtr, varid, 1);
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int define_variables(int exodusFilePtr, int64_t size, const char *dim, const char *var[],
@@ -4048,7 +4048,7 @@ namespace {
         std::string errmsg = fmt::format("Error: failed to dimension \"{}\" in file id {}",
                                          DIM_NUM_BOR_ELEMS, exodusFilePtr);
         ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       int i = 0;
@@ -4060,13 +4060,13 @@ namespace {
           std::string errmsg = fmt::format("Error: failed to define variable \"{}\" in file ID {}",
                                            var[i], exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_set_compact_storage(exodusFilePtr, varid);
         i++;
       }
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int put_int_array(int exoid, const char *var_type, const std::vector<int> &array)
@@ -4077,7 +4077,7 @@ namespace {
       ex_opts(EX_VERBOSE);
       std::string errmsg = fmt::format("Error: failed to locate {} in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     status = nc_put_var_int(exoid, var_id, Data(array));
@@ -4086,9 +4086,9 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to write {} array in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int put_int_array(int exoid, const char *var_type, const std::vector<int64_t> &array)
@@ -4099,7 +4099,7 @@ namespace {
       ex_opts(EX_VERBOSE);
       std::string errmsg = fmt::format("Error: failed to locate {} in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     status = nc_put_var_longlong(exoid, var_id, (long long *)Data(array));
@@ -4108,9 +4108,9 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to write {} array in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int put_id_array(int exoid, const char *var_type, const std::vector<entity_id> &ids)
@@ -4121,7 +4121,7 @@ namespace {
       ex_opts(EX_VERBOSE);
       std::string errmsg = fmt::format("Error: failed to locate {} in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     int id_type = get_type(exoid, EX_IDS_INT64_API);
@@ -4148,9 +4148,9 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to write {} array in file id {}", var_type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int define_coordinate_vars(int exodusFilePtr, int64_t nodes, int node_dim, int dimension,
@@ -4160,7 +4160,7 @@ namespace {
 
     if (nodes > 0) {
       // node coordinate arrays -- separate storage...
-      std::array<int, 1> dim{node_dim};
+      std::array dim{node_dim};
       if (dimension > 0) {
         int status = nc_def_var(exodusFilePtr, VAR_COORD_X, nc_flt_code(exodusFilePtr), 1,
                                 Data(dim), &varid);
@@ -4169,7 +4169,7 @@ namespace {
           std::string errmsg = fmt::format(
               "Error: failed to define node x coordinate array in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
@@ -4182,7 +4182,7 @@ namespace {
           std::string errmsg = fmt::format(
               "Error: failed to define node y coordinate array in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
@@ -4195,14 +4195,14 @@ namespace {
           std::string errmsg = fmt::format(
               "Error: failed to define node z coordinate array in file id {}", exodusFilePtr);
           ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         exi_compress_variable(exodusFilePtr, varid, 2);
       }
     }
 
     // coordinate names array
-    std::array<int, 2> dim{dim_dim, str_dim};
+    std::array dim{dim_dim, str_dim};
 
     int status = nc_def_var(exodusFilePtr, VAR_NAME_COOR, NC_CHAR, 2, Data(dim), &varid);
     if (status != NC_NOERR) {
@@ -4210,10 +4210,10 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to define coordinate name array in file id {}", exodusFilePtr);
       ex_err_fn(exodusFilePtr, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     exi_set_compact_storage(exodusFilePtr, varid);
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 
   int define_netcdf_vars(int exoid, const char *type, size_t count, const char *dim_num,
@@ -4232,7 +4232,7 @@ namespace {
     if (status != NC_NOERR) {
       std::string errmsg = fmt::format("Error: failed to get string length in file id {}", exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     status = nc_def_dim(exoid, dim_num, count, &dimid);
@@ -4241,18 +4241,18 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to define number of {}s in file id {}", type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     // id status array:
-    std::array<int, 1> dim1{dimid};
+    std::array dim1{dimid};
     status = nc_def_var(exoid, stat_var, NC_INT, 1, Data(dim1), &varid);
     if (status != NC_NOERR) {
       ex_opts(EX_VERBOSE);
       std::string errmsg =
           fmt::format("Error: failed to define side {} status in file id {}", type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count * 4 < sixty_four_kb) {
       exi_set_compact_storage(exoid, varid);
@@ -4267,7 +4267,7 @@ namespace {
       std::string errmsg =
           fmt::format("Error: failed to define {} property in file id {}", type, exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     if (count * ids_size < sixty_four_kb) {
       exi_set_compact_storage(exoid, varid);
@@ -4280,21 +4280,21 @@ namespace {
       std::string errmsg = fmt::format("Error: failed to store {} property name {} in file id {}",
                                        type, "ID", exoid);
       ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
 
     if (name_var != nullptr) {
-      std::array<int, 2> dim{dimid, namestrdim};
+      std::array dim{dimid, namestrdim};
       status = nc_def_var(exoid, name_var, NC_CHAR, 2, Data(dim), &varid);
       if (status != NC_NOERR) {
         ex_opts(EX_VERBOSE);
         std::string errmsg =
             fmt::format("Error: failed to define {} name array in file id {}", type, exoid);
         ex_err_fn(exoid, __func__, errmsg.c_str(), status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
       exi_set_compact_storage(exoid, varid);
     }
-    return (EX_NOERR);
+    return EX_NOERR;
   }
 } // namespace

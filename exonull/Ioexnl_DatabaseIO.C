@@ -17,7 +17,6 @@
 #include <vtk_exodusII.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-
 #include <map>
 #include <sstream>
 #include <stdexcept>

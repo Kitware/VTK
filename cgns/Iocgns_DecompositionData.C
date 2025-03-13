@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2023 National Technology & Engineering Solutions
+// Copyright(C) 1999-2024 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -221,17 +221,13 @@ namespace Iocgns {
     }
 #if IOSS_ENABLE_HYBRID
     else if (mesh_type == Ioss::MeshType::HYBRID) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg, "ERROR: CGNS: The mesh type is HYBRID which is not supported for parallel "
-                         "decomposition yet.");
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR("ERROR: CGNS: The mesh type is HYBRID which is not supported for parallel "
+                 "decomposition yet.");
     }
 #endif
     else {
-      std::ostringstream errmsg;
-      fmt::print(errmsg, "ERROR: CGNS: The mesh type is not Unstructured or Structured "
-                         "which are the only types currently supported");
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR("ERROR: CGNS: The mesh type is not Unstructured or Structured "
+                 "which are the only types currently supported");
     }
   }
 
@@ -397,12 +393,10 @@ namespace Iocgns {
     }
 
     if (global_element_count < (size_t)m_decomposition.m_processorCount) {
-      std::ostringstream errmsg;
-      fmt::print(errmsg,
-                 "ERROR: CGNS: Element Count ({}) is less than Processor Count ({}). No "
-                 "decomposition possible.",
-                 global_element_count, m_decomposition.m_processorCount);
-      IOSS_ERROR(errmsg);
+      IOSS_ERROR(
+          fmt::format("ERROR: CGNS: Element Count ({}) is less than Processor Count ({}). No "
+                      "decomposition possible.",
+                      global_element_count, m_decomposition.m_processorCount));
     }
 
     // Generate element_dist/node_dist --  size m_decomposition.m_processorCount + 1
@@ -528,21 +522,16 @@ namespace Iocgns {
 
         if (connect_type != CGNS_ENUMV(Abutting1to1) || ptset_type != CGNS_ENUMV(PointList) ||
             donor_ptset_type != CGNS_ENUMV(PointListDonor)) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "ERROR: CGNS: Zone {} adjacency data is not correct type. Require "
-                     "Abutting1to1 and PointList. {}\t{}\t{}",
-                     zone, connect_type, ptset_type, donor_ptset_type);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format("ERROR: CGNS: Zone {} adjacency data is not correct type. Require "
+                                 "Abutting1to1 and PointList. {}\t{}\t{}",
+                                 zone, connect_type, ptset_type, donor_ptset_type));
         }
 
         // Verify data consistency...
         if (npnts != ndata_donor) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "ERROR: CGNS: Zone {} point count ({}) does not match donor point count ({}).",
-                     zone, npnts, ndata_donor);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format(
+              "ERROR: CGNS: Zone {} point count ({}) does not match donor point count ({}).", zone,
+              npnts, ndata_donor));
         }
 
         // Get number of nodes shared with other "previous" zones...
@@ -733,14 +722,11 @@ namespace Iocgns {
     // Make sure 'sum' can fit in INT...
     INT tmp_sum = (INT)sum;
     if ((size_t)tmp_sum != sum) {
-      std::ostringstream errmsg;
-      fmt::print(
-          errmsg,
+      IOSS_ERROR(
           "ERROR: The decomposition of this mesh requires 64-bit integers, but is being\n"
           "       run with 32-bit integer code. Please rerun with the property INTEGER_SIZE_API\n"
           "       set to 8. The details of how to do this vary with the code that is being run.\n"
           "       Contact gdsjaar@sandia.gov for more details.\n");
-      IOSS_ERROR(errmsg);
     }
 
     // Now, populate the vectors...
@@ -1138,12 +1124,10 @@ namespace Iocgns {
           ioss_data[j++] = fid % 10 + 1;
         }
         else {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "ERROR: CGNS: Could not find face with connectivity {} {} {} {} on "
-                     "sideblock {}.",
-                     conn[0], conn[1], conn[2], conn[3], sset.name());
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(
+              fmt::format("ERROR: CGNS: Could not find face with connectivity {} {} {} {} on "
+                          "sideblock {}.",
+                          conn[0], conn[1], conn[2], conn[3], sset.name()));
         }
       }
     }

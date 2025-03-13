@@ -16,6 +16,7 @@ namespace Ioss {
   {
     std::vector<double>      selected_times{};
     std::vector<std::string> omitted_sets{};
+    std::string              selected_change_sets{};
     double                   minimum_time{0.0};
     double                   maximum_time{0.0};
     double                   delay{0.0};

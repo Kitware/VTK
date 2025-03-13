@@ -7,8 +7,11 @@
 #pragma once
 
 #include "Ioss_CoordinateFrame.h" // for CoordinateFrame
-#include "Ioss_DatabaseIO.h"      // for DatabaseIO
-#include "Ioss_EntityType.h"      // for EntityType, etc
+#include "Ioss_DBUsage.h"
+#include "Ioss_DatabaseIO.h" // for DatabaseIO
+#include "Ioss_DynamicTopology.h"
+#include "Ioss_DynamicTopologyObserver.h"
+#include "Ioss_EntityType.h" // for EntityType, etc
 #include "Ioss_Field.h"
 #include "Ioss_GroupingEntity.h" // for GroupingEntity
 #include "Ioss_MeshType.h"
@@ -23,15 +26,13 @@
 #include "Ioss_VariableType.h"
 #include "ioss_export.h"
 #include "vtk_ioss_mangle.h"
-#if !defined BUILT_IN_SIERRA
-#include "vtk_fmt.h"
-#include VTK_FMT(fmt/ostream.h)
-#endif
 #include <functional> // for less
 #include <iosfwd>     // for ostream
 #include <map>        // for map, map<>::value_compare
+#include <memory>
 #include <sstream>
-#include <string>  // for string, operator<
+#include <string> // for string, operator<
+#include <tuple>
 #include <utility> // for pair
 #include <vector>  // for vector
 
@@ -57,6 +58,7 @@ namespace Ioss {
 namespace Ioss {
 
   class CoordinateFrame;
+
   enum class MeshType;
 
   using AssemblyContainer = std::vector<Ioss::Assembly *>;
@@ -79,7 +81,7 @@ namespace Ioss {
 
   using CoordinateFrameContainer = std::vector<CoordinateFrame>;
 
-  using AliasMap = std::map<std::string, std::string, std::less<std::string>>;
+  using AliasMap = std::map<std::string, std::string, std::less<>>;
 
   /** \brief A grouping entity that contains other grouping entities.
    *
@@ -153,11 +155,21 @@ namespace Ioss {
     // on the database if cycle and overlay are being used.
     IOSS_NODISCARD std::pair<int, double> get_max_time() const;
 
+    // Return a tuple consisting of the step (1-based) corresponding to
+    // the maximum time across all change sets on the database, the corresponding
+    // maximum time value and the corresponding set.
+    IOSS_NODISCARD std::tuple<std::string, int, double> get_db_max_time() const;
+
     // Return a pair consisting of the step (1-based) corresponding to
     // the minimum time on the database and the corresponding minimum
     // time value. Note that this may not necessarily be the first step
     // on the database if cycle and overlay are being used.
     IOSS_NODISCARD std::pair<int, double> get_min_time() const;
+
+    // Return a tuple consisting of the step (1-based) corresponding to
+    // the minimum time across all change sets on the database, the corresponding
+    // minimum time value and the corresponding set.
+    IOSS_NODISCARD std::tuple<std::string, int, double> get_db_min_time() const;
 
     // Functions for an output region...
     bool add(NodeBlock *node_block);
@@ -282,7 +294,50 @@ namespace Ioss {
                                               const std::vector<T *> &entity_container,
                                               std::vector<U>         &field_data) const;
 
+    void register_mesh_modification_observer(std::shared_ptr<DynamicTopologyObserver> observer);
+    IOSS_NODISCARD std::shared_ptr<DynamicTopologyObserver> get_mesh_modification_observer() const
+    {
+      return topologyObserver;
+    }
+
+    void                        reset_topology_modification();
+    void                        set_topology_modification(unsigned int type);
+    IOSS_NODISCARD unsigned int get_topology_modification() const;
+
+    void start_new_output_database_entry(int steps = 0);
+
+    void set_topology_change_count(unsigned int new_count) { dbChangeCount = new_count; }
+    IOSS_NODISCARD unsigned int get_topology_change_count() const { return dbChangeCount; }
+
+    void set_file_cyclic_count(unsigned int new_count) { fileCyclicCount = new_count; }
+    IOSS_NODISCARD unsigned int get_file_cyclic_count() const { return fileCyclicCount; }
+
+    void set_if_database_exists_behavior(IfDatabaseExistsBehavior if_exists)
+    {
+      ifDatabaseExists = if_exists;
+    }
+    IOSS_NODISCARD IfDatabaseExistsBehavior get_if_database_exists_behavior() const
+    {
+      return ifDatabaseExists;
+    }
+
+    IOSS_NODISCARD bool model_is_written() const { return modelWritten; }
+    IOSS_NODISCARD bool transient_is_written() const { return transientWritten; }
+
+    IOSS_NODISCARD bool load_internal_change_set_mesh(const std::string &set_name);
+    IOSS_NODISCARD bool load_internal_change_set_mesh(const int set_index);
+
+    IOSS_NODISCARD std::tuple<std::string, int, double> locate_db_state(double targetTime) const;
+
+    // Reinitialize region data structures
+    void reset_region();
+
   protected:
+    std::string get_internal_change_set_name() const;
+    void        update_dynamic_topology();
+    void        clone_and_replace_output_database(int steps = 0);
+    void        add_output_database_change_set(int steps = 0, bool force_addition = false);
+
     int64_t internal_get_field_data(const Field &field, void *data,
                                     size_t data_size = 0) const override;
 
@@ -334,6 +389,17 @@ namespace Ioss {
     mutable int stateCount{0};
     bool        modelDefined{false};
     bool        transientDefined{false};
+
+    std::shared_ptr<DynamicTopologyObserver> topologyObserver;
+
+    unsigned int dbChangeCount{1}; //!< Used to track number of topology changes.
+    unsigned int fileCyclicCount{
+        0}; //!< For cycling file-A, file-B, file-C, ..., File-A, typically restart only.
+    IfDatabaseExistsBehavior ifDatabaseExists{DB_OVERWRITE};
+
+    bool modelWritten{false};
+    bool transientWritten{false};
+    bool fileGroupsStarted{false};
   };
 } // namespace Ioss
 
@@ -436,18 +502,12 @@ namespace Ioss {
 
         if (found && field.get_role() != role) {
           std::ostringstream errmsg;
-#if defined BUILT_IN_SIERRA
+          // Would be nice to use fmt:: here, but we need to avoid using fmt includes in public
+          // headers...
           errmsg << "ERROR: Field " << field.get_name() << " with role " << field.role_string()
                  << " on entity " << entity->name() << " does not match previously found role "
-                 << Ioss::Field::role_string(role) << ".\n",
-#else
-          fmt::print(errmsg,
-                     "ERROR: Field {} with role {} on entity {} does not match previously found "
-                     "role {}.\n",
-                     field.get_name(), field.role_string(), entity->name(),
-                     Ioss::Field::role_string(role));
-#endif
-              IOSS_ERROR(errmsg);
+                 << Ioss::Field::role_string(role) << ".\n";
+          IOSS_ERROR(errmsg);
         }
 
         found = true;

@@ -24,7 +24,7 @@ namespace Ioss {
 } // namespace Ioss
 
 namespace Ioss {
-  using VariableTypeMap = std::map<std::string, VariableType *, std::less<std::string>>;
+  using VariableTypeMap = std::map<std::string, VariableType *, std::less<>>;
   using VTM_ValuePair   = VariableTypeMap::value_type;
 
   class IOSS_EXPORT Registry
@@ -96,9 +96,9 @@ namespace Ioss {
     static bool create_named_suffix_type(const std::string    &type_name,
                                          const Ioss::NameList &suffices);
 
-    // kept for Backward compatibility...
-    static bool create_named_suffix_field_type(const std::string &type_name,
-                                               const Ioss::NameList &suffices)
+    // Backward compatibility...
+    [[deprecated("Use create_named_suffix_type")]] static bool
+    create_named_suffix_field_type(const std::string &type_name, const Ioss::NameList &suffices)
     {
       return create_named_suffix_type(type_name, suffices);
     }
@@ -144,8 +144,8 @@ namespace Ioss {
     VariableType(const std::string &type, int comp_count, bool delete_me = false);
 
   private:
-    const std::string name_;
-    int               componentCount;
+    const std::string name_{};
+    int               componentCount{};
 
     static bool build_variable_type(const std::string &raw_type);
   };

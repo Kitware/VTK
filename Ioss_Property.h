@@ -12,6 +12,7 @@
 
 #include <cstdint> // for int64_t
 #include <string>  // for string
+#include <variant>
 #include <vector>
 
 namespace Ioss {
@@ -46,10 +47,6 @@ namespace Ioss {
 
     // To set implicit property
     Property(const GroupingEntity *ge, std::string name, BasicType type);
-    Property(const Property& from);
-    Property& operator=(Property rhs);
-
-    ~Property();
 
     IOSS_NODISCARD std::string get_string() const;
     IOSS_NODISCARD int64_t     get_int() const;
@@ -128,16 +125,8 @@ namespace Ioss {
 
     /// The actual value of the property.  Use 'type_' to
     /// discriminate the actual type of the property.
-    union Data
-    {
-      std::string* sval;
-      void* pval{ nullptr };
-      const GroupingEntity* ge;
-      double rval;
-      int64_t ival;
-      std::vector<double>* dvec;
-      std::vector<int>* ivec;
-    };
-    Data data_{};
+    std::variant<std::string, const Ioss::GroupingEntity *, double, int64_t, std::vector<double>,
+                 std::vector<int>, void *>
+        data_;
   };
 } // namespace Ioss
