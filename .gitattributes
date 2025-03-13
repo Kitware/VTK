@@ -1,3 +1,2 @@
 *           -whitespace
 exprtk.hpp  hooks-max-size=2097152
-*.hpp       hooks.MaxObjectKiB=2048
