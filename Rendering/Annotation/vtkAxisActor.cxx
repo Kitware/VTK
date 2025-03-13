@@ -800,11 +800,6 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     double labelHeight = (bounds[3] - bounds[2]);
     double labelMagnitude = sqrt(labelWidth * labelWidth + labelHeight * labelHeight);
 
-    if (this->CalculateLabelOffset)
-    {
-      vtkWarningMacro("CalculateLabelOffset flag is now deprecated and has no effect");
-    }
-
     if (this->TickVisibility)
     {
       pos[0] = tickBottom[0];
@@ -1054,10 +1049,6 @@ void vtkAxisActor::BuildTitle(bool force)
   double* p1 = this->Point1Coordinate->GetValue();
   double* p2 = this->Point2Coordinate->GetValue();
   double pos[3];
-  if (this->CalculateTitleOffset)
-  {
-    vtkWarningMacro("CalculateTitleOffset flag is now deprecated and has no effect");
-  }
   int vertOffsetSign = 1;
   switch (this->TitleAlignLocation)
   {
@@ -1486,7 +1477,6 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DeltaMajor: " << this->DeltaMajor[0] << "," << this->DeltaMajor[1] << ","
      << this->DeltaMajor[2] << endl;
-  os << indent << "DeltaMinor: " << this->DeltaMinor << endl;
   os << indent << "DeltaRangeMajor: " << this->DeltaRangeMajor << endl;
   os << indent << "DeltaRangeMinor: " << this->DeltaRangeMinor << endl;
   os << indent << "MajorRangeStart: " << this->MajorRangeStart << endl;
@@ -1532,9 +1522,6 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DrawInnerGridlines: " << this->DrawInnerGridlines << endl;
 
   os << indent << "TickLocation: " << this->TickLocation << endl;
-
-  os << indent << "CalculateLabelOffset: " << this->CalculateLabelOffset << std::endl;
-  os << indent << "CalculateTitleOffset: " << this->CalculateTitleOffset << std::endl;
 
   os << indent << "LabelTextProperty: " << this->LabelTextProperty << endl;
   os << indent << "TitleTextProperty: " << this->TitleTextProperty << endl;

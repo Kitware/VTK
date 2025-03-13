@@ -80,8 +80,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->XAxes[i]->SetLabelOffset(this->LabelOffset);
     this->XAxes[i]->SetTitleOffset(this->TitleOffset);
     this->XAxes[i]->SetScreenSize(this->ScreenSize);
-    this->XAxes[i]->SetCalculateTitleOffset(false);
-    this->XAxes[i]->SetCalculateLabelOffset(false);
 
     this->YAxes[i] = vtkAxisActor::New();
     this->YAxes[i]->SetTickVisibility(true);
@@ -97,8 +95,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->YAxes[i]->SetLabelOffset(this->LabelOffset);
     this->YAxes[i]->SetTitleOffset(this->TitleOffset);
     this->YAxes[i]->SetScreenSize(this->ScreenSize);
-    this->YAxes[i]->SetCalculateTitleOffset(false);
-    this->YAxes[i]->SetCalculateLabelOffset(false);
 
     this->ZAxes[i] = vtkAxisActor::New();
     this->ZAxes[i]->SetTickVisibility(true);
@@ -114,8 +110,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->ZAxes[i]->SetLabelOffset(this->LabelOffset);
     this->ZAxes[i]->SetTitleOffset(this->TitleOffset);
     this->ZAxes[i]->SetScreenSize(this->ScreenSize);
-    this->ZAxes[i]->SetCalculateTitleOffset(false);
-    this->ZAxes[i]->SetCalculateLabelOffset(false);
 
     // Pass information to axes followers.
     vtkAxisFollower* follower = this->XAxes[i]->GetTitleActor();
@@ -1794,10 +1788,8 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(
   // Set major and minor starts and deltas for all underlying axes
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   {
-    axes[i]->SetMinorStart(minorStart);
     axes[i]->SetMajorStart(axes[0]->GetAxisType(), majorStart);
 
-    axes[i]->SetDeltaMinor(minor);
     axes[i]->SetDeltaMajor(axes[0]->GetAxisType(), major);
   }
 }

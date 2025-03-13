@@ -42,6 +42,7 @@
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
+#include "vtkDeprecation.h"
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
@@ -510,13 +511,18 @@ public:
   /**
    * Set/Get the starting position for minor and major tick points,
    * and the delta values that determine their spacing.
+   *
+   * The "Minor" versions are not used anymore, will return 0.
    */
-  vtkSetMacro(MinorStart, double);
-  vtkGetMacro(MinorStart, double);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetMinorStart(double){};
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetMinorStart() { return 0.; };
+
   double GetMajorStart(int axis);
   void SetMajorStart(int axis, double value);
-  vtkSetMacro(DeltaMinor, double);
-  vtkGetMacro(DeltaMinor, double);
+
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetDeltaMinor(double){};
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetDeltaMinor() { return 1.; };
+
   double GetDeltaMajor(int axis);
   void SetDeltaMajor(int axis, double value);
   ///@}
@@ -603,9 +609,10 @@ public:
    * Set/Get flag whether to calculate title offset.
    * Default: false.
    */
-  vtkSetMacro(CalculateTitleOffset, bool);
-  vtkGetMacro(CalculateTitleOffset, bool);
-  vtkBooleanMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOn() {}
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOff() {}
   ///@}
 
   ///@{
@@ -613,9 +620,10 @@ public:
    * Set/Get flag whether to calculate label offset.
    * Default: false.
    */
-  vtkSetMacro(CalculateLabelOffset, bool);
-  vtkGetMacro(CalculateLabelOffset, bool);
-  vtkBooleanMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOn() {}
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOff() {}
   ///@}
 
   ///@{
@@ -870,8 +878,6 @@ private:
   // For each axis (for the inner gridline generation)
   double MajorStart[3] = { 0.0, 0.0, 0.0 };
   double DeltaMajor[3] = { 1.0, 1.0, 1.0 };
-  double MinorStart = 0.0;
-  double DeltaMinor = 1.0;
 
   // For the ticks, w.r.t to the set range
   double MajorRangeStart = 0.0;
@@ -950,8 +956,8 @@ private:
 
   bool AxisHasZeroLength = false;
 
-  bool CalculateTitleOffset = false;
-  bool CalculateLabelOffset = false;
+  bool CalculateTitleOffset = false; // VTK_DEPRECATED_IN_9_5_0
+  bool CalculateLabelOffset = false; // VTK_DEPRECATED_IN_9_5_0
 
   /**
    * Use xy-axis only when Use2DMode=1:

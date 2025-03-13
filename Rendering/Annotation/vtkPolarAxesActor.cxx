@@ -235,8 +235,6 @@ vtkPolarAxesActor::vtkPolarAxesActor()
 
   // Create and set polar axis of type X
   this->PolarAxis->SetAxisTypeToX();
-  this->PolarAxis->SetCalculateTitleOffset(false);
-  this->PolarAxis->SetCalculateLabelOffset(false);
 
   // Properties of the last radial axe, with default color black
   this->LastRadialAxisProperty = vtkSmartPointer<vtkProperty>::New();
@@ -853,9 +851,6 @@ void vtkPolarAxesActor::SetCommonAxisAttributes(vtkAxisActor* axis)
   axis->SetMajorRangeStart(axis->GetRange()[0]);
   axis->SetMinorRangeStart(axis->GetRange()[0]);
 
-  axis->SetCalculateTitleOffset(false);
-  axis->SetCalculateLabelOffset(false);
-
   // Set polar axis ticks
   axis->SetTickVisibility(this->AxisTickVisibility && this->PolarTickVisibility);
 
@@ -949,8 +944,6 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     this->RadialAxes[i] = vtkSmartPointer<vtkAxisActor>::New();
     vtkAxisActor* axis = this->RadialAxes[i].Get();
     axis->SetAxisTypeToX();
-    axis->SetCalculateTitleOffset(false);
-    axis->SetCalculateLabelOffset(false);
     axis->SetLabelVisibility(false);
     axis->SetUse2DMode(this->PolarAxis->GetUse2DMode());
     axis->LastMajorTickPointCorrectionOn();
