@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// Includes vtkModuleNameSerialization.h.
+// Includes vtkModuleNameSerDes.h.
 @_vtk_serdes_include_mandatory_libraries_registrar_headers@
 
-// Includes vtkModuleNameSerialization.h upon the condition that module is enabled.
+// Includes vtkModuleNameSerDes.h upon the condition that module is enabled.
 @_vtk_serdes_include_optional_libraries_registrar_headers@
 
 #include <iostream> // for std::cerr

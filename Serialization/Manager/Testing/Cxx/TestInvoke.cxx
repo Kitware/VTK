@@ -23,8 +23,7 @@ int TestInvoke(int argc, char* argv[])
   auto manager = vtk::TakeSmartPointer(vtkObjectManager::New());
   // Manually register handlers for the vtkTestingSerializationSerDes library
   // because these handlers are not part of the 'default' group.
-  manager->InitializeExtensionModuleHandlers(
-    { vtkTestingSerializationSerDesRegistrar::RegisterClasses });
+  manager->InitializeExtensionModuleHandlers({ RegisterClasses_vtkTestingSerialization });
 #if !defined(NDEBUG)
   manager->SetObjectManagerLogVerbosity(vtkLogger::VERBOSITY_INFO);
   manager->GetInvoker()->SetInvokerLogVerbosity(vtkLogger::VERBOSITY_INFO);
