@@ -74,6 +74,13 @@ public:
    */
   double ComputeProgress() override;
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  void InitializeRequestInformation() override;
+  void InitializeRequestData() override;
+  void PrintRequestInformation() override;
+  void PrintRequestData() override;
+#endif
+
 protected:
   vtkPOpenFOAMReader();
   ~vtkPOpenFOAMReader() override;

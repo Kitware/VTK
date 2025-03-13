@@ -51,6 +51,8 @@ class vtkUnsignedCharArray;
 
 class vtkOpenFOAMReaderPrivate;
 
+#define VTK_OPENFOAM_TIME_PROFILING 0
+
 class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -401,6 +403,17 @@ public:
    */
   virtual double ComputeProgress();
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long GetRequestInformationTimeInMicroseconds() const;
+  long long GetRequestDataTimeInMicroseconds() const;
+  size_t GetRequestInformationBytes() const;
+  size_t GetRequestDataBytes() const;
+  virtual void InitializeRequestInformation();
+  virtual void InitializeRequestData();
+  virtual void PrintRequestInformation();
+  virtual void PrintRequestData();
+#endif
+
 protected:
   // refresh flag
   bool Refresh;
@@ -519,6 +532,13 @@ private:
 
   std::mutex ArraySelectionMutex;
   std::mutex ProgressMutex;
+
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long RequestInformationTimeInMicroseconds = 0;
+  size_t RequestDataBytes = 0;
+  long long RequestDataTimeInMicroseconds = 0;
+  size_t RequestInformationBytes = 0;
+#endif
 };
 
 VTK_ABI_NAMESPACE_END

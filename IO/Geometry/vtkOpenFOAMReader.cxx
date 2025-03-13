@@ -724,6 +724,13 @@ public:
   static vtkOpenFOAMReaderPrivate* New();
   vtkTypeMacro(vtkOpenFOAMReaderPrivate, vtkObject);
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long RequestInformationTimeInMicroseconds = 0;
+  long long RequestDataTimeInMicroseconds = 0;
+  size_t RequestInformationBytes = 0;
+  size_t RequestDataBytes = 0;
+#endif
+
   vtkGetMacro(TimeStep, int);
   vtkSetMacro(TimeStep, int);
 
@@ -1699,6 +1706,11 @@ protected:
   }
 
 public:
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long TimeInMicroseconds = 0;
+  size_t Bytes = 0;
+#endif
+
   const std::string& GetFileName() const noexcept { return this->FileName; }
   int GetLineNumber() const noexcept { return this->LineNumber; }
 
@@ -1708,6 +1720,10 @@ public:
   // Try to open the file. Return non-empty error string on failure
   vtkFoamError TryOpen(const std::string& fileName)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->TimeInMicroseconds = 0;
+    this->Bytes = 0;
+#endif
     vtkFoamError errors;
     do
     {
@@ -1720,9 +1736,17 @@ public:
         errors << "File already opened within this object";
         break;
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      auto start = std::chrono::high_resolution_clock::now();
+#endif
       this->File = vtksys::SystemTools::Fopen(this->FileName, "rb");
       if (this->File == nullptr)
       {
+#if VTK_OPENFOAM_TIME_PROFILING
+        auto end = std::chrono::high_resolution_clock::now();
+        this->TimeInMicroseconds =
+          std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
         errors << "Cannot open file for reading";
         break;
       }
@@ -1730,6 +1754,9 @@ public:
       unsigned char zMagic[2];
       if (fread(zMagic, 1, 2, this->File) == 2 && zMagic[0] == 0x1f && zMagic[1] == 0x8b)
       {
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->Bytes += 2;
+#endif
         // gzip-compressed format
         this->Z.avail_in = 0;
         this->Z.next_in = Z_NULL;
@@ -1749,6 +1776,11 @@ public:
           {
             errors << " " << this->Z.msg;
           }
+#if VTK_OPENFOAM_TIME_PROFILING
+          auto end = std::chrono::high_resolution_clock::now();
+          this->TimeInMicroseconds =
+            std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
           break;
         }
       }
@@ -1757,7 +1789,11 @@ public:
         this->IsCompressed = false;
       }
       rewind(this->File);
-
+#if VTK_OPENFOAM_TIME_PROFILING
+      auto end = std::chrono::high_resolution_clock::now();
+      this->TimeInMicroseconds =
+        std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
       this->ZStatus = Z_OK;
       this->Outbuf = new unsigned char[this->OutputBufferSize + 1];
       this->BufPtr = this->Outbuf + 1;
@@ -1781,7 +1817,15 @@ public:
 
     if (this->File)
     {
+#if VTK_OPENFOAM_TIME_PROFILING
+      auto start = std::chrono::high_resolution_clock::now();
+#endif
       fclose(this->File);
+#if VTK_OPENFOAM_TIME_PROFILING
+      auto end = std::chrono::high_resolution_clock::now();
+      this->TimeInMicroseconds +=
+        std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
       this->File = nullptr;
     }
     // don't reset the line number so that the last line number is
@@ -2399,13 +2443,29 @@ public:
           const std::string fullName =
             this->ExpandPath(fileNameToken.ToString(), vtkFoamFile::ExtractPath(this->FileName));
 
+#if VTK_OPENFOAM_TIME_PROFILING
+          auto start = std::chrono::high_resolution_clock::now();
+#endif
           FILE* fh = vtksys::SystemTools::Fopen(fullName, "rb");
           if (fh)
           {
             fclose(fh);
+#if VTK_OPENFOAM_TIME_PROFILING
+            auto end = std::chrono::high_resolution_clock::now();
+            this->TimeInMicroseconds +=
+              std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
 
             this->IncludeFile(fileNameToken.ToString(), vtkFoamFile::ExtractPath(this->FileName));
           }
+#if VTK_OPENFOAM_TIME_PROFILING
+          else
+          {
+            auto end = std::chrono::high_resolution_clock::now();
+            this->TimeInMicroseconds +=
+              std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+          }
+#endif
         }
         else if (directiveToken == "inputMode")
         {
@@ -2819,6 +2879,9 @@ void vtkFoamFile::ThrowDuplicatedPutBackException()
 
 bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   if (readSize)
   {
     *readSize = -1; // Set to an error state for early returns
@@ -2844,6 +2907,9 @@ bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt
         {
           this->ThrowStackTrace("failed in fread()");
         }
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->Bytes += this->Superclass::Z.avail_in;
+#endif
       }
       this->Superclass::ZStatus = inflate(&this->Superclass::Z, Z_NO_FLUSH);
       if (this->Superclass::ZStatus == Z_STREAM_END
@@ -2869,7 +2935,15 @@ bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt
   {
     // not compressed
     size = fread(buf, 1, requestSize, this->Superclass::File);
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->Bytes += size;
+#endif
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  this->TimeInMicroseconds +=
+    std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
 
   if (size <= 0)
   {
@@ -5586,12 +5660,25 @@ void vtkOpenFOAMReaderPrivate::AddFieldName(
 void vtkOpenFOAMReaderPrivate::GetFieldNames(const std::string& tempPath, bool isLagrangian)
 {
   // Open the directory and get num of files
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   vtkNew<vtkDirectory> directory;
   if (!directory->Open(tempPath.c_str()))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
     // No data
     return;
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  this->RequestInformationTimeInMicroseconds +=
+    std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
 
   // loop over all files and locate valid fields
   const vtkIdType nFieldFiles = directory->GetNumberOfFiles();
@@ -5639,6 +5726,10 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const std::string& tempPath, bool i
     {
       this->AddFieldName(fieldFile, io.GetClassName(), isLagrangian);
     }
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestInformationBytes += io.Bytes;
+#endif
   }
   // delay Squeeze of inserted objects until SortFieldFiles()
 }
@@ -5650,8 +5741,16 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const std::string& timePat
   const std::string lagrangianDir(timePath + this->RegionPath() + "/lagrangian");
 
   vtkNew<vtkDirectory> directory;
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   if (directory->Open(lagrangianDir.c_str()))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
     // Search for clouds (OF 1.5 and later format)
     const vtkIdType nFiles = directory->GetNumberOfFiles();
 
@@ -5682,9 +5781,21 @@ void vtkOpenFOAMReaderPrivate::LocateLagrangianClouds(const std::string& timePat
         std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
         this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestInformationBytes += io.Bytes;
+#endif
     }
     this->LagrangianPaths->Squeeze();
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  else
+  {
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  }
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -6090,18 +6201,30 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
 
   if (!io.Open(controlDictPath))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestInformationBytes += io.Bytes;
+#endif
     return vtkFoamError() << "Error opening " << io.GetFileName() << ": " << io.GetError();
   }
 
   vtkFoamDict dict;
   if (!dict.Read(io))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestInformationBytes += io.Bytes;
+#endif
     return vtkFoamError() << "Error reading line " << io.GetLineNumber() << " of "
                           << io.GetFileName() << ": " << io.GetError();
   }
 
   if (dict.GetType() != vtkFoamToken::DICTIONARY)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestInformationBytes += io.Bytes;
+#endif
     return vtkFoamError() << "The file " << io.GetFileName() << " is not a dictionary";
   }
 
@@ -6110,9 +6233,17 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   // Calculate time step increment based on type of run
   if ((eptr = dict.Lookup("writeControl")) == nullptr)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestInformationBytes += io.Bytes;
+#endif
     return vtkFoamError() << "No 'writeControl' in " << io.GetFileName();
   }
   const std::string writeControl(eptr->ToString());
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->RequestInformationTimeInMicroseconds += io.TimeInMicroseconds;
+  this->RequestInformationBytes += io.Bytes;
+#endif
 
   // When (adjustTimeStep, writeControl) == (on, adjustableRunTime) or (off, timeStep)
   // list by time instances in the case directory otherwise
@@ -6223,6 +6354,9 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   for (int timeStepi = 0; timeStepi < numTimeSteps; ++timeStepi)
   {
     parser.str("");
@@ -6271,6 +6405,11 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
     this->TimeNames->InsertNextValue(parser.str());
     this->TimeValues->InsertNextValue(startTime);
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  this->RequestInformationTimeInMicroseconds +=
+    std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
 
   this->TimeValues->Squeeze();
   this->TimeNames->Squeeze();
@@ -6284,12 +6423,28 @@ vtkFoamError vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
 bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
 {
   // Open the case directory
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   vtkNew<vtkDirectory> dir;
   if (!dir->Open(this->CasePath.c_str()))
   {
     vtkErrorMacro(<< "Can't open directory " << this->CasePath);
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
     return false;
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  else
+  {
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  }
+#endif
 
   const bool ignore0Dir = this->Parent->GetSkipZeroTime();
 
@@ -6449,6 +6604,9 @@ void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices(const bool skipComputingM
   faces.resize(nTimes, TIMEINDEX_UNVISITED);
   points.resize(nTimes, TIMEINDEX_UNVISITED);
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   for (vtkIdType timeIter = 0; timeIter < nTimes; ++timeIter)
   {
     // The mesh directory for this timestep
@@ -6475,6 +6633,11 @@ void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices(const bool skipComputingM
     UpdateTimeInstance(faces, timeIter, topoChanged);
     UpdateTimeInstance(points, timeIter, pointsMoved);
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  this->RequestInformationTimeInMicroseconds +=
+    std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
 
 #if VTK_FOAMFILE_DEBUG
   PrintMeshTimes("faces", faces);
@@ -6499,6 +6662,10 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(
   if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/points"))
   {
     vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
 
@@ -6521,12 +6688,20 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::ReadPointsFile(
 
     // Capture content as smart pointer
     pointArray.TakeReference(dict.ReleasePtr<vtkFloatArray>());
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
   }
   catch (const vtkFoamError& err)
   {
     vtkErrorMacro("Mesh points data are neither 32 nor 64 bit, or some other "
                   "parse error occurred while reading points. Failed at line "
       << io.GetLineNumber() << " of " << io.GetFileName() << ": " << err);
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
 
@@ -6560,6 +6735,10 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::ReadFacesFile(
     vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError()
                   << ". If you are trying to read a parallel decomposed case, "
                      "set Case Type to Decomposed Case.");
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
 
@@ -6578,6 +6757,10 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::ReadFacesFile(
     {
       dict.ReadLabelListList(io);
     }
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
 
     // Capture content
     meshFaces.TakeReference(dict.ReleasePtr<vtkCellArray>());
@@ -6586,6 +6769,11 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::ReadFacesFile(
   {
     vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                   << ": " << err);
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
+
     return nullptr;
   }
 
@@ -6612,6 +6800,10 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
   if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/owner"))
   {
     vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return false;
   }
   const bool use64BitLabels = io.IsLabel64();
@@ -6634,11 +6826,19 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
         ownerDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
           vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
     }
     catch (const vtkFoamError& err)
     {
       vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                     << ": " << err);
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return false;
     }
     io.Close();
@@ -6663,6 +6863,10 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
   // Read polyMesh/neighbour
   if (!io.OpenOrGzip(timeRegionDir + "/polyMesh/neighbour"))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
     return false;
   }
@@ -6671,6 +6875,10 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
   {
     vtkErrorMacro(<< "owner/neighbour with different label-size: should not happen"
                   << io.GetCasePath());
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return false;
   }
 
@@ -6689,11 +6897,20 @@ bool vtkOpenFOAMReaderPrivate::ReadOwnerNeighbourFiles(const std::string& timeRe
         neighDict.ReadNonUniformList<vtkFoamToken::LABELLIST, //
           vtkFoamRead::listTraits<vtkTypeInt32Array, vtkTypeInt32>>(io);
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
     }
     catch (const vtkFoamError& err)
     {
       vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                     << ": " << err);
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
+
       return false;
     }
     io.Close();
@@ -8822,6 +9039,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
   vtkFoamDict dict;
   if (!this->ReadFieldFile(io, dict, varName, this->Parent->CellDataArraySelection))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
 
@@ -8832,6 +9053,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     (hasColons ? !isInternalField : isInternalField))
   {
     vtkErrorMacro(<< io.GetFileName() << " is not a volume/internal field");
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
 
@@ -8853,6 +9078,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     if (ifieldEntry == nullptr)
     {
       vtkErrorMacro(<< entryName << " not found in " << io.GetFileName());
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return;
     }
     else if (ifieldEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
@@ -8861,6 +9090,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       {
         vtkErrorMacro(<< entryName << " of " << io.GetFileName() << " is empty");
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return;
     }
   }
@@ -8874,6 +9107,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     {
       vtkWarningMacro(<< "boundaryField not found in " << io.GetFileName()
                       << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return;
     }
   }
@@ -8885,10 +9122,18 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     this->FillField(*ifieldEntry, this->NumCells, io, fieldDataType);
   if (iData == nullptr)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
   else if (iData->GetSize() == 0)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     // Determined that there are no cells. Ignore the field
     return;
   }
@@ -9095,6 +9340,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
                             << varName
                             << " at time = " << this->TimeNames->GetValue(this->TimeStep));
           }
+#if VTK_OPENFOAM_TIME_PROFILING
+          this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+          this->RequestDataBytes += io.Bytes;
+#endif
           return;
         }
       }
@@ -9309,6 +9558,10 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
       // zm->GetPointData()->ShallowCopy(this->InternalMesh->GetPointData());
     }
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+  this->RequestDataBytes += io.Bytes;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -9326,12 +9579,20 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
   vtkFoamDict dict;
   if (!this->ReadFieldFile(io, dict, varName, this->Parent->PointDataArraySelection))
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
 
   if (io.GetClassName().compare(0, 5, "point") != 0)
   {
     vtkErrorMacro(<< io.GetFileName() << " is not a pointField");
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
 
@@ -9351,6 +9612,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
     if (ifieldEntry == nullptr)
     {
       vtkErrorMacro(<< "internalField not found in " << io.GetFileName());
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return;
     }
     else if (ifieldEntry->FirstValue().GetType() == vtkFoamToken::EMPTYLIST)
@@ -9358,6 +9623,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       if (this->NumPoints)
       {
         vtkErrorMacro(<< "internalField of " << io.GetFileName() << " is empty");
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
       }
       return;
     }
@@ -9371,6 +9640,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
     {
       vtkWarningMacro(<< "boundaryField not found in " << io.GetFileName()
                       << " at time = " << this->TimeNames->GetValue(this->TimeStep));
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
       return;
     }
   }
@@ -9382,10 +9655,18 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
     this->FillField(*ifieldEntry, this->NumPoints, io, fieldDataType);
   if (iData == nullptr)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return;
   }
   else if (iData->GetSize() == 0)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     // Determined that there are no points. Ignore the field
     return;
   }
@@ -9524,6 +9805,10 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
       ::AddArrayToFieldData(bm->GetPointData(), vData, io.GetObjectName(), dimString);
     }
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+  this->RequestDataBytes += io.Bytes;
+#endif
 
   // Handle any zones
   // ...
@@ -9690,6 +9975,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
                         << ": " << err);
         }
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
 
       if (missingCloud)
       {
@@ -9728,6 +10017,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       vtkFoamIOobject io(this->CasePath, this->Parent);
       if (!io.OpenOrGzip(varPath))
       {
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
         continue; // Could be empty or missing for a particular region or processor
       }
 
@@ -9736,6 +10029,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       if (this->Parent->LagrangianDataArraySelection->ArrayExists(varDisplayName.c_str()) &&
         !this->Parent->GetLagrangianArrayStatus(varDisplayName.c_str()))
       {
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
         continue;
       }
 
@@ -9745,6 +10042,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       {
         vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                       << ": " << io.GetError());
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
         continue;
       }
 
@@ -9754,6 +10055,10 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       {
         vtkErrorMacro(<< io.GetFileName() << ": Unsupported lagrangian field type "
                       << io.GetClassName());
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
         continue;
       }
 
@@ -9765,8 +10070,16 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
       {
         vtkErrorMacro(<< io.GetFileName() << ": Size mismatch for lagrangian mesh (" << nParticles
                       << ") and field (" << nValues << ')');
+#if VTK_OPENFOAM_TIME_PROFILING
+        this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+        this->RequestDataBytes += io.Bytes;
+#endif
         continue;
       }
+#if VTK_OPENFOAM_TIME_PROFILING
+      this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+      this->RequestDataBytes += io.Bytes;
+#endif
 
       // Provide identical data as cell and as point data
       ::AddArrayToFieldData(cloudMesh->GetCellData(), fldData, varDisplayName);
@@ -9791,6 +10104,10 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GetPolyMeshFile(
     {
       vtkErrorMacro(<< "Error opening " << io.GetFileName() << ": " << io.GetError());
     }
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
 
@@ -9800,13 +10117,25 @@ std::unique_ptr<vtkFoamDict> vtkOpenFOAMReaderPrivate::GetPolyMeshFile(
   {
     vtkErrorMacro(<< "Error reading line " << io.GetLineNumber() << " of " << io.GetFileName()
                   << ": " << io.GetError());
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
   if (dict.GetType() != vtkFoamToken::DICTIONARY)
   {
     vtkErrorMacro(<< "The file type of " << io.GetFileName() << " is not a dictionary");
+#if VTK_OPENFOAM_TIME_PROFILING
+    this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+    this->RequestDataBytes += io.Bytes;
+#endif
     return nullptr;
   }
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
+  this->RequestDataBytes += io.Bytes;
+#endif
   return dictPtr;
 }
 
@@ -11040,6 +11369,9 @@ void vtkOpenFOAMReader::EnableAllSelectionArrays(vtkDataArraySelection* s)
 int vtkOpenFOAMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestInformation();
+#endif
   if (!this->FileName || !*(this->FileName))
   {
     vtkErrorMacro("FileName has to be specified!");
@@ -11080,6 +11412,9 @@ int vtkOpenFOAMReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 int vtkOpenFOAMReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestData();
+#endif
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   auto* output = vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -11237,6 +11572,9 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
 
   {
     const std::string constantPath(casePath + "constant/");
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     vtkNew<vtkDirectory> dir;
     if (!dir->Open(constantPath.c_str()))
     {
@@ -11272,6 +11610,11 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
                         [](const std::string& name) { return name.empty(); }),
       regionNames.end());
 
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    this->RequestInformationTimeInMicroseconds +=
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+#endif
     if (!hasDefaultRegion && regionNames.empty())
     {
       vtkErrorMacro(<< this->FileName << " contains no meshes.");
@@ -11737,5 +12080,157 @@ void vtkOpenFOAMReader::UpdateProgress(vtkOpenFOAMReaderPrivate* reader, double 
   // update the progress
   this->vtkAlgorithm::UpdateProgress(this->GetProgress());
 }
+
+#if VTK_OPENFOAM_TIME_PROFILING
+//------------------------------------------------------------------------------
+long long vtkOpenFOAMReader::GetRequestInformationTimeInMicroseconds() const
+{
+  long long totalTime = this->RequestInformationTimeInMicroseconds;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      totalTime += reader->RequestInformationTimeInMicroseconds;
+    }
+  }
+  return totalTime;
+}
+
+//------------------------------------------------------------------------------
+long long vtkOpenFOAMReader::GetRequestDataTimeInMicroseconds() const
+{
+  long long totalTime = this->RequestDataTimeInMicroseconds;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      totalTime += reader->RequestDataTimeInMicroseconds;
+    }
+  }
+  return totalTime;
+}
+
+//------------------------------------------------------------------------------
+size_t vtkOpenFOAMReader::GetRequestInformationBytes() const
+{
+  size_t totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      totalBytes += reader->RequestInformationBytes;
+    }
+  }
+  return totalBytes;
+}
+
+//------------------------------------------------------------------------------
+size_t vtkOpenFOAMReader::GetRequestDataBytes() const
+{
+  size_t totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      totalBytes += reader->RequestDataBytes;
+    }
+  }
+  return totalBytes;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenFOAMReader::InitializeRequestInformation()
+{
+  this->RequestInformationTimeInMicroseconds = 0;
+  this->RequestInformationBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      reader->RequestInformationTimeInMicroseconds = 0;
+      reader->RequestInformationBytes = 0;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenFOAMReader::InitializeRequestData()
+{
+  this->RequestDataTimeInMicroseconds = 0;
+  this->RequestDataBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      reader->RequestDataTimeInMicroseconds = 0;
+      reader->RequestDataBytes = 0;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenFOAMReader::PrintRequestInformation()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->RequestInformationTimeInMicroseconds);
+      maxTime = std::max(maxTime, reader->RequestInformationTimeInMicroseconds);
+      totalTime += reader->RequestInformationTimeInMicroseconds;
+      minBytes = std::min(minBytes, reader->RequestInformationBytes);
+      maxBytes = std::max(maxBytes, reader->RequestInformationBytes);
+      totalBytes += reader->RequestInformationBytes;
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenFOAMReader::PrintRequestData()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->RequestDataTimeInMicroseconds);
+      maxTime = std::max(maxTime, reader->RequestDataTimeInMicroseconds);
+      totalTime += reader->RequestDataTimeInMicroseconds;
+      minBytes = std::min(minBytes, reader->RequestDataBytes);
+      maxBytes = std::max(maxBytes, reader->RequestDataBytes);
+      totalBytes += reader->RequestDataBytes;
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+#endif
 
 VTK_ABI_NAMESPACE_END

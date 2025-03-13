@@ -407,6 +407,9 @@ void vtkPOpenFOAMReader::SetReadAllFilesToDetermineStructure(bool readAllFilesTo
 int vtkPOpenFOAMReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestInformation();
+#endif
   const bool isRootProc = (this->ProcessId == 0);
   const bool isParallel = (this->NumProcesses > 1);
   int returnCode = 1;
@@ -418,6 +421,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     if (isRootProc)
     {
       returnCode = this->Superclass::RequestInformation(request, inputVector, outputVector);
@@ -453,6 +459,13 @@ int vtkPOpenFOAMReader::RequestInformation(
     }
 
     this->GatherMetaData();
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->Superclass::PrintRequestInformation();
+#endif
     return returnCode;
   }
 
@@ -470,6 +483,9 @@ int vtkPOpenFOAMReader::RequestInformation(
     this->Superclass::SkipZeroTime != this->Superclass::SkipZeroTimeOld ||
     this->Superclass::Refresh)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     // retain selection status when just refreshing a case
     if (!this->Superclass::FileNameOld.empty() &&
       this->Superclass::FileNameOld != this->Superclass::FileName)
@@ -514,7 +530,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 
         processorDirs = ::ScanForProcessorDirs(dir);
         nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
-
+#if VTK_OPENFOAM_TIME_PROFILING
+        std::cout << "nProcessorDirs: " << nProcessorDirs << std::endl;
+#endif
         if (nProcessorDirs)
         {
           // Get times from the first processor subdirectory
@@ -687,6 +705,13 @@ int vtkPOpenFOAMReader::RequestInformation(
       this->GatherMetaData();
     }
     this->Superclass::Refresh = false;
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->PrintRequestInformation();
+#endif
   }
 
   return returnCode;
@@ -696,6 +721,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 int vtkPOpenFOAMReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestData();
+#endif
   const bool isRootProc = (this->ProcessId == 0);
   const bool isParallel = (this->NumProcesses > 1);
   int returnCode = 1;
@@ -706,6 +734,9 @@ int vtkPOpenFOAMReader::RequestData(
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     if (isRootProc)
     {
       returnCode = this->Superclass::RequestData(request, inputVector, outputVector);
@@ -729,9 +760,20 @@ int vtkPOpenFOAMReader::RequestData(
         output->CopyStructure(mb);
       }
     }
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestData: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->Superclass::PrintRequestData();
+#endif
+
     return returnCode;
   }
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
   if (!this->Superclass::Readers.empty())
   {
     int nTimes = 0; // Also used for logic
@@ -844,6 +886,13 @@ int vtkPOpenFOAMReader::RequestData(
   this->Superclass::UpdateStatus();
   this->MTimeOld = this->GetMTime();
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "vtkPOpenFOAMReader::RequestData: Elapsed time: "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+            << std::endl;
+  this->PrintRequestData();
+#endif
   return returnCode;
 }
 
@@ -1034,4 +1083,95 @@ double vtkPOpenFOAMReader::ComputeProgress()
   }
   return 1.0;
 }
+
+#if VTK_OPENFOAM_TIME_PROFILING
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::InitializeRequestInformation()
+{
+  this->Superclass::InitializeRequestInformation();
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      reader->InitializeRequestInformation();
+    }
+  }
+}
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::InitializeRequestData()
+{
+  this->Superclass::InitializeRequestData();
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      reader->InitializeRequestData();
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::PrintRequestInformation()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->GetRequestInformationTimeInMicroseconds());
+      maxTime = std::max(maxTime, reader->GetRequestInformationTimeInMicroseconds());
+      totalTime += reader->GetRequestInformationTimeInMicroseconds();
+      minBytes = std::min(minBytes, reader->GetRequestInformationBytes());
+      maxBytes = std::max(maxBytes, reader->GetRequestInformationBytes());
+      totalBytes += reader->GetRequestInformationBytes();
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::PrintRequestData()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->GetRequestDataTimeInMicroseconds());
+      maxTime = std::max(maxTime, reader->GetRequestDataTimeInMicroseconds());
+      totalTime += reader->GetRequestDataTimeInMicroseconds();
+      minBytes = std::min(minBytes, reader->GetRequestDataBytes());
+      maxBytes = std::max(maxBytes, reader->GetRequestDataBytes());
+      totalBytes += reader->GetRequestDataBytes();
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkPOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkPOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+#endif
 VTK_ABI_NAMESPACE_END
