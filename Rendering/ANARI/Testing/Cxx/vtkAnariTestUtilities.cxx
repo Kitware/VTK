@@ -27,12 +27,12 @@ void SetParameterDefaults(
   ad->SetupAnariDeviceFromLibrary("environment", "default", useDebugDevice);
 
   // General renderer parameters:
-  ar->SetParameter("ambientRadiance", 1.f);
+  ar->SetParameterf("ambientRadiance", 1.f);
 
   // VisRTX specific renderer parameters:
-  ar->SetParameter("lightFalloff", 0.5f);
-  ar->SetParameter("denoise", true);
-  ar->SetParameter("pixelSamples", 8);
+  ar->SetParameterf("lightFalloff", 0.5f);
+  ar->SetParameterb("denoise", true);
+  ar->SetParameteri("pixelSamples", 8);
 
   vtkAnariSceneGraph::SetCompositeOnGL(renderer, 1);
 }

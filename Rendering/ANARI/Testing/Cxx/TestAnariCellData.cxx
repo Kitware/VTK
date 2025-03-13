@@ -107,7 +107,7 @@ int TestAnariCellData(int argc, char* argv[])
 
   SetParameterDefaults(anariPass, ren, useDebugDevice, "TestAnariCellData");
   auto* ar = anariPass->GetAnariRenderer();
-  ar->SetParameter("ambientRadiance", 0.5f);
+  ar->SetParameterf("ambientRadiance", 0.5f);
 
   renWin->Render();
   ren->ResetCamera();

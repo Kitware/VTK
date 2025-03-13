@@ -237,7 +237,8 @@ void vtkAnariPass::Render(const vtkRenderState* s)
     if (rebuildSceneGraph)
     {
       this->SceneGraph = vtkAnariSceneGraph::SafeDownCast(this->Internal->Factory->CreateNode(ren));
-      this->SceneGraph->SetAnariDevice(device, ad->GetAnariDeviceExtensions());
+      this->SceneGraph->SetAnariDevice(
+        device, ad->GetAnariDeviceExtensions(), ad->GetAnariDeviceExtensionStrings());
       this->SceneGraph->SetAnariRenderer(ar->GetHandle());
     }
     else if (ar->GetHandle() != this->SceneGraph->GetRendererHandle())

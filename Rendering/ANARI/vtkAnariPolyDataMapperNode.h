@@ -20,11 +20,11 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkActor;
+class vtkAnariPolyDataMapperInheritInterface;
 class vtkAnariPolyDataMapperNodeInternals;
 class vtkAnariActorNode;
-class vtkPolyData;
-class vtkDataSetSurfaceFilter;
 class vtkAnariSceneGraph;
+class vtkPolyData;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariPolyDataMapperNode : public vtkPolyDataMapperNode
 {
@@ -59,6 +59,9 @@ protected:
   bool ActorWasModified() const;
   void RenderSurfaceModels();
   void ClearSurfaces();
+  void SetActorNodeName();
+
+  void SetInheritInterface(vtkAnariPolyDataMapperInheritInterface* inheritInterface);
 
   void AnariRenderPoly(vtkAnariActorNode* const anariActorNode, vtkPolyData* const poly,
     double* const diffuse, const double opacity, const std::string& materialName);

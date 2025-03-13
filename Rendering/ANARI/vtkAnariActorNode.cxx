@@ -12,6 +12,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
 #include "vtkMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
@@ -29,6 +30,11 @@ vtkInformationKeyMacro(vtkAnariActorNode, LUMINOSITY, Double);
 vtkInformationKeyMacro(vtkAnariActorNode, ENABLE_SCALING, Integer);
 vtkInformationKeyMacro(vtkAnariActorNode, SCALE_ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkAnariActorNode, SCALE_FUNCTION, ObjectBase);
+vtkInformationKeyMacro(vtkAnariActorNode, ACTOR_NODE_NAME, String);
+vtkInformationKeyMacro(vtkAnariActorNode, OUTPUT_POINT_AND_CELL_ARRAYS, Integer);
+vtkInformationKeyMacro(vtkAnariActorNode, OUTPUT_POINT_AND_CELL_ARRAYS_DOUBLE_TO_FLOAT, Integer);
+vtkInformationKeyMacro(vtkAnariActorNode, SCENEGRAPH_TIME_CONSTANT_POINT_ARRAYS, StringVector);
+vtkInformationKeyMacro(vtkAnariActorNode, SCENEGRAPH_TIME_CONSTANT_CELL_ARRAYS, StringVector);
 
 //----------------------------------------------------------------------------
 vtkAnariActorNode::vtkAnariActorNode()

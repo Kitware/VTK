@@ -65,9 +65,36 @@ public:
   const anari::Extensions& GetAnariDeviceExtensions() const;
 
   /**
+   * Get the current ANARI device extensions as list of strings
+   */
+  const char* const* GetAnariDeviceExtensionStrings() const;
+
+  /**
    * Set a callback that gets called whenever a new device has been created
    */
   void SetOnNewDeviceCallback(OnNewDeviceCallback&& cb);
+
+  //@{
+  /**
+   * Methods to set/commit generic parameteters on the underlying
+   * anari::Renderer object.  These are primarily to support setting parameters
+   * from Python -- C++ users can also use the ANARI API directly by using
+   * anari::setParameter() and anari::commitParameters() directly as it is
+   * equivalent.
+   */
+  void SetParameterc(const char* param, char*);
+  void SetParameterb(const char* param, bool);
+  void SetParameteri(const char* param, int);
+  void SetParameter2i(const char* param, int, int);
+  void SetParameter3i(const char* param, int, int, int);
+  void SetParameter4i(const char* param, int, int, int, int);
+  void SetParameterf(const char* param, float);
+  void SetParameter2f(const char* param, float, float);
+  void SetParameter3f(const char* param, float, float, float);
+  void SetParameter4f(const char* param, float, float, float, float);
+  void SetParameterd(const char* param, double);
+  void CommitParameters();
+  //@}
 
 protected:
   /**

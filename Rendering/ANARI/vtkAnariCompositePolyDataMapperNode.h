@@ -22,8 +22,11 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
+class vtkActor;
+class vtkMapper;
 class vtkDataObject;
 class vtkCompositePolyDataMapper;
+class vtkCompositeDataDisplayAttributes;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariCompositePolyDataMapperNode
   : public vtkAnariPolyDataMapperNode
@@ -47,7 +50,9 @@ protected:
   vtkAnariCompositePolyDataMapperNode() = default;
   ~vtkAnariCompositePolyDataMapperNode() = default;
 
-  void SynchronizeBlock(vtkCompositePolyDataMapper*, vtkActor*, vtkDataObject*, unsigned int&);
+  void SynchronizeBlock(vtkMapper*, vtkActor*, vtkDataObject*, unsigned int&);
+
+  virtual vtkCompositeDataDisplayAttributes* GetCompositeDisplayAttributes();
 
   class RenderBlockState
   {

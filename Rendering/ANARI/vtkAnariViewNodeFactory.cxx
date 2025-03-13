@@ -5,6 +5,7 @@
 #include "vtkAnariCameraNode.h"
 #include "vtkAnariCompositePolyDataMapperNode.h"
 #include "vtkAnariFollowerNode.h"
+#include "vtkAnariGlyph3DMapperNode.h"
 #include "vtkAnariLightNode.h"
 #include "vtkAnariPolyDataMapperNode.h"
 #include "vtkAnariSceneGraph.h"
@@ -63,6 +64,12 @@ vtkViewNode* cpd_maker()
   return vn;
 }
 
+vtkViewNode* gm_maker()
+{
+  vtkAnariGlyph3DMapperNode* gm = vtkAnariGlyph3DMapperNode::New();
+  return gm;
+}
+
 vtkViewNode* fol_maker()
 {
   vtkAnariFollowerNode* vn = vtkAnariFollowerNode::New();
@@ -90,6 +97,7 @@ vtkAnariViewNodeFactory::vtkAnariViewNodeFactory()
   this->RegisterOverride("vtkSmartVolumeMapper", vm_maker);
   this->RegisterOverride("vtkAnariVolumeMapper", vm_maker);
   this->RegisterOverride("vtkMultiBlockVolumeMapper", vm_maker);
+  this->RegisterOverride("vtkGlyph3DMapper", gm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
 }
 

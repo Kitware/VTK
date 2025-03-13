@@ -58,8 +58,9 @@ struct RendererChangeCallback : vtkCommand
   vtkTimeStamp* AnariRendererModifiedTime{ nullptr };
 };
 
-struct vtkAnariSceneGraphInternals
+class vtkAnariSceneGraphInternals
 {
+public:
   vtkAnariSceneGraphInternals(vtkAnariSceneGraph*);
   ~vtkAnariSceneGraphInternals();
 
@@ -80,10 +81,13 @@ struct vtkAnariSceneGraphInternals
   anari::Frame AnariFrame{ nullptr };
 
   anari::Extensions AnariExtensions{};
+  const char* const* AnariExtensionStrings{ nullptr };
 
   std::vector<anari::Surface> AnariSurfaces;
   std::vector<anari::Volume> AnariVolumes;
   std::vector<anari::Light> AnariLights;
+
+  int MaxPropId = 0;
 };
 
 vtkAnariSceneGraphInternals::vtkAnariSceneGraphInternals(vtkAnariSceneGraph* owner)
@@ -276,8 +280,6 @@ void vtkAnariSceneGraph::UpdateAnariSurfaces()
   {
     for (size_t i = 0; i < surfaceState.size(); i++)
     {
-      std::string surfaceName = "vtk_surface_" + std::to_string(i);
-      anari::setParameter(anariDevice, surfaceState[i], "name", surfaceName.c_str());
       anari::commitParameters(anariDevice, surfaceState[i]);
     }
 
@@ -340,6 +342,12 @@ void vtkAnariSceneGraph::DebugOutputWorldBounds()
   {
     vtkWarningMacro(<< "[ANARI] World bounds not returned");
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkAnariSceneGraph::ResetReservedPropIds()
+{
+  this->Internal->MaxPropId = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -530,6 +538,8 @@ void vtkAnariSceneGraph::Build(bool prepass)
   {
     vtkRenderer* aren = vtkRenderer::SafeDownCast(this->Renderable);
 
+    ResetReservedPropIds(); // Make sure the prop ids are reset before rendering
+
     // make sure we have a camera
     if (!(aren->IsActiveCameraCreated()))
     {
@@ -685,6 +695,12 @@ const anari::Extensions& vtkAnariSceneGraph::GetAnariDeviceExtensions() const
 }
 
 //------------------------------------------------------------------------------
+const char* const* vtkAnariSceneGraph::GetAnariDeviceExtensionStrings() const
+{
+  return this->Internal->AnariExtensionStrings;
+}
+
+//------------------------------------------------------------------------------
 const unsigned char* vtkAnariSceneGraph::GetBuffer()
 {
   return this->Internal->ColorBuffer.data();
@@ -703,7 +719,13 @@ void vtkAnariSceneGraph::InvalidateSceneStructure()
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e)
+int vtkAnariSceneGraph::ReservePropId()
+{
+  return this->Internal->MaxPropId++;
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e, const char* const* es)
 {
   vtkRenderer* renderer = GetRenderer();
   if (!renderer)
@@ -720,6 +742,7 @@ void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e)
   anari::retain(d, d);
   this->Internal->AnariDevice = d;
   this->Internal->AnariExtensions = e;
+  this->Internal->AnariExtensionStrings = es;
   this->InitAnariFrame(renderer);
   this->InitAnariWorld();
 

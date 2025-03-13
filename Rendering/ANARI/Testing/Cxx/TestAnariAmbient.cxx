@@ -76,11 +76,11 @@ int TestAnariAmbient(int argc, char* argv[])
   auto* ar = anariPass->GetAnariRenderer();
   for (double i = 0.; i < 3.14; i += 0.1)
   {
-    ar->SetParameter("ambientRadiance", float(sin(i)));
+    ar->SetParameterf("ambientRadiance", float(sin(i)));
     renWin->Render();
   }
 
-  ar->SetParameter("ambientRadiance", 0.2f);
+  ar->SetParameterf("ambientRadiance", 0.2f);
   renWin->Render();
 
   int retVal = vtkTesting::PASSED;
