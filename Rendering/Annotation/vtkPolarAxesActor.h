@@ -29,6 +29,7 @@
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 #include <list>                           // To process exponent list as reference
 #include <string>                         // used for ivar
+#include <vector>                         // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
@@ -233,8 +234,8 @@ public:
    * Set/Get the labels for the polar axis.
    * Default: "Radial Distance".
    */
-  vtkSetStringMacro(PolarAxisTitle);
-  vtkGetStringMacro(PolarAxisTitle);
+  vtkGetMacro(PolarAxisTitle, std::string);
+  vtkSetMacro(PolarAxisTitle, std::string);
   ///@}
 
   ///@{
@@ -1061,14 +1062,14 @@ protected:
   /**
    * Control variables for non-polar radial axes
    */
-  vtkSmartPointer<vtkAxisActor>* RadialAxes = nullptr;
+  std::vector<vtkSmartPointer<vtkAxisActor>> RadialAxes;
 
   ///@{
   /**
    * Title to be used for the polar axis
    * NB: Non-polar radial axes use the polar angle as title and have no labels
    */
-  char* PolarAxisTitle = nullptr;
+  std::string PolarAxisTitle = "Radial Distance";
   char* PolarLabelFormat = nullptr;
   ///@}
 

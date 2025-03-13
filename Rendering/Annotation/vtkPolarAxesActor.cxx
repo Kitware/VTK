@@ -20,6 +20,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
+#include <numeric>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -276,10 +277,6 @@ vtkPolarAxesActor::vtkPolarAxesActor()
   this->ArcTickActor->SetMapper(this->ArcTickPolyDataMapper);
   this->ArcMinorTickActor->SetMapper(this->ArcMinorTickPolyDataMapper);
 
-  // Default title for polar axis (sometimes also called "Radius")
-  this->PolarAxisTitle = new char[16];
-  snprintf(this->PolarAxisTitle, 16, "%s", "Radial Distance");
-
   this->PolarLabelFormat = new char[8];
   snprintf(this->PolarLabelFormat, 8, "%s", "%-#6.3g");
 
@@ -297,15 +294,6 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   delete[] this->RadialAngleFormat;
   this->RadialAngleFormat = nullptr;
-
-  delete[] this->PolarAxisTitle;
-  this->PolarAxisTitle = nullptr;
-
-  if (this->RadialAxes)
-  {
-    delete[] this->RadialAxes;
-    this->RadialAxes = nullptr;
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -888,7 +876,7 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
 
   // Set polar axis title
   axis->SetTitleVisibility(this->PolarTitleVisibility);
-  axis->SetTitle(this->PolarAxisTitle);
+  axis->SetTitle(this->PolarAxisTitle.c_str());
   axis->SetTitleTextProperty(this->PolarAxisTitleTextProperty);
   axis->SetTitleOffset(this->PolarTitleOffset);
 
@@ -949,17 +937,12 @@ void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
     return;
   }
 
-  // Delete existing secondary radial axes
-  if (this->RadialAxes)
-  {
-    delete[] this->RadialAxes;
-    this->RadialAxes = nullptr;
-  }
+  this->RadialAxes.clear();
 
   this->NumberOfRadialAxes = axisCount;
 
   // Create requested number of secondary radial axes
-  this->RadialAxes = new vtkSmartPointer<vtkAxisActor>[this->NumberOfRadialAxes];
+  this->RadialAxes.resize(this->NumberOfRadialAxes);
   for (int i = 0; i < this->NumberOfRadialAxes; ++i)
   {
     // Create axis of type X
@@ -1073,7 +1056,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
     }
 
     // Set radial axis endpoints
-    vtkAxisActor* axis = this->RadialAxes[i].Get();
+    vtkAxisActor* axis = this->RadialAxes[i];
 
     // The last arc has its own property
     if (isLastAxis)
@@ -1479,45 +1462,37 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
         // Add polar arc
         vtkPoints* arcPoints = nullptr;
         vtkIdType nPoints = 0;
-        vtkIdType* arcPointIds = nullptr;
         if (arc->GetOutput()->GetNumberOfPoints() > 0)
         {
           arcPoints = arc->GetOutput()->GetPoints();
           nPoints = arcResolution + 1;
-          arcPointIds = new vtkIdType[nPoints];
+          std::vector<vtkIdType> arcPointIds(nPoints);
+          std::iota(arcPointIds.begin(), arcPointIds.end(), 0);
           for (vtkIdType j = 0; j < nPoints; ++j)
           {
             polarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
-            arcPointIds[j] = j;
           }
-          polarArcsLines->InsertNextCell(nPoints, arcPointIds);
+          polarArcsLines->InsertNextCell(nPoints, arcPointIds.data());
         }
-
-        // Clean up
-        delete[] arcPointIds;
       }
       else
       {
         // Append new secondary polar arc to existing ones
         vtkPoints* arcPoints = nullptr;
         vtkIdType nPoints = 0;
-        vtkIdType* arcPointIds = nullptr;
         if (arc->GetOutput()->GetNumberOfPoints() > 0)
         {
           arcPoints = arc->GetOutput()->GetPoints();
           nPoints = arcResolution + 1;
-          arcPointIds = new vtkIdType[nPoints];
+          std::vector<vtkIdType> arcPointIds(nPoints);
+          std::iota(arcPointIds.begin(), arcPointIds.end(), pointIdOffset);
 
           for (vtkIdType j = 0; j < nPoints; ++j)
           {
             secondaryPolarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
-            arcPointIds[j] = pointIdOffset + j;
           }
-          secondaryPolarArcsLines->InsertNextCell(nPoints, arcPointIds);
+          secondaryPolarArcsLines->InsertNextCell(nPoints, arcPointIds.data());
         }
-
-        // Clean up
-        delete[] arcPointIds;
 
         // Update polyline cell offset
         pointIdOffset += nPoints;
@@ -1713,42 +1688,37 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
       // Add principal polar arc
       vtkPoints* arcPoints = nullptr;
       vtkIdType nPoints;
-      vtkIdType* arcPointIds = nullptr;
       if (arc->GetOutput()->GetNumberOfPoints() > 0)
       {
         arcPoints = arc->GetOutput()->GetPoints();
         nPoints = arcResolution + 1;
-        arcPointIds = new vtkIdType[nPoints];
+        std::vector<vtkIdType> arcPointIds(nPoints);
+        std::iota(arcPointIds.begin(), arcPointIds.end(), 0);
         for (vtkIdType j = 0; j < nPoints; ++j)
         {
           polarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
-          arcPointIds[j] = j;
         }
-        polarArcsLines->InsertNextCell(nPoints, arcPointIds);
+        polarArcsLines->InsertNextCell(nPoints, arcPointIds.data());
       }
-      // Clean up
-      delete[] arcPointIds;
     }
     else
     {
       // Append new polar arc to existing ones
       vtkPoints* arcPoints = nullptr;
       vtkIdType nPoints = 0;
-      vtkIdType* arcPointIds = nullptr;
       if (arc->GetOutput()->GetNumberOfPoints() > 0)
       {
         arcPoints = arc->GetOutput()->GetPoints();
         nPoints = arcResolution + 1;
-        arcPointIds = new vtkIdType[nPoints];
+        std::vector<vtkIdType> arcPointIds(nPoints);
+        std::iota(arcPointIds.begin(), arcPointIds.end(), pointIdOffset);
         for (vtkIdType j = 0; j < nPoints; ++j)
         {
           secondaryPolarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
           arcPointIds[j] = pointIdOffset + j;
         }
-        secondaryPolarArcsLines->InsertNextCell(nPoints, arcPointIds);
+        secondaryPolarArcsLines->InsertNextCell(nPoints, arcPointIds.data());
       }
-      // Clean up
-      delete[] arcPointIds;
 
       // Update polyline cell offset
       pointIdOffset += nPoints;
