@@ -10,6 +10,9 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkConduitArrayUtilities.h"
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#include "vtkConduitArrayUtilitiesDevice.h"
+#endif
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
@@ -813,6 +816,11 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
   {
     if (vtk_cell_type == VTK_POLYHEDRON)
     {
+      IS_DEVICE_POINTER(const_cast<void*>(connectivity.element_ptr(0)));
+      if (isDevicePointer)
+      {
+        throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+      }
       // polyhedra uses O2M and not M2C arrays, so need to process it
       // differently.
       conduit_cpp::Node t_elements = topologyNode["elements"];
@@ -938,6 +946,8 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   auto unstructured = vtkSmartPointer<vtkUnstructuredGrid>::New();
   // mixed shapes definition
   conduit_cpp::Node shape_map = topologyNode["elements/shape_map"];
+  auto connectivity = topologyNode["elements/connectivity"];
+  IS_DEVICE_POINTER(const_cast<void*>(connectivity.element_ptr(0)));
 
   // check presence of polyhedra
   bool hasPolyhedra(false);
@@ -948,6 +958,11 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     int cellType = child.to_int32();
     hasPolyhedra |= (cellType == VTK_POLYHEDRON);
   }
+  if (isDevicePointer && hasPolyhedra)
+  {
+    throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+  }
+
   // if polyhedra are present, the subelements should be present as well.
   if (hasPolyhedra &&
     !(topologyNode.has_path("subelements/shape") &&

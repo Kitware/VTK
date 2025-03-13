@@ -215,25 +215,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkConduitArrayUtilities);
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);                   \
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__id);                                   \
-  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))               \
-  {                                                                                                \
-    vtkLogF(ERROR, "Device %d is not available at runtime", __id);                                 \
-    return nullptr;                                                                                \
-  }
-
-#else
-#define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
-#endif
-
 //----------------------------------------------------------------------------
 vtkConduitArrayUtilities::vtkConduitArrayUtilities() = default;
 
