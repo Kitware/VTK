@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -55,7 +55,7 @@ static int ex_write_object_names(int exoid, const char *type, const char *dimens
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s name array in file id %d", type,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
     exi_set_compact_storage(exoid, varid);
 #if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
@@ -63,7 +63,7 @@ static int ex_write_object_names(int exoid, const char *type, const char *dimens
     nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
   }
-  return (NC_NOERR);
+  return EX_NOERR;
 }
 
 static int ex_write_object_params(int exoid, const char *type, const char *dimension_name,
@@ -79,7 +79,7 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define number of %ss in file id %d", type,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
     /* ...and some variables */
     /* element block id status array */
@@ -91,10 +91,10 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s status array in file id %d",
                type, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
 
-    int sixty_four_kb = 64 * 1024; // Compact storage can only be used for < 64KiByte data sizes
+    size_t sixty_four_kb = 64 * 1024; // Compact storage can only be used for < 64KiByte data sizes
     if (4 * count < sixty_four_kb) {
       exi_set_compact_storage(exoid, varid);
     }
@@ -112,7 +112,7 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s id array in file id %d", type,
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
     if (int_size * count < sixty_four_kb) {
       exi_set_compact_storage(exoid, varid);
@@ -124,10 +124,10 @@ static int ex_write_object_params(int exoid, const char *type, const char *dimen
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store %s property name %s in file id %d",
                type, "ID", exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status);
+      return status;
     }
   }
-  return (NC_NOERR);
+  return EX_NOERR;
 }
 
 static int ex_write_map_params(int exoid, const char *map_name, const char *map_dim_name,
@@ -147,7 +147,7 @@ static int ex_write_map_params(int exoid, const char *map_name, const char *map_
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define number of %ss in file id %d",
                map_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
 
     int dim[] = {*map_dimension};
@@ -159,7 +159,7 @@ static int ex_write_map_params(int exoid, const char *map_name, const char *map_
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define %s id array in file id %d",
                map_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (status); /* exit define mode and return */
+      return status; /* exit define mode and return */
     }
 
     /*   store property name as attribute of property array variable */
@@ -168,10 +168,10 @@ static int ex_write_map_params(int exoid, const char *map_name, const char *map_
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to store %s property name %s in file id %d",
                map_name, "ID", exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
-  return (NC_NOERR);
+  return EX_NOERR;
 }
 
 static void invalidate_id_status(int exoid, const char *var_stat, const char *var_id, int count,
@@ -229,10 +229,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   int timedim   = 0;
   int status    = 0;
   int title_len = 0;
-#if 0
-  /* used for header size calculations which are turned off for now */
-  int header_size, fixed_var_size, iows;
-#endif
+
   EX_FUNC_ENTER();
   if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {
     EX_FUNC_LEAVE(EX_FATAL);
@@ -247,7 +244,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
   }
 
   /* put file into define mode */
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
@@ -269,7 +266,7 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
 
   /* create name string length dimension */
   if (nc_inq_dimid(rootid, DIM_STR_NAME, &dim_str_name) != NC_NOERR) {
-    if ((status = nc_def_dim(rootid, DIM_STR_NAME, NC_MAX_NAME, &dim_str_name)) != NC_NOERR) {
+    if ((status = nc_def_dim(rootid, DIM_STR_NAME, EX_MAX_NAME, &dim_str_name)) != NC_NOERR) {
       char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define name string length in file id %d",
                rootid);
@@ -293,10 +290,18 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
     ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret;
   }
+
   {
     struct exi_file_item *file = exi_find_file_item(exoid);
-    file->time_varid           = temp;
+    if (!file) {
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: unknown file id %d.", exoid);
+      ex_err_fn(exoid, __func__, errmsg, EX_BADFILEID);
+      goto error_ret;
+    }
+    file->time_varid = temp;
   }
+
   exi_compress_variable(exoid, temp, -2); /* Don't compress, but do set collective io */
 
   if (model->num_dim > 0) {
@@ -317,7 +322,21 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
    * non-zero node count.
    */
 
+  int    int_size = ex_int64_status(exoid) & EX_IDS_INT64_DB ? 8 : 4;
+  size_t twoGiB   = 1ul << 31;
+
   if (model->num_nodes > 0) {
+    // If file is using 32-bit integers, check what node count is in range...
+    if (int_size == 4 && model->num_nodes >= twoGiB) {
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH,
+               "ERROR: File is using 32-bit integers, but the node count exceeds the integer "
+               "capacity (%" PRId64 ") in file id %d",
+               model->num_nodes, exoid);
+      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+      goto error_ret;
+    }
+
     if ((status = nc_def_dim(exoid, DIM_NUM_NODES, model->num_nodes, &numnoddim)) != NC_NOERR) {
       char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to define number of nodes in file id %d",
@@ -336,6 +355,16 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
                exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
       goto error_ret; /* exit define mode and return */
+    }
+
+    if (int_size == 4 && model->num_elem >= twoGiB) {
+      char errmsg[MAX_ERR_LENGTH];
+      snprintf(errmsg, MAX_ERR_LENGTH,
+               "ERROR: File is using 32-bit integers, but the element count exceeds the integer "
+               "capacity (%" PRId64 ") in file id %d",
+               model->num_elem, exoid);
+      ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
+      goto error_ret;
     }
 
     if ((status = nc_def_dim(exoid, DIM_NUM_ELEM, model->num_elem, &temp)) != NC_NOERR) {
@@ -542,8 +571,8 @@ int ex_put_init_ext(int exoid, const ex_init_params *model)
 
   /* Fill the id and status arrays with EX_INVALID_ID */
   {
-    int   *invalid_ids = NULL;
-    size_t maxset      = model->num_elem_blk;
+    int    *invalid_ids = NULL;
+    int64_t maxset      = model->num_elem_blk;
     if (maxset < model->num_edge_blk) {
       maxset = model->num_edge_blk;
     }

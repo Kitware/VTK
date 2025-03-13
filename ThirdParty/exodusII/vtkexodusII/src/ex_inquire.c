@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -974,6 +974,14 @@ static int ex_inquire_internal(int exoid, int req_info, int64_t *ret_int, float 
     nc_inq_grpname_full(exoid, NULL, ret_char);
 #endif
     break;
+
+  case EX_INQ_FILE_FORMAT: {
+    /* return netCDF file format.
+     */
+    int nc_format = 0;
+    nc_inq_format(exoid, &nc_format);
+    *ret_int = nc_format;
+  } break;
 
   case EX_INQ_THREADSAFE:
 /* Return 1 if the library was compiled in thread-safe mode.

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -47,7 +47,7 @@ int ex_get_var_time(int exoid, ex_entity_type var_type, int var_index, int64_t i
   int         dimid, varid;
   int         status;
   int        *stat_vals = NULL;
-  size_t      numel     = 0;
+  int64_t     numel     = 0;
   size_t      num_obj, i;
   size_t      num_entries_this_obj = 0;
   size_t      start[2], count[2];

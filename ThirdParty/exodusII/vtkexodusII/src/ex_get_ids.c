@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -46,6 +46,11 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
     int          num_found = 0;
     struct ncvar var;
     int          nvars;
+    int          rootid         = exoid & EX_FILE_ID_MASK;
+    int          root_var_count = 0;
+    if (rootid != exoid) {
+      nc_inq(rootid, NULL, &root_var_count, NULL, NULL);
+    }
     nc_inq(exoid, NULL, &nvars, NULL, NULL);
     char *type = NULL;
     if (obj_type == EX_ASSEMBLY) {
@@ -55,7 +60,7 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
       type = "blob_entity";
     }
 
-    for (int varid = 0; varid < nvars; varid++) {
+    for (int varid = root_var_count; varid < nvars + root_var_count; varid++) {
       int status;
       if ((status = nc_inq_var(exoid, varid, var.name, &var.type, &var.ndims, var.dims,
                                &var.natts)) != NC_NOERR) {
@@ -95,9 +100,10 @@ static int ex_get_nonstandard_ids(int exoid, ex_entity_type obj_type, void_int *
 
 int ex_get_ids(int exoid, ex_entity_type obj_type, void_int *ids)
 {
-  int varid, status;
+  int varid  = 0;
+  int status = 0;
 
-  const char *varidobj;
+  const char *varidobj = NULL;
 
   EX_FUNC_ENTER();
   if (exi_check_valid_file_id(exoid, __func__) == EX_FATAL) {

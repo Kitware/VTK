@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -36,9 +36,9 @@
 int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
                                   void_int *side_set_node_list_len)
 {
-  size_t    ii, i, j;
+  int64_t   ii, i, j;
   int64_t   num_side_sets, num_elem_blks, num_df, ndim;
-  size_t    list_len     = 0;
+  int64_t   list_len     = 0;
   int64_t   tot_num_elem = 0, tot_num_ss_elem = 0;
   void_int *elem_blk_ids   = NULL;
   int      *ss_elem_ndx    = NULL;
@@ -261,8 +261,8 @@ int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
   list_len = 0;
   j        = 0; /* The current element block... */
   for (ii = 0; ii < tot_num_ss_elem; ii++) {
-    size_t elem;
-    size_t side;
+    int64_t elem;
+    int64_t side;
     if (ints_64) {
       i    = ss_elem_ndx_64[ii];
       elem = ((int64_t *)side_set_elem_list)[i];
@@ -290,8 +290,8 @@ int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
 
     if (j >= num_elem_blks) {
       snprintf(errmsg, MAX_ERR_LENGTH,
-               "ERROR: Invalid element number %zu found in side set %" PRId64 " in file %d", elem,
-               side_set_id, exoid);
+               "ERROR: Invalid element number %" PRId64 " found in side set %" PRId64 " in file %d",
+               elem, side_set_id, exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
       err_stat = EX_FATAL;
       goto cleanup;
@@ -310,7 +310,8 @@ int ex_get_side_set_node_list_len(int exoid, ex_entity_id side_set_id,
     if (list_len != num_df) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "Warning: In side set %" PRId64 " the distribution factor count (%" PRId64
-               ") does not match the side set node list length (%zu). These should match and this "
+               ") does not match the side set node list length (%" PRId64
+               "). These should match and this "
                "may indicate a corrupt database in file %d",
                side_set_id, num_df, list_len, exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_MSG);

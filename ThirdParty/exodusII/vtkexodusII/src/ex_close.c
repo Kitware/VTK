@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -57,6 +57,11 @@ int ex_close(int exoid)
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
+#ifndef NDEBUG
+  struct exi_file_item *file = exi_find_file_item(exoid);
+  assert(!file->in_define_mode && file->persist_define_mode == 0);
+#endif
+
   /*
    * NOTE: If using netcdf-4, exoid must refer to the root group.
    * Need to determine whether there are any groups and if so,
@@ -66,16 +71,16 @@ int ex_close(int exoid)
   /*
    * Get exoid of root group
    */
-  exoid &= EX_FILE_ID_MASK;
 
   if ((status1 = nc_sync(exoid)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to update file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, status1);
   }
 
-  if ((status2 = nc_close(exoid)) != NC_NOERR) {
-    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to close file id %d", exoid);
-    ex_err_fn(exoid, __func__, errmsg, status2);
+  int root_id = exoid & EX_FILE_ID_MASK;
+  if ((status2 = nc_close(root_id)) != NC_NOERR) {
+    snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to close file id %d", root_id);
+    ex_err_fn(root_id, __func__, errmsg, status2);
   }
 
   /* Even if we have failures above due to nc_sync() or nc_close(), we still need to clean up our

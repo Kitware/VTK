@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -81,7 +81,7 @@ int ex_get_partial_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_
   }
 
   /* Check input parameters for a valid range of numbers */
-  if (ent_start <= 0 || ent_start > num_mobj) {
+  if (ent_start <= 0 || ent_start > (int64_t)num_mobj) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: start count is invalid in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     EX_FUNC_LEAVE(EX_FATAL);
@@ -93,7 +93,7 @@ int ex_get_partial_num_map(int exoid, ex_entity_type map_type, ex_entity_id map_
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (ent_start + ent_count - 1 > num_mobj) {
+  if (ent_start + ent_count - 1 > (int64_t)num_mobj) {
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: start+count-1 is larger than element count in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);

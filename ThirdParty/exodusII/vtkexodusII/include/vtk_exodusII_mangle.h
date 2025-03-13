@@ -4,7 +4,7 @@
 /**
  * Generated using:
  *
- * nm -g lib/libvtkexodusII-9.3.so |   grep -e ' [TDRSB] ' |\
+ * nm -g lib/libvtkexodusII-9.4.so |   grep -e ' [TDRSB] ' |\
  *   cut -d' ' -f3 | grep -v -e '^_init$' -e '^_fini$' -e '^_edata$' -e '^__bss_start$' -e 'vtkexodusII_' | \
  *   sort | sed -e 's/\(.*\)/#define \1 vtkexodusII_\1/' > /tmp/vtk_exodusII_mangle.h
  */
@@ -232,6 +232,8 @@
 #define ex_inquire_int vtkexodusII_ex_inquire_int
 #define ex_int64_status vtkexodusII_ex_int64_status
 #define ex_int_write_conn vtkexodusII_ex_int_write_conn
+#define exi_persist_leavedef vtkexodusII_exi_persist_leavedef
+#define exi_persist_redef vtkexodusII_exi_persist_redef
 #define exi_populate_header vtkexodusII_exi_populate_header
 #define exi_pthread_first_thread_init vtkexodusII_exi_pthread_first_thread_init
 #define exi_put_assembly_name vtkexodusII_exi_put_assembly_name
@@ -244,6 +246,7 @@
 #define exi_put_partial_nodal_var vtkexodusII_exi_put_partial_nodal_var
 #define exi_put_quad_attribute vtkexodusII_exi_put_quad_attribute
 #define exi_put_type_attribute vtkexodusII_exi_put_type_attribute
+#define exi_redef vtkexodusII_exi_redef
 #define exi_reset_error_status vtkexodusII_exi_reset_error_status
 #define exi_rm_file_item vtkexodusII_exi_rm_file_item
 #define exi_rm_stat_ptr vtkexodusII_exi_rm_stat_ptr
@@ -321,6 +324,7 @@
 #define ex_put_loadbal_param_cc vtkexodusII_ex_put_loadbal_param_cc
 #define ex_put_map vtkexodusII_ex_put_map
 #define ex_put_map_param vtkexodusII_ex_put_map_param
+#define ex_put_multi_field_metadata vtkexodusII_ex_put_multi_field_metadata
 #define ex_put_name vtkexodusII_ex_put_name
 #define ex_put_names vtkexodusII_ex_put_names
 #define ex_put_n_attr vtkexodusII_ex_put_n_attr

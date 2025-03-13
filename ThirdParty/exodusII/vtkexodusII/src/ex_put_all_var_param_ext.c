@@ -144,7 +144,7 @@ int ex_put_all_var_param_ext(int exoid, const ex_var_params *vp)
                     EX_ELEM_SET, VAR_ELS_STAT, elset_stat);
 
   /* put file into define mode  */
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     goto error_ret;
@@ -356,7 +356,7 @@ static int define_dimension(int exoid, const char *DIMENSION, int count, const c
       ex_err_fn(exoid, __func__, errmsg, status);
     }
   }
-  return (status);
+  return status;
 }
 
 static int define_variable_name_variable(int exoid, const char *VARIABLE, int dimension,
@@ -387,7 +387,7 @@ static int define_variable_name_variable(int exoid, const char *VARIABLE, int di
   int fill = NC_FILL_CHAR;
   nc_def_var_fill(exoid, variable, 0, &fill);
 #endif
-  return (status);
+  return status;
 }
 
 static int *get_status_array(int exoid, int var_count, const char *VARIABLE, const char *label)
@@ -399,7 +399,7 @@ static int *get_status_array(int exoid, int var_count, const char *VARIABLE, con
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: failed to allocate memory for %s status array for file id %d", label, exoid);
     ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
-    return (NULL);
+    return NULL;
   }
 
   /* get variable id of status array */
@@ -415,7 +415,7 @@ static int *get_status_array(int exoid, int var_count, const char *VARIABLE, con
       snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get %s status array from file id %d",
                label, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (NULL);
+      return NULL;
     }
   }
   else {
@@ -489,7 +489,7 @@ static int define_truth_table(ex_entity_type obj_type, int exoid, int num_ent, i
                      "ERROR: failed to locate number of entities in %s %" PRId64 " in file id %d",
                      label, id, exoid);
             ex_err_fn(exoid, __func__, errmsg, status);
-            return (status);
+            return status;
           }
 
           /* define netCDF variable to store variable values;
@@ -506,7 +506,7 @@ static int define_truth_table(ex_entity_type obj_type, int exoid, int num_ent, i
                        "ERROR: failed to define %s variable for %s %" PRId64 " in file id %d",
                        label, label, id, exoid);
               ex_err_fn(exoid, __func__, errmsg, status);
-              return (status);
+              return status;
             }
           }
           exi_compress_variable(exoid, varid, 2);

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -36,7 +36,11 @@
 
 int ex_get_truth_table(int exoid, ex_entity_type obj_type, int num_blk, int num_var, int *var_tab)
 {
-  int    dimid, varid, tabid, status, status1;
+  int    dimid      = 0;
+  int    varid      = 0;
+  int    tabid      = 0;
+  int    status     = 0;
+  int    status1    = 0;
   size_t num_var_db = 0;
   char   errmsg[MAX_ERR_LENGTH];
 

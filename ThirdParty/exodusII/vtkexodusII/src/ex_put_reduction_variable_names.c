@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -54,9 +54,9 @@ static int ex_put_var_names_int(int exoid, ex_entity_type obj_type, int num_vars
                tname, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
-    return (EX_FATAL);
+    return EX_FATAL;
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 
 /*!

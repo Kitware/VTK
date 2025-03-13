@@ -57,7 +57,7 @@ int ex_put_coordinate_frames(int exoid, int nframes, const void_int *cf_ids,
   /* make the definitions */
   /* go into define mode. define num_frames, num_frames9 */
   int status;
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to place file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);

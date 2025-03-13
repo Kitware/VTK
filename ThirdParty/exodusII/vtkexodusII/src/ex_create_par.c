@@ -192,15 +192,31 @@ int ex_create_par_int(const char *path, int cmode, int *comp_ws, int *io_ws, MPI
   }
 #endif
 
+#if NC_HAS_PNETCDF
+  bool i_created_info = false;
+  if (info == MPI_INFO_NULL) {
+    MPI_Info_create(&info);
+    i_created_info = true;
+  }
+  MPI_Info_set(info, "nc_header_align_size", "1048576");
+#endif
   /* There is an issue on some versions of mpi that limit the length of the path to <250 characters
    * Check for that here and use `path` if `canon_path` is >=250 characters...
    */
+
   if (strlen(canon_path) >= 250) {
     status = nc_create_par(path, nc_mode, comm, info, &exoid);
   }
   else {
     status = nc_create_par(canon_path, nc_mode, comm, info, &exoid);
   }
+
+#if NC_HAS_PNETCDF
+  if (i_created_info) {
+    MPI_Info_free(&info);
+  }
+#endif
+
   if (status != NC_NOERR) {
     if (my_mode & EX_NETCDF4) {
 #if NC_HAS_PARALLEL4

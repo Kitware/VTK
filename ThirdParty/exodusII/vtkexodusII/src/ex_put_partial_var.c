@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -31,7 +31,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
                ex_name_of_object(var_type), obj_id, VOBJID, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     obj_id_ndx = obj_id;
   }
@@ -42,7 +42,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
                ex_name_of_object(var_type), obj_id, VOBJID, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
     obj_id_ndx = obj_id;
   }
@@ -58,14 +58,14 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                    "Warning: no variables allowed for NULL block %" PRId64 " in file id %d", obj_id,
                    exoid);
           ex_err_fn(exoid, __func__, errmsg, EX_NULLENTITY);
-          return (EX_WARN);
+          return EX_WARN;
         }
 
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to locate %s id %" PRId64 " in %s array in file id %d",
                  ex_name_of_object(var_type), obj_id, VOBJID, exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
   }
@@ -79,13 +79,13 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
         status = exi_get_dimension(exoid, DNUMOBJ, ex_name_of_object(var_type), &num_obj, &dimid,
                                    __func__);
         if (status != NC_NOERR) {
-          return (status);
+          return status;
         }
 
         status = exi_get_dimension(exoid, DNUMOBJVAR, ex_name_of_object(var_type), &num_obj_var,
                                    &dimid, __func__);
         if (status != NC_NOERR) {
-          return (status);
+          return status;
         }
 
         if (!(obj_var_truth_tab = malloc(num_obj * num_obj_var * sizeof(int)))) {
@@ -94,7 +94,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                    "truth table in file id %d",
                    ex_name_of_object(var_type), exoid);
           ex_err_fn(exoid, __func__, errmsg, EX_MEMFAIL);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         /*   read in the TNAME variable truth table */
@@ -102,7 +102,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get truth table from file id %d",
                    exoid);
           ex_err_fn(exoid, __func__, errmsg, status);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
 
         if (obj_var_truth_tab[num_obj_var * (obj_id_ndx - 1) + var_index - 1] == 0L) {
@@ -111,7 +111,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
               errmsg, MAX_ERR_LENGTH, "ERROR: Invalid %s variable %d, %s %" PRId64 " in file id %d",
               ex_name_of_object(var_type), var_index, ex_name_of_object(var_type), obj_id, exoid);
           ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
-          return (EX_FATAL);
+          return EX_FATAL;
         }
         free(obj_var_truth_tab);
       }
@@ -127,10 +127,10 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                         ex_name_of_object(var_type), &num_entity, &numobjdim, __func__);
 
       /*    variable doesn't exist so put file into define mode  */
-      if ((status = nc_redef(exoid)) != NC_NOERR) {
+      if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
-        return (EX_FATAL);
+        return EX_FATAL;
       }
 
       /* define netCDF variable to store TNAME variable values */
@@ -147,7 +147,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
 
       /*    leave define mode  */
       if ((status = exi_leavedef(exoid, __func__)) != NC_NOERR) {
-        return (EX_FATAL);
+        return EX_FATAL;
       }
     }
     else {
@@ -155,15 +155,15 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                ex_name_of_object(var_type), exi_name_var_of_object(var_type, var_index, obj_id_ndx),
                exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
-      return (EX_FATAL);
+      return EX_FATAL;
     }
   }
-  return (EX_NOERR);
+  return EX_NOERR;
 
 /* Fatal error: exit definition mode and return */
 error_ret:
   exi_leavedef(exoid, __func__);
-  return (EX_FATAL);
+  return EX_FATAL;
 }
 
 /*!
