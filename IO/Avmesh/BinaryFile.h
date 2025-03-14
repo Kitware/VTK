@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 #ifndef BinaryFile_h
 #define BinaryFile_h
 

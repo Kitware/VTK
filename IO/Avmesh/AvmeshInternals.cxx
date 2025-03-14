@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include "AvmeshInternals.h"
 #include "AvmeshMetadata.h"
 #include "BinaryFile.h"
