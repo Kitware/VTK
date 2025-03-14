@@ -9,6 +9,7 @@
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
+#include "vtkLookupTable.h"
 #include "vtkSerializer.h"
 #include "vtkShortArray.h"
 #include "vtkTypeFloat32Array.h"
@@ -109,6 +110,10 @@ struct vtkDataArraySerializer
                                        << " failed to add blob " << blob->GetObjectDescription());
       return;
     }
+    if (auto lt = array->GetLookupTable())
+    {
+      state["LookupTable"] = serializer->SerializeJSON(lt);
+    }
   }
 };
 
@@ -142,6 +147,7 @@ struct vtkDataArrayDeserializer
     // nifty memory savings below, unfortunately, doesn't work correctly when there are point
     // scalars.
     // array->SetVoidArray(const_cast<void*>(c_ptr), array->GetNumberOfValues(), 1);
+    VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 };
 }
