@@ -1263,22 +1263,18 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       {
         for (int i = 0; i < lastLightCount; ++i)
         {
-          toString << "  L = lightPositionVC" << i
-                   << " - vertexVC.xyz;\n"
-                      "  distanceVC = length(L);\n"
-                      "  L = normalize(L);\n"
-                      "  H = normalize(V + L);\n"
-                      "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
-                      "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
-                      "  HdL = clamp(dot(H, L), 1e-5, 1.0);\n"
-                      "  if (lightPositional"
-                   << i
-                   << " == 0)\n"
-                      "  {\n"
+          toString << "  if (lightPositional" << i
+                   << " == 0) {\n"
                       "    attenuation = 1.0;\n"
-                      "  }\n"
-                      "  else\n"
-                      "  {\n"
+                      "    L = -lightDirectionVC"
+                   << i
+                   << ";\n"
+                      "  } else {\n"
+                      "    L = lightPositionVC"
+                   << i
+                   << " - vertexVC.xyz;\n"
+                      "    distanceVC = length(L);\n"
+                      "    L = normalize(L);\n"
                       "    attenuation = 1.0 / (lightAttenuation"
                    << i
                    << ".x\n"
@@ -1310,8 +1306,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                       "      }\n"
                       "    }\n"
                       "  }\n"
+                      "  H = normalize(V + L);\n"
+                      "  NdL = clamp(dot(N, L), 1e-5, 1.0);\n"
+                      "  NdH = clamp(dot(N, H), 1e-5, 1.0);\n"
+                      "  HdL = clamp(dot(H, L), 1e-5, 1.0);\n"
                       "  radiance = lightColor"
-                   << i << " * attenuation;\n";
+                   << i
+                   << ";\n"
+                      "  radiance *= attenuation;\n";
 
           if (hasAnisotropy)
           {
