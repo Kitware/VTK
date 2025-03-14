@@ -4,7 +4,7 @@
 #include "BinaryFile.h"
 
 BinaryFile::BinaryFile(const char* fname)
-  : fin(fname, std::ios::binary)
+  : InFile(fname, std::ios::binary)
   , NeedSwap(false)
 {
 }
@@ -13,29 +13,29 @@ BinaryFile::~BinaryFile() = default;
 
 bool BinaryFile::good() const
 {
-  return fin.good();
+  return this->InFile.good();
 }
 
 int BinaryFile::ReadInt()
 {
-  return ReadOne<int>();
+  return this->ReadOne<int>();
 }
 
 double BinaryFile::ReadDouble()
 {
-  return ReadOne<double>();
+  return this->ReadOne<double>();
 }
 
 void BinaryFile::ReadCString(char* s, size_t n)
 {
-  fin.read(s, n);
+  this->InFile.read(s, n);
 }
 
 std::string BinaryFile::ReadStdString()
 {
-  int len = ReadInt();
+  int len = this->ReadInt();
   std::string s(len, '\0');
-  ReadCString(s.data(), len);
+  this->ReadCString(s.data(), len);
   return s;
 }
 
@@ -51,5 +51,5 @@ int BinaryFile::SwapInt(int x)
 
 void BinaryFile::SetSwap(bool val)
 {
-  NeedSwap = val;
+  this->NeedSwap = val;
 }

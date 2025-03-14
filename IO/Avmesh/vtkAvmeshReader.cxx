@@ -36,7 +36,7 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    ReadAvmesh(output, FileName, SurfaceOnly);
+    ReadAvmesh(output, this->FileName, this->SurfaceOnly);
   }
   catch (AvmeshError const& ex)
   {

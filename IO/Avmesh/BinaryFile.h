@@ -19,8 +19,8 @@ public:
   template <typename T>
   void ReadArray(T* array, size_t nitems)
   {
-    fin.read((char*)array, nitems * sizeof(T));
-    if (NeedSwap)
+    this->InFile.read((char*)array, nitems * sizeof(T));
+    if (this->NeedSwap)
     {
 #ifdef VTK_WORDS_BIGENDIAN
       vtkByteSwap::SwapBERange(array, nitems);
@@ -34,7 +34,7 @@ public:
   T ReadOne()
   {
     T x;
-    ReadArray(&x, 1);
+    this->ReadArray(&x, 1);
     return x;
   }
 
@@ -51,7 +51,7 @@ public:
   void SetSwap(bool val);
 
 private:
-  std::ifstream fin;
+  std::ifstream InFile;
   bool NeedSwap;
 };
 
