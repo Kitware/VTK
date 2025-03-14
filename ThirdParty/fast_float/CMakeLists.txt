@@ -7,9 +7,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright (c) 2021 The fast_float authors"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/fast_float.git@for/vtk-20230309-3.9.0"
+      "git+https://gitlab.kitware.com/third-party/fast_float.git@for/vtk-20250313-8.0.2"
     VERSION
-      "3.9.0"
+      "8.0.2"
     STANDARD_INCLUDE_DIRS
     HEADER_ONLY
   EXTERNAL
