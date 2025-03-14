@@ -12,6 +12,7 @@ endif ()
 
 set(vtk_cmake_dir "${VTK_SOURCE_DIR}/CMake")
 list(INSERT CMAKE_MODULE_PATH 0 "${vtk_cmake_dir}")
+include(vtkCI)
 
 if (APPLE)
   include(vtkApple)
