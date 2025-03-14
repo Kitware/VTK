@@ -4,8 +4,9 @@
 #ifndef DIY_USE_SPDLOG
 
 #include <memory>
-#include "thirdparty/fmt/format.h"
-#include "thirdparty/fmt/ostream.h"
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 
 namespace diy
 {

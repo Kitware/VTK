@@ -5,7 +5,7 @@
 /// to thier correct types.
 
 #ifndef DIY_HAS_MPI
-#  include <mpi.h>
+#  include <vtk_mpi.h>
 #endif
 
 namespace diy
