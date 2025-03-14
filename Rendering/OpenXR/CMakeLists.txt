@@ -1,4 +1,4 @@
-vtk_module_find_package(PACKAGE OpenXR)
+vtk_module_find_package(PACKAGE OpenXR VERSION 1.0.31)
 
 set(classes
   vtkOpenXRRenderWindow
