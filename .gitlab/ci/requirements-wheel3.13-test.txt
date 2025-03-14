@@ -1,0 +1,7 @@
+# This file should always contain exact version references so that we know what
+# we are actually testing at any given point.
+
+# For XArray to vtkNetCDFCFReader connector
+xarray==2024.7.0
+netcdf4==1.7.2
+cftime==1.6.4.post1

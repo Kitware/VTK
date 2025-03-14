@@ -250,7 +250,8 @@
         - *before_script_macos_deps
         - "$DEVELOPER_DIR/Library/Frameworks/Python3.framework/Versions/Current/bin/python3 -m venv build/ci-venv"
         - . build/ci-venv/bin/activate
-        - pip install -r $PWD/.gitlab/ci/requirements-wheel-test.txt
+        - PYTHON_VERSION=`python -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'`
+        - pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION-test.txt
         - *script_macos
     interruptible: true
 
@@ -327,7 +328,7 @@
           # Needed to rebuild some dependencies which don't have arm64-compatible wheels yet.
         - '[ "$( uname -m )" = "arm64" ] && pip install wheel'
         - pip install twine
-        - pip install -r $PWD/.gitlab/ci/requirements-wheel-test.txt
+        - pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
         - python -c "import vtk"
