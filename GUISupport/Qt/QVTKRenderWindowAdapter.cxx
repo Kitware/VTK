@@ -218,6 +218,7 @@ public:
     if (auto iren = this->RenderWindow->GetInteractor())
     {
       iren->UpdateSize(deviceSize.width(), deviceSize.height());
+      iren->InvokeEvent(vtkCommand::ConfigureEvent);
     }
     else
     {
