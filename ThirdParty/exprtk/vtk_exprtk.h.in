@@ -9,7 +9,7 @@
 #if VTK_MODULE_USE_EXTERNAL_VTK_exprtk
 # include <exprtk.hpp>
 #else
-# include <vtkexprtk/exprtk.hpp>
+# include <vtkexprtk/include/exprtk.hpp>
 #endif
 
 #endif
