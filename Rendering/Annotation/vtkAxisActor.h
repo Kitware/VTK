@@ -864,6 +864,7 @@ private:
   void BuildAxisGridLines(double p1[3], double p2[3], double localCoordSys[3][3]);
 
   bool TickVisibilityChanged();
+
   vtkProperty* NewTitleProperty();
   vtkProperty* NewLabelProperty();
 
@@ -876,6 +877,20 @@ private:
   vtkProp* GetTitleActorInternal();
   vtkProp* GetLabelActorInternal(int index);
   vtkProp* GetExponentActorInternal();
+  ///@}
+
+  /**
+   * Update the actor text property.
+   * Mainly set TitleTextProperty/LabelTextProperty on the sub actor.
+   * If the underlying actor does not have a vtkTextProperty,
+   * use Property and override Color and Opacity from the
+   * corresponding vtkTextProperty.
+   */
+  ///@{
+  void UpdateTextActorProperty(vtkProp* actor, vtkTextProperty* prop);
+  void UpdateTitleActorProperty();
+  void UpdateLabelActorProperty(int idx);
+  void UpdateExponentActorProperty();
   ///@}
 
   vtkNew<vtkCoordinate> Point1Coordinate;
