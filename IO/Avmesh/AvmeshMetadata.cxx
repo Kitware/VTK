@@ -44,73 +44,73 @@ void AddFieldString(vtkFieldData* fieldData, const char* name, std::string str)
 } // namespace
 
 AvmeshPatch::AvmeshPatch()
-  : label("")
-  , type("")
-  , pid(0)
+  : Label("")
+  , Type("")
+  , Pid(0)
 {
 }
 
 void AvmeshPatch::ToFieldData(vtkFieldData* fieldData) const
 {
-  AddFieldString(fieldData, "label", label);
-  AddFieldString(fieldData, "type", type);
-  AddFieldInt(fieldData, "pid", pid);
+  AddFieldString(fieldData, "Label", Label);
+  AddFieldString(fieldData, "Type", Type);
+  AddFieldInt(fieldData, "Pid", Pid);
 }
 
 AvmeshMetadata::AvmeshMetadata()
-  : magicString("")
+  : MagicString("")
 {
 }
 
 void AvmeshMetadata::ToFieldData(vtkFieldData* fieldData) const
 {
   // skip magicString and magicNumber since they're always the same
-  AddFieldInt(fieldData, "version", version);
-  AddFieldInt(fieldData, "meshCount", meshCount);
-  AddFieldString(fieldData, "contactInfo", contactInfo);
-  AddFieldInt(fieldData, "precision", precision);
-  AddFieldInt(fieldData, "dimensions", dimensions);
-  AddFieldString(fieldData, "description", description);
+  AddFieldInt(fieldData, "Version", Version);
+  AddFieldInt(fieldData, "MeshCount", MeshCount);
+  AddFieldString(fieldData, "ContactInfo", ContactInfo);
+  AddFieldInt(fieldData, "Precision", Precision);
+  AddFieldInt(fieldData, "Dimensions", Dimensions);
+  AddFieldString(fieldData, "Description", Description);
 
-  AddFieldString(fieldData, "meshName", meshName);
-  AddFieldString(fieldData, "meshType", meshType);
-  AddFieldString(fieldData, "meshGenerator", meshGenerator);
-  AddFieldString(fieldData, "coordinateSystem", coordinateSystem);
-  AddFieldDouble(fieldData, "scale", scale);
-  AddFieldString(fieldData, "units", units);
-  AddFieldDoubleTuple(fieldData, "referenceLength", refLen);
-  AddFieldDouble(fieldData, "referenceArea", refArea);
-  AddFieldDoubleTuple(fieldData, "referencePoint", refPoint);
-  AddFieldString(fieldData, "referenceDescription", refDescription);
-  AddFieldInt(fieldData, "refined", refined);
-  AddFieldString(fieldData, "meshDescription", meshDescription);
+  AddFieldString(fieldData, "MeshName", MeshName);
+  AddFieldString(fieldData, "MeshType", MeshType);
+  AddFieldString(fieldData, "MeshGenerator", MeshGenerator);
+  AddFieldString(fieldData, "CoordinateSystem", CoordinateSystem);
+  AddFieldDouble(fieldData, "Scale", Scale);
+  AddFieldString(fieldData, "Units", Units);
+  AddFieldDoubleTuple(fieldData, "ReferenceLength", RefLen);
+  AddFieldDouble(fieldData, "ReferenceArea", RefArea);
+  AddFieldDoubleTuple(fieldData, "ReferencePoint", RefPoint);
+  AddFieldString(fieldData, "ReferenceDescription", RefDescription);
+  AddFieldInt(fieldData, "Refined", Refined);
+  AddFieldString(fieldData, "MeshDescription", MeshDescription);
 
-  AddFieldInt(fieldData, "nNodes", nNodes);
-  AddFieldInt(fieldData, "nFaces", nFaces);
-  AddFieldInt(fieldData, "nCells", nCells);
-  AddFieldInt(fieldData, "nMaxNodesPerFace", nMaxNodesPerFace);
-  AddFieldInt(fieldData, "nMaxNodesPerCell", nMaxNodesPerCell);
-  AddFieldInt(fieldData, "nMaxFacesPerCell", nMaxFacesPerCell);
-  AddFieldString(fieldData, "elementScheme", elementScheme);
-  AddFieldInt(fieldData, "facePolyOrder", facePolyOrder);
-  AddFieldInt(fieldData, "cellPolyOrder", cellPolyOrder);
-  AddFieldInt(fieldData, "nPatches", nPatches);
-  AddFieldInt(fieldData, "nHexCells", nHexCells);
-  AddFieldInt(fieldData, "nTetCells", nTetCells);
-  AddFieldInt(fieldData, "nPriCells", nPriCells);
-  AddFieldInt(fieldData, "nPyrCells", nPyrCells);
-  AddFieldInt(fieldData, "nPolyCells", nPolyCells);
-  AddFieldInt(fieldData, "nBndTriFaces", nBndTriFaces);
-  AddFieldInt(fieldData, "nTriFaces", nTriFaces);
-  AddFieldInt(fieldData, "nBndQuadFaces", nBndQuadFaces);
-  AddFieldInt(fieldData, "nQuadFaces", nQuadFaces);
-  AddFieldInt(fieldData, "nBndPolyCells", nBndPolyCells);
-  AddFieldInt(fieldData, "nPolyFaces", nPolyFaces);
-  AddFieldInt(fieldData, "bndPolyFacesSize", bndPolyFacesSize);
-  AddFieldInt(fieldData, "polyFacesSize", polyFacesSize);
-  AddFieldInt(fieldData, "nEdges", nEdges);
-  AddFieldInt(fieldData, "nNodesOnGeometry", nNodesOnGeometry);
-  AddFieldInt(fieldData, "nEdgesOnGeometry", nEdgesOnGeometry);
-  AddFieldInt(fieldData, "nFacesOnGeometry", nFacesOnGeometry);
-  AddFieldInt(fieldData, "geomRegionId", geomRegionId);
+  AddFieldInt(fieldData, "NumNodes", NumNodes);
+  AddFieldInt(fieldData, "NumFaces", NumFaces);
+  AddFieldInt(fieldData, "NumCells", NumCells);
+  AddFieldInt(fieldData, "MaxNodesPerFace", MaxNodesPerFace);
+  AddFieldInt(fieldData, "MaxNodesPerCell", MaxNodesPerCell);
+  AddFieldInt(fieldData, "MaxFacesPerCell", MaxFacesPerCell);
+  AddFieldString(fieldData, "ElementScheme", ElementScheme);
+  AddFieldInt(fieldData, "FacePolyOrder", FacePolyOrder);
+  AddFieldInt(fieldData, "CellPolyOrder", CellPolyOrder);
+  AddFieldInt(fieldData, "NumPatches", NumPatches);
+  AddFieldInt(fieldData, "NumHexCells", NumHexCells);
+  AddFieldInt(fieldData, "NumTetCells", NumTetCells);
+  AddFieldInt(fieldData, "NumPriCells", NumPriCells);
+  AddFieldInt(fieldData, "NumPyrCells", NumPyrCells);
+  AddFieldInt(fieldData, "NumPolyCells", NumPolyCells);
+  AddFieldInt(fieldData, "NumBndTriFaces", NumBndTriFaces);
+  AddFieldInt(fieldData, "NumTriFaces", NumTriFaces);
+  AddFieldInt(fieldData, "NumBndQuadFaces", NumBndQuadFaces);
+  AddFieldInt(fieldData, "NumQuadFaces", NumQuadFaces);
+  AddFieldInt(fieldData, "NumBndPolyCells", NumBndPolyCells);
+  AddFieldInt(fieldData, "NumPolyFaces", NumPolyFaces);
+  AddFieldInt(fieldData, "BndPolyFacesSize", BndPolyFacesSize);
+  AddFieldInt(fieldData, "PolyFacesSize", PolyFacesSize);
+  AddFieldInt(fieldData, "NumEdges", NumEdges);
+  AddFieldInt(fieldData, "NumNodesOnGeometry", NumNodesOnGeometry);
+  AddFieldInt(fieldData, "NumEdgesOnGeometry", NumEdgesOnGeometry);
+  AddFieldInt(fieldData, "NumFacesOnGeometry", NumFacesOnGeometry);
+  AddFieldInt(fieldData, "GeomRegionId", GeomRegionId);
 }

@@ -27,8 +27,8 @@ AvmeshMetadata ReadMetadata(BinaryFile& fin)
 
   // File header
   // Make sure the magic string is in place
-  fin.ReadCString(meta.magicString, 6);
-  if (strncmp(meta.magicString, "AVMESH", 6) != 0)
+  fin.ReadCString(meta.MagicString, 6);
+  if (strncmp(meta.MagicString, "AVMESH", 6) != 0)
   {
     throw AvmeshError("Not a AVMESH file");
   }
@@ -36,10 +36,10 @@ AvmeshMetadata ReadMetadata(BinaryFile& fin)
   // Use the magic number to determine if byte-swapping is needed.  NOTE: while
   // the AVMESH standard theoretically allows for big-endian files, practically
   // speaking, they're always little-endian.
-  meta.magicNumber = fin.ReadInt();
-  if (meta.magicNumber != 1)
+  meta.MagicNumber = fin.ReadInt();
+  if (meta.MagicNumber != 1)
   {
-    if (BinaryFile::SwapInt(meta.magicNumber) == 1)
+    if (BinaryFile::SwapInt(meta.MagicNumber) == 1)
     {
       fin.SetSwap(true);
     }
@@ -49,102 +49,102 @@ AvmeshMetadata ReadMetadata(BinaryFile& fin)
     }
   }
 
-  meta.version = fin.ReadInt(); // must be 1 or 2, but we'll verify this later
-  meta.meshCount = fin.ReadInt();
-  fin.ReadCString(meta.contactInfo);
-  meta.precision = fin.ReadInt();
-  meta.dimensions = fin.ReadInt();
-  meta.description = fin.ReadStdString();
+  meta.Version = fin.ReadInt(); // must be 1 or 2, but we'll verify this later
+  meta.MeshCount = fin.ReadInt();
+  fin.ReadCString(meta.ContactInfo);
+  meta.Precision = fin.ReadInt();
+  meta.Dimensions = fin.ReadInt();
+  meta.Description = fin.ReadStdString();
 
   // Mesh header
-  fin.ReadCString(meta.meshName);
-  fin.ReadCString(meta.meshType); // must be "unstruc", but we'll check later
-  fin.ReadCString(meta.meshGenerator);
-  fin.ReadCString(meta.coordinateSystem);
-  meta.scale = fin.ReadDouble();
-  fin.ReadCString(meta.units);
+  fin.ReadCString(meta.MeshName);
+  fin.ReadCString(meta.MeshType); // must be "unstruc", but we'll check later
+  fin.ReadCString(meta.MeshGenerator);
+  fin.ReadCString(meta.CoordinateSystem);
+  meta.Scale = fin.ReadDouble();
+  fin.ReadCString(meta.Units);
 
-  if (meta.version == 1)
+  if (meta.Version == 1)
   {
-    meta.refLen[0] = fin.ReadDouble();
-    meta.refLen[1] = meta.refLen[0];
-    meta.refLen[2] = meta.refLen[0];
+    meta.RefLen[0] = fin.ReadDouble();
+    meta.RefLen[1] = meta.RefLen[0];
+    meta.RefLen[2] = meta.RefLen[0];
   }
   else
   {
-    fin.ReadArray(meta.refLen, 3);
+    fin.ReadArray(meta.RefLen, 3);
   }
 
-  meta.refArea = fin.ReadDouble();
-  fin.ReadArray(meta.refPoint, 3);
-  fin.ReadCString(meta.refDescription);
+  meta.RefArea = fin.ReadDouble();
+  fin.ReadArray(meta.RefPoint, 3);
+  fin.ReadCString(meta.RefDescription);
 
-  meta.refined = (meta.version == 2) ? fin.ReadInt() : 0;
+  meta.Refined = (meta.Version == 2) ? fin.ReadInt() : 0;
 
-  fin.ReadCString(meta.meshDescription);
+  fin.ReadCString(meta.MeshDescription);
 
   // Unstruc header
-  meta.nNodes = fin.ReadInt();
-  meta.nFaces = fin.ReadInt();
-  meta.nCells = fin.ReadInt();
-  meta.nMaxNodesPerFace = fin.ReadInt();
-  meta.nMaxNodesPerCell = fin.ReadInt();
-  meta.nMaxFacesPerCell = fin.ReadInt();
+  meta.NumNodes = fin.ReadInt();
+  meta.NumFaces = fin.ReadInt();
+  meta.NumCells = fin.ReadInt();
+  meta.MaxNodesPerFace = fin.ReadInt();
+  meta.MaxNodesPerCell = fin.ReadInt();
+  meta.MaxFacesPerCell = fin.ReadInt();
 
-  if (meta.version == 2)
+  if (meta.Version == 2)
   {
-    fin.ReadCString(meta.elementScheme, sizeof(meta.elementScheme));
-    meta.facePolyOrder = fin.ReadInt();
-    meta.cellPolyOrder = fin.ReadInt();
+    fin.ReadCString(meta.ElementScheme, sizeof(meta.ElementScheme));
+    meta.FacePolyOrder = fin.ReadInt();
+    meta.CellPolyOrder = fin.ReadInt();
   }
   else
   {
-    strncpy(meta.elementScheme, "uniform", sizeof(meta.elementScheme));
-    meta.facePolyOrder = 1;
-    meta.cellPolyOrder = 1;
+    strncpy(meta.ElementScheme, "uniform", sizeof(meta.ElementScheme));
+    meta.FacePolyOrder = 1;
+    meta.CellPolyOrder = 1;
   }
 
-  meta.nPatches = fin.ReadInt();
-  meta.nHexCells = fin.ReadInt();
-  meta.nTetCells = fin.ReadInt();
-  meta.nPriCells = fin.ReadInt();
-  meta.nPyrCells = fin.ReadInt();
+  meta.NumPatches = fin.ReadInt();
+  meta.NumHexCells = fin.ReadInt();
+  meta.NumTetCells = fin.ReadInt();
+  meta.NumPriCells = fin.ReadInt();
+  meta.NumPyrCells = fin.ReadInt();
 
-  meta.nPolyCells = (meta.version == 1) ? fin.ReadInt() : 0;
+  meta.NumPolyCells = (meta.Version == 1) ? fin.ReadInt() : 0;
 
-  meta.nBndTriFaces = fin.ReadInt();
-  meta.nTriFaces = fin.ReadInt();
-  meta.nBndQuadFaces = fin.ReadInt();
-  meta.nQuadFaces = fin.ReadInt();
+  meta.NumBndTriFaces = fin.ReadInt();
+  meta.NumTriFaces = fin.ReadInt();
+  meta.NumBndQuadFaces = fin.ReadInt();
+  meta.NumQuadFaces = fin.ReadInt();
 
-  if (meta.version == 1)
+  if (meta.Version == 1)
   {
-    meta.nBndPolyCells = fin.ReadInt();
-    meta.nPolyFaces = fin.ReadInt();
-    meta.bndPolyFacesSize = fin.ReadInt();
-    meta.polyFacesSize = fin.ReadInt();
+    meta.NumBndPolyCells = fin.ReadInt();
+    meta.NumPolyFaces = fin.ReadInt();
+    meta.BndPolyFacesSize = fin.ReadInt();
+    meta.PolyFacesSize = fin.ReadInt();
   }
   else
   {
-    meta.nBndPolyCells = 0;
-    meta.nPolyFaces = 0;
-    meta.bndPolyFacesSize = 0;
-    meta.polyFacesSize = 0;
+    meta.NumBndPolyCells = 0;
+    meta.NumPolyFaces = 0;
+    meta.BndPolyFacesSize = 0;
+    meta.PolyFacesSize = 0;
   }
 
-  meta.nEdges = fin.ReadInt();
-  meta.nNodesOnGeometry = fin.ReadInt();
-  meta.nEdgesOnGeometry = fin.ReadInt();
-  meta.nFacesOnGeometry = fin.ReadInt();
-  meta.geomRegionId = fin.ReadInt();
+  meta.NumEdges = fin.ReadInt();
+  meta.NumNodesOnGeometry = fin.ReadInt();
+  meta.NumEdgesOnGeometry = fin.ReadInt();
+  meta.NumFacesOnGeometry = fin.ReadInt();
+  meta.GeomRegionId = fin.ReadInt();
 
   // Patch info
-  meta.patches.resize(meta.nPatches);
-  for (auto& patch : meta.patches)
+  meta.Patches.resize(meta.NumPatches);
+  for (auto& patch : meta.Patches)
   {
-    fin.ReadCString(patch.label, sizeof(patch.label));
-    fin.ReadCString(patch.type, sizeof(patch.type));
-    patch.pid = fin.ReadInt();
+    fin.ReadCString(patch.Label, sizeof(patch.Label));
+    fin.ReadCString(patch.Type, sizeof(patch.Type));
+    patch.Pid = fin.ReadInt();
   }
 
   return meta;
@@ -157,38 +157,38 @@ void CheckAssumptions(AvmeshMetadata const& meta)
 
   // rev0 is a weird face-based format that nobody uses anymore,
   // and rev3 doesn't exist yet
-  if (meta.version < 1 || meta.version > 2)
+  if (meta.Version < 1 || meta.Version > 2)
   {
     failMsg += "Only AVMESH rev1 and rev2 allowed\n";
     readable = false;
   }
 
-  if (meta.dimensions < 2 || meta.dimensions > 3)
+  if (meta.Dimensions < 2 || meta.Dimensions > 3)
   {
     failMsg += "Dimensions must be 2 or 3\n";
     readable = false;
   }
 
   // Never seen a single precision one in the wild
-  if (meta.precision != 2)
+  if (meta.Precision != 2)
   {
     failMsg += "Only double precision supported\n";
     readable = false;
   }
 
-  if (meta.meshCount < 1)
+  if (meta.MeshCount < 1)
   {
     failMsg += "No meshes in file\n";
     readable = false;
   }
 
   // Never seen a multi-mesh AVMESH file in the wild
-  if (meta.meshCount > 1)
+  if (meta.MeshCount > 1)
   {
     failMsg += "Multi-mesh AVMESH file detected.  Only the first mesh will be read.\n";
   }
 
-  if (strncmp(meta.meshType, "unstruc", sizeof(meta.meshType)) != 0)
+  if (strncmp(meta.MeshType, "unstruc", sizeof(meta.MeshType)) != 0)
   {
     failMsg += "Only unstruc files allowed\n";
     readable = false;
@@ -196,7 +196,7 @@ void CheckAssumptions(AvmeshMetadata const& meta)
 
   // Higher order AVMESH grids do exist in practice for use with COFFE,
   // but we're not going to support that here.
-  if (meta.facePolyOrder != 1 || meta.cellPolyOrder != 1)
+  if (meta.FacePolyOrder != 1 || meta.CellPolyOrder != 1)
   {
     failMsg += "Only linear (P1) meshes allowed\n";
     readable = false;
@@ -204,8 +204,8 @@ void CheckAssumptions(AvmeshMetadata const& meta)
 
   // Arbitrary poly AVMESH files don't exist in practice since neither Kestrel
   // nor Helios support it.
-  if (meta.nPolyCells != 0 || meta.nBndPolyCells != 0 || meta.nPolyFaces != 0 ||
-    meta.bndPolyFacesSize != 0 || meta.polyFacesSize != 0)
+  if (meta.NumPolyCells != 0 || meta.NumBndPolyCells != 0 || meta.NumPolyFaces != 0 ||
+    meta.BndPolyFacesSize != 0 || meta.PolyFacesSize != 0)
   {
     failMsg += "Arbitrary polyhedral grids not allowed\n";
     readable = false;
@@ -478,8 +478,8 @@ void BuildBoundaryBlocks(vtkMultiBlockDataSet* output, vtkPoints* volPoints,
   for (auto const& patch : patches)
   {
     auto lastFace = std::stable_partition(
-      firstFace, bfaces.end(), [&patch](Bface const& face) { return face[4] == patch.pid; });
-    auto surfGrid = AddBlock(output, patch.label);
+      firstFace, bfaces.end(), [&patch](Bface const& face) { return face[4] == patch.Pid; });
+    auto surfGrid = AddBlock(output, patch.Label);
     BuildSurfaceBlock(surfGrid, volPoints, firstFace, lastFace);
     patch.ToFieldData(surfGrid->GetFieldData());
     firstFace = lastFace;
@@ -507,7 +507,7 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
 
   // Read all the points.  Need to read them all even if we're in surface-only
   // mode because there is no guarantee that the surface points will come first.
-  auto points = ReadVolumeVerts(fin, meta.nNodes);
+  auto points = ReadVolumeVerts(fin, meta.NumNodes);
 
   // If we're reading the volume grid, construct the volume block and attach
   // the points to it.
@@ -519,31 +519,31 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
   }
 
   // Read the surface data as one big block.  We'll sort it into patches later.
-  bool readNeighborData = (meta.version == 1);
-  BfaceList bfaces(meta.nBndTriFaces + meta.nBndQuadFaces);
-  if (meta.dimensions == 2)
+  bool readNeighborData = (meta.Version == 1);
+  BfaceList bfaces(meta.NumBndTriFaces + meta.NumBndQuadFaces);
+  if (meta.Dimensions == 2)
   {
-    Read2DSurfaceConn(fin, meta.nBndTriFaces, bfaces, readNeighborData);
+    Read2DSurfaceConn(fin, meta.NumBndTriFaces, bfaces, readNeighborData);
   }
   else
   {
-    Read3DSurfaceConn(fin, meta.nBndTriFaces, meta.nBndQuadFaces, bfaces, readNeighborData);
+    Read3DSurfaceConn(fin, meta.NumBndTriFaces, meta.NumBndQuadFaces, bfaces, readNeighborData);
   }
 
   // If we're reading the volume grid, read the connectivity
   if (!SurfaceOnly)
   {
-    if (meta.dimensions == 2)
+    if (meta.Dimensions == 2)
     {
-      Read2DVolumeConn(fin, meta.nHexCells, meta.nTetCells, volGrid);
+      Read2DVolumeConn(fin, meta.NumHexCells, meta.NumTetCells, volGrid);
     }
     else
     {
       Read3DVolumeConn(
-        fin, meta.nHexCells, meta.nTetCells, meta.nPriCells, meta.nPyrCells, volGrid);
+        fin, meta.NumHexCells, meta.NumTetCells, meta.NumPriCells, meta.NumPyrCells, volGrid);
     }
   }
 
   // Now work with the surface data
-  BuildBoundaryBlocks(output, points, meta.patches, bfaces);
+  BuildBoundaryBlocks(output, points, meta.Patches, bfaces);
 }

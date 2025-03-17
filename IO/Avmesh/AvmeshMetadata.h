@@ -15,9 +15,9 @@ struct AvmeshPatch
 
   void ToFieldData(vtkFieldData* fieldData) const;
 
-  char label[32];
-  char type[16];
-  int pid;
+  char Label[32]; // descriptive name, e.g. "wing", "inlet"
+  char Type[16];  // BC, e.g. "noslipwall", "unspecified"
+  int Pid;        // Patch ID, always negative
 };
 
 struct AvmeshMetadata
@@ -27,60 +27,60 @@ struct AvmeshMetadata
   void ToFieldData(vtkFieldData* fieldData) const;
 
   // File header
-  char magicString[6];
-  int magicNumber;
-  int version;
-  int meshCount;
-  char contactInfo[128];
-  int precision;
-  int dimensions;
-  std::string description;
+  char MagicString[6];
+  int MagicNumber;
+  int Version;
+  int MeshCount;
+  char ContactInfo[128];
+  int Precision;
+  int Dimensions;
+  std::string Description;
 
   // Mesh header
-  char meshName[128];
-  char meshType[128];
-  char meshGenerator[128];
-  char coordinateSystem[128];
-  double scale;
-  char units[128];
-  double refLen[3]; // Scalar in rev1
-  double refArea;
-  double refPoint[3];
-  char refDescription[128];
-  int refined; // rev2 only
-  char meshDescription[128];
+  char MeshName[128];
+  char MeshType[128];
+  char MeshGenerator[128];
+  char CoordinateSystem[128];
+  double Scale;
+  char Units[128];
+  double RefLen[3]; // Scalar in rev1
+  double RefArea;
+  double RefPoint[3];
+  char RefDescription[128];
+  int Refined; // rev2 only
+  char MeshDescription[128];
 
   // Unstruc header
-  int nNodes;
-  int nFaces;
-  int nCells;
-  int nMaxNodesPerFace;
-  int nMaxNodesPerCell;
-  int nMaxFacesPerCell;
-  char elementScheme[32]; // rev2 only
-  int facePolyOrder;      // rev2 only
-  int cellPolyOrder;      // rev2 only
-  int nPatches;
-  int nHexCells;
-  int nTetCells;
-  int nPriCells;
-  int nPyrCells;
-  int nPolyCells; // rev1 only
-  int nBndTriFaces;
-  int nTriFaces;
-  int nBndQuadFaces;
-  int nQuadFaces;
-  int nBndPolyCells;    // rev1 only
-  int nPolyFaces;       // rev1 only
-  int bndPolyFacesSize; // rev1 only
-  int polyFacesSize;    // rev1 only
-  int nEdges;
-  int nNodesOnGeometry;
-  int nEdgesOnGeometry;
-  int nFacesOnGeometry;
-  int geomRegionId;
+  int NumNodes;
+  int NumFaces;
+  int NumCells;
+  int MaxNodesPerFace;
+  int MaxNodesPerCell;
+  int MaxFacesPerCell;
+  char ElementScheme[32]; // rev2 only
+  int FacePolyOrder;      // rev2 only
+  int CellPolyOrder;      // rev2 only
+  int NumPatches;
+  int NumHexCells;
+  int NumTetCells;
+  int NumPriCells;
+  int NumPyrCells;
+  int NumPolyCells; // rev1 only
+  int NumBndTriFaces;
+  int NumTriFaces;
+  int NumBndQuadFaces;
+  int NumQuadFaces;
+  int NumBndPolyCells;  // rev1 only
+  int NumPolyFaces;     // rev1 only
+  int BndPolyFacesSize; // rev1 only
+  int PolyFacesSize;    // rev1 only
+  int NumEdges;
+  int NumNodesOnGeometry;
+  int NumEdgesOnGeometry;
+  int NumFacesOnGeometry;
+  int GeomRegionId;
 
-  std::vector<AvmeshPatch> patches;
+  std::vector<AvmeshPatch> Patches;
 };
 
 #endif // AvmeshMetadata_h
