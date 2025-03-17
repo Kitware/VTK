@@ -4,6 +4,12 @@ Cells outside the camera frustum are now decimated in 3D as well as 1D and 2D in
 generified to work in all cases, including without parallel projection (which was required before), and with masks. Existing tests have been updated and new ones
 created to cover these functionalities.
 
+Some public members are now deprecated:
+  - `Set/GetCircleSelection`
+  - `Set/GetBBSelection`
+  - `Set/GetDynamicDecimateLevelMax`
+  - `Set/GetScale`
+
 Some protected members of `vtkAdaptiveDataSetSurfaceFilter` have been moved to private or completely removed:
 - Removed:
   - `BBSelection`
