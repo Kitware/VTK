@@ -37,6 +37,10 @@ public:
   vtkGetMacro(SurfaceOnly, bool);
   vtkBooleanMacro(SurfaceOnly, bool);
 
+  vtkSetMacro(BuildConnectivityIteratively, bool);
+  vtkGetMacro(BuildConnectivityIteratively, bool);
+  vtkBooleanMacro(BuildConnectivityIteratively, bool);
+
 protected:
   vtkAvmeshReader();
   ~vtkAvmeshReader() override;
@@ -49,6 +53,7 @@ private:
 
   std::string FileName;
   bool SurfaceOnly;
+  bool BuildConnectivityIteratively;
 };
 
 VTK_ABI_NAMESPACE_END

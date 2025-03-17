@@ -14,6 +14,7 @@ vtkStandardNewMacro(vtkAvmeshReader);
 
 vtkAvmeshReader::vtkAvmeshReader()
   : SurfaceOnly(false)
+  , BuildConnectivityIteratively(false)
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -36,7 +37,7 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    ReadAvmesh(output, this->FileName, this->SurfaceOnly);
+    ReadAvmesh(output, this->FileName, this->SurfaceOnly, this->BuildConnectivityIteratively);
   }
   catch (AvmeshError const& ex)
   {
@@ -53,5 +54,6 @@ void vtkAvmeshReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FileName: " << this->FileName << "\n";
   os << indent << "SurfaceOnly: " << this->SurfaceOnly << "\n";
+  os << indent << "BuildConnectivityIteratively: " << this->BuildConnectivityIteratively << "\n";
 }
 VTK_ABI_NAMESPACE_END

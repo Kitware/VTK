@@ -357,6 +357,78 @@ int NodesPerCell(int etype)
   }
 }
 
+// Populate the connectivity of a 3D volume mesh by directly accessing the raw
+// offset and connectivity arrays.  For large meshes (say, 100 million cells),
+// this can be 4 to 5 times faster than iteratively calling InsertNextCell.
+void Read3DVolumeConnFast(
+  BinaryFile& fin, int nhex, int ntet, int npri, int npyr, vtkUnstructuredGrid* ugrid)
+{
+  size_t ncell = (size_t)nhex + (size_t)ntet + (size_t)npri + (size_t)npyr;
+  size_t connSize = 8 * (size_t)nhex + 4 * (size_t)ntet + 6 * (size_t)npri + 5 * (size_t)npyr;
+
+  vtkNew<vtkCellArray> cells;
+  cells->Use32BitStorage(); // AVMESH files always use 32-bit signed ints
+  cells->AllocateExact(ncell, connSize);
+
+  // Get pointer to the cell offsets
+  auto offsetsArr = cells->GetOffsetsArray32();
+  offsetsArr->SetNumberOfTuples(ncell + 1);
+  int* offsets = offsetsArr->GetPointer(0);
+
+  // Get pointer to the cell types
+  vtkNew<vtkUnsignedCharArray> cellTypesArr;
+  cellTypesArr->SetNumberOfTuples(ncell);
+  uint8_t* cellTypes = cellTypesArr->GetPointer(0);
+
+  // Loop over cells to set types and offsets
+  int n = 0;
+  offsets[0] = 0;
+  for (int i = 0; i < nhex; ++i, ++n)
+  {
+    cellTypes[n] = VTK_HEXAHEDRON;
+    offsets[n + 1] = offsets[n] + 8;
+  }
+  for (int i = 0; i < ntet; ++i, ++n)
+  {
+    cellTypes[n] = VTK_TETRA;
+    offsets[n + 1] = offsets[n] + 4;
+  }
+  for (int i = 0; i < npri; ++i, ++n)
+  {
+    cellTypes[n] = VTK_WEDGE;
+    offsets[n + 1] = offsets[n] + 6;
+  }
+  for (int i = 0; i < npyr; ++i, ++n)
+  {
+    cellTypes[n] = VTK_PYRAMID;
+    offsets[n + 1] = offsets[n] + 5;
+  }
+
+  // Now read the heavy connectivity data in one big chunk
+  auto connArr = cells->GetConnectivityArray32();
+  connArr->SetNumberOfTuples(connSize);
+  int* conn = connArr->GetPointer(0);
+  fin.ReadArray(conn, connSize);
+
+  // Make connectivity 0-based (AVMESH is always 1-based)
+  for (size_t i = 0; i < connSize; ++i)
+  {
+    conn[i]--;
+  }
+
+  // Fix the node order of prisms (wedges), which are the only cell type for
+  // which AVMESH and VTK have different conventions.
+  n = nhex + ntet;
+  for (int i = 0; i < npri; ++i, ++n)
+  {
+    int* pri = conn + offsets[n];
+    std::swap(pri[1], pri[2]);
+    std::swap(pri[4], pri[5]);
+  }
+
+  ugrid->SetCells(cellTypesArr, cells);
+}
+
 void Read3DVolumeConnOfType(BinaryFile& fin, int etype, int ncell, vtkUnstructuredGrid* ugrid)
 {
   // Connectivity in the file is 32-bit ints, but InsertNextCell requires vtkIdType.
@@ -379,7 +451,8 @@ void Read3DVolumeConnOfType(BinaryFile& fin, int etype, int ncell, vtkUnstructur
   }
 }
 
-void Read3DVolumeConn(
+// Construct connectivity of a 3D volume mesh by iteratively calling InsertNextCell.
+void Read3DVolumeConnIterative(
   BinaryFile& fin, int nhex, int ntet, int npri, int npyr, vtkUnstructuredGrid* ugrid)
 {
   size_t ncell = (size_t)nhex + (size_t)ntet + (size_t)npri + (size_t)npyr;
@@ -392,6 +465,19 @@ void Read3DVolumeConn(
   Read3DVolumeConnOfType(fin, VTK_TETRA, ntet, ugrid);
   Read3DVolumeConnOfType(fin, VTK_WEDGE, npri, ugrid);
   Read3DVolumeConnOfType(fin, VTK_PYRAMID, npyr, ugrid);
+}
+
+void Read3DVolumeConn(BinaryFile& fin, int nhex, int ntet, int npri, int npyr,
+  bool BuildConnectivityIteratively, vtkUnstructuredGrid* ugrid)
+{
+  if (BuildConnectivityIteratively)
+  {
+    Read3DVolumeConnIterative(fin, nhex, ntet, npri, npyr, ugrid);
+  }
+  else
+  {
+    Read3DVolumeConnFast(fin, nhex, ntet, npri, npyr, ugrid);
+  }
 }
 
 void makeUnique(std::vector<int>& vec)
@@ -487,7 +573,8 @@ void BuildBoundaryBlocks(vtkMultiBlockDataSet* output, vtkPoints* volPoints,
 }
 } // namespace
 
-void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly)
+void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly,
+  bool BuildConnectivityIteratively)
 {
   // Make surf the file is ready for reading
   BinaryFile fin(fname.c_str());
@@ -539,8 +626,8 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
     }
     else
     {
-      Read3DVolumeConn(
-        fin, meta.NumHexCells, meta.NumTetCells, meta.NumPriCells, meta.NumPyrCells, volGrid);
+      Read3DVolumeConn(fin, meta.NumHexCells, meta.NumTetCells, meta.NumPriCells, meta.NumPyrCells,
+        BuildConnectivityIteratively, volGrid);
     }
   }
 

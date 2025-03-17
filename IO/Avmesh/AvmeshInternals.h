@@ -12,7 +12,8 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkMultiBlockDataSet;
 
-void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly);
+void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly,
+  bool BuildConnectivityIteratively);
 
 class AvmeshError : public std::runtime_error
 {
