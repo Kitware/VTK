@@ -73,6 +73,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   BoxClipOrientedPointData.cxx
   BoxClipPointData.cxx
   TestAxisAlignedReflectionFilter.cxx,NO_VALID
+  TestAxisAlignedTransformFilter.cxx,NO_VALID
   TestClipClosedSurface1.cxx
   TestClipClosedSurface2.cxx
   TestDataSetGradient.cxx
