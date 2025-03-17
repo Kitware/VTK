@@ -6,6 +6,9 @@
 
 #include <stdexcept>
 #include <string>
+#include <vtkABINamespace.h>
+
+VTK_ABI_NAMESPACE_BEGIN
 
 class vtkMultiBlockDataSet;
 
@@ -17,4 +20,5 @@ public:
   AvmeshError(std::string msg);
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // AvmeshInternals_h
