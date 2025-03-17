@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_5_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 
 #include "vtkBitArray.h"
@@ -42,7 +39,7 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 
   // vtkGeometryFilter allows an optional 2nd input. Need to
   // disable this.
-  this->vtkAlgorithm::SetNumberOfInputPorts(1);
+  this->Superclass::SetNumberOfInputPorts(1);
 }
 
 //------------------------------------------------------------------------------
@@ -93,6 +90,46 @@ void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Cells: ( none )\n";
   }
 
+  if (this->Mask)
+  {
+    os << indent << "Mask:\n";
+    this->Mask->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Mask: ( none )\n";
+  }
+
+  if (this->Renderer)
+  {
+    os << indent << "Renderer:\n";
+    this->Renderer->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Renderer: ( none )\n";
+  }
+
+  if (this->ModelViewMatrix)
+  {
+    os << indent << "ModelViewMatrix:\n";
+    this->ModelViewMatrix->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "ModelViewMatrix: ( none )\n";
+  }
+
+  if (this->ProjectionMatrix)
+  {
+    os << indent << "ProjectionMatrix:\n";
+    this->ProjectionMatrix->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "ProjectionMatrix: ( none )\n";
+  }
+
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "ViewPointDepend: " << this->ViewPointDepend << endl;
@@ -101,6 +138,8 @@ void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FixedLevelMax: " << this->FixedLevelMax << endl;
   os << indent << "LastRendererSize: " << this->LastRendererSize[0] << ", "
      << this->LastRendererSize[1] << endl;
+  os << indent << "IsParallel: " << this->IsParallel << endl;
+  os << indent << "MaxLevel: " << this->MaxLevel << endl;
 }
 
 //------------------------------------------------------------------------------
