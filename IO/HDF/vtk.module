@@ -35,7 +35,6 @@ TEST_DEPENDS
   VTK::IOXML
   VTK::TestingCore
   VTK::TestingRendering
-
   # We need vtkIOExodus as otherwise an information key will be missing, generating
   # the following warning:
   #   Could not locate key vtkExodusIIReader::GLOBAL_TEMPORAL_VARIABLE.
