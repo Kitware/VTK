@@ -558,45 +558,51 @@ public:
 
   void BuildAxis(vtkViewport* viewport, bool);
 
-  ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(TitleActor, vtkAxisFollower);
-  ///@}
+  vtkAxisFollower* GetTitleActor() { return this->TitleProp.Follower; }
 
-  ///@{
   /**
    * Get exponent follower actor
    */
-  vtkGetObjectMacro(ExponentActor, vtkAxisFollower);
-  ///@}
+  vtkAxisFollower* GetExponentActor() { return this->ExponentProp.Follower; }
 
+  ///@{
   /**
    * Get label actors responsigle for drawing label text.
    */
-  vtkAxisFollower** GetLabelActors() { return this->LabelActors; }
+  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower instead.")
+  vtkAxisFollower** GetLabelActors();
+  vtkAxisFollower* GetLabelFollower(int index);
+  int GetNumberOfLabelFollowers() { return this->GetNumberOfLabelsBuilt(); }
+  ///@}
 
   ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(TitleProp3D, vtkProp3DAxisFollower);
+  vtkProp3DAxisFollower* GetTitleProp3D() { return this->TitleProp.Follower3D; }
   ///@}
 
+  ///@{
   /**
    * Get label actors responsigle for drawing label text.
    */
-  vtkProp3DAxisFollower** GetLabelProps3D() { return this->LabelProps3D; }
+  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower3D instead.")
+  vtkProp3DAxisFollower** GetLabelProps3D();
+  vtkProp3DAxisFollower* GetLabelFollower3D(int index);
+  int GetNumberOfLabelFollower3D() { return this->GetNumberOfLabelsBuilt(); }
+  ///@}
 
   ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(ExponentProp3D, vtkProp3DAxisFollower);
+  vtkProp3DAxisFollower* GetExponentProp3D() { return this->ExponentProp.Follower3D; }
   ///@}
 
   ///@{
@@ -888,9 +894,9 @@ private:
    * If the underlying actor does not have a vtkTextProperty,
    * use Property and override Color and Opacity from the
    * corresponding vtkTextProperty.
+   * Note that exponent uses TitleTextProperty.
    */
   ///@{
-  void UpdateTextActorProperty(vtkProp* actor, vtkTextProperty* prop);
   void UpdateTitleActorProperty();
   void UpdateLabelActorProperty(int idx);
   void UpdateExponentActorProperty();
@@ -929,32 +935,23 @@ private:
   vtkNew<vtkPoints> InnerGridlinePts;
   vtkNew<vtkPoints> GridpolyPts;
 
-  vtkNew<vtkVectorText> TitleVector;
-  vtkNew<vtkAxisFollower> TitleActor;
-  vtkNew<vtkTextActor> TitleActor2D;
-  vtkNew<vtkProp3DAxisFollower> TitleProp3D;
-  vtkNew<vtkTextActor3D> TitleActor3D;
+  vtkTextActorInterfacePrivate TitleProp;
   vtkSmartPointer<vtkTextProperty> TitleTextProperty;
 
   ///@{
   /**
    * Mapper/Actor used to display a common exponent of the label values
    */
-  vtkNew<vtkVectorText> ExponentVector;
-  vtkNew<vtkAxisFollower> ExponentActor;
-  vtkNew<vtkTextActor> ExponentActor2D;
-  vtkNew<vtkProp3DAxisFollower> ExponentProp3D;
-  vtkNew<vtkTextActor3D> ExponentActor3D;
+  vtkTextActorInterfacePrivate ExponentProp;
   ///@}
 
-  vtkSmartPointer<vtkVectorText>* LabelVectors = nullptr;
-  vtkSmartPointer<vtkPolyDataMapper>* LabelMappers = nullptr;
-
-  vtkAxisFollower** LabelActors = nullptr;
-  vtkProp3DAxisFollower** LabelProps3D = nullptr;
-  vtkSmartPointer<vtkTextActor>* LabelActors2D = nullptr;
-  vtkSmartPointer<vtkTextActor3D>* LabelActors3D = nullptr;
+  std::vector<vtkTextActorInterfacePrivate> LabelProps;
   vtkSmartPointer<vtkTextProperty> LabelTextProperty;
+
+  // VTK_DEPRECATED_IN_9_5_0
+  std::vector<vtkAxisFollower*> LabelActors;
+  // VTK_DEPRECATED_IN_9_5_0
+  std::vector<vtkProp3DAxisFollower*> LabelProps3D;
 
   // Main line axis
   vtkNew<vtkPolyData> AxisLines;

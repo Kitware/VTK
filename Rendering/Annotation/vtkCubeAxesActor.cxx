@@ -1813,13 +1813,14 @@ void vtkCubeAxesActor::AutoScale(vtkViewport* viewport, vtkAxisActor* axis[NUMBE
 
     axis[i]->SetTitleScale(newTitleScale);
 
-    // Now labels.
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-
     for (int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
     {
-      double newLabelScale =
-        this->AutoScale(viewport, this->ScreenSize, labelActors[j]->GetPosition());
+      vtkAxisFollower* labelActor = axis[i]->GetLabelFollower(j);
+      if (!labelActor)
+      {
+        continue;
+      }
+      double newLabelScale = this->AutoScale(viewport, this->ScreenSize, labelActor->GetPosition());
 
       axis[i]->SetLabelScale(j, newLabelScale);
     }
@@ -2115,18 +2116,22 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor** axis, int vtkNotUsed(index))
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   {
     int numberOfLabelsBuild = axis[i]->GetNumberOfLabelsBuilt();
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-    vtkProp3DAxisFollower** labelProps = axis[i]->GetLabelProps3D();
     for (int k = 0; k < numberOfLabelsBuild; ++k)
     {
-      labelActors[k]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-      labelActors[k]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-      labelActors[k]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-      labelActors[k]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
-      labelProps[k]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-      labelProps[k]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-      labelProps[k]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-      labelProps[k]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+      vtkAxisFollower* labelActor = axis[i]->GetLabelFollower(k);
+      vtkProp3DAxisFollower* labelProp = axis[i]->GetLabelFollower3D(k);
+      if (!labelActor || !labelProp)
+      {
+        continue;
+      }
+      labelActor->SetEnableDistanceLOD(this->EnableDistanceLOD);
+      labelActor->SetDistanceLODThreshold(this->DistanceLODThreshold);
+      labelActor->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+      labelActor->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+      labelProp->SetEnableDistanceLOD(this->EnableDistanceLOD);
+      labelProp->SetDistanceLODThreshold(this->DistanceLODThreshold);
+      labelProp->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+      labelProp->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
     }
   }
 }

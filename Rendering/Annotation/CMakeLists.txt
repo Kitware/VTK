@@ -27,7 +27,8 @@ set(classes
 
 set(private_classes
 "Private/vtkArcGridActorPrivate"
-"Private/vtkAxisGridActorPrivate")
+"Private/vtkAxisGridActorPrivate"
+"Private/vtkTextActorInterfacePrivate")
 
 set(nowrap_headers
   vtkScalarBarActorInternal.h)

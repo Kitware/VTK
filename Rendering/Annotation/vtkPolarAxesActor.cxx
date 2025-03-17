@@ -807,15 +807,15 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
   expFollower->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
 
   // Update axis label followers
-  vtkAxisFollower** labelActors = axis->GetLabelActors();
   int numberOfLabels = axis->GetNumberOfLabelsBuilt();
   for (int i = 0; i < numberOfLabels; ++i)
   {
-    labelActors[i]->SetAxis(axis);
-    labelActors[i]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-    labelActors[i]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-    labelActors[i]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-    labelActors[i]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+    vtkAxisFollower* labelActor = axis->GetLabelFollower(i);
+    labelActor->SetAxis(axis);
+    labelActor->SetEnableDistanceLOD(this->EnableDistanceLOD);
+    labelActor->SetDistanceLODThreshold(this->DistanceLODThreshold);
+    labelActor->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+    labelActor->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
   }
 
   // Build polar axis
@@ -1812,15 +1812,15 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcsLog()
   expFollower->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
 
   // Update axis label followers
-  vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
   int labelCount = this->PolarAxis->GetNumberOfLabelsBuilt();
   for (int i = 0; i < labelCount; ++i)
   {
-    labelActors[i]->SetAxis(this->PolarAxis);
-    labelActors[i]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-    labelActors[i]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-    labelActors[i]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-    labelActors[i]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+    vtkAxisFollower* labelActor = this->PolarAxis->GetLabelFollower(i);
+    labelActor->SetAxis(this->PolarAxis);
+    labelActor->SetEnableDistanceLOD(this->EnableDistanceLOD);
+    labelActor->SetDistanceLODThreshold(this->DistanceLODThreshold);
+    labelActor->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+    labelActor->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
   }
 }
 
