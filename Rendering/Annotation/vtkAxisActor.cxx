@@ -124,12 +124,6 @@ vtkAxisActor::~vtkAxisActor()
   delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
 
-  delete[] this->Title;
-  this->Title = nullptr;
-
-  delete[] this->Exponent;
-  this->Exponent = nullptr;
-
   if (this->LabelMappers != nullptr)
   {
     for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
@@ -201,7 +195,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
       this->GridlinesActor->SetPropertyKeys(propKeys);
       return this->GridlinesActor->RenderOpaqueGeometry(viewport);
     }
-    if (this->Title != nullptr && this->Title[0] != 0 && this->TitleVisibility)
+    if (!this->Title.empty() && this->TitleVisibility)
     {
       vtkProp* titleActor = this->GetTitleActorInternal();
       titleActor->SetPropertyKeys(propKeys);
@@ -238,7 +232,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
         renderedSomething += labelActor->RenderOpaqueGeometry(viewport);
       }
 
-      if (this->ExponentVisibility && this->Exponent != nullptr && this->Exponent[0] != 0)
+      if (this->ExponentVisibility && !this->Exponent.empty())
       {
         vtkProp* exponentActor = this->GetExponentActorInternal();
         exponentActor->SetPropertyKeys(propKeys);
@@ -280,7 +274,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
       this->GridpolysActor->SetPropertyKeys(propKeys);
       renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
     }
-    if (this->Title != nullptr && this->Title[0] != 0 && this->TitleVisibility)
+    if (!this->Title.empty() && this->TitleVisibility)
     {
       vtkProp* titleActor = this->GetTitleActorInternal();
       titleActor->SetPropertyKeys(propKeys);
@@ -491,17 +485,17 @@ void vtkAxisActor::BuildAxis(vtkViewport* viewport, bool force)
     this->BuildLabels2D(viewport, force || ticksRebuilt);
   }
 
-  if (this->Title != nullptr && this->Title[0] != 0)
+  if (!this->Title.empty())
   {
     this->InitTitle();
   }
 
-  if (this->ExponentVisibility && this->Exponent != nullptr && this->Exponent[0] != 0)
+  if (this->ExponentVisibility && !this->Exponent.empty())
   {
     this->InitExponent();
   }
 
-  if (this->Title != nullptr && this->Title[0] != 0)
+  if (!this->Title.empty())
   {
     this->BuildTitle(force || ticksRebuilt);
     if (this->Use2DMode == 1)
@@ -510,7 +504,7 @@ void vtkAxisActor::BuildAxis(vtkViewport* viewport, bool force)
     }
   }
 
-  if (this->ExponentVisibility && this->Exponent != nullptr && this->Exponent[0] != 0)
+  if (this->ExponentVisibility && !this->Exponent.empty())
   {
     // build exponent
     this->BuildExponent(force);
@@ -786,9 +780,9 @@ void vtkAxisActor::InitTitle()
     titleActor->SetAutoCenter(1);
   }
 
-  this->TitleVector->SetText(this->Title);
+  this->TitleVector->SetText(this->Title.c_str());
 
-  this->TitleActor3D->SetInput(this->Title);
+  this->TitleActor3D->SetInput(this->Title.c_str());
 
   this->UpdateTitleActorProperty();
 }
@@ -949,7 +943,7 @@ void vtkAxisActor::BuildTitle(bool force)
 //------------------------------------------------------------------------------
 void vtkAxisActor::BuildExponent(bool force)
 {
-  if (!force && (!this->ExponentVisibility || !this->Exponent))
+  if (!force && (!this->ExponentVisibility || this->Exponent.empty()))
   {
     return;
   }
@@ -1262,7 +1256,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
+  os << indent << "Title: " << (this->Title.empty() ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
 
@@ -1705,14 +1699,14 @@ double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
   if (titleProp3D)
   {
     titleProp3D->SetCamera(this->Camera);
-    this->TitleActor3D->SetInput(this->Title);
+    this->TitleActor3D->SetInput(this->Title.c_str());
     this->TitleActor3D->GetBounds(bounds);
   }
   vtkAxisFollower* titleActor = vtkAxisFollower::SafeDownCast(titleProp);
   if (titleActor)
   {
     titleActor->SetCamera(this->Camera);
-    this->TitleVector->SetText(this->Title);
+    this->TitleVector->SetText(this->Title.c_str());
     vtkProperty* newProp = this->NewTitleProperty();
     titleActor->SetProperty(newProp);
     newProp->Delete();
@@ -1755,28 +1749,14 @@ void vtkAxisActor::SetTitleScale(double s)
 }
 
 //-----------------------------------------------------------------------------**
-void vtkAxisActor::SetTitle(const char* t)
+void vtkAxisActor::SetTitle(const std::string& title)
 {
-  if (this->Title == nullptr && t == nullptr)
+  if (this->Title != title)
   {
-    return;
+    this->Title = title;
+    this->TitleTextTime.Modified();
+    this->Modified();
   }
-  if (this->Title && t && (!strcmp(this->Title, t)))
-  {
-    return;
-  }
-  delete[] this->Title;
-  if (t)
-  {
-    this->Title = new char[strlen(t) + 1];
-    strcpy(this->Title, t);
-  }
-  else
-  {
-    this->Title = nullptr;
-  }
-  this->TitleTextTime.Modified();
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------**
@@ -1805,28 +1785,14 @@ void vtkAxisActor::SetTitleAlignLocation(int location)
 }
 
 //-----------------------------------------------------------------------------**
-void vtkAxisActor::SetExponent(const char* t)
+void vtkAxisActor::SetExponent(const std::string& exponent)
 {
-  if (this->Exponent == nullptr && t == nullptr)
+  if (this->Exponent != exponent)
   {
-    return;
+    this->Exponent = exponent;
+    this->ExponentTextTime.Modified();
+    this->Modified();
   }
-  if (this->Exponent && t && (!strcmp(this->Exponent, t)))
-  {
-    return;
-  }
-  delete[] this->Exponent;
-  if (t)
-  {
-    this->Exponent = new char[strlen(t) + 1];
-    strcpy(this->Exponent, t);
-  }
-  else
-  {
-    this->Exponent = nullptr;
-  }
-  this->ExponentTextTime.Modified();
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------**

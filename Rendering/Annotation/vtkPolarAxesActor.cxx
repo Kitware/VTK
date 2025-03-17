@@ -871,7 +871,7 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
 
   // Set polar axis title
   axis->SetTitleVisibility(this->PolarTitleVisibility);
-  axis->SetTitle(this->PolarAxisTitle.c_str());
+  axis->SetTitle(this->PolarAxisTitle);
   axis->SetTitleTextProperty(this->PolarAxisTitleTextProperty);
   axis->SetTitleOffset(this->PolarTitleOffset);
 
@@ -1109,7 +1109,7 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
       title.setf(std::ios::fixed, std::ios::floatfield);
       snprintf(titleValue, sizeof(titleValue), this->RadialAngleFormat, actualAngle);
       title << titleValue << (this->RadialUnits ? " deg" : "");
-      axis->SetTitle(title.str().c_str());
+      axis->SetTitle(title.str());
 
       // Update axis title followers
       axis->GetTitleActor()->SetAxis(axis);
@@ -1525,7 +1525,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   {
     // it modifies the values of labelValList
     std::string commonLbl = FindExponentAndAdjustValues(labelValList);
-    axis->SetExponent(commonLbl.c_str());
+    axis->SetExponent(commonLbl);
 
     this->GetSignificantPartFromValues(labels, labelValList);
   }
@@ -1765,7 +1765,7 @@ void vtkPolarAxesActor::BuildLabelsLog()
   {
     // it modifies the values of labelValList
     std::string commonLbl = FindExponentAndAdjustValues(labelValList);
-    axis->SetExponent(commonLbl.c_str());
+    axis->SetExponent(commonLbl);
 
     this->GetSignificantPartFromValues(labels, labelValList);
   }

@@ -48,6 +48,9 @@
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
+#include <memory>
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisFollower;
 class vtkCamera;
@@ -148,16 +151,16 @@ public:
   /**
    * Set/Get the title of the axis actor.
    */
-  void SetTitle(const char* t);
-  vtkGetStringMacro(Title);
+  void SetTitle(const std::string& title);
+  vtkGetMacro(Title, std::string);
   ///@}
 
   ///@{
   /**
    * Set/Get the common exponent of the labels values.
    */
-  void SetExponent(const char* t);
-  vtkGetStringMacro(Exponent);
+  void SetExponent(const std::string& exp);
+  vtkGetMacro(Exponent, std::string);
   ///@}
 
   ///@{
@@ -741,8 +744,8 @@ protected:
   vtkAxisActor();
   ~vtkAxisActor() override;
 
-  char* Title = nullptr;
-  char* Exponent = nullptr;
+  std::string Title;
+  std::string Exponent;
   char* LabelFormat = nullptr;
   double Range[2] = { 0.0, 1.0 };
   double LastRange[2] = { -1.0, -1.0 };
