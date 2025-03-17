@@ -5,6 +5,7 @@
 
 #include "vtkNew.h"
 
+#include <array>
 #include <bitset>
 #include <string>
 
@@ -74,6 +75,28 @@ int TestBitArray(int, char*[])
   {
     std::cerr << "Bit array not initialized as expected. The raw data is " << str
               << ", it should be 11000000" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // Test GetVariantValue accessor
+  array->Resize(4);
+  array->SetValue(0, 0);
+  array->SetValue(1, 1);
+  array->SetValue(2, 1);
+  array->SetValue(3, 0);
+
+  std::array<int, 4> variantValues = {
+    array->GetVariantValue(0).ToInt(),
+    array->GetVariantValue(1).ToInt(),
+    array->GetVariantValue(2).ToInt(),
+    array->GetVariantValue(3).ToInt(),
+  };
+
+  if (variantValues != std::array<int, 4>{ 0, 1, 1, 0 })
+  {
+    std::cerr << "GetVariantValue return invalid data \"{" << variantValues[0] << ", "
+              << variantValues[1] << ", " << variantValues[2] << ", " << variantValues[3]
+              << "}\", it should be \"{0, 1, 1, 0}\"" << std::endl;
     return EXIT_FAILURE;
   }
 

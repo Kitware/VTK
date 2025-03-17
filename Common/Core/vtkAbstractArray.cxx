@@ -528,6 +528,8 @@ vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
   {
     vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
                                     static_cast<VTK_TT*>(this->GetVoidPointer(0)), valueIdx));
+    vtkTemplateMacroCase(
+      VTK_BIT, int, val = static_cast<VTK_TT>(static_cast<vtkBitArray*>(this)->GetValue(valueIdx)));
   }
   return val;
 }
