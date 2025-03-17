@@ -60,7 +60,7 @@ int ex_put_init_global(int exoid, int64_t num_nodes_g, int64_t num_elems_g, int6
     id_type = NC_INT64;
   }
   /* Put NetCDF file into define mode */
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file ID %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);

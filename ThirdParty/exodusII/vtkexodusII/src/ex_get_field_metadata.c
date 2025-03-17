@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <stdbool.h>
 
-static const char *exi_get_metadata_attribute(char *name, const char *prefix, int pre_len)
+static const char *exi_get_metadata_attribute(const char *name, const char *prefix, int pre_len)
 {
   /*
    * Each field or basis attribute metadata attribute consists of 2 or more attributes.
@@ -30,7 +30,7 @@ static const char *exi_get_metadata_attribute(char *name, const char *prefix, in
   return NULL;
 }
 
-static const char *exi_get_attribute_metadata_name(char *attrib, int offset)
+static const char *exi_get_attribute_metadata_name(const char *attrib, int offset)
 {
   /*
    * PRECONDITION: `attrib` is a basis or field metadata attribute of the form
@@ -122,11 +122,11 @@ int ex_get_field_metadata(int exoid, ex_field *field)
   EX_FUNC_ENTER();
 
   int varid;
-  int att_count = exi_get_attribute_count(exoid, field->entity_type, field->entity_id, &varid);
+  int att_count = exi_get_attribute_count(exoid, field[0].entity_type, field[0].entity_id, &varid);
   if (att_count < 0) {
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: Negative attribute count (%d) on %s with id %" PRId64,
-             att_count, ex_name_of_object(field->entity_type), field->entity_id);
+             att_count, ex_name_of_object(field[0].entity_type), field[0].entity_id);
     ex_err_fn(exoid, __func__, errmsg, EX_INTERNAL);
     EX_FUNC_LEAVE(EX_FATAL);
   }
@@ -140,7 +140,7 @@ int ex_get_field_metadata(int exoid, ex_field *field)
       char errmsg[MAX_ERR_LENGTH];
       snprintf(errmsg, MAX_ERR_LENGTH,
                "ERROR: failed to get attribute named %s on %s with id %" PRId64, attr_name,
-               ex_name_of_object(field->entity_type), field->entity_id);
+               ex_name_of_object(field[0].entity_type), field[0].entity_id);
       ex_err_fn(exoid, __func__, errmsg, status);
       EX_FUNC_LEAVE(EX_FATAL);
     }
@@ -165,6 +165,10 @@ int ex_get_field_metadata(int exoid, ex_field *field)
       if (found == -1) {
         which = count;
         strcpy(field[count].name, fld_name);
+        /* Set default separator type... */
+        field[count].component_separator[0] = '_';
+        field[count].component_separator[1] = '\0';
+
         count++;
       }
 
@@ -174,7 +178,7 @@ int ex_get_field_metadata(int exoid, ex_field *field)
         char errmsg[MAX_ERR_LENGTH];
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to get parameters for attribute named %s on %s with id %" PRId64,
-                 attr_name, ex_name_of_object(field->entity_type), field->entity_id);
+                 attr_name, ex_name_of_object(field[0].entity_type), field[0].entity_id);
         ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
@@ -205,7 +209,7 @@ int ex_get_field_metadata(int exoid, ex_field *field)
         snprintf(
             errmsg, MAX_ERR_LENGTH,
             "ERROR: Invalid field metadata attribute type %s on field %s on %s with id %" PRId64,
-            fld_type, fld_name, ex_name_of_object(field->entity_type), field->entity_id);
+            fld_type, fld_name, ex_name_of_object(field[0].entity_type), field[0].entity_id);
         ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }
@@ -214,7 +218,7 @@ int ex_get_field_metadata(int exoid, ex_field *field)
         snprintf(errmsg, MAX_ERR_LENGTH,
                  "ERROR: failed to read field metadata attribute type %s on field %s on %s with id "
                  "%" PRId64,
-                 fld_type, fld_name, ex_name_of_object(field->entity_type), field->entity_id);
+                 fld_type, fld_name, ex_name_of_object(field[0].entity_type), field[0].entity_id);
         ex_err_fn(exoid, __func__, errmsg, status);
         EX_FUNC_LEAVE(EX_FATAL);
       }

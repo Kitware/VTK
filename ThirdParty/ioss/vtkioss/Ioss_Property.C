@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021, 2023 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2023, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -23,8 +23,8 @@ namespace {
     case Ioss::Property::STRING: return {"string"};
     case Ioss::Property::VEC_INTEGER: return {"vector<int>"};
     case Ioss::Property::VEC_DOUBLE: return {"vector<double>"};
-    default: return {"internal error"};
     }
+    return {"internal error"};
   }
 
   void error_message(const Ioss::Property &property, const std::string &requested_type)
@@ -45,9 +45,8 @@ namespace {
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, int value, Origin origin)
-    : name_(std::move(name)), type_(INTEGER), origin_(origin)
+    : name_(std::move(name)), type_(INTEGER), origin_(origin), data_(static_cast<int64_t>(value))
 {
-  data_.ival = value;
 }
 
 /** \brief Create an INTEGER type property using an int64_t variable.
@@ -57,9 +56,8 @@ Ioss::Property::Property(std::string name, int value, Origin origin)
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, int64_t value, Origin origin)
-    : name_(std::move(name)), type_(INTEGER), origin_(origin)
+    : name_(std::move(name)), type_(INTEGER), origin_(origin), data_(value)
 {
-  data_.ival = value;
 }
 
 /** \brief Create a REAL type property.
@@ -69,9 +67,8 @@ Ioss::Property::Property(std::string name, int64_t value, Origin origin)
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, double value, Origin origin)
-    : name_(std::move(name)), type_(REAL), origin_(origin)
+    : name_(std::move(name)), type_(REAL), origin_(origin), data_(value)
 {
-  data_.rval = value;
 }
 
 /** \brief Create a STRING type property.
@@ -81,9 +78,8 @@ Ioss::Property::Property(std::string name, double value, Origin origin)
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, const std::string &value, Origin origin)
-    : name_(std::move(name)), type_(STRING), origin_(origin)
+    : name_(std::move(name)), type_(STRING), origin_(origin), data_(value)
 {
-  data_.sval = new std::string(value);
 }
 
 /** \brief Create a VEC_INTEGER type property.
@@ -93,9 +89,8 @@ Ioss::Property::Property(std::string name, const std::string &value, Origin orig
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, const std::vector<int> &value, Origin origin)
-    : name_(std::move(name)), type_(VEC_INTEGER), origin_(origin)
+    : name_(std::move(name)), type_(VEC_INTEGER), origin_(origin), data_(value)
 {
-  data_.ivec = new std::vector<int>(value);
 }
 
 /** \brief Create a VEC_DOUBLE type property.
@@ -105,9 +100,8 @@ Ioss::Property::Property(std::string name, const std::vector<int> &value, Origin
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, const std::vector<double> &value, Origin origin)
-    : name_(std::move(name)), type_(VEC_DOUBLE), origin_(origin)
+    : name_(std::move(name)), type_(VEC_DOUBLE), origin_(origin), data_(value)
 {
-  data_.dvec = new std::vector<double>(value);
 }
 
 /** \brief Create a STRING type property from const char* argument.
@@ -117,9 +111,8 @@ Ioss::Property::Property(std::string name, const std::vector<double> &value, Ori
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, const char *value, Origin origin)
-    : name_(std::move(name)), type_(STRING), origin_(origin)
+    : name_(std::move(name)), type_(STRING), origin_(origin), data_(std::string(value))
 {
-  data_.sval = new std::string(value);
 }
 
 /** \brief Create a POINTER type property.
@@ -129,9 +122,8 @@ Ioss::Property::Property(std::string name, const char *value, Origin origin)
  *  \param[in] origin The origin of the property - IMPLICIT, or EXTERNAL, or ATTRIBUTE
  */
 Ioss::Property::Property(std::string name, void *value, Origin origin)
-    : name_(std::move(name)), type_(POINTER), origin_(origin)
+    : name_(std::move(name)), type_(POINTER), origin_(origin), data_(value)
 {
-  data_.pval = value;
 }
 
 /** \brief Set implicit property with a specified type.
@@ -141,61 +133,8 @@ Ioss::Property::Property(std::string name, void *value, Origin origin)
  *  \param[in] type The property type.
  */
 Ioss::Property::Property(const Ioss::GroupingEntity *ge, std::string name, const BasicType type)
-    : name_(std::move(name)), type_(type), origin_(IMPLICIT)
+    : name_(std::move(name)), type_(type), origin_(IMPLICIT), data_(ge)
 {
-  data_.ge = ge;
-}
-
-/** \brief Copy constructor.
- *
- *  \param[in] from The Ioss::Property to copy
- */
-Ioss::Property::Property(const Ioss::Property& from)
-  : name_(from.name_)
-  , type_(from.type_)
-  , origin_(from.origin_)
-{
-  if (!is_implicit() && type_ == STRING)
-  {
-    data_.sval = new std::string(*(from.data_.sval));
-  }
-  else if (!is_implicit() && type_ == VEC_DOUBLE)
-  {
-    data_.dvec = new std::vector<double>(*(from.data_.dvec));
-  }
-  else if (!is_implicit() && type_ == VEC_INTEGER)
-  {
-    data_.ivec = new std::vector<int>(*(from.data_.ivec));
-  }
-  else
-  {
-    data_ = from.data_;
-  }
-}
-
-Ioss::Property::~Property()
-{
-  if (!is_implicit() && type_ == STRING)
-  {
-    delete data_.sval;
-  }
-  else if (!is_implicit() && type_ == VEC_DOUBLE)
-  {
-    delete data_.dvec;
-  }
-  else if (!is_implicit() && type_ == VEC_INTEGER)
-  {
-    delete data_.ivec;
-  }
-}
-
-Ioss::Property& Ioss::Property::operator=(Ioss::Property rhs)
-{
-  std::swap(this->name_, rhs.name_);
-  std::swap(this->type_, rhs.type_);
-  std::swap(this->origin_, rhs.origin_);
-  std::swap(this->data_, rhs.data_);
-  return *this;
 }
 
 bool Ioss::Property::operator==(const Ioss::Property &rhs) const
@@ -354,10 +293,12 @@ bool Ioss::Property::get_value(int64_t *value) const
 {
   bool valid_request = type_ == INTEGER;
   if (is_explicit()) {
-    *value = data_.ival;
+    assert(std::holds_alternative<int64_t>(data_));
+    *value = std::get<int64_t>(data_);
   }
   else {
-    const auto *ge       = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }
@@ -368,10 +309,12 @@ bool Ioss::Property::get_value(double *value) const
 {
   bool valid_request = type_ == REAL;
   if (is_explicit()) {
-    *value = data_.rval;
+    assert(std::holds_alternative<double>(data_));
+    *value = std::get<double>(data_);
   }
   else {
-    const auto *ge       = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }
@@ -382,10 +325,12 @@ bool Ioss::Property::get_value(std::string *value) const
 {
   bool valid_request = type_ == STRING;
   if (is_explicit()) {
-    *value = *data_.sval;
+    assert(std::holds_alternative<std::string>(data_));
+    *value = std::get<std::string>(data_);
   }
   else {
-    const auto *ge       = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }
@@ -396,11 +341,13 @@ bool Ioss::Property::get_value(std::vector<int> *value) const
 {
   bool valid_request = type_ == VEC_INTEGER;
   if (is_explicit()) {
-    auto ivec = *data_.ivec;
+    assert(std::holds_alternative<std::vector<int>>(data_));
+    auto ivec = std::get<std::vector<int>>(data_);
     std::copy(ivec.begin(), ivec.end(), std::back_inserter(*value));
   }
   else {
-    const auto *ge       = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }
@@ -411,11 +358,13 @@ bool Ioss::Property::get_value(std::vector<double> *value) const
 {
   bool valid_request = type_ == VEC_DOUBLE;
   if (is_explicit()) {
-    auto dvec = *data_.dvec;
+    assert(std::holds_alternative<std::vector<double>>(data_));
+    auto dvec = std::get<std::vector<double>>(data_);
     std::copy(dvec.begin(), dvec.end(), std::back_inserter(*value));
   }
   else {
-    const auto *ge       = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }
@@ -426,10 +375,12 @@ bool Ioss::Property::get_value(void *&value) const
 {
   bool valid_request = type_ == POINTER;
   if (is_explicit()) {
-    value = data_.pval;
+    assert(std::holds_alternative<void *>(data_));
+    value = std::get<void *>(data_);
   }
   else {
-    const Ioss::GroupingEntity* ge = data_.ge;
+    assert(std::holds_alternative<const Ioss::GroupingEntity *>(data_));
+    const auto *ge       = std::get<const Ioss::GroupingEntity *>(data_);
     const auto  implicit = ge->get_implicit_property(name_);
     valid_request        = implicit.get_value(value);
   }

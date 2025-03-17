@@ -59,7 +59,7 @@ namespace Ioexnl {
   struct CommunicationMetaData;
 
   // Used for variable name index mapping
-  using VariableNameMap = std::map<std::string, int, std::less<std::string>>;
+  using VariableNameMap = std::map<std::string, int, std::less<>>;
   using VNMValuePair    = VariableNameMap::value_type;
 
   // Used to store reduction variables

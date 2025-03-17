@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2021 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -26,7 +26,7 @@ int ex_int_write_conn(int exoid, ex_entity_id blk_id, const char *type, int var_
              "ERROR: failed to write connectivity array for %s block %" PRId64 " in file id %d",
              type, blk_id, exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (status);
+    return status;
   }
   return status;
 }

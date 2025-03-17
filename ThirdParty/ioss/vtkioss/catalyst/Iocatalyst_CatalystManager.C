@@ -10,36 +10,6 @@
 
 namespace Iocatalyst {
 
-  const std::string CatalystManager::ARGS     = "args";
-  const std::string CatalystManager::CATALYST = "catalyst";
-  const std::string CatalystManager::CATALYST_BLOCK_PARSE_INPUT_DECK_NAME =
-      "CATALYST_BLOCK_PARSE_INPUT_DECK_NAME";
-  const std::string CatalystManager::CATALYST_BLOCK_PARSE_JSON_STRING =
-      "CATALYST_BLOCK_PARSE_JSON_STRING";
-  const std::string CatalystManager::CATALYST_DEBUG_LEVEL      = "CATALYST_DEBUG_LEVEL";
-  const std::string CatalystManager::CATALYST_ENABLE_LOGGING   = "CATALYST_ENABLE_LOGGING";
-  const std::string CatalystManager::CATALYST_OUTPUT_DIRECTORY = "CATALYST_OUTPUT_DIRECTORY";
-  const std::string CatalystManager::CATALYST_OUTPUT_DEFAULT   = "CatalystOutput";
-  const std::string CatalystManager::CATALYST_INPUT_NAME       = "CATALYST_INPUT_NAME";
-  const std::string CatalystManager::CATALYST_INPUT_DEFAULT    = "input";
-  const std::string CatalystManager::CATALYST_MULTI_INPUT_PIPELINE_NAME =
-      "CATALYST_MULTI_INPUT_PIPELINE_NAME";
-  const std::string CatalystManager::CATALYST_SCRIPT            = "CATALYST_SCRIPT";
-  const std::string CatalystManager::CATALYST_SCRIPT_EXTRA_FILE = "CATALYST_SCRIPT_EXTRA_FILE";
-  const std::string CatalystManager::CHANNELS                   = "channels";
-  const std::string CatalystManager::CYCLE                      = "cycle";
-  const std::string CatalystManager::DATA                       = "data";
-  const std::string CatalystManager::PHACTORI_JSON_SCRIPT       = "PHACTORI_JSON_SCRIPT";
-  const std::string CatalystManager::PIPELINES                  = "pipelines";
-  const std::string CatalystManager::FILENAME                   = "filename";
-  const std::string CatalystManager::FS                         = "/";
-  const std::string CatalystManager::IOSS                       = "ioss";
-  const std::string CatalystManager::SCRIPTS                    = "scripts";
-  const std::string CatalystManager::STATE                      = "state";
-  const std::string CatalystManager::TIME                       = "time";
-  const std::string CatalystManager::TIMESTEP                   = "timestep";
-  const std::string CatalystManager::TYPE                       = "type";
-
   CatalystManager::CatalystManager() { reset(); }
 
   CatalystManager::~CatalystManager() {}

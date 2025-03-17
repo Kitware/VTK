@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -13,8 +13,8 @@
 namespace Ioss {
   std::string CompositeVariableType::composite_name(const std::string &base, int copies)
   {
-    static std::string SEPARATOR("*");
-    std::string        name = base;
+    static const std::string SEPARATOR("*");
+    std::string              name = base;
     name += SEPARATOR;
     name += std::to_string(copies);
     return name;
@@ -25,7 +25,7 @@ namespace Ioss {
     VariableType *comp_inst = nullptr;
 
     // See if we already constructed this composite type...
-    std::string composite_type = CompositeVariableType::composite_name(inst->name(), copies);
+    const std::string composite_type = CompositeVariableType::composite_name(inst->name(), copies);
 
     auto iter = registry().find(composite_type);
     if (iter == registry().end()) {

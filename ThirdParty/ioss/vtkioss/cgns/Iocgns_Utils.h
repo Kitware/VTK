@@ -78,16 +78,16 @@ namespace Ioss {
     }                                                                                              \
   } while (0)
 
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(BCType_t) t) -> const char* { return BCTypeName[t]; }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(DataType_t) t) -> const char * { return DataTypeName[t]; }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(ElementType_t) t) -> const char * { return ElementTypeName[t]; }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(GridConnectivityType_t) t) -> const char *
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(BCType_t) t) { return BCTypeName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(DataType_t) t) { return DataTypeName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(ElementType_t) t) { return ElementTypeName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(GridConnectivityType_t) t)
 {
   return GridConnectivityTypeName[t];
 }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(GridLocation_t) t) -> const char * { return GridLocationName[t]; }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(PointSetType_t) t) -> const char * { return PointSetTypeName[t]; }
-IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(ZoneType_t) t) -> const char * { return ZoneTypeName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(GridLocation_t) t) { return GridLocationName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(PointSetType_t) t) { return PointSetTypeName[t]; }
+IOSS_NODISCARD inline auto format_as(CGNS_ENUMT(ZoneType_t) t) { return ZoneTypeName[t]; }
 
 namespace Iocgns {
   class StructuredZoneData;
@@ -305,7 +305,7 @@ namespace Iocgns {
     static void   write_state_meta_data(int file_ptr, const Ioss::Region &region,
                                         bool is_parallel_io);
     static size_t common_write_metadata(int file_ptr, const Ioss::Region &region,
-                                         std::vector<size_t> &zone_offset, bool is_parallel);
+                                        std::vector<size_t> &zone_offset, bool is_parallel);
     static size_t resolve_nodes(Ioss::Region &region, int my_processor, bool is_parallel);
     IOSS_NODISCARD static std::vector<std::vector<std::pair<size_t, size_t>>>
     resolve_processor_shared_nodes(Ioss::Region &region, int my_processor);

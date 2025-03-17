@@ -5,8 +5,4 @@
 
 #include "Ioss_Glob.h"
 
-namespace Ioss {
-namespace glob {
-    Error::~Error() = default;
-} // namespace glob
-} // namespace Ioss
+Ioss::glob::Error::~Error() = default;

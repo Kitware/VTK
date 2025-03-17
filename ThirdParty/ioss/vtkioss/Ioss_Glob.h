@@ -16,8 +16,8 @@
 #include "ioss_export.h"
 #include "vtk_ioss_mangle.h"
 
-namespace Ioss {
-namespace glob {
+namespace Ioss::glob {
+
   template <class charT> using String = std::basic_string<charT>;
 
   template <class charT> class Automata;
@@ -1658,5 +1658,5 @@ namespace glob {
   using cmatch = MatchResults<char>;
 
   using wmatch = MatchResults<wchar_t>;
-} // namespace glob
-} // namespace Ioss
+
+} // namespace Ioss::glob

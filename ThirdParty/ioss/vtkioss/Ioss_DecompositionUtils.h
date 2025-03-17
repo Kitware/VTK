@@ -20,21 +20,26 @@ namespace Ioss {
   class IOSS_EXPORT DecompUtils
   {
   public:
+    static void output_histogram(const std::vector<size_t> &proc_work, double avg_work,
+                                 size_t median);
+
     template <typename INT>
     static void line_decomp_modify(const Ioss::chain_t<INT> &element_chains,
                                    std::vector<int> &element_to_proc, int proc_count);
 
-    static void output_decomposition_statistics(const std::vector<int> &element_to_proc,
-                                                int proc_count);
+    static std::vector<size_t> get_work_per_rank(const std::vector<int> &elem_to_proc,
+                                                 int                     proc_count);
+    static std::pair<double, size_t>
+    output_decomposition_statistics(const std::vector<size_t> work_per_rank);
 
     template <typename INT>
     static std::vector<float> line_decomp_weights(const Ioss::chain_t<INT> &element_chains,
                                                   size_t                    element_count);
 
     template <typename INT>
-    static int line_decompose(Region &region, size_t num_ranks, const std::string &method,
-                              const std::string &surface_list, std::vector<int> &element_to_proc,
-                              INT dummy);
+    static void line_decompose(Region &region, size_t num_ranks, const std::string &method,
+                               const std::string &surface_list, std::vector<int> &element_to_proc,
+                               INT dummy);
 
     template <typename INT>
     static void decompose_zoltan(const Ioss::Region &region, int ranks, const std::string &method,

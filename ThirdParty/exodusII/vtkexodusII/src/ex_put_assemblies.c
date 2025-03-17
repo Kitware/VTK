@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -37,15 +37,15 @@ int ex_put_assemblies(int exoid, size_t count, const struct ex_assembly *assembl
 
   int *entlst_id = (int *)calloc(count, sizeof(int));
 
-  int  max_name_len = 0;
-  bool in_define    = false;
+  size_t max_name_len = 0;
+  bool   in_define    = false;
   for (size_t i = 0; i < count; i++) {
     /* See if an assembly with this id has already been defined or exists on file... */
     if (nc_inq_varid(exoid, VAR_ENTITY_ASSEMBLY(assemblies[i].id), &entlst_id[i]) != NC_NOERR) {
       /* Assembly has not already been defined */
       /* put netcdf file into define mode  */
       if (!in_define) {
-        if ((status = nc_redef(exoid)) != NC_NOERR) {
+        if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
           snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode",
                    exoid);
           ex_err_fn(exoid, __func__, errmsg, status);
@@ -176,7 +176,9 @@ int ex_put_assemblies(int exoid, size_t count, const struct ex_assembly *assembl
   }
 
   /* Update the maximum_name_length attribute on the file. */
-  exi_update_max_name_length(exoid, max_name_len - 1);
+  if (max_name_len > 0) {
+    exi_update_max_name_length(exoid, max_name_len - 1);
+  }
 
   /* Assembly are now all defined; see if any set data needs to be output... */
   for (size_t i = 0; i < count; i++) {

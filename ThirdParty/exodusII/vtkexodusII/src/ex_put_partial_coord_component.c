@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -79,7 +79,7 @@ int ex_put_partial_coord_component(int exoid, int64_t start_node_num, int64_t nu
     EX_FUNC_LEAVE(EX_FATAL);
   }
 
-  if (component > num_dim) {
+  if (component > (int)num_dim) {
     char errmsg[MAX_ERR_LENGTH];
     snprintf(errmsg, MAX_ERR_LENGTH,
              "ERROR: Component (%d) is larger than number of dimensions (%zu) in file id %d",

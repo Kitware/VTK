@@ -24,7 +24,6 @@
 #include <ctime>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-
 #include <functional>
 #include <iostream>
 #include <limits>

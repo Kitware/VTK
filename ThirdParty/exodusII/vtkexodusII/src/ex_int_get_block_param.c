@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2022 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -17,7 +17,7 @@ static int el_node_count_error(int exoid, struct exi_elem_blk_parm elem_blk_parm
   snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: An element of type '%s' with %d nodes is not valid.",
            elem_blk_parms.elem_type, elem_blk_parms.num_nodes_per_elem);
   ex_err_fn(exoid, __func__, errmsg, EX_MSG);
-  return (EX_FATAL);
+  return EX_FATAL;
 }
 
 int exi_get_block_param(int exoid, ex_entity_id id, int ndim,

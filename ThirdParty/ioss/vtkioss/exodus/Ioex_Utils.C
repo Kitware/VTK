@@ -11,13 +11,19 @@
 #include "Ioss_VariableType.h"
 #include "exodus/Ioex_Utils.h"
 #include <cstring>
-#include <exodusII_int.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
 #include <iosfwd>
 #include <vtk_netcdf.h> // for NC_NOERR, nc_def_var, etc
+#if defined(_WIN32) && !defined(__MINGW32__)
+#include <string.h>
+#define strcasecmp _stricmp
+#define strncasecmp _strnicmp
+#else
+#include <strings.h>
+#endif
 #include <tokenize.h>
 
 #include "Ioss_BasisVariableType.h"
@@ -30,7 +36,7 @@
 #include "Ioss_ParallelUtils.h"
 #include "Ioss_Property.h"
 #include "Ioss_QuadratureVariableType.h"
-#include "exodusII.h"
+#include "vtk_exodusII.h"
 #include "exodusII_int.h"
 
 namespace {
@@ -618,7 +624,7 @@ namespace Ioex {
     // Try to decode an id from the name.
     std::string name_string = entity->get_property(prop_name).get_string();
     std::string type_name   = entity->short_type_string();
-    if (std::strncmp(type_name.c_str(), name_string.c_str(), type_name.size()) == 0) {
+    if (strncasecmp(type_name.c_str(), name_string.c_str(), type_name.size()) == 0) {
       id = extract_id(name_string);
       if (id <= 0) {
         id = 1;
@@ -922,12 +928,10 @@ namespace Ioex {
       for (size_t iel = 0; iel < element.size(); iel++) {
         int64_t elem_id = element[iel];
         if (elem_id <= 0) {
-          std::ostringstream errmsg;
-          fmt::print(errmsg,
-                     "ERROR: In sideset/surface '{}' an element with id {} is specified.  Element "
-                     "ids must be greater than zero. ({})",
-                     surface_name, elem_id, __func__);
-          IOSS_ERROR(errmsg);
+          IOSS_ERROR(fmt::format(
+              "ERROR: In sideset/surface '{}' an element with id {} is specified.  Element "
+              "ids must be greater than zero. ({})",
+              surface_name, elem_id, __func__));
         }
         if (block == nullptr || !block->contains(elem_id)) {
           block = region->get_element_block(elem_id);
@@ -945,15 +949,12 @@ namespace Ioex {
         if (common_ftopo == nullptr && sides[iel] != current_side) {
           current_side = sides[iel];
           if (current_side <= 0 || current_side > block->topology()->number_boundaries()) {
-            std::ostringstream errmsg;
-            fmt::print(
-                errmsg,
+            IOSS_ERROR(fmt::format(
                 "ERROR: In sideset/surface '{}' for the element with id {} of topology '{}';\n\t"
                 "an invalid face index '{}' is specified.\n\tFace indices "
                 "must be between 1 and {}. ({})",
                 surface_name, fmt::group_digits(elem_id), block->topology()->name(), current_side,
-                block->topology()->number_boundaries(), __func__);
-            IOSS_ERROR(errmsg);
+                block->topology()->number_boundaries(), __func__));
           }
           topo = block->topology()->boundary_type(sides[iel]);
           SMART_ASSERT(topo != nullptr);

@@ -128,7 +128,7 @@ static int exi_look_up_var(int exoid, ex_entity_type var_type, int var_index, ex
                         ex_name_of_object(var_type), &num_entity, &numobjdim, __func__);
 
       /*    variable doesn't exist so put file into define mode  */
-      if ((status = nc_redef(exoid)) != NC_NOERR) {
+      if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
         snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
         ex_err_fn(exoid, __func__, errmsg, status);
         return EX_FATAL;

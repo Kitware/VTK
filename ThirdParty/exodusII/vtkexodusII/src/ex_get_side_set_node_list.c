@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -42,7 +42,7 @@ static int check_valid_side(size_t side_num, size_t max_sides, char *topology, i
     ex_err_fn(exoid, __func__, errmsg, EX_BADPARAM);
     err_stat = EX_FATAL;
   }
-  return (err_stat);
+  return err_stat;
 }
 
 static void get_nodes(int exoid, void_int *to, size_t ito, void_int *from, size_t ifrom)
@@ -58,7 +58,6 @@ static void get_nodes(int exoid, void_int *to, size_t ito, void_int *from, size_
 int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *side_set_node_cnt_list,
                               void_int *side_set_node_list)
 {
-  size_t    ii, i, j;
   int64_t   elem, side;
   int64_t   num_side_sets, num_elem_blks, num_df, ndim;
   int64_t   tot_num_elem = 0, tot_num_ss_elem = 0, elem_num = 0;
@@ -70,7 +69,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   int64_t  *ss_parm_ndx        = NULL;
   void_int *side_set_elem_list = NULL;
   void_int *side_set_side_list = NULL;
-  size_t    elem_ctr, node_ctr, elem_num_pos;
+  int64_t   elem_ctr, node_ctr, elem_num_pos;
   size_t    num_nodes_per_elem;
   int       int_size, ids_size;
 
@@ -228,7 +227,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   if (int_size == sizeof(int64_t)) {
     /* Sort side set element list into index array  - non-destructive */
     int64_t *elems = (int64_t *)ss_elem_ndx;
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
     exi_iqsort64(side_set_elem_list, ss_elem_ndx, tot_num_ss_elem);
@@ -236,7 +235,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   else {
     /* Sort side set element list into index array  - non-destructive */
     int *elems = (int *)ss_elem_ndx;
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int i = 0; i < tot_num_ss_elem; i++) {
       elems[i] = i; /* init index array to current position */
     }
     exi_iqsort(side_set_elem_list, ss_elem_ndx, tot_num_ss_elem);
@@ -270,7 +269,7 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
   }
 
   elem_ctr = 0;
-  for (i = 0; i < num_elem_blks; i++) {
+  for (int i = 0; i < num_elem_blks; i++) {
     ex_entity_id id;
     if (ids_size == sizeof(int64_t)) {
       id = ((int64_t *)elem_blk_ids)[i];
@@ -315,8 +314,9 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
      parameter index.
   */
   node_ctr = 0;
-  j        = 0; /* The current element block... */
-  for (ii = 0; ii < tot_num_ss_elem; ii++) {
+  int j    = 0; /* The current element block... */
+  for (int64_t ii = 0; ii < tot_num_ss_elem; ii++) {
+    size_t i = 0;
     if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
       i    = ((int64_t *)ss_elem_ndx)[ii];
       elem = ((int64_t *)side_set_elem_list)[i];
@@ -361,7 +361,8 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
     if (node_ctr != num_df) {
       snprintf(errmsg, MAX_ERR_LENGTH,
                "Warning: In side set %" PRId64 " the distribution factor count (%" PRId64
-               ") does not match the side set node list length (%zu). These should match and this "
+               ") does not match the side set node list length (%" PRId64
+               "). These should match and this "
                "may indicate a corrupt database in file %d",
                side_set_id, num_df, node_ctr, exoid);
       ex_err_fn(exoid, __func__, errmsg, EX_MSG);
@@ -372,18 +373,18 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
    * exclusive scan to determine where the nodes will be put in the list for each face
    */
   if (ex_int64_status(exoid) & EX_BULK_INT64_API) {
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int64_t i = 0; i < tot_num_ss_elem; i++) {
       ((int64_t *)side_set_node_cnt_list)[i] = ss_elem_node_ndx[i];
     }
   }
   else {
-    for (i = 0; i < tot_num_ss_elem; i++) {
+    for (int64_t i = 0; i < tot_num_ss_elem; i++) {
       ((int *)side_set_node_cnt_list)[i] = (int)ss_elem_node_ndx[i];
     }
   }
 
   int64_t sum = 0;
-  for (i = 0; i < tot_num_ss_elem; i++) {
+  for (int64_t i = 0; i < tot_num_ss_elem; i++) {
     int64_t cnt         = ss_elem_node_ndx[i];
     ss_elem_node_ndx[i] = sum;
     sum += cnt;
@@ -482,12 +483,12 @@ int ex_get_side_set_node_list(int exoid, ex_entity_id side_set_id, void_int *sid
     case EX_EL_BEAM: { /* Note: no side-node lookup table is used for this
                           simple case */
       if (side_num == 0) {
-        for (i = 0; i < num_nodes_per_elem; i++) {
+        for (size_t i = 0; i < num_nodes_per_elem; i++) {
           get_nodes(exoid, side_set_node_list, node_pos + i, connect, connect_offset + i);
         }
       }
       else {
-        for (i = 0; i < num_nodes_per_elem; i++) {
+        for (size_t i = 0; i < num_nodes_per_elem; i++) {
           int nn = num_nodes_per_elem - i - 1;
           get_nodes(exoid, side_set_node_list, node_pos + i, connect, connect_offset + nn);
         }

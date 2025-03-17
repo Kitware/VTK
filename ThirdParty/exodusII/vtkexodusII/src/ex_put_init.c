@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -76,5 +76,5 @@ int ex_put_init(int exoid, const char *title, int64_t num_dim, int64_t num_nodes
   par.num_elem_maps = 0;
   par.num_assembly  = 0;
 
-  return (ex_put_init_ext(exoid, &par));
+  return ex_put_init_ext(exoid, &par);
 }

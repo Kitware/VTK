@@ -15,7 +15,6 @@
 #include <cstddef>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-
 #include <iosfwd>
 #include <vtk_netcdf.h>
 #include <string>

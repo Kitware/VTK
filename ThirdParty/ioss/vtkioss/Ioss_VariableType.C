@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -19,6 +19,7 @@
 #include VTK_FMT(fmt/core.h)
 #include VTK_FMT(fmt/format.h)
 #include VTK_FMT(fmt/ostream.h)
+#include VTK_FMT(fmt/ranges.h)
 #include <map>
 #include <sstream>
 #include <string>
@@ -62,15 +63,15 @@ namespace Ioss {
 
   void VariableType::print() const
   {
-    fmt::print("\tVariableType '{}' of type '{}' with {} components.\n\n", name(), type_string(),
+    fmt::print("\tVariableType '{}' named '{}' with {} components.\n", type_string(), name(),
                component_count());
   }
 
   void BasisVariableType::print() const
   {
-    fmt::print("\tVariableType '{}' of type '{}' with {} components\n\t\tordinal  subc: _dim, "
+    fmt::print("\tVariableType '{}' named '{}' with {} components\n\t\tordinal  subc: _dim, "
                "_ordinal, _dof_ordinal, _num_dof\t    xi     eta    zeta\n",
-               name(), type_string(), component_count());
+               type_string(), name(), component_count());
     for (int i = 0; i < component_count(); i++) {
       auto basis = get_basis_component(i + 1);
       fmt::print("\t\t {:6}\t\t{:6}\t{:6}\t{:6}\t{:6}\t\t{:6.3}\t{:6.3}\t{:6.3}\n", i + 1,
@@ -82,9 +83,9 @@ namespace Ioss {
 
   void QuadratureVariableType::print() const
   {
-    fmt::print("\tVariableType '{}' of type '{}' with {} components\n\t\t\t    xi     eta    zeta  "
+    fmt::print("\tVariableType '{}' named '{}' with {} components\n\t\t\t    xi     eta    zeta  "
                "weight\n",
-               name(), type_string(), component_count());
+               type_string(), name(), component_count());
     for (int i = 0; i < component_count(); i++) {
       auto quad = get_quadrature_component(i + 1);
       fmt::print("\t\t{}\t{:6.3}\t{:6.3}\t{:6.3}\t{:6.3}\n", i + 1, quad.xi, quad.eta, quad.zeta,
@@ -95,8 +96,8 @@ namespace Ioss {
 
   void NamedSuffixVariableType::print() const
   {
-    fmt::print("\tVariableType '{}' of type '{}' with {} components\n\t\tSuffices: {}\n\n", name(),
-               type_string(), component_count(), fmt::join(suffixList, ", "));
+    fmt::print("\tVariableType '{}' named '{}' with {} components\n\t\tSuffices: {}\n",
+               type_string(), name(), component_count(), fmt::join(suffixList, ", "));
   }
 
   void VariableType::alias(const std::string &base, const std::string &syn)
@@ -442,7 +443,7 @@ namespace Ioss {
 
   std::string VariableType::numeric_label(int which, int ncomp, const std::string &name)
   {
-    if (ncomp >= 100000) {
+    if (ncomp >= 100'000) {
       std::ostringstream errmsg;
       fmt::print(errmsg,
                  "ERROR: Variable '{}' has {} components which is larger than the current maximum"

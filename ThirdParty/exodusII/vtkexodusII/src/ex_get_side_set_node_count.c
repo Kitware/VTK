@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -27,7 +27,6 @@
 int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_set_node_cnt_list)
 {
   int       status;
-  size_t    ii, i, j;
   int       num_side_sets, num_elem_blks, ndim;
   size_t    tot_num_ss_elem = 0;
   int64_t   side, elem;
@@ -171,7 +170,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
     if (int_size == sizeof(int64_t)) {
       /* Sort side set element list into index array  - non-destructive */
       int64_t *elems = (int64_t *)ss_elem_ndx;
-      for (i = 0; i < tot_num_ss_elem; i++) {
+      for (size_t i = 0; i < tot_num_ss_elem; i++) {
         elems[i] = i; /* init index array to current position */
       }
       exi_iqsort64(side_set_elem_list, elems, tot_num_ss_elem);
@@ -179,7 +178,7 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
     else {
       /* Sort side set element list into index array  - non-destructive */
       int *elems = (int *)ss_elem_ndx;
-      for (i = 0; i < tot_num_ss_elem; i++) {
+      for (size_t i = 0; i < tot_num_ss_elem; i++) {
         elems[i] = i; /* init index array to current position */
       }
       exi_iqsort(side_set_elem_list, elems, tot_num_ss_elem);
@@ -224,22 +223,22 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
   }
 
   elem_ctr = 0;
-  for (i = 0; i < num_elem_blks; i++) {
+  for (int ib = 0; ib < num_elem_blks; ib++) {
     ex_entity_id id;
     if (ex_int64_status(exoid) & EX_IDS_INT64_API) {
-      id = ((int64_t *)elem_blk_ids)[i];
+      id = ((int64_t *)elem_blk_ids)[ib];
     }
     else {
-      id = ((int *)elem_blk_ids)[i];
+      id = ((int *)elem_blk_ids)[ib];
     }
 
-    err_stat = exi_get_block_param(exoid, id, ndim, &elem_blk_parms[i]);
+    err_stat = exi_get_block_param(exoid, id, ndim, &elem_blk_parms[ib]);
     if (err_stat != EX_NOERR) {
       goto cleanup;
     }
 
-    elem_ctr += elem_blk_parms[i].num_elem_in_blk;
-    elem_blk_parms[i].elem_ctr = elem_ctr; /* save elem number max */
+    elem_ctr += elem_blk_parms[ib].num_elem_in_blk;
+    elem_blk_parms[ib].elem_ctr = elem_ctr; /* save elem number max */
   }
 
   /* Finally... Create the list of node counts for each face in the
@@ -252,9 +251,10 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
    * NULL`
    */
   if (side_set_node_cnt_list != NULL) {
-    j = 0; /* The current element block... */
-    for (ii = 0; ii < tot_num_ss_elem; ii++) {
+    int jb = 0; /* The current element block... */
+    for (size_t ii = 0; ii < tot_num_ss_elem; ii++) {
 
+      size_t i = 0;
       if (ints_64) {
         i    = ((int64_t *)ss_elem_ndx)[ii];
         elem = ((int64_t *)side_set_elem_list)[i];
@@ -272,15 +272,15 @@ int ex_get_side_set_node_count(int exoid, ex_entity_id side_set_id, int *side_se
        * from block 0 to block[num_elem_blks-1]. Once we find an element
        * not in this block, find a following block that contains it...
        */
-      for (; j < num_elem_blks; j++) {
-        if (elem <= elem_blk_parms[j].elem_ctr) {
+      for (; jb < num_elem_blks; jb++) {
+        if (elem <= elem_blk_parms[jb].elem_ctr) {
           break;
         }
       }
 
-      if (j < num_elem_blks) {
-        assert(side < elem_blk_parms[j].num_sides);
-        side_set_node_cnt_list[i] = elem_blk_parms[j].num_nodes_per_side[side];
+      if (jb < num_elem_blks) {
+        assert(side < elem_blk_parms[jb].num_sides);
+        side_set_node_cnt_list[i] = elem_blk_parms[jb].num_nodes_per_side[side];
       }
       else {
         snprintf(errmsg, MAX_ERR_LENGTH,

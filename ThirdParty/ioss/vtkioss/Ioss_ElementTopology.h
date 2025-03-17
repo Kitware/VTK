@@ -38,7 +38,7 @@ namespace Ioss {
   };
 
   using ElementShapeMap    = std::map<ElementShape, std::string>;
-  using ElementTopologyMap = std::map<std::string, ElementTopology *, std::less<std::string>>;
+  using ElementTopologyMap = std::map<std::string, ElementTopology *, std::less<>>;
   using ETM_VP             = ElementTopologyMap::value_type;
 
   class IOSS_EXPORT ETRegistry

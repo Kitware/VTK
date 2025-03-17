@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022, 2023 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -34,14 +34,14 @@ static int ex_prepare_result_var(int exoid, int num_vars, char *type_name, char 
                "ERROR: failed to define number of %s variables in file id %d", type_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
-    return (EX_FATAL); /* exit define mode and return */
+    return EX_FATAL; /* exit define mode and return */
   }
 
   /* Now define type_name variable name variable */
   if ((status = nc_inq_dimid(exoid, DIM_STR_NAME, &dim_str_name)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to get string length in file id %d", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
-    return (EX_FATAL);
+    return EX_FATAL;
   }
 
   dims[0] = dimid;
@@ -57,14 +57,14 @@ static int ex_prepare_result_var(int exoid, int num_vars, char *type_name, char 
                type_name, exoid);
       ex_err_fn(exoid, __func__, errmsg, status);
     }
-    return (EX_FATAL); /* exit define mode and return */
+    return EX_FATAL; /* exit define mode and return */
   }
   exi_set_compact_storage(exoid, varid);
 #if defined(EX_CAN_USE_NC_DEF_VAR_FILL)
   int fill = NC_FILL_CHAR;
   nc_def_var_fill(exoid, varid, 0, &fill);
 #endif
-  return (EX_NOERR);
+  return EX_NOERR;
 }
 /*! \endcond */
 
@@ -174,7 +174,7 @@ int ex_put_variable_param(int exoid, ex_entity_type obj_type, int num_vars)
   }
 
   /* put file into define mode  */
-  if ((status = nc_redef(exoid)) != NC_NOERR) {
+  if ((status = exi_redef(exoid, __func__)) != NC_NOERR) {
     snprintf(errmsg, MAX_ERR_LENGTH, "ERROR: failed to put file id %d into define mode", exoid);
     ex_err_fn(exoid, __func__, errmsg, status);
     EX_FUNC_LEAVE(EX_FATAL);

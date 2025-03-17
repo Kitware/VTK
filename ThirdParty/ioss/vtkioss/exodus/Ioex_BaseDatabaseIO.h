@@ -59,7 +59,7 @@ namespace Ioex {
   struct CommunicationMetaData;
 
   // Used for variable name index mapping
-  using VariableNameMap = std::map<std::string, int, std::less<std::string>>;
+  using VariableNameMap = std::map<std::string, int, std::less<>>;
   using VNMValuePair    = VariableNameMap::value_type;
 
   // Used to store reduction variables
@@ -91,6 +91,82 @@ namespace Ioex {
     // database supports that type (e.g. return_value & Ioss::FACESET)
     IOSS_NODISCARD unsigned entity_field_support() const override;
 
+    IOSS_NODISCARD std::string get_internal_change_set_name() const override { return m_groupName; }
+
+    /** \brief Checks if a database type supports groups
+     *
+     *  \returns True if successful.
+     */
+    bool supports_group() const;
+
+    /** \brief If a database type supports groups and if the database
+     *         contains groups, open the specified group.
+     *
+     *  If the group_name begins with '/', it specifies the absolute path
+     *  name from the root with '/' separating groups.  Otherwise, the
+     *  group_name specifies a child group of the currently active group.
+     *  If group_name == "/" then the root group is opened.
+     *
+     *  \param[in] group_name The name of the group to open.
+     *  \returns True if successful.
+     */
+    bool open_group(const std::string &group_name)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return open_group_nl(group_name);
+    }
+
+    /** \brief If a database type supports groups, create the specified
+     *        group as a child of the current group.
+     *
+     *  The name of the group must not contain a '/' character.
+     *  If the command is successful, then the group will be the
+     *  active group for all subsequent writes to the database.
+     *
+     *  \param[in] group_name The name of the subgroup to create.
+     *  \returns True if successful.
+     */
+    bool create_subgroup(const std::string &group_name)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return create_subgroup_nl(group_name);
+    }
+
+    /** \brief If a database type supports groups, and if the database
+     *         contains groups, open the root group for the current group.
+     */
+    bool open_root_group()
+    {
+      IOSS_FUNC_ENTER(m_);
+      return open_root_group_nl();
+    }
+
+    /** \brief If a database type supports groups, and if the database
+     *         contains groups, return the number of child groups for
+     *         the current group.
+     */
+    int num_child_group() const;
+
+    /** \brief If a database type supports groups, open the child group
+     *         of the current group at the specified [zero-based] index
+     *
+     *  \param[in] child_index The [zero-based] index of the subgroup to open.
+     *  \returns True if successful.
+     */
+    bool open_child_group(int child_index)
+    {
+      IOSS_FUNC_ENTER(m_);
+      return open_child_group_nl(child_index);
+    }
+
+    /** \brief If a database type supports groups, return a list of group names
+     *
+     *  \param[in] return_full_names Flag to control return of relative
+     *             or full group name paths.
+     *  \returns True if successful.
+     */
+    Ioss::NameList groups_describe(bool return_full_names = false) const;
+
   protected:
     // Check to see if database state is ok...
     // If 'write_message' true, then output a warning message indicating the problem.
@@ -100,8 +176,19 @@ namespace Ioex {
     IOSS_NODISCARD bool ok_nl(bool write_message = false, std::string *error_message = nullptr,
                               int *bad_count = nullptr) const override;
 
-    bool open_group_nl(const std::string &group_name) override;
-    bool create_subgroup_nl(const std::string &group_name) override;
+    void release_memory_nl() override;
+
+    bool           supports_internal_change_set_nl() override;
+    bool           open_internal_change_set_nl(const std::string &set_name) override;
+    bool           open_internal_change_set_nl(int index) override;
+    bool           create_internal_change_set_nl(const std::string &set_name) override;
+    int            num_internal_change_set_nl() override;
+    Ioss::NameList internal_change_set_describe_nl(bool return_full_names) override;
+
+    bool open_root_group_nl() const;
+    bool open_group_nl(const std::string &group_name) const;
+    bool open_child_group_nl(int index) const;
+    bool create_subgroup_nl(const std::string &group_name);
 
     bool begin_nl(Ioss::State state) override;
     bool end_nl(Ioss::State state) override;
@@ -321,6 +408,7 @@ namespace Ioex {
 
     time_t timeLastFlush{0};
     int    flushInterval{-1};
+    int    m_timestepCount{0};
 
     mutable bool fileExists{false}; // False if file has never been opened/created
     mutable bool minimizeOpenFiles{false};

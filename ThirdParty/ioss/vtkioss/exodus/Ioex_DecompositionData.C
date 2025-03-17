@@ -290,15 +290,26 @@ namespace Ioex {
         Ioss::PropertyManager properties;
         Ioss::DatabaseIO     *dbi = Ioss::IOFactory::create(
             "exodus", filename, Ioss::READ_RESTART, Ioss::ParallelUtils::comm_self(), properties);
+
+        // Set integer size to match what the caller is using
+        if (sizeof(INT) == 8) {
+          dbi->set_int_byte_size_api(Ioss::USE_INT64_API);
+        }
+        else {
+          dbi->set_int_byte_size_api(Ioss::USE_INT32_API);
+        }
+
         Ioss::Region region(dbi, "line_decomp_region");
 
-        int status = Ioss::DecompUtils::line_decompose(
-            region, m_processorCount, m_decomposition.m_method, m_decomposition.m_decompExtra,
-            element_to_proc_global, INT(0));
+        Ioss::DecompUtils::line_decompose(region, m_processorCount, m_decomposition.m_method,
+                                          m_decomposition.m_decompExtra, element_to_proc_global,
+                                          INT(0));
 
-	if (m_decomposition.m_showHWM || m_decomposition.m_showProgress) {
-	  Ioss::DecompUtils::output_decomposition_statistics(element_to_proc_global, m_processorCount);
-	}
+        if (m_decomposition.m_showHWM || m_decomposition.m_showProgress) {
+          auto work_per_rank =
+              Ioss::DecompUtils::get_work_per_rank(element_to_proc_global, m_processorCount);
+          Ioss::DecompUtils::output_decomposition_statistics(work_per_rank);
+        }
       }
       // Now broadcast the parts of the `element_to_proc_global`
       // vector to the owning ranks in the initial linear
@@ -328,7 +339,7 @@ namespace Ioex {
     }
 
     if (m_decomposition.m_lineDecomp) {
-      // Do not combine into previous if block since we want to release memory for 
+      // Do not combine into previous if block since we want to release memory for
       // the local vectors in that block before allocating the large adjacency vector.
       generate_adjacency_list(filePtr, m_decomposition);
     }
