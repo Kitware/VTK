@@ -20,11 +20,15 @@
 #include <atomic>
 #include <cassert>
 #include <cctype>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+
+using std::cerr;
+using std::cout;
 
 //============================================================================
 namespace parser

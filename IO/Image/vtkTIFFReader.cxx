@@ -15,7 +15,10 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <string>
+
+using std::cerr;
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace

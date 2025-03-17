@@ -16,7 +16,10 @@
 #include "vtkTextureObject.h"
 
 #include <cassert>
+#include <iostream>
 #include <vector>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFOInfo

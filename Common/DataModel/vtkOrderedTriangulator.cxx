@@ -17,10 +17,13 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cassert>
+#include <iostream>
 #include <list>
 #include <map>
 #include <stack>
 #include <vector>
+
+using std::cout;
 
 // Dumps insertion cavity when the cavity is invalid.
 // #define DEBUG_vtkOrderedTriangulator

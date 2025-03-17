@@ -14,7 +14,10 @@
 #include <cassert>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 #include <sstream>
+
+using std::cerr;
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN

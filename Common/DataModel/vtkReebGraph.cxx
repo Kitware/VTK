@@ -15,9 +15,12 @@
 #include "vtkVariantArray.h"
 
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <queue>
 #include <vector>
+
+using std::cout;
 
 //------------------------------------------------------------------------------
 // Contain all of the internal data structures, and macros, in the

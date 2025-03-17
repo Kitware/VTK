@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -35,6 +36,8 @@
 #include <sys/types.h>
 #endif
 #include "vtkObjectFactory.h"
+
+using std::cerr;
 
 //==============================================================================
 VTK_ABI_NAMESPACE_BEGIN

@@ -9,6 +9,9 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include <cassert>
+#include <iostream>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeometricErrorMetric);

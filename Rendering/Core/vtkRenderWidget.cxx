@@ -7,6 +7,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderWidget);
 

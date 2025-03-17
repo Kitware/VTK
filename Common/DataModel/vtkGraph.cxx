@@ -30,8 +30,11 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <set>
 #include <vector>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 double vtkGraph::DefaultPoint[3] = { 0, 0, 0 };

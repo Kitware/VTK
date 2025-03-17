@@ -9,6 +9,10 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkPoints.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);

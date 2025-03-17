@@ -21,7 +21,7 @@
 #include <algorithm> // for inline impl
 #include <climits>   // for inline impl
 #include <deque>     // for inline impl
-#include <iostream>  // for inline impl
+#include <ostream>   // for inline impl
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKCOMMONDATAMODEL_EXPORT vtkPixelExtent

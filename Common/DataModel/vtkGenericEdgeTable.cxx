@@ -5,7 +5,11 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <vector>
+
+using std::cerr;
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericEdgeTable);

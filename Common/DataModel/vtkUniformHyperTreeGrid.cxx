@@ -9,6 +9,7 @@
 #include "vtkHyperTreeGridScales.h"
 
 #include <deque>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformHyperTreeGrid);

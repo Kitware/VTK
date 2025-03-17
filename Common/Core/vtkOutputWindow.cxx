@@ -13,9 +13,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
 #include <mutex>
 #include <sstream>
 #include <thread>
+
+using std::cerr;
+using std::cout;
 
 namespace
 {

@@ -6,6 +6,10 @@
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformationKeyToInformationFriendship
 {

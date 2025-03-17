@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <iostream>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentRCBPartitioner);

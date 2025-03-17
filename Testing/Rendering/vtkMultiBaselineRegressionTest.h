@@ -9,6 +9,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
 #include <string.h>
 
 /**\brief Run a regression test with an explicitly-provided image filename.
@@ -57,7 +58,7 @@ int RegressionTestWithImageName(
   if (testing->IsValidImageSpecified())
   {
     testing->SetRenderWindow(rw);
-    return testing->RegressionTest(thresh, cout);
+    return testing->RegressionTest(thresh, std::cout);
   }
 
   return vtkTesting::NOT_RUN;

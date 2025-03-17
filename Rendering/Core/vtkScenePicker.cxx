@@ -11,6 +11,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScenePickerSelectionRenderCommand : public vtkCommand
 {

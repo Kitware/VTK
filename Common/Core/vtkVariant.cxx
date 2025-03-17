@@ -20,8 +20,11 @@
 
 #include <cassert>
 #include <cctype> // std::isspace
+#include <iostream>
 #include <locale> // C++ locale
 #include <sstream>
+
+using std::cerr;
 
 //------------------------------------------------------------------------------
 

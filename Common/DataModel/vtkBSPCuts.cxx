@@ -6,6 +6,10 @@
 #include "vtkKdTree.h"
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBSPCuts);
 

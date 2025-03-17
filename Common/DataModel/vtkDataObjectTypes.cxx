@@ -49,7 +49,10 @@
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
 #include <map>
+
+using std::cerr;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectTypes);

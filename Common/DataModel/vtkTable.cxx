@@ -15,7 +15,10 @@
 #include "vtkVariantArray.h"
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
+
+using std::cout;
 
 //
 // Standard functions
