@@ -97,9 +97,13 @@ void vtkWrapJavaScript_GenerateEnumTypes(
     {
       fprintf(fp, "EMSCRIPTEN_BINDINGS(%s_%s_class_enums) {", modulename, classname);
     }
-    else
+    else if (data->NumberOfClasses > 0 && data->Classes[0]->Name)
     {
       fprintf(fp, "EMSCRIPTEN_BINDINGS(%s_%s_enums) {", modulename, data->Classes[0]->Name);
+    }
+    else
+    {
+      fprintf(fp, "EMSCRIPTEN_BINDINGS(%s_enums) {", modulename);
     }
   }
   for (int i = 0; i < data->NumberOfEnums; ++i)
