@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -284,7 +284,9 @@ CLI11_NODISCARD CLI11_INLINE std::string Option::get_name(bool positional, bool 
 }
 
 CLI11_INLINE void Option::run_callback() {
+    bool used_default_str = false;
     if(force_callback_ && results_.empty()) {
+        used_default_str = true;
         add_result(default_str_);
     }
     if(current_option_state_ == option_state::parsing) {
@@ -294,16 +296,18 @@ CLI11_INLINE void Option::run_callback() {
 
     if(current_option_state_ < option_state::reduced) {
         _reduce_results(proc_results_, results_);
-        current_option_state_ = option_state::reduced;
     }
-    if(current_option_state_ >= option_state::reduced) {
-        current_option_state_ = option_state::callback_run;
-        if(!(callback_)) {
-            return;
-        }
+
+    current_option_state_ = option_state::callback_run;
+    if(callback_) {
         const results_t &send_results = proc_results_.empty() ? results_ : proc_results_;
         bool local_result = callback_(send_results);
-
+        if(used_default_str) {
+            // we only clear the results if the callback was actually used
+            // otherwise the callback is the storage of the default
+            results_.clear();
+            proc_results_.clear();
+        }
         if(!local_result)
             throw ConversionError(get_name(), results_);
     }
@@ -311,26 +315,27 @@ CLI11_INLINE void Option::run_callback() {
 
 CLI11_NODISCARD CLI11_INLINE const std::string &Option::matching_name(const Option &other) const {
     static const std::string estring;
+    bool bothConfigurable = configurable_ && other.configurable_;
     for(const std::string &sname : snames_) {
         if(other.check_sname(sname))
             return sname;
-        if(other.check_lname(sname))
+        if(bothConfigurable && other.check_lname(sname))
             return sname;
     }
     for(const std::string &lname : lnames_) {
         if(other.check_lname(lname))
             return lname;
-        if(lname.size() == 1) {
+        if(lname.size() == 1 && bothConfigurable) {
             if(other.check_sname(lname)) {
                 return lname;
             }
         }
     }
-    if(snames_.empty() && lnames_.empty() && !pname_.empty()) {
+    if(bothConfigurable && snames_.empty() && lnames_.empty() && !pname_.empty()) {
         if(other.check_sname(pname_) || other.check_lname(pname_) || pname_ == other.pname_)
             return pname_;
     }
-    if(other.snames_.empty() && other.fnames_.empty() && !other.pname_.empty()) {
+    if(bothConfigurable && other.snames_.empty() && other.fnames_.empty() && !other.pname_.empty()) {
         if(check_sname(other.pname_) || check_lname(other.pname_) || (pname_ == other.pname_))
             return other.pname_;
     }
@@ -657,16 +662,44 @@ CLI11_INLINE std::string Option::_validate(std::string &result, int index) const
 
 CLI11_INLINE int Option::_add_result(std::string &&result, std::vector<std::string> &res) const {
     int result_count = 0;
-    if(allow_extra_args_ && !result.empty() && result.front() == '[' &&
-       result.back() == ']') {  // this is now a vector string likely from the default or user entry
-        result.pop_back();
 
-        for(auto &var : CLI::detail::split(result.substr(1), ',')) {
+    // Handle the vector escape possibility all characters duplicated and starting with [[ ending with ]]
+    // this is always a single result
+    if(result.size() >= 4 && result[0] == '[' && result[1] == '[' && result.back() == ']' &&
+       (*(result.end() - 2) == ']')) {
+        // this is an escape clause for odd strings
+        std::string nstrs{'['};
+        bool duplicated{true};
+        for(std::size_t ii = 2; ii < result.size() - 2; ii += 2) {
+            if(result[ii] == result[ii + 1]) {
+                nstrs.push_back(result[ii]);
+            } else {
+                duplicated = false;
+                break;
+            }
+        }
+        if(duplicated) {
+            nstrs.push_back(']');
+            res.push_back(std::move(nstrs));
+            ++result_count;
+            return result_count;
+        }
+    }
+
+    if((allow_extra_args_ || get_expected_max() > 1) && !result.empty() && result.front() == '[' &&
+       result.back() == ']') {  // this is now a vector string likely from the default or user entry
+
+        result.pop_back();
+        result.erase(result.begin());
+        bool skipSection{false};
+        for(auto &var : CLI::detail::split_up(result, ',')) {
             if(!var.empty()) {
                 result_count += _add_result(std::move(var), res);
             }
         }
-        return result_count;
+        if(!skipSection) {
+            return result_count;
+        }
     }
     if(delimiter_ == '\0') {
         res.push_back(std::move(result));

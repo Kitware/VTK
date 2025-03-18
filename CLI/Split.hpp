@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -39,7 +39,7 @@ CLI11_INLINE std::vector<std::pair<std::string, std::string>> get_default_flag_v
 
 /// Get a vector of short names, one of long names, and a single name
 CLI11_INLINE std::tuple<std::vector<std::string>, std::vector<std::string>, std::string>
-get_names(const std::vector<std::string> &input);
+get_names(const std::vector<std::string> &input, bool allow_non_standard = false);
 
 }  // namespace detail
 // [CLI11:split_hpp:end]
