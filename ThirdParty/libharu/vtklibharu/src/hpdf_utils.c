@@ -220,7 +220,7 @@ HPDF_FToA  (char       *s,
 
     /* process integer part */
     do {
-        dig = modff(int_val/10.0, &int_val);
+        dig = modff(int_val/10.0f, &int_val);
         *t++ = (char)(dig*10.0 + 0.5) + '0';
     } while (int_val > 0);
 
@@ -229,17 +229,18 @@ HPDF_FToA  (char       *s,
     while (s <= eptr && *t != 0)
         *s++ = *t--;
 
-   /* process fractional part */
-   *s++ = '.';
-   if(fpart_val != 0.0) {
-       for (HPDF_UINT32 i = 0; i < prec; i++) {
-          fpart_val = modff(fpart_val*10.0, &int_val);
-          *s++ = (char)(int_val + 0.5) + '0';
-       }
-   }
+    /* process fractional part */
+    *s++ = '.';
+    if (fpart_val != 0.0) {
+        HPDF_UINT32 i;
+        for (i = 0; i < prec; i++) {
+            fpart_val = modff(fpart_val*10.0f, &int_val);
+            *s++ = (char)(int_val + 0.5) + '0';
+        }
+    }
 
-   /* delete an excessive decimal portion. */
-   s--;
+    /* delete an excessive decimal portion. */
+    s--;
     while (s > sptr) {
         if (*s == '0')
             *s = 0;
@@ -450,4 +451,3 @@ HPDF_UInt16Swap  (HPDF_UINT16  *value)
     HPDF_MemCpy (u, (HPDF_BYTE*)value, 2);
     *value = (HPDF_UINT16)((HPDF_UINT16)u[0] << 8 | (HPDF_UINT16)u[1]);
 }
-

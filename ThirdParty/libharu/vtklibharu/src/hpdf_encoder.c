@@ -2752,25 +2752,25 @@ HPDF_CMapEncoder_AddCMap  (HPDF_Encoder             encoder,
 
     /* Copy specified pdf_cid_range array to fRangeArray. */
     while (range->from != 0xffff || range->to != 0xffff) {
-	HPDF_CidRange_Rec *prange;
-	HPDF_STATUS ret;
+        HPDF_CidRange_Rec *prange;
+        HPDF_STATUS ret;
 
-	/*
-	 * Only if we have the default to_unicode_fn
-	 */
-	if (encoder->to_unicode_fn == HPDF_CMapEncoder_ToUnicode) {
-	    HPDF_UINT16 code = range->from;
-	    HPDF_UINT16 cid = range->cid;
+        /*
+         * Only if we have the default to_unicode_fn
+         */
+        if (encoder->to_unicode_fn == HPDF_CMapEncoder_ToUnicode) {
+            HPDF_UINT16 code = range->from;
+            HPDF_UINT16 cid = range->cid;
 
-	    while (code <= range->to) {
-		HPDF_BYTE l = code;
-		HPDF_BYTE h = code >> 8;
+            while (code <= range->to) {
+                HPDF_BYTE l = (HPDF_BYTE)code;
+                HPDF_BYTE h = code >> 8;
 
-		attr->cid_map[l][h] = cid;
-		code++;
-		cid++;
-	    }
-	}
+                attr->cid_map[l][h] = cid;
+                code++;
+                cid++;
+            }
+        }
 
         prange = HPDF_GetMem (encoder->mmgr, sizeof(HPDF_CidRange_Rec));
         if (!prange)

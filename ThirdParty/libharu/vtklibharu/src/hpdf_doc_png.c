@@ -21,51 +21,50 @@
 #include "hpdf.h"
 #include "hpdf_image.h"
 
-
 #ifdef LIBHPDF_HAVE_LIBPNG
+
 static HPDF_Image
 LoadPngImageFromStream (HPDF_Doc      pdf,
                         HPDF_Stream   imagedata,
                         HPDF_BOOL     delayed_loading);
 
 HPDF_EXPORT(HPDF_Image)
-HPDF_LoadPngImageFromMem  (HPDF_Doc     pdf,
-                    const HPDF_BYTE    *buffer,
-                          HPDF_UINT     size)
+HPDF_LoadPngImageFromMem  (HPDF_Doc          pdf,
+                           const HPDF_BYTE  *buffer,
+                           HPDF_UINT         size)
 {
 	HPDF_Stream imagedata;
 	HPDF_Image image;
 
-	HPDF_PTRACE ((" HPDF_LoadPngImageFromFile\n"));
+	HPDF_PTRACE ((" HPDF_LoadPngImageFromMem\n"));
 
-	if (!HPDF_HasDoc (pdf)) {
-		return NULL;
-	}
+    if (!HPDF_HasDoc (pdf)) {
+        return NULL;
+    }
 
-	/* create file stream */
-	imagedata = HPDF_MemStream_New (pdf->mmgr, size);
+    /* create file stream */
+    imagedata = HPDF_MemStream_New (pdf->mmgr, size);
 
-	if (!HPDF_Stream_Validate (imagedata)) {
-		HPDF_RaiseError (&pdf->error, HPDF_INVALID_STREAM, 0);
-		return NULL;
-	}
+    if (!HPDF_Stream_Validate (imagedata)) {
+        HPDF_RaiseError (&pdf->error, HPDF_INVALID_STREAM, 0);
+        return NULL;
+    }
 
-	if (HPDF_Stream_Write (imagedata, buffer, size) != HPDF_OK) {
-		HPDF_Stream_Free (imagedata);
-		return NULL;
-	}
+    if (HPDF_Stream_Write (imagedata, buffer, size) != HPDF_OK) {
+        HPDF_Stream_Free (imagedata);
+        return NULL;
+    }
 
-	image = LoadPngImageFromStream (pdf, imagedata, HPDF_FALSE);
+    image = LoadPngImageFromStream (pdf, imagedata, HPDF_FALSE);
 
-	/* destroy file stream */
-	HPDF_Stream_Free (imagedata);
+    /* destroy file stream */
+    HPDF_Stream_Free (imagedata);
 
-	if (!image) {
-		HPDF_CheckError (&pdf->error);
-	}
+    if (!image) {
+        HPDF_CheckError (&pdf->error);
+    }
 
-	return image;
-
+    return image;
 }
 
 
@@ -165,25 +164,47 @@ LoadPngImageFromStream (HPDF_Doc      pdf,
     if (image && (pdf->compression_mode & HPDF_COMP_IMAGE)) {
         image->filter = HPDF_STREAM_FILTER_FLATE_DECODE;
 
-	// is there an alpha layer? then compress it also
-	smask = HPDF_Dict_GetItem(image, "SMask", HPDF_OCLASS_DICT);
-	if (smask) smask->filter = HPDF_STREAM_FILTER_FLATE_DECODE;
+        // is there an alpha layer? then compress it also
+        smask = HPDF_Dict_GetItem(image, "SMask", HPDF_OCLASS_DICT);
+        if (smask) smask->filter = HPDF_STREAM_FILTER_FLATE_DECODE;
     }
 
     return image;
 }
 
-#else
-static HPDF_Image
-LoadPngImageFromStream (HPDF_Doc      pdf,
-                        HPDF_Stream   imagedata,
-                        HPDF_BOOL     delayed_loading)
+#else /* LIBHPDF_HAVE_LIBPNG */
+
+HPDF_EXPORT(HPDF_Image)
+HPDF_LoadPngImageFromMem  (HPDF_Doc          pdf,
+                           const HPDF_BYTE  *buffer,
+                           HPDF_UINT         size)
 {
     HPDF_SetError (&pdf->error, HPDF_UNSUPPORTED_FUNC, 0);
-    HPDF_UNUSED (delayed_loading);
-    HPDF_UNUSED (imagedata);
+    HPDF_UNUSED (buffer);
+    HPDF_UNUSED (size);
 
     return NULL;
 }
 
-#endif /* LIBHPDF_HAVE_PNGLIB */
+HPDF_EXPORT(HPDF_Image)
+HPDF_LoadPngImageFromFile  (HPDF_Doc     pdf,
+                            const char  *filename)
+{
+    HPDF_SetError (&pdf->error, HPDF_UNSUPPORTED_FUNC, 0);
+    HPDF_UNUSED (filename);
+
+    return NULL;
+}
+
+HPDF_EXPORT(HPDF_Image)
+HPDF_LoadPngImageFromFile2  (HPDF_Doc     pdf,
+                             const char  *filename)
+{
+    HPDF_SetError (&pdf->error, HPDF_UNSUPPORTED_FUNC, 0);
+    HPDF_UNUSED (filename);
+
+    return NULL;
+}
+
+
+#endif /* LIBHPDF_HAVE_LIBPNG */

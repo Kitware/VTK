@@ -95,14 +95,14 @@ set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
 set (LIBHPDF_STDC_HEADERS 1)
 
 if (FALSE) # XXX(kitware): hardcode settings
-# support all of the different variations of LIBPNG defines in HARU
-set (LIBHPDF_HAVE_LIBPNG ${PNG_FOUND})
+  # support all of the different variations of LIBPNG defines in HARU
+  set (LIBHPDF_HAVE_LIBPNG ${PNG_FOUND})
 
-# support different zlib defines
-set (LIBHPDF_HAVE_LIBZ ${ZLIB_FOUND})
+  # support different zlib defines
+  set (LIBHPDF_HAVE_LIBZ ${ZLIB_FOUND})
 else ()
-set(LIBHPDF_HAVE_LIBPNG 1)
-set(LIBHPDF_HAVE_LIBZ 1)
+  set(LIBHPDF_HAVE_LIBPNG 1)
+  set(LIBHPDF_HAVE_LIBZ 1)
 endif ()
 
 # create hpdf_config.h
