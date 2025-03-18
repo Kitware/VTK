@@ -101,9 +101,9 @@
 #define VTK_FOAMFILE_OMIT_CRCCHECK 0
 
 // The input/output buffer sizes for zlib in bytes.
-#define VTK_FOAMFILE_INBUFSIZE (16384)
-#define VTK_FOAMFILE_OUTBUFSIZE (131072)
-#define VTK_FOAMFILE_INCLUDE_STACK_SIZE (10)
+#define VTK_OPENFOAM_INPUT_BUFFER_SIZE (4194304)
+#define VTK_OPENFOAM_OUTPUT_BUFFER_SIZE (4194304)
+#define VTK_OPENFOAM_INCLUDE_STACK_SIZE (10)
 
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS 1
@@ -1654,6 +1654,9 @@ protected:
   unsigned char* BufPtr;
   unsigned char* BufEndPtr;
 
+  int InputBufferSize = VTK_OPENFOAM_INPUT_BUFFER_SIZE;
+  int OutputBufferSize = VTK_OPENFOAM_OUTPUT_BUFFER_SIZE;
+
   vtkFoamFileStack(vtkOpenFOAMReader* reader)
     : Reader(reader)
     , File(nullptr)
@@ -1671,6 +1674,15 @@ protected:
     this->Z.zalloc = Z_NULL;
     this->Z.zfree = Z_NULL;
     this->Z.opaque = Z_NULL;
+
+    if (auto inputBufferSize = vtksys::SystemTools::GetEnv("VTK_OPENFOAM_INPUT_BUFFER_SIZE"))
+    {
+      this->InputBufferSize = std::atoi(inputBufferSize);
+    }
+    if (auto outputBufferSize = vtksys::SystemTools::GetEnv("VTK_OPENFOAM_OUTPUT_BUFFER_SIZE"))
+    {
+      this->OutputBufferSize = std::atoi(outputBufferSize);
+    }
   }
 
   void Reset()
@@ -1696,6 +1708,9 @@ protected:
 public:
   const std::string& GetFileName() const noexcept { return this->FileName; }
   int GetLineNumber() const noexcept { return this->LineNumber; }
+
+  void SetInputBufferSize(int size) { this->InputBufferSize = size; }
+  void SetOutputBufferSize(int size) { this->OutputBufferSize = size; }
 
   // Try to open the file. Return non-empty error string on failure
   vtkFoamError TryOpen(const std::string& fileName)
@@ -1729,7 +1744,7 @@ public:
         if (inflateInit2(&this->Z, 15 + 32) == Z_OK)
         {
           this->IsCompressed = true;
-          this->Inbuf = new unsigned char[VTK_FOAMFILE_INBUFSIZE];
+          this->Inbuf = new unsigned char[this->InputBufferSize];
         }
         else
         {
@@ -1751,7 +1766,7 @@ public:
       rewind(this->File);
 
       this->ZStatus = Z_OK;
-      this->Outbuf = new unsigned char[VTK_FOAMFILE_OUTBUFSIZE + 1];
+      this->Outbuf = new unsigned char[this->OutputBufferSize + 1];
       this->BufPtr = this->Outbuf + 1;
       this->BufEndPtr = this->BufPtr;
       this->LineNumber = 1;
@@ -1833,7 +1848,7 @@ private:
   inputMode InputMode;
 
   // Handling include files
-  vtkFoamFileStack* Stack[VTK_FOAMFILE_INCLUDE_STACK_SIZE];
+  vtkFoamFileStack* Stack[VTK_OPENFOAM_INCLUDE_STACK_SIZE];
   int StackI;
 
   bool InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt64* readSize = nullptr);
@@ -2170,10 +2185,10 @@ public:
 
   void IncludeFile(const std::string& includedFileName, const std::string& defaultPath)
   {
-    if (this->StackI >= VTK_FOAMFILE_INCLUDE_STACK_SIZE)
+    if (this->StackI >= VTK_OPENFOAM_INCLUDE_STACK_SIZE)
     {
       throw this->StackString() << "Exceeded maximum #include recursions of "
-                                << VTK_FOAMFILE_INCLUDE_STACK_SIZE;
+                                << VTK_OPENFOAM_INCLUDE_STACK_SIZE;
     }
     // use the default bitwise copy constructor
     this->Stack[this->StackI++] = new vtkFoamFileStack(*this);
@@ -2594,7 +2609,7 @@ public:
 
 int vtkFoamFile::ReadNext()
 {
-  if (!this->InflateNext(this->Superclass::Outbuf + 1, VTK_FOAMFILE_OUTBUFSIZE))
+  if (!this->InflateNext(this->Superclass::Outbuf + 1, this->OutputBufferSize))
   {
     return this->CloseIncludedFile() ? this->Getc() : EOF;
   }
@@ -2858,7 +2873,7 @@ bool vtkFoamFile::InflateNext(unsigned char* buf, size_t requestSize, vtkTypeInt
       {
         this->Superclass::Z.next_in = this->Superclass::Inbuf;
         this->Superclass::Z.avail_in = static_cast<uInt>(
-          fread(this->Superclass::Inbuf, 1, VTK_FOAMFILE_INBUFSIZE, this->Superclass::File));
+          fread(this->Superclass::Inbuf, 1, this->InputBufferSize, this->Superclass::File));
         if (ferror(this->Superclass::File))
         {
           this->ThrowStackTrace("failed in fread()");
@@ -5644,6 +5659,8 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const std::string& tempPath, bool i
     // Note: for isLagrangian, could reject "positions" and "coordinates" instead of opening files
 
     vtkFoamIOobject io(this->CasePath, this->Parent);
+    io.SetInputBufferSize(2048);             // Read only the header
+    io.SetOutputBufferSize(2048);            // Read only the header
     if (io.Open(tempPath + "/" + fieldFile)) // file exists and readable
     {
       this->AddFieldName(fieldFile, io.GetClassName(), isLagrangian);
