@@ -160,8 +160,19 @@ typedef enum _HPDF_InfoType {
 
 typedef enum _HPDF_PDFA_TYPE
 {
+    HPDF_PDFA_NON_PDFA = -1,
+
     HPDF_PDFA_1A = 0,
-    HPDF_PDFA_1B = 1
+    HPDF_PDFA_1B,
+    HPDF_PDFA_2A,
+    HPDF_PDFA_2B,
+    HPDF_PDFA_2U,
+    HPDF_PDFA_3A,
+    HPDF_PDFA_3B,
+    HPDF_PDFA_3U,
+    HPDF_PDFA_4,
+    HPDF_PDFA_4E,
+    HPDF_PDFA_4F
 } HPDF_PDFAType;
 
 
@@ -172,6 +183,7 @@ typedef enum _HPDF_PdfVer {
     HPDF_VER_15,
     HPDF_VER_16,
     HPDF_VER_17,
+    HPDF_VER_20,
     HPDF_VER_EOF
 } HPDF_PDFVer;
 
@@ -581,6 +593,17 @@ typedef enum _HPDF_NameDictKey {
     HPDF_NAME_EOF
 } HPDF_NameDictKey;
 
+typedef enum _HPDF_AFRelationship {
+    HPDF_AFRELATIONSHIP_SOURCE = 0,
+    HPDF_AFRELATIONSHIP_DATA,
+    HPDF_AFRELATIONSHIP_ALTERNATIVE,
+    HPDF_AFRELATIONSHIP_SUPPLEMENT,
+    HPDF_AFRELATIONSHIP_ENCRYPTEDPAYLOAD,
+    HPDF_AFRELATIONSHIP_FORMDATA,
+    HPDF_AFRELATIONSHIP_SCHEMA,
+    HPDF_AFRELATIONSHIP_UNSPECIFIED
+} HPDF_AFRelationship;
+
 /*----------------------------------------------------------------------------*/
 
 typedef enum _HPDF_PageBoundary {
@@ -610,4 +633,3 @@ typedef enum _HPDF_Shading_FreeFormTriangleMeshEdgeFlag {
 #endif /* __cplusplus */
 
 #endif /* _HPDF_TYPES_H */
-

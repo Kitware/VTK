@@ -333,7 +333,7 @@ LoadFontData (HPDF_FontDef  fontdef,
 
                /* length1 indicate the size of ascii-data of font-file. */
                if (s1)
-                  attr->length1 = attr->font_data->size + (s1 - buf) + 6;
+                  attr->length1 = (HPDF_UINT) (attr->font_data->size + (s1 - buf) + 6);
             }
 
             if (attr->length1 > 0 && attr->length2 == 0) {
@@ -341,8 +341,8 @@ LoadFontData (HPDF_FontDef  fontdef,
                         len + 11);
 
                 if (s2)
-                    attr->length2 = attr->font_data->size - 520 -
-                        attr->length1 + (s2 - buf);
+                    attr->length2 = (HPDF_UINT) (attr->font_data->size - 520 -
+                        attr->length1 + (s2 - buf));
                 /*  length1 indicate the size of binary-data.
                  *  in most fonts, it is all right at 520 bytes . but it need
                  *  to modify because it does not fully satisfy the
@@ -519,4 +519,3 @@ FreeFunc (HPDF_FontDef  fontdef)
     HPDF_FreeMem (fontdef->mmgr, attr->widths);
     HPDF_FreeMem (fontdef->mmgr, attr);
 }
-
