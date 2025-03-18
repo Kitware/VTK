@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "TestAxisActorInternal.h"
 
-int TestAxisActorMode2D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestAxisActor_Z(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  return TestAxisActorInternal(1, 0);
+  vtkNew<vtkAxisActor> axis;
+  ::InitializeZAxis(axis);
+  return TestAxisActorInternal(axis);
 }

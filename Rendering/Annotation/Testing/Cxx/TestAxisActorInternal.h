@@ -11,12 +11,22 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSphereSource.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
 
-inline int TestAxisActorInternal(int use2dMode, int use3dProp)
+namespace
 {
+// ----------------------------------------------------------------------------
+inline void InitializeAxis(vtkAxisActor* axis)
+{
+  axis->GetProperty()->SetAmbient(1);
+  axis->GetProperty()->SetDiffuse(0);
+  axis->SetPoint1(0, 0, 0);
+  axis->SetExponent("+00");
+  axis->SetExponentVisibility(true);
+  axis->SetTitleScale(0.8);
+  axis->SetLabelScale(0.5);
+
   vtkNew<vtkStringArray> labels;
   labels->SetNumberOfTuples(6);
   labels->SetValue(0, "0");
@@ -25,134 +35,133 @@ inline int TestAxisActorInternal(int use2dMode, int use3dProp)
   labels->SetValue(3, "6");
   labels->SetValue(4, "8");
   labels->SetValue(5, "10");
+  axis->SetLabels(labels);
+
+  vtkNew<vtkCamera> camera;
+  axis->SetCamera(camera);
+}
+
+// ----------------------------------------------------------------------------
+inline void InitializeXAxis(vtkAxisActor* axis)
+{
+  ::InitializeAxis(axis);
+  axis->SetPoint2(10, 0, 0);
+  axis->SetTitle("X Axis");
+  axis->SetBounds(0, 10, 0, 0, 0, 0);
+  axis->SetTickLocationToBoth();
+  axis->SetAxisTypeToX();
+  axis->SetRange(0, 10);
+  axis->SetLabelOffset(5);
+  axis->SetDeltaRangeMajor(2);
+  axis->SetDeltaRangeMinor(0.5);
+  axis->SetExponentOffset(30);
+  axis->SetTitleOffset(0, 30);
 
   vtkNew<vtkTextProperty> textProp1;
   textProp1->SetColor(0., 0., 1.);
   textProp1->SetOpacity(0.9);
+  textProp1->SetFontSize(36);
+  axis->SetTitleTextProperty(textProp1);
 
   vtkNew<vtkTextProperty> textProp2;
   textProp2->SetColor(1., 0., 0.);
   textProp2->SetOpacity(0.6);
+  textProp2->SetFontSize(24);
+  axis->SetLabelTextProperty(textProp2);
+
+  vtkNew<vtkProperty> prop1;
+  prop1->SetColor(1., 0., 1.);
+  axis->SetAxisMainLineProperty(prop1);
+
+  vtkNew<vtkProperty> prop2;
+  prop2->SetColor(1., 1., 0.);
+  axis->SetAxisMajorTicksProperty(prop2);
+
+  vtkNew<vtkProperty> prop3;
+  prop3->SetColor(0., 1., 1.);
+  axis->SetAxisMinorTicksProperty(prop3);
+}
+
+// ----------------------------------------------------------------------------
+inline void InitializeYAxis(vtkAxisActor* axis)
+{
+  ::InitializeAxis(axis);
+  axis->SetPoint2(0, 10, 0);
+  axis->SetTitle("Y Axis");
+  axis->SetBounds(0, 0, 0, 10, 0, 0);
+  axis->SetTickLocationToInside();
+  axis->SetAxisTypeToY();
+  axis->SetRange(0.1, 4000);
+  axis->SetMajorRangeStart(0.1);
+  axis->SetMinorRangeStart(0.1);
+  axis->SetMinorTicksVisible(true);
+  axis->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_TOP);
+  axis->SetTitleOffset(0, 3);
+  axis->SetExponentLocation(vtkAxisActor::VTK_ALIGN_TOP);
+  axis->SetExponentOffset(20);
+  axis->SetLog(true);
+
+  axis->GetCamera()->SetViewUp(1, 0, 0);
+
+  vtkNew<vtkTextProperty> textProp2;
+  textProp2->SetColor(1., 0., 0.);
+  textProp2->SetOpacity(0.6);
+  axis->SetTitleTextProperty(textProp2);
+
+  vtkNew<vtkProperty> prop1;
+  prop1->SetColor(1., 0., 1.);
+  axis->SetAxisLinesProperty(prop1);
+}
+
+// ----------------------------------------------------------------------------
+inline void InitializeZAxis(vtkAxisActor* axis)
+{
+  ::InitializeAxis(axis);
+
+  axis->SetPoint2(0, 0, 10);
+  axis->SetTitle("Z Axis");
+  axis->SetBounds(0, 0, 0, 0, 0, 10);
+  axis->SetTickLocationToOutside();
+  axis->SetAxisTypeToZ();
+  axis->SetRange(0, 10);
+  axis->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_POINT2);
+  axis->SetExponentLocation(vtkAxisActor::VTK_ALIGN_POINT1);
+  axis->SetTitleOffset(-80, -150);
+  axis->SetExponentOffset(-150);
+  axis->SetMajorTickSize(3);
+  axis->SetMinorTickSize(1);
+  axis->SetDeltaRangeMajor(2);
+  axis->SetDeltaRangeMinor(0.5);
+
+  axis->GetCamera()->SetPosition(0, 10, 0);
+  axis->GetCamera()->SetViewUp(1, 0, 0);
 
   vtkNew<vtkTextProperty> textProp3;
   textProp3->SetColor(0., 1., 0.);
   textProp3->SetOpacity(1);
+  axis->SetTitleTextProperty(textProp3);
+}
+}
 
-  vtkNew<vtkProperty> prop1;
-  prop1->SetColor(1., 0., 1.);
-
-  vtkNew<vtkProperty> prop2;
-  prop2->SetColor(1., 1., 0.);
-
-  vtkNew<vtkProperty> prop3;
-  prop3->SetColor(0., 1., 1.);
-
-  //-------------  X Axis -------------
-  vtkNew<vtkAxisActor> axisXActor;
-  axisXActor->SetUse2DMode(use2dMode);
-  axisXActor->SetUseTextActor3D(use3dProp);
-  axisXActor->GetProperty()->SetAmbient(1);
-  axisXActor->GetProperty()->SetDiffuse(0);
-  axisXActor->SetPoint1(0, 0, 0);
-  axisXActor->SetPoint2(10, 0, 0);
-  axisXActor->SetTitle("X Axis");
-  axisXActor->SetBounds(0, 10, 0, 0, 0, 0);
-  axisXActor->SetTickLocationToBoth();
-  axisXActor->SetAxisTypeToX();
-  axisXActor->SetRange(0, 10);
-  axisXActor->SetLabels(labels);
-  axisXActor->SetDeltaRangeMajor(2);
-  axisXActor->SetDeltaRangeMinor(0.5);
-  axisXActor->SetExponent("+00");
-  axisXActor->SetExponentVisibility(true);
-  axisXActor->SetTitleScale(0.8);
-  axisXActor->SetLabelScale(0.5);
-  axisXActor->SetTitleOffset(0, 3);
-  axisXActor->SetExponentOffset(3);
-  axisXActor->SetLabelOffset(5);
-  axisXActor->SetTitleTextProperty(textProp1);
-  axisXActor->SetLabelTextProperty(textProp2);
-  axisXActor->SetAxisMainLineProperty(prop1);
-  axisXActor->SetAxisMajorTicksProperty(prop2);
-  axisXActor->SetAxisMinorTicksProperty(prop3);
-
-  //-------------  Y Axis -------------
-  vtkNew<vtkAxisActor> axisYActor;
-  axisYActor->SetUse2DMode(use2dMode);
-  axisYActor->SetUseTextActor3D(use3dProp);
-  axisYActor->GetProperty()->SetAmbient(1);
-  axisYActor->GetProperty()->SetDiffuse(0);
-  axisYActor->SetPoint1(0, 0, 0);
-  axisYActor->SetPoint2(0, 10, 0);
-  axisYActor->SetTitle("Y Axis");
-  axisYActor->SetBounds(0, 0, 0, 10, 0, 0);
-  axisYActor->SetTickLocationToInside();
-  axisYActor->SetAxisTypeToY();
-  axisYActor->SetRange(0.1, 500);
-  axisYActor->SetMajorRangeStart(0.1);
-  axisYActor->SetMinorRangeStart(0.1);
-  axisYActor->SetMinorTicksVisible(true);
-  axisYActor->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_TOP);
-  axisYActor->SetExponent("+00");
-  axisYActor->SetExponentVisibility(true);
-  axisYActor->SetExponentLocation(vtkAxisActor::VTK_ALIGN_TOP);
-  axisYActor->SetTitleScale(0.8);
-  axisYActor->SetLabelScale(0.5);
-  axisYActor->SetTitleOffset(0, 3);
-  axisYActor->SetExponentOffset(5);
-  axisYActor->SetLabelOffset(5);
-  axisYActor->SetTitleTextProperty(textProp2);
-  axisYActor->SetLog(true);
-  axisYActor->SetAxisLinesProperty(prop1);
-
-  //-------------  Z Axis -------------
-  vtkNew<vtkAxisActor> axisZActor;
-  axisZActor->SetUse2DMode(use2dMode);
-  axisZActor->SetUseTextActor3D(use3dProp);
-  axisZActor->GetProperty()->SetAmbient(1);
-  axisZActor->GetProperty()->SetDiffuse(0);
-  axisZActor->SetPoint1(0, 0, 0);
-  axisZActor->SetPoint2(0, 0, 10);
-  axisZActor->SetTitle("Z Axis");
-  axisZActor->SetBounds(0, 0, 0, 0, 0, 10);
-  axisZActor->SetTickLocationToOutside();
-  axisZActor->SetAxisTypeToZ();
-  axisZActor->SetRange(0, 10);
-  axisZActor->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_POINT2);
-  axisZActor->SetExponent("+00");
-  axisZActor->SetExponentVisibility(true);
-  axisZActor->SetExponentLocation(vtkAxisActor::VTK_ALIGN_POINT1);
-  axisZActor->SetTitleScale(0.8);
-  axisZActor->SetLabelScale(0.5);
-  axisZActor->SetTitleOffset(0, 3);
-  axisZActor->SetExponentOffset(3);
-  axisZActor->SetLabelOffset(5);
-  axisZActor->SetTitleTextProperty(textProp3);
-  axisZActor->SetMajorTickSize(3);
-  axisZActor->SetMinorTickSize(1);
-  axisZActor->SetDeltaRangeMajor(2);
-  axisZActor->SetDeltaRangeMinor(0.1);
-
+// ----------------------------------------------------------------------------
+inline int TestAxisActorInternal(vtkAxisActor* axis)
+{
   vtkNew<vtkRenderer> renderer;
-  vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer);
-  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow);
-  renderer->AddActor(axisXActor);
-  renderer->AddActor(axisYActor);
-  renderer->AddActor(axisZActor);
+  renderer->SetActiveCamera(axis->GetCamera());
+  renderer->AddActor(axis);
   renderer->SetBackground(.5, .5, .5);
 
-  vtkCamera* camera = renderer->GetActiveCamera();
-  axisXActor->SetCamera(camera);
-  axisYActor->SetCamera(camera);
-  axisZActor->SetCamera(camera);
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->AddRenderer(renderer);
+
   renderWindow->SetSize(300, 300);
-
-  camera->SetPosition(-10.0, 22.0, -29);
-  camera->SetFocalPoint(-2, 8.5, -9.);
-
   renderWindow->SetMultiSamples(0);
+
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  renderWindow->Render();
+  renderer->ResetCameraScreenSpace(0.8);
   renderWindow->Render();
   renderWindowInteractor->Start();
 
