@@ -288,7 +288,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   int is_vtkobject;
 
   /* pre-define a macro to identify the language */
-  vtkParse_DefineMacro("__VTK_WRAP_JAVASCRIPT__", 0);
+  vtkParse_DefineMacro("__EMSCRIPTEN__", 0);
 
   /* get command-line args and parse the header file */
   file_info = vtkParse_Main(argc, argv);
