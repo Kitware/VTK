@@ -11,6 +11,9 @@
 #include <vtkMultiBlockDataSet.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <unordered_map>
+#include <unordered_set>
+
 AvmeshError::AvmeshError(std::string msg)
   : std::runtime_error(msg)
 {
@@ -480,46 +483,37 @@ void Read3DVolumeConn(BinaryFile& fin, int nhex, int ntet, int npri, int npyr,
   }
 }
 
-void makeUnique(std::vector<int>& vec)
-{
-  std::sort(vec.begin(), vec.end());
-  vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
-}
-
 void BuildSurfaceBlock(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
   BfaceList::const_iterator firstFace, BfaceList::const_iterator lastFace)
 {
-  // Start by constructing a surface-to-volume mapping.  This maps a surface
-  // node ID for this patch to a volume node ID for the whole grid.
+  // Start by finding the set of unique volume node IDs that belong to this patch
   int nface = lastFace - firstFace;
-  std::vector<int> s2v;
-  s2v.reserve(4 * nface);
+  std::unordered_set<int> s2v(nface / 2); // a surface mesh has about half as many nodes as faces
   for (auto face = firstFace; face != lastFace; ++face)
   {
-    std::copy_n(face->begin(), 4, std::back_inserter(s2v));
+    s2v.insert(face->begin(), face->begin() + 4); // insert nodes only, not patch ID at end
   }
-  makeUnique(s2v);
 
   // Number of unique nodes on this patch
   size_t pnnode = s2v.size();
 
   // Now construct the volume-to-surface mapping, which maps a volume node ID
   // from the whole grid to a surface node ID on this patch.
-  int nmax = *std::max_element(s2v.begin(), s2v.end());
-  std::vector<int> v2s(nmax + 1);
-  for (int i = 0; i < pnnode; ++i)
+  std::unordered_map<int, int> v2s(pnnode);
+  int s = 0;
+  for (auto v : s2v)
   {
-    v2s[s2v[i]] = i;
+    v2s[v] = s++;
   }
 
   // Now use the surface-to-volume mapping to extract the points needed for
   // this patch.
-  auto surfPoints = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> surfPoints;
   surfPoints->SetDataTypeToDouble();
   surfPoints->Allocate(pnnode);
-  for (int i = 0; i < pnnode; ++i)
+  for (auto v : s2v)
   {
-    auto pt = volPoints->GetPoint(s2v[i]);
+    auto pt = volPoints->GetPoint(v);
     surfPoints->InsertNextPoint(pt);
   }
   surfGrid->SetPoints(surfPoints);
@@ -547,7 +541,7 @@ void BuildSurfaceBlock(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
     vtkIdType nodeids[4];
     for (int i = 0; i < nodesPer; ++i)
     {
-      nodeids[i] = v2s[(*face)[i]];
+      nodeids[i] = v2s.at((*face)[i]);
     }
     surfGrid->InsertNextCell(etype, nodesPer, nodeids);
   }
