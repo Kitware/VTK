@@ -8,12 +8,13 @@ vtk_module_third_party(
       "Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper"
       "Copyright (c) 2001-2019 Expat maintainers"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/expat.git@for/vtk-20241030-2.4.8"
+      "git+https://gitlab.kitware.com/third-party/expat.git@for/vtk-20250317-2.7.0"
     VERSION
-    "2.4.8" # CVE-2024-50602 fix manually added.
+    "2.7.0"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT
+    VERSION 2.6.3
     TARGETS EXPAT::EXPAT
     STANDARD_INCLUDE_DIRS)
 
