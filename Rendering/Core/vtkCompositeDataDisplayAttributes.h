@@ -26,11 +26,6 @@
 #include <functional>    // for std::function
 #include <unordered_map> // for std::unordered_map
 
-// clang-format off
-#include "vtk_nlohmannjson.h"
-#include VTK_NLOHMANN_JSON(json.hpp)
-// clang-format on
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObject;
@@ -362,9 +357,6 @@ public:
     }
   }
 
-  nlohmann::json Serialize(vtkSerializer* serializer);
-  void Deserialize(const nlohmann::json& state, vtkDeserializer* deserializer);
-
 protected:
   vtkCompositeDataDisplayAttributes();
   ~vtkCompositeDataDisplayAttributes() override;
@@ -410,6 +402,8 @@ private:
   StringMap BlockArrayNames;
   LookupTableMap BlockLookupTables;
   VtkIdTypeMap BlockFieldDataTupleIds;
+
+  friend class vtkCompositeDataDisplayAttributesSerDesHelper;
 };
 
 VTK_ABI_NAMESPACE_END
