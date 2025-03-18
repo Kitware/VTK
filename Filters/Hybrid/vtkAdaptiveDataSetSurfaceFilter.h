@@ -28,6 +28,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
 class vtkCamera;
 class vtkHyperTreeGrid;
+class vtkMatrix4x4;
 class vtkRenderer;
 
 class vtkHyperTreeGridNonOrientedGeometryCursor;
@@ -55,25 +56,9 @@ public:
 
   ///@{
   /**
-   * Set/Get for active the circle selection viewport (default true)
-   */
-  vtkSetMacro(CircleSelection, bool);
-  vtkGetMacro(CircleSelection, bool);
-  ///@}
-
-  ///@{
-  /**
-   * Set/Get for active the bounding box selection viewport (default false)
-   * JB C'est un facteur supplementaire d'acceleration possible
-   * JB uniquement si l'on ne peut faire de rotation dans la vue.
-   */
-  vtkSetMacro(BBSelection, bool);
-  vtkGetMacro(BBSelection, bool);
-  ///@}
-
-  ///@{
-  /**
-   * JB Activation de la dependance au point de vue. Par defaut a True.
+   * Set/Get the dependence to the point of view.
+   *
+   * Default is true.
    */
   vtkSetMacro(ViewPointDepend, bool);
   vtkGetMacro(ViewPointDepend, bool);
@@ -81,31 +66,33 @@ public:
 
   ///@{
   /**
-   * Set/Get for forced a fixed the level max (lost dynamicity) (default -1)
+   * Set/Get for forced a fixed the level max (lost dynamicity)
+   *
+   * Default is -1
    */
   vtkSetMacro(FixedLevelMax, int);
   vtkGetMacro(FixedLevelMax, int);
   ///@}
 
-  ///@{
-  /**
-   * JB Set/Get the scale factor influence le calcul de l'adaptive view.
-   * JB Pour un raffinement de 2, donner Scale=2*X revient a faire un
-   * JB appel a DynamicDecimateLevelMax avec la valeur X. (defaut 1)
-   */
-  vtkSetMacro(Scale, double);
-  vtkGetMacro(Scale, double);
-  ///@}
+  VTK_DEPRECATED_IN_9_5_0("CircleSelection has been removed. Do not use.")
+  virtual void SetCircleSelection(bool _arg);
+  VTK_DEPRECATED_IN_9_5_0("CircleSelection has been removed. Do not use.")
+  virtual bool GetCircleSelection();
 
-  ///@{
-  /**
-   * JB Set/Get reduit de autant le niveau max de profondeur, calcule
-   * JB dynamiquement a parcourir dans la
-   * JB representation HTG. (defaut 0)
-   */
-  vtkSetMacro(DynamicDecimateLevelMax, int);
-  vtkGetMacro(DynamicDecimateLevelMax, int);
-  ///@}
+  VTK_DEPRECATED_IN_9_5_0("BBSelection has been removed. Do not use.")
+  virtual void SetBBSelection(bool _arg);
+  VTK_DEPRECATED_IN_9_5_0("BBSelection has been removed. Do not use.")
+  virtual bool GetBBSelection();
+
+  VTK_DEPRECATED_IN_9_5_0("DynamicDecimateLevelMax has been removed. Do not use.")
+  virtual void SetDynamicDecimateLevelMax(int _arg);
+  VTK_DEPRECATED_IN_9_5_0("DynamicDecimateLevelMax has been removed. Do not use.")
+  virtual int GetDynamicDecimateLevelMax();
+
+  VTK_DEPRECATED_IN_9_5_0("Scale has been removed. Do not use.")
+  virtual void SetScale(double _arg);
+  VTK_DEPRECATED_IN_9_5_0("Scale has been removed. Do not use.")
+  virtual int GetScale();
 
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
@@ -116,6 +103,21 @@ protected:
   int DataObjectExecute(vtkDataObject* input, vtkPolyData* output);
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
+private:
+  vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+  void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+
+  enum class ShapeState : uint8_t;
+
+  /**
+   * Check whether a shape is visible on the screen.
+   * @param points Points of the shape
+   * @param level The current depth level of the cell
+   * @return Whether the shape is visible on the screen (fully or partially).
+   */
+  template <int N>
+  ShapeState IsShapeVisible(const std::array<std::array<double, 3>, N>& points, int level);
+
   /**
    * Main routine to generate external boundary
    */
@@ -124,7 +126,8 @@ protected:
   /**
    * Recursively descend into tree down to leaves
    */
-  void RecursivelyProcessTreeNot3D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
+  void RecursivelyProcessTree1D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
+  void RecursivelyProcessTree2D(vtkHyperTreeGridNonOrientedGeometryCursor*, int);
   void RecursivelyProcessTree3D(vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight*, int);
 
   /**
@@ -147,18 +150,18 @@ protected:
    */
   void AddFace(vtkIdType, const double*, const double*, int, unsigned int);
 
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
+  vtkDataSetAttributes* InData = nullptr;
+  vtkDataSetAttributes* OutData = nullptr;
 
   /**
    * Dimension of input grid
    */
-  unsigned int Dimension;
+  unsigned int Dimension = 0;
 
   /**
    * Orientation of input grid when dimension < 3
    */
-  unsigned int Orientation;
+  unsigned int Orientation = 0;
 
   /**
    * Visibility Mask
@@ -168,17 +171,17 @@ protected:
   /**
    * Storage for points of output unstructured mesh
    */
-  vtkPoints* Points;
+  vtkPoints* Points = nullptr;
 
   /**
    * Storage for cells of output unstructured mesh
    */
-  vtkCellArray* Cells;
+  vtkCellArray* Cells = nullptr;
 
   /**
    * Pointer to the renderer in use
    */
-  vtkRenderer* Renderer;
+  vtkRenderer* Renderer = nullptr;
 
   /**
    * First axis parameter for adaptive view
@@ -191,73 +194,32 @@ protected:
   unsigned int Axis2;
 
   /**
-   * Maximum depth parameter for adaptive view
-   */
-  int LevelMax;
-
-  /**
-   * Parallel projection parameter for adaptive view
-   */
-  bool ParallelProjection;
-
-  /**
    * Last renderer size parameters for adaptive view
    */
-  int LastRendererSize[2];
+  int LastRendererSize[2] = { 0, 0 };
 
   /**
-   * JB Activation de la dependance au point de vue
+   * Whether to use the camera frustum to decimate cells.
    */
-  bool ViewPointDepend;
+  bool ViewPointDepend = true;
 
   /**
-   * Last camera focal point coordinates for adaptive view
+   * Forced, fixed the level depth, ignored automatic determination
    */
-  double LastCameraFocalPoint[3];
+  int FixedLevelMax = -1;
 
   /**
-   * Last camera parallel scale for adaptive view
+   * Whether ParallelProjection is enabled on the renderer's camera
    */
-  double LastCameraParallelScale;
+  bool IsParallel = false;
 
   /**
-   * Bounds windows in the real coordinates
+   * Max depth to be rendered, any deeper is smaller than one pixel.
    */
-  double WindowBounds[4];
+  int MaxLevel = VTK_INT_MAX;
 
-  /**
-   * Product cell when in circle selection
-   */
-  bool CircleSelection;
-
-  /**
-   * Radius parameter for adaptive view
-   */
-  double Radius;
-
-  /**
-   * Product cell when in nounding box selection
-   */
-  bool BBSelection;
-
-  /**
-   * JB Forced, fixed the level depth, ignored automatic determination
-   */
-  int FixedLevelMax;
-
-  /**
-   * Scale factor for adaptive view
-   */
-  double Scale;
-
-  /**
-   * JB Decimate level max after automatic determination
-   */
-  int DynamicDecimateLevelMax;
-
-private:
-  vtkAdaptiveDataSetSurfaceFilter(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
-  void operator=(const vtkAdaptiveDataSetSurfaceFilter&) = delete;
+  vtkSmartPointer<vtkMatrix4x4> ModelViewMatrix;
+  vtkSmartPointer<vtkMatrix4x4> ProjectionMatrix;
 };
 
 VTK_ABI_NAMESPACE_END

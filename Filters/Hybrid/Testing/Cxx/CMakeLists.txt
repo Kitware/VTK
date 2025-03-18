@@ -1,5 +1,6 @@
 vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TemporalStatistics.cxx
+  TestHyperTreeGridAdaptiveDataSetSurfaceFilterDecimation.cxx,NO_VALID
   TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilter.cxx
   TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial.cxx
   TestHyperTreeGridTernary3DAdaptiveDataSetSurfaceFilter.cxx

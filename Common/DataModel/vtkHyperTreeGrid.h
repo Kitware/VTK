@@ -166,8 +166,8 @@ public:
   ///@{
   /**
    * Get grid sizes of this structured cells dataset.
-   * Valeurs deduites a partir de Dimensions/Extent
-   * Les dimensions non exprimees auront pour valeur 1.
+   * Values are deduced from the Dimensions/Extent
+   * Dimensions default to 1 if not specified.
    */
   const unsigned int* GetCellDims() const VTK_SIZEHINT(3);
   void GetCellDims(int cellDims[3]) const;
@@ -178,15 +178,14 @@ public:
 
   ///@{
   /**
-   * Get the dimensionality of the grid deduite a partir
-   * de Dimensions/Extent.
+   * Get the dimensionality of the grid from the Dimensions/Extent.
    */
   unsigned int GetDimension() const { return this->Dimension; }
   ///@}
 
   ///@{
   /**
-   * Retourne l'indice de la dimension valide.
+   * Return the index of the valid dimension.
    */
   void Get1DAxis(unsigned int& axis) const
   {
@@ -197,7 +196,7 @@ public:
 
   ///@{
   /**
-   * Retourne l'indice des deux dimensions valides.
+   * Return the indices of the two valid dimensions.
    */
   void Get2DAxes(unsigned int& axis1, unsigned int& axis2) const
   {
@@ -309,7 +308,7 @@ public:
 
   ///@{
   /**
-   * Augented services on Coordinates.
+   * Utility methods to set coordinates.
    */
   virtual void CopyCoordinates(const vtkHyperTreeGrid* output);
   virtual void SetFixedCoordinates(unsigned int axis, double value);

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkAdaptiveDataSetSurfaceFilter.h"
 
 #include "vtkBitArray.h"
@@ -7,18 +8,15 @@
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkHyperTreeGrid.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkRenderer.h"
-#include "vtkUnsignedCharArray.h"
-
-#include "vtkIncrementalPointLocator.h"
-#include "vtkMergePoints.h"
-
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight.h"
+#include "vtkIncrementalPointLocator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkMatrix4x4.h"
+#include "vtkMergePoints.h"
+#include "vtkPolyData.h"
+#include "vtkRenderer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
@@ -27,47 +25,21 @@ static const unsigned int VonNeumannOffsets3D[] = { 0, 0, 0, 1, 1, 1 };
 
 vtkStandardNewMacro(vtkAdaptiveDataSetSurfaceFilter);
 
+enum class vtkAdaptiveDataSetSurfaceFilter::ShapeState : uint8_t
+{
+  VISIBLE = 0,
+  OUT_OF_SCREEN = 1,
+  SUB_PIXEL = 2,
+};
+
 //------------------------------------------------------------------------------
 vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
 {
-  this->InData = nullptr;
-  this->OutData = nullptr;
-  this->Points = nullptr;
-  this->Cells = nullptr;
-
-  // Default dimension is 0
-  this->Dimension = 0;
-
-  // Default orientation is 0
-  this->Orientation = 0;
-
-  this->Renderer = nullptr;
-
-  this->LevelMax = -1;
-
-  this->ViewPointDepend = true;
-
-  this->ParallelProjection = false;
-  this->LastRendererSize[0] = 0;
-  this->LastRendererSize[1] = 0;
-  this->LastCameraFocalPoint[0] = 0.0;
-  this->LastCameraFocalPoint[1] = 0.0;
-  this->LastCameraFocalPoint[2] = 0.0;
-  this->LastCameraParallelScale = 0;
-
-  this->Scale = 1;
-
-  this->CircleSelection = true;
-  this->BBSelection = false;
-  this->FixedLevelMax = -1;
-  this->DynamicDecimateLevelMax = 0;
-
-  // Default Locator is 0
   this->Merging = false;
 
   // vtkGeometryFilter allows an optional 2nd input. Need to
   // disable this.
-  this->SetNumberOfInputPorts(1);
+  this->Superclass::SetNumberOfInputPorts(1);
 }
 
 //------------------------------------------------------------------------------
@@ -118,22 +90,56 @@ void vtkAdaptiveDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Cells: ( none )\n";
   }
 
+  if (this->Mask)
+  {
+    os << indent << "Mask:\n";
+    this->Mask->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Mask: ( none )\n";
+  }
+
+  if (this->Renderer)
+  {
+    os << indent << "Renderer:\n";
+    this->Renderer->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Renderer: ( none )\n";
+  }
+
+  if (this->ModelViewMatrix)
+  {
+    os << indent << "ModelViewMatrix:\n";
+    this->ModelViewMatrix->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "ModelViewMatrix: ( none )\n";
+  }
+
+  if (this->ProjectionMatrix)
+  {
+    os << indent << "ProjectionMatrix:\n";
+    this->ProjectionMatrix->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "ProjectionMatrix: ( none )\n";
+  }
+
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
+  os << indent << "ViewPointDepend: " << this->ViewPointDepend << endl;
   os << indent << "Axis1: " << this->Axis1 << endl;
   os << indent << "Axis2: " << this->Axis2 << endl;
-  os << indent << "Radius: " << this->Radius << endl;
-  os << indent << "LevelMax: " << this->LevelMax << endl;
-  os << indent << "ViewPointDepend: " << this->ViewPointDepend << endl;
-  os << indent << "ParallelProjection: " << this->ParallelProjection << endl;
-  os << indent << "Scale: " << this->Scale << endl;
   os << indent << "FixedLevelMax: " << this->FixedLevelMax << endl;
-  os << indent << "DynamicDecimateLevelMax: " << this->DynamicDecimateLevelMax << endl;
-  os << indent << "LastCameraParallelScale: " << this->LastCameraParallelScale << endl;
   os << indent << "LastRendererSize: " << this->LastRendererSize[0] << ", "
      << this->LastRendererSize[1] << endl;
-  os << indent << "LastCameraFocalPoint: " << this->LastCameraFocalPoint[0] << ", "
-     << this->LastCameraFocalPoint[1] << ", " << this->LastCameraFocalPoint[2] << endl;
+  os << indent << "IsParallel: " << this->IsParallel << endl;
+  os << indent << "MaxLevel: " << this->MaxLevel << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -148,8 +154,8 @@ int vtkAdaptiveDataSetSurfaceFilter::RequestData(
   vtkDataObject* input = vtkDataObject::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int MeshType = input->GetDataObjectType();
-  if (MeshType != VTK_HYPER_TREE_GRID)
+  int objType = input->GetDataObjectType();
+  if (objType != VTK_HYPER_TREE_GRID)
   {
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }
@@ -164,10 +170,13 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   vtkHyperTreeGrid* input = vtkHyperTreeGrid::SafeDownCast(inputDS);
   if (!input)
   {
-    // DDM&&JB Nous perdons cette facilite d'appeler ce service par defaut qui nous
-    // redirige ensuite vers un service plus adapte si pas HTG
-    // return vtkDataSetSurfaceFilter::DataSetExecute( inputDS, output );
     vtkErrorMacro("pre: input_not_HyperTreeGrid: " << inputDS->GetClassName());
+    return 0;
+  }
+
+  if (!this->Renderer)
+  {
+    vtkErrorMacro("No renderer specified.");
     return 0;
   }
 
@@ -180,120 +189,22 @@ int vtkAdaptiveDataSetSurfaceFilter::DataObjectExecute(vtkDataObject* inputDS, v
   this->OutData = static_cast<vtkDataSetAttributes*>(output->GetCellData());
   this->OutData->CopyAllocate(this->InData);
 
-  // DDM&&JB Nous perdons aussi cette fonctionnalite sous cette nouvelle forme
-  /*
-  if ( this->PassThroughCellIds )
+  if (this->Dimension == 1)
   {
-    this->OriginalCellIds = vtkIdTypeArray::New();
-    this->OriginalCellIds->SetName( this->GetOriginalCellIdsName() );
-    this->OriginalCellIds->SetNumberOfComponents( 1 );
-    this->OutData->AddArray( this->OriginalCellIds );
+    input->Get1DAxis(this->Axis1);
   }
-  */
-
-  // Init renderer information
-  if (this->ViewPointDepend && this->ParallelProjection && this->Renderer)
+  else if (this->Dimension == 2)
   {
-    // Generate planes XY, XZ o YZ
-    unsigned int gridSize[3];
-    input->GetCellDims(gridSize);
-
-    bool isInit = false;
-    if (this->Dimension == 2)
-    {
-      input->Get2DAxes(this->Axis1, this->Axis2);
-      isInit = true;
-    }
-
-    // Compute the zoom of the camera
-    vtkCamera* cam = this->Renderer->GetActiveCamera();
-
-    // Compute the bounding box
-    double bounds[6];
-    input->GetBounds(bounds);
-
-    int f = input->GetBranchFactor();
-
-    // Compute the depth-first-search depth for display
-    if (isInit)
-    {
-      // JB Taille Moyenne d'une maille du niveau 0 dans les coordonnees reelles suivant chaque
-      // direction
-      double worldCellAverageScaleAxis1 = (bounds[2 * this->Axis1 + 1] - bounds[2 * this->Axis1]) /
-        (double)(gridSize[this->Axis1]) / this->Scale;
-      double worldCellAverageScaleAxis2 = (bounds[2 * this->Axis2 + 1] - bounds[2 * this->Axis2]) /
-        (double)(gridSize[this->Axis2]) / this->Scale;
-
-      // JB Taille de la fenetre dans les coordonnees reelles (GetParallelScale) suivant chaque
-      // direction
-      double worldWindScaleAxis1 =
-        cam->GetParallelScale() * this->LastRendererSize[0] / (double)(this->LastRendererSize[1]);
-      double worldWindScaleAxis2 = cam->GetParallelScale();
-
-      // JB Taille de la fenetre en pixel, ecran, suivant chaque direction
-      double windScaleAxis1 = this->LastRendererSize[0];
-      double windScaleAxis2 = this->LastRendererSize[1];
-
-      // JB Compute how many levels of the tree we should process by direction
-      // JB 1) application du theoreme de Thales ; le rapport taille d'une maille de niveau 0 par la
-      // taille de la fenetre est identique si le
-      // JB calcul se fait en coordonnees reelles ou en coordonnees ecran (pixel)
-      // JB 2) la taille d'une maille de niveau L vaut la taille d'une maille de niveau 0 divisee
-      // par le facteur de raffinement eleve a la puissance L
-      // JB 3) au final, le calcul qui suit a pour objet de determiner quand une maille fera un
-      // pixel
-      double levelMaxiAxis1 =
-        (log(windScaleAxis1) + log(worldCellAverageScaleAxis1) - log(worldWindScaleAxis1)) / log(f);
-      double levelMaxiAxis2 =
-        (log(windScaleAxis2) + log(worldCellAverageScaleAxis2) - log(worldWindScaleAxis2)) / log(f);
-
-      // JB On opte pour le niveau le plus eleve
-      this->LevelMax = std::ceil(std::max(levelMaxiAxis1, levelMaxiAxis2));
-    }
-    else
-    {
-      // JB En 3D, par defaut, on prend tous les niveaux
-      this->LevelMax = 65536;
-    }
-
-    // JB Par option, on peut reduire cette valeur... tres utile pour avoir un LOD leger.
-    this->LevelMax -= this->DynamicDecimateLevelMax;
-    if (this->LevelMax < 0)
-    {
-      this->LevelMax = 0;
-    }
-
-    // JB Par option, on peut fixer le niveau max independemment du calcul dynamique realise
-    // precedemment
-    if (this->FixedLevelMax >= 0)
-    {
-      this->LevelMax = this->FixedLevelMax;
-    }
-
-    // JB Le calcul qui suit a pour objet de determiner le rayon du cercle dans les coordonnees
-    // reelles incluant la projection
-    // JB de la fenetre. L'activation de CircleSelection permettra de ne produire que les mailles
-    // intersectant ce cercle centre
-    // JB au camera focal point.
-    // JB LastCameraFocalPoint retourne le centre de l'ecran dans les coordonnees reelles
-    double ratio = this->LastRendererSize[0] / (double)(this->LastRendererSize[1]);
-    this->Radius = cam->GetParallelScale() * sqrt(1 + ratio * ratio);
-
-    // JB Le calcul qui suit a pour objet de determiner la boite englobante dans les coordonnees
-    // reelles (et sans tenir compte
-    // JB d'un point de vue qui aurait tourne) incluant la projection de la fenetre. L'activation de
-    // BBSelection permettra de ne
-    // JB produire que les mailles intersectant cette boite englobante.
-    this->WindowBounds[0] = this->LastCameraFocalPoint[0] - cam->GetParallelScale() * ratio;
-    this->WindowBounds[1] = this->LastCameraFocalPoint[0] + cam->GetParallelScale() * ratio;
-    this->WindowBounds[2] = this->LastCameraFocalPoint[1] - cam->GetParallelScale();
-    this->WindowBounds[3] = this->LastCameraFocalPoint[1] + cam->GetParallelScale();
+    input->Get2DAxes(this->Axis1, this->Axis2);
   }
-  else
-  {
-    // Recurse all the tree
-    this->LevelMax = -1;
-  }
+
+  vtkCamera* cam = this->Renderer->GetActiveCamera();
+
+  this->ModelViewMatrix = cam->GetModelViewTransformMatrix();
+  double aspect = this->LastRendererSize[0] / static_cast<double>(this->LastRendererSize[1]);
+  this->ProjectionMatrix = cam->GetProjectionTransformMatrix(aspect, -1, 1);
+
+  this->IsParallel = this->ProjectionMatrix->GetElement(3, 3) == 1.0;
 
   // Extract geometry from hyper tree grid
   this->ProcessTrees(input, output);
@@ -320,14 +231,14 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   // Create storage for corners of leaf cells
   this->Points = vtkPoints::New();
 
-  // Create storage for untructured leaf cells
+  // Create storage for unstructured leaf cells
   if (this->Cells)
   {
     this->Cells->Delete();
   }
   this->Cells = vtkCellArray::New();
 
-  // JB Initialize a Locator
+  // Initialize a Locator
   if (this->Merging)
   {
     this->Locator = vtkMergePoints::New();
@@ -337,14 +248,6 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
   // Retrieve material mask
   this->Mask = input->HasMask() ? input->GetMask() : nullptr;
 
-  //
-  vtkUnsignedCharArray* ghost = nullptr; // DDM input->GetPointGhostArray();
-  if (ghost)
-  {
-    this->OutData->CopyFieldOff(vtkDataSetAttributes::GhostArrayName());
-  }
-
-  // Iterate over all hyper trees
   if (this->Dimension == 3)
   {
     vtkIdType index;
@@ -359,14 +262,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       }
       // In 3 dimensions, von Neumann neighborhood information is needed
       input->InitializeNonOrientedVonNeumannSuperCursorLight(cursor, index);
-      // If this is not a ghost tree
-      if (!ghost || !ghost->GetTuple1(cursor->GetGlobalNodeIndex()))
-      {
-        // Build geometry recursively
-        this->RecursivelyProcessTree3D(cursor, 0);
-      }
-    } // it
-  }   // if ( this->Dimension == 3 )
+      this->RecursivelyProcessTree3D(cursor, 0);
+    }
+  }
   else
   {
     vtkIdType index;
@@ -381,14 +279,16 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
       }
       // Otherwise, geometric properties of the cells suffice
       input->InitializeNonOrientedGeometryCursor(cursor, index);
-      // If this is not a ghost tree
-      if (!ghost || !ghost->GetTuple1(cursor->GetGlobalNodeIndex()))
+      if (this->Dimension == 1)
       {
-        // Build geometry recursively
-        this->RecursivelyProcessTreeNot3D(cursor, 0);
+        this->RecursivelyProcessTree1D(cursor, 0);
       }
-    } // it
-  }   // else
+      else
+      {
+        this->RecursivelyProcessTree2D(cursor, 0);
+      }
+    }
+  }
 
   // Set output geometry and topology
   output->SetPoints(this->Points);
@@ -414,89 +314,94 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees(vtkHyperTreeGrid* input, vtkP
 }
 
 //------------------------------------------------------------------------------
-void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTreeNot3D(
+void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree1D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
 {
-  bool insideBB = (this->LevelMax == -1);
-  if (!insideBB && (this->CircleSelection || this->BBSelection))
-  {
-    double originAxis1 = cursor->GetOrigin()[this->Axis1];
-    double originAxis2 = cursor->GetOrigin()[this->Axis2];
-    double halfAxis1 = cursor->GetSize()[this->Axis1] / 2;
-    double halfAxis2 = cursor->GetSize()[this->Axis2] / 2;
-    if (this->CircleSelection)
-    {
-      // JB On determine si la maille correspondant au current node of the tree
-      // JB is going to be rendered.
-      // JB Pour cela, on fait une premiere approximation en considerant la maille
-      // JB carre qui l'englobe en conservant la meme origine et en fixant sa demi-largeur
-      // JB a la valeur maximale entre les valeurs de demi-largeur et demi-longueur.
-      double half = std::max(halfAxis1, halfAxis2);
-      // JB This cell must be rendered si le centre de cette maille se trouve a moins de
-      // JB Radius + half * sqrt(2) du camera focal point. Radius est le rayon minimal du cercle
-      // JB centre sur la camera focal point couvrant la fenetre de rendu.
-      // JB Le centre de la maille se trouve a Origin + half, par direction.
-      // JB La comparaison se fait sur les distances au carre afin d'eviter le calcul
-      // JB couteux de racines carres.
-      insideBB = (pow(originAxis1 + half - this->LastCameraFocalPoint[this->Axis1], 2) +
-                   pow(originAxis2 + half - this->LastCameraFocalPoint[this->Axis2], 2)) <
-        // pow( this->Radius + half * sqrt(2.), 2 );
-        pow(this->Radius + half * 1.414213562, 2);
-    }
-    else
-    {
-      insideBB = true;
-    }
+  double origin = cursor->GetOrigin()[this->Axis1];
 
-    if (insideBB && this->BBSelection)
+  std::array<std::array<double, 3>, 2> corners = { { { { origin, 0.0, 0.0 } },
+    { { origin + cursor->GetSize()[this->Axis1], 0.0, 0.0 } } } };
+
+  // We only process the nodes than are going to be rendered
+  if (level < this->MaxLevel &&
+    this->IsShapeVisible<2>(corners, level) == ShapeState::OUT_OF_SCREEN)
+  {
+    return;
+  }
+
+  if (cursor->IsLeaf() || level >= this->MaxLevel ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
+  {
+    this->ProcessLeaf1D(cursor);
+  }
+  else
+  {
+    // Cursor is not at leaf, recurse to all children
+    const int numChildren = cursor->GetNumberOfChildren();
+    for (int iChild = 0; iChild < numChildren; ++iChild)
     {
-      // JB On determine si la maille correspondant au current node of the tree
-      // JB is going to be rendered.
-      // JB Pour cela, on verifie si la maille est dans une boite englobante correspondant a la
-      // JB projection de l'ecran dans le monde du maillage.
-      insideBB = ((originAxis1 + 2 * halfAxis1 >= this->WindowBounds[0]) &&
-        (originAxis1 <= this->WindowBounds[1]) &&
-        (originAxis2 + 2 * halfAxis2 >= this->WindowBounds[2]) &&
-        (originAxis2 <= this->WindowBounds[3]));
+      if (this->CheckAbort())
+      {
+        break;
+      }
+      cursor->ToChild(iChild);
+      this->RecursivelyProcessTree1D(cursor, level + 1);
+      cursor->ToParent();
     }
   }
-  if (insideBB)
+}
+
+//------------------------------------------------------------------------------
+void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree2D(
+  vtkHyperTreeGridNonOrientedGeometryCursor* cursor, int level)
+{
+  double originAxis1 = cursor->GetOrigin()[this->Axis1];
+  double originAxis2 = cursor->GetOrigin()[this->Axis2];
+
+  std::array<std::array<double, 3>, 4> corners = { { { { originAxis1, originAxis2, 0.0 } },
+    { { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2, 0.0 } },
+    { { originAxis1, originAxis2 + cursor->GetSize()[this->Axis2], 0.0 } },
+    { { originAxis1 + cursor->GetSize()[this->Axis1], originAxis2 + cursor->GetSize()[this->Axis2],
+      0.0 } } } };
+
+  // We only process the nodes than are going to be rendered
+  if (level < this->MaxLevel &&
+    this->IsShapeVisible<4>(corners, level) == ShapeState::OUT_OF_SCREEN)
   {
-    // We only process those nodes than are going to be rendered
-    if (cursor->IsLeaf() || (this->LevelMax != -1 && level >= this->LevelMax))
+    return;
+  }
+
+  if (cursor->IsLeaf() || level >= this->MaxLevel ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
+  {
+    this->ProcessLeaf2D(cursor);
+  }
+  else
+  {
+    // Cursor is not at leaf, recurse to all children
+    const int numChildren = cursor->GetNumberOfChildren();
+    for (int iChild = 0; iChild < numChildren; ++iChild)
     {
-      if (this->Dimension == 2)
+      if (this->CheckAbort())
       {
-        this->ProcessLeaf2D(cursor);
+        break;
       }
-      else
-      {
-        this->ProcessLeaf1D(cursor);
-      } // else
-    }   // if ( cursor->IsLeaf() || ( this->LevelMax!=-1 && level >= this->LevelMax ) )
-    else
-    {
-      // Cursor is not at leaf, recurse to all children
-      int numChildren = cursor->GetNumberOfChildren();
-      for (int ichild = 0; ichild < numChildren; ++ichild)
-      {
-        if (this->CheckAbort())
-        {
-          break;
-        }
-        cursor->ToChild(ichild);
-        // Recurse
-        this->RecursivelyProcessTreeNot3D(cursor, level + 1);
-        cursor->ToParent();
-      } // ichild
-    }   // else
-  }     // if( insideBB )
+      cursor->ToChild(iChild);
+      this->RecursivelyProcessTree2D(cursor, level + 1);
+      cursor->ToParent();
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
 {
+  vtkIdType globalId = cursor->GetGlobalNodeIndex();
+  if (this->Mask && this->Mask->GetValue(globalId))
+  {
+    return;
+  }
   // In 1D the geometry is composed of edges, create storage for endpoint IDs
   vtkIdType id[2];
 
@@ -507,28 +412,17 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf1D(
   // Second endpoint is at origin of cursor plus its length
   double pt[3];
   memcpy(pt, origin, 3 * sizeof(double));
-  switch (this->Orientation)
-  {
-    case 3: // 1 + 2
-      pt[2] += cursor->GetSize()[2];
-      break;
-    case 5: // 1 + 4
-      pt[1] += cursor->GetSize()[1];
-      break;
-    case 6: // 2 + 4
-      pt[0] += cursor->GetSize()[0];
-      break;
-  } // switch
+  pt[this->Orientation] += cursor->GetSize()[this->Orientation];
   id[1] = this->Points->InsertNextPoint(pt);
 
   // Insert edge into 1D geometry
-  this->Cells->InsertNextCell(2, id);
+  vtkIdType outId = this->Cells->InsertNextCell(2, id);
+  this->OutData->CopyData(this->InData, globalId, outId);
 }
 
 //------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
   vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
-
 {
   // Cell at cursor center is a leaf, retrieve its global index
   vtkIdType id = cursor->GetGlobalNodeIndex();
@@ -546,30 +440,116 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf2D(
 }
 
 //------------------------------------------------------------------------------
+template <int N>
+vtkAdaptiveDataSetSurfaceFilter::ShapeState vtkAdaptiveDataSetSurfaceFilter::IsShapeVisible(
+  const std::array<std::array<double, 3>, N>& points, int level)
+{
+  if (!this->ViewPointDepend)
+  {
+    return ShapeState::VISIBLE;
+  }
+  double minX = VTK_DOUBLE_MAX;
+  double minY = VTK_DOUBLE_MAX;
+  double maxX = VTK_DOUBLE_MIN;
+  double maxY = VTK_DOUBLE_MIN;
+  double minZ = VTK_DOUBLE_MAX;
+  double maxZ = VTK_DOUBLE_MIN;
+
+  for (int i = 0; i < N; ++i)
+  {
+    std::array<double, 3> point = points[i];
+    double pointWorld[4] = { point[0], point[1], point[2], 1.0 };
+    double* pointCam = this->ModelViewMatrix->MultiplyDoublePoint(pointWorld);
+    double* pointClip = this->ProjectionMatrix->MultiplyDoublePoint(pointCam);
+
+    double x = pointClip[0];
+    double y = pointClip[1];
+    double z = pointClip[2];
+    double w = pointClip[3];
+
+    if (!this->IsParallel && w != 0.0)
+    {
+      x /= w;
+      y /= w;
+      z /= w;
+    }
+
+    minX = std::min(minX, x);
+    minY = std::min(minY, y);
+    minZ = std::min(minZ, z);
+    maxX = std::max(maxX, x);
+    maxY = std::max(maxY, y);
+    maxZ = std::max(maxZ, z);
+  }
+
+  double minXScreen = (minX + 1) / 2 * this->LastRendererSize[0];
+  double maxXScreen = (maxX + 1) / 2 * this->LastRendererSize[0];
+  double minYScreen = (1 - minY) / 2 * this->LastRendererSize[1];
+  double maxYScreen = (1 - maxY) / 2 * this->LastRendererSize[1];
+
+  // Cell is smaller than one pixel, return true to process this cell but set MaxLevel so that we
+  // don't compute this for other cells >= MaxLevel.
+  if (maxXScreen - minXScreen < 1.0 && maxYScreen - minYScreen < 1.0)
+  {
+    // Only used for 2D and 1D.
+    this->MaxLevel = level;
+
+    return ShapeState::SUB_PIXEL;
+  }
+
+  if (maxX >= -1 && minX <= 1 && maxY >= -1 && minY <= 1 && maxZ >= -1 && minZ <= 1)
+  {
+    return ShapeState::VISIBLE;
+  }
+  return ShapeState::OUT_OF_SCREEN;
+}
+
+//------------------------------------------------------------------------------
 void vtkAdaptiveDataSetSurfaceFilter::RecursivelyProcessTree3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* cursor, int level)
 {
+  double* origin = cursor->GetOrigin();
+
+  std::array<std::array<double, 3>, 8> corners = { {
+    { { origin[0], origin[1], origin[2] } },
+    { { origin[0], origin[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1], origin[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0], origin[1] + cursor->GetSize()[1], origin[2] } },
+    { { origin[0], origin[1] + cursor->GetSize()[1], origin[2] + cursor->GetSize()[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1], origin[2] } },
+    { { origin[0] + cursor->GetSize()[0], origin[1] + cursor->GetSize()[1],
+      origin[2] + cursor->GetSize()[2] } },
+  } };
+
+  ShapeState shapeState = this->IsShapeVisible<8>(corners, level);
+  if (shapeState == ShapeState::OUT_OF_SCREEN)
+  {
+    return;
+  }
+
   // Create geometry output if cursor is at leaf
-  if (cursor->IsLeaf())
+  if (cursor->IsLeaf() || shapeState == ShapeState::SUB_PIXEL ||
+    (this->Mask && this->Mask->GetValue(cursor->GetGlobalNodeIndex())) ||
+    (this->FixedLevelMax != -1 && level >= this->FixedLevelMax))
   {
     this->ProcessLeaf3D(cursor);
-  } // if ( cursor->IsLeaf() )
+  }
   else
   {
     // Cursor is not at leaf, recurse to all children
     int numChildren = cursor->GetNumberOfChildren();
-    for (int ichild = 0; ichild < numChildren; ++ichild)
+    for (int iChild = 0; iChild < numChildren; ++iChild)
     {
       if (this->CheckAbort())
       {
         break;
       }
-      cursor->ToChild(ichild);
-      // Recurse
+      cursor->ToChild(iChild);
       this->RecursivelyProcessTree3D(cursor, level + 1);
       cursor->ToParent();
-    } // child
-  }   // else
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -577,9 +557,9 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight* superCursor)
 {
   // Cell at super cursor center is a leaf, retrieve its global index, level, and mask
-  vtkIdType idcenter = superCursor->GetGlobalNodeIndex();
+  vtkIdType idCenter = superCursor->GetGlobalNodeIndex();
   unsigned level = superCursor->GetLevel();
-  int masked = this->Mask ? this->Mask->GetValue(idcenter) : 0;
+  int masked = this->Mask ? this->Mask->GetValue(idCenter) : 0;
 
   // Iterate over all cursors of Von Neumann neighborhood around center
   unsigned int nc = superCursor->GetNumberOfCursors() - 1;
@@ -596,26 +576,26 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessLeaf3D(
     vtkIdType idN;
     vtkHyperTree* treeN = superCursor->GetInformation(VonNeumannCursors3D[c], levelN, leafN, idN);
 
-    int maskedN = 1;
+    int maskedN = 0;
     if (treeN)
     {
       maskedN = this->Mask ? this->Mask->GetValue(idN) : 0;
     }
 
     // In 3D masked and unmasked cells are handled differently:
-    // . If cell is unmasked, and face neighbor is a masked leaf, or no such neighbor
+    // - If cell is unmasked, and face neighbor is masked, or no such neighbor
     //   exists, then generate face.
-    // . If cell is masked, and face neighbor exists and is an unmasked leaf, then
+    // - If cell is masked, and face neighbor exists and is an unmasked leaf, then
     //   generate face, breaking ties at same level. This ensures that faces between
     //   unmasked and masked cells will be generated once and only once.
-    if ((!masked && (!treeN || (leafN && maskedN))) ||
+    if ((!masked && (!treeN || maskedN)) ||
       (masked && treeN && leafN && levelN < level && !maskedN))
     {
       // Generate face with corresponding normal and offset
-      this->AddFace(idcenter, superCursor->GetOrigin(), superCursor->GetSize(),
+      this->AddFace(idCenter, superCursor->GetOrigin(), superCursor->GetSize(),
         VonNeumannOffsets3D[c], VonNeumannOrientations3D[c]);
     }
-  } // c
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -695,15 +675,6 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
     vtkCamera* cam = this->Renderer->GetActiveCamera();
     if (cam)
     {
-      // Check & Update parallel projection
-      bool para = (cam->GetParallelProjection() != 0);
-
-      if (this->ParallelProjection != para)
-      {
-        this->ParallelProjection = para;
-        this->Modified();
-      }
-
       // Check & Update renderer size
       const int* sz = this->Renderer->GetSize();
       if (this->LastRendererSize[0] != sz[0] || this->LastRendererSize[1] != sz[1])
@@ -712,27 +683,69 @@ vtkMTimeType vtkAdaptiveDataSetSurfaceFilter::GetMTime()
         this->LastRendererSize[1] = sz[1];
         this->Modified();
       }
-
-      // Check & Update camera focal point
-      double* fp = cam->GetFocalPoint();
-      if (this->LastCameraFocalPoint[0] != fp[0] || this->LastCameraFocalPoint[1] != fp[1] ||
-        this->LastCameraFocalPoint[2] != fp[2])
-      {
-        this->LastCameraFocalPoint[0] = fp[0];
-        this->LastCameraFocalPoint[1] = fp[1];
-        this->LastCameraFocalPoint[2] = fp[2];
-        this->Modified();
-      }
-
-      // Check & Update camera scale
-      double scale = cam->GetParallelScale();
-      if (this->LastCameraParallelScale != scale)
-      {
-        this->LastCameraParallelScale = scale;
-        this->Modified();
-      }
     } // if ( cam )
   }   // if ( this->Renderer )
   return this->Superclass::GetMTime();
 }
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+void vtkAdaptiveDataSetSurfaceFilter::SetCircleSelection(bool vtkNotUsed(_arg))
+{
+  vtkWarningMacro("CircleSelection has been removed. Do not use.");
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+bool vtkAdaptiveDataSetSurfaceFilter::GetCircleSelection()
+{
+  vtkWarningMacro("CircleSelection has been removed. Do not use.");
+  return true;
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+void vtkAdaptiveDataSetSurfaceFilter::SetBBSelection(bool vtkNotUsed(_arg))
+{
+  vtkWarningMacro("BBSelection has been removed. Do not use.");
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+bool vtkAdaptiveDataSetSurfaceFilter::GetBBSelection()
+{
+  vtkWarningMacro("BBSelection has been removed. Do not use.");
+  return true;
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+void vtkAdaptiveDataSetSurfaceFilter::SetDynamicDecimateLevelMax(int vtkNotUsed(_arg))
+{
+  vtkWarningMacro("DynamicDecimateLevelMax has been removed. Do not use.");
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+int vtkAdaptiveDataSetSurfaceFilter::GetDynamicDecimateLevelMax()
+{
+  vtkWarningMacro("DynamicDecimateLevelMax has been removed. Do not use.");
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+void vtkAdaptiveDataSetSurfaceFilter::SetScale(double vtkNotUsed(_arg))
+{
+  vtkWarningMacro("Scale has been removed. Do not use.");
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_5_0
+int vtkAdaptiveDataSetSurfaceFilter::GetScale()
+{
+  vtkWarningMacro("Scale has been removed. Do not use.");
+  return 0;
+}
+
 VTK_ABI_NAMESPACE_END

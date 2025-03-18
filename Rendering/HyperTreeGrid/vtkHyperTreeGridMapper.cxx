@@ -15,12 +15,9 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
 #include "vtkRange.h"
 #include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -245,13 +242,6 @@ vtkSmartPointer<vtkCompositeDataSet> vtkHyperTreeGridMapper::UpdateWithDecimatio
 {
   bool useAdapt = this->UseAdaptiveDecimation;
 
-  // Sanity check, Adaptive2DGeometryFilter only support ParallelProjection from now on.
-  if (useAdapt && !ren->GetActiveCamera()->GetParallelProjection())
-  {
-    vtkWarningMacro("The adaptive decimation requires the camera to use ParallelProjection.");
-    useAdapt = false;
-  }
-
   vtkNew<vtkAdaptiveDataSetSurfaceFilter> adaptiveGeometryFilter;
   vtkNew<vtkHyperTreeGridGeometry> geometryFilter;
   vtkNew<vtkDataSetSurfaceFilter> surfaceFilter;
@@ -268,7 +258,7 @@ vtkSmartPointer<vtkCompositeDataSet> vtkHyperTreeGridMapper::UpdateWithDecimatio
     vtkDataObject* leaf = iter->GetCurrentDataObject();
     if (auto* htg = vtkHyperTreeGrid::SafeDownCast(leaf))
     {
-      if (useAdapt && htg->GetDimension() == 2)
+      if (useAdapt)
       {
         // use adaptive decimation
         adaptiveGeometryFilter->SetInputDataObject(htg);
