@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -93,24 +93,6 @@ CLI11_INLINE std::string fix_newlines(const std::string &leader, std::string inp
         }
     }
     return input;
-}
-
-CLI11_INLINE std::ostream &
-format_help(std::ostream &out, std::string name, const std::string &description, std::size_t wid) {
-    name = "  " + name;
-    out << std::setw(static_cast<int>(wid)) << std::left << name;
-    if(!description.empty()) {
-        if(name.length() >= wid)
-            out << "\n" << std::setw(static_cast<int>(wid)) << "";
-        for(const char c : description) {
-            out.put(c);
-            if(c == '\n') {
-                out << std::setw(static_cast<int>(wid)) << "";
-            }
-        }
-    }
-    out << "\n";
-    return out;
 }
 
 CLI11_INLINE std::ostream &format_aliases(std::ostream &out, const std::vector<std::string> &aliases, std::size_t wid) {
@@ -451,6 +433,13 @@ CLI11_INLINE std::string binary_escape_string(const std::string &string_to_escap
             stream << std::hex << static_cast<unsigned int>(static_cast<unsigned char>(c));
             std::string code = stream.str();
             escaped_string += std::string("\\x") + (code.size() < 2 ? "0" : "") + code;
+        } else if(c == 'x' || c == 'X') {
+            // need to check for inadvertent binary sequences
+            if(!escaped_string.empty() && escaped_string.back() == '\\') {
+                escaped_string += std::string("\\x") + (c == 'x' ? "78" : "58");
+            } else {
+                escaped_string.push_back(c);
+            }
 
         } else {
             escaped_string.push_back(c);
@@ -459,7 +448,8 @@ CLI11_INLINE std::string binary_escape_string(const std::string &string_to_escap
     if(escaped_string != string_to_escape) {
         auto sqLoc = escaped_string.find('\'');
         while(sqLoc != std::string::npos) {
-            escaped_string.replace(sqLoc, sqLoc + 1, "\\x27");
+            escaped_string[sqLoc] = '\\';
+            escaped_string.insert(sqLoc + 1, "x27");
             sqLoc = escaped_string.find('\'');
         }
         escaped_string.insert(0, "'B\"(");
@@ -529,12 +519,25 @@ CLI11_INLINE void remove_quotes(std::vector<std::string> &args) {
     }
 }
 
+CLI11_INLINE void handle_secondary_array(std::string &str) {
+    if(str.size() >= 2 && str.front() == '[' && str.back() == ']') {
+        // handle some special array processing for arguments if it might be interpreted as a secondary array
+        std::string tstr{"[["};
+        for(std::size_t ii = 1; ii < str.size(); ++ii) {
+            tstr.push_back(str[ii]);
+            tstr.push_back(str[ii]);
+        }
+        str = std::move(tstr);
+    }
+}
+
 CLI11_INLINE bool process_quoted_string(std::string &str, char string_char, char literal_char) {
     if(str.size() <= 1) {
         return false;
     }
     if(detail::is_binary_escaped_string(str)) {
         str = detail::extract_binary_string(str);
+        handle_secondary_array(str);
         return true;
     }
     if(str.front() == string_char && str.back() == string_char) {
@@ -542,10 +545,12 @@ CLI11_INLINE bool process_quoted_string(std::string &str, char string_char, char
         if(str.find_first_of('\\') != std::string::npos) {
             str = detail::remove_escaped_characters(str);
         }
+        handle_secondary_array(str);
         return true;
     }
     if((str.front() == literal_char || str.front() == '`') && str.back() == str.front()) {
         detail::remove_outer(str, str.front());
+        handle_secondary_array(str);
         return true;
     }
     return false;
@@ -570,6 +575,37 @@ std::string get_environment_value(const std::string &env_name) {
     }
 #endif
     return ename_string;
+}
+
+CLI11_INLINE std::ostream &streamOutAsParagraph(std::ostream &out,
+                                                const std::string &text,
+                                                std::size_t paragraphWidth,
+                                                const std::string &linePrefix,
+                                                bool skipPrefixOnFirstLine) {
+    if(!skipPrefixOnFirstLine)
+        out << linePrefix;  // First line prefix
+
+    std::istringstream lss(text);
+    std::string line = "";
+    while(std::getline(lss, line)) {
+        std::istringstream iss(line);
+        std::string word = "";
+        std::size_t charsWritten = 0;
+
+        while(iss >> word) {
+            if(word.length() + charsWritten > paragraphWidth) {
+                out << '\n' << linePrefix;
+                charsWritten = 0;
+            }
+
+            out << word << " ";
+            charsWritten += word.length() + 1;
+        }
+
+        if(!lss.eof())
+            out << '\n' << linePrefix;
+    }
+    return out;
 }
 
 }  // namespace detail

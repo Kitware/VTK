@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -59,7 +59,12 @@ template <typename T> std::string join(const T &v, std::string delim = ",") {
     while(beg != end) {
         s << delim << *beg++;
     }
-    return s.str();
+    auto rval = s.str();
+    if(!rval.empty() && delim.size() == 1 && rval.back() == delim[0]) {
+        // remove trailing delimiter if the last entry was empty
+        rval.pop_back();
+    }
+    return rval;
 }
 
 /// Simple function to join a string from processed elements
@@ -136,9 +141,6 @@ inline std::string trim_copy(const std::string &str, const std::string &filter) 
     std::string s = str;
     return trim(s, filter);
 }
-/// Print a two part "help" string
-CLI11_INLINE std::ostream &
-format_help(std::ostream &out, std::string name, const std::string &description, std::size_t wid);
 
 /// Print subcommand aliases
 CLI11_INLINE std::ostream &format_aliases(std::ostream &out, const std::vector<std::string> &aliases, std::size_t wid);
@@ -241,7 +243,7 @@ CLI11_INLINE bool has_escapable_character(const std::string &str);
 
 /// @brief escape all escapable characters
 /// @param str the string to escape
-/// @return a string with the escapble characters escaped with '\'
+/// @return a string with the escapable characters escaped with '\'
 CLI11_INLINE std::string add_escaped_characters(const std::string &str);
 
 /// @brief replace the escaped characters with their equivalent
@@ -257,6 +259,14 @@ CLI11_INLINE std::string extract_binary_string(const std::string &escaped_string
 
 /// process a quoted string, remove the quotes and if appropriate handle escaped characters
 CLI11_INLINE bool process_quoted_string(std::string &str, char string_char = '\"', char literal_char = '\'');
+
+/// This function formats the given text as a paragraph with fixed width and applies correct line wrapping
+/// with a custom line prefix. The paragraph will get streamed to the given ostream.
+CLI11_INLINE std::ostream &streamOutAsParagraph(std::ostream &out,
+                                                const std::string &text,
+                                                std::size_t paragraphWidth,
+                                                const std::string &linePrefix = "",
+                                                bool skipPrefixOnFirstLine = false);
 
 }  // namespace detail
 
