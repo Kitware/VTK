@@ -148,6 +148,12 @@ static int vtkWrapJavaScript_IsValueWrappable(
       return 1;
     }
 
+    // Return type is double* with size hint
+    if ((val->Type & VTK_PARSE_UNQUALIFIED_TYPE) == VTK_PARSE_DOUBLE_PTR && val->Count > 0)
+    {
+      return 1;
+    }
+
     if (vtkWrap_IsNArray(val))
     {
       return 0;
