@@ -5,6 +5,7 @@
 #include "vtkMultiVolume.h"
 #include "vtkObjectBase.h"
 #include "vtkSerializer.h"
+#include "vtkStringScanner.h"
 #include "vtkVariant.h"
 #include "vtkVolume.h"
 //clang-format off
@@ -94,7 +95,9 @@ static void Deserialize_vtkMultiVolume(
         if (subObject != nullptr)
         {
           subObject->Register(object);
-          map[std::stoi(item.first)] = vtkVolume::SafeDownCast(subObject);
+          int index = 0;
+          VTK_FROM_CHARS_IF_ERROR_RETURN(item.first, index, );
+          map[index] = vtkVolume::SafeDownCast(subObject);
         }
       }
       object->SetAllVolumes(map);

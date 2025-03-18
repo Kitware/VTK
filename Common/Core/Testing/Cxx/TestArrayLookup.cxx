@@ -9,6 +9,7 @@
 #include "vtkNew.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
@@ -776,19 +777,21 @@ int TestArrayLookup(int argc, char* argv[])
     if (!strcmp(argv[i], "-m") && i + 1 < argc)
     {
       ++i;
-      int size = atoi(argv[i]);
+      int size;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], size, EXIT_FAILURE);
       min = static_cast<int>((-1.0 + sqrt(1 + 8.0 * size)) / 2.0);
     }
     if (!strcmp(argv[i], "-M") && i + 1 < argc)
     {
       ++i;
-      int size = atoi(argv[i]);
+      int size;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], size, EXIT_FAILURE);
       max = static_cast<int>((-1.0 + sqrt(1 + 8.0 * size)) / 2.0);
     }
     if (!strcmp(argv[i], "-S") && i + 1 < argc)
     {
       ++i;
-      steps = atoi(argv[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], steps, EXIT_FAILURE);
     }
   }
 

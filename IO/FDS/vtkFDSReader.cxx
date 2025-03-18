@@ -25,6 +25,7 @@
 #include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 
 #include <vtksys/SystemTools.hxx>
@@ -275,8 +276,9 @@ void ReadAndExtractRowFromCSV(vtkDelimitedTextReader* reader, const std::string&
       Value; // potentially change later with new instance once CSV reader can skip first line
     Value->SetNumberOfComponents(1);
     Value->SetNumberOfTuples(1);
-    Value->SetValue(
-      0, std::stod(arr->GetValue(requestedTimeStep + 2))); // csv file has two headers technically
+    Value->SetValue(0,
+      vtk::scan_value<double>(static_cast<std::string>(arr->GetValue(requestedTimeStep + 2)))
+        ->value()); // csv file has two headers technically
     map.emplace(arr->GetValue(1), Value);
   }
 }
@@ -306,7 +308,8 @@ void ExtractTimeValuesFromCSV(
       timesteps.clear();
       for (int i = 2; i < arr->GetNumberOfValues(); i++)
       {
-        timesteps.emplace_back(std::stof(arr->GetValue(i)));
+        timesteps.emplace_back(
+          vtk::scan_value<float>(static_cast<std::string>(arr->GetValue(i)))->value());
       }
       break;
     }

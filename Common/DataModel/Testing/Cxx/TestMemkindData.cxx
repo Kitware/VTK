@@ -18,6 +18,7 @@
 #include "vtkShrinkFilter.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -34,7 +35,7 @@ int TestMemkindData(int ac, char* av[])
     }
     if (!strcmp(av[a], "-GB") && a < ac - 1)
     {
-      GB = std::stoi(std::string(av[a + 1]));
+      VTK_FROM_CHARS_IF_ERROR_RETURN(av[a + 1], GB, EXIT_FAILURE);
     }
   }
   cout << "Extended memory is backed by " << home << endl;

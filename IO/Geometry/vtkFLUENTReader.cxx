@@ -29,10 +29,12 @@
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <sstream>
@@ -638,7 +640,8 @@ bool vtkFLUENTReader::PreParseDataFile()
         index += static_cast<char>(nextChar);
       }
 
-      unsigned int zoneId = std::stoi(index);
+      unsigned int zoneId;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(index, zoneId, false);
       switch (zoneId)
       {
         case 300:
@@ -723,7 +726,8 @@ bool vtkFLUENTReader::PreParseFluentFile()
         index += static_cast<char>(nextChar);
       }
 
-      unsigned int zoneId = std::stoi(index);
+      unsigned int zoneId;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(index, zoneId, false);
       switch (zoneId)
       {
         // Indices 39 and 45 describe zone sections (such as fluid, wall, pressure-outlet,...).
@@ -950,12 +954,13 @@ int vtkFLUENTReader::GetCaseIndex()
 {
   std::string sindex;
 
-  int i = 1;
+  int i = 1, caseIndex;
   while (this->FluentBuffer.at(i) != ' ' && this->FluentBuffer.at(i) != '(')
   {
     sindex += this->FluentBuffer.at(i++);
   }
-  return atoi(sindex.c_str());
+  VTK_FROM_CHARS_IF_ERROR_RETURN(sindex, caseIndex, 0);
+  return caseIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -963,12 +968,13 @@ int vtkFLUENTReader::GetDataIndex()
 {
   std::string sindex;
 
-  int i = 1;
+  int i = 1, dataIndex;
   while (this->DataBuffer.at(i) != ' ' && this->DataBuffer.at(i) != '(')
   {
     sindex += this->DataBuffer.at(i++);
   }
-  return atoi(sindex.c_str());
+  VTK_FROM_CHARS_IF_ERROR_RETURN(sindex, dataIndex, 0);
+  return dataIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -2863,17 +2869,18 @@ void vtkFLUENTReader::ParseZones(bool areCellsEnabled)
 int vtkFLUENTReader::GetDimension()
 {
   std::string info = this->FluentBuffer.substr(3, 1);
-  return atoi(info.c_str());
+  int dim;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(info, dim, 0);
+  return dim;
 }
 
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetLittleEndianFlag()
 {
-  size_t start = this->FluentBuffer.find('(', 1);
-  size_t end = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(start + 1, end - start - 1);
-  int flag;
-  sscanf(info.c_str(), "%d", &flag);
+  const size_t start = this->FluentBuffer.find('(', 1);
+  const size_t end = this->FluentBuffer.find(')', 1);
+  const auto info = std::string_view(this->FluentBuffer).substr(start + 1, end - start - 1);
+  const int flag = vtk::scan_int<int>(info)->value();
 
   if (flag == 60)
   {
@@ -2888,14 +2895,13 @@ void vtkFLUENTReader::GetLittleEndianFlag()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int zoneId, firstIndex, lastIndex;
-  int type, nd;
-  sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &nd);
-
+  auto result = vtk::scan<unsigned, unsigned, unsigned, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
+  auto& [zoneId, firstIndex, lastIndex, type, nd] = result->values();
   if (zoneId == 0)
   {
     this->Points->Allocate(lastIndex);
@@ -2933,13 +2939,13 @@ void vtkFLUENTReader::GetNodesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesSinglePrecision()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int zoneId, firstIndex, lastIndex;
-  int type;
-  sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+  auto& [zoneId, firstIndex, lastIndex, type] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -2980,13 +2986,13 @@ void vtkFLUENTReader::GetNodesSinglePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNodesDoublePrecision()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int zoneId, firstIndex, lastIndex;
-  int type;
-  sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+  auto& [zoneId, firstIndex, lastIndex, type] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -3024,22 +3030,22 @@ void vtkFLUENTReader::GetNodesDoublePrecision()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
   if (info[0] == '0')
   { // Cell Info
-    unsigned int zoneId, firstIndex, lastIndex;
-    int type;
-    sscanf(info.c_str(), "%x %x %x %d", &zoneId, &firstIndex, &lastIndex, &type);
+    auto result = vtk::scan<unsigned, unsigned, unsigned, int>(info, "{:x} {:x} {:x} {:d}");
+    auto& [zoneId, firstIndex, lastIndex, type] = result->values();
     this->Cells.resize(lastIndex);
   }
   else
   { // Cell Definitions
-    unsigned int zoneId, firstIndex, lastIndex;
-    int type, elementType;
-    sscanf(info.c_str(), "%x %x %x %d %d", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
+    auto result =
+      vtk::scan<unsigned, unsigned, unsigned, int, int>(info, "{:x} {:x} {:x} {:d} {:d}");
+    auto& [zoneId, firstIndex, lastIndex, type, elementType] = result->values();
 
     if (elementType == 0)
     {
@@ -3075,12 +3081,14 @@ void vtkFLUENTReader::GetCellsAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellsBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int zoneId, firstIndex, lastIndex, type, elementType;
-  sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &type, &elementType);
+  auto result =
+    vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+  auto& [zoneId, firstIndex, lastIndex, type, elementType] = result->values();
 
   if (elementType == 0)
   {
@@ -3115,21 +3123,23 @@ void vtkFLUENTReader::GetCellsBinary()
 //------------------------------------------------------------------------------
 bool vtkFLUENTReader::GetFacesAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
   if (info[0] == '0')
   { // Face Info
-    unsigned int zoneId, firstIndex, lastIndex, bcType;
-    sscanf(info.c_str(), "%x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType);
+    auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+    auto& [zoneId, firstIndex, lastIndex, bcType] = result->values();
 
     this->Faces.resize(lastIndex);
   }
   else
   { // Face Definitions
-    unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
-    sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
+    auto result =
+      vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+    auto& [zoneId, firstIndex, lastIndex, bcType, faceType] = result->values();
 
     size_t dstart = this->FluentBuffer.find('(', infoEnd);
     size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3202,12 +3212,14 @@ bool vtkFLUENTReader::GetFacesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFacesBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int zoneId, firstIndex, lastIndex, bcType, faceType;
-  sscanf(info.c_str(), "%x %x %x %x %x", &zoneId, &firstIndex, &lastIndex, &bcType, &faceType);
+  auto result =
+    vtk::scan<unsigned, unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x} {:x}");
+  auto& [zoneId, firstIndex, lastIndex, bcType, faceType] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   int numberOfNodesInFace = 0;
@@ -3305,8 +3317,7 @@ bool vtkFLUENTReader::ReadDataZoneSectionId(unsigned int& zoneSectionId)
     character = this->FluentDataFile->get();
   }
 
-  zoneSectionId = atoi(token.c_str());
-
+  VTK_FROM_CHARS_IF_ERROR_RETURN(token, zoneSectionId, false);
   return true;
 }
 
@@ -3379,10 +3390,10 @@ bool vtkFLUENTReader::ReadZoneSection(int limit)
   }
 
   ZoneSection zoneSection;
-  zoneSection.id = std::atoi(tokens[0].c_str());
+  zoneSection.id = vtk::scan_int<int>(tokens[0])->value();
   zoneSection.name = tokens[1];
   zoneSection.type = tokens[2];
-  zoneSection.domainId = std::atoi(tokens[3].c_str());
+  zoneSection.domainId = !tokens[3].empty() ? vtk::scan_int<int>(tokens[3])->value() : 0;
 
   this->ZoneSections.push_back(zoneSection);
   return true;
@@ -3391,12 +3402,13 @@ bool vtkFLUENTReader::ReadZoneSection(int limit)
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
-  sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [firstIndex, lastIndex, periodicZone, shadowZone] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3415,12 +3427,13 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int firstIndex, lastIndex, periodicZone, shadowZone;
-  sscanf(info.c_str(), "%x %x %x %x", &firstIndex, &lastIndex, &periodicZone, &shadowZone);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [firstIndex, lastIndex, periodicZone, shadowZone] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -3440,12 +3453,13 @@ void vtkFLUENTReader::GetPeriodicShadowFacesBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetCellTreeAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int cellId0, cellId1, parentZoneId, childZoneId;
-  sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [cellId0, cellId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3469,12 +3483,13 @@ void vtkFLUENTReader::GetCellTreeAscii()
 void vtkFLUENTReader::GetCellTreeBinary()
 {
 
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int cellId0, cellId1, parentZoneId, childZoneId;
-  sscanf(info.c_str(), "%x %x %x %x", &cellId0, &cellId1, &parentZoneId, &childZoneId);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [cellId0, cellId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -3497,12 +3512,13 @@ void vtkFLUENTReader::GetCellTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int faceId0, faceId1, parentZoneId, childZoneId;
-  sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [faceId0, faceId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3525,12 +3541,13 @@ void vtkFLUENTReader::GetFaceTreeAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetFaceTreeBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int faceId0, faceId1, parentZoneId, childZoneId;
-  sscanf(info.c_str(), "%x %x %x %x", &faceId0, &faceId1, &parentZoneId, &childZoneId);
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(info, "{:x} {:x} {:x} {:x}");
+  auto& [faceId0, faceId1, parentZoneId, childZoneId] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -3553,12 +3570,13 @@ void vtkFLUENTReader::GetFaceTreeBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int faceId0, faceId1;
-  sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
+  auto result = vtk::scan<unsigned, unsigned>(info, "{:x} {:x}");
+  auto& [faceId0, faceId1] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3579,12 +3597,13 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  unsigned int faceId0, faceId1;
-  sscanf(info.c_str(), "%x %x", &faceId0, &faceId1);
+  auto result = vtk::scan<unsigned, unsigned>(info, "{:x} {:x}");
+  auto& [faceId0, faceId1] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -3605,12 +3624,13 @@ void vtkFLUENTReader::GetInterfaceFaceParentsBinary()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = this->FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  int kidId, parentId, numberOfFaces;
-  sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
+  auto result = vtk::scan<int, int, int>(info, "{:d} {:d} {:d}");
+  auto& [kidId, parentId, numberOfFaces] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t dend = this->FluentBuffer.find(')', dstart + 1);
@@ -3630,12 +3650,13 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationBinary()
 {
-  size_t infoStart = this->FluentBuffer.find('(', 1);
-  size_t infoEnd = this->FluentBuffer.find(')', 1);
-  std::string info = FluentBuffer.substr(infoStart + 1, infoEnd - infoStart - 1);
+  const size_t infoStart = this->FluentBuffer.find('(', 1);
+  const size_t infoEnd = this->FluentBuffer.find(')', 1);
+  const auto info =
+    std::string_view(this->FluentBuffer).substr(infoStart + 1, infoEnd - infoStart - 1);
 
-  int kidId, parentId, numberOfFaces;
-  sscanf(info.c_str(), "%d %d %d", &kidId, &parentId, &numberOfFaces);
+  auto result = vtk::scan<int, int, int>(info, "{:d} {:d} {:d}");
+  auto& [kidId, parentId, numberOfFaces] = result->values();
 
   size_t dstart = this->FluentBuffer.find('(', infoEnd);
   size_t ptr = dstart + 1;
@@ -4708,10 +4729,10 @@ void vtkFLUENTReader::ReadZone()
   std::getline(infoStream, domainIdString, ' ');
 
   ZoneSection zoneSection;
-  zoneSection.id = std::atoi(zoneIdString.c_str());
+  zoneSection.id = vtk::scan_int<int>(zoneIdString)->value();
   zoneSection.name = zoneName;
   zoneSection.type = zoneType;
-  zoneSection.domainId = std::atoi(domainIdString.c_str());
+  zoneSection.domainId = !domainIdString.empty() ? vtk::scan_int<int>(domainIdString)->value() : 0;
 
   this->ZoneSections.push_back(zoneSection);
 }

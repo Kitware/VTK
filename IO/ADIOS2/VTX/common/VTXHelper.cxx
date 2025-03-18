@@ -11,18 +11,19 @@
 #include "VTXHelper.h"
 #include "VTXHelper.txx"
 
-#include <fstream>
-#include <numeric> //std::accumulate
-#include <sstream>
-
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPI.h"
 #include "vtkMPICommunicator.h"
 #endif
 #include "vtkMultiProcessController.h"
+#include "vtkStringScanner.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
+
+#include <fstream>
+#include <numeric> //std::accumulate
+#include <sstream>
 
 namespace vtx
 {
@@ -238,7 +239,8 @@ types::DataSet XMLInitDataSet(
 
     if (xmlNumberOfComponents)
     {
-      const size_t components = static_cast<size_t>(std::stoull(xmlNumberOfComponents.value()));
+      size_t components;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(xmlNumberOfComponents.value(), components);
       if (dataArray.VectorVariables.size() != components)
       {
         throw std::runtime_error("ERROR: NumberOfComponents " + std::to_string(components) +

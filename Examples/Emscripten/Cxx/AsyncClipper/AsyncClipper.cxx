@@ -21,6 +21,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
+#include <vtkStringScanner.h>
 #include <vtkTableBasedClipDataSet.h>
 #include <vtkUnstructuredGrid.h>
 
@@ -74,7 +75,9 @@ extern "C"
 int main(int argc, char** argv)
 {
   std::array<int, 3> ndims;
-  std::transform(&argv[1], argv + argc, ndims.begin(), std::atoi);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], ndims[0], EXIT_FAILURE);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], ndims[1], EXIT_FAILURE);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[3], ndims[2], EXIT_FAILURE);
   std::cout << "Generating " << ndims[0] << 'x' << ndims[1] << 'x' << ndims[2]
             << " block of hexahedra\n";
 

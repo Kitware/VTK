@@ -265,8 +265,6 @@ int TestSortDataArray(int, char*[])
   std::string s1, s2;
   for (i = 0; i < ARRAY_SIZE - 1; ++i)
   {
-    // s1 = std::stoi(sarray->GetValue(i));
-    // s2 = std::stoi(sarray->GetValue(i+1));
     s1 = sarray->GetValue(i);
     s2 = sarray->GetValue(i + 1);
     if (s1 < s2)

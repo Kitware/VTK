@@ -16,17 +16,14 @@
 #endif
 
 #include "vtkOSOpenGLRenderWindow.h"
-#include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
-#include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLTexture.h"
 
-#include "vtkCommand.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringScanner.h"
 
 #include "vtksys/SystemTools.hxx"
 #include <sstream>
@@ -503,45 +500,37 @@ void vtkOSOpenGLRenderWindow::SetPosition(int x, int y)
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetWindowInfo(const char* info)
+void vtkOSOpenGLRenderWindow::SetWindowInfo(const char* vtkNotUsed(info))
 {
-  int tmp;
-
   this->OwnDisplay = 1;
-
-  sscanf(info, "%i", &tmp);
+  // int tmp;
+  // VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
-void vtkOSOpenGLRenderWindow::SetNextWindowInfo(const char* info)
+void vtkOSOpenGLRenderWindow::SetNextWindowInfo(const char* vtkNotUsed(info))
 {
-  int tmp;
-  sscanf(info, "%i", &tmp);
-
-  //   this->SetNextWindowId((Window)tmp);
+  // int tmp;
+  // VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
+  // this->SetNextWindowId((Window)tmp);
 }
 
 // Sets the X window id of the window that WILL BE created.
-void vtkOSOpenGLRenderWindow::SetParentInfo(const char* info)
+void vtkOSOpenGLRenderWindow::SetParentInfo(const char* vtkNotUsed(info))
 {
-  int tmp;
-
   // get the default display connection
   this->OwnDisplay = 1;
-
-  sscanf(info, "%i", &tmp);
-
-  //   this->SetParentId(tmp);
+  // int tmp;
+  // VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
+  // this->SetParentId(tmp);
 }
 
-void vtkOSOpenGLRenderWindow::SetWindowId(void* arg)
+void vtkOSOpenGLRenderWindow::SetWindowId(void* vtkNotUsed(arg))
 {
-  (void)arg;
   //   this->SetWindowId((Window)arg);
 }
-void vtkOSOpenGLRenderWindow::SetParentId(void* arg)
+void vtkOSOpenGLRenderWindow::SetParentId(void* vtkNotUsed(arg))
 {
-  (void)arg;
   //   this->SetParentId((Window)arg);
 }
 

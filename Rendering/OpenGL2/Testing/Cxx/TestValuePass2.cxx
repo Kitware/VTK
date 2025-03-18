@@ -21,6 +21,7 @@
 #include <vtkRenderer.h>
 #include <vtkSequencePass.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringScanner.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkValuePass.h>
 #include <vtkWindowToImageFilter.h>
@@ -100,11 +101,11 @@ int TestValuePass2(int argc, char* argv[])
     }
     if (!strcmp(argv[i], "N"))
     {
-      arrayIndex = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], arrayIndex, EXIT_FAILURE);
     }
     if (!strcmp(argv[i], "C"))
     {
-      arrayComponent = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], arrayComponent, EXIT_FAILURE);
     }
     if (!strcmp(argv[i], "-I"))
     {

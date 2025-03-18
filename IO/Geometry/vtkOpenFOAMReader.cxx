@@ -105,12 +105,6 @@
 #define VTK_OPENFOAM_OUTPUT_BUFFER_SIZE (4194304)
 #define VTK_OPENFOAM_INCLUDE_STACK_SIZE (10)
 
-#if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS 1
-// No strtoll on msvc:
-#define strtoll _strtoi64
-#endif
-
 #if VTK_FOAMFILE_OMIT_CRCCHECK
 #define ZLIB_INTERNAL
 #endif
@@ -145,13 +139,28 @@
   } while (false)
 #endif // VTK_FOAMFILE_DEBUG
 
+#define VTK_OPENFOAM_FROM_CHARS_RESULT_IF_ERROR_COMMAND(from_chars_result, string, value, command) \
+  switch (from_chars_result.ec)                                                                    \
+  {                                                                                                \
+    case std::errc::invalid_argument:                                                              \
+    {                                                                                              \
+      vtkLogF(ERROR, "The given argument was invalid, failed to get the converted " #value ".");   \
+      command;                                                                                     \
+    }                                                                                              \
+    case std::errc::result_out_of_range:                                                           \
+    {                                                                                              \
+      value = string[0] == '-' ? -std::numeric_limits<decltype(value)>::infinity()                 \
+                               : std::numeric_limits<decltype(value)>::infinity();                 \
+      break;                                                                                       \
+    }                                                                                              \
+    default:                                                                                       \
+    {                                                                                              \
+    }                                                                                              \
+  }
+
 //------------------------------------------------------------------------------
 
 #include "vtkOpenFOAMReader.h"
-
-#include "vtk_zlib.h"
-#include "vtksys/RegularExpression.hxx"
-#include "vtksys/SystemTools.hxx"
 
 #include "vtkAssume.h"
 #include "vtkCellArray.h"
@@ -182,13 +191,17 @@
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeInt8Array.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkValueFromString.h"
+
+#include "vtk_zlib.h"
+#include "vtksys/RegularExpression.hxx"
+#include "vtksys/SystemTools.hxx"
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
 #include <pwd.h> // For getpwnam(), getpwuid()
@@ -1673,11 +1686,11 @@ protected:
 
     if (auto inputBufferSize = vtksys::SystemTools::GetEnv("VTK_OPENFOAM_INPUT_BUFFER_SIZE"))
     {
-      this->InputBufferSize = std::atoi(inputBufferSize);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(inputBufferSize, this->InputBufferSize);
     }
     if (auto outputBufferSize = vtksys::SystemTools::GetEnv("VTK_OPENFOAM_OUTPUT_BUFFER_SIZE"))
     {
-      this->OutputBufferSize = std::atoi(outputBufferSize);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(outputBufferSize, this->OutputBufferSize);
     }
   }
 
@@ -2294,11 +2307,17 @@ public:
           buf[charI] = '\0';
           if (use64BitLabels)
           {
-            token = static_cast<vtkTypeInt64>(strtoll(buf, nullptr, 10));
+            vtkTypeInt64 val;
+            auto result = vtk::from_chars(buf, val);
+            VTK_OPENFOAM_FROM_CHARS_RESULT_IF_ERROR_COMMAND(result, buf, val, return false);
+            token = val;
           }
           else
           {
-            token = static_cast<vtkTypeInt32>(strtol(buf, nullptr, 10));
+            vtkTypeInt32 val;
+            auto result = vtk::from_chars(buf, val);
+            VTK_OPENFOAM_FROM_CHARS_RESULT_IF_ERROR_COMMAND(result, buf, val, return false);
+            token = val;
           }
           this->PutBack(c);
           return true;
@@ -2336,9 +2355,14 @@ public:
           this->PutBack(c);
           return true;
         }
-        buf[charI] = '\0';
-        token = strtod(buf, nullptr);
-        this->PutBack(c);
+        {
+          buf[charI] = '\0';
+          double val;
+          auto result = vtk::from_chars(buf, val);
+          VTK_OPENFOAM_FROM_CHARS_RESULT_IF_ERROR_COMMAND(result, buf, val, return false);
+          token = val;
+          this->PutBack(c);
+        }
         break;
       case ';':
       case '{':
@@ -2826,11 +2850,11 @@ double vtkFoamFile::ReadDoubleValue()
 
   // Convert the token string to a double using vtkValueFromString
   double value;
-  auto result = vtkValueFromString(buffer.data(), buffer.data() + size, value);
-  if (result != size)
+  auto result = vtk::from_chars(buffer.data(), buffer.data() + size, value);
+  if (result.ec != std::errc{})
   {
     // If conversion fails, handle the error appropriately.
-    this->ThrowUnexpectedNondigitException(*(buffer.data() + result));
+    this->ThrowUnexpectedNondigitException(*result.ptr);
   }
 
   return value;
@@ -6474,11 +6498,10 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByInstances()
     if (isNumber)
     {
       // Convert to a number
-      char* endptr = nullptr;
-      const double timeValue = std::strtod(timeName, &endptr);
-
+      double timeValue;
+      auto result = vtk::from_chars(timeName, timeValue);
       // Check for good parse of entire string, and filestat that it is a directory
-      if (timeName != endptr && *endptr == '\0' && dir->FileIsDirectory(timeName))
+      if (timeName != result.ptr && *(result.ptr) == '\0' && dir->FileIsDirectory(timeName))
       {
         this->TimeNames->InsertNextValue(timeName);
         this->TimeValues->InsertNextValue(timeValue);

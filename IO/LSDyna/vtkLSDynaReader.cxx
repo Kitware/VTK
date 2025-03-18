@@ -44,7 +44,6 @@
 #include "vtkDataObject.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
@@ -54,6 +53,7 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
@@ -3186,7 +3186,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
   std::string lineLowercase;
   std::string partName;
   int partMaterial;
-  int partId;
+  int partId = -1;
   int curPart = 0;
 
   while (
@@ -3221,7 +3221,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
           }
           else
           {
-            if (splits.empty() || sscanf(splits[0].c_str(), "%d", &partId) <= 0)
+            if (splits.empty() || vtk::from_chars(splits[0], partId).ec != std::errc{})
             {
               partId = -1;
             }
@@ -3238,7 +3238,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
             }
             else
             {
-              if (sscanf(splits[2].c_str(), "%d", &partMaterial) <= 0)
+              if (vtk::from_chars(splits[2], partMaterial).ec != std::errc{})
               {
                 partMaterial = -1;
               }
@@ -3288,7 +3288,7 @@ int vtkLSDynaReader::ReadInputDeckKeywords(istream& deck)
               continue;
             }
             paramName = line.substr(paramStart, paramEnd - paramStart);
-            if (sscanf(line.substr(paramEnd + 1).c_str(), "%d", &paramIntVal) <= 0)
+            if (vtk::from_chars(line.substr(paramEnd + 1), paramIntVal).ec != std::errc{})
             { // unable to read id
               continue;
             }

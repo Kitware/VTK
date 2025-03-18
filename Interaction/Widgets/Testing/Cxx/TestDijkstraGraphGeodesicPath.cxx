@@ -6,30 +6,28 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkContourWidget.h"
 #include "vtkDEMReader.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
-#include "vtkLODActor.h"
 #include "vtkLookupTable.h"
-#include "vtkPoints.h"
+#include "vtkOrientedGlyphContourRepresentation.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkPolygonalSurfaceContourLineInterpolator.h"
+#include "vtkPolygonalSurfacePointPlacer.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringScanner.h"
+#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
-
-#include "vtkContourWidget.h"
-#include "vtkOrientedGlyphContourRepresentation.h"
-#include "vtkPolygonalSurfaceContourLineInterpolator.h"
-#include "vtkPolygonalSurfacePointPlacer.h"
-#include "vtkTestUtilities.h"
 
 static char TestDijkstraGraphGeodesicPathLog[] = "# StreamVersion 1\n"
                                                  "EnterEvent 260 15 0 0 0 0 0 i\n"
@@ -191,7 +189,7 @@ int TestDijkstraGraphGeodesicPath(int argc, char* argv[])
   {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
     {
-      distanceOffset = atof(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], distanceOffset, EXIT_FAILURE);
       distanceOffsetSpecified = true;
     }
   }

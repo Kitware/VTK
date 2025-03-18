@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -679,7 +680,6 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
   int isXcoord;
   int isYcoord;
   int isZcoord;
-  float theValue;
   std::vector<float*> pointers;
   std::vector<vtkFloatArray*> zoneData;
 
@@ -732,7 +732,9 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
       // obtain a value that is either a coordinate or a selected attribute
       if (anyCoord[v] || selected[v])
       {
-        theValue = atof(this->Internal->GetNextToken().c_str());
+        float theValue;
+        VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), theValue, );
+
         pointers[zArrayId++][n] = theValue;
 
         // collect the coordinate
@@ -841,7 +843,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
       float* arrayPtr = static_cast<float*>(theArray->GetVoidPointer(0));
       for (int i = 0; i < arraySiz; i++)
       {
-        arrayPtr[i] = atof(this->Internal->GetNextToken().c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), arrayPtr[i], );
       }
       theArray = nullptr;
 
@@ -1111,7 +1113,9 @@ void vtkTecplotReader::GetPolyhedralGridCells(
   }
 
   std::vector<size_t> nodeCountPerFace;
-  nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
+  size_t count;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(tok, count, );
+  nodeCountPerFace.push_back(count);
 
   for (vtkIdType i = 1; i < numFaces; ++i)
   {
@@ -1120,7 +1124,8 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     {
       tok = this->Internal->GetNextToken();
     }
-    nodeCountPerFace.push_back(static_cast<size_t>(atoi(tok.c_str())));
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, count, );
+    nodeCountPerFace.push_back(count);
   }
 
   std::vector<std::vector<vtkIdType>> faces;
@@ -1137,7 +1142,8 @@ void vtkTecplotReader::GetPolyhedralGridCells(
       {
         tok = this->Internal->GetNextToken();
       }
-      auto aVertexIndex = static_cast<vtkIdType>(atoi(tok.c_str()));
+      vtkIdType aVertexIndex;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(tok, aVertexIndex, );
       face.push_back(aVertexIndex - 1); // convert from FORTRAN to C-indexing
     }
 
@@ -1153,7 +1159,8 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     {
       tok = this->Internal->GetNextToken();
     }
-    const auto rightCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    vtkIdType rightCell;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, rightCell, );
     if (rightCell > 0)
     {
       polyhedra[rightCell - 1].push_back(i);
@@ -1167,7 +1174,8 @@ void vtkTecplotReader::GetPolyhedralGridCells(
     {
       tok = this->Internal->GetNextToken();
     }
-    const auto leftCell = static_cast<vtkIdType>(atoi(tok.c_str()));
+    vtkIdType leftCell;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, leftCell, );
     if (leftCell > 0)
     {
       polyhedra[leftCell - 1].push_back(i);
@@ -1265,8 +1273,9 @@ void vtkTecplotReader::GetPolygonalGridCells(
       tok2 = this->Internal->GetNextToken();
     }
 
-    const auto e1 = static_cast<vtkIdType>(atoi(tok1.c_str()));
-    const auto e2 = static_cast<vtkIdType>(atoi(tok2.c_str()));
+    vtkIdType e1, e2;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok1, e1, );
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok2, e2, );
     edges.emplace_back(e1 - 1, e2 - 1); // convert from FORTRAN to C-indexing
   }
 
@@ -1280,7 +1289,8 @@ void vtkTecplotReader::GetPolygonalGridCells(
       tok = this->Internal->GetNextToken();
     }
 
-    const auto leftElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    vtkIdType leftElement;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, leftElement, );
     if (leftElement > 0)
     {
       faceEdges[leftElement - 1].push_back(i);
@@ -1295,7 +1305,8 @@ void vtkTecplotReader::GetPolygonalGridCells(
       tok = this->Internal->GetNextToken();
     }
 
-    const auto rightElement = static_cast<vtkIdType>(atoi(tok.c_str()));
+    vtkIdType rightElement;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, rightElement, );
     if (rightElement > 0)
     {
       faceEdges[rightElement - 1].push_back(i);
@@ -1384,10 +1395,21 @@ void vtkTecplotReader::GetUnstructuredGridCells(
     *cellInforPtr++ = numCellPnts;
 
     // 1-origin connectivity array
-    for (int j = 0; j < numCellPnts; j++)
+    if (theCellType == VTK_VERTEX)
     {
-      *cellInforPtr++ =
-        (theCellType == VTK_VERTEX ? c : atoi(this->Internal->GetNextToken().c_str()) - 1);
+      for (int j = 0; j < numCellPnts; j++)
+      {
+        *cellInforPtr++ = c;
+      }
+    }
+    else
+    {
+      vtkIdType pointId;
+      for (int j = 0; j < numCellPnts; j++)
+      {
+        VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), pointId, );
+        *cellInforPtr++ = pointId - 1; // convert from FORTRAN to C-indexing
+      }
     }
   }
   cellInforPtr = nullptr;
@@ -1817,7 +1839,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
 
       tok = this->Internal->GetNextToken();
       // instead of looking for known keywords, read the zone header until the first numeric token
-      while (!(tok.front() == '-') && !(tok.front() == '.') && !isdigit(tok.front()))
+      while (tok.front() != '-' && tok.front() != '.' && !isdigit(tok.front()))
       {
         if (tok == "T")
         {
@@ -1831,23 +1853,23 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         }
         else if (tok == "I")
         {
-          numI = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numI, );
         }
         else if (tok == "J")
         {
-          numJ = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numJ, );
         }
         else if (tok == "K")
         {
-          numK = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numK, );
         }
         else if (tok == "N" || tok == "NODES")
         {
-          numNodes = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numNodes, );
         }
         else if (tok == "E" || tok == "ELEMENTS")
         {
-          numElements = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numElements, );
         }
         else if (tok == "ET")
         {
@@ -1909,8 +1931,10 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
                 std::vector<std::string> var_range;
                 vtksys::SystemTools::Split(var_format_type, var_range, '-');
 
-                int cell_start = atoi(var_range[0].c_str()) - 1;
-                int cell_end = atoi(var_range[1].c_str());
+                int cell_start, cell_end;
+                VTK_FROM_CHARS_IF_ERROR_RETURN(var_range[0], cell_start, );
+                --cell_start; // convert from FORTRAN to C-indexing
+                VTK_FROM_CHARS_IF_ERROR_RETURN(var_range[1], cell_end, );
                 for (int i = cell_start; i != cell_end; ++i)
                 {
                   this->CellBased[i] = 1;
@@ -1918,7 +1942,9 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
               }
               else
               {
-                int index = atoi(var_format_type.c_str()) - 1;
+                int index;
+                VTK_FROM_CHARS_IF_ERROR_RETURN(var_format_type, index, );
+                --index; // convert from FORTRAN to C-indexing
                 this->CellBased[index] = 1;
               }
 
@@ -1977,7 +2003,7 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         }
         else if (tok == "FACES")
         {
-          numFaces = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), numFaces, );
         }
         else if (tok == "TOTALNUMFACENODES")
         {
@@ -1986,7 +2012,8 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         }
         else if (tok == "NUMCONNECTEDBOUNDARYFACES")
         {
-          numConnectedBoundaryFaces = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(
+            this->Internal->GetNextToken(), numConnectedBoundaryFaces, );
           if (0 != numConnectedBoundaryFaces)
           {
             vtkWarningMacro(<< "Non-zero number of connected boundary faces is not supported.");
@@ -1994,7 +2021,8 @@ void vtkTecplotReader::ReadFile(vtkMultiBlockDataSet* multZone)
         }
         else if (tok == "TOTALNUMBOUNDARYCONNECTIONS")
         {
-          totalNumBoundaryConnections = atoi(this->Internal->GetNextToken().c_str());
+          VTK_FROM_CHARS_IF_ERROR_RETURN(
+            this->Internal->GetNextToken(), totalNumBoundaryConnections, );
           if (0 != totalNumBoundaryConnections)
           {
             vtkWarningMacro(<< "Non-zero number of total #boundary faces is not supported.");

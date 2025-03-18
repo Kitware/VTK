@@ -41,12 +41,14 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
       }
       if (ii < ac-1 && strcmp(av[ii], \"-E\") == 0)
       {
-        vtkTestingInteractor::ErrorThreshold = atof(av[++ii]);
+        VTK_FROM_CHARS_IF_ERROR_RETURN(av[++ii], vtkTestingInteractor::ErrorThreshold, EXIT_FAILURE);
         continue;
       }
       if (ii < ac-1 && strcmp(av[ii], \"-v\") == 0)
       {
-        vtkLogger::SetStderrVerbosity(static_cast<vtkLogger::Verbosity>(atoi(av[++ii])));
+        int verbosity = 0;
+        VTK_FROM_CHARS_IF_ERROR_RETURN(av[++ii], verbosity, EXIT_FAILURE);
+        vtkLogger::SetStderrVerbosity(static_cast<vtkLogger::Verbosity>(verbosity));
         continue;
       }
     }

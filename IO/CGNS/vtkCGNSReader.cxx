@@ -36,15 +36,20 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPolyhedron.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
+
+#include <vtksys/RegularExpression.hxx>
+#include <vtksys/SystemTools.hxx>
+
+#include "cgio_helpers.h"
 
 #include <algorithm>
 #include <cmath>
@@ -57,11 +62,6 @@
 #include <stdexcept>
 #include <string.h>
 #include <vector>
-
-#include <vtksys/RegularExpression.hxx>
-#include <vtksys/SystemTools.hxx>
-
-#include "cgio_helpers.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkInformationKeyMacro(vtkCGNSReader, FAMILY, String);
@@ -870,7 +870,9 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
       {
         if (stepRe.find(solutionNames[cc]))
         {
-          stepNumbers.insert(atoi(stepRe.match(1).c_str()));
+          int stepNumber;
+          VTK_FROM_CHARS_IF_ERROR_BREAK(stepRe.match(1), stepNumber);
+          stepNumbers.insert(stepNumber);
         }
       }
     }
@@ -894,12 +896,17 @@ int vtkCGNSReader::vtkPrivate::getGridAndSolutionNames(int base, std::string& gr
       {
         if (!stepNumbers.empty())
         {
-          if (stepRe.find(nodeName) &&
-            stepNumbers.find(atoi(stepRe.match(1).c_str())) != stepNumbers.end())
+
+          if (stepRe.find(nodeName))
           {
-            // the current nodeName ends with a number that matches the current timestep
-            // or timestep indicated at end of an existing nodeName.
-            solutionNames.emplace_back(nodeName);
+            int stepNumber;
+            VTK_FROM_CHARS_IF_ERROR_BREAK(stepRe.match(1), stepNumber);
+            if (stepNumbers.find(stepNumber) != stepNumbers.end())
+            {
+              // the current nodeName ends with a number that matches the current timestep
+              // or timestep indicated at end of an existing nodeName.
+              solutionNames.emplace_back(nodeName);
+            }
           }
         }
         else
@@ -4949,7 +4956,8 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
           if (colonPos == std::string::npos)
             continue;
 
-          int zoneIdx = std::stoi(zoneData.substr(0, colonPos));
+          int zoneIdx;
+          VTK_FROM_CHARS_IF_ERROR_RETURN(zoneData.substr(0, colonPos), zoneIdx, );
           std::string surfacesStr = zoneData.substr(colonPos + 1);
 
           std::stringstream surfStream(surfacesStr);

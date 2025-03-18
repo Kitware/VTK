@@ -69,6 +69,7 @@
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -190,18 +191,18 @@ vtkSmartPointer<vtkIntArray> ScanForProcessorDirs(vtkDirectory* dir)
     {
       // processor<digits>
       const char* nptr = (subdir + 9);
-      char* endptr = nullptr;
 
       errno = 0;
-      long parsed = std::strtol(nptr, &endptr, 10);
-      if (errno || nptr == endptr)
+      long parsed;
+      auto result = vtk::from_chars(nptr, parsed);
+      if (errno || nptr == result.ptr)
       {
         continue; // bad parse
       }
       const auto procId = static_cast<int>(parsed);
 
       // Require end of string
-      if (*endptr == '\0')
+      if (*(result.ptr) == '\0')
       {
         uncollated->InsertNextValue(procId);
       }
@@ -210,19 +211,19 @@ vtkSmartPointer<vtkIntArray> ScanForProcessorDirs(vtkDirectory* dir)
     {
       // processors<digits> or processors<digits>_<digits>-<digits>
       const char* nptr = (subdir + 10);
-      char* endptr = nullptr;
 
       // 1. numProcs
       errno = 0;
-      long parsed = std::strtol(nptr, &endptr, 10);
-      if (errno || nptr == endptr)
+      long parsed;
+      auto result = vtk::from_chars(nptr, parsed);
+      if (errno || nptr == result.ptr)
       {
         continue; // bad parse
       }
       const auto nProcs = static_cast<int>(parsed);
 
       // End of string? Then no range and we are done.
-      if (*endptr == '\0')
+      if (*(result.ptr) == '\0')
       {
         procTuple[0] = nProcs;
         procTuple[1] = 0;
@@ -234,32 +235,32 @@ vtkSmartPointer<vtkIntArray> ScanForProcessorDirs(vtkDirectory* dir)
       }
 
       // Parse point at start of range ('_' character)?
-      if (*endptr != '_')
+      if (*(result.ptr) != '_')
       {
         continue;
       }
-      nptr = ++endptr;
+      nptr = ++result.ptr;
 
       // 2. firstProc
       errno = 0;
-      parsed = std::strtol(nptr, &endptr, 10);
-      if (errno || nptr == endptr)
+      result = vtk::from_chars(nptr, parsed);
+      if (errno || nptr == result.ptr)
       {
         continue; // bad parse
       }
       const auto firstProc = static_cast<int>(parsed);
 
       // Parse point at range separator ('-' character)?
-      if (*endptr != '-')
+      if (*(result.ptr) != '-')
       {
         continue;
       }
-      nptr = ++endptr;
+      nptr = ++result.ptr;
 
       // 3. lastProc
       errno = 0;
-      parsed = std::strtol(nptr, &endptr, 10);
-      if (errno || nptr == endptr)
+      result = vtk::from_chars(nptr, parsed);
+      if (errno || nptr == result.ptr)
       {
         continue; // bad parse
       }
@@ -267,7 +268,7 @@ vtkSmartPointer<vtkIntArray> ScanForProcessorDirs(vtkDirectory* dir)
 
       if (
         // Parse point at end of string
-        (*endptr == '\0')
+        (*(result.ptr) == '\0')
         // Input plausibility - accept nProcs == 0 in case that becomes useful in the future
         && (nProcs >= 0 && firstProc >= 0 && firstProc <= lastProc))
       {

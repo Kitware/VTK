@@ -13,7 +13,9 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
+
 #include "vtksys/FStream.hxx"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -151,21 +153,20 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Determine the number of points to be read in which should be
   // a single int at the top of the file
-  const unsigned int bufferSize = 2048;
   std::string buffer;
-  char junk[bufferSize];
-  vtkTypeInt32 numPts = -1, tempNumPts;
+  vtkTypeInt32 numPts = -1;
   for (numPts = -1; !file.eof();)
   {
     getline(file, buffer);
-    // Scanf should match the integer part but not the string
-    int numArgs = sscanf(buffer.c_str(), "%d%s", &tempNumPts, junk);
-    if (numArgs == 1)
+    // scan should match the integer part but not the string
+    auto resultInt = vtk::scan_int<int>(buffer);
+    auto resultStr = vtk::scan_value<std::string_view>(resultInt->range());
+    if (resultInt && !resultStr)
     {
-      numPts = tempNumPts;
+      numPts = resultInt->value();
       break;
     }
-    if (numArgs != -1)
+    if (resultInt || resultStr)
     {
       // We have a file that doesn't have a number of points line
       // Instead we need to count the number of lines in the file
@@ -188,10 +189,10 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  // Next determine the format the point info. Is it x y z,
-  // x y z intensity or
-  // or x y z intensity r g b?
-  int numValuesPerLine;
+  // Next determine the format the point info. Which of the above is it?
+  // 1) x y z,
+  // 2) x y z intensity
+  // 3) x y z intensity r g b
   double irgb[4], pt[3];
 
   if (numPts == -1)
@@ -199,24 +200,32 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro(<< "Could not process file " << this->FileName << " - Unknown Format");
     return 0;
   }
-  else if (numPts == 0)
+  if (numPts == 0)
   {
     // Trivial case of no points - lets set it to 3
     vtkErrorMacro(<< "Could not process file " << this->FileName << " - No points specified");
     return 0;
   }
-  else
+  getline(file, buffer);
+  auto resultPoint = vtk::scan<double, double, double>(buffer, "{:f} {:f} {:f}");
+  auto resultIntensity = vtk::scan_value<double>(resultPoint->range());
+  auto resultColor = vtk::scan<double, double, double>(resultIntensity->range(), "{:f} {:f} {:f}");
+  if (resultPoint)
   {
-    getline(file, buffer);
-    numValuesPerLine = sscanf(buffer.c_str(), "%lf %lf %lf %lf %lf %lf %lf", pt, pt + 1, pt + 2,
-      irgb, irgb + 1, irgb + 2, irgb + 3);
+    std::tie(pt[0], pt[1], pt[2]) = resultPoint->values();
+    if (resultIntensity)
+    {
+      irgb[0] = resultIntensity->value();
+      if (resultColor)
+      {
+        std::tie(irgb[1], irgb[2], irgb[3]) = resultColor->values();
+      }
+    }
   }
-  if (!((numValuesPerLine == 3) || (numValuesPerLine == 4) || (numValuesPerLine == 6) ||
-        (numValuesPerLine == 7)))
+  if (!resultPoint)
   {
     // Unsupported line format!
-    vtkErrorMacro(<< "Invalid Pts Format (point info has " << numValuesPerLine
-                  << ") in the file:" << this->FileName);
+    vtkErrorMacro(<< "Invalid Pts Format in the file:" << this->FileName);
     return 0;
   }
 
@@ -258,8 +267,8 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetVerts(newVerts);
   }
 
-  bool wantIntensities = ((numValuesPerLine == 4) || (numValuesPerLine == 7));
-  if (numValuesPerLine > 4)
+  bool wantIntensities = (resultIntensity || resultColor);
+  if (resultColor)
   {
     colors->SetNumberOfComponents(3);
     colors->SetName("Color");
@@ -312,6 +321,8 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     pids = new vtkIdType[targetNumPts];
   }
+  const bool hasOnlyPoint = resultPoint && !resultIntensity && !resultColor;
+  const bool hasOnlyPointAndIntensity = resultPoint && resultIntensity && !resultColor;
   long lastCount = 0;
   for (long i = 0; i < numPts; i++)
   {
@@ -321,8 +332,25 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (floor(i * onRatio) > lastCount)
     {
       lastCount++;
-      sscanf(buffer.c_str(), "%lf %lf %lf %lf %lf %lf %lf", pt, pt + 1, pt + 2, irgb, irgb + 1,
-        irgb + 2, irgb + 3);
+      if (hasOnlyPoint)
+      {
+        auto resultPointI = vtk::scan<double, double, double>(buffer, "{:f} {:f} {:f}");
+        std::tie(pt[0], pt[1], pt[2]) = resultPointI->values();
+      }
+      else if (hasOnlyPointAndIntensity)
+      {
+        auto resultPointAndIntensityI =
+          vtk::scan<double, double, double, double>(buffer, "{:f} {:f} {:f} {:f}");
+        std::tie(pt[0], pt[1], pt[2], irgb[0]) = resultPointAndIntensityI->values();
+      }
+      else
+      {
+        auto resultPointAndIntensityAndColorI =
+          vtk::scan<double, double, double, double, double, double, double>(
+            buffer, "{:f} {:f} {:f} {:f} {:f} {:f} {:f}");
+        std::tie(pt[0], pt[1], pt[2], irgb[0], irgb[1], irgb[2], irgb[3]) =
+          resultPointAndIntensityAndColorI->values();
+      }
       // OK to process based on bounding box
       if ((!this->LimitReadToBounds) || this->ReadBBox.ContainsPoint(pt))
       {
@@ -336,7 +364,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           intensities->InsertNextValue(irgb[0]);
         }
-        if (numValuesPerLine > 4)
+        if (resultColor)
         {
           // if we have intensity then the color info starts with the second value in the array
           // else it starts with the first
@@ -374,7 +402,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     {
       intensities->Squeeze();
     }
-    if (numValuesPerLine > 4)
+    if (resultColor)
     {
       colors->Squeeze();
     }

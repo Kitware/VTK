@@ -18,13 +18,14 @@
 #include "vtkRenderer.h"
 #include "vtkScalarBarActor.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTextProperty.h"
 
-#include <stdlib.h> // for atof
+#include <cstdlib>
 
 struct vtkScalarBarTestCondition
 {
@@ -85,7 +86,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   {
     if ((cc < argc - 1) && (argv[cc][0] == '-') && (argv[cc][1] == 'E'))
     {
-      threshold = atof(argv[++cc]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++cc], threshold, EXIT_FAILURE);
       continue;
     }
     t->AddArgument(argv[cc]);

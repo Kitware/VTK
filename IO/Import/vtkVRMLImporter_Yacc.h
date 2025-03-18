@@ -14,6 +14,7 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkPoints.h"
+#include "vtkStringScanner.h"
 #include "vtkVRML.h"
 #include "vtkVRMLImporter.h"
 
@@ -4168,9 +4169,6 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
   char *yy_cp, *yy_bp;
   int yy_act;
 
-
-
-
   /* Switch into a new start state if the parser */
   /* just told us that we've read a field name */
   /* and should expect a field value (or IS) */
@@ -4417,14 +4415,14 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
       case 23:
         YY_USER_ACTION
         { BEGIN NODE; expectToken = 0;
-          yylval.sfint = atoi(yytext);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(yytext, yylval.sfint);
           return SFINT32;
         }
       case 24:
         YY_USER_ACTION
         { if (parsing_mf) {
           int num;
-          num = atoi(yytext);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(yytext, num);
           yylval.mfint32->InsertNextValue(num);
           }
           else {
@@ -4435,9 +4433,8 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           /* All the floating-point types are pretty similar: */
           case 25:
             YY_USER_ACTION
-          { BEGIN NODE; expectToken = 0; float num;
-          sscanf(yytext, "%f", &num);
-          yylval.sffloat = num;
+          { BEGIN NODE; expectToken = 0;
+          yylval.sffloat = vtk::scan_value<float>(std::string_view(yytext))->value();
           return SFFLOAT; }
       case 26:
         YY_USER_ACTION
@@ -4458,8 +4455,8 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         {
           // .. add to array...
           float num[2];
-          num[0] = atof(strtok(yytext, " \t"));
-          num[1] = atof(strtok(nullptr, " \t"));
+          num[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+          num[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
           // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
           yylval.vec2f->InsertNextTuple(num);
         }
@@ -4475,9 +4472,9 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           {   BEGIN NODE; expectToken = 0;
           float num[3];
           yylval.vec3f = self->PointsNew();
-          num[0] = atof(strtok(yytext, " \t"));
-          num[1] = atof(strtok(nullptr, " \t"));
-          num[2] = atof(strtok(nullptr, " \t"));
+          num[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+          num[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+          num[2] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFVEC3F; }
@@ -4485,9 +4482,9 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
-          num[0] = atof(strtok(yytext, " \t"));
-          num[1] = atof(strtok(nullptr, " \t"));
-          num[2] = atof(strtok(nullptr, " \t"));
+          num[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+          num[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+          num[2] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertNextPoint(num);
           //return MFVEC3F;
@@ -4501,10 +4498,10 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
       case 31:
             YY_USER_ACTION
           { BEGIN NODE; expectToken = 0;
-            yylval.vec4f[0] = atof(strtok(yytext, " \t"));
-            yylval.vec4f[1] = atof(strtok(nullptr, " \t"));
-            yylval.vec4f[2] = atof(strtok(nullptr, " \t"));
-            yylval.vec4f[3] = atof(strtok(nullptr, " \t"));
+            yylval.vec4f[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+            yylval.vec4f[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+            yylval.vec4f[2] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+            yylval.vec4f[3] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
             return SFROTATION; }
       case 32:
         YY_USER_ACTION
@@ -4519,9 +4516,9 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           { BEGIN NODE; expectToken = 0;
           float num[3];
           yylval.vec3f = self->PointsNew();
-          num[0] = atof(strtok(yytext, " \t"));
-          num[1] = atof(strtok(nullptr, " \t"));
-          num[2] = atof(strtok(nullptr, " \t"));
+          num[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+          num[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+          num[2] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFCOLOR; }
@@ -4529,9 +4526,9 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         YY_USER_ACTION
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
-          num[0] = atof(strtok(yytext, " \t"));
-          num[1] = atof(strtok(nullptr, " \t"));
-          num[2] = atof(strtok(nullptr, " \t"));
+          num[0] = vtk::scan_value<float>(std::string_view(strtok(yytext, " \t")))->value();
+          num[1] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
+          num[2] = vtk::scan_value<float>(std::string_view(strtok(nullptr, " \t")))->value();
           yylval.vec3f->InsertNextPoint(num);
           }
           else {
@@ -4592,7 +4589,8 @@ inline int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
       case 44:
             YY_USER_ACTION
             { int w, h;
-          sscanf(yytext, "%d %d", &w, &h);
+          auto result = vtk::scan<int, int>(std::string_view(yytext), "{:d} {:d}");
+          std::tie(w, h) = result->values();
           sfImageIntsExpected = 1+w*h;
           sfImageIntsParsed = 0;
           BEGIN IN_SFIMG;

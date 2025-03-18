@@ -12,6 +12,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringScanner.h"
 
 int TestPointRendering(int argc, char* argv[])
 {
@@ -21,7 +22,7 @@ int TestPointRendering(int argc, char* argv[])
   {
     if (std::string(argv[i]) == "--point-size")
     {
-      pointSize = std::atof(argv[++i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++i], pointSize, EXIT_FAILURE);
     }
     if (std::string(argv[i]) == "--round")
     {

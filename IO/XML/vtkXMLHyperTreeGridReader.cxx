@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <limits>
 #include <numeric>
+#include <vtkStringScanner.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHyperTreeGridReader);
@@ -618,7 +619,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_0(vtkXMLDataElement* elem)
         const char* eNC = eNested->GetAttribute("NumberOfComponents");
         if (eNC)
         {
-          numberOfComponents = atoi(eNC);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(eNC, numberOfComponents);
         }
 
         // Create the output CellData array when processing first tree
@@ -816,7 +817,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
         const char* eNC = eNested->GetAttribute("NumberOfComponents");
         if (eNC)
         {
-          numberOfComponents = atoi(eNC);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(eNC, numberOfComponents);
         }
 
         // Create the output CellData array when processing first tree
@@ -959,10 +960,10 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
     {
       arrayElements.emplace_back(cellDataElement->GetNestedElement(id));
       int numberOfComponents = 1;
-      const char* numberOfComponentsChar = arrayElements.back()->GetAttribute("NumberOfComponents");
-      if (numberOfComponentsChar)
+      const char* eNC = arrayElements.back()->GetAttribute("NumberOfComponents");
+      if (eNC)
       {
-        numberOfComponents = atoi(numberOfComponentsChar);
+        VTK_FROM_CHARS_IF_ERROR_BREAK(eNC, numberOfComponents);
       }
 
       arrays.emplace_back(

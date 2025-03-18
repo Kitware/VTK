@@ -15,7 +15,9 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
@@ -207,7 +209,7 @@ void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid* output)
 //------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
 {
-  int bcs, f, itype, nentry, nvalues;
+  int bcs, f;
   int isUsable = 0;
   int node, elt, eltype, facenumber;
   char c, buf[128];
@@ -228,7 +230,9 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
     this->FileStream->get(c);
     this->FileStream->get(buf, 128, '\n');
     this->FileStream->get(c);
-    sscanf(&buf[32], "%10d%10d%10d", &itype, &nentry, &nvalues);
+
+    auto result = vtk::scan<int, int, int>(std::string_view(buf + 32), "{:d}{:d}{:d}");
+    auto& [itype, nentry, nvalues] = result->values();
     vtkDebugMacro(<< "\nitype " << itype << "\tnentry " << nentry << "\tnvalues " << nvalues);
     // I have no example o how nvalues is used....So no implementation.
     if (itype == 0) // nodes
@@ -287,7 +291,7 @@ void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid* output)
 //------------------------------------------------------------------------------
 void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
 {
-  int grp, f, flag, id, nbelts, elt, mat, nbflags;
+  int grp, f, flag, elt;
   char c, buf[128];
 
   vtkIntArray* materials = vtkIntArray::New();
@@ -301,9 +305,9 @@ void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid* output)
     this->FileStream->get(c);
     this->FileStream->get(buf, 128, '\n');
     this->FileStream->get(c);
-    sscanf(
-      buf, "GROUP:%10d ELEMENTS: %10d MATERIAL: %10d NFLAGS:%10d", &id, &nbelts, &mat, &nbflags);
-
+    auto result = vtk::scan<int, int, int, int>(
+      std::string_view(buf), "GROUP:{:d} ELEMENTS: {:d} MATERIAL: {:d} NFLAGS:{:d}");
+    auto& [id, nbelts, mat, nbflags] = result->values();
     vtkDebugMacro(<< "\nid " << id << "\tnbelts " << nbelts << "\tmat " << mat << "\tnbflags "
                   << nbflags);
 

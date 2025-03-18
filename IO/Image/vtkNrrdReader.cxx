@@ -9,7 +9,12 @@
 #include "vtkImageData.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
+
+#include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
 
 // Header for zlib
 #include "vtk_zlib.h"
@@ -24,20 +29,13 @@
 #endif
 
 #include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <cstring>
 #include <istream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <vtksys/FStream.hxx>
-#include <vtksys/SystemTools.hxx>
-
-#include <cctype>
-#include <cmath>
-#include <cstring>
-
-#include "vtkSmartPointer.h"
-
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //=============================================================================
 VTK_ABI_NAMESPACE_BEGIN
@@ -87,7 +85,7 @@ static void GetVector(std::string& s, std::vector<int>& dest)
   {
     if (i < strlist.size())
     {
-      dest[i] = atoi(strlist[i].c_str());
+      dest[i] = vtk::scan_int<int>(strlist[i])->value();
     }
     else
     {
@@ -104,7 +102,7 @@ static void GetVector(std::string& s, std::vector<double>& dest)
   {
     if (i < strlist.size())
     {
-      dest[i] = atof(strlist[i].c_str());
+      dest[i] = vtk::scan_value<double>(strlist[i])->value();
     }
     else
     {
@@ -126,7 +124,7 @@ static std::vector<double> ParseVector(std::string s)
   {
     size_t i = s.find(',');
     std::string value = s.substr(0, i);
-    result.push_back(atof(value.c_str()));
+    result.push_back(vtk::scan_value<double>(value)->value());
     if (i == std::string::npos)
       break;
     s = s.substr(i + 1);
@@ -309,7 +307,7 @@ int vtkNrrdReader::ReadHeaderInternal(vtkCharArray* headerBuffer)
 //------------------------------------------------------------------------------
 int vtkNrrdReader::ReadHeader()
 {
-  VTK_CREATE(vtkCharArray, headerBuffer);
+  vtkNew<vtkCharArray> headerBuffer;
 
   if (!this->ReadHeaderInternal(headerBuffer))
   {
@@ -363,7 +361,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
       std::string description = trim(line.substr(delm + 2));
       if (field == "dimension")
       {
-        numDimensions = atoi(description.c_str());
+        numDimensions = vtk::scan_int<int>(description)->value();
       }
       else if (field == "sizes")
       {
@@ -409,7 +407,8 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
         {
           // After LIST there is an optional subdimension (see next case below).
           subDimension =
-            ((filepatterninfo.size() > 1) ? atoi(filepatterninfo[1].c_str()) : numDimensions);
+            ((filepatterninfo.size() > 1) ? vtk::scan_int<int>(filepatterninfo[1])->value()
+                                          : numDimensions);
 
           // In this mode files are listed one per line to the end of the file.
           while (true)
@@ -429,11 +428,15 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
           // <max>, and <step> form the numbers.  <subdim> defines on which
           // dimension the files are split up.
           const std::string& format = filepatterninfo[0];
-          int min = atoi(filepatterninfo[1].c_str());
-          int max = atoi(filepatterninfo[2].c_str());
-          int step = atoi(filepatterninfo[3].c_str());
-          subDimension =
-            ((filepatterninfo.size() > 4) ? atoi(filepatterninfo[4].c_str()) : numDimensions);
+          int min, max, step;
+          VTK_FROM_CHARS_IF_ERROR_RETURN(filepatterninfo[1], min, 0);
+          VTK_FROM_CHARS_IF_ERROR_RETURN(filepatterninfo[2], max, 0);
+          VTK_FROM_CHARS_IF_ERROR_RETURN(filepatterninfo[3], step, 0);
+          subDimension = numDimensions;
+          if (filepatterninfo.size() > 4)
+          {
+            VTK_FROM_CHARS_IF_ERROR_RETURN(filepatterninfo[4], subDimension, 0);
+          }
           size_t filenamelen = format.size() + 20;
           char* filename = new char[filenamelen];
           for (int i = min; i <= max; i += step)
@@ -474,7 +477,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
       }
       else if (field == "space dimension")
       {
-        numDimensions = atoi(description.c_str());
+        numDimensions = vtk::scan_int<int>(description)->value();
       }
       else if (field == "space origin")
       {
@@ -531,7 +534,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
       }
       else if ((field == "line skip") || (field == "lineskip"))
       {
-        if (atoi(description.c_str()) != 0)
+        if (vtk::scan_int<long>(description)->value() != 0L)
         {
           vtkErrorMacro(<< "line skip not supported");
           return 0;
@@ -539,7 +542,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
       }
       else if ((field == "byte skip") || (field == "byteskip"))
       {
-        if (atoi(description.c_str()) != 0)
+        if (vtk::scan_int<long>(description)->value() != 0L)
         {
           vtkErrorMacro(<< "byte skip not supported");
           return 0;

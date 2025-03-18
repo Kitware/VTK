@@ -3,24 +3,23 @@
 
 #include "vtkProStarReader.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
+
 #include <vtksys/SystemTools.hxx>
 
-#include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkIntArray.h"
-#include "vtkPoints.h"
-
-#include <cctype>
 #include <cstring>
 #include <map>
 #include <sstream>
 #include <string>
-#include <utility>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -144,13 +143,14 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid* output, idMapping& mapPo
     return false;
   }
 
-  const int MAX_LINE = 1024;
+  constexpr int MAX_LINE = 1024;
   char rawLine[MAX_LINE];
 
-  int lineLabel, errorCount = 0;
+  int errorCount = 0;
+  vtk::scan_result_type<std::string_view, int> resultLabel;
   if (fgets(rawLine, MAX_LINE, in) != nullptr && strncmp(rawLine, "PROSTAR_VERTEX", 14) == 0 &&
-    fgets(rawLine, MAX_LINE, in) != nullptr && sscanf(rawLine, "%d", &lineLabel) == 1 &&
-    lineLabel >= 4000)
+    fgets(rawLine, MAX_LINE, in) != nullptr &&
+    ((resultLabel = vtk::scan_int<int>(std::string_view(rawLine)))) && resultLabel->value() >= 4000)
   {
     vtkDebugMacro(<< "Got PROSTAR_VERTEX header");
   }
@@ -159,6 +159,7 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid* output, idMapping& mapPo
     vtkErrorMacro(<< "Error reading header for PROSTAR_VERTEX file");
     ++errorCount;
   }
+  int lineLabel = resultLabel->value();
 
   vtkPoints* points = vtkPoints::New();
   // don't know the number of points a priori -- just pick some number
@@ -171,8 +172,11 @@ bool vtkProStarReader::ReadVrtFile(vtkUnstructuredGrid* output, idMapping& mapPo
   while (!errorCount && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     ++lineNr;
-    if (sscanf(rawLine, "%d %f %f %f", &lineLabel, xyz, xyz + 1, xyz + 2) == 4)
+    auto result =
+      vtk::scan<int, float, float, float>(std::string_view(rawLine), "{:d} {:f} {:f} {:f}");
+    if (result)
     {
+      std::tie(lineLabel, xyz[0], xyz[1], xyz[2]) = result->values();
       xyz[0] *= this->ScaleFactor;
       xyz[1] *= this->ScaleFactor;
       xyz[2] *= this->ScaleFactor;
@@ -245,13 +249,14 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
     return false;
   }
 
-  const int MAX_LINE = 1024;
+  constexpr int MAX_LINE = 1024;
   char rawLine[MAX_LINE];
 
-  int lineLabel, errorCount = 0;
+  int errorCount = 0;
+  vtk::scan_result_type<std::string_view, int> resultLabel;
   if (fgets(rawLine, MAX_LINE, in) != nullptr && strncmp(rawLine, "PROSTAR_CELL", 12) == 0 &&
-    fgets(rawLine, MAX_LINE, in) != nullptr && sscanf(rawLine, "%d", &lineLabel) == 1 &&
-    lineLabel >= 4000)
+    fgets(rawLine, MAX_LINE, in) != nullptr &&
+    ((resultLabel = vtk::scan_int<int>(std::string_view(rawLine)))) && resultLabel->value() >= 4000)
   {
     vtkDebugMacro(<< "Got PROSTAR_CELL header");
   }
@@ -260,6 +265,7 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
     vtkErrorMacro(<< "Error reading header for PROSTAR_CELL file");
     ++errorCount;
   }
+  int lineLabel = resultLabel->value();
 
   // don't know the number of cells a priori -- just pick some number
   output->Allocate(10000, 20000);
@@ -285,8 +291,11 @@ bool vtkProStarReader::ReadCelFile(vtkUnstructuredGrid* output, const idMapping&
   while (!errorCount && fgets(rawLine, MAX_LINE, in) != nullptr)
   {
     ++lineNr;
-    if (sscanf(rawLine, "%d %d %d %d %d", &lineLabel, &shapeId, &nLabels, &tableId, &typeId) == 5)
+    auto result =
+      vtk::scan<int, int, int, int, int>(std::string_view(rawLine), "{:d} {:d} {:d} {:d} {:d}");
+    if (result)
     {
+      std::tie(lineLabel, shapeId, nLabels, tableId, typeId) = result->values();
       starLabels.clear();
       starLabels.reserve(nLabels);
 

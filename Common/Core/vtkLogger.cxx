@@ -3,6 +3,7 @@
 #include "vtkLogger.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #if VTK_MODULE_ENABLE_VTK_loguru
 #include <vtk_loguru.h>
@@ -475,11 +476,11 @@ vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(int value)
 //------------------------------------------------------------------------------
 vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
 {
-  if (text != nullptr)
+  if (text != nullptr && *text)
   {
-    char* end = nullptr;
-    const int ivalue = static_cast<int>(std::strtol(text, &end, 10));
-    if (end != text && *end == '\0')
+    int ivalue;
+    auto result = vtk::from_chars(text, ivalue);
+    if (!*result.ptr)
     {
       return vtkLogger::ConvertToVerbosity(ivalue);
     }

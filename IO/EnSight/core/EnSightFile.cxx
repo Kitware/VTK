@@ -3,6 +3,8 @@
 
 #include "EnSightFile.h"
 
+#include "vtkStringScanner.h"
+
 #include <cctype> // for std::tolower
 #include <regex>
 
@@ -37,43 +39,37 @@ bool stringTo(const std::string& input, std::string& output)
 template <>
 bool stringTo(const std::string& input, int& output)
 {
-  try
-  {
-    output = std::stoi(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_int<int>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 template <>
 bool stringTo(const std::string& input, float& output)
 {
-  try
-  {
-    output = std::stof(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_value<float>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 template <>
 bool stringTo(const std::string& input, double& output)
 {
-  try
-  {
-    output = std::stod(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_value<double>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 int getFileNameNumberIndex(double actualTimeValue, std::shared_ptr<TimeSetInfo> info)

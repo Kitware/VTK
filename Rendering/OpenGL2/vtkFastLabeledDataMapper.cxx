@@ -24,6 +24,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTextProperty.h"
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
@@ -82,7 +83,8 @@ public:
 #ifdef vtkFastLabeledDataMapper_DEBUG
     if (std::getenv("MSAMP"))
     {
-      int ns = atoi(std::getenv("MSAMP"));
+      int ns;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(std::getenv("MSAMP"), ns);
       std::cerr << "MS " << ns << "\n";
       this->GlyphsTO->SetSamples(ns);
     }

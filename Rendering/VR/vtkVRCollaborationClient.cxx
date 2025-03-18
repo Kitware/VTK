@@ -10,6 +10,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringScanner.h"
 #include "vtkTextProperty.h"
 #include "vtkTimerLog.h"
 #include "vtkTransform.h"
@@ -856,13 +857,7 @@ vtkSmartPointer<vtkOpenGLAvatar> vtkVRCollaborationClient::GetAvatar(std::string
       this->AvatarInitialUpVector[2]);
     size_t colorIndex = this->Avatars.size() - 1;
     // base the color on the server's index of avatars.
-    try
-    {
-      colorIndex = std::stoi(otherID);
-    }
-    catch (...)
-    {
-    }
+    VTK_FROM_CHARS_IF_ERROR_BREAK(otherID, colorIndex);
     newAvatar->GetProperty()->SetColor(AVATAR_COLORS[(colorIndex) % NUM_COLORS]);
     newAvatar->GetLabelTextProperty()->SetColor(AVATAR_COLORS[(colorIndex) % NUM_COLORS]);
     newAvatar->GetLabelTextProperty()->SetFontSize(16);

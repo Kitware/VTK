@@ -8,13 +8,11 @@
 
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
-#include "vtkShortArray.h"
-#include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkMINC.h"
@@ -680,12 +678,11 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(const char* variable, const c
   if (array->GetDataType() == VTK_CHAR)
   {
     const char* text = this->ConvertDataArrayToString(array);
-    char* endp = const_cast<char*>(text);
-    long result = strtol(text, &endp, 10);
+    auto result = vtk::scan_int<int>(std::string_view(text));
     // Check for complete conversion
-    if (*endp == '\0' && *text != '\0')
+    if (result && *text != '\0')
     {
-      return static_cast<int>(result);
+      return result->value();
     }
   }
   else if (array->GetNumberOfTuples() == 1)
@@ -727,12 +724,11 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
   if (array->GetDataType() == VTK_CHAR)
   {
     const char* text = this->ConvertDataArrayToString(array);
-    char* endp = const_cast<char*>(text);
-    double result = strtod(text, &endp);
+    auto result = vtk::scan_value<double>(std::string_view(text));
     // Check for complete conversion
-    if (*endp == '\0' && *text != '\0')
+    if (result && *text != '\0')
     {
-      return result;
+      return result->value();
     }
   }
   else if (array->GetNumberOfTuples() == 1)

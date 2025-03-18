@@ -10,14 +10,10 @@
 #include "vtkJPEGReader.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
-#include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
-#include "vtkOpenGLLight.h"
-#include "vtkOpenGLProperty.h"
 #include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderer.h"
@@ -25,16 +21,14 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkOutputWindow.h"
-#include "vtkPerlinNoise.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderingOpenGLConfigure.h"
 #include "vtkShaderProgram.h"
 #include "vtkStringOutputWindow.h"
+#include "vtkStringScanner.h"
 #include "vtkTextureObject.h"
-#include "vtkTextureUnitManager.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -1646,7 +1640,13 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
     const char* useMSAAEnv = std::getenv("VTK_FORCE_MSAA");
     if (useMSAAEnv)
     {
-      useTexture = strlen(useMSAAEnv) ? (std::atoi(useMSAAEnv) == 1) : true;
+      auto str = std::string_view(useMSAAEnv);
+      if (!str.empty())
+      {
+        int useTextureInt;
+        VTK_FROM_CHARS_IF_ERROR_BREAK(useMSAAEnv, useTextureInt);
+        useTexture = useTextureInt == 1;
+      }
     }
     else
     {

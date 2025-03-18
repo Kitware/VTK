@@ -12,6 +12,7 @@
 #include "PyVTKTemplate.h"
 #include "vtkABINamespace.h"
 #include "vtkPythonUtil.h"
+#include "vtkStringScanner.h"
 
 #include <string>
 
@@ -609,7 +610,9 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         sign = -1;
         cp++;
       }
-      keys[i] = PyLong_FromLong(sign * strtol(cp, nullptr, 0));
+      long number;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(cp, number);
+      keys[i] = PyLong_FromLong(sign * number);
       while (*cp != 'E' && *cp != '\0')
       {
         cp++;
@@ -672,8 +675,8 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
       }
       else if (*cp >= '1' && *cp <= '9')
       {
-        char* dp;
-        j = strtol(cp, &dp, 10);
+        auto result = vtk::from_chars(cp, j);
+        char* dp = const_cast<char*>(result.ptr);
         cp = dp;
         for (size_t k = 0; k < j; k++)
         {
@@ -697,7 +700,9 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
             dp++;
             if (*dp >= '0' && *dp <= '9')
             {
-              size_t l = strtol(dp, &dp, 10);
+              size_t l;
+              auto result2 = vtk::from_chars(dp, l);
+              dp = const_cast<char*>(result2.ptr);
               for (size_t k = 0; k < l; k++)
               {
                 if (*dp++ == '\0')

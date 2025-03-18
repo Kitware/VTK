@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
   {
     std::cerr << "Usage: MultipleCanvases <numCanvases>\n";
   }
-  const int numCanvases = std::atoi(argv[1]);
+  int numCanvases;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], numCanvases, EXIT_FAILURE);
   std::array<vtkSmartPointer<vtkAlgorithm>, 10> sources;
   std::size_t i = 0;
   sources[i++] = { vtk::TakeSmartPointer(vtkArrowSource::New()) };

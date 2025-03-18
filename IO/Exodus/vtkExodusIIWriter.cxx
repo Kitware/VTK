@@ -24,10 +24,12 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"
+
 #include <cctype>
 #include <ctime>
 #include <map>
@@ -1429,7 +1431,7 @@ int vtkExodusIIWriter::CreateSetsMetadata(vtkModelMetadata* em)
         if (id_str != nullptr)
         {
           id_str += 3;
-          node_id = atoi(id_str);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(id_str, node_id);
         }
         nodeSetIds->InsertNextTuple1(node_id);
 
@@ -1475,7 +1477,7 @@ int vtkExodusIIWriter::CreateSetsMetadata(vtkModelMetadata* em)
         if (id_str != nullptr)
         {
           id_str += 3;
-          side_id = atoi(id_str);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(id_str, side_id);
         }
         sideSetIds->InsertNextTuple1(side_id);
         if (sideSetNames->GetNumberOfValues() <= side_id)

@@ -5,6 +5,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringScanner.h"
 #include "vtkTclUtil.h"
 #include "vtkTkInternals.h"
 #include "vtkVersionMacros.h"
@@ -152,9 +153,9 @@ extern "C"
     }
 
     // Find the image
-    char typeCheck[256];
-    unsigned long long l;
-    sscanf(argv[1], "_%llx_%s", &l, typeCheck);
+    auto result =
+      vtk::scan<unsigned long long, std::string_view>(std::string_view(argv[1]), "_{:x}_{:s}");
+    auto& [l, typeCheck] = result->values();
     union
     {
       void* p;
@@ -162,9 +163,8 @@ extern "C"
     } u;
     u.l = static_cast<uintptr_t>(l);
     // Various historical pointer manglings
-    if ((strcmp("vtkAlgorithmOutput", typeCheck) == 0 ||
-          strcmp("vtkAlgorithmOutput_p", typeCheck) == 0 ||
-          strcmp("p_vtkAlgorithmOutput", typeCheck) == 0))
+    if (typeCheck == "vtkAlgorithmOutput" || typeCheck == "vtkAlgorithmOutput_p" ||
+      typeCheck == "p_vtkAlgorithmOutput")
     {
       vtkAlgorithmOutput* algOutput = static_cast<vtkAlgorithmOutput*>(u.p);
       if (algOutput)
@@ -174,10 +174,9 @@ extern "C"
         u.p = vtkImageData::SafeDownCast(alg->GetOutputDataObject(algOutput->GetIndex()));
       }
     }
-    else if (strcmp("vtkImageData", typeCheck) != 0 && strcmp("vtkImageData_p", typeCheck) != 0 &&
-      strcmp("p_vtkImageData", typeCheck) != 0 && strcmp("vtkStructuredPoints", typeCheck) != 0 &&
-      strcmp("vtkStructuredPoints_p", typeCheck) != 0 &&
-      strcmp("p_vtkStructuredPoints", typeCheck) != 0)
+    else if (typeCheck != "vtkImageData" && typeCheck != "vtkImageData_p" &&
+      typeCheck != "p_vtkImageData" && typeCheck != "vtkStructuredPoints" &&
+      typeCheck != "vtkStructuredPoints_p" && typeCheck != "p_vtkStructuredPoints")
     {
       // bad type
       u.p = nullptr;
@@ -916,8 +915,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && self->RW[2] == 'd' && self->RW[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->RW + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->RW + 5), "{:p}");
+      void* tmp = result->value();
       renderWindow = (vtkWin32OpenGLRenderWindow*)tmp;
     }
     else
@@ -1073,8 +1072,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && self->RW[2] == 'd' && self->RW[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->RW + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->RW + 5), "{:p}");
+      void* tmp = result->value();
       renderWindow = reinterpret_cast<vtkRenderWindow*>(tmp);
     }
 
@@ -1182,8 +1181,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget* self)
     // is RW an address ? big ole python hack here
     if (self->RW[0] == 'A' && self->RW[1] == 'd' && self->RW[2] == 'd' && self->RW[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->RW + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->RW + 5), "{:p}");
+      void* tmp = result->value();
       renderWindow = (vtkXOpenGLRenderWindow*)tmp;
     }
     if (renderWindow != self->RenderWindow)

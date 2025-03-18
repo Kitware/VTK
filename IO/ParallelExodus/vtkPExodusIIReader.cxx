@@ -6,12 +6,9 @@
 #include "vtkAppendCompositeDataLeaves.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkDoubleArray.h"
 #include "vtkExodusIIReaderPrivate.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -19,18 +16,17 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"
 #include "vtk_netcdf.h"
 
+#include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include <vector>
-
-#include <vtksys/RegularExpression.hxx>
-
 #include <cctype>
+#include <vector>
 
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
@@ -738,7 +734,7 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
     {
       if (isdigit(*numString))
       {
-        fileId = atoi(numString);
+        VTK_FROM_CHARS_IF_ERROR_BREAK(numString, fileId);
       }
       return fileId; // no numbers in file name
     }
@@ -753,11 +749,11 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
 
   if ((numString == start) && (isdigit(*numString)))
   {
-    fileId = atoi(numString);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(numString, fileId);
   }
   else
   {
-    fileId = atoi(++numString);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(++numString, fileId);
   }
 
   return fileId;

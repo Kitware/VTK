@@ -23,6 +23,7 @@
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLDatabaseSchema.h"
 #include "vtkSQLQuery.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkTimePointUtility.h"
 #include "vtkVariant.h"
@@ -294,7 +295,8 @@ int TestMySQLDatabase(int, char** const)
     int idxHandle = -1;
     while (query->NextRow())
     {
-      int cnmHandle = atoi(query->DataValue(3).ToString()) - 1;
+      int cnmHandle;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(query->DataValue(3).ToString(), cnmHandle, EXIT_FAILURE);
       if (!cnmHandle)
       {
         ++idxHandle;

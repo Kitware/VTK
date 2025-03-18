@@ -20,6 +20,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -260,15 +262,7 @@ struct vtkEnSightSOSGoldReader::ReaderImpl
         auto pos = line.find(':');
         auto value = line.substr(pos + 1);
         sanitize(value);
-        try
-        {
-          numServers = std::stoi(value);
-        }
-        catch (std::invalid_argument&)
-        {
-          vtkGenericWarningMacro("Couldn't convert " << value << " to an int");
-          return false;
-        }
+        VTK_FROM_CHARS_IF_ERROR_RETURN(value, numServers, false);
       }
       else if (foundServersSection && line.find("casefile") != std::string::npos)
       {

@@ -8,6 +8,8 @@
   #endif
 #endif
 
+#include "vtkStringScanner.h"
+
 #line 1 "..\\vtk3\\vtk\\io\\import\\mtlsyntax.rl"
 // This is a ragel file for generating a parser for MTL files
 // Note that some MTL files are whitespace sensitive
@@ -264,7 +266,7 @@ _eof_trans:
     currentNum += '\0';
     Token tok;
     tok.StringValue = currentNum;
-    tok.NumberValue = std::atof(currentNum.c_str());
+    VTK_FROM_CHARS_IF_ERROR_BREAK(currentNum, tok.NumberValue);
     tok.Type = Token::Number;
     tokens.push_back(tok);
     currentNum.clear();
@@ -320,7 +322,7 @@ _eof_trans:
     currentNum += '\0';
     Token tok;
     tok.StringValue = currentNum;
-    tok.NumberValue = std::atof(currentNum.c_str());
+    VTK_FROM_CHARS_IF_ERROR_BREAK(currentNum, tok.NumberValue);
     tok.Type = Token::Number;
     tokens.push_back(tok);
     currentNum.clear();

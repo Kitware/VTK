@@ -25,6 +25,7 @@
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransformFilter.h"
 #include "vtkTypeInt32Array.h"
@@ -3042,7 +3043,7 @@ bool EnSightDataSet::ReadRigidBodyGeometryFile()
     if (!this->UsePartNamesRB)
     {
       // Need to make sure that we remove any quotes from the partId
-      partId = std::stoi(partName) - 1; // EnSight starts #ing at 1.
+      partId = vtk::scan_int<int>(partName)->value() - 1; // EnSight starts #ing at 1.
       partName = std::to_string(partId);
     }
 
@@ -3125,16 +3126,13 @@ bool EnSightDataSet::ReadRigidBodyGeometryFile()
         // rotations and scaling should be applied to geometry and vectors
         // translations are only applied to geometry
         sanitize(line);
-        double value;
-        try
-        {
-          value = std::stod(line);
-        }
-        catch (std::invalid_argument&)
+        auto resultValue = vtk::scan_value<double>(line);
+        if (!resultValue)
         {
           vtkGenericWarningMacro("Couldn't convert line " << line << " to a double");
           return false;
         }
+        double value = resultValue->value();
         vtkLog(TRACE, "Found transformation " << lineType << ", with value of " << value);
         if (lineType == "Tx")
         {

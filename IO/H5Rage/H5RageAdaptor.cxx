@@ -12,6 +12,8 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkStringScanner.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <cctype>
@@ -477,7 +479,7 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
           }
           if (good)
           {
-            numCycleDigits = std::stoi(cycleDigits);
+            VTK_FROM_CHARS_IF_ERROR_RETURN(cycleDigits, numCycleDigits, 0);
           }
         }
       }
@@ -610,9 +612,9 @@ int H5RageAdaptor::ParseH5RageFile(const char* H5RageFileName)
     int step = 0;
     for (siter = cycleSet.begin(); siter != cycleSet.end(); ++siter)
     {
-      char* p;
-      long cycle = std::strtol(siter->c_str(), &p, 10);
-      this->TimeSteps[step] = (double)cycle;
+      long cycle;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(*siter, cycle, 0);
+      this->TimeSteps[step] = static_cast<double>(cycle);
       step++;
     }
   }

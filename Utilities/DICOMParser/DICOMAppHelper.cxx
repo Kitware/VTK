@@ -13,13 +13,14 @@
 #include "DICOMCallback.h"
 #include "DICOMConfig.h"
 
+#include "vtkStringScanner.h"
+
 #include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <string>
 #if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 #include <mem.h> // for memcpy
@@ -413,11 +414,13 @@ void DICOMAppHelper::ArrayCallback(DICOMParser* parser, doublebyte group, double
         *this->HeaderFile << val;
         break;
       case DICOMParser::VR_FL: // float
-        fval = static_cast<float>(atof(reinterpret_cast<char*>(val)));
+        fval =
+          vtk::scan_value<float>(std::string_view(reinterpret_cast<const char*>(val)))->value();
         *this->HeaderFile << fval;
         break;
       case DICOMParser::VR_FD: // float double
-        dval = atof(reinterpret_cast<char*>(val));
+        dval =
+          vtk::scan_value<double>(std::string_view(reinterpret_cast<const char*>(val)))->value();
         *this->HeaderFile << dval;
         break;
       case DICOMParser::VR_UL: // unsigned long
@@ -468,7 +471,8 @@ void DICOMAppHelper::SliceNumberCallback(
     DICOMOrderingElements ord;
     if (val)
     {
-      ord.SliceNumber = atoi(reinterpret_cast<char*>(val));
+      ord.SliceNumber =
+        vtk::scan_int<int>(std::string_view(reinterpret_cast<const char*>(val)))->value();
     }
     else // Slice Number present but empty
     {
@@ -484,7 +488,8 @@ void DICOMAppHelper::SliceNumberCallback(
     // file found, add new values
     if (val)
     {
-      (*it).second.SliceNumber = atoi(reinterpret_cast<char*>(val));
+      (*it).second.SliceNumber =
+        vtk::scan_int<int>(std::string_view(reinterpret_cast<const char*>(val)))->value();
     }
     else // Slice Number present but empty
     {
@@ -495,7 +500,8 @@ void DICOMAppHelper::SliceNumberCallback(
   // cache the slice number
   if (val)
   {
-    this->SliceNumber = atoi(reinterpret_cast<char*>(val));
+    this->SliceNumber =
+      vtk::scan_int<int>(std::string_view(reinterpret_cast<const char*>(val)))->value();
   }
   else // Slice Number present but empty
   {
@@ -513,7 +519,8 @@ void DICOMAppHelper::SliceLocationCallback(
   {
     // file not found, create a new entry
     DICOMOrderingElements ord;
-    ord.SliceLocation = static_cast<float>(atof(reinterpret_cast<char*>(val)));
+    ord.SliceLocation =
+      vtk::scan_value<float>(std::string_view(reinterpret_cast<const char*>(val)))->value();
 
     // insert into the map
     this->Implementation->SliceOrderingMap.insert(
@@ -522,7 +529,8 @@ void DICOMAppHelper::SliceLocationCallback(
   else if (val)
   {
     // file found, add new values
-    (*it).second.SliceLocation = static_cast<float>(atof(reinterpret_cast<char*>(val)));
+    (*it).second.SliceLocation =
+      vtk::scan_value<float>(std::string_view(reinterpret_cast<const char*>(val)))->value();
   }
 }
 
@@ -539,8 +547,10 @@ void DICOMAppHelper::ImagePositionPatientCallback(
 
     if (val)
     {
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f\\%f", &ord.ImagePositionPatient[0],
-        &ord.ImagePositionPatient[1], &ord.ImagePositionPatient[2]);
+      auto result = vtk::scan<float, float, float>(
+        std::string_view(reinterpret_cast<const char*>(val)), "{:f}\\{:f}\\{:f}");
+      std::tie(ord.ImagePositionPatient[0], ord.ImagePositionPatient[1],
+        ord.ImagePositionPatient[2]) = result->values();
     }
     else
     {
@@ -562,8 +572,11 @@ void DICOMAppHelper::ImagePositionPatientCallback(
     if (val)
     {
       // file found, add new values
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f\\%f", &(*it).second.ImagePositionPatient[0],
-        &(*it).second.ImagePositionPatient[1], &(*it).second.ImagePositionPatient[2]);
+      auto imagePositionPatient = it->second.ImagePositionPatient;
+      auto result = vtk::scan<float, float, float>(
+        std::string_view(reinterpret_cast<const char*>(val)), "{:f}\\{:f}\\{:f}");
+      std::tie(imagePositionPatient[0], imagePositionPatient[1], imagePositionPatient[2]) =
+        result->values();
     }
     else
     {
@@ -590,10 +603,11 @@ void DICOMAppHelper::ImageOrientationPatientCallback(
     DICOMOrderingElements ord;
     if (val)
     {
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f\\%f\\%f\\%f\\%f",
-        &ord.ImageOrientationPatient[0], &ord.ImageOrientationPatient[1],
-        &ord.ImageOrientationPatient[2], &ord.ImageOrientationPatient[3],
-        &ord.ImageOrientationPatient[4], &ord.ImageOrientationPatient[5]);
+      auto result = vtk::scan<float, float, float, float, float, float>(
+        std::string_view(reinterpret_cast<const char*>(val)), "{:f}\\{:f}\\{:f}\\{:f}\\{:f}\\{:f}");
+      std::tie(ord.ImageOrientationPatient[0], ord.ImageOrientationPatient[1],
+        ord.ImageOrientationPatient[2], ord.ImageOrientationPatient[3],
+        ord.ImageOrientationPatient[4], ord.ImageOrientationPatient[5]) = result->values();
     }
     else
     {
@@ -618,10 +632,12 @@ void DICOMAppHelper::ImageOrientationPatientCallback(
     // file found, add new values
     if (val)
     {
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f\\%f\\%f\\%f\\%f",
-        &(*it).second.ImageOrientationPatient[0], &(*it).second.ImageOrientationPatient[1],
-        &(*it).second.ImageOrientationPatient[2], &(*it).second.ImageOrientationPatient[3],
-        &(*it).second.ImageOrientationPatient[4], &(*it).second.ImageOrientationPatient[5]);
+      auto result = vtk::scan<float, float, float, float, float, float>(
+        std::string_view(reinterpret_cast<const char*>(val)), "{:f}\\{:f}\\{:f}\\{:f}\\{:f}\\{:f}");
+      auto imageOrientationPatient = it->second.ImageOrientationPatient;
+      std::tie(imageOrientationPatient[0], imageOrientationPatient[1], imageOrientationPatient[2],
+        imageOrientationPatient[3], imageOrientationPatient[4], imageOrientationPatient[5]) =
+        result->values();
     }
     else
     {
@@ -717,11 +733,15 @@ void DICOMAppHelper::PixelSpacingCallback(DICOMParser* parser, doublebyte group,
   {
     // DICOM spacing is in Row/Column order rather than X/Y order,
     // so we reverse it to provide what the application expects
-    if (!val ||
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f", &this->PixelSpacing[1],
-        &this->PixelSpacing[0]) != 2)
+    auto result =
+      vtk::scan<float, float>(std::string_view(reinterpret_cast<const char*>(val)), "{}\\{}");
+    if (!result)
     {
-      this->PixelSpacing[0] = this->PixelSpacing[1] = 0.0;
+      this->PixelSpacing[1] = this->PixelSpacing[0] = 0.0;
+    }
+    else
+    {
+      std::tie(this->PixelSpacing[1], this->PixelSpacing[0]) = result->values();
     }
   }
   else if (group == 0x0018 && element == 0x0050)

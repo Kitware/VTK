@@ -1,14 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-Triad-USGov
+#include <PIODataHDF5.h>
 
 #include "vtkMath.h"
 #include "vtkStdString.h"
-#include <PIODataHDF5.h>
-#include <cstdlib>
-#include <iostream>
+#include "vtkStringScanner.h"
+
 #include <vtk_hdf5.h>
 #include <vtksys/FStream.hxx>
+
+#include <cstdlib>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -66,7 +69,7 @@ PIO_DATA_HDF5::PIO_DATA_HDF5(const char* piofile)
       index_str[j] = suffix[j + 2];
     }
     index_str[suffixlen - 2] = '\0';
-    pio_field[i].index = atoi(index_str);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(index_str, pio_field[i].index);
     delete[] index_str;
 
     // data and cdata are always null. data is never stored there and instead read on demand using

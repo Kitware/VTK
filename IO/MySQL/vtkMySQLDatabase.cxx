@@ -9,11 +9,12 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 
-#include <sstream>
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
+#include <sstream>
 
 #define VTK_MYSQL_DEFAULT_PORT 3306
 
@@ -340,7 +341,9 @@ bool vtkMySQLDatabase::ParseURL(const char* URL)
     }
     if (!dataport.empty())
     {
-      this->SetServerPort(atoi(dataport.c_str()));
+      int port;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(dataport, port, false);
+      this->SetServerPort(port);
     }
     this->SetHostName(hostname.c_str());
     this->SetDatabaseName(database.c_str());

@@ -22,9 +22,12 @@
 #include "vtkQuad.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+
 #include "vtksys/FStream.hxx"
+
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -694,9 +697,10 @@ void vtkMFIXReader::SetProjectName(const char* infile)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::RestartVersionNumber(const char* buffer)
 {
-  char s1[512];
-  char s2[512];
-  sscanf(buffer, "%s %s %f", s1, s2, &this->VersionNumber);
+  auto result = vtk::scan<std::string_view, std::string_view, float>(
+    std::string_view(buffer), "{:s} {:s} {:f}");
+  auto& [s1, s2, versionNumber] = result->values();
+  this->VersionNumber = versionNumber;
   strncpy(this->Version, buffer, 100);
 }
 

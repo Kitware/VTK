@@ -7,6 +7,7 @@
 #include "vtkQtTableModelAdapter.h"
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLQuery.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
@@ -84,7 +85,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
     if (!strcmp(argv[i], "-p"))
     {
       i++;
-      port = atoi(argv[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], port, EXIT_FAILURE);
       continue;
     }
     if (!strcmp(argv[i], "-q"))

@@ -40,6 +40,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringScanner.h"
 #include "vtkStripper.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToSphere.h"
@@ -211,11 +212,11 @@ int TestAnariRenderMesh(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-type"))
     {
-      type = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], type, EXIT_FAILURE);
     }
     else if (!strcmp(argv[i], "-rep"))
     {
-      rep = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], rep, EXIT_FAILURE);
     }
     else if (!strcmp(argv[i], "-trace"))
     {

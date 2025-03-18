@@ -5,7 +5,8 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlatform.h" // for VTK_MAXPATH
+#include "vtkStringScanner.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <string>
@@ -132,7 +133,8 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     }
     else if (servers && vtkEnSightMasterServerReaderStartsWith(result, "number of servers:"))
     {
-      sscanf(result, "number of servers: %i", &numberservers);
+      auto resultServers = vtk::scan<int>(std::string_view(result), "number of servers: {:d}");
+      numberservers = resultServers->value();
       if (!numberservers)
       {
         vtkErrorMacro("The case file is corrupted");
@@ -143,14 +145,14 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
     {
       if (currentserver == piece)
       {
-        char filename[VTK_MAXPATH] = "";
-        sscanf(result, "casefile: %s", filename);
+        auto filename =
+          std::move(vtk::scan<std::string>(std::string_view(result), "casefile: {:s}")->value());
         if (filename[0] == 0)
         {
           vtkErrorMacro("Problem parsing file name from: " << result);
           return VTK_ERROR;
         }
-        this->SetPieceCaseFileName(filename);
+        this->SetPieceCaseFileName(filename.c_str());
         break;
       }
       currentserver++;

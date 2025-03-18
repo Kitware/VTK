@@ -23,14 +23,15 @@ chars representing red, green and blue.
 
 #include "vtkPLY.h"
 #include "vtkByteSwap.h"
+#include "vtkFileResourceStream.h"
 #include "vtkHeap.h"
 #include "vtkMath.h"
-#include <vtksys/FStream.hxx>
-#include <vtksys/SystemTools.hxx>
-
-#include "vtkFileResourceStream.h"
 #include "vtkMemoryResourceStream.h"
 #include "vtkResourceParser.h"
+#include "vtkStringScanner.h"
+
+#include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cstddef>
@@ -725,7 +726,7 @@ PlyFile* vtkPLY::ply_read(vtkResourceStream* is, int* nelems, char*** elem_names
         delete plyfile;
         return (nullptr);
       }
-      plyfile->version = atof(words[2]);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(words[2], plyfile->version);
     }
     else if (equal_strings(words[0], "element"))
       add_element(plyfile, words);
@@ -2547,7 +2548,7 @@ void vtkPLY::add_element(PlyFile* plyfile, const std::vector<char*>& words)
   /* create the new element */
   elem = (PlyElement*)myalloc(sizeof(PlyElement));
   elem->name = strdup(words[1]);
-  elem->num = atoi(words[2]);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(words[2], elem->num, );
   elem->nprops = 0;
 
   /* make room for new element in the object's list of elements */

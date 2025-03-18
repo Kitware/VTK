@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #include <map>
 #include <set>
@@ -582,7 +583,9 @@ double vtkMedicalImageProperties::GetSliceThicknessAsDouble()
 {
   if (this->SliceThickness)
   {
-    return atof(this->SliceThickness);
+    double sliceThickness;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(this->SliceThickness, sliceThickness, 0);
+    return sliceThickness;
   }
   return 0;
 }
@@ -592,7 +595,9 @@ double vtkMedicalImageProperties::GetGantryTiltAsDouble()
 {
   if (this->GantryTilt)
   {
-    return atof(this->GantryTilt);
+    double gantryTilt;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(this->SliceThickness, gantryTilt, 0);
+    return gantryTilt;
   }
   return 0;
 }
@@ -610,16 +615,16 @@ int vtkMedicalImageProperties::GetAgeAsFields(
   if (len == 4)
   {
     // DICOM V3
-    unsigned int val;
-    char type;
     if (!isdigit(age[0]) || !isdigit(age[1]) || !isdigit(age[2]))
     {
       return 0;
     }
-    if (sscanf(age, "%3u%c", &val, &type) != 2)
+    auto result = vtk::scan<unsigned int, char>(std::string_view(age, len), "{:d}{:c}");
+    if (!result)
     {
       return 0;
     }
+    auto& [val, type] = result->values();
     switch (type)
     {
       case 'Y':
@@ -692,18 +697,24 @@ int vtkMedicalImageProperties::GetTimeAsFields(
   if (len == 6)
   {
     // DICOM V3
-    if (sscanf(time, "%02d%02d%02d", &hour, &minute, &second) != 3)
+    auto result = vtk::scan<unsigned int, unsigned int, unsigned int>(
+      std::string_view(time, len), "{:d}{:d}{:d}");
+    if (!result)
     {
       return 0;
     }
+    std::tie(hour, minute, second) = result->values();
   }
   else if (len == 8)
   {
     // Some *very* old ACR-NEMA
-    if (sscanf(time, "%02d.%02d.%02d", &hour, &minute, &second) != 3)
+    auto result = vtk::scan<unsigned int, unsigned int, unsigned int>(
+      std::string_view(time, len), "{:02d}.{:02d}.{:02d}");
+    if (!result)
     {
       return 0;
     }
+    std::tie(hour, minute, second) = result->values();
   }
   else
   {
@@ -724,18 +735,24 @@ int vtkMedicalImageProperties::GetDateAsFields(const char* date, int& year, int&
   if (len == 8)
   {
     // DICOM V3
-    if (sscanf(date, "%04d%02d%02d", &year, &month, &day) != 3)
+    auto result = vtk::scan<unsigned int, unsigned int, unsigned int>(
+      std::string_view(date, len), "{:04d}{:02d}{:02d}");
+    if (!result)
     {
       return 0;
     }
+    std::tie(year, month, day) = result->values();
   }
   else if (len == 10)
   {
     // Some *very* old ACR-NEMA
-    if (sscanf(date, "%04d.%02d.%02d", &year, &month, &day) != 3)
+    auto result = vtk::scan<unsigned int, unsigned int, unsigned int>(
+      std::string_view(date, len), "{:04d}.{:02d}.{:02d}");
+    if (!result)
     {
       return 0;
     }
+    std::tie(year, month, day) = result->values();
   }
   else
   {

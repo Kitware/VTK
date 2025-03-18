@@ -22,6 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <array>
@@ -51,11 +52,11 @@ int TestMixedGeometry(int argc, char* argv[])
   {
     if (std::string(argv[i]) == "--point-size")
     {
-      pointSize = std::atof(argv[++i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++i], pointSize, EXIT_FAILURE);
     }
     if (std::string(argv[i]) == "--line-width")
     {
-      lineWidth = std::atof(argv[++i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++i], lineWidth, EXIT_FAILURE);
     }
   }
   vtkNew<vtkRenderWindow> renWin;

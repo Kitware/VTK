@@ -18,6 +18,8 @@
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkStringArray.h>
+#include <vtkStringScanner.h>
+
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
@@ -274,15 +276,15 @@ bool vtkSEPReader::ReadHeader()
       details::TrimString(value);
       if (key.length() == 2 && key[0] == 'n')
       {
-        this->Dimensions[key[1] - '0' - 1] = atoi(value.c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->Dimensions[key[1] - '0' - 1], false);
       }
       else if (key.length() == 2 && key[0] == 'd')
       {
-        this->DataSpacing[key[1] - '0' - 1] = atof(value.c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->DataSpacing[key[1] - '0' - 1], false);
       }
       else if (key.length() == 2 && key[0] == 'o')
       {
-        this->DataOrigin[key[1] - '0' - 1] = atof(value.c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->DataOrigin[key[1] - '0' - 1], false);
       }
       else if (vtksys::SystemTools::StringStartsWith(key.c_str(), "label"))
       {
@@ -291,7 +293,7 @@ bool vtkSEPReader::ReadHeader()
       }
       else if (key == "esize")
       {
-        this->ESize = atoi(value.c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->ESize, false);
       }
       else if (key == "data_format")
       {

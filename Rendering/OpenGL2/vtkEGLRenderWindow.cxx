@@ -12,7 +12,9 @@
 #include "vtkOpenGLState.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringScanner.h"
 #include "vtkType.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #include "vtk_glad.h"
@@ -48,22 +50,12 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   char* EGLDeviceIndexEnv = std::getenv("VTK_EGL_DEVICE_INDEX");
   if (EGLDeviceIndexEnv)
   {
-    try
+    int index;
+    VTK_FROM_CHARS_IF_ERROR_BREAK(EGLDeviceIndexEnv, index);
+    if (index >= 0)
     {
-      int index = atoi(EGLDeviceIndexEnv);
-      if (index >= 0)
-      {
-        this->DeviceIndex = index;
-        this->Internals->SetDeviceIndex(index);
-      }
-    }
-    catch (const std::out_of_range&)
-    {
-      vtkErrorMacro(<< "Device index: " << EGLDeviceIndexEnv << " is out of range.");
-    }
-    catch (const std::invalid_argument& error)
-    {
-      vtkErrorMacro(<< "Invalid device index: " << EGLDeviceIndexEnv << " : " << error.what());
+      this->DeviceIndex = index;
+      this->Internals->SetDeviceIndex(index);
     }
   }
 

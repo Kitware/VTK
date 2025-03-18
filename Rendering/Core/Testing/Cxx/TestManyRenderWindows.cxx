@@ -3,8 +3,7 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-
-#include <cstdlib>
+#include "vtkStringScanner.h"
 
 /**
  * This unit test exercises many render windows can be created
@@ -18,7 +17,7 @@ int TestManyRenderWindows(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "--count") && ++i < argc)
     {
-      n = std::atoi(argv[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], n, EXIT_FAILURE);
       break;
     }
   }

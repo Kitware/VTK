@@ -15,6 +15,7 @@
 #include <vtkLogger.h> // for logging
 
 #include "vtkEmscriptenTestUtilities.h" // for wasm I/O and exit helper
+#include "vtkStringScanner.h"           // for vtl::from_chars
 #include "vtkWindowsTestUtilities.h"    // for windows stack trace
 
 #endif

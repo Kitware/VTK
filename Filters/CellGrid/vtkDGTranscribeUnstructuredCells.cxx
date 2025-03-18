@@ -8,6 +8,7 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkStringToken.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridFieldAnnotations.h"
@@ -284,8 +285,8 @@ vtkStringToken uniquifyAttributeName(vtkStringToken nameIn, vtkCellGrid* grid)
     std::ostringstream nameGen;
     if (markPos != std::string::npos)
     {
-      char* iend;
-      auto idx = std::strtol(badName.c_str() + markPos + 2, &iend, 10);
+      int idx;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(std::string_view(badName).substr(markPos + 2), idx);
       nameGen << badName.substr(0, markPos) << "@@" << (idx + 1);
     }
     else
@@ -310,8 +311,8 @@ void uniquifyArrayName(vtkAbstractArray* valueArray, vtkDataSetAttributes* dsa)
     std::ostringstream nameGen;
     if (markPos != std::string::npos)
     {
-      char* iend;
-      auto idx = std::strtol(badName.c_str() + markPos + 2, &iend, 10);
+      int idx;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(std::string_view(badName).substr(markPos + 2), idx);
       nameGen << badName.substr(0, markPos) << "@@" << (idx + 1);
     }
     else

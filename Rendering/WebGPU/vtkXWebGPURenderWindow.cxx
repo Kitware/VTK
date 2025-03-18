@@ -5,6 +5,7 @@
 #include "vtkImageData.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringScanner.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkXWebGPURenderWindow.h"
@@ -818,7 +819,7 @@ void vtkXWebGPURenderWindow::SetWindowInfo(const char* info)
   this->EnsureDisplay();
 
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->SetWindowId(static_cast<Window>(tmp));
 }
@@ -828,7 +829,7 @@ void vtkXWebGPURenderWindow::SetWindowInfo(const char* info)
 void vtkXWebGPURenderWindow::SetNextWindowInfo(const char* info)
 {
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->SetNextWindowId(static_cast<Window>(tmp));
 }
@@ -841,7 +842,7 @@ void vtkXWebGPURenderWindow::SetParentInfo(const char* info)
   this->EnsureDisplay();
 
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->SetParentId(static_cast<Window>(tmp));
 }

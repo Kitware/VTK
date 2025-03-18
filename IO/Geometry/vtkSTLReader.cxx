@@ -16,6 +16,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -330,21 +331,17 @@ inline std::string stlParseExpected(const std::string& expected, const std::stri
 // Get three space-delimited floats from string.
 bool stlReadVertex(char* buf, float vertCoord[3])
 {
-  char* begptr = buf;
-  char* endptr = nullptr;
+  std::string_view buffer = buf;
 
   for (int i = 0; i < 3; ++i)
   {
-    // We really should use: vertCoord[i] = std::strtof(begptr, &endptr);
-    // instead of strtod below but Apple Clang 9.0.0.9000039 doesn't
-    // recognize strtof as part of the C++11 standard
-    vertCoord[i] = static_cast<float>(std::strtod(begptr, &endptr));
-    if (begptr == endptr)
+    auto result = vtk::scan_value<float>(buffer);
+    if (!result)
     {
       return false;
     }
-
-    begptr = endptr;
+    vertCoord[i] = result->value();
+    buffer = result->range().data();
   }
 
   return true;

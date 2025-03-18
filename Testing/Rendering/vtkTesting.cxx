@@ -31,21 +31,18 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTimerLog.h"
-#include "vtkWindowToImageFilter.h"
-
-#include "vtkImageRGBToHSI.h"
-
-#include <sstream>
-#include <vtksys/SystemTools.hxx>
-
-#include <array>
-#include <numeric>
-
+#include "vtkStringScanner.h"
 #ifdef __EMSCRIPTEN__
 #include "vtkTestUtilities.h"
 #endif
+#include "vtkTimerLog.h"
+#include "vtkWindowToImageFilter.h"
 #include "vtkXMLImageDataWriter.h"
+
+#include <array>
+#include <numeric>
+#include <sstream>
+#include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
@@ -292,7 +289,7 @@ bool vtkTesting::GetMesaVersion(vtkRenderWindow* renderWindow, int version[3])
     const auto versionNumbers = vtksys::SystemTools::SplitString(versionString, '.');
     for (int i = 0; i < 3; ++i)
     {
-      version[i] = std::stoi(versionNumbers[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(versionNumbers[i], version[i], false);
     }
   }
   return true;

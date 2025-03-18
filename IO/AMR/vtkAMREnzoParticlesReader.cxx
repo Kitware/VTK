@@ -8,6 +8,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStringScanner.h"
 
 #include <cassert>
 #include <vector>
@@ -46,12 +47,12 @@ static bool FindBlockIndex(hid_t fileIndx, int blockIdx, hid_t& rootIndx)
   {
     if (H5Gget_objtype_by_idx(rootIndx, objIndex) == H5G_GROUP)
     {
-      int blckIndx;
       char blckName[65];
       H5Gget_objname_by_idx(rootIndx, objIndex, blckName, 64);
 
       // Is this the target block?
-      if ((sscanf(blckName, "Grid%d", &blckIndx) == 1) && (blckIndx == blockIdx))
+      auto result = vtk::scan<int>(blckName, "Grid{:d}");
+      if (result && result->value() == blockIdx)
       {
         // located the target block
         rootIndx = H5Gopen(rootIndx, blckName);

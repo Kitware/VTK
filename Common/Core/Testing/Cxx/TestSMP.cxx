@@ -7,6 +7,8 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+#include "vtkStringScanner.h"
+
 #include <cstdlib>
 #include <deque>
 #include <functional>
@@ -498,7 +500,8 @@ int TestSMP(int argc, char* argv[])
     std::string argument(argv[i] + 2);
     std::size_t separator = argument.find('=');
     std::string backend = argument.substr(0, separator);
-    int value = std::atoi(argument.substr(separator + 1, argument.size()).c_str());
+    int value;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(argument.substr(separator + 1), value, EXIT_FAILURE);
     if (value)
     {
       vtkSMPTools::SetBackend(backend.c_str());

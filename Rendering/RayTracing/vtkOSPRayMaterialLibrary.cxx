@@ -11,9 +11,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPNGReader.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTexture.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
+
 #include "vtk_jsoncpp.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -461,19 +463,8 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
       {
         std::string v = tstr.substr(key.size());
         double dv = 0.;
-        bool OK = false;
-        try
-        {
-          dv = std::stod(v);
-          OK = true;
-        }
-        catch (const std::invalid_argument&)
-        {
-        }
-        catch (const std::out_of_range&)
-        {
-        }
-        if (OK)
+        auto result = vtk::from_chars(v, dv);
+        if (result.ec == std::errc())
         {
           double vals[1] = { dv };
           this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 1, vals);
@@ -498,21 +489,10 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL(
         double d1 = 0;
         double d2 = 0;
         double d3 = 0;
-        bool OK = false;
-        try
-        {
-          d1 = std::stod(v1);
-          d2 = std::stod(v2);
-          d3 = std::stod(v3);
-          OK = true;
-        }
-        catch (const std::invalid_argument&)
-        {
-        }
-        catch (const std::out_of_range&)
-        {
-        }
-        if (OK)
+        auto result1 = vtk::from_chars(v1, d1);
+        auto result2 = vtk::from_chars(v2, d2);
+        auto result3 = vtk::from_chars(v3, d3);
+        if (result1.ec == std::errc() && result2.ec == std::errc() && result3.ec == std::errc())
         {
           double vals[3] = { d1, d2, d3 };
           this->AddShaderVariable(nickname, key.substr(0, key.size() - 1).c_str(), 3, vals);

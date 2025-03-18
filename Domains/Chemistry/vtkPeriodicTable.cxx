@@ -12,6 +12,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedShortArray.h"
 
 #include <cassert>
@@ -99,10 +100,10 @@ unsigned short vtkPeriodicTable::GetAtomicNumber(const char* str)
 
   // First attempt to just convert the string to an integer. If this
   // works, return the integer
-  int atoi_num = atoi(str);
-  if (atoi_num > 0 && atoi_num <= static_cast<int>(this->GetNumberOfElements()))
+  auto result = vtk::scan_int<unsigned short>(std::string_view(str));
+  if (result && result->value() > 0 && result->value() <= this->GetNumberOfElements())
   {
-    return static_cast<unsigned short>(atoi_num);
+    return result->value();
   }
 
   // Convert str to lowercase (see note about casts in

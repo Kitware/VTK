@@ -5,6 +5,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 
 #include <algorithm> // STL Header for transform
 #include <cctype>    // Header to ensure std::tolower is present
@@ -644,18 +645,23 @@ public:
       size_t start = idx + 1;
       idx = s.find(',', start);
       t = s.substr(start, idx - start); // Red
-      color.push_back(static_cast<unsigned char>(atoi(t.c_str())));
+      unsigned char r, g, b, a;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(t, r);
+      color.push_back(r);
       start = idx + 1;
       idx = s.find(',', start);
       t = s.substr(start, idx - start); // Green
-      color.push_back(static_cast<unsigned char>(atoi(t.c_str())));
+      VTK_FROM_CHARS_IF_ERROR_BREAK(t, g);
+      color.push_back(g);
       start = idx + 1;
       idx = s.find(',', start);
       t = s.substr(start, idx - start); // Blue
-      color.push_back(static_cast<unsigned char>(atoi(t.c_str())));
+      VTK_FROM_CHARS_IF_ERROR_BREAK(t, b);
+      color.push_back(b);
       start = idx + 1;
       t = s.substr(start, s.size() - start); // Alpha
-      color.push_back(static_cast<unsigned char>(atoi(t.c_str())));
+      VTK_FROM_CHARS_IF_ERROR_BREAK(t, a);
+      color.push_back(a);
       this->colorMap[name] = vtkColor4ub(color[0], color[1], color[2], color[3]);
     }
   }
@@ -867,15 +873,16 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(
 
   // Parse arguments.
   const char* start = color.c_str() + pos + 1;
-  char* end;
-  char** final = &end;
+  const char* end = color.data() + color.size();
 
   if (!usePercentage)
   {
     long int value;
     for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
     {
-      value = strtol(start, final, 10);
+      auto result = vtk::scan_int<long int>(std::string_view(start));
+      value = result ? result->value() : 0;
+      end = result ? result->range().data() : start;
       this->Color[i] = clip(value);
       this->StateGood = (start != end);
       start = end;
@@ -886,7 +893,9 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(
     double value;
     for (unsigned int i = 0; this->StateGood && (i < 3); ++i)
     {
-      value = strtod(start, final);
+      auto result = vtk::scan_value<double>(std::string_view(start));
+      value = result ? result->value() : 0.0;
+      end = result ? result->range().data() : start;
       this->Color[i] = static_cast<unsigned char>(255 * clipPercentage(value));
       this->StateGood = (start != end && *end == '%');
       start = ++end;
@@ -896,7 +905,9 @@ void vtkColorStringParser::RGBAFuncStringToRGBA(
   // Parse the alpha value if needed.
   if (this->StateGood && argCount == 4)
   {
-    double value = strtod(start, final);
+    auto result = vtk::scan_value<double>(std::string_view(start));
+    double value = result ? result->value() : 0.0;
+    end = result ? result->range().data() : start;
     this->Color[3] = static_cast<unsigned char>(255 * clip(value));
     this->StateGood = (start != end);
   }

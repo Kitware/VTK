@@ -11,14 +11,16 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
+
+#include <vtksys/FStream.hxx>
+#include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
 #include <cassert>
 #include <locale>
 #include <sstream>
 #include <string>
-#include <vtksys/FStream.hxx>
-#include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorEventRecorder);
@@ -424,7 +426,6 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
   // Read events and invoke them on the object in question
   char event[256] = {}, keySym[256] = {};
   int pos[2], ctrlKey, shiftKey, altKey, keyCode, repeatCount;
-  float tempf;
 
   std::istringstream iss(line);
 
@@ -443,10 +444,9 @@ void vtkInteractorEventRecorder::ReadEvent(const std::string& line)
 
     if (line.size() > 16 && !strncmp(line.c_str(), "# StreamVersion ", 16))
     {
-      int res = sscanf(line.c_str() + 16, "%f", &tempf);
-      if (res && res != EOF)
+      if (const auto result = vtk::scan_value<float>(line.substr(16)))
       {
-        this->CurrentStreamVersion = tempf;
+        this->CurrentStreamVersion = result->value();
       }
     }
   }

@@ -10,7 +10,6 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkExodusIIReaderParser.h"
-#include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -30,7 +29,7 @@
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
-#include "vtkTypeInt64Array.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariantArray.h"
@@ -4992,7 +4991,7 @@ void vtkExodusIIReaderPrivate::SetInitialObjectStatus(
     {
       idlen++;
     }
-    id = atoi(nm.substr(idx, idlen).c_str());
+    VTK_FROM_CHARS_IF_ERROR_BREAK(nm.substr(idx, idlen), id);
   }
   else
   {

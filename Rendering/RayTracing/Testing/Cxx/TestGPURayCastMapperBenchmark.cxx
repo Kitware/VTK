@@ -15,6 +15,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringScanner.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
@@ -42,11 +43,11 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     }
     if (!strcmp(argv[i], "-EXT"))
     {
-      EXT = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], EXT, EXIT_FAILURE);
     }
     if (!strcmp(argv[i], "-RES"))
     {
-      RES = atoi(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], RES, EXIT_FAILURE);
     }
   }
 

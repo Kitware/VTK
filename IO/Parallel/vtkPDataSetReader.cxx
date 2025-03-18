@@ -17,11 +17,13 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtksys/Encoding.hxx"
 #include "vtksys/FStream.hxx"
 
@@ -487,7 +489,9 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
     // Handle parameter: numberOfPieces.
     if (strcmp(param, "numberOfPieces") == 0)
     {
-      this->SetNumberOfPieces(atoi(val));
+      int pieces;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(val, pieces, );
+      this->SetNumberOfPieces(pieces);
     }
 
     // Handle parameter: wholeExtent.
@@ -497,27 +501,33 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
       {
         vtkWarningMacro("Extent mismatch.");
       }
-      sscanf(val, "%d %d %d %d %d %d", ext, ext + 1, ext + 2, ext + 3, ext + 4, ext + 5);
+      auto result = vtk::scan<int, int, int, int, int, int>(
+        std::string_view(val), "{:d} {:d} {:d} {:d} {:d} {:d}");
+      std::tie(ext[0], ext[1], ext[2], ext[3], ext[4], ext[5]) = result->values();
       info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
     }
 
     // Handle parameter: scalarType.
     if (strcmp(param, "scalarType") == 0)
     {
-      vtkDataObject::SetPointDataActiveScalarInfo(info, atoi(val), -1);
+      int scalarType;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(val, scalarType, );
+      vtkDataObject::SetPointDataActiveScalarInfo(info, scalarType, -1);
     }
 
     // Handle parameter: spacing.
     if (strcmp(param, "spacing") == 0)
     {
-      sscanf(val, "%lf %lf %lf", vect, vect + 1, vect + 2);
+      auto result = vtk::scan<double, double, double>(std::string_view(val), "{:f} {:f} {:f}");
+      std::tie(vect[0], vect[1], vect[2]) = result->values();
       info->Set(vtkDataObject::SPACING(), vect, 3);
     }
 
     // Handle parameter: origin.
     if (strcmp(param, "origin") == 0)
     {
-      sscanf(val, "%lf %lf %lf", vect, vect + 1, vect + 2);
+      auto result = vtk::scan<double, double, double>(std::string_view(val), "{:f} {:f} {:f}");
+      std::tie(vect[0], vect[1], vect[2]) = result->values();
       info->Set(vtkDataObject::ORIGIN(), vect, 3);
     }
 
@@ -601,7 +611,9 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         {
           vtkWarningMacro("Found extent parameter for unstructured data.");
         }
-        sscanf(val, "%d %d %d %d %d %d", pi, pi + 1, pi + 2, pi + 3, pi + 4, pi + 5);
+        auto result = vtk::scan<int, int, int, int, int, int>(
+          std::string_view(val), "{:d} {:d} {:d} {:d} {:d} {:d}");
+        std::tie(pi[0], pi[1], pi[2], pi[3], pi[4], pi[5]) = result->values();
       }
     }
     // Start termination was consumed by while loop.

@@ -21,6 +21,7 @@
 #define X3D_TOKENS_HXX
 
 #include "vtkABINamespace.h"
+#include "vtkStringScanner.h"
 
 #include <istream>
 #include <ostream>
@@ -244,18 +245,8 @@ private:
 inline std::istream& operator>>(std::istream& is, Iformat& i)
 {
   std::string s(fixed_get(is, i.width));
-  try
-  {
-    i.value = std::stoi(s);
-  }
-  catch (const std::invalid_argument&)
-  {
-    throw ScanError("Cannot convert \"" + s + "\" to int before: ", is.tellg());
-  }
-  catch (const std::out_of_range&)
-  {
-    throw ScanError("Token \"" + s + "\" out of int range before: ", is.tellg());
-  }
+  VTK_FROM_CHARS_IF_ERROR_COMMAND(
+    s, i.value, throw ScanError("Cannot convert \"" + s + " before: ", is.tellg()));
   return is;
 }
 
@@ -348,18 +339,8 @@ private:
 inline std::istream& operator>>(std::istream& is, PEformat& pe)
 {
   std::string s(fixed_get(is, pe.width));
-  try
-  {
-    pe.value = std::stod(s);
-  }
-  catch (const std::invalid_argument&)
-  {
-    throw ScanError("Cannot convert \"" + s + "\" to double before: ", is.tellg());
-  }
-  catch (const std::out_of_range&)
-  {
-    throw ScanError("Token \"" + s + "\" overflows double before: ", is.tellg());
-  }
+  VTK_FROM_CHARS_IF_ERROR_COMMAND(
+    s, pe.value, throw ScanError("Cannot convert \"" + s + " before: ", is.tellg()));
   return is;
 }
 

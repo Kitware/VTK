@@ -16,19 +16,18 @@
 #include "vtkExtractGrid.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkMultiProcessStreamSerialization.h"
-#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -177,8 +176,9 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
     if (regEx.find(fname))
     {
       auto dbasename = regEx.match(1);
-      auto processor_count = std::atoi(regEx.match(2).c_str());
-      auto my_processor = std::atoi(regEx.match(3).c_str());
+      int processor_count, my_processor;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(regEx.match(2), processor_count, false);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(regEx.match(3), my_processor, false);
 
       auto& info = databases[dbasename];
       if (info.ProcessCount == 0 || info.ProcessCount == processor_count)

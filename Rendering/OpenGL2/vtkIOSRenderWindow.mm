@@ -11,6 +11,7 @@
 #import "vtkOpenGLState.h"
 #import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
+#import "vtkStringScanner.h"
 
 #import <sstream>
 
@@ -483,10 +484,10 @@ void vtkIOSRenderWindow::SetWindowInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
-  ptrdiff_t tmp = 0;
+  uptrdiff_t tmp = 0;
   if (info)
   {
-    (void)sscanf(info, "%tu", &tmp);
+    vtk::from_chars(info, tmp);
   }
 
   this->SetWindowId(reinterpret_cast<void*>(tmp));
@@ -497,10 +498,10 @@ void vtkIOSRenderWindow::SetParentInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
-  ptrdiff_t tmp = 0;
+  uptrdiff_t tmp = 0;
   if (info)
   {
-    (void)sscanf(info, "%tu", &tmp);
+    vtk::from_chars(info, tmp);
   }
 
   this->SetParentId(reinterpret_cast<void*>(tmp));

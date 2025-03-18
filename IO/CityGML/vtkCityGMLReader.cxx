@@ -20,12 +20,13 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
+
 #include "vtk_pugixml.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -554,15 +555,15 @@ public:
   {
     std::string id(idC);
     size_t uPrev = id.find_first_of("_-"), u;
-    char* strEnd;
+    int value;
     while ((u = id.find_first_of("_-", uPrev + 1)) != std::string::npos)
     {
-      int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
+      VTK_FROM_CHARS_WITH_PARAM_IF_ERROR_BREAK(id.substr(uPrev + 1, u - uPrev - 1), value, 16);
       components->push_back(value);
       uPrev = u;
     }
     u = id.size();
-    int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
+    VTK_FROM_CHARS_WITH_PARAM_IF_ERROR_BREAK(id.substr(uPrev + 1, u - uPrev - 1), value, 16);
     components->push_back(value);
   }
 

@@ -11,17 +11,17 @@
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkEnSightGoldReader.h"
-#include "vtkIdListCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
+
 #include "vtksys/FStream.hxx"
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm> /* std::remove */
-#include <cassert>
-#include <cctype> /* isspace, isascii */
+#include <cctype>    /* isspace, isascii */
 #include <map>
 #include <string>
 
@@ -319,11 +319,9 @@ void vtkGenericEnSightReader::SanitizeFileName(std::string& filename)
 //------------------------------------------------------------------------------
 int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 {
-  char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
+  char line[256], binaryLine[81];
   char* binaryLinePtr;
-  int stringRead;
   int timeSet = 1, fileSet = 1;
-  int xtimeSet = 1, xfileSet = 1;
   char* fileName = nullptr;
   int lineRead;
   if (!this->CaseFileName)
@@ -366,13 +364,14 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
     vtkDebugMacro("*** FORMAT section");
     this->ReadNextDataLine(line);
 
-    stringRead = sscanf(line, " %*s %*s %s", subLine);
-    if (stringRead == 1)
+    auto resultSubLine = vtk::scan<std::string_view, std::string_view, std::string_view>(
+      std::string_view(line), " {:s} {:s} {:s}");
+    if (resultSubLine)
     {
-      sscanf(line, " %*s %s %s", subLine1, subLine2);
-      if (strncmp(subLine1, "ensight", 7) == 0)
+      auto& [_, subLine1, subLine2] = resultSubLine->values();
+      if (subLine1 == "ensight")
       {
-        if (strncmp(subLine2, "gold", 4) == 0)
+        if (subLine2 == "gold")
         {
           lineRead = this->ReadNextDataLine(line);
           while (strncmp(line, "GEOMETRY", 8) != 0 && lineRead != 0)
@@ -391,20 +390,24 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             this->ReadNextDataLine(line);
             if (strncmp(line, "model:", 6) == 0)
             {
-              if (sscanf(line, " %*s %d %d%*[ \t]%[^\t\r\n]", &xtimeSet, &fileSet, subLine) == 3)
+              const std::string_view lineView(line);
+              if (auto resultSet0 = vtk::scan<std::string_view, int, int, std::string>(
+                    lineView, " {:s} {:d} {:d} {:s}"))
               {
-                timeSet = xtimeSet;
-                fileSet = xfileSet;
-                this->SetGeometryFileName(subLine);
+                timeSet = std::get<1>(resultSet0->values());
+                fileSet = std::get<2>(resultSet0->values());
+                this->SetGeometryFileName(std::get<3>(resultSet0->values()).c_str());
               }
-              else if (sscanf(line, " %*s %d%*[ \t]%[^\t\r\n]", &xtimeSet, subLine) == 2)
+              else if (auto resultSet1 =
+                         vtk::scan<std::string_view, int, std::string>(lineView, " {:s} {:d} {:s}"))
               {
-                timeSet = xtimeSet;
-                this->SetGeometryFileName(subLine);
+                timeSet = std::get<1>(resultSet1->values());
+                this->SetGeometryFileName(std::get<2>(resultSet1->values()).c_str());
               }
-              else if (sscanf(line, " %*s %[^\t\r\n]", subLine) == 1)
+              else if (auto resultSet2 =
+                         vtk::scan<std::string_view, std::string>(lineView, " {:s} {:s}"))
               {
-                this->SetGeometryFileName(subLine);
+                this->SetGeometryFileName(std::get<1>(resultSet2->values()).c_str());
               }
             } // geometry file name set
             delete this->IS;
@@ -480,10 +483,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             {
               binaryLinePtr = &binaryLine[4];
             }
-            sscanf(binaryLinePtr, " %*s %s", subLine);
-            // If the file is ascii, there might not be a null
-            // terminator. This leads to a UMR in sscanf
-            if (strncmp(subLine, "Binary", 6) == 0 || strncmp(subLine, "binary", 6) == 0)
+            auto resultBinarySubLine = vtk::scan<std::string_view, std::string_view>(
+              std::string_view(binaryLinePtr), "{:s} {:s}");
+            auto subLine = std::get<1>(resultBinarySubLine->values());
+            // If the file is ascii, there might not be a null terminator.
+            if (subLine == "Binary" || subLine == "binary")
             {
               fclose(this->IFile);
               this->IFile = nullptr;
@@ -498,7 +502,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
           } // if we found the geometry section in the case file
         }   // if ensight gold file
       }     // if regular ensight file (not master_server)
-      else if (strncmp(subLine1, "master_server", 13) == 0)
+      else if (subLine1 == "master_server")
       {
         return vtkGenericEnSightReader::ENSIGHT_MASTER_SERVER;
       }
@@ -514,20 +518,24 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         this->ReadNextDataLine(line);
         if (strncmp(line, "model:", 6) == 0)
         {
-          if (sscanf(line, " %*s %d %d%*[ \t]%s", &xtimeSet, &fileSet, subLine) == 3)
+          const std::string_view lineView(line);
+          if (auto resultSet0 = vtk::scan<std::string_view, int, int, std::string>(
+                lineView, " {:s} {:d} {:d} {:s}"))
           {
-            timeSet = xtimeSet;
-            fileSet = xfileSet;
-            this->SetGeometryFileName(subLine);
+            timeSet = std::get<1>(resultSet0->values());
+            fileSet = std::get<2>(resultSet0->values());
+            this->SetGeometryFileName(std::get<3>(resultSet0->values()).c_str());
           }
-          else if (sscanf(line, " %*s %d%*[ \t]%s", &xtimeSet, subLine) == 2)
+          else if (auto resultSet1 =
+                     vtk::scan<std::string_view, int, std::string>(lineView, " {:s} {:d} {:s}"))
           {
-            timeSet = xtimeSet;
-            this->SetGeometryFileName(subLine);
+            timeSet = std::get<1>(resultSet1->values());
+            this->SetGeometryFileName(std::get<2>(resultSet1->values()).c_str());
           }
-          else if (sscanf(line, " %*s %s", subLine) == 1)
+          else if (auto resultSet2 =
+                     vtk::scan<std::string_view, std::string>(lineView, " {:s} {:s}"))
           {
-            this->SetGeometryFileName(subLine);
+            this->SetGeometryFileName(std::get<1>(resultSet2->values()).c_str());
           }
         } // geometry file name set
 
@@ -585,11 +593,12 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
         } // end if IFile == nullptr
 
         this->ReadBinaryLine(binaryLine);
-        // If the file is ascii, there might not be a null
-        // terminator. This leads to a UMR in sscanf
+        // If the file is ascii, there might not be a null terminator.
         binaryLine[80] = '\0';
-        sscanf(binaryLine, " %*s %s", subLine);
-        if (strncmp(subLine, "Binary", 6) == 0)
+        auto resultBinarySubLine =
+          vtk::scan<std::string_view, std::string_view>(std::string_view(binaryLine), "{:s} {:s}");
+        auto subLine = std::get<1>(resultBinarySubLine->values());
+        if (subLine == "Binary")
         {
           fclose(this->IFile);
           this->IFile = nullptr;
@@ -1134,8 +1143,8 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
 //------------------------------------------------------------------------------
 int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int fileSet)
 {
-  char line[256], subLine[256];
-  int cmpTimeSet, cmpFileSet, fileNameNum, lineReadResult, lineScanResult;
+  char line[256];
+  int cmpTimeSet, cmpFileSet, fileNameNum, lineReadResult;
 
   std::string sfilename;
   if (this->FilePath)
@@ -1175,6 +1184,8 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
 
   // Locate the very 'time set' entry by the index
   cmpTimeSet = -10000;
+  vtk::scan_result_type<std::string_view, std::string_view, std::string_view, int> resultSubLine0;
+  std::string_view subLine;
   do
   {
     if (this->ReadNextDataLine(line) == 0)
@@ -1186,18 +1197,28 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
     }
 
     // 'time set: <int>' --- where to obtain cmpTimeSet, a time set index
-    lineScanResult = sscanf(line, "%*s %s %d", subLine, &cmpTimeSet);
-  } while (lineScanResult != 2 || strncmp(line, "time", 4) != 0 ||
-    strncmp(subLine, "set", 3) != 0 || cmpTimeSet != timeSet);
+    resultSubLine0 =
+      vtk::scan<std::string_view, std::string_view, int>(std::string_view(line), "{:s} {:s} {:d}");
+    if (resultSubLine0)
+    {
+      subLine = std::get<1>(resultSubLine0->values());
+      cmpTimeSet = std::get<2>(resultSubLine0->values());
+    }
+  } while (!resultSubLine0 || strncmp(line, "time", 4) != 0 || subLine.substr(0, 3) != "set" ||
+    cmpTimeSet != timeSet);
 
   // Skip 'time set: <int>' and 'number of steps: <int>' to go to
   // 'filename xxx: ...' --- where to obtain the actual file name number(s)
+  vtk::scan_result_type<std::string_view, std::string_view, std::string_view> resultSubLine1;
   for (int i = 0; i < 2; i++)
   {
     lineReadResult = this->ReadNextDataLine(line);
     if (lineReadResult == 0 ||
       // check 'filename xxx: ...' upon the second line (i = 1)
-      (i == 1 && (strncmp(line, "filename", 8) != 0 || sscanf(line, "%*s %s", subLine) != 1)))
+      (i == 1 &&
+        (strncmp(line, "filename", 8) != 0 ||
+          !((resultSubLine1 = vtk::scan<std::string_view, std::string_view>(
+               std::string_view(line), "{:s} {:s}"))))))
     {
       vtkErrorMacro("ReplaceWildCards() failed to find the target 'filename ...: ...' entry!");
       delete this->IS;
@@ -1205,11 +1226,12 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
       return 0;
     }
   }
+  subLine = std::get<1>(resultSubLine1->values());
 
   fileNameNum = -10000;
 
   // 'filename numbers: ...'
-  if (strncmp(subLine, "numbers", 7) == 0)
+  if (subLine == "numbers")
   {
     // The filename number(s) may be provided on the line(s) following
     // 'filename numbers:', as is usually the case --- not "inline". Thus we
@@ -1220,7 +1242,8 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
     // a CASE file have the same EnSight version.
 
     // not "inline"
-    if (sscanf(line, "%*s %*s %d", &fileNameNum) != 1)
+    auto resultFileNameNum = vtk::scan_value<int>(resultSubLine1->range());
+    if (!resultFileNameNum)
     {
       // let's go to the next VALID line that might be several empty lines apart
       if (this->ReadNextDataLine(line) == 0)
@@ -1232,16 +1255,23 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
       }
 
       // obtain the first file name number from the next valid line
-      sscanf(line, "%d", &fileNameNum);
+      fileNameNum = vtk::scan_int<int>(std::string_view(line))->value();
+    }
+    else
+    {
+      fileNameNum = resultFileNameNum->value();
     }
   }
   // 'filename start number: ...' --- followed by 'filename increment: ...'
   else
   {
-    char subSubLine[256];
-    lineScanResult = sscanf(line, "%*s %s %s %d", subLine, subSubLine, &fileNameNum);
-    if (lineScanResult != 3 || strncmp(subLine, "start", 5) != 0 ||
-      strncmp(subSubLine, "number", 6) != 0)
+    auto resultFileNameNum = vtk::scan<std::string_view, int>(resultSubLine1->range(), "{:s} {:d}");
+    std::string_view subSubLine;
+    if (resultFileNameNum)
+    {
+      std::tie(subSubLine, fileNameNum) = resultFileNameNum->values();
+    }
+    if (!resultFileNameNum || subLine != "start" || subSubLine.substr(0, 6) != "number")
     {
       vtkErrorMacro("ReplaceWildCards() failed to find 'filename start number: <int>'!");
       delete this->IS;
@@ -1267,6 +1297,7 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
 
     // Locate the very 'file set' entry by the index
     cmpFileSet = -10000;
+    vtk::scan_result_type<std::string_view, std::string_view, std::string_view, int> resultSubLine;
     do
     {
       if (this->ReadNextDataLine(line) == 0)
@@ -1278,9 +1309,15 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
       }
 
       // 'file set: <int>' --- to obtain cmpFileSet, a file set index
-      lineScanResult = sscanf(line, "%*s %s %d", subLine, &cmpFileSet);
-    } while (lineScanResult != 2 || strncmp(line, "file", 4) != 0 ||
-      strncmp(subLine, "set", 3) != 0 || cmpFileSet != fileSet);
+      resultSubLine = vtk::scan<std::string_view, std::string_view, int>(
+        std::string_view(line), "{:s} {:s} {:d}");
+      if (resultSubLine)
+      {
+        subLine = std::get<1>(resultSubLine->values());
+        cmpFileSet = std::get<2>(resultSubLine->values());
+      }
+    } while (
+      !resultSubLine || strncmp(line, "file", 4) != 0 || subLine != "set" || cmpFileSet != fileSet);
 
     // Skip 'file set: <int>' to go to
     // 'filename index: <int>' --- where to obtain ONE actual file name
@@ -1290,9 +1327,15 @@ int vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet, int f
     // of this reasonable assumption is considered to use an invalid EnSight
     // format that needs to be corrected by the EnSight CASE file user.
     lineReadResult = this->ReadNextDataLine(line);
-    lineScanResult = sscanf(line, "%*s %s %d", subLine, &fileNameNum);
-    if (lineReadResult == 0 || lineScanResult != 2 || strncmp(line, "filename", 8) != 0 ||
-      strncmp(subLine, "index", 5) != 0)
+    resultSubLine =
+      vtk::scan<std::string_view, std::string_view, int>(std::string_view(line), "{:s} {:s} {:d}");
+    if (resultSubLine)
+    {
+      subLine = std::get<1>(resultSubLine->values());
+      fileNameNum = std::get<2>(resultSubLine->values());
+    }
+    if (lineReadResult == 0 || !resultSubLine || strncmp(line, "filename", 8) != 0 ||
+      subLine != "index")
     {
       vtkErrorMacro("ReplaceWildCards() failed to find 'filename index: <int>'!");
       delete this->IS;
@@ -1622,7 +1665,6 @@ int vtkGenericEnSightReader::InsertNewPartId(int partId)
   int lastId = static_cast<int>(this->TranslationTable->PartIdMap.size());
   this->TranslationTable->PartIdMap.insert(std::map<int, int>::value_type(partId, lastId));
   lastId = this->TranslationTable->PartIdMap[partId];
-  // assert( lastId == this->PartIdTranslationTable[partId] );
   return lastId;
 }
 

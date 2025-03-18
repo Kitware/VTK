@@ -10,10 +10,10 @@
 #include "vtkInformationVector.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkObjectFactory.h"
-#include "vtkOutEdgeIterator.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkTree.h"
 #include "vtkVariant.h"
@@ -74,8 +74,15 @@ void vtkNetworkHierarchy::GetSubnets(unsigned int packedIP, int* subnets)
 
 unsigned int vtkNetworkHierarchy::ITON(const vtkStdString& ip)
 {
-  unsigned int subnets[4];
-  sscanf(ip.c_str(), "%u.%u.%u.%u", &(subnets[0]), &(subnets[1]), &(subnets[2]), &(subnets[3]));
+  auto result = vtk::scan<unsigned, unsigned, unsigned, unsigned>(
+    static_cast<std::string>(ip), "{:d}.{:d}.{:d}.{:d}");
+  if (!result)
+  {
+    vtkErrorMacro("Invalid IP string");
+    return 0;
+  }
+  std::array<unsigned int, 4> subnets;
+  std::tie(subnets[0], subnets[1], subnets[2], subnets[3]) = result->values();
   int num = subnets[0];
   num = num << 8;
   num += subnets[1];

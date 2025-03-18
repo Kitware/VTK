@@ -12,13 +12,13 @@
 #pragma warn - 8027 /* functions containing while are not expanded inline */
 #endif
 
-#include <iosfwd>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-
 #include "DICOMConfig.h"
 #include "DICOMTypes.h"
+#include "vtkStringScanner.h"
+
+#include <cstdlib>
+#include <iosfwd>
+#include <string>
 
 //
 // Abstraction of a file used by the DICOMParser.
@@ -143,12 +143,12 @@ public:
   //
   static int ReturnAsInteger(unsigned char* data, bool)
   {
-    return atoi(reinterpret_cast<const char*>(data));
+    return vtk::scan_int<int>(std::string_view(reinterpret_cast<const char*>(data)))->value();
   }
 
   static float ReturnAsFloat(unsigned char* data, bool)
   {
-    return static_cast<float>(atof(reinterpret_cast<const char*>(data)));
+    return vtk::scan_value<float>(std::string_view(reinterpret_cast<const char*>(data)))->value();
   }
 
   bool GetPlatformIsBigEndian() { return PlatformIsBigEndian; }

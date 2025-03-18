@@ -12,8 +12,9 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
+
 #include <cctype>
 #include <cstdio>
 #include <vtksys/SystemTools.hxx>
@@ -1332,9 +1333,8 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
   }
 
   ptr = &(Line[Offset]);
-  val = strtod(ptr, &ptr2);
-
-  if (ptr2 == ptr)
+  auto result = vtk::scan_value<double>(std::string_view(ptr));
+  if (!result)
   {
     this->Offset = 0;
     *end_flag = 1;
@@ -1342,7 +1342,9 @@ double vtkChacoReader::ReadVal(FILE* infile, int* end_flag)
   }
   else
   {
-    this->Offset = (int)(ptr2 - this->Line) / sizeof(char);
+    val = result->value();
+    ptr2 = const_cast<char*>(result->range().data());
+    this->Offset = static_cast<int>(ptr2 - this->Line) / sizeof(char);
   }
 
   return (val);
@@ -1439,9 +1441,8 @@ vtkIdType vtkChacoReader::ReadInt(FILE* infile, int* end_flag)
   }
 
   ptr = &(Line[Offset]);
-  val = (int)strtol(ptr, &ptr2, 10);
-
-  if (ptr2 == ptr)
+  auto result = vtk::scan_value<vtkIdType>(std::string_view(ptr));
+  if (!result)
   {
     this->Offset = 0;
     *end_flag = 1;
@@ -1449,7 +1450,9 @@ vtkIdType vtkChacoReader::ReadInt(FILE* infile, int* end_flag)
   }
   else
   {
-    this->Offset = (int)(ptr2 - this->Line) / sizeof(char);
+    val = result->value();
+    ptr2 = const_cast<char*>(result->range().data());
+    this->Offset = static_cast<int>(ptr2 - this->Line) / sizeof(char);
   }
 
   return (val);

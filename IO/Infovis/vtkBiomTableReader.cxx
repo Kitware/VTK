@@ -7,14 +7,15 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <algorithm>
@@ -175,10 +176,12 @@ void vtkBiomTableReader::ParseShape()
   }
 
   // number of rows is between "[" and ","
-  this->NumberOfRows = atoi(this->FileContents.substr(pos2 + 1, pos3 - pos2).c_str());
+  this->NumberOfRows =
+    vtk::scan_int<int>(this->FileContents.substr(pos2 + 1, pos3 - pos2))->value();
 
   // number of columns is between "," and "]"
-  this->NumberOfColumns = atoi(this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1).c_str());
+  this->NumberOfColumns =
+    vtk::scan_int<int>(this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1))->value();
 }
 
 //------------------------------------------------------------------------------
@@ -373,10 +376,11 @@ void vtkBiomTableReader::ParseSparseData()
       return;
     }
     // row is between "[" and ","
-    int row = atoi(this->FileContents.substr(pos1 + 1, pos2 - pos1).c_str());
+    int row = vtk::scan_int<int>(this->FileContents.substr(pos1 + 1, pos2 - pos1))->value();
 
     // column is between first and second comma
-    int column = 1 + atoi(this->FileContents.substr(pos2 + 1, pos3 - pos2 - 1).c_str());
+    int column =
+      1 + vtk::scan_int<int>(this->FileContents.substr(pos2 + 1, pos3 - pos2 - 1))->value();
 
     std::string value = this->FileContents.substr(pos3 + 1, pos4 - pos3 - 1);
     this->InsertValue(row, column, value);

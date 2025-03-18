@@ -9,6 +9,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 
 #include <sstream>
 #include <vtksys/SystemTools.hxx>
@@ -379,7 +380,9 @@ bool vtkPostgreSQLDatabase::ParseURL(const char* URL)
     this->SetUser(username.empty() ? nullptr : username.c_str());
     this->SetPassword(password.empty() ? nullptr : password.c_str());
     this->SetHostName(hostname.empty() ? nullptr : hostname.c_str());
-    this->SetServerPort(atoi(dataport.c_str()));
+    int port;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(dataport, port, false);
+    this->SetServerPort(port);
     this->SetDatabaseName(database.empty() ? nullptr : database.c_str());
     return true;
   }

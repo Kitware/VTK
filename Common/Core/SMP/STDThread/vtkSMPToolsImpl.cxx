@@ -3,6 +3,7 @@
 
 #include "SMP/Common/vtkSMPToolsImpl.h"
 #include "SMP/STDThread/vtkSMPToolsImpl.txx"
+#include "vtkStringScanner.h"
 
 #include <cstdlib> // For std::getenv()
 #include <thread>  // For std::thread::hardware_concurrency()
@@ -32,7 +33,7 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int numThreads)
     const char* vtkSmpNumThreads = std::getenv("VTK_SMP_MAX_THREADS");
     if (vtkSmpNumThreads)
     {
-      numThreads = std::atoi(vtkSmpNumThreads);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(vtkSmpNumThreads, numThreads);
     }
     else
     {

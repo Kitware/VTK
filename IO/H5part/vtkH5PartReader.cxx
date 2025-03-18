@@ -22,6 +22,7 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -234,7 +235,8 @@ int vtkH5PartReader::IndexOfVectorComponent(const char* name)
   vtksys::RegularExpression re1(".*_([0-9]+)");
   if (re1.find(name))
   {
-    int index = atoi(re1.match(1).c_str());
+    int index;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(re1.match(1), index, 0);
     return index + 1;
   }
   return 0;

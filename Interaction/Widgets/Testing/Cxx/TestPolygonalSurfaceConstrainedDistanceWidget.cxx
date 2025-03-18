@@ -14,34 +14,30 @@
 #include "vtkActor.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkDEMReader.h"
+#include "vtkDistanceRepresentation2D.h"
+#include "vtkDistanceWidget.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkLODActor.h"
 #include "vtkLookupTable.h"
-#include "vtkPoints.h"
+#include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
+#include "vtkPolygonalSurfacePointPlacer.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTriangleFilter.h"
-#include "vtkWarpScalar.h"
-
-#include "vtkDistanceRepresentation2D.h"
-#include "vtkDistanceWidget.h"
-#include "vtkHandleWidget.h"
-#include "vtkPointHandleRepresentation3D.h"
-#include "vtkPolygonalSurfacePointPlacer.h"
+#include "vtkStringScanner.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkTriangleFilter.h"
+#include "vtkWarpScalar.h"
 
 const char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "# StreamVersion 1 i\n"
@@ -213,7 +209,7 @@ int TestPolygonalSurfaceConstrainedDistanceWidget(int argc, char* argv[])
   {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
     {
-      distanceOffset = atof(argv[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], distanceOffset, EXIT_FAILURE);
       distanceOffsetSpecified = true;
     }
   }

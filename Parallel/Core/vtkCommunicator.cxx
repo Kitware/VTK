@@ -11,22 +11,18 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDataSetReader.h"
-#include "vtkDataSetWriter.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
-#include "vtkIntArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkNew.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
 #include "vtkTable.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
@@ -610,12 +606,13 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
   // You would think that the extent information would be properly saved, but
   // no, it is not.
   int extent[6] = { 0, 0, 0, 0, 0, 0 };
-  char* bufferArray = buffer->GetPointer(0);
-  if (strncmp(bufferArray, "EXTENT", 6) == 0)
+  std::string_view bufferView(buffer->GetPointer(0), bufferSize);
+  if (bufferView.substr(0, 6) == "EXTENT")
   {
-    sscanf(bufferArray, "EXTENT %d %d %d %d %d %d", &extent[0], &extent[1], &extent[2], &extent[3],
-      &extent[4], &extent[5]);
-    bufferArray += EXTENT_HEADER_SIZE;
+    auto result =
+      vtk::scan<int, int, int, int, int, int>(bufferView, "EXTENT {:d} {:d} {:d} {:d} {:d} {:d}");
+    std::tie(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]) = result->values();
+    bufferView = bufferView.substr(EXTENT_HEADER_SIZE);
     bufferSize -= EXTENT_HEADER_SIZE;
   }
 
@@ -623,7 +620,7 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
   // parsed by the reader.
   vtkNew<vtkCharArray> objectBuffer;
   objectBuffer->SetNumberOfComponents(1);
-  objectBuffer->SetArray(bufferArray, bufferSize, 1);
+  objectBuffer->SetArray(const_cast<char*>(bufferView.data()), bufferSize, 1);
 
   vtkNew<vtkGenericDataObjectReader> reader;
   reader->ReadFromInputStringOn();

@@ -8,6 +8,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringScanner.h"
 
 #include "vtksys/Encoding.hxx"
 #include "vtksys/SystemTools.hxx"
@@ -244,7 +245,8 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
           std::string::size_type pos2 = desc.find('\n');
           if ((pos != std::string::npos) && (pos2 != std::string::npos))
           {
-            this->NumberOfPages = atoi(desc.substr(pos + 7, pos2 - pos - 7).c_str());
+            VTK_FROM_CHARS_IF_ERROR_RETURN(
+              desc.substr(pos + 7, pos2 - pos - 7), this->NumberOfPages, false);
           }
         }
       }
