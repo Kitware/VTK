@@ -8,7 +8,7 @@ readonly name="lzma"
 readonly ownership="$name Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
-readonly tag="for/vtk-20231030-5.2.5"
+readonly tag="for/vtk-20250318-5.6.4"
 readonly paths="
 CMakeLists.vtk.txt
 COPYING
@@ -50,6 +50,7 @@ src/liblzma/common/hardware_cputhreads.c
 src/liblzma/common/hardware_physmem.c
 src/liblzma/common/index.c
 src/liblzma/common/index_decoder.c
+src/liblzma/common/index_decoder.h
 src/liblzma/common/index_encoder.c
 src/liblzma/common/index_hash.c
 src/liblzma/common/outqueue.c
@@ -115,7 +116,7 @@ src/liblzma/check/crc32_table_be.h
 src/liblzma/check/crc32_table_le.h
 src/liblzma/check/crc64_table_be.h
 src/liblzma/check/crc64_table_le.h
-src/liblzma/check/crc_macros.h
+src/liblzma/check/crc_common.h
 src/liblzma/common/alone_decoder.h
 src/liblzma/common/block_buffer_encoder.h
 src/liblzma/common/block_decoder.h
