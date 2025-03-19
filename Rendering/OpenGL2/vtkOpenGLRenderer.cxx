@@ -629,25 +629,28 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry(vtkFrameBufferO
 
   if (!this->UseDepthPeeling)
   {
-    // old code
-    // this->UpdateTranslucentPolygonalGeometry();
-
-    // new approach
-    if (!this->TranslucentPass)
+    if (!this->UseOIT)
     {
-      vtkOrderIndependentTranslucentPass* oit = vtkOrderIndependentTranslucentPass::New();
-      this->TranslucentPass = oit;
+      this->UpdateTranslucentPolygonalGeometry();
     }
-    vtkTranslucentPass* tp = vtkTranslucentPass::New();
-    this->TranslucentPass->SetTranslucentPass(tp);
-    tp->Delete();
+    else
+    {
+      if (!this->TranslucentPass)
+      {
+        vtkOrderIndependentTranslucentPass* oit = vtkOrderIndependentTranslucentPass::New();
+        this->TranslucentPass = oit;
+      }
+      vtkTranslucentPass* tp = vtkTranslucentPass::New();
+      this->TranslucentPass->SetTranslucentPass(tp);
+      tp->Delete();
 
-    vtkRenderState s(this);
-    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
-    s.SetFrameBuffer(fbo);
-    this->LastRenderingUsedDepthPeeling = 0;
-    this->TranslucentPass->Render(&s);
-    this->NumberOfPropsRendered += this->TranslucentPass->GetNumberOfRenderedProps();
+      vtkRenderState s(this);
+      s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+      s.SetFrameBuffer(fbo);
+      this->LastRenderingUsedDepthPeeling = 0;
+      this->TranslucentPass->Render(&s);
+      this->NumberOfPropsRendered += this->TranslucentPass->GetNumberOfRenderedProps();
+    }
   }
   else // depth peeling.
   {
