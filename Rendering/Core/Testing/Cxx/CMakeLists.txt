@@ -95,6 +95,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestLabeledContourMapperNoLabels.cxx
   TestLabeledContourMapperWithActorMatrix.cxx
   TestManyActors.cxx,NO_VALID
+  TestManyRenderWindows.cxx,NO_VALID,NO_RT,NO_DATA
   TestMapVectorsAsRGBColors.cxx
   TestMapVectorsToColors.cxx
   TestOffAxisStereo.cxx

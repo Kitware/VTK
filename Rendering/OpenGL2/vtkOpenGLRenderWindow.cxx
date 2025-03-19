@@ -521,7 +521,6 @@ vtkOpenGLRenderWindow* vtkOpenGLRenderWindow::New()
 #if defined(VTK_USE_X)
   if ((backend == nullptr) || (std::string(backend) == "vtkXOpenGLRenderWindow"))
   {
-    gladLoaderLoadGLX(nullptr, 0); // Load core glx functions.
     // No need to complain if GLX failed to load because vtkXOpenGLRenderWindow will
     // print the exact reason as a warning anyway.
     vtkNew<vtkXOpenGLRenderWindow> xRenderWindow;

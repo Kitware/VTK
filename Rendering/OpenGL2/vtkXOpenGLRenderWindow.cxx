@@ -72,6 +72,8 @@ vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 
 #define MAX_LIGHTS 8
 
+namespace
+{
 GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawable_type,
   vtkTypeBool doublebuff, vtkTypeBool stereo, vtkTypeBool stencil, bool srgb)
 {
@@ -203,6 +205,33 @@ int XEventTypeEquals(Display*, XEvent* event, XPointer winptr)
     *(reinterpret_cast<Window*>(winptr)) == reinterpret_cast<XAnyEvent*>(event)->window);
 }
 
+// to manage the static GLADGLXLibraryDisplay correctly.
+std::atomic<unsigned int> vtkGLXLibraryDisplayCleanupCounter{ 0 };
+
+/**
+ * The glX symbols are globally defined in glad sources, see glad/src/glx.c.
+ * These symbols must be initialized exactly once in the lifetime of an
+ * application. Symbol reassigment would corrupt existing render
+ * windows.
+ *
+ * This setup is created to overcome an inadvertent memory leak
+ * when `gladLoaderLoadGLX(display, 0)` is used. The memory leak
+ * occurs when the passed in display is nullptr.
+ * glad internally opens a display, discovers GLX extensions
+ * supported by the display.
+ *
+ * Hence, if the code simply called `gladLoaderLoadGLX(nullptr, 0)`,
+ * the application will leak the `Display*`, worst case, one
+ * of the glX functions will crash with an error message
+ * "Maximum number of clients reached". This was a real issue
+ * in VTK 9.4.0. See https://gitlab.kitware.com/vtk/vtk/-/issues/19618
+ */
+// static Display used for loading GLX extensions with GLAD.
+std::atomic<bool> GLADGLXLibraryDisplayOpened{ false };
+int GLXVersion = 0;
+Display* GLADGLXLibraryDisplay = nullptr;
+}
+
 vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo* v = nullptr;
@@ -212,6 +241,12 @@ vtkXVisualInfo* vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
   {
     return nullptr;
   }
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return nullptr;
+  }
+
   this->Internal->FBConfig =
     vtkXOpenGLRenderWindowGetDesiredFBConfig(this->DisplayId, this->StereoCapableWindow,
       this->DoubleBuffer, GLX_WINDOW_BIT, this->StencilCapable, this->UseSRGBColorSpace);
@@ -267,6 +302,8 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
     return nullptr;
   };
   this->SetOpenGLSymbolLoader(loadFunc, nullptr);
+  // Increment static counter
+  ++::vtkGLXLibraryDisplayCleanupCounter;
 }
 
 // free up memory & close the window
@@ -282,6 +319,14 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   {
     ren->SetRenderWindow(nullptr);
   }
+  if (--::vtkGLXLibraryDisplayCleanupCounter == 0)
+  {
+    if (::GLADGLXLibraryDisplay != nullptr)
+    {
+      XCloseDisplay(::GLADGLXLibraryDisplay);
+      GLADGLXLibraryDisplayOpened = false;
+    }
+  }
 
   delete this->Internal;
 }
@@ -289,6 +334,10 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 // End the rendering process and display the image.
 void vtkXOpenGLRenderWindow::Frame()
 {
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
   this->MakeCurrent();
   this->Superclass::Frame();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers && this->WindowId != 0)
@@ -424,6 +473,12 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
   xsh.width = width;
   xsh.height = height;
+
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
 
   // get the default display connection
   if (!this->EnsureDisplay())
@@ -744,8 +799,12 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     if (this->Internal->ContextId)
     {
       glFinish();
-      glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-      glXMakeCurrent(this->DisplayId, None, nullptr);
+      // load GLX
+      if (this->EnsureGLX())
+      {
+        glXDestroyContext(this->DisplayId, this->Internal->ContextId);
+        glXMakeCurrent(this->DisplayId, None, nullptr);
+      }
     }
   }
   else
@@ -1015,6 +1074,12 @@ void vtkXOpenGLRenderWindow::SetSizeNoXResize(int width, int height)
 
 bool vtkXOpenGLRenderWindow::SetSwapControl(int i)
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return false;
+  }
+
   glXSwapIntervalEXTProc glXSwapIntervalEXT =
     (glXSwapIntervalEXTProc)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
 
@@ -1117,6 +1182,11 @@ void vtkXOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkXOpenGLRenderWindow::MakeCurrent()
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
   // when debugging XErrors uncomment the following lines
   // if (this->DisplayId)
   //   {
@@ -1133,6 +1203,11 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 
 void vtkXOpenGLRenderWindow::ReleaseCurrent()
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
   if (this->Internal->ContextId && (this->Internal->ContextId == glXGetCurrentContext()) &&
     this->DisplayId)
   {
@@ -1145,6 +1220,11 @@ void vtkXOpenGLRenderWindow::ReleaseCurrent()
 // Tells if this window is the current OpenGL context for the calling thread.
 bool vtkXOpenGLRenderWindow::IsCurrent()
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return false;
+  }
   bool result = false;
   if (this->Internal->ContextId)
   {
@@ -1155,6 +1235,11 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
 
 void vtkXOpenGLRenderWindow::PushContext()
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
   GLXContext current = glXGetCurrentContext();
   this->ContextStack.push(current);
   this->DisplayStack.push(glXGetCurrentDisplay());
@@ -1167,6 +1252,11 @@ void vtkXOpenGLRenderWindow::PushContext()
 
 void vtkXOpenGLRenderWindow::PopContext()
 {
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return;
+  }
   GLXContext current = glXGetCurrentContext();
   GLXContext target = static_cast<GLXContext>(this->ContextStack.top());
   this->ContextStack.pop();
@@ -1303,6 +1393,37 @@ bool vtkXOpenGLRenderWindow::EnsureDisplay()
   return this->DisplayId != nullptr;
 }
 
+bool vtkXOpenGLRenderWindow::EnsureGLX()
+{
+  if (!::GLADGLXLibraryDisplayOpened.exchange(true))
+  {
+    ::GLADGLXLibraryDisplay = XOpenDisplay(static_cast<char*>(nullptr));
+    if (::GLADGLXLibraryDisplay)
+    {
+      ::GLXVersion = gladLoaderLoadGLX(::GLADGLXLibraryDisplay, 0);
+      if (::GLXVersion > 0)
+      {
+        return true;
+      }
+      else
+      {
+        vtkGenericWarningMacro(<< "Failed to load GLX. Please install OpenGL drivers.");
+        return false;
+      }
+    }
+    else
+    {
+      vtkGenericWarningMacro(<< "bad X server connection. DISPLAY="
+                             << vtksys::SystemTools::GetEnv("DISPLAY"));
+      return false;
+    }
+  }
+  else
+  {
+    return (::GLXVersion > 0);
+  }
+}
+
 // Get this RenderWindow's parent X window id.
 Window vtkXOpenGLRenderWindow::GetParentId()
 {
@@ -1411,6 +1532,11 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   {
     return "display id not set";
   }
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return "GLX not available.";
+  }
 
   int scrnum = XDefaultScreen(this->DisplayId);
   const char* serverVendor = glXQueryServerString(this->DisplayId, scrnum, GLX_VENDOR);
@@ -1485,6 +1611,11 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
 vtkTypeBool vtkXOpenGLRenderWindow::IsDirect()
 {
   this->MakeCurrent();
+  // load GLX
+  if (!this->EnsureGLX())
+  {
+    return false;
+  }
   this->UsingHardware = 0;
   if (this->DisplayId && this->Internal->ContextId)
   {
