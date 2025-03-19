@@ -95,6 +95,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestOffAxisStereo.cxx
   TestOnAndOffScreenConeCxx.cxx
   TestOpacity.cxx
+  TestOpacityMSAA.cxx
   TestOrderedTriangulator.cxx
   TestOSConeCxx.cxx
   TestPickingManager.cxx,NO_VALID
