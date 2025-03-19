@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -107,10 +107,10 @@ class App {
     bool allow_extras_{false};
 
     /// If ignore, allow extra arguments in the ini file (ie, don't throw an error). INHERITABLE
-    /// if error error on an extra argument, and if capture feed it to the app
+    /// if error, error on an extra argument, and if capture feed it to the app
     config_extras_mode allow_config_extras_{config_extras_mode::ignore};
 
-    ///  If true, return immediately on an unrecognized option (implies allow_extras) INHERITABLE
+    ///  If true, cease processing on an unrecognized option (implies allow_extras) INHERITABLE
     bool prefix_command_{false};
 
     /// If set to true the name was automatically generated from the command line vs a user set name
@@ -218,14 +218,18 @@ class App {
     /// Storage for subcommand list
     std::vector<App_p> subcommands_{};
 
-    /// If true, the program name is not case sensitive INHERITABLE
+    /// If true, the program name is not case-sensitive INHERITABLE
     bool ignore_case_{false};
 
     /// If true, the program should ignore underscores INHERITABLE
     bool ignore_underscore_{false};
 
-    /// Allow subcommand fallthrough, so that parent commands can collect commands after subcommand.  INHERITABLE
+    /// Allow options or other arguments to fallthrough, so that parent commands can collect options after subcommand.
+    /// INHERITABLE
     bool fallthrough_{false};
+
+    /// Allow subcommands to fallthrough, so that parent commands can trigger other subcommands after subcommand.
+    bool subcommand_fallthrough_{true};
 
     /// Allow '/' for options for Windows like options. Defaults to true on Windows, false otherwise. INHERITABLE
     bool allow_windows_style_options_{
@@ -256,6 +260,9 @@ class App {
     /// This is potentially useful as a modifier subcommand
     bool silent_{false};
 
+    /// indicator that the subcommand should allow non-standard option arguments, such as -single_dash_flag
+    bool allow_non_standard_options_{false};
+
     /// Counts the number of times this command/subcommand was parsed
     std::uint32_t parsed_{0U};
 
@@ -275,7 +282,7 @@ class App {
     App *parent_{nullptr};
 
     /// The group membership INHERITABLE
-    std::string group_{"Subcommands"};
+    std::string group_{"SUBCOMMANDS"};
 
     /// Alias names for the subcommand
     std::vector<std::string> aliases_{};
@@ -388,6 +395,12 @@ class App {
         return this;
     }
 
+    /// allow non standard option names
+    App *allow_non_standard_option_names(bool allowed = true) {
+        allow_non_standard_options_ = allowed;
+        return this;
+    }
+
     /// Set the subcommand to be disabled by default, so on clear(), at the start of each parse it is disabled
     App *disabled_by_default(bool disable = true) {
         if(disable) {
@@ -442,9 +455,10 @@ class App {
         return this;
     }
 
-    /// Do not parse anything after the first unrecognized option and return
-    App *prefix_command(bool allow = true) {
-        prefix_command_ = allow;
+    /// Do not parse anything after the first unrecognized option (if true) all remaining arguments are stored in
+    /// remaining args
+    App *prefix_command(bool is_prefix = true) {
+        prefix_command_ = is_prefix;
         return this;
     }
 
@@ -827,10 +841,16 @@ class App {
         return this;
     }
 
-    /// Stop subcommand fallthrough, so that parent commands cannot collect commands after subcommand.
+    /// Set fallthrough, set to true so that options will fallthrough to parent if not recognized in a subcommand
     /// Default from parent, usually set on parent.
     App *fallthrough(bool value = true) {
         fallthrough_ = value;
+        return this;
+    }
+
+    /// Set subcommand fallthrough, set to true so that subcommands on parents are recognized
+    App *subcommand_fallthrough(bool value = true) {
+        subcommand_fallthrough_ = value;
         return this;
     }
 
@@ -1083,6 +1103,9 @@ class App {
     /// Check the status of fallthrough
     CLI11_NODISCARD bool get_fallthrough() const { return fallthrough_; }
 
+    /// Check the status of subcommand fallthrough
+    CLI11_NODISCARD bool get_subcommand_fallthrough() const { return subcommand_fallthrough_; }
+
     /// Check the status of the allow windows style options
     CLI11_NODISCARD bool get_allow_windows_style_options() const { return allow_windows_style_options_; }
 
@@ -1131,6 +1154,9 @@ class App {
 
     /// Get the status of silence
     CLI11_NODISCARD bool get_silent() const { return silent_; }
+
+    /// Get the status of silence
+    CLI11_NODISCARD bool get_allow_non_standard_option_names() const { return allow_non_standard_options_; }
 
     /// Get the status of disabled
     CLI11_NODISCARD bool get_immediate_callback() const { return immediate_callback_; }
@@ -1190,7 +1216,7 @@ class App {
     /// Get a display name for an app
     CLI11_NODISCARD std::string get_display_name(bool with_aliases = false) const;
 
-    /// Check the name, case insensitive and underscore insensitive if set
+    /// Check the name, case-insensitive and underscore insensitive if set
     CLI11_NODISCARD bool check_name(std::string name_to_check) const;
 
     /// Get the groups available directly from this option (in order)
@@ -1340,6 +1366,11 @@ class Option_group : public App {
         : App(std::move(group_description), "", parent) {
         group(group_name);
         // option groups should have automatic fallthrough
+        if(group_name.empty() || group_name.front() == '+') {
+            // help will not be used by default in these contexts
+            set_help_flag("");
+            set_help_all_flag("");
+        }
     }
     using App::add_option;
     /// Add an existing option to the Option_group

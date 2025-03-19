@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -132,8 +132,8 @@ class BadNameString : public ConstructionError {
     static BadNameString BadPositionalName(std::string name) {
         return BadNameString("Invalid positional Name: " + name);
     }
-    static BadNameString DashesOnly(std::string name) {
-        return BadNameString("Must have a name, not just dashes: " + name);
+    static BadNameString ReservedName(std::string name) {
+        return BadNameString("Names '-','--','++' are reserved and not allowed as option names " + name);
     }
     static BadNameString MultiPositionalNames(std::string name) {
         return BadNameString("Only one positional name allowed, remove: " + name);
@@ -347,7 +347,7 @@ class HorribleError : public ParseError {
 
 // After parsing
 
-/// Thrown when counting a non-existent option
+/// Thrown when counting a nonexistent option
 class OptionNotFound : public Error {
     CLI11_ERROR_DEF(Error, OptionNotFound)
     explicit OptionNotFound(std::string name) : OptionNotFound(name + " not found", ExitCodes::OptionNotFound) {}

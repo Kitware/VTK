@@ -8,7 +8,7 @@ readonly name="cli11"
 readonly ownership="CLI11 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/cli11.git"
-readonly tag="for/vtk-20241208-2.4.2"
+readonly tag="for/vtk-20250317-2.5.0"
 readonly paths="
 include/CLI/*.hpp
 include/CLI/impl/*.hpp

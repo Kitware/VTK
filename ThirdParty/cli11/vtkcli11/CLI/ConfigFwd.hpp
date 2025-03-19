@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024, University of Cincinnati, developed by Henry Schreiner
+// Copyright (c) 2017-2025, University of Cincinnati, developed by Henry Schreiner
 // under NSF AWARD 1414736 and by the respective contributors.
 // All rights reserved.
 //
@@ -34,12 +34,14 @@ struct ConfigItem {
     std::string name{};
     /// Listing of inputs
     std::vector<std::string> inputs{};
-
+    /// @brief indicator if a multiline vector separator was inserted
+    bool multiline{false};
     /// The list of parents and name joined by "."
     CLI11_NODISCARD std::string fullname() const {
         std::vector<std::string> tmp = parents;
         tmp.emplace_back(name);
         return detail::join(tmp, ".");
+        (void)multiline;  // suppression for cppcheck false positive
     }
 };
 
@@ -100,6 +102,10 @@ class ConfigBase : public Config {
     uint8_t maximumLayers{255};
     /// the separator used to separator parent layers
     char parentSeparatorChar{'.'};
+    /// comment default values
+    bool commentDefaultsBool = false;
+    /// specify the config reader should collapse repeated field names to a single vector
+    bool allowMultipleDuplicateFields{false};
     /// Specify the configuration index to use for arrayed sections
     int16_t configIndex{-1};
     /// Specify the configuration section that should be used
@@ -147,6 +153,11 @@ class ConfigBase : public Config {
         parentSeparatorChar = sep;
         return this;
     }
+    /// comment default value options
+    ConfigBase *commentDefaults(bool comDef = true) {
+        commentDefaultsBool = comDef;
+        return this;
+    }
     /// get a reference to the configuration section
     std::string &sectionRef() { return configSection; }
     /// get the section
@@ -164,6 +175,11 @@ class ConfigBase : public Config {
     /// specify a particular index in the section to use (-1) for all sections to use
     ConfigBase *index(int16_t sectionIndex) {
         configIndex = sectionIndex;
+        return this;
+    }
+    /// specify that multiple duplicate arguments should be merged even if not sequential
+    ConfigBase *allowDuplicateFields(bool value = true) {
+        allowMultipleDuplicateFields = value;
         return this;
     }
 };
