@@ -119,6 +119,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
         # reference to contiguous arrays so that they are not dealocated
         self._arrays = {}
 
+
     def __getattr__(self, name):
         in_set = name in self._FORWARD_SET
         in_get = name in self._FORWARD_GET
@@ -176,7 +177,7 @@ class vtkXArrayCFReader(VTKPythonAlgorithmBase):
                 tree = xr.open_datatree(self._filename)
                 self._dsxr = tree[self._node].to_dataset()
             else:
-                self._dsxr = xr.open_dataset(self._filename)
+                self._dsxr = xr.open_dataset(self._filename, decode_timedelta=True)
             self._update_accessor()
         self._reader.UpdateDataObject()
         roi = self._reader.GetOutputInformation(0)
