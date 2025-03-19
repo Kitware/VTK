@@ -20,7 +20,7 @@ PDF. It supports the following features.
    4. Embedding PNG, Jpeg images.
    5. Embedding Type1 font and TrueType font.
    6. Creating encrypted PDF files.
-   7. Using various character set (ISO8859-1~16, MSCP1250~8, KOI8-R).
+   7. Using various character set (ISO8859-1\~16, MSCP1250\~8, KOI8-R).
    8. Supporting CJK fonts and encodings.
 
 You can add the feature of PDF creation by using Haru without understanding 

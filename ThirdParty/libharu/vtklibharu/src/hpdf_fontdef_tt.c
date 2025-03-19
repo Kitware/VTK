@@ -936,6 +936,15 @@ ParseCMap (HPDF_FontDef  fontdef)
         if (platformID == 1 && encodingID ==0 && format == 1)
             byte_encoding_offset = offset;
 
+        /* Apple - see https://github.com/opentypejs/opentype.js/issues/139
+         *  For example: Helvetica.ttc has platformID == 0 and encodingID == 1;
+         *  HelveticaNeue.tcc has platformID == 0 and encodingID == 3
+         */
+        if (platformID == 0 && (encodingID == 1 || encodingID == 3) && format == 4) {
+            ms_unicode_encoding_offset = offset;
+            break;
+        }
+
         ret = HPDF_Stream_Seek (attr->stream, save_offset, HPDF_SEEK_SET);
         if (ret != HPDF_OK)
            return ret;

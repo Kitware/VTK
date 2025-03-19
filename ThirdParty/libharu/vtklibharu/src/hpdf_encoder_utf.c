@@ -199,7 +199,7 @@ UTF8_Encoder_EncodeText_Func  (HPDF_Encoder        encoder,
         }
     }
 
-    *length = c - result;
+    *length = (HPDF_UINT) (c - result);
 
     return result;
 }

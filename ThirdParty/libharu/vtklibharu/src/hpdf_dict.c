@@ -304,7 +304,7 @@ HPDF_Dict_Add  (HPDF_Dict        dict,
     }
 
     if (dict->list->count >= HPDF_LIMIT_MAX_DICT_ELEMENT) {
-        HPDF_PTRACE((" HPDF_Dict_Add exceed limitatin of dict count(%d)\n",
+        HPDF_PTRACE((" HPDF_Dict_Add exceed limitation of dict count(%d)\n",
                     HPDF_LIMIT_MAX_DICT_ELEMENT));
 
         HPDF_Obj_Free (dict->mmgr, obj);
