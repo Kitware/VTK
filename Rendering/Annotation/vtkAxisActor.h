@@ -857,6 +857,13 @@ private:
   void UpdateExponentActorProperty();
   ///@}
 
+  /**
+   * Fill collection with all props that may need to be rendered
+   * during the Translucent pass.
+   * See RenderTranslucentGeometry.
+   */
+  void GetTranslucentProps(vtkPropCollection* collection);
+
   std::string Title;
   std::string Exponent;
   char* LabelFormat = nullptr;

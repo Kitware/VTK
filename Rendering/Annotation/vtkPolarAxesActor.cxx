@@ -15,6 +15,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkPropCollection.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
@@ -295,68 +296,108 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 }
 
 //------------------------------------------------------------------------------
-int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport* viewport)
+void vtkPolarAxesActor::GetRendered3DProps(vtkPropCollection* collection, bool translucent)
 {
-  // Initialization
-  int renderedSomething = 0;
-  if (!this->Camera)
-  {
-    vtkErrorMacro(<< "No camera!");
-    return renderedSomething;
-  }
-
-  this->BuildAxes(viewport);
-
-  // Render the polar axis
   if (this->PolarAxisVisibility)
   {
-    renderedSomething += this->PolarAxis->RenderOpaqueGeometry(viewport);
+    collection->AddItem(this->PolarAxis);
   }
 
-  // Render the radial axes
   if (this->RadialAxesVisibility)
   {
-    bool isInnerAxis, isAxisVisible;
     for (int i = 0; i < this->NumberOfRadialAxes; ++i)
     {
-      isInnerAxis = (i != this->NumberOfRadialAxes - 1) ||
-        (vtkMathUtilities::FuzzyCompare(MaximumAngle, MinimumAngle));
-      isAxisVisible = !isInnerAxis || this->DrawRadialGridlines;
+      bool isInnerAxis = (i != this->NumberOfRadialAxes - 1) ||
+        (vtkMathUtilities::FuzzyCompare(this->MaximumAngle, this->MinimumAngle));
+      bool isAxisVisible = !isInnerAxis || this->DrawRadialGridlines;
       if (this->RadialAxesVisibility && isAxisVisible)
       {
-        renderedSomething += this->RadialAxes[i]->RenderOpaqueGeometry(viewport);
+        collection->AddItem(this->RadialAxes[i]);
       }
     }
   }
 
-  // Render the polar arcs
-  if (this->PolarArcsVisibility)
+  if (this->PolarArcsVisibility && !translucent)
   {
-    renderedSomething += this->PolarArcsActor->RenderOpaqueGeometry(viewport);
-    renderedSomething += this->SecondaryPolarArcsActor->RenderOpaqueGeometry(viewport);
-
+    collection->AddItem(this->PolarArcsActor);
+    collection->AddItem(this->SecondaryPolarArcsActor);
     if (this->PolarTickVisibility)
     {
       if (this->ArcTickVisibility)
       {
-        renderedSomething += this->ArcTickActor->RenderOpaqueGeometry(viewport);
+        collection->AddItem(this->ArcTickActor);
       }
       if (this->ArcMinorTickVisibility)
       {
-        renderedSomething += this->ArcMinorTickActor->RenderOpaqueGeometry(viewport);
+        collection->AddItem(this->ArcMinorTickActor);
       }
     }
   }
-  return renderedSomething;
 }
 
+//------------------------------------------------------------------------------
+vtkTypeBool vtkPolarAxesActor::HasTranslucentPolygonalGeometry()
+{
+  vtkNew<vtkPropCollection> renderedProps;
+  this->GetRendered3DProps(renderedProps, true);
+  renderedProps->InitTraversal();
+  for (int idx = 0; idx < renderedProps->GetNumberOfItems(); idx++)
+  {
+    vtkProp* prop = renderedProps->GetNextProp();
+    if (prop->HasTranslucentPolygonalGeometry())
+    {
+      return 1;
+    }
+  }
+
+  return Superclass::HasTranslucentPolygonalGeometry();
+}
+
+//------------------------------------------------------------------------------
+int vtkPolarAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
+{
+  int numberOfRenderedProps = 0;
+
+  vtkNew<vtkPropCollection> renderedProps;
+  this->GetRendered3DProps(renderedProps, true);
+  renderedProps->InitTraversal();
+  for (int idx = 0; idx < renderedProps->GetNumberOfItems(); idx++)
+  {
+    vtkProp* prop = renderedProps->GetNextProp();
+    numberOfRenderedProps += prop->RenderTranslucentPolygonalGeometry(viewport);
+  }
+
+  return numberOfRenderedProps;
+}
+
+//------------------------------------------------------------------------------
+int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport* viewport)
+{
+  // Initialization
+  int numberOfRenderedProps = 0;
+
+  this->BuildAxes(viewport);
+
+  vtkNew<vtkPropCollection> renderedProps;
+  this->GetRendered3DProps(renderedProps, false);
+  renderedProps->InitTraversal();
+  for (int idx = 0; idx < renderedProps->GetNumberOfItems(); idx++)
+  {
+    vtkProp* prop = renderedProps->GetNextProp();
+    numberOfRenderedProps += prop->RenderOpaqueGeometry(viewport);
+  }
+
+  return numberOfRenderedProps;
+}
+
+//------------------------------------------------------------------------------
 int vtkPolarAxesActor::RenderOverlay(vtkViewport* viewport)
 {
-  int renderedSomething = 0;
+  int numberOfRenderedProps = 0;
 
   if (this->PolarAxisVisibility && this->PolarAxis->GetUse2DMode())
   {
-    renderedSomething += this->PolarAxis->RenderOverlay(viewport);
+    numberOfRenderedProps += this->PolarAxis->RenderOverlay(viewport);
   }
 
   if (this->RadialAxesVisibility)
@@ -365,11 +406,11 @@ int vtkPolarAxesActor::RenderOverlay(vtkViewport* viewport)
     {
       if (this->RadialAxes[i]->GetUse2DMode())
       {
-        renderedSomething += this->RadialAxes[i]->RenderOverlay(viewport);
+        numberOfRenderedProps += this->RadialAxes[i]->RenderOverlay(viewport);
       }
     }
   }
-  return renderedSomething;
+  return numberOfRenderedProps;
 }
 
 //------------------------------------------------------------------------------
@@ -666,6 +707,12 @@ bool vtkPolarAxesActor::CheckMembersConsistency()
 //------------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes(vtkViewport* viewport)
 {
+  if (!this->Camera)
+  {
+    vtkWarningMacro("vtkPolarAxesActor requires a Camera to be built.");
+    return;
+  }
+
   if (this->GetMTime() < this->BuildTime.GetMTime())
   {
     this->AutoScale(viewport);

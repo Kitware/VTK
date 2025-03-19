@@ -35,6 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkPropCollection;
 class vtkProperty;
 class vtkStringArray;
 class vtkTextProperty;
@@ -57,8 +58,17 @@ public:
    */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   ///@}
+
+  /**
+   * Fill the collection with the underlying vtkProp3D in use.
+   * This depends on object visibilities.
+   * @sa RenderOpaqueGeometry, HasTranslucentPolygonalGeometry and
+   * RenderTranslucentPolygonalGeometry
+   */
+  void GetRendered3DProps(vtkPropCollection*, bool translucent);
 
   ///@{
   /**
