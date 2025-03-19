@@ -44,7 +44,7 @@
 
 // clang-format off
 #include <vtk_fmt.h> // needed for `fmt`
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 // clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN

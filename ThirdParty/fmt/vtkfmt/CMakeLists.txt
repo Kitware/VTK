@@ -4,6 +4,7 @@ set (sources
 
 set (headers
   vtkfmt/args.h
+  vtkfmt/base.h
   vtkfmt/chrono.h
   vtkfmt/color.h
   vtkfmt/compile.h

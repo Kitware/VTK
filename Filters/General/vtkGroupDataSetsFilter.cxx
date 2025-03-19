@@ -19,10 +19,10 @@
 #include <cmath>
 #include <string>
 #include <vector>
-#include <vtk_fmt.h>
 
+#include <vtk_fmt.h>
 // clang-format off
-#include VTK_FMT(fmt/core.h)
+#include VTK_FMT(fmt/format.h)
 // clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
