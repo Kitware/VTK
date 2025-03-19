@@ -26,6 +26,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFWriter);
 vtkCxxSetObjectMacro(vtkHDFWriter, Controller, vtkMultiProcessController);
@@ -567,7 +569,9 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkDataObjectTree* input)
     {
       this->Impl->CreateHdfGroupWithLinkOrder(group, "Assembly");
     }
-    writeSuccess &= this->AppendMultiblock(this->Impl->OpenExistingGroup(group, "Assembly"), mb);
+    int leafIndex = 0;
+    writeSuccess &=
+      this->AppendMultiblock(this->Impl->OpenExistingGroup(group, "Assembly"), mb, leafIndex);
   }
   else
   {
@@ -1460,7 +1464,7 @@ bool vtkHDFWriter::AppendAssembly(hid_t assemblyGroup, vtkPartitionedDataSetColl
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* mb)
+bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* mb, int& leafIndex)
 {
   // Iterate over the children of the multiblock, recurse if needed.
   vtkSmartPointer<vtkDataObjectTreeIterator> treeIter;
@@ -1472,14 +1476,17 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
   for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
   {
     // Retrieve name from metadata or create one
-    std::string subTreeName;
+    std::string uniqueSubTreeName;
+    std::string originalSubTreeName;
     if (mb->HasMetaData(treeIter) && mb->GetMetaData(treeIter)->Has(vtkCompositeDataSet::NAME()))
     {
-      subTreeName = mb->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME());
+      originalSubTreeName =
+        std::string(mb->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME()));
+      uniqueSubTreeName = originalSubTreeName + "_" + std::to_string(leafIndex);
     }
-    if (subTreeName.empty())
+    else
     {
-      subTreeName = "Block" + std::to_string(treeIter->GetCurrentFlatIndex());
+      uniqueSubTreeName = originalSubTreeName = "Block_" + std::to_string(leafIndex);
     }
 
     if (treeIter->GetCurrentDataObject()->IsA("vtkMultiBlockDataSet"))
@@ -1488,17 +1495,19 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
       auto subTree = vtkMultiBlockDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
       if (this->CurrentTimeIndex == 0)
       {
-        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, subTreeName.c_str());
+        this->Impl->CreateHdfGroupWithLinkOrder(assemblyGroup, originalSubTreeName.c_str());
       }
       this->AppendMultiblock(
-        this->Impl->OpenExistingGroup(assemblyGroup, subTreeName.c_str()), subTree);
+        this->Impl->OpenExistingGroup(assemblyGroup, originalSubTreeName.c_str()), subTree,
+        leafIndex);
     }
     else
     {
+      leafIndex++;
       if (this->UseExternalComposite)
       {
         // Create the block in a separate file and link it externally
-        if (!this->AppendExternalBlock(treeIter->GetCurrentDataObject(), subTreeName))
+        if (!this->AppendExternalBlock(treeIter->GetCurrentDataObject(), uniqueSubTreeName))
         {
           return false;
         }
@@ -1508,11 +1517,11 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
         // Create a subgroup in root, write the data into it and softlink it to the assembly
         if (this->CurrentTimeIndex == 0)
         {
-          vtkHDF::ScopedH5GHandle datasetGroup =
-            this->Impl->CreateHdfGroupWithLinkOrder(this->Impl->GetRoot(), subTreeName.c_str());
+          vtkHDF::ScopedH5GHandle datasetGroup = this->Impl->CreateHdfGroupWithLinkOrder(
+            this->Impl->GetRoot(), uniqueSubTreeName.c_str());
         }
         this->DispatchDataObject(
-          this->Impl->OpenExistingGroup(this->Impl->GetRoot(), subTreeName.c_str()),
+          this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
           treeIter->GetCurrentDataObject());
       }
 
@@ -1520,8 +1529,9 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
       // belongs
       if (this->CurrentTimeIndex == 0)
       {
-        const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + subTreeName;
-        const std::string linkSource = this->Impl->GetGroupName(assemblyGroup) + "/" + subTreeName;
+        const std::string linkTarget = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + uniqueSubTreeName;
+        const std::string linkSource =
+          this->Impl->GetGroupName(assemblyGroup) + "/" + originalSubTreeName;
 
         if (!this->Impl->CreateSoftLink(
               this->Impl->GetRoot(), linkSource.c_str(), linkTarget.c_str()))
