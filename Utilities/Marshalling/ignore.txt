@@ -22,6 +22,7 @@ Common/Core/vtkAssume.h
 Common/Core/vtkAtomicMutex.h
 Common/Core/vtkAutoInit.h
 Common/Core/vtkBatch.h
+Common/Core/vtkBitArray.h
 Common/Core/vtkBitArrayIterator.h
 Common/Core/vtkBoxMuellerRandomSequence.h
 Common/Core/vtkBreakPoint.h

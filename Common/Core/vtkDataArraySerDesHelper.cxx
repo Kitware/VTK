@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkArrayDispatch.h"
+#include "vtkBitArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDeserializer.h"
@@ -11,6 +12,7 @@
 #include "vtkLongLongArray.h"
 #include "vtkLookupTable.h"
 #include "vtkSerializer.h"
+#include "vtkSetGet.h"
 #include "vtkShortArray.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeFloat64Array.h"
@@ -55,6 +57,7 @@ struct ArrayTypeInfo
 #define TYPE_INFO_MACRO(className) \
   { #className, className::New, typeid(className) }
 std::vector<ArrayTypeInfo> ArrayTypes = {
+  TYPE_INFO_MACRO(vtkBitArray),
   TYPE_INFO_MACRO(vtkDoubleArray),
   TYPE_INFO_MACRO(vtkFloatArray),
   TYPE_INFO_MACRO(vtkIdTypeArray),
@@ -97,8 +100,14 @@ struct vtkDataArraySerializer
     auto values = vtk::DataArrayValueRange(array);
     auto context = serializer->GetContext();
     auto blob = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
-    blob->SetArray(
-      reinterpret_cast<vtkTypeUInt8*>(values.data()), values.size() * array->GetDataTypeSize(), 1);
+    vtkIdType arrSize = values.size() * array->GetDataTypeSize();
+    if (array->IsA("vtkBitArray"))
+    {
+      arrSize = (values.size() + 7) / 8;
+      state["NumberOfBits"] = values.size();
+    }
+    blob->SetArray(reinterpret_cast<vtkTypeUInt8*>(values.data()), arrSize, 1);
+
     std::string hash;
     if (context->RegisterBlob(blob, hash))
     {
@@ -122,31 +131,41 @@ struct vtkDataArrayDeserializer
   template <typename ArrayT>
   void operator()(ArrayT* array, const nlohmann::json& state, vtkDeserializer* deserializer)
   {
-    auto* context = deserializer->GetContext();
-    const auto& hash = state["Hash"].get<std::string>();
-    const auto& blobs = context->Blobs();
-    const auto blobIter = blobs.find(hash);
-    if (blobIter == blobs.end())
     {
-      vtkErrorWithObjectMacro(context,
-        << deserializer->GetObjectDescription() << " failed to find blob for hash=" << hash);
-      return;
+      auto* context = deserializer->GetContext();
+      const auto& hash = state["Hash"].get<std::string>();
+      const auto& blobs = context->Blobs();
+      const auto blobIter = blobs.find(hash);
+      if (blobIter == blobs.end())
+      {
+        vtkErrorWithObjectMacro(context,
+          << deserializer->GetObjectDescription() << " failed to find blob for hash=" << hash);
+        return;
+      }
+      if (!blobIter.value().is_binary())
+      {
+        vtkErrorWithObjectMacro(context,
+          << deserializer->GetObjectDescription() << " failed to find blob for hash=" << hash);
+        return;
+      }
+      const auto& content = blobIter.value().get_binary();
+      using APIType = vtk::GetAPIType<ArrayT>;
+      const APIType* c_ptr = reinterpret_cast<const APIType*>(content.data());
+      auto src = const_cast<APIType*>(c_ptr);
+      auto dst = vtk::DataArrayValueRange(array);
+      if (array->IsA("vtkBitArray"))
+      {
+        array->SetNumberOfValues(state["NumberOfBits"]);
+        std::copy(src, src + ((dst.size() + 7) / 8), (char*)dst.data());
+      }
+      else
+      {
+        std::copy(src, src + dst.size(), dst.data());
+      }
+      // nifty memory savings below, unfortunately, doesn't work correctly when there are point
+      // scalars.
+      // array->SetVoidArray(const_cast<void*>(c_ptr), array->GetNumberOfValues(), 1);
     }
-    if (!blobIter.value().is_binary())
-    {
-      vtkErrorWithObjectMacro(context,
-        << deserializer->GetObjectDescription() << " failed to find blob for hash=" << hash);
-      return;
-    }
-    const auto& content = blobIter.value().get_binary();
-    using APIType = vtk::GetAPIType<ArrayT>;
-    const APIType* c_ptr = reinterpret_cast<const APIType*>(content.data());
-    auto src = const_cast<APIType*>(c_ptr);
-    auto dst = vtk::DataArrayValueRange(array);
-    std::copy(src, src + dst.size(), dst.data());
-    // nifty memory savings below, unfortunately, doesn't work correctly when there are point
-    // scalars.
-    // array->SetVoidArray(const_cast<void*>(c_ptr), array->GetNumberOfValues(), 1);
     VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(LookupTable, vtkLookupTable, state, array, deserializer);
   }
 };

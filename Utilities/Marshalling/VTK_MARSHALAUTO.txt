@@ -48,7 +48,6 @@ Charts/Core/vtkScatterPlotMatrix.h
 Common/Color/vtkColorSeries.h
 Common/Color/vtkNamedColors.h
 Common/Core/vtkAbstractArray.h
-Common/Core/vtkBitArray.h
 Common/Core/vtkCollection.h
 Common/Core/vtkIdList.h
 Common/Core/vtkLookupTable.h
