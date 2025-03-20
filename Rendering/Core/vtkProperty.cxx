@@ -332,6 +332,15 @@ void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 }
 
 //------------------------------------------------------------------------------
+void vtkProperty::SetAllTextures(std::map<std::string, vtkTexture*>& textures)
+{
+  for (auto& item : textures)
+  {
+    this->SetTexture(item.first.c_str(), item.second);
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
   auto iter = this->Textures.find(std::string(name));

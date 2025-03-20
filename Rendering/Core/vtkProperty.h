@@ -749,10 +749,13 @@ public:
    */
   int GetNumberOfTextures();
 
+  ///@{
   /**
-   * Returns all the textures in this property and their names
+   * Set/get all the textures in this property and their names
    */
+  void SetAllTextures(std::map<std::string, vtkTexture*>& textures);
   std::map<std::string, vtkTexture*>& GetAllTextures() { return this->Textures; }
+  ///@}
 
   /**
    * Release any graphics resources that are being consumed by this
