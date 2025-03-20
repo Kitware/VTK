@@ -16,4 +16,5 @@ Rendering/Core/vtkAbstractMapper.h
 Rendering/Core/vtkColorTransferFunction.h
 Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkDataSetMapper.h
+Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkTexture.h
