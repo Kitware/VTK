@@ -89,4 +89,25 @@ void vtkTextActorInterfacePrivate::GetActors(vtkPropCollection* collection)
   collection->AddItem(this->Actor2D);
 }
 
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::AdjustScale()
+{
+  double titleBounds[6];
+  this->Follower->GetMapper()->GetBounds(titleBounds);
+  int titleActor3DBounds[4];
+  this->Actor3D->GetBoundingBox(titleActor3DBounds);
+  const double titleActor3DWidth =
+    static_cast<double>(titleActor3DBounds[1] - titleActor3DBounds[0]);
+  double scale = (titleBounds[1] - titleBounds[0]) / titleActor3DWidth;
+
+  this->Actor3D->SetScale(scale);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::SetScale(double s)
+{
+  this->Follower->SetScale(s);
+  this->Follower3D->SetScale(s);
+}
+
 VTK_ABI_NAMESPACE_END

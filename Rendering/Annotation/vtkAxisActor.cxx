@@ -495,7 +495,6 @@ void vtkAxisActor::BuildLabels(vtkViewport* viewport, bool force)
     return;
   }
 
-  double maxLabelScale = 0.0;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     vtkTextActorInterfacePrivate& currentLabel = this->LabelProps[i];
@@ -504,25 +503,8 @@ void vtkAxisActor::BuildLabels(vtkViewport* viewport, bool force)
 
     if (this->UseTextActor3D)
     {
-      double labelActorsBounds[6];
-      currentLabel.Follower->GetMapper()->GetBounds(labelActorsBounds);
-      const double labelActorsWidth = (labelActorsBounds[1] - labelActorsBounds[0]);
-
-      int labelActors3DBounds[4];
-      currentLabel.Actor3D->GetBoundingBox(labelActors3DBounds);
-      const double labelActors3DWidth =
-        static_cast<double>(labelActors3DBounds[1] - labelActors3DBounds[0]);
-
-      if (labelActorsWidth / labelActors3DWidth > maxLabelScale)
-      {
-        maxLabelScale = labelActorsWidth / labelActors3DWidth;
-      }
+      currentLabel.AdjustScale();
     }
-  }
-
-  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
-  {
-    this->LabelProps[i].Actor3D->SetScale(maxLabelScale);
   }
 
   if (force || this->BuildTime.GetMTime() < this->BoundsTime.GetMTime() ||
@@ -868,20 +850,10 @@ void vtkAxisActor::BuildTitle(bool force)
 
   if (this->UseTextActor3D)
   {
-    int titleActor3DBounds[4];
-    this->TitleProp.Actor3D->GetBoundingBox(titleActor3DBounds);
-    const double titleActor3DWidth =
-      static_cast<double>(titleActor3DBounds[1] - titleActor3DBounds[0]);
-
-    // Convert from font coordinate system to world coordinate system:
-    this->TitleProp.Actor3D->SetScale((titleBounds[1] - titleBounds[0]) / titleActor3DWidth);
+    this->TitleProp.AdjustScale();
   }
   this->TitleProp.Follower->SetPosition(pos);
-
-  if (titleProp3D)
-  {
-    titleProp3D->SetPosition(pos);
-  }
+  this->TitleProp.Follower3D->SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
@@ -1002,14 +974,7 @@ void vtkAxisActor::BuildExponent(bool force)
 
   if (this->UseTextActor3D)
   {
-    int exponentActor3DBounds[4];
-    this->ExponentProp.Actor3D->GetBoundingBox(exponentActor3DBounds);
-    const double exponentActor3DWidth =
-      static_cast<double>(exponentActor3DBounds[1] - exponentActor3DBounds[0]);
-
-    // Convert from font coordinate system to world coordinate system:
-    this->ExponentProp.Actor3D->SetScale(
-      (exponentBounds[1] - exponentBounds[0]) / exponentActor3DWidth);
+    this->ExponentProp.AdjustScale();
   }
 
   this->ExponentProp.Follower->SetPosition(pos);
@@ -1634,20 +1599,20 @@ void vtkAxisActor::SetLabelScale(double s)
 //-----------------------------------------------------------------------------**
 void vtkAxisActor::SetLabelScale(int label, double s)
 {
-  this->LabelProps[label].Follower->SetScale(s);
-  this->LabelProps[label].Follower3D->SetScale(s);
+  this->LabelProps[label].SetScale(s);
 }
 
 //-----------------------------------------------------------------------------**
 void vtkAxisActor::SetTitleScale(double s)
 {
-  vtkProp3D* titleProp = vtkProp3D::SafeDownCast(this->GetTitleActorInternal());
-  if (titleProp)
-  {
-    titleProp->SetScale(s);
-  }
-  this->ExponentProp.Follower->SetScale(s);
-  this->ExponentProp.Follower3D->SetScale(s);
+  this->TitleProp.SetScale(s);
+  this->SetExponentScale(s);
+}
+
+//-----------------------------------------------------------------------------**
+void vtkAxisActor::SetExponentScale(double s)
+{
+  this->ExponentProp.SetScale(s);
 }
 
 //-----------------------------------------------------------------------------**

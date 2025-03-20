@@ -61,6 +61,19 @@ public:
    */
   void GetActors(vtkPropCollection* collection);
 
+  /**
+   * Set scale on the Follower and Follower3D.
+   * Note that Actor3D has its own scale, computed in AdjustScale.
+   */
+  void SetScale(double s);
+
+  /**
+   * Adjust the scale of Actor3D, based on Follower mapper bounds,
+   * so switching them provide consistent size on screen.
+   * Follower3D also has its scale, externally set in SetScale.
+   */
+  void AdjustScale();
+
   vtkNew<vtkVectorText> Vector;
 
   vtkNew<vtkAxisFollower> Follower;

@@ -506,9 +506,15 @@ public:
   double ComputeMaxLabelLength(const double[3]);
   double ComputeTitleLength(const double[3]);
 
+  ///@{
+  /**
+   * Set scale on underlying actor.
+   */
   void SetLabelScale(double scale);
   void SetLabelScale(int labelIndex, double scale);
   void SetTitleScale(double scale);
+  void SetExponentScale(double scale);
+  ///@}
 
   ///@{
   /**
