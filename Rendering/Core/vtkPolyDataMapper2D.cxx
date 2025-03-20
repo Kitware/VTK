@@ -38,7 +38,7 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->TransformCoordinate = nullptr;
   this->TransformCoordinateUseDouble = false;
 
-  strcpy(this->ArrayName, "");
+  this->SetArrayName(nullptr);
   this->ArrayId = -1;
   this->ArrayComponent = 0;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
@@ -80,6 +80,7 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
   {
     this->Colors->UnRegister(this);
   }
+  this->SetArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -195,14 +196,14 @@ void vtkPolyDataMapper2D::ColorByArrayComponent(int arrayNum, int component)
 //------------------------------------------------------------------------------
 void vtkPolyDataMapper2D::ColorByArrayComponent(const char* arrayName, int component)
 {
-  if (strcmp(this->ArrayName, arrayName) == 0 && component == this->ArrayComponent &&
-    this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
+  if (this->ArrayName != nullptr && strcmp(this->ArrayName, arrayName) == 0 &&
+    component == this->ArrayComponent && this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
   {
     return;
   }
   this->Modified();
 
-  strcpy(this->ArrayName, arrayName);
+  this->SetArrayName(arrayName);
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }
