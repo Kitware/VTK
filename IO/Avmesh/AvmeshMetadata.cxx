@@ -7,6 +7,8 @@
 #include <vtkIntArray.h>
 #include <vtkStringArray.h>
 
+VTK_ABI_NAMESPACE_BEGIN
+
 namespace
 {
 void AddFieldInt(vtkFieldData* fieldData, const char* name, int val)
@@ -114,3 +116,5 @@ void AvmeshMetadata::ToFieldData(vtkFieldData* fieldData) const
   AddFieldInt(fieldData, "NumFacesOnGeometry", NumFacesOnGeometry);
   AddFieldInt(fieldData, "GeomRegionId", GeomRegionId);
 }
+
+VTK_ABI_NAMESPACE_END

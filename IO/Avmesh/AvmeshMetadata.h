@@ -19,7 +19,9 @@
 
 #include <string>
 #include <vector>
+#include <vtkABINamespace.h>
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
 struct AvmeshPatch
@@ -28,6 +30,7 @@ struct AvmeshPatch
 
   void ToFieldData(vtkFieldData* fieldData) const;
 
+  // These strings have maximum fixed lengths of 32 and 16 as specified in the AVMESH file format
   char Label[32]; // descriptive name, e.g. "wing", "inlet"
   char Type[16];  // BC, e.g. "noslipwall", "unspecified"
   int Pid;        // Patch ID, always negative
@@ -96,4 +99,5 @@ struct AvmeshMetadata
   std::vector<AvmeshPatch> Patches;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif // AvmeshMetadata_h

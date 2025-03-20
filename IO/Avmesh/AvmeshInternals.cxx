@@ -11,8 +11,12 @@
 #include <vtkMultiBlockDataSet.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
+
+VTK_ABI_NAMESPACE_BEGIN
 
 AvmeshError::AvmeshError(std::string msg)
   : std::runtime_error(msg)
@@ -628,3 +632,5 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
   // Now work with the surface data
   BuildBoundaryBlocks(output, points, meta.Patches, bfaces);
 }
+
+VTK_ABI_NAMESPACE_END
