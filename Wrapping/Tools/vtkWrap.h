@@ -42,6 +42,7 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsZeroCopyPointer(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArrayRef(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdMap(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialObject(const ValueInfo* val);
