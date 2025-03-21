@@ -854,7 +854,7 @@ wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& 
     return nullptr;
   }
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
-    "Create buffer {label=" << label << ",size=" << bufferDescriptor.size << "}");
+    "Create buffer {label: \"" << label << "\", size: " << bufferDescriptor.size << "}");
   wgpu::Buffer buffer = internals.Device.CreateBuffer(&bufferDescriptor);
   return buffer;
 }
@@ -870,8 +870,8 @@ void vtkWebGPUConfiguration::WriteBuffer(const wgpu::Buffer& buffer, unsigned lo
     return;
   }
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
-    "Write buffer {description=" << (description ? description : "null") << ",size=" << sizeBytes
-                                 << ",offset=" << offset << "}");
+    "Write buffer {description: \"" << (description ? description : "null")
+                                    << "\", offset: " << offset << ", size: " << sizeBytes << "}");
   internals.Device.GetQueue().WriteBuffer(buffer, offset, data, sizeBytes);
 }
 
@@ -906,9 +906,9 @@ wgpu::Texture vtkWebGPUConfiguration::CreateTexture(
   }
   const auto label = vtkWebGPUHelpers::StringViewToStdString(textureDescriptor.label);
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
-    "Create texture {label=" << label << "\",size=" << textureDescriptor.size.width << 'x'
-                             << textureDescriptor.size.height << 'x'
-                             << textureDescriptor.size.depthOrArrayLayers << "}");
+    "Create texture {label: \"" << label << "\", size: [" << textureDescriptor.size.width << ','
+                                << textureDescriptor.size.height << ','
+                                << textureDescriptor.size.depthOrArrayLayers << "]}");
   return internals.Device.CreateTexture(&textureDescriptor);
 }
 
@@ -962,8 +962,8 @@ void vtkWebGPUConfiguration::WriteTexture(wgpu::Texture texture, uint32_t bytesP
   wgpu::Extent3D textureExtents = { texture.GetWidth(), texture.GetHeight(),
     texture.GetDepthOrArrayLayers() };
   vtkVLog(this->GetGPUMemoryLogVerbosity(),
-    "Write texture {description=" << (description ? description : "null") << ",size=" << sizeBytes
-                                  << "}");
+    "Write texture {description: \"" << (description ? description : "null")
+                                     << "\", size: " << sizeBytes << "}");
   internals.Device.GetQueue().WriteTexture(
     &copyTexture, data, sizeBytes, &textureDataLayout, &textureExtents);
 }

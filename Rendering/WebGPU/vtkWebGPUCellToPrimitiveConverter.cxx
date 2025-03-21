@@ -377,7 +377,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   connBuffer->SetGroup(0);
   connBuffer->SetBinding(0);
   connBuffer->SetLabel(
-    std::string("connectivity/") + cellTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("Connectivity-") + cellTypeAsString + "-" + cells->GetObjectDescription());
   connBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   connBuffer->SetData(cells->GetConnectivityArray());
   connBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
@@ -387,7 +387,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   offsetsBuffer->SetGroup(0);
   offsetsBuffer->SetBinding(1);
   offsetsBuffer->SetLabel(
-    std::string("offsets/") + cellTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("Offsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
   offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   offsetsBuffer->SetData(cells->GetOffsetsArray());
   offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
@@ -397,7 +397,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   primIdBuffer->SetGroup(0);
   primIdBuffer->SetBinding(2);
   primIdBuffer->SetLabel(
-    std::string("primIds/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("PrimitiveIds-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
   primIdBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
   primIdBuffer->SetData(primitiveIdOffsets);
   primIdBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
@@ -409,7 +409,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   uniformBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER);
   uniformBuffer->SetData(uniformData);
   uniformBuffer->SetLabel(
-    std::string("cell offsets/") + cellTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("CellIdOffsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
   uniformBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
 
   std::size_t outputBufferSize = 2 * numberOfPrimitives * primitiveSize * sizeof(vtkTypeUInt32);
@@ -417,7 +417,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   topologyBuffer->SetGroup(0);
   topologyBuffer->SetBinding(4);
   topologyBuffer->SetLabel(
-    std::string("topology/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("Topology-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
   topologyBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
   topologyBuffer->SetByteSize(outputBufferSize);
 
@@ -428,7 +428,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   edgeArrayComputeBuffer->SetGroup(0);
   edgeArrayComputeBuffer->SetBinding(5);
   edgeArrayComputeBuffer->SetLabel(
-    std::string("edge array/") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
+    std::string("EdgeArray-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
   edgeArrayComputeBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
   if (primitiveSize == 3)
   {

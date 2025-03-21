@@ -600,7 +600,7 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
       { 0, wgpu::ShaderStage::Fragment, wgpu::TextureSampleType::Float, wgpu::TextureViewDimension::e2D, /*multiSampled=*/false }
       // clang-format on
     },
-    std::string("ColorCopy-bgl@") + this->GetObjectDescription());
+    std::string("ColorCopy-") + this->GetObjectDescription());
 
   wgpu::PipelineLayout pipelineLayout =
     vtkWebGPUPipelineLayoutInternals::MakeBasicPipelineLayout(device, &bgl);
@@ -612,7 +612,7 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
       { 0, this->ColorAttachment.View }
       // clang-format on
     },
-    std::string("ColorCopy-bindgroup@") + this->GetObjectDescription());
+    std::string("ColorCopy-") + this->GetObjectDescription());
 
   const char* shaderSource = R"(
     struct VertexOutput {
@@ -647,7 +647,7 @@ void vtkWebGPURenderWindow::CreateColorCopyPipeline()
     }
   )";
 
-  const std::string pipelineLabel = "ColorCopy-pipeline@" + this->GetObjectDescription();
+  const std::string pipelineLabel = "ColorCopy-" + this->GetObjectDescription();
   vtkWebGPURenderPipelineDescriptorInternals pipelineDesc;
   pipelineDesc.label = pipelineLabel.c_str();
   pipelineDesc.layout = pipelineLayout;
@@ -1842,7 +1842,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   if (this->DepthCopyPipeline == nullptr)
   {
     this->DepthCopyPipeline = vtk::TakeSmartPointer(vtkWebGPUComputePipeline::New());
-    this->DepthCopyPipeline->SetLabel("DepthCopy-computepipeline@" + this->GetObjectDescription());
+    this->DepthCopyPipeline->SetLabel("DepthCopy-" + this->GetObjectDescription());
     this->DepthCopyPipeline->SetWGPUConfiguration(this->WGPUConfiguration);
   }
   unsigned int textureWidth = 0;
@@ -1851,12 +1851,12 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
   if (this->DepthCopyPass == nullptr)
   {
     this->DepthCopyPass = this->DepthCopyPipeline->CreateComputePass();
-    this->DepthCopyPass->SetLabel("DepthCopy-computepass@" + this->GetObjectDescription());
+    this->DepthCopyPass->SetLabel("DepthCopy-" + this->GetObjectDescription());
     vtkSmartPointer<vtkWebGPUComputeRenderTexture> depthTexture;
     depthTexture = this->AcquireDepthBufferRenderTexture();
     textureWidth = depthTexture->GetWidth();
 
-    depthTexture->SetLabel("DepthCopy-texture@" + this->GetObjectDescription());
+    depthTexture->SetLabel("DepthCopy-" + this->GetObjectDescription());
     this->DepthCopyPass->SetShaderSource(CopyDepthTextureToBuffer);
     this->DepthCopyPass->SetShaderEntryPoint("computeMain");
     this->DepthCopyTextureIndex = this->DepthCopyPass->AddRenderTexture(depthTexture);
@@ -1864,7 +1864,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     auto depthTextureView = this->DepthCopyPass->CreateTextureView(this->DepthCopyTextureIndex);
     depthTextureView->SetGroup(0);
     depthTextureView->SetBinding(0);
-    depthTextureView->SetLabel("DepthCopy-textureview@" + this->GetObjectDescription());
+    depthTextureView->SetLabel("DepthCopy-" + this->GetObjectDescription());
     depthTextureView->SetMode(vtkWebGPUTextureView::TextureViewMode::READ_ONLY);
     depthTextureView->SetAspect(vtkWebGPUTextureView::TextureViewAspect::ASPECT_DEPTH);
     depthTextureView->SetFormat(vtkWebGPUTexture::TextureFormat::DEPTH_24_PLUS);
@@ -1873,7 +1873,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     vtkNew<vtkWebGPUComputeBuffer> buffer;
     buffer->SetGroup(0);
     buffer->SetBinding(1);
-    buffer->SetLabel("DepthCopy-buffer@" + this->GetObjectDescription());
+    buffer->SetLabel("DepthCopy-" + this->GetObjectDescription());
     buffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
     buffer->SetByteSize(
       depthTexture->GetBytesPerPixel() * textureWidth * depthTexture->GetHeight());

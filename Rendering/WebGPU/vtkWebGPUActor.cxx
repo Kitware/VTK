@@ -376,7 +376,7 @@ void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration
   const auto& device = wgpuConfiguration->GetDevice();
 
   const auto actorDescription = this->GetObjectDescription();
-  const auto bufferLabel = "buffer@" + actorDescription;
+  const auto bufferLabel = "ActorBlock-" + actorDescription;
   const auto bufferSize = vtkWebGPUConfiguration::Align(vtkWebGPUActor::GetCacheSizeBytes(), 32);
   internals.ActorBuffer = wgpuConfiguration->CreateBuffer(bufferSize,
     wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, bufferLabel.c_str());
@@ -388,7 +388,7 @@ void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration
       { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
       // clang-format on
     },
-    "bgl@" + actorDescription);
+    actorDescription);
   internals.ActorBindGroup =
     vtkWebGPUBindGroupInternals::MakeBindGroup(device, internals.ActorBindGroupLayout,
       {
@@ -396,7 +396,7 @@ void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration
         { 0, internals.ActorBuffer, 0, bufferSize },
         // clang-format on
       },
-      "bg@" + actorDescription);
+      actorDescription);
   // Reset timestamps because the previous buffer is now gone and contents of the buffer will need
   // to be re-uploaded.
   internals.ModelTransformsBuildTimestamp = vtkTimeStamp();
