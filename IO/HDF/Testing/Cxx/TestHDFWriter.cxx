@@ -289,8 +289,8 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
   {
     return false;
   }
-}
-return true;
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -317,8 +317,8 @@ bool TestPartitionedPolyData(const std::string& tempDir, const std::string& data
   {
     return false;
   }
-}
-return true;
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -338,12 +338,6 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
     return false;
   }
 
-  // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
-  std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-  if (!TestWriteAndReadConfigurations(baseData, tempPath))
-  {
-    return false;
-  }
   // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
   std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
   if (!TestWriteAndReadConfigurations(baseData, tempPath))
@@ -388,7 +382,7 @@ bool TestMultiBlockIdenticalBlockNames(const std::string& tempDir, const std::st
 
   // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
   std::string tempPath = tempDir + "/HDFWriter_multiblock_identical.vtkhdf";
-  if (!TestWriteAndReadConfigurations(multiBlock, tempPath, true))
+  if (!TestWriteAndReadConfigurations(multiBlock, tempPath))
   {
     return false;
   }
