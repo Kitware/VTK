@@ -262,6 +262,7 @@ void vtkXRenderWindowInteractor::ProcessEvents()
       if (iter != windowmap.end() && !iter->second->Done)
       {
         iter->second->DispatchEvent(&event);
+        iter->second->FireTimers();
       }
     }
   }
