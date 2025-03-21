@@ -1,4 +1,5 @@
 Common/Core/vtkDataArray.h
+Common/Core/vtkScalarsToColors.h
 Common/Core/vtkStringArray.h
 Common/Core/vtkVariantArray.h
 Common/DataModel/vtkCellArray.h

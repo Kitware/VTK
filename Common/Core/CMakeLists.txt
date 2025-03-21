@@ -372,6 +372,7 @@ set(serialization_helper_sources)
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkDataArraySerDesHelper.cxx
+    vtkScalarsToColorsSerDesHelper.cxx
     vtkStringArraySerDesHelper.cxx
     vtkVariantArraySerDesHelper.cxx)
 endif ()

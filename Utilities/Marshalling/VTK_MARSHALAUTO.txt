@@ -55,7 +55,6 @@ Common/Core/vtkObject.h
 Common/Core/vtkObjectBase.h
 Common/Core/vtkPoints.h
 Common/Core/vtkPoints2D.h
-Common/Core/vtkScalarsToColors.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
 Common/DataModel/vtkCellData.h
