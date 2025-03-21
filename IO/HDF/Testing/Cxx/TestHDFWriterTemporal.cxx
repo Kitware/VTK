@@ -245,12 +245,21 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   const std::vector<std::string>& baseNames, int compositeType)
 {
   std::vector<vtkSmartPointer<vtkHDFReader>> baselineReaders;
+  std::vector<vtkSmartPointer<vtkMergeBlocks>> baselineReadersMerged;
   for (const auto& baseName : baseNames)
   {
     const std::string filePath = dataRoot + "/Data/" + baseName + ".hdf";
     vtkNew<vtkHDFReader> baseHDFReader;
     baseHDFReader->SetFileName(filePath.c_str());
+
+    vtkNew<vtkMergeBlocks> mergeBlocks;
+    mergeBlocks->SetInputConnection(baseHDFReader->GetOutputPort());
+    mergeBlocks->SetMergePartitionsOnly(true);
+    mergeBlocks->SetMergePoints(false);
+    mergeBlocks->SetOutputDataSetType(VTK_UNSTRUCTURED_GRID);
+
     baselineReaders.emplace_back(baseHDFReader);
+    baselineReadersMerged.emplace_back(mergeBlocks);
   }
 
   // Create a composite structure
@@ -258,12 +267,18 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   groupDataSets->SetOutputType(compositeType);
   for (int i = 0; i < static_cast<int>(baseNames.size()); i++)
   {
-    groupDataSets->AddInputConnection(baselineReaders[i]->GetOutputPort());
+    if (baseNames[i] == "transient_sphere")
+    {
+      groupDataSets->AddInputConnection(baselineReadersMerged[i]->GetOutputPort());
+    }
+    else
+    {
+      groupDataSets->AddInputConnection(baselineReaders[i]->GetOutputPort());
+    }
     groupDataSets->SetInputName(i, baseNames[i].c_str());
   }
 
   // vtkGroupDataSetsFilter does not create an assembly for PDC, but the VTKHDF requires one.
-  // vtkNew<vtkPassInputTypeAlgorithm> addAssembly;
   vtkNew<::vtkAddAssembly> addAssembly;
   addAssembly->SetInputConnection(groupDataSets->GetOutputPort());
 
@@ -327,10 +342,19 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
 
       baselineReaders[compositeID]->SetStep(step);
       baselineReaders[compositeID]->Update();
+      baselineReadersMerged[compositeID]->Update();
 
       auto currentGroupedDO = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      auto baselineDO =
-        vtkDataSet::SafeDownCast(baselineReaders[compositeID]->GetOutputDataObject(0));
+      vtkDataSet* baselineDO = nullptr;
+      if (baseNames[compositeID] == "transient_sphere")
+      {
+        baselineDO =
+          vtkDataSet::SafeDownCast(baselineReadersMerged[compositeID]->GetOutputDataObject(0));
+      }
+      else
+      {
+        baselineDO = vtkDataSet::SafeDownCast(baselineReaders[compositeID]->GetOutputDataObject(0));
+      }
 
       // After grouping datasets, field data (time values) are not expected to match with the
       // original dataset field values. Copy them to avoid failing comparison.
@@ -391,8 +415,9 @@ int TestHDFWriterTemporal(int argc, char* argv[])
     }
   }
 
-  // Use a modified version of transient_harmonics to make sure that the time values match between
-  // both datasets
+  // // Use a modified version of transient_harmonics to make sure that the time values match
+  // between
+  // // both datasets
   std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
   result &= TestTemporalComposite(

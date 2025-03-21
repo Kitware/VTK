@@ -274,7 +274,6 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
   const std::string basePath = dataRoot + "/Data/" + baseName;
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
-  baseReader->SetMergeParts(false);
   baseReader->Update();
   auto baseData = vtkPartitionedDataSet::SafeDownCast(baseReader->GetOutput());
   if (baseData == nullptr)
@@ -302,7 +301,6 @@ bool TestPartitionedPolyData(const std::string& tempDir, const std::string& data
   const std::string basePath = dataRoot + "/Data/" + baseName;
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
-  baseReader->SetMergeParts(false);
   baseReader->Update();
   auto baseData = vtkPartitionedDataSet::SafeDownCast(baseReader->GetOutput());
   if (baseData == nullptr)
@@ -356,7 +354,9 @@ bool TestMultiBlockIdenticalBlockNames(const std::string& tempDir, const std::st
   vtkNew<vtkHDFReader> baseReader;
   baseReader->SetFileName(basePath.c_str());
   baseReader->Update();
-  vtkPolyData* pd = vtkPolyData::SafeDownCast(baseReader->GetOutputDataObject(0));
+  vtkPartitionedDataSet* pds =
+    vtkPartitionedDataSet::SafeDownCast(baseReader->GetOutputDataObject(0));
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(pds->GetPartition(0));
 
   // Create a nested MultiBlock with several times the same block
   vtkNew<vtkMultiBlockDataSet> subSubBlock;
