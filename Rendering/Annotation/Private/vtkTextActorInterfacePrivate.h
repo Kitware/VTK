@@ -8,6 +8,8 @@
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+class vtkAxisActor;
 class vtkAxisFollower;
 class vtkCamera;
 class vtkPolyDataMapper;
@@ -42,6 +44,11 @@ public:
    * Set the current camera. Useful when using a Follower.
    */
   void SetCamera(vtkCamera* camera);
+
+  /**
+   * Set the axis to follow.
+   */
+  void SetAxis(vtkAxisActor* axis);
 
   /**
    * Get the vtkProp to be used in the given mode:

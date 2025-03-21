@@ -63,8 +63,7 @@ vtkAxisActor::vtkAxisActor()
   this->TitleTextProperty->SetVerticalJustificationToCentered();
   this->TitleTextProperty->SetJustificationToCentered();
 
-  this->TitleProp.Follower->SetAxis(this);
-  this->TitleProp.Follower3D->SetAxis(this);
+  this->TitleProp.SetAxis(this);
 
   this->LabelTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelTextProperty->SetColor(0., 0., 0.);
@@ -73,8 +72,7 @@ vtkAxisActor::vtkAxisActor()
   this->LabelTextProperty->SetVerticalJustificationToBottom();
   this->LabelTextProperty->SetJustificationToLeft();
 
-  this->ExponentProp.Follower->SetAxis(this);
-  this->ExponentProp.Follower3D->SetAxis(this);
+  this->ExponentProp.SetAxis(this);
 
   // Main line of axis
   vtkNew<vtkPolyDataMapper> axisLinesMapper;
@@ -1286,8 +1284,7 @@ void vtkAxisActor::SetLabels(vtkStringArray* labels)
     for (int i = 0; i < numLabels; i++)
     {
       vtkTextActorInterfacePrivate& currentLabel = this->LabelProps[i];
-      currentLabel.Follower->SetAxis(this);
-      currentLabel.Follower3D->SetAxis(this);
+      currentLabel.SetAxis(this);
     }
   }
 

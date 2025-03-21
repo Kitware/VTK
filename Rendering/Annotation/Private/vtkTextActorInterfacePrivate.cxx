@@ -50,6 +50,13 @@ void vtkTextActorInterfacePrivate::SetCamera(vtkCamera* camera)
 }
 
 //------------------------------------------------------------------------------
+void vtkTextActorInterfacePrivate::SetAxis(vtkAxisActor* axis)
+{
+  this->Follower->SetAxis(axis);
+  this->Follower3D->SetAxis(axis);
+}
+
+//------------------------------------------------------------------------------
 vtkProp* vtkTextActorInterfacePrivate::GetActiveProp(bool overlay, bool vector)
 {
   if (overlay)
