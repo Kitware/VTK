@@ -172,7 +172,6 @@ Common/Core/vtkUnsignedLongLongArray.h
 Common/Core/vtkUnsignedShortArray.h
 Common/Core/vtkValueFromString.h
 Common/Core/vtkVariant.h
-Common/Core/vtkVariantArray.h
 Common/Core/vtkVariantCast.h
 Common/Core/vtkVariantCreate.h
 Common/Core/vtkVariantExtract.h

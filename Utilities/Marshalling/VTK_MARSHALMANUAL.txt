@@ -1,5 +1,6 @@
 Common/Core/vtkDataArray.h
 Common/Core/vtkStringArray.h
+Common/Core/vtkVariantArray.h
 Common/DataModel/vtkCellArray.h
 Common/DataModel/vtkDataSetAttributes.h
 Common/DataModel/vtkFieldData.h
