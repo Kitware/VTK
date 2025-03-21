@@ -1518,10 +1518,8 @@ void vtkAxisActor::GetBounds(double b[6])
   }
 }
 
-//-----------------------------------------------------------------------------**
-// Method:  vtkAxisActor::ComputeMaxLabelLength
-//-----------------------------------------------------------------------------**
-double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
+//-----------------------------------------------------------------------------
+double vtkAxisActor::ComputeMaxLabelLength()
 {
   double bounds[6];
   double xsize, ysize;
@@ -1550,10 +1548,8 @@ double vtkAxisActor::ComputeMaxLabelLength(const double vtkNotUsed(center)[3])
   return sqrt(maxXSize * maxXSize + maxYSize * maxYSize);
 }
 
-//-----------------------------------------------------------------------------**
-// Method:  vtkAxisActor::ComputeTitleLength
-//-----------------------------------------------------------------------------**
-double vtkAxisActor::ComputeTitleLength(const double vtkNotUsed(center)[3])
+//-----------------------------------------------------------------------------
+double vtkAxisActor::ComputeTitleLength()
 {
   double bounds[6];
   double xsize, ysize;

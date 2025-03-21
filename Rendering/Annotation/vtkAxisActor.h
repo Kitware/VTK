@@ -503,8 +503,25 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  double ComputeMaxLabelLength(const double[3]);
-  double ComputeTitleLength(const double[3]);
+  ///@{
+  /**
+   * Compute the max diagonal lentgh of the labels.
+   * Camera and labels should have been set before.
+   */
+  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
+  double ComputeMaxLabelLength(const double[3]) { return this->ComputeMaxLabelLength(); }
+  double ComputeMaxLabelLength();
+  ///@}
+
+  ///@{
+  /**
+   * Compute the diagonal length of the Title text.
+   * Camera and title should have been set before.
+   */
+  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
+  double ComputeTitleLength(const double[3]) { return this->ComputeTitleLength(); }
+  double ComputeTitleLength();
+  ///@}
 
   ///@{
   /**

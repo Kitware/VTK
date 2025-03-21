@@ -1301,18 +1301,12 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport* viewport)
   if (ticksRecomputed || this->ForceXLabelReset || this->ForceYLabelReset || this->ForceZLabelReset)
   {
     // labels were re-built, need to recompute the scale.
-    double center[3];
-
-    center[0] = (bounds[1] - bounds[0]) * 0.5;
-    center[1] = (bounds[3] - bounds[2]) * 0.5;
-    center[2] = (bounds[5] - bounds[4]) * 0.5;
-
-    double lenX = this->XAxes[0]->ComputeMaxLabelLength(center);
-    double lenY = this->YAxes[0]->ComputeMaxLabelLength(center);
-    double lenZ = this->ZAxes[0]->ComputeMaxLabelLength(center);
-    double lenTitleX = this->XAxes[0]->ComputeTitleLength(center);
-    double lenTitleY = this->YAxes[0]->ComputeTitleLength(center);
-    double lenTitleZ = this->ZAxes[0]->ComputeTitleLength(center);
+    double lenX = this->XAxes[0]->ComputeMaxLabelLength();
+    double lenY = this->YAxes[0]->ComputeMaxLabelLength();
+    double lenZ = this->ZAxes[0]->ComputeMaxLabelLength();
+    double lenTitleX = this->XAxes[0]->ComputeTitleLength();
+    double lenTitleY = this->YAxes[0]->ComputeTitleLength();
+    double lenTitleZ = this->ZAxes[0]->ComputeTitleLength();
     double maxLabelLength = this->MaxOf(lenX, lenY, lenZ, 0.);
     double maxTitleLength = this->MaxOf(lenTitleX, lenTitleY, lenTitleZ, 0.);
     double bWidth = bounds[1] - bounds[0];
