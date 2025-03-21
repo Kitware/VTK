@@ -917,6 +917,23 @@ public:
   vtkSetVector3Macro(EnvironmentRight, double);
   ///@}
 
+  ///@{
+  /**
+   * If UseOIT is on and there are translucent props in the scene, the renderer will use the
+   * OrderIndependentTranslucentPass to render. If UseOIT is disabled, traditional depth sorting is
+   * used for translucency.
+   * By default, UseOIT is on.
+   *
+   * \note OIT is a newer(better) approach for translucent rendering but doesn't support hardware
+   * multi-sampling. Use FXAA in that case.
+   *
+   * \sa SetUseFXAA()
+   */
+  vtkSetMacro(UseOIT, bool);
+  vtkGetMacro(UseOIT, bool);
+  vtkBooleanMacro(UseOIT, bool);
+  ///@}
+
 protected:
   vtkRenderer();
   ~vtkRenderer() override;
@@ -1138,6 +1155,19 @@ protected:
   double SSAOBias = 0.01;
   unsigned int SSAOKernelSize = 32;
   bool SSAOBlur = false;
+
+  /**
+   * If UseOIT is on and there are translucent props in the scene, the renderer will use the
+   * OrderIndependentTranslucentPass to render. If UseOIT is disabled, traditional depth sorting is
+   * used for translucency.
+   * By default, UseOIT is on.
+   *
+   * \note OIT is a newer(better) approach for translucent rendering but doesn't support hardware
+   * multi-sampling. Use FXAA in that case.
+   *
+   * \sa SetUseFXAA()
+   */
+  bool UseOIT = true;
 
   /**
    * Tells if the last call to DeviceRenderTranslucentPolygonalGeometry()
