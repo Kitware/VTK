@@ -3,5 +3,5 @@
 
 # For XArray to vtkNetCDFCFReader connector
 xarray==2023.1.0
-netcdf4==1.7.1
+netcdf4==1.6.5
 cftime==1.6.4.post1
