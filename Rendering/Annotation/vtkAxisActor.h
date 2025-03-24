@@ -850,16 +850,6 @@ private:
   void RotateActor2DFromAxisProjection(vtkTextActor* pActor2D);
 
   /**
-   * Init the geometry of the title. (no positioning or orientation)
-   */
-  void InitTitle();
-
-  /**
-   * Init the geometry of the common exponent of the labels values. (no positioning or orientation)
-   */
-  void InitExponent();
-
-  /**
    * This method set the text and set the base position of the follower from the axis
    * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
    * camera position

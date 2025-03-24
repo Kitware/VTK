@@ -34,7 +34,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor);
-vtkCxxSetSmartPointerMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetSmartPointerMacro(vtkAxisActor, LabelTextProperty, vtkTextProperty);
 vtkCxxSetSmartPointerMacro(vtkAxisActor, TitleTextProperty, vtkTextProperty);
 
@@ -450,12 +449,12 @@ void vtkAxisActor::BuildAxis(vtkViewport* viewport, bool force)
 
   if (!this->Title.empty())
   {
-    this->InitTitle();
+    this->UpdateTitleActorProperty();
   }
 
   if (this->ExponentVisibility && !this->Exponent.empty())
   {
-    this->InitExponent();
+    this->UpdateExponentActorProperty();
   }
 
   if (!this->Title.empty())
@@ -704,25 +703,6 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
 
     this->LabelProps[i].Actor2D->SetPosition(pos[0], pos[1]);
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor::InitTitle()
-{
-  this->TitleProp.SetInputText(this->Title);
-  this->TitleProp.SetCamera(this->Camera);
-
-  this->UpdateTitleActorProperty();
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor::InitExponent()
-{
-  std::stringstream expStr;
-  expStr << "e" << this->Exponent;
-  this->ExponentProp.SetInputText(expStr.str());
-  this->ExponentProp.SetCamera(this->Camera);
-  this->UpdateExponentActorProperty();
 }
 
 //------------------------------------------------------------------------------
@@ -990,8 +970,6 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
     return;
   }
 
-  this->TitleProp.SetInputText(this->Title);
-
   this->UpdateTitleActorProperty();
 
   vtkTextActor* titleActor2D = vtkTextActor::SafeDownCast(this->GetTitleActorInternal());
@@ -1069,7 +1047,6 @@ void vtkAxisActor::BuildExponent2D(vtkViewport* viewport, bool force)
   }
 
   // for textactor instead of follower
-  this->ExponentProp.SetInputText(this->ExponentProp.Vector->GetText());
   this->UpdateExponentActorProperty();
 
   if (this->AxisType == VTK_AXIS_TYPE_Y)
@@ -1613,6 +1590,7 @@ void vtkAxisActor::SetTitle(const std::string& title)
 {
   if (this->Title != title)
   {
+    this->TitleProp.SetInputText(title);
     this->Title = title;
     this->TitleTextTime.Modified();
     this->Modified();
@@ -1650,6 +1628,8 @@ void vtkAxisActor::SetExponent(const std::string& exponent)
   if (this->Exponent != exponent)
   {
     this->Exponent = exponent;
+    static const std::string prefix = "e";
+    this->ExponentProp.SetInputText(prefix + exponent);
     this->ExponentTextTime.Modified();
     this->Modified();
   }
@@ -1803,9 +1783,21 @@ vtkProperty* vtkAxisActor::NewLabelProperty()
 }
 
 //------------------------------------------------------------------------------
+void vtkAxisActor::SetCamera(vtkCamera* camera)
+{
+  if (this->Camera != camera)
+  {
+    this->Camera = camera;
+    this->TitleProp.SetCamera(camera);
+    this->ExponentProp.SetCamera(camera);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 vtkCamera* vtkAxisActor::GetCamera()
 {
-  return this->Camera.Get();
+  return this->Camera;
 }
 
 //------------------------------------------------------------------------------

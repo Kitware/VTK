@@ -81,7 +81,10 @@ public:
    */
   void AdjustScale();
 
-  vtkNew<vtkVectorText> Vector;
+  /**
+   * Get the bounds of the text
+   */
+  void GetBounds(double bounds[6]);
 
   vtkNew<vtkAxisFollower> Follower;
   vtkNew<vtkProp3DAxisFollower> Follower3D;
@@ -93,6 +96,8 @@ public:
 private:
   void operator=(const vtkTextActorInterfacePrivate&) = delete;
   vtkTextActorInterfacePrivate(const vtkTextActorInterfacePrivate&) = delete;
+
+  vtkNew<vtkVectorText> Vector;
 };
 
 VTK_ABI_NAMESPACE_END
