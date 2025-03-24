@@ -2579,8 +2579,8 @@ void vtkAxisActor::UpdateLabelActorProperty(int idx)
   vtkTextActorInterfacePrivate& labelProp = this->LabelProps[idx];
   labelProp.UpdateProperty(this->LabelTextProperty, this->GetProperty());
 
-  labelProp.Follower->GetProperty()->SetAmbient(1.);
-  labelProp.Follower->GetProperty()->SetDiffuse(0.);
+  labelProp.SetAmbient(1.);
+  labelProp.SetDiffuse(0.);
 }
 
 //------------------------------------------------------------------------------

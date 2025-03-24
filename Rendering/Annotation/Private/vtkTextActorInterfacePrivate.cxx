@@ -91,6 +91,18 @@ void vtkTextActorInterfacePrivate::UpdateProperty(
 }
 
 //------------------------------------------------------------------------------
+void vtkTextActorInterfacePrivate::SetAmbient(double amb)
+{
+  this->Follower->GetProperty()->SetAmbient(amb);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextActorInterfacePrivate::SetDiffuse(double diffuse)
+{
+  this->Follower->GetProperty()->SetDiffuse(diffuse);
+}
+
+//------------------------------------------------------------------------------
 void vtkTextActorInterfacePrivate::GetActors(vtkPropCollection* collection)
 {
   collection->AddItem(this->Follower);
@@ -100,7 +112,7 @@ void vtkTextActorInterfacePrivate::GetActors(vtkPropCollection* collection)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::AdjustScale()
+void vtkTextActorInterfacePrivate::AdjustScale()
 {
   double titleBounds[6];
   this->GetBounds(titleBounds);
@@ -114,33 +126,33 @@ void vtkTextActorHandlerPrivate::AdjustScale()
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::SetScale(double s)
+void vtkTextActorInterfacePrivate::SetScale(double s)
 {
   this->Follower->SetScale(s);
   this->Follower3D->SetScale(s);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::GetBounds(double bounds[6])
+void vtkTextActorInterfacePrivate::GetBounds(double bounds[6])
 {
   this->Follower->GetMapper()->GetBounds(bounds);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::SetPosition(double pos[3])
+void vtkTextActorInterfacePrivate::SetPosition(double pos[3])
 {
   this->Follower->SetPosition(pos);
   this->Follower3D->SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::SetDisplayPosition(double x, double y)
+void vtkTextActorInterfacePrivate::SetDisplayPosition(double x, double y)
 {
   this->Actor2D->SetPosition(x, y);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::RotateActor2DFromAxisProjection(double p1[3], double p2[3])
+void vtkTextActorInterfacePrivate::RotateActor2DFromAxisProjection(double p1[3], double p2[3])
 {
   vtkMatrix4x4* matModelView = this->Camera->GetModelViewTransformMatrix();
   double nearPlane = this->Camera->GetClippingRange()[0];
@@ -194,21 +206,21 @@ void vtkTextActorHandlerPrivate::RotateActor2DFromAxisProjection(double p1[3], d
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::SetScreenOffset(double offset)
+void vtkTextActorInterfacePrivate::SetScreenOffset(double offset)
 {
   this->Follower->SetScreenOffset(offset);
   this->Follower3D->SetScreenOffset(offset);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorHandlerPrivate::SetScreenOffsetVector(double offset[2])
+void vtkTextActorInterfacePrivate::SetScreenOffsetVector(double offset[2])
 {
   this->Follower->SetScreenOffsetVector(offset);
   this->Follower3D->SetScreenOffsetVector(offset);
 }
 
 //------------------------------------------------------------------------------
-vtkProp3DAxisFollower* vtkTextActorHandlerPrivate::GetFollower3D() const
+vtkProp3DAxisFollower* vtkTextActorInterfacePrivate::GetFollower3D() const
 {
   return this->Follower3D;
 }
