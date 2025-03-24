@@ -659,7 +659,7 @@ int vtkFidesReader::RequestData(
   if (!this->StreamSteps && outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     auto step = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    int index = -1;
+    int index = 0;
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
     {
       auto nSteps = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
@@ -676,11 +676,6 @@ int vtkFidesReader::RequestData(
           index = i;
         }
       }
-    }
-    if (index == -1)
-    {
-      vtkErrorMacro(<< "Couldn't find index of time value " << step);
-      index = 0;
     }
     vtkDebugMacro(<< "RequestData() Not streaming and we have update time step request for step "
                   << step << " with index " << index);
