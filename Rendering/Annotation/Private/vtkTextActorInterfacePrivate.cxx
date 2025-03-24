@@ -207,4 +207,10 @@ void vtkTextActorHandlerPrivate::SetScreenOffsetVector(double offset[2])
   this->Follower3D->SetScreenOffsetVector(offset);
 }
 
+//------------------------------------------------------------------------------
+vtkProp3DAxisFollower* vtkTextActorHandlerPrivate::GetFollower3D() const
+{
+  return this->Follower3D;
+}
+
 VTK_ABI_NAMESPACE_END

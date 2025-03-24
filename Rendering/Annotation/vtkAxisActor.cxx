@@ -2600,7 +2600,7 @@ vtkProp3DAxisFollower* vtkAxisActor::GetLabelFollower3D(int index)
 {
   if (static_cast<int>(this->LabelProps.size()) > index)
   {
-    return this->LabelProps[index].Follower3D;
+    return this->LabelProps[index].GetFollower3D();
   }
 
   return nullptr;
@@ -2612,7 +2612,7 @@ vtkProp3DAxisFollower** vtkAxisActor::GetLabelProps3D()
   this->LabelProps3D.clear();
   for (const vtkTextActorInterfacePrivate& label : this->LabelProps)
   {
-    this->LabelProps3D.push_back(label.Follower3D);
+    this->LabelProps3D.push_back(label.GetFollower3D());
   }
 
   return this->LabelProps3D.data();

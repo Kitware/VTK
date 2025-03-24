@@ -607,7 +607,7 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkProp3DAxisFollower* GetTitleProp3D() { return this->TitleProp.Follower3D; }
+  vtkProp3DAxisFollower* GetTitleProp3D() { return this->TitleProp.GetFollower3D(); }
   ///@}
 
   ///@{
@@ -625,7 +625,7 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkProp3DAxisFollower* GetExponentProp3D() { return this->ExponentProp.Follower3D; }
+  vtkProp3DAxisFollower* GetExponentProp3D() { return this->ExponentProp.GetFollower3D(); }
   ///@}
 
   ///@{

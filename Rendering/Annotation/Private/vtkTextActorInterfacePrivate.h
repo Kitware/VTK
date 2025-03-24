@@ -36,6 +36,8 @@ public:
   vtkTextActorInterfacePrivate();
   virtual ~vtkTextActorInterfacePrivate();
 
+  vtkTextActorInterfacePrivate(vtkTextActorInterfacePrivate&&);
+
   /**
    * Set the text to be displayed.
    */
@@ -111,11 +113,15 @@ public:
   void SetScreenOffsetVector(double offset[2]);
   ///@}
 
-  vtkNew<vtkAxisFollower> Follower;
-  vtkNew<vtkProp3DAxisFollower> Follower3D;
-  vtkNew<vtkTextActor> Actor2D;
+  /**
+   * Return the internal follower 3D.
+   * This is here for backward compatibility, please do not add usage.
+   */
+  // VTK_DEPRECATED_IN_9_5_0
+  vtkProp3DAxisFollower* GetFollower3D() const;
 
-  vtkTextActorInterfacePrivate(vtkTextActorInterfacePrivate&&);
+  vtkNew<vtkAxisFollower> Follower;
+  vtkNew<vtkTextActor> Actor2D;
 
 private:
   void operator=(const vtkTextActorInterfacePrivate&) = delete;
@@ -123,6 +129,7 @@ private:
 
   vtkNew<vtkVectorText> Vector;
   vtkNew<vtkTextActor3D> Actor3D;
+  vtkNew<vtkProp3DAxisFollower> Follower3D;
 
   vtkSmartPointer<vtkCamera> Camera;
 };
