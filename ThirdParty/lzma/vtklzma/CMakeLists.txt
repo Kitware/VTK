@@ -227,7 +227,7 @@ set(private_headers
   src/liblzma/check/crc32_table_le.h
   src/liblzma/check/crc64_table_be.h
   src/liblzma/check/crc64_table_le.h
-  src/liblzma/check/crc_macros.h
+  src/liblzma/check/crc_common.h
   src/liblzma/common/alone_decoder.h
   src/liblzma/common/block_buffer_encoder.h
   src/liblzma/common/block_decoder.h
