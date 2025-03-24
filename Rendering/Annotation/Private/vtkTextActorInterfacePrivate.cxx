@@ -45,6 +45,12 @@ void vtkTextActorInterfacePrivate::SetInputText(const std::string& text)
 }
 
 //------------------------------------------------------------------------------
+std::string vtkTextActorInterfacePrivate::GetInputText()
+{
+  return this->Vector->GetText();
+}
+
+//------------------------------------------------------------------------------
 void vtkTextActorInterfacePrivate::SetCamera(vtkCamera* camera)
 {
   this->Follower->SetCamera(camera);

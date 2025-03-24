@@ -684,11 +684,11 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
     viewport->GetDisplayPoint(transpos);
 
     int bbox[4];
-    if (!tren->GetBoundingBox(this->LabelProps[i].Actor2D->GetTextProperty(),
-          this->LabelProps[i].Actor2D->GetInput(), bbox, win->GetDPI()))
+    if (!tren->GetBoundingBox(
+          this->LabelTextProperty, this->LabelProps[i].GetInputText(), bbox, win->GetDPI()))
     {
       vtkErrorMacro(<< "Unable to calculate bounding box for label "
-                    << this->LabelProps[i].Actor2D->GetInput());
+                    << this->LabelProps[i].GetInputText());
       continue;
     }
 

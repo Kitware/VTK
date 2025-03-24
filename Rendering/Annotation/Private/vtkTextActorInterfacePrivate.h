@@ -42,6 +42,7 @@ public:
    * Set the text to be displayed.
    */
   void SetInputText(const std::string& text);
+  std::string GetInputText();
 
   /**
    * Set the current camera. Useful when using a Follower.
@@ -142,13 +143,13 @@ public:
   // VTK_DEPRECATED_IN_9_5_0
   vtkAxisFollower* GetFollower() const;
 
-  vtkNew<vtkTextActor> Actor2D;
-
 private:
   void operator=(const vtkTextActorInterfacePrivate&) = delete;
   vtkTextActorInterfacePrivate(const vtkTextActorInterfacePrivate&) = delete;
 
   vtkNew<vtkVectorText> Vector;
+
+  vtkNew<vtkTextActor> Actor2D;
   vtkNew<vtkTextActor3D> Actor3D;
   vtkNew<vtkProp3DAxisFollower> Follower3D;
   vtkNew<vtkAxisFollower> Follower;
