@@ -5,9 +5,8 @@
  * @brief   Adaptively extract dataset surface
  *
  * vtkAdaptiveDataSetSurfaceFilter uses view and dataset properties to
- * create the outside surface mesh with the minimum minimorum of facets
- * @warning
- * Only implemented currently for 2-dimensional vtkHyperTreeGrid objects
+ * create the outside surface mesh with the minimum number of faces.
+ * This reduces the memory usage at the expense of compute time.
  * @sa
  * vtkHyperTreeGrid vtkDataSetSurfaceFilter
  * @par Thanks:
