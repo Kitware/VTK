@@ -546,7 +546,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     this->MajorTickPts->GetPoint(ptIdx, tickTop);
     this->MajorTickPts->GetPoint(ptIdx + 1, tickBottom);
 
-    pAxisFollower = this->LabelProps[i].Follower;
+    pAxisFollower = this->LabelProps[i].GetFollower();
 
     // get Label actor Transform matrix
     vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
@@ -1123,9 +1123,6 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinorRangeStart: " << this->MinorRangeStart << endl;
 
   os << indent << "MinorTicksVisible: " << this->MinorTicksVisible << endl;
-
-  os << indent << "TitleActor: ";
-  os << indent << "TitleActor: (" << this->TitleProp.Follower << ")\n";
 
   os << indent << "Camera: ";
   if (this->Camera)
@@ -2617,7 +2614,7 @@ vtkAxisFollower* vtkAxisActor::GetLabelFollower(int index)
 {
   if (static_cast<int>(this->LabelProps.size()) > index)
   {
-    return this->LabelProps[index].Follower;
+    return this->LabelProps[index].GetFollower();
   }
 
   return nullptr;
@@ -2629,7 +2626,7 @@ vtkAxisFollower** vtkAxisActor::GetLabelActors()
   this->LabelActors.clear();
   for (const vtkTextActorInterfacePrivate& label : this->LabelProps)
   {
-    this->LabelActors.push_back(label.Follower);
+    this->LabelActors.push_back(label.GetFollower());
   }
 
   return this->LabelActors.data();

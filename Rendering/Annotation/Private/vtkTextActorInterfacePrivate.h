@@ -135,7 +135,13 @@ public:
   // VTK_DEPRECATED_IN_9_5_0
   vtkProp3DAxisFollower* GetFollower3D() const;
 
-  vtkNew<vtkAxisFollower> Follower;
+  /**
+   * Return the internal follower.
+   * This is here for backward compatibility, please do not add usage.
+   */
+  // VTK_DEPRECATED_IN_9_5_0
+  vtkAxisFollower* GetFollower() const;
+
   vtkNew<vtkTextActor> Actor2D;
 
 private:
@@ -145,6 +151,7 @@ private:
   vtkNew<vtkVectorText> Vector;
   vtkNew<vtkTextActor3D> Actor3D;
   vtkNew<vtkProp3DAxisFollower> Follower3D;
+  vtkNew<vtkAxisFollower> Follower;
 
   vtkSmartPointer<vtkCamera> Camera;
 };

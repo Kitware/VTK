@@ -231,4 +231,10 @@ vtkProp3DAxisFollower* vtkTextActorInterfacePrivate::GetFollower3D() const
   return this->Follower3D;
 }
 
+//------------------------------------------------------------------------------
+vtkAxisFollower* vtkTextActorInterfacePrivate::GetFollower() const
+{
+  return this->Follower;
+}
+
 VTK_ABI_NAMESPACE_END

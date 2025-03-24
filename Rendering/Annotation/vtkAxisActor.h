@@ -585,12 +585,12 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkAxisFollower* GetTitleActor() { return this->TitleProp.Follower; }
+  vtkAxisFollower* GetTitleActor() { return this->TitleProp.GetFollower(); }
 
   /**
    * Get exponent follower actor
    */
-  vtkAxisFollower* GetExponentActor() { return this->ExponentProp.Follower; }
+  vtkAxisFollower* GetExponentActor() { return this->ExponentProp.GetFollower(); }
 
   ///@{
   /**
