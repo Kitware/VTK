@@ -4,6 +4,7 @@
 
 #include "Private/vtkTextActorInterfacePrivate.h"
 #include "vtkAxisFollower.h"
+#include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
@@ -748,7 +749,7 @@ void vtkAxisActor::BuildTitle(bool force)
     labelMaxHeight = labHeight = 0;
     for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-      this->LabelProps[i].Follower->GetMapper()->GetBounds(labBounds);
+      this->LabelProps[i].GetBounds(labBounds);
 
       // labels actor aren't oriented yet, width and height are considered in
       // their local coordinate system
@@ -762,7 +763,7 @@ void vtkAxisActor::BuildTitle(bool force)
 
   // ---------- title size ----------
   double titleBounds[6];
-  this->TitleProp.Follower->GetMapper()->GetBounds(titleBounds);
+  this->TitleProp.GetBounds(titleBounds);
   double halfTitleHeight = (titleBounds[3] - titleBounds[2]) * 0.5;
   double halfTitleWidth = (titleBounds[1] - titleBounds[0]) * 0.5;
 
@@ -866,7 +867,7 @@ void vtkAxisActor::BuildExponent(bool force)
     labelMaxHeight = labHeight = 0;
     for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
-      this->LabelProps[i].Follower->GetMapper()->GetBounds(labBounds);
+      this->LabelProps[i].GetBounds(labBounds);
 
       // labels actor aren't oriented yet, width and height are considered in
       // their local coordinate system
@@ -880,7 +881,7 @@ void vtkAxisActor::BuildExponent(bool force)
 
   // ---------- title size ----------
   double titleBounds[6];
-  this->TitleProp.Follower->GetMapper()->GetBounds(titleBounds);
+  this->TitleProp.GetBounds(titleBounds);
   if (this->TitleVisibility && this->TitleAlignLocation == this->ExponentLocation)
   {
     offset[1] += this->TitleOffset[1] + this->ScreenSize * titleBounds[3] - titleBounds[2];
@@ -888,7 +889,7 @@ void vtkAxisActor::BuildExponent(bool force)
 
   // ---------- exponent size ----------
   double exponentBounds[6];
-  this->ExponentProp.Follower->GetMapper()->GetBounds(exponentBounds);
+  this->ExponentProp.GetBounds(exponentBounds);
   double halfExponentHeight = (exponentBounds[3] - exponentBounds[2]) * 0.5;
   double halfExponentWidth = (exponentBounds[1] - exponentBounds[0]) * 0.5;
 
@@ -1498,63 +1499,32 @@ void vtkAxisActor::GetBounds(double b[6])
 //-----------------------------------------------------------------------------
 double vtkAxisActor::ComputeMaxLabelLength()
 {
-  double bounds[6];
-  double xsize, ysize;
-  vtkProperty* newProp = this->NewLabelProperty();
   double maxXSize = 0;
   double maxYSize = 0;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
     vtkTextActorInterfacePrivate& currentLabel = this->LabelProps[i];
-    currentLabel.SetCamera(this->Camera);
-    if (this->UseTextActor3D)
-    {
-      currentLabel.Actor3D->GetBounds(bounds);
-    }
-    else
-    {
-      currentLabel.Follower->SetProperty(newProp);
-      currentLabel.Follower->GetMapper()->GetBounds(bounds);
-    }
-    xsize = bounds[1] - bounds[0];
-    ysize = bounds[3] - bounds[2];
-    maxXSize = (xsize > maxXSize ? xsize : maxXSize);
-    maxYSize = (ysize > maxYSize ? ysize : maxYSize);
+    double bounds[6];
+    currentLabel.GetBounds(bounds);
+    double xsize = bounds[1] - bounds[0];
+    double ysize = bounds[3] - bounds[2];
+
+    maxXSize = std::max(xsize, maxXSize);
+    maxYSize = std::max(ysize, maxYSize);
   }
-  newProp->Delete();
-  return sqrt(maxXSize * maxXSize + maxYSize * maxYSize);
+
+  return std::sqrt((maxXSize * maxXSize) + (maxYSize * maxYSize));
 }
 
 //-----------------------------------------------------------------------------
 double vtkAxisActor::ComputeTitleLength()
 {
   double bounds[6];
-  double xsize, ysize;
-  double length;
+  this->TitleProp.GetBounds(bounds);
 
-  this->TitleProp.SetInputText(this->Title);
-  this->TitleProp.SetCamera(this->Camera);
-
-  vtkProp* titleProp = this->GetTitleActorInternal();
-  vtkProp3DAxisFollower* titleProp3D = vtkProp3DAxisFollower::SafeDownCast(titleProp);
-  if (titleProp3D)
-  {
-    this->TitleProp.Actor3D->GetBounds(bounds);
-  }
-  vtkAxisFollower* titleActor = vtkAxisFollower::SafeDownCast(titleProp);
-  if (titleActor)
-  {
-    vtkProperty* newProp = this->NewTitleProperty();
-    titleActor->SetProperty(newProp);
-    newProp->Delete();
-    titleActor->GetMapper()->GetBounds(bounds);
-  }
-
-  xsize = bounds[1] - bounds[0];
-  ysize = bounds[3] - bounds[2];
-  length = sqrt(xsize * xsize + ysize * ysize);
-
-  return length;
+  double xsize = bounds[1] - bounds[0];
+  double ysize = bounds[3] - bounds[2];
+  return std::sqrt((xsize * xsize) + (ysize * ysize));
 }
 
 //-----------------------------------------------------------------------------**
