@@ -40,7 +40,7 @@ public:
   /**
    * Return class name of data type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() override { return VTK_UNIFORM_GRID_AMR; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNIFORM_GRID_AMR; }
 
   /**
    * Restore data object to initial state.

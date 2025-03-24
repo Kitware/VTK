@@ -421,7 +421,7 @@ void vtkInformation::CopyEntries(
 }
 
 //------------------------------------------------------------------------------
-int vtkInformation::Has(vtkInformationKey* key)
+int vtkInformation::Has(vtkInformationKey* key) VTK_FUTURE_CONST
 {
   // Use the virtual interface in case this is a special-cased key.
   return key->Has(this) ? 1 : 0;
@@ -442,7 +442,7 @@ void vtkInformation::Remove(vtkInformationRequestKey* key)
 {
   key->vtkInformationRequestKey::Remove(this);
 }
-int vtkInformation::Has(vtkInformationRequestKey* key)
+int vtkInformation::Has(vtkInformationRequestKey* key) VTK_FUTURE_CONST
 {
   return key->vtkInformationRequestKey::Has(this);
 }
@@ -461,7 +461,7 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
   {                                                                                                \
     return key->Get(this);                                                                         \
   }                                                                                                \
-  int vtkInformation::Has(vtkInformation##name##Key* key)                                          \
+  int vtkInformation::Has(vtkInformation##name##Key* key) VTK_FUTURE_CONST                         \
   {                                                                                                \
     return key->vtkInformation##name##Key::Has(this);                                              \
   }
@@ -507,7 +507,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
   {                                                                                                \
     key->vtkInformation##name##VectorKey::Remove(this);                                            \
   }                                                                                                \
-  int vtkInformation::Has(vtkInformation##name##VectorKey* key)                                    \
+  int vtkInformation::Has(vtkInformation##name##VectorKey* key) VTK_FUTURE_CONST                   \
   {                                                                                                \
     return key->vtkInformation##name##VectorKey::Has(this);                                        \
   }
@@ -558,7 +558,7 @@ void vtkInformation::Remove(vtkInformationVariantVectorKey* key)
 {
   key->vtkInformationVariantVectorKey::Remove(this);
 }
-int vtkInformation::Has(vtkInformationVariantVectorKey* key)
+int vtkInformation::Has(vtkInformationVariantVectorKey* key) VTK_FUTURE_CONST
 {
   return key->vtkInformationVariantVectorKey::Has(this);
 }
@@ -585,7 +585,7 @@ void vtkInformation::Remove(vtkInformationStringVectorKey* key)
 {
   key->vtkInformationStringVectorKey::Remove(this);
 }
-int vtkInformation::Has(vtkInformationStringVectorKey* key)
+int vtkInformation::Has(vtkInformationStringVectorKey* key) VTK_FUTURE_CONST
 {
   return key->vtkInformationStringVectorKey::Has(this);
 }
@@ -633,7 +633,7 @@ void vtkInformation::Remove(vtkInformationObjectBaseVectorKey* key, int indexToR
 }
 
 //------------------------------------------------------------------------------
-int vtkInformation::Has(vtkInformationObjectBaseVectorKey* key)
+int vtkInformation::Has(vtkInformationObjectBaseVectorKey* key) VTK_FUTURE_CONST
 {
   return key->Has(this);
 }
@@ -692,7 +692,7 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVari
   {                                                                                                \
     key->vtkInformation##name##PointerKey::Remove(this);                                           \
   }                                                                                                \
-  int vtkInformation::Has(vtkInformation##name##PointerKey* key)                                   \
+  int vtkInformation::Has(vtkInformation##name##PointerKey* key) VTK_FUTURE_CONST                  \
   {                                                                                                \
     return key->vtkInformation##name##PointerKey::Has(this);                                       \
   }
@@ -969,7 +969,7 @@ void vtkInformation::SetRequest(vtkInformationRequestKey* request)
 }
 
 //------------------------------------------------------------------------------
-vtkInformationRequestKey* vtkInformation::GetRequest()
+vtkInformationRequestKey* vtkInformation::GetRequest() VTK_FUTURE_CONST
 {
   return this->Request;
 }

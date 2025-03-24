@@ -31,7 +31,7 @@ public:
   /**
    * To simplify filter superclasses,
    */
-  int GetDataObjectType() override { return VTK_STRUCTURED_POINTS; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_STRUCTURED_POINTS; }
 
 protected:
   vtkStructuredPoints();

@@ -55,8 +55,8 @@ public:
     f->InitializeObjectBase();
     return f;
   }
-  const char* GetVTKSourceVersion() override { return VTK_SOURCE_VERSION; }
-  const char* GetDescription() override { return "A fine Test Factory"; }
+  const char* GetVTKSourceVersion() VTK_FUTURE_CONST override { return VTK_SOURCE_VERSION; }
+  const char* GetDescription() VTK_FUTURE_CONST override { return "A fine Test Factory"; }
 
 protected:
   TestFactory(const TestFactory&) = delete;

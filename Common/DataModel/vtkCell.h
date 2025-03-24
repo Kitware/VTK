@@ -92,7 +92,7 @@ public:
    * and connectivity list information.  Most cells in VTK are implicit
    * cells.
    */
-  virtual int IsLinear() { return 1; }
+  virtual int IsLinear() VTK_FUTURE_CONST { return 1; }
 
   /**
    * Some cells require initialization prior to access. For example, they
@@ -106,14 +106,14 @@ public:
    * beyond the usual cell type and connectivity list information.
    * Most cells in VTK are implicit cells.
    */
-  virtual int IsExplicitCell() { return 0; }
+  virtual int IsExplicitCell() VTK_FUTURE_CONST { return 0; }
 
   /**
    * Determine whether the cell requires explicit face representation, and
    * methods for setting and getting the faces (see vtkPolyhedron for example
    * usage of these methods).
    */
-  virtual int RequiresExplicitFaceRepresentation() { return 0; }
+  virtual int RequiresExplicitFaceRepresentation() VTK_FUTURE_CONST { return 0; }
 
   VTK_DEPRECATED_IN_9_4_0("Use SetCellFaces() after casting the cell to vtkPolyhedron.")
   virtual void SetFaces(vtkIdType* vtkNotUsed(faces)) {}
@@ -385,7 +385,7 @@ public:
    * primary cells (e.g., a triangle strip composite cell is made up of
    * triangle primary cells).
    */
-  virtual int IsPrimaryCell() { return 1; }
+  virtual int IsPrimaryCell() VTK_FUTURE_CONST { return 1; }
 
   /**
    * Return a contiguous array of parametric coordinates of the points

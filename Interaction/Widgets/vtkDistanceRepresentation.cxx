@@ -71,7 +71,7 @@ void vtkDistanceRepresentation::InstantiateHandleRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation::GetPoint1WorldPosition(double pos[3])
+void vtkDistanceRepresentation::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point1Representation)
   {
@@ -80,7 +80,7 @@ void vtkDistanceRepresentation::GetPoint1WorldPosition(double pos[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation::GetPoint2WorldPosition(double pos[3])
+void vtkDistanceRepresentation::GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point2Representation)
   {

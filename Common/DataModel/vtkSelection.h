@@ -55,7 +55,7 @@ public:
   /**
    * Returns VTK_SELECTION enumeration value.
    */
-  int GetDataObjectType() override { return VTK_SELECTION; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_SELECTION; }
 
   /**
    * Returns the number of nodes in this selection.

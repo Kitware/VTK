@@ -25,7 +25,7 @@ public:
   /**
    * Returns `VTK_ABSTRACT_ELECTRONIC_DATA`.
    */
-  int GetDataObjectType() override { return VTK_ABSTRACT_ELECTRONIC_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_ABSTRACT_ELECTRONIC_DATA; }
 
   /**
    * Returns the number of molecular orbitals available.

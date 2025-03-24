@@ -127,7 +127,10 @@ public:
    * Get the number of cells using the point specified by ptId.
    */
   TIds GetNumberOfCells(vtkIdType ptId) { return (this->Offsets[ptId + 1] - this->Offsets[ptId]); }
-  vtkIdType GetNcells(vtkIdType ptId) { return (this->Offsets[ptId + 1] - this->Offsets[ptId]); }
+  vtkIdType GetNcells(vtkIdType ptId) VTK_FUTURE_CONST
+  {
+    return (this->Offsets[ptId + 1] - this->Offsets[ptId]);
+  }
   ///@}
 
   /**

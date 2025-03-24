@@ -74,7 +74,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_POLY_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_POLY_DATA; }
 
   /**
    * Copy the geometric and topological structure of an input poly data object.

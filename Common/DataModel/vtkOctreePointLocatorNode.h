@@ -78,7 +78,7 @@ public:
   /**
    * Set the xmin, ymin and zmin value of the bounds of this region
    */
-  void SetMinBounds(double minBounds[3])
+  void SetMinBounds(VTK_FUTURE_CONST double minBounds[3])
   {
     this->MinBounds[0] = minBounds[0];
     this->MinBounds[1] = minBounds[1];
@@ -90,7 +90,7 @@ public:
   /**
    * Set the xmax, ymax and zmax value of the bounds of this region
    */
-  void SetMaxBounds(double maxBounds[3])
+  void SetMaxBounds(VTK_FUTURE_CONST double maxBounds[3])
   {
     this->MaxBounds[0] = maxBounds[0];
     this->MaxBounds[1] = maxBounds[1];
@@ -215,7 +215,7 @@ public:
    * that is created from the axis-aligned partitioning of
    * the domain at this octant's center.
    */
-  int GetSubOctantIndex(double* point, int CheckContainment);
+  int GetSubOctantIndex(VTK_FUTURE_CONST double* point, int CheckContainment);
 
   /**
    * Recursive function to compute ID, MinVal, MaxVal, and MinID.

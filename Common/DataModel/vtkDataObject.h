@@ -114,7 +114,7 @@ public:
    * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
    * THIS METHOD IS THREAD SAFE
    */
-  virtual int GetDataObjectType() { return VTK_DATA_OBJECT; }
+  virtual int GetDataObjectType() VTK_FUTURE_CONST { return VTK_DATA_OBJECT; }
 
   /**
    * Used by Threaded ports to determine if they should initiate an
@@ -234,7 +234,7 @@ public:
    * and vtkStructuredGrid. The default is the have an extent in pieces,
    * with only one piece (no streaming possible).
    */
-  virtual int GetExtentType() { return VTK_PIECES_EXTENT; }
+  virtual int GetExtentType() VTK_FUTURE_CONST { return VTK_PIECES_EXTENT; }
 
   /**
    * This method crops the data object (if necessary) so that the extent

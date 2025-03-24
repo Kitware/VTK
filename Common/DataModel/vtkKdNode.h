@@ -81,7 +81,7 @@ public:
    * Given a pointer to NumberOfPoints points, set the DataBounds of this
    * node to the bounds of these points.
    */
-  void SetDataBounds(float* v);
+  void SetDataBounds(VTK_FUTURE_CONST float* v);
 
   /**
    * Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the

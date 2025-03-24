@@ -32,7 +32,7 @@ public:
     this->Superclass::PrintSelf(os, indent);
   }
 
-  int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNSTRUCTURED_GRID_BASE; }
 
   /**
    * Allocate memory for the number of cells indicated. extSize is not used.

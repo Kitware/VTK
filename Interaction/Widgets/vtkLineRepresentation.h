@@ -68,20 +68,20 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  void GetPoint1WorldPosition(double pos[3]);
+  void GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST;
   double* GetPoint1WorldPosition() VTK_SIZEHINT(3);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  void GetPoint1DisplayPosition(double pos[3]);
+  void GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST;
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   double* GetPoint1DisplayPosition() VTK_SIZEHINT(3);
   void SetPoint1WorldPosition(double pos[3]);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetPoint1DisplayPosition(double pos[3]);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  void GetPoint2DisplayPosition(double pos[3]);
+  void GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST;
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   double* GetPoint2DisplayPosition() VTK_SIZEHINT(3);
-  void GetPoint2WorldPosition(double pos[3]);
+  void GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST;
   double* GetPoint2WorldPosition() VTK_SIZEHINT(3);
   void SetPoint2WorldPosition(double pos[3]);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)

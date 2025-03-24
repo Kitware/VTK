@@ -112,7 +112,7 @@ void vtkHandleRepresentation::SetWorldPosition(double pos[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkHandleRepresentation::GetWorldPosition(double pos[3])
+void vtkHandleRepresentation::GetWorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->WorldPosition->GetValue(pos);
 }

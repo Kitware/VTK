@@ -177,12 +177,12 @@ vtkArrayRange vtkArray::GetExtent(DimensionT dimension)
   return this->GetExtents()[dimension];
 }
 
-vtkArray::DimensionT vtkArray::GetDimensions()
+vtkArray::DimensionT vtkArray::GetDimensions() VTK_FUTURE_CONST
 {
   return this->GetExtents().GetDimensions();
 }
 
-vtkTypeUInt64 vtkArray::GetSize()
+vtkTypeUInt64 vtkArray::GetSize() VTK_FUTURE_CONST
 {
   return this->GetExtents().GetSize();
 }
@@ -197,7 +197,7 @@ void vtkArray::SetName(const vtkStdString& raw_name)
   this->Name = name;
 }
 
-vtkStdString vtkArray::GetName()
+vtkStdString vtkArray::GetName() VTK_FUTURE_CONST
 {
   return this->Name;
 }
@@ -219,7 +219,7 @@ void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
   this->InternalSetDimensionLabel(i, label);
 }
 
-vtkStdString vtkArray::GetDimensionLabel(DimensionT i)
+vtkStdString vtkArray::GetDimensionLabel(DimensionT i) VTK_FUTURE_CONST
 {
   if (i < 0 || i >= this->GetDimensions())
   {

@@ -495,10 +495,10 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary(const double point[3], d
 {
   // It is mandatory that GetMinDataBounds() and GetMaxDataBounds() be used.
   // Direct access to MinDataBounds and MaxDataBounds might incur problems.
-  double* thisMin = nullptr;
-  double* thisMax = nullptr;
-  double* rootMin = nullptr;
-  double* rootMax = nullptr;
+  const double* thisMin = nullptr;
+  const double* thisMax = nullptr;
+  const double* rootMin = nullptr;
+  const double* rootMax = nullptr;
   double minDist = VTK_DOUBLE_MAX; // minimum distance to the boundaries
   if (checkData)
   {
@@ -708,7 +708,7 @@ double vtkIncrementalOctreeNode::GetDistance2ToBoundary(const double point[3], d
       // 3: y-max face  ===>  xyzIndx = 1:  y  and  minFace & 1 = 1:  thisMax
       // 4: z-min face  ===>  xyzIndx = 2:  z  and  minFace & 1 = 0:  thisMin
       // 5: z-max face  ===>  xyzIndx = 2:  z  and  minFace & 1 = 1:  thisMax
-      double* pMinMax[2] = { thisMin, thisMax };
+      const double* pMinMax[2] = { thisMin, thisMax };
       int xyzIndx = (minFace >> 1);
       closest[xyzIndx] = pMinMax[minFace & 1][xyzIndx];
       pMinMax[0] = pMinMax[1] = nullptr;

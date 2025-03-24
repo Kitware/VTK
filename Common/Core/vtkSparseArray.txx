@@ -26,25 +26,25 @@ void vtkSparseArray<T>::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 template <typename T>
-bool vtkSparseArray<T>::IsDense()
+bool vtkSparseArray<T>::IsDense() VTK_FUTURE_CONST
 {
   return false;
 }
 
 template <typename T>
-const vtkArrayExtents& vtkSparseArray<T>::GetExtents()
+const vtkArrayExtents& vtkSparseArray<T>::GetExtents() VTK_FUTURE_CONST
 {
   return this->Extents;
 }
 
 template <typename T>
-typename vtkSparseArray<T>::SizeT vtkSparseArray<T>::GetNonNullSize()
+typename vtkSparseArray<T>::SizeT vtkSparseArray<T>::GetNonNullSize() VTK_FUTURE_CONST
 {
   return this->Values.size();
 }
 
 template <typename T>
-void vtkSparseArray<T>::GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates)
+void vtkSparseArray<T>::GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) VTK_FUTURE_CONST
 {
   coordinates.SetDimensions(this->GetDimensions());
   for (DimensionT i = 0; i != this->GetDimensions(); ++i)
@@ -592,7 +592,7 @@ void vtkSparseArray<T>::InternalSetDimensionLabel(DimensionT i, const vtkStdStri
 }
 
 template <typename T>
-vtkStdString vtkSparseArray<T>::InternalGetDimensionLabel(DimensionT i)
+vtkStdString vtkSparseArray<T>::InternalGetDimensionLabel(DimensionT i) VTK_FUTURE_CONST
 {
   return this->DimensionLabels[i];
 }

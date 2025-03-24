@@ -95,7 +95,7 @@ public:
   /**
    * Get the number of child items.
    */
-  vtkIdType GetNumberOfItems();
+  vtkIdType GetNumberOfItems() VTK_FUTURE_CONST;
 
   /**
    * Remove all child items from this item.

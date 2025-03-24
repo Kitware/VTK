@@ -50,22 +50,22 @@ public:
   /**
    * Set / get the bounding box using various methods.
    */
-  void SetXMin(double p[3]);
+  void SetXMin(VTK_FUTURE_CONST double p[3]);
   void SetXMin(double x, double y, double z);
-  void GetXMin(double p[3]);
-  void GetXMin(double& x, double& y, double& z);
+  void GetXMin(double p[3]) VTK_FUTURE_CONST;
+  void GetXMin(double& x, double& y, double& z) VTK_FUTURE_CONST;
   ///@}
 
-  void SetXMax(double p[3]);
+  void SetXMax(VTK_FUTURE_CONST double p[3]);
   void SetXMax(double x, double y, double z);
-  void GetXMax(double p[3]);
-  void GetXMax(double& x, double& y, double& z);
+  void GetXMax(double p[3]) VTK_FUTURE_CONST;
+  void GetXMax(double& x, double& y, double& z) VTK_FUTURE_CONST;
 
   void SetBounds(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
   void SetBounds(const double bounds[6]);
-  void GetBounds(
-    double& xMin, double& xMax, double& yMin, double& yMax, double& zMin, double& zMax);
-  void GetBounds(double bounds[6]);
+  void GetBounds(double& xMin, double& xMax, double& yMin, double& yMax, double& zMin,
+    double& zMax) VTK_FUTURE_CONST;
+  void GetBounds(double bounds[6]) VTK_FUTURE_CONST;
   double* GetBounds() VTK_SIZEHINT(6);
 
   /**
@@ -160,12 +160,12 @@ private:
   void operator=(const vtkBox&) = delete;
 };
 
-inline void vtkBox::SetXMin(double p[3])
+inline void vtkBox::SetXMin(VTK_FUTURE_CONST double p[3])
 {
   this->SetXMin(p[0], p[1], p[2]);
 }
 
-inline void vtkBox::SetXMax(double p[3])
+inline void vtkBox::SetXMax(VTK_FUTURE_CONST double p[3])
 {
   this->SetXMax(p[0], p[1], p[2]);
 }

@@ -104,13 +104,13 @@ void vtkBiDimensionalRepresentation ::SetHandleRepresentation(vtkHandleRepresent
 }
 
 //------------------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::GetPoint1WorldPosition(double pos[3])
+void vtkBiDimensionalRepresentation::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
 //------------------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::GetPoint2WorldPosition(double pos[3])
+void vtkBiDimensionalRepresentation::GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
@@ -188,14 +188,14 @@ void vtkBiDimensionalRepresentation::SetPoint4WorldPosition(double x[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::GetPoint1DisplayPosition(double pos[3])
+void vtkBiDimensionalRepresentation::GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;
 }
 
 //------------------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::GetPoint2DisplayPosition(double pos[3])
+void vtkBiDimensionalRepresentation::GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point2Representation->GetDisplayPosition(pos);
   pos[2] = 0.0;

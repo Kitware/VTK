@@ -114,7 +114,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_HYPER_TREE_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_HYPER_TREE_GRID; }
 
   /**
    * Copy the internal geometric and topological structure of a
@@ -495,7 +495,7 @@ public:
   /**
    * Structured extent. The extent type is a 3D extent.
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; }
+  int GetExtentType() VTK_FUTURE_CONST override { return VTK_3D_EXTENT; }
 
   /**
    * Return the actual size of the data in bytes. This number

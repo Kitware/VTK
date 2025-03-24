@@ -52,7 +52,7 @@ public:
   /**
    * Returns the number of vtkArray instances in the collection
    */
-  vtkIdType GetNumberOfArrays();
+  vtkIdType GetNumberOfArrays() VTK_FUTURE_CONST;
 
   /**
    * Returns the n-th vtkArray in the collection
@@ -67,7 +67,7 @@ public:
   /**
    * Return class name of data type (VTK_ARRAY_DATA).
    */
-  int GetDataObjectType() override { return VTK_ARRAY_DATA; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_ARRAY_DATA; }
 
   void ShallowCopy(vtkDataObject* other) override;
   void DeepCopy(vtkDataObject* other) override;

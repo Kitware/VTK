@@ -57,7 +57,7 @@ void vtkBoostRandomSparseArraySource::SetExtents(const vtkArrayExtents& extents)
   this->Modified();
 }
 
-vtkArrayExtents vtkBoostRandomSparseArraySource::GetExtents()
+vtkArrayExtents vtkBoostRandomSparseArraySource::GetExtents() VTK_FUTURE_CONST
 {
   return this->Extents;
 }

@@ -59,13 +59,13 @@ void vtkInformationKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-const char* vtkInformationKey::GetName()
+const char* vtkInformationKey::GetName() VTK_FUTURE_CONST
 {
   return this->Name;
 }
 
 //------------------------------------------------------------------------------
-const char* vtkInformationKey::GetLocation()
+const char* vtkInformationKey::GetLocation() VTK_FUTURE_CONST
 {
   return this->Location;
 }
@@ -83,13 +83,13 @@ vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
-const vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info) const
+const vtkObjectBase* vtkInformationKey::GetAsObjectBase(VTK_FUTURE_CONST vtkInformation* info) const
 {
   return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
 }
 
 //------------------------------------------------------------------------------
-int vtkInformationKey::Has(vtkInformation* info)
+int vtkInformationKey::Has(VTK_FUTURE_CONST vtkInformation* info) VTK_FUTURE_CONST
 {
   return this->GetAsObjectBase(info) ? 1 : 0;
 }

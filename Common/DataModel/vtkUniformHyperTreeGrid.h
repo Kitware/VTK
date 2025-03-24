@@ -40,7 +40,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_UNIFORM_HYPER_TREE_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNIFORM_HYPER_TREE_GRID; }
 
   /**
    * Copy the internal geometric and topological structure of a

@@ -78,14 +78,14 @@ void vtkBox::SetXMax(double x, double y, double z)
 }
 
 //------------------------------------------------------------------------------
-void vtkBox::GetBounds(
-  double& xMin, double& xMax, double& yMin, double& yMax, double& zMin, double& zMax)
+void vtkBox::GetBounds(double& xMin, double& xMax, double& yMin, double& yMax, double& zMin,
+  double& zMax) VTK_FUTURE_CONST
 {
   this->BBox->GetBounds(xMin, xMax, yMin, yMax, zMin, zMax);
 }
 
 //------------------------------------------------------------------------------
-void vtkBox::GetBounds(double bounds[6])
+void vtkBox::GetBounds(double bounds[6]) VTK_FUTURE_CONST
 {
   this->BBox->GetBounds(bounds);
 }
@@ -806,25 +806,25 @@ void vtkBox::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XMax: (" << maxP[0] << ", " << maxP[1] << ", " << maxP[2] << ")\n";
 }
 //------------------------------------------------------------------------------
-void vtkBox::GetXMin(double p[3])
+void vtkBox::GetXMin(double p[3]) VTK_FUTURE_CONST
 {
   this->BBox->GetMinPoint(p[0], p[1], p[2]);
 }
 
 //------------------------------------------------------------------------------
-void vtkBox::GetXMin(double& x, double& y, double& z)
+void vtkBox::GetXMin(double& x, double& y, double& z) VTK_FUTURE_CONST
 {
   this->BBox->GetMinPoint(x, y, z);
 }
 
 //------------------------------------------------------------------------------
-void vtkBox::GetXMax(double p[3])
+void vtkBox::GetXMax(double p[3]) VTK_FUTURE_CONST
 {
   this->BBox->GetMaxPoint(p[0], p[1], p[2]);
 }
 
 //------------------------------------------------------------------------------
-void vtkBox::GetXMax(double& x, double& y, double& z)
+void vtkBox::GetXMax(double& x, double& y, double& z) VTK_FUTURE_CONST
 {
   this->BBox->GetMaxPoint(x, y, z);
 }

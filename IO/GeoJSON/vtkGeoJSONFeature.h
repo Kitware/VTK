@@ -38,7 +38,7 @@ public:
   /**
    * Returns `VTK_GEO_JSON_FEATURE`.
    */
-  int GetDataObjectType() override { return VTK_GEO_JSON_FEATURE; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_GEO_JSON_FEATURE; }
 
   ///@{
   /**

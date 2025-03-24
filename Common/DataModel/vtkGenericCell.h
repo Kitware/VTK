@@ -53,10 +53,10 @@ public:
   void DeepCopy(vtkCell* c) override;
   int GetCellType() override;
   int GetCellDimension() override;
-  int IsLinear() override;
+  int IsLinear() VTK_FUTURE_CONST override;
   int RequiresInitialization() override;
   void Initialize() override;
-  int RequiresExplicitFaceRepresentation() override;
+  int RequiresExplicitFaceRepresentation() VTK_FUTURE_CONST override;
   VTK_DEPRECATED_IN_9_4_0("Use SetCellFaces.")
   void SetFaces(vtkIdType* faces) override;
   VTK_DEPRECATED_IN_9_4_0("Use GetCellFaces.")
@@ -87,7 +87,7 @@ public:
     int subId, const double pcoords[3], const double* values, int dim, double* derivs) override;
   int GetParametricCenter(double pcoords[3]) override;
   double* GetParametricCoords() override;
-  int IsPrimaryCell() override;
+  int IsPrimaryCell() VTK_FUTURE_CONST override;
   ///@}
 
   ///@{

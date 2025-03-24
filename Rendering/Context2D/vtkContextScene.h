@@ -79,7 +79,7 @@ public:
   /**
    * Get the number of child items.
    */
-  unsigned int GetNumberOfItems();
+  unsigned int GetNumberOfItems() VTK_FUTURE_CONST;
 
   /**
    * Remove all child items from this item.

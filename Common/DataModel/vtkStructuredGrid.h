@@ -55,7 +55,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_STRUCTURED_GRID; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_STRUCTURED_GRID; }
 
   /**
    * Copy the geometric and topological structure of an input poly data object.
@@ -229,7 +229,7 @@ public:
   /**
    * The extent type is a 3D extent
    */
-  int GetExtentType() override { return VTK_3D_EXTENT; }
+  int GetExtentType() VTK_FUTURE_CONST override { return VTK_3D_EXTENT; }
 
   /**
    * Reallocates and copies to set the Extent to the UpdateExtent.

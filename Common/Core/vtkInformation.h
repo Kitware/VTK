@@ -80,7 +80,7 @@ public:
    * Return the number of keys in this information object (as would be returned
    * by iterating over the keys).
    */
-  int GetNumberOfKeys();
+  int GetNumberOfKeys(); // can't const
 
   /**
    * Copy all information entries from the given vtkInformation
@@ -135,7 +135,7 @@ public:
   /**
    * Check whether the given key appears in this information object.
    */
-  int Has(vtkInformationKey* key);
+  int Has(vtkInformationKey* key) VTK_FUTURE_CONST;
 
   /**
    * Remove the given key and its data from this information object.
@@ -148,7 +148,7 @@ public:
    */
   void Set(vtkInformationRequestKey* key);
   void Remove(vtkInformationRequestKey* key);
-  int Has(vtkInformationRequestKey* key);
+  int Has(vtkInformationRequestKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -158,7 +158,7 @@ public:
   void Set(vtkInformationIntegerKey* key, int value);
   int Get(vtkInformationIntegerKey* key);
   void Remove(vtkInformationIntegerKey* key);
-  int Has(vtkInformationIntegerKey* key);
+  int Has(vtkInformationIntegerKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -168,7 +168,7 @@ public:
   void Set(vtkInformationIdTypeKey* key, vtkIdType value);
   vtkIdType Get(vtkInformationIdTypeKey* key);
   void Remove(vtkInformationIdTypeKey* key);
-  int Has(vtkInformationIdTypeKey* key);
+  int Has(vtkInformationIdTypeKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -178,7 +178,7 @@ public:
   void Set(vtkInformationDoubleKey* key, double value);
   double Get(vtkInformationDoubleKey* key);
   void Remove(vtkInformationDoubleKey* key);
-  int Has(vtkInformationDoubleKey* key);
+  int Has(vtkInformationDoubleKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -188,7 +188,7 @@ public:
   void Set(vtkInformationVariantKey* key, const vtkVariant& value);
   const vtkVariant& Get(vtkInformationVariantKey* key);
   void Remove(vtkInformationVariantKey* key);
-  int Has(vtkInformationVariantKey* key);
+  int Has(vtkInformationVariantKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -205,7 +205,7 @@ public:
   void Get(vtkInformationIntegerVectorKey* key, int* value);
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
-  int Has(vtkInformationIntegerVectorKey* key);
+  int Has(vtkInformationIntegerVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -219,7 +219,7 @@ public:
   const char* Get(vtkInformationStringVectorKey* key, int idx = 0);
   int Length(vtkInformationStringVectorKey* key);
   void Remove(vtkInformationStringVectorKey* key);
-  int Has(vtkInformationStringVectorKey* key);
+  int Has(vtkInformationStringVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -231,7 +231,7 @@ public:
   void Get(vtkInformationIntegerPointerKey* key, int* value);
   int Length(vtkInformationIntegerPointerKey* key);
   void Remove(vtkInformationIntegerPointerKey* key);
-  int Has(vtkInformationIntegerPointerKey* key);
+  int Has(vtkInformationIntegerPointerKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -241,7 +241,7 @@ public:
   void Set(vtkInformationUnsignedLongKey* key, unsigned long value);
   unsigned long Get(vtkInformationUnsignedLongKey* key);
   void Remove(vtkInformationUnsignedLongKey* key);
-  int Has(vtkInformationUnsignedLongKey* key);
+  int Has(vtkInformationUnsignedLongKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -258,7 +258,7 @@ public:
   void Get(vtkInformationDoubleVectorKey* key, double* value);
   int Length(vtkInformationDoubleVectorKey* key);
   void Remove(vtkInformationDoubleVectorKey* key);
-  int Has(vtkInformationDoubleVectorKey* key);
+  int Has(vtkInformationDoubleVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -277,7 +277,7 @@ public:
   void Get(vtkInformationVariantVectorKey* key, vtkVariant* value);
   int Length(vtkInformationVariantVectorKey* key);
   void Remove(vtkInformationVariantVectorKey* key);
-  int Has(vtkInformationVariantVectorKey* key);
+  int Has(vtkInformationVariantVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -293,7 +293,7 @@ public:
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
   void Remove(vtkInformationKeyVectorKey* key);
-  int Has(vtkInformationKeyVectorKey* key);
+  int Has(vtkInformationKeyVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   // Provide extra overloads of this method to avoid requiring user
@@ -333,7 +333,7 @@ public:
   void Set(vtkInformationStringKey* key, const std::string&);
   const char* Get(vtkInformationStringKey* key);
   void Remove(vtkInformationStringKey* key);
-  int Has(vtkInformationStringKey* key);
+  int Has(vtkInformationStringKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -343,7 +343,7 @@ public:
   void Set(vtkInformationInformationKey* key, vtkInformation*);
   vtkInformation* Get(vtkInformationInformationKey* key);
   void Remove(vtkInformationInformationKey* key);
-  int Has(vtkInformationInformationKey* key);
+  int Has(vtkInformationInformationKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -353,7 +353,7 @@ public:
   void Set(vtkInformationInformationVectorKey* key, vtkInformationVector*);
   vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
   void Remove(vtkInformationInformationVectorKey* key);
-  int Has(vtkInformationInformationVectorKey* key);
+  int Has(vtkInformationInformationVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -363,7 +363,7 @@ public:
   void Set(vtkInformationObjectBaseKey* key, vtkObjectBase*);
   vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
   void Remove(vtkInformationObjectBaseKey* key);
-  int Has(vtkInformationObjectBaseKey* key);
+  int Has(vtkInformationObjectBaseKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -377,7 +377,7 @@ public:
   void Remove(vtkInformationObjectBaseVectorKey* key);
   void Remove(vtkInformationObjectBaseVectorKey* key, vtkObjectBase* objectToRemove);
   void Remove(vtkInformationObjectBaseVectorKey* key, int indexToRemove);
-  int Has(vtkInformationObjectBaseVectorKey* key);
+  int Has(vtkInformationObjectBaseVectorKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -387,7 +387,7 @@ public:
   void Set(vtkInformationDataObjectKey* key, vtkDataObject VTK_WRAP_EXTERN*);
   vtkDataObject VTK_WRAP_EXTERN* Get(vtkInformationDataObjectKey* key);
   void Remove(vtkInformationDataObjectKey* key);
-  int Has(vtkInformationDataObjectKey* key);
+  int Has(vtkInformationDataObjectKey* key) VTK_FUTURE_CONST;
   ///@}
 
   ///@{
@@ -422,7 +422,7 @@ public:
    * Get/Set the Request ivar
    */
   void SetRequest(vtkInformationRequestKey* request);
-  vtkInformationRequestKey* GetRequest();
+  vtkInformationRequestKey* GetRequest() VTK_FUTURE_CONST;
   ///@}
 
 protected:

@@ -414,7 +414,7 @@ public:
   /**
    * Return the type of data object.
    */
-  int GetDataObjectType() override { return VTK_DATA_SET; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_DATA_SET; }
 
   ///@{
   /**

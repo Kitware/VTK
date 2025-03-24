@@ -36,7 +36,7 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() override { return VTK_PARTITIONED_DATA_SET_COLLECTION; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_PARTITIONED_DATA_SET_COLLECTION; }
 
   /**
    * Set the number of blocks. This will cause allocation if the new number of

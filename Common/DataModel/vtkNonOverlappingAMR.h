@@ -26,7 +26,7 @@ public:
   /**
    * Returns object type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() override { return VTK_NON_OVERLAPPING_AMR; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_NON_OVERLAPPING_AMR; }
 
   /**
    * Retrieve an instance of this class from an information object.

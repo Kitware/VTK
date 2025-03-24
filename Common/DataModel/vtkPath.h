@@ -29,7 +29,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() override { return VTK_PATH; }
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_PATH; }
 
   /**
    * Enumeration of recognized control point types:

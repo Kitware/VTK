@@ -199,8 +199,8 @@ void vtkIncrementalOctreePointLocator::GetBounds(double* bounds)
 {
   if (this->OctreeRootNode)
   {
-    double* minBounds = this->OctreeRootNode->GetMinBounds();
-    double* maxBounds = this->OctreeRootNode->GetMaxBounds();
+    const double* minBounds = this->OctreeRootNode->GetMinBounds();
+    const double* maxBounds = this->OctreeRootNode->GetMaxBounds();
     bounds[0] = minBounds[0];
     bounds[1] = maxBounds[0];
     bounds[2] = minBounds[1];
@@ -630,8 +630,8 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint(const double x[3], 
   else // the point is outside the octree
   {
     double initialPt[3];
-    double* minBounds = this->OctreeRootNode->GetMinBounds();
-    double* maxBounds = this->OctreeRootNode->GetMaxBounds();
+    const double* minBounds = this->OctreeRootNode->GetMinBounds();
+    const double* maxBounds = this->OctreeRootNode->GetMaxBounds();
     this->OctreeRootNode->GetDistance2ToBoundary(x, initialPt, this->OctreeRootNode, 1);
 
     // This initial (closest) point might be outside the octree a little bit

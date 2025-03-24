@@ -68,10 +68,10 @@ public:
   typedef typename vtkArray::SizeT SizeT;
 
   // vtkArray API
-  bool IsDense() override;
-  const vtkArrayExtents& GetExtents() override;
-  SizeT GetNonNullSize() override;
-  void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) override;
+  bool IsDense() VTK_FUTURE_CONST override;
+  const vtkArrayExtents& GetExtents() VTK_FUTURE_CONST override;
+  SizeT GetNonNullSize() VTK_FUTURE_CONST override;
+  void GetCoordinatesN(SizeT n, vtkArrayCoordinates& coordinates) VTK_FUTURE_CONST override;
   vtkArray* DeepCopy() override;
 
   // vtkTypedArray API
@@ -204,7 +204,7 @@ private:
 
   void InternalResize(const vtkArrayExtents& extents) override;
   void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) override;
-  vtkStdString InternalGetDimensionLabel(DimensionT i) override;
+  vtkStdString InternalGetDimensionLabel(DimensionT i) VTK_FUTURE_CONST override;
 
   typedef vtkSparseArray<T> ThisT;
 

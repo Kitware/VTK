@@ -34,13 +34,13 @@ public:
    * Get the name of the key.  This is not the type of the key, but
    * the name of the key instance.
    */
-  const char* GetName();
+  const char* GetName() VTK_FUTURE_CONST;
 
   /**
    * Get the location of the key.  This is the name of the class in
    * which the key is defined.
    */
-  const char* GetLocation();
+  const char* GetLocation() VTK_FUTURE_CONST;
 
   ///@{
   /**
@@ -72,7 +72,7 @@ public:
   /**
    * Check whether this key appears in the given information object.
    */
-  virtual int Has(vtkInformation* info);
+  virtual int Has(VTK_FUTURE_CONST vtkInformation* info) VTK_FUTURE_CONST;
 
   /**
    * Remove this key from the given information object.
@@ -178,7 +178,7 @@ protected:
   // Set/Get the value associated with this key instance in the given
   // information object.
   void SetAsObjectBase(vtkInformation* info, vtkObjectBase* value);
-  const vtkObjectBase* GetAsObjectBase(vtkInformation* info) const;
+  const vtkObjectBase* GetAsObjectBase(VTK_FUTURE_CONST vtkInformation* info) const;
   vtkObjectBase* GetAsObjectBase(vtkInformation* info);
 
   // Report the object associated with this key instance in the given

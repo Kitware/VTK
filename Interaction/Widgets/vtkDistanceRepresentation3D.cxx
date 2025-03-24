@@ -150,7 +150,7 @@ void vtkDistanceRepresentation3D::SetLabelActor(vtkFollower* fol)
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation3D::GetPoint1WorldPosition(double pos[3])
+void vtkDistanceRepresentation3D::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point1Representation)
   {
@@ -159,7 +159,7 @@ void vtkDistanceRepresentation3D::GetPoint1WorldPosition(double pos[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation3D::GetPoint2WorldPosition(double pos[3])
+void vtkDistanceRepresentation3D::GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point2Representation)
   {
@@ -226,7 +226,7 @@ void vtkDistanceRepresentation3D::SetPoint2WorldPosition(double x[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation3D::GetPoint1DisplayPosition(double pos[3])
+void vtkDistanceRepresentation3D::GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point1Representation)
   {
@@ -236,7 +236,7 @@ void vtkDistanceRepresentation3D::GetPoint1DisplayPosition(double pos[3])
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation3D::GetPoint2DisplayPosition(double pos[3])
+void vtkDistanceRepresentation3D::GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST
 {
   if (this->Point2Representation)
   {

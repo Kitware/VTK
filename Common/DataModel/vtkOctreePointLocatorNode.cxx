@@ -98,7 +98,8 @@ vtkOctreePointLocatorNode* vtkOctreePointLocatorNode::GetChild(int i)
 }
 
 //------------------------------------------------------------------------------
-int vtkOctreePointLocatorNode::GetSubOctantIndex(double* point, int CheckContainment)
+int vtkOctreePointLocatorNode::GetSubOctantIndex(
+  VTK_FUTURE_CONST double* point, int CheckContainment)
 {
   int i, index = 0;
   if (CheckContainment)

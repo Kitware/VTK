@@ -46,7 +46,7 @@ public:
   int GetNumberOfFaces() override { return 0; }
   vtkCell* GetEdge(int) override;
   vtkCell* GetFace(int) override { return nullptr; }
-  int IsPrimaryCell() override { return 0; }
+  int IsPrimaryCell() VTK_FUTURE_CONST override { return 0; }
 
   ///@{
   /**

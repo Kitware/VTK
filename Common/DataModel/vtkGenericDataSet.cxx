@@ -206,7 +206,7 @@ unsigned long vtkGenericDataSet::GetActualMemorySize()
 //------------------------------------------------------------------------------
 // Description:
 // Return the type of data object.
-int vtkGenericDataSet::GetDataObjectType()
+int vtkGenericDataSet::GetDataObjectType() VTK_FUTURE_CONST
 {
   return VTK_GENERIC_DATA_SET;
 }

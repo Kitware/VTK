@@ -34,7 +34,7 @@ public:
   /**
    * Returns the extents (dimensionality and size) of the output array
    */
-  vtkArrayExtents GetExtents();
+  vtkArrayExtents GetExtents() VTK_FUTURE_CONST;
 
   ///@{
   /**

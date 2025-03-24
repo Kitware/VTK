@@ -192,7 +192,7 @@ public:
    * A convex point set is triangulated prior to any operations on it so
    * it is not a primary cell, it is a composite cell.
    */
-  int IsPrimaryCell() override { return 0; }
+  int IsPrimaryCell() VTK_FUTURE_CONST override { return 0; }
 
   ///@{
   /**

@@ -82,7 +82,7 @@ public:
   /**
    * Get the number of cells using the point specified by ptId.
    */
-  vtkIdType GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells; }
+  vtkIdType GetNcells(vtkIdType ptId) VTK_FUTURE_CONST { return this->Array[ptId].ncells; }
 
   /**
    * Return a list of cell ids using the point.

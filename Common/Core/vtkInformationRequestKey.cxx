@@ -37,7 +37,7 @@ void vtkInformationRequestKey::Set(vtkInformation* info)
 }
 
 //------------------------------------------------------------------------------
-int vtkInformationRequestKey::Has(vtkInformation* info)
+int vtkInformationRequestKey::Has(VTK_FUTURE_CONST vtkInformation* info) VTK_FUTURE_CONST
 {
   return (info->GetRequest() == this) ? 1 : 0;
 }
