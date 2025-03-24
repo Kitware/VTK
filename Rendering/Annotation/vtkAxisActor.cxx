@@ -969,25 +969,6 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
 
   this->UpdateTitleActorProperty();
 
-  vtkTextActor* titleActor2D = vtkTextActor::SafeDownCast(this->GetTitleActorInternal());
-  assert(titleActor2D);
-
-  if (this->AxisType == VTK_AXIS_TYPE_Y)
-  {
-    if (strlen(titleActor2D->GetInput()) > 2)
-    {
-      // warning : orientation have to be set on vtkTextActor and not on the vtkTextActor's
-      // vtkTextProperty
-      // otherwise there is a strange effect (first letter is not align with the others)
-      titleActor2D->SetOrientation(90);
-    }
-    else
-    {
-      // if in the previous rendering, the orientation was set.
-      titleActor2D->SetOrientation(0);
-    }
-  }
-
   // stuff for 2D axis with TextActor
   double transpos[3];
   double* pos = this->TitleProp.Follower->GetPosition();
@@ -1038,22 +1019,6 @@ void vtkAxisActor::BuildExponent2D(vtkViewport* viewport, bool force)
 
   // for textactor instead of follower
   this->UpdateExponentActorProperty();
-
-  if (this->AxisType == VTK_AXIS_TYPE_Y)
-  {
-    if (strlen(this->ExponentProp.Actor2D->GetInput()) > 2)
-    {
-      // warning : orientation have to be set on vtkTextActor and not on the vtkTextActor's
-      // vtkTextProperty
-      // otherwise there is a strange effect (first letter is not align with the others)
-      this->ExponentProp.Actor2D->SetOrientation(90);
-    }
-    else
-    {
-      // if in the previous rendering, the orientation was set.
-      this->ExponentProp.Actor2D->SetOrientation(0);
-    }
-  }
 
   // stuff for 2D axis with TextActor
   double transpos[3];
