@@ -103,6 +103,14 @@ public:
    */
   void RotateActor2DFromAxisProjection(double p1[3], double p2[3]);
 
+  ///@{
+  /**
+   * Set Screen offset on axis followers.
+   */
+  void SetScreenOffset(double offset);
+  void SetScreenOffsetVector(double offset[2]);
+  ///@}
+
   vtkNew<vtkAxisFollower> Follower;
   vtkNew<vtkProp3DAxisFollower> Follower3D;
   vtkNew<vtkTextActor> Actor2D;

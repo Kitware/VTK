@@ -193,4 +193,18 @@ void vtkTextActorHandlerPrivate::RotateActor2DFromAxisProjection(double p1[3], d
   this->Actor2D->SetOrientation(orient);
 }
 
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::SetScreenOffset(double offset)
+{
+  this->Follower->SetScreenOffset(offset);
+  this->Follower3D->SetScreenOffset(offset);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::SetScreenOffsetVector(double offset[2])
+{
+  this->Follower->SetScreenOffsetVector(offset);
+  this->Follower3D->SetScreenOffsetVector(offset);
+}
+
 VTK_ABI_NAMESPACE_END

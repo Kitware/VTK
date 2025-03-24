@@ -580,9 +580,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     }
 
     double deltaPixels = 0.5 * (labelWidth * labelSin + labelHeight * labelCos) / labelMagnitude;
-    pAxisFollower->SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
-    this->LabelProps[i].Follower3D->SetScreenOffset(
-      this->LabelOffset + deltaPixels * this->ScreenSize);
+    this->LabelProps[i].SetScreenOffset(this->LabelOffset + deltaPixels * this->ScreenSize);
 
     this->LabelProps[i].SetPosition(pos);
   }
@@ -817,13 +815,7 @@ void vtkAxisActor::BuildTitle(bool force)
   }
 
   offset[1] *= vertOffsetSign;
-  this->TitleProp.Follower->SetScreenOffsetVector(offset);
-  vtkProp* titleProp = this->GetTitleActorInternal();
-  vtkProp3DAxisFollower* titleProp3D = vtkProp3DAxisFollower::SafeDownCast(titleProp);
-  if (titleProp3D)
-  {
-    titleProp3D->SetScreenOffsetVector(offset);
-  }
+  this->TitleProp.SetScreenOffsetVector(offset);
 
   if (this->UseTextActor3D)
   {
@@ -945,8 +937,7 @@ void vtkAxisActor::BuildExponent(bool force)
   // Offset is: ExponentOffset + TitleOffset is visible + LabelOffset if visible
   // + ScreenSize of all
   offset[1] *= offsetSign;
-  this->ExponentProp.Follower->SetScreenOffsetVector(offset);
-  this->ExponentProp.Follower3D->SetScreenOffsetVector(offset);
+  this->ExponentProp.SetScreenOffsetVector(offset);
 
   if (this->UseTextActor3D)
   {
