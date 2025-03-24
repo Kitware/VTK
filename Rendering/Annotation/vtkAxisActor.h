@@ -844,12 +844,6 @@ private:
   void SetLabelPositions2D(vtkViewport*, bool);
 
   /**
-   * Set orientation of the actor 2D (follower) to keep the axis orientation and stay on the right
-   * size
-   */
-  void RotateActor2DFromAxisProjection(vtkTextActor* pActor2D);
-
-  /**
    * This method set the text and set the base position of the follower from the axis
    * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
    * camera position

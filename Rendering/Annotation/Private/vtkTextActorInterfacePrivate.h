@@ -4,6 +4,7 @@
 #define vtkTextActorInterfacePrivate_h
 
 #include "vtkNew.h"
+#include "vtkSmartPointer.h"
 
 #include <string>
 
@@ -114,6 +115,8 @@ private:
 
   vtkNew<vtkVectorText> Vector;
   vtkNew<vtkTextActor3D> Actor3D;
+
+  vtkSmartPointer<vtkCamera> Camera;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -3,6 +3,8 @@
 #include "vtkTextActorInterfacePrivate.h"
 
 #include "vtkAxisFollower.h"
+#include "vtkCamera.h"
+#include "vtkMatrix4x4.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProp3DAxisFollower.h"
 #include "vtkPropCollection.h"
@@ -47,6 +49,7 @@ void vtkTextActorInterfacePrivate::SetCamera(vtkCamera* camera)
 {
   this->Follower->SetCamera(camera);
   this->Follower3D->SetCamera(camera);
+  this->Camera = camera;
 }
 
 //------------------------------------------------------------------------------
@@ -134,6 +137,60 @@ void vtkTextActorHandlerPrivate::SetPosition(double pos[3])
 void vtkTextActorHandlerPrivate::SetDisplayPosition(double x, double y)
 {
   this->Actor2D->SetPosition(x, y);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::RotateActor2DFromAxisProjection(double p1[3], double p2[3])
+{
+  vtkMatrix4x4* matModelView = this->Camera->GetModelViewTransformMatrix();
+  double nearPlane = this->Camera->GetClippingRange()[0];
+
+  // Need view coordinate points.
+  double viewPt1[4] = { p1[0], p1[1], p1[2], 1.0 };
+  double viewPt2[4] = { p2[0], p2[1], p2[2], 1.0 };
+
+  matModelView->MultiplyPoint(viewPt1, viewPt1);
+  matModelView->MultiplyPoint(viewPt2, viewPt2);
+
+  if (viewPt1[2] == 0.0 || viewPt2[2] == 0.0)
+  {
+    return;
+  }
+
+  double p1Pjt[3] = { -nearPlane * viewPt1[0] / viewPt1[2], -nearPlane * viewPt1[1] / viewPt1[2],
+    -nearPlane };
+  double p2Pjt[3] = { -nearPlane * viewPt2[0] / viewPt2[2], -nearPlane * viewPt2[1] / viewPt2[2],
+    -nearPlane };
+
+  double axisOnScreen[2] = { p2Pjt[0] - p1Pjt[0], p2Pjt[1] - p1Pjt[1] };
+  double x[2] = { 1.0, 0.0 }, y[2] = { 0.0, 1.0 };
+
+  double dotProd = vtkMath::Dot2D(x, axisOnScreen);
+
+  double orient = 0.0;
+  if (vtkMath::Norm2D(axisOnScreen) == 0.0)
+  {
+    this->Actor2D->SetOrientation(0.0);
+    return;
+  }
+  else
+  {
+    orient = acos(dotProd / vtkMath::Norm2D(axisOnScreen));
+    orient = vtkMath::DegreesFromRadians(orient);
+  }
+
+  // adjust angle
+  if (vtkMath::Dot2D(y, axisOnScreen) < 0.0)
+  {
+    orient *= -1.0;
+  }
+
+  if (vtkMath::Dot2D(x, axisOnScreen) < 0.0)
+  {
+    orient += 180.0;
+  }
+
+  this->Actor2D->SetOrientation(orient);
 }
 
 VTK_ABI_NAMESPACE_END

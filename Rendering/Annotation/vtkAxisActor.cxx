@@ -10,7 +10,6 @@
 #include "vtkCoordinate.h"
 #include "vtkFollower.h"
 #include "vtkMath.h"
-#include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -2597,63 +2596,6 @@ void vtkAxisActor::BuildMajorTicksLog(double p1[3], double p2[3], double localCo
     vtkMath::Add(majorTickOnAxis, vPointOutside, majorTickPoint);
     this->MajorTickPts->InsertNextPoint(majorTickPoint);
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkAxisActor::RotateActor2DFromAxisProjection(vtkTextActor* pActor2D)
-{
-  double* p1 = this->Point1Coordinate->GetValue();
-  double* p2 = this->Point2Coordinate->GetValue();
-
-  vtkMatrix4x4* matModelView = this->Camera->GetModelViewTransformMatrix();
-  double nearPlane = this->Camera->GetClippingRange()[0];
-
-  // Need view coordinate points.
-  double viewPt1[4] = { p1[0], p1[1], p1[2], 1.0 };
-  double viewPt2[4] = { p2[0], p2[1], p2[2], 1.0 };
-
-  matModelView->MultiplyPoint(viewPt1, viewPt1);
-  matModelView->MultiplyPoint(viewPt2, viewPt2);
-
-  if (viewPt1[2] == 0.0 || viewPt2[2] == 0.0)
-  {
-    return;
-  }
-
-  double p1Pjt[3] = { -nearPlane * viewPt1[0] / viewPt1[2], -nearPlane * viewPt1[1] / viewPt1[2],
-    -nearPlane };
-  double p2Pjt[3] = { -nearPlane * viewPt2[0] / viewPt2[2], -nearPlane * viewPt2[1] / viewPt2[2],
-    -nearPlane };
-
-  double axisOnScreen[2] = { p2Pjt[0] - p1Pjt[0], p2Pjt[1] - p1Pjt[1] };
-  double x[2] = { 1.0, 0.0 }, y[2] = { 0.0, 1.0 };
-
-  double dotProd = vtkMath::Dot2D(x, axisOnScreen);
-
-  double orient = 0.0;
-  if (vtkMath::Norm2D(axisOnScreen) == 0.0)
-  {
-    pActor2D->SetOrientation(0.0);
-    return;
-  }
-  else
-  {
-    orient = acos(dotProd / vtkMath::Norm2D(axisOnScreen));
-    orient = vtkMath::DegreesFromRadians(orient);
-  }
-
-  // adjust angle
-  if (vtkMath::Dot2D(y, axisOnScreen) < 0.0)
-  {
-    orient *= -1.0;
-  }
-
-  if (vtkMath::Dot2D(x, axisOnScreen) < 0.0)
-  {
-    orient += 180.0;
-  }
-
-  pActor2D->SetOrientation(orient);
 }
 
 //------------------------------------------------------------------------------
