@@ -17,20 +17,14 @@
 #include "vtkProp3DAxisFollower.h"
 #include "vtkPropCollection.h"
 #include "vtkProperty.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
-#include "vtkTextActor.h"
-#include "vtkTextActor3D.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
-#include "vtkVectorText.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
 #define VTK_MAX_TICKS 1000
-
-#include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor);
