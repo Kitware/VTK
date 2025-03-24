@@ -42,7 +42,7 @@
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
-#include "vtkDeprecation.h"
+#include "vtkDeprecation.h"               // for Deprecation macro
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
@@ -61,6 +61,7 @@ class vtkPolyDataMapper;
 class vtkProp3DAxisFollower;
 class vtkStringArray;
 class vtkTextActor;
+class vtkTextActorInterfacePrivate;
 class vtkTextActor3D;
 class vtkTextProperty;
 class vtkVectorText;
@@ -585,12 +586,12 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkAxisFollower* GetTitleActor() { return this->TitleProp.GetFollower(); }
+  vtkAxisFollower* GetTitleActor();
 
   /**
    * Get exponent follower actor
    */
-  vtkAxisFollower* GetExponentActor() { return this->ExponentProp.GetFollower(); }
+  vtkAxisFollower* GetExponentActor();
 
   ///@{
   /**
@@ -607,7 +608,7 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkProp3DAxisFollower* GetTitleProp3D() { return this->TitleProp.GetFollower3D(); }
+  vtkProp3DAxisFollower* GetTitleProp3D();
   ///@}
 
   ///@{
@@ -625,7 +626,7 @@ public:
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkProp3DAxisFollower* GetExponentProp3D() { return this->ExponentProp.GetFollower3D(); }
+  vtkProp3DAxisFollower* GetExponentProp3D();
   ///@}
 
   ///@{
@@ -948,17 +949,17 @@ private:
   vtkNew<vtkPoints> InnerGridlinePts;
   vtkNew<vtkPoints> GridpolyPts;
 
-  vtkTextActorInterfacePrivate TitleProp;
+  std::unique_ptr<vtkTextActorInterfacePrivate> TitleProp;
   vtkSmartPointer<vtkTextProperty> TitleTextProperty;
 
   ///@{
   /**
    * Mapper/Actor used to display a common exponent of the label values
    */
-  vtkTextActorInterfacePrivate ExponentProp;
+  std::unique_ptr<vtkTextActorInterfacePrivate> ExponentProp;
   ///@}
 
-  std::vector<vtkTextActorInterfacePrivate> LabelProps;
+  std::vector<std::shared_ptr<vtkTextActorInterfacePrivate>> LabelProps;
   vtkSmartPointer<vtkTextProperty> LabelTextProperty;
 
   // VTK_DEPRECATED_IN_9_5_0
