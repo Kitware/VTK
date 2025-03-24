@@ -86,10 +86,25 @@ public:
    */
   void GetBounds(double bounds[6]);
 
+  /**
+   * Update internal 3D actors position.
+   */
+  void SetPosition(double pos[3]);
+
+  /**
+   * Update internal screen space actors position.
+   */
+  void SetDisplayPosition(double x, double y);
+
+  /**
+   * Set orientation of the actor 2D to keep the axis orientation.
+   * Axis is defined by p1 and p2.
+   */
+  void RotateActor2DFromAxisProjection(double p1[3], double p2[3]);
+
   vtkNew<vtkAxisFollower> Follower;
   vtkNew<vtkProp3DAxisFollower> Follower3D;
   vtkNew<vtkTextActor> Actor2D;
-  vtkNew<vtkTextActor3D> Actor3D;
 
   vtkTextActorInterfacePrivate(vtkTextActorInterfacePrivate&&);
 
@@ -98,6 +113,7 @@ private:
   vtkTextActorInterfacePrivate(const vtkTextActorInterfacePrivate&) = delete;
 
   vtkNew<vtkVectorText> Vector;
+  vtkNew<vtkTextActor3D> Actor3D;
 };
 
 VTK_ABI_NAMESPACE_END

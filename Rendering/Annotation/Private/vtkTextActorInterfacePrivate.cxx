@@ -123,4 +123,17 @@ void vtkTextActorHandlerPrivate::GetBounds(double bounds[6])
   this->Follower->GetMapper()->GetBounds(bounds);
 }
 
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::SetPosition(double pos[3])
+{
+  this->Follower->SetPosition(pos);
+  this->Follower3D->SetPosition(pos);
+}
+
+//------------------------------------------------------------------------------
+void vtkTextActorHandlerPrivate::SetDisplayPosition(double x, double y)
+{
+  this->Actor2D->SetPosition(x, y);
+}
+
 VTK_ABI_NAMESPACE_END

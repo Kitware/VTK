@@ -585,8 +585,7 @@ void vtkAxisActor::SetLabelPositions(vtkViewport* viewport, bool force)
     this->LabelProps[i].Follower3D->SetScreenOffset(
       this->LabelOffset + deltaPixels * this->ScreenSize);
 
-    pAxisFollower->SetPosition(pos[0], pos[1], pos[2]);
-    this->LabelProps[i].Follower3D->SetPosition(pos[0], pos[1], pos[2]);
+    this->LabelProps[i].SetPosition(pos);
   }
 }
 
@@ -702,7 +701,7 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport* viewport, bool force)
     pos[0] = (transpos[0] - xadjust * width * xcoeff);
     pos[1] = (transpos[1] - yadjust * height * ycoeff);
 
-    this->LabelProps[i].Actor2D->SetPosition(pos[0], pos[1]);
+    this->LabelProps[i].SetDisplayPosition(pos[0], pos[1]);
   }
 }
 
@@ -831,8 +830,7 @@ void vtkAxisActor::BuildTitle(bool force)
   {
     this->TitleProp.AdjustScale();
   }
-  this->TitleProp.Follower->SetPosition(pos);
-  this->TitleProp.Follower3D->SetPosition(pos);
+  this->TitleProp.SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
@@ -956,8 +954,7 @@ void vtkAxisActor::BuildExponent(bool force)
     this->ExponentProp.AdjustScale();
   }
 
-  this->ExponentProp.Follower->SetPosition(pos);
-  this->ExponentProp.Follower3D->SetPosition(pos);
+  this->ExponentProp.SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
@@ -1013,20 +1010,10 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
   {
     transpos[0] += offsetSign * this->HorizontalOffsetYTitle2D;
   }
-  if (transpos[1] < 10.)
-  {
-    transpos[1] = 10.;
-  }
-  if (transpos[0] < 10.)
-  {
-    transpos[0] = 10.;
-  }
+  transpos[0] = std::max(transpos[0], 10.);
+  transpos[1] = std::max(transpos[1], 10.);
 
-  if (this->SaveTitlePosition == 0)
-  {
-    titleActor2D->SetPosition(transpos[0], transpos[1]);
-  }
-  else
+  if (this->SaveTitlePosition > 0)
   {
     if (this->SaveTitlePosition == 1)
     {
@@ -1034,9 +1021,12 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
       this->TitleConstantPosition[1] = transpos[1];
       this->SaveTitlePosition = 2;
     }
-    titleActor2D->SetPosition(this->TitleConstantPosition[0], this->TitleConstantPosition[1]);
+    transpos[0] = this->TitleConstantPosition[0];
+    transpos[1] = this->TitleConstantPosition[1];
   }
-  this->RotateActor2DFromAxisProjection(titleActor2D);
+
+  this->TitleProp.SetDisplayPosition(transpos[0], transpos[1]);
+  this->TitleProp.RotateActor2DFromAxisProjection(this->GetPoint1(), this->GetPoint2());
 }
 
 //------------------------------------------------------------------------------
@@ -1093,18 +1083,11 @@ void vtkAxisActor::BuildExponent2D(vtkViewport* viewport, bool force)
   {
     transpos[0] += offsetSign * titleMult * this->HorizontalOffsetYTitle2D;
   }
-  if (transpos[1] < 10.)
-  {
-    transpos[1] = 10.;
-  }
-  if (transpos[0] < 10.)
-  {
-    transpos[0] = 10.;
-  }
+  transpos[0] = std::max(transpos[0], 10.);
+  transpos[1] = std::max(transpos[1], 10.);
 
-  this->ExponentProp.Actor2D->SetPosition(transpos[0], transpos[1]);
-
-  this->RotateActor2DFromAxisProjection(this->ExponentProp.Actor2D);
+  this->ExponentProp.SetDisplayPosition(transpos[0], transpos[1]);
+  this->ExponentProp.RotateActor2DFromAxisProjection(this->GetPoint1(), this->GetPoint2());
 }
 
 //------------------------------------------------------------------------------
