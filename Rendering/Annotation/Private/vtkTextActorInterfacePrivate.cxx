@@ -139,6 +139,12 @@ void vtkTextActorInterfacePrivate::GetBounds(double bounds[6])
 }
 
 //------------------------------------------------------------------------------
+void vtkTextActorInterfacePrivate::GetReferencePosition(double pos[3])
+{
+  this->Follower->GetPosition(pos);
+}
+
+//------------------------------------------------------------------------------
 void vtkTextActorInterfacePrivate::SetPosition(double pos[3])
 {
   this->Follower->SetPosition(pos);

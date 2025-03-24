@@ -105,6 +105,11 @@ public:
   void SetPosition(double pos[3]);
 
   /**
+   * Get the reference position in 3D space.
+   */
+  void GetReferencePosition(double pos[3]);
+
+  /**
    * Update internal screen space actors position.
    */
   void SetDisplayPosition(double x, double y);

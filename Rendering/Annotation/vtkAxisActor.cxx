@@ -960,12 +960,38 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
 
   this->UpdateTitleActorProperty();
 
-  // stuff for 2D axis with TextActor
-  double transpos[3];
-  double* pos = this->TitleProp.Follower->GetPosition();
-  viewport->SetWorldPoint(pos[0], pos[1], pos[2], 1.0);
+  double scenePos[3];
+  this->TitleProp.GetReferencePosition(scenePos);
+
+  double position[2];
+  this->Get2DPosition(viewport, 1., scenePos, position);
+
+  if (this->SaveTitlePosition > 0)
+  {
+    if (this->SaveTitlePosition == 1)
+    {
+      this->TitleConstantPosition[0] = position[0];
+      this->TitleConstantPosition[1] = position[1];
+      this->SaveTitlePosition = 2;
+    }
+    position[0] = this->TitleConstantPosition[0];
+    position[1] = this->TitleConstantPosition[1];
+  }
+
+  this->TitleProp.SetDisplayPosition(position[0], position[1]);
+  this->TitleProp.RotateActor2DFromAxisProjection(this->GetPoint1(), this->GetPoint2());
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor::Get2DPosition(
+  vtkViewport* viewport, double multi, double scenePos[3], double displayPos[2])
+{
+  double display[3];
+  viewport->SetWorldPoint(scenePos[0], scenePos[1], scenePos[2], 1.0);
   viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transpos);
+  viewport->GetDisplayPoint(display);
+  displayPos[0] = display[0];
+  displayPos[1] = display[1];
 
   int offsetSign = 1;
   if (this->TitleAlignLocation == VTK_ALIGN_TOP)
@@ -975,29 +1001,15 @@ void vtkAxisActor::BuildTitle2D(vtkViewport* viewport, bool force)
 
   if (this->AxisType == VTK_AXIS_TYPE_X)
   {
-    transpos[1] += offsetSign * this->VerticalOffsetXTitle2D;
+    displayPos[1] += offsetSign * multi * this->VerticalOffsetXTitle2D;
   }
   else if (this->AxisType == VTK_AXIS_TYPE_Y)
   {
-    transpos[0] += offsetSign * this->HorizontalOffsetYTitle2D;
-  }
-  transpos[0] = std::max(transpos[0], 10.);
-  transpos[1] = std::max(transpos[1], 10.);
-
-  if (this->SaveTitlePosition > 0)
-  {
-    if (this->SaveTitlePosition == 1)
-    {
-      this->TitleConstantPosition[0] = transpos[0];
-      this->TitleConstantPosition[1] = transpos[1];
-      this->SaveTitlePosition = 2;
-    }
-    transpos[0] = this->TitleConstantPosition[0];
-    transpos[1] = this->TitleConstantPosition[1];
+    displayPos[0] += offsetSign * multi * this->HorizontalOffsetYTitle2D;
   }
 
-  this->TitleProp.SetDisplayPosition(transpos[0], transpos[1]);
-  this->TitleProp.RotateActor2DFromAxisProjection(this->GetPoint1(), this->GetPoint2());
+  displayPos[0] = std::max(displayPos[0], 10.);
+  displayPos[1] = std::max(displayPos[1], 10.);
 }
 
 //------------------------------------------------------------------------------
@@ -1011,37 +1023,19 @@ void vtkAxisActor::BuildExponent2D(vtkViewport* viewport, bool force)
   // for textactor instead of follower
   this->UpdateExponentActorProperty();
 
-  // stuff for 2D axis with TextActor
-  double transpos[3];
-  double* pos = this->ExponentProp.Follower->GetPosition();
-  viewport->SetWorldPoint(pos[0], pos[1], pos[2], 1.0);
-  viewport->WorldToDisplay();
-  viewport->GetDisplayPoint(transpos);
-
-  int offsetSign = 1;
-  if (this->ExponentLocation == VTK_ALIGN_TOP)
-  {
-    offsetSign = -1;
-  }
-
   int titleMult = 1;
   if (this->TitleVisibility && this->TitleAlignLocation == this->ExponentLocation)
   {
     titleMult = 2;
   }
 
-  if (this->AxisType == VTK_AXIS_TYPE_X)
-  {
-    transpos[1] += offsetSign * titleMult * this->VerticalOffsetXTitle2D;
-  }
-  else if (this->AxisType == VTK_AXIS_TYPE_Y)
-  {
-    transpos[0] += offsetSign * titleMult * this->HorizontalOffsetYTitle2D;
-  }
-  transpos[0] = std::max(transpos[0], 10.);
-  transpos[1] = std::max(transpos[1], 10.);
+  double scenePos[3];
+  this->ExponentProp.GetReferencePosition(scenePos);
 
-  this->ExponentProp.SetDisplayPosition(transpos[0], transpos[1]);
+  double position[2];
+  this->Get2DPosition(viewport, titleMult, scenePos, position);
+
+  this->ExponentProp.SetDisplayPosition(position[0], position[1]);
   this->ExponentProp.RotateActor2DFromAxisProjection(this->GetPoint1(), this->GetPoint2());
 }
 

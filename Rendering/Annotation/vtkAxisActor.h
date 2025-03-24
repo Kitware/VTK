@@ -861,6 +861,12 @@ private:
 
   void BuildTitle2D(vtkViewport* viewport, bool);
 
+  /**
+   * Get scenepos in display coordinates, using viewport.
+   */
+  void Get2DPosition(
+    vtkViewport* viewport, double multiplier, double scenepos[3], double displayPos[2]);
+
   void SetAxisPointsAndLines();
 
   bool BuildTickPoints(double p1[3], double p2[3], bool force);
