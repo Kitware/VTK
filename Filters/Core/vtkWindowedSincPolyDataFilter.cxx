@@ -1628,7 +1628,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   vtkIdType numCells = input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
   {
-    vtkErrorMacro(<< "No data to smooth!");
+    vtkWarningMacro(<< "No data to smooth!");
     return 1;
   }
 
