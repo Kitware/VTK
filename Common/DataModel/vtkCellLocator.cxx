@@ -721,7 +721,6 @@ void vtkCellLocator::BuildLocatorInternal()
   int i, j, k, ijkMin[3], ijkMax[3];
   vtkIdType cellId, idx;
   int parentOffset;
-  vtkSmartPointer<vtkIdList> octant;
   int numCellsPerBucket = this->NumberOfCellsPerNode;
   int prod, numOctants;
   double hTol[3];
@@ -820,14 +819,12 @@ void vtkCellLocator::BuildLocatorInternal()
         {
           idx = parentOffset + i + j * ndivs + k * product;
           this->MarkParents(parentOctant, i, j, k, ndivs, this->Level);
-          octant = this->Tree[idx];
-          if (!octant)
+          if (!this->Tree[idx])
           {
-            octant = vtkSmartPointer<vtkIdList>::New();
-            octant->Allocate(numCellsPerBucket, numCellsPerBucket / 2);
-            this->Tree[idx] = octant;
+            this->Tree[idx] = vtkSmartPointer<vtkIdList>::New();
+            this->Tree[idx]->Allocate(numCellsPerBucket, numCellsPerBucket / 2);
           }
-          octant->InsertNextId(cellId);
+          this->Tree[idx]->InsertNextId(cellId);
         }
       }
     }
