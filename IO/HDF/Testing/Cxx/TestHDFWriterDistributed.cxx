@@ -9,6 +9,7 @@
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
+#include "vtkPartitionedDataSet.h"
 #include "vtkPassArrays.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
@@ -73,13 +74,15 @@ bool TestDistributedObject(
     usePolyData ? surface->GetOutputDataObject(0) : redistribute->GetOutputDataObject(0);
   vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
 
-  if (!vtkTestUtilities::CompareDataObjects(readPiece, originalPiece))
+  auto partitionedPiece = vtkPartitionedDataSet::SafeDownCast(readPiece);
+
+  if (!vtkTestUtilities::CompareDataObjects(originalPiece, partitionedPiece->GetPartition(0)))
   {
     vtkLog(ERROR, "Original and read piece do not match");
     return false;
   }
 
-  if (!vtkTestUtilities::CompareDataObjects(readPiece, readPart))
+  if (!vtkTestUtilities::CompareDataObjects(partitionedPiece->GetPartition(0), readPart))
   {
     vtkLog(ERROR, "Read piece and read part do not match");
     return false;
@@ -197,9 +200,11 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     readerPart->SetStep(time);
     readerPart->Update();
 
+    vtkPartitionedDataSet* readPartitionedPiece =
+      vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
     if (usePolyData)
     {
-      vtkPolyData* readPiece = vtkPolyData::SafeDownCast(reader->GetOutputDataObject(0));
+      vtkPolyData* readPiece = vtkPolyData::SafeDownCast(readPartitionedPiece->GetPartition(0));
       vtkPolyData* readPart = vtkPolyData::SafeDownCast(readerPart->GetOutputDataObject(0));
 
       if (readPiece == nullptr || readPart == nullptr)
@@ -211,7 +216,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     else
     {
       vtkUnstructuredGrid* readPiece =
-        vtkUnstructuredGrid::SafeDownCast(reader->GetOutputDataObject(0));
+        vtkUnstructuredGrid::SafeDownCast(readPartitionedPiece->GetPartition(0));
       vtkUnstructuredGrid* readPart =
         vtkUnstructuredGrid::SafeDownCast(readerPart->GetOutputDataObject(0));
 
@@ -222,7 +227,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
       }
     }
 
-    vtkDataObject* readPiece = reader->GetOutputDataObject(0);
+    vtkDataObject* readPiece = readPartitionedPiece->GetPartition(0);
     vtkDataObject* readPart = readerPart->GetOutputDataObject(0);
 
     if (nullPart && myRank == 2)
@@ -230,7 +235,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
       if (readPiece->GetNumberOfElements(vtkDataSet::POINT) +
           readPart->GetNumberOfElements(vtkDataSet::POINT) +
           readPiece->GetNumberOfElements(vtkDataSet::CELL) +
-          readPart->GetNumberOfElements(vtkDataSet::CELL) !=
+          readPart->GetNumberOfElements(vtkDataSet::CELL) >
         0)
       {
         vtkLog(ERROR, "Read piece or read part do not have 0 elements each when partition is null");

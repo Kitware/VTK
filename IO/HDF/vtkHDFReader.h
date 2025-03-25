@@ -150,6 +150,10 @@ public:
 
   ///@{
   /**
+   *  /!\ Now deprecated due to its limitations regarding cache, please do not use!
+   * Settings this flag will have no effect.
+   * This option can be replaced by the vtkMergeBlocks filter.
+   *
    * Boolean property determining whether to merge partitions when reading unstructured data.
    *
    * Merging partitions (true) allows the reader to return either `vtkUnstructuredGrid` or
@@ -158,14 +162,19 @@ public:
    * partitions are what are stored in the cache and merging them before outputting would
    * effectively double the memory constraints.
    *
-   * Default is true
+   * Default is false
    *
    * @note Incompatible with UseCache as vtkAppendDataSet which is used internally doesn't
    * support static mesh.
    */
+  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks or vtkAppendDataSets instead.")
   vtkGetMacro(MergeParts, bool);
+  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
   vtkSetMacro(MergeParts, bool);
-  vtkBooleanMacro(MergeParts, bool);
+  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
+  virtual void MergePartsOn();
+  VTK_DEPRECATED_IN_9_5_0("Use vtkMergeBlocks vtkAppendDataSets instead.")
+  virtual void MergePartsOff();
   ///@}
 
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
@@ -290,9 +299,11 @@ protected:
   ///@}
 
   /**
+   * /!\ Now deprecated, do not use
    * Determine whether to merge the partitions (true) or return a vtkPartitionedDataSet (false)
    */
-  bool MergeParts = true;
+  // VTK_DEPRECATED_IN_9_5_0( )
+  bool MergeParts = false;
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 
@@ -310,7 +321,7 @@ private:
   /**
    * Setter for UseTemporalData.
    *
-   * Useful to set privatly the deprecate UseTransientData variable to true when it's needed.
+   * Useful to set privatly the deprecated UseTransientData variable to true when it's needed.
    */
   void SetHasTemporalData(bool useTemporalData);
 
