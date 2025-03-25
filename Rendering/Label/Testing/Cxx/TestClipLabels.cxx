@@ -116,8 +116,8 @@ int TestClipLabels(int argc, char* argv[])
   sphereMapper->SetClippingPlanes(clipPlaneCollection);
   pointMapper->SetClippingPlanes(clipPlaneCollection);
   cellMapper->SetClippingPlanes(clipPlaneCollection);
-  ren1->AddActor2D(pointLabels);
-  ren1->AddActor2D(cellLabels);
+  ren1->AddViewProp(pointLabels);
+  ren1->AddViewProp(cellLabels);
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -112,7 +112,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         actor.GetPositionCoordinate().SetValue(4,22)
         actor.GetProperty().SetColor(1,1,0.5)
         actor.SetVisibility(0)
-        imager.AddActor2D(actor)
+        imager.AddViewProp(actor)
 
         self._LevelActor = actor
 
@@ -132,7 +132,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         actor.GetPositionCoordinate().SetValue(4,4)
         actor.GetProperty().SetColor(1,1,0.5)
         actor.SetVisibility(0)
-        imager.AddActor2D(actor)
+        imager.AddViewProp(actor)
 
         self._WindowActor = actor
 

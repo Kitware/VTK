@@ -43,7 +43,7 @@ int TestTextActorScaleModeProp(int, char*[])
   ren->SetBackground(0.1, 0.1, 0.1);
   win->SetSize(300, 300);
 
-  ren->AddActor2D(textActor);
+  ren->AddViewProp(textActor);
 
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();

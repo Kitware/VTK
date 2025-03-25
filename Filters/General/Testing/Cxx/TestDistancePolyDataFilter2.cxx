@@ -96,7 +96,7 @@ int TestDistancePolyDataFilter2(int, char*[])
   renderer->AddActor(actor);
   renderer->AddActor(actor2);
   renderer->AddActor(actor3);
-  renderer->AddActor2D(scalarBar);
+  renderer->AddViewProp(scalarBar);
   renWin->Render();
   displacementFilter->Print(std::cout);
 

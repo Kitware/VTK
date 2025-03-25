@@ -98,7 +98,7 @@ int TestTextMapper(int, char*[])
       actor->SetPosition(x[col], y[row]);
       actor->SetMapper(mapper);
       setupTextMapper(mapper, actor, anchors);
-      ren->AddActor2D(actor);
+      ren->AddViewProp(actor);
     }
   }
 
@@ -107,7 +107,7 @@ int TestTextMapper(int, char*[])
   vtkNew<vtkActor2D> anchorActor;
   anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor2D(anchorActor);
+  ren->AddViewProp(anchorActor);
 
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);

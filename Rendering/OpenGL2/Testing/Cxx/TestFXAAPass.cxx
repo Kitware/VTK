@@ -155,7 +155,7 @@ int TestFXAAPass(int argc, char* argv[])
   label->GetTextProperty()->SetJustificationToCentered();
   label->GetTextProperty()->SetVerticalJustificationToBottom();
   label->SetPosition(85, 10);
-  renderer->AddActor2D(label);
+  renderer->AddViewProp(label);
 
   vtkNew<vtkTextActor> labelFXAA;
   labelFXAA->SetInput("FXAA");
@@ -163,7 +163,7 @@ int TestFXAAPass(int argc, char* argv[])
   labelFXAA->GetTextProperty()->SetJustificationToCentered();
   labelFXAA->GetTextProperty()->SetVerticalJustificationToBottom();
   labelFXAA->SetPosition(85, 10);
-  rendererFXAA->AddActor2D(labelFXAA);
+  rendererFXAA->AddViewProp(labelFXAA);
 
   renderer->SetViewport(0., 0., .5, 1.);
   BuildRenderer(renderer, 0);

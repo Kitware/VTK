@@ -93,7 +93,7 @@ for vectorFunction in vectorFunctions:
 
     eval("text" + vectorFunction).SetMapper(eval("textMapper" + vectorFunction))
     eval("text" + vectorFunction).SetPosition(2, 5)
-    eval("ren" + vectorFunction).AddActor2D(eval("text" + vectorFunction))
+    eval("ren" + vectorFunction).AddViewProp(eval("text" + vectorFunction))
     i += 1
 
 #

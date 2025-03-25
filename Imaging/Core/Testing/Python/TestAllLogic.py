@@ -72,7 +72,7 @@ class TestAllLogic(vtkmodules.test.Testing.vtkTest):
             actor[idx].SetMapper(mapper[idx])
 
             imager.append(vtkRenderer())
-            imager[idx].AddActor2D(actor[idx])
+            imager[idx].AddViewProp(actor[idx])
 
             renWin.AddRenderer(imager[idx])
 

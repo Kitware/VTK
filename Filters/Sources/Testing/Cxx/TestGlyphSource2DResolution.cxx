@@ -115,7 +115,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor2D(glyphActor);
+  ren->AddViewProp(glyphActor);
   ren->SetBackground(0.3, 0.3, 0.3);
   ren->ResetCamera();
 

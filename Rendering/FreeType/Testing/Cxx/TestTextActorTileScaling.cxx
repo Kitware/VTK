@@ -111,7 +111,7 @@ int TestTextActorTileScaling(int, char*[])
       actor->GetTextProperty()->SetFrameWidth((row) % 3 + 1);
 
       ::setupTextActor(actor, anchors);
-      ren->AddActor2D(actor);
+      ren->AddViewProp(actor);
     }
   }
 
@@ -120,28 +120,28 @@ int TestTextActorTileScaling(int, char*[])
   vtkNew<vtkActor2D> anchorActor;
   anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor2D(anchorActor);
+  ren->AddViewProp(anchorActor);
 
   // Add some various 'empty' actors to make sure there are no surprises:
   vtkNew<vtkTextActor> nullInputActor;
   nullInputActor->SetInput(nullptr);
-  ren->AddActor2D(nullInputActor);
+  ren->AddViewProp(nullInputActor);
 
   vtkNew<vtkTextActor> emptyInputActor;
   emptyInputActor->SetInput("");
-  ren->AddActor2D(emptyInputActor);
+  ren->AddViewProp(emptyInputActor);
 
   vtkNew<vtkTextActor> spaceActor;
   spaceActor->SetInput(" ");
-  ren->AddActor2D(spaceActor);
+  ren->AddViewProp(spaceActor);
 
   vtkNew<vtkTextActor> tabActor;
   tabActor->SetInput("\t");
-  ren->AddActor2D(tabActor);
+  ren->AddViewProp(tabActor);
 
   vtkNew<vtkTextActor> newlineActor;
   newlineActor->SetInput("\n");
-  ren->AddActor2D(newlineActor);
+  ren->AddViewProp(newlineActor);
 
   vtkNew<vtkRenderWindow> win;
   win->SetTileScale(tileScale, tileScale);

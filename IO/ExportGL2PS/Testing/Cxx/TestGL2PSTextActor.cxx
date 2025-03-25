@@ -105,7 +105,7 @@ int TestGL2PSTextActor(int, char*[])
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor, anchors);
-      ren->AddActor2D(actor);
+      ren->AddViewProp(actor);
     }
   }
 
@@ -114,7 +114,7 @@ int TestGL2PSTextActor(int, char*[])
   vtkNew<vtkActor2D> anchorActor;
   anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor2D(anchorActor);
+  ren->AddViewProp(anchorActor);
 
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren);

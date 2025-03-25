@@ -128,9 +128,9 @@ cellLabels.SetMapper(cellMapper)
 # Add the actors to the renderer, set the background and size
 #
 ren1.AddActor(sphereActor)
-ren1.AddActor2D(rectActor)
-ren1.AddActor2D(pointLabels)
-ren1.AddActor2D(cellLabels)
+ren1.AddViewProp(rectActor)
+ren1.AddViewProp(pointLabels)
+ren1.AddViewProp(cellLabels)
 ren1.SetBackground(1, 1, 1)
 
 renWin.SetSize(500, 500)

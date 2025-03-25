@@ -107,9 +107,9 @@ public class AxesActor extends vtkAssembly {
     zconeActor.SetScale(coneScale, coneScale, coneScale);
     zconeActor.SetPosition(0.0, 0.0, axisLength);
 
-    ren.AddActor2D(xactor);
-    ren.AddActor2D(yactor);
-    ren.AddActor2D(zactor);
+    ren.AddViewProp(xactor);
+    ren.AddViewProp(yactor);
+    ren.AddViewProp(zactor);
 
     this.AddPart(tubeActor);
     this.AddPart(xconeActor);
