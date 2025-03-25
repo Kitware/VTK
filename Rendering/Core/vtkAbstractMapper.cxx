@@ -78,9 +78,10 @@ void vtkAbstractMapper::RemoveClippingPlane(vtkPlane* plane)
 
 void vtkAbstractMapper::RemoveAllClippingPlanes()
 {
-  if (this->ClippingPlanes)
+  if (this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems() > 0)
   {
     this->ClippingPlanes->RemoveAllItems();
+    this->Modified();
   }
 }
 
