@@ -24,7 +24,8 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 extern "C"
 {
-  int RegisterLibraries_vtkObjectManagerDefaultSerDes(void* ser, void* deser, const char** error);
+  int RegisterLibraries_vtkObjectManagerDefaultSerDes(
+    void* ser, void* deser, void* invoker, const char** error);
 }
 
 //------------------------------------------------------------------------------
@@ -36,6 +37,7 @@ vtkObjectManager::vtkObjectManager()
   this->Context = vtk::TakeSmartPointer(vtkMarshalContext::New());
   this->Deserializer->SetContext(this->Context);
   this->Serializer->SetContext(this->Context);
+  this->Invoker->SetContext(this->Context);
 }
 
 //------------------------------------------------------------------------------
@@ -109,7 +111,7 @@ bool vtkObjectManager::InitializeDefaultHandlers()
 {
   const char* error = nullptr;
   if (!RegisterLibraries_vtkObjectManagerDefaultSerDes(
-        this->Serializer.Get(), this->Deserializer.Get(), &error))
+        this->Serializer.Get(), this->Deserializer.Get(), this->Invoker.Get(), &error))
   {
     vtkErrorMacro(<< "Failed to register a default VTK SerDes handler. error=\"" << error << "\"");
     return false;
@@ -124,7 +126,7 @@ bool vtkObjectManager::InitializeExtensionModuleHandlers(
   for (const auto& registrar : registrars)
   {
     const char* error = nullptr;
-    if (!registrar(this->Serializer, this->Deserializer, &error))
+    if (!registrar(this->Serializer, this->Deserializer, this->Invoker, &error))
     {
       vtkErrorMacro(<< "Failed to register an extension SerDes handler. error=\"" << error << "\"");
       return false;
@@ -243,7 +245,13 @@ bool vtkObjectManager::RegisterState(const std::string& state)
     vtkErrorMacro(<< "Failed to parse state!");
     return false;
   }
-  if (!this->Context->RegisterState(std::move(stateJson)))
+  return this->RegisterState(stateJson);
+}
+
+//------------------------------------------------------------------------------
+bool vtkObjectManager::RegisterState(const nlohmann::json& stateJson)
+{
+  if (!this->Context->RegisterState(stateJson))
   {
     vtkErrorMacro(<< "Failed to register state!");
     return false;
@@ -263,6 +271,27 @@ void vtkObjectManager::Clear()
   this->Context = vtk::TakeSmartPointer(vtkMarshalContext::New());
   this->Deserializer->SetContext(this->Context);
   this->Serializer->SetContext(this->Context);
+}
+
+//------------------------------------------------------------------------------
+std::string vtkObjectManager::Invoke(
+  vtkTypeUInt32 identifier, const std::string& methodName, const std::string& args)
+{
+  using json = nlohmann::json;
+  auto argsJson = json::parse(args, nullptr, false);
+  if (argsJson.is_discarded())
+  {
+    vtkErrorMacro(<< "Failed to parse state!");
+    return {};
+  }
+  return this->Invoke(identifier, methodName, argsJson).dump();
+}
+
+//------------------------------------------------------------------------------
+nlohmann::json vtkObjectManager::Invoke(
+  vtkTypeUInt32 identifier, const std::string& methodName, const nlohmann::json& args)
+{
+  return this->Invoker->Invoke(identifier, methodName, args);
 }
 
 //------------------------------------------------------------------------------
@@ -501,6 +530,9 @@ void vtkObjectManager::UpdateStatesFromObjects()
   // serializes all objects with strong references held by the deserializer.
   const auto deserializerOwnershipKey = this->Deserializer->GetObjectDescription();
   const auto deserStrongObjectsIter = this->Context->StrongObjects().find(deserializerOwnershipKey);
+  // serializes all objects with strong references held by the invoker.
+  const auto invokerOwnershipKey = this->Invoker->GetObjectDescription();
+  const auto invokerStrongObjectsIter = this->Context->StrongObjects().find(invokerOwnershipKey);
   if (managerStrongObjectsIter != this->Context->StrongObjects().end())
   {
     for (const auto& object : managerStrongObjectsIter->second)
@@ -514,9 +546,16 @@ void vtkObjectManager::UpdateStatesFromObjects()
       }
     }
   }
-  else if (deserStrongObjectsIter != this->Context->StrongObjects().end())
+  if (deserStrongObjectsIter != this->Context->StrongObjects().end())
   {
     for (const auto& object : deserStrongObjectsIter->second)
+    {
+      this->Serializer->SerializeJSON(object);
+    }
+  }
+  if (invokerStrongObjectsIter != this->Context->StrongObjects().end())
+  {
+    for (const auto& object : invokerStrongObjectsIter->second)
     {
       this->Serializer->SerializeJSON(object);
     }
@@ -537,10 +576,16 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
     vtkErrorMacro(<< "Failed to parse state=" << state);
     return;
   }
+  this->UpdateObjectFromState(stateJson);
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectManager::UpdateObjectFromState(const nlohmann::json& stateJson)
+{
   const auto identifier = stateJson.at("Id").get<vtkTypeUInt32>();
-  if (!this->Context->RegisterState(std::move(stateJson)))
+  if (!this->Context->RegisterState(stateJson))
   {
-    vtkErrorMacro(<< "Failed to register state=" << state);
+    vtkErrorMacro(<< "Failed to register state=" << stateJson.dump());
     return;
   }
   auto object = this->Context->GetObjectAtId(identifier);
@@ -553,7 +598,8 @@ void vtkObjectManager::UpdateObjectFromState(const std::string& state)
   }
   if (!this->Deserializer->DeserializeJSON(identifier, object))
   {
-    vtkErrorMacro(<< "Failed to update object at id=" << identifier << " from state=" << state);
+    vtkErrorMacro(<< "Failed to update object at id=" << identifier
+                  << " from state=" << stateJson.dump());
   }
   else
   {

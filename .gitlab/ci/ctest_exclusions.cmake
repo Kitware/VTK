@@ -640,12 +640,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_webgpu")
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling") # Crashes randomly with mesa-vulkan-drivers
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)_emscripten_windows_chrome_ext_vtk$")
-  list(APPEND test_exclusions
-    # ERR_UNSUPPORTED_ESM_URL_SCHEME: absolute paths must be valid file:// URLs. Received protocol 'c:'
-    "^VTK::WebAssemblyJavaScript")
-endif ()
-
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows" AND
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "debug")
   # Timeouts from debug builds (even with 5 minute limits). See #19212

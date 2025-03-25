@@ -82,9 +82,9 @@ function (vtk_module_generate_library_serdes_registrar)
   set(_vtk_serdes_register_classes_decls "")
   foreach (_vtk_serdes_class IN LISTS _vtk_serdes_CLASSES)
     string(APPEND _vtk_serdes_register_classes_decls
-      "  int RegisterHandlers_${_vtk_serdes_class}SerDes(void* serializer, void* deserializer);\n")
+      "  int RegisterHandlers_${_vtk_serdes_class}SerDes(void* serializer, void* deserializer, void* invoker);\n")
     string(APPEND _vtk_serdes_register_classes "
-  if(!RegisterHandlers_${_vtk_serdes_class}SerDes(serializer, deserializer))
+  if(!RegisterHandlers_${_vtk_serdes_class}SerDes(serializer, deserializer, invoker))
   {
     *error = \"Failed to register handlers for ${_vtk_serdes_class}\";
     return FAIL;
@@ -157,7 +157,7 @@ function (vtk_module_generate_libraries_serdes_registrar)
     string(APPEND _vtk_serdes_include_mandatory_libraries_registrar_headers
       "#include \"${_vtk_serdes_library_name}SerDes.h\"")
     string(APPEND _vtk_serdes_register_mandatory_libraries "
-  if(!${_vtk_serdes_library_name}SerDesRegistrar::RegisterClasses(serializer, deserializer, error))
+  if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoker, error))
   {
     return FAIL;
   }\n")
@@ -181,7 +181,7 @@ function (vtk_module_generate_libraries_serdes_registrar)
 #endif\n")
     string(APPEND _vtk_serdes_register_optional_libraries "
 #if ${_vtk_serdes_module_enabled_condition}
-  if(!${_vtk_serdes_library_name}SerDesRegistrar::RegisterClasses(serializer, deserializer, error))
+  if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoker, error))
   {
     return FAIL;
   }

@@ -145,6 +145,7 @@ if (NOT TARGET WrapSerDes)
     BASENAME vtkWrapSerDes
     vtkWrapSerDes.c
     vtkWrapSerDesClass.c
+    vtkWrapSerDesFunction.c
     vtkWrapSerDesProperty.c)
   target_link_libraries(WrapSerDes
     PRIVATE

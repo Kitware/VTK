@@ -300,6 +300,12 @@ set("_vtk_module_reason_VTK::Java"
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND vtk_requested_modules
     VTK::SerializationManager)
+  if (VTK_BUILD_TESTING)
+    list(APPEND vtk_requested_modules
+      VTK::TestingSerialization)
+  endif ()
+  set("_vtk_module_reason_VTK::TestingSerialization"
+  "via `VTK_WRAP_SERIALIZATION` AND `VTK_BUILD_TESTING`")
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     list(APPEND vtk_requested_modules
       VTK::WebAssembly)
@@ -311,7 +317,8 @@ if (VTK_WRAP_SERIALIZATION)
   "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
 else ()
   list(APPEND vtk_rejected_modules
-    VTK::SerializationManager)
+    VTK::SerializationManager
+    VTK::TestingSerialization)
 endif ()
 set("_vtk_module_reason_VTK::SerializationManager"
   "via `VTK_WRAP_SERIALIZATION`")

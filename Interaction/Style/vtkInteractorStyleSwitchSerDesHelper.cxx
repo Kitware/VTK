@@ -17,7 +17,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkInteractorStyleSwitchSerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkInteractorStyleSwitchSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 namespace
@@ -99,7 +99,8 @@ static void Deserialize_vtkInteractorStyleSwitch(
   }
 }
 
-int RegisterHandlers_vtkInteractorStyleSwitchSerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkInteractorStyleSwitchSerDesHelper(
+  void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))

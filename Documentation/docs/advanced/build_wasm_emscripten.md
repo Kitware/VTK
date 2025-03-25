@@ -82,7 +82,7 @@ In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=
 specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`.
 
 ```{note}
-On windows, please disable `proj` with `-DVTK_MODULE_ENABLE_VTK_proj:STRING=NO` to avoid error message:
+On windows, please disable `proj` with `-DVTK_MODULE_ENABLE_VTK_libproj:STRING=NO` to avoid error message:
 "unable to open database lib/../share/vtk-9.4/proj/proj.db: unable to open database file".
 ```
 

@@ -5,21 +5,23 @@
 
 #include "@_vtk_serdes_module_export_header@"
 
+#define RegisterClasses_@_vtk_serdes_library@ VTK_ABI_NAMESPACE_MANGLE(RegisterClasses_@_vtk_serdes_library@)
+
 VTK_ABI_NAMESPACE_BEGIN
 
-class @_vtk_serdes_module_export_macro@ @_vtk_serdes_library@SerDesRegistrar
+extern "C"
 {
-public:
   /**
    * Register the (de)serialization handlers of classes in a serialized library.
    * @param serializer   a vtkSerializer instance
    * @param deserializer a vtkDeserializer instance
-   * @param error        when registration fails, the error message is pointed to by `error`. Use it
-   * for logging purpose.
-   * @warning The memory pointed to by `error` is not dynamically allocated. Do not free it.
+   * @param invoker      a vtkInvoker instance
+   * @param error        when registration fails, the error message is contained in `error`.
+   * @warning The memory pointed to by `error` is NOT dynamically allocated. Do not free it.
    */
-  static int RegisterClasses(void* serializer, void* deserializer, const char** error);
-};
+  @_vtk_serdes_module_export_macro@ int RegisterClasses_@_vtk_serdes_library@(void* serializer, void* deserializer, void* invoker, const char** error);
+}
+
 VTK_ABI_NAMESPACE_END
 #endif
 // VTKHeaderTest-Exclude: @_vtk_serdes_library@SerDes.h

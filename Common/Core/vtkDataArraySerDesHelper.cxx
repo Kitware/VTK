@@ -39,7 +39,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 namespace
@@ -203,7 +203,7 @@ static void Deserialize_vtkDataArray(
   }
 }
 
-int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))

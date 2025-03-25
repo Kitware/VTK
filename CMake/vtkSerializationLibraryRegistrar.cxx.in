@@ -12,7 +12,7 @@ extern "C"
 }
 
 VTK_ABI_NAMESPACE_BEGIN
-int @_vtk_serdes_library@SerDesRegistrar::RegisterClasses(void* serializer, void* deserializer, const char** error)
+int RegisterClasses_@_vtk_serdes_library@(void* serializer, void* deserializer, void* invoker, const char** error)
 {
   const int SUCCESS = 1;
   const int FAIL = 0;

@@ -4151,7 +4151,7 @@ function (vtk_module_add_module name)
       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_add_module_serdes_registrar_header_name}")
     set(_vtk_add_module_serdes_registrar_source
       "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_add_module_serdes_registrar_source_name}")
-    list(APPEND _vtk_add_module_PRIVATE_HEADERS
+    list(APPEND _vtk_add_module_NOWRAP_HEADERS
       "${_vtk_add_module_serdes_registrar_header}")
     list(APPEND _vtk_add_module_SOURCES
       "${_vtk_add_module_serdes_registrar_source}")

@@ -16,7 +16,7 @@ extern "C"
    * @param ser   a vtkSerializer instance
    * @param deser a vtkDeserializer instance
    */
-  int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(void* ser, void* deser);
+  int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(void* ser, void* deser, void* invoker);
 }
 
 static nlohmann::json Serialize_vtkColorTransferFunction(
@@ -103,7 +103,8 @@ static void Deserialize_vtkColorTransferFunction(
   }
 }
 
-int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(void* ser, void* deser)
+int RegisterHandlers_vtkColorTransferFunctionSerDesHelper(
+  void* ser, void* deser, void* vtkNotUsed(invoker))
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))
