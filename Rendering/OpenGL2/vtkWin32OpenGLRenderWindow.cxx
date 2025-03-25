@@ -246,17 +246,10 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
   {
     if (wglMakeCurrent(this->DeviceContext, this->ContextId) != TRUE)
     {
-      LPVOID lpMsgBuf;
-      ::FormatMessageW(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-        (LPWSTR)&lpMsgBuf, 0, nullptr);
-      if (lpMsgBuf)
-      {
-        std::string message = vtksys::Encoding::ToNarrow((LPWSTR)&lpMsgBuf);
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << message);
-        ::LocalFree(lpMsgBuf);
-      }
+      auto errorCode = GetLastError();
+      std::string message = std::system_category().message(errorCode);
+      vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " << message << "(code "
+                                                                      << errorCode << ")");
     }
   }
 }
