@@ -3,12 +3,17 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkMultiBlockDataSet.h>
+#include <vtkObjectFactory.h>
 #include <vtksys/SystemTools.hxx>
 
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkAvmeshReader);
+
 vtkAvmeshReader::vtkAvmeshReader()
-  : FileName("")
-  , SurfaceOnly(false)
+  : SurfaceOnly(false)
 {
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 vtkAvmeshReader::~vtkAvmeshReader() = default;
@@ -38,3 +43,12 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   return 1;
 }
+
+void vtkAvmeshReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "FileName: " << this->FileName << "\n";
+  os << indent << "SurfaceOnly: " << this->SurfaceOnly << "\n";
+}
+VTK_ABI_NAMESPACE_END
