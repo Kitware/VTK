@@ -8,10 +8,14 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataSet.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkIntegrateAttributesFieldList.h"
+#include "vtkIntegrationLinearStrategy.h"
+#include "vtkIntegrationStrategy.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
@@ -28,34 +32,11 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkIntegrateAttributes);
 
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkIntegrateAttributes, Controller, vtkMultiProcessController);
 
 //------------------------------------------------------------------------------
-class vtkIntegrateAttributes::vtkFieldList : public vtkDataSetAttributes::FieldList
-{
-  typedef vtkDataSetAttributes::FieldList Superclass;
-
-public:
-  vtkFieldList(int numInputs = 0)
-    : Superclass(numInputs)
-  {
-  }
-
-protected:
-  // overridden to only create vtkDoubleArray for numeric arrays.
-  vtkSmartPointer<vtkAbstractArray> CreateArray(int type) const override
-  {
-    if (auto array = this->Superclass::CreateArray(type))
-    {
-      const int is_numeric = (array->IsNumeric());
-      if (is_numeric)
-      {
-        return vtkSmartPointer<vtkAbstractArray>::Take(vtkDoubleArray::New());
-      }
-    }
-    return nullptr;
-  }
-};
+vtkCxxSetObjectMacro(vtkIntegrateAttributes, IntegrationStrategy, vtkIntegrationStrategy);
 
 //------------------------------------------------------------------------------
 vtkIntegrateAttributes::vtkIntegrateAttributes()
@@ -63,12 +44,15 @@ vtkIntegrateAttributes::vtkIntegrateAttributes()
   , DivideAllCellDataByVolume(false)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
+  vtkNew<vtkIntegrationLinearStrategy> linearStrategy;
+  this->SetIntegrationStrategy(linearStrategy);
 }
 
 //------------------------------------------------------------------------------
 vtkIntegrateAttributes::~vtkIntegrateAttributes()
 {
   this->SetController(nullptr);
+  this->SetIntegrationStrategy(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -116,11 +100,12 @@ private:
   vtkUnstructuredGrid* Output;
   int TotalIntegrationDimension;
   int FieldListIndex;
-  vtkFieldList& PointFieldList;
-  vtkFieldList& CellFieldList;
+  vtkIntegrateAttributesFieldList& PointFieldList;
+  vtkIntegrateAttributesFieldList& CellFieldList;
 
   // input information
   unsigned char* Ghost;
+  vtkSmartPointer<vtkIntegrationStrategy> IntegrationStrategy;
 
   // thread local data
   vtkSMPThreadLocalObject<vtkUnstructuredGrid> TLOutput;
@@ -136,7 +121,8 @@ private:
 public:
   vtkIntegrateAttributesFunctor(vtkIntegrateAttributes* self, vtkDataSet* input,
     vtkUnstructuredGrid* output, int totalIntegrationDimension, int fieldListIndex,
-    vtkFieldList& pdList, vtkFieldList& cdList)
+    vtkIntegrateAttributesFieldList& pdList, vtkIntegrateAttributesFieldList& cdList,
+    vtkIntegrationStrategy* strategy)
     : Self(self)
     , Input(input)
     , Output(output)
@@ -145,50 +131,17 @@ public:
     , PointFieldList(pdList)
     , CellFieldList(cdList)
     , Ghost(input->GetCellGhostArray() ? input->GetCellGhostArray()->GetPointer(0) : nullptr)
+    , IntegrationStrategy(strategy)
   {
     if (this->Input->GetNumberOfCells() > 0)
     {
       // initialize internal data structures
       vtkNew<vtkGenericCell> cell;
       this->Input->GetCell(0, cell);
+      this->IntegrationStrategy->Initialize(input);
     }
   }
 
-private:
-  void IntegratePolyLine(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegratePolygon(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateTriangleStrip(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateTriangle(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, double& sum, double sumCenter[3]);
-  void IntegrateTetrahedron(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, vtkIdType pt4Id, double& sum,
-    double sumCenter[3]);
-  void IntegratePixel(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateVoxel(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateGeneral1DCell(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateGeneral2DCell(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-  void IntegrateGeneral3DCell(vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId,
-    vtkIdType numPts, const vtkIdType* cellPtIds, double& sum, double sumCenter[3]);
-
-  static void IntegrateData1(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
-    vtkIdType pt1Id, double k, vtkFieldList& fieldlist, int fieldlist_index);
-  static void IntegrateData2(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
-    vtkIdType pt1Id, vtkIdType pt2Id, double k, vtkFieldList& fieldlist, int fieldlist_index);
-  static void IntegrateData3(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, double k, vtkFieldList& fieldlist,
-    int fieldlist_index);
-  static void IntegrateData4(vtkDataSetAttributes* inda, vtkDataSetAttributes* outda,
-    vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id, vtkIdType pt4Id, double k,
-    vtkFieldList& fieldlist, int fieldlist_index);
-
-public:
   void Initialize()
   {
     this->TLSum.Local() = 0;
@@ -256,87 +209,103 @@ public:
         case VTK_LINE:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegratePolyLine(this->Input, output, cellId, npts, pts, sum, sumCenter);
+          this->IntegrationStrategy->IntegratePolyLine(this->Input, output, cellId, npts, pts, sum,
+            sumCenter, this->CellFieldList, this->PointFieldList, this->FieldListIndex);
         }
         break;
 
         case VTK_TRIANGLE:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegrateTriangle(
-            this->Input, output, cellId, pts[0], pts[1], pts[2], sum, sumCenter);
+          this->IntegrationStrategy->IntegrateTriangle(this->Input, output, cellId, pts[0], pts[1],
+            pts[2], sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
         }
         break;
 
         case VTK_TRIANGLE_STRIP:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegrateTriangleStrip(this->Input, output, cellId, npts, pts, sum, sumCenter);
+          this->IntegrationStrategy->IntegrateTriangleStrip(this->Input, output, cellId, npts, pts,
+            sum, sumCenter, this->CellFieldList, this->PointFieldList, this->FieldListIndex);
         }
         break;
 
         case VTK_POLYGON:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegratePolygon(this->Input, output, cellId, npts, pts, sum, sumCenter);
+          this->IntegrationStrategy->IntegratePolygon(this->Input, output, cellId, npts, pts, sum,
+            sumCenter, this->CellFieldList, this->PointFieldList, this->FieldListIndex);
         }
         break;
 
         case VTK_PIXEL:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegratePixel(this->Input, output, cellId, npts, pts, sum, sumCenter);
+          this->IntegrationStrategy->IntegratePixel(this->Input, output, cellId, npts, pts, sum,
+            sumCenter, this->CellFieldList, this->PointFieldList, this->FieldListIndex);
         }
         break;
 
         case VTK_QUAD:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegrateTriangle(
-            this->Input, output, cellId, pts[0], pts[1], pts[2], sum, sumCenter);
-          this->IntegrateTriangle(
-            this->Input, output, cellId, pts[0], pts[3], pts[2], sum, sumCenter);
+          this->IntegrationStrategy->IntegrateQuad(this->Input, output, cellId, pts[0], pts[1],
+            pts[2], pts[3], sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
         }
         break;
 
         case VTK_VOXEL:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegrateVoxel(this->Input, output, cellId, npts, pts, sum, sumCenter);
+          this->IntegrationStrategy->IntegrateVoxel(this->Input, output, cellId, npts, pts, sum,
+            sumCenter, this->CellFieldList, this->PointFieldList, this->FieldListIndex);
         }
         break;
 
         case VTK_TETRA:
         {
           this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
-          this->IntegrateTetrahedron(
-            this->Input, output, cellId, pts[0], pts[1], pts[2], pts[3], sum, sumCenter);
+          this->IntegrationStrategy->IntegrateTetrahedron(this->Input, output, cellId, pts[0],
+            pts[1], pts[2], pts[3], sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
+        }
+        break;
+
+        case VTK_HEXAHEDRON:
+        {
+          this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
+          this->IntegrationStrategy->IntegrateHexahedron(this->Input, output, cell, cellId, npts,
+            pts, cellPointIds, sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
+        }
+        break;
+
+        case VTK_WEDGE:
+        {
+          this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
+          this->IntegrationStrategy->IntegrateWedge(this->Input, output, cell, cellId, npts, pts,
+            cellPointIds, sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
+        }
+        break;
+
+        case VTK_PYRAMID:
+        {
+          this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
+          this->IntegrationStrategy->IntegratePyramid(this->Input, output, cell, cellId, npts, pts,
+            cellPointIds, sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
         }
         break;
 
         default:
         {
-          // We need to explicitly get the cell
-          this->Input->GetCell(cellId, cell);
-
-          cell->TriangulateIds(1, cellPointIds);
-          switch (cellDim)
-          {
-            case 1:
-              this->IntegrateGeneral1DCell(this->Input, output, cellId,
-                cellPointIds->GetNumberOfIds(), cellPointIds->GetPointer(0), sum, sumCenter);
-              break;
-            case 2:
-              this->IntegrateGeneral2DCell(this->Input, output, cellId,
-                cellPointIds->GetNumberOfIds(), cellPointIds->GetPointer(0), sum, sumCenter);
-              break;
-            case 3:
-              this->IntegrateGeneral3DCell(this->Input, output, cellId,
-                cellPointIds->GetNumberOfIds(), cellPointIds->GetPointer(0), sum, sumCenter);
-              break;
-            default:
-              vtkWarningWithObjectMacro(this->Self, "Unsupported Cell Dimension = " << cellDim);
-          }
+          this->Input->GetCellPoints(cellId, npts, pts, cellPointIds);
+          this->IntegrationStrategy->IntegrateDefault(this->Input, output, cell, cellId, npts,
+            cellPointIds, sum, sumCenter, this->CellFieldList, this->PointFieldList,
+            this->FieldListIndex);
         }
       }
     }
@@ -373,12 +342,12 @@ public:
 
 //------------------------------------------------------------------------------
 void vtkIntegrateAttributes::ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid* output,
-  int fieldset_index, vtkIntegrateAttributes::vtkFieldList& pdList,
-  vtkIntegrateAttributes::vtkFieldList& cdList, double& totalSum, double totalSumCenter[3],
+  int fieldset_index, vtkIntegrateAttributesFieldList& pdList,
+  vtkIntegrateAttributesFieldList& cdList, double& totalSum, double totalSumCenter[3],
   int totalIntegrationDimension)
 {
-  vtkIntegrateAttributesFunctor functor(
-    this, input, output, totalIntegrationDimension, fieldset_index, pdList, cdList);
+  vtkIntegrateAttributesFunctor functor(this, input, output, totalIntegrationDimension,
+    fieldset_index, pdList, cdList, this->IntegrationStrategy);
   vtkSMPTools::For(0, input->GetNumberOfCells(), functor);
 
   const auto blockSum = functor.GetSum();
@@ -417,8 +386,8 @@ int vtkIntegrateAttributes::RequestData(
 
     // Create the intersection field list. This is list of arrays common
     // to all blocks in the input.
-    vtkFieldList pdList;
-    vtkFieldList cdList;
+    vtkIntegrateAttributesFieldList pdList;
+    vtkIntegrateAttributesFieldList cdList;
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
       vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
@@ -464,8 +433,8 @@ int vtkIntegrateAttributes::RequestData(
     // Output will have all the same attribute arrays as input, but
     // only 1 entry per array, and arrays are double.
     // Set all values to 0.  All output attributes are type double.
-    vtkFieldList pdList(1);
-    vtkFieldList cdList(1);
+    vtkIntegrateAttributesFieldList pdList(1);
+    vtkIntegrateAttributesFieldList cdList(1);
     pdList.InitializeFieldList(dsInput->GetPointData());
     cdList.InitializeFieldList(dsInput->GetCellData());
     this->AllocateAttributes(pdList, output->GetPointData());
@@ -654,7 +623,7 @@ void vtkIntegrateAttributes::ReceivePiece(vtkUnstructuredGrid* mergeTo, int from
 
 //------------------------------------------------------------------------------
 void vtkIntegrateAttributes::AllocateAttributes(
-  vtkIntegrateAttributes::vtkFieldList& fieldList, vtkDataSetAttributes* outda)
+  vtkIntegrateAttributesFieldList& fieldList, vtkDataSetAttributes* outda)
 {
   outda->CopyAllocate(fieldList);
   vtkIntegrateAttributes::InitializeAttributes(outda);
@@ -698,118 +667,6 @@ void vtkIntegrateAttributes::ZeroAttributes(vtkDataSetAttributes* outda)
       outArray->SetComponent(0, j, 0.0);
     }
   }
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData1(
-  vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, double k,
-  vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
-{
-  auto f = [pt1Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
-  {
-    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
-    if (inArray && outArray)
-    {
-      // We could template for speed.
-      const int numComponents = inArray->GetNumberOfComponents();
-      for (int j = 0; j < numComponents; ++j)
-      {
-        const double vIn1 = inArray->GetComponent(pt1Id, j);
-        const double dv = vIn1;
-        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
-        outArray->SetTypedComponent(0, j, vOut);
-      }
-    }
-  };
-
-  fieldList.TransformData(index, inda, outda, f);
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData2(
-  vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, vtkIdType pt2Id,
-  double k, vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
-{
-  auto f = [pt1Id, pt2Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
-  {
-    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
-    if (inArray && outArray)
-    {
-      // We could template for speed.
-      const int numComponents = inArray->GetNumberOfComponents();
-      for (int j = 0; j < numComponents; ++j)
-      {
-        const double vIn1 = inArray->GetComponent(pt1Id, j);
-        const double vIn2 = inArray->GetComponent(pt2Id, j);
-        const double dv = 0.5 * (vIn1 + vIn2);
-        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
-        outArray->SetTypedComponent(0, j, vOut);
-      }
-    }
-  };
-
-  fieldList.TransformData(index, inda, outda, f);
-}
-
-//------------------------------------------------------------------------------
-// Is the extra performance worth duplicating this code with IntergrateData2.
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData3(
-  vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, vtkIdType pt2Id,
-  vtkIdType pt3Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList, int index)
-{
-  auto f = [pt1Id, pt2Id, pt3Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
-  {
-    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
-    if (inArray && outArray)
-    {
-      // We could template for speed.
-      const int numComponents = inArray->GetNumberOfComponents();
-      for (int j = 0; j < numComponents; ++j)
-      {
-        const double vIn1 = inArray->GetComponent(pt1Id, j);
-        const double vIn2 = inArray->GetComponent(pt2Id, j);
-        const double vIn3 = inArray->GetComponent(pt3Id, j);
-        const double dv = (vIn1 + vIn2 + vIn3) / 3.0;
-        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
-        outArray->SetTypedComponent(0, j, vOut);
-      }
-    }
-  };
-  fieldList.TransformData(index, inda, outda, f);
-}
-
-//------------------------------------------------------------------------------
-// Is the extra performance worth duplicating this code with IntergrateData2.
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateData4(
-  vtkDataSetAttributes* inda, vtkDataSetAttributes* outda, vtkIdType pt1Id, vtkIdType pt2Id,
-  vtkIdType pt3Id, vtkIdType pt4Id, double k, vtkIntegrateAttributes::vtkFieldList& fieldList,
-  int index)
-{
-  auto f = [pt1Id, pt2Id, pt3Id, pt4Id, k](vtkAbstractArray* ainArray, vtkAbstractArray* aoutArray)
-  {
-    vtkDataArray* inArray = vtkDataArray::FastDownCast(ainArray);
-    vtkDoubleArray* outArray = vtkDoubleArray::FastDownCast(aoutArray);
-    if (inArray && outArray)
-    {
-      // We could template for speed.
-      const int numComponents = inArray->GetNumberOfComponents();
-      for (int j = 0; j < numComponents; ++j)
-      {
-        const double vIn1 = inArray->GetComponent(pt1Id, j);
-        const double vIn2 = inArray->GetComponent(pt2Id, j);
-        const double vIn3 = inArray->GetComponent(pt3Id, j);
-        const double vIn4 = inArray->GetComponent(pt4Id, j);
-        const double dv = (vIn1 + vIn2 + vIn3 + vIn4) * 0.25;
-        const double vOut = (dv * k) + outArray->GetTypedComponent(0, j);
-        outArray->SetTypedComponent(0, j, vOut);
-      }
-    }
-  };
-
-  fieldList.TransformData(index, inda, outda, f);
 }
 
 //------------------------------------------------------------------------------
@@ -860,371 +717,9 @@ void vtkIntegrateAttributes::IntegrateSatelliteData(
 }
 
 //------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegratePolyLine(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts, const vtkIdType* cellPtIds,
-  double& sum, double sumCenter[3])
+vtkIntegrationStrategy* vtkIntegrateAttributes::GetIntegrationStrategy()
 {
-  double length;
-  double pt1[3], pt2[3], mid[3];
-  vtkIdType numLines, lineIdx;
-  vtkIdType pt1Id, pt2Id;
-
-  numLines = numPts - 1;
-  for (lineIdx = 0; lineIdx < numLines; ++lineIdx)
-  {
-    pt1Id = cellPtIds[lineIdx];
-    pt2Id = cellPtIds[lineIdx + 1];
-    input->GetPoint(pt1Id, pt1);
-    input->GetPoint(pt2Id, pt2);
-
-    // Compute the length of the line.
-    length = std::sqrt(vtkMath::Distance2BetweenPoints(pt1, pt2));
-    sum += length;
-
-    // Compute the middle, which is really just another attribute.
-    mid[0] = (pt1[0] + pt2[0]) * 0.5;
-    mid[1] = (pt1[1] + pt2[1]) * 0.5;
-    mid[2] = (pt1[2] + pt2[2]) * 0.5;
-    // Add weighted to sumCenter.
-    sumCenter[0] += mid[0] * length;
-    sumCenter[1] += mid[1] * length;
-    sumCenter[2] += mid[2] * length;
-
-    // Now integrate the rest of the attributes.
-    vtkIntegrateAttributesFunctor::IntegrateData2(input->GetPointData(), output->GetPointData(),
-      pt1Id, pt2Id, length, this->PointFieldList, this->FieldListIndex);
-    vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(),
-      cellId, length, this->CellFieldList, this->FieldListIndex);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateGeneral1DCell(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts,
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-  // There should be an even number of points from the triangulation
-  if (numPts % 2)
-  {
-    vtkWarningWithObjectMacro(this->Self,
-      "Odd number of points(" << numPts << ")  encountered - skipping "
-                              << " 1D Cell: " << cellId);
-    return;
-  }
-
-  double length;
-  double pt1[3], pt2[3], mid[3];
-
-  for (vtkIdType pid = 0; pid < numPts; pid += 2)
-  {
-    input->GetPoint(cellPtIds[pid], pt1);
-    input->GetPoint(cellPtIds[pid + 1], pt2);
-
-    // Compute the length of the line.
-    length = std::sqrt(vtkMath::Distance2BetweenPoints(pt1, pt2));
-    sum += length;
-
-    // Compute the middle, which is really just another attribute.
-    mid[0] = (pt1[0] + pt2[0]) * 0.5;
-    mid[1] = (pt1[1] + pt2[1]) * 0.5;
-    mid[2] = (pt1[2] + pt2[2]) * 0.5;
-    // Add weighted to sumCenter.
-    sumCenter[0] += mid[0] * length;
-    sumCenter[1] += mid[1] * length;
-    sumCenter[2] += mid[2] * length;
-
-    // Now integrate the rest of the attributes.
-    vtkIntegrateAttributesFunctor::IntegrateData2(input->GetPointData(), output->GetPointData(),
-      cellPtIds[pid], cellPtIds[pid + 1], length, this->PointFieldList, this->FieldListIndex);
-    vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(),
-      cellId, length, this->CellFieldList, this->FieldListIndex);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateTriangleStrip(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts,
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-  vtkIdType numTris, triIdx;
-  vtkIdType pt1Id, pt2Id, pt3Id;
-
-  numTris = numPts - 2;
-  for (triIdx = 0; triIdx < numTris; ++triIdx)
-  {
-    pt1Id = cellPtIds[triIdx];
-    pt2Id = cellPtIds[triIdx + 1];
-    pt3Id = cellPtIds[triIdx + 2];
-    this->IntegrateTriangle(input, output, cellId, pt1Id, pt2Id, pt3Id, sum, sumCenter);
-  }
-}
-
-//------------------------------------------------------------------------------
-// Works for convex polygons, and interpoaltion is not correct.
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegratePolygon(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts, const vtkIdType* cellPtIds,
-  double& sum, double sumCenter[3])
-{
-  vtkIdType numTris, triIdx;
-  vtkIdType pt1Id, pt2Id, pt3Id;
-
-  numTris = numPts - 2;
-  pt1Id = cellPtIds[0];
-  for (triIdx = 0; triIdx < numTris; ++triIdx)
-  {
-    pt2Id = cellPtIds[triIdx + 1];
-    pt3Id = cellPtIds[triIdx + 2];
-    this->IntegrateTriangle(input, output, cellId, pt1Id, pt2Id, pt3Id, sum, sumCenter);
-  }
-}
-
-//------------------------------------------------------------------------------
-// For axis aligned rectangular cells
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegratePixel(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType vtkNotUsed(numPts),
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-  double pts[4][3];
-  input->GetPoint(cellPtIds[0], pts[0]);
-  input->GetPoint(cellPtIds[1], pts[1]);
-  input->GetPoint(cellPtIds[2], pts[2]);
-  input->GetPoint(cellPtIds[3], pts[3]);
-
-  double l, w, a, mid[3];
-
-  // get the lengths of its 2 orthogonal sides.  Since only 1 coordinate
-  // can be different we can add the differences in all 3 directions
-  l = (pts[0][0] - pts[1][0]) + (pts[0][1] - pts[1][1]) + (pts[0][2] - pts[1][2]);
-
-  w = (pts[0][0] - pts[2][0]) + (pts[0][1] - pts[2][1]) + (pts[0][2] - pts[2][2]);
-
-  a = std::abs(l * w);
-  sum += a;
-  // Compute the middle, which is really just another attribute.
-  mid[0] = (pts[0][0] + pts[1][0] + pts[2][0] + pts[3][0]) * 0.25;
-  mid[1] = (pts[0][1] + pts[1][1] + pts[2][1] + pts[3][1]) * 0.25;
-  mid[2] = (pts[0][2] + pts[1][2] + pts[2][2] + pts[3][2]) * 0.25;
-  // Add weighted to sumCenter.
-  sumCenter[0] += mid[0] * a;
-  sumCenter[1] += mid[1] * a;
-  sumCenter[2] += mid[2] * a;
-
-  // Now integrate the rest of the attributes.
-  vtkIntegrateAttributesFunctor::IntegrateData4(input->GetPointData(), output->GetPointData(),
-    cellPtIds[0], cellPtIds[1], cellPtIds[2], cellPtIds[3], a, this->PointFieldList,
-    this->FieldListIndex);
-  vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(), cellId,
-    a, this->CellFieldList, this->FieldListIndex);
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateTriangle(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id,
-  double& sum, double sumCenter[3])
-{
-  double pt1[3], pt2[3], pt3[3];
-  double mid[3], v1[3], v2[3];
-  double cross[3];
-  double k;
-
-  input->GetPoint(pt1Id, pt1);
-  input->GetPoint(pt2Id, pt2);
-  input->GetPoint(pt3Id, pt3);
-
-  // Compute two legs.
-  v1[0] = pt2[0] - pt1[0];
-  v1[1] = pt2[1] - pt1[1];
-  v1[2] = pt2[2] - pt1[2];
-  v2[0] = pt3[0] - pt1[0];
-  v2[1] = pt3[1] - pt1[1];
-  v2[2] = pt3[2] - pt1[2];
-
-  // Use the cross product to compute the area of the parallelogram.
-  vtkMath::Cross(v1, v2, cross);
-  k = std::sqrt(cross[0] * cross[0] + cross[1] * cross[1] + cross[2] * cross[2]) * 0.5;
-
-  if (k == 0.0)
-  {
-    return;
-  }
-  sum += k;
-
-  // Compute the middle, which is really just another attribute.
-  mid[0] = (pt1[0] + pt2[0] + pt3[0]) / 3.0;
-  mid[1] = (pt1[1] + pt2[1] + pt3[1]) / 3.0;
-  mid[2] = (pt1[2] + pt2[2] + pt3[2]) / 3.0;
-  // Add weighted to sumCenter.
-  sumCenter[0] += mid[0] * k;
-  sumCenter[1] += mid[1] * k;
-  sumCenter[2] += mid[2] * k;
-
-  // Now integrate the rest of the attributes.
-  vtkIntegrateAttributesFunctor::IntegrateData3(input->GetPointData(), output->GetPointData(),
-    pt1Id, pt2Id, pt3Id, k, this->PointFieldList, this->FieldListIndex);
-  vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(), cellId,
-    k, this->CellFieldList, this->FieldListIndex);
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateGeneral2DCell(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts,
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-  // There should be a number of points that is a multiple of 3
-  // from the triangulation
-  if (numPts % 3)
-  {
-    vtkWarningWithObjectMacro(this->Self,
-      "Number of points (" << numPts << ") is not divisible by 3 - skipping "
-                           << " 2D Cell: " << cellId);
-    return;
-  }
-
-  vtkIdType pt1Id, pt2Id, pt3Id;
-  for (vtkIdType triIdx = 0; triIdx < numPts;)
-  {
-    pt1Id = cellPtIds[triIdx++];
-    pt2Id = cellPtIds[triIdx++];
-    pt3Id = cellPtIds[triIdx++];
-    this->IntegrateTriangle(input, output, cellId, pt1Id, pt2Id, pt3Id, sum, sumCenter);
-  }
-}
-
-//------------------------------------------------------------------------------
-// For Tetrahedral cells
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateTetrahedron(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType pt1Id, vtkIdType pt2Id, vtkIdType pt3Id,
-  vtkIdType pt4Id, double& sum, double sumCenter[3])
-{
-  double pts[4][3];
-  input->GetPoint(pt1Id, pts[0]);
-  input->GetPoint(pt2Id, pts[1]);
-  input->GetPoint(pt3Id, pts[2]);
-  input->GetPoint(pt4Id, pts[3]);
-
-  double a[3], b[3], c[3], n[3], v, mid[3];
-  // Compute the principle vectors around pt0 and the
-  // centroid
-  for (int i = 0; i < 3; i++)
-  {
-    a[i] = pts[1][i] - pts[0][i];
-    b[i] = pts[2][i] - pts[0][i];
-    c[i] = pts[3][i] - pts[0][i];
-    mid[i] = (pts[0][i] + pts[1][i] + pts[2][i] + pts[3][i]) * 0.25;
-  }
-
-  // Calculate the volume of the tet which is 1/6 * the box product
-  vtkMath::Cross(a, b, n);
-  v = vtkMath::Dot(c, n) / 6.0;
-  sum += v;
-
-  // Add weighted to sumCenter.
-  sumCenter[0] += mid[0] * v;
-  sumCenter[1] += mid[1] * v;
-  sumCenter[2] += mid[2] * v;
-
-  // Integrate the attributes on the cell itself
-  vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(), cellId,
-    v, this->CellFieldList, this->FieldListIndex);
-
-  // Integrate the attributes associated with the points
-  vtkIntegrateAttributesFunctor::IntegrateData4(input->GetPointData(), output->GetPointData(),
-    pt1Id, pt2Id, pt3Id, pt4Id, v, this->PointFieldList, this->FieldListIndex);
-}
-
-//------------------------------------------------------------------------------
-// For axis aligned hexahedral cells
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateVoxel(vtkDataSet* input,
-  vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType vtkNotUsed(numPts),
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-  vtkIdType pt1Id, pt2Id, pt3Id, pt4Id, pt5Id;
-  double pts[5][3];
-  pt1Id = cellPtIds[0];
-  pt2Id = cellPtIds[1];
-  pt3Id = cellPtIds[2];
-  pt4Id = cellPtIds[3];
-  pt5Id = cellPtIds[4];
-  input->GetPoint(pt1Id, pts[0]);
-  input->GetPoint(pt2Id, pts[1]);
-  input->GetPoint(pt3Id, pts[2]);
-  input->GetPoint(pt4Id, pts[3]);
-  input->GetPoint(pt5Id, pts[4]);
-
-  double l, w, h, v, mid[3];
-
-  // Calculate the volume of the voxel
-  l = pts[1][0] - pts[0][0];
-  w = pts[2][1] - pts[0][1];
-  h = pts[4][2] - pts[0][2];
-  v = std::abs(l * w * h);
-  sum += v;
-
-  // Partially Compute the middle, which is really just another attribute.
-  mid[0] = (pts[0][0] + pts[1][0] + pts[2][0] + pts[3][0]) * 0.125;
-  mid[1] = (pts[0][1] + pts[1][1] + pts[2][1] + pts[3][1]) * 0.125;
-  mid[2] = (pts[0][2] + pts[1][2] + pts[2][2] + pts[3][2]) * 0.125;
-
-  // Integrate the attributes on the cell itself
-  vtkIntegrateAttributesFunctor::IntegrateData1(input->GetCellData(), output->GetCellData(), cellId,
-    v, this->CellFieldList, this->FieldListIndex);
-
-  // Integrate the attributes associated with the points on the bottom face
-  // note that since IntegrateData4 is going to weigh everything by 1/4
-  // we need to pass down 1/2 the volume so they will be weighted by 1/8
-
-  vtkIntegrateAttributesFunctor::IntegrateData4(input->GetPointData(), output->GetPointData(),
-    pt1Id, pt2Id, pt3Id, pt4Id, v * 0.5, this->PointFieldList, this->FieldListIndex);
-
-  // Now process the top face points
-  pt1Id = cellPtIds[5];
-  pt2Id = cellPtIds[6];
-  pt3Id = cellPtIds[7];
-  input->GetPoint(pt1Id, pts[0]);
-  input->GetPoint(pt2Id, pts[1]);
-  input->GetPoint(pt3Id, pts[2]);
-  // Finish Computing the middle, which is really just another attribute.
-  mid[0] += (pts[0][0] + pts[1][0] + pts[2][0] + pts[4][0]) * 0.125;
-  mid[1] += (pts[0][1] + pts[1][1] + pts[2][1] + pts[4][1]) * 0.125;
-  mid[2] += (pts[0][2] + pts[1][2] + pts[2][2] + pts[4][2]) * 0.125;
-
-  // Add weighted to sumCenter.
-  sumCenter[0] += mid[0] * v;
-  sumCenter[1] += mid[1] * v;
-  sumCenter[2] += mid[2] * v;
-
-  // Integrate the attributes associated with the points on the top face
-  // note that since IntegrateData4 is going to weigh everything by 1/4
-  // we need to pass down 1/2 the volume so they will be weighted by 1/8
-  vtkIntegrateAttributesFunctor::IntegrateData4(input->GetPointData(), output->GetPointData(),
-    pt1Id, pt2Id, pt3Id, pt5Id, v * 0.5, this->PointFieldList, this->FieldListIndex);
-}
-
-//------------------------------------------------------------------------------
-void vtkIntegrateAttributes::vtkIntegrateAttributesFunctor::IntegrateGeneral3DCell(
-  vtkDataSet* input, vtkUnstructuredGrid* output, vtkIdType cellId, vtkIdType numPts,
-  const vtkIdType* cellPtIds, double& sum, double sumCenter[3])
-{
-
-  // There should be a number of points that is a multiple of 4
-  // from the triangulation
-  if (numPts % 4)
-  {
-    vtkWarningWithObjectMacro(this->Self,
-      "Number of points (" << numPts << ") is not divisiable by 4 - skipping "
-                           << " 3D Cell: " << cellId);
-    return;
-  }
-
-  vtkIdType pt1Id, pt2Id, pt3Id, pt4Id;
-  for (vtkIdType tetIdx = 0; tetIdx < numPts;)
-  {
-    pt1Id = cellPtIds[tetIdx++];
-    pt2Id = cellPtIds[tetIdx++];
-    pt3Id = cellPtIds[tetIdx++];
-    pt4Id = cellPtIds[tetIdx++];
-    this->IntegrateTetrahedron(input, output, cellId, pt1Id, pt2Id, pt3Id, pt4Id, sum, sumCenter);
-  }
+  return this->IntegrationStrategy;
 }
 
 //------------------------------------------------------------------------------

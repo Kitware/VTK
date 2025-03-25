@@ -19,10 +19,12 @@ set(classes
   vtkHyperTreeGridGenerateGlobalIds
   vtkHyperTreeGridGenerateProcessIds
   vtkHyperTreeGridGhostCellsGenerator
+  vtkIntegrateAttributes
+  vtkIntegrationLinearStrategy
+  vtkIntegrationStrategy
   vtkMergeBlocks
   vtkMultiProcessControllerHelper
   vtkPHyperTreeGridProbeFilter
-  vtkIntegrateAttributes
   vtkPeriodicFilter
   vtkPConvertToMultiBlockDataSet
   vtkPExtractDataArraysOverTime
@@ -59,10 +61,12 @@ set(headers
   vtkBlockDistribution.h)
 
 set(sources
-  vtkHyperTreeGridGhostCellsGeneratorInternals.cxx)
+  vtkHyperTreeGridGhostCellsGeneratorInternals.cxx
+  vtkIntegrateAttributesFieldList.cxx)
 
 set(private_headers
-  vtkHyperTreeGridGhostCellsGeneratorInternals.h)
+  vtkHyperTreeGridGhostCellsGeneratorInternals.h
+  vtkIntegrateAttributesFieldList.h)
 
 
 vtk_object_factory_declare(
