@@ -23,6 +23,7 @@
 #ifndef vtkQuadratureSchemeDefinition_h
 #define vtkQuadratureSchemeDefinition_h
 
+#include "vtkCellType.h"              // For VTK_EMPTY_CELL
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -56,6 +57,7 @@ public:
    * passed in is assumed to be empty.
    */
   int SaveState(vtkXMLDataElement* root);
+
   /**
    * Restore the object from an XML representation.
    */
@@ -72,6 +74,7 @@ public:
    */
   void Initialize(
     int cellType, int numberOfNodes, int numberOfQuadraturePoints, double* shapeFunctionWeights);
+
   /**
    * Initialize the object allocating resources as needed.
    */
@@ -79,27 +82,44 @@ public:
     double* shapeFunctionWeights, double* quadratureWeights);
 
   /**
+   * Initialize the object allocating resources as needed.
+   */
+  void Initialize(int cellType, int numberOfNodes, int numberOfQuadraturePoints,
+    const double* shapeFunctionWeights, const double* quadratureWeights, int dim,
+    const double* shapeFunctionDerivativeWeights);
+
+  /**
    * Access the VTK cell type id.
    */
   int GetCellType() const { return this->CellType; }
+
   /**
    * Access to an alternative key.
    */
   int GetQuadratureKey() const { return this->QuadratureKey; }
+
   /**
    * Get the number of nodes associated with the interpolation.
    */
   int GetNumberOfNodes() const { return this->NumberOfNodes; }
+
   /**
    * Get the number of quadrature points associated with the scheme.
    */
   int GetNumberOfQuadraturePoints() const { return this->NumberOfQuadraturePoints; }
+
+  /**
+   * Get the dimension of the reference element.
+   */
+  vtkGetMacro(Dimension, int);
+
   /**
    * Get the array of shape function weights. Shape function weights are
    * the shape functions evaluated at the quadrature points. There are
    * "NumberOfNodes" weights for each quadrature point.
    */
   const double* GetShapeFunctionWeights() const { return this->ShapeFunctionWeights; }
+
   ///@{
   /**
    * Get the array of shape function weights associated with a
@@ -110,7 +130,18 @@ public:
     int idx = quadraturePointId * this->NumberOfNodes;
     return this->ShapeFunctionWeights + idx;
   }
+
+  /**
+   * Get the array of shape function derivative weights associated with a
+   * single quadrature point.
+   */
+  const double* GetShapeFunctionDerivativeWeights(int quadraturePointId) const
+  {
+    int idx = quadraturePointId * this->NumberOfNodes * this->Dimension;
+    return this->ShapeFunctionDerivativeWeights + idx;
+  }
   ///@}
+
   /**
    * Access to the quadrature weights.
    */
@@ -126,21 +157,30 @@ private:
    * This must be called after Set*. Caller's responsibility.
    */
   void ReleaseResources();
+
   /**
    * Allocate resources according to the objects
    * current internal state.
    */
   int SecureResources();
+
   /**
    * Initialize the shape function weights definition.
    * Must call SecureResources prior.
    */
-  void SetShapeFunctionWeights(const double* W);
+  void SetShapeFunctionWeights(const double* weights);
+
   /**
    * Initialize the shape function weights definition.
    * Must call SecureResources prior.
    */
-  void SetQuadratureWeights(const double* W);
+  void SetQuadratureWeights(const double* weights);
+
+  /**
+   * Initialize the shape function derivative weights definition.
+   * Must call SecureResources prior.
+   */
+  void SetShapeFunctionDerivativeWeights(const double* weights);
 
   //
   vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition&) = delete;
@@ -148,12 +188,14 @@ private:
   friend ostream& operator<<(ostream& s, const vtkQuadratureSchemeDefinition& d);
   friend istream& operator>>(istream& s, vtkQuadratureSchemeDefinition& d);
   //
-  int CellType;
-  int QuadratureKey;
-  int NumberOfNodes;
-  int NumberOfQuadraturePoints;
-  double* ShapeFunctionWeights;
-  double* QuadratureWeights;
+  int CellType = VTK_EMPTY_CELL;
+  int QuadratureKey = -1;
+  int NumberOfNodes = 0;
+  int NumberOfQuadraturePoints = 0;
+  int Dimension = 0;
+  double* ShapeFunctionWeights = nullptr;
+  double* QuadratureWeights = nullptr;
+  double* ShapeFunctionDerivativeWeights = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -24,3 +24,4 @@ vtkSmartPointer<vtkAbstractArray> vtkIntegrateAttributesFieldList::CreateArray(i
   }
   return nullptr;
 }
+VTK_ABI_NAMESPACE_END

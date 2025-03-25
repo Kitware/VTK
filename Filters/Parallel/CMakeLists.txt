@@ -20,6 +20,7 @@ set(classes
   vtkHyperTreeGridGenerateProcessIds
   vtkHyperTreeGridGhostCellsGenerator
   vtkIntegrateAttributes
+  vtkIntegrationGaussianStrategy
   vtkIntegrationLinearStrategy
   vtkIntegrationStrategy
   vtkMergeBlocks

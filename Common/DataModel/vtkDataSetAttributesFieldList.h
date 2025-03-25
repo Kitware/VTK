@@ -53,6 +53,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
 class vtkDataSetAttributes;
+class vtkFieldData;
 class vtkIdList;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSetAttributesFieldList
@@ -111,7 +112,7 @@ public:
    * Use this method to provide a custom callback function to invoke for each
    * array in the input and corresponding array in the output.
    */
-  void TransformData(int inputIndex, vtkDataSetAttributes* input, vtkDataSetAttributes* output,
+  void TransformData(int inputIndex, vtkFieldData* input, vtkFieldData* output,
     std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const;
 
   /**

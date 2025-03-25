@@ -721,8 +721,8 @@ void vtkDataSetAttributesFieldList::InterpolatePoint(int inputIndex, vtkDataSetA
 }
 
 //------------------------------------------------------------------------------
-void vtkDataSetAttributesFieldList::TransformData(int inputIndex, vtkDataSetAttributes* input,
-  vtkDataSetAttributes* output, std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const
+void vtkDataSetAttributesFieldList::TransformData(int inputIndex, vtkFieldData* input,
+  vtkFieldData* output, std::function<void(vtkAbstractArray*, vtkAbstractArray*)> op) const
 {
   auto& internals = *this->Internals;
   for (auto& pair : internals.Fields)
