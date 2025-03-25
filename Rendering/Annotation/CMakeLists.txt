@@ -23,10 +23,6 @@ set(classes
   vtkRadialGridActor2D
   vtkScalarBarActor
   vtkSpiderPlotActor
-  vtkGridAxesActor3D
-  vtkGridAxesActor2D
-  vtkGridAxesHelper
-  vtkGridAxesPlaneActor2D
   vtkXYPlotActor)
 
 set(private_classes

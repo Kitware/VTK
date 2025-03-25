@@ -1,9 +1,7 @@
 NAME
-  VTK::RenderingAnnotation
+  VTK::RenderingGridAxes
 LIBRARY_NAME
-  vtkRenderingAnnotation
-KIT
-  VTK::Rendering
+  vtkRenderingGridAxes
 GROUPS
   Rendering
 SPDX_LICENSE_IDENTIFIER
@@ -11,27 +9,23 @@ SPDX_LICENSE_IDENTIFIER
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
+  VTK::ChartsCore
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
   VTK::RenderingCore
+  VTK::RenderingContext2D
 PRIVATE_DEPENDS
   VTK::CommonMath
-  VTK::CommonTransforms
   VTK::FiltersCore
   VTK::FiltersGeneral
   VTK::FiltersSources
   VTK::ImagingColor
-  VTK::RenderingFreeType
 TEST_DEPENDS
-  VTK::FiltersGeometry
+  VTK::FiltersCore
   VTK::FiltersModeling
-  VTK::FiltersSources
   VTK::IOGeometry
-  VTK::IOParallel
-  VTK::ImagingColor
   VTK::ImagingCore
-  VTK::ImagingSources
   VTK::InteractionStyle
   VTK::RenderingLOD
   VTK::RenderingOpenGL2

@@ -14,13 +14,14 @@
 #define vtkGridAxesPlaneActor2D_h
 
 #include "vtkProp3D.h"
-#include "vtkRenderingAnnotationModule.h" //needed for exports
+#include "vtkRenderingGridAxesModule.h" //needed for exports
 
 #include "vtkGridAxesHelper.h" // For face enumeration
 #include "vtkNew.h"            // For member variables
 #include "vtkSmartPointer.h"   // For member variables
 #include <deque>               // For keeping track of tick marks
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkCellArray;
 class vtkDoubleArray;
@@ -29,7 +30,7 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkGridAxesPlaneActor2D : public vtkProp3D
+class VTKRENDERINGGRIDAXES_EXPORT vtkGridAxesPlaneActor2D : public vtkProp3D
 {
 public:
   static vtkGridAxesPlaneActor2D* New();
@@ -227,4 +228,5 @@ private:
   std::deque<LineSegmentType> LineSegments;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

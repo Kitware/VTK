@@ -11,11 +11,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 #include <map>
 
+VTK_ABI_NAMESPACE_BEGIN
 //----------------------------------------------------------------------------
 // to use vtkVector2d in map.
 template <class T>
@@ -648,3 +648,4 @@ void vtkGridAxesActor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

@@ -15,19 +15,20 @@
 #define vtkGridAxesActor3D_h
 
 #include "vtkProp3D.h"
-#include "vtkRenderingAnnotationModule.h" //needed for exports
+#include "vtkRenderingGridAxesModule.h" //needed for exports
 
 #include "vtkGridAxesHelper.h" //  needed for vtkGridAxesHelper.
 #include "vtkNew.h"            // needed for vtkNew.
 
 #include <functional> // for std::function
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkGridAxesActor2D;
 class vtkProperty;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkGridAxesActor3D : public vtkProp3D
+class VTKRENDERINGGRIDAXES_EXPORT vtkGridAxesActor3D : public vtkProp3D
 {
 public:
   static vtkGridAxesActor3D* New();
@@ -322,4 +323,5 @@ private:
   vtkMTimeType GetBoundsMTime;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

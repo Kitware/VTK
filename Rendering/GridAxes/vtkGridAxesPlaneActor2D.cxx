@@ -15,12 +15,12 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
 #include <cassert>
 
+VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGridAxesPlaneActor2D);
 //----------------------------------------------------------------------------
 vtkGridAxesPlaneActor2D* vtkGridAxesPlaneActor2D::New(vtkGridAxesHelper* helper)
@@ -329,3 +329,4 @@ void vtkGridAxesPlaneActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

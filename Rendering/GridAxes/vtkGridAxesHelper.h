@@ -18,13 +18,14 @@
 
 #include "vtkObject.h"
 
-#include "vtkRenderingAnnotationModule.h" //needed for exports
-#include "vtkVector.h"                    // needed for vtkVector.
+#include "vtkRenderingGridAxesModule.h" //needed for exports
+#include "vtkVector.h"                  // needed for vtkVector.
 
+VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkViewport;
 
-class VTKRENDERINGANNOTATION_EXPORT vtkGridAxesHelper : public vtkObject
+class VTKRENDERINGGRIDAXES_EXPORT vtkGridAxesHelper : public vtkObject
 {
 public:
   static vtkGridAxesHelper* New();
@@ -212,4 +213,5 @@ private:
   void operator=(const vtkGridAxesHelper&) = delete;
 };
 
+VTK_ABI_NAMESPACE_END
 #endif

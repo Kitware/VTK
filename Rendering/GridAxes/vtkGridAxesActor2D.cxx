@@ -15,11 +15,11 @@
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
 #include "vtkTextProperty.h"
-#include "vtkVectorOperators.h"
 
 #include <algorithm>
 #include <vector>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 // The point is assumed to be in Viewport coordinate system i.e X,Y pixels in
@@ -723,3 +723,4 @@ void vtkGridAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END

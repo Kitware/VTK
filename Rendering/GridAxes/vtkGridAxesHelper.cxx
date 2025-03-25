@@ -11,10 +11,11 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
-#include "vtkVectorOperators.h"
+#include "vtkVector.h"
 
 #include <algorithm>
 
+VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 inline vtkVector3d DoTransform(vtkMatrix4x4* matrix, const vtkVector3d& point)
@@ -308,3 +309,4 @@ void vtkGridAxesHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+VTK_ABI_NAMESPACE_END
