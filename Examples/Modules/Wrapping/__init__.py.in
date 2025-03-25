@@ -1,0 +1,36 @@
+__all__ = [@python_modules_string@]
+
+def _windows_dll_path():
+    import os
+    _python_path = "@python_destination@/wrapping"
+    _dll_path = "@CMAKE_INSTALL_BINDIR@"
+    # Compute the DLL path based on the location of the file and traversing up
+    # the installation prefix to append the DLL path.
+    _dll_directory = os.path.dirname(os.path.abspath(__file__))
+    # Loop while we have components to remove.
+    while _python_path not in ('', '.', '/'):
+        # Strip a directory away.
+        _python_path = os.path.dirname(_python_path)
+        _dll_directory = os.path.dirname(_dll_directory)
+    _dll_directory = os.path.join(_dll_directory, _dll_path)
+    if os.path.exists(_dll_directory):
+        # We never remove this path; it is required for VTK to work and there's
+        # no scope where we can easily remove the directory again.
+        _ = os.add_dll_directory(_dll_directory)
+    # Build tree support.
+    try:
+        from . import _build_paths
+
+        # Add any paths needed for the build tree.
+        for path in _build_paths.paths:
+            if os.path.exists(path):
+                _ = os.add_dll_directory(path)
+    except ImportError:
+        # Relocatable install tree (or non-Windows).
+        pass
+
+# CPython 3.8 added behaviors which modified the DLL search path on Windows to
+# only search "blessed" paths.
+import sys
+if sys.version_info >= (3, 8) and sys.platform == 'win32':
+    _windows_dll_path()
