@@ -191,7 +191,6 @@ public:
 //----------------------------------------------------------------------------
 vtkAnariPolyDataMapperNodeInternals::vtkAnariPolyDataMapperNodeInternals(
   vtkAnariPolyDataMapperNode* owner)
-  : Owner(owner)
 {
 }
 
@@ -605,7 +604,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
   // metalness
   if (ormTexture)
   {
-    vtkImageData* ormImageData = ormTexture->GetInput();
+    vtkImageData* ormImageData = texture->GetInput();
     auto metallicSampler =
       this->ExtractORMFromVTK("metallicTex", 2, "attribute0", inTransform, ormImageData, false);
     anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "metallic", metallicSampler);
@@ -619,7 +618,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
   // roughness
   if (ormTexture)
   {
-    vtkImageData* ormImageData = ormTexture->GetInput();
+    vtkImageData* ormImageData = texture->GetInput();
     auto roughnessSampler =
       this->ExtractORMFromVTK("roughnessTex", 1, "attribute0", inTransform, ormImageData, false);
     anari::setAndReleaseParameter(this->AnariDevice, anariMaterial, "roughness", roughnessSampler);

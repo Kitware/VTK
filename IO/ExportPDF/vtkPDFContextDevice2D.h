@@ -39,9 +39,6 @@ public:
 
   void SetRenderer(vtkRenderer*);
 
-  using vtkContextDevice2D::DrawMarkers;
-  using vtkContextDevice2D::DrawPoints;
-  using vtkContextDevice2D::DrawPointSprites;
   void DrawPoly(float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
   void DrawLines(float* f, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;
   void DrawPoints(float* points, int n, unsigned char* colors = nullptr, int nc_comps = 0) override;

@@ -147,8 +147,7 @@ int TestReservoirSamplerPlainSequence()
   int result = 0;
   int ii = 0;
   std::cout << "non-monotonic plain subsequence\n";
-  auto sampler = vtkReservoirSampler<vtkIdType, /* monotonic? */ false>();
-  for (const auto& seq : sampler(kk, nn))
+  for (const auto& seq : vtkReservoirSampler<vtkIdType, /* monotonic? */ false>()(kk, nn))
   {
     std::cout << "  " << ii << " " << seq << "\n";
     if (seq < 0 || seq >= nn)
@@ -175,8 +174,7 @@ int TestReservoirSamplerArraySizeSequence()
   int result = 0;
   int ii = 0;
   std::cout << "monotonic array index sequence\n";
-  auto sampler = vtkReservoirSampler<vtkIdType>();
-  for (const auto& seq : sampler(kk, array.GetPointer()))
+  for (const auto& seq : vtkReservoirSampler<vtkIdType>()(kk, array.GetPointer()))
   {
     std::cout << "  " << ii << " " << seq << "\n";
     if (seq < 0 || seq >= nn)

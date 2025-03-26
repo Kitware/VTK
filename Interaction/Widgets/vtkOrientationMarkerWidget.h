@@ -76,13 +76,6 @@ public:
   vtkTypeMacro(vtkOrientationMarkerWidget, vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  /**
-   * This widget creates a renderer in the constructor, but this allows
-   * one to pass an externally declared renderer.
-   */
-  void SetRenderer(vtkRenderer* renderer);
-  vtkRenderer* GetRenderer();
-
   ///@{
   /**
    * Set/get the orientation marker to be displayed in this widget.
@@ -259,10 +252,6 @@ protected:
   // The maximum dimension size to be allowed for width and height.
   int MaxDimensionSize = 500;
 
-  bool OrientationMarkerBound = false;
-  bool RendererBound = false;
-  bool EventsBound = false;
-
   // use to determine what state the mouse is over, edge1 p1, etc.
   // returns a state from the WidgetState enum above
   virtual int ComputeStateBasedOnPosition(int X, int Y, int* pos1, int* pos2);
@@ -292,16 +281,14 @@ protected:
   // or if the widget is not square.
   void ResizeToFitSizeConstraints();
 
-  void BindOrientationMarker();
-  void UnBindOrientationMarker();
-  void BindRenderer();
-  void UnBindRenderer();
-  void BindEvents();
-  void UnBindEvents();
-
 private:
   vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&) = delete;
   void operator=(const vtkOrientationMarkerWidget&) = delete;
+
+  // set up the actors and observers created by this widget
+  void SetupWindowInteraction();
+  // tear down up the actors and observers created by this widget
+  void TearDownWindowInteraction();
 };
 
 VTK_ABI_NAMESPACE_END

@@ -2463,14 +2463,12 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
   {
     origPointIds.SetNumberOfValues(numPts);
     vtkIdType* origPointIdsPtr = origPointIds.GetPointer();
-    vtkSMPTools::For(0, numPts,
-      [&origPointIdsPtr](vtkIdType pId, vtkIdType endPId)
+    vtkSMPTools::For(0, numPts, [&origPointIdsPtr](vtkIdType pId, vtkIdType endPId) {
+      for (; pId < endPId; ++pId)
       {
-        for (; pId < endPId; ++pId)
-        {
-          origPointIdsPtr[pId] = pId;
-        }
-      });
+        origPointIdsPtr[pId] = pId;
+      }
+    });
   }
 
   // Special case when data is just passed through
@@ -2484,14 +2482,12 @@ int ExecutePolyData(vtkGeometryFilter* self, vtkDataSet* dataSetInput, vtkPolyDa
     {
       origCellIds.SetNumberOfValues(numCells);
       vtkIdType* origCellIdsPtr = origCellIds.GetPointer();
-      vtkSMPTools::For(0, numCells,
-        [&origCellIdsPtr](vtkIdType cId, vtkIdType endCId)
+      vtkSMPTools::For(0, numCells, [&origCellIdsPtr](vtkIdType cId, vtkIdType endCId) {
+        for (; cId < endCId; ++cId)
         {
-          for (; cId < endCId; ++cId)
-          {
-            origCellIdsPtr[cId] = cId;
-          }
-        });
+          origCellIdsPtr[cId] = cId;
+        }
+      });
     }
 
     return 1;
@@ -2754,17 +2750,15 @@ void PassPointIds(const char* name, vtkIdType numInputPts, vtkIdType numOutputPt
   vtkIdType* origIds = origPtIds->GetPointer(0);
 
   // Now threaded populate the array
-  vtkSMPTools::For(0, numInputPts,
-    [&origIds, &ptMap](vtkIdType ptId, vtkIdType endPtId)
+  vtkSMPTools::For(0, numInputPts, [&origIds, &ptMap](vtkIdType ptId, vtkIdType endPtId) {
+    for (; ptId < endPtId; ++ptId)
     {
-      for (; ptId < endPtId; ++ptId)
+      if (ptMap[ptId] >= 0)
       {
-        if (ptMap[ptId] >= 0)
-        {
-          origIds[ptMap[ptId]] = ptId;
-        }
+        origIds[ptMap[ptId]] = ptId;
       }
-    });
+    }
+  });
 }
 
 //------------------------------------------------------------------------------

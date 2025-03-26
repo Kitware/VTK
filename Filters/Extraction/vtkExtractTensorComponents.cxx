@@ -168,102 +168,100 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
   // Loop over all points extracting components of tensor as directed. Use a
   // lambda function.
   //
-  vtkSMPTools::For(0, numPts,
-    [&](vtkIdType ptId, vtkIdType endPtId)
+  vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    double tensor[9];
+    double s = 0.0;
+    double v[3];
+    double sx, sy, sz, txy, tyz, txz;
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
+    for (; ptId < endPtId; ++ptId)
     {
-      double tensor[9];
-      double s = 0.0;
-      double v[3];
-      double sx, sy, sz, txy, tyz, txz;
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-      for (; ptId < endPtId; ++ptId)
+      if (ptId % checkAbortInterval == 0)
       {
-        if (ptId % checkAbortInterval == 0)
+        if (isFirst)
         {
-          if (isFirst)
-          {
-            this->CheckAbort();
-          }
-          if (this->GetAbortOutput())
-          {
-            break;
-          }
+          this->CheckAbort();
+        }
+        if (this->GetAbortOutput())
+        {
+          break;
+        }
+      }
+
+      inTensors->GetTuple(ptId, tensor);
+      if (inTensors->GetNumberOfComponents() == 6)
+      {
+        vtkMath::TensorFromSymmetricTensor(tensor);
+      }
+
+      if (this->ExtractScalars)
+      {
+        if (this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS)
+        {
+          sx = tensor[0];
+          sy = tensor[4];
+          sz = tensor[8];
+          txy = tensor[3];
+          tyz = tensor[7];
+          txz = tensor[6];
+
+          s = sqrt(0.16666667 *
+            ((sx - sy) * (sx - sy) + (sy - sz) * (sy - sz) + (sz - sx) * (sz - sx) +
+              6.0 * (txy * txy + tyz * tyz + txz * txz)));
         }
 
-        inTensors->GetTuple(ptId, tensor);
-        if (inTensors->GetNumberOfComponents() == 6)
+        else if (this->ScalarMode == VTK_EXTRACT_COMPONENT)
         {
-          vtkMath::TensorFromSymmetricTensor(tensor);
+          s = tensor[this->ScalarComponents[0] + 3 * this->ScalarComponents[1]];
         }
 
-        if (this->ExtractScalars)
+        else if (this->ScalarMode == VTK_EXTRACT_DETERMINANT)
         {
-          if (this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS)
-          {
-            sx = tensor[0];
-            sy = tensor[4];
-            sz = tensor[8];
-            txy = tensor[3];
-            tyz = tensor[7];
-            txz = tensor[6];
-
-            s = sqrt(0.16666667 *
-              ((sx - sy) * (sx - sy) + (sy - sz) * (sy - sz) + (sz - sx) * (sz - sx) +
-                6.0 * (txy * txy + tyz * tyz + txz * txz)));
-          }
-
-          else if (this->ScalarMode == VTK_EXTRACT_COMPONENT)
-          {
-            s = tensor[this->ScalarComponents[0] + 3 * this->ScalarComponents[1]];
-          }
-
-          else if (this->ScalarMode == VTK_EXTRACT_DETERMINANT)
-          {
-            s = tensor[0] * tensor[4] * tensor[8] - tensor[0] * tensor[5] * tensor[7] -
-              tensor[1] * tensor[3] * tensor[8] + tensor[1] * tensor[5] * tensor[6] +
-              tensor[2] * tensor[3] * tensor[7] - tensor[2] * tensor[4] * tensor[6];
-          }
-          else if (this->ScalarMode == VTK_EXTRACT_NONNEGATIVE_DETERMINANT)
-          {
-            s = fabs(tensor[0] * tensor[4] * tensor[8] - tensor[0] * tensor[5] * tensor[7] -
-              tensor[1] * tensor[3] * tensor[8] + tensor[1] * tensor[5] * tensor[6] +
-              tensor[2] * tensor[3] * tensor[7] - tensor[2] * tensor[4] * tensor[6]);
-          }
-          else // if ( this->ScalarMode == VTK_EXTRACT_TRACE )
-          {
-            s = tensor[0] + tensor[4] + tensor[8];
-          }
-          newScalars->SetTuple(ptId, &s);
-        } // if extract scalars
-
-        if (this->ExtractVectors)
-        {
-          v[0] = tensor[this->VectorComponents[0] + 3 * this->VectorComponents[1]];
-          v[1] = tensor[this->VectorComponents[2] + 3 * this->VectorComponents[3]];
-          v[2] = tensor[this->VectorComponents[4] + 3 * this->VectorComponents[5]];
-          newVectors->SetTuple(ptId, v);
+          s = tensor[0] * tensor[4] * tensor[8] - tensor[0] * tensor[5] * tensor[7] -
+            tensor[1] * tensor[3] * tensor[8] + tensor[1] * tensor[5] * tensor[6] +
+            tensor[2] * tensor[3] * tensor[7] - tensor[2] * tensor[4] * tensor[6];
         }
-
-        if (this->ExtractNormals)
+        else if (this->ScalarMode == VTK_EXTRACT_NONNEGATIVE_DETERMINANT)
         {
-          v[0] = tensor[this->NormalComponents[0] + 3 * this->NormalComponents[1]];
-          v[1] = tensor[this->NormalComponents[2] + 3 * this->NormalComponents[3]];
-          v[2] = tensor[this->NormalComponents[4] + 3 * this->NormalComponents[5]];
-          newNormals->SetTuple(ptId, v);
+          s = fabs(tensor[0] * tensor[4] * tensor[8] - tensor[0] * tensor[5] * tensor[7] -
+            tensor[1] * tensor[3] * tensor[8] + tensor[1] * tensor[5] * tensor[6] +
+            tensor[2] * tensor[3] * tensor[7] - tensor[2] * tensor[4] * tensor[6]);
         }
-
-        if (this->ExtractTCoords)
+        else // if ( this->ScalarMode == VTK_EXTRACT_TRACE )
         {
-          for (int i = 0; i < this->NumberOfTCoords; i++)
-          {
-            v[i] = tensor[this->TCoordComponents[2 * i] + 3 * this->TCoordComponents[2 * i + 1]];
-          }
-          newTCoords->SetTuple(ptId, v);
+          s = tensor[0] + tensor[4] + tensor[8];
         }
-      } // for all points in this batch
-    }); // end lambda
+        newScalars->SetTuple(ptId, &s);
+      } // if extract scalars
+
+      if (this->ExtractVectors)
+      {
+        v[0] = tensor[this->VectorComponents[0] + 3 * this->VectorComponents[1]];
+        v[1] = tensor[this->VectorComponents[2] + 3 * this->VectorComponents[3]];
+        v[2] = tensor[this->VectorComponents[4] + 3 * this->VectorComponents[5]];
+        newVectors->SetTuple(ptId, v);
+      }
+
+      if (this->ExtractNormals)
+      {
+        v[0] = tensor[this->NormalComponents[0] + 3 * this->NormalComponents[1]];
+        v[1] = tensor[this->NormalComponents[2] + 3 * this->NormalComponents[3]];
+        v[2] = tensor[this->NormalComponents[4] + 3 * this->NormalComponents[5]];
+        newNormals->SetTuple(ptId, v);
+      }
+
+      if (this->ExtractTCoords)
+      {
+        for (int i = 0; i < this->NumberOfTCoords; i++)
+        {
+          v[i] = tensor[this->TCoordComponents[2 * i] + 3 * this->TCoordComponents[2 * i + 1]];
+        }
+        newTCoords->SetTuple(ptId, v);
+      }
+    } // for all points in this batch
+  }); // end lambda
 
   // Send data to output
   //

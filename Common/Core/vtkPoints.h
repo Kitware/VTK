@@ -205,8 +205,7 @@ public:
 
   /**
    * Resize the internal array while conserving the data.  Returns 1 if
-   * resizing succeeded (including shrinking) and 0 (or throw std::bad_alloc
-   * based on VTK_DONT_THROW_BAD_ALLOC configuration) otherwise.
+   * resizing succeeded and 0 otherwise.
    */
   vtkTypeBool Resize(vtkIdType numPoints);
 

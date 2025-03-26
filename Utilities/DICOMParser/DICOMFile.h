@@ -12,7 +12,6 @@
 #pragma warn - 8027 /* functions containing while are not expanded inline */
 #endif
 
-#include <iosfwd>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -37,7 +36,7 @@ public:
   // that is true if the file is successfully
   // opened.
   //
-  bool Open(const std::string& filename);
+  bool Open(const dicom_stl::string& filename);
 
   //
   // Close a file.
@@ -196,9 +195,16 @@ public:
 
 protected:
   //
+  // Internal storage for the filename.
+  //
+  // char* Filename;
+
+  //
   // Internal storage for the file pointer.
   //
-  std::istream* InputStream;
+  // FILE* Fptr;
+
+  dicom_stream::ifstream InputStream;
 
   //
   // Flag for swapping bytes.

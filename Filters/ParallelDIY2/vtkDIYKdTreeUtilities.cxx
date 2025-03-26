@@ -65,9 +65,8 @@ struct BlockT
     const auto start_offset = this->Points.size();
     this->Points.resize(start_offset + pts->GetNumberOfPoints());
 
-    vtkSMPTools::For(0, pts->GetNumberOfPoints(),
-      [this, pts, start_offset](vtkIdType start, vtkIdType end)
-      {
+    vtkSMPTools::For(
+      0, pts->GetNumberOfPoints(), [this, pts, start_offset](vtkIdType start, vtkIdType end) {
         for (vtkIdType cc = start; cc < end; ++cc)
         {
           auto& pt = this->Points[cc + start_offset];
@@ -248,29 +247,27 @@ std::vector<vtkBoundingBox> vtkDIYKdTreeUtilities::GenerateCuts(
   diy::kdtree(master, cuts_assigner, 3, gdomain, &BlockT::Points, /*hist_bins=*/256);
 
   // collect bounds for all blocks globally.
-  diy::all_to_all(master, cuts_assigner,
-    [](void* b, const diy::ReduceProxy& srp)
+  diy::all_to_all(master, cuts_assigner, [](void* b, const diy::ReduceProxy& srp) {
+    BlockT* block = reinterpret_cast<BlockT*>(b);
+    if (srp.round() == 0)
     {
-      BlockT* block = reinterpret_cast<BlockT*>(b);
-      if (srp.round() == 0)
+      for (int i = 0; i < srp.out_link().size(); ++i)
       {
-        for (int i = 0; i < srp.out_link().size(); ++i)
-        {
-          auto link = static_cast<diy::RegularContinuousLink*>(
-            srp.master()->link(srp.master()->lid(srp.gid())));
-          srp.enqueue(srp.out_link().target(i), link->bounds());
-        }
+        auto link = static_cast<diy::RegularContinuousLink*>(
+          srp.master()->link(srp.master()->lid(srp.gid())));
+        srp.enqueue(srp.out_link().target(i), link->bounds());
       }
-      else
+    }
+    else
+    {
+      block->BlockBounds.resize(srp.in_link().size());
+      for (int i = 0; i < srp.in_link().size(); ++i)
       {
-        block->BlockBounds.resize(srp.in_link().size());
-        for (int i = 0; i < srp.in_link().size(); ++i)
-        {
-          assert(i == srp.in_link().target(i).gid);
-          srp.dequeue(srp.in_link().target(i).gid, block->BlockBounds[i]);
-        }
+        assert(i == srp.in_link().target(i).gid);
+        srp.dequeue(srp.in_link().target(i).gid, block->BlockBounds[i]);
       }
-    });
+    }
+  });
 
   std::vector<vtkBoundingBox> cuts(num_cuts);
   if (master.size() > 0)
@@ -332,8 +329,7 @@ vtkSmartPointer<vtkPartitionedDataSet> vtkDIYKdTreeUtilities::Exchange(
 
   const int myrank = comm.rank();
   diy::all_to_all(master, assigner,
-    [block_assigner, &myrank, localParts](VectorOfVectorOfUG* block, const diy::ReduceProxy& rp)
-    {
+    [block_assigner, &myrank, localParts](VectorOfVectorOfUG* block, const diy::ReduceProxy& rp) {
       if (rp.in_link().size() == 0)
       {
         // enqueue blocks to send.

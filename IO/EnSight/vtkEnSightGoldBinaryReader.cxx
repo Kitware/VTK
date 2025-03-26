@@ -26,10 +26,31 @@
 #include <map>
 #include <numeric>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
-#define VTK_STAT_STRUCT vtksys::SystemTools::Stat_t
-#define VTK_STAT_FUNC vtksys::SystemTools::Stat
+#if defined(_WIN32)
+#define VTK_STAT_STRUCT struct _stat64
+#define VTK_STAT_FUNC _stat64
+#elif defined _DARWIN_FEATURE_64_BIT_INODE || defined __FreeBSD__ || defined __NetBSD__ ||         \
+  defined __OpenBSD__
+// The BSDs use stat().
+#define VTK_STAT_STRUCT struct stat
+#define VTK_STAT_FUNC stat
+#elif defined __EMSCRIPTEN__
+#if defined _LARGEFILE64_SOURCE
+#define VTK_STAT_STRUCT struct stat64
+#define VTK_STAT_FUNC stat64
+#else
+#define VTK_STAT_STRUCT struct stat
+#define VTK_STAT_FUNC stat
+#endif
+#else
+// here, we're relying on _FILE_OFFSET_BITS defined in vtkWin32Header.h to help
+// us on POSIX without resorting to using stat64.
+#define VTK_STAT_STRUCT struct stat64
+#define VTK_STAT_FUNC stat64
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkEnSightGoldBinaryReader::vtkUtilities
@@ -79,16 +100,14 @@ public:
       self->ReadIntArray(&buffer.front(), count);
 
       partialIndices->SetNumberOfIds(count);
-      std::transform(buffer.begin(), buffer.end(), partialIndices->GetPointer(0),
-        [](vtkIdType val)
-        {
+      std::transform(
+        buffer.begin(), buffer.end(), partialIndices->GetPointer(0), [](vtkIdType val) {
           return val - 1; /* since ensight indices start with 1*/
         });
     }
 
     // replace undefined values with "internal undef" which in ParaView is NaN
-    auto replaceUndef = [&](vtkFloatArray* farray)
-    {
+    auto replaceUndef = [&](vtkFloatArray* farray) {
       if (hasUndef)
       {
         const float nanfloat = std::nanf("1");
@@ -102,8 +121,7 @@ public:
       }
     };
 
-    auto readComponent = [&](vtkIdType count)
-    {
+    auto readComponent = [&](vtkIdType count) {
       vtkNew<vtkFloatArray> buffer;
       buffer->SetNumberOfTuples(count);
       if (hasPartial)
@@ -1562,8 +1580,7 @@ bool vtkEnSightGoldBinaryReader::ReadVariableArray(const char* description,
   // read description.
   this->ReadLine(line);
 
-  auto advance = [&line, this]()
-  {
+  auto advance = [&line, this]() {
     this->GoldIFile->peek();
     return this->GoldIFile->eof() ? 0 : this->ReadLine(line);
   };

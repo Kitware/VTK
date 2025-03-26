@@ -120,30 +120,28 @@ struct CheckCriticalTimeComp : public CheckCriticalTimeWorker
   {
     vtkDataArrayAccessor<ArrayT> inAcc(inArray);
 
-    vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
       {
-        for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
-        {
-          if (!std::isnan(outArray->GetValue(tupleIdx)))
-          { // Critical time already exceeded
-            continue;
-          }
+        if (!std::isnan(outArray->GetValue(tupleIdx)))
+        { // Critical time already exceeded
+          continue;
+        }
 
-          if (selectedComponent == inArray->GetNumberOfComponents() &&
-            inArray->GetNumberOfComponents() > 1)
-          { // Magnitude requested
-            if ((this->*(this->ThresholdFunction))(this->ComputeMagnitude(inArray, tupleIdx)))
-            {
-              outArray->SetValue(tupleIdx, currentTimeStep);
-            }
-          }
-          else if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, selectedComponent)))
+        if (selectedComponent == inArray->GetNumberOfComponents() &&
+          inArray->GetNumberOfComponents() > 1)
+        { // Magnitude requested
+          if ((this->*(this->ThresholdFunction))(this->ComputeMagnitude(inArray, tupleIdx)))
           {
             outArray->SetValue(tupleIdx, currentTimeStep);
           }
         }
-      });
+        else if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, selectedComponent)))
+        {
+          outArray->SetValue(tupleIdx, currentTimeStep);
+        }
+      }
+    });
   }
 };
 
@@ -161,26 +159,24 @@ struct CheckCriticalTimeAny : public CheckCriticalTimeWorker
   {
     vtkDataArrayAccessor<ArrayT> inAcc(inArray);
 
-    vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
       {
-        for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
-        {
-          if (!std::isnan(outArray->GetValue(tupleIdx)))
-          { // Critical time already exceeded
-            continue;
-          }
+        if (!std::isnan(outArray->GetValue(tupleIdx)))
+        { // Critical time already exceeded
+          continue;
+        }
 
-          for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
+        for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
+        {
+          if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
           {
-            if ((this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
-            {
-              outArray->SetValue(tupleIdx, currentTimeStep);
-              break;
-            }
+            outArray->SetValue(tupleIdx, currentTimeStep);
+            break;
           }
         }
-      });
+      }
+    });
   }
 };
 
@@ -198,31 +194,29 @@ struct CheckCriticalTimeAll : public CheckCriticalTimeWorker
   {
     vtkDataArrayAccessor<ArrayT> inAcc(inArray);
 
-    vtkSMPTools::For(0, inArray->GetNumberOfTuples(),
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
       {
-        for (vtkIdType tupleIdx = begin; tupleIdx < end; ++tupleIdx)
-        {
-          if (!std::isnan(outArray->GetValue(tupleIdx)))
-          { // Critical time already exceeded
-            continue;
-          }
+        if (!std::isnan(outArray->GetValue(tupleIdx)))
+        { // Critical time already exceeded
+          continue;
+        }
 
-          bool allExceed = true;
-          for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
+        bool allExceed = true;
+        for (int comp = 0; comp < inArray->GetNumberOfComponents(); ++comp)
+        {
+          if (!(this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
           {
-            if (!(this->*(this->ThresholdFunction))(inAcc.Get(tupleIdx, comp)))
-            {
-              allExceed = false;
-              break;
-            }
-          }
-          if (allExceed)
-          {
-            outArray->SetValue(tupleIdx, currentTimeStep);
+            allExceed = false;
+            break;
           }
         }
-      });
+        if (allExceed)
+        {
+          outArray->SetValue(tupleIdx, currentTimeStep);
+        }
+      }
+    });
   }
 };
 } // anonymous namespace

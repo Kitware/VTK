@@ -14,7 +14,6 @@
 #define __XML_XINCLUDE_H__
 
 #include <libxml/xmlversion.h>
-#include <libxml/xmlerror.h>
 #include <libxml/tree.h>
 
 #ifdef LIBXML_XINCLUDE_ENABLED
@@ -90,41 +89,35 @@ typedef xmlXIncludeCtxt *xmlXIncludeCtxtPtr;
 /*
  * standalone processing
  */
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcess	(xmlDocPtr doc);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcessFlags	(xmlDocPtr doc,
 					 int flags);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcessFlagsData(xmlDocPtr doc,
 					 int flags,
 					 void *data);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
                 xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree,
                                          int flags,
                                          void *data);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcessTree	(xmlNodePtr tree);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcessTreeFlags(xmlNodePtr tree,
 					 int flags);
 /*
  * contextual processing
  */
-XMLPUBFUN xmlXIncludeCtxtPtr
+XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL
 		xmlXIncludeNewContext	(xmlDocPtr doc);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeSetFlags	(xmlXIncludeCtxtPtr ctxt,
 					 int flags);
-XMLPUBFUN void
-		xmlXIncludeSetErrorHandler(xmlXIncludeCtxtPtr ctxt,
-					 xmlStructuredErrorFunc handler,
-					 void *data);
-XMLPUBFUN int
-		xmlXIncludeGetLastError	(xmlXIncludeCtxtPtr ctxt);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		xmlXIncludeFreeContext	(xmlXIncludeCtxtPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXIncludeProcessNode	(xmlXIncludeCtxtPtr ctxt,
 					 xmlNodePtr tree);
 #ifdef __cplusplus

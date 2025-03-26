@@ -38,11 +38,7 @@ int TestImportOBJ(int argc, char* argv[])
 
   iren->SetRenderWindow(renWin);
   importer->SetRenderWindow(renWin);
-  if (!importer->Update())
-  {
-    std::cerr << "Error: failed to Update" << std::endl;
-    return EXIT_FAILURE;
-  }
+  importer->Update();
 
   auto actors = renderer->GetActors();
   actors->InitTraversal();

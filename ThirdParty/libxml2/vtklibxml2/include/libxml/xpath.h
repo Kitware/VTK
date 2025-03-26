@@ -400,7 +400,7 @@ struct _xmlXPathParserContext {
     int xptr;				/* it this an XPointer expression */
     xmlNodePtr         ancestor;	/* used for walking preceding axis */
 
-    int              valueFrame;        /* always zero for compatibility */
+    int              valueFrame;        /* used to limit Pop on the stack */
 };
 
 /************************************************************************
@@ -454,72 +454,68 @@ XMLPUBVAR double xmlXPathNINF;
     (((ns) == NULL) || ((ns)->nodeNr == 0) || ((ns)->nodeTab == NULL))
 
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeObject		(xmlXPathObjectPtr obj);
-XMLPUBFUN xmlNodeSetPtr
+XMLPUBFUN xmlNodeSetPtr XMLCALL
 		    xmlXPathNodeSetCreate	(xmlNodePtr val);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeNodeSetList	(xmlXPathObjectPtr obj);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeNodeSet		(xmlNodeSetPtr obj);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathObjectCopy		(xmlXPathObjectPtr val);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCmpNodes		(xmlNodePtr node1,
 						 xmlNodePtr node2);
 /**
  * Conversion functions to basic types.
  */
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCastNumberToBoolean	(double val);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCastStringToBoolean	(const xmlChar * val);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCastNodeSetToBoolean(xmlNodeSetPtr ns);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCastToBoolean	(xmlXPathObjectPtr val);
 
-XMLPUBFUN double
+XMLPUBFUN double XMLCALL
 		    xmlXPathCastBooleanToNumber	(int val);
-XMLPUBFUN double
+XMLPUBFUN double XMLCALL
 		    xmlXPathCastStringToNumber	(const xmlChar * val);
-XMLPUBFUN double
+XMLPUBFUN double XMLCALL
 		    xmlXPathCastNodeToNumber	(xmlNodePtr node);
-XMLPUBFUN double
+XMLPUBFUN double XMLCALL
 		    xmlXPathCastNodeSetToNumber	(xmlNodeSetPtr ns);
-XMLPUBFUN double
+XMLPUBFUN double XMLCALL
 		    xmlXPathCastToNumber	(xmlXPathObjectPtr val);
 
-XMLPUBFUN xmlChar *
+XMLPUBFUN xmlChar * XMLCALL
 		    xmlXPathCastBooleanToString	(int val);
-XMLPUBFUN xmlChar *
+XMLPUBFUN xmlChar * XMLCALL
 		    xmlXPathCastNumberToString	(double val);
-XMLPUBFUN xmlChar *
+XMLPUBFUN xmlChar * XMLCALL
 		    xmlXPathCastNodeToString	(xmlNodePtr node);
-XMLPUBFUN xmlChar *
+XMLPUBFUN xmlChar * XMLCALL
 		    xmlXPathCastNodeSetToString	(xmlNodeSetPtr ns);
-XMLPUBFUN xmlChar *
+XMLPUBFUN xmlChar * XMLCALL
 		    xmlXPathCastToString	(xmlXPathObjectPtr val);
 
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathConvertBoolean	(xmlXPathObjectPtr val);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathConvertNumber	(xmlXPathObjectPtr val);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathConvertString	(xmlXPathObjectPtr val);
 
 /**
  * Context handling.
  */
-XMLPUBFUN xmlXPathContextPtr
+XMLPUBFUN xmlXPathContextPtr XMLCALL
 		    xmlXPathNewContext		(xmlDocPtr doc);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeContext		(xmlXPathContextPtr ctxt);
-XMLPUBFUN void
-		    xmlXPathSetErrorHandler(xmlXPathContextPtr ctxt,
-					    xmlStructuredErrorFunc handler,
-					    void *context);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathContextSetCache(xmlXPathContextPtr ctxt,
 				            int active,
 					    int value,
@@ -527,48 +523,48 @@ XMLPUBFUN int
 /**
  * Evaluation functions.
  */
-XMLPUBFUN long
+XMLPUBFUN long XMLCALL
 		    xmlXPathOrderDocElems	(xmlDocPtr doc);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathSetContextNode	(xmlNodePtr node,
 						 xmlXPathContextPtr ctx);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathNodeEval		(xmlNodePtr node,
 						 const xmlChar *str,
 						 xmlXPathContextPtr ctx);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathEval		(const xmlChar *str,
 						 xmlXPathContextPtr ctx);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathEvalExpression	(const xmlChar *str,
 						 xmlXPathContextPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathEvalPredicate	(xmlXPathContextPtr ctxt,
 						 xmlXPathObjectPtr res);
 /**
  * Separate compilation/evaluation entry points.
  */
-XMLPUBFUN xmlXPathCompExprPtr
+XMLPUBFUN xmlXPathCompExprPtr XMLCALL
 		    xmlXPathCompile		(const xmlChar *str);
-XMLPUBFUN xmlXPathCompExprPtr
+XMLPUBFUN xmlXPathCompExprPtr XMLCALL
 		    xmlXPathCtxtCompile		(xmlXPathContextPtr ctxt,
 						 const xmlChar *str);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPathCompiledEval	(xmlXPathCompExprPtr comp,
 						 xmlXPathContextPtr ctx);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlXPathCompiledEvalToBoolean(xmlXPathCompExprPtr comp,
 						 xmlXPathContextPtr ctxt);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathFreeCompExpr	(xmlXPathCompExprPtr comp);
 #endif /* LIBXML_XPATH_ENABLED */
 #if defined(LIBXML_XPATH_ENABLED) || defined(LIBXML_SCHEMAS_ENABLED)
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPathInit		(void);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXPathIsNaN	(double val);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlXPathIsInf	(double val);
 
 #ifdef __cplusplus

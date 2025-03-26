@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLImageSliceMapper.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include "vtkDataArray.h"
 #include "vtkGarbageCollector.h"

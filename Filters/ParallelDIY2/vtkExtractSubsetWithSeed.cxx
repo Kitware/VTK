@@ -28,6 +28,7 @@
 #include "vtkStructuredData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 // clang-format off
 #include "vtk_diy2.h"
@@ -396,8 +397,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
   auto datasets = vtkCompositeDataSet::GetDataSets(input);
   // prune non-structured grid datasets.
-  auto prunePredicate = [](vtkDataObject* ds)
-  {
+  auto prunePredicate = [](vtkDataObject* ds) {
     auto sg = vtkStructuredGrid::SafeDownCast(ds);
     // skip empty or non-3D grids.
     return sg == nullptr ||
@@ -444,44 +444,42 @@ int vtkExtractSubsetWithSeed::RequestData(
   // exchange bounding boxes to determine neighbours.
   vtkLogStartScope(TRACE, "populate block neighbours");
   std::map<int, std::vector<int>> neighbors;
-  diy::all_to_all(master, assigner,
-    [&neighbors](BlockT* b, const diy::ReduceProxy& rp)
+  diy::all_to_all(master, assigner, [&neighbors](BlockT* b, const diy::ReduceProxy& rp) {
+    vtkBoundingBox bbox;
+    if (b->Input)
     {
-      vtkBoundingBox bbox;
-      if (b->Input)
-      {
-        double bds[6];
-        b->Input->GetBounds(bds);
-        bbox.SetBounds(bds);
-        bbox.Inflate(0.000001);
-      }
+      double bds[6];
+      b->Input->GetBounds(bds);
+      bbox.SetBounds(bds);
+      bbox.Inflate(0.000001);
+    }
 
-      if (rp.round() == 0)
+    if (rp.round() == 0)
+    {
+      double bds[6];
+      bbox.GetBounds(bds);
+      for (int i = 0; i < rp.out_link().size(); ++i)
       {
-        double bds[6];
-        bbox.GetBounds(bds);
-        for (int i = 0; i < rp.out_link().size(); ++i)
+        const auto dest = rp.out_link().target(i);
+        rp.enqueue(dest, bds, 6);
+      }
+    }
+    else
+    {
+      for (int i = 0; i < rp.in_link().size(); ++i)
+      {
+        const auto src = rp.in_link().target(i);
+        double in_bds[6];
+        rp.dequeue(src, in_bds, 6);
+        vtkBoundingBox in_bbx(in_bds);
+        if (src.gid != rp.gid() && in_bbx.IsValid() && bbox.IsValid() && in_bbx.Intersects(bbox))
         {
-          const auto dest = rp.out_link().target(i);
-          rp.enqueue(dest, bds, 6);
+          vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
+          neighbors[rp.gid()].push_back(src.gid);
         }
       }
-      else
-      {
-        for (int i = 0; i < rp.in_link().size(); ++i)
-        {
-          const auto src = rp.in_link().target(i);
-          double in_bds[6];
-          rp.dequeue(src, in_bds, 6);
-          vtkBoundingBox in_bbx(in_bds);
-          if (src.gid != rp.gid() && in_bbx.IsValid() && bbox.IsValid() && in_bbx.Intersects(bbox))
-          {
-            vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
-            neighbors[rp.gid()].push_back(src.gid);
-          }
-        }
-      }
-    });
+    }
+  });
 
   // update local links.
   for (auto& pair : neighbors)
@@ -526,70 +524,68 @@ int vtkExtractSubsetWithSeed::RequestData(
   int round = 0;
   while (!all_done)
   {
-    master.foreach (
-      [this, &round, &propagation_mask](BlockT* b, const diy::Master::ProxyWithLink& cp)
+    master.foreach ([this, &round, &propagation_mask](
+                      BlockT* b, const diy::Master::ProxyWithLink& cp) {
+      std::vector<SeedT> seeds;
+      if (round == 0)
       {
-        std::vector<SeedT> seeds;
-        if (round == 0)
+        const vtkIdType cellid =
+          (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
+        if (cellid >= 0)
         {
-          const vtkIdType cellid =
-            (b->Input != nullptr) ? b->CellLocator->FindCell(this->GetSeed()) : -1;
-          if (cellid >= 0)
+          auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
+          seeds.emplace_back(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second);
+        }
+      }
+      else
+      {
+        // dequeue
+        std::vector<int> incoming;
+        cp.incoming(incoming);
+        for (const int& gid : incoming)
+        {
+          if (!cp.incoming(gid).empty())
           {
-            auto p_vecs = ::GetPropagationVectors(b->Input->GetCell(cellid), propagation_mask);
-            seeds.emplace_back(vtkVector3d(this->GetSeed()), p_vecs.first, p_vecs.second);
+            assert(b->Input != nullptr); // we should not be getting messages if we don't have data!
+            std::vector<SeedT> next_seeds;
+            cp.dequeue(gid, next_seeds);
+            seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
           }
         }
-        else
+      }
+
+      std::vector<SeedT> next_seeds;
+      for (const auto& seed : seeds)
+      {
+        std::vector<vtkVector3d> dirs;
+        if (std::get<1>(seed).SquaredNorm() != 0)
         {
-          // dequeue
-          std::vector<int> incoming;
-          cp.incoming(incoming);
-          for (const int& gid : incoming)
-          {
-            if (!cp.incoming(gid).empty())
-            {
-              assert(
-                b->Input != nullptr); // we should not be getting messages if we don't have data!
-              std::vector<SeedT> next_seeds;
-              cp.dequeue(gid, next_seeds);
-              seeds.insert(seeds.end(), next_seeds.begin(), next_seeds.end());
-            }
-          }
+          dirs.push_back(std::get<1>(seed));
         }
-
-        std::vector<SeedT> next_seeds;
-        for (const auto& seed : seeds)
+        if (std::get<2>(seed).SquaredNorm() != 0)
         {
-          std::vector<vtkVector3d> dirs;
-          if (std::get<1>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<1>(seed));
-          }
-          if (std::get<2>(seed).SquaredNorm() != 0)
-          {
-            dirs.push_back(std::get<2>(seed));
-          }
-          auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
-          next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+          dirs.push_back(std::get<2>(seed));
         }
+        auto new_seeds = ::ExtractSliceFromSeed(std::get<0>(seed), dirs, b, cp);
+        next_seeds.insert(next_seeds.end(), new_seeds.begin(), new_seeds.end());
+      }
 
-        if (!next_seeds.empty())
+      if (!next_seeds.empty())
+      {
+        // enqueue
+        for (const auto& neighbor : cp.link()->neighbors())
         {
-          // enqueue
-          for (const auto& neighbor : cp.link()->neighbors())
-          {
-            vtkLogF(TRACE, "r=%d: enqueuing %d --> (%d, %d)", round, cp.gid(), neighbor.gid,
-              neighbor.proc);
-            cp.enqueue(neighbor, next_seeds);
-          }
+          vtkLogF(
+            TRACE, "r=%d: enqueuing %d --> (%d, %d)", round, cp.gid(), neighbor.gid, neighbor.proc);
+          cp.enqueue(neighbor, next_seeds);
         }
+      }
 
-        cp.collectives()->clear();
+      cp.collectives()->clear();
 
-        const int has_seeds = static_cast<int>(!next_seeds.empty());
-        cp.all_reduce(has_seeds, std::logical_or<int>());
-      });
+      const int has_seeds = static_cast<int>(!next_seeds.empty());
+      cp.all_reduce(has_seeds, std::logical_or<int>());
+    });
     vtkLogF(TRACE, "r=%d, exchange", round);
     master.exchange();
     all_done = (master.proxy(master.loaded_block()).read<int>() == 0);
@@ -627,14 +623,12 @@ int vtkExtractSubsetWithSeed::RequestData(
       auto inputPDS = inputPDC->GetPartitionedDataSet(cc);
       for (unsigned int kk = 0, maxKK = inputPDS->GetNumberOfPartitions(); kk < maxKK; ++kk)
       {
-        master.foreach (
-          [&](BlockT* b, const diy::Master::ProxyWithLink&)
+        master.foreach ([&](BlockT* b, const diy::Master::ProxyWithLink&) {
+          if (b->Input == inputPDS->GetPartition(kk))
           {
-            if (b->Input == inputPDS->GetPartition(kk))
-            {
-              b->AddExtracts(pds);
-            }
-          });
+            b->AddExtracts(pds);
+          }
+        });
       }
     }
   }
@@ -708,8 +702,7 @@ int vtkExtractSubsetWithSeed::RequestData(
 
     std::function<vtkDataObject*(vtkDataObject*)> replaceLeaves;
     replaceLeaves = [&replaceLeaves, &input_dataset_map, &output_blocks](
-                      vtkDataObject* output) -> vtkDataObject*
-    {
+                      vtkDataObject* output) -> vtkDataObject* {
       if (auto mb = vtkMultiBlockDataSet::SafeDownCast(output))
       {
         for (unsigned int cc = 0; cc < mb->GetNumberOfBlocks(); ++cc)

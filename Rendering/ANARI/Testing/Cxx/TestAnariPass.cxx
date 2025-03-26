@@ -26,7 +26,6 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariPass(int argc, char* argv[])
 {
@@ -79,7 +78,24 @@ int TestAnariPass(int argc, char* argv[])
     {
       cerr << "Render via ANARI" << endl;
       renderer->SetPass(anariPass);
-      SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariPass");
+
+      if (useDebugDevice)
+      {
+        vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
+        vtkNew<vtkTesting> testing;
+
+        std::string traceDir = testing->GetTempDirectory();
+        traceDir += "/anari-trace";
+        traceDir += "/TestAnariPass";
+        vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
+      }
+
+      vtkAnariRendererNode::SetLibraryName("environment", renderer);
+      vtkAnariRendererNode::SetSamplesPerPixel(2, renderer);
+      vtkAnariRendererNode::SetLightFalloff(.3, renderer);
+      vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+      // vtkAnariRendererNode::SetAmbientIntensity(0.5, renderer);
+      vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
     }
     else
     {

@@ -3,7 +3,7 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkObjectFactory.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLBufferObject);

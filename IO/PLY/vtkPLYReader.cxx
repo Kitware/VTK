@@ -250,7 +250,7 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
       rgbCells->SetNumberOfComponents(3);
     }
     output->GetCellData()->AddArray(rgbCells);
-    output->GetCellData()->SetActiveScalars(rgbCells->GetName());
+    output->GetCellData()->SetActiveScalars("RGB");
   }
 
   bool rgbPointsAvailable = false;

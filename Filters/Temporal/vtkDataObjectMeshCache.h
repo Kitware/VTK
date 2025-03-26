@@ -57,6 +57,9 @@ class vtkCompositeDataSet;
  * ## Requirements
  * The data arrays forwarding rely on GlobalIds arrays.
  *
+ * Currently, only vtkPolyData and vtkUnstructuredGrid are supported,
+ * due to the needs of GetMeshMTime() method for this cache to work.
+ *
  * When using vtkCompositeDataSet, every leaves should be of a supported
  * data set type.
  */
@@ -114,7 +117,7 @@ public:
      * Return true if and only if every members are equals.
      * @sa operator!=
      */
-    bool operator==(const Status& other) const
+    bool operator==(const Status& other)
     {
       return other.OriginalDataDefined == this->OriginalDataDefined &&
         other.ConsumerDefined == this->ConsumerDefined &&
@@ -128,7 +131,7 @@ public:
      * Return true if both object are not equals.
      * @sa operator==
      */
-    bool operator!=(const Status& other) const { return !(*this == other); }
+    bool operator!=(const Status& other) { return !(*this == other); }
 
     /**
      * Print members.
@@ -153,6 +156,7 @@ public:
    * Original dataobject is also used to copy data arrays to output,
    * if OriginalIds are configured.
    * Required before any call to CopyCacheToDataObject.
+   * @note Only vtkPolyData, vtkUnstructuredGrid and vtkDataObjectTree are supported.
    * @sa AddOriginalIds, RemoveOriginalIds, ClearOriginalIds
    */
   void SetOriginalDataObject(vtkDataObject* original);

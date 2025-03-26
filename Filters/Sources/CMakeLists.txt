@@ -13,7 +13,6 @@ set(classes
   vtkEllipticalButtonSource
   vtkFrustumSource
   vtkGlyphSource2D
-  vtkGoldenBallSource
   vtkGraphToPolyData
   vtkHandleSource
   vtkHyperTreeGridPreConfiguredSource

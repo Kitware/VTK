@@ -7,7 +7,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 namespace
 {

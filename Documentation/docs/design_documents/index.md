@@ -6,7 +6,7 @@
 VTKFileFormats
 smptools
 array_dispatch
-data_assembly
+data_assemply
 
 IOLegacyInformationFormat
 IOXMLInformationFormat

@@ -449,18 +449,12 @@ int vtkInformation::Has(vtkInformationRequestKey* key)
 
 //------------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(name, type)                                         \
-  void vtkInformation::Set(vtkInformation##name##Key* key, type value)                             \
-  {                                                                                                \
-    key->Set(this, value);                                                                         \
-  }                                                                                                \
+  void vtkInformation::Set(vtkInformation##name##Key* key, type value) { key->Set(this, value); }  \
   void vtkInformation::Remove(vtkInformation##name##Key* key)                                      \
   {                                                                                                \
     key->vtkInformation##name##Key::Remove(this);                                                  \
   }                                                                                                \
-  type vtkInformation::Get(vtkInformation##name##Key* key)                                         \
-  {                                                                                                \
-    return key->Get(this);                                                                         \
-  }                                                                                                \
+  type vtkInformation::Get(vtkInformation##name##Key* key) { return key->Get(this); }              \
   int vtkInformation::Has(vtkInformation##name##Key* key)                                          \
   {                                                                                                \
     return key->vtkInformation##name##Key::Has(this);                                              \
@@ -487,10 +481,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
   {                                                                                                \
     key->Set(this, value, length);                                                                 \
   }                                                                                                \
-  type* vtkInformation::Get(vtkInformation##name##VectorKey* key)                                  \
-  {                                                                                                \
-    return key->Get(this);                                                                         \
-  }                                                                                                \
+  type* vtkInformation::Get(vtkInformation##name##VectorKey* key) { return key->Get(this); }       \
   type vtkInformation::Get(vtkInformation##name##VectorKey* key, int idx)                          \
   {                                                                                                \
     return key->Get(this, idx);                                                                    \
@@ -499,10 +490,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
   {                                                                                                \
     key->Get(this, value);                                                                         \
   }                                                                                                \
-  int vtkInformation::Length(vtkInformation##name##VectorKey* key)                                 \
-  {                                                                                                \
-    return key->Length(this);                                                                      \
-  }                                                                                                \
+  int vtkInformation::Length(vtkInformation##name##VectorKey* key) { return key->Length(this); }   \
   void vtkInformation::Remove(vtkInformation##name##VectorKey* key)                                \
   {                                                                                                \
     key->vtkInformation##name##VectorKey::Remove(this);                                            \
@@ -676,18 +664,12 @@ VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(Variant, vtkVariant, const vtkVari
   {                                                                                                \
     key->Set(this, value, length);                                                                 \
   }                                                                                                \
-  type* vtkInformation::Get(vtkInformation##name##PointerKey* key)                                 \
-  {                                                                                                \
-    return key->Get(this);                                                                         \
-  }                                                                                                \
+  type* vtkInformation::Get(vtkInformation##name##PointerKey* key) { return key->Get(this); }      \
   void vtkInformation::Get(vtkInformation##name##PointerKey* key, type* value)                     \
   {                                                                                                \
     key->Get(this, value);                                                                         \
   }                                                                                                \
-  int vtkInformation::Length(vtkInformation##name##PointerKey* key)                                \
-  {                                                                                                \
-    return key->Length(this);                                                                      \
-  }                                                                                                \
+  int vtkInformation::Length(vtkInformation##name##PointerKey* key) { return key->Length(this); }  \
   void vtkInformation::Remove(vtkInformation##name##PointerKey* key)                               \
   {                                                                                                \
     key->vtkInformation##name##PointerKey::Remove(this);                                           \

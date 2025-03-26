@@ -5,10 +5,11 @@
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
 #include "vtkDGOperatorEntry.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkStringToken.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <token/Singletons.h>
 
@@ -24,7 +25,7 @@ namespace
 
 ostream& PrintSource(ostream& os, const vtkDGCell::Source& src, bool isCellSpec)
 {
-  os << src << '\n';
+  os << "Connectivity: " << src.Connectivity;
   if (src.Connectivity)
   {
     if (isCellSpec)
@@ -37,6 +38,12 @@ ostream& PrintSource(ostream& os, const vtkDGCell::Source& src, bool isCellSpec)
       os << " (sides: " << src.Connectivity->GetNumberOfTuples() << ")";
     }
   }
+  if (src.NodalGhostMarks)
+  {
+    os << ", NodalGhostMarks " << src.NodalGhostMarks;
+  }
+  os << ", Offset: " << src.Offset << ", Blanked: " << (src.Blanked ? "T" : "F")
+     << ", Shape: " << src.SourceShape << ", SideType: " << src.SideType;
   return os;
 }
 
@@ -61,12 +68,6 @@ vtkDGCell::Source::Source(vtkDataArray* conn, vtkIdType off, bool blank, Shape s
   , SideType(sideType)
   , SelectionType(selnType)
 {
-}
-
-ostream& operator<<(ostream& os, const vtkDGCell::Shape& shape)
-{
-  os << vtkDGCell::GetShapeName(shape).Data();
-  return os;
 }
 
 vtkDGCell::vtkDGCell()
@@ -124,19 +125,6 @@ const vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType) const
   }
   static Source dummy;
   return dummy;
-}
-
-vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType)
-{
-  if (sideType < 0)
-  {
-    return this->CellSpec;
-  }
-  else if (sideType >= static_cast<int>(this->SideSpecs.size()))
-  {
-    throw std::logic_error("No source specifier at index " + std::to_string(sideType));
-  }
-  return this->SideSpecs[sideType];
 }
 
 vtkDataArray* vtkDGCell::GetCellSourceConnectivity(int sideType) const

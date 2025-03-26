@@ -95,8 +95,7 @@ struct ExtractEdges
 
     // In place lambda to do the threaded copying of edges
     vtkSMPTools::For(0, totalEdges,
-      [&edgeOffsets, &edges, offsetsPtr, connPtr](vtkIdType edgeId, vtkIdType endEdgeId)
-      {
+      [&edgeOffsets, &edges, offsetsPtr, connPtr](vtkIdType edgeId, vtkIdType endEdgeId) {
         for (; edgeId < endEdgeId; ++edgeId)
         {
           vtkIdType* c = connPtr + 2 * edgeId;
@@ -121,9 +120,8 @@ struct ExtractEdges
       cellArrays.AddArrays(
         totalEdges, this->InCD, this->OutCD, /*nullValue*/ 0.0, /*promote*/ false);
 
-      vtkSMPTools::For(0, totalEdges,
-        [&edgeOffsets, &edges, &cellArrays](vtkIdType edgeId, vtkIdType endEdgeId)
-        {
+      vtkSMPTools::For(
+        0, totalEdges, [&edgeOffsets, &edges, &cellArrays](vtkIdType edgeId, vtkIdType endEdgeId) {
           for (; edgeId < endEdgeId; ++edgeId)
           {
             vtkIdType numEdges = edgeOffsets[edgeId + 1] - edgeOffsets[edgeId];
@@ -342,16 +340,14 @@ int NonLocatorExtraction(
     newPts->SetNumberOfPoints(numPts);
     output->SetPoints(newPts);
 
-    vtkSMPTools::For(0, numPts,
-      [&input, &newPts](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&input, &newPts](vtkIdType ptId, vtkIdType endPtId) {
+      double pnt[3];
+      for (; ptId < endPtId; ++ptId)
       {
-        double pnt[3];
-        for (; ptId < endPtId; ++ptId)
-        {
-          input->GetPoint(ptId, pnt);
-          newPts->SetPoint(ptId, pnt);
-        }
-      });
+        input->GetPoint(ptId, pnt);
+        newPts->SetPoint(ptId, pnt);
+      }
+    });
   }
 
   // Instantiate a cell array to collect all the edges as

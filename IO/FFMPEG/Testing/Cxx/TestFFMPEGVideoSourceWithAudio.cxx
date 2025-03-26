@@ -95,8 +95,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource* video)
   // debugc.BreakMask = XAUDIO2_LOG_ERRORS;
   // pXAudio2->SetDebugConfiguration(&debugc, nullptr);
 
-  auto cbfunc = [pXAudio2](vtkFFMPEGVideoSourceAudioCallbackData& acbd)
-  {
+  auto cbfunc = [pXAudio2](vtkFFMPEGVideoSourceAudioCallbackData& acbd) {
     HRESULT hr;
     static IXAudio2SourceVoice* pSourceVoice = nullptr;
     static int currentBufferIndex = 0;

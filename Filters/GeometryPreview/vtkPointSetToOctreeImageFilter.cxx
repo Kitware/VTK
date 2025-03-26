@@ -199,22 +199,20 @@ struct vtkPointSetToOctreeImageFilter::PointSetToImageFunctor
     // Compute mean
     if (this->UseFieldArray && this->Functions.back() == FieldFunctions::MEAN)
     {
-      vtkSMPTools::For(0, this->OutField->GetNumberOfTuples(),
-        [&](vtkIdType begin, vtkIdType end)
+      vtkSMPTools::For(0, this->OutField->GetNumberOfTuples(), [&](vtkIdType begin, vtkIdType end) {
+        auto outField = vtk::DataArrayTupleRange(this->OutField, begin, end);
+        const int numFunctions = static_cast<int>(this->Functions.size());
+        const int meanIndex = numFunctions - 1;
+        const int sumIndex = numFunctions - 2;
+        const int countIndex = numFunctions - 3;
+        for (auto tuple : outField)
         {
-          auto outField = vtk::DataArrayTupleRange(this->OutField, begin, end);
-          const int numFunctions = static_cast<int>(this->Functions.size());
-          const int meanIndex = numFunctions - 1;
-          const int sumIndex = numFunctions - 2;
-          const int countIndex = numFunctions - 3;
-          for (auto tuple : outField)
+          if (tuple[countIndex] != 0.0f)
           {
-            if (tuple[countIndex] != 0.0f)
-            {
-              tuple[meanIndex] = static_cast<float>(tuple[sumIndex]) / tuple[countIndex];
-            }
+            tuple[meanIndex] = static_cast<float>(tuple[sumIndex]) / tuple[countIndex];
           }
-        });
+        }
+      });
     }
   }
 };
@@ -374,15 +372,13 @@ int vtkPointSetToOctreeImageFilter::RequestData(
           break;
       }
     }
-    vtkSMPTools::For(0, numberOfCells,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numberOfCells, [&](vtkIdType begin, vtkIdType end) {
+      auto outFieldRange = vtk::DataArrayTupleRange(outField, begin, end);
+      for (auto outTuple : outFieldRange)
       {
-        auto outFieldRange = vtk::DataArrayTupleRange(outField, begin, end);
-        for (auto outTuple : outFieldRange)
-        {
-          std::copy(defaultValues.begin(), defaultValues.end(), outTuple.begin());
-        }
-      });
+        std::copy(defaultValues.begin(), defaultValues.end(), outTuple.begin());
+      }
+    });
   }
 
   // define output image

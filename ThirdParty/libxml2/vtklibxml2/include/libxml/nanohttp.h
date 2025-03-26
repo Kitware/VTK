@@ -18,30 +18,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlNanoHTTPInit		(void);
-XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlNanoHTTPCleanup	(void);
-XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlNanoHTTPScanProxy	(const char *URL);
-XML_DEPRECATED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlNanoHTTPFetch	(const char *URL,
 				 const char *filename,
 				 char **contentType);
-XML_DEPRECATED
-XMLPUBFUN void *
+XMLPUBFUN void * XMLCALL
 	xmlNanoHTTPMethod	(const char *URL,
 				 const char *method,
 				 const char *input,
 				 char **contentType,
 				 const char *headers,
 				 int   ilen);
-XML_DEPRECATED
-XMLPUBFUN void *
+XMLPUBFUN void * XMLCALL
 	xmlNanoHTTPMethodRedir	(const char *URL,
 				 const char *method,
 				 const char *input,
@@ -49,46 +43,35 @@ XMLPUBFUN void *
 				 char **redir,
 				 const char *headers,
 				 int   ilen);
-XML_DEPRECATED
-XMLPUBFUN void *
+XMLPUBFUN void * XMLCALL
 	xmlNanoHTTPOpen		(const char *URL,
 				 char **contentType);
-XML_DEPRECATED
-XMLPUBFUN void *
+XMLPUBFUN void * XMLCALL
 	xmlNanoHTTPOpenRedir	(const char *URL,
 				 char **contentType,
 				 char **redir);
-XML_DEPRECATED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlNanoHTTPReturnCode	(void *ctx);
-XML_DEPRECATED
-XMLPUBFUN const char *
+XMLPUBFUN const char * XMLCALL
 	xmlNanoHTTPAuthHeader	(void *ctx);
-XML_DEPRECATED
-XMLPUBFUN const char *
+XMLPUBFUN const char * XMLCALL
 	xmlNanoHTTPRedir	(void *ctx);
-XML_DEPRECATED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlNanoHTTPContentLength( void * ctx );
-XML_DEPRECATED
-XMLPUBFUN const char *
+XMLPUBFUN const char * XMLCALL
 	xmlNanoHTTPEncoding	(void *ctx);
-XML_DEPRECATED
-XMLPUBFUN const char *
+XMLPUBFUN const char * XMLCALL
 	xmlNanoHTTPMimeType	(void *ctx);
-XML_DEPRECATED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlNanoHTTPRead		(void *ctx,
 				 void *dest,
 				 int len);
 #ifdef LIBXML_OUTPUT_ENABLED
-XML_DEPRECATED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlNanoHTTPSave		(void *ctxt,
 				 const char *filename);
 #endif /* LIBXML_OUTPUT_ENABLED */
-XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlNanoHTTPClose	(void *ctx);
 #ifdef __cplusplus
 }

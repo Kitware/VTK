@@ -34,13 +34,8 @@ int main(int, char* /* argv */[])
   renderWindow->Render();
   toString << renderWindow->ReportCapabilities();
 
-  vtkOutputWindow::GetInstance()->PromptUserOff();
-  vtkOutputWindow::GetInstance()->DisplayText(toString.str().c_str());
   vtkOutputWindow::GetInstance()->PromptUserOn();
-#if defined(_WIN32)
-  vtkOutputWindow::GetInstance()->DisplayText(
-    "See the window titled 'vtkOutputWindow' for OpenGL capabilities found on your machine.");
-#endif
+  vtkOutputWindow::GetInstance()->DisplayText(toString.str().c_str());
 
   return result;
 }

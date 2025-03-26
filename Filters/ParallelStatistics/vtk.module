@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkFiltersParallelStatistics
 KIT
   VTK::Parallel
-DESCRIPTION
-  Filters to compute statistics in distributed-memory parallel environments.
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-BSD-3-Clause-Sandia-USGov
 SPDX_COPYRIGHT_TEXT

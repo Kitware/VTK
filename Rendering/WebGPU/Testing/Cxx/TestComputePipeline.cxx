@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "TestComputePipelineShader.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkWebGPUComputeBuffer.h"
@@ -22,7 +23,7 @@ constexpr int DATA_SIZE = 128;
 
 using OutputDataType = float;
 
-int TestComputePipeline(int, char*[])
+int TestComputePipeline(int argc, char** argv)
 {
   // This first vector will be using a vtkDataArray as its data source
   vtkNew<vtkIntArray> inputVector1Values;
@@ -83,8 +84,7 @@ int TestComputePipeline(int, char*[])
   std::vector<OutputDataType> outputData;
   outputData.resize(::DATA_SIZE);
 
-  auto onBufferMapped = [](const void* mappedData, void* userdata)
-  {
+  auto onBufferMapped = [](const void* mappedData, void* userdata) {
     std::vector<OutputDataType>* out = reinterpret_cast<std::vector<OutputDataType>*>(userdata);
     vtkIdType elementCount = out->size();
 

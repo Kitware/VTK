@@ -5,6 +5,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <cmath>
 

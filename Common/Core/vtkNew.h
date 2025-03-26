@@ -39,13 +39,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectBase;
-class vtkGarbageCollector;
-
-template <class T>
-class vtkNew;
-
-template <class T>
-void vtkGarbageCollectorReport(vtkGarbageCollector* collector, vtkNew<T>& ptr, const char* desc);
 
 template <class T>
 class vtkNew
@@ -164,8 +157,6 @@ public:
 private:
   vtkNew(vtkNew<T> const&) = delete;
   void operator=(vtkNew<T> const&) = delete;
-  friend void vtkGarbageCollectorReport<T>(
-    vtkGarbageCollector* collector, vtkNew<T>& ptr, const char* desc);
   T* Object;
 };
 

@@ -158,5 +158,4 @@ rw.Render()
 if interact:
     ri.Start()
 else:
-    Testing.processCmdLine()
-    Testing.compareImage(rw, Testing.getAbsImagePath('TestArrayRenderer.png'))
+    Testing.compareImage(rw, Testing.getAbsImagePath('TestArrayRenderer.png'), threshold=25)

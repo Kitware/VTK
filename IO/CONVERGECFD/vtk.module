@@ -15,7 +15,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonSystem
   VTK::hdf5
-  VTK::IOHDFTools
+  VTK::IOHDF
   VTK::vtksys
 TEST_DEPENDS
   VTK::TestingCore

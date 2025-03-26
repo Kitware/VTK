@@ -102,6 +102,7 @@ protected:
   static int NumAppInitialized;
 
   Display* DisplayId;
+  bool OwnDisplay = false;
   Window WindowId;
   Atom KillAtom;
   int PositionBeforeStereo[2];
@@ -142,11 +143,6 @@ protected:
    * Wait for new events
    */
   void WaitForEvents();
-
-  /**
-   * Check if a display connection is in use by any windows.
-   */
-  bool CheckDisplayId(Display* dpy);
 
   /**
    * Deallocate X resource that may have been allocated

@@ -23,7 +23,8 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ImagingCore
   VTK::ImagingSources
-  VTK::glad
+  VTK::glew
+  VTK::opengl
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonSystem
@@ -37,4 +38,5 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::opengl
 INCLUDE_MARSHAL

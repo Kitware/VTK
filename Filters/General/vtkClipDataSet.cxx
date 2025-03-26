@@ -392,8 +392,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    auto getCellType = [](vtkGenericCell* gCell, vtkIdType nPts, bool isSameCell)
-    {
+    auto getCellType = [](vtkGenericCell* gCell, vtkIdType nPts, bool isSameCell) {
       if (isSameCell)
       {
         return static_cast<VTKCellType>(gCell->GetCellType());

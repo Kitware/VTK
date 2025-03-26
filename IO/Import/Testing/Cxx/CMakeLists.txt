@@ -68,29 +68,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestOBJImporter-Malformed,TestOBJImporter.cxx,NO_VALID
     DATA{../Data/Input/malformed.obj}
 )
-
-# Test an invalid file
-vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestOBJImporter-Invalid,TestOBJImporter.cxx,NO_VALID
-    DATA{../Data/Input/world_invalid.obj}
-)
-
-# Test an file with an invalid image
-vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporter-Invalid,TestGLTFImporterInvalid.cxx,NO_VALID
-    DATA{../Data/glTF/invalid.gltf}
-    DATA{../Data/glTF/Duck0.bin}
-)
-
 # (vtk/vtk#19097) This test is skipped on wasm architecture.
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten") 
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES PASS_REGULAR_EXPRESSION "Unexpected point indice value")
   set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Malformed PROPERTIES FAIL_REGULAR_EXPRESSION "")
 endif ()
-  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Invalid PROPERTIES PASS_REGULAR_EXPRESSION "Error reading point with index")
-  set_tests_properties(VTK::IOImportCxx-TestOBJImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
-  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES PASS_REGULAR_EXPRESSION "Failed to open file")
-  set_tests_properties(VTK::IOImportCxx-TestGLTFImporter-Invalid PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   TestVRMLImporter.cxx,NO_VALID
@@ -98,33 +80,24 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} -1 1 0 0
+  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   LOOSE_VALID
-  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1 1 0 0
+  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0 1 5 1
+  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1 1 0 2
+  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1 2 0 0
-)
-
-vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} -1 3 0 0
-   DATA{../Data/glTF/Lantern/Lantern.bin}
-   DATA{../Data/glTF/Lantern/Lantern_baseColor.png}
-   DATA{../Data/glTF/Lantern/Lantern_emissive.png}
-   DATA{../Data/glTF/Lantern/Lantern_normal.png}
-   DATA{../Data/glTF/Lantern/Lantern_roughnessMetallic.png}
+  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} -1
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests

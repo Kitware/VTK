@@ -152,8 +152,7 @@ void TransformedTextPDFTest::PaintCell(
   int vJust;
   std::tie(hJust, vJust) = JustArray[justIdx];
 
-  auto scaleToStr = [](double scale) -> std::string
-  {
+  auto scaleToStr = [](double scale) -> std::string {
     if (scale < 0.5)
     {
       return "S";

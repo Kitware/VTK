@@ -1362,10 +1362,7 @@ void vtkPLY::ply_close(PlyFile* plyfile)
       free(const_cast<char*>(elem->props[j]->name));
       free(elem->props[j]);
     }
-    if (elem->nprops > 0)
-    {
-      free(elem->props);
-    }
+    free(elem->props);
     free(elem->store_prop);
     free(elem);
   }

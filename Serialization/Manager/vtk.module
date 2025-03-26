@@ -2,8 +2,6 @@ NAME
   VTK::SerializationManager
 LIBRARY_NAME
   vtkSerializationManager
-DESCRIPTION
-  Manage object serialization and deserialization utilities.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

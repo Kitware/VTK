@@ -14,8 +14,8 @@
 
 #include "vtkRenderingOpenXRModule.h" // For export macro
 #include "vtkVRModel.h"
-
-#include <memory> // for std::unique_ptr
+#include <atomic> // for ivars
+#include <vector> // for ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGOPENXR_EXPORT vtkOpenXRModel : public vtkVRModel
@@ -24,27 +24,26 @@ public:
   static vtkOpenXRModel* New();
   vtkTypeMacro(vtkOpenXRModel, vtkVRModel);
 
-  void SetAssetPath(const std::string& assetPath) { this->AssetPath = assetPath; }
-
-  const std::string& GetAssetPath() { return this->AssetPath; }
-
 protected:
-  vtkOpenXRModel();
-  ~vtkOpenXRModel() override;
+  vtkOpenXRModel() = default;
+  ~vtkOpenXRModel() override = default;
 
   void FillModelHelper() override;
   void SetPositionAndTCoords() override;
   void CreateTextureObject(vtkOpenGLRenderWindow* win) override;
   void LoadModelAndTexture(vtkOpenGLRenderWindow* win) override;
 
-  std::string AssetPath;
+  std::atomic<bool> ModelLoading{ false };
+  std::atomic<bool> ModelLoaded{ false };
+  void AsyncLoad();
+
+  std::vector<float> ModelVBOData;
+  std::vector<uint16_t> ModelIBOData;
+  std::vector<uint8_t> TextureData;
 
 private:
   vtkOpenXRModel(const vtkOpenXRModel&) = delete;
   void operator=(const vtkOpenXRModel&) = delete;
-
-  class vtkInternals;
-  std::unique_ptr<vtkInternals> Internal;
 };
 
 VTK_ABI_NAMESPACE_END

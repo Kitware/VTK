@@ -66,7 +66,6 @@ public:
    * When present on renderer, controls the number of primary rays
    * shot per pixel
    * default is 1
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* SAMPLES_PER_PIXEL();
 
@@ -82,7 +81,6 @@ public:
    * When present on renderer, samples are clamped to this value before they
    * are accumulated into the framebuffer
    * default is 2.0
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* MAX_CONTRIBUTION();
 
@@ -97,7 +95,6 @@ public:
   /**
    * When present on renderer, controls the maximum ray recursion depth
    * default is 20
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* MAX_DEPTH();
 
@@ -113,7 +110,6 @@ public:
    * When present on renderer, sample contributions below this value will be
    * neglected to speedup rendering
    * default is 0.01
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* MIN_CONTRIBUTION();
 
@@ -129,7 +125,6 @@ public:
    * When present on renderer, controls the ray recursion depth at which to
    * start Russian roulette termination
    * default is 5
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ROULETTE_DEPTH();
 
@@ -144,7 +139,6 @@ public:
   /**
    * When present on renderer, controls the threshold for adaptive accumulation
    * default is 0.3
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* VARIANCE_THRESHOLD();
 
@@ -156,35 +150,23 @@ public:
   static double GetVarianceThreshold(vtkRenderer* renderer);
   ///@}
 
-  /**
-   * When present on renderer, controls the number of ospray render calls
-   * for each refresh.
-   * default is 1
-   * \ingroup InformationKeys
-   */
-  static vtkInformationIntegerKey* MAX_FRAMES();
-
   ///@{
   /**
    * When present on renderer, controls the number of ospray render calls
    * for each refresh.
    * default is 1
    */
+  static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer* renderer);
   static int GetMaxFrames(vtkRenderer* renderer);
   ///@}
 
-  /**
-   * Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
-   * default is scivis
-   * \ingroup InformationKeys
-   */
-  static vtkInformationStringKey* RENDERER_TYPE();
   ///@{
   /**
    * Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
    * default is scivis
    */
+  static vtkInformationStringKey* RENDERER_TYPE();
   static void SetRendererType(std::string name, vtkRenderer* renderer);
   static std::string GetRendererType(vtkRenderer* renderer);
   ///@}
@@ -193,7 +175,6 @@ public:
    * When present on renderer, controls the number of ambient occlusion
    * samples shot per hit.
    * default is 4
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* AMBIENT_SAMPLES();
   ///@{
@@ -207,7 +188,6 @@ public:
   /**
    * the rate of sampling for volumes, higher numbers increase
    * the number of samples.  Defaults to 1.0.
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* VOLUME_SAMPLING_RATE();
   ///@{
@@ -221,7 +201,6 @@ public:
   /**
    * used to make the renderer add ospray's content onto GL rendered
    * content on the window
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* COMPOSITE_ON_GL();
   ///@{
@@ -234,7 +213,6 @@ public:
 
   /**
    * World space direction of north pole for gradient and texture background.
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* NORTH_POLE();
   ///@{
@@ -247,7 +225,6 @@ public:
 
   /**
    * World space direction of east pole for texture background.
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* EAST_POLE();
   ///@{
@@ -260,7 +237,6 @@ public:
 
   /**
    * Material Library attached to the renderer.
-   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* MATERIAL_LIBRARY();
 
@@ -274,7 +250,6 @@ public:
 
   /**
    * Requested time to show in a renderer and to lookup in a temporal cache.
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* VIEW_TIME();
   ///@{
@@ -287,7 +262,6 @@ public:
 
   /**
    * Temporal cache size.
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* TIME_CACHE_SIZE();
   ///@{
@@ -333,7 +307,6 @@ public:
 
   /**
    * Accumulation threshold when above which denoising kicks in.
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* DENOISER_THRESHOLD();
   ///@{
@@ -347,7 +320,6 @@ public:
   ///@{
   /**
    * Enable denoising (if supported).
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ENABLE_DENOISER();
   /**

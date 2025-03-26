@@ -43,9 +43,6 @@ class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLRenderWindow : public 
 public:
   vtkTypeMacro(vtkOpenGLRenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-#if !(defined(__APPLE__) || defined(__ANDROID__) || defined(__EMSCRIPTEN__))
-  static vtkOpenGLRenderWindow* New();
-#endif
 
   /**
    * Begin the rendering process.
@@ -248,6 +245,17 @@ public:
   virtual bool IsPointSpriteBugPresent() { return false; }
 
   /**
+   * On `gl_PrimitiveID`, the spec says it is a counter that is incremented after every individual
+   * point, line or triangle primitive is processed. Almost all OpenGL implementations increment the
+   * counter per input primitive type. However, there seems to be a bug in the OpenGL over Metal
+   * used in Apple silicon that overwrites any value that the shader writes into `gl_PrimitiveID`.
+   *
+   * This method returns true if the OpenGL driver has a bug that causes geometry shaders
+   * to ignore writes to the gl_PrimitiveID. It checks the OpenGL vendor string for Apple and Metal.
+   */
+  bool IsPrimIDBugPresent();
+
+  /**
    * Get a mapping of vtk data types to native texture formats for this window
    * we put this on the RenderWindow so that every texture does not have to
    * build these structures themselves
@@ -278,7 +286,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  void Initialize() override {}
+  virtual void Initialize() {}
 
   std::set<vtkGenericOpenGLResourceFreeCallback*> Resources;
 
@@ -480,20 +488,6 @@ public:
     int destX, int destY, int destX2, int destY2);
   ///@}
 
-  typedef void (*VTKOpenGLAPIProc)();
-  typedef VTKOpenGLAPIProc (*VTKOpenGLLoaderFunction)(void* userptr, const char* name);
-  /**
-   * Provide a function pointer which can load OpenGL core/extension functions.
-   * OpenGL proc loader. This is provided by the window system.
-   * Here's a brief listing of possible values.
-   * For glx: glXGetProcAddress
-   * For egl: eglGetProcAddress
-   * For wgl: wglGetProcAddress, if that returned null, implementation will get the function from
-   * opengl32.dll (for gl 1.1 funcs) For osmesa: OSMesaGetProcAddress For cocoa: null, uses dlsym
-   * directly
-   */
-  void SetOpenGLSymbolLoader(VTKOpenGLLoaderFunction loader, void* userData);
-
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -594,6 +588,9 @@ protected:
 
   vtkTextureObject* DrawPixelsTextureObject;
 
+  bool Initialized;   // ensure glewinit has been called
+  bool GlewInitValid; // Did glewInit initialize with a valid state?
+
   float MaximumHardwareLineWidth;
 
   char* Capabilities;
@@ -613,12 +610,6 @@ protected:
   int RenderBufferTargetDepthSize;
 
   int ScreenSize[2];
-
-  struct
-  {
-    VTKOpenGLLoaderFunction LoadFunction = nullptr;
-    void* UserData = nullptr;
-  } SymbolLoader;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

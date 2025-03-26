@@ -468,8 +468,7 @@ void vtkObjectManager::UpdateObjectsFromStates()
   nlohmann::json strongRefStates;
   const auto& states = this->Context->States();
   std::copy_if(states.begin(), states.end(), std::back_inserter(strongRefStates),
-    [](const nlohmann::json& item)
-    {
+    [](const nlohmann::json& item) {
       return item.contains("vtk-object-manager-kept-alive") &&
         item["vtk-object-manager-kept-alive"] == true;
     });
@@ -494,95 +493,21 @@ void vtkObjectManager::UpdateStatesFromObjects()
   this->Context->ResetDirectDependencies();
   // All objects go under the top level root node
   vtkMarshalContext::ScopedParentTracker rootNodeTracker(this->Context, vtkObjectManager::ROOT());
-  // serializes all objects with strong references held by the manager.
-  const auto managerStrongObjectsIter = this->Context->StrongObjects().find(this->OWNERSHIP_KEY());
-  // serializes all objects with strong references held by the deserializer.
-  const auto deserializerOwnershipKey = this->Deserializer->GetObjectDescription();
-  const auto deserStrongObjectsIter = this->Context->StrongObjects().find(deserializerOwnershipKey);
-  if (managerStrongObjectsIter != this->Context->StrongObjects().end())
+  // serializes all objects with strong references.
+  for (const auto& object : this->Context->StrongObjects().at(this->OWNERSHIP_KEY()))
   {
-    for (const auto& object : managerStrongObjectsIter->second)
+    auto stateId = this->Serializer->SerializeJSON(object);
+    auto idIter = stateId.find("Id");
+    if ((idIter != stateId.end()) && idIter->is_number_unsigned())
     {
-      auto stateId = this->Serializer->SerializeJSON(object);
-      auto idIter = stateId.find("Id");
-      if ((idIter != stateId.end()) && idIter->is_number_unsigned())
-      {
-        auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
-        state["vtk-object-manager-kept-alive"] = true;
-      }
-    }
-  }
-  else if (deserStrongObjectsIter != this->Context->StrongObjects().end())
-  {
-    for (const auto& object : deserStrongObjectsIter->second)
-    {
-      this->Serializer->SerializeJSON(object);
+      auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
+      state["vtk-object-manager-kept-alive"] = true;
     }
   }
   // Remove unused states
   this->PruneUnusedStates();
   // Remove unused objects
   this->PruneUnusedObjects();
-}
-
-//------------------------------------------------------------------------------
-void vtkObjectManager::UpdateObjectFromState(const std::string& state)
-{
-  using json = nlohmann::json;
-  auto stateJson = json::parse(state, nullptr, false);
-  if (stateJson.is_discarded())
-  {
-    vtkErrorMacro(<< "Failed to parse state=" << state);
-    return;
-  }
-  const auto identifier = stateJson.at("Id").get<vtkTypeUInt32>();
-  if (!this->Context->RegisterState(std::move(stateJson)))
-  {
-    vtkErrorMacro(<< "Failed to register state=" << state);
-    return;
-  }
-  auto object = this->Context->GetObjectAtId(identifier);
-  if (object)
-  {
-    // clear dependency tree for this object.
-    // This lets the deserializer see that the object is not processed
-    // in the marshalling context.
-    this->Context->ResetDirectDependenciesForNode(identifier);
-  }
-  if (!this->Deserializer->DeserializeJSON(identifier, object))
-  {
-    vtkErrorMacro(<< "Failed to update object at id=" << identifier << " from state=" << state);
-  }
-  else
-  {
-    vtkDebugMacro(<< "Updated object for state at id=" << identifier);
-  }
-}
-
-//------------------------------------------------------------------------------
-void vtkObjectManager::UpdateStateFromObject(vtkTypeUInt32 identifier)
-{
-  if (auto object = this->Context->GetObjectAtId(identifier))
-  {
-    // clear dependency tree for this object.
-    // This lets the serializer see that the object is not processed
-    // in the marshalling context.
-    this->Context->ResetDirectDependenciesForNode(identifier);
-    const auto id = this->Serializer->SerializeJSON(object);
-    if (id.empty())
-    {
-      vtkErrorMacro(<< "Failed to update state for object at id=" << identifier);
-    }
-    else
-    {
-      vtkDebugMacro(<< "Updated state for object at id=" << identifier);
-    }
-  }
-  else
-  {
-    vtkErrorMacro(<< "Cannot update state for object at id=" << identifier
-                  << " because there is no such object!");
-  }
 }
 
 VTK_ABI_NAMESPACE_END

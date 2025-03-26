@@ -184,12 +184,7 @@ int TestGLTFImporterHierarchy(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  if (!importer->Update())
-  {
-    std::cerr << "ERROR: Importer failed to update\n";
-    return EXIT_FAILURE;
-  }
-
+  importer->Update();
   auto hierarchy = importer->GetSceneHierarchy();
   if (hierarchy == nullptr || hierarchy->GetNumberOfChildren(0) == 0)
   {

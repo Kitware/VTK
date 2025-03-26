@@ -11,11 +11,11 @@
 #define __XML_AUTOMATA_H__
 
 #include <libxml/xmlversion.h>
+#include <libxml/tree.h>
 
 #ifdef LIBXML_REGEXP_ENABLED
 #ifdef LIBXML_AUTOMATA_ENABLED
-
-#include <libxml/xmlstring.h>
+#include <libxml/xmlregexp.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,32 +40,32 @@ typedef xmlAutomataState *xmlAutomataStatePtr;
 /*
  * Building API
  */
-XMLPUBFUN xmlAutomataPtr
+XMLPUBFUN xmlAutomataPtr XMLCALL
 		    xmlNewAutomata		(void);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlFreeAutomata		(xmlAutomataPtr am);
 
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataGetInitState	(xmlAutomataPtr am);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlAutomataSetFinalState	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr state);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewState		(xmlAutomataPtr am);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewTransition	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
 						 const xmlChar *token,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewTransition2	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
 						 const xmlChar *token,
 						 const xmlChar *token2,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
                     xmlAutomataNewNegTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
@@ -73,7 +73,7 @@ XMLPUBFUN xmlAutomataStatePtr
 						 const xmlChar *token2,
 						 void *data);
 
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewCountTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
@@ -81,7 +81,7 @@ XMLPUBFUN xmlAutomataStatePtr
 						 int min,
 						 int max,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewCountTrans2	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
@@ -90,7 +90,7 @@ XMLPUBFUN xmlAutomataStatePtr
 						 int min,
 						 int max,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewOnceTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
@@ -98,7 +98,7 @@ XMLPUBFUN xmlAutomataStatePtr
 						 int min,
 						 int max,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewOnceTrans2	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
@@ -107,33 +107,33 @@ XMLPUBFUN xmlAutomataStatePtr
 						 int min,
 						 int max,
 						 void *data);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewAllTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
 						 int lax);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewEpsilon	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewCountedTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
 						 int counter);
-XMLPUBFUN xmlAutomataStatePtr
+XMLPUBFUN xmlAutomataStatePtr XMLCALL
 		    xmlAutomataNewCounterTrans	(xmlAutomataPtr am,
 						 xmlAutomataStatePtr from,
 						 xmlAutomataStatePtr to,
 						 int counter);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlAutomataNewCounter	(xmlAutomataPtr am,
 						 int min,
 						 int max);
 
-XMLPUBFUN struct _xmlRegexp *
+XMLPUBFUN xmlRegexpPtr XMLCALL
 		    xmlAutomataCompile		(xmlAutomataPtr am);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		    xmlAutomataIsDeterminist	(xmlAutomataPtr am);
 
 #ifdef __cplusplus

@@ -49,7 +49,6 @@ public:
   {
   }
 
-  using vtkInternals::Execute;
   bool Execute(vtkDataSet* dataset, vtkSignedCharArray* insidednessArray) override
   {
     const vtkIdType numPoints = dataset->GetNumberOfPoints();

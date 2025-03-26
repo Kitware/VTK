@@ -187,14 +187,12 @@ namespace
 void InvertSelection(vtkSignedCharArray* array)
 {
   const vtkIdType n = array->GetNumberOfTuples();
-  vtkSMPTools::For(0, n,
-    [&array](vtkIdType start, vtkIdType end)
+  vtkSMPTools::For(0, n, [&array](vtkIdType start, vtkIdType end) {
+    for (vtkIdType i = start; i < end; ++i)
     {
-      for (vtkIdType i = start; i < end; ++i)
-      {
-        array->SetValue(i, static_cast<signed char>(array->GetValue(i) * -1 + 1));
-      }
-    });
+      array->SetValue(i, static_cast<signed char>(array->GetValue(i) * -1 + 1));
+    }
+  });
 }
 
 //----------------------------------------------------------------------------
@@ -752,8 +750,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     vtkNew<vtkBitArray> mask;
     mask->SetNumberOfComponents(1);
     mask->SetNumberOfTuples(insidednessArray->GetNumberOfTuples());
-    auto masking = [&mask, &insidednessArray](vtkIdType begin, vtkIdType end)
-    {
+    auto masking = [&mask, &insidednessArray](vtkIdType begin, vtkIdType end) {
       for (vtkIdType iMask = begin; iMask < end; ++iMask)
       {
         mask->SetValue(iMask, static_cast<int>(insidednessArray->GetValue(iMask) == 0));
@@ -767,8 +764,7 @@ vtkSmartPointer<vtkDataObject> vtkExtractSelection::ExtractElements(vtkDataObjec
     if (htg->HasMask())
     {
       auto originalMask = htg->GetMask();
-      auto maskOring = [&mask, &originalMask](vtkIdType begin, vtkIdType end)
-      {
+      auto maskOring = [&mask, &originalMask](vtkIdType begin, vtkIdType end) {
         for (vtkIdType iMask = begin; iMask < end; ++iMask)
         {
           if (originalMask->GetValue(iMask))
@@ -902,28 +898,24 @@ void vtkExtractSelection::ExtractSelectedCells(
   originalPointIds->SetNumberOfComponents(1);
   originalPointIds->SetName("vtkOriginalPointIds");
   originalPointIds->SetNumberOfTuples(numPts);
-  vtkSMPTools::For(0, numPts,
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType ptId = begin; ptId < end; ++ptId)
     {
-      for (vtkIdType ptId = begin; ptId < end; ++ptId)
-      {
-        originalPointIds->SetValue(ptId, ptId);
-      }
-    });
+      originalPointIds->SetValue(ptId, ptId);
+    }
+  });
   input->GetPointData()->AddArray(originalPointIds);
 
   vtkNew<vtkIdTypeArray> originalCellIds;
   originalCellIds->SetNumberOfComponents(1);
   originalCellIds->SetName("vtkOriginalCellIds");
   originalCellIds->SetNumberOfTuples(numCells);
-  vtkSMPTools::For(0, numCells,
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType cellId = begin; cellId < end; ++cellId)
     {
-      for (vtkIdType cellId = begin; cellId < end; ++cellId)
-      {
-        originalCellIds->SetValue(cellId, cellId);
-      }
-    });
+      originalCellIds->SetValue(cellId, cellId);
+    }
+  });
   input->GetCellData()->AddArray(originalCellIds);
 
   vtkNew<vtkExtractCells> extractor;
@@ -1007,31 +999,27 @@ void vtkExtractSelection::ExtractSelectedPoints(
     const vtkIdType numNewPts = ids->GetNumberOfIds();
     // copy points
     newPts->SetNumberOfPoints(numNewPts);
-    vtkSMPTools::For(0, numNewPts,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
+      double point[3];
+      auto idsPtr = ids->GetPointer(0);
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
       {
-        double point[3];
-        auto idsPtr = ids->GetPointer(0);
-        for (vtkIdType ptId = begin; ptId < end; ++ptId)
-        {
-          input->GetPoint(idsPtr[ptId], point);
-          newPts->SetPoint(ptId, point);
-        }
-      });
+        input->GetPoint(idsPtr[ptId], point);
+        newPts->SetPoint(ptId, point);
+      }
+    });
     // copy point data
     outputPD->SetNumberOfTuples(numNewPts);
     outputPD->CopyData(pd, ids);
     // set original point ids
     originalPointIds->SetNumberOfTuples(numNewPts);
-    vtkSMPTools::For(0, numNewPts,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numNewPts, [&](vtkIdType begin, vtkIdType end) {
+      auto idsPtr = ids->GetPointer(0);
+      for (vtkIdType ptId = begin; ptId < end; ++ptId)
       {
-        auto idsPtr = ids->GetPointer(0);
-        for (vtkIdType ptId = begin; ptId < end; ++ptId)
-        {
-          originalPointIds->SetValue(ptId, idsPtr[ptId]);
-        }
-      });
+        originalPointIds->SetValue(ptId, idsPtr[ptId]);
+      }
+    });
   }
   else
   {
@@ -1043,29 +1031,25 @@ void vtkExtractSelection::ExtractSelectedPoints(
     else
     {
       newPts->SetNumberOfPoints(numPts);
-      vtkSMPTools::For(0, numPts,
-        [&](vtkIdType beginPtId, vtkIdType endPtId)
+      vtkSMPTools::For(0, numPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+        double x[3];
+        for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
         {
-          double x[3];
-          for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
-          {
-            input->GetPoint(ptId, x);
-            newPts->SetPoint(ptId, x);
-          }
-        });
+          input->GetPoint(ptId, x);
+          newPts->SetPoint(ptId, x);
+        }
+      });
     }
     // copy point data
     outputPD->PassData(pd);
     // set original point ids
     originalPointIds->SetNumberOfTuples(numPts);
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType beginPtId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+      for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
       {
-        for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
-        {
-          originalPointIds->SetValue(ptId, ptId);
-        }
-      });
+        originalPointIds->SetValue(ptId, ptId);
+      }
+    });
   }
   output->SetPoints(newPts);
 
@@ -1074,25 +1058,21 @@ void vtkExtractSelection::ExtractSelectedPoints(
   // create connectivity array
   vtkNew<vtkIdTypeArray> connectivity;
   connectivity->SetNumberOfValues(newNumPts);
-  vtkSMPTools::For(0, newNumPts,
-    [&](vtkIdType beginPtId, vtkIdType endPtId)
+  vtkSMPTools::For(0, newNumPts, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+    for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
     {
-      for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
-      {
-        connectivity->SetValue(ptId, ptId);
-      }
-    });
+      connectivity->SetValue(ptId, ptId);
+    }
+  });
   // create offsets array
   vtkNew<vtkIdTypeArray> offsets;
   offsets->SetNumberOfValues(newNumPts + 1);
-  vtkSMPTools::For(0, newNumPts + 1,
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, newNumPts + 1, [&](vtkIdType begin, vtkIdType end) {
+    for (vtkIdType i = begin; i < end; i++)
     {
-      for (vtkIdType i = begin; i < end; i++)
-      {
-        offsets->SetValue(i, i);
-      }
-    });
+      offsets->SetValue(i, i);
+    }
+  });
   // create cell array
   vtkNew<vtkCellArray> cells;
   cells->SetData(offsets, connectivity);
@@ -1135,14 +1115,12 @@ void vtkExtractSelection::ExtractSelectedRows(
   {
     output->ShallowCopy(input);
     originalRowIds->SetNumberOfTuples(numRows);
-    vtkSMPTools::For(0, numRows,
-      [&](vtkIdType beginRowId, vtkIdType endRowId)
+    vtkSMPTools::For(0, numRows, [&](vtkIdType beginRowId, vtkIdType endRowId) {
+      for (vtkIdType rowId = beginRowId; rowId < endRowId; ++rowId)
       {
-        for (vtkIdType rowId = beginRowId; rowId < endRowId; ++rowId)
-        {
-          originalRowIds->SetValue(rowId, rowId);
-        }
-      });
+        originalRowIds->SetValue(rowId, rowId);
+      }
+    });
   }
   output->AddColumn(originalRowIds);
 }

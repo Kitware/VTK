@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkTestingRendering
 GROUPS
   Rendering
-DESCRIPTION
-  Utilities for testing VTK by rendering and image comparison.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

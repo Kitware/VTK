@@ -127,173 +127,153 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkMultiBlockDataSet* output =
     vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkMultiBlockDataSet::DATA_OBJECT()));
 
-  if (this->Zones.empty())
-  {
-    // Set up a default block
-    Zone zone;
-    zone.name = "default";
-    zone.type = "default";
-
-    this->Zones.push_back(zone);
-  }
-
-  // zone ID -> block idx lookup map
-  std::vector<size_t> zoneIDToBlockIdx(this->Zones.size());
-
-  // fast access to block UGs to avoid unecessary SafeDowncast while looping over cells/faces
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> blockUGs(this->Zones.size());
-
-  // Create a block per zone
-  output->SetNumberOfBlocks(static_cast<int>(this->Zones.size()));
-  for (unsigned int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
-  {
-    const auto& zone = this->Zones[zoneIdx];
-    std::string blockName = zone.type + ":" + zone.name;
-
-    auto& blockUG = blockUGs[zoneIdx];
-    blockUG.TakeReference(vtkUnstructuredGrid::New());
-
-    blockUG->SetPoints(this->Points);
-
-    output->SetBlock(zoneIdx, blockUG);
-    output->GetMetaData(zoneIdx)->Set(vtkCompositeDataSet::NAME(), blockName);
-
-    // Populate lookup map
-    if (zone.id >= zoneIDToBlockIdx.size())
-    {
-      zoneIDToBlockIdx.resize(zone.id + 1);
-    }
-    zoneIDToBlockIdx[zone.id] = zoneIdx;
-  }
-
   // When reading a FLUENT Mesh file, we may encounter mesh that only contains faces.
-  // In this case, we generate a multiblock using the faces informations so we can
+  // In this case, we generate a single block multiblock using the faces informations so we can
   // still display the surface of this mesh.
   if (this->Cells.empty() && !this->Faces.empty() && this->Points->GetNumberOfPoints() > 0)
   {
-    this->FillMultiBlockFromFaces(blockUGs, zoneIDToBlockIdx);
+    this->FillMultiBlockFromFaces(output);
+    return 1;
   }
-  else
-  { // Populate output cells
-    vtkNew<vtkTriangle> triangleBuffer;
-    vtkNew<vtkTetra> tetraBuffer;
-    vtkNew<vtkQuad> quadBuffer;
-    vtkNew<vtkHexahedron> hexahedronBuffer;
-    vtkNew<vtkPyramid> pyramidBuffer;
-    vtkNew<vtkWedge> wedgeBuffer;
-    vtkNew<vtkConvexPointSet> convexPointSetBuffer;
 
-    for (const Cell& cell : this->Cells)
+  // Generate zone ids -> array idx lookup map
+  std::vector<size_t> zoneIDToIdx(this->Zones.size());
+  for (size_t zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
+  {
+    const auto& zone = this->Zones[zoneIdx];
+    if (zone.id >= zoneIDToIdx.size())
     {
-      vtkIdList* newCellPointIDs = nullptr;
-      int newCellType = -1;
+      zoneIDToIdx.resize(zone.id + 1);
+    }
+    zoneIDToIdx[zone.id] = zoneIdx;
+  }
 
-      switch (cell.type)
-      {
-        case 1:
-          for (int j = 0; j < 3; j++)
-          {
-            triangleBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
-          newCellPointIDs = triangleBuffer->GetPointIds();
-          newCellType = triangleBuffer->GetCellType();
-          break;
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>> grid;
+  grid.resize(this->Zones.size());
+  for (size_t zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
+  {
+    grid[zoneIdx] = vtkUnstructuredGrid::New();
+  }
 
-        case 2:
-          for (int j = 0; j < 4; j++)
-          {
-            tetraBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
+  vtkNew<vtkTriangle> triangleBuffer;
+  vtkNew<vtkTetra> tetraBuffer;
+  vtkNew<vtkQuad> quadBuffer;
+  vtkNew<vtkHexahedron> hexahedronBuffer;
+  vtkNew<vtkPyramid> pyramidBuffer;
+  vtkNew<vtkWedge> wedgeBuffer;
+  vtkNew<vtkConvexPointSet> convexPointSetBuffer;
 
-          newCellPointIDs = tetraBuffer->GetPointIds();
-          newCellType = tetraBuffer->GetCellType();
-          break;
+  for (const Cell& cell : this->Cells)
+  {
+    vtkIdList* newCellPointIDs = nullptr;
+    int newCellType = -1;
 
-        case 3:
-          for (int j = 0; j < 4; j++)
-          {
-            quadBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
-          newCellPointIDs = quadBuffer->GetPointIds();
-          newCellType = quadBuffer->GetCellType();
-          break;
+    switch (cell.type)
+    {
+      case 1:
+        for (int j = 0; j < 3; j++)
+        {
+          triangleBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
+        newCellPointIDs = triangleBuffer->GetPointIds();
+        newCellType = triangleBuffer->GetCellType();
+        break;
 
-        case 4:
-          for (int j = 0; j < 8; j++)
-          {
-            hexahedronBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
-          newCellPointIDs = hexahedronBuffer->GetPointIds();
-          newCellType = hexahedronBuffer->GetCellType();
-          break;
+      case 2:
+        for (int j = 0; j < 4; j++)
+        {
+          tetraBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
 
-        case 5:
-          for (int j = 0; j < 5; j++)
-          {
-            pyramidBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
-          newCellPointIDs = pyramidBuffer->GetPointIds();
-          newCellType = pyramidBuffer->GetCellType();
-          break;
+        newCellPointIDs = tetraBuffer->GetPointIds();
+        newCellType = tetraBuffer->GetCellType();
+        break;
 
-        case 6:
-          for (int j = 0; j < 6; j++)
-          {
-            wedgeBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
-          }
-          newCellPointIDs = wedgeBuffer->GetPointIds();
-          newCellType = wedgeBuffer->GetCellType();
-          break;
+      case 3:
+        for (int j = 0; j < 4; j++)
+        {
+          quadBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
+        newCellPointIDs = quadBuffer->GetPointIds();
+        newCellType = quadBuffer->GetCellType();
+        break;
 
-        case 7:
-          convexPointSetBuffer->GetPointIds()->SetNumberOfIds(
-            static_cast<vtkIdType>(cell.nodeIndices.size()));
-          for (size_t j = 0; j < cell.nodeIndices.size(); j++)
-          {
-            convexPointSetBuffer->GetPointIds()->SetId(
-              static_cast<vtkIdType>(j), cell.nodeIndices[j]);
-          }
-          newCellPointIDs = convexPointSetBuffer->GetPointIds();
-          newCellType = convexPointSetBuffer->GetCellType();
-          break;
+      case 4:
+        for (int j = 0; j < 8; j++)
+        {
+          hexahedronBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
+        newCellPointIDs = hexahedronBuffer->GetPointIds();
+        newCellType = hexahedronBuffer->GetCellType();
+        break;
 
-        default:
-          vtkErrorMacro("Error parsing file");
-          break;
-      }
+      case 5:
+        for (int j = 0; j < 5; j++)
+        {
+          pyramidBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
+        newCellPointIDs = pyramidBuffer->GetPointIds();
+        newCellType = pyramidBuffer->GetCellType();
+        break;
 
-      // Insert main cell
-      size_t blockIdx = zoneIDToBlockIdx[cell.zoneId];
-      blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
+      case 6:
+        for (int j = 0; j < 6; j++)
+        {
+          wedgeBuffer->GetPointIds()->SetId(j, cell.nodeIndices[j]);
+        }
+        newCellPointIDs = wedgeBuffer->GetPointIds();
+        newCellType = wedgeBuffer->GetCellType();
+        break;
 
-      // Insert faces cells
-      for (int faceIdx : cell.faceIndices)
-      {
-        const Face& face = this->Faces[faceIdx];
-        blockIdx = zoneIDToBlockIdx[face.zoneId];
-        blockUGs[blockIdx]->InsertNextCell(newCellType, newCellPointIDs);
-      }
+      case 7:
+        convexPointSetBuffer->GetPointIds()->SetNumberOfIds(
+          static_cast<vtkIdType>(cell.nodeIndices.size()));
+        for (size_t j = 0; j < cell.nodeIndices.size(); j++)
+        {
+          convexPointSetBuffer->GetPointIds()->SetId(
+            static_cast<vtkIdType>(j), cell.nodeIndices[j]);
+        }
+        newCellPointIDs = convexPointSetBuffer->GetPointIds();
+        newCellType = convexPointSetBuffer->GetCellType();
+        break;
+
+      default:
+        vtkErrorMacro("Error parsing file");
+        break;
+    }
+
+    // Insert main cell
+    size_t zoneIdx = zoneIDToIdx[cell.zoneId];
+    grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
+
+    // Insert faces cells
+    for (int faceIdx : cell.faceIndices)
+    {
+      const Face& face = this->Faces[faceIdx];
+      zoneIdx = zoneIDToIdx[face.zoneId];
+      grid[zoneIdx]->InsertNextCell(newCellType, newCellPointIDs);
     }
   }
 
   // Scalar Data
   for (const ScalarDataChunk& dataChunk : this->ScalarDataChunks)
   {
-    vtkNew<vtkDoubleArray> array;
+    vtkDoubleArray* array = vtkDoubleArray::New();
     for (size_t m = 0; m < dataChunk.scalarData.size(); m++)
     {
       array->InsertValue(static_cast<vtkIdType>(m), dataChunk.scalarData[m]);
     }
 
     array->SetName(this->VariableNames[dataChunk.subsectionId].c_str());
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneId];
-    blockUGs[blockIdx]->GetCellData()->AddArray(array);
+    size_t zoneIdx = zoneIDToIdx[dataChunk.zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(array);
+    array->Delete();
   }
 
   // Vector Data
   for (const VectorDataChunk& dataChunk : this->VectorDataChunks)
   {
-    vtkNew<vtkDoubleArray> array;
+    vtkDoubleArray* array = vtkDoubleArray::New();
     array->SetNumberOfComponents(3);
     for (size_t m = 0; m < dataChunk.iComponentData.size(); m++)
     {
@@ -303,8 +283,22 @@ int vtkFLUENTReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     array->SetName(this->VariableNames[dataChunk.subsectionId].c_str());
-    size_t blockIdx = zoneIDToBlockIdx[dataChunk.zoneId];
-    blockUGs[blockIdx]->GetCellData()->AddArray(array);
+    size_t zoneIdx = zoneIDToIdx[dataChunk.zoneId];
+    grid[zoneIdx]->GetCellData()->AddArray(array);
+    array->Delete();
+  }
+
+  output->SetNumberOfBlocks(static_cast<int>(this->Zones.size()));
+  for (unsigned int zoneIdx = 0; zoneIdx < this->Zones.size(); ++zoneIdx)
+  {
+    const auto& zone = this->Zones[zoneIdx];
+    std::string blockName = zone.type + ":" + zone.name;
+
+    output->SetBlock(zoneIdx, grid[zoneIdx]);
+    output->GetMetaData(zoneIdx)->Set(vtkCompositeDataSet::NAME(), blockName);
+
+    grid[zoneIdx]->SetPoints(Points);
+    grid[zoneIdx]->Delete();
   }
 
   // We need to keep the file data in memory for now to avoid re-parsing on each RequestData call
@@ -3161,8 +3155,7 @@ void vtkFLUENTReader::PopulateCellNodes()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 {
-  union mix_i
-  {
+  union mix_i {
     int i;
     char c[4];
   } mi = { 1 };
@@ -3184,8 +3177,7 @@ int vtkFLUENTReader::GetCaseBufferInt(int ptr)
 //------------------------------------------------------------------------------
 float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 {
-  union mix_f
-  {
+  union mix_f {
     float f;
     char c[4];
   } mf = { 1.0 };
@@ -3207,8 +3199,7 @@ float vtkFLUENTReader::GetCaseBufferFloat(int ptr)
 //------------------------------------------------------------------------------
 double vtkFLUENTReader::GetCaseBufferDouble(int ptr)
 {
-  union mix_i
-  {
+  union mix_i {
     double d;
     char c[8];
   } md = { 1.0 };
@@ -3847,8 +3838,7 @@ void vtkFLUENTReader::ParseDataFile()
 //------------------------------------------------------------------------------
 int vtkFLUENTReader::GetDataBufferInt(int ptr)
 {
-  union mix_i
-  {
+  union mix_i {
     int i;
     char c[4];
   } mi = { 1 };
@@ -3870,8 +3860,7 @@ int vtkFLUENTReader::GetDataBufferInt(int ptr)
 //------------------------------------------------------------------------------
 float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 {
-  union mix_f
-  {
+  union mix_f {
     float f;
     char c[4];
   } mf = { 1.0 };
@@ -3893,8 +3882,7 @@ float vtkFLUENTReader::GetDataBufferFloat(int ptr)
 //------------------------------------------------------------------------------
 double vtkFLUENTReader::GetDataBufferDouble(int ptr)
 {
-  union mix_i
-  {
+  union mix_i {
     double d;
     char c[8];
   } md = { 1.0 };
@@ -4094,7 +4082,6 @@ const char* vtkFLUENTReader::GetDataByteOrderAsString()
   }
 #endif
 }
-
 //------------------------------------------------------------------------------
 void vtkFLUENTReader::GetSpeciesVariableNames()
 {
@@ -4132,17 +4119,16 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
 }
 
 //------------------------------------------------------------------------------
-void vtkFLUENTReader::FillMultiBlockFromFaces(
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& blockUGs,
-  const std::vector<size_t>& zoneIDToBlockIdx)
+void vtkFLUENTReader::FillMultiBlockFromFaces(vtkMultiBlockDataSet* output)
 {
+  vtkNew<vtkUnstructuredGrid> block;
+  block->SetPoints(this->Points);
+
   vtkNew<vtkTriangle> triangleBuffer;
   vtkNew<vtkTetra> tetraBuffer;
   for (size_t i = 0; i < this->Faces.size(); ++i)
   {
     auto& face = this->Faces[i];
-    auto blockIdx = zoneIDToBlockIdx[face.zoneId];
-    auto& blockUG = blockUGs[blockIdx];
 
     if (face.type == 3)
     {
@@ -4151,7 +4137,7 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
         triangleBuffer->GetPointIds()->SetId(j, face.nodeIndices[j]);
       }
 
-      blockUG->InsertNextCell(triangleBuffer->GetCellType(), triangleBuffer->GetPointIds());
+      block->InsertNextCell(triangleBuffer->GetCellType(), triangleBuffer->GetPointIds());
     }
 
     else if (face.type == 4)
@@ -4161,9 +4147,12 @@ void vtkFLUENTReader::FillMultiBlockFromFaces(
         tetraBuffer->GetPointIds()->SetId(j, face.nodeIndices[j]);
       }
 
-      blockUG->InsertNextCell(tetraBuffer->GetCellType(), tetraBuffer->GetPointIds());
+      block->InsertNextCell(tetraBuffer->GetCellType(), tetraBuffer->GetPointIds());
     }
   }
+
+  output->SetNumberOfBlocks(1);
+  output->SetBlock(0, block);
 }
 
 VTK_ABI_NAMESPACE_END

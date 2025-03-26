@@ -16,6 +16,7 @@
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPIController.h"

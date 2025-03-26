@@ -896,11 +896,7 @@ int vtkGLTFReader::RequestData(
     {
       if (this->AnimationSelection->GetArraySetting(i))
       {
-        if (!this->Loader->ApplyAnimation(time, i))
-        {
-          vtkErrorMacro("Error applying animation");
-          return 0;
-        }
+        this->Loader->ApplyAnimation(time, i);
       }
       else if (this->PreviousAnimationSelection->GetArraySetting(i))
       {

@@ -330,7 +330,7 @@ struct SpaceNoExponent : seq<SpaceBase, SpaceHalfspace>
 
 struct SpaceGrammar
   : must<sor<seq<SpaceBase, SpaceExp, SpaceHalfspace>, seq<SpaceBase, SpaceExp>, SpaceNoExponent>,
-      tao::pegtl::eof>
+      eof>
 {
 };
 

@@ -21,12 +21,11 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderTimerLog.h"
 #include "vtkRenderWindow.h"
-#include "vtkRendererCollection.h"
 #include "vtkRendererDelegate.h"
 #include "vtkSelectionNode.h"
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <sstream>
 
@@ -1480,62 +1479,38 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow* renwin)
 // Given a pixel location, return the Z value
 double vtkRenderer::GetZ(int x, int y)
 {
-  int* size = this->GetSize();
-  if (x < 0 || y < 0 || x > size[0] || y > size[1])
+  double z = 1.0;
+
+  // use a hardware selector because calling this->RenderWindow->
+  // GetZbufferData(int,int,int,int) directly from here always
+  // results in a z-buffer value of 1.0, meaning it is using a
+  // cleared depth buffer.
   {
-    return 1.0; // outside of renderer
-  }
+    vtkNew<vtkHardwareSelector> hsel;
+    hsel->SetActorPassOnly(true);
+    hsel->SetCaptureZValues(true);
+    hsel->SetRenderer(this);
+    hsel->SetArea(x, y, x, y);
+    vtkSmartPointer<vtkSelection> sel;
+    sel.TakeReference(hsel->Select());
 
-  if (!this->SafeGetZ)
-  {
-    // Assume depth buffer is valid and up to date
-    return this->RenderWindow->GetZbufferDataAtPoint(x, y);
-  }
-
-  // Skip volumes because we are only interested in Z-buffer values that are not updated by volumes
-  vtkNew<vtkPropCollection> propsList;
-  this->PickFromProps = propsList;
-
-  vtkCollectionSimpleIterator pit;
-  this->Props->InitTraversal(pit);
-  for (vtkProp* prop = this->Props->GetNextProp(pit); prop; prop = this->Props->GetNextProp(pit))
-  {
-    prop->GetActors(PickFromProps);
-    prop->GetActors2D(PickFromProps);
-  }
-
-  // Use a hardware selector because calling
-  // this->RenderWindow->GetZbufferData when having multiple renderers always
-  // results in a z-buffer value from the last renderered renderer
-  vtkNew<vtkHardwareSelector> hsel;
-  hsel->SetActorPassOnly(true);
-  hsel->SetCaptureZValues(true);
-  hsel->SetRenderer(this);
-  hsel->SetArea(static_cast<unsigned int>(x), static_cast<unsigned int>(y),
-    static_cast<unsigned int>(x), static_cast<unsigned int>(y));
-  vtkSmartPointer<vtkSelection> sel;
-  sel.TakeReference(hsel->Select());
-
-  // Reset pick list
-  this->PickFromProps = nullptr;
-
-  // find the closest z-buffer value
-  if (sel && sel->GetNode(0))
-  {
-    double closestDepth = 1.0;
-    unsigned int numPicked = sel->GetNumberOfNodes();
-    for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
+    // find the closest z-buffer value
+    if (sel && sel->GetNode(0))
     {
-      vtkSelectionNode* selnode = sel->GetNode(pIdx);
-      double adepth = selnode->GetProperties()->Get(vtkSelectionNode::ZBUFFER_VALUE());
-      if (adepth < closestDepth)
-        closestDepth = adepth;
+      double closestDepth = 1.0;
+      unsigned int numPicked = sel->GetNumberOfNodes();
+      for (unsigned int pIdx = 0; pIdx < numPicked; pIdx++)
+      {
+        vtkSelectionNode* selnode = sel->GetNode(pIdx);
+        double adepth = selnode->GetProperties()->Get(vtkSelectionNode::ZBUFFER_VALUE());
+        if (adepth < closestDepth)
+          closestDepth = adepth;
+      }
+      z = closestDepth;
     }
-
-    return closestDepth;
   }
 
-  return 1.0; // nothing selected
+  return z;
 }
 
 // Convert view point coordinates to world coordinates.

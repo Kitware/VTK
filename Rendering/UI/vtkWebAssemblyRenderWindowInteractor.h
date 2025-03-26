@@ -4,14 +4,13 @@
  * @class   vtkWebAssemblyRenderWindowInteractor
  * @brief   Handles user interaction in web browsers.
  *
- * The interactor intercepts user interaction events from a HTML page in a web browser
- * and sends them to VTK using the Emscripten HTML5 C API.
+ * The class is implemented using SDL2 and emscripten APIs.
+ * The SDL2 library is an implementation detail and may be changed
+ * in the future to use WASI or other APIs.
  *
  * Contrary to the documentation of `Start`, this interactor's event loop
- * can be configured to not block in order to return control to the browser so that it can render
- * graphics, UI, etc. See
- * https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop See
- * vtkRenderWindowInteractor::InteractorManagesTheEventLoop
+ * does not block in order to return control to the browser so that it can render graphics, UI, etc.
+ * See https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
  */
 
 #ifndef vtkWebAssemblyRenderWindowInteractor_h
@@ -24,9 +23,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
-#include <memory>                 // for shared_ptr
+#include <deque>                  // for ivar
+#include <map>                    // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkEmscriptenEventHandler;
 
 class VTKRENDERINGUI_EXPORT VTK_MARSHALAUTO vtkWebAssemblyRenderWindowInteractor
   : public vtkRenderWindowInteractor
@@ -67,8 +68,8 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasSelector);
-  virtual void SetCanvasSelector(const char* value);
+  vtkGetStringMacro(CanvasId);
+  vtkSetStringMacro(CanvasId);
 
   /**
    * When true (default), the style of the parent element of canvas will be adjusted
@@ -77,6 +78,12 @@ public:
   vtkGetMacro(ExpandCanvasToContainer, bool);
   vtkSetMacro(ExpandCanvasToContainer, bool);
   vtkBooleanMacro(ExpandCanvasToContainer, bool);
+
+  struct TimerBridgeData
+  {
+    std::shared_ptr<vtkEmscriptenEventHandler> Handler;
+    int TimerId;
+  };
 
   /**
    * When true (default), a JavaScript `ResizeObserver` is installed on the parent element of
@@ -91,20 +98,18 @@ protected:
   vtkWebAssemblyRenderWindowInteractor();
   ~vtkWebAssemblyRenderWindowInteractor() override;
 
-  ///@{
-  /**
-   * Register/UnRegister callback functions for all recognized events on the document.
-   * This function calls `emscripten_set_xyz_callback_on_thread` with the `CanvasSelector` as the
-   * target and the thread parameter equal to EM_CALLBACK_THREAD_CONTEXT_MAIN_RUNTIME_THREAD.
-   *
-   * Basically, the pumping process works like this, events are received on the main UI thread into
-   * a queue. The event is then processed during the next `requestAnimationFrame` call.
-   */
-  void RegisterUICallbacks();
-  void UnRegisterUICallbacks();
-  ///@}
+  using EventType = int;
+  using EventData = const void*;
+  struct Event
+  {
+    EventType Type;
+    EventData Data;
+  };
+  std::deque<Event> Events;
 
-  void ProcessEvent(int type, const std::uint8_t* event);
+  std::map<int, TimerBridgeData> Timers;
+
+  bool ProcessEvent(Event* event);
 
   ///@{
   /**
@@ -117,12 +122,14 @@ protected:
   int InternalDestroyTimer(int platformTimerId) override;
   ///@}
 
+  std::map<int, int> VTKToPlatformTimerMap;
+
   /**
    * This will start up the event loop without blocking the main thread.
    */
   void StartEventLoop() override;
 
-  char* CanvasSelector = nullptr;
+  char* CanvasId = nullptr;
   bool ExpandCanvasToContainer;
   bool InstallHTMLResizeObserver;
 
@@ -130,9 +137,13 @@ private:
   vtkWebAssemblyRenderWindowInteractor(const vtkWebAssemblyRenderWindowInteractor&) = delete;
   void operator=(const vtkWebAssemblyRenderWindowInteractor&) = delete;
 
-  friend class vtkInternals;
-  class vtkInternals;
-  std::shared_ptr<vtkInternals> Internals; // the pointer is also shared with timer's callback data.
+  bool StartedMessageLoop = false;
+  bool ResizeObserverInstalled = false;
+
+  friend class vtkEmscriptenEventHandler;
+  std::shared_ptr<vtkEmscriptenEventHandler> Handler;
+
+  int RepeatCounter = 0;
 };
 
 extern "C"

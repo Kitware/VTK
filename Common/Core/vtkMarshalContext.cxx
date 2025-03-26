@@ -188,21 +188,7 @@ bool vtkMarshalContext::RegisterObject(vtkObjectBase* objectBase, vtkTypeUInt32&
   {
     identifier = this->MakeId();
   }
-  else
-  {
-    // bump the counter so that newer calls to `MakeId` doesn't give out already used identifiers.
-    this->Internals->UniqueId = std::max(this->Internals->UniqueId, identifier);
-  }
-  auto objectIter = internals.WeakObjects.find(identifier);
-  if (objectIter == internals.WeakObjects.end())
-  {
-    return internals.WeakObjects.emplace(identifier, objectBase).second;
-  }
-  else
-  {
-    objectIter->second = objectBase;
-    return true;
-  }
+  return internals.WeakObjects.emplace(identifier, objectBase).second;
 }
 
 //------------------------------------------------------------------------------
@@ -228,8 +214,9 @@ vtkTypeUInt32 vtkMarshalContext::GetId(vtkObjectBase* objectBase) const
 {
   auto& internals = (*this->Internals);
   auto objectIter = std::find_if(internals.WeakObjects.begin(), internals.WeakObjects.end(),
-    [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item)
-    { return item.second == objectBase; });
+    [objectBase](const std::pair<const vtkTypeUInt32, vtkWeakPointer<vtkObjectBase>>& item) {
+      return item.second == objectBase;
+    });
   if (objectIter != internals.WeakObjects.end())
   {
     return objectIter->first;
@@ -307,12 +294,6 @@ std::vector<vtkTypeUInt32> vtkMarshalContext::GetDirectDependencies(vtkTypeUInt3
 void vtkMarshalContext::ResetDirectDependencies()
 {
   this->Internals->Tree.clear();
-}
-
-//------------------------------------------------------------------------------
-void vtkMarshalContext::ResetDirectDependenciesForNode(vtkTypeUInt32 identifier)
-{
-  this->Internals->Tree.erase(identifier);
 }
 
 //------------------------------------------------------------------------------

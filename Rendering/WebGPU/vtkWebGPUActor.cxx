@@ -9,7 +9,6 @@
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkWebGPUComputePointCloudMapper.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 #include "vtkWindow.h"
@@ -118,21 +117,6 @@ wgpu::RenderBundle vtkWebGPUActor::RenderToBundle(vtkRenderer* ren, vtkMapper* m
   auto bundle = this->CurrentBundler.Finish();
   this->CurrentBundler = nullptr;
   return bundle;
-}
-
-//------------------------------------------------------------------------------
-bool vtkWebGPUActor::SupportRenderBundles()
-{
-  vtkWebGPUComputePointCloudMapper* pointCloudMapper =
-    vtkWebGPUComputePointCloudMapper::SafeDownCast(this->GetMapper());
-  if (pointCloudMapper != nullptr)
-  {
-    // This actor is using the point cloud mapper which doesn't support render bundles.
-    return false;
-  }
-
-  // Assuming that any other mapper supports render bundles
-  return true;
 }
 
 //------------------------------------------------------------------------------

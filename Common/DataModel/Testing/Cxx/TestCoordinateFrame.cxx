@@ -9,6 +9,7 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <cmath>
 #include <limits>

@@ -512,39 +512,37 @@ void vtkHull::ComputePlaneDistances(vtkPointSet* input)
   // For all other vertices in the geometry, check if it produces a larger
   // D value for each of the planes. Threaded because for larger models,
   // looping over all the points for each plane can be a lot of work.
-  vtkSMPTools::For(1, numPts,
-    [&](vtkIdType ptId, vtkIdType endPtId)
+  vtkSMPTools::For(1, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+    bool isFirst = vtkSMPTools::GetSingleThread();
+    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+    for (; ptId < endPtId; ++ptId)
     {
-      bool isFirst = vtkSMPTools::GetSingleThread();
-      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-      for (; ptId < endPtId; ++ptId)
+      if (ptId % checkAbortInterval == 0)
       {
-        if (ptId % checkAbortInterval == 0)
+        if (isFirst)
         {
-          if (isFirst)
-          {
-            this->CheckAbort();
-          }
-          if (this->GetAbortOutput())
-          {
-            break;
-          }
+          this->CheckAbort();
         }
-
-        double v, coord[3];
-        inPts->GetPoint(ptId, coord);
-        for (auto j = 0; j < numPlanes; j++)
+        if (this->GetAbortOutput())
         {
-          v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
-            planes[j * 4 + 2] * coord[2]);
-          // negative means further in + direction of plane
-          if (v < planes[j * 4 + 3])
-          {
-            planes[j * 4 + 3] = v;
-          }
+          break;
         }
       }
-    }); // end lambda
+
+      double v, coord[3];
+      inPts->GetPoint(ptId, coord);
+      for (auto j = 0; j < numPlanes; j++)
+      {
+        v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
+          planes[j * 4 + 2] * coord[2]);
+        // negative means further in + direction of plane
+        if (v < planes[j * 4 + 3])
+        {
+          planes[j * 4 + 3] = v;
+        }
+      }
+    }
+  }); // end lambda
 }
 
 //------------------------------------------------------------------------------

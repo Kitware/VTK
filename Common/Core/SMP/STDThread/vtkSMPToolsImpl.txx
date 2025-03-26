@@ -117,24 +117,23 @@ void vtkSMPToolsImpl<BackendType::STDThread>::Sort(
 
 //--------------------------------------------------------------------------------
 template <>
-VTKCOMMONCORE_EXPORT void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int);
+void vtkSMPToolsImpl<BackendType::STDThread>::Initialize(int);
 
 //--------------------------------------------------------------------------------
 template <>
-VTKCOMMONCORE_EXPORT int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
-VTKCOMMONCORE_EXPORT int
-vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads();
+int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads();
 
 //--------------------------------------------------------------------------------
 template <>
-VTKCOMMONCORE_EXPORT bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
+bool vtkSMPToolsImpl<BackendType::STDThread>::GetSingleThread();
 
 //--------------------------------------------------------------------------------
 template <>
-VTKCOMMONCORE_EXPORT bool vtkSMPToolsImpl<BackendType::STDThread>::IsParallelScope();
+bool vtkSMPToolsImpl<BackendType::STDThread>::IsParallelScope();
 
 VTK_ABI_NAMESPACE_END
 } // namespace smp

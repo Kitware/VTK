@@ -52,10 +52,6 @@ set(classes
   vtkXMLWriterBase
   vtkXMLWriterC)
 
-set(private_templates
-  vtkXMLUnstructuredPolyReader.txx)
-
 vtk_module_add_module(VTK::IOXML
-  CLASSES ${classes}
-  PRIVATE_TEMPLATES ${private_templates})
+  CLASSES ${classes})
 vtk_add_test_mangling(VTK::IOXML)

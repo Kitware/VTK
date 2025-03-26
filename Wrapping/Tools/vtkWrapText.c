@@ -138,7 +138,7 @@ static void vtkWPString_Append(struct vtkWPString* str, const char* text)
     str->str = (char*)realloc(str->str, str->maxlen);
   }
 
-  memcpy(&str->str[str->len], text, n + 1);
+  strncpy(&str->str[str->len], text, n + 1);
   str->len += n;
 }
 

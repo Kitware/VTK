@@ -10,7 +10,6 @@ set(classes
   vtkAnimationScene
   vtkAnnotation
   vtkAnnotationLayers
-  vtkAnnulus
   vtkArrayData
   vtkAtom
   vtkAttributesErrorMetric
@@ -44,7 +43,6 @@ set(classes
   vtkCellGridRangeQuery
   vtkCellGridQuery
   vtkCellGridResponders
-  vtkCellGridSidesCache
   vtkCellGridSidesQuery
   vtkCellIterator
   vtkCellLinks
@@ -315,12 +313,9 @@ set(private_templates
 include(vtkTypeLists)
 
 set(instantiation_sources)
-foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
-  # only instantiate fundamental types, not typedefs
-  if (INSTANTIATION_VALUE_TYPE STREQUAL "vtkIdType")
-    continue()
-  endif ()
-  vtk_type_to_camel_case("${INSTANTIATION_VALUE_TYPE}" _cased_type)
+foreach (_type IN LISTS vtk_numeric_types)
+  set(INSTANTIATION_VALUE_TYPE "${_type}")
+  vtk_type_to_camel_case("${_type}" _cased_type)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/vtkDataObjectImplicitBackendInstantiate.cxx.in"
     "${CMAKE_CURRENT_BINARY_DIR}/vtkDataObjectImplicitBackendInstantiate${_cased_type}.cxx")

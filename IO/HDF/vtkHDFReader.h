@@ -281,7 +281,7 @@ protected:
   /**
    * Temporal data properties
    */
-  // VTK_DEPRECATED_IN_9_4_0( )
+  VTK_DEPRECATED_IN_9_4_0("Use Get/Set TemporalData methods instead.")
   bool HasTransientData = false;
   vtkIdType Step = 0;
   vtkIdType NumberOfSteps = 1;
@@ -296,6 +296,9 @@ protected:
 
   unsigned int MaximumLevelsToReadByDefaultForAMR = 0;
 
+  class Implementation;
+  Implementation* Impl;
+
   bool UseCache = false;
   struct DataCache;
   std::shared_ptr<DataCache> Cache;
@@ -304,14 +307,13 @@ private:
   vtkHDFReader(const vtkHDFReader&) = delete;
   void operator=(const vtkHDFReader&) = delete;
 
-  class Implementation;
-  Implementation* Impl;
-
   /**
    * Setter for UseTemporalData.
    *
    * Useful to set privatly the deprecate UseTransientData variable to true when it's needed.
    */
+  VTK_DEPRECATED_IN_9_4_0("Use UseTemporalData directly; the purpose of this setter was to set "
+                          "the deprecated field HasTransientData.")
   void SetHasTemporalData(bool useTemporalData);
 
   /**

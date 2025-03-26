@@ -23,13 +23,13 @@ vtkEvent::~vtkEvent()
 }
 
 // Comparison against event with no modifiers
-bool vtkEvent::operator==(unsigned long VTKEvent) const
+bool vtkEvent::operator==(unsigned long VTKEvent)
 {
   return this->EventId == VTKEvent;
 }
 
 // Comparison against event with modifiers
-bool vtkEvent::operator==(vtkEvent* e) const
+bool vtkEvent::operator==(vtkEvent* e)
 {
   if (this->EventId != e->EventId)
   {

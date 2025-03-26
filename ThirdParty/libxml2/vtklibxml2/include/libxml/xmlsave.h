@@ -41,61 +41,47 @@ typedef enum {
 typedef struct _xmlSaveCtxt xmlSaveCtxt;
 typedef xmlSaveCtxt *xmlSaveCtxtPtr;
 
-XMLPUBFUN xmlSaveCtxtPtr
+XMLPUBFUN xmlSaveCtxtPtr XMLCALL
 		xmlSaveToFd		(int fd,
 					 const char *encoding,
 					 int options);
-XMLPUBFUN xmlSaveCtxtPtr
+XMLPUBFUN xmlSaveCtxtPtr XMLCALL
 		xmlSaveToFilename	(const char *filename,
 					 const char *encoding,
 					 int options);
 
-XMLPUBFUN xmlSaveCtxtPtr
+XMLPUBFUN xmlSaveCtxtPtr XMLCALL
 		xmlSaveToBuffer		(xmlBufferPtr buffer,
 					 const char *encoding,
 					 int options);
 
-XMLPUBFUN xmlSaveCtxtPtr
+XMLPUBFUN xmlSaveCtxtPtr XMLCALL
 		xmlSaveToIO		(xmlOutputWriteCallback iowrite,
 					 xmlOutputCloseCallback ioclose,
 					 void *ioctx,
 					 const char *encoding,
 					 int options);
 
-XMLPUBFUN long
+XMLPUBFUN long XMLCALL
 		xmlSaveDoc		(xmlSaveCtxtPtr ctxt,
 					 xmlDocPtr doc);
-XMLPUBFUN long
+XMLPUBFUN long XMLCALL
 		xmlSaveTree		(xmlSaveCtxtPtr ctxt,
 					 xmlNodePtr node);
 
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSaveFlush		(xmlSaveCtxtPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSaveClose		(xmlSaveCtxtPtr ctxt);
-XMLPUBFUN int
-		xmlSaveFinish		(xmlSaveCtxtPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSaveSetEscape	(xmlSaveCtxtPtr ctxt,
 					 xmlCharEncodingOutputFunc escape);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSaveSetAttrEscape	(xmlSaveCtxtPtr ctxt,
 					 xmlCharEncodingOutputFunc escape);
-
-XML_DEPRECATED
-XMLPUBFUN int
-                xmlThrDefIndentTreeOutput(int v);
-XML_DEPRECATED
-XMLPUBFUN const char *
-                xmlThrDefTreeIndentString(const char * v);
-XML_DEPRECATED
-XMLPUBFUN int
-                xmlThrDefSaveNoEmptyTags(int v);
-
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* LIBXML_OUTPUT_ENABLED */
 #endif /* __XML_XMLSAVE_H__ */
 

@@ -15,6 +15,7 @@
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierQuadrilateral);
@@ -34,14 +35,13 @@ vtkCell* vtkBezierQuadrilateral::GetEdge(int edgeId)
 
   if (this->GetRationalWeights()->GetNumberOfTuples() > 0)
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
-    {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->SetNumberOfTuples(npts);
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& face_id) -> void
-    {
+    const auto set_ids_and_points = [&](
+                                      const vtkIdType& edge_id, const vtkIdType& face_id) -> void {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(face_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(face_id));
       result->GetRationalWeights()->SetValue(
@@ -51,14 +51,13 @@ vtkCell* vtkBezierQuadrilateral::GetEdge(int edgeId)
   }
   else
   {
-    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void
-    {
+    const auto set_number_of_ids_and_points = [&](const vtkIdType& npts) -> void {
       result->Points->SetNumberOfPoints(npts);
       result->PointIds->SetNumberOfIds(npts);
       result->GetRationalWeights()->Reset();
     };
-    const auto set_ids_and_points = [&](const vtkIdType& edge_id, const vtkIdType& face_id) -> void
-    {
+    const auto set_ids_and_points = [&](
+                                      const vtkIdType& edge_id, const vtkIdType& face_id) -> void {
       result->Points->SetPoint(edge_id, this->Points->GetPoint(face_id));
       result->PointIds->SetId(edge_id, this->PointIds->GetId(face_id));
     };

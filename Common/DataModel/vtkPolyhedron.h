@@ -450,37 +450,37 @@ protected:
   ~vtkPolyhedron() override;
 
   // Internal classes for supporting operations on this cell
-  vtkNew<vtkLine> Line;
-  vtkNew<vtkTriangle> Triangle;
-  vtkNew<vtkQuad> Quad;
-  vtkNew<vtkPolygon> Polygon;
-  vtkNew<vtkTetra> Tetra;
+  vtkLine* Line;
+  vtkTriangle* Triangle;
+  vtkQuad* Quad;
+  vtkPolygon* Polygon;
+  vtkTetra* Tetra;
 
   // Filled with the SetFaces method.
   // These faces are numbered in global id space
-  vtkNew<vtkCellArray> GlobalFaces;
+  vtkCellArray* GlobalFaces;
 
   // Backward compatibility
-  vtkNew<vtkIdTypeArray> LegacyGlobalFaces;
+  vtkIdTypeArray* LegacyGlobalFaces;
 
   // If edges are needed. Note that the edge numbering is in canonical space.
-  int EdgesGenerated = 0;           // true/false
-  vtkNew<vtkEdgeTable> EdgeTable;   // keep track of all edges
-  vtkNew<vtkIdTypeArray> Edges;     // edge pairs kept in this list, in canonical id space
-  vtkNew<vtkIdTypeArray> EdgeFaces; // face pairs that comprise each edge, with the
-                                    // same ordering as EdgeTable
-  int GenerateEdges();              // method populates the edge table and edge array
+  int EdgesGenerated;        // true/false
+  vtkEdgeTable* EdgeTable;   // keep track of all edges
+  vtkIdTypeArray* Edges;     // edge pairs kept in this list, in canonical id space
+  vtkIdTypeArray* EdgeFaces; // face pairs that comprise each edge, with the
+                             // same ordering as EdgeTable
+  int GenerateEdges();       // method populates the edge table and edge array
 
   // Numerous methods needs faces to be numbered in the canonical space.
   // This method uses PointIdMap to fill the Faces member (faces described
   // with canonical IDs) from the GlobalFaces member (faces described with
   // global IDs).
   void GenerateFaces();
-  vtkNew<vtkCellArray> Faces; // These are numbered in canonical id space
-  int FacesGenerated = 0;     // True when Faces have been successfully constructed
+  vtkCellArray* Faces; // These are numbered in canonical id space
+  int FacesGenerated;  // True when Faces have been successfully constructed
 
   // Bounds management
-  int BoundsComputed = 0;
+  int BoundsComputed;
   void ComputeBounds();
   void ComputeParametricCoordinate(const double x[3], double pc[3]);
   void ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
@@ -489,14 +489,14 @@ protected:
   void GeneratePointToIncidentFacesAndValenceAtPoint() { this->GeneratePointToIncidentFaces(); }
 
   // Members for supporting geometric operations
-  int PolyDataConstructed = 0;
-  vtkNew<vtkPolyData> PolyData;
+  int PolyDataConstructed;
+  vtkPolyData* PolyData;
   void ConstructPolyData();
-  int LocatorConstructed = 0;
-  vtkNew<vtkCellLocator> CellLocator;
+  int LocatorConstructed;
+  vtkCellLocator* CellLocator;
   void ConstructLocator();
-  vtkNew<vtkIdList> CellIds;
-  vtkNew<vtkGenericCell> Cell;
+  vtkIdList* CellIds;
+  vtkGenericCell* Cell;
 
 private:
   vtkPolyhedron(const vtkPolyhedron&) = delete;
@@ -517,7 +517,7 @@ private:
   std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
 
   vtkNew<vtkMinimalStandardRandomSequence> RandomSequence;
-  std::atomic<bool> IsRandomSequenceSeedInitialized{ false };
+  bool IsRandomSequenceSeedInitialized;
 };
 
 //----------------------------------------------------------------------------

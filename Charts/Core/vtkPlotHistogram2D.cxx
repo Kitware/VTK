@@ -38,9 +38,8 @@ struct MagnitudeWorker
 
     using VecTuple = typename decltype(vecRange)::ConstTupleReferenceType;
 
-    vtkSMPTools::Transform(vecRange.cbegin(), vecRange.cend(), magRange.begin(),
-      [](const VecTuple& tuple)
-      {
+    vtkSMPTools::Transform(
+      vecRange.cbegin(), vecRange.cend(), magRange.begin(), [](const VecTuple& tuple) {
         double mag = 0.0;
         for (const auto comp : tuple)
         {

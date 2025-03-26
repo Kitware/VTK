@@ -79,7 +79,6 @@ public:
   void GetCell(vtkIdType, vtkGenericCell*) override;
   int GetCellType(vtkIdType) override { return 0; }
 
-  using vtkDataSet::GetCellPoints;
   /**
    * vtkPath doesn't use cells, this method just clears ptIds.
    */

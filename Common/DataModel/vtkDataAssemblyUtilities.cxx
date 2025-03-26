@@ -198,8 +198,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   std::map<int, unsigned int> output_node2dataset_map;
 
-  auto appendToOutput = [&](vtkDataObject* dobj, vtkInformation* metadata, int nodeid)
-  {
+  auto appendToOutput = [&](vtkDataObject* dobj, vtkInformation* metadata, int nodeid) {
     if (!output)
     {
       return;
@@ -232,8 +231,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   unsigned int cid = 0;
   std::function<void(vtkDataObject*, int, vtkInformation*)> f;
-  f = [&](vtkDataObject* dobj, int nodeid, vtkInformation* dobjMetaData)
-  {
+  f = [&](vtkDataObject* dobj, int nodeid, vtkInformation* dobjMetaData) {
     // in a hierarchy, the dataset-index corresponds to the composite index;
     // we add the "cid" attribute, however, to enable users to build selectors
     // using cid.

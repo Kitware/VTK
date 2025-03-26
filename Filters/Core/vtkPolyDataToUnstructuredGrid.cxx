@@ -74,15 +74,13 @@ struct BuildCellTypesImpl
       return;
     }
 
-    vtkSMPTools::For(0, numCells,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+      auto types = cellTypes->GetPointer(offset);
+      for (vtkIdType cellId = begin; cellId < end; ++cellId)
       {
-        auto types = cellTypes->GetPointer(offset);
-        for (vtkIdType cellId = begin; cellId < end; ++cellId)
-        {
-          types[cellId] = static_cast<unsigned char>(typer(state.GetCellSize(cellId)));
-        }
-      });
+        types[cellId] = static_cast<unsigned char>(typer(state.GetCellSize(cellId)));
+      }
+    });
   }
 };
 
@@ -99,22 +97,18 @@ struct BuildConnectivityImpl
     const vtkIdType numCells = state.GetNumberOfCells();
 
     // copy connectivity values
-    vtkSMPTools::For(0, connectivitySize,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto inConnPtr = inConnectivity->GetPointer(0);
-        auto outConnPtr = outConnectivity->GetPointer(connectivityOffset);
-        std::copy(inConnPtr + begin, inConnPtr + end, outConnPtr + begin);
-      });
+    vtkSMPTools::For(0, connectivitySize, [&](vtkIdType begin, vtkIdType end) {
+      auto inConnPtr = inConnectivity->GetPointer(0);
+      auto outConnPtr = outConnectivity->GetPointer(connectivityOffset);
+      std::copy(inConnPtr + begin, inConnPtr + end, outConnPtr + begin);
+    });
     // transform offset values
-    vtkSMPTools::For(0, numCells,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto inOffPtr = inOffsets->GetPointer(0);
-        auto outOffPtr = outOffSets->GetPointer(offset);
-        std::transform(inOffPtr + begin, inOffPtr + end, outOffPtr + begin,
-          [&connectivityOffset](IdType val) -> vtkIdType { return val + connectivityOffset; });
-      });
+    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+      auto inOffPtr = inOffsets->GetPointer(0);
+      auto outOffPtr = outOffSets->GetPointer(offset);
+      std::transform(inOffPtr + begin, inOffPtr + end, outOffPtr + begin,
+        [&connectivityOffset](IdType val) -> vtkIdType { return val + connectivityOffset; });
+    });
   }
 };
 } // end anonymous namespace
@@ -185,8 +179,7 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
     offset += numLines;
     input->GetPolys()->Visit(
       BuildCellTypesImpl{}, cellTypes,
-      [](vtkIdType size) -> VTKCellType
-      {
+      [](vtkIdType size) -> VTKCellType {
         switch (size)
         {
           case 3:

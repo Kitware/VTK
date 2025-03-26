@@ -224,33 +224,31 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
   }
   else
   {
-    vtkSMPTools::For(0, nbPts,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, nbPts, [&](vtkIdType begin, vtkIdType end) {
+      auto outputRange = vtk::DataArrayValueRange<1>(newScalars);
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
+
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
       {
-        auto outputRange = vtk::DataArrayValueRange<1>(newScalars);
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
-
-        for (vtkIdType pointId = begin; pointId < end; ++pointId)
+        if (pointId % checkAbortInterval == 0)
         {
-          if (pointId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              this->CheckAbort();
-            }
-            if (this->GetAbortOutput())
-            {
-              break;
-            }
+            this->CheckAbort();
           }
-
-          double coords[3];
-          input->GetPoint(pointId, coords);
-
-          outputRange[pointId] = this->ComputeValue(coords, timeValue);
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
-      });
+
+        double coords[3];
+        input->GetPoint(pointId, coords);
+
+        outputRange[pointId] = this->ComputeValue(coords, timeValue);
+      }
+    });
   }
 
   return 1;

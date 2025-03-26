@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLHardwareSelector.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
@@ -14,7 +14,7 @@
 
 #include "vtkOpenGLError.h"
 
-// #define vtkOpenGLHardwareSelectorDEBUG
+//#define vtkOpenGLHardwareSelectorDEBUG
 #ifdef vtkOpenGLHardwareSelectorDEBUG
 #include "vtkImageImport.h"
 #include "vtkNew.h"
@@ -208,9 +208,6 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
   pw->SetInputConnection(ii->GetOutputPort());
   pw->SetFileName(fname.c_str());
   pw->Write();
-  std::cout << passNo << ":" << int(this->PixBuffer[passNo][0]) << ","
-            << int(this->PixBuffer[passNo][1]) << "," << int(this->PixBuffer[passNo][2]) << ","
-            << '\n';
   std::cout << "=====vtkOpenGLHardwareSelector wrote " << fname << "\n";
 #endif
 }

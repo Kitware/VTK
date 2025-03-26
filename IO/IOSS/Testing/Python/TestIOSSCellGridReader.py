@@ -115,7 +115,7 @@ class TestIOSSCellGridReader(Testing.vtkTest):
         # rwi.Start()
         if '-I' in sys.argv:
             rwi.Start()
-        Testing.compareImage(rw, Testing.getAbsImagePath(baseline))
+        Testing.compareImage(rw, Testing.getAbsImagePath(baseline), threshold=25)
         # Testing.interact()
 
     def testCellData(self):

@@ -99,35 +99,34 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
     directionArray->SetNumberOfTuples(numPts);
   }
 
-  auto DistanceWithSign = [&](const double& val)
-  { return this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val); };
+  auto DistanceWithSign = [&](const double& val) {
+    return this->SignedDistance ? (this->NegateDistance ? -val : val) : std::abs(val);
+  };
 
-  vtkSMPTools::For(0, numPts,
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, numPts, [&](vtkIdType begin, vtkIdType end) {
+    double pt[3];
+    for (vtkIdType ptId = begin; ptId < end; ptId++)
     {
-      double pt[3];
-      for (vtkIdType ptId = begin; ptId < end; ptId++)
+      mesh->GetPoint(ptId, pt);
+      if (this->ComputeDirection)
       {
-        mesh->GetPoint(ptId, pt);
-        if (this->ComputeDirection)
-        {
-          double closestPoint[3];
-          double direction[3];
-          double val = imp->EvaluateFunctionAndGetClosestPoint(pt, closestPoint);
-          double dist = DistanceWithSign(val);
-          vtkMath::Subtract(closestPoint, pt, direction);
-          vtkMath::Normalize(direction);
-          pointArray->SetValue(ptId, dist);
-          directionArray->SetTuple(ptId, direction);
-        }
-        else
-        {
-          double val = imp->EvaluateFunction(pt);
-          double dist = DistanceWithSign(val);
-          pointArray->SetValue(ptId, dist);
-        }
+        double closestPoint[3];
+        double direction[3];
+        double val = imp->EvaluateFunctionAndGetClosestPoint(pt, closestPoint);
+        double dist = DistanceWithSign(val);
+        vtkMath::Subtract(closestPoint, pt, direction);
+        vtkMath::Normalize(direction);
+        pointArray->SetValue(ptId, dist);
+        directionArray->SetTuple(ptId, direction);
       }
-    });
+      else
+      {
+        double val = imp->EvaluateFunction(pt);
+        double dist = DistanceWithSign(val);
+        pointArray->SetValue(ptId, dist);
+      }
+    }
+  });
 
   mesh->GetPointData()->AddArray(pointArray);
   mesh->GetPointData()->SetActiveScalars("Distance");
@@ -156,36 +155,34 @@ void vtkDistancePolyDataFilter::GetPolyDataDistance(vtkPolyData* mesh, vtkPolyDa
       cellDirectionArray->SetNumberOfTuples(numCells);
     }
     vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
-    vtkSMPTools::For(0, numCells,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numCells, [&](vtkIdType begin, vtkIdType end) {
+      auto cell = TLCell.Local();
+      int subId;
+      double pcoords[3], x[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
+      for (vtkIdType cellId = begin; cellId < end; cellId++)
       {
-        auto cell = TLCell.Local();
-        int subId;
-        double pcoords[3], x[3], weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
-        for (vtkIdType cellId = begin; cellId < end; cellId++)
+        mesh->GetCell(cellId, cell);
+        cell->GetParametricCenter(pcoords);
+        cell->EvaluateLocation(subId, pcoords, x, weights);
+        if (this->ComputeDirection)
         {
-          mesh->GetCell(cellId, cell);
-          cell->GetParametricCenter(pcoords);
-          cell->EvaluateLocation(subId, pcoords, x, weights);
-          if (this->ComputeDirection)
-          {
-            double closestPoint[3];
-            double direction[3];
-            double val = imp->EvaluateFunctionAndGetClosestPoint(x, closestPoint);
-            double dist = DistanceWithSign(val);
-            vtkMath::Subtract(closestPoint, x, direction);
-            vtkMath::Normalize(direction);
-            cellArray->SetValue(cellId, dist);
-            cellDirectionArray->SetTuple(cellId, direction);
-          }
-          else
-          {
-            double val = imp->EvaluateFunction(x);
-            double dist = DistanceWithSign(val);
-            cellArray->SetValue(cellId, dist);
-          }
+          double closestPoint[3];
+          double direction[3];
+          double val = imp->EvaluateFunctionAndGetClosestPoint(x, closestPoint);
+          double dist = DistanceWithSign(val);
+          vtkMath::Subtract(closestPoint, x, direction);
+          vtkMath::Normalize(direction);
+          cellArray->SetValue(cellId, dist);
+          cellDirectionArray->SetTuple(cellId, direction);
         }
-      });
+        else
+        {
+          double val = imp->EvaluateFunction(x);
+          double dist = DistanceWithSign(val);
+          cellArray->SetValue(cellId, dist);
+        }
+      }
+    });
 
     mesh->GetCellData()->AddArray(cellArray);
     mesh->GetCellData()->SetActiveScalars("Distance");

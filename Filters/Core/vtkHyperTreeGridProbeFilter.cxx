@@ -382,8 +382,7 @@ public:
     this->ThreadGlobCellIds->SetNumberOfIds(nPointsFound);
     nPointsFound = 0;
 
-    auto mergeThreadResults = [this, &nPointsFound](LocalData& loc)
-    {
+    auto mergeThreadResults = [this, &nPointsFound](LocalData& loc) {
       std::copy(
         loc.pointIds.begin(), loc.pointIds.end(), this->ThreadGlobPointIds->begin() + nPointsFound);
       std::copy(

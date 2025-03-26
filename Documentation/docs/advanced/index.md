@@ -13,7 +13,6 @@ marshalling_hints
 object_manager
 object_serialization
 PythonWrappers
-runtime_settings
 WrappingTools
 migration_guides/index
 ```

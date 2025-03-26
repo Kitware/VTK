@@ -32,7 +32,6 @@
 #include "vtkHyperTreeGridAlgorithm.h"
 
 #include <memory> // For std::unique_ptr
-#include <mutex>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
@@ -120,15 +119,10 @@ protected:
   int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
 
   /**
-   * Recursively descend into input tree down to leaves, creating output structure at the same time
+   * Recursively descend into tree down to leaves
    */
   bool RecursivelyProcessTree(
     vtkHyperTreeGridNonOrientedCursor*, vtkHyperTreeGridNonOrientedCursor*);
-
-  /**
-   * Recursively descend into input tree down to leaves, filling the output mask
-   * as it goes.
-   */
   bool RecursivelyProcessTreeWithCreateNewMask(vtkHyperTreeGridNonOrientedCursor*);
 
   /**
@@ -169,21 +163,11 @@ protected:
 private:
   vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) = delete;
   void operator=(const vtkHyperTreeGridThreshold&) = delete;
-  /**
-   * Process child ichild of the tree currently pointed by the cursor.
-   * Calls recursively `RecursivelyProcessTreeWithCreateNewMask`.
-   * The cell pointed by 'outCursor' needs to have at least 'ichild' children.
-   */
-  bool RecursivelyProcessChild(vtkHyperTreeGridNonOrientedCursor* outCursor, int ichild);
 
   /**
-   * Thread-safe version of insertion in OutMask BitArray using a global mutex.
+   * The current memory strategy to use
    */
-  void SafeInsertOutMask(vtkIdType tupleIdx, double value);
-
   int MemoryStrategy = MaskInput;
-  std::vector<std::mutex> OutMaskMutexes;
-  int ArrayMutexSize = 0; // Needs to be a multiple of 8
 
   struct Internals;
   std::unique_ptr<Internals> Internal;

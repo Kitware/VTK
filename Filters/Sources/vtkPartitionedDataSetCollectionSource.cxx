@@ -31,6 +31,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <algorithm>
 #include <numeric>
@@ -71,19 +72,17 @@ void OffsetPoints(ArrayType* array, const vtkVector3d& delta)
 
   using ValueType = vtk::GetAPIType<ArrayType>;
 
-  vtkSMPTools::For(0, array->GetNumberOfTuples(),
-    [&](vtkIdType start, vtkIdType end)
+  vtkSMPTools::For(0, array->GetNumberOfTuples(), [&](vtkIdType start, vtkIdType end) {
+    ValueType tuple[3];
+    for (vtkIdType tidx = start; tidx < end; ++tidx)
     {
-      ValueType tuple[3];
-      for (vtkIdType tidx = start; tidx < end; ++tidx)
-      {
-        array->GetTypedTuple(tidx, tuple);
-        tuple[0] += delta[0];
-        tuple[1] += delta[1];
-        tuple[2] += delta[2];
-        array->SetTypedTuple(tidx, tuple);
-      }
-    });
+      array->GetTypedTuple(tidx, tuple);
+      tuple[0] += delta[0];
+      tuple[1] += delta[1];
+      tuple[2] += delta[2];
+      array->SetTypedTuple(tidx, tuple);
+    }
+  });
 }
 
 }

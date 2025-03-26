@@ -399,8 +399,7 @@ private:
   template <typename T>
   T ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const;
 
-  union
-  {
+  union {
     vtkStdString* String;
     float Float;
     double Double;

@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkFiltersHybrid
 GROUPS
   StandAlone
-DESCRIPTION
-  Filters that process both regular (image) and unstructured data.
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-BSD-3-Clause-Sandia-USGov
 SPDX_COPYRIGHT_TEXT

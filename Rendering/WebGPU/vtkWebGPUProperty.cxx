@@ -11,10 +11,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGPUProperty);
 
-//------------------------------------------------------------------------------
 vtkWebGPUProperty::vtkWebGPUProperty() = default;
 
-//------------------------------------------------------------------------------
 vtkWebGPUProperty::~vtkWebGPUProperty() = default;
 
 //------------------------------------------------------------------------------

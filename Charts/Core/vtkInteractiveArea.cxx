@@ -11,7 +11,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlotGrid.h"
 #include "vtkTransform2D.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 //@{
 /**

@@ -12,6 +12,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <cmath>
 

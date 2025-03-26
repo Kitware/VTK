@@ -6,7 +6,6 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDIYGhostUtilities.h"
-#include "vtkDataObjectMeshCache.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -16,6 +15,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -38,7 +38,6 @@ vtkCxxSetObjectMacro(vtkGhostCellsGenerator, Controller, vtkMultiProcessControll
 vtkGhostCellsGenerator::vtkGhostCellsGenerator()
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->MeshCache->SetConsumer(this);
 }
 
 //----------------------------------------------------------------------------
@@ -83,6 +82,7 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
+  bool error = false;
   int retVal = 1;
 
   vtkSmartPointer<vtkDataObject> modifInputDO =
@@ -105,38 +105,9 @@ int vtkGhostCellsGenerator::Execute(vtkDataObject* inputDO, vtkInformationVector
     modifInputDO->ShallowCopy(gidGenerator->GetOutputDataObject(0));
   }
 
-  int reqGhostLayers =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-
-  if (this->UseStaticMeshCache)
-  {
-    if (this->UseCacheIfPossible(modifInputDO, outputDO))
-    {
-      // Cache copied to output, we still need to sync
-      retVal &= this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, true);
-      return retVal;
-    }
-  }
-
-  retVal &= this->GenerateGhostCells(modifInputDO, outputDO, reqGhostLayers, this->SynchronizeOnly);
-
-  if (this->UseStaticMeshCache)
-  {
-    this->UpdateCache(outputDO);
-  }
-  return retVal;
-}
-
-//----------------------------------------------------------------------------
-int vtkGhostCellsGenerator::GenerateGhostCells(
-  vtkDataObject* inputDO, vtkDataObject* outputDO, int reqGhostLayers, bool syncOnly)
-{
-  bool error = false;
-  int retVal = 1;
-
   std::vector<vtkDataObject*> inputPDSs, outputPDSs;
 
-  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(inputDO))
+  if (auto inputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(modifInputDO))
   {
     auto outputPDSC = vtkPartitionedDataSetCollection::SafeDownCast(outputDO);
     outputPDSC->CopyStructure(inputPDSC);
@@ -149,7 +120,7 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
   }
   else
   {
-    inputPDSs.emplace_back(inputDO);
+    inputPDSs.emplace_back(modifInputDO);
     outputPDSs.emplace_back(outputDO);
   }
 
@@ -210,7 +181,7 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
     // point.
     bool canSyncCell = false;
     bool canSyncPoint = false;
-    if (syncOnly &&
+    if (this->SynchronizeOnly &&
       vtkGhostCellsGenerator::CanSynchronize(inputPartition, canSyncCell, canSyncPoint))
     {
       std::vector<vtkDataSet*> inputsDS =
@@ -222,6 +193,8 @@ int vtkGhostCellsGenerator::GenerateGhostCells(
     }
     else
     {
+      int reqGhostLayers =
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
       int numberOfGhostLayersToCompute = this->BuildIfRequired
         ? reqGhostLayers
         : std::max(reqGhostLayers, this->NumberOfGhostLayers);
@@ -296,34 +269,6 @@ bool vtkGhostCellsGenerator::CanSynchronize(
     inputPoint->GetProcessIds();
 
   return canSyncCell && canSyncPoint;
-}
-
-//----------------------------------------------------------------------------
-bool vtkGhostCellsGenerator::UseCacheIfPossible(vtkDataObject* input, vtkDataObject* output)
-{
-  assert(input && output);
-  if (!this->MeshCache->IsSupportedData(input))
-  {
-    return false;
-  }
-
-  this->MeshCache->SetOriginalDataObject(input);
-
-  auto status = this->MeshCache->GetStatus();
-  if (status.enabled())
-  {
-    this->MeshCache->CopyCacheToDataObject(output);
-    return true;
-  }
-
-  return false;
-}
-
-//----------------------------------------------------------------------------
-void vtkGhostCellsGenerator::UpdateCache(vtkDataObject* updatedOutput)
-{
-  assert(updatedOutput);
-  this->MeshCache->UpdateCache(updatedOutput);
 }
 
 //----------------------------------------------------------------------------

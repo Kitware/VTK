@@ -43,24 +43,18 @@ typedef enum {
     XML_PATTERN_XSFIELD		= 1<<2	/* XPath subset for schema field */
 } xmlPatternFlags;
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 			xmlFreePattern		(xmlPatternPtr comp);
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 			xmlFreePatternList	(xmlPatternPtr comp);
 
-XMLPUBFUN xmlPatternPtr
+XMLPUBFUN xmlPatternPtr XMLCALL
 			xmlPatterncompile	(const xmlChar *pattern,
 						 xmlDict *dict,
 						 int flags,
 						 const xmlChar **namespaces);
-XMLPUBFUN int
-			xmlPatternCompileSafe	(const xmlChar *pattern,
-						 xmlDict *dict,
-						 int flags,
-						 const xmlChar **namespaces,
-						 xmlPatternPtr *patternOut);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlPatternMatch		(xmlPatternPtr comp,
 						 xmlNodePtr node);
 
@@ -68,34 +62,34 @@ XMLPUBFUN int
 typedef struct _xmlStreamCtxt xmlStreamCtxt;
 typedef xmlStreamCtxt *xmlStreamCtxtPtr;
 
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlPatternStreamable	(xmlPatternPtr comp);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlPatternMaxDepth	(xmlPatternPtr comp);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlPatternMinDepth	(xmlPatternPtr comp);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlPatternFromRoot	(xmlPatternPtr comp);
-XMLPUBFUN xmlStreamCtxtPtr
+XMLPUBFUN xmlStreamCtxtPtr XMLCALL
 			xmlPatternGetStreamCtxt	(xmlPatternPtr comp);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 			xmlFreeStreamCtxt	(xmlStreamCtxtPtr stream);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlStreamPushNode	(xmlStreamCtxtPtr stream,
 						 const xmlChar *name,
 						 const xmlChar *ns,
 						 int nodeType);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlStreamPush		(xmlStreamCtxtPtr stream,
 						 const xmlChar *name,
 						 const xmlChar *ns);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlStreamPushAttr	(xmlStreamCtxtPtr stream,
 						 const xmlChar *name,
 						 const xmlChar *ns);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlStreamPop		(xmlStreamCtxtPtr stream);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 			xmlStreamWantsAnyNode	(xmlStreamCtxtPtr stream);
 #ifdef __cplusplus
 }

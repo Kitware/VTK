@@ -8,8 +8,7 @@
 int TestThreadedTaskQueue(int, char*[])
 {
   vtkThreadedTaskQueue<double, int, double> queue(
-    [](int i, double v)
-    {
+    [](int i, double v) {
       vtkLogF(INFO, "hey: %d, %f", i, v);
       return i * v;
     },

@@ -73,14 +73,12 @@ public:
       for (int i = 0; i < *it; ++i)
       {
         vtkSMPThreadLocal<int> nestedCounter(0);
-        vtkSMPTools::For(0, this->Factor,
-          [&](vtkIdType start, vtkIdType stop)
+        vtkSMPTools::For(0, this->Factor, [&](vtkIdType start, vtkIdType stop) {
+          for (vtkIdType j = start; j < stop; ++j)
           {
-            for (vtkIdType j = start; j < stop; ++j)
-            {
-              nestedCounter.Local()++;
-            }
-          });
+            nestedCounter.Local()++;
+          }
+        });
         for (const auto& el : nestedCounter)
         {
           this->Counter.Local() += el;
@@ -110,19 +108,17 @@ public:
     for (int i = begin; i < end; i++)
     {
       vtkSMPThreadLocal<int> nestedCounter(0);
-      vtkSMPTools::For(0, 100,
-        [&](vtkIdType start, vtkIdType stop)
+      vtkSMPTools::For(0, 100, [&](vtkIdType start, vtkIdType stop) {
+        bool isSingleInner = vtkSMPTools::GetSingleThread();
+        if (!isSingleInner)
         {
-          bool isSingleInner = vtkSMPTools::GetSingleThread();
-          if (!isSingleInner)
-          {
-            return;
-          }
-          for (vtkIdType j = start; j < stop; ++j)
-          {
-            nestedCounter.Local()++;
-          }
-        });
+          return;
+        }
+        for (vtkIdType j = start; j < stop; ++j)
+        {
+          nestedCounter.Local()++;
+        }
+      });
 
       for (const auto& el : nestedCounter)
       {
@@ -250,14 +246,12 @@ int doTestSMP()
   {
     vtkSMPThreadLocal<int> isParallel(0);
     int target = 20;
-    vtkSMPTools::For(0, target, 1,
-      [&](vtkIdType start, vtkIdType end)
+    vtkSMPTools::For(0, target, 1, [&](vtkIdType start, vtkIdType end) {
+      for (vtkIdType i = start; i < end; ++i)
       {
-        for (vtkIdType i = start; i < end; ++i)
-        {
-          isParallel.Local() += static_cast<int>(vtkSMPTools::IsParallelScope());
-        }
-      });
+        isParallel.Local() += static_cast<int>(vtkSMPTools::IsParallelScope());
+      }
+    });
     total = 0;
     for (const auto& it : isParallel)
     {
@@ -426,8 +420,7 @@ int doTestSMP()
 
   using TupleRef = typename decltype(transformRange4)::const_reference;
   using ValueType = typename decltype(transformRange5)::ValueType;
-  auto computeMag = [](const TupleRef& tuple) -> ValueType
-  {
+  auto computeMag = [](const TupleRef& tuple) -> ValueType {
     ValueType mag = 0;
     for (const auto& comp : tuple)
     {

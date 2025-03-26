@@ -9,7 +9,7 @@
 #include "vtkParametricFunctionSource.h"
 #include "vtkParametricSpline.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 constexpr double MINIMAL_SIZE_OFFSET = 0.001;

@@ -354,26 +354,22 @@ int vtkOctreeImageToPointSetFilter::RequestData(
   {
     vtkNew<vtkIdTypeArray> connectivity;
     connectivity->SetNumberOfValues(numberOfOutputPoints);
-    vtkSMPTools::For(0, numberOfOutputPoints,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numberOfOutputPoints, [&](vtkIdType begin, vtkIdType end) {
+      auto connectivityPtr = connectivity->GetPointer(0);
+      for (vtkIdType i = begin; i < end; ++i)
       {
-        auto connectivityPtr = connectivity->GetPointer(0);
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          connectivityPtr[i] = i;
-        }
-      });
+        connectivityPtr[i] = i;
+      }
+    });
     vtkNew<vtkIdTypeArray> offsets;
     offsets->SetNumberOfValues(numberOfOutputPoints + 1);
-    vtkSMPTools::For(0, numberOfOutputPoints + 1,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numberOfOutputPoints + 1, [&](vtkIdType begin, vtkIdType end) {
+      auto offsetsPtr = offsets->GetPointer(0);
+      for (vtkIdType i = begin; i < end; ++i)
       {
-        auto offsetsPtr = offsets->GetPointer(0);
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          offsetsPtr[i] = i;
-        }
-      });
+        offsetsPtr[i] = i;
+      }
+    });
     vtkNew<vtkCellArray> cells;
     cells->SetData(offsets, connectivity);
     output->SetVerts(cells);

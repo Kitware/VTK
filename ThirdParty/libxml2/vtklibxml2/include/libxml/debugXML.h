@@ -25,39 +25,39 @@ extern "C" {
 /*
  * The standard Dump routines.
  */
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpString	(FILE *output,
 				 const xmlChar *str);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpAttr	(FILE *output,
 				 xmlAttrPtr attr,
 				 int depth);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpAttrList	(FILE *output,
 				 xmlAttrPtr attr,
 				 int depth);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpOneNode	(FILE *output,
 				 xmlNodePtr node,
 				 int depth);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpNode	(FILE *output,
 				 xmlNodePtr node,
 				 int depth);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpNodeList	(FILE *output,
 				 xmlNodePtr node,
 				 int depth);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpDocumentHead(FILE *output,
 				 xmlDocPtr doc);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpDocument	(FILE *output,
 				 xmlDocPtr doc);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpDTD		(FILE *output,
 				 xmlDtdPtr dtd);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlDebugDumpEntities	(FILE *output,
 				 xmlDocPtr doc);
 
@@ -67,7 +67,7 @@ XMLPUBFUN void
  *								*
  ****************************************************************/
 
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlDebugCheckDocument	(FILE * output,
 				 xmlDocPtr doc);
 
@@ -77,12 +77,12 @@ XMLPUBFUN int
  *								*
  ****************************************************************/
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlLsOneNode		(FILE *output, xmlNodePtr node);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlLsCountNode		(xmlNodePtr node);
 
-XMLPUBFUN const char *
+XMLPUBFUN const char * XMLCALL
 	xmlBoolToText		(int boolval);
 
 /****************************************************************
@@ -136,63 +136,63 @@ typedef int (* xmlShellCmd) (xmlShellCtxtPtr ctxt,
 			     xmlNodePtr node,
 			     xmlNodePtr node2);
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlShellPrintXPathError	(int errorType,
 				 const char *arg);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlShellPrintXPathResult(xmlXPathObjectPtr list);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellList		(xmlShellCtxtPtr ctxt,
 				 char *arg,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellBase		(xmlShellCtxtPtr ctxt,
 				 char *arg,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellDir		(xmlShellCtxtPtr ctxt,
 				 char *arg,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellLoad		(xmlShellCtxtPtr ctxt,
 				 char *filename,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlShellPrintNode	(xmlNodePtr node);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellCat		(xmlShellCtxtPtr ctxt,
 				 char *arg,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellWrite		(xmlShellCtxtPtr ctxt,
 				 char *filename,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellSave		(xmlShellCtxtPtr ctxt,
 				 char *filename,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
 #endif /* LIBXML_OUTPUT_ENABLED */
 #ifdef LIBXML_VALID_ENABLED
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellValidate	(xmlShellCtxtPtr ctxt,
 				 char *dtd,
 				 xmlNodePtr node,
 				 xmlNodePtr node2);
 #endif /* LIBXML_VALID_ENABLED */
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellDu		(xmlShellCtxtPtr ctxt,
 				 char *arg,
 				 xmlNodePtr tree,
 				 xmlNodePtr node2);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	xmlShellPwd		(xmlShellCtxtPtr ctxt,
 				 char *buffer,
 				 xmlNodePtr node,
@@ -201,9 +201,9 @@ XMLPUBFUN int
 /*
  * The Shell interface.
  */
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	xmlShell		(xmlDocPtr doc,
-				 const char *filename,
+				 char *filename,
 				 xmlShellReadlineFunc input,
 				 FILE *output);
 

@@ -179,13 +179,6 @@ public:
   const double* GetTreeSpheres(int level, vtkIdType& numSpheres);
   ///@}
 
-  ///@{
-  /**
-   * Participate in garbage collection via ReportReferences.
-   */
-  bool UsesGarbageCollector() const override { return true; }
-  ///@}
-
 protected:
   vtkSphereTree();
   ~vtkSphereTree() override;
@@ -216,8 +209,6 @@ protected:
   void BuildStructuredHierarchy(vtkStructuredGrid* input, double* tree);
   void BuildUnstructuredHierarchy(vtkDataSet* input, double* tree);
   int SphereTreeType; // keep track of the type of tree hierarchy generated
-
-  void ReportReferences(vtkGarbageCollector*) override;
 
 private:
   vtkSphereTree(const vtkSphereTree&) = delete;

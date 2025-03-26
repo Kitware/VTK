@@ -34,7 +34,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  bool WindowSetup() override;
+  bool Initialize() override;
 
   /**
    * Finalize the rendering window.  This will shutdown all system-specific
@@ -70,6 +70,12 @@ public:
    * Get the position in screen coordinates of the window.
    */
   int* GetPosition() VTK_SIZEHINT(2) override;
+
+  /**
+   * Set the name of the window. This appears at the top of the window
+   * normally.
+   */
+  void SetWindowName(const char*) override;
 
   void* GetGenericWindowId() override { return (void*)this->WindowId; }
   void* GetGenericDrawable() override { return (void*)this->WindowId; }
@@ -112,15 +118,15 @@ public:
   /**
    * Specify the selector of the canvas element in the DOM.
    */
-  vtkGetStringMacro(CanvasSelector);
-  vtkSetStringMacro(CanvasSelector);
+  vtkGetStringMacro(CanvasId);
+  vtkSetStringMacro(CanvasId);
 
 protected:
   vtkWebAssemblyWebGPURenderWindow();
   ~vtkWebAssemblyWebGPURenderWindow() override;
 
   void* WindowId = nullptr;
-  char* CanvasSelector = nullptr;
+  char* CanvasId;
 
   std::string MakeDefaultWindowNameWithBackend() override;
   void CleanUpRenderers();

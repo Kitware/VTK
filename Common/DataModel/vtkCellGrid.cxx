@@ -99,7 +99,6 @@ void vtkCellGrid::ShallowCopy(vtkDataObject* baseSrc)
     return;
   }
 
-  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(src);
   copier->SetTarget(this);
@@ -124,7 +123,6 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
     return;
   }
 
-  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(src);
   copier->SetTarget(this);
@@ -142,7 +140,6 @@ void vtkCellGrid::DeepCopy(vtkDataObject* baseSrc)
 
 bool vtkCellGrid::CopyStructure(vtkCellGrid* other, bool byReference)
 {
-  this->Initialize();
   vtkNew<vtkCellGridCopyQuery> copier;
   copier->SetSource(other);
   copier->SetTarget(this);
@@ -344,24 +341,6 @@ vtkCellMetadata* vtkCellGrid::AddCellMetadata(vtkCellMetadata* cellType)
   return cellType;
 }
 
-vtkCellMetadata* vtkCellGrid::AddCellMetadata(vtkStringToken cellTypeName)
-{
-  // See if we have this type already
-  auto* metadata = this->GetCellType(cellTypeName);
-  if (metadata)
-  {
-    return metadata;
-  }
-
-  // Create a new instance and add it.
-  if (!cellTypeName.IsValid())
-  {
-    return metadata;
-  }
-  metadata = vtkCellMetadata::NewInstance(cellTypeName, this);
-  return metadata;
-}
-
 int vtkCellGrid::AddAllCellMetadata()
 {
   int numAdded = 0;
@@ -544,26 +523,6 @@ bool vtkCellGrid::GetCellAttributeRange(
     }
   }
   return true;
-}
-
-void vtkCellGrid::ClearRangeCache(const std::string& attributeName)
-{
-  if (attributeName.empty())
-  {
-    this->RangeCache.clear();
-    return;
-  }
-  auto* att = this->GetCellAttributeByName(attributeName);
-  if (!att)
-  {
-    return;
-  }
-  auto it = this->RangeCache.find(att);
-  if (it == this->RangeCache.end())
-  {
-    return;
-  }
-  this->RangeCache.erase(it);
 }
 
 std::set<int> vtkCellGrid::GetCellAttributeIds() const

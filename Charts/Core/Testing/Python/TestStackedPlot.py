@@ -108,7 +108,8 @@ class TestStackedPlot(vtkmodules.test.Testing.vtkTest):
 
         img_file = "TestStackedPlot.png"
         vtkmodules.test.Testing.compareImage(view.GetRenderWindow(),
-                                      vtkmodules.test.Testing.getAbsImagePath(img_file))
+                                      vtkmodules.test.Testing.getAbsImagePath(img_file),
+                                      threshold=25)
         vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":

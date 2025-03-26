@@ -351,28 +351,26 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelector::ComputeCellsContainingSelectedP
   }
 
   // run through cells and accept those with any point inside
-  vtkSMPTools::For(0, numCells,
-    [&](vtkIdType first, vtkIdType last)
+  vtkSMPTools::For(0, numCells, [&](vtkIdType first, vtkIdType last) {
+    vtkNew<vtkIdList> cellPts;
+    vtkIdType numCellPts;
+    const vtkIdType* pts;
+    signed char selectedPointFound;
+    for (vtkIdType cellId = first; cellId < last; ++cellId)
     {
-      vtkNew<vtkIdList> cellPts;
-      vtkIdType numCellPts;
-      const vtkIdType* pts;
-      signed char selectedPointFound;
-      for (vtkIdType cellId = first; cellId < last; ++cellId)
+      dataset->GetCellPoints(cellId, numCellPts, pts, cellPts);
+      selectedPointFound = 0;
+      for (vtkIdType i = 0; i < numCellPts; ++i)
       {
-        dataset->GetCellPoints(cellId, numCellPts, pts, cellPts);
-        selectedPointFound = 0;
-        for (vtkIdType i = 0; i < numCellPts; ++i)
+        if (selectedPoints->GetValue(pts[i]) != 0)
         {
-          if (selectedPoints->GetValue(pts[i]) != 0)
-          {
-            selectedPointFound = 1;
-            break;
-          }
+          selectedPointFound = 1;
+          break;
         }
-        selectedCells->SetValue(cellId, selectedPointFound);
       }
-    });
+      selectedCells->SetValue(cellId, selectedPointFound);
+    }
+  });
 
   return selectedCells;
 }

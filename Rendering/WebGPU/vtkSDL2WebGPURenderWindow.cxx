@@ -82,15 +82,7 @@ void vtkSDL2WebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------------------------
 std::string vtkSDL2WebGPURenderWindow::MakeDefaultWindowNameWithBackend()
 {
-  if (this->WGPUConfiguration)
-  {
-    return std::string("Visualization Toolkit - ") + "SDL2 " +
-      this->WGPUConfiguration->GetBackendInUseAsString();
-  }
-  else
-  {
-    return "Visualization Toolkit - SDL2 undefined backend";
-  }
+  return std::string("Visualization Toolkit - ") + "SDL2 " + this->GetBackendTypeAsString();
 }
 
 //------------------------------------------------------------------------------
@@ -120,7 +112,7 @@ bool vtkSDL2WebGPURenderWindow::Initialize()
 //------------------------------------------------------------------------------
 void vtkSDL2WebGPURenderWindow::Finalize()
 {
-  if (this->Initialized)
+  if (this->WGPUInitialized)
   {
     this->WGPUFinalize();
   }

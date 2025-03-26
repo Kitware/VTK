@@ -52,11 +52,6 @@ set(_vtk_module_no_namespace_abi_mangling ON)
 vtk_module_add_module("${ns}::WrappingTools"
   SOURCES ${sources}
   HEADERS ${headers})
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_compile_options("${ns}::WrappingTools"
-    PRIVATE
-      "-pthread")
-endif ()
 
 if (NOT TARGET "${ns}::WrapHierarchy")
   vtk_module_add_executable(WrapHierarchy
@@ -67,16 +62,10 @@ if (NOT TARGET "${ns}::WrapHierarchy")
     PRIVATE
       "${ns}::WrappingTools")
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    target_compile_options(WrapHierarchy
-      PRIVATE
-        "-pthread")
     # allows vtkWrapHierarchy to access host file system for headers, generated sources, etc.
     # permit memory growth to generate arbitrary sized hierarchy files.
     target_link_options(WrapHierarchy
       PRIVATE
-        "-pthread"
-        # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
-        "-Wno-pthreads-mem-growth"
         "SHELL:-s ALLOW_MEMORY_GROWTH=1"
         "SHELL:-s NODERAWFS=1")
   endif ()
@@ -153,14 +142,8 @@ if (NOT TARGET WrapSerDes)
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     # allows WrapSerDes to access host file system for headers, generated sources, etc.
     # permit memory growth to generate arbitrary sized vtkClassNameSerDes.cxx files
-    target_compile_options(WrapSerDes
-      PRIVATE
-        "-pthread")
     target_link_options(WrapSerDes
       PRIVATE
-        "-pthread"
-        # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
-        "-Wno-pthreads-mem-growth"
         "SHELL:-s ALLOW_MEMORY_GROWTH=1"
         "SHELL:-s NODERAWFS=1")
   endif ()

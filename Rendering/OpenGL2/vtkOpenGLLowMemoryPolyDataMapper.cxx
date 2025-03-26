@@ -44,7 +44,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include <limits>
 #include <sstream>
@@ -417,10 +417,6 @@ void vtkOpenGLLowMemoryPolyDataMapper::RenderPieceStart(vtkRenderer* renderer, v
     this->ShaderDecls.clear();
     this->InstallArrayTextureShaderDeclarations();
     if (!this->IsShaderColorSourceUpToDate(actor))
-    {
-      this->ShaderProgram = nullptr;
-    }
-    if (!this->IsShaderNormalSourceUpToDate(actor))
     {
       this->ShaderProgram = nullptr;
     }
@@ -1292,8 +1288,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
       );
       std::ostringstream fsImpl;
       // here, orient the view coordinate normal such that it always points out of the screen.
-      fsImpl << "vec3 normalVCVSOutput;\n";
-      fsImpl << "if (primitiveSize == 1) { normalVCVSOutput = vec3(0.0, 0.0, 1.0); }\n";
+      fsImpl << "vec3 primitiveNormal;\n";
+      fsImpl << "if (primitiveSize == 1) { primitiveNormal = vec3(0.0, 0.0, 1.0); }\n";
       // Generate a normal for a line that is perpendicular to the line and
       // maximally aligned with the camera view direction.  Basic approach
       // is as follows.  Start with the gradients dFdx and dFdy (see above),
@@ -1309,21 +1305,21 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
                 "{\n"
                 "  float addOrSubtract = (dot(fdx, fdy) >= 0.0) ? 1.0 : -1.0;\n"
                 "  vec3 lineVec = addOrSubtract*fdy + fdx;\n"
-                "  normalVCVSOutput = normalize(cross(vec3(lineVec.y, -lineVec.x, 0.0), "
+                "  primitiveNormal = normalize(cross(vec3(lineVec.y, -lineVec.x, 0.0), "
                 "lineVec));\n"
                 "}\n";
       // for primitives with 3 or more points (i.e triangles and triangle strips in our
       // mapper, we don't do line loops or line strips)
       fsImpl << "else\n"
                 "{\n"
-                "  normalVCVSOutput = normalize(cross(fdx,fdy));\n"
-                "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = "
-                "-1.0*normalVCVSOutput; }\n"
-                "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { "
-                "normalVCVSOutput "
-                "= -1.0*normalVCVSOutput; }\n"
+                "  primitiveNormal = normalize(cross(fdx,fdy));\n"
+                "  if (cameraParallel == 1 && primitiveNormal.z < 0.0) { primitiveNormal = "
+                "-1.0*primitiveNormal; }\n"
+                "  if (cameraParallel == 0 && dot(primitiveNormal,vertexVC.xyz) > 0.0) { "
+                "primitiveNormal "
+                "= -1.0*primitiveNormal; }\n"
                 "}\n";
-      fsImpl << "vec3 vertexNormalVCVS = normalVCVSOutput;\n";
+      fsImpl << "vec3 vertexNormalVCVS = primitiveNormal;\n";
       if (this->HasClearCoat)
       {
         fsImpl << "vec3 coatNormalVCVSOutput = normalVCVSOutput;\n";
@@ -2543,15 +2539,15 @@ void vtkOpenGLLowMemoryPolyDataMapper::UpdatePBRStateCache(vtkRenderer*, vtkActo
     actor->GetProperty()->GetCoatStrength() > 0.0;
 
   std::vector<TextureInfo> textures = this->GetTextures(actor);
-  bool usesNormalMap =
-    std::find_if(textures.begin(), textures.end(),
-      [](const TextureInfo& tex) { return tex.second == "normalTex"; }) != textures.end();
+  bool usesNormalMap = std::find_if(textures.begin(), textures.end(), [](const TextureInfo& tex) {
+    return tex.second == "normalTex";
+  }) != textures.end();
   bool usesCoatNormalMap = this->HasClearCoat &&
     std::find_if(textures.begin(), textures.end(),
       [](const TextureInfo& tex) { return tex.second == "coatNormalTex"; }) != textures.end();
-  bool usesRotationMap =
-    std::find_if(textures.begin(), textures.end(),
-      [](const TextureInfo& tex) { return tex.second == "anisotropyTex"; }) != textures.end();
+  bool usesRotationMap = std::find_if(textures.begin(), textures.end(), [](const TextureInfo& tex) {
+    return tex.second == "anisotropyTex";
+  }) != textures.end();
 
   if (hasAnisotropy != this->HasAnisotropy)
   {

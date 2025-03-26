@@ -17,7 +17,7 @@
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkTable.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>

@@ -71,14 +71,12 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 // Allocate memory for the list of lists of cell ids.
 void vtkCellLinks::AllocateLinks(vtkIdType n)
 {
-  vtkSMPTools::For(0, n,
-    [&](vtkIdType beginPtId, vtkIdType endPtId)
+  vtkSMPTools::For(0, n, [&](vtkIdType beginPtId, vtkIdType endPtId) {
+    for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
     {
-      for (vtkIdType ptId = beginPtId; ptId < endPtId; ++ptId)
-      {
-        this->Array[ptId].cells = new vtkIdType[this->Array[ptId].ncells];
-      }
-    });
+      this->Array[ptId].cells = new vtkIdType[this->Array[ptId].ncells];
+    }
+  });
 }
 
 //------------------------------------------------------------------------------
@@ -207,8 +205,7 @@ void vtkCellLinks::SelectCells(vtkIdType minMaxDegree[2], unsigned char* cellSel
 {
   std::fill_n(cellSelection, this->NumberOfCells, 0);
   vtkSMPTools::For(0, this->NumberOfPoints,
-    [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId)
-    {
+    [this, minMaxDegree, cellSelection](vtkIdType ptId, vtkIdType endPtId) {
       for (; ptId < endPtId; ++ptId)
       {
         vtkIdType degree = this->GetNcells(0);
@@ -251,17 +248,15 @@ void vtkCellLinks::DeepCopy(vtkAbstractCellLinks* src)
   }
   this->SetSequentialProcessing(src->GetSequentialProcessing());
   this->Allocate(cellLinks->Size, cellLinks->Extend);
-  vtkSMPTools::For(0, cellLinks->MaxId + 1,
-    [&](vtkIdType ptId, vtkIdType endPtId)
+  vtkSMPTools::For(0, cellLinks->MaxId + 1, [&](vtkIdType ptId, vtkIdType endPtId) {
+    for (; ptId < endPtId; ++ptId)
     {
-      for (; ptId < endPtId; ++ptId)
-      {
-        vtkIdType ncells = cellLinks->GetNcells(ptId);
-        this->Array[ptId].cells = new vtkIdType[ncells];
-        this->Array[ptId].ncells = ncells;
-        std::copy_n(cellLinks->Array[ptId].cells, ncells, this->Array[ptId].cells);
-      }
-    });
+      vtkIdType ncells = cellLinks->GetNcells(ptId);
+      this->Array[ptId].cells = new vtkIdType[ncells];
+      this->Array[ptId].ncells = ncells;
+      std::copy_n(cellLinks->Array[ptId].cells, ncells, this->Array[ptId].cells);
+    }
+  });
   this->MaxId = cellLinks->MaxId;
   this->Extend = cellLinks->Extend;
   this->NumberOfPoints = cellLinks->NumberOfPoints;

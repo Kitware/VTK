@@ -90,16 +90,14 @@ int TestBlockVisibility(int argc, char* argv[])
 
   int numVisited = 0;
   int numVisible = 0;
-  attrs->VisitVisibilities(
-    [&numVisited, &numVisible](vtkDataObject*, bool visible)
+  attrs->VisitVisibilities([&numVisited, &numVisible](vtkDataObject*, bool visible) {
+    if (visible)
     {
-      if (visible)
-      {
-        ++numVisible;
-      }
-      ++numVisited;
-      return false; // do not terminate loop early.
-    });
+      ++numVisible;
+    }
+    ++numVisited;
+    return false; // do not terminate loop early.
+  });
 
   if (numVisited != static_cast<int>(mbds->GetNumberOfBlocks()))
   {

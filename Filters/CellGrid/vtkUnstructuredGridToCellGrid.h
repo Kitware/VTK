@@ -32,13 +32,11 @@
 #ifndef vtkUnstructuredGridToCellGrid_h
 #define vtkUnstructuredGridToCellGrid_h
 
+#include "vtkCellGrid.h"              // for API + ivars
+#include "vtkFiltersCellGridModule.h" // For export macro
+#include "vtkNew.h"                   // for ivar
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
-
-#include "vtkCellGrid.h"                         // for API + ivars
-#include "vtkFiltersCellGridModule.h"            // For export macro
-#include "vtkNew.h"                              // for ivar
-#include "vtkStringToken.h"                      // for API + ivars
-#include "vtkUnstructuredGridFieldAnnotations.h" // for API + ivars
+#include "vtkStringToken.h" // for API + ivars
 
 #include <map>
 #include <unordered_map>
@@ -46,7 +44,6 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-
 class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkUnstructuredGrid;
@@ -130,16 +127,50 @@ public:
     std::unordered_map<vtkStringToken, vtkIdType> OutputAllocations;
 
     /// A key for indexing fields defined on a partitioned dataset collection entry.
-    using BlockAttributesKey = vtkUnstructuredGridFieldAnnotations::BlockAttributesKey;
+    struct BlockAttributesKey
+    {
+      vtkStringToken DOFSharing;
+      vtkStringToken FunctionSpace;
+      bool operator<(const BlockAttributesKey& other) const
+      {
+        return this->DOFSharing.GetId() < other.DOFSharing.GetId() ||
+          (this->DOFSharing == other.DOFSharing &&
+            (this->FunctionSpace.GetId() < other.FunctionSpace.GetId()));
+      }
+    };
 
     /// Gloms of multiple field names that represent vectors or tensors.
-    using FieldGlom = vtkUnstructuredGridFieldAnnotations::FieldGlom;
+    struct FieldGlom
+    {
+      /// An ordered list of single-component IOSS arrays that should
+      /// be interleaved into a single, multi-component array.
+      std::vector<vtkStringToken> Members;
+    };
 
     /// Configuration hints for a partitioned dataset collection entry.
-    using BlockAttributesValue = vtkUnstructuredGridFieldAnnotations::BlockAttributesValue;
+    struct BlockAttributesValue
+    {
+      vtkStringToken BasisSource;      // Currently always "Intrepid2"
+      vtkStringToken FunctionSpace;    // "HDIV", "HGRAD", "HCURL"
+      vtkStringToken Shape;            // "HEX", "QUAD", etc.
+      vtkStringToken QuadratureScheme; // "I1", "C2", etc.
+      vtkStringToken Formulation;      // Currently always "FEM"
+      std::set<unsigned int> NodeIds;  // Nodes in the vtkDataAssembly which reference this block.
+      mutable std::unordered_set<vtkStringToken> FieldNames; // Special fields for this block.
+      mutable std::unordered_map<vtkStringToken, FieldGlom>
+        FieldGloms; // Special fields that are glommed.
+    };
 
-    /// Container for field annotations capture from the input unstructured grid.
-    vtkNew<vtkUnstructuredGridFieldAnnotations> Annotations;
+    /// A map from dataset IDs (i.e., FlatIndex values in the collection) to
+    /// a map keyed on function space and DOF sharing; and whose ultimate values
+    /// are a numerical basis set of cell-attribute names of that type.
+    ///
+    /// Each responder is expected to use the request's FlatIndex to find matching
+    /// entries in the outer map and iterate the inner map to match arrays to
+    /// cell attributes. Any arrays with no match should be considered "traditional"
+    /// point- or cell-data.
+    std::unordered_map<unsigned int, std::map<BlockAttributesKey, BlockAttributesValue>>
+      Annotations;
 
   protected:
     TranscribeQuery() = default;

@@ -136,12 +136,54 @@ typedef std::vector<Face> FaceVector;
 // Construct the hexahedron with eight points.
 vtkPolyhedron::vtkPolyhedron()
 {
+  this->Line = vtkLine::New();
+  this->Triangle = vtkTriangle::New();
+  this->Quad = vtkQuad::New();
+  this->Polygon = vtkPolygon::New();
+  this->Tetra = vtkTetra::New();
+  this->GlobalFaces = vtkCellArray::New();
+  this->LegacyGlobalFaces = vtkIdTypeArray::New();
+
+  this->EdgesGenerated = 0;
+  this->EdgeTable = vtkEdgeTable::New();
+  this->Edges = vtkIdTypeArray::New();
   this->Edges->SetNumberOfComponents(2);
+  this->EdgeFaces = vtkIdTypeArray::New();
   this->EdgeFaces->SetNumberOfComponents(2);
+
+  this->FacesGenerated = 0;
+  this->Faces = vtkCellArray::New();
+
+  this->BoundsComputed = 0;
+
+  this->PolyDataConstructed = 0;
+  this->PolyData = vtkPolyData::New();
+  this->LocatorConstructed = 0;
+  this->CellLocator = vtkCellLocator::New();
+  this->CellIds = vtkIdList::New();
+  this->Cell = vtkGenericCell::New();
+  this->IsRandomSequenceSeedInitialized = false;
 }
 
 //------------------------------------------------------------------------------
-vtkPolyhedron::~vtkPolyhedron() = default;
+vtkPolyhedron::~vtkPolyhedron()
+{
+  this->Line->Delete();
+  this->Triangle->Delete();
+  this->Quad->Delete();
+  this->Polygon->Delete();
+  this->Tetra->Delete();
+  this->GlobalFaces->Delete();
+  this->LegacyGlobalFaces->Delete();
+  this->EdgeTable->Delete();
+  this->Edges->Delete();
+  this->EdgeFaces->Delete();
+  this->Faces->Delete();
+  this->PolyData->Delete();
+  this->CellLocator->Delete();
+  this->CellIds->Delete();
+  this->Cell->Delete();
+}
 
 //------------------------------------------------------------------------------
 void vtkPolyhedron::ComputeBounds()
@@ -610,10 +652,10 @@ static const int VTK_VOTE_THRESHOLD = 3;
 // Shoot random rays and count the number of intersections
 int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 {
-  bool initialized = false;
-  if (this->IsRandomSequenceSeedInitialized.compare_exchange_strong(initialized, true))
+  if (!this->IsRandomSequenceSeedInitialized)
   {
-    this->RandomSequence->SetSeed(static_cast<int>(std::time(nullptr)));
+    this->RandomSequence->SetSeed(std::time(nullptr));
+    this->IsRandomSequenceSeedInitialized = true;
   }
 
   // do a quick bounds check
@@ -1968,8 +2010,7 @@ void vtkPolyhedron::Contour(double value, vtkDataArray* pointScalars,
   }
 
   // the callback lambda will add each polygon found polys cell array
-  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly)
-  {
+  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly) {
     if (!poly)
       return;
 
@@ -2270,8 +2311,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
 {
   // set the compare function
-  std::function<bool(double, double)> c = [insideOut](double a, double b)
-  {
+  std::function<bool(double, double)> c = [insideOut](double a, double b) {
     if (insideOut)
       return std::less_equal<double>()(a, b);
 
@@ -2392,8 +2432,7 @@ void vtkPolyhedron::Clip(double value, vtkDataArray* pointScalars,
   // variables
   std::vector<std::vector<vtkIdType>>* pPolygons = &polygons;
 
-  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly)
-  {
+  std::function<void(vtkIdList*)> cb = [=](vtkIdList* poly) {
     vtkIdType nIds = poly->GetNumberOfIds();
     std::vector<vtkIdType> polygon;
     polygon.reserve(nIds);

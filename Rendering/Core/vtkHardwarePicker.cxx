@@ -7,12 +7,9 @@
 #include "vtkActor.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
-#include "vtkCellGrid.h"
-#include "vtkCellGridMapper.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
-#include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageMapper3D.h"
@@ -107,9 +104,6 @@ void vtkHardwarePicker::Initialize()
   this->PointId = -1;
   this->CellId = -1;
   this->SubId = -1;
-  this->CellGridCellTypeId = -1;
-  this->CellGridSourceSpecId = -1;
-  this->CellGridTupleId = -1;
 
   this->PCoords[0] = DEFAULT_VALUE;
   this->PCoords[1] = DEFAULT_VALUE;
@@ -396,7 +390,6 @@ int vtkHardwarePicker::Pick(
         {
           this->Mapper = map1;
           this->DataSet = map1->GetInput();
-          this->DataObject = map1->GetInputDataObject(0, 0);
           this->CompositeDataSet =
             vtkCompositeDataSet::SafeDownCast(map1->GetInputDataObject(0, 0));
         }
@@ -404,7 +397,6 @@ int vtkHardwarePicker::Pick(
         {
           this->Mapper = vmap;
           this->DataSet = vmap->GetDataSetInput();
-          this->DataObject = this->DataSet;
           this->CompositeDataSet =
             vtkCompositeDataSet::SafeDownCast(vmap->GetInputDataObject(0, 0));
         }
@@ -412,20 +404,18 @@ int vtkHardwarePicker::Pick(
         {
           this->Mapper = imap;
           this->DataSet = imap->GetDataSetInput();
-          this->DataObject = this->DataSet;
           this->CompositeDataSet =
             vtkCompositeDataSet::SafeDownCast(imap->GetInputDataObject(0, 0));
         }
         else
         {
           this->DataSet = nullptr;
-          this->DataObject = nullptr;
           this->CompositeDataSet = nullptr;
         }
       }
     }
 
-    if (this->DataSet || this->CompositeDataSet || this->DataObject)
+    if (this->DataSet || this->CompositeDataSet)
     {
       // define FlatBlockIndex
       if (this->CompositeDataSet)
@@ -458,25 +448,6 @@ int vtkHardwarePicker::Pick(
         if (selectedDataSet)
         {
           this->CellId = selectionId < selectedDataSet->GetNumberOfCells() ? selectionId : -1;
-        }
-      }
-      auto* cellGrid = vtkCellGrid::SafeDownCast(this->DataObject);
-      if (cellGrid || this->CompositeDataSet)
-      {
-        // define selected cellgrid
-        vtkCellGrid* selectedCellGrid = cellGrid
-          ? cellGrid
-          : (this->CompositeDataSet ? vtkCellGrid::SafeDownCast(this->CompositeDataSet->GetDataSet(
-                                        static_cast<unsigned int>(this->FlatBlockIndex)))
-                                    : nullptr);
-        if (selectedCellGrid)
-        {
-          auto* selectionInfo = this->HardwareSelection->GetNode(0)->GetProperties();
-          this->CellGridCellTypeId =
-            selectionInfo->Get(vtkSelectionNode::CELLGRID_CELL_TYPE_INDEX());
-          this->CellGridSourceSpecId =
-            selectionInfo->Get(vtkSelectionNode::CELLGRID_SOURCE_SPECIFICATION_INDEX());
-          this->CellGridTupleId = selectionId;
         }
       }
 
@@ -582,14 +553,6 @@ void vtkHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "DataSet: (none)" << endl;
   }
-  if (this->DataObject)
-  {
-    os << indent << "DataObject: " << this->DataObject << endl;
-  }
-  else
-  {
-    os << indent << "DataObject: (none)" << endl;
-  }
   if (this->CompositeDataSet)
   {
     os << indent << "CompositeDataSet: " << this->CompositeDataSet << endl;
@@ -609,9 +572,6 @@ void vtkHardwarePicker::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointId : " << this->PointId << endl;
   os << indent << "CellId : " << this->CellId << endl;
   os << indent << "SubId : " << this->SubId << endl;
-  os << indent << "CellGridCellTypeId : " << this->CellGridCellTypeId << endl;
-  os << indent << "CellGridSourceSpecId : " << this->CellGridSourceSpecId << endl;
-  os << indent << "CellGridTupleId : " << this->CellGridTupleId << endl;
   os << indent << "PickNormal: (" << this->PickNormal[0] << "," << this->PickNormal[1] << ","
      << this->PickNormal[2] << ")" << endl;
   os << indent << "PCoords: (" << this->PCoords[0] << ", " << this->PCoords[1] << ", "

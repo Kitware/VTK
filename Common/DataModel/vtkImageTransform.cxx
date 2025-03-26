@@ -27,9 +27,9 @@ template <typename T>
 struct InPlaceTranslatePoints
 {
   T* Points;
-  const double* Translation;
+  double* Translation;
 
-  InPlaceTranslatePoints(const double t[3], T* pts)
+  InPlaceTranslatePoints(double t[3], T* pts)
     : Points(pts)
     , Translation(t)
   {
@@ -49,7 +49,7 @@ struct InPlaceTranslatePoints
   }
 
   // Interface to vtkSMPTools
-  static void Execute(const double t[3], vtkIdType num, T* pts)
+  static void Execute(double t[3], vtkIdType num, T* pts)
   {
     InPlaceTranslatePoints<T> translate(t, pts);
     vtkSMPTools::For(0, num, translate);
@@ -205,7 +205,7 @@ void vtkImageTransform::TransformPointSet(
   // Grab the points-related-data and process as appropriate
   vtkDataArray* pts = ps->GetPoints()->GetData();
   vtkMatrix3x3* m3 = im->GetDirectionMatrix();
-  const double* ar = im->GetSpacing();
+  double* ar = im->GetSpacing();
 
   // If there is no rotation or spacing, only translate
   if (m3->IsIdentity() && ar[0] == 1.0 && ar[1] == 1.0 && ar[2] == 1.0)
@@ -248,7 +248,7 @@ void vtkImageTransform::TransformPointSet(
 }
 
 //------------------------------------------------------------------------------
-void vtkImageTransform::TranslatePoints(const double t[3], vtkDataArray* da)
+void vtkImageTransform::TranslatePoints(double* t, vtkDataArray* da)
 {
   void* pts = da->GetVoidPointer(0);
   vtkIdType num = da->GetNumberOfTuples();
@@ -273,8 +273,7 @@ void vtkImageTransform::TransformPoints(vtkMatrix4x4* m4, vtkDataArray* da)
 }
 
 //------------------------------------------------------------------------------
-void vtkImageTransform::TransformNormals(
-  vtkMatrix3x3* m3, const double spacing[3], vtkDataArray* da)
+void vtkImageTransform::TransformNormals(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da)
 {
   // The determinant of the image Direction is 1 or -1, we use it to flip
   // the normals to the expected orientation for proper visualization
@@ -309,8 +308,7 @@ void vtkImageTransform::TransformNormals(
 }
 
 //------------------------------------------------------------------------------
-void vtkImageTransform::TransformVectors(
-  vtkMatrix3x3* m3, const double spacing[3], vtkDataArray* da)
+void vtkImageTransform::TransformVectors(vtkMatrix3x3* m3, double spacing[3], vtkDataArray* da)
 {
   // Here we assume that the vectors are gradient vectors, therefore
   // the transposed inverse matrix is used to apply the transformation

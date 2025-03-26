@@ -203,24 +203,20 @@ int TestGlyph3DMapperPickability(int argc, char* argv[])
   sel->Delete();
 
   // One block in every possible state.
-  prepareDisplayAttribute(expected, cdda, multiBlock,
-    [](int nn)
-    {
-      --nn;
-      return std::pair<bool, bool>(!!(nn / 2), !!(nn % 2));
-    });
+  prepareDisplayAttribute(expected, cdda, multiBlock, [](int nn) {
+    --nn;
+    return std::pair<bool, bool>(!!(nn / 2), !!(nn % 2));
+  });
   multiBlock->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);
   sel->Delete();
 
   // One block in every possible state (but different).
-  prepareDisplayAttribute(expected, cdda, multiBlock,
-    [](int nn)
-    {
-      --nn;
-      return std::pair<bool, bool>(!(nn / 2), !(nn % 2));
-    });
+  prepareDisplayAttribute(expected, cdda, multiBlock, [](int nn) {
+    --nn;
+    return std::pair<bool, bool>(!(nn / 2), !(nn % 2));
+  });
   multiBlock->Modified();
   sel = hw->Select();
   retVal &= checkSelection(sel, expected, testNum);

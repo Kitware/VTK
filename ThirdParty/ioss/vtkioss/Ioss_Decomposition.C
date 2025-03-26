@@ -16,7 +16,6 @@
 #include <cassert>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
-#include VTK_FMT(fmt/ranges.h)
 #include <numeric>
 
 #if !defined(NO_ZOLTAN_SUPPORT)

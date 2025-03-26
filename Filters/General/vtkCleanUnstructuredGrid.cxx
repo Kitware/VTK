@@ -216,8 +216,7 @@ struct SpatialDensityStrategy : public WeighingStrategy
       ds->GetCellPoints(0, pointIdList);
     }
     vtkSMPThreadLocalObject<vtkIdList> localPointIds;
-    auto distribute = [&](vtkIdType begin, vtkIdType end)
-    {
+    auto distribute = [&](vtkIdType begin, vtkIdType end) {
       for (vtkIdType iC = begin; iC < end; ++iC)
       {
         ds->GetCellPoints(iC, localPointIds.Local());
@@ -241,8 +240,7 @@ struct SpatialDensityStrategy : public WeighingStrategy
     // Normalize spatial densities with respect to point map
     {
       std::vector<double> masses(*std::max_element(ptMap.begin(), ptMap.end()) + 1, 0);
-      auto computeMasses = [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end)
-      {
+      auto computeMasses = [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end) {
         for (vtkIdType iP = begin; iP < end; ++iP)
         {
           if (ptMap[iP] < 0)
@@ -257,9 +255,8 @@ struct SpatialDensityStrategy : public WeighingStrategy
       // Merits a dedicated struct with a reduce operation
       // collisions occurring in the += operation
       // vtkSMPTools::For(0, ds->GetNumberOfPoints(), computeMasses);
-      vtkSMPTools::For(0, ds->GetNumberOfPoints(),
-        [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end)
-        {
+      vtkSMPTools::For(
+        0, ds->GetNumberOfPoints(), [&dRange, &masses, &ptMap](vtkIdType begin, vtkIdType end) {
           for (vtkIdType iP = begin; iP < end; ++iP)
           {
             if (ptMap[iP] < 0)
@@ -304,8 +301,7 @@ struct WeighingWorklet
     auto inRange = vtk::DataArrayTupleRange(inArray);
     auto outRange = vtk::DataArrayTupleRange(outArray);
     auto wRange = vtk::DataArrayValueRange<1>(weights);
-    auto weighing = [&](vtkIdType begin, vtkIdType end)
-    {
+    auto weighing = [&](vtkIdType begin, vtkIdType end) {
       for (vtkIdType iP = begin; iP < end; ++iP)
       {
         if (ptMap[iP] < 0)

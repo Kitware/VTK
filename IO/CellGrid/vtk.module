@@ -6,8 +6,6 @@ KIT
   VTK::IO
 GROUPS
   StandAlone
-DESCRIPTION
-  Readers and writers for vtkCellGrid-specific file-types
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

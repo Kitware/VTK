@@ -30,6 +30,12 @@ bool vtkDGBoundsResponder::Query(
 
   auto* grid = cellType->GetCellGrid();
   std::string cellTypeName = cellType->GetClassName();
+  if (!grid->GetShapeAttribute())
+  {
+    vtkErrorMacro("Cells of type \"" << cellTypeName << "\" have no parent grid.");
+    return false;
+  }
+
   auto* shape = grid->GetShapeAttribute();
   if (!shape)
   {

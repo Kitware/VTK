@@ -149,8 +149,7 @@ int vtkDataSetToDataObjectFilter::RequestData(
   if (this->Topology)
   {
     // Helper lambda to add cell arrays to the field data:
-    auto addCellConnArrays = [&](vtkCellArray* ca, const std::string& name)
-    {
+    auto addCellConnArrays = [&](vtkCellArray* ca, const std::string& name) {
       if (!ca || ca->GetNumberOfCells() == 0)
       {
         return;

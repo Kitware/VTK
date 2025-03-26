@@ -19,7 +19,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSelector.h"
 #include "vtkSignedCharArray.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <bitset>
 #include <vector>
@@ -658,8 +658,7 @@ public:
     // do this by checking if there is a plane for which all the points in the cell
     // are a positive distance away from it
     std::vector<double> distances(cell->GetNumberOfPoints());
-    auto checkAllPositive = [](std::vector<double>& vals)
-    {
+    auto checkAllPositive = [](std::vector<double>& vals) {
       for (auto val : vals)
       {
         if (val < 0)
@@ -720,8 +719,7 @@ public:
       cell->PointIds->SetId(iP, iP);
     }
 
-    auto cubePoint = [dim, origin, size](std::bitset<3>& pos, std::vector<double>* cubePt)
-    {
+    auto cubePoint = [dim, origin, size](std::bitset<3>& pos, std::vector<double>* cubePt) {
       for (unsigned int d = 0; d < dim; d++)
       {
         cubePt->at(d) = origin[d] + pos[d] * size[d];
@@ -927,23 +925,21 @@ void vtkFrustumSelector::ComputeSelectedPoints(vtkDataSet* input, vtkSignedCharA
   double xx[3];
   input->GetPoint(0, xx);
 
-  vtkSMPTools::For(0, numPts,
-    [input, this, &pointSelected](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, numPts, [input, this, &pointSelected](vtkIdType begin, vtkIdType end) {
+    double x[3];
+    for (vtkIdType ptId = begin; ptId < end; ++ptId)
     {
-      double x[3];
-      for (vtkIdType ptId = begin; ptId < end; ++ptId)
+      input->GetPoint(ptId, x);
+      if ((this->Frustum->EvaluateFunction(x)) < 0.0)
       {
-        input->GetPoint(ptId, x);
-        if ((this->Frustum->EvaluateFunction(x)) < 0.0)
-        {
-          pointSelected->SetValue(ptId, 1);
-        }
-        else
-        {
-          pointSelected->SetValue(ptId, 0);
-        }
+        pointSelected->SetValue(ptId, 1);
       }
-    });
+      else
+      {
+        pointSelected->SetValue(ptId, 0);
+      }
+    }
+  });
 }
 
 //------------------------------------------------------------------------------

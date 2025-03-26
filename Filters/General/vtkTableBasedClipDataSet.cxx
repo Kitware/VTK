@@ -211,14 +211,12 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     else
     {
       scalars->SetNumberOfValues(numPoints);
-      vtkSMPTools::For(0, numPoints,
-        [&](vtkIdType begin, vtkIdType end)
+      vtkSMPTools::For(0, numPoints, [&](vtkIdType begin, vtkIdType end) {
+        for (vtkIdType i = begin; i < end; i++)
         {
-          for (vtkIdType i = begin; i < end; i++)
-          {
-            scalars->SetValue(i, inputArray->GetComponent(i, 0));
-          }
-        });
+          scalars->SetValue(i, inputArray->GetComponent(i, 0));
+        }
+      });
     }
   }
 
@@ -456,8 +454,7 @@ struct EvaluatePoints
     // Prefix sum to create point map of kept (i.e., retained) points.
     auto pointsMap = vtk::DataArrayValueRange<1>(this->PointsMap);
     vtkSMPTools::For(0, this->PointBatches.GetNumberOfBatches(),
-      [&](vtkIdType beginBatchId, vtkIdType endBatchId)
-      {
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
         vtkIdType pointId;
         TInputIdType pointsMapValues[2] = { -1 /*always the same*/, 0 /*offset*/ };
         bool isKept;
@@ -762,9 +759,8 @@ struct EvaluateCells
 
     // merge thread local edges
     this->Edges.resize(totalSizeOfEdges);
-    vtkSMPTools::For(0, static_cast<vtkIdType>(tlEdgesVector.size()),
-      [&](vtkIdType begin, vtkIdType end)
-      {
+    vtkSMPTools::For(
+      0, static_cast<vtkIdType>(tlEdgesVector.size()), [&](vtkIdType begin, vtkIdType end) {
         for (vtkIdType threadId = begin; threadId < end; ++threadId)
         {
           auto& edges = *tlEdgesVector[threadId];
@@ -1101,8 +1097,7 @@ struct ExtractPointsWorker
     const auto ptsMap = vtk::DataArrayValueRange<1>(pointsMap);
 
     // copy kept input points
-    auto extractKeptPoints = [&](vtkIdType beginBatchId, vtkIdType endBatchId)
-    {
+    auto extractKeptPoints = [&](vtkIdType beginBatchId, vtkIdType endBatchId) {
       vtkIdType pointId;
       double inputPoint[3];
 
@@ -1140,8 +1135,7 @@ struct ExtractPointsWorker
     vtkSMPTools::For(0, pointBatches.GetNumberOfBatches(), extractKeptPoints);
 
     // create edge points
-    auto extractEdgePoints = [&](vtkIdType beginEdgeId, vtkIdType endEdgeId)
-    {
+    auto extractEdgePoints = [&](vtkIdType beginEdgeId, vtkIdType endEdgeId) {
       vtkIdType outputEdgePointId;
       double edgePoint1[3], edgePoint2[3];
 
@@ -1180,8 +1174,7 @@ struct ExtractPointsWorker
     vtkSMPTools::For(0, numberOfEdges, extractEdgePoints);
 
     // create centroid points
-    auto extractCentroids = [&](vtkIdType beginCentroid, vtkIdType endCentroid)
-    {
+    auto extractCentroids = [&](vtkIdType beginCentroid, vtkIdType endCentroid) {
       vtkIdType outputCentroidPointId;
       double weights[MAX_CELL_SIZE];
       double weightFactor;

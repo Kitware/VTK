@@ -59,73 +59,73 @@ extern "C" {
  */
 #define HTML_PI_NODE		XML_PI_NODE
 
-XMLPUBFUN htmlDocPtr
+XMLPUBFUN htmlDocPtr XMLCALL
 		htmlNewDoc		(const xmlChar *URI,
 					 const xmlChar *ExternalID);
-XMLPUBFUN htmlDocPtr
+XMLPUBFUN htmlDocPtr XMLCALL
 		htmlNewDocNoDtD		(const xmlChar *URI,
 					 const xmlChar *ExternalID);
-XMLPUBFUN const xmlChar *
+XMLPUBFUN const xmlChar * XMLCALL
 		htmlGetMetaEncoding	(htmlDocPtr doc);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlSetMetaEncoding	(htmlDocPtr doc,
 					 const xmlChar *encoding);
 #ifdef LIBXML_OUTPUT_ENABLED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlDocDumpMemory	(xmlDocPtr cur,
 					 xmlChar **mem,
 					 int *size);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlDocDumpMemoryFormat	(xmlDocPtr cur,
 					 xmlChar **mem,
 					 int *size,
 					 int format);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlDocDump		(FILE *f,
 					 xmlDocPtr cur);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlSaveFile		(const char *filename,
 					 xmlDocPtr cur);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlNodeDump		(xmlBufferPtr buf,
 					 xmlDocPtr doc,
 					 xmlNodePtr cur);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlNodeDumpFile	(FILE *out,
 					 xmlDocPtr doc,
 					 xmlNodePtr cur);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlNodeDumpFileFormat	(FILE *out,
 					 xmlDocPtr doc,
 					 xmlNodePtr cur,
 					 const char *encoding,
 					 int format);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlSaveFileEnc		(const char *filename,
 					 xmlDocPtr cur,
 					 const char *encoding);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlSaveFileFormat	(const char *filename,
 					 xmlDocPtr cur,
 					 const char *encoding,
 					 int format);
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf,
 					 xmlDocPtr doc,
 					 xmlNodePtr cur,
 					 const char *encoding,
 					 int format);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlDocContentDumpOutput(xmlOutputBufferPtr buf,
 					 xmlDocPtr cur,
 					 const char *encoding);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlDocContentDumpFormatOutput(xmlOutputBufferPtr buf,
 					 xmlDocPtr cur,
 					 const char *encoding,
 					 int format);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		htmlNodeDumpOutput	(xmlOutputBufferPtr buf,
 					 xmlDocPtr doc,
 					 xmlNodePtr cur,
@@ -133,7 +133,7 @@ XMLPUBFUN void
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		htmlIsBooleanAttr	(const xmlChar *name);
 
 

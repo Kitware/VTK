@@ -26,7 +26,6 @@
 #include "vtkSmartPointer.h" // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkCellGrid;
 class vtkDataArraySelection;
 
 class VTKFILTERSGENERAL_EXPORT vtkPassSelectedArrays : public vtkPassInputTypeAlgorithm
@@ -91,8 +90,6 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  int HandleCellGridAttributes(vtkCellGrid* output);
 
 private:
   vtkPassSelectedArrays(const vtkPassSelectedArrays&) = delete;

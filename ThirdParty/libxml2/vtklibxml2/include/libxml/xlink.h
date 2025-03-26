@@ -160,23 +160,23 @@ struct _xlinkHandler {
  * detection callbacks.
  */
 
-XMLPUBFUN xlinkNodeDetectFunc
+XMLPUBFUN xlinkNodeDetectFunc XMLCALL
 		xlinkGetDefaultDetect	(void);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		xlinkSetDefaultDetect	(xlinkNodeDetectFunc func);
 
 /*
  * Routines to set/get the default handlers.
  */
-XMLPUBFUN xlinkHandlerPtr
+XMLPUBFUN xlinkHandlerPtr XMLCALL
 		xlinkGetDefaultHandler	(void);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		xlinkSetDefaultHandler	(xlinkHandlerPtr handler);
 
 /*
  * Link detection module itself.
  */
-XMLPUBFUN xlinkType
+XMLPUBFUN xlinkType XMLCALL
 		xlinkIsLink		(xmlDocPtr doc,
 					 xmlNodePtr node);
 

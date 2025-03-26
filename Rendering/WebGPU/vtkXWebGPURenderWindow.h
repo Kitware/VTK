@@ -51,7 +51,7 @@ public:
    * should be possible to call them multiple times, even changing WindowId
    * in-between.  This is what WindowRemap does.
    */
-  bool WindowSetup() override;
+  bool Initialize() override;
 
   /**
    * "Deinitialize" the rendering window.  This will shutdown all system-specific
@@ -137,11 +137,6 @@ public:
    * Get this RenderWindow's X display id.
    */
   Display* GetDisplayId();
-
-  /**
-   * Ensure RenderWindow's X display is opened
-   */
-  bool EnsureDisplay() override;
 
   ///@{
   /**

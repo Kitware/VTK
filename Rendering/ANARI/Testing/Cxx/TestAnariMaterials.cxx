@@ -32,7 +32,6 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariMaterials(int argc, char* argv[])
 {
@@ -61,7 +60,22 @@ int TestAnariMaterials(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariMaterials");
+  if (useDebugDevice)
+  {
+    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
+    vtkNew<vtkTesting> testing;
+
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace";
+    traceDir += "/TestAnariMaterials";
+    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
+  }
+
+  vtkAnariRendererNode::SetLibraryName("environment", renderer);
+  vtkAnariRendererNode::SetSamplesPerPixel(6, renderer);
+  vtkAnariRendererNode::SetLightFalloff(.5, renderer);
+  vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+  vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
 
   // make some predictable data to test with
   // anything will do, but should have normals and textures coordinates

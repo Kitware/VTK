@@ -39,7 +39,7 @@
 #include "vtkPointGaussianVS.h"
 #include "vtkPolyDataFS.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include "vtkOpenGLPointGaussianMapperHelper.h"
 
@@ -155,7 +155,9 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
         "//VTK::Color::Impl\n"
         "  float dist2 = dot(offsetVCVSOutput.xy,offsetVCVSOutput.xy);\n"
         "  float gaussian = exp(-0.5*dist2);\n"
-        "  opacity = opacity*gaussian;",
+        "  opacity = opacity*gaussian;"
+        //  "  opacity = opacity*0.5;"
+        ,
         false);
     }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -169,7 +171,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
 bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
-  this->PrimitiveInfo[&cellBO].LastLightComplexity = primitiveInfo::NoLighting;
+  this->PrimitiveInfo[&cellBO].LastLightComplexity = 0;
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() : -1;

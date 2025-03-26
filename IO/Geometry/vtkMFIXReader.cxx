@@ -718,8 +718,7 @@ void vtkMFIXReader::SwapInt(int& value)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::SwapDouble(double& value)
 {
-  union Swap
-  {
+  union Swap {
     double valDouble;
     unsigned char valByte[8];
   };
@@ -743,8 +742,7 @@ void vtkMFIXReader::SwapDouble(double& value)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::SwapFloat(float& value)
 {
-  union Swap
-  {
+  union Swap {
     float valFloat;
     unsigned char valByte[4];
   };

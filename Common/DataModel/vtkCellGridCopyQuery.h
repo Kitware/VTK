@@ -135,14 +135,6 @@ public:
   ///@name CopySetup Copy Style Setup.
   ///@{
 
-  /// Set/get whether to copy cell metadata instances
-  /// or leave target grid void of all cell types.
-  ///
-  /// The default (true) is to copy cell types.
-  vtkGetMacro(CopyCellTypes, int);
-  vtkSetMacro(CopyCellTypes, int);
-  vtkBooleanMacro(CopyCellTypes, int);
-
   /// Set/get whether to copy cell topology or leave each output instance
   /// of cell metadata uninitialized.
   ///
@@ -308,7 +300,6 @@ protected:
   std::set<int> CellAttributeIds;
   std::map<vtkAbstractArray*, vtkAbstractArray*> ArrayMap;
   std::map<vtkCellAttribute*, vtkCellAttribute*> AttributeMap;
-  int CopyCellTypes{ 1 };
   int CopyCells{ 1 };
   int CopyOnlyShape{ 1 };
   int CopyArrays{ 1 };

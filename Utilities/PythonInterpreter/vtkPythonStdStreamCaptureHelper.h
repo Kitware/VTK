@@ -16,8 +16,7 @@ VTK_ABI_NAMESPACE_BEGIN
 struct vtkPythonStdStreamCaptureHelper
 {
   PyObject_HEAD
-  int softspace;        // Used by print to keep track of its state.
-  const char* Encoding; // Encoding, set to "utf-8"
+  int softspace; // Used by print to keep track of its state.
   bool DumpToError;
 
   void Write(const char* string)
@@ -85,9 +84,6 @@ static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
   { VTK_PYTHON_MEMBER_DEF_STR("softspace"), T_INT,
     offsetof(vtkPythonStdStreamCaptureHelper, softspace), 0,
     VTK_PYTHON_MEMBER_DEF_STR("Placeholder so print can keep state.") },
-  { VTK_PYTHON_MEMBER_DEF_STR("encoding"), T_STRING,
-    offsetof(vtkPythonStdStreamCaptureHelper, Encoding), READONLY,
-    VTK_PYTHON_MEMBER_DEF_STR("Text encoding for file.") },
   { nullptr, 0, 0, 0, nullptr }
 };
 
@@ -254,7 +250,6 @@ static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(bool for
     PyObject_New(vtkPythonStdStreamCaptureHelper, &vtkPythonStdStreamCaptureHelperType);
   if (wrapper)
   {
-    wrapper->Encoding = "utf-8";
     wrapper->DumpToError = for_stderr;
   }
 

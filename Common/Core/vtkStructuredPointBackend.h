@@ -22,14 +22,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 template <typename ValueType>
-class VTKCOMMONCORE_EXPORT vtkStructuredPointBackend
+class vtkStructuredPointBackend
 {
 public:
   //------------------------------------------------------------------------------
-  vtkStructuredPointBackend();
+  vtkStructuredPointBackend() = default;
 
   //------------------------------------------------------------------------------
-  virtual ~vtkStructuredPointBackend();
+  virtual ~vtkStructuredPointBackend() = default;
 
   /**
    * These function should only be used when direction matrix is NOT identity.
@@ -81,7 +81,7 @@ class vtkStructuredTPointBackend : public vtkStructuredPointBackend<ValueType>
 
 public:
   //------------------------------------------------------------------------------
-  vtkStructuredTPointBackend();
+  vtkStructuredTPointBackend() = default;
 
   //------------------------------------------------------------------------------
   vtkStructuredTPointBackend(
@@ -129,7 +129,7 @@ public:
   }
 
   //------------------------------------------------------------------------------
-  ~vtkStructuredTPointBackend() override;
+  ~vtkStructuredTPointBackend() override = default;
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
@@ -283,13 +283,13 @@ public:
   //------------------------------------------------------------------------------
   ValueType map(vtkIdType valueId) const override;
 };
+
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkStructuredPointBackend_h
 /* VTK-HeaderTest-Exclude: vtkStructuredPointBackend.h */
 
-#if defined(VTK_STRUCTURED_POINT_BACKEND_INSTANTIATING)
-
+#ifdef VTK_STRUCTURED_POINT_BACKEND_INSTANTIATING
 #define VTK_INSTANTIATE_STRUCTURED_POINT_BACKEND(ValueType)                                        \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT vtkStructuredPointBackend<ValueType>;                        \

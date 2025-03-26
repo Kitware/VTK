@@ -40,7 +40,7 @@
 #include "vtkFluidMapperThicknessAndVolumeColorFilterFS.h"
 #include "vtkFluidMapperVS.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include <cassert>
 #include <sstream>

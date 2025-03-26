@@ -77,15 +77,7 @@ void vtkOBJImporter::ReadData()
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
-    if (!bindTexturedPolydataToRenderWindow(
-          this->RenderWindow, this->Renderer, Impl, this->ActorCollection))
-    {
-      this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
-    }
-  }
-  else
-  {
-    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
+    bindTexturedPolydataToRenderWindow(this->RenderWindow, this->Renderer, Impl);
   }
 }
 
@@ -460,7 +452,6 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     float col[3];
 
     int lineNr = 0;
-    long lastVertexIndex = 0;
     while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
     { /** While OK and there is another line in the file */
       lineNr++;
@@ -496,6 +487,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       }
 
       // in the OBJ format the first characters determine how to interpret the line:
+      static long lastVertexIndex = 0;
       if (strcmp(cmd, "v") == 0)
       {
         // this is a vertex definition, expect three floats (six if vertex color), separated by
@@ -1126,15 +1118,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               }
               // copy the vertex into the new structure and update
               // the vertex index in the polys structure (pts is a pointer into it)
-              if (pts[j] < points->GetNumberOfPoints())
-              {
-                tmpCell->SetId(j, new_points->InsertNextPoint(points->GetPoint(pts[j])));
-              }
-              else
-              {
-                vtkErrorMacro(<< "Error reading point with index: " << pts[j]);
-                everything_ok = false;
-              }
+              tmpCell->SetId(j, new_points->InsertNextPoint(points->GetPoint(pts[j])));
             }
             polys->ReplaceCellAtId(i, tmpCell);
             // copy this poly (pointing at the new points) into the new polys list

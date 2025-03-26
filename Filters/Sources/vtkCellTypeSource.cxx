@@ -30,6 +30,7 @@
 #include "vtkTriQuadraticPyramid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <map>
 #include <set>

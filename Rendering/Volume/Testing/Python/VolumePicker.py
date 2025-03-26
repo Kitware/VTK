@@ -21,8 +21,7 @@ from vtkmodules.vtkRenderingCore import (
     vtkActor,
     vtkColorTransferFunction,
     vtkDataSetMapper,
-    vtkImageSlice,
-    vtkImageSliceMapper,
+    vtkImageActor,
     vtkPolyDataMapper,
     vtkProperty,
     vtkRenderWindow,
@@ -140,13 +139,9 @@ class VolumePicker(vtkmodules.test.Testing.vtkTest):
         mapToColors.SetInputConnection(v16.GetOutputPort())
         mapToColors.SetLookupTable(table)
 
-        imageMapper = vtkImageSliceMapper()
-        imageMapper.SetInputConnection(mapToColors.GetOutputPort())
-        imageMapper.SetOrientationToX()
-        imageMapper.SetSliceNumber(32)
-
-        imageActor = vtkImageSlice()
-        imageActor.SetMapper(imageMapper)
+        imageActor = vtkImageActor()
+        imageActor.GetMapper().SetInputConnection(mapToColors.GetOutputPort())
+        imageActor.SetDisplayExtent(32, 32, 0, 63, 0, 92)
 
         #---------------------------------------------------------
         # make a transform and some clipping planes
@@ -279,7 +274,7 @@ class VolumePicker(vtkmodules.test.Testing.vtkTest):
         renWin.Render()
 
         img_file = "VolumePicker.png"
-        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file))
+        vtkmodules.test.Testing.compareImage(iRen.GetRenderWindow(), vtkmodules.test.Testing.getAbsImagePath(img_file), threshold=25)
         vtkmodules.test.Testing.interact()
 
 if __name__ == "__main__":

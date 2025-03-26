@@ -23,5 +23,6 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonTransforms
   VTK::ImagingCore
-  VTK::glad
+  VTK::glew
+  VTK::opengl
 INCLUDE_MARSHAL

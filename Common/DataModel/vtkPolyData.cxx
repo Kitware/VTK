@@ -347,23 +347,21 @@ void vtkPolyData::ComputeCellsBounds()
           continue;
         }
         // Lambda to threaded mark used points
-        vtkSMPTools::For(0, numCells,
-          [&](vtkIdType beginCellId, vtkIdType endCellId)
+        vtkSMPTools::For(0, numCells, [&](vtkIdType beginCellId, vtkIdType endCellId) {
+          auto cellPointIds = tlCellPointIds.Local();
+          vtkIdType npts, ptIdx;
+          const vtkIdType* pts;
+          for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
           {
-            auto cellPointIds = tlCellPointIds.Local();
-            vtkIdType npts, ptIdx;
-            const vtkIdType* pts;
-            for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
+            cellArray->GetCellAtId(cellId, npts, pts, cellPointIds);
+            for (ptIdx = 0; ptIdx < npts; ++ptIdx)
             {
-              cellArray->GetCellAtId(cellId, npts, pts, cellPointIds);
-              for (ptIdx = 0; ptIdx < npts; ++ptIdx)
-              {
-                // memory_order_relaxed is safe here, since we're not using the atomics for
-                // synchronization.
-                ptUses[pts[ptIdx]].store(1, std::memory_order_relaxed);
-              }
+              // memory_order_relaxed is safe here, since we're not using the atomics for
+              // synchronization.
+              ptUses[pts[ptIdx]].store(1, std::memory_order_relaxed);
             }
-          }); // end lambda
+          }
+        }); // end lambda
       }
       vtkBoundingBox::ComputeBounds(this->Points, ptUses, this->CellsBounds);
       delete[] ptUses;
@@ -659,8 +657,7 @@ bool vtkPolyData::AllocateExact(vtkIdType numVerts, vtkIdType vertConnSize, vtkI
   vtkIdType stripConnSize)
 {
   auto initCellArray = [](vtkSmartPointer<vtkCellArray>& cellArray, vtkIdType numCells,
-                         vtkIdType connSize) -> bool
-  {
+                         vtkIdType connSize) -> bool {
     cellArray = nullptr;
     if (numCells == 0 && connSize == 0)
     {
@@ -737,8 +734,7 @@ struct BuildCellsImpl
       throw std::runtime_error("Cell map storage capacity exceeded.");
     }
 
-    auto buildCellsOperator = [&](vtkIdType begin, vtkIdType end)
-    {
+    auto buildCellsOperator = [&](vtkIdType begin, vtkIdType end) {
       for (vtkIdType cellId = begin, globalCellId = beginCellId + begin; cellId < end;
            ++cellId, ++globalCellId)
       {
@@ -793,19 +789,17 @@ void vtkPolyData::BuildCells()
 
   if (nPolys > 0)
   {
-    polys->Visit(BuildCellsImpl{}, this->Cells, beginCellId,
-      [](vtkIdType size) -> VTKCellType
+    polys->Visit(BuildCellsImpl{}, this->Cells, beginCellId, [](vtkIdType size) -> VTKCellType {
+      switch (size)
       {
-        switch (size)
-        {
-          case 3:
-            return VTK_TRIANGLE;
-          case 4:
-            return VTK_QUAD;
-          default:
-            return VTK_POLYGON;
-        }
-      });
+        case 3:
+          return VTK_TRIANGLE;
+        case 4:
+          return VTK_QUAD;
+        default:
+          return VTK_POLYGON;
+      }
+    });
     beginCellId += nPolys;
   }
 

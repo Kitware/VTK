@@ -11,10 +11,13 @@
 #include "TestComputeModifyPointColorsShader.h"
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkConeSource.h"
+#include "vtkElevationFilter.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
+#include "vtkObject.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -23,6 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
+#include "vtkSphereSource.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUPolyDataMapper.h"
@@ -34,13 +38,6 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetWindowName(__func__);
   renWin->SetMultiSamples(0);
-  // Initialize() call necessary when a WebGPU compute class is going to use resources from the
-  // render window/renderer/mapper.
-  //
-  // The modify point colors pipeline uses the render buffer of the WebGPUMapper. The pipeline is
-  // then added to the renderer (which is a renderer which uses the resources of the render window).
-  // Initialize() is thus necessary.
-  renWin->Initialize();
 
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
@@ -88,7 +85,6 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   int bufferBinding = 0;
   int uniformsGroup = 0;
   int uniformsBinding = 1;
-
   vtkSmartPointer<vtkWebGPUComputeRenderBuffer> pointColorsRenderBuffer =
     webGPUMapper->AcquirePointAttributeComputeRenderBuffer(
       vtkWebGPUPolyDataMapper::PointDataAttributes::POINT_COLORS, bufferGroup, bufferBinding,
@@ -97,30 +93,26 @@ int TestComputeModifyPointColors(int argc, char* argv[])
   pointColorsRenderBuffer->SetLabel("Point colors render buffer");
 
   // Creating the compute pipeline
-  vtkNew<vtkWebGPUComputePipeline> dynamicColorsComputePipeline;
-
-  // Creating the compute pass
-  vtkSmartPointer<vtkWebGPUComputePass> dynamicColorsComputePass =
-    dynamicColorsComputePipeline->CreateComputePass();
-  dynamicColorsComputePass->SetShaderSource(TestComputeModifyPointColorsShader);
-  dynamicColorsComputePass->SetShaderEntryPoint("changePointColorCompute");
+  vtkNew<vtkWebGPUComputePipeline> dynamicColorsCompute;
+  dynamicColorsCompute->SetShaderSource(TestComputeModifyPointColorsShader);
+  dynamicColorsCompute->SetShaderEntryPoint("changePointColorCompute");
   // Adding the render buffer
-  dynamicColorsComputePass->AddRenderBuffer(pointColorsRenderBuffer);
+  dynamicColorsCompute->AddRenderBuffer(pointColorsRenderBuffer);
   int nbGroupsX = std::ceil(polydata->GetPointData()->GetNumberOfTuples() / 32.0f);
-  dynamicColorsComputePass->SetWorkgroups(nbGroupsX, 1, 1);
+  dynamicColorsCompute->SetWorkgroups(nbGroupsX, 1, 1);
 
   // Adding the compute pipeline to the renderer.
   // The pipeline will be executed each frame before the rendering pass
   vtkWebGPURenderer* wegpuRenderer =
     vtkWebGPURenderer::SafeDownCast(renWin->GetRenderers()->GetFirstRenderer());
-  wegpuRenderer->AddPreRenderComputePipeline(dynamicColorsComputePipeline);
+  wegpuRenderer->AddComputePipeline(dynamicColorsCompute);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
   renWin->Render();
 
   // Screenshot taken by the regression testing isn't flipped.
   // This isn't an issue for testing but that may be something to look into
-  int retVal = vtkRegressionTestImage(renWin);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 0.05);
 
   return !retVal;
 }

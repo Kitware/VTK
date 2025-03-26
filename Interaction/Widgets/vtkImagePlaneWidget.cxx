@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <algorithm>
 

@@ -4,8 +4,7 @@
 
 #include "vtkArrayCalculator.h"
 #include "vtkCell.h"
-#include "vtkDataArrayAccessor.h"
-#include "vtkDataSet.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
@@ -19,39 +18,25 @@
 
 #include <vtkm/testing/Testing.h>
 
+#include <vector>
+
 namespace
 {
 double Tolerance = 0.00001;
 
 //------------------------------------------------------------------------------
-template <typename GradientArrayType, typename CorrectArrayType>
-int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* correctArray)
+int IsGradientCorrect(vtkDoubleArray* gradients, vtkDoubleArray* correct)
 {
-  int numberOfComponents = gradientsArray->GetNumberOfComponents();
-  if (numberOfComponents != correctArray->GetNumberOfComponents())
-  {
-    std::cout << "Gradients array has unexpected number of components.\n";
-    return 0;
-  }
-  vtkIdType numberOfTuples = gradientsArray->GetNumberOfTuples();
-  if (numberOfTuples != correctArray->GetNumberOfTuples())
-  {
-    std::cout << "Gradients array has unexpected number of tuples.\n";
-    return 0;
-  }
-
-  vtkDataArrayAccessor<GradientArrayType> gradients(gradientsArray);
-  vtkDataArrayAccessor<CorrectArrayType> correct(correctArray);
-
-  for (vtkIdType i = 0; i < numberOfTuples; i++)
+  int numberOfComponents = gradients->GetNumberOfComponents();
+  for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     bool invalid = false;
     for (int j = 0; j < numberOfComponents; j++)
     {
-      double value = gradients.Get(i, j);
-      double expected = correct.Get(i, j);
+      double value = gradients->GetTypedComponent(i, j);
+      double expected = correct->GetTypedComponent(i, j);
 
-      if (std::abs(value - expected) > Tolerance)
+      if ((value - expected) > Tolerance)
       {
         invalid = true;
       }
@@ -59,27 +44,34 @@ int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* corre
 
     if (invalid)
     {
+      std::vector<double> values;
+      values.resize(numberOfComponents);
+      std::vector<double> expected;
+      expected.resize(numberOfComponents);
+
+      gradients->GetTypedTuple(i, values.data());
+      correct->GetTypedTuple(i, expected.data());
+
       std::cout << "Gradient[ " << i << " ] should look like: " << std::endl;
-      for (int j = 0; j < numberOfComponents; ++j)
+      std::cout << expected[0] << ", " << expected[1] << ", " << expected[2] << std::endl;
+      if (numberOfComponents > 3)
       {
-        std::cout << correct.Get(i, j);
-        if ((j % 3) == 2)
-        {
-          std::cout << "\n";
-        }
+        std::cout << expected[3] << ", " << expected[4] << ", " << expected[5] << std::endl;
+        std::cout << expected[6] << ", " << expected[7] << ", " << expected[8] << std::endl;
       }
 
       std::cout << "Gradient[ " << i << " ] actually looks like: " << std::endl;
-      for (int j = 0; j < numberOfComponents; ++j)
+      std::cout << values[0] << ", " << values[1] << ", " << values[2] << std::endl;
+      if (numberOfComponents > 3)
       {
-        std::cout << gradients.Get(i, j);
-        if ((j % 3) == 2)
-        {
-          std::cout << "\n";
-        }
+        std::cout << values[3] << ", " << values[4] << ", " << values[5] << std::endl;
+        std::cout << values[6] << ", " << values[7] << ", " << values[8] << std::endl;
       }
       std::cout << std::endl;
+    }
 
+    if (i > 10 && invalid)
+    {
       return 0;
     }
   }
@@ -89,7 +81,7 @@ int IsGradientCorrect(GradientArrayType* gradientsArray, CorrectArrayType* corre
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // vorticity from it
-int IsVorticityCorrect(vtkDataArray* gradients, vtkDataArray* vorticity)
+int IsVorticityCorrect(vtkDoubleArray* gradients, vtkDoubleArray* vorticity)
 {
   if (gradients->GetNumberOfComponents() != 9 || vorticity->GetNumberOfComponents() != 3)
   {
@@ -126,19 +118,17 @@ int IsVorticityCorrect(vtkDataArray* gradients, vtkDataArray* vorticity)
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // Q criterion from it
-template <typename QCriterionType>
-int IsQCriterionCorrect(vtkDataArray* gradients, QCriterionType* qCriterionArray)
+int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
 {
-  if (gradients->GetNumberOfComponents() != 9 || qCriterionArray->GetNumberOfComponents() != 1)
+  if (gradients->GetNumberOfComponents() != 9 || qCriterion->GetNumberOfComponents() != 1)
   {
     vtkGenericWarningMacro("Bad number of components.");
     return 0;
   }
-  vtkDataArrayAccessor<QCriterionType> qCriterion(qCriterionArray);
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double qc = qCriterion.Get(i, 0);
+    double qc = qCriterion->GetValue(i);
 
     double t1 = .25 *
       ((g[7] - g[5]) * (g[7] - g[5]) + (g[3] - g[1]) * (g[3] - g[1]) +
@@ -163,19 +153,17 @@ int IsQCriterionCorrect(vtkDataArray* gradients, QCriterionType* qCriterionArray
 //------------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
 // divergence from it
-template <typename DivergenceType>
-int IsDivergenceCorrect(vtkDataArray* gradients, DivergenceType* divergenceArray)
+int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
 {
-  if (gradients->GetNumberOfComponents() != 9 || divergenceArray->GetNumberOfComponents() != 1)
+  if (gradients->GetNumberOfComponents() != 9 || divergence->GetNumberOfComponents() != 1)
   {
     vtkGenericWarningMacro("Bad number of components.");
     return 0;
   }
-  vtkDataArrayAccessor<DivergenceType> divergence(divergenceArray);
   for (vtkIdType i = 0; i < gradients->GetNumberOfTuples(); i++)
   {
     double* g = gradients->GetTuple(i);
-    double div = divergence.Get(i, 0);
+    double div = divergence->GetValue(i);
     double gValue = g[0] + g[4] + g[8];
 
     if (!test_equal(div, gValue))
@@ -224,10 +212,13 @@ int PerformTest(vtkDataSet* grid)
   pointGradients->Update();
   correctPointGradients->Update();
 
-  vtkDataArray* gradPointArray = pointGradients->GetOutput()->GetPointData()->GetArray(resultName);
+  vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
+    vtkDataSet::SafeDownCast(pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
 
-  vtkDoubleArray* correctPointArray = vtkArrayDownCast<vtkDoubleArray>(
-    correctPointGradients->GetOutput()->GetPointData()->GetArray(resultName));
+  vtkDoubleArray* correctPointArray =
+    vtkArrayDownCast<vtkDoubleArray>(vtkDataSet::SafeDownCast(correctPointGradients->GetOutput())
+                                       ->GetPointData()
+                                       ->GetArray(resultName));
 
   if (!IsGradientCorrect(gradPointArray, correctPointArray))
   {
@@ -245,22 +236,22 @@ int PerformTest(vtkDataSet* grid)
   pointVorticity->Update();
 
   // point stuff
-  vtkDataArray* vorticityPointArray =
-    pointVorticity->GetOutput()->GetPointData()->GetArray("Vorticity");
+  vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
+    vtkDataSet::SafeDownCast(pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
   if (!IsVorticityCorrect(gradPointArray, vorticityPointArray))
   {
     return EXIT_FAILURE;
   }
 
-  vtkDataArray* divergencePointArray =
-    pointVorticity->GetOutput()->GetPointData()->GetArray("Divergence");
+  vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
+    vtkDataSet::SafeDownCast(pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
   if (!IsDivergenceCorrect(gradPointArray, divergencePointArray))
   {
     return EXIT_FAILURE;
   }
 
-  vtkDataArray* qCriterionPointArray =
-    pointVorticity->GetOutput()->GetPointData()->GetArray("Q-criterion");
+  vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
+    vtkDataSet::SafeDownCast(pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
   if (!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
   {
     return EXIT_FAILURE;

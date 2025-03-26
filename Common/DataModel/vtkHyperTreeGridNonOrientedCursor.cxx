@@ -30,21 +30,7 @@ vtkHyperTreeGridNonOrientedCursor* vtkHyperTreeGridNonOrientedCursor::Clone()
   {
     (*out).Copy(&(*in));
   }
-  return clone;
-}
-
-//------------------------------------------------------------------------------
-vtkHyperTreeGridNonOrientedCursor* vtkHyperTreeGridNonOrientedCursor::CloneFromCurrentEntry()
-{
-  vtkHyperTreeGridNonOrientedCursor* clone = this->NewInstance();
-  assert("post: clone_exists" && clone != nullptr);
-  // Copy
-  clone->Grid = this->Grid;
-  clone->Tree = this->Tree;
-  clone->Level = this->Level;
-  clone->LastValidEntry = 0;
-  clone->Entries.resize(1);
-  clone->Entries[0].Copy(&this->Entries[this->LastValidEntry]);
+  // Return clone
   return clone;
 }
 

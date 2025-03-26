@@ -110,13 +110,11 @@ public:
 
   void resetCamera()
   {
-    dispatch_async(
-      [this](vtkRenderWindow* renderWindow, vtkUserData userData)
-      {
-        auto* vtk = Data::SafeDownCast(userData);
-        vtk->renderer->ResetCamera();
-        scheduleRender();
-      });
+    dispatch_async([this](vtkRenderWindow* renderWindow, vtkUserData userData) {
+      auto* vtk = Data::SafeDownCast(userData);
+      vtk->renderer->ResetCamera();
+      scheduleRender();
+    });
   }
 
   Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
@@ -127,20 +125,18 @@ public:
       emit sourceChanged((forceVtk = true, _source = v));
 
     if (forceVtk)
-      dispatch_async(
-        [this](vtkRenderWindow* renderWindow, vtkUserData userData)
-        {
-          auto* vtk = Data::SafeDownCast(userData);
-          // clang-format off
+      dispatch_async([this](vtkRenderWindow* renderWindow, vtkUserData userData) {
+        auto* vtk = Data::SafeDownCast(userData);
+        // clang-format off
           vtk->mapper->SetInputConnection(
                 _source == "Cone"    ? vtk->cone->GetOutputPort()
               : _source == "Sphere"  ? vtk->sphere->GetOutputPort()
               : _source == "Capsule" ? vtk->capsule->GetOutputPort()
               : (qWarning() << Q_FUNC_INFO << "YIKES!! Unknown source:'" << _source << "'", nullptr));
-          // clang-format on
+        // clang-format on
 
-          resetCamera();
-        });
+        resetCamera();
+      });
   }
   Q_SIGNAL void sourceChanged(QString);
   QString _source;

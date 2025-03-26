@@ -52,7 +52,7 @@ void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
 //------------------------------------------------------------------------------
 void vtkInformationIntegerVectorKey::Set(vtkInformation* info)
 {
-  int someVal = 0;
+  int someVal;
   this->Set(info, &someVal, 0);
 }
 

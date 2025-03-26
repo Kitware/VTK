@@ -6,10 +6,6 @@
  *
  * vtk3DSImporter imports 3D Studio files into vtk.
  *
- * This importer doesn't support scene hierarchy API
- *
- * This importer supports the collection API
- *
  * @sa
  * vtkImporter
  */

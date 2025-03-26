@@ -13,7 +13,6 @@
 #define vtkWin32OpenGLRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
-
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <stack>                       // for ivar

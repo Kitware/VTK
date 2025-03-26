@@ -50,7 +50,6 @@ public:
    * When present on light, the light acts as an ambient source.
    * An AmbientLight is one that has no specific position in space and for
    * which only the ambient color term affects the result.
-   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* IS_AMBIENT();
 
@@ -65,7 +64,6 @@ public:
   /**
    * The radius setting, when > 0.0, produces soft shadows in the
    * path tracer.
-   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* RADIUS();
 

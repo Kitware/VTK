@@ -20,7 +20,6 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariScalarBar(int argc, char* argv[])
 {
@@ -94,7 +93,22 @@ int TestAnariScalarBar(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren1->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren1, useDebugDevice, "TestAnariScalarBar");
+  if (useDebugDevice)
+  {
+    vtkAnariRendererNode::SetUseDebugDevice(1, ren1);
+    vtkNew<vtkTesting> testing;
+
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace";
+    traceDir += "/TestAnariScalarBar";
+    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren1);
+  }
+
+  vtkAnariRendererNode::SetLibraryName("environment", ren1);
+  vtkAnariRendererNode::SetSamplesPerPixel(4, ren1);
+  vtkAnariRendererNode::SetLightFalloff(.5, ren1);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren1);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren1);
 
   renWin->Render();
 

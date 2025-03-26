@@ -14,6 +14,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 #include "vtkXMLPolyDataWriter.h"
 
 #include "vtkAxis.h"

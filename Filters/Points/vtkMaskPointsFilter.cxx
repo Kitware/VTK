@@ -44,37 +44,35 @@ struct ExtractPoints
     const vtkIdType zD = dims[2];
     const vtkIdType xyD = dims[0] * dims[1];
 
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      const auto pts = vtk::DataArrayTupleRange<3>(ptArray, ptId, endPtId);
+      using PtCRefT = typename decltype(pts)::ConstTupleReferenceType;
+
+      vtkIdType* map = pointMap + ptId;
+
+      // MSVC 2015 x64 ICEs when this loop is written using std::transform,
+      // so we'll work around that by using a for-range loop:
+      for (PtCRefT pt : pts)
       {
-        const auto pts = vtk::DataArrayTupleRange<3>(ptArray, ptId, endPtId);
-        using PtCRefT = typename decltype(pts)::ConstTupleReferenceType;
+        const int i = static_cast<int>(((pt[0] - bX) * fX));
+        const int j = static_cast<int>(((pt[1] - bY) * fY));
+        const int k = static_cast<int>(((pt[2] - bZ) * fZ));
 
-        vtkIdType* map = pointMap + ptId;
-
-        // MSVC 2015 x64 ICEs when this loop is written using std::transform,
-        // so we'll work around that by using a for-range loop:
-        for (PtCRefT pt : pts)
+        // If not inside image then skip
+        if (i < 0 || i >= xD || j < 0 || j >= yD || k < 0 || k >= zD)
         {
-          const int i = static_cast<int>(((pt[0] - bX) * fX));
-          const int j = static_cast<int>(((pt[1] - bY) * fY));
-          const int k = static_cast<int>(((pt[2] - bZ) * fZ));
-
-          // If not inside image then skip
-          if (i < 0 || i >= xD || j < 0 || j >= yD || k < 0 || k >= zD)
-          {
-            *map++ = -1;
-          }
-          else if (mask[i + j * xD + k * xyD] != emptyValue)
-          {
-            *map++ = 1;
-          }
-          else
-          {
-            *map++ = -1;
-          }
+          *map++ = -1;
         }
-      });
+        else if (mask[i + j * xD + k * xyD] != emptyValue)
+        {
+          *map++ = 1;
+        }
+        else
+        {
+          *map++ = -1;
+        }
+      }
+    });
   }
 }; // ExtractPoints
 

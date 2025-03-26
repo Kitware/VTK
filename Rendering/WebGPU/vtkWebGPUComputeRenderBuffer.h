@@ -5,18 +5,19 @@
 #define vtkWebGPUComputeRenderBuffer_h
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
+#include "vtkWeakPointer.h"           // for associated pipeline
 #include "vtkWebGPUComputeBuffer.h"
-#include "vtkWebGPUPolyDataMapper.h" // for the point/cell attributes
+#include "vtkWebGPUPolyDataMapper.h" // for point and cell data attributes
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPURenderer;
+class vtkWebGPUComputePipeline;
 
 /**
  * Render buffers are returned by calls to
- * vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer() (or CellAttribute equivalent)
- * and represent a buffer that is used by the rendering pipeline and that can also be added to a
- * compute pipeline
+ * vtkWebGPUPolyDataMapper::AcquirePointAttributeComputeRenderBuffer() and represent a buffer that
+ * is used by the rendering pipeline and that can also be added to a compute pipeline
  */
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeRenderBuffer : public vtkWebGPUComputeBuffer
 {
@@ -25,13 +26,15 @@ public:
   static vtkWebGPUComputeRenderBuffer* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+protected:
+  vtkWebGPUComputeRenderBuffer();
+  ~vtkWebGPUComputeRenderBuffer() = default;
+
 private:
-  friend class vtkWebGPUComputePass;
-  friend class vtkWebGPUComputePassBufferStorageInternals;
+  friend class vtkWebGPUComputePipeline;
   friend class vtkWebGPUPolyDataMapper;
   friend class vtkWebGPURenderer;
 
-  vtkWebGPUComputeRenderBuffer();
   vtkWebGPUComputeRenderBuffer(const vtkWebGPUComputeRenderBuffer&) = delete;
   void operator=(const vtkWebGPUComputeRenderBuffer&) = delete;
 
@@ -40,8 +43,8 @@ private:
    * Get/set the WebGPU buffer (used when this ComputeBuffer points to an already existing device
    * buffer)
    */
-  void SetWebGPUBuffer(wgpu::Buffer buffer) { this->wgpuBuffer = buffer; };
-  wgpu::Buffer GetWebGPUBuffer() { return this->wgpuBuffer; };
+  void SetWGPUBuffer(wgpu::Buffer buffer) { this->wgpuBuffer = buffer; };
+  wgpu::Buffer GetWGPUBuffer() { return this->wgpuBuffer; };
   ///@}
 
   ///@{
@@ -98,12 +101,15 @@ private:
 
   ///@{
   /**
-   * Get/set the associated compute pass
+   * Get/set the associated pipeline
    */
-  vtkGetMacro(AssociatedComputePass, vtkWebGPUComputePass*);
-  vtkSetMacro(AssociatedComputePass, vtkWebGPUComputePass*);
+  vtkWeakPointer<vtkWebGPUComputePipeline> GetAssociatedPipeline()
+  {
+    return this->AssociatedPipeline;
+  }
+
+  void SetAssociatedPipeline(vtkWeakPointer<vtkWebGPUComputePipeline> pipeline);
   ///@}
-  ///@{
 
   // We may want vtkWebGPUComputePipeline::AddBuffer() not to create a new device buffer for this
   // vtkWebGPUComputeBuffer but rather use an exisiting one that has been created elsewhere (by a
@@ -134,7 +140,7 @@ private:
   // Pipeline this render buffer belongs to.
   // Weak pointer here because the render buffer will also store a pointer to its pipeline. If both
   // are shared pointers, we have a cyclic dependency.
-  vtkWebGPUComputePass* AssociatedComputePass = nullptr;
+  vtkWeakPointer<vtkWebGPUComputePipeline> AssociatedPipeline = nullptr;
 };
 
 VTK_ABI_NAMESPACE_END

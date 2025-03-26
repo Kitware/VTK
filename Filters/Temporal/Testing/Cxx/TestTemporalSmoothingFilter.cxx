@@ -81,22 +81,16 @@ vtkStandardNewMacro(MockTemporalPointSource);
 
 int TestRequestOutOfBoundsTimeStep()
 {
-  const int numTimeSteps = 30;
-  const int windowHalfSize = 5;
-  const int expectedFirstAvailableTimeStep = windowHalfSize;
-  const int expectedLastAvailableTimestep = numTimeSteps - windowHalfSize - 1;
-
   vtkNew<MockTemporalPointSource> source;
-  source->SetNumTimeSteps(numTimeSteps);
+  source->SetNumTimeSteps(30);
 
   vtkNew<vtkTemporalSmoothing> temporalSmoothing;
-  temporalSmoothing->SetTemporalWindowHalfWidth(windowHalfSize);
+  temporalSmoothing->SetTemporalWindowHalfWidth(5);
   temporalSmoothing->SetInputConnection(source->GetOutputPort());
 
-  // Test a time step lower than available
   float clampedValue;
   {
-    temporalSmoothing->UpdateTimeStep(expectedFirstAvailableTimeStep - 1);
+    temporalSmoothing->UpdateTimeStep(1);
 
     vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
     vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
@@ -106,7 +100,7 @@ int TestRequestOutOfBoundsTimeStep()
 
   float originalValue;
   {
-    temporalSmoothing->UpdateTimeStep(expectedFirstAvailableTimeStep);
+    temporalSmoothing->UpdateTimeStep(5);
 
     vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
     vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
@@ -115,31 +109,6 @@ int TestRequestOutOfBoundsTimeStep()
   }
 
   // We expect the filter to clamp out-of-bounds timesteps requests to the first available one
-  if (originalValue != clampedValue)
-  {
-    return EXIT_FAILURE;
-  }
-
-  // Test a time step higher than available
-  {
-    temporalSmoothing->UpdateTimeStep(expectedLastAvailableTimestep + 1);
-
-    vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
-    vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
-
-    clampedValue = array->GetValue(0);
-  }
-
-  {
-    temporalSmoothing->UpdateTimeStep(expectedLastAvailableTimestep);
-
-    vtkPolyData* result = vtkPolyData::SafeDownCast(temporalSmoothing->GetOutput());
-    vtkFloatArray* array = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray(0));
-
-    originalValue = array->GetValue(0);
-  }
-
-  // We expect the filter to clamp out-of-bounds timesteps requests to the last available one
   if (originalValue != clampedValue)
   {
     return EXIT_FAILURE;

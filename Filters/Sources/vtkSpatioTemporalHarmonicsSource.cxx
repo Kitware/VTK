@@ -100,8 +100,7 @@ void vtkSpatioTemporalHarmonicsSource::ResetTimeStepValues()
 
   double timeValue = 0.0;
   std::for_each(this->Internals->TimeStepValues.begin(), this->Internals->TimeStepValues.end(),
-    [&timeValue](double& time)
-    {
+    [&timeValue](double& time) {
       time = timeValue;
       timeValue += VALUE_STEP;
     });

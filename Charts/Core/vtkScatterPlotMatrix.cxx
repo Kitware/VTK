@@ -33,7 +33,7 @@
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 #include "vtkTooltipItem.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 // STL includes
 #include <algorithm>

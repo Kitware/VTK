@@ -25,4 +25,3 @@ TEST_DEPENDS
   VTK::ImagingCore
   VTK::CommonDataModel
   VTK::TestingCore
-  VTK::TestingRendering

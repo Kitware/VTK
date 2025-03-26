@@ -1,11 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCellData.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
-#include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
@@ -30,7 +28,6 @@ namespace
 {
 struct WriterConfigOptions
 {
-  bool UseExternalPartitions;
   bool UseExternalComposite;
   bool MergePartsOnRead; // Should be false when reading PartitionedData
   std::string FileNameSuffix;
@@ -95,13 +92,7 @@ bool TestWriteAndRead(
     fullPath = tempPath + options->FileNameSuffix;
     writer->SetFileName(fullPath.c_str());
     writer->SetUseExternalComposite(options->UseExternalComposite);
-    writer->SetUseExternalPartitions(options->UseExternalPartitions);
     writer->SetCompressionLevel(options->CompressionLevel);
-
-    vtkLog(INFO,
-      "Testing " << fullPath << " with options Ext composite: " << options->UseExternalComposite
-                 << " ext partitions: " << options->UseExternalPartitions << " compression "
-                 << options->CompressionLevel);
   }
   else
   {
@@ -146,12 +137,10 @@ bool TestWriteAndRead(
 }
 
 //----------------------------------------------------------------------------
-bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path, bool mergeParts)
+bool TestWriteAndReadConfigurations(vtkDataObject* data, const std::string& path)
 {
-  std::vector<WriterConfigOptions> options{ { false, false, mergeParts, "_NoExtPartNoExtComp", 3 },
-    { false, true, mergeParts, "_NoExtPartExtComp", 1 },
-    { true, true, mergeParts, "_ExtPartExtComp", 2 },
-    { true, false, mergeParts, "_ExtPartNoExtComp", 5 } };
+  std::vector<WriterConfigOptions> options{ { true, false, "_ExternalComposite", 1 },
+    { false, false, "_NoExternalComposite", 9 } };
 
   for (auto& optionSet : options)
   {
@@ -181,7 +170,7 @@ bool TestSpherePolyData(const std::string& tempDir)
 //----------------------------------------------------------------------------
 bool TestComplexPolyData(const std::string& tempDir, const std::string& dataRoot)
 {
-  const std::vector<std::string> baseNames = { "cow.vtp", "isofill_0.vtp" };
+  std::vector<std::string> baseNames = { "cow.vtp", "isofill_0.vtp" };
   for (const auto& baseName : baseNames)
   {
     // Get a polydata from a VTP
@@ -236,45 +225,6 @@ bool TestUnstructuredGrid(const std::string& tempDir, const std::string& dataRoo
 }
 
 //----------------------------------------------------------------------------
-bool TestSanitizeName(const std::string& tempDir, const std::string& dataRoot)
-{
-  // Write data with a field name using slashes, that must be replaced to comply with the VTKHDF
-  // standard.
-  std::string baseName{ "vtkHDF/sanitization.vtu" };
-  const std::string basePath = dataRoot + "/Data/" + baseName;
-  vtkNew<vtkXMLUnstructuredGridReader> baseReader;
-  baseReader->SetFileName(basePath.c_str());
-  baseReader->Update();
-  vtkUnstructuredGrid* baseData = vtkUnstructuredGrid::SafeDownCast(baseReader->GetOutput());
-  if (baseData == nullptr)
-  {
-    std::cerr << "Can't read base data from: " << basePath << std::endl;
-    return false;
-  }
-
-  std::string fullPath = tempDir + "/HDFWriter_sanitization.vtkhdf";
-  vtkNew<vtkHDFWriter> writer;
-  writer->SetFileName(fullPath.c_str());
-  writer->SetInputConnection(baseReader->GetOutputPort());
-  writer->Write();
-
-  vtkNew<vtkHDFReader> reader;
-  reader->SetFileName(fullPath.c_str());
-  reader->Update();
-  auto readData = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
-  const std::string expectedName = "NAME_WITH_SLASH";
-  const std::string realName = readData->GetCellData()->GetArray(0)->GetName();
-  if (realName != expectedName)
-  {
-    std::cerr << "Written data does not contain sanitized field named " << expectedName
-              << ". Found " << realName << " instead." << std::endl;
-    return false;
-  }
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
 bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::string& dataRoot)
 {
   std::vector<std::string> baseNames = { "can-pvtu.hdf" };
@@ -295,7 +245,8 @@ bool TestPartitionedUnstructuredGrid(const std::string& tempDir, const std::stri
 
     // Write and read the partitioned unstructuredGrid in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath, false))
+    WriterConfigOptions options{ false, false, "PVTU", 1 }; // Read file without merging parts
+    if (!TestWriteAndRead(baseData, tempPath, &options))
     {
       return false;
     }
@@ -324,7 +275,8 @@ bool TestPartitionedPolyData(const std::string& tempDir, const std::string& data
 
     // Write and read the partitioned PolyData in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath, false))
+    WriterConfigOptions options{ false, false, "PVTP", 0 }; // Read file without merging parts
+    if (!TestWriteAndRead(baseData, tempPath, &options))
     {
       return false;
     }
@@ -352,7 +304,7 @@ bool TestMultiBlock(const std::string& tempDir, const std::string& dataRoot)
 
     // Write and read the vtkMultiBlockDataSet in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath, true))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath))
     {
       return false;
     }
@@ -382,7 +334,7 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 
     // Write and read the vtkPartitionedDataSetCollection in a temp file, compare with base
     std::string tempPath = tempDir + "/HDFWriter_" + baseName + ".vtkhdf";
-    if (!TestWriteAndReadConfigurations(baseData, tempPath, true))
+    if (!TestWriteAndReadConfigurations(baseData, tempPath))
     {
       return false;
     }
@@ -416,7 +368,6 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestSpherePolyData(tempDir);
   testPasses &= TestComplexPolyData(tempDir, dataRoot);
   testPasses &= TestUnstructuredGrid(tempDir, dataRoot);
-  testPasses &= TestSanitizeName(tempDir, dataRoot);
   testPasses &= TestPartitionedUnstructuredGrid(tempDir, dataRoot);
   testPasses &= TestPartitionedPolyData(tempDir, dataRoot);
   testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);

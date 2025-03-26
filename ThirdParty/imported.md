@@ -27,6 +27,7 @@ framework described in the [UPDATING](UPDATING.md) document:
   * [fmt](fmt/update.sh)
   * [freetype](freetype/update.sh)
   * [gl2ps](gl2ps/update.sh)
+  * [glew](glew/update.sh)
   * [h5part](h5part/update.sh)
   * [hdf5](hdf5/update.sh)
   * [ioss](ioss/update.sh)
@@ -102,7 +103,6 @@ done
 
 The following third-party projects were imported by copying the files:
 
-  * glad
   * vpic
   * xdmf2
 

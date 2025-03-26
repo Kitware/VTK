@@ -64,22 +64,30 @@ Things you'll need:
 This module uses Dawn-C++ WebGPU implementation when VTK is built outside emscripten. First grab [Dawn](https://dawn.googlesource.com/dawn/) and follow their
 build instructions using `gn`, not CMake.
 
-To build VTK with Dawn, you need to build Dawn at tag [chromium/6594](https://dawn.googlesource.com/dawn.git/+show/chromium/6594).
+To build VTK with Dawn, you need to build Dawn at commit [3a00a9e5c4179d789cfe89ba09c329b57d39f947](https://dawn.googlesource.com/dawn.git/+show/3a00a9e5c4179d789cfe89ba09c329b57d39f947).
 Subsequent commits have changed the public API of Dawn to a great extent, making it incompatible with VTK.
 Dawn uses the Chromium build system and dependency management so you need to install [depot_tools](http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up) and add it to the PATH.
 
 ```sh
 # Clone the repo as "dawn"
 git clone https://dawn.googlesource.com/dawn dawn && cd dawn
-git checkout chromium/6594
+git checkout 3a00a9e5c4
+
+# Bootstrap the gclient configuration
+cp scripts/standalone.gclient .gclient
+
+# Fetch external dependencies and toolchains with gclient
+gclient sync
 ```
 
-##### Build Dawn with `cmake` and `ninja`
+##### Build Dawn with `gn` and Ninja
+
+It is important to set `is_component_build=true`. Otherwise the dawn native shared libraries will not be built.
 
 ```sh
-cmake -S . -B out/Debug -GNinja -DDAWN_FETCH_DEPENDENCIES=ON -DDAWN_ENABLE_INSTALL=ON
-cmake --build out/Debug
-cmake --install out/Debug --prefix /path/to/install/dawn
+mkdir -p out/Debug
+gn gen out/Debug --target_cpu="x64" --args="is_component_build=true is_debug=true is_clang=true"
+autoninja -C out/Debug
 ```
 
 ##### Configure and build VTK
@@ -90,7 +98,9 @@ $ cmake \
 -B /path/to/vtk/build \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
--DDawn_DIR=/path/to/where/dawn/is/installed/lib/cmake/Dawn \
+-DDAWN_SOURCE_DIR=/path/to/dawn/src \
+-DDAWN_INCLUDE_DIR=/path/to/dawn/include \
+-DDAWN_BINARY_DIR=/path/to/dawn/out/Debug \
 -DVTK_BUILD_TESTING=ON
 
 $ cmake --build

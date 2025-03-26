@@ -13,13 +13,11 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
   VTK::RenderingCore
-  VTK::IOImage
 PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
   VTK::fmt
 TEST_DEPENDS
-  VTK::CommonColor
   VTK::FiltersSources
   VTK::RenderingUI
   VTK::InteractionStyle

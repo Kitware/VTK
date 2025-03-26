@@ -449,7 +449,7 @@ public:
    * track the changes on the mesh separately from the data arrays
    * (eg. static mesh over time with transient data).
    */
-  vtkMTimeType GetMeshMTime() override;
+  virtual vtkMTimeType GetMeshMTime();
 
   /**
    * A static method for converting a polyhedron vtkCellArray of format

@@ -17,7 +17,6 @@
 #include "vtkGLSLModLight.h"
 #include "vtkGLSLModPixelDebugger.h"
 #include "vtkGLSLModifierFactory.h"
-#include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -38,7 +37,6 @@
 #include "vtkUniforms.h"
 
 #include "vtk_fmt.h"
-#include <iterator>
 // Keep clang-format from adding spaces around the '/' path separator:
 // clang-format off
 #include VTK_FMT(fmt/args.h)
@@ -47,7 +45,7 @@
 #include VTK_FMT(fmt/ostream.h)
 // clang-format on
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #include <string>
 
@@ -56,8 +54,8 @@
 #include "vtkCellGridShaderCommonDefs.h"
 #include "vtkCellGridShaderFragment.h"
 #include "vtkCellGridShaderTessellationControl.h"
-#include "vtkCellGridShaderTessellationDebugGeometry.h"
 #include "vtkCellGridShaderTessellationEvaluation.h"
+#include "vtkCellGridShaderTessellationDebugGeometry.h"
 #include "vtkCellGridShaderUtil.h"
 #include "vtkCellGridShaderVertex.h"
 
@@ -176,22 +174,6 @@ vtkMTimeType GetRenderPassStageMTime(vtkActor* actor, vtkInformation* lastRpInfo
   }
 
   return renderPassMTime;
-}
-
-int GetHardwareSelectorPass(vtkRenderer* renderer)
-{
-  if (!renderer)
-  {
-    return vtkHardwareSelector::PassTypes::MIN_KNOWN_PASS - 1;
-  }
-  if (auto selector = renderer->GetSelector())
-  {
-    return selector->GetCurrentPass();
-  }
-  else
-  {
-    return vtkHardwareSelector::PassTypes::MIN_KNOWN_PASS - 1;
-  }
 }
 }
 
@@ -450,10 +432,8 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
   store.push_back(fmt::arg("ColorCellBasisSize",
     colorInfo ? colorInfo->GetNumberOfBasisFunctions() * colorInfo->GetBasisValueSize() : 1));
   // When we have a vector-valued basis function, we should scale by the shape's inverse Jacobian.
-  store.push_back(fmt::arg("ColorScaleInverseJacobian",
-    this->Color ? (colorTypeInfo.FunctionSpace == "HCURL"_token ? 1 : 0) : 0));
-  store.push_back(fmt::arg("ColorScaleScaledJacobian",
-    this->Color ? (colorTypeInfo.FunctionSpace == "HDIV"_token ? 1 : 0) : 0));
+  store.push_back(fmt::arg(
+    "ColorScaleInverseJacobian", colorInfo ? (colorInfo->GetBasisValueSize() == 3 ? 1 : 0) : 0));
   this->RenderHelper->SetIncludeColormap(!!this->Color);
 #ifdef vtkDGRenderResponder_DEBUG
   std::cout << "Color cell-attribute: " << this->Color << "\n";
@@ -587,8 +567,8 @@ void vtkDGRenderResponder::CacheEntry::PrepareHelper(
     }
     compRange[2] = compRange[1] - compRange[0];
 #ifdef vtkDGRenderResponder_DEBUG
-    std::cout << "  Color range (" << this->Color->GetName().Data() << "[" << colorComp << "]): "
-              << "[" << compRange[0] << ", " << compRange[1] << "] delta " << compRange[2] << "\n";
+    std::cout << "  Color range: [" << compRange[0] << ", " << compRange[1] << "] delta "
+              << compRange[2] << " comp " << colorComp << "\n";
 #endif
     actor->GetShaderProperty()->GetFragmentCustomUniforms()->SetUniformi(
       "color_component", colorComp);
@@ -738,19 +718,7 @@ bool vtkDGRenderResponder::DrawCells(vtkCellGridRenderRequest* request, vtkCellM
   {
     return didDraw;
   }
-  // The index of the cell-type within the grid is used instead of the cell type hash
-  // because the hash requires full 32-bit range, whereas the mapper can only render
-  // 24-bit integers into the RGB framebuffer.
-  // We can do a 2-pass render for the extra 8 bits, however it seems
-  // wasteful to redraw the entire geometry again.
-  int cellTypeIdx = -1;
-  std::vector<vtkCellGrid::CellTypeId> cellTypes;
-  metadata->GetCellGrid()->CellTypes(cellTypes);
-  const auto cellTypeIter = std::find(cellTypes.begin(), cellTypes.end(), metadata->Hash());
-  if (cellTypeIter != cellTypes.end())
-  {
-    cellTypeIdx = std::distance(cellTypes.begin(), cellTypeIter);
-  }
+
   // Find or create cached vtkDrawTexturedElement objects, {Di}.
   // Update Di as needed (when the following have changed):
   //   + cell metadata or involved arrays have been modified since last render.
@@ -761,14 +729,13 @@ bool vtkDGRenderResponder::DrawCells(vtkCellGridRenderRequest* request, vtkCellM
   // that is well-defined, unblanked, and (TODO) requested.
   if (dgCell->GetCellSpec().Connectivity && !dgCell->GetCellSpec().Blanked)
   {
-    didDraw |= this->DrawShapes(request, dgCell, dgCell->GetCellSpec(), cellTypeIdx, /*specIdx=*/0);
+    didDraw |= this->DrawShapes(request, dgCell, dgCell->GetCellSpec());
   }
-  for (std::size_t i = 0; i < dgCell->GetSideSpecs().size(); ++i)
+  for (const auto& sideSpec : dgCell->GetSideSpecs())
   {
-    const auto& sideSpec = dgCell->GetSideSpecs()[i];
     if (sideSpec.Connectivity && !sideSpec.Blanked)
     {
-      didDraw |= this->DrawShapes(request, dgCell, sideSpec, cellTypeIdx, /*specIdx=*/i + 1);
+      didDraw |= this->DrawShapes(request, dgCell, sideSpec);
     }
   }
 
@@ -795,8 +762,8 @@ bool vtkDGRenderResponder::ReleaseResources(
   return true;
 }
 
-bool vtkDGRenderResponder::DrawShapes(vtkCellGridRenderRequest* request, vtkDGCell* metadata,
-  const vtkDGCell::Source& shape, int cellTypeIdx, std::size_t specIdx)
+bool vtkDGRenderResponder::DrawShapes(
+  vtkCellGridRenderRequest* request, vtkDGCell* metadata, const vtkDGCell::Source& shape)
 {
   if (vtkDGCell::GetShapeDimension(shape.SourceShape) > 2)
   {
@@ -881,35 +848,9 @@ bool vtkDGRenderResponder::DrawShapes(vtkCellGridRenderRequest* request, vtkDGCe
   }
   auto fragmentUniforms = actor->GetShaderProperty()->GetFragmentCustomUniforms();
   fragmentUniforms->SetUniformi("color_override_type", int(this->ScalarVisualizationOverride));
-  // fragment shader decides the contents of pixels based on the picking pass.
-  const int currentPickPass = ::GetHardwareSelectorPass(renderer);
-  fragmentUniforms->SetUniformi("picking_pass", currentPickPass);
-  if (auto* selector = renderer->GetSelector())
-  {
-    selector->BeginRenderProp();
-    fragmentUniforms->SetUniformi("celltype_idx", cellTypeIdx);
-    fragmentUniforms->SetUniformi("sidespec_idx", static_cast<int>(specIdx));
-    if (currentPickPass == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
-    {
-      selector->RenderCompositeIndex(1);
-    }
-    // selector can already provide the actor/process/composite index in a tuple of 3 8-bit
-    // integers.
-    fragmentUniforms->SetUniform3f("mapper_idx_components", selector->GetPropColorValue());
-    // useful to know if high24 pass is really needed.
-    if (currentPickPass == vtkHardwareSelector::CELLGRID_TUPLE_ID_LOW24 ||
-      currentPickPass == vtkHardwareSelector::CELLGRID_TUPLE_ID_HIGH24)
-    {
-      selector->UpdateMaximumCellGridTupleId(cacheEntryIt->RenderHelper->GetNumberOfInstances());
-    }
-  }
   // Now we can render.
   // TODO: Do not render if translucent during opaque pass or vice-versa.
   cacheEntryIt->RenderHelper->DrawInstancedElements(renderer, actor, mapper);
-  if (auto* selector = renderer->GetSelector())
-  {
-    selector->EndRenderProp();
-  }
 #ifdef vtkDGRenderResponder_DEBUG
   if (justPrepared)
   {

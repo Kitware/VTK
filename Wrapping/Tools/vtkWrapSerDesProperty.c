@@ -346,17 +346,46 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     }
   }
 
-  if (!isRHSGetter && isVTKObject)
+  if (isVTKObject)
   {
-    fprintf(fp, "  {\n");
-    fprintf(fp, "    auto value = object->%s();\n", getterName);
-    fprintf(fp, "    if (value)\n");
-    fprintf(fp, "    {\n");
-    fprintf(fp, "      state[\"%s\"] = ", keyName);
-    vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
-    fprintf(fp, ";\n");
-    fprintf(fp, "    }\n");
-    fprintf(fp, "  }\n");
+    if (isRHSGetter)
+    {
+      fprintf(fp, "  {\n");
+      fprintf(fp, "    auto value = %s::New();\n", propertyInfo->ClassName);
+      // get id of the object currently being serialized.
+      fprintf(fp, "    const auto identifier = serializer->GetContext()->GetId(object);\n");
+      fprintf(fp,
+        "    const auto objectState = "
+        "serializer->GetContext()->States().find(std::to_string(identifier));\n");
+      // edit the current object's state
+      fprintf(fp, "    if (objectState != serializer->GetContext()->States().end())\n");
+      fprintf(fp, "    {\n");
+      fprintf(fp,
+        "      const auto subId = objectState->at(\"%s\").at(\"Id\").get<vtkTypeUInt32>();\n",
+        keyName);
+      fprintf(fp, "      serializer->GetContext()->UnRegisterState(subId);\n");
+      fprintf(fp, "    }\n");
+      // keep new object alive
+      fprintf(fp, "    serializer->GetContext()->KeepAlive(\"%s\", value);\n", classInfo->Name);
+      fprintf(fp, "    object->%s(value);\n", getterName);
+      fprintf(fp, "    state[\"%s\"] = ", keyName);
+      vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
+      fprintf(fp, ";\n");
+      fprintf(fp, "    value->Delete();\n");
+      fprintf(fp, "  }\n");
+    }
+    else
+    {
+      fprintf(fp, "  {\n");
+      fprintf(fp, "    auto value = object->%s();\n", getterName);
+      fprintf(fp, "    if (value)\n");
+      fprintf(fp, "    {\n");
+      fprintf(fp, "      state[\"%s\"] = ", keyName);
+      vtkWrapSerDes_WriteSerializerVTKObject(fp, isConst, isVTKSmartPointer);
+      fprintf(fp, ";\n");
+      fprintf(fp, "    }\n");
+      fprintf(fp, "  }\n");
+    }
     return 1;
   }
   else if (isNumeric)
@@ -445,7 +474,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   }
   else if (isStdVector)
   {
-    const char* arg = vtkWrap_TemplateArg(propertyInfo->ClassName);
+    char* arg = vtkWrap_TemplateArg(propertyInfo->ClassName);
     size_t n;
     ValueInfo* element = (ValueInfo*)calloc(1, sizeof(ValueInfo));
     size_t l = vtkParse_BasicTypeFromString(arg, &(element->Type), &(element->Class), &n);
@@ -561,14 +590,22 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "    if ((iter != state.end()) && !iter->is_null())\n");
       fprintf(fp, "    {\n");
       fprintf(fp, "      const auto items = iter->get<nlohmann::json::array_t>();\n");
-      fprintf(fp, "      object->RemoveAll%ss();\n", keyName);
+      fprintf(fp,
+        "      const size_t numExistingItems = static_cast<size_t>(object->GetNumberOf%ss());\n",
+        keyName);
+      fprintf(fp, "      bool populateCollection = numExistingItems == 0;\n");
+      fprintf(fp, "      if (items.size() != numExistingItems)\n");
+      fprintf(fp, "      {\n");
+      fprintf(fp, "        object->RemoveAll%ss();\n", keyName);
+      fprintf(fp, "        populateCollection = true;\n");
+      fprintf(fp, "      }\n");
       fprintf(fp, "      const auto* context = deserializer->GetContext();\n");
       fprintf(fp, "      for (const auto& item: items)\n");
       fprintf(fp, "      {\n");
       fprintf(fp, "        const auto identifier = item.at(\"Id\").get<vtkTypeUInt32>();\n");
       fprintf(fp, "        auto subObject = context->GetObjectAtId(identifier);\n");
       fprintf(fp, "        deserializer->DeserializeJSON(identifier, subObject);\n");
-      fprintf(fp, "        if (subObject != nullptr)\n");
+      fprintf(fp, "        if (populateCollection && subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          auto* itemAsObject = vtkObject::SafeDownCast(subObject);\n");
       fprintf(fp, "          object->Add%s(reinterpret_cast<%s*>(itemAsObject));\n", keyName,
@@ -653,7 +690,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "    {\n");
       fprintf(fp, "      auto values = iter->get<std::string>();\n");
       callSetterBeginMacro(fp, "      ");
-      callSetterParameterMacro(fp, "values.c_str()");
+      callSetterParameterMacro(fp, "&(values.front())");
       callSetterEndMacro(fp);
       fprintf(fp, "    }\n");
     }
@@ -668,7 +705,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "    {\n");
     fprintf(fp, "      auto values = iter->get<std::string>();\n");
     callSetterBeginMacro(fp, "      ");
-    callSetterParameterMacro(fp, "values");
+    callSetterParameterMacro(fp, "&(values.front())");
     callSetterEndMacro(fp);
     fprintf(fp, "    }\n");
     fprintf(fp, "  }\n");
@@ -730,7 +767,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
   }
   else if (isStdVector)
   {
-    const char* arg = vtkWrap_TemplateArg(val->Class);
+    char* arg = vtkWrap_TemplateArg(val->Class);
     size_t n;
     ValueInfo* element = (ValueInfo*)calloc(1, sizeof(ValueInfo));
     size_t l = vtkParse_BasicTypeFromString(arg, &(element->Type), &(element->Class), &n);
@@ -788,7 +825,7 @@ void vtkWrapSerDes_Properties(
       continue;
     }
     /* Is this method associated with a property? */
-    if (properties->MethodHasProperty[i])
+    if (properties && properties->MethodHasProperty[i])
     {
       /* Get the property associated with this method */
       j = properties->MethodProperties[i];

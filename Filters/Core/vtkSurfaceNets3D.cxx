@@ -1396,9 +1396,8 @@ void SurfaceNets<T>::ConfigureOutput(
     // Edge groups consist of four neighboring volume x-edges (+/-y,+/-z). Process
     // in interleaving fashion (i.e., checkerboard) to avoid races (ProduceVoxelCases()
     // may write to the voxel classifications while they are being processed).
-    vtkSMPTools::For(0, numGroups,
-      [this, edgeNum, numRowPairs](vtkIdType group, vtkIdType endGroup)
-      {
+    vtkSMPTools::For(
+      0, numGroups, [this, edgeNum, numRowPairs](vtkIdType group, vtkIdType endGroup) {
         for (; group < endGroup; ++group)
         {
           this->ProduceVoxelCases(group, edgeNum, numRowPairs);
@@ -1742,16 +1741,14 @@ struct NetsWorker
     // which will likely by updated in pass1, pass2, or pass3.
     algo.NumberOfEdges = algo.TriadDims[1] * algo.TriadDims[2]; // y-z plane of edges
     algo.EdgeMetaData = new vtkIdType[algo.NumberOfEdges * algo.EdgeMetaDataSize]();
-    vtkSMPTools::For(0, algo.NumberOfEdges,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, algo.NumberOfEdges, [&](vtkIdType begin, vtkIdType end) {
+      for (vtkIdType eNum = begin; eNum < end; ++eNum)
       {
-        for (vtkIdType eNum = begin; eNum < end; ++eNum)
-        {
-          vtkIdType* eMD = algo.EdgeMetaData + eNum * algo.EdgeMetaDataSize;
-          eMD[3] = algo.TriadDims[0];
-          eMD[4] = 0;
-        }
-      });
+        vtkIdType* eMD = algo.EdgeMetaData + eNum * algo.EdgeMetaDataSize;
+        eMD[3] = algo.TriadDims[0];
+        eMD[4] = 0;
+      }
+    });
 
     // Compute the starting offset location for scalar data.  We may be operating
     // on a part of the volume.
@@ -2141,8 +2138,8 @@ struct SelectWorker
     // Traverse all existing cells and mark those satisfying outputStyle
     // criterion for extraction.
     vtkSMPTools::For(0, numCells,
-      [&newScalars, outputStyle, &selectedCells, self, lMap](vtkIdType cellId, vtkIdType endCellId)
-      {
+      [&newScalars, outputStyle, &selectedCells, self, lMap](
+        vtkIdType cellId, vtkIdType endCellId) {
         const auto inTuples = vtk::DataArrayTupleRange<2>(newScalars);
         ValueType backgroundLabel = static_cast<ValueType>(self->GetBackgroundLabel());
         for (; cellId < endCellId; ++cellId)
@@ -2182,8 +2179,7 @@ struct SelectWorker
     vtkSMPThreadLocalObject<vtkIdList> tlIdList;
     vtkSMPTools::For(0, numCells,
       [newCells, &selectedCells, &outCells, cellSize, &tlIdList](
-        vtkIdType cellId, vtkIdType endCellId)
-      {
+        vtkIdType cellId, vtkIdType endCellId) {
         auto& idList = tlIdList.Local();
         vtkIdType npts;
         const vtkIdType* pts;
@@ -2205,8 +2201,7 @@ struct SelectWorker
     outScalars->SetNumberOfComponents(2);
     outScalars->SetNumberOfTuples(numOutCells);
     vtkSMPTools::For(0, numCells,
-      [&selectedCells, &newScalars, &outScalars](vtkIdType cellId, vtkIdType endCellId)
-      {
+      [&selectedCells, &newScalars, &outScalars](vtkIdType cellId, vtkIdType endCellId) {
         const auto inTuples = vtk::DataArrayTupleRange<2>(newScalars);
         auto outTuples = vtk::DataArrayTupleRange<2>(outScalars);
         for (; cellId < endCellId; ++cellId)

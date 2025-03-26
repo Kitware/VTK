@@ -69,15 +69,13 @@ std::vector<vtkFFT::ComplexNumber> vtkFFT::OverlappingFft(const std::vector<T>& 
   }
 
   std::vector<vtkFFT::ComplexNumber> result(nsegment * nfft);
-  vtkSMPTools::For(0, nsegment,
-    [&](std::size_t begin, std::size_t end)
+  vtkSMPTools::For(0, nsegment, [&](std::size_t begin, std::size_t end) {
+    for (std::size_t i = begin; i < end; ++i)
     {
-      for (std::size_t i = begin; i < end; ++i)
-      {
-        vtkFFT::PreprocessAndDispatchFft(
-          sig.data() + i * segmentOffset, window, detrend, onesided, result.data() + i * nfft);
-      }
-    });
+      vtkFFT::PreprocessAndDispatchFft(
+        sig.data() + i * segmentOffset, window, detrend, onesided, result.data() + i * nfft);
+    }
+  });
 
   return result;
 }
@@ -100,25 +98,23 @@ vtkFFT::ComplexNumber* vtkFFT::OverlappingFft(vtkFFT::vtkScalarNumberArray* sign
 
   vtkFFT::ComplexNumber* result = new vtkFFT::ComplexNumber[outSize];
 
-  vtkSMPTools::For(0, nsegment,
-    [&](std::size_t begin, std::size_t end)
+  vtkSMPTools::For(0, nsegment, [&](std::size_t begin, std::size_t end) {
+    for (std::size_t i = begin; i < end; ++i)
     {
-      for (std::size_t i = begin; i < end; ++i)
+      if (signal->GetNumberOfComponents() == 1)
       {
-        if (signal->GetNumberOfComponents() == 1)
-        {
-          auto* beginSegment =
-            reinterpret_cast<ScalarNumber*>(signal->GetVoidPointer(i * segmentOffset));
-          PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
-        }
-        else //: signal->GetNumberOfComponents() == 2
-        {
-          auto* beginSegment =
-            reinterpret_cast<ComplexNumber*>(signal->GetVoidPointer(i * segmentOffset * 2));
-          PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
-        }
+        auto* beginSegment =
+          reinterpret_cast<ScalarNumber*>(signal->GetVoidPointer(i * segmentOffset));
+        PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
       }
-    });
+      else //: signal->GetNumberOfComponents() == 2
+      {
+        auto* beginSegment =
+          reinterpret_cast<ComplexNumber*>(signal->GetVoidPointer(i * segmentOffset * 2));
+        PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
+      }
+    }
+  });
 
   return result;
 }
@@ -293,8 +289,9 @@ std::vector<vtkFFT::ScalarNumber> vtkFFT::Csd(const std::vector<T>& sig,
     auto begin = result.cbegin() + i * shape[1];
     auto end = begin + shape[1];
     vtkSMPTools::Transform(begin, end, average.cbegin(), average.begin(),
-      [meanFactor](vtkFFT::ComplexNumber x, vtkFFT::ScalarNumber y)
-      { return vtkFFT::Abs(x) * meanFactor + y; });
+      [meanFactor](vtkFFT::ComplexNumber x, vtkFFT::ScalarNumber y) {
+        return vtkFFT::Abs(x) * meanFactor + y;
+      });
   }
 
   return average;
@@ -327,7 +324,7 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Csd(vtkScalarNumberArray* 
   vtkSMPTools::Fill(averageRange.begin(), averageRange.end(), 0.0);
 
   auto resRange = vtk::DataArrayTupleRange(result);
-  using ConstTupleRef = decltype(resRange)::ConstTupleReferenceType;
+  using ConstTupleRef = typename decltype(resRange)::ConstTupleReferenceType;
   for (unsigned int i = 0; i < shape[0]; ++i)
   {
     auto begin = resRange.cbegin() + i * shape[1];

@@ -65,7 +65,7 @@
 #include <sstream>
 #include <string>
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(VTK_OPENGL_HAS_OSMESA)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -329,7 +329,7 @@ void vtkOpenGLRenderer::DeviceRender()
     // - UseSH is ON, SH is not provided, EnvTex is compatible but empty, error out
     // - UseSH is OFF, use irradiance
     bool useSH = this->UseSphericalHarmonics;
-    if (useSH && this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
+    if (this->EnvironmentTexture && this->EnvironmentTexture->GetCubeMap())
     {
       vtkWarningMacro(
         "Cannot compute spherical harmonics of a cubemap, falling back to irradiance texture");
@@ -900,7 +900,7 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
 //------------------------------------------------------------------------------
 bool vtkOpenGLRenderer::HaveAppleQueryAllocationBug()
 {
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(VTK_OPENGL_HAS_OSMESA)
   enum class QueryAllocStatus
   {
     NotChecked,

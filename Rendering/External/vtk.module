@@ -14,9 +14,10 @@ PRIVATE_DEPENDS
   VTK::CommonMath
   VTK::CommonTransforms
   VTK::RenderingOpenGL2
-  VTK::glad
+  VTK::glew
+  VTK::opengl
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::FiltersSources
   VTK::TestingRendering
-  VTK::glad
+  VTK::opengl

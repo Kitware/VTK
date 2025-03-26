@@ -146,18 +146,14 @@ unsigned long vtkWasmSceneManager::AddObserver(
   }
   vtkNew<vtkCallbackCommand> callbackCmd;
   callbackCmd->SetClientData(new CallbackBridge{ callback, identifier });
-  callbackCmd->SetClientDataDeleteCallback(
-    [](void* clientData)
-    {
-      auto* bridge = reinterpret_cast<CallbackBridge*>(clientData);
-      delete bridge;
-    });
-  callbackCmd->SetCallback(
-    [](vtkObject*, unsigned long eid, void* clientData, void*)
-    {
-      auto* bridge = reinterpret_cast<CallbackBridge*>(clientData);
-      bridge->f(bridge->SenderId, vtkCommand::GetStringFromEventId(eid));
-    });
+  callbackCmd->SetClientDataDeleteCallback([](void* clientData) {
+    auto* bridge = reinterpret_cast<CallbackBridge*>(clientData);
+    delete bridge;
+  });
+  callbackCmd->SetCallback([](vtkObject*, unsigned long eid, void* clientData, void*) {
+    auto* bridge = reinterpret_cast<CallbackBridge*>(clientData);
+    bridge->f(bridge->SenderId, vtkCommand::GetStringFromEventId(eid));
+  });
   return object->AddObserver(eventName.c_str(), callbackCmd);
 }
 

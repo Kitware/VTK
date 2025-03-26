@@ -136,10 +136,6 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                  virtual void Set##name (type*);" \
               "vtkGetObjectMacro(name,type)= \
                  virtual type *Get##name ();" \
-              "vtkSetSmartPointerMacro(name,type)= \
-                 virtual void Set##name (type*);" \
-              "vtkGetSmartPointerMacro(name,type)= \
-                 virtual type *Get##name ();" \
               "vtkBooleanMacro(name,type)= \
                  virtual void name##On (); \
                  virtual void name##Off ();" \

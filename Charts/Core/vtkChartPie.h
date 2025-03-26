@@ -45,7 +45,6 @@ public:
    */
   bool Paint(vtkContext2D* painter) override;
 
-  using vtkChart::AddPlot;
   /**
    * Add a plot to the chart.
    */

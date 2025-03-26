@@ -355,28 +355,27 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   return listOfMaterials;
 }
 
-bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRenderer* renderer,
-  vtkOBJPolyDataProcessor* reader, vtkActorCollection* actorCollection)
+void bindTexturedPolydataToRenderWindow(
+  vtkRenderWindow* renderWindow, vtkRenderer* renderer, vtkOBJPolyDataProcessor* reader)
 {
   if (nullptr == (renderWindow))
   {
     vtkErrorWithObjectMacro(reader, "RenderWindow is null, failure!");
-    return false;
+    return;
   }
   if (nullptr == (renderer))
   {
     vtkErrorWithObjectMacro(reader, "Renderer is null, failure!");
-    return false;
+    return;
   }
   if (nullptr == (reader))
   {
     vtkErrorWithObjectMacro(reader, "vtkOBJPolyDataProcessor is null, failure!");
-    return false;
+    return;
   }
 
   reader->actor_list.clear();
   reader->actor_list.reserve(reader->GetNumberOfOutputPorts());
-  actorCollection->RemoveAllItems();
 
   // keep track of textures used and if multiple parts use the same
   // texture, then have the actors use the same texture. This saves memory
@@ -524,7 +523,6 @@ bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRender
       actor->SetProperty(properties);
     }
     renderer->AddActor(actor);
-    actorCollection->AddItem(actor);
 
     // properties->ShadingOn(); // use ShadingOn() if loading vtkMaterial from xml
     // available in mtl parser are:
@@ -540,7 +538,6 @@ bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRender
 
     reader->actor_list.push_back(actor); // keep a handle on actors to animate later
   }
-  return true;
   /** post-condition of this function: the renderer has had a bunch of actors added to it */
 }
 

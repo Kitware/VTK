@@ -9,4 +9,3 @@ avoid conflicts with other copies of the library within a single process.
   * integreate with VTK's module system
   * mangle `loguru` namespace to `vtkloguru`
   * add license
-  * set `LOGURU_PTLS_NAMES=1` on emscripten platform

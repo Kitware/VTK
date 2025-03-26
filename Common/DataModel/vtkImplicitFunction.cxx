@@ -47,19 +47,17 @@ struct FunctionWorker
     auto dstValues = vtk::DataArrayValueRange<1>(output);
 
     using DstValueT = typename decltype(dstValues)::ValueType;
-    vtkSMPTools::For(0, numTuples,
-      [&](vtkIdType begin, vtkIdType end)
+    vtkSMPTools::For(0, numTuples, [&](vtkIdType begin, vtkIdType end) {
+      double tuple[3];
+      for (vtkIdType pointId = begin; pointId < end; ++pointId)
       {
-        double tuple[3];
-        for (vtkIdType pointId = begin; pointId < end; ++pointId)
-        {
-          // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
-          // we do that since the input points can be implicit points, and GetTypedTuple is faster
-          // than accessing the component of the TupleReference using GetTypedComponent internally.
-          srcTuples.GetTuple(pointId, tuple);
-          dstValues[pointId] = static_cast<DstValueT>(this->F(tuple));
-        }
-      });
+        // GetTuple creates a copy of the tuple using GetTypedTuple if it's not a vktDataArray
+        // we do that since the input points can be implicit points, and GetTypedTuple is faster
+        // than accessing the component of the TupleReference using GetTypedComponent internally.
+        srcTuples.GetTuple(pointId, tuple);
+        dstValues[pointId] = static_cast<DstValueT>(this->F(tuple));
+      }
+    });
   }
 };
 

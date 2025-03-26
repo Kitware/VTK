@@ -143,8 +143,7 @@ std::map<int, vtkSmartPointer<vtkUnstructuredGrid>> ExtractOverlappingCellCandid
   std::transform(boundingBoxes.cbegin(), boundingBoxes.cend(),
     std::inserter(cactptidList, cactptidList.begin()),
     [pointsType](
-      const std::pair<int, vtkBoundingBox> pair) -> std::pair<int, CellArrayCellTypePointsIdTuple>
-    {
+      const std::pair<int, vtkBoundingBox> pair) -> std::pair<int, CellArrayCellTypePointsIdTuple> {
       return std::pair<int, CellArrayCellTypePointsIdTuple>(pair.first,
         CellArrayCellTypePointsIdTuple(vtkSmartPointer<vtkCellArray>::Take(vtkCellArray::New()),
           vtkSmartPointer<vtkUnsignedCharArray>::Take(vtkUnsignedCharArray::New()),
@@ -394,36 +393,34 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
 
   // First, we share bounding boxes with other blocks
   vtkLogStartScope(TRACE, "share bounding boxes");
-  diy::all_to_all(master, assigner,
-    [&master, &outputs](Block* block, const diy::ReduceProxy& srp)
+  diy::all_to_all(master, assigner, [&master, &outputs](Block* block, const diy::ReduceProxy& srp) {
+    int myBlockId = srp.gid();
+    int localId = master.lid(myBlockId);
+    auto& output = outputs[localId];
+    if (srp.round() == 0)
     {
-      int myBlockId = srp.gid();
-      int localId = master.lid(myBlockId);
-      auto& output = outputs[localId];
-      if (srp.round() == 0)
+      for (int i = 0; i < srp.out_link().size(); ++i)
       {
-        for (int i = 0; i < srp.out_link().size(); ++i)
+        if (i != myBlockId)
         {
-          if (i != myBlockId)
-          {
-            srp.enqueue(srp.out_link().target(i), output->GetBounds(), 6);
-          }
+          srp.enqueue(srp.out_link().target(i), output->GetBounds(), 6);
         }
       }
-      else
+    }
+    else
+    {
+      double boundstmp[6];
+      for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
       {
-        double boundstmp[6];
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        if (i != myBlockId)
         {
-          if (i != myBlockId)
-          {
-            const diy::BlockID& blockId = srp.in_link().target(i);
-            srp.dequeue(blockId, boundstmp, 6);
-            block->BoundingBoxes.emplace(blockId.gid, vtkBoundingBox(boundstmp));
-          }
+          const diy::BlockID& blockId = srp.in_link().target(i);
+          srp.dequeue(blockId, boundstmp, 6);
+          block->BoundingBoxes.emplace(blockId.gid, vtkBoundingBox(boundstmp));
         }
       }
-    });
+    }
+  });
   vtkLogEndScope("share bounding boxes");
 
   std::vector<std::map<int, vtkBoundingBox>> boundingBoxesArray;
@@ -449,8 +446,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   // overlaps.
   // After this diy communication, the link map is symmetric among blocks.
   diy::all_to_all(master, assigner,
-    [&master, &overlappingCellCandidatesDataSetsArray](Block*, const diy::ReduceProxy& rp)
-    {
+    [&master, &overlappingCellCandidatesDataSetsArray](Block*, const diy::ReduceProxy& rp) {
       int myBlockId = rp.gid();
       int localId = master.lid(myBlockId);
       auto& overlappingCellCandidatesDataSets = overlappingCellCandidatesDataSetsArray[localId];
@@ -495,37 +491,34 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
 
   // We share overlapping candidates with neighbor blocks.
   vtkLogStartScope(TRACE, "send cell candidates across ranks");
-  master.foreach (
-    [&master, &overlappingCellCandidatesDataSetsArray](void*, const diy::Master::ProxyWithLink& cp)
+  master.foreach ([&master, &overlappingCellCandidatesDataSetsArray](
+                    void*, const diy::Master::ProxyWithLink& cp) {
+    int myBlockId = cp.gid();
+    int localId = master.lid(myBlockId);
+    auto& candidates = overlappingCellCandidatesDataSetsArray[localId];
+    // enqueue
+    for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
     {
-      int myBlockId = cp.gid();
-      int localId = master.lid(myBlockId);
-      auto& candidates = overlappingCellCandidatesDataSetsArray[localId];
-      // enqueue
-      for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
-      {
-        vtkdiy2::BlockID& targetBlockId = cp.link()->target(i);
-        cp.enqueue<vtkDataSet*>(targetBlockId, candidates.at(targetBlockId.gid));
-      }
-    });
+      vtkdiy2::BlockID& targetBlockId = cp.link()->target(i);
+      cp.enqueue<vtkDataSet*>(targetBlockId, candidates.at(targetBlockId.gid));
+    }
+  });
   master.exchange();
-  master.foreach (
-    [](Block* block, const diy::Master::ProxyWithLink& cp)
+  master.foreach ([](Block* block, const diy::Master::ProxyWithLink& cp) {
+    // dequeue
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+    for (int gid : incoming)
     {
-      // dequeue
-      std::vector<int> incoming;
-      cp.incoming(incoming);
-      for (int gid : incoming)
+      // we need this extra check because incoming is not empty when using only one block
+      if (!cp.incoming(gid).empty())
       {
-        // we need this extra check because incoming is not empty when using only one block
-        if (!cp.incoming(gid).empty())
-        {
-          vtkDataSet* ds = nullptr;
-          cp.dequeue<vtkDataSet*>(gid, ds);
-          block->DataSets.emplace(gid, vtkSmartPointer<vtkDataSet>::Take(ds));
-        }
+        vtkDataSet* ds = nullptr;
+        cp.dequeue<vtkDataSet*>(gid, ds);
+        block->DataSets.emplace(gid, vtkSmartPointer<vtkDataSet>::Take(ds));
       }
-    });
+    }
+  });
   vtkLogEndScope("send cell candidates across ranks");
 
   std::vector<std::map<int, std::unordered_map<vtkIdType, std::set<vtkIdType>>>>
@@ -601,8 +594,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
   // can add the collisions they couldn't detect.
   vtkLogStartScope(TRACE, "send back detected overlaps");
   master.foreach (
-    [&master, &collisionListMapListArray](void*, const diy::Master::ProxyWithLink& cp)
-    {
+    [&master, &collisionListMapListArray](void*, const diy::Master::ProxyWithLink& cp) {
       int myBlockId = cp.gid();
       int localId = master.lid(myBlockId);
       auto& collisionListMapList = collisionListMapListArray[localId];
@@ -614,22 +606,20 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       }
     });
   master.exchange();
-  master.foreach (
-    [](Block* block, const diy::Master::ProxyWithLink& cp)
+  master.foreach ([](Block* block, const diy::Master::ProxyWithLink& cp) {
+    // dequeue
+    std::vector<int> incoming;
+    cp.incoming(incoming);
+    for (int gid : incoming)
     {
-      // dequeue
-      std::vector<int> incoming;
-      cp.incoming(incoming);
-      for (int gid : incoming)
+      if (!cp.incoming(gid).empty())
       {
-        if (!cp.incoming(gid).empty())
-        {
-          std::unordered_map<vtkIdType, std::set<vtkIdType>> collisionListMap;
-          cp.dequeue(gid, collisionListMap);
-          block->CollisionListMaps.emplace(gid, std::move(collisionListMap));
-        }
+        std::unordered_map<vtkIdType, std::set<vtkIdType>> collisionListMap;
+        cp.dequeue(gid, collisionListMap);
+        block->CollisionListMaps.emplace(gid, std::move(collisionListMap));
       }
-    });
+    }
+  });
   vtkLogEndScope("send back detected overlaps");
 
   vtkLogStartScope(TRACE, "add detected overlaps from other ranks");

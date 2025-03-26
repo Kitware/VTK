@@ -10,6 +10,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <array>
 #include <vector>

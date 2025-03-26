@@ -7,10 +7,10 @@
  * Author: Daniel Veillard
  */
 
+#include <libxml/parser.h>
+
 #ifndef __XML_ERROR_H__
 #define __XML_ERROR_H__
-
-#include <libxml/xmlversion.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -210,12 +210,6 @@ typedef enum {
     XML_ERR_NAME_TOO_LONG, /* 110 */
     XML_ERR_USER_STOP, /* 111 */
     XML_ERR_COMMENT_ABRUPTLY_ENDED, /* 112 */
-    XML_WAR_ENCODING_MISMATCH, /* 113 */
-    XML_ERR_RESOURCE_LIMIT, /* 114 */
-    XML_ERR_ARGUMENT, /* 115 */
-    XML_ERR_SYSTEM, /* 116 */
-    XML_ERR_REDECL_PREDEF_ENTITY, /* 117 */
-    XML_ERR_INT_SUBSET_NOT_FINISHED, /* 118 */
     XML_NS_ERR_XML_NAMESPACE = 200,
     XML_NS_ERR_UNDEFINED_NAMESPACE, /* 201 */
     XML_NS_ERR_QNAME, /* 202 */
@@ -478,7 +472,6 @@ typedef enum {
     XML_IO_EADDRINUSE, /* 1554 */
     XML_IO_EALREADY, /* 1555 */
     XML_IO_EAFNOSUPPORT, /* 1556 */
-    XML_IO_UNSUPPORTED_PROTOCOL, /* 1557 */
     XML_XINCLUDE_RECURSION=1600,
     XML_XINCLUDE_PARSE_VALUE, /* 1601 */
     XML_XINCLUDE_ENTITY_DEF_MISMATCH, /* 1602 */
@@ -851,7 +844,7 @@ typedef enum {
  * Signature of the function to use when there is an error and
  * no parsing or validity context available .
  */
-typedef void (*xmlGenericErrorFunc) (void *ctx,
+typedef void (XMLCDECL *xmlGenericErrorFunc) (void *ctx,
 				 const char *msg,
 				 ...) LIBXML_ATTR_FORMAT(2,3);
 /**
@@ -862,106 +855,92 @@ typedef void (*xmlGenericErrorFunc) (void *ctx,
  * Signature of the function to use when there is an error and
  * the module handles the new error reporting mechanism.
  */
-typedef void (*xmlStructuredErrorFunc) (void *userData, const xmlError *error);
-
-/** DOC_DISABLE */
-#define XML_GLOBALS_ERROR \
-  XML_OP(xmlLastError, xmlError, XML_DEPRECATED) \
-  XML_OP(xmlGenericError, xmlGenericErrorFunc, XML_NO_ATTR) \
-  XML_OP(xmlGenericErrorContext, void *, XML_NO_ATTR) \
-  XML_OP(xmlStructuredError, xmlStructuredErrorFunc, XML_NO_ATTR) \
-  XML_OP(xmlStructuredErrorContext, void *, XML_NO_ATTR)
-
-#define XML_OP XML_DECLARE_GLOBAL
-XML_GLOBALS_ERROR
-#undef XML_OP
-
-#if defined(LIBXML_THREAD_ENABLED) && !defined(XML_GLOBALS_NO_REDEFINITION)
-  #define xmlLastError XML_GLOBAL_MACRO(xmlLastError)
-  #define xmlGenericError XML_GLOBAL_MACRO(xmlGenericError)
-  #define xmlGenericErrorContext XML_GLOBAL_MACRO(xmlGenericErrorContext)
-  #define xmlStructuredError XML_GLOBAL_MACRO(xmlStructuredError)
-  #define xmlStructuredErrorContext XML_GLOBAL_MACRO(xmlStructuredErrorContext)
-#else
-#define xmlLastError vtklibxml2_xmlLastError
-#define xmlGenericError vtklibxml2_xmlGenericError
-#define xmlGenericErrorContext vtklibxml2_xmlGenericErrorContext
-#define xmlStructuredError vtklibxml2_xmlStructuredError
-#define xmlStructuredErrorContext vtklibxml2_xmlStructuredErrorContext
-#endif
-/** DOC_ENABLE */
+typedef void (XMLCALL *xmlStructuredErrorFunc) (void *userData, xmlErrorPtr error);
 
 /*
  * Use the following function to reset the two global variables
  * xmlGenericError and xmlGenericErrorContext.
  */
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     xmlSetGenericErrorFunc	(void *ctx,
 				 xmlGenericErrorFunc handler);
-XML_DEPRECATED
-XMLPUBFUN void
-    xmlThrDefSetGenericErrorFunc(void *ctx,
-                                 xmlGenericErrorFunc handler);
-XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     initGenericErrorDefaultFunc	(xmlGenericErrorFunc *handler);
 
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     xmlSetStructuredErrorFunc	(void *ctx,
 				 xmlStructuredErrorFunc handler);
-XML_DEPRECATED
-XMLPUBFUN void
-    xmlThrDefSetStructuredErrorFunc(void *ctx,
-                                 xmlStructuredErrorFunc handler);
 /*
  * Default message routines used by SAX and Valid context for error
  * and warning reporting.
  */
-XMLPUBFUN void
+XMLPUBFUN void XMLCDECL
     xmlParserError		(void *ctx,
 				 const char *msg,
 				 ...) LIBXML_ATTR_FORMAT(2,3);
-XMLPUBFUN void
+XMLPUBFUN void XMLCDECL
     xmlParserWarning		(void *ctx,
 				 const char *msg,
 				 ...) LIBXML_ATTR_FORMAT(2,3);
-XMLPUBFUN void
+XMLPUBFUN void XMLCDECL
     xmlParserValidityError	(void *ctx,
 				 const char *msg,
 				 ...) LIBXML_ATTR_FORMAT(2,3);
-XMLPUBFUN void
+XMLPUBFUN void XMLCDECL
     xmlParserValidityWarning	(void *ctx,
 				 const char *msg,
 				 ...) LIBXML_ATTR_FORMAT(2,3);
-/** DOC_DISABLE */
-struct _xmlParserInput;
-/** DOC_ENABLE */
-XMLPUBFUN void
-    xmlParserPrintFileInfo	(struct _xmlParserInput *input);
-XMLPUBFUN void
-    xmlParserPrintFileContext	(struct _xmlParserInput *input);
-XMLPUBFUN void
-xmlFormatError			(const xmlError *err,
-				 xmlGenericErrorFunc channel,
-				 void *data);
+XMLPUBFUN void XMLCALL
+    xmlParserPrintFileInfo	(xmlParserInputPtr input);
+XMLPUBFUN void XMLCALL
+    xmlParserPrintFileContext	(xmlParserInputPtr input);
 
 /*
  * Extended error information routines
  */
-XMLPUBFUN const xmlError *
+XMLPUBFUN xmlErrorPtr XMLCALL
     xmlGetLastError		(void);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     xmlResetLastError		(void);
-XMLPUBFUN const xmlError *
+XMLPUBFUN xmlErrorPtr XMLCALL
     xmlCtxtGetLastError		(void *ctx);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     xmlCtxtResetLastError	(void *ctx);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
     xmlResetError		(xmlErrorPtr err);
-XMLPUBFUN int
-    xmlCopyError		(const xmlError *from,
+XMLPUBFUN int XMLCALL
+    xmlCopyError		(xmlErrorPtr from,
 				 xmlErrorPtr to);
 
+#ifdef IN_LIBXML
+/*
+ * Internal callback reporting routine
+ */
+XMLPUBFUN void XMLCALL
+    __xmlRaiseError		(xmlStructuredErrorFunc schannel,
+				 xmlGenericErrorFunc channel,
+				 void *data,
+                                 void *ctx,
+				 void *node,
+				 int domain,
+				 int code,
+				 xmlErrorLevel level,
+				 const char *file,
+				 int line,
+				 const char *str1,
+				 const char *str2,
+				 const char *str3,
+				 int int1,
+				 int col,
+				 const char *msg,
+				 ...) LIBXML_ATTR_FORMAT(16,17);
+XMLPUBFUN void XMLCALL
+    __xmlSimpleError		(int domain,
+				 int code,
+				 xmlNodePtr node,
+				 const char *msg,
+				 const char *extra) LIBXML_ATTR_FORMAT(4,0);
+#endif
 #ifdef __cplusplus
 }
 #endif

@@ -2,8 +2,6 @@ NAME
   VTK::TestingGenericBridge
 LIBRARY_NAME
   vtkTestingGenericBridge
-DESCRIPTION
-  An adaptor that presents vtkDataSet instances as vtkGenericDataSet instances for testing.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

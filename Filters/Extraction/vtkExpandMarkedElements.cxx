@@ -318,36 +318,34 @@ int vtkExpandMarkedElements::RequestData(
   // exchange bounding boxes to determine neighbours; helps avoid all_to_all
   // communication.
   vtkLogStartScope(TRACE, "populate block neighbours");
-  diy::all_to_all(master, assigner,
-    [](BlockT* b, const diy::ReduceProxy& rp)
+  diy::all_to_all(master, assigner, [](BlockT* b, const diy::ReduceProxy& rp) {
+    double bds[6];
+    b->Dataset->GetBounds(bds);
+    const vtkBoundingBox bbox(bds);
+    if (rp.round() == 0)
     {
-      double bds[6];
-      b->Dataset->GetBounds(bds);
-      const vtkBoundingBox bbox(bds);
-      if (rp.round() == 0)
+      for (int i = 0; i < rp.out_link().size(); ++i)
       {
-        for (int i = 0; i < rp.out_link().size(); ++i)
+        const auto dest = rp.out_link().target(i);
+        rp.enqueue(dest, bds, 6);
+      }
+    }
+    else
+    {
+      for (int i = 0; i < rp.in_link().size(); ++i)
+      {
+        const auto src = rp.in_link().target(i);
+        double in_bds[6];
+        rp.dequeue(src, in_bds, 6);
+        vtkBoundingBox in_bbx(in_bds);
+        if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
         {
-          const auto dest = rp.out_link().target(i);
-          rp.enqueue(dest, bds, 6);
+          vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
+          b->Neighbors.emplace_back(src, in_bbx);
         }
       }
-      else
-      {
-        for (int i = 0; i < rp.in_link().size(); ++i)
-        {
-          const auto src = rp.in_link().target(i);
-          double in_bds[6];
-          rp.dequeue(src, in_bds, 6);
-          vtkBoundingBox in_bbx(in_bds);
-          if (src.gid != rp.gid() && in_bbx.IsValid() && in_bbx.Intersects(bbox))
-          {
-            vtkLogF(TRACE, "%d --> %d", rp.gid(), src.gid);
-            b->Neighbors.emplace_back(src, in_bbx);
-          }
-        }
-      }
-    });
+    }
+  });
 
   // update local links.
   for (int cc = 0; cc < static_cast<int>(gids.size()); ++cc)
@@ -368,31 +366,29 @@ int vtkExpandMarkedElements::RequestData(
   // Expand the selection
   for (int round = 0; round < this->NumberOfLayers; ++round)
   {
-    master.foreach ([&assoc, &round](BlockT* b, const diy::Master::ProxyWithLink& cp)
-      { b->EnqueueAndExpand(assoc, round, cp); });
+    master.foreach ([&assoc, &round](BlockT* b, const diy::Master::ProxyWithLink& cp) {
+      b->EnqueueAndExpand(assoc, round, cp);
+    });
     master.exchange();
-    master.foreach ([&assoc, &round](BlockT* b, const diy::Master::ProxyWithLink& cp)
-      { b->DequeueAndExpand(assoc, round, cp); });
+    master.foreach ([&assoc, &round](BlockT* b, const diy::Master::ProxyWithLink& cp) {
+      b->DequeueAndExpand(assoc, round, cp);
+    });
   }
 
   // Remove unwanted layers
-  master.foreach (
-    [this](BlockT* b, const diy::Master::ProxyWithLink&)
-    {
-      b->RemoveExcedentLayers(
-        this->RemoveSeed, this->RemoveIntermediateLayers, this->NumberOfLayers - 1);
-    });
+  master.foreach ([this](BlockT* b, const diy::Master::ProxyWithLink&) {
+    b->RemoveExcedentLayers(
+      this->RemoveSeed, this->RemoveIntermediateLayers, this->NumberOfLayers - 1);
+  });
 
   if (arrayname.empty())
   {
     arrayname = "MarkedElements";
   }
-  master.foreach (
-    [&assoc, &arrayname](BlockT* b, const diy::Master::ProxyWithLink&)
-    {
-      b->MarkedArray->SetName(arrayname.c_str());
-      b->Dataset->GetAttributes(assoc)->AddArray(b->MarkedArray);
-    });
+  master.foreach ([&assoc, &arrayname](BlockT* b, const diy::Master::ProxyWithLink&) {
+    b->MarkedArray->SetName(arrayname.c_str());
+    b->Dataset->GetAttributes(assoc)->AddArray(b->MarkedArray);
+  });
 
   comm.barrier();
   this->CheckAbort();

@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#if defined(LIBXML_XPTR_LOCS_ENABLED)
+#ifdef LIBXML_XPTR_LOCS_ENABLED
 /*
  * A Location Set
  */
@@ -45,91 +45,90 @@ struct _xmlLocationSet {
  */
 
 XML_DEPRECATED
-XMLPUBFUN xmlLocationSetPtr
+XMLPUBFUN xmlLocationSetPtr XMLCALL
 		    xmlXPtrLocationSetCreate	(xmlXPathObjectPtr val);
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrFreeLocationSet	(xmlLocationSetPtr obj);
 XML_DEPRECATED
-XMLPUBFUN xmlLocationSetPtr
+XMLPUBFUN xmlLocationSetPtr XMLCALL
 		    xmlXPtrLocationSetMerge	(xmlLocationSetPtr val1,
 						 xmlLocationSetPtr val2);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRange		(xmlNodePtr start,
 						 int startindex,
 						 xmlNodePtr end,
 						 int endindex);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRangePoints	(xmlXPathObjectPtr start,
 						 xmlXPathObjectPtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRangeNodePoint	(xmlNodePtr start,
 						 xmlXPathObjectPtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRangePointNode	(xmlXPathObjectPtr start,
 						 xmlNodePtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRangeNodes	(xmlNodePtr start,
 						 xmlNodePtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewLocationSetNodes	(xmlNodePtr start,
 						 xmlNodePtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr set);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewRangeNodeObject	(xmlNodePtr start,
 						 xmlXPathObjectPtr end);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrNewCollapsedRange	(xmlNodePtr start);
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrLocationSetAdd	(xmlLocationSetPtr cur,
 						 xmlXPathObjectPtr val);
 XML_DEPRECATED
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrWrapLocationSet	(xmlLocationSetPtr val);
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrLocationSetDel	(xmlLocationSetPtr cur,
 						 xmlXPathObjectPtr val);
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrLocationSetRemove	(xmlLocationSetPtr cur,
 						 int val);
-#endif /* defined(LIBXML_XPTR_LOCS_ENABLED) */
+#endif /* LIBXML_XPTR_LOCS_ENABLED */
 
 /*
  * Functions.
  */
-XMLPUBFUN xmlXPathContextPtr
+XMLPUBFUN xmlXPathContextPtr XMLCALL
 		    xmlXPtrNewContext		(xmlDocPtr doc,
 						 xmlNodePtr here,
 						 xmlNodePtr origin);
-XMLPUBFUN xmlXPathObjectPtr
+XMLPUBFUN xmlXPathObjectPtr XMLCALL
 		    xmlXPtrEval			(const xmlChar *str,
 						 xmlXPathContextPtr ctx);
-
-#if defined(LIBXML_XPTR_LOCS_ENABLED)
+#ifdef LIBXML_XPTR_LOCS_ENABLED
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrRangeToFunction	(xmlXPathParserContextPtr ctxt,
 						 int nargs);
 XML_DEPRECATED
-XMLPUBFUN xmlNodePtr
+XMLPUBFUN xmlNodePtr XMLCALL
 		    xmlXPtrBuildNodeList	(xmlXPathObjectPtr obj);
 XML_DEPRECATED
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 		    xmlXPtrEvalRangePredicate	(xmlXPathParserContextPtr ctxt);
-#endif /* defined(LIBXML_XPTR_LOCS_ENABLED) */
+#endif /* LIBXML_XPTR_LOCS_ENABLED */
 #ifdef __cplusplus
 }
 #endif

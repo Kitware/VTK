@@ -11,18 +11,18 @@ var vtkWebAssemblyRenderWindowInteractor = {
   $VTKCanvas : {
     /**
      * This is a general function invoked by the proxying methods below.
-     * Initializes the canvas at `target` and applies style so that the canvas expands to
+     * Initializes the canvas at elementId and applies style so that the canvas expands to
      * take up entire space of the parent element.
      * Here is how you can call this from C/C++ code:
      * ```cpp
      * #include "vtkWebAssemblyRenderWindowInteractor.h" // for vtkInitializeCanvasElement
      * vtkInitializeCanvasElement("#canvas", true);
      * ```
-     * @param {number} target the selector of the canvas.
+     * @param {number} elementId the selector of the canvas.
      * @param {boolean} applyStyle whether to modify the style of the canvas and parent element.
      */
-    initializeCanvasElement: (target, applyStyle) => {
-      const canvasElem = findCanvasEventTarget(target);
+    initializeCanvasElement: (elementId, applyStyle) => {
+      const canvasElem = findCanvasEventTarget(elementId, applyStyle);
       if (!canvasElem) {
         return;
       }
@@ -44,9 +44,6 @@ var vtkWebAssemblyRenderWindowInteractor = {
         canvasElem.style.left = 0;
         canvasElem.style.width = '100%';
         canvasElem.style.height = '100%';
-
-        // Trigger a resize event to refresh the canvas size.
-        window.dispatchEvent(new Event('resize'));
       }
     },
 
@@ -58,11 +55,11 @@ var vtkWebAssemblyRenderWindowInteractor = {
      * #include "vtkWebAssemblyRenderWindowInteractor.h" // for vtkGetParentElementBoundingRectSize
      * int32_t* canvasSize = vtkGetParentElementBoundingRectSize("#canvas");
      * ```
-     * @param {number} target the selector of the canvas.
+     * @param {number} elementId the selector of the canvas.
      * @returns pointer to an integer array containing width and height in pixels.
      */
-    getParentElementBoundingRectSize: (target) => {
-      const canvasElem = findCanvasEventTarget(target);
+    getParentElementBoundingRectSize: (elementId) => {
+      const canvasElem = findCanvasEventTarget(elementId);
       if (!canvasElem) {
         return 0;
       }
@@ -120,44 +117,44 @@ var vtkWebAssemblyRenderWindowInteractor = {
   },
 
 #if PTHREADS
-  $getParentElementBoundingRectSizeCallingThread: (target) => {
-    return VTKCanvas.getParentElementBoundingRectSize(target);
+  $getParentElementBoundingRectSizeCallingThread: (elementId) => {
+    return VTKCanvas.getParentElementBoundingRectSize(elementId);
   },
 
   $getParentElementBoundingRectSizeMainThread__proxy: 'sync',
   $getParentElementBoundingRectSizeMainThread__deps: ['$getParentElementBoundingRectSizeCallingThread'],
-  $getParentElementBoundingRectSizeMainThread: (target) => getParentElementBoundingRectSizeCallingThread(target),
+  $getParentElementBoundingRectSizeMainThread: (elementId) => getParentElementBoundingRectSizeCallingThread(elementId),
 
   vtkGetParentElementBoundingRectSize__deps: ['$getParentElementBoundingRectSizeMainThread'],
   vtkGetParentElementBoundingRectSize__sig: 'pp',
-  vtkGetParentElementBoundingRectSize: (target) => {
-    return getParentElementBoundingRectSizeMainThread(target);
+  vtkGetParentElementBoundingRectSize: (elementId) => {
+    return getParentElementBoundingRectSizeMainThread(elementId);
   },
 #else
   vtkGetParentElementBoundingRectSize__sig: 'pp',
-  vtkGetParentElementBoundingRectSize: (target) => {
-    return VTKCanvas.getParentElementBoundingRectSize(target);
+  vtkGetParentElementBoundingRectSize: (elementId) => {
+    return VTKCanvas.getParentElementBoundingRectSize(elementId);
   },
 #endif
 
 #if PTHREADS
-  $initializeCanvasElementCallingThread: (target, applyStyle) => {
-    VTKCanvas.initializeCanvasElement(target, applyStyle);
+  $initializeCanvasElementCallingThread: (elementId, applyStyle) => {
+    VTKCanvas.initializeCanvasElement(elementId, applyStyle);
   },
 
   $initializeCanvasElementMainThread__proxy: 'sync',
   $initializeCanvasElementMainThread__deps: ['$initializeCanvasElementCallingThread'],
-  $initializeCanvasElementMainThread: (target, applyStyle) => initializeCanvasElementCallingThread(target, applyStyle),
+  $initializeCanvasElementMainThread: (elementId, applyStyle) => initializeCanvasElementCallingThread(elementId, applyStyle),
 
   vtkInitializeCanvasElement__deps: ['$initializeCanvasElementMainThread'],
   vtkInitializeCanvasElement__sig: 'vpi',
-  vtkInitializeCanvasElement: (target, applyStyle) => {
-    return initializeCanvasElementMainThread(target, applyStyle);
+  vtkInitializeCanvasElement: (elementId, applyStyle) => {
+    return initializeCanvasElementMainThread(elementId, applyStyle);
   },
 #else
   vtkInitializeCanvasElement__sig: 'vpi',
-  vtkInitializeCanvasElement: (target, applyStyle) => {
-    VTKCanvas.initializeCanvasElement(target, applyStyle);
+  vtkInitializeCanvasElement: (elementId, applyStyle) => {
+    VTKCanvas.initializeCanvasElement(elementId, applyStyle);
   },
 #endif
 };

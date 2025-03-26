@@ -17,7 +17,6 @@
 
 #include "vtkActor2D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
@@ -25,7 +24,7 @@ class vtkTexture;
 class vtkViewport;
 class vtkWindow;
 
-class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTexturedActor2D : public vtkActor2D
+class VTKRENDERINGCORE_EXPORT vtkTexturedActor2D : public vtkActor2D
 {
 public:
   static vtkTexturedActor2D* New();

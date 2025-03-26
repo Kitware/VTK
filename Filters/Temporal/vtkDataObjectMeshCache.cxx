@@ -8,8 +8,9 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeRange.h"
-#include "vtkDataSet.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectMeshCache);
@@ -87,7 +88,18 @@ struct MeshMTimeWorker : public GenericDataObjectWorker
 
   void ComputeDataSet(vtkDataSet* dataset) override
   {
-    this->MeshTime = std::max(this->MeshTime, dataset->GetMeshMTime());
+    auto polydata = vtkPolyData::SafeDownCast(dataset);
+    auto ugrid = vtkUnstructuredGrid::SafeDownCast(dataset);
+
+    if (polydata)
+    {
+      this->MeshTime = std::max(this->MeshTime, polydata->GetMeshMTime());
+    }
+
+    if (ugrid)
+    {
+      this->MeshTime = std::max(this->MeshTime, ugrid->GetMeshMTime());
+    }
   }
 
   vtkMTimeType MeshTime = 0;
@@ -103,9 +115,16 @@ struct SupportedDataWorker : public GenericDataObjectWorker
 {
   ~SupportedDataWorker() override = default;
 
-  bool Supported() { return !this->SkippedData; }
+  bool Supported() { return !this->SkippedData && this->SupportedLeaves; }
 
-  void ComputeDataSet(vtkDataSet* vtkNotUsed(dataset)) override {}
+  void ComputeDataSet(vtkDataSet* dataset) override
+  {
+    bool supportedLeaf =
+      vtkPolyData::SafeDownCast(dataset) || vtkUnstructuredGrid::SafeDownCast(dataset);
+    this->SupportedLeaves = this->SupportedLeaves && supportedLeaf;
+  }
+
+  bool SupportedLeaves = true;
 };
 
 /**
@@ -229,10 +248,6 @@ void vtkDataObjectMeshCache::SetOriginalDataObject(vtkDataObject* input)
     this->Modified();
     return;
   }
-
-  // Clear existing dataset ptrs
-  this->OriginalCompositeDataSet = nullptr;
-  this->OriginalDataSet = nullptr;
 
   if (vtkCompositeDataSet::SafeDownCast(input))
   {
@@ -388,8 +403,21 @@ vtkDataObjectMeshCache::Status vtkDataObjectMeshCache::GetStatus() const
     vtkDebugMacro("Consumer modification time has changed.");
   }
 
-  status.OriginalMeshUnmodified = this->GetNumberOfDataSets(this->Cache) ==
+  // Be sure that original data and cache are of same class.
+  if (this->OriginalCompositeDataSet)
+  {
+    status.OriginalMeshUnmodified =
+      strcmp(this->OriginalCompositeDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
+  }
+  else if (this->OriginalDataSet)
+  {
+    status.OriginalMeshUnmodified =
+      strcmp(this->OriginalDataSet->GetClassName(), this->Cache->GetClassName()) == 0;
+  }
+
+  status.OriginalMeshUnmodified &= this->GetNumberOfDataSets(this->Cache) ==
     this->GetNumberOfDataSets(this->GetOriginalDataObject());
+
   if (!status.OriginalMeshUnmodified)
   {
     vtkDebugMacro("Input structure has changed.");

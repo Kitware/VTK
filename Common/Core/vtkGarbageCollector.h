@@ -70,10 +70,6 @@ VTK_ABI_NAMESPACE_BEGIN
 void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReportInternal(
   vtkGarbageCollector*, vtkObjectBase*, void*, const char*);
 
-// This forward ref allows us to define methods with vtkNew.
-template <class T>
-class vtkNew;
-
 // This allows vtkObjectBase to get at the methods it needs.
 class vtkObjectBaseToGarbageCollectorFriendship;
 
@@ -181,15 +177,6 @@ class vtkSmartPointerBase;
  */
 void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReport(
   vtkGarbageCollector* collector, vtkSmartPointerBase& ptr, const char* desc);
-
-/**
- * Function to report a reference held by a vtkNew to a collector.
- */
-template <class T>
-void vtkGarbageCollectorReport(vtkGarbageCollector* collector, vtkNew<T>& ptr, const char* desc)
-{
-  vtkGarbageCollectorReportInternal(collector, ptr.Object, &ptr.Object, desc);
-}
 
 /**
  * Function to report a reference held by a raw pointer to a collector.

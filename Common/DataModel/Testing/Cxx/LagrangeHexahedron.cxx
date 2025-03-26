@@ -22,6 +22,7 @@
 #include "vtkXMLPolyDataWriter.h"
 
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include "vtkAxis.h"
 #include "vtkChartXY.h"

@@ -277,7 +277,7 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   ClassInfo* classInfo = NULL;
   NamespaceInfo* contents = NULL;
   const OptionInfo* options = NULL;
-  const HierarchyInfo* hinfo = NULL;
+  HierarchyInfo* hinfo = NULL;
   FileInfo* file_info = NULL;
   FILE* fp = NULL;
   const char* name = NULL;

@@ -4,8 +4,6 @@ LIBRARY_NAME
   vtkFiltersOpenTURNS
 IMPLEMENTS
   VTK::ChartsCore
-DESCRIPTION
-  Filters that depend on the OpenTURNS library for uncertainty quantification.
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

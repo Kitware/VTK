@@ -27,7 +27,6 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariRendererType(int argc, char* argv[])
 {
@@ -70,7 +69,18 @@ int TestAnariRendererType(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   renderer->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(renderer, useDebugDevice, "TestAnariRendererType");
+  if (useDebugDevice)
+  {
+    vtkAnariRendererNode::SetUseDebugDevice(1, renderer);
+    vtkNew<vtkTesting> testing;
+
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace";
+    traceDir += "/TestAnariRendererType";
+    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), renderer);
+  }
+
+  vtkAnariRendererNode::SetLibraryName("environment", renderer);
 
   for (int i = 1; i < 9; i++)
   {
@@ -78,11 +88,18 @@ int TestAnariRendererType(int argc, char* argv[])
     {
       cerr << "Render via default" << endl;
       vtkAnariRendererNode::SetRendererSubtype("default", renderer);
+      vtkAnariRendererNode::SetSamplesPerPixel(4, renderer);
+      vtkAnariRendererNode::SetLightFalloff(.5, renderer);
+      vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+      vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
     }
     else
     {
       cerr << "Render via raycast" << endl;
       vtkAnariRendererNode::SetRendererSubtype("raycast", renderer);
+      vtkAnariRendererNode::SetSamplesPerPixel(4, renderer);
+      vtkAnariRendererNode::SetUseDenoiser(1, renderer);
+      vtkAnariRendererNode::SetCompositeOnGL(1, renderer);
     }
 
     renWin->Render();

@@ -19,6 +19,7 @@
 #include "vtkStringToken.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include "vtk_eigen.h"
 #include VTK_EIGEN(Eigen)
@@ -217,8 +218,7 @@ bool vtkDGEvaluator::ClassifyPoints(
   cellConn.resize(numCorners);
   cellCorners.resize(numCorners);
   auto classifier = [&](vtkTypeUInt64 cellId, const vtkVector3d& testPoint,
-                      const std::vector<vtkVector3d>& cellCornerData)
-  {
+                      const std::vector<vtkVector3d>& cellCornerData) {
     (void)cellId;
     // Loop over sides of dimension (dim - 1), testing its halfspace.
     int numSideTypes = dgCell->GetNumberOfSideTypes();
@@ -424,21 +424,19 @@ bool vtkDGEvaluator::InterpolatePoints(
   vtkIdType numberOfPoints = alloc.GetNumberOfOutputPoints(); // The number of points to process.
 
   const vtkIdType end = outputPointId + numberOfPoints;
-  vtkSMPTools::For(outputPointId, end,
-    [&](vtkIdType bid, vtkIdType eid)
+  vtkSMPTools::For(outputPointId, end, [&](vtkIdType bid, vtkIdType eid) {
+    vtkTypeUInt64 cellId;
+    vtkVector3d rst;
+    std::vector<double> value;
+    value.resize(attribute->GetNumberOfComponents());
+    for (vtkIdType ii = bid; ii < eid; ++ii)
     {
-      vtkTypeUInt64 cellId;
-      vtkVector3d rst;
-      std::vector<double> value;
-      value.resize(attribute->GetNumberOfComponents());
-      for (vtkIdType ii = bid; ii < eid; ++ii)
-      {
-        cellIds->GetTypedTuple(ii, &cellId);
-        pointParams->GetTuple(ii, rst.GetData());
-        calc->Evaluate(cellId, rst, value);
-        values->SetTuple(ii, value.data());
-      }
-    });
+      cellIds->GetTypedTuple(ii, &cellId);
+      pointParams->GetTuple(ii, rst.GetData());
+      calc->Evaluate(cellId, rst, value);
+      values->SetTuple(ii, value.data());
+    }
+  });
 
   return true;
 }

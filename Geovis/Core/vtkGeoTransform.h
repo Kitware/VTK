@@ -80,15 +80,6 @@ public:
   void TransformPoints(vtkPoints* src, vtkPoints* dst) override;
 
   /**
-   * Another method to transform points, normals, and vectors all at once.
-   * Please note that this filter only implements point transformations, so
-   * attempts to transform normals or vectors will cause an error.
-   */
-  void TransformPointsNormalsVectors(vtkPoints* src, vtkPoints* dst, vtkDataArray* srcNms,
-    vtkDataArray* dstNms, vtkDataArray* srcVrs, vtkDataArray* dstVrs, int nOptionalVectors = 0,
-    vtkDataArray** srcVrsArr = nullptr, vtkDataArray** dstVrsArr = nullptr) override;
-
-  /**
    * Invert the transformation.
    */
   void Inverse() override;
@@ -136,7 +127,6 @@ protected:
   vtkGeoTransform();
   ~vtkGeoTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform*) override;
   void InternalTransformPoints(double* ptsInOut, vtkIdType numPts, int stride);
   vtkGeoProjection* SourceProjection;
   vtkGeoProjection* DestinationProjection;

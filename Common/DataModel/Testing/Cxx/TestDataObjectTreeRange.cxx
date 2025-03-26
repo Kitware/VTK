@@ -237,23 +237,22 @@ bool TestOptions(vtkDataObjectTree* cds)
 vtkSmartPointer<vtkDataObjectTree> CreateDataSet()
 {
   auto addPolyData = [](unsigned int blockNum,
-                       vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkPolyData>
-  {
+                       vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkPolyData> {
     vtkNew<vtkPolyData> pd;
     mbds->SetBlock(blockNum, pd);
     return { pd };
   };
 
   auto addMultiBlock = [](unsigned int blockNum,
-                         vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkMultiBlockDataSet>
-  {
+                         vtkMultiBlockDataSet* mbds) -> vtkSmartPointer<vtkMultiBlockDataSet> {
     auto newMbds = vtkSmartPointer<vtkMultiBlockDataSet>::New();
     mbds->SetBlock(blockNum, newMbds);
     return newMbds;
   };
 
-  auto addNullDataSet = [](unsigned int blockNum, vtkMultiBlockDataSet* mbds) -> void
-  { mbds->SetBlock(blockNum, nullptr); };
+  auto addNullDataSet = [](unsigned int blockNum, vtkMultiBlockDataSet* mbds) -> void {
+    mbds->SetBlock(blockNum, nullptr);
+  };
 
   auto cds00 = vtkSmartPointer<vtkMultiBlockDataSet>::New();
   cds00->SetNumberOfBlocks(4);
@@ -292,7 +291,8 @@ vtkSmartPointer<vtkDataObjectTree> CreateDataSet()
   cds40->SetNumberOfBlocks(1);
   addPolyData(0, cds40);
 
-  return cds00;
+  // explicit move needed to silence warnings about C++11 defect
+  return std::move(cds00);
 }
 
 } // end anon namespace

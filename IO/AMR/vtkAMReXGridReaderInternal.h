@@ -59,7 +59,7 @@ public:
   const std::vector<long>& formatarray() const&;
   const int* order() const&;
   const std::vector<int>& orderarray() const&;
-  long numBytes() const;
+  std::size_t numBytes() const;
   bool operator==(const RealDescriptor& rd) const;
 
 private:
@@ -188,7 +188,7 @@ public:
   int levelNumberOfFABOnDisk;
   std::string levelFabOnDiskPrefix;
   std::vector<std::string> levelFABFile;
-  std::vector<long> levelFileOffset;
+  std::vector<std::size_t> levelFileOffset;
   std::vector<std::vector<double>> levelMinimumsFAB;
   std::vector<std::vector<double>> levelMaximumsFAB;
   std::vector<double> levelFABArrayMinimum;
@@ -232,8 +232,8 @@ public:
   int GetBlockIndexWithinLevel(int blockIdx, int level);
   void GetBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
   void GetExtraMultiFabBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
-  int GetOffsetOfAttribute(const char* attribute);
-  int GetAttributeOffsetExtraMultiFab(const char* attribute, int fabIndex);
+  vtkIdType GetOffsetOfAttribute(const char* attribute);
+  vtkIdType GetAttributeOffsetExtraMultiFab(const char* attribute, int fabIndex);
   int GetExtraMultiFabIndex(const char* attribute);
   void ReadFAB(std::istream& is);
   int ReadVersion(std::istream& is);
@@ -242,19 +242,20 @@ public:
   void ReadFormat(std::istream& is, std::vector<long>& ar);
   void PrintFormat(std::vector<long>& ar);
   RealDescriptor* ReadRealDescriptor(std::istream& is);
-  long ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
+  std::size_t ReadBoxArray(std::istream& is, int* boxArray, int* boxArrayDim);
   void PrintBoxArray(int* boxArray);
   int ReadNumberOfAttributes(std::istream& is);
-  void ReadBlockAttribute(std::istream& is, long numberOfPoints, long size, char* buffer);
-  void Convert(
-    void* out, const void* in, long nitems, const RealDescriptor& ord, const RealDescriptor& ird);
-  void PermuteOrder(
-    void* out, const void* in, long nitems, const int* outord, const int* inord, int REALSIZE);
+  void ReadBlockAttribute(
+    std::istream& is, std::size_t numberOfPoints, std::size_t size, char* buffer);
+  void Convert(void* out, const void* in, std::size_t nitems, const RealDescriptor& ord,
+    const RealDescriptor& ird);
+  void PermuteOrder(void* out, const void* in, std::size_t nitems, const int* outord,
+    const int* inord, std::size_t REALSIZE);
 
   template <typename T>
   void CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray, const RealDescriptor* ord,
-    const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers, int numberOfPoints,
-    const std::string& attribute);
+    const RealDescriptor* ird, const std::vector<std::vector<char>>& buffers,
+    std::size_t numberOfPoints, const std::string& attribute);
 
   bool headersAreRead;
   bool extraMultiFabHeadersAreRead;
@@ -270,7 +271,8 @@ public:
 template <typename T>
 void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate<T>* dataArray,
   const RealDescriptor* ord, const RealDescriptor* ird,
-  const std::vector<std::vector<char>>& buffers, int numberOfPoints, const std::string& attribute)
+  const std::vector<std::vector<char>>& buffers, std::size_t numberOfPoints,
+  const std::string& attribute)
 {
   int nComps = static_cast<int>(this->Header->parsedVariableNames[attribute].size());
   if (nComps == 0) // check if the variable is in an extra fab
@@ -290,7 +292,7 @@ void vtkAMReXGridReaderInternal::CreateVTKAttributeArray(vtkAOSDataArrayTemplate
     this->Convert(arrayPtr, buffers[j].data(), numberOfPoints, *ord, *ird);
 
     // Copy to data array component
-    for (int i = 0; i < numberOfPoints; ++i)
+    for (std::size_t i = 0; i < numberOfPoints; ++i)
     {
       dataArray->SetTypedComponent(i, j, arrayPtr[i]);
     }

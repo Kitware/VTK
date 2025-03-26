@@ -22,9 +22,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <iostream>
 
@@ -34,11 +34,6 @@
 #ifdef VTK_DBG_IOSS
 #include "vtkCellGridWriter.h"
 #endif
-
-// clang-format off
-#include VTK_IOSS(Ioss_Field.h)
-#include VTK_IOSS(Ioss_TransformFactory.h)
-// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -66,11 +61,11 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetCell
       badType = "node block";
       break;
     case Ioss::EntityType::EDGEBLOCK:
-      // badType = "edge block";
-      return {}; // Ignore edge blocks; they are only used to read HCurl fields.
+      badType = "edge block";
+      break;
     case Ioss::EntityType::FACEBLOCK:
-      // badType = "face block";
-      return {}; // Ignore face blocks; they are only used to read HDiv fields.
+      badType = "face block";
+      break;
     case Ioss::EntityType::NODESET:
       return this->GetNodeSet(blockName, vtk_entity_type, handle, timestep, self);
     case Ioss::EntityType::EDGESET:
@@ -125,16 +120,6 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetElem
     throw std::runtime_error("No group entity for element block.");
   }
 
-  return this->GetElementBlock(blockName, group_entity, handle, timestep, self);
-}
-
-std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetElementBlock(
-  const std::string& blockName, const Ioss::GroupingEntity* group_entity,
-  const DatabaseHandle& handle, int timestep, vtkIOSSCellGridReader* self)
-{
-  (void)blockName;
-
-  auto region = this->GetRegion(handle);
   int shape_conn_size;
   int shape_order;
   auto grid = vtkSmartPointer<vtkCellGrid>::New();
@@ -146,7 +131,7 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetElem
     throw std::runtime_error("Could not read cell specification.");
   }
   if (!vtkIOSSCellGridUtilities::GetConnectivity(
-        group_entity, grid, dg, shape_conn_size, -1, std::string(), &this->Cache))
+        group_entity, grid, dg, shape_conn_size, &this->Cache))
   {
     throw std::runtime_error("Could not read cell arrays.");
   }
@@ -162,15 +147,13 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetElem
   // This must always be a "CG" (continuous) attribute.
   vtkIOSSCellGridUtilities::GetShape(
     region, group_entity, cellShapeInfo, timestep, dg, grid, &this->Cache);
-  // Apply displacements before reading other cell-attributes as
-  // computing the range of HDIV/HCURL attributes **must** use
-  // the actual (deformed) cell shape. Also, note that using a
-  // displacement scale factor other than 1.0 will introduce errors.
-  if (self->GetApplyDisplacements())
-  {
-    this->ApplyDisplacements(grid, region, group_entity, handle, timestep);
-  }
 
+#ifdef VTK_DBG_IOSS
+  vtkNew<vtkCellGridWriter> wri;
+  wri->SetFileName("/tmp/dgDbg.dg");
+  wri->SetInputDataObject(grid);
+  wri->Write();
+#endif
   // Add per-block attributes.
   // auto blockFieldSelection = self->GetFieldSelection(vtk_entity_type);
   // this->GetCellAttributes(blockFieldSelection, grid, dg, region, group_entity, handle, timestep,
@@ -186,13 +169,12 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetElem
   this->GetElementAttributes(elementFieldSelection, grid->GetAttributes(dg->GetClassName()), grid,
     dg, group_entity, region, handle, timestep, self->GetReadIds(), "");
 
-#ifdef VTK_DBG_IOSS
-  vtkNew<vtkCellGridWriter> wri;
-  std::ostringstream dbgName;
-  dbgName << "/tmp/dbg_ioss_" << blockName << ".dg";
-  wri->SetFileName(dbgName.str().c_str());
-  wri->SetInputDataObject(0, grid);
-  wri->Write();
+#if 0
+  // TODO: Support displacements.
+  if (self->GetApplyDisplacements())
+  {
+    this->ApplyDisplacements(dataset, region, group_entity, handle, timestep);
+  }
 #endif
 
   return { grid };
@@ -216,110 +198,24 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetSide
   auto sideSet = static_cast<Ioss::SideSet*>(group_entity);
   for (auto sideBlock : sideSet->get_side_blocks())
   {
-    const auto* elementBlock = sideBlock->parent_element_block();
+    auto* elementBlock = sideBlock->parent_element_block();
     if (!elementBlock)
     {
       vtkGenericWarningMacro("No parent block for side block.");
       continue;
     }
-#ifdef VTK_DBG_IOSS
-    std::cout << "   side set " << group_entity->name() << " side block " << sideBlock->name()
-              << " parent element block " << elementBlock->name() << "\n";
-#endif
-    // There really should be only a single cell-grid returned for any element block,
-    // but sources is a vector. For now, fail hard if sources holds more than 1 cell-grid.
-    auto sources =
-      this->GetElementBlock(elementBlock->name(), elementBlock, handle, timestep, self);
-    if (sources.size() != 1)
+    std::cout << "    block " << elementBlock->name() << "\n";
+#if 0
+    int cell_type = VTK_EMPTY_CELL;
+    auto cellarray = vtkIOSSUtilities::GetConnectivity(sideBlock, cell_type, &this->Cache);
+    if (cellarray != nullptr && cell_type != VTK_EMPTY_CELL)
     {
-      throw std::logic_error("Side block " + sideBlock->name() + " of side set " +
-        group_entity->name() + " with parent " + elementBlock->name() + " has " +
-        std::to_string(sources.size()) + " cell-grids, but 1 is expected.");
+      blocks.emplace_back(cell_type, cellarray);
     }
-    // Now that we've ensured "sources" matches our expectation, get the lone vtkCellGrid from it
-    // and the lone cell-metadata entry in it:
-    auto& eblk(sources.front());
-    auto* dg = vtkDGCell::SafeDownCast(eblk->GetCellType(eblk->GetCellTypes().front()));
-
-    auto side_raw = sideBlock->get_field("element_side_raw");
-    auto sideConn = vtkIOSSUtilities::CreateArray(side_raw);
-    if (side_raw.zero_copy_enabled())
-    {
-      void* values;
-      size_t values_size;
-      sideBlock->get_field_data("element_side_raw", &values, &values_size);
-      sideConn->SetVoidArray(values, static_cast<vtkIdType>(values_size), 1);
-    }
-    else
-    {
-      sideBlock->get_field_data("element_side_raw", sideConn->GetVoidPointer(0),
-        sideConn->GetDataSize() * sideConn->GetDataTypeSize());
-    }
-#ifdef VTK_DBG_IOSS
-    std::cout << "side field "
-              << " " << sideConn->GetNumberOfTuples() << "×" << sideConn->GetNumberOfComponents()
-              << " [" << sideConn->GetRange(0)[0] << ", " << sideConn->GetRange(0)[1] << "]"
-              << " [" << sideConn->GetRange(1)[0] << ", " << sideConn->GetRange(1)[1] << "]"
-              << "\n";
 #endif
-
-    // Transform sideConn to match VTK's data model:
-    // 1. The cell IDs (file-local element IDs in ioss parlance) must be offset by the
-    //    starting ID of the parent elementBlock.
-    // 2. The side IDs (Exodus side numbering) must be transformed to match the
-    //    side numbering of the vtkDGCell subclasses.
-    // The latter also enables us to detect the side-spec SideType and SourceShape.
-    // vtkIOSSCellGridUtilities::AdjustSideConnectivity(eblk, dg, sideConn, sideBlock,
-    // elementBlock);
-
-    dg->GetCellSpec().Blanked = true; // Blank the parent cell-spec
-    dg->GetSideSpecs().resize(1);     // Add a child side-spec.
-    auto& sideSpec(dg->GetCellSource(0));
-    sideSpec.Connectivity = sideConn;
-    sideSpec.Offset = 0; // True for Exodus files, since we blanked the cell-spec.
-    // Now we need to determine the dimension of the sides.
-    // To do this, we will assume (and for historical reasons, this has always been
-    // how Exodus is used) that sides in a side set are all of the same dimension
-    // and (for a given sideBlock) of the same shape.
-
-    // vtkIOSSCellGridUtilities::GetConnectivity(sideBlock, eblk, dg, 2, 0, "sides", &this->Cache);
-    auto* sideArray = vtkTypeInt32Array::SafeDownCast(dg->GetCellSource(0).Connectivity);
-    auto cellIdOffset = elementBlock->get_offset() + /* switch from 1- to 0-based indexing*/ 1;
-    std::map<int, int> permutations;
-    int firstSideIdx = -1;
-    vtkSMPTools::For(0, sideArray->GetNumberOfTuples(),
-      [sideArray, cellIdOffset, &firstSideIdx, &permutations](vtkIdType begin, vtkIdType end)
-      {
-        std::array<vtkTypeUInt64, 2> sideTuple;
-        for (vtkIdType mm = begin; mm < end; ++mm)
-        {
-          sideArray->GetUnsignedTuple(mm, sideTuple.data());
-          sideTuple[0] -= cellIdOffset;
-          sideTuple[1] = permutations.empty() ? sideTuple[1] - 1
-                                              : // switch from 1- to 0-based indexing.
-            permutations[sideTuple[1]];
-          sideArray->SetUnsignedTuple(mm, sideTuple.data());
-        }
-        if (begin == 0)
-        {
-          // Only write to firstSideIdx if we are asked to process
-          // the first tuple.
-          sideArray->GetUnsignedTuple(0, sideTuple.data());
-          firstSideIdx = permutations.empty() ? sideTuple[1] - 1 : permutations[sideTuple[1]];
-        }
-      });
-    sideSpec.SourceShape = dg->GetSideShape(firstSideIdx);
-    sideSpec.SideType = dg->GetSideTypeForShape(sideSpec.SourceShape);
-    std::ostringstream arrayGroupName;
-    arrayGroupName << vtkDGCell::GetShapeName(sideSpec.SourceShape).Data() << " sides of "
-                   << dg->GetClassName();
-#ifdef VTK_DBG_IOSS
-    std::cout << "   sides stored in group \"" << arrayGroupName.str() << "\".\n";
-#endif
-    eblk->GetAttributes(arrayGroupName.str())->AddArray(sideConn);
-    data.push_back(eblk);
   }
 
+  std::cerr << "Side-sets (" << blockName << ") are currently unsupported.\n";
   return data;
 }
 
@@ -328,83 +224,18 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetNode
   const DatabaseHandle& handle, int timestep, vtkIOSSCellGridReader* self)
 {
   (void)self;
+  (void)timestep;
   (void)vtk_entity_type;
+  std::vector<vtkSmartPointer<vtkCellGrid>> data;
   auto region = this->GetRegion(handle);
   auto group_entity = region->get_entity(blockName, Ioss::EntityType::NODESET);
   if (!group_entity)
   {
-    vtkErrorWithObjectMacro(self, "No group entity for node-set \"" << blockName << "\".");
-    return {};
-  }
-  auto grid = vtkSmartPointer<vtkCellGrid>::New();
-  auto meta = vtkCellMetadata::NewInstance("vtkDGVert"_token, grid);
-  auto* dg = vtkDGCell::SafeDownCast(meta);
-  if (!meta || !dg)
-  {
-    vtkErrorWithObjectMacro(
-      self, "Could not create metadata for node-set \"" << blockName << "\".");
-    return {};
-  }
-  if (!grid->AddCellMetadata(meta))
-  {
-    vtkErrorWithObjectMacro(
-      self, "Could not add metadata for node-set \"" << blockName << "\" to grid.");
-    return {};
-  }
-  // Fetch the IDs of the file-global points included in the node-set,
-  // offseting by -1 so they are 0-indexed:
-  auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
-  transform->set_property("offset", -1);
-  auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform.get());
-  ids_raw->SetNumberOfComponents(1);
-
-  // Add the ID array to a vtkDataSetAttributes instance corresponding to
-  // the number of cells of the node-set. Since a separate cell-grid holds
-  // each node-set, we use the name of the cell type ("vtkDGVert") for the
-  // array group:
-  auto* cellGroup = grid->GetAttributes(dg->GetClassName());
-  cellGroup->AddArray(ids_raw);
-  dg->GetCellSpec().Connectivity = ids_raw;
-  dg->GetCellSpec().SourceShape = vtkDGCell::Shape::Vertex;
-  dg->GetCellSpec().Blanked = false;
-
-  // From the shape of cells in the block, the connectivity size, and the order,
-  // we need to infer vtkDGCell::CellTypeInfo data (FunctionSpace, Basis, Order).
-  vtkCellAttribute::CellTypeInfo cellShapeInfo;
-  cellShapeInfo.FunctionSpace = "constant"_token;
-  cellShapeInfo.Basis = "C"_token;
-  cellShapeInfo.Order = 0;
-
-  // Read node coordinates as the shape attribute.
-  // This must always be a "CG" (continuous) attribute.
-  vtkIOSSCellGridUtilities::GetShape(
-    region, group_entity, cellShapeInfo, timestep, dg, grid, &this->Cache);
-  // Apply displacements before reading other cell-attributes as
-  // computing the range of HDIV/HCURL attributes **must** use
-  // the actual (deformed) cell shape. Also, note that using a
-  // displacement scale factor other than 1.0 will introduce errors.
-  if (self->GetApplyDisplacements())
-  {
-    this->ApplyDisplacements(grid, region, group_entity, handle, timestep);
+    throw std::runtime_error("No group entity for node set.");
   }
 
-  // TODO: Add per-block attributes.
-  // Note that this is very difficult since nodes may be attached to
-  // cells in any number (0 or more) of element blocks. We could add
-  // all cell-attributes across all element blocks (assuming there are
-  // no cell-attributes with different spaces/components in different
-  // blocks), but then we must have NaN entries for nodes that do not
-  // attach to cells in those blocks. Also, it is possible for a node
-  // to take on multiple values if multiple element blocks provide the
-  // same field. In that case, it is unclear what to do.
-
-  // Add cell-attributes for nodal-data.
-  auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
-  auto nodeblock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
-  this->GetNodalAttributes(nodeFieldSelection, grid->GetAttributes("point-data"_token), grid, dg,
-    nodeblock, region, handle, timestep, self->GetReadIds(), "");
-
-  return { grid };
+  std::cerr << "Node-sets (" << blockName << ") are currently unsupported.\n";
+  return data;
 }
 
 vtkCellAttribute::CellTypeInfo vtkIOSSCellGridReaderInternal::GetCellGridInfoForBlock(
@@ -609,7 +440,7 @@ vtkCellAttribute::CellTypeInfo vtkIOSSCellGridReaderInternal::GetCellGridInfoFor
 
 void vtkIOSSCellGridReaderInternal::GetNodalAttributes(vtkDataArraySelection* fieldSelection,
   vtkDataSetAttributes* arrayGroup, vtkCellGrid* grid, vtkDGCell* meta,
-  const Ioss::GroupingEntity* group_entity, Ioss::Region* region, const DatabaseHandle& handle,
+  Ioss::GroupingEntity* group_entity, Ioss::Region* region, const DatabaseHandle& handle,
   int timestep, bool read_ioss_ids, const std::string& cache_key_suffix)
 {
   vtkIdTypeArray* ids_to_extract = nullptr;
@@ -685,12 +516,7 @@ void vtkIOSSCellGridReaderInternal::GetNodalAttributes(vtkDataArraySelection* fi
       attribute->Initialize(array->GetName(), "ℝ³", array->GetNumberOfComponents());
       vtkCellAttribute::CellTypeInfo cellTypeInfo;
       cellTypeInfo.DOFSharing = "point-data"_token;
-      // Point-data arrays must match the shape-attribute since they are
-      // continuous and must thus use the connectivity array provided for
-      // the shape attribute. Note that even nodesets and blocks of vertex
-      // cells are "continuous," though in that case they live in the
-      // "constant" function space, not "HGRAD."
-      cellTypeInfo.FunctionSpace = shapeInfo.FunctionSpace;
+      cellTypeInfo.FunctionSpace = "HGRAD"; // All point-data arrays are HGRAD
       cellTypeInfo.Basis = shapeInfo.Basis;
       cellTypeInfo.Order = shapeInfo.Order;
       cellTypeInfo.ArraysByRole["connectivity"] = meta->GetCellSpec().Connectivity;
@@ -703,7 +529,7 @@ void vtkIOSSCellGridReaderInternal::GetNodalAttributes(vtkDataArraySelection* fi
 
 void vtkIOSSCellGridReaderInternal::GetElementAttributes(vtkDataArraySelection* fieldSelection,
   vtkDataSetAttributes* arrayGroup, vtkCellGrid* grid, vtkDGCell* meta,
-  const Ioss::GroupingEntity* group_entity, Ioss::Region* region, const DatabaseHandle& handle,
+  Ioss::GroupingEntity* group_entity, Ioss::Region* region, const DatabaseHandle& handle,
   int timestep, bool read_ioss_ids, const std::string& cache_key_suffix)
 {
   vtkIdTypeArray* ids_to_extract = nullptr;
@@ -846,121 +672,6 @@ void vtkIOSSCellGridReaderInternal::GetElementAttributes(vtkDataArraySelection* 
       grid->AddCellAttribute(attribute);
     }
   }
-}
-
-bool vtkIOSSCellGridReaderInternal::ApplyDisplacements(vtkCellGrid* grid, Ioss::Region* region,
-  const Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep)
-{
-  if (!group_entity)
-  {
-    return false;
-  }
-
-  if (group_entity->type() == Ioss::EntityType::STRUCTUREDBLOCK)
-  {
-    // CGNS
-    vtkErrorWithObjectMacro(grid, "CGNS is unsupported.");
-    return false;
-  }
-
-  // We rely on the exodus conventions that (1) points are global across
-  // all blocks; and (2) each grid holds a single type of cell.
-  auto cellTypes = grid->CellTypeArray();
-  if (cellTypes.empty())
-  {
-    vtkWarningWithObjectMacro(grid, "Exodus grid has no cells; thus no points to displace.");
-    return false;
-  }
-  auto shapeAtt = grid->GetShapeAttribute();
-  auto shapeInfo = shapeAtt->GetCellTypeInfo(cellTypes.front());
-  auto* coords = vtkDataArray::SafeDownCast(shapeInfo.ArraysByRole["values"_token]);
-
-  // For now, we only support exodus-formatted data (which has a single block of point coordinates).
-  // So we can look the cache up based on the node_block:
-  auto node_block = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
-  auto& cache = this->Cache;
-  const auto xformPtsCacheKeyEnding =
-    std::to_string(timestep) + std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
-  const auto xformPtsCacheKey = "__vtk_xformed_pts_" + xformPtsCacheKeyEnding;
-  if (auto* xformedPts = vtkDataArray::SafeDownCast(cache.Find(node_block, xformPtsCacheKey)))
-  {
-    auto* pointGroup = grid->GetAttributes("coordinates"_token);
-    assert(xformedPts->GetNumberOfTuples() == pointGroup->GetNumberOfTuples());
-    // Remove the undeflected points:
-    pointGroup->RemoveArray(coords->GetName());
-    // Add the deflected points:
-    pointGroup->SetScalars(xformedPts);
-    for (const auto& cellTypeToken : cellTypes)
-    {
-      shapeInfo = shapeAtt->GetCellTypeInfo(cellTypeToken);
-      shapeInfo.ArraysByRole["values"_token] = xformedPts;
-      if (!shapeAtt->SetCellTypeInfo(cellTypeToken, shapeInfo))
-      {
-        vtkErrorWithObjectMacro(grid,
-          "Failed to update cell-type info for " << cellTypeToken.Data() << " on "
-                                                 << shapeAtt->GetName().Data() << ".");
-      }
-    }
-    return true;
-  }
-
-  vtkSmartPointer<vtkDataArray> array;
-
-  auto displ_array_name = vtkIOSSUtilities::GetDisplacementFieldName(node_block);
-  if (displ_array_name.empty())
-  {
-    // NB: This is not an error; it may be that the simulation simply doesn't deform the mesh.
-    // vtkErrorWithObjectMacro(grid, "No displacement field.");
-    return false;
-  }
-  array = vtkDataArray::SafeDownCast(
-    this->GetField(displ_array_name, region, node_block, handle, timestep, nullptr, std::string()));
-
-  if (coords && array)
-  {
-    vtkIdType npts = coords->GetNumberOfTuples();
-    auto* xformedPts = coords->NewInstance();
-    xformedPts->SetName(coords->GetName());
-    xformedPts->SetNumberOfComponents(3);
-    xformedPts->SetNumberOfTuples(npts);
-    double scale = this->DisplacementMagnitude;
-    vtkSMPTools::For(0, npts,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        vtkVector3d point{ 0.0 }, displ{ 0.0 };
-        for (vtkIdType ii = begin; ii != end; ++ii)
-        {
-          coords->GetTuple(ii, point.GetData());
-          array->GetTuple(ii, displ.GetData());
-          for (int jj = 0; jj < 3; ++jj)
-          {
-            displ[jj] *= scale;
-          }
-          xformedPts->SetTuple(ii, (point + displ).GetData());
-        }
-      });
-    auto* pointGroup = grid->GetAttributes("coordinates"_token);
-    // Remove the undeflected points:
-    pointGroup->RemoveArray(coords->GetName());
-    // Add the deflected points:
-    pointGroup->SetScalars(xformedPts);
-    for (const auto& cellTypeToken : cellTypes)
-    {
-      auto cellShapeInfo = shapeAtt->GetCellTypeInfo(cellTypeToken);
-      // auto* coords = cellShapeInfo.ArraysByRole["values"_token];
-      cellShapeInfo.ArraysByRole["values"_token] = xformedPts;
-      if (!shapeAtt->SetCellTypeInfo(cellTypeToken, cellShapeInfo))
-      {
-        vtkErrorWithObjectMacro(grid,
-          "Failed to update cell-type info for " << cellTypeToken.Data() << " on "
-                                                 << shapeAtt->GetName().Data() << ".");
-      }
-    }
-    cache.Insert(node_block, xformPtsCacheKey, xformedPts);
-    xformedPts->FastDelete();
-    return true;
-  }
-  return false;
 }
 
 VTK_ABI_NAMESPACE_END

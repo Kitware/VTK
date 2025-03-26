@@ -55,21 +55,19 @@ vtkSmartPointer<vtkDoubleArray> ComputeNormals(vtkPolyData* mesh)
   normals->SetNumberOfTuples(numCells);
   double* n = normals->GetPointer(0);
 
-  vtkSMPTools::For(0, numCells,
-    [&, pts, polys, n](vtkIdType cellId, vtkIdType endCellId)
-    {
-      vtkSmartPointer<vtkCellArrayIterator> cellIter;
-      cellIter.TakeReference(polys->NewIterator());
-      vtkIdType npts;
-      const vtkIdType* points;
-      double* normal = n + 3 * cellId;
+  vtkSMPTools::For(0, numCells, [&, pts, polys, n](vtkIdType cellId, vtkIdType endCellId) {
+    vtkSmartPointer<vtkCellArrayIterator> cellIter;
+    cellIter.TakeReference(polys->NewIterator());
+    vtkIdType npts;
+    const vtkIdType* points;
+    double* normal = n + 3 * cellId;
 
-      for (; cellId < endCellId; ++cellId, normal += 3)
-      {
-        cellIter->GetCellAtId(cellId, npts, points);
-        vtkPolygon::ComputeNormal(pts, npts, points, normal);
-      }
-    }); // end lambda
+    for (; cellId < endCellId; ++cellId, normal += 3)
+    {
+      cellIter->GetCellAtId(cellId, npts, points);
+      vtkPolygon::ComputeNormal(pts, npts, points, normal);
+    }
+  }); // end lambda
 
   return normals;
 } // ComputeNormals
@@ -920,24 +918,22 @@ void AnalyzePointTopology(PointConnectivityBase* ptConnBase, vtkWindowedSincPoly
   vtkIdType numVerts = (verts != nullptr ? verts->GetNumberOfCells() : 0);
   if (numVerts > 0 && !filter->CheckAbort())
   {
-    vtkSMPTools::For(0, numVerts,
-      [&, verts, ptConn](vtkIdType cellId, vtkIdType endCellId)
-      {
-        vtkSmartPointer<vtkCellArrayIterator> vIter;
-        vIter.TakeReference(verts->NewIterator());
-        vtkIdType npts;
-        const vtkIdType* p;
+    vtkSMPTools::For(0, numVerts, [&, verts, ptConn](vtkIdType cellId, vtkIdType endCellId) {
+      vtkSmartPointer<vtkCellArrayIterator> vIter;
+      vIter.TakeReference(verts->NewIterator());
+      vtkIdType npts;
+      const vtkIdType* p;
 
-        for (; cellId < endCellId; ++cellId)
+      for (; cellId < endCellId; ++cellId)
+      {
+        vIter->GetCellAtId(cellId, npts, p);
+        for (auto j = 0; j < npts; ++j)
         {
-          vIter->GetCellAtId(cellId, npts, p);
-          for (auto j = 0; j < npts; ++j)
-          {
-            ptConn->SetEdgeCount(p[j], PointType::FIXED);
-          }
+          ptConn->SetEdgeCount(p[j], PointType::FIXED);
         }
-      }); // end lambda
-  }       // if any verts
+      }
+    }); // end lambda
+  }     // if any verts
 } // AnalyzePointTopology
 
 // Initialize points prior to applying smoothing operations.
@@ -947,47 +943,45 @@ struct InitializePointsWorker
   void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, int normalize, double length,
     double center[3], vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
+      auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
+      double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
+      for (; ptId < endPtId; ++ptId)
       {
-        const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
-        auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
-        double x[3];
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-        for (; ptId < endPtId; ++ptId)
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          const auto inTuple = inTuples[ptId];
-          auto outTuple = outTuples[ptId];
-          x[0] = static_cast<double>(inTuple[0]);
-          x[1] = static_cast<double>(inTuple[1]);
-          x[2] = static_cast<double>(inTuple[2]);
-
-          if (normalize)
+          if (filter->GetAbortOutput())
           {
-            x[0] = (x[0] - center[0]) / length;
-            x[1] = (x[1] - center[1]) / length;
-            x[2] = (x[2] - center[2]) / length;
+            break;
           }
+        }
+        const auto inTuple = inTuples[ptId];
+        auto outTuple = outTuples[ptId];
+        x[0] = static_cast<double>(inTuple[0]);
+        x[1] = static_cast<double>(inTuple[1]);
+        x[2] = static_cast<double>(inTuple[2]);
 
-          // Now set the value of the new points
-          outTuple[0] = x[0];
-          outTuple[1] = x[1];
-          outTuple[2] = x[2];
-        } // for all points
-      }); // end lambda
+        if (normalize)
+        {
+          x[0] = (x[0] - center[0]) / length;
+          x[1] = (x[1] - center[1]) / length;
+          x[2] = (x[2] - center[2]) / length;
+        }
+
+        // Now set the value of the new points
+        outTuple[0] = x[0];
+        outTuple[1] = x[1];
+        outTuple[2] = x[2];
+      } // for all points
+    }); // end lambda
   }
 }; // InitializePointsWorker
 
@@ -1183,66 +1177,64 @@ struct InitSmoothingWorker
     PointConnectivity<TIds>* ptConn, double* c, int ptSelect[4],
     vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      EDGE_COUNT_TYPE numEdges;
+      double deltaX[3];
+      auto tuples0 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[0]]));
+      auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
+      auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
+      for (; ptId < endPtId; ++ptId)
       {
-        EDGE_COUNT_TYPE numEdges;
-        double deltaX[3];
-        auto tuples0 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[0]]));
-        auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
-        auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-        for (; ptId < endPtId; ++ptId)
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          // Grab the edges
-          TIds* edges = ptConn->GetEdges(ptId);
-          numEdges = ptConn->GetEdgeCount(ptId);
-
-          // calculate the negative of the laplacian
-          auto x = tuples0[ptId];
-          deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-          for (auto j = 0; j < numEdges; j++)
+          if (filter->GetAbortOutput())
           {
-            auto y = tuples0[edges[j]];
-            for (auto k = 0; k < 3; k++)
-            {
-              deltaX[k] += (x[k] - y[k]) / static_cast<double>(numEdges);
-            }
-          } // for all connected points
+            break;
+          }
+        }
+        // Grab the edges
+        TIds* edges = ptConn->GetEdges(ptId);
+        numEdges = ptConn->GetEdgeCount(ptId);
 
+        // calculate the negative of the laplacian
+        auto x = tuples0[ptId];
+        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
+        for (auto j = 0; j < numEdges; j++)
+        {
+          auto y = tuples0[edges[j]];
           for (auto k = 0; k < 3; k++)
           {
-            deltaX[k] = x[k] - 0.5 * deltaX[k];
+            deltaX[k] += (x[k] - y[k]) / static_cast<double>(numEdges);
           }
-          auto dX = tuples1[ptId];
-          dX[0] = deltaX[0];
-          dX[1] = deltaX[1];
-          dX[2] = deltaX[2];
+        } // for all connected points
 
-          for (auto k = 0; k < 3; k++)
-          {
-            deltaX[k] = c[0] * x[k] + c[1] * deltaX[k];
-          }
+        for (auto k = 0; k < 3; k++)
+        {
+          deltaX[k] = x[k] - 0.5 * deltaX[k];
+        }
+        auto dX = tuples1[ptId];
+        dX[0] = deltaX[0];
+        dX[1] = deltaX[1];
+        dX[2] = deltaX[2];
 
-          auto XN = tuples3[ptId];
-          XN[0] = deltaX[0];
-          XN[1] = deltaX[1];
-          XN[2] = deltaX[2];
-        } // for all points
-      }); // end lambda
+        for (auto k = 0; k < 3; k++)
+        {
+          deltaX[k] = c[0] * x[k] + c[1] * deltaX[k];
+        }
+
+        auto XN = tuples3[ptId];
+        XN[0] = deltaX[0];
+        XN[1] = deltaX[1];
+        XN[2] = deltaX[2];
+      } // for all points
+    }); // end lambda
   }
 }; // InitSmoothingWorker
 
@@ -1254,73 +1246,71 @@ struct SmoothingWorker
     PointConnectivity<TIds>* ptConn, int iterNum, double* c, int ptSelect[4],
     vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      EDGE_COUNT_TYPE numEdges;
+      double deltaX[3], xNew[3];
+      auto tuples0 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[0]]));
+      auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
+      auto tuples2 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[2]]));
+      auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
+      for (; ptId < endPtId; ++ptId)
       {
-        EDGE_COUNT_TYPE numEdges;
-        double deltaX[3], xNew[3];
-        auto tuples0 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[0]]));
-        auto tuples1 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[1]]));
-        auto tuples2 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[2]]));
-        auto tuples3 = vtk::DataArrayTupleRange<3>(vtkArrayDownCast<DataT>(da[ptSelect[3]]));
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-        for (; ptId < endPtId; ++ptId)
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          // Grab the edges
-          TIds* edges = ptConn->GetEdges(ptId);
-          numEdges = ptConn->GetEdgeCount(ptId);
-
-          // The point is allowed to move
-          auto p_x0 = tuples0[ptId];
-          auto p_x1 = tuples1[ptId];
-
-          // Calculate the negative laplacian of x1
-          deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-          for (auto j = 0; j < numEdges; j++)
+          if (filter->GetAbortOutput())
           {
-            auto y = tuples1[edges[j]];
-            for (auto k = 0; k < 3; k++)
-            {
-              deltaX[k] += (p_x1[k] - y[k]) / static_cast<double>(numEdges);
-            }
-          } // for all connected points
+            break;
+          }
+        }
+        // Grab the edges
+        TIds* edges = ptConn->GetEdges(ptId);
+        numEdges = ptConn->GetEdgeCount(ptId);
 
-          // Taubin:  x2 = (x1 - x0) + (x1 - x2)
+        // The point is allowed to move
+        auto p_x0 = tuples0[ptId];
+        auto p_x1 = tuples1[ptId];
+
+        // Calculate the negative laplacian of x1
+        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
+        for (auto j = 0; j < numEdges; j++)
+        {
+          auto y = tuples1[edges[j]];
           for (auto k = 0; k < 3; k++)
           {
-            deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
+            deltaX[k] += (p_x1[k] - y[k]) / static_cast<double>(numEdges);
           }
-          auto dX = tuples2[ptId];
-          dX[0] = deltaX[0];
-          dX[1] = deltaX[1];
-          dX[2] = deltaX[2];
+        } // for all connected points
 
-          // smooth the vertex (x3 = x3 + cj x2)
-          auto p_x3 = tuples3[ptId];
-          for (auto k = 0; k < 3; k++)
-          {
-            xNew[k] = p_x3[k] + c[iterNum] * deltaX[k];
-          }
+        // Taubin:  x2 = (x1 - x0) + (x1 - x2)
+        for (auto k = 0; k < 3; k++)
+        {
+          deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
+        }
+        auto dX = tuples2[ptId];
+        dX[0] = deltaX[0];
+        dX[1] = deltaX[1];
+        dX[2] = deltaX[2];
 
-          auto XN = tuples3[ptId];
-          XN[0] = xNew[0];
-          XN[1] = xNew[1];
-          XN[2] = xNew[2];
-        } // for all points
-      }); // end lambda
+        // smooth the vertex (x3 = x3 + cj x2)
+        auto p_x3 = tuples3[ptId];
+        for (auto k = 0; k < 3; k++)
+        {
+          xNew[k] = p_x3[k] + c[iterNum] * deltaX[k];
+        }
+
+        auto XN = tuples3[ptId];
+        XN[0] = xNew[0];
+        XN[1] = xNew[1];
+        XN[2] = xNew[2];
+      } // for all points
+    }); // end lambda
   }
 }; // SmoothingWorker
 
@@ -1408,37 +1398,35 @@ struct UnnormalizePointsWorker
   void operator()(DataT* pts, vtkIdType numPts, double length, double center[3],
     vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      auto inTuples = vtk::DataArrayTupleRange<3>(pts, ptId, endPtId);
+      double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+
+      for (auto tuple : inTuples)
       {
-        auto inTuples = vtk::DataArrayTupleRange<3>(pts, ptId, endPtId);
-        double x[3];
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-
-        for (auto tuple : inTuples)
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          ptId++;
-          x[0] = (static_cast<double>(tuple[0]) * length) + center[0];
-          x[1] = (static_cast<double>(tuple[1]) * length) + center[1];
-          x[2] = (static_cast<double>(tuple[2]) * length) + center[2];
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
+        }
+        ptId++;
+        x[0] = (static_cast<double>(tuple[0]) * length) + center[0];
+        x[1] = (static_cast<double>(tuple[1]) * length) + center[1];
+        x[2] = (static_cast<double>(tuple[2]) * length) + center[2];
 
-          tuple[0] = x[0];
-          tuple[1] = x[1];
-          tuple[2] = x[2];
-        } // for all points
-      }); // end lambda
+        tuple[0] = x[0];
+        tuple[1] = x[1];
+        tuple[2] = x[2];
+      } // for all points
+    }); // end lambda
   }
 }; // UnnormalizePointsWorker
 
@@ -1465,37 +1453,35 @@ struct ErrorScalarsWorker
   void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* es,
     vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
-      {
-        const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
-        const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
-        float* esPtr = es->GetPointer(0) + ptId;
-        double x[3];
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
+      const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
+      float* esPtr = es->GetPointer(0) + ptId;
+      double x[3];
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
-        for (; ptId < endPtId; ++ptId)
+      for (; ptId < endPtId; ++ptId)
+      {
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          const auto inTuple = inTuples[ptId];
-          const auto outTuple = outTuples[ptId];
-          x[0] = outTuple[0] - inTuple[0];
-          x[1] = outTuple[1] - inTuple[1];
-          x[2] = outTuple[2] - inTuple[2];
-          *esPtr++ = sqrt(vtkMath::Norm(x));
-        } // for all points
-      }); // end lambda
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
+        }
+        const auto inTuple = inTuples[ptId];
+        const auto outTuple = outTuples[ptId];
+        x[0] = outTuple[0] - inTuple[0];
+        x[1] = outTuple[1] - inTuple[1];
+        x[2] = outTuple[2] - inTuple[2];
+        *esPtr++ = sqrt(vtkMath::Norm(x));
+      } // for all points
+    }); // end lambda
   }
 }; // ErrorScalarsWorker
 
@@ -1528,35 +1514,33 @@ struct ErrorVectorsWorker
   void operator()(DataT1* inPts, DataT2* outPts, vtkIdType numPts, vtkFloatArray* ev,
     vtkWindowedSincPolyDataFilter* filter)
   {
-    vtkSMPTools::For(0, numPts,
-      [&](vtkIdType ptId, vtkIdType endPtId)
-      {
-        const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
-        const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
-        float* evPtr = ev->GetPointer(0) + 3 * ptId;
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
+    vtkSMPTools::For(0, numPts, [&](vtkIdType ptId, vtkIdType endPtId) {
+      const auto inTuples = vtk::DataArrayTupleRange<3>(inPts);
+      const auto outTuples = vtk::DataArrayTupleRange<3>(outPts);
+      float* evPtr = ev->GetPointer(0) + 3 * ptId;
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
-        for (; ptId < endPtId; ++ptId)
+      for (; ptId < endPtId; ++ptId)
+      {
+        if (ptId % checkAbortInterval == 0)
         {
-          if (ptId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              filter->CheckAbort();
-            }
-            if (filter->GetAbortOutput())
-            {
-              break;
-            }
+            filter->CheckAbort();
           }
-          const auto inTuple = inTuples[ptId];
-          const auto outTuple = outTuples[ptId];
-          *evPtr++ = outTuple[0] - inTuple[0];
-          *evPtr++ = outTuple[1] - inTuple[1];
-          *evPtr++ = outTuple[2] - inTuple[2];
-        } // for all points
-      }); // end lambda
+          if (filter->GetAbortOutput())
+          {
+            break;
+          }
+        }
+        const auto inTuple = inTuples[ptId];
+        const auto outTuple = outTuples[ptId];
+        *evPtr++ = outTuple[0] - inTuple[0];
+        *evPtr++ = outTuple[1] - inTuple[1];
+        *evPtr++ = outTuple[2] - inTuple[2];
+      } // for all points
+    }); // end lambda
   }
 }; // ErrorVectorsWorker
 

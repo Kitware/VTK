@@ -17,7 +17,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTooltipItem.h"
 #include "vtkTransform2D.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <vector>
 

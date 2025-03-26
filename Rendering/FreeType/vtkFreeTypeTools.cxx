@@ -11,6 +11,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include "vtkStdString.h"
 #include <vtk_utf8.h>

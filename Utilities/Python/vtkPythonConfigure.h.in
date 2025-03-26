@@ -5,10 +5,8 @@
 
 /* This header is configured by VTK's build process.  */
 
-/* For platforms that don't support Python threads */
+/* E.g. on BlueGene and Cray there is no multithreading */
 #cmakedefine VTK_NO_PYTHON_THREADS
-
-/* This adds the locks that allow Python thread concurrency */
 #cmakedefine VTK_PYTHON_FULL_THREADSAFE
 
 /* Whether the real python debug library has been provided.  */

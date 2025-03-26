@@ -491,8 +491,7 @@ vtkCompositePolyDataMapper::MapperHashType vtkCompositePolyDataMapper::InsertPol
 
   auto createBatchElement =
     [](vtkPolyData* _polydata,
-      unsigned int _flatIndex) -> vtkCompositePolyDataMapperDelegator::BatchElement
-  {
+      unsigned int _flatIndex) -> vtkCompositePolyDataMapperDelegator::BatchElement {
     vtkCompositePolyDataMapperDelegator::BatchElement element;
     element.PolyData = _polydata;
     element.FlatIndex = _flatIndex;

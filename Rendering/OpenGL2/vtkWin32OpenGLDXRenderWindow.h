@@ -69,16 +69,9 @@ public:
   ///@}
 
   /**
-   * Register the RenderFramebuffer of this window as a D3D shared texture
+   * Register the RenderFrameBuffer of this window as a D3D shared texture
    */
-  void RegisterSharedRenderFramebuffer();
-  VTK_DEPRECATED_IN_9_4_0("Use RegisterSharedRenderFramebuffer")
   void RegisterSharedTexture();
-
-  /**
-   * Register the DisplayFramebuffer of this window as a D3D shared texture
-   */
-  void RegisterSharedDisplayFramebuffer();
 
   ///@{
   /**
@@ -89,10 +82,9 @@ public:
 
   ///@{
   /**
-   * Set / Get the number of multisamples used by shared textures for hardware antialiasing.
+   * Overridden to update the internal D3D shared texture
    */
-  vtkSetMacro(SharedTextureSamples, int);
-  vtkGetMacro(SharedTextureSamples, int);
+  void SetMultiSamples(int samples) override;
   ///@}
 
   ///@{
@@ -157,9 +149,6 @@ private:
 
   class vtkInternals;
   std::unique_ptr<vtkInternals> Impl;
-
-  // Number of multisamples used by shared textures for hardware antialiasing
-  int SharedTextureSamples = 0;
 };
 VTK_ABI_NAMESPACE_END
 #endif

@@ -15,7 +15,6 @@
 
 #ifdef LIBXML_SCHEMATRON_ENABLED
 
-#include <libxml/xmlerror.h>
 #include <libxml/tree.h>
 
 #ifdef __cplusplus
@@ -70,68 +69,68 @@ typedef xmlSchematronValidCtxt *xmlSchematronValidCtxtPtr;
 /*
  * Interfaces for parsing.
  */
-XMLPUBFUN xmlSchematronParserCtxtPtr
+XMLPUBFUN xmlSchematronParserCtxtPtr XMLCALL
 	    xmlSchematronNewParserCtxt	(const char *URL);
-XMLPUBFUN xmlSchematronParserCtxtPtr
+XMLPUBFUN xmlSchematronParserCtxtPtr XMLCALL
 	    xmlSchematronNewMemParserCtxt(const char *buffer,
 					 int size);
-XMLPUBFUN xmlSchematronParserCtxtPtr
+XMLPUBFUN xmlSchematronParserCtxtPtr XMLCALL
 	    xmlSchematronNewDocParserCtxt(xmlDocPtr doc);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronFreeParserCtxt	(xmlSchematronParserCtxtPtr ctxt);
 /*****
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronSetParserErrors(xmlSchematronParserCtxtPtr ctxt,
 					 xmlSchematronValidityErrorFunc err,
 					 xmlSchematronValidityWarningFunc warn,
 					 void *ctx);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSchematronGetParserErrors(xmlSchematronParserCtxtPtr ctxt,
 					xmlSchematronValidityErrorFunc * err,
 					xmlSchematronValidityWarningFunc * warn,
 					void **ctx);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 		xmlSchematronIsValid	(xmlSchematronValidCtxtPtr ctxt);
  *****/
-XMLPUBFUN xmlSchematronPtr
+XMLPUBFUN xmlSchematronPtr XMLCALL
 	    xmlSchematronParse		(xmlSchematronParserCtxtPtr ctxt);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronFree		(xmlSchematronPtr schema);
 /*
  * Interfaces for validating
  */
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronSetValidStructuredErrors(
 	                                  xmlSchematronValidCtxtPtr ctxt,
 					  xmlStructuredErrorFunc serror,
 					  void *ctx);
 /******
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronSetValidErrors	(xmlSchematronValidCtxtPtr ctxt,
 					 xmlSchematronValidityErrorFunc err,
 					 xmlSchematronValidityWarningFunc warn,
 					 void *ctx);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	    xmlSchematronGetValidErrors	(xmlSchematronValidCtxtPtr ctxt,
 					 xmlSchematronValidityErrorFunc *err,
 					 xmlSchematronValidityWarningFunc *warn,
 					 void **ctx);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	    xmlSchematronSetValidOptions(xmlSchematronValidCtxtPtr ctxt,
 					 int options);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	    xmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxtPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
             xmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt,
 			                 xmlNodePtr elem);
  *******/
 
-XMLPUBFUN xmlSchematronValidCtxtPtr
+XMLPUBFUN xmlSchematronValidCtxtPtr XMLCALL
 	    xmlSchematronNewValidCtxt	(xmlSchematronPtr schema,
 					 int options);
-XMLPUBFUN void
+XMLPUBFUN void XMLCALL
 	    xmlSchematronFreeValidCtxt	(xmlSchematronValidCtxtPtr ctxt);
-XMLPUBFUN int
+XMLPUBFUN int XMLCALL
 	    xmlSchematronValidateDoc	(xmlSchematronValidCtxtPtr ctxt,
 					 xmlDocPtr instance);
 

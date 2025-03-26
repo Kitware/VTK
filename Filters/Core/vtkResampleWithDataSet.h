@@ -194,9 +194,6 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 
-  // Garbage collection method
-  void ReportReferences(vtkGarbageCollector*) override;
-
   /**
    * Get the name of the valid-points mask array.
    */

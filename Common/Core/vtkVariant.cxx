@@ -821,8 +821,7 @@ T vtkVariantStringToNumeric(const vtkStdString& str, bool* valid, T* vtkNotUsed(
   auto it = str.data();
   const auto end = str.data() + str.size();
 
-  const auto consumeWhitespaces = [&it, end]()
-  {
+  const auto consumeWhitespaces = [&it, end]() {
     it = std::find_if(it, end, [](char c) { return !std::isspace(static_cast<unsigned char>(c)); });
   };
 

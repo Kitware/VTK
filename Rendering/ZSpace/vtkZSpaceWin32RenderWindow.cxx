@@ -8,7 +8,7 @@
 #include "vtkTextureObject.h"
 #include "vtkZSpaceSDKManager.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkZSpaceWin32RenderWindow);

@@ -74,10 +74,10 @@ public:
    * Open and parse the tileset and compute the number of levels and
    * the number of tiles per level.
    */
-  void Open(const char* fileName, std::array<double, 16>& transform);
-  void Open(const std::string& fileName, std::array<double, 16>& transform)
+  bool Open(const char* fileName, std::array<double, 16>& transform);
+  bool Open(const std::string& fileName, std::array<double, 16>& transform)
   {
-    Open(fileName.c_str(), transform);
+    return Open(fileName.c_str(), transform);
   }
 
   /**
@@ -139,17 +139,19 @@ vtkCesium3DTilesReader::Tileset::~Tileset()
 }
 
 //------------------------------------------------------------------------------
-void vtkCesium3DTilesReader::Tileset::Open(const char* fileName, std::array<double, 16>& transform)
+bool vtkCesium3DTilesReader::Tileset::Open(const char* fileName, std::array<double, 16>& transform)
 {
   try
   {
     if (!fileName || std::string(fileName).empty())
     {
-      throw std::logic_error("Invalid input filename: nullptr or empty");
+      vtkErrorWithObjectMacro(this->Reader, "Invalid input filename: nullptr or empty");
+      return false;
     }
     if (this->IsOpen())
     {
-      throw std::logic_error(std::string("File already opened: ") + fileName);
+      vtkErrorWithObjectMacro(this->Reader, "File already opened: " << fileName);
+      return false;
     }
     this->FileName = fileName;
     this->TilesetStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -160,19 +162,14 @@ void vtkCesium3DTilesReader::Tileset::Open(const char* fileName, std::array<doub
   }
   catch (std::exception& e)
   {
+    this->TilesetStream.close();
+    this->TilesetJson.clear();
+    this->TileFileNames.clear();
+    this->Transforms.clear();
     vtkErrorWithObjectMacro(this->Reader, "Error on " << fileName << ": " << e.what());
-    try
-    {
-      this->TilesetStream.close();
-      this->TilesetJson.clear();
-      this->TileFileNames.clear();
-      this->Transforms.clear();
-    }
-    catch (...)
-    {
-    }
-    throw e;
+    return false;
   }
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -461,35 +458,32 @@ void vtkCesium3DTilesReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkCesium3DTilesReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  try
+  if (!this->FileName)
   {
-    if (!this->FileName)
-    {
-      throw std::logic_error("Requires valid input file name");
-    }
-    this->Tilesets.clear();
-    this->Tilesets.push_back(std::make_shared<vtkCesium3DTilesReader::Tileset>(this));
-    this->Tilesets[0]->SetLevel(this->Level);
-    this->FileNameToTilesetIndex[this->FileName] = 0;
-    std::array<double, 16> transform;
-    vtkMatrix4x4::Identity(transform.data());
-    this->Tilesets[0]->Open(this->FileName, transform);
-    for (size_t i = 0; i < this->Tilesets.size(); ++i)
-    {
-      vtkLog(INFO, "Tileset: " << i << ", " << *this->Tilesets[i]);
-    }
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    if (!outInfo)
-    {
-      throw std::logic_error("Invalid output information object");
-    }
-    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
-  }
-  catch (std::exception& e)
-  {
-    vtkErrorMacro(<< e.what());
+    vtkErrorMacro("Requires valid input file name");
     return 0;
   }
+  this->Tilesets.clear();
+  this->Tilesets.push_back(std::make_shared<vtkCesium3DTilesReader::Tileset>(this));
+  this->Tilesets[0]->SetLevel(this->Level);
+  this->FileNameToTilesetIndex[this->FileName] = 0;
+  std::array<double, 16> transform;
+  vtkMatrix4x4::Identity(transform.data());
+  if (!this->Tilesets[0]->Open(this->FileName, transform))
+  {
+    return 0;
+  }
+  for (size_t i = 0; i < this->Tilesets.size(); ++i)
+  {
+    vtkLog(INFO, "Tileset: " << i << ", " << *this->Tilesets[i]);
+  }
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  if (!outInfo)
+  {
+    vtkErrorMacro("Invalid output information object");
+    return 0;
+  }
+  outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   return 1;
 }
 
@@ -502,7 +496,8 @@ int vtkCesium3DTilesReader::RequestData(
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     if (!outInfo)
     {
-      throw std::logic_error("Invalid output information object");
+      vtkErrorMacro("Invalid output information object");
+      return 0;
     }
     size_t numberOfRanks =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());

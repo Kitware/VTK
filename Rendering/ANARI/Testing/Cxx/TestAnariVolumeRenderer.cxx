@@ -24,7 +24,6 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
-#include "vtkAnariTestUtilities.h"
 #include "vtkAnariVolumeMapper.h"
 
 int TestAnariVolumeRenderer(int argc, char* argv[])
@@ -121,7 +120,11 @@ int TestAnariVolumeRenderer(int argc, char* argv[])
     vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
   }
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariVolumeRenderer");
+  vtkAnariRendererNode::SetLibraryName("environment", ren);
+  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
+  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
 
   auto cam = ren->GetActiveCamera();
   cam->SetFocalPoint(85.7721, 88.4044, 33.8576);

@@ -142,6 +142,8 @@ struct vtkAnariRendererNodeInternals
   anari::Device AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
   anari::World AnariWorld{ nullptr };
+  anari::Instance AnariInstance{ nullptr };
+  anari::Group AnariGroup{ nullptr };
   anari::Frame AnariFrame{ nullptr };
 
   anari::Extensions AnariExtensions{};
@@ -160,6 +162,8 @@ vtkAnariRendererNodeInternals::~vtkAnariRendererNodeInternals()
 {
   if (this->AnariDevice != nullptr)
   {
+    anari::release(this->AnariDevice, this->AnariGroup);
+    anari::release(this->AnariDevice, this->AnariInstance);
     anari::release(this->AnariDevice, this->AnariWorld);
     anari::release(this->AnariDevice, this->AnariRenderer);
     anari::release(this->AnariDevice, this->AnariFrame);
@@ -562,9 +566,21 @@ void vtkAnariRendererNode::InitAnariWorld()
 
   auto anariDevice = this->GetAnariDevice();
 
+  auto anariGroup = anari::newObject<anari::Group>(anariDevice);
+  this->Internal->AnariGroup = anariGroup;
+  anari::setParameter(anariDevice, anariGroup, "name", ANARI_STRING, "vtk_group");
+  anari::commitParameters(anariDevice, anariGroup);
+
+  auto anariInstance = anari::newObject<anari::Instance>(anariDevice, "transform");
+  this->Internal->AnariInstance = anariInstance;
+  anari::setParameter(anariDevice, anariInstance, "name", ANARI_STRING, "vtk_instance");
+  anari::setParameter(anariDevice, anariInstance, "group", anariGroup);
+  anari::commitParameters(anariDevice, anariInstance);
+
   auto anariWorld = anari::newObject<anari::World>(anariDevice);
   this->Internal->AnariWorld = anariWorld;
   anari::setParameter(anariDevice, anariWorld, "name", "vtk_world");
+  anari::setParameterArray1D(anariDevice, anariWorld, "instance", &anariInstance, 1);
   anari::commitParameters(anariDevice, anariWorld);
 
   auto anariFrame = this->Internal->AnariFrame;
@@ -576,7 +592,7 @@ void vtkAnariRendererNode::InitAnariWorld()
 void vtkAnariRendererNode::UpdateAnariFrameSize()
 {
   const uvec2 frameSize = { static_cast<uint>(this->Size[0]), static_cast<uint>(this->Size[1]) };
-  if ((uint)this->Internal->ImageX == frameSize[0] && (uint)this->Internal->ImageY == frameSize[1])
+  if (this->Internal->ImageX == frameSize[0] && this->Internal->ImageY == frameSize[1])
   {
     return;
   }
@@ -626,7 +642,7 @@ void vtkAnariRendererNode::UpdateAnariLights()
 void vtkAnariRendererNode::UpdateAnariSurfaces()
 {
   auto anariDevice = this->GetAnariDevice();
-  auto anariWorld = this->Internal->AnariWorld;
+  auto anariGroup = this->Internal->AnariGroup;
   const auto& surfaceState = this->Internal->AnariSurfaces;
 
   if (!surfaceState.empty())
@@ -639,21 +655,21 @@ void vtkAnariRendererNode::UpdateAnariSurfaces()
     }
 
     anari::setParameterArray1D(
-      anariDevice, anariWorld, "surface", surfaceState.data(), surfaceState.size());
+      anariDevice, anariGroup, "surface", surfaceState.data(), surfaceState.size());
   }
   else
   {
-    anari::unsetParameter(anariDevice, anariWorld, "surface");
+    anari::unsetParameter(anariDevice, anariGroup, "surface");
   }
 
-  anari::commitParameters(anariDevice, anariWorld);
+  anari::commitParameters(anariDevice, anariGroup);
 }
 
 //----------------------------------------------------------------------------
 void vtkAnariRendererNode::UpdateAnariVolumes()
 {
   auto anariDevice = this->GetAnariDevice();
-  auto anariWorld = this->Internal->AnariWorld;
+  auto anariGroup = this->Internal->AnariGroup;
   const auto& volumeState = this->Internal->AnariVolumes;
 
   if (!volumeState.empty())
@@ -666,14 +682,14 @@ void vtkAnariRendererNode::UpdateAnariVolumes()
     }
 
     anari::setParameterArray1D(
-      anariDevice, anariWorld, "volume", volumeState.data(), volumeState.size());
+      anariDevice, anariGroup, "volume", volumeState.data(), volumeState.size());
   }
   else
   {
-    anari::unsetParameter(anariDevice, anariWorld, "volume");
+    anari::unsetParameter(anariDevice, anariGroup, "volume");
   }
 
-  anari::commitParameters(anariDevice, anariWorld);
+  anari::commitParameters(anariDevice, anariGroup);
 }
 
 //----------------------------------------------------------------------------
@@ -724,6 +740,7 @@ void vtkAnariRendererNode::CopyAnariFrameBufferData()
   if (renderedFrame.data != nullptr)
   {
     int retTotalSize = renderedFrame.width * renderedFrame.height;
+    int totalSize = this->Size[0] * this->Size[1];
     totalSize = std::min(retTotalSize, totalSize);
     memcpy(this->Internal->ColorBuffer.data(), renderedFrame.data, totalSize * 4);
   }

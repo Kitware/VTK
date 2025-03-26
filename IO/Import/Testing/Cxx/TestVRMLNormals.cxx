@@ -24,11 +24,7 @@ int TestVRMLNormals(int argc, char* argv[])
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/WineGlass.wrl");
   importer->SetFileName(fname);
-  if (!importer->Update())
-  {
-    std::cerr << "ERROR: Importer failed to update\n";
-    return EXIT_FAILURE;
-  }
+  importer->Read();
 
   delete[] fname;
 

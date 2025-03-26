@@ -5,16 +5,11 @@
 
 #include "vtkRenderWindow.h"
 
-#include "vtkRenderingWebGPUModule.h"      // for export macro
-#include "vtkTypeUInt8Array.h"             // for ivar
-#include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
-#include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
-#include "vtk_wgpu.h"                      // for webgpu
+#include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkTypeUInt8Array.h"        // for ivar
+#include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
-
-class vtkWebGPUComputeOcclusionCuller;
-class vtkWebGPUConfiguration;
 
 class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderWindow : public vtkRenderWindow
 {
@@ -22,11 +17,42 @@ public:
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
+  /**
+   * Set preference for a high-performance or low-power device.
+   * The default preference is a high-performance device.
+   * NOTE: Make sure to call this before the first call to Render if you wish to change the
+   * preference. @warning: Changing the power preference after the render window is initialized has
+   * no effect.
+   */
+  void PreferHighPerformanceAdapter();
+  void PreferLowPowerAdapter();
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set backend type.
+   * The default backend is platform specific.
+   * DirectX 12 on Windows
+   * Vulkan on Linux and Android
+   * Metal on macOS/iOS.
+   * NOTE: Make sure to call this before the first call to Render if you wish to change the backend.
+   * @warning: Changing the backend after the render window is initialized has no effect.
+   */
+  void SetBackendTypeToD3D11();
+  void SetBackendTypeToD3D12();
+  void SetBackendTypeToMetal();
+  void SetBackendTypeToVulkan();
+  void SetBackendTypeToOpenGL();
+  void SetBackendTypeToOpenGLES();
+  std::string GetBackendTypeAsString();
+  ///@}
+
   /**
    * Concrete render windows must create a platform window and initialize this->WindowId.
    * Upon success, please call WGPUInit().
    */
-  virtual bool WindowSetup() = 0;
+  virtual bool Initialize() = 0;
 
   /**
    * Create a not-off-screen window.
@@ -37,20 +63,6 @@ public:
    * Destroy a not-off-screen window.
    */
   virtual void DestroyWindow() = 0;
-
-  /**
-   * Creates the WebGPU context, swapchain, depth buffer, color attachment, ...
-   *
-   * A call to this function is necessary if a WebGPU Compute class is going to use resources of the
-   * render window or its renderers (or resources of the renderers, mappers for example).
-   * This is because the resources of the render window are only made available when Initialize() is
-   * called.
-   *
-   * For example, a vtkWebGPUOcclusionCuller (which uses textures of the render window to do the
-   * culling) cannot be setup without these resources being available, hence the need for the
-   * Initialize() call.
-   */
-  void Initialize() override;
 
   void Start() override;
 
@@ -158,90 +170,26 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  void SetWGPUConfiguration(vtkWebGPUConfiguration* config);
-  vtkGetSmartPointerMacro(WGPUConfiguration, vtkWebGPUConfiguration);
+  inline wgpu::RenderPassEncoder NewRenderPass(wgpu::RenderPassDescriptor& descriptor)
+  {
+    return this->CommandEncoder.BeginRenderPass(&descriptor);
+  }
 
-  /**
-   * Create a new render pass encoder on the webgpu device.
-   */
-  wgpu::RenderPassEncoder NewRenderPass(wgpu::RenderPassDescriptor& descriptor);
+  inline wgpu::RenderBundleEncoder NewRenderBundleEncoder(
+    wgpu::RenderBundleEncoderDescriptor& descriptor)
+  {
+    return this->Device.CreateRenderBundleEncoder(&descriptor);
+  }
 
-  /**
-   * Create a new render bundle encoder on the webgpu device. More performant for large number of
-   * actors.
-   */
-  wgpu::RenderBundleEncoder NewRenderBundleEncoder(wgpu::RenderBundleEncoderDescriptor& descriptor);
+  inline wgpu::CommandEncoder GetCommandEncoder() { return this->CommandEncoder; }
+  inline wgpu::TextureView GetOffscreenColorAttachmentView() { return this->ColorAttachment.View; }
+  inline wgpu::TextureView GetDepthStencilView() { return this->DepthStencil.View; }
+  inline wgpu::TextureFormat GetDepthStencilFormat() { return this->DepthStencil.Format; }
+  inline bool HasStencil() { return this->DepthStencil.HasStencil; }
+  inline wgpu::Device GetDevice() { return this->Device; }
+  inline wgpu::Adapter GetAdapter() { return this->Adapter; }
 
-  /**
-   * Get the currently used command encoder. Use this to prepare draw commands which eventually
-   * get submitted in `Frame()`
-   */
-  wgpu::CommandEncoder GetCommandEncoder();
-
-  /**
-   * Initializes a new command encoder
-   */
-  void CreateCommandEncoder();
-
-  /**
-   * Sends a given command buffer to the device queue
-   */
-  void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
-
-  /**
-   * Get a view of the color attachment used in the offscreen render target.
-   */
-  wgpu::TextureView GetOffscreenColorAttachmentView();
-
-  /**
-   * Get a view of the depth-stencil attachment used in the offscreen render target.
-   */
-  wgpu::TextureView GetDepthStencilView();
-
-  /**
-   * Get the texture format of the depth-stencil attachment.
-   */
-  wgpu::TextureFormat GetDepthStencilFormat();
-
-  /**
-   * Whether the offscreen render target has stencil capabilities.
-   */
-  bool HasStencil();
-
-  /**
-   * Get the webgpu device.
-   */
-  wgpu::Device GetDevice();
-
-  /**
-   * Get the webgpu adapter.
-   */
-  wgpu::Adapter GetAdapter();
-
-  /**
-   * Get the texture format preferred for the swapchain presentation.
-   */
   wgpu::TextureFormat GetPreferredSwapChainTextureFormat();
-
-  ///@{
-  /**
-   * Returns a vtkWebGPUComputeRenderTexture ready to be added to a compute pipeline using
-   * vtkWebGPUComputePipeline::AddRenderTexture() that "points" to the depth buffer/color texture of
-   * this vtkWebGPURenderWindow.
-   *
-   * One or multiple texture views will also need to be created for that render texture with a call
-   * to CreateRenderTextureView(). The texture view returned can then be configured (group, binding,
-   * ...) and added to the render window by calling AddRenderTextureView()
-   */
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireDepthBufferRenderTexture();
-
-  vtkSmartPointer<vtkWebGPUComputeRenderTexture> AcquireFramebufferRenderTexture();
-  ///@}
-
-  /**
-   * Creates a wgpu buffer with the device of this render window
-   */
-  wgpu::Buffer CreateDeviceBuffer(wgpu::BufferDescriptor& bufferDescriptor);
 
 protected:
   vtkWebGPURenderWindow();
@@ -272,12 +220,23 @@ protected:
   void CreateFSQGraphicsPipeline();
   void DestroyFSQGraphicsPipeline();
 
-  void RecreateComputeRenderTextures();
-
   void RenderOffscreenTexture();
 
-  bool RenderTexturesSetup = false;
+  void FlushCommandBuffers(vtkTypeUInt32 count, wgpu::CommandBuffer* buffers);
 
+  bool WGPUInitialized = false;
+
+  wgpu::PowerPreference PowerPreference = wgpu::PowerPreference::HighPerformance;
+#if defined(__APPLE__)
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::Metal;
+#elif defined(_WIN32)
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::D3D12;
+#else
+  wgpu::BackendType RenderingBackendType = wgpu::BackendType::Vulkan;
+#endif
+
+  wgpu::Adapter Adapter;
+  wgpu::Device Device;
   wgpu::Surface Surface;
   wgpu::CommandEncoder CommandEncoder;
 
@@ -324,7 +283,6 @@ protected:
     wgpu::RenderPipeline Pipeline;
     wgpu::BindGroup BindGroup;
   };
-
   vtkWGPUFullScreenQuad FSQ;
 
   struct MappingContext
@@ -336,50 +294,12 @@ protected:
   } BufferMapReadContext;
 
   vtkNew<vtkTypeUInt8Array> CachedPixelBytes;
-  vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
 
   int ScreenSize[2];
 
 private:
-  // For accessing SubmitCommandBuffer to submit custom prop render work
-  friend class vtkWebGPUComputeOcclusionCuller;
-
   vtkWebGPURenderWindow(const vtkWebGPURenderWindow&) = delete;
   void operator=(const vtkWebGPURenderWindow&) = delete;
-
-  /**
-   * Sets up the compute pipeline of the vtkWebGPURenderer of this render window so that they use
-   * the same Adapter and Device as this render window
-   */
-  void InitializeRendererComputePipelines();
-
-  /**
-   * Submits command buffers to the device queue. This allows the execution of additional custom
-   * commands by the render window.
-   */
-  void SubmitCommandBuffer(int count, wgpu::CommandBuffer* commandBuffer);
-
-  /**
-   * Dispatches all the post-render compute pipelines of all the renderers of this render window
-   */
-  void PostRenderComputePipelines();
-
-  /**
-   * Renders actors of the renderers of this render window that were "deferred" to being rendered
-   * after the main rasterization pass
-   */
-  void PostRasterizationRender();
-
-  /**
-   * Copies the current framebuffer to the offscreen buffer (used for screenshotting the render
-   * window for example)
-   */
-  void CopyFramebufferToOffscreenBuffer();
-
-  // Render textures acquired by the user on this render window. They are kept here in case the
-  // render window is resized, in which case, we'll need to resize the render textures --> We need
-  // access to the textures
-  std::vector<vtkSmartPointer<vtkWebGPUComputeRenderTexture>> ComputeRenderTextures;
 };
 
 VTK_ABI_NAMESPACE_END

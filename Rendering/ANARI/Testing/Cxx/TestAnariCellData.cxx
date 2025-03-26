@@ -23,7 +23,6 @@
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
 #include "vtkAnariTestInteractor.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariCellData(int argc, char* argv[])
 {
@@ -106,7 +105,22 @@ int TestAnariCellData(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariCellData");
+  if (useDebugDevice)
+  {
+    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
+    vtkNew<vtkTesting> testing;
+
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace";
+    traceDir += "/TestAnariCellData";
+    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
+  }
+
+  vtkAnariRendererNode::SetLibraryName("environment", ren);
+  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
+  vtkAnariRendererNode::SetLightFalloff(1.0, ren);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
   vtkAnariRendererNode::SetAmbientIntensity(0.5, ren);
 
   renWin->Render();
@@ -121,11 +135,11 @@ int TestAnariCellData(int argc, char* argv[])
 
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
-      vtkNew<vtkAnariTestInteractor> anariStyle;
-      anariStyle->SetPipelineControlPoints(ren, anariPass, nullptr);
-      anariStyle->SetCurrentRenderer(ren);
+      vtkNew<vtkAnariTestInteractor> style;
+      style->SetPipelineControlPoints(ren, anariPass, nullptr);
+      style->SetCurrentRenderer(ren);
 
-      iren->SetInteractorStyle(anariStyle);
+      iren->SetInteractorStyle(style);
       iren->SetDesiredUpdateRate(30.0);
       iren->Start();
     }

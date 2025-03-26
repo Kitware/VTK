@@ -298,8 +298,7 @@ int vtkOrientPolyData::RequestData(vtkInformation* vtkNotUsed(request),
           }
 
           // Update the best data with the current values.
-          auto setBestSoFar = [&]()
-          {
+          auto setBestSoFar = [&]() {
             // ID
             bestCellID = currentCellID;
             // If the current leftmost cell's normal is pointing to the

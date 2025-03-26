@@ -12,6 +12,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 namespace
 {

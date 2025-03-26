@@ -243,9 +243,6 @@ protected:
   vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
 
-  // Garbage collection method
-  void ReportReferences(vtkGarbageCollector*) override;
-
 private:
   vtkCutter(const vtkCutter&) = delete;
   void operator=(const vtkCutter&) = delete;

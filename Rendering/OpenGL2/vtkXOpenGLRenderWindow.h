@@ -184,11 +184,6 @@ public:
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   Display* GetDisplayId();
 
-  /**
-   * Ensure RenderWindow's X display is opened
-   */
-  bool EnsureDisplay() override;
-
   ///@{
   /**
    * Set the X display id for this RenderWindow to use to a pre-existing
@@ -382,11 +377,6 @@ protected:
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) = delete;
   void operator=(const vtkXOpenGLRenderWindow&) = delete;
-
-  /**
-   * Ensure GLX symbols are loaded. Returns false when GLX is unavailable.
-   */
-  bool EnsureGLX();
 };
 
 VTK_ABI_NAMESPACE_END

@@ -772,10 +772,7 @@ VTK_ABI_NAMESPACE_END
   template <>                                                                                      \
   struct vtkArrayDownCast_impl<ArrayT>                                                             \
   {                                                                                                \
-    inline ArrayT* operator()(vtkAbstractArray* array)                                             \
-    {                                                                                              \
-      return ArrayT::FastDownCast(array);                                                          \
-    }                                                                                              \
+    inline ArrayT* operator()(vtkAbstractArray* array) { return ArrayT::FastDownCast(array); }     \
   }
 ///@}
 

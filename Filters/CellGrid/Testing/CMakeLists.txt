@@ -10,7 +10,6 @@ vtk_module_test_data(
   Data/dgTetrahedra.dg
   Data/dgTriangle.dg
   Data/dgWedges.dg
-  Data/fandisk.dg
 )
 
 if (NOT vtk_testing_cxx_disabled)

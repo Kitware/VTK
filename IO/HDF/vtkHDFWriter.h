@@ -26,27 +26,14 @@ class vtkUnstructuredGrid;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkMultiBlockDataSet;
-class vtkMultiProcessController;
 
 typedef int64_t hid_t;
 
 /**
- * Writes input dataset to a VTKHDF file.
+ * Writes Dataset input to the VTK HDF format. Currently only
+ * supports serial processing and a single time step of vtkPolyData or vtkUnstructuredGrid
  *
- * This writer can handle vtkPolyData, vtkUnstructuredGrid, vtkPartitionedDataSet,
- * vtkMultiBlockDataSet and vtkPartitionedDataSetCollection data types,
- * as well as time-varying data.
- *
- * Distributed writing is supported for vtkPolyData and vtkUnstructuredGrid with pieces written to
- * separate files, and referenced by the main written on rank 0 one using HDF5 virtual datasets.
- *
- * Options are provided for data compression, and writing partitions, composite parts and time steps
- * in different files.
- *
- * To comply with the HDF5 and VTKHDF standard specification,
- * "/" and "." contained in field names will be replaced by "_".
- *
- * Full file format specification is here:
+ * File format specification is here:
  * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  *
  */
@@ -61,14 +48,6 @@ public:
   static vtkHDFWriter* New();
   vtkTypeMacro(vtkHDFWriter, vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Set and get the controller.
-   */
-  virtual void SetController(vtkMultiProcessController*);
-  vtkGetObjectMacro(Controller, vtkMultiProcessController);
-  ///@}
 
   ///@{
   /**
@@ -133,46 +112,14 @@ public:
   ///@{
   /**
    * When set, write composite leaf blocks in different files,
-   * named FileStem_BlockName.extension.
-   * If FileName does not have an extension, blocks are named FileName_BlockName.vtkhdf
+   * named FileName_without_extension_BlockName.extension.
+   * If FileName does not have an extension, blocks are named
+   * FileName_BlockName.vtkhdf
    * These files are referenced by the main file using external links.
    * Default is false.
    */
   vtkSetMacro(UseExternalComposite, bool);
   vtkGetMacro(UseExternalComposite, bool);
-  ///@}
-
-  ///@{
-  /**
-   * When set, write each time step in a different file.
-   * These individual time files are referenced by the main file using the HDF5 virtual dataset
-   * feature. This way, individual time step files can be opened by the reader as a non
-   * time-dependent dataset, and the main file referencing those as a time-dependent file
-   * seamlessly.
-   *
-   * Subfiles are named FileStem_X.extension, where X is the time step index.
-   * extension defaults to .vtkhdf in case the base filename does not have one already.
-   *
-   * Note: this option does not support static meshes. Points and cells with be copied
-   * across time step files.
-   * Default is false.
-   */
-  vtkSetMacro(UseExternalTimeSteps, bool);
-  vtkGetMacro(UseExternalTimeSteps, bool);
-  ///@}
-
-  ///@{
-  /**
-   * When set, write each partition of the input vtkPartitionedDataSet in a different file,
-   * named FileStem_partX.extension, where X is the partition index.
-   * If FileName does not have an extension, files are named FileName_partX.vtkhdf
-   * These individual time files are referenced by the main file using the HDF5 virtual dataset
-   * feature, just like the `UseExternalTimeSteps` does.
-   * When applied to composite datasets, this option forces UseExternalComposite ON.
-   * Default is false.
-   */
-  vtkSetMacro(UseExternalPartitions, bool);
-  vtkGetMacro(UseExternalPartitions, bool);
   ///@}
 
 protected:
@@ -211,12 +158,6 @@ private:
    */
   void DispatchDataObject(hid_t group, vtkDataObject* input, unsigned int partId = 0);
 
-  /**
-   * For distributed datasets, write the meta-file referencing sub-files using Virtual Datasets.
-   * This file is written only on process/piece 0
-   */
-  void WriteDistributedMetafile(vtkDataObject* input);
-
   ///@{
   /**
    * Write the given dataset to the current FileName in vtkHDF format.
@@ -230,7 +171,7 @@ private:
 
   ///@{
   /**
-   * For temporal data, update the steps group with information relevant to the current timestep.
+   * For transient data, update the steps group with information relevant to the current timestep.
    */
   bool UpdateStepsGroup(vtkUnstructuredGrid* input);
   bool UpdateStepsGroup(vtkPolyData* input);
@@ -238,7 +179,7 @@ private:
 
   ///@{
   /**
-   * Initialize the `Steps` group for temporal data, and extendable datasets where needed.
+   * Initialize the `Steps` group for transient data, and extendable datasets where needed.
    * This way, the other functions will append to existing datasets every step.
    */
   bool InitializeTemporalPolyData();
@@ -304,15 +245,11 @@ private:
    */
   bool AppendPrimitiveCells(hid_t baseGroup, vtkPolyData* input);
 
-  ///@{
   /**
    * Add the data arrays of the object to the file
    * OpenRoot should succeed on this->Impl before calling this function
    */
   bool AppendDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
-  bool AppendDataSetAttributes(hid_t group, vtkDataObject* input, unsigned int partId = 0);
-  bool AppendFieldDataArrays(hid_t group, vtkDataObject* input, unsigned int partId = 0);
-  ///@}
 
   ///@{
   /**
@@ -328,7 +265,7 @@ private:
    * and create an external link from VTKHDF/blockName to this file's content.
    * The block should be of non-composite type.
    */
-  bool AppendExternalBlock(vtkDataObject* block, const std::string& blockName);
+  bool AppendExternalBlock(vtkDataObject* block, std::string& blockName);
   ///@}
 
   /**
@@ -344,25 +281,22 @@ private:
    */
   bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb);
 
-  ///@{
   /**
-   * Append the offset data in the steps group for the current array for temporal data
+   * Append the offset data in the steps group for the current array for transient data
    */
   bool AppendDataArrayOffset(
-    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
-  bool AppendDataArraySizeOffset(
-    vtkAbstractArray* array, const std::string& arrayName, const std::string& offsetsGroupName);
-  ///@}
+    vtkAbstractArray* array, const char* arrayName, const char* offsetsGroupName);
 
   /**
-   * Write the NSteps attribute and the Value dataset to group for temporal writing.
+   * Write the NSteps attribute and the Value dataset to group for transient writing.
    */
   bool AppendTimeValues(hid_t group);
 
   /**
    * Check if the mesh geometry changed between this step and the last.
    */
-  bool HasGeometryChangedFromPreviousStep(vtkDataSet* input);
+  template <typename vtkStaticMeshDataSetT>
+  bool HasGeometryChangedFromPreviousStep(vtkStaticMeshDataSetT* input);
 
   /**
    * Update the time value of the MeshMTime which wiil be used in the next time step
@@ -377,8 +311,6 @@ private:
   bool Overwrite = true;
   bool WriteAllTimeSteps = true;
   bool UseExternalComposite = false;
-  bool UseExternalTimeSteps = false;
-  bool UseExternalPartitions = false;
   int ChunkSize = 25000;
   int CompressionLevel = 0;
 
@@ -386,17 +318,8 @@ private:
   double* timeSteps = nullptr;
   bool IsTemporal = false;
   int CurrentTimeIndex = 0;
-  int NumberOfTimeSteps = 1;
+  int NumberOfTimeSteps = 0;
   vtkMTimeType PreviousStepMeshMTime = 0;
-
-  // Distributed-related variables
-  vtkMultiProcessController* Controller = nullptr;
-  int NbPieces = 1;
-  int CurrentPiece = 0;
-  bool UsesDummyController = false;
-  std::vector<vtkIdType> PointOffsets;
-  std::vector<vtkIdType> CellOffsets;
-  std::vector<vtkIdType> ConnectivityIdOffsets;
 };
 VTK_ABI_NAMESPACE_END
 #endif

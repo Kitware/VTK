@@ -17,6 +17,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <array>
 

@@ -32,8 +32,6 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-#include "vtkAnariTestUtilities.h"
-
 int TestAnariSmartVolumeMapper(int argc, char* argv[])
 {
   double scalarRange[2];
@@ -105,7 +103,11 @@ int TestAnariSmartVolumeMapper(int argc, char* argv[])
 
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
-  SetAnariRendererParameterDefaults(ren, false, "TestAnariSmartVolumeMapper");
+  vtkAnariRendererNode::SetLibraryName("environment", ren);
+  vtkAnariRendererNode::SetSamplesPerPixel(6, ren);
+  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
 
   ren->AddViewProp(volume);
   ren->AddActor(dssActor);

@@ -156,20 +156,6 @@ public:
   virtual void End() {}
 
   /**
-   * Initializes the rendering process.
-   * The responsibility to set the Initialized boolean to true is
-   * left to the subclass.
-   */
-  virtual void Initialize() {}
-
-  ///@{
-  /**
-   * Get/set whether or not the window has been initilized yet.
-   */
-  vtkGetMacro(Initialized, bool);
-  ///@}
-
-  /**
    * Finalize the rendering process.
    */
   virtual void Finalize() {}
@@ -520,7 +506,7 @@ public:
   }
   float GetZbufferDataAtPoint(int x, int y)
   {
-    float value = 1.0f;
+    float value;
     this->GetZbufferData(x, y, x, y, &value);
     return value;
   }
@@ -686,7 +672,6 @@ public:
   /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
    * A value of 1 will be set to 0.
-   * Related to OpenGL parameter GL_MAX_SAMPLES.
    */
   virtual void SetMultiSamples(int);
   vtkGetMacro(MultiSamples, int);
@@ -793,14 +778,12 @@ public:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    * The x axis scale is used for \sa PhysicalScale
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
   /**
    * Get physical to world transform matrix. Members used to calculate the matrix:
    * \sa PhysicalViewDirection, \sa PhysicalViewUp, \sa PhysicalTranslation, \sa PhysicalScale
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void GetPhysicalToWorldMatrix(vtkMatrix4x4* matrix);
 
   /**
@@ -880,8 +863,6 @@ protected:
   double PhysicalScale = 1.0;
 
   bool EnableTranslucentSurface = false;
-
-  bool Initialized = false;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

@@ -7,10 +7,6 @@
  *
  * vtkVRMLImporter imports VRML 2.0 files into VTK.
  *
- * This importer doesn't support scene hierarchy API
- *
- * This importer supports the collection API
- *
  * @warning
  * These nodes are currently supported:
  *      Appearance                              IndexedFaceSet

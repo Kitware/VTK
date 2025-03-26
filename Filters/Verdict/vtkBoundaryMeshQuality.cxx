@@ -216,33 +216,30 @@ int vtkBoundaryMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
     distanceFromCellCenterToFaceCenterArray->SetName("DistanceFromCellCenterToFaceCenter");
     distanceFromCellCenterToFaceCenterArray->SetNumberOfValues(numberOfOutputCells);
 
-    vtkSMPTools::For(0, numberOfOutputCells,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto distanceArray = vtk::DataArrayValueRange<1>(distanceFromCellCenterToFaceCenterArray);
+    vtkSMPTools::For(0, numberOfOutputCells, [&](vtkIdType begin, vtkIdType end) {
+      auto distanceArray = vtk::DataArrayValueRange<1>(distanceFromCellCenterToFaceCenterArray);
 
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
-        for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
+      for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      {
+        if (cellId % checkAbortInterval == 0)
         {
-          if (cellId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              this->CheckAbort();
-            }
-            if (this->GetAbortOutput())
-            {
-              break;
-            }
+            this->CheckAbort();
           }
-          const auto originalCellId = originalCellIds->GetValue(cellId);
-          const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
-          const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
-          distanceArray[cellId] =
-            std::sqrt(vtkMath::Distance2BetweenPoints(faceCenter, cellCenter));
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
-      });
+        const auto originalCellId = originalCellIds->GetValue(cellId);
+        const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
+        const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
+        distanceArray[cellId] = std::sqrt(vtkMath::Distance2BetweenPoints(faceCenter, cellCenter));
+      }
+    });
     output->GetCellData()->AddArray(distanceFromCellCenterToFaceCenterArray);
   }
   this->UpdateProgress(0.7);
@@ -283,34 +280,32 @@ int vtkBoundaryMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
     distanceFromCellCenterToFacePlaneArray->SetName("DistanceFromCellCenterToFacePlane");
     distanceFromCellCenterToFacePlaneArray->SetNumberOfValues(numberOfOutputCells);
 
-    vtkSMPTools::For(0, numberOfOutputCells,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto distanceArray = vtk::DataArrayValueRange<1>(distanceFromCellCenterToFacePlaneArray);
-        double faceNormal[3];
+    vtkSMPTools::For(0, numberOfOutputCells, [&](vtkIdType begin, vtkIdType end) {
+      auto distanceArray = vtk::DataArrayValueRange<1>(distanceFromCellCenterToFacePlaneArray);
+      double faceNormal[3];
 
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
-        for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
+      for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      {
+        if (cellId % checkAbortInterval == 0)
         {
-          if (cellId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              this->CheckAbort();
-            }
-            if (this->GetAbortOutput())
-            {
-              break;
-            }
+            this->CheckAbort();
           }
-          const auto originalCellId = originalCellIds->GetValue(cellId);
-          outputNormals->GetTuple(cellId, faceNormal);
-          const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
-          const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
-          distanceArray[cellId] = vtkPlane::DistanceToPlane(faceCenter, faceNormal, cellCenter);
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
-      });
+        const auto originalCellId = originalCellIds->GetValue(cellId);
+        outputNormals->GetTuple(cellId, faceNormal);
+        const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
+        const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
+        distanceArray[cellId] = vtkPlane::DistanceToPlane(faceCenter, faceNormal, cellCenter);
+      }
+    });
     output->GetCellData()->AddArray(distanceFromCellCenterToFacePlaneArray);
   }
   this->UpdateProgress(0.9);
@@ -332,40 +327,38 @@ int vtkBoundaryMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
       "AngleFaceNormalAndCellCenterToFaceCenterVector");
     angleFaceNormalAndCellCenterToFaceCenterVectorArray->SetNumberOfValues(numberOfOutputCells);
 
-    vtkSMPTools::For(0, numberOfOutputCells,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto angleArray =
-          vtk::DataArrayValueRange<1>(angleFaceNormalAndCellCenterToFaceCenterVectorArray);
-        double cellCenterToFaceCenterVector[3];
-        double normal[3];
+    vtkSMPTools::For(0, numberOfOutputCells, [&](vtkIdType begin, vtkIdType end) {
+      auto angleArray =
+        vtk::DataArrayValueRange<1>(angleFaceNormalAndCellCenterToFaceCenterVectorArray);
+      double cellCenterToFaceCenterVector[3];
+      double normal[3];
 
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
-        for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      bool isFirst = vtkSMPTools::GetSingleThread();
+      auto checkAbortInterval = std::min(numberOfOutputCells / 10 + 1, (vtkIdType)1000);
+      for (vtkIdType cellId = begin; cellId < end; ++cellId)
+      {
+        if (cellId % checkAbortInterval == 0)
         {
-          if (cellId % checkAbortInterval == 0)
+          if (isFirst)
           {
-            if (isFirst)
-            {
-              this->CheckAbort();
-            }
-            if (this->GetAbortOutput())
-            {
-              break;
-            }
+            this->CheckAbort();
           }
-          const auto originalCellId = originalCellIds->GetValue(cellId);
-          const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
-          const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
-          outputNormals->GetTuple(cellId, normal);
-          // compute normal from cell center to face center
-          vtkMath::Subtract(faceCenter, cellCenter, cellCenterToFaceCenterVector);
-          vtkMath::Normalize(cellCenterToFaceCenterVector);
-          angleArray[cellId] = vtkMath::DegreesFromRadians(
-            vtkMath::AngleBetweenVectors(normal, cellCenterToFaceCenterVector));
+          if (this->GetAbortOutput())
+          {
+            break;
+          }
         }
-      });
+        const auto originalCellId = originalCellIds->GetValue(cellId);
+        const auto faceCenter = outputCellCenters->GetPointer(3 * cellId);
+        const auto cellCenter = inputCellCenters->GetPointer(3 * originalCellId);
+        outputNormals->GetTuple(cellId, normal);
+        // compute normal from cell center to face center
+        vtkMath::Subtract(faceCenter, cellCenter, cellCenterToFaceCenterVector);
+        vtkMath::Normalize(cellCenterToFaceCenterVector);
+        angleArray[cellId] = vtkMath::DegreesFromRadians(
+          vtkMath::AngleBetweenVectors(normal, cellCenterToFaceCenterVector));
+      }
+    });
     output->GetCellData()->AddArray(angleFaceNormalAndCellCenterToFaceCenterVectorArray);
   }
   this->UpdateProgress(1.0);

@@ -17,8 +17,6 @@
  * See the description of class vtkPiecewiseFunction for an explanation of
  * midpoint and sharpness.
  *
- * Note that transparency (alpha) is only supported in NanColorRGBA feature.
- *
  * @sa
  * vtkPiecewiseFunction
  */
@@ -431,14 +429,12 @@ protected:
    */
   int TableSize;
 
-  ///@{
   /**
    * Set the range of scalars being mapped. This method has no functionality
    * in this subclass of vtkScalarsToColors.
    */
   void SetRange(double, double) override {}
   void SetRange(const double rng[2]) override { this->SetRange(rng[0], rng[1]); }
-  ///@}
 
   /**
    * Internal method to sort the vector and update the

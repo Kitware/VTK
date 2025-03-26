@@ -23,14 +23,12 @@ void FillDefaultArray(vtkAbstractArray* array)
 
   if (strArray)
   {
-    vtkSMPTools::For(0, strArray->GetNumberOfValues(),
-      [strArray](vtkIdType start, vtkIdType end)
+    vtkSMPTools::For(0, strArray->GetNumberOfValues(), [strArray](vtkIdType start, vtkIdType end) {
+      for (vtkIdType i = start; i < end; ++i)
       {
-        for (vtkIdType i = start; i < end; ++i)
-        {
-          strArray->SetValue(i, "");
-        }
-      });
+        strArray->SetValue(i, "");
+      }
+    });
   }
   else if (dataArray)
   {

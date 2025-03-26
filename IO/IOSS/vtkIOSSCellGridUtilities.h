@@ -84,9 +84,8 @@ const Ioss::ElementTopology* GetElementTopology(vtkCellMetadata* cellType);
  * vtkDataSetAttributes corresponding to the cell- or side-specification
  * which the arrays are referenced.
  */
-bool GetConnectivity(const Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkDGCell* meta,
-  int ioss_cell_points, int spec_index = -1, const std::string& group_name = std::string(),
-  vtkIOSSUtilities::Cache* cache = nullptr);
+bool GetConnectivity(Ioss::GroupingEntity* group_entity, vtkCellGrid* grid, vtkDGCell* meta,
+  int ioss_cell_points, vtkIOSSUtilities::Cache* cache = nullptr);
 
 /**
  * Read connectivity information from the group_entity with offsetting
@@ -110,7 +109,7 @@ bool GetConnectivity(const Ioss::GroupingEntity* group_entity, vtkCellGrid* grid
  *
  * Throws `std::runtime_error` on error.
  */
-vtkSmartPointer<vtkCellMetadata> GetCellMetadata(const Ioss::GroupingEntity* group_entity,
+vtkSmartPointer<vtkCellMetadata> GetCellMetadata(Ioss::GroupingEntity* group_entity,
   int& ioss_cell_points, int& ioss_cell_order, vtkCellGrid* cell_grid = nullptr,
   vtkIOSSUtilities::Cache* cache = nullptr);
 
@@ -123,7 +122,7 @@ vtkSmartPointer<vtkCellMetadata> GetCellMetadata(const Ioss::GroupingEntity* gro
  * This is used to choose the cell-attribute's type (in turn
  * used to choose basis functions for evaluating/rendering cells).
  */
-bool GetShape(Ioss::Region* region, const Ioss::GroupingEntity* group_entity,
+bool GetShape(Ioss::Region* region, Ioss::GroupingEntity* group_entity,
   vtkCellAttribute::CellTypeInfo& cellShapeInfo, int timestep, vtkDGCell* meta,
   vtkCellGrid* grid = nullptr, vtkIOSSUtilities::Cache* cache = nullptr);
 

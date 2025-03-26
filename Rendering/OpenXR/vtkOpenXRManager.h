@@ -354,8 +354,7 @@ public:
     XrAction Action;
     XrActionType ActionType;
 
-    union
-    {
+    union {
       XrActionStateFloat _float;
       XrActionStateBoolean _boolean;
       XrActionStatePose _pose;

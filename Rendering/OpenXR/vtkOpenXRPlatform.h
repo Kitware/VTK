@@ -15,7 +15,7 @@
 
 // Needed for WIN32 and VTK_USE_X
 #include "vtkRenderingOpenGLConfigure.h"
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 #if defined(VTK_USE_X)
 // X11 defines globally some names that conflict with things in these classes
@@ -27,6 +27,7 @@
 
 #ifdef _WIN32
 #define XR_USE_PLATFORM_WIN32
+#include "GL/gl.h"
 #include "Unknwn.h"
 #include "vtkWindows.h"
 #endif
@@ -34,8 +35,8 @@
 #ifdef VTK_USE_X
 #define XR_USE_PLATFORM_XLIB
 // Required headers for the XrGraphicsBindingOpenGLXlibKHR struct
+#include <GL/glx.h>
 #include <X11/Xlib.h>
-#include <vtkglad/include/glad/glx.h>
 #endif
 
 #include <openxr/openxr_platform.h>

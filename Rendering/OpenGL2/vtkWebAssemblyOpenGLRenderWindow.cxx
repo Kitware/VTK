@@ -20,7 +20,7 @@ vtkWebAssemblyOpenGLRenderWindow::vtkWebAssemblyOpenGLRenderWindow()
   : ContextId(0)
 {
   this->SetWindowName("Visualization Toolkit - Emscripten OpenGL #");
-  this->SetCanvasSelector("#canvas");
+  this->SetCanvasId("#canvas");
   this->SetStencilCapable(1);
 
   this->Position[0] = -1;
@@ -62,6 +62,16 @@ void vtkWebAssemblyOpenGLRenderWindow::CleanUpRenderers()
   // is being removed (the RendererCollection is removed by vtkRenderWindow's
   // destructor)
   this->ReleaseGraphicsResources(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebAssemblyOpenGLRenderWindow::SetWindowName(const char* title)
+{
+  this->Superclass::SetWindowName(title);
+  if (this->ContextId)
+  {
+    emscripten_set_window_title(title);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -137,7 +147,7 @@ void vtkWebAssemblyOpenGLRenderWindow::SetSize(int width, int height)
   {
     this->Size[0] = width;
     this->Size[1] = height;
-    emscripten_set_canvas_element_size(this->CanvasSelector, this->Size[0], this->Size[1]);
+    emscripten_set_canvas_element_size(this->CanvasId, this->Size[0], this->Size[1]);
     if (this->Interactor)
     {
       this->Interactor->SetSize(this->Size[0], this->Size[1]);
@@ -201,28 +211,11 @@ void vtkWebAssemblyOpenGLRenderWindow::CreateAWindow()
   attrs.antialias = EM_FALSE;
   // optionally blend the canvas with underlying web page contents.
   attrs.alpha = this->EnableTranslucentSurface;
-  // when the canvas is translucent (EnableTranslucentSurface is enabled), it's important that
-  // premultipliedAlpha is also enabled because VTK results are premultiplied alpha by the default
-  // blending function (see vtkOpenGLRenderWindow::Start).
-  attrs.premultipliedAlpha = EM_TRUE;
+  attrs.premultipliedAlpha = EM_FALSE;
   attrs.depth = EM_TRUE;
   attrs.stencil = this->StencilCapable;
 
-  // choose power preference
-  switch (PowerPreference)
-  {
-    case PowerPreferenceType::Default:
-      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_DEFAULT;
-      break;
-    case PowerPreferenceType::LowPower:
-      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_LOW_POWER;
-      break;
-    case PowerPreferenceType::HighPerformance:
-      attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_HIGH_PERFORMANCE;
-      break;
-  }
-
-  const auto result = emscripten_webgl_create_context(this->CanvasSelector, &attrs);
+  const auto result = emscripten_webgl_create_context(this->CanvasId, &attrs);
   if (result <= 0)
   {
     vtkErrorMacro("Error (" << result << ") initializing WebGL2.");
@@ -330,7 +323,7 @@ void vtkWebAssemblyOpenGLRenderWindow::SetFullScreen(vtkTypeBool arg)
     strategy.canvasResizedCallback = ::HandleCanvasResize;
     strategy.canvasResizedCallbackUserData = this;
 
-    result = emscripten_request_fullscreen_strategy(this->CanvasSelector, 1, &strategy);
+    result = emscripten_request_fullscreen_strategy(this->CanvasId, 1, &strategy);
   }
   else
   {
@@ -354,12 +347,12 @@ void vtkWebAssemblyOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 namespace
 {
-void setCursorVisibility(const char* target, bool visible)
+void setCursorVisibility(bool visible)
 {
   // clang-format off
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
-    MAIN_THREAD_EM_ASM({findCanvasEventTarget($0).style.cursor = $1 ? 'default' : 'none'; }, target, visible);
+    MAIN_THREAD_EM_ASM({if (Module['canvas']) { Module['canvas'].style['cursor'] = $0 ? 'default' : 'none'; }}, visible);
 #pragma clang diagnostic pop
   // clang-format on
 }
@@ -368,12 +361,12 @@ void setCursorVisibility(const char* target, bool visible)
 //------------------------------------------------------------------------------
 void vtkWebAssemblyOpenGLRenderWindow::HideCursor()
 {
-  ::setCursorVisibility(this->CanvasSelector, false);
+  ::setCursorVisibility(false);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebAssemblyOpenGLRenderWindow::ShowCursor()
 {
-  ::setCursorVisibility(this->CanvasSelector, true);
+  ::setCursorVisibility(true);
 }
 VTK_ABI_NAMESPACE_END

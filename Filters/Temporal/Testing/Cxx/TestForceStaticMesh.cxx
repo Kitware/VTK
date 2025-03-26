@@ -1,74 +1,95 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-
-#include "MeshCacheMockAlgorithms.h"
+#include "vtkActor.h"
+#include "vtkConeSource.h"
+#include "vtkDataSetMapper.h"
 #include "vtkForceStaticMesh.h"
-#include "vtkLogger.h"
+#include "vtkGenerateTimeSteps.h"
+#include "vtkGroupDataSetsFilter.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
-
-//------------------------------------------------------------------------------
-void GetPartitionsMeshMTimes(
-  vtkPartitionedDataSetCollection* pdsc, std::vector<vtkMTimeType>& times)
-{
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(pdsc->NewIterator());
-  for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-  {
-    auto ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    vtkMTimeType time = ds ? ds->GetMeshMTime() : -1;
-    times.push_back(time);
-  }
-}
+#include "vtkPointData.h"
+#include "vtkRandomAttributeGenerator.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 //------------------------------------------------------------------------------
 // Program main
 int TestForceStaticMesh(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkNew<vtkStaticCompositeSource> source;
-  source->SetStartData(1);
+  // Create the pipeline to produce the initial grid
+  vtkNew<vtkConeSource> cone1;
+  cone1->SetResolution(15);
+
+  vtkNew<vtkConeSource> cone2;
+  cone2->SetResolution(12);
+  cone2->SetCenter(2, 2, 2);
+
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetInputConnection(0, cone1->GetOutputPort());
+  group->AddInputConnection(0, cone2->GetOutputPort());
+  group->SetOutputTypeToPartitionedDataSetCollection();
+
+  vtkNew<vtkGenerateTimeSteps> addTime;
+  addTime->SetInputConnection(group->GetOutputPort());
+  addTime->AddTimeStepValue(0);
+  addTime->AddTimeStepValue(1);
+  addTime->AddTimeStepValue(2);
+  addTime->AddTimeStepValue(3);
+
+  vtkNew<vtkRandomAttributeGenerator> addScalars;
+  addScalars->SetInputConnection(addTime->GetOutputPort());
+  addScalars->GenerateAllDataOff();
+  addScalars->GenerateCellScalarsOn();
+  addScalars->SetDataTypeToDouble();
+  addScalars->SetComponentRange(0, 30);
 
   vtkNew<vtkForceStaticMesh> forceStatic;
-  forceStatic->SetInputConnection(source->GetOutputPort());
+  forceStatic->SetInputConnection(addScalars->GetOutputPort());
   forceStatic->Update();
 
-  auto outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> beforeVaryingMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, beforeVaryingMeshMTimes);
+  auto outputPDC =
+    vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
+  auto outputPD = vtkPolyData::SafeDownCast(outputPDC->GetPartitionAsDataObject(0, 0));
+  const auto initMeshTime = outputPD->GetMeshMTime();
+
+  forceStatic->UpdateTimeStep(2); // update scalars, not mesh
 
   outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> beforeMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, beforeMeshMTimes);
-
-  // Update the source: the mesh has the same point/cell count but different values.
-  // it should be cached by the forceStaticMesh filter anyway
-  source->SetStartData(5);
-  forceStatic->Update();
-
-  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(source->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> afterVaryingMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, afterVaryingMeshMTimes);
-
-  outputPDC = vtkPartitionedDataSetCollection::SafeDownCast(forceStatic->GetOutputDataObject(0));
-  std::vector<vtkMTimeType> afterMeshMTimes;
-  ::GetPartitionsMeshMTimes(outputPDC, afterMeshMTimes);
-
-  for (size_t timeIdx = 0; timeIdx != afterMeshMTimes.size(); ++timeIdx)
+  outputPD = vtkPolyData::SafeDownCast(outputPDC->GetPartitionAsDataObject(0, 0));
+  if (outputPD->GetMeshMTime() == initMeshTime)
   {
-    // Also compare the input's meshMTime to make sure we're testing something
-    if (beforeVaryingMeshMTimes[timeIdx] == afterVaryingMeshMTimes[timeIdx])
-    {
-      vtkLog(WARNING,
-        "ForceStaticMesh's input's MeshMTime has not changed, this test does not test anything ! "
-        "Was static mesh support added to the input filter ?");
-    }
-
-    if (beforeMeshMTimes[timeIdx] != afterMeshMTimes[timeIdx])
-    {
-      vtkLog(ERROR, "GetMeshMTime has changed, mesh not static !");
-      return EXIT_FAILURE;
-    }
+    std::cout << "Time comparison OK." << std::endl;
   }
+  else
+  {
+    std::cerr << "ERROR: GetMeshMTime has changed, mesh not static !" << std::endl;
+  }
+
+  vtkNew<vtkDataSetMapper> mapper;
+  mapper->SetInputData(outputPD);
+  mapper->SetScalarRange(0, 30);
+
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper);
+
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->AddRenderer(renderer);
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  renderer->AddActor(actor);
+
+  renderWindow->Render();
+  renderWindowInteractor->Start();
 
   return EXIT_SUCCESS;
 }

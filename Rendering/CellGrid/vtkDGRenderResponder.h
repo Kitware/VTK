@@ -12,11 +12,10 @@
 
 #include "vtkCellGridRenderRequest.h"
 
-#include "vtkCellGridResponder.h"    // For API.
-#include "vtkDGCell.h"               // For API.
-#include "vtkDrawTexturedElements.h" // For CacheEntry.
-#include "vtkInformation.h"          // For CacheEntry.
-#include "vtkOpenGLHardwareSelector.h"
+#include "vtkCellGridResponder.h"       // For API.
+#include "vtkDGCell.h"                  // For API.
+#include "vtkDrawTexturedElements.h"    // For CacheEntry.
+#include "vtkInformation.h"             // For CacheEntry.
 #include "vtkRenderingCellGridModule.h" // For Export macro
 
 #include <string>
@@ -76,8 +75,8 @@ protected:
   bool DrawCells(vtkCellGridRenderRequest* request, vtkCellMetadata* metadata);
   bool ReleaseResources(vtkCellGridRenderRequest* request, vtkCellMetadata* metadata);
 
-  bool DrawShapes(vtkCellGridRenderRequest* request, vtkDGCell* metadata,
-    const vtkDGCell::Source& cellSource, int cellTypeIdx, std::size_t specIdx);
+  bool DrawShapes(
+    vtkCellGridRenderRequest* request, vtkDGCell* metadata, const vtkDGCell::Source& cellSource);
   // std::pair<GLenum, std::vector<GLubyte>> ShapeToPrimitiveInfo(int shapeId);
 
   /// Entries for a cache of render-helpers.
@@ -121,7 +120,7 @@ protected:
     /// The MTime of the render passes combined at the time \a RenderHelper was configured.
     /// Various render passes are injected into the render pipeline by vtkOpenGLRenderer for fancy
     /// features like dual-depth peeling, SSAO, etc.
-    mutable vtkMTimeType RenderPassStageTime{ 0 };
+    mutable vtkMTimeType RenderPassStageTime;
     /// Tessellation shaders are employed for higher order elements and quadrilaterals.
     mutable bool UsesTessellationShaders;
     /// Geometry shader is used to debug distance-based tessellation.

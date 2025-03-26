@@ -52,8 +52,9 @@ bool runOutsidePointSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults
 
 bool runOuterEdgeSearch(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults* theseResults)
 {
-  auto getLastComponent = [](vtkDataArray* thisArray)
-  { return thisArray->GetComponent(thisArray->GetNumberOfTuples() - 1, 0); };
+  auto getLastComponent = [](vtkDataArray* thisArray) {
+    return thisArray->GetComponent(thisArray->GetNumberOfTuples() - 1, 0);
+  };
   double pt[3]{ getLastComponent(htgLoc->GetHTG()->GetXCoordinates()),
     getLastComponent(htgLoc->GetHTG()->GetYCoordinates()),
     getLastComponent(htgLoc->GetHTG()->GetZCoordinates()) };
@@ -112,8 +113,7 @@ bool runAllMaskedPointSearch(
   vtkIdType globIdSecond = 0;
   if (success)
   {
-    auto setChildrenMask = [&htgLoc, &cursorFirst](bool state)
-    {
+    auto setChildrenMask = [&htgLoc, &cursorFirst](bool state) {
       for (unsigned int d = 0; d < htgLoc->GetHTG()->GetNumberOfChildren(); d++)
       {
         cursorFirst->ToChild(d);
@@ -194,8 +194,7 @@ bool runIntersectDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResults*
   std::vector<double> origin(3, 0.0);
   std::vector<double> diagPt(3, 0.0);
   unsigned int dim = htgLoc->GetHTG()->GetDimension();
-  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last)
-  {
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
     first = compArray->GetComponent(0, 0);
     last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
   };
@@ -275,8 +274,7 @@ bool runIntersectWithMaskDiagonal(
   std::vector<double> origin(3, 0.0);
   std::vector<double> diagPt(3, 0.0);
   unsigned int dim = htgLoc->GetHTG()->GetDimension();
-  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last)
-  {
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
     first = compArray->GetComponent(0, 0);
     last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
   };
@@ -317,8 +315,7 @@ bool runAllIntersectsDiagonal(vtkHyperTreeGridGeometricLocator* htgLoc, TestResu
   std::vector<double> origin(3, 0.0);
   std::vector<double> diagPt(3, 0.0);
   unsigned int dim = htgLoc->GetHTG()->GetDimension();
-  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last)
-  {
+  auto getDiagonalComponents = [](vtkDataArray* compArray, double& first, double& last) {
     first = compArray->GetComponent(0, 0);
     last = compArray->GetComponent(compArray->GetNumberOfTuples() - 1, 0);
   };
@@ -423,8 +420,7 @@ bool TestLocatorTolerance()
   bool success = true;
 
   // Testing vtkHyperTreeGridGeometricLocator::Search
-  auto TestSearchPoint = [&locator](std::array<double, 3> point, vtkIdType expected)
-  {
+  auto TestSearchPoint = [&locator](std::array<double, 3> point, vtkIdType expected) {
     bool pointSuccess = true;
     vtkIdType cellId = locator->Search(point.data());
     if (cellId != expected)

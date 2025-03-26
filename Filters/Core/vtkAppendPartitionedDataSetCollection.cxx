@@ -188,8 +188,7 @@ int vtkAppendPartitionedDataSetCollection::RequestData(vtkInformation* vtkNotUse
     {
       // append the field data
       auto appendFieldData = [](std::vector<vtkDataObject*> inputDOs,
-                               vtkDataObject* outputDO) -> void
-      {
+                               vtkDataObject* outputDO) -> void {
         auto outputFD = outputDO->GetFieldData();
         for (auto inputDO : inputDOs)
         {

@@ -26,7 +26,6 @@
 
 #include "vtkAnariPass.h"
 #include "vtkAnariRendererNode.h"
-#include "vtkAnariTestUtilities.h"
 
 int TestAnariPositionalLights(int argc, char* argv[])
 {
@@ -127,7 +126,22 @@ int TestAnariPositionalLights(int argc, char* argv[])
   vtkNew<vtkAnariPass> anariPass;
   ren->SetPass(anariPass);
 
-  SetAnariRendererParameterDefaults(ren, useDebugDevice, "TestAnariPositionalLights");
+  if (useDebugDevice)
+  {
+    vtkAnariRendererNode::SetUseDebugDevice(1, ren);
+    vtkNew<vtkTesting> testing;
+
+    std::string traceDir = testing->GetTempDirectory();
+    traceDir += "/anari-trace";
+    traceDir += "/TestAnariPositionalLights";
+    vtkAnariRendererNode::SetDebugDeviceDirectory(traceDir.c_str(), ren);
+  }
+
+  vtkAnariRendererNode::SetLibraryName("environment", ren);
+  vtkAnariRendererNode::SetSamplesPerPixel(5, ren);
+  vtkAnariRendererNode::SetLightFalloff(.5, ren);
+  vtkAnariRendererNode::SetUseDenoiser(1, ren);
+  vtkAnariRendererNode::SetCompositeOnGL(1, ren);
 
   renWin->Render();
   ren->ResetCamera();

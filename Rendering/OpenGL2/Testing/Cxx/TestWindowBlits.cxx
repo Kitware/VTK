@@ -18,7 +18,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include "vtk_glad.h"
+#include "vtk_glew.h"
 
 class vtkStartRenderObserver : public vtkCommand
 {

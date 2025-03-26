@@ -11,7 +11,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <vtksys/FStream.hxx>
 #include <vtksys/RegularExpression.hxx>

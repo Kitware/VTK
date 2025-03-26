@@ -167,16 +167,14 @@ vtkPoints* vtkDataSet::GetPoints()
   vtkNew<vtkDoubleArray> array;
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(this->GetNumberOfPoints());
-  vtkSMPTools::For(0, this->GetNumberOfPoints(),
-    [&](vtkIdType begin, vtkIdType end)
+  vtkSMPTools::For(0, this->GetNumberOfPoints(), [&](vtkIdType begin, vtkIdType end) {
+    double x[3];
+    for (vtkIdType pointId = begin; pointId < end; ++pointId)
     {
-      double x[3];
-      for (vtkIdType pointId = begin; pointId < end; ++pointId)
-      {
-        this->GetPoint(pointId, x);
-        array->SetTypedTuple(pointId, x);
-      }
-    });
+      this->GetPoint(pointId, x);
+      array->SetTypedTuple(pointId, x);
+    }
+  });
   this->TempPoints->SetData(array);
   return this->TempPoints;
 }
@@ -1029,12 +1027,6 @@ vtkIdType vtkDataSet::GetNumberOfElements(int type)
       return this->GetNumberOfCells();
   }
   return this->Superclass::GetNumberOfElements(type);
-}
-
-//------------------------------------------------------------------------------
-vtkMTimeType vtkDataSet::GetMeshMTime()
-{
-  return this->GetMTime();
 }
 
 //------------------------------------------------------------------------------

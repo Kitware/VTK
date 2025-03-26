@@ -18,6 +18,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <cassert>
 

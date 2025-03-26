@@ -4,9 +4,7 @@
 #include "vtkGLTFImporter.h"
 
 #include "vtkActor.h"
-#include "vtkActorCollection.h"
 #include "vtkCamera.h"
-#include "vtkCollection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
@@ -18,7 +16,6 @@
 #include "vtkImageResize.h"
 #include "vtkInformation.h"
 #include "vtkLight.h"
-#include "vtkLightCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -35,7 +32,6 @@
 
 #include <algorithm>
 #include <array>
-#include <set>
 #include <stack>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -73,7 +69,7 @@ vtkSmartPointer<vtkCamera> GLTFCameraToVTKCamera(const vtkGLTFDocumentLoader::Ca
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   std::shared_ptr<vtkGLTFDocumentLoader::Model> model, int textureIndex,
-  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures, vtkGLTFImporter* parent)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
 
   if (existingTextures.count(textureIndex))
@@ -84,16 +80,11 @@ vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
   const vtkGLTFDocumentLoader::Texture& glTFTex = model->Textures[textureIndex];
   if (glTFTex.Source < 0 || glTFTex.Source >= static_cast<int>(model->Images.size()))
   {
-    vtkErrorWithObjectMacro(parent, "Image not found");
+    vtkErrorWithObjectMacro(nullptr, "Image not found");
     return nullptr;
   }
 
   const vtkGLTFDocumentLoader::Image& image = model->Images[glTFTex.Source];
-  if (image.ImageData == nullptr)
-  {
-    vtkErrorWithObjectMacro(parent, "Image mimeType not supported");
-    return nullptr;
-  }
 
   vtkNew<vtkTexture> texture;
   texture->SetColorModeToDirectScalars();
@@ -158,25 +149,14 @@ vtkSmartPointer<vtkTexture> CreateVTKTextureFromGLTFTexture(
 }
 
 //------------------------------------------------------------------------------
-bool MaterialHasMultipleUVs(
-  const vtkGLTFDocumentLoader::Material& material, vtkGLTFImporter* parent)
+bool MaterialHasMultipleUVs(const vtkGLTFDocumentLoader::Material& material)
 {
-  std::set<int> uv_sets;
-  for (const vtkGLTFDocumentLoader::TextureInfo& info :
-    { material.PbrMetallicRoughness.BaseColorTexture, material.EmissiveTexture,
-      material.NormalTexture, material.OcclusionTexture,
-      material.PbrMetallicRoughness.MetallicRoughnessTexture })
-  {
-    if (info.Index >= 0)
-      uv_sets.insert(info.TexCoord);
-  }
-  if (uv_sets.find(-1) != uv_sets.end())
-  {
-    vtkErrorWithObjectMacro(parent,
-      "A material defined a texture index without "
-      "defining a texture coordinate set.");
-  }
-  return uv_sets.size() > 1;
+  int firstUV = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
+  return (material.EmissiveTexture.Index >= 0 && material.EmissiveTexture.TexCoord != firstUV) ||
+    (material.NormalTexture.Index >= 0 && material.NormalTexture.TexCoord != firstUV) ||
+    (material.OcclusionTexture.Index >= 0 && material.OcclusionTexture.TexCoord != firstUV) ||
+    (material.PbrMetallicRoughness.MetallicRoughnessTexture.Index >= 0 &&
+      material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord != firstUV);
 }
 
 //------------------------------------------------------------------------------
@@ -195,17 +175,17 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
 }
 
 //------------------------------------------------------------------------------
-bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
+void ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
-  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures, vtkGLTFImporter* parent)
+  std::map<int, vtkSmartPointer<vtkTexture>>& existingTextures)
 {
   vtkGLTFDocumentLoader::Material& material = model->Materials[primitive.Material];
 
-  bool hasMultipleUVs = MaterialHasMultipleUVs(material, parent);
+  bool hasMultipleUVs = MaterialHasMultipleUVs(material);
   if (hasMultipleUVs)
   {
     vtkWarningWithObjectMacro(
-      parent, "Using multiple texture coordinates for the same model is not supported.");
+      nullptr, "Using multiple texture coordinates for the same model is not supported.");
   }
   auto property = actor->GetProperty();
   property->SetInterpolationToPBR();
@@ -242,104 +222,85 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
   {
     // set albedo texture
     vtkSmartPointer<vtkTexture> baseColorTex;
-    baseColorTex = CreateVTKTextureFromGLTFTexture(model, texIndex, existingTextures, parent);
-    if (!baseColorTex)
-    {
-      return false;
-    }
+    baseColorTex = CreateVTKTextureFromGLTFTexture(model, texIndex, existingTextures);
     baseColorTex->UseSRGBColorSpaceOn();
     property->SetBaseColorTexture(baseColorTex);
-  }
 
-  // merge ambient occlusion and metallic/roughness, then set material texture
-  int pbrTexIndex = material.PbrMetallicRoughness.MetallicRoughnessTexture.Index;
-  if (pbrTexIndex >= 0 && pbrTexIndex < static_cast<int>(model->Textures.size()))
-  {
-    const vtkGLTFDocumentLoader::Texture& pbrTexture = model->Textures[pbrTexIndex];
-    if (pbrTexture.Source >= 0 && pbrTexture.Source < static_cast<int>(model->Images.size()))
+    // merge ambient occlusion and metallic/roughness, then set material texture
+    int pbrTexIndex = material.PbrMetallicRoughness.MetallicRoughnessTexture.Index;
+    if (pbrTexIndex >= 0 && pbrTexIndex < static_cast<int>(model->Textures.size()))
     {
-      const vtkGLTFDocumentLoader::Image& pbrImage = model->Images[pbrTexture.Source];
-      // While glTF 2.0 uses two different textures for Ambient Occlusion and Metallic/Roughness
-      // values, VTK only uses one, so we merge both textures into one.
-      // If an Ambient Occlusion texture is present, we merge its first channel into the
-      // metallic/roughness texture (AO is r, Roughness g and Metallic b) If no Ambient
-      // Occlusion texture is present, we need to fill the metallic/roughness texture's first
-      // channel with 255
-      int aoTexIndex = material.OcclusionTexture.Index;
-      if (!hasMultipleUVs && aoTexIndex >= 0 &&
-        aoTexIndex < static_cast<int>(model->Textures.size()))
+      const vtkGLTFDocumentLoader::Texture& pbrTexture = model->Textures[pbrTexIndex];
+      if (pbrTexture.Source >= 0 && pbrTexture.Source < static_cast<int>(model->Images.size()))
       {
-        actor->GetProperty()->SetOcclusionStrength(material.OcclusionTextureStrength);
-        const vtkGLTFDocumentLoader::Texture& aoTexture = model->Textures[aoTexIndex];
-        const vtkGLTFDocumentLoader::Image& aoImage = model->Images[aoTexture.Source];
-        vtkNew<vtkImageExtractComponents> redAO;
-        // If sizes are different, resize the AO texture to the R/M texture's size
-        std::array<vtkIdType, 3> aoSize = { { 0 } };
-        std::array<vtkIdType, 3> pbrSize = { { 0 } };
-        aoImage.ImageData->GetDimensions(aoSize.data());
-        pbrImage.ImageData->GetDimensions(pbrSize.data());
-        // compare dimensions
-        if (aoSize != pbrSize)
+        const vtkGLTFDocumentLoader::Image& pbrImage = model->Images[pbrTexture.Source];
+        // While glTF 2.0 uses two different textures for Ambient Occlusion and Metallic/Roughness
+        // values, VTK only uses one, so we merge both textures into one.
+        // If an Ambient Occlusion texture is present, we merge its first channel into the
+        // metallic/roughness texture (AO is r, Roughness g and Metallic b) If no Ambient
+        // Occlusion texture is present, we need to fill the metallic/roughness texture's first
+        // channel with 255
+        int aoTexIndex = material.OcclusionTexture.Index;
+        if (!hasMultipleUVs && aoTexIndex >= 0 &&
+          aoTexIndex < static_cast<int>(model->Textures.size()))
         {
-          vtkNew<vtkImageResize> resize;
-          resize->SetInputData(aoImage.ImageData);
-          resize->SetOutputDimensions(pbrSize[0], pbrSize[1], pbrSize[2]);
-          resize->Update();
-          redAO->SetInputConnection(resize->GetOutputPort(0));
+          actor->GetProperty()->SetOcclusionStrength(material.OcclusionTextureStrength);
+          const vtkGLTFDocumentLoader::Texture& aoTexture = model->Textures[aoTexIndex];
+          const vtkGLTFDocumentLoader::Image& aoImage = model->Images[aoTexture.Source];
+          vtkNew<vtkImageExtractComponents> redAO;
+          // If sizes are different, resize the AO texture to the R/M texture's size
+          std::array<vtkIdType, 3> aoSize = { { 0 } };
+          std::array<vtkIdType, 3> pbrSize = { { 0 } };
+          aoImage.ImageData->GetDimensions(aoSize.data());
+          pbrImage.ImageData->GetDimensions(pbrSize.data());
+          // compare dimensions
+          if (aoSize != pbrSize)
+          {
+            vtkNew<vtkImageResize> resize;
+            resize->SetInputData(aoImage.ImageData);
+            resize->SetOutputDimensions(pbrSize[0], pbrSize[1], pbrSize[2]);
+            resize->Update();
+            redAO->SetInputConnection(resize->GetOutputPort(0));
+          }
+          else
+          {
+            redAO->SetInputData(aoImage.ImageData);
+          }
+          redAO->SetComponents(0);
+          vtkNew<vtkImageExtractComponents> gbPbr;
+          gbPbr->SetInputData(pbrImage.ImageData);
+          gbPbr->SetComponents(1, 2);
+          vtkNew<vtkImageAppendComponents> append;
+          append->AddInputConnection(redAO->GetOutputPort());
+          append->AddInputConnection(gbPbr->GetOutputPort());
+          append->SetOutput(pbrImage.ImageData);
+          append->Update();
         }
         else
         {
-          redAO->SetInputData(aoImage.ImageData);
+          pbrImage.ImageData->GetPointData()->GetScalars()->FillComponent(0, 255);
         }
-        redAO->SetComponents(0);
-        vtkNew<vtkImageExtractComponents> gbPbr;
-        gbPbr->SetInputData(pbrImage.ImageData);
-        gbPbr->SetComponents(1, 2);
-        vtkNew<vtkImageAppendComponents> append;
-        append->AddInputConnection(redAO->GetOutputPort());
-        append->AddInputConnection(gbPbr->GetOutputPort());
-        append->SetOutput(pbrImage.ImageData);
-        append->Update();
+        auto materialTex = CreateVTKTextureFromGLTFTexture(model, pbrTexIndex, existingTextures);
+        property->SetORMTexture(materialTex);
       }
-      else
-      {
-        pbrImage.ImageData->GetPointData()->GetScalars()->FillComponent(0, 255);
-      }
-      auto materialTex =
-        CreateVTKTextureFromGLTFTexture(model, pbrTexIndex, existingTextures, parent);
-      if (!materialTex)
-      {
-        return false;
-      }
-      property->SetORMTexture(materialTex);
     }
-  }
 
-  // Set emissive texture
-  int emissiveTexIndex = material.EmissiveTexture.Index;
-  if (emissiveTexIndex >= 0 && emissiveTexIndex < static_cast<int>(model->Textures.size()))
-  {
-    auto emissiveTex =
-      CreateVTKTextureFromGLTFTexture(model, emissiveTexIndex, existingTextures, parent);
-    if (!emissiveTex)
+    // Set emissive texture
+    int emissiveTexIndex = material.EmissiveTexture.Index;
+    if (emissiveTexIndex >= 0 && emissiveTexIndex < static_cast<int>(model->Textures.size()))
     {
-      return false;
+      auto emissiveTex = CreateVTKTextureFromGLTFTexture(model, emissiveTexIndex, existingTextures);
+      emissiveTex->UseSRGBColorSpaceOn();
+      property->SetEmissiveTexture(emissiveTex);
     }
-    emissiveTex->UseSRGBColorSpaceOn();
-    property->SetEmissiveTexture(emissiveTex);
-  }
-  // Set normal map
-  int normalMapIndex = material.NormalTexture.Index;
-  if (normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size()))
-  {
-    actor->GetProperty()->SetNormalScale(material.NormalTextureScale);
-    auto normalTex =
-      CreateVTKTextureFromGLTFTexture(model, normalMapIndex, existingTextures, parent);
-    if (!normalTex)
+    // Set normal map
+    int normalMapIndex = material.NormalTexture.Index;
+    if (normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size()))
     {
-      return false;
+      actor->GetProperty()->SetNormalScale(material.NormalTextureScale);
+      auto normalTex = CreateVTKTextureFromGLTFTexture(model, normalMapIndex, existingTextures);
+      property->SetNormalTexture(normalTex);
     }
-    property->SetNormalTexture(normalTex);
   }
 
   // extension KHR_materials_unlit
@@ -354,7 +315,6 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     b = pow(b, 1.f / 2.2f);
     actor->GetProperty()->SetColor(r, g, b);
   }
-  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -417,8 +377,6 @@ int vtkGLTFImporter::ImportBegin()
   vtkNew<vtkEventForwarderCommand> forwarder;
   forwarder->SetTarget(this);
   this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
-  this->Loader->AddObserver(vtkCommand::WarningEvent, forwarder);
-  this->Loader->AddObserver(vtkCommand::ErrorEvent, forwarder);
 
   // Check extension
   std::vector<char> glbBuffer;
@@ -461,7 +419,6 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
-    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -482,7 +439,6 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
   this->OutputsDescription = "";
 
   this->Actors.clear();
-  this->ActorCollection->RemoveAllItems();
 
   // Iterate over tree
   while (!nodeIdStack.empty())
@@ -569,17 +525,11 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
         if (primitive.Material >= 0 &&
           primitive.Material < static_cast<int>(model->Materials.size()))
         {
-          if (!ApplyGLTFMaterialToVTKActor(model, primitive, actor, this->Textures, this))
-          {
-            vtkErrorMacro("Could not apply GLTF material to VTK actor, aborting.");
-            this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
-            return;
-          }
+          ApplyGLTFMaterialToVTKActor(model, primitive, actor, this->Textures);
         }
         renderer->AddActor(actor);
 
         this->Actors[nodeId].emplace_back(actor);
-        this->ActorCollection->AddItem(actor);
         const int actorNode =
           this->SceneHierarchy->AddNode(meshNodeName.c_str(), /*parent=*/dasmNode);
         this->SceneHierarchy->SetAttribute(actorNode, "parent_node_name", dasmNodeName.c_str());
@@ -607,7 +557,6 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
-    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -622,14 +571,11 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
     nodeIdStack.push(nodeId);
   }
 
-  this->CameraCollection->RemoveAllItems();
   this->Cameras.clear();
   for (size_t i = 0; i < model->Cameras.size(); i++)
   {
     vtkGLTFDocumentLoader::Camera const& camera = model->Cameras[i];
-    vtkSmartPointer<vtkCamera> vtkCam = GLTFCameraToVTKCamera(camera);
-    this->Cameras[static_cast<int>(i)] = vtkCam;
-    this->CameraCollection->AddItem(vtkCam);
+    this->Cameras[static_cast<int>(i)] = GLTFCameraToVTKCamera(camera);
   }
 
   // Iterate over tree
@@ -656,9 +602,7 @@ void vtkGLTFImporter::ImportCameras(vtkRenderer* renderer)
   // update enabled camera
   if (this->EnabledCamera >= this->GetNumberOfCameras())
   {
-    vtkWarningMacro("Camera index "
-      << this->EnabledCamera
-      << "is invalid, cameras have been imported but none have been enabled.");
+    vtkErrorMacro("Camera index " << this->EnabledCamera << "is invalid");
     this->EnabledCamera = -1;
     return;
   }
@@ -720,11 +664,8 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
-    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
-
-  this->LightCollection->RemoveAllItems();
 
   const auto& lights = model->ExtensionMetaData.KHRLightsPunctualMetaData.Lights;
 
@@ -774,7 +715,6 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
           break;
       }
       renderer->AddLight(light);
-      this->LightCollection->AddItem(light);
     }
 
     // Add node's children to stack
@@ -786,17 +726,13 @@ void vtkGLTFImporter::ImportLights(vtkRenderer* renderer)
 }
 
 //----------------------------------------------------------------------------
-bool vtkGLTFImporter::UpdateAtTimeValue(double timeValue)
+void vtkGLTFImporter::UpdateTimeStep(double timeValue)
 {
   for (int animationId = 0; animationId < this->GetNumberOfAnimations(); animationId++)
   {
     if (this->EnabledAnimations[animationId])
     {
-      if (!this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId))
-      {
-        vtkErrorMacro("Error applying animation");
-        return false;
-      }
+      this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId);
     }
   }
   this->Loader->BuildGlobalTransforms();
@@ -804,8 +740,6 @@ bool vtkGLTFImporter::UpdateAtTimeValue(double timeValue)
   this->ImportCameras(this->Renderer);
 
   this->ApplySkinningMorphing();
-
-  return this->GetUpdateStatus() == vtkImporter::UpdateStatusEnum::SUCCESS;
 }
 
 //----------------------------------------------------------------------------
@@ -815,7 +749,6 @@ void vtkGLTFImporter::ApplySkinningMorphing()
   if (!model)
   {
     vtkErrorMacro("The GLTF model is nullptr, aborting.");
-    this->SetUpdateStatus(vtkImporter::UpdateStatusEnum::FAILURE);
     return;
   }
 
@@ -993,5 +926,4 @@ vtkSmartPointer<vtkCamera> vtkGLTFImporter::GetCamera(unsigned int id)
   }
   return it->second;
 }
-
 VTK_ABI_NAMESPACE_END

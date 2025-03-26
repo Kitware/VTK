@@ -29,7 +29,7 @@
 #include "vtkTextRenderer.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <vtk_libharu.h>
 
