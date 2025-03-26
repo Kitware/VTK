@@ -1205,6 +1205,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
         DEPENDS   ${_vtk_python_module_targets}
                   ${_vtk_python_static_importer_name}
                   "${_vtk_pyi_script}"
+                  vtk_python_copy
         COMMENT   "Creating .pyi files for ${_vtk_python_TARGET_NAME}"
         ${_vtk_python_depends_args})
       cmake_policy(POP)
