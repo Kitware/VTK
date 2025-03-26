@@ -199,6 +199,7 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
       }
       const auto idx = next++;
       vtkSmartPointer<vtkDataObject> inputDO;
+      auto inputMB = vtkMultiBlockDataSet::SafeDownCast(input.second);
       if (vtkPartitionedDataSetCollection::SafeDownCast(input.second))
       {
         vtkNew<vtkConvertToMultiBlockDataSet> converter;
@@ -211,6 +212,18 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
         vtkNew<vtkMultiPieceDataSet> data;
         data->ShallowCopy(inputPD);
         inputDO = data;
+      }
+      else if (inputMB && this->CombineFirstLayerMultiblock)
+      {
+        for (unsigned int i = 0; i < inputMB->GetNumberOfBlocks(); i++)
+        {
+          output->SetBlock(idx + i, inputMB->GetBlock(i));
+          const char* blockName = inputMB->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
+          output->GetMetaData(idx + i)->Set(
+            vtkCompositeDataSet::NAME(), input.first + "_" + std::string(blockName));
+        }
+        next += inputMB->GetNumberOfBlocks() - 1;
+        continue;
       }
       else
       {
