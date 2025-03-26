@@ -27,13 +27,6 @@
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-#define AssertMacro(b, data, reason)                                                               \
-  if (!(b))                                                                                        \
-  {                                                                                                \
-    std::cerr << "Failed to reflect " << data << ": " << reason << std::endl;                      \
-    return EXIT_FAILURE;                                                                           \
-  }
-
 #define ReadFileMacro(path, readerClass)                                                           \
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, path);                         \
   vtkNew<readerClass> reader;                                                                      \
