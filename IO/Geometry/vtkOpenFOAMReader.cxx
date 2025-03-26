@@ -186,6 +186,7 @@
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeInt8Array.h"
@@ -302,19 +303,6 @@ void AppendLabelValue(vtkDataArray* array, vtkTypeInt64 val, bool use64BitLabels
   {
     assert(val >= 0);
     static_cast<vtkTypeInt64Array*>(array)->InsertNextValue(val);
-  }
-}
-
-// Append unique string to list
-void appendUniq(vtkStringArray* list, vtkStringArray* items)
-{
-  for (int i = 0; i < items->GetNumberOfTuples(); ++i)
-  {
-    std::string& str = items->GetValue(i);
-    if (list->LookupValue(str) == -1)
-    {
-      list->InsertNextValue(str);
-    }
   }
 }
 
@@ -756,7 +744,8 @@ public:
 
   // Read mesh/fields and create dataset
   int RequestData(vtkMultiBlockDataSet* output);
-  int MakeMetaDataAtTimeStep(vtkStringArray*, vtkStringArray*, vtkStringArray*, bool);
+  int MakeMetaDataAtTimeStep(
+    vtkStringArray*, vtkStringArray*, vtkStringArray*, bool, bool skipComputingMetaData = false);
 
   // Gather time instances information and create cache for mesh times
   bool MakeInformationVector(const std::string& casePath, const std::string& controlDictPath,
@@ -765,11 +754,12 @@ public:
   // Use given time instances information and create cache for mesh times
   bool MakeInformationVector(const std::string& casePath, const std::string& procName,
     vtkOpenFOAMReader* parent, vtkStringArray* timeNames, vtkDoubleArray* timeValues,
-    bool requirePolyMesh = true);
+    bool requirePolyMesh = true, bool skipComputingMetaData = false);
 
   // Copy time instances information and create cache for mesh times
   void SetupInformation(const std::string& casePath, const std::string& regionName,
-    const std::string& procName, vtkOpenFOAMReaderPrivate* master, bool requirePolyMesh = true);
+    const std::string& procName, vtkOpenFOAMReaderPrivate* master, bool requirePolyMesh = true,
+    bool skipComputingMetaData = false);
 
   void SetProgress(double progress) { this->Progress = progress; }
   double GetProgress() const { return this->Progress; }
@@ -784,6 +774,8 @@ private:
   // Time information
   vtkDoubleArray* TimeValues; // Time values
   vtkStringArray* TimeNames;  // Directory names
+
+  vtkNew<vtkUnsignedCharArray> PopulateMeshIndicesFileChecks; // Size = 3 * number of time steps
 
   // Topology indices into TimeValues, TimeName
   std::vector<vtkIdType> PolyMeshTimeIndexPoints;
@@ -935,7 +927,7 @@ private:
 #endif
 
   // Search time directories for mesh
-  void PopulateMeshTimeIndices();
+  void PopulateMeshTimeIndices(bool skipComputingMetaData = false);
 
   void AddFieldName(
     const std::string& fieldName, const std::string& fieldType, bool isLagrangian = false);
@@ -5090,7 +5082,9 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
 {
   // Time information
   this->TimeValues = vtkDoubleArray::New();
+  this->TimeValues->SetName("TimeValues");
   this->TimeNames = vtkStringArray::New();
+  this->TimeNames->SetName("TimeNames");
 
   this->TimeStep = 0;
   this->TimeStepOld = TIMEINDEX_UNVISITED;
@@ -5107,10 +5101,16 @@ vtkOpenFOAMReaderPrivate::vtkOpenFOAMReaderPrivate()
   this->NumCells = 0;
 
   this->VolFieldFiles = vtkStringArray::New();
+  this->VolFieldFiles->SetName("VolFieldFiles");
   this->DimFieldFiles = vtkStringArray::New();
+  this->DimFieldFiles->SetName("DimFieldFiles");
   this->AreaFieldFiles = vtkStringArray::New();
+  this->AreaFieldFiles->SetName("AreaFieldFiles");
   this->PointFieldFiles = vtkStringArray::New();
+  this->PointFieldFiles->SetName("PointFieldFiles");
   this->LagrangianFieldFiles = vtkStringArray::New();
+  this->LagrangianFieldFiles->SetName("LagrangianFieldFiles");
+  this->LagrangianPaths->SetName("LagrangianPaths");
 
   // For creating cell-to-point translated data
   this->AllBoundaries = nullptr;
@@ -5414,7 +5414,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
 //------------------------------------------------------------------------------
 bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath,
   const std::string& procName, vtkOpenFOAMReader* parent, vtkStringArray* timeNames,
-  vtkDoubleArray* timeValues, bool requirePolyMesh)
+  vtkDoubleArray* timeValues, bool requirePolyMesh, bool skipComputingMetaData)
 {
   vtkFoamDebug(<< "MakeInformationVector (" << this->RegionName << "/" << procName
                << ") polyMesh:" << requirePolyMesh << " - inherit times\n");
@@ -5452,7 +5452,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
   // Normally expect a (default region) polyMesh/, but not for multi-region cases
   if (requirePolyMesh)
   {
-    this->PopulateMeshTimeIndices();
+    this->PopulateMeshTimeIndices(skipComputingMetaData);
   }
 
   return true;
@@ -5462,7 +5462,7 @@ bool vtkOpenFOAMReaderPrivate::MakeInformationVector(const std::string& casePath
 // Copy time instances information and create mesh times
 void vtkOpenFOAMReaderPrivate::SetupInformation(const std::string& casePath,
   const std::string& regionName, const std::string& procName, vtkOpenFOAMReaderPrivate* master,
-  bool requirePolyMesh)
+  bool requirePolyMesh, const bool skipComputingMetaData)
 {
   vtkFoamDebug(<< "SetupInformation (" << this->RegionName << "/" << procName
                << ") polyMesh:" << requirePolyMesh << "\n");
@@ -5486,7 +5486,7 @@ void vtkOpenFOAMReaderPrivate::SetupInformation(const std::string& casePath,
   // Normally expect a (default region) polyMesh/, but not for multi-region cases
   if (requirePolyMesh)
   {
-    this->PopulateMeshTimeIndices();
+    this->PopulateMeshTimeIndices(skipComputingMetaData);
   }
 }
 
@@ -5882,7 +5882,7 @@ vtkIdType vtkFoamBoundaries::whichPatch(vtkIdType faceIndex) const
 // Create field data lists and cell/point array selection lists
 int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelectionNames,
   vtkStringArray* pointSelectionNames, vtkStringArray* lagrangianSelectionNames,
-  bool listNextTimeStep)
+  const bool listNextTimeStep, const bool skipComputingMetaData)
 {
   vtkFoamDebug(<< "MakeMetaDataAtTimeStep (" << this->RegionName << "/" << this->ProcessorName
                << ")\n");
@@ -5940,7 +5940,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
     {
       const std::string displayName(this->RegionPrefix() + NAME_INTERNALMESH);
 
-      if (addInternalSelection)
+      if (addInternalSelection && !skipComputingMetaData)
       {
         std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
         this->Parent->PatchDataArraySelection->AddArray(displayName.c_str());
@@ -5981,7 +5981,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
             patches.enableGroup(groupName);
           }
         }
-        else
+        else if (!skipComputingMetaData)
         {
           std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
           // Add to list with selection status == off.
@@ -6010,7 +6010,7 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
             patches.enablePatch(patch.index_);
           }
         }
-        else
+        else if (!skipComputingMetaData)
         {
           std::lock_guard<std::mutex> lock(this->Parent->ArraySelectionMutex);
           // Add to list with selection status == off.
@@ -6024,51 +6024,54 @@ int vtkOpenFOAMReaderPrivate::MakeMetaDataAtTimeStep(vtkStringArray* cellSelecti
   // Add scalars and vectors to metadata
   std::string timePath(this->CurrentTimePath());
 
-  // do not do "RemoveAllArrays()" to accumulate array selections
-  // this->CellDataArraySelection->RemoveAllArrays();
-  this->VolFieldFiles->Initialize();
-  this->DimFieldFiles->Initialize();
-  this->AreaFieldFiles->Initialize();
-  this->PointFieldFiles->Initialize();
-  this->GetFieldNames(timePath + this->RegionPath());
-
-  this->LagrangianFieldFiles->Initialize();
-  if (listNextTimeStep)
+  if (!skipComputingMetaData)
   {
-    this->LagrangianPaths->Initialize();
-  }
-  this->LocateLagrangianClouds(timePath);
+    // do not do "RemoveAllArrays()" to accumulate array selections
+    // this->CellDataArraySelection->RemoveAllArrays();
+    this->VolFieldFiles->Initialize();
+    this->DimFieldFiles->Initialize();
+    this->AreaFieldFiles->Initialize();
+    this->PointFieldFiles->Initialize();
+    this->GetFieldNames(timePath + this->RegionPath());
 
-  // if the requested timestep is 0 then we also look at the next
-  // timestep to add extra objects that don't exist at timestep 0 into
-  // selection lists. Note the ObjectNames array will be recreated in
-  // RequestData() so we don't have to worry about duplicated fields.
-
-  if (listNextTimeStep && this->TimeStep == 0)
-  {
-    int nextTimeStep = this->TimeStep + 1;
-    if (nextTimeStep < this->TimeValues->GetNumberOfTuples())
+    this->LagrangianFieldFiles->Initialize();
+    if (listNextTimeStep)
     {
-      timePath = this->TimePath(nextTimeStep);
-      this->GetFieldNames(timePath + this->RegionPath());
+      this->LagrangianPaths->Initialize();
+    }
+    this->LocateLagrangianClouds(timePath);
 
-      // Lagrangian clouds are likely missing at time 0
-      // - could also lookahead multiple time steps (if desired)
-      if (!this->LagrangianPaths->GetNumberOfTuples())
+    // if the requested timestep is 0 then we also look at the next
+    // timestep to add extra objects that don't exist at timestep 0 into
+    // selection lists. Note the ObjectNames array will be recreated in
+    // RequestData() so we don't have to worry about duplicated fields.
+
+    if (listNextTimeStep && this->TimeStep == 0)
+    {
+      int nextTimeStep = this->TimeStep + 1;
+      if (nextTimeStep < this->TimeValues->GetNumberOfTuples())
       {
-        this->LocateLagrangianClouds(timePath);
+        timePath = this->TimePath(nextTimeStep);
+        this->GetFieldNames(timePath + this->RegionPath());
+
+        // Lagrangian clouds are likely missing at time 0
+        // - could also lookahead multiple time steps (if desired)
+        if (!this->LagrangianPaths->GetNumberOfTuples())
+        {
+          this->LocateLagrangianClouds(timePath);
+        }
       }
     }
-  }
 
-  // sort array names. volFields first, followed by internal fields
-  this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles);
-  this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles);
+    // sort array names. volFields first, followed by internal fields
+    this->SortFieldFiles(cellSelectionNames, this->VolFieldFiles);
+    this->SortFieldFiles(cellSelectionNames, this->DimFieldFiles);
 #if VTK_FOAMFILE_FINITE_AREA
-  this->SortFieldFiles(cellSelectionNames, this->AreaFieldFiles);
+    this->SortFieldFiles(cellSelectionNames, this->AreaFieldFiles);
 #endif
-  this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles);
-  this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles);
+    this->SortFieldFiles(pointSelectionNames, this->PointFieldFiles);
+    this->SortFieldFiles(lagrangianSelectionNames, this->LagrangianFieldFiles);
+  }
 
   return 1;
 }
@@ -6429,13 +6432,19 @@ inline void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool c
 //------------------------------------------------------------------------------
 // create a Lookup Table containing the location of the points
 // and faces files for each time steps mesh
-void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices()
+void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices(const bool skipComputingMetaData)
 {
   auto& faces = this->PolyMeshTimeIndexFaces;
   auto& points = this->PolyMeshTimeIndexPoints;
 
   // Ensure consistent sizing
   const vtkIdType nTimes = this->TimeValues->GetNumberOfTuples();
+  if (!skipComputingMetaData)
+  {
+    this->PopulateMeshIndicesFileChecks->SetNumberOfComponents(3);
+    this->PopulateMeshIndicesFileChecks->SetNumberOfTuples(nTimes);
+    this->PopulateMeshIndicesFileChecks->SetName("PopulateMeshIndicesFileChecks");
+  }
 
   faces.resize(nTimes, TIMEINDEX_UNVISITED);
   points.resize(nTimes, TIMEINDEX_UNVISITED);
@@ -6444,10 +6453,24 @@ void vtkOpenFOAMReaderPrivate::PopulateMeshTimeIndices()
   {
     // The mesh directory for this timestep
     const std::string meshDir(this->TimeRegionPath(timeIter) + "/polyMesh/");
-
-    const bool hasMeshDir = vtksys::SystemTools::FileIsDirectory(meshDir);
-    const bool topoChanged = hasMeshDir && vtkFoamFile::IsFile(meshDir + "faces", true);
-    const bool pointsMoved = hasMeshDir && vtkFoamFile::IsFile(meshDir + "points", true);
+    bool hasMeshDir;
+    bool topoChanged;
+    bool pointsMoved;
+    if (!skipComputingMetaData)
+    {
+      hasMeshDir = vtksys::SystemTools::FileIsDirectory(meshDir);
+      topoChanged = hasMeshDir && vtkFoamFile::IsFile(meshDir + "faces", true);
+      pointsMoved = hasMeshDir && vtkFoamFile::IsFile(meshDir + "points", true);
+      this->PopulateMeshIndicesFileChecks->SetValue(3 * timeIter, hasMeshDir);
+      this->PopulateMeshIndicesFileChecks->SetValue(3 * timeIter + 1, topoChanged);
+      this->PopulateMeshIndicesFileChecks->SetValue(3 * timeIter + 2, pointsMoved);
+    }
+    else
+    {
+      hasMeshDir = this->PopulateMeshIndicesFileChecks->GetValue(3 * timeIter);
+      topoChanged = this->PopulateMeshIndicesFileChecks->GetValue(3 * timeIter + 1);
+      pointsMoved = this->PopulateMeshIndicesFileChecks->GetValue(3 * timeIter + 2);
+    }
 
     UpdateTimeInstance(faces, timeIter, topoChanged);
     UpdateTimeInstance(points, timeIter, pointsMoved);
@@ -11186,7 +11209,9 @@ void vtkOpenFOAMReader::SetTimeInformation(
 
 //------------------------------------------------------------------------------
 int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
-  const vtkStdString& procName, vtkStringArray* timeNames, vtkDoubleArray* timeValues)
+  const vtkStdString& procName, vtkStringArray* timeNames, vtkDoubleArray* timeValues,
+  const std::vector<vtkSmartPointer<vtkUnsignedCharArray>>&
+    populateMeshIndicesFileChecksPerPrivateReader)
 {
   this->FileNameOld.assign(this->FileName);
 
@@ -11271,10 +11296,17 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
 
   auto masterReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
 
+  const bool skipComputingMetaData = !populateMeshIndicesFileChecksPerPrivateReader.empty();
   if (nTimeNames && nTimeNames == nTimeValues)
   {
-    if (!masterReader->MakeInformationVector(
-          casePath, procName, this->Parent, timeNames, timeValues, hasDefaultRegion))
+    // populate mesh indices happens only if hasDefaultRegion a.k.a. requirePolyMesh is true
+    if (hasDefaultRegion && skipComputingMetaData)
+    {
+      masterReader->PopulateMeshIndicesFileChecks->DeepCopy(
+        populateMeshIndicesFileChecksPerPrivateReader.front());
+    }
+    if (!masterReader->MakeInformationVector(casePath, procName, this->Parent, timeNames,
+          timeValues, hasDefaultRegion, skipComputingMetaData))
     {
       return 0;
     }
@@ -11311,7 +11343,14 @@ int vtkOpenFOAMReader::MakeInformationVector(vtkInformationVector* outputVector,
     for (vtkIdType i = begin; i < end; ++i)
     {
       auto subReader = vtkSmartPointer<vtkOpenFOAMReaderPrivate>::New();
-      subReader->SetupInformation(casePath, regionNames[i], procName, masterReader);
+      if (skipComputingMetaData)
+      {
+        // populate mesh indices happens only if hasDefaultRegion is true, which is always the case
+        subReader->PopulateMeshIndicesFileChecks->DeepCopy(
+          populateMeshIndicesFileChecksPerPrivateReader[prefix + i]);
+      }
+      subReader->SetupInformation(casePath, regionNames[i], procName, masterReader,
+        /*requirePolyMesh=*/true, skipComputingMetaData);
       this->Readers[prefix + i] = subReader;
     }
   };
@@ -11519,7 +11558,65 @@ vtkDoubleArray* vtkOpenFOAMReader::GetTimeValues()
 }
 
 //------------------------------------------------------------------------------
-int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
+std::vector<vtkSmartPointer<vtkUnsignedCharArray>>
+vtkOpenFOAMReader::GetPopulateMeshIndicesFileChecksPerReader()
+{
+  std::vector<vtkSmartPointer<vtkUnsignedCharArray>> populateMeshIndicesFileChecksPerReader(
+    this->Readers.size(), nullptr);
+  for (size_t i = 0; i < this->Readers.size(); ++i)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers[i]))
+    {
+      populateMeshIndicesFileChecksPerReader[i] = reader->PopulateMeshIndicesFileChecks;
+    }
+  }
+  return populateMeshIndicesFileChecksPerReader;
+}
+
+//------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkTable>> vtkOpenFOAMReader::GetMarshalledMetadataPerReader()
+{
+  std::vector<vtkSmartPointer<vtkTable>> metadataPerReader(this->Readers.size(), nullptr);
+  for (size_t i = 0; i < this->Readers.size(); ++i)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers[i]))
+    {
+      vtkNew<vtkTable> dataObject;
+      auto fieldData = dataObject->GetFieldData();
+      fieldData->AddArray(reader->VolFieldFiles);
+      fieldData->AddArray(reader->DimFieldFiles);
+      fieldData->AddArray(reader->AreaFieldFiles);
+      fieldData->AddArray(reader->PointFieldFiles);
+      fieldData->AddArray(reader->LagrangianFieldFiles);
+      fieldData->AddArray(reader->LagrangianPaths);
+      metadataPerReader[i] = dataObject;
+    }
+  }
+  return metadataPerReader;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenFOAMReader::SetMarshalledMetadataPerReader(
+  const std::vector<vtkSmartPointer<vtkTable>>& metadataPerReader)
+{
+  for (size_t i = 0; i < this->Readers.size(); ++i)
+  {
+    if (auto reader = vtkOpenFOAMReaderPrivate::SafeDownCast(this->Readers[i]))
+    {
+      auto fieldData = metadataPerReader[i]->GetFieldData();
+      reader->VolFieldFiles->DeepCopy(fieldData->GetAbstractArray(0));
+      reader->DimFieldFiles->DeepCopy(fieldData->GetAbstractArray(1));
+      reader->AreaFieldFiles->DeepCopy(fieldData->GetAbstractArray(2));
+      reader->PointFieldFiles->DeepCopy(fieldData->GetAbstractArray(3));
+      reader->LagrangianFieldFiles->DeepCopy(fieldData->GetAbstractArray(4));
+      reader->LagrangianPaths->DeepCopy(fieldData->GetAbstractArray(5));
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(
+  const bool listNextTimeStep, const bool skipComputingMetaData)
 {
   std::vector<vtkSmartPointer<vtkStringArray>> cellDataNamesPerReader(this->Readers.size());
   std::vector<vtkSmartPointer<vtkStringArray>> pointDataNamesPerReader(this->Readers.size());
@@ -11537,8 +11634,9 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
       cellDataNamesPerReader[i] = vtkSmartPointer<vtkStringArray>::New();
       pointDataNamesPerReader[i] = vtkSmartPointer<vtkStringArray>::New();
       lagrangianDataNamesPerReader[i] = vtkSmartPointer<vtkStringArray>::New();
-      results[i] = reader->MakeMetaDataAtTimeStep(cellDataNamesPerReader[i],
-        pointDataNamesPerReader[i], lagrangianDataNamesPerReader[i], listNextTimeStep);
+      results[i] =
+        reader->MakeMetaDataAtTimeStep(cellDataNamesPerReader[i], pointDataNamesPerReader[i],
+          lagrangianDataNamesPerReader[i], listNextTimeStep, skipComputingMetaData);
     }
   };
   if (this->GetSequentialProcessing())
@@ -11565,9 +11663,12 @@ int vtkOpenFOAMReader::MakeMetaDataAtTimeStep(const bool listNextTimeStep)
     vtkOpenFOAMReaderPrivate::SortFieldFiles(lagrangianDataNames, lagrangianDataNamesPerReader[i]);
     ret *= results[i];
   }
-  this->AddSelectionNames(this->Parent->CellDataArraySelection, cellDataNames);
-  this->AddSelectionNames(this->Parent->PointDataArraySelection, pointDataNames);
-  this->AddSelectionNames(this->Parent->LagrangianDataArraySelection, lagrangianDataNames);
+  if (!skipComputingMetaData)
+  {
+    this->AddSelectionNames(this->Parent->CellDataArraySelection, cellDataNames);
+    this->AddSelectionNames(this->Parent->PointDataArraySelection, pointDataNames);
+    this->AddSelectionNames(this->Parent->LagrangianDataArraySelection, lagrangianDataNames);
+  }
 
   return ret;
 }
