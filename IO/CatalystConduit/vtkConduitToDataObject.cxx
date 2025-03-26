@@ -392,14 +392,17 @@ struct ReplaceValuesWorker
 bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
 #if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  // conduit verify_shape_node dereferences the pointer to
-  // access values, so verify crashes in that case
+  // conduit verify_shapes_node dereferences the shapes array to compare
+  // values with the values in the shapes_map
+  // if the shapes array is in device memory this test crashes
+  // https://github.com/LLNL/conduit/issues/1404
   conduit_cpp::Node info;
   if (!conduit_cpp::BlueprintMesh::verify(node, info))
   {
     vtkLogF(ERROR, "Mesh blueprint verification failed!");
     return false;
   }
+  vtkLogF(INFO, "Mesh blueprint verified!");
 #endif
   std::map<std::string, vtkSmartPointer<vtkDataSet>> datasets;
 
