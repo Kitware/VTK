@@ -191,6 +191,7 @@
 #include "vtkTypeInt8Array.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkValueFromString.h"
 
 #if !(defined(_WIN32) && !defined(__CYGWIN__) || defined(__LIBCATAMOUNT__))
 #include <pwd.h> // For getpwnam(), getpwuid()
@@ -2623,7 +2624,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
   // skip prepending invalid chars
   // expanded the outermost loop in nextTokenHead() for performance
   int c;
-  while (isspace(c = this->Getc())) // isspace() accepts -1 as EOF
+  while (std::isspace(c = this->Getc())) // isspace() accepts -1 as EOF
   {
     if (c == '\n')
     {
@@ -2633,6 +2634,8 @@ vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
 #endif
     }
   }
+
+  // If a '/' is encountered, handle it as a comment/alternative token start.
   if (c == '/')
   {
     this->PutBack(c);
@@ -2653,7 +2656,7 @@ vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
     }
   }
 
-  if (!isdigit(c)) // isdigit() accepts -1 as EOF
+  if (!std::isdigit(c)) // isdigit() accepts -1 as EOF
   {
     if (c == EOF)
     {
@@ -2665,8 +2668,10 @@ vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
     }
   }
 
+  // Add the first digit.
   vtkTypeInt64 num = c - '0';
-  while (isdigit(c = this->Getc()))
+  // Continue collecting all the following digits.
+  while (std::isdigit(c = this->Getc()))
   {
     num = 10 * num + c - '0';
   }
@@ -2680,15 +2685,12 @@ vtkTypeInt64 vtkFoamFile::ReadIntegerValue()
   return negNum ? -num : num;
 }
 
-// extremely simplified high-performing string to floating point
-// conversion code based on
-// ParaView3/VTK/Utilities/vtksqlite/vtk_sqlite3.c
+// reading a double value from a string
 double vtkFoamFile::ReadDoubleValue()
 {
-  // skip prepending invalid chars
-  // expanded the outermost loop in nextTokenHead() for performance
   int c;
-  while (isspace(c = this->Getc())) // isspace() accepts -1 as EOF
+  // Skip whitespace, update line numbers, and handle newlines.
+  while (std::isspace(c = this->Getc()))
   {
     if (c == '\n')
     {
@@ -2704,10 +2706,14 @@ double vtkFoamFile::ReadDoubleValue()
     c = this->NextTokenHead();
   }
 
-  // leading sign?
-  const bool negNum = (c == '-');
-  if (negNum || c == '+')
+  // Prepare token accumulation.
+  size_t size = 0;
+  std::array<char, 1024> buffer;
+
+  // Optional leading sign.
+  if (c == '-' || c == '+')
   {
+    buffer[size++] = static_cast<char>(c);
     c = this->Getc();
     if (c == '\n')
     {
@@ -2718,89 +2724,48 @@ double vtkFoamFile::ReadDoubleValue()
     }
   }
 
-  if (!isdigit(c) && c != '.') // Attention: isdigit() accepts EOF
+  // The first character must be a digit or a decimal point.
+  if (!std::isdigit(c) && c != '.') // Attention: isdigit() accepts EOF
   {
     this->ThrowUnexpectedNondigitException(c);
   }
 
-  double num = 0;
-
-  // read integer part (before '.')
+  // Read integer part (before '.').
   if (c != '.')
   {
-    num = c - '0';
-    while (isdigit(c = this->Getc()))
+    // Accumulate the first digit.
+    buffer[size++] = static_cast<char>(c);
+    while (std::isdigit(c = this->Getc()))
     {
-      num = num * 10.0 + (c - '0');
+      buffer[size++] = static_cast<char>(c);
     }
   }
 
-  // read decimal part (after '.')
+  // Read decimal part (after '.').
   if (c == '.')
   {
-    double divisor = 1.0;
-
-    while (isdigit(c = this->Getc()))
+    buffer[size++] = static_cast<char>(c);
+    while (std::isdigit(c = this->Getc()))
     {
-      num = num * 10.0 + (c - '0');
-      divisor *= 10.0;
+      buffer[size++] = static_cast<char>(c);
     }
-    num /= divisor;
   }
 
-  // read exponent part
+  // Read exponent part.
   if (c == 'E' || c == 'e')
   {
-    int esign = 1;
-    int eval = 0;
-    double scale = 1.0;
-
+    buffer[size++] = static_cast<char>(c); // add the 'E' or 'e'
     c = this->Getc();
-    if (c == '-')
+    // Optional sign for exponent.
+    if (c == '-' || c == '+')
     {
-      esign = -1;
+      buffer[size++] = static_cast<char>(c);
       c = this->Getc();
     }
-    else if (c == '+')
+    while (std::isdigit(c))
     {
+      buffer[size++] = static_cast<char>(c);
       c = this->Getc();
-    }
-
-    while (isdigit(c))
-    {
-      eval = eval * 10 + (c - '0');
-      c = this->Getc();
-    }
-
-    // fast exponent multiplication!
-    while (eval >= 64)
-    {
-      scale *= 1.0e+64;
-      eval -= 64;
-    }
-    while (eval >= 16)
-    {
-      scale *= 1.0e+16;
-      eval -= 16;
-    }
-    while (eval >= 4)
-    {
-      scale *= 1.0e+4;
-      eval -= 4;
-    }
-    while (eval >= 1)
-    {
-      scale *= 1.0e+1;
-      eval -= 1;
-    }
-
-    if (esign < 0)
-    {
-      num /= scale;
-    }
-    else
-    {
-      num *= scale;
     }
   }
 
@@ -2810,7 +2775,16 @@ double vtkFoamFile::ReadDoubleValue()
   }
   this->PutBack(c);
 
-  return negNum ? -num : num;
+  // Convert the token string to a double using vtkValueFromString
+  double value;
+  auto result = vtkValueFromString(buffer.data(), buffer.data() + size, value);
+  if (result != size)
+  {
+    // If conversion fails, handle the error appropriately.
+    this->ThrowUnexpectedNondigitException(*(buffer.data() + result));
+  }
+
+  return value;
 }
 
 void vtkFoamFile::ThrowStackTrace(const std::string& msg)
