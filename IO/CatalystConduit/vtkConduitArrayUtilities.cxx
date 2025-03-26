@@ -332,7 +332,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
   }
 
-  IS_DEVICE_POINTER(mcarray.child(0).element_ptr(0));
+  VTK_IS_DEVICE_POINTER(mcarray.child(0).element_ptr(0));
 
   if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
   {
@@ -564,7 +564,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
     vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(c_mcarray, /*force_signed*/ true);
   conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
 
-  IS_DEVICE_POINTER(mcarray.element_ptr(0));
+  VTK_IS_DEVICE_POINTER(mcarray.element_ptr(0));
 
   if (!connectivity)
   {
@@ -618,7 +618,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
   const auto leaf = o2mrelation["connectivity"];
 
-  IS_DEVICE_POINTER(leaf.element_ptr(0));
+  VTK_IS_DEVICE_POINTER(leaf.element_ptr(0));
 
   auto elements = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&leaf), /*force_signed*/ true);

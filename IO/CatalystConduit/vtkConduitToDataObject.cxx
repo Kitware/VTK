@@ -819,7 +819,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
   {
     if (vtk_cell_type == VTK_POLYHEDRON)
     {
-      IS_DEVICE_POINTER(connectivity.element_ptr(0));
+      VTK_IS_DEVICE_POINTER(connectivity.element_ptr(0));
       if (isDevicePointer)
       {
         throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
@@ -950,7 +950,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   // mixed shapes definition
   conduit_cpp::Node shape_map = topologyNode["elements/shape_map"];
   auto connectivity = topologyNode["elements/connectivity"];
-  IS_DEVICE_POINTER(connectivity.element_ptr(0));
+  VTK_IS_DEVICE_POINTER(connectivity.element_ptr(0));
 
   // check presence of polyhedra
   bool hasPolyhedra(false);
