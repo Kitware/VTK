@@ -618,7 +618,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
   const auto leaf = o2mrelation["connectivity"];
 
-  IS_DEVICE_POINTER(const_cast<void*>(leaf.element_ptr(0)));
+  IS_DEVICE_POINTER(leaf.element_ptr(0));
 
   auto elements = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&leaf), /*force_signed*/ true);

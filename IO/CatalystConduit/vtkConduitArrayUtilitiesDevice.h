@@ -56,21 +56,23 @@ private:
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 #define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);                   \
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__id);                                   \
+  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
+  int8_t __device_adapter_id__;                                                                    \
+  bool isDevicePointer =                                                                           \
+    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);          \
+  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__device_adapter_id__);                  \
   if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))               \
   {                                                                                                \
-    vtkLogF(ERROR, "Device %d is not available at runtime", __id);                                 \
+    vtkLogF(ERROR, "Device %d is not available at runtime", __device_adapter_id__);                \
     return nullptr;                                                                                \
   }
 
 #else
 #define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
+  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
+  int8_t __device_adapter_id__;                                                                    \
+  bool isDevicePointer =                                                                           \
+    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);
 #endif
 
 VTK_ABI_NAMESPACE_END
