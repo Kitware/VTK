@@ -392,7 +392,8 @@
         - pip install twine
         - twine check (Get-ChildItem build\dist\*.whl | % FullName)
         - pip install (Get-ChildItem build\dist\*.whl | % FullName)
-        - pip install -r $pwdpath\.gitlab\ci\requirements-wheel-test.txt
+        - $PYTHON_VERSION_SUFFIX=python -c "import sys;print(f'{sys.version_info[0]}.{sys.version_info[1]}')"
+        - pip install -r $pwdpath\.gitlab\ci\requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt
         - python -c "import xarray"
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
