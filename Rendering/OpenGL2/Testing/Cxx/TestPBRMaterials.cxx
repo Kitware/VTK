@@ -5,11 +5,10 @@
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
-#include "vtkGenericOpenGLRenderWindow.h"
-#include "vtkImageData.h"
 #include "vtkImageFlip.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkJPEGReader.h"
+#include "vtkLight.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
@@ -22,10 +21,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRendererCollection.h"
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
-#include "vtkTexture.h"
 
 //------------------------------------------------------------------------------
 int TestPBRMaterials(int argc, char* argv[])
@@ -63,6 +60,15 @@ int TestPBRMaterials(int argc, char* argv[])
     textureCubemap->SetInputConnection(i, flip->GetOutputPort());
   }
 
+  vtkNew<vtkLight> l1;
+  l1->SetPositional(true);
+  renderer->AddLight(l1);
+  vtkNew<vtkLight> l2;
+  l2->SetPosition(2, 1, 1);
+  l2->SetFocalPoint(2, 1, 0);
+  l2->SetColor(1.0, 0.6, 1.0);
+  l2->SetPositional(false);
+  renderer->AddLight(l2);
   renderer->SetEnvironmentTexture(textureCubemap, true);
   renderer->UseImageBasedLightingOn();
   renderer->UseSphericalHarmonicsOff();
@@ -74,61 +80,28 @@ int TestPBRMaterials(int argc, char* argv[])
   vtkNew<vtkPolyDataMapper> pdSphere;
   pdSphere->SetInputConnection(sphere->GetOutputPort());
 
-  for (int i = 0; i < 6; i++)
-  {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 0.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetColor(1.0, 1.0, 1.0);
-    actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
-  }
+  vtkNew<vtkLookupTable> lut;
+  lut->SetIndexedLookup(true);
+  lut->SetNumberOfColors(5);
+  lut->SetTableValue(0, 1.0, 1.0, 1.0);
+  lut->SetTableValue(1, 0.72, 0.45, 0.2);
+  lut->SetTableValue(2, 0.0, 0.0, 0.0);
+  lut->SetTableValue(3, 0.0, 1.0, 1.0);
+  lut->SetTableValue(4, 1.0, 0.0, 0.0);
 
-  for (int i = 0; i < 6; i++)
+  for (int j = 0; j < 5; ++j)
   {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 1.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetColor(0.72, 0.45, 0.2);
-    actorSphere->GetProperty()->SetMetallic(1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
-  }
-
-  for (int i = 0; i < 6; i++)
-  {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 2.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetColor(0.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
-  }
-
-  for (int i = 0; i < 6; i++)
-  {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 3.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetColor(0.0, 1.0, 1.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
-  }
-
-  for (int i = 0; i < 6; i++)
-  {
-    vtkNew<vtkActor> actorSphere;
-    actorSphere->SetPosition(i, 4.0, 0.0);
-    actorSphere->SetMapper(pdSphere);
-    actorSphere->GetProperty()->SetInterpolationToPBR();
-    actorSphere->GetProperty()->SetColor(1.0, 0.0, 0.0);
-    actorSphere->GetProperty()->SetRoughness(i / 5.0);
-    renderer->AddActor(actorSphere);
+    for (int i = 0; i < 6; i++)
+    {
+      vtkNew<vtkActor> actorSphere;
+      actorSphere->SetPosition(i, j * 1.0, 0.0);
+      actorSphere->SetMapper(pdSphere);
+      actorSphere->GetProperty()->SetInterpolationToPBR();
+      actorSphere->GetProperty()->SetColor(lut->GetTableValue(j));
+      actorSphere->GetProperty()->SetMetallic(j < 2 ? 1.0 : 0.0);
+      actorSphere->GetProperty()->SetRoughness(i / 5.0);
+      renderer->AddActor(actorSphere);
+    }
   }
 
   skybox->SetTexture(textureCubemap);
