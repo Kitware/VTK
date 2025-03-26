@@ -387,7 +387,8 @@ protected:
   //  ColorInternalTexture
   //  Actors texture
   //  Properties textures
-  virtual std::vector<std::pair<vtkTexture*, std::string>> GetTextures(vtkActor* actor);
+  typedef std::pair<vtkTexture*, std::string> texinfo;
+  virtual std::vector<texinfo> GetTextures(vtkActor* actor);
 
   // do we have textures coordinates that require special handling
   virtual bool HaveTCoords(vtkPolyData* poly);
@@ -399,8 +400,22 @@ protected:
   class primitiveInfo
   {
   public:
-    int LastLightComplexity;
+    /**
+     * Represent the type of lighting used.
+     *
+     * Forwarded from vtkOpenGLRenderer::LightingComplexityEnum.
+     */
+    enum LightingTypeEnum
+    {
+      NoLighting = 0,
+      Headlight = 1,
+      Directional = 2,
+      Positional = 3
+    };
+    LightingTypeEnum LastLightComplexity = NoLighting;
+
     int LastLightCount;
+
     vtkTimeStamp LightComplexityChanged;
 
     // Caches the vtkOpenGLRenderPass::RenderPasses() information.
@@ -427,7 +442,7 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;
-  int PrimitiveIDOffset;
+  vtkIdType PrimitiveIDOffset;
 
   vtkMatrix4x4* TempMatrix4;
   vtkMatrix3x3* TempMatrix3;

@@ -130,7 +130,7 @@ void vtkOpenGLCellToVTKCellMap::BuildCellSupportArrays(
   vtkCellArray* prims[4], int representation, vtkPoints* points)
 {
   // need an array to track what points to orig points
-  size_t minSize = prims[0]->GetNumberOfCells() + prims[1]->GetNumberOfCells() +
+  vtkIdType minSize = prims[0]->GetNumberOfCells() + prims[1]->GetNumberOfCells() +
     prims[2]->GetNumberOfCells() + prims[3]->GetNumberOfCells();
   const vtkIdType* indices(nullptr);
   vtkIdType npts(0);
