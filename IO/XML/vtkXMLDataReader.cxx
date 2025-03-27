@@ -432,7 +432,7 @@ int vtkXMLDataReader::ReadPieceData()
             {
               vtkErrorMacro("Cannot read cell data array \""
                 << cellData->GetAbstractArray(a - 1)->GetName() << "\" from "
-                << ePointData->GetName() << " in piece " << this->Piece
+                << eCellData->GetName() << " in piece " << this->Piece
                 << ".  The data array in the element may be too short.");
             }
             return 0;
