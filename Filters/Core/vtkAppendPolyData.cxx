@@ -4,7 +4,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
@@ -14,11 +13,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
 #include <cassert>
-#include <cstdlib>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAppendPolyData);
@@ -108,326 +107,322 @@ void vtkAppendPolyData::SetInputConnectionByNumber(int num, vtkAlgorithmOutput* 
   this->SetNthInputConnection(0, num, input);
 }
 
+namespace
+{
+struct AppendCellArray
+{
+  template <typename CellStateT>
+  void operator()(CellStateT& state, vtkIdTypeArray* outputOffsets,
+    vtkIdTypeArray* outputConnectivity, vtkIdType cellOffset, vtkIdType cellConnectivityOffset,
+    vtkIdType pointOffset)
+  {
+    using ValueType = typename CellStateT::ValueType;
+    auto inputOffsets = state.GetOffsets();
+    auto inputConnectivity = state.GetConnectivity();
+    auto numberOfCells = inputOffsets->GetNumberOfValues() - 1;
+    auto numberOfConnectivityIds = inputConnectivity->GetNumberOfValues();
+
+    // Copy the offsets and transform them using the cellConnectivityOffset
+    std::transform(inputOffsets->GetPointer(0), inputOffsets->GetPointer(numberOfCells),
+      outputOffsets->GetPointer(cellOffset),
+      [&](ValueType offset) { return static_cast<ValueType>(offset + cellConnectivityOffset); });
+    // Copy the connectivity and transform them using the pointOffset
+    std::transform(inputConnectivity->GetPointer(0),
+      inputConnectivity->GetPointer(numberOfConnectivityIds),
+      outputConnectivity->GetPointer(cellConnectivityOffset),
+      [&](ValueType ptId) { return static_cast<vtkIdType>(ptId + pointOffset); });
+  }
+};
+}
+
 //------------------------------------------------------------------------------
 int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[], int numInputs)
 {
-  int idx;
-  vtkPolyData* ds;
-  vtkPoints* inPts;
-  vtkPoints* newPts;
-  vtkCellArray *inVerts, *newVerts;
-  vtkCellArray *inLines, *newLines;
-  vtkCellArray *inPolys, *newPolys;
-  vtkIdType sizePolys, numPolys;
-  vtkCellArray *inStrips, *newStrips;
-  vtkIdType numPts, numCells;
-  vtkPointData* inPD = nullptr;
-  vtkCellData* inCD = nullptr;
-  vtkPointData* outputPD = output->GetPointData();
-  vtkCellData* outputCD = output->GetCellData();
-
-  vtkDebugMacro(<< "Appending polydata");
-
-  // loop over all data sets, checking to see what point data is available.
-  numPts = 0;
-  numCells = 0;
-  sizePolys = numPolys = 0;
-
-  int countPD = 0;
-  int countCD = 0;
-
-  vtkIdType numVerts = 0, numLines = 0, numStrips = 0;
-  vtkIdType sizeLines = 0, sizeStrips = 0, sizeVerts = 0;
-
-  // These Field lists are very picky.  Count the number of non empty inputs
-  // so we can initialize them properly.
-  for (idx = 0; idx < numInputs; ++idx)
+  std::vector<vtkPolyData*> datasets;
+  for (int i = 0; i < numInputs; ++i)
   {
-    ds = inputs[idx];
-    if (ds != nullptr)
+    if (inputs[i] && inputs[i]->GetNumberOfPoints() > 0)
     {
-      if (ds->GetNumberOfPoints() > 0)
-      {
-        ++countPD;
-      }
-      if (ds->GetNumberOfCells() > 0)
-      {
-        ++countCD;
-      } // for a data set that has cells
-    }   // for a non nullptr input
-  }     // for each input
-
-  // These are used to determine which fields are available for appending
-  vtkDataSetAttributes::FieldList ptList(countPD);
-  vtkDataSetAttributes::FieldList cellList(countCD);
-
-  countPD = countCD = 0;
-  for (idx = 0; idx < numInputs; ++idx)
+      datasets.push_back(inputs[i]);
+    }
+  }
+  vtkIdType totalNumberOfPoints = 0;
+  vtkIdType totalNumberOfCells = 0;
+  vtkIdType totalNumberOfVerts = 0;
+  vtkIdType totalNumberOfVertsConnectivity = 0;
+  vtkIdType totalNumberOfLines = 0;
+  vtkIdType totalNumberOfLinesConnectivity = 0;
+  vtkIdType totalNumberOfPolys = 0;
+  vtkIdType totalNumberOfPolysConnectivity = 0;
+  vtkIdType totalNumberOfStrips = 0;
+  vtkIdType totalNumberOfStripsConnectivity = 0;
+  std::vector<vtkIdType> pointOffsets(datasets.size());
+  std::vector<vtkIdType> vertOffsets(datasets.size());
+  std::vector<vtkIdType> vertConnectivityOffsets(datasets.size());
+  std::vector<vtkIdType> lineOffsets(datasets.size());
+  std::vector<vtkIdType> lineConnectivityOffsets(datasets.size());
+  std::vector<vtkIdType> polyOffsets(datasets.size());
+  std::vector<vtkIdType> polyConnectivityOffsets(datasets.size());
+  std::vector<vtkIdType> stripOffsets(datasets.size());
+  std::vector<vtkIdType> stripConnectivityOffsets(datasets.size());
+  for (size_t idx = 0; idx < datasets.size(); ++idx)
   {
-    ds = inputs[idx];
-    if (ds != nullptr)
-    {
-      // Skip points and cells if there are no points.  Empty inputs may have no arrays.
-      if (ds->GetNumberOfPoints() > 0)
-      {
-        numPts += ds->GetNumberOfPoints();
-        // Take intersection of available point data fields.
-        inPD = ds->GetPointData();
-        if (countPD == 0)
-        {
-          ptList.InitializeFieldList(inPD);
-        }
-        else
-        {
-          ptList.IntersectFieldList(inPD);
-        }
-        ++countPD;
-      } // for a data set that has points
+    auto& dataset = datasets[idx];
+    pointOffsets[idx] = totalNumberOfPoints;
+    vertOffsets[idx] = totalNumberOfVerts;
+    vertConnectivityOffsets[idx] = totalNumberOfVertsConnectivity;
+    lineOffsets[idx] = totalNumberOfLines;
+    lineConnectivityOffsets[idx] = totalNumberOfLinesConnectivity;
+    polyOffsets[idx] = totalNumberOfPolys;
+    polyConnectivityOffsets[idx] = totalNumberOfPolysConnectivity;
+    stripOffsets[idx] = totalNumberOfStrips;
+    stripConnectivityOffsets[idx] = totalNumberOfStripsConnectivity;
 
-      // Although we cannot have cells without points ... let's not nest.
-      if (ds->GetNumberOfCells() > 0)
-      {
-        if (ds->GetVerts())
-        {
-          sizeVerts += ds->GetVerts()->GetNumberOfConnectivityIds();
-        }
-        if (ds->GetLines())
-        {
-          sizeLines += ds->GetLines()->GetNumberOfConnectivityIds();
-        }
-        // keep track of the size of the poly cell array
-        if (ds->GetPolys())
-        {
-          sizePolys += ds->GetPolys()->GetNumberOfConnectivityIds();
-        }
-        if (ds->GetStrips())
-        {
-          sizeStrips += ds->GetStrips()->GetNumberOfConnectivityIds();
-        }
+    totalNumberOfPoints += dataset->GetNumberOfPoints();
+    totalNumberOfCells += dataset->GetNumberOfCells();
+    totalNumberOfVerts += dataset->GetNumberOfVerts();
+    totalNumberOfVertsConnectivity += dataset->GetVerts()->GetNumberOfConnectivityIds();
+    totalNumberOfLines += dataset->GetNumberOfLines();
+    totalNumberOfLinesConnectivity += dataset->GetLines()->GetNumberOfConnectivityIds();
+    totalNumberOfPolys += dataset->GetNumberOfPolys();
+    totalNumberOfPolysConnectivity += dataset->GetPolys()->GetNumberOfConnectivityIds();
+    totalNumberOfStrips += dataset->GetNumberOfStrips();
+    totalNumberOfStripsConnectivity += dataset->GetStrips()->GetNumberOfConnectivityIds();
+  }
 
-        numCells += ds->GetNumberOfCells();
-        // Count the cells of each type.
-        // This is used to ensure that cell data is copied at the correct
-        // locations in the output.
-        numVerts += ds->GetNumberOfVerts();
-        numLines += ds->GetNumberOfLines();
-        numPolys += ds->GetNumberOfPolys();
-        numStrips += ds->GetNumberOfStrips();
-
-        inCD = ds->GetCellData();
-        if (countCD == 0)
-        {
-          cellList.InitializeFieldList(inCD);
-        }
-        else
-        {
-          cellList.IntersectFieldList(inCD);
-        }
-        ++countCD;
-      } // for a data set that has cells
-    }   // for a non nullptr input
-  }     // for each input
-
-  if (numPts < 1 && numCells < 1)
+  if (totalNumberOfPoints < 1)
   {
     vtkDebugMacro(<< "No data to append!");
     return 1;
   }
-  this->UpdateProgress(0.10);
 
-  // Examine the points and check if they're the same type. If not,
-  // use highest (double probably), otherwise the type of the first
-  // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
-  int ttype, firstType = 1;
-  int pointtype = 0;
-
-  // Keep track of types for fast point append
-  for (idx = 0; idx < numInputs; ++idx)
-  {
-    ds = inputs[idx];
-    if (ds != nullptr && ds->GetNumberOfPoints() > 0)
-    {
-      if (firstType)
-      {
-        firstType = 0;
-        pointtype = ds->GetPoints()->GetData()->GetDataType();
-      }
-      ttype = ds->GetPoints()->GetData()->GetDataType();
-      pointtype = pointtype > ttype ? pointtype : ttype;
-    }
-  }
-
-  // Allocate geometry/topology
-  newPts = vtkPoints::New();
-
+  vtkNew<vtkPoints> newPoints;
+  // set precision for the points in the output
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
   {
-    newPts->SetDataType(pointtype);
+    int dataType = 0;
+
+    // Keep track of types for fast point append
+    for (const auto& dataset : datasets)
+    {
+      if (dataset->GetNumberOfPoints() > 0)
+      {
+        auto type = dataset->GetPoints()->GetDataType();
+        dataType = std::max(dataType, type);
+      }
+    }
+    newPoints->SetDataType(dataType);
   }
   else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
   {
-    newPts->SetDataType(VTK_FLOAT);
+    newPoints->SetDataType(VTK_FLOAT);
   }
   else if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
   {
-    newPts->SetDataType(VTK_DOUBLE);
+    newPoints->SetDataType(VTK_DOUBLE);
+  }
+  vtkDebugMacro(<< "Appending polydata");
+
+  newPoints->SetNumberOfPoints(totalNumberOfPoints);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType idx = begin; idx < end; ++idx)
+      {
+        const auto& dataset = datasets[idx];
+        // copy points
+        newPoints->GetData()->InsertTuples(
+          pointOffsets[idx], dataset->GetNumberOfPoints(), 0, dataset->GetPoints()->GetData());
+      }
+    });
+  output->SetPoints(newPoints);
+  this->UpdateProgress(0.25);
+  if (this->CheckAbort())
+  {
+    return 1;
+  }
+  // Since points are cells are not merged,
+  // this filter can easily pass all field arrays, including global ids.
+  auto outputPD = output->GetPointData();
+  outputPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+
+  // copy arrays.
+  vtkDataSetAttributes::FieldList pointFieldList;
+  for (const auto& dataset : datasets)
+  {
+    pointFieldList.IntersectFieldList(dataset->GetPointData());
+  }
+  outputPD->CopyAllocate(pointFieldList, totalNumberOfPoints);
+  outputPD->SetNumberOfTuples(totalNumberOfPoints);
+  vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType idx = begin; idx < end; ++idx)
+      {
+        auto& dataset = datasets[idx];
+        const auto& pointOffset = pointOffsets[idx];
+        auto inputPD = dataset->GetPointData();
+        const auto numberOfInputTuples = inputPD->GetNumberOfTuples();
+        pointFieldList.CopyData(idx, inputPD, 0, numberOfInputTuples, outputPD, pointOffset);
+      }
+    });
+  this->UpdateProgress(0.50);
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
-  newPts->SetNumberOfPoints(numPts);
-
-  newVerts = vtkCellArray::New();
-  bool allocated = newVerts->AllocateExact(numVerts, sizeVerts);
-
-  if (sizeVerts > 0 && !allocated)
+  vtkNew<vtkIdTypeArray> vertsOffsetsArray;
+  vtkNew<vtkIdTypeArray> vertsConnectivityArray;
+  if (totalNumberOfVerts > 0)
   {
-    vtkErrorMacro(<< "Memory allocation failed in append filter");
-    return 0;
+    vertsOffsetsArray->SetNumberOfValues(totalNumberOfVerts + 1);
+    vertsOffsetsArray->SetValue(totalNumberOfVerts, totalNumberOfVertsConnectivity);
+    vertsConnectivityArray->SetNumberOfValues(totalNumberOfVertsConnectivity);
+  }
+  vtkNew<vtkIdTypeArray> linesOffsetsArray;
+  vtkNew<vtkIdTypeArray> linesConnectivityArray;
+  if (totalNumberOfLines > 0)
+  {
+    linesOffsetsArray->SetNumberOfValues(totalNumberOfLines + 1);
+    linesOffsetsArray->SetValue(totalNumberOfLines, totalNumberOfLinesConnectivity);
+    linesConnectivityArray->SetNumberOfValues(totalNumberOfLinesConnectivity);
+  }
+  vtkNew<vtkIdTypeArray> polysOffsetsArray;
+  vtkNew<vtkIdTypeArray> polysConnectivityArray;
+  if (totalNumberOfPolys > 0)
+  {
+    polysOffsetsArray->SetNumberOfValues(totalNumberOfPolys + 1);
+    polysOffsetsArray->SetValue(totalNumberOfPolys, totalNumberOfPolysConnectivity);
+    polysConnectivityArray->SetNumberOfValues(totalNumberOfPolysConnectivity);
+  }
+  vtkNew<vtkIdTypeArray> stripsOffsetsArray;
+  vtkNew<vtkIdTypeArray> stripsConnectivityArray;
+  if (totalNumberOfStrips > 0)
+  {
+    stripsOffsetsArray->SetNumberOfValues(totalNumberOfStrips + 1);
+    stripsOffsetsArray->SetValue(totalNumberOfStrips, totalNumberOfStripsConnectivity);
+    stripsConnectivityArray->SetNumberOfValues(totalNumberOfStripsConnectivity);
   }
 
-  newLines = vtkCellArray::New();
-  allocated = newLines->AllocateExact(numLines, sizeLines);
-
-  if (sizeLines > 0 && !allocated)
+  vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
+    [&](vtkIdType begin, vtkIdType end)
+    {
+      for (vtkIdType idx = begin; idx < end; ++idx)
+      {
+        auto& dataset = datasets[idx];
+        auto pointOffset = pointOffsets[idx];
+        auto vertOffset = vertOffsets[idx];
+        auto vertConnectivityOffset = vertConnectivityOffsets[idx];
+        auto lineOffset = lineOffsets[idx];
+        auto lineConnectivityOffset = lineConnectivityOffsets[idx];
+        auto polyOffset = polyOffsets[idx];
+        auto polyConnectivityOffset = polyConnectivityOffsets[idx];
+        auto stripOffset = stripOffsets[idx];
+        auto stripConnectivityOffset = stripConnectivityOffsets[idx];
+        if (dataset->GetNumberOfVerts() > 0)
+        {
+          dataset->GetVerts()->Visit(AppendCellArray{}, vertsOffsetsArray, vertsConnectivityArray,
+            vertOffset, vertConnectivityOffset, pointOffset);
+        }
+        if (dataset->GetNumberOfLines() > 0)
+        {
+          dataset->GetLines()->Visit(AppendCellArray{}, linesOffsetsArray, linesConnectivityArray,
+            lineOffset, lineConnectivityOffset, pointOffset);
+        }
+        if (dataset->GetNumberOfPolys() > 0)
+        {
+          dataset->GetPolys()->Visit(AppendCellArray{}, polysOffsetsArray, polysConnectivityArray,
+            polyOffset, polyConnectivityOffset, pointOffset);
+        }
+        if (dataset->GetNumberOfStrips() > 0)
+        {
+          dataset->GetStrips()->Visit(AppendCellArray{}, stripsOffsetsArray,
+            stripsConnectivityArray, stripOffset, stripConnectivityOffset, pointOffset);
+        }
+      }
+    });
+  if (totalNumberOfVerts > 0)
   {
-    vtkErrorMacro(<< "Memory allocation failed in append filter");
-    return 0;
+    vtkNew<vtkCellArray> verts;
+    verts->SetData(vertsOffsetsArray, vertsConnectivityArray);
+    output->SetVerts(verts);
   }
-
-  newPolys = vtkCellArray::New();
-  allocated = newPolys->AllocateExact(numPolys, sizePolys);
-
-  if (sizePolys > 0 && !allocated)
+  if (totalNumberOfLines > 0)
   {
-    vtkErrorMacro(<< "Memory allocation failed in append filter");
-    return 0;
+    vtkNew<vtkCellArray> lines;
+    lines->SetData(linesOffsetsArray, linesConnectivityArray);
+    output->SetLines(lines);
   }
-
-  newStrips = vtkCellArray::New();
-  allocated = newStrips->AllocateExact(numStrips, sizeStrips);
-
-  if (sizeStrips > 0 && !allocated)
+  if (totalNumberOfPolys > 0)
   {
-    vtkErrorMacro(<< "Memory allocation failed in append filter");
-    return 0;
+    vtkNew<vtkCellArray> polys;
+    polys->SetData(polysOffsetsArray, polysConnectivityArray);
+    output->SetPolys(polys);
+  }
+  if (totalNumberOfStrips > 0)
+  {
+    vtkNew<vtkCellArray> strips;
+    strips->SetData(stripsOffsetsArray, stripsConnectivityArray);
+    output->SetStrips(strips);
+  }
+  this->UpdateProgress(0.75);
+  if (this->CheckAbort())
+  {
+    return 1;
   }
 
   // Since points are cells are not merged,
   // this filter can easily pass all field arrays, including global ids.
-  outputPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  auto outputCD = output->GetCellData();
   outputCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
 
-  // Allocate the point and cell data
-  outputPD->CopyAllocate(ptList, numPts);
-  outputCD->CopyAllocate(cellList, numCells);
-
-  // loop over all input sets
-  vtkIdType ptOffset = 0;
-  vtkIdType vertOffset = 0;
-  vtkIdType linesOffset = numVerts;
-  vtkIdType polysOffset = numVerts + numLines;
-  vtkIdType stripsOffset = numVerts + numLines + numPolys;
-  countPD = countCD = 0;
-  int checkAbortInterval = std::min(numInputs / 10 + 1, 1000);
-  for (idx = 0; idx < numInputs; ++idx)
+  // copy arrays.
+  vtkDataSetAttributes::FieldList cellFieldList;
+  for (const auto& dataset : datasets)
   {
-    if (idx % checkAbortInterval == 0 && this->CheckAbort())
+    cellFieldList.IntersectFieldList(dataset->GetCellData());
+  }
+  outputCD->CopyAllocate(cellFieldList, totalNumberOfCells);
+  outputCD->SetNumberOfTuples(totalNumberOfCells);
+  // copy arrays.
+  vtkSMPTools::For(0, static_cast<vtkIdType>(datasets.size()),
+    [&](vtkIdType begin, vtkIdType end)
     {
-      break;
-    }
-    this->UpdateProgress(0.2 + 0.8 * idx / numInputs);
-    ds = inputs[idx];
-    // this check is not necessary, but I'll put it in anyway
-    if (ds != nullptr)
-    {
-      numPts = ds->GetNumberOfPoints();
-      numCells = ds->GetNumberOfCells();
-      if (numPts <= 0 && numCells <= 0)
+      for (vtkIdType idx = begin; idx < end; ++idx)
       {
-        continue; // no input, just skip
+        auto& dataset = datasets[idx];
+        const auto outVertOffset = vertOffsets[idx];
+        const auto outLineOffset = lineOffsets[idx] + totalNumberOfVerts;
+        const auto outPolyOffset = polyOffsets[idx] + totalNumberOfLines + totalNumberOfVerts;
+        const auto outStripOffset =
+          stripOffsets[idx] + totalNumberOfPolys + totalNumberOfLines + totalNumberOfVerts;
+        auto inputCD = dataset->GetCellData();
+        if (auto numVerts = dataset->GetNumberOfVerts())
+        {
+          const vtkIdType inVertOffset = 0;
+          cellFieldList.CopyData(idx, inputCD, inVertOffset, numVerts, outputCD, outVertOffset);
+        }
+        if (auto numLines = dataset->GetNumberOfLines())
+        {
+          const vtkIdType inLineOffset = dataset->GetNumberOfVerts();
+          cellFieldList.CopyData(idx, inputCD, inLineOffset, numLines, outputCD, outLineOffset);
+        }
+        if (auto numPolys = dataset->GetNumberOfPolys())
+        {
+          const vtkIdType inPolyOffset = dataset->GetNumberOfLines() + dataset->GetNumberOfVerts();
+          cellFieldList.CopyData(idx, inputCD, inPolyOffset, numPolys, outputCD, outPolyOffset);
+        }
+        if (auto numStrips = dataset->GetNumberOfStrips())
+        {
+          const vtkIdType inStripOffset =
+            dataset->GetNumberOfPolys() + dataset->GetNumberOfLines() + dataset->GetNumberOfVerts();
+          cellFieldList.CopyData(idx, inputCD, inStripOffset, numStrips, outputCD, outStripOffset);
+        }
       }
-
-      inPD = ds->GetPointData();
-      inCD = ds->GetCellData();
-
-      inPts = ds->GetPoints();
-      inVerts = ds->GetVerts();
-      inLines = ds->GetLines();
-      inPolys = ds->GetPolys();
-      inStrips = ds->GetStrips();
-
-      if (ds->GetNumberOfPoints() > 0)
-      {
-        // copy points directly
-        this->AppendData(newPts->GetData(), inPts->GetData(), ptOffset);
-        outputPD->CopyData(ptList, inPD, countPD, ptOffset, numPts, 0);
-        ++countPD;
-      }
-
-      if (ds->GetNumberOfCells() > 0)
-      {
-        // These are the cellIDs at which each of the cell types start.
-        vtkIdType vertsIndex = 0;
-        vtkIdType linesIndex = ds->GetNumberOfVerts();
-        vtkIdType polysIndex = linesIndex + ds->GetNumberOfLines();
-        vtkIdType stripsIndex = polysIndex + ds->GetNumberOfPolys();
-
-        // copy the cells
-        this->AppendCells(newVerts, inVerts, ptOffset);
-        this->AppendCells(newLines, inLines, ptOffset);
-        this->AppendCells(newPolys, inPolys, ptOffset);
-        this->AppendCells(newStrips, inStrips, ptOffset);
-
-        // copy cell data
-        outputCD->CopyData(cellList, inCD, countCD, vertOffset, ds->GetNumberOfVerts(), vertsIndex);
-        vertOffset += ds->GetNumberOfVerts();
-        outputCD->CopyData(
-          cellList, inCD, countCD, linesOffset, ds->GetNumberOfLines(), linesIndex);
-        linesOffset += ds->GetNumberOfLines();
-        outputCD->CopyData(
-          cellList, inCD, countCD, polysOffset, ds->GetNumberOfPolys(), polysIndex);
-        polysOffset += ds->GetNumberOfPolys();
-        outputCD->CopyData(
-          cellList, inCD, countCD, stripsOffset, ds->GetNumberOfStrips(), stripsIndex);
-        stripsOffset += ds->GetNumberOfStrips();
-        ++countCD;
-      }
-      ptOffset += numPts;
-    }
-  }
-
-  // Update ourselves and release memory
-  //
-  output->SetPoints(newPts);
-  newPts->Delete();
-
-  if (newVerts->GetNumberOfCells() > 0)
-  {
-    output->SetVerts(newVerts);
-  }
-  newVerts->Delete();
-
-  if (newLines->GetNumberOfCells() > 0)
-  {
-    output->SetLines(newLines);
-  }
-  newLines->Delete();
-
-  if (newPolys->GetNumberOfCells() > 0)
-  {
-    output->SetPolys(newPolys);
-  }
-  newPolys->Delete();
-
-  if (newStrips->GetNumberOfCells() > 0)
-  {
-    output->SetStrips(newStrips);
-  }
-  newStrips->Delete();
-
-  // When all optimizations are complete, this squeeze will be unnecessary.
-  // (But it does not seem to cost much.)
-  output->Squeeze();
+    });
+  this->UpdateProgress(1.0);
 
   return 1;
 }

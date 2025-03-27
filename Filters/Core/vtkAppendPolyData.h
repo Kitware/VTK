@@ -24,6 +24,7 @@
 #ifndef vtkAppendPolyData_h
 #define vtkAppendPolyData_h
 
+#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -126,9 +127,11 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
   // An efficient templated way to append data.
+  VTK_DEPRECATED_IN_9_5_0("This function has been deprecated")
   void AppendData(vtkDataArray* dest, vtkDataArray* src, vtkIdType offset);
 
   // An efficient way to append cells.
+  VTK_DEPRECATED_IN_9_5_0("This function has been deprecated")
   void AppendCells(vtkCellArray* dst, vtkCellArray* src, vtkIdType offset);
 
 private:
