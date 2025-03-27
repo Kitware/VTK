@@ -1603,8 +1603,8 @@ bool ValidatePolyhedraImpl(vtkm::Int8 memorySpace)
     }
   }
 
-  VERIFY(nPolyhedra == grid.GetNumberOfCells(), "Expected %zu polyhedra, got %lld",
-    grid.GetNumberOfCells(), nPolyhedra);
+  VERIFY(nPolyhedra == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "Expected %zu polyhedra, got %lld", grid.GetNumberOfCells(), nPolyhedra);
   return true;
 }
 
