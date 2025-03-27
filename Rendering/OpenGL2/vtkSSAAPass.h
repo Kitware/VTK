@@ -65,6 +65,14 @@ public:
   virtual void SetDelegatePass(vtkRenderPass* delegatePass);
   ///@}
 
+  /**
+   * Set the format to use for the color texture.
+   * vtkTextureObject::Float16, vtkTextureObject::Float32
+   * and vtkTextureObject::Fixed8 are supported.
+   * Fixed8 is the default.
+   */
+  vtkSetMacro(ColorFormat, int);
+
 protected:
   /**
    * Default constructor. DelegatePass is set to NULL.
@@ -87,6 +95,8 @@ protected:
   vtkOpenGLHelper* SSAAProgram;
 
   vtkRenderPass* DelegatePass;
+
+  int ColorFormat; // framebuffer color texture format
 
 private:
   vtkSSAAPass(const vtkSSAAPass&) = delete;

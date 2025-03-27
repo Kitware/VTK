@@ -33,6 +33,7 @@ vtkSSAAPass::vtkSSAAPass()
   this->Pass2 = nullptr;
   this->SSAAProgram = nullptr;
   this->DelegatePass = nullptr;
+  this->ColorFormat = vtkTextureObject::Fixed8;
 }
 
 //------------------------------------------------------------------------------
@@ -129,6 +130,16 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   if (this->Pass1->GetWidth() != static_cast<unsigned int>(w) ||
     this->Pass1->GetHeight() != static_cast<unsigned int>(h))
   {
+    if (this->ColorFormat == vtkTextureObject::Float16)
+    {
+      this->Pass1->SetInternalFormat(GL_RGBA16F);
+      this->Pass1->SetDataType(GL_FLOAT);
+    }
+    if (this->ColorFormat == vtkTextureObject::Float32)
+    {
+      this->Pass1->SetInternalFormat(GL_RGBA32F);
+      this->Pass1->SetDataType(GL_FLOAT);
+    }
     this->Pass1->Create2D(
       static_cast<unsigned int>(w), static_cast<unsigned int>(h), 4, VTK_UNSIGNED_CHAR, false);
   }
@@ -160,6 +171,16 @@ void vtkSSAAPass::Render(const vtkRenderState* s)
   if (this->Pass2->GetWidth() != static_cast<unsigned int>(width) ||
     this->Pass2->GetHeight() != static_cast<unsigned int>(h))
   {
+    if (this->ColorFormat == vtkTextureObject::Float16)
+    {
+      this->Pass2->SetInternalFormat(GL_RGBA16F);
+      this->Pass2->SetDataType(GL_FLOAT);
+    }
+    if (this->ColorFormat == vtkTextureObject::Float32)
+    {
+      this->Pass2->SetInternalFormat(GL_RGBA32F);
+      this->Pass2->SetDataType(GL_FLOAT);
+    }
     this->Pass2->Create2D(
       static_cast<unsigned int>(width), static_cast<unsigned int>(h), 4, VTK_UNSIGNED_CHAR, false);
   }
