@@ -1573,19 +1573,18 @@ bool ValidatePolyhedraImpl(vtkm::Int8 memorySpace)
     pds->GetNumberOfPartitions());
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
-  VERIFY(ug->GetNumberOfPoints() == grid.GetNumberOfPoints(), "expected %zu points got %lld",
-    grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfPoints() == static_cast<vtkIdType>(grid.GetNumberOfPoints()),
+    "expected %zu points got %lld", grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
 
-  VERIFY(ug->GetNumberOfCells() == grid.GetNumberOfCells(), "expected %zu cells, got %lld",
-    grid.GetNumberOfCells(), ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfCells() == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "expected %zu cells, got %lld", grid.GetNumberOfCells(), ug->GetNumberOfCells());
 
   // check cell types
   auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
 
-  int nPolyhedra(0), nCells(0);
+  vtkIdType nPolyhedra(0);
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
-    ++nCells;
     const int cellType = it->GetCellType();
     switch (cellType)
     {
@@ -1604,7 +1603,7 @@ bool ValidatePolyhedraImpl(vtkm::Int8 memorySpace)
     }
   }
 
-  VERIFY(nPolyhedra == grid.GetNumberOfCells(), "Expected %zu polyhedra, got %d",
+  VERIFY(nPolyhedra == grid.GetNumberOfCells(), "Expected %zu polyhedra, got %lld",
     grid.GetNumberOfCells(), nPolyhedra);
   return true;
 }
