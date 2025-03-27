@@ -7884,17 +7884,30 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
     const int nFacePoints = static_cast<int>(meshFaces->GetCellSize(faceId));
     facePointIds.fast_resize(nFacePoints);
 
+    const bool pointMap64Bit = ::Is64BitArray(pointMap); // null-safe
     if (isLookupValue)
     {
-      for (int fp = 0; fp < nFacePoints; ++fp)
+      if (pointMap64Bit)
       {
-        const auto meshPointi = meshFaces->GetCellPointAtId(faceId, fp);
-        facePointIds[fp] = pointMap->LookupValue(meshPointi);
+        auto pointMap64 = vtkTypeInt64Array::SafeDownCast(pointMap);
+        for (int fp = 0; fp < nFacePoints; ++fp)
+        {
+          const auto meshPointi = meshFaces->GetCellPointAtId(faceId, fp);
+          facePointIds[fp] = pointMap64->LookupTypedValue(meshPointi);
+        }
+      }
+      else
+      {
+        auto pointMap32 = vtkTypeInt32Array::SafeDownCast(pointMap);
+        for (int fp = 0; fp < nFacePoints; ++fp)
+        {
+          const auto meshPointi = meshFaces->GetCellPointAtId(faceId, fp);
+          facePointIds[fp] = pointMap32->LookupTypedValue(meshPointi);
+        }
       }
     }
     else if (pointMap)
     {
-      const bool pointMap64Bit = ::Is64BitArray(pointMap); // null-safe
       for (int fp = 0; fp < nFacePoints; ++fp)
       {
         const auto meshPointi = meshFaces->GetCellPointAtId(faceId, fp);
