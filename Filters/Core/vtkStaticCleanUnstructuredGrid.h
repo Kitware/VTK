@@ -202,6 +202,15 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  // These methods are made static so that other filters like vtkStaticCleanPolyData can use them
+  static void MarkPointUses(vtkCellArray* ca, vtkIdType* mergeMap, unsigned char* ptUses);
+  static vtkIdType BuildPointMap(
+    vtkIdType numPts, vtkIdType* pmap, unsigned char* ptUses, std::vector<vtkIdType>& mergeMap);
+  static void CopyPoints(
+    vtkPoints* inPts, vtkPointData* inPD, vtkPoints* outPts, vtkPointData* outPD, vtkIdType* ptMap);
+  static void AveragePoints(vtkPoints* inPts, vtkPointData* inPD, vtkPoints* outPts,
+    vtkPointData* outPD, vtkIdType* ptMap, double tol);
+
 protected:
   vtkStaticCleanUnstructuredGrid();
   ~vtkStaticCleanUnstructuredGrid() override = default;
@@ -222,16 +231,6 @@ protected:
 
   // Internal locator for performing point merging
   vtkSmartPointer<vtkStaticPointLocator> Locator;
-
-  // These methods are made static so that vtkStaticCleanPolyData can use them
-  friend class vtkStaticCleanPolyData;
-  static void MarkPointUses(vtkCellArray* ca, vtkIdType* mergeMap, unsigned char* ptUses);
-  static vtkIdType BuildPointMap(
-    vtkIdType numPts, vtkIdType* pmap, unsigned char* ptUses, std::vector<vtkIdType>& mergeMap);
-  static void CopyPoints(
-    vtkPoints* inPts, vtkPointData* inPD, vtkPoints* outPts, vtkPointData* outPD, vtkIdType* ptMap);
-  static void AveragePoints(vtkPoints* inPts, vtkPointData* inPD, vtkPoints* outPts,
-    vtkPointData* outPD, vtkIdType* ptMap, double tol);
 
 private:
   vtkStaticCleanUnstructuredGrid(const vtkStaticCleanUnstructuredGrid&) = delete;
