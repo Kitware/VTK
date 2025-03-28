@@ -849,7 +849,7 @@
         - . venv/bin/activate
         - PYTHON_VERSION_SUFFIX=`python -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'`
         # Prebuilt wheels for Python 3.8 on aarch64 don't exist, so skip installing them.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "python38-aarch64" ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
+        - '[[ "$CMAKE_CONFIGURATION" =~ "wheel_linux38_aarch64" ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
         - pip install twine
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
