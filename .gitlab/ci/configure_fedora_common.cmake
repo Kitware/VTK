@@ -19,4 +19,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python" AND
   endif ()
 endif ()
 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_x86_64")
+  # fedora39 has expired repos for openturns
+  set(VTK_MODULE_ENABLE_VTK_FiltersOpenTURNS NO CACHE STRING "")
+endif ()
+
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")
