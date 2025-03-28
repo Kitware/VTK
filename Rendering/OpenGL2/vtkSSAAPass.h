@@ -96,11 +96,11 @@ protected:
 
   vtkRenderPass* DelegatePass;
 
-  int ColorFormat; // framebuffer color texture format
-
 private:
   vtkSSAAPass(const vtkSSAAPass&) = delete;
   void operator=(const vtkSSAAPass&) = delete;
+
+  int ColorFormat; // framebuffer color texture format
 };
 
 VTK_ABI_NAMESPACE_END
