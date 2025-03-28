@@ -40,4 +40,23 @@ cmake --install .
 
 cd
 
+# See https://github.com/RenderKit/rkcommon/issues/15
+echo '--- /usr/local/lib64/cmake/rkcommon-1.11.0/FindTBB.cmake.orig   2025-03-28 23:55:15.000000000 +0000
++++ /usr/local/lib64/cmake/rkcommon-1.11.0/FindTBB.cmake        2025-03-28 23:58:23.792972523 +0000
+@@ -37,7 +37,8 @@
+ #===============================================================================
+
+ # We use INTERFACE libraries, which are only supported in 3.x
+-cmake_minimum_required(VERSION 3.1)
++cmake_policy(PUSH)
++cmake_policy(VERSION 3.1...3.20)
+
+ # These two are used to automatically find the root and include directories.
+ set(_TBB_INCLUDE_SUBDIR "include")
+@@ -482,3 +483,4 @@
+
+ set(TBB_FOUND TRUE)
+ set(TBB_INCLUDE_DIRS "${TBB_INCLUDE_DIR}")
++cmake_policy(POP)' | patch /usr/local/lib64/cmake/rkcommon-1.11.0/FindTBB.cmake -b
+
 rm -rf "$ospray_root"
