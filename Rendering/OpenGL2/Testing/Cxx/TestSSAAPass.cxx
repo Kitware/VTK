@@ -21,6 +21,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTextureObject.h"
 
 #include "vtkRenderStepsPass.h"
 #include "vtkSSAAPass.h"
@@ -53,6 +54,7 @@ int TestSSAAPass(int argc, char* argv[])
   // to the basicPasses
   vtkNew<vtkSSAAPass> ssaa;
   ssaa->SetDelegatePass(basicPasses);
+  ssaa->SetColorFormat(vtkTextureObject::Float16);
 
   // tell the renderer to use our render pass pipeline
   glrenderer->SetPass(ssaa);
