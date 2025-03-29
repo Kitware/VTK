@@ -1554,7 +1554,7 @@ double* Attributes::GetVelocityArray()
   {
     return nullptr;
   }
-  return &this->Velocity[0];
+  return this->Velocity.data();
 }
 
 float* Attributes::GetPressureArray()
@@ -1563,7 +1563,7 @@ float* Attributes::GetPressureArray()
   {
     return nullptr;
   }
-  return &this->Pressure[0];
+  return this->Pressure.data();
 }
 
 void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned int ny,
@@ -1577,12 +1577,12 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
 
   mesh["coordsets/coords/type"].set("explicit");
 
-  mesh["coordsets/coords/values/x"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+  mesh["coordsets/coords/values/x"].set_external(const_cast<double*>(grid.GetPoints().data()),
     grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(double));
-  mesh["coordsets/coords/values/y"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+  mesh["coordsets/coords/values/y"].set_external(const_cast<double*>(grid.GetPoints().data()),
     grid.GetNumberOfPoints(),
     /*offset=*/sizeof(double), /*stride=*/3 * sizeof(double));
-  mesh["coordsets/coords/values/z"].set_external(const_cast<double*>(&grid.GetPoints()[0]),
+  mesh["coordsets/coords/values/z"].set_external(const_cast<double*>(grid.GetPoints().data()),
     grid.GetNumberOfPoints(),
     /*offset=*/2 * sizeof(double), /*stride=*/3 * sizeof(double));
 
