@@ -54,7 +54,6 @@ private:
   void operator=(const vtkConduitArrayUtilitiesDevice&) = delete;
 };
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 #define VTK_IS_DEVICE_POINTER(memory)                                                              \
   void* __memory_pointer__ = const_cast<void*>(memory);                                            \
   int8_t __device_adapter_id__;                                                                    \
@@ -66,14 +65,6 @@ private:
     vtkLogF(ERROR, "Device %d is not available at runtime", __device_adapter_id__);                \
     return nullptr;                                                                                \
   }
-
-#else
-#define VTK_IS_DEVICE_POINTER(memory)                                                              \
-  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
-  int8_t __device_adapter_id__;                                                                    \
-  bool isDevicePointer =                                                                           \
-    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);
-#endif
 
 VTK_ABI_NAMESPACE_END
 

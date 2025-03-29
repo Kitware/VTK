@@ -109,6 +109,15 @@ private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
   void operator=(const vtkConduitArrayUtilities&) = delete;
 };
+
+#if !(VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel)
+#define VTK_IS_DEVICE_POINTER(memory)                                                              \
+  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
+  int8_t __device_adapter_id__;                                                                    \
+  bool isDevicePointer =                                                                           \
+    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);
+#endif
+
 VTK_ABI_NAMESPACE_END
 
 #endif
