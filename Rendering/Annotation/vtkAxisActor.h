@@ -774,65 +774,6 @@ protected:
   vtkAxisActor();
   ~vtkAxisActor() override;
 
-  std::string Title;
-  std::string Exponent;
-  char* LabelFormat = nullptr;
-  double Range[2] = { 0.0, 1.0 };
-  double LastRange[2] = { -1.0, -1.0 };
-  bool UseTextActor3D = false;
-  int NumberOfLabelsBuilt = 0;
-  bool MinorTicksVisible = true;
-  bool LastMinorTicksVisible = true;
-
-  /**
-   * The location of the ticks.
-   * Inside: tick end toward positive direction of perpendicular axes.
-   * Outside: tick end toward negative direction of perpendicular axes.
-   */
-  int TickLocation = VTK_TICKS_INSIDE;
-
-  /**
-   * Hold the alignment property of the title related to the axis.
-   * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
-   */
-  int TitleAlignLocation = VTK_ALIGN_BOTTOM;
-
-  /**
-   * Hold the alignment property of the exponent coming from the label values.
-   * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
-   */
-  int ExponentLocation = VTK_ALIGN_POINT2;
-
-  bool DrawGridlines = false;
-  bool DrawGridlinesOnly = false;
-  bool LastDrawGridlines = false;
-  int DrawGridlinesLocation = 0;     // 0: all | 1: closest | 2: furthest
-  int LastDrawGridlinesLocation = 0; // 0: all | 1: closest | 2: furthest
-  double GridlineXLength = 1.0;
-  double GridlineYLength = 1.0;
-  double GridlineZLength = 1.0;
-
-  bool DrawInnerGridlines = false;
-
-  bool DrawGridpolys = false;
-
-  bool AxisVisibility = true;
-  bool TickVisibility = true;
-  bool LastTickVisibility = true;
-  bool LabelVisibility = true;
-  bool TitleVisibility = true;
-  bool ExponentVisibility = false;
-  bool LastMajorTickPointCorrection = false;
-
-  bool Log = false;
-  int AxisType = VTK_AXIS_TYPE_X;
-  int AxisPosition = VTK_AXIS_POS_MINMIN;
-
-  // coordinate system for axisAxtor, relative to world coordinates
-  double AxisBaseForX[3] = { 1.0, 0.0, 0.0 };
-  double AxisBaseForY[3] = { 0.0, 1.0, 0.0 };
-  double AxisBaseForZ[3] = { 0.0, 0.0, 1.0 };
-
 private:
   vtkAxisActor(const vtkAxisActor&) = delete;
   void operator=(const vtkAxisActor&) = delete;
@@ -915,6 +856,67 @@ private:
   void UpdateLabelActorProperty(int idx);
   void UpdateExponentActorProperty();
   ///@}
+
+  std::string Title;
+  std::string Exponent;
+  char* LabelFormat = nullptr;
+  double Range[2] = { 0.0, 1.0 };
+  double LastRange[2] = { -1.0, -1.0 };
+  bool UseTextActor3D = false;
+  int NumberOfLabelsBuilt = 0;
+  bool MinorTicksVisible = true;
+  bool LastMinorTicksVisible = true;
+
+  /**
+   * The location of the ticks.
+   * Inside: tick end toward positive direction of perpendicular axes.
+   * Outside: tick end toward negative direction of perpendicular axes.
+   */
+  int TickLocation = VTK_TICKS_INSIDE;
+
+  /**
+   * Hold the alignment property of the title related to the axis.
+   * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
+   */
+  int TitleAlignLocation = VTK_ALIGN_BOTTOM;
+
+  /**
+   * Hold the alignment property of the exponent coming from the label values.
+   * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
+   */
+  int ExponentLocation = VTK_ALIGN_POINT2;
+
+  bool DrawGridlines = false;
+  bool DrawGridlinesOnly = false;
+  bool LastDrawGridlines = false;
+  int DrawGridlinesLocation = 0;     // 0: all | 1: closest | 2: furthest
+  int LastDrawGridlinesLocation = 0; // 0: all | 1: closest | 2: furthest
+  double GridlineXLength = 1.0;
+  double GridlineYLength = 1.0;
+  double GridlineZLength = 1.0;
+
+  bool DrawInnerGridlines = false;
+  bool LastDrawInnerGridlines = false;
+
+  bool DrawGridpolys = false;
+  bool LastDrawGridpolys = false;
+
+  bool AxisVisibility = true;
+  bool TickVisibility = true;
+  bool LastTickVisibility = true;
+  bool LabelVisibility = true;
+  bool TitleVisibility = true;
+  bool ExponentVisibility = false;
+  bool LastMajorTickPointCorrection = false;
+
+  bool Log = false;
+  int AxisType = VTK_AXIS_TYPE_X;
+  int AxisPosition = VTK_AXIS_POS_MINMIN;
+
+  // coordinate system for axisAxtor, relative to world coordinates
+  double AxisBaseForX[3] = { 1.0, 0.0, 0.0 };
+  double AxisBaseForY[3] = { 0.0, 1.0, 0.0 };
+  double AxisBaseForZ[3] = { 0.0, 0.0, 1.0 };
 
   vtkNew<vtkCoordinate> Point1Coordinate;
   vtkNew<vtkCoordinate> Point2Coordinate;
