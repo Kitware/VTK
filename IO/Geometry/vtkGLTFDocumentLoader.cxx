@@ -609,7 +609,7 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAccessorData(Primitive& primitive)
   if (primitive.IndicesId >= 0)
   {
     // Load indices
-    if (primitive.IndicesId >= this->InternalModel->Accessors.size())
+    if (primitive.IndicesId >= static_cast<int>(this->InternalModel->Accessors.size()))
     {
       vtkErrorMacro("Invalid indices id for primitive");
       return false;
@@ -666,11 +666,12 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAccessorData(Primitive& primitive)
     auto& [key, value] = *primitive.AttributeValues.begin();
     vtkIdType elementCount = value->GetNumberOfTuples();
     /* Iterate through indices and check them to be within boundaries */
-    vtkSmartPointer<vtkCellArrayIterator> it = primitive.Indices->NewIterator();
+    vtkSmartPointer<vtkCellArrayIterator> it =
+      vtk::TakeSmartPointer(primitive.Indices->NewIterator());
     while (!it->IsDoneWithTraversal())
     {
       vtkIdList* cell = it->GetCurrentCell();
-      for (size_t i = 0; i < cell->GetNumberOfIds(); i++)
+      for (vtkIdType i = 0; i < cell->GetNumberOfIds(); i++)
       {
         auto id = cell->GetId(i);
         if ((id < 0) || (id >= elementCount))
