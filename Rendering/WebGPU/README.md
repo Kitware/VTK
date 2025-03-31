@@ -42,6 +42,22 @@ cmake --install out/Debug --prefix /path/to/install/dawn
 
 #### Configuring and Building VTK
 
+When configuring VTK's build for wasm, configure with:
+
+```sh
+cmake \
+-S /path/to/vtk/src \
+-B /path/to/vtk/build \
+-GNinja \
+-DVTK_ENABLE_WEBGPU=ON \
+-Demdawnwebgpu_DIR=/path/to/where/dawn/is/installed/lib/cmake/emdawnwebgpu \
+-DVTK_BUILD_TESTING=ON
+
+cmake --build
+```
+
+When building on desktop (x86_64/aarch64), configure with:
+
 ```sh
 cmake \
 -S /path/to/vtk/src \
