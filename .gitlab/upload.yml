@@ -54,7 +54,8 @@
     script:
         - cd build/
         - ls dist
-        - dnf install -y --setopt=install_weak_deps=False twine
+        - dnf install -y --setopt=install_weak_deps=False pipx
+        - pipx install twine==6.1.0
         - twine upload -u __token__ -p $PYPI_UPLOAD_TOKEN dist/*
 
 .pypi_vtk_upload:
@@ -68,7 +69,8 @@
     script:
         - cd build/
         - ls dist
-        - dnf install -y --setopt=install_weak_deps=False twine
+        - dnf install -y --setopt=install_weak_deps=False pipx
+        - pipx install twine==6.1.0
         - twine upload -u gitlab-ci-token -p $CI_JOB_TOKEN --repository-url https://gitlab.kitware.com/api/v4/projects/$CI_PROJECT_ID/packages/pypi dist/*
 
 .generic_vtk_wasm_emscripten_linux_upload:
