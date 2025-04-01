@@ -236,6 +236,7 @@ endfunction ()
        TARGET_NAME <name>
        [WRAPPED_MODULES <varname>]
        [UTILITY_TARGET <target>]
+       [EXTRA_BINDING_SOURCES <sources_list>]      
        [MODULE_EXPORT_NAME <name>]
        [INSTALL_EXPORT <export>]
        [COMPONENT <component>]
@@ -244,13 +245,12 @@ endfunction ()
        [OPTIMIZATION <optimization>]
        [MEMORY64 <ON|OFF>]
      )
-
     
   * ``MODULES``: (Required) The list of modules to wrap.
   * ``TARGET_NAME``: (Required) The name of the generated js/wasm files.
   * ``WRAPPED_MODULES``: (Recommended) Not all modules are wrappable. This
     variable will be set to contain the list of modules which were wrapped.
-  * ``UTILITY_TARGET``: If specified, all libraries made by the Java wrapping
+  * ``UTILITY_TARGET``: If specified, all libraries made by the JavaScript wrapping
     will link privately to this target. This may be used to add compile flags
     to the JavaScript libraries.
   * ``EXTRA_BINDING_SOURCES``: Optional list of emscripten bindings sources to
@@ -291,7 +291,7 @@ function (vtk_module_wrap_javascript)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_javascript
   ""
   "TARGET_NAME;WRAPPED_MODULES;UTILITY_TARGET;MODULE_EXPORT_NAME;INSTALL_EXPORT;COMPONENT;BINDING_OBJECTS_DESTINATION;DEBUG_INFO;OPTIMIZATION;MEMORY64"
-  "MODULES")
+  "MODULES;EXTRA_BINDING_SOURCES")
 
   if (_vtk_javascript_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR
@@ -447,11 +447,9 @@ function (vtk_module_wrap_javascript)
     return ()
   endif ()
 
-  if (_vtk_javascript_library_link_depends)
-    list(REMOVE_DUPLICATES _vtk_javascript_library_link_depends)
-  endif ()
+  list(APPEND _vtk_javascript_binding_sources ${_vtk_javascript_EXTRA_BINDING_SOURCES})
 
-  # Build [js, wasm] file
+  # Build <TARGET_NAME>.[js, wasm]
   set(_vtk_javascript_target "${_vtk_javascript_TARGET_NAME}")
   add_executable("${_vtk_javascript_target}"
     ${_vtk_javascript_binding_sources})
