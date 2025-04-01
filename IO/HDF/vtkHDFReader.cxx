@@ -1107,9 +1107,13 @@ int vtkHDFReader::Read(
   }
   else if (data)
   {
-    // Only single piece datasets should have a non-partitioned output structure
-    assert(pieces.size() == 1);
-    data->ShallowCopy(pieces.back());
+    // Only single piece datasets should have a non-partitioned output structure,
+    // Although all ranks may not have a non-null piece
+    assert(pieces.size() <= 1);
+    if (pieces.size() == 1)
+    {
+      data->ShallowCopy(pieces.back());
+    }
   }
   else
   {
