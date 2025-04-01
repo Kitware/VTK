@@ -1,0 +1,21 @@
+NAME
+  VTK::IOAvmesh
+LIBRARY_NAME
+  vtkIOAvmesh
+KIT
+  VTK::IO
+GROUPS
+  STANDALONE
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+TEST_DEPENDS
+  VTK::CommonDataModel
+  VTK::TestingCore
+  VTK::FiltersVerdict
