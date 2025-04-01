@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: BSD-3-Clause AND Apache-2.0
 #include "vtkValueFromString.h"
 
-#include <array>
 #include <cstring>
-#include <limits>
 #include <type_traits>
 
 #include <vtkfast_float.h>
@@ -20,49 +18,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace Impl
 {
-// clang-format off
-static const std::array<unsigned char, 256> DigitsLUT =
-{{
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  0,   1,   2,   3,   4,   5,   6,   7,
-  8,   9,   255, 255, 255, 255, 255, 255,
-  255, 10,  11,  12,  13,  14,  15,  16,
-  17,  18,  19,  20,  21,  22,  23,  24,
-  25,  26,  27,  28,  29,  30,  31,  32,
-  33,  34,  35,  255, 255, 255, 255, 255,
-  255, 10,  11,  12,  13,  14,  15,  16,
-  17,  18,  19,  20,  21,  22,  23,  24,
-  25,  26,  27,  28,  29,  30,  31,  32,
-  33,  34,  35,  255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-  255, 255, 255, 255, 255, 255, 255, 255,
-}};
-// clang-format on
-
-static unsigned char CharToInt(char ch) noexcept
-{
-  return DigitsLUT[static_cast<unsigned char>(ch)];
-}
-
 static const char* DetectBase(const char* it, const char* end, int& base) noexcept
 {
   // If base can be detected, it should start with '0'
@@ -121,76 +76,6 @@ static const char* DetectBase(const char* it, const char* end, int& base) noexce
 
   return it;
 }
-
-template <typename T>
-const char* ParseInt(const char* it, const char* end, bool minus_sign, int base, T& val) noexcept
-{
-  using UnsignedType = typename std::make_unsigned<T>::type;
-  using SignedType = typename std::make_signed<T>::type;
-
-  constexpr UnsignedType umax = std::numeric_limits<UnsignedType>::max();
-  constexpr UnsignedType imax = static_cast<UnsignedType>(std::numeric_limits<SignedType>::max());
-  constexpr UnsignedType absimin = static_cast<UnsignedType>(1)
-    << ((sizeof(UnsignedType) * CHAR_BIT) - 1);
-
-  const auto limit = [=]()
-  {
-    if (std::is_signed<T>::value)
-    {
-      if (minus_sign)
-      {
-        return absimin;
-      }
-
-      return imax;
-    }
-
-    return umax;
-  }();
-
-  const auto ubase = static_cast<UnsignedType>(base);
-  const auto cutoff = limit / ubase;
-  const auto cutlim = limit % ubase;
-
-  UnsignedType tmp{};
-  while (it != end)
-  {
-    const auto digit = CharToInt(*it);
-    if (digit >= ubase)
-    {
-      break;
-    }
-
-    if (tmp > cutoff || (tmp == cutoff && digit > cutlim))
-    {
-      return nullptr;
-    }
-
-    tmp *= ubase;
-    tmp += digit;
-    ++it;
-  }
-
-  // Hide msvc "conditional expression is constant" warning
-  bool isSigned = std::is_signed<T>::value;
-  if (isSigned && minus_sign)
-  {
-    if (tmp == absimin)
-    {
-      val = static_cast<T>(std::numeric_limits<SignedType>::min());
-    }
-    else
-    {
-      val = static_cast<T>(-static_cast<SignedType>(tmp));
-    }
-  }
-  else
-  {
-    val = static_cast<T>(tmp);
-  }
-
-  return it;
-}
 }
 
 // Overload for integers
@@ -206,17 +91,14 @@ std::size_t FromStringInternal(const char* begin, const char* end, T& output) no
 
   auto it = begin;
 
-  // Hide msvc "conditional expression is constant" warning
-  bool isUnsigned = std::is_unsigned<T>::value;
-  // Unsigned can't be negative
-  if (isUnsigned && *it == '-')
-  {
-    return 0;
-  }
-
-  bool minus_sign{};
+  // Handle sign
+  bool minus_sign = false;
   if (*it == '-')
   {
+    if (std::is_unsigned_v<T>) // Unsigned can't be negative
+    {
+      return 0;
+    }
     minus_sign = true;
     ++it;
   }
@@ -230,7 +112,7 @@ std::size_t FromStringInternal(const char* begin, const char* end, T& output) no
     return 0;
   }
 
-  int base{};
+  int base = 0;
   it = Impl::DetectBase(it, end, base);
 
   if (base == 0)
@@ -238,51 +120,22 @@ std::size_t FromStringInternal(const char* begin, const char* end, T& output) no
     output = 0;
     return static_cast<std::size_t>(std::distance(begin, it));
   }
-
-  if (base != 10 && minus_sign)
+  if (base != 10 && minus_sign) // Negative sign is not allowed for non-decimal
+  {
+    return 0;
+  }
+  fast_float::parse_options_t<char> options;
+  options.base = base;
+  options.format |= fast_float::chars_format::allow_leading_plus;
+  // Use base 10 parsing for the full string including sign, otherwise start from after prefix
+  const char* parse_start = (base == 10) ? begin : it;
+  const auto result = fast_float::from_chars_int_advanced(parse_start, end, output, options);
+  if (result.ec != std::errc{})
   {
     return 0;
   }
 
-  // Parse non decimal number as unsigned ints (c.f. doc)
-  if (base != 10 && std::is_signed<T>::value)
-  {
-    using UnsignedType = typename std::make_unsigned<T>::type;
-
-    std::uintmax_t tmp{}; // parse it as an unsigned int (intmax to support all types)
-    auto ptr = Impl::ParseInt(it, end, minus_sign, base, tmp);
-    if (!ptr || it == ptr)
-    {
-      return 0;
-    }
-
-    constexpr auto umax = (std::numeric_limits<UnsignedType>::max)();
-    constexpr auto fitMask = ~static_cast<std::uintmax_t>(umax);
-    constexpr auto cutMask = static_cast<std::uintmax_t>(umax);
-
-    // Check if number can actually fit, i.e all bits leftmost bit are either all 0 or all 1.
-    if ((tmp & fitMask) == fitMask || (tmp & fitMask) == static_cast<std::uintmax_t>(0))
-    {
-      const auto realValue = static_cast<UnsignedType>(tmp & cutMask);
-      output = reinterpret_cast<const T&>(realValue);
-
-      return static_cast<std::size_t>(std::distance(begin, ptr));
-    }
-
-    return 0;
-  }
-
-  // parse the actual number
-  T tmp;
-  auto ptr = Impl::ParseInt(it, end, minus_sign, base, tmp);
-  if (!ptr || it == ptr)
-  {
-    return 0;
-  }
-
-  output = tmp;
-
-  return static_cast<std::size_t>(std::distance(begin, ptr));
+  return static_cast<std::size_t>(std::distance(begin, result.ptr));
 }
 
 // Overload for floats
@@ -291,7 +144,8 @@ template <typename T,
     bool>::type = true>
 std::size_t FromStringInternal(const char* begin, const char* end, T& output) noexcept
 {
-  const auto result = fast_float::from_chars(begin, end, output);
+  static constexpr fast_float::parse_options_t<char> options(fast_float::chars_format::general);
+  const auto result = fast_float::from_chars_float_advanced(begin, end, output, options);
   if (result.ec != std::errc{})
   {
     return 0;
