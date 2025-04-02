@@ -46,6 +46,21 @@ public:
   void SetCaseType(int t);
   vtkGetMacro(CaseType, caseType);
   ///@}
+
+  ///@{
+  /**
+   * When set to false, the reader will read only the first proc directory to determine
+   * the structure, and assume all files have the same structure, i.e. same blocks and arrays.
+   *
+   * When set to true (default) the reader will read all proc directories to determine
+   * structure of the dataset because some files might have certain blocks that other
+   * files don't have.
+   */
+  void SetReadAllFilesToDetermineStructure(bool);
+  vtkGetMacro(ReadAllFilesToDetermineStructure, bool);
+  vtkBooleanMacro(ReadAllFilesToDetermineStructure, bool);
+  ///@}
+
   ///@{
   /**
    * Set and get the controller.
@@ -53,6 +68,18 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
   ///@}
+
+  /**
+   * Compute the progress of the reader.
+   */
+  double ComputeProgress() override;
+
+#if VTK_OPENFOAM_TIME_PROFILING
+  void InitializeRequestInformation() override;
+  void InitializeRequestData() override;
+  void PrintRequestInformation() override;
+  void PrintRequestData() override;
+#endif
 
 protected:
   vtkPOpenFOAMReader();
@@ -64,6 +91,7 @@ protected:
 private:
   vtkMultiProcessController* Controller;
   caseType CaseType;
+  bool ReadAllFilesToDetermineStructure;
   vtkMTimeType MTimeOld;
   int NumProcesses;
   int ProcessId;
@@ -71,8 +99,10 @@ private:
   vtkPOpenFOAMReader(const vtkPOpenFOAMReader&) = delete;
   void operator=(const vtkPOpenFOAMReader&) = delete;
 
+  void BroadcastMetaData();
   void GatherMetaData();
   void Broadcast(vtkStringArray*);
+  void Broadcast(vtkDataArraySelection*);
   void AllGather(vtkStringArray*);
   void AllGather(vtkDataArraySelection*);
 };

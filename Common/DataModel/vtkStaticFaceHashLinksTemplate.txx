@@ -117,6 +117,8 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
   const TInputIdType NumberOfPoints;
 
   vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
+  vtkSMPThreadLocalObject<vtkIdList> TLFaceIds;
+  vtkSMPThreadLocalObject<vtkIdList> TLFacePointIds;
 
   CreateFacesInformation(vtkUnstructuredGrid* input, GeometryInformation& geometryInfo,
     std::shared_ptr<TCellOffSetIdType>& cellOffsets, std::shared_ptr<TInputIdType>& faceHashValues)
@@ -142,8 +144,10 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
       const unsigned char* cellTypes = This->Input->GetCellTypesArray()->GetPointer(0);
 
       auto cell = This->TLCell.Local();
-      const vtkIdType* faceVerts;
-      int faceId, numFaces;
+      auto faceIdsList = This->TLFaceIds.Local();
+      auto facePointIdsList = This->TLFacePointIds.Local();
+      const vtkIdType *faceVerts, *faceIds, *facePointIds;
+      vtkIdType faceId, numFaces, numFacePoints;
       static constexpr int MAX_FACE_POINTS = 32;
       vtkIdType ptIds[MAX_FACE_POINTS]; // cell face point ids
       static constexpr int pixelConvert[4] = { 0, 1, 3, 2 };
@@ -297,6 +301,18 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
                   ptIds[4] = pts[faceVerts[4]];
                   faceHashValues[facesOffset++] = *std::min_element(ptIds, ptIds + 5);
                 }
+              }
+              break;
+            case VTK_POLYHEDRON:
+              cellOffsets[cellId] = facesOffset;
+              This->Input->GetPolyhedronFaceLocations()->GetCellAtId(
+                cellId, numFaces, faceIds, faceIdsList);
+              for (faceId = 0; faceId < numFaces; faceId++)
+              {
+                This->Input->GetPolyhedronFaces()->GetCellAtId(
+                  faceIds[faceId], numFacePoints, facePointIds, facePointIdsList);
+                faceHashValues[facesOffset++] =
+                  *std::min_element(facePointIds, facePointIds + numFacePoints);
               }
               break;
             default:

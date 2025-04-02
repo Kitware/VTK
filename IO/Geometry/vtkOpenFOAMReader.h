@@ -38,15 +38,20 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
+#include <mutex> // For std::mutex
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
 class vtkCharArray;
 class vtkDataArraySelection;
 class vtkDoubleArray;
-class vtkStdString;
 class vtkStringArray;
+class vtkTable;
+class vtkUnsignedCharArray;
 
 class vtkOpenFOAMReaderPrivate;
+
+#define VTK_OPENFOAM_TIME_PROFILING 0
 
 class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -70,6 +75,24 @@ public:
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
   ///@}
+
+  ///@{
+  /**
+   * Set/Get If sequential (instead of multithreaded) processing is utilized for reading each case
+   * files.
+   *
+   * Defaults to on. Off is usually better for reading data on local drives. Enable to
+   * potentially improve performance reading files from high-latency network drives.
+   */
+  vtkSetMacro(SequentialProcessing, bool);
+  vtkGetMacro(SequentialProcessing, bool);
+  vtkBooleanMacro(SequentialProcessing, bool);
+  ///@}
+
+  /**
+   * Get the CellDataArraySelection object.
+   */
+  vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
 
   /**
    * Get the number of cell arrays available in the input.
@@ -108,6 +131,11 @@ public:
   void EnableAllCellArrays() { this->EnableAllSelectionArrays(this->CellDataArraySelection); }
 
   /**
+   * Get the PointDataArraySelection object.
+   */
+  vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
+
+  /**
    * Get the number of point arrays available in the input.
    */
   int GetNumberOfPointArrays()
@@ -142,6 +170,11 @@ public:
    */
   void DisableAllPointArrays() { this->DisableAllSelectionArrays(this->PointDataArraySelection); }
   void EnableAllPointArrays() { this->EnableAllSelectionArrays(this->PointDataArraySelection); }
+
+  /**
+   * Get the PointDataArraySelection object.
+   */
+  vtkGetObjectMacro(LagrangianDataArraySelection, vtkDataArraySelection);
 
   /**
    * Get the number of Lagrangian arrays available in the input.
@@ -184,6 +217,11 @@ public:
   {
     this->EnableAllSelectionArrays(this->LagrangianDataArraySelection);
   }
+
+  /**
+   * Get the PatchDataArraySelection object.
+   */
+  vtkGetObjectMacro(PatchDataArraySelection, vtkDataArraySelection);
 
   /**
    * Get the number of Patches (including Internal Mesh) available in the input.
@@ -340,19 +378,47 @@ public:
 
   void SetParent(vtkOpenFOAMReader* parent) { this->Parent = parent; }
 
+#ifndef __VTK_WRAP__
   int MakeInformationVector(vtkInformationVector*, const vtkStdString& procDirName,
-    vtkStringArray* timeNames = nullptr, vtkDoubleArray* timeValues = nullptr);
+    vtkStringArray* timeNames = nullptr, vtkDoubleArray* timeValues = nullptr,
+    const std::vector<vtkSmartPointer<vtkUnsignedCharArray>>&
+      populateMeshIndicesFileChecksPerPrivateReader = {});
+#endif
 
   double GetTimeValue() const;
   bool SetTimeValue(double);
   vtkStringArray* GetTimeNames();
   vtkDoubleArray* GetTimeValues();
 
-  int MakeMetaDataAtTimeStep(bool);
+#ifndef __VTK_WRAP__
+  std::vector<vtkSmartPointer<vtkUnsignedCharArray>> GetPopulateMeshIndicesFileChecksPerReader();
+  std::vector<vtkSmartPointer<vtkTable>> GetMarshalledMetadataPerReader();
+  void SetMarshalledMetadataPerReader(const std::vector<vtkSmartPointer<vtkTable>>&);
+#endif
+
+  int MakeMetaDataAtTimeStep(bool listNextTimeStep, bool skipComputingMetaData = false);
+
+  /**
+   * Compute the progress of the reader.
+   */
+  virtual double ComputeProgress();
+
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long GetRequestInformationTimeInMicroseconds() const;
+  long long GetRequestDataTimeInMicroseconds() const;
+  size_t GetRequestInformationBytes() const;
+  size_t GetRequestDataBytes() const;
+  virtual void InitializeRequestInformation();
+  virtual void InitializeRequestData();
+  virtual void PrintRequestInformation();
+  virtual void PrintRequestData();
+#endif
 
 protected:
   // refresh flag
   bool Refresh;
+
+  bool SequentialProcessing;
 
   // for creating cell-to-point translated data
   vtkTypeBool CreateCellToPoint;
@@ -365,6 +431,7 @@ protected:
 
   // for decomposing polyhedra on-the-fly
   vtkTypeBool DecomposePolyhedra;
+  vtkGetMacro(DecomposePolyhedra, vtkTypeBool);
 
   // for lagrangian/positions without extra data (OF 1.4 - 2.4)
   vtkTypeBool PositionsIsIn13Format;
@@ -394,7 +461,7 @@ protected:
 
   char* FileName;
   vtkCharArray* CasePath;
-  vtkCollection* Readers;
+  std::vector<vtkSmartPointer<vtkObject>> Readers;
 
   // DataArraySelection for Patch / Region Data
   vtkDataArraySelection* PatchDataArraySelection;
@@ -404,29 +471,35 @@ protected:
 
   // old selection status
   vtkMTimeType PatchSelectionMTimeOld;
+  vtkGetMacro(PatchSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType CellSelectionMTimeOld;
+  vtkGetMacro(CellSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType PointSelectionMTimeOld;
+  vtkGetMacro(PointSelectionMTimeOld, vtkMTimeType);
   vtkMTimeType LagrangianSelectionMTimeOld;
+  vtkGetMacro(LagrangianSelectionMTimeOld, vtkMTimeType);
 
   // preserved old information
-  vtkStdString* FileNameOld;
+  std::string FileNameOld;
+  vtkGetMacro(FileNameOld, std::string);
   bool SkipZeroTimeOld;
+  vtkGetMacro(SkipZeroTimeOld, bool);
   int ListTimeStepsByControlDictOld;
+  vtkGetMacro(ListTimeStepsByControlDictOld, int);
   int CreateCellToPointOld;
+  vtkGetMacro(CreateCellToPointOld, int);
   int DecomposePolyhedraOld;
+  vtkGetMacro(DecomposePolyhedraOld, int);
   int PositionsIsIn13FormatOld;
+  vtkGetMacro(PositionsIsIn13FormatOld, int);
   int AddDimensionsToArrayNamesOld;
+  vtkGetMacro(AddDimensionsToArrayNamesOld, int);
   int ReadZonesOld;
+  vtkGetMacro(ReadZonesOld, int);
   bool Use64BitLabelsOld;
+  vtkGetMacro(Use64BitLabelsOld, bool);
   bool Use64BitFloatsOld;
-
-  // paths to Lagrangians
-  vtkStringArray* LagrangianPaths;
-
-  // number of reader instances
-  int NumberOfReaders;
-  // index of the active reader
-  int CurrentReaderIndex;
+  vtkGetMacro(Use64BitFloatsOld, bool);
 
   vtkOpenFOAMReader();
   ~vtkOpenFOAMReader() override;
@@ -437,7 +510,7 @@ protected:
   void SetTimeInformation(vtkInformationVector*, vtkDoubleArray*);
   void CreateCharArrayFromString(vtkCharArray*, const char*, vtkStdString&);
   void UpdateStatus();
-  void UpdateProgress(double);
+  void UpdateProgress(vtkOpenFOAMReaderPrivate* reader, double progress);
 
 private:
   vtkOpenFOAMReader* Parent;
@@ -456,6 +529,16 @@ private:
 
   // Print some time information (names, current time-step)
   void PrintTimes(std::ostream& os, vtkIndent indent = vtkIndent(), bool full = false) const;
+
+  std::mutex ArraySelectionMutex;
+  std::mutex ProgressMutex;
+
+#if VTK_OPENFOAM_TIME_PROFILING
+  long long RequestInformationTimeInMicroseconds = 0;
+  size_t RequestDataBytes = 0;
+  long long RequestDataTimeInMicroseconds = 0;
+  size_t RequestInformationBytes = 0;
+#endif
 };
 
 VTK_ABI_NAMESPACE_END

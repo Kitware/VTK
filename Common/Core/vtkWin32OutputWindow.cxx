@@ -8,10 +8,14 @@
 
 #include "vtksys/Encoding.hxx"
 
+#include <mutex>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
-HWND vtkWin32OutputWindowOutputWindow = 0;
+static std::mutex vtkWin32OutputWindowMutex;
+
+static HWND vtkWin32OutputWindowOutputWindow = nullptr;
 
 //------------------------------------------------------------------------------
 LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -59,6 +63,7 @@ vtkWin32OutputWindow::~vtkWin32OutputWindow() {}
 //
 void vtkWin32OutputWindow::DisplayText(const char* someText)
 {
+  std::lock_guard<std::mutex> lock(vtkWin32OutputWindowMutex);
   if (!someText)
   {
     return;
@@ -138,10 +143,10 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   }
 
   // move to the end of the text area
-  SendMessageA(vtkWin32OutputWindowOutputWindow, EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
+  PostMessageA(vtkWin32OutputWindowOutputWindow, EM_SETSEL, (WPARAM)-1, (LPARAM)-1);
   // Append the text to the control
   std::wstring wmsg = vtksys::Encoding::ToWide(someText);
-  SendMessageW(vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 0, (LPARAM)wmsg.c_str());
+  PostMessageW(vtkWin32OutputWindowOutputWindow, EM_REPLACESEL, 0, (LPARAM)wmsg.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -217,7 +222,7 @@ int vtkWin32OutputWindow::Initialize()
     );
 
   const int maxsize = 5242880;
-  SendMessageA(vtkWin32OutputWindowOutputWindow, EM_LIMITTEXT, maxsize, 0L);
+  PostMessageA(vtkWin32OutputWindowOutputWindow, EM_LIMITTEXT, maxsize, 0L);
 
   // show the top level container window
   ShowWindow(win, SW_SHOW);

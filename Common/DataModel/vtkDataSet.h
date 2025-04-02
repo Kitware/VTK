@@ -221,11 +221,10 @@ public:
    *
    * Most of the times extracting the number of faces requires only extracting
    * the cell type. However, for some cell types, the number of faces is not
-   * constant. For example, a vtkPolyhedron cell can have a different number of
-   * faces for each cell. That's why this method requires the cell id and the
-   * dataset.
+   * constant. For example, a convex point set cell can have a different number of
+   * faces for each cell. That's why this method requires the cell id and the dataset.
    */
-  int GetCellNumberOfFaces(vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell);
+  virtual int GetCellNumberOfFaces(vtkIdType cellId, unsigned char& cellType, vtkGenericCell* cell);
 
   ///@{
   /**

@@ -27,17 +27,25 @@ struct SetTuplesRangeWorker
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT* src, DstArrayT* dst) const
   {
-    const auto srcTuples = vtk::DataArrayTupleRange(src);
-    auto dstTuples = vtk::DataArrayTupleRange(dst);
-
-    vtkIdType srcT = this->SrcStartTuple;
-    vtkIdType srcTEnd = srcT + this->NumTuples;
-    vtkIdType dstT = this->DstStartTuple;
-
-    while (srcT < srcTEnd)
+#define VTK_COPY_TUPLES(NUM_COMPONENTS)                                                            \
+  case NUM_COMPONENTS:                                                                             \
+  {                                                                                                \
+    const auto srcTuples = vtk::DataArrayTupleRange<NUM_COMPONENTS>(                               \
+      src, this->SrcStartTuple, this->SrcStartTuple + this->NumTuples);                            \
+    auto dstTuples = vtk::DataArrayTupleRange<NUM_COMPONENTS>(                                     \
+      dst, this->DstStartTuple, this->DstStartTuple + this->NumTuples);                            \
+    std::copy(srcTuples.cbegin(), srcTuples.cend(), dstTuples.begin());                            \
+    break;                                                                                         \
+  }
+    switch (src->GetNumberOfComponents())
     {
-      dstTuples[dstT++] = srcTuples[srcT++];
+      VTK_COPY_TUPLES(1)
+      VTK_COPY_TUPLES(2)
+      VTK_COPY_TUPLES(3)
+      default:
+        VTK_COPY_TUPLES(vtk::detail::DynamicTupleSize)
     }
+#undef VTK_COPY_TUPLES
   }
 };
 

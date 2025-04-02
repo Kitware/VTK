@@ -996,11 +996,47 @@ void ExtractDSCellGeometry(
 } // extract dataset geometry
 
 //--------------------------------------------------------------------------
+template <typename TInputIdType>
+inline void InsertAFace(FaceForwardList<TInputIdType>& faceList, const vtkIdType& cellId,
+  const vtkIdType numFacePoints, const vtkIdType* facePointIds, const bool& isGhost)
+{
+#define INSERT_STATIC_FACE(N)                                                                      \
+  case N:                                                                                          \
+    faceList.Insert(StaticFace<N, TInputIdType>(cellId, facePointIds, isGhost));                   \
+    break;
+  switch (numFacePoints)
+  {
+    INSERT_STATIC_FACE(3)
+    INSERT_STATIC_FACE(4)
+    INSERT_STATIC_FACE(5)
+    INSERT_STATIC_FACE(6)
+    INSERT_STATIC_FACE(7)
+    INSERT_STATIC_FACE(8)
+    INSERT_STATIC_FACE(9)
+    INSERT_STATIC_FACE(10)
+    INSERT_STATIC_FACE(11)
+    INSERT_STATIC_FACE(12)
+    INSERT_STATIC_FACE(13)
+    INSERT_STATIC_FACE(14)
+    INSERT_STATIC_FACE(15)
+    INSERT_STATIC_FACE(16)
+    INSERT_STATIC_FACE(17)
+    INSERT_STATIC_FACE(18)
+    INSERT_STATIC_FACE(19)
+    INSERT_STATIC_FACE(20)
+    default:
+      faceList.Insert(DynamicFace<TInputIdType>(cellId, numFacePoints, facePointIds, isGhost));
+      break;
+  }
+#undef INSERT_STATIC_FACE // Clean up macro
+}
+
+//--------------------------------------------------------------------------
 // Given a cell and a bunch of supporting objects (to support computing and
 // minimize allocation/deallocation), extract boundary features from the cell.
 // This method works with unstructured grids.
 template <typename TInputIdType, typename TCellArrayValueType>
-void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int cellType,
+void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType,
   TCellArrayValueType npts, const TCellArrayValueType* pts, int faceId,
   LocalDataType<TInputIdType>* localData, const bool& isGhost)
 {
@@ -1008,11 +1044,6 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
   using Quad = StaticFace<4, TInputIdType>;
   using Pentagon = StaticFace<5, TInputIdType>;
   using Hexagon = StaticFace<6, TInputIdType>;
-  using Heptagon = StaticFace<7, TInputIdType>;
-  using Octagon = StaticFace<8, TInputIdType>;
-  using Nonagon = StaticFace<9, TInputIdType>;
-  using Decagon = StaticFace<10, TInputIdType>;
-  using Polygon = DynamicFace<TInputIdType>;
 
   static constexpr int MAX_FACE_POINTS = 32;
   vtkIdType ptIds[MAX_FACE_POINTS]; // cell face point ids
@@ -1148,6 +1179,16 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
       }
       break;
 
+    case VTK_POLYHEDRON:
+    {
+      auto globalFaceId = input->GetPolyhedronFaceLocations()->GetCellPointAtId(cellId, faceId);
+      vtkIdType numFacePoints;
+      const vtkIdType* facePointIds = nullptr;
+      input->GetPolyhedronFaces()->GetCellAtId(
+        globalFaceId, numFacePoints, facePointIds, localData->IPts);
+      InsertAFace(localData->FaceList, cellId, numFacePoints, facePointIds, isGhost);
+      break;
+    }
     default:
       // Other types of 3D linear cells handled by vtkGeometryFilter. Exactly what
       // is a linear cell is defined by vtkCellTypes::IsLinear().
@@ -1156,38 +1197,8 @@ void ExtractCellGeometry(vtkUnstructuredGridBase* input, vtkIdType cellId, int c
       if (cell->GetCellDimension() == 3 && cell->GetNumberOfFaces() > 0)
       {
         vtkCell* face = cell->GetFace(faceId);
-        const int numFacePts = static_cast<int>(face->PointIds->GetNumberOfIds());
-        switch (numFacePts)
-        {
-          case 3:
-            localData->FaceList.Insert(Triangle(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 4:
-            localData->FaceList.Insert(Quad(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 5:
-            localData->FaceList.Insert(Pentagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 6:
-            localData->FaceList.Insert(Hexagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 7:
-            localData->FaceList.Insert(Heptagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 8:
-            localData->FaceList.Insert(Octagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 9:
-            localData->FaceList.Insert(Nonagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          case 10:
-            localData->FaceList.Insert(Decagon(cellId, face->PointIds->GetPointer(0), isGhost));
-            break;
-          default:
-            localData->FaceList.Insert(
-              Polygon(cellId, numFacePts, face->PointIds->GetPointer(0), isGhost));
-            break;
-        }
+        InsertAFace(localData->FaceList, cellId, face->PointIds->GetNumberOfIds(),
+          face->PointIds->GetPointer(0), isGhost);
       } // if 3D
       else
       {

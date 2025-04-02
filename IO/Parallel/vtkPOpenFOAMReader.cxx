@@ -65,12 +65,17 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkSortDataArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <numeric>
 
 //------------------------------------------------------------------------------
 
@@ -94,6 +99,9 @@ vtkSmartPointer<vtkOpenFOAMReader> NewFoamReader(vtkOpenFOAMReader* parent)
   reader->SetSkipZeroTime(parent->GetSkipZeroTime());
   reader->SetUse64BitLabels(parent->GetUse64BitLabels());
   reader->SetUse64BitFloats(parent->GetUse64BitFloats());
+  // This function is only used in the decomposed case, so we are basically multithreading (if
+  // asked) over the processor dirs, but not over all /polyMesh/faces files of each processor dir.
+  reader->SetSequentialProcessing(true);
 
   return reader;
 }
@@ -352,6 +360,7 @@ vtkPOpenFOAMReader::vtkPOpenFOAMReader()
     this->ProcessId = this->Controller->GetLocalProcessId();
   }
   this->CaseType = RECONSTRUCTED_CASE;
+  this->ReadAllFilesToDetermineStructure = true;
   this->MTimeOld = 0;
 }
 
@@ -384,9 +393,23 @@ void vtkPOpenFOAMReader::SetCaseType(int t)
 }
 
 //------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::SetReadAllFilesToDetermineStructure(bool readAllFilesToDetermineStructure)
+{
+  if (this->ReadAllFilesToDetermineStructure != readAllFilesToDetermineStructure)
+  {
+    this->ReadAllFilesToDetermineStructure = readAllFilesToDetermineStructure;
+    this->Refresh = true;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 int vtkPOpenFOAMReader::RequestInformation(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestInformation();
+#endif
   const bool isRootProc = (this->ProcessId == 0);
   const bool isParallel = (this->NumProcesses > 1);
   int returnCode = 1;
@@ -398,6 +421,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     if (isRootProc)
     {
       returnCode = this->Superclass::RequestInformation(request, inputVector, outputVector);
@@ -433,6 +459,13 @@ int vtkPOpenFOAMReader::RequestInformation(
     }
 
     this->GatherMetaData();
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->Superclass::PrintRequestInformation();
+#endif
     return returnCode;
   }
 
@@ -444,15 +477,18 @@ int vtkPOpenFOAMReader::RequestInformation(
 
   // Handle the decomposed case
 
-  if (*this->Superclass::FileNameOld != this->Superclass::FileName ||
+  if (this->Superclass::FileNameOld != this->Superclass::FileName ||
     this->Superclass::ListTimeStepsByControlDict !=
       this->Superclass::ListTimeStepsByControlDictOld ||
     this->Superclass::SkipZeroTime != this->Superclass::SkipZeroTimeOld ||
     this->Superclass::Refresh)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     // retain selection status when just refreshing a case
-    if (!this->Superclass::FileNameOld->empty() &&
-      *this->Superclass::FileNameOld != this->Superclass::FileName)
+    if (!this->Superclass::FileNameOld.empty() &&
+      this->Superclass::FileNameOld != this->Superclass::FileName)
     {
       // clear selections
       this->Superclass::CellDataArraySelection->RemoveAllArrays();
@@ -461,9 +497,8 @@ int vtkPOpenFOAMReader::RequestInformation(
       this->Superclass::PatchDataArraySelection->RemoveAllArrays();
     }
 
-    *this->Superclass::FileNameOld = this->FileName;
-    this->Superclass::Readers->RemoveAllItems();
-    this->Superclass::NumberOfReaders = 0;
+    this->Superclass::FileNameOld = this->FileName;
+    this->Superclass::Readers.clear();
 
     // Recreate case information
     vtkStdString masterCasePath, controlDictPath;
@@ -476,6 +511,9 @@ int vtkPOpenFOAMReader::RequestInformation(
     auto processorDirs = vtkSmartPointer<vtkIntArray>::New();
     vtkStringArray* timeNames = nullptr;
     vtkDoubleArray* timeValues = nullptr;
+    std::vector<vtkSmartPointer<vtkTable>> fieldNameInfoPerPrivateReader;
+    std::vector<vtkSmartPointer<vtkUnsignedCharArray>>
+      populateMeshIndicesFileChecksPerPrivateReader;
 
     if (isRootProc)
     {
@@ -492,7 +530,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 
         processorDirs = ::ScanForProcessorDirs(dir);
         nProcessorDirs = static_cast<int>(processorDirs->GetNumberOfTuples());
-
+#if VTK_OPENFOAM_TIME_PROFILING
+        std::cout << "nProcessorDirs: " << nProcessorDirs << std::endl;
+#endif
         if (nProcessorDirs)
         {
           // Get times from the first processor subdirectory
@@ -502,14 +542,20 @@ int vtkPOpenFOAMReader::RequestInformation(
           auto masterReader = ::NewFoamReader(this);
 
           if (!masterReader->MakeInformationVector(outputVector, procDirName) ||
-            !masterReader->MakeMetaDataAtTimeStep(true))
+            !masterReader->MakeMetaDataAtTimeStep(true, /*skipComputingMetaData=*/false))
           {
             returnCode = 0;
             break; // Failed
           }
-          this->Superclass::Readers->AddItem(masterReader);
+          this->Superclass::Readers.emplace_back(masterReader);
           timeNames = masterReader->GetTimeNames();
           timeValues = masterReader->GetTimeValues();
+          if (!this->ReadAllFilesToDetermineStructure)
+          {
+            fieldNameInfoPerPrivateReader = masterReader->GetMarshalledMetadataPerReader();
+            populateMeshIndicesFileChecksPerPrivateReader =
+              masterReader->GetPopulateMeshIndicesFileChecksPerReader();
+          }
         }
         else
         {
@@ -540,6 +586,26 @@ int vtkPOpenFOAMReader::RequestInformation(
       this->Controller->Broadcast(processorDirs, 0);
       this->Controller->Broadcast(timeValues, 0);
       this->Broadcast(timeNames);
+      if (!this->ReadAllFilesToDetermineStructure)
+      {
+        size_t numberOfPrivateReaders = fieldNameInfoPerPrivateReader.size();
+        this->Controller->Broadcast(&numberOfPrivateReaders, 1, 0);
+
+        fieldNameInfoPerPrivateReader.resize(numberOfPrivateReaders);
+        populateMeshIndicesFileChecksPerPrivateReader.resize(numberOfPrivateReaders);
+        for (size_t i = 0; i < numberOfPrivateReaders; i++)
+        {
+          if (!isRootProc)
+          {
+            fieldNameInfoPerPrivateReader[i] = vtkSmartPointer<vtkTable>::New();
+            populateMeshIndicesFileChecksPerPrivateReader[i] =
+              vtkSmartPointer<vtkUnsignedCharArray>::New();
+          }
+          this->Controller->Broadcast(fieldNameInfoPerPrivateReader[i], 0);
+          this->Controller->Broadcast(populateMeshIndicesFileChecksPerPrivateReader[i], 0);
+        }
+        this->BroadcastMetaData();
+      }
       if (!isRootProc)
       {
         this->Superclass::SetTimeInformation(outputVector, timeValues);
@@ -558,25 +624,68 @@ int vtkPOpenFOAMReader::RequestInformation(
     // Create reader instances for processor subdirectories,
     // skip first one since it has already been created above
 
+    std::vector<std::string> procDirNames;
     for (int dirIndex = (this->ProcessId ? this->ProcessId : this->NumProcesses);
          dirIndex < nProcessorDirs; dirIndex += this->NumProcesses)
     {
       const std::string procDirName = ::ProcessorDirName(processorDirs, dirIndex);
       vtkFoamDebug(<< "Additional processor dir: " << procDirName << "\n");
-
-      auto subReader = ::NewFoamReader(this);
-
-      // If getting metadata failed, simply skip the reader instance
-      if (subReader->MakeInformationVector(nullptr, procDirName, timeNames, timeValues) &&
-        subReader->MakeMetaDataAtTimeStep(true))
-      {
-        this->Superclass::Readers->AddItem(subReader);
-      }
-      else
-      {
-        vtkWarningMacro(<< "Removing reader for processor subdirectory " << procDirName);
-      }
+      procDirNames.push_back(procDirName);
     }
+
+    std::vector<vtkSmartPointer<vtkObject>> procReaders(procDirNames.size(), nullptr);
+    auto readersMakeInformationVector = [&](vtkIdType begin, vtkIdType end) -> void
+    {
+      for (vtkIdType i = begin; i < end; ++i)
+      {
+        auto subReader = ::NewFoamReader(this);
+        if (this->ReadAllFilesToDetermineStructure)
+        {
+          // If getting metadata failed, simply skip the reader instance
+          if (subReader->MakeInformationVector(nullptr, procDirNames[i], timeNames, timeValues) &&
+            subReader->MakeMetaDataAtTimeStep(true, /*skipComputingMetaData=*/false))
+          {
+            procReaders[i] = subReader;
+          }
+          else
+          {
+            vtkWarningMacro(<< "Removing reader for processor subdirectory " << procDirNames[i]);
+          }
+        }
+        else
+        {
+          const bool makeVector = subReader->MakeInformationVector(nullptr, procDirNames[i],
+            timeNames, timeValues, populateMeshIndicesFileChecksPerPrivateReader);
+          // the internal readers are created after makeInformationVector is called,
+          // so the metadata can now be called.
+          subReader->SetMarshalledMetadataPerReader(fieldNameInfoPerPrivateReader);
+          // so now we can call MakeMetaDataAtTimeStep, since the internal re
+          const bool makeMetaData =
+            makeVector && subReader->MakeMetaDataAtTimeStep(true, /*skipComputingMetaData=*/true);
+          // If getting metadata failed, simply skip the reader instance
+          if (makeMetaData)
+          {
+            procReaders[i] = subReader;
+          }
+          else
+          {
+            vtkWarningMacro(<< "Removing reader for processor subdirectory " << procDirNames[i]);
+          }
+        }
+      }
+    };
+    if (this->GetSequentialProcessing())
+    {
+      readersMakeInformationVector(0, static_cast<vtkIdType>(procReaders.size()));
+    }
+    else
+    {
+      vtkSMPTools::For(0, static_cast<vtkIdType>(procReaders.size()), readersMakeInformationVector);
+    }
+    // move valid readers to the main list
+    std::copy_if(std::make_move_iterator(procReaders.begin()),
+      std::make_move_iterator(procReaders.end()), std::back_inserter(this->Superclass::Readers),
+      [](const auto& reader) { return reader != nullptr; });
 
     // Cleanup
     if (!isRootProc || (nProcessorDirs == 0))
@@ -591,8 +700,18 @@ int vtkPOpenFOAMReader::RequestInformation(
       }
     }
 
-    this->GatherMetaData();
+    if (this->ReadAllFilesToDetermineStructure)
+    {
+      this->GatherMetaData();
+    }
     this->Superclass::Refresh = false;
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->PrintRequestInformation();
+#endif
   }
 
   return returnCode;
@@ -602,6 +721,9 @@ int vtkPOpenFOAMReader::RequestInformation(
 int vtkPOpenFOAMReader::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+#if VTK_OPENFOAM_TIME_PROFILING
+  this->InitializeRequestData();
+#endif
   const bool isRootProc = (this->ProcessId == 0);
   const bool isParallel = (this->NumProcesses > 1);
   int returnCode = 1;
@@ -612,6 +734,9 @@ int vtkPOpenFOAMReader::RequestData(
 
   if (this->CaseType == RECONSTRUCTED_CASE)
   {
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
     if (isRootProc)
     {
       returnCode = this->Superclass::RequestData(request, inputVector, outputVector);
@@ -635,10 +760,21 @@ int vtkPOpenFOAMReader::RequestData(
         output->CopyStructure(mb);
       }
     }
+#if VTK_OPENFOAM_TIME_PROFILING
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "vtkPOpenFOAMReader::RequestData: Elapsed time: "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+              << std::endl;
+    this->Superclass::PrintRequestData();
+#endif
+
     return returnCode;
   }
 
-  if (this->Superclass::Readers->GetNumberOfItems())
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
+  if (!this->Superclass::Readers.empty())
   {
     int nTimes = 0; // Also used for logic
     double requestedTimeValue = 0;
@@ -659,26 +795,48 @@ int vtkPOpenFOAMReader::RequestData(
 
     // NOTE: do not call SetTimeValue() directly here
 
-    vtkAppendCompositeDataLeaves* append = vtkAppendCompositeDataLeaves::New();
-    // append->AppendFieldDataOn();
+    vtkNew<vtkAppendCompositeDataLeaves> append;
 
-    vtkOpenFOAMReader* reader;
-    this->Superclass::CurrentReaderIndex = 0;
-    this->Superclass::Readers->InitTraversal();
-    while ((reader = vtkOpenFOAMReader::SafeDownCast(
-              this->Superclass::Readers->GetNextItemAsObject())) != nullptr)
+    std::vector<int> updatedReaders(this->Superclass::Readers.size(), 0);
+    auto readersProcessing = [&](vtkIdType begin, vtkIdType end) -> void
     {
-      // even if the child readers themselves are not modified, mark
-      // them as modified if "this" has been modified, since they
-      // refer to the property of "this"
-      if ((nTimes && reader->SetTimeValue(requestedTimeValue)) ||
-        (this->MTimeOld != this->GetMTime()))
+      for (vtkIdType i = begin; i < end; ++i)
       {
-        reader->Modified();
+        vtkOpenFOAMReader* reader = vtkOpenFOAMReader::SafeDownCast(this->Superclass::Readers[i]);
+        if (!reader)
+        {
+          continue;
+        }
+        // even if the child readers themselves are not modified, mark
+        // them as modified if "this" has been modified, since they
+        // refer to the property of "this"
+        if ((nTimes && reader->SetTimeValue(requestedTimeValue)) ||
+          (this->MTimeOld != this->GetMTime()))
+        {
+          reader->Modified();
+        }
+        if (reader->MakeMetaDataAtTimeStep(false, /*skipComputingMetaData=*/false))
+        {
+          reader->Update();
+          updatedReaders[i] = 1;
+        }
       }
-      if (reader->MakeMetaDataAtTimeStep(false))
+    };
+    if (this->GetSequentialProcessing())
+    {
+      readersProcessing(0, static_cast<vtkIdType>(this->Superclass::Readers.size()));
+    }
+    else
+    {
+      vtkSMPTools::For(
+        0, static_cast<vtkIdType>(this->Superclass::Readers.size()), readersProcessing);
+    }
+    for (size_t i = 0; i < this->Superclass::Readers.size(); ++i)
+    {
+      if (updatedReaders[i])
       {
-        append->AddInputConnection(reader->GetOutputPort());
+        append->AddInputConnection(
+          vtkOpenFOAMReader::SafeDownCast(this->Superclass::Readers[i])->GetOutputPort());
       }
     }
 
@@ -696,7 +854,6 @@ int vtkPOpenFOAMReader::RequestData(
       append->Update();
       output->CompositeShallowCopy(append->GetOutput());
     }
-    append->Delete();
 
     // known issue: output for process without sub-reader will not have CasePath
     output->GetFieldData()->AddArray(this->Superclass::CasePath);
@@ -729,7 +886,27 @@ int vtkPOpenFOAMReader::RequestData(
   this->Superclass::UpdateStatus();
   this->MTimeOld = this->GetMTime();
 
+#if VTK_OPENFOAM_TIME_PROFILING
+  auto end = std::chrono::high_resolution_clock::now();
+  std::cout << "vtkPOpenFOAMReader::RequestData: Elapsed time: "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms"
+            << std::endl;
+  this->PrintRequestData();
+#endif
   return returnCode;
+}
+
+//------------------------------------------------------------------------------
+// Note: includes guard against non-parallel calls
+void vtkPOpenFOAMReader::BroadcastMetaData()
+{
+  if (this->NumProcesses > 1)
+  {
+    this->Broadcast(this->Superclass::PatchDataArraySelection);
+    this->Broadcast(this->Superclass::CellDataArraySelection);
+    this->Broadcast(this->Superclass::PointDataArraySelection);
+    this->Broadcast(this->Superclass::LagrangianDataArraySelection);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -742,213 +919,259 @@ void vtkPOpenFOAMReader::GatherMetaData()
     this->AllGather(this->Superclass::CellDataArraySelection);
     this->AllGather(this->Superclass::PointDataArraySelection);
     this->AllGather(this->Superclass::LagrangianDataArraySelection);
-    // omit removing duplicated entries of LagrangianPaths as well
-    // when the number of processes is 1 assuming there's no duplicate
-    // entry within a process
-    this->AllGather(this->Superclass::LagrangianPaths);
   }
 }
 
 //------------------------------------------------------------------------------
 // Broadcast a vtkStringArray in process 0 to all processes
-// Low-level routine without guard against non-parallel calls
-//
-// Broadcasts a set of nul-char delimited strings which are re-parsed
-// into individual entries.
 void vtkPOpenFOAMReader::Broadcast(vtkStringArray* sa)
 {
-  const bool isRootProc = (this->ProcessId == 0);
-
-  vtkIdType lengths[2]; // A tuple of local count, send length
-  std::vector<char> contents;
-
-  if (isRootProc)
+  vtkNew<vtkTable> table;
+  if (this->ProcessId == 0)
   {
-    //- Get the overall send length
-    lengths[0] = sa->GetNumberOfTuples();
-    lengths[1] = 0;
-    for (int i = 0; i < lengths[0]; ++i)
-    {
-      const std::string& str = sa->GetValue(i);
-      lengths[1] += static_cast<vtkIdType>(str.length()) + 1; // Trailing nul-char
-    }
-    contents.resize(lengths[1]); // Send buffer
-
-    //- Add content to send (nul-delimited)
-    char* name = contents.data();
-    for (int i = 0; i < lengths[0]; ++i)
-    {
-      const std::string& str = sa->GetValue(i);
-      const int len = static_cast<int>(str.length()) + 1; // Trailing nul-char
-      memcpy(name, str.c_str(), len);
-      name += len;
-    }
+    table->GetFieldData()->AddArray(sa);
   }
 
-  this->Controller->Broadcast(lengths, 2, 0);
+  this->Controller->Broadcast(table.GetPointer(), 0);
 
-  if (!isRootProc)
+  if (this->ProcessId != 0)
   {
-    contents.resize(lengths[1]); // Recv buffer
+    sa->DeepCopy(table->GetFieldData()->GetAbstractArray(0));
+  }
+}
+
+//------------------------------------------------------------------------------
+// Broadcast vtkDataArraySelections in process 0 to all processes
+void vtkPOpenFOAMReader::Broadcast(vtkDataArraySelection* dataArraySelection)
+{
+  vtkNew<vtkTable> table;
+  if (this->ProcessId == 0)
+  {
+    vtkNew<vtkStringArray> patchNames;
+    patchNames->SetName("PatchNames");
+    vtkNew<vtkIntArray> patchStatus;
+    patchStatus->SetName("PatchStatus");
+    if (const int numOfArrays = dataArraySelection->GetNumberOfArrays())
+    {
+      patchNames->SetNumberOfValues(numOfArrays);
+      patchStatus->SetNumberOfValues(numOfArrays);
+      for (int i = 0; i < numOfArrays; ++i)
+      {
+        patchNames->SetValue(i, dataArraySelection->GetArrayName(i));
+        patchStatus->SetValue(i, dataArraySelection->GetArraySetting(i));
+      }
+      table->GetFieldData()->AddArray(patchNames);
+      table->GetFieldData()->AddArray(patchStatus);
+    }
+  }
+  this->Controller->Broadcast(table, 0);
+  if (table->GetFieldData()->GetNumberOfArrays() != 2)
+  {
+    return;
   }
 
-  this->Controller->Broadcast(contents.data(), contents.size(), 0);
-
-  if (!isRootProc)
+  if (this->ProcessId != 0)
   {
-    sa->Initialize();
-    sa->SetNumberOfTuples(lengths[0]);
-
-    // Walk the set of nul-char delimited strings
-    const char* name = contents.data();
-    for (int i = 0; i < lengths[0]; ++i)
+    dataArraySelection->RemoveAllArrays();
+    auto names = vtkStringArray::SafeDownCast(table->GetFieldData()->GetAbstractArray(0));
+    auto status = vtkIntArray::SafeDownCast(table->GetFieldData()->GetAbstractArray(1));
+    for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
     {
-      sa->SetValue(i, name);
-      const int len = static_cast<int>(sa->GetValue(i).length()) + 1; // Trailing nul-char
-      name += len;
+      const int index = dataArraySelection->GetArrayIndex(names->GetValue(i).c_str());
+      if (index == -1)
+      {
+        dataArraySelection->SetArraySetting(names->GetValue(i).c_str(), status->GetValue(i));
+      }
+      else
+      {
+        dataArraySelection->SetArraySetting(names->GetValue(i).c_str(), status->GetValue(i));
+      }
     }
   }
 }
 
 //------------------------------------------------------------------------------
 // AllGather vtkStringArray from and to all processes
-// Low-level routine without guard against non-parallel calls
-//
-// Sends/receives a set of nul-char delimited strings which can be re-parsed
-// into individual entries.
 void vtkPOpenFOAMReader::AllGather(vtkStringArray* sa)
 {
-  // Construct a set of nul-char delimited strings to send
+  vtkNew<vtkTable> table;
+  table->GetFieldData()->AddArray(sa);
 
-  //- Get the overall send length
-  vtkIdType length = 0;
-  for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
-  {
-    // Include trailing nul-char
-    length += static_cast<vtkIdType>(sa->GetValue(i).length()) + 1;
-  }
-
-  //- Add content to send (nul-delimited)
-  std::vector<char> contents(length);
-  {
-    char* name = contents.data();
-    for (int i = 0; i < sa->GetNumberOfTuples(); ++i)
-    {
-      const int len = static_cast<int>(sa->GetValue(i).length()) + 1; // Trailing nul-char
-      memcpy(name, sa->GetValue(i).c_str(), len);
-      name += len;
-    }
-  }
-
-  std::vector<vtkIdType> lengths(this->NumProcesses);
-  std::vector<vtkIdType> offsets(this->NumProcesses);
-
-  this->Controller->AllGather(&length, lengths.data(), 1);
-
-  vtkIdType totalLength = 0;
-  for (int proci = 0; proci < this->NumProcesses; ++proci)
-  {
-    offsets[proci] = totalLength;
-    totalLength += lengths[proci];
-  }
-
-  std::vector<char> allContents(totalLength);
-
-  this->Controller->AllGatherV(
-    contents.data(), allContents.data(), length, lengths.data(), offsets.data());
+  std::vector<vtkSmartPointer<vtkDataObject>> dataObjects;
+  this->Controller->AllGather(table, dataObjects);
 
   sa->Initialize();
-
-  // Walk the set of nul-char delimited strings
+  for (auto& dataObject : dataObjects)
   {
-    const char* name = allContents.data();
-    for (int off = 0; off < totalLength; /*nil*/)
+    auto array = vtkStringArray::SafeDownCast(dataObject->GetFieldData()->GetAbstractArray(0));
+    for (vtkIdType i = 0; i < array->GetNumberOfValues(); ++i)
     {
-      const int len = static_cast<int>(strlen(name)) + 1; // Trailing nul-char
-      if (sa->LookupValue(name) == -1)
+      if (sa->LookupValue(array->GetValue(i)) == -1)
       {
-        // Insert only when the same string is not found
-        sa->InsertNextValue(name);
+        sa->InsertNextValue(array->GetValue(i));
       }
-      name += len;
-      off += len;
     }
   }
-  sa->Squeeze();
 }
 
 //------------------------------------------------------------------------------
 // AllGather vtkDataArraySelections from/to all processes
-// Low-level routine without non-parallel guard
-//
-// Sends/receives a set of nul-char delimited strings which can be re-parsed
-// into individual entries.
-// Each string element is prefixed with an additional char for its enabled/disabled state.
-void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* sa)
+void vtkPOpenFOAMReader::AllGather(vtkDataArraySelection* dataArraySelection)
 {
-  // Construct a set of nul-char delimited strings, with bool prefix
-
-  //- Get the overall send length
-  vtkIdType length = 0;
-  for (int i = 0; i < sa->GetNumberOfArrays(); ++i)
+  vtkNew<vtkTable> table;
+  vtkNew<vtkStringArray> patchNames;
+  patchNames->SetName("PatchNames");
+  vtkNew<vtkIntArray> patchStatus;
+  patchStatus->SetName("PatchStatus");
+  if (const int numOfArrays = dataArraySelection->GetNumberOfArrays())
   {
-    // Include prefix char (bool) for enabled and trailing nul-char
-    length += static_cast<vtkIdType>(strlen(sa->GetArrayName(i))) + 2;
-  }
-
-  //- Add content to send (nul-delimited)
-  std::vector<char> contents(length);
-  {
-    char* send = contents.data();
-    for (int i = 0; i < sa->GetNumberOfArrays(); ++i)
+    patchNames->SetNumberOfValues(numOfArrays);
+    patchStatus->SetNumberOfValues(numOfArrays);
+    for (int i = 0; i < numOfArrays; ++i)
     {
-      const char* arrayName = sa->GetArrayName(i);
-      const int len = static_cast<int>(strlen(arrayName)) + 1; // With trailing nul-char
-      *send++ = sa->ArrayIsEnabled(arrayName);                 // enabled/disabled
-      memcpy(send, arrayName, len);
-      send += len;
+      patchNames->SetValue(i, dataArraySelection->GetArrayName(i));
+      patchStatus->SetValue(i, dataArraySelection->GetArraySetting(i));
     }
+    table->GetFieldData()->AddArray(patchNames);
+    table->GetFieldData()->AddArray(patchStatus);
   }
 
-  std::vector<vtkIdType> lengths(this->NumProcesses);
-  std::vector<vtkIdType> offsets(this->NumProcesses);
+  std::vector<vtkSmartPointer<vtkDataObject>> dataObjects;
+  this->Controller->AllGather(table, dataObjects);
 
-  this->Controller->AllGather(&length, lengths.data(), 1);
-
-  vtkIdType totalLength = 0;
-  for (int proci = 0; proci < this->NumProcesses; ++proci)
+  // do not RemoveAllArrays so that the previous arrays are preserved
+  // dataArraySelection->RemoveAllArrays();
+  for (auto& dataObject : dataObjects)
   {
-    offsets[proci] = totalLength;
-    totalLength += lengths[proci];
-  }
-
-  std::vector<char> allContents(totalLength);
-
-  this->Controller->AllGatherV(
-    contents.data(), allContents.data(), length, lengths.data(), offsets.data());
-
-  // do not RemoveAllArray so that the previous arrays are preserved
-  // sa->RemoveAllArrays();
-
-  // Walk the set of nul-char delimited strings.
-  // Note that each string is prefixed with a bool.
-  {
-    const char* name = allContents.data();
-    for (int off = 0; off < totalLength; /*nil*/)
+    if (dataObject->GetFieldData()->GetNumberOfArrays() != 2)
     {
-      ++off; // leading bool
-      const bool isEnabled(*name++);
-      const int len = static_cast<int>(strlen(name)) + 1; // With trailing nul-char
-
+      continue;
+    }
+    auto names = vtkStringArray::SafeDownCast(dataObject->GetFieldData()->GetAbstractArray(0));
+    auto status = vtkIntArray::SafeDownCast(dataObject->GetFieldData()->GetAbstractArray(1));
+    for (vtkIdType i = 0; i < names->GetNumberOfValues(); ++i)
+    {
+      const auto name = names->GetValue(i).c_str();
+      const auto isEnabled = status->GetValue(i);
       // Add new or update current state
-      if (!sa->AddArray(name, isEnabled))
+      if (!dataArraySelection->AddArray(name, isEnabled))
       {
-        sa->SetArraySetting(name, isEnabled);
+        dataArraySelection->SetArraySetting(name, isEnabled);
       }
-
-      name += len;
-      off += len;
     }
   }
 }
+
+//------------------------------------------------------------------------------
+double vtkPOpenFOAMReader::ComputeProgress()
+{
+  // get valid readers
+  std::vector<vtkOpenFOAMReader*> readers;
+  for (auto& readerObj : this->Superclass::Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      readers.push_back(reader);
+    }
+  }
+  // compute the current progress
+  if (!readers.empty())
+  {
+    const double sum = std::accumulate(readers.begin(), readers.end(), 0.0,
+      [](double acc, const auto& reader) { return acc + reader->ComputeProgress(); });
+    return sum / readers.size();
+  }
+  return 1.0;
+}
+
+#if VTK_OPENFOAM_TIME_PROFILING
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::InitializeRequestInformation()
+{
+  this->Superclass::InitializeRequestInformation();
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      reader->InitializeRequestInformation();
+    }
+  }
+}
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::InitializeRequestData()
+{
+  this->Superclass::InitializeRequestData();
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      reader->InitializeRequestData();
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::PrintRequestInformation()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->GetRequestInformationTimeInMicroseconds());
+      maxTime = std::max(maxTime, reader->GetRequestInformationTimeInMicroseconds());
+      totalTime += reader->GetRequestInformationTimeInMicroseconds();
+      minBytes = std::min(minBytes, reader->GetRequestInformationBytes());
+      maxBytes = std::max(maxBytes, reader->GetRequestInformationBytes());
+      totalBytes += reader->GetRequestInformationBytes();
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkPOpenFOAMReader::RequestInformation: " << count
+              << " Readers' RequestInformation I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkPOpenFOAMReader::PrintRequestData()
+{
+  long long count = 0, minTime = VTK_LONG_LONG_MAX, maxTime = 0;
+  size_t minBytes = VTK_UNSIGNED_LONG_LONG_MAX, maxBytes = 0;
+  double totalTime = 0, totalBytes = 0;
+  for (auto& readerObj : this->Readers)
+  {
+    if (auto reader = vtkOpenFOAMReader::SafeDownCast(readerObj))
+    {
+      minTime = std::min(minTime, reader->GetRequestDataTimeInMicroseconds());
+      maxTime = std::max(maxTime, reader->GetRequestDataTimeInMicroseconds());
+      totalTime += reader->GetRequestDataTimeInMicroseconds();
+      minBytes = std::min(minBytes, reader->GetRequestDataBytes());
+      maxBytes = std::max(maxBytes, reader->GetRequestDataBytes());
+      totalBytes += reader->GetRequestDataBytes();
+      count++;
+    }
+  }
+  if (count > 0)
+  {
+    std::cout << "vtkPOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Time: min=" << (minTime / 1000.0)
+              << " ms, max=" << (maxTime / 1000.0) << " ms, avg=" << ((totalTime / count) / 1000.0)
+              << " ms" << std::endl;
+    std::cout << "vtkPOpenFOAMReader::RequestData: " << count
+              << " Readers' RequestData I/O Size: min=" << (minBytes / (1024.0 * 1024.0))
+              << " MB, max=" << (maxBytes / (1024.0 * 1024.0))
+              << " MB, avg=" << ((totalBytes / count) / (1024.0 * 1024.0)) << " MB" << std::endl;
+  }
+}
+#endif
 VTK_ABI_NAMESPACE_END

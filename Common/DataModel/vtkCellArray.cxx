@@ -423,7 +423,8 @@ struct ReplaceCellPointAtIdImpl
   {
     using ValueType = typename CellStateT::ValueType;
 
-    cells.GetCellRange(cellId)[cellPointIndex] = static_cast<ValueType>(newPointId);
+    return cells.GetConnectivity()->SetValue(
+      cells.GetBeginOffset(cellId) + cellPointIndex, static_cast<ValueType>(newPointId));
   }
 };
 
