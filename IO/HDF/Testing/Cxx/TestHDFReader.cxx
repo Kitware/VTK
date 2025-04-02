@@ -393,12 +393,13 @@ int TestCompositeMultiPieceDataSet(const std::string& dataRoot)
 {
   // const std::string hdfPath = dataRoot + "/Data/vtkHDF/test_composite.hdf";
   const std::string hdfPath =
-    "/home/louis/dev/paraview-build/Testing/Temporary/parallel_composite_13.vtkhdf";
+    "/home/louis/dev/paraview-build/Testing/Temporary/parallel_composite_38.vtkhdf";
   vtkNew<vtkHDFReader> expectedReader;
   expectedReader->SetFileName(hdfPath.c_str());
   expectedReader->Update();
-  auto expectedData = vtkMultiBlockDataSet::SafeDownCast(expectedReader->GetOutput());
-
+  auto expectedData = vtkPartitionedDataSetCollection::SafeDownCast(expectedReader->GetOutput());
+  auto a = expectedData->GetDataAssembly();
+  auto b = expectedData->GetDataAssembly();
   return expectedData == nullptr;
 }
 

@@ -1291,7 +1291,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
 }
 
 //------------------------------------------------------------------------------
-int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSetCollection* pdc)
+int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* pdc)
 {
   this->Impl->OpenGroupAsVTKGroup("VTKHDF/");
   // Save temporal information, that can be overridden when changing root dataset
@@ -1322,51 +1322,27 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
       return 0;
     }
 
-    int result = 1;
-    int datatype = this->Impl->GetDataSetType();
-    if (datatype == VTK_POLY_DATA)
+    const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
+    const int datatype = this->Impl->GetDataSetType();
+
+    vtkSmartPointer<vtkDataObject> dataObject = this->Impl->GetNewDataSet(datatype, numPieces);
+    if (!this->ReadData(outInfo, dataObject))
     {
-      vtkNew<vtkPolyData> data;
-      auto* out = data->GetInformation();
-      // one piece per partition
-      out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1); // WTF?
-      this->SetupInformation(out);
-
-      vtkNew<vtkPartitionedDataSet> pData;
-      result = this->Read(out, data, pData);
-      pdc->SetPartitionedDataSet(dsIndex, pData);
-    }
-    else if (datatype == VTK_UNSTRUCTURED_GRID)
-    {
-      vtkNew<vtkUnstructuredGrid> data;
-      auto* out = data->GetInformation();
-      out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-      this->SetupInformation(out);
-
-      vtkNew<vtkPartitionedDataSet> pData;
-      result = this->Read(out, data, pData);
-      pdc->SetPartitionedDataSet(dsIndex, pData);
-    }
-    else if (datatype == VTK_IMAGE_DATA)
-    {
-      vtkNew<vtkImageData> data;
-      auto* out = data->GetInformation();
-
-      this->SetupInformation(out);
-
-      // always request the whole extent
-      out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-        out->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
-      result = this->Read(out, data);
-
-      vtkNew<vtkPartitionedDataSet> pData;
-      pData->SetPartition(0u, data);
-      pdc->SetPartitionedDataSet(dsIndex, pData);
+      return 0;
     }
 
-    if (result == 0)
+    vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(dataObject);
+    if (pds)
     {
-      return result;
+      pdc->SetPartitionedDataSet(dsIndex, pds);
+    }
+    else
+    {
+      // Craft a PDS from the single-part data object received
+      vtkNew<vtkPartitionedDataSet> newPDS;
+      newPDS->SetNumberOfPartitions(1);
+      newPDS->SetPartition(0, dataObject);
+      pdc->SetPartitionedDataSet(dsIndex, newPDS);
     }
 
     vtkPartitionedDataSet* pData = pdc->GetPartitionedDataSet(dsIndex);
@@ -1481,9 +1457,9 @@ int vtkHDFReader::ReadRecursively(
     dataMB->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), nodeName);
     if (this->Impl->IsPathSoftLink(hdfPath))
     {
-      // Set current path as HDF5 root
       this->Impl->RetrieveHDFInformation(hdfPath);
-      this->Impl->OpenGroupAsVTKGroup(hdfPath);
+      this->Impl->OpenGroupAsVTKGroup(hdfPath); // Set current path as HDF5 root
+
       const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
       const int datatype = this->Impl->GetDataSetType();
 
@@ -1492,7 +1468,10 @@ int vtkHDFReader::ReadRecursively(
       {
         dataObject.TakeReference(vtkMultiPieceDataSet::New());
       }
-      this->ReadData(outInfo, dataObject);
+      if (!this->ReadData(outInfo, dataObject))
+      {
+        return 0;
+      }
       dataMB->SetBlock(i, dataObject);
       this->AddFieldArrays(dataMB->GetBlock(i)); // FIXME: done twice?
     }
