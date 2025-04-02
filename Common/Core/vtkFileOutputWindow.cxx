@@ -4,8 +4,12 @@
 #include "vtkObjectFactory.h"
 #include "vtksys/FStream.hxx"
 
+#include <mutex>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFileOutputWindow);
+
+static std::mutex vtkFileOutputWindowMutex;
 
 vtkFileOutputWindow::vtkFileOutputWindow()
 {
@@ -37,6 +41,7 @@ void vtkFileOutputWindow::Initialize()
 
 void vtkFileOutputWindow::DisplayText(const char* text)
 {
+  std::lock_guard<std::mutex> lock(vtkFileOutputWindowMutex);
   if (!text)
   {
     return;

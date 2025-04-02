@@ -3,8 +3,12 @@
 #include "vtkStringOutputWindow.h"
 #include "vtkObjectFactory.h"
 
+#include <mutex>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStringOutputWindow);
+
+static std::mutex vtkStringOutputWindowMutex;
 
 vtkStringOutputWindow::vtkStringOutputWindow()
 {
@@ -22,6 +26,7 @@ void vtkStringOutputWindow::Initialize()
 
 void vtkStringOutputWindow::DisplayText(const char* text)
 {
+  std::lock_guard<std::mutex> lock(vtkStringOutputWindowMutex);
   if (!text)
   {
     return;

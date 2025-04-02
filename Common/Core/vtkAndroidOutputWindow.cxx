@@ -8,6 +8,10 @@
 
 #include <android/log.h>
 
+#include <mutex>
+
+static std::mutex vtkAndroidOutputWindowMutex;
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAndroidOutputWindow);
 
@@ -37,6 +41,7 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 {
+  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -54,6 +59,7 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 {
+  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -70,6 +76,7 @@ void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 {
+  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;
@@ -86,6 +93,7 @@ void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
 //------------------------------------------------------------------------------
 void vtkAndroidOutputWindow::DisplayText(const char* someText)
 {
+  std::lock_guard<std::mutex> lock(vtkAndroidOutputWindowMutex);
   if (!someText)
   {
     return;

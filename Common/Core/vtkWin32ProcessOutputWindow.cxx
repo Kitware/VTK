@@ -5,6 +5,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+#include <mutex>
 #include <string>
 
 #ifndef _MAX_FNAME
@@ -26,6 +27,8 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 extern "C" int vtkEncodedArrayWin32OutputWindowProcessWrite(const char* fname);
+
+static std::mutex vtkWin32ProcessOutputWindowMutex;
 
 //------------------------------------------------------------------------------
 vtkWin32ProcessOutputWindow::vtkWin32ProcessOutputWindow()
@@ -53,6 +56,7 @@ void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 {
+  std::lock_guard<std::mutex> lock(vtkWin32ProcessOutputWindowMutex);
   // Display the text if the pipe has not been broken.
   if (!this->Broken && text)
   {
