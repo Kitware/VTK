@@ -36,8 +36,18 @@ public:
   static vtkConduitArrayUtilities* New();
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
+  ///@{
+  /**
+   * Returns true if p is a device pointer,
+   *         false if it is a host pointer.
+   * id is the VTKm DeviceAdapterTag such as VTK_DEVICE_ADAPTER_CUDA
+   * The 'working' parameter is set to true
+   * if VTKm has the runtime needed for the 'id' device
+   *         false otherwise
+   */
   static bool IsDevicePointer(const void* p, int8_t& id);
+  static bool IsDevicePointer(const void* p, int8_t& id, bool& working);
+  ///@}
 
   ///@{
   /**
@@ -109,14 +119,6 @@ private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
   void operator=(const vtkConduitArrayUtilities&) = delete;
 };
-
-#if !(VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel)
-#define VTK_IS_DEVICE_POINTER(memory)                                                              \
-  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
-  int8_t __device_adapter_id__;                                                                    \
-  bool isDevicePointer =                                                                           \
-    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);
-#endif
 
 VTK_ABI_NAMESPACE_END
 

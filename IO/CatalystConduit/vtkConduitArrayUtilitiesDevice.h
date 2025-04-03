@@ -54,18 +54,6 @@ private:
   void operator=(const vtkConduitArrayUtilitiesDevice&) = delete;
 };
 
-#define VTK_IS_DEVICE_POINTER(memory)                                                              \
-  void* __memory_pointer__ = const_cast<void*>(memory);                                            \
-  int8_t __device_adapter_id__;                                                                    \
-  bool isDevicePointer =                                                                           \
-    vtkConduitArrayUtilities::IsDevicePointer(__memory_pointer__, __device_adapter_id__);          \
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__device_adapter_id__);                  \
-  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))               \
-  {                                                                                                \
-    vtkLogF(ERROR, "Device %d is not available at runtime", __device_adapter_id__);                \
-    return nullptr;                                                                                \
-  }
-
 VTK_ABI_NAMESPACE_END
 
 #endif
