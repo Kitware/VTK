@@ -283,9 +283,10 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
   }
   return status;
 }
+}
 
 //------------------------------------------------------------------------------
-bool ReadDataSetType(hid_t groupID, int& dataSetType)
+bool vtkHDFUtilities::ReadDataSetType(hid_t groupID, int& dataSetType)
 {
   if (H5Aexists(groupID, "Type"))
   {
@@ -394,7 +395,6 @@ bool ReadDataSetType(hid_t groupID, int& dataSetType)
     return false;
   }
   return true;
-}
 }
 
 hid_t vtkHDFUtilities::getH5TypeFromVtkType(int dataType)
@@ -675,7 +675,7 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   }
 
   H5Eset_auto(H5E_DEFAULT, f, client_data);
-  if (!::ReadDataSetType(groupID, dataSetType))
+  if (!vtkHDFUtilities::ReadDataSetType(groupID, dataSetType))
   {
     return false;
   }

@@ -300,7 +300,6 @@ private:
   vtkHDF::ScopedH5GHandle StepsGroup;
   std::vector<vtkHDF::ScopedH5FHandle> Subfiles;
   std::vector<std::string> SubfileNames;
-  std::string HdfType;
   bool SubFilesReady = false;
 
   const std::array<std::string, 4> PrimitiveNames = { { "Vertices", "Lines", "Polygons",

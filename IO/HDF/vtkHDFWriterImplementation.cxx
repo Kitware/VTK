@@ -94,7 +94,6 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
     return false;
   }
 
-  this->HdfType = hdfType;
   return true;
 }
 
@@ -931,9 +930,12 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   // Get base path for the dataset: either /VTKHDF/ or /VTKHDF/XXX/YYY... for composite types
   std::string basePath = this->GetBasePath(groupPath);
 
-  // Find primitive for PolyData
-  bool isPolyData = this->HdfType == "PolyData";
-  const char primitive = isPolyData ? this->GetPrimitive(group) : 0;
+  // Find primitive type for PolyData
+  bool isPolyData =
+    H5Lexists(this->OpenExistingGroup(this->Root, basePath.c_str()), "Lines", H5P_DEFAULT) > 0;
+
+  // bool isPolyData = H5Lexists(groupID, "Steps", H5P_DEFAULT) <= 0;
+  const char primitive = this->GetPrimitive(group);
 
   hsize_t totalSteps = 1;
   if (this->Writer->IsTemporal && this->Writer->NbPieces != 1)
@@ -1194,19 +1196,20 @@ char vtkHDFWriter::Implementation::GetPrimitive(hid_t group)
   std::string groupName = this->GetGroupName(group);
   for (const auto& primitiveName : this->PrimitiveNames)
   {
-    if (groupName == "/VTKHDF/" + primitiveName)
+    if (groupName.find(primitiveName) != std::string::npos)
     {
       return primitive;
     }
     primitive++;
   }
-  return -1;
+  return 0xff;
 }
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
 {
-  vtkDebugWithObjectMacro(
-    this->Writer, "Creating steps sum " << name << " in " << this->GetGroupName(group));
+  vtkDebugWithObjectMacro(this->Writer,
+    "Creating steps sum " << name << " in " << this->GetGroupName(group) << "with base "
+                          << this->GetBasePath(this->GetGroupName(group)));
 
   const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
@@ -1222,8 +1225,8 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
     int totalForTimeStep = 0;
     for (std::size_t part = 0; part < this->Subfiles.size(); part++)
     {
-      totalForTimeStep +=
-        this->GetSubfileNumberOf(this->GetBasePath(this->GetGroupName(group)), name, part, step);
+      totalForTimeStep += this->GetSubfileNumberOf(
+        this->GetBasePath(this->GetGroupName(group)), "Steps/" + std::string(name), part, step);
     }
 
     if (!this->AddSingleValueToDataset(dataset, totalForTimeStep, false, false))
@@ -1267,9 +1270,7 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
         auto current = totalsArray->GetComponent(step, prim);
         vtkDebugWithObjectMacro(this->Writer, "part " << part << " value " << current);
         totalsArray->SetComponent(step, prim,
-          current +
-            this->GetSubfileNumberOf(
-              this->GetBasePath(this->GetGroupName(group)), datasetPath, part, step, prim));
+          current + this->GetSubfileNumberOf(this->GetGroupName(group), name, part, step, prim));
       }
     }
   }
@@ -1287,6 +1288,8 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base
   const std::string& qualifier, std::size_t subfileId, hsize_t part, char primitive)
 {
   const std::string fullPath = base + "/" + qualifier;
+  bool isPolyData = H5Lexists(this->OpenExistingGroup(this->Root, this->GetBasePath(base).c_str()),
+                      "Lines", H5P_DEFAULT) > 0;
   std::stringstream ss;
   ss << fullPath << " for subfile " << subfileId << " for part " << part << " with primitive "
      << static_cast<int>(primitive);
@@ -1310,12 +1313,19 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base
   std::vector<hsize_t> start{ static_cast<unsigned long>(part) }, count{ 1 }, result{ 0 };
   int dimension = 1;
   constexpr char INVALID_PRIMITIVE = 0xff;
-  if (this->HdfType == "PolyData" && primitive != INVALID_PRIMITIVE)
+
+  if (isPolyData && primitive != INVALID_PRIMITIVE)
   {
+    vtkDebugWithObjectMacro(this->Writer, "Is Polydata");
     start.emplace_back(static_cast<hsize_t>(primitive));
     count.emplace_back(1);
     dimension++;
+
+    vtkDebugWithObjectMacro(this->Writer, "Start : " << start[0] << " " << start[1]);
+    vtkDebugWithObjectMacro(this->Writer, "Count : " << count[0] << " " << count[1]);
   }
+
+  vtkDebugWithObjectMacro(this->Writer, "Dimension: " << dimension);
 
   vtkHDF::ScopedH5SHandle sourceSpace = H5Dget_space(sourceDataset);
   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(dimension, count.data(), nullptr);
