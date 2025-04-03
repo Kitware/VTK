@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkAnariCameraNode();
-  ~vtkAnariCameraNode();
+  ~vtkAnariCameraNode() override;
 
 private:
   vtkAnariCameraNode(const vtkAnariCameraNode&) = delete;

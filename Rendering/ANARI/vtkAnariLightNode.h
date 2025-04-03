@@ -45,12 +45,12 @@ public:
   /**
    * Make ANARI calls to render me.
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
   /**
    * A global multiplier to all ANARI lights.
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkAnariLightNode();
-  ~vtkAnariLightNode();
+  ~vtkAnariLightNode() override;
 
 private:
   vtkAnariLightNode(const vtkAnariLightNode&) = delete;

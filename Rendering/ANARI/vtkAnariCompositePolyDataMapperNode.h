@@ -39,16 +39,15 @@ public:
   /**
    * Sync VTK and ANARI objects.
    */
-  virtual void Synchronize(bool prepass) override;
+  void Synchronize(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
 protected:
   vtkAnariCompositePolyDataMapperNode() = default;
-  ~vtkAnariCompositePolyDataMapperNode() = default;
 
   void SynchronizeBlock(vtkMapper*, vtkActor*, vtkDataObject*, unsigned int&);
 

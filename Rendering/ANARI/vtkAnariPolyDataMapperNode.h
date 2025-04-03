@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkAnariPolyDataMapperNode();
-  ~vtkAnariPolyDataMapperNode();
+  ~vtkAnariPolyDataMapperNode() override;
 
   vtkActor* GetVtkActor() const;
   vtkAnariActorNode* GetAnariActorNode() const;
@@ -63,8 +63,8 @@ protected:
 
   void SetInheritInterface(vtkAnariPolyDataMapperInheritInterface* inheritInterface);
 
-  void AnariRenderPoly(vtkAnariActorNode* const anariActorNode, vtkPolyData* const poly,
-    double* const diffuse, const double opacity, const std::string& materialName);
+  void AnariRenderPoly(vtkAnariActorNode* anariActorNode, vtkPolyData* poly, double* diffuse,
+    double opacity, const std::string& materialName);
 
   vtkAnariPolyDataMapperNodeInternals* Internal{ nullptr };
   vtkAnariSceneGraph* RendererNode{ nullptr };

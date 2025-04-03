@@ -56,7 +56,7 @@ public:
 
 private:
   vtkAnariVolumeMapperNode();
-  ~vtkAnariVolumeMapperNode();
+  ~vtkAnariVolumeMapperNode() override;
 
   vtkVolume* GetVtkVolume() const;
   bool VolumeWasModified() const;
