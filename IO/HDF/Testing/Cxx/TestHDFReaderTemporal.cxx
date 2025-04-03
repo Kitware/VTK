@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkDataObject.h"
 #include "vtkHDFReader.h"
 
 #include "vtkAMRBox.h"
@@ -11,6 +12,7 @@
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
@@ -154,6 +156,8 @@ public:
     append->Update();
     vtkDataObject* merged = append->GetOutputDataObject(0);
     merged->SetFieldData(pds->GetFieldData());
+    merged->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),
+      data->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP()));
     return merged;
   }
 
@@ -370,11 +374,20 @@ int TestUGTemporalBase(OpenerWorklet& opener, bool testMeshMTime = false)
     // Open data at right time
     vtkSmartPointer<vtkDataSet> dSet = vtkDataSet::SafeDownCast(opener(iStep));
     // Local Time Checks
+    double readerTime = opener.GetReader()->GetTimeValue();
     if (!vtkMathUtilities::FuzzyCompare(
-          opener.GetReader()->GetTimeValue(), static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
+          readerTime, static_cast<double>(iStep) / 10, CHECK_TOLERANCE))
     {
-      std::cerr << "Property: TimeValue is wrong: " << opener.GetReader()->GetTimeValue()
+      std::cerr << "Property: TimeValue is wrong: " << readerTime
                 << " != " << static_cast<double>(iStep) / 10 << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    double dataTime = dSet->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    if (readerTime != dataTime)
+    {
+      std::cerr << "Output DATA_TIME_STEP is wrong: " << dataTime << " != " << readerTime
+                << std::endl;
       return EXIT_FAILURE;
     }
 
