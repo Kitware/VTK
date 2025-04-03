@@ -415,9 +415,9 @@ int TestHDFWriterTemporal(int argc, char* argv[])
     }
   }
 
-  // // Use a modified version of transient_harmonics to make sure that the time values match
+  // Use a modified version of transient_harmonics to make sure that the time values match
   // between
-  // // both datasets
+  // both datasets
   std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
   result &= TestTemporalComposite(

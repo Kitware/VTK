@@ -26,6 +26,7 @@ const std::string NUMBER_OF_POINTS{ "NumberOfPoints" };
 const std::string NUMBER_OF_CELLS{ "NumberOfCells" };
 const std::string CELL_DATA{ "CellData" };
 const std::string POINT_DATA{ "PointData" };
+const std::string FIELD_DATA{ "FieldData" };
 
 const std::string STEPS_POINT_OFFSETS{ "Steps/PointOffsets" };
 const std::string STEPS_CELL_OFFSETS{ "Steps/CellOffsets" };
@@ -1169,19 +1170,19 @@ hsize_t vtkHDFWriter::Implementation::GetNumberOfCellsSubfile(const std::string&
 
 std::string vtkHDFWriter::Implementation::GetBasePath(const std::string& fullPath)
 {
-  auto removePrefix = [](std::string& path, const std::string& prefix)
+  auto removePrefix = [](std::string& path, const std::string& suffix)
   {
-    if (path.find(prefix) != std::string::npos)
+    if (path.find(suffix) != std::string::npos)
     {
-      path = path.substr(0, path.find(prefix) - 1);
+      path = path.substr(0, path.find(suffix) - 1);
     }
   };
 
   std::string basePath = fullPath;
-  for (const std::string& prefix :
-    { "Steps", "CellData", "PointData", "Vertices", "Lines", "Polygons", "Strips" })
+  for (const std::string& suffix :
+    { "Steps", "CellData", "PointData", "FieldData", "Vertices", "Lines", "Polygons", "Strips" })
   {
-    removePrefix(basePath, prefix);
+    removePrefix(basePath, suffix);
   }
   return basePath;
 }
@@ -1399,7 +1400,7 @@ vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetData
     return false;
   };
 
-  if (contains_any(path, PATH::SINGLE_VALUES))
+  if (contains_any(path, PATH::SINGLE_VALUES) || contains_any(path, { PATH::FIELD_DATA }))
   {
     return IndexingMode::MetaData;
   }

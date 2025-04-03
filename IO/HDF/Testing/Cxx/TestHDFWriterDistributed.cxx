@@ -179,7 +179,6 @@ bool TestCompositeDistributedObject(
         ? addAssembly->GetOutputPort()
         : group->GetOutputPort());
     writer->SetFileName(filePath.c_str());
-    writer->SetDebug(true);
     writer->Write();
   }
 
@@ -481,16 +480,16 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   std::string dataRoot = testHelper->GetDataRoot();
 
   bool res = true;
-  // res &= ::TestDistributedPolyData(controller, tempDir);
-  // res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
-  // // res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
-  // res &= ::TestDistributedMultiBlock(controller, tempDir);
+  res &= ::TestDistributedPolyData(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedMultiBlock(controller, tempDir);
   res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
-  // res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
