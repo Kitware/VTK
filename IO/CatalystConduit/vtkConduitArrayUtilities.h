@@ -45,7 +45,6 @@ public:
    * if VTKm has the runtime needed for the 'id' device
    *         false otherwise
    */
-  static bool IsDevicePointer(const void* p, int8_t& id);
   static bool IsDevicePointer(const void* p, int8_t& id, bool& working);
   ///@}
 
@@ -108,6 +107,7 @@ protected:
   vtkConduitArrayUtilities();
   ~vtkConduitArrayUtilities() override;
 
+  static bool IsDevicePointer(const void* p, int8_t& id);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArrayImpl(
     const conduit_node* mcarray, bool force_signed);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKAOSArray(
