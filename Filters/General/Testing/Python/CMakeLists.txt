@@ -38,6 +38,7 @@ vtk_add_test_python(
   clipComb.py
   clipHex.py
   clipImage.py
+  clipPointSet.py,NO_OUTPUT,NO_DATA,NO_VALID
   clipPyramid.py
   clipQuadraticCells.py
   clipTet.py
