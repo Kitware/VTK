@@ -483,15 +483,17 @@ public:
     : DataSets(dataSets)
     , OutputFileName(fname)
 #ifdef FIDES_USE_MPI
-    , Adios(MPI_COMM_WORLD)
+    // leaving in this FIDES_USE_MPI check, as you could still use this ctor even if building with MPI
+    , Comm(MPI_COMM_WORLD)
+    , Adios(Comm)
 #else
     , Adios()
 #endif
     , FieldsToWriteSet(false)
   {
 #ifdef FIDES_USE_MPI
-    MPI_Comm_rank(MPI_COMM_WORLD, &this->Rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &this->NumRanks);
+    MPI_Comm_rank(this->Comm, &this->Rank);
+    MPI_Comm_size(this->Comm, &this->NumRanks);
 #endif
 
     this->IO = this->Adios.DeclareIO(outputMode);
@@ -499,6 +501,28 @@ public:
     this->Engine = this->IO.Open(this->OutputFileName,
                                  (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
   }
+
+#ifdef FIDES_USE_MPI
+  GenericWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+                const std::string& fname,
+                const std::string& outputMode,
+                MPI_Comm comm,
+                const bool& appendMode = false)
+    : DataSets(dataSets)
+    , OutputFileName(fname)
+    , Comm(comm)
+    , Adios(comm)
+    , FieldsToWriteSet(false)
+  {
+    MPI_Comm_rank(this->Comm, &this->Rank);
+    MPI_Comm_size(this->Comm, &this->NumRanks);
+
+    this->IO = this->Adios.DeclareIO(outputMode);
+    this->IO.SetEngine(outputMode);
+    this->Engine = this->IO.Open(this->OutputFileName,
+                                 (appendMode ? adios2::Mode::Append : adios2::Mode::Write));
+  }
+#endif
 
   void Close()
   {
@@ -751,7 +775,7 @@ protected:
 
 #ifdef FIDES_USE_MPI
     MPI_Allreduce(
-      MPI_IN_PLACE, this->DataSetsPerRank.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+      MPI_IN_PLACE, this->DataSetsPerRank.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
 #endif
 
     int tot = std::accumulate(this->DataSetsPerRank.begin(), this->DataSetsPerRank.end(), 0);
@@ -775,8 +799,8 @@ protected:
     }
 
 #ifdef FIDES_USE_MPI
-    MPI_Allreduce(MPI_IN_PLACE, numPoints.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(MPI_IN_PLACE, numPoints.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
 #endif
 
     tot = std::accumulate(numPoints.begin(), numPoints.end(), 0);
@@ -799,6 +823,10 @@ protected:
 
   vtkm::cont::PartitionedDataSet DataSets;
   std::string OutputFileName;
+
+#ifdef FIDES_USE_MPI
+  MPI_Comm Comm;
+#endif
   adios2::ADIOS Adios;
   adios2::IO IO;
   adios2::Engine Engine;
@@ -835,6 +863,17 @@ public:
     : GenericWriter(dataSets, fname, outputMode, appendMode)
   {
   }
+
+#ifdef FIDES_USE_MPI
+  UniformDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+                       const std::string& fname,
+                       const std::string& outputMode,
+                       MPI_Comm comm,
+                       const bool& appendMode = false)
+    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+  {
+  }
+#endif
 
   void DefineDataModelVariables() override
   {
@@ -918,6 +957,17 @@ public:
     : GenericWriter(dataSets, fname, outputMode, appendMode)
   {
   }
+
+#ifdef FIDES_USE_MPI
+  RectilinearDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+                           const std::string& fname,
+                           const std::string& outputMode,
+                           MPI_Comm comm,
+                           const bool& appendMode = false)
+    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+  {
+  }
+#endif
 
   void DefineDataModelVariables() override
   {
@@ -1029,7 +1079,7 @@ protected:
 
 #ifdef FIDES_USE_MPI
     MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks * 3, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks * 3, MPI_INT, MPI_SUM, this->Comm);
 #endif
     this->TotalNumberOfXCoords = 0;
     this->TotalNumberOfYCoords = 0;
@@ -1076,6 +1126,17 @@ public:
     : GenericWriter(dataSets, fname, outputMode, appendMode)
   {
   }
+
+#ifdef FIDES_USE_MPI
+  UnstructuredSingleTypeDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+                                      const std::string& fname,
+                                      const std::string& outputMode,
+                                      MPI_Comm comm,
+                                      const bool& appendMode = false)
+    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+  {
+  }
+#endif
 
   void DefineDataModelVariables() override
   {
@@ -1170,11 +1231,10 @@ protected:
 
 #ifdef FIDES_USE_MPI
     MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(
-      MPI_IN_PLACE, numPtsInCell.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(MPI_IN_PLACE, cellShape.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, numPtsInCell.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, cellShape.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
 #endif
 
     for (int i = 0; i < this->NumRanks; i++)
@@ -1226,6 +1286,23 @@ public:
                                     const std::string& outputMode,
                                     const bool& appendMode = false)
     : GenericWriter(dataSets, fname, outputMode, appendMode)
+  {
+    this->ValidatePartitionTypes(dataSets);
+  }
+
+#ifdef FIDES_USE_MPI
+  UnstructuredExplicitDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+                                    const std::string& fname,
+                                    const std::string& outputMode,
+                                    MPI_Comm comm,
+                                    const bool& appendMode = false)
+    : GenericWriter(dataSets, fname, outputMode, comm, appendMode)
+  {
+    this->ValidatePartitionTypes(dataSets);
+  }
+#endif
+
+  void ValidatePartitionTypes(const vtkm::cont::PartitionedDataSet& dataSets)
   {
     // Validate that every partition has the same type:
     for (auto const& ds : dataSets)
@@ -1343,9 +1420,9 @@ protected:
     numConns[this->Rank] = this->NumConns;
 #ifdef FIDES_USE_MPI
     MPI_Allreduce(
-      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(MPI_IN_PLACE, numConns.data(), this->NumRanks, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+      MPI_IN_PLACE, numCoordinates.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, numCells.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
+    MPI_Allreduce(MPI_IN_PLACE, numConns.data(), this->NumRanks, MPI_INT, MPI_SUM, this->Comm);
 #endif
 
     for (int i = 0; i < this->NumRanks; i++)
@@ -1385,6 +1462,15 @@ DataSetWriter::DataSetWriter(const std::string& outputFile)
   , WriteFieldSet(false)
 {
 }
+
+#ifdef FIDES_USE_MPI
+DataSetWriter::DataSetWriter(const std::string& outputFile, MPI_Comm comm)
+  : OutputFile(outputFile)
+  , WriteFieldSet(false)
+  , Comm(comm)
+{
+}
+#endif
 
 unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
 {
@@ -1428,8 +1514,8 @@ void DataSetWriter::SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSet
 {
   int rank = 0, numRanks = 1;
 #ifdef FIDES_USE_MPI
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &numRanks);
+  MPI_Comm_rank(this->Comm, &rank);
+  MPI_Comm_size(this->Comm, &numRanks);
 #endif
 
   //Make sure all the datasets are the same.
@@ -1457,7 +1543,7 @@ void DataSetWriter::SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSet
   allDataSetTypes[rank] = dataSetType;
 #ifdef FIDES_USE_MPI
   MPI_Allreduce(
-    MPI_IN_PLACE, allDataSetTypes.data(), numRanks, MPI_UNSIGNED_CHAR, MPI_BOR, MPI_COMM_WORLD);
+    MPI_IN_PLACE, allDataSetTypes.data(), numRanks, MPI_UNSIGNED_CHAR, MPI_BOR, this->Comm);
 #endif
 
   //If we OR these values all together, we will get the global dataset type.
@@ -1492,7 +1578,11 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
   }
   else if (this->DataSetType == DATASET_TYPE_UNIFORM)
   {
+#ifdef FIDES_USE_MPI
+    UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+#else
     UniformDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+#endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
 
@@ -1501,7 +1591,11 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
+#ifdef FIDES_USE_MPI
+    RectilinearDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+#else
     RectilinearDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+#endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
@@ -1509,7 +1603,12 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
+#ifdef FIDES_USE_MPI
+    UnstructuredSingleTypeDataSetWriter writeImpl(
+      dataSets, this->OutputFile, outputMode, this->Comm);
+#else
     UnstructuredSingleTypeDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+#endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
@@ -1517,7 +1616,11 @@ void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
+#ifdef FIDES_USE_MPI
+    UnstructuredExplicitDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode, this->Comm);
+#else
     UnstructuredExplicitDataSetWriter writeImpl(dataSets, this->OutputFile, outputMode);
+#endif
     if (this->WriteFieldSet)
       writeImpl.SetWriteFields(this->FieldsToWrite);
     writeImpl.Write();
@@ -1535,6 +1638,15 @@ DataSetAppendWriter::DataSetAppendWriter(const std::string& outputFile)
   , Writer(nullptr)
 {
 }
+
+#ifdef FIDES_USE_MPI
+DataSetAppendWriter::DataSetAppendWriter(const std::string& outputFile, MPI_Comm comm)
+  : DataSetWriter(outputFile, comm)
+  , IsInitialized(false)
+  , Writer(nullptr)
+{
+}
+#endif
 
 void DataSetAppendWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
                                 const std::string& outputMode)
@@ -1569,23 +1681,43 @@ void DataSetAppendWriter::Initialize(const vtkm::cont::PartitionedDataSet& dataS
   this->SetDataSetType(dataSets);
   if (this->DataSetType == DATASET_TYPE_UNIFORM)
   {
+#ifdef FIDES_USE_MPI
+    this->Writer.reset(new DataSetWriter::UniformDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->Comm, true));
+#else
     this->Writer.reset(
       new DataSetWriter::UniformDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+#endif
   }
   else if (this->DataSetType == DATASET_TYPE_RECTILINEAR)
   {
+#ifdef FIDES_USE_MPI
+    this->Writer.reset(new DataSetWriter::RectilinearDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->Comm, true));
+#else
     this->Writer.reset(
       new DataSetWriter::RectilinearDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+#endif
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED_SINGLE)
   {
+#ifdef FIDES_USE_MPI
+    this->Writer.reset(new UnstructuredSingleTypeDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->Comm, true));
+#else
     this->Writer.reset(
       new UnstructuredSingleTypeDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+#endif
   }
   else if (this->DataSetType == DATASET_TYPE_UNSTRUCTURED)
   {
+#ifdef FIDES_USE_MPI
+    this->Writer.reset(new UnstructuredExplicitDataSetWriter(
+      dataSets, this->OutputFile, outputMode, this->Comm, true));
+#else
     this->Writer.reset(
       new UnstructuredExplicitDataSetWriter(dataSets, this->OutputFile, outputMode, true));
+#endif
   }
   else
   {

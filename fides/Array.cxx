@@ -86,12 +86,9 @@ public:
     const auto& theta = taxField.Get(ti);
     for (vtkm::IdComponent i = 0; i < this->NumAmplitudes; i++)
     {
-      vtkm::Id idx_1d = zi * (this->NumTheta * this->NumAmplitudes) + ti * this->NumAmplitudes + i;
       auto xm = xmField.Get(i);
       auto xn = xnField.Get(i);
       auto xx = xm * theta - xn * zeta;
-      auto cc = vtkm::Cos(xx);
-      auto ss = vtkm::Sin(xx);
       xVal[i] = xx;
       cosVal[i] = vtkm::Cos(xx);
       sinVal[i] = vtkm::Sin(xx);
@@ -210,7 +207,6 @@ public:
     //Phi_n is a of size: (nfp*numZeta, nTheta)
     vtkm::Id xmi, zi, ti;
     Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, xmi, zi, ti);
-    vtkm::Id idx2d = 0;
 
     // X = R*cos(phi), Y= R*sin(phi)
     xyz[0] = rzl[0] * vtkm::Cos(Phi_n.Get(index));
@@ -1546,11 +1542,11 @@ void ArrayGXCoordinates::ProcessJSONHelper(const rapidjson::Value& json,
 /// Overridden to handle ArrayXGCCoordinates specific items.
 void ArrayGXCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
 {
-  this->ProcessJSONHelper(json, sources, "xm", this->xm);
-  this->ProcessJSONHelper(json, sources, "xn", this->xn);
-  this->ProcessJSONHelper(json, sources, "rmnc", this->rmnc);
-  this->ProcessJSONHelper(json, sources, "zmns", this->zmns);
-  this->ProcessJSONHelper(json, sources, "lmns", this->lmns);
+  this->ProcessJSONHelper(json, sources, "xm", this->XM);
+  this->ProcessJSONHelper(json, sources, "xn", this->XN);
+  this->ProcessJSONHelper(json, sources, "rmnc", this->RMNC);
+  this->ProcessJSONHelper(json, sources, "zmns", this->ZMNS);
+  this->ProcessJSONHelper(json, sources, "lmns", this->LMNS);
   this->ProcessJSONHelper(json, sources, "nfp", this->nfp);
   this->ProcessJSONHelper(json, sources, "phi", this->phi);
 
@@ -1583,11 +1579,11 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGXCoordinates::Read(
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  auto xmArrays = this->xm->Read(paths, sources, selections);
-  auto xnArrays = this->xn->Read(paths, sources, selections);
-  auto rmncArrays = this->rmnc->Read(paths, sources, selections);
-  auto zmnsArrays = this->zmns->Read(paths, sources, selections);
-  auto lmnsArrays = this->lmns->Read(paths, sources, selections);
+  auto xmArrays = this->XM->Read(paths, sources, selections);
+  auto xnArrays = this->XN->Read(paths, sources, selections);
+  auto rmncArrays = this->RMNC->Read(paths, sources, selections);
+  auto zmnsArrays = this->ZMNS->Read(paths, sources, selections);
+  auto lmnsArrays = this->LMNS->Read(paths, sources, selections);
   auto nfpArrays = this->nfp->Read(paths, sources, selections);
   auto phiArrays = this->phi->Read(paths, sources, selections);
 
@@ -1760,7 +1756,6 @@ void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
       fides::datamodel::fusionutil::CalcNFP calcNFPWorklet(
         this->NFP, this->NumZeta, this->NumTheta);
-      vtkm::cont::Invoker invoker;
       invoker(calcNFPWorklet, RZLArray, zn, zax, Phi_n, RZL_n);
       //Convert RZPhi to XYZ
       fides::datamodel::fusionutil::ConvertRZPhiToXYZ convertToXYZWorklet(
