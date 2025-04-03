@@ -161,10 +161,9 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDebugMacro(<< "Clipping dataset" << endl);
 
   const vtkIdType numPoints = inputCopy->GetNumberOfPoints();
-  const vtkIdType numCells = inputCopy->GetNumberOfCells();
 
   // handling exceptions
-  if (numPoints < 1 || numCells < 1)
+  if (numPoints < 1)
   {
     vtkDebugMacro(<< "No data to clip" << endl);
     outputUG = nullptr;
@@ -280,6 +279,16 @@ int vtkTableBasedClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     {
       this->InsideOut = !(this->InsideOut);
       this->ClipTDataSet(uGridBase, this->ClipFunction, scalars, isoValue, clippedOutputUG);
+      this->InsideOut = !(this->InsideOut);
+    }
+  }
+  else if (auto pointset = vtkPointSet::SafeDownCast(inputCopy))
+  {
+    this->ClipTDataSet(pointset, this->ClipFunction, scalars, isoValue, outputUG);
+    if (clippedOutputUG)
+    {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipTDataSet(pointset, this->ClipFunction, scalars, isoValue, clippedOutputUG);
       this->InsideOut = !(this->InsideOut);
     }
   }
