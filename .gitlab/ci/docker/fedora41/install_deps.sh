@@ -42,7 +42,7 @@ dnf install -y --setopt=install_weak_deps=False \
     mariadb-devel libiodbc-devel PDAL-devel liblas-devel openslide-devel \
     libarchive-devel freeglut-devel sqlite-devel PEGTL-devel cgnslib-devel \
     proj-devel wkhtmltopdf cli11-devel fmt-devel openvdb-devel json-devel \
-    openxr openxr-devel
+    openxr openxr-devel libscn-devel
 
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \

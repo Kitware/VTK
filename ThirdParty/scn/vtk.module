@@ -1,0 +1,9 @@
+NAME
+  VTK::scn
+LIBRARY_NAME
+  vtkscn
+DEPENDS
+  VTK::fast_float
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY
