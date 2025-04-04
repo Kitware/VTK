@@ -355,6 +355,9 @@ bool ReadDataSetType(hid_t groupID, int& dataSetType)
       return false;
     }
 
+    // Handle null-terminated strings
+    typeName.erase(std::find(typeName.begin(), typeName.end(), '\0'), typeName.end());
+
     if (typeName == "OverlappingAMR")
     {
       dataSetType = VTK_OVERLAPPING_AMR;
