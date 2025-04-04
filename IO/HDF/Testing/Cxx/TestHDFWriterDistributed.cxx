@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "HDFTestUtilities.h"
+
 #include "vtkAppendDataSets.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSetSurfaceFilter.h"
@@ -33,37 +35,13 @@
 #include "vtkWarpScalar.h"
 #include "vtkXMLPolyDataReader.h"
 
+namespace HDFTestUtilities
+{
+vtkStandardNewMacro(vtkAddAssembly);
+}
+
 namespace
 {
-
-// TODO: DEDUPE
-/**
- * Simple filter that adds a vtkDataAssembly to a PDC that does not have one.
- * This can be removed when vtkGroupDataSetsFilter will support generating an assembly automatically
- * for PartitionedDataSetCollections
- */
-class vtkAddAssembly : public vtkPartitionedDataSetCollectionAlgorithm
-{
-public:
-  static vtkAddAssembly* New();
-  vtkTypeMacro(vtkAddAssembly, vtkDataObjectAlgorithm);
-
-protected:
-  int RequestData(
-    vtkInformation* request, vtkInformationVector** inVector, vtkInformationVector* ouInfo) override
-  {
-    this->vtkPartitionedDataSetCollectionAlgorithm::RequestData(request, inVector, ouInfo);
-    auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(vtkDataObject::GetData(ouInfo, 0));
-    vtkPartitionedDataSetCollection* input = vtkPartitionedDataSetCollection::SafeDownCast(
-      inVector[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
-
-    vtkNew<vtkDataAssembly> hierarchy;
-    vtkDataAssemblyUtilities::GenerateHierarchy(input, hierarchy, pdc);
-    return 1;
-  }
-};
-
-vtkStandardNewMacro(vtkAddAssembly);
 
 //------------------------------------------------------------------------------
 bool TestDistributedObject(
@@ -168,7 +146,7 @@ bool TestCompositeDistributedObject(
   group->AddInputConnection(transformFilter->GetOutputPort());
   group->UpdatePiece(myRank, nbRanks, 0);
 
-  vtkNew<vtkAddAssembly> addAssembly;
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
   addAssembly->SetInputConnection(group->GetOutputPort());
 
   // Write it to disk
@@ -455,7 +433,7 @@ bool TestCompositeTemporalDistributedObject(
   group->AddInputConnection(transformFilter->GetOutputPort());
   group->UpdatePiece(myRank, nbRanks, 0);
 
-  vtkNew<vtkAddAssembly> addAssembly;
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
   addAssembly->SetInputConnection(group->GetOutputPort());
 
   // Generate several time steps
