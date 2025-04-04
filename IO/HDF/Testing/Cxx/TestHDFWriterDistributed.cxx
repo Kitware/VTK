@@ -228,13 +228,6 @@ bool TestCompositeDistributedObject(
 }
 
 //------------------------------------------------------------------------------
-/**
- * Pipeline used for this test:
- * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
- * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
- *
- * No animals were harmed in the making of this test.
- */
 bool TestDistributedTemporal(vtkMPIController* controller, const std::string& tempDir,
   const std::string& dataRoot, bool usePolyData, bool staticMesh, bool nullPart)
 {
@@ -312,7 +305,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
     }
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
-    writer->SetDebug(true);
     writer->Write();
   }
 
@@ -329,22 +321,11 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
   {
-    vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
-
-    vtkDebugWithObjectMacro(nullptr, << "SET STEP & UPDATE " << time);
-
     reader->SetStep(time);
-    reader->Modified();
     reader->UpdatePiece(myRank, nbRanks, 0);
-
-    vtkDebugWithObjectMacro(nullptr, << "UPDATE DONE  " << time);
-
-    vtkDebugWithObjectMacro(nullptr, << "SET STEP & UPDATE PART " << time);
 
     readerPart->SetStep(time);
     readerPart->Update();
-
-    vtkDebugWithObjectMacro(nullptr, << "ALL UPDATES DONE, COMPARING " << time);
 
     vtkPartitionedDataSet* readPartitionedPiece =
       vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
@@ -455,10 +436,6 @@ bool TestCompositeTemporalDistributedObject(
   harmonics->AddHarmonic(1.0, 3.0, 0.0, 0.0, 0.6283, 4.7124);
   harmonics->SetInputConnection(generateTimeSteps->GetOutputPort());
 
-  // Warp by scalar
-  vtkNew<vtkWarpScalar> warp;
-  warp->SetInputConnection(harmonics->GetOutputPort());
-
   // Write it to disk
   std::string prefix = tempDir + "/parallel_temporal_composite_" + std::to_string(compositeType);
   std::string filePath = prefix + ".vtkhdf";
@@ -470,7 +447,6 @@ bool TestCompositeTemporalDistributedObject(
     writer->SetWriteAllTimeSteps(true);
     writer->SetFileName(filePath.c_str());
     writer->SetInputConnection(harmonics->GetOutputPort());
-    writer->SetDebug(true);
     writer->Write();
   }
 
@@ -486,25 +462,8 @@ bool TestCompositeTemporalDistributedObject(
 
   for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
   {
-    vtkDebugWithObjectMacro(nullptr, << "**************************** Comparing timestep " << time);
-
-    vtkDebugWithObjectMacro(nullptr, << "MTIME is" << reader->GetMTime());
-    vtkDebugWithObjectMacro(nullptr, << "STEP is  " << reader->GetStep());
-    vtkDebugWithObjectMacro(nullptr, << "SET STEP to " << time);
     reader->SetStep(time);
-    vtkDebugWithObjectMacro(nullptr, << "STEP is now " << reader->GetStep());
-    vtkDebugWithObjectMacro(nullptr, << "MTIME is" << reader->GetMTime());
-
-    controller->Barrier(); // TODO: abort all if 1 failed
-    vtkDebugWithObjectMacro(nullptr, << "BARRIER OK " << time);
-    vtkDebugWithObjectMacro(nullptr, << "UPDATE PIECE " << myRank << "/" << nbRanks);
-
-    // vtkInformationVector
-    // reader->Update(0,);
     reader->UpdatePiece(myRank, nbRanks, 0);
-
-    vtkDebugWithObjectMacro(nullptr, << "UPDATE DONE  " << time);
-    vtkDebugWithObjectMacro(nullptr, << "********* UPDATING PART *********  " << time);
 
     readerPart->SetStep(time);
     readerPart->Update();
@@ -515,30 +474,14 @@ bool TestCompositeTemporalDistributedObject(
       auto readPart = vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
       auto readTotal = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
 
+      // Distributed Multi-block yields a vtkMultiPiece but the single part version does not,
+      // So we need to decompose them to be able to compare.
       vtkMultiPieceDataSet* ugMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(0));
       vtkUnstructuredGrid* ugBlock2 = vtkUnstructuredGrid::SafeDownCast(readPart->GetBlock(0));
       vtkMultiPieceDataSet* pdMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(1));
       vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(0));
       vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(0));
       vtkPolyData* pdBlock2 = vtkPolyData::SafeDownCast(readPart->GetBlock(1));
-
-      // vtkDebugWithObjectMacro(nullptr, << ugMP << " " << ugMP2);
-      vtkDebugWithObjectMacro(nullptr, << ugBlock << " " << ugBlock2);
-
-      // if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(0), ugBlock))
-      // {
-      //   vtkLog(ERROR, "Read block 0 and read part do not match");
-      //   return false;
-      // }
-      // if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(1), pdBlock))
-      // {
-      //   vtkLog(ERROR, "Read block 1 and read part do not match");
-      //   return false;
-      // }
-
-      vtkDebugWithObjectMacro(nullptr,
-        " " << pdBlock->GetPointData()->GetArray("SpatioTemporalHarmonics")->GetTuple1(0) << " "
-            << pdBlock2->GetPointData()->GetArray("SpatioTemporalHarmonics")->GetTuple1(0));
 
       if (!vtkTestUtilities::CompareDataObjects(pdBlock, pdBlock2))
       {
@@ -553,20 +496,10 @@ bool TestCompositeTemporalDistributedObject(
     }
     else
     {
-      auto originalPiece =
-        vtkPartitionedDataSetCollection::SafeDownCast(harmonics->GetOutputDataObject(0));
       auto readPart =
         vtkPartitionedDataSetCollection::SafeDownCast(readerPart->GetOutputDataObject(0));
       auto readTotal =
         vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
-
-      // vtkDebugWithObjectMacro(nullptr, << ug0->GetPointData()->GetArrayName(1) << " " <<
-      // ug1->GetPointData()->GetArrayName(1)); if (!vtkTestUtilities::CompareDataObjects(readPart,
-      // readTotal))
-      // {
-      //   vtkLog(ERROR, "Original and read global assembly do not match");
-      //   success = false;
-      // }
 
       if (!vtkTestUtilities::CompareDataObjects(readPart, readTotal))
       {

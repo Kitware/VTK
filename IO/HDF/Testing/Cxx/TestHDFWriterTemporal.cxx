@@ -256,21 +256,19 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   }
 
   // vtkGroupDataSetsFilter does not create an assembly for PDC, but the VTKHDF requires one.
-  // vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
-  // addAssembly->SetInputConnection(groupDataSets->GetOutputPort());
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
+  addAssembly->SetInputConnection(groupDataSets->GetOutputPort());
 
   // Write out the composite temporal dataset
   vtkNew<vtkHDFWriter> HDFWriterGrouped;
   HDFWriterGrouped->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
-      // ? addAssembly->GetOutputPort()
-      ? groupDataSets->GetOutputPort()
+      ? addAssembly->GetOutputPort()
       : groupDataSets->GetOutputPort());
 
   std::string tempPath = tempDir + "/HDFWriter_";
   tempPath += "composite" + std::to_string(compositeType) + ".vtkhdf";
   HDFWriterGrouped->SetFileName(tempPath.c_str());
   HDFWriterGrouped->SetWriteAllTimeSteps(true);
-  HDFWriterGrouped->SetDebug(true);
   HDFWriterGrouped->Write();
 
   // Read back the grouped dataset
@@ -390,7 +388,7 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   {
     for (int i = 0; i < static_cast<int>(baseNames.size()); i++)
     {
-      // result &= TestTemporalData(tempDir, dataRoot, baseNames[i], config, parallel_types[i]);
+      result &= TestTemporalData(tempDir, dataRoot, baseNames[i], config, parallel_types[i]);
     }
   }
 
@@ -399,14 +397,12 @@ int TestHDFWriterTemporal(int argc, char* argv[])
   // both datasets
   std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
-  // result &= TestTemporalComposite(
-  //   tempDir, dataRoot, baseNamesComposite, VTK_PARTITIONED_DATA_SET_COLLECTION);
+  result &= TestTemporalComposite(
+    tempDir, dataRoot, baseNamesComposite, VTK_PARTITIONED_DATA_SET_COLLECTION);
 
-  // result &= TestTemporalStaticMesh(
-  //   tempDir, "transient_static_sphere_ug_source",
-  //   ::supportedDataSetTypes::vtkUnstructuredGridType);
-  // result &= TestTemporalStaticMesh(
-  //   tempDir, "transient_static_sphere_polydata_source",
-  //   ::supportedDataSetTypes::vtkPolyDataType);
+  result &= TestTemporalStaticMesh(
+    tempDir, "transient_static_sphere_ug_source", ::supportedDataSetTypes::vtkUnstructuredGridType);
+  result &= TestTemporalStaticMesh(
+    tempDir, "transient_static_sphere_polydata_source", ::supportedDataSetTypes::vtkPolyDataType);
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }

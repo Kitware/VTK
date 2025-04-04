@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "HDFTestUtilities.h"
 #include "vtkAppendDataSets.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"

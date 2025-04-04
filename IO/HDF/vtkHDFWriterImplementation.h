@@ -354,9 +354,9 @@ private:
   };
 
   /**
-   * Return the indexation mode of the given dataset: when the dataset adds 1 component for every
-   * new time step or part, return `Single`. If we add a number of values equivalent to the number
-   * of points of the dataset every step/part, return `Points`. The same goes for `Cells` and
+   * Return the indexation mode of dataset at the given path: when the dataset adds 1 component for
+   * every new time step or part, return `Single`. If we add a number of values equivalent to the
+   * number of points of the dataset every step/part, return `Points`. The same goes for `Cells` and
    * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
    * to interleave virtual mappings.
    */

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <numeric>
 #include <sstream>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -24,16 +25,19 @@ const std::string CONNECTIVITY{ "Connectivity" };
 
 const std::string NUMBER_OF_POINTS{ "NumberOfPoints" };
 const std::string NUMBER_OF_CELLS{ "NumberOfCells" };
+const std::string NUMBER_OF_CONNECTIVITY_IDS{ "NumberOfConnectivityIds" };
 const std::string CELL_DATA{ "CellData" };
 const std::string POINT_DATA{ "PointData" };
 const std::string FIELD_DATA{ "FieldData" };
 
+const std::string STEPS{ "Steps" };
 const std::string STEPS_POINT_OFFSETS{ "Steps/PointOffsets" };
 const std::string STEPS_CELL_OFFSETS{ "Steps/CellOffsets" };
 const std::string STEPS_CONNECTIVITY_ID_OFFSETS{ "Steps/ConnectivityIdOffsets" };
 
-const std::vector<std::string> SINGLE_VALUES = { "NumberOfPoints", "NumberOfCells",
-  "NumberOfConnectivityIds" };
+const std::vector<std::string> SINGLE_VALUES = { NUMBER_OF_POINTS, NUMBER_OF_CELLS,
+  NUMBER_OF_CONNECTIVITY_IDS };
+const std::vector<std::string> PRIMITIVE_TYPES = { "Strips", "Polygons", "Vertices", "Lines" };
 }
 
 //------------------------------------------------------------------------------
@@ -206,18 +210,18 @@ std::string vtkHDFWriter::Implementation::GetGroupName(hid_t group)
 bool vtkHDFWriter::Implementation::CreateStepsGroup(hid_t group)
 {
   vtkHDF::ScopedH5GHandle stepsGroup{ H5Gcreate(
-    group, "Steps", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
+    group, PATH::STEPS.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT) };
   return stepsGroup != H5I_INVALID_HID;
 }
 
 //------------------------------------------------------------------------------
 hid_t vtkHDFWriter::Implementation::GetStepsGroup(hid_t currentGroup)
 {
-  if (H5Lexists(currentGroup, "Steps", H5P_DEFAULT))
+  if (H5Lexists(currentGroup, PATH::STEPS.c_str(), H5P_DEFAULT))
   {
     // Store the last steps group accessed. There can be multiple for a given file
     // if it composite. This Steps group is only used internally.
-    this->StepsGroup = H5Gopen(currentGroup, "Steps", H5P_DEFAULT);
+    this->StepsGroup = H5Gopen(currentGroup, PATH::STEPS.c_str(), H5P_DEFAULT);
     return this->StepsGroup;
   }
   return H5I_INVALID_HID;
@@ -899,8 +903,8 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   {
     vtkDebugWithObjectMacro(
       this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
-    if (groupPath.find("CellData") != std::string::npos ||
-      groupPath.find("PointData") != std::string::npos)
+    if (groupPath.find(PATH::CELL_DATA) != std::string::npos ||
+      groupPath.find(PATH::POINT_DATA) != std::string::npos)
     {
       return group; // Partial field, no error
     }
@@ -931,10 +935,9 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   std::string basePath = this->GetBasePath(groupPath);
 
   // Find primitive type for PolyData
-  bool isPolyData =
-    H5Lexists(this->OpenExistingGroup(this->Root, basePath.c_str()), "Lines", H5P_DEFAULT) > 0;
+  bool isPolyData = H5Lexists(this->OpenExistingGroup(this->Root, basePath.c_str()),
+                      PATH::PRIMITIVE_TYPES[0].c_str(), H5P_DEFAULT) > 0;
 
-  // bool isPolyData = H5Lexists(groupID, "Steps", H5P_DEFAULT) <= 0;
   const char primitive = this->GetPrimitive(group);
 
   hsize_t totalSteps = 1;
@@ -942,10 +945,6 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   {
     totalSteps = this->Writer->NumberOfTimeSteps;
   }
-
-  vtkDebugWithObjectMacro(this->Writer,
-    "datasetPath: " << datasetPath << " groupPath: " << groupPath << " basePath: " << basePath
-                    << " is PD?" << isPolyData);
 
   // Keep track of offsets in the destination, and in each of the source datasets.
   hsize_t mappingOffset = 0;
@@ -974,19 +973,19 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
         H5Dopen(this->Subfiles[part], datasetPath.c_str(), H5P_DEFAULT);
       if (sourceDataset == H5I_INVALID_HID)
       {
-        vtkDebugWithObjectMacro(this->Writer, << "Could not find source dataset " << debugString);
+        vtkErrorWithObjectMacro(this->Writer, << "Could not find source dataset " << debugString);
         return false;
       }
       vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
       if (sourceDataSpace == H5I_INVALID_HID)
       {
-        vtkDebugWithObjectMacro(this->Writer, << "Could not find source dataspace " << debugString);
+        vtkErrorWithObjectMacro(this->Writer, << "Could not find source dataspace " << debugString);
         return false;
       }
       std::array<hsize_t, 3> sourceDims{ 0, 0, 0 };
       if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
       {
-        vtkDebugWithObjectMacro(this->Writer, << "Could not get extent " << debugString);
+        vtkErrorWithObjectMacro(this->Writer, << "Could not get extent " << debugString);
         return false;
       }
 
@@ -1078,7 +1077,7 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
           }
 
           mappingSize[0] =
-            this->GetSubfileNumberOf(groupPath, "NumberOfConnectivityIds", part, step);
+            this->GetSubfileNumberOf(groupPath, PATH::NUMBER_OF_CONNECTIVITY_IDS, part, step);
           break;
         }
         default:
@@ -1153,23 +1152,26 @@ hsize_t vtkHDFWriter::Implementation::GetNumberOfCellsSubfile(const std::string&
 {
   if (!isPolyData)
   {
-    return this->GetSubfileNumberOf(basePath, "NumberOfCells", subfileId, part);
+    return this->GetSubfileNumberOf(basePath, PATH::NUMBER_OF_CELLS, subfileId, part);
   }
 
-  if (isPolyData && groupName.find("CellData") != std::string::npos)
+  if (isPolyData && groupName.find(PATH::CELL_DATA) != std::string::npos)
   {
     // Sum up the number of cells for each primitive type
     return std::accumulate(PrimitiveNames.begin(), PrimitiveNames.end(), 0,
-      [this, subfileId, part, basePath](int sum, std::string prim) {
-        return sum + this->GetSubfileNumberOf(basePath, prim + "/NumberOfCells", subfileId, part);
+      [this, subfileId, part, basePath](int sum, std::string prim)
+      {
+        return sum +
+          this->GetSubfileNumberOf(basePath, prim + "/" + PATH::NUMBER_OF_CELLS, subfileId, part);
       });
   }
   else
   {
-    return this->GetSubfileNumberOf(groupName, "NumberOfCells", subfileId, part);
+    return this->GetSubfileNumberOf(groupName, PATH::NUMBER_OF_CELLS, subfileId, part);
   }
 }
 
+//------------------------------------------------------------------------------
 std::string vtkHDFWriter::Implementation::GetBasePath(const std::string& fullPath)
 {
   auto removePrefix = [](std::string& path, const std::string& suffix)
@@ -1181,8 +1183,13 @@ std::string vtkHDFWriter::Implementation::GetBasePath(const std::string& fullPat
   };
 
   std::string basePath = fullPath;
+  for (const std::string& suffix : PATH::PRIMITIVE_TYPES)
+  {
+    removePrefix(basePath, suffix);
+  }
+
   for (const std::string& suffix :
-    { "Steps", "CellData", "PointData", "FieldData", "Vertices", "Lines", "Polygons", "Strips" })
+    { PATH::STEPS, PATH::CELL_DATA, PATH::POINT_DATA, PATH::FIELD_DATA })
   {
     removePrefix(basePath, suffix);
   }
@@ -1225,8 +1232,8 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
     int totalForTimeStep = 0;
     for (std::size_t part = 0; part < this->Subfiles.size(); part++)
     {
-      totalForTimeStep += this->GetSubfileNumberOf(
-        this->GetBasePath(this->GetGroupName(group)), "Steps/" + std::string(name), part, step);
+      totalForTimeStep += this->GetSubfileNumberOf(this->GetBasePath(this->GetGroupName(group)),
+        PATH::STEPS + "/" + std::string(name), part, step);
     }
 
     if (!this->AddSingleValueToDataset(dataset, totalForTimeStep, false, false))
@@ -1316,16 +1323,10 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base
 
   if (isPolyData && primitive != INVALID_PRIMITIVE)
   {
-    vtkDebugWithObjectMacro(this->Writer, "Is Polydata");
     start.emplace_back(static_cast<hsize_t>(primitive));
     count.emplace_back(1);
     dimension++;
-
-    vtkDebugWithObjectMacro(this->Writer, "Start : " << start[0] << " " << start[1]);
-    vtkDebugWithObjectMacro(this->Writer, "Count : " << count[0] << " " << count[1]);
   }
-
-  vtkDebugWithObjectMacro(this->Writer, "Dimension: " << dimension);
 
   vtkHDF::ScopedH5SHandle sourceSpace = H5Dget_space(sourceDataset);
   vtkHDF::ScopedH5SHandle destSpace = H5Screate_simple(dimension, count.data(), nullptr);
@@ -1397,7 +1398,6 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
 vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   const std::string& path)
 {
-  vtkDebugWithObjectMacro(this->Writer, "testing indexing mode " << path);
   auto contains_any = [](const std::string& main, const std::vector<std::string>& substr)
   {
     for (auto& sub : substr)

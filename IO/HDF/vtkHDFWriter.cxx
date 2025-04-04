@@ -137,8 +137,6 @@ int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
     this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     this->timeSteps.resize(this->NumberOfTimeSteps);
 
-    vtkDebugMacro("SET NUMBER OF TIME STEPS " << this->NumberOfTimeSteps);
-
     if (this->WriteAllTimeSteps)
     {
       this->IsTemporal = true;
@@ -168,12 +166,6 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   {
     inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->timeSteps.data());
     double timeReq = this->timeSteps[this->CurrentTimeIndex];
-
-    vtkDebugMacro("CURRENT TIME STEP " << this->CurrentTimeIndex);
-    for (int i = 0; i < this->NumberOfTimeSteps; i++)
-    {
-      vtkDebugMacro(<< "time value " << i << " is " << this->timeSteps[i]);
-    }
 
     inputVector[0]->GetInformationObject(0)->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
@@ -1562,12 +1554,6 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
   {
     vtkErrorMacro(<< "Could not create steps group when creating: " << this->FileName);
     return false;
-  }
-
-  vtkDebugMacro(<< "APPEND TIME VALUES IN GROUP " << group << " for file " << this->FileName);
-  for (int i = 0; i < this->NumberOfTimeSteps; i++)
-  {
-    vtkDebugMacro(<< "Value " << i << " is " << this->timeSteps[i]);
   }
 
   vtkNew<vtkDoubleArray> timeStepsArray;

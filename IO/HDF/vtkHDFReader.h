@@ -200,7 +200,8 @@ protected:
   ///@{
   /**
    * Reads the 'data' requested in 'outInfo' (through extents or
-   * pieces). Returns 1 if successful, 0 otherwise.
+   * pieces) for a specialized data type.
+   * Returns 1 if successful, 0 otherwise.
    */
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
@@ -210,11 +211,6 @@ protected:
   int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
   int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, const std::string& path);
   ///@}
-
-  /**
-   *
-   */
-  bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
 
   /**
    * Read 'pieceData' specified by 'filePiece' where
@@ -322,6 +318,12 @@ private:
 
   class Implementation;
   Implementation* Impl;
+
+  /**
+   * Read data requested in 'outInfo', dispatching to the right specialized method
+   * following the type of 'data'.
+   */
+  bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
 
   /**
    * Setter for UseTemporalData.

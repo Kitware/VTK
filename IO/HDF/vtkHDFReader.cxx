@@ -508,7 +508,6 @@ const char* vtkHDFReader::GetCellArrayName(int index)
 int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)
 {
-  vtkDebugMacro("REQUEST DATA OBJECT");
   std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
     { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_POLY_DATA, "vtkPolyData" },
     { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
@@ -585,8 +584,6 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
 int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkDebugMacro("REQUEST INFO");
-
   if (!this->FileName)
   {
     vtkErrorMacro("Requires valid input file name");
@@ -1099,7 +1096,6 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
   std::vector<vtkIdType> startingCellOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
   std::vector<vtkIdType> startingConnectivityIdOffsets(vtkHDFUtilities::NUM_POLY_DATA_TOPOS, 0);
 
-  vtkWarningMacro("READ PD FOR STEP " << this->Step);
   if (this->GetHasTemporalData())
   {
     // Read the time offsets for this step
@@ -1370,8 +1366,6 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
 {
-  vtkWarningWithObjectMacro(nullptr, << "READING MBDS  " << this->TimeValue);
-
   // Save temporal information, that can be overridden when changing root dataset
   bool isPDCTemporal = this->GetHasTemporalData();
   vtkIdType pdcSteps = this->NumberOfSteps;
@@ -1481,7 +1475,7 @@ int vtkHDFReader::ReadRecursively(
         return 0;
       }
       dataMB->SetBlock(i, dataObject);
-      this->AddFieldArrays(dataMB->GetBlock(i)); // FIXME: done twice?
+      this->AddFieldArrays(dataMB->GetBlock(i));
     }
     else
     {
@@ -1541,8 +1535,6 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkWarningWithObjectMacro(nullptr, << "REQUEST DATA  " << this->Step);
-
   this->MeshGeometryChangedFromPreviousTimeStep = false;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
@@ -1560,7 +1552,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (this->GetHasTemporalData())
   {
     // do this at the end because using cache may override this.
-    vtkWarningMacro("SET DATA_TIME_STEP TO " << this->TimeValue);
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
   }
 
@@ -1585,7 +1576,6 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
                                                      : (this->Step < 0 ? 0 : this->Step);
       data->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
-    vtkWarningMacro("SET TIMEVALUE TO " << values[this->Step] << " for step " << this->Step);
     this->TimeValue = values[this->Step];
   }
 

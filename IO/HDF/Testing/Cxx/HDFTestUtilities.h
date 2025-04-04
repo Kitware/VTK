@@ -40,6 +40,5 @@ protected:
     return 1;
   }
 };
-
 }
 #endif

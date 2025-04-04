@@ -132,13 +132,6 @@ template <typename T>
 VTKIOHDF_EXPORT hid_t TemplateTypeToHdfNativeType();
 
 /**
- * Return the dataset type mapped to the "Type" attribute
- * of the groupID group.
- * Return true if a valid data type was found.
- */
-VTKIOHDF_EXPORT bool ReadDataSetType(hid_t groupID, int& dataSetType);
-
-/**
  * Reads an attribute from the group passed to it
  */
 template <typename T>
