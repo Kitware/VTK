@@ -1408,17 +1408,20 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
 
   // velocity is stored in non-interlaced form (unlike points).
   fields["velocity/values/x"].set_external(
-    attribs.GetVelocityPointer(), grid.GetNumberOfPoints(), /*offset=*/0);
-  fields["velocity/values/y"].set_external(attribs.GetVelocityPointer(), grid.GetNumberOfPoints(),
+    attribs.GetVelocityArray().data(), grid.GetNumberOfPoints(), /*offset=*/0);
+  fields["velocity/values/y"].set_external(attribs.GetVelocityArray().data(),
+    grid.GetNumberOfPoints(),
     /*offset=*/grid.GetNumberOfPoints() * sizeof(double));
-  fields["velocity/values/z"].set_external(attribs.GetVelocityPointer(), grid.GetNumberOfPoints(),
+  fields["velocity/values/z"].set_external(attribs.GetVelocityArray().data(),
+    grid.GetNumberOfPoints(),
     /*offset=*/grid.GetNumberOfPoints() * sizeof(double) * 2);
 
   // pressure is cell-data.
   fields["pressure/association"].set("element");
   fields["pressure/topology"].set("mesh");
   fields["pressure/volume_dependent"].set("false");
-  fields["pressure/values"].set_external(attribs.GetPressurePointer(), grid.GetNumberOfCells());
+  fields["pressure/values"].set_external(
+    attribs.GetPressureArray().data(), grid.GetNumberOfCells());
 }
 
 bool ValidatePolyhedra()

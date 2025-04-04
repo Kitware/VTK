@@ -62,8 +62,6 @@ public:
   Attributes();
   void Initialize(Grid* grid);
   void UpdateFields(double time);
-  double* GetVelocityPointer();
-  float* GetPressurePointer();
   std::vector<double>& GetVelocityArray();
   std::vector<float>& GetPressureArray();
 
@@ -199,31 +197,15 @@ void Attributes::UpdateFields(double time)
   std::fill(this->Pressure.begin(), this->Pressure.end(), 1.f);
 }
 
-double* Attributes::GetVelocityPointer()
-{
-  if (this->Velocity.empty())
-  {
-    return nullptr;
-  }
-  return this->Velocity.data();
-}
-
-float* Attributes::GetPressurePointer()
-{
-  if (this->Pressure.empty())
-  {
-    return nullptr;
-  }
-  return this->Pressure.data();
-}
-
 std::vector<double>& Attributes::GetVelocityArray()
 {
+  assert(!this->Velocity.empty());
   return this->Velocity;
 }
 
 std::vector<float>& Attributes::GetPressureArray()
 {
+  assert(!this->Pressure.empty());
   return this->Pressure;
 }
 
