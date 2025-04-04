@@ -101,6 +101,8 @@ vtk_module_test_data(
 
   Data/vtkHDF/sanitization.vtu
 
+  Data/vtkHDF/null_term_string.vtkhdf
+
   Data/vtkHDF/test_composite.hdf
   Data/vtkHDF/test_composite.hdf_000000.vtpc
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_0_0.vtp
