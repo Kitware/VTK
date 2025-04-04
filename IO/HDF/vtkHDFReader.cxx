@@ -1541,7 +1541,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  vtkWarningWithObjectMacro(nullptr, << "REQUEST DATA  " << this->TimeValue);
+  vtkWarningWithObjectMacro(nullptr, << "REQUEST DATA  " << this->Step);
 
   this->MeshGeometryChangedFromPreviousTimeStep = false;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -1555,8 +1555,16 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  ReadData(outInfo, output);
-  return 1;
+  bool result = ReadData(outInfo, output);
+
+  if (this->GetHasTemporalData())
+  {
+    // do this at the end because using cache may override this.
+    vtkWarningMacro("SET DATA_TIME_STEP TO " << this->TimeValue);
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
+  }
+
+  return result ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -1577,6 +1585,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
                                                      : (this->Step < 0 ? 0 : this->Step);
       data->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
+    vtkWarningMacro("SET TIMEVALUE TO " << values[this->Step] << " for step " << this->Step);
     this->TimeValue = values[this->Step];
   }
 
@@ -1633,15 +1642,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     return 0;
   }
 
-  ok = ok && this->AddFieldArrays(data);
-
-  if (this->GetHasTemporalData())
-  {
-    // do this at the end because using cache may override this.
-    outInfo->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
-  }
-
-  return ok;
+  return ok && this->AddFieldArrays(data);
 }
 
 //----------------------------------------------------------------------------

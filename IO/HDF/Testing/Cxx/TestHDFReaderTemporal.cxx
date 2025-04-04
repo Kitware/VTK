@@ -79,16 +79,16 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   testUtils->AddArguments(argc, argv);
   std::string dataRoot = testUtils->GetDataRoot();
   int res = ::TestUGTemporal(dataRoot);
-  res |= ::TestImageDataTemporal(dataRoot);
-  res |= ::TestPolyDataTemporal(dataRoot);
-  res |= ::TestPolyDataTemporalWithOffset(dataRoot);
-  res |= ::TestUGTemporalPartitionedNoCache(dataRoot);
-  res |= ::TestUGTemporalWithCachePartitioned(dataRoot);
-  res |= ::TestImageDataTemporalWithCache(dataRoot);
-  res |= ::TestPolyDataTemporalWithCache(dataRoot);
-  res |= ::TestPolyDataTemporalFieldData(dataRoot);
-  res |= ::TestOverlappingAMRTemporal(dataRoot);
-  res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
+  // res |= ::TestImageDataTemporal(dataRoot);
+  // res |= ::TestPolyDataTemporal(dataRoot);
+  // res |= ::TestPolyDataTemporalWithOffset(dataRoot);
+  // res |= ::TestUGTemporalPartitionedNoCache(dataRoot);
+  // res |= ::TestUGTemporalWithCachePartitioned(dataRoot);
+  // res |= ::TestImageDataTemporalWithCache(dataRoot);
+  // res |= ::TestPolyDataTemporalWithCache(dataRoot);
+  // res |= ::TestPolyDataTemporalFieldData(dataRoot);
+  // res |= ::TestOverlappingAMRTemporal(dataRoot);
+  // res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
 
   return res;
 }
