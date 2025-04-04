@@ -1635,7 +1635,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (this->HasTransientData)
+  if (this->GetHasTemporalData())
   {
     double* values = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
@@ -1646,7 +1646,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
         1;
       this->Step = this->Step >= this->NumberOfSteps ? this->NumberOfSteps - 1
                                                      : (this->Step < 0 ? 0 : this->Step);
-      output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
     this->TimeValue = values[this->Step];
   }
@@ -1702,7 +1701,16 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("HDF dataset type unknown: " << dataSetType);
     return 0;
   }
-  return ok && this->AddFieldArrays(output);
+
+  ok = ok && this->AddFieldArrays(output);
+
+  if (this->GetHasTemporalData())
+  {
+    // do this at the end because using cache may override this.
+    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
+  }
+
+  return ok;
 }
 
 //----------------------------------------------------------------------------
