@@ -42,8 +42,46 @@ vtkStandardNewMacro(vtkAddAssembly);
 
 namespace
 {
+vtkSmartPointer<vtkAlgorithm> SetupCompositePipeline(const vtkIdType compositeType)
+{
+  // Create a sphere source
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetPhiResolution(50);
+  sphere->SetThetaResolution(50);
+  sphere->SetRadius(5.0);
+
+  // Distribute it
+  vtkNew<vtkRedistributeDataSetFilter> redistribute;
+  redistribute->SetGenerateGlobalCellIds(false);
+  redistribute->SetInputConnection(sphere->GetOutputPort());
+
+  // Extract surface to get a poly data again
+  vtkNew<vtkDataSetSurfaceFilter> surface;
+  surface->SetInputConnection(redistribute->GetOutputPort());
+
+  vtkNew<vtkTransform> transform;
+  transform->Translate(100.0, 10.0, 10.0);
+  vtkNew<vtkTransformFilter> transformFilter;
+  transformFilter->SetTransform(transform);
+  transformFilter->SetInputConnection(surface->GetOutputPort());
+
+  // Create a composite structure
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetOutputType(compositeType);
+  group->AddInputConnection(redistribute->GetOutputPort());
+  group->AddInputConnection(transformFilter->GetOutputPort());
+
+  return group;
+}
 
 //------------------------------------------------------------------------------
+/**
+ * Pipeline used for this test:
+ * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
+ * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
+ *
+ * No animals were harmed in the making of this test.
+ */
 bool TestDistributedObject(
   vtkMPIController* controller, const std::string& tempDir, bool usePolyData)
 {
@@ -111,37 +149,13 @@ bool TestDistributedObject(
 
 //------------------------------------------------------------------------------
 bool TestCompositeDistributedObject(
-  vtkMPIController* controller, const std::string& tempDir, int compositeType)
+  vtkMPIController* controller, const std::string& tempDir, const vtkIdType compositeType)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  // Create a sphere source
-  vtkNew<vtkSphereSource> sphere;
-  sphere->SetPhiResolution(50);
-  sphere->SetThetaResolution(50);
-  sphere->SetRadius(5.0);
-
-  // Distribute it
-  vtkNew<vtkRedistributeDataSetFilter> redistribute;
-  redistribute->SetGenerateGlobalCellIds(false);
-  redistribute->SetInputConnection(sphere->GetOutputPort());
-
-  // Extract surface to get a poly data again
-  vtkNew<vtkDataSetSurfaceFilter> surface;
-  surface->SetInputConnection(redistribute->GetOutputPort());
-
-  vtkNew<vtkTransform> transform;
-  transform->Translate(100.0, 10.0, 10.0);
-  vtkNew<vtkTransformFilter> transformFilter;
-  transformFilter->SetTransform(transform);
-  transformFilter->SetInputConnection(surface->GetOutputPort());
-
-  // Create a composite structure
-  vtkNew<vtkGroupDataSetsFilter> group;
-  group->SetOutputType(compositeType);
-  group->AddInputConnection(redistribute->GetOutputPort());
-  group->AddInputConnection(transformFilter->GetOutputPort());
+  vtkSmartPointer<vtkGroupDataSetsFilter> group =
+    vtkGroupDataSetsFilter::SafeDownCast(::SetupCompositePipeline(compositeType));
   group->UpdatePiece(myRank, nbRanks, 0);
 
   vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
@@ -374,37 +388,13 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
 //------------------------------------------------------------------------------
 bool TestCompositeTemporalDistributedObject(
-  vtkMPIController* controller, const std::string& tempDir, int compositeType)
+  vtkMPIController* controller, const std::string& tempDir, const vtkIdType compositeType)
 {
   int myRank = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
-  // Create a sphere source
-  vtkNew<vtkSphereSource> sphere;
-  sphere->SetPhiResolution(50);
-  sphere->SetThetaResolution(50);
-  sphere->SetRadius(5.0);
-
-  // Distribute it
-  vtkNew<vtkRedistributeDataSetFilter> redistribute;
-  redistribute->SetGenerateGlobalCellIds(false);
-  redistribute->SetInputConnection(sphere->GetOutputPort());
-
-  // Extract surface to get a poly data again
-  vtkNew<vtkDataSetSurfaceFilter> surface;
-  surface->SetInputConnection(redistribute->GetOutputPort());
-
-  vtkNew<vtkTransform> transform;
-  transform->Translate(100.0, 10.0, 10.0);
-  vtkNew<vtkTransformFilter> transformFilter;
-  transformFilter->SetTransform(transform);
-  transformFilter->SetInputConnection(surface->GetOutputPort());
-
-  // Create a composite structure
-  vtkNew<vtkGroupDataSetsFilter> group;
-  group->SetOutputType(compositeType);
-  group->AddInputConnection(redistribute->GetOutputPort());
-  group->AddInputConnection(transformFilter->GetOutputPort());
+  vtkSmartPointer<vtkGroupDataSetsFilter> group =
+    vtkGroupDataSetsFilter::SafeDownCast(::SetupCompositePipeline(compositeType));
   group->UpdatePiece(myRank, nbRanks, 0);
 
   vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
@@ -458,7 +448,6 @@ bool TestCompositeTemporalDistributedObject(
     readerPart->SetStep(time);
     readerPart->Update();
 
-    bool success = true;
     if (compositeType == VTK_MULTIBLOCK_DATA_SET)
     {
       auto readPart = vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
@@ -481,7 +470,7 @@ bool TestCompositeTemporalDistributedObject(
       if (!vtkTestUtilities::CompareDataObjects(ugBlock, ugBlock2))
       {
         vtkLog(ERROR, "Original and read part do not match");
-        success = false;
+        return false;
       }
     }
     else
@@ -494,7 +483,7 @@ bool TestCompositeTemporalDistributedObject(
       if (!vtkTestUtilities::CompareDataObjects(readPart, readTotal))
       {
         vtkLog(ERROR, "Original and read part do not match");
-        success = false;
+        return false;
       }
     }
   }
@@ -563,15 +552,14 @@ bool TestDistributedPolyDataTemporalStatic(
 }
 
 //------------------------------------------------------------------------------
-bool TestDistributedTemporalMultiBlock(
-  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+bool TestDistributedTemporalMultiBlock(vtkMPIController* controller, const std::string& tempDir)
 {
   return TestCompositeTemporalDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
 }
 
 //------------------------------------------------------------------------------
 bool TestDistributedTemporalPartitionedDataSetCollection(
-  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+  vtkMPIController* controller, const std::string& tempDir)
 {
   return TestCompositeTemporalDistributedObject(
     controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
@@ -617,8 +605,8 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
-  res &= ::TestDistributedTemporalMultiBlock(controller, tempDir, dataRoot);
-  res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir, dataRoot);
+  res &= ::TestDistributedTemporalMultiBlock(controller, tempDir);
+  res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

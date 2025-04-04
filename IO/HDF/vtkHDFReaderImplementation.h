@@ -183,7 +183,7 @@ public:
    * Create a new dataset given its type and the number of pieces.
    * Create a vtkPartitionedDataSet when the number of pieces is more than 1.
    */
-  vtkSmartPointer<vtkDataObject> GetNewDataSet(const int dataSetType, const int numPices);
+  vtkSmartPointer<vtkDataObject> GetNewDataSet(int dataSetType, int numPieces);
 
 private:
   std::string FileName;

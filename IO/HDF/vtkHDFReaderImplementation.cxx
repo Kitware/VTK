@@ -1026,7 +1026,7 @@ VTK_ABI_NAMESPACE_END
 
 //------------------------------------------------------------------------------
 vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
-  const int dataSetType, const int numPieces)
+  int dataSetType, int numPieces)
 {
   vtkSmartPointer<vtkDataObject> newOutput = nullptr;
   if (dataSetType == VTK_IMAGE_DATA)
@@ -1070,7 +1070,7 @@ vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
   else
   {
     vtkErrorWithObjectMacro(this->Reader, "HDF dataset type unknown: " << dataSetType);
-    return 0;
+    return nullptr;
   }
 
   return newOutput;

@@ -1634,7 +1634,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   else
   {
     vtkErrorMacro("HDF dataset type unknown: " << dataSetType);
-    return 0;
+    return false;
   }
 
   return ok && this->AddFieldArrays(data);
