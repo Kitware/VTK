@@ -69,13 +69,11 @@ bool TestDistributedObject(
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  {
-    vtkNew<vtkHDFWriter> writer;
-    writer->SetInputConnection(
-      usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
-    writer->SetFileName(filePath.c_str());
-    writer->Write();
-  }
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputConnection(
+    usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
 
   // Wait for all processes to be done writing
   controller->Barrier();
@@ -154,14 +152,12 @@ bool TestCompositeDistributedObject(
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  {
-    vtkNew<vtkHDFWriter> writer;
-    writer->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
-        ? addAssembly->GetOutputPort()
-        : group->GetOutputPort());
-    writer->SetFileName(filePath.c_str());
-    writer->Write();
-  }
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
+      ? addAssembly->GetOutputPort()
+      : group->GetOutputPort());
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
 
   // Wait for all processes to be done writing
   controller->Barrier();
@@ -275,38 +271,35 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  // Need a new scope to make sure the file is closed
-  {
-    vtkNew<vtkHDFWriter> writer;
+  vtkNew<vtkHDFWriter> writer;
 
-    harmonics->Update();
-    warp->Update();
-    vtkDataObject* output =
-      staticMesh ? harmonics->GetOutputDataObject(0) : warp->GetOutputDataObject(0);
-    // Set a null part in the middle of the others, to make sure it is handled well
-    if (nullPart && myRank == 2)
+  harmonics->Update();
+  warp->Update();
+  vtkDataObject* output =
+    staticMesh ? harmonics->GetOutputDataObject(0) : warp->GetOutputDataObject(0);
+  // Set a null part in the middle of the others, to make sure it is handled well
+  if (nullPart && myRank == 2)
+  {
+    if (usePolyData)
     {
-      if (usePolyData)
-      {
-        vtkNew<vtkPolyData> pd;
-        writer->SetInputDataObject(pd);
-      }
-      else
-      {
-        vtkNew<vtkUnstructuredGrid> ug;
-        vtkNew<vtkPoints> points;
-        ug->SetPoints(points);
-        writer->SetInputDataObject(ug);
-      }
+      vtkNew<vtkPolyData> pd;
+      writer->SetInputDataObject(pd);
     }
     else
     {
-      writer->SetInputDataObject(output);
+      vtkNew<vtkUnstructuredGrid> ug;
+      vtkNew<vtkPoints> points;
+      ug->SetPoints(points);
+      writer->SetInputDataObject(ug);
     }
-    writer->SetWriteAllTimeSteps(true);
-    writer->SetFileName(filePath.c_str());
-    writer->Write();
   }
+  else
+  {
+    writer->SetInputDataObject(output);
+  }
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
 
   // All processes have written their pieces to disk
   controller->Barrier();
@@ -441,14 +434,11 @@ bool TestCompositeTemporalDistributedObject(
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  // Need a new scope to make sure the file is closed
-  {
-    vtkNew<vtkHDFWriter> writer;
-    writer->SetWriteAllTimeSteps(true);
-    writer->SetFileName(filePath.c_str());
-    writer->SetInputConnection(harmonics->GetOutputPort());
-    writer->Write();
-  }
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetFileName(filePath.c_str());
+  writer->SetInputConnection(harmonics->GetOutputPort());
+  writer->Write();
 
   // All processes have written their pieces to disk
   controller->Barrier();

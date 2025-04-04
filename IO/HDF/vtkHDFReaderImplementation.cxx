@@ -62,7 +62,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     return false;
   }
 
-  if (this->FileName.empty() || this->FileName != fileName)
+  if (this->FileName.empty() || this->FileName != fileName || this->File < 0)
   {
     this->FileName = fileName;
     if (this->File >= 0)

@@ -453,6 +453,7 @@ int vtkHDFReader::CanReadFile(const char* name)
   {
     return 0;
   }
+  this->Impl->Close();
   return 1;
 }
 
@@ -1535,6 +1536,10 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
+  if (!this->Impl->Open(this->FileName))
+  {
+    return 0;
+  }
   this->MeshGeometryChangedFromPreviousTimeStep = false;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
@@ -1554,7 +1559,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     // do this at the end because using cache may override this.
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
   }
-
+  this->Impl->Close();
   return result ? 1 : 0;
 }
 

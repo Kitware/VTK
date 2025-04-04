@@ -199,7 +199,12 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
       // Tell the pipeline to stop looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
       this->CurrentTimeIndex = 0;
+      this->Impl->CloseFile();
     }
+  }
+  else
+  {
+    this->Impl->CloseFile();
   }
 
   return 1;
