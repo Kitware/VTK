@@ -310,8 +310,8 @@ private:
    * Look into subfile `subfileId` and return the number of cells in part `part`.
    * Supports UnstructuredGrid and PolyData subfiles.
    */
-  hsize_t GetNumberOfCellsSubfile(
-    std::size_t subfileId, hsize_t part, bool isPolyData, const std::string& groupName);
+  hsize_t GetNumberOfCellsSubfile(const std::string& basePath, std::size_t subfileId, hsize_t part,
+    bool isPolyData, const std::string& groupName);
 
   /**
    * Return the digit between 0 and 4 in the order of `PrimitiveNames`,
@@ -327,8 +327,10 @@ private:
    * `primitive` is the column offset to use when reading into a 2-D meta-data array for Poly Data.
    * Unless `primitive` is specified, assume that the array is 1-D.
    */
-  hsize_t GetSubfileNumberOf(
-    const std::string& name, std::size_t subfileId, hsize_t part, char primitive = 0xff);
+  hsize_t GetSubfileNumberOf(const std::string& base, const std::string& qualifier,
+    std::size_t subfileId, hsize_t part, char primitive = 0xff);
+
+  std::string GetBasePath(const std::string& fullPath);
 
   /**
    * Return true if the given dataset exists in the given existing group.
@@ -359,7 +361,7 @@ private:
    * `Connectivity`. This is used when creating virtual datasets from different parts, to know how
    * to interleave virtual mappings.
    */
-  IndexingMode GetDatasetIndexationMode(hid_t group, const char* name);
+  IndexingMode GetDatasetIndexationMode(const std::string& path);
 };
 
 VTK_ABI_NAMESPACE_END

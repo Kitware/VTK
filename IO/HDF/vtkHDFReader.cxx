@@ -24,6 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -541,58 +542,13 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
   }
 
   this->NumberOfSteps = this->Impl->GetNumberOfSteps();
-  int numPieces = this->Impl->GetNumberOfPieces(this->Step);
+  const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
   this->SetHasTemporalData(this->NumberOfSteps > 1);
-  int dataSetType = this->Impl->GetDataSetType();
+  const int dataSetType = this->Impl->GetDataSetType();
   if (!output || !output->IsA(typeNameMap[dataSetType].c_str()))
   {
-    vtkSmartPointer<vtkDataObject> newOutput = nullptr;
-    if (dataSetType == VTK_IMAGE_DATA)
-    {
-      newOutput = vtkSmartPointer<vtkImageData>::New();
-    }
-    else if (dataSetType == VTK_UNSTRUCTURED_GRID)
-    {
-      if (numPieces <= 1)
-      {
-        newOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
-      }
-      else
-      {
-        newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
-      }
-    }
-    else if (dataSetType == VTK_OVERLAPPING_AMR)
-    {
-      newOutput = vtkSmartPointer<vtkOverlappingAMR>::New();
-    }
-    else if (dataSetType == VTK_POLY_DATA)
-    {
-      if (numPieces <= 1)
-      {
-        newOutput = vtkSmartPointer<vtkPolyData>::New();
-      }
-      else
-      {
-        newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
-      }
-    }
-    else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
-    {
-      this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
-      newOutput = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
-    }
-    else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
-    {
-      this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
-      newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
-    }
-    else
-    {
-      vtkErrorMacro("HDF dataset type unknown: " << dataSetType);
-      return 0;
-    }
-    info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+    this->Assembly = vtkSmartPointer<vtkDataAssembly>::New();
+    info->Set(vtkDataObject::DATA_OBJECT(), this->Impl->GetNewDataSet(dataSetType, numPieces));
     for (int i = 0; i < vtkHDFUtilities::GetNumberOfAttributeTypes(); ++i)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(i);
@@ -1373,7 +1329,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkPartitionedDataSe
       vtkNew<vtkPolyData> data;
       auto* out = data->GetInformation();
       // one piece per partition
-      out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+      out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1); // WTF?
       this->SetupInformation(out);
 
       vtkNew<vtkPartitionedDataSet> pData;
@@ -1525,44 +1481,20 @@ int vtkHDFReader::ReadRecursively(
     dataMB->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), nodeName);
     if (this->Impl->IsPathSoftLink(hdfPath))
     {
-      // Set current path as root
+      // Set current path as HDF5 root
       this->Impl->RetrieveHDFInformation(hdfPath);
       this->Impl->OpenGroupAsVTKGroup(hdfPath);
+      const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
+      const int datatype = this->Impl->GetDataSetType();
 
-      int datatype = this->Impl->GetDataSetType();
-      if (datatype == VTK_POLY_DATA)
+      vtkSmartPointer<vtkDataObject> dataObject = this->Impl->GetNewDataSet(datatype, numPieces);
+      if (vtkPartitionedDataSet::SafeDownCast(dataObject))
       {
-        vtkNew<vtkPolyData> data;
-        auto* out = data->GetInformation();
-        // one piece per partition
-        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-        this->SetupInformation(out);
-        this->Read(out, data, nullptr);
-        dataMB->SetBlock(i, data);
+        dataObject.TakeReference(vtkMultiPieceDataSet::New());
       }
-      else if (datatype == VTK_UNSTRUCTURED_GRID)
-      {
-        vtkNew<vtkUnstructuredGrid> data;
-        auto* out = data->GetInformation();
-        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
-        this->SetupInformation(out);
-        this->Read(out, data, nullptr);
-        dataMB->SetBlock(i, data);
-      }
-      else if (datatype == VTK_IMAGE_DATA)
-      {
-        vtkNew<vtkImageData> data;
-        auto* out = data->GetInformation();
-        this->SetupInformation(out);
-
-        // always request the whole extent
-        out->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-          out->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
-
-        this->Read(out, data);
-        dataMB->SetBlock(i, data);
-      }
-      this->AddFieldArrays(dataMB->GetBlock(i));
+      this->ReadData(outInfo, dataObject);
+      dataMB->SetBlock(i, dataObject);
+      this->AddFieldArrays(dataMB->GetBlock(i)); // FIXME: done twice?
     }
     else
     {
@@ -1624,7 +1556,6 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
 {
   this->MeshGeometryChangedFromPreviousTimeStep = false;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  int ok = 1;
   if (!outInfo)
   {
     return 0;
@@ -1634,6 +1565,14 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
+
+  return ReadData(outInfo, output);
+}
+
+//----------------------------------------------------------------------------
+bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
+{
+  int ok = 1;
 
   if (this->GetHasTemporalData())
   {
@@ -1646,23 +1585,25 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
         1;
       this->Step = this->Step >= this->NumberOfSteps ? this->NumberOfSteps - 1
                                                      : (this->Step < 0 ? 0 : this->Step);
+      data->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
     this->TimeValue = values[this->Step];
   }
+
   int dataSetType = this->Impl->GetDataSetType();
   if (dataSetType == VTK_IMAGE_DATA)
   {
-    vtkImageData* data = vtkImageData::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkImageData* imageData = vtkImageData::SafeDownCast(data);
+    ok = this->Read(outInfo, imageData);
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID)
   {
-    vtkUnstructuredGrid* data = vtkUnstructuredGrid::SafeDownCast(output);
-    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
-    ok = this->Read(outInfo, data, pData);
+    vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(data);
+    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
+    ok = this->Read(outInfo, ug, pData);
     ::UpdateGeometryIfRequired(
-      data, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
-    // Output cleanup after using mesh cache
+      ug, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    // data cleanup after using mesh cache
     if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
@@ -1670,12 +1611,12 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else if (dataSetType == VTK_POLY_DATA)
   {
-    vtkPolyData* data = vtkPolyData::SafeDownCast(output);
-    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(output);
-    ok = this->Read(outInfo, data, pData);
-    ::UpdateGeometryIfRequired(
-      data, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
-    // Output cleanup after using mesh cache
+    vtkPolyData* polydata = vtkPolyData::SafeDownCast(data);
+    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
+    ok = this->Read(outInfo, polydata, pData);
+    ::UpdateGeometryIfRequired(polydata, pData, this->UseCache,
+      this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    // data cleanup after using mesh cache
     if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
@@ -1683,18 +1624,18 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
-    vtkOverlappingAMR* data = vtkOverlappingAMR::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(data);
+    ok = this->Read(outInfo, amr);
   }
   else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
   {
-    vtkPartitionedDataSetCollection* data = vtkPartitionedDataSetCollection::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkPartitionedDataSetCollection* pdc = vtkPartitionedDataSetCollection::SafeDownCast(data);
+    ok = this->Read(outInfo, pdc);
   }
   else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
   {
-    vtkMultiBlockDataSet* data = vtkMultiBlockDataSet::SafeDownCast(output);
-    ok = this->Read(outInfo, data);
+    vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(data);
+    ok = this->Read(outInfo, mbds);
   }
   else
   {
@@ -1702,12 +1643,12 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  ok = ok && this->AddFieldArrays(output);
+  ok = ok && this->AddFieldArrays(data);
 
   if (this->GetHasTemporalData())
   {
     // do this at the end because using cache may override this.
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
+    data->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
   }
 
   return ok;

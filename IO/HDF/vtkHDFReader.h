@@ -212,6 +212,11 @@ protected:
   ///@}
 
   /**
+   *
+   */
+  bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
+
+  /**
    * Read 'pieceData' specified by 'filePiece' where
    * number of points, cells and connectivity ids
    * store those numbers for all pieces.

@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAppendDataSets.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenerateTimeSteps.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPassArrays.h"
@@ -18,6 +22,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkTransform.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWarpScalar.h"
 #include "vtkXMLPolyDataReader.h"
@@ -85,6 +91,103 @@ bool TestDistributedObject(
   if (!vtkTestUtilities::CompareDataObjects(partitionedPiece->GetPartition(0), readPart))
   {
     vtkLog(ERROR, "Read piece and read part do not match");
+    return false;
+  }
+
+  return true;
+}
+
+bool TestCompositeDistributedObject(
+  vtkMPIController* controller, const std::string& tempDir, int compositeType)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // Create a sphere source
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetPhiResolution(50);
+  sphere->SetThetaResolution(50);
+  sphere->SetRadius(5.0);
+
+  // Distribute it
+  vtkNew<vtkRedistributeDataSetFilter> redistribute;
+  redistribute->SetGenerateGlobalCellIds(false);
+  redistribute->SetInputConnection(sphere->GetOutputPort());
+
+  // Extract surface to get a poly data again
+  vtkNew<vtkDataSetSurfaceFilter> surface;
+  surface->SetInputConnection(redistribute->GetOutputPort());
+
+  vtkNew<vtkTransform> transform;
+  transform->Translate(100.0, 10.0, 10.0);
+  vtkNew<vtkTransformFilter> transformFilter;
+  transformFilter->SetTransform(transform);
+  transformFilter->SetInputConnection(surface->GetOutputPort());
+
+  // Create a composite structure
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetOutputType(compositeType);
+  group->AddInputConnection(redistribute->GetOutputPort());
+  group->AddInputConnection(transformFilter->GetOutputPort());
+  group->UpdatePiece(myRank, nbRanks, 0);
+
+  // Write it to disk
+  std::string prefix = tempDir + "/parallel_composite_" + std::to_string(compositeType);
+  std::string filePath = prefix + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+
+  {
+    vtkNew<vtkHDFWriter> writer;
+    writer->SetInputConnection(group->GetOutputPort());
+    writer->SetFileName(filePath.c_str());
+    writer->SetDebug(true);
+    writer->Write();
+  }
+
+  // Wait for all processes to be done writing
+  controller->Barrier();
+
+  // Reopen file and compare it to the source
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filePath.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<vtkHDFReader> readerPart;
+  readerPart->SetFileName(filePathPart.c_str());
+  readerPart->Update();
+
+  vtkMultiBlockDataSet* originalPiece =
+    vtkMultiBlockDataSet::SafeDownCast(group->GetOutputDataObject(0));
+  vtkMultiBlockDataSet* readPart =
+    vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
+  vtkMultiBlockDataSet* readTotal =
+    vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+
+  if (compositeType == VTK_MULTIBLOCK_DATA_SET)
+  {
+    vtkMultiPieceDataSet* ugMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(0));
+    vtkMultiPieceDataSet* pdMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(1));
+    vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(0));
+    vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(0));
+
+    if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(0), ugBlock))
+    {
+      vtkLog(ERROR, "Read piece 0 and read part do not match");
+      return false;
+    }
+    if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(1), pdBlock))
+    {
+      vtkLog(ERROR, "Read piece 0 and read part do not match");
+      return false;
+    }
+  }
+  else
+  {
+  }
+
+  if (!vtkTestUtilities::CompareDataObjects(originalPiece, readPart))
+  {
+    vtkLog(ERROR, "Original and read piece do not match");
     return false;
   }
 
@@ -260,6 +363,15 @@ bool TestDistributedUnstructuredGrid(vtkMPIController* controller, const std::st
 {
   return TestDistributedObject(controller, tempDir, false);
 }
+bool TestDistributedMultiBlock(vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
+}
+bool TestDistributedPartitionedDataSetCollection(
+  vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeDistributedObject(controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
+}
 bool TestDistributedUnstructuredGridTemporal(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
@@ -318,6 +430,9 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   bool res = true;
   res &= ::TestDistributedPolyData(controller, tempDir);
   res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  // res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedMultiBlock(controller, tempDir);
+  // res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
   res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
   res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);

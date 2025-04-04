@@ -775,8 +775,7 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
 
   if (!initResult)
   {
-    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                    << this->FileName);
+    vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
     return false;
   }
 
@@ -825,8 +824,7 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 
   if (!initResult)
   {
-    vtkWarningMacro(<< "Could not create temporal offset datasets when creating: "
-                    << this->FileName);
+    vtkErrorMacro(<< "Could not create temporal offset datasets when creating: " << this->FileName);
     return false;
   }
 
@@ -846,8 +844,8 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
     initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
     if (!initResult)
     {
-      vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                      << this->FileName);
+      vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: "
+                    << this->FileName);
       return false;
     }
   }
@@ -1210,8 +1208,8 @@ bool vtkHDFWriter::AppendDataSetAttributes(
         if (!this->Impl->InitDynamicDataset(attributeGroup, arrayName.c_str(), dataType,
               array->GetNumberOfComponents(), ChunkSizeComponent, this->CompressionLevel))
         {
-          vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
-                          << " when creating: " << this->FileName);
+          vtkErrorMacro(<< "Could not initialize offset dataset for: " << arrayName
+                        << " when creating: " << this->FileName);
           return false;
         }
       }
@@ -1551,7 +1549,7 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
   if (this->Impl->CreateScalarAttribute(group, "NSteps", this->NumberOfTimeSteps) ==
     H5I_INVALID_HID)
   {
-    vtkWarningMacro(<< "Could not create steps group when creating: " << this->FileName);
+    vtkErrorMacro(<< "Could not create steps group when creating: " << this->FileName);
     return false;
   }
 
