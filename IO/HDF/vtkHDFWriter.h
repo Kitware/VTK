@@ -383,7 +383,7 @@ private:
   int CompressionLevel = 0;
 
   // Temporal-related private variables
-  double* timeSteps = nullptr;
+  std::vector<double> timeSteps;
   bool IsTemporal = false;
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 1;

@@ -19,6 +19,7 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
 #include "vtkPassArrays.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
@@ -352,11 +353,20 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   {
     vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
 
+    vtkDebugWithObjectMacro(nullptr, << "SET STEP & UPDATE " << time);
+
     reader->SetStep(time);
+    reader->Modified();
     reader->UpdatePiece(myRank, nbRanks, 0);
+
+    vtkDebugWithObjectMacro(nullptr, << "UPDATE DONE  " << time);
+
+    vtkDebugWithObjectMacro(nullptr, << "SET STEP & UPDATE PART " << time);
 
     readerPart->SetStep(time);
     readerPart->Update();
+
+    vtkDebugWithObjectMacro(nullptr, << "ALL UPDATES DONE, COMPARING " << time);
 
     vtkPartitionedDataSet* readPartitionedPiece =
       vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
@@ -491,7 +501,6 @@ bool TestCompositeTemporalDistributedObject(
 
   vtkNew<vtkHDFReader> reader;
   reader->SetFileName(filePath.c_str());
-  reader->UpdatePiece(myRank, nbRanks, 0);
 
   vtkNew<vtkHDFReader> readerPart;
   readerPart->SetFileName(filePathPart.c_str());
@@ -499,61 +508,92 @@ bool TestCompositeTemporalDistributedObject(
 
   for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
   {
-    vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
+    vtkDebugWithObjectMacro(nullptr, << "**************************** Comparing timestep " << time);
 
+    vtkDebugWithObjectMacro(nullptr, << "MTIME is" << reader->GetMTime());
+    vtkDebugWithObjectMacro(nullptr, << "STEP is  " << reader->GetStep());
+    vtkDebugWithObjectMacro(nullptr, << "SET STEP to " << time);
     reader->SetStep(time);
+    vtkDebugWithObjectMacro(nullptr, << "STEP is now " << reader->GetStep());
+    vtkDebugWithObjectMacro(nullptr, << "MTIME is" << reader->GetMTime());
+
+    controller->Barrier(); // TODO: abort all if 1 failed
+    vtkDebugWithObjectMacro(nullptr, << "BARRIER OK " << time);
+    vtkDebugWithObjectMacro(nullptr, << "UPDATE PIECE " << myRank << "/" << nbRanks);
+
+    // vtkInformationVector
+    // reader->Update(0,);
     reader->UpdatePiece(myRank, nbRanks, 0);
+
+    vtkDebugWithObjectMacro(nullptr, << "UPDATE DONE  " << time);
+    vtkDebugWithObjectMacro(nullptr, << "********* UPDATING PART *********  " << time);
 
     readerPart->SetStep(time);
     readerPart->Update();
 
+    bool success = true;
     if (compositeType == VTK_MULTIBLOCK_DATA_SET)
     {
-      auto originalPiece = vtkMultiBlockDataSet::SafeDownCast(harmonics->GetOutputDataObject(0));
       auto readPart = vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
       auto readTotal = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
 
       vtkMultiPieceDataSet* ugMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(0));
+      vtkUnstructuredGrid* ugBlock2 = vtkUnstructuredGrid::SafeDownCast(readPart->GetBlock(0));
       vtkMultiPieceDataSet* pdMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(1));
       vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(0));
       vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(0));
+      vtkPolyData* pdBlock2 = vtkPolyData::SafeDownCast(readPart->GetBlock(1));
 
-      if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(0), ugBlock))
-      {
-        vtkLog(ERROR, "Read block 0 and read part do not match");
-        return false;
-      }
-      if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(1), pdBlock))
-      {
-        vtkLog(ERROR, "Read block 1 and read part do not match");
-        return false;
-      }
+      // vtkDebugWithObjectMacro(nullptr, << ugMP << " " << ugMP2);
+      vtkDebugWithObjectMacro(nullptr, << ugBlock << " " << ugBlock2);
 
-      if (!vtkTestUtilities::CompareDataObjects(originalPiece, readPart))
+      // if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(0), ugBlock))
+      // {
+      //   vtkLog(ERROR, "Read block 0 and read part do not match");
+      //   return false;
+      // }
+      // if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(1), pdBlock))
+      // {
+      //   vtkLog(ERROR, "Read block 1 and read part do not match");
+      //   return false;
+      // }
+
+      vtkDebugWithObjectMacro(nullptr,
+        " " << pdBlock->GetPointData()->GetArray("SpatioTemporalHarmonics")->GetTuple1(0) << " "
+            << pdBlock2->GetPointData()->GetArray("SpatioTemporalHarmonics")->GetTuple1(0));
+
+      if (!vtkTestUtilities::CompareDataObjects(pdBlock, pdBlock2))
       {
         vtkLog(ERROR, "Original and read part do not match");
         return false;
+      }
+      if (!vtkTestUtilities::CompareDataObjects(ugBlock, ugBlock2))
+      {
+        vtkLog(ERROR, "Original and read part do not match");
+        success = false;
       }
     }
     else
     {
       auto originalPiece =
-        vtkPartitionedDataSetCollection::SafeDownCast(addAssembly->GetOutputDataObject(0));
+        vtkPartitionedDataSetCollection::SafeDownCast(harmonics->GetOutputDataObject(0));
       auto readPart =
         vtkPartitionedDataSetCollection::SafeDownCast(readerPart->GetOutputDataObject(0));
       auto readTotal =
         vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
 
+      // vtkDebugWithObjectMacro(nullptr, << ug0->GetPointData()->GetArrayName(1) << " " <<
+      // ug1->GetPointData()->GetArrayName(1)); if (!vtkTestUtilities::CompareDataObjects(readPart,
+      // readTotal))
+      // {
+      //   vtkLog(ERROR, "Original and read global assembly do not match");
+      //   success = false;
+      // }
+
       if (!vtkTestUtilities::CompareDataObjects(readPart, readTotal))
       {
-        vtkLog(ERROR, "Original and read global assembly do not match");
-        return false;
-      }
-
-      if (!vtkTestUtilities::CompareDataObjects(originalPiece, readPart))
-      {
         vtkLog(ERROR, "Original and read part do not match");
-        return false;
+        success = false;
       }
     }
   }
@@ -666,18 +706,18 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   std::string dataRoot = testHelper->GetDataRoot();
 
   bool res = true;
-  // res &= ::TestDistributedPolyData(controller, tempDir);
-  // res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
-  // res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
-  // res &= ::TestDistributedMultiBlock(controller, tempDir);
-  // res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
-  // res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyData(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedMultiBlock(controller, tempDir);
+  res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
+  res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   res &= ::TestDistributedTemporalMultiBlock(controller, tempDir, dataRoot);
-  // res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir, dataRoot);
+  res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir, dataRoot);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
