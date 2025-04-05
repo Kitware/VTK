@@ -439,9 +439,9 @@ struct ArrayGXCoordinates : public ArrayBase
   /// Returns the number of blocks in the underlying variable inside the given group.
   /// Used by the reader to provide meta-data on blocks.
   /// Uses the number of blocks in the first (x) array.
-  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>& paths,
-                           DataSourcesType& sources,
-                           const std::string& groupName = "") override
+  size_t GetNumberOfBlocks(const std::unordered_map<std::string, std::string>&,
+                           DataSourcesType&,
+                           const std::string&) override
   {
     return 1;
   }
@@ -478,11 +478,11 @@ private:
   vtkm::Id SurfaceMinIdx = -1;
 
   std::unique_ptr<ArrayBasic> CoordPoints = nullptr;
-  std::unique_ptr<ArrayBasic> rmnc = nullptr;
-  std::unique_ptr<ArrayBasic> zmns = nullptr;
-  std::unique_ptr<ArrayBasic> lmns = nullptr;
-  std::unique_ptr<ArrayBasic> xm = nullptr;
-  std::unique_ptr<ArrayBasic> xn = nullptr;
+  std::unique_ptr<ArrayBasic> RMNC = nullptr;
+  std::unique_ptr<ArrayBasic> ZMNS = nullptr;
+  std::unique_ptr<ArrayBasic> LMNS = nullptr;
+  std::unique_ptr<ArrayBasic> XM = nullptr;
+  std::unique_ptr<ArrayBasic> XN = nullptr;
   std::unique_ptr<ArrayBasic> nfp = nullptr;
   std::unique_ptr<ArrayBasic> phi = nullptr;
 
