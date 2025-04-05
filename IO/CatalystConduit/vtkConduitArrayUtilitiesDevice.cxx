@@ -138,21 +138,22 @@ vtkConduitArrayUtilitiesDevice::~vtkConduitArrayUtilitiesDevice() = default;
 #define vtkmAOSDataArrayConstructSingleComponent(dtype, nvals, raw_ptr, deviceAdapterId)           \
   do                                                                                               \
   {                                                                                                \
-    return make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(                                      \
+    return vtk::TakeSmartPointer(make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(                \
       std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(                 \
         deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),     \
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
-        vtkm::cont::internal::InvalidRealloc) }));                                                 \
+        vtkm::cont::internal::InvalidRealloc) })));                                                \
   } while (0)
 
 #define vtkmAOSDataArrayConstructMultiComponent(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)     \
   do                                                                                               \
   {                                                                                                \
-    return make_vtkmDataArray(vtkm::cont::ArrayHandle<vtkm::Vec<dtype, ncomp>>(                    \
-      std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(                 \
-        deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),     \
-        vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},         \
-        vtkm::cont::internal::InvalidRealloc) }));                                                 \
+    return vtk::TakeSmartPointer(                                                                  \
+      make_vtkmDataArray(vtkm::cont::ArrayHandle<vtkm::Vec<dtype, ncomp>>(                         \
+        std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(               \
+          deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),   \
+          vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},       \
+          vtkm::cont::internal::InvalidRealloc) })));                                              \
   } while (0)
 
 #define vtkmAOSDataArrayNumComponentsBody(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)           \
@@ -238,7 +239,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
         vtkm::cont::internal::InvalidRealloc));                                                    \
     }                                                                                              \
-    return make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(buffers));                            \
+    return vtk::TakeSmartPointer(make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(buffers)));     \
   } while (0)
 
 #define vtkmSOADataArrayConstructMultiComponent(dtype, ntups, ncomp, deviceAdapterId)              \
@@ -255,7 +256,8 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
         vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(num_tuples), [](void*) {},            \
         vtkm::cont::internal::InvalidRealloc));                                                    \
     }                                                                                              \
-    return make_vtkmDataArray(vtkm::cont::ArrayHandleSOA<vtkm::Vec<dtype, ncomp>>(buffers));       \
+    return vtk::TakeSmartPointer(                                                                  \
+      make_vtkmDataArray(vtkm::cont::ArrayHandleSOA<vtkm::Vec<dtype, ncomp>>(buffers)));           \
   } while (0)
 
 #define vtkmSOADataArrayCase(conduitTypeId, dtype, ntups, ncomp, deviceAdapterId)                  \
