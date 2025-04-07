@@ -1,6 +1,6 @@
-## vtkAxisActor breaking changes
+## vtkAxisActor and vtkPolarAxesActor breaking changes
 
-Protected members of `vtkAxisActor` class were moved to private.
+Protected members of `vtkAxisActor` and `vtkPolarAxesActor` classes were moved to private.
 Please use appropriate Getter/Setter to use them instead.
 
 Also some API were ported from `const char*` to `std::string`.

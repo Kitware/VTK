@@ -921,6 +921,8 @@ protected:
    * Compute delta angle of radial axes.
    */
   virtual void ComputeDeltaAngleRadialAxes(vtkIdType);
+
+private:
   /**
    * Coordinates of the pole
    */
@@ -1300,7 +1302,6 @@ protected:
   double PolarLabelOffset = 10.0, PolarExponentOffset = 5.0;
   ///@}
 
-private:
   static constexpr int VTK_MAXIMUM_NUMBER_OF_POLAR_AXES = 20;
   static constexpr int VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES = 50;
   static constexpr double VTK_MINIMUM_POLAR_ARC_RESOLUTION_PER_DEG = 0.05;
