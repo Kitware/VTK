@@ -27,6 +27,7 @@
 #include "vtkDummyController.h"
 #endif
 
+#include "Grid.hxx"
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
@@ -1355,6 +1356,126 @@ bool ValidateMeshTypeMixed()
   return true;
 }
 
+void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned int ny,
+  unsigned int nz, conduit_cpp::Node& mesh)
+{
+  unsigned int numPoints[3] = { nx, ny, nz };
+  double spacing[3] = { 1, 1.1, 1.3 };
+  grid.Initialize(numPoints, spacing);
+  attribs.Initialize(&grid);
+  attribs.UpdateFields(0);
+
+  mesh["coordsets/coords/type"].set("explicit");
+
+  mesh["coordsets/coords/values/x"].set_external(const_cast<double*>(grid.GetPoints().data()),
+    grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(double));
+  mesh["coordsets/coords/values/y"].set_external(const_cast<double*>(grid.GetPoints().data()),
+    grid.GetNumberOfPoints(),
+    /*offset=*/sizeof(double), /*stride=*/3 * sizeof(double));
+  mesh["coordsets/coords/values/z"].set_external(const_cast<double*>(grid.GetPoints().data()),
+    grid.GetNumberOfPoints(),
+    /*offset=*/2 * sizeof(double), /*stride=*/3 * sizeof(double));
+
+  // Next, add topology
+  mesh["topologies/mesh/type"].set("unstructured");
+  mesh["topologies/mesh/coordset"].set("coords");
+
+  // add elements
+  using VecT = std::vector<unsigned int>;
+
+  mesh["topologies/mesh/elements/shape"].set("polyhedral");
+  mesh["topologies/mesh/elements/connectivity"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Connectivity));
+  mesh["topologies/mesh/elements/sizes"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Sizes));
+  mesh["topologies/mesh/elements/offsets"].set_external(
+    const_cast<VecT&>(grid.GetPolyhedralCells().Offsets));
+
+  // add faces (aka subelements)
+  mesh["topologies/mesh/subelements/shape"].set("polygonal");
+  mesh["topologies/mesh/subelements/connectivity"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Connectivity));
+  mesh["topologies/mesh/subelements/sizes"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Sizes));
+  mesh["topologies/mesh/subelements/offsets"].set_external(
+    const_cast<VecT&>(grid.GetPolygonalFaces().Offsets));
+
+  // Finally, add fields.
+  auto fields = mesh["fields"];
+  fields["velocity/association"].set("vertex");
+  fields["velocity/topology"].set("mesh");
+  fields["velocity/volume_dependent"].set("false");
+
+  // velocity is stored in non-interlaced form (unlike points).
+  fields["velocity/values/x"].set_external(
+    attribs.GetVelocityArray().data(), grid.GetNumberOfPoints(), /*offset=*/0);
+  fields["velocity/values/y"].set_external(attribs.GetVelocityArray().data(),
+    grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(double));
+  fields["velocity/values/z"].set_external(attribs.GetVelocityArray().data(),
+    grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(double) * 2);
+
+  // pressure is cell-data.
+  fields["pressure/association"].set("element");
+  fields["pressure/topology"].set("mesh");
+  fields["pressure/volume_dependent"].set("false");
+  fields["pressure/values"].set_external(
+    attribs.GetPressureArray().data(), grid.GetNumberOfCells());
+}
+
+bool ValidatePolyhedra()
+{
+  conduit_cpp::Node mesh;
+  constexpr int nX = 4, nY = 4, nZ = 4;
+  Grid grid;
+  Attributes attribs;
+  CreatePolyhedra(grid, attribs, nX, nY, nZ, mesh);
+  auto values = mesh["fields/velocity/values"];
+  auto data = Convert(mesh);
+
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+
+  VERIFY(ug->GetNumberOfPoints() == static_cast<vtkIdType>(grid.GetNumberOfPoints()),
+    "expected %zu points got %lld", grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
+
+  VERIFY(ug->GetNumberOfCells() == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "expected %zu cells, got %lld", grid.GetNumberOfCells(), ug->GetNumberOfCells());
+
+  // check cell types
+  auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+
+  vtkIdType nPolyhedra(0);
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  {
+    const int cellType = it->GetCellType();
+    switch (cellType)
+    {
+      case VTK_POLYHEDRON:
+      {
+        ++nPolyhedra;
+        const vtkIdType nFaces = it->GetNumberOfFaces();
+        VERIFY(nFaces == 6, "Expected 6 faces, got %lld", nFaces);
+        break;
+      }
+      default:
+      {
+        vtkLog(ERROR, "Expected only polyhedra.");
+        return false;
+      }
+    }
+  }
+
+  VERIFY(nPolyhedra == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "Expected %zu polyhedra, got %lld", grid.GetNumberOfCells(), nPolyhedra);
+  return true;
+}
+
 } // end namespace
 
 //----------------------------------------------------------------------------
@@ -1376,7 +1497,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
-      ValidateDistributedAMR()
+      ValidateDistributedAMR() && ValidatePolyhedra()
 
     ? EXIT_SUCCESS
     : EXIT_FAILURE;

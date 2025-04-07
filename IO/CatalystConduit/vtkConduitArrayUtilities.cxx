@@ -215,25 +215,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkConduitArrayUtilities);
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);                   \
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(__id);                                   \
-  if (isDevicePointer && !vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId))               \
-  {                                                                                                \
-    vtkLogF(ERROR, "Device %d is not available at runtime", __id);                                 \
-    return nullptr;                                                                                \
-  }
-
-#else
-#define IS_DEVICE_POINTER(memory)                                                                  \
-  void* __ptr = memory;                                                                            \
-  int8_t __id;                                                                                     \
-  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(__ptr, __id);
-#endif
-
 //----------------------------------------------------------------------------
 vtkConduitArrayUtilities::vtkConduitArrayUtilities() = default;
 
@@ -351,7 +332,17 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
   }
 
-  IS_DEVICE_POINTER(mcarray.child(0).element_ptr(0));
+  int8_t id;
+  bool working;
+  bool isDevicePointer = IsDevicePointer(mcarray.child(0).element_ptr(0), id, working);
+  if (isDevicePointer && !working)
+  {
+    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    return nullptr;
+  }
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
+#endif
 
   if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
   {
@@ -583,8 +574,14 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
     vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(c_mcarray, /*force_signed*/ true);
   conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
 
-  IS_DEVICE_POINTER(mcarray.element_ptr(0));
-
+  int8_t id;
+  bool working;
+  bool isDevicePointer = IsDevicePointer(mcarray.element_ptr(0), id, working);
+  if (isDevicePointer && !working)
+  {
+    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    return nullptr;
+  }
   if (!connectivity)
   {
     return nullptr;
@@ -637,7 +634,14 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     conduit_cpp::cpp_node(const_cast<conduit_node*>(c_o2mrelation));
   const auto leaf = o2mrelation["connectivity"];
 
-  IS_DEVICE_POINTER(const_cast<void*>(leaf.element_ptr(0)));
+  int8_t id;
+  bool working;
+  bool isDevicePointer = IsDevicePointer(leaf.element_ptr(0), id, working);
+  if (isDevicePointer && !working)
+  {
+    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    return nullptr;
+  }
 
   auto elements = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     conduit_cpp::c_node(&leaf), /*force_signed*/ true);
@@ -729,6 +733,24 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
   (void)id;
   (void)ptr;
   return false;
+}
+
+bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id, bool& working)
+{
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  void* pointer = const_cast<void*>(ptr);
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
+  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
+  // we process host pointers using VTK which is always available
+  working = isDevicePointer ? vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId) : true;
+#else
+  void* pointer = const_cast<void*>(ptr);
+  bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
+  // no VTKm, so for a device pointer there is no runtime
+  // for host pointer VTK can handle that.
+  working = (isDevicePointer) ? false : true;
+#endif
+  return isDevicePointer;
 }
 
 //----------------------------------------------------------------------------

@@ -53,6 +53,7 @@ private:
   vtkConduitArrayUtilitiesDevice(const vtkConduitArrayUtilitiesDevice&) = delete;
   void operator=(const vtkConduitArrayUtilitiesDevice&) = delete;
 };
+
 VTK_ABI_NAMESPACE_END
 
 #endif

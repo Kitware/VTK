@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-
 #include <array>
 #include <iterator>
 #include <vtkXMLUniformGridAMRWriter.h>
@@ -34,6 +32,7 @@
 #include "vtkm/cont/ArrayHandleCounting.h"
 #include "vtkm/cont/DeviceAdapterTag.h"
 #include "vtkm/cont/ErrorBadValue.h"
+#include "vtkm/cont/Initialize.h"
 #include "vtkm/cont/Invoker.h"
 #include "vtkm/cont/RuntimeDeviceInformation.h"
 #include "vtkm/cont/RuntimeDeviceTracker.h"
@@ -48,6 +47,7 @@
 #include "vtkDummyController.h"
 #endif
 
+#include "Grid.hxx"
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
@@ -374,7 +374,18 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   const unsigned int nEle = nTet + nHex + nPolyhedra;
 
   res["topologies/mesh/elements/shape"] = "mixed";
-  res["topologies/mesh/elements/shape_map/polyhedral"] = VTK_POLYHEDRON;
+  // VTKm does not support VTK_POLYHEDRON
+  // if we create the dataset in host mem. with device adapter serial
+  // it will be read by VTK
+  // when we create the datset in device mem. we a wedge instead
+  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  {
+    res["topologies/mesh/elements/shape_map/polyhedral"] = VTK_POLYHEDRON;
+  }
+  else
+  {
+    res["topologies/mesh/elements/shape_map/wedge"] = VTK_WEDGE;
+  }
   res["topologies/mesh/elements/shape_map/tet"] = VTK_TETRA;
   res["topologies/mesh/elements/shape_map/hex"] = VTK_HEXAHEDRON;
 
@@ -382,14 +393,17 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   res["topologies/mesh/subelements/shape_map/quad"] = VTK_QUAD;
   res["topologies/mesh/subelements/shape_map/tri"] = VTK_TRIANGLE;
 
-  const auto elemConnectivitySize = nTet * 4 + nPolyhedra * 5 + nHex * 8;
+  const auto elemConnectivitySize = nTet * 4 +
+    // A wedge as a polyhedron (5 faces) for host memory
+    // and as a cell (6 points) for device memory
+    nPolyhedra * ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? 5 : 6) + nHex * 8;
   const auto subElemConnectivitySize = nPolyhedra * 18;
 
   std::vector<unsigned int> elem_connectivity, elem_shapes, elem_sizes, elem_offsets;
   elem_shapes.resize(nEle);
   elem_sizes.resize(nEle);
   elem_offsets.resize(nEle);
-  elem_connectivity.resize(nTet * 4 + nPolyhedra * 5 + nHex * 8);
+  elem_connectivity.resize(elemConnectivitySize);
   elem_offsets[0] = 0;
 
   std::vector<unsigned int> subelem_connectivity, subelem_shapes, subelem_sizes, subelem_offsets;
@@ -434,29 +448,33 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           idx_elem += 1;
           idx += HexaPointCount;
         }
-        else // 3 tets, one polyhedron
+        else // 3 tets, one polyhedron for host memory (or wedge for device memory)
         {
           elem_shapes[idx_elem + 0] = VTK_TETRA;
           elem_shapes[idx_elem + 1] = VTK_TETRA;
           elem_shapes[idx_elem + 2] = VTK_TETRA;
-          elem_shapes[idx_elem + 3] = VTK_POLYHEDRON;
+          elem_shapes[idx_elem + 3] =
+            (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? VTK_POLYHEDRON : VTK_WEDGE;
 
           constexpr int TetraPointCount = 4;
           constexpr int WedgeFaceCount = 5;
+          constexpr int WedgePointCount = 6;
           constexpr int TrianglePointCount = 3;
           constexpr int QuadPointCount = 4;
 
           elem_sizes[idx_elem + 0] = TetraPointCount;
           elem_sizes[idx_elem + 1] = TetraPointCount;
           elem_sizes[idx_elem + 2] = TetraPointCount;
-          elem_sizes[idx_elem + 3] = WedgeFaceCount;
+          elem_sizes[idx_elem + 3] =
+            (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount;
 
           elem_offsets[idx_elem + 1] = elem_offsets[idx_elem + 0] + TetraPointCount;
           elem_offsets[idx_elem + 2] = elem_offsets[idx_elem + 1] + TetraPointCount;
           elem_offsets[idx_elem + 3] = elem_offsets[idx_elem + 2] + TetraPointCount;
           if (idx_elem + 4 < elem_offsets.size())
           {
-            elem_offsets[idx_elem + 4] = elem_offsets[idx_elem + 3] + WedgeFaceCount;
+            elem_offsets[idx_elem + 4] = elem_offsets[idx_elem + 3] +
+              ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
           }
 
           elem_connectivity[idx + 0] = calc(0, 0, 0, i, j, k, nptsX, nptsY);
@@ -474,60 +492,77 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           elem_connectivity[idx + 10] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
           elem_connectivity[idx + 11] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
 
-          // note: there are no shared faces in this example
-          elem_connectivity[idx + 12] = 0 + WedgeFaceCount * polyhedronCounter;
-          elem_connectivity[idx + 13] = 1 + WedgeFaceCount * polyhedronCounter;
-          elem_connectivity[idx + 14] = 2 + WedgeFaceCount * polyhedronCounter;
-          elem_connectivity[idx + 15] = 3 + WedgeFaceCount * polyhedronCounter;
-          elem_connectivity[idx + 16] = 4 + WedgeFaceCount * polyhedronCounter;
-
-          subelem_shapes[idx_elem2 + 0] = VTK_QUAD;
-          subelem_shapes[idx_elem2 + 1] = VTK_QUAD;
-          subelem_shapes[idx_elem2 + 2] = VTK_QUAD;
-          subelem_shapes[idx_elem2 + 3] = VTK_TRIANGLE;
-          subelem_shapes[idx_elem2 + 4] = VTK_TRIANGLE;
-
-          subelem_sizes[idx_elem2 + 0] = QuadPointCount;
-          subelem_sizes[idx_elem2 + 1] = QuadPointCount;
-          subelem_sizes[idx_elem2 + 2] = QuadPointCount;
-          subelem_sizes[idx_elem2 + 3] = TrianglePointCount;
-          subelem_sizes[idx_elem2 + 4] = TrianglePointCount;
-
-          subelem_offsets[idx_elem2 + 1] = subelem_offsets[idx_elem2 + 0] + QuadPointCount;
-          subelem_offsets[idx_elem2 + 2] = subelem_offsets[idx_elem2 + 1] + QuadPointCount;
-          subelem_offsets[idx_elem2 + 3] = subelem_offsets[idx_elem2 + 2] + QuadPointCount;
-          subelem_offsets[idx_elem2 + 4] = subelem_offsets[idx_elem2 + 3] + TrianglePointCount;
-          if (idx_elem2 + 5 < subelem_offsets.size())
+          // VTKm does not support polyhedra or storing faces
+          // host memory datasets are processed by VTK
+          if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
           {
-            subelem_offsets[idx_elem2 + 5] = subelem_offsets[idx_elem2 + 4] + TrianglePointCount;
+            // note: there are no shared faces in this example
+            elem_connectivity[idx + 12] = 0 + WedgeFaceCount * polyhedronCounter;
+            elem_connectivity[idx + 13] = 1 + WedgeFaceCount * polyhedronCounter;
+            elem_connectivity[idx + 14] = 2 + WedgeFaceCount * polyhedronCounter;
+            elem_connectivity[idx + 15] = 3 + WedgeFaceCount * polyhedronCounter;
+            elem_connectivity[idx + 16] = 4 + WedgeFaceCount * polyhedronCounter;
+
+            subelem_shapes[idx_elem2 + 0] = VTK_QUAD;
+            subelem_shapes[idx_elem2 + 1] = VTK_QUAD;
+            subelem_shapes[idx_elem2 + 2] = VTK_QUAD;
+            subelem_shapes[idx_elem2 + 3] = VTK_TRIANGLE;
+            subelem_shapes[idx_elem2 + 4] = VTK_TRIANGLE;
+
+            subelem_sizes[idx_elem2 + 0] = QuadPointCount;
+            subelem_sizes[idx_elem2 + 1] = QuadPointCount;
+            subelem_sizes[idx_elem2 + 2] = QuadPointCount;
+            subelem_sizes[idx_elem2 + 3] = TrianglePointCount;
+            subelem_sizes[idx_elem2 + 4] = TrianglePointCount;
+
+            subelem_offsets[idx_elem2 + 1] = subelem_offsets[idx_elem2 + 0] + QuadPointCount;
+            subelem_offsets[idx_elem2 + 2] = subelem_offsets[idx_elem2 + 1] + QuadPointCount;
+            subelem_offsets[idx_elem2 + 3] = subelem_offsets[idx_elem2 + 2] + QuadPointCount;
+            subelem_offsets[idx_elem2 + 4] = subelem_offsets[idx_elem2 + 3] + TrianglePointCount;
+            if (idx_elem2 + 5 < subelem_offsets.size())
+            {
+              subelem_offsets[idx_elem2 + 5] = subelem_offsets[idx_elem2 + 4] + TrianglePointCount;
+            }
+
+            subelem_connectivity[idx2 + 0] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 1] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 2] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 3] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
+
+            subelem_connectivity[idx2 + 4] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 5] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 6] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 7] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+
+            subelem_connectivity[idx2 + 8] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 9] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 10] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 11] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
+
+            subelem_connectivity[idx2 + 12] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 13] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 14] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
+
+            subelem_connectivity[idx2 + 15] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 16] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+            subelem_connectivity[idx2 + 17] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+          }
+          else
+          {
+            elem_connectivity[idx + 12] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
+            elem_connectivity[idx + 13] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
+            elem_connectivity[idx + 14] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
+            elem_connectivity[idx + 15] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
+            elem_connectivity[idx + 16] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
+            elem_connectivity[idx + 17] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
           }
 
-          subelem_connectivity[idx2 + 0] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 1] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 2] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 3] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-
-          subelem_connectivity[idx2 + 4] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 5] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 6] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 7] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-
-          subelem_connectivity[idx2 + 8] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 9] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 10] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 11] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-
-          subelem_connectivity[idx2 + 12] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 13] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 14] = calc(1, 1, 0, i, j, k, nptsX, nptsY);
-
-          subelem_connectivity[idx2 + 15] = calc(1, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 16] = calc(0, 1, 1, i, j, k, nptsX, nptsY);
-          subelem_connectivity[idx2 + 17] = calc(1, 0, 1, i, j, k, nptsX, nptsY);
-
           idx_elem += 4; // three tets, 1 polyhedron
-          idx += 3 * TetraPointCount + WedgeFaceCount;
+          idx += 3 * TetraPointCount +
+            ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
           polyhedronCounter += 1;
+          // these are only used for subelem, so we don't need to branch
+          // on polyhedron
           idx_elem2 += WedgeFaceCount; // five faces on the polyhedron
           idx2 += 3 * QuadPointCount + 2 * TrianglePointCount;
         }
@@ -540,11 +575,14 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   ArrayCopy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes);
   ArrayCopy(vtkm::cont::make_ArrayHandle(elem_connectivity, vtkm::CopyFlag::Off), elemConnectivity);
 
-  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes);
-  ArrayCopy(
-    vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off), subelemConnectivity);
+  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  {
+    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets);
+    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes);
+    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes);
+    ArrayCopy(
+      vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off), subelemConnectivity);
+  }
 
   auto elements = res["topologies/mesh/elements"];
   elements["shapes"].set_external(elemShapes.GetReadPointer(device), nEle);
@@ -553,12 +591,15 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   elements["connectivity"].set_external(
     elemConnectivity.GetReadPointer(device), elemConnectivitySize);
 
-  auto subelements = res["topologies/mesh/subelements"];
-  subelements["shapes"].set_external(subelemShapes.GetReadPointer(device), nFaces);
-  subelements["offsets"].set_external(subelemOffsets.GetReadPointer(device), nFaces);
-  subelements["sizes"].set_external(subelemSizes.GetReadPointer(device), nFaces);
-  subelements["connectivity"].set_external(
-    subelemConnectivity.GetReadPointer(device), subElemConnectivitySize);
+  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  {
+    auto subelements = res["topologies/mesh/subelements"];
+    subelements["shapes"].set_external(subelemShapes.GetReadPointer(device), nFaces);
+    subelements["offsets"].set_external(subelemOffsets.GetReadPointer(device), nFaces);
+    subelements["sizes"].set_external(subelemSizes.GetReadPointer(device), nFaces);
+    subelements["connectivity"].set_external(
+      subelemConnectivity.GetReadPointer(device), subElemConnectivitySize);
+  }
 }
 
 void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, conduit_cpp::Node& res,
@@ -877,10 +918,32 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
     {
       case VTK_POLYHEDRON:
       {
-        ++nPolyhedra;
-        const vtkIdType nFaces = it->GetNumberOfFaces();
-        VERIFY(nFaces == 5, "Expected 5 faces, got %lld", nFaces);
-        break;
+        if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+        {
+          ++nPolyhedra;
+          const vtkIdType nFaces = it->GetNumberOfFaces();
+          VERIFY(nFaces == 5, "Expected 5 faces, got %lld", nFaces);
+          break;
+        }
+        else
+        {
+          vtkLog(ERROR, "Expected only tetras, hexas and wedges.");
+          return false;
+        }
+      }
+      case VTK_WEDGE:
+      {
+        if (memorySpace != VTKM_DEVICE_ADAPTER_SERIAL)
+        {
+          // this is a wedge for device memory as VTKm does not have polyhedra
+          ++nPolyhedra;
+          break;
+        }
+        else
+        {
+          vtkLog(ERROR, "Expected only tetras, hexas and polyhedra.");
+          return false;
+        }
       }
       case VTK_HEXAHEDRON:
       {
@@ -1186,10 +1249,186 @@ bool ValidateMeshTypeAMR(const std::string& file)
   }
   return true;
 }
+
+void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned int ny,
+  unsigned int nz, conduit_cpp::Node& mesh, vtkm::Int8 memorySpace,
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& points,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
+  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemOffsets,
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& velocity,
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& pressure)
+{
+  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  unsigned int numPoints[3] = { nx, ny, nz };
+  double spacing[3] = { 1, 1.1, 1.3 };
+  grid.Initialize(numPoints, spacing);
+  attribs.Initialize(&grid);
+  attribs.UpdateFields(0);
+
+  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPoints(), vtkm::CopyFlag::Off), points);
+  mesh["coordsets/coords/type"].set("explicit");
+  mesh["coordsets/coords/values/x"].set_external(points.GetReadPointer(device),
+    grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(vtkm::FloatDefault));
+  mesh["coordsets/coords/values/y"].set_external(points.GetReadPointer(device),
+    grid.GetNumberOfPoints(),
+    /*offset=*/sizeof(vtkm::FloatDefault), /*stride=*/3 * sizeof(vtkm::FloatDefault));
+  mesh["coordsets/coords/values/z"].set_external(points.GetReadPointer(device),
+    grid.GetNumberOfPoints(),
+    /*offset=*/2 * sizeof(vtkm::FloatDefault), /*stride=*/3 * sizeof(vtkm::FloatDefault));
+
+  // Next, add topology
+  mesh["topologies/mesh/type"].set("unstructured");
+  mesh["topologies/mesh/coordset"].set("coords");
+
+  // add elements
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Connectivity, vtkm::CopyFlag::Off),
+    elemConnectivity);
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Sizes, vtkm::CopyFlag::Off), elemSizes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Offsets, vtkm::CopyFlag::Off),
+    elemOffsets);
+  mesh["topologies/mesh/elements/shape"].set("polyhedral");
+  mesh["topologies/mesh/elements/connectivity"].set_external(
+    elemConnectivity.GetReadPointer(device), grid.GetPolyhedralCells().Connectivity.size());
+  mesh["topologies/mesh/elements/sizes"].set_external(
+    elemSizes.GetReadPointer(device), grid.GetPolyhedralCells().Sizes.size());
+  mesh["topologies/mesh/elements/offsets"].set_external(
+    elemOffsets.GetReadPointer(device), grid.GetPolyhedralCells().Offsets.size());
+
+  // add faces (aka subelements)
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Connectivity, vtkm::CopyFlag::Off),
+    subelemConnectivity);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Sizes, vtkm::CopyFlag::Off),
+    subelemSizes);
+  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Offsets, vtkm::CopyFlag::Off),
+    subelemOffsets);
+  mesh["topologies/mesh/subelements/shape"].set("polygonal");
+  mesh["topologies/mesh/subelements/connectivity"].set_external(
+    subelemConnectivity.GetReadPointer(device), grid.GetPolygonalFaces().Connectivity.size());
+  mesh["topologies/mesh/subelements/sizes"].set_external(
+    subelemSizes.GetReadPointer(device), grid.GetPolygonalFaces().Sizes.size());
+  mesh["topologies/mesh/subelements/offsets"].set_external(
+    subelemOffsets.GetReadPointer(device), grid.GetPolygonalFaces().Offsets.size());
+
+  // Finally, add fields.
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(attribs.GetVelocityArray(), vtkm::CopyFlag::Off), velocity);
+  ArrayCopy(
+    vtkm::cont::make_ArrayHandle(attribs.GetPressureArray(), vtkm::CopyFlag::Off), pressure);
+  auto fields = mesh["fields"];
+  fields["velocity/association"].set("vertex");
+  fields["velocity/topology"].set("mesh");
+  fields["velocity/volume_dependent"].set("false");
+
+  // velocity is stored in non-interlaced form (unlike points).
+  fields["velocity/values/x"].set_external(velocity.GetReadPointer(device),
+    grid.GetNumberOfPoints(),
+    /*offset=*/0);
+  fields["velocity/values/y"].set_external(velocity.GetReadPointer(device),
+    grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(vtkm::FloatDefault));
+  fields["velocity/values/z"].set_external(velocity.GetReadPointer(device),
+    grid.GetNumberOfPoints(),
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(vtkm::FloatDefault) * 2);
+
+  // pressure is cell-data.
+  fields["pressure/association"].set("element");
+  fields["pressure/topology"].set("mesh");
+  fields["pressure/volume_dependent"].set("false");
+  fields["pressure/values"].set_external(pressure.GetReadPointer(device), grid.GetNumberOfCells());
+}
+
+bool ValidatePolyhedraImpl(vtkm::Int8 memorySpace)
+{
+  conduit_cpp::Node mesh;
+  constexpr int nX = 4, nY = 4, nZ = 4;
+  Grid grid;
+  Attributes attribs;
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> points;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elemConnectivity;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elemSizes;
+  vtkm::cont::ArrayHandleBasic<unsigned int> elemOffsets;
+  vtkm::cont::ArrayHandleBasic<unsigned int> subelemConnectivity;
+  vtkm::cont::ArrayHandleBasic<unsigned int> subelemSizes;
+  vtkm::cont::ArrayHandleBasic<unsigned int> subelemOffsets;
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> velocity;
+  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pressure;
+  CreatePolyhedra(grid, attribs, nX, nY, nZ, mesh, memorySpace, points, elemConnectivity, elemSizes,
+    elemOffsets, subelemConnectivity, subelemSizes, subelemOffsets, velocity, pressure);
+  auto values = mesh["fields/velocity/values"];
+  auto data = Convert(mesh);
+
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+
+  VERIFY(ug->GetNumberOfPoints() == static_cast<vtkIdType>(grid.GetNumberOfPoints()),
+    "expected %zu points got %lld", grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
+
+  VERIFY(ug->GetNumberOfCells() == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "expected %zu cells, got %lld", grid.GetNumberOfCells(), ug->GetNumberOfCells());
+
+  // check cell types
+  auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
+
+  vtkIdType nPolyhedra(0);
+  for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
+  {
+    const int cellType = it->GetCellType();
+    switch (cellType)
+    {
+      case VTK_POLYHEDRON:
+      {
+        ++nPolyhedra;
+        const vtkIdType nFaces = it->GetNumberOfFaces();
+        VERIFY(nFaces == 6, "Expected 6 faces, got %lld", nFaces);
+        break;
+      }
+      default:
+      {
+        vtkLog(ERROR, "Expected only polyhedra.");
+        return false;
+      }
+    }
+  }
+
+  VERIFY(nPolyhedra == static_cast<vtkIdType>(grid.GetNumberOfCells()),
+    "Expected %zu polyhedra, got %lld", grid.GetNumberOfCells(), nPolyhedra);
+  return true;
+}
+
+bool ValidatePolyhedra()
+{
+  try
+  {
+    // conduit data in host memory creates a VTK dataset so this test works.
+    VERIFY(ValidatePolyhedraImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+      "ValidateMeshTypeUnstructuredImpl with serial device failed.");
+    // VTKm does not have VTK_POLYHEDRON
+    // VERIFY(ValidatePolyhedraImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    //   "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
+  }
+  catch (vtkm::cont::ErrorBadValue& e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+  return true;
+}
+
 } // end namespace
 
 int TestConduitSourceDeviceMemory(int argc, char** argv)
 {
+  vtkm::cont::Initialize(argc, argv);
 #if defined(VTKM_ENABLE_CUDA)
   // We really want to use unmanaged memory to exercise external memory space code paths.
   SCOPED_CUDA_DISABLE_MANAGED_MEMORY;
@@ -1208,7 +1447,7 @@ int TestConduitSourceDeviceMemory(int argc, char** argv)
   auto ret = ValidateMeshTypeStructured() && ValidateMeshTypeRectilinear() &&
       ValidateMeshTypeUnstructured() && ValidateRectilinearGridWithDifferentDimensions() &&
       Validate1DRectilinearGrid() && ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() &&
-      ValidateMeshTypeAMR(amrFile)
+      ValidateMeshTypeAMR(amrFile) && ValidatePolyhedra()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 
@@ -1216,10 +1455,3 @@ int TestConduitSourceDeviceMemory(int argc, char** argv)
 
   return ret;
 }
-#else
-#include <cstdlib>
-int TestConduitSourceDeviceMemory(int, char**)
-{
-  return EXIT_SUCCESS;
-}
-#endif

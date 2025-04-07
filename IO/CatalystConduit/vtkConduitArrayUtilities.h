@@ -36,8 +36,17 @@ public:
   static vtkConduitArrayUtilities* New();
   vtkTypeMacro(vtkConduitArrayUtilities, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  static bool IsDevicePointer(const void* p, int8_t& id);
+  ///@{
+  /**
+   * Returns true if p is a device pointer,
+   *         false if it is a host pointer.
+   * id is the VTKm DeviceAdapterTag such as VTK_DEVICE_ADAPTER_CUDA
+   * The 'working' parameter is set to true
+   * if VTKm has the runtime needed for the 'id' device
+   *         false otherwise
+   */
+  static bool IsDevicePointer(const void* p, int8_t& id, bool& working);
+  ///@}
 
   ///@{
   /**
@@ -98,6 +107,7 @@ protected:
   vtkConduitArrayUtilities();
   ~vtkConduitArrayUtilities() override;
 
+  static bool IsDevicePointer(const void* p, int8_t& id);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArrayImpl(
     const conduit_node* mcarray, bool force_signed);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKAOSArray(
@@ -109,6 +119,7 @@ private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
   void operator=(const vtkConduitArrayUtilities&) = delete;
 };
+
 VTK_ABI_NAMESPACE_END
 
 #endif

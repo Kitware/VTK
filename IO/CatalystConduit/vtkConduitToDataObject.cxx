@@ -10,6 +10,9 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkConduitArrayUtilities.h"
+#if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+#include "vtkConduitArrayUtilitiesDevice.h"
+#endif
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
@@ -389,14 +392,17 @@ struct ReplaceValuesWorker
 bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::Node& node)
 {
 #if !VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  // conduit verify_shape_node dereferences the pointer to
-  // access values, so verify crashes in that case
+  // conduit verify_shapes_node dereferences the shapes array to compare
+  // values with the values in the shapes_map
+  // if the shapes array is in device memory this test crashes
+  // https://github.com/LLNL/conduit/issues/1404
   conduit_cpp::Node info;
   if (!conduit_cpp::BlueprintMesh::verify(node, info))
   {
     vtkLogF(ERROR, "Mesh blueprint verification failed!");
     return false;
   }
+  vtkLogF(INFO, "Mesh blueprint verified!");
 #endif
   std::map<std::string, vtkSmartPointer<vtkDataSet>> datasets;
 
@@ -813,6 +819,14 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
   {
     if (vtk_cell_type == VTK_POLYHEDRON)
     {
+      int8_t id;
+      bool working;
+      bool isDevicePointer =
+        vtkConduitArrayUtilities::IsDevicePointer(connectivity.element_ptr(0), id, working);
+      if (isDevicePointer)
+      {
+        throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+      }
       // polyhedra uses O2M and not M2C arrays, so need to process it
       // differently.
       conduit_cpp::Node t_elements = topologyNode["elements"];
@@ -938,6 +952,15 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   auto unstructured = vtkSmartPointer<vtkUnstructuredGrid>::New();
   // mixed shapes definition
   conduit_cpp::Node shape_map = topologyNode["elements/shape_map"];
+  auto connectivity = topologyNode["elements/connectivity"];
+  int8_t id;
+  bool working;
+  bool isDevicePointer =
+    vtkConduitArrayUtilities::IsDevicePointer(connectivity.element_ptr(0), id, working);
+  if (isDevicePointer && !working)
+  {
+    throw std::runtime_error("VTKm does not support device" + std::to_string(id));
+  }
 
   // check presence of polyhedra
   bool hasPolyhedra(false);
@@ -948,6 +971,11 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     int cellType = child.to_int32();
     hasPolyhedra |= (cellType == VTK_POLYHEDRON);
   }
+  if (isDevicePointer && hasPolyhedra)
+  {
+    throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+  }
+
   // if polyhedra are present, the subelements should be present as well.
   if (hasPolyhedra &&
     !(topologyNode.has_path("subelements/shape") &&
