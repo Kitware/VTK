@@ -288,18 +288,29 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
     vtkIdType outIndex;
     vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
     output->InitializeTreeIterator(it);
-    vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
+
+    vtkThreadedTaskQueue<void, int> queue(
+      [this, &output](int outIndex)
+      {
+        vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
+        // Initialize new grid cursor at root of current input tree
+        output->InitializeNonOrientedCursor(outCursor, outIndex);
+        // Limit depth recursively
+        this->RecursivelyProcessTreeWithCreateNewMask(outCursor);
+      },
+      true);
+
     while (it.GetNextTree(outIndex))
     {
       if (this->CheckAbort())
       {
         break;
       }
-      // Initialize new grid cursor at root of current input tree
-      output->InitializeNonOrientedCursor(outCursor, outIndex);
-      // Limit depth recursively
-      this->RecursivelyProcessTreeWithCreateNewMask(outCursor);
-    } // it
+
+      queue.Push(static_cast<int>(outIndex));
+    }
+
+    queue.Flush();
   }
   else if (this->MemoryStrategy == CopyStructureAndIndexArrays ||
     this->MemoryStrategy == DeepThreshold)
@@ -480,38 +491,10 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTreeWithCreateNewMask(
     // If input cursor is neither at leaf nor at maximum depth, recurse to all children
     int numChildren = outCursor->GetNumberOfChildren();
 
-    if (outCursor->GetLevel() <= 2)
+    for (int ichild = 0; ichild < numChildren; ++ichild)
     {
-      // Create a new thread for every child, when we're not too deep into the tree
-      vtkThreadedTaskQueue<bool, int> queue(
-        [this, outCursor](int ichild)
-        {
-          vtkSmartPointer<vtkHyperTreeGridNonOrientedCursor> childOutCursor =
-            vtk::TakeSmartPointer(outCursor->CloneFromCurrentEntry());
-
-          return this->RecursivelyProcessChild(childOutCursor, ichild);
-        },
-        true);
-
-      for (unsigned char ichild = 0; ichild < outCursor->GetNumberOfChildren(); ++ichild)
-      {
-        queue.Push(static_cast<int>(ichild));
-      }
-
-      while (!queue.IsEmpty())
-      {
-        bool result;
-        queue.Pop(result);
-        discard &= result;
-      }
-    }
-    else
-    {
-      for (int ichild = 0; ichild < numChildren; ++ichild)
-      {
-        // Recurse and keep track of whether some children are kept
-        discard &= this->RecursivelyProcessChild(outCursor, ichild);
-      }
+      // Recurse and keep track of whether some children are kept
+      discard &= this->RecursivelyProcessChild(outCursor, ichild);
     }
   }
   else
