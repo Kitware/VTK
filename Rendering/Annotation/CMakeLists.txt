@@ -26,9 +26,9 @@ set(classes
   vtkXYPlotActor)
 
 set(private_classes
-"Private/vtkArcGridActorPrivate"
-"Private/vtkAxisGridActorPrivate"
-"Private/vtkTextActorInterfacePrivate")
+"Private/vtkArcGridActorInternal"
+"Private/vtkAxisGridActorInternal"
+"Private/vtkTextActorInterfaceInternal")
 
 set(nowrap_headers
   vtkScalarBarActorInternal.h)

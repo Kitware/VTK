@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkArcGridActorPrivate
+ * @class   vtkArcGridActorInternal
  * @brief   renders a concentric list of arcs on overlay.
  *
- * vtkArcGridActorPrivate is designed for use by vtkPolarAxes2D, to draw
+ * vtkArcGridActorInternal is designed for use by vtkPolarAxes2D, to draw
  * the arcs between the axes.
  *
  * Starting at an original axis points, it draws arcs around the given center
@@ -12,8 +12,8 @@
  * The number of points for each axes is defined by Resolution.
  */
 
-#ifndef vtkArcGridActorPrivate_h
-#define vtkArcGridActorPrivate_h
+#ifndef vtkArcGridActorInternal_h
+#define vtkArcGridActorInternal_h
 
 #include "vtkActor2D.h"
 
@@ -27,11 +27,11 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkPolyDataMapper2D;
 
-class vtkArcGridActorPrivate : public vtkActor2D
+class vtkArcGridActorInternal : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkArcGridActorPrivate, vtkActor2D);
-  static vtkArcGridActorPrivate* New();
+  vtkTypeMacro(vtkArcGridActorInternal, vtkActor2D);
+  static vtkArcGridActorInternal* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -75,12 +75,12 @@ public:
   int RenderOverlay(vtkViewport*) override;
 
 protected:
-  vtkArcGridActorPrivate();
-  ~vtkArcGridActorPrivate() override;
+  vtkArcGridActorInternal();
+  ~vtkArcGridActorInternal() override;
 
 private:
-  void operator=(const vtkArcGridActorPrivate&) = delete;
-  vtkArcGridActorPrivate(const vtkArcGridActorPrivate&) = delete;
+  void operator=(const vtkArcGridActorInternal&) = delete;
+  vtkArcGridActorInternal(const vtkArcGridActorInternal&) = delete;
 
   /**
    * Return true if it has data to draw.

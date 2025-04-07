@@ -61,7 +61,7 @@ class vtkPolyDataMapper;
 class vtkProp3DAxisFollower;
 class vtkStringArray;
 class vtkTextActor;
-class vtkTextActorInterfacePrivate;
+class vtkTextActorInterfaceInternal;
 class vtkTextActor3D;
 class vtkTextProperty;
 class vtkVectorText;
@@ -951,17 +951,17 @@ private:
   vtkNew<vtkPoints> InnerGridlinePts;
   vtkNew<vtkPoints> GridpolyPts;
 
-  std::unique_ptr<vtkTextActorInterfacePrivate> TitleProp;
+  std::unique_ptr<vtkTextActorInterfaceInternal> TitleProp;
   vtkSmartPointer<vtkTextProperty> TitleTextProperty;
 
   ///@{
   /**
    * Mapper/Actor used to display a common exponent of the label values
    */
-  std::unique_ptr<vtkTextActorInterfacePrivate> ExponentProp;
+  std::unique_ptr<vtkTextActorInterfaceInternal> ExponentProp;
   ///@}
 
-  std::vector<std::shared_ptr<vtkTextActorInterfacePrivate>> LabelProps;
+  std::vector<std::shared_ptr<vtkTextActorInterfaceInternal>> LabelProps;
   vtkSmartPointer<vtkTextProperty> LabelTextProperty;
 
   // VTK_DEPRECATED_IN_9_5_0

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAxisActor.h"
 
-#include "Private/vtkTextActorInterfacePrivate.h"
+#include "Private/vtkTextActorInterfaceInternal.h"
 #include "vtkAxisFollower.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
@@ -38,8 +38,8 @@ vtkCxxSetSmartPointerMacro(vtkAxisActor, TitleTextProperty, vtkTextProperty);
 //------------------------------------------------------------------------------
 
 vtkAxisActor::vtkAxisActor()
-  : TitleProp(std::make_unique<vtkTextActorInterfacePrivate>())
-  , ExponentProp(std::make_unique<vtkTextActorInterfacePrivate>())
+  : TitleProp(std::make_unique<vtkTextActorInterfaceInternal>())
+  , ExponentProp(std::make_unique<vtkTextActorInterfaceInternal>())
 {
   this->Point1Coordinate->SetCoordinateSystemToWorld();
   this->Point1Coordinate->SetValue(0.0, 0.0, 0.0);
@@ -492,7 +492,7 @@ void vtkAxisActor::BuildLabels(vtkViewport* viewport, bool force)
 
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
-    vtkTextActorInterfacePrivate* currentLabel = this->LabelProps[i].get();
+    vtkTextActorInterfaceInternal* currentLabel = this->LabelProps[i].get();
     this->UpdateLabelActorProperty(i);
     currentLabel->SetCamera(this->Camera);
 
@@ -1188,7 +1188,7 @@ void vtkAxisActor::SetLabels(vtkStringArray* labels)
 
     for (int i = 0; i < numLabels; i++)
     {
-      auto currentLabel = std::make_shared<vtkTextActorInterfacePrivate>();
+      auto currentLabel = std::make_shared<vtkTextActorInterfaceInternal>();
       currentLabel->SetAxis(this);
       this->LabelProps.push_back(currentLabel);
     }
@@ -1199,7 +1199,7 @@ void vtkAxisActor::SetLabels(vtkStringArray* labels)
   //
   for (int i = 0; i < numLabels; i++)
   {
-    vtkTextActorInterfacePrivate* currentLabel = this->LabelProps[i].get();
+    vtkTextActorInterfaceInternal* currentLabel = this->LabelProps[i].get();
     currentLabel->SetInputText(labels->GetValue(i));
   }
   this->NumberOfLabelsBuilt = numLabels;
@@ -1431,7 +1431,7 @@ double vtkAxisActor::ComputeMaxLabelLength()
   double maxYSize = 0;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
-    vtkTextActorInterfacePrivate* currentLabel = this->LabelProps[i].get();
+    vtkTextActorInterfaceInternal* currentLabel = this->LabelProps[i].get();
     double bounds[6];
     currentLabel->GetBounds(bounds);
     double xsize = bounds[1] - bounds[0];
@@ -2553,7 +2553,7 @@ vtkProp* vtkAxisActor::GetTitleActorInternal()
 //------------------------------------------------------------------------------
 vtkProp* vtkAxisActor::GetLabelActorInternal(int index)
 {
-  vtkTextActorInterfacePrivate* currentLabel = this->LabelProps[index].get();
+  vtkTextActorInterfaceInternal* currentLabel = this->LabelProps[index].get();
   return currentLabel->GetActiveProp(this->Use2DMode, !this->UseTextActor3D);
 }
 
@@ -2566,7 +2566,7 @@ vtkProp* vtkAxisActor::GetExponentActorInternal()
 //------------------------------------------------------------------------------
 void vtkAxisActor::UpdateLabelActorProperty(int idx)
 {
-  vtkTextActorInterfacePrivate* labelProp = this->LabelProps[idx].get();
+  vtkTextActorInterfaceInternal* labelProp = this->LabelProps[idx].get();
   labelProp->UpdateProperty(this->LabelTextProperty, this->GetProperty());
 
   labelProp->SetAmbient(1.);

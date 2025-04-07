@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkTextActorInterfacePrivate.h"
+#include "vtkTextActorInterfaceInternal.h"
 
 #include "vtkAxisFollower.h"
 #include "vtkCamera.h"
@@ -16,7 +16,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-vtkTextActorInterfacePrivate::vtkTextActorInterfacePrivate()
+vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal()
 {
   vtkNew<vtkPolyDataMapper> vectorTextMapper;
   vectorTextMapper->SetInputConnection(this->Vector->GetOutputPort());
@@ -30,14 +30,14 @@ vtkTextActorInterfacePrivate::vtkTextActorInterfacePrivate()
 }
 
 //------------------------------------------------------------------------------
-vtkTextActorInterfacePrivate::vtkTextActorInterfacePrivate(
-  vtkTextActorInterfacePrivate&&) = default;
+vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal(
+  vtkTextActorInterfaceInternal&&) = default;
 
 //------------------------------------------------------------------------------
-vtkTextActorInterfacePrivate::~vtkTextActorInterfacePrivate() = default;
+vtkTextActorInterfaceInternal::~vtkTextActorInterfaceInternal() = default;
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetInputText(const std::string& text)
+void vtkTextActorInterfaceInternal::SetInputText(const std::string& text)
 {
   this->Vector->SetText(text.c_str());
   this->Actor3D->SetInput(text.c_str());
@@ -45,13 +45,13 @@ void vtkTextActorInterfacePrivate::SetInputText(const std::string& text)
 }
 
 //------------------------------------------------------------------------------
-std::string vtkTextActorInterfacePrivate::GetInputText()
+std::string vtkTextActorInterfaceInternal::GetInputText()
 {
   return this->Vector->GetText();
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetCamera(vtkCamera* camera)
+void vtkTextActorInterfaceInternal::SetCamera(vtkCamera* camera)
 {
   this->Follower->SetCamera(camera);
   this->Follower3D->SetCamera(camera);
@@ -59,14 +59,14 @@ void vtkTextActorInterfacePrivate::SetCamera(vtkCamera* camera)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetAxis(vtkAxisActor* axis)
+void vtkTextActorInterfaceInternal::SetAxis(vtkAxisActor* axis)
 {
   this->Follower->SetAxis(axis);
   this->Follower3D->SetAxis(axis);
 }
 
 //------------------------------------------------------------------------------
-vtkProp* vtkTextActorInterfacePrivate::GetActiveProp(bool overlay, bool vector)
+vtkProp* vtkTextActorInterfaceInternal::GetActiveProp(bool overlay, bool vector)
 {
   if (overlay)
   {
@@ -83,7 +83,7 @@ vtkProp* vtkTextActorInterfacePrivate::GetActiveProp(bool overlay, bool vector)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::UpdateProperty(
+void vtkTextActorInterfaceInternal::UpdateProperty(
   vtkTextProperty* textProperty, vtkProperty* actorProperty)
 {
   // no text property here. Use standard prop, and override color/opacity
@@ -97,19 +97,19 @@ void vtkTextActorInterfacePrivate::UpdateProperty(
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetAmbient(double amb)
+void vtkTextActorInterfaceInternal::SetAmbient(double amb)
 {
   this->Follower->GetProperty()->SetAmbient(amb);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetDiffuse(double diffuse)
+void vtkTextActorInterfaceInternal::SetDiffuse(double diffuse)
 {
   this->Follower->GetProperty()->SetDiffuse(diffuse);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::GetActors(vtkPropCollection* collection)
+void vtkTextActorInterfaceInternal::GetActors(vtkPropCollection* collection)
 {
   collection->AddItem(this->Follower);
   collection->AddItem(this->Follower3D);
@@ -118,7 +118,7 @@ void vtkTextActorInterfacePrivate::GetActors(vtkPropCollection* collection)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::AdjustScale()
+void vtkTextActorInterfaceInternal::AdjustScale()
 {
   double titleBounds[6];
   this->GetBounds(titleBounds);
@@ -132,39 +132,39 @@ void vtkTextActorInterfacePrivate::AdjustScale()
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetScale(double s)
+void vtkTextActorInterfaceInternal::SetScale(double s)
 {
   this->Follower->SetScale(s);
   this->Follower3D->SetScale(s);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::GetBounds(double bounds[6])
+void vtkTextActorInterfaceInternal::GetBounds(double bounds[6])
 {
   this->Follower->GetMapper()->GetBounds(bounds);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::GetReferencePosition(double pos[3])
+void vtkTextActorInterfaceInternal::GetReferencePosition(double pos[3])
 {
   this->Follower->GetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetPosition(double pos[3])
+void vtkTextActorInterfaceInternal::SetPosition(double pos[3])
 {
   this->Follower->SetPosition(pos);
   this->Follower3D->SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetDisplayPosition(double x, double y)
+void vtkTextActorInterfaceInternal::SetDisplayPosition(double x, double y)
 {
   this->Actor2D->SetPosition(x, y);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::RotateActor2DFromAxisProjection(double p1[3], double p2[3])
+void vtkTextActorInterfaceInternal::RotateActor2DFromAxisProjection(double p1[3], double p2[3])
 {
   vtkMatrix4x4* matModelView = this->Camera->GetModelViewTransformMatrix();
   double nearPlane = this->Camera->GetClippingRange()[0];
@@ -218,27 +218,27 @@ void vtkTextActorInterfacePrivate::RotateActor2DFromAxisProjection(double p1[3],
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetScreenOffset(double offset)
+void vtkTextActorInterfaceInternal::SetScreenOffset(double offset)
 {
   this->Follower->SetScreenOffset(offset);
   this->Follower3D->SetScreenOffset(offset);
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfacePrivate::SetScreenOffsetVector(double offset[2])
+void vtkTextActorInterfaceInternal::SetScreenOffsetVector(double offset[2])
 {
   this->Follower->SetScreenOffsetVector(offset);
   this->Follower3D->SetScreenOffsetVector(offset);
 }
 
 //------------------------------------------------------------------------------
-vtkProp3DAxisFollower* vtkTextActorInterfacePrivate::GetFollower3D() const
+vtkProp3DAxisFollower* vtkTextActorInterfaceInternal::GetFollower3D() const
 {
   return this->Follower3D;
 }
 
 //------------------------------------------------------------------------------
-vtkAxisFollower* vtkTextActorInterfacePrivate::GetFollower() const
+vtkAxisFollower* vtkTextActorInterfaceInternal::GetFollower() const
 {
   return this->Follower;
 }

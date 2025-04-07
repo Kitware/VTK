@@ -3,7 +3,7 @@
 
 #include "vtkPolarAxesActor2D.h"
 
-#include "Private/vtkArcGridActorPrivate.h"
+#include "Private/vtkArcGridActorInternal.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkPropCollection.h"

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#ifndef vtkTextActorInterfacePrivate_h
-#define vtkTextActorInterfacePrivate_h
+#ifndef vtkTextActorInterfaceInternal_h
+#define vtkTextActorInterfaceInternal_h
 
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -24,19 +24,19 @@ class vtkTextProperty;
 class vtkVectorText;
 
 /**
- * VTK Private interface to manipulate text actors from vtkAxisActor.
+ * VTK Internal interface to manipulate text actors from vtkAxisActor.
  * The generated text is either a vector or a rasterized version.
  * Display can be done screen space or in 3D scene, using the appropriate (Axis)Follower.
  *
  * @see GetActiveProp
  */
-class vtkTextActorInterfacePrivate
+class vtkTextActorInterfaceInternal
 {
 public:
-  vtkTextActorInterfacePrivate();
-  virtual ~vtkTextActorInterfacePrivate();
+  vtkTextActorInterfaceInternal();
+  virtual ~vtkTextActorInterfaceInternal();
 
-  vtkTextActorInterfacePrivate(vtkTextActorInterfacePrivate&&);
+  vtkTextActorInterfaceInternal(vtkTextActorInterfaceInternal&&);
 
   /**
    * Set the text to be displayed.
@@ -144,8 +144,8 @@ public:
   vtkAxisFollower* GetFollower() const;
 
 private:
-  void operator=(const vtkTextActorInterfacePrivate&) = delete;
-  vtkTextActorInterfacePrivate(const vtkTextActorInterfacePrivate&) = delete;
+  void operator=(const vtkTextActorInterfaceInternal&) = delete;
+  vtkTextActorInterfaceInternal(const vtkTextActorInterfaceInternal&) = delete;
 
   vtkNew<vtkVectorText> Vector;
 

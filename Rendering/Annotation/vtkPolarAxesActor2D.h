@@ -28,7 +28,7 @@
 #include "vtkSetGet.h" // for macros
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkArcGridActorPrivate;
+class vtkArcGridActorInternal;
 class vtkRadialGridActor2D;
 class vtkTextProperty;
 
@@ -150,7 +150,7 @@ private:
   void operator=(const vtkPolarAxesActor2D&) = delete;
 
   vtkNew<vtkRadialGridActor2D> RadialGrid;
-  vtkNew<vtkArcGridActorPrivate> ArcGrid;
+  vtkNew<vtkArcGridActorInternal> ArcGrid;
 };
 
 VTK_ABI_NAMESPACE_END

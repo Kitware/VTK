@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLegendScaleActor.h"
 
-#include "Private/vtkAxisGridActorPrivate.h"
+#include "Private/vtkAxisGridActorInternal.h"
 #include "vtkActor2D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCamera.h"
