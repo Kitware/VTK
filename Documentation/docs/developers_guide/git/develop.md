@@ -264,11 +264,14 @@ to be merged in a reasonable timeframe.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
  * @sujin.philip: VTK-m Accelerators, SMP, DIY.
  * @sebastien.jourdain: web, WebAssembly, Python, Java.
- * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR.
+ * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR, Raytracing.
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
  * @seanm: macOS, Cocoa, cppcheck, clang.
  * @spiros.tsalikis: filters, SMP, computational geometry.
+ * @louis.gombert: VTKHDF, HyperTreeGrid, Catalyst
+ * @jaswant.panchumarti: Rendering, WASM, WebGPU, emscripten
+ * @dcthomp: CellGrid
 
 If you would like to be included in this list, juste create a merge request.
 
