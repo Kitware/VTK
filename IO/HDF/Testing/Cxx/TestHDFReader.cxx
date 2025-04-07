@@ -281,25 +281,6 @@ int TestNullTerminatedString(const std::string& dataRoot)
 }
 
 //----------------------------------------------------------------------------
-int TestNullTerminatedString(const std::string& dataRoot)
-{
-  // File contains a 'Type' attributed that ends with a '\0' character.
-  // Make sure we erase it before using the string.
-  const std::string fileName = dataRoot + "/Data/vtkHDF/null_term_string.vtkhdf";
-  vtkNew<vtkHDFReader> reader;
-  reader->SetFileName(fileName.c_str());
-  reader->Update();
-
-  if (!vtkPolyData::SafeDownCast(reader->GetOutputDataObject(0)))
-  {
-    std::cerr << "Error: could not read null-terminated 'Type' attribute";
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
-}
-
-//----------------------------------------------------------------------------
 int TestUTF8Type(const std::string& dataRoot)
 {
   // File contains a UTF-8 'Type' attribute
