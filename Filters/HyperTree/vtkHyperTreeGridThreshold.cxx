@@ -290,11 +290,11 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
     output->InitializeTreeIterator(it);
 
     vtkThreadedTaskQueue<void, int> queue(
-      [this, &output](int outIndex)
+      [this, &output](int startIndex)
       {
         vtkNew<vtkHyperTreeGridNonOrientedCursor> outCursor;
         // Initialize new grid cursor at root of current input tree
-        output->InitializeNonOrientedCursor(outCursor, outIndex);
+        output->InitializeNonOrientedCursor(outCursor, startIndex);
         // Limit depth recursively
         this->RecursivelyProcessTreeWithCreateNewMask(outCursor);
       },
