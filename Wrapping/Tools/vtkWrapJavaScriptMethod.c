@@ -548,8 +548,7 @@ static void vtkWrapJavaScript_WriteMemberFunctionCall(FILE* fp, FunctionInfo* fu
       }
       else if (vtkWrap_IsPointer(parameter) && vtkWrap_IsNumeric(parameter))
       {
-        fprintf(
-          fp, "reinterpret_cast<%s*>(arg_%d * sizeof(%s))", parameter->Class, i, parameter->Class);
+        fprintf(fp, "reinterpret_cast<%s*>(arg_%d)", parameter->Class, i);
       }
       else if (vtkWrap_IsFunction(parameter))
       {
@@ -558,8 +557,7 @@ static void vtkWrapJavaScript_WriteMemberFunctionCall(FILE* fp, FunctionInfo* fu
       }
       else if (vtkWrap_IsArray(parameter))
       {
-        fprintf(
-          fp, "reinterpret_cast<%s*>(arg_%d * sizeof(%s))", parameter->Class, i, parameter->Class);
+        fprintf(fp, "reinterpret_cast<%s*>(arg_%d)", parameter->Class, i);
       }
       else if (vtkWrap_IsNArray(parameter))
       {
@@ -568,7 +566,7 @@ static void vtkWrapJavaScript_WriteMemberFunctionCall(FILE* fp, FunctionInfo* fu
         {
           fprintf(fp, "[%s]", parameter->Dimensions[j]);
         }
-        fprintf(fp, ">(arg_%d * sizeof(%s))", i, parameter->Class);
+        fprintf(fp, ">(arg_%d)", i);
       }
       else
       {
@@ -949,14 +947,7 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
           }
           else if (vtkWrapJavaScript_NeedsToReturnMemoryAddress(wrappedFunctions[i]))
           {
-            if (!vtkWrap_IsVoidPointer(wrappedFunctions[i]->ReturnValue))
-            {
-              fprintf(fp, ") / sizeof(%s)", wrappedFunctions[i]->ReturnValue->Class);
-            }
-            else
-            {
-              fprintf(fp, ")");
-            }
+            fprintf(fp, ")");
           }
           fprintf(fp, ";");
           fprintf(fp, "}");
