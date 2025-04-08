@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
@@ -71,30 +72,30 @@ int TestGroupDataSetsFilter(int, char*[])
   groupie->Update(); // this will raise errors without the extents fix.
 
   // Test CombineFirstLayerMultiblock option
+  vtkNew<vtkConvertToMultiBlockDataSet> convertToMultiBlock0;
+  vtkNew<vtkConvertToMultiBlockDataSet> convertToMultiBlock1;
+  convertToMultiBlock0->SetInputConnection(sphere->GetOutputPort());
+  convertToMultiBlock1->SetInputConnection(sphere->GetOutputPort());
+
   groupie->RemoveAllInputs();
   groupie->SetOutputTypeToMultiBlockDataSet();
-  groupie->AddInputConnection(sphere->GetOutputPort());
-  groupie->AddInputConnection(sphere->GetOutputPort());
+  groupie->AddInputConnection(convertToMultiBlock0->GetOutputPort());
+  groupie->AddInputConnection(convertToMultiBlock1->GetOutputPort());
+  groupie->Update();
 
-  vtkNew<vtkGroupDataSetsFilter> group2;
-  group2->AddInputConnection(groupie->GetOutputPort());
-  group2->SetOutputTypeToMultiBlockDataSet();
-  group2->Update();
-
-  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(group2->GetOutput(0));
-  if (!output || output->GetNumberOfBlocks() != 1 ||
+  vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(groupie->GetOutput(0));
+  if (!output || output->GetNumberOfBlocks() != 2 ||
     !output->GetBlock(0)->IsA("vtkMultiBlockDataSet"))
   {
     vtkLogF(ERROR, "Output should be a multiblock with a single block, also of type multiblock.");
     return EXIT_FAILURE;
   }
 
-  group2->AddInputConnection(groupie->GetOutputPort());
-  group2->CombineFirstLayerMultiblockOn();
-  group2->Update();
+  groupie->CombineFirstLayerMultiblockOn();
+  groupie->Update();
 
-  output = vtkMultiBlockDataSet::SafeDownCast(group2->GetOutput(0));
-  if (!output || output->GetNumberOfBlocks() != 4 || !output->GetBlock(0)->IsA("vtkPolyData"))
+  output = vtkMultiBlockDataSet::SafeDownCast(groupie->GetOutput(0));
+  if (!output || output->GetNumberOfBlocks() != 2 || !output->GetBlock(0)->IsA("vtkPolyData"))
   {
     vtkLogF(ERROR, "Output should be a multiblock with 4 polydata blocks");
     return EXIT_FAILURE;
