@@ -74,7 +74,7 @@ target_include_directories(fides PUBLIC
   )
 else()
 if (${MPI_DEFS})
-vtk_module_definitions(VTK::fides PRIVATE ${MPI_DEFS})
+vtk_module_definitions(VTK::fides PUBLIC ${MPI_DEFS})
 endif()
 if (ADIOS_DEFS)
 vtk_module_definitions(VTK::fides PRIVATE ${ADIOS_DEFS})

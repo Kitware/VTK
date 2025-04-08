@@ -84,12 +84,10 @@ private:
 class CalcGXCellSetConnIds : public vtkm::worklet::WorkletVisitCellsWithPoints
 {
 public:
-  CalcGXCellSetConnIds(const vtkm::Id& numSrfs,
-                       const vtkm::Id& numPlanes,
+  CalcGXCellSetConnIds(const vtkm::Id& numPlanes,
                        const vtkm::Id& numTheta,
                        const vtkm::Id& srfMinIdx)
     : NumPlanes(numPlanes)
-    , NumSurfaces(numSrfs)
     , NumTheta(numTheta)
     , SurfaceMinIdx(srfMinIdx)
   {
@@ -141,7 +139,6 @@ private:
   vtkm::Id NumCellsPerSrf;
   vtkm::Id NumPlanes;
   vtkm::Id NumPointsPerSrf;
-  vtkm::Id NumSurfaces;
   vtkm::Id NumTheta;
   vtkm::Id SurfaceMinIdx;
 };
@@ -1072,7 +1069,6 @@ void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   vtkm::Id numPlanes = numZeta * nfp;
   vtkm::Id numCellsPerSurface = (ptsPerPlane - 1) * (numPlanes - 1);
   vtkm::Id totNumCells = numSurfaces * numCellsPerSurface;
-  vtkm::Id totNumConnIds = totNumCells * 4;
 
   //create cell with with empty connection ids.
   auto cellSet = vtkm::cont::CellSetSingleType<>();
@@ -1083,8 +1079,7 @@ void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   //call worklet to set the point ids for the cellset.
   // create a cell centered variable with the surface index.
   vtkm::cont::Invoker invoke;
-  fides::datamodel::fusionutil::CalcGXCellSetConnIds worklet(
-    numSurfaces, numPlanes, numTheta, srfIdxMin);
+  fides::datamodel::fusionutil::CalcGXCellSetConnIds worklet(numPlanes, numTheta, srfIdxMin);
   invoke(worklet, cellSet, connIds, surfaceIndices);
 
   ds.SetCellSet(cellSet);

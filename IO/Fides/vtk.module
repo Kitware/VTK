@@ -10,8 +10,13 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonExecutionModel
+  VTK::IOCore
+OPTIONAL_DEPENDS
+  VTK::mpi
+  VTK::ParallelMPI
 PRIVATE_DEPENDS
   VTK::AcceleratorsVTKmDataModel
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::fides
+  VTK::ParallelCore

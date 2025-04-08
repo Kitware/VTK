@@ -24,6 +24,10 @@
 
 #include "fides_export.h"
 
+#ifdef FIDES_USE_MPI
+#include <vtk_mpi.h>
+#endif
+
 namespace fides
 {
 namespace io
@@ -38,6 +42,9 @@ class FIDES_EXPORT DataSetWriter
 {
 public:
   DataSetWriter(const std::string& outputFile);
+#ifdef FIDES_USE_MPI
+  DataSetWriter(const std::string& outputFile, MPI_Comm comm);
+#endif
   ~DataSetWriter() = default;
 
   void Write(const vtkm::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
@@ -72,12 +79,18 @@ protected:
   unsigned char DataSetType;
   std::set<std::string> FieldsToWrite;
   bool WriteFieldSet;
+#ifdef FIDES_USE_MPI
+  MPI_Comm Comm = MPI_COMM_WORLD;
+#endif
 };
 
 class FIDES_EXPORT DataSetAppendWriter : public DataSetWriter
 {
 public:
   DataSetAppendWriter(const std::string& outputFile);
+#ifdef FIDES_USE_MPI
+  DataSetAppendWriter(const std::string& outputFile, MPI_Comm comm);
+#endif
   ~DataSetAppendWriter() = default;
 
   void Write(const vtkm::cont::PartitionedDataSet& dataSets, const std::string& outputMode);

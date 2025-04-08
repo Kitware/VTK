@@ -1,4 +1,5 @@
 vtk_add_test_python(
-   NO_VALID NO_OUTPUT
-   TestFidesBasic.py
+   TestFidesBasic.py,NO_VALID,NO_OUTPUT
+   TestFidesWriterBasic.py,NO_DATA,NO_VALID
+   TestFidesWriterTime.py,NO_DATA,NO_VALID
 )

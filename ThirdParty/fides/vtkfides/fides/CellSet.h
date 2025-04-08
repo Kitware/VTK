@@ -270,7 +270,7 @@ struct CellSetGX : public CellSetBase
   }
 
   /// Overridden to handle CellSetGX specific items.
-  void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override {}
+  void ProcessJSON(const rapidjson::Value&, DataSourcesType&) override {}
 
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
