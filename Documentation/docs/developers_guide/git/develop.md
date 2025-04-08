@@ -262,9 +262,8 @@ to be merged in a reasonable timeframe.
  * @charles.gueunet: filters, data model, SMP, events, pipeline, computational geometry, distributed algorithms.
  * @kmorel: General VTK Expertise, VTK-m accelerators.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
- * @sujin.philip: VTK-m Accelerators, SMP, DIY.
  * @sebastien.jourdain: web, WebAssembly, Python, Java.
- * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR, Raytracing.
+ * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR, Raytracing, webgpu, QtQuick, QtQml, OpenXR
  * @ben.boeckel: CMake, module system, third-parties.
  * @cory.quammen: readers, filters, data modeling, general usage, documentation.
  * @seanm: macOS, Cocoa, cppcheck, clang.
