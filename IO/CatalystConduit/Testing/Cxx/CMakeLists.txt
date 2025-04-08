@@ -16,8 +16,13 @@ if (TARGET VTK::ParallelMPI)
   vtk_add_test_mpi(vtkConduitCxxTests-MPI mpitests
     TESTING_DATA NO_VALID NO_OUTPUT
     TestDataObjectToConduit.cxx
-    TestConduitSource.cxx
-    TestConduitSourceDeviceMemory.cxx)
+    TestConduitSource.cxx)
+
+  if (TARGET VTK::AcceleratorsVTKmDataModel)
+    vtk_add_test_mpi(vtkConduitCxxTests-MPI mpitests
+      TESTING_DATA NO_VALID NO_OUTPUT
+      TestConduitSourceDeviceMemory.cxx)
+  endif()
 
   vtk_test_cxx_executable(vtkConduitCxxTests-MPI mpitests)
 endif()
