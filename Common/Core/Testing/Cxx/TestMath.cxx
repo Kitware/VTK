@@ -88,7 +88,7 @@ static ostream& operator<<(ostream& os, const Triple& t)
 // Function for comparing colors.  Each value should be equivalent in the
 // respective color space.
 static int TestColorConvert(
-  const Triple& rgb, const Triple& hsv, const Triple& xyz, const Triple& lab);
+  const Triple& rgb, const Triple& hsv, const Triple& xyz, const Triple& lab, const Triple& prolab);
 
 // Function for comparing special doubles like Inf and NaN.
 #define TestSpecialDoubles(value, inftest, nantest)                                                \
@@ -585,22 +585,26 @@ int TestMath(int, char*[])
   colorsPassed &= TestColorConvert(Triple(1.0, 1.0, 1.0), // RGB
     Triple(0.0, 0.0, 1.0),                                // HSV (H ambiguous)
     Triple(0.9505, 1.000, 1.089),                         // XYZ
-    Triple(100.0, 0.0, 0.0));                             // CIELAB
+    Triple(100.0, 0.0, 0.0),                              // CIELAB
+    Triple(100.0, 0.0, 0.0));                             // PROLAB
 
   colorsPassed &= TestColorConvert(Triple(0.5, 0.5, 0.0), // RGB
     Triple(1.0 / 6.0, 1.0, 0.5),                          // HSV
     Triple(0.165, 0.199, 0.030),                          // XYZ
-    Triple(51.7, -12.90, 56.54));                         // CIELAB
+    Triple(51.7, -12.90, 56.54),                          // CIELAB
+    Triple(58.784, -6.041, 20.815));                      // PROLAB
 
   colorsPassed &= TestColorConvert(Triple(0.25, 0.25, 0.5), // RGB
     Triple(2.0 / 3.0, 0.5, 0.5),                            // HSV
     Triple(0.078, 0.063, 0.211),                            // XYZ
-    Triple(30.11, 18.49, -36.18));                          // CIELAB
+    Triple(30.11, 18.49, -36.18),                           // CIELAB
+    Triple(42.4114, 5.50106, -18.9549));                    // PROLAB
 
   colorsPassed &= TestColorConvert(Triple(0.0, 0.0, 0.0), // RGB
     Triple(0.0, 0.0, 0.0),                                // HSV (H&S ambiguous)
     Triple(0.0, 0.0, 0.0),                                // XYZ
-    Triple(0.0, 0.0, 0.0));                               // CIELAB
+    Triple(0.0, 0.0, 0.0),                                // CIELAB
+    Triple(0.0, 0.0, 0.0));                               // PROLAB
 
   if (!colorsPassed)
   {
@@ -733,13 +737,14 @@ int TestMath(int, char*[])
 }
 
 static int TestColorConvert(
-  const Triple& rgb, const Triple& hsv, const Triple& xyz, const Triple& lab)
+  const Triple& rgb, const Triple& hsv, const Triple& xyz, const Triple& lab, const Triple& prolab)
 {
   cout << "Ensuring the following colors are consistent: " << endl;
   cout << "   RGB:      " << rgb << endl;
   cout << "   HSV:      " << hsv << endl;
   cout << "   CIE XYZ:  " << xyz << endl;
   cout << "   CIE-L*ab: " << lab << endl;
+  cout << "   ProLAB:   " << prolab << endl;
 
   Triple result1;
 
@@ -797,6 +802,28 @@ static int TestColorConvert(
   COMPARE(LabToRGB, rgb, result1);
   vtkMath::RGBToLab(rgb[0], rgb[1], rgb[2], &result1[0], &result1[1], &result1[2]);
   COMPARE(RGBToLab, lab, result1);
+
+  // Test conversion between ProLAB and XYZ
+  vtkMath::ProLabToXYZ(prolab(), result1());
+  COMPARE(ProLabToXYZ, xyz, result1);
+  vtkMath::XYZToProLab(xyz(), result1());
+  COMPARE(XYZToProLab, prolab, result1);
+
+  vtkMath::ProLabToXYZ(prolab[0], prolab[1], prolab[2], &result1[0], &result1[1], &result1[2]);
+  COMPARE(ProLabToXYZ, xyz, result1);
+  vtkMath::XYZToProLab(xyz[0], xyz[1], xyz[2], &result1[0], &result1[1], &result1[2]);
+  COMPARE(XYZToProLab, prolab, result1);
+
+  // Test conversion between ProLAB and RGB
+  vtkMath::ProLabToRGB(prolab(), result1());
+  COMPARE(ProLabToRGB, rgb, result1);
+  vtkMath::RGBToProLab(rgb(), result1());
+  COMPARE(RGBToProLab, prolab, result1);
+
+  vtkMath::ProLabToRGB(prolab[0], prolab[1], prolab[2], &result1[0], &result1[1], &result1[2]);
+  COMPARE(ProLabToRGB, rgb, result1);
+  vtkMath::RGBToProLab(rgb[0], rgb[1], rgb[2], &result1[0], &result1[1], &result1[2]);
+  COMPARE(RGBToProLab, prolab, result1);
 
   return 1;
 }
