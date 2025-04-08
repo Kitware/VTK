@@ -6,6 +6,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
 #include "vtkBase64Utilities.h"
+#include "vtkCellArrayIterator.h"
 #include "vtkCommand.h"
 #include "vtkExecutive.h"
 #include "vtkFileResourceStream.h"
@@ -608,6 +609,11 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAccessorData(Primitive& primitive)
   if (primitive.IndicesId >= 0)
   {
     // Load indices
+    if (primitive.IndicesId >= static_cast<int>(this->InternalModel->Accessors.size()))
+    {
+      vtkErrorMacro("Invalid indices id for primitive");
+      return false;
+    }
     auto accessor = this->InternalModel->Accessors[primitive.IndicesId];
     auto bufferView = this->InternalModel->BufferViews[accessor.BufferView];
 
@@ -651,6 +657,31 @@ bool vtkGLTFDocumentLoader::ExtractPrimitiveAccessorData(Primitive& primitive)
   {
     vtkErrorMacro("Error loading mesh.primitive.attributes");
     return false;
+  }
+  if ((primitive.Indices != nullptr) && (!primitive.AttributeValues.empty()))
+  {
+    /* Get the elements count of the first associated accessor */
+    /* Probably those counts should be the same for all associated accessor but it needs to be
+     * checked */
+    auto& [key, value] = *primitive.AttributeValues.begin();
+    vtkIdType elementCount = value->GetNumberOfTuples();
+    /* Iterate through indices and check them to be within boundaries */
+    vtkSmartPointer<vtkCellArrayIterator> it =
+      vtk::TakeSmartPointer(primitive.Indices->NewIterator());
+    while (!it->IsDoneWithTraversal())
+    {
+      vtkIdList* cell = it->GetCurrentCell();
+      for (vtkIdType i = 0; i < cell->GetNumberOfIds(); i++)
+      {
+        auto id = cell->GetId(i);
+        if ((id < 0) || (id >= elementCount))
+        {
+          vtkErrorMacro("Invalid index in primitive");
+          return false;
+        }
+      }
+      it->GoToNextCell();
+    }
   }
   return true;
 }
@@ -1006,7 +1037,10 @@ bool vtkGLTFDocumentLoader::LoadModelData(const std::vector<char>& glbBuffer)
   {
     for (Primitive& primitive : this->InternalModel->Meshes[i].Primitives)
     {
-      this->ExtractPrimitiveAccessorData(primitive);
+      if (!this->ExtractPrimitiveAccessorData(primitive))
+      {
+        return false;
+      }
     }
     double progress = (i + 1) / static_cast<double>(numberOfMeshes + numberOfImages);
     this->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progress));
@@ -1137,6 +1171,11 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
   // Connectivity
   if (primitive.Indices == nullptr)
   {
+    if (primitive.Geometry->GetPoints() == nullptr)
+    {
+      vtkErrorMacro("Primitive points are not initialized");
+      return false;
+    }
     GenerateIndicesForPrimitive(primitive);
   }
   switch (primitive.Mode)
@@ -1602,7 +1641,11 @@ bool vtkGLTFDocumentLoader::BuildModelVTKGeometry()
   {
     for (Primitive& primitive : mesh.Primitives)
     {
-      this->BuildPolyDataFromPrimitive(primitive);
+      if (!this->BuildPolyDataFromPrimitive(primitive))
+      {
+        vtkErrorMacro("Error building poly data for primitives");
+        return false;
+      }
     }
   }
   // Compute global transforms
