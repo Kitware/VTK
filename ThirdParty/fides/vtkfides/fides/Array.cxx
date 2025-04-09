@@ -25,13 +25,13 @@ namespace fides
 namespace datamodel
 {
 
-static void Index1d_3d(const vtkm::Id& idx,
-                       const vtkm::Id& fidesNotUsed(nx),
-                       const vtkm::Id& ny,
-                       const vtkm::Id& nz,
-                       vtkm::Id& i,
-                       vtkm::Id& j,
-                       vtkm::Id& k)
+VTKM_EXEC static void Index1d_3d(const vtkm::Id& idx,
+                                 const vtkm::Id& fidesNotUsed(nx),
+                                 const vtkm::Id& ny,
+                                 const vtkm::Id& nz,
+                                 vtkm::Id& i,
+                                 vtkm::Id& j,
+                                 vtkm::Id& k)
 {
   i = idx / (ny * nz);
   j = (idx / nz) % ny;
@@ -120,12 +120,12 @@ public:
   using InputDomain = _1;
 
   template <typename OutputArrayType, typename InputArrayType, typename InputArrayType2>
-  void operator()(OutputArrayType& RZL,
-                  const InputArrayType& rmnc,
-                  const InputArrayType& zmns,
-                  const InputArrayType& lmns,
-                  const InputArrayType2& cosValues,
-                  const InputArrayType2& sinValues) const
+  VTKM_EXEC void operator()(OutputArrayType& RZL,
+                            const InputArrayType& rmnc,
+                            const InputArrayType& zmns,
+                            const InputArrayType& lmns,
+                            const InputArrayType2& cosValues,
+                            const InputArrayType2& sinValues) const
   {
     RZL[0] = 0;
     RZL[1] = 0;
@@ -162,12 +162,12 @@ public:
             typename ZetaArrayType,
             typename PhiOutputType,
             typename RZLOutputType>
-  void operator()(const vtkm::Id& index,
-                  const RZLArrayType& RZL,
-                  const ZetaArrayType& Zn,
-                  const ZetaArrayType& Zeta,
-                  PhiOutputType& Phi_n,
-                  RZLOutputType& RZL_n) const
+  VTKM_EXEC void operator()(const vtkm::Id& index,
+                            const RZLArrayType& RZL,
+                            const ZetaArrayType& Zn,
+                            const ZetaArrayType& Zeta,
+                            PhiOutputType& Phi_n,
+                            RZLOutputType& RZL_n) const
   {
     vtkm::Id nfp_i, zi, ti;
     Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, nfp_i, zi, ti);
