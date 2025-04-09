@@ -219,8 +219,9 @@ int vtkGroupDataSetsFilter::RequestData(vtkInformation* vtkNotUsed(request),
         {
           output->SetBlock(idx + i, inputMB->GetBlock(i));
           const char* blockName = inputMB->GetMetaData(i)->Get(vtkCompositeDataSet::NAME());
+          std::string safeName = blockName ? std::string(blockName) : "Block" + std::to_string(i);
           output->GetMetaData(idx + i)->Set(
-            vtkCompositeDataSet::NAME(), input.first + "_" + std::string(blockName));
+            vtkCompositeDataSet::NAME(), input.first + "_" + safeName);
         }
         next += inputMB->GetNumberOfBlocks() - 1;
         continue;
