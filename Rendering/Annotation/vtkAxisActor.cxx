@@ -2504,7 +2504,7 @@ vtkProp* vtkAxisActor::GetExponentActorInternal()
 void vtkAxisActor::UpdateLabelActorProperty(int idx)
 {
   vtkTextActorInterfaceInternal* labelProp = this->LabelProps[idx].get();
-  labelProp->UpdateProperty(this->LabelTextProperty, this->GetProperty());
+  labelProp->SetTextProperty(this->LabelTextProperty, this->GetProperty());
 
   labelProp->SetAmbient(1.);
   labelProp->SetDiffuse(0.);
@@ -2513,13 +2513,13 @@ void vtkAxisActor::UpdateLabelActorProperty(int idx)
 //------------------------------------------------------------------------------
 void vtkAxisActor::UpdateTitleActorProperty()
 {
-  this->TitleProp->UpdateProperty(this->TitleTextProperty, this->GetProperty());
+  this->TitleProp->SetTextProperty(this->TitleTextProperty, this->GetProperty());
 }
 
 //------------------------------------------------------------------------------
 void vtkAxisActor::UpdateExponentActorProperty()
 {
-  this->ExponentProp->UpdateProperty(this->TitleTextProperty, this->GetProperty());
+  this->ExponentProp->SetTextProperty(this->TitleTextProperty, this->GetProperty());
 }
 
 //------------------------------------------------------------------------------

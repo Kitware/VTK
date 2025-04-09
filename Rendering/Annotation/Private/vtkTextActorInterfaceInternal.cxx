@@ -14,6 +14,12 @@
 #include "vtkTextProperty.h"
 #include "vtkVectorText.h"
 
+namespace utils
+{
+// We use 12 as default size, as in vtkTextProperty
+constexpr int DEFAULT_FONT_SIZE = 12;
+}
+
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal()
@@ -79,7 +85,7 @@ vtkProp* vtkTextActorInterfaceInternal::GetActiveProp(bool overlay, bool vector)
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfaceInternal::UpdateProperty(
+void vtkTextActorInterfaceInternal::SetTextProperty(
   vtkTextProperty* textProperty, vtkProperty* actorProperty)
 {
   // no text property here. Use standard prop, and override color/opacity
@@ -87,6 +93,15 @@ void vtkTextActorInterfaceInternal::UpdateProperty(
   this->Follower->GetProperty()->SetColor(textProperty->GetColor());
   this->Follower->GetProperty()->SetOpacity(textProperty->GetOpacity());
   this->Follower->SetOrientation(0, 0, textProperty->GetOrientation());
+
+  // mimics font size
+  double prevScale[3];
+  this->Follower->GetScale(prevScale);
+  double scale = prevScale[0] / this->LastFontScale;
+  // Use font size change factor to rescale.
+  double size = textProperty->GetFontSize();
+  this->LastFontScale = size / utils::DEFAULT_FONT_SIZE;
+  this->Follower->SetScale(scale * this->LastFontScale);
 
   this->Actor2D->SetTextProperty(textProperty);
   this->Actor3D->SetTextProperty(textProperty);
@@ -128,10 +143,11 @@ void vtkTextActorInterfaceInternal::AdjustScale()
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfaceInternal::SetScale(double s)
+void vtkTextActorInterfaceInternal::SetScale(double scale)
 {
-  this->Follower->SetScale(s);
-  this->Follower3D->SetScale(s);
+  // Follower has no vtkTextProperty. Simulate FontSize
+  this->Follower->SetScale(scale * this->LastFontScale);
+  this->Follower3D->SetScale(scale);
 }
 
 //------------------------------------------------------------------------------
