@@ -8,132 +8,20 @@ guidelines. For details, see the documentation of individual
 algorithms.
 """
 from __future__ import absolute_import
-import sys
 
-try:
-    import numpy
-except ImportError:
-    raise RuntimeError("This module depends on the numpy module. Please make\
-sure that it is installed properly.")
+import numpy
+from typing import Union
 
 from . import dataset_adapter as dsa
 from . import internal_algorithms as algs
-import itertools
+from . import numpy_algorithms as npalgs
+from vtkmodules.util.misc import deprecated
 try:
     from ..vtkParallelCore import vtkMultiProcessController
     from ..vtkParallelMPI4Py import vtkMPI4PyCommunicator
 except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
-
-def _apply_func2(func, array, args):
-    """Apply a function to each member of a VTKCompositeDataArray.
-    Returns a list of arrays.
-
-    Note that this function is mainly for internal use by this module."""
-    if array is dsa.NoneArray:
-        return []
-    res = []
-    for a in array.Arrays:
-        if a is dsa.NoneArray:
-            res.append(dsa.NoneArray)
-        else:
-            res.append(func(a, *args))
-    return res
-
-def apply_ufunc(func, array, args=()):
-    """Apply a function to each member of a VTKCompositeDataArray.
-    VTKArray and numpy arrays are also supported."""
-    if array is dsa.NoneArray:
-        return dsa.NoneArray
-    elif type(array) == dsa.VTKCompositeDataArray:
-        return dsa.VTKCompositeDataArray(_apply_func2(func, array, args), dataset = array.DataSet)
-    else:
-        return func(array, *args)
-
-def _make_ufunc(ufunc):
-    """ Given a ufunc, creates a closure that applies it to each member
-    of a VTKCompositeDataArray.
-
-    Note that this function is mainly for internal use by this module."""
-    def new_ufunc(array, *args):
-        return apply_ufunc(ufunc, array, args)
-    return new_ufunc
-
-def apply_dfunc(dfunc, array1, val2):
-    """Apply a two argument function to each member of a VTKCompositeDataArray
-    and another argument The second argument can be a VTKCompositeDataArray, in
-    which case a one-to-one match between arrays is assumed. Otherwise, the
-    function is applied to the composite array with the second argument repeated.
-    VTKArray and numpy arrays are also supported."""
-    if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
-        res = []
-        for a1, a2 in zip(array1.Arrays, val2.Arrays):
-            if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
-                res.append(dsa.NoneArray)
-            else:
-                l = dsa.reshape_append_ones(a1, a2)
-                res.append(dfunc(l[0], l[1]))
-        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-    elif type(array1) == dsa.VTKCompositeDataArray:
-        res = []
-        for a in array1.Arrays :
-            if a is dsa.NoneArray:
-                res.append(dsa.NoneArray)
-            else:
-                l = dsa.reshape_append_ones(a, val2)
-                res.append(dfunc(l[0], l[1]))
-        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-    elif array1 is dsa.NoneArray:
-        return dsa.NoneArray
-    elif isinstance(val2, numpy.ndarray):
-        return dfunc(array1, val2)
-    else:
-        l = dsa.reshape_append_ones(array1, val2)
-        return dfunc(l[0], l[1])
-
-def _make_dfunc(dfunc):
-    """ Given a function that requires two arguments, creates a closure that
-    applies it to each member of a VTKCompositeDataArray.
-
-    Note that this function is mainly for internal use by this module."""
-    def new_dfunc(array1, val2):
-        return apply_dfunc(dfunc, array1, val2)
-    return new_dfunc
-
-def _make_dsfunc(dsfunc):
-    """ Given a function that requires two arguments (one array, one dataset),
-    creates a closure that applies it to each member of a VTKCompositeDataArray.
-    Note that this function is mainly for internal use by this module."""
-    def new_dsfunc(array, ds=None):
-        if type(array) == dsa.VTKCompositeDataArray:
-            res = []
-            for a in array.Arrays:
-                if a is dsa.NoneArray:
-                    res.append(dsa.NoneArray)
-                else:
-                    res.append(dsfunc(a, ds))
-            return dsa.VTKCompositeDataArray(res, dataset = array.DataSet)
-        elif array is dsa.NoneArray:
-            return dsa.NoneArray
-        else:
-            return dsfunc(array, ds)
-    return new_dsfunc
-
-def _make_dsfunc2(dsfunc):
-    """ Given a function that requires a dataset, creates a closure that
-    applies it to each member of a VTKCompositeDataArray.
-
-    Note that this function is mainly for internal use by this module."""
-    def new_dsfunc2(ds):
-        if type(ds) == dsa.CompositeDataSet:
-            res = []
-            for dataset in ds:
-                res.append(dsfunc(dataset))
-            return dsa.VTKCompositeDataArray(res, dataset = ds)
-        else:
-            return dsfunc(ds)
-    return new_dsfunc2
 
 def _lookup_mpi_type(ntype):
     from mpi4py import MPI
@@ -151,7 +39,7 @@ def _reduce_dims(array, comm):
     from mpi4py import MPI
     dims = numpy.array([0, 0], dtype=numpy.int32)
     if array is not dsa.NoneArray:
-        shp = shape(array)
+        shp = numpy.shape(array)
         if len(shp) == 0:
             dims = numpy.array([1, 0], dtype=numpy.int32)
         elif len(shp) == 1:
@@ -173,12 +61,14 @@ def _reduce_dims(array, comm):
 
     return (max_dims, size)
 
-def _global_func(impl, array, axis, controller):
+def global_func(impl, array, axis, controller) -> Union[numpy.ndarray, dsa.VTKNoneArray, dsa.VTKCompositeDataArray]:
+    """Helper function for reduction-like operation (e.g., sum, min, max) to the given array,
+    with support for parallel execution across different nodes."""
     if type(array) == dsa.VTKCompositeDataArray:
         if axis is None or axis == 0:
             res = impl.serial_composite(array, axis)
         else:
-            res = apply_ufunc(impl.op(), array, (axis,))
+            res = npalgs.apply_ufunc(impl.op(), array, (axis,))
     else:
         res = impl.op()(array, axis)
         if res is not dsa.NoneArray:
@@ -198,7 +88,7 @@ def _global_func(impl, array, axis, controller):
 
             # All NoneArrays
             if size == 0:
-                return dsa.NoneArray;
+                return dsa.NoneArray
 
             if res is dsa.NoneArray:
                 if numpy.isscalar(max_dims):
@@ -216,29 +106,12 @@ def _global_func(impl, array, axis, controller):
 
     return res
 
+@deprecated(version="9.6", message="Use np.bitwise_or() instead of algs.bitwise_or().")
 def bitwise_or(array1, array2):
     """Implements element by element or (bitwise, | in C/C++) operation.
     If one of the arrays is a NoneArray, this will return the array
     that is not NoneArray, treating NoneArray as 0 in the or operation."""
-    if type(array1) == dsa.VTKCompositeDataArray and type(array2) == dsa.VTKCompositeDataArray:
-        res = []
-        for a1, a2 in zip(array1.Arrays, array2.Arrays):
-            l = dsa.reshape_append_ones(a1, a2)
-            res.append(bitwise_or(l[0], l[1]))
-        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-    elif type(array1) == dsa.VTKCompositeDataArray:
-        res = []
-        for a in array1.Arrays :
-            l = dsa.reshape_append_ones(a, array2)
-            res.append(bitwise_or(l[0], l[1]))
-        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
-    elif array1 is dsa.NoneArray:
-        return array2
-    elif array2 is dsa.NoneArray:
-        return array1
-    else:
-        l = dsa.reshape_append_ones(array1, array2)
-        return numpy.bitwise_or(l[0], l[1])
+    return npalgs.bitwise_or(array1, array2)
 
 def make_point_mask_from_NaNs(dataset, array):
     """This method will create a ghost array corresponding to an
@@ -273,9 +146,10 @@ def make_mask_from_NaNs(array, ghost_array=dsa.NoneArray, is_cell=False):
     else:
         mask_value = vtkDataSetAttributes.HIDDENPOINT
 
-    return bitwise_or(isnan(array).astype(numpy.uint8) * mask_value,
+    return npalgs.bitwise_or(isnan(array).astype(numpy.uint8) * mask_value,
         ghost_array)
 
+@deprecated(version="9.6", message="Use np.sum() instead of algs.sum().")
 def sum(array, axis=None, controller=None):
     """Returns the sum of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -292,30 +166,9 @@ def sum(array, axis=None, controller=None):
 
     sum(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
-    class SumImpl:
-        def op(self):
-            return algs.sum
+    return npalgs.sum(array, axis, controller)
 
-        def mpi_op(self):
-            from mpi4py import MPI
-            return MPI.SUM
-
-        def serial_composite(self, array, axis):
-            res = None
-            arrays = array.Arrays
-            for a in arrays:
-                if a is not dsa.NoneArray:
-                    if res is None:
-                        res = algs.sum(a, axis).astype(numpy.float64)
-                    else:
-                        res += algs.sum(a, axis)
-            return res
-
-        def default(self):
-            return numpy.float64(0)
-
-    return _global_func(SumImpl(), array, axis, controller)
-
+@deprecated(version="9.6", message="Use np.max() instead of algs.max().")
 def max(array, axis=None, controller=None):
     """Returns the max of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -332,29 +185,9 @@ def max(array, axis=None, controller=None):
 
     max(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
-    class MaxImpl:
-        def op(self):
-            return algs.max
+    return npalgs.max(array, axis, controller)
 
-        def mpi_op(self):
-            from mpi4py import MPI
-            return MPI.MAX
-
-        def serial_composite(self, array, axis):
-            res = _apply_func2(algs.max, array, (axis,))
-            clean_list = []
-            for a in res:
-                if a is not dsa.NoneArray:
-                    clean_list.append(a)
-            if clean_list is []:
-                return None
-            return algs.max(clean_list, axis=0).astype(numpy.float64)
-
-        def default(self):
-            return numpy.finfo(numpy.float64).min
-
-    return _global_func(MaxImpl(), array, axis, controller)
-
+@deprecated(version="9.6", message="Use np.min() instead of algs.min().")
 def min(array, axis=None, controller=None):
     """Returns the min of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -370,38 +203,15 @@ def min(array, axis=None, controller=None):
 
     min(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
-    class MinImpl:
-        def op(self):
-            return algs.min
-
-        def mpi_op(self):
-            from mpi4py import MPI
-            return MPI.MIN
-
-        def serial_composite(self, array, axis):
-            res = _apply_func2(algs.min, array, (axis,))
-            clean_list = []
-            for a in res:
-                if a is not dsa.NoneArray:
-                    clean_list.append(a)
-            if clean_list is []:
-                return None
-            return algs.min(clean_list, axis=0).astype(numpy.float64)
-
-        def default(self):
-            return numpy.finfo(numpy.float64).max
-
-    return _global_func(MinImpl(), array, axis, controller)
+    return npalgs.min(array, axis, controller)
 
 def _global_per_block(impl, array, axis=None, controller=None):
     if axis is not None and axis > 0:
         return impl.op()(array, axis=axis, controller=controller)
-
     try:
         dataset = array.DataSet
     except AttributeError:
         dataset = None
-
     t = type(array)
     if t == dsa.VTKArray or t == numpy.ndarray:
         from ..vtkCommonDataModel import vtkMultiBlockDataSet
@@ -409,9 +219,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
         ds = vtkMultiBlockDataSet()
         ds.SetBlock(0, dataset.VTKObject)
         dataset = ds
-
-    results = _apply_func2(impl.op2(), array, (axis,))
-
+    results = npalgs._apply_func2(impl.op2(), array, (axis,))
     if controller is None and vtkMultiProcessController is not None:
         controller = vtkMultiProcessController.GetGlobalController()
     if controller and controller.IsA("vtkMPIController"):
@@ -429,7 +237,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
         # All NoneArrays
         if size == 0:
-            return dsa.NoneArray;
+            return dsa.NoneArray
 
         # Next determine the max id to use for reduction
         # operations
@@ -573,7 +381,7 @@ def count_per_block(array, axis=None, controller=None):
 
     class CountPerBlockImpl:
         def op(self):
-            return _array_count
+            return array_count
 
         def op2(self):
             return _local_array_count
@@ -676,6 +484,7 @@ def min_per_block(array, axis=None, controller=None):
 
     return _global_per_block(MinPerBlockImpl(), array, axis, controller)
 
+@deprecated(version="9.6", message="Use np.all() instead of algs.all().")
 def all(array, axis=None, controller=None):
     """Returns True if all values of an array evaluate to True, returns
     False otherwise.
@@ -684,28 +493,7 @@ def all(array, axis=None, controller=None):
 
     algorithms.all(array > 5)
     """
-    class MinImpl:
-        def op(self):
-            return algs.all
-
-        def mpi_op(self):
-            from mpi4py import MPI
-            return MPI.LAND
-
-        def serial_composite(self, array, axis):
-            res = _apply_func2(algs.all, array, (axis,))
-            clean_list = []
-            for a in res:
-                if a is not dsa.NoneArray:
-                    clean_list.append(a)
-            if clean_list is []:
-                return None
-            return algs.all(clean_list, axis=0)
-
-        def default(self, max_comps):
-            return numpy.ones(max_comps, dtype=bool)
-
-    return _global_func(MinImpl(), array, axis, controller)
+    return npalgs.all(array, axis, controller)
 
 def _local_array_count(array, axis):
 
@@ -714,16 +502,17 @@ def _local_array_count(array, axis):
     elif axis is None:
         return numpy.int64(array.size)
     else:
-        return numpy.int64(shape(array)[0])
+        return numpy.int64(numpy.shape(array)[0])
 
-def _array_count(array, axis, controller):
-
+def array_count(array, axis, controller) -> Union[numpy.int64, numpy.ndarray]:
+    """Helper function to count the number of elements in a VTK or NumPy array,
+    supporting counting across MPI nodes."""
     if array is dsa.NoneArray:
         size = numpy.int64(0)
     elif axis is None:
         size = numpy.int64(array.size)
     else:
-        size = numpy.int64(shape(array)[0])
+        size = numpy.int64(numpy.shape(array)[0])
 
     if controller is None and vtkMultiProcessController is not None:
         controller = vtkMultiProcessController.GetGlobalController()
@@ -739,6 +528,7 @@ def _array_count(array, axis, controller):
 
     return size
 
+@deprecated(version="9.6", message="Use np.mean() instead of algs.mean().")
 def mean(array, axis=None, controller=None, size=None):
     """Returns the mean of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -755,17 +545,9 @@ def mean(array, axis=None, controller=None, size=None):
 
     mean(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
+    return npalgs.mean(array, axis, controller, size)
 
-    if axis is None or axis == 0:
-        if size is None:
-            size = _array_count(array, axis, controller)
-        return sum(array, axis) / size
-    else:
-        if type(array) == dsa.VTKCompositeDataArray:
-            return apply_ufunc(algs.mean, array, (axis,))
-        else:
-            return algs.mean(array, axis)
-
+@deprecated(version="9.6", message="Use np.var() instead of algs.var().")
 def var(array, axis=None, controller=None):
     """Returns the variance of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -782,17 +564,9 @@ def var(array, axis=None, controller=None):
 
     var(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
+    return npalgs.var(array, axis, controller)
 
-    if axis is None or axis == 0:
-        size = _array_count(array, axis, controller)
-        tmp = array - mean(array, axis, controller, size)
-        return sum(tmp*tmp, axis, controller) / size
-    else:
-        if type(array) == dsa.VTKCompositeDataArray:
-            return apply_ufunc(algs.var, array, (axis,))
-        else:
-            return algs.var(array, axis)
-
+@deprecated(version="9.6", message="Use np.std() instead of algs.std().")
 def std(array, axis=None, controller=None):
     """Returns the standard deviation of all values along a particular
     axis (dimension).
@@ -810,29 +584,12 @@ def std(array, axis=None, controller=None):
 
     std(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
-    return sqrt(var(array, axis, controller))
+    return npalgs.std(array, axis, controller)
 
+@deprecated(version="9.6", message="Use np.shape() instead of algs.shape().")
 def shape(array):
     "Returns the shape (dimensions) of an array."
-    if type(array) == dsa.VTKCompositeDataArray:
-        shp = None
-        for a in array.Arrays:
-            if a is not dsa.NoneArray:
-                if shp is None:
-                    shp = list(a.shape)
-                else:
-                    tmp = a.shape
-                    if (len(shp) != len(tmp)):
-                        raise ValueError("Expected arrays of same shape")
-                    shp[0] += tmp[0]
-                    for idx in range(1,len(tmp)):
-                        if shp[idx] != tmp[idx]:
-                            raise ValueError("Expected arrays of same shape")
-        return tuple(shp)
-    elif array is dsa.NoneArray:
-        return ()
-    else:
-        return numpy.shape(array)
+    return npalgs.shape(array)
 
 def make_vector(arrayx, arrayy, arrayz=None):
     """Given 2 or 3 scalar arrays, returns a vector array. If only
@@ -981,103 +738,116 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
                 ugrid.GetPointData().AddArray(da)
     return ugrid
 
-in1d = _make_ufunc(numpy.in1d)
+@deprecated(version="9.6", message="Use np.flatnonzero() instead of algs.flatnonzero().")
+def flatnonzero(array):
+    """
+    Return indices that are non-zero in the flattened version of the input array.
+    """
+    return npalgs.flatnonzero(array)
+
+@deprecated(version="9.6", message="Use np.nonzero() instead of algs.nonzero().")
+def nonzero(array):
+    """
+    Return the indices of the non-zero elements of the input array.
+    """
+    return npalgs.nonzero(array)
+
+@deprecated(version="9.6", message="Use np.where() instead of algs.where().")
+def where(*args):
+    """Returns the location (indices) of an array where the given
+    expression is true. For scalars, it returns a single array of indices.
+    For vectors and matrices, it returns two arrays: first with tuple indices,
+    second with component indices. The output of this method can be used to
+    extract the values from the array also by using it as the index of the [] operator.
+
+    For example:
+
+    >>> algs.where(algs.array([1,2,3]) == 2)
+    (array([1]),)
+
+    >>> algs.where(algs.array([[1,2,3], [2,1,1]]) == 2)
+    (array([0, 1]), array([1, 0]))
+
+    >>> a = array([[1,2,3], [2,1,1]])
+    >>> indices = algs.where(a > 2)
+    >>> a[indices]
+    array([3])
+    """
+    return npalgs.where(*args)
+
+in1d = deprecated(version="9.6", message="Use np.in1d() instead of algs.in1d().")(npalgs.in1d)
 in1d.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
 
-isnan = _make_ufunc(numpy.isnan)
+isin = deprecated(version="9.6", message="Use np.isin() instead of algs.isin().")(npalgs.isin)
+isin.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
+
+isnan = deprecated(version="9.6", message="Use np.isnan() instead of algs.isnan().")(npalgs._make_ufunc(numpy.isnan))
 isnan.__doc__ = "Returns a bool array, true if values is nan."
 
-sqrt = _make_ufunc(numpy.sqrt)
+sqrt = deprecated(version="9.6", message="Use np.sqrt() instead of algs.sqrt().")(npalgs._make_ufunc(numpy.sqrt))
 sqrt.__doc__ = "Computes square root."
 
-negative = _make_ufunc(numpy.negative)
+negative = deprecated(version="9.6", message="Use np.negative() instead of algs.negative().")(npalgs._make_ufunc(numpy.negative))
 negative.__doc__ = "Numerical negative, element-wise."
 
-reciprocal = _make_ufunc(numpy.reciprocal)
+reciprocal = deprecated(version="9.6", message="Use np.reciprocal() instead of algs.reciprocal().")(npalgs._make_ufunc(numpy.sqrt))
 reciprocal.__doc__ = "Return the reciprocal (1/x) of the argument, element-wise."
 
-square = _make_ufunc(numpy.square)
+square = deprecated(version="9.6", message="Use np.square() instead of algs.square().")(npalgs._make_ufunc(numpy.square))
 square.__doc__ = "Return the element-wise square of the input."
 
-exp = _make_ufunc(numpy.exp)
+exp = deprecated(version="9.6", message="Use np.exp() instead of algs.exp().")(npalgs._make_ufunc(numpy.exp))
 exp.__doc__ = "The exponential function."
 
-floor = _make_ufunc(numpy.floor)
+floor = deprecated(version="9.6", message="Use np.floor() instead of algs.floor().")(npalgs._make_ufunc(numpy.floor))
 floor.__doc__ = "Returns the floor of floating point values."
 
-ceil = _make_ufunc(numpy.ceil)
+ceil = deprecated(version="9.6", message="Use np.ceil() instead of algs.ceil().")(npalgs._make_ufunc(numpy.ceil))
 ceil.__doc__ = "Returns the ceiling of floating point values."
 
-rint = _make_ufunc(numpy.rint)
+rint = deprecated(version="9.6", message="Use np.rint() instead of algs.rint().")(npalgs._make_ufunc(numpy.rint))
 rint.__doc__ = "Round elements of the array to the nearest integer."
 
-sin = _make_ufunc(numpy.sin)
+sin = deprecated(version="9.6", message="Use np.sin() instead of algs.sin().")(npalgs._make_ufunc(numpy.sin))
 sin.__doc__ = "Computes sine of values in radians."
 
-cos = _make_ufunc(numpy.cos)
+cos = deprecated(version="9.6", message="Use np.cos() instead of algs.cos().")(npalgs._make_ufunc(numpy.cos))
 cos.__doc__ = "Computes cosine of values in radians."
 
-tan = _make_ufunc(numpy.tan)
+tan = deprecated(version="9.6", message="Use np.tan() instead of algs.tan().")(npalgs._make_ufunc(numpy.tan))
 tan.__doc__ = "Computes tangent of values in radians."
 
-arcsin = _make_ufunc(numpy.arcsin)
+arcsin = deprecated(version="9.6", message="Use np.arcsin() instead of algs.arcsin().")(npalgs._make_ufunc(numpy.arcsin))
 arcsin.__doc__ = "Computes inverse sine."
 
-arccos = _make_ufunc(numpy.arccos)
+arccos = deprecated(version="9.6", message="Use np.arccos() instead of algs.arccos().")(npalgs._make_ufunc(numpy.arccos))
 arccos.__doc__ = "Computes inverse cosine."
 
-arctan = _make_ufunc(numpy.arctan)
+arctan = deprecated(version="9.6", message="Use np.arctan() instead of algs.arctan().")(npalgs._make_ufunc(numpy.arctan))
 arctan.__doc__ = "Computes inverse tangent."
 
-arctan2 = _make_dfunc(numpy.arctan2)
+arctan2 = deprecated(version="9.6", message="Use np.arctan2() instead of algs.arctan2().")(npalgs._make_ufunc(numpy.arctan2))
 arctan2.__doc__ = "Computes inverse tangent using two arguments."
 
-sinh = _make_ufunc(numpy.sinh)
+sinh = deprecated(version="9.6", message="Use np.sinh() instead of algs.sinh().")(npalgs._make_ufunc(numpy.sinh))
 sinh.__doc__ = "Computes hyperbolic sine."
 
-cosh = _make_ufunc(numpy.cosh)
+cosh = deprecated(version="9.6", message="Use np.cosh() instead of algs.cosh().")(npalgs._make_ufunc(numpy.cosh))
 cosh.__doc__ = "Computes hyperbolic cosine."
 
-tanh = _make_ufunc(numpy.tanh)
+tanh = deprecated(version="9.6", message="Use np.tanh() instead of algs.tanh().")(npalgs._make_ufunc(numpy.tanh))
 tanh.__doc__ = "Computes hyperbolic tangent."
 
-arcsinh = _make_ufunc(numpy.arcsinh)
+arcsinh = deprecated(version="9.6", message="Use np.arcsinh() instead of algs.arcsinh().")(npalgs._make_ufunc(numpy.arcsinh))
 arcsinh.__doc__ = "Computes inverse hyperbolic sine."
 
-arccosh = _make_ufunc(numpy.arccosh)
+arccosh = deprecated(version="9.6", message="Use np.arccosh() instead of algs.arccosh().")(npalgs._make_ufunc(numpy.arccosh))
 arccosh.__doc__ = "Computes inverse hyperbolic cosine."
 
-arctanh = _make_ufunc(numpy.arctanh)
+arctanh = deprecated(version="9.6", message="Use np.arctanh() instead of algs.arctanh().")(npalgs._make_ufunc(numpy.arctanh))
 arctanh.__doc__ = "Computes inverse hyperbolic tangent."
 
-where = _make_ufunc(numpy.where)
-where.__doc__ = """Returns the location (indices) of an array where the given
-expression is true. For scalars, it returns a single array of indices.
-For vectors and matrices, it returns two arrays: first with tuple indices,
-second with component indices. The output of this method can be used to
-extract the values from the array also by using it as the index of the [] operator.
-
-For example:
-
->>> algs.where(algs.array([1,2,3]) == 2)
-(array([1]),)
-
->>> algs.where(algs.array([[1,2,3], [2,1,1]]) == 2)
-(array([0, 1]), array([1, 0]))
-
->>> a = array([[1,2,3], [2,1,1]])
->>> indices = algs.where(a > 2)
->>> a[indices]
-array([3])
-"""
-
-flatnonzero = _make_ufunc(numpy.flatnonzero)
-flatnonzero.__doc__ = "Return indices that are non-zero in the flattened version of the input array."
-
-nonzero = _make_ufunc(numpy.nonzero)
-nonzero.__doc__ = "Return the indices of the non-zero elements of the input array."
-
-expand_dims = _make_dfunc(numpy.expand_dims)
+expand_dims = deprecated(version="9.6", message="Use np.expand_dims() instead of algs.expand_dims().")(npalgs.expand_dims)
 expand_dims.__doc__ = """Insert a new dimension, corresponding to a given
 position in the array shape. In VTK, this function's main use is to
 enable an operator to work on a vector and a scalar field. For example,
@@ -1108,134 +878,134 @@ VTKArray([[ 0.57735027,  0.57735027,  0.57735027],
        [ 0.57735027,  0.57735027,  0.57735027],
        [ 0.57735027,  0.57735027,  0.57735027]])"""
 
-abs = _make_ufunc(algs.abs)
+abs = deprecated(version="9.6", message="Use np.abs() instead of algs.abs().")(npalgs._make_ufunc(algs.abs))
 abs.__doc__ = "Returns the absolute values of an array of scalars/vectors/tensors."
 
-area = _make_dsfunc2(algs.area)
+area = npalgs._make_dsfunc2(algs.area)
 area.__doc__ = "Returns the surface area of each 2D cell in a mesh."
 
-aspect = _make_dsfunc2(algs.aspect)
+aspect = npalgs._make_dsfunc2(algs.aspect)
 aspect.__doc__ = "Returns the aspect ratio of each cell in a mesh. See Verdict documentation for details."
 
-aspect_gamma = _make_dsfunc2(algs.aspect_gamma)
+aspect_gamma = npalgs._make_dsfunc2(algs.aspect_gamma)
 aspect_gamma.__doc__ = "Returns the aspect gamma of each cell in a mesh. This metric compares root-mean-square edge length to volume. See Verdict documentation for details."
 
-condition = _make_dsfunc2(algs.condition)
+condition = npalgs._make_dsfunc2(algs.condition)
 condition.__doc__ = "Returns the condition number of each cell in a mesh. See Verdict documentation for details."
 
-cross = _make_dfunc(algs.cross)
+cross = npalgs._make_dfunc(algs.cross)
 cross.__doc__ = "Return the cross product of two vectors."
 
-curl = _make_dsfunc(algs.curl)
+curl = npalgs._make_dsfunc(algs.curl)
 curl.__doc__ = "Returns the curl a vector field."
 
-divergence = _make_dsfunc(algs.divergence)
+divergence = npalgs._make_dsfunc(algs.divergence)
 divergence.__doc__ = "Returns the divergence of a vector field."
 
-det = _make_ufunc(algs.det)
+det = npalgs._make_ufunc(algs.det)
 det.__doc__ = "Returns the determinant of 2D matrices."
 
-determinant = _make_ufunc(algs.determinant)
+determinant = npalgs._make_ufunc(algs.determinant)
 determinant.__doc__ = "Returns the determinant of 2D matrices."
 
-diagonal = _make_dsfunc2(algs.diagonal)
+diagonal = npalgs._make_dsfunc2(algs.diagonal)
 diagonal.__doc__ = "Returns the diagonal length of each cell in a dataset. See Verdict documentation for details"
 
-dot = _make_dfunc(algs.dot)
+dot = npalgs._make_dfunc(algs.dot)
 dot.__doc__ = "Returns the dot product of two vectors."
 
-eigenvalue = _make_ufunc(algs.eigenvalue)
+eigenvalue = npalgs._make_ufunc(algs.eigenvalue)
 eigenvalue.__doc__ = "Returns the eigenvalues of 3x3 matrices. Currently only works with symmetric matrices."
 
-eigenvector = _make_ufunc(algs.eigenvector)
+eigenvector = npalgs._make_ufunc(algs.eigenvector)
 eigenvector.__doc__ = "Returns the eigenvectors of 3x3 matrices. Currently only works with symmetric matrices."
 
-gradient = _make_dsfunc(algs.gradient)
+gradient = npalgs._make_dsfunc(algs.gradient)
 gradient.__doc__ = "Returns the gradient of scalars or vectors."
 
-inv = _make_ufunc(algs.inv)
+inv = npalgs._make_ufunc(algs.inv)
 inv.__doc__ = "Returns the inverse of 3x3 matrices."
 
-inverse = _make_ufunc(algs.inverse)
+inverse = npalgs._make_ufunc(algs.inverse)
 inverse.__doc__ = "Returns the inverse of 3x3 matrices."
 
-jacobian = _make_dsfunc2(algs.jacobian)
+jacobian = npalgs._make_dsfunc2(algs.jacobian)
 jacobian.__doc__ = "Returns the Jacobian of a dataset."
 
-laplacian = _make_dsfunc(algs.laplacian)
+laplacian = npalgs._make_dsfunc(algs.laplacian)
 laplacian.__doc__ = "Returns the Laplacian of a scalar field."
 
-ln = _make_ufunc(algs.ln)
+ln = npalgs._make_ufunc(algs.ln)
 ln.__doc__ = "Returns the natural logarithm of its input."
 
-log = _make_ufunc(algs.log)
+log = deprecated(version="9.6", message="Use np.log() instead of algs.log().")(npalgs._make_ufunc(algs.log))
 log.__doc__ = "Returns the natural logarithm of its input."
 
-log10 = _make_ufunc(algs.log10)
+log10 = deprecated(version="9.6", message="Use np.log10() instead of algs.log10().")(npalgs._make_ufunc(algs.log10))
 log10.__doc__ = "Returns the base 10 logarithm of its input."
 
-max_angle = _make_dsfunc2(algs.max_angle)
+max_angle = npalgs._make_dsfunc2(algs.max_angle)
 max_angle.__doc__ = "Returns the maximum angle of each cell in a dataset. See Verdict documentation for details"
 
-mag = _make_ufunc(algs.mag)
+mag = npalgs._make_ufunc(algs.mag)
 mag.__doc__ = "Returns the magnitude of vectors."
 
-matmul = _make_dfunc(algs.matmul)
+matmul = npalgs._make_dfunc(algs.matmul)
 matmul.__doc__ = "Return the product of the inputs. Inputs can be vectors/tensors."
 
-min_angle = _make_dsfunc2(algs.min_angle)
+min_angle = npalgs._make_dsfunc2(algs.min_angle)
 min_angle.__doc__ = "Returns the minimum angle of each cell in a dataset."
 
-norm = _make_ufunc(algs.norm)
+norm = npalgs._make_ufunc(algs.norm)
 norm.__doc__ = "Computes the normalized values of vectors."
 
-shear = _make_dsfunc2(algs.shear)
+shear = npalgs._make_dsfunc2(algs.shear)
 shear.__doc__ = "Returns the shear of each cell in a dataset. See Verdict documentation for details."
 
-skew = _make_dsfunc2(algs.skew)
+skew = npalgs._make_dsfunc2(algs.skew)
 skew.__doc__ = "Returns the skew of each cell in a dataset. See Verdict documentation for details."
 
-strain = _make_dsfunc(algs.strain)
+strain = npalgs._make_dsfunc(algs.strain)
 strain.__doc__ = "Given a deformation vector, this function computes the infinitesimal (Cauchy) strain tensor. It can also be used to compute strain rate if the input is velocity."
 
-surface_normal = _make_dsfunc2(algs.surface_normal)
+surface_normal = npalgs._make_dsfunc2(algs.surface_normal)
 surface_normal.__doc__ = "Returns the surface normal of each cell in a dataset."
 
-trace = _make_ufunc(algs.trace)
+trace = npalgs._make_ufunc(algs.trace)
 trace.__doc__ = "Returns the trace of square matrices."
 
-volume = _make_dsfunc2(algs.volume)
+volume = npalgs._make_dsfunc2(algs.volume)
 volume.__doc__ = "Returns the volume of each cell in a dataset. Use sum to calculate total volume of a dataset."
 
-vorticity = _make_dsfunc(algs.vorticity)
+vorticity = npalgs._make_dsfunc(algs.vorticity)
 vorticity.__doc__ = "Given a velocity field, calculates vorticity."
 
-vertex_normal = _make_dsfunc2(algs.vertex_normal)
+vertex_normal = npalgs._make_dsfunc2(algs.vertex_normal)
 vertex_normal.__doc__ = "Returns the normal at each vertex of a dataset, which is defined as the average of the cell normals of all cells containing that vertex."
 
-logical_not = _make_ufunc(numpy.logical_not)
+logical_not = deprecated(version="9.6", message="Use np.logical_not() instead of algs.logical_not().")(npalgs._make_ufunc(numpy.logical_not))
 logical_not.__doc__ = "Computes the truth value of NOT x element-wise."
 
-divide = _make_dfunc(numpy.divide)
+divide = deprecated(version="9.6", message="Use np.divide() instead of algs.divide().")(npalgs._make_dfunc(numpy.divide))
 divide.__doc__ = "Element by element division. Both elements can be single values or arrays. Same as /."
 
-multiply = _make_dfunc(numpy.multiply)
+multiply = deprecated(version="9.6", message="Use np.multiply() instead of algs.multiply().")(npalgs._make_dfunc(numpy.multiply))
 multiply.__doc__ = "Element by element multiplication. Both elements can be single values or arrays. Same as *."
 
-add = _make_dfunc(numpy.add)
+add = deprecated(version="9.6", message="Use np.add() instead of algs.add().")(npalgs._make_dfunc(numpy.add))
 add.__doc__ = "Element by element addition. Both elements can be single values or arrays. Same as +."
 
-subtract = _make_dfunc(numpy.subtract)
+subtract = deprecated(version="9.6", message="Use np.substract() instead of algs.substract().")(npalgs._make_dfunc(numpy.subtract))
 subtract.__doc__ = "Returns the difference of two values element-wise. Same as x - y."
 
-mod = _make_dfunc(numpy.mod)
+mod = deprecated(version="9.6", message="Use np.mod() instead of algs.mod().")(npalgs._make_dfunc(numpy.mod))
 mod.__doc__ = "Computes x1 - floor(x1 / x2) * x2, the result has the same sign as the divisor x2. It is equivalent to the Python modulus operator x1 % x2. Same as remainder."
 
-remainder = _make_dfunc(numpy.remainder)
+remainder = deprecated(version="9.6", message="Use np.remainder() instead of algs.remainder().")(npalgs._make_dfunc(numpy.remainder))
 remainder.__doc__ = "Computes x1 - floor(x1 / x2) * x2, the result has the same sign as the divisor x2. It is equivalent to the Python modulus operator x1 % x2. Same as mod."
 
-power = _make_dfunc(numpy.power)
+power = deprecated(version="9.6", message="Use np.power() instead of algs.power().")(npalgs._make_dfunc(numpy.power))
 power.__doc__ = "First array elements raised to powers from second array, element-wise."
 
-hypot = _make_dfunc(numpy.hypot)
+hypot = npalgs._make_dfunc(numpy.hypot)
 hypot.__doc__ = "Given the 'legs' of a right triangle, return its hypotenuse."

@@ -126,6 +126,7 @@ set(python_files
   vtkmodules/numpy_interface/algorithms.py
   vtkmodules/numpy_interface/dataset_adapter.py
   vtkmodules/numpy_interface/internal_algorithms.py
+  vtkmodules/numpy_interface/numpy_algorithms.py
   vtkmodules/qt/QVTKRenderWindowInteractor.py
   vtkmodules/qt/__init__.py
   vtkmodules/test/BlackBox.py
