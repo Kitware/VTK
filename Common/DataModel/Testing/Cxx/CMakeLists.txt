@@ -76,6 +76,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestSMPFeatures.cxx
   TestSelectionExpression.cxx
   TestSelectionSubtract.cxx
+  TestSetCellsPolyhedronBackCompatibility.cxx
   TestSimpleIncrementalOctreePointLocator.cxx
   TestSortFieldData.cxx
   TestStaticCellLocator.cxx
