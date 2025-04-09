@@ -41,13 +41,12 @@ protected:
   int RequestData(
     vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
   vtkQuadraturePointInterpolator();
-  ~vtkQuadraturePointInterpolator() override;
+  ~vtkQuadraturePointInterpolator() override = default;
 
 private:
   vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator&) = delete;
   void operator=(const vtkQuadraturePointInterpolator&) = delete;
-  //
-  void Clear();
+
   ///@{
   /**
    * Generate field data arrays that have all scalar/vector

@@ -30,15 +30,8 @@ vtkStandardNewMacro(vtkQuadraturePointInterpolator);
 //------------------------------------------------------------------------------
 vtkQuadraturePointInterpolator::vtkQuadraturePointInterpolator()
 {
-  this->Clear();
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
-}
-
-//------------------------------------------------------------------------------
-vtkQuadraturePointInterpolator::~vtkQuadraturePointInterpolator()
-{
-  this->Clear();
 }
 
 //------------------------------------------------------------------------------
@@ -70,12 +63,6 @@ int vtkQuadraturePointInterpolator::RequestData(
   this->InterpolateFields(datasetOut);
 
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkQuadraturePointInterpolator::Clear()
-{
-  // Nothing to do
 }
 
 //------------------------------------------------------------------------------

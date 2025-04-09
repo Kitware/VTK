@@ -26,13 +26,17 @@ vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
 {
   this->ShapeFunctionWeights = nullptr;
   this->QuadratureWeights = nullptr;
-  this->Clear();
+  this->ShapeFunctionDerivativeWeights = nullptr;
+  this->CellType = -1;
+  this->QuadratureKey = -1;
+  this->NumberOfNodes = 0;
+  this->NumberOfQuadraturePoints = 0;
 }
 
 //------------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::~vtkQuadratureSchemeDefinition()
 {
-  this->Clear();
+  this->ReleaseResources();
 }
 
 //------------------------------------------------------------------------------
@@ -40,7 +44,11 @@ int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition*
 {
   this->ShapeFunctionWeights = nullptr;
   this->QuadratureWeights = nullptr;
-  this->Clear();
+  this->ShapeFunctionDerivativeWeights = nullptr;
+  this->CellType = -1;
+  this->QuadratureKey = -1;
+  this->NumberOfNodes = 0;
+  this->NumberOfQuadraturePoints = 0;
   //
   this->CellType = other->CellType;
   this->QuadratureKey = other->QuadratureKey;
@@ -53,16 +61,6 @@ int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition*
   this->SetQuadratureWeights(other->GetQuadratureWeights());
   //
   return 1;
-}
-
-//------------------------------------------------------------------------------
-void vtkQuadratureSchemeDefinition::Clear()
-{
-  this->ReleaseResources();
-  this->CellType = -1;
-  this->QuadratureKey = -1;
-  this->NumberOfNodes = 0;
-  this->NumberOfQuadraturePoints = 0;
 }
 
 //------------------------------------------------------------------------------

@@ -64,12 +64,6 @@ public:
   int RestoreState(vtkXMLDataElement* root);
 
   /**
-   * Release all allocated resources and set the
-   * object to an uninitialized state.
-   */
-  void Clear();
-
-  /**
    * Initialize the object allocating resources as needed.
    */
   void Initialize(
