@@ -285,6 +285,11 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
 }
 
 //------------------------------------------------------------------------------
+/**
+ * Return the dataset type mapped to the "Type" attribute
+ * of the groupID group.
+ * Return true if a valid data type was found.
+ */
 bool ReadDataSetType(hid_t groupID, int& dataSetType)
 {
   if (H5Aexists(groupID, "Type"))

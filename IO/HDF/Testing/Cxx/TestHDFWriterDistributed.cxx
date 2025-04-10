@@ -1,16 +1,27 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "HDFTestUtilities.h"
+
+#include "vtkAppendDataSets.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenerateTimeSteps.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkPartitionedDataSetCollectionAlgorithm.h"
 #include "vtkPassArrays.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
@@ -18,12 +29,59 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
+#include "vtkTransform.h"
+#include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWarpScalar.h"
 #include "vtkXMLPolyDataReader.h"
 
+namespace HDFTestUtilities
+{
+vtkStandardNewMacro(vtkAddAssembly);
+}
+
 namespace
 {
+vtkSmartPointer<vtkAlgorithm> SetupCompositePipeline(const vtkIdType compositeType)
+{
+  // Create a sphere source
+  vtkNew<vtkSphereSource> sphere;
+  sphere->SetPhiResolution(50);
+  sphere->SetThetaResolution(50);
+  sphere->SetRadius(5.0);
+
+  // Distribute it
+  vtkNew<vtkRedistributeDataSetFilter> redistribute;
+  redistribute->SetGenerateGlobalCellIds(false);
+  redistribute->SetInputConnection(sphere->GetOutputPort());
+
+  // Extract surface to get a poly data again
+  vtkNew<vtkDataSetSurfaceFilter> surface;
+  surface->SetInputConnection(redistribute->GetOutputPort());
+
+  vtkNew<vtkTransform> transform;
+  transform->Translate(100.0, 10.0, 10.0);
+  vtkNew<vtkTransformFilter> transformFilter;
+  transformFilter->SetTransform(transform);
+  transformFilter->SetInputConnection(surface->GetOutputPort());
+
+  // Create a composite structure
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetOutputType(compositeType);
+  group->AddInputConnection(redistribute->GetOutputPort());
+  group->AddInputConnection(transformFilter->GetOutputPort());
+
+  return group;
+}
+
+//------------------------------------------------------------------------------
+/**
+ * Pipeline used for this test:
+ * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
+ * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
+ *
+ * No animals were harmed in the making of this test.
+ */
 bool TestDistributedObject(
   vtkMPIController* controller, const std::string& tempDir, bool usePolyData)
 {
@@ -49,13 +107,11 @@ bool TestDistributedObject(
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  {
-    vtkNew<vtkHDFWriter> writer;
-    writer->SetInputConnection(
-      usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
-    writer->SetFileName(filePath.c_str());
-    writer->Write();
-  }
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputConnection(
+    usePolyData ? surface->GetOutputPort() : redistribute->GetOutputPort());
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
 
   // Wait for all processes to be done writing
   controller->Barrier();
@@ -91,13 +147,97 @@ bool TestDistributedObject(
   return true;
 }
 
-/**
- * Pipeline used for this test:
- * Cow > Redistribute > (usePolyData ? SurfaceFilter ) > Generate Time steps > Harmonics >
- * (!staticMesh ? warp by scalar) > Pass arrays > VTKHDF Writer > Read whole/part
- *
- * No animals were harmed in the making of this test.
- */
+//------------------------------------------------------------------------------
+bool TestCompositeDistributedObject(
+  vtkMPIController* controller, const std::string& tempDir, const vtkIdType compositeType)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  vtkSmartPointer<vtkGroupDataSetsFilter> group =
+    vtkGroupDataSetsFilter::SafeDownCast(::SetupCompositePipeline(compositeType));
+  group->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
+  addAssembly->SetInputConnection(group->GetOutputPort());
+
+  // Write it to disk
+  std::string prefix = tempDir + "/parallel_composite_" + std::to_string(compositeType);
+  std::string filePath = prefix + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
+      ? addAssembly->GetOutputPort()
+      : group->GetOutputPort());
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
+
+  // Wait for all processes to be done writing
+  controller->Barrier();
+
+  // Reopen file and compare it to the source
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filePath.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<vtkHDFReader> readerPart;
+  readerPart->SetFileName(filePathPart.c_str());
+  readerPart->Update();
+
+  if (compositeType == VTK_MULTIBLOCK_DATA_SET)
+  {
+    auto originalPiece = vtkMultiBlockDataSet::SafeDownCast(group->GetOutputDataObject(0));
+    auto readPart = vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
+    auto readTotal = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+
+    vtkMultiPieceDataSet* ugMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(0));
+    vtkMultiPieceDataSet* pdMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(1));
+    vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(0));
+    vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(0));
+
+    if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(0), ugBlock))
+    {
+      vtkLog(ERROR, "Read block 0 and read part do not match");
+      return false;
+    }
+    if (!vtkTestUtilities::CompareDataObjects(readPart->GetBlock(1), pdBlock))
+    {
+      vtkLog(ERROR, "Read block 1 and read part do not match");
+      return false;
+    }
+
+    if (!vtkTestUtilities::CompareDataObjects(originalPiece, readPart))
+    {
+      vtkLog(ERROR, "Original and read part do not match");
+      return false;
+    }
+  }
+  else
+  {
+    auto originalPiece =
+      vtkPartitionedDataSetCollection::SafeDownCast(addAssembly->GetOutputDataObject(0));
+    auto readPart =
+      vtkPartitionedDataSetCollection::SafeDownCast(readerPart->GetOutputDataObject(0));
+    auto readTotal = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+
+    if (!vtkTestUtilities::CompareDataObjects(readPart, readTotal))
+    {
+      vtkLog(ERROR, "Original and read global assembly do not match");
+      return false;
+    }
+
+    if (!vtkTestUtilities::CompareDataObjects(originalPiece, readPart))
+    {
+      vtkLog(ERROR, "Original and read part do not match");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestDistributedTemporal(vtkMPIController* controller, const std::string& tempDir,
   const std::string& dataRoot, bool usePolyData, bool staticMesh, bool nullPart)
 {
@@ -119,7 +259,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   // Generate several time steps
   vtkNew<vtkGenerateTimeSteps> generateTimeSteps;
-  const std::vector<double> timeValues{ 1.0, 3.0, 5.0 };
+  const std::array timeValues{ 1.0, 3.0, 5.0 };
   for (const double& value : timeValues)
   {
     generateTimeSteps->AddTimeStepValue(value);
@@ -145,39 +285,35 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   std::string filePath = prefix + ".vtkhdf";
   std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
 
-  // Need a new scope to make sure the file is closed
-  {
-    vtkNew<vtkHDFWriter> writer;
+  vtkNew<vtkHDFWriter> writer;
 
-    harmonics->Update();
-    warp->Update();
-    vtkDataObject* output =
-      staticMesh ? harmonics->GetOutputDataObject(0) : warp->GetOutputDataObject(0);
-    // Set a null part in the middle of the others, to make sure it is handled well
-    if (nullPart && myRank == 2)
+  harmonics->Update();
+  warp->Update();
+  vtkDataObject* output =
+    staticMesh ? harmonics->GetOutputDataObject(0) : warp->GetOutputDataObject(0);
+  // Set a null part in the middle of the others, to make sure it is handled well
+  if (nullPart && myRank == 2)
+  {
+    if (usePolyData)
     {
-      if (usePolyData)
-      {
-        vtkNew<vtkPolyData> pd;
-        writer->SetInputDataObject(pd);
-      }
-      else
-      {
-        vtkNew<vtkUnstructuredGrid> ug;
-        vtkNew<vtkPoints> points;
-        ug->SetPoints(points);
-        writer->SetInputDataObject(ug);
-      }
+      vtkNew<vtkPolyData> pd;
+      writer->SetInputDataObject(pd);
     }
     else
     {
-      writer->SetInputDataObject(output);
+      vtkNew<vtkUnstructuredGrid> ug;
+      vtkNew<vtkPoints> points;
+      ug->SetPoints(points);
+      writer->SetInputDataObject(ug);
     }
-    writer->SetWriteAllTimeSteps(true);
-    writer->SetFileName(filePath.c_str());
-    writer->SetDebug(true);
-    writer->Write();
   }
+  else
+  {
+    writer->SetInputDataObject(output);
+  }
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetFileName(filePath.c_str());
+  writer->Write();
 
   // All processes have written their pieces to disk
   controller->Barrier();
@@ -192,8 +328,6 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
 
   for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
   {
-    vtkDebugWithObjectMacro(nullptr, << "Comparing timestep " << time);
-
     reader->SetStep(time);
     reader->UpdatePiece(myRank, nbRanks, 0);
 
@@ -252,38 +386,183 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   return true;
 }
 
+//------------------------------------------------------------------------------
+bool TestCompositeTemporalDistributedObject(
+  vtkMPIController* controller, const std::string& tempDir, const vtkIdType compositeType)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  vtkSmartPointer<vtkGroupDataSetsFilter> group =
+    vtkGroupDataSetsFilter::SafeDownCast(::SetupCompositePipeline(compositeType));
+  group->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
+  addAssembly->SetInputConnection(group->GetOutputPort());
+
+  // Generate several time steps
+  vtkNew<vtkGenerateTimeSteps> generateTimeSteps;
+  const std::array timeValues{ 1.0, 3.0, 5.0 };
+  for (const double& value : timeValues)
+  {
+    generateTimeSteps->AddTimeStepValue(value);
+  }
+  generateTimeSteps->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
+      ? addAssembly->GetOutputPort()
+      : group->GetOutputPort());
+
+  // Generate a time-varying point field: use default ParaView weights
+  vtkNew<vtkSpatioTemporalHarmonicsAttribute> harmonics;
+  harmonics->AddHarmonic(1.0, 1.0, 0.6283, 0.6283, 0.6283, 0.0);
+  harmonics->AddHarmonic(3.0, 1.0, 0.6283, 0.0, 0.0, 1.5708);
+  harmonics->AddHarmonic(2.0, 2.0, 0.0, 0.6283, 0.0, 3.1416);
+  harmonics->AddHarmonic(1.0, 3.0, 0.0, 0.0, 0.6283, 4.7124);
+  harmonics->SetInputConnection(generateTimeSteps->GetOutputPort());
+
+  // Write it to disk
+  std::string prefix = tempDir + "/parallel_temporal_composite_" + std::to_string(compositeType);
+  std::string filePath = prefix + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetFileName(filePath.c_str());
+  writer->SetInputConnection(harmonics->GetOutputPort());
+  writer->Write();
+
+  // All processes have written their pieces to disk
+  controller->Barrier();
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(filePath.c_str());
+
+  vtkNew<vtkHDFReader> readerPart;
+  readerPart->SetFileName(filePathPart.c_str());
+  readerPart->Update();
+
+  for (int time = 0; time < static_cast<int>(timeValues.size()); time++)
+  {
+    reader->SetStep(time);
+    reader->UpdatePiece(myRank, nbRanks, 0);
+
+    readerPart->SetStep(time);
+    readerPart->Update();
+
+    if (compositeType == VTK_MULTIBLOCK_DATA_SET)
+    {
+      auto readPart = vtkMultiBlockDataSet::SafeDownCast(readerPart->GetOutputDataObject(0));
+      auto readTotal = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+
+      // Distributed Multi-block yields a vtkMultiPiece but the single part version does not,
+      // So we need to decompose them to be able to compare.
+      vtkMultiPieceDataSet* ugMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(0));
+      vtkUnstructuredGrid* ugBlock2 = vtkUnstructuredGrid::SafeDownCast(readPart->GetBlock(0));
+      vtkMultiPieceDataSet* pdMP = vtkMultiPieceDataSet::SafeDownCast(readTotal->GetBlock(1));
+      vtkUnstructuredGrid* ugBlock = vtkUnstructuredGrid::SafeDownCast(ugMP->GetPartition(0));
+      vtkPolyData* pdBlock = vtkPolyData::SafeDownCast(pdMP->GetPartition(0));
+      vtkPolyData* pdBlock2 = vtkPolyData::SafeDownCast(readPart->GetBlock(1));
+
+      if (!vtkTestUtilities::CompareDataObjects(pdBlock, pdBlock2))
+      {
+        vtkLog(ERROR, "Original and read part do not match");
+        return false;
+      }
+      if (!vtkTestUtilities::CompareDataObjects(ugBlock, ugBlock2))
+      {
+        vtkLog(ERROR, "Original and read part do not match");
+        return false;
+      }
+    }
+    else
+    {
+      auto readPart =
+        vtkPartitionedDataSetCollection::SafeDownCast(readerPart->GetOutputDataObject(0));
+      auto readTotal =
+        vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutputDataObject(0));
+
+      if (!vtkTestUtilities::CompareDataObjects(readPart, readTotal))
+      {
+        vtkLog(ERROR, "Original and read part do not match");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestDistributedPolyData(vtkMPIController* controller, const std::string& tempDir)
 {
   return TestDistributedObject(controller, tempDir, true);
 }
+
+//------------------------------------------------------------------------------
 bool TestDistributedUnstructuredGrid(vtkMPIController* controller, const std::string& tempDir)
 {
   return TestDistributedObject(controller, tempDir, false);
 }
+
+//------------------------------------------------------------------------------
+bool TestDistributedMultiBlock(vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
+}
+
+//------------------------------------------------------------------------------
+bool TestDistributedPartitionedDataSetCollection(
+  vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeDistributedObject(controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
+}
+
+//------------------------------------------------------------------------------
 bool TestDistributedUnstructuredGridTemporal(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
   return TestDistributedTemporal(controller, tempDir, dataRoot, false, false, false);
 }
+
+//------------------------------------------------------------------------------
 bool TestDistributedUnstructuredGridTemporalStatic(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
   return TestDistributedTemporal(controller, tempDir, dataRoot, false, true, false);
 }
+
+//------------------------------------------------------------------------------
 bool TestDistributedUnstructuredGridTemporalNullPart(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
   return TestDistributedTemporal(controller, tempDir, dataRoot, false, false, true);
 }
+
+//------------------------------------------------------------------------------
 bool TestDistributedPolyDataTemporal(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
   return TestDistributedTemporal(controller, tempDir, dataRoot, true, false, false);
 }
+
+//------------------------------------------------------------------------------
 bool TestDistributedPolyDataTemporalStatic(
   vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
 {
   return TestDistributedTemporal(controller, tempDir, dataRoot, true, true, false);
+}
+
+//------------------------------------------------------------------------------
+bool TestDistributedTemporalMultiBlock(vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeTemporalDistributedObject(controller, tempDir, VTK_MULTIBLOCK_DATA_SET);
+}
+
+//------------------------------------------------------------------------------
+bool TestDistributedTemporalPartitionedDataSetCollection(
+  vtkMPIController* controller, const std::string& tempDir)
+{
+  return TestCompositeTemporalDistributedObject(
+    controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
 }
 
 }
@@ -318,11 +597,16 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   bool res = true;
   res &= ::TestDistributedPolyData(controller, tempDir);
   res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
+  res &= ::TestDistributedMultiBlock(controller, tempDir);
+  res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
   res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
   res &= ::TestDistributedUnstructuredGridTemporalNullPart(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
+  res &= ::TestDistributedTemporalMultiBlock(controller, tempDir);
+  res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }

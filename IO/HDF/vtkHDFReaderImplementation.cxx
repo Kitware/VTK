@@ -14,8 +14,14 @@
 #include "vtkFieldData.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFUtilities.h"
+#include "vtkImageData.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkPolyData.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <array>
 #include <sstream>
@@ -56,7 +62,7 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     return false;
   }
 
-  if (this->FileName.empty() || this->FileName != fileName)
+  if (this->FileName.empty() || this->FileName != fileName || this->File < 0)
   {
     this->FileName = fileName;
     if (this->File >= 0)
@@ -1017,3 +1023,55 @@ template bool vtkHDFReader::Implementation::GetAttribute<int>(
 template bool vtkHDFReader::Implementation::GetAttribute<double>(
   const char* attributeName, size_t dim, double* value);
 VTK_ABI_NAMESPACE_END
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
+  int dataSetType, int numPieces)
+{
+  vtkSmartPointer<vtkDataObject> newOutput = nullptr;
+  if (dataSetType == VTK_IMAGE_DATA)
+  {
+    newOutput = vtkSmartPointer<vtkImageData>::New();
+  }
+  else if (dataSetType == VTK_UNSTRUCTURED_GRID)
+  {
+    if (numPieces <= 1)
+    {
+      newOutput = vtkSmartPointer<vtkUnstructuredGrid>::New();
+    }
+    else
+    {
+      newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
+    }
+  }
+  else if (dataSetType == VTK_OVERLAPPING_AMR)
+  {
+    newOutput = vtkSmartPointer<vtkOverlappingAMR>::New();
+  }
+  else if (dataSetType == VTK_POLY_DATA)
+  {
+    if (numPieces <= 1)
+    {
+      newOutput = vtkSmartPointer<vtkPolyData>::New();
+    }
+    else
+    {
+      newOutput = vtkSmartPointer<vtkPartitionedDataSet>::New();
+    }
+  }
+  else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
+  {
+    newOutput = vtkSmartPointer<vtkPartitionedDataSetCollection>::New();
+  }
+  else if (dataSetType == VTK_MULTIBLOCK_DATA_SET)
+  {
+    newOutput = vtkSmartPointer<vtkMultiBlockDataSet>::New();
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(this->Reader, "HDF dataset type unknown: " << dataSetType);
+    return nullptr;
+  }
+
+  return newOutput;
+}

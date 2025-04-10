@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "HDFTestUtilities.h"
 #include "vtkAppendDataSets.h"
 #include "vtkCleanUnstructuredGrid.h"
 #include "vtkDataAssemblyUtilities.h"
@@ -33,8 +34,13 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+namespace HDFTestUtilities
+{
+vtkStandardNewMacro(vtkAddAssembly);
+}
 namespace
 {
+
 enum supportedDataSetTypes
 {
   vtkUnstructuredGridType,
@@ -47,35 +53,6 @@ struct WriterConfigOptions
   bool UseExternalPartitions;
   std::string FileNameSuffix;
 };
-
-/**
- * Simple filter that adds a vtkDataAssembly to a PDC that does not have one.
- * This can be removed when vtkGroupDataSetsFilter will support generating an assembly automatically
- * for PartitionedDataSetCollections
- */
-class vtkAddAssembly : public vtkPartitionedDataSetCollectionAlgorithm
-{
-public:
-  static vtkAddAssembly* New();
-  vtkTypeMacro(vtkAddAssembly, vtkDataObjectAlgorithm);
-
-protected:
-  int RequestData(
-    vtkInformation* request, vtkInformationVector** inVector, vtkInformationVector* ouInfo) override
-  {
-    this->vtkPartitionedDataSetCollectionAlgorithm::RequestData(request, inVector, ouInfo);
-    auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(vtkDataObject::GetData(ouInfo, 0));
-    vtkPartitionedDataSetCollection* input = vtkPartitionedDataSetCollection::SafeDownCast(
-      inVector[0]->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT()));
-
-    vtkNew<vtkDataAssembly> hierarchy;
-    vtkDataAssemblyUtilities::GenerateHierarchy(input, hierarchy, pdc);
-    return 1;
-  }
-};
-
-vtkStandardNewMacro(vtkAddAssembly);
-
 }
 
 //----------------------------------------------------------------------------
@@ -279,7 +256,7 @@ bool TestTemporalComposite(const std::string& tempDir, const std::string& dataRo
   }
 
   // vtkGroupDataSetsFilter does not create an assembly for PDC, but the VTKHDF requires one.
-  vtkNew<::vtkAddAssembly> addAssembly;
+  vtkNew<HDFTestUtilities::vtkAddAssembly> addAssembly;
   addAssembly->SetInputConnection(groupDataSets->GetOutputPort());
 
   // Write out the composite temporal dataset
@@ -415,9 +392,9 @@ int TestHDFWriterTemporal(int argc, char* argv[])
     }
   }
 
-  // // Use a modified version of transient_harmonics to make sure that the time values match
+  // Use a modified version of transient_harmonics to make sure that the time values match
   // between
-  // // both datasets
+  // both datasets
   std::vector<std::string> baseNamesComposite = { "transient_sphere", "transient_harmonics" };
   result &= TestTemporalComposite(tempDir, dataRoot, baseNamesComposite, VTK_MULTIBLOCK_DATA_SET);
   result &= TestTemporalComposite(

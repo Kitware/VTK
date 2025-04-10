@@ -135,6 +135,8 @@ int vtkHDFWriter::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
     this->NumberOfTimeSteps = inInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    this->timeSteps.resize(this->NumberOfTimeSteps);
+
     if (this->WriteAllTimeSteps)
     {
       this->IsTemporal = true;
@@ -162,8 +164,9 @@ int vtkHDFWriter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (this->WriteAllTimeSteps && inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
   {
-    this->timeSteps = inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->timeSteps.data());
     double timeReq = this->timeSteps[this->CurrentTimeIndex];
+
     inputVector[0]->GetInformationObject(0)->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeReq);
   }
@@ -196,7 +199,12 @@ int vtkHDFWriter::RequestData(vtkInformation* request,
       // Tell the pipeline to stop looping.
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 0);
       this->CurrentTimeIndex = 0;
+      this->Impl->CloseFile();
     }
+  }
+  else
+  {
+    this->Impl->CloseFile();
   }
 
   return 1;
@@ -775,8 +783,7 @@ bool vtkHDFWriter::InitializeTemporalUnstructuredGrid(hid_t group)
 
   if (!initResult)
   {
-    vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                    << this->FileName);
+    vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: " << this->FileName);
     return false;
   }
 
@@ -825,8 +832,7 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
 
   if (!initResult)
   {
-    vtkWarningMacro(<< "Could not create temporal offset datasets when creating: "
-                    << this->FileName);
+    vtkErrorMacro(<< "Could not create temporal offset datasets when creating: " << this->FileName);
     return false;
   }
 
@@ -846,8 +852,8 @@ bool vtkHDFWriter::InitializeTemporalPolyData(hid_t group)
     initResult &= this->Impl->AddArrayToDataset(connectivityOffsetsHandle, emptyPrimitiveArray);
     if (!initResult)
     {
-      vtkWarningMacro(<< "Could not initialize steps offset arrays when creating: "
-                      << this->FileName);
+      vtkErrorMacro(<< "Could not initialize steps offset arrays when creating: "
+                    << this->FileName);
       return false;
     }
   }
@@ -1210,8 +1216,8 @@ bool vtkHDFWriter::AppendDataSetAttributes(
         if (!this->Impl->InitDynamicDataset(attributeGroup, arrayName.c_str(), dataType,
               array->GetNumberOfComponents(), ChunkSizeComponent, this->CompressionLevel))
         {
-          vtkWarningMacro(<< "Could not initialize offset dataset for: " << arrayName
-                          << " when creating: " << this->FileName);
+          vtkErrorMacro(<< "Could not initialize offset dataset for: " << arrayName
+                        << " when creating: " << this->FileName);
           return false;
         }
       }
@@ -1551,12 +1557,12 @@ bool vtkHDFWriter::AppendTimeValues(hid_t group)
   if (this->Impl->CreateScalarAttribute(group, "NSteps", this->NumberOfTimeSteps) ==
     H5I_INVALID_HID)
   {
-    vtkWarningMacro(<< "Could not create steps group when creating: " << this->FileName);
+    vtkErrorMacro(<< "Could not create steps group when creating: " << this->FileName);
     return false;
   }
 
   vtkNew<vtkDoubleArray> timeStepsArray;
-  timeStepsArray->SetArray(this->timeSteps, this->NumberOfTimeSteps, 1);
+  timeStepsArray->SetArray(this->timeSteps.data(), this->NumberOfTimeSteps, 1);
   return this->Impl->CreateDatasetFromDataArray(group, "Values", H5T_IEEE_F32LE, timeStepsArray) !=
     H5I_INVALID_HID;
 }
