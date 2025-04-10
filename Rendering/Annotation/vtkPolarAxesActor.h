@@ -45,11 +45,6 @@ class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkPolarAxesActor : public v
 public:
   vtkTypeMacro(vtkPolarAxesActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Instantiate object with label format "6.3g" and the number of labels
-   * per axis set to 3.
-   */
   static vtkPolarAxesActor* New();
 
   ///@{
@@ -806,7 +801,10 @@ public:
 
   ///@{
   /**
-   * Ratio.
+   * Ellipse Ratio.
+   * The PolarAxes is drawn as an ellipse. This defines the ratio between the major and
+   * the minor axes sizes.
+   * Special case: A ratio of 1. is a circle.
    * Default: 1.
    */
   vtkSetClampMacro(Ratio, double, 0.001, 100.0);
