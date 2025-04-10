@@ -364,6 +364,7 @@ int vtkPolarAxesActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   for (int idx = 0; idx < renderedProps->GetNumberOfItems(); idx++)
   {
     vtkProp* prop = renderedProps->GetNextProp();
+    prop->SetPropertyKeys(this->GetPropertyKeys());
     numberOfRenderedProps += prop->RenderTranslucentPolygonalGeometry(viewport);
   }
 
@@ -384,6 +385,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport* viewport)
   for (int idx = 0; idx < renderedProps->GetNumberOfItems(); idx++)
   {
     vtkProp* prop = renderedProps->GetNextProp();
+    prop->SetPropertyKeys(this->GetPropertyKeys());
     numberOfRenderedProps += prop->RenderOpaqueGeometry(viewport);
   }
 
@@ -397,6 +399,7 @@ int vtkPolarAxesActor::RenderOverlay(vtkViewport* viewport)
 
   if (this->PolarAxisVisibility && this->PolarAxis->GetUse2DMode())
   {
+    this->PolarAxis->SetPropertyKeys(this->GetPropertyKeys());
     numberOfRenderedProps += this->PolarAxis->RenderOverlay(viewport);
   }
 
@@ -406,6 +409,7 @@ int vtkPolarAxesActor::RenderOverlay(vtkViewport* viewport)
     {
       if (this->RadialAxes[i]->GetUse2DMode())
       {
+        this->RadialAxes[i]->SetPropertyKeys(this->GetPropertyKeys());
         numberOfRenderedProps += this->RadialAxes[i]->RenderOverlay(viewport);
       }
     }

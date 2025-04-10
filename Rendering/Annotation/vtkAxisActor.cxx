@@ -253,6 +253,7 @@ int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
     if (this->TitleVisibility)
     {
       vtkProp* titleActor = this->GetTitleActorInternal();
+      titleActor->SetPropertyKeys(this->GetPropertyKeys());
       numberOfRenderedProps += titleActor->RenderOverlay(viewport);
     }
     if (this->LabelVisibility)
@@ -260,11 +261,13 @@ int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
       for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
       {
         vtkProp* labelActor = this->GetLabelActorInternal(i);
+        labelActor->SetPropertyKeys(this->GetPropertyKeys());
         numberOfRenderedProps += labelActor->RenderOverlay(viewport);
       }
       if (this->ExponentVisibility)
       {
         vtkProp* exponentActor = this->GetExponentActorInternal();
+        exponentActor->SetPropertyKeys(this->GetPropertyKeys());
         numberOfRenderedProps += exponentActor->RenderOverlay(viewport);
       }
     }
