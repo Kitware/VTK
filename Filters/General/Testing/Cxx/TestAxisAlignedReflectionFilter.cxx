@@ -277,8 +277,24 @@ int TestHyperTreeGrid(int argc, char* argv[])
       0.47808688094430307,
     htgOut->GetClassName(), "Incorrect intercepts");
   AssertMacro(
-    htgOut->GetCellData()->GetArray("outIntercepts")->GetTuple3(5)[1] == 0.47808688094430307,
+    htgOut->GetCellData()->GetArray("outIntercepts")->GetTuple3(5)[1] == -1.3959982617189697,
     htgOut->GetClassName(), "Incorrect intercepts");
+
+  AssertMacro(
+    htgIn->GetCellData()->GetArray(htgIn->GetInterfaceInterceptsName())->GetTuple3(5)[0] ==
+      1.0780868809443032,
+    htgOut->GetClassName(), "Incorrect intercepts");
+  AssertMacro(
+    htgOut->GetCellData()->GetArray("outIntercepts")->GetTuple3(5)[0] == -0.79599826171896959,
+    htgOut->GetClassName(), "Incorrect intercepts");
+
+  AssertMacro(htgIn->GetCellData()->GetArray(htgIn->GetInterfaceNormalsName())->GetTuple3(5)[1] ==
+        -htgOut->GetCellData()->GetArray("outNormals")->GetTuple3(5)[1] &&
+      htgIn->GetCellData()->GetArray(htgIn->GetInterfaceNormalsName())->GetTuple3(5)[0] ==
+        htgOut->GetCellData()->GetArray("outNormals")->GetTuple3(5)[0] &&
+      htgIn->GetCellData()->GetArray(htgIn->GetInterfaceNormalsName())->GetTuple3(5)[2] ==
+        htgOut->GetCellData()->GetArray("outNormals")->GetTuple3(5)[2],
+    htgOut->GetClassName(), "Incorrect normals");
 
   return EXIT_SUCCESS;
 }
