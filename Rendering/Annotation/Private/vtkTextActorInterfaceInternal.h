@@ -36,8 +36,6 @@ public:
   vtkTextActorInterfaceInternal();
   virtual ~vtkTextActorInterfaceInternal();
 
-  vtkTextActorInterfaceInternal(vtkTextActorInterfaceInternal&&);
-
   /**
    * Set the text to be displayed.
    */

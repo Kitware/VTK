@@ -896,10 +896,8 @@ private:
   double GridlineZLength = 1.0;
 
   bool DrawInnerGridlines = false;
-  bool LastDrawInnerGridlines = false;
 
   bool DrawGridpolys = false;
-  bool LastDrawGridpolys = false;
 
   bool AxisVisibility = true;
   bool TickVisibility = true;

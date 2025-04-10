@@ -30,10 +30,6 @@ vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal()
 }
 
 //------------------------------------------------------------------------------
-vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal(
-  vtkTextActorInterfaceInternal&&) = default;
-
-//------------------------------------------------------------------------------
 vtkTextActorInterfaceInternal::~vtkTextActorInterfaceInternal() = default;
 
 //------------------------------------------------------------------------------
