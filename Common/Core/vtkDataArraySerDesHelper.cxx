@@ -149,17 +149,19 @@ struct vtkDataArrayDeserializer
         return;
       }
       const auto& content = blobIter.value().get_binary();
-      using APIType = vtk::GetAPIType<ArrayT>;
-      const APIType* c_ptr = reinterpret_cast<const APIType*>(content.data());
-      auto src = const_cast<APIType*>(c_ptr);
       auto dst = vtk::DataArrayValueRange(array);
+
       if (array->IsA("vtkBitArray"))
       {
+        std::copy(content.data(), content.data() + ((dst.size() + 7) / 8),
+          reinterpret_cast<unsigned char*>(dst.data()));
         array->SetNumberOfValues(state["NumberOfBits"]);
-        std::copy(src, src + ((dst.size() + 7) / 8), (char*)dst.data());
       }
       else
       {
+        using APIType = vtk::GetAPIType<ArrayT>;
+        const APIType* c_ptr = reinterpret_cast<const APIType*>(content.data());
+        auto src = const_cast<APIType*>(c_ptr);
         std::copy(src, src + dst.size(), dst.data());
       }
       // nifty memory savings below, unfortunately, doesn't work correctly when there are point
