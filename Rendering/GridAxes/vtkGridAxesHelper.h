@@ -185,6 +185,10 @@ protected:
   vtkTuple<bool, 4> GetLabelVisibilityOverrides() { return this->LabelVisibilityOverrides; }
   friend class vtkGridAxesActor3D;
 
+private:
+  vtkGridAxesHelper(const vtkGridAxesHelper&) = delete;
+  void operator=(const vtkGridAxesHelper&) = delete;
+
   double GridBounds[6];
   int Face;
   unsigned int LabelMask;
@@ -207,10 +211,6 @@ protected:
 
   vtkMTimeType GetPointsMTime;
   vtkMTimeType GetTransformedPointsMTime;
-
-private:
-  vtkGridAxesHelper(const vtkGridAxesHelper&) = delete;
-  void operator=(const vtkGridAxesHelper&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

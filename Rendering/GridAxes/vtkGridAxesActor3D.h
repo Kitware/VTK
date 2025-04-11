@@ -304,6 +304,11 @@ protected:
 
   virtual void Update(vtkViewport* viewport);
 
+private:
+  vtkGridAxesActor3D(const vtkGridAxesActor3D&) = delete;
+  void operator=(const vtkGridAxesActor3D&) = delete;
+
+  vtkMTimeType GetBoundsMTime;
   double GridBounds[6];
   unsigned int FaceMask;
   unsigned int LabelMask;
@@ -315,12 +320,6 @@ protected:
   vtkTuple<vtkNew<vtkGridAxesActor2D>, 6> GridAxes2DActors;
 
   bool ForceOpaque;
-
-private:
-  vtkGridAxesActor3D(const vtkGridAxesActor3D&) = delete;
-  void operator=(const vtkGridAxesActor3D&) = delete;
-
-  vtkMTimeType GetBoundsMTime;
 };
 
 VTK_ABI_NAMESPACE_END

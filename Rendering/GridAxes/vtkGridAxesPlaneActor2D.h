@@ -201,6 +201,14 @@ protected:
   bool UpdateTicks(vtkViewport* viewport);
   ///@}
 
+private:
+  vtkGridAxesPlaneActor2D(const vtkGridAxesPlaneActor2D&) = delete;
+  void operator=(const vtkGridAxesPlaneActor2D&) = delete;
+  std::deque<double> EmptyVector;
+
+  typedef std::pair<vtkVector3d, vtkVector3d> LineSegmentType;
+  std::deque<LineSegmentType> LineSegments;
+
   double GridBounds[6];
   int Face;
 
@@ -218,14 +226,6 @@ protected:
 
   vtkSmartPointer<vtkGridAxesHelper> Helper;
   bool HelperManagedExternally;
-
-private:
-  vtkGridAxesPlaneActor2D(const vtkGridAxesPlaneActor2D&) = delete;
-  void operator=(const vtkGridAxesPlaneActor2D&) = delete;
-  std::deque<double> EmptyVector;
-
-  typedef std::pair<vtkVector3d, vtkVector3d> LineSegmentType;
-  std::deque<LineSegmentType> LineSegments;
 };
 
 VTK_ABI_NAMESPACE_END

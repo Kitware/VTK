@@ -272,6 +272,16 @@ protected:
   void UpdateTextActors(vtkViewport* viewport);
   friend class vtkGridAxesActor3D;
 
+private:
+  vtkGridAxesActor2D(const vtkGridAxesActor2D&) = delete;
+  void operator=(const vtkGridAxesActor2D&) = delete;
+
+  class vtkLabels;
+  vtkLabels* Labels;
+  friend class vtkLabels;
+
+  bool DoRender;
+
   double GridBounds[6];
   int Face;
   unsigned int LabelMask;
@@ -289,16 +299,6 @@ protected:
 
   bool ForceOpaque;
   std::function<double(double)> TickLabelFunction[3] = { nullptr, nullptr, nullptr };
-
-private:
-  vtkGridAxesActor2D(const vtkGridAxesActor2D&) = delete;
-  void operator=(const vtkGridAxesActor2D&) = delete;
-
-  class vtkLabels;
-  vtkLabels* Labels;
-  friend class vtkLabels;
-
-  bool DoRender;
 };
 
 VTK_ABI_NAMESPACE_END
