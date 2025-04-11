@@ -369,12 +369,16 @@ set(nowrap_template_classes
 
 # Hand written (de)serialization routines
 set(serialization_helper_sources)
+set(serialization_helper_headers)
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkDataArraySerDesHelper.cxx
     vtkScalarsToColorsSerDesHelper.cxx
     vtkStringArraySerDesHelper.cxx
-    vtkVariantArraySerDesHelper.cxx)
+    vtkVariantArraySerDesHelper.cxx
+    vtkVariantSerDesHelper.cxx)
+  list(APPEND serialization_helper_headers
+    vtkVariantSerDesHelper.h)
 endif ()
 
 set(sources
@@ -451,6 +455,7 @@ set(headers
   vtkWindows.h
   vtkWrappingHints.h
   ${vtk_smp_headers}
+  ${serialization_helper_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkABINamespace.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"

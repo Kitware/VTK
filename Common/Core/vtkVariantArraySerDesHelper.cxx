@@ -5,6 +5,7 @@
 #include "vtkType.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
+#include "vtkVariantSerDesHelper.h"
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
@@ -19,68 +20,6 @@ extern "C"
    * @param deser a vtkDeserializer instance
    */
   int RegisterHandlers_vtkVariantArraySerDesHelper(void* ser, void* deser, void* invoker);
-}
-
-static nlohmann::json Serialize_vtkVariant(vtkVariant* variant, vtkSerializer* serializer)
-{
-  if (!variant->IsValid())
-  {
-    return {};
-  }
-  nlohmann::json state;
-  int type = variant->GetType();
-  state["Type"] = type;
-
-  if (variant->IsString())
-  {
-    state["Value"] = variant->ToString();
-  }
-  else if (variant->IsFloat())
-  {
-    state["Value"] = variant->ToFloat();
-  }
-  else if (variant->IsDouble())
-  {
-    state["Value"] = variant->ToDouble();
-  }
-  else if (variant->IsNumeric())
-  {
-    state["Value"] = variant->ToTypeUInt64();
-  }
-  else if (variant->IsVTKObject())
-  {
-    state["Value"] = serializer->SerializeJSON(variant->ToVTKObject());
-  }
-  return state;
-}
-
-static void Deserialize_vtkVariant(
-  const nlohmann::json& state, vtkVariant* variant, vtkDeserializer* deserializer)
-{
-  int type = state["Type"];
-  auto iter = state.find("Value");
-  if (type == VTK_STRING)
-  {
-    *variant = vtkVariant(iter->get<std::string>());
-  }
-  else if (type == VTK_FLOAT)
-  {
-    *variant = vtkVariant(iter->get<float>());
-  }
-  else if (type == VTK_DOUBLE)
-  {
-    *variant = vtkVariant(iter->get<double>());
-  }
-  else if (type == VTK_OBJECT)
-  {
-    vtkSmartPointer<vtkObjectBase> obj;
-    deserializer->DeserializeJSON(state["Value"]["Id"], obj);
-    *variant = vtkVariant(obj);
-  }
-  else
-  {
-    *variant = vtkVariant(vtkVariant(iter->get<vtkTypeUInt64>()), type);
-  }
 }
 
 static nlohmann::json Serialize_vtkVariantArray(
