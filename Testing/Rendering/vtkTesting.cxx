@@ -1100,7 +1100,7 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
 
     int res = testing->RegressionTest(thresh, std::cout);
 
-    if (res == PASSED)
+    if (res == PASSED && testing->IsFlagSpecified("--serdes"))
     {
       vtkNew<vtkObjectManager> serManager;
       serManager->Initialize();

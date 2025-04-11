@@ -64,7 +64,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
-  TestDragEvent.cxx
+  TestDragEvent.cxx,NO_SERDES
   TestEdgeFlags.cxx
   TestEdgeOpacity.cxx
   TestEdgeThickness.cxx
