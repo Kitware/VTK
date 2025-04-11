@@ -77,7 +77,6 @@ Common/Core/vtkImplicitArrayTraits.h
 Common/Core/vtkIndent.h
 Common/Core/vtkIndexedArray.h
 Common/Core/vtkIndexedImplicitBackend.h
-Common/Core/vtkInformation.h
 Common/Core/vtkInformationDataObjectKey.h
 Common/Core/vtkInformationDoubleKey.h
 Common/Core/vtkInformationDoubleVectorKey.h

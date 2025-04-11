@@ -154,9 +154,7 @@ public:
    * shadow mapping render pass. Keys are documented in render pass classes.
    * Initial value is NULL.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(PropertyKeys, vtkInformation);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPropertyKeys(vtkInformation* keys);
   ///@}
 

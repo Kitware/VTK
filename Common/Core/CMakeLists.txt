@@ -373,6 +373,7 @@ set(serialization_helper_headers)
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND serialization_helper_sources
     vtkDataArraySerDesHelper.cxx
+    vtkInformationSerDesHelper.cxx
     vtkScalarsToColorsSerDesHelper.cxx
     vtkStringArraySerDesHelper.cxx
     vtkVariantArraySerDesHelper.cxx
