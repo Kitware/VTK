@@ -3,10 +3,11 @@
 
 #include "vtkBYUReader.h"
 #include "vtkCamera.h"
-#include "vtkGridAxesActor3D.h"
+#include "vtkGridAxesActor2D.h"
 #include "vtkLODActor.h"
 #include "vtkLight.h"
 #include "vtkNew.h"
+#include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
@@ -18,7 +19,7 @@
 #include "vtkTextProperty.h"
 
 //------------------------------------------------------------------------------
-int TestGridAxesActor3D(int argc, char* argv[])
+int TestGridAxesActor2D(int argc, char* argv[])
 {
   vtkNew<vtkBYUReader> fohe;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
@@ -34,6 +35,16 @@ int TestGridAxesActor3D(int argc, char* argv[])
   vtkNew<vtkLODActor> foheActor;
   foheActor->SetMapper(foheMapper);
   foheActor->GetProperty()->SetDiffuseColor(0.7, 0.3, 0.0);
+
+  vtkNew<vtkOutlineFilter> outline;
+  outline->SetInputConnection(normals->GetOutputPort());
+
+  vtkNew<vtkPolyDataMapper> mapOutline;
+  mapOutline->SetInputConnection(outline->GetOutputPort());
+
+  vtkNew<vtkActor> outlineActor;
+  outlineActor->SetMapper(mapOutline);
+  outlineActor->GetProperty()->SetColor(0.0, 0.0, 0.0);
 
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange(1.0, 100.0);
@@ -51,19 +62,22 @@ int TestGridAxesActor3D(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->AddRenderer(ren2);
-  renWin->SetWindowName("Grid Axes 3D");
+  renWin->SetWindowName("Grid Axes 2D");
   renWin->SetSize(600, 600);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
   ren2->AddViewProp(foheActor);
+  ren2->AddViewProp(outlineActor);
   ren2->SetBackground(0.1, 0.2, 0.4);
 
   normals->Update();
 
-  vtkNew<vtkGridAxesActor3D> axes;
-  axes->SetGridBounds(normals->GetOutput()->GetBounds());
+  double bounds[6];
+  normals->GetOutput()->GetBounds(bounds);
+  vtkNew<vtkGridAxesActor2D> axes;
+  axes->SetGridBounds(bounds);
   axes->GetProperty()->SetFrontfaceCulling(true);
 
   // Use red color for X axis
@@ -72,13 +86,30 @@ int TestGridAxesActor3D(int argc, char* argv[])
   axes->SetTitle(0, "X-Axis");
   axes->SetTitle(1, "Y-Axis");
   axes->SetTitle(2, "Z-Axis");
-  axes->SetLabelUniqueEdgesOnly(true);
 
   // Use green color for Y axis
   axes->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
   axes->GetLabelTextProperty(1)->SetColor(0., .8, 0.);
 
   ren2->AddViewProp(axes);
+
+  vtkNew<vtkGridAxesActor2D> axes1;
+  axes1->SetGridBounds(bounds);
+  axes1->SetFace(4);
+  axes1->GetProperty()->SetFrontfaceCulling(false);
+
+  // Use red color for X axis
+  axes1->GetTitleTextProperty(0)->SetColor(1., 0., 0.);
+  axes1->GetLabelTextProperty(0)->SetColor(.8, 0., 0.);
+  axes1->SetTitle(0, "X-Axis");
+  axes1->SetTitle(1, "Y-Axis");
+  axes1->SetTitle(2, "Z-Axis");
+
+  // Use green color for Y axis
+  axes1->GetTitleTextProperty(1)->SetColor(0., 1., 0.);
+  axes1->GetLabelTextProperty(1)->SetColor(0., .8, 0.);
+
+  ren2->AddViewProp(axes1);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);
