@@ -277,7 +277,6 @@ Rendering/Core/vtkRendererCollection.h
 Rendering/Core/vtkRenderPass.h
 Rendering/Core/vtkRenderWindow.h
 Rendering/Core/vtkRenderWindowInteractor.h
-Rendering/Core/vtkShaderProperty.h
 Rendering/Core/vtkSkybox.h
 Rendering/Core/vtkTextActor.h
 Rendering/Core/vtkTextProperty.h
