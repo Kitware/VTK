@@ -3,6 +3,8 @@
 
 #include "vtkCGNSReader.h"
 
+#include "vtkCellData.h"
+#include "vtkCellSizeFilter.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMathUtilities.h"
@@ -11,6 +13,8 @@
 #include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
+
+#define compare_double(x, y, e) ((x) - (y) < (e) && (x) - (y) > -(e))
 
 int TestCGNSReaderHOElements(int argc, char* argv[])
 {
@@ -70,6 +74,33 @@ int TestCGNSReaderHOElements(int argc, char* argv[])
       << "Wrong type of cell in main mesh. Expected VTK_LAGRANGE_HEXAHEDRON for cell 0 but got "
       << vtkCellTypes::GetClassNameFromTypeId(internal_hexa_125->GetCellType(0)) << "."
       << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  // To check the point ordering, just compute the cell volume...
+  // It could also be possible to do an image comparison.
+  vtkNew<vtkCellSizeFilter> checkerSize;
+  checkerSize->SetInputData(internal_hexa_125);
+  checkerSize->ComputeVolumeOn();
+  checkerSize->Update();
+  auto res = vtkDataSet::SafeDownCast(checkerSize->GetOutputDataObject(0));
+  auto cdata = res->GetCellData();
+  auto volume = vtk::DataArrayValueRange<1>(cdata->GetArray("Volume"));
+
+  if (!compare_double(volume[0], 2000., 1.0e-6))
+  {
+    return EXIT_FAILURE;
+  }
+
+  checkerSize->SetInputData(internal_hexa_64);
+  checkerSize->ComputeVolumeOn();
+  checkerSize->Update();
+  auto res_2 = vtkDataSet::SafeDownCast(checkerSize->GetOutputDataObject(0));
+  auto cdata_2 = res_2->GetCellData();
+  auto volume_2 = vtk::DataArrayValueRange<1>(cdata_2->GetArray("Volume"));
+
+  if (!compare_double(volume_2[0], 216., 1.0e-6))
+  {
     return EXIT_FAILURE;
   }
 
