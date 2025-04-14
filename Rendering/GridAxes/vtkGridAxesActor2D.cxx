@@ -200,11 +200,11 @@ public:
 vtkStandardNewMacro(vtkGridAxesActor2D);
 //----------------------------------------------------------------------------
 vtkGridAxesActor2D::vtkGridAxesActor2D()
-  : Face(vtkGridAxesActor2D::MIN_YZ)
+  : Labels(new vtkGridAxesActor2D::vtkLabels())
+  , DoRender(false)
+  , Face(vtkGridAxesActor2D::MIN_YZ)
   , LabelMask(0xFF)
   , ForceOpaque(false)
-  , Labels(new vtkGridAxesActor2D::vtkLabels())
-  , DoRender(false)
 {
   this->PlaneActor.TakeReference(vtkGridAxesPlaneActor2D::New(this->Helper.Get()));
   for (int cc = 0; cc < 3; cc++)

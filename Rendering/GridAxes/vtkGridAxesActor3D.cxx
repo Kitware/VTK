@@ -12,7 +12,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-#include <algorithm>
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -27,13 +26,13 @@ static bool operator<(const vtkVector2<T>& x, const vtkVector2<T>& y)
 vtkStandardNewMacro(vtkGridAxesActor3D);
 //----------------------------------------------------------------------------
 vtkGridAxesActor3D::vtkGridAxesActor3D()
-  : FaceMask(0)
+  : GetBoundsMTime(0)
+  , FaceMask(0)
   , LabelMask(0)
   , LabelUniqueEdgesOnly(true)
   , UseCustomLabels(false)
   , CustomLabelsMTime(0)
   , ForceOpaque(false)
-  , GetBoundsMTime(0)
 {
   this->GridBounds[0] = this->GridBounds[2] = this->GridBounds[4] = 0.0;
   this->GridBounds[1] = this->GridBounds[3] = this->GridBounds[5] = 1.0;
