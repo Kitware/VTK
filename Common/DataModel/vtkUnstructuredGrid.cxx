@@ -1088,6 +1088,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
         for (vtkIdType i = 0; i < nfaces; ++i)
         {
           len += *(facePtr + len);
+          len++;
           newFaceLocations->InsertCellPoint(faceId++);
         }
         newFaces->AppendLegacyFormat(facePtr, len, 0);
