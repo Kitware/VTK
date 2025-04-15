@@ -123,7 +123,7 @@ $<$<BOOL:${_vtk_javascript_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_javascrip
     VARIABLE  _vtk_javascript_headers)
   set(_vtk_javascript_library_classes)
   set(_vtk_javascript_library_sources)
-  include(vtkModuleWrapJavaScriptExclusions)
+  include(vtkModuleWrapJavaScriptExclusions OPTIONAL)
 
   foreach (_vtk_javascript_header IN LISTS _vtk_javascript_headers)
     # Assume the class name matches the basename of the header file. This is a VTK convention
@@ -237,10 +237,14 @@ endfunction ()
        [WRAPPED_MODULES <varname>]
        [UTILITY_TARGET <target>]
        [MODULE_EXPORT_NAME <name>]
+       [INSTALL_EXPORT <export>]
+       [COMPONENT <component>]
+       [BINDING_OBJECTS_DESTINATION <destination>]
        [DEBUG_INFO <debug>]
        [OPTIMIZATION <optimization>]
        [MEMORY64 <ON|OFF>]
      )
+
     
   * ``MODULES``: (Required) The list of modules to wrap.
   * ``TARGET_NAME``: (Required) The name of the generated js/wasm files.
@@ -254,6 +258,11 @@ endfunction ()
   * ``MODULE_EXPORT_NAME``: Optional name for the async function called to instantiate
     the wasm module. Sets the value of the emscripten EXPORT_NAME variable which will
     default to 'Module' if not specified.
+  * ``INSTALL_EXPORT``: If provided, installed targets are added to the provided export set.
+  * ``COMPONENT``: Installation component of the install rules created by this function.
+    Defaults to ``development``.
+  * ``BINDING_OBJECTS_DESTINATION``: Optional install destination for the objects libraries that
+    contain the generated binding sources. Default value: CMAKE_INSTALL_LIBDIR.
   * ``DEBUG_INFO``: (Recommended) Extent of debug information in webassembly binaries:
     - NONE:         -g0
     - READABLE_JS:  -g1
@@ -281,7 +290,7 @@ endfunction ()
 function (vtk_module_wrap_javascript)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_javascript
   ""
-  "TARGET_NAME;WRAPPED_MODULES;UTILITY_TARGET;MODULE_EXPORT_NAME;DEBUG_INFO;OPTIMIZATION;MEMORY64"
+  "TARGET_NAME;WRAPPED_MODULES;UTILITY_TARGET;MODULE_EXPORT_NAME;INSTALL_EXPORT;COMPONENT;BINDING_OBJECTS_DESTINATION;DEBUG_INFO;OPTIMIZATION;MEMORY64"
   "MODULES")
 
   if (_vtk_javascript_UNPARSED_ARGUMENTS)
@@ -300,6 +309,14 @@ function (vtk_module_wrap_javascript)
     message(FATAL_ERROR
       "vtk_module_wrap_javascript: No output target name provided for the generated js/wasm files")
     return ()
+  endif ()
+
+  if (NOT DEFINED _vtk_javascript_COMPONENT)
+    set(_vtk_javascript_COMPONENT "development")
+  endif ()
+
+  if (NOT DEFINED _vtk_javascript_BINDING_OBJECTS_DESTINATION)
+    set(_vtk_javascript_BINDING_OBJECTS_DESTINATION "${CMAKE_INSTALL_LIBDIR}")
   endif ()
 
   if (NOT DEFINED _vtk_javascript_DEBUG_INFO)
@@ -340,8 +357,8 @@ function (vtk_module_wrap_javascript)
 
   set(_vtk_javascript_binding_sources)
   set(_vtk_javascript_binding_classes)
-  set(_vtk_javascript_library_link_depends)
-  include(vtkModuleWrapJavaScriptExclusions)
+  
+  include(vtkModuleWrapJavaScriptExclusions OPTIONAL)
 
   foreach (_vtk_javascript_module IN LISTS _vtk_javascript_MODULES)
     # Can the module ever be wrapped?
@@ -351,39 +368,79 @@ function (vtk_module_wrap_javascript)
     if (_vtk_javascript_exclude_wrap)
       continue ()
     endif ()
+
     # Development purpose: should the module be skipped?
     if ("${_vtk_javascript_module}" IN_LIST vtk_module_wrap_javascript_skip_modules)
       message(STATUS "Module ${_vtk_javascript_module} is excluded from JS wrapping")
       continue ()
     endif ()
-    # GGenerate binding source code
-    _vtk_module_wrap_javascript_library("${_vtk_javascript_module}" _vtk_javascript_library_binding_sources _vtk_javascript_library_binding_classes)
-    list(APPEND _vtk_javascript_binding_sources
-      ${_vtk_javascript_library_binding_sources})
-    list(APPEND _vtk_javascript_binding_classes
-      ${_vtk_javascript_library_binding_classes})
-    # Get link dependencies
-    _vtk_module_get_module_property("${_vtk_javascript_module}"
-    PROPERTY  "depends"
-    VARIABLE  _vtk_javascript_module_depends)
-    # Add the link library names to the link list
-    foreach (_vtk_javascript_module_depend IN LISTS _vtk_javascript_module_depends)
-      # Do not add unwrappable libraries from link list
-      _vtk_module_get_module_property("${_vtk_javascript_module_depend}"
-        PROPERTY  "exclude_wrap"
-        VARIABLE  _vtk_javascript_module_depend_exclude_wrap)
-      if (_vtk_javascript_module_depend_exclude_wrap)
+    
+    # Generate binding source code
+    _vtk_module_get_module_property(${_vtk_javascript_module}
+      PROPERTY "library_name"
+      VARIABLE _module_library_name)
+    set(_vtk_javascript_module_objects "${_module_library_name}WebObjects")
+    if (TARGET ${_vtk_javascript_module_objects})
+      # Use precompiled binding sources
+      list(JOIN vtk_module_wrap_javascript_skip_headers "|" _skip_headers)
+      if (_skip_headers)
+        list(APPEND _vtk_javascript_binding_sources
+          "$<FILTER:$<TARGET_OBJECTS:${_vtk_javascript_module_objects}>,EXCLUDE,(${_skip_headers})Embinding.cxx>")
+      else ()
+        list(APPEND _vtk_javascript_binding_sources
+          "$<TARGET_OBJECTS:${_vtk_javascript_module_objects}>")
+      endif ()
+    else ()
+      # Generate binding sources
+      _vtk_module_wrap_javascript_library("${_vtk_javascript_module}" _vtk_javascript_library_binding_sources _vtk_javascript_library_binding_classes)
+      list(APPEND _vtk_javascript_binding_sources
+        ${_vtk_javascript_library_binding_sources})
+      list(APPEND _vtk_javascript_binding_classes
+        ${_vtk_javascript_library_binding_classes})
+      if (NOT _vtk_javascript_library_binding_sources)
         continue ()
       endif ()
 
-      _vtk_module_get_module_property("${_vtk_javascript_module_depend}"
-        PROPERTY  "library_name"
-        VARIABLE  _vtk_javascript_depend_library_name)
-      list(APPEND _vtk_javascript_library_link_depends
-        "${_vtk_javascript_depend_library_name}")
-    endforeach ()
+      # Add object library to compile generated binding sources
+      add_library("${_vtk_javascript_module_objects}" OBJECT 
+        ${_vtk_javascript_library_binding_sources})
+
+      target_link_libraries("${_vtk_javascript_module_objects}"
+        PRIVATE
+          VTK::WrappingJavaScript # For vtkEmbindSmartPointerTrait.h
+          "${_vtk_javascript_module}")
+
+      vtk_module_autoinit(
+        MODULES ${_vtk_javascript_module}
+        TARGETS "${_vtk_javascript_module_objects}")
+
+      # Get link dependencies    
+      _vtk_module_get_module_property("${_vtk_javascript_module}"
+        PROPERTY  "private_depends"
+        VARIABLE  _vtk_javascript_module_private_depends)
+
+      _vtk_module_get_module_property("${_vtk_javascript_module}"
+        PROPERTY  "depends"
+        VARIABLE  _vtk_javascript_module_depends)
+
+      target_link_libraries("${_vtk_javascript_module_objects}"
+        PRIVATE
+          ${_vtk_javascript_module_private_depends}
+          ${_vtk_javascript_module_depends})
+
+      # Export object library
+      if (_vtk_javascript_INSTALL_EXPORT)
+        install(
+          TARGETS "${_vtk_javascript_module_objects}"
+          EXPORT  "${_vtk_javascript_INSTALL_EXPORT}"
+          OBJECTS DESTINATION "${_vtk_javascript_BINDING_OBJECTS_DESTINATION}")
+      endif ()
+    endif ()
+
+    # Store the modules that have been wrapped
     list(APPEND _vtk_javascript_all_wrapped_modules
       "${_vtk_javascript_module}")
+
   endforeach ()
 
   if (NOT _vtk_javascript_binding_sources)
@@ -404,10 +461,6 @@ function (vtk_module_wrap_javascript)
         "${_vtk_javascript_UTILITY_TARGET}")
   endif ()
 
-  # TODO: populate with generated js, wasm and ts file(s)
-  # set_target_properties("${_vtk_javascript_target}"
-  #   PROPERTIES "_vtk_module_javascript_files" "${_vtk_javascript_library_sources}")
-  
   vtk_module_autoinit(
     MODULES ${_vtk_javascript_MODULES}
     TARGETS "${_vtk_javascript_target}")
@@ -416,6 +469,20 @@ function (vtk_module_wrap_javascript)
     PRIVATE
       VTK::WrappingJavaScript
       ${_vtk_javascript_MODULES})
+  
+  if (_vtk_javascript_INSTALL_EXPORT)
+    install(
+      TARGETS "${_vtk_javascript_target}"
+      EXPORT  "${_vtk_javascript_INSTALL_EXPORT}"
+      COMPONENT "${_vtk_javascript_COMPONENT}")
+
+    # Install wasm file next to the corresponding js file
+    # https://gitlab.kitware.com/cmake/cmake/-/issues/20745
+    install(FILES
+      "$<TARGET_FILE_DIR:${_vtk_javascript_target}>/$<TARGET_FILE_BASE_NAME:${_vtk_javascript_target}>.wasm"
+      TYPE BIN
+      COMPONENT "${_vtk_javascript_COMPONENT}")
+  endif ()
 
   list(APPEND emscripten_link_options
     "-lembind"

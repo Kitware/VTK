@@ -770,9 +770,20 @@ if (VTK_WRAP_JAVASCRIPT)
     WRAPPED_MODULES    vtk_javascript_wrapped_modules
     UTILITY_TARGET     "VTK::vtkbuild"
     MODULE_EXPORT_NAME "VTKWebAssemblyModule"
+    INSTALL_EXPORT     VTKJavaScript
+    COMPONENT          "development"
     DEBUG_INFO         "${VTK_WASM_DEBUGINFO}"
     OPTIMIZATION       "${VTK_WASM_OPTIMIZATION}"
     MEMORY64           "${VTK_WEBASSEMBLY_64_BIT}")
+
+  export(
+    EXPORT VTKJavaScript
+    FILE   "${CMAKE_BINARY_DIR}/${vtk_cmake_destination}/VTKJavaScript-targets.cmake")
+  install(
+    EXPORT      VTKJavaScript
+    FILE        VTKJavaScript-targets.cmake
+    DESTINATION "${vtk_cmake_destination}"
+    COMPONENT   "development")
 endif ()
 
 if (VTK_BUILD_TESTING)
