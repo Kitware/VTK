@@ -64,10 +64,16 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
   vtkNew<vtkRandomAttributeGenerator> randomAttrs;
   randomAttrs->SetInputConnection(transFilter->GetOutputPort());
-  randomAttrs->GenerateAllPointDataOn();
-  randomAttrs->GeneratePointArrayOff();
-  randomAttrs->GenerateAllCellDataOn();
-  randomAttrs->GenerateCellArrayOff();
+  // Activate random point scalars, vectors and tensors
+  randomAttrs->GeneratePointScalarsOn();
+  randomAttrs->GeneratePointVectorsOn();
+  randomAttrs->GeneratePointTensorsOn();
+
+  // Activate random cell scalars, vectors and tensors
+  randomAttrs->GenerateCellScalarsOn();
+  randomAttrs->GenerateCellVectorsOn();
+  randomAttrs->GenerateCellTensorsOn();
+
   randomAttrs->GenerateFieldArrayOn();
   randomAttrs->SetNumberOfTuples(100);
 
@@ -167,8 +173,8 @@ int TestResampleWithDataSet(int argc, char* argv[])
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
   block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
-    block->GetCellData()->GetNumberOfArrays() != 6 ||
-    block->GetPointData()->GetNumberOfArrays() != 8)
+    block->GetCellData()->GetNumberOfArrays() != 4 ||
+    block->GetPointData()->GetNumberOfArrays() != 6)
   {
     vtkLog(ERROR, "Unexpected number of arrays in output with pass cell and point arrays");
     return !vtkTesting::FAILED;
@@ -180,8 +186,8 @@ int TestResampleWithDataSet(int argc, char* argv[])
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
   block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
-    block->GetCellData()->GetNumberOfArrays() != 6 ||
-    block->GetPointData()->GetNumberOfArrays() != 8)
+    block->GetCellData()->GetNumberOfArrays() != 4 ||
+    block->GetPointData()->GetNumberOfArrays() != 6)
   {
     vtkLog(ERROR, "Unexpected number of arrays in output with pass field arrays off");
     return !vtkTesting::FAILED;
@@ -192,8 +198,8 @@ int TestResampleWithDataSet(int argc, char* argv[])
   result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
   block = static_cast<vtkDataSet*>(result->GetBlock(0));
   if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
-    block->GetCellData()->GetNumberOfArrays() != 6 ||
-    block->GetPointData()->GetNumberOfArrays() != 9)
+    block->GetCellData()->GetNumberOfArrays() != 4 ||
+    block->GetPointData()->GetNumberOfArrays() != 7)
   {
     vtkLog(ERROR, "Unexpected number of arrays in output with pass partial arrays on");
     return !vtkTesting::FAILED;
