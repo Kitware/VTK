@@ -26,6 +26,16 @@
  * CellDims : number of cells by directions of rectilinear grid
  * (1 for each dimensions 1)
  *
+ * Interface : plane that cuts a HTG cell.
+ * It is defined (for each cell) by a normal and the distance between the origin and the plane along
+ * that normal (i.e. the orthogonal distance). The name of the arrays containing each information is
+ * specified in `InterfaceInterceptsName` and `InterfaceNormalsName` The normals array is a 3D array
+ * that contains the 3D normal for each cell's interface (for lower dimensions, some values are
+ * ignored). The intercepts (or distances) array is also a 3D array containing:
+ *  - the distance to the first plane (if exists, otherwise ignored)
+ *  - the distance to the second plane (if exists, otherwise ignored)
+ *  - the type of cell (mixed/pure, cf. vtkHyperTreeGridGeometryImpl.h:CellInterfaceType)
+ *
  * @warning
  * It is not a spatial search object. If you are looking for this kind of
  * octree see vtkCellLocator instead.

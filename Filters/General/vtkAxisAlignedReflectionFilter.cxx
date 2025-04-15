@@ -824,8 +824,8 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
   bool hasInterface = input->GetHasInterface();
   if (hasInterface)
   {
-    inNormals = inCD->GetArray(output->GetInterfaceNormalsName());
-    inIntercepts = inCD->GetArray(output->GetInterfaceInterceptsName());
+    inNormals = inCD->GetArray(input->GetInterfaceNormalsName());
+    inIntercepts = inCD->GetArray(input->GetInterfaceInterceptsName());
 
     if (!inNormals || !inIntercepts)
     {
@@ -844,11 +844,13 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
     outNormals->SetNumberOfComponents(3);
     outNormals->SetNumberOfTuples(nTuples);
     outNormals->SetName("outNormals");
+    output->SetInterfaceNormalsName(outNormals->GetName());
 
     outIntercepts = vtkDoubleArray::New();
     outIntercepts->SetNumberOfComponents(3);
     outIntercepts->SetNumberOfTuples(nTuples);
     outIntercepts->SetName("outIntercepts");
+    output->SetInterfaceInterceptsName(outIntercepts->GetName());
 
     // Reflect interface normals if present
     // Iterate over all cells
@@ -862,7 +864,18 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
 
       // Compute and store reflected intercept
       double* inter = inIntercepts->GetTuple3(i);
-      inter[0] -= 2. * offset * norm[direction];
+      const double diff = offset * norm[direction];
+
+      // Reflect necessary planes depending on the interface type (simple, double)
+      if (inter[2] == -1 || inter[2] == 0)
+      {
+        inter[0] -= diff;
+      }
+      if (inter[2] == 1 || inter[2] == 0)
+      {
+        inter[1] -= diff;
+      }
+
       outIntercepts->SetTuple3(i, inter[0], inter[1], inter[2]);
     } // i
 
@@ -878,7 +891,7 @@ void vtkAxisAlignedReflectionFilter::ProcessHtg(vtkHyperTreeGrid* input, vtkHype
     outIntercepts->Delete();
   }
 
-  // Mise a jour du Scales des HTs
+  // Update HTGs scale
   vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
   output->InitializeTreeIterator(it);
   vtkHyperTree* tree = nullptr;

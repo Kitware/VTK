@@ -124,6 +124,7 @@ protected:
    *  0 : mixed cell with double interface
    *  1 : mixed cell with an interface
    *      normal points to the "outside" of the cell
+   *  2 : pure cell (no interface)
    *
    * XXX: cache for the "current" cell
    * XXX: retrieved from CellIntercepts[2]
