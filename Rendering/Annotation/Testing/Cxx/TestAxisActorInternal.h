@@ -60,13 +60,13 @@ inline void InitializeXAxis(vtkAxisActor* axis)
   vtkNew<vtkTextProperty> textProp1;
   textProp1->SetColor(0., 0., 1.);
   textProp1->SetOpacity(0.9);
-  textProp1->SetFontSize(36);
+  textProp1->SetFontSize(24);
   axis->SetTitleTextProperty(textProp1);
 
   vtkNew<vtkTextProperty> textProp2;
   textProp2->SetColor(1., 0., 0.);
   textProp2->SetOpacity(0.6);
-  textProp2->SetFontSize(24);
+  textProp2->SetFontSize(18);
   axis->SetLabelTextProperty(textProp2);
 
   vtkNew<vtkProperty> prop1;
