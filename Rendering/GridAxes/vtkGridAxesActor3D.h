@@ -311,7 +311,6 @@ private:
   vtkMTimeType GetBoundsMTime;
   double GridBounds[6];
   unsigned int FaceMask;
-  unsigned int LabelMask;
   bool LabelUniqueEdgesOnly;
   vtkTuple<bool, 3> UseCustomLabels;
   vtkTuple<vtkNew<vtkDoubleArray>, 3> CustomLabels;

@@ -20,18 +20,6 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
-namespace
-{
-// The point is assumed to be in Viewport coordinate system i.e X,Y pixels in
-// the viewport.
-template <class T>
-inline bool IsInViewport(vtkViewport* viewport, const vtkVector2<T>& point)
-{
-  vtkVector2d npos(point.GetX(), point.GetY());
-  viewport->ViewportToNormalizedViewport(npos[0], npos[1]);
-  return (npos[0] >= 0.0 && npos[0] <= 1.0 && npos[1] >= 0.0 && npos[1] <= 1.0);
-}
-}
 
 class vtkGridAxesActor2D::vtkLabels
 {

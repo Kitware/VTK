@@ -15,20 +15,12 @@
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
-//----------------------------------------------------------------------------
-// to use vtkVector2d in map.
-template <class T>
-static bool operator<(const vtkVector2<T>& x, const vtkVector2<T>& y)
-{
-  return std::pair<T, T>(x[0], x[1]) < std::pair<T, T>(y[0], y[1]);
-}
 
 vtkStandardNewMacro(vtkGridAxesActor3D);
 //----------------------------------------------------------------------------
 vtkGridAxesActor3D::vtkGridAxesActor3D()
   : GetBoundsMTime(0)
   , FaceMask(0)
-  , LabelMask(0)
   , LabelUniqueEdgesOnly(true)
   , UseCustomLabels(false)
   , CustomLabelsMTime(0)
