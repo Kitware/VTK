@@ -401,7 +401,10 @@ private:
   int ProcessHTG(vtkHyperTreeGrid* input, vtkHyperTreeGrid* output);
 
   /**
-   * Helper functions used to generate random attributes for each attribute type
+   * Helper functions used to generate random attributes for each attribute type.
+   * The random attributes are added using the AddArray() method. It is then set as active by name.
+   * Note: using SetAttribute() will delete the current active attribute to replace it with the new
+   * one.
    */
   void GeneratePointData(vtkPointData* outputPD, vtkIdType numPts);
   void GenerateCellData(vtkCellData* outputCD, vtkIdType numCells);
