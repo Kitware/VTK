@@ -80,8 +80,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->XAxes[i]->SetLabelOffset(this->LabelOffset);
     this->XAxes[i]->SetTitleOffset(this->TitleOffset);
     this->XAxes[i]->SetScreenSize(this->ScreenSize);
-    this->XAxes[i]->SetCalculateTitleOffset(false);
-    this->XAxes[i]->SetCalculateLabelOffset(false);
 
     this->YAxes[i] = vtkAxisActor::New();
     this->YAxes[i]->SetTickVisibility(true);
@@ -97,8 +95,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->YAxes[i]->SetLabelOffset(this->LabelOffset);
     this->YAxes[i]->SetTitleOffset(this->TitleOffset);
     this->YAxes[i]->SetScreenSize(this->ScreenSize);
-    this->YAxes[i]->SetCalculateTitleOffset(false);
-    this->YAxes[i]->SetCalculateLabelOffset(false);
 
     this->ZAxes[i] = vtkAxisActor::New();
     this->ZAxes[i]->SetTickVisibility(true);
@@ -114,8 +110,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
     this->ZAxes[i]->SetLabelOffset(this->LabelOffset);
     this->ZAxes[i]->SetTitleOffset(this->TitleOffset);
     this->ZAxes[i]->SetScreenSize(this->ScreenSize);
-    this->ZAxes[i]->SetCalculateTitleOffset(false);
-    this->ZAxes[i]->SetCalculateLabelOffset(false);
 
     // Pass information to axes followers.
     vtkAxisFollower* follower = this->XAxes[i]->GetTitleActor();
@@ -1307,18 +1301,12 @@ void vtkCubeAxesActor::BuildAxes(vtkViewport* viewport)
   if (ticksRecomputed || this->ForceXLabelReset || this->ForceYLabelReset || this->ForceZLabelReset)
   {
     // labels were re-built, need to recompute the scale.
-    double center[3];
-
-    center[0] = (bounds[1] - bounds[0]) * 0.5;
-    center[1] = (bounds[3] - bounds[2]) * 0.5;
-    center[2] = (bounds[5] - bounds[4]) * 0.5;
-
-    double lenX = this->XAxes[0]->ComputeMaxLabelLength(center);
-    double lenY = this->YAxes[0]->ComputeMaxLabelLength(center);
-    double lenZ = this->ZAxes[0]->ComputeMaxLabelLength(center);
-    double lenTitleX = this->XAxes[0]->ComputeTitleLength(center);
-    double lenTitleY = this->YAxes[0]->ComputeTitleLength(center);
-    double lenTitleZ = this->ZAxes[0]->ComputeTitleLength(center);
+    double lenX = this->XAxes[0]->ComputeMaxLabelLength();
+    double lenY = this->YAxes[0]->ComputeMaxLabelLength();
+    double lenZ = this->ZAxes[0]->ComputeMaxLabelLength();
+    double lenTitleX = this->XAxes[0]->ComputeTitleLength();
+    double lenTitleY = this->YAxes[0]->ComputeTitleLength();
+    double lenTitleZ = this->ZAxes[0]->ComputeTitleLength();
     double maxLabelLength = this->MaxOf(lenX, lenY, lenZ, 0.);
     double maxTitleLength = this->MaxOf(lenTitleX, lenTitleY, lenTitleZ, 0.);
     double bWidth = bounds[1] - bounds[0];
@@ -1794,10 +1782,8 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(
   // Set major and minor starts and deltas for all underlying axes
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   {
-    axes[i]->SetMinorStart(minorStart);
     axes[i]->SetMajorStart(axes[0]->GetAxisType(), majorStart);
 
-    axes[i]->SetDeltaMinor(minor);
     axes[i]->SetDeltaMajor(axes[0]->GetAxisType(), major);
   }
 }
@@ -1821,13 +1807,14 @@ void vtkCubeAxesActor::AutoScale(vtkViewport* viewport, vtkAxisActor* axis[NUMBE
 
     axis[i]->SetTitleScale(newTitleScale);
 
-    // Now labels.
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-
     for (int j = 0; j < axis[i]->GetNumberOfLabelsBuilt(); ++j)
     {
-      double newLabelScale =
-        this->AutoScale(viewport, this->ScreenSize, labelActors[j]->GetPosition());
+      vtkAxisFollower* labelActor = axis[i]->GetLabelFollower(j);
+      if (!labelActor)
+      {
+        continue;
+      }
+      double newLabelScale = this->AutoScale(viewport, this->ScreenSize, labelActor->GetPosition());
 
       axis[i]->SetLabelScale(j, newLabelScale);
     }
@@ -2123,18 +2110,22 @@ void vtkCubeAxesActor::UpdateLabels(vtkAxisActor** axis, int vtkNotUsed(index))
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; i++)
   {
     int numberOfLabelsBuild = axis[i]->GetNumberOfLabelsBuilt();
-    vtkAxisFollower** labelActors = axis[i]->GetLabelActors();
-    vtkProp3DAxisFollower** labelProps = axis[i]->GetLabelProps3D();
     for (int k = 0; k < numberOfLabelsBuild; ++k)
     {
-      labelActors[k]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-      labelActors[k]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-      labelActors[k]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-      labelActors[k]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
-      labelProps[k]->SetEnableDistanceLOD(this->EnableDistanceLOD);
-      labelProps[k]->SetDistanceLODThreshold(this->DistanceLODThreshold);
-      labelProps[k]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
-      labelProps[k]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+      vtkAxisFollower* labelActor = axis[i]->GetLabelFollower(k);
+      vtkProp3DAxisFollower* labelProp = axis[i]->GetLabelFollower3D(k);
+      if (!labelActor || !labelProp)
+      {
+        continue;
+      }
+      labelActor->SetEnableDistanceLOD(this->EnableDistanceLOD);
+      labelActor->SetDistanceLODThreshold(this->DistanceLODThreshold);
+      labelActor->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+      labelActor->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
+      labelProp->SetEnableDistanceLOD(this->EnableDistanceLOD);
+      labelProp->SetDistanceLODThreshold(this->DistanceLODThreshold);
+      labelProp->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
+      labelProp->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
     }
   }
 }

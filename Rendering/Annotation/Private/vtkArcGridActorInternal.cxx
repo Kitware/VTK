@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkArcGridActorPrivate.h"
+#include "vtkArcGridActorInternal.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -8,20 +8,20 @@
 #include "vtkViewport.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkArcGridActorPrivate);
+vtkStandardNewMacro(vtkArcGridActorInternal);
 
 //----------------------------------------------------------------------------
-vtkArcGridActorPrivate::vtkArcGridActorPrivate()
+vtkArcGridActorInternal::vtkArcGridActorInternal()
 {
   this->GridMapper->SetInputData(this->PolyData);
   this->SetMapper(this->GridMapper);
 }
 
 //----------------------------------------------------------------------------
-vtkArcGridActorPrivate::~vtkArcGridActorPrivate() = default;
+vtkArcGridActorInternal::~vtkArcGridActorInternal() = default;
 
 //----------------------------------------------------------------------------
-int vtkArcGridActorPrivate::RenderOverlay(vtkViewport* viewport)
+int vtkArcGridActorInternal::RenderOverlay(vtkViewport* viewport)
 {
   this->PolyData->Initialize();
 
@@ -35,7 +35,7 @@ int vtkArcGridActorPrivate::RenderOverlay(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-bool vtkArcGridActorPrivate::HasData()
+bool vtkArcGridActorInternal::HasData()
 {
   if (!this->TicksStart)
   {
@@ -54,7 +54,7 @@ bool vtkArcGridActorPrivate::HasData()
 }
 
 //----------------------------------------------------------------------------
-void vtkArcGridActorPrivate::BuildGrid(vtkViewport* viewport)
+void vtkArcGridActorInternal::BuildGrid(vtkViewport* viewport)
 {
   vtkNew<vtkPoints> polyDataPoints;
   polyDataPoints->SetDataType(VTK_DOUBLE);
@@ -99,7 +99,7 @@ void vtkArcGridActorPrivate::BuildGrid(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-void vtkArcGridActorPrivate::PrintSelf(ostream& os, vtkIndent indent)
+void vtkArcGridActorInternal::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

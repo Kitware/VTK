@@ -1,17 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 /**
- * @class   vtkAxisGridActorPrivate
+ * @class   vtkAxisGridActorInternal
  * @brief   renders a 2D grid given pairs of point positions
  *
- * vtkAxisGridActorPrivate is designed for use by vtkLegendScaleActor to render
+ * vtkAxisGridActorInternal is designed for use by vtkLegendScaleActor to render
  * the wireframe for the grid plane. It takes the position of ticks on each of the
  * 4 axes of vtkLegendScaleActor and draws lines between them, taking into account
  * that parallel axes give ticks in opposite order.
  */
 
-#ifndef vtkAxisGridActorPrivate_h
-#define vtkAxisGridActorPrivate_h
+#ifndef vtkAxisGridActorInternal_h
+#define vtkAxisGridActorInternal_h
 
 #include "vtkActor2D.h"
 
@@ -25,11 +25,11 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkPolyDataMapper2D;
 
-class vtkAxisGridActorPrivate : public vtkActor2D
+class vtkAxisGridActorInternal : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkAxisGridActorPrivate, vtkActor2D);
-  static vtkAxisGridActorPrivate* New();
+  vtkTypeMacro(vtkAxisGridActorInternal, vtkActor2D);
+  static vtkAxisGridActorInternal* New();
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -52,8 +52,8 @@ public:
   int RenderOpaqueGeometry(vtkViewport*) override;
 
 protected:
-  vtkAxisGridActorPrivate();
-  ~vtkAxisGridActorPrivate() override;
+  vtkAxisGridActorInternal();
+  ~vtkAxisGridActorInternal() override;
 
 private:
   vtkNew<vtkPolyData> PolyData;
@@ -72,8 +72,8 @@ private:
    */
   void BuildGrid();
 
-  void operator=(const vtkAxisGridActorPrivate&) = delete;
-  vtkAxisGridActorPrivate(const vtkAxisGridActorPrivate&) = delete;
+  void operator=(const vtkAxisGridActorInternal&) = delete;
+  vtkAxisGridActorInternal(const vtkAxisGridActorInternal&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

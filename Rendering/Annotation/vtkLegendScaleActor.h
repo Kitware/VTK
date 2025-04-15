@@ -42,7 +42,7 @@ class vtkActor2D;
 class vtkTextMapper;
 class vtkPoints;
 class vtkCoordinate;
-class vtkAxisGridActorPrivate;
+class vtkAxisGridActorInternal;
 
 class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkLegendScaleActor : public vtkProp
 {
@@ -316,7 +316,7 @@ protected:
   vtkNew<vtkAxisActor2D> BottomAxis;
 
   // Support for grid
-  vtkNew<vtkAxisGridActorPrivate> GridActor;
+  vtkNew<vtkAxisGridActorInternal> GridActor;
   vtkNew<vtkPolyDataMapper2D> GridMapper;
   bool GridVisibility = false;
 

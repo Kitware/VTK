@@ -42,23 +42,26 @@
 #define vtkAxisActor_h
 
 #include "vtkActor.h"
+#include "vtkDeprecation.h"               // for Deprecation macro
 #include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkSmartPointer.h"              // For vtkSmartPointer
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
+#include <memory>
+#include <string>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
-class vtkFollower;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProp3DAxisFollower;
-class vtkProperty2D;
 class vtkStringArray;
 class vtkTextActor;
+class vtkTextActorInterfaceInternal;
 class vtkTextActor3D;
 class vtkTextProperty;
 class vtkVectorText;
@@ -149,16 +152,16 @@ public:
   /**
    * Set/Get the title of the axis actor.
    */
-  void SetTitle(const char* t);
-  vtkGetStringMacro(Title);
+  void SetTitle(const std::string& title);
+  vtkGetMacro(Title, std::string);
   ///@}
 
   ///@{
   /**
    * Set/Get the common exponent of the labels values.
    */
-  void SetExponent(const char* t);
-  vtkGetStringMacro(Exponent);
+  void SetExponent(const std::string& exp);
+  vtkGetMacro(Exponent, std::string);
   ///@}
 
   ///@{
@@ -501,24 +504,52 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
-  double ComputeMaxLabelLength(const double[3]);
-  double ComputeTitleLength(const double[3]);
+  ///@{
+  /**
+   * Compute the max diagonal lentgh of the labels.
+   * Camera and labels should have been set before.
+   */
+  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
+  double ComputeMaxLabelLength(const double[3]) { return this->ComputeMaxLabelLength(); }
+  double ComputeMaxLabelLength();
+  ///@}
 
+  ///@{
+  /**
+   * Compute the diagonal length of the Title text.
+   * Camera and title should have been set before.
+   */
+  VTK_DEPRECATED_IN_9_5_0("Argument is not used anymore, please use the variant without argument")
+  double ComputeTitleLength(const double[3]) { return this->ComputeTitleLength(); }
+  double ComputeTitleLength();
+  ///@}
+
+  ///@{
+  /**
+   * Set scale on underlying actor.
+   */
   void SetLabelScale(double scale);
   void SetLabelScale(int labelIndex, double scale);
   void SetTitleScale(double scale);
+  void SetExponentScale(double scale);
+  ///@}
 
   ///@{
   /**
    * Set/Get the starting position for minor and major tick points,
    * and the delta values that determine their spacing.
+   *
+   * The "Minor" versions are not used anymore, will return 0.
    */
-  vtkSetMacro(MinorStart, double);
-  vtkGetMacro(MinorStart, double);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetMinorStart(double){};
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetMinorStart() { return 0.; };
+
   double GetMajorStart(int axis);
   void SetMajorStart(int axis, double value);
-  vtkSetMacro(DeltaMinor, double);
-  vtkGetMacro(DeltaMinor, double);
+
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void SetDeltaMinor(double){};
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") double GetDeltaMinor() { return 1.; };
+
   double GetDeltaMajor(int axis);
   void SetDeltaMajor(int axis, double value);
   ///@}
@@ -551,45 +582,51 @@ public:
 
   void BuildAxis(vtkViewport* viewport, bool);
 
-  ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(TitleActor, vtkAxisFollower);
-  ///@}
+  vtkAxisFollower* GetTitleActor();
 
-  ///@{
   /**
    * Get exponent follower actor
    */
-  vtkGetObjectMacro(ExponentActor, vtkAxisFollower);
-  ///@}
+  vtkAxisFollower* GetExponentActor();
 
+  ///@{
   /**
    * Get label actors responsigle for drawing label text.
    */
-  vtkAxisFollower** GetLabelActors() { return this->LabelActors; }
+  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower instead.")
+  vtkAxisFollower** GetLabelActors();
+  vtkAxisFollower* GetLabelFollower(int index);
+  int GetNumberOfLabelFollowers() { return this->GetNumberOfLabelsBuilt(); }
+  ///@}
 
   ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(TitleProp3D, vtkProp3DAxisFollower);
+  vtkProp3DAxisFollower* GetTitleProp3D();
   ///@}
 
+  ///@{
   /**
    * Get label actors responsigle for drawing label text.
    */
-  vtkProp3DAxisFollower** GetLabelProps3D() { return this->LabelProps3D; }
+  VTK_DEPRECATED_IN_9_5_0("This is not safe. Use GetLabelFollower3D instead.")
+  vtkProp3DAxisFollower** GetLabelProps3D();
+  vtkProp3DAxisFollower* GetLabelFollower3D(int index);
+  int GetNumberOfLabelFollower3D() { return this->GetNumberOfLabelsBuilt(); }
+  ///@}
 
   ///@{
   /**
    * Get title actor and it is responsible for drawing
    * title text.
    */
-  vtkGetObjectMacro(ExponentProp3D, vtkProp3DAxisFollower);
+  vtkProp3DAxisFollower* GetExponentProp3D();
   ///@}
 
   ///@{
@@ -605,9 +642,10 @@ public:
    * Set/Get flag whether to calculate title offset.
    * Default: false.
    */
-  vtkSetMacro(CalculateTitleOffset, bool);
-  vtkGetMacro(CalculateTitleOffset, bool);
-  vtkBooleanMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateTitleOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOn() {}
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateTitleOffsetOff() {}
   ///@}
 
   ///@{
@@ -615,9 +653,10 @@ public:
    * Set/Get flag whether to calculate label offset.
    * Default: false.
    */
-  vtkSetMacro(CalculateLabelOffset, bool);
-  vtkGetMacro(CalculateLabelOffset, bool);
-  vtkBooleanMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkSetMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") vtkGetMacro(CalculateLabelOffset, bool);
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOn() {}
+  VTK_DEPRECATED_IN_9_5_0("Member is not used anymore") void CalculateLabelOffsetOff() {}
   ///@}
 
   ///@{
@@ -735,8 +774,91 @@ protected:
   vtkAxisActor();
   ~vtkAxisActor() override;
 
-  char* Title = nullptr;
-  char* Exponent = nullptr;
+private:
+  vtkAxisActor(const vtkAxisActor&) = delete;
+  void operator=(const vtkAxisActor&) = delete;
+
+  void TransformBounds(vtkViewport*, double bnds[6]);
+
+  void BuildLabels(vtkViewport*, bool);
+  void BuildLabels2D(vtkViewport*, bool);
+  void SetLabelPositions(vtkViewport*, bool);
+  void SetLabelPositions2D(vtkViewport*, bool);
+
+  /**
+   * This method set the text and set the base position of the follower from the axis
+   * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
+   * camera position
+   * for convenience purpose.
+   */
+  void BuildTitle(bool);
+
+  /**
+   * Build the actor to display the exponent in case it should appear next to the title or next to
+   * p2 coordinate.
+   */
+  void BuildExponent(bool force);
+
+  void BuildExponent2D(vtkViewport* viewport, bool force);
+
+  void BuildTitle2D(vtkViewport* viewport, bool);
+
+  /**
+   * Get scenepos in display coordinates, using viewport.
+   */
+  void Get2DPosition(
+    vtkViewport* viewport, double multiplier, double scenepos[3], double displayPos[2]);
+
+  void SetAxisPointsAndLines();
+
+  bool BuildTickPoints(double p1[3], double p2[3], bool force);
+
+  // Build major ticks for linear scale.
+  void BuildMajorTicks(double p1[3], double p2[3], double localCoordSys[3][3]);
+
+  // Build major ticks for logarithmic scale.
+  void BuildMajorTicksLog(double p1[3], double p2[3], double localCoordSys[3][3]);
+
+  // Build minor ticks for linear scale.
+  void BuildMinorTicks(double p1[3], double p2[3], double localCoordSys[3][3]);
+
+  // Build minor ticks for logarithmic scale enabled
+  void BuildMinorTicksLog(double p1[3], double p2[3], double localCoordSys[3][3]);
+
+  void BuildAxisGridLines(double p1[3], double p2[3], double localCoordSys[3][3]);
+
+  bool TickVisibilityChanged();
+
+  vtkProperty* NewTitleProperty();
+  vtkProperty* NewLabelProperty();
+
+  bool BoundsDisplayCoordinateChanged(vtkViewport* viewport);
+
+  ///@{
+  /**
+   * Return the correct actor depending on current mode (Use2DMode and UseTextActor3D)
+   */
+  vtkProp* GetTitleActorInternal();
+  vtkProp* GetLabelActorInternal(int index);
+  vtkProp* GetExponentActorInternal();
+  ///@}
+
+  /**
+   * Update the actor text property.
+   * Mainly set TitleTextProperty/LabelTextProperty on the sub actor.
+   * If the underlying actor does not have a vtkTextProperty,
+   * use Property and override Color and Opacity from the
+   * corresponding vtkTextProperty.
+   * Note that exponent uses TitleTextProperty.
+   */
+  ///@{
+  void UpdateTitleActorProperty();
+  void UpdateLabelActorProperty(int idx);
+  void UpdateExponentActorProperty();
+  ///@}
+
+  std::string Title;
+  std::string Exponent;
   char* LabelFormat = nullptr;
   double Range[2] = { 0.0, 1.0 };
   double LastRange[2] = { -1.0, -1.0 };
@@ -774,10 +896,8 @@ protected:
   double GridlineZLength = 1.0;
 
   bool DrawInnerGridlines = false;
-  bool LastDrawInnerGridlines = false;
 
   bool DrawGridpolys = false;
-  bool LastDrawGridpolys = false;
 
   bool AxisVisibility = true;
   bool TickVisibility = true;
@@ -796,76 +916,6 @@ protected:
   double AxisBaseForY[3] = { 0.0, 1.0, 0.0 };
   double AxisBaseForZ[3] = { 0.0, 0.0, 1.0 };
 
-private:
-  vtkAxisActor(const vtkAxisActor&) = delete;
-  void operator=(const vtkAxisActor&) = delete;
-
-  void TransformBounds(vtkViewport*, double bnds[6]);
-
-  void BuildLabels(vtkViewport*, bool);
-  void BuildLabels2D(vtkViewport*, bool);
-  void SetLabelPositions(vtkViewport*, bool);
-  void SetLabelPositions2D(vtkViewport*, bool);
-
-  /**
-   * Set orientation of the actor 2D (follower) to keep the axis orientation and stay on the right
-   * size
-   */
-  void RotateActor2DFromAxisProjection(vtkTextActor* pActor2D);
-
-  /**
-   * Init the geometry of the title. (no positioning or orientation)
-   */
-  void InitTitle();
-
-  /**
-   * Init the geometry of the common exponent of the labels values. (no positioning or orientation)
-   */
-  void InitExponent();
-
-  /**
-   * This method set the text and set the base position of the follower from the axis
-   * The position will be modified in vtkAxisFollower::Render() sub-functions according to the
-   * camera position
-   * for convenience purpose.
-   */
-  void BuildTitle(bool);
-
-  /**
-   * Build the actor to display the exponent in case it should appear next to the title or next to
-   * p2 coordinate.
-   */
-  void BuildExponent(bool force);
-
-  void BuildExponent2D(vtkViewport* viewport, bool force);
-
-  void BuildTitle2D(vtkViewport* viewport, bool);
-
-  void SetAxisPointsAndLines();
-
-  bool BuildTickPoints(double p1[3], double p2[3], bool force);
-
-  // Build major ticks for linear scale.
-  void BuildMajorTicks(double p1[3], double p2[3], double localCoordSys[3][3]);
-
-  // Build major ticks for logarithmic scale.
-  void BuildMajorTicksLog(double p1[3], double p2[3], double localCoordSys[3][3]);
-
-  // Build minor ticks for linear scale.
-  void BuildMinorTicks(double p1[3], double p2[3], double localCoordSys[3][3]);
-
-  // Build minor ticks for logarithmic scale enabled
-  void BuildMinorTicksLog(double p1[3], double p2[3], double localCoordSys[3][3]);
-
-  void BuildAxisGridLines(double p1[3], double p2[3], double localCoordSys[3][3]);
-
-  bool TickVisibilityChanged();
-  vtkProperty* NewTitleProperty();
-  vtkProperty2D* NewTitleProperty2D();
-  vtkProperty* NewLabelProperty();
-
-  bool BoundsDisplayCoordinateChanged(vtkViewport* viewport);
-
   vtkNew<vtkCoordinate> Point1Coordinate;
   vtkNew<vtkCoordinate> Point2Coordinate;
 
@@ -875,8 +925,6 @@ private:
   // For each axis (for the inner gridline generation)
   double MajorStart[3] = { 0.0, 0.0, 0.0 };
   double DeltaMajor[3] = { 1.0, 1.0, 1.0 };
-  double MinorStart = 0.0;
-  double DeltaMinor = 1.0;
 
   // For the ticks, w.r.t to the set range
   double MajorRangeStart = 0.0;
@@ -901,52 +949,37 @@ private:
   vtkNew<vtkPoints> InnerGridlinePts;
   vtkNew<vtkPoints> GridpolyPts;
 
-  vtkNew<vtkVectorText> TitleVector;
-  vtkNew<vtkPolyDataMapper> TitleMapper;
-  vtkNew<vtkAxisFollower> TitleActor;
-  vtkNew<vtkTextActor> TitleActor2D;
-  vtkNew<vtkProp3DAxisFollower> TitleProp3D;
-  vtkNew<vtkTextActor3D> TitleActor3D;
+  std::unique_ptr<vtkTextActorInterfaceInternal> TitleProp;
   vtkSmartPointer<vtkTextProperty> TitleTextProperty;
 
   ///@{
   /**
    * Mapper/Actor used to display a common exponent of the label values
    */
-  vtkNew<vtkVectorText> ExponentVector;
-  vtkNew<vtkPolyDataMapper> ExponentMapper;
-  vtkNew<vtkAxisFollower> ExponentActor;
-  vtkNew<vtkTextActor> ExponentActor2D;
-  vtkNew<vtkProp3DAxisFollower> ExponentProp3D;
-  vtkNew<vtkTextActor3D> ExponentActor3D;
+  std::unique_ptr<vtkTextActorInterfaceInternal> ExponentProp;
   ///@}
 
-  vtkSmartPointer<vtkVectorText>* LabelVectors = nullptr;
-  vtkSmartPointer<vtkPolyDataMapper>* LabelMappers = nullptr;
-  vtkAxisFollower** LabelActors = nullptr;
-  vtkProp3DAxisFollower** LabelProps3D = nullptr;
-  vtkSmartPointer<vtkTextActor>* LabelActors2D = nullptr;
-  vtkSmartPointer<vtkTextActor3D>* LabelActors3D = nullptr;
+  std::vector<std::shared_ptr<vtkTextActorInterfaceInternal>> LabelProps;
   vtkSmartPointer<vtkTextProperty> LabelTextProperty;
+
+  // VTK_DEPRECATED_IN_9_5_0
+  std::vector<vtkAxisFollower*> LabelActors;
+  // VTK_DEPRECATED_IN_9_5_0
+  std::vector<vtkProp3DAxisFollower*> LabelProps3D;
 
   // Main line axis
   vtkNew<vtkPolyData> AxisLines;
-  vtkNew<vtkPolyDataMapper> AxisLinesMapper;
   vtkNew<vtkActor> AxisLinesActor;
 
   // Ticks of the axis
   vtkNew<vtkPolyData> AxisMajorTicks, AxisMinorTicks;
-  vtkNew<vtkPolyDataMapper> AxisMajorTicksMapper, AxisMinorTicksMapper;
   vtkNew<vtkActor> AxisMajorTicksActor, AxisMinorTicksActor;
 
   vtkNew<vtkPolyData> Gridlines;
-  vtkNew<vtkPolyDataMapper> GridlinesMapper;
   vtkNew<vtkActor> GridlinesActor;
   vtkNew<vtkPolyData> InnerGridlines;
-  vtkNew<vtkPolyDataMapper> InnerGridlinesMapper;
   vtkNew<vtkActor> InnerGridlinesActor;
   vtkNew<vtkPolyData> Gridpolys;
-  vtkNew<vtkPolyDataMapper> GridpolysMapper;
   vtkNew<vtkActor> GridpolysActor;
 
   vtkSmartPointer<vtkCamera> Camera;
@@ -961,8 +994,8 @@ private:
 
   bool AxisHasZeroLength = false;
 
-  bool CalculateTitleOffset = false;
-  bool CalculateLabelOffset = false;
+  bool CalculateTitleOffset = false; // VTK_DEPRECATED_IN_9_5_0
+  bool CalculateLabelOffset = false; // VTK_DEPRECATED_IN_9_5_0
 
   /**
    * Use xy-axis only when Use2DMode=1:

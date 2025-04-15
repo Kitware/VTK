@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkAxisGridActorPrivate.h"
+#include "vtkAxisGridActorInternal.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -8,51 +8,51 @@
 #include "vtkProperty.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkAxisGridActorPrivate);
+vtkStandardNewMacro(vtkAxisGridActorInternal);
 
 //----------------------------------------------------------------------------
-vtkAxisGridActorPrivate::vtkAxisGridActorPrivate()
+vtkAxisGridActorInternal::vtkAxisGridActorInternal()
 {
   this->GridMapper->SetInputData(this->PolyData);
   this->SetMapper(this->GridMapper);
 }
 
 //----------------------------------------------------------------------------
-vtkAxisGridActorPrivate::~vtkAxisGridActorPrivate() = default;
+vtkAxisGridActorInternal::~vtkAxisGridActorInternal() = default;
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::SetHorizontalLinesLeftPoints(vtkPoints* points)
+void vtkAxisGridActorInternal::SetHorizontalLinesLeftPoints(vtkPoints* points)
 {
   this->XTicksStart = points;
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::SetHorizontalLinesRightPoints(vtkPoints* points)
+void vtkAxisGridActorInternal::SetHorizontalLinesRightPoints(vtkPoints* points)
 {
   this->XTicksEnd = points;
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::SetVerticalLinesTopPoints(vtkPoints* points)
+void vtkAxisGridActorInternal::SetVerticalLinesTopPoints(vtkPoints* points)
 {
   this->YTicksStart = points;
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::SetVerticalLinesBottomPoints(vtkPoints* points)
+void vtkAxisGridActorInternal::SetVerticalLinesBottomPoints(vtkPoints* points)
 {
   this->YTicksEnd = points;
 }
 
 //----------------------------------------------------------------------------
-int vtkAxisGridActorPrivate::RenderOpaqueGeometry(vtkViewport* viewport)
+int vtkAxisGridActorInternal::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   this->BuildGrid();
   return this->Superclass::RenderOpaqueGeometry(viewport);
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::BuildGrid()
+void vtkAxisGridActorInternal::BuildGrid()
 {
   this->PolyData->Initialize();
 
@@ -110,7 +110,7 @@ void vtkAxisGridActorPrivate::BuildGrid()
 }
 
 //----------------------------------------------------------------------------
-void vtkAxisGridActorPrivate::PrintSelf(ostream& os, vtkIndent indent)
+void vtkAxisGridActorInternal::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 

@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLegendScaleActor.h"
+
+#include "Private/vtkAxisGridActorInternal.h"
 #include "vtkActor2D.h"
 #include "vtkAxisActor2D.h"
-#include "vtkAxisGridActorPrivate.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
