@@ -518,19 +518,14 @@ function (vtk_module_wrap_javascript)
   elseif (_vtk_javascript_DEBUG_INFO STREQUAL "READABLE_JS")
     list(APPEND emscripten_debug_options
       "-g1")
-    list(APPEND emscripten_link_options
-      "-sDEMANGLE_SUPPORT=1")
   elseif (_vtk_javascript_DEBUG_INFO STREQUAL "PROFILE")
     list(APPEND emscripten_debug_options
       "-g2")
-    list(APPEND emscripten_link_options
-      "-sDEMANGLE_SUPPORT=1")
   elseif (_vtk_javascript_DEBUG_INFO STREQUAL "DEBUG_NATIVE")
     list(APPEND emscripten_debug_options
       "-g3")
     list(APPEND emscripten_link_options
-      "-sASSERTIONS=1"
-      "-sDEMANGLE_SUPPORT=1")
+      "-sASSERTIONS=1")
   else ()
     # internal error; this is to catch problems with the filtering above
     message(FATAL_ERROR "Unrecognized setting for _vtk_javascript_DEBUG_INFO")
