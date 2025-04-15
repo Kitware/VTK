@@ -61,3 +61,6 @@ if(VTK_WRAP_JAVA)
 endif()
 
 cmake_dependent_option(VTK_WRAP_SERIALIZATION "Should VTK serailizer wrapping be built?" OFF "VTK_ENABLE_WRAPPING" OFF)
+
+cmake_dependent_option(VTK_WRAP_JAVASCRIPT "Should VTK JavaScript wrapping be built?" OFF
+  "VTK_ENABLE_WRAPPING;CMAKE_SYSTEM_NAME STREQUAL \"Emscripten\"" OFF)

@@ -299,7 +299,7 @@ else ()
 endif ()
 set("_vtk_module_reason_VTK::Java"
   "via `VTK_WRAP_JAVA`")
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND VTK_ENABLE_WRAPPING)
+if (VTK_WRAP_JAVASCRIPT)
   list(APPEND vtk_requested_modules
     VTK::WrappingJavaScript)
 endif ()
@@ -743,7 +743,7 @@ if (VTK_WRAP_JAVA)
   add_subdirectory(Wrapping/Java)
 endif ()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND VTK_ENABLE_WRAPPING)
+if (VTK_WRAP_JAVASCRIPT)
   include (vtkModuleWrapJavaScript)
   set(VTK_WASM_DEBUGINFO "NONE" CACHE STRING "Extent of debug information in webassembly binaries")
   set_property(CACHE VTK_WASM_DEBUGINFO PROPERTY
