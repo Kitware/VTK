@@ -859,7 +859,7 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
   double* x, double* y, double* z)
 {
   double xc = 0.0, yc = 0.0, zc = 0.0;
-  int end_flag, ndims, i = 0;
+  int end_flag, ndims;
 
   clearerr(this->CurrentGeometryFP);           // clear error and EOF flags
   fseek(this->CurrentGeometryFP, 0, SEEK_SET); // move to beginning
@@ -926,30 +926,46 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
     return 1;
   }
 
-  for (int nread = 1; nread < nvtxs; nread++)
+  if (ndims == 1)
   {
-    if (ndims == 1)
+    for (int nread = 1; nread < nvtxs; nread++)
     {
-      i = fscanf(this->CurrentGeometryFP, "%lf", x + nread);
+      auto result = vtk::scan_value<double>(this->CurrentGeometryFP);
+      if (!result)
+      {
+        vtkErrorMacro(<< "Invalid value in " << this->BaseName << ".coords."
+                      << "Error : " << result.error().msg());
+        return 0;
+      }
+      x[nread] = result->value();
     }
-    else if (ndims == 2)
+  }
+  else if (ndims == 2)
+  {
+    for (int nread = 1; nread < nvtxs; nread++)
     {
-      i = fscanf(this->CurrentGeometryFP, "%lf%lf", x + nread, y + nread);
+      auto result = vtk::scan<double, double>(this->CurrentGeometryFP, "{:f}{:f}");
+      if (!result)
+      {
+        vtkErrorMacro(<< "Invalid value in " << this->BaseName << ".coords."
+                      << "Error : " << result.error().msg());
+        return 0;
+      }
+      std::tie(x[nread], y[nread]) = result->values();
     }
-    else if (ndims == 3)
+  }
+  else // ndims == 3
+  {
+    for (int nread = 1; nread < nvtxs; nread++)
     {
-      i = fscanf(this->CurrentGeometryFP, "%lf%lf%lf", x + nread, y + nread, z + nread);
-    }
-
-    if (i == EOF)
-    {
-      vtkErrorMacro(<< "Too few lines in " << this->BaseName << ".coords");
-      return 0;
-    }
-    else if (i != ndims)
-    {
-      vtkErrorMacro(<< "Wrong dimension in " << this->BaseName << ".coords");
-      return 0;
+      auto result = vtk::scan<double, double, double>(this->CurrentGeometryFP, "{:f}{:f}{:f}");
+      if (!result)
+      {
+        vtkErrorMacro(<< "Invalid value in " << this->BaseName << ".coords."
+                      << "Error : " << result.error().msg());
+        return 0;
+      }
+      std::tie(x[nread], y[nread], z[nread]) = result->values();
     }
   }
 

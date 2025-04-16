@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <sstream>
-
 #include "vtkMultiBlockPLOT3DReader.h"
+#include "vtkMultiBlockPLOT3DReaderInternals.h"
 
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
@@ -24,14 +23,14 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSMPTools.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
-#include "vtkMultiBlockPLOT3DReaderInternals.h"
-#include "vtkSMPTools.h"
-
+#include <sstream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2705,9 +2704,9 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
     vtkIdType count = 0;
     for (int i = 0; i < n; i++)
     {
-      int num = fscanf(fp, "%d", &(block[i]));
-      if (num > 0)
+      if (auto result = vtk::scan_value<int>(fp))
       {
+        block[i] = result->value();
         count++;
       }
       else
@@ -2760,9 +2759,9 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%f", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<float>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2780,9 +2779,9 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%lf", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<double>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2872,9 +2871,9 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%f", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<float>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2892,9 +2891,9 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%lf", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<double>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else

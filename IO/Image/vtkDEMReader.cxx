@@ -154,7 +154,6 @@ int vtkDEMReader::RequestData(vtkInformation* vtkNotUsed(request),
 
 int vtkDEMReader::ReadTypeARecord()
 {
-  char record[1025];
   float elevationConversion;
   FILE* fp;
 
@@ -180,30 +179,22 @@ int vtkDEMReader::ReadTypeARecord()
   //
   // read the record. it is always 1024 characters long
   //
-  int result = fscanf(fp, "%512c", record);
-  if (result != 1)
+  auto result = vtk::scan<std::string>(fp, "{:.1024c}");
+  if (!result)
   {
     vtkErrorMacro(
-      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+      "For the file " << this->FileName << " we got the following error: " << result.error().msg());
     fclose(fp);
     return -1;
   }
-  result = fscanf(fp, "%512c", record + 512);
-  if (result != 1)
-  {
-    vtkErrorMacro(
-      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
-    fclose(fp);
-    return -1;
-  }
-  record[1024] = '\0';
+  auto& record = result->value();
 
   //
   // convert any D+ or D- to E+ or E-. c++ and c i/o cannot read D+/-
   //
-  ConvertDNotationToENotation(record);
+  ConvertDNotationToENotation(record.data());
 
-  std::string_view current(record, 1024);
+  std::string_view current(record);
 
   auto mapLabelView = current.substr(0, 144);
   std::copy_n(mapLabelView.data(), mapLabelView.size(), this->MapLabel);
@@ -346,7 +337,6 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing(int extent[6], double origin[3]
 
 int vtkDEMReader::ReadProfiles(vtkImageData* data)
 {
-  char record[145];
   float *outPtr, *ptr;
   float elevationExtrema[2];
   float localElevation;
@@ -363,7 +353,6 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
   int rowId, columnId;
   int updateInterval;
   int status = 0;
-  int result;
   FILE* fp;
 
   if (!this->FileName)
@@ -394,7 +383,6 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
   units *= elevationConversion;
   // seek to start of profiles
   fseek(fp, this->ProfileSeekOffset, SEEK_SET);
-  record[120] = '\0';
 
   // initialize output to the lowest elevation
   lowPoint = this->ElevationBounds[0];
@@ -411,29 +399,28 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
     //
     // read four int's
     //
-    status = fscanf(fp, "%6d%6d%6d%6d", &profileId[0], /* 1 */
-      &profileId[1],                                   /* 1 */
-      &profileSize[0],                                 /* 2 */
-      &profileSize[1]);                                /* 2 */
-    if (status == EOF)
+    auto resultInt4 = vtk::scan<int, int, int, int>(fp, "{:6d}{:6d}{:6d}{:6d}");
+    if (!resultInt4)
     {
       break;
     }
+    std::tie(profileId[0], profileId[1], profileSize[0], profileSize[1]) = resultInt4->values();
     //
     // read the doubles as strings so we can convert floating point format
     //
-    result = fscanf(fp, "%120c", record);
-    if (result != 1)
+    auto resultString = vtk::scan<std::string>(fp, "{:.120c}");
+    if (!resultString)
     {
-      vtkErrorMacro(
-        "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+      vtkErrorMacro("For the file "
+        << this->FileName << " we got the following error: " << resultString.error().msg());
       fclose(fp);
       return -1;
     }
+    auto& record = resultString->value();
     //
     // convert any D+ or D- to E+ or E-
     //
-    ConvertDNotationToENotation(record);
+    ConvertDNotationToENotation(record.data());
     auto resultInfo =
       vtk::scan<float, float, float, float, float>(record, "{:24g}{:24g}{:24g}{:24g}{:24g}");
     std::tie(planCoords[0], planCoords[1], localElevation, elevationExtrema[0],
@@ -453,14 +440,15 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
     // read a column
     for (row = rowId; row <= lastRow; row++)
     {
-      result = fscanf(fp, "%6d", &elevation);
-      if (result != 1)
+      auto resultInt = vtk::scan_value<int>(fp);
+      if (!resultInt)
       {
-        vtkErrorMacro(
-          "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+        vtkErrorMacro("For the file "
+          << this->FileName << " we got the following error: " << resultInt.error().msg());
         fclose(fp);
         return -1;
       }
+      elevation = resultInt->value();
       *(outPtr + columnId + row * numberOfColumns) = elevation * units;
     }
   }

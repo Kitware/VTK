@@ -12,6 +12,8 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStringScanner.h"
+
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -43,14 +45,18 @@ vtkBYUReader::~vtkBYUReader()
 
 int vtkBYUReader::CanReadFile(const char* filename)
 {
-  int result;
   FILE* fp = vtksys::SystemTools::Fopen(filename, "r");
   if (fp == nullptr)
     return 0;
 
-  int numParts, numPts, numPolys, numEdges;
-  result = fscanf(fp, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
-  if ((result < 4) || (numParts < 1) || (numPts < 1) || (numPolys < 1))
+  auto resultNum = vtk::scan<int, int, int, int>(fp, "{:d} {:d} {:d} {:d}");
+  if (!resultNum)
+  {
+    fclose(fp);
+    return 0;
+  }
+  auto& [numParts, numPts, numPolys, numEdges] = resultNum->values();
+  if ((numParts < 1) || (numPts < 1) || (numPolys < 1))
   {
     fclose(fp);
     return 0;
@@ -58,10 +64,15 @@ int vtkBYUReader::CanReadFile(const char* filename)
 
   for (int part = 0; part < numParts; part++)
   {
-    int partStart, partEnd;
-    result = fscanf(fp, "%d %d", &partStart, &partEnd);
-    if ((result < 2) || (partStart < 1) || (partStart > numPolys) || (partEnd < 1) ||
-      (partEnd > numPolys) || (partStart >= partEnd))
+    auto resultPart = vtk::scan<int, int>(fp, "{:d} {:d}");
+    if (!resultPart)
+    {
+      fclose(fp);
+      return 0;
+    }
+    auto& [partStart, partEnd] = resultPart->values();
+    if ((partStart < 1) || (partStart > numPolys) || (partEnd < 1) || (partEnd > numPolys) ||
+      (partStart >= partEnd))
     {
       fclose(fp);
       return 0;
@@ -114,7 +125,7 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   vtkCellArray* newPolys;
   float x[3];
   vtkIdList* pts;
-  int polyId, pt;
+  int polyId, pt = 0;
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   pts = vtkIdList::New();
@@ -123,14 +134,14 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   //
   // Read header (not using fixed format! - potential problem in some files.)
   //
-  int cnt;
-  cnt = fscanf(geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
-  if (cnt != 4)
+  auto resultNum = vtk::scan<int, int, int, int>(geomFile, "{:d} {:d} {:d} {:d}");
+  if (!resultNum)
   {
     vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                  << "Expected 4 values in header, but got " << cnt);
+                  << "Message: " << resultNum.error().msg());
     return;
   }
+  std::tie(numParts, numPts, numPolys, numEdges) = resultNum->values();
 
   if (this->PartNumber > numParts)
   {
@@ -143,28 +154,29 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
     vtkDebugMacro(<< "Reading part number: " << this->PartNumber);
     for (i = 0; i < (this->PartNumber - 1); i++)
     {
-      cnt = fscanf(geomFile, "%*d %*d");
-      if (cnt != 0)
+      auto resultSkip = vtk::scan<int, int>(geomFile, "{:d} {:d}");
+      if (!resultSkip)
       {
         vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                      << "Skipping 2 int's, but skipped " << cnt);
+                      << "Message: " << resultSkip.error().msg());
         return;
       }
     }
-    cnt = fscanf(geomFile, "%d %d", &partStart, &partEnd);
-    if (cnt != 2)
+    auto resultPart = vtk::scan<int, int>(geomFile, "{:d} {:d}");
+    if (!resultPart)
     {
       vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                    << "Expected 2 values for partStart and partEnd, but got " << cnt);
+                    << "Message: " << resultPart.error().msg());
       return;
     }
+    std::tie(partStart, partEnd) = resultPart->values();
     for (i = this->PartNumber; i < numParts; i++)
     {
-      cnt = fscanf(geomFile, "%*d %*d");
-      if (cnt != 0)
+      auto resultSkip = vtk::scan<int, int>(geomFile, "{:d} {:d}");
+      if (!resultSkip)
       {
         vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                      << "Skipping 2 int's, but skipped " << cnt);
+                      << "Message: " << resultSkip.error().msg());
         return;
       }
     }
@@ -174,11 +186,11 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
     vtkDebugMacro(<< "Reading all parts.");
     for (i = 0; i < numParts; i++)
     {
-      cnt = fscanf(geomFile, "%*d %*d");
-      if (cnt != 0)
+      auto resultSkip = vtk::scan<int, int>(geomFile, "{:d} {:d}");
+      if (!resultSkip)
       {
         vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                      << "Skipping 2 int's, but skipped " << cnt);
+                      << "Message: " << resultSkip.error().msg());
         return;
       }
     }
@@ -205,13 +217,14 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   // read point coordinates
   for (i = 0; i < numPts; i++)
   {
-    cnt = fscanf(geomFile, "%e %e %e", x, x + 1, x + 2);
-    if (cnt != 3)
+    auto resultPoint = vtk::scan<float, float, float>(geomFile, "{} {} {}");
+    if (!resultPoint)
     {
       vtkErrorMacro(<< "Error reading geometry file: " << this->GeometryFileName
-                    << "Expected 3 points, but got " << cnt);
+                    << "Message: " << resultPoint.error().msg());
       return;
     }
+    std::tie(x[0], x[1], x[2]) = resultPoint->values();
     newPts->InsertPoint(i, x);
   }
   this->UpdateProgress(0.333);
@@ -220,7 +233,9 @@ void vtkBYUReader::ReadGeometryFile(FILE* geomFile, int& numPts, vtkInformation*
   for (polyId = 1; polyId <= numPolys; polyId++)
   {
     // read this polygon
-    for (pts->Reset(); fscanf(geomFile, "%d", &pt) && pt > 0;)
+    vtk::scan_result_type<std::FILE*&, int> resultPolyId;
+    for (pts->Reset();
+         ((resultPolyId = vtk::scan_value<int>(geomFile))) && (pt = resultPolyId->value()) > 0;)
     {
       pts->InsertNextId(pt - 1); // convert to vtk 0-offset
     }
@@ -273,15 +288,16 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation* outInfo)
 
   for (i = 0; i < numPts; i++)
   {
-    int cnt = fscanf(dispFp, "%e %e %e", v, v + 1, v + 2);
-    if (cnt != 3)
+    auto resultDisp = vtk::scan<float, float, float>(dispFp, "{} {} {}");
+    if (!resultDisp)
     {
       vtkErrorMacro(<< "Error reading displacement file: " << this->DisplacementFileName
-                    << "Expected 3 floats, but got " << cnt);
+                    << "Message: " << resultDisp.error().msg());
       fclose(dispFp);
       return;
     }
-    newVectors->SetTuple(i, v);
+    std::tie(v[0], v[1], v[2]) = resultDisp->values();
+    newVectors->SetTypedTuple(i, v);
   }
 
   fclose(dispFp);
@@ -319,16 +335,16 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation* outInfo)
 
   for (i = 0; i < numPts; i++)
   {
-    int cnt = fscanf(scalarFp, "%e", &s);
-    if (cnt != 1)
+    auto resultScalar = vtk::scan_value<float>(scalarFp);
+    if (!resultScalar)
     {
       vtkErrorMacro(<< "Error reading scalar file: " << this->ScalarFileName
-                    << "Expected 1 float, but got " << cnt);
+                    << "Message: " << resultScalar.error().msg());
       fclose(scalarFp);
       return;
     }
-
-    newScalars->SetTuple(i, &s);
+    s = resultScalar->value();
+    newScalars->SetValue(i, s);
   }
 
   fclose(scalarFp);
@@ -367,15 +383,16 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation* outInfo)
 
   for (i = 0; i < numPts; i++)
   {
-    int cnt = fscanf(textureFp, "%e %e", t, t + 1);
-    if (cnt != 2)
+    auto resultTCoord = vtk::scan<float, float>(textureFp, "{:e} {:e}");
+    if (!resultTCoord)
     {
       vtkErrorMacro(<< "Error reading texture file: " << this->TextureFileName
-                    << "Expected 2 texture coordibates, but got " << cnt);
+                    << "Message: " << resultTCoord.error().msg());
       fclose(textureFp);
       return;
     }
-    newTCoords->SetTuple(i, t);
+    std::tie(t[0], t[1]) = resultTCoord->values();
+    newTCoords->SetTypedTuple(i, t);
   }
 
   fclose(textureFp);

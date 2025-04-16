@@ -15,6 +15,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include <vtkRegressionTestImage.h>
@@ -147,8 +148,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(
 {
   float xyz[3];
   FILE* file;
-  int i, npts;
-  char tag[80];
+  int i;
 
   if ((file = vtksys::SystemTools::Fopen(filename, "r")) == nullptr)
   {
@@ -156,13 +156,14 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(
     return nullptr;
   }
 
-  int n = fscanf(file, "%s %d", tag, &npts); // read number of points
-  if (n != 2)
+  auto resultNumPts = vtk::scan<std::string, int>(file, "{:s} {:d}"); // read number of points
+  if (!resultNumPts)
   {
     std::cerr << "ERROR: Can't read file: " << filename << std::endl;
     fclose(file);
     return nullptr;
   }
+  auto& [tag, npts] = resultNumPts->values();
   // Check for a reasonable npts
   if (npts <= 0)
   {
@@ -222,8 +223,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(
 
 static int ParseFile(FILE* file, const char* label, float* data)
 {
-  char tag[80];
-  int i, npts, readData = 0;
+  int i, readData = 0;
   float min = VTK_FLOAT_MAX;
   float max = (-VTK_FLOAT_MAX);
 
@@ -233,24 +233,30 @@ static int ParseFile(FILE* file, const char* label, float* data)
   clearerr(file);           // clear error and EOF flags
   fseek(file, 0, SEEK_SET); // move to beginning
 
-  if (fscanf(file, "%s %d", tag, &npts) != 2)
+  auto resultNumPts = vtk::scan<std::string, int>(file, "{:s} {:d}"); // read number of points
+  if (!resultNumPts)
   {
     std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
     return 0;
   }
+  auto& [tag, npts] = resultNumPts->values();
 
-  while (!readData && fscanf(file, "%s", tag) == 1)
+  vtk::scan_result_type<std::FILE*&, std::string> resultTag;
+  while (!readData && ((resultTag = vtk::scan<std::string>(file, "{:s}"))))
   {
-    if (!strcmp(tag, label))
+    tag = resultTag->value();
+    if (tag == label)
     {
       readData = 1;
       for (i = 0; i < npts; i++)
       {
-        if (fscanf(file, "%f", data + i) != 1)
+        auto resultData = vtk::scan_value<float>(file);
+        if (!resultData)
         {
           std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
         }
+        data[i] = resultData->value();
         if (data[i] < min)
           min = data[i];
         if (data[i] > min)
@@ -264,7 +270,8 @@ static int ParseFile(FILE* file, const char* label, float* data)
     {
       for (i = 0; i < npts; i++)
       {
-        if (fscanf(file, "%*f") != 0)
+        auto resultData = vtk::scan_value<float>(file);
+        if (!resultData)
         {
           std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
