@@ -96,12 +96,8 @@ bool vtkHDFReader::Implementation::OpenGroupAsVTKGroup(const std::string& groupP
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::RetrieveHDFInformation(const std::string& rootName)
 {
-  if (!vtkHDFUtilities::RetrieveHDFInformation(this->File, this->VTKGroup, rootName, this->Version,
-        this->DataSetType, this->NumberOfPieces, this->AttributeDataGroup))
-  {
-    return false;
-  }
-  return true;
+  return vtkHDFUtilities::RetrieveHDFInformation(this->File, this->VTKGroup, rootName,
+    this->Version, this->DataSetType, this->NumberOfPieces, this->AttributeDataGroup);
 }
 
 //------------------------------------------------------------------------------
@@ -218,6 +214,17 @@ bool vtkHDFReader::Implementation::GetAttribute(
   const char* attributeName, size_t numberOfElements, T* value)
 {
   return vtkHDFUtilities::GetAttribute(this->VTKGroup, attributeName, numberOfElements, value);
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::HasAttribute(const char* groupName, const char* attributeName)
+{
+  vtkHDF::ScopedH5GHandle groupID = H5Gopen(this->File, groupName, H5P_DEFAULT);
+  if (groupID < 0)
+  {
+    return false;
+  }
+  return H5Aexists(groupID, attributeName) > 0;
 }
 
 //------------------------------------------------------------------------------

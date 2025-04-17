@@ -345,8 +345,9 @@ private:
 
   /**
    * Add array names from all composite elements to DataArraySelection array.
+   * Return true on success
    */
-  void RetrieveDataArraysFromAssembly();
+  bool RetrieveDataArraysFromAssembly();
 
   /**
    * Helper function to add Ids in the attribute arrays of a dataset.

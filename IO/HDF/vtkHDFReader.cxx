@@ -655,8 +655,14 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     {
       this->GenerateAssembly();
     }
-    this->RetrieveDataArraysFromAssembly();
-    this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+    if (!this->RetrieveDataArraysFromAssembly())
+    {
+      return 0;
+    }
+    if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+    {
+      return 0;
+    }
     if (!this->RetrieveStepsFromAssembly())
     {
       return 0;
@@ -1314,7 +1320,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
       continue;
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
-    this->Impl->RetrieveHDFInformation(hdfPathName);
+    if (!this->Impl->RetrieveHDFInformation(hdfPathName))
+    {
+      return 0;
+    }
     this->Impl->OpenGroupAsVTKGroup(hdfPathName); // Change root
 
     int dsIndex = -1;
@@ -1373,7 +1382,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
 
   int result = this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly");
 
-  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+  if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+  {
+    return 0;
+  }
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1399,6 +1411,10 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
       continue;
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
+    {
+      continue;
+    }
     this->Impl->OpenGroupAsVTKGroup(hdfPathName);
     std::size_t nStep = this->Impl->GetNumberOfSteps();
 
@@ -1419,7 +1435,7 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFReader::RetrieveDataArraysFromAssembly()
+bool vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
     this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
@@ -1431,8 +1447,16 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
 
+    if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
+    {
+      continue; // Allow empty datasets in assembly
+    }
+    if (!this->Impl->RetrieveHDFInformation(hdfPathName))
+    {
+      return false;
+    }
+
     // Fill DataArray
-    this->Impl->RetrieveHDFInformation(hdfPathName);
     for (int attrIdx = 0; attrIdx < vtkDataObject::AttributeTypes::FIELD; ++attrIdx)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
@@ -1442,6 +1466,8 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
       }
     }
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1460,7 +1486,15 @@ int vtkHDFReader::ReadRecursively(
     dataMB->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), nodeName);
     if (this->Impl->IsPathSoftLink(hdfPath))
     {
-      this->Impl->RetrieveHDFInformation(hdfPath);
+      if (!this->Impl->HasAttribute(hdfPath.c_str(), "Type"))
+      {
+        dataMB->SetBlock(i, nullptr);
+        continue;
+      }
+      if (!this->Impl->RetrieveHDFInformation(hdfPath))
+      {
+        return 0;
+      }
       this->Impl->OpenGroupAsVTKGroup(hdfPath); // Set current path as HDF5 root
 
       const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
@@ -1571,6 +1605,11 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   if (this->GetHasTemporalData())
   {
     double* values = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    if (!values)
+    {
+      vtkErrorMacro("Expected TIME_STEPS key for temporal data");
+      return false;
+    }
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       double requestedValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
@@ -1598,7 +1637,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     ::UpdateGeometryIfRequired(
       ug, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
     // data cleanup after using mesh cache
-    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    if (pData && this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
     }
@@ -1611,7 +1650,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     ::UpdateGeometryIfRequired(polydata, pData, this->UseCache,
       this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
     // data cleanup after using mesh cache
-    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    if (pData && this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
     }

@@ -54,6 +54,10 @@ public:
   template <typename T>
   bool GetAttribute(const char* attributeName, size_t numberOfElements, T* value);
   /**
+   * Return true if the attribute exists in the specified group
+   */
+  bool HasAttribute(const char* groupName, const char* attributeName);
+  /**
    * Returns the number of partitions for this dataset at the time step
    * `step` if applicable.
    */
