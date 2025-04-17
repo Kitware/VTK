@@ -2,7 +2,31 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkHDFWriter
- * @brief   Write a vtkPolyData into VTKHDF file.
+ * @brief   Write a data object to a VTKHDF file.
+ *
+ * This writer can handle vtkPolyData, vtkUnstructuredGrid, vtkPartitionedDataSet,
+ * vtkMultiBlockDataSet and vtkPartitionedDataSetCollection data types,
+ * as well as time-varying data.
+ *
+ * For temporal datasets with a constant MeshMTime, geometry will only be written once.
+ *
+ * This writer is compatible with MPI and multi-piece/partitioned datasets.
+ *
+ * When writing using multiple MPI processes, one file is written for each process.
+ * When all processing are done writing all time steps, rank 0 will create the main file,
+ * using HDF5 Virtual DataSets to link to the actual data written by each rank.
+ * All individual files process files are also readable independently.
+ *
+ * Options are provided for data compression, and writing partitions, composite parts and time steps
+ * in different files.
+ * Reading performance and size on disk may be impacted by the chosen chunk size and compression
+ * settings.
+ *
+ * To comply with the HDF5 and VTKHDF standard specification,
+ * "/" and "." contained in field names will be replaced by "_".
+ *
+ * The full file format specification is here:
+ * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  *
  */
 
@@ -32,26 +56,6 @@ class vtkDataObjectTreeIterator;
 
 typedef int64_t hid_t;
 
-/**
- * Writes input dataset to a VTKHDF file.
- *
- * This writer can handle vtkPolyData, vtkUnstructuredGrid, vtkPartitionedDataSet,
- * vtkMultiBlockDataSet and vtkPartitionedDataSetCollection data types,
- * as well as time-varying data.
- *
- * Distributed writing is supported for vtkPolyData and vtkUnstructuredGrid with pieces written to
- * separate files, and referenced by the main written on rank 0 one using HDF5 virtual datasets.
- *
- * Options are provided for data compression, and writing partitions, composite parts and time steps
- * in different files.
- *
- * To comply with the HDF5 and VTKHDF standard specification,
- * "/" and "." contained in field names will be replaced by "_".
- *
- * Full file format specification is here:
- * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
- *
- */
 class VTKIOHDF_EXPORT vtkHDFWriter : public vtkWriter
 {
 
