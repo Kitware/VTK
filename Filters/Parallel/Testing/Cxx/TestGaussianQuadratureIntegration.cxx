@@ -7,9 +7,9 @@
 #include "vtkIntegrateAttributes.h"
 #include "vtkIntegrationGaussianStrategy.h"
 #include "vtkIntegrationLinearStrategy.h"
+#include "vtkLogger.h"
 #include "vtkMathUtilities.h"
 #include "vtkPlane.h"
-#include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
 double GetVolume(vtkIntegrateAttributes* integrator)
@@ -17,8 +17,18 @@ double GetVolume(vtkIntegrateAttributes* integrator)
   return integrator->GetOutput()->GetCellData()->GetArray(0)->GetTuple1(0);
 }
 
+bool Assert(bool test, const std::string& msg)
+{
+  if (!test)
+  {
+    vtkLog(ERROR, "Test failed: " << msg);
+  }
+  return test;
+}
+
 bool TestQuad(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* gaussianIntegrator)
 {
+  bool test = true;
   vtkNew<vtkCellTypeSource> source;
   source->SetCellType(VTK_QUAD);
   source->SetBlocksDimensions(1, 1, 1);
@@ -29,10 +39,10 @@ bool TestQuad(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* 
   gaussianIntegrator->SetInputConnection(source->GetOutputPort());
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(
-                GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
+  test &= Assert(vtkMathUtilities::FuzzyCompare(
+                   GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
       vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 1.0 * 1.0, 1e-10),
-    "QUAD", "Planar quad area should be the same for both Gaussian and linear integration.");
+    "QUAD, Planar quad area should be the same for both Gaussian and linear integration.");
 
   // Make non planar quad
   vtkSmartPointer<vtkUnstructuredGrid> usg = source->GetOutput();
@@ -46,14 +56,15 @@ bool TestQuad(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* 
   gaussianIntegrator->SetInputData(usg);
   gaussianIntegrator->Update();
 
-  AssertMacro(GetVolume(gaussianIntegrator) == 1.2809241071215176078, "QUAD",
-    "Wrong Gaussian integration volume for non planar shape");
+  test &= Assert(GetVolume(gaussianIntegrator) == 1.2809241071215176078,
+    "QUAD, Wrong Gaussian integration volume for non planar shape");
 
-  return EXIT_SUCCESS;
+  return test;
 }
 
 bool TestHex(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* gaussianIntegrator)
 {
+  bool test = true;
   vtkNew<vtkCellTypeSource> source;
   source->SetCellType(VTK_HEXAHEDRON);
   source->SetBlocksDimensions(1, 1, 1);
@@ -64,11 +75,11 @@ bool TestHex(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* g
   gaussianIntegrator->SetInputConnection(source->GetOutputPort());
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(
-                GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
+  test &= Assert(vtkMathUtilities::FuzzyCompare(
+                   GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
       vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 1.0 * 1.0 * 1.0, 1e-10),
-    "HEXAHEDRON",
-    "Standard Hexahedron volume should be the same for both Gaussian and linear integration.");
+    "HEXAHEDRON, Standard Hexahedron volume should be the same for both Gaussian and linear "
+    "integration.");
 
   // Make non planar faces
   vtkSmartPointer<vtkUnstructuredGrid> usg = source->GetOutput();
@@ -82,14 +93,15 @@ bool TestHex(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* g
   gaussianIntegrator->SetInputData(usg);
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 1.25, 1e-10),
-    "HEXAHEDRON", "Wrong Gaussian integration volume for non planar shape");
+  test &= Assert(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 1.25, 1e-10),
+    "HEXAHEDRON, Wrong Gaussian integration volume for non planar shape");
 
-  return EXIT_SUCCESS;
+  return test;
 }
 
 bool TestWedge(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* gaussianIntegrator)
 {
+  bool test = true;
   vtkNew<vtkCellTypeSource> source;
   source->SetCellType(VTK_WEDGE);
   source->SetBlocksDimensions(1, 1, 1);
@@ -110,10 +122,10 @@ bool TestWedge(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes*
   gaussianIntegrator->SetInputConnection(extractor->GetOutputPort());
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(
-                GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
+  test &= Assert(vtkMathUtilities::FuzzyCompare(
+                   GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
       vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 1.0 * 1.0 * 0.5 * 1.0, 1e-10),
-    "WEDGE", "Standard wedge volume should be the same for both Gaussian and linear integration.");
+    "WEDGE, Standard wedge volume should be the same for both Gaussian and linear integration.");
 
   // Make non planar faces
   vtkSmartPointer<vtkUnstructuredGrid> usg = extractor->GetOutput();
@@ -127,15 +139,16 @@ bool TestWedge(vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes*
   gaussianIntegrator->SetInputData(usg);
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 0.75, 1e-10), "WEDGE",
-    "Wrong Gaussian integration volume for non planar shape");
+  test &= Assert(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 0.75, 1e-10),
+    "WEDGE, Wrong Gaussian integration volume for non planar shape");
 
-  return EXIT_SUCCESS;
+  return test;
 }
 
 bool TestPyramid(
   vtkIntegrateAttributes* linearIntegrator, vtkIntegrateAttributes* gaussianIntegrator)
 {
+  bool test = true;
   vtkNew<vtkCellTypeSource> source;
   source->SetCellType(VTK_PYRAMID);
   source->SetBlocksDimensions(1, 1, 1);
@@ -156,12 +169,12 @@ bool TestPyramid(
   gaussianIntegrator->SetInputConnection(extractor->GetOutputPort());
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(
-                GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
+  test &= Assert(vtkMathUtilities::FuzzyCompare(
+                   GetVolume(linearIntegrator), GetVolume(gaussianIntegrator), 1e-10) &&
       vtkMathUtilities::FuzzyCompare(
         GetVolume(gaussianIntegrator), 1.0 * 1.0 * 1.0 / 3.0 * 0.5, 1e-10),
-    "PYRAMID",
-    "Standard Pyramid volume should be the same for both Gaussian and linear integration.");
+    "PYRAMID, Standard Pyramid volume should be the same for both Gaussian and linear "
+    "integration.");
 
   // Make non planar faces
   vtkSmartPointer<vtkUnstructuredGrid> usg = extractor->GetOutput();
@@ -176,8 +189,8 @@ bool TestPyramid(
   gaussianIntegrator->Update();
   double gaussVolume = GetVolume(gaussianIntegrator);
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(gaussVolume, 0.25, 1e-10), "PYRAMID",
-    "Wrong Gaussian integration volume for non planar shape");
+  test &= Assert(vtkMathUtilities::FuzzyCompare(gaussVolume, 0.25, 1e-10),
+    "PYRAMID, Wrong Gaussian integration volume for non planar shape");
 
   // Change points ordering
   vtkPoints* pts;
@@ -203,12 +216,12 @@ bool TestPyramid(
   gaussianIntegrator->SetInputData(usg);
   gaussianIntegrator->Update();
 
-  AssertMacro(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 0.25, 1e-10), "PYRAMID",
-    "Wrong Gaussian integration volume for non planar shape");
-  AssertMacro(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), gaussVolume, 1e-10),
-    "PYRAMID", "Gauss Integration should be independant of point ordering");
+  test &= Assert(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), 0.25, 1e-10),
+    "PYRAMID, Wrong Gaussian integration volume for non planar shape");
+  test &= Assert(vtkMathUtilities::FuzzyCompare(GetVolume(gaussianIntegrator), gaussVolume, 1e-10),
+    "PYRAMID, Gauss Integration should be independant of point ordering");
 
-  return EXIT_SUCCESS;
+  return test;
 }
 
 int TestGaussianQuadratureIntegration(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -219,9 +232,9 @@ int TestGaussianQuadratureIntegration(int vtkNotUsed(argc), char* vtkNotUsed(arg
   gaussianIntegrator->SetIntegrationStrategy(vtkNew<vtkIntegrationGaussianStrategy>());
 
   bool testVal = TestQuad(linearIntegrator, gaussianIntegrator);
-  testVal |= TestHex(linearIntegrator, gaussianIntegrator);
-  testVal |= TestWedge(linearIntegrator, gaussianIntegrator);
-  testVal |= TestPyramid(linearIntegrator, gaussianIntegrator);
+  testVal &= TestHex(linearIntegrator, gaussianIntegrator);
+  testVal &= TestWedge(linearIntegrator, gaussianIntegrator);
+  testVal &= TestPyramid(linearIntegrator, gaussianIntegrator);
 
-  return !testVal ? EXIT_SUCCESS : EXIT_FAILURE;
+  return testVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
