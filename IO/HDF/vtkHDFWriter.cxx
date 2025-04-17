@@ -1385,7 +1385,16 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
       {
         datasetGroup = this->Impl->OpenExistingGroup(group, currentName.c_str());
       }
+      this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
       this->DispatchDataObject(datasetGroup, currentBlock);
+      if (auto ds = vtkDataSet::SafeDownCast(currentBlock->GetPartition(0)))
+      {
+        this->CompositeMeshMTime[datasetId] = ds->GetMeshMTime();
+      }
+      else
+      {
+        this->CompositeMeshMTime[datasetId] = this->CurrentTimeIndex + 1;
+      }
     }
 
     if (this->CurrentTimeIndex == 0)

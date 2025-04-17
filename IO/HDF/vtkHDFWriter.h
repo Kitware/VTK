@@ -388,6 +388,7 @@ private:
   int CurrentTimeIndex = 0;
   int NumberOfTimeSteps = 1;
   vtkMTimeType PreviousStepMeshMTime = 0;
+  std::map<vtkIdType, vtkMTimeType> CompositeMeshMTime;
 
   // Distributed-related variables
   vtkMultiProcessController* Controller = nullptr;
