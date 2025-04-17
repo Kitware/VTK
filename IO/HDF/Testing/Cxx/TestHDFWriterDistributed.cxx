@@ -6,6 +6,7 @@
 #include "vtkAppendDataSets.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSetSurfaceFilter.h"
+#include "vtkForceStaticMesh.h"
 #include "vtkGenerateTimeSteps.h"
 #include "vtkGroupDataSetsFilter.h"
 #include "vtkHDFReader.h"
@@ -14,6 +15,7 @@
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMergeBlocks.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
@@ -33,6 +35,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWarpScalar.h"
+#include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 
 namespace HDFTestUtilities
@@ -492,6 +495,139 @@ bool TestCompositeTemporalDistributedObject(
 }
 
 //------------------------------------------------------------------------------
+bool TestDistributedMultiBlockMissingBlocks(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // This data has VTU and VTP blocks, that are automatically read on different ranks.
+  // MPI Rank 0 will have block 'Sub1', Rank 1 'Sub2' and Rank 2 have no data.
+  // We make sure that the written VTKHDF dataset has the right data on the right processes.
+
+  vtkNew<vtkXMLMultiBlockDataReader> reader;
+  const std::string sourcefile = dataRoot + "/Data/vtkHDF/distributed.vtm";
+  reader->SetFileName(sourcefile.c_str());
+  reader->UpdatePiece(myRank, nbRanks, 0);
+
+  const std::string writtenFile = tempDir + "/distributed_missing_blocks.vtkhdf";
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetWriteAllTimeSteps(false);
+  writer->SetFileName(writtenFile.c_str());
+  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetDebug(true);
+  writer->Write();
+
+  controller->Barrier();
+
+  vtkNew<vtkHDFReader> readerHDF;
+  readerHDF->SetFileName(writtenFile.c_str());
+  readerHDF->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<vtkMergeBlocks> merge;
+  merge->SetInputConnection(readerHDF->GetOutputPort());
+  merge->SetMergePartitionsOnly(true);
+  merge->Update();
+
+  auto inputData = vtkMultiBlockDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  auto outputData = vtkMultiBlockDataSet::SafeDownCast(merge->GetOutputDataObject(0));
+
+  if (!vtkTestUtilities::CompareDataObjects(inputData, outputData))
+  {
+    vtkLog(ERROR, "Original and read part do not match");
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestDistributedTemporalStaticMultiBlockMissingBlocks(
+  vtkMPIController* controller, const std::string& tempDir, const std::string& dataRoot)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  // We read from a VTKHDF file, because it is the only VTK-native format
+  // that supports temporal multiblock right now.
+
+  vtkNew<vtkHDFReader> baselineReader;
+  const std::string fileExt = "/test_multiblock_static_multipiece.vtkhdf";
+  const std::string sourcefile = dataRoot + "/Data/vtkHDF" + fileExt;
+  baselineReader->SetFileName(sourcefile.c_str());
+  baselineReader->UpdatePiece(myRank, nbRanks, 0);
+
+  vtkNew<vtkForceStaticMesh> forceStatic;
+  forceStatic->SetInputConnection(baselineReader->GetOutputPort());
+
+  std::string writtenFile = tempDir + fileExt;
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetWriteAllTimeSteps(true);
+  writer->SetFileName(writtenFile.c_str());
+  writer->SetInputConnection(forceStatic->GetOutputPort());
+  writer->Write();
+
+  controller->Barrier();
+
+  vtkNew<vtkHDFReader> readerHDF;
+  readerHDF->SetFileName(writtenFile.c_str());
+  readerHDF->SetUseCache(true);
+  readerHDF->UpdatePiece(myRank, nbRanks, 0);
+
+  if (baselineReader->GetNumberOfSteps() != 2)
+  {
+    std::cerr << "Expected 2 time steps but got " << baselineReader->GetNumberOfSteps()
+              << " in baseline reader." << std::endl;
+    return false;
+  }
+  if (readerHDF->GetNumberOfSteps() != 2)
+  {
+    std::cerr << "Expected 2 time steps but got " << readerHDF->GetNumberOfSteps() << std::endl;
+    return false;
+  }
+
+  baselineReader->GetOutputInformation(0)->Remove(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  for (int time = 0; time < static_cast<int>(baselineReader->GetNumberOfSteps()); time++)
+  {
+    vtkLog(INFO, "Processing time step " << time);
+    baselineReader->SetStep(time);
+    baselineReader->UpdatePiece(myRank, nbRanks, 0);
+
+    readerHDF->SetStep(time);
+    readerHDF->UpdatePiece(myRank, nbRanks, 0);
+
+    if (readerHDF->GetTimeValue() != baselineReader->GetTimeValue())
+    {
+      std::cerr << "Wrong time value: " << readerHDF->GetTimeValue()
+                << " != " << baselineReader->GetTimeValue() << std::endl;
+      return false;
+    }
+
+    auto inputData = vtkMultiBlockDataSet::SafeDownCast(baselineReader->GetOutputDataObject(0));
+    auto outputData = vtkMultiBlockDataSet::SafeDownCast(readerHDF->GetOutputDataObject(0));
+
+    if (!vtkTestUtilities::CompareDataObjects(inputData, outputData))
+    {
+      vtkLog(ERROR, "Original and read part do not match");
+      return false;
+    }
+
+    // TODO: Fix composite MeshMTime
+    // Currently, we disable data object cache for composite structures, because the cache can only
+    // handle one object at a time. Data reading is still cached, but MTime will change.
+    // See https://gitlab.kitware.com/vtk/vtk/-/issues/19658
+    auto outputMeshTime = vtkDataSet::SafeDownCast(
+      vtkMultiPieceDataSet::SafeDownCast(outputData->GetBlock(0))->GetPartition(0))
+                            ->GetMeshMTime();
+
+    vtkLog(INFO, << "MeshMtime is " << outputMeshTime);
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestDistributedPolyData(vtkMPIController* controller, const std::string& tempDir)
 {
   return TestDistributedObject(controller, tempDir, true);
@@ -564,7 +700,6 @@ bool TestDistributedTemporalPartitionedDataSetCollection(
   return TestCompositeTemporalDistributedObject(
     controller, tempDir, VTK_PARTITIONED_DATA_SET_COLLECTION);
 }
-
 }
 
 int TestHDFWriterDistributed(int argc, char* argv[])
@@ -597,8 +732,8 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   bool res = true;
   res &= ::TestDistributedPolyData(controller, tempDir);
   res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
-  res &= ::TestDistributedUnstructuredGrid(controller, tempDir);
   res &= ::TestDistributedMultiBlock(controller, tempDir);
+  res &= ::TestDistributedMultiBlockMissingBlocks(controller, tempDir, dataRoot);
   res &= ::TestDistributedPartitionedDataSetCollection(controller, tempDir);
   res &= ::TestDistributedUnstructuredGridTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedUnstructuredGridTemporalStatic(controller, tempDir, dataRoot);
@@ -606,6 +741,7 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   res &= ::TestDistributedPolyDataTemporal(controller, tempDir, dataRoot);
   res &= ::TestDistributedPolyDataTemporalStatic(controller, tempDir, dataRoot);
   res &= ::TestDistributedTemporalMultiBlock(controller, tempDir);
+  res &= ::TestDistributedTemporalStaticMultiBlockMissingBlocks(controller, tempDir, dataRoot);
   res &= ::TestDistributedTemporalPartitionedDataSetCollection(controller, tempDir);
   controller->Finalize();
   return res ? EXIT_SUCCESS : EXIT_FAILURE;
