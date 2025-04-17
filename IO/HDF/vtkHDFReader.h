@@ -376,6 +376,7 @@ private:
   };
 
   bool HasTemporalData = false;
+  std::string CompositeCachePath; // Identifier for the current composite piece
 };
 
 VTK_ABI_NAMESPACE_END
