@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHDFWriterImplementation.h"
 
+#include "vtkDataSetAttributes.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFVersion.h"
 #include "vtkLogger.h"
-
 #include "vtk_hdf5.h"
 
 #include <algorithm>
@@ -1458,34 +1458,45 @@ bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
 }
 
 //------------------------------------------------------------------------------
+vtkHDF::ScopedH5GHandle vtkHDFWriter::Implementation::GetSubfileNonNullPart(
+  const std::string& blockPath, int& type)
+{
+  for (auto& fileRoot : this->Subfiles)
+  {
+    vtkHDF::ScopedH5GHandle blockG = this->OpenExistingGroup(fileRoot, blockPath.c_str());
+    if (blockG == H5I_INVALID_HID)
+    {
+      vtkWarningWithObjectMacro(
+        this->Writer, "Could not find group " << blockPath << " in subfile " << blockG);
+    }
+
+    if (H5Aexists(blockG, "Type") >= 0 && vtkHDFUtilities::ReadDataSetType(blockG, type))
+    {
+      return blockG;
+    }
+  }
+
+  // Not found
+  return H5I_INVALID_HID;
+}
+
+//------------------------------------------------------------------------------
 vtkHDFWriter::Implementation::IndexingMode vtkHDFWriter::Implementation::GetDatasetIndexationMode(
   const std::string& path)
 {
-  auto contains_any = [](const std::string& main, const std::vector<std::string>& substr)
-  {
-    for (auto& sub : substr)
-    {
-      if (main.find(sub) != std::string::npos)
-      {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  if (contains_any(path, PATH::SINGLE_VALUES) || contains_any(path, { PATH::FIELD_DATA }))
+  if (PATH::ContainsAny(path, PATH::COUNT_VALUES) || PATH::ContainsAny(path, { PATH::FIELD_DATA }))
   {
     return IndexingMode::MetaData;
   }
-  if (contains_any(path, { PATH::POINT_DATA, PATH::POINTS }))
+  if (PATH::ContainsAny(path, { PATH::POINT_DATA, PATH::POINTS }))
   {
     return IndexingMode::Points;
   }
-  if (contains_any(path, { PATH::CELL_DATA, PATH::OFFSETS, PATH::TYPES }))
+  if (PATH::ContainsAny(path, { PATH::CELL_DATA, PATH::OFFSETS, PATH::TYPES }))
   {
     return IndexingMode::Cells;
   }
-  if (contains_any(path, { PATH::CONNECTIVITY }))
+  if (PATH::ContainsAny(path, { PATH::CONNECTIVITY }))
   {
     return IndexingMode::Connectivity;
   }
@@ -1514,6 +1525,37 @@ bool vtkHDFWriter::Implementation::InitDynamicDataset(hid_t group, const char* n
   return dataset != H5I_INVALID_HID;
 }
 
+//------------------------------------------------------------------------------
+void vtkHDFWriter::Implementation::CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data)
+{
+  std::array<hid_t, 3> attributeDataGroup{ H5I_INVALID_HID, H5I_INVALID_HID, H5I_INVALID_HID };
+  std::array attributeGroupNames = { PATH::POINT_DATA, PATH::CELL_DATA, PATH::FIELD_DATA };
+
+  for (int i = 0; i < 3; i++)
+  {
+    if (H5Lexists(group, attributeGroupNames[i].c_str(), H5P_DEFAULT) > 0)
+    {
+      vtkHDF::ScopedH5GHandle pointDataGroup =
+        this->OpenExistingGroup(group, attributeGroupNames[i].c_str());
+      attributeDataGroup[i] = pointDataGroup;
+      for (const std::string& name : vtkHDFUtilities::GetArrayNames(attributeDataGroup, i))
+      {
+        std::vector<hsize_t> extent = { 0, 0 };
+        vtkSmartPointer<vtkDataArray> array = vtk::TakeSmartPointer(
+          vtkHDFUtilities::NewArrayForGroup(attributeDataGroup[i], name.c_str(), extent));
+        array->SetName(name.c_str());
+        if (i == vtkDataObject::AttributeTypes::FIELD)
+        {
+          data->GetAttributesAsFieldData(i)->AddArray(array);
+        }
+        else
+        {
+          data->GetAttributes(i)->AddArray(array);
+        }
+      }
+    }
+  }
+}
 //------------------------------------------------------------------------------
 vtkHDFWriter::Implementation::Implementation(vtkHDFWriter* writer)
   : Writer(writer)

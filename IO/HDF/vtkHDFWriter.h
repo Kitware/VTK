@@ -12,6 +12,7 @@
 #include "vtkIOHDFModule.h" // For export macro
 #include "vtkWriter.h"
 
+#include <map>
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -27,6 +28,7 @@ class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
+class vtkDataObjectTreeIterator;
 
 typedef int64_t hid_t;
 
@@ -91,6 +93,7 @@ public:
   /**
    * Get/set the flag to write all timesteps from the input dataset.
    * When turned OFF, only write the current timestep.
+   * Default is true
    */
   vtkSetMacro(WriteAllTimeSteps, bool);
   vtkGetMacro(WriteAllTimeSteps, bool);
@@ -343,6 +346,21 @@ private:
    * datasets during recursion.
    */
   bool AppendMultiblock(hid_t group, vtkMultiBlockDataSet* mb, int& leafIndex);
+
+  /**
+   * Write the current non-null composite block with given index to the root group with the given
+   * unique name, properly setting MeshMTime for the block
+   */
+  void AppendIterDataObject(vtkDataObjectTreeIterator* treeIter, const int& leafIndex,
+    const std::string& uniqueSubTreeName);
+
+  /**
+   * Write the composite dataset with given name as HDF virtual datasets using elements from
+   * previously written subfiles in a distributed setting. This covers the case where the current
+   * composite block is null for rank 0 but not for other ranks, and block characteristics (type,
+   * arrays) need to be deducted from non-null ranks first.
+   */
+  void AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName);
 
   ///@{
   /**
