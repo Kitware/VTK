@@ -65,10 +65,10 @@ foreach(module ${modules})
 endforeach()
 
 list(JOIN python_modules ,  python_modules_string)
-set(InitContent "__all__ = [${python_modules_string}]\n")
-file(GENERATE
-  OUTPUT  "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
-  CONTENT "${InitContent}")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/__init__.py.in"
+  "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
+  @ONLY)
 install(
   FILES       "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
   DESTINATION "${python_destination}/wrapping/")
