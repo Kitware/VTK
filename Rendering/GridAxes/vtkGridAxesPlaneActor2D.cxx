@@ -215,7 +215,7 @@ bool vtkGridAxesPlaneActor2D::UpdateEdges(vtkViewport*)
   const vtkTuple<vtkVector3d, 4>& gridPoints = this->Helper->GetPoints();
   for (int cc = 0; cc < 4; cc++)
   {
-    this->LineSegments.emplace_back(LineSegmentType(gridPoints[cc], gridPoints[(cc + 1) % 4]));
+    this->LineSegments.emplace_back(gridPoints[cc], gridPoints[(cc + 1) % 4]);
   }
   return true;
 }
@@ -239,7 +239,7 @@ bool vtkGridAxesPlaneActor2D::UpdateGrid(vtkViewport*)
     {
       points[0][activeAxes[cc]] = *iter;
       points[1][activeAxes[cc]] = *iter;
-      this->LineSegments.emplace_back(LineSegmentType(points[0], points[1]));
+      this->LineSegments.emplace_back(points[0], points[1]);
     }
   }
   return true;
@@ -317,7 +317,7 @@ bool vtkGridAxesPlaneActor2D::UpdateTicks(vtkViewport* viewport)
     {
       points[0][activeAxes[cc % 2]] = *iter;
       points[1][activeAxes[cc % 2]] = *iter;
-      this->LineSegments.emplace_back(LineSegmentType(points[0], points[1]));
+      this->LineSegments.emplace_back(points[0], points[1]);
     }
   }
 

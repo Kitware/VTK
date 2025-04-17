@@ -542,9 +542,9 @@ void vtkGridAxesActor2D::UpdateLabelPositions(vtkViewport*)
     }
   }
   activeAxisHelpers[0]->SetUnscaledRange(
-    this->GridBounds[2 * activeAxes.GetX()], this->GridBounds[2 * activeAxes.GetX() + 1]);
+    this->GridBounds[2 * activeAxes.GetX()], this->GridBounds[(2 * activeAxes.GetX()) + 1]);
   activeAxisHelpers[1]->SetUnscaledRange(
-    this->GridBounds[2 * activeAxes.GetY()], this->GridBounds[2 * activeAxes.GetY() + 1]);
+    this->GridBounds[2 * activeAxes.GetY()], this->GridBounds[(2 * activeAxes.GetY()) + 1]);
 
   activeAxisHelpers[0]->Update();
   activeAxisHelpers[1]->Update();
@@ -645,10 +645,10 @@ void vtkGridAxesActor2D::UpdateTextActors(vtkViewport* viewport)
     }
 
     /// XXX: improve this.
-    vtkVector2i offset(vtkContext2D::FloatToInt(axisNormals[index].GetX() * 10 * tileScale[0] +
+    vtkVector2i offset(vtkContext2D::FloatToInt((axisNormals[index].GetX() * 10 * tileScale[0]) +
                          this->LabelDisplayOffset[axis]),
       vtkContext2D::FloatToInt(
-        axisNormals[index].GetY() * 10 * tileScale[1] + this->LabelDisplayOffset[axis]));
+        (axisNormals[index].GetY() * 10 * tileScale[1]) + this->LabelDisplayOffset[axis]));
 
     vtkLabels::ResizeLabels(
       this->Labels->TickLabels[index], numTicks, activeAxisHelpers[axis]->GetLabelProperties());
