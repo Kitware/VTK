@@ -1356,18 +1356,27 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::DatasetAndGroupExist(const std::string& dataset, hid_t group)
 {
-  std::size_t found = dataset.find_last_of('/');
-  if (found != std::string::npos)
+  std::string datasetPath = dataset;
+  // Remove trailing '/'
+  if (datasetPath.back() == '/')
   {
-    std::string groupName = dataset.substr(0, found);
-    // Group can be null for some subfiles, eg empty datasets not containing Cell or Point data.
-    if (!H5Lexists(group, groupName.c_str(), H5P_DEFAULT))
+    datasetPath = dataset.substr(0, dataset.size() - 1);
+  }
+  vtkDebugWithObjectMacro(this->Writer, "datasetPath is  " << datasetPath);
+
+  std::size_t currentPos = datasetPath.find_first_of('/', 1);
+  while (currentPos != std::string::npos)
+  {
+    std::string groupName = datasetPath.substr(0, currentPos);
+    if (H5Lexists(group, groupName.c_str(), H5P_DEFAULT) <= 0)
     {
       return false;
     }
+    currentPos = datasetPath.find_first_of('/', currentPos + 1);
   }
 
-  return H5Lexists(group, dataset.c_str(), H5P_DEFAULT);
+  vtkDebugWithObjectMacro(this->Writer, "Testing existence of " << datasetPath);
+  return H5Lexists(group, datasetPath.c_str(), H5P_DEFAULT) > 0;
 }
 
 //------------------------------------------------------------------------------
