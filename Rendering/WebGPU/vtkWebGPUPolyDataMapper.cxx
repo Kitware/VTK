@@ -993,7 +993,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     }
     wgpu::BufferDescriptor pointBufDescriptor{};
     pointBufDescriptor.size = requiredPointBufferSize;
-    const auto label = "pointdata@" + this->CurrentInput->GetObjectDescription();
+    const auto label = "PointAttributes-" + this->CurrentInput->GetObjectDescription();
     pointBufDescriptor.label = label.c_str();
     pointBufDescriptor.mappedAtCreation = false;
     pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
@@ -1177,7 +1177,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
     }
     wgpu::BufferDescriptor cellBufDescriptor{};
     cellBufDescriptor.size = requiredCellBufferSize;
-    const auto label = "celldata@" + this->CurrentInput->GetObjectDescription();
+    const auto label = "CellAttributes-" + this->CurrentInput->GetObjectDescription();
     cellBufDescriptor.label = label.c_str();
     cellBufDescriptor.mappedAtCreation = false;
     cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;

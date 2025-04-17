@@ -549,10 +549,10 @@ public:
     return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
       {
         // clang-format off
-      { 0, this->AttributeDescriptorBuffer, 0 },
-      { 1, this->MeshSSBO.Point.Buffer, 0 },
-      { 2, this->MeshSSBO.Cell.Buffer, 0 },
-      { 3, this->MeshSSBO.Instance.Buffer, 0 }
+        { 0, this->AttributeDescriptorBuffer, 0 },
+        { 1, this->MeshSSBO.Point.Buffer, 0 },
+        { 2, this->MeshSSBO.Cell.Buffer, 0 },
+        { 3, this->MeshSSBO.Instance.Buffer, 0 }
         // clang-format on
       },
       label);
@@ -786,7 +786,7 @@ public:
       }
       wgpu::BufferDescriptor pointBufDescriptor{};
       pointBufDescriptor.size = requiredPointBufferSize;
-      const auto label = "pointdata@" + this->GetObjectDescription() + "-" +
+      const auto label = "pointdata-" + this->GetObjectDescription() + "-" +
         this->CurrentInput->GetObjectDescription();
       pointBufDescriptor.label = label.c_str();
       pointBufDescriptor.mappedAtCreation = false;
@@ -925,7 +925,7 @@ public:
       }
       wgpu::BufferDescriptor cellBufDescriptor{};
       cellBufDescriptor.size = requiredCellBufferSize;
-      const auto label = "celldata@" + this->GetObjectDescription() + "-" +
+      const auto label = "celldata-" + this->GetObjectDescription() + "-" +
         this->CurrentInput->GetObjectDescription();
       cellBufDescriptor.label = label.c_str();
       cellBufDescriptor.mappedAtCreation = false;
@@ -997,7 +997,7 @@ public:
       }
       wgpu::BufferDescriptor instanceBufDescriptor{};
       instanceBufDescriptor.size = requiredInstanceBufferSize;
-      const auto label = "instancedata@" + this->GetObjectDescription() + "-" +
+      const auto label = "InstanceAttributes-" + this->GetObjectDescription() + "-" +
         this->CurrentInput->GetObjectDescription();
       instanceBufDescriptor.label = label.c_str();
       instanceBufDescriptor.mappedAtCreation = false;
@@ -1105,7 +1105,8 @@ public:
       const auto* data = reinterpret_cast<void*>(&meshAttrDescriptor.CompositeId);
       constexpr auto offset = offsetof(MeshAttributeDescriptor, CompositeId);
       constexpr auto size = sizeof(MeshAttributeDescriptor) - offset;
-      wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer, offset, data, size);
+      wgpuConfiguration->WriteBuffer(
+        this->AttributeDescriptorBuffer, offset, data, size, "MeshAttributeDescriptor.CompositeId");
     }
   }
   ///@}

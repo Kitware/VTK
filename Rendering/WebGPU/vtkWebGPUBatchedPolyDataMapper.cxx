@@ -240,23 +240,28 @@ void vtkWebGPUBatchedPolyDataMapper::UpdateMeshDescriptor(
     }
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
       offsetof(MeshAttributeDescriptor, ApplyOverrideColors), &applyOverrideColors,
-      sizeof(vtkTypeUInt32));
+      sizeof(vtkTypeUInt32), "MeshAttributeDescriptor.ApplyOverrideColors");
 
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Opacity), &opacity, sizeof(vtkTypeFloat32));
+      offsetof(MeshAttributeDescriptor, Opacity), &opacity, sizeof(vtkTypeFloat32),
+      "MeshAttributeDescriptor.Opacity");
 
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, CompositeId), &compositeId, sizeof(vtkTypeUInt32));
+      offsetof(MeshAttributeDescriptor, CompositeId), &compositeId, sizeof(vtkTypeUInt32),
+      "MeshAttributeDescriptor.CompositeId");
 
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Ambient), &ambientColor, sizeof(ambientColor));
+      offsetof(MeshAttributeDescriptor, Ambient), &ambientColor, sizeof(ambientColor),
+      "MeshAttributeDescriptor.Ambient");
 
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Diffuse), &diffuseColor, sizeof(diffuseColor));
+      offsetof(MeshAttributeDescriptor, Diffuse), &diffuseColor, sizeof(diffuseColor),
+      "MeshAttributeDescriptor.Diffuse");
 
     vtkTypeUInt32 pickableAsUInt32 = pickable ? 1u : 0u;
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32));
+      offsetof(MeshAttributeDescriptor, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32),
+      "MeshAttributeDescriptor.Pickable");
   }
   this->OverrideColorUploadTimestamp.Modified();
 }

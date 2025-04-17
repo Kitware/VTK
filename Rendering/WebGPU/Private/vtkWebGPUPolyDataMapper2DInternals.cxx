@@ -146,7 +146,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   bool recreateMeshBindGroup = false;
   if (this->Mapper2DStateData.Buffer == nullptr)
   {
-    const auto label = "mapper2dstate@" + input->GetObjectDescription();
+    const auto label = "Mapper2DState-" + input->GetObjectDescription();
     this->Mapper2DStateData.Buffer = wgpuConfiguration->CreateBuffer(sizeof(Mapper2DState),
       wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
     this->Mapper2DStateData.Size = sizeof(Mapper2DState);
@@ -269,8 +269,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     }
     this->State.Flags = (this->UseCellScalarMapping ? 1 : 0);
     this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << 1);
-    wgpuConfiguration->WriteBuffer(this->Mapper2DStateData.Buffer, 0, &(this->State),
-      sizeof(Mapper2DState), "Write flags for Mapper2DState");
+    wgpuConfiguration->WriteBuffer(
+      this->Mapper2DStateData.Buffer, 0, &(this->State), sizeof(Mapper2DState), "Mapper2DState");
     vtkDataArray* pointPositions = input->GetPoints()->GetData();
     // Transform the points, if necessary
     if (mapper->TransformCoordinate)
@@ -317,7 +317,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     if (this->MeshData.Buffer == nullptr)
     {
       recreateMeshBindGroup = true;
-      const auto label = "meshdata@" + input->GetObjectDescription();
+      const auto label = "MeshAttributes-" + input->GetObjectDescription();
       this->MeshData.Buffer = wgpuConfiguration->CreateBuffer(requiredBufferSize,
         wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
       using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
