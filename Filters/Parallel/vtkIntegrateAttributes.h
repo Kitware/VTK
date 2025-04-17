@@ -17,14 +17,17 @@
 #define vtkIntegrateAttributes_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
+#include "vtkSmartPointer.h"          // For holding strategy
 #include "vtkUnstructuredGridAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkIdList;
 class vtkInformation;
 class vtkInformationVector;
-class vtkDataSetAttributes;
+class vtkIntegrateAttributesFieldList;
+class vtkIntegrationStrategy;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLEL_EXPORT vtkIntegrateAttributes : public vtkUnstructuredGridAlgorithm
@@ -41,6 +44,14 @@ public:
    */
   void SetController(vtkMultiProcessController* controller);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the integration strategy.
+   */
+  void SetIntegrationStrategy(vtkIntegrationStrategy* strategy);
+  vtkIntegrationStrategy* GetIntegrationStrategy();
   ///@}
 
   ///@{
@@ -90,15 +101,16 @@ protected:
 private:
   vtkIntegrateAttributes(const vtkIntegrateAttributes&) = delete;
   void operator=(const vtkIntegrateAttributes&) = delete;
+  vtkSmartPointer<vtkIntegrationStrategy> IntegrationStrategy;
 
-  class vtkFieldList;
   class vtkIntegrateAttributesFunctor;
 
-  static void AllocateAttributes(vtkFieldList& fieldList, vtkDataSetAttributes* outda);
+  static void AllocateAttributes(
+    vtkIntegrateAttributesFieldList& fieldList, vtkDataSetAttributes* outda);
   static void InitializeAttributes(vtkDataSetAttributes* outda);
   void ExecuteBlock(vtkDataSet* input, vtkUnstructuredGrid* output, int fieldset_index,
-    vtkFieldList& pdList, vtkFieldList& cdList, double& totalSum, double totalSumCenter[3],
-    int integrationDimension);
+    vtkIntegrateAttributesFieldList& pdList, vtkIntegrateAttributesFieldList& cdList,
+    double& totalSum, double totalSumCenter[3], int integrationDimension);
 
 public:
   enum CommunicationIds

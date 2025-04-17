@@ -3,7 +3,6 @@
 
 #include "vtkQuadratureSchemeDefinition.h"
 
-#include "vtkCellType.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
@@ -27,13 +26,17 @@ vtkQuadratureSchemeDefinition::vtkQuadratureSchemeDefinition()
 {
   this->ShapeFunctionWeights = nullptr;
   this->QuadratureWeights = nullptr;
-  this->Clear();
+  this->ShapeFunctionDerivativeWeights = nullptr;
+  this->CellType = -1;
+  this->QuadratureKey = -1;
+  this->NumberOfNodes = 0;
+  this->NumberOfQuadraturePoints = 0;
 }
 
 //------------------------------------------------------------------------------
 vtkQuadratureSchemeDefinition::~vtkQuadratureSchemeDefinition()
 {
-  this->Clear();
+  this->ReleaseResources();
 }
 
 //------------------------------------------------------------------------------
@@ -41,7 +44,11 @@ int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition*
 {
   this->ShapeFunctionWeights = nullptr;
   this->QuadratureWeights = nullptr;
-  this->Clear();
+  this->ShapeFunctionDerivativeWeights = nullptr;
+  this->CellType = -1;
+  this->QuadratureKey = -1;
+  this->NumberOfNodes = 0;
+  this->NumberOfQuadraturePoints = 0;
   //
   this->CellType = other->CellType;
   this->QuadratureKey = other->QuadratureKey;
@@ -57,16 +64,6 @@ int vtkQuadratureSchemeDefinition::DeepCopy(const vtkQuadratureSchemeDefinition*
 }
 
 //------------------------------------------------------------------------------
-void vtkQuadratureSchemeDefinition::Clear()
-{
-  this->ReleaseResources();
-  this->CellType = -1;
-  this->QuadratureKey = -1;
-  this->NumberOfNodes = 0;
-  this->NumberOfQuadraturePoints = 0;
-}
-
-//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDefinition::Initialize(
   int cellType, int numberOfNodes, int numberOfQuadraturePoints, double* shapeFunctionWeights)
 {
@@ -76,6 +73,7 @@ void vtkQuadratureSchemeDefinition::Initialize(
   this->QuadratureKey = -1;
   this->NumberOfNodes = numberOfNodes;
   this->NumberOfQuadraturePoints = numberOfQuadraturePoints;
+  this->Dimension = 0;
   //
   this->SecureResources();
   //
@@ -92,11 +90,32 @@ void vtkQuadratureSchemeDefinition::Initialize(int cellType, int numberOfNodes,
   this->QuadratureKey = -1;
   this->NumberOfNodes = numberOfNodes;
   this->NumberOfQuadraturePoints = numberOfQuadraturePoints;
+  this->Dimension = 0;
   //
   this->SecureResources();
   //
   this->SetShapeFunctionWeights(shapeFunctionWeights);
   this->SetQuadratureWeights(quadratureWeights);
+}
+
+//------------------------------------------------------------------------------
+void vtkQuadratureSchemeDefinition::Initialize(int cellType, int numberOfNodes,
+  int numberOfQuadraturePoints, const double* shapeFunctionWeights, const double* quadratureWeights,
+  int dim, const double* shapeFunctionDerivativeWeights)
+{
+  this->ReleaseResources();
+  //
+  this->CellType = cellType;
+  this->QuadratureKey = -1;
+  this->NumberOfNodes = numberOfNodes;
+  this->NumberOfQuadraturePoints = numberOfQuadraturePoints;
+  this->Dimension = dim;
+  //
+  this->SecureResources();
+  //
+  this->SetShapeFunctionWeights(shapeFunctionWeights);
+  this->SetQuadratureWeights(quadratureWeights);
+  this->SetShapeFunctionDerivativeWeights(shapeFunctionDerivativeWeights);
 }
 
 //------------------------------------------------------------------------------
@@ -107,6 +126,9 @@ void vtkQuadratureSchemeDefinition::ReleaseResources()
 
   delete[] this->QuadratureWeights;
   this->QuadratureWeights = nullptr;
+
+  delete[] this->ShapeFunctionDerivativeWeights;
+  this->ShapeFunctionDerivativeWeights = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -134,14 +156,22 @@ int vtkQuadratureSchemeDefinition::SecureResources()
   {
     this->QuadratureWeights[i] = 0.0;
   }
+
+  // Shape function derivative weights, one matrix for each quad point.
+  this->ShapeFunctionDerivativeWeights =
+    new double[this->NumberOfQuadraturePoints * this->NumberOfNodes * this->Dimension];
+  for (int i = 0; i < this->NumberOfQuadraturePoints * this->NumberOfNodes * this->Dimension; i++)
+  {
+    this->ShapeFunctionDerivativeWeights[i] = 0.0;
+  }
   return 1;
 }
 
 //------------------------------------------------------------------------------
-void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double* W)
+void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double* weights)
 {
   if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0) ||
-    (this->ShapeFunctionWeights == nullptr) || !W)
+    (this->ShapeFunctionWeights == nullptr) || !weights)
   {
     return;
   }
@@ -149,22 +179,37 @@ void vtkQuadratureSchemeDefinition::SetShapeFunctionWeights(const double* W)
   int n = this->NumberOfQuadraturePoints * this->NumberOfNodes;
   for (int i = 0; i < n; ++i)
   {
-    this->ShapeFunctionWeights[i] = W[i];
+    this->ShapeFunctionWeights[i] = weights[i];
   }
 }
 
 //------------------------------------------------------------------------------
-void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double* W)
+void vtkQuadratureSchemeDefinition::SetQuadratureWeights(const double* weights)
 {
   if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0) ||
-    (this->QuadratureWeights == nullptr) || !W)
+    (this->QuadratureWeights == nullptr) || !weights)
   {
     return;
   }
   // Copy
   for (int i = 0; i < this->NumberOfQuadraturePoints; ++i)
   {
-    this->QuadratureWeights[i] = W[i];
+    this->QuadratureWeights[i] = weights[i];
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkQuadratureSchemeDefinition::SetShapeFunctionDerivativeWeights(const double* weights)
+{
+  if ((this->NumberOfQuadraturePoints <= 0) || (this->NumberOfNodes <= 0) ||
+    (this->ShapeFunctionDerivativeWeights == nullptr) || !weights)
+  {
+    return;
+  }
+  // Copy
+  for (int i = 0; i < this->NumberOfNodes * this->NumberOfQuadraturePoints * this->Dimension; ++i)
+  {
+    this->ShapeFunctionDerivativeWeights[i] = weights[i];
   }
 }
 

@@ -45,6 +45,13 @@ class vtkDataSet;
 class vtkFieldData;
 class vtkUnsignedCharArray;
 
+#define AssertMacro(b, data, reason)                                                               \
+  if (!(b))                                                                                        \
+  {                                                                                                \
+    std::cerr << "Test failed on " << data << ": " << reason << std::endl;                         \
+    return EXIT_FAILURE;                                                                           \
+  }
+
 struct VTKTESTINGCORE_EXPORT vtkTestUtilities
 {
   /**
