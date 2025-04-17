@@ -283,6 +283,7 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
   }
   return status;
 }
+}
 
 //------------------------------------------------------------------------------
 /**
@@ -290,117 +291,115 @@ herr_t AddName(hid_t group, const char* name, const H5L_info_t*, void* op_data)
  * of the groupID group.
  * Return true if a valid data type was found.
  */
-bool ReadDataSetType(hid_t groupID, int& dataSetType)
+bool vtkHDFUtilities::ReadDataSetType(hid_t groupID, int& dataSetType)
 {
-  if (H5Aexists(groupID, "Type"))
+  if (H5Aexists(groupID, "Type") <= 0)
   {
-    vtkHDF::ScopedH5AHandle typeAttributeHID = H5Aopen_name(groupID, "Type");
-    if (typeAttributeHID < 0)
-    {
-      vtkErrorWithObjectMacro(nullptr, "Can't open 'Type' attribute.");
-      return false;
-    }
+    vtkDebugWithObjectMacro(nullptr, "Can't find the `Type` attribute.");
+    return false;
+  }
 
-    vtkHDF::ScopedH5THandle hdfType = H5Aget_type(typeAttributeHID);
-    if (hdfType == H5I_INVALID_HID)
-    {
-      vtkErrorWithObjectMacro(nullptr, "Invalid type when reading type attribute.");
-      return false;
-    }
+  vtkHDF::ScopedH5AHandle typeAttributeHID = H5Aopen_name(groupID, "Type");
+  if (typeAttributeHID <= 0)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Can't open 'Type' attribute.");
+    return false;
+  }
 
-    H5T_class_t attributeClass = H5Tget_class(hdfType);
-    if (attributeClass != H5T_STRING)
-    {
-      vtkErrorWithObjectMacro(nullptr, "Can't get class type of attribute.");
-      return false;
-    }
+  vtkHDF::ScopedH5THandle hdfType = H5Aget_type(typeAttributeHID);
+  if (hdfType == H5I_INVALID_HID)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Invalid type when reading type attribute.");
+    return false;
+  }
 
-    H5T_cset_t characterType = H5Tget_cset(hdfType);
-    if (characterType != H5T_CSET_ASCII && characterType != H5T_CSET_UTF8)
+  H5T_class_t attributeClass = H5Tget_class(hdfType);
+  if (attributeClass != H5T_STRING)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Can't get class type of attribute.");
+    return false;
+  }
+
+  H5T_cset_t characterType = H5Tget_cset(hdfType);
+  if (characterType != H5T_CSET_ASCII && characterType != H5T_CSET_UTF8)
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "Not an ASCII or UTF-8 string character type: " << characterType);
+    return false;
+  }
+
+  hsize_t stringLength = H5Aget_storage_size(typeAttributeHID);
+  if (stringLength < 1 || stringLength > 32)
+  {
+    vtkErrorWithObjectMacro(
+      nullptr, "Wrong length of Type attribute (expected between 1 and 32): " << stringLength);
+    return false;
+  }
+
+  std::string typeName;
+  if (H5Tis_variable_str(hdfType) > 0)
+  {
+    char* buffer = nullptr;
+    if (H5Aread(typeAttributeHID, hdfType, &buffer) < 0)
     {
       vtkErrorWithObjectMacro(
-        nullptr, "Not an ASCII or UTF-8 string character type: " << characterType);
+        nullptr, "H5Aread failed while reading Type attribute (variable-length)");
       return false;
     }
-
-    hsize_t stringLength = H5Aget_storage_size(typeAttributeHID);
-    if (stringLength < 1 || stringLength > 32)
+    typeName = std::string(buffer, stringLength);
+    H5free_memory(buffer);
+  }
+  else if (H5Tis_variable_str(hdfType) == 0)
+  {
+    std::array<char, 32> buffer;
+    if (H5Aread(typeAttributeHID, hdfType, buffer.data()) < 0)
     {
       vtkErrorWithObjectMacro(
-        nullptr, "Wrong length of Type attribute (expected between 1 and 32): " << stringLength);
+        nullptr, "H5Aread failed while reading Type attribute (fixed-length)");
       return false;
     }
-
-    std::string typeName;
-    if (H5Tis_variable_str(hdfType) > 0)
-    {
-      char* buffer = nullptr;
-      if (H5Aread(typeAttributeHID, hdfType, &buffer) < 0)
-      {
-        vtkErrorWithObjectMacro(
-          nullptr, "H5Aread failed while reading Type attribute (variable-length)");
-        return false;
-      }
-      typeName = std::string(buffer, stringLength);
-      H5free_memory(buffer);
-    }
-    else if (H5Tis_variable_str(hdfType) == 0)
-    {
-      std::array<char, 32> buffer;
-      if (H5Aread(typeAttributeHID, hdfType, buffer.data()) < 0)
-      {
-        vtkErrorWithObjectMacro(
-          nullptr, "H5Aread failed while reading Type attribute (fixed-length)");
-        return false;
-      }
-      typeName = std::string(buffer.data(), stringLength);
-    }
-    else
-    {
-      vtkErrorWithObjectMacro(nullptr, "H5Tis_variable_str failed while reading Type attribute");
-      return false;
-    }
-
-    // Handle null-terminated strings
-    typeName.erase(std::find(typeName.begin(), typeName.end(), '\0'), typeName.end());
-
-    if (typeName == "OverlappingAMR")
-    {
-      dataSetType = VTK_OVERLAPPING_AMR;
-    }
-    else if (typeName == "ImageData")
-    {
-      dataSetType = VTK_IMAGE_DATA;
-    }
-    else if (typeName == "UnstructuredGrid")
-    {
-      dataSetType = VTK_UNSTRUCTURED_GRID;
-    }
-    else if (typeName == "PolyData")
-    {
-      dataSetType = VTK_POLY_DATA;
-    }
-    else if (typeName == "PartitionedDataSetCollection")
-    {
-      dataSetType = VTK_PARTITIONED_DATA_SET_COLLECTION;
-    }
-    else if (typeName == "MultiBlockDataSet")
-    {
-      dataSetType = VTK_MULTIBLOCK_DATA_SET;
-    }
-    else
-    {
-      vtkErrorWithObjectMacro(nullptr, "Unknown data set type: " << typeName);
-      return false;
-    }
+    typeName = std::string(buffer.data(), stringLength);
   }
   else
   {
-    vtkErrorWithObjectMacro(nullptr, "Can't find the `Type` attribute.");
+    vtkErrorWithObjectMacro(nullptr, "H5Tis_variable_str failed while reading Type attribute");
     return false;
   }
+
+  // Handle null-terminated strings
+  typeName.erase(std::find(typeName.begin(), typeName.end(), '\0'), typeName.end());
+
+  if (typeName == "OverlappingAMR")
+  {
+    dataSetType = VTK_OVERLAPPING_AMR;
+  }
+  else if (typeName == "ImageData")
+  {
+    dataSetType = VTK_IMAGE_DATA;
+  }
+  else if (typeName == "UnstructuredGrid")
+  {
+    dataSetType = VTK_UNSTRUCTURED_GRID;
+  }
+  else if (typeName == "PolyData")
+  {
+    dataSetType = VTK_POLY_DATA;
+  }
+  else if (typeName == "PartitionedDataSetCollection")
+  {
+    dataSetType = VTK_PARTITIONED_DATA_SET_COLLECTION;
+  }
+  else if (typeName == "MultiBlockDataSet")
+  {
+    dataSetType = VTK_MULTIBLOCK_DATA_SET;
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(nullptr, "Unknown data set type: " << typeName);
+    return false;
+  }
+
   return true;
-}
 }
 
 hid_t vtkHDFUtilities::getH5TypeFromVtkType(int dataType)
@@ -681,7 +680,7 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
   }
 
   H5Eset_auto(H5E_DEFAULT, f, client_data);
-  if (!::ReadDataSetType(groupID, dataSetType))
+  if (!vtkHDFUtilities::ReadDataSetType(groupID, dataSetType))
   {
     return false;
   }
