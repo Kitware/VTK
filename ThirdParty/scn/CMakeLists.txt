@@ -5,7 +5,7 @@ vtk_module_third_party(
       vtkscn/LICENSE.nanorange
     SPDX_LICENSE_IDENTIFIER "Apache-2.0 AND BSL-1.0"
     SPDX_COPYRIGHT_TEXT     "Copyright (c) 2017 Elias Kosunen; Copyright (c) 2018 Tristan Brindle (tcbrindle at gmail dot com)"
-    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/scnlib.git@for/vtk-20250403-4.0.1"
+    SPDX_DOWNLOAD_LOCATION  "git+https://gitlab.kitware.com/third-party/scnlib.git@for/vtk-20250416-4.0.1"
     VERSION                 "4.0.1"
     STANDARD_INCLUDE_DIRS
   EXTERNAL

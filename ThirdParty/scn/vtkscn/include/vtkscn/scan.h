@@ -5117,13 +5117,19 @@ struct scan_file_buffer : public basic_scan_file_buffer<stdio_file_interface> {
     }
 };
 
+#if SCN_GCC
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92914
 extern template SCN_EXPORT basic_scan_file_buffer<
     stdio_file_interface>::basic_scan_file_buffer(stdio_file_interface);
 extern template SCN_EXPORT
     basic_scan_file_buffer<stdio_file_interface>::~basic_scan_file_buffer();
-extern template bool basic_scan_file_buffer<stdio_file_interface>::fill();
-extern template bool basic_scan_file_buffer<stdio_file_interface>::sync(
-    std::ptrdiff_t);
+extern template SCN_EXPORT bool
+basic_scan_file_buffer<stdio_file_interface>::fill();
+extern template SCN_EXPORT bool
+basic_scan_file_buffer<stdio_file_interface>::sync(std::ptrdiff_t);
+#else
+extern template class SCN_EXPORT basic_scan_file_buffer<stdio_file_interface>;
+#endif
 
 template <typename CharT>
 class basic_scan_ref_buffer : public basic_scan_buffer<CharT> {

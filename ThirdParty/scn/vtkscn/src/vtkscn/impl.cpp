@@ -286,6 +286,8 @@ SCN_DEFINE_SCANNER_SCAN_FOR_CTX(wscan_context)
 // scan_buffer implementations
 /////////////////////////////////////////////////////////////////
 
+#if SCN_GCC
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92914
 template basic_scan_file_buffer<stdio_file_interface>::basic_scan_file_buffer(
     stdio_file_interface);
 template basic_scan_file_buffer<
@@ -293,6 +295,9 @@ template basic_scan_file_buffer<
 template bool basic_scan_file_buffer<stdio_file_interface>::fill();
 template bool basic_scan_file_buffer<stdio_file_interface>::sync(
     std::ptrdiff_t);
+#else
+template class basic_scan_file_buffer<stdio_file_interface>;
+#endif
 
 }  // namespace detail
 
