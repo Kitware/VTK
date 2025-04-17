@@ -37,6 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void StartSelect();
+  void StopSelect();
 
   ///@{
   /**

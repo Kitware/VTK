@@ -42,6 +42,12 @@ void vtkInteractorStyleRubberBandPick::StartSelect()
 }
 
 //------------------------------------------------------------------------------
+void vtkInteractorStyleRubberBandPick::StopSelect()
+{
+  this->CurrentMode = VTKISRBP_ORIENT;
+}
+
+//------------------------------------------------------------------------------
 void vtkInteractorStyleRubberBandPick::OnChar()
 {
   char* cKeySym = this->Interactor->GetKeySym();
