@@ -899,7 +899,7 @@ bool vtkHDFWriter::Implementation::CreateVirtualDataset(
   const std::string groupPath = this->GetGroupName(group);
   const std::string datasetPath = groupPath + "/" + name;
   hsize_t totalSize = 0;
-  if (!this->GetSubFilesDatasetSize(datasetPath.c_str(), groupPath.c_str(), totalSize))
+  if (!this->GetSubFilesDatasetSize(datasetPath, groupPath, totalSize))
   {
     vtkDebugWithObjectMacro(
       this->Writer, << "Ignoring dataset " << datasetPath << " not present in every sub-file.");
@@ -1381,17 +1381,21 @@ bool vtkHDFWriter::Implementation::DatasetAndGroupExist(const std::string& datas
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::GetSubFilesDatasetSize(
-  const char* datasetPath, const char* groupName, hsize_t& totalSize)
+  const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize)
 {
   totalSize = 0;
   for (auto& fileRoot : this->Subfiles)
   {
-    if (!H5Lexists(fileRoot, groupName, H5P_DEFAULT) ||
-      !H5Lexists(fileRoot, datasetPath, H5P_DEFAULT))
+    if (H5Lexists(fileRoot, groupName.c_str(), H5P_DEFAULT) <= 0 ||
+      H5Lexists(fileRoot, datasetPath.c_str(), H5P_DEFAULT) <= 0)
     {
+      if (PATH::ContainsAny(datasetPath, { PATH::OFFSETS }))
+      {
+        totalSize++; // For 0 cells, Offset is still [0]
+      }
       continue;
     }
-    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath, H5P_DEFAULT);
+    vtkHDF::ScopedH5DHandle sourceDataset = H5Dopen(fileRoot, datasetPath.c_str(), H5P_DEFAULT);
     vtkHDF::ScopedH5SHandle sourceDataSpace = H5Dget_space(sourceDataset);
     std::vector<hsize_t> sourceDims(3);
     if (H5Sget_simple_extent_dims(sourceDataSpace, sourceDims.data(), nullptr) < 0)
