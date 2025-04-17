@@ -1162,41 +1162,33 @@ PointData or CellData group.
 
 ### PartitionedDataSetCollection and MultiBlockDataSet
 
-The general VTKHDF format for vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) is shown in Figure 10.
+VTKHDF supports composite types, made of multiple datasets of simple types, organised as a tree.
+The format currently supports vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) composite types, as shown in Figure 10.
+The `Type` attribute of the `VTKHDF` group for them should be either `PartitionedDataSetCollection` or `MultiBlockDataSet`.
 
-Both VTK data types share a common structure, with a few notable differences.
-The `Type` attribute of the `VTKHDF` group for them should be `PartitionedDataSetCollection` or `MultiBlockDataSet`.
-The most important element in this design is the `Assembly` group, direct child of the `VTKHDF` group.
-This group describes the composite data hierarchy. The elements of the Assembly group do not contain the data directly.
-Instead, the data blocks are stored as direct children of the `VTKHDF` group, without any hierarchy,
-and any node in the Assembly group can use an [HDF5 symbolic link](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html#HardAndSymbolicLinks)
-to the top-level datasets.
+All simple (non composite) datasets are located in the root `VTKHDF` group, with a unique block name.
+These blocks can have any `Type` specified above, or be empty blocks when no `Type` is specified.
+These top-level data blocks should not be composite themselves : they can only be simple or partitioned (multi-piece) types.
+For temporal datasets, all blocks should have the same number of time steps and time values.
 
-Here lies the main distinction between the PDC and MB formats.
-For PDC, a group in the assembly that is not a softlink represents a node in the vtkAssembly associated to it, and
+Then, dataset tree hierarchy is defined in the `Assembly` group, which is also a direct child of the `VTKHDF` group.
+Sub-groups in the `Assembly` group define the dataset(s) they contain using a [HDF5 symbolic link](https://davis.lbl.gov/Manuals/HDF5-1.8.7/UG/09_Groups.html#HardAndSymbolicLinks)
+to the top-level datasets. The name of the link in the assembly will be the actual name of the block when read.
+Any group can have multiple children that are either links to datasets, or nodes that define datasets deeper in the hierarchy.
+
+The Assembly group and its children need to track creation order to be able to keep subtrees ordered.
+For this, you need to set H5G properties `H5P_CRT_ORDER_TRACKED` and `H5P_CRT_ORDER_INDEXED` on each group when writing the Assembly.
+
+While both MB and PDC share a common structure, there is still a slight distinction in the format between them.
+For PDC, a group in the assembly that is not a softlink represents a node in the vtkDataAssembly associated to it, and
 a softlink represents a dataset index associated to its parent node (similar to what the function `AddDataSetIndex` does in `vtkDataAssembly`).
 This way, a single dataset can be used multiple times in the assembly without any additional storage cost.
 Top-level datasets need to set an `Index` attribute to specify their index in the PDC flat structure.
+
 On the other hand, MB structures work a little differently. First, they don't need no index for their datasets, and
 secondly, an assembly node that is not a softlink represents a nested `vtkMultiBlockDataSet`.
 A softlink in the assembly represents a dataset nested in its parent `vtkMultiBlockDataSet`.
 Again, this MB format can save space when a block is referenced multiple times.
-
-Some additional detail about the format:
-* The data blocks should not be composite themselves : they can only be simple or partitioned types, but not using an assembly.
-* The Assembly group and its children need to track creation order to be able to keep subtrees ordered.
-For this, you need to set H5G properties `H5P_CRT_ORDER_TRACKED` and `H5P_CRT_ORDER_INDEXED` on each group when writing the Assembly.
-* For PDC, the assembly structure only needs to be traversed once at the beginning of the
-reading procedure (and can potentially be read and broadcasted only by the main
-process in a distributed context) to optimize file meta-data reading.
-* The block wise reading implementation and composite level implementation can be
-managed independently from each other.
-* It would be doable for each block to have its own time range and time steps in
-a temporal context with the full composite data set able to collect and expose a
-combined range and set of time values, but for now we only allow
-reading datasets that have all the same number of timesteps.
-* Reading performance can scale linearly with the number of blocks even in a
-distributed context.
 
 ```{figure} vtkhdf_images/partitioned_dataset_collection_hdf_schema.png
 :width: 640px
