@@ -307,6 +307,13 @@ bool removeObserver(vtkTypeUInt32 identifier, unsigned long tag)
 }
 
 //-------------------------------------------------------------------------------
+void import(const std::string& stateFileName, const std::string& blobFileName)
+{
+  CHECK_INIT;
+  Manager->Import(stateFileName, blobFileName);
+}
+
+//-------------------------------------------------------------------------------
 void printSceneManagerInformation()
 {
   CHECK_INIT;
@@ -415,6 +422,8 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("addObserver", ::addObserver);
   function("removeObserver", ::removeObserver);
+
+  function("import", ::import);
 
   // debugging
   function("printSceneManagerInformation", ::printSceneManagerInformation);
