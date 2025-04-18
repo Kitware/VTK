@@ -2533,6 +2533,122 @@ void vtkMath::HSVToRGB(double h, double s, double v, double* r, double* g, doubl
 }
 
 //------------------------------------------------------------------------------
+void vtkMath::ProLabToXYZ(double L, double a, double b, double* x, double* y, double* z)
+{
+  // QI is the inverse of the Q transformation matrix having optimal parameters.
+  double QI[4][4];
+  QI[0][0] = 0.00137063282117354;
+  QI[0][1] = 0.00138738203138321;
+  QI[0][2] = 0.000816068851107095;
+  QI[0][3] = 0;
+
+  QI[1][0] = 0.00137063282117354;
+  QI[1][1] = -0.000243154854293407;
+  QI[1][2] = 0.000965329194924993;
+  QI[1][3] = 0;
+
+  QI[2][0] = 0.00137063282117354;
+  QI[2][1] = 8.08345942991924e-05;
+  QI[2][2] = -0.00317481896776885;
+  QI[2][3] = 0;
+
+  QI[3][0] = -0.00862936717882646;
+  QI[3][1] = -0.000243154854293407;
+  QI[3][2] = 0.000965329194924994;
+  QI[3][3] = 1;
+
+  double mProlab[4][4];
+  mProlab[0][0] = L;
+  mProlab[0][1] = a;
+  mProlab[0][2] = b;
+  mProlab[0][3] = 1;
+
+  for (int i = 1; i < 4; ++i)
+  {
+    mProlab[i][0] = 0;
+    mProlab[i][1] = 0;
+    mProlab[i][2] = 0;
+    mProlab[i][3] = 0;
+  }
+
+  double xyzHomog[4][4];
+  MultiplyMatrix<4, 4, 4, vtkMatrixUtilities::Layout::Identity,
+    vtkMatrixUtilities::Layout::Transpose>(mProlab, QI, xyzHomog);
+
+  // Convert to XYZ
+  double var_X =
+    xyzHomog[0][0] / xyzHomog[0][3]; // ref_X = 0.9505  Observer= 2 deg, Illuminant= D65
+  double var_Y = xyzHomog[0][1] / xyzHomog[0][3]; // ref_Y = 1.000
+  double var_Z = xyzHomog[0][2] / xyzHomog[0][3]; // ref_Z = 1.089
+
+  const double ref_X = 0.9505;
+  const double ref_Y = 1.000;
+  const double ref_Z = 1.089;
+
+  *x = var_X * ref_X;
+  *y = var_Y * ref_Y;
+  *z = var_Z * ref_Z;
+}
+
+//------------------------------------------------------------------------------
+void vtkMath::XYZToProLab(double x, double y, double z, double* L, double* a, double* b)
+{
+  const double ref_X = 0.9505;
+  const double ref_Y = 1.000;
+  const double ref_Z = 1.089;
+  double var_X = x / ref_X; // ref_X = 0.9505  Observer= 2 deg, Illuminant= D65
+  double var_Y = y / ref_Y; // ref_Y = 1.000
+  double var_Z = z / ref_Z; // ref_Z = 1.089
+
+  // Q transformation matrix having the optimal parameters.
+  double Q[4][4];
+  Q[0][0] = 75.54;
+  Q[0][1] = 486.66;
+  Q[0][2] = 167.39;
+  Q[0][3] = 0;
+
+  Q[1][0] = 617.72;
+  Q[1][1] = -595.45;
+  Q[1][2] = -22.27;
+  Q[1][3] = 0;
+
+  Q[2][0] = 48.34;
+  Q[2][1] = 194.94;
+  Q[2][2] = -243.28;
+  Q[2][3] = 0;
+
+  Q[3][0] = 0.7554;
+  Q[3][1] = 3.8666;
+  Q[3][2] = 1.6739;
+  Q[3][3] = 1;
+
+  // Construction of the matrix with the XYZ values for future multiplication.
+  double mXYZ[4][4];
+  mXYZ[0][0] = var_X;
+  mXYZ[0][1] = var_Y;
+  mXYZ[0][2] = var_Z;
+  mXYZ[0][3] = 1;
+
+  for (int i = 1; i < 4; ++i)
+  {
+    mXYZ[i][0] = 0;
+    mXYZ[i][1] = 0;
+    mXYZ[i][2] = 0;
+    mXYZ[i][3] = 0;
+  }
+
+  double prolabHomog[4][4];
+
+  MultiplyMatrix<4, 4, 4, vtkMatrixUtilities::Layout::Identity,
+    vtkMatrixUtilities::Layout::Transpose>(mXYZ, Q, prolabHomog);
+
+  // Convert to ProLab
+  *L = prolabHomog[0][0] / prolabHomog[0][3];
+  *a = prolabHomog[0][1] / prolabHomog[0][3];
+  *b = prolabHomog[0][2] / prolabHomog[0][3];
+}
+
+//------------------------------------------------------------------------------
 void vtkMath::LabToXYZ(double L, double a, double b, double* x, double* y, double* z)
 {
   // LAB to XYZ
@@ -2730,6 +2846,22 @@ void vtkMath::RGBToXYZ(double r, double g, double b, double* x, double* y, doubl
   *x = r * 0.4124 + g * 0.3576 + b * 0.1805;
   *y = r * 0.2126 + g * 0.7152 + b * 0.0722;
   *z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+}
+
+//------------------------------------------------------------------------------
+void vtkMath::RGBToProLab(double red, double green, double blue, double* L, double* a, double* b)
+{
+  double x, y, z;
+  vtkMath::RGBToXYZ(red, green, blue, &x, &y, &z);
+  vtkMath::XYZToProLab(x, y, z, L, a, b);
+}
+
+//------------------------------------------------------------------------------
+void vtkMath::ProLabToRGB(double L, double a, double b, double* red, double* green, double* blue)
+{
+  double x, y, z;
+  vtkMath::ProLabToXYZ(L, a, b, &x, &y, &z);
+  vtkMath::XYZToRGB(x, y, z, red, green, blue);
 }
 
 //------------------------------------------------------------------------------

@@ -32,6 +32,15 @@ bool TestColorSpace()
     cerr << "ERROR: ColorSpace == VTK_CTF_STEP failed!" << endl;
     return false;
   }
+
+  ctf->SetColorSpaceToProlab();
+  rgba = ctf->MapValue(0.5);
+  if (rgba[0] != 199 || rgba[1] != 0 || rgba[2] != 175)
+  {
+    cerr << "ERROR: ColorSpace == VTK_CTF_LAB_Prolab failed!" << endl;
+    return false;
+  }
+
   return true;
 }
 

@@ -1374,6 +1374,30 @@ public:
 
   ///@{
   /**
+   * Convert color from the ProLAB system to CIE XYZ.
+   * DOI : 10.1109/ACCESS.2021.3115425
+   */
+  static void ProLabToXYZ(const double prolab[3], double xyz[3])
+  {
+    ProLabToXYZ(prolab[0], prolab[1], prolab[2], xyz + 0, xyz + 1, xyz + 2);
+  }
+  static void ProLabToXYZ(double L, double a, double b, double* x, double* y, double* z);
+  ///@}
+
+  ///@{
+  /**
+   * Convert Color from the CIE XYZ system to ProLAB.
+   * DOI : 10.1109/ACCESS.2021.3115425
+   */
+  static void XYZToProLab(const double xyz[3], double prolab[3])
+  {
+    XYZToProLab(xyz[0], xyz[1], xyz[2], prolab + 0, prolab + 1, prolab + 2);
+  }
+  static void XYZToProLab(double x, double y, double z, double* L, double* a, double* b);
+  ///@}
+
+  ///@{
+  /**
    * Convert color from the CIE-L*ab system to CIE XYZ.
    */
   static void LabToXYZ(const double lab[3], double xyz[3])
@@ -1423,11 +1447,38 @@ public:
    * The output ranges of 'L' is [0, 100]. The output
    * range of 'a' and 'b' are approximately [-110, 110].
    */
+
   static void RGBToLab(const double rgb[3], double lab[3])
   {
     RGBToLab(rgb[0], rgb[1], rgb[2], lab + 0, lab + 1, lab + 2);
   }
   static void RGBToLab(double red, double green, double blue, double* L, double* a, double* b);
+  ///@}
+
+  ///@{
+  /**
+   * Convert color from the ProLab system to RGB.
+   */
+  static void ProLabToRGB(const double prolab[3], double rgb[3])
+  {
+    ProLabToRGB(prolab[0], prolab[1], prolab[2], rgb + 0, rgb + 1, rgb + 2);
+  }
+  static void ProLabToRGB(double L, double a, double b, double* red, double* green, double* blue);
+  ///@}
+
+  ///@{
+  /**
+   * Convert color from the RGB system to Prolab
+   * The input RGB must be values in the range [0, 1].
+   * The output ranges of 'L' is [0, 100]. The output
+   * range of 'a' and 'b' are approximately [-110, 110].
+   *
+   */
+  static void RGBToProLab(const double rgb[3], double prolab[3])
+  {
+    RGBToProLab(rgb[0], rgb[1], rgb[2], prolab + 0, prolab + 1, prolab + 2);
+  }
+  static void RGBToProLab(double red, double green, double blue, double* L, double* a, double* b);
   ///@}
 
   ///@{
