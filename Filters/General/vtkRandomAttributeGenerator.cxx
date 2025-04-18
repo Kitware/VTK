@@ -428,16 +428,20 @@ void vtkRandomAttributeGenerator::GeneratePointData(vtkPointData* outputPD, vtkI
   {
     vtkDataArray* ptScalars = this->GenerateData(this->DataType, numPts, this->NumberOfComponents,
       0, this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    ptScalars->SetName("RandomPointScalars");
-    outputPD->SetScalars(ptScalars);
+    const char* scalarsName = "RandomPointScalars";
+    ptScalars->SetName(scalarsName);
+    outputPD->AddArray(ptScalars);
+    outputPD->SetActiveScalars(scalarsName);
     ptScalars->Delete();
   }
   if (this->GeneratePointVectors)
   {
     vtkDataArray* ptVectors = this->GenerateData(
       this->DataType, numPts, 3, 0, 2, this->MinimumComponentValue, this->MaximumComponentValue);
-    ptVectors->SetName("RandomPointVectors");
-    outputPD->SetVectors(ptVectors);
+    const char* vectorsName = "RandomPointVectors";
+    ptVectors->SetName(vectorsName);
+    outputPD->AddArray(ptVectors);
+    outputPD->SetActiveVectors(vectorsName);
     ptVectors->Delete();
   }
   if (this->GeneratePointNormals)
@@ -451,7 +455,10 @@ void vtkRandomAttributeGenerator::GeneratePointData(vtkPointData* outputPD, vtkI
       vtkMath::Normalize(v);
       ptNormals->SetTuple(id, v);
     }
-    outputPD->SetNormals(ptNormals);
+    const char* normalsName = "RandomPointNormals";
+    ptNormals->SetName(normalsName);
+    outputPD->AddArray(ptNormals);
+    outputPD->SetActiveNormals(normalsName);
     ptNormals->Delete();
   }
   if (this->GeneratePointTensors)
@@ -459,7 +466,6 @@ void vtkRandomAttributeGenerator::GeneratePointData(vtkPointData* outputPD, vtkI
     // fill in 6 components, and then shift them around to make them symmetric
     vtkDataArray* ptTensors = this->GenerateData(
       this->DataType, numPts, 9, 0, 5, this->MinimumComponentValue, this->MaximumComponentValue);
-    ptTensors->SetName("RandomPointTensors");
     double t[9];
     for (vtkIdType id = 0; id < numPts; id++)
     {
@@ -470,26 +476,33 @@ void vtkRandomAttributeGenerator::GeneratePointData(vtkPointData* outputPD, vtkI
       t[7] = t[5];
       ptTensors->SetTuple(id, t);
     }
-    outputPD->SetTensors(ptTensors);
+    const char* tensorsName = "RandomPointTensors";
+    ptTensors->SetName(tensorsName);
+    outputPD->AddArray(ptTensors);
+    outputPD->SetActiveTensors(tensorsName);
     ptTensors->Delete();
   }
   if (this->GeneratePointTCoords)
   {
+    // Clamp the number of component between 1 and 3
     int numComp = this->NumberOfComponents < 1
       ? 1
       : (this->NumberOfComponents > 3 ? 3 : this->NumberOfComponents);
     vtkDataArray* ptTCoords = this->GenerateData(this->DataType, numPts, numComp, 0,
       this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    outputPD->SetTCoords(ptTCoords);
+    const char* tCoordsName = "RandomPointTCoords";
+    ptTCoords->SetName(tCoordsName);
+    outputPD->AddArray(ptTCoords);
+    outputPD->SetActiveTCoords(tCoordsName);
     ptTCoords->Delete();
   }
   if (this->GeneratePointArray)
   {
-    vtkDataArray* ptData = this->GenerateData(this->DataType, numPts, this->NumberOfComponents, 0,
+    vtkDataArray* ptArray = this->GenerateData(this->DataType, numPts, this->NumberOfComponents, 0,
       this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    ptData->SetName("RandomPointArray");
-    outputPD->AddArray(ptData);
-    ptData->Delete();
+    ptArray->SetName("RandomPointArray");
+    outputPD->AddArray(ptArray);
+    ptArray->Delete();
   }
 }
 
@@ -501,16 +514,20 @@ void vtkRandomAttributeGenerator::GenerateCellData(vtkCellData* outputCD, vtkIdT
     vtkDataArray* cellScalars =
       this->GenerateData(this->DataType, numCells, this->NumberOfComponents, 0,
         this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    cellScalars->SetName("RandomCellScalars");
-    outputCD->SetScalars(cellScalars);
+    const char* scalarsName = "RandomCellScalars";
+    cellScalars->SetName(scalarsName);
+    outputCD->AddArray(cellScalars);
+    outputCD->SetActiveScalars(scalarsName);
     cellScalars->Delete();
   }
   if (this->GenerateCellVectors)
   {
     vtkDataArray* cellVectors = this->GenerateData(
       this->DataType, numCells, 3, 0, 2, this->MinimumComponentValue, this->MaximumComponentValue);
-    cellVectors->SetName("RandomCellVectors");
-    outputCD->SetVectors(cellVectors);
+    const char* vectorsName = "RandomCellVectors";
+    cellVectors->SetName(vectorsName);
+    outputCD->AddArray(cellVectors);
+    outputCD->SetActiveVectors(vectorsName);
     cellVectors->Delete();
   }
   if (this->GenerateCellNormals)
@@ -524,14 +541,16 @@ void vtkRandomAttributeGenerator::GenerateCellData(vtkCellData* outputCD, vtkIdT
       vtkMath::Normalize(v);
       cellNormals->SetTuple(id, v);
     }
-    outputCD->SetNormals(cellNormals);
+    const char* normalsName = "RandomCellNormals";
+    cellNormals->SetName(normalsName);
+    outputCD->AddArray(cellNormals);
+    outputCD->SetActiveNormals(normalsName);
     cellNormals->Delete();
   }
   if (this->GenerateCellTensors)
   {
     vtkDataArray* cellTensors = this->GenerateData(
       this->DataType, numCells, 9, 0, 5, this->MinimumComponentValue, this->MaximumComponentValue);
-    cellTensors->SetName("RandomCellTensors");
     double t[9];
     for (vtkIdType id = 0; id < numCells; id++)
     {
@@ -541,7 +560,10 @@ void vtkRandomAttributeGenerator::GenerateCellData(vtkCellData* outputCD, vtkIdT
       t[8] = t[4];
       cellTensors->SetTuple(id, t);
     }
-    outputCD->SetTensors(cellTensors);
+    const char* tensorsName = "RandomCellTensors";
+    cellTensors->SetName(tensorsName);
+    outputCD->AddArray(cellTensors);
+    outputCD->SetActiveTensors(tensorsName);
     cellTensors->Delete();
   }
   if (this->GenerateCellTCoords)
@@ -551,7 +573,10 @@ void vtkRandomAttributeGenerator::GenerateCellData(vtkCellData* outputCD, vtkIdT
       : (this->NumberOfComponents > 3 ? 3 : this->NumberOfComponents);
     vtkDataArray* cellTCoords = this->GenerateData(this->DataType, numCells, numComp, 0,
       this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    outputCD->SetTCoords(cellTCoords);
+    const char* tCoordsName = "RandomCellTCoords";
+    cellTCoords->SetName(tCoordsName);
+    outputCD->AddArray(cellTCoords);
+    outputCD->SetActiveTCoords(tCoordsName);
     cellTCoords->Delete();
   }
   if (this->GenerateCellArray)
@@ -569,12 +594,12 @@ void vtkRandomAttributeGenerator::GenerateFieldData(vtkFieldData* outputFD)
 {
   if (this->GenerateFieldArray)
   {
-    vtkDataArray* data =
+    vtkDataArray* fieldArray =
       this->GenerateData(this->DataType, this->NumberOfTuples, this->NumberOfComponents, 0,
         this->NumberOfComponents - 1, this->MinimumComponentValue, this->MaximumComponentValue);
-    data->SetName("RandomFieldArray");
-    outputFD->AddArray(data);
-    data->Delete();
+    fieldArray->SetName("RandomFieldArray");
+    outputFD->AddArray(fieldArray);
+    fieldArray->Delete();
   }
 }
 
