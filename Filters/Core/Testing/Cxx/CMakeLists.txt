@@ -68,6 +68,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestProbeFilterOutputAttributes.cxx,NO_VALID
   TestQuadricDecimationRegularization.cxx
   TestQuadricDecimationMapPointData.cxx
+  TestQuadricDecimationMaximumError.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestResampleToImage.cxx,NO_VALID
   TestResampleToImage2D.cxx,NO_VALID
   TestResampleWithDataSet.cxx,
