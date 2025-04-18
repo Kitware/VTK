@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSReader.cxx
   TestCGNSReaderBCDirichlet.cxx
   TestCGNSReaderBCNeumann.cxx
+  TestCGNSReaderHOElements.cxx
   TestCGNSReaderIgnoreMesh.cxx
   TestCGNSReaderMeshCaching.cxx
   TestCGNSReaderMissingBase.cxx
@@ -13,7 +14,7 @@ vtk_add_test_cxx(vtkIOCGNSReaderCxxTests tests
   TestCGNSUnsteadyFields.cxx
   TestCGNSUnsteadyGrid.cxx
   TestCGNSUnsteadyTemporalSolution.cxx
-  TestCONVERGECFDCGNSReader.cxx
   TestCGNSReaderPatchesAsElementNodes.cxx
-  TestReadCGNSSolution.cxx)
+  TestReadCGNSSolution.cxx
+  TestCONVERGECFDCGNSReader.cxx)
 vtk_test_cxx_executable(vtkIOCGNSReaderCxxTests tests)

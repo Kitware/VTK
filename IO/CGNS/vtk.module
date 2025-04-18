@@ -26,3 +26,5 @@ TEST_DEPENDS
   VTK::InteractionStyle
   VTK::TestingCore
   VTK::TestingRendering
+  VTK::FiltersGeneral
+  VTK::FiltersVerdict
