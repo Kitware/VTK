@@ -15,6 +15,7 @@
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"
 
+// STL includes
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
