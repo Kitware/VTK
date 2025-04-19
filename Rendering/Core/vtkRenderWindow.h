@@ -739,7 +739,7 @@ public:
   vtkBooleanMacro(UseSRGBColorSpace, bool);
   ///@}
 
-  enum
+  enum : vtkTypeUInt16
   {
     PhysicalToWorldMatrixModified = vtkCommand::UserEvent + 200
   };
