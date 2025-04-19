@@ -34,7 +34,6 @@ vtkCxxSetObjectMacro(vtkRenderWindow, HardwareWindow, vtkHardwareWindow);
 // buffering turned on, stereo capable off.
 vtkRenderWindow::vtkRenderWindow()
 {
-  this->Borders = 1;
   this->Coverable = 0;
   this->FullScreen = 0;
   this->OldScreen[0] = this->OldScreen[1] = 0;
@@ -60,7 +59,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->NeverRendered = 1;
   this->Renderers = vtkRendererCollection::New();
   this->NumberOfLayers = 1;
-  this->CurrentCursor = VTK_CURSOR_DEFAULT;
   this->AnaglyphColorSaturation = 0.65f;
   this->AnaglyphColorMask[0] = 4; // red
   this->AnaglyphColorMask[1] = 3; // cyan
@@ -76,8 +74,6 @@ vtkRenderWindow::vtkRenderWindow()
 #endif
   this->DeviceIndex = 0;
   this->SharedRenderWindow = nullptr;
-
-  this->CursorFileName = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -85,7 +81,6 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
-  this->SetCursorFileName(nullptr);
 
   if (this->Renderers)
   {
@@ -588,7 +583,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Borders: " << (this->Borders ? "On\n" : "Off\n");
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n" : "Off\n");
   os << indent << "Coverable: " << (this->Coverable ? "On\n" : "Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n" : "Off\n");
@@ -602,7 +596,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line Smoothing: " << (this->LineSmoothing ? "On\n" : "Off\n");
   os << indent << "Polygon Smoothing: " << (this->PolygonSmoothing ? "On\n" : "Off\n");
   os << indent << "Abort Render: " << this->AbortRender << "\n";
-  os << indent << "Current Cursor: " << this->CurrentCursor << "\n";
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
   os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
   os << indent << "NeverRendered: " << this->NeverRendered << "\n";

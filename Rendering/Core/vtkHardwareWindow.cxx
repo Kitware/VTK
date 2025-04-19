@@ -10,7 +10,6 @@ vtkObjectFactoryNewMacro(vtkHardwareWindow);
 
 vtkHardwareWindow::vtkHardwareWindow()
 {
-  this->Borders = true;
 #ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
   this->ShowWindow = false;
   this->UseOffScreenBuffers = true;
@@ -26,7 +25,5 @@ vtkHardwareWindow::~vtkHardwareWindow() = default;
 void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-
-  os << indent << "Borders: " << this->Borders << "\n";
 }
 VTK_ABI_NAMESPACE_END

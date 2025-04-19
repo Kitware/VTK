@@ -40,8 +40,6 @@ protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
 
-  bool Borders;
-
 private:
   vtkHardwareWindow(const vtkHardwareWindow&) = delete;
   void operator=(const vtkHardwareWindow&) = delete;

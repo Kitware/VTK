@@ -12,14 +12,14 @@ vtkStandardNewMacro(vtkWin32HardwareWindow);
 
 //------------------------------------------------------------------------------
 vtkWin32HardwareWindow::vtkWin32HardwareWindow()
-  : ApplicationInstance(0)
-  , ParentId(0)
-  , WindowId(0)
+  : ParentId(nullptr)
+  , WindowId(nullptr)
+  , ApplicationInstance(nullptr)
 {
 }
 
 //------------------------------------------------------------------------------
-vtkWin32HardwareWindow::~vtkWin32HardwareWindow() {}
+vtkWin32HardwareWindow::~vtkWin32HardwareWindow() = default;
 
 //------------------------------------------------------------------------------
 void vtkWin32HardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -151,7 +151,7 @@ void vtkWin32HardwareWindow::Create()
         style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
       }
       RECT r;
-      AdjustWindowRectForBorders(0, style, x, y, width, height, r);
+      AdjustWindowRectForBorders(nullptr, style, x, y, width, height, r);
       this->WindowId = CreateWindowA("vtkOpenGL", "VTK - Vulkan", style, x, y, r.right - r.left,
         r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
     }
@@ -176,7 +176,7 @@ void vtkWin32HardwareWindow::Create()
 void vtkWin32HardwareWindow::Destroy()
 {
   ::DestroyWindow(this->WindowId); // windows api
-  this->WindowId = 0;
+  this->WindowId = nullptr;
 }
 
 // ----------------------------------------------------------------------------
