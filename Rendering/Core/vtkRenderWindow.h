@@ -37,10 +37,11 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkFloatArray;
-class vtkProp;
 class vtkCollection;
+class vtkFloatArray;
+class vtkHardwareWindow;
 class vtkMatrix4x4;
+class vtkProp;
 class vtkRenderTimerLog;
 class vtkRenderWindowInteractor;
 class vtkRenderer;
@@ -835,6 +836,15 @@ public:
   vtkBooleanMacro(EnableTranslucentSurface, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get the platform hardware window associated with this window.
+   * Default is false.
+   */
+  vtkGetObjectMacro(HardwareWindow, vtkHardwareWindow);
+  virtual void SetHardwareWindow(vtkHardwareWindow* win);
+  ///@}
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow() override;
@@ -894,6 +904,8 @@ protected:
   bool EnableTranslucentSurface = false;
 
   bool Initialized = false;
+
+  vtkHardwareWindow* HardwareWindow = nullptr;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

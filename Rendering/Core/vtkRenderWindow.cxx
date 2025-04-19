@@ -7,6 +7,7 @@
 #include "vtkCollection.h"
 #include "vtkCommand.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkHardwareWindow.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -20,13 +21,13 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <cmath>
-#include <cstdlib>
 #include <string>
 #include <utility> // for std::swap
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkRenderWindow);
+vtkCxxSetObjectMacro(vtkRenderWindow, HardwareWindow, vtkHardwareWindow);
 
 // Construct an instance of  vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
