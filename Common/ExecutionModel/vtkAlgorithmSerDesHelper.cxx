@@ -97,11 +97,11 @@ static void Deserialize_vtkAlgorithm(
           << algorithm->GetNumberOfInputPorts() << ")");
         return;
       }
-      const bool hasMultipleInPorts = algorithm->GetNumberOfInputPorts() > 1;
       for (int port = 0; port < algorithm->GetNumberOfInputPorts(); ++port)
       {
-        algorithm->RemoveAllInputConnections(port);
+        std::vector<vtkSmartPointer<vtkDataObject>> inputDataObjects;
         auto stateOfInputDataObjects = statesOfInputDataObjects[port].get<json::array_t>();
+        const bool hasMultipleConnections = algorithm->GetNumberOfInputConnections(port) > 1;
         for (std::size_t index = 0; index < stateOfInputDataObjects.size(); ++index)
         {
           const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
@@ -109,14 +109,22 @@ static void Deserialize_vtkAlgorithm(
           deserializer->DeserializeJSON(identifier, subObject);
           if (auto* dataObject = vtkDataObject::SafeDownCast(subObject))
           {
-            if (hasMultipleInPorts)
+            if (hasMultipleConnections)
             {
-              algorithm->AddInputDataObject(port, dataObject);
+              inputDataObjects.emplace_back(dataObject);
             }
             else
             {
               algorithm->SetInputDataObject(port, dataObject);
             }
+          }
+        }
+        if (hasMultipleConnections)
+        {
+          algorithm->RemoveAllInputConnections(port);
+          for (auto& dataObject : inputDataObjects)
+          {
+            algorithm->AddInputDataObject(port, dataObject);
           }
         }
       }
