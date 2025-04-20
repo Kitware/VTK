@@ -8,6 +8,7 @@ vtk_add_test_python(
   TestGlyph3DMapper.py,NO_VALID
   TestInitialize.py,NO_VALID
   TestLabelMapper.py,NO_VALID
+  TestPolyDataMapperMTime.py,NO_VALID
   # TestScalarBarWidget.py,NO_VALID needs more work, turn off interactor
   # TestSilhouette.py,NO_VALID vtkPolyDataSilhouette.cxx needs to mark cells as modified.
   TestSingleUpdate.py,NO_VALID
