@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellArray.h"
+
+#include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDeserializer.h"
 #include "vtkSerializer.h"
@@ -61,7 +63,7 @@ static void Deserialize_vtkCellArray(
     }
     vtkSmartPointer<vtkDataArray> offsets;
     vtkSmartPointer<vtkDataArray> connectivity;
-    const auto* context = deserializer->GetContext();
+    auto* context = deserializer->GetContext();
     {
       const auto identifier = state["Offsets"]["Id"].get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
@@ -88,7 +90,35 @@ static void Deserialize_vtkCellArray(
     }
     else
     {
-      cellArray->SetData(offsets, connectivity);
+      const bool is64Bit =
+        offsets->IsA("vtkTypeInt64Array") && connectivity->IsA("vtkTypeInt64Array");
+      const bool is32Bit =
+        offsets->IsA("vtkTypeInt32Array") && connectivity->IsA("vtkTypeInt32Array");
+      // when state has 64-bit arrays, fail if the architecture is incapable of 64-bit integers.
+      if (is64Bit)
+      {
+#if defined(VTK_TYPE_INT64)
+        cellArray->SetData(vtkArrayDownCast<vtkCellArray::ArrayType64>(offsets),
+          vtkArrayDownCast<vtkCellArray::ArrayType64>(connectivity));
+#else
+        vtkErrorWithObjectMacro(
+          deserializer, << "The deserializer cannot process 64-bit arrays for vtkCellArray because "
+                           "this build does not support 64-bit integers. "
+                           "Please provide 32-bit arrays in state.")
+#endif
+      }
+      else if (is32Bit)
+      {
+        cellArray->SetData(vtkArrayDownCast<vtkCellArray::ArrayType32>(offsets),
+          vtkArrayDownCast<vtkCellArray::ArrayType32>(connectivity));
+      }
+      else
+      {
+        vtkErrorWithObjectMacro(
+          deserializer, << "The deserializer can only process offset and connectivty arrays for "
+                           "vtkCellArray that "
+                           "are both `vtkTypeInt32Array` or `vtkTypeInt64Array`");
+      }
     }
   }
 }
