@@ -22,8 +22,12 @@ var vtkEmscriptenTestUtilities = {
     hostPathFile = UTF8ToString(hostPathFile);
     const req = new XMLHttpRequest;
     req.overrideMimeType('text/plain; charset=x-user-defined');
-    req.open("GET", `preload?file=${hostPathFile}`, false);
-    req.send(null);
+    req.open("GET", `file://${hostPathFile}`, false);
+    try {
+      req.send(null);
+    } catch (e){
+      return 0;
+    }
     if (!(req.status >= 200 && req.status < 300)) {
       return 0;
     } else if (req.response !== undefined) {
@@ -44,16 +48,21 @@ var vtkEmscriptenTestUtilities = {
    * #include "vtkEmscriptenTestUtilities.h" // for vtkDumpFile
    * vtkDumpFile("/path/to/server/directory/file.png", bytes, number_of_bytes);
    * ```
+   * @param {*} httpServerURL A valid URL to a HTTP server. Ex: http://hostname:port
    * @param {*} hostPath A valid path in the server"s filesystem.
    * @param {*} data A Uint8Array representing the contents of the file which will be dumped out in the server"s filesystem.
    */
-  vtkDumpFile__sig: "vppp",
-  vtkDumpFile: (hostPathFile, data, nbytes) => {
+  vtkDumpFile__sig: "vpppp",
+  vtkDumpFile: (httpServerURL, hostPathFile, data, nbytes) => {
+    httpServerURL = UTF8ToString(httpServerURL);
     hostPathFile = UTF8ToString(hostPathFile);
-    const req = new XMLHttpRequest;
-    req.open("POST", `dump?file=${hostPathFile}`);
-    const byteArray = HEAPU8.subarray(data, data + nbytes);
-    req.send(new Uint8Array(byteArray));
+    const url = `${httpServerURL}/dump?file=${hostPathFile}`
+    const payload = {
+      method: "POST",
+      body: new Uint8Array(HEAPU8.subarray(data, data + nbytes)),
+      keepAlive: true,
+    };
+    window.pendingVTKPostRequests.push(fetch(url, payload));
   },
 
   /**

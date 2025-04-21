@@ -763,24 +763,24 @@ if (VTK_BUILD_TESTING)
   endif ()
 
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    # EMSDK makes python available after the environment is initialized with emsdk_env.{sh, csh, bat, ps1}
-    find_package(Python3 COMPONENTS Interpreter)
-    # Unit tests are linked with special options which are stored in an interface target.
-    add_library(vtkWebAssemblyTestLinkOptions INTERFACE)
-    add_library(VTK::vtkWebAssemblyTestLinkOptions ALIAS vtkWebAssemblyTestLinkOptions)
-    target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
-      # O2 or higher make wasm-opt terribly slow.
-      # test executables take a minute to link.
-      "-O1"
-      # For stack trace to show human-readable function names
-      "--profiling-funcs"
-      # we need emscripten to emit code that handles exit code and atexit(s)
-      "-sEXIT_RUNTIME=1"
-      # For setting environment variables
-      "-sEXPORTED_RUNTIME_METHODS=['ENV']"
-      # tests dynamically allocate memory, can easily go over the preset limit.
-      "-sALLOW_MEMORY_GROWTH=1")
-    install(TARGETS vtkWebAssemblyTestLinkOptions EXPORT "${vtk_install_export}")
+    if (VTK_BUILD_TESTING)
+      # Unit tests are linked with special options which are made available with a common interface target.
+      add_library(vtkWebAssemblyTestLinkOptions INTERFACE)
+      add_library(VTK::vtkWebAssemblyTestLinkOptions ALIAS vtkWebAssemblyTestLinkOptions)
+      target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
+        # O2 or higher make wasm-opt terribly slow.
+        # test executables take a minute to link.
+        "-O1"
+        # For stack trace to show human-readable function names
+        "--profiling-funcs"
+        # we need emscripten to emit code that handles exit code and atexit(s)
+        "-sEXIT_RUNTIME=1"
+        # ENV holds the environment variables accessible by C getenv
+        "-sEXPORTED_RUNTIME_METHODS=['ENV']"
+        # tests dynamically allocate memory, can easily go over the preset limit.
+        "-sALLOW_MEMORY_GROWTH=1")
+      install(TARGETS vtkWebAssemblyTestLinkOptions EXPORT "${vtk_install_export}")
+    endif ()
   endif ()
 endif ()
 

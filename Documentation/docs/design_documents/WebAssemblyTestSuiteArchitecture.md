@@ -1,2 +1,2 @@
-```{include} ../../../Testing/WebAssembly/README.md
+```{include} ../../../CMake/wasm/README.md
 ```

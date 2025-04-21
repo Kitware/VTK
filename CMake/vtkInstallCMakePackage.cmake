@@ -173,9 +173,15 @@ set(vtk_cmake_patch_files
   patches/99/FindHDF5.cmake
   patches/99/FindOpenGL.cmake
   patches/99/FindX11.cmake)
+set(vtk_cmake_wasm_files
+  wasm/README.md
+  wasm/server.js
+  wasm/vtkWasmTest.html.in
+  wasm/vtkWasmTestRunner.cmake
+)
 
 set(vtk_cmake_files_to_install)
-foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_files)
+foreach (vtk_cmake_module_file IN LISTS vtk_cmake_module_files vtk_cmake_patch_files vtk_cmake_wasm_files)
   configure_file(
     "${vtk_cmake_dir}/${vtk_cmake_module_file}"
     "${vtk_cmake_build_dir}/${vtk_cmake_module_file}"
