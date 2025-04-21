@@ -1623,7 +1623,10 @@ bool CheckTreeEqual(vtkHyperTreeGridNonOrientedGeometryCursor* cursor1,
     {
       if (tuple1[comp] != tuple2[comp])
       {
-        vtkLog(ERROR, "Array mismatch for " << array1->GetName() << " in input HyperTreeGrid");
+        vtkLog(ERROR,
+          "Array mismatch for " << array1->GetName() << " in input HyperTreeGrid "
+                                << " for tuple " << currentId1 << "/" << currentId2 << " component "
+                                << comp << " : " << tuple1[comp] << " != " << tuple2[comp]);
         return false;
       }
     }
@@ -1711,6 +1714,46 @@ struct TestDataObjectsImpl<vtkHyperTreeGrid>
     if (data1->GetNumberOfArrays() != data2->GetNumberOfArrays())
     {
       vtkLog(ERROR, "Number of arrays doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    if (htg1->GetInterfaceInterceptsName() && htg2->GetInterfaceInterceptsName() &&
+      std::string(htg1->GetInterfaceInterceptsName()) !=
+        std::string(htg2->GetInterfaceInterceptsName()))
+    {
+      vtkLog(ERROR, "Interface Intercepts Name doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    if (htg1->GetInterfaceNormalsName() && htg2->GetInterfaceNormalsName() &&
+      std::string(htg1->GetInterfaceNormalsName()) != std::string(htg2->GetInterfaceNormalsName()))
+    {
+      vtkLog(ERROR, "Interface Normals Name doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    if (htg1->GetHasInterface() != htg2->GetHasInterface())
+    {
+      vtkLog(ERROR, "Only one out of the 2 HTG has the interface flag set");
+      return false;
+    }
+
+    if (htg1->GetHasInterface() != htg2->GetHasInterface())
+    {
+      vtkLog(ERROR, "Only one out of the 2 HTG has the interface flag set");
+      return false;
+    }
+
+    if (htg1->GetDepthLimiter() != htg2->GetDepthLimiter())
+    {
+      vtkLog(ERROR, "Depth Limiter value doesn't match between the 2 input vtkHyperTreeGrid");
+      return false;
+    }
+
+    if (htg1->GetTransposedRootIndexing() != htg2->GetTransposedRootIndexing())
+    {
+      vtkLog(
+        ERROR, "Transposed Root Indexing value doesn't match between the 2 input vtkHyperTreeGrid");
       return false;
     }
 
