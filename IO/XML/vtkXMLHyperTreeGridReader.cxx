@@ -926,7 +926,8 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
   auto numberOfVerticesPerDepthRange = vtk::DataArrayValueRange<1>(numberOfVerticesPerDepth);
   auto numberOfVerticesPerDepthIterator = numberOfVerticesPerDepthRange.cbegin();
 
-  // Computing the total size of scalar fields / mask
+  // Computing the total size of scalar fields / mask : sum of depthPerTree for each depth of each
+  // tree
   for (vtkIdType treeId = 0; treeId < treeIdsSize; ++treeId)
   {
     unsigned int depth = 0;
@@ -941,6 +942,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
     }
   }
 
+  // Get mask bit array, size = number of cells
   vtkXMLDataElement* maskElement =
     treesElement->FindNestedElementWithNameAndAttribute("DataArray", "Name", "Mask");
   vtkSmartPointer<vtkBitArray> mask = nullptr;
@@ -952,6 +954,7 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
     output->SetMask(mask);
   }
 
+  // get cell data arrays, size = number of cells * number of elements
   vtkCellData* cellData = output->GetCellData();
   vtkXMLDataElement* cellDataElement = element->FindNestedElementWithName("CellData");
   std::vector<vtkXMLDataElement*> arrayElements;
@@ -987,6 +990,8 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
     vtkIdType readableTreeSize = 0;
     vtkIdType lastDepthSize = 0;
     vtkIdType lastReadableDepthSize = 0;
+
+    // Compute tree size
     for (unsigned int depth = 0; depth < depthPerTree->GetValue(treeId);
          ++depth, ++numberOfVerticesPerDepthIterator)
     {
