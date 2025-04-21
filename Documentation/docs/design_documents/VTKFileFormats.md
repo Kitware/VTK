@@ -953,6 +953,10 @@ its support for more and more use cases.
 
 ### Changelog
 
+#### VTKHDF - 2.4
+
+- add specification for `HyperTreeGrid`
+
 #### VTKHDF - 2.3
 
 - fix array names which miss the `s` to be consistent with other temporal dataset in case of the temporal
@@ -1149,7 +1153,7 @@ Spacing attribute. The Spacing attribute is a list a three doubles
 describing the spacing in each x/y/z direction.
 The AMRBox dataset contains the bounding box
 for each of these grids. Each line in this dataset is expected to contain
-6 integers describing the the indexed bounds in i, j, k space
+6 integers describing the indexed bounds in i, j, k space
 (imin/imax/jmin/jmax/kmin/kmax).
 The points and cell arrays for these grids are
 stored serialized in one dimension and stored in a dataset in the
@@ -1160,10 +1164,62 @@ PointData or CellData group.
   <figcaption>Figure 9. - Overlapping AMR VTKHDF File Format</figcaption>
 </figure>
 
+### HyperTreeGrid
+
+The schema for the tree-based AMR HyperTreeGrid VTKHDF specification is shown below.
+This specification is very different from the ones mentioned above, because its topology is defined as a grid of refined trees.
+
+Root attribute `Dimensions` defines the dimension of the grid. For a `N * M * P` grid, there are a total of `(N - 1) * (M - 1) * (P - 1)` trees.
+Coordinates arrays `XCoordinates` (size `N`), `YCoordinates` (size `M`) and `ZCoordinates` (size `P`) define the size of trees in each direction.
+Their value can change over time.
+The `BranchFactor` attribute defines the subdivision factor used for tree decomposition.
+
+HyperTrees are defined from a bit array describing tree decomposition, level by level. For each tree, the `Descriptor` dataset has one bit for each cell in the tree, except for its deepest level: 0 if the cell is not refined, and 1 if it is. The descriptor does not describe its deepest level, because we know that no cell is ever refined.
+
+Each cell can be masked using an optional bit array `Mask`. A decomposed (refined) cell cannot be masked.
+The `Descriptors` and `Mask` datasets are packed bit arrays, stored as unsigned chars.
+
+Each new piece is required to start writing descriptors and mask on a new byte, even if the previous byte was not completely used, except if the previous array has a size of 0.
+`DescriptorsSize` stores the size (in **bits**) of the descriptors array for each piece.
+
+`DepthPerTree` contains the depth of each tree listed in `TreeIds` the current piece.
+The size of both arrays is `NumberOfTrees`, indexed at the piece id.
+
+`NumberOfCellsPerTreeDepth`'s size is the sum of `DepthPerTree`.
+For each depth of each tree, it gives the information of the number of cells for this depth.
+For a given piece, we store the size of this dataset as `NumberOfDepths`.
+
+The number of cells for the piece is stored as `NumberOfCells`.
+
+The size of the (optional) `Mask` dataset corresponds to the number of cells divided by 8 (because of bit-packed storage),
+rounded to the next bigger integer value.
+
+For HyperTreeGrids, edges cannot store information.
+This means there can be a `CellData` group containing cell fields, but no `PointData`.
+
+Optionally, `InterfaceNormalsName` and `InterfaceInterceptsName` root attributes can be set to existing cell array names to define HyperTreeGrid interfaces,
+used for interpolation at render time.
+
+For temporal HyperTreeGrids, the "Steps" group contains read offsets into the `DepthPerTree`,
+`NumberOfCellsPerTreeDepth`, `TreeIds`, `Mask` `Descriptors` and coordinate datasets for each timestep.
+
+If some values do not change over time (for example coordinates),
+you can set the offset to the same value as the previous timestep (O),and store data only once.
+
+Note that for `Mask` and `Descriptors`, the offset is in **bytes** (unlike `DescriptorSize` which is in bits),
+because each new piece starts on a new byte, except if it does not contain any value.
+
+```{figure} vtkhdf_images/hypertreegrid_schema.jpg
+:width: 640px
+:align: center
+
+Figure 10. - HyperTreeGrid VTKHDF File Format
+```
+
 ### PartitionedDataSetCollection and MultiBlockDataSet
 
 VTKHDF supports composite types, made of multiple datasets of simple types, organised as a tree.
-The format currently supports vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) composite types, as shown in Figure 10.
+The format currently supports vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) composite types, as shown in Figure 11.
 The `Type` attribute of the `VTKHDF` group for them should be either `PartitionedDataSetCollection` or `MultiBlockDataSet`.
 
 All simple (non composite) datasets are located in the root `VTKHDF` group, with a unique block name.
@@ -1194,12 +1250,12 @@ Again, this MB format can save space when a block is referenced multiple times.
 :width: 640px
 :align: center
 
-Figure 10. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
+Figure 11. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
 ```
 
 ### Temporal Data
 
-The generic format for all `VTKHDF` temporal data is shown in Figure 11.
+The generic format for all `VTKHDF` temporal data is shown in Figure 12.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
 data has a very similar structure to a file holding dynamic data. An additional
@@ -1246,7 +1302,7 @@ and one tuple per step are considered.
 :width: 640px
 :align: center
 
-Figure 11. - Temporal Data VTKHDF File Format
+Figure 12. - Temporal Data VTKHDF File Format
 ```
 
 Writing incrementally to `VTKHDF` temporal datasets is relatively straightforward using the
@@ -1344,7 +1400,6 @@ GROUP "/" {
          DATASPACE  SIMPLE { ( 2 ) / ( 2 ) }
          DATA {
          (0): 1, 0
-         }
       }
       ATTRIBUTE "WholeExtent" {
          DATATYPE  H5T_STD_I64LE
