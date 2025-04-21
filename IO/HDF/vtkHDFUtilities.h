@@ -146,6 +146,11 @@ VTKIOHDF_EXPORT bool GetAttribute(
   hid_t group, const char* attributeName, size_t numberOfElements, T* value);
 
 /**
+ * Get string argument, variable or fixed size
+ */
+bool GetStringAttribute(hid_t groupID, const std::string& name, std::string& attribute);
+
+/**
  * Read the number of steps of an HDF group
  */
 VTKIOHDF_EXPORT std::size_t GetNumberOfSteps(hid_t groupID);
