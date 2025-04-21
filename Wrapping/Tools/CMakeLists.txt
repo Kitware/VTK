@@ -77,8 +77,9 @@ if (NOT TARGET "${ns}::WrapHierarchy")
         "-pthread"
         # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
         "-Wno-pthreads-mem-growth"
-        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-        "SHELL:-s NODERAWFS=1")
+        "-sSINGLE_FILE=1"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sNODERAWFS=1")
   endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
@@ -162,8 +163,9 @@ if (NOT TARGET WrapSerDes)
         "-pthread"
         # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
         "-Wno-pthreads-mem-growth"
-        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-        "SHELL:-s NODERAWFS=1")
+        "-sSINGLE_FILE=1"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sNODERAWFS=1")
   endif ()
   add_executable("${ns}::WrapSerDes" ALIAS
     WrapSerDes)

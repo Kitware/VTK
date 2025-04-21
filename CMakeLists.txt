@@ -768,6 +768,7 @@ if (VTK_BUILD_TESTING)
       add_library(vtkWebAssemblyTestLinkOptions INTERFACE)
       add_library(VTK::vtkWebAssemblyTestLinkOptions ALIAS vtkWebAssemblyTestLinkOptions)
       target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
+        "-sSINGLE_FILE=1"
         # O2 or higher make wasm-opt terribly slow.
         # test executables take a minute to link.
         "-O1"
