@@ -736,9 +736,18 @@ bool vtkHDFUtilities::RetrieveHDFInformation(hid_t& fileID, hid_t& groupID,
 
   try
   {
-    if (dataSetType == VTK_UNSTRUCTURED_GRID || dataSetType == VTK_POLY_DATA)
+    if (dataSetType == VTK_UNSTRUCTURED_GRID || dataSetType == VTK_POLY_DATA ||
+      dataSetType == VTK_HYPER_TREE_GRID)
     {
-      std::string datasetName = rootName + "/NumberOfPoints";
+      std::string datasetName;
+      if (dataSetType == VTK_HYPER_TREE_GRID)
+      {
+        datasetName = rootName + "/NumberOfTrees";
+      }
+      else
+      {
+        datasetName = rootName + "/NumberOfPoints";
+      }
       std::vector<hsize_t> dims = vtkHDFUtilities::GetDimensions(fileID, datasetName.c_str());
       if (dims.size() != 1)
       {
@@ -930,13 +939,13 @@ std::vector<vtkIdType> vtkHDFUtilities::GetMetadata(
 {
   std::vector<vtkIdType> v;
   std::vector<hsize_t> fileExtent = { offset, offset + size };
-  auto a = vtk::TakeSmartPointer(vtkHDFUtilities::NewArrayForGroup(group, name, fileExtent));
-  if (!a)
+  auto array = vtk::TakeSmartPointer(vtkHDFUtilities::NewArrayForGroup(group, name, fileExtent));
+  if (!array)
   {
     return v;
   }
-  v.resize(a->GetNumberOfTuples() * a->GetNumberOfComponents());
-  auto range = vtk::DataArrayValueRange(a);
+  v.resize(array->GetNumberOfTuples() * array->GetNumberOfComponents());
+  auto range = vtk::DataArrayValueRange(array);
   std::copy(range.begin(), range.end(), v.begin());
   return v;
 }

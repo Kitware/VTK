@@ -5,7 +5,7 @@
  * @brief   Read VTK HDF files.
  *
  * Reader for data saved using the VTKHDF format, supporting
- * image data, poly data, unstructured grid, overlapping AMR, partitioned dataset
+ * image data, poly data, unstructured grid, overlapping AMR, hyper tree grid, partitioned dataset
  * collection and multiblock.
  *
  * Serial and parallel reading are supported, with the possibility of piece selection.
@@ -46,6 +46,7 @@ class vtkDataArraySelection;
 class vtkDataObjectMeshCache;
 class vtkDataSet;
 class vtkDataSetAttributes;
+class vtkHyperTreeGrid;
 class vtkImageData;
 class vtkInformationVector;
 class vtkInformation;
@@ -56,6 +57,11 @@ class vtkPartitionedDataSetCollection;
 class vtkPointData;
 class vtkPolyData;
 class vtkUnstructuredGrid;
+
+namespace vtkHDFUtilities
+{
+struct TemporalHyperTreeGridOffsets;
+}
 
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
 {
@@ -179,8 +185,16 @@ public:
   virtual void MergePartsOff();
   ///@}
 
+  ///@{
+  /**
+   * Choose the maximum level to read for AMR structures.
+   * This only applies if LimitAMRLevelsToRead is active.
+   * The value 0 indicates that the level read is not limited.
+   * Default is 0.
+   */
   vtkSetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
   vtkGetMacro(MaximumLevelsToReadByDefaultForAMR, unsigned int);
+  ///@}
 
   ///@{
   /**
@@ -208,6 +222,7 @@ protected:
   int Read(vtkInformation* outInfo, vtkImageData* data);
   int Read(vtkInformation* outInfo, vtkUnstructuredGrid* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitionedDataSet* pData);
+  int Read(vtkInformation* outInfo, vtkHyperTreeGrid* data, vtkPartitionedDataSet* pData);
   int Read(vtkInformation* outInfo, vtkOverlappingAMR* data);
   int Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection* data);
   int Read(vtkInformation* outInfo, vtkMultiBlockDataSet* data);
@@ -326,6 +341,16 @@ private:
    * following the type of 'data'.
    */
   bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
+
+  /**
+   * Read a single HyperTreeGrid piece from the file.
+   * `htgTemporalOffsets` gives the information about the offsets for the current time step.
+   * Returns 1 if successful, 0 otherwise.
+   */
+  int Read(const std::vector<vtkIdType>& numberOfTrees, const std::vector<vtkIdType>& numberOfCells,
+    const std::vector<vtkIdType>& numberOfDepths, const std::vector<vtkIdType>& descriptorSizes,
+    const vtkHDFUtilities::TemporalHyperTreeGridOffsets& htgTemporalOffsets, int filePiece,
+    vtkHyperTreeGrid* pieceData);
 
   /**
    * Setter for UseTemporalData.
