@@ -103,6 +103,11 @@ vtk_module_test_data(
 
   Data/vtkHDF/null_term_string.vtkhdf
   Data/vtkHDF/utf8_string.vtkhdf
+  Data/vtkHDF/test_multiblock_static_multipiece.vtkhdf
+
+  Data/vtkHDF/distributed.vtm
+  Data/vtkHDF/distributed/cone1.vtu
+  Data/vtkHDF/distributed/sphere1.vtu
 
   Data/vtkHDF/test_composite.hdf
   Data/vtkHDF/test_composite.hdf_000000.vtpc

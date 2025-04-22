@@ -72,6 +72,13 @@ constexpr static int GetNumberOfDataArrayTypes()
   return 2;
 }
 
+/**
+ * Read the dataset type string for the given group,
+ * and return the index of the type as defined in vtkType.h
+ * Return false if not found or on error.
+ */
+bool ReadDataSetType(hid_t groupID, int& dataSetType);
+
 /*
  * Make sure we replace any illegal characters in the objectName (slash, dot) by an underscore, as
  * they would create a HDF5 subgroup.

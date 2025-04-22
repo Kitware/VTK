@@ -11,6 +11,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkDummyController.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFWriterImplementation.h"
 #include "vtkInformation.h"
@@ -310,7 +311,6 @@ void vtkHDFWriter::WriteData()
 //------------------------------------------------------------------------------
 void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
 {
-
   // Only relevant on the last time step
   if (this->IsTemporal && this->CurrentTimeIndex != this->NumberOfTimeSteps - 1)
   {
@@ -338,6 +338,11 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     this->Impl->SetSubFilesReady(true);
     this->CurrentTimeIndex = 0; // Reset time so that datasets are initialized properly
 
+    /* This is a special writing pass. The dataset will be processed and go through writing
+    all datasets for its type, except that write operations will be different:
+    instead of writing the data actually associated to the input data object,
+    write commands will instead gather information from all previously written distributed
+    pieces, and create virtual datasets referencing them. */
     this->DispatchDataObject(this->Impl->GetRoot(), input);
   }
 
@@ -961,7 +966,7 @@ bool vtkHDFWriter::AppendNumberOfPoints(hid_t group, vtkPointSet* input)
   if (!this->Impl->AddOrCreateSingleValueDataset(
         group, "NumberOfPoints", input->GetNumberOfPoints()))
   {
-    vtkErrorMacro(<< "Can not create NumberOfPoints dataset when creating: " << this->FileName);
+    vtkErrorMacro(<< "Cannot create NumberOfPoints dataset when creating: " << this->FileName);
     return false;
   }
   return true;
@@ -973,7 +978,7 @@ bool vtkHDFWriter::AppendNumberOfCells(hid_t group, vtkCellArray* input)
   vtkIdType nbCells = input ? input->GetNumberOfCells() : 0;
   if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfCells", nbCells))
   {
-    vtkErrorMacro(<< "Can not create NumberOfCells dataset when creating: " << this->FileName);
+    vtkErrorMacro(<< "Cannot create NumberOfCells dataset when creating: " << this->FileName);
     return false;
   }
   return true;
@@ -985,7 +990,7 @@ bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* inpu
   vtkIdType nbConn = input ? input->GetNumberOfConnectivityIds() : 0;
   if (!this->Impl->AddOrCreateSingleValueDataset(group, "NumberOfConnectivityIds", nbConn))
   {
-    vtkErrorMacro(<< "Can not create NumberOfConnectivityIds dataset when creating: "
+    vtkErrorMacro(<< "Cannot create NumberOfConnectivityIds dataset when creating: "
                   << this->FileName);
     return false;
   }
@@ -1385,7 +1390,16 @@ bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pd
       {
         datasetGroup = this->Impl->OpenExistingGroup(group, currentName.c_str());
       }
+      this->PreviousStepMeshMTime = this->CompositeMeshMTime[datasetId];
       this->DispatchDataObject(datasetGroup, currentBlock);
+      if (auto ds = vtkDataSet::SafeDownCast(currentBlock->GetPartition(0)))
+      {
+        this->CompositeMeshMTime[datasetId] = ds->GetMeshMTime();
+      }
+      else
+      {
+        this->CompositeMeshMTime[datasetId] = this->CurrentTimeIndex + 1;
+      }
     }
 
     if (this->CurrentTimeIndex == 0)
@@ -1481,21 +1495,23 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
 
   for (treeIter->InitTraversal(); !treeIter->IsDoneWithTraversal(); treeIter->GoToNextItem())
   {
+    leafIndex++;
+
     // Retrieve name from metadata or create one
-    std::string uniqueSubTreeName;
+    std::string uniqueSubTreeName = "Block_" + std::to_string(leafIndex);
     std::string originalSubTreeName;
     if (mb->HasMetaData(treeIter) && mb->GetMetaData(treeIter)->Has(vtkCompositeDataSet::NAME()))
     {
       originalSubTreeName =
         std::string(mb->GetMetaData(treeIter)->Get(vtkCompositeDataSet::NAME()));
-      uniqueSubTreeName = originalSubTreeName + "_" + std::to_string(leafIndex);
     }
     else
     {
-      uniqueSubTreeName = originalSubTreeName = "Block_" + std::to_string(leafIndex);
+      originalSubTreeName = uniqueSubTreeName;
     }
 
-    if (treeIter->GetCurrentDataObject()->IsA("vtkMultiBlockDataSet"))
+    if (treeIter->GetCurrentDataObject() &&
+      treeIter->GetCurrentDataObject()->IsA("vtkMultiBlockDataSet"))
     {
       // Create a subgroup and recurse
       auto subTree = vtkMultiBlockDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
@@ -1509,7 +1525,6 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
     }
     else
     {
-      leafIndex++;
       if (this->UseExternalComposite)
       {
         // Create the block in a separate file and link it externally
@@ -1526,9 +1541,14 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
           vtkHDF::ScopedH5GHandle datasetGroup = this->Impl->CreateHdfGroupWithLinkOrder(
             this->Impl->GetRoot(), uniqueSubTreeName.c_str());
         }
-        this->DispatchDataObject(
-          this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
-          treeIter->GetCurrentDataObject());
+        if (treeIter->GetCurrentDataObject())
+        {
+          this->AppendIterDataObject(treeIter, leafIndex, uniqueSubTreeName);
+        }
+        else if (this->Impl->GetSubFilesReady())
+        {
+          this->AppendCompositeSubfilesDataObject(uniqueSubTreeName);
+        }
       }
 
       // Create a soft-link from the dataset on root group to the hierarchy positions where it
@@ -1549,6 +1569,67 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
   }
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::AppendIterDataObject(
+  vtkDataObjectTreeIterator* treeIter, const int& leafIndex, const std::string& uniqueSubTreeName)
+{
+  this->PreviousStepMeshMTime = this->CompositeMeshMTime[leafIndex];
+  this->DispatchDataObject(
+    this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()),
+    treeIter->GetCurrentDataObject());
+  auto ds = vtkDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
+  auto pds = vtkPartitionedDataSet::SafeDownCast(treeIter->GetCurrentDataObject());
+  if (ds)
+  {
+    this->CompositeMeshMTime[leafIndex] = ds->GetMeshMTime();
+  }
+  else if (pds && pds->GetNumberOfPartitions() > 0)
+  {
+    this->CompositeMeshMTime[leafIndex] =
+      vtkDataSet::SafeDownCast(pds->GetPartition(0))->GetMeshMTime();
+  }
+  else
+  {
+    this->CompositeMeshMTime[leafIndex] = this->CurrentTimeIndex + 1;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkHDFWriter::AppendCompositeSubfilesDataObject(const std::string& uniqueSubTreeName)
+{
+  // In multi-piece/distributed, it is possible that one piece is null for the rank 0
+  // writing the virtual structure. We try to infer the actual type of the current
+  // non-composite dataset, create array structures, and write all non-null pieces to the
+  // main file.
+
+  const std::string blockPath = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" +
+    uniqueSubTreeName; // All blocks are located on root group and have the same name
+                       // for all subfiles
+  int type = -1;
+
+  vtkHDF::ScopedH5GHandle nonNullPart = this->Impl->GetSubfileNonNullPart(blockPath, type);
+  if (nonNullPart == H5I_INVALID_HID)
+  {
+    return; // Leaf is null for every subfile
+  }
+
+  if (type == VTK_UNSTRUCTURED_GRID)
+  {
+    // Get all arrays from the non null part
+    vtkNew<vtkUnstructuredGrid> ug;
+    this->Impl->CreateArraysFromNonNullPart(nonNullPart, ug);
+    this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), ug);
+  }
+  else if (type == VTK_POLY_DATA)
+  {
+    vtkNew<vtkPolyData> pd;
+    this->Impl->CreateArraysFromNonNullPart(nonNullPart, pd);
+    this->DispatchDataObject(
+      this->Impl->OpenExistingGroup(this->Impl->GetRoot(), uniqueSubTreeName.c_str()), pd);
+  }
 }
 
 //------------------------------------------------------------------------------

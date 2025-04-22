@@ -4,6 +4,25 @@
  * @class   vtkHDFReader
  * @brief   Read VTK HDF files.
  *
+ * Reader for data saved using the VTKHDF format, supporting
+ * image data, poly data, unstructured grid, overlapping AMR, partitioned dataset
+ * collection and multiblock.
+ *
+ * Serial and parallel reading are supported, with the possibility of piece selection.
+ *
+ * This reader provides an internal cache with the `UseCache` option,
+ * improving read performance for temporal datasets when the geometry is constant between time
+ * steps.
+ *
+ * For non-composite datasets, constant geometry does not change the MeshMTime between time steps.
+ *
+ * Major version of the specification should be incremented when older readers can no
+ * longer read files written for this reader. Minor versions are
+ * for added functionality that can be safely ignored by older
+ * readers.
+ *
+ * @note vtkHDF file format is defined here :
+ * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
  */
 
 #ifndef vtkHDFReader_h
@@ -38,23 +57,6 @@ class vtkPointData;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
-/**
- * Reads data saved using the VTK HDF format which supports all
- * vtkDataSet types (image data, poly data, unstructured grid, overlapping AMR, partitioned dataset
- * collection and multiblock are currently implemented) and serial as well as parallel processing.
- *
- * Can also read temporal data with directions and offsets present
- * in a supplemental 'VTKHDF/Steps' group for vtkUnstructuredGrid
- * vtkPolyData, and vtkImageData.
- *
- * Major version should be incremented when older readers can no
- * longer read files written for this reader. Minor versions are
- * for added functionality that can be safely ignored by older
- * readers.
- *
- * @note vtkHDF file format is defined here :
- * https://docs.vtk.org/en/latest/design_documents/VTKFileFormats.html#hdf-file-formats
- */
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
 {
 public:
@@ -345,8 +347,9 @@ private:
 
   /**
    * Add array names from all composite elements to DataArraySelection array.
+   * Return true on success
    */
-  void RetrieveDataArraysFromAssembly();
+  bool RetrieveDataArraysFromAssembly();
 
   /**
    * Helper function to add Ids in the attribute arrays of a dataset.
@@ -375,6 +378,7 @@ private:
   };
 
   bool HasTemporalData = false;
+  std::string CompositeCachePath; // Identifier for the current composite piece
 };
 
 VTK_ABI_NAMESPACE_END

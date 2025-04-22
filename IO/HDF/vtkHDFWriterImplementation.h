@@ -290,6 +290,18 @@ public:
   bool AddOrCreateFieldDataSizeValueDataset(
     hid_t group, const char* name, int* value, int size, bool offset = false);
 
+  /**
+   * Find the first non null part for the given path in all subfiles.
+   */
+  vtkHDF::ScopedH5GHandle GetSubfileNonNullPart(const std::string& blockPath, int& type);
+
+  /**
+   * Initialize empty data object array structures from a base group.
+   * Used to get meta information for composite subfiles when all subfiles do not have non-null
+   * data.
+   */
+  void CreateArraysFromNonNullPart(hid_t group, vtkDataObject* data);
+
   Implementation(vtkHDFWriter* writer);
   virtual ~Implementation();
 
@@ -341,7 +353,8 @@ private:
    * Return false on failure (dataset does not exist on every subfile). `totalSize` value should not
    * be used in this case.
    */
-  bool GetSubFilesDatasetSize(const char* datasetPath, const char* groupName, hsize_t& totalSize);
+  bool GetSubFilesDatasetSize(
+    const std::string& datasetPath, const std::string& groupName, hsize_t& totalSize);
 
   // Possible indexing mode of VTKHDF datasets. See `GetDatasetIndexationMode`
   enum class IndexingMode

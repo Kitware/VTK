@@ -122,11 +122,12 @@ template <typename T, typename CacheT>
 bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOffset,
   vtkIdType numberOfPoints, std::vector<vtkIdType>& cellOffsets,
   std::vector<vtkIdType>& numberOfCells, std::vector<vtkIdType>& connectivityOffsets,
-  std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece, vtkPolyData* pieceData)
+  std::vector<vtkIdType>& numberOfConnectivityIds, int filePiece, vtkPolyData* pieceData,
+  const std::string& compositePath)
 {
   auto readFromFileOrCache = [&](int tag, std::string name, vtkIdType offset, vtkIdType size)
   {
-    std::string modifier = "_" + std::to_string(filePiece);
+    std::string modifier = "_" + std::to_string(filePiece) + "_" + compositePath;
     return ReadFromFileOrCache(impl, cache, tag, name, modifier, offset, size);
   };
   vtkSmartPointer<vtkDataArray> pointArray;
@@ -136,6 +137,7 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
     vtkErrorWithObjectMacro(nullptr, "Cannot read the Points array");
     return false;
   }
+
   vtkNew<vtkPoints> points;
   pieceData->SetPoints(points);
 
@@ -143,7 +145,7 @@ bool ReadPolyDataPiece(T* impl, std::shared_ptr<CacheT> cache, vtkIdType pointOf
    * which would cause the MTime of the geometry to update.
    * SetData would prevent us from using the MeshMTime correctly.
    */
-  if (cache != nullptr && !cache->HasBeenUpdated)
+  if (cache != nullptr && !cache->HasBeenUpdated && compositePath.empty())
   {
     return true;
   }
@@ -655,8 +657,14 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     {
       this->GenerateAssembly();
     }
-    this->RetrieveDataArraysFromAssembly();
-    this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+    if (!this->RetrieveDataArraysFromAssembly())
+    {
+      return 0;
+    }
+    if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+    {
+      return 0;
+    }
     if (!this->RetrieveStepsFromAssembly())
     {
       return 0;
@@ -873,7 +881,7 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   auto readFromFileOrCache =
     [&](int tag, std::string name, vtkIdType offset, vtkIdType size, bool mData)
   {
-    std::string modifier = "_" + std::to_string(filePiece);
+    std::string modifier = "_" + std::to_string(filePiece) + "_" + this->CompositeCachePath;
     return ::ReadFromFileOrCache(
       this->Impl, this->UseCache ? this->Cache : nullptr, tag, name, modifier, offset, size, mData);
   };
@@ -891,11 +899,13 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   }
 
   vtkNew<vtkPoints> points;
+
   /* If cache is up to date with the geometry, avoid geometry load
    * which would cause the MTime of the geometry to update.
    * SetData would prevent us from using the MeshMTime correctly.
    */
-  if (!this->UseCache || this->Cache->CheckCacheUpdatedStatus())
+  if (!this->UseCache || this->Cache->CheckCacheUpdatedStatus() ||
+    !this->CompositeCachePath.empty())
   {
     points->SetData(pointArray);
     this->MeshGeometryChangedFromPreviousTimeStep = true;
@@ -1206,7 +1216,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     this->Cache->ResetCacheUpdatedStatus();
     if (!::ReadPolyDataPiece(this->Impl, this->UseCache ? this->Cache : nullptr, pointOffset,
           numberOfPoints[filePiece], cellOffsets, pieceNumberOfCells, connectivityOffsets,
-          pieceNumberOfConnectivityIds, filePiece, pieceData))
+          pieceNumberOfConnectivityIds, filePiece, pieceData, this->CompositeCachePath))
     {
       vtkErrorMacro(
         "There was an error in reading the " << filePiece << " piece of the poly data file.");
@@ -1314,7 +1324,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
       continue;
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
-    this->Impl->RetrieveHDFInformation(hdfPathName);
+    if (!this->Impl->RetrieveHDFInformation(hdfPathName))
+    {
+      return 0;
+    }
     this->Impl->OpenGroupAsVTKGroup(hdfPathName); // Change root
 
     int dsIndex = -1;
@@ -1329,6 +1342,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPartitionedDataSetCollection*
     const int datatype = this->Impl->GetDataSetType();
 
     vtkSmartPointer<vtkDataObject> dataObject = this->Impl->GetNewDataSet(datatype, numPieces);
+    this->CompositeCachePath = datasetName;
     if (!this->ReadData(outInfo, dataObject))
     {
       return 0;
@@ -1373,7 +1387,10 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkMultiBlockDataSet* mb)
 
   int result = this->ReadRecursively(outInfo, mb, vtkHDFUtilities::VTKHDF_ROOT_PATH + "/Assembly");
 
-  this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+  if (!this->Impl->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH))
+  {
+    return 0;
+  }
   this->SetHasTemporalData(isPDCTemporal);
   this->NumberOfSteps = pdcSteps;
 
@@ -1399,6 +1416,11 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
       continue;
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
+    if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
+    {
+      // Do not read the (null) block if type is not set
+      continue;
+    }
     this->Impl->OpenGroupAsVTKGroup(hdfPathName);
     std::size_t nStep = this->Impl->GetNumberOfSteps();
 
@@ -1419,7 +1441,7 @@ bool vtkHDFReader::RetrieveStepsFromAssembly()
 }
 
 //------------------------------------------------------------------------------
-void vtkHDFReader::RetrieveDataArraysFromAssembly()
+bool vtkHDFReader::RetrieveDataArraysFromAssembly()
 {
   const std::vector<std::string> datasets =
     this->Impl->GetOrderedChildrenOfGroup(vtkHDFUtilities::VTKHDF_ROOT_PATH);
@@ -1431,8 +1453,16 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
     }
     std::string hdfPathName = vtkHDFUtilities::VTKHDF_ROOT_PATH + "/" + datasetName;
 
+    if (!this->Impl->HasAttribute(hdfPathName.c_str(), "Type"))
+    {
+      continue; // Allow empty datasets in assembly
+    }
+    if (!this->Impl->RetrieveHDFInformation(hdfPathName))
+    {
+      return false;
+    }
+
     // Fill DataArray
-    this->Impl->RetrieveHDFInformation(hdfPathName);
     for (int attrIdx = 0; attrIdx < vtkDataObject::AttributeTypes::FIELD; ++attrIdx)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
@@ -1442,6 +1472,8 @@ void vtkHDFReader::RetrieveDataArraysFromAssembly()
       }
     }
   }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1460,7 +1492,15 @@ int vtkHDFReader::ReadRecursively(
     dataMB->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), nodeName);
     if (this->Impl->IsPathSoftLink(hdfPath))
     {
-      this->Impl->RetrieveHDFInformation(hdfPath);
+      if (!this->Impl->HasAttribute(hdfPath.c_str(), "Type"))
+      {
+        dataMB->SetBlock(i, nullptr);
+        continue;
+      }
+      if (!this->Impl->RetrieveHDFInformation(hdfPath))
+      {
+        return 0;
+      }
       this->Impl->OpenGroupAsVTKGroup(hdfPath); // Set current path as HDF5 root
 
       const int numPieces = this->Impl->GetNumberOfPieces(this->Step);
@@ -1471,6 +1511,7 @@ int vtkHDFReader::ReadRecursively(
       {
         dataObject.TakeReference(vtkMultiPieceDataSet::New());
       }
+      this->CompositeCachePath = hdfPath;
       if (!this->ReadData(outInfo, dataObject))
       {
         return 0;
@@ -1540,7 +1581,7 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     return 0;
   }
-  this->MeshGeometryChangedFromPreviousTimeStep = false;
+  this->CompositeCachePath.clear();
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
@@ -1567,10 +1608,16 @@ int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
 bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
 {
   int ok = 1;
+  this->MeshGeometryChangedFromPreviousTimeStep = false;
 
   if (this->GetHasTemporalData())
   {
     double* values = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    if (!values)
+    {
+      vtkErrorMacro("Expected TIME_STEPS key for temporal data");
+      return false;
+    }
     if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
     {
       double requestedValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
@@ -1595,10 +1642,13 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(data);
     vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
     ok = this->Read(outInfo, ug, pData);
-    ::UpdateGeometryIfRequired(
-      ug, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    if (this->UseCache && this->CompositeCachePath.empty())
+    {
+      ::UpdateGeometryIfRequired(
+        ug, pData, this->UseCache, this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    }
     // data cleanup after using mesh cache
-    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    if (pData && this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
     }
@@ -1608,10 +1658,13 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
     vtkPolyData* polydata = vtkPolyData::SafeDownCast(data);
     vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
     ok = this->Read(outInfo, polydata, pData);
-    ::UpdateGeometryIfRequired(polydata, pData, this->UseCache,
-      this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    if (this->UseCache && this->CompositeCachePath.empty())
+    {
+      ::UpdateGeometryIfRequired(polydata, pData, this->UseCache,
+        this->MeshGeometryChangedFromPreviousTimeStep, this->MeshCache);
+    }
     // data cleanup after using mesh cache
-    if (this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
+    if (pData && this->UseCache && this->MeshGeometryChangedFromPreviousTimeStep)
     {
       this->CleanOriginalIds(pData);
     }
