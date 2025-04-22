@@ -204,7 +204,7 @@ static const char* MacKeyCodeToKeySymTable[128] = {
   "Tab", nullptr, nullptr, "BackSpace", nullptr, "Escape", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   nullptr, "period", nullptr, "asterisk", nullptr, "plus", nullptr, "Clear", nullptr, nullptr, nullptr, "slash", "KP_Enter", nullptr, "minus", nullptr,
   nullptr, nullptr, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5", "KP_6", "KP_7", nullptr, "KP_8", "KP_9", nullptr, nullptr, nullptr,
-  "F5", "F6", "F7", "F3", "F8", nullptr, nullptr, nullptr, nullptr, "Snapshot", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  "F5", "F6", "F7", "F3", "F8", "F9", nullptr, "F11", nullptr, "Snapshot", nullptr, nullptr, nullptr, "F10", nullptr, "F12",
   nullptr, nullptr, "Help", "Home", "Prior", "Delete", "F4", "End", "F2", "Next", "F1", "Left", "Right", "Down", "Up", nullptr };
 // clang-format on
 
