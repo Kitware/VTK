@@ -1057,6 +1057,8 @@ public:
     }
   }
 
+#endif // __VTK_WRAP__
+
   /** @} */
 
   /**
@@ -1068,8 +1070,6 @@ public:
   static bool GetDefaultStorageIs64Bit() { return vtkCellArray::DefaultStorageIs64Bit; }
   static void SetDefaultStorageIs64Bit(bool val) { vtkCellArray::DefaultStorageIs64Bit = val; }
   /** @} */
-
-#endif // __VTK_WRAP__
 
   //=================== Begin Legacy Methods ===================================
   // These should be deprecated at some point as they are confusing or very slow
