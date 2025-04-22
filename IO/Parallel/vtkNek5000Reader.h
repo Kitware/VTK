@@ -182,7 +182,7 @@ protected:
   int myNumBlockReads;
   int* myBlockIDs;
   int* proc_numBlocks;
-  int* myBlockPositions;
+  long* myBlockPositions;
   int NumberOfTimeSteps;
   double TimeValue;
   int TimeStepRange[2];
