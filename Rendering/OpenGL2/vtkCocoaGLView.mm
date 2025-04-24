@@ -168,7 +168,7 @@
 
 //----------------------------------------------------------------------------
 // clang-format off
-// this unicode code to keysym table is meant to provide keysym similar to XLookupString,
+// this unicode code to keysym table is meant to provide keysym similar to the X Window System's XLookupString(),
 // for Basic Latin and Latin1 unicode blocks.
 // Generated from xlib/X11/keysymdef.h
 // Duplicated in Rendering/UI/vtkWin32RenderWindowInteractor.cxx
@@ -195,8 +195,10 @@ static const char* UnicodeToKeySymTable[256] = {
 };
 
 //----------------------------------------------------------------------------
-// This table is meant to provide keysym similar to XLookupString from macOS VKeys (Events.h)
-// that are not mapped in the unicode table above.
+// This table is meant to provide keysym similar to X Window System's XLookupString()
+// from macOS virtual keys that are not mapped in the unicode table above.
+// See the kVK_* enums in HIToolbox/Events.h. For example, kVK_Return = 0x24, and so
+// the string "Return" appears at index 36 in this list.
 static const char* MacKeyCodeToKeySymTable[128] = {
   nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,

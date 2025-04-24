@@ -85,7 +85,7 @@ namespace
 //-------------------------------------------------------------
 
 // clang-format off
-// this unicode code to keysym table is meant to provide keysym similar to XLookupString,
+// this unicode code to keysym table is meant to provide keysym similar to X Window System's XLookupString(),
 // for Basic Latin and Latin1 unicode blocks.
 // Generated from xlib/X11/keysymdef.h
 // Duplicated in Rendering/OpenGL2/vtkCocoaGLView.mm
@@ -111,7 +111,7 @@ static const char* UnicodeToKeySymTable[256] = {
   "eth", "ntilde", "ograve", "oacute", "ocircumflex", "otilde", "odiaeresis", "division", "oslash", "ugrave", "uacute", "ucircumflex", "udiaeresis", "yacute", "thorn", "ydiaeresis"
 };
 
-// This table is meant to provide keysym similar to XLookupString from Windows VKeys (Winuser.h)
+// This table is meant to provide keysym similar to X Window System's XLookupString() from Windows VKeys (Winuser.h)
 // that are not mapped in the unicode table above.
 static const char* VKeyCodeToKeySymTable[256] = {
   nullptr, nullptr, nullptr, "Cancel", nullptr, nullptr, nullptr, nullptr, "BackSpace", "Tab", nullptr, nullptr, "Clear", "Return", nullptr, nullptr,
