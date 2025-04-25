@@ -4,6 +4,8 @@
 #include "vtkAppendDataSets.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
@@ -14,10 +16,12 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPUnstructuredGridReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
@@ -388,8 +392,10 @@ int TestOverlappingAMR(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestCompositeDataSet(const std::string& dataRoot)
 {
-  // This dataset is composed of 4 blocks : 2 polydata, 1 unstructured grid, 1 image data
+  // This dataset is composed of 4 blocks : 2 polydata, 1 unstructured grid, 1 HyperTreeGrid
   const std::string hdfPath = dataRoot + "/Data/vtkHDF/test_composite.hdf";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
   vtkNew<vtkHDFReader> expectedReader;
   expectedReader->SetFileName(hdfPath.c_str());
   expectedReader->Update();
@@ -402,6 +408,121 @@ int TestCompositeDataSet(const std::string& dataRoot)
   auto data = vtkPartitionedDataSetCollection::SafeDownCast(reader->GetOutput());
 
   return !vtkTestUtilities::CompareDataObjects(data, expectedData);
+}
+
+//------------------------------------------------------------------------------
+int TestRandomHyperTreeGrid(const std::string& dataRoot)
+{
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/randomhtg.hdf";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(hdfPath.c_str());
+  reader->Update();
+  vtkHyperTreeGrid* readData = vtkHyperTreeGrid::SafeDownCast(reader->GetOutput());
+
+  vtkNew<vtkRandomHyperTreeGridSource> source;
+  source->SetSeed(123);
+  source->SetDimensions(3, 3, 3);
+  source->SetSplitFraction(0.75);
+  source->SetMaskedFraction(0.25);
+  source->Update();
+  vtkHyperTreeGrid* expectedHTG = source->GetHyperTreeGridOutput();
+
+  return !vtkTestUtilities::CompareDataObjects(expectedHTG, readData);
+}
+
+//------------------------------------------------------------------------------
+int TestSimpleHyperTreeGrid(const std::string& dataRoot)
+{
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/simple_htg.hdf";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(hdfPath.c_str());
+  reader->Update();
+  vtkHyperTreeGrid* readData = vtkHyperTreeGrid::SafeDownCast(reader->GetOutput());
+
+  if (readData->GetNumberOfCells() != 44)
+  {
+    std::cerr << "Error: expected 44 cells in HTG but got " << readData->GetNumberOfCells()
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestPartitionedHyperTreeGrid(const std::string& dataRoot)
+{
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/multipiece_htg.hdf";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(hdfPath.c_str());
+  reader->Update();
+  vtkPartitionedDataSet* readData = vtkPartitionedDataSet::SafeDownCast(reader->GetOutput());
+
+  vtkNew<vtkHyperTreeGridSource> htgSource;
+  htgSource->SetBranchFactor(2);
+  htgSource->SetDimensions(6, 4, 1);
+  htgSource->SetMaxDepth(2);
+  htgSource->SetUseMask(true);
+
+  htgSource->SetDescriptor("... .R. ... ... ... | ....");
+  htgSource->SetMask("111 111 111 000 000 | 1111");
+  htgSource->Update();
+
+  vtkHyperTreeGrid* expectedHTG = htgSource->GetHyperTreeGridOutput();
+  vtkHyperTreeGrid* readHTG = vtkHyperTreeGrid::SafeDownCast(readData->GetPartitionAsDataObject(0));
+
+  if (!vtkTestUtilities::CompareDataObjects(expectedHTG, readHTG))
+  {
+    std::cerr << "HyperTreeGrids are not the same for part 0" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  htgSource->SetDescriptor("... ... ... .R. ... | ....");
+  htgSource->SetMask("000 000 000 111 111 | 1111");
+  htgSource->Update();
+
+  expectedHTG = htgSource->GetHyperTreeGridOutput();
+  readHTG = vtkHyperTreeGrid::SafeDownCast(readData->GetPartitionAsDataObject(1));
+
+  if (!vtkTestUtilities::CompareDataObjects(expectedHTG, readHTG))
+  {
+    std::cerr << "HyperTreeGrids are not the same for part 1" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestHyperTreeGridWithInterfaces(const std::string& dataRoot)
+{
+  const std::string hdfPath = dataRoot + "/Data/vtkHDF/shell_3d.hdf";
+  const std::string xmlPath = dataRoot + "/Data/HTG/shell_3d.htg";
+  std::cout << "Testing: " << hdfPath << std::endl;
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(hdfPath.c_str());
+  reader->Update();
+  vtkHyperTreeGrid* readData = vtkHyperTreeGrid::SafeDownCast(reader->GetOutput());
+
+  vtkNew<vtkXMLHyperTreeGridReader> xmlReader;
+  xmlReader->SetFileName(xmlPath.c_str());
+  xmlReader->Update();
+  vtkHyperTreeGrid* readDataXML = vtkHyperTreeGrid::SafeDownCast(xmlReader->GetOutput());
+
+  if (!vtkTestUtilities::CompareDataObjects(readData, readDataXML))
+  {
+    std::cerr << "HyperTreeGrids are not the same for part 0" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }
 
 //------------------------------------------------------------------------------
@@ -471,6 +592,23 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   if (TestCompositeDataSet(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestSimpleHyperTreeGrid(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestRandomHyperTreeGrid(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestPartitionedHyperTreeGrid(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestHyperTreeGridWithInterfaces(dataRoot))
   {
     return EXIT_FAILURE;
   }

@@ -112,6 +112,7 @@ vtk_module_test_data(
   Data/vtkHDF/test_composite.hdf
   Data/vtkHDF/test_composite.hdf_000000.vtpc
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_0_0.vtp
+  Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_1_0.htg
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_1_0.vtu
   Data/vtkHDF/test_composite.hdf_000000/test_composite.hdf_000000_2_0.vti
 
@@ -138,6 +139,15 @@ vtk_module_test_data(
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_2.vthb
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_0.vti
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_1.vti
+
+  Data/vtkHDF/multipiece_temporal_htg.hdf
+  Data/vtkHDF/multipiece_htg.hdf
+  Data/vtkHDF/randomhtg.hdf
+  Data/vtkHDF/simple_htg.hdf
+  Data/vtkHDF/shell_3d.hdf
+  Data/vtkHDF/temporal_htg.hdf
+
+  Data/HTG/shell_3d.htg
 )
 
 add_subdirectory(Cxx)

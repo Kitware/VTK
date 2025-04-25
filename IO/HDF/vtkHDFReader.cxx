@@ -8,6 +8,7 @@
 #include "vtkAffineArray.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
@@ -19,6 +20,7 @@
 #include "vtkHDFReaderImplementation.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFVersion.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -513,7 +515,7 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
 {
   std::map<int, std::string> typeNameMap = { { VTK_IMAGE_DATA, "vtkImageData" },
     { VTK_UNSTRUCTURED_GRID, "vtkUnstructuredGrid" }, { VTK_POLY_DATA, "vtkPolyData" },
-    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" },
+    { VTK_OVERLAPPING_AMR, "vtkOverlappingAMR" }, { VTK_HYPER_TREE_GRID, "vtkHyperTreeGrid" },
     { VTK_PARTITIONED_DATA_SET_COLLECTION, "vtkPartitionedDataSetCollection" },
     { VTK_MULTIBLOCK_DATA_SET, "vtkMultiBlockDataSet" } };
 
@@ -648,6 +650,10 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
     }
     outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
+  }
+  else if (dataSetType == VTK_HYPER_TREE_GRID)
+  {
+    outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
   }
   else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION ||
     dataSetType == VTK_MULTIBLOCK_DATA_SET)
@@ -958,9 +964,9 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
   {
     this->MeshGeometryChangedFromPreviousTimeStep = true;
   }
-  // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD
-  // field arrays are only read on node 0
-  for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
+
+  for (int attributeType = vtkDataObject::AttributeTypes::POINT;
+       attributeType <= vtkDataObject::AttributeTypes::CELL; ++attributeType)
   {
     const std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
     for (const std::string& name : names)
@@ -970,6 +976,8 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfPoints,
         vtkIdType arrayOffset = offsets[attributeType];
         if (this->GetHasTemporalData())
         {
+          // Read offset for the array values is the temporal offset in "Steps/XDataOffsets/Array"
+          // added to the number of X in previous parts of the time step.
           vtkIdType buff = this->Impl->GetArrayOffset(this->Step, attributeType, name);
           if (buff >= 0)
           {
@@ -1238,10 +1246,12 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkPolyData* data, vtkPartitione
     vtkIdType accumulatedNumberOfCells =
       std::accumulate(pieceNumberOfCells.begin(), pieceNumberOfCells.end(), 0);
 
+    // read point and cell data arrays
     std::vector<vtkIdType> offsets = { pointOffset, cellOffset };
     std::vector<vtkIdType> startingOffsets = { startingPointOffset, startingCellOffset };
     std::vector<vtkIdType> numberOf = { numberOfPoints[filePiece], accumulatedNumberOfCells };
-    for (int attributeType = 0; attributeType < vtkDataObject::FIELD; ++attributeType)
+    for (int attributeType = vtkDataObject::AttributeTypes::POINT;
+         attributeType <= vtkDataObject::AttributeTypes::CELL; ++attributeType)
     {
       const std::vector<std::string> names = this->Impl->GetArrayNames(attributeType);
       for (const std::string& name : names)
@@ -1463,7 +1473,9 @@ bool vtkHDFReader::RetrieveDataArraysFromAssembly()
     }
 
     // Fill DataArray
-    for (int attrIdx = 0; attrIdx < vtkDataObject::AttributeTypes::FIELD; ++attrIdx)
+    this->Impl->RetrieveHDFInformation(hdfPathName);
+    for (int attrIdx = vtkDataObject::AttributeTypes::POINT;
+         attrIdx <= vtkDataObject::AttributeTypes::CELL; ++attrIdx)
     {
       const std::vector<std::string> arrayNames = this->Impl->GetArrayNames(attrIdx);
       for (const std::string& arrayName : arrayNames)
@@ -1544,14 +1556,14 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   {
     if (!this->Impl->ComputeAMROffsetsPerLevels(this->DataArraySelection, this->Step, maxLevel))
     {
-      return false;
+      return 0;
     }
   }
   else
   {
     if (!this->Impl->ComputeAMRBlocksPerLevels(maxLevel))
     {
-      return false;
+      return 0;
     }
   }
 
@@ -1569,6 +1581,140 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
   }
 
   vtkAMRUtilities::BlankCells(data);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFReader::Read(
+  vtkInformation* outInfo, vtkHyperTreeGrid* data, vtkPartitionedDataSet* pData)
+{
+  int filePieceCount = this->Impl->GetNumberOfPieces();
+  if (this->GetHasTemporalData())
+  {
+    filePieceCount = this->Impl->GetNumberOfPieces(this->Step);
+  }
+
+  vtkIdType step = this->GetHasTemporalData() ? this->Step : -1;
+  vtkHDFUtilities::TemporalHyperTreeGridOffsets htgTemporalOffsets(this->Impl, step);
+  if (!htgTemporalOffsets.Success)
+  {
+    vtkErrorMacro("Error in reading temporal hyper tree grid offsets");
+    return 0;
+  }
+
+  // Read NumberOfTrees, Cells and Depths
+  std::vector<vtkIdType> numberOfTrees =
+    this->Impl->GetMetadata("NumberOfTrees", filePieceCount, htgTemporalOffsets.PartOffset);
+  if (numberOfTrees.empty())
+  {
+    return 0;
+  }
+  std::vector<vtkIdType> numberOfCells =
+    this->Impl->GetMetadata("NumberOfCells", filePieceCount, htgTemporalOffsets.PartOffset);
+  if (numberOfCells.empty())
+  {
+    return 0;
+  }
+  std::vector<vtkIdType> numberOfDepths =
+    this->Impl->GetMetadata("NumberOfDepths", filePieceCount, htgTemporalOffsets.PartOffset);
+  if (numberOfDepths.empty())
+  {
+    return 0;
+  }
+  std::vector<vtkIdType> descriptorSizes =
+    this->Impl->GetMetadata("DescriptorsSize", filePieceCount, htgTemporalOffsets.PartOffset);
+  if (numberOfDepths.empty())
+  {
+    return 0;
+  }
+
+  int memoryPieceCount = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  if (memoryPieceCount == 0)
+  {
+    vtkErrorMacro("Number of pieces per process was set to 0");
+    return 0;
+  }
+  std::vector<vtkSmartPointer<vtkHyperTreeGrid>> pieces;
+  pieces.reserve(filePieceCount / memoryPieceCount);
+  for (int filePiece = piece; filePiece < filePieceCount; filePiece += memoryPieceCount)
+  {
+    vtkNew<vtkHyperTreeGrid> pieceData;
+    pieceData->Initialize();
+    if (!this->Read(numberOfTrees, numberOfCells, numberOfDepths, descriptorSizes,
+          htgTemporalOffsets, filePiece, pieceData))
+    {
+      return 0;
+    }
+    pieces.emplace_back(pieceData);
+  }
+  std::reverse(pieces.begin(), pieces.end());
+  unsigned int nPieces = static_cast<unsigned int>(pieces.size());
+  if (pData)
+  {
+    pData->Initialize();
+    pData->SetNumberOfPartitions(nPieces);
+    for (unsigned int iPiece = 0; iPiece < nPieces; ++iPiece)
+    {
+      pData->SetPartition(iPiece, pieces.back());
+      pieces.pop_back();
+    }
+  }
+  else if (data)
+  {
+    data->ShallowCopy(pieces[0]);
+  }
+  else
+  {
+    vtkErrorMacro("Both proposed outputs are nullptr.");
+    return 0;
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfTrees,
+  const std::vector<vtkIdType>& numberOfCells, const std::vector<vtkIdType>& numberOfDepths,
+  const std::vector<vtkIdType>& descriptorSizes,
+  const vtkHDFUtilities::TemporalHyperTreeGridOffsets& htgTemporalOffsets, int filePiece,
+  vtkHyperTreeGrid* pieceData)
+{
+  // Offsets are in bytes but sizes are in bits. New pieces always start
+  auto sumByteSizes = [](vtkIdType startOffsetInBytes, vtkIdType addedBits)
+  {
+    return startOffsetInBytes + ((addedBits + 8 - 1) / 8); // Integer 'ceil'
+  };
+
+  // Get read offsets for the piece we are reading for the current time step
+  // Add the offset for the time step to the number of cells/trees/etc. in previous partitions of
+  // the current time step
+  const vtkIdType cellOffset = std::accumulate(numberOfCells.data(), &numberOfCells[filePiece], 0);
+  const vtkIdType treeIdsOffset = std::accumulate(
+    numberOfTrees.data(), &numberOfTrees[filePiece], htgTemporalOffsets.TreeIdsOffset);
+  const vtkIdType verticesPerDepthOffset = std::accumulate(numberOfDepths.data(),
+    &numberOfDepths[filePiece], htgTemporalOffsets.NumberOfCellsPerTreeDepthOffset);
+  const vtkIdType depthOffset = std::accumulate(
+    numberOfTrees.data(), &numberOfTrees[filePiece], htgTemporalOffsets.DepthPerTreeOffset);
+  const vtkIdType descriptorOffset = std::accumulate(descriptorSizes.data(),
+    &descriptorSizes[filePiece], htgTemporalOffsets.DescriptorsOffset, sumByteSizes);
+  const vtkIdType maskOffset = std::accumulate(
+    numberOfCells.data(), &numberOfCells[filePiece], htgTemporalOffsets.MaskOffset, sumByteSizes);
+  const vtkIdType partOffset = filePiece + htgTemporalOffsets.PartOffset;
+
+  const vtkIdType depthLimit = this->MaximumLevelsToReadByDefaultForAMR > 0
+    ? static_cast<vtkIdType>(this->MaximumLevelsToReadByDefaultForAMR)
+    : std::numeric_limits<unsigned int>::max();
+
+  // Build trees from descriptors
+  if (!this->Impl->ReadHyperTreeGridData(pieceData,
+        this->DataArraySelection[vtkDataObject::AttributeTypes::CELL], cellOffset, treeIdsOffset,
+        depthOffset, descriptorOffset, maskOffset, partOffset, verticesPerDepthOffset, depthLimit,
+        this->Step))
+  {
+    vtkErrorMacro("Failed to read HyperTreeGrid file");
+  }
 
   return 1;
 }
@@ -1673,6 +1819,12 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
   {
     vtkOverlappingAMR* amr = vtkOverlappingAMR::SafeDownCast(data);
     ok = this->Read(outInfo, amr);
+  }
+  else if (dataSetType == VTK_HYPER_TREE_GRID)
+  {
+    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(data);
+    vtkPartitionedDataSet* pData = vtkPartitionedDataSet::SafeDownCast(data);
+    ok = this->Read(outInfo, htg, pData);
   }
   else if (dataSetType == VTK_PARTITIONED_DATA_SET_COLLECTION)
   {

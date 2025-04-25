@@ -56,7 +56,7 @@ vtkHDFUtilities::TransientGeometryOffsets::TransientGeometryOffsets(T* impl, vtk
 template <class T>
 vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkIdType step)
 {
-  auto recupMultiOffset = [&](std::string path, std::vector<vtkIdType>& val)
+  auto getMultiOffset = [&](std::string path, std::vector<vtkIdType>& val)
   {
     val = impl->GetMetadata(path.c_str(), 1, step);
     if (val.empty())
@@ -67,36 +67,69 @@ vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkId
     }
     return true;
   };
-  auto recupSingleOffset = [&](std::string path, vtkIdType& val)
+  auto getSingleOffset = [&](std::string path, vtkIdType& val)
   {
     std::vector<vtkIdType> buffer;
-    if (!recupMultiOffset(path, buffer))
+    if (!getMultiOffset(path, buffer))
     {
       return false;
     }
     val = buffer[0];
     return true;
   };
-  if (!recupSingleOffset("Steps/PartOffsets", this->PartOffset))
+  if (!getSingleOffset("Steps/PartOffsets", this->PartOffset))
   {
     this->Success = false;
     return;
   }
-  if (!recupSingleOffset("Steps/PointOffsets", this->PointOffset))
+  if (!getSingleOffset("Steps/PointOffsets", this->PointOffset))
   {
     this->Success = false;
     return;
   }
-  if (!recupMultiOffset("Steps/CellOffsets", this->CellOffsets))
+  if (!getMultiOffset("Steps/CellOffsets", this->CellOffsets))
   {
     this->Success = false;
     return;
   }
-  if (!recupMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
+  if (!getMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
   {
     this->Success = false;
     return;
   }
+}
+
+//------------------------------------------------------------------------------
+template <class T>
+vtkHDFUtilities::TemporalHyperTreeGridOffsets::TemporalHyperTreeGridOffsets(T* impl, vtkIdType step)
+{
+  // No time data to read
+  if (step == -1)
+  {
+    return;
+  }
+  auto getSingleOffset = [&](std::string path, vtkIdType& val)
+  {
+    std::vector<vtkIdType> buffer = impl->GetMetadata(path.c_str(), 1, step);
+    if (buffer.empty())
+    {
+      vtkErrorWithObjectMacro(
+        nullptr, << path.c_str() << " array cannot be empty when there is temporal data");
+      return false;
+    }
+    val = buffer[0];
+    return true;
+  };
+  this->Success = getSingleOffset("Steps/TreeIdsOffsets", this->TreeIdsOffset) &&
+    getSingleOffset("Steps/DepthPerTreeOffsets", this->DepthPerTreeOffset) &&
+    getSingleOffset(
+      "Steps/NumberOfCellsPerTreeDepthOffsets", this->NumberOfCellsPerTreeDepthOffset) &&
+    getSingleOffset("Steps/DescriptorsOffsets", this->DescriptorsOffset) &&
+    getSingleOffset("Steps/MaskOffsets", this->MaskOffset) &&
+    getSingleOffset("Steps/XCoordinatesOffsets", this->XCoordinatesOffset) &&
+    getSingleOffset("Steps/YCoordinatesOffsets", this->YCoordinatesOffset) &&
+    getSingleOffset("Steps/ZCoordinatesOffsets", this->ZCoordinatesOffset) &&
+    getSingleOffset("Steps/PartOffsets", this->PartOffset);
 }
 
 //------------------------------------------------------------------------------

@@ -617,7 +617,7 @@ std::vector<std::string> TestDataSetFailures(vtkHyperTreeGrid* htg, std::ostring
   auto other = vtkHyperTreeGrid::SafeDownCast(limiter->GetOutputDataObject(0));
 
   CheckErrorMessage<vtkHyperTreeGrid>(vtkTestUtilities::CompareDataObjects(htg, other), logStream,
-    "Mismatched leaves", retLog, "Topology");
+    "Depth Limiter value doesn't match", retLog, "Topology");
 
   return retLog;
 }

@@ -125,6 +125,27 @@ public:
   TemporalGeometryOffsets(T* impl, vtkIdType step);
 };
 
+/*
+ * Offsets for temporalHyperTreeGrid
+ */
+struct VTKIOHDF_EXPORT TemporalHyperTreeGridOffsets
+{
+public:
+  bool Success = true;
+  vtkIdType TreeIdsOffset = 0;
+  vtkIdType DepthPerTreeOffset = 0;
+  vtkIdType NumberOfCellsPerTreeDepthOffset = 0;
+  vtkIdType DescriptorsOffset = 0;
+  vtkIdType MaskOffset = 0;
+  vtkIdType XCoordinatesOffset = 0;
+  vtkIdType YCoordinatesOffset = 0;
+  vtkIdType ZCoordinatesOffset = 0;
+  vtkIdType PartOffset = 0;
+
+  template <class T>
+  TemporalHyperTreeGridOffsets(T* impl, vtkIdType step);
+};
+
 /**
  * Open a VTK HDF file and checks if it is valid.
  * On succeed fileID is set to a valid hid.
@@ -144,6 +165,11 @@ VTKIOHDF_EXPORT hid_t TemplateTypeToHdfNativeType();
 template <typename T>
 VTKIOHDF_EXPORT bool GetAttribute(
   hid_t group, const char* attributeName, size_t numberOfElements, T* value);
+
+/**
+ * Get string argument, variable or fixed size
+ */
+bool GetStringAttribute(hid_t groupID, const std::string& name, std::string& attribute);
 
 /**
  * Read the number of steps of an HDF group
