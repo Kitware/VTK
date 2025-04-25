@@ -18,6 +18,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 #include <string> // for std::string compat
 
@@ -50,7 +51,7 @@ class vtkInformationVariantVectorKey;
 class vtkInformationVector;
 class vtkVariant;
 
-class VTKCOMMONCORE_EXPORT vtkInformation : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkInformation : public vtkObject
 {
 public:
   static vtkInformation* New();

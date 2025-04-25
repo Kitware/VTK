@@ -32,17 +32,9 @@ static nlohmann::json Serialize_vtkDataSetAttributes(
     {
       state = superSerializer(object, serializer);
     }
-    state["NumberOfArrays"] = dsa->GetNumberOfArrays();
-    auto& dst = state["Arrays"] = json::array();
-    for (int i = 0; i < dsa->GetNumberOfArrays(); ++i)
-    {
-      dst.push_back(serializer->SerializeJSON(dsa->GetAbstractArray(i)));
-    }
-    {
-      std::vector<int> attrIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
-      dsa->GetAttributeIndices(attrIndices.data());
-      state["AttributeIndices"] = attrIndices;
-    }
+    std::vector<int> attrIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
+    dsa->GetAttributeIndices(attrIndices.data());
+    state["AttributeIndices"] = attrIndices;
     return state;
   }
   else
@@ -60,24 +52,6 @@ static void Deserialize_vtkDataSetAttributes(
     if (auto superDeserializer = deserializer->GetHandler(typeid(vtkDataSetAttributes::Superclass)))
     {
       superDeserializer(state, object, deserializer);
-    }
-    auto* context = deserializer->GetContext();
-    while (dsa->GetNumberOfArrays() > 0)
-    {
-      auto* array = dsa->GetAbstractArray(0);
-      context->UnRegisterObject(context->GetId(array));
-      dsa->RemoveArray(0);
-    }
-    const auto& stateOfArrays = state["Arrays"];
-    for (auto& stateOfarray : stateOfArrays)
-    {
-      const auto identifier = stateOfarray["Id"].get<vtkTypeUInt32>();
-      auto subObject = context->GetObjectAtId(identifier);
-      deserializer->DeserializeJSON(identifier, subObject);
-      if (auto* array = vtkAbstractArray::SafeDownCast(subObject))
-      {
-        dsa->AddArray(array);
-      }
     }
     const auto& attributeIndices = state["AttributeIndices"];
     if (attributeIndices.size() != vtkDataSetAttributes::NUM_ATTRIBUTES)

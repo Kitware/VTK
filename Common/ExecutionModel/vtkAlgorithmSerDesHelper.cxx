@@ -3,6 +3,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkDataObject.h"
 #include "vtkDeserializer.h"
+#include "vtkInformation.h"
 #include "vtkSerializer.h"
 
 // clang-format off
@@ -55,6 +56,10 @@ static nlohmann::json Serialize_vtkAlgorithm(vtkObjectBase* object, vtkSerialize
       }
       statesOfInputDataObjects.push_back(stateOfInputDataObjects);
     }
+
+    state["Information"] =
+      serializer->SerializeJSON(reinterpret_cast<vtkObjectBase*>(algorithm->GetInformation()));
+
     return state;
   }
   else
@@ -72,9 +77,13 @@ static void Deserialize_vtkAlgorithm(
   {
     return;
   }
-  const auto* context = deserializer->GetContext();
   VTK_DESERIALIZE_VALUE_FROM_STATE(AbortExecute, int, state, algorithm);
+
+  VTK_DESERIALIZE_VTK_OBJECT_FROM_STATE(
+    Information, vtkInformation, state, algorithm, deserializer);
+
   {
+    const auto* context = deserializer->GetContext();
     const auto iter = state.find("InputDataObjects");
     if ((iter != state.end()) && !iter->is_null())
     {

@@ -18,6 +18,7 @@
 #define vtkLabeledContourMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 #include "vtkMapper.h"
 #include "vtkNew.h"          // For vtkNew
@@ -31,7 +32,7 @@ class vtkTextPropertyCollection;
 class vtkPolyData;
 class vtkPolyDataMapper;
 
-class VTKRENDERINGCORE_EXPORT vtkLabeledContourMapper : public vtkMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLabeledContourMapper : public vtkMapper
 {
 public:
   static vtkLabeledContourMapper* New();
@@ -124,6 +125,7 @@ public:
    * The polydata mapper used to render the contours.
    */
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper);
+  virtual void SetPolyDataMapper(vtkPolyDataMapper*);
   ///@}
 
   void ReleaseGraphicsResources(vtkWindow*) override;

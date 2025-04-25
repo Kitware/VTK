@@ -77,7 +77,6 @@ Common/Core/vtkImplicitArrayTraits.h
 Common/Core/vtkIndent.h
 Common/Core/vtkIndexedArray.h
 Common/Core/vtkIndexedImplicitBackend.h
-Common/Core/vtkInformation.h
 Common/Core/vtkInformationDataObjectKey.h
 Common/Core/vtkInformationDoubleKey.h
 Common/Core/vtkInformationDoubleVectorKey.h
@@ -172,7 +171,6 @@ Common/Core/vtkUnsignedLongLongArray.h
 Common/Core/vtkUnsignedShortArray.h
 Common/Core/vtkValueFromString.h
 Common/Core/vtkVariant.h
-Common/Core/vtkVariantArray.h
 Common/Core/vtkVariantCast.h
 Common/Core/vtkVariantCreate.h
 Common/Core/vtkVariantExtract.h
@@ -437,7 +435,6 @@ Common/DataModel/vtkStaticPointLocator2D.h
 Common/DataModel/vtkStructuredCellArray.h
 Common/DataModel/vtkStructuredData.h
 Common/DataModel/vtkStructuredExtent.h
-Common/DataModel/vtkStructuredGrid.h
 Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
@@ -677,7 +674,6 @@ Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositeCellGridMapper.h
 Rendering/Core/vtkCompositeDataDisplayAttributesLegacy.h
 Rendering/Core/vtkCompositePolyDataMapperDelegator.h
-Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkDistanceToCamera.h
 Rendering/Core/vtkFlagpoleLabel.h
 Rendering/Core/vtkFollower.h
@@ -695,11 +691,9 @@ Rendering/Core/vtkHierarchicalPolyDataMapper.h
 Rendering/Core/vtkInteractorEventRecorder.h
 Rendering/Core/vtkInteractorStyle3D.h
 Rendering/Core/vtkLODProp3D.h
-Rendering/Core/vtkLabeledContourMapper.h
 Rendering/Core/vtkLabeledDatatypeDefinitions.h
 Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightKit.h
-Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkLookupTableWithEnabling.h
 Rendering/Core/vtkMapArrayValues.h
 Rendering/Core/vtkMapperCollection.h
@@ -710,7 +704,6 @@ Rendering/Core/vtkPickingManager.h
 Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPointPicker.h
 Rendering/Core/vtkProp3DCollection.h
-Rendering/Core/vtkProp3DFollower.h
 Rendering/Core/vtkPropAssembly.h
 Rendering/Core/vtkPropPicker.h
 Rendering/Core/vtkPythagoreanQuadruples.h
@@ -736,7 +729,6 @@ Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
 Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
-Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTransformCoordinateSystems.h
 Rendering/Core/vtkTransformInterpolator.h
@@ -795,7 +787,6 @@ Rendering/OpenGL2/vtkOpenGLHyperTreeGridMapper.h
 Rendering/OpenGL2/vtkOpenGLImageAlgorithmHelper.h
 Rendering/OpenGL2/vtkOpenGLIndexBufferObject.h
 Rendering/OpenGL2/vtkOpenGLInstanceCulling.h
-Rendering/OpenGL2/vtkOpenGLLabeledContourMapper.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryBatchedPolyDataMapper.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryCellTypeAgent.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryLinesAgent.h

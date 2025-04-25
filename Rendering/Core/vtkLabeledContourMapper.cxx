@@ -378,6 +378,16 @@ void vtkLabeledContourMapper::SetTextPropertyMapping(vtkDoubleArray* mapping)
 }
 
 //------------------------------------------------------------------------------
+void vtkLabeledContourMapper::SetPolyDataMapper(vtkPolyDataMapper* mapper)
+{
+  if (this->PolyDataMapper != mapper)
+  {
+    this->PolyDataMapper->ShallowCopy(mapper);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->PolyDataMapper->ReleaseGraphicsResources(win);

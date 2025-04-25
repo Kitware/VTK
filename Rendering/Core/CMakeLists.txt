@@ -196,6 +196,8 @@ if (VTK_WRAP_SERIALIZATION)
     vtkColorTransferFunctionSerDesHelper.cxx
     vtkCompositeDataDisplayAttributesSerDesHelper.cxx
     vtkDataSetMapperSerDesHelper.cxx
+    vtkDiscretizableColorTransferFunctionSerDesHelper.cxx
+    vtkShaderPropertySerDesHelper.cxx
     vtkTextureSerDesHelper.cxx)
 endif ()
 

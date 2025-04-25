@@ -37,6 +37,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // for vtkSmartPointer
+#include "vtkWrappingHints.h"       // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorTransferFunction;
@@ -44,7 +45,7 @@ class vtkLookupTable;
 class vtkPiecewiseFunction;
 class vtkUnsignedCharArray;
 
-class VTKRENDERINGCORE_EXPORT vtkDiscretizableColorTransferFunction
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkDiscretizableColorTransferFunction
   : public vtkColorTransferFunction
 {
 public:

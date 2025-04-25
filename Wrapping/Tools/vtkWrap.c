@@ -80,6 +80,12 @@ int vtkWrap_IsStdVector(const ValueInfo* val)
     strncmp(val->Class, "std::vector<", 12) == 0);
 }
 
+int vtkWrap_IsStdMap(const ValueInfo* val)
+{
+  return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN && val->Class &&
+    strncmp(val->Class, "std::map<", 9) == 0);
+}
+
 int vtkWrap_IsVTKObject(const ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);

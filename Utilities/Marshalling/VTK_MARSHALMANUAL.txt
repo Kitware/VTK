@@ -1,7 +1,11 @@
 Common/Core/vtkDataArray.h
+Common/Core/vtkInformation.h
+Common/Core/vtkScalarsToColors.h
 Common/Core/vtkStringArray.h
+Common/Core/vtkVariantArray.h
 Common/DataModel/vtkCellArray.h
 Common/DataModel/vtkDataSetAttributes.h
+Common/DataModel/vtkFieldData.h
 Common/DataModel/vtkMultiBlockDataSet.h
 Common/DataModel/vtkPartitionedDataSet.h
 Common/DataModel/vtkPartitionedDataSetCollection.h
@@ -15,4 +19,6 @@ Rendering/Core/vtkAbstractMapper.h
 Rendering/Core/vtkColorTransferFunction.h
 Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkDataSetMapper.h
+Rendering/Core/vtkDiscretizableColorTransferFunction.h
+Rendering/Core/vtkShaderProperty.h
 Rendering/Core/vtkTexture.h
