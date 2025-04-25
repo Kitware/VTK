@@ -702,7 +702,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   std::ifstream dfPtr;
   int i;
   string buf2, tag;
-  std::map<int, int> blockMap;
+  std::map<long, long> blockMap;
 
   int my_rank;
   int num_ranks;
@@ -849,7 +849,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
   }
 
   // now that we have our list of blocks, get their positions in the file (their index)
-  this->myBlockPositions = new int[this->myNumBlocks];
+  this->myBlockPositions = new long[this->myNumBlocks];
 
   for (i = 0; i < this->myNumBlocks; i++)
   {
