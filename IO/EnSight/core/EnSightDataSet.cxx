@@ -52,16 +52,35 @@ namespace
 constexpr int MAX_CASE_LINE_LENGTH = 1024;
 
 // used for the first part of a case file line (e.g. model:, measured:, etc)
-std::regex lineTypeRegEx(R"((?:^|\s)([[:alpha:]_\s]+:)(?=$|\s))");
+const std::regex& GetLineTypeRegEx()
+{
+  static const std::regex lineTypeRegEx(R"((?:^|\s)([[:alpha:]_\s]+:)(?=$|\s))");
+  return lineTypeRegEx;
+}
+
 // integers
-std::regex intRegEx(R"(^(?:\s+)(\d+)(?=$|\s))");
+const std::regex& GetIntRegEx()
+{
+  static const std::regex intRegEx(R"(^(?:\s+)(\d+)(?=$|\s))");
+  return intRegEx;
+}
+
 // floating point
-std::regex numRegEx(R"((?:^|\s)([-]?\d*\.?\d*e?[+-]?\d*[^\s])(?=$|\s))");
+const std::regex& GetNumRegEx()
+{
+  static const std::regex numRegEx(R"((?:^|\s)([-]?\d*\.?\d*e?[+-]?\d*[^\s])(?=$|\s))");
+  return numRegEx;
+}
+
 // filenames or other cases where it's not determining the type  (e.g., change_coords_only)
-std::regex fileNameRegEx(R"((?:^|\s)([[:alnum:]/_.*-]+)(?=$|\s))");
+const std::regex& GetFileNameRegEx()
+{
+  static const std::regex fileNameRegEx(R"((?:^|\s)([[:alnum:]/_.*-]+)(?=$|\s))");
+  return fileNameRegEx;
+}
 
 template <typename T>
-bool extractLinePart(std::regex& rx, std::string& line, T& value)
+bool extractLinePart(const std::regex& rx, std::string& line, T& value)
 {
   std::smatch sm;
   if (std::regex_search(line, sm, rx))
@@ -84,7 +103,7 @@ bool extractFileName(std::string& line, std::string& filename)
   if (quoteBegin == std::string::npos)
   {
     // no quotes - filename cannot contain spaces, so we can use regex
-    return extractLinePart(fileNameRegEx, line, filename);
+    return extractLinePart(GetFileNameRegEx(), line, filename);
   }
 
   // we have quotes, we know where the filename starts and ends
@@ -372,7 +391,7 @@ void readCaseFileValues(EnSightFile& file, std::string& line, std::vector<T>& va
   bool continueReading = true;
   while (continueReading)
   {
-    while (extractLinePart(numRegEx, line, val))
+    while (extractLinePart(GetNumRegEx(), line, val))
     {
       values.push_back(val);
     }
@@ -406,7 +425,7 @@ void readFileValues(EnSightFile& file, std::vector<T>& values)
   while (result.first)
   {
     T val;
-    while (extractLinePart(numRegEx, result.second, val))
+    while (extractLinePart(GetNumRegEx(), result.second, val))
     {
       values.push_back(val);
     }
@@ -625,13 +644,13 @@ void EnSightDataSet::ParseGeometrySection()
     std::string lineType, option, fileName;
     int timeSet = -1, fileSet = -1;
 
-    if (!extractLinePart(lineTypeRegEx, line, lineType))
+    if (!extractLinePart(GetLineTypeRegEx(), line, lineType))
     {
       vtkGenericWarningMacro("could not extract the line type from " << result.second);
     }
-    extractLinePart(intRegEx, line, timeSet);
+    extractLinePart(GetIntRegEx(), line, timeSet);
 
-    extractLinePart(intRegEx, line, fileSet);
+    extractLinePart(GetIntRegEx(), line, fileSet);
     if (!extractFileName(line, fileName))
     {
       vtkGenericWarningMacro("could not extract file name from " << result.second);
@@ -641,7 +660,7 @@ void EnSightDataSet::ParseGeometrySection()
     {
       this->GeometryFileName = this->GetFullPath(fileName);
       this->GeometryFile.SetFileNamePattern(this->GeometryFileName);
-      extractLinePart(fileNameRegEx, line, option);
+      extractLinePart(GetFileNameRegEx(), line, option);
 
       // option can be empty, 'change_coords_only', 'change_coords_only cstep', or
       // 'changing_geometry_per_part'. changing_geometry_per_part signals that part lines will have
@@ -651,7 +670,7 @@ void EnSightDataSet::ParseGeometrySection()
       {
         // change_coords_only indicates that only coords change in geometry, otherwise connectivity
         // changes too. cstep means the zero-based time step that contains the connectivity
-        extractLinePart(intRegEx, line, this->GeometryCStep);
+        extractLinePart(GetIntRegEx(), line, this->GeometryCStep);
       }
 
       // check to see if we do indeed have a static geometry
@@ -679,7 +698,7 @@ void EnSightDataSet::ParseGeometrySection()
       this->MeasuredFile.SetTimeAndFileSetInfo(timeSet, fileSet);
       this->MeasuredFileName = this->GetFullPath(fileName);
       this->MeasuredFile.SetFileNamePattern(this->MeasuredFileName);
-      extractLinePart(fileNameRegEx, line, option);
+      extractLinePart(GetFileNameRegEx(), line, option);
     }
     else if (lineType == "match:")
     {
@@ -728,7 +747,7 @@ void EnSightDataSet::ParseVariableSection()
     std::string varType, fileName;
     VariableOptions opts;
 
-    extractLinePart(lineTypeRegEx, line, varType);
+    extractLinePart(GetLineTypeRegEx(), line, varType);
     opts.Type = getVariableTypeFromString(varType);
     if (opts.Type == VariableType::Unknown)
     {
@@ -737,15 +756,15 @@ void EnSightDataSet::ParseVariableSection()
       continue;
     }
 
-    extractLinePart(intRegEx, line, opts.File.TimeSet);
+    extractLinePart(GetIntRegEx(), line, opts.File.TimeSet);
     if (opts.Type == VariableType::ConstantPerCase)
     {
-      extractLinePart(fileNameRegEx, line, opts.Name);
+      extractLinePart(GetFileNameRegEx(), line, opts.Name);
       readCaseFileValues(this->CaseFile, line, opts.Constants);
     }
     else if (opts.Type == VariableType::ConstantPerCaseFile)
     {
-      extractLinePart(fileNameRegEx, line, opts.Name);
+      extractLinePart(GetFileNameRegEx(), line, opts.Name);
       if (!extractFileName(line, fileName))
       {
         vtkGenericWarningMacro("could not extract file name from " << result.second);
@@ -766,8 +785,8 @@ void EnSightDataSet::ParseVariableSection()
         opts.File.TimeSet = 1;
       }
 
-      extractLinePart(intRegEx, line, opts.File.FileSet);
-      extractLinePart(fileNameRegEx, line, opts.Name);
+      extractLinePart(GetIntRegEx(), line, opts.File.FileSet);
+      extractLinePart(GetFileNameRegEx(), line, opts.Name);
 
       if (!extractFileName(line, fileName))
       {
@@ -778,11 +797,11 @@ void EnSightDataSet::ParseVariableSection()
       if (varType.find("complex") != std::string::npos)
       {
         // need to grab remaining info for complex var types
-        extractLinePart(fileNameRegEx, line, fileName);
+        extractLinePart(GetFileNameRegEx(), line, fileName);
         opts.ImaginaryFile.SetFileNamePattern(this->GetFullPath(fileName));
         opts.ImaginaryFile.TimeSet = opts.File.TimeSet;
         opts.ImaginaryFile.FileSet = opts.File.FileSet;
-        extractLinePart(numRegEx, line, opts.Frequency);
+        extractLinePart(GetNumRegEx(), line, opts.Frequency);
       }
     }
 
@@ -811,23 +830,23 @@ void EnSightDataSet::ParseTimeSection()
       }
 
       std::string lineType;
-      extractLinePart(lineTypeRegEx, line, lineType);
+      extractLinePart(GetLineTypeRegEx(), line, lineType);
       if (lineType == "time set:")
       {
         moreTimeSets = false;
-        extractLinePart(intRegEx, line, timeSet);
+        extractLinePart(GetIntRegEx(), line, timeSet);
       }
       else if (lineType == "number of steps:")
       {
-        extractLinePart(intRegEx, line, tsInfo->NumberOfSteps);
+        extractLinePart(GetIntRegEx(), line, tsInfo->NumberOfSteps);
       }
       else if (lineType == "filename start number:")
       {
-        extractLinePart(intRegEx, line, startNum);
+        extractLinePart(GetIntRegEx(), line, startNum);
       }
       else if (lineType == "filename increment:")
       {
-        extractLinePart(intRegEx, line, increment);
+        extractLinePart(GetIntRegEx(), line, increment);
       }
       else if (lineType == "time values:")
       {
@@ -912,19 +931,19 @@ void EnSightDataSet::ParseFileSection()
       }
 
       std::string lineType;
-      extractLinePart(lineTypeRegEx, line, lineType);
+      extractLinePart(GetLineTypeRegEx(), line, lineType);
       if (lineType == "file set:")
       {
-        extractLinePart(intRegEx, line, fileSet);
+        extractLinePart(GetIntRegEx(), line, fileSet);
       }
       else if (lineType == "number of steps:")
       {
-        extractLinePart(intRegEx, line, numSteps);
+        extractLinePart(GetIntRegEx(), line, numSteps);
         fsInfo->NumberOfSteps.push_back(numSteps);
       }
       else if (lineType == "filename index:")
       {
-        extractLinePart(intRegEx, line, fileIndex);
+        extractLinePart(GetIntRegEx(), line, fileIndex);
         fsInfo->FileNameIndex.push_back(fileIndex);
       }
 
@@ -2596,7 +2615,7 @@ void EnSightDataSet::ReadDimensions(bool hasRange, int dimensions[3], int& numPt
     auto result = this->GeometryFile.ReadNextLine();
     for (int i = 0; i < 3; i++)
     {
-      extractLinePart(numRegEx, result.second, dimensions[i]);
+      extractLinePart(GetNumRegEx(), result.second, dimensions[i]);
     }
   }
   else
@@ -2639,7 +2658,7 @@ void EnSightDataSet::ReadRange(int range[6])
     auto result = this->GeometryFile.ReadNextLine();
     for (int i = 0; i < 6; i++)
     {
-      extractLinePart(numRegEx, result.second, range[i]);
+      extractLinePart(GetNumRegEx(), result.second, range[i]);
     }
   }
   else
@@ -2992,7 +3011,7 @@ bool EnSightDataSet::ReadRigidBodyGeometryFile()
   }
 
   float version;
-  extractLinePart(numRegEx, result.second, version);
+  extractLinePart(GetNumRegEx(), result.second, version);
   if (version != 2.0)
   {
     vtkGenericWarningMacro("currently only version 2.0 of the rigid body format is supported.");
