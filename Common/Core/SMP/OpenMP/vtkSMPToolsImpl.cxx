@@ -46,7 +46,7 @@ vtkSMPToolsImplOpenMPInitialize::~vtkSMPToolsImplOpenMPInitialize()
 template <>
 void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 {
-  const int maxThreads = omp_get_max_threads();
+  const int maxThreads = vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
   if (numThreads == 0)
   {
     const char* vtkSmpNumThreads = std::getenv("VTK_SMP_MAX_THREADS");
@@ -72,7 +72,9 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsOpenMP()
 {
-  return specifiedNumThreadsOMP ? specifiedNumThreadsOMP : omp_get_max_threads();
+  return specifiedNumThreadsOMP
+    ? specifiedNumThreadsOMP
+    : vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
 }
 
 //------------------------------------------------------------------------------

@@ -95,7 +95,8 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
       specifiedNumThreadsTBB = 0;
     }
   }
-  if (numThreads > 0 && numThreads <= taskArena->max_concurrency())
+  if (numThreads > 0 &&
+    numThreads <= vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedDefaultNumberOfThreads())
   {
     if (taskArena->is_active())
     {
@@ -112,7 +113,9 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
 template <>
 int vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedNumberOfThreads()
 {
-  return specifiedNumThreadsTBB > 0 ? specifiedNumThreadsTBB : taskArena->max_concurrency();
+  return specifiedNumThreadsTBB > 0
+    ? specifiedNumThreadsTBB
+    : vtkSMPToolsImpl<BackendType::TBB>::GetEstimatedDefaultNumberOfThreads();
 }
 
 //------------------------------------------------------------------------------
