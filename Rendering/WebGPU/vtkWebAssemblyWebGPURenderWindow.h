@@ -48,11 +48,6 @@ public:
    */
   void SetFullScreen(vtkTypeBool) override;
 
-  /**
-   * Show or not Show the window
-   */
-  void SetShowWindow(bool val) override;
-
   ///@{
   /**
    * Set the size of the window in pixels.
@@ -114,6 +109,18 @@ public:
    */
   vtkGetStringMacro(CanvasSelector);
   vtkSetStringMacro(CanvasSelector);
+
+  /**
+   * Make the setter for UseOffscreenBuffers no-op.
+   * Offscreen buffers end up displaying a black screen which is not very useful.
+   */
+  void SetUseOffScreenBuffers(bool) override {}
+
+  /**
+   * Make the setter for ShowWindow no-op.
+   * This property is meaningless in a web browser context.
+   */
+  void SetShowWindow(bool) override {}
 
 protected:
   vtkWebAssemblyWebGPURenderWindow();

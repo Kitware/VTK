@@ -168,12 +168,6 @@ void vtkWebAssemblyWebGPURenderWindow::SetFullScreen(vtkTypeBool arg)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebAssemblyWebGPURenderWindow::SetShowWindow(bool val)
-{
-  this->Superclass::SetShowWindow(val);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebAssemblyWebGPURenderWindow::SetSize(int width, int height)
 {
   if ((this->Size[0] != width) || (this->Size[1] != height))
