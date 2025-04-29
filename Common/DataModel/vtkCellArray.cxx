@@ -767,11 +767,17 @@ void vtkCellArray::SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connec
 
   this->Storage.Use32BitStorage();
   auto& storage = this->Storage.GetArrays32();
-
   // vtkArrayDownCast to ensure this works when ArrayType32 is vtkIdTypeArray.
-  storage.Offsets = vtkArrayDownCast<ArrayType32>(offsets);
-  storage.Connectivity = vtkArrayDownCast<ArrayType32>(connectivity);
-  this->Modified();
+  if (storage.Offsets != offsets)
+  {
+    storage.Offsets = vtkArrayDownCast<ArrayType32>(offsets);
+    this->Modified();
+  }
+  if (storage.Connectivity != connectivity)
+  {
+    storage.Connectivity = vtkArrayDownCast<ArrayType32>(connectivity);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -786,11 +792,17 @@ void vtkCellArray::SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connec
 
   this->Storage.Use64BitStorage();
   auto& storage = this->Storage.GetArrays64();
-
   // vtkArrayDownCast to ensure this works when ArrayType64 is vtkIdTypeArray.
-  storage.Offsets = vtkArrayDownCast<ArrayType64>(offsets);
-  storage.Connectivity = vtkArrayDownCast<ArrayType64>(connectivity);
-  this->Modified();
+  if (storage.Offsets != offsets)
+  {
+    storage.Offsets = vtkArrayDownCast<ArrayType64>(offsets);
+    this->Modified();
+  }
+  if (storage.Connectivity != connectivity)
+  {
+    storage.Connectivity = vtkArrayDownCast<ArrayType64>(connectivity);
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------

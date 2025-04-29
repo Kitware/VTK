@@ -63,10 +63,16 @@ static void Deserialize_vtkDataSetAttributes(
         << vtkDataSetAttributes::NUM_ATTRIBUTES << ")!");
       return;
     }
+
+    std::vector<int> existingAttributeIndices(vtkDataSetAttributes::NUM_ATTRIBUTES, -1);
+    dsa->GetAttributeIndices(existingAttributeIndices.data());
     for (int attributeType = 0; attributeType < vtkDataSetAttributes::NUM_ATTRIBUTES;
          ++attributeType)
     {
-      dsa->SetActiveAttribute(attributeIndices[attributeType], attributeType);
+      if (existingAttributeIndices[attributeType] != attributeIndices[attributeType])
+      {
+        dsa->SetActiveAttribute(attributeIndices[attributeType], attributeType);
+      }
     }
   }
 }

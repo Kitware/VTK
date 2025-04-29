@@ -58,19 +58,32 @@ static void Deserialize_vtkFieldData(
       superDeserializer(state, object, deserializer);
     }
     auto* context = deserializer->GetContext();
-    while (fd->GetNumberOfArrays() > 0)
-    {
-      auto* array = fd->GetAbstractArray(0);
-      context->UnRegisterObject(context->GetId(array));
-      fd->RemoveArray(0);
-    }
     const auto& stateOfArrays = state["Arrays"];
+    // vector used to keep existing arrays alive so that fd->RemoveArray doesn't destroy the
+    // vtkAbstractArray object.
+    std::vector<vtkSmartPointer<vtkAbstractArray>> arrays;
     for (auto& stateOfarray : stateOfArrays)
     {
       const auto identifier = stateOfarray["Id"].get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
       deserializer->DeserializeJSON(identifier, subObject);
       if (auto* array = vtkAbstractArray::SafeDownCast(subObject))
+      {
+        arrays.emplace_back(array);
+      }
+    }
+    if (static_cast<std::size_t>(fd->GetNumberOfArrays()) != arrays.size())
+    {
+      // Now remove arrays from the collection.
+      // If arrays already existied before entering this function, it does not invoke
+      // destructor on the vtkAbstractArray because a reference is held by the vector of arrays.
+      while (fd->GetNumberOfArrays() > 0)
+      {
+        auto* array = fd->GetAbstractArray(0);
+        context->UnRegisterObject(context->GetId(array));
+        fd->RemoveArray(0);
+      }
+      for (const auto& array : arrays)
       {
         fd->AddArray(array);
       }

@@ -37,7 +37,7 @@ list(APPEND emscripten_link_options
   "-sALLOW_TABLE_GROWTH=1"
   "-sEXPORT_NAME=vtkWasmSceneManager"
   "-sENVIRONMENT=node,web"
-  "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString']"
+  "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS']"
   # "-sEXCEPTION_DEBUG=1" # prints stack trace for uncaught C++ exceptions from VTK (very rare, but PITA to figure out)
   # "-sGL_DEBUG=1"
   # "-sGL_ASSERTIONS=1"

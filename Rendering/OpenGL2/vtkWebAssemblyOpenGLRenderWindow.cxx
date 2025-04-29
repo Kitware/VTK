@@ -176,12 +176,6 @@ int vtkWebAssemblyOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebAssemblyOpenGLRenderWindow::SetShowWindow(bool val)
-{
-  this->Superclass::SetShowWindow(val);
-}
-
-//------------------------------------------------------------------------------
 void vtkWebAssemblyOpenGLRenderWindow::CreateAWindow()
 {
   EmscriptenWebGLContextAttributes attrs;

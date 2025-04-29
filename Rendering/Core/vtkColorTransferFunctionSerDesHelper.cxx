@@ -96,9 +96,23 @@ static void Deserialize_vtkColorTransferFunction(
     const auto iter = state.find("Data");
     if ((iter != state.end()) && !iter->is_null())
     {
+      auto existingElements = object->GetDataPointer();
+      const auto existingNb = object->GetSize();
       auto elements = iter->get<std::vector<double>>();
       const auto nb = static_cast<int>(elements.size()) >> 2;
-      object->FillFromDataPointer(nb, elements.data());
+      const bool sameSize = existingNb == nb;
+      bool changed = false;
+      if (sameSize)
+      {
+        for (std::size_t i = 0; (i < elements.size() && !changed); ++i)
+        {
+          changed = elements[i] != existingElements[i];
+        }
+      }
+      if (!sameSize || changed)
+      {
+        object->FillFromDataPointer(nb, elements.data());
+      }
     }
   }
 }

@@ -263,16 +263,23 @@ inline void vtkPoints::Reset()
 
 inline void vtkPoints::SetNumberOfPoints(vtkIdType numPoints)
 {
-  this->Data->SetNumberOfComponents(3);
-  this->Data->SetNumberOfTuples(numPoints);
-  this->Modified();
+  if (numPoints != this->Data->GetNumberOfTuples())
+  {
+    this->Data->SetNumberOfComponents(3);
+    this->Data->SetNumberOfTuples(numPoints);
+    this->Modified();
+  }
 }
 
 inline vtkTypeBool vtkPoints::Resize(vtkIdType numPoints)
 {
-  this->Data->SetNumberOfComponents(3);
-  this->Modified();
-  return this->Data->Resize(numPoints);
+  if (numPoints != this->Data->GetNumberOfTuples())
+  {
+    this->Data->SetNumberOfComponents(3);
+    this->Modified();
+    return this->Data->Resize(numPoints);
+  }
+  return 0;
 }
 
 inline void vtkPoints::SetPoint(vtkIdType id, double x, double y, double z)

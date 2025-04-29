@@ -192,7 +192,7 @@ void vtkObjectManager::Import(const std::string& stateFileName, const std::strin
     for (const auto& blob : blobs.items())
     {
       auto hash = blob.key();
-      const auto& values = blob.value().get_binary();
+      const auto& values = blob.value().at("bytes").get<std::vector<vtkTypeUInt8>>();
       if (!values.empty())
       {
         auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());

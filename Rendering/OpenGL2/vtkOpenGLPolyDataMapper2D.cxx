@@ -602,6 +602,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D* act, vtkViewport* viewport
         this->TransformedPoints->SetPoint(j, itmp[0], itmp[1], 0.0);
       }
     }
+    this->TransformedPoints->Modified();
     p = this->TransformedPoints;
   }
 
