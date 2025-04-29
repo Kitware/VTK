@@ -6,6 +6,7 @@
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUShaderModuleInternals.h"
 #include "vtkObjectFactory.h"
+#include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputePipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -451,21 +452,17 @@ void vtkWebGPUComputePassInternals::WebGPUDispatch(
   }
 
   wgpu::CommandEncoder commandEncoder = this->CreateCommandEncoder();
-#ifndef NDEBUG
-  commandEncoder.PushDebugGroup(this->ParentPass->GetLabel().c_str());
-#endif
-
-  wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
-  computePassEncoder.SetPipeline(this->ComputePipeline);
-  for (std::size_t bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
   {
-    computePassEncoder.SetBindGroup(bindGroupIndex, this->BindGroups[bindGroupIndex], 0, nullptr);
+    vtkScopedEncoderDebugGroup(commandEncoder, this->ParentPass->GetLabel().c_str());
+    wgpu::ComputePassEncoder computePassEncoder = CreateComputePassEncoder(commandEncoder);
+    computePassEncoder.SetPipeline(this->ComputePipeline);
+    for (std::size_t bindGroupIndex = 0; bindGroupIndex < this->BindGroups.size(); bindGroupIndex++)
+    {
+      computePassEncoder.SetBindGroup(bindGroupIndex, this->BindGroups[bindGroupIndex], 0, nullptr);
+    }
+    computePassEncoder.DispatchWorkgroups(groupsX, groupsY, groupsZ);
+    computePassEncoder.End();
   }
-  computePassEncoder.DispatchWorkgroups(groupsX, groupsY, groupsZ);
-  computePassEncoder.End();
-#ifndef NDEBUG
-  commandEncoder.PopDebugGroup();
-#endif
 
   this->SubmitCommandEncoderToQueue(commandEncoder);
 }
