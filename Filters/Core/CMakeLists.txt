@@ -123,6 +123,7 @@ set(classes
   vtkTensorGlyph
   vtkThreshold
   vtkThresholdPoints
+  vtkThresholdScalars
   vtkTransposeTable
   vtkTriangleFilter
   vtkTriangleMeshPointNormals
