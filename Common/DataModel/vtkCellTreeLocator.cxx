@@ -443,8 +443,13 @@ private:
     CellInfo* mid = begin;
 
     const double ext[3] = { max[0] - min[0], max[1] - min[1], max[2] - min[2] };
-    const double iext[3] = { this->NumberOfBuckets / ext[0], this->NumberOfBuckets / ext[1],
-      this->NumberOfBuckets / ext[2] };
+    double iext[3];
+
+    for (uint8_t comp = 0; comp < 3; ++comp)
+    {
+      double const ext_comp = ext[comp];
+      iext[comp] = ext_comp == 0.0 ? this->NumberOfBuckets : this->NumberOfBuckets / ext_comp;
+    }
 
     buckets.Reset();
 
