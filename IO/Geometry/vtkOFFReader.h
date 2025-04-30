@@ -13,6 +13,10 @@
  * to simplify error handling. The optional color specification of
  * the polygons is ignored by this reader.
  *
+ * This reader supports streaming.
+ * When selecting input method, `Stream` has an higher priority than `Filename`.
+ * If both are null, reader outputs nothing.
+ *
  * The original documentation of the OFF file format can be found here:
  * @sa http://www.geomview.org/docs/html/OFF.html
  *
@@ -33,16 +37,6 @@ public:
   static vtkOFFReader* New();
   vtkTypeMacro(vtkOFFReader, vtkAbstractPolyDataReader);
 
-  /**
-   * Set the resource stream to use when reading
-   */
-  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
-
-  /**
-   * Get the resource stream to use when reading
-   */
-  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
-
 protected:
   vtkOFFReader() = default;
   ~vtkOFFReader() override = default;
@@ -50,11 +44,6 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
 private:
-  /**
-   * The resource stream to use when reading
-   */
-  vtkSmartPointer<vtkResourceStream> Stream;
-
   /**
    * @brief Returns the resource stream to read from
    *
