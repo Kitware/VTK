@@ -1293,21 +1293,24 @@ int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   vtkIdType sendLength = numComponents * numTuples;
-  if (!this->Gather(&sendLength, recvLengths, 1, destProcessId))
+  if (!this->AllGather(&sendLength, recvLengths, 1))
   {
     return 0;
   }
+
+  // Calculate offsets for all processes
+  offsets[0] = 0;
+  for (int i = 0; i < this->NumberOfProcesses; i++)
+  {
+    if ((recvLengths[i] % numComponents) != 0)
+    {
+      vtkWarningMacro(<< "Not all send buffers have same tuple size.");
+    }
+    offsets[i + 1] = offsets[i] + recvLengths[i];
+  }
+
   if (destProcessId == this->LocalProcessId)
   {
-    offsets[0] = 0;
-    for (int i = 0; i < this->NumberOfProcesses; i++)
-    {
-      if ((recvLengths[i] % numComponents) != 0)
-      {
-        vtkWarningMacro(<< "Not all send buffers have same tuple size.");
-      }
-      offsets[i + 1] = offsets[i] + recvLengths[i];
-    }
     recvBuffer->SetNumberOfComponents(numComponents);
     recvBuffer->SetNumberOfTuples(offsets[this->NumberOfProcesses] / numComponents);
   }
