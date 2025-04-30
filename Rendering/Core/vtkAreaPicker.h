@@ -34,6 +34,7 @@
 
 #include "vtkAbstractPropPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
@@ -46,7 +47,7 @@ class vtkDataSet;
 class vtkExtractSelectedFrustum;
 class vtkProp;
 
-class VTKRENDERINGCORE_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAreaPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkAreaPicker* New();

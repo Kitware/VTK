@@ -23,11 +23,12 @@
 
 #include "vtkPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
-class VTKRENDERINGCORE_EXPORT vtkPointPicker : public vtkPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPointPicker : public vtkPicker
 {
 public:
   ///@{

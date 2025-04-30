@@ -54,6 +54,7 @@
 
 #include "vtkAbstractPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
@@ -65,7 +66,7 @@ class vtkProp3D;
 class vtkAssemblyPath;
 class vtkActor2D;
 
-class VTKRENDERINGCORE_EXPORT vtkAbstractPropPicker : public vtkAbstractPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAbstractPropPicker : public vtkAbstractPicker
 {
 public:
   vtkTypeMacro(vtkAbstractPropPicker, vtkAbstractPicker);

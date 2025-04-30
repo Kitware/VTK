@@ -31,6 +31,7 @@
 
 #include "vtkAbstractPropPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper3D;
@@ -41,7 +42,7 @@ class vtkActorCollection;
 class vtkProp3DCollection;
 class vtkPoints;
 
-class VTKRENDERINGCORE_EXPORT vtkPicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPicker* New();

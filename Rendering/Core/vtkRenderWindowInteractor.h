@@ -343,9 +343,7 @@ public:
    * vtkAbstractPropPicker, meaning that it can identify a particular
    * instance of vtkProp.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPicker(vtkAbstractPicker*);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(Picker, vtkAbstractPicker);
   ///@}
 

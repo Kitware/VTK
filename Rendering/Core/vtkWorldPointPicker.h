@@ -22,9 +22,10 @@
 
 #include "vtkAbstractPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkWorldPointPicker : public vtkAbstractPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkWorldPointPicker : public vtkAbstractPicker
 {
 public:
   static vtkWorldPointPicker* New();
