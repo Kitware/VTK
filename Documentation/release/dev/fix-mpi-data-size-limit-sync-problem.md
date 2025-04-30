@@ -1,0 +1,3 @@
+# Fix: MPI Gather function hanging when data size was invalid
+
+When `vtkMPICommunicator::GatherVVoidArray` function was called, the program could potentially hang because of a size check function inside the implementation. The size check could trigger an early return only for the failing process, which left the other processes hanging indefinitely. Due to this fix, the parameters `recvLengths` and `offsets` must now be specified for all processes when calling `vtkCommunicator::GatherV`. Otherwise, a warning will be thrown, indicating that the function can potentially hang the code because of the size check.
