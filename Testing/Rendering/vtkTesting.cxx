@@ -1105,6 +1105,12 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
       vtkNew<vtkObjectManager> serManager;
       serManager->Initialize();
 
+      vtkSmartPointer<vtkRenderWindowInteractor> interactor = rw->GetInteractor();
+      if (interactor && interactor->IsA("vtkTestingInteractor"))
+      {
+        rw->SetInteractor(nullptr);
+      }
+
       vtkTypeUInt32 rwId = serManager->RegisterObject(rw);
       serManager->UpdateStatesFromObjects();
 
@@ -1124,6 +1130,8 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
       desManager->UpdateObjectsFromStates();
       testing->SetRenderWindow(vtkRenderWindow::SafeDownCast(desManager->GetObjectAtId(rwId)));
       res = testing->RegressionTest(thresh, std::cout);
+
+      rw->SetInteractor(interactor);
     }
     return res;
   }
