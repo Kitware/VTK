@@ -6,6 +6,11 @@
  *
  * vtkOBJReader is a source object that reads Wavefront .obj
  * files. The output of this source object is polygonal data.
+ *
+ * This reader supports streaming.
+ * When selecting input method, `Stream` has an higher priority than `Filename`.
+ * If both are null, reader outputs nothing.
+ *
  * @sa
  * vtkOBJImporter
  */
@@ -15,7 +20,6 @@
 
 #include "vtkAbstractPolyDataReader.h"
 #include "vtkIOGeometryModule.h" // For export macro
-#include "vtkResourceStream.h"   // For vtkResourceStream
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkOBJReader : public vtkAbstractPolyDataReader
@@ -31,16 +35,6 @@ public:
    */
   vtkGetStringMacro(Comment);
 
-  ///@{
-  /**
-   * Specify stream to read from
-   * When selecting input method, `Stream` has an higher priority than `Filename`.
-   * If both are null, reader outputs nothing.
-   */
-  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
-  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
-  ///@}
-
 protected:
   vtkOBJReader();
   ~vtkOBJReader() override;
@@ -53,7 +47,6 @@ protected:
   vtkSetStringMacro(Comment);
 
   char* Comment;
-  vtkSmartPointer<vtkResourceStream> Stream;
 
 private:
   vtkSmartPointer<vtkResourceStream> Open();

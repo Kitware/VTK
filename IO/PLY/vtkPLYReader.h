@@ -22,6 +22,9 @@
  * filter after this reader or use this reader with DuplicatePointsForFaceTexture
  * set to false.
  *
+ * This reader supports streaming.
+ * Set `ReadFromInputStream` to true and set the `Stream` object to read from a stream.
+ *
  * @sa
  * vtkPLYWriter, vtkCleanPolyData
  */
@@ -78,14 +81,6 @@ public:
 
   ///@{
   /**
-   * Specify stream to read from
-   */
-  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
-  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
-  ///@}
-
-  ///@{
-  /**
    * Enable reading from an InputStream
    * `ReadFromInputStream` has an higher priority than `ReadFromInputString`.
    */
@@ -115,7 +110,6 @@ protected:
   std::string InputString;
 
   bool ReadFromInputStream = false;
-  vtkSmartPointer<vtkResourceStream> Stream;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
