@@ -971,27 +971,21 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
       vtkErrorMacro(
         << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=Lost");
       return;
-    case wgpu::SurfaceGetCurrentTextureStatus::OutOfMemory:
+    case wgpu::SurfaceGetCurrentTextureStatus::Error:
       vtkErrorMacro(
-        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=OutOfMemory");
+        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=Error");
       return;
-    case wgpu::SurfaceGetCurrentTextureStatus::DeviceLost:
-      vtkErrorMacro(
-        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=DeviceLost");
-      return;
-    case wgpu::SurfaceGetCurrentTextureStatus::Success:
+    case wgpu::SurfaceGetCurrentTextureStatus::SuccessSuboptimal:
+      // TODO: Warn exactly once per Initialize/Finalize duration.
+      vtkDebugMacro(<< "SurfaceTexture format is suboptimal!");
+      break;
+    case wgpu::SurfaceGetCurrentTextureStatus::SuccessOptimal:
     default:
       break;
   }
   if (surfaceTexture.texture == nullptr)
   {
     vtkErrorMacro(<< "Cannot render offscreen texture because SurfaceTexture is null!");
-    return;
-  }
-  if (surfaceTexture.suboptimal)
-  {
-    // TODO: Warn exactly once per Initialize/Finalize duration.
-    vtkDebugMacro(<< "SurfaceTexture format is suboptimal!");
     return;
   }
   if (this->ColorAttachment.Texture == nullptr)
