@@ -23,7 +23,7 @@ public:
   // Helps clean up the instance after it is no longer needed.
   static std::size_t InstanceCount;
 
-  wgpu::RequiredLimits RequiredLimits;
+  wgpu::Limits RequiredLimits;
   std::vector<wgpu::FeatureName> RequiredFeatures;
 
   static void AddInstanceRef();

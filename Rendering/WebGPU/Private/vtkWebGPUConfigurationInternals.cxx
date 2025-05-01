@@ -113,12 +113,11 @@ void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(wgpu::Adapter adapt
 {
   RequiredLimits.nextInChain = nullptr;
 
-  wgpu::SupportedLimits supportedLimits;
+  wgpu::Limits supportedLimits;
   adapter.GetLimits(&supportedLimits);
 
-  RequiredLimits.limits.maxStorageBufferBindingSize =
-    supportedLimits.limits.maxStorageBufferBindingSize;
-  RequiredLimits.limits.maxBufferSize = supportedLimits.limits.maxBufferSize;
+  RequiredLimits.maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
+  RequiredLimits.maxBufferSize = supportedLimits.maxBufferSize;
 }
 
 //------------------------------------------------------------------------------

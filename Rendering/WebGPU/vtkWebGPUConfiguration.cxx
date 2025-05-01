@@ -219,9 +219,6 @@ void PrintLimits(ostream& os, vtkIndent indent, const wgpu::Limits& limits)
   os << indent << "maxVertexBufferArrayStride: " << FormatNumber(limits.maxVertexBufferArrayStride)
      << '\n';
   os << indent
-     << "maxInterStageShaderComponents: " << FormatNumber(limits.maxInterStageShaderComponents)
-     << '\n';
-  os << indent
      << "maxInterStageShaderVariables: " << FormatNumber(limits.maxInterStageShaderVariables)
      << '\n';
   os << indent << "maxColorAttachments: " << FormatNumber(limits.maxColorAttachments) << '\n';
@@ -314,13 +311,13 @@ void PrintAdapterFeatures(ostream& os, vtkIndent indent, const wgpu::Adapter& ad
 
 void PrintAdapterLimits(ostream& os, vtkIndent indent, const wgpu::Adapter& adapter)
 {
-  wgpu::SupportedLimits adapterLimits;
+  wgpu::Limits adapterLimits;
   if (adapter.GetLimits(&adapterLimits))
   {
     os << indent << '\n';
     os << indent << "Adapter Limits\n";
     os << indent << "==============\n";
-    PrintLimits(os, indent.GetNextIndent(), adapterLimits.limits);
+    PrintLimits(os, indent.GetNextIndent(), adapterLimits);
   }
 }
 
@@ -843,13 +840,12 @@ wgpu::Buffer vtkWebGPUConfiguration::CreateBuffer(const wgpu::BufferDescriptor& 
   const auto label = vtkWebGPUHelpers::StringViewToStdString(bufferDescriptor.label);
   if (!vtkWebGPUBufferInternals::CheckBufferSize(internals.Device, bufferDescriptor.size))
   {
-    wgpu::SupportedLimits supportedDeviceLimits;
+    wgpu::Limits supportedDeviceLimits;
     internals.Device.GetLimits(&supportedDeviceLimits);
     vtkLog(ERROR,
       "The current WebGPU Device cannot create buffers larger than: "
-        << supportedDeviceLimits.limits.maxStorageBufferBindingSize
-        << " bytes but the buffer with label " << label << " is " << bufferDescriptor.size
-        << " bytes big.");
+        << supportedDeviceLimits.maxStorageBufferBindingSize << " bytes but the buffer with label "
+        << label << " is " << bufferDescriptor.size << " bytes big.");
 
     return nullptr;
   }
