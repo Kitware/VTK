@@ -554,13 +554,19 @@ const char* vtkOSOpenGLRenderWindow::ReportCapabilities()
   const char* glVendor = (const char*)glGetString(GL_VENDOR);
   const char* glRenderer = (const char*)glGetString(GL_RENDERER);
   const char* glVersion = (const char*)glGetString(GL_VERSION);
-  const char* glExtensions = (const char*)glGetString(GL_EXTENSIONS);
 
   std::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
-  strm << "OpenGL extensions:  " << (glExtensions ? glExtensions : "(none)") << endl;
+  strm << "OpenGL extensions:  " << endl;
+  int n = 0;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+  for (int i = 0; i < n; i++)
+  {
+    const char* ext = (const char*)glGetStringi(GL_EXTENSIONS, i);
+    strm << "  " << ext << endl;
+  }
   delete[] this->Capabilities;
   size_t len = strm.str().length();
   this->Capabilities = new char[len + 1];
