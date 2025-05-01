@@ -279,7 +279,7 @@ inline vtkTypeBool vtkPoints::Resize(vtkIdType numPoints)
     this->Modified();
     return this->Data->Resize(numPoints);
   }
-  return 0;
+  return 1;
 }
 
 inline void vtkPoints::SetPoint(vtkIdType id, double x, double y, double z)
