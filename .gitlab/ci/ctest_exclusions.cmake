@@ -560,7 +560,6 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
   list(APPEND test_exclusions
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    "^VTK::RenderingCoreCxx-TestActorLightingFlag$"
     "^VTK::RenderingCoreCxx-TestBlockOpacity$"
     "^VTK::RenderingCoreCxx-TestCompositeDataDisplayAttributes$"
     "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperMixedGeometryEdges$"
