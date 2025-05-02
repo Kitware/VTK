@@ -13,19 +13,50 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
+#include "vtk_glad.h" // for GLES3 detection support
+
+#if VTK_MODULE_vtkglad_GLES3
+#include "vtkDepthPeelingPass.h"
+#include "vtkFramebufferPass.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderStepsPass.h"
+#include "vtkTextureObject.h"
+#endif
+
 namespace
 {
-
 void InitRenderer(vtkRenderer* renderer)
 {
-  renderer->SetUseDepthPeeling(1);
-  renderer->SetMaximumNumberOfPeels(8);
   renderer->LightFollowCameraOn();
   renderer->TwoSidedLightingOn();
-  renderer->SetOcclusionRatio(0.0);
-}
+#if VTK_MODULE_vtkglad_GLES3
+  // create the basic VTK render steps
+  vtkNew<vtkRenderStepsPass> basicPasses;
 
-} // end anon namespace
+  // replace the default translucent pass with
+  // a more advanced depth peeling pass
+  vtkNew<vtkDepthPeelingPass> peeling;
+  peeling->SetMaximumNumberOfPeels(8);
+  peeling->SetOcclusionRatio(0.0);
+  peeling->SetTranslucentPass(basicPasses->GetTranslucentPass());
+  basicPasses->SetTranslucentPass(peeling);
+
+  vtkNew<vtkFramebufferPass> fop;
+  fop->SetDelegatePass(basicPasses);
+  fop->SetDepthFormat(vtkTextureObject::Fixed24);
+  peeling->SetOpaqueZTexture(fop->GetDepthTexture());
+  peeling->SetOpaqueRGBATexture(fop->GetColorTexture());
+
+  // tell the renderer to use our render pass pipeline
+  vtkOpenGLRenderer* glrenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
+  glrenderer->SetPass(fop);
+#else
+  renderer->SetUseDepthPeeling(1);
+  renderer->SetMaximumNumberOfPeels(8);
+  renderer->SetOcclusionRatio(0.0);
+#endif
+}
+} // anonymous namespace
 
 int TestDepthPeelingPassViewport(int, char*[])
 {

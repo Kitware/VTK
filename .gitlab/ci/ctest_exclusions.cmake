@@ -560,7 +560,6 @@ endif ()
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
   list(APPEND test_exclusions
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19343
-    "^VTK::RenderingCoreCxx-TestBlockOpacity$"
     "^VTK::RenderingCoreCxx-TestCompositeDataDisplayAttributes$"
     "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperMixedGeometryEdges$"
     "^VTK::RenderingCoreCxx-TestCompositePolyDataMapperPartialFieldData$"
@@ -573,13 +572,8 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingCoreCxx-TestLabeledContourMapperWithActorMatrix$"
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19580
     "^VTK::RenderingCoreCxx-TestMixedGeometryCellScalars$"
-    "^VTK::RenderingCoreCxx-TestOpacity$"
     "^VTK::RenderingCoreCxx-TestPolyDataMapperNormals$"
     "^VTK::RenderingCoreCxx-TestRenderLinesAsTubes$"
-    "^VTK::RenderingCoreCxx-TestTextureRGBADepthPeeling$"
-    "^VTK::RenderingCoreCxx-TestTranslucentImageActorDepthPeeling$"
-    "^VTK::RenderingCoreCxx-TestTranslucentLUTDepthPeeling$"
-    "^VTK::RenderingCoreCxx-TestTranslucentLUTTextureDepthPeeling$"
     "^VTK::RenderingCoreCxx-TestResizingWindowToImageFilter$"
     "^VTK::RenderingCoreCxx-TestTextureWrap$"
     "^VTK::RenderingOpenGL2Cxx-TestCoincident$"
@@ -594,9 +588,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2Picking$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2Spheres$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositePolyDataMapper2Vertices$"
-    "^VTK::RenderingOpenGL2Cxx-TestDepthPeelingOcclusionQuery$"
-    "^VTK::RenderingOpenGL2Cxx-TestDepthPeelingPass$"
-    "^VTK::RenderingOpenGL2Cxx-TestDepthPeelingPassViewport$"
     "^VTK::RenderingOpenGL2Cxx-TestEDLPass$"
     "^VTK::RenderingOpenGL2Cxx-TestFlipRenderFramebuffer$"
     "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
