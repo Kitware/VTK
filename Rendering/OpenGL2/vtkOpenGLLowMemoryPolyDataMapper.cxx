@@ -274,6 +274,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReleaseGraphicsResources(vtkWindow* windo
     this->InternalColorTexture->ReleaseGraphicsResources(window);
   }
   this->ReleaseResources(window);
+  // Reset the render timestamp so that the next render will update the buffers.
+  this->RenderTimeStamp = vtkTimeStamp();
 }
 
 //------------------------------------------------------------------------------

@@ -15,8 +15,6 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter()
   : Arrays({})
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
   , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
   , BufferUsage(vtkOpenGLBufferObject::ObjectUsage::StaticDraw)
   , IntegerTexture(true)
@@ -28,8 +26,6 @@ vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter()
 vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter(
   vtkDataArray* array, bool asScalars, bool* integerTexture)
   : Arrays({ array })
-  , Texture(vtkSmartPointer<vtkTextureObject>::New())
-  , Buffer(vtkSmartPointer<vtkOpenGLBufferObject>::New())
   , BufferType(vtkOpenGLBufferObject::ObjectType::TextureBuffer)
   , BufferUsage(vtkOpenGLBufferObject::ObjectUsage::StaticDraw)
   , IntegerTexture((integerTexture ? *integerTexture : array->IsIntegral()))
@@ -40,7 +36,7 @@ vtkOpenGLArrayTextureBufferAdapter::vtkOpenGLArrayTextureBufferAdapter(
 //------------------------------------------------------------------------------
 void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWindow, bool force)
 {
-  if (this->Buffer->IsReady() && !force)
+  if ((this->Buffer && this->Buffer->IsReady()) && !force)
   {
     // We don't need to re-upload.
     return;
@@ -50,9 +46,19 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
     // There are no arrays to upload.
     return;
   }
-  this->Buffer->SetType(this->BufferType);
-  this->Texture->SetRequireTextureInteger(this->IntegerTexture);
-  this->Texture->SetContext(renderWindow);
+  if (this->Buffer == nullptr)
+  {
+    // We need to create the buffer.
+    this->Buffer = vtkSmartPointer<vtkOpenGLBufferObject>::New();
+    this->Buffer->SetType(this->BufferType);
+  }
+  if (this->Texture == nullptr)
+  {
+    // We need to create the texture.
+    this->Texture = vtkSmartPointer<vtkTextureObject>::New();
+    this->Texture->SetRequireTextureInteger(this->IntegerTexture);
+    this->Texture->SetContext(renderWindow);
+  }
   std::size_t nbytes = 0;
   vtkIdType numberOfTuples = 0;
   int numberOfComponents = 0;
@@ -149,4 +155,18 @@ void vtkOpenGLArrayTextureBufferAdapter::Upload(vtkOpenGLRenderWindow* renderWin
   // this->Texture->Activate();
 }
 
+//------------------------------------------------------------------------------
+void vtkOpenGLArrayTextureBufferAdapter::ReleaseGraphicsResources(vtkWindow* window)
+{
+  if (this->Texture)
+  {
+    this->Texture->ReleaseGraphicsResources(window);
+    this->Texture = nullptr;
+  }
+  if (this->Buffer)
+  {
+    this->Buffer->ReleaseGraphicsResources();
+    this->Buffer = nullptr;
+  }
+}
 VTK_ABI_NAMESPACE_END
