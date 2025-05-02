@@ -66,7 +66,8 @@ public:
   /**
    * Set/Get the desired reduction (expressed as a fraction of the original
    * number of triangles). The actual reduction may be less depending on
-   * triangulation and topological constraints.
+   * triangulation, topological constraints and optional maximum error limit.
+   * @see SetMaximumError
    */
   vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
   vtkGetMacro(TargetReduction, double);
@@ -94,6 +95,16 @@ public:
   vtkSetMacro(VolumePreservation, vtkTypeBool);
   vtkGetMacro(VolumePreservation, vtkTypeBool);
   vtkBooleanMacro(VolumePreservation, vtkTypeBool);
+  ///@}
+
+  ///@{
+  /**
+   * Maximum allowed absolute error for stopping criteria.
+   * VTK_DOUBLE_MAX by default (no limit).
+   * This limit takes precedence over the TargetReduction.
+   */
+  vtkSetMacro(MaximumError, double);
+  vtkGetMacro(MaximumError, double);
   ///@}
 
   ///@{
@@ -332,6 +343,9 @@ protected:
 private:
   vtkQuadricDecimation(const vtkQuadricDecimation&) = delete;
   void operator=(const vtkQuadricDecimation&) = delete;
+
+  // Maximum allowed absolute error for stopping criteria.
+  double MaximumError = VTK_DOUBLE_MAX;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -333,8 +333,8 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
   edgeId = this->EdgeCosts->Pop(0, cost);
 
   bool abort = false;
-  while (
-    !abort && edgeId >= 0 && cost < VTK_DOUBLE_MAX && this->ActualReduction < this->TargetReduction)
+  while (!abort && edgeId >= 0 && cost < this->MaximumError &&
+    this->ActualReduction < this->TargetReduction)
   {
     if (!(this->NumberOfEdgeCollapses % 10000))
     {
