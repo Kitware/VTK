@@ -575,17 +575,13 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataOverlappingCells$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussian$"
     "^VTK::RenderingOpenGL2Cxx-TestCompositeDataPointGaussianSelection$"
-    "^VTK::RenderingOpenGL2Cxx-TestEDLPass$"
     "^VTK::RenderingOpenGL2Cxx-TestFlipRenderFramebuffer$"
     "^VTK::RenderingOpenGL2Cxx-TestFluidMapper$"
     "^VTK::RenderingOpenGL2Cxx-TestFramebufferHDR$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestGaussianBlurPass$"
     "^VTK::RenderingOpenGL2Cxx-TestGlyph3DMapperEdges$"
-    "^VTK::RenderingOpenGL2Cxx-TestHiddenLineRemovalPass$"
-    "^VTK::RenderingOpenGL2Cxx-TestLightingMapNormalsPass$"
     "^VTK::RenderingOpenGL2Cxx-TestMultiTexturing$"
     "^VTK::RenderingOpenGL2Cxx-TestMultiTexturingInterpolateScalars$"
-    "^VTK::RenderingOpenGL2Cxx-TestOutlineGlowPass$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRClearCoat$"
     "^VTK::RenderingOpenGL2Cxx-TestPBREdgeTint$"
     "^VTK::RenderingOpenGL2Cxx-TestPBRHdrEnvironment$"
@@ -601,8 +597,6 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestSimpleMotionBlur$" # flaky
     "^VTK::RenderingOpenGL2Cxx-TestSpherePoints$"
     "^VTK::RenderingOpenGL2Cxx-TestSphereVertex$"
-    "^VTK::RenderingOpenGL2Cxx-TestSSAOPass$" # shader error
-    "^VTK::RenderingOpenGL2Cxx-TestSSAOPassWithRenderer$" # shader error
     "^VTK::RenderingOpenGL2Cxx-TestSurfaceInterpolationSwitch$"
     "^VTK::RenderingOpenGL2Cxx-TestTexture16Bits$"
     "^VTK::RenderingOpenGL2Cxx-TestTextureBufferEmulation$"
