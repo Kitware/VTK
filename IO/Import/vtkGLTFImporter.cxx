@@ -213,6 +213,7 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
   {
     // Apply base material color
     actor->GetProperty()->SetColor(material.PbrMetallicRoughness.BaseColorFactor.data());
+    actor->GetProperty()->SetOpacity(material.PbrMetallicRoughness.BaseColorFactor[3]);
     actor->GetProperty()->SetMetallic(material.PbrMetallicRoughness.MetallicFactor);
     actor->GetProperty()->SetRoughness(material.PbrMetallicRoughness.RoughnessFactor);
     actor->GetProperty()->SetEmissiveFactor(material.EmissiveFactor.data());
