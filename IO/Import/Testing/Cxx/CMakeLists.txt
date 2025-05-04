@@ -103,41 +103,41 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
   )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} 0 -1 1 0 0
+  TestGLTFImporter,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} 0 -1 1 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterStream,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} 1 -1 1 0 0
-)
-
-vtk_add_test_cxx(vtkIOImportCxxTests tests
-  LOOSE_VALID
-  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} 0 -1 1 0 0
+  TestGLTFImporterStream,TestGLTFImporter.cxx DATA{../Data/glTF/Avocado/Avocado.glb} 1 -1 1 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
   LOOSE_VALID
-  TestGLTFImporterPBRStream,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} 1 -1 1 0 0
+  TestGLTFImporterPBR,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} 0 -1 1 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0 0 1 5 1
+  LOOSE_VALID
+  TestGLTFImporterPBRStream,TestGLTFImporter.cxx DATA{../Data/glTF/WaterBottle/WaterBottle.glb} 1 -1 1 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 0 1 1 0 2
+  TestGLTFImporterKHRLightsPunctual,TestGLTFImporter.cxx DATA{../Data/glTF/Lights/lights.gltf} 0 0 1 5 1 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} 0 -1 2 0 0
+  TestGLTFImporterCamera,TestGLTFImporter.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 0 1 1 0 2 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterArmature,TestGLTFImporter.cxx DATA{../Data/glTF/Armature.gltf} 0 -1 1 0 0
+  TestGLTFImporterUnlit,TestGLTFImporter.cxx DATA{../Data/glTF/UnlitTest/UnlitTest.glb} 0 -1 2 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} 0 -1 3 0 0
+  TestGLTFImporterArmature,TestGLTFImporter.cxx DATA{../Data/glTF/Armature.gltf} 0 -1 1 0 0 1
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterURITexture,TestGLTFImporter.cxx DATA{../Data/glTF/Lantern/Lantern.gltf} 0 -1 3 0 0 0
    DATA{../Data/glTF/Lantern/Lantern.bin}
    DATA{../Data/glTF/Lantern/Lantern_baseColor.png}
    DATA{../Data/glTF/Lantern/Lantern_emissive.png}
@@ -146,7 +146,7 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterOpacity,TestGLTFImporter.cxx DATA{../Data/glTF/alpha.glb} 0 -1 16 0 0
+  TestGLTFImporterOpacity,TestGLTFImporter.cxx DATA{../Data/glTF/alpha.glb} 0 -1 16 0 0 0
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests

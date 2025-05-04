@@ -12,13 +12,13 @@
 
 int TestGLTFImporter(int argc, char* argv[])
 {
-  if (argc < 7)
+  if (argc < 8)
   {
-    std::cout
-      << "Usage: " << argv[0]
-      << " <gltf file> <use_stream> <camera index> <expected nb of actors> <expected nb of lights> "
-         "<expected nb of cameras>"
-      << std::endl;
+    std::cout << "Usage: " << argv[0]
+              << " <gltf file> <use_stream> <camera index> <expected nb of actors> <expected nb of "
+                 "lights> <expected nb of animations>"
+                 "<expected nb of cameras>"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -82,13 +82,26 @@ int TestGLTFImporter(int argc, char* argv[])
   if (importer->GetImportedCameras()->GetNumberOfItems() != atoi(argv[6]))
   {
     std::cerr << "ERROR: Unexpected number of imported cameras: "
-              << importer->GetImportedActors()->GetNumberOfItems() << "\n";
+              << importer->GetImportedCameras()->GetNumberOfItems() << "\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetAnimationSupportLevel() != vtkImporter::AnimationSupportLevel::MULTI)
+  {
+    std::cerr << "ERROR: Unexpected animation level support"
+              << "\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetNumberOfAnimations() != atoi(argv[7]))
+  {
+    std::cerr << "ERROR: Unexpected number of imported animations: "
+              << importer->GetNumberOfAnimations() << "\n";
     return EXIT_FAILURE;
   }
 
   std::cout << importer->GetImportedActors()->GetNumberOfItems() << std::endl;
   std::cout << importer->GetImportedLights()->GetNumberOfItems() << std::endl;
   std::cout << importer->GetImportedCameras()->GetNumberOfItems() << std::endl;
+  std::cout << importer->GetNumberOfAnimations() << std::endl;
 
   auto hierarchy = importer->GetSceneHierarchy();
   if (hierarchy == nullptr || hierarchy->GetNumberOfChildren(0) == 0)

@@ -38,6 +38,18 @@ int TestVRMLImporter(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  // Test default animation behavior
+  if (importer->GetAnimationSupportLevel() != vtkImporter::AnimationSupportLevel::NONE)
+  {
+    std::cerr << "ERROR: Unexpected animation support level\n";
+    return EXIT_FAILURE;
+  }
+  if (importer->GetNumberOfAnimations() != -1)
+  {
+    std::cerr << "ERROR: Unexpected number of animations\n";
+    return EXIT_FAILURE;
+  }
+
   // delete the importer and see if it can be run again
   importer->Delete();
 
