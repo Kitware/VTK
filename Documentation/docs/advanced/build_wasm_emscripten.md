@@ -74,8 +74,6 @@ $ emcmake cmake \
   -G "Ninja" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS:BOOL=OFF \
-  -DVTK_ENABLE_WEBGPU:BOOL=ON \
-  -DVTK_MODULE_ENABLE_VTK_RenderingLICOpenGL2:STRING=DONT_WANT
 ```
 
 In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,
