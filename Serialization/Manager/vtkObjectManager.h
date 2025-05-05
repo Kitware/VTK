@@ -191,6 +191,16 @@ public:
    */
   void Import(const std::string& stateFileName, const std::string& blobFileName);
 
+  /**
+   * Removes all objects that are neither referenced by this manager or any other object.
+   */
+  void PruneUnusedStates();
+
+  /**
+   * Removes all objects that are neither referenced by this manager or any other object.
+   */
+  void PruneUnusedObjects();
+
   static vtkTypeUInt32 ROOT() { return 0; }
 
   vtkGetSmartPointerMacro(Serializer, vtkSerializer);
@@ -225,16 +235,6 @@ protected:
   vtkLogger::Verbosity ObjectManagerLogVerbosity = vtkLogger::VERBOSITY_INVALID;
 
   static const char* OWNERSHIP_KEY() { return "manager"; }
-
-  /**
-   * Removes all objects that are neither referenced by this manager or any other object.
-   */
-  void PruneUnusedStates();
-
-  /**
-   * Removes all objects that are neither referenced by this manager or any other object.
-   */
-  void PruneUnusedObjects();
 
 private:
   vtkObjectManager(const vtkObjectManager&) = delete;
