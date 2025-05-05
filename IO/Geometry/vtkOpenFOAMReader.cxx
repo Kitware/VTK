@@ -121,10 +121,6 @@
 // List time directories according to system/controlDict
 #define VTK_FOAMFILE_LIST_TIMEDIRS_BY_CONTROLDICT 1
 
-// Ignore things like 'U_0' restart files.
-// This could also be made part of the GUI properties
-#define VTK_FOAMFILE_IGNORE_FIELD_RESTART 1
-
 // Support for finiteArea
 #define VTK_FOAMFILE_FINITE_AREA 0
 
@@ -5691,13 +5687,12 @@ void vtkOpenFOAMReaderPrivate::GetFieldNames(const std::string& tempPath, bool i
     {
       continue;
     }
-#if VTK_FOAMFILE_IGNORE_FIELD_RESTART
-    else if (len > 2 && (fieldFile[len - 2] == '_') && (fieldFile[len - 1] == '0'))
+    else if (this->Parent->IgnoreRestartFiles && len > 2 && (fieldFile[len - 2] == '_') &&
+      (fieldFile[len - 1] == '0'))
     {
       // Exclude "*_0" restart files
       continue;
     }
-#endif
     else
     {
       // Exclude various backup extensions - cf. Foam::fileName::isBackup()

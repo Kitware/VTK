@@ -27,6 +27,7 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestOpenFOAMReaderRegEx.cxx,NO_VALID
   TestOpenFOAMReaderValuePointPatch.cxx
   TestOpenFOAMReaderWeighByCellSize.cxx
+  TestOpenFOAMReaderRestartFiles.cxx,NO_VALID
   TestProStarReader.cxx
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID

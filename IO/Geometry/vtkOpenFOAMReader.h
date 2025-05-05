@@ -370,6 +370,17 @@ public:
   vtkBooleanMacro(Use64BitFloats, bool);
   ///@}
 
+  ///@{
+  /**
+   * Set/Get whether the restart files (with name ending by "_0")
+   * should be ignored.
+   * Default is true.
+   */
+  vtkGetMacro(IgnoreRestartFiles, bool);
+  vtkSetMacro(IgnoreRestartFiles, bool);
+  vtkBooleanMacro(IgnoreRestartFiles, bool);
+  ///@}
+
   void SetRefresh()
   {
     this->Refresh = true;
@@ -532,6 +543,9 @@ private:
 
   std::mutex ArraySelectionMutex;
   std::mutex ProgressMutex;
+
+  // Ignore files with name ending by "_0".
+  bool IgnoreRestartFiles = true;
 
 #if VTK_OPENFOAM_TIME_PROFILING
   long long RequestInformationTimeInMicroseconds = 0;
