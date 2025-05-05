@@ -22,11 +22,12 @@
 
 #include "vtkAreaPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKRENDERINGCORE_EXPORT vtkRenderedAreaPicker : public vtkAreaPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkRenderedAreaPicker : public vtkAreaPicker
 {
 public:
   static vtkRenderedAreaPicker* New();

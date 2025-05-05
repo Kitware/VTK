@@ -18,9 +18,10 @@
 #include "vtkProp3D.h" // Needed for inline methods
 #include "vtkPropCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkProp3DCollection : public vtkPropCollection
 {
 public:
   static vtkProp3DCollection* New();

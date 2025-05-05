@@ -21,13 +21,14 @@
 #include "vtkAssemblyNode.h" // used for inlines
 #include "vtkCollection.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMatrix4x4;
 class vtkTransform;
 class vtkProp;
 
-class VTKRENDERINGCORE_EXPORT vtkAssemblyPath : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAssemblyPath : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkAssemblyPath, vtkCollection);

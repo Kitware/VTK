@@ -20,12 +20,13 @@
 
 #include "vtkAbstractPropPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkWorldPointPicker;
 
-class VTKRENDERINGCORE_EXPORT vtkPropPicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPropPicker : public vtkAbstractPropPicker
 {
 public:
   static vtkPropPicker* New();

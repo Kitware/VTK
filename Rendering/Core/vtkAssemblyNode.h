@@ -36,12 +36,13 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProp;
 class vtkMatrix4x4;
 
-class VTKRENDERINGCORE_EXPORT vtkAssemblyNode : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAssemblyNode : public vtkObject
 {
 public:
   /**

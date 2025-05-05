@@ -26,6 +26,7 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"        // For vtkSmartPointer
 #include "vtkStringToken.h"         // for vtkStringToken
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractMapper3D;
@@ -35,7 +36,7 @@ class vtkDataObject;
 class vtkDataSet;
 class vtkSelection;
 
-class VTKRENDERINGCORE_EXPORT vtkHardwarePicker : public vtkAbstractPropPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkHardwarePicker : public vtkAbstractPropPicker
 {
 public:
   static vtkHardwarePicker* New();

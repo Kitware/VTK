@@ -82,6 +82,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestGradientBackground.cxx
   TestGradientBackgroundWithTiledViewport.cxx,NO_DATA
   TestGradientBackgroundWithTiledViewports.cxx,NO_DATA
+# TestHardwarePicker.cxx,NO_DATA
   TestHomogeneousTransformOfActor.cxx
   TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
@@ -100,6 +101,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestOSConeCxx.cxx
   TestPickingManager.cxx,NO_VALID
   TestPickTextActor.cxx,NO_VALID
+  TestPointPicker.cxx,NO_DATA
   TestPointSelection.cxx,NO_VALID
   TestPointSelectionWithCellData.cxx,NO_VALID
   TestPolygonSelection.cxx
@@ -136,6 +138,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestResizingWindowToImageFilter.cxx
   TestTextureWrap.cxx
   TestVertexVisibility.cxx
+  TestWorldPointPicker.cxx,NO_DATA
   # TestViewDependentErrorMetric.cxx # Loads of extra deps - move?
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )

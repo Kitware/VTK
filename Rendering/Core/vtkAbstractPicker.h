@@ -48,13 +48,14 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkProp;
 class vtkPropCollection;
 
-class VTKRENDERINGCORE_EXPORT vtkAbstractPicker : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkAbstractPicker : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractPicker, vtkObject);

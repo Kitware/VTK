@@ -31,6 +31,7 @@
 
 #include "vtkPicker.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMapper;
@@ -52,7 +53,7 @@ class vtkMatrix4x4;
 class vtkBitArray;
 class vtkHyperTreeGridNonOrientedGeometryCursor;
 
-class VTKRENDERINGCORE_EXPORT vtkCellPicker : public vtkPicker
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCellPicker : public vtkPicker
 {
 public:
   static vtkCellPicker* New();
@@ -81,6 +82,7 @@ public:
    * scene. Note that if you try to add the
    * same locator to the picker twice, the second addition will be ignored.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void AddLocator(vtkAbstractCellLocator* locator);
 
   /**
@@ -88,6 +90,7 @@ public:
    * nonexistent locator, then nothing will happen and no errors will be
    * raised.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void RemoveLocator(vtkAbstractCellLocator* locator);
 
   /**
