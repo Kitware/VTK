@@ -36,7 +36,6 @@ set(VTK_MODULE_ENABLE_VTK_IOPostgreSQL NO CACHE STRING "") # no postgresql
 set(VTK_MODULE_ENABLE_VTK_RenderingExternal NO CACHE STRING "") # gl code incompatible with gles 3.0
 set(VTK_MODULE_ENABLE_VTK_RenderingFFMPEGOpenGL2 NO CACHE STRING "") # no ffmpeg
 set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # no fontconfig
-set(VTK_MODULE_ENABLE_VTK_RenderingLICOpenGL2 NO CACHE STRING "") # gl code incompatible with gles 3.0
 set(VTK_MODULE_ENABLE_VTK_RenderingMatplotlib NO CACHE STRING "") # no matplotlib
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # no openvr
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # no openxr
