@@ -567,6 +567,76 @@ void vtkObjectManager::UpdateStatesFromObjects()
 }
 
 //------------------------------------------------------------------------------
+void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>& identifiers)
+{
+  // get objects with strong references held by the manager.
+  const auto managerOwnershipKey = this->OWNERSHIP_KEY();
+  const auto managerStrongObjectsIter = this->Context->StrongObjects().find(managerOwnershipKey);
+  // get objects with strong references held by the deserializer.
+  const auto deserializerOwnershipKey = this->Deserializer->GetObjectDescription();
+  const auto deserStrongObjectsIter = this->Context->StrongObjects().find(deserializerOwnershipKey);
+  // get objects with strong references held by the invoker.
+  const auto invokerOwnershipKey = this->Invoker->GetObjectDescription();
+  const auto invokerStrongObjectsIter = this->Context->StrongObjects().find(invokerOwnershipKey);
+
+  // for each identifier, serialize the object and mark it as kept alive where necessary.
+  for (const auto& identifier : identifiers)
+  {
+    const auto dependencies = this->GetAllDependencies(identifier);
+    for (const auto& depId : dependencies)
+    {
+      // Reset dependency cache as it will be rebuilt.
+      this->Context->ResetDirectDependenciesForNode(depId);
+    }
+    // The concered strong objects go under the top level root node
+    vtkMarshalContext::ScopedParentTracker rootNodeTracker(this->Context, vtkObjectManager::ROOT());
+    if (managerStrongObjectsIter != this->Context->StrongObjects().end())
+    {
+      for (const auto& object : managerStrongObjectsIter->second)
+      {
+        // The object must have already been registered in the context and have a valid identifier.
+        if (this->Context->GetId(object) == identifier)
+        {
+          const auto stateId = this->Serializer->SerializeJSON(object);
+          if (const auto idIter = stateId.find("Id"); idIter != stateId.end())
+          {
+            if (idIter->is_number_unsigned() && idIter->get<vtkTypeUInt32>() == identifier)
+            {
+              auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
+              state["vtk-object-manager-kept-alive"] = true;
+            }
+          }
+        }
+      }
+    }
+    if (deserStrongObjectsIter != this->Context->StrongObjects().end())
+    {
+      for (const auto& object : deserStrongObjectsIter->second)
+      {
+        if (this->Context->GetId(object) == identifier)
+        {
+          this->Serializer->SerializeJSON(object);
+        }
+      }
+    }
+    if (invokerStrongObjectsIter != this->Context->StrongObjects().end())
+    {
+      for (const auto& object : invokerStrongObjectsIter->second)
+      {
+        if (this->Context->GetId(object) == identifier)
+        {
+          this->Serializer->SerializeJSON(object);
+        }
+      }
+    }
+  }
+  // Remove unused states
+  this->PruneUnusedStates();
+  // Remove unused objects
+  this->PruneUnusedObjects();
+}
+
+//------------------------------------------------------------------------------
 void vtkObjectManager::UpdateObjectFromState(const std::string& state)
 {
   using json = nlohmann::json;

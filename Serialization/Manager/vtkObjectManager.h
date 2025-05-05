@@ -145,9 +145,20 @@ public:
   void UpdateObjectsFromStates();
 
   /**
-   * Serialize registered objects into vtk states.
+   * Serialize registered objects into states.
    */
   void UpdateStatesFromObjects();
+
+  /**
+   * This method is similar to `void UpdateStatesFromObjects()`. The only difference is that this
+   * method is far more efficient when updating a specific object and it's dependencies. The
+   * identifiers must be valid and correspond to registered objects.
+   *
+   * @warning This method prunes all unused states and objects after serialization. Ensure that
+   * `void UpdateStatesFromObjects()` is called atleast once before this method if you want to
+   * preserve objects that were registered but not specified in `identifiers`.
+   */
+  void UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>& identifiers);
 
   ///@{
   /**
@@ -192,7 +203,7 @@ public:
   void Import(const std::string& stateFileName, const std::string& blobFileName);
 
   /**
-   * Removes all objects that are neither referenced by this manager or any other object.
+   * Removes all states whose corresponding objects no longer exist.
    */
   void PruneUnusedStates();
 
