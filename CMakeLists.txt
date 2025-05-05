@@ -408,6 +408,12 @@ if (VTK_ENABLE_WRAPPING)
     "via `VTK_ENABLE_WRAPPING`")
 endif ()
 
+if (VTK_OPENGL_USE_GLES)
+  # Do not build modules that require desktop OpenGL when GLES is requested.
+  list(APPEND vtk_rejected_modules
+    VTK::RenderingLICOpenGL2)
+endif ()
+
 if (vtk_requested_modules)
   list(REMOVE_DUPLICATES vtk_requested_modules)
 endif ()
