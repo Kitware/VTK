@@ -55,7 +55,7 @@ bool vtkWebGPUHardwareSelector::CaptureBuffers()
         auto* idBuffer = reinterpret_cast<std::vector<Ids>*>(userData);
         const Ids* mappedDataAsIds = reinterpret_cast<const Ids*>(mappedData);
         std::copy(mappedDataAsIds,
-          mappedDataAsIds + (queryYMax - queryYMin + 1) * bytesPerRow / sizeof(Ids),
+          mappedDataAsIds + ((queryYMax - queryYMin + 1) * bytesPerRow / sizeof(Ids)),
           std::back_inserter(*idBuffer));
       };
       wgpuRenderWindow->ReadTextureFromGPU(wgpuRenderWindow->IdsAttachment.Texture,
@@ -158,7 +158,7 @@ int vtkWebGPUHardwareSelector::Convert(int x, int y, unsigned char* pb)
   const auto& queryXMin = this->Area[0];
   const auto& queryXMax = this->Area[2];
   const auto queryWidth = queryXMax - queryXMin + 1;
-  std::size_t pixelLinearId = (y * queryWidth + x);
+  std::size_t pixelLinearId = (y * queryWidth) + x;
   const auto& ids = this->IdBuffer[pixelLinearId];
   if (*pb == vtkHardwareSelector::ACTOR_PASS)
   {
