@@ -1,0 +1,12 @@
+NAME
+  viskores_filter_vector_analysis
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering_testing
+  viskores_rendering

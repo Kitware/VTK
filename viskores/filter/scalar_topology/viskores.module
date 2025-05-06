@@ -1,0 +1,9 @@
+NAME
+  viskores_filter_scalar_topology
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+TEST_DEPENDS
+  viskores_io
+  viskores_source

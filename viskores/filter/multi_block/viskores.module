@@ -1,0 +1,13 @@
+NAME
+  viskores_filter_multi_block
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_source
+  viskores_rendering
+  viskores_rendering_testing
+  viskores_filter_geometry_refinement

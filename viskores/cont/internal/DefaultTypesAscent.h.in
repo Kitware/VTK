@@ -1,0 +1,77 @@
+//============================================================================
+//  The contents of this file are covered by the Viskores license. See
+//  LICENSE.txt for details.
+//
+//  By contributing to this file, all contributors agree to the Developer
+//  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+//============================================================================
+
+//============================================================================
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//============================================================================
+#ifndef viskores_cont_internal_DefaultTypesAscent_h
+#define viskores_cont_internal_DefaultTypesAscent_h
+
+#include <viskores/TypeList.h>
+#include <viskores/Types.h>
+
+#include <viskores/cont/ArrayHandleCartesianProduct.h>
+#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/StorageList.h>
+
+#ifdef VISKORES_USE_64BIT_IDS
+#error "Viskores must be compiled with VISKORES_USE_64BITS_IDS set to OFF for Ascent."
+#endif
+
+#ifndef VISKORES_USE_DOUBLE_PRECISION
+#error "Viskores must be compiled with VISKORES_USE_DOUBLE_PRECISION to ON for Ascent."
+#endif
+
+namespace viskores
+{
+namespace internal
+{
+
+// Default value types for fields in Ascent.
+using TypeListAscent = viskores::List<viskores::FloatDefault,
+                                  viskores::Vec3f,
+                                  // We should not need Float32 types, but currently the tests need
+                                  // them. We should remove these types once we are able to "fix"
+                                  // the tests by converting to supported default types.
+                                  viskores::Float32,
+                                  viskores::Vec3f_32>;
+
+}
+} // namespace viskores::internal
+
+#define VISKORES_DEFAULT_TYPE_LIST ::viskores::internal::TypeListAscent
+
+namespace viskores
+{
+namespace cont
+{
+namespace internal
+{
+
+using StorageListAscent = viskores::List<
+  viskores::cont::StorageTagBasic,         // Basic storage should always be included
+  viskores::cont::StorageTagSOA,           // Support separate arrays for each component
+  viskores::cont::StorageTagUniformPoints, // Support uniform structured grids
+  viskores::cont::StorageTagCartesianProduct<viskores::cont::StorageTagBasic, // Support rectilinear grids
+                                         viskores::cont::StorageTagBasic,
+                                         viskores::cont::StorageTagBasic>>;
+
+}
+}
+} // namespace viskores::cont::internal
+
+#define VISKORES_DEFAULT_STORAGE_LIST ::viskores::cont::internal::StorageListAscent
+
+#endif //viskores_cont_internal_DefaultTypesAscent_h

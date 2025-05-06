@@ -1,0 +1,15 @@
+NAME
+  viskores_cont
+GROUPS
+  Core
+DEPENDS
+  viskores_optionparser
+  viskores_diy
+  viskores_lcl
+OPTIONAL_DEPENDS
+  viskores_loguru
+TEST_OPTIONAL_DEPENDS
+  viskores_filter_contour
+  viskores_filter_field_conversion
+TEST_DEPENDS
+  viskores_source

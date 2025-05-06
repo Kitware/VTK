@@ -1,0 +1,88 @@
+//============================================================================
+//  The contents of this file are covered by the Viskores license. See
+//  LICENSE.txt for details.
+//
+//  By contributing to this file, all contributors agree to the Developer
+//  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+//============================================================================
+
+//============================================================================
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//============================================================================
+
+// The intention of the header file is to configure Viskores to compile its algorithms
+// and filters for some set of types and data storage. You can customize the types
+// for which Viskores is compiled for by setting the Viskores_DEFAULT_TYPES_HEADER CMake
+// variable. This CMake variable can be set to a header file that defines one or
+// more of the following macros:
+//
+// VISKORES_DEFAULT_TYPE_LIST - a viskores::List of value types for fields that filters
+//     should directly operate on (where applicable).
+// VISKORES_DEFAULT_STORAGE_LIST - a viskores::List of storage tags for fields that
+//     filters should directly operate on.
+// VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED - a viskores::List of viskores::cont::CellSet types
+//     that filters should operate on as a strutured cell set.
+// VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED - a viskores::List of viskores::cont::CellSet types
+//     that filters should operate on as an unstrutured cell set.
+// VISKORES_DEFAULT_CELL_SET_LIST - a viskores::List of viskores::cont::CellSet types that filters
+//     should operate on (where applicable). The default of
+//     viskores::ListAppend<VISKORES_STRUCTURED_CELL_SET_LIST, VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED>
+//     is usually correct.
+//
+// Note that if you specify Viskores_DEFAULT_TYPES_HEADER, that file will be copied
+// to the Viskores build directory. Thus, be careful about editing the file included
+// by this one (if it exists).
+
+#ifndef viskores_cont_DefaultTypes_h
+#define viskores_cont_DefaultTypes_h
+
+#cmakedefine VISKORES_HAS_DEFAULT_TYPES_HEADER
+
+#ifdef VISKORES_HAS_DEFAULT_TYPES_HEADER
+#include "internal/@Viskores_DEFAULT_TYPES_HEADER_FILENAME@"
+#endif
+
+#ifndef VISKORES_DEFAULT_TYPE_LIST
+#include <viskores/TypeList.h>
+#define VISKORES_DEFAULT_TYPE_LIST ::viskores::TypeListCommon
+#endif //VISKORES_DEFAULT_TYPE_LIST
+
+#ifndef VISKORES_DEFAULT_STORAGE_LIST
+#include <viskores/cont/StorageList.h>
+#define VISKORES_DEFAULT_STORAGE_LIST ::viskores::cont::StorageListCommon
+#endif // VISKORES_DEFAULT_STORAGE_LIST
+
+#ifndef VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED
+#include <viskores/cont/CellSetList.h>
+#define VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED ::viskores::cont::CellSetListStructured
+#endif // VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED
+
+#ifndef VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED
+#include <viskores/cont/CellSetList.h>
+#define VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED ::viskores::cont::CellSetListUnstructured
+#endif // VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED
+
+#ifndef VISKORES_DEFAULT_CELL_SET_LIST
+namespace viskores
+{
+namespace cont
+{
+namespace internal
+{
+
+using CellSetList = viskores::ListAppend<VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED, VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED>;
+
+}
+}
+} // namespace viskores::cont::internal
+
+#define VISKORES_DEFAULT_CELL_SET_LIST ::viskores::cont::internal::CellSetList
+#endif // VISKORES_CELL_SET_LIST
+
+#endif //viskores_cont_DefaultTypes_h

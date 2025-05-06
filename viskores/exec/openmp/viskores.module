@@ -1,0 +1,8 @@
+NAME
+  viskores_exec_openmp
+GROUPS
+  Core
+DEPENDS
+  viskores_exec
+TEST_DEPENDS
+  viskores_openmp

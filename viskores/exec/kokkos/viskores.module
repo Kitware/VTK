@@ -1,0 +1,7 @@
+NAME
+  viskores_exec_kokkos
+GROUPS
+  Core
+DEPENDS
+  viskores_exec
+NO_TESTING

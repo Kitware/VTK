@@ -1,0 +1,136 @@
+//============================================================================
+//  The contents of this file are covered by the Viskores license. See
+//  LICENSE.txt for details.
+//
+//  By contributing to this file, all contributors agree to the Developer
+//  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+//============================================================================
+
+//============================================================================
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//============================================================================
+#ifndef viskores_cont_internal_DefaultTypesVTK_h
+#define viskores_cont_internal_DefaultTypesVTK_h
+
+// This configures the default types to use when compiling Viskores for use as an
+// accelerator in VTK.
+
+#include <viskores/TypeList.h>
+
+#include <viskores/cont/CellSetList.h>
+#include <viskores/cont/StorageList.h>
+
+#cmakedefine VISKORES_ADD_XGC_DEFAULT_TYPES
+
+#ifdef VISKORES_ADD_XGC_DEFAULT_TYPES
+#include <viskores/cont/ArrayHandleCartesianProduct.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/ArrayHandleXGCCoordinates.h>
+#include <viskores/cont/StorageList.h>
+#endif
+
+namespace toviskores
+{
+
+//------------------------------------------------------------------------------
+// All scalar types in vtkType.h
+using VTKScalarTypes = viskores::List< //
+  signed char,                     //
+  unsigned char,                   //
+  short,                           //
+  unsigned short,                  //
+  int,                             //
+  unsigned int,                    //
+  long long,                       //
+  unsigned long long,              //
+  float,                           //
+  double,                          //
+  char,                            //
+  long,                            //
+  unsigned long                    //
+  >;
+
+using SpecialGradientOutTypes =
+  viskores::List<viskores::Vec<viskores::Vec<viskores::Float32, 3>, 3>, viskores::Vec<viskores::Vec<viskores::Float64, 3>, 3> >;
+
+using FieldTypeInVTK = viskores::ListAppend<viskores::TypeListVecCommon, VTKScalarTypes>;
+
+using FieldTypeOutVTK =
+  viskores::ListAppend<viskores::TypeListVecCommon, SpecialGradientOutTypes, VTKScalarTypes>;
+
+//------------------------------------------------------------------------------
+using CellListStructuredInVTK =
+  viskores::List<viskores::cont::CellSetStructured<3>, viskores::cont::CellSetStructured<2>, viskores::cont::CellSetStructured<1> >;
+using CellListStructuredOutVTK = CellListStructuredInVTK;
+
+// vtkCellArray may use either 32 or 64 bit arrays to hold connectivity/offset
+// data, so we may be using ArrayHandleCast to convert to viskores::Ids.
+#ifdef VISKORES_USE_64BIT_IDS
+using Int32AOSHandle = viskores::cont::ArrayHandle<viskores::Int32>;
+using Int32AsIdAOSHandle = viskores::cont::ArrayHandleCast<viskores::Id, Int32AOSHandle>;
+using Int32AsIdAOSStorage = typename Int32AsIdAOSHandle::StorageTag;
+
+using CellSetExplicit32Bit = viskores::cont::CellSetExplicit<viskores::cont::StorageTagBasic,
+  Int32AsIdAOSStorage, Int32AsIdAOSStorage>;
+using CellSetExplicit64Bit = viskores::cont::CellSetExplicit<viskores::cont::StorageTagBasic,
+  viskores::cont::StorageTagBasic, viskores::cont::StorageTagBasic>;
+using CellSetSingleType32Bit = viskores::cont::CellSetSingleType<Int32AsIdAOSStorage>;
+using CellSetSingleType64Bit = viskores::cont::CellSetSingleType<viskores::cont::StorageTagBasic>;
+#else  // VISKORES_USE_64BIT_IDS
+using Int64AOSHandle = viskores::cont::ArrayHandle<viskores::Int64, viskores::cont::StorageTagBasic>;
+using Int64AsIdAOSHandle = viskores::cont::ArrayHandleCast<viskores::Id, Int64AOSHandle>;
+using Int64AsIdAOSStorage = typename Int64AsIdAOSHandle::StorageTag;
+
+using CellSetExplicit32Bit = viskores::cont::CellSetExplicit<viskores::cont::StorageTagBasic,
+  viskores::cont::StorageTagBasic, viskores::cont::StorageTagBasic>;
+using CellSetExplicit64Bit = viskores::cont::CellSetExplicit<viskores::cont::StorageTagBasic,
+  Int64AsIdAOSStorage, Int64AsIdAOSStorage>;
+using CellSetSingleType32Bit = viskores::cont::CellSetSingleType<viskores::cont::StorageTagBasic>;
+using CellSetSingleType64Bit = viskores::cont::CellSetSingleType<Int64AsIdAOSStorage>;
+#endif // VISKORES_USE_64BIT_IDS
+
+//------------------------------------------------------------------------------
+using CellListUnstructuredInVTK = viskores::List< //
+  CellSetExplicit32Bit,                       //
+  CellSetExplicit64Bit,                       //
+  CellSetSingleType32Bit,                     //
+  CellSetSingleType64Bit,                     //
+  viskores::cont::CellSetExtrude                  //
+  >;
+
+using CellListUnstructuredOutVTK = viskores::List<                     //
+  viskores::cont::CellSetExplicit<>,                                   //
+  viskores::cont::CellSetSingleType<>,                                 //
+  CellSetExplicit32Bit,                                            //
+  CellSetExplicit64Bit,                                            //
+  CellSetSingleType32Bit,                                          //
+  CellSetSingleType64Bit                                           //
+  >;
+
+//------------------------------------------------------------------------------
+using CellListAllInVTK = viskores::ListAppend<CellListStructuredInVTK, CellListUnstructuredInVTK>;
+using CellListAllOutVTK = viskores::ListAppend<CellListStructuredOutVTK, CellListUnstructuredOutVTK>;
+
+#ifdef VISKORES_ADD_XGC_DEFAULT_TYPES
+using StorageListField = viskores::ListAppend<
+  viskores::cont::StorageListCommon,
+  viskores::List<viskores::cont::StorageTagXGCCoordinates>>;
+#endif
+
+} // end namespace toviskores
+
+#define VISKORES_DEFAULT_TYPE_LIST ::toviskores::FieldTypeInVTK
+#define VISKORES_DEFAULT_CELL_SET_LIST_STRUCTURED ::toviskores::CellListStructuredInVTK
+#define VISKORES_DEFAULT_CELL_SET_LIST_UNSTRUCTURED ::toviskores::CellListUnstructuredInVTK
+
+#ifdef VISKORES_ADD_XGC_DEFAULT_TYPES
+#define VISKORES_DEFAULT_STORAGE_LIST ::toviskores::StorageListField
+#endif
+
+#endif //viskores_cont_internal_DefaultTypesVTK_h

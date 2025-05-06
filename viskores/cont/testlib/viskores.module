@@ -1,0 +1,7 @@
+NAME
+  viskores_cont_testing
+DEPENDS
+  viskores_cont
+GROUPS
+  Testing
+NO_TESTING

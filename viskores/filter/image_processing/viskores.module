@@ -1,0 +1,13 @@
+NAME
+  viskores_filter_image_processing
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_source
+  viskores_rendering
+  viskores_rendering_testing
