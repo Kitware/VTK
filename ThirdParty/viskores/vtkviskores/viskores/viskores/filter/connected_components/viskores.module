@@ -1,0 +1,12 @@
+NAME
+  viskores_filter_connected_components
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_contour
+  viskores_filter_connected_components
+  viskores_source

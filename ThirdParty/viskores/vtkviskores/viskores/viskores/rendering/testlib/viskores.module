@@ -1,0 +1,9 @@
+NAME
+  viskores_rendering_testing
+GROUPS
+  Testing
+DEPENDS
+  viskores_cont_testing viskores_rendering
+PRIVATE_DEPENDS
+  viskores_io
+NO_TESTING

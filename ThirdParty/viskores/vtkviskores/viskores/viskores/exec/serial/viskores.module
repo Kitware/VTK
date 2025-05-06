@@ -1,0 +1,6 @@
+NAME
+  viskores_exec_serial
+GROUPS
+  Core
+DEPENDS
+  viskores_exec

@@ -1,0 +1,14 @@
+NAME
+  viskores_filter_core
+GROUPS
+  Core
+DEPENDS
+  viskores_cont
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter
+  viskores_io
+  viskores_source
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering
+  viskores_rendering_testing

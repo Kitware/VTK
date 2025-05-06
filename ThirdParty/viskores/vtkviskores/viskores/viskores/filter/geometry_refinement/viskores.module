@@ -1,0 +1,19 @@
+NAME
+  viskores_filter_geometry_refinement
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_contour
+  viskores_filter_field_conversion
+  viskores_filter_geometry_refinement
+  viskores_filter_vector_analysis
+  viskores_io
+  viskores_source
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering_testing
+  viskores_rendering

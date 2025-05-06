@@ -1,0 +1,8 @@
+NAME
+  viskores_filter_field_conversion
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet

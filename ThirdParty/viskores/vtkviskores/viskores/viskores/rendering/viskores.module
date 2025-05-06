@@ -1,0 +1,11 @@
+NAME
+  viskores_rendering
+GROUPS
+  Rendering
+DEPENDS
+  viskores_filter_image_processing
+  viskores_filter_entity_extraction
+  viskores_io
+TEST_DEPENDS
+  viskores_rendering_testing
+  viskores_source

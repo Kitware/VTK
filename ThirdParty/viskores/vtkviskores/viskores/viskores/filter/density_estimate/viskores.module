@@ -1,0 +1,14 @@
+NAME
+  viskores_filter_density_estimate
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+  viskores_filter_geometry_refinement
+OPTIONAL_DEPENDS
+  MPI::MPI_CXX
+TEST_DEPENDS
+  viskores_filter_density_estimate
+  viskores_source
