@@ -140,7 +140,8 @@ int TestComputeTriangulation(int argc, char* argv[])
     {
       wgpu::Buffer buffer;
       std::size_t byteSize;
-      std::vector<vtkTypeUInt32> expectedValues;
+      std::vector<vtkTypeUInt32> expectedConnectivity;
+      std::vector<vtkTypeUInt32> expectedCellId;
     };
     MapData* mapData = new MapData();
 
@@ -165,112 +166,155 @@ int TestComputeTriangulation(int argc, char* argv[])
       // save memory by not storing the point ids when verification is disabled
       for (int j = 0; j < numSubTriangles; ++j)
       {
-        mapData->expectedValues.emplace_back(cellId);
-        mapData->expectedValues.emplace_back(cellPts[0]);
-        mapData->expectedValues.emplace_back(cellId);
-        mapData->expectedValues.emplace_back(cellPts[j + 1]);
-        mapData->expectedValues.emplace_back(cellId);
-        mapData->expectedValues.emplace_back(cellPts[j + 2]);
+        mapData->expectedConnectivity.emplace_back(cellPts[0]);
+        mapData->expectedConnectivity.emplace_back(cellPts[j + 1]);
+        mapData->expectedConnectivity.emplace_back(cellPts[j + 2]);
+        mapData->expectedCellId.emplace_back(cellId);
       }
     }
     vtkLogEndScope("Compute triangle lists in CPU");
     if (!verifyPointIds)
     {
-      mapData->expectedValues.clear();
+      mapData->expectedConnectivity.clear();
     }
     vtkNew<vtkWebGPUCellToPrimitiveConverter> converter;
     // prepare converter data.
     struct ConverterData
     {
       vtkTypeUInt32 VertexCount;
-      wgpu::Buffer TopologyBuffer;
+      wgpu::Buffer ConnectivityBuffer;
+      wgpu::Buffer CellIdBuffer;
       wgpu::Buffer EdgeArrayBuffer;
-    } converterData[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
-    vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
-    wgpu::Buffer*
-      topologyBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
-    wgpu::Buffer*
-      edgeArrayBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
-    for (int topologySourceTypeIdx = 0;
-         topologySourceTypeIdx < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES;
-         ++topologySourceTypeIdx)
-    {
-      vertexCounts[topologySourceTypeIdx] = &converterData[topologySourceTypeIdx].VertexCount;
-      topologyBuffers[topologySourceTypeIdx] = &converterData[topologySourceTypeIdx].TopologyBuffer;
-      edgeArrayBuffers[topologySourceTypeIdx] =
-        &converterData[topologySourceTypeIdx].EdgeArrayBuffer;
-    }
+      wgpu::Buffer CellIdOffsetUniformBuffer;
+    } converterData;
     vtkLogStartScope(INFO, "Compute triangle lists in GPU");
     converter->DispatchCellToPrimitiveComputePipeline(wgpuConfig, polygons, VTK_SURFACE,
-      VTK_POLYGON, 0, vertexCounts, topologyBuffers, edgeArrayBuffers);
+      VTK_POLYGON, 0, &converterData.VertexCount, &converterData.ConnectivityBuffer,
+      &converterData.CellIdBuffer, &converterData.EdgeArrayBuffer,
+      &converterData.CellIdOffsetUniformBuffer);
     vtkLogEndScope("Compute triangle lists in GPU");
 
     if (verifyPointIds)
     {
-      auto& polygonData =
-        converterData[vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS];
-      // create new buffer to hold mapped data.
-      const auto byteSize = polygonData.TopologyBuffer.GetSize();
-      auto dstBuffer = wgpuConfig->CreateBuffer(
-        byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
-      // copy topology data from the output of compute pipeline into the dstBuffer
-      wgpu::CommandEncoder commandEncoder = wgpuConfig->GetDevice().CreateCommandEncoder();
-      commandEncoder.CopyBufferToBuffer(polygonData.TopologyBuffer, 0, dstBuffer, 0, byteSize);
-      auto copyCommand = commandEncoder.Finish();
-      wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
-      // map the destination buffer and verify it's contents.
-      auto onBufferMapped = [](wgpu::MapAsyncStatus status, wgpu::StringView, MapData* userMapData)
       {
-        if (status == wgpu::MapAsyncStatus::Success)
+        // create new buffer to hold mapped data.
+        const auto byteSize = converterData.ConnectivityBuffer.GetSize();
+        auto dstBuffer = wgpuConfig->CreateBuffer(
+          byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
+        // copy topology data from the output of compute pipeline into the dstBuffer
+        wgpu::CommandEncoder commandEncoder = wgpuConfig->GetDevice().CreateCommandEncoder();
+        commandEncoder.CopyBufferToBuffer(
+          converterData.ConnectivityBuffer, 0, dstBuffer, 0, byteSize);
+        auto copyCommand = commandEncoder.Finish();
+        wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
+        // map the destination buffer and verify it's contents.
+        auto onConnectivityBufferMapped =
+          [](wgpu::MapAsyncStatus status, wgpu::StringView, MapData* userMapData)
         {
-          vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
-          const void* mappedRange =
-            userMapData->buffer.GetConstMappedRange(0, userMapData->byteSize);
-          const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedRange);
-          for (std::size_t j = 0; j < userMapData->expectedValues.size(); j++)
+          if (status == wgpu::MapAsyncStatus::Success)
           {
-            if (mappedDataAsU32[j] != userMapData->expectedValues[j])
+            vtkLogScopeF(INFO, "Triangle lists buffer is now mapped");
+            const void* mappedRange =
+              userMapData->buffer.GetConstMappedRange(0, userMapData->byteSize);
+            const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedRange);
+            for (std::size_t j = 0; j < userMapData->expectedConnectivity.size(); j++)
             {
-              vtkLog(ERROR, << "Value at location " << j << " does not match. Found "
-                            << mappedDataAsU32[j] << ", expected value "
-                            << userMapData->expectedValues[j]);
-              break;
+              if (mappedDataAsU32[j] != userMapData->expectedConnectivity[j])
+              {
+                vtkLog(ERROR, << "Value at location " << j << " does not match. Found "
+                              << mappedDataAsU32[j] << ", expected value "
+                              << userMapData->expectedConnectivity[j]);
+                break;
+              }
+              else
+              {
+                vtkLog(TRACE, << "value: " << mappedDataAsU32[j] << "|"
+                              << "expected: " << userMapData->expectedConnectivity[j]);
+              }
             }
-            else
-            {
-              vtkLog(TRACE, << "value: " << mappedDataAsU32[j] << "|"
-                            << "expected: " << userMapData->expectedValues[j]);
-            }
+            userMapData->buffer.Unmap();
           }
-          userMapData->buffer.Unmap();
-          delete userMapData;
-        }
-        else
+          else
+          {
+            vtkLogF(
+              WARNING, "Could not map buffer with error status: %u", static_cast<uint32_t>(status));
+          }
+        };
+        mapData->buffer = dstBuffer;
+        mapData->byteSize = byteSize;
+        dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, wgpu::CallbackMode::AllowProcessEvents,
+          onConnectivityBufferMapped, mapData);
+        // wait for mapping to finish.
+        bool workDone = false;
+        wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
+          wgpu::CallbackMode::AllowProcessEvents,
+          [](wgpu::QueueWorkDoneStatus, bool* userdata) { *static_cast<bool*>(userdata) = true; },
+          &workDone);
+        while (!workDone)
         {
-          vtkLogF(
-            WARNING, "Could not map buffer with error status: %u", static_cast<uint32_t>(status));
-          delete userMapData;
+          wgpuConfig->ProcessEvents();
         }
-      };
-      mapData->buffer = dstBuffer;
-      mapData->byteSize = byteSize;
-      dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, wgpu::CallbackMode::AllowProcessEvents,
-        onBufferMapped, mapData);
-      // wait for mapping to finish.
-      bool workDone = false;
-      wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
-        wgpu::CallbackMode::AllowProcessEvents,
-        [](wgpu::QueueWorkDoneStatus, bool* userdata) { *static_cast<bool*>(userdata) = true; },
-        &workDone);
-      while (!workDone)
+      }
       {
-        wgpuConfig->ProcessEvents();
+        // create new buffer to hold mapped data.
+        const auto byteSize = converterData.CellIdBuffer.GetSize();
+        auto dstBuffer = wgpuConfig->CreateBuffer(
+          byteSize, wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead, false, nullptr);
+        // copy topology data from the output of compute pipeline into the dstBuffer
+        wgpu::CommandEncoder commandEncoder = wgpuConfig->GetDevice().CreateCommandEncoder();
+        commandEncoder.CopyBufferToBuffer(converterData.CellIdBuffer, 0, dstBuffer, 0, byteSize);
+        auto copyCommand = commandEncoder.Finish();
+        wgpuConfig->GetDevice().GetQueue().Submit(1, &copyCommand);
+        // map the destination buffer and verify it's contents.
+        auto onCellIdBufferMapped =
+          [](wgpu::MapAsyncStatus status, wgpu::StringView, MapData* userMapData)
+        {
+          if (status == wgpu::MapAsyncStatus::Success)
+          {
+            vtkLogScopeF(INFO, "Triangle cell ID buffer is now mapped");
+            const void* mappedRange =
+              userMapData->buffer.GetConstMappedRange(0, userMapData->byteSize);
+            const vtkTypeUInt32* mappedDataAsU32 = static_cast<const vtkTypeUInt32*>(mappedRange);
+            for (std::size_t j = 0; j < userMapData->expectedCellId.size(); j++)
+            {
+              if (mappedDataAsU32[j] != userMapData->expectedCellId[j])
+              {
+                vtkLog(ERROR, << "Value at location " << j << " does not match. Found "
+                              << mappedDataAsU32[j] << ", expected value "
+                              << userMapData->expectedCellId[j]);
+                break;
+              }
+              else
+              {
+                vtkLog(TRACE, << "value: " << mappedDataAsU32[j] << "|"
+                              << "expected: " << userMapData->expectedCellId[j]);
+              }
+            }
+            userMapData->buffer.Unmap();
+          }
+          else
+          {
+            vtkLogF(
+              WARNING, "Could not map buffer with error status: %u", static_cast<uint32_t>(status));
+          }
+        };
+        mapData->buffer = dstBuffer;
+        mapData->byteSize = byteSize;
+        dstBuffer.MapAsync(wgpu::MapMode::Read, 0, byteSize, wgpu::CallbackMode::AllowProcessEvents,
+          onCellIdBufferMapped, mapData);
+        // wait for mapping to finish.
+        bool workDone = false;
+        wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
+          wgpu::CallbackMode::AllowProcessEvents,
+          [](wgpu::QueueWorkDoneStatus, bool* userdata) { *static_cast<bool*>(userdata) = true; },
+          &workDone);
+        while (!workDone)
+        {
+          wgpuConfig->ProcessEvents();
+        }
       }
     }
-    else
-    {
-      delete mapData;
-    }
+    delete mapData;
   }
   return EXIT_SUCCESS;
 }

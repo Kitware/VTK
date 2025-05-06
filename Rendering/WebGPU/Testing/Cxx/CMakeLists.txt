@@ -23,6 +23,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestComputePointCloudMapperGeometry.cxx,NO_DATA
   TestComputePointCloudMapperResize.cxx,NO_DATA
   TestComputeTexture.cxx,NO_DATA,NO_VALID
+  TestFastCellToGraphicsPrimitiveConversion.cxx,NO_DATA,NO_VALID
   TestGlyph3DMapper.cxx,NO_DATA
   TestGlyph3DMapperArrow.cxx
   TestGlyph3DMapperBounds.cxx,NO_DATA,NO_VALID

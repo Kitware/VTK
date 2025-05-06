@@ -118,6 +118,7 @@ void vtkWebGPUConfigurationInternals::PopulateRequiredLimits(wgpu::Adapter adapt
 
   RequiredLimits.maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
   RequiredLimits.maxBufferSize = supportedLimits.maxBufferSize;
+  RequiredLimits.maxStorageBuffersPerShaderStage = supportedLimits.maxStorageBuffersPerShaderStage;
 }
 
 //------------------------------------------------------------------------------

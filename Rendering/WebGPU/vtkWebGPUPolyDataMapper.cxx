@@ -28,13 +28,12 @@
 #include "vtkWebGPUComputePipeline.h"
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUConfiguration.h"
+#include "vtkWebGPURenderPipelineCache.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
-#include "LineShaderOpaque.h"
-#include "LineShaderTranslucent.h"
-#include "PointShader.h"
-#include "SurfaceMeshShader.h"
+#include "vtkPolyDataFSWGSL.h"
+#include "vtkPolyDataVSWGSL.h"
 
 #include "Private/vtkWebGPUActorInternals.h"
 #include "Private/vtkWebGPUBindGroupInternals.h"
@@ -43,44 +42,87 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 
 #include <array>
+#include <iostream>
 #include <sstream>
+#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 namespace
 {
-const std::array<const char**, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
-  GraphicsPipelineShaderSources = { &PointShader, &LineShaderOpaque, &LineShaderTranslucent,
-    &SurfaceMeshShader };
-
-const std::array<wgpu::PrimitiveTopology, vtkWebGPUPolyDataMapper::GFX_PIPELINE_NB_TYPES>
-  GraphicsPipelinePrimitiveTypes = { wgpu::PrimitiveTopology::TriangleStrip,
-    wgpu::PrimitiveTopology::TriangleList, wgpu::PrimitiveTopology::TriangleStrip,
-    wgpu::PrimitiveTopology::TriangleList };
-
 std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
   std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType>>
   PipelineBindGroupCombos[VTK_SURFACE + 1] = { // VTK_POINTS
     { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
-      { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
-        vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
-        vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } } },
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_SHAPED,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS } } },
     // VTK_WIREFRAME
-    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
+    { { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_THICK,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
+          vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES,
           vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES } } },
     // VTK_SURFACE
     {
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_SHAPED,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_THICK,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
       { vtkWebGPUPolyDataMapper::GFX_PIPELINE_TRIANGLES,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE,
+        { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES } },
+      { vtkWebGPUPolyDataMapper::GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE,
         { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS } },
     }
   };
@@ -88,7 +130,6 @@ std::map<vtkWebGPUPolyDataMapper::GraphicsPipelineType,
 template <typename DestT>
 struct WriteTypedArray
 {
-  std::size_t ByteOffset = 0;
   const wgpu::Buffer& DstBuffer;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   float Denominator = 1.0;
@@ -108,41 +149,7 @@ struct WriteTypedArray
     }
     const std::size_t nbytes = data->GetNumberOfValues() * sizeof(DestT);
     this->WGPUConfiguration->WriteBuffer(
-      this->DstBuffer, this->ByteOffset, data->GetPointer(0), nbytes, description);
-    this->ByteOffset += nbytes;
-  }
-
-  /**
-   * Seek into the buffer by the number of bytes in `array`.
-   * This is useful for partial updates to the point/cell attribute buffer.
-   * if `array` doesn't need to be updated, then the `ByteOffset` will be
-   * correctly setup when writing the next attribute.
-   *
-   * Assume that a webgpu buffer is packed with arrays A, B and C, whose values are
-   *
-   * |a1,a2,a3,a4,a5|b1,b2,b3,b4,b5,b6|c1,c2,c3|
-   *
-   * When array 'B' has the same size as previous upload, but it's values have changed and values of
-   * array 'A' have not changed, the mapper is designed to partially update only the portion of the
-   * buffer which has values corresponding to array 'B'. To facilitate such partial updates, use
-   * `Advance` for array 'A' to seek forward all the way to the end of the array 'A' in the webgpu
-   * buffer before writing values of 'B'
-   *
-   * \|/
-   *  |a1,a2,a3,a4,a5|b1,b2,b3,b4,b5,b6|c1,c2,c3|
-   * -> Advance(A)
-   *                \|/
-   *  |a1,a2,a3,a4,a5|b1,b2,b3,b4,b5,b6|c1,c2,c3|
-   * -> operator()(B)
-   */
-  void Advance(vtkDataArray* array)
-  {
-    if (!array)
-    {
-      return;
-    }
-    const std::size_t nbytes = array->GetNumberOfValues() * sizeof(DestT);
-    this->ByteOffset += nbytes;
+      this->DstBuffer, 0, data->GetPointer(0), nbytes, description);
   }
 };
 }
@@ -204,28 +211,35 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       auto* mesh = this->CurrentInput;
       vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
-      wgpu::Buffer* topologyBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+      wgpu::Buffer*
+        connectivityBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+      wgpu::Buffer* cellIdBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
       wgpu::Buffer* edgeArrayBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
+      wgpu::Buffer*
+        cellIdOffsetUniformBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
 
       for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
       {
         auto& bgInfo = this->TopologyBindGroupInfos[i];
         vertexCounts[i] = &(bgInfo.VertexCount);
-        topologyBuffers[i] = &(bgInfo.TopologyBuffer);
+        connectivityBuffers[i] = &(bgInfo.ConnectivityBuffer);
+        cellIdBuffers[i] = &(bgInfo.CellIdBuffer);
         edgeArrayBuffers[i] = &(bgInfo.EdgeArrayBuffer);
+        cellIdOffsetUniformBuffers[i] = &(bgInfo.CellIdOffsetUniformBuffer);
       }
-      bool updateTopologyBindGroup =
-        this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
-          displayProperty->GetRepresentation(), vertexCounts, topologyBuffers, edgeArrayBuffers);
+      bool updateTopologyBindGroup = false;
+      updateTopologyBindGroup |= this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
+        wgpuConfiguration, mesh, displayProperty->GetRepresentation(), vertexCounts,
+        connectivityBuffers, cellIdBuffers, edgeArrayBuffers, cellIdOffsetUniformBuffers);
       // Handle vertex visibility.
       if (displayProperty->GetVertexVisibility() &&
         // avoids dispatching the cell-to-vertex pipeline again.
         displayProperty->GetRepresentation() != VTK_POINTS)
       {
         // dispatch compute pipeline that extracts cell vertices.
-        updateTopologyBindGroup |=
-          this->CellConverter->DispatchMeshToPrimitiveComputePipeline(wgpuConfiguration, mesh,
-            /*representation=*/VTK_POINTS, vertexCounts, topologyBuffers, edgeArrayBuffers);
+        updateTopologyBindGroup |= this->CellConverter->DispatchMeshToPrimitiveComputePipeline(
+          wgpuConfiguration, mesh, VTK_POINTS, vertexCounts, connectivityBuffers, cellIdBuffers,
+          edgeArrayBuffers, cellIdOffsetUniformBuffers);
       }
       // Rebuild topology bind group if required (when VertexCount > 0)
       for (int i = 0; i < vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES; ++i)
@@ -235,30 +249,44 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
         // setup bind group
         if (updateTopologyBindGroup && bgInfo.VertexCount > 0)
         {
-          const std::string& label =
+          const std::string& label = this->GetObjectDescription() + "-" +
             vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(topologySourceType);
           bgInfo.BindGroup = this->CreateTopologyBindGroup(
             wgpuConfiguration->GetDevice(), label, topologySourceType);
           this->RebuildGraphicsPipelines = true;
         }
-        else if (bgInfo.VertexCount == 0)
+        if (bgInfo.VertexCount == 0)
         {
-          if (bgInfo.TopologyBuffer)
+          if (bgInfo.ConnectivityBuffer)
           {
-            bgInfo.TopologyBuffer.Destroy();
-            bgInfo.TopologyBuffer = nullptr;
+            bgInfo.ConnectivityBuffer.Destroy();
+            bgInfo.ConnectivityBuffer = nullptr;
+          }
+          if (bgInfo.CellIdBuffer)
+          {
+            bgInfo.CellIdBuffer.Destroy();
+            bgInfo.CellIdBuffer = nullptr;
           }
           if (bgInfo.EdgeArrayBuffer)
           {
             bgInfo.EdgeArrayBuffer.Destroy();
             bgInfo.EdgeArrayBuffer = nullptr;
           }
+          if (bgInfo.CellIdOffsetUniformBuffer)
+          {
+            bgInfo.CellIdOffsetUniformBuffer.Destroy();
+            bgInfo.CellIdOffsetUniformBuffer = nullptr;
+          }
           bgInfo.BindGroup = nullptr;
+          this->RebuildGraphicsPipelines = true;
         }
       }
       // setup graphics pipeline
       if (this->GetNeedToRebuildGraphicsPipelines(actor, renderer))
       {
+        // Create bind group for the point/cell attribute buffers.
+        this->MeshAttributeBindGroup = this->CreateMeshAttributeBindGroup(
+          wgpuConfiguration->GetDevice(), this->GetObjectDescription() + "-MeshAttributeBindGroup");
         // render bundle must reference new bind groups and/or pipelines
         wgpuRenderer->InvalidateBundle();
         this->SetupGraphicsPipelines(device, renderer, actor);
@@ -341,6 +369,68 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
 }
 
 //------------------------------------------------------------------------------
+vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgs(
+  GraphicsPipelineType pipelineType,
+  vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType)
+{
+  const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
+  switch (toplogySourceType)
+  {
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS:
+      if (pipelineType == GFX_PIPELINE_POINTS ||
+        pipelineType == GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1 };
+      }
+      if (pipelineType == GFX_PIPELINE_POINTS_SHAPED ||
+        pipelineType == GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount };
+      }
+      break;
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES:
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES:
+      if (pipelineType == GFX_PIPELINE_LINES ||
+        pipelineType == GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1 };
+      }
+      if (pipelineType == GFX_PIPELINE_LINES_THICK ||
+        pipelineType == GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2 };
+      }
+      if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN ||
+        pipelineType == GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2 };
+      }
+      if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN ||
+        pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE)
+      {
+        return { /*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2 };
+      }
+      break;
+    case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS:
+      return { /*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1 };
+    case vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES:
+    default:
+      break;
+  }
+  return {};
+}
+
+//------------------------------------------------------------------------------
+vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgsForDrawingVertices(
+  vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType)
+{
+  const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
+  return { /*VertexCount=*/4, /*InstanceCount=*/bgInfo.VertexCount };
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
 {
@@ -350,29 +440,92 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
   auto* displayProperty = actor->GetProperty();
+  const float pointSize = displayProperty->GetPointSize();
+  const float lineWidth = displayProperty->GetLineWidth();
+  const auto lineJoinType = displayProperty->GetLineJoin();
   const int representation = displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
-  const bool hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
     const auto& pipelineType = pipelineMapping.first;
-    // apply miter join only for translucent pass.
-    if (hasTranslucentPolygonalGeometry)
-    {
-      if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
-      {
-        continue;
-      }
-    }
-    else if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+    // Skip pipelines that are not supported.
+    if (!this->IsPipelineSupported(pipelineType))
     {
       continue;
     }
-    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
-    passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
-    vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
+    bool skip = false;
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_POINTS:
+        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
+        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
+        // if that is supported.
+        skip = (pointSize > 1) && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED);
+        break;
+      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
+        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
+        // if that is supported.
+        skip = (pointSize > 1) &&
+          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
+        break;
+      case GFX_PIPELINE_POINTS_SHAPED:
+      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+        // Skip GFX_PIPELINE_POINTS_SHAPED for pointSize <= 1
+        skip = pointSize <= 1;
+        break;
+      case GFX_PIPELINE_LINES:
+        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
+        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
+        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
+        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
+        // turned on.
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN);
+        }
+        break;
+      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
+        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
+        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
+        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
+        // turned on.
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(
+              GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE);
+        }
+        break;
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::None);
+        break;
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::MiterJoin);
+        break;
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::RoundCapRoundJoin);
+        break;
+      case GFX_PIPELINE_TRIANGLES:
+      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_NB_TYPES:
+        break;
+    }
+    if (skip)
+    {
+      continue;
+    }
+
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
+      nonHomogeneousBindGroupTypes;
     for (const auto& bindGroupType : pipelineMapping.second)
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
@@ -380,45 +533,59 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       {
         continue;
       }
-      passEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName =
-        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-      vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-      switch (bindGroupType)
+      if (bgInfo.CellIdBuffer == nullptr)
       {
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS:
-          passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES:
-          if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
-          {
-            passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
-          }
-          else if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
-          {
-            passEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
-          }
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS:
-          passEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES:
-        default:
-          break;
+        homogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+      else
+      {
+        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+    }
+
+    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
+    const auto& pipelineLabel =
+      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
+    if (IsPipelineForHomogeneousCellSize(pipelineType))
+    {
+      if (!homogeneousBindGroupTypes.empty())
+      {
+        // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
+        passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+        vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
+        for (const auto& bindGroupType : homogeneousBindGroupTypes)
+        {
+          const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+          passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+          const auto topologyBGInfoName =
+            vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+          vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+          const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+          passEncoder.Draw(args.VertexCount, args.InstanceCount);
+        }
+      }
+    }
+    else if (!nonHomogeneousBindGroupTypes.empty())
+    {
+      // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
+      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel.c_str());
+      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+        passEncoder.Draw(args.VertexCount, args.InstanceCount);
       }
     }
   }
   if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
   {
-    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_POINTS];
-    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_POINTS);
-    passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-    vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
-    passEncoder.Draw(/*vertexCount=*/4,
-      /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
+      nonHomogeneousBindGroupTypes;
     for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
            vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
            vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
@@ -428,11 +595,67 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       {
         continue;
       }
-      passEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName =
-        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-      vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
-      passEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
+      if (bgInfo.CellIdBuffer == nullptr)
+      {
+        homogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+      else
+      {
+        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+    }
+    if (!homogeneousBindGroupTypes.empty())
+    {
+      GraphicsPipelineType pipelineType;
+      if (pointSize > 1 &&
+        this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
+      {
+        pipelineType = GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
+      }
+      else
+      {
+        pipelineType = GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE;
+      }
+      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
+      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
+      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
+      for (const auto& bindGroupType : homogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
+        passEncoder.Draw(args.VertexCount, args.InstanceCount);
+      }
+    }
+    if (!nonHomogeneousBindGroupTypes.empty())
+    {
+      GraphicsPipelineType pipelineType;
+      if (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
+      {
+        pipelineType = GFX_PIPELINE_POINTS_SHAPED;
+      }
+      else
+      {
+        pipelineType = GFX_PIPELINE_POINTS;
+      }
+      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
+      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
+      passEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(passEncoder, pipelineLabel);
+      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        passEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(passEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
+        passEncoder.Draw(args.VertexCount, args.InstanceCount);
+      }
     }
   }
 }
@@ -447,29 +670,92 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   auto* wgpuPipelineCache = wgpuRenderWindow->GetWGPUPipelineCache();
 
   auto* displayProperty = actor->GetProperty();
+  const float pointSize = displayProperty->GetPointSize();
+  const float lineWidth = displayProperty->GetLineWidth();
+  const auto lineJoinType = displayProperty->GetLineJoin();
   const int representation = displayProperty->GetRepresentation();
   const bool showVertices = displayProperty->GetVertexVisibility();
-  const bool hasTranslucentPolygonalGeometry = actor->HasTranslucentPolygonalGeometry();
 
   for (const auto& pipelineMapping : PipelineBindGroupCombos[representation])
   {
     const auto& pipelineType = pipelineMapping.first;
-    // apply miter join only for translucent pass.
-    if (hasTranslucentPolygonalGeometry)
-    {
-      if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
-      {
-        continue;
-      }
-    }
-    else if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
+    // Skip pipelines that are not supported.
+    if (!this->IsPipelineSupported(pipelineType))
     {
       continue;
     }
-    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
-    bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
-    vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
+    bool skip = false;
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_POINTS:
+        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
+        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
+        // if that is supported.
+        skip = (pointSize > 1) && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED);
+        break;
+      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+        // do not draw points wider than 1 pixel using GFX_PIPELINE_POINTS pipeline.
+        // instead, let the GFX_PIPELINE_POINTS_SHAPED pipeline render the points
+        // if that is supported.
+        skip = (pointSize > 1) &&
+          this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE);
+        break;
+      case GFX_PIPELINE_POINTS_SHAPED:
+      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+        // Skip GFX_PIPELINE_POINTS_SHAPED for pointSize <= 1
+        skip = pointSize <= 1;
+        break;
+      case GFX_PIPELINE_LINES:
+        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
+        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
+        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
+        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
+        // turned on.
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN);
+        }
+        break;
+      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+        // do not draw lines wider than 1 pixel using GFX_PIPELINE_LINES pipeline.
+        // instead, let the GFX_PIPELINE_LINES_THICK pipeline render the points.
+        // GFX_PIPELINE_LINES_MITER_JOIN is used if "vtkProperty::UseMiterJoin" is turned on.
+        // GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN is used if "vtkProperty::UseRoundCapRoundJoin" is
+        // turned on.
+        if (lineWidth > 1)
+        {
+          skip = this->IsPipelineSupported(GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(
+              GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE) ||
+            this->IsPipelineSupported(GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE);
+        }
+        break;
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::None);
+        break;
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::MiterJoin);
+        break;
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::RoundCapRoundJoin);
+        break;
+      case GFX_PIPELINE_TRIANGLES:
+      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_NB_TYPES:
+        break;
+    }
+    if (skip)
+    {
+      continue;
+    }
+
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
+      nonHomogeneousBindGroupTypes;
     for (const auto& bindGroupType : pipelineMapping.second)
     {
       const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
@@ -477,45 +763,59 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       {
         continue;
       }
-      bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName =
-        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-      vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-      switch (bindGroupType)
+      if (bgInfo.CellIdBuffer == nullptr)
       {
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS:
-          bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINES:
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_EDGES:
-          if (pipelineType == GFX_PIPELINE_LINES_MITER_JOIN)
-          {
-            bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount / 2);
-          }
-          else if (pipelineType == GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN)
-          {
-            bundleEncoder.Draw(/*vertexCount=*/36, /*instanceCount=*/bgInfo.VertexCount / 2);
-          }
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGONS:
-          bundleEncoder.Draw(/*vertexCount=*/bgInfo.VertexCount, /*instanceCount=*/1);
-          break;
-        case vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES:
-        default:
-          break;
+        homogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+      else
+      {
+        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+    }
+
+    const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineMapping.first];
+    const auto& pipelineLabel =
+      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineMapping.first);
+    if (IsPipelineForHomogeneousCellSize(pipelineType))
+    {
+      if (!homogeneousBindGroupTypes.empty())
+      {
+        // Draw using homogeneous pipeline for bindgroups with homogeneous cells.
+        bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+        vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
+        for (const auto& bindGroupType : homogeneousBindGroupTypes)
+        {
+          const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+          bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+          const auto topologyBGInfoName =
+            vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+          vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+          const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+          bundleEncoder.Draw(args.VertexCount, args.InstanceCount);
+        }
+      }
+    }
+    else if (!nonHomogeneousBindGroupTypes.empty())
+    {
+      // Draw using non-homogeneous pipeline for bindgroups with non-homogeneous cells.
+      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel.c_str());
+      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgs(pipelineType, bindGroupType);
+        bundleEncoder.Draw(args.VertexCount, args.InstanceCount);
       }
     }
   }
   if (showVertices && (representation != VTK_POINTS)) // Don't draw vertices on top of points.
   {
-    const auto& pipelineKey = this->GraphicsPipelineKeys[GFX_PIPELINE_POINTS];
-    const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(GFX_PIPELINE_POINTS);
-    bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
-    vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
-    bundleEncoder.Draw(/*vertexCount=*/4,
-      /*instanceCount=*/static_cast<std::uint32_t>(this->CurrentInput->GetNumberOfPoints()));
+    std::vector<vtkWebGPUCellToPrimitiveConverter::TopologySourceType> homogeneousBindGroupTypes,
+      nonHomogeneousBindGroupTypes;
     for (const auto& bindGroupType : { vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS,
            vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS,
            vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_POLYGON_POINTS })
@@ -525,63 +825,180 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
       {
         continue;
       }
-      bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
-      const auto topologyBGInfoName =
-        vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
-      vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
-      bundleEncoder.Draw(/*vertexCount=*/4, /*instanceCount=*/bgInfo.VertexCount);
+      if (bgInfo.CellIdBuffer == nullptr)
+      {
+        homogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+      else
+      {
+        nonHomogeneousBindGroupTypes.emplace_back(bindGroupType);
+      }
+    }
+    if (!homogeneousBindGroupTypes.empty())
+    {
+      GraphicsPipelineType pipelineType;
+      if (pointSize > 1 &&
+        this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE))
+      {
+        pipelineType = GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
+      }
+      else
+      {
+        pipelineType = GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE;
+      }
+      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
+      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
+      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
+      for (const auto& bindGroupType : homogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        if (bgInfo.VertexCount == 0)
+        {
+          continue;
+        }
+        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
+        bundleEncoder.Draw(args.VertexCount, args.InstanceCount);
+      }
+    }
+    if (!nonHomogeneousBindGroupTypes.empty())
+    {
+      GraphicsPipelineType pipelineType;
+      if (pointSize > 1 && this->IsPipelineSupported(GFX_PIPELINE_POINTS_SHAPED))
+      {
+        pipelineType = GFX_PIPELINE_POINTS_SHAPED;
+      }
+      else
+      {
+        pipelineType = GFX_PIPELINE_POINTS;
+      }
+      const auto& pipelineKey = this->GraphicsPipelineKeys[pipelineType];
+      const auto& pipelineLabel = this->GetGraphicsPipelineTypeAsString(pipelineType);
+      bundleEncoder.SetPipeline(wgpuPipelineCache->GetRenderPipeline(pipelineKey));
+      vtkScopedEncoderDebugGroup(bundleEncoder, pipelineLabel);
+      for (const auto& bindGroupType : nonHomogeneousBindGroupTypes)
+      {
+        const auto& bgInfo = this->TopologyBindGroupInfos[bindGroupType];
+        bundleEncoder.SetBindGroup(3, bgInfo.BindGroup);
+        const auto topologyBGInfoName =
+          vtkWebGPUCellToPrimitiveConverter::GetTopologySourceTypeAsString(bindGroupType);
+        vtkScopedEncoderDebugGroup(bundleEncoder, topologyBGInfoName);
+        const auto args = this->GetDrawCallArgsForDrawingVertices(bindGroupType);
+        bundleEncoder.Draw(args.VertexCount, args.InstanceCount);
+      }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupLayoutEntries()
+{
+  std::vector<wgpu::BindGroupLayoutEntry> entries;
+  std::uint32_t bindingId = 0;
+  for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
+  {
+    if (this->HasPointAttributes[attributeIndex])
+    {
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+    }
+  }
+  for (int attributeIndex = 0; attributeIndex < CELL_NB_ATTRIBUTES; ++attributeIndex)
+  {
+    if (this->HasCellAttributes[attributeIndex])
+    {
+      entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+        bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+    }
+  }
+  return entries;
 }
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupLayout vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroupLayout(
   const wgpu::Device& device, const std::string& label)
 {
-  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
-    {
-      // clang-format off
-      // MeshAttributeArrayDescriptor
-      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
-      // point_data
-      { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
-      // cell_data
-      { 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
-      // clang-format on
-    },
-    label);
+  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(
+    device, this->GetMeshBindGroupLayoutEntries(), label);
 }
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupLayout vtkWebGPUPolyDataMapper::CreateTopologyBindGroupLayout(
-  const wgpu::Device& device, const std::string& label)
+  const wgpu::Device& device, const std::string& label, bool homogeneousCellSize, bool useEdgeArray)
 {
-  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
-    {
-      // clang-format off
-      // topology
-      { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
-      // edge_array
-      { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
-      // clang-format on
-    },
-    label);
+  if (homogeneousCellSize)
+  {
+    return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+      {
+        // clang-format off
+        // connectivity
+        { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // cell_id_offset
+        { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::Uniform },
+        // clang-format on
+      },
+      label);
+  }
+  if (useEdgeArray)
+  {
+    return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+      {
+        // clang-format off
+        // connectivity
+        { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // cell_ids
+        { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // edge_array
+        { 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // clang-format on
+      },
+      label);
+  }
+  else
+  {
+    return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+      {
+        // clang-format off
+        // connectivity
+        { 0, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // cell_ids
+        { 1, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
+        // clang-format on
+      },
+      label);
+  }
 }
 
 //------------------------------------------------------------------------------
-wgpu::RenderPipeline vtkWebGPUPolyDataMapper::CreateRenderPipeline(const wgpu::Device& device,
-  wgpu::RenderPipelineDescriptor* pipelineDescriptor, const wgpu::ShaderModule& shaderModule,
-  wgpu::PrimitiveTopology primitiveTopology)
+std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntries()
 {
-  auto* pipelineDescriptorVtk =
-    static_cast<vtkWebGPURenderPipelineDescriptorInternals*>(pipelineDescriptor);
-  // set shader module
-  pipelineDescriptorVtk->vertex.module = shaderModule;
-  pipelineDescriptorVtk->cFragment.module = shaderModule;
-  // set primitive type
-  pipelineDescriptorVtk->primitive.topology = primitiveTopology;
-  // create pipeline
-  return device.CreateRenderPipeline(pipelineDescriptorVtk);
+  std::vector<wgpu::BindGroupEntry> entries;
+  std::uint32_t bindingId = 0;
+  for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
+  {
+    if (this->HasPointAttributes[attributeIndex])
+    {
+      const auto initializer =
+        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
+          this->PointBuffers[attributeIndex].Buffer, 0 };
+      entries.emplace_back(initializer.GetAsBinding());
+    }
+  }
+  for (int attributeIndex = 0; attributeIndex < CELL_NB_ATTRIBUTES; ++attributeIndex)
+  {
+    if (this->HasCellAttributes[attributeIndex])
+    {
+      const auto initializer =
+        vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
+          this->CellBuffers[attributeIndex].Buffer, 0 };
+      entries.emplace_back(initializer.GetAsBinding());
+    }
+  }
+  return entries;
 }
 
 //------------------------------------------------------------------------------
@@ -589,15 +1006,9 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateMeshAttributeBindGroup(
   const wgpu::Device& device, const std::string& label)
 {
   auto layout = this->CreateMeshAttributeBindGroupLayout(device, label + "_LAYOUT");
-  return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
-    {
-      // clang-format off
-      { 0, this->AttributeDescriptorBuffer, 0 },
-      { 1, this->MeshSSBO.Point.Buffer, 0 },
-      { 2, this->MeshSSBO.Cell.Buffer, 0 }
-      // clang-format on
-    },
-    label);
+
+  return vtkWebGPUBindGroupInternals::MakeBindGroup(
+    device, layout, this->GetMeshBindGroupEntries(), label);
 }
 
 //------------------------------------------------------------------------------
@@ -606,12 +1017,35 @@ wgpu::BindGroup vtkWebGPUPolyDataMapper::CreateTopologyBindGroup(const wgpu::Dev
   vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
   const auto& info = this->TopologyBindGroupInfos[topologySourceType];
+  bool homogeneousCellSize = info.CellIdBuffer == nullptr;
+  bool useEdgeArray = info.EdgeArrayBuffer != nullptr;
+  auto layout = this->CreateTopologyBindGroupLayout(
+    device, label + "_LAYOUT", homogeneousCellSize, useEdgeArray);
+  if (homogeneousCellSize)
   {
-    auto layout = this->CreateTopologyBindGroupLayout(device, label + "_LAYOUT");
     return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
       {
-        { 0, info.TopologyBuffer, 0 },
-        { 1, info.EdgeArrayBuffer, 0 },
+        { 0, info.ConnectivityBuffer, 0 },
+        { 1, info.CellIdOffsetUniformBuffer, 0 },
+      },
+      label);
+  }
+  if (useEdgeArray)
+  {
+    return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
+      {
+        { 0, info.ConnectivityBuffer, 0 },
+        { 1, info.CellIdBuffer, 0 },
+        { 2, info.EdgeArrayBuffer, 0 },
+      },
+      label);
+  }
+  else
+  {
+    return vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
+      {
+        { 0, info.ConnectivityBuffer, 0 },
+        { 1, info.CellIdBuffer, 0 },
       },
       label);
   }
@@ -787,75 +1221,54 @@ unsigned long vtkWebGPUPolyDataMapper::GetCellAttributeElementSize(
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkWebGPUPolyDataMapper::GetPointAttributeByteOffset(
+unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize(
   vtkWebGPUPolyDataMapper::PointDataAttributes attribute)
-{
-  vtkIdType accumulatedOffset = 0;
-
-  for (int attributeIndex = 0; attributeIndex <= PointDataAttributes::POINT_NB_ATTRIBUTES;
-       attributeIndex++)
-  {
-    PointDataAttributes attributeInOrder = this->PointDataAttributesOrder[attributeIndex];
-    if (attributeInOrder != attribute)
-    {
-      accumulatedOffset +=
-        this->GetPointAttributeByteSize(static_cast<PointDataAttributes>(attributeInOrder));
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  return accumulatedOffset;
-}
-
-//------------------------------------------------------------------------------
-vtkIdType vtkWebGPUPolyDataMapper::GetCellAttributeByteOffset(
-  vtkWebGPUPolyDataMapper::CellDataAttributes attribute)
-{
-  vtkIdType accumulatedOffset = 0;
-
-  for (int attributeIndex = 0; attributeIndex <= CellDataAttributes::CELL_NB_ATTRIBUTES;
-       attributeIndex++)
-  {
-    CellDataAttributes attributeInOrder = this->CellDataAttributesOrder[attributeIndex];
-    if (attributeInOrder != attribute)
-    {
-      accumulatedOffset +=
-        this->GetCellAttributeByteSize(static_cast<CellDataAttributes>(attributeInOrder));
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  return accumulatedOffset;
-}
-
-//------------------------------------------------------------------------------
-unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize()
 {
   unsigned long result = 0;
 
-  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_POSITIONS);
-  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_COLORS);
-  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_NORMALS);
-  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_TANGENTS);
-  result += this->GetPointAttributeByteSize(PointDataAttributes::POINT_UVS);
-
+  switch (attribute)
+  {
+    case POINT_POSITIONS:
+      result = this->GetPointAttributeByteSize(POINT_POSITIONS);
+      break;
+    case POINT_COLORS:
+      result = this->GetPointAttributeByteSize(POINT_COLORS);
+      break;
+    case POINT_NORMALS:
+      result = this->GetPointAttributeByteSize(POINT_NORMALS);
+      break;
+    case POINT_TANGENTS:
+      result = this->GetPointAttributeByteSize(POINT_TANGENTS);
+      break;
+    case POINT_UVS:
+      result = this->GetPointAttributeByteSize(POINT_UVS);
+      break;
+    case POINT_NB_ATTRIBUTES:
+    case POINT_UNDEFINED:
+      break;
+  }
   result = vtkWebGPUConfiguration::Align(result, 32);
   return result;
 }
 
 //------------------------------------------------------------------------------
-unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize()
+unsigned long vtkWebGPUPolyDataMapper::GetExactCellBufferSize(
+  vtkWebGPUPolyDataMapper::CellDataAttributes attribute)
 {
   unsigned long result = 0;
 
-  result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_COLORS);
-  result += this->GetCellAttributeByteSize(CellDataAttributes::CELL_NORMALS);
+  switch (attribute)
+  {
+    case CELL_COLORS:
+      result = this->GetCellAttributeByteSize(CELL_COLORS);
+      break;
+    case CELL_NORMALS:
+      result = this->GetCellAttributeByteSize(CELL_NORMALS);
+      break;
+    case CELL_NB_ATTRIBUTES:
+    case CELL_UNDEFINED:
+      break;
+  }
 
   result = vtkWebGPUConfiguration::Align(result, 32);
   return result;
@@ -962,9 +1375,6 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   this->MapScalars(this->CurrentInput, 1.0, cellFlag);
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
 
-  MeshAttributeDescriptor meshAttrDescriptor = {};
-  meshAttrDescriptor.Pickable = true;
-
   vtkPointData* pointData = this->CurrentInput->GetPointData();
   vtkDataArray* pointPositions = this->CurrentInput->GetPoints()->GetData();
   vtkDataArray* pointColors =
@@ -975,158 +1385,109 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
 
   using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
-  // Realloc WGPUBuffer to fit all point attributes.
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
-  bool updatePointDescriptor = false;
-  uint64_t currentPointBufferSize = 0;
-  uint64_t requiredPointBufferSize = this->GetExactPointBufferSize();
-  if (this->MeshSSBO.Point.Buffer)
-  {
-    currentPointBufferSize = this->MeshSSBO.Point.Size;
-  }
-  if (currentPointBufferSize != requiredPointBufferSize)
-  {
-    if (this->MeshSSBO.Point.Buffer)
-    {
-      this->MeshSSBO.Point.Buffer.Destroy();
-      this->MeshSSBO.Point.Size = 0;
-    }
-    wgpu::BufferDescriptor pointBufDescriptor{};
-    pointBufDescriptor.size = requiredPointBufferSize;
-    const auto label = "PointAttributes-" + this->CurrentInput->GetObjectDescription();
-    pointBufDescriptor.label = label.c_str();
-    pointBufDescriptor.mappedAtCreation = false;
-    pointBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Point.Buffer = wgpuConfiguration->CreateBuffer(pointBufDescriptor);
-    this->MeshSSBO.Point.Size = requiredPointBufferSize;
-    for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
-         attributeIndex++)
-    {
-      this->PointAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
-    }
-    updatePointDescriptor = true;
-  }
 
-  ::WriteTypedArray<vtkTypeFloat32> pointDataWriter{ 0, this->MeshSSBO.Point.Buffer,
-    wgpuConfiguration, 1. };
-
-  pointDataWriter.Denominator = 1.0;
-  pointDataWriter.ByteOffset = 0;
+  const char* pointAttribLabels[PointDataAttributes::POINT_NB_ATTRIBUTES] = { "point_coordinates",
+    "point_colors", "point_normals", "point_tangents", "point_uvs" };
   for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
        attributeIndex++)
   {
+    uint64_t currentBufferSize = 0;
+    const uint64_t requiredBufferSize =
+      this->GetExactPointBufferSize(static_cast<PointDataAttributes>(attributeIndex));
+    if (this->PointBuffers[attributeIndex].Buffer)
+    {
+      currentBufferSize = this->PointBuffers[attributeIndex].Size;
+    }
+    if (currentBufferSize != requiredBufferSize)
+    {
+      if (this->PointBuffers[attributeIndex].Buffer)
+      {
+        this->PointBuffers[attributeIndex].Buffer.Destroy();
+        this->PointBuffers[attributeIndex].Size = 0;
+      }
+      wgpu::BufferDescriptor descriptor{};
+      descriptor.size = requiredBufferSize;
+      const auto label = pointAttribLabels[attributeIndex] + std::string("@") +
+        this->CurrentInput->GetObjectDescription();
+      descriptor.label = label.c_str();
+      descriptor.mappedAtCreation = false;
+      descriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+      this->PointBuffers[attributeIndex].Buffer = wgpuConfiguration->CreateBuffer(descriptor);
+      this->PointBuffers[attributeIndex].Size = requiredBufferSize;
+      // invalidate timestamp
+      this->PointAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
+      this->RebuildGraphicsPipelines = true;
+    }
+    ::WriteTypedArray<vtkTypeFloat32> attributeWriter{ this->PointBuffers[attributeIndex].Buffer,
+      wgpuConfiguration, 1. };
     switch (PointDataAttributesOrder[attributeIndex])
     {
       case PointDataAttributes::POINT_POSITIONS:
-        meshAttrDescriptor.Positions.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
-
         if (pointPositions->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointPositions, pointDataWriter, "Positions"))
+          if (!DispatchT::Execute(
+                pointPositions, attributeWriter, pointAttribLabels[attributeIndex]))
           {
-            pointDataWriter(pointPositions, "Positions");
+            attributeWriter(pointPositions, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          pointDataWriter.Advance(pointPositions);
-        }
-        meshAttrDescriptor.Positions.NumComponents = pointPositions->GetNumberOfComponents();
-        meshAttrDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
-
         break;
 
       case PointDataAttributes::POINT_COLORS:
-        pointDataWriter.Denominator = 255.0f;
-        meshAttrDescriptor.Colors.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+        attributeWriter.Denominator = 255.0f;
         if (pointColors &&
           pointColors->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointColors, pointDataWriter, "Colors"))
+          if (!DispatchT::Execute(pointColors, attributeWriter, pointAttribLabels[attributeIndex]))
           {
-            pointDataWriter(pointColors, "Colors");
+            attributeWriter(pointColors, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          pointDataWriter.Advance(pointColors);
-        }
-        // rollback to default denominator
-        pointDataWriter.Denominator = 1.0f;
-        meshAttrDescriptor.Colors.NumComponents =
-          pointColors ? pointColors->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.Colors.NumTuples = pointColors ? pointColors->GetNumberOfTuples() : 0;
-
         break;
 
       case PointDataAttributes::POINT_NORMALS:
-        meshAttrDescriptor.Normals.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (pointNormals &&
           pointNormals->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointNormals, pointDataWriter, "Normals"))
+          if (!DispatchT::Execute(pointNormals, attributeWriter, pointAttribLabels[attributeIndex]))
           {
-            pointDataWriter(pointNormals, "Normals");
+            attributeWriter(pointNormals, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          pointDataWriter.Advance(pointNormals);
-        }
-        meshAttrDescriptor.Normals.NumComponents =
-          pointNormals ? pointNormals->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.Normals.NumTuples = pointNormals ? pointNormals->GetNumberOfTuples() : 0;
         break;
 
       case PointDataAttributes::POINT_TANGENTS:
-        meshAttrDescriptor.Tangents.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (pointTangents &&
           pointTangents->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointTangents, pointDataWriter, "Tangents"))
+          if (!DispatchT::Execute(
+                pointTangents, attributeWriter, pointAttribLabels[attributeIndex]))
           {
-            pointDataWriter(pointTangents, "Tangents");
+            attributeWriter(pointTangents, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          pointDataWriter.Advance(pointTangents);
-        }
-        meshAttrDescriptor.Tangents.NumComponents =
-          pointTangents ? pointTangents->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.Tangents.NumTuples =
-          pointTangents ? pointTangents->GetNumberOfTuples() : 0;
         break;
 
       case PointDataAttributes::POINT_UVS:
-        meshAttrDescriptor.UVs.Start = pointDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (pointUvs && pointUvs->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(pointUvs, pointDataWriter, "UVs"))
+          if (!DispatchT::Execute(pointUvs, attributeWriter, pointAttribLabels[attributeIndex]))
           {
-            pointDataWriter(pointUvs, "UVs");
+            attributeWriter(pointUvs, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          pointDataWriter.Advance(pointUvs);
-        }
-        meshAttrDescriptor.UVs.NumComponents = pointUvs ? pointUvs->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.UVs.NumTuples = pointUvs ? pointUvs->GetNumberOfTuples() : 0;
         break;
 
       default:
         break;
     }
   }
-
-  ::WriteTypedArray<vtkTypeFloat32> cellDataWriter{ 0, this->MeshSSBO.Cell.Buffer,
-    wgpuConfiguration, 1. };
 
   vtkCellData* cellData = this->CurrentInput->GetCellData();
   vtkDataArray* cellColors = nullptr;
@@ -1156,93 +1517,68 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   vtkDataArray* cellNormals =
     this->HasCellAttributes[CELL_NORMALS] ? cellData->GetNormals() : nullptr;
 
-  // Realloc WGPUBuffer to fit all cell attributes.
-  bool updateCellArrayDescriptor = false;
-  uint64_t currentCellBufferSize = 0;
-  uint64_t requiredCellBufferSize = this->GetExactCellBufferSize();
-  if (requiredCellBufferSize == 0)
-  {
-    requiredCellBufferSize = 4; // placeholder
-  }
-  if (this->MeshSSBO.Cell.Buffer)
-  {
-    currentCellBufferSize = this->MeshSSBO.Cell.Size;
-  }
-  if (currentCellBufferSize != requiredCellBufferSize)
-  {
-    if (this->MeshSSBO.Cell.Buffer)
-    {
-      this->MeshSSBO.Cell.Buffer.Destroy();
-      this->MeshSSBO.Cell.Size = 0;
-    }
-    wgpu::BufferDescriptor cellBufDescriptor{};
-    cellBufDescriptor.size = requiredCellBufferSize;
-    const auto label = "CellAttributes-" + this->CurrentInput->GetObjectDescription();
-    cellBufDescriptor.label = label.c_str();
-    cellBufDescriptor.mappedAtCreation = false;
-    cellBufDescriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
-    this->MeshSSBO.Cell.Buffer = wgpuConfiguration->CreateBuffer(cellBufDescriptor);
-    this->MeshSSBO.Cell.Size = requiredCellBufferSize;
-    for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
-         attributeIndex++)
-    {
-      this->CellAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
-    }
-    updateCellArrayDescriptor = true;
-  }
-
+  const char* cellAttribLabels[CellDataAttributes::CELL_NB_ATTRIBUTES] = { "cell_colors",
+    "cell_normals" };
   for (int attributeIndex = 0; attributeIndex < CellDataAttributes::CELL_NB_ATTRIBUTES;
        attributeIndex++)
   {
+    uint64_t currentBufferSize = 0;
+    const uint64_t requiredBufferSize =
+      this->GetExactCellBufferSize(static_cast<CellDataAttributes>(attributeIndex));
+    if (this->CellBuffers[attributeIndex].Buffer)
+    {
+      currentBufferSize = this->CellBuffers[attributeIndex].Size;
+    }
+    if (currentBufferSize != requiredBufferSize)
+    {
+      if (this->CellBuffers[attributeIndex].Buffer)
+      {
+        this->CellBuffers[attributeIndex].Buffer.Destroy();
+        this->CellBuffers[attributeIndex].Size = 0;
+      }
+      wgpu::BufferDescriptor descriptor{};
+      descriptor.size = requiredBufferSize;
+      const auto label = cellAttribLabels[attributeIndex] + std::string("@") +
+        this->CurrentInput->GetObjectDescription();
+      descriptor.label = label.c_str();
+      descriptor.mappedAtCreation = false;
+      descriptor.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+      this->CellBuffers[attributeIndex].Buffer = wgpuConfiguration->CreateBuffer(descriptor);
+      this->CellBuffers[attributeIndex].Size = requiredBufferSize;
+      // invalidate timestamp
+      this->CellAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
+      this->RebuildGraphicsPipelines = true;
+    }
+    ::WriteTypedArray<vtkTypeFloat32> attributeWriter{ this->CellBuffers[attributeIndex].Buffer,
+      wgpuConfiguration, 1. };
     switch (CellDataAttributesOrder[attributeIndex])
     {
       case CellDataAttributes::CELL_COLORS:
       {
-        meshAttrDescriptor.CellColors.Start = cellDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
-        cellDataWriter.Denominator = 255.0f;
+        attributeWriter.Denominator = 255.0f;
         if (cellColors &&
           cellColors->GetMTime() > this->CellAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(cellColors, cellDataWriter, "Cell colors"))
+          if (!DispatchT::Execute(cellColors, attributeWriter, cellAttribLabels[attributeIndex]))
           {
-            cellDataWriter(cellColors, "Cell colors");
+            attributeWriter(cellColors, cellAttribLabels[attributeIndex]);
           }
           this->CellAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          cellDataWriter.Advance(cellColors);
-        }
-        // rollback to default denominator
-        cellDataWriter.Denominator = 1.0f;
-        meshAttrDescriptor.CellColors.NumComponents =
-          cellColors ? cellColors->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.CellColors.NumTuples = cellColors ? cellColors->GetNumberOfTuples() : 0;
-
         break;
       }
 
       case CellDataAttributes::CELL_NORMALS:
       {
-        meshAttrDescriptor.CellNormals.Start = cellDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (cellNormals &&
           cellNormals->GetMTime() > this->CellAttributesBuildTimestamp[attributeIndex])
         {
-          if (!DispatchT::Execute(cellNormals, cellDataWriter, "Cell normals"))
+          if (!DispatchT::Execute(cellNormals, attributeWriter, cellAttribLabels[attributeIndex]))
           {
-            cellDataWriter(cellNormals, "Cell normals");
+            attributeWriter(cellNormals, cellAttribLabels[attributeIndex]);
           }
           this->CellAttributesBuildTimestamp[attributeIndex].Modified();
         }
-        else
-        {
-          cellDataWriter.Advance(cellNormals);
-        }
-        meshAttrDescriptor.CellNormals.NumComponents =
-          cellNormals ? cellNormals->GetNumberOfComponents() : 0;
-        meshAttrDescriptor.CellNormals.NumTuples =
-          cellNormals ? cellNormals->GetNumberOfTuples() : 0;
-
         break;
       }
 
@@ -1250,33 +1586,6 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
         break;
     }
   }
-
-  // handle partial updates
-  if (updatePointDescriptor || updateCellArrayDescriptor)
-  {
-    const std::string meshAttrDescriptorLabel =
-      "MeshAttributeDescriptor-" + this->CurrentInput->GetObjectDescription();
-    if (this->AttributeDescriptorBuffer == nullptr)
-    {
-      this->AttributeDescriptorBuffer = wgpuConfiguration->CreateBuffer(sizeof(meshAttrDescriptor),
-        wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst,
-        /*mappedAtCreation=*/false, meshAttrDescriptorLabel.c_str());
-    }
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer, 0, &meshAttrDescriptor,
-      sizeof(meshAttrDescriptor), meshAttrDescriptorLabel.c_str());
-    // Create bind group for the point/cell attribute buffers.
-    this->MeshAttributeBindGroup =
-      this->CreateMeshAttributeBindGroup(wgpuConfiguration->GetDevice(), "MeshAttributeBindGroup");
-    this->RebuildGraphicsPipelines = true;
-  }
-
-  vtkDebugMacro(<< ((updatePointDescriptor || updateCellArrayDescriptor) ? "rebuilt" : "")
-                << (updatePointDescriptor ? " point" : "")
-                << ((updatePointDescriptor && updateCellArrayDescriptor) ? " and" : "")
-                << (updateCellArrayDescriptor ? " cell" : "")
-                << ((updatePointDescriptor || updateCellArrayDescriptor)
-                       ? " buffers"
-                       : "reuse point and cell buffers"));
 }
 
 //------------------------------------------------------------------------------
@@ -1287,15 +1596,36 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
   {
     case GFX_PIPELINE_POINTS:
       return "GFX_PIPELINE_POINTS";
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE";
+    case GFX_PIPELINE_POINTS_SHAPED:
+      return "GFX_PIPELINE_POINTS_SHAPED";
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE";
+    case GFX_PIPELINE_LINES:
+      return "GFX_PIPELINE_LINES";
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE";
+    case GFX_PIPELINE_LINES_THICK:
+      return "GFX_PIPELINE_LINES_THICK";
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE";
     case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
       return "GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN";
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE";
     case GFX_PIPELINE_LINES_MITER_JOIN:
       return "GFX_PIPELINE_LINES_MITER_JOIN";
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE";
     case GFX_PIPELINE_TRIANGLES:
       return "GFX_PIPELINE_TRIANGLES";
-    default:
-      return "";
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      return "GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE";
+    case GFX_PIPELINE_NB_TYPES:
+      break;
   }
+  return "";
 }
 
 //------------------------------------------------------------------------------
@@ -1335,29 +1665,1557 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     descriptor.primitive.cullMode = wgpu::CullMode::Front;
   }
 
-  std::vector<wgpu::BindGroupLayout> bgls;
-  wgpuRenderer->PopulateBindgroupLayouts(bgls);
-  wgpuActor->Internals->PopulateBindgroupLayouts(bgls);
-  bgls.emplace_back(
-    this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroupLayout"));
-  bgls.emplace_back(this->CreateTopologyBindGroupLayout(device, "TopologyBindGroupLayout"));
-  descriptor.layout =
-    vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(device, bgls, "pipelineLayout");
+  std::vector<wgpu::BindGroupLayout> basicBGLayoutEntries;
+  wgpuRenderer->PopulateBindgroupLayouts(basicBGLayoutEntries);
+  wgpuActor->Internals->PopulateBindgroupLayouts(basicBGLayoutEntries);
+  basicBGLayoutEntries.emplace_back(this->CreateMeshAttributeBindGroupLayout(
+    device, this->GetObjectDescription() + "MeshAttributeBindGroupLayout"));
 
   for (int i = 0; i < GFX_PIPELINE_NB_TYPES; ++i)
   {
-    descriptor.label = this->GetGraphicsPipelineTypeAsString(static_cast<GraphicsPipelineType>(i));
-    descriptor.primitive.topology = GraphicsPipelinePrimitiveTypes[i];
+    const auto pipelineType = static_cast<GraphicsPipelineType>(i);
+    if (!this->IsPipelineSupported(pipelineType))
+    {
+      continue;
+    }
+    auto bgls = basicBGLayoutEntries;
+    // add topology bind group layout.
+    const bool homogeneousCellSize = IsPipelineForHomogeneousCellSize(pipelineType);
+    const bool useEdgeArrray = pipelineType == GFX_PIPELINE_TRIANGLES ||
+      pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE;
+    bgls.emplace_back(this->CreateTopologyBindGroupLayout(device,
+      this->GetObjectDescription() + "TopologyBindGroupLayout", homogeneousCellSize,
+      useEdgeArrray));
+
+    descriptor.layout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
+      device, bgls, this->GetObjectDescription() + "-PipelineLayout");
+
+    const auto label =
+      this->GetObjectDescription() + this->GetGraphicsPipelineTypeAsString(pipelineType);
+    descriptor.label = label.c_str();
+    descriptor.primitive.topology = this->GetPrimitiveTopologyForPipeline(pipelineType);
+    std::string vertexShaderSource = vtkPolyDataVSWGSL;
+    std::string fragmentShaderSource = vtkPolyDataFSWGSL;
+    this->ApplyShaderReplacements(pipelineType, vertexShaderSource, fragmentShaderSource);
     // generate a unique key for the pipeline descriptor and shader source pointer
-    this->GraphicsPipelineKeys[i] =
-      wgpuPipelineCache->GetPipelineKey(&descriptor, *GraphicsPipelineShaderSources[i]);
+    this->GraphicsPipelineKeys[i] = wgpuPipelineCache->GetPipelineKey(
+      &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
     // create a pipeline if it does not already exist
     if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipelineKeys[i]) == nullptr)
     {
       wgpuPipelineCache->CreateRenderPipeline(
-        &descriptor, wgpuRenderer, *GraphicsPipelineShaderSources[i]);
+        &descriptor, wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(
+  vtkWebGPUPolyDataMapper::GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+{
+  std::fill(this->NumberOfBindings.begin(), this->NumberOfBindings.end(), 0);
+
+  this->ReplaceShaderConstantsDef(pipelineType, vss, fss);
+  this->ReplaceShaderActorDef(pipelineType, vss, fss);
+  this->ReplaceShaderCustomDef(pipelineType, vss, fss);
+
+  this->ReplaceShaderRendererBindings(pipelineType, vss, fss);
+  this->ReplaceShaderActorBindings(pipelineType, vss, fss);
+  this->ReplaceShaderMeshAttributeBindings(pipelineType, vss, fss);
+  this->ReplaceShaderTopologyBindings(pipelineType, vss, fss);
+  this->ReplaceShaderCustomBindings(pipelineType, vss, fss);
+
+  this->ReplaceShaderVertexOutputDef(pipelineType, vss, fss);
+
+  this->ReplaceVertexShaderInputDef(pipelineType, vss);
+  this->ReplaceVertexShaderMainStart(pipelineType, vss);
+  this->ReplaceVertexShaderCamera(pipelineType, vss);
+  this->ReplaceVertexShaderNormalTransform(pipelineType, vss);
+  this->ReplaceVertexShaderVertexId(pipelineType, vss);
+  this->ReplaceVertexShaderPrimitiveId(pipelineType, vss);
+  this->ReplaceVertexShaderCellId(pipelineType, vss);
+  this->ReplaceVertexShaderPosition(pipelineType, vss);
+  this->ReplaceVertexShaderPositionVC(pipelineType, vss);
+  this->ReplaceVertexShaderPicking(pipelineType, vss);
+  this->ReplaceVertexShaderColors(pipelineType, vss);
+  this->ReplaceVertexShaderEdges(pipelineType, vss);
+  this->ReplaceVertexShaderNormals(pipelineType, vss);
+  this->ReplaceVertexShaderTangents(pipelineType, vss);
+  this->ReplaceVertexShaderMainEnd(pipelineType, vss);
+
+  this->ReplaceFragmentShaderOutputDef(pipelineType, fss);
+  this->ReplaceFragmentShaderMainStart(pipelineType, fss);
+  this->ReplaceFragmentShaderColors(pipelineType, fss);
+  this->ReplaceFragmentShaderNormals(pipelineType, fss);
+  this->ReplaceFragmentShaderEdges(pipelineType, fss);
+  this->ReplaceFragmentShaderLights(pipelineType, fss);
+  this->ReplaceFragmentShaderPicking(pipelineType, fss);
+  this->ReplaceFragmentShaderMainEnd(pipelineType, fss);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderConstantsDef(
+  GraphicsPipelineType pipelineType, std::string& vss, std::string& vtkNotUsed(fss))
+{
+  std::string code;
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+    {
+      code = R"(
+/**
+* (-1, 1) |-------------------------------|(1, 1)
+*         |-                              |
+*         |    -                          |
+*         |        -                      |
+* (-1, 0) |              -                |
+*         |                   -           |
+*         |                        -      |
+*         |                              -|
+* (-1,-1) |-------------------------------|(1, -1)
+*/
+// this triangle strip describes a quad spanning a bi-unit domain.
+const TRIANGLE_VERTS = array(
+  vec2f(-1, -1),
+  vec2f(1, -1),
+  vec2f(-1, 1),
+  vec2f(1, 1),
+);)";
+      break;
+    }
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      break;
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    {
+      code = R"(
+/**
+  * (0, 0.5) |-------------------------------|(1, 0.5)
+  *         /|-                              |\
+  *       /  |    -                          |  \
+  *     /  \ |        -                      | /  \
+  * (0, 0)---|              -                |-----|
+  *     \  / |                   -           |    /
+  *       \  |                        -      | \ /
+  *         \|                              -|/
+  * (0,-0.5) |-------------------------------|(1, -0.5)
+  * The semicircle points are generated using this python snippet.
+    import math
+    def generate_instance_round_round(tris, resolution):
+      for step in range(resolution):
+        theta0 = math.pi / 2 + (step * math.pi) / resolution
+        theta1 = math.pi / 2 + ((step + 1) * math.pi) / resolution
+        tris.append([0, 0, 0])
+        tris.append([0.5 * math.cos(theta0), 0.5 * math.sin(theta0), 0])
+        tris.append([0.5 * math.cos(theta1), 0.5 * math.sin(theta1), 0])
+      for step in range(resolution):
+        theta0 = (3 * math.pi) / 2 + (step * math.pi) / resolution
+        theta1 = (3 * math.pi) / 2 + ((step + 1) * math.pi) / resolution
+        tris.append([0, 0, 1])
+        tris.append([0.5 * math.cos(theta0), 0.5 * math.sin(theta0), 1])
+        tris.append([0.5 * math.cos(theta1), 0.5 * math.sin(theta1), 1])
+    tris = []
+    resolution = 10  # example resolution
+    generate_instance_round_round(tris, resolution)
+    print(tris)
+  */
+const TRIANGLE_VERTS = array(
+  vec3(0, -0.5, 0),
+  vec3(0, -0.5, 1),
+  vec3(0, 0.5, 1),
+  vec3(0, -0.5, 0),
+  vec3(0, 0.5, 1),
+  vec3(0, 0.5, 0),
+  // left semicircle
+  vec3(0, 0, 0),
+  vec3(3.061616997868383e-17, 0.5, 0),
+  vec3(-0.2938926261462365, 0.4045084971874737, 0),
+  vec3(0, 0, 0),
+  vec3(-0.2938926261462365, 0.4045084971874737, 0),
+  vec3(-0.47552825814757677, 0.15450849718747375, 0),
+  vec3(0, 0, 0),
+  vec3(-0.47552825814757677, 0.15450849718747375, 0),
+  vec3(-0.4755282581475768, -0.15450849718747364, 0),
+  vec3(0, 0, 0),
+  vec3(-0.4755282581475768, -0.15450849718747364, 0),
+  vec3(-0.2938926261462366, -0.40450849718747367, 0),
+  vec3(0, 0, 0),
+  vec3(-0.2938926261462366, -0.40450849718747367, 0),
+  vec3(-9.184850993605148e-17, -0.5, 0),
+  // right semicircle
+  vec3(0, 0, 1),
+  vec3(-9.184850993605148e-17, -0.5, 1),
+  vec3(0.29389262614623646, -0.4045084971874738, 1),
+  vec3(0, 0, 1),
+  vec3(0.29389262614623646, -0.4045084971874738, 1),
+  vec3(0.47552825814757677, -0.1545084971874738, 1),
+  vec3(0, 0, 1),
+  vec3(0.47552825814757677, -0.1545084971874738, 1),
+  vec3(0.4755282581475768, 0.1545084971874736, 1),
+  vec3(0, 0, 1),
+  vec3(0.4755282581475768, 0.1545084971874736, 1),
+  vec3(0.2938926261462367, 0.4045084971874736, 1),
+  vec3(0, 0, 1),
+  vec3(0.2938926261462367, 0.4045084971874736, 1),
+  vec3(1.5308084989341916e-16, 0.5, 1)
+);)";
+      break;
+    }
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    {
+      code = R"(
+/**
+  * (0, 0.5) |-------------------------------|(1, 0.5)
+  *          |-                              |
+  *          |    -                          |
+  *          |        -                      |
+  * (0, 0)   |              -                |
+  *          |                   -           |
+  *          |                        -      |
+  *          |                              -|
+  * (0,-0.5) |-------------------------------|(1, -0.5)
+  */
+const TRIANGLE_VERTS = array(
+  vec2(0, -0.5),
+  vec2(1, -0.5),
+  vec2(0, 0.5),
+  vec2(1, 0.5),
+);)";
+      break;
+    }
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+  if (!code.empty())
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Constants::Def", code, /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderActorDef(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  const std::string code = R"(
+struct Actor
+{
+  transform: ActorTransform,
+  render_options: ActorRenderOptions,
+  color_options: ActorColorOptions,
+};
+)";
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Actor::Def", code, /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Actor::Def", code, /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(
+  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+{
+  (void)pipelineType;
+  (void)vss;
+  (void)fss;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  auto& bindingId = this->NumberOfBindings[GROUP_RENDERER];
+
+  std::stringstream codeStream;
+  codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
+             << ") var<uniform> scene_transform: SceneTransform;\n";
+  codeStream << "@group(" << GROUP_RENDERER << ") @binding(" << bindingId++
+             << ") var<storage, read> scene_lights: SceneLights;\n";
+
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::Renderer::Bindings", codeStream.str(), /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::Renderer::Bindings", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  auto& bindingId = this->NumberOfBindings[GROUP_ACTOR];
+
+  std::stringstream codeStream;
+  codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
+             << ") var<storage, read> actor: Actor;";
+
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderMeshAttributeBindings(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& vtkNotUsed(fss))
+{
+  auto& bindingId = this->NumberOfBindings[GROUP_MESH];
+
+  const char* pointAttributeLabels[POINT_NB_ATTRIBUTES] = { "point_coordinates", "point_colors",
+    "point_normals", "point_tangents", "point_uvs" };
+
+  std::stringstream codeStream;
+  for (int i = 0; i < POINT_NB_ATTRIBUTES; ++i)
+  {
+    if (this->HasPointAttributes[i])
+    {
+      codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
+                 << ") var<storage, read> " << pointAttributeLabels[i] << " : array<f32>;\n ";
+    }
+  }
+  const char* cellAttributeLabels[CELL_NB_ATTRIBUTES] = { "cell_colors", "cell_normals" };
+  for (int i = 0; i < CELL_NB_ATTRIBUTES; ++i)
+  {
+    if (this->HasCellAttributes[i])
+    {
+      codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
+                 << ") var<storage, read> " << cellAttributeLabels[i] << " : array<f32>;\n ";
+    }
+  }
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::Mesh::Bindings", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderCustomBindings(
+  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+{
+  (void)pipelineType;
+  (void)vss;
+  (void)fss;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderTopologyBindings(
+  GraphicsPipelineType pipelineType, std::string& vss, std::string& vtkNotUsed(fss))
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Topology::Bindings", R"(
+      @group(3) @binding(0) var<storage, read> connectivity: array<u32>;
+      @group(3) @binding(1) var<storage, read> cell_ids: array<u32>;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_TRIANGLES:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Topology::Bindings", R"(
+    @group(3) @binding(0) var<storage, read> connectivity: array<u32>;
+    @group(3) @binding(1) var<storage, read> cell_ids: array<u32>;
+    @group(3) @binding(2) var<storage, read> edge_array: array<f32>;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Topology::Bindings", R"(
+    @group(3) @binding(0) var<storage, read> connectivity: array<u32>;
+    @group(3) @binding(1) var<uniform> cell_id_offset: u32;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderInputDef(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  std::stringstream codeStream;
+  codeStream << "struct VertexInput\n{\n";
+  // Triangle pipeline does not need instance ID.
+  if (pipelineType != GFX_PIPELINE_TRIANGLES)
+  {
+    codeStream << "  @builtin(instance_index) instance_id: u32,\n";
+  }
+  codeStream << "  @builtin(vertex_index) vertex_id: u32,\n};";
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::VertexInput::Def", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(
+  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+{
+  std::stringstream codeStream;
+  std::size_t id = 0;
+  codeStream << "struct VertexOutput\n{\n";
+  codeStream << "  @builtin(position) position: vec4<f32>,\n";
+  codeStream << "  @location(" << id++ << ") color: vec4<f32>,\n";
+  codeStream << "  @location(" << id++ << ") position_VC: vec4<f32>,\n";
+  codeStream << "  @location(" << id++ << ") normal_VC: vec3<f32>,\n";
+  if (this->HasPointAttributes[POINT_TANGENTS])
+  {
+    codeStream << "  @location(" << id++ << ") tangent_VC: vec3<f32>,\n";
+  }
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      codeStream << "  @location(" << id++ << ") p_coord: vec2<f32>,\n";
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      codeStream << "  @location(" << id++ << ") dist_to_centerline: f32,\n";
+      break;
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << "  @location(" << id++ << ") edge_dists: vec3<f32>,\n";
+      codeStream << "  @location(" << id++ << ") @interpolate(flat) hide_edge: f32,\n";
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+  codeStream << "  @location(" << id++ << ") @interpolate(flat) cell_id: u32,\n";
+  codeStream << "  @location(" << id++ << ") @interpolate(flat) prop_id: u32,\n";
+  codeStream << "  @location(" << id++ << ") @interpolate(flat) composite_id: u32,\n";
+  codeStream << "  @location(" << id++ << ") @interpolate(flat) process_id: u32,\n};";
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::VertexOutput::Def", codeStream.str(), /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::VertexOutput::Def", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainStart(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexMain::Start", R"(@vertex
+fn vertexMain(vertex: VertexInput) -> VertexOutput
+{
+  var output: VertexOutput;
+)",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCamera(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Camera::Impl",
+    "let model_view_projection = scene_transform.projection * scene_transform.view * "
+    "actor.transform.world;",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormalTransform(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::NormalTransform::Impl",
+    "let normal_model_view = scene_transform.normal * actor.transform.normal;",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderVertexId(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl",
+        "let pull_vertex_id: u32 = vertex.vertex_id;",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl",
+        R"(let pull_vertex_id: u32 = vertex.instance_id;
+  let p_coord_id = vertex.vertex_id;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl",
+        R"(let pull_vertex_id = vertex.vertex_id;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl",
+        R"(let p_coord_id = vertex.vertex_id;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl",
+        "let pull_vertex_id: u32 = vertex.vertex_id;",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPrimitiveId(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+        R"(let primitive_size: u32 = 1u;
+  let primitive_id: u32 = pull_vertex_id;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+        R"(let primitive_size: u32 = 2u;
+  let primitive_id: u32 = pull_vertex_id / primitive_size;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+        R"(let primitive_id: u32 = vertex.instance_id;
+  let primitive_size: u32 = 2u;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl",
+        R"(let primitive_size: u32 = 3u;
+  let primitive_id: u32 = pull_vertex_id / primitive_size;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCellId(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_TRIANGLES:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::CellId::Impl",
+        R"(let cell_id = cell_ids[primitive_id];)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::CellId::Impl",
+        R"(let cell_id = primitive_id + cell_id_offset;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(// pull the point id
+  let point_id = connectivity[pull_vertex_id];
+  // pull the position for this vertex.
+  let vertex_MC = vec4<f32>(point_coordinates[3u * point_id], point_coordinates[3u * point_id + 1u], point_coordinates[3u * point_id + 2u], 1);
+  // transform to view and then to clip space.
+  let vertex_DC = model_view_projection * vertex_MC;
+  // transform to 2-D screen plane.
+  let resolution = scene_transform.viewport.zw;
+  let vertex_screen = resolution * (0.5 * vertex_DC.xy / vertex_DC.w + 0.5);
+
+  var point_size = actor.render_options.point_size;
+  // The point rendering algorithm is unstable for point_size < 1.0
+  if point_size < 1.0
+  {
+    point_size = 1.0;
+  }
+  output.p_coord = TRIANGLE_VERTS[p_coord_id];
+  let adjusted_vertex_screen = vertex_screen + 0.5 * point_size * output.p_coord;
+  output.position = vec4(vertex_DC.w * ((2.0 * adjusted_vertex_screen) / resolution - 1.0), vertex_DC.z, vertex_DC.w);)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(var width: f32 = actor.render_options.line_width;
+    if (width < 1.0)
+    {
+      // lines thinner than 1 pixel don't look good.
+      width = 1.0;
+    }
+    let p_coord = TRIANGLE_VERTS[p_coord_id];
+  
+    let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+  
+    // pull the point id
+    let point_id = connectivity[pull_vertex_id];
+  
+    let p0_id: u32 = 2 * primitive_id;
+    let p1_id = p0_id + 1;
+
+    let p0_point_id: u32 = connectivity[p0_id];
+    let p1_point_id: u32 = connectivity[p1_id];
+
+    let p0_MC = vec4(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+    let p1_MC = vec4(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+
+    // transform to view and then to clip space.
+    let p0_DC = model_view_projection * p0_MC;
+    let p1_DC = model_view_projection * p1_MC;
+
+    // transform to 2-D screen plane.
+    let resolution = scene_transform.viewport.zw;
+    let p0_screen = resolution * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+
+    // Expand the line segment into a quad by moving the vertices along X, and Y dimension
+    // of the parametric space. 
+    let x_basis = normalize(p1_screen - p0_screen);
+    let y_basis = vec2(-x_basis.y, x_basis.x);
+
+    let adjusted_p1 = p0_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+    let adjusted_p2 = p1_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+    let p = mix(adjusted_p1, adjusted_p2, p_coord.x);
+
+    // used to select the z, w coordinate.
+    let p_DC = mix(p0_DC, p1_DC, p_coord.x);
+
+    output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
+    output.dist_to_centerline = p_coord.y;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(var width: f32 = actor.render_options.line_width;
+  if (width < 1.0)
+  {
+    // lines thinner than 1 pixel don't look good.
+    width = 1.0;
+  }
+  let p_coord = TRIANGLE_VERTS[p_coord_id];
+
+  let p0_id: u32 = 2 * primitive_id;
+  let p1_id = p0_id + 1;
+
+  let p0_point_id: u32 = connectivity[p0_id];
+  let p1_point_id: u32 = connectivity[p1_id];
+
+  let p0_MC = vec4(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+  let p1_MC = vec4(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+
+  // transform to view and then to clip space.
+  let p0_DC = model_view_projection * p0_MC;
+  let p1_DC = model_view_projection * p1_MC;
+
+  // transform to 2-D screen plane.
+  let resolution = scene_transform.viewport.zw;
+  let p0_screen = resolution * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+  let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+
+  let x_basis = normalize(p1_screen - p0_screen);
+  let y_basis = vec2(-x_basis.y, x_basis.x);
+
+  let adjusted_p1 = p0_screen + (p_coord.x * x_basis + p_coord.y * y_basis) * width;
+  let adjusted_p2 = p1_screen + (p_coord.x * x_basis + p_coord.y * y_basis) * width;
+  let p = mix(adjusted_p1, adjusted_p2, p_coord.z);
+
+  // used to select the z, w coordinate.
+  let p_DC = mix(p0_DC, p1_DC, p_coord.z);
+
+  output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
+  output.dist_to_centerline = p_coord.y;
+
+  let pull_vertex_id = select(p0_id, p1_id, p_coord.z == 1);
+  // pull the point id
+  let point_id = connectivity[pull_vertex_id];)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(var width: f32 = actor.render_options.line_width;
+  if (width < 1.0)
+  {
+    // lines thinner than 1 pixel don't look good.
+    width = 1.0;
+  }
+  let p_coord = TRIANGLE_VERTS[p_coord_id];
+
+  let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+
+  // pull the point id
+  let point_id = connectivity[pull_vertex_id];
+
+  var is_polyline_rl: bool = false; // whether polyline is going from right -> left in the connectivity buffer.
+  var is_polyline_lr: bool = false; // whether polyline is going from left -> right in the connectivity buffer.
+  var is_non_intersecting_vertex: bool = true;
+  if (primitive_id > 0 && p_coord.x == 0)
+  {
+    is_polyline_rl = cell_ids[primitive_id - 1] == cell_ids[primitive_id];
+  }
+  else if (primitive_id < arrayLength(&cell_ids) - 1 && p_coord.x == 1)
+  {
+    is_polyline_lr = cell_ids[primitive_id + 1] == cell_ids[primitive_id];
+  }
+  if (is_polyline_lr || is_polyline_rl)
+  {
+    let p0_id = select(pull_vertex_id + 1, pull_vertex_id - 1, is_polyline_lr);
+    let p1_id = pull_vertex_id;
+    let p2_id = select(pull_vertex_id - 2, pull_vertex_id + 2, is_polyline_lr);
+
+    var pos = p_coord;
+
+    if (p_coord.x == 1)
+    {
+      pos = vec2(1.0 - p_coord.x, -p_coord.y);
+    }
+
+    let p0_point_id = connectivity[p0_id];
+    let p1_point_id = connectivity[p1_id];
+    let p2_point_id = connectivity[p2_id];
+
+    let p0_MC = vec4<f32>(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+    let p1_MC = vec4<f32>(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+    let p2_MC = vec4<f32>(point_coordinates[3u * p2_point_id], point_coordinates[3u * p2_point_id + 1u], point_coordinates[3u * p2_point_id + 2u], 1);
+
+    // transform to view and then to clip space.
+    let p0_DC = model_view_projection * p0_MC;
+    let p1_DC = model_view_projection * p1_MC;
+    let p2_DC = model_view_projection * p2_MC;
+
+    // transform to 2-D screen plane.
+    let resolution = scene_transform.viewport.zw;
+    let p0_screen = resolution * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+    let p2_screen = resolution * (0.5 * p2_DC.xy / p2_DC.w + 0.5);
+
+    // Find the normal vector.
+    let tangent = normalize(normalize(p2_screen - p1_screen) + normalize(p1_screen - p0_screen));
+    let normal = vec2f(-tangent.y, tangent.x);
+
+    // Find the vector perpendicular to p0_screen -> p1_screen.
+    let p01 = p1_screen - p0_screen;
+    let p21 = p1_screen - p2_screen;
+    let p01_normal = normalize(vec2f(-p01.y, p01.x));
+
+    // Determine the bend direction.
+    let sigma = sign(dot(p01 + p21, normal));
+    if (sign(pos.y) == sigma)
+    {
+      // This is an intersecting vertex. Adjust the position so that there's no overlap.
+      let offset: vec2<f32> =  0.5 * width * -sigma * normal / dot(normal, p01_normal);
+      if (length(offset) < min(length(p01), length(p21))) // clamp excessive offsets
+      {
+        let adjusted_pos: vec2<f32> = p1_screen + offset;
+        output.position = vec4<f32>(p1_DC.w * ((2.0 * adjusted_pos) / resolution - 1.0), p1_DC.z, p1_DC.w);
+        is_non_intersecting_vertex = false;
+      }
+    }
+  }
+  if (is_non_intersecting_vertex)
+  {
+    let p0_id: u32 = 2 * primitive_id;
+    let p1_id = p0_id + 1;
+
+    let p0_point_id: u32 = connectivity[p0_id];
+    let p1_point_id: u32 = connectivity[p1_id];
+
+    let p0_MC = vec4<f32>(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+    let p1_MC = vec4<f32>(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+    
+    // transform to view and then to clip space.
+    let p0_DC = model_view_projection * p0_MC;
+    let p1_DC = model_view_projection * p1_MC;
+
+    // transform to 2-D screen plane.
+    let resolution = scene_transform.viewport.zw;
+    let p0_screen = resolution * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+
+    // Expand the line segment into a quad by moving the vertices along X, and Y dimension
+    // of the parametric space. 
+    let x_basis = normalize(p1_screen - p0_screen);
+    let y_basis = vec2(-x_basis.y, x_basis.x);
+    let adjusted_p1 = p0_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+    let adjusted_p2 = p1_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+    let p = mix(adjusted_p1, adjusted_p2, p_coord.x);
+
+    // used to select the z, w coordinate.
+    let p_DC = mix(p0_DC, p1_DC, p_coord.x);
+
+    output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
+  }
+  output.dist_to_centerline = p_coord.y;)",
+        /*all=*/true);
+      break;
+
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(var width: f32 = actor.render_options.line_width;
+  if (width < 1.0)
+  {
+    // lines thinner than 1 pixel don't look good.
+    width = 1.0;
+  }
+  let p_coord = TRIANGLE_VERTS[p_coord_id];
+
+  let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+
+  // pull the point id
+  let point_id = connectivity[pull_vertex_id];
+
+  let p0_id: u32 = 2 * primitive_id;
+  let p1_id = p0_id + 1;
+
+  let p0_point_id: u32 = connectivity[p0_id];
+  let p1_point_id: u32 = connectivity[p1_id];
+
+  let p0_MC = vec4<f32>(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+  let p1_MC = vec4<f32>(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+
+  // transform to view and then to clip space.
+  let p0_DC = model_view_projection * p0_MC;
+  let p1_DC = model_view_projection * p1_MC;
+
+  // transform to 2-D screen plane.
+  let resolution = scene_transform.viewport.zw;
+  let p0_screen = resolution * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+  let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+
+  // Expand the line segment into a quad by moving the vertices along X, and Y dimension
+  // of the parametric space. 
+  let x_basis = normalize(p1_screen - p0_screen);
+  let y_basis = vec2(-x_basis.y, x_basis.x);
+  let adjusted_p1 = p0_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+  let adjusted_p2 = p1_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
+  let p = mix(adjusted_p1, adjusted_p2, p_coord.x);
+
+  // used to select the z, w coordinate.
+  let p_DC = mix(p0_DC, p1_DC, p_coord.x);
+
+  output.position = vec4(p_DC.w * ((2.0 * p) / resolution - 1.0), p_DC.z, p_DC.w);
+  output.dist_to_centerline = p_coord.y;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl",
+        R"(// pull the point id
+  let point_id = connectivity[pull_vertex_id];
+  // pull the position for this vertex.
+  let vertex_MC = vec4<f32>(point_coordinates[3u * point_id], point_coordinates[3u * point_id + 1u], point_coordinates[3u * point_id + 2u], 1);
+
+  // NDC transforms
+  output.position = model_view_projection * vertex_MC;)",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPositionVC(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PositionVC::Impl",
+    "output.position_VC = scene_transform.inverted_projection * output.position;",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPicking(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl", R"(
+    // Write indices
+    output.cell_id = cell_id;
+    output.prop_id = actor.color_options.id;
+    output.composite_id = 0;
+    output.process_id = 0;
+    )",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderColors(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  if (this->HasPointAttributes[POINT_COLORS])
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Colors::Impl", R"(
+      // Smooth shading
+      output.color = vec4<f32>(
+        point_colors[4u * point_id],
+        point_colors[4u * point_id + 1u],
+        point_colors[4u * point_id + 2u],
+        point_colors[4u * point_id + 3u],
+      );
+      )",
+      /*all=*/true);
+  }
+  else if (this->HasCellAttributes[CELL_COLORS])
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Colors::Impl", R"(
+        // Flat shading
+        output.color = vec4<f32>(
+          cell_colors[4u * cell_id],
+          cell_colors[4u * cell_id + 1u],
+          cell_colors[4u * cell_id + 2u],
+          cell_colors[4u * cell_id + 3u],
+        );
+      )",
+      /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderEdges(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  if (pipelineType == GFX_PIPELINE_TRIANGLES ||
+    pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
+  {
+    std::stringstream codeStream;
+    codeStream << R"(// Representation: VTK_SURFACE + Edge visibility turned on
+  let representation = getRepresentation(actor.render_options.flags);
+  let show_edges = getEdgeVisibility(actor.render_options.flags);
+  if (representation == VTK_SURFACE && show_edges)
+  {
+    let i0 = primitive_id * 3u;
+    let p0_point_id = connectivity[i0];
+    let p1_point_id = connectivity[i0 + 1u];
+    let p2_point_id = connectivity[i0 + 2u];
+
+    let p0_MC = vec4<f32>(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
+    let p1_MC = vec4<f32>(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
+    let p2_MC = vec4<f32>(point_coordinates[3u * p2_point_id], point_coordinates[3u * p2_point_id + 1u], point_coordinates[3u * p2_point_id + 2u], 1);
+
+    let p0_3D_DC: vec4<f32> = model_view_projection * p0_MC;
+    let p1_3D_DC: vec4<f32> = model_view_projection * p1_MC;
+    let p2_3D_DC: vec4<f32> = model_view_projection * p2_MC;
+    let p0_DC: vec2<f32> = p0_3D_DC.xy / p0_3D_DC.w;
+    let p1_DC: vec2<f32> = p1_3D_DC.xy / p1_3D_DC.w;
+    let p2_DC: vec2<f32> = p2_3D_DC.xy / p2_3D_DC.w;
+    let use_vertex_id: u32 = pull_vertex_id % 3u;
+    let scale = scene_transform.viewport.zw * 0.5;)";
+    if (pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
+    {
+      codeStream << R"(
+    let edge_value: f32 = -1.0;)";
+    }
+    else
+    {
+      codeStream << R"(
+    let edge_value: f32 = edge_array[primitive_id];)";
+    }
+    codeStream << R"(
+    if use_vertex_id == 0u {
+      let v10 = scale * (p1_DC - p0_DC);
+      let v20 = scale * (p2_DC - p0_DC) ;
+      let area0: f32 = abs(v10.x * v20.y - v10.y * v20.x);
+      let h0: f32 = area0 / length(v10 - v20);
+      output.edge_dists = vec3<f32>(h0 * p0_3D_DC.w, 0.0, 0.0);
+    } else if use_vertex_id == 1u {
+      let v01 = scale * (p0_DC - p1_DC);
+      let v21 = scale * (p2_DC - p1_DC) ;
+      let area1: f32 = abs(v01.x * v21.y - v01.y * v21.x);
+      let h1: f32 = area1 / length(v01 - v21);
+      output.edge_dists = vec3<f32>(0.0, h1 * p1_3D_DC.w, 0.0);
+    } else if use_vertex_id == 2u {
+      let v02 = scale * (p0_DC - p2_DC);
+      let v12 = scale * (p1_DC - p2_DC) ;
+      let area2: f32 = abs(v02.x * v12.y - v02.y * v12.x);
+      let h2: f32 = area2 / length(v02 - v12);
+      output.edge_dists = vec3<f32>(0.0, 0.0, h2 * p2_3D_DC.w);
+    }
+    output.hide_edge = edge_value;
+  })";
+    vtkWebGPURenderPipelineCache::Substitute(
+      vss, "//VTK::Edges::Impl", codeStream.str(), /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormals(
+  GraphicsPipelineType pipelineType, std::string& vss)
+{
+  if (this->HasPointAttributes[POINT_NORMALS])
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Normals::Impl",
+      R"(// pull normal of this vertex from cell normals
+  let normal_MC = vec3f(point_normals[3u * point_id], point_normals[3u * point_id + 1u], point_normals[3u * point_id + 2u]);
+  output.normal_VC = normal_model_view * normal_MC;)",
+      /*all=*/true);
+  }
+  else if (this->HasCellAttributes[CELL_NORMALS])
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Normals::Impl",
+      R"(// this if is after cell normals, so that when both are available, point normals are used.
+  // pull normal of this vertex from point normals
+  let normal_MC = vec3f(cell_normals[3u * cell_id], cell_normals[3u * cell_id + 1u], cell_normals[3u * cell_id + 2u]);
+  output.normal_VC = normal_model_view * normal_MC;)",
+      /*all=*/true);
+  }
+  else
+  {
+    switch (pipelineType)
+    {
+      case GFX_PIPELINE_POINTS:
+      case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_POINTS_SHAPED:
+      case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES:
+      case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_THICK:
+      case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+      case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+      case GFX_PIPELINE_LINES_MITER_JOIN:
+      case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+        vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Normals::Impl",
+          "output.normal_VC = vec3<f32>(0.0, 0.0, 1.0);",
+          /*all=*/true);
+        break;
+      case GFX_PIPELINE_TRIANGLES:
+      case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+        vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Normals::Impl",
+          R"(let next_id: u32 = (pull_vertex_id + 1u) % 3u;
+  let prev_id: u32 = (pull_vertex_id + 2u) % 3u;
+  let next_point_id = connectivity[primitive_id * 3u + next_id];
+  let prev_point_id = connectivity[primitive_id * 3u + prev_id];
+  let next_MC = vec3f(point_coordinates[3u * next_point_id], point_coordinates[3u * next_point_id + 1u], point_coordinates[3u * next_point_id + 2u]);
+  let prev_MC = vec3f(point_coordinates[3u * prev_point_id], point_coordinates[3u * prev_point_id + 1u], point_coordinates[3u * prev_point_id + 2u]);
+  let normal_MC = computeFaceNormal(vertex_MC.xyz, next_MC, prev_MC);
+  output.normal_VC = normal_model_view * normal_MC;)",
+          /*all=*/true);
+        break;
+      case GFX_PIPELINE_NB_TYPES:
+        break;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderTangents(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  if (this->HasPointAttributes[POINT_TANGENTS])
+  {
+    vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Tangents::Impl",
+      R"(let tangent_MC = vec3f(point_tangents[3u * point_id], point_tangents[3u * point_id + 1u], point_tangents[3u * point_id + 2u]);
+  output.tangent_VC = normal_model_view * tangent_MC;)",
+      /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainEnd(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexMain::End", R"( return output;
+})",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  const bool usesFragDepth = pipelineType == GFX_PIPELINE_POINTS_SHAPED ||
+    pipelineType == GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
+  if (usesFragDepth)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentOutput::Def",
+      R"(struct FragmentOutput
+{
+  @builtin(frag_depth) frag_depth: f32,
+  @location(0) color: vec4<f32>,
+  @location(1) ids: vec4<u32>, // {cell, prop, composite, process}Id
+};)",
+      /*all=*/true);
+  }
+  else
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentOutput::Def",
+      R"(struct FragmentOutput
+{
+  @location(0) color: vec4<f32>,
+  @location(1) ids: vec4<u32>, // {cell, prop, composite, process}Id
+};)",
+      /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  const std::string basicCode = R"(@fragment
+fn fragmentMain(
+  vertex: VertexOutput) -> FragmentOutput {
+  var output: FragmentOutput;)";
+  const std::string frontFacingCode = R"(@fragment
+fn fragmentMain(
+  @builtin(front_facing) is_front_facing: bool,
+  vertex: VertexOutput) -> FragmentOutput {
+  var output: FragmentOutput;)";
+
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(
+        fss, "//VTK::FragmentMain::Start", basicCode, /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(
+        fss, "//VTK::FragmentMain::Start", frontFacingCode, /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(
+        fss, "//VTK::FragmentMain::Start", basicCode, /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(
+        fss, "//VTK::FragmentMain::Start", frontFacingCode, /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  std::string basicColorFSImpl = R"(var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
+  var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
+  var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
+  var opacity: f32;
+  )";
+  if (this->HasPointAttributes[POINT_COLORS] || this->HasCellAttributes[CELL_COLORS])
+  {
+    basicColorFSImpl += R"(
+  ambient_color = vertex.color.rgb;
+  diffuse_color = vertex.color.rgb;
+  opacity = vertex.color.a;
+)";
+  }
+  else
+  {
+    basicColorFSImpl += R"(
+  ambient_color = actor.color_options.ambient_color;
+  diffuse_color = actor.color_options.diffuse_color;
+  opacity = actor.color_options.opacity;
+)";
+  }
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl",
+        basicColorFSImpl +
+          R"(// Colors are acquired either from a global per-actor color, or from per-vertex colors, or from cell colors.
+  let show_vertices = getVertexVisibility(actor.render_options.flags);
+  if (show_vertices)
+  {
+    // use vertex color instead of point scalar colors when drawing vertices.
+    ambient_color = actor.color_options.vertex_color;
+    diffuse_color = actor.color_options.vertex_color;
+    opacity = actor.color_options.opacity;
+  })",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl", basicColorFSImpl,
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderNormals(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Normals::Impl",
+        "var normal_VC: vec3<f32> = normalize(vertex.normal_VC);",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Normals::Impl",
+        R"(let d = length(vertex.p_coord); // distance of fragment from the input vertex.
+  let shape = getPoint2DShape(actor.render_options.flags);
+  let draw_spheres = getRenderPointsAsSpheres(actor.render_options.flags);
+  if (((shape == POINT_2D_ROUND) || draw_spheres) && (d > 1))
+  {
+    discard;
+  }
+
+  let point_size = clamp(actor.render_options.point_size, 1.0f, 100000.0f);
+  var normal_VC = normalize(vertex.normal_VC);
+  if (draw_spheres)
+  {
+    if (d > 1)
+    {
+      discard;
+    }
+    normal_VC = normalize(vec3f(vertex.p_coord, 1));
+    normal_VC.z = sqrt(1.0f - d * d);
+    // Pushes the fragment in order to fake a sphere.
+    // See Rendering/OpenGL2/PixelsToZBufferConversion.txt for the math behind this. Note that,
+    // that document assumes the conventions for depth buffer in OpenGL,
+    // where, the z-buffer spans [-1, 1]. In WebGPU, the depth buffer spans [0, 1].
+    let r = point_size / (scene_transform.viewport.z * scene_transform.projection[0][0]);
+    if (getUseParallelProjection(scene_transform.flags))
+    {
+      let s = scene_transform.projection[2][2];
+      output.frag_depth = vertex.position.z + normal_VC.z * r * s;
+    }
+    else
+    {
+      let s = -scene_transform.projection[2][2];
+      output.frag_depth = (s - vertex.position.z) / (normal_VC.z * r - 1.0) + s;
+    }
+  }
+  else
+  {
+    output.frag_depth = vertex.position.z;
+  })",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Normals::Impl",
+        "var normal_VC: vec3<f32> = normalize(vertex.normal_VC);",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Normals::Impl",
+        R"(let dist_to_centerline = abs(vertex.dist_to_centerline);
+  // adjust z component of normal in order to emulate a tube if necessary.
+  var normal_VC: vec3<f32> = normalize(vertex.normal_VC);
+  let draw_tubes = getRenderLinesAsTubes(actor.render_options.flags);
+  if (draw_tubes)
+  {
+    normal_VC.z = 1.0 - 2.0 * dist_to_centerline;
+  })",
+        /*all=*/true);
+      break;
+
+    case GFX_PIPELINE_TRIANGLES:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Normals::Impl",
+        R"(var normal_VC: vec3<f32> = normalize(vertex.normal_VC);
+  if !is_front_facing
+  {
+    if (normal_VC.z < 0.0)
+    {
+      normal_VC = -vertex.normal_VC;
+      normal_VC = normalize(normal_VC);
+    }
+  }
+  else if normal_VC.z < 0.0
+  {
+    normal_VC.z = -normal_VC.z;
+  })",
+        /*all=*/true);
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  if (pipelineType == GFX_PIPELINE_TRIANGLES ||
+    pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Edges::Impl",
+      R"(// Representation: VTK_SURFACE with edge visibility turned on.
+  let representation = getRepresentation(actor.render_options.flags);
+  let show_edges = getEdgeVisibility(actor.render_options.flags);
+  if (representation == VTK_SURFACE && show_edges)
+  {
+    let use_line_width_for_edge_thickness = getUseLineWidthForEdgeThickness(actor.render_options.flags);
+    let line_width: f32 = select(actor.render_options.edge_width, actor.render_options.line_width, use_line_width_for_edge_thickness);
+    // Undo perspective correction.
+    let dists = vertex.edge_dists.xyz * vertex.position.w;
+    var d: f32 = 0.0;
+    // Compute the shortest distance to the edge
+    if vertex.hide_edge == 2.0
+    {
+      d = min(dists[0], dists[2]);
+    }
+    else if vertex.hide_edge == 1.0
+    {
+      d = dists[0];
+    }
+    else if vertex.hide_edge == 0.0
+    {
+      d = min(dists[0], dists[1]);
+    }
+    else
+    {
+      // no edge is hidden
+      d = min(dists[0], min(dists[1], dists[2]));
+    }
+    let half_line_width: f32 = 0.5 * line_width;
+    let I: f32 = select(exp2(-2.0 * (d - half_line_width) * (d - half_line_width)), 1.0, d < half_line_width);
+    diffuse_color = mix(diffuse_color, actor.color_options.edge_color, I);
+    ambient_color = mix(ambient_color, actor.color_options.edge_color, I);
+
+    let draw_tubes = getRenderLinesAsTubes(actor.render_options.flags);
+    if (draw_tubes)
+    {
+      if (d < 1.1 * half_line_width)
+      {
+        // extend 10% to hide jagged artifacts on the edge-surface interface.
+        normal_VC.z = 1.0 - (d / half_line_width);
+      }
+    }
+  })",
+      /*all=*/true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
+    R"(if scene_lights.count == 0u
+  {
+    // allow post-processing this pixel.
+    output.color = vec4<f32>(
+      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+      opacity
+    );
+  }
+  else if scene_lights.count == 1u
+  {
+    let light: SceneLight = scene_lights.values[0];
+    if light.positional == 1u
+    {
+      // TODO: positional
+      output.color = vec4<f32>(
+          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+          opacity
+      );
+    }
+    else
+    {
+      // headlight
+      let df: f32 = max(0.000001f, normal_VC.z);
+      let sf: f32 = pow(df, actor.color_options.specular_power);
+      diffuse_color = df * diffuse_color * light.color;
+      specular_color = sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light.color;
+      output.color = vec4<f32>(
+          actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color + specular_color,
+          opacity
+      );
+    }
+  }
+  else
+  {
+    // TODO: light kit
+    output.color = vec4<f32>(
+      actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
+      opacity
+    );
+  }
+  // pre-multiply colors
+  output.color = vec4(output.color.rgb * opacity, opacity);)",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
+    R"(
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;)",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::End", R"(return output;
+})",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+wgpu::PrimitiveTopology vtkWebGPUPolyDataMapper::GetPrimitiveTopologyForPipeline(
+  GraphicsPipelineType pipelineType)
+{
+  wgpu::PrimitiveTopology topology = wgpu::PrimitiveTopology::Undefined;
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+      topology = wgpu::PrimitiveTopology::PointList;
+      break;
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+      topology = wgpu::PrimitiveTopology::TriangleStrip;
+      break;
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+      topology = wgpu::PrimitiveTopology::LineList;
+      break;
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+      topology = wgpu::PrimitiveTopology::TriangleStrip;
+      break;
+    case GFX_PIPELINE_TRIANGLES:
+      topology = wgpu::PrimitiveTopology::TriangleList;
+      break;
+    case GFX_PIPELINE_NB_TYPES:
+      break;
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      break;
+  }
+  return topology;
+}
+
+//------------------------------------------------------------------------------
+bool vtkWebGPUPolyDataMapper::IsPipelineForHomogeneousCellSize(GraphicsPipelineType pipelineType)
+{
+  bool result = false;
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_POINTS:
+    case GFX_PIPELINE_POINTS_SHAPED:
+    case GFX_PIPELINE_LINES:
+    case GFX_PIPELINE_LINES_THICK:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN:
+    case GFX_PIPELINE_LINES_MITER_JOIN:
+    case GFX_PIPELINE_TRIANGLES:
+      result = false;
+      break;
+    case GFX_PIPELINE_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_ROUND_CAP_ROUND_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_NB_TYPES:
+      result = true;
+      break;
+  }
+  return result;
 }
 
 //------------------------------------------------------------------------------
@@ -1392,21 +3250,18 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   this->Superclass::ReleaseGraphicsResources(w);
 
   // Release mesh buffers, bind groups and reset the attribute build timestamps.
-  this->MeshSSBO.Cell.Buffer = nullptr;
-  this->MeshSSBO.Cell.Size = 0;
   for (int attributeIndex = 0; attributeIndex < CELL_NB_ATTRIBUTES; ++attributeIndex)
   {
+    this->CellBuffers[attributeIndex] = {};
     this->CellAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
   }
-  this->MeshSSBO.Point.Buffer = nullptr;
-  this->MeshSSBO.Point.Size = 0;
   for (int attributeIndex = 0; attributeIndex < POINT_NB_ATTRIBUTES; ++attributeIndex)
   {
+    this->PointBuffers[attributeIndex] = {};
     this->PointAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
   }
   this->LastScalarMode = -1;
   this->LastScalarVisibility = false;
-  this->AttributeDescriptorBuffer = nullptr;
   this->MeshAttributeBindGroup = nullptr;
 
   // Release topology conversion pipelines and reset their build timestamps.

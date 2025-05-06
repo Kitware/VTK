@@ -58,6 +58,13 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  /**
+   * Release any graphics resources that are being consumed by this mapper.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
+  void ReleaseGraphicsResources(vtkWindow*) override;
+
 protected:
   vtkWebGPUBatchedPolyDataMapper();
   ~vtkWebGPUBatchedPolyDataMapper() override;
@@ -73,9 +80,34 @@ protected:
   bool LastBlockVisibility = true;
   bool LastUseNanColor = false;
 
-  void UpdateMeshDescriptor(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
+  struct CompositeDataProperties
+  {
+    vtkTypeUInt32 ApplyOverrideColors = 0;
+    vtkTypeFloat32 Opacity = 0;
+    vtkTypeUInt32 CompositeId = 0;
+    vtkTypeUInt32 Pickable = 1;
+    vtkTypeFloat32 Ambient[3] = {};
+    vtkTypeUInt32 Pad = 0;
+    vtkTypeFloat32 Diffuse[3] = {};
+  };
+  wgpu::Buffer CompositeDataPropertiesBuffer;
+
+  std::vector<wgpu::BindGroupLayoutEntry> GetMeshBindGroupLayoutEntries() override;
+  std::vector<wgpu::BindGroupEntry> GetMeshBindGroupEntries() override;
+
+  void UploadCompositeDataProperties(vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration,
     bool applyOverrides, double overrideOpacity, const vtkColor3d& overrideAmbientColor,
     const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable);
+
+  void ReplaceShaderCustomDef(
+    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss) override;
+  void ReplaceShaderCustomBindings(
+    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss) override;
+
+  void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType, std::string& vss) override;
+
+  void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType, std::string& fss) override;
+  void ReplaceFragmentShaderPicking(GraphicsPipelineType pipelineType, std::string& fss) override;
 
 private:
   vtkWebGPUBatchedPolyDataMapper(const vtkWebGPUBatchedPolyDataMapper&) = delete;

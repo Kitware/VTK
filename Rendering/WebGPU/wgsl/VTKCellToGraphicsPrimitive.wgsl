@@ -3,10 +3,11 @@
 
 @group(0) @binding(0) var<storage, read> connectivity: array<u32>;
 @group(0) @binding(1) var<storage, read> offsets: array<u32>;
-@group(0) @binding(2) var<storage, read> primitive_id_offsets: array<u32>;
+@group(0) @binding(2) var<storage, read> primitive_counts: array<u32>;
 @group(0) @binding(3) var<uniform> cell_id_offset: u32;
-@group(0) @binding(4) var<storage, read_write> primitive_list: array<u32>;
-@group(0) @binding(5) var<storage, read_write> edge_array: array<f32>;
+@group(0) @binding(4) var<storage, read_write> out_connectivity: array<u32>;
+@group(0) @binding(5) var<storage, read_write> cell_ids: array<u32>;
+@group(0) @binding(6) var<storage, read_write> edge_array: array<f32>;
 
 @compute @workgroup_size(64)
 fn polygon_to_triangle(
@@ -27,10 +28,10 @@ fn polygon_to_triangle(
     return;
   }
 
-  let num_triangles_per_cell: u32 = primitive_id_offsets[cell_id + 1u] - primitive_id_offsets[cell_id];
+  let num_triangles_per_cell: u32 = primitive_counts[cell_id + 1u] - primitive_counts[cell_id];
 
   // where to start writing point indices of a triangle.
-  var output_offset: u32 = primitive_id_offsets[cell_id] * 6u;
+  var output_offset: u32 = primitive_counts[cell_id] * 3u;
 
   // where to obtain the point indices that describe connectivity of a polygon
   let input_offset: u32 = offsets[cell_id];
@@ -41,25 +42,17 @@ fn polygon_to_triangle(
     let p1: u32 = connectivity[input_offset + i + 1u];
     let p2: u32 = connectivity[input_offset + i + 2u];
 
+    let triangle_id: u32 = primitive_counts[cell_id] + i;
     // write edge array, this lets fragment shader hide internal edges of a polygon
     // when edge visibility is turned on.
-    let triangle_id: u32 = primitive_id_offsets[cell_id] + i;
     // edge_array[triangle_id] = (num_triangles_per_cell == 1) ? -1 : ((i == 0) ? 2 : ((i == num_triangles_per_cell - 1) ? 0 : 1));
     edge_array[triangle_id] = select(select(select(1f, 0f, (i == num_triangles_per_cell - 1)), 2f, (i == 0)), -1f, (num_triangles_per_cell == 1));
-
-    primitive_list[output_offset] = cell_id + cell_id_offset;
+    cell_ids[triangle_id] = cell_id + cell_id_offset;
+    out_connectivity[output_offset] = p0;
     output_offset++;
-    primitive_list[output_offset] = p0;
+    out_connectivity[output_offset] = p1;
     output_offset++;
-
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p1;
-    output_offset++;
-
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p2;
+    out_connectivity[output_offset] = p2;
     output_offset++;
   }
 }
@@ -83,10 +76,10 @@ fn poly_line_to_line(
     return;
   }
 
-  let num_lines_per_cell: u32 = primitive_id_offsets[cell_id + 1u] - primitive_id_offsets[cell_id];
+  let num_lines_per_cell: u32 = primitive_counts[cell_id + 1u] - primitive_counts[cell_id];
 
   // where to start writing point indices of a line.
-  var output_offset: u32 = primitive_id_offsets[cell_id] * 4u;
+  var output_offset: u32 = primitive_counts[cell_id] * 2u;
 
   // where to obtain the point indices that describe connectivity of a polyline
   let input_offset: u32 = offsets[cell_id];
@@ -96,14 +89,11 @@ fn poly_line_to_line(
     let p0: u32 = connectivity[input_offset + i];
     let p1: u32 = connectivity[input_offset + i + 1u];
 
-    primitive_list[output_offset] = cell_id + cell_id_offset;
+    let line_segment_id: u32 = primitive_counts[cell_id] + i;
+    cell_ids[line_segment_id] = cell_id + cell_id_offset;
+    out_connectivity[output_offset] = p0;
     output_offset++;
-    primitive_list[output_offset] = p0;
-    output_offset++;
-
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p1;
+    out_connectivity[output_offset] = p1;
     output_offset++;
   }
 }
@@ -127,10 +117,10 @@ fn poly_vertex_to_vertex(
     return;
   }
 
-  let num_vertices_per_cell: u32 = primitive_id_offsets[cell_id + 1u] - primitive_id_offsets[cell_id];
+  let num_vertices_per_cell: u32 = primitive_counts[cell_id + 1u] - primitive_counts[cell_id];
 
   // where to start writing point index of a vertex.
-  var output_offset: u32 = primitive_id_offsets[cell_id] * 2u;
+  var output_offset: u32 = primitive_counts[cell_id];
 
   // where to obtain the point indices that describe connectivity of a polyvertex
   let input_offset: u32 = offsets[cell_id];
@@ -139,9 +129,9 @@ fn poly_vertex_to_vertex(
   {
     let p0: u32 = connectivity[input_offset + i];
 
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p0;
+    let vertex_id: u32 = primitive_counts[cell_id] + i;
+    cell_ids[vertex_id] = cell_id + cell_id_offset;
+    out_connectivity[output_offset] = p0;
     output_offset++;
   }
 }
@@ -165,10 +155,10 @@ fn polygon_edges_to_lines(
     return;
   }
 
-  let num_lines_per_cell: u32 = primitive_id_offsets[cell_id + 1u] - primitive_id_offsets[cell_id];
+  let num_lines_per_cell: u32 = primitive_counts[cell_id + 1u] - primitive_counts[cell_id];
 
   // where to start writing point indices of a line.
-  var output_offset: u32 = primitive_id_offsets[cell_id] * 4u;
+  var output_offset: u32 = primitive_counts[cell_id] * 2u;
 
   // where to obtain the point indices that describe connectivity of a polygon
   let input_offset: u32 = offsets[cell_id];
@@ -178,14 +168,11 @@ fn polygon_edges_to_lines(
     let p0: u32 = connectivity[input_offset + i];
     let p1: u32 = connectivity[input_offset + (i + 1u) % num_lines_per_cell];
 
-    primitive_list[output_offset] = cell_id + cell_id_offset;
+    let line_segment_id = primitive_counts[cell_id] + i;
+    cell_ids[line_segment_id] = cell_id + cell_id_offset;
+    out_connectivity[output_offset] = p0;
     output_offset++;
-    primitive_list[output_offset] = p0;
-    output_offset++;
-
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p1;
+    out_connectivity[output_offset] = p1;
     output_offset++;
   }
 }
@@ -209,21 +196,21 @@ fn cell_to_points(
     return;
   }
 
-  let num_points_per_cell: u32 = primitive_id_offsets[cell_id + 1u] - primitive_id_offsets[cell_id];
+  let num_vertices_per_cell: u32 = primitive_counts[cell_id + 1u] - primitive_counts[cell_id];
 
   // where to start writing point indices of a point.
-  var output_offset: u32 = primitive_id_offsets[cell_id] * 2u;
+  var output_offset: u32 = primitive_counts[cell_id];
 
   // where to obtain the point indices that describe connectivity of a polygon
   let input_offset: u32 = offsets[cell_id];
 
-  for (var i: u32 = 0u; i < num_points_per_cell; i++)
+  for (var i: u32 = 0u; i < num_vertices_per_cell; i++)
   {
     let p: u32 = connectivity[input_offset + i];
 
-    primitive_list[output_offset] = cell_id + cell_id_offset;
-    output_offset++;
-    primitive_list[output_offset] = p;
+    let vertex_id: u32 = primitive_counts[cell_id] + i;
+    cell_ids[vertex_id] = cell_id + cell_id_offset;
+    out_connectivity[output_offset] = p;
     output_offset++;
   }
 }
