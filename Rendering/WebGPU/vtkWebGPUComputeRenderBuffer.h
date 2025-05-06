@@ -125,14 +125,14 @@ private:
   // give the user the information on where in the buffer are the colors / normals / uvs / whatever
   // they requested. The RenderUniformsGroup and RenderUniformsBinding give the binding point of the
   // uniforms buffer that will contain these pieces of information
-  uint32_t RenderUniformsGroup = -1;
-  uint32_t RenderUniformsBinding = -1;
+  uint32_t RenderUniformsGroup = UINT32_MAX;
+  uint32_t RenderUniformsBinding = UINT32_MAX;
 
   // RenderBufferOffset in an offset in bytes for where the requested part of the buffer starts.
   // RenderBufferElementCount is the number of elements of interest available in the buffer starting
   // at RenderBufferOffset
-  uint32_t RenderBufferOffset = -1;
-  uint32_t RenderBufferElementCount = -1;
+  uint32_t RenderBufferOffset = UINT32_MAX;
+  uint32_t RenderBufferElementCount = UINT32_MAX;
 
   // Pipeline this render buffer belongs to.
   // Weak pointer here because the render buffer will also store a pointer to its pipeline. If both
