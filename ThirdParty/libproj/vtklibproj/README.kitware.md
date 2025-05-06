@@ -9,5 +9,4 @@ process.
   * Ignore whitespace errors for VTK's commit checks.
   * Integrate the CMake build with VTK's module system.
   * Mangle all exported symbols to have a `vtklibproj_` prefix.
-  * On emscripten hosts, generate `proj.db` with `sqlitebin -init filename` instead of relying on `stdin`.
-  * Add `-Wno-experimental` for `wasm64-unknown` architecture.
+  * Disable proj.db generation on emscripten platform because sqlite3 cannot create output file outside the webassembly sandbox.
