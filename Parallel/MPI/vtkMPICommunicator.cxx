@@ -1443,21 +1443,20 @@ int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffe
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
+
+#ifndef VTKMPI_64BIT_LENGTH
   if (recvLengths && offsets)
   {
     for (int i = 0; i < numProc; i++)
     {
-#ifndef VTKMPI_64BIT_LENGTH
       if (!vtkMPICommunicatorCheckSize(recvLengths[i] + offsets[i]))
       {
         return 0;
       }
-#endif
     }
   }
   else
   {
-#ifndef VTKMPI_64BIT_LENGTH
     vtkWarningMacro(<< "By calling vtkMPICommunicator::GatherVVoidArray without recvLengths and "
                        "offsets specified,"
                        " the program can hang because all the processes may not fail.");
@@ -1465,8 +1464,8 @@ int vtkMPICommunicator::GatherVVoidArray(const void* sendBuffer, void* recvBuffe
     {
       return 0;
     }
-#endif
   }
+#endif
 
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
