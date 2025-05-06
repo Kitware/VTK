@@ -135,6 +135,12 @@ public:
   bool UpdateAtTimeValue(double timeValue) override;
 
   /**
+   * Get the level of animation support in this importer, which is always
+   * AnimationSupportLevel::MULTI
+   */
+  AnimationSupportLevel GetAnimationSupportLevel() override { return AnimationSupportLevel::MULTI; }
+
+  /**
    * Get the number of available animations.
    */
   vtkIdType GetNumberOfAnimations() override;

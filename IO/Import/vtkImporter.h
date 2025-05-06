@@ -118,6 +118,28 @@ public:
    */
   virtual std::string GetOutputsDescription() { return ""; }
 
+  enum class AnimationSupportLevel : unsigned char
+  {
+    NONE,
+    UNIQUE,
+    SINGLE,
+    MULTI
+  };
+
+  /**
+   * Get the level of animation support, this is coming either
+   * from the file format or as a limitation of the implementation.
+   * NONE: There is no support for animation, GetNumberOfAnimations() return -1.
+   * UNIQUE: There will always will ever be, at most, a single animation, with any file,
+   * GetNumberOfAnimations() returns 0 or 1. SINGLE: There can be multiple available animations, but
+   * only one can be enable. Calling EnableAnimation(i) will disable other animations. MULTI: There
+   * can be multiple animations and multiple ones can be enabled at the same time. Calling
+   * EnableAnimation(i) will not disable other animation.
+   *
+   * In this base implementation, this method returns NONE.
+   */
+  virtual AnimationSupportLevel GetAnimationSupportLevel() { return AnimationSupportLevel::NONE; }
+
   /**
    * Get the number of available animations.
    * Return -1 if not provided by implementation.
