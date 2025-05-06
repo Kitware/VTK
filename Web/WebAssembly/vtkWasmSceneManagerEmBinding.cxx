@@ -64,6 +64,10 @@ bool registerState(const std::string& state)
   }
   if (auto classNameIter = stateJson.find("ClassName"); classNameIter != stateJson.end())
   {
+    if (*classNameIter == "vtkOSOpenGLRenderWindow")
+    {
+      *classNameIter = "vtkWebAssemblyOpenGLRenderWindow";
+    }
     if (auto propertiesIter = SkippedClassProperties.find(*classNameIter);
         propertiesIter != SkippedClassProperties.end())
     {
@@ -224,6 +228,13 @@ void updateObjectFromState(const std::string& state)
   }
   else if (auto idIter = stateJson.find("Id"); idIter != stateJson.end())
   {
+    if (auto classNameIter = stateJson.find("ClassName"); classNameIter != stateJson.end())
+    {
+      if (*classNameIter == "vtkOSOpenGLRenderWindow")
+      {
+        *classNameIter = "vtkWebAssemblyOpenGLRenderWindow";
+      }
+    }
     if (auto objectAtId = Manager->GetObjectAtId(*idIter))
     {
       const std::string className = objectAtId->GetClassName();
