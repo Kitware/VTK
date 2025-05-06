@@ -697,7 +697,7 @@ int vtkPSLACReader::ReadConnectivity(
     this->Controller->AllGather(&numPoints, localLengths.data(), 1);
 
     localOffsets[0] = 0;
-    for (size_t i = 0; i < localLengths.size(); i++)
+    for (std::size_t i = 0; i < localLengths.size(); i++)
     {
       localOffsets[i + 1] = localOffsets[i] + localLengths[i];
     }
@@ -785,7 +785,7 @@ int vtkPSLACReader::ReadConnectivity(
 
       this->Controller->AllGather(&numEdges, localLengths.data(), 1);
       localOffsets[0] = 0;
-      for (size_t i = 0; i < localLengths.size(); i++)
+      for (std::size_t i = 0; i < localLengths.size(); i++)
       {
         localLengths[i] *= edgeLists[process]->GetNumberOfComponents();
         localOffsets[i + 1] = localOffsets[i] + localLengths[i];
