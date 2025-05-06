@@ -128,6 +128,20 @@ public:
   vtkBooleanMacro(RenderPointsAsSpheres, bool);
   ///@}
 
+  enum class LineJoinType
+  {
+    RoundCapRoundJoin,
+    MiterJoin,
+    None,
+  };
+
+  /**
+   * Set/Get the 2D shape of points to use when RenderPointsAsSpheres=false.
+   * Some graphics implementations may ignore this setting.
+   */
+  vtkSetEnumMacro(LineJoin, LineJoinType);
+  vtkGetEnumMacro(LineJoin, LineJoinType);
+
   ///@{
   /**
    * Set/Get rendering of lines as tubes. The width of the
@@ -852,6 +866,7 @@ protected:
   bool Lighting;
   Point2DShapeType Point2DShape = Point2DShapeType::Square;
   bool RenderPointsAsSpheres;
+  LineJoinType LineJoin = LineJoinType::None;
   bool RenderLinesAsTubes;
   bool ShowTexturesOnBackface;
 
