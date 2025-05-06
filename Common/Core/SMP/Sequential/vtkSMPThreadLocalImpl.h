@@ -115,26 +115,20 @@ public:
       iter2++;
       iter++;
     }
-    // XXX(c++14): use std::make_unique
-    auto retVal = std::unique_ptr<ItImpl>(new ItImpl());
+    auto retVal = std::make_unique<ItImpl>();
     retVal->InitIter = iter2;
     retVal->EndIter = enditer;
     retVal->Iter = iter;
-    // XXX(c++14): remove std::move and cast variable
-    std::unique_ptr<ItImplAbstract> abstractIt(std::move(retVal));
-    return abstractIt;
+    return retVal;
   }
 
   std::unique_ptr<ItImplAbstract> end() override
   {
-    // XXX(c++14): use std::make_unique
-    auto retVal = std::unique_ptr<ItImpl>(new ItImpl());
+    auto retVal = std::make_unique<ItImpl>();
     retVal->InitIter = this->Initialized.end();
     retVal->EndIter = this->Initialized.end();
     retVal->Iter = this->Internal.end();
-    // XXX(c++14): remove std::move and cast variable
-    std::unique_ptr<ItImplAbstract> abstractIt(std::move(retVal));
-    return abstractIt;
+    return retVal;
   }
 
 private:

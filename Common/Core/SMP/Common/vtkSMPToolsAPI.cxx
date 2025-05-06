@@ -21,22 +21,17 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkSMPToolsAPI::vtkSMPToolsAPI()
 {
-  // XXX(c++14): use std::make_unique
 #if VTK_SMP_ENABLE_SEQUENTIAL
-  this->SequentialBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::Sequential>>(
-    new vtkSMPToolsImpl<BackendType::Sequential>());
+  this->SequentialBackend = std::make_unique<vtkSMPToolsImpl<BackendType::Sequential>>();
 #endif
 #if VTK_SMP_ENABLE_STDTHREAD
-  this->STDThreadBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::STDThread>>(
-    new vtkSMPToolsImpl<BackendType::STDThread>());
+  this->STDThreadBackend = std::make_unique<vtkSMPToolsImpl<BackendType::STDThread>>();
 #endif
 #if VTK_SMP_ENABLE_TBB
-  this->TBBBackend =
-    std::unique_ptr<vtkSMPToolsImpl<BackendType::TBB>>(new vtkSMPToolsImpl<BackendType::TBB>());
+  this->TBBBackend = std::make_unique<vtkSMPToolsImpl<BackendType::TBB>>();
 #endif
 #if VTK_SMP_ENABLE_OPENMP
-  this->OpenMPBackend = std::unique_ptr<vtkSMPToolsImpl<BackendType::OpenMP>>(
-    new vtkSMPToolsImpl<BackendType::OpenMP>());
+  this->OpenMPBackend = std::make_unique<vtkSMPToolsImpl<BackendType::OpenMP>>();
 #endif
 
   // Set backend from env if set
