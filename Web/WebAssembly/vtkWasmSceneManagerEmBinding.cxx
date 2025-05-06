@@ -307,6 +307,13 @@ bool removeObserver(vtkTypeUInt32 identifier, unsigned long tag)
 }
 
 //-------------------------------------------------------------------------------
+bool bindRenderWindow(vtkTypeUInt32 renderWindowIdentifier, const std::string& canvasSelector)
+{
+  CHECK_INIT;
+  return Manager->BindRenderWindow(renderWindowIdentifier, canvasSelector.c_str());
+}
+
+//-------------------------------------------------------------------------------
 void import(const std::string& stateFileName, const std::string& blobFileName)
 {
   CHECK_INIT;
@@ -422,6 +429,8 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("addObserver", ::addObserver);
   function("removeObserver", ::removeObserver);
+
+  function("bindRenderWindow", ::bindRenderWindow);
 
   function("import", ::import);
 
