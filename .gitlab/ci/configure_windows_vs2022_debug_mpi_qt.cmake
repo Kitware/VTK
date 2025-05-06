@@ -21,5 +21,6 @@ set(VTK_DISPATCH_TYPED_ARRAYS OFF CACHE BOOL "") # VTK_DEPRECATED_IN_9_5_0
 
 # Disable VTK-m as the artifacts are too large.
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "")
+set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "")
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_windows.cmake")

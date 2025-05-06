@@ -1,6 +1,7 @@
 set(VTK_JAVA_RELEASE_VERSION $ENV{VTK_JAVA_VERSION} CACHE STRING "" FORCE)
 
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "") # Java Wrap errors in windows
+set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "") # Java Wrap errors in windows
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_windows.cmake")
 

@@ -10,5 +10,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # openvr
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # openxr
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios2
 set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "") # requires C++14
+set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "") # requires C++14
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_el7.cmake")
