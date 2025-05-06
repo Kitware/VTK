@@ -15,6 +15,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
@@ -970,27 +971,21 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
       vtkErrorMacro(
         << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=Lost");
       return;
-    case wgpu::SurfaceGetCurrentTextureStatus::OutOfMemory:
+    case wgpu::SurfaceGetCurrentTextureStatus::Error:
       vtkErrorMacro(
-        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=OutOfMemory");
+        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=Error");
       return;
-    case wgpu::SurfaceGetCurrentTextureStatus::DeviceLost:
-      vtkErrorMacro(
-        << "Cannot render offscreen texture because SurfaceGetCurrentTextureStatus=DeviceLost");
-      return;
-    case wgpu::SurfaceGetCurrentTextureStatus::Success:
+    case wgpu::SurfaceGetCurrentTextureStatus::SuccessSuboptimal:
+      // TODO: Warn exactly once per Initialize/Finalize duration.
+      vtkDebugMacro(<< "SurfaceTexture format is suboptimal!");
+      break;
+    case wgpu::SurfaceGetCurrentTextureStatus::SuccessOptimal:
     default:
       break;
   }
   if (surfaceTexture.texture == nullptr)
   {
     vtkErrorMacro(<< "Cannot render offscreen texture because SurfaceTexture is null!");
-    return;
-  }
-  if (surfaceTexture.suboptimal)
-  {
-    // TODO: Warn exactly once per Initialize/Finalize duration.
-    vtkDebugMacro(<< "SurfaceTexture format is suboptimal!");
     return;
   }
   if (this->ColorAttachment.Texture == nullptr)
@@ -1035,19 +1030,16 @@ void vtkWebGPURenderWindow::RenderOffscreenTexture()
       0, 0, this->SurfaceConfiguredSize[0], this->SurfaceConfiguredSize[1], 0.0, 1.0);
     encoder.SetScissorRect(0, 0, this->SurfaceConfiguredSize[0], this->SurfaceConfiguredSize[1]);
     // set fsq pipeline
-#ifndef NDEBUG
-    encoder.PushDebugGroup("FSQ Render");
-#endif
-    const auto pipeline =
-      this->WGPUPipelineCache->GetRenderPipeline(this->ColorCopyRenderPipeline.Key);
-    encoder.SetPipeline(pipeline);
-    // bind fsq group
-    encoder.SetBindGroup(0, this->ColorCopyRenderPipeline.BindGroup);
-    // draw triangle strip
-    encoder.Draw(4);
-#ifndef NDEBUG
-    encoder.PopDebugGroup();
-#endif
+    {
+      vtkScopedEncoderDebugGroup(encoder, "FSQ Render");
+      const auto pipeline =
+        this->WGPUPipelineCache->GetRenderPipeline(this->ColorCopyRenderPipeline.Key);
+      encoder.SetPipeline(pipeline);
+      // bind fsq group
+      encoder.SetBindGroup(0, this->ColorCopyRenderPipeline.BindGroup);
+      // draw triangle strip
+      encoder.Draw(4);
+    }
     encoder.End();
   }
   else
@@ -1207,14 +1199,9 @@ void vtkWebGPURenderWindow::End()
     source.buffer = this->StagingPixelData.Buffer;
     source.layout = this->StagingPixelData.Layout;
     this->Start();
-#ifndef NDEBUG
-    this->CommandEncoder.PushDebugGroup("Copy staging RGBA pixel buffer to texture");
-#endif
+    vtkScopedEncoderDebugGroup(this->CommandEncoder, "Copy staging RGBA pixel buffer to texture");
     this->CommandEncoder.CopyBufferToTexture(
       &source, &destination, &(this->StagingPixelData.Extent));
-#ifndef NDEBUG
-    this->CommandEncoder.PopDebugGroup();
-#endif
   }
 }
 

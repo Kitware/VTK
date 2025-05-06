@@ -5,8 +5,8 @@
 //------------------------------------------------------------------------------
 bool vtkWebGPUBufferInternals::CheckBufferSize(const wgpu::Device& device, unsigned long sizeBytes)
 {
-  wgpu::SupportedLimits supportedDeviceLimits;
+  wgpu::Limits supportedDeviceLimits;
   device.GetLimits(&supportedDeviceLimits);
 
-  return !(sizeBytes > supportedDeviceLimits.limits.maxStorageBufferBindingSize);
+  return !(sizeBytes > supportedDeviceLimits.maxStorageBufferBindingSize);
 }

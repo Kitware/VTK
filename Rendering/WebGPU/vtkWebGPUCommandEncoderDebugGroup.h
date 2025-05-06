@@ -31,6 +31,8 @@ public:
     const wgpu::RenderPassEncoder& passEncoder, const char* groupLabel);
   vtkWebGPUCommandEncoderDebugGroup(
     const wgpu::RenderBundleEncoder& passEncoder, const char* groupLabel);
+  vtkWebGPUCommandEncoderDebugGroup(
+    const wgpu::CommandEncoder& commandEncoder, const char* groupLabel);
   ~vtkWebGPUCommandEncoderDebugGroup();
 
   vtkWebGPUCommandEncoderDebugGroup() = delete;
@@ -44,6 +46,7 @@ public:
 private:
   const wgpu::RenderPassEncoder* PassEncoder = nullptr;
   const wgpu::RenderBundleEncoder* BundleEncoder = nullptr;
+  const wgpu::CommandEncoder* CommandEncoder = nullptr;
 };
 
 #define vtkScopedEncoderDebugGroupConcatImpl(s1, s2) s1##s2

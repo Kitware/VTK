@@ -17,6 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
+#include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUComputePipeline.h"
@@ -194,15 +195,13 @@ void vtkWebGPUPointCloudMapperInternals::CopyDepthBufferToRenderWindow(
   encoder.SetLabel("Point cloud mapper - Encode copy point depth buffer to render window");
   encoder.SetViewport(0, 0, windowSize[0], windowSize[1], 0.0, 1.0);
   encoder.SetScissorRect(0, 0, windowSize[0], windowSize[1]);
-#ifndef NDEBUG
-  encoder.PushDebugGroup("Point cloud mapper - Copy point depth buffer to render window");
-#endif
-  encoder.SetPipeline(this->CopyDepthBufferPipeline.Pipeline);
-  encoder.SetBindGroup(0, this->CopyDepthBufferPipeline.BindGroup);
-  encoder.Draw(4);
-#ifndef NDEBUG
-  encoder.PopDebugGroup();
-#endif
+  {
+    vtkScopedEncoderDebugGroup(
+      encoder, "Point cloud mapper - Copy point depth buffer to render window");
+    encoder.SetPipeline(this->CopyDepthBufferPipeline.Pipeline);
+    encoder.SetBindGroup(0, this->CopyDepthBufferPipeline.BindGroup);
+    encoder.Draw(4);
+  }
   encoder.End();
 
   wgpu::CommandBufferDescriptor cmdBufDesc;

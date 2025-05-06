@@ -791,7 +791,7 @@ void vtkWebGPURenderer::BeginRecording()
   this->RenderStage = RenderStageEnum::RecordingCommands;
   assert(this->WGPURenderEncoder != nullptr);
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   this->WGPURenderEncoder.PushDebugGroup("Renderer start encoding");
 #endif
   this->WGPURenderEncoder.SetBindGroup(0, this->SceneBindGroup);
@@ -880,7 +880,7 @@ void vtkWebGPURenderer::EndRecording()
       this->WGPURenderEncoder.ExecuteBundles(1, &this->Bundle);
     }
   }
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   this->WGPURenderEncoder.PopDebugGroup();
 #endif
   this->WGPURenderEncoder.End();

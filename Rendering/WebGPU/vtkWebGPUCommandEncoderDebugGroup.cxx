@@ -10,7 +10,7 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
   const wgpu::RenderPassEncoder& passEncoder, const char* groupLabel)
   : PassEncoder(&passEncoder)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   this->PassEncoder->PushDebugGroup(groupLabel);
 #else
   (void)this->PassEncoder;
@@ -23,7 +23,7 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
   const wgpu::RenderBundleEncoder& bundleEncoder, const char* groupLabel)
   : BundleEncoder(&bundleEncoder)
 {
-#ifndef NDEBUG
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
   this->BundleEncoder->PushDebugGroup(groupLabel);
 #else
   (void)this->BundleEncoder;
@@ -32,7 +32,20 @@ vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
 }
 
 //------------------------------------------------------------------------------
-#ifndef NDEBUG
+vtkWebGPUCommandEncoderDebugGroup::vtkWebGPUCommandEncoderDebugGroup(
+  const wgpu::CommandEncoder& commandEncoder, const char* groupLabel)
+  : CommandEncoder(&commandEncoder)
+{
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
+  this->CommandEncoder->PushDebugGroup(groupLabel);
+#else
+  (void)this->CommandEncoder;
+  (void)groupLabel;
+#endif
+}
+
+//------------------------------------------------------------------------------
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
 vtkWebGPUCommandEncoderDebugGroup::~vtkWebGPUCommandEncoderDebugGroup()
 {
   if (this->PassEncoder)
@@ -42,6 +55,10 @@ vtkWebGPUCommandEncoderDebugGroup::~vtkWebGPUCommandEncoderDebugGroup()
   if (this->BundleEncoder)
   {
     this->BundleEncoder->PopDebugGroup();
+  }
+  if (this->CommandEncoder)
+  {
+    this->CommandEncoder->PopDebugGroup();
   }
 }
 #else
