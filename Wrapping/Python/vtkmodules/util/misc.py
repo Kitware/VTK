@@ -2,6 +2,33 @@
 categories."""
 
 import sys, os
+from functools import wraps
+import warnings
+
+def deprecated(version, message):
+    """
+    Decorator to mark functions as deprecated.
+    When the decorated function is called, a DeprecationWarning is issued with the provided message.
+
+    Example
+    -------
+    >>> @deprecated(version=1.2, message="Use 'new_function' instead.")
+    ... def old_function():
+    ...     pass
+
+    >>> old_function()
+    DeprecationWarning: Function 'old_function' is deprecated since 1.2. Use 'new_function' instead.
+
+    Note you can filter warning messages, see: https://docs.python.org/3/library/warnings.html#describing-warning-filters
+    """
+    def decorator(func):
+        warn = f"Function '{func.__name__}' is deprecated since version {version}. " + message
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            warnings.warn(warn, DeprecationWarning)
+            return func(*args, **kwargs)
+        return wrapped
+    return decorator
 
 def calldata_type(type):
     """set_call_data_type(type) -- convenience decorator to easily set the CallDataType attribute
