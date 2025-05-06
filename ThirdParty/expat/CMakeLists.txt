@@ -14,7 +14,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT
-    VERSION 2.6.3
+    VERSION 2.5.0
     TARGETS EXPAT::EXPAT
     STANDARD_INCLUDE_DIRS)
 
@@ -38,3 +38,13 @@ configure_file(
 
 vtk_module_install_headers(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_expat.h")
+
+if(NOT DEFINED ENV{DASHBOARD_TEST_FROM_CTEST})
+  # Check for deprecated versions of expat
+  set(expat_deprecated_version "2.6.3")
+  if(VTK_MODULE_USE_EXTERNAL_vtkexpat AND EXPAT_VERSION_STRING VERSION_LESS expat_deprecated_version)
+    message(DEPRECATION
+      "External expat ${EXPAT_VERSION_STRING} is less than ${expat_deprecated_version} "
+      "and (may) have known vulnerabilities. Consider upgrading.")
+  endif()
+endif()
