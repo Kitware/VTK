@@ -8,7 +8,8 @@
 #include <vtkCellType.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkMultiBlockDataSet.h>
+#include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkUnstructuredGrid.h>
 
 #include <array>
@@ -235,12 +236,16 @@ vtkSmartPointer<vtkPoints> ReadVolumeVerts(BinaryFile& fin, int nNodes)
   return points;
 }
 
-vtkSmartPointer<vtkUnstructuredGrid> AddBlock(vtkMultiBlockDataSet* output, const char* blockName)
+vtkSmartPointer<vtkUnstructuredGrid> AddPartitionedDataSet(
+  vtkPartitionedDataSetCollection* output, const char* name)
 {
   auto ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-  int blockNum = output->GetNumberOfBlocks();
-  output->SetBlock(blockNum, ugrid);
-  output->GetMetaData(blockNum)->Set(vtkCompositeDataSet::NAME(), blockName);
+  auto partitionedDataSet = vtkSmartPointer<vtkPartitionedDataSet>::New();
+  partitionedDataSet->SetNumberOfPartitions(1);
+  partitionedDataSet->SetPartition(0, ugrid);
+  unsigned int num = output->GetNumberOfPartitionedDataSets();
+  output->SetPartitionedDataSet(num, partitionedDataSet);
+  output->GetMetaData(num)->Set(vtkCompositeDataSet::NAME(), name);
   return ugrid;
 }
 
@@ -487,7 +492,7 @@ void Read3DVolumeConn(BinaryFile& fin, int nhex, int ntet, int npri, int npyr,
   }
 }
 
-void BuildSurfaceBlock(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
+void BuildSurface(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
   BfaceList::const_iterator firstFace, BfaceList::const_iterator lastFace)
 {
   // Start by finding the set of unique volume node IDs that belong to this patch
@@ -551,27 +556,27 @@ void BuildSurfaceBlock(vtkUnstructuredGrid* surfGrid, vtkPoints* volPoints,
   }
 }
 
-void BuildBoundaryBlocks(vtkMultiBlockDataSet* output, vtkPoints* volPoints,
+void BuildBoundaryPartitionedDataSets(vtkPartitionedDataSetCollection* output, vtkPoints* volPoints,
   std::vector<AvmeshPatch> const& patches, BfaceList& bfaces)
 {
   // There is no guarantee that the boundary connectivity and patch IDs will be
   // in any particular order.  So we need to group them together by patch ID.
-  // Once we have all the faces that belong to a patch, we can construct a block
+  // Once we have all the faces that belong to a patch, we can construct a collection
   // for that patch.
   auto firstFace = bfaces.begin();
   for (auto const& patch : patches)
   {
     auto lastFace = std::stable_partition(
       firstFace, bfaces.end(), [&patch](Bface const& face) { return face[4] == patch.Pid; });
-    auto surfGrid = AddBlock(output, patch.Label);
-    BuildSurfaceBlock(surfGrid, volPoints, firstFace, lastFace);
+    auto surfGrid = AddPartitionedDataSet(output, patch.Label);
+    BuildSurface(surfGrid, volPoints, firstFace, lastFace);
     patch.ToFieldData(surfGrid->GetFieldData());
     firstFace = lastFace;
   }
 }
 } // namespace
 
-void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnly,
+void ReadAvmesh(vtkPartitionedDataSetCollection* output, std::string fname, bool SurfaceOnly,
   bool BuildConnectivityIteratively)
 {
   // Make surf the file is ready for reading
@@ -594,16 +599,16 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
   // mode because there is no guarantee that the surface points will come first.
   auto points = ReadVolumeVerts(fin, meta.NumNodes);
 
-  // If we're reading the volume grid, construct the volume block and attach
+  // If we're reading the volume grid, construct the volume partitioned dataset and attach
   // the points to it.
   vtkSmartPointer<vtkUnstructuredGrid> volGrid = nullptr;
   if (!SurfaceOnly)
   {
-    volGrid = AddBlock(output, "Flowfield");
+    volGrid = AddPartitionedDataSet(output, "Flowfield");
     volGrid->SetPoints(points);
   }
 
-  // Read the surface data as one big block.  We'll sort it into patches later.
+  // Read the surface data as one big partitioned dataset.  We'll sort it into patches later.
   bool readNeighborData = (meta.Version == 1);
   BfaceList bfaces(meta.NumBndTriFaces + meta.NumBndQuadFaces);
   if (meta.Dimensions == 2)
@@ -630,7 +635,7 @@ void ReadAvmesh(vtkMultiBlockDataSet* output, std::string fname, bool SurfaceOnl
   }
 
   // Now work with the surface data
-  BuildBoundaryBlocks(output, points, meta.Patches, bfaces);
+  BuildBoundaryPartitionedDataSets(output, points, meta.Patches, bfaces);
 }
 
 VTK_ABI_NAMESPACE_END

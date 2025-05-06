@@ -6,8 +6,9 @@
 #include <vtkCellData.h>
 #include <vtkCellSizeFilter.h>
 #include <vtkInformation.h>
-#include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
+#include <vtkPartitionedDataSet.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 
@@ -67,17 +68,18 @@ int TestAvmeshReader(int argc, char* argv[])
   reader->SetFileName(vwing.c_str());
   reader->Update();
 
-  vtkMultiBlockDataSet* mb = reader->GetOutput();
+  vtkPartitionedDataSetCollection* pdsc = reader->GetOutput();
 
-  vtk_assert(mb->GetNumberOfBlocks() == 4);
+  vtk_assert(pdsc->GetNumberOfPartitionedDataSets() == 4);
 
-  // Check name of the flowfield block
-  unsigned int blockNum = 0;
-  std::string name = mb->GetMetaData(blockNum)->Get(vtkCompositeDataSet::NAME());
+  // Check name of the flowfield collection
+  unsigned int collectionNum = 0;
+  std::string name = pdsc->GetMetaData(collectionNum)->Get(vtkCompositeDataSet::NAME());
   vtk_assert(name == "Flowfield");
 
-  // Check number of points and cells of flowfield block
-  auto flow = vtkUnstructuredGrid::SafeDownCast(mb->GetBlock(blockNum));
+  // Check number of points and cells of flowfield collection
+  auto flow =
+    vtkUnstructuredGrid::SafeDownCast(pdsc->GetPartitionedDataSet(collectionNum)->GetPartition(0));
   vtk_assert(flow->GetNumberOfPoints() == 16989);
   vtk_assert(flow->GetNumberOfCells() == 41146);
 
@@ -91,11 +93,12 @@ int TestAvmeshReader(int argc, char* argv[])
   double minVol = GetMinVolume(flow);
   vtk_assert(minVol > 0.0);
 
-  // Check name and bounds of the wing block
-  blockNum = 1;
-  name = mb->GetMetaData(blockNum)->Get(vtkCompositeDataSet::NAME());
+  // Check name and bounds of the wing collection
+  collectionNum = 1;
+  name = pdsc->GetMetaData(collectionNum)->Get(vtkCompositeDataSet::NAME());
   vtk_assert(name == "wing");
-  auto wing = vtkUnstructuredGrid::SafeDownCast(mb->GetBlock(blockNum));
+  auto wing =
+    vtkUnstructuredGrid::SafeDownCast(pdsc->GetPartitionedDataSet(collectionNum)->GetPartition(0));
   vtk_assert(wing->GetNumberOfPoints() == 570);
   vtk_assert(wing->GetNumberOfCells() == 999);
   double wingBounds[6] = { 0.0, 4.5, 0.0, 2.0, -0.5, 0.5 };
@@ -106,12 +109,12 @@ int TestAvmeshReader(int argc, char* argv[])
 
   reader->SetSurfaceOnly(true);
   reader->Update();
-  mb = reader->GetOutput();
+  pdsc = reader->GetOutput();
 
-  vtk_assert(mb->GetNumberOfBlocks() == 3);
+  vtk_assert(pdsc->GetNumberOfPartitionedDataSets() == 3);
 
-  vtk_assert(mb->GetNumberOfCells() == 4087);
-  mb->GetBounds(bounds);
+  vtk_assert(pdsc->GetNumberOfCells() == 4087);
+  pdsc->GetBounds(bounds);
   vtk_assert(BoundsMatch3D(bounds, volBounds3D));
 
   // 2D (also happens to be rev1) ==========================================
@@ -123,14 +126,15 @@ int TestAvmeshReader(int argc, char* argv[])
   reader->SetSurfaceOnly(false);
   reader->SetFileName(vwing2d.c_str());
   reader->Update();
-  mb = reader->GetOutput();
+  pdsc = reader->GetOutput();
 
-  blockNum = 0;
-  flow = vtkUnstructuredGrid::SafeDownCast(mb->GetBlock(blockNum));
+  collectionNum = 0;
+  flow =
+    vtkUnstructuredGrid::SafeDownCast(pdsc->GetPartitionedDataSet(collectionNum)->GetPartition(0));
   vtk_assert(flow->GetNumberOfCells() == 1359);
 
   double volBounds2D[6] = { -2.5, 7.5, -5.0, 5.0, 0.0, 0.0 };
-  mb->GetBounds(bounds);
+  pdsc->GetBounds(bounds);
   vtk_assert(BoundsMatch2D(bounds, volBounds2D));
 
   return EXIT_SUCCESS;
