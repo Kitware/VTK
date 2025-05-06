@@ -1298,7 +1298,6 @@ int vtkCommunicator::GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer,
     return 0;
   }
 
-  // Calculate offsets for all processes
   offsets[0] = 0;
   for (int i = 0; i < this->NumberOfProcesses; i++)
   {
