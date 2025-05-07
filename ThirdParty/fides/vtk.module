@@ -7,7 +7,7 @@ SPDX_LICENSE_IDENTIFIER
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
-  VTK::vtkvtkm
+  VTK::vtkviskores
 OPTIONAL_DEPENDS
   VTK::mpi
 THIRD_PARTY
