@@ -564,20 +564,26 @@ public:
   ///@}
   ///@{
   /**
-   * For the first GatherV variant, \c recvLengths and \c offsets known on
-   * \c destProcessId and are passed in as parameters
-   * For the second GatherV variant, \c recvLengths and \c offsets are not known
-   * on \c destProcessId.  The \c recvLengths is set using a gather operation
-   * and \c offsets is computed from \c recvLengths. recvLengths has
-   * \c NumberOfProcesses elements and \c offsets has NumberOfProcesses + 1 elements.
-   * The third variant is the same as the second variant but it does not expose
-   * \c recvLength and \c offsets
+   * For this overload, \c recvLengths and \c offsets are not known on \c destProcessId.  The \c
+   * recvLengths is set using a gather operation and \c offsets is computed from \c recvLengths. \c
+   * recvLengths has \c NumberOfProcesses elements and \c offsets has NumberOfProcesses + 1
+   * elements.
+   */
+  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdTypeArray* recvLengths,
+    vtkIdTypeArray* offsets, int destProcessId);
+  /**
+   *  For this overload, the \c recvLengths and \c offsets parameters are still computed but not
+   * exposed.
+   */
+  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId);
+  /**
+   * For this overload, \c recvLengths and \c offsets known on \c destProcessId and are passed in as
+   * parameters. \c recvLengths and \c offsets must be valid for all processes, a warning will be
+   * emitted otherwise.
    */
   int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdType* recvLengths,
     vtkIdType* offsets, int destProcessId);
-  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, vtkIdTypeArray* recvLengths,
-    vtkIdTypeArray* offsets, int destProcessId);
-  int GatherV(vtkDataArray* sendBuffer, vtkDataArray* recvBuffer, int destProcessId);
+
   ///@}
   /**
    * Collects data objects in the process with id \c

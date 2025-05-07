@@ -654,6 +654,11 @@ int vtkPSLACReader::ReadConnectivity(
   // only have keys and we need to set the values.
   vtkIdType localId = 0;
   vtkIdType numLocalIds = this->PInternal->LocalToGlobalIds->GetNumberOfTuples();
+  // As Controller->GatherV needs to know lengths and offsets in all processes, this has to be
+  // computed locally. PInternal attributes can not be used in this matter because it needs to
+  // be modified only for the requested piece.
+  std::vector<vtkIdType> localLengths(this->NumberOfPieces);
+  std::vector<vtkIdType> localOffsets(this->NumberOfPieces + 1);
   for (int process = 0; process < this->NumberOfPieces; process++)
   {
     VTK_CREATE(vtkIdTypeArray, pointList);
@@ -677,6 +682,7 @@ int vtkPSLACReader::ReadConnectivity(
     this->Controller->Gather(&numPoints,
       this->PInternal->PointsToSendToProcessesLengths->WritePointer(0, this->NumberOfPieces), 1,
       process);
+
     vtkIdType offset = 0;
     if (process == this->RequestedPiece)
     {
@@ -687,10 +693,18 @@ int vtkPSLACReader::ReadConnectivity(
       }
       this->PInternal->PointsToSendToProcesses->SetNumberOfTuples(offset);
     }
+
+    this->Controller->AllGather(&numPoints, localLengths.data(), 1);
+
+    localOffsets[0] = 0;
+    for (std::size_t i = 0; i < localLengths.size(); i++)
+    {
+      localOffsets[i + 1] = localOffsets[i] + localLengths[i];
+    }
+
     this->Controller->GatherV(pointList->GetPointer(0),
       this->PInternal->PointsToSendToProcesses->WritePointer(0, offset), numPoints,
-      this->PInternal->PointsToSendToProcessesLengths->GetPointer(0),
-      this->PInternal->PointsToSendToProcessesOffsets->GetPointer(0), process);
+      localLengths.data(), localOffsets.data(), process);
   }
 
   // Calculate the offsets for the incoming point data into the local array.
@@ -768,12 +782,21 @@ int vtkPSLACReader::ReadConnectivity(
           offset += len;
         }
       }
+
+      this->Controller->AllGather(&numEdges, localLengths.data(), 1);
+      localOffsets[0] = 0;
+      for (std::size_t i = 0; i < localLengths.size(); i++)
+      {
+        localLengths[i] *= edgeLists[process]->GetNumberOfComponents();
+        localOffsets[i + 1] = localOffsets[i] + localLengths[i];
+      }
+
       this->PInternal->EdgesToSendToProcesses->SetNumberOfComponents(2);
       this->PInternal->EdgesToSendToProcesses->SetNumberOfTuples(offset / 2);
       this->Controller->GatherV(edgeLists[process]->GetPointer(0),
-        this->PInternal->EdgesToSendToProcesses->WritePointer(0, offset), numEdges * 2,
-        this->PInternal->EdgesToSendToProcessesLengths->GetPointer(0),
-        this->PInternal->EdgesToSendToProcessesOffsets->GetPointer(0), process);
+        this->PInternal->EdgesToSendToProcesses->WritePointer(0, offset),
+        numEdges * edgeLists[process]->GetNumberOfComponents(), localLengths.data(),
+        localOffsets.data(), process);
     }
   }
   return 1;
