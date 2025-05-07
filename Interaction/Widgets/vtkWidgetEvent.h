@@ -15,7 +15,9 @@
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetEvent : public vtkObject
+// Excluded from JavaScript wrapping because compiler thinks vtkWidgetEvent is of type
+// vtkWidgetEvent::WidgetEventIds
+class VTKINTERACTIONWIDGETS_EXPORT VTK_WRAPEXCLUDE_JAVASCRIPT vtkWidgetEvent : public vtkObject
 {
 public:
   /**

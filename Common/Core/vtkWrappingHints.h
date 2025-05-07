@@ -15,6 +15,12 @@
 #define VTK_WRAP_HINTS_DEFINED
 // Exclude a method or class from wrapping
 #define VTK_WRAPEXCLUDE [[vtk::wrapexclude]]
+// Exclude a method or class from JavaScript wrapping
+#ifdef __EMSCRIPTEN__
+#define VTK_WRAPEXCLUDE_JAVASCRIPT VTK_WRAPEXCLUDE
+#else
+#define VTK_WRAPEXCLUDE_JAVASCRIPT
+#endif
 // Tell wrappers not to associate this method with any property.
 #define VTK_PROPEXCLUDE [[vtk::propexclude]]
 // The return value points to a newly-created VTK object.
@@ -43,6 +49,7 @@
 
 #ifndef VTK_WRAP_HINTS_DEFINED
 #define VTK_WRAPEXCLUDE
+#define VTK_WRAPEXCLUDE_JAVASCRIPT
 #define VTK_PROPEXCLUDE
 #define VTK_NEWINSTANCE
 #define VTK_ZEROCOPY

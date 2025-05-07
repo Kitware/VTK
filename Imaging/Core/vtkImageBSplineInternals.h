@@ -65,18 +65,11 @@ public:
     long slices, long depth, double x, double y, double z, long degree, vtkImageBorderMode border);
 
 protected:
-  vtkImageBSplineInternals() = default;
-  ~vtkImageBSplineInternals() = default;
-
   static double InitialCausalCoefficient(
     double data[], long size, vtkImageBorderMode border, double pole, double tol);
 
   static double InitialAntiCausalCoefficient(
     double data[], long size, vtkImageBorderMode border, double pole, double tol);
-
-private:
-  vtkImageBSplineInternals(const vtkImageBSplineInternals&) = delete;
-  void operator=(const vtkImageBSplineInternals&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END

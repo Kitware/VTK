@@ -128,10 +128,6 @@ $<$<BOOL:${_vtk_javascript_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_javascrip
   foreach (_vtk_javascript_header IN LISTS _vtk_javascript_headers)
     # Assume the class name matches the basename of the header file. This is a VTK convention
     get_filename_component(_vtk_javascript_basename "${_vtk_javascript_header}" NAME_WE)
-    if ("${_vtk_javascript_basename}" IN_LIST vtk_module_wrap_javascript_skip_headers)
-      message(STATUS "Header file ${_vtk_javascript_basename} is excluded from JS wrapping")
-      continue ()
-    endif ()
     list(APPEND _vtk_javascript_library_classes
       "${_vtk_javascript_basename}")
     set(_vtk_javascript_source_output
@@ -283,9 +279,15 @@ endfunction ()
     ``OFF`` is wasm32 and ``ON`` is wasm64.
     Defaults to ``OFF``
 
-  For each wrapped module, a ``<module>JavaScript`` target will be created. These targets
-  will have a ``_vtk_module_javascript_files`` property which is the list of generated
-  JavaScript, TypeScript sources and the WebAssembly binary for that target.
+  The set of modules is compiled to a single ``<TARGET_NAME>.wasm/.js`` file.
+  
+  For each wrapped module, a ``vtk<module>WebObjects`` object library will be created.
+  If the object library already exists for a given module, $<TARGET_OBJECTS:...> is used to
+  automatically retrieve the list of pregenerated wrapped sources.
+  Pregenerated sources can be filtered by specifying a list of class names in the following target
+  properties prior to calling this macro:
+   - vtk_module_wrap_javascript_exclude: Exclude the specified list of class names
+   - vtk_module_wrap_javascript_include: Only include the specified list of class names 
 #]==]
 function (vtk_module_wrap_javascript)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_javascript
@@ -368,28 +370,28 @@ function (vtk_module_wrap_javascript)
     if (_vtk_javascript_exclude_wrap)
       continue ()
     endif ()
-
-    # Development purpose: should the module be skipped?
-    if ("${_vtk_javascript_module}" IN_LIST vtk_module_wrap_javascript_skip_modules)
-      message(STATUS "Module ${_vtk_javascript_module} is excluded from JS wrapping")
-      continue ()
-    endif ()
     
     # Generate binding source code
     _vtk_module_get_module_property(${_vtk_javascript_module}
       PROPERTY "library_name"
       VARIABLE _module_library_name)
     set(_vtk_javascript_module_objects "${_module_library_name}WebObjects")
-    if (TARGET ${_vtk_javascript_module_objects})
+    if (TARGET "${_vtk_javascript_module_objects}")
       # Use precompiled binding sources
-      list(JOIN vtk_module_wrap_javascript_skip_headers "|" _skip_headers)
-      if (_skip_headers)
-        list(APPEND _vtk_javascript_binding_sources
-          "$<FILTER:$<TARGET_OBJECTS:${_vtk_javascript_module_objects}>,EXCLUDE,(${_skip_headers})Embinding.cxx>")
-      else ()
-        list(APPEND _vtk_javascript_binding_sources
-          "$<TARGET_OBJECTS:${_vtk_javascript_module_objects}>")
+      set(_binding_sources "$<TARGET_OBJECTS:${_vtk_javascript_module_objects}>")
+      # Filter sources with exclusion list
+      get_target_property(_module_wrapexclude "${_vtk_javascript_module_objects}" vtk_module_wrap_javascript_exclude)
+      if (_module_wrapexclude)
+        list(JOIN _module_wrapexclude "|" _exclude_headers)
+        set(_binding_sources "$<FILTER:${_binding_sources},EXCLUDE,(${_exclude_headers})Embinding.cxx>")
       endif ()
+      # Filter sources with inclusion list
+      get_target_property(_module_wrapinclude "${_vtk_javascript_module_objects}" vtk_module_wrap_javascript_include)
+      if (_module_wrapinclude)
+        list(JOIN _module_wrapinclude "|" _include_headers)
+        set(_binding_sources "$<FILTER:${_binding_sources},INCLUDE,(${_include_headers})Embinding.cxx>")
+      endif ()
+      list(APPEND _vtk_javascript_binding_sources "${_binding_sources}")
     else ()
       # Generate binding sources
       _vtk_module_wrap_javascript_library("${_vtk_javascript_module}" _vtk_javascript_library_binding_sources _vtk_javascript_library_binding_classes)

@@ -46,7 +46,10 @@ class ParticleTrail;
 class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
 
-class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorithm
+// Excluded from JavaScript wrapping because it defines vtkPolyDataAlgorithm as
+// vtkTemporalAlgorithm<vtkPolyDataAlgorithm> which confuses other filters in VTK::FiltersCore
+class VTKFILTERSGENERAL_EXPORT VTK_WRAPEXCLUDE_JAVASCRIPT vtkTemporalPathLineFilter
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

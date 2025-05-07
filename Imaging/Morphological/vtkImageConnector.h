@@ -27,7 +27,9 @@ class vtkImageData;
 // Special classes for manipulating data
 //
 // For the breadth first search
-class vtkImageConnectorSeed
+//
+// Excluded from JavaScript wrapping because there is no delete function
+class VTK_WRAPEXCLUDE_JAVASCRIPT vtkImageConnectorSeed
 { //;prevent man page generation
 public:
   static vtkImageConnectorSeed* New() { return new vtkImageConnectorSeed; }

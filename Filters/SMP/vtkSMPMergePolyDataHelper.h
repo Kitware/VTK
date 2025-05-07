@@ -69,14 +69,6 @@ public:
    * it, use DeepCopy before passing to MergePolyData.
    */
   static vtkPolyData* MergePolyData(std::vector<InputData>& inputs);
-
-protected:
-  vtkSMPMergePolyDataHelper();
-  ~vtkSMPMergePolyDataHelper();
-
-private:
-  vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&) = delete;
-  void operator=(const vtkSMPMergePolyDataHelper&) = delete;
 };
 
 VTK_ABI_NAMESPACE_END
