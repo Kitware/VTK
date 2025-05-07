@@ -4,8 +4,8 @@
  * @class   vtkAvmeshReader
  * @brief   Read an AVMESH file
  *
- * Read in an AVMESH file as a multiblock dataset.  Can optionally read only
- * surface (boundary) blocks.
+ * Read in an AVMESH file as a partitioned dataset collection.  Can optionally read only
+ * surface (boundary) collections.
  *
  * AVMESH is the native unstructured mesh format for CREATE-AV Kestrel and
  * Helios.  Formal documentation of the format is included in avmeshlib,
@@ -18,14 +18,14 @@
 
 #include "vtkIOAvmeshModule.h" // for export macro
 #include <string>
-#include <vtkMultiBlockDataSetAlgorithm.h>
+#include <vtkPartitionedDataSetCollectionAlgorithm.h>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIOAVMESH_EXPORT vtkAvmeshReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOAVMESH_EXPORT vtkAvmeshReader : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:
   static vtkAvmeshReader* New();
-  vtkTypeMacro(vtkAvmeshReader, vtkMultiBlockDataSetAlgorithm);
+  vtkTypeMacro(vtkAvmeshReader, vtkPartitionedDataSetCollectionAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStdStringFromCharMacro(FileName);

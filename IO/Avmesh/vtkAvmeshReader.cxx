@@ -5,8 +5,8 @@
 #include "AvmeshInternals.h"
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
-#include <vtkMultiBlockDataSet.h>
 #include <vtkObjectFactory.h>
+#include <vtkPartitionedDataSetCollection.h>
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -32,8 +32,8 @@ int vtkAvmeshReader::RequestData(vtkInformation* vtkNotUsed(request),
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPartitionedDataSetCollection* output =
+    vtkPartitionedDataSetCollection::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   try
   {
