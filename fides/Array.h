@@ -11,9 +11,9 @@
 #ifndef fides_datamodel_Array_H_
 #define fides_datamodel_Array_H_
 
-#include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/PartitionedDataSet.h>
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/PartitionedDataSet.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <fides/DataModel.h>
 #include <fides/Value.h>
@@ -29,7 +29,7 @@ struct ArrayBase : public DataModelBase
 {
   /// Reads and returns array handles. Has to be implemented
   /// by subclasses.
-  virtual std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  virtual std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
@@ -51,7 +51,7 @@ struct ArrayBase : public DataModelBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>&, const fides::metadata::MetaData&) {}
+  virtual void PostRead(std::vector<viskores::cont::DataSet>&, const fides::metadata::MetaData&) {}
 
   virtual ~ArrayBase(){};
 };
@@ -75,7 +75,7 @@ struct ArrayPlaceholder : public ArrayBase
   /// Throws error because this Array class is a placeholder for
   /// arrays belonging to wildcard fields that will eventually
   /// be expanded
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>&,
     DataSourcesType&,
     const fides::metadata::MetaData&) override;
@@ -96,10 +96,10 @@ private:
   std::string ArrayType;
 };
 
-/// \brief Data model object for VTK-m array handles.
+/// \brief Data model object for Viskores array handles.
 ///
 /// \c fides::datamodel::Array is responsible of creating
-/// VTK-m \c ArrayHandles by loading data defined by the Fides
+/// Viskores \c ArrayHandles by loading data defined by the Fides
 /// data model. This class delegates its responsibilities to
 /// one of the specialized \c ArrayBase subclasses it creates
 /// during JSON parsing.
@@ -117,7 +117,7 @@ struct Array : public DataModelBase
 
   /// Reads and returns array handles. Handled by the
   /// internal ArrayBase subclass.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -125,7 +125,7 @@ struct Array : public DataModelBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
   /// Returns the number of blocks in the underlying variable inside the given group.
@@ -157,7 +157,7 @@ struct ArrayBasic : public ArrayBase
   /// handled by the \c DataModelBase \c ReadSelf() method.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -194,7 +194,7 @@ struct ArrayUniformPointCoordinates : public ArrayBase
   /// origin and spacing. The origin of each block is computed based
   /// on spacing and additional values provided by the Dimensions
   /// Value object (start indices for each block).
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -202,7 +202,7 @@ struct ArrayUniformPointCoordinates : public ArrayBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections) override;
 
   /// Returns the number of blocks in the underlying variable inside the given group.
@@ -220,9 +220,9 @@ private:
   std::unique_ptr<Value> Dimensions = nullptr;
   std::unique_ptr<Value> Origin = nullptr;
   std::unique_ptr<Value> Spacing = nullptr;
-  std::vector<vtkm::cont::UnknownArrayHandle> DimensionArrays;
-  std::vector<vtkm::cont::UnknownArrayHandle> OriginArrays;
-  std::vector<vtkm::cont::UnknownArrayHandle> SpacingArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> DimensionArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> OriginArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> SpacingArrays;
   bool DefinedFromVariableShape = true;
 };
 
@@ -234,7 +234,7 @@ struct ArrayCartesianProduct : public ArrayBase
   /// Reads and returns array handles. This class depends on
   /// three separate (basic) array  objects that form the
   /// cartesian product.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -262,7 +262,7 @@ struct ArrayComposite : public ArrayCartesianProduct
   /// Reads and returns array handles. This class depends on
   /// three separate (basic) array  objects that form the
   /// cartesian product.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -290,7 +290,7 @@ struct ArrayXGC : public ArrayBase
 
 protected:
   std::unique_ptr<XGCCommon> CommonImpl;
-  vtkm::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfPlanes = -1;
   bool EngineChecked = false;
 
   /// Ensures that the inline engine isn't being used since it's not
@@ -312,7 +312,7 @@ struct ArrayXGCCoordinates : public ArrayXGC
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -326,19 +326,19 @@ private:
 struct ArrayXGCField : public ArrayXGC
 {
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
   /// Special handling for reading 3D variables. Use instead of the superclass's
   /// ReadSelf()
-  vtkm::cont::UnknownArrayHandle Read3DVariable(
+  viskores::cont::UnknownArrayHandle Read3DVariable(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+  void PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
 
 private:
@@ -355,7 +355,7 @@ struct ArrayGTCCoordinates : public ArrayBase
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -372,18 +372,18 @@ struct ArrayGTCCoordinates : public ArrayBase
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
                                       DataSourcesType&) override;
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+  void PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
 
   // cuda does not like this being private, so moved it to public...
   class PlaneInserter;
 
 private:
-  using GTCCoordsType32 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_32>;
-  using GTCCoordsType64 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_64>;
+  using GTCCoordsType32 = viskores::cont::ArrayHandleSOA<viskores::Vec3f_32>;
+  using GTCCoordsType64 = viskores::cont::ArrayHandleSOA<viskores::Vec3f_64>;
 
   bool IsCached = false;
-  vtkm::cont::UnknownArrayHandle CachedCoords;
+  viskores::cont::UnknownArrayHandle CachedCoords;
 
   std::unique_ptr<ArrayBasic> XArray = nullptr;
   std::unique_ptr<ArrayBasic> YArray = nullptr;
@@ -394,7 +394,7 @@ private:
 struct ArrayGTCField : public ArrayBase
 {
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -414,12 +414,12 @@ struct ArrayGTCField : public ArrayBase
   std::set<std::string> GetGroupNames(const std::unordered_map<std::string, std::string>&,
                                       DataSourcesType&) override;
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+  void PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
 
 private:
-  vtkm::Id NumberOfPlanes = -1;
-  vtkm::Id NumberOfPointsPerPlane = -1;
+  viskores::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfPointsPerPlane = -1;
   bool IsCached = false;
 };
 
@@ -431,7 +431,7 @@ struct ArrayGXCoordinates : public ArrayBase
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Reads and returns array handles.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -454,7 +454,7 @@ struct ArrayGXCoordinates : public ArrayBase
     return std::set<std::string>();
   }
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+  void PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                 const fides::metadata::MetaData& metaData) override;
 
   // cuda does not like this being private, so moved it to public...
@@ -466,16 +466,16 @@ private:
                          const std::string& varName,
                          std::unique_ptr<ArrayBasic>& array);
 
-  vtkm::Id NumTheta = 10;
-  vtkm::Id NumZeta = 10;
-  vtkm::Id NFP = 1;
+  viskores::Id NumTheta = 10;
+  viskores::Id NumZeta = 10;
+  viskores::Id NFP = 1;
   bool FullTorus = true;
   bool ThetaZeroMid = false;
   bool ZetaZeroMid = false;
   bool SurfaceMaxIdxSet = false;
   bool SurfaceMinIdxSet = false;
-  vtkm::Id SurfaceMaxIdx = -1;
-  vtkm::Id SurfaceMinIdx = -1;
+  viskores::Id SurfaceMaxIdx = -1;
+  viskores::Id SurfaceMinIdx = -1;
 
   std::unique_ptr<ArrayBasic> CoordPoints = nullptr;
   std::unique_ptr<ArrayBasic> RMNC = nullptr;
@@ -486,13 +486,13 @@ private:
   std::unique_ptr<ArrayBasic> nfp = nullptr;
   std::unique_ptr<ArrayBasic> phi = nullptr;
 
-  vtkm::cont::UnknownArrayHandle XMArrayHandle;
-  vtkm::cont::UnknownArrayHandle XNArrayHandle;
-  vtkm::cont::UnknownArrayHandle NFPArrayHandle;
-  vtkm::cont::UnknownArrayHandle RMNCArrayHandle;
-  vtkm::cont::UnknownArrayHandle ZMNSArrayHandle;
-  vtkm::cont::UnknownArrayHandle LMNSArrayHandle;
-  vtkm::cont::UnknownArrayHandle PhiArrayHandle;
+  viskores::cont::UnknownArrayHandle XMArrayHandle;
+  viskores::cont::UnknownArrayHandle XNArrayHandle;
+  viskores::cont::UnknownArrayHandle NFPArrayHandle;
+  viskores::cont::UnknownArrayHandle RMNCArrayHandle;
+  viskores::cont::UnknownArrayHandle ZMNSArrayHandle;
+  viskores::cont::UnknownArrayHandle LMNSArrayHandle;
+  viskores::cont::UnknownArrayHandle PhiArrayHandle;
 };
 
 }

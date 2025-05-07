@@ -19,7 +19,7 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 namespace fides
 {
@@ -50,7 +50,7 @@ enum class IsVector
 ///
 /// \c fides::io::DataSource is responsible of performing the
 /// actual IO operations to load arrays into memory. It produces
-/// VTK-m arrays. Only ADIOS2 is currently supported.
+/// Viskores arrays. Only ADIOS2 is currently supported.
 struct DataSource
 {
   /// \c FileNameMode determines how full file paths are formed
@@ -149,7 +149,7 @@ struct DataSource
   /// Applies the provided set of selections to potentially restricted
   /// what is loaded. Actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
-  std::vector<vtkm::cont::UnknownArrayHandle> ReadVariable(
+  std::vector<viskores::cont::UnknownArrayHandle> ReadVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections,
     IsVector isit = IsVector::Auto);
@@ -159,24 +159,24 @@ struct DataSource
   /// As with \c ReadVariable(), actual reading happens when \c DoAllReads() or
   /// \c EndStep() is called.
   /// Inline engine is not supported with this type of read
-  std::vector<vtkm::cont::UnknownArrayHandle> ReadMultiBlockVariable(
+  std::vector<viskores::cont::UnknownArrayHandle> ReadMultiBlockVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
   /// Reads a scalar variable and can be used when when an
   /// actual value is needed immediately.
-  std::vector<vtkm::cont::UnknownArrayHandle> GetScalarVariable(
+  std::vector<viskores::cont::UnknownArrayHandle> GetScalarVariable(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
-  std::vector<vtkm::cont::UnknownArrayHandle> GetTimeArray(
+  std::vector<viskores::cont::UnknownArrayHandle> GetTimeArray(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 
   /// Returns the dimensions and start of an n-dimensional variable.
   /// The first n values are the dimensions and the last n the start.
   /// Unlike ReadVariable(), the values are accessible immediately.
-  std::vector<vtkm::cont::UnknownArrayHandle> GetVariableDimensions(
+  std::vector<viskores::cont::UnknownArrayHandle> GetVariableDimensions(
     const std::string& varName,
     const fides::metadata::MetaData& selections);
 

@@ -40,15 +40,15 @@ void Field::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
     const std::string& assoc = json["association"].GetString();
     if (assoc == "points")
     {
-      this->Association = vtkm::cont::Field::Association::Points;
+      this->Association = viskores::cont::Field::Association::Points;
     }
     else if (assoc == "cell_set")
     {
-      this->Association = vtkm::cont::Field::Association::Cells;
+      this->Association = viskores::cont::Field::Association::Cells;
     }
     else if (assoc == "field_data")
     {
-      this->Association = vtkm::cont::Field::Association::WholeDataSet;
+      this->Association = viskores::cont::Field::Association::WholeDataSet;
     }
     else
     {
@@ -109,15 +109,15 @@ void Field::ProcessExpandedField(const std::string& name,
   this->WildcardField = false; // no longer a wildcard field now
   if (assoc == "points")
   {
-    this->Association = vtkm::cont::Field::Association::Points;
+    this->Association = viskores::cont::Field::Association::Points;
   }
   else if (assoc == "cell_set")
   {
-    this->Association = vtkm::cont::Field::Association::Cells;
+    this->Association = viskores::cont::Field::Association::Cells;
   }
   else if (assoc == "field_data")
   {
-    this->Association = vtkm::cont::Field::Association::WholeDataSet;
+    this->Association = viskores::cont::Field::Association::WholeDataSet;
   }
   else
   {
@@ -129,26 +129,26 @@ void Field::ProcessExpandedField(const std::string& name,
   this->Array->ProcessJSON(json["array"], sources);
 }
 
-std::vector<vtkm::cont::Field> Field::Read(
+std::vector<viskores::cont::Field> Field::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> arrays =
+  std::vector<viskores::cont::UnknownArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
-  std::vector<vtkm::cont::Field> fields;
+  std::vector<viskores::cont::Field> fields;
   size_t nFields = arrays.size();
   fields.reserve(nFields);
   for (size_t i = 0; i < nFields; i++)
   {
-    vtkm::cont::Field fld(this->Name, this->Association, arrays[i]);
+    viskores::cont::Field fld(this->Name, this->Association, arrays[i]);
     fields.push_back(fld);
   }
 
   return fields;
 }
 
-void Field::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void Field::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                      const fides::metadata::MetaData& selections)
 {
   this->Array->PostRead(partitions, selections);
@@ -159,7 +159,7 @@ FieldData Field::ReadFieldData(const std::unordered_map<std::string, std::string
                                DataSourcesType& sources,
                                const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> arrays =
+  std::vector<viskores::cont::UnknownArrayHandle> arrays =
     this->Array->Read(paths, sources, selections);
   return FieldData(this->Name, std::move(arrays));
 }

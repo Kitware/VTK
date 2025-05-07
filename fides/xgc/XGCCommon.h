@@ -23,12 +23,12 @@ namespace datamodel
 
 /// Provides info that helps to convert from an Fides XGCBlock,
 /// into ADIOS blocks for reading. Also useful for setting up the
-/// VTK-m ArrayHandles.
+/// Viskores ArrayHandles.
 struct XGCBlockInfo
 {
   size_t BlockId;
-  vtkm::Id NumberOfPlanesOwned;
-  vtkm::Id PlaneStartId;
+  viskores::Id NumberOfPlanesOwned;
+  viskores::Id PlaneStartId;
 };
 
 /// \brief Has common functionality for XGC that can be used
@@ -44,8 +44,8 @@ struct XGCCommon
   static void ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourcesType& sources);
 
   /// Reads number of planes from data and returns it immediately
-  vtkm::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
-                             DataSourcesType& sources);
+  viskores::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                                 DataSourcesType& sources);
 
   /// Gets the number of Fides blocks. Will throw an error if the
   /// planes have not been mapped to blocks yet.
@@ -68,7 +68,7 @@ private:
   class XGCCommonImpl;
   std::unique_ptr<XGCCommonImpl> Impl;
   static std::shared_ptr<Value> NumberOfPlanes;
-  static vtkm::Id PlanesPerUserBlock;
+  static viskores::Id PlanesPerUserBlock;
 };
 
 }

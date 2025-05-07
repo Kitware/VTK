@@ -9,29 +9,29 @@
 //============================================================================
 
 #include <fides/Array.h>
-#include <vtkm/Math.h>
-#include <vtkm/cont/ArrayHandleCounting.h>
-#include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
-#include <vtkm/cont/ArrayHandleView.h>
-#include <vtkm/cont/ArrayHandleXGCCoordinates.h>
+#include <viskores/Math.h>
+#include <viskores/cont/ArrayHandleCounting.h>
+#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/ArrayHandleView.h>
+#include <viskores/cont/ArrayHandleXGCCoordinates.h>
 
-#include <vtkm/Version.h>
-#include <vtkm/cont/Invoker.h>
-#include <vtkm/worklet/WorkletMapField.h>
+#include <viskores/Version.h>
+#include <viskores/cont/Invoker.h>
+#include <viskores/worklet/WorkletMapField.h>
 
 namespace fides
 {
 namespace datamodel
 {
 
-VTKM_EXEC static void Index1d_3d(const vtkm::Id& idx,
-                                 const vtkm::Id& fidesNotUsed(nx),
-                                 const vtkm::Id& ny,
-                                 const vtkm::Id& nz,
-                                 vtkm::Id& i,
-                                 vtkm::Id& j,
-                                 vtkm::Id& k)
+VISKORES_EXEC static void Index1d_3d(const viskores::Id& idx,
+                                     const viskores::Id& fidesNotUsed(nx),
+                                     const viskores::Id& ny,
+                                     const viskores::Id& nz,
+                                     viskores::Id& i,
+                                     viskores::Id& j,
+                                     viskores::Id& k)
 {
   i = idx / (ny * nz);
   j = (idx / nz) % ny;
@@ -41,10 +41,12 @@ VTKM_EXEC static void Index1d_3d(const vtkm::Id& idx,
 namespace fusionutil
 {
 
-class CalcCosSin : public vtkm::worklet::WorkletMapField
+class CalcCosSin : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcCosSin(const vtkm::Id numZeta, const vtkm::Id numTheta, const vtkm::Id& numAmplitudes)
+  CalcCosSin(const viskores::Id numZeta,
+             const viskores::Id numTheta,
+             const viskores::Id& numAmplitudes)
     : NumTheta(numTheta)
     , NumZeta(numZeta)
     , NumAmplitudes(numAmplitudes)
@@ -69,42 +71,42 @@ public:
   using InputDomain = _5;
 
   template <typename ZTArrayType, typename XMNArrayType, typename OutputArrayType>
-  VTKM_EXEC void operator()(const vtkm::Id& idx,
-                            const ZTArrayType& zaxField,
-                            const ZTArrayType& taxField,
-                            const XMNArrayType& xmField,
-                            const XMNArrayType& xnField,
-                            OutputArrayType& cosVal,
-                            OutputArrayType& sinVal,
-                            OutputArrayType& xVal) const
+  VISKORES_EXEC void operator()(const viskores::Id& idx,
+                                const ZTArrayType& zaxField,
+                                const ZTArrayType& taxField,
+                                const XMNArrayType& xmField,
+                                const XMNArrayType& xnField,
+                                OutputArrayType& cosVal,
+                                OutputArrayType& sinVal,
+                                OutputArrayType& xVal) const
   {
-    vtkm::Id index = idx * this->NumAmplitudes;
-    vtkm::Id zi, ti, xmi;
+    viskores::Id index = idx * this->NumAmplitudes;
+    viskores::Id zi, ti, xmi;
     Index1d_3d(index, this->NumZeta, this->NumTheta, this->NumAmplitudes, zi, ti, xmi);
 
     const auto& zeta = zaxField.Get(zi);
     const auto& theta = taxField.Get(ti);
-    for (vtkm::IdComponent i = 0; i < this->NumAmplitudes; i++)
+    for (viskores::IdComponent i = 0; i < this->NumAmplitudes; i++)
     {
       auto xm = xmField.Get(i);
       auto xn = xnField.Get(i);
       auto xx = xm * theta - xn * zeta;
       xVal[i] = xx;
-      cosVal[i] = vtkm::Cos(xx);
-      sinVal[i] = vtkm::Sin(xx);
+      cosVal[i] = viskores::Cos(xx);
+      sinVal[i] = viskores::Sin(xx);
     }
   }
 
 private:
-  vtkm::Id NumTheta = 0;
-  vtkm::Id NumZeta = 0;
-  vtkm::Id NumAmplitudes = 0;
+  viskores::Id NumTheta = 0;
+  viskores::Id NumZeta = 0;
+  viskores::Id NumAmplitudes = 0;
 };
 
-class CalcRZL : public vtkm::worklet::WorkletMapField
+class CalcRZL : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcRZL(const vtkm::Id& numAmplitudes, const vtkm::Id& srfIndex)
+  CalcRZL(const viskores::Id& numAmplitudes, const viskores::Id& srfIndex)
     : NumAmplitudes(numAmplitudes)
     , SurfaceIndex(srfIndex)
   {
@@ -120,17 +122,17 @@ public:
   using InputDomain = _1;
 
   template <typename OutputArrayType, typename InputArrayType, typename InputArrayType2>
-  VTKM_EXEC void operator()(OutputArrayType& RZL,
-                            const InputArrayType& rmnc,
-                            const InputArrayType& zmns,
-                            const InputArrayType& lmns,
-                            const InputArrayType2& cosValues,
-                            const InputArrayType2& sinValues) const
+  VISKORES_EXEC void operator()(OutputArrayType& RZL,
+                                const InputArrayType& rmnc,
+                                const InputArrayType& zmns,
+                                const InputArrayType& lmns,
+                                const InputArrayType2& cosValues,
+                                const InputArrayType2& sinValues) const
   {
     RZL[0] = 0;
     RZL[1] = 0;
     RZL[2] = 0;
-    for (vtkm::Id i = 0; i < this->NumAmplitudes; i++)
+    for (viskores::Id i = 0; i < this->NumAmplitudes; i++)
     {
       RZL[0] += rmnc.Get(this->SurfaceIndex)[i] * cosValues[i][this->SurfaceIndex];
       RZL[1] += zmns.Get(this->SurfaceIndex)[i] * sinValues[i][this->SurfaceIndex];
@@ -139,14 +141,14 @@ public:
   }
 
 private:
-  vtkm::Id NumAmplitudes = 0;
-  vtkm::Id SurfaceIndex = 0;
+  viskores::Id NumAmplitudes = 0;
+  viskores::Id SurfaceIndex = 0;
 };
 
-class CalcNFP : public vtkm::worklet::WorkletMapField
+class CalcNFP : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcNFP(const vtkm::Id& numNFP, const vtkm::Id& numZeta, const vtkm::Id& numTheta)
+  CalcNFP(const viskores::Id& numNFP, const viskores::Id& numZeta, const viskores::Id& numTheta)
     : NumNFP(numNFP)
     , NumZeta(numZeta)
     , NumTheta(numTheta)
@@ -162,16 +164,16 @@ public:
             typename ZetaArrayType,
             typename PhiOutputType,
             typename RZLOutputType>
-  VTKM_EXEC void operator()(const vtkm::Id& index,
-                            const RZLArrayType& RZL,
-                            const ZetaArrayType& Zn,
-                            const ZetaArrayType& Zeta,
-                            PhiOutputType& Phi_n,
-                            RZLOutputType& RZL_n) const
+  VISKORES_EXEC void operator()(const viskores::Id& index,
+                                const RZLArrayType& RZL,
+                                const ZetaArrayType& Zn,
+                                const ZetaArrayType& Zeta,
+                                PhiOutputType& Phi_n,
+                                RZLOutputType& RZL_n) const
   {
-    vtkm::Id nfp_i, zi, ti;
+    viskores::Id nfp_i, zi, ti;
     Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, nfp_i, zi, ti);
-    vtkm::Id idx0 = zi * this->NumTheta + ti;
+    viskores::Id idx0 = zi * this->NumTheta + ti;
 
     auto z = Zn.Get(nfp_i);
     Phi_n = Zeta.Get(zi) + z;
@@ -179,15 +181,17 @@ public:
   }
 
 private:
-  vtkm::Id NumNFP = 0;
-  vtkm::Id NumZeta = 0;
-  vtkm::Id NumTheta = 0;
+  viskores::Id NumNFP = 0;
+  viskores::Id NumZeta = 0;
+  viskores::Id NumTheta = 0;
 };
 
-class ConvertRZPhiToXYZ : public vtkm::worklet::WorkletMapField
+class ConvertRZPhiToXYZ : public viskores::worklet::WorkletMapField
 {
 public:
-  ConvertRZPhiToXYZ(const vtkm::Id& numNFP, const vtkm::Id& numZeta, const vtkm::Id& numTheta)
+  ConvertRZPhiToXYZ(const viskores::Id& numNFP,
+                    const viskores::Id& numZeta,
+                    const viskores::Id& numTheta)
     : NumNFP(numNFP)
     , NumZeta(numZeta)
     , NumTheta(numTheta)
@@ -198,34 +202,34 @@ public:
   using InputDomain = _1;
 
   template <typename XYZType, typename LambdaType, typename PhiType, typename RZLType>
-  VTKM_EXEC void operator()(const vtkm::Id& index,
-                            XYZType& xyz,
-                            LambdaType& lambda,
-                            const PhiType& Phi_n,
-                            const RZLType& rzl) const
+  VISKORES_EXEC void operator()(const viskores::Id& index,
+                                XYZType& xyz,
+                                LambdaType& lambda,
+                                const PhiType& Phi_n,
+                                const RZLType& rzl) const
   {
     //Phi_n is a of size: (nfp*numZeta, nTheta)
-    vtkm::Id xmi, zi, ti;
+    viskores::Id xmi, zi, ti;
     Index1d_3d(index, this->NumNFP, this->NumZeta, this->NumTheta, xmi, zi, ti);
 
     // X = R*cos(phi), Y= R*sin(phi)
-    xyz[0] = rzl[0] * vtkm::Cos(Phi_n.Get(index));
-    xyz[1] = rzl[0] * vtkm::Sin(Phi_n.Get(index));
+    xyz[0] = rzl[0] * viskores::Cos(Phi_n.Get(index));
+    xyz[1] = rzl[0] * viskores::Sin(Phi_n.Get(index));
     xyz[2] = rzl[1];
 
     lambda = rzl[2];
   }
 
 private:
-  vtkm::Id NumNFP = 0;
-  vtkm::Id NumZeta = 0;
-  vtkm::Id NumTheta = 0;
+  viskores::Id NumNFP = 0;
+  viskores::Id NumZeta = 0;
+  viskores::Id NumTheta = 0;
 };
 
-class PlaneInserterField : public vtkm::worklet::WorkletMapField
+class PlaneInserterField : public viskores::worklet::WorkletMapField
 {
 public:
-  PlaneInserterField(vtkm::Id nPlanes, vtkm::Id nPtsPerPlane, vtkm::Id numInsert)
+  PlaneInserterField(viskores::Id nPlanes, viskores::Id nPtsPerPlane, viskores::Id numInsert)
     : NumPlanes(nPlanes)
     , PtsPerPlane(nPtsPerPlane)
     , NumInsert(numInsert)
@@ -237,36 +241,36 @@ public:
   using InputDomain = _1;
 
   template <typename InFieldType, typename OutFieldType>
-  VTKM_EXEC void operator()(const vtkm::Id& inIdx,
-                            const InFieldType& inField,
-                            OutFieldType& outField) const
+  VISKORES_EXEC void operator()(const viskores::Id& inIdx,
+                                const InFieldType& inField,
+                                OutFieldType& outField) const
   {
-    vtkm::Id plane0PtIdx = inIdx;
-    vtkm::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
-    vtkm::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
+    viskores::Id plane0PtIdx = inIdx;
+    viskores::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
+    viskores::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
 
     // This is correct:
-    vtkm::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
+    viskores::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
     // Unless we're in the last plane:
     if (inPlaneIdx == this->NumPlanes - 1)
     {
       plane1PtIdx = plane0PtIdx % this->PtsPerPlane;
     }
 
-    vtkm::Id firstOutputPlaneIndex = inPlaneIdx * (1 + NumInsert);
+    viskores::Id firstOutputPlaneIndex = inPlaneIdx * (1 + NumInsert);
 
     const auto& y0 = inField.Get(plane0PtIdx);
     const auto& y1 = inField.Get(plane1PtIdx);
     outField.Set(firstOutputPlaneIndex * PtsPerPlane + pt0Offset, y0);
 
-    vtkm::Id numOutCoords = outField.GetNumberOfValues();
+    viskores::Id numOutCoords = outField.GetNumberOfValues();
 
-    for (vtkm::Id i = 0; i < this->NumInsert; i++)
+    for (viskores::Id i = 0; i < this->NumInsert; i++)
     {
-      vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
+      viskores::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
       if (outIdx > numOutCoords)
       {
-#if defined(VTKM_ENABLE_CUDA) || defined(VTKM_ENABLE_KOKKOS)
+#if defined(VISKORES_ENABLE_CUDA) || defined(VISKORES_ENABLE_KOKKOS)
         // cuda doesn't like std::string::data
         this->RaiseError("Output index is outside the bounds of output array");
 #else
@@ -283,9 +287,9 @@ public:
   }
 
 private:
-  vtkm::Id NumPlanes;
-  vtkm::Id PtsPerPlane;
-  vtkm::Id NumInsert;
+  viskores::Id NumPlanes;
+  viskores::Id PtsPerPlane;
+  viskores::Id NumInsert;
 };
 
 }
@@ -305,7 +309,7 @@ void ArrayPlaceholder::ProcessJSON(const rapidjson::Value& json, DataSourcesType
   this->DataSourceName = json["data_source"].GetString();
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayPlaceholder::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayPlaceholder::Read(
   const std::unordered_map<std::string, std::string>&,
   DataSourcesType&,
   const fides::metadata::MetaData&)
@@ -327,7 +331,7 @@ std::set<std::string> ArrayPlaceholder::GetGroupNames(
   throw std::runtime_error("ArrayPlaceholder::GetGroupNames should not be called");
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> Array::Read(
+std::vector<viskores::cont::UnknownArrayHandle> Array::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -335,7 +339,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> Array::Read(
   return this->ArrayImpl->Read(paths, sources, selections);
 }
 
-void Array::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void Array::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                      const fides::metadata::MetaData& selections)
 {
   this->ArrayImpl->PostRead(partitions, selections);
@@ -441,7 +445,7 @@ void ArrayBasic::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   }
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayBasic::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayBasic::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -525,25 +529,25 @@ void ArrayUniformPointCoordinates::ProcessJSON(const rapidjson::Value& json,
   }
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> ret;
+  std::vector<viskores::cont::UnknownArrayHandle> ret;
 
   if (this->DefinedFromVariableShape)
   {
     // In this situation we can do everything now instead of waiting for
     // the PostRead
-    std::vector<vtkm::cont::UnknownArrayHandle> dims =
+    std::vector<viskores::cont::UnknownArrayHandle> dims =
       this->Dimensions->Read(paths, sources, selections);
-    std::vector<vtkm::cont::UnknownArrayHandle> origins;
+    std::vector<viskores::cont::UnknownArrayHandle> origins;
     if (this->Origin)
     {
       origins = this->Origin->Read(paths, sources, selections);
     }
-    std::vector<vtkm::cont::UnknownArrayHandle> spacings;
+    std::vector<viskores::cont::UnknownArrayHandle> spacings;
     if (this->Spacing)
     {
       spacings = this->Spacing->Read(paths, sources, selections);
@@ -554,35 +558,36 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
 
     for (const auto& array : dims)
     {
-      auto dimsB = array.AsArrayHandle<vtkm::cont::ArrayHandle<size_t>>();
+      auto dimsB = array.AsArrayHandle<viskores::cont::ArrayHandle<size_t>>();
       auto dimsPortal = dimsB.ReadPortal();
-      vtkm::Id3 dimValues(static_cast<vtkm::Id>(dimsPortal.Get(0)),
-                          static_cast<vtkm::Id>(dimsPortal.Get(1)),
-                          static_cast<vtkm::Id>(dimsPortal.Get(2)));
-      vtkm::Vec3f originA(0.0, 0.0, 0.0);
-      vtkm::Vec3f spacingA(1.0, 1.0, 1.0);
+      viskores::Id3 dimValues(static_cast<viskores::Id>(dimsPortal.Get(0)),
+                              static_cast<viskores::Id>(dimsPortal.Get(1)),
+                              static_cast<viskores::Id>(dimsPortal.Get(2)));
+      viskores::Vec3f originA(0.0, 0.0, 0.0);
+      viskores::Vec3f spacingA(1.0, 1.0, 1.0);
       if (this->Origin)
       {
         const auto& origin = origins[0];
-        auto originB = origin.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+        auto originB = origin.AsArrayHandle<viskores::cont::ArrayHandle<double>>();
         auto originPortal = originB.ReadPortal();
-        originA = vtkm::Vec3f(originPortal.Get(0), originPortal.Get(1), originPortal.Get(2));
+        originA = viskores::Vec3f(originPortal.Get(0), originPortal.Get(1), originPortal.Get(2));
       }
       if (this->Spacing)
       {
         const auto& spacing = spacings[0];
-        auto spacingB = spacing.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+        auto spacingB = spacing.AsArrayHandle<viskores::cont::ArrayHandle<double>>();
         auto spacingPortal = spacingB.ReadPortal();
-        spacingA = vtkm::Vec3f(spacingPortal.Get(0), spacingPortal.Get(1), spacingPortal.Get(2));
+        spacingA =
+          viskores::Vec3f(spacingPortal.Get(0), spacingPortal.Get(1), spacingPortal.Get(2));
       }
       // Shift origin to a local value. We have to do this because
-      // VTK-m works with dimensions rather than extents and therefore
+      // Viskores works with dimensions rather than extents and therefore
       // needs local origin.
-      for (vtkm::IdComponent i = 0; i < 3; i++)
+      for (viskores::IdComponent i = 0; i < 3; i++)
       {
         originA[i] = originA[i] + spacingA[i] * dimsPortal.Get(i + 3);
       }
-      vtkm::cont::ArrayHandleUniformPointCoordinates ah(dimValues, originA, spacingA);
+      viskores::cont::ArrayHandleUniformPointCoordinates ah(dimValues, originA, spacingA);
       ret.push_back(ah);
     }
   }
@@ -605,7 +610,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayUniformPointCoordinates::Read(
 }
 
 void ArrayUniformPointCoordinates::PostRead(
-  std::vector<vtkm::cont::DataSet>& partitions,
+  std::vector<viskores::cont::DataSet>& partitions,
   const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   if (!this->DefinedFromVariableShape)
@@ -613,22 +618,22 @@ void ArrayUniformPointCoordinates::PostRead(
     size_t nDims = this->DimensionArrays.size();
     for (std::size_t i = 0; i < nDims; i++)
     {
-      vtkm::cont::UnknownArrayHandle dimUnknown = vtkm::cont::ArrayHandle<std::size_t>{};
+      viskores::cont::UnknownArrayHandle dimUnknown = viskores::cont::ArrayHandle<std::size_t>{};
       dimUnknown.CopyShallowIfPossible(this->DimensionArrays[i]);
-      auto d = dimUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
-      auto o = this->OriginArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
-      auto s = this->SpacingArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+      auto d = dimUnknown.AsArrayHandle<viskores::cont::ArrayHandle<std::size_t>>();
+      auto o = this->OriginArrays[i].AsArrayHandle<viskores::cont::ArrayHandle<double>>();
+      auto s = this->SpacingArrays[i].AsArrayHandle<viskores::cont::ArrayHandle<double>>();
       auto dPortal = d.ReadPortal();
       auto oPortal = o.ReadPortal();
       auto sPortal = s.ReadPortal();
 
-      vtkm::Id3 dValues(static_cast<vtkm::Id>(dPortal.Get(0)),
-                        static_cast<vtkm::Id>(dPortal.Get(1)),
-                        static_cast<vtkm::Id>(dPortal.Get(2)));
-      vtkm::Vec3f oValues(oPortal.Get(0), oPortal.Get(1), oPortal.Get(2));
-      vtkm::Vec3f sValues(sPortal.Get(0), sPortal.Get(1), sPortal.Get(2));
-      vtkm::cont::ArrayHandleUniformPointCoordinates ah(dValues, oValues, sValues);
-      vtkm::cont::CoordinateSystem coords("coordinates", ah);
+      viskores::Id3 dValues(static_cast<viskores::Id>(dPortal.Get(0)),
+                            static_cast<viskores::Id>(dPortal.Get(1)),
+                            static_cast<viskores::Id>(dPortal.Get(2)));
+      viskores::Vec3f oValues(oPortal.Get(0), oPortal.Get(1), oPortal.Get(2));
+      viskores::Vec3f sValues(sPortal.Get(0), sPortal.Get(1), sPortal.Get(2));
+      viskores::cont::ArrayHandleUniformPointCoordinates ah(dValues, oValues, sValues);
+      viskores::cont::CoordinateSystem coords("coordinates", ah);
 
       auto& ds = partitions[i];
       ds.AddCoordinateSystem(coords);
@@ -678,17 +683,17 @@ void ArrayCartesianProduct::ProcessJSON(const rapidjson::Value& json, DataSource
   this->ZArray->ProcessJSON(zarray, sources);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
-  std::vector<vtkm::cont::UnknownArrayHandle> xarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> xarrays =
     this->XArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::UnknownArrayHandle> yarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> yarrays =
     this->YArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::UnknownArrayHandle> zarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> zarrays =
     this->ZArray->Read(paths, sources, selections);
   size_t nArrays = xarrays.size();
   for (size_t i = 0; i < nArrays; i++)
@@ -696,14 +701,14 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
     auto& xarray = xarrays[i];
     auto& yarray = yarrays[i];
     auto& zarray = zarrays[i];
-    using floatType = vtkm::cont::ArrayHandle<float>;
-    using doubleType = vtkm::cont::ArrayHandle<double>;
+    using floatType = viskores::cont::ArrayHandle<float>;
+    using doubleType = viskores::cont::ArrayHandle<double>;
     if (xarray.IsType<floatType>() && yarray.IsType<floatType>() && zarray.IsType<floatType>())
     {
       auto xarrayF = xarray.AsArrayHandle<floatType>();
       auto yarrayF = yarray.AsArrayHandle<floatType>();
       auto zarrayF = zarray.AsArrayHandle<floatType>();
-      retVal.push_back(vtkm::cont::make_ArrayHandleCartesianProduct(xarrayF, yarrayF, zarrayF));
+      retVal.push_back(viskores::cont::make_ArrayHandleCartesianProduct(xarrayF, yarrayF, zarrayF));
     }
     else if (xarray.IsType<doubleType>() && yarray.IsType<doubleType>() &&
              zarray.IsType<doubleType>())
@@ -711,7 +716,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayCartesianProduct::Read(
       auto xarrayD = xarray.AsArrayHandle<doubleType>();
       auto yarrayD = yarray.AsArrayHandle<doubleType>();
       auto zarrayD = zarray.AsArrayHandle<doubleType>();
-      retVal.push_back(vtkm::cont::make_ArrayHandleCartesianProduct(xarrayD, yarrayD, zarrayD));
+      retVal.push_back(viskores::cont::make_ArrayHandleCartesianProduct(xarrayD, yarrayD, zarrayD));
     }
     else
     {
@@ -736,17 +741,17 @@ std::set<std::string> ArrayCartesianProduct::GetGroupNames(
   return this->XArray->GetGroupNames(paths, sources);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayComposite::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayComposite::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
-  std::vector<vtkm::cont::UnknownArrayHandle> xarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> xarrays =
     this->XArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::UnknownArrayHandle> yarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> yarrays =
     this->YArray->Read(paths, sources, selections);
-  std::vector<vtkm::cont::UnknownArrayHandle> zarrays =
+  std::vector<viskores::cont::UnknownArrayHandle> zarrays =
     this->ZArray->Read(paths, sources, selections);
   size_t nArrays = xarrays.size();
   for (size_t i = 0; i < nArrays; i++)
@@ -754,15 +759,15 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayComposite::Read(
     auto& xarray = xarrays[i];
     auto& yarray = yarrays[i];
     auto& zarray = zarrays[i];
-    using floatType = vtkm::cont::ArrayHandle<float>;
-    using doubleType = vtkm::cont::ArrayHandle<double>;
+    using floatType = viskores::cont::ArrayHandle<float>;
+    using doubleType = viskores::cont::ArrayHandle<double>;
     if (xarray.IsType<floatType>() && yarray.IsType<floatType>() && zarray.IsType<floatType>())
     {
       auto xarrayF = xarray.AsArrayHandle<floatType>();
       auto yarrayF = yarray.AsArrayHandle<floatType>();
       auto zarrayF = zarray.AsArrayHandle<floatType>();
       retVal.push_back(
-        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_32>({ xarrayF, yarrayF, zarrayF }));
+        viskores::cont::make_ArrayHandleSOA<viskores::Vec3f_32>({ xarrayF, yarrayF, zarrayF }));
     }
     else if (xarray.IsType<doubleType>() && yarray.IsType<doubleType>() &&
              zarray.IsType<doubleType>())
@@ -771,7 +776,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayComposite::Read(
       auto yarrayD = yarray.AsArrayHandle<doubleType>();
       auto zarrayD = zarray.AsArrayHandle<doubleType>();
       retVal.push_back(
-        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_64>({ xarrayD, yarrayD, zarrayD }));
+        viskores::cont::make_ArrayHandleSOA<viskores::Vec3f_64>({ xarrayD, yarrayD, zarrayD }));
     }
     else
     {
@@ -827,25 +832,26 @@ std::vector<size_t> ArrayXGC::GetShape(const std::unordered_map<std::string, std
 struct ArrayXGCCoordinates::AddToVectorFunctor
 {
   template <typename T, typename S>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
-                            std::vector<vtkm::cont::UnknownArrayHandle>&,
-                            vtkm::Id,
-                            vtkm::Id,
-                            vtkm::Id,
-                            bool) const
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>&,
+                                std::vector<viskores::cont::UnknownArrayHandle>&,
+                                viskores::Id,
+                                viskores::Id,
+                                viskores::Id,
+                                bool) const
   {
   }
 
   /// This version is for creating the coordinates AHs.
   template <typename T>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic>& array,
-                            std::vector<vtkm::cont::UnknownArrayHandle>& retVal,
-                            vtkm::Id numberOfPlanes,
-                            vtkm::Id numberOfPlanesOwned,
-                            vtkm::Id planeStartId,
-                            bool isCylindrical) const
+  VISKORES_CONT void operator()(
+    const viskores::cont::ArrayHandle<T, viskores::cont::StorageTagBasic>& array,
+    std::vector<viskores::cont::UnknownArrayHandle>& retVal,
+    viskores::Id numberOfPlanes,
+    viskores::Id numberOfPlanesOwned,
+    viskores::Id planeStartId,
+    bool isCylindrical) const
   {
-    retVal.push_back(vtkm::cont::make_ArrayHandleXGCCoordinates(
+    retVal.push_back(viskores::cont::make_ArrayHandleXGCCoordinates(
       array, numberOfPlanesOwned, isCylindrical, numberOfPlanes, planeStartId));
   }
 };
@@ -860,7 +866,7 @@ void ArrayXGCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesT
   this->IsCylindrical = json["is_cylindrical"].GetBool();
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -879,7 +885,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
   // Removing because for XGC Fides blocks are not the same as ADIOS blocks
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
 
   auto coordArrays = this->ReadSelf(paths, sources, newSelections, fides::io::IsVector::No);
   if (coordArrays.size() != 1)
@@ -914,19 +920,19 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCCoordinates::Read(
   for (size_t i = 0; i < blocksInfo.size(); ++i)
   {
     const auto& block = blocksInfo[i];
-    coordsAH
-      .CastAndCallForTypes<vtkm::TypeListFieldScalar, vtkm::List<vtkm::cont::StorageTagBasic>>(
-        AddToVectorFunctor(),
-        retVal,
-        NumberOfPlanes * (1 + numInsertPlanes),
-        block.NumberOfPlanesOwned * (1 + numInsertPlanes),
-        block.PlaneStartId * (1 + numInsertPlanes),
-        this->IsCylindrical);
+    coordsAH.CastAndCallForTypes<viskores::TypeListFieldScalar,
+                                 viskores::List<viskores::cont::StorageTagBasic>>(
+      AddToVectorFunctor(),
+      retVal,
+      NumberOfPlanes * (1 + numInsertPlanes),
+      block.NumberOfPlanesOwned * (1 + numInsertPlanes),
+      block.PlaneStartId * (1 + numInsertPlanes),
+      this->IsCylindrical);
   }
   return retVal;
 }
 
-vtkm::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
+viskores::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -941,7 +947,7 @@ vtkm::cont::UnknownArrayHandle ArrayXGCField::Read3DVariable(
   return arrays[0];
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayXGCField::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -982,7 +988,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
     this->FieldDimsChecked = true;
   }
 
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
 
   metadata::MetaData newSelections = selections;
   // Removing because for XGC Fides blocks are not the same as ADIOS blocks
@@ -1017,7 +1023,8 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
     {
       fides::metadata::Vector<size_t> planesToRead;
 
-      for (vtkm::Id i = block.PlaneStartId; i < block.PlaneStartId + block.NumberOfPlanesOwned; ++i)
+      for (viskores::Id i = block.PlaneStartId; i < block.PlaneStartId + block.NumberOfPlanesOwned;
+           ++i)
       {
         auto planeId = i;
         if (planeId == this->NumberOfPlanes)
@@ -1037,7 +1044,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayXGCField::Read(
   return retVal;
 }
 
-void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+void ArrayXGCField::PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                              const fides::metadata::MetaData& metaData)
 {
   size_t numInsertPlanes = 0;
@@ -1056,13 +1063,13 @@ void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     throw std::runtime_error("Plane insert for XGC not supported for multiple datasets.");
 
   const auto& cs = dataSets[0].GetCellSet();
-  if (!cs.IsType<vtkm::cont::CellSetExtrude>())
+  if (!cs.IsType<viskores::cont::CellSetExtrude>())
     throw std::runtime_error("Wrong type of cell set for XGC dataset.");
 
-  auto cellSet = cs.AsCellSet<vtkm::cont::CellSetExtrude>();
-  vtkm::Id ptsPerPlane = cellSet.GetNumberOfPointsPerPlane();
-  vtkm::Id numPlanes = this->NumberOfPlanes;
-  vtkm::Id totNumPlanes = numPlanes + (numPlanes * numInsertPlanes);
+  auto cellSet = cs.AsCellSet<viskores::cont::CellSetExtrude>();
+  viskores::Id ptsPerPlane = cellSet.GetNumberOfPointsPerPlane();
+  viskores::Id numPlanes = this->NumberOfPlanes;
+  viskores::Id totNumPlanes = numPlanes + (numPlanes * numInsertPlanes);
 
   if (!dataSets[0].HasPointField(this->VariableName))
   {
@@ -1071,15 +1078,15 @@ void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
   auto fieldArray = dataSets[0].GetField(this->VariableName).GetData();
 
-  vtkm::cont::Invoker invoke;
+  viskores::cont::Invoker invoke;
 
-  using floatType = vtkm::cont::ArrayHandle<float>;
-  using doubleType = vtkm::cont::ArrayHandle<double>;
+  using floatType = viskores::cont::ArrayHandle<float>;
+  using doubleType = viskores::cont::ArrayHandle<double>;
   fusionutil::PlaneInserterField planeInserter(numPlanes, ptsPerPlane, numInsertPlanes);
   if (fieldArray.IsType<floatType>())
   {
     auto inArr = fieldArray.AsArrayHandle<floatType>();
-    vtkm::cont::ArrayHandle<float> outArr;
+    viskores::cont::ArrayHandle<float> outArr;
     outArr.Allocate(totNumPlanes * ptsPerPlane);
     invoke(planeInserter, inArr, outArr);
     dataSets[0].AddPointField(this->VariableName, outArr);
@@ -1087,7 +1094,7 @@ void ArrayXGCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   else if (fieldArray.IsType<doubleType>())
   {
     auto inArr = fieldArray.AsArrayHandle<doubleType>();
-    vtkm::cont::ArrayHandle<double> outArr;
+    viskores::cont::ArrayHandle<double> outArr;
     outArr.Allocate(totNumPlanes * ptsPerPlane);
     invoke(planeInserter, inArr, outArr);
     dataSets[0].AddPointField(this->VariableName, outArr);
@@ -1123,12 +1130,12 @@ void ArrayGTCCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesT
   this->ZArray->ProcessJSON(zarray, sources);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
 
   //First time, so read and set cache.
   if (!this->IsCached)
@@ -1152,15 +1159,15 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
     auto& yarray = yarrays[0];
     auto& zarray = zarrays[0];
 
-    using floatType = vtkm::cont::ArrayHandle<float>;
-    using doubleType = vtkm::cont::ArrayHandle<double>;
+    using floatType = viskores::cont::ArrayHandle<float>;
+    using doubleType = viskores::cont::ArrayHandle<double>;
     if (xarray.IsType<floatType>() && yarray.IsType<floatType>() && zarray.IsType<floatType>())
     {
       auto xarrayF = xarray.AsArrayHandle<floatType>();
       auto yarrayF = yarray.AsArrayHandle<floatType>();
       auto zarrayF = zarray.AsArrayHandle<floatType>();
       this->CachedCoords =
-        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_32>({ xarrayF, yarrayF, zarrayF });
+        viskores::cont::make_ArrayHandleSOA<viskores::Vec3f_32>({ xarrayF, yarrayF, zarrayF });
     }
     else if (xarray.IsType<doubleType>() && yarray.IsType<doubleType>() &&
              zarray.IsType<doubleType>())
@@ -1169,7 +1176,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCCoordinates::Read(
       auto yarrayD = yarray.AsArrayHandle<doubleType>();
       auto zarrayD = zarray.AsArrayHandle<doubleType>();
       this->CachedCoords =
-        vtkm::cont::make_ArrayHandleSOA<vtkm::Vec3f_64>({ xarrayD, yarrayD, zarrayD });
+        viskores::cont::make_ArrayHandleSOA<viskores::Vec3f_64>({ xarrayD, yarrayD, zarrayD });
     }
     else
     {
@@ -1195,16 +1202,16 @@ std::set<std::string> ArrayGTCCoordinates::GetGroupNames(
   return this->XArray->GetGroupNames(paths, sources);
 }
 
-class ArrayGTCCoordinates::PlaneInserter : public vtkm::worklet::WorkletMapField
+class ArrayGTCCoordinates::PlaneInserter : public viskores::worklet::WorkletMapField
 {
 public:
-  PlaneInserter(vtkm::Id nPlanes, vtkm::Id nPtsPerPlane, vtkm::Id numInsert)
+  PlaneInserter(viskores::Id nPlanes, viskores::Id nPtsPerPlane, viskores::Id numInsert)
     : NumPlanes(nPlanes)
     , PtsPerPlane(nPtsPerPlane)
     , NumInsert(numInsert)
   {
-    this->dT = 1 / static_cast<vtkm::Float64>(this->NumInsert + 1);
-    this->dPhi = 1 / static_cast<vtkm::Float64>(this->NumPlanes * (1 + this->NumInsert));
+    this->dT = 1 / static_cast<viskores::Float64>(this->NumInsert + 1);
+    this->dPhi = 1 / static_cast<viskores::Float64>(this->NumPlanes * (1 + this->NumInsert));
   }
 
   using ControlSignature = void(WholeArrayIn inCoords, WholeArrayOut outCoords);
@@ -1212,53 +1219,53 @@ public:
   using InputDomain = _1;
 
   //Need to template this later.
-  using PointType = vtkm::Vec<vtkm::Float32, 3>;
+  using PointType = viskores::Vec<viskores::Float32, 3>;
 
   template <typename InCoordsType, typename OutCoordsType>
-  VTKM_EXEC void operator()(const vtkm::Id& inIdx,
-                            const InCoordsType& inCoords,
-                            OutCoordsType& outCoords) const
+  VISKORES_EXEC void operator()(const viskores::Id& inIdx,
+                                const InCoordsType& inCoords,
+                                OutCoordsType& outCoords) const
   {
-    vtkm::Id plane0PtIdx = inIdx;
-    vtkm::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
-    vtkm::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
+    viskores::Id plane0PtIdx = inIdx;
+    viskores::Id inPlaneIdx = plane0PtIdx / this->PtsPerPlane;
+    viskores::Id pt0Offset = plane0PtIdx % this->PtsPerPlane;
     // This is correct:
-    vtkm::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
+    viskores::Id plane1PtIdx = plane0PtIdx + this->PtsPerPlane;
     // Unless we're in the last plane:
     if (inPlaneIdx == this->NumPlanes - 1)
     {
       plane1PtIdx = plane0PtIdx % this->PtsPerPlane;
     }
 
-    vtkm::Id firstOutputPlaneIndex = inPlaneIdx * (1 + this->NumInsert);
+    viskores::Id firstOutputPlaneIndex = inPlaneIdx * (1 + this->NumInsert);
 
     const auto& plane0Pt = inCoords.Get(plane0PtIdx);
     const auto& plane1Pt = inCoords.Get(plane1PtIdx);
     outCoords.Set(firstOutputPlaneIndex * this->PtsPerPlane + pt0Offset, plane0Pt);
 
     //Now add NumInsert interpolated points.
-    const auto rad = vtkm::Sqrt((plane0Pt[0] * plane0Pt[0] + plane0Pt[1] * plane0Pt[1]));
+    const auto rad = viskores::Sqrt((plane0Pt[0] * plane0Pt[0] + plane0Pt[1] * plane0Pt[1]));
     const auto Z = plane0Pt[2];
 
     //optimize this later...
-    auto phi0 = vtkm::ATan2(plane0Pt[1], plane0Pt[0]);
-    auto phi1 = vtkm::ATan2(plane1Pt[1], plane1Pt[0]);
+    auto phi0 = viskores::ATan2(plane0Pt[1], plane0Pt[0]);
+    auto phi1 = viskores::ATan2(plane1Pt[1], plane1Pt[0]);
 
     if (phi0 < phi1)
     {
-      phi0 += vtkm::TwoPi();
+      phi0 += viskores::TwoPi();
     }
 
-    vtkm::Float64 t = dT;
-    vtkm::Id numOutCoords = outCoords.GetNumberOfValues();
+    viskores::Float64 t = dT;
+    viskores::Id numOutCoords = outCoords.GetNumberOfValues();
 
-    for (vtkm::Id i = 0; i < this->NumInsert; i++)
+    for (viskores::Id i = 0; i < this->NumInsert; i++)
     {
       //calculate the index for the inbetween plane points.
-      vtkm::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
+      viskores::Id outIdx = (firstOutputPlaneIndex + i + 1) * this->PtsPerPlane + pt0Offset;
       if (outIdx > numOutCoords)
       {
-#if defined(VTKM_ENABLE_CUDA) || defined(VTKM_ENABLE_KOKKOS)
+#if defined(VISKORES_ENABLE_CUDA) || defined(VISKORES_ENABLE_KOKKOS)
         // cuda doesn't like std::string::data
         this->RaiseError("Output index is outside the bounds of output array");
 #else
@@ -1269,21 +1276,21 @@ public:
       }
       //interpolate phi, convert to cartesian.
       auto phi = phi0 + t * (phi1 - phi0);
-      PointType outPt(rad * vtkm::Cos(phi), rad * vtkm::Sin(phi), Z);
+      PointType outPt(rad * viskores::Cos(phi), rad * viskores::Sin(phi), Z);
       outCoords.Set(outIdx, outPt);
       t += dT;
     }
   }
 
 private:
-  vtkm::Id NumPlanes;
-  vtkm::Id PtsPerPlane;
-  vtkm::Id NumInsert;
-  vtkm::Float64 dT;
-  vtkm::Float64 dPhi;
+  viskores::Id NumPlanes;
+  viskores::Id PtsPerPlane;
+  viskores::Id NumInsert;
+  viskores::Float64 dT;
+  viskores::Float64 dPhi;
 };
 
-void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+void ArrayGTCCoordinates::PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                                    const fides::metadata::MetaData& metaData)
 {
   if (dataSets.size() != 1)
@@ -1314,12 +1321,13 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
       throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
     }
 
-    using intType = vtkm::cont::ArrayHandle<int>;
+    using intType = viskores::cont::ArrayHandle<int>;
     auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
     auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
 
-    vtkm::Id numberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
-    vtkm::Id numberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
+    viskores::Id numberOfPlanes = static_cast<viskores::Id>(numPlanes.ReadPortal().Get(0));
+    viskores::Id numberOfPointsPerPlane =
+      static_cast<viskores::Id>(numPtsPerPlane.ReadPortal().Get(0));
 
     ArrayGTCCoordinates::PlaneInserter plnIns(
       numberOfPlanes, numberOfPointsPerPlane, numInsertPlanes);
@@ -1327,8 +1335,8 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     {
       auto inCoords = cs.GetData().AsArrayHandle<GTCCoordsType32>();
       GTCCoordsType32 newCoords;
-      vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
-      vtkm::cont::Invoker invoke;
+      viskores::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+      viskores::cont::Invoker invoke;
       newCoords.Allocate(numTotalPlanes * numberOfPointsPerPlane);
       invoke(plnIns, inCoords, newCoords);
 
@@ -1338,8 +1346,8 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     {
       auto inCoords = cs.GetData().AsArrayHandle<GTCCoordsType64>();
       GTCCoordsType64 newCoords;
-      vtkm::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
-      vtkm::cont::Invoker invoke;
+      viskores::Id numTotalPlanes = numberOfPlanes * (1 + numInsertPlanes);
+      viskores::cont::Invoker invoke;
       newCoords.Allocate(numTotalPlanes * numberOfPointsPerPlane);
       invoke(plnIns, inCoords, newCoords);
 
@@ -1356,8 +1364,8 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
   if (this->IsCached)
   {
     //Set coords to cached coordinates.
-    cs = vtkm::cont::CoordinateSystem("coords",
-                                      make_ArrayHandleWithoutDataOwnership(this->CachedCoords));
+    cs = viskores::cont::CoordinateSystem("coords",
+                                          make_ArrayHandleWithoutDataOwnership(this->CachedCoords));
   }
   else
   {
@@ -1366,7 +1374,7 @@ void ArrayGTCCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 }
 
 /// Reads and returns array handles.
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayGTCField::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayGTCField::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -1390,7 +1398,7 @@ std::set<std::string> ArrayGTCField::GetGroupNames(
 }
 
 
-void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+void ArrayGTCField::PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                              const fides::metadata::MetaData& metaData)
 {
   if (dataSets.size() != 1)
@@ -1420,12 +1428,12 @@ void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     {
       throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
     }
-    using intType = vtkm::cont::ArrayHandle<int>;
+    using intType = viskores::cont::ArrayHandle<int>;
     auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
     auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
 
-    this->NumberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
-    this->NumberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
+    this->NumberOfPointsPerPlane = static_cast<viskores::Id>(numPtsPerPlane.ReadPortal().Get(0));
+    this->NumberOfPlanes = static_cast<viskores::Id>(numPlanes.ReadPortal().Get(0));
 
     this->IsCached = true;
   }
@@ -1435,24 +1443,24 @@ void ArrayGTCField::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     const auto& field = dataSet.GetField(this->VariableName);
     const auto& arr = field.GetData();
 
-    vtkm::Id numTotalPlanes = this->NumberOfPlanes * (1 + numInsertPlanes);
+    viskores::Id numTotalPlanes = this->NumberOfPlanes * (1 + numInsertPlanes);
     fusionutil::PlaneInserterField planeInserter(
       this->NumberOfPlanes, this->NumberOfPointsPerPlane, numInsertPlanes);
-    vtkm::cont::Invoker invoke;
+    viskores::cont::Invoker invoke;
 
-    if (arr.IsType<vtkm::cont::ArrayHandle<vtkm::Float32>>())
+    if (arr.IsType<viskores::cont::ArrayHandle<viskores::Float32>>())
     {
-      auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float32>>();
-      vtkm::cont::ArrayHandle<vtkm::Float32> outArr;
+      auto inArr = arr.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float32>>();
+      viskores::cont::ArrayHandle<viskores::Float32> outArr;
       outArr.Allocate(numTotalPlanes * this->NumberOfPointsPerPlane);
       invoke(planeInserter, inArr, outArr);
 
       dataSet.AddPointField(this->VariableName, outArr);
     }
-    else if (arr.IsType<vtkm::cont::ArrayHandle<vtkm::Float64>>())
+    else if (arr.IsType<viskores::cont::ArrayHandle<viskores::Float64>>())
     {
-      auto inArr = arr.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
-      vtkm::cont::ArrayHandle<vtkm::Float64> outArr;
+      auto inArr = arr.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>();
+      viskores::cont::ArrayHandle<viskores::Float64> outArr;
       outArr.Allocate(numTotalPlanes * this->NumberOfPointsPerPlane);
       invoke(planeInserter, inArr, outArr);
 
@@ -1574,7 +1582,7 @@ void ArrayGXCoordinates::ProcessJSON(const rapidjson::Value& json, DataSourcesTy
   }
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ArrayGXCoordinates::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ArrayGXCoordinates::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -1595,11 +1603,11 @@ std::vector<vtkm::cont::UnknownArrayHandle> ArrayGXCoordinates::Read(
   this->XNArrayHandle = xnArrays[0];
   this->PhiArrayHandle = phiArrays[0];
 
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
   return retVal;
 }
 
-void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
+void ArrayGXCoordinates::PostRead(std::vector<viskores::cont::DataSet>& dataSets,
                                   const fides::metadata::MetaData& fidesNotUsed(metaData))
 {
   if (!this->FullTorus)
@@ -1614,14 +1622,14 @@ void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
   auto& dataSet = dataSets[0];
 
-  auto xm = this->XMArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
-  auto xn = this->XNArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
+  auto xm = this->XMArrayHandle.AsArrayHandle<viskores::cont::ArrayHandle<double>>();
+  auto xn = this->XNArrayHandle.AsArrayHandle<viskores::cont::ArrayHandle<double>>();
   if (xm.GetNumberOfValues() != xn.GetNumberOfValues())
     throw std::runtime_error("Error: Xm and Xn must be the same size.");
 
-  auto rmnc = this->RMNCArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
-  auto zmns = this->ZMNSArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
-  auto lmns = this->LMNSArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandleRuntimeVec<double>>();
+  auto rmnc = this->RMNCArrayHandle.AsArrayHandle<viskores::cont::ArrayHandleRuntimeVec<double>>();
+  auto zmns = this->ZMNSArrayHandle.AsArrayHandle<viskores::cont::ArrayHandleRuntimeVec<double>>();
+  auto lmns = this->LMNSArrayHandle.AsArrayHandle<viskores::cont::ArrayHandleRuntimeVec<double>>();
   if (rmnc.GetNumberOfValues() != zmns.GetNumberOfValues() ||
       rmnc.GetNumberOfValues() != lmns.GetNumberOfValues() ||
       rmnc.GetNumberOfComponents() != zmns.GetNumberOfComponents() ||
@@ -1630,11 +1638,11 @@ void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     throw std::runtime_error("Error: rmnc, zmns and lmns must be the same size.");
   }
 
-  //auto phi = this->PhiArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<double>>();
-  vtkm::Id numSurfaces = this->RMNCArrayHandle.GetNumberOfValues();
+  //auto phi = this->PhiArrayHandle.AsArrayHandle<viskores::cont::ArrayHandle<double>>();
+  viskores::Id numSurfaces = this->RMNCArrayHandle.GetNumberOfValues();
 
-  vtkm::Id srfIdxMin = 0;
-  vtkm::Id srfIdxMax = srfIdxMin + numSurfaces;
+  viskores::Id srfIdxMin = 0;
+  viskores::Id srfIdxMax = srfIdxMin + numSurfaces;
   if (this->SurfaceMinIdxSet)
   {
     srfIdxMin = this->SurfaceMinIdx;
@@ -1652,105 +1660,109 @@ void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
 
   numSurfaces = srfIdxMax - srfIdxMin;
 
-  this->NFP = static_cast<vtkm::Id>(
-    this->NFPArrayHandle.AsArrayHandle<vtkm::cont::ArrayHandle<int>>().ReadPortal().Get(0));
-  auto z0 = vtkm::Pi() / this->NFP;
+  this->NFP = static_cast<viskores::Id>(
+    this->NFPArrayHandle.AsArrayHandle<viskores::cont::ArrayHandle<int>>().ReadPortal().Get(0));
+  auto z0 = viskores::Pi() / this->NFP;
 
   //Add num_theta, num_zeta and NFP to the dataset.
-  dataSet.AddField(vtkm::cont::make_Field("num_theta",
-                                          vtkm::cont::Field::Association::WholeDataSet,
-                                          &this->NumTheta,
-                                          1,
-                                          vtkm::CopyFlag::On));
-  dataSet.AddField(vtkm::cont::make_Field("num_zeta",
-                                          vtkm::cont::Field::Association::WholeDataSet,
-                                          &this->NumZeta,
-                                          1,
-                                          vtkm::CopyFlag::On));
-  dataSet.AddField(vtkm::cont::make_Field(
-    "nfp", vtkm::cont::Field::Association::WholeDataSet, &this->NFP, 1, vtkm::CopyFlag::On));
-  dataSet.AddField(vtkm::cont::make_Field("num_surfaces",
-                                          vtkm::cont::Field::Association::WholeDataSet,
-                                          &numSurfaces,
-                                          1,
-                                          vtkm::CopyFlag::On));
-  dataSet.AddField(vtkm::cont::make_Field("surface_min_index",
-                                          vtkm::cont::Field::Association::WholeDataSet,
-                                          &srfIdxMin,
-                                          1,
-                                          vtkm::CopyFlag::On));
+  dataSet.AddField(viskores::cont::make_Field("num_theta",
+                                              viskores::cont::Field::Association::WholeDataSet,
+                                              &this->NumTheta,
+                                              1,
+                                              viskores::CopyFlag::On));
+  dataSet.AddField(viskores::cont::make_Field("num_zeta",
+                                              viskores::cont::Field::Association::WholeDataSet,
+                                              &this->NumZeta,
+                                              1,
+                                              viskores::CopyFlag::On));
+  dataSet.AddField(viskores::cont::make_Field("nfp",
+                                              viskores::cont::Field::Association::WholeDataSet,
+                                              &this->NFP,
+                                              1,
+                                              viskores::CopyFlag::On));
+  dataSet.AddField(viskores::cont::make_Field("num_surfaces",
+                                              viskores::cont::Field::Association::WholeDataSet,
+                                              &numSurfaces,
+                                              1,
+                                              viskores::CopyFlag::On));
+  dataSet.AddField(viskores::cont::make_Field("surface_min_index",
+                                              viskores::cont::Field::Association::WholeDataSet,
+                                              &srfIdxMin,
+                                              1,
+                                              viskores::CopyFlag::On));
 
-  vtkm::cont::ArrayHandleCounting<vtkm::Float64> tax, zax;
+  viskores::cont::ArrayHandleCounting<viskores::Float64> tax, zax;
   if (this->ThetaZeroMid)
   {
-    tax = vtkm::cont::make_ArrayHandleCounting(
-      -vtkm::Pi(), vtkm::Pi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
+    tax = viskores::cont::make_ArrayHandleCounting(
+      -viskores::Pi(), viskores::Pi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
   }
   else
   {
-    tax = vtkm::cont::make_ArrayHandleCounting(
-      0.0, vtkm::TwoPi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
+    tax = viskores::cont::make_ArrayHandleCounting(
+      0.0, viskores::TwoPi() / static_cast<double>(this->NumTheta - 1), this->NumTheta);
   }
 
   if (this->ZetaZeroMid)
   {
-    zax = vtkm::cont::make_ArrayHandleCounting(
+    zax = viskores::cont::make_ArrayHandleCounting(
       -z0, z0 / static_cast<double>(this->NumZeta - 1), this->NumZeta);
   }
   else
   {
-    zax = vtkm::cont::make_ArrayHandleCounting(
+    zax = viskores::cont::make_ArrayHandleCounting(
       0.0, 2 * z0 / static_cast<double>(this->NumZeta - 1), this->NumZeta);
   }
 
-  vtkm::Id numZeta = zax.GetNumberOfValues();
-  vtkm::Id numTheta = tax.GetNumberOfValues();
-  vtkm::Id numZetaTheta = this->NumZeta * this->NumTheta;
-  vtkm::Id numAmplitudes = xm.GetNumberOfValues();
+  viskores::Id numZeta = zax.GetNumberOfValues();
+  viskores::Id numTheta = tax.GetNumberOfValues();
+  viskores::Id numZetaTheta = this->NumZeta * this->NumTheta;
+  viskores::Id numAmplitudes = xm.GetNumberOfValues();
 
   //Calculate Cos/Sin values.
-  vtkm::cont::ArrayHandle<vtkm::Float64> cosValuesBase, sinValuesBase, xValuesBase;
+  viskores::cont::ArrayHandle<viskores::Float64> cosValuesBase, sinValuesBase, xValuesBase;
   cosValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
   sinValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
   xValuesBase.Allocate(numZeta * numTheta * numAmplitudes);
-  auto cosValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, cosValuesBase);
-  auto sinValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, sinValuesBase);
-  auto xValues = vtkm::cont::make_ArrayHandleRuntimeVec(numAmplitudes, xValuesBase);
+  auto cosValues = viskores::cont::make_ArrayHandleRuntimeVec(numAmplitudes, cosValuesBase);
+  auto sinValues = viskores::cont::make_ArrayHandleRuntimeVec(numAmplitudes, sinValuesBase);
+  auto xValues = viskores::cont::make_ArrayHandleRuntimeVec(numAmplitudes, xValuesBase);
   fides::datamodel::fusionutil::CalcCosSin calcCosSinWorklet(numZeta, numTheta, numAmplitudes);
-  vtkm::cont::Invoker invoke;
+  viskores::cont::Invoker invoke;
   invoke(calcCosSinWorklet, zax, tax, xm, xn, cosValues, sinValues, xValues);
 
-  vtkm::cont::ArrayHandle<vtkm::Vec3f_64> RZLArrayBase;
-  vtkm::cont::ArrayHandle<vtkm::Float64> LambdaBase;
+  viskores::cont::ArrayHandle<viskores::Vec3f_64> RZLArrayBase;
+  viskores::cont::ArrayHandle<viskores::Float64> LambdaBase;
   RZLArrayBase.Allocate(numZetaTheta * numSurfaces);
   LambdaBase.Allocate(numZetaTheta * numSurfaces);
 
-  vtkm::cont::ArrayHandle<vtkm::Vec3f_64> RZLArray, XYZArrayGlobal;
-  vtkm::cont::ArrayHandle<vtkm::Float64> LambdaArrayGlobal;
+  viskores::cont::ArrayHandle<viskores::Vec3f_64> RZLArray, XYZArrayGlobal;
+  viskores::cont::ArrayHandle<viskores::Float64> LambdaArrayGlobal;
   RZLArray.Allocate(numZetaTheta);
   XYZArrayGlobal.Allocate(numSurfaces * numZetaTheta * this->NFP);
   LambdaArrayGlobal.Allocate(numSurfaces * numZetaTheta * this->NFP);
 
-  vtkm::cont::Invoker invoker;
+  viskores::cont::Invoker invoker;
 
-  vtkm::Id numPtsPerSrf = this->NumZeta * this->NumTheta * this->NFP;
-  vtkm::Id offset = 0;
-  auto zn = vtkm::cont::make_ArrayHandleCounting(
-    0.0, vtkm::TwoPi() / static_cast<double>(this->NFP), this->NFP);
+  viskores::Id numPtsPerSrf = this->NumZeta * this->NumTheta * this->NFP;
+  viskores::Id offset = 0;
+  auto zn = viskores::cont::make_ArrayHandleCounting(
+    0.0, viskores::TwoPi() / static_cast<double>(this->NFP), this->NFP);
 
-  for (vtkm::Id si = srfIdxMin; si < srfIdxMax; si++, offset += numPtsPerSrf)
+  for (viskores::Id si = srfIdxMin; si < srfIdxMax; si++, offset += numPtsPerSrf)
   {
     //calc RZL for this surface.
     fides::datamodel::fusionutil::CalcRZL calcRZLWorklet(numAmplitudes, si);
     invoker(calcRZLWorklet, RZLArray, rmnc, zmns, lmns, cosValues, sinValues);
 
-    auto XYZArray = vtkm::cont::make_ArrayHandleView(XYZArrayGlobal, offset, numPtsPerSrf);
-    auto LambdaArray = vtkm::cont::make_ArrayHandleView(LambdaArrayGlobal, offset, numPtsPerSrf);
+    auto XYZArray = viskores::cont::make_ArrayHandleView(XYZArrayGlobal, offset, numPtsPerSrf);
+    auto LambdaArray =
+      viskores::cont::make_ArrayHandleView(LambdaArrayGlobal, offset, numPtsPerSrf);
 
     if (this->FullTorus)
     {
-      auto Phi_n = vtkm::cont::ArrayHandle<vtkm::Float64>();
-      auto RZL_n = vtkm::cont::ArrayHandle<vtkm::Vec3f_64>();
+      auto Phi_n = viskores::cont::ArrayHandle<viskores::Float64>();
+      auto RZL_n = viskores::cont::ArrayHandle<viskores::Vec3f_64>();
       Phi_n.Allocate(this->NFP * this->NumZeta * this->NumTheta);
       RZL_n.Allocate(this->NFP * this->NumZeta * this->NumTheta);
 
@@ -1768,7 +1780,7 @@ void ArrayGXCoordinates::PostRead(std::vector<vtkm::cont::DataSet>& dataSets,
     }
   }
 
-  dataSet.AddCoordinateSystem(vtkm::cont::CoordinateSystem("coordinates", XYZArrayGlobal));
+  dataSet.AddCoordinateSystem(viskores::cont::CoordinateSystem("coordinates", XYZArrayGlobal));
 
   //Add lambda field.
   dataSet.AddPointField("Lambda", LambdaArrayGlobal);

@@ -15,18 +15,18 @@
 #include <fides/DataModel.h>
 #include <fides/MetaData.h>
 
-#include <vtkm/cont/CoordinateSystem.h>
-#include <vtkm/cont/PartitionedDataSet.h>
+#include <viskores/cont/CoordinateSystem.h>
+#include <viskores/cont/PartitionedDataSet.h>
 
 namespace fides
 {
 namespace datamodel
 {
 
-/// \brief Data model object for VTK-m coordinate systems.
+/// \brief Data model object for Viskores coordinate systems.
 ///
 /// \c fides::datamodel::CoordinateSystem is responsible of creating
-/// VTK-m coordinate systems by loading data defined by the Fides
+/// Viskores coordinate systems by loading data defined by the Fides
 /// data model.
 struct CoordinateSystem : public DataModelBase
 {
@@ -38,7 +38,7 @@ struct CoordinateSystem : public DataModelBase
   /// handled by the underlying Array object.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::CoordinateSystem> Read(
+  std::vector<viskores::cont::CoordinateSystem> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -46,7 +46,7 @@ struct CoordinateSystem : public DataModelBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
   /// Returns the number of blocks in the underlying Array variable inside the given group.

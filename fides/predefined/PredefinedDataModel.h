@@ -16,7 +16,7 @@
 #include FIDES_RAPIDJSON(rapidjson/document.h)
 // clang-format on
 
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/DataSet.h>
 
 #include <memory>
 #include <string>
@@ -37,7 +37,7 @@ class PredefinedDataModel
 {
 public:
   PredefinedDataModel(std::shared_ptr<InternalMetadataSource> source);
-  PredefinedDataModel(const vtkm::cont::DataSet& dataSet);
+  PredefinedDataModel(const viskores::cont::DataSet& dataSet);
   virtual ~PredefinedDataModel() = default;
 
   /// Generate and return the DOM. The optional print argument
@@ -91,7 +91,7 @@ protected:
   std::string DataSourceName = "source";
   std::shared_ptr<InternalMetadataSource> MetadataSource;
 
-  vtkm::cont::DataSet DataSetSource;
+  viskores::cont::DataSet DataSetSource;
   bool FieldsToWriteSet;
   std::set<std::string> FieldsToWrite;
 };
@@ -104,14 +104,14 @@ protected:
 /// Fides_Spacing.
 class UniformDataModel : public PredefinedDataModel
 {
-  using UniformCoordType = vtkm::cont::ArrayHandleUniformPointCoordinates;
-  using StructuredCell3DType = vtkm::cont::CellSetStructured<3>;
-  using StructuredCell2DType = vtkm::cont::CellSetStructured<2>;
-  using StructuredCell1DType = vtkm::cont::CellSetStructured<1>;
+  using UniformCoordType = viskores::cont::ArrayHandleUniformPointCoordinates;
+  using StructuredCell3DType = viskores::cont::CellSetStructured<3>;
+  using StructuredCell2DType = viskores::cont::CellSetStructured<2>;
+  using StructuredCell1DType = viskores::cont::CellSetStructured<1>;
 
 public:
   UniformDataModel(std::shared_ptr<InternalMetadataSource> source);
-  UniformDataModel(const vtkm::cont::DataSet& dataSet);
+  UniformDataModel(const viskores::cont::DataSet& dataSet);
 
   std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
 
@@ -128,17 +128,17 @@ protected:
 /// Fides_Data_Model should be set to 'rectilinear'.
 class RectilinearDataModel : public PredefinedDataModel
 {
-  using RectilinearCoordType =
-    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  using StructuredCell3DType = vtkm::cont::CellSetStructured<3>;
-  using StructuredCell2DType = vtkm::cont::CellSetStructured<2>;
-  using StructuredCell1DType = vtkm::cont::CellSetStructured<1>;
+  using RectilinearCoordType = viskores::cont::ArrayHandleCartesianProduct<
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>>;
+  using StructuredCell3DType = viskores::cont::CellSetStructured<3>;
+  using StructuredCell2DType = viskores::cont::CellSetStructured<2>;
+  using StructuredCell1DType = viskores::cont::CellSetStructured<1>;
 
 public:
   RectilinearDataModel(std::shared_ptr<InternalMetadataSource> source);
-  RectilinearDataModel(const vtkm::cont::DataSet& dataSet);
+  RectilinearDataModel(const viskores::cont::DataSet& dataSet);
 
   std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
 
@@ -154,13 +154,13 @@ protected:
 /// Fides_Data_Model should be set to 'unstructured'.
 class UnstructuredDataModel : public PredefinedDataModel
 {
-  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
-  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
-  using UnstructuredType = vtkm::cont::CellSetExplicit<>;
+  using UnstructuredCoordType = viskores::cont::ArrayHandle<viskores::Vec3f>;
+  using UnstructuredSingleType = viskores::cont::CellSetSingleType<>;
+  using UnstructuredType = viskores::cont::CellSetExplicit<>;
 
 public:
   UnstructuredDataModel(std::shared_ptr<InternalMetadataSource> source);
-  UnstructuredDataModel(const vtkm::cont::DataSet& dataSet);
+  UnstructuredDataModel(const viskores::cont::DataSet& dataSet);
 
   std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
 
@@ -178,13 +178,13 @@ protected:
 /// attribute with the name Fides_Cell_Type to specify the  cell type.
 class UnstructuredSingleTypeDataModel : public UnstructuredDataModel
 {
-  using UnstructuredCoordType = vtkm::cont::ArrayHandle<vtkm::Vec3f>;
-  using UnstructuredSingleType = vtkm::cont::CellSetSingleType<>;
-  using UnstructuredType = vtkm::cont::CellSetExplicit<>;
+  using UnstructuredCoordType = viskores::cont::ArrayHandle<viskores::Vec3f>;
+  using UnstructuredSingleType = viskores::cont::CellSetSingleType<>;
+  using UnstructuredType = viskores::cont::CellSetExplicit<>;
 
 public:
   UnstructuredSingleTypeDataModel(std::shared_ptr<InternalMetadataSource> source);
-  UnstructuredSingleTypeDataModel(const vtkm::cont::DataSet& dataSet);
+  UnstructuredSingleTypeDataModel(const viskores::cont::DataSet& dataSet);
 
   std::unordered_map<std::string, std::vector<std::string>> GetAttributes() override;
 
