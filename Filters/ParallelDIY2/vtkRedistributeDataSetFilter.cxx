@@ -76,7 +76,7 @@ vtkBoundingBox GetBounds(vtkDataObject* dobj, diy::mpi::communicator& comm)
 }
 
 /**
- * Clip the dataset by the provided plane using vtkmClip.
+ * Clip the dataset by the provided plane using viskoresClip.
  */
 vtkSmartPointer<vtkUnstructuredGrid> ClipPlane(vtkDataSet* dataset, vtkSmartPointer<vtkPlane> plane)
 {

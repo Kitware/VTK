@@ -15,7 +15,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/field_transform/PointElevation.h>
+#include <viskores/filter/field_transform/PointElevation.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmPointElevation);
@@ -48,11 +48,11 @@ int vtkmPointElevation::RequestData(
 
   try
   {
-    // Convert the input dataset to a vtkm::cont::DataSet
+    // Convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
 
     // Setup input
-    vtkm::filter::field_transform::PointElevation filter;
+    viskores::filter::field_transform::PointElevation filter;
     filter.SetLowPoint(this->LowPoint[0], this->LowPoint[1], this->LowPoint[2]);
     filter.SetHighPoint(this->HighPoint[0], this->HighPoint[1], this->HighPoint[2]);
     filter.SetRange(this->ScalarRange[0], this->ScalarRange[1]);
@@ -64,23 +64,23 @@ int vtkmPointElevation::RequestData(
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField("elevation"));
     if (resultingArray == nullptr)
     {
-      vtkErrorMacro(<< "Unable to convert result array from VTK-m to VTK");
+      vtkErrorMacro(<< "Unable to convert result array from Viskores to VTK");
       return 0;
     }
     output->GetPointData()->AddArray(resultingArray);
     output->GetPointData()->SetActiveScalars("elevation");
     resultingArray->FastDelete();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+      vtkWarningMacro(<< "Viskores error: " << e.GetMessage()
                       << "Falling back to serial implementation");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }

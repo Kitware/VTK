@@ -14,7 +14,7 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include <vtkm/filter/connected_components/ImageConnectivity.h>
+#include <viskores/filter/connected_components/ImageConnectivity.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmImageConnectivity);
@@ -53,8 +53,8 @@ int vtkmImageConnectivity::RequestData(
 
   try
   {
-    vtkm::filter::connected_components::ImageConnectivity filter;
-    filter.SetActiveField(inputArray->GetName(), vtkm::cont::Field::Association::Points);
+    viskores::filter::connected_components::ImageConnectivity filter;
+    filter.SetActiveField(inputArray->GetName(), viskores::cont::Field::Association::Points);
     // the field should be named 'RegionId'
     filter.SetOutputFieldName("RegionId");
 
@@ -64,9 +64,10 @@ int vtkmImageConnectivity::RequestData(
     inData.AddField(inField);
 
     // don't pass this field
-    filter.SetFieldsToPass(vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
+    filter.SetFieldsToPass(
+      viskores::filter::FieldSelection(viskores::filter::FieldSelection::Mode::None));
 
-    vtkm::cont::DataSet result;
+    viskores::cont::DataSet result;
     result = filter.Execute(inData);
 
     // Make sure the output has all the fields / etc that the input has
@@ -75,14 +76,14 @@ int vtkmImageConnectivity::RequestData(
     // convert back the regionId field to VTK
     if (!fromvtkm::ConvertArrays(result, output))
     {
-      vtkWarningMacro(<< "Unable to convert VTKm DataSet back to VTK.\n"
+      vtkWarningMacro(<< "Unable to convert Viskores DataSet back to VTK.\n"
                       << "Falling back to serial implementation.");
       return 0;
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
   return 1;

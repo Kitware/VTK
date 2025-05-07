@@ -8,7 +8,7 @@
 
 #include "DataArrayConverters.h"
 
-#include <vtkm/cont/ArrayHandleGroupVecVariable.h>
+#include <viskores/cont/ArrayHandleGroupVecVariable.h>
 
 #include "vtkDataArray.h"
 
@@ -17,7 +17,7 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 template <typename DataArrayType>
-vtkm::cont::Field ConvertPointField(DataArrayType* input)
+viskores::cont::Field ConvertPointField(DataArrayType* input)
 {
   const char* name = input->GetName();
   if (!name || name[0] == '\0')
@@ -26,11 +26,11 @@ vtkm::cont::Field ConvertPointField(DataArrayType* input)
   }
 
   auto vhandle = vtkDataArrayToUnknownArrayHandle(input);
-  return vtkm::cont::make_FieldPoint(name, vhandle);
+  return viskores::cont::make_FieldPoint(name, vhandle);
 }
 
 template <typename DataArrayType>
-vtkm::cont::Field ConvertCellField(DataArrayType* input)
+viskores::cont::Field ConvertCellField(DataArrayType* input)
 {
   const char* name = input->GetName();
   if (!name || name[0] == '\0')
@@ -39,7 +39,7 @@ vtkm::cont::Field ConvertCellField(DataArrayType* input)
   }
 
   auto vhandle = vtkDataArrayToUnknownArrayHandle(input);
-  return vtkm::cont::make_FieldCell(name, vhandle);
+  return viskores::cont::make_FieldCell(name, vhandle);
 }
 
 VTK_ABI_NAMESPACE_END

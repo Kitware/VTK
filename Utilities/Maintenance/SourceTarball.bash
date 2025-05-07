@@ -197,41 +197,6 @@ load_data_files () {
     check_pipeline
 }
 
-read_all_submodules () {
-    # `git submodule foreach` clears GIT_INDEX_FILE from then environment
-    # inside its command.
-    local git_index="$GIT_INDEX_FILE"
-    export git_index
-
-    git submodule foreach --recursive --quiet '
-        gitdir="$( git rev-parse --git-dir )"
-        cd "$toplevel"
-        GIT_INDEX_FILE="$git_index"
-        export GIT_INDEX_FILE
-        git add .gitmodules 2>/dev/null
-        git rm --cached "$displaypath" >&2
-        GIT_ALTERNATE_OBJECT_DIRECTORIES="$gitdir/objects" git read-tree -i --prefix="$sm_path/" "$sha1"
-        echo "$gitdir/objects"
-    ' | \
-        tr '\n' ':'
-}
-
-read_submodules_into_index () {
-    local object_dirs="$( git rev-parse --git-dir )/objects"
-    local new_object_dirs
-
-    while git ls-files -s | grep -q -e '^160000'; do
-        new_object_dirs="$( read_all_submodules )"
-        object_dirs="$object_dirs:$new_object_dirs"
-    done
-
-    object_dirs="$( echo "$object_dirs" | sed -e 's/:$//;s/^://' )"
-    readonly object_dirs
-
-    GIT_ALTERNATE_OBJECT_DIRECTORIES="$object_dirs"
-    export GIT_ALTERNATE_OBJECT_DIRECTORIES
-}
-
 # Creates an archive of a git tree object.
 git_archive () {
     local archive_format="$1"
@@ -371,7 +336,6 @@ git read-tree -m -i "$commit"
 git rm -rf -q --cached ".ExternalData"
 git submodule sync --recursive
 git submodule update --init --recursive
-read_submodules_into_index
 tree="$( git write-tree )"
 
 info "Generating source archive(s)..."

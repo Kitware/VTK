@@ -9,17 +9,17 @@
 #include "vtkmlib/DataArrayConverters.h"
 
 #include "vtkAcceleratorsVTKmDataModelModule.h" //required for correct implementation
-#include "vtkmConfigDataModel.h"                //required for general vtkm setup
+#include "vtkmConfigDataModel.h"                //required for general viskores setup
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkSOADataArrayTemplate.h"
 
-#include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/Field.h>
 
 #include <type_traits> // for std::underlying_type
 
-namespace vtkm
+namespace viskores
 {
 namespace cont
 {
@@ -39,11 +39,11 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields);
+void ProcessFields(vtkDataSet* input, viskores::cont::DataSet& dataset, tovtkm::FieldsFlag fields);
 
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::Field Convert(vtkDataArray* input, int association);
+viskores::cont::Field Convert(vtkDataArray* input, int association);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -52,7 +52,7 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output);
+bool ConvertArrays(const viskores::cont::DataSet& input, vtkDataSet* output);
 VTK_ABI_NAMESPACE_END
 }
 

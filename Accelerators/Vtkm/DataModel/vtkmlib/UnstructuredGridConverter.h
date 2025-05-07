@@ -10,9 +10,9 @@
 
 #include "ArrayConverters.h" // For FieldsFlag
 
-#include "vtkmConfigDataModel.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general viskores setup
 
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/DataSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
@@ -25,7 +25,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 // convert an unstructured grid type
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
+viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields = FieldsFlag::None);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -33,7 +33,8 @@ namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input);
+bool Convert(
+  const viskores::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input);
 VTK_ABI_NAMESPACE_END
 }
 #endif // vtkmlib_UnstructuredGridConverter_h

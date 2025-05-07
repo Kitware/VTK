@@ -32,12 +32,12 @@ def test_dataset(ds):
 
   d1 = dsa.WrapDataObject(p2c.GetOutput())
 
-  vtkm_p2c = vtkmAverageToCells()
-  vtkm_p2c.SetInputData(ds)
-  vtkm_p2c.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "RTData")
-  vtkm_p2c.Update()
+  viskores_p2c = vtkmAverageToCells()
+  viskores_p2c.SetInputData(ds)
+  viskores_p2c.SetInputArrayToProcess(0, 0, 0, vtkDataObject.FIELD_ASSOCIATION_POINTS, "RTData")
+  viskores_p2c.Update()
 
-  d2 = dsa.WrapDataObject(vtkm_p2c.GetOutput())
+  d2 = dsa.WrapDataObject(viskores_p2c.GetOutput())
 
   rtD1 = d1.PointData['RTData']
   rtD2 = d2.PointData['RTData']

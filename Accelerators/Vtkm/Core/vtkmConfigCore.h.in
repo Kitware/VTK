@@ -6,20 +6,20 @@
 /*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
-#include <vtkm/internal/Configure.h>
+#include <viskores/internal/Configure.h>
 #include "vtkAcceleratorsVTKmCoreModule.h" //required for correct implementation
 
 
 /*--------------------------------------------------------------------------*/
-/* Make sure we use the same id's in VTK and VTK-m                          */
+/* Make sure we use the same id's in VTK and Viskores                          */
 #include "vtkType.h"
 #ifdef VTK_USE_64BIT_IDS
-# ifndef VTKM_USE_64BIT_IDS
-#  error VTK was defined with 64-bit ids but VTK-m with 32-bit ids.
+# ifndef VISKORES_USE_64BIT_IDS
+#  error VTK was defined with 64-bit ids but Viskores with 32-bit ids.
 # endif
 #else // !VTK_USE_64BIT_IDS
-# ifdef VTKM_USE_64BIT_IDS
-#  error VTK was defined with 32-bit ids but VTK-m with 64-bit ids.
+# ifdef VISKORES_USE_64BIT_IDS
+#  error VTK was defined with 32-bit ids but Viskores with 64-bit ids.
 # endif
 #endif
 

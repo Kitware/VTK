@@ -7,15 +7,15 @@
 #include "vtkmClipInternals.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/clean_grid/CleanGrid.h>
-#include <vtkm/filter/contour/ClipWithField.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
+#include <viskores/filter/contour/ClipWithField.h>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
-vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(vtkm::cont::DataSet& in,
+viskores::cont::DataSet vtkmClip::internals::ExecuteClipWithField(viskores::cont::DataSet& in,
   vtkDataArray* scalars, int assoc, double value, bool insideOut, bool computeScalars)
 {
-  vtkm::filter::contour::ClipWithField fieldFilter;
+  viskores::filter::contour::ClipWithField fieldFilter;
   if (!computeScalars)
   {
     // explicitly convert just the field we need
@@ -23,10 +23,10 @@ vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithField(vtkm::cont::DataSe
     in.AddField(inField);
     // don't pass this field
     fieldFilter.SetFieldsToPass(
-      vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None));
+      viskores::filter::FieldSelection(viskores::filter::FieldSelection::Mode::None));
   }
 
-  fieldFilter.SetActiveField(scalars->GetName(), vtkm::cont::Field::Association::Points);
+  fieldFilter.SetActiveField(scalars->GetName(), viskores::cont::Field::Association::Points);
   fieldFilter.SetClipValue(value);
   fieldFilter.SetInvertClip(insideOut);
   auto result = fieldFilter.Execute(in);

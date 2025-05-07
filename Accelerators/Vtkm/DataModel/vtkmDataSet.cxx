@@ -17,19 +17,19 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
-#include <vtkm/List.h>
-#include <vtkm/cont/ArrayHandleCast.h>
-#include <vtkm/cont/ArrayHandlePermutation.h>
-#include <vtkm/cont/CellLocatorGeneral.h>
-#include <vtkm/cont/CellSetExplicit.h>
-#include <vtkm/cont/CellSetPermutation.h>
-#include <vtkm/cont/CellSetSingleType.h>
-#include <vtkm/cont/CellSetStructured.h>
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/DefaultTypes.h>
-#include <vtkm/cont/Invoker.h>
-#include <vtkm/cont/PointLocatorSparseGrid.h>
-#include <vtkm/worklet/ScatterPermutation.h>
+#include <viskores/List.h>
+#include <viskores/cont/ArrayHandleCast.h>
+#include <viskores/cont/ArrayHandlePermutation.h>
+#include <viskores/cont/CellLocatorGeneral.h>
+#include <viskores/cont/CellSetExplicit.h>
+#include <viskores/cont/CellSetPermutation.h>
+#include <viskores/cont/CellSetSingleType.h>
+#include <viskores/cont/CellSetStructured.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/DefaultTypes.h>
+#include <viskores/cont/Invoker.h>
+#include <viskores/cont/PointLocatorSparseGrid.h>
+#include <viskores/worklet/ScatterPermutation.h>
 
 #include <mutex>
 
@@ -37,7 +37,7 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
-using SupportedCellSets = tovtkm::CellListAllOutVTK;
+using SupportedCellSets = toviskores::CellListAllOutVTK;
 
 template <typename LocatorControl>
 struct VtkmLocator
@@ -51,12 +51,12 @@ struct VtkmLocator
 
 struct vtkmDataSet::DataMembers
 {
-  vtkm::cont::UnknownCellSet CellSet;
-  vtkm::cont::CoordinateSystem Coordinates;
+  viskores::cont::UnknownCellSet CellSet;
+  viskores::cont::CoordinateSystem Coordinates;
   vtkNew<vtkGenericCell> Cell;
 
-  VtkmLocator<vtkm::cont::PointLocatorSparseGrid> PointLocator;
-  VtkmLocator<vtkm::cont::CellLocatorGeneral> CellLocator;
+  VtkmLocator<viskores::cont::PointLocatorSparseGrid> PointLocator;
+  VtkmLocator<viskores::cont::CellLocatorGeneral> CellLocator;
 };
 
 //------------------------------------------------------------------------------
@@ -78,16 +78,16 @@ void vtkmDataSet::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkmDataSet::SetVtkmDataSet(const vtkm::cont::DataSet& ds)
+void vtkmDataSet::SetVtkmDataSet(const viskores::cont::DataSet& ds)
 {
   this->Internals->CellSet = ds.GetCellSet();
   this->Internals->Coordinates = ds.GetCoordinateSystem();
   fromvtkm::ConvertArrays(ds, this);
 }
 
-vtkm::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
+viskores::cont::DataSet vtkmDataSet::GetVtkmDataSet() const
 {
-  vtkm::cont::DataSet ds;
+  viskores::cont::DataSet ds;
   ds.SetCellSet(this->Internals->CellSet);
   ds.AddCoordinateSystem(this->Internals->Coordinates);
   tovtkm::ProcessFields(const_cast<vtkmDataSet*>(this), ds, tovtkm::FieldsFlag::PointsAndCells);
@@ -161,14 +161,14 @@ void vtkmDataSet::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 void vtkmDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   if (this->Internals->Coordinates.GetData()
-        .IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>() &&
-    this->Internals->CellSet.IsType<vtkm::cont::CellSetStructured<3>>())
+        .IsType<viskores::cont::ArrayHandleUniformPointCoordinates>() &&
+    this->Internals->CellSet.IsType<viskores::cont::CellSetStructured<3>>())
   {
     auto portal = this->Internals->Coordinates.GetData()
-                    .AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>()
+                    .AsArrayHandle<viskores::cont::ArrayHandleUniformPointCoordinates>()
                     .ReadPortal();
 
-    vtkm::internal::ConnectivityStructuredInternals<3> helper;
+    viskores::internal::ConnectivityStructuredInternals<3> helper;
     helper.SetPointDimensions(portal.GetDimensions());
     auto id3 = helper.FlatToLogicalCellIndex(cellId);
     auto min = portal.Get(id3);
@@ -200,7 +200,7 @@ void vtkmDataSet::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
   auto* csBase = this->Internals->CellSet.GetCellSetBase();
   if (csBase)
   {
-    vtkm::Id numPoints = csBase->GetNumberOfPointsInCell(cellId);
+    viskores::Id numPoints = csBase->GetNumberOfPointsInCell(cellId);
     ptIds->SetNumberOfIds(numPoints);
     csBase->GetCellPointIds(cellId, ptIds->GetPointer(0));
   }
@@ -209,11 +209,11 @@ void vtkmDataSet::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 namespace
 {
 
-struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
+struct WorkletGetPointCells : viskores::worklet::WorkletVisitPointsWithCells
 {
   using ControlSignature = void(CellSetIn);
   using ExecutionSignature = void(CellCount, CellIndices, Device);
-  using ScatterType = vtkm::worklet::ScatterPermutation<>;
+  using ScatterType = viskores::worklet::ScatterPermutation<>;
 
   explicit WorkletGetPointCells(vtkIdList* output)
     : Output(output)
@@ -221,21 +221,21 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
   }
 
   template <typename IndicesVecType, typename Device>
-  VTKM_EXEC void operator()(vtkm::Id, IndicesVecType, Device) const
+  VISKORES_EXEC void operator()(viskores::Id, IndicesVecType, Device) const
   {
     this->RaiseError("This worklet should only be called on serial device");
   }
 
-  // This method is declared VTKM_CONT because we have set it to only
+  // This method is declared VISKORES_CONT because we have set it to only
   // run on the serial device (see the third argument). Declaring it
-  // as VTKM_CONT will prevent compiler warnings/errors about calling
+  // as VISKORES_CONT will prevent compiler warnings/errors about calling
   // a host function from a device that can never happen.
   template <typename IndicesVecType>
-  VTKM_CONT void operator()(
-    vtkm::Id count, IndicesVecType idxs, vtkm::cont::DeviceAdapterTagSerial) const
+  VISKORES_CONT void operator()(
+    viskores::Id count, IndicesVecType idxs, viskores::cont::DeviceAdapterTagSerial) const
   {
     this->Output->SetNumberOfIds(count);
-    for (vtkm::Id i = 0; i < count; ++i)
+    for (viskores::Id i = 0; i < count; ++i)
     {
       this->Output->SetId(i, idxs[i]);
     }
@@ -248,9 +248,9 @@ struct WorkletGetPointCells : vtkm::worklet::WorkletVisitPointsWithCells
 
 void vtkmDataSet::GetPointCells(vtkIdType ptId, vtkIdList* cellIds)
 {
-  auto scatter =
-    WorkletGetPointCells::ScatterType(vtkm::cont::make_ArrayHandle(&ptId, 1, vtkm::CopyFlag::Off));
-  vtkm::cont::Invoker invoke(vtkm::cont::DeviceAdapterTagSerial{});
+  auto scatter = WorkletGetPointCells::ScatterType(
+    viskores::cont::make_ArrayHandle(&ptId, 1, viskores::CopyFlag::Off));
+  viskores::cont::Invoker invoke(viskores::cont::DeviceAdapterTagSerial{});
   invoke(WorkletGetPointCells{ cellIds }, scatter,
     this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}));
 }
@@ -263,19 +263,19 @@ vtkIdType vtkmDataSet::FindPoint(double x[3])
     std::lock_guard<std::mutex> lock(locator.lock);
     if (locator.buildTime < this->GetMTime())
     {
-      locator.control.reset(new vtkm::cont::PointLocatorSparseGrid);
+      locator.control.reset(new viskores::cont::PointLocatorSparseGrid);
       locator.control->SetCoordinates(this->Internals->Coordinates);
       locator.control->Update();
       locator.buildTime = this->GetMTime();
     }
   }
-  vtkm::cont::Token token;
+  viskores::cont::Token token;
   auto execLocator =
-    locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{}, token);
+    locator.control->PrepareForExecution(viskores::cont::DeviceAdapterTagSerial{}, token);
 
-  vtkm::Vec<vtkm::FloatDefault, 3> point(x[0], x[1], x[2]);
-  vtkm::Id pointId = -1;
-  vtkm::FloatDefault d2 = 0;
+  viskores::Vec<viskores::FloatDefault, 3> point(x[0], x[1], x[2]);
+  viskores::Id pointId = -1;
+  viskores::FloatDefault d2 = 0;
   // exec object created for the Serial device can be called directly
   execLocator.FindNearestNeighbor(point, pointId, d2);
   return pointId;
@@ -299,20 +299,20 @@ vtkIdType vtkmDataSet::FindCell(double x[3], vtkCell*, vtkGenericCell*, vtkIdTyp
     std::lock_guard<std::mutex> lock(locator.lock);
     if (locator.buildTime < this->GetMTime())
     {
-      locator.control.reset(new vtkm::cont::CellLocatorGeneral);
+      locator.control.reset(new viskores::cont::CellLocatorGeneral);
       locator.control->SetCellSet(this->Internals->CellSet);
       locator.control->SetCoordinates(this->Internals->Coordinates);
       locator.control->Update();
       locator.buildTime = this->GetMTime();
     }
   }
-  vtkm::cont::Token token;
+  viskores::cont::Token token;
   auto execLocator =
-    locator.control->PrepareForExecution(vtkm::cont::DeviceAdapterTagSerial{}, token);
+    locator.control->PrepareForExecution(viskores::cont::DeviceAdapterTagSerial{}, token);
 
-  vtkm::Vec<vtkm::FloatDefault, 3> point(x[0], x[1], x[2]);
-  vtkm::Vec<vtkm::FloatDefault, 3> pc;
-  vtkm::Id cellId = -1;
+  viskores::Vec<viskores::FloatDefault, 3> point(x[0], x[1], x[2]);
+  viskores::Vec<viskores::FloatDefault, 3> pc;
+  viskores::Id cellId = -1;
   // exec object created for the Serial device can be called directly
   execLocator.FindCell(point, cellId, pc);
 
@@ -341,7 +341,7 @@ void vtkmDataSet::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
   {
-    vtkm::Bounds bounds = this->Internals->Coordinates.GetBounds();
+    viskores::Bounds bounds = this->Internals->Coordinates.GetBounds();
     this->Bounds[0] = bounds.X.Min;
     this->Bounds[1] = bounds.X.Max;
     this->Bounds[2] = bounds.Y.Min;
@@ -363,34 +363,36 @@ namespace
 
 struct MaxCellSize
 {
-  template <vtkm::IdComponent DIM>
+  template <viskores::IdComponent DIM>
   void operator()(
-    const vtkm::cont::CellSetStructured<DIM>& cellset, vtkm::IdComponent& result) const
+    const viskores::cont::CellSetStructured<DIM>& cellset, viskores::IdComponent& result) const
   {
     result = cellset.GetNumberOfPointsInCell(0);
   }
 
   template <typename S>
-  void operator()(const vtkm::cont::CellSetSingleType<S>& cellset, vtkm::IdComponent& result) const
+  void operator()(
+    const viskores::cont::CellSetSingleType<S>& cellset, viskores::IdComponent& result) const
   {
     result = cellset.GetNumberOfPointsInCell(0);
   }
 
   template <typename S1, typename S2, typename S3>
   void operator()(
-    const vtkm::cont::CellSetExplicit<S1, S2, S3>& cellset, vtkm::IdComponent& result) const
+    const viskores::cont::CellSetExplicit<S1, S2, S3>& cellset, viskores::IdComponent& result) const
   {
-    auto counts =
-      cellset.GetNumIndicesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
-    result = vtkm::cont::Algorithm::Reduce(counts, vtkm::IdComponent{ 0 }, vtkm::Maximum{});
+    auto counts = cellset.GetNumIndicesArray(
+      viskores::TopologyElementTagCell{}, viskores::TopologyElementTagPoint{});
+    result =
+      viskores::cont::Algorithm::Reduce(counts, viskores::IdComponent{ 0 }, viskores::Maximum{});
   }
 
   template <typename CellSetType>
-  void operator()(const CellSetType& cellset, vtkm::IdComponent& result) const
+  void operator()(const CellSetType& cellset, viskores::IdComponent& result) const
   {
     result = -1;
-    vtkm::Id numberOfCells = cellset.GetNumberOfCells();
-    for (vtkm::Id i = 0; i < numberOfCells; ++i)
+    viskores::Id numberOfCells = cellset.GetNumberOfCells();
+    for (viskores::Id i = 0; i < numberOfCells; ++i)
     {
       result = std::max(result, cellset.GetNumberOfPointsInCell(i));
     }
@@ -400,8 +402,8 @@ struct MaxCellSize
 
 int vtkmDataSet::GetMaxCellSize()
 {
-  vtkm::IdComponent result = 0;
-  vtkm::cont::CastAndCall(
+  viskores::IdComponent result = 0;
+  viskores::cont::CastAndCall(
     this->Internals->CellSet.ResetCellSetList(SupportedCellSets{}), MaxCellSize{}, result);
   return result;
 }

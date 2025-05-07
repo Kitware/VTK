@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkConduitArrayUtilitiesDevice
- * @brief helper to convert Conduit arrays stored on acceleration devices to VTKm arrays.
+ * @brief helper to convert Conduit arrays stored on acceleration devices to Viskores arrays.
  * @ingroup Insitu
  *
  * vtkConduitArrayUtilitiesDevice is intended to convert Conduit nodes satisfying the
- * `mcarray` protocol, with memory allocated on acceleration devices, to VTKm arrays. It uses
+ * `mcarray` protocol, with memory allocated on acceleration devices, to Viskores arrays. It uses
  * zero-copy, when possible otherwise it uses deep copy.
  *
  * This is primarily designed for use by vtkConduitSource.
@@ -21,8 +21,8 @@
 
 #include "conduit.h" // for conduit_node
 
-#include "vtkm/cont/DeviceAdapterTag.h" // for vtkm::cont::DeviceAdapterId
-#include <string>                       // for std::string
+#include "viskores/cont/DeviceAdapterTag.h" // for viskores::cont::DeviceAdapterId
+#include <string>                           // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -36,14 +36,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKmAOSArray(const conduit_node* mcarray,
-    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
+    bool force_signed, const viskores::cont::DeviceAdapterId& deviceAdapterId);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKmSOAArray(const conduit_node* mcarray,
-    bool force_signed, const vtkm::cont::DeviceAdapterId& deviceAdapterId);
+    bool force_signed, const viskores::cont::DeviceAdapterId& deviceAdapterId);
   static bool IfVTKmConvertVTKMonoShapedCellArray(vtkIdType numberOfPoints, int cellType,
     vtkIdType cellSize, vtkDataArray* connectivity, vtkCellArray* cellArray);
   static bool IfVTKmConvertVTKMixedCellArray(vtkIdType numberOfPoints, vtkDataArray* offsets,
     vtkDataArray* shapes, vtkDataArray* elements, vtkCellArray* cellArray);
-  static bool CanRunOn(const vtkm::cont::DeviceAdapterId& deviceAdapterId);
+  static bool CanRunOn(const viskores::cont::DeviceAdapterId& deviceAdapterId);
 
 protected:
   vtkConduitArrayUtilitiesDevice();

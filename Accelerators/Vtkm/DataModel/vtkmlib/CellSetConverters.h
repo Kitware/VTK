@@ -7,10 +7,10 @@
 #define vtkmlib_CellSetConverters_h
 
 #include "vtkAcceleratorsVTKmDataModelModule.h"
-#include "vtkmConfigDataModel.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general viskores setup
 
+#include <viskores/cont/UnknownCellSet.h>
 #include <vtkType.h>
-#include <vtkm/cont/UnknownCellSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -22,11 +22,11 @@ namespace tovtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::UnknownCellSet ConvertSingleType(
+viskores::cont::UnknownCellSet ConvertSingleType(
   vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-vtkm::cont::UnknownCellSet Convert(
+viskores::cont::UnknownCellSet Convert(
   vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
 VTK_ABI_NAMESPACE_END
 }
@@ -36,7 +36,7 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-bool Convert(const vtkm::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
+bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
   vtkUnsignedCharArray* types = nullptr);
 VTK_ABI_NAMESPACE_END
 }

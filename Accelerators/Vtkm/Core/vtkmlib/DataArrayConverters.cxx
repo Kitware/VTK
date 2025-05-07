@@ -6,8 +6,8 @@
 
 #include "vtkmDataArray.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/DataSet.h>
 
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
@@ -15,12 +15,12 @@
 #include <cstdint>
 #include <limits>
 
-// If the VTK-m devices share memory with the host, then we can provide VTK with efficient
+// If the Viskores devices share memory with the host, then we can provide VTK with efficient
 // memory structures without unnecessary copies.
-// TODO: Provide a better way for VTK-m to declare whether device arrays are unified.
+// TODO: Provide a better way for Viskores to declare whether device arrays are unified.
 // TODO: Can we use unified memory with Kokkos?
-#if !defined(VTKM_KOKKOS_CUDA) && !defined(VTKM_KOKKOS_HIP)
-#define VTKM_UNIFIED_MEMORY 1
+#if !defined(VISKORES_KOKKOS_CUDA) && !defined(VISKORES_KOKKOS_HIP)
+#define VISKORES_UNIFIED_MEMORY 1
 #endif
 
 namespace fromvtkm
@@ -33,15 +33,15 @@ namespace
 struct ArrayConverter
 {
   template <typename T>
-  void operator()(T, const vtkm::cont::UnknownArrayHandle& input, vtkDataArray*& output) const
+  void operator()(T, const viskores::cont::UnknownArrayHandle& input, vtkDataArray*& output) const
   {
     if ((output == nullptr) && input.IsBaseComponentType<T>())
     {
-      if (input.CanConvert<vtkm::cont::ArrayHandleRuntimeVec<T>>())
+      if (input.CanConvert<viskores::cont::ArrayHandleRuntimeVec<T>>())
       {
         output = this->MakeAOSArray<T>(input);
       }
-      else if (input.IsStorageType<vtkm::cont::StorageTagSOA>())
+      else if (input.IsStorageType<viskores::cont::StorageTagSOA>())
       {
         output = this->MakeSOAArray<T>(input);
       }
@@ -54,7 +54,7 @@ struct ArrayConverter
 
 private:
   template <typename T>
-  vtkmDataArray<T>* MakeVtkmData(const vtkm::cont::UnknownArrayHandle& input) const
+  vtkmDataArray<T>* MakeVtkmData(const viskores::cont::UnknownArrayHandle& input) const
   {
     vtkmDataArray<T>* output = vtkmDataArray<T>::New();
     output->SetVtkmArrayHandle(input);
@@ -62,39 +62,39 @@ private:
   }
 
   template <typename T>
-  vtkDataArray* MakeAOSArray(vtkm::cont::UnknownArrayHandle input) const
+  vtkDataArray* MakeAOSArray(viskores::cont::UnknownArrayHandle input) const
   {
     // We can steal this array (probably)!
     using VTKArrayType = vtkAOSDataArrayTemplate<T>;
 
-    vtkm::cont::ArrayHandleRuntimeVec<T> runtimeVecArray{ input.GetNumberOfComponentsFlat() };
+    viskores::cont::ArrayHandleRuntimeVec<T> runtimeVecArray{ input.GetNumberOfComponentsFlat() };
     input.AsArrayHandle(runtimeVecArray);
 
-    vtkm::cont::ArrayHandleBasic<T> componentsArray = runtimeVecArray.GetComponentsArray();
-    vtkm::Id size = componentsArray.GetNumberOfValues();
+    viskores::cont::ArrayHandleBasic<T> componentsArray = runtimeVecArray.GetComponentsArray();
+    viskores::Id size = componentsArray.GetNumberOfValues();
 
     vtkNew<VTKArrayType> output;
     output->SetNumberOfComponents(runtimeVecArray.GetNumberOfComponents());
 
     // Basic arrays have a single buffer containing the unadulterated data.
-    vtkm::cont::internal::Buffer buffer = componentsArray.GetBuffers()[0];
+    viskores::cont::internal::Buffer buffer = componentsArray.GetBuffers()[0];
 
-    // If the VTK-m device supports unified memory, then it is OK if the data are on the
+    // If the Viskores device supports unified memory, then it is OK if the data are on the
     // device. Getting the host pointer will just get the same pointer on the device, and the
-    // data will be paged in as requested (if ever requested). However, if the VTK-m device
+    // data will be paged in as requested (if ever requested). However, if the Viskores device
     // does not support unified memory, then this will require a perhaps unnecessary memory
-    // copy. Instead, wrap the VTK-m array in a vtkmDataArray. This may slow down VTK access
+    // copy. Instead, wrap the Viskores array in a vtkmDataArray. This may slow down VTK access
     // if that is later needed. Note that it is possible for the data to be on both host
     // and device. In this case, the device data may get removed, but that seems like
     // a reasonable compromise.
-#ifndef VTKM_UNIFIED_MEMORY
+#ifndef VISKORES_UNIFIED_MEMORY
     if (!buffer.IsAllocatedOnHost())
     {
       return this->MakeVtkmData<T>(input);
     }
-#endif //! VTKM_UNIFIED_MEMORY
+#endif //! VISKORES_UNIFIED_MEMORY
 
-    vtkm::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
+    viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
     auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
     assert(transfer.Size >= (size * sizeof(T)));
     if (transfer.Memory == transfer.Container)
@@ -116,20 +116,20 @@ private:
   }
 
   template <typename T>
-  vtkDataArray* MakeSOAArray(vtkm::cont::UnknownArrayHandle input) const
+  vtkDataArray* MakeSOAArray(viskores::cont::UnknownArrayHandle input) const
   {
     // We can steal this array (probably)!
     using VTKArrayType = vtkSOADataArrayTemplate<T>;
 
-    vtkm::IdComponent numComponents = input.GetNumberOfComponentsFlat();
-    vtkm::Id size = input.GetNumberOfValues();
+    viskores::IdComponent numComponents = input.GetNumberOfComponentsFlat();
+    viskores::Id size = input.GetNumberOfValues();
 
     if (static_cast<std::size_t>(size) >=
       static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(T))
     {
       std::ostringstream err;
       err << "Allocation request too big: " << size << " elements of " << sizeof(T) << " bytes";
-      throw vtkm::cont::ErrorBadAllocation(err.str());
+      throw viskores::cont::ErrorBadAllocation(err.str());
     }
 
     vtkNew<VTKArrayType> output;
@@ -139,9 +139,9 @@ private:
     // components at compile time. Instead, extract each component as an `ArrayHandleStride`.
     // If the `UnknownArrayHandle` contains an `ArrayHandleSOA`, each component array
     // should have a stride of 1.
-    for (vtkm::IdComponent cIndex = 0; cIndex < numComponents; ++cIndex)
+    for (viskores::IdComponent cIndex = 0; cIndex < numComponents; ++cIndex)
     {
-      vtkm::cont::ArrayHandleStride<T> strideArray = input.ExtractComponent<T>(cIndex);
+      viskores::cont::ArrayHandleStride<T> strideArray = input.ExtractComponent<T>(cIndex);
       if ((strideArray.GetStride() != 1) || (strideArray.GetOffset() != 0) ||
         (strideArray.GetModulo() != 0) || (strideArray.GetDivisor() != 1))
       {
@@ -150,27 +150,27 @@ private:
         return this->MakeVtkmData<T>(input);
       }
 
-      vtkm::cont::ArrayHandleBasic<T> componentArray = strideArray.GetBasicArray();
+      viskores::cont::ArrayHandleBasic<T> componentArray = strideArray.GetBasicArray();
 
       // Basic arrays have a single buffer containing the unadulterated data.
-      vtkm::cont::internal::Buffer buffer = componentArray.GetBuffers()[0];
+      viskores::cont::internal::Buffer buffer = componentArray.GetBuffers()[0];
 
-      // If the VTK-m device supports unified memory, then it is OK if the data are on the
+      // If the Viskores device supports unified memory, then it is OK if the data are on the
       // device. Getting the host pointer will just get the same pointer on the device, and the
-      // data will be paged in as requested (if ever requested). However, if the VTK-m device
+      // data will be paged in as requested (if ever requested). However, if the Viskores device
       // does not support unified memory, then this will require a perhaps unnecessary memory
-      // copy. Instead, wrap the VTK-m array in a vtkmDataArray. This may slow down VTK access
+      // copy. Instead, wrap the Viskores array in a vtkmDataArray. This may slow down VTK access
       // if that is later needed. Note that it is possible for the data to be on both host
       // and device. In this case, the device data may get removed, but that seems like
       // a reasonable compromise.
-#ifndef VTKM_UNIFIED_MEMORY
+#ifndef VISKORES_UNIFIED_MEMORY
       if ((cIndex == 0) && !buffer.IsAllocatedOnHost())
       {
         return this->MakeVtkmData<T>(input);
       }
-#endif //! VTKM_UNIFIED_MEMORY
+#endif //! VISKORES_UNIFIED_MEMORY
 
-      vtkm::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
+      viskores::cont::internal::TransferredBuffer transfer = buffer.TakeHostBufferOwnership();
       auto srcMemory = reinterpret_cast<T*>(transfer.Memory);
       assert(transfer.Size >= (size * sizeof(T)));
       if (transfer.Memory == transfer.Container)
@@ -204,20 +204,20 @@ private:
 // Therefore, these routines should be treated as "moves" and the state of the
 // input is undeterminisitic.
 
-vtkDataArray* Convert(const vtkm::cont::Field& input)
+vtkDataArray* Convert(const viskores::cont::Field& input)
 {
   return Convert(input.GetData(), input.GetName());
 }
 
-vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const std::string& name)
+vtkDataArray* Convert(const viskores::cont::UnknownArrayHandle& input, const std::string& name)
 {
-  // We need to do the conversion from UnknownArrayHandle to a known vtkm::cont::ArrayHandle
+  // We need to do the conversion from UnknownArrayHandle to a known viskores::cont::ArrayHandle
   // after that we need to fill the vtkDataArray
   vtkDataArray* output = nullptr;
 
   try
   {
-    vtkm::ListForEach(ArrayConverter{}, tovtkm::VTKScalarTypes{}, input, output);
+    viskores::ListForEach(ArrayConverter{}, toviskores::VTKScalarTypes{}, input, output);
     if (output)
     {
       if (!name.empty() && (name != tovtkm::NoNameVTKFieldName()))
@@ -231,15 +231,15 @@ vtkDataArray* Convert(const vtkm::cont::UnknownArrayHandle& input, const std::st
       input.PrintSummary(std::cout);
     }
   }
-  catch (vtkm::cont::Error& e)
+  catch (viskores::cont::Error& e)
   {
     vtkGenericWarningMacro(
-      "Encountered error while converting VTK-m array " << name << ": " << e.what());
+      "Encountered error while converting Viskores array " << name << ": " << e.what());
   }
   return output;
 }
 
-vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
+vtkPoints* Convert(const viskores::cont::CoordinateSystem& input)
 {
   vtkDataArray* data = Convert(input.GetData(), input.GetName());
   if (data)
@@ -251,7 +251,7 @@ vtkPoints* Convert(const vtkm::cont::CoordinateSystem& input)
   }
   else
   {
-    vtkGenericWarningMacro("Converting vtkm::cont::CoordinateSystem to vtkPoints failed");
+    vtkGenericWarningMacro("Converting viskores::cont::CoordinateSystem to vtkPoints failed");
     return nullptr;
   }
 }

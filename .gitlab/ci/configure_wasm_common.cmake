@@ -47,7 +47,6 @@ set(VTK_MODULE_ENABLE_VTK_RenderingZSpace NO CACHE STRING "") # no zspace
 # ├── ThirdParty
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # no adios2
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # no boost
-set(VTK_MODULE_ENABLE_VTK_vtkvtkm NO CACHE STRING "") # no execinfo.h in vtkm's loguru
 set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "") # no execinfo.h in viskores's loguru
 
 # set emdawnwebgpu dir

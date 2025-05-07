@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 
 #include "vtkmInitializer.h"
-#include <vtkm/cont/Initialize.h>
+#include <viskores/cont/Initialize.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 void InitializeVTKm()
@@ -15,8 +15,8 @@ void InitializeVTKm()
   if (!isInitialized)
   {
     int argc{ 1 };
-    char const* argv[]{ "vtkm", nullptr };
-    vtkm::cont::Initialize(argc, const_cast<char**>(argv));
+    char const* argv[]{ "viskores", nullptr };
+    viskores::cont::Initialize(argc, const_cast<char**>(argv));
     isInitialized = true;
   }
 #endif

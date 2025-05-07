@@ -7,9 +7,9 @@
 
 #include <vtkmDataArray.h>
 
-#include <vtkm/VectorAnalysis.h>
-#include <vtkm/cont/ArrayHandleTransform.h>
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/VectorAnalysis.h>
+#include <viskores/cont/ArrayHandleTransform.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 
 #include <array>
 #include <functional>
@@ -19,8 +19,8 @@ namespace
 
 struct TransformFnctr
 {
-  VTKM_EXEC_CONT
-  double operator()(const vtkm::Vec3f& point) const { return vtkm::Magnitude(point); }
+  VISKORES_EXEC_CONT
+  double operator()(const viskores::Vec3f& point) const { return viskores::Magnitude(point); }
 };
 
 } // namespace
@@ -28,13 +28,13 @@ struct TransformFnctr
 //------------------------------------------------------------------------------
 int TestVTKMImplicitDataArray(int, char*[])
 {
-  vtkm::Id dimension = 10;
-  vtkm::Vec3f boundsMin(0.0f);
-  vtkm::Vec3f boundsMax(3.0f, 3.0f, 2.0f);
-  vtkm::Id3 dim3(dimension);
-  vtkm::Vec3f origin = boundsMin;
-  vtkm::Vec3f spacing =
-    (boundsMax - boundsMin) / vtkm::Vec3f(static_cast<vtkm::FloatDefault>(dimension));
+  viskores::Id dimension = 10;
+  viskores::Vec3f boundsMin(0.0f);
+  viskores::Vec3f boundsMax(3.0f, 3.0f, 2.0f);
+  viskores::Id3 dim3(dimension);
+  viskores::Vec3f origin = boundsMin;
+  viskores::Vec3f spacing =
+    (boundsMax - boundsMin) / viskores::Vec3f(static_cast<viskores::FloatDefault>(dimension));
 
   vtkNew<vtkImageData> imageData;
   imageData->SetDimensions(dim3[0], dim3[1], dim3[2]);
@@ -42,8 +42,8 @@ int TestVTKMImplicitDataArray(int, char*[])
   imageData->SetOrigin(origin[0], origin[1], origin[2]);
 
   vtkNew<vtkmDataArray<double>> array;
-  array->SetVtkmArrayHandle(vtkm::cont::make_ArrayHandleTransform(
-    vtkm::cont::ArrayHandleUniformPointCoordinates(dim3, origin, spacing), TransformFnctr{}));
+  array->SetVtkmArrayHandle(viskores::cont::make_ArrayHandleTransform(
+    viskores::cont::ArrayHandleUniformPointCoordinates(dim3, origin, spacing), TransformFnctr{}));
   imageData->GetPointData()->SetScalars(array);
 
   vtkNew<vtkExtractVOI> extractor;

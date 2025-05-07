@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkAcceleratorsVTKmCore
 DESCRIPTION
-  VTKm data structures
+  Viskores (formerly VTK-m) data structures
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-BSD-3-Clause-Sandia-LANL-USGov
 SPDX_COPYRIGHT_TEXT
@@ -20,7 +20,7 @@ LICENSE_FILES
   LICENSE
 DEPENDS
   VTK::CommonCore
-  VTK::vtkvtkm
+  VTK::vtkviskores
 TEST_DEPENDS
   VTK::ImagingCore
   VTK::CommonDataModel

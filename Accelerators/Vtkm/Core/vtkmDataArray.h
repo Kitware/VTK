@@ -6,17 +6,16 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-LANL-USGov
 /**
  * @class   vtkmDataArray
- * @brief   Wraps a VTK-m `ArrayHandle` inside a sub-class of `vtkGenericDataArray`.
+ * @brief   Wraps a Viskores `ArrayHandle` inside a sub-class of `vtkGenericDataArray`.
  *
  * vtkmDataArray<T> can be used to wrap an ArrayHandle with base component type of T. It is mainly
- * intended as a way to pass a VTK-m ArrayHandle through a VTK pipeline in a zero-copy manner. This
- * is useful for implicit ArrayHandles or when unified memory is not being used.
- * As long as the underlying data is not accessed, device to host copying of the data is avoided.
- * The ComputeRange and ComputeFiniteRange functions have been overloaded to do the computation on
- * the device side using VTK-m. This also avoids device-to-host memory transfers for this commonly
- * used operation.
- * Individual elements of the underlying data can be accessed via the `vtkGenericDataArray` API,
- * but there are some limitations to keep in mind:
+ * intended as a way to pass a Viskores ArrayHandle through a VTK pipeline in a zero-copy manner.
+ * This is useful for implicit ArrayHandles or when unified memory is not being used. As long as the
+ * underlying data is not accessed, device to host copying of the data is avoided. The ComputeRange
+ * and ComputeFiniteRange functions have been overloaded to do the computation on the device side
+ * using Viskores. This also avoids device-to-host memory transfers for this commonly used
+ * operation. Individual elements of the underlying data can be accessed via the
+ * `vtkGenericDataArray` API, but there are some limitations to keep in mind:
  * 1. Access can be quite slow compared to direct memory access and thus, should be avoided.
  * 2. Once the underlying data is accessed though this class, any modifications via the ArrayHandle
  *    interface would result in undefined behaviour.
@@ -33,9 +32,9 @@
 #include "vtkGenericDataArray.h"
 #include "vtkmConfigCore.h" // For template export
 
-#include <vtkm/VecTraits.h>               // For vtkm::VecTraits
-#include <vtkm/cont/ArrayHandle.h>        // For vtkm::cont::ArrayHandle
-#include <vtkm/cont/UnknownArrayHandle.h> // For vtkm::cont::UnknownArrayHandle
+#include <viskores/VecTraits.h>               // For viskores::VecTraits
+#include <viskores/cont/ArrayHandle.h>        // For viskores::cont::ArrayHandle
+#include <viskores/cont/UnknownArrayHandle.h> // For viskores::cont::UnknownArrayHandle
 
 #include <memory> // For std::unique_ptr<>
 
@@ -67,13 +66,13 @@ public:
 
   static vtkmDataArray* New();
 
-  /// @brief Set the VTK-m ArrayHandle to be wrapped
+  /// @brief Set the Viskores ArrayHandle to be wrapped
   ///
-  void SetVtkmArrayHandle(const vtkm::cont::UnknownArrayHandle& ah);
+  void SetVtkmArrayHandle(const viskores::cont::UnknownArrayHandle& ah);
 
   /// @brief Get the underlying ArrayHandle.
   ///
-  vtkm::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const;
+  viskores::cont::UnknownArrayHandle GetVtkmUnknownArrayHandle() const;
 
   ///@{
   /// If the data in the ArrayHandle has a basic layout, this does a shallow copy.
@@ -94,7 +93,7 @@ protected:
   vtkmDataArray();
   ~vtkmDataArray() override;
 
-  /// Overrides for range computation. These use VTK-m to perform the computations to avoid
+  /// Overrides for range computation. These use Viskores to perform the computations to avoid
   /// memory transfers
   using Superclass::ComputeScalarRange;
   bool ComputeScalarRange(
@@ -126,10 +125,10 @@ private:
 
 //=============================================================================
 template <typename T, typename S>
-inline vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>* make_vtkmDataArray(
-  const vtkm::cont::ArrayHandle<T, S>& ah)
+inline vtkmDataArray<typename viskores::VecTraits<T>::BaseComponentType>* make_vtkmDataArray(
+  const viskores::cont::ArrayHandle<T, S>& ah)
 {
-  auto ret = vtkmDataArray<typename vtkm::VecTraits<T>::BaseComponentType>::New();
+  auto ret = vtkmDataArray<typename viskores::VecTraits<T>::BaseComponentType>::New();
   ret->SetVtkmArrayHandle(ah);
   return ret;
 }

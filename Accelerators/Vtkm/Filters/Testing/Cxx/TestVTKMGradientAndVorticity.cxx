@@ -17,7 +17,7 @@
 #include "vtkmGradient.h"
 
 #include <vector>
-#include <vtkm/testing/Testing.h>
+#include <viskores/testing/Testing.h>
 
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 

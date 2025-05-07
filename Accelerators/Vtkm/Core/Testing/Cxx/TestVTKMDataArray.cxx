@@ -8,11 +8,11 @@
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/ArrayHandleConstant.h>
-#include <vtkm/cont/ArrayHandleGroupVec.h>
-#include <vtkm/cont/ArrayHandleRuntimeVec.h>
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/ArrayHandleConstant.h>
+#include <viskores/cont/ArrayHandleGroupVec.h>
+#include <viskores/cont/ArrayHandleRuntimeVec.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 
 #include <chrono>
 #include <limits>
@@ -63,7 +63,8 @@ void FlattenVecImpl(const BaseComponentType& vec, std::vector<BaseComponentType>
 template <typename VecType, typename BaseComponentType>
 void FlattenVecImpl(const VecType& vec, std::vector<BaseComponentType>& cppvec)
 {
-  for (vtkm::IdComponent i = 0; i < vtkm::VecTraits<VecType>::GetNumberOfComponents(vec); ++i)
+  for (viskores::IdComponent i = 0; i < viskores::VecTraits<VecType>::GetNumberOfComponents(vec);
+       ++i)
   {
     FlattenVecImpl(vec[i], cppvec);
   }
@@ -72,7 +73,7 @@ void FlattenVecImpl(const VecType& vec, std::vector<BaseComponentType>& cppvec)
 template <typename VecType>
 auto FlattenVec(const VecType& vec)
 {
-  std::vector<typename vtkm::VecTraits<VecType>::BaseComponentType> cppvec;
+  std::vector<typename viskores::VecTraits<VecType>::BaseComponentType> cppvec;
   cppvec.reserve(9); // avoid clang-tidy warning about `push_back` inside a loop
   FlattenVecImpl(vec, cppvec);
   return cppvec;
@@ -83,7 +84,7 @@ template <typename ArrayHandleType>
 void TestWithArrayHandle(const ArrayHandleType& vtkmArray)
 {
   using ComponentType =
-    typename vtkm::VecTraits<typename ArrayHandleType::ValueType>::BaseComponentType;
+    typename viskores::VecTraits<typename ArrayHandleType::ValueType>::BaseComponentType;
   vtkSmartPointer<vtkDataArray> vtkArray;
   vtkArray.TakeReference(make_vtkmDataArray(vtkmArray));
 
@@ -326,12 +327,12 @@ void TestComputeRange(int numberOfTuples, int numberOfComponents, const T betwee
 
     std::cout << "VTK Array: \n";
     PrintArray(vtkAOSDataArrayTemplate<T>::SafeDownCast(vtkArray.Get()));
-    std::cout << "VTK-m Array: \n";
+    std::cout << "Viskores Array: \n";
     PrintArray(vtkmDataArray<T>::SafeDownCast(vtkmArray.Get()));
     std::cout << "Ghosts: \n";
     PrintArray(printableGhosts.Get());
     std::cout << "VTK Range: " << vtkRange[0] << ", " << vtkRange[1] << "\n";
-    std::cout << "VTK-m Range: " << vtkmRange[0] << ", " << vtkmRange[1] << "\n";
+    std::cout << "Viskores Range: " << vtkmRange[0] << ", " << vtkmRange[1] << "\n";
     throw;
   }
 }
@@ -344,7 +345,7 @@ void TestComputeRange(int numberOfTuples, int numberOfComponents, const T betwee
 int TestVTKMDataArray(int, char*[])
 try
 {
-  auto testData = vtkm::cont::make_ArrayHandle<double>(
+  auto testData = viskores::cont::make_ArrayHandle<double>(
     { 3.0, 6.0, 2.0, 5.0, 1.0, 0.0, 4.0, 9.0, 8.0, 7.0, 10.0, 11.0 });
 
   std::cout << "Testing with Basic ArrayHandle\n";
@@ -352,20 +353,20 @@ try
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleConstant\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandleConstant(
-    vtkm::Vec<vtkm::Vec<float, 3>, 3>{ { 1.0f, 2.0f, 3.0f } }, 10));
+  TestWithArrayHandle(viskores::cont::make_ArrayHandleConstant(
+    viskores::Vec<viskores::Vec<float, 3>, 3>{ { 1.0f, 2.0f, 3.0f } }, 10));
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleUniformPointCoordinates\n";
-  TestWithArrayHandle(vtkm::cont::ArrayHandleUniformPointCoordinates(vtkm::Id3{ 3 }));
+  TestWithArrayHandle(viskores::cont::ArrayHandleUniformPointCoordinates(viskores::Id3{ 3 }));
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleGroupVec\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandleGroupVec<2>(testData));
+  TestWithArrayHandle(viskores::cont::make_ArrayHandleGroupVec<2>(testData));
   std::cout << "Passed\n";
 
   std::cout << "Testing with ArrayHandleRuntimeVec\n";
-  TestWithArrayHandle(vtkm::cont::make_ArrayHandleRuntimeVec(2, testData));
+  TestWithArrayHandle(viskores::cont::make_ArrayHandleRuntimeVec(2, testData));
   std::cout << "Passed\n";
 
   std::cout << "Testing Range with int\n";

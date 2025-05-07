@@ -21,10 +21,10 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/cont/ErrorUserAbort.h>
-#include <vtkm/filter/contour/Contour.h>
-#include <vtkm/worklet/WorkletMapField.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/cont/ErrorUserAbort.h>
+#include <viskores/filter/contour/Contour.h>
+#include <viskores/worklet/WorkletMapField.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmContour);
@@ -44,13 +44,13 @@ void vtkmContour::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkmContour::CanProcessInput(vtkDataSet* input)
 {
-  // vtkm::filter::contour::Contour currently does not support gradient field generation
+  // viskores::filter::contour::Contour currently does not support gradient field generation
   if (this->GetComputeGradients())
   {
     return false;
   }
 
-  // currently, vtkm::filter::contour::Contour always generates single precision points
+  // currently, viskores::filter::contour::Contour always generates single precision points
   auto pointSet = vtkPointSet::SafeDownCast(input);
   if ((this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION) ||
     (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
@@ -100,13 +100,13 @@ bool vtkmContour::CanProcessInput(vtkDataSet* input)
 }
 
 //------------------------------------------------------------------------------
-struct OrientationTransform : vtkm::worklet::WorkletMapField
+struct OrientationTransform : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldIn, WholeArrayInOut);
   using ExecutionSignature = void(_1, _2);
 
   template <typename ConnPortal>
-  VTKM_EXEC void operator()(vtkm::Id idx, ConnPortal conn) const
+  VISKORES_EXEC void operator()(viskores::Id idx, ConnPortal conn) const
   {
     auto temp = conn.Get(idx);
     conn.Set(idx, conn.Get(idx + 2));
@@ -114,36 +114,36 @@ struct OrientationTransform : vtkm::worklet::WorkletMapField
   }
 };
 
-struct Negate : vtkm::worklet::WorkletMapField
+struct Negate : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldInOut);
   using ExecutionSignature = void(_1);
 
   template <typename T>
-  VTKM_EXEC void operator()(T& v) const
+  VISKORES_EXEC void operator()(T& v) const
   {
     v *= T(-1);
   }
 };
 
-void ChangeTriangleOrientation(vtkm::cont::DataSet& dataset)
+void ChangeTriangleOrientation(viskores::cont::DataSet& dataset)
 {
-  vtkm::cont::Invoker invoke;
+  viskores::cont::Invoker invoke;
 
-  vtkm::cont::CellSetSingleType<> cs;
+  viskores::cont::CellSetSingleType<> cs;
   dataset.GetCellSet().AsCellSet(cs);
-  vtkm::cont::ArrayHandle<vtkm::Id> conn =
-    cs.GetConnectivityArray(vtkm::TopologyElementTagCell(), vtkm::TopologyElementTagPoint());
+  viskores::cont::ArrayHandle<viskores::Id> conn = cs.GetConnectivityArray(
+    viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint());
   invoke(OrientationTransform{},
-    vtkm::cont::make_ArrayHandleCounting(0, 3, conn.GetNumberOfValues() / 3), conn);
+    viskores::cont::make_ArrayHandleCounting(0, 3, conn.GetNumberOfValues() / 3), conn);
 
   auto numPoints = cs.GetNumberOfPoints();
-  cs.Fill(numPoints, vtkm::CellShapeTagTriangle::Id, 3, conn);
+  cs.Fill(numPoints, viskores::CellShapeTagTriangle::Id, 3, conn);
   dataset.SetCellSet(cs);
 
   if (dataset.HasPointField("Normals"))
   {
-    vtkm::cont::ArrayHandle<vtkm::Vec3f> normals;
+    viskores::cont::ArrayHandle<viskores::Vec3f> normals;
     dataset.GetPointField("Normals").GetData().AsArrayHandle(normals);
     invoke(Negate{}, normals);
   }
@@ -175,11 +175,11 @@ int vtkmContour::RequestData(
 
   try
   {
-    vtkm::cont::ScopedRuntimeDeviceTracker rtdt([&]() { return this->CheckAbort(); });
+    viskores::cont::ScopedRuntimeDeviceTracker rtdt([&]() { return this->CheckAbort(); });
 
     if (!this->CanProcessInput(input))
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "Input dataset/parameters not supported by vtkmContour.");
     }
 
@@ -190,8 +190,8 @@ int vtkmContour::RequestData(
     }
 
     const int numContours = this->GetNumberOfContours();
-    vtkm::filter::contour::Contour filter;
-    filter.SetActiveField(scalarFieldName, vtkm::cont::Field::Association::Points);
+    viskores::filter::contour::Contour filter;
+    filter.SetActiveField(scalarFieldName, viskores::cont::Field::Association::Points);
     filter.SetGenerateNormals(this->GetComputeNormals() != 0);
     filter.SetNormalArrayName("Normals");
     filter.SetNumberOfIsoValues(numContours);
@@ -200,22 +200,23 @@ int vtkmContour::RequestData(
       filter.SetIsoValue(i, this->GetValue(i));
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    // convert the input dataset to a viskores::cont::DataSet
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
     if (!this->ComputeScalars)
     {
       // don't pass the scalar field
-      filter.SetFieldsToPass(
-        vtkm::filter::FieldSelection(scalarFieldName, vtkm::filter::FieldSelection::Mode::Exclude));
+      filter.SetFieldsToPass(viskores::filter::FieldSelection(
+        scalarFieldName, viskores::filter::FieldSelection::Mode::Exclude));
     }
 
-    vtkm::cont::DataSet result = filter.Execute(in);
+    viskores::cont::DataSet result = filter.Execute(in);
     ChangeTriangleOrientation(result);
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Unable to convert Viskores result dataSet back to VTK.");
     }
 
     if (this->ComputeScalars)
@@ -228,14 +229,14 @@ int vtkmContour::RequestData(
         filter.GetNormalArrayName().c_str(), vtkDataSetAttributes::NORMALS);
     }
   }
-  catch (const vtkm::cont::ErrorUserAbort&)
+  catch (const viskores::cont::ErrorUserAbort&)
   {
-    // vtkm detected an abort request, clear the output
+    // viskores detected an abort request, clear the output
     output->Initialize();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                     << "Falling back to the default VTK implementation.");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

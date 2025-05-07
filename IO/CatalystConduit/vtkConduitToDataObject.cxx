@@ -825,7 +825,7 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
         vtkConduitArrayUtilities::IsDevicePointer(connectivity.element_ptr(0), id, working);
       if (isDevicePointer)
       {
-        throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+        throw std::runtime_error("Viskores does not support VTK_POLYHEDRON cell type");
       }
       // polyhedra uses O2M and not M2C arrays, so need to process it
       // differently.
@@ -959,7 +959,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     vtkConduitArrayUtilities::IsDevicePointer(connectivity.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    throw std::runtime_error("VTKm does not support device" + std::to_string(id));
+    throw std::runtime_error("Viskores does not support device" + std::to_string(id));
   }
 
   // check presence of polyhedra
@@ -973,7 +973,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
   }
   if (isDevicePointer && hasPolyhedra)
   {
-    throw std::runtime_error("VTKm does not support VTK_POLYHEDRON cell type");
+    throw std::runtime_error("Viskores does not support VTK_POLYHEDRON cell type");
   }
 
   // if polyhedra are present, the subelements should be present as well.

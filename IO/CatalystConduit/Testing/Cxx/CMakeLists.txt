@@ -27,13 +27,13 @@ if (TARGET VTK::ParallelMPI)
   vtk_test_cxx_executable(vtkConduitCxxTests-MPI mpitests)
 endif()
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   set_source_files_properties(TestConduitSourceDeviceMemory.cxx PROPERTIES LANGUAGE CUDA)
 
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmDataModel
   #so we need to redo this logic
-  vtkm_get_cuda_flags(CMAKE_CUDA_FLAGS)
+  viskores_get_cuda_flags(CMAKE_CUDA_FLAGS)
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.

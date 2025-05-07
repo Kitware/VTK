@@ -3,7 +3,7 @@ NAME
 LIBRARY_NAME
   vtkAcceleratorsVTKmFilters
 DESCRIPTION
-  VTKm filters and algorithms
+  Viskores (formerly VTK-m) filters and algorithms
 SPDX_LICENSE_IDENTIFIER
   LicenseRef-BSD-3-Clause-Sandia-USGov
 SPDX_COPYRIGHT_TEXT

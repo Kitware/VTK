@@ -23,13 +23,13 @@
 #include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include <vtkm/cont/ArrayCopy.h>
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/cont/Invoker.h>
-#include <vtkm/filter/contour/Slice.h>
-#include <vtkm/filter/entity_extraction/Threshold.h>
-#include <vtkm/worklet/WorkletMapField.h>
-#include <vtkm/worklet/WorkletMapTopology.h>
+#include <viskores/cont/ArrayCopy.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/cont/Invoker.h>
+#include <viskores/filter/contour/Slice.h>
+#include <viskores/filter/entity_extraction/Threshold.h>
+#include <viskores/worklet/WorkletMapField.h>
+#include <viskores/worklet/WorkletMapTopology.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmSlice);
@@ -93,13 +93,13 @@ bool vtkmSlice::CanProcessInput(vtkDataSet* input)
 namespace
 {
 
-struct OrientationTransform : vtkm::worklet::WorkletMapField
+struct OrientationTransform : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldIn, WholeArrayInOut);
   using ExecutionSignature = void(_1, _2);
 
   template <typename ConnPortal>
-  VTKM_EXEC void operator()(vtkm::Id idx, ConnPortal conn) const
+  VISKORES_EXEC void operator()(viskores::Id idx, ConnPortal conn) const
   {
     auto temp = conn.Get(idx);
     conn.Set(idx, conn.Get(idx + 2));
@@ -107,42 +107,42 @@ struct OrientationTransform : vtkm::worklet::WorkletMapField
   }
 };
 
-struct Negate : vtkm::worklet::WorkletMapField
+struct Negate : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldInOut);
   using ExecutionSignature = void(_1);
 
   template <typename T>
-  VTKM_EXEC void operator()(T& v) const
+  VISKORES_EXEC void operator()(T& v) const
   {
     v *= T(-1);
   }
 };
 
-void ChangeTriangleOrientation(vtkm::cont::DataSet& dataset)
+void ChangeTriangleOrientation(viskores::cont::DataSet& dataset)
 {
-  vtkm::cont::Invoker invoke;
+  viskores::cont::Invoker invoke;
 
-  vtkm::cont::CellSetSingleType<> cs;
+  viskores::cont::CellSetSingleType<> cs;
   dataset.GetCellSet().AsCellSet(cs);
-  vtkm::cont::ArrayHandle<vtkm::Id> conn =
-    cs.GetConnectivityArray(vtkm::TopologyElementTagCell(), vtkm::TopologyElementTagPoint());
+  viskores::cont::ArrayHandle<viskores::Id> conn = cs.GetConnectivityArray(
+    viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint());
   invoke(OrientationTransform{},
-    vtkm::cont::make_ArrayHandleCounting(0, 3, conn.GetNumberOfValues() / 3), conn);
+    viskores::cont::make_ArrayHandleCounting(0, 3, conn.GetNumberOfValues() / 3), conn);
 
   auto numPoints = cs.GetNumberOfPoints();
-  cs.Fill(numPoints, vtkm::CellShapeTagTriangle::Id, 3, conn);
+  cs.Fill(numPoints, viskores::CellShapeTagTriangle::Id, 3, conn);
   dataset.SetCellSet(cs);
 
   if (dataset.HasPointField("Normals"))
   {
-    vtkm::cont::ArrayHandle<vtkm::Vec3f> normals;
+    viskores::cont::ArrayHandle<viskores::Vec3f> normals;
     dataset.GetPointField("Normals").GetData().AsArrayHandle(normals);
     invoke(Negate{}, normals);
   }
 }
 
-struct IdentifyCellsToDiscard : public vtkm::worklet::WorkletVisitCellsWithPoints
+struct IdentifyCellsToDiscard : public viskores::worklet::WorkletVisitCellsWithPoints
 {
   using ControlSignature = void(CellSetIn cellset, FieldInCell cellGhostFlag,
     FieldInPoint pointGhostFlags, FieldOutCell discard);
@@ -150,15 +150,15 @@ struct IdentifyCellsToDiscard : public vtkm::worklet::WorkletVisitCellsWithPoint
   using ExecutionSignature = _4(_2, _3, PointCount);
 
   template <typename VecType>
-  VTKM_EXEC vtkm::UInt8 operator()(
-    vtkm::UInt8 cellGhostFlag, const VecType& pointGhostFlags, vtkm::IdComponent numPoints) const
+  VISKORES_EXEC viskores::UInt8 operator()(viskores::UInt8 cellGhostFlag,
+    const VecType& pointGhostFlags, viskores::IdComponent numPoints) const
   {
     if (cellGhostFlag & (vtkDataSetAttributes::DUPLICATECELL | vtkDataSetAttributes::HIDDENCELL))
     {
       return 1;
     }
 
-    for (vtkm::IdComponent i = 0; i < numPoints; ++i)
+    for (viskores::IdComponent i = 0; i < numPoints; ++i)
     {
       if (pointGhostFlags[i] & vtkDataSetAttributes::HIDDENPOINT)
       {
@@ -197,27 +197,28 @@ int vtkmSlice::RequestData(
   {
     if (!this->CanProcessInput(input))
     {
-      throw vtkm::cont::ErrorFilterExecution("Input dataset not supported by vtkmSlice.");
+      throw viskores::cont::ErrorFilterExecution("Input dataset not supported by vtkmSlice.");
     }
 
     if (!this->GenerateTriangles)
     {
-      throw vtkm::cont::ErrorFilterExecution("vtkmSlice only generates triangles in the output.");
+      throw viskores::cont::ErrorFilterExecution(
+        "vtkmSlice only generates triangles in the output.");
     }
 
     if (this->SortBy != VTK_SORT_BY_VALUE)
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "vtkmSlice currently only supports `VTK_SORT_BY_VALUE`.");
     }
 
-    // currently, vtkm::filter::contour::Slice always generates single precision points
+    // currently, viskores::filter::contour::Slice always generates single precision points
     auto pointSet = vtkPointSet::SafeDownCast(input);
     if ((this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION) ||
       (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
         pointSet->GetPoints()->GetDataType() != VTK_FLOAT))
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "vtkmSlice only supports generating single precision output points.");
     }
 
@@ -226,7 +227,7 @@ int vtkmSlice::RequestData(
     auto function = clipFunctionConverter.Get();
 
     const int numContours = this->GetNumberOfContours();
-    vtkm::filter::contour::Slice filter;
+    viskores::filter::contour::Slice filter;
     filter.SetImplicitFunction(function);
     filter.SetNumberOfIsoValues(numContours);
     for (int i = 0; i < numContours; ++i)
@@ -234,34 +235,37 @@ int vtkmSlice::RequestData(
       filter.SetIsoValue(i, this->GetValue(i));
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-    vtkm::cont::DataSet result = filter.Execute(in);
+    viskores::cont::DataSet result = filter.Execute(in);
     ChangeTriangleOrientation(result);
 
     // discard hidden and duplicate cells
     if (input->GetCellGhostArray() || input->GetPointGhostArray())
     {
-      using GhostValueTypeList = vtkm::List<vtkm::UInt8>;
+      using GhostValueTypeList = viskores::List<viskores::UInt8>;
       using GhostStorageList =
-        vtkm::List<vtkm::cont::StorageTagConstant, vtkm::cont::StorageTagBasic>;
-      vtkm::cont::UncertainArrayHandle<GhostValueTypeList, GhostStorageList> cellGhostArray,
+        viskores::List<viskores::cont::StorageTagConstant, viskores::cont::StorageTagBasic>;
+      viskores::cont::UncertainArrayHandle<GhostValueTypeList, GhostStorageList> cellGhostArray,
         pointGhostArray;
       if (input->GetCellGhostArray())
       {
         const auto& field = result.GetCellField(input->GetCellGhostArray()->GetName());
 
         // FIXME: The ghost fields get converted to float in the slice filter. This is fixed in
-        // newer version of VTK-m. The copy should be removed when we update and replaced with:
-        // cellGhostArray = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
-        vtkm::cont::ArrayHandle<vtkm::UInt8> copy;
-        vtkm::cont::ArrayCopy(
-          field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>(), copy);
+        // newer version of Viskores. The copy should be removed when we update and replaced with:
+        // cellGhostArray =
+        // field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::UInt8>>();
+        viskores::cont::ArrayHandle<viskores::UInt8> copy;
+        viskores::cont::ArrayCopy(
+          field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::FloatDefault>>(),
+          copy);
         cellGhostArray = copy;
       }
       else
       {
-        cellGhostArray = vtkm::cont::ArrayHandleConstant<vtkm::UInt8>(0, result.GetNumberOfCells());
+        cellGhostArray =
+          viskores::cont::ArrayHandleConstant<viskores::UInt8>(0, result.GetNumberOfCells());
       }
 
       if (input->GetPointGhostArray())
@@ -269,37 +273,40 @@ int vtkmSlice::RequestData(
         const auto& field = result.GetPointField(input->GetPointGhostArray()->GetName());
 
         // FIXME: The ghost fields get converted to float in the slice filter. This is fixed in
-        // newer version of VTK-m. The copy should be removed when we update and replaced with:
-        // pointGhostArray = field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
-        vtkm::cont::ArrayHandle<vtkm::UInt8> copy;
-        vtkm::cont::ArrayCopy(
-          field.GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>(), copy);
+        // newer version of Viskores. The copy should be removed when we update and replaced with:
+        // pointGhostArray =
+        // field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::UInt8>>();
+        viskores::cont::ArrayHandle<viskores::UInt8> copy;
+        viskores::cont::ArrayCopy(
+          field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::FloatDefault>>(),
+          copy);
         pointGhostArray = copy;
       }
       else
       {
         pointGhostArray =
-          vtkm::cont::ArrayHandleConstant<vtkm::UInt8>(0, result.GetNumberOfPoints());
+          viskores::cont::ArrayHandleConstant<viskores::UInt8>(0, result.GetNumberOfPoints());
       }
 
-      vtkm::cont::ArrayHandle<vtkm::UInt8> discard;
-      vtkm::cont::Invoker{}(
+      viskores::cont::ArrayHandle<viskores::UInt8> discard;
+      viskores::cont::Invoker{}(
         IdentifyCellsToDiscard{}, result.GetCellSet(), cellGhostArray, pointGhostArray, discard);
 
       result.AddCellField("discard", discard);
 
-      vtkm::filter::entity_extraction::Threshold threshold;
-      threshold.SetActiveField("discard", vtkm::cont::Field::Association::Cells);
+      viskores::filter::entity_extraction::Threshold threshold;
+      threshold.SetActiveField("discard", viskores::cont::Field::Association::Cells);
       threshold.SetThresholdBelow(0);
-      threshold.SetFieldsToPass(
-        vtkm::filter::FieldSelection("discard", vtkm::filter::FieldSelection::Mode::Exclude));
+      threshold.SetFieldsToPass(viskores::filter::FieldSelection(
+        "discard", viskores::filter::FieldSelection::Mode::Exclude));
       result = threshold.Execute(result);
     }
 
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Unable to convert Viskores result dataSet back to VTK.");
     }
 
     output->GetPointData()->GetAbstractArray("sliceScalars")->SetName("cutScalars");
@@ -308,9 +315,9 @@ int vtkmSlice::RequestData(
       output->GetPointData()->SetActiveScalars("cutScalars");
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                     << "Falling back to the default VTK implementation.");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

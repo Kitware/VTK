@@ -16,7 +16,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkCutter.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmSlice : public vtkCutter
@@ -29,7 +29,7 @@ public:
 protected:
   /// \brief Check if the input dataset is supported by this filter
   ///
-  /// Certain input dataset types are not currently supported by vtkm.
+  /// Certain input dataset types are not currently supported by viskores.
   /// This information is internally used to determine if this filter should fall back to
   /// Superclass implementation.
   bool CanProcessInput(vtkDataSet* input);

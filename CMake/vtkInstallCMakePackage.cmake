@@ -38,16 +38,12 @@ foreach (_vtk_non_module_component IN LISTS _vtk_non_module_components)
   endif ()
 endforeach ()
 
-if (TARGET "VTK::vtkvtkm")
-  set(vtk_has_vtkm ON)
-else ()
-  set(vtk_has_vtkm OFF)
-endif ()
-
 if (TARGET "VTK::vtkviskores")
   set(vtk_has_viskores ON)
+  set(vtk_has_vtkm ON)
 else ()
   set(vtk_has_viskores OFF)
+  set(vtk_has_vtkm OFF)
 endif ()
 
 get_property(vtk_smp_backends GLOBAL

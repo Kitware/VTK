@@ -1,7 +1,9 @@
 NAME
   VTK::vtkvtkm
-PRIVATE_DEPENDS
-  # While not needed to satisfy symbols, this is necessary to guarantee that
-  # VTK_SMP_IMPLEMENTATION_TYPE is available when configuring vtk-m.
-  VTK::CommonCore
+LIBRARY_NAME
+  vtkvtkm
+CONDITION
+  FALSE
+DEPENDS
+  VTK::vtkviskores
 THIRD_PARTY

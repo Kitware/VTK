@@ -22,10 +22,10 @@
 #include "vtkTypeUInt64Array.h"
 #include "vtkTypeUInt8Array.h"
 
-#include "vtkm/CellShape.h"
-#include "vtkm/cont/ArrayHandle.h"
-#include "vtkm/cont/ArrayHandleCast.h"
-#include "vtkm/cont/CellSetSingleType.h"
+#include "viskores/CellShape.h"
+#include "viskores/cont/ArrayHandle.h"
+#include "viskores/cont/ArrayHandleCast.h"
+#include "viskores/cont/CellSetSingleType.h"
 #include "vtkmDataArray.h"
 #include "vtkmlib/CellSetConverters.h"
 #if defined(VTK_USE_CUDA)
@@ -43,24 +43,25 @@ namespace internals
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-using vtkmConnectivityArrays = vtkTypeList::Unique<vtkTypeList::Create<vtkmDataArray<vtkm::Int8>,
-  vtkmDataArray<vtkm::Int16>, vtkmDataArray<vtkm::Int32>, vtkmDataArray<vtkm::Int64>>>::Result;
+using vtkmConnectivityArrays = vtkTypeList::Unique<
+  vtkTypeList::Create<vtkmDataArray<viskores::Int8>, vtkmDataArray<viskores::Int16>,
+    vtkmDataArray<viskores::Int32>, vtkmDataArray<viskores::Int64>>>::Result;
 
-void AddOneIndexToOffset(vtkm::cont::ArrayHandle<vtkm::Id>& offset, size_t connectivitySize)
+void AddOneIndexToOffset(viskores::cont::ArrayHandle<viskores::Id>& offset, size_t connectivitySize)
 {
   size_t lastValue = offset.GetNumberOfValues();
-  offset.Allocate(lastValue + 1, vtkm::CopyFlag::On);
+  offset.Allocate(lastValue + 1, viskores::CopyFlag::On);
   auto portal = offset.WritePortal();
   portal.Set(lastValue, connectivitySize);
 }
 
 template <typename OutputValueT, typename ArrayT>
-vtkm::cont::ArrayHandle<OutputValueT> ToArrayHandle(ArrayT* input)
+viskores::cont::ArrayHandle<OutputValueT> ToArrayHandle(ArrayT* input)
 {
   // input is a vtkmDataArray<inputValueType>
   auto inputUnknownHandle = input->GetVtkmUnknownArrayHandle();
-  vtkm::cont::ArrayHandle<OutputValueT> output;
-  vtkm::cont::ArrayCopyShallowIfPossible(inputUnknownHandle, output);
+  viskores::cont::ArrayHandle<OutputValueT> output;
+  viskores::cont::ArrayCopyShallowIfPossible(inputUnknownHandle, output);
   return output;
 }
 
@@ -85,10 +86,10 @@ struct FromDeviceConduitToMonoShapedCellArray
   void operator()(ArrayT* input)
   {
     // input is a vtkmDataArray<inputValueType>
-    vtkm::cont::CellSetSingleType<> cellSet;
-    // VTK cell types and VTKm cell shapes have the same numbers
+    viskores::cont::CellSetSingleType<> cellSet;
+    // VTK cell types and Viskores cell shapes have the same numbers
     cellSet.Fill(this->NumberOfPoints, this->VTKCellType, this->NumberOfPointsPerCell,
-      internals::ToArrayHandle<vtkm::Id>(input));
+      internals::ToArrayHandle<viskores::Id>(input));
     fromvtkm::Convert(cellSet, this->CellArray);
   }
 };
@@ -108,12 +109,12 @@ public:
   {
     // conduit offsets array does not include the last index =
     // connectivity.size() as CellSetExplicit
-    vtkm::cont::CellSetExplicit<> cellSet;
-    auto vtkmOffsets = ToArrayHandle<vtkm::Id>(offsets);
-    auto vtkmConnectivity = ToArrayHandle<vtkm::Id>(connectivity);
+    viskores::cont::CellSetExplicit<> cellSet;
+    auto vtkmOffsets = ToArrayHandle<viskores::Id>(offsets);
+    auto vtkmConnectivity = ToArrayHandle<viskores::Id>(connectivity);
     AddOneIndexToOffset(vtkmOffsets, vtkmConnectivity.GetNumberOfValues());
     cellSet.Fill(
-      this->NumberOfPoints, ToArrayHandle<vtkm::UInt8>(shapes), vtkmConnectivity, vtkmOffsets);
+      this->NumberOfPoints, ToArrayHandle<viskores::UInt8>(shapes), vtkmConnectivity, vtkmOffsets);
 
     fromvtkm::Convert(cellSet, this->CellArray);
   }
@@ -138,22 +139,22 @@ vtkConduitArrayUtilitiesDevice::~vtkConduitArrayUtilitiesDevice() = default;
 #define vtkmAOSDataArrayConstructSingleComponent(dtype, nvals, raw_ptr, deviceAdapterId)           \
   do                                                                                               \
   {                                                                                                \
-    return vtk::TakeSmartPointer(make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(                \
-      std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(                 \
+    return vtk::TakeSmartPointer(make_vtkmDataArray(viskores::cont::ArrayHandle<dtype>(            \
+      std::vector<viskores::cont::internal::Buffer>{ viskores::cont::internal::MakeBuffer(         \
         deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),     \
-        vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
-        vtkm::cont::internal::InvalidRealloc) })));                                                \
+        viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},             \
+        viskores::cont::internal::InvalidRealloc) })));                                            \
   } while (0)
 
 #define vtkmAOSDataArrayConstructMultiComponent(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)     \
   do                                                                                               \
   {                                                                                                \
     return vtk::TakeSmartPointer(                                                                  \
-      make_vtkmDataArray(vtkm::cont::ArrayHandle<vtkm::Vec<dtype, ncomp>>(                         \
-        std::vector<vtkm::cont::internal::Buffer>{ vtkm::cont::internal::MakeBuffer(               \
+      make_vtkmDataArray(viskores::cont::ArrayHandle<viskores::Vec<dtype, ncomp>>(                 \
+        std::vector<viskores::cont::internal::Buffer>{ viskores::cont::internal::MakeBuffer(       \
           deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),   \
-          vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},       \
-          vtkm::cont::internal::InvalidRealloc) })));                                              \
+          viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},   \
+          viskores::cont::internal::InvalidRealloc) })));                                          \
   } while (0)
 
 #define vtkmAOSDataArrayNumComponentsBody(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)           \
@@ -184,7 +185,7 @@ vtkConduitArrayUtilitiesDevice::~vtkConduitArrayUtilitiesDevice() = default;
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSArray(
   const conduit_node* c_mcarray, bool force_signed,
-  const vtkm::cont::DeviceAdapterId& deviceAdapterId)
+  const viskores::cont::DeviceAdapterId& deviceAdapterId)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const auto& child0 = mcarray.child(0);
@@ -199,25 +200,25 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
   switch (internals::GetTypeId(dtype0.id(), force_signed))
   {
     vtkmAOSDataArrayCase(
-      conduit_dtype::int8, vtkm::Int8, num_tuples, num_components, raw_ptr, deviceAdapterId);
+      conduit_dtype::int8, viskores::Int8, num_tuples, num_components, raw_ptr, deviceAdapterId);
     vtkmAOSDataArrayCase(
-      conduit_dtype::int16, vtkm::Int16, num_tuples, num_components, raw_ptr, deviceAdapterId);
+      conduit_dtype::int16, viskores::Int16, num_tuples, num_components, raw_ptr, deviceAdapterId);
     vtkmAOSDataArrayCase(
-      conduit_dtype::int32, vtkm::Int32, num_tuples, num_components, raw_ptr, deviceAdapterId);
+      conduit_dtype::int32, viskores::Int32, num_tuples, num_components, raw_ptr, deviceAdapterId);
     vtkmAOSDataArrayCase(
-      conduit_dtype::int64, vtkm::Int64, num_tuples, num_components, raw_ptr, deviceAdapterId);
+      conduit_dtype::int64, viskores::Int64, num_tuples, num_components, raw_ptr, deviceAdapterId);
     vtkmAOSDataArrayCase(
-      conduit_dtype::uint8, vtkm::UInt8, num_tuples, num_components, raw_ptr, deviceAdapterId);
-    vtkmAOSDataArrayCase(
-      conduit_dtype::uint16, vtkm::UInt16, num_tuples, num_components, raw_ptr, deviceAdapterId);
-    vtkmAOSDataArrayCase(
-      conduit_dtype::uint32, vtkm::UInt32, num_tuples, num_components, raw_ptr, deviceAdapterId);
-    vtkmAOSDataArrayCase(
-      conduit_dtype::uint64, vtkm::UInt64, num_tuples, num_components, raw_ptr, deviceAdapterId);
-    vtkmAOSDataArrayCase(
-      conduit_dtype::float32, vtkm::Float32, num_tuples, num_components, raw_ptr, deviceAdapterId);
-    vtkmAOSDataArrayCase(
-      conduit_dtype::float64, vtkm::Float64, num_tuples, num_components, raw_ptr, deviceAdapterId);
+      conduit_dtype::uint8, viskores::UInt8, num_tuples, num_components, raw_ptr, deviceAdapterId);
+    vtkmAOSDataArrayCase(conduit_dtype::uint16, viskores::UInt16, num_tuples, num_components,
+      raw_ptr, deviceAdapterId);
+    vtkmAOSDataArrayCase(conduit_dtype::uint32, viskores::UInt32, num_tuples, num_components,
+      raw_ptr, deviceAdapterId);
+    vtkmAOSDataArrayCase(conduit_dtype::uint64, viskores::UInt64, num_tuples, num_components,
+      raw_ptr, deviceAdapterId);
+    vtkmAOSDataArrayCase(conduit_dtype::float32, viskores::Float32, num_tuples, num_components,
+      raw_ptr, deviceAdapterId);
+    vtkmAOSDataArrayCase(conduit_dtype::float64, viskores::Float64, num_tuples, num_components,
+      raw_ptr, deviceAdapterId);
     default:
       vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
       return {};
@@ -228,36 +229,36 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
 #define vtkmSOADataArrayConstructSingleComponent(dtype, nvals, deviceAdapterId)                    \
   do                                                                                               \
   {                                                                                                \
-    std::vector<vtkm::cont::internal::Buffer> buffers;                                             \
+    std::vector<viskores::cont::internal::Buffer> buffers;                                         \
     buffers.reserve(num_components);                                                               \
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
-      buffers.push_back(vtkm::cont::internal::MakeBuffer(                                          \
+      buffers.push_back(viskores::cont::internal::MakeBuffer(                                      \
         deviceAdapterId,                                                                           \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
-        vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},                 \
-        vtkm::cont::internal::InvalidRealloc));                                                    \
+        viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},             \
+        viskores::cont::internal::InvalidRealloc));                                                \
     }                                                                                              \
-    return vtk::TakeSmartPointer(make_vtkmDataArray(vtkm::cont::ArrayHandle<dtype>(buffers)));     \
+    return vtk::TakeSmartPointer(make_vtkmDataArray(viskores::cont::ArrayHandle<dtype>(buffers))); \
   } while (0)
 
 #define vtkmSOADataArrayConstructMultiComponent(dtype, ntups, ncomp, deviceAdapterId)              \
   do                                                                                               \
   {                                                                                                \
-    std::vector<vtkm::cont::internal::Buffer> buffers;                                             \
+    std::vector<viskores::cont::internal::Buffer> buffers;                                         \
     buffers.reserve(num_components);                                                               \
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
-      buffers.push_back(vtkm::cont::internal::MakeBuffer(                                          \
+      buffers.push_back(viskores::cont::internal::MakeBuffer(                                      \
         deviceAdapterId,                                                                           \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
         reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
-        vtkm::internal::NumberOfValuesToNumberOfBytes<dtype>(num_tuples), [](void*) {},            \
-        vtkm::cont::internal::InvalidRealloc));                                                    \
+        viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(num_tuples), [](void*) {},        \
+        viskores::cont::internal::InvalidRealloc));                                                \
     }                                                                                              \
     return vtk::TakeSmartPointer(                                                                  \
-      make_vtkmDataArray(vtkm::cont::ArrayHandleSOA<vtkm::Vec<dtype, ncomp>>(buffers)));           \
+      make_vtkmDataArray(viskores::cont::ArrayHandleSOA<viskores::Vec<dtype, ncomp>>(buffers)));   \
   } while (0)
 
 #define vtkmSOADataArrayCase(conduitTypeId, dtype, ntups, ncomp, deviceAdapterId)                  \
@@ -285,7 +286,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
   const conduit_node* c_mcarray, bool force_signed,
-  const vtkm::cont::DeviceAdapterId& deviceAdapterId)
+  const viskores::cont::DeviceAdapterId& deviceAdapterId)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const conduit_cpp::DataType dtype0 = mcarray.child(0).dtype();
@@ -297,25 +298,25 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAAr
   switch (internals::GetTypeId(dtype0.id(), force_signed))
   {
     vtkmSOADataArrayCase(
-      conduit_dtype::int8, vtkm::Int8, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::int8, viskores::Int8, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::int16, vtkm::Int16, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::int16, viskores::Int16, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::int32, vtkm::Int32, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::int32, viskores::Int32, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::int64, vtkm::Int64, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::int64, viskores::Int64, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::uint8, vtkm::UInt8, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::uint8, viskores::UInt8, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::uint16, vtkm::UInt16, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::uint16, viskores::UInt16, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::uint32, vtkm::UInt32, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::uint32, viskores::UInt32, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::uint64, vtkm::UInt64, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::uint64, viskores::UInt64, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::float32, vtkm::Float32, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::float32, viskores::Float32, num_tuples, num_components, deviceAdapterId);
     vtkmSOADataArrayCase(
-      conduit_dtype::float64, vtkm::Float64, num_tuples, num_components, deviceAdapterId);
+      conduit_dtype::float64, viskores::Float64, num_tuples, num_components, deviceAdapterId);
     default:
       vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
       return {};
@@ -342,9 +343,10 @@ bool vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(vtkIdType nu
   return VtkmDispatcher::Execute(offsets, shapes, elements, deviceWorker);
 }
 
-bool vtkConduitArrayUtilitiesDevice::CanRunOn(const vtkm::cont::DeviceAdapterId& deviceAdapterId)
+bool vtkConduitArrayUtilitiesDevice::CanRunOn(
+  const viskores::cont::DeviceAdapterId& deviceAdapterId)
 {
-  vtkm::cont::RuntimeDeviceTracker& runtimeTracker = vtkm::cont::GetRuntimeDeviceTracker();
+  viskores::cont::RuntimeDeviceTracker& runtimeTracker = viskores::cont::GetRuntimeDeviceTracker();
   return runtimeTracker.CanRunOn(deviceAdapterId);
 }
 

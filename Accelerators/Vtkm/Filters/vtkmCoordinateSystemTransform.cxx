@@ -20,8 +20,8 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/field_transform/CylindricalCoordinateTransform.h>
-#include <vtkm/filter/field_transform/SphericalCoordinateTransform.h>
+#include <viskores/filter/field_transform/CylindricalCoordinateTransform.h>
+#include <viskores/filter/field_transform/SphericalCoordinateTransform.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmCoordinateSystemTransform);
@@ -144,12 +144,12 @@ int vtkmCoordinateSystemTransform::RequestData(
 
   try
   {
-    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
     vtkPoints* points = nullptr;
     if (this->TransformType == TransformTypes::CarToCyl ||
       this->TransformType == TransformTypes::CylToCar)
     { // Cylindrical coordinate transform
-      vtkm::filter::field_transform::CylindricalCoordinateTransform cylindricalCT;
+      viskores::filter::field_transform::CylindricalCoordinateTransform cylindricalCT;
       cylindricalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToCyl) ? cylindricalCT.SetCartesianToCylindrical()
                                                         : cylindricalCT.SetCylindricalToCartesian();
@@ -158,7 +158,7 @@ int vtkmCoordinateSystemTransform::RequestData(
     }
     else
     { // Spherical coordinate system
-      vtkm::filter::field_transform::SphericalCoordinateTransform sphericalCT;
+      viskores::filter::field_transform::SphericalCoordinateTransform sphericalCT;
       sphericalCT.SetUseCoordinateSystemAsField(true);
       (this->TransformType == TransformTypes::CarToSph) ? sphericalCT.SetCartesianToSpherical()
                                                         : sphericalCT.SetSphericalToCartesian();
@@ -172,9 +172,9 @@ int vtkmCoordinateSystemTransform::RequestData(
       points->FastDelete();
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

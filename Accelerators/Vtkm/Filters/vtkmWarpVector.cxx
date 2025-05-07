@@ -19,9 +19,9 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkm/cont/DataSet.h"
+#include "viskores/cont/DataSet.h"
 
-#include <vtkm/filter/field_transform/Warp.h>
+#include <viskores/filter/field_transform/Warp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmWarpVector);
@@ -84,11 +84,11 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
-    vtkm::cont::Field vectorField = tovtkm::Convert(vectors, vectorsAssociation);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::Field vectorField = tovtkm::Convert(vectors, vectorsAssociation);
     in.AddField(vectorField);
 
-    vtkm::filter::field_transform::Warp filter;
+    viskores::filter::field_transform::Warp filter;
     filter.SetScaleFactor(this->ScaleFactor);
     filter.SetUseCoordinateSystemAsField(true);
     filter.SetDirectionField(vectorField.GetName());
@@ -96,7 +96,7 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
     auto result = filter.Execute(in);
 
     vtkDataArray* warpResult =
-      fromvtkm::Convert(result.GetField("Warp", vtkm::cont::Field::Association::Points));
+      fromvtkm::Convert(result.GetField("Warp", viskores::cont::Field::Association::Points));
     vtkNew<vtkPoints> newPts;
 
     newPts->SetNumberOfPoints(warpResult->GetNumberOfTuples());
@@ -104,9 +104,9 @@ int vtkmWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetPoints(newPts);
     warpResult->FastDelete();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

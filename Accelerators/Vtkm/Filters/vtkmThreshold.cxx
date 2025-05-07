@@ -17,10 +17,10 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include <vtkm/cont/Algorithm.h>
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/clean_grid/CleanGrid.h>
-#include <vtkm/filter/entity_extraction/Threshold.h>
+#include <viskores/cont/Algorithm.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
+#include <viskores/filter/entity_extraction/Threshold.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmThreshold);
@@ -33,14 +33,14 @@ class MaskBits
 public:
   // We are not using `= default` here as nvcc does not allow it.
   // NOLINTNEXTLINE(modernize-use-equals-default)
-  VTKM_EXEC_CONT MaskBits() {}
+  VISKORES_EXEC_CONT MaskBits() {}
 
   explicit MaskBits(int mask)
     : Mask(mask)
   {
   }
 
-  VTKM_EXEC_CONT int operator()(unsigned char in) const
+  VISKORES_EXEC_CONT int operator()(unsigned char in) const
   {
     return static_cast<int>(in) & this->Mask;
   }
@@ -57,8 +57,8 @@ inline bool HasGhostFlagsSet(vtkUnsignedCharArray* ghostArray, int flags)
   }
 
   auto ah = tovtkm::vtkAOSDataArrayToFlatArrayHandle(ghostArray);
-  int result = vtkm::cont::Algorithm::Reduce(
-    vtkm::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, vtkm::LogicalOr());
+  int result = viskores::cont::Algorithm::Reduce(
+    viskores::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, viskores::LogicalOr());
   return result;
 }
 
@@ -89,14 +89,14 @@ int vtkmThreshold::RequestData(
   }
 
   int association = this->GetInputArrayAssociation(0, inputVector);
-  vtkm::cont::Field::Association vtkmAssoc;
+  viskores::cont::Field::Association vtkmAssoc;
   switch (association)
   {
     case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-      vtkmAssoc = vtkm::cont::Field::Association::Points;
+      vtkmAssoc = viskores::cont::Field::Association::Points;
       break;
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:
-      vtkmAssoc = vtkm::cont::Field::Association::Cells;
+      vtkmAssoc = viskores::cont::Field::Association::Cells;
       break;
     default:
       vtkErrorMacro("Only point and cell fields are supported");
@@ -105,41 +105,42 @@ int vtkmThreshold::RequestData(
 
   try
   {
-    // currently, vtkm::filter::entity_extraction::Threshold always generates single precision
+    // currently, viskores::filter::entity_extraction::Threshold always generates single precision
     // points
     // auto pointSet = vtkPointSet::SafeDownCast(input);
     // if ((this->GetOutputPointsPrecision() == vtkAlgorithm::DOUBLE_PRECISION) ||
     //   (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
     //     pointSet->GetPoints()->GetDataType() != VTK_FLOAT))
     // {
-    //   throw vtkm::cont::ErrorFilterExecution(
+    //   throw viskores::cont::ErrorFilterExecution(
     //     "vtkmThreshold only supports generating single precision output points.");
     // }
     if (this->GetOutputPointsPrecision() != vtkAlgorithm::DEFAULT_PRECISION)
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "Only `vtkAlgorithm::DEFAULT_PRECISION` is supported for `OutputPointsPrecision`");
     }
 
     if (this->GetUseContinuousCellRange())
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "vtkmThreshold currently does not support UseContinuousCellRange.");
     }
 
     if (this->GetComponentMode() == VTK_COMPONENT_MODE_USE_SELECTED &&
       this->GetSelectedComponent() == inputArray->GetNumberOfComponents())
     {
-      throw vtkm::cont::ErrorFilterExecution("vtkmThreshold currently does not support Magnitude.");
+      throw viskores::cont::ErrorFilterExecution(
+        "vtkmThreshold currently does not support Magnitude.");
     }
 
     if (HasGhostFlagsSet(input->GetCellData()->GetGhostArray(), vtkDataSetAttributes::HIDDENCELL) ||
       HasGhostFlagsSet(input->GetPointData()->GetGhostArray(), vtkDataSetAttributes::HIDDENPOINT))
     {
-      throw vtkm::cont::ErrorFilterExecution("hidden points/cells not supported.");
+      throw viskores::cont::ErrorFilterExecution("hidden points/cells not supported.");
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
     const char* activeFieldName = inputArray->GetName();
@@ -148,7 +149,7 @@ int vtkmThreshold::RequestData(
       activeFieldName = tovtkm::NoNameVTKFieldName();
     }
 
-    vtkm::filter::entity_extraction::Threshold filter;
+    viskores::filter::entity_extraction::Threshold filter;
     filter.SetActiveField(activeFieldName, vtkmAssoc);
 
     switch (this->GetThresholdFunction())
@@ -187,7 +188,7 @@ int vtkmThreshold::RequestData(
     auto result = filter.Execute(in);
 
     // clean the output to remove unused points
-    vtkm::filter::clean_grid::CleanGrid clean;
+    viskores::filter::clean_grid::CleanGrid clean;
     clean.SetCompactPointFields(true);
     clean.SetMergePoints(false);
     clean.SetRemoveDegenerateCells(false);
@@ -197,19 +198,20 @@ int vtkmThreshold::RequestData(
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Unable to convert Viskores result dataSet back to VTK.");
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+      vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                       << "Falling back to the default VTK implementation.");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }

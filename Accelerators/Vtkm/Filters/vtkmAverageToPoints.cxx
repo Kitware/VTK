@@ -20,8 +20,8 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/DataSetUtils.h"
 
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/field_conversion/PointAverage.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/filter/field_conversion/PointAverage.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmAverageToPoints);
@@ -68,18 +68,19 @@ int vtkmAverageToPoints::RequestData(
     if ((input->IsA("vtkUnstructuredGrid") || input->IsA("vtkPolyData")) &&
       this->ContributingCellOption != vtkCellDataToPointData::All)
     {
-      throw vtkm::cont::ErrorFilterExecution("Only `All` is supported for ContributingCellOption.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Only `All` is supported for ContributingCellOption.");
     }
 
     vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(input);
     vtkUniformGrid* uniformGrid = vtkUniformGrid::SafeDownCast(input);
     if ((sGrid && sGrid->HasAnyBlankCells()) || (uniformGrid && uniformGrid->HasAnyBlankCells()))
     {
-      throw vtkm::cont::ErrorFilterExecution("Processing blank cells is not supported.");
+      throw viskores::cont::ErrorFilterExecution("Processing blank cells is not supported.");
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in;
+    // convert the input dataset to a viskores::cont::DataSet
+    viskores::cont::DataSet in;
     if (this->ProcessAllArrays)
     {
       in = tovtkm::Convert(input, tovtkm::FieldsFlag::Cells);
@@ -133,19 +134,20 @@ int vtkmAverageToPoints::RequestData(
       }
     }
 
-    // Execute the vtk-m filter
-    vtkm::filter::field_conversion::PointAverage filter;
+    // Execute the viskores filter
+    viskores::filter::field_conversion::PointAverage filter;
     for (auto i : GetFieldsIndicesWithoutCoords(in))
     {
       const auto& name = in.GetField(i).GetName();
-      filter.SetActiveField(name, vtkm::cont::Field::Association::Cells);
+      filter.SetActiveField(name, viskores::cont::Field::Association::Cells);
       auto result = filter.Execute(in);
 
       // convert back to VTK, and add the field as a point field
       vtkDataArray* resultingArray = fromvtkm::Convert(result.GetPointField(name));
       if (resultingArray == nullptr)
       {
-        throw vtkm::cont::ErrorFilterExecution("Unable to convert result array from VTK-m to VTK");
+        throw viskores::cont::ErrorFilterExecution(
+          "Unable to convert result array from Viskores to VTK");
       }
 
       int outIdx = output->GetPointData()->AddArray(resultingArray);
@@ -156,9 +158,9 @@ int vtkmAverageToPoints::RequestData(
       resultingArray->FastDelete();
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                     << "Falling back to the default VTK implementation.");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

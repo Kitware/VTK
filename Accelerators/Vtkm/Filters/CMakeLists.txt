@@ -1,7 +1,7 @@
-set(VTKm_NO_DEPRECATED_VIRTUAL ON)
+set(Viskores_NO_DEPRECATED_VIRTUAL ON)
 
 list(INSERT CMAKE_MODULE_PATH 0
-  "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
+  "${VTK_SOURCE_DIR}/ThirdParty/viskores/vtkviskores/CMake")
 
 set(classes
   vtkmAverageToCells
@@ -41,28 +41,35 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfigFilters.h")
 
 #=============================================================================
-# Option to enable VTK-m override of corresponding VTK filters. Note that
+# Option to enable Viskores override of corresponding VTK filters. Note that
 # there is also a run-time option that needs to be enabled. It can be accessed
 # via the static function `vtkmFilterOverrides::SetEnabled(bool)`
 #
-option (VTK_ENABLE_VTKM_OVERRIDES "Override VTK filters using the object factory" OFF)
-mark_as_advanced(VTK_ENABLE_VTKM_OVERRIDES)
+set(override_default OFF)
+if (DEFINED VTK_ENABLE_VTKM_OVERRIDES)
+  set(override_default "${VTK_ENABLE_VTKM_OVERRIDES}")
+  unset(VTK_ENABLE_VTKM_OVERRIDES CACHE)
+  message(DEPRECATION
+  "The `VTK_ENABLE_VTKM_OVERRIDES` option has been replaced by `VTK_ENABLE_VISKORES_OVERRIDES`")
+endif ()
+option(VTK_ENABLE_VISKORES_OVERRIDES "Override VTK filters using the object factory" "${override_default}")
+mark_as_advanced(VTK_ENABLE_VISKORES_OVERRIDES)
 
-macro (_vtkm_add_override override_base override_sub)
+macro (_viskores_add_override override_base override_sub)
   vtk_object_factory_declare(BASE ${override_base} OVERRIDE ${override_sub})
-  list (APPEND VTKM_OVERRIDES_INITIALIZER_LIST "{\"${override_base}\", \"${override_sub}\"}")
+  list (APPEND VISKORES_OVERRIDES_INITIALIZER_LIST "{\"${override_base}\", \"${override_sub}\"}")
 endmacro()
 
-if (VTK_ENABLE_VTKM_OVERRIDES)
-  _vtkm_add_override("vtkContourFilter" "vtkmContour")
-  _vtkm_add_override("vtkGradientFilter" "vtkmGradient")
-  _vtkm_add_override("vtkCellDataToPointData" "vtkmAverageToPoints")
-  _vtkm_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
-  _vtkm_add_override("vtkTableBasedClipDataSet" "vtkmClip")
-  _vtkm_add_override("vtkCutter" "vtkmSlice")
-  _vtkm_add_override("vtkThreshold" "vtkmThreshold")
+if (VTK_ENABLE_VISKORES_OVERRIDES)
+  _viskores_add_override("vtkContourFilter" "vtkmContour")
+  _viskores_add_override("vtkGradientFilter" "vtkmGradient")
+  _viskores_add_override("vtkCellDataToPointData" "vtkmAverageToPoints")
+  _viskores_add_override("vtkPointDataToCellData" "vtkmAverageToCells")
+  _viskores_add_override("vtkTableBasedClipDataSet" "vtkmClip")
+  _viskores_add_override("vtkCutter" "vtkmSlice")
+  _viskores_add_override("vtkThreshold" "vtkmThreshold")
 
-  list (JOIN VTKM_OVERRIDES_INITIALIZER_LIST ",\n  " VTKM_OVERRIDES_INITIALIZER_LIST_STRING)
+  list (JOIN VISKORES_OVERRIDES_INITIALIZER_LIST ",\n  " VISKORES_OVERRIDES_INITIALIZER_LIST_STRING)
 
   vtk_object_factory_configure(
     SOURCE_FILE vtk_object_factory_source
@@ -78,7 +85,7 @@ if (VTK_ENABLE_VTKM_OVERRIDES)
     "_vtk_module_VTK::AcceleratorsVTKmFilters_implements" VTK::FiltersCore)
 endif()
 
-set (VTKM_OVERRIDES_INITIALIZER_LIST_STRING "{\n  ${VTKM_OVERRIDES_INITIALIZER_LIST_STRING}};")
+set (VISKORES_OVERRIDES_INITIALIZER_LIST_STRING "{\n  ${VISKORES_OVERRIDES_INITIALIZER_LIST_STRING}};")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkmFilterOverrides.cxx.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmFilterOverrides.cxx")
@@ -92,21 +99,21 @@ vtk_module_add_module(VTK::AcceleratorsVTKmFilters
   CLASSES ${classes})
 vtk_module_set_property(VTK::AcceleratorsVTKmFilters
   PROPERTY  JOB_POOL_COMPILE
-  VALUE     vtkm_pool)
+  VALUE     viskores_pool)
 vtk_module_link(VTK::AcceleratorsVTKmFilters
   PRIVATE
-    vtkm_worklet
-    vtkm_filter)
+    viskores_worklet
+    viskores_filter)
 vtk_module_definitions(VTK::AcceleratorsVTKmFilters
-  PUBLIC "VTK_ENABLE_VTKM_OVERRIDES=$<BOOL:${VTK_ENABLE_VTKM_OVERRIDES}>")
+  PUBLIC "VTK_ENABLE_VISKORES_OVERRIDES=$<BOOL:${VTK_ENABLE_VISKORES_OVERRIDES}>")
 
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmFilters)
-vtkm_add_target_information(${vtkm_accel_target}
-                            EXTENDS_VTKM
+viskores_add_target_information(${vtkm_accel_target}
+                            EXTENDS_VISKORES
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress
@@ -119,7 +126,7 @@ if (TARGET vtkm::cuda)
 
   vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
-elseif (TARGET vtkm::kokkos_cuda)
+elseif (TARGET viskores::kokkos_cuda)
 
   list(TRANSFORM classes APPEND ".cxx" OUTPUT_VARIABLE cuda_impl)
   set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
@@ -143,17 +150,17 @@ if (MSVC)
     # So we suppress for VS2015
     /wd4503
     )
-  set(vtkm_msvc_flags)
+  set(viskores_msvc_flags)
   foreach (msvc_warning_flag IN LISTS msvc_warning_flags)
-    if (TARGET vtkm::cuda OR TARGET vtkm::kokkos_cuda)
-      list(APPEND vtkm_msvc_flags
+    if (TARGET viskores::cuda OR TARGET viskores::kokkos_cuda)
+      list(APPEND viskores_msvc_flags
         $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=${msvc_warning_flag},${msvc_warning_flag}>)
     else ()
-      list(APPEND vtkm_msvc_flags
+      list(APPEND viskores_msvc_flags
         ${msvc_warning_flag})
     endif ()
   endforeach ()
   vtk_module_compile_options(VTK::AcceleratorsVTKmFilters
     PRIVATE
-      ${vtkm_msvc_flags})
+      ${viskores_msvc_flags})
 endif ()

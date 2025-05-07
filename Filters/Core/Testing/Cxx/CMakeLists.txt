@@ -100,14 +100,14 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
 
 # This test fails on vtk-m due to bug #804 (vtk/vtkm)
 # TODO: Remove from condition when fixed
-if (NOT VTK_ENABLE_VTKM_OVERRIDES)
-  vtk_add_test_cxx(vtkFiltersCoreCxxTests no_vtkm_tests
+if (NOT VTK_ENABLE_VISKORES_OVERRIDES)
+  vtk_add_test_cxx(vtkFiltersCoreCxxTests no_viskores_tests
     TestThresholdComponents.cxx,NO_VALID)
 endif()
 
 set(all_tests
   ${tests}
-  ${no_vtkm_tests}
+  ${no_viskores_tests}
   )
 
 if (TARGET VTK::ParallelMPI)

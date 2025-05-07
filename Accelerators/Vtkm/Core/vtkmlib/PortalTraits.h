@@ -6,10 +6,10 @@
 #ifndef vtkmlib_PortalTraits_h
 #define vtkmlib_PortalTraits_h
 
-#include "vtkmConfigCore.h" //required for general vtkm setup
+#include "vtkmConfigCore.h" //required for general viskores setup
 
-#include <vtkm/Types.h>
-#include <vtkm/internal/Assume.h>
+#include <viskores/Types.h>
+#include <viskores/internal/Assume.h>
 
 #include <type_traits>
 
@@ -27,107 +27,107 @@ struct vtkPortalTraits
   using TagType = vtkPortalOfScalarValues;
   using ComponentType = typename std::remove_const<T>::type;
   using Type = ComponentType;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS = 1;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = 1;
 
-  static void SetComponent(Type& t, vtkm::IdComponent, const ComponentType& v) { t = v; }
+  static void SetComponent(Type& t, viskores::IdComponent, const ComponentType& v) { t = v; }
 
-  static ComponentType GetComponent(const Type& t, vtkm::IdComponent) { return t; }
+  static ComponentType GetComponent(const Type& t, viskores::IdComponent) { return t; }
 };
 
 template <typename T, int N>
-struct vtkPortalTraits<vtkm::Vec<T, N>>
+struct vtkPortalTraits<viskores::Vec<T, N>>
 {
   using TagType = vtkPortalOfVecOfValues;
   using ComponentType = typename std::remove_const<T>::type;
-  using Type = vtkm::Vec<T, N>;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS = N;
+  using Type = viskores::Vec<T, N>;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = N;
 
-  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, viskores::IdComponent i, const ComponentType& v)
   {
-    VTKM_ASSUME((i >= 0 && i < N));
+    VISKORES_ASSUME((i >= 0 && i < N));
     t[i] = v;
   }
 
-  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, viskores::IdComponent i)
   {
-    VTKM_ASSUME((i >= 0 && i < N));
+    VISKORES_ASSUME((i >= 0 && i < N));
     return t[i];
   }
 };
 
 template <typename T, int N>
-struct vtkPortalTraits<const vtkm::Vec<T, N>>
+struct vtkPortalTraits<const viskores::Vec<T, N>>
 {
   using TagType = vtkPortalOfVecOfValues;
   using ComponentType = typename std::remove_const<T>::type;
-  using Type = vtkm::Vec<T, N>;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS = N;
+  using Type = viskores::Vec<T, N>;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = N;
 
-  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, viskores::IdComponent i, const ComponentType& v)
   {
-    VTKM_ASSUME((i >= 0 && i < N));
+    VISKORES_ASSUME((i >= 0 && i < N));
     t[i] = v;
   }
 
-  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, viskores::IdComponent i)
   {
-    VTKM_ASSUME((i >= 0 && i < N));
+    VISKORES_ASSUME((i >= 0 && i < N));
     return t[i];
   }
 };
 
 template <typename T, int N, int M>
-struct vtkPortalTraits<vtkm::Vec<vtkm::Vec<T, N>, M>>
+struct vtkPortalTraits<viskores::Vec<viskores::Vec<T, N>, M>>
 {
   using TagType = vtkPortalOfVecOfVecValues;
   using ComponentType = typename std::remove_const<T>::type;
-  using Type = vtkm::Vec<vtkm::Vec<T, N>, M>;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS = N * M;
+  using Type = viskores::Vec<viskores::Vec<T, N>, M>;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = N * M;
 
-  static constexpr vtkm::IdComponent NUM_COMPONENTS_OUTER = M;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS_INNER = N;
+  static constexpr viskores::IdComponent NUM_COMPONENTS_OUTER = M;
+  static constexpr viskores::IdComponent NUM_COMPONENTS_INNER = N;
 
-  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, viskores::IdComponent i, const ComponentType& v)
   {
-    VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
+    VISKORES_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
-    const vtkm::IdComponent j = i % N;
+    const viskores::IdComponent j = i % N;
     t[i / N][j] = v;
   }
 
-  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, viskores::IdComponent i)
   {
-    VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
+    VISKORES_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
-    const vtkm::IdComponent j = i % N;
+    const viskores::IdComponent j = i % N;
     return t[i / N][j];
   }
 };
 
 template <typename T, int N, int M>
-struct vtkPortalTraits<const vtkm::Vec<vtkm::Vec<T, N>, M>>
+struct vtkPortalTraits<const viskores::Vec<viskores::Vec<T, N>, M>>
 {
   using TagType = vtkPortalOfVecOfVecValues;
   using ComponentType = typename std::remove_const<T>::type;
-  using Type = vtkm::Vec<vtkm::Vec<T, N>, M>;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS = N * M;
+  using Type = viskores::Vec<viskores::Vec<T, N>, M>;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = N * M;
 
-  static constexpr vtkm::IdComponent NUM_COMPONENTS_OUTER = M;
-  static constexpr vtkm::IdComponent NUM_COMPONENTS_INNER = N;
+  static constexpr viskores::IdComponent NUM_COMPONENTS_OUTER = M;
+  static constexpr viskores::IdComponent NUM_COMPONENTS_INNER = N;
 
-  static void SetComponent(Type& t, vtkm::IdComponent i, const ComponentType& v)
+  static void SetComponent(Type& t, viskores::IdComponent i, const ComponentType& v)
   {
-    VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
+    VISKORES_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
-    const vtkm::IdComponent j = i % N;
+    const viskores::IdComponent j = i % N;
     t[i / N][j] = v;
   }
 
-  static ComponentType GetComponent(const Type& t, vtkm::IdComponent i)
+  static ComponentType GetComponent(const Type& t, viskores::IdComponent i)
   {
-    VTKM_ASSUME((i >= 0 && i < NUM_COMPONENTS));
+    VISKORES_ASSUME((i >= 0 && i < NUM_COMPONENTS));
     // We need to convert i back to a 2d index
-    const vtkm::IdComponent j = i % N;
+    const viskores::IdComponent j = i % N;
     return t[i / N][j];
   }
 };

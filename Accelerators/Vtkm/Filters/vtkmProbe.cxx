@@ -17,7 +17,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkm/filter/resampling/Probe.h"
+#include "viskores/filter/resampling/Probe.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmProbe);
@@ -74,10 +74,10 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
 
   try
   {
-    // Convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in = tovtkm::Convert(input);
-    // VTK-m's probe filter requires the source to have at least a cellSet.
-    vtkm::cont::DataSet so = tovtkm::Convert(source, tovtkm::FieldsFlag::PointsAndCells);
+    // Convert the input dataset to a viskores::cont::DataSet
+    viskores::cont::DataSet in = tovtkm::Convert(input);
+    // Viskores' probe filter requires the source to have at least a cellSet.
+    viskores::cont::DataSet so = tovtkm::Convert(source, tovtkm::FieldsFlag::PointsAndCells);
     if (so.GetNumberOfCells() <= 0)
     {
       vtkErrorMacro(<< "The source geometry does not have any cell set,"
@@ -85,18 +85,18 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
       return 0;
     }
 
-    vtkm::filter::resampling::Probe probe;
-    // The input in VTK is the geometry in VTKM and the source in VTK is the input
-    // in VTKM.
+    viskores::filter::resampling::Probe probe;
+    // The input in VTK is the geometry in Viskores and the source in VTK is the input
+    // in Viskores.
     probe.SetGeometry(in);
     probe.SetInvalidValue(0.0);
 
     auto result = probe.Execute(so);
-    for (vtkm::Id i = 0; i < result.GetNumberOfFields(); i++)
+    for (viskores::Id i = 0; i < result.GetNumberOfFields(); i++)
     {
-      const vtkm::cont::Field& field = result.GetField(i);
+      const viskores::cont::Field& field = result.GetField(i);
       vtkDataArray* fieldArray = fromvtkm::Convert(field);
-      if (field.GetAssociation() == vtkm::cont::Field::Association::Points)
+      if (field.GetAssociation() == viskores::cont::Field::Association::Points)
       {
         if (strcmp(fieldArray->GetName(), "HIDDEN") == 0)
         {
@@ -104,7 +104,7 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
         }
         output->GetPointData()->AddArray(fieldArray);
       }
-      else if (field.GetAssociation() == vtkm::cont::Field::Association::Cells)
+      else if (field.GetAssociation() == viskores::cont::Field::Association::Cells)
       {
         if (strcmp(fieldArray->GetName(), "HIDDEN") == 0)
         {
@@ -115,9 +115,9 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
       fieldArray->FastDelete();
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

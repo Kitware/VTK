@@ -5,7 +5,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 
-/// A class with static methods to turn vtkm filter overrides on/off at runtime
+/// A class with static methods to turn viskores filter overrides on/off at runtime
 ///
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmFilterOverrides
@@ -13,9 +13,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmFilterOverrides
 public:
   ///@{
   /**
-   * Runtime enable/disable for VTK-m filter overrides using the object factory.
-   * This only has effect if the cmake option `VTK_ENABLE_VTKM_OVERRIDES` is set.
-   * This also only affects filters that have a VTK-m override.
+   * Runtime enable/disable for Viskores filter overrides using the object factory.
+   * This only has effect if the cmake option `VTK_ENABLE_VISKORES_OVERRIDES` is set.
+   * This also only affects filters that have a Viskores override.
    * Disabled by default.
    */
   static void SetEnabled(bool value);

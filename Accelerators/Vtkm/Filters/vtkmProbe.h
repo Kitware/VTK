@@ -7,13 +7,13 @@
  * @brief   Sample data at specified point locations
  *
  * vtkmProbe is a filter that computes point attributes(e.g., scalars, vectors,
- * etc.) at specific point positions using the probe filter in VTK-m. The
+ * etc.) at specific point positions using the probe filter in Viskores. The
  * filter has two inputs: the Input and Source.
  * The Input geometric structure is passed through the filter. The point
  * attributes are computed at the Input point positions by interpolating into
  * the source data. For example, we can compute data values on a plane(plane
  * specified as Input from a volume(Source). The source geometry must have cellSet
- * defined otherwise the vtkm filter won't work. The cell data of the source data
+ * defined otherwise the viskores filter won't work. The cell data of the source data
  * is copied to the output based on in which source cell each input point is. If
  * an array of the same name exists both in source's point and cell data, only
  * the one from the point data is probed. The valid point result is stored as
@@ -37,7 +37,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for export
 #include "vtkDataSetAlgorithm.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmProbe : public vtkDataSetAlgorithm

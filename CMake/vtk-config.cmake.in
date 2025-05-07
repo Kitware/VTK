@@ -14,7 +14,8 @@ The following variables are provided by this module:
   * `VTK_PREFIX_PATH`: Install prefix for VTK.
   * `VTK_LEGACY_REMOVE`: Whether VTK's deprecated APIs are
     compiled out or not.
-  * `VTK_HAS_VTKm`: If VTK provides VTK-m.
+  * `VTK_HAS_VTKm: [Deprecated, use VTK_HAS_VISKORES] If VTK provides VTK-m.
+  * `VTK_HAS_VISKORES`: If VTK provides Viskores.
   * `VTK_OPENGL_HAS_EGL`: If VTK can use EGL for OpenGL context.
   * `VTK_USE_X`: If VTK uses X windows.
   * `VTK_PYTHON_VERSION`: The major version of Python used by VTK. Empty if
@@ -128,24 +129,9 @@ set("${CMAKE_FIND_PACKAGE_NAME}_AUTOINIT_INCLUDE" "\"vtkAutoInit.h\"")
 set("${CMAKE_FIND_PACKAGE_NAME}_SMP_BACKENDS" "@vtk_smp_backends@")
 
 unset("${CMAKE_FIND_PACKAGE_NAME}_FOUND")
+set("${CMAKE_FIND_PACKAGE_NAME}_HAS_VISKORES" "@vtk_has_viskores@")
 set("${CMAKE_FIND_PACKAGE_NAME}_HAS_VTKm" "@vtk_has_vtkm@")
-if (${CMAKE_FIND_PACKAGE_NAME}_HAS_VTKm)
-  find_package(VTKm
-    PATHS "${CMAKE_CURRENT_LIST_DIR}/vtkm"
-    NO_DEFAULT_PATH)
-  if (NOT VTKm_FOUND)
-    set("${CMAKE_FIND_PACKAGE_NAME}_FOUND" 0)
-  endif ()
-
-  # Prior to VTK-m 2.0, the main VTK module was called VTK::vtkm
-  if (TARGET VTK::vtkvtkm)
-    add_library(VTK::vtkm ALIAS VTK::vtkvtkm)
-  endif()
-endif ()
-
-unset("${CMAKE_FIND_PACKAGE_NAME}_FOUND")
-set("${CMAKE_FIND_PACKAGE_NAME}_HAS_Viskores" "@vtk_has_viskores@")
-if (${CMAKE_FIND_PACKAGE_NAME}_HAS_Viskores)
+if (${CMAKE_FIND_PACKAGE_NAME}_HAS_VISKORES)
   find_package(Viskores
     PATHS "${CMAKE_CURRENT_LIST_DIR}/viskores"
     NO_DEFAULT_PATH)

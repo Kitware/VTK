@@ -17,11 +17,11 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include <vtkm/cont/Algorithm.h>
-#include <vtkm/cont/ArrayHandleTransform.h>
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/field_conversion/PointAverage.h>
-#include <vtkm/filter/vector_analysis/Gradient.h>
+#include <viskores/cont/Algorithm.h>
+#include <viskores/cont/ArrayHandleTransform.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/filter/field_conversion/PointAverage.h>
+#include <viskores/filter/vector_analysis/Gradient.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmGradient);
@@ -29,9 +29,9 @@ vtkStandardNewMacro(vtkmGradient);
 namespace
 {
 
-inline vtkm::cont::DataSet CopyDataSetStructure(const vtkm::cont::DataSet& ds)
+inline viskores::cont::DataSet CopyDataSetStructure(const viskores::cont::DataSet& ds)
 {
-  vtkm::cont::DataSet cp;
+  viskores::cont::DataSet cp;
   cp.CopyStructure(ds);
   return cp;
 }
@@ -41,14 +41,14 @@ class MaskBits
 public:
   // We are not using `= default` here as nvcc does not allow it.
   // NOLINTNEXTLINE(modernize-use-equals-default)
-  VTKM_EXEC_CONT MaskBits() {}
+  VISKORES_EXEC_CONT MaskBits() {}
 
   explicit MaskBits(int mask)
     : Mask(mask)
   {
   }
 
-  VTKM_EXEC_CONT int operator()(unsigned char in) const
+  VISKORES_EXEC_CONT int operator()(unsigned char in) const
   {
     return static_cast<int>(in) & this->Mask;
   }
@@ -60,8 +60,8 @@ private:
 inline bool HasGhostFlagsSet(vtkUnsignedCharArray* ghostArray, int flags)
 {
   auto ah = tovtkm::vtkAOSDataArrayToFlatArrayHandle(ghostArray);
-  int result = vtkm::cont::Algorithm::Reduce(
-    vtkm::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, vtkm::LogicalOr());
+  int result = viskores::cont::Algorithm::Reduce(
+    viskores::cont::make_ArrayHandleTransform(ah, MaskBits(flags)), 0, viskores::LogicalOr());
   return result;
 }
 
@@ -91,7 +91,7 @@ bool vtkmGradient::CanProcessInput(vtkDataSet* input)
       for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
       {
         unsigned char cellType = cellTypes->GetValue(i);
-        // VTK-m only supports some cell types
+        // Viskores only supports some cell types
         if (cellType == VTK_EMPTY_CELL || cellType == VTK_POLY_VERTEX ||
           cellType == VTK_POLY_LINE || cellType == VTK_TRIANGLE_STRIP || cellType > VTK_PYRAMID)
         {
@@ -152,19 +152,19 @@ int vtkmGradient::RequestData(
   {
     if (!this->CanProcessInput(input))
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "Input dataset/parameters not supported by vtkmGradient.");
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet. We explicitly drop
+    // convert the input dataset to a viskores::cont::DataSet. We explicitly drop
     // all arrays from the conversion as this algorithm doesn't change topology
-    // and therefore doesn't need input fields converted through the VTK-m filter
+    // and therefore doesn't need input fields converted through the Viskores filter
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
-    vtkm::cont::Field field = tovtkm::Convert(inputArray, association);
+    viskores::cont::Field field = tovtkm::Convert(inputArray, association);
     in.AddField(field);
 
-    const bool fieldIsPoint = field.GetAssociation() == vtkm::cont::Field::Association::Points;
-    const bool fieldIsCell = field.GetAssociation() == vtkm::cont::Field::Association::Cells;
+    const bool fieldIsPoint = field.GetAssociation() == viskores::cont::Field::Association::Points;
+    const bool fieldIsCell = field.GetAssociation() == viskores::cont::Field::Association::Cells;
     const bool fieldIsVec = (inputArray->GetNumberOfComponents() == 3);
     const bool fieldIsScalar =
       inputArray->GetDataType() == VTK_FLOAT || inputArray->GetDataType() == VTK_DOUBLE;
@@ -172,11 +172,11 @@ int vtkmGradient::RequestData(
       (fieldIsPoint || fieldIsCell) && fieldIsScalar && !field.GetName().empty();
 
     // ignore cell gradients on structured and rectilinear grids as the algorithm for
-    // VTK-m differs from VTK. Once VTK-m is able to do stencil based
+    // Viskores differs from VTK. Once Viskores is able to do stencil based
     // gradients for points and cells, we can remove this check.
     if (fieldIsCell && (input->IsA("vtkStructuredGrid") || input->IsA("vtkRectilinearGrid")))
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         std::string("cell gradient of ") + input->GetClassName() + " is not supported.");
     }
 
@@ -198,17 +198,18 @@ int vtkmGradient::RequestData(
 
       if (ghostArray && HasGhostFlagsSet(ghostArray, hidden))
       {
-        throw vtkm::cont::ErrorFilterExecution("hidden points/cells not supported.");
+        throw viskores::cont::ErrorFilterExecution("hidden points/cells not supported.");
       }
     }
 
     if (!fieldValid)
     {
-      throw vtkm::cont::ErrorFilterExecution("Unsupported field type.");
+      throw viskores::cont::ErrorFilterExecution("Unsupported field type.");
     }
 
-    auto passNoFields = vtkm::filter::FieldSelection(vtkm::filter::FieldSelection::Mode::None);
-    vtkm::filter::vector_analysis::Gradient filter;
+    auto passNoFields =
+      viskores::filter::FieldSelection(viskores::filter::FieldSelection::Mode::None);
+    viskores::filter::vector_analysis::Gradient filter;
     filter.SetFieldsToPass(passNoFields);
     filter.SetColumnMajorOrdering();
 
@@ -249,21 +250,21 @@ int vtkmGradient::RequestData(
       filter.SetQCriterionName("Q-criterion");
     }
 
-    // Run the VTK-m Gradient Filter
+    // Run the Viskores Gradient Filter
     // -----------------------------
-    vtkm::cont::DataSet result;
+    viskores::cont::DataSet result;
     if (fieldIsPoint)
     {
       filter.SetComputePointGradient(!this->FasterApproximation);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::Points);
+      filter.SetActiveField(field.GetName(), viskores::cont::Field::Association::Points);
       result = filter.Execute(in);
 
-      // When we have faster approximation enabled the VTK-m gradient will output
+      // When we have faster approximation enabled the Viskores gradient will output
       // a cell field not a point field. So at that point we will need to convert
       // back to a point field
       if (this->FasterApproximation)
       {
-        vtkm::filter::field_conversion::PointAverage cellToPoint;
+        viskores::filter::field_conversion::PointAverage cellToPoint;
         cellToPoint.SetFieldsToPass(passNoFields);
 
         auto c2pIn = result;
@@ -272,28 +273,28 @@ int vtkmGradient::RequestData(
         if (this->ComputeGradient)
         {
           cellToPoint.SetActiveField(
-            filter.GetOutputFieldName(), vtkm::cont::Field::Association::Cells);
+            filter.GetOutputFieldName(), viskores::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeDivergence && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetDivergenceName(), vtkm::cont::Field::Association::Cells);
+            filter.GetDivergenceName(), viskores::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeVorticity && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetVorticityName(), vtkm::cont::Field::Association::Cells);
+            filter.GetVorticityName(), viskores::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
         if (this->ComputeQCriterion && fieldIsVec)
         {
           cellToPoint.SetActiveField(
-            filter.GetQCriterionName(), vtkm::cont::Field::Association::Cells);
+            filter.GetQCriterionName(), viskores::cont::Field::Association::Cells);
           auto ds = cellToPoint.Execute(c2pIn);
           result.AddField(ds.GetField(0));
         }
@@ -302,14 +303,14 @@ int vtkmGradient::RequestData(
     else
     {
       // we need to convert the field to be a point field
-      vtkm::filter::field_conversion::PointAverage cellToPoint;
+      viskores::filter::field_conversion::PointAverage cellToPoint;
       cellToPoint.SetFieldsToPass(passNoFields);
       cellToPoint.SetActiveField(field.GetName(), field.GetAssociation());
       cellToPoint.SetOutputFieldName(field.GetName());
       in = cellToPoint.Execute(in);
 
       filter.SetComputePointGradient(false);
-      filter.SetActiveField(field.GetName(), vtkm::cont::Field::Association::Points);
+      filter.SetActiveField(field.GetName(), viskores::cont::Field::Association::Points);
       result = filter.Execute(in);
     }
 
@@ -318,8 +319,8 @@ int vtkmGradient::RequestData(
     if (!this->ComputeGradient)
     {
       requestedResult = CopyDataSetStructure(result);
-      vtkm::Id numOfFields = static_cast<vtkm::Id>(result.GetNumberOfFields());
-      for (vtkm::Id i = 0; i < numOfFields; ++i)
+      viskores::Id numOfFields = static_cast<viskores::Id>(result.GetNumberOfFields());
+      for (viskores::Id i = 0; i < numOfFields; ++i)
       {
         if (result.GetField(i).GetName() != filter.GetOutputFieldName())
         {
@@ -331,19 +332,20 @@ int vtkmGradient::RequestData(
     // convert arrays back to VTK
     if (!fromvtkm::ConvertArrays(result, output))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Unable to convert Viskores result dataSet back to VTK.");
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage()
+      vtkWarningMacro(<< "Viskores error: " << e.GetMessage()
                       << " Falling back to VTK implementation.");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }

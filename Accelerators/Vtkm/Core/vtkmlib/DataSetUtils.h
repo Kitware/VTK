@@ -7,17 +7,17 @@
 #define vtkmlib_DataSetUtils_h
 
 #include "vtkAcceleratorsVTKmCoreModule.h" //required for correct implementation
-#include "vtkmConfigCore.h"                //required for general vtkm setup
+#include "vtkmConfigCore.h"                //required for general viskores setup
 
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/DataSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
 /**
- * Get Fields indices of VTKm DataSet excluding the Coordinate Systems fields indices.
+ * Get Fields indices of Viskores DataSet excluding the Coordinate Systems fields indices.
  */
 VTKACCELERATORSVTKMCORE_EXPORT
-std::vector<vtkm::Id> GetFieldsIndicesWithoutCoords(const vtkm::cont::DataSet& input);
+std::vector<viskores::Id> GetFieldsIndicesWithoutCoords(const viskores::cont::DataSet& input);
 
 VTK_ABI_NAMESPACE_END
 

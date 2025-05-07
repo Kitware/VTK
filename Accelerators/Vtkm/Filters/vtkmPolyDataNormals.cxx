@@ -12,7 +12,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include "vtkm/filter/vector_analysis/SurfaceNormals.h"
+#include "viskores/filter/vector_analysis/SurfaceNormals.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmPolyDataNormals);
@@ -52,16 +52,16 @@ int vtkmPolyDataNormals::RequestData(
 
   try
   {
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
 
-    vtkm::cont::DataSet result;
+    viskores::cont::DataSet result;
 
-    // check for flags that vtkm filter cannot handle
+    // check for flags that viskores filter cannot handle
     bool unsupported = this->Splitting != 0;
     if (!unsupported)
     {
-      vtkm::filter::vector_analysis::SurfaceNormals filter;
+      viskores::filter::vector_analysis::SurfaceNormals filter;
       filter.SetGenerateCellNormals((this->ComputeCellNormals != 0));
       filter.SetCellNormalsName("Normals");
       filter.SetGeneratePointNormals((this->ComputePointNormals != 0));
@@ -80,20 +80,21 @@ int vtkmPolyDataNormals::RequestData(
 
     if (!fromvtkm::Convert(result, output, input))
     {
-      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkPolyDataNormals");
+      vtkWarningMacro(<< "Viskores error: " << e.GetMessage()
+                      << "Falling back to vtkPolyDataNormals");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
   }
