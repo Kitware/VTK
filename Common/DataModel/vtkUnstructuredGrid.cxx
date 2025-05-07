@@ -45,11 +45,11 @@ struct RemoveGhostCellsWorker
   vtkNew<vtkIdList> NewCellIdMap;
 
   template <class ArrayT1, class ArrayT2, class ArrayT3>
-  void operator()(ArrayT1* inputOffsets, ArrayT2* outputOffsets, ArrayT3* inputFacesOffsetsDA,
-    vtkDataArray* inputConnectivityDA, vtkDataArray* outputConnectivityDA,
-    vtkUnsignedCharArray* types, vtkUnsignedCharArray* ghostCells, vtkIdType numPoints,
-    vtkDataArray* inputFacesDA, vtkDataArray* inputFaceLocationsOffsetsDA,
-    vtkDataArray* inputFaceLocationsDA, vtkDataArray* outputFacesOffsetsDA,
+  void operator()(ArrayT1* inputOffsets, ArrayT2* inputFacesOffsets,
+    ArrayT3* inputFaceLocationsOffsets, vtkDataArray* inputConnectivityDA,
+    vtkDataArray* inputFacesDA, vtkDataArray* inputFaceLocationsDA, vtkUnsignedCharArray* types,
+    vtkUnsignedCharArray* ghostCells, vtkIdType numPoints, vtkDataArray* outputOffsetsDA,
+    vtkDataArray* outputConnectivityDA, vtkDataArray* outputFacesOffsetsDA,
     vtkDataArray* outputFacesDA, vtkDataArray* outputFaceLocationsOffsetsDA,
     vtkDataArray* outputFaceLocationsDA)
   {
@@ -58,46 +58,44 @@ struct RemoveGhostCellsWorker
       return;
     }
 
+    auto outputOffsets = vtkArrayDownCast<ArrayT1>(outputOffsetsDA);
     auto inputConnectivity = vtkArrayDownCast<ArrayT1>(inputConnectivityDA);
-    auto outputConnectivity = vtkArrayDownCast<ArrayT2>(outputConnectivityDA);
+    auto outputConnectivity = vtkArrayDownCast<ArrayT1>(outputConnectivityDA);
 
     outputOffsets->SetNumberOfValues(inputOffsets->GetNumberOfValues());
     outputConnectivity->SetNumberOfValues(inputConnectivity->GetNumberOfValues());
 
     auto inputOffsetsRange = vtk::DataArrayValueRange<1>(inputOffsets);
     auto inputConnectivityRange = vtk::DataArrayValueRange<1>(inputConnectivity);
-    using InputValueType = typename decltype(inputOffsetsRange)::ValueType;
+    using ValueType = typename decltype(inputOffsetsRange)::ValueType;
 
     auto outputOffsetsRange = vtk::DataArrayValueRange<1>(outputOffsets);
     auto outputConnectivityRange = vtk::DataArrayValueRange<1>(outputConnectivity);
-    using OutputValueType = typename decltype(outputOffsetsRange)::ValueType;
 
     auto typesRange = vtk::DataArrayValueRange<1>(types);
     auto ghostCellsRange = vtk::DataArrayValueRange<1>(ghostCells);
 
     //
+    auto inputFaces = vtkArrayDownCast<ArrayT2>(inputFacesDA);
     auto inputFaceLocations = vtkArrayDownCast<ArrayT3>(inputFaceLocationsDA);
-    auto inputFaceLocationsOffsets = vtkArrayDownCast<ArrayT3>(inputFaceLocationsOffsetsDA);
-    auto inputFaces = vtkArrayDownCast<ArrayT3>(inputFacesDA);
-    auto inputFacesOffsets = vtkArrayDownCast<ArrayT3>(inputFacesOffsetsDA);
 
-    auto outputFaceLocations = vtkArrayDownCast<ArrayT2>(outputFaceLocationsDA);
-    auto outputFaceLocationsOffsets = vtkArrayDownCast<ArrayT2>(outputFaceLocationsOffsetsDA);
     auto outputFaces = vtkArrayDownCast<ArrayT2>(outputFacesDA);
     auto outputFacesOffsets = vtkArrayDownCast<ArrayT2>(outputFacesOffsetsDA);
+    auto outputFaceLocations = vtkArrayDownCast<ArrayT3>(outputFaceLocationsDA);
+    auto outputFaceLocationsOffsets = vtkArrayDownCast<ArrayT3>(outputFaceLocationsOffsetsDA);
 
-    using RangeInput = typename vtk::detail::SelectValueRange<ArrayT3, 1>::type;
-    using RangeOutput = typename vtk::detail::SelectValueRange<ArrayT2, 1>::type;
+    using RangeFaces = typename vtk::detail::SelectValueRange<ArrayT2, 1>::type;
+    using RangeFacesLocations = typename vtk::detail::SelectValueRange<ArrayT3, 1>::type;
 
-    RangeInput inputFacesOffsetsRange;
-    RangeInput inputFacesRange;
-    RangeInput inputFaceLocsOffsetRange;
-    RangeInput inputFaceLocsRange;
+    RangeFaces inputFacesOffsetsRange;
+    RangeFaces inputFacesRange;
+    RangeFacesLocations inputFaceLocsOffsetRange;
+    RangeFacesLocations inputFaceLocsRange;
 
-    RangeOutput outputFacesOffsetRange;
-    RangeOutput outputFacesRange;
-    RangeOutput outputFaceLocsOffsetRange;
-    RangeOutput outputFaceLocsRange;
+    RangeFaces outputFacesOffsetRange;
+    RangeFaces outputFacesRange;
+    RangeFacesLocations outputFaceLocsOffsetRange;
+    RangeFacesLocations outputFaceLocsRange;
 
     if (inputFacesOffsets && inputFaces)
     {
@@ -128,11 +126,11 @@ struct RemoveGhostCellsWorker
     this->NewCellIdMap->Allocate(types->GetNumberOfValues());
 
     vtkIdType newPointsMaxId = -1;
-    InputValueType startId = inputOffsetsRange[0];
+    ValueType startId = inputOffsetsRange[0];
     vtkIdType newCellsMaxId = -1;
-    OutputValueType currentOutputOffset = 0;
-    OutputValueType currentOutFacesOffset = 0;
-    OutputValueType currentOutFaceLocsOffset = 0;
+    ValueType currentOutputOffset = 0;
+    ValueType currentOutFacesOffset = 0;
+    ValueType currentOutFaceLocsOffset = 0;
 
     for (vtkIdType cellId = 0; cellId < inputOffsets->GetNumberOfValues() - 1; ++cellId)
     {
@@ -144,13 +142,13 @@ struct RemoveGhostCellsWorker
 
       this->NewCellIdMap->InsertNextId(cellId);
 
-      InputValueType endId = inputOffsetsRange[cellId + 1];
-      InputValueType size = endId - startId;
+      ValueType endId = inputOffsetsRange[cellId + 1];
+      ValueType size = endId - startId;
 
       outputOffsetsRange[++newCellsMaxId] = currentOutputOffset;
       outputOffsetsRange[newCellsMaxId + 1] = currentOutputOffset + size;
 
-      for (InputValueType cellPointId = 0; cellPointId < size; ++cellPointId)
+      for (ValueType cellPointId = 0; cellPointId < size; ++cellPointId)
       {
         vtkIdType pointId = inputConnectivityRange[startId + cellPointId];
         if (pointIdRedirectionMap[pointId] == -1)
@@ -163,19 +161,19 @@ struct RemoveGhostCellsWorker
 
       if (typesRange[cellId] == VTK_POLYHEDRON)
       {
-        InputValueType startFaceId = inputFaceLocsOffsetRange[cellId];
-        InputValueType endFaceId = inputFaceLocsOffsetRange[cellId + 1];
-        InputValueType numberOfFaces = endFaceId - startFaceId;
+        ValueType startFaceId = inputFaceLocsOffsetRange[cellId];
+        ValueType endFaceId = inputFaceLocsOffsetRange[cellId + 1];
+        ValueType numberOfFaces = endFaceId - startFaceId;
 
         outputFaceLocsOffsetRange[newCellsMaxId] = currentOutFaceLocsOffset;
         outputFaceLocsOffsetRange[newCellsMaxId + 1] = currentOutFaceLocsOffset + numberOfFaces;
 
-        for (InputValueType faceLoc = 0; faceLoc < numberOfFaces; ++faceLoc)
+        for (ValueType faceLoc = 0; faceLoc < numberOfFaces; ++faceLoc)
         {
-          InputValueType faceId = inputFaceLocsRange[startFaceId + faceLoc];
-          InputValueType startFace = inputFacesOffsetsRange[faceId];
-          InputValueType endFace = inputFacesOffsetsRange[faceId + 1];
-          InputValueType faceSize = endFace - startFace;
+          ValueType faceId = inputFaceLocsRange[startFaceId + faceLoc];
+          ValueType startFace = inputFacesOffsetsRange[faceId];
+          ValueType endFace = inputFacesOffsetsRange[faceId + 1];
+          ValueType faceSize = endFace - startFace;
 
           outputFaceLocsRange[currentOutFaceLocsOffset + faceLoc] =
             currentOutFaceLocsOffset + faceLoc;
@@ -183,7 +181,7 @@ struct RemoveGhostCellsWorker
           outputFacesOffsetRange[currentOutFaceLocsOffset + faceLoc + 1] =
             currentOutFacesOffset + faceSize;
 
-          for (InputValueType pointLoc = 0; pointLoc < faceSize; ++pointLoc)
+          for (ValueType pointLoc = 0; pointLoc < faceSize; ++pointLoc)
           {
             vtkIdType pointId = inputFacesRange[startFace + pointLoc];
             outputFacesRange[currentOutFacesOffset + pointLoc] = pointIdRedirectionMap[pointId];
@@ -2052,7 +2050,16 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   vtkNew<vtkUnstructuredGrid> newGrid;
 
   vtkNew<vtkCellArray> newFaces;
+  if (this->Faces)
+  {
+    this->Faces->IsStorage64Bit() ? newFaces->Use64BitStorage() : newFaces->Use32BitStorage();
+  }
   vtkNew<vtkCellArray> newFaceLocations;
+  if (this->FaceLocations)
+  {
+    this->FaceLocations->IsStorage64Bit() ? newFaceLocations->Use64BitStorage()
+                                          : newFaceLocations->Use32BitStorage();
+  }
 
   vtkSmartPointer<vtkDataArray> FacesOffset;
   vtkSmartPointer<vtkDataArray> FacesElements;
@@ -2072,30 +2079,24 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   }
 
   vtkNew<vtkCellArray> newCells;
-#ifdef VTK_USE_64BIT_IDS
-  if (!(this->GetNumberOfPoints() >> 31))
-  {
-    newCells->ConvertTo32BitStorage();
-    newFaceLocations->ConvertTo32BitStorage();
-    newFaces->ConvertTo32BitStorage();
-  }
-#endif
+  this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
 
   using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageArrayList,
     vtkCellArray::StorageArrayList, vtkCellArray::StorageArrayList>;
   ::RemoveGhostCellsWorker worker;
 
-  if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), newCells->GetOffsetsArray(),
-        FacesOffset.Get(), worker, this->Connectivity->GetConnectivityArray(),
-        newCells->GetConnectivityArray(), this->Types, this->CellData->GetGhostArray(),
-        this->GetNumberOfPoints(), FacesElements.Get(), FaceLocationsOffset.Get(),
-        FaceLocationsElements.Get(), newFaces->GetOffsetsArray(), newFaces->GetConnectivityArray(),
-        newFaceLocations->GetOffsetsArray(), newFaceLocations->GetConnectivityArray()))
+  if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(),
+        FaceLocationsOffset.Get(), worker, this->Connectivity->GetConnectivityArray(),
+        FacesElements.Get(), FaceLocationsElements.Get(), this->Types,
+        this->CellData->GetGhostArray(), this->GetNumberOfPoints(), newCells->GetOffsetsArray(),
+        newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
+        newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
+        newFaceLocations->GetConnectivityArray()))
   {
-    worker(this->Connectivity->GetOffsetsArray(), newCells->GetOffsetsArray(), FacesOffset.Get(),
-      this->Connectivity->GetConnectivityArray(), newCells->GetConnectivityArray(), this->Types,
-      this->CellData->GetGhostArray(), this->GetNumberOfPoints(), FacesElements.Get(),
-      FaceLocationsOffset.Get(), FaceLocationsElements.Get(), newFaces->GetOffsetsArray(),
+    worker(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(), FaceLocationsOffset.Get(),
+      this->Connectivity->GetConnectivityArray(), FacesElements.Get(), FaceLocationsElements.Get(),
+      this->Types, this->CellData->GetGhostArray(), this->GetNumberOfPoints(),
+      newCells->GetOffsetsArray(), newCells->GetConnectivityArray(), newFaces->GetOffsetsArray(),
       newFaces->GetConnectivityArray(), newFaceLocations->GetOffsetsArray(),
       newFaceLocations->GetConnectivityArray());
   }
