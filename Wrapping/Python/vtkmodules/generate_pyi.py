@@ -47,6 +47,11 @@ import builtins
 import inspect
 import importlib.util
 
+# ==== Cancel any module overrides ====
+
+import vtkmodules
+
+vtkmodules.MODULE_MAPPER = {}
 
 # ==== For type inspection ====
 
