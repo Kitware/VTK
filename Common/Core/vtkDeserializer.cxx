@@ -184,18 +184,22 @@ vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
   const std::string& className, const std::vector<std::string>& superClassNames)
 {
   const auto& internals = (*this->Internals);
-  std::string name = className;
-  const auto& numSuperClasses = superClassNames.size();
-  std::size_t superClassId = numSuperClasses;
-  do
+  std::vector<std::string> classNamesToTry = { className };
+  // Note that the `superClassNames` is ordered from least derived to most derived.
+  // For example, if the class hierarchy is A->B->C, the `superClassNames` will be ['A','B'] and
+  // className will be 'C'. Since we are trying to construct C, we want to try C first, then B, and
+  // finally A.
+  // So we need to reverse the order of `superClassNames` to get correct order ['C','B','A']. This
+  // is important for classes that use object factory to create the objects.
+  classNamesToTry.insert(classNamesToTry.end(), superClassNames.rbegin(), superClassNames.rend());
+  for (const auto& name : classNamesToTry)
   {
     auto iter = internals.Constructors.find(name);
     if (iter != internals.Constructors.end() && name != "vtkObject" && name != "vtkObjectBase")
     {
       return iter->second;
     }
-    name = superClassNames[--superClassId];
-  } while (superClassId > 0);
+  }
   vtkErrorMacro(<< "There is no constructor registered for type " << className
                 << ". Check stack trace to see how we got here.");
   vtkWarningMacro(<< vtksys::SystemInformation::GetProgramStack(2, 1));
