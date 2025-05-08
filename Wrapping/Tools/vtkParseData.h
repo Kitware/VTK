@@ -185,6 +185,7 @@ struct FunctionInfo_
   int IsOperator;
   int IsVariadic;
   int IsExcluded;        /* marked as excluded from wrapping */
+  int IsPropExcluded;    /* exclude from consideration as a property getset method */
   int IsDeprecated;      /* method or function has been deprecated */
   int IsStatic;          /* methods only */
   int IsVirtual;         /* methods only */

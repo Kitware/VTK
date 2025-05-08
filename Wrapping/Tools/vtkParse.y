@@ -4347,6 +4347,11 @@ static void handle_attribute(const char* att, int pack)
     {
       addAttribute(VTK_PARSE_WRAPEXCLUDE);
     }
+    else if (l == 16 && strncmp(att, "vtk::propexclude", l) == 0 && !args &&
+      role == VTK_PARSE_ATTRIB_DECL)
+    {
+      addAttribute(VTK_PARSE_PROPEXCLUDE);
+    }
     else if (l == 16 && strncmp(att, "vtk::newinstance", l) == 0 && !args &&
       role == VTK_PARSE_ATTRIB_DECL)
     {
@@ -4579,6 +4584,13 @@ static void output_function(void)
       /* remove "wrapexclude" attrib from ReturnValue, attach it to function */
       currentFunction->ReturnValue->Attributes ^= VTK_PARSE_WRAPEXCLUDE;
       currentFunction->IsExcluded = 1;
+    }
+
+    if (currentFunction->ReturnValue->Attributes & VTK_PARSE_PROPEXCLUDE)
+    {
+      /* remove "propexclude" attrib from ReturnValue, attach it to function */
+      currentFunction->ReturnValue->Attributes ^= VTK_PARSE_PROPEXCLUDE;
+      currentFunction->IsPropExcluded = 1;
     }
 
     if (currentFunction->ReturnValue->Attributes & VTK_PARSE_DEPRECATED)
