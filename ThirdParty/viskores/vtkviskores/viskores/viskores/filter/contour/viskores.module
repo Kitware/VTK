@@ -1,0 +1,22 @@
+NAME
+  viskores_filter_contour
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+  viskores_filter_vector_analysis
+  viskores_filter_mesh_info
+  viskores_filter_multi_block
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_clean_grid
+  viskores_filter_contour
+  viskores_filter_field_transform
+  viskores_filter_geometry_refinement
+  viskores_io
+  viskores_source
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering_testing
+  viskores_rendering

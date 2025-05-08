@@ -1,0 +1,12 @@
+NAME
+  viskores_filter_clean_grid
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_clean_grid
+  viskores_filter_contour

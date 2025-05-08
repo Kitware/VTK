@@ -1,0 +1,13 @@
+NAME
+  viskores_filter_uncertainty
+GROUPS
+  FiltersCommon
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_uncertainty
+  viskores_filter_core
+  viskores_filter_vector_analysis

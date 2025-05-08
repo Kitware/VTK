@@ -1,0 +1,8 @@
+NAME
+  viskores_cont_serial
+GROUPS
+  Core
+DEPENDS
+  viskores_cont
+TEST_DEPENDS
+  viskores_worklet

@@ -44,6 +44,12 @@ else ()
   set(vtk_has_vtkm OFF)
 endif ()
 
+if (TARGET "VTK::vtkviskores")
+  set(vtk_has_viskores ON)
+else ()
+  set(vtk_has_viskores OFF)
+endif ()
+
 get_property(vtk_smp_backends GLOBAL
   PROPERTY _vtk_smp_backends)
 

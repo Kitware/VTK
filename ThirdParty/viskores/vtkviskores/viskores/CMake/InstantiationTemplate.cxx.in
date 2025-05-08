@@ -1,0 +1,12 @@
+#ifndef @INSTANTIATION_INC_GUARD@
+#define @INSTANTIATION_INC_GUARD@
+#endif
+
+#include <@INSTANTIATION_TEMPLATE_SOURCE@>
+
+/* Needed for linking errors when no instantiations */
+int @INSTANTIATION_INC_GUARD@@counter@__;
+
+@INSTANTIATION_DECLARATION@
+
+#undef @INSTANTIATION_INC_GUARD@

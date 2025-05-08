@@ -1,0 +1,14 @@
+NAME
+  viskores_anari
+GROUPS
+  ANARI
+DEPENDS
+  viskores_filter_field_conversion
+  viskores_filter_vector_analysis
+  viskores_rendering
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_vector_analysis
+  viskores_filter_contour
+  viskores_rendering_testing
+  viskores_source

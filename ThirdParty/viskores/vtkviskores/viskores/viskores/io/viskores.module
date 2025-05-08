@@ -1,0 +1,10 @@
+NAME
+  viskores_io
+GROUPS
+  IO
+DEPENDS
+  viskores_cont
+PRIVATE_DEPENDS
+  viskores_lodepng
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering

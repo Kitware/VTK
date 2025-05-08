@@ -1,0 +1,12 @@
+NAME
+  viskores_source
+GROUPS
+  Sources
+DEPENDS
+  viskores_cont
+  viskores_filter_field_conversion
+  viskores_filter_multi_block
+TEST_DEPENDS
+  viskores_filter_contour
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering_testing

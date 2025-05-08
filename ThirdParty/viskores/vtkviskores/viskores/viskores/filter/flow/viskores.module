@@ -1,0 +1,18 @@
+NAME
+  viskores_filter_flow
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+PRIVATE_DEPENDS
+  viskores_worklet
+OPTIONAL_DEPENDS
+  MPI::MPI_CXX
+TEST_DEPENDS
+  viskores_filter_geometry_refinement
+  viskores_filter_mesh_info
+  viskores_filter_flow
+  viskores_io
+TEST_OPTIONAL_DEPENDS
+  viskores_rendering_testing
+  MPI::MPI_CXX

@@ -1,0 +1,12 @@
+NAME
+  viskores_filter_resampling
+GROUPS
+  Filters
+DEPENDS
+  viskores_filter_core
+  viskores_filter_density_estimate
+  viskores_filter_entity_extraction
+PRIVATE_DEPENDS
+  viskores_worklet
+TEST_DEPENDS
+  viskores_filter_clean_grid

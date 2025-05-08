@@ -1,0 +1,441 @@
+//============================================================================
+//  The contents of this file are covered by the Viskores license. See
+//  LICENSE.txt for details.
+//
+//  By contributing to this file, all contributors agree to the Developer
+//  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+//============================================================================
+
+//============================================================================
+//  Copyright (c) Kitware, Inc.
+//  All rights reserved.
+//  See LICENSE.txt for details.
+//
+//  This software is distributed WITHOUT ANY WARRANTY; without even
+//  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//  PURPOSE.  See the above copyright notice for more information.
+//============================================================================
+#ifndef viskores_internal_Configure_h
+#define viskores_internal_Configure_h
+
+// Defined when NVCC is compiling either __host__ or __device__ code.
+#ifdef __CUDACC__
+#define VISKORES_CUDA
+#endif
+
+// Defined only when NVCC is compiling __device__ code.
+#ifdef __CUDA_ARCH__
+#define VISKORES_CUDA_DEVICE_PASS
+#endif
+
+// Defined when compiling for the HIP language.
+#ifdef __HIP__
+#define VISKORES_HIP
+#endif
+
+#if defined(_MSC_VER)
+//MSVC 2015+ can use a clang frontend, so we want to label it only as MSVC
+//and not MSVC and clang
+#define VISKORES_MSVC
+
+#elif defined(__INTEL_COMPILER)
+//Intel 14+ on OSX uses a clang frontend, so again we want to label them as
+//intel only, and not intel and clang
+#define VISKORES_ICC
+
+#elif defined(__PGI)
+// PGI reports as GNUC as it generates the same ABI, so we need to check for
+// it before gcc.
+#define VISKORES_PGI
+
+#elif defined(__ibmxl__)
+//Check for xl before GCC and clang, as xl claims it is many things
+#define VISKORES_XL
+
+#elif defined(__clang__)
+//Check for clang before GCC, as clang says it is GNUC since it has ABI
+//compliance
+#define VISKORES_CLANG
+
+#elif defined(__MINGW32__)
+//Check for MinGW before GCC, since MinGW will be otherwise categorized
+//as VISKORES_GCC
+#define VISKORES_MINGW
+
+#elif defined(__GNUC__)
+// Several compilers pretend to be GCC but have minor differences. Try to
+// compensate for that, by checking for those compilers first
+#define VISKORES_GCC
+#endif
+
+
+#if defined(unix) || defined(__unix) || defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#include <unistd.h>
+# ifdef _POSIX_VERSION
+#  define VISKORES_POSIX _POSIX_VERSION
+# endif
+#endif
+
+#if defined(_WIN32)
+# define VISKORES_WINDOWS
+#endif
+
+#if !defined(VISKORES_NO_ASSERT)
+#cmakedefine VISKORES_NO_ASSERT
+#endif
+
+#if !defined(VISKORES_NO_ASSERT_CUDA)
+#cmakedefine VISKORES_NO_ASSERT_CUDA
+#endif
+
+#if !defined(VISKORES_NO_ASSERT_HIP)
+#cmakedefine VISKORES_NO_ASSERT_HIP
+#endif
+
+#if !defined(VISKORES_USE_DOUBLE_PRECISION) && !defined(VISKORES_NO_DOUBLE_PRECISION)
+#cmakedefine VISKORES_USE_DOUBLE_PRECISION
+#endif
+
+#if defined(VISKORES_USE_DOUBLE_PRECISION) && defined(VISKORES_NO_DOUBLE_PRECISION)
+# error Both VISKORES_USE_DOUBLE_PRECISION and VISKORES_NO_DOUBLE_PRECISION defined.  Do not know what to do.
+#endif
+
+#if !defined(VISKORES_USE_64BIT_IDS) && !defined(VISKORES_NO_64BIT_IDS)
+#cmakedefine VISKORES_USE_64BIT_IDS
+#endif
+
+#if defined(VISKORES_USE_64BIT_IDS) && defined(VISKORES_NO_64BIT_IDS)
+# error Both VISKORES_USE_64BIT_IDS and VISKORES_NO_64BIT_IDS defined.  Do not know what to do.
+#endif
+
+#define VISKORES_SIZE_LONG @Viskores_SIZE_LONG@
+#define VISKORES_SIZE_LONG_LONG @Viskores_SIZE_LONG_LONG@
+
+// Defines the cache line size in bytes to align allocations to
+#ifndef VISKORES_ALLOCATION_ALIGNMENT
+#define VISKORES_ALLOCATION_ALIGNMENT 64
+#endif
+
+// Define a pair of macros, VISKORES_THIRDPARTY_PRE_INCLUDE and VISKORES_THIRDPARTY_POST_INCLUDE,
+// that should be wrapped around any #include for a tbb or thrust header file. Mostly
+// this is used to set pragmas that dissable warnings that Viskores checks for
+// but tbb and thrust does not.
+#if (defined(VISKORES_GCC) || defined(VISKORES_CLANG))
+
+#define VISKORES_THIRDPARTY_GENERAL_WARNING_PRAGMAS \
+  _Pragma("GCC diagnostic ignored \"-Wconversion\"") \
+  _Pragma("GCC diagnostic ignored \"-Wshadow\"") \
+  _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+
+// GCC has a unused by set variable warnings that needs to be silenced.
+#if defined(VISKORES_GCC)
+#define VISKORES_THIRDPARTY_GCC_WARNING_PRAGMAS \
+  _Pragma("GCC diagnostic ignored \"-Wunused-but-set-variable\"") \
+  _Pragma("GCC diagnostic ignored \"-Wunused-variable\"")
+#else
+#define VISKORES_THIRDPARTY_GCC_WARNING_PRAGMAS
+#endif
+
+
+#if defined(VISKORES_CLANG) && (__apple_build_version__ >= 7000072)
+// 1. Newer versions of clang have an unused-local-typedef warning, but not older
+// versions. This checks for the apple version of clang, which is different
+// than other clang compiled versions.
+// 2+. Suppress common issues found in third-party code such
+// as DIY
+#define VISKORES_THIRDPARTY_CLANG_WARNING_PRAGMAS \
+  _Pragma("GCC diagnostic ignored \"-Wunused-local-typedef\"") \
+  _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
+  _Pragma("GCC diagnostic ignored \"-Wdeprecated\"")
+  _Pragma("GCC diagnostic ignored \"-Wunused-template\"")
+#elif defined(VISKORES_CLANG) && defined(__ibmxl__)
+#define VISKORES_THIRDPARTY_CLANG_WARNING_PRAGMAS \
+  _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
+  _Pragma("GCC diagnostic ignored \"-Wdeprecated\"")
+#elif defined(VISKORES_CLANG)
+#define VISKORES_THIRDPARTY_CLANG_WARNING_PRAGMAS \
+  _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"") \
+  _Pragma("GCC diagnostic ignored \"-Wdeprecated\"")
+  _Pragma("GCC diagnostic ignored \"-Wunused-template\"")
+#else
+#define VISKORES_THIRDPARTY_CLANG_WARNING_PRAGMAS
+#endif
+
+// Older versions of GCC don't support the push/pop pragmas. Right now we are
+// not checking for GCC 3 or earlier. I'm not sure we have a use case for that.
+#if defined(VISKORES_GCC) && (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
+#define VISKORES_THIRDPARTY_WARNINGS_PUSH
+#define VISKORES_THRIDPARTY_WARNINGS_POP
+#else
+#define VISKORES_THIRDPARTY_WARNINGS_PUSH _Pragma("GCC diagnostic push")
+#define VISKORES_THRIDPARTY_WARNINGS_POP  _Pragma("GCC diagnostic pop")
+#endif
+
+#define VISKORES_THIRDPARTY_PRE_INCLUDE \
+  VISKORES_THIRDPARTY_WARNINGS_PUSH \
+  VISKORES_THIRDPARTY_GENERAL_WARNING_PRAGMAS \
+  VISKORES_THIRDPARTY_GCC_WARNING_PRAGMAS \
+  VISKORES_THIRDPARTY_CLANG_WARNING_PRAGMAS
+#define VISKORES_THIRDPARTY_POST_INCLUDE \
+  VISKORES_THRIDPARTY_WARNINGS_POP
+
+#elif (defined(VISKORES_MSVC))
+#define VISKORES_THIRDPARTY_PRE_INCLUDE \
+  __pragma(warning(push)) \
+  __pragma(warning(disable:4100)) \
+  __pragma(warning(disable:4127)) \
+  __pragma(warning(disable:4201)) \
+  __pragma(warning(disable:4244)) \
+  __pragma(warning(disable:4267)) \
+  __pragma(warning(disable:4324)) \
+  __pragma(warning(disable:4510)) \
+  __pragma(warning(disable:4512)) \
+  __pragma(warning(disable:4515)) \
+  __pragma(warning(disable:4610)) \
+  __pragma(warning(disable:4800))
+#define VISKORES_THIRDPARTY_POST_INCLUDE \
+  __pragma(warning(pop))
+#else
+#define VISKORES_THIRDPARTY_PRE_INCLUDE
+#define VISKORES_THIRDPARTY_POST_INCLUDE
+#endif
+
+#include <cctype> //needed to get the __GLIBCXX__ macro
+#if defined(__GLIBCXX__) &&                                                                        \
+  (__GLIBCXX__ < 20150422 || __GLIBCXX__ == 20160726 || __GLIBCXX__ == 20150626 ||                 \
+   __GLIBCXX__ == 20150623)
+// GCC release date mapping
+// 20160726 == 4.9.4
+// 20150626 == 4.9.3
+// 20150623 == 4.8.5
+// 20150422 == 5.1
+// 20141030 == 4.9.2
+// See https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html#abi.versioning.__GLIBCXX__
+// Some context on why this check is useful
+// Components of the c++ standard such as `std::aligned_union` are not something
+// intrinsic to compiler but part of the standard library. Therefore support for these
+// features are determined by what standard library is used versus the compiler.
+// For example by default Intel, PGI, and IBM compilers use the standard library
+// that is provided by a systems default C++ compiler ( generally gcc ). For this
+// reason we have a define that states we are compiling with GLIBCXX_4 which
+// is missing some usefull C++ standard library components
+//
+#define VISKORES_USING_GLIBCXX_4
+#endif
+
+//Determine if current compiler supports vectorization pragma's
+//if so set the define VISKORES_COMPILER_SUPPORTS_VECTOR_PRAGMAS
+//
+//While ICC 14 does support simd pragma, in testing we find that the
+//simd code produces SIGBUS and isn't safe to use.
+//
+#if ( defined(VISKORES_GCC) && ( __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9)  ) ) || \
+    ( defined(VISKORES_ICC) && (__INTEL_COMPILER >= 1500) ) || \
+    ( defined(VISKORES_CLANG) && defined(__apple_build_version__) && (__apple_build_version__ >= 7000000) ) || \
+    ( defined(VISKORES_CLANG) && !defined(__apple_build_version__) && (__clang_major__ > 3) ) || \
+    ( defined(VISKORES_CLANG) && !defined(__apple_build_version__) && (__clang_major__ == 3 && __clang_minor__ >= 5) )
+#define VISKORES_COMPILER_SUPPORTS_VECTOR_PRAGMAS 1
+#endif
+
+
+// Define a pair of macros, VISKORES_VECTORIZATION_PRE_LOOP and VISKORES_VECTORIZATION_IN_LOOP,
+// that should be wrapped around any "for"/"while" that you want vectorized.
+// This is used to set per compiler pragmas for vectorization, and to disable
+// any warnings that about vectorization failures.
+#cmakedefine VISKORES_VECTORIZATION_ENABLED
+
+#if defined(VISKORES_COMPILER_SUPPORTS_VECTOR_PRAGMAS) &&\
+    defined(VISKORES_VECTORIZATION_ENABLED)
+#if defined(VISKORES_CLANG)
+//clang only needs pre loop
+#define VISKORES_VECTORIZATION_PRE_LOOP \
+  _Pragma("clang loop vectorize(enable) interleave(enable)")
+#define VISKORES_VECTORIZATION_IN_LOOP
+#elif defined(VISKORES_ICC) && defined(NDEBUG)
+//Note: icc can't do vectorization in debug builds
+//icc needs pre and in loop
+//For ICC we want ivdep over simd for the following reason:
+//#pragma simd is a more powerful combo of '#pragma vector always' and '#pragma ivdep'
+//The compiler does not check for aliasing or dependencies that might cause
+//incorrect results after vectorization, and it does not protect against illegal
+//memory references. #pragma ivdep overrides potential dependencies, but the
+//compiler still performs a dependency analysis, and will not vectorize if it
+//finds a proven dependency that would affect results. With #pragma simd, the
+//compiler does no such analysis, and tries to vectorize regardless.
+//
+//Final: We are currently disabling all vectorization with ICC
+// in the short-term. Both ivdep and simd cause a horrible decrease in compile
+// time, and generates bad vectorization code.
+#define VISKORES_VECTORIZATION_PRE_LOOP
+#define VISKORES_VECTORIZATION_IN_LOOP
+#elif defined(VISKORES_GCC)
+//gcc only needs in loop
+#define VISKORES_VECTORIZATION_PRE_LOOP \
+  _Pragma("GCC ivdep")
+#define VISKORES_VECTORIZATION_IN_LOOP
+#else
+// Compiler is unknown so we don't define any vectortization pragmas
+#define VISKORES_VECTORIZATION_PRE_LOOP
+#define VISKORES_VECTORIZATION_IN_LOOP
+#endif
+#else
+// Compiler doesn't support any vectortization pragmas
+#define VISKORES_VECTORIZATION_PRE_LOOP
+#define VISKORES_VECTORIZATION_IN_LOOP
+#endif
+
+//Mark if we are building with CUDA enabled
+#ifndef VISKORES_ENABLE_CUDA
+#cmakedefine VISKORES_ENABLE_CUDA
+#endif
+//Mark if we are building with TBB enabled
+#ifndef VISKORES_ENABLE_TBB
+#cmakedefine VISKORES_ENABLE_TBB
+#endif
+//Mark if we are building with OpenMP enabled
+#ifndef VISKORES_ENABLE_OPENMP
+#cmakedefine VISKORES_ENABLE_OPENMP
+#endif
+//Mark if we are building with Kokkos enabled
+#ifndef VISKORES_ENABLE_KOKKOS
+#cmakedefine VISKORES_ENABLE_KOKKOS
+#endif
+//Mark if Kokkos has Cuda backend enabled
+#ifndef VISKORES_KOKKOS_CUDA
+#cmakedefine VISKORES_KOKKOS_CUDA
+#endif
+//Mark if Kokkos has HIP backend enabled
+#ifndef VISKORES_KOKKOS_HIP
+#cmakedefine VISKORES_KOKKOS_HIP
+#endif
+// Mark if Kokkos algorithms should use thrust
+#if defined(VISKORES_KOKKOS_HIP) || defined(VISKORES_KOKKOS_CUDA)
+#cmakedefine VISKORES_ENABLE_KOKKOS_THRUST
+#endif
+
+//Mark if we are building with MPI enabled.
+#cmakedefine VISKORES_ENABLE_MPI
+
+//Mark if we are building with GPU AWARE MPI enabled.
+#cmakedefine VISKORES_ENABLE_GPU_MPI
+
+//Mark what version of the CUDA compiler we have. This is needed to correctly
+//choose consistent implementation ( so we don't violate ODR ) when we compile
+//with CUDA 7.5
+#ifdef VISKORES_ENABLE_CUDA
+#define VISKORES_CUDA_VERSION_MAJOR @VISKORES_CUDA_VERSION_MAJOR@
+#define VISKORES_CUDA_VERSION_MINOR @VISKORES_CUDA_VERSION_MINOR@
+#endif
+
+#if __cplusplus >= 201402L || \
+    ( defined(VISKORES_MSVC) && _MSC_VER >= 1910 ) || \
+    ( defined(VISKORES_ICC)  && defined(__INTEL_CXX11_MODE__) )
+#define VISKORES_HAVE_CXX_14
+#else
+#error "Viskores requires at least a C++14 compiler"
+#endif
+
+//Mark if we have enabled logging.
+#cmakedefine VISKORES_ENABLE_LOGGING
+
+// Define a pair of macros, VISKORES_SWALLOW_SEMICOLON_PRE_BLOCK and
+// VISKORES_SWALLOW_SEMICOLON_POST_BLOCK that can be used around a block in a
+// macro to "swallow" the semicolon after the macro's use so that it is
+// used like a function without warnings about extra semicolons. It is
+// generally implemented by wrapping the block as a do/while with a false
+// condition so that it executes exactly once. (See, for example,
+// https://gcc.gnu.org/onlinedocs/cpp/Swallowing-the-Semicolon.html)
+// However, some compilers might complain about this, too. For example, you
+// might get a complaint about a loop with a constant expression. These
+// macros take care of these conditions.
+#ifdef VISKORES_MSVC
+#define VISKORES_SWALLOW_SEMICOLON_PRE_BLOCK \
+  __pragma(warning(push)) \
+  __pragma(warning(disable:4127)) \
+  do
+#define VISKORES_SWALLOW_SEMICOLON_POST_BLOCK \
+  while (false) \
+  __pragma(warning(pop))
+#else // not VISKORES_MSVC
+#define VISKORES_SWALLOW_SEMICOLON_PRE_BLOCK \
+  do
+#define VISKORES_SWALLOW_SEMICOLON_POST_BLOCK \
+  while (false)
+#endif
+
+/// \def VISKORES_PASS_COMMAS(...)
+///
+/// A trick to pass arguments containing commas through a macro. This is
+/// helpful for mixing template code with macros.
+///
+/// See https://stackoverflow.com/questions/13842468
+#define VISKORES_PASS_COMMAS(...) __VA_ARGS__
+
+/// \def VISKORES_EXPAND(expr)
+///
+/// A utility macro to expand the arguments of macro before invoking it in the
+/// preprocessor. This is mostly used to handle the `__VA_ARGS__` created for
+/// variadic preprocessor macros. Often you will have to pass `__VA_ARGS__` to
+/// another macro to tease out particular parameters. For example, to get the
+/// first argument, you might make something like this.
+///
+/// ```cpp
+/// #define GET_FIRST_ARGUMENT(...) GET_FIRST_ARGUMENT_IMPL(__VA_ARGS__, no_arg)
+/// #define GET_FIRST_ARGUMENT_IMPL(first, ...) first
+/// ```
+///
+/// You would expect this pair of macros to give you the first argument or the
+/// token `no_arg` if no arguments were given, and for most compilers that
+/// is what you would get. But Visual Studio in particular has a weird
+/// interpretation of the standard that causes `__VA_ARGS__` to be treated
+/// as a single argument when passed to another macro. Consequently, for the
+/// example above, Visual Studio actually returns all args passed instead of
+/// the first. To get around the problem, you can wrap the entire call to
+/// the secondary macro in VISKORES_EXPAND to get Visual Studio (and all other
+/// compilers) to properly treat `__VA_ARGS__` as separate arguments.
+///
+/// ```cpp
+/// #define GET_FIRST_ARGUMENT(...) VISKORES_EXPAND(GET_FIRST_ARGUMENT_IMPL(__VA_ARGS__, no_arg))
+/// #define GET_FIRST_ARGUMENT_IMPL(first, ...) first
+/// ```
+///
+#define VISKORES_EXPAND(expr) expr
+
+#ifdef VISKORES_MSVC
+//With MSVC the types that we generate cause warning C4503 (long symbol names)
+//this doesn't affect the resulting binary so we just suppress that warning
+//
+#pragma warning(disable:4503)
+
+//In Viskores libraries, we are typically exporting (with declspec) classes rather
+//than the independent methods within the class. When you are exporting to a
+//dll in MSVC and the class contains a field that is not similarly exported,
+//then you get a warning. This is generally not an issue for our use since we
+//are really only using classes from the standard library and distributed with
+//Viskores itself. The only sane way to fix the issue is to just disable the
+//warning.
+//
+#pragma warning(disable:4251)
+
+#endif
+
+//----------------------------------------------------------------------------
+// Switch case fall-through policy.
+
+// Use "VISKORES_FALLTHROUGH;" to annotate deliberate fall-through in switches,
+// use it analogously to "break;".  The trailing semi-colon is required.
+#if !defined(VISKORES_FALLTHROUGH) && defined(__has_cpp_attribute)
+# if __cplusplus >= 201703L && __has_cpp_attribute(fallthrough)
+#  define VISKORES_FALLTHROUGH [[fallthrough]]
+# elif __cplusplus >= 201103L && __has_cpp_attribute(gnu::fallthrough)
+#  define VISKORES_FALLTHROUGH [[gnu::fallthrough]]
+# elif __cplusplus >= 201103L && __has_cpp_attribute(clang::fallthrough)
+#  define VISKORES_FALLTHROUGH [[clang::fallthrough]]
+# endif
+#endif
+
+#ifndef VISKORES_FALLTHROUGH
+# define VISKORES_FALLTHROUGH ((void)0)
+#endif
+
+#endif //viskores_internal_Configure_h

@@ -1,0 +1,73 @@
+##============================================================================
+##  The contents of this file are covered by the Viskores license. See
+##  LICENSE.txt for details.
+##
+##  By contributing to this file, all contributors agree to the Developer
+##  Certificate of Origin Version 1.1 (DCO 1.1) as stated in DCO.txt.
+##============================================================================
+
+##============================================================================
+##  Copyright (c) Kitware, Inc.
+##  All rights reserved.
+##  See LICENSE.txt for details.
+##
+##  This software is distributed WITHOUT ANY WARRANTY; without even
+##  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+##  PURPOSE.  See the above copyright notice for more information.
+##============================================================================
+
+list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
+  ".*warning: ignoring loop annotation.*"
+  ".*warning: Included by graph for.*not generated, too many nodes. Consider increasing DOT_GRAPH_MAX_NODES.*"
+
+  # disable doxygen warnings about no matching members caused by auto keyword
+  ".*warning: no matching file member found for.*"
+
+  # disable doxygen warning from VISKORES_DEPRECATED usage
+  ".*warning: Found.*while parsing initializer list!.*"
+
+  # disable doxygen warning about potential recursion.
+  ".*warning: Detected potential recursive class relation between .*"
+
+  # disable doxygen warning about not generating graph
+  ".*warning: Included by graph for"
+
+  # Doxygen warns when creating output directory:
+  "Notice: Output directory.*does not exist. I have created it for you."
+
+  # disable doxygen warnings from CONTRIBUTING.md, CodingConventions.md.
+  # these files are really intended for Gitlab, hence we don't want to use
+  # doxygen tags in them.
+  "CONTRIBUTING.md.*warning"
+  "CodingConventions.md.*warning"
+
+  # disable static/dynamic weak symbol warnings
+  ".*ld: warning: direct access in function.*"
+
+  # disable nvlink warnings about arch not found
+  # These indicate that a flag like -arch is missing from the link command.
+  # I am seeing these for the Kokkos builds, and I don't want to fight the
+  # compiler flags there, so I'm just going to suppress those.
+  ".*nvlink warning.*SM Arch.*not found in.*"
+
+  # Disable warnings about third party libraries.
+  # Normally compilers do not generate warnings for includes using -isystem,
+  # however, that is not always the case, specially in exotic systems such as
+  # OLCF Ascent/Summit
+  ".*viskores/thirdparty.*"
+
+  ".*warning: template-id not allowed for constructor.*"
+)
+
+list(APPEND CTEST_CUSTOM_WARNING_MATCH
+  # Let CUDA compiler warn us about recursive functions we should avoid.
+  ".*nvlink warning.*"
+  )
+
+## Sometimes a few test hangs in HIP disable repeat until_pass for HIP builds
+set(CTEST_REPEAT_UNTIL_PASS 3)
+if (NOT x"@CMAKE_HIP_COMPILER@"x STREQUAL xx)
+  set(CTEST_REPEAT_UNTIL_PASS 0)
+endif()
+
+set(Viskores_ENABLE_PERFORMANCE_TESTING "@Viskores_ENABLE_PERFORMANCE_TESTING@")
