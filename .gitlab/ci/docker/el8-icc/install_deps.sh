@@ -19,7 +19,7 @@ dnf install -y --setopt=install_weak_deps=False \
 # External dependencies
 dnf install -y --setopt=install_weak_deps=False \
     libXcursor-devel utf8cpp-devel pugixml-devel libtiff-devel \
-    eigen3-devel double-conversion-devel lz4-devel expat-devel glew-devel \
+    eigen3-devel lz4-devel expat-devel glew-devel \
     hdf5-devel hdf5-mpich-devel hdf5-openmpi-devel hdf5-devel netcdf-devel \
     netcdf-mpich-devel netcdf-openmpi-devel libogg-devel libtheora-devel \
     jsoncpp-devel gl2ps-devel protobuf-devel boost-devel gdal-devel PDAL-devel \
