@@ -1,0 +1,44 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+/**
+ * @file vtkCharConvCompatibility.h
+ * @brief Compatibility shim for C++ charconv API
+ *
+ * Some older compilers, such as Intel LLVM ≤2021.12, GCC ≤9, Clang ≤10, have incomplete
+ * or missing definitions for std::chars_format and std::from_chars_result.
+ * This header provides fallback definitions when
+ * needed, or includes the standard charconv otherwise.
+ */
+
+#ifndef vtkCharConvCompatibility_h
+#define vtkCharConvCompatibility_h
+
+#cmakedefine VTK_HAS_STD_CHARS_FORMAT
+#cmakedefine VTK_HAS_STD_FROM_CHARS_RESULT
+
+#if !(defined(VTK_HAS_STD_CHARS_FORMAT) && defined(VTK_HAS_STD_FROM_CHARS_RESULT))
+#include "vtkCommonCoreModule.h"  // For export macro
+#include <system_error>           // For std::errc
+namespace std
+{
+VTK_ABI_NAMESPACE_BEGIN
+enum class VTKCOMMONCORE_EXPORT chars_format
+{
+  scientific = 0x1,
+  fixed = 0x2,
+  hex = 0x4,
+  general = fixed | scientific
+};
+struct VTKCOMMONCORE_EXPORT from_chars_result
+{
+  const char* ptr;
+  std::errc ec;
+};
+VTK_ABI_NAMESPACE_END
+}
+#else
+#include <charconv> // For std::chars_format, std::from_chars_result
+#endif
+
+#endif // vtkCharConvCompatibility_h
