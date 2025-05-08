@@ -20,16 +20,16 @@ namespace datamodel
 struct ArrayHandleWithoutDataOwnership
 {
 public:
-  vtkm::cont::UnknownArrayHandle Handle;
+  viskores::cont::UnknownArrayHandle Handle;
 
   template <typename T, typename S>
-  void operator()(vtkm::cont::ArrayHandle<T, S> handle)
+  void operator()(viskores::cont::ArrayHandle<T, S> handle)
   {
     this->operator()(handle);
   }
 
   template <typename T>
-  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> handle)
+  void operator()(viskores::cont::ArrayHandle<T, viskores::cont::StorageTagBasic> handle)
   {
     if (handle.GetBuffers().empty())
     {
@@ -39,17 +39,17 @@ public:
 
     auto bufInfo = handle.GetBuffers()[0].GetHostBufferInfo();
     auto data = bufInfo.GetPointer();
-    auto size = vtkm::internal::NumberOfValuesToNumberOfBytes<T>(handle.GetNumberOfValues());
+    auto size = viskores::internal::NumberOfValuesToNumberOfBytes<T>(handle.GetNumberOfValues());
 
     // clang-format off
-    vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagBasic> cacheHandle(std::vector<vtkm::cont::internal::Buffer>{
-      vtkm::cont::internal::MakeBuffer(
-        /*device=*/      vtkm::cont::DeviceAdapterTagUndefined{},
+    viskores::cont::ArrayHandle<T, viskores::cont::StorageTagBasic> cacheHandle(std::vector<viskores::cont::internal::Buffer>{
+      viskores::cont::internal::MakeBuffer(
+        /*device=*/      viskores::cont::DeviceAdapterTagUndefined{},
         /*memory=*/      data,
         /*container=*/   data,
         /*size=*/        size,
         /*deleter=*/     [](void*) {}, // delete method is no-op
-        /*reallocater=*/ vtkm::cont::internal::InvalidRealloc)
+        /*reallocater=*/ viskores::cont::internal::InvalidRealloc)
     });
     // clang-format on
 
@@ -57,7 +57,7 @@ public:
   }
 
   template <typename T>
-  void operator()(vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagSOA> handle)
+  void operator()(viskores::cont::ArrayHandle<T, viskores::cont::StorageTagSOA> handle)
   {
     if (handle.GetBuffers().empty())
     {
@@ -65,41 +65,41 @@ public:
     }
     handle.SyncControlArray();
     auto srcBuffers = handle.GetBuffers();
-    std::vector<vtkm::cont::internal::Buffer> buffers;
+    std::vector<viskores::cont::internal::Buffer> buffers;
     for (size_t i = 0; i < srcBuffers.size(); ++i)
     {
       auto bufInfo = srcBuffers[i].GetHostBufferInfo();
       auto data = bufInfo.GetPointer();
       auto size = bufInfo.GetSize();
       // clang-format off
-      buffers.emplace_back(vtkm::cont::internal::MakeBuffer(
-        /*device=*/      vtkm::cont::DeviceAdapterTagUndefined{},
+      buffers.emplace_back(viskores::cont::internal::MakeBuffer(
+        /*device=*/      viskores::cont::DeviceAdapterTagUndefined{},
         /*memory=*/      data,
         /*container=*/   data,
         /*size=*/        size,
         /*deleter=*/     [](void*) {}, // delete method is no-op
-        /*reallocater=*/ vtkm::cont::internal::InvalidRealloc)
+        /*reallocater=*/ viskores::cont::internal::InvalidRealloc)
       );
       // clang-format on
     }
 
-    vtkm::cont::ArrayHandle<T, vtkm::cont::StorageTagSOA> cacheHandle(std::move(buffers));
+    viskores::cont::ArrayHandle<T, viskores::cont::StorageTagSOA> cacheHandle(std::move(buffers));
     this->Handle = cacheHandle;
   }
 };
 
-vtkm::cont::UnknownArrayHandle make_ArrayHandleWithoutDataOwnership(
-  const vtkm::cont::UnknownArrayHandle& uah)
+viskores::cont::UnknownArrayHandle make_ArrayHandleWithoutDataOwnership(
+  const viskores::cont::UnknownArrayHandle& uah)
 {
   ArrayHandleWithoutDataOwnership ownerlessAHBuilder;
-  vtkm::cont::CastAndCall(uah, ownerlessAHBuilder);
+  viskores::cont::CastAndCall(uah, ownerlessAHBuilder);
   return ownerlessAHBuilder.Handle;
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnership(
-  const std::vector<vtkm::cont::UnknownArrayHandle>& uahs)
+std::vector<viskores::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnership(
+  const std::vector<viskores::cont::UnknownArrayHandle>& uahs)
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> ownerlessUAHs;
+  std::vector<viskores::cont::UnknownArrayHandle> ownerlessUAHs;
   ownerlessUAHs.reserve(uahs.size());
   for (auto& uah : uahs)
   {
@@ -108,7 +108,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnershi
   return ownerlessUAHs;
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> DataModelBase::ReadSelf(
+std::vector<viskores::cont::UnknownArrayHandle> DataModelBase::ReadSelf(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections,
@@ -121,7 +121,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> DataModelBase::ReadSelf(
 
   const auto& ds = sources[this->DataSourceName];
   ds->OpenSource(paths, this->DataSourceName);
-  std::vector<vtkm::cont::UnknownArrayHandle> var;
+  std::vector<viskores::cont::UnknownArrayHandle> var;
   bool readAsMultiBlock = false;
   if (selections.Has(fides::keys::READ_AS_MULTIBLOCK()))
   {

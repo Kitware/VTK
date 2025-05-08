@@ -14,8 +14,8 @@
 #include <fides/FidesTypes.h>
 #include <fides/MetaData.h>
 
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/PartitionedDataSet.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/PartitionedDataSet.h>
 
 #include <memory>
 #include <set>
@@ -35,7 +35,7 @@ namespace io
 
 /// \brief General purpose writer for data described by an Fides data model.
 ///
-/// \c fides::io::DataSetWriter writes a vtkm dataset to a file.
+/// \c fides::io::DataSetWriter writes a viskores dataset to a file.
 ///
 
 class FIDES_EXPORT DataSetWriter
@@ -47,7 +47,7 @@ public:
 #endif
   ~DataSetWriter() = default;
 
-  void Write(const vtkm::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
+  void Write(const viskores::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
 
   void SetWriteFields(const std::vector<std::string>& writeFields)
   {
@@ -72,8 +72,8 @@ protected:
   class UnstructuredSingleTypeDataSetWriter;
   class UnstructuredExplicitDataSetWriter;
 
-  void SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSets);
-  unsigned char GetDataSetType(const vtkm::cont::DataSet& ds);
+  void SetDataSetType(const viskores::cont::PartitionedDataSet& dataSets);
+  unsigned char GetDataSetType(const viskores::cont::DataSet& ds);
 
   std::string OutputFile;
   unsigned char DataSetType;
@@ -93,11 +93,12 @@ public:
 #endif
   ~DataSetAppendWriter() = default;
 
-  void Write(const vtkm::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
+  void Write(const viskores::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
   void Close();
 
 private:
-  void Initialize(const vtkm::cont::PartitionedDataSet& dataSets, const std::string& outputMode);
+  void Initialize(const viskores::cont::PartitionedDataSet& dataSets,
+                  const std::string& outputMode);
   bool IsInitialized;
   std::shared_ptr<DataSetWriter::GenericWriter> Writer;
 };

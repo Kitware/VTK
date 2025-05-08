@@ -16,9 +16,9 @@
 #include <fides/Value.h>
 #include <fides/xgc/XGCCommon.h>
 
-#include <vtkm/cont/ArrayHandleSOA.h>
-#include <vtkm/cont/PartitionedDataSet.h>
-#include <vtkm/cont/UnknownCellSet.h>
+#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/PartitionedDataSet.h>
+#include <viskores/cont/UnknownCellSet.h>
 
 namespace fides
 {
@@ -35,7 +35,7 @@ struct CellSetBase : public DataModelBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  virtual std::vector<vtkm::cont::UnknownCellSet> Read(
+  virtual std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
@@ -43,15 +43,15 @@ struct CellSetBase : public DataModelBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>&, const fides::metadata::MetaData&) {}
+  virtual void PostRead(std::vector<viskores::cont::DataSet>&, const fides::metadata::MetaData&) {}
 
   virtual ~CellSetBase(){};
 };
 
-/// \brief Data model object for VTK-m cell sets.
+/// \brief Data model object for Viskores cell sets.
 ///
 /// \c fides::datamodel::CellSet is responsible of creating
-/// a VTK-m cell set for each block. Note that this class
+/// a Viskores cell set for each block. Note that this class
 /// acts as a variant in that it will create a class of the
 /// appropriate type to handle the specific cell set type
 /// in use and delegate functionality to that class.
@@ -63,7 +63,7 @@ struct CellSet : public DataModelBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -71,7 +71,7 @@ struct CellSet : public DataModelBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data.
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
 private:
@@ -90,7 +90,7 @@ struct CellSetSingleType : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -98,14 +98,14 @@ struct CellSetSingleType : public CellSetBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data. In this case, it is necessary to know the number
-  /// of points to create the VTK-m cellset.
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  /// of points to create the Viskores cellset.
+  virtual void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                         const fides::metadata::MetaData& selections) override;
 
 protected:
   std::pair<unsigned char, int> CellInformation;
-  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
-  std::vector<vtkm::cont::UnknownArrayHandle> ConnectivityArrays;
+  std::vector<viskores::cont::UnknownCellSet> CellSetCache;
+  std::vector<viskores::cont::UnknownArrayHandle> ConnectivityArrays;
 };
 
 /// \brief Class to read unstructured grids of mixed cell types.
@@ -120,7 +120,7 @@ struct CellSetExplicit : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -128,18 +128,18 @@ struct CellSetExplicit : public CellSetBase
   /// This is called after all data is read from disk/buffers,
   /// enabling any work that needs to access array values and other
   /// dataset data. In this case, it is necessary to know the number
-  /// of points to create the VTK-m cellset.
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  /// of points to create the Viskores cellset.
+  virtual void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                         const fides::metadata::MetaData& selections) override;
 
 protected:
-  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
+  std::vector<viskores::cont::UnknownCellSet> CellSetCache;
   std::unique_ptr<Array> CellTypes = nullptr;
   std::unique_ptr<Array> NumberOfVertices = nullptr;
   std::unique_ptr<Array> Connectivity = nullptr;
-  std::vector<vtkm::cont::UnknownArrayHandle> CellTypesArrays;
-  std::vector<vtkm::cont::UnknownArrayHandle> NumberOfVerticesArrays;
-  std::vector<vtkm::cont::UnknownArrayHandle> ConnectivityArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> CellTypesArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> NumberOfVerticesArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> ConnectivityArrays;
 };
 
 /// \brief Class to read structured grids.
@@ -154,7 +154,7 @@ struct CellSetStructured : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -163,12 +163,12 @@ struct CellSetStructured : public CellSetBase
   /// enabling any work that needs to access array values and other
   /// dataset data. In this case, the dimensions, origin, and spacing
   /// can be read from file, which is not available at Read() time.
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>&,
+  virtual void PostRead(std::vector<viskores::cont::DataSet>&,
                         const fides::metadata::MetaData&) override;
 
 private:
   std::unique_ptr<Value> Dimensions = nullptr;
-  std::vector<vtkm::cont::UnknownArrayHandle> DimensionArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> DimensionArrays;
 };
 
 
@@ -189,22 +189,22 @@ struct CellSetXGC : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  virtual void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                         const fides::metadata::MetaData& selections) override;
 
   // cuda doesn't like this class being private...
   class CalcPsi;
 
 private:
-  std::vector<vtkm::cont::UnknownCellSet> CellSetCache;
+  std::vector<viskores::cont::UnknownCellSet> CellSetCache;
   std::unique_ptr<Array> CellConnectivity = nullptr;
   std::unique_ptr<Array> PlaneConnectivity = nullptr;
-  vtkm::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfPlanes = -1;
   bool IsPeriodic = true;
   std::unique_ptr<XGCCommon> CommonImpl;
 };
@@ -221,40 +221,40 @@ struct CellSetGTC : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections) override;
 
 private:
-  using GTCCoordsType32 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_32>;
-  using GTCCoordsType64 = vtkm::cont::ArrayHandleSOA<vtkm::Vec3f_64>;
+  using GTCCoordsType32 = viskores::cont::ArrayHandleSOA<viskores::Vec3f_32>;
+  using GTCCoordsType64 = viskores::cont::ArrayHandleSOA<viskores::Vec3f_64>;
 
   bool IsCached = false;
-  vtkm::cont::UnknownCellSet CachedCellSet;
+  viskores::cont::UnknownCellSet CachedCellSet;
 
-  void ComputeCellSet(vtkm::cont::DataSet& dataSet);
+  void ComputeCellSet(viskores::cont::DataSet& dataSet);
 
   template <typename T, typename C>
-  std::vector<vtkm::Id> ComputeConnectivity(
-    const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>, C>& coords,
-    const vtkm::cont::ArrayHandle<int>& igrid,
-    const vtkm::cont::ArrayHandle<int>& indexShift);
+  std::vector<viskores::Id> ComputeConnectivity(
+    const viskores::cont::ArrayHandle<viskores::Vec<T, 3>, C>& coords,
+    const viskores::cont::ArrayHandle<int>& igrid,
+    const viskores::cont::ArrayHandle<int>& indexShift);
 
-  std::vector<vtkm::cont::UnknownArrayHandle> IGridArrays;
-  std::vector<vtkm::cont::UnknownArrayHandle> IndexShiftArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> IGridArrays;
+  std::vector<viskores::cont::UnknownArrayHandle> IndexShiftArrays;
   std::unique_ptr<Array> IGrid = nullptr;
   std::unique_ptr<Array> IndexShift = nullptr;
-  vtkm::Id NumberOfPlanes = -1;
-  vtkm::Id NumberOfPointsPerPlane = -1;
+  viskores::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfPointsPerPlane = -1;
 
   bool RArrayCached = false;
   bool PhiArrayCached = false;
-  vtkm::cont::ArrayHandle<vtkm::Float32> RArray;
-  vtkm::cont::ArrayHandle<vtkm::Float32> PhiArray;
+  viskores::cont::ArrayHandle<viskores::Float32> RArray;
+  viskores::cont::ArrayHandle<viskores::Float32> PhiArray;
   bool PeriodicCellSet = true;
 };
 
@@ -275,16 +275,17 @@ struct CellSetGX : public CellSetBase
   /// Reads and returns the cell sets.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::UnknownCellSet> Read(
+  std::vector<viskores::cont::UnknownCellSet> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
 
-  virtual void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  virtual void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                         const fides::metadata::MetaData& selections) override;
 
 private:
-  vtkm::Id GetMetaDataValue(const vtkm::cont::DataSet& ds, const std::string& fieldNm) const;
+  viskores::Id GetMetaDataValue(const viskores::cont::DataSet& ds,
+                                const std::string& fieldNm) const;
 };
 
 

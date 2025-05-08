@@ -25,9 +25,9 @@
 #include FIDES_RAPIDJSON(rapidjson/filereadstream.h)
 // clang-format on
 
-#include <vtkm/cont/CoordinateSystem.h>
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/UnknownCellSet.h>
+#include <viskores/cont/CoordinateSystem.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/UnknownCellSet.h>
 
 #include <fides/CellSet.h>
 #include <fides/CoordinateSystem.h>
@@ -389,7 +389,7 @@ public:
     }
   }
 
-  std::vector<vtkm::cont::CoordinateSystem> ReadCoordinateSystem(
+  std::vector<viskores::cont::CoordinateSystem> ReadCoordinateSystem(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections)
   {
@@ -400,7 +400,7 @@ public:
     return this->CoordinateSystem->Read(paths, this->DataSources, selections);
   }
 
-  std::vector<vtkm::cont::UnknownCellSet> ReadCellSet(
+  std::vector<viskores::cont::UnknownCellSet> ReadCellSet(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections)
   {
@@ -476,7 +476,8 @@ public:
   struct GetTimeValueFunctor
   {
     template <typename T, typename S>
-    VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array, double& time) const
+    VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
+                                  double& time) const
     {
       time = static_cast<double>(array.ReadPortal().Get(0));
     }
@@ -536,8 +537,8 @@ public:
           if (timeAH.GetNumberOfValues() == 1)
           {
             double timeVal;
-            timeAH.CastAndCallForTypes<vtkm::TypeListScalarAll,
-                                       vtkm::List<vtkm::cont::StorageTagBasic>>(
+            timeAH.CastAndCallForTypes<viskores::TypeListScalarAll,
+                                       viskores::List<viskores::cont::StorageTagBasic>>(
               GetTimeValueFunctor(), timeVal);
             fides::metadata::Time time(timeVal);
             metaData.Set(fides::keys::TIME_VALUE(), time);
@@ -553,15 +554,15 @@ public:
         if (!timeVec.empty())
         {
           auto& timeAH = timeVec[0];
-          vtkm::cont::UnknownArrayHandle tUAH = timeAH.NewInstanceFloatBasic();
+          viskores::cont::UnknownArrayHandle tUAH = timeAH.NewInstanceFloatBasic();
           tUAH.CopyShallowIfPossible(timeAH);
-          vtkm::cont::ArrayHandle<vtkm::FloatDefault> timeCasted =
-            tUAH.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::FloatDefault>>();
+          viskores::cont::ArrayHandle<viskores::FloatDefault> timeCasted =
+            tUAH.AsArrayHandle<viskores::cont::ArrayHandle<viskores::FloatDefault>>();
 
           auto timePortal = timeCasted.ReadPortal();
           fides::metadata::Vector<double> time;
           time.Data.resize(timePortal.GetNumberOfValues());
-          vtkm::cont::ArrayPortalToIterators<decltype(timePortal)> iterators(timePortal);
+          viskores::cont::ArrayPortalToIterators<decltype(timePortal)> iterators(timePortal);
           std::copy(iterators.GetBegin(), iterators.GetEnd(), time.Data.begin());
           metaData.Set(fides::keys::TIME_ARRAY(), time);
         }
@@ -603,7 +604,8 @@ public:
     return {};
   }
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& pds, const fides::metadata::MetaData& selections)
+  void PostRead(std::vector<viskores::cont::DataSet>& pds,
+                const fides::metadata::MetaData& selections)
   {
     this->CoordinateSystem->PostRead(pds, selections);
     this->CellSet->PostRead(pds, selections);
@@ -665,7 +667,7 @@ public:
   std::shared_ptr<fides::predefined::InternalMetadataSource> MetadataSource = nullptr;
   std::shared_ptr<fides::datamodel::CoordinateSystem> CoordinateSystem = nullptr;
   std::shared_ptr<fides::datamodel::CellSet> CellSet = nullptr;
-  using FieldsKeyType = std::pair<std::string, vtkm::cont::Field::Association>;
+  using FieldsKeyType = std::pair<std::string, viskores::cont::Field::Association>;
   std::map<FieldsKeyType, std::shared_ptr<fides::datamodel::Field>> Fields;
   std::string StepSource;
   std::string TimeVariable;
@@ -778,7 +780,7 @@ fides::metadata::MetaData DataSetReader::ReadMetaData(
   return this->Impl->ReadMetaData(paths, groupName);
 }
 
-vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
+viskores::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
@@ -795,15 +797,15 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
 
   // for(size_t i=0; i<ds.GetNumberOfPartitions(); i++)
   // {
-  //   vtkm::io::writer::VTKDataSetWriter writer(
+  //   viskores::io::writer::VTKDataSetWriter writer(
   //     "output" + std::to_string(i) + ".vtk");
   //   writer.WriteDataSet(ds.GetPartition(i));
   // }
 
-  return vtkm::cont::PartitionedDataSet(ds);
+  return viskores::cont::PartitionedDataSet(ds);
 }
 
-vtkm::cont::PartitionedDataSet DataSetReader::ReadDataSet(
+viskores::cont::PartitionedDataSet DataSetReader::ReadDataSet(
   const fides::metadata::MetaData& selections)
 {
   return this->ReadDataSet(std::unordered_map<std::string, std::string>{}, selections);
@@ -821,7 +823,7 @@ StepStatus DataSetReader::PrepareNextStep(const std::unordered_map<std::string, 
   return this->Impl->BeginStep(paths);
 }
 
-vtkm::cont::PartitionedDataSet DataSetReader::ReadStep(
+viskores::cont::PartitionedDataSet DataSetReader::ReadStep(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
@@ -831,15 +833,15 @@ vtkm::cont::PartitionedDataSet DataSetReader::ReadStep(
 // Returning vector of DataSets instead of PartitionedDataSet because
 // PartitionedDataSet::GetPartition always returns a const DataSet, but
 // we may need to update the DataSet in the PostRead call
-std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
+std::vector<viskores::cont::DataSet> DataSetReader::ReadDataSetInternal(
   const std::unordered_map<std::string, std::string>& paths,
   const fides::metadata::MetaData& selections)
 {
-  std::vector<vtkm::cont::CoordinateSystem> coordSystems =
+  std::vector<viskores::cont::CoordinateSystem> coordSystems =
     this->Impl->ReadCoordinateSystem(paths, selections);
-  std::vector<vtkm::cont::UnknownCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
+  std::vector<viskores::cont::UnknownCellSet> cellSets = this->Impl->ReadCellSet(paths, selections);
   size_t nPartitions = cellSets.size();
-  std::vector<vtkm::cont::DataSet> dataSets(nPartitions);
+  std::vector<viskores::cont::DataSet> dataSets(nPartitions);
   for (size_t i = 0; i < nPartitions; i++)
   {
     if (i < coordSystems.size())
@@ -864,7 +866,7 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
       auto itr = this->Impl->Fields.find(std::make_pair(field.Name, field.Association));
       if (itr != this->Impl->Fields.end())
       {
-        std::vector<vtkm::cont::Field> fieldVec =
+        std::vector<viskores::cont::Field> fieldVec =
           itr->second->Read(paths, this->Impl->DataSources, selections);
         for (size_t i = 0; i < nPartitions; i++)
         {
@@ -880,7 +882,7 @@ std::vector<vtkm::cont::DataSet> DataSetReader::ReadDataSetInternal(
   {
     for (auto& field : this->Impl->Fields)
     {
-      std::vector<vtkm::cont::Field> fields =
+      std::vector<viskores::cont::Field> fields =
         field.second->Read(paths, this->Impl->DataSources, selections);
       for (size_t i = 0; i < nPartitions; i++)
       {

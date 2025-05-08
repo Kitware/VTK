@@ -2,11 +2,11 @@
 
 ## Fides: Adaptable Data Interfaces and Services
 
-Fides is a library for adding metadata to ADIOS2 files so they can be more easily read and understood by VTK-m.
+Fides is a library for adding metadata to ADIOS2 files so they can be more easily read and understood by Viskores.
 
 The metadata required to visualize a dataset is often different than the metadata required in other contexts, so despite the fact we want our simulation data to be "self-describing", this statement has different meanings in different contexts, and hence it is almost impossible to realize in practice.
 
-To use Fides, you must first create a `.json` file which has information relevant for processing the file in VTK-m.
+To use Fides, you must first create a `.json` file which has information relevant for processing the file in Viskores.
 
 ## Documentation
 
@@ -14,9 +14,9 @@ Documentation is hosted at [Read The Docs](https://fides.readthedocs.io/en/lates
 
 ## Dependencies
 
-Fides depends of VTK-m and ADIOS2:
+Fides depends of Viskores and ADIOS2:
 
-- For VTK-m, we require any version equal or higher than 2.1.
+- For Viskores, we require any version equal or higher than 1.0.
 - For ADIOS2, we recommend v2.8.0 or later. Run the unit tests if doubt arises.
 
 ## Testing

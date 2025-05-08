@@ -12,7 +12,7 @@
 #include <fides/Value.h>
 #include <fides/xgc/XGCCommon.h>
 
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <numeric>
 
@@ -29,16 +29,17 @@ class XGCCommon::XGCCommonImpl
   struct SetScalarValueFunctor
   {
     template <typename T, typename S>
-    VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array, vtkm::Id& value) const
+    VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
+                                  viskores::Id& value) const
     {
-      value = static_cast<vtkm::Id>(array.ReadPortal().Get(0));
+      value = static_cast<viskores::Id>(array.ReadPortal().Get(0));
     }
   };
 
-  vtkm::Id ReadScalar(std::string varName,
-                      const std::unordered_map<std::string, std::string>& paths,
-                      DataSourcesType& sources,
-                      std::shared_ptr<Value> numPlanesValue)
+  viskores::Id ReadScalar(std::string varName,
+                          const std::unordered_map<std::string, std::string>& paths,
+                          DataSourcesType& sources,
+                          std::shared_ptr<Value> numPlanesValue)
   {
     // Since we're reading a scalar value from ADIOS, it should be immediately available,
     // regardless of using sync or deferred Gets.
@@ -56,28 +57,29 @@ class XGCCommon::XGCCommonImpl
       throw std::runtime_error(varName + " should be a scalar value");
     }
 
-    vtkm::Id value;
-    valAH.CastAndCallForTypes<vtkm::TypeListScalarAll, vtkm::List<vtkm::cont::StorageTagBasic>>(
+    viskores::Id value;
+    valAH.CastAndCallForTypes<viskores::TypeListScalarAll,
+                              viskores::List<viskores::cont::StorageTagBasic>>(
       SetScalarValueFunctor(), value);
     return value;
   }
 
-  void AddBlock(size_t blockId, vtkm::Id startPlaneId, vtkm::Id planeCount)
+  void AddBlock(size_t blockId, viskores::Id startPlaneId, viskores::Id planeCount)
   {
     auto planeInfo = std::make_pair(startPlaneId, planeCount);
     this->PlaneMapping.insert(std::make_pair(blockId, std::move(planeInfo)));
   }
 
   // block id -> pair(plane id start, num planes in block)
-  std::unordered_map<size_t, std::pair<vtkm::Id, vtkm::Id>> PlaneMapping;
+  std::unordered_map<size_t, std::pair<viskores::Id, viskores::Id>> PlaneMapping;
   size_t NumberOfBlocks = 0;
   bool PlanesMapped = false;
-  vtkm::Id NumberOfPlanes = -1;
+  viskores::Id NumberOfPlanes = -1;
 
 public:
-  vtkm::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
-                             DataSourcesType& sources,
-                             std::shared_ptr<Value> numPlanesValue)
+  viskores::Id GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                                 DataSourcesType& sources,
+                                 std::shared_ptr<Value> numPlanesValue)
   {
     this->NumberOfPlanes = this->ReadScalar("number_of_planes", paths, sources, numPlanesValue);
     return this->NumberOfPlanes;
@@ -86,7 +88,7 @@ public:
   // in addition to their normal plane assignment, every plane needs to also have the first plane
   // from the next block (or block 0 for the last block), in order to have the cells that are between
   // blocks
-  void MapPlanesToBlocks(vtkm::Id planesPerUserBlock)
+  void MapPlanesToBlocks(viskores::Id planesPerUserBlock)
   {
     if (this->NumberOfPlanes <= 0)
     {
@@ -105,11 +107,11 @@ public:
     // in this case, we need to make sure each block also gets the first plane from the next block
     size_t nPlanesRem = static_cast<size_t>(this->NumberOfPlanes) % this->NumberOfBlocks;
     // need to update planesPerUserBlock since it may have changed
-    planesPerUserBlock = this->NumberOfPlanes / static_cast<vtkm::Id>(this->NumberOfBlocks);
-    vtkm::Id startPlaneId = 0;
+    planesPerUserBlock = this->NumberOfPlanes / static_cast<viskores::Id>(this->NumberOfBlocks);
+    viskores::Id startPlaneId = 0;
     for (size_t block = 0; block < this->NumberOfBlocks; ++block)
     {
-      vtkm::Id planeCount = planesPerUserBlock;
+      viskores::Id planeCount = planesPerUserBlock;
       if (block < nPlanesRem)
       {
         // add a plane to the first nPlanesRem Blocks
@@ -141,11 +143,11 @@ public:
         blockInfo.PlaneStartId = block.first;
         if (getPlaneSelection)
         {
-          for (vtkm::Id i = blockInfo.PlaneStartId;
+          for (viskores::Id i = blockInfo.PlaneStartId;
                i < blockInfo.PlaneStartId + blockInfo.NumberOfPlanesOwned;
                ++i)
           {
-            vtkm::Id planeId = i;
+            viskores::Id planeId = i;
             if (planeId == this->NumberOfPlanes)
             {
               // to handle last plane on n-1 block
@@ -179,7 +181,7 @@ XGCCommon::XGCCommon()
 XGCCommon::~XGCCommon() = default;
 
 std::shared_ptr<Value> XGCCommon::NumberOfPlanes = nullptr;
-vtkm::Id XGCCommon::PlanesPerUserBlock = 8;
+viskores::Id XGCCommon::PlanesPerUserBlock = 8;
 
 void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourcesType& sources)
 {
@@ -198,10 +200,10 @@ void XGCCommon::ProcessNumberOfPlanes(const rapidjson::Value& nPlanes, DataSourc
   }
 }
 
-vtkm::Id XGCCommon::GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
-                                      DataSourcesType& sources)
+viskores::Id XGCCommon::GetNumberOfPlanes(const std::unordered_map<std::string, std::string>& paths,
+                                          DataSourcesType& sources)
 {
-  vtkm::Id numberOfPlanes = this->Impl->GetNumberOfPlanes(paths, sources, NumberOfPlanes);
+  viskores::Id numberOfPlanes = this->Impl->GetNumberOfPlanes(paths, sources, NumberOfPlanes);
   this->Impl->MapPlanesToBlocks(PlanesPerUserBlock);
   return numberOfPlanes;
 }

@@ -15,8 +15,8 @@
 #include <fides/FieldDataManager.h>
 #include <fides/MetaData.h>
 
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/PartitionedDataSet.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/PartitionedDataSet.h>
 
 #include <memory>
 #include <string>
@@ -32,7 +32,7 @@ namespace io
 /// \brief General purpose reader for data described by an Fides data model.
 ///
 /// \c fides::io::DataSetReader reads data described by an Fides data model
-/// and creates VTK-m datasets. See the Fides schema definition for the
+/// and creates Viskores datasets. See the Fides schema definition for the
 /// supported data model. \c DataSetReader also supports reading meta-data.
 ///
 class FIDES_EXPORT DataSetReader
@@ -118,14 +118,14 @@ public:
   /// the paths (filenames usually) corresponding to each data source.
   /// \param selections provides support for reading a subset of
   /// the data by providing choices for things such as time and blocks.
-  vtkm::cont::PartitionedDataSet ReadDataSet(
+  viskores::cont::PartitionedDataSet ReadDataSet(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections);
 
   /// Read and return heavy-data.
   /// \param selections provides support for reading a subset of
   /// the data by providing choices for things such as time and blocks.
-  vtkm::cont::PartitionedDataSet ReadDataSet(const fides::metadata::MetaData& selections);
+  viskores::cont::PartitionedDataSet ReadDataSet(const fides::metadata::MetaData& selections);
 
   /// When reading in streaming mode, this method has to be called before
   /// reading any meta-data or heavy data. It will also move the reader
@@ -145,14 +145,15 @@ public:
   /// the data by providing choices for things such as time and blocks.
   FIDES_DEPRECATED_SUPPRESS_BEGIN
   FIDES_DEPRECATED(1.2, "ReadDataSet() will now handle both streaming and random access modes.")
-  vtkm::cont::PartitionedDataSet ReadStep(const std::unordered_map<std::string, std::string>& paths,
-                                          const fides::metadata::MetaData& selections);
+  viskores::cont::PartitionedDataSet ReadStep(
+    const std::unordered_map<std::string, std::string>& paths,
+    const fides::metadata::MetaData& selections);
   FIDES_DEPRECATED_SUPPRESS_END
 
   /// Get a pointer to the field data manager
   /// \sa FieldDataManager, FieldData
   FIDES_DEPRECATED_SUPPRESS_BEGIN
-  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
+  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in Viskores DataSet.")
   std::shared_ptr<fides::datamodel::FieldDataManager> GetFieldData();
   FIDES_DEPRECATED_SUPPRESS_END
 
@@ -165,7 +166,7 @@ private:
   class DataSetReaderImpl;
   std::unique_ptr<DataSetReaderImpl> Impl;
 
-  std::vector<vtkm::cont::DataSet> ReadDataSetInternal(
+  std::vector<viskores::cont::DataSet> ReadDataSetInternal(
     const std::unordered_map<std::string, std::string>& paths,
     const fides::metadata::MetaData& selections);
 };

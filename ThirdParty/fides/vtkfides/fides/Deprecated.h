@@ -25,9 +25,9 @@
 /// Classes and methods are marked deprecated using the `FIDES_DEPRECATED`
 /// macro. The first argument of `FIDES_DEPRECATED` should be set to the first
 /// version in which the feature is deprecated. For example, if the last
-/// released version of VTK-m was 1.5, and on the master branch a developer
+/// released version of Viskores was 1.5, and on the master branch a developer
 /// wants to deprecate a class foo, then the `FIDES_DEPRECATED` release version
-/// should be given as 1.6, which will be the next minor release of VTK-m. The
+/// should be given as 1.6, which will be the next minor release of Viskores. The
 /// second argument of `FIDES_DEPRECATED`, which is optional but highly
 /// encouraged, is a short message that should clue developers on how to update
 /// their code to the new changes. For example, it could point to the
