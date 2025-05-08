@@ -21,6 +21,7 @@ LICENSE_FILES
   LICENSE
 DEPENDS
   VTK::fast_float
+  VTK::fmt
   VTK::kwiml
   VTK::nlohmannjson
   VTK::scn
@@ -37,5 +38,4 @@ TEST_DEPENDS
   VTK::CommonTransforms
   VTK::TestingCore
   VTK::vtksys
-  VTK::fmt
 INCLUDE_MARSHAL

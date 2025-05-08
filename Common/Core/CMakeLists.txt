@@ -410,6 +410,7 @@ endif ()
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
+  vtkStringFormatter.cxx
   vtkValueFromString.cxx
 
   vtkDataArray_CopyComponent.cxx
@@ -455,6 +456,7 @@ endfunction()
 # Check C++ <charconv> next, where the C++17 standard says these must be.
 check_cxx_expression_compiles("std::chars_format()" "charconv" VTK_HAS_STD_CHARS_FORMAT)
 check_cxx_expression_compiles("std::from_chars_result()" "charconv" VTK_HAS_STD_FROM_CHARS_RESULT)
+check_cxx_expression_compiles("std::to_chars_result()" "charconv" VTK_HAS_STD_TO_CHARS_RESULT)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkCharConvCompatibility.h.in"
@@ -485,6 +487,7 @@ set(headers
   vtkRangeIterableTraits.h
   vtkSetGet.h
   vtkSmartPointer.h
+  vtkStringFormatter.h
   vtkStringScanner.h
   vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
