@@ -9,9 +9,9 @@
  * data streams is defined by the Fides library:
  * (https://gitlab.kitware.com/vtk/fides/)
  * See the Fides documentation for the details of the schema used to
- * represent VTK/VTK-m data models.
+ * represent VTK/Viskores data models.
  * The reader can create partitioned dataset collection containing
- * native VTK dataset or  VTK VTK-m datasets.
+ * native VTK dataset or  VTK Viskores datasets.
  * Time and time streaming is supported. Note that the interface for
  * time streaming is different. It requires calling PrepareNextStep()
  * and Update() for each new step.
@@ -125,7 +125,7 @@ public:
   /**
    * Methods to determine whether to output a set of vtkmDataSets
    * or native VTK datasets. If the pipeline following the reader
-   * is mainly VTK filters (as opposed to VTK-m accelerated VTK
+   * is mainly VTK filters (as opposed to Viskores accelerated VTK
    * filters), set this to on. False by default.
    */
   vtkBooleanMacro(ConvertToVTK, bool);

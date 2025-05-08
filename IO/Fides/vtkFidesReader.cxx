@@ -23,7 +23,7 @@
 
 #include <fides/DataSetReader.h>
 
-#include <vtkm/filter/clean_grid/CleanGrid.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
 
 #include <numeric>
 #include <utility>
@@ -424,17 +424,17 @@ int vtkFidesReader::RequestInformation(
         fides::keys::FIELDS());
       for (auto& field : fields.Data)
       {
-        if (field.Association == vtkm::cont::Field::Association::Points)
+        if (field.Association == viskores::cont::Field::Association::Points)
         {
           groupMetaData.PointDataArrays.insert(field.Name);
           this->PointDataArraySelection->AddArray(field.Name.c_str());
         }
-        else if (field.Association == vtkm::cont::Field::Association::Cells)
+        else if (field.Association == viskores::cont::Field::Association::Cells)
         {
           groupMetaData.CellDataArrays.insert(field.Name);
           this->CellDataArraySelection->AddArray(field.Name.c_str());
         }
-        else if (field.Association == vtkm::cont::Field::Association::WholeDataSet)
+        else if (field.Association == viskores::cont::Field::Association::WholeDataSet)
         {
           groupMetaData.FieldDataArrays.insert(field.Name);
           this->FieldDataArraySelection->AddArray(field.Name.c_str());
@@ -536,29 +536,30 @@ fides::metadata::Vector<size_t> DetermineBlocksToRead(int nBlocks, int nPieces, 
   return blocksToRead;
 }
 
-vtkDataSet* ConvertDataSet(const vtkm::cont::DataSet& ds)
+vtkDataSet* ConvertDataSet(const viskores::cont::DataSet& ds)
 {
   vtkNew<vtkUnstructuredGrid> dstmp;
   const auto& cs = ds.GetCellSet();
-  if (cs.IsType<vtkm::cont::CellSetSingleType<>>() || cs.IsType<vtkm::cont::CellSetExplicit<>>())
+  if (cs.IsType<viskores::cont::CellSetSingleType<>>() ||
+    cs.IsType<viskores::cont::CellSetExplicit<>>())
   {
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
     fromvtkm::Convert(ds, ug, dstmp);
     return ug;
   }
-  else if (cs.IsType<vtkm::cont::CellSetStructured<2>>() ||
-    cs.IsType<vtkm::cont::CellSetStructured<3>>())
+  else if (cs.IsType<viskores::cont::CellSetStructured<2>>() ||
+    cs.IsType<viskores::cont::CellSetStructured<3>>())
   {
     const auto& coords = ds.GetCoordinateSystem();
     auto array = coords.GetData();
-    if (array.IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>())
+    if (array.IsType<viskores::cont::ArrayHandleUniformPointCoordinates>())
     {
       vtkImageData* image = vtkImageData::New();
       fromvtkm::Convert(ds, image, dstmp);
       return image;
     }
   }
-  vtkm::filter::clean_grid::CleanGrid filter;
+  viskores::filter::clean_grid::CleanGrid filter;
   filter.SetCompactPointFields(false);
   auto result = filter.Execute(ds);
   return ConvertDataSet(result);
@@ -713,7 +714,7 @@ int vtkFidesReader::RequestData(
       if (this->PointDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global point data array selection.
-        arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Points);
+        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::Points);
       }
     }
     for (const auto& aname : groupMetaData.CellDataArrays)
@@ -721,7 +722,7 @@ int vtkFidesReader::RequestData(
       if (this->CellDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global cell data array selection.
-        arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::Cells);
+        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::Cells);
       }
     }
     for (const auto& aname : groupMetaData.FieldDataArrays)
@@ -729,12 +730,12 @@ int vtkFidesReader::RequestData(
       if (this->FieldDataArraySelection->ArrayIsEnabled(aname.c_str()))
       {
         // if this array was enabled on the global field data array selection.
-        arraySelection.Data.emplace_back(aname, vtkm::cont::Field::Association::WholeDataSet);
+        arraySelection.Data.emplace_back(aname, viskores::cont::Field::Association::WholeDataSet);
       }
     }
     selections.Set(fides::keys::FIELDS(), arraySelection);
 
-    vtkm::cont::PartitionedDataSet datasets;
+    viskores::cont::PartitionedDataSet datasets;
     try
     {
       vtkDebugMacro(<< "RequestData() calling ReadDataSet");
@@ -749,7 +750,7 @@ int vtkFidesReader::RequestData(
       vtkErrorMacro(<< e.what());
       return 0;
     }
-    vtkm::Id nParts = datasets.GetNumberOfPartitions();
+    viskores::Id nParts = datasets.GetNumberOfPartitions();
     output->SetNumberOfPartitions(pdsIdx, nParts);
     std::string datasetName;
     {
@@ -758,7 +759,7 @@ int vtkFidesReader::RequestData(
     }
     output->GetMetaData(pdsIdx)->Set(vtkCompositeDataSet::NAME(), datasetName.c_str());
 
-    for (vtkm::Id i = 0; i < nParts; i++)
+    for (viskores::Id i = 0; i < nParts; i++)
     {
       auto& ds = datasets.GetPartition(i);
       if (this->ConvertToVTK)

@@ -6,7 +6,7 @@
  * @brief   Write ADIOS2 streams using Fides data model
  *
  * vtkFidesWriter uses ADIOS2 to write files using the Fides schema. Fides requires
- * data in VTK-m format, so this vtkFidesWriter first converts VTK datasets to VTK-m datasets.
+ * data in Viskores format, so this vtkFidesWriter first converts VTK datasets to Viskores datasets.
  * This also writes out a Fides schema so it can be read back in using vtkFidesReader.
  * The schema is written as an attribute in the ADIOS2 file.
  *
