@@ -193,4 +193,40 @@ bool vtkWasmSceneManager::RemoveObserver(vtkTypeUInt32 identifier, unsigned long
   return true;
 }
 
+bool vtkWasmSceneManager::BindRenderWindow(
+  vtkTypeUInt32 renderWindowIdentifier, const char* canvasSelector)
+{
+  if (auto* renderWindow =
+        vtkRenderWindow::SafeDownCast(this->GetObjectAtId(renderWindowIdentifier)))
+  {
+    if (auto* wasmGLWindow = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(renderWindow))
+    {
+      wasmGLWindow->SetCanvasSelector(canvasSelector);
+      if (auto* interactor =
+            vtkWebAssemblyRenderWindowInteractor::SafeDownCast(renderWindow->GetInteractor()))
+      {
+        interactor->SetCanvasSelector(canvasSelector);
+        return true;
+      }
+      else
+      {
+        std::cerr << "No interactor found for render window with identifier: "
+                  << renderWindowIdentifier << '\n';
+        return false;
+      }
+    }
+    else
+    {
+      std::cerr << "Render window class " << renderWindow->GetClassName()
+                << " is not recognized!\n";
+      return false;
+    }
+  }
+  else
+  {
+    std::cerr << "No render window found with identifier: " << renderWindowIdentifier << '\n';
+    return false;
+  }
+}
+
 VTK_ABI_NAMESPACE_END

@@ -92,6 +92,16 @@ public:
    */
   bool RemoveObserver(vtkTypeUInt32 identifier, unsigned long tag);
 
+  /**
+   * Bind a `vtkRenderWindow` object at `renderWindowIdentifier` to a canvas element with the
+   * specified `canvasSelector`. This allows the `vtkRenderWindow` to render its content onto the
+   * specified HTML canvas element in a web application.
+   *
+   * @param renderWindowIdentifier The identifier of the `vtkRenderWindow` object to bind.
+   * @param canvasSelector The ID of the HTML canvas element to bind the `vtkRenderWindow` to.
+   */
+  bool BindRenderWindow(vtkTypeUInt32 renderWindowIdentifier, const char* canvasSelector);
+
 protected:
   vtkWasmSceneManager();
   ~vtkWasmSceneManager() override;

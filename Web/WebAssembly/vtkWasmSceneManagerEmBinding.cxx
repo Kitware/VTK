@@ -64,6 +64,10 @@ bool registerState(const std::string& state)
   }
   if (auto classNameIter = stateJson.find("ClassName"); classNameIter != stateJson.end())
   {
+    if (*classNameIter == "vtkOSOpenGLRenderWindow")
+    {
+      *classNameIter = "vtkWebAssemblyOpenGLRenderWindow";
+    }
     if (auto propertiesIter = SkippedClassProperties.find(*classNameIter);
         propertiesIter != SkippedClassProperties.end())
     {
@@ -224,6 +228,13 @@ void updateObjectFromState(const std::string& state)
   }
   else if (auto idIter = stateJson.find("Id"); idIter != stateJson.end())
   {
+    if (auto classNameIter = stateJson.find("ClassName"); classNameIter != stateJson.end())
+    {
+      if (*classNameIter == "vtkOSOpenGLRenderWindow")
+      {
+        *classNameIter = "vtkWebAssemblyOpenGLRenderWindow";
+      }
+    }
     if (auto objectAtId = Manager->GetObjectAtId(*idIter))
     {
       const std::string className = objectAtId->GetClassName();
@@ -304,6 +315,13 @@ bool removeObserver(vtkTypeUInt32 identifier, unsigned long tag)
 {
   CHECK_INIT;
   return Manager->RemoveObserver(identifier, tag);
+}
+
+//-------------------------------------------------------------------------------
+bool bindRenderWindow(vtkTypeUInt32 renderWindowIdentifier, const std::string& canvasSelector)
+{
+  CHECK_INIT;
+  return Manager->BindRenderWindow(renderWindowIdentifier, canvasSelector.c_str());
 }
 
 //-------------------------------------------------------------------------------
@@ -422,6 +440,8 @@ EMSCRIPTEN_BINDINGS(vtkWasmSceneManager)
 
   function("addObserver", ::addObserver);
   function("removeObserver", ::removeObserver);
+
+  function("bindRenderWindow", ::bindRenderWindow);
 
   function("import", ::import);
 

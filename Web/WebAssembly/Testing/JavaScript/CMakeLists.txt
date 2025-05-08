@@ -13,8 +13,10 @@ else ()
     --import "$<TARGET_FILE:VTK::WasmSceneManager>")
 endif ()
 vtk_add_test_module_javascript_node(
+  testBindRenderWindow.mjs
   testBlobs.mjs
   testInitialize.mjs,NO_DATA
   testInvoke.mjs
+  testOSMesaRenderWindowPatch.mjs
   testSkipProperty.mjs
   testStates.mjs)
