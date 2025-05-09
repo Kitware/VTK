@@ -50,6 +50,7 @@ vtkAnariLightNode::vtkAnariLightNode()
 //----------------------------------------------------------------------------
 vtkAnariLightNode::~vtkAnariLightNode()
 {
+  this->ClearLight();
   delete this->Internals;
 }
 
