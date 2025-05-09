@@ -597,15 +597,7 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
         // The object must have already been registered in the context and have a valid identifier.
         if (this->Context->GetId(object) == identifier)
         {
-          const auto stateId = this->Serializer->SerializeJSON(object);
-          if (const auto idIter = stateId.find("Id"); idIter != stateId.end())
-          {
-            if (idIter->is_number_unsigned() && idIter->get<vtkTypeUInt32>() == identifier)
-            {
-              auto& state = this->Context->GetState(idIter->get<vtkTypeUInt32>());
-              state["vtk-object-manager-kept-alive"] = true;
-            }
-          }
+          this->Serializer->SerializeJSON(object);
         }
       }
     }
@@ -634,6 +626,23 @@ void vtkObjectManager::UpdateStatesFromObjects(const std::vector<vtkTypeUInt32>&
   this->PruneUnusedStates();
   // Remove unused objects
   this->PruneUnusedObjects();
+
+  // Tag strong objects as kept alive.
+  // This is important for the deserializer to know that the object is kept alive.
+  // This is done after the serialization of all objects. Otherwise, the serialization of a nested
+  // strong object will discard the "vtk-object-manager-kept-alive" tag.
+  if (managerStrongObjectsIter != this->Context->StrongObjects().end())
+  {
+    for (const auto& object : managerStrongObjectsIter->second)
+    {
+      // The object must have already been registered in the context and have a valid identifier.
+      if (auto identifier = this->Context->GetId(object))
+      {
+        auto& state = this->Context->GetState(identifier);
+        state["vtk-object-manager-kept-alive"] = true;
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
