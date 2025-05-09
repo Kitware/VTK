@@ -30,7 +30,6 @@ The VTK Docker Repositories are a set of ready-to-run [Docker images](https://hu
 | [`kitware/vtk`][dockerhub-vtk] | Images with built dependencies to support the continuous integration of VTK | [{material-regular}`code;2em`][dockerfile-vtk] |
 | [`kitware/vtk-for-ci`][dockerhub-vtk-for-ci] | Images with installation of VTK (in `/opt/vtk/install`) to support building & testing your VTK-based projects. <br/>Learn more reading [this blog](https://www.kitware.com/adding-ci-to-your-paraview-plugin-and-vtk-modules/). | |
 | [`kitware/vtk-wasm`][dockerhub-vtk-wasm] | Static emscripten build of VTK to support building VTK-based WebAssembly applications. See [](getting_started/using_webassembly.md) |[{material-regular}`code;2em`][dockerfile-vtk-wasm] |
-| [`kitware/vtkm`][dockerhub-vtkm] | Images with built dependencies to support the continuous integration of [VTK-m][vtk-m]. | [{material-regular}`code;2em`][dockerfile-vtkm] |
 
 [dockerhub-vtk]: https://hub.docker.com/r/kitware/vtk
 [dockerfile-vtk]: https://gitlab.kitware.com/vtk/vtk/-/tree/master/.gitlab/ci/docker
@@ -39,8 +38,3 @@ The VTK Docker Repositories are a set of ready-to-run [Docker images](https://hu
 
 [dockerhub-vtk-wasm]: https://hub.docker.com/r/kitware/vtk-wasm
 [dockerfile-vtk-wasm]: https://gitlab.kitware.com/vtk/vtk-wasm-docker
-
-[dockerhub-vtkm]: https://hub.docker.com/r/kitware/vtkm
-[dockerfile-vtkm]: https://gitlab.kitware.com/vtk/vtk-m/-/tree/master/.gitlab/ci/docker
-
-[vtk-m]: https://gitlab.kitware.com/vtk/vtk-m

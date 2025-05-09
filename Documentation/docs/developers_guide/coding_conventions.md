@@ -377,6 +377,6 @@ Most of these guidelines are not automatically enforced.
 
 * No submodules
 
-  The VTK project allows only one submodule, [Viskores](https://github.com/Viskores/viskores) (formerly VTK-m, located in `ThirdParty/vtkm/vtkvtkm/vtk-m`). For other required third party dependencies, the recommended scheme is to use git's subtree merge strategy to reproducibly import code and thereby simplify eventual integration of upstream changes. Copies of these third party libraries with branches specifically for vendoring them in VTK are located in the [third-party](https://gitlab.kitware.com/third-party/) GitLab space.
+  For required third party dependencies, the recommended scheme is to use git's subtree merge strategy to reproducibly import code and thereby simplify eventual integration of upstream changes. Copies of these third party libraries with branches specifically for vendoring them in VTK are located in the [third-party](https://gitlab.kitware.com/third-party/) GitLab space.
 
 Additionally, new developers should be aware that the regression test machines have fairly strict compiler warnings enabled and usually have VTK_DEBUG_LEAKS configured on to catch leaks of VTK objects. Developers should be in the habit of doing the same in their own environments so as to avoid pushing code that the dashboards will immediately object to. With GCC, it is easiest to do so by turning on VTK_EXTRA_COMPILER_WARNINGS.

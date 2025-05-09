@@ -251,10 +251,10 @@ More advanced options:
     `vtkStandardNewMacro` will use `vtkObjectFactoryNewMacro` allowing
     overrides to be available even when not explicitly requested through
     `vtkObjectFactoryNewMacro` or `vtkAbstractObjectFactoryNewMacro`.
-  * `VTK_ENABLE_VTKM_OVERRIDES` (default `OFF`): If `ON`, enables factory override
-     of certain VTK filters by their VTK-m counterparts. There is also a runtime
+  * `VTK_ENABLE_VISKORES_OVERRIDES` (default `OFF`): If `ON`, enables factory override
+     of certain VTK filters by their Viskores counterparts. There is also a runtime
      switch that can be used to enable/disable the overrides at run-time (on by default).
-     It can be accessed using the static function `vtkmFilterOverrides::SetEnabled(bool)`.
+     It can be accessed using the static function `viskoresFilterOverrides::SetEnabled(bool)`.
   * `VTK_GENERATE_SPDX` (default `OFF`): If `ON`, SPDX file will be generated at build time
      and installed for each module and third party, in order to be able to create a SBOM.
      See [](/api/cmake/ModuleSystem.md#spdx-files-generation) and
