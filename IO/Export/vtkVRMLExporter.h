@@ -64,7 +64,7 @@ protected:
   void WriteALight(vtkLight* aLight, FILE* fp);
   void WriteAnActor(vtkActor* anActor, FILE* fp);
   void WritePointData(vtkPoints* points, vtkDataArray* normals, vtkDataArray* tcoords,
-    vtkUnsignedCharArray* colors, FILE* fp);
+    vtkUnsignedCharArray* colors, bool cellData, FILE* fp);
   void WriteShapeBegin(vtkActor* actor, FILE* fileP, vtkPolyData* polyData, vtkPointData* pntData,
     vtkUnsignedCharArray* color);
   void WriteShapeEnd(FILE* fileP);
