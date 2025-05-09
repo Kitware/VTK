@@ -4418,6 +4418,15 @@ public:
     SCN_NODISCARD range_type get();
     SCN_NODISCARD common_range_type get_common_range();
 
+    void set_skip_whitespace(bool skip)
+    {
+        m_skip_whitespace = skip;
+    }
+    SCN_NODISCARD bool get_skip_whitespace() const
+    {
+        return m_skip_whitespace;
+    }
+
 protected:
     friend class forward_iterator;
     friend class common_forward_iterator;
@@ -4444,6 +4453,7 @@ protected:
     std::basic_string_view<char_type> m_current_view{};
     std::basic_string<char_type> m_putback_buffer{};
     bool m_is_contiguous{false};
+    bool m_skip_whitespace{false};
 };
 
 template <typename CharT>
@@ -4892,7 +4902,7 @@ struct stdio_file_interface_impl<File, default_file_tag>
     void lock() {}
     void unlock() {}
 
-    bool has_buffering() const
+    static constexpr bool has_buffering()
     {
         return false;
     }
@@ -4941,7 +4951,7 @@ struct posix_stdio_file_interface : stdio_file_interface_base<File> {
         funlockfile(this->file);
     }
 
-    static bool has_buffering()
+    static constexpr bool has_buffering()
     {
         return true;
     }
@@ -5051,7 +5061,7 @@ struct stdio_file_interface_impl<File, win32_file_tag>
         _unlock_file(this->file);
     }
 
-    static bool has_buffering()
+    static constexpr bool has_buffering()
     {
         return false;
     }
@@ -9182,31 +9192,32 @@ internal_skip_classic_whitespace(Range r, bool allow_exhaustion);
     extern template SCN_EXPORT scan_expected<Context::iterator> \
     scanner_scan_for_builtin_type(T&, Context&, const format_specs&);
 
-#define SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_CTX(Context)                   \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(char, Context)                \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(wchar_t, Context)             \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(signed char, Context)         \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(signed char, Context)         \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(short, Context)               \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(int, Context)                 \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long, Context)                \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long long, Context)           \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned char, Context)       \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned short, Context)      \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned int, Context)        \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned long, Context)       \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned long long, Context)  \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(float, Context)               \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(double, Context)              \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long double, Context)         \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(std::string, Context)         \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(std::wstring, Context)        \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(                              \
-        std::basic_string_view<Context::char_type>, Context)               \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(regex_matches, Context)       \
-    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(wregex_matches, Context)      \
-    extern template scan_expected<ranges::iterator_t<Context::range_type>> \
-    internal_skip_classic_whitespace(Context::range_type, bool);
+#define SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_CTX(Context)                  \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(char, Context)               \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(wchar_t, Context)            \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(signed char, Context)        \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(signed char, Context)        \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(short, Context)              \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(int, Context)                \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long, Context)               \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long long, Context)          \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned char, Context)      \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned short, Context)     \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned int, Context)       \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned long, Context)      \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(unsigned long long, Context) \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(float, Context)              \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(double, Context)             \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(long double, Context)        \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(std::string, Context)        \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(std::wstring, Context)       \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(                             \
+        std::basic_string_view<Context::char_type>, Context)              \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(regex_matches, Context)      \
+    SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_TYPE(wregex_matches, Context)     \
+    extern template SCN_EXPORT                                            \
+        scan_expected<ranges::iterator_t<Context::range_type>>            \
+        internal_skip_classic_whitespace(Context::range_type, bool);
 
 SCN_DECLARE_EXTERN_SCANNER_SCAN_FOR_CTX(scan_context)
 
