@@ -37,13 +37,15 @@ public:
    * Set the bounding box defining the grid space. This, together with the
    * \c Face identify which planar surface this class is interested in. This
    * class is designed to work with a single planar surface.
+   *
+   * Defaults to [-1.0, 1.0, -1.0, 1.0, -1.0, 1.0]
    */
   vtkSetVector6Macro(GridBounds, double);
   vtkGetVector6Macro(GridBounds, double);
   ///@}
 
   // These are in the same order as the faces of a vtkVoxel.
-  enum Faces
+  enum Faces : unsigned char
   {
     MIN_YZ,
     MIN_ZX,
@@ -56,6 +58,8 @@ public:
   ///@{
   /**
    * Indicate which face of the specified bounds is this class operating with.
+   *
+   * By default, Face is vtkGridAxesHelper::MIN_YZ.
    */
   vtkSetClampMacro(Face, int, MIN_YZ, MAX_XY);
   vtkGetMacro(Face, int);
@@ -64,7 +68,7 @@ public:
   /**
    * Valid values for LabelMask.
    */
-  enum LabelMasks
+  enum LabelMasks : unsigned char
   {
     MIN_X = 0x01,
     MIN_Y = 0x02,
@@ -77,6 +81,8 @@ public:
   ///@{
   /**
    * Set the axes to label.
+   *
+   * By default, all axes are labeled i.e. LabelMask = 0xff.
    */
   vtkSetMacro(LabelMask, unsigned int);
   vtkGetMacro(LabelMask, unsigned int);
@@ -209,8 +215,8 @@ private:
   vtkTuple<vtkVector2d, 4> ViewportNormals;
   bool Backface;
 
-  vtkMTimeType GetPointsMTime;
-  vtkMTimeType GetTransformedPointsMTime;
+  vtkMTimeType GetPointsMTime = 0;
+  vtkMTimeType GetTransformedPointsMTime = 0;
 };
 
 VTK_ABI_NAMESPACE_END

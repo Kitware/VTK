@@ -54,37 +54,15 @@ public:
   vtkGetVector6Macro(GridBounds, double);
   ///@}
 
-  // These are in the same order as the faces of a vtkVoxel.
-  enum Faces
-  {
-    MIN_YZ = vtkGridAxesHelper::MIN_YZ,
-    MIN_ZX = vtkGridAxesHelper::MIN_ZX,
-    MIN_XY = vtkGridAxesHelper::MIN_XY,
-    MAX_YZ = vtkGridAxesHelper::MAX_YZ,
-    MAX_ZX = vtkGridAxesHelper::MAX_ZX,
-    MAX_XY = vtkGridAxesHelper::MAX_XY
-  };
-
   ///@{
   /**
    * Indicate which face of the specified bounds is this class operating with.
+   *
+   * Defaults to vtkGridAxesHelper::MIN_YZ.
    */
-  vtkSetClampMacro(Face, int, MIN_YZ, MAX_XY);
+  vtkSetClampMacro(Face, int, vtkGridAxesHelper::MIN_YZ, vtkGridAxesHelper::MAX_XY);
   vtkGetMacro(Face, int);
   ///@}
-
-  /**
-   * Valid values for LabelMask.
-   */
-  enum LabelMasks
-  {
-    MIN_X = vtkGridAxesHelper::MIN_X,
-    MIN_Y = vtkGridAxesHelper::MIN_Y,
-    MIN_Z = vtkGridAxesHelper::MIN_Z,
-    MAX_X = vtkGridAxesHelper::MAX_X,
-    MAX_Y = vtkGridAxesHelper::MAX_Y,
-    MAX_Z = vtkGridAxesHelper::MAX_Z
-  };
 
   ///@{
   /**
@@ -92,6 +70,8 @@ public:
    * vtkGridAxesActor2D::LabelMasks to label multiple axes. Any request to label
    * an axes not present on the selected `Face` is ignored e.g. if `Face` is
    * `MIN_YZ`, then `LabelMask` set to `MIN_X` will have no effect.
+   *
+   * Default is 0xff.
    */
   vtkSetMacro(LabelMask, unsigned int);
   vtkGetMacro(LabelMask, unsigned int);
@@ -143,6 +123,8 @@ public:
   ///@{
   /**
    * Set titles for each of the axes.
+   *
+   * Default is empty.
    */
   void SetTitle(int axis, const std::string& title);
   const std::string& GetTitle(int axis);
@@ -152,6 +134,8 @@ public:
   /**
    * Get/set the numerical notation, standard, scientific or mixed (0, 1, 2).
    * Accepted values are vtkAxis::AUTO, vtkAxis::FIXED, vtkAxis::CUSTOM.
+   *
+   * Default is vtkAxis::AUTO
    */
   void SetNotation(int axis, int notation);
   int GetNotation(int axis);
@@ -180,6 +164,8 @@ public:
    * Set custom tick positions for each of the axes.
    * The positions are deep copied. Set to nullptr to not use custom tick positions
    * for the axis.
+   *
+   * Default is nullptr.
    */
   void SetCustomTickPositions(int axis, vtkDoubleArray* positions);
 
@@ -190,6 +176,8 @@ public:
   ///@{
   /**
    * Turn off to not generate polydata for the plane's grid.
+   *
+   * Default is true.
    */
   void SetGenerateGrid(bool val) { this->PlaneActor->SetGenerateGrid(val); }
   bool GetGenerateGrid() { return this->PlaneActor->GetGenerateGrid(); }
@@ -199,6 +187,8 @@ public:
   ///@{
   /**
    * Turn off to not generate the polydata for the plane's edges.
+   *
+   * Default is true.
    */
   void SetGenerateEdges(bool val) { this->PlaneActor->SetGenerateEdges(val); }
   bool GetGenerateEdges() { return this->PlaneActor->GetGenerateEdges(); }
@@ -209,6 +199,8 @@ public:
   /**
    * Turn off to not generate the markers for the tick positions. Which edges
    * are rendered is defined by the TickMask.
+   *
+   * Default is true.
    */
   void SetGenerateTicks(bool val) { this->PlaneActor->SetGenerateTicks(val); }
   bool GetGenerateTicks() { return this->PlaneActor->GetGenerateTicks(); }
@@ -233,16 +225,29 @@ public:
   ///@{
   /**
    * If true, the actor will always be rendered during the opaque pass.
+   *
+   * Default is false.
    */
   vtkSetMacro(ForceOpaque, bool);
   vtkGetMacro(ForceOpaque, bool);
   vtkBooleanMacro(ForceOpaque, bool);
   ///@}
 
+  ///@{
+  /**
+   * Standard render methods for different types of geometry
+   */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderOverlay(vtkViewport* viewport) override;
   int HasTranslucentPolygonalGeometry() override;
+  ///@}
+
+  /**
+   * Release any graphics resources that are being consumed by this prop.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
@@ -256,7 +261,10 @@ public:
    *
    * This is useful to offset axes labels if they overlap at the corners.
    *
+   * Defaults to [0, 0]
+   *
    * \note Uses display space coordinates
+   *
    */
   vtkSetVector2Macro(LabelDisplayOffset, int);
   vtkGetVector2Macro(LabelDisplayOffset, int);
@@ -283,8 +291,8 @@ private:
   bool DoRender;
 
   double GridBounds[6];
-  int Face;
-  unsigned int LabelMask;
+  int Face = vtkGridAxesHelper::MIN_YZ;
+  unsigned int LabelMask = 0xff;
 
   vtkTuple<vtkSmartPointer<vtkTextProperty>, 3> TitleTextProperty;
   vtkTuple<vtkSmartPointer<vtkTextProperty>, 3> LabelTextProperty;
@@ -297,7 +305,7 @@ private:
   vtkTimeStamp UpdateLabelTextPropertiesMTime;
   int LabelDisplayOffset[2] = { 0, 0 };
 
-  bool ForceOpaque;
+  bool ForceOpaque = false;
   std::function<double(double)> TickLabelFunction[3] = { nullptr, nullptr, nullptr };
 };
 

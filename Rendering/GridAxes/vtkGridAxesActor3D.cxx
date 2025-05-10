@@ -6,6 +6,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkDoubleArray.h"
 #include "vtkGridAxesActor2D.h"
+#include "vtkGridAxesHelper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -19,16 +20,8 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGridAxesActor3D);
 //----------------------------------------------------------------------------
 vtkGridAxesActor3D::vtkGridAxesActor3D()
-  : GetBoundsMTime(0)
-  , FaceMask(0)
-  , LabelUniqueEdgesOnly(true)
-  , UseCustomLabels(false)
-  , CustomLabelsMTime(0)
-  , ForceOpaque(false)
+  : UseCustomLabels(false)
 {
-  this->GridBounds[0] = this->GridBounds[2] = this->GridBounds[4] = 0.0;
-  this->GridBounds[1] = this->GridBounds[3] = this->GridBounds[5] = 1.0;
-
   for (int cc = 0; cc < 6; cc++)
   {
     this->GridAxes2DActors[cc]->SetFace(cc);

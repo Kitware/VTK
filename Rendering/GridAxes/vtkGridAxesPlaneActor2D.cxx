@@ -32,12 +32,7 @@ vtkGridAxesPlaneActor2D* vtkGridAxesPlaneActor2D::New(vtkGridAxesHelper* helper)
 
 //----------------------------------------------------------------------------
 vtkGridAxesPlaneActor2D::vtkGridAxesPlaneActor2D(vtkGridAxesHelper* helper)
-  : Face(vtkGridAxesPlaneActor2D::MIN_YZ)
-  , GenerateGrid(true)
-  , GenerateEdges(true)
-  , GenerateTicks(true)
-  , TickDirection(vtkGridAxesPlaneActor2D::TICK_DIRECTION_BOTH)
-  , Helper(helper)
+  : Helper(helper)
   , HelperManagedExternally(helper != nullptr)
 {
   if (helper == nullptr)

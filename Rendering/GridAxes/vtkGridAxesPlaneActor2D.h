@@ -50,25 +50,16 @@ public:
   vtkGetVector6Macro(GridBounds, double);
   ///@}
 
-  // These are in the same order as the faces of a vtkVoxel.
-  enum Faces
-  {
-    MIN_YZ = vtkGridAxesHelper::MIN_YZ,
-    MIN_ZX = vtkGridAxesHelper::MIN_ZX,
-    MIN_XY = vtkGridAxesHelper::MIN_XY,
-    MAX_YZ = vtkGridAxesHelper::MAX_YZ,
-    MAX_ZX = vtkGridAxesHelper::MAX_ZX,
-    MAX_XY = vtkGridAxesHelper::MAX_XY
-  };
-
   ///@{
   /**
    * Indicate which face of the specified bounds is this class operating with.
    * Note: this is only needed/used when the vtkGridAxesHelper is not provided
    * when calling New(), otherwise the vtkGridAxesHelper is assumed to be
    * initialized externally.
+   *
+   * By default, Face is vtkGridAxesHelper::MIN_YZ.
    */
-  vtkSetClampMacro(Face, int, MIN_YZ, MAX_XY);
+  vtkSetClampMacro(Face, int, vtkGridAxesHelper::MIN_YZ, vtkGridAxesHelper::MAX_XY);
   vtkGetMacro(Face, int);
   ///@}
 
@@ -117,7 +108,7 @@ public:
   vtkBooleanMacro(GenerateTicks, bool);
   ///@}
 
-  enum
+  enum : unsigned char
   {
     TICK_DIRECTION_INWARDS = 0x1,
     TICK_DIRECTION_OUTWARDS = 0x2,
@@ -127,12 +118,15 @@ public:
   ///@{
   /**
    * Get/Set the tick direction.
+   *
+   * By defaule, it is TICK_DIRECTION_BOTH.
    */
   vtkSetClampMacro(TickDirection, unsigned int, static_cast<unsigned int>(TICK_DIRECTION_INWARDS),
     static_cast<unsigned int>(TICK_DIRECTION_BOTH));
   vtkGetMacro(TickDirection, unsigned int);
   ///@}
 
+  ///@{
   /**
    * Set the tick positions for each of the coordinate axis. Which tick
    * positions get used depended on the face being rendered e.g. if Face is
@@ -146,10 +140,13 @@ public:
   {
     return (axis >= 0 && axis < 3) ? this->TickPositions[axis] : this->EmptyVector;
   }
+  ///@}
 
   ///@{
   /**
    * Get/Set the property used to control the appearance of the rendered grid.
+   *
+   * Internally, this property is set on the actor representing the grid.
    */
   void SetProperty(vtkProperty*);
   vtkProperty* GetProperty();
@@ -170,10 +167,21 @@ public:
   }
   ///@}
 
+  ///@{
+  /**
+   * Standard render methods for different types of geometry
+   */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   int RenderOverlay(vtkViewport* viewport) override;
   int HasTranslucentPolygonalGeometry() override;
+  ///@}
+
+  /**
+   * Release any graphics resources that are being consumed by this prop.
+   * The parameter window could be used to determine which graphic
+   * resources to release.
+   */
   void ReleaseGraphicsResources(vtkWindow*) override;
 
 protected:
@@ -210,12 +218,12 @@ private:
   std::deque<LineSegmentType> LineSegments;
 
   double GridBounds[6];
-  int Face;
+  int Face = vtkGridAxesHelper::MIN_YZ;
 
-  bool GenerateGrid;
-  bool GenerateEdges;
-  bool GenerateTicks;
-  unsigned int TickDirection;
+  bool GenerateGrid = true;
+  bool GenerateEdges = true;
+  bool GenerateTicks = true;
+  unsigned int TickDirection = TICK_DIRECTION_BOTH;
   std::deque<double> TickPositions[3];
 
   vtkNew<vtkPolyData> PolyData;
