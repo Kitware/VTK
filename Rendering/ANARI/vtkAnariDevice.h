@@ -115,7 +115,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkAnariDevice();
+  ~vtkAnariDevice() override;
 
 private:
   vtkAnariDevice(const vtkAnariDevice&) = delete;

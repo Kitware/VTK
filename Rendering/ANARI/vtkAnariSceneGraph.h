@@ -46,17 +46,17 @@ public:
   /**
    * Builds objects for this renderer.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
    * Traverse graph in ANARI's preferred order and render
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
   // state beyond rendering core...
 
@@ -192,7 +192,7 @@ public:
 
 protected:
   vtkAnariSceneGraph();
-  ~vtkAnariSceneGraph();
+  ~vtkAnariSceneGraph() override;
 
   void InitAnariFrame(vtkRenderer* ren);
   void SetupAnariRendererParameters(vtkRenderer* ren);
@@ -223,7 +223,6 @@ private:
 
   // only allow these classes to set the Anari device + renderer
   friend class vtkAnariPass;
-  friend class vtkAnariWindowNode;
 };
 
 VTK_ABI_NAMESPACE_END
