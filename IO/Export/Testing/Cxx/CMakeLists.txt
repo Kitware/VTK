@@ -19,6 +19,17 @@ vtk_add_test_cxx(vtkIOExportCxxTests tests
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
+
+vtk_add_test_cxx(vtkIOExportCxxTests tests
+  NO_VALID
+  TestVRMLExporterPointData,TestVRMLExporter.cxx --fieldAssociation PointData
+)
+
+vtk_add_test_cxx(vtkIOExportCxxTests tests
+  NO_VALID
+  TestVRMLExporterCellData,TestVRMLExporter.cxx --fieldAssociation CellData
+)
+
 vtk_test_cxx_executable(vtkIOExportCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
