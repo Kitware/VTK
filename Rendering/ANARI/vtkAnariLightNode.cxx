@@ -309,7 +309,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end doesn't support image based lighting (KHR_LIGHT_HDRI).");
+      this->Internals->RendererNode->WarningMacroOnce(
+        this, " doesn't support image based lighting (KHR_LIGHT_HDRI).");
     }
   }
   else if (light->GetPositional())
@@ -337,12 +338,14 @@ void vtkAnariLightNode::Synchronize(bool prepass)
         }
         else
         {
-          vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::radius");
+          this->Internals->RendererNode->WarningMacroOnce(
+            this, " doesn't support KHR_AREA_LIGHTS::radius");
         }
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end doesn't support point lights (KHR_LIGHT_POINT).");
+        this->Internals->RendererNode->WarningMacroOnce(
+          this, " doesn't support point lights (KHR_LIGHT_POINT).");
       }
     }
     else
@@ -368,7 +371,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end doesn't support spotlights (KHR_LIGHT_SPOT).");
+        this->Internals->RendererNode->WarningMacroOnce(
+          this, " doesn't support spotlights (KHR_LIGHT_SPOT).");
       }
     }
   }
@@ -396,13 +400,14 @@ void vtkAnariLightNode::Synchronize(bool prepass)
       }
       else
       {
-        vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::angularDiameter");
+        this->Internals->RendererNode->WarningMacroOnce(
+          this, " doesn't support KHR_AREA_LIGHTS::angularDiameter");
       }
     }
     else
     {
-      vtkWarningMacro(
-        << "ANARI back-end doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
+      this->Internals->RendererNode->WarningMacroOnce(
+        this, " doesn't support directional lights (KHR_LIGHT_DIRECTIONAL).");
     }
   }
 
@@ -418,7 +423,8 @@ void vtkAnariLightNode::Synchronize(bool prepass)
     }
     else
     {
-      vtkWarningMacro(<< "ANARI back-end doesn't support KHR_AREA_LIGHTS::visible");
+      this->Internals->RendererNode->WarningMacroOnce(
+        this, " doesn't support KHR_AREA_LIGHTS::visible");
     }
 
     anari::commitParameters(anariDevice, anariLight);

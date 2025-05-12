@@ -33,7 +33,6 @@ public:
 
 protected:
   vtkAnariFollowerNode() = default;
-  ~vtkAnariFollowerNode() = default;
 
 private:
   vtkAnariFollowerNode(const vtkAnariFollowerNode&) = delete;

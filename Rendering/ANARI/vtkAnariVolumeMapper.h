@@ -37,7 +37,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  virtual void ReleaseGraphicsResources(vtkWindow*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   // Initialize internal constructs
   virtual void Init();
@@ -46,7 +46,7 @@ public:
    * Render the volume onto the screen.
    * Overridden to use ANARI to do the work.
    */
-  virtual void Render(vtkRenderer*, vtkVolume*) override;
+  void Render(vtkRenderer*, vtkVolume*) override;
 
   /**
    * Allow vtkAnariSceneGraph properties to be set on the internal vtkRenderer.
@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkAnariVolumeMapper();
-  ~vtkAnariVolumeMapper();
+  ~vtkAnariVolumeMapper() override;
 
   vtkRenderer* InternalRenderer;
   vtkAnariPass* InternalAnariPass;

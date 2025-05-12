@@ -83,7 +83,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkAnariRenderer();
+  ~vtkAnariRenderer() override;
 
 private:
   void CheckAnariDeviceInitialized();

@@ -29,7 +29,6 @@ public:
 
 protected:
   vtkAnariViewNodeFactory();
-  ~vtkAnariViewNodeFactory() = default;
 
 private:
   vtkAnariViewNodeFactory(const vtkAnariViewNodeFactory&) = delete;

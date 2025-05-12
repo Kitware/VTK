@@ -34,6 +34,7 @@ class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkAnariSceneGraphInternals;
 class vtkRenderer;
+class vtkAnariDevice;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariSceneGraph : public vtkRendererNode
 {
@@ -45,17 +46,17 @@ public:
   /**
    * Builds objects for this renderer.
    */
-  virtual void Build(bool prepass) override;
+  void Build(bool prepass) override;
 
   /**
    * Traverse graph in ANARI's preferred order and render
    */
-  virtual void Render(bool prepass) override;
+  void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) override;
+  void Invalidate(bool prepass) override;
 
   // state beyond rendering core...
 
@@ -182,9 +183,16 @@ public:
    */
   int ReservePropId();
 
+  /**
+   * Convenience API to warn the user once per device per renderer per warning type.
+   *
+   * This saves the warning/error buffers to be filled each frame.
+   */
+  void WarningMacroOnce(vtkSmartPointer<vtkObject> caller, const std::string& warning);
+
 protected:
   vtkAnariSceneGraph();
-  ~vtkAnariSceneGraph();
+  ~vtkAnariSceneGraph() override;
 
   void InitAnariFrame(vtkRenderer* ren);
   void SetupAnariRendererParameters(vtkRenderer* ren);
@@ -204,16 +212,17 @@ protected:
   vtkTimeStamp AnariRendererModifiedTime;
   vtkMTimeType AnariRendererUpdatedTime{ 0 };
 
+  std::map<std::string, std::vector<std::string>> IssuedWarnings;
+
 private:
   vtkAnariSceneGraph(const vtkAnariSceneGraph&) = delete;
   void operator=(const vtkAnariSceneGraph&) = delete;
 
-  void SetAnariDevice(anari::Device d, anari::Extensions e, const char* const* es);
+  void SetAnariDevice(vtkAnariDevice* ad, anari::Extensions e, const char* const* es);
   void SetAnariRenderer(anari::Renderer r);
 
   // only allow these classes to set the Anari device + renderer
   friend class vtkAnariPass;
-  friend class vtkAnariWindowNode;
 };
 
 VTK_ABI_NAMESPACE_END

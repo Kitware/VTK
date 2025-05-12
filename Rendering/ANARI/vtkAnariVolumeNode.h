@@ -32,7 +32,7 @@ public:
    * Overridden to take into account this renderables time, including
    * mapper and data into mapper inclusive of composite input
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Name of the node, used for debugging or representation
@@ -43,7 +43,6 @@ public:
 
 protected:
   vtkAnariVolumeNode() = default;
-  ~vtkAnariVolumeNode() = default;
 
 private:
   vtkAnariVolumeNode(const vtkAnariVolumeNode&) = delete;

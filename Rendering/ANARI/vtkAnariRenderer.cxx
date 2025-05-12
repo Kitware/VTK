@@ -103,6 +103,7 @@ void vtkAnariRenderer::SetAnariDevice(anari::Device d)
   this->SetSubtype();
 }
 
+//----------------------------------------------------------------------------
 anari::Device vtkAnariRenderer::GetAnariDevice() const
 {
   return this->Internal->AnariDevice;

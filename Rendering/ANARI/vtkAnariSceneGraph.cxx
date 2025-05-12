@@ -14,6 +14,7 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkAnariActorNode.h"
 #include "vtkAnariCameraNode.h"
+#include "vtkAnariDevice.h"
 #include "vtkAnariLightNode.h"
 #include "vtkAnariProfiling.h"
 #include "vtkAnariVolumeNode.h"
@@ -75,7 +76,7 @@ public:
   bool CompositeOnGL{ false };
   bool OnlyUpdateWorld{ false };
 
-  anari::Device AnariDevice{ nullptr };
+  vtkSmartPointer<vtkAnariDevice> AnariDevice{ nullptr };
   anari::Renderer AnariRenderer{ nullptr };
   anari::World AnariWorld{ nullptr };
   anari::Frame AnariFrame{ nullptr };
@@ -97,12 +98,16 @@ vtkAnariSceneGraphInternals::vtkAnariSceneGraphInternals(vtkAnariSceneGraph* own
 
 vtkAnariSceneGraphInternals::~vtkAnariSceneGraphInternals()
 {
-  if (this->AnariDevice != nullptr)
+  if (this->AnariDevice)
   {
-    anari::release(this->AnariDevice, this->AnariWorld);
-    anari::release(this->AnariDevice, this->AnariRenderer);
-    anari::release(this->AnariDevice, this->AnariFrame);
-    anari::release(this->AnariDevice, this->AnariDevice);
+    anari::Device d = this->AnariDevice->GetHandle();
+    if (d)
+    {
+      anari::release(d, this->AnariWorld);
+      anari::release(d, this->AnariRenderer);
+      anari::release(d, this->AnariFrame);
+      anari::release(d, d);
+    }
   }
 }
 
@@ -450,7 +455,7 @@ RENDERER_NODE_PARAM_GET_DEFINITION(CompositeOnGL, COMPOSITE_ON_GL, int, 0)
 //----------------------------------------------------------------------------
 void vtkAnariSceneGraph::SetCamera(anari::Camera camera)
 {
-  auto d = this->Internal->AnariDevice;
+  auto d = this->GetDeviceHandle();
   auto f = this->Internal->AnariFrame;
   if (d && f)
   {
@@ -679,7 +684,7 @@ vtkRenderer* vtkAnariSceneGraph::GetRenderer()
 //------------------------------------------------------------------------------
 anari::Device vtkAnariSceneGraph::GetDeviceHandle() const
 {
-  return this->Internal->AnariDevice;
+  return this->Internal->AnariDevice->GetHandle();
 }
 
 //------------------------------------------------------------------------------
@@ -725,7 +730,8 @@ int vtkAnariSceneGraph::ReservePropId()
 }
 
 //------------------------------------------------------------------------------
-void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e, const char* const* es)
+void vtkAnariSceneGraph::SetAnariDevice(
+  vtkAnariDevice* ad, anari::Extensions e, const char* const* es)
 {
   vtkRenderer* renderer = GetRenderer();
   if (!renderer)
@@ -739,8 +745,16 @@ void vtkAnariSceneGraph::SetAnariDevice(anari::Device d, anari::Extensions e, co
     vtkErrorMacro(<< "vtkAnariSceneGraph::SetAnariDevice() called too many times");
   }
 
+  if (!ad)
+  {
+    vtkErrorMacro(<< "Trying to set null anari device");
+    return;
+  }
+
+  anari::Device d = ad->GetHandle();
+  this->IssuedWarnings.clear();
   anari::retain(d, d);
-  this->Internal->AnariDevice = d;
+  this->Internal->AnariDevice = ad;
   this->Internal->AnariExtensions = e;
   this->Internal->AnariExtensionStrings = es;
   this->InitAnariFrame(renderer);
@@ -757,7 +771,7 @@ void vtkAnariSceneGraph::SetAnariRenderer(anari::Renderer r)
     return;
   }
 
-  auto d = this->Internal->AnariDevice;
+  auto d = this->GetDeviceHandle();
   anari::retain(d, r);
   anari::release(d, this->Internal->AnariRenderer);
   this->Internal->AnariRenderer = r;
@@ -775,6 +789,40 @@ void vtkAnariSceneGraph::SetAnariRenderer(anari::Renderer r)
   anari::commitParameters(d, f);
 
   this->AnariRendererModifiedTime.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkAnariSceneGraph::WarningMacroOnce(
+  vtkSmartPointer<vtkObject> caller, const std::string& warning)
+{
+  if (!this->Internal->AnariDevice || !caller)
+  {
+    return;
+  }
+  std::string classname(caller->GetClassName());
+  auto warnFound = this->IssuedWarnings.find(classname);
+  bool issueWarn = true;
+  if (warnFound != this->IssuedWarnings.end())
+  {
+    auto warnvec = warnFound->second;
+    for (auto iter = warnvec.begin(); iter != warnvec.end(); ++iter)
+    {
+      if ((*iter) == warning)
+      {
+        issueWarn = false;
+        break;
+      }
+    }
+  }
+  if (issueWarn)
+  {
+    vtkSmartPointer<vtkRenderer> ren = this->GetRenderer();
+    std::string library = this->Internal->AnariDevice->GetAnariLibraryName();
+    std::string device = this->Internal->AnariDevice->GetAnariDeviceName();
+    vtkWarningMacro(<< "ANARI back-end " << this << " " << library << ":" << device << " "
+                    << warning);
+    this->IssuedWarnings[classname].push_back(warning);
+  }
 }
 
 VTK_ABI_NAMESPACE_END

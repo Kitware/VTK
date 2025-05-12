@@ -388,4 +388,16 @@ vtkAnariDevice::~vtkAnariDevice()
   this->Internal = nullptr;
 }
 
+// ----------------------------------------------------------------------------
+std::string& vtkAnariDevice::GetAnariLibraryName() const
+{
+  return this->Internal->AnariLibraryName;
+}
+
+// ----------------------------------------------------------------------------
+std::string& vtkAnariDevice::GetAnariDeviceName() const
+{
+  return this->Internal->AnariDeviceName;
+}
+
 VTK_ABI_NAMESPACE_END

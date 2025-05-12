@@ -14,8 +14,6 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkInformationDoubleKey.h"
-#include "vtkInformationObjectBaseKey.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -36,8 +34,6 @@
 
 #include <algorithm>
 #include <limits>
-#include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -57,8 +53,8 @@ struct PolyDataMapperCallback : vtkCommand
 
   static PolyDataMapperCallback* New() { return new PolyDataMapperCallback; }
 
-  void Execute(
-    vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId), void* vtkNotUsed(callData))
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
+    void* vtkNotUsed(callData)) override
   {
     this->RendererNode->InvalidateSceneStructure();
   }
@@ -66,7 +62,7 @@ struct PolyDataMapperCallback : vtkCommand
   vtkAnariSceneGraph* RendererNode{ nullptr };
 };
 
-ANARIDataType ToAnariType(vtkDataArray* dataArray, bool convertDoubleToFloat)
+static ANARIDataType ToAnariType(vtkDataArray* dataArray, bool convertDoubleToFloat)
 {
   int numComps = dataArray->GetNumberOfComponents();
 
@@ -1343,7 +1339,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
         for (size_t i = 0; i < numCylinders; i++)
         {
           float avgRadius = (*scaleArray->GetTuple(indexArray[i * 2]) +
-                              *scaleArray->GetTuple(indexArray[i * 2 + 1])) *
+                              *scaleArray->GetTuple(indexArray[(i * 2) + 1])) *
             0.5f;
           radiusArrayPtr[i] = MapThroughPWF(avgRadius, scaleFunction);
         }
@@ -2025,8 +2021,9 @@ void vtkAnariPolyDataMapperNode::Invalidate(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNode,
-  vtkPolyData* poly, double* diffuse, double opacity, const std::string& materialName)
+void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariActorNode,
+  vtkPolyData* const poly, double* const diffuse, const double opacity,
+  const std::string& materialName)
 {
   vtkAnariProfiling startProfiling("VTKAPDMN::AnariRenderPoly", vtkAnariProfiling::GREEN);
 
@@ -2057,11 +2054,12 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
 
   std::vector<vec3> vertices;
 
+  vertices.reserve(numPositions);
   for (size_t i = 0; i < numPositions; i++)
   {
     vertices.emplace_back(vec3{ static_cast<float>(outTransformedVertices[i * 3]),
-      static_cast<float>(outTransformedVertices[i * 3 + 1]),
-      static_cast<float>(outTransformedVertices[i * 3 + 2]) });
+      static_cast<float>(outTransformedVertices[(i * 3) + 1]),
+      static_cast<float>(outTransformedVertices[(i * 3) + 2]) });
   }
   // vector::clear doesn't guarantee a reallocation, this way
   // we can force a reallocation
@@ -2242,7 +2240,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* anariActorNo
         for (int i = 0; i < info->Length(infoVectorKey); ++i)
         {
           const char* constantArrayName = info->Get(infoVectorKey, i);
-          if (!arrayName.compare(constantArrayName)) // If the array is a constant array
+          if (arrayName == constantArrayName) // If the array is a constant array
             return false;
         }
       }
@@ -2465,7 +2463,7 @@ void vtkAnariPolyDataMapperNode::Synchronize(bool prepass)
     geometryExtractor->SetInputData(actor->GetMapper()->GetInput());
     geometryExtractor->Update();
 
-    poly = static_cast<vtkPolyData*>(geometryExtractor->GetOutput());
+    poly = geometryExtractor->GetOutput();
   }
 
   if (!poly)
@@ -2542,7 +2540,7 @@ void vtkAnariPolyDataMapperNode::SetActorNodeName()
   }
   else
   {
-    this->Internal->ActorName = "vtk_actor_" + this->RendererNode->ReservePropId();
+    this->Internal->ActorName = &"vtk_actor_"[this->RendererNode->ReservePropId()];
   }
 }
 

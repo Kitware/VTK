@@ -42,13 +42,13 @@ public:
    * Overridden to take into account my renderables time, including
    * mapper and data into mapper inclusive of composite input
    */
-  virtual vtkMTimeType GetMTime() override;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Scaling modes for the spheres and cylinders that the back-end
    * renders for points and lines created by VTK.
    */
-  enum class ScalingMode
+  enum class ScalingMode : int8_t
   {
     ALL_EXACT = -1,
     ALL_APPROXIMATE,
@@ -151,7 +151,6 @@ public:
 
 protected:
   vtkAnariActorNode();
-  ~vtkAnariActorNode() = default;
 
 private:
   vtkAnariActorNode(const vtkAnariActorNode&) = delete;

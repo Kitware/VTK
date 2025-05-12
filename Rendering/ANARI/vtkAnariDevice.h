@@ -96,6 +96,16 @@ public:
   void CommitParameters();
   //@}
 
+  /**
+   * Get the anari library name
+   */
+  std::string& GetAnariLibraryName() const;
+
+  /**
+   * Get the anari device name
+   */
+  std::string& GetAnariDeviceName() const;
+
 protected:
   /**
    * Default constructor.
@@ -105,7 +115,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~vtkAnariDevice();
+  ~vtkAnariDevice() override;
 
 private:
   vtkAnariDevice(const vtkAnariDevice&) = delete;
