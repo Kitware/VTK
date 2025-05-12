@@ -134,6 +134,8 @@ public:
    * and hence need not be specified. Pass nullptr for data will clear the ticks
    * positions for that axis.
    * Note: This creates a deep-copy of the values in \c data and stores that.
+   *
+   * Default is an empty vector.
    */
   void SetTickPositions(int axis, vtkDoubleArray* data);
   const std::deque<double>& GetTickPositions(int axis)

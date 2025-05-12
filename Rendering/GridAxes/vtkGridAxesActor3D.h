@@ -107,6 +107,8 @@ public:
   /**
    * Set to true to only label edges shared with 1 face. Note that
    * if all faces are being rendered, this will generate no labels.
+   *
+   * Default is true.
    */
   vtkSetMacro(LabelUniqueEdgesOnly, bool);
   vtkGetMacro(LabelUniqueEdgesOnly, bool);
