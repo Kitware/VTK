@@ -13,11 +13,14 @@ from vtkmodules.vtkCommonDataModel import (
     vtkCellData,
     vtkDataObject,
     vtkImageData,
+    vtkMultiBlockDataSet,
     vtkPolyData,
     vtkStructuredGrid,
     vtkRectilinearGrid,
     vtkUnstructuredGrid,
+    vtkOverlappingAMR,
     vtkPartitionedDataSet,
+    vtkPartitionedDataSetCollection,
 )
 
 import weakref
@@ -62,6 +65,11 @@ class FieldDataBase(object):
         array.Association = self.association
         return array
 
+    def __contains__(self, aname):
+        """Returns true if the container contains arrays
+        with the given name, false otherwise"""
+        return self.HasArray(aname)
+
     def keys(self):
         """Returns the names of the arrays as a list."""
         kys = []
@@ -70,20 +78,20 @@ class FieldDataBase(object):
             name = self.GetAbstractArray(i).GetName()
             if name:
                 kys.append(name)
-        return kys
+        return tuple(kys)
 
     def values(self):
-        """Returns the arrays as a list."""
+        """Returns the arrays as a tuple."""
         vals = []
         narrays = self.GetNumberOfArrays()
         for i in range(narrays):
             a = self.get_array(i)
             if a.GetName():
                 vals.append(a)
-        return vals
+        return tuple(vals)
 
     def items(self):
-        """Returns a list of pairs (name, array)"""
+        """Returns a tuple of pairs (name, array)"""
         pairs = []
         narrays = self.GetNumberOfArrays()
         for i in range(narrays):
@@ -91,7 +99,7 @@ class FieldDataBase(object):
             name = arr.GetName()
             if name:
                 pairs.append((name, arr))
-        return pairs
+        return tuple(pairs)
 
     def set_array(self, name, narray):
         """Appends a new array to the dataset attributes."""
@@ -291,7 +299,7 @@ class CompositeDataSetAttributes(object):
         array_set = set()
         array_list = []
         for dataset in self.DataSet:
-            dsa = dataset.GetAttributes(self.Association)
+            dsa = dataset.GetAttributesAsFieldData(self.Association)
             for array_name in dsa.keys():
                 if array_name not in array_set:
                     array_set.add(array_name)
@@ -303,9 +311,28 @@ class CompositeDataSetAttributes(object):
         internal list of arrays."""
         self.__determine_arraynames()
 
+    def __contains__(self, aname):
+        """Returns true if the container contains arrays
+        with the given name, false otherwise"""
+        return aname in self.ArrayNames
+
     def keys(self):
-        """Returns the names of the arrays as a list."""
-        return self.ArrayNames
+        """Returns the names of the arrays as a tuple."""
+        return tuple(self.ArrayNames)
+
+    def values(self):
+        """Returns all the arrays as a tuple."""
+        arrays = []
+        for array in self:
+            arrays.append(array)
+        return tuple(arrays)
+
+    def items(self):
+        """Returns (name, array) pairs as a tuple."""
+        items = []
+        for name in self.keys():
+            items.append((name, self[name]))
+        return tuple(items)
 
     def __getitem__(self, idx):
         """Implements the [] operator. Accepts an array name."""
@@ -328,7 +355,7 @@ class CompositeDataSetAttributes(object):
         added = False
         if not isinstance(narray, dsa.VTKCompositeDataArray):  # Scalar input
             for ds in self.DataSet:
-                ds.GetAttributes(self.Association).set_array(name, narray)
+                ds.GetAttributesAsFieldData(self.Association).set_array(name, narray)
                 added = True
             if added:
                 self.ArrayNames.append(name)
@@ -337,7 +364,7 @@ class CompositeDataSetAttributes(object):
         else:
             for ds, array in zip(self.DataSet, narray.Arrays):
                 if array is not None:
-                    ds.GetAttributes(self.Association).set_array(name, array)
+                    ds.GetAttributesAsFieldData(self.Association).set_array(name, array)
                     added = True
             if added:
                 self.ArrayNames.append(name)
@@ -376,8 +403,6 @@ class DataSet(object):
     def point_data(self):
         pd = super().GetPointData()
         pd.dataset = self
-        # TODO: temporary hack
-        pd.dataset.VTKObject = pd.dataset
         pd.association = self.POINT
         return pd
 
@@ -387,6 +412,14 @@ class DataSet(object):
         cd.dataset = self
         cd.association = self.CELL
         return cd
+
+    @property
+    def field_data(self):
+        fd = super().GetFieldData()
+        if fd:
+            fd.dataset = self
+            fd.association = self.FIELD
+        return fd
 
     def __eq__(self, other: object) -> bool:
         """Test equivalency between data objects."""
@@ -761,6 +794,18 @@ class PartitionedDataSet(CompositeDataSetBase, vtkPartitionedDataSet):
     def append(self, dataset):
         self.SetPartition(self.GetNumberOfPartitions(), dataset)
 
+@vtkPartitionedDataSetCollection.override
+class PartitionedDataSetCollection(CompositeDataSetBase, vtkPartitionedDataSetCollection):
+    def append(self, dataset):
+        self.SetPartitionedDataSet(self.GetNumberOfPartitionedDataSets(), dataset)
+
+@vtkOverlappingAMR.override
+class OverlappingAMR(CompositeDataSetBase, vtkOverlappingAMR):
+    pass
+
+@vtkMultiBlockDataSet.override
+class MultiBlockDataSet(CompositeDataSetBase, vtkMultiBlockDataSet):
+    pass
 
 @vtkStructuredGrid.override
 class StructuredGrid(PointSet, vtkStructuredGrid):
