@@ -37,6 +37,9 @@
     environment:
         name: rsync-upload-release-artifacts
     before_script:
+        # Generate the artifact inventory before adding the wheels[+sdk] to the release dir since
+        # we do not want to include them in it.
+        - .gitlab/ci/generate-artifacts-inventory.py --artifacts-dir "${RSYNC_SOURCE}" > "${RSYNC_SOURCE}/${CI_COMMIT_TAG}-artifacts.json"
         - . .gitlab/ci/prepare-release-env.sh
     variables:
         RSYNC_KEY_PATH: $RSYNC_RELEASE_KEY
