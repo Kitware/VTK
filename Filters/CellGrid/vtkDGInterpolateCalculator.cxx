@@ -84,13 +84,6 @@ void vtkDGInterpolateCalculator::Evaluate(
 
 bool vtkDGInterpolateCalculator::AnalyticDerivative() const
 {
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  if (this->FieldCellInfo.FunctionSpace == "HGRAD"_token)
-  {
-    return true;
-  }
-#else
   switch (this->FieldCellInfo.FunctionSpace.GetId())
   {
     case "HGRAD"_hash:
@@ -98,7 +91,6 @@ bool vtkDGInterpolateCalculator::AnalyticDerivative() const
     default:
       break;
   }
-#endif
   return false;
 }
 

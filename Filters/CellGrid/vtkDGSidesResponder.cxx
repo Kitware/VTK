@@ -232,17 +232,6 @@ bool vtkDGSidesResponder::SummarizeSides(vtkCellGridSidesQuery* query, vtkDGCell
           switch (cellType->GetDimension())
           {
             case 3:
-              // XXX(c++14)
-#if __cplusplus < 201400L
-              if (firstSide.SideShape != "edge"_token && firstSide.SideShape != "vertex"_token)
-              {
-                if (sidesOfHash.size() % 2 == 0)
-                {
-                  hashes.erase(it);
-                  continue; // Do not output evenly-paired faces.
-                }
-              }
-#else
               switch (firstSide.SideShape.GetId())
               {
                 default:
@@ -259,21 +248,8 @@ bool vtkDGSidesResponder::SummarizeSides(vtkCellGridSidesQuery* query, vtkDGCell
                   // Always output a single side.
                   break;
               }
-#endif
               break;
             case 2:
-              // XXX(c++14)
-#if __cplusplus < 201400L
-              if (firstSide.SideShape == "edge"_token)
-              {
-                if (sidesOfHash.size() % 2 == 0)
-                {
-                  hashes.erase(it);
-                  continue; // Do not output evenly paired edges.
-                }
-              }
-              // else: always output vertices.
-#else
               switch (firstSide.SideShape.GetId())
               {
                 case "edge"_hash:
@@ -287,7 +263,6 @@ bool vtkDGSidesResponder::SummarizeSides(vtkCellGridSidesQuery* query, vtkDGCell
                   // Always output vertices.
                   break;
               }
-#endif
               break;
             case 1:
               if (sidesOfHash.size() % 2 == 0)

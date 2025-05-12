@@ -55,44 +55,41 @@ public:
   //--------------------------------------------------------------------------------
   vtkSMPThreadLocalAPI()
   {
-    // XXX(c++14): use std::make_unique
 #if VTK_SMP_ENABLE_SEQUENTIAL
     this->BackendsImpl[static_cast<int>(BackendType::Sequential)] =
-      std::unique_ptr<ThreadLocalSequential>(new ThreadLocalSequential());
+      std::make_unique<ThreadLocalSequential>();
 #endif
 #if VTK_SMP_ENABLE_STDTHREAD
     this->BackendsImpl[static_cast<int>(BackendType::STDThread)] =
-      std::unique_ptr<ThreadLocalSTDThread>(new ThreadLocalSTDThread());
+      std::make_unique<ThreadLocalSTDThread>();
 #endif
 #if VTK_SMP_ENABLE_TBB
-    this->BackendsImpl[static_cast<int>(BackendType::TBB)] =
-      std::unique_ptr<ThreadLocalTBB>(new ThreadLocalTBB());
+    this->BackendsImpl[static_cast<int>(BackendType::TBB)] = std::make_unique<ThreadLocalTBB>();
 #endif
 #if VTK_SMP_ENABLE_OPENMP
     this->BackendsImpl[static_cast<int>(BackendType::OpenMP)] =
-      std::unique_ptr<ThreadLocalOpenMP>(new ThreadLocalOpenMP());
+      std::make_unique<ThreadLocalOpenMP>();
 #endif
   }
 
   //--------------------------------------------------------------------------------
   explicit vtkSMPThreadLocalAPI(const T& exemplar)
   {
-    // XXX(c++14): use std::make_unique
 #if VTK_SMP_ENABLE_SEQUENTIAL
     this->BackendsImpl[static_cast<int>(BackendType::Sequential)] =
-      std::unique_ptr<ThreadLocalSequential>(new ThreadLocalSequential(exemplar));
+      std::make_unique<ThreadLocalSequential>(exemplar);
 #endif
 #if VTK_SMP_ENABLE_STDTHREAD
     this->BackendsImpl[static_cast<int>(BackendType::STDThread)] =
-      std::unique_ptr<ThreadLocalSTDThread>(new ThreadLocalSTDThread(exemplar));
+      std::make_unique<ThreadLocalSTDThread>(exemplar);
 #endif
 #if VTK_SMP_ENABLE_TBB
     this->BackendsImpl[static_cast<int>(BackendType::TBB)] =
-      std::unique_ptr<ThreadLocalTBB>(new ThreadLocalTBB(exemplar));
+      std::make_unique<ThreadLocalTBB>(exemplar);
 #endif
 #if VTK_SMP_ENABLE_OPENMP
     this->BackendsImpl[static_cast<int>(BackendType::OpenMP)] =
-      std::unique_ptr<ThreadLocalOpenMP>(new ThreadLocalOpenMP(exemplar));
+      std::make_unique<ThreadLocalOpenMP>(exemplar);
 #endif
   }
 

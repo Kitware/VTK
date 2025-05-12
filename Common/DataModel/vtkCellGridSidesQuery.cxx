@@ -154,14 +154,6 @@ vtkStringToken vtkCellGridSidesQuery::SelectionModeToLabel(SelectionMode mode)
 vtkCellGridSidesQuery::SelectionMode vtkCellGridSidesQuery::SelectionModeFromLabel(
   vtkStringToken token)
 {
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  if (token == "Output"_token)
-  {
-    return SelectionMode::Output;
-  }
-  return SelectionMode::Input;
-#else
   switch (token.GetId())
   {
     default:
@@ -170,7 +162,6 @@ vtkCellGridSidesQuery::SelectionMode vtkCellGridSidesQuery::SelectionModeFromLab
     case "Output"_hash:
       return SelectionMode::Output;
   }
-#endif
 }
 
 vtkStringToken vtkCellGridSidesQuery::SummaryStrategyToLabel(SummaryStrategy strategy)
@@ -190,18 +181,6 @@ vtkStringToken vtkCellGridSidesQuery::SummaryStrategyToLabel(SummaryStrategy str
 vtkCellGridSidesQuery::SummaryStrategy vtkCellGridSidesQuery::SummaryStrategyFromLabel(
   vtkStringToken token)
 {
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  if (token == "Winding"_token)
-  {
-    return SummaryStrategy::Winding;
-  }
-  else if (token == "AnyOccurrence"_token)
-  {
-    return SummaryStrategy::AnyOccurrence;
-  }
-  return SummaryStrategy::Boundary;
-#else
   switch (token.GetId())
   {
     case "Winding"_hash:
@@ -212,7 +191,6 @@ vtkCellGridSidesQuery::SummaryStrategy vtkCellGridSidesQuery::SummaryStrategyFro
     case "Boundary"_hash:
       return SummaryStrategy::Boundary;
   }
-#endif
 }
 
 void vtkCellGridSidesQuery::SetSideCache(vtkCellGridSidesCache* cache)

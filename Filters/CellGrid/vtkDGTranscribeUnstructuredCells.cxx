@@ -74,34 +74,6 @@ bool findArrays(vtkStringToken fieldName, vtkDataSetAttributes* cellData,
 {
   std::string prefix;
   int nn = 0;
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  auto tokenId = annotation.FunctionSpace.GetId();
-  if (tokenId == "HCURL"_hash)
-  {
-    prefix = iossCurlPrefix + fieldName.Data();
-    nn = dgCell->GetNumberOfSidesOfDimension(1);
-    // TODO: Multiply by factor for higher orders.
-  }
-  else if (tokenId == "HDIV"_hash)
-  {
-    prefix = iossDivPrefix + fieldName.Data();
-    nn = dgCell->GetNumberOfSidesOfDimension(2);
-    // TODO: Multiply by factor for higher orders.
-  }
-  else if (tokenId == "HGRAD"_hash)
-  {
-    prefix = fieldName.Data();
-    nn = dgCell->GetNumberOfCorners();
-    // TODO: Multiply by factor for higher orders.
-  }
-  else
-  {
-    vtkWarningWithObjectMacro(dgCell,
-      << "Unsupported function space \"" << annotation.FunctionSpace.Data().c_str() << "\".");
-    return false;
-  }
-#else
   switch (annotation.FunctionSpace.GetId())
   {
     case "HCURL"_hash:
@@ -126,7 +98,6 @@ bool findArrays(vtkStringToken fieldName, vtkDataSetAttributes* cellData,
       return false;
     }
   }
-#endif
   int paddedWidth = static_cast<int>(std::floor(std::log10(nn))) + 1;
   bool missing = false;
   // Note 1-based indexing for array names:
@@ -168,36 +139,6 @@ std::size_t numberOfIntegrationPoints(vtkDGCell* dgCell,
   const vtkUnstructuredGridToCellGrid::TranscribeQuery::BlockAttributesValue& annotation)
 {
   std::size_t nn = 0;
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  if (annotation.BasisSource == "Intrepid2"_token)
-  {
-    std::size_t order = annotation.QuadratureScheme.Data().substr(1, 1)[0] - '0';
-    if (annotation.FunctionSpace == "HDIV"_token)
-    { // case "HDIV":
-      nn = order * dgCell->GetNumberOfSidesOfDimension(1);
-    }
-    else if (annotation.FunctionSpace == "HCURL"_token)
-    { // case "HCURL":
-      nn = order * dgCell->GetNumberOfSidesOfDimension(dgCell->GetDimension() - 1);
-    }
-    else if (annotation.FunctionSpace == "HGRAD"_token)
-    { // case "HGRAD":
-      // TODO: Handle higher orders; this only works for order = 1:
-      nn = order * dgCell->GetNumberOfCorners();
-    }
-    else
-    {
-      vtkWarningWithObjectMacro(dgCell,
-        "Unsupported Intrepid function space \"" << annotation.FunctionSpace.Data() << "\".");
-    }
-  }
-  else
-  {
-    vtkWarningWithObjectMacro(
-      dgCell, "Unsupported basis source \"" << annotation.BasisSource.Data() << "\".");
-  }
-#else
   switch (annotation.BasisSource.GetId())
   {
     case "Intrepid2"_hash:
@@ -230,7 +171,6 @@ std::size_t numberOfIntegrationPoints(vtkDGCell* dgCell,
     }
     break;
   }
-#endif
   return nn;
 }
 
@@ -282,42 +222,6 @@ bool findGlomArrays(vtkStringToken glomName,
 
 vtkDGCell::Shape intrepidShapeToDGShape(vtkStringToken intrepidShape)
 {
-  // XXX(c++14)
-#if __cplusplus < 201400L
-  auto tokenId = intrepidShape.GetId();
-  if (tokenId == "VERT"_hash)
-  {
-    return vtkDGCell::Shape::Vertex;
-  }
-  else if (tokenId == "LINE"_hash)
-  {
-    return vtkDGCell::Shape::Edge;
-  }
-  else if (tokenId == "TRI"_hash)
-  {
-    return vtkDGCell::Shape::Triangle;
-  }
-  else if (tokenId == "QUAD"_hash)
-  {
-    return vtkDGCell::Shape::Quadrilateral;
-  }
-  else if (tokenId == "TET"_hash)
-  {
-    return vtkDGCell::Shape::Tetrahedron;
-  }
-  else if (tokenId == "HEX"_hash)
-  {
-    return vtkDGCell::Shape::Hexahedron;
-  }
-  else if (tokenId == "WEDGE"_hash)
-  {
-    return vtkDGCell::Shape::Wedge;
-  }
-  else if (tokenId == "PYR"_hash)
-  {
-    return vtkDGCell::Shape::Pyramid;
-  }
-#else
   // clang-format off
   switch (intrepidShape.GetId())
   {
@@ -331,8 +235,7 @@ vtkDGCell::Shape intrepidShapeToDGShape(vtkStringToken intrepidShape)
   case "PYR"_hash:      return vtkDGCell::Shape::Pyramid;
   default: break;
   }
-    // clang-format on
-#endif
+  // clang-format on
   return vtkDGCell::Shape::None;
 }
 

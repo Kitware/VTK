@@ -733,4 +733,4 @@ vtk_module_link(VTK::CommonCore
     )
 vtk_module_compile_features(VTK::CommonCore
   PUBLIC
-    cxx_std_11)
+    cxx_std_17)

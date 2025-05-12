@@ -73,22 +73,16 @@ public:
 
   std::unique_ptr<ItImplAbstract> begin() override
   {
-    // XXX(c++14): use std::make_unique
-    auto iter = std::unique_ptr<ItImpl>(new ItImpl());
+    auto iter = std::make_unique<ItImpl>();
     iter->Iter = this->Internal.begin();
-    // XXX(c++14): remove std::move and cast variable
-    std::unique_ptr<ItImplAbstract> abstractIt(std::move(iter));
-    return abstractIt;
+    return iter;
   };
 
   std::unique_ptr<ItImplAbstract> end() override
   {
-    // XXX(c++14): use std::make_unique
-    auto iter = std::unique_ptr<ItImpl>(new ItImpl());
+    auto iter = std::make_unique<ItImpl>();
     iter->Iter = this->Internal.end();
-    // XXX(c++14): remove std::move and cast variable
-    std::unique_ptr<ItImplAbstract> abstractIt(std::move(iter));
-    return abstractIt;
+    return iter;
   }
 
 private:

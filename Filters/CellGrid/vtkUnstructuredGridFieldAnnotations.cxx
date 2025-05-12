@@ -189,38 +189,6 @@ void vtkUnstructuredGridFieldAnnotations::FetchAnnotations(
         auto& blockRecord(blockData[key]);
         blockRecord.NodeIds.insert(nodeId);
         // Insert this record into the metadata for the corresponding dataset.
-        // XXX(c++14)
-#if __cplusplus < 201400L
-        auto tokenId = recordType.GetId();
-        if (tokenId == "field"_hash)
-        {
-          vtkStringToken fieldName(data[4]);
-          blockRecord.FieldNames.insert(fieldName);
-        }
-        else if (tokenId == "basis"_hash)
-        {
-          auto descriptor = ::split(data[4], "_");
-          if (descriptor.size() == 5)
-          {
-            if (recordFunctionSpace != descriptor[1])
-            {
-              vtkWarningMacro("Function space of record ("
-                << recordFunctionSpace.Data() << ") and basis spec (" << descriptor[1] << ") in \""
-                << record << "\" do not match. Skipping.");
-              continue;
-            }
-            blockRecord.BasisSource = descriptor[0];
-            blockRecord.FunctionSpace = descriptor[1];
-            blockRecord.Shape = descriptor[2];
-            blockRecord.QuadratureScheme = descriptor[3];
-            blockRecord.Formulation = descriptor[4];
-          }
-          else
-          {
-            vtkWarningMacro("Basis record \"" << record << "\" malformed. Skipping.");
-          }
-        }
-#else
         switch (recordType.GetId())
         {
           case "field"_hash:
@@ -256,7 +224,6 @@ void vtkUnstructuredGridFieldAnnotations::FetchAnnotations(
           default:
             break; // Do nothing.
         }
-#endif
       }
     }
   }
