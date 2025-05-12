@@ -137,7 +137,7 @@ private:
   /**
    * Based on a grid index, computes the corresponding index after rotation
    */
-  int GetRotatedId(int id, int R[3][3], int newDims[3], int dims[3], int Tvec[3]);
+  int GetRotatedId(int id, int R[3][3], int newDims[3], int dims[3], int Tvec[3], bool transposed);
 
   /**
    * Translates the local transform parameters into a vtkTransform.
