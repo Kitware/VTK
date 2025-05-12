@@ -97,6 +97,9 @@ vtkAxisActor::vtkAxisActor()
   vtkNew<vtkPolyDataMapper> gridpolysMapper;
   gridpolysMapper->SetInputData(this->Gridpolys);
   this->GridpolysActor->SetMapper(gridpolysMapper);
+
+  this->GetProperty()->SetAmbient(1.);
+  this->GetProperty()->SetDiffuse(0.);
 }
 
 //------------------------------------------------------------------------------
@@ -2508,9 +2511,6 @@ void vtkAxisActor::UpdateLabelActorProperty(int idx)
 {
   vtkTextActorInterfaceInternal* labelProp = this->LabelProps[idx].get();
   labelProp->SetTextProperty(this->LabelTextProperty, this->GetProperty());
-
-  labelProp->SetAmbient(1.);
-  labelProp->SetDiffuse(0.);
 }
 
 //------------------------------------------------------------------------------

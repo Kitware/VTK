@@ -66,16 +66,6 @@ public:
   void SetTextProperty(vtkTextProperty* textProp, vtkProperty* prop);
 
   /**
-   * Set ambient coefficient. Should be between 0 and 1.
-   */
-  void SetAmbient(double amb);
-
-  /**
-   * Set diffuse coefficient. Should be between 0 and 1.
-   */
-  void SetDiffuse(double diffuse);
-
-  /**
    * Fill the collection with all vtkProp members.
    */
   void GetActors(vtkPropCollection* collection);

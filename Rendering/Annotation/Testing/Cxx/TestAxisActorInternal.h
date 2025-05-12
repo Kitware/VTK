@@ -19,8 +19,6 @@ namespace
 // ----------------------------------------------------------------------------
 inline void InitializeAxis(vtkAxisActor* axis)
 {
-  axis->GetProperty()->SetAmbient(1);
-  axis->GetProperty()->SetDiffuse(0);
   axis->SetPoint1(0, 0, 0);
   axis->SetExponent("+00");
   axis->SetExponentVisibility(true);

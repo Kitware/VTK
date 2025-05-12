@@ -108,18 +108,6 @@ void vtkTextActorInterfaceInternal::SetTextProperty(
 }
 
 //------------------------------------------------------------------------------
-void vtkTextActorInterfaceInternal::SetAmbient(double amb)
-{
-  this->Follower->GetProperty()->SetAmbient(amb);
-}
-
-//------------------------------------------------------------------------------
-void vtkTextActorInterfaceInternal::SetDiffuse(double diffuse)
-{
-  this->Follower->GetProperty()->SetDiffuse(diffuse);
-}
-
-//------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::GetActors(vtkPropCollection* collection)
 {
   collection->AddItem(this->Follower);
