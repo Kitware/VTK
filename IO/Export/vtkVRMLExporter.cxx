@@ -334,6 +334,8 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
   tcoords = pntData->GetTCoords();
   colors = pm->MapScalars(1.0);
 
+  bool cellData = pm->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA;
+
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
   {
@@ -343,7 +345,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     fprintf(fp, "            solid FALSE\n");
     if (!pointDataWritten)
     {
-      this->WritePointData(points, normals, tcoords, colors, fp);
+      this->WritePointData(points, normals, tcoords, colors, cellData, fp);
       pointDataWritten = 1;
     }
     else
@@ -388,7 +390,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     fprintf(fp, "          geometry IndexedFaceSet {\n");
     if (!pointDataWritten)
     {
-      this->WritePointData(points, normals, tcoords, colors, fp);
+      this->WritePointData(points, normals, tcoords, colors, cellData, fp);
       pointDataWritten = 1;
     }
     else
@@ -440,7 +442,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor* anActor, FILE* fp)
     fprintf(fp, "          geometry IndexedLineSet {\n");
     if (!pointDataWritten)
     {
-      this->WritePointData(points, nullptr, nullptr, colors, fp);
+      this->WritePointData(points, nullptr, nullptr, colors, cellData, fp);
       pointDataWritten = 1;
     }
     else
@@ -665,7 +667,7 @@ void vtkVRMLExporter::WriteShapeEnd(FILE* fileP)
 }
 
 void vtkVRMLExporter::WritePointData(vtkPoints* points, vtkDataArray* normals,
-  vtkDataArray* tcoords, vtkUnsignedCharArray* colors, FILE* fp)
+  vtkDataArray* tcoords, vtkUnsignedCharArray* colors, bool cellData, FILE* fp)
 {
   double* p;
   int i;
@@ -715,6 +717,10 @@ void vtkVRMLExporter::WritePointData(vtkPoints* points, vtkDataArray* normals,
   // write out the point data
   if (colors)
   {
+    if (cellData)
+    {
+      fprintf(fp, "            colorPerVertex FALSE\n");
+    }
     fprintf(fp, "            color DEF VTKcolors Color {\n");
     fprintf(fp, "              color [\n");
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
