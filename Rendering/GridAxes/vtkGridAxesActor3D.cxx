@@ -24,7 +24,7 @@ vtkGridAxesActor3D::vtkGridAxesActor3D()
 {
   for (int cc = 0; cc < 6; cc++)
   {
-    this->GridAxes2DActors[cc]->SetFace(cc);
+    this->GridAxes2DActors[cc]->SetFace((0x01 << cc));
     if (cc > 0)
     {
       // share the text properties among all planes.
@@ -45,7 +45,7 @@ vtkGridAxesActor3D::vtkGridAxesActor3D()
   }
 
   this->SetFaceMask(
-    vtkGridAxesActor3D::MIN_XY | vtkGridAxesActor3D::MIN_YZ | vtkGridAxesActor3D::MIN_ZX);
+    vtkGridAxesHelper::MIN_XY | vtkGridAxesHelper::MIN_YZ | vtkGridAxesHelper::MIN_ZX);
   this->SetLabelMask(0xff);
 }
 

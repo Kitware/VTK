@@ -44,15 +44,15 @@ public:
   vtkGetVector6Macro(GridBounds, double);
   ///@}
 
-  // These are in the same order as the faces of a vtkVoxel.
+  // These are deliberately in the same order as the faces of a vtkVoxel.
   enum Faces : unsigned char
   {
-    MIN_YZ,
-    MIN_ZX,
-    MIN_XY,
-    MAX_YZ,
-    MAX_ZX,
-    MAX_XY
+    MIN_YZ = 0x01,
+    MIN_ZX = 0x02,
+    MIN_XY = 0x04,
+    MAX_YZ = 0x08,
+    MAX_ZX = 0x010,
+    MAX_XY = 0x020
   };
 
   ///@{

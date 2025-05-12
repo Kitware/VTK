@@ -95,7 +95,7 @@ int TestGridAxesActor2D(int argc, char* argv[])
 
   vtkNew<vtkGridAxesActor2D> axes1;
   axes1->SetGridBounds(bounds);
-  axes1->SetFace(4);
+  axes1->SetFace(vtkGridAxesHelper::MAX_ZX);
   axes1->GetProperty()->SetFrontfaceCulling(false);
 
   // Use red color for X axis

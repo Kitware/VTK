@@ -50,21 +50,6 @@ public:
   vtkGetVector6Macro(GridBounds, double);
   ///@}
 
-  /**
-   * Values for FaceMask.
-   * Developer note: these are deliberately in the same order as
-   * vtkGridAxesHelper::Faces which is same order as faces in vtkVoxel.
-   */
-  enum FaceMasks : unsigned char
-  {
-    MIN_YZ = 0x01,
-    MIN_ZX = 0x02,
-    MIN_XY = 0x04,
-    MAX_YZ = 0x08,
-    MAX_ZX = 0x010,
-    MAX_XY = 0x020
-  };
-
   ///@{
   /**
    * Set the mask to select faces. The faces rendered can be a subset of the
