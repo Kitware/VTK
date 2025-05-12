@@ -1,8 +1,5 @@
-set(vtk_nodejs_min_version "23.8.0")
+set(vtk_nodejs_min_version "24.0.1")
 find_package(NodeJS "${vtk_nodejs_min_version}" REQUIRED)
-if (VTK_WEBASSEMBLY_64_BIT)
-  set(_vtk_node_args "--experimental-wasm-memory64")
-endif ()
 set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
 if (CMAKE_HOST_WIN32)

@@ -138,7 +138,7 @@ This option compiles VTK for the `wasm64-emscripten` architecture which increase
 In order to execute VTK wasm64 applications, additional flags are required for:
 1. chrome/edge: no flag since v133.
 2. firefox: no flag since v134.
-3. nodejs: `--experimental-wasm-memory64`.
+3. nodejs: `--experimental-wasm-memory64` for node < v24.0.0.
 
 
 ## Test project
