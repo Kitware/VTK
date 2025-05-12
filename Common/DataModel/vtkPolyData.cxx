@@ -1632,15 +1632,22 @@ void vtkPolyData::RemoveGhostCells()
   vtkPointData* newPointData = newPD->GetPointData();
   vtkCellData* newCellData = newPD->GetCellData();
 
-#ifdef VTK_USE_64BIT_IDS
-  if (!(numPoints >> 31))
+  if (this->Verts)
   {
-    newVerts->ConvertTo32BitStorage();
-    newLines->ConvertTo32BitStorage();
-    newPolys->ConvertTo32BitStorage();
-    newStrips->ConvertTo32BitStorage();
+    this->Verts->IsStorage64Bit() ? newVerts->Use64BitStorage() : newVerts->Use32BitStorage();
   }
-#endif
+  if (this->Lines)
+  {
+    this->Lines->IsStorage64Bit() ? newLines->Use64BitStorage() : newLines->Use32BitStorage();
+  }
+  if (this->Polys)
+  {
+    this->Polys->IsStorage64Bit() ? newPolys->Use64BitStorage() : newPolys->Use32BitStorage();
+  }
+  if (this->Strips)
+  {
+    this->Strips->IsStorage64Bit() ? newStrips->Use64BitStorage() : newStrips->Use32BitStorage();
+  }
 
   newVerts->Allocate(this->GetNumberOfVerts());
   newLines->Allocate(this->GetNumberOfLines());
