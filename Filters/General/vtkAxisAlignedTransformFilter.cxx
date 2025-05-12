@@ -657,11 +657,21 @@ void vtkAxisAlignedTransformFilter::ApplyCellScale(
 
 //----------------------------------------------------------------------------
 int vtkAxisAlignedTransformFilter::GetRotatedId(
-  int id, int rotationMatrix[3][3], int newDims[3], int dims[3], int Tvec[3])
+  int id, int rotationMatrix[3][3], int newDims[3], int dims[3], int Tvec[3], bool transposed)
 {
-  int x = id % std::max(newDims[0] - 1, 1);
-  int y = (id / (std::max(newDims[0] - 1, 1))) % std::max(newDims[1] - 1, 1);
-  int z = id / std::max(newDims[0] - 1, 1) / std::max(newDims[1] - 1, 1);
+  int x, y, z;
+  if (transposed)
+  {
+    z = id % std::max(newDims[2] - 1, 1);
+    y = (id / (std::max(newDims[2] - 1, 1))) % std::max(newDims[1] - 1, 1);
+    x = id / std::max(newDims[2] - 1, 1) / std::max(newDims[1] - 1, 1);
+  }
+  else
+  {
+    x = id % std::max(newDims[0] - 1, 1);
+    y = (id / (std::max(newDims[0] - 1, 1))) % std::max(newDims[1] - 1, 1);
+    z = id / std::max(newDims[0] - 1, 1) / std::max(newDims[1] - 1, 1);
+  }
 
   int newX =
     rotationMatrix[0][0] * x + rotationMatrix[1][0] * y + rotationMatrix[2][0] * z + Tvec[0];
@@ -669,8 +679,17 @@ int vtkAxisAlignedTransformFilter::GetRotatedId(
     rotationMatrix[0][1] * x + rotationMatrix[1][1] * y + rotationMatrix[2][1] * z + Tvec[1];
   int newZ =
     rotationMatrix[0][2] * x + rotationMatrix[1][2] * y + rotationMatrix[2][2] * z + Tvec[2];
-  return newZ * std::max(dims[0] - 1, 1) * std::max(dims[1] - 1, 1) +
-    newY * std::max(dims[0] - 1, 1) + newX;
+
+  if (transposed)
+  {
+    return newX * std::max(dims[2] - 1, 1) * std::max(dims[1] - 1, 1) +
+      newY * std::max(dims[2] - 1, 1) + newZ;
+  }
+  else
+  {
+    return newZ * std::max(dims[0] - 1, 1) * std::max(dims[1] - 1, 1) +
+      newY * std::max(dims[0] - 1, 1) + newX;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -831,7 +850,7 @@ bool vtkAxisAlignedTransformFilter::ProcessRectilinearGrid(
     std::max(newDims[0] - 1, 1) * std::max(newDims[1] - 1, 1) * std::max(newDims[2] - 1, 1);
   for (int i = 0; i < maxIndex; ++i)
   {
-    int newId = this->GetRotatedId(i, rotationMatrix, newDims, dims, tvec);
+    int newId = this->GetRotatedId(i, rotationMatrix, newDims, dims, tvec, false);
     copyRotatedData(inCD, outCD, i, newId);
     copyRotatedData(inPD, outPD, i, newId);
   }
@@ -980,7 +999,8 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
     std::max(newDims[0] - 1, 1) * std::max(newDims[1] - 1, 1) * std::max(newDims[2] - 1, 1);
   for (int i = 0; i < maxIndex; ++i)
   {
-    int newId = this->GetRotatedId(i, rotationMatrix, newDims, dims, tvec);
+    int newId = this->GetRotatedId(
+      i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
 
     vtkHyperTree* ht = inputHTG->GetTree(newId);
     vtkHyperTree* rotatedHT = CreateNewRotatedHyperTree(inputHTG, ht, permutation);
@@ -1005,7 +1025,8 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
   // Apply masking
   for (int i = 0; i < maxIndex; ++i)
   {
-    int newId = GetRotatedId(i, rotationMatrix, newDims, dims, tvec);
+    int newId =
+      GetRotatedId(i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
 
     vtkHyperTree* inputHT = inputHTG->GetTree(newId);
     vtkHyperTree* outputHT = outputHTG->GetTree(i);
@@ -1037,7 +1058,8 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
   // Copy data
   for (int i = 0; i < maxIndex; ++i)
   {
-    int newId = GetRotatedId(i, rotationMatrix, newDims, dims, tvec);
+    int newId =
+      GetRotatedId(i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
     vtkHyperTree* inputHT = inputHTG->GetTree(newId);
     vtkHyperTree* outputHT = outputHTG->GetTree(i);
     vtkNew<vtkHyperTreeGridNonOrientedCursor> cursorIn;
