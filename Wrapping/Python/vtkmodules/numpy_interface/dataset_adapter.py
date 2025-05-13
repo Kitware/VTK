@@ -76,7 +76,7 @@ import sys
 from ..vtkCommonCore import buffer_shared
 from ..util import numpy_support
 from ..vtkCommonDataModel import vtkDataObject
-from ..vtkCommonCore import vtkWeakReference
+from ..vtkCommonCore import vtkWeakReference, vtkObject
 import weakref
 
 def reshape_append_ones (a1, a2):
@@ -264,7 +264,12 @@ class VTKArray(numpy.ndarray):
         obj.VTKObject = array
         if dataset:
             obj._dataset = vtkWeakReference()
-            obj._dataset.Set(dataset.VTKObject)
+            if issubclass(type(dataset), vtkObject):
+                # New dataset API.
+                obj._dataset.Set(dataset)
+            else:
+                # Old dataset type object with WrapDataObject
+                obj._dataset.Set(dataset.VTKObject)
         # Finally, we must return the newly created object:
         return obj
 
@@ -919,7 +924,7 @@ class DataObject(VTKObjectWrapper):
          instance."""
         if type == ArrayAssociation.FIELD:
             return self.GetFieldData()
-        return DataSetAttributes(self.VTKObject.GetAttributes(type), self, type)
+        return DataSetAttributes(self.VTKObject.GetAttributesAsFieldData(type), self, type)
 
     def HasAttributes(self, type):
         "Returns if current object support this attributes type"
