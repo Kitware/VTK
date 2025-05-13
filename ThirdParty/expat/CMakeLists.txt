@@ -14,7 +14,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE EXPAT
-    VERSION 2.5.0
+    VERSION 2.2.1 # absolute minimun, correspending to version in macOS 10.13
     TARGETS EXPAT::EXPAT
     STANDARD_INCLUDE_DIRS)
 
