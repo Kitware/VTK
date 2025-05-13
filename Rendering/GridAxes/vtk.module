@@ -1,0 +1,33 @@
+NAME
+  VTK::RenderingGridAxes
+LIBRARY_NAME
+  vtkRenderingGridAxes
+GROUPS
+  Rendering
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::ChartsCore
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+  VTK::RenderingContext2D
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::ImagingColor
+TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::FiltersModeling
+  VTK::IOGeometry
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingLOD
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+INCLUDE_MARSHAL
