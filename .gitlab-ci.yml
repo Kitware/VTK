@@ -350,9 +350,9 @@ fedora39-x86_64-mangling:test:
     needs:
         - fedora39-x86_64-mangling:build
 
-fedora39-x86_64-mpi-python-vtkmoverride:build:
+fedora39-x86_64-mpi-python-viskoresoverride:build:
     extends:
-        - .fedora39_x86_64_mpi_python_vtkmoverride
+        - .fedora39_x86_64_mpi_python_viskoresoverride
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -360,15 +360,15 @@ fedora39-x86_64-mpi-python-vtkmoverride:build:
     timeout: 90 minutes
     needs: []
 
-fedora39-x86_64-mpi-python-vtkmoverride:test:
+fedora39-x86_64-mpi-python-viskoresoverride:test:
     extends:
-        - .fedora39_x86_64_mpi_python_vtkmoverride
+        - .fedora39_x86_64_mpi_python_viskoresoverride
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
         - .run_automatically
     needs:
-        - fedora39-x86_64-mpi-python-vtkmoverride:build
+        - fedora39-x86_64-mpi-python-viskoresoverride:build
 
 ## WebGPU backend
 fedora39-x86_64-webgpu:build:
@@ -2470,8 +2470,8 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
 
-# This is disabled because VTK-m doesn't make a relocatable installation of its
-# imported targets (cf. `vtkm::tbb` since it embeds the build-time locations
+# This is disabled because Viskores doesn't make a relocatable installation of its
+# imported targets (cf. `viskores::tbb` since it embeds the build-time locations
 # into the install tree. Since the build/install time path is not the same as
 # this `concurrent`-tagged job, it's just not going to work well. See
 # vtk/vtk-m#609 for tracking.

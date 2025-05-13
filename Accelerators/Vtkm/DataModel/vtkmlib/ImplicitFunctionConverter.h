@@ -7,9 +7,9 @@
 
 #include "vtkAcceleratorsVTKmDataModelModule.h"
 #include "vtkType.h"             // For vtkMTimeType
-#include "vtkmConfigDataModel.h" //required for general vtkm setup
+#include "vtkmConfigDataModel.h" //required for general viskores setup
 
-#include "vtkm/ImplicitFunction.h"
+#include "viskores/ImplicitFunction.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
@@ -25,11 +25,11 @@ public:
   ImplicitFunctionConverter();
 
   void Set(vtkImplicitFunction*);
-  const vtkm::ImplicitFunctionGeneral& Get();
+  const viskores::ImplicitFunctionGeneral& Get();
 
 private:
   vtkImplicitFunction* InFunction;
-  vtkm::ImplicitFunctionGeneral OutFunction;
+  viskores::ImplicitFunctionGeneral OutFunction;
   mutable vtkMTimeType MTime;
 };
 

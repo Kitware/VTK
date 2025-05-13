@@ -27,7 +27,7 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMWarpVector.cxx
   )
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   foreach(src IN LISTS tests)
     string(REPLACE "," ";" src ${src})
     list(GET src 0 src)
@@ -37,7 +37,7 @@ if (TARGET vtkm::cuda)
 
   #the tests aren't scoped as a child directory of vtkAcceleratorsVTKmFilters
   #so we need to redo this logic
-  vtkm_get_cuda_flags(CMAKE_CUDA_FLAGS)
+  viskores_get_cuda_flags(CMAKE_CUDA_FLAGS)
 
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
@@ -52,7 +52,7 @@ vtk_test_cxx_executable(vtkAcceleratorsVTKmFiltersCxxTests tests
   RENDERING_FACTORY
   )
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   set_target_properties(vtkAcceleratorsVTKmFiltersCxxTests PROPERTIES
     CUDA_ARCHITECTURES OFF)
 endif()

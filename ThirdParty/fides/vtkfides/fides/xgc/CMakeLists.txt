@@ -5,7 +5,7 @@ set(xgc_headers
 target_sources(fides PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/XGCCommon.cxx)
 
-vtkm_add_target_information(fides
+viskores_add_target_information(fides
     DROP_UNUSED_SYMBOLS
     DEVICE_SOURCES XGCCommon.cxx)
 

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "ImageDataConverter.h"
 
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/DataSetBuilderUniform.h>
 
 #include "ArrayConverters.h"
 #include "DataSetConverters.h"
@@ -19,16 +19,16 @@ namespace
 
 struct ComputeExtents
 {
-  template <vtkm::IdComponent Dim>
-  void operator()(const vtkm::cont::CellSetStructured<Dim>& cs,
-    const vtkm::Id3& structuredCoordsDims, int extent[6]) const
+  template <viskores::IdComponent Dim>
+  void operator()(const viskores::cont::CellSetStructured<Dim>& cs,
+    const viskores::Id3& structuredCoordsDims, int extent[6]) const
   {
     auto extStart = cs.GetGlobalPointIndexStart();
     for (int i = 0, ii = 0; i < 3; ++i)
     {
       if (structuredCoordsDims[i] > 1)
       {
-        extent[2 * i] = vtkm::VecTraits<decltype(extStart)>::GetComponent(extStart, ii++);
+        extent[2 * i] = viskores::VecTraits<decltype(extStart)>::GetComponent(extStart, ii++);
         extent[(2 * i) + 1] = extent[2 * i] + structuredCoordsDims[i] - 1;
       }
       else
@@ -41,20 +41,21 @@ struct ComputeExtents
 
 struct SetGlobalPointIndexStart
 {
-  template <vtkm::IdComponent Dim>
-  void operator()(const vtkm::cont::CellSetStructured<Dim>&, const vtkm::Id3& structuredCoordsDims,
-    const int extent[6], vtkm::cont::UnknownCellSet& dcs) const
+  template <viskores::IdComponent Dim>
+  void operator()(const viskores::cont::CellSetStructured<Dim>&,
+    const viskores::Id3& structuredCoordsDims, const int extent[6],
+    viskores::cont::UnknownCellSet& dcs) const
   {
-    typename vtkm::cont::CellSetStructured<Dim>::SchedulingRangeType extStart{};
+    typename viskores::cont::CellSetStructured<Dim>::SchedulingRangeType extStart{};
     for (int i = 0, ii = 0; i < 3; ++i)
     {
       if (structuredCoordsDims[i] > 1)
       {
-        vtkm::VecTraits<decltype(extStart)>::SetComponent(extStart, ii++, extent[2 * i]);
+        viskores::VecTraits<decltype(extStart)>::SetComponent(extStart, ii++, extent[2 * i]);
       }
     }
 
-    vtkm::cont::CellSetStructured<Dim> cs;
+    viskores::cont::CellSetStructured<Dim> cs;
     dcs.AsCellSet(cs);
     cs.SetGlobalPointIndexStart(extStart);
   }
@@ -68,7 +69,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an image data type
-vtkm::cont::DataSet Convert(vtkImageData* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkImageData* input, FieldsFlag fields)
 {
   int extent[6];
   input->GetExtent(extent);
@@ -79,20 +80,26 @@ vtkm::cont::DataSet Convert(vtkImageData* input, FieldsFlag fields)
   int vdims[3];
   input->GetDimensions(vdims);
 
-  vtkm::Vec<vtkm::FloatDefault, 3> origin(
-    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[0]) * vspacing[0]) + vorigin[0]),
-    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[2]) * vspacing[1]) + vorigin[1]),
-    static_cast<vtkm::FloatDefault>((static_cast<double>(extent[4]) * vspacing[2]) + vorigin[2]));
-  vtkm::Vec<vtkm::FloatDefault, 3> spacing(static_cast<vtkm::FloatDefault>(vspacing[0]),
-    static_cast<vtkm::FloatDefault>(vspacing[1]), static_cast<vtkm::FloatDefault>(vspacing[2]));
-  vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
+  viskores::Vec<viskores::FloatDefault, 3> origin(
+    static_cast<viskores::FloatDefault>(
+      (static_cast<double>(extent[0]) * vspacing[0]) + vorigin[0]),
+    static_cast<viskores::FloatDefault>(
+      (static_cast<double>(extent[2]) * vspacing[1]) + vorigin[1]),
+    static_cast<viskores::FloatDefault>(
+      (static_cast<double>(extent[4]) * vspacing[2]) + vorigin[2]));
+  viskores::Vec<viskores::FloatDefault, 3> spacing(static_cast<viskores::FloatDefault>(vspacing[0]),
+    static_cast<viskores::FloatDefault>(vspacing[1]),
+    static_cast<viskores::FloatDefault>(vspacing[2]));
+  viskores::Id3 dims(vdims[0], vdims[1], vdims[2]);
 
-  vtkm::cont::DataSet dataset = vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
+  viskores::cont::DataSet dataset =
+    viskores::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
 
-  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
+  using ListCellSetStructured = viskores::List<viskores::cont::CellSetStructured<1>,
+    viskores::cont::CellSetStructured<2>, viskores::cont::CellSetStructured<3>>;
   auto cellSet = dataset.GetCellSet().ResetCellSetList(ListCellSetStructured{});
-  vtkm::cont::CastAndCall(cellSet, SetGlobalPointIndexStart{}, dims, extent, dataset.GetCellSet());
+  viskores::cont::CastAndCall(
+    cellSet, SetGlobalPointIndexStart{}, dims, extent, dataset.GetCellSet());
 
   ProcessFields(input, dataset, fields);
 
@@ -107,32 +114,32 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 bool Convert(
-  const vtkm::cont::DataSet& voutput, int extents[6], vtkImageData* output, vtkDataSet* input)
+  const viskores::cont::DataSet& voutput, int extents[6], vtkImageData* output, vtkDataSet* input)
 {
-  vtkm::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
-  if (!cs.GetData().IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>())
+  viskores::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
+  if (!cs.GetData().IsType<viskores::cont::ArrayHandleUniformPointCoordinates>())
   {
     return false;
   }
 
-  auto points = cs.GetData().AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+  auto points = cs.GetData().AsArrayHandle<viskores::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = points.ReadPortal();
 
   auto origin = portal.GetOrigin();
   auto spacing = portal.GetSpacing();
   auto dim = portal.GetDimensions();
-  VTKM_ASSERT((extents[1] - extents[0] + 1) == dim[0] && (extents[3] - extents[2] + 1) == dim[1] &&
-    (extents[5] - extents[4] + 1) == dim[2]);
+  VISKORES_ASSERT((extents[1] - extents[0] + 1) == dim[0] &&
+    (extents[3] - extents[2] + 1) == dim[1] && (extents[5] - extents[4] + 1) == dim[2]);
 
-  origin[0] -= static_cast<vtkm::FloatDefault>(extents[0]) * spacing[0];
-  origin[1] -= static_cast<vtkm::FloatDefault>(extents[2]) * spacing[1];
-  origin[2] -= static_cast<vtkm::FloatDefault>(extents[4]) * spacing[2];
+  origin[0] -= static_cast<viskores::FloatDefault>(extents[0]) * spacing[0];
+  origin[1] -= static_cast<viskores::FloatDefault>(extents[2]) * spacing[1];
+  origin[2] -= static_cast<viskores::FloatDefault>(extents[4]) * spacing[2];
 
   output->SetExtent(extents);
   output->SetOrigin(origin[0], origin[1], origin[2]);
   output->SetSpacing(spacing[0], spacing[1], spacing[2]);
 
-  // Next we need to convert any extra fields from vtkm over to vtk
+  // Next we need to convert any extra fields from viskores over to vtk
   bool arraysConverted = fromvtkm::ConvertArrays(voutput, output);
 
   // Pass information about attributes.
@@ -142,23 +149,23 @@ bool Convert(
   return arraysConverted;
 }
 
-bool Convert(const vtkm::cont::DataSet& voutput, vtkImageData* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& voutput, vtkImageData* output, vtkDataSet* input)
 {
-  vtkm::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
-  if (!cs.GetData().IsType<vtkm::cont::ArrayHandleUniformPointCoordinates>())
+  viskores::cont::CoordinateSystem const& cs = voutput.GetCoordinateSystem();
+  if (!cs.GetData().IsType<viskores::cont::ArrayHandleUniformPointCoordinates>())
   {
     return false;
   }
 
-  auto points = cs.GetData().AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+  auto points = cs.GetData().AsArrayHandle<viskores::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = points.ReadPortal();
 
   auto dim = portal.GetDimensions();
   int extents[6];
-  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
+  using ListCellSetStructured = viskores::List<viskores::cont::CellSetStructured<1>,
+    viskores::cont::CellSetStructured<2>, viskores::cont::CellSetStructured<3>>;
   auto cellSet = voutput.GetCellSet().ResetCellSetList(ListCellSetStructured{});
-  vtkm::cont::CastAndCall(cellSet, ComputeExtents{}, dim, extents);
+  viskores::cont::CastAndCall(cellSet, ComputeExtents{}, dim, extents);
 
   return Convert(voutput, extents, output, input);
 }

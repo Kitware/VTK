@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkm/filter/density_estimate/Histogram.h>
+#include <viskores/filter/density_estimate/Histogram.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmHistogram);
@@ -77,13 +77,13 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    vtkm::cont::DataSet in = tovtkm::Convert(input);
+    viskores::cont::DataSet in = tovtkm::Convert(input);
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 
-    vtkm::filter::density_estimate::Histogram filter;
+    viskores::filter::density_estimate::Histogram filter;
 
-    filter.SetNumberOfBins(static_cast<vtkm::Id>(this->NumberOfBins));
+    filter.SetNumberOfBins(static_cast<viskores::Id>(this->NumberOfBins));
     filter.SetActiveField(fieldName, field.GetAssociation());
     if (this->UseCustomBinRanges)
     {
@@ -95,7 +95,7 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
         this->CustomBinRange[0] = min;
         this->CustomBinRange[1] = max;
       }
-      filter.SetRange(vtkm::Range(this->CustomBinRange[0], this->CustomBinRange[1]));
+      filter.SetRange(viskores::Range(this->CustomBinRange[0], this->CustomBinRange[1]));
     }
     auto result = filter.Execute(in);
     this->BinDelta = filter.GetBinDelta();
@@ -107,7 +107,7 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     resultingArray->SetName("bin_values");
     if (resultingArray == nullptr)
     {
-      vtkErrorMacro(<< "Unable to convert result array from VTK-m to VTK");
+      vtkErrorMacro(<< "Unable to convert result array from Viskores to VTK");
       return 0;
     }
     this->FillBinExtents(binExtents);
@@ -116,9 +116,9 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 
     resultingArray->FastDelete();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
   return 1;

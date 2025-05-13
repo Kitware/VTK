@@ -260,7 +260,7 @@ to be merged in a reasonable timeframe.
 
  * @mwestphal: Qt, filters, data Model, widgets, parallel, anything else.
  * @charles.gueunet: filters, data model, SMP, events, pipeline, computational geometry, distributed algorithms.
- * @kmorel: General VTK Expertise, VTK-m accelerators.
+ * @kmorel: General VTK Expertise, Viskores accelerators.
  * @will.schroeder: algorithms, computational geometry, filters, SPH, SMP, widgets,  point cloud, spatial locators.
  * @sebastien.jourdain: web, WebAssembly, Python, Java.
  * @sankhesh: volume rendering, Qt, OpenGL, widgets, vtkImageData, DICOM, VR, Raytracing, webgpu, QtQuick, QtQml, OpenXR

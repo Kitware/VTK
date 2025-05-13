@@ -9,7 +9,7 @@
 #include "ArrayConverters.h"
 #include "vtkmlib/DataArrayConverters.hxx"
 
-#include <vtkm/cont/ArrayHandleGroupVecVariable.h>
+#include <viskores/cont/ArrayHandleGroupVecVariable.h>
 
 #include "vtkDataArray.h"
 #include "vtkDataObject.h"
@@ -19,7 +19,7 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 template <typename DataArrayType>
-vtkm::cont::Field Convert(DataArrayType* input, int association)
+viskores::cont::Field Convert(DataArrayType* input, int association)
 {
   // we need to switch on if we are a cell or point field first!
   // The problem is that the constructor signature for fields differ based
@@ -33,16 +33,16 @@ vtkm::cont::Field Convert(DataArrayType* input, int association)
     return ConvertCellField(input);
   }
 
-  return vtkm::cont::Field();
+  return viskores::cont::Field();
 }
 
 #if !defined(vtkmlib_ArrayConverterExport_cxx)
 #define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
-  extern template vtkm::cont::Field Convert<ArrayType<ValueType>>(                                 \
+  extern template viskores::cont::Field Convert<ArrayType<ValueType>>(                             \
     ArrayType<ValueType> * input, int association);
 #else
 #define VTK_EXPORT_ARRAY_CONVERSION_TO_VTKM_DETAIL(ArrayType, ValueType)                           \
-  template vtkm::cont::Field Convert<ArrayType<ValueType>>(                                        \
+  template viskores::cont::Field Convert<ArrayType<ValueType>>(                                    \
     ArrayType<ValueType> * input, int association);
 #endif
 

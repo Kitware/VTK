@@ -23,11 +23,11 @@
 #include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include <vtkm/cont/Algorithm.h>
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/cont/Invoker.h>
-#include <vtkm/worklet/WorkletMapTopology.h>
+#include <viskores/cont/Algorithm.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/cont/Invoker.h>
+#include <viskores/worklet/WorkletMapTopology.h>
 
 #include <algorithm>
 
@@ -51,25 +51,26 @@ void vtkmClip::PrintSelf(std::ostream& os, vtkIndent indent)
 namespace
 {
 
-struct IsCellSupported : public vtkm::worklet::WorkletVisitCellsWithPoints
+struct IsCellSupported : public viskores::worklet::WorkletVisitCellsWithPoints
 {
   using ControlSignature = void(CellSetIn, FieldOutCell);
   using ExecutionSignature = _2(CellShape);
 
   template <typename CellShapeTag>
-  VTKM_EXEC bool operator()(CellShapeTag shape) const
+  VISKORES_EXEC bool operator()(CellShapeTag shape) const
   {
-    return (shape.Id != vtkm::CELL_SHAPE_POLY_LINE) && (shape.Id != vtkm::CELL_SHAPE_POLYGON);
+    return (shape.Id != viskores::CELL_SHAPE_POLY_LINE) &&
+      (shape.Id != viskores::CELL_SHAPE_POLYGON);
   }
 };
 
-// Checks if there are cells that are supported by vtkm in general but unsupported
+// Checks if there are cells that are supported by viskores in general but unsupported
 // by clip
-bool CellSetHasUnsupportedCells(const vtkm::cont::UnknownCellSet& cellset)
+bool CellSetHasUnsupportedCells(const viskores::cont::UnknownCellSet& cellset)
 {
-  vtkm::cont::ArrayHandle<bool> supported;
-  vtkm::cont::Invoker{}(IsCellSupported{}, cellset, supported);
-  return !vtkm::cont::Algorithm::Reduce(supported, true, vtkm::LogicalAnd());
+  viskores::cont::ArrayHandle<bool> supported;
+  viskores::cont::Invoker{}(IsCellSupported{}, cellset, supported);
+  return !viskores::cont::Algorithm::Reduce(supported, true, viskores::LogicalAnd());
 }
 
 } // anonymous namespace
@@ -110,7 +111,7 @@ int vtkmClip::RequestData(
       (this->GetOutputPointsPrecision() == vtkAlgorithm::DEFAULT_PRECISION && pointSet &&
         pointSet->GetPoints()->GetDataType() != VTK_FLOAT))
     {
-      throw vtkm::cont::ErrorFilterExecution(
+      throw viskores::cont::ErrorFilterExecution(
         "vtkmClip only supports generating single precision output points.");
     }
 
@@ -119,26 +120,26 @@ int vtkmClip::RequestData(
       // `UseValueAsOffset` is on by default, so check `Value` also to determine support.
       if (this->UseValueAsOffset && this->Value != 0.0)
       {
-        throw vtkm::cont::ErrorFilterExecution("`UseValueAsOffset` is not supported");
+        throw viskores::cont::ErrorFilterExecution("`UseValueAsOffset` is not supported");
       }
       if (this->GenerateClipScalars)
       {
-        throw vtkm::cont::ErrorFilterExecution("`GenerateClipScalars` is not supported");
+        throw viskores::cont::ErrorFilterExecution("`GenerateClipScalars` is not supported");
       }
     }
 
-    // Convert inputs to vtkm objects:
+    // Convert inputs to viskores objects:
     auto fieldsFlag =
       this->GetComputeScalars() ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
     auto in = tovtkm::Convert(input, fieldsFlag);
 
     if (CellSetHasUnsupportedCells(in.GetCellSet()))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unsupported cell in input");
+      throw viskores::cont::ErrorFilterExecution("Unsupported cell in input");
     }
 
     // Run filter:
-    vtkm::cont::DataSet result, result1;
+    viskores::cont::DataSet result, result1;
     if (this->GetClipFunction())
     {
       result = internals::ExecuteClipWithImplicitFunction(in, this->ClipFunction, this->InsideOut);
@@ -167,7 +168,8 @@ int vtkmClip::RequestData(
     if (!fromvtkm::Convert(result, output, input) ||
       (clippedOutput && !fromvtkm::Convert(result1, clippedOutput, input)))
     {
-      throw vtkm::cont::ErrorFilterExecution("Unable to convert VTKm result dataSet back to VTK.");
+      throw viskores::cont::ErrorFilterExecution(
+        "Unable to convert Viskores result dataSet back to VTK.");
     }
 
     if (!this->GetClipFunction() && this->GetComputeScalars())
@@ -181,16 +183,16 @@ int vtkmClip::RequestData(
 
     return 1;
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+      vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                       << "Falling back to the default VTK implementation.");
       return this->Superclass::RequestData(request, inInfoVec, outInfoVec);
     }

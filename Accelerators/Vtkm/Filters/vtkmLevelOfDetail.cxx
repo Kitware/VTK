@@ -17,7 +17,7 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/PolyDataConverter.h"
 
-#include <vtkm/filter/geometry_refinement/VertexClustering.h>
+#include <viskores/filter/geometry_refinement/VertexClustering.h>
 // To handle computing custom coordinate sets bounds we need to include
 // the following
 
@@ -115,15 +115,15 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
     if (in.GetNumberOfCells() == 0 || in.GetNumberOfPoints() == 0)
     {
       return 0;
     }
 
-    vtkm::filter::geometry_refinement::VertexClustering filter;
-    filter.SetNumberOfDivisions(vtkm::make_Vec(
+    viskores::filter::geometry_refinement::VertexClustering filter;
+    filter.SetNumberOfDivisions(viskores::make_Vec(
       this->NumberOfDivisions[0], this->NumberOfDivisions[1], this->NumberOfDivisions[2]));
 
     auto result = filter.Execute(in);
@@ -131,13 +131,13 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
     // convert back the dataset to VTK
     if (!fromvtkm::Convert(result, output, input))
     {
-      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

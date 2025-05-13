@@ -1,7 +1,7 @@
-set(VTKm_NO_DEPRECATED_VIRTUAL ON)
+set(Viskores_NO_DEPRECATED_VIRTUAL ON)
 
 list(INSERT CMAKE_MODULE_PATH 0
-  "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtkvtkm/vtk-m/CMake")
+  "${VTK_SOURCE_DIR}/ThirdParty/viskores/vtkviskores/CMake")
 
 set(sources
   vtkmlib/ArrayConvertersReal.cxx
@@ -41,14 +41,14 @@ vtk_module_add_module(VTK::AcceleratorsVTKmDataModel
   PRIVATE_HEADERS ${private_headers})
 vtk_module_set_property(VTK::AcceleratorsVTKmDataModel
   PROPERTY  JOB_POOL_COMPILE
-  VALUE     vtkm_pool)
+  VALUE     viskores_pool)
 _vtk_module_real_target(vtkm_accel_target VTK::AcceleratorsVTKmDataModel)
-vtkm_add_target_information(${vtkm_accel_target}
-                            EXTENDS_VTKM
+viskores_add_target_information(${vtkm_accel_target}
+                            EXTENDS_VISKORES
                             MODIFY_CUDA_FLAGS
                             DEVICE_SOURCES ${sources})
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress
@@ -64,7 +64,7 @@ if (TARGET vtkm::cuda)
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe --diag_suppress=extra_semicolon>)
 
-elseif (TARGET vtkm::kokkos_cuda)
+elseif (TARGET viskores::kokkos_cuda)
   list(TRANSFORM nowrap_classes APPEND ".cxx" OUTPUT_VARIABLE nowrap_sources)
   set(cuda_impl ${nowrap_sources} vtkmDataSet.cxx)
   set_source_files_properties(${cuda_impl} PROPERTIES LANGUAGE CUDA)
@@ -88,17 +88,17 @@ if (MSVC)
     # So we suppress for VS2015
     /wd4503
     )
-  set(vtkm_msvc_flags)
+  set(viskores_msvc_flags)
   foreach (msvc_warning_flag IN LISTS msvc_warning_flags)
-    if (TARGET vtkm::cuda)
-      list(APPEND vtkm_msvc_flags
+    if (TARGET viskores::cuda)
+      list(APPEND viskores_msvc_flags
         $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=${msvc_warning_flag},${msvc_warning_flag}>)
     else ()
-      list(APPEND vtkm_msvc_flags
+      list(APPEND viskores_msvc_flags
         ${msvc_warning_flag})
     endif ()
   endforeach ()
   vtk_module_compile_options(VTK::AcceleratorsVTKmDataModel
     PRIVATE
-      ${vtkm_msvc_flags})
+      ${viskores_msvc_flags})
 endif ()

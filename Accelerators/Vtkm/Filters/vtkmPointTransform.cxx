@@ -19,8 +19,8 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include "vtkm/cont/Error.h"
-#include "vtkm/filter/field_transform/PointTransform.h"
+#include "viskores/cont/Error.h"
+#include "viskores/filter/field_transform/PointTransform.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmPointTransform);
@@ -108,24 +108,24 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
     vtkMatrix4x4* matrix = this->Transform->GetMatrix();
-    vtkm::Matrix<vtkm::FloatDefault, 4, 4> vtkmMatrix;
+    viskores::Matrix<viskores::FloatDefault, 4, 4> vtkmMatrix;
     for (int i = 0; i < 4; i++)
     {
       for (int j = 0; j < 4; j++)
       {
-        vtkmMatrix[i][j] = static_cast<vtkm::FloatDefault>(matrix->GetElement(i, j));
+        vtkmMatrix[i][j] = static_cast<viskores::FloatDefault>(matrix->GetElement(i, j));
       }
     }
 
-    vtkm::filter::field_transform::PointTransform pointTransform;
+    viskores::filter::field_transform::PointTransform pointTransform;
     pointTransform.SetUseCoordinateSystemAsField(true);
     pointTransform.SetTransform(vtkmMatrix);
 
     auto result = pointTransform.Execute(in);
     vtkDataArray* pointTransformResult =
-      fromvtkm::Convert(result.GetField("transform", vtkm::cont::Field::Association::Points));
+      fromvtkm::Convert(result.GetField("transform", viskores::cont::Field::Association::Points));
     vtkPoints* newPts = vtkPoints::New();
     // Update points
     newPts->SetNumberOfPoints(pointTransformResult->GetNumberOfTuples());
@@ -134,9 +134,9 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
     newPts->FastDelete();
     pointTransformResult->FastDelete();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

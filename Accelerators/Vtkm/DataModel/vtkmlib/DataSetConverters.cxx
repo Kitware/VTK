@@ -28,11 +28,11 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/ArrayHandleCartesianProduct.h>
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
-#include <vtkm/cont/CellSetStructured.h>
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/ArrayHandleCartesianProduct.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/CellSetStructured.h>
+#include <viskores/cont/Field.h>
 
 namespace tovtkm
 {
@@ -42,15 +42,15 @@ namespace
 {
 
 template <typename T>
-vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
+viskores::cont::CoordinateSystem deduce_container(vtkPoints* points)
 {
-  typedef vtkm::Vec<T, 3> Vec3;
+  typedef viskores::Vec<T, 3> Vec3;
 
   vtkAOSDataArrayTemplate<T>* typedIn = vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData());
   if (typedIn)
   {
     auto p = vtkDataArrayToArrayHandle(typedIn);
-    return vtkm::cont::CoordinateSystem("coords", p);
+    return viskores::cont::CoordinateSystem("coords", p);
   }
 
   vtkSOADataArrayTemplate<T>* typedIn2 =
@@ -58,73 +58,73 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints* points)
   if (typedIn2)
   {
     auto p = vtkDataArrayToArrayHandle(typedIn2);
-    return vtkm::cont::CoordinateSystem("coords", p);
+    return viskores::cont::CoordinateSystem("coords", p);
   }
 
   vtkmDataArray<T>* typedIn3 = vtkmDataArray<T>::SafeDownCast(points->GetData());
   if (typedIn3)
   {
-    return vtkm::cont::CoordinateSystem("coords", typedIn3->GetVtkmUnknownArrayHandle());
+    return viskores::cont::CoordinateSystem("coords", typedIn3->GetVtkmUnknownArrayHandle());
   }
 
-  typedef vtkm::Vec<T, 3> Vec3;
+  typedef viskores::Vec<T, 3> Vec3;
   Vec3* xyz = nullptr;
-  return vtkm::cont::make_CoordinateSystem("coords", xyz, 0);
+  return viskores::cont::make_CoordinateSystem("coords", xyz, 0);
 }
 }
 //------------------------------------------------------------------------------
 // convert a vtkPoints array into a coordinate system
-vtkm::cont::CoordinateSystem Convert(vtkPoints* points)
+viskores::cont::CoordinateSystem Convert(vtkPoints* points)
 {
   if (points)
   {
     if (points->GetDataType() == VTK_FLOAT)
     {
-      return deduce_container<vtkm::Float32>(points);
+      return deduce_container<viskores::Float32>(points);
     }
     else if (points->GetDataType() == VTK_DOUBLE)
     {
-      return deduce_container<vtkm::Float64>(points);
+      return deduce_container<viskores::Float64>(points);
     }
   }
 
   // unsupported/null point set
-  typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
+  typedef viskores::Vec<viskores::Float32, 3> Vec3;
   Vec3* xyz = nullptr;
-  return vtkm::cont::make_CoordinateSystem("coords", xyz, 0);
+  return viskores::cont::make_CoordinateSystem("coords", xyz, 0);
 }
 
 //------------------------------------------------------------------------------
 // convert an structured grid type
-vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields)
 {
   const int dimensionality = input->GetDataDimension();
   int dims[3];
   input->GetDimensions(dims);
 
-  vtkm::cont::DataSet dataset;
+  viskores::cont::DataSet dataset;
 
   // first step convert the points over to an array handle
-  vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
+  viskores::cont::CoordinateSystem coords = Convert(input->GetPoints());
   dataset.AddCoordinateSystem(coords);
 
   // second step is to create structured cellset that represe
   if (dimensionality == 1)
   {
-    vtkm::cont::CellSetStructured<1> cells;
+    viskores::cont::CellSetStructured<1> cells;
     cells.SetPointDimensions(dims[0]);
     dataset.SetCellSet(cells);
   }
   else if (dimensionality == 2)
   {
-    vtkm::cont::CellSetStructured<2> cells;
-    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1]));
+    viskores::cont::CellSetStructured<2> cells;
+    cells.SetPointDimensions(viskores::make_Vec(dims[0], dims[1]));
     dataset.SetCellSet(cells);
   }
   else
   { // going to presume 3d for everything else
-    vtkm::cont::CellSetStructured<3> cells;
-    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1], dims[2]));
+    viskores::cont::CellSetStructured<3> cells;
+    cells.SetPointDimensions(viskores::make_Vec(dims[0], dims[1], dims[2]));
     dataset.SetCellSet(cells);
   }
 
@@ -136,11 +136,11 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid* input, FieldsFlag fields)
 //------------------------------------------------------------------------------
 // convert rectilinear coordinates
 template <typename T>
-vtkm::cont::CoordinateSystem ConvertRectilinearPoints(
+viskores::cont::CoordinateSystem ConvertRectilinearPoints(
   vtkDataArray* xArray, vtkDataArray* yArray, vtkDataArray* zArray)
 {
   vtkDataArray* vtkCompArrays[3] = { xArray, yArray, zArray };
-  vtkm::cont::ArrayHandle<T> vtkmCompArrays[3];
+  viskores::cont::ArrayHandle<T> vtkmCompArrays[3];
 
   for (int i = 0; i < 3; ++i)
   {
@@ -158,17 +158,17 @@ vtkm::cont::CoordinateSystem ConvertRectilinearPoints(
       continue;
     }
 
-    throw vtkm::cont::ErrorBadType("Unexpected rectilinear component array type (VTK)");
+    throw viskores::cont::ErrorBadType("Unexpected rectilinear component array type (VTK)");
   }
 
-  return vtkm::cont::CoordinateSystem("coords",
-    vtkm::cont::make_ArrayHandleCartesianProduct(
+  return viskores::cont::CoordinateSystem("coords",
+    viskores::cont::make_ArrayHandleCartesianProduct(
       vtkmCompArrays[0], vtkmCompArrays[1], vtkmCompArrays[2]));
 }
 
 //------------------------------------------------------------------------------
 // convert a rectilinear grid type
-vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
 {
   const int dimensionality = input->GetDataDimension();
   int dims[3];
@@ -177,7 +177,7 @@ vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
   int extent[6];
   input->GetExtent(extent);
 
-  vtkm::cont::DataSet dataset;
+  viskores::cont::DataSet dataset;
 
   // first step, convert the points x, y aqnd z arrays over
   if (input->GetXCoordinates()->GetDataType() == VTK_DOUBLE)
@@ -194,7 +194,7 @@ vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
   // second step is to create structured cellset that represe
   if (dimensionality == 1)
   {
-    vtkm::cont::CellSetStructured<1> cells;
+    viskores::cont::CellSetStructured<1> cells;
     if (dims[0] > 1)
     {
       cells.SetPointDimensions(dims[0]);
@@ -214,30 +214,30 @@ vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
   }
   else if (dimensionality == 2)
   {
-    vtkm::cont::CellSetStructured<2> cells;
+    viskores::cont::CellSetStructured<2> cells;
     if (dims[0] == 1)
     {
-      cells.SetPointDimensions(vtkm::make_Vec(dims[1], dims[2]));
-      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[2], extent[4]));
+      cells.SetPointDimensions(viskores::make_Vec(dims[1], dims[2]));
+      cells.SetGlobalPointIndexStart(viskores::make_Vec(extent[2], extent[4]));
     }
     else if (dims[1] == 1)
     {
-      cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[2]));
-      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[4]));
+      cells.SetPointDimensions(viskores::make_Vec(dims[0], dims[2]));
+      cells.SetGlobalPointIndexStart(viskores::make_Vec(extent[0], extent[4]));
     }
     else
     {
-      cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1]));
-      cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[2]));
+      cells.SetPointDimensions(viskores::make_Vec(dims[0], dims[1]));
+      cells.SetGlobalPointIndexStart(viskores::make_Vec(extent[0], extent[2]));
     }
 
     dataset.SetCellSet(cells);
   }
   else // going to presume 3d for everything else
   {
-    vtkm::cont::CellSetStructured<3> cells;
-    cells.SetPointDimensions(vtkm::make_Vec(dims[0], dims[1], dims[2]));
-    cells.SetGlobalPointIndexStart(vtkm::make_Vec(extent[0], extent[2], extent[4]));
+    viskores::cont::CellSetStructured<3> cells;
+    cells.SetPointDimensions(viskores::make_Vec(dims[0], dims[1], dims[2]));
+    cells.SetGlobalPointIndexStart(viskores::make_Vec(extent[0], extent[2], extent[4]));
     dataset.SetCellSet(cells);
   }
 
@@ -248,7 +248,7 @@ vtkm::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
 
 //------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
-vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
 {
   auto typeId = input->GetDataObjectType();
   switch (typeId)
@@ -269,8 +269,8 @@ vtkm::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
     case VTK_STRUCTURED_POINTS:
     default:
       const std::string typeStr = vtkDataObjectTypes::GetClassNameFromTypeId(typeId);
-      const std::string errMsg = "Unable to convert " + typeStr + " to vtkm::cont::DataSet";
-      throw vtkm::cont::ErrorBadType(errMsg);
+      const std::string errMsg = "Unable to convert " + typeStr + " to viskores::cont::DataSet";
+      throw viskores::cont::ErrorBadType(errMsg);
   }
 }
 
@@ -286,16 +286,16 @@ namespace
 
 struct ComputeExtents
 {
-  template <vtkm::IdComponent Dim>
-  void operator()(const vtkm::cont::CellSetStructured<Dim>& cs,
-    const vtkm::Id3& structuredCoordsDims, int extent[6]) const
+  template <viskores::IdComponent Dim>
+  void operator()(const viskores::cont::CellSetStructured<Dim>& cs,
+    const viskores::Id3& structuredCoordsDims, int extent[6]) const
   {
     auto extStart = cs.GetGlobalPointIndexStart();
     for (int i = 0, ii = 0; i < 3; ++i)
     {
       if (structuredCoordsDims[i] > 1)
       {
-        extent[2 * i] = vtkm::VecTraits<decltype(extStart)>::GetComponent(extStart, ii++);
+        extent[2 * i] = viskores::VecTraits<decltype(extStart)>::GetComponent(extStart, ii++);
         extent[(2 * i) + 1] = extent[2 * i] + structuredCoordsDims[i] - 1;
       }
       else
@@ -305,16 +305,16 @@ struct ComputeExtents
     }
   }
 
-  template <vtkm::IdComponent Dim>
-  void operator()(const vtkm::cont::CellSetStructured<Dim>& cs, int extent[6]) const
+  template <viskores::IdComponent Dim>
+  void operator()(const viskores::cont::CellSetStructured<Dim>& cs, int extent[6]) const
   {
     auto extStart = cs.GetGlobalPointIndexStart();
     auto csDim = cs.GetPointDimensions();
     for (int i = 0; i < Dim; ++i)
     {
-      extent[2 * i] = vtkm::VecTraits<decltype(extStart)>::GetComponent(extStart, i);
+      extent[2 * i] = viskores::VecTraits<decltype(extStart)>::GetComponent(extStart, i);
       extent[(2 * i) + 1] =
-        extent[2 * i] + vtkm::VecTraits<decltype(csDim)>::GetComponent(csDim, i) - 1;
+        extent[2 * i] + viskores::VecTraits<decltype(csDim)>::GetComponent(csDim, i) - 1;
     }
     for (int i = Dim; i < 3; ++i)
     {
@@ -337,42 +337,44 @@ void PassAttributesInformation(vtkDataSetAttributes* input, vtkDataSetAttributes
   }
 }
 
-bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtkDataSet* input)
 {
-  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
+  using ListCellSetStructured = viskores::List<viskores::cont::CellSetStructured<1>,
+    viskores::cont::CellSetStructured<2>, viskores::cont::CellSetStructured<3>>;
   auto cellSet = vtkmOut.GetCellSet().ResetCellSetList(ListCellSetStructured{});
 
   vtkSmartPointer<vtkDataArray> xArray, yArray, zArray;
-  if (vtkmOut.GetCoordinateSystem().GetData().template IsValueType<vtkm::Float32>())
+  if (vtkmOut.GetCoordinateSystem().GetData().template IsValueType<viskores::Float32>())
   {
     using coordArrayType =
-      vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::Float32>,
-        vtkm::cont::ArrayHandle<vtkm::Float32>, vtkm::cont::ArrayHandle<vtkm::Float32>>;
+      viskores::cont::ArrayHandleCartesianProduct<viskores::cont::ArrayHandle<viskores::Float32>,
+        viskores::cont::ArrayHandle<viskores::Float32>,
+        viskores::cont::ArrayHandle<viskores::Float32>>;
     coordArrayType coordsArray;
     vtkmOut.GetCoordinateSystem().GetData().AsArrayHandle(coordsArray);
 
     xArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
+      Convert(viskores::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
     yArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
+      Convert(viskores::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
     zArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
+      Convert(viskores::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
   }
-  else // vtkm::Float64
+  else // viskores::Float64
   {
     using coordArrayType =
-      vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::Float64>,
-        vtkm::cont::ArrayHandle<vtkm::Float64>, vtkm::cont::ArrayHandle<vtkm::Float64>>;
+      viskores::cont::ArrayHandleCartesianProduct<viskores::cont::ArrayHandle<viskores::Float64>,
+        viskores::cont::ArrayHandle<viskores::Float64>,
+        viskores::cont::ArrayHandle<viskores::Float64>>;
     coordArrayType coordsArray;
     vtkmOut.GetCoordinateSystem().GetData().AsArrayHandle(coordsArray);
 
     xArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
+      Convert(viskores::cont::make_FieldPoint("xArray", coordsArray.GetFirstArray())));
     yArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
+      Convert(viskores::cont::make_FieldPoint("yArray", coordsArray.GetSecondArray())));
     zArray.TakeReference(
-      Convert(vtkm::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
+      Convert(viskores::cont::make_FieldPoint("zArray", coordsArray.GetThirdArray())));
   }
 
   if (!xArray || !yArray || !zArray)
@@ -380,18 +382,18 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
     return false;
   }
 
-  vtkm::Id3 dims(
+  viskores::Id3 dims(
     xArray->GetNumberOfValues(), yArray->GetNumberOfValues(), zArray->GetNumberOfValues());
 
   int extents[6];
-  vtkm::cont::CastAndCall(cellSet, ComputeExtents{}, dims, extents);
+  viskores::cont::CastAndCall(cellSet, ComputeExtents{}, dims, extents);
 
   output->SetExtent(extents);
   output->SetXCoordinates(xArray);
   output->SetYCoordinates(yArray);
   output->SetZCoordinates(zArray);
 
-  // Next we need to convert any extra fields from vtkm over to vtk
+  // Next we need to convert any extra fields from viskores over to vtk
   if (!fromvtkm::ConvertArrays(vtkmOut, output))
   {
     return false;
@@ -404,14 +406,14 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkRectilinearGrid* output, vtk
   return true;
 }
 
-bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkDataSet* input)
 {
-  using ListCellSetStructured = vtkm::List<vtkm::cont::CellSetStructured<1>,
-    vtkm::cont::CellSetStructured<2>, vtkm::cont::CellSetStructured<3>>;
+  using ListCellSetStructured = viskores::List<viskores::cont::CellSetStructured<1>,
+    viskores::cont::CellSetStructured<2>, viskores::cont::CellSetStructured<3>>;
   auto cellSet = vtkmOut.GetCellSet().ResetCellSetList(ListCellSetStructured{});
 
   int extents[6];
-  vtkm::cont::CastAndCall(cellSet, ComputeExtents{}, extents);
+  viskores::cont::CastAndCall(cellSet, ComputeExtents{}, extents);
 
   vtkSmartPointer<vtkPoints> points = Convert(vtkmOut.GetCoordinateSystem());
   if (!points)
@@ -422,7 +424,7 @@ bool Convert(const vtkm::cont::DataSet& vtkmOut, vtkStructuredGrid* output, vtkD
   output->SetExtent(extents);
   output->SetPoints(points);
 
-  // Next we need to convert any extra fields from vtkm over to vtk
+  // Next we need to convert any extra fields from viskores over to vtk
   if (!fromvtkm::ConvertArrays(vtkmOut, output))
   {
     return false;

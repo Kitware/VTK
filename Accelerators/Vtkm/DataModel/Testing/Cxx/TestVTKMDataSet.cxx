@@ -21,13 +21,13 @@
 #include "vtkmDataArray.h"
 #include "vtkmlib/DataArrayConverters.h"
 
-#include <vtkm/cont/ArrayHandleUniformPointCoordinates.h>
+#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 
 // Note the difference between the below two includes (testing != testlib)
-#ifdef VTKm_INCLUDED_IN_VTK
-#include <vtkm/cont/testing/MakeTestDataSet.h>
+#ifdef Viskores_INCLUDED_IN_VTK
+#include <viskores/cont/testing/MakeTestDataSet.h>
 #else
-#include <vtkm/cont/testlib/MakeTestDataSet.h>
+#include <viskores/cont/testlib/MakeTestDataSet.h>
 #endif
 
 #include <array>
@@ -245,7 +245,7 @@ void TestDataSets(vtkDataSet* dsVtk, vtkDataSet* dsVtkm)
 }
 
 //------------------------------------------------------------------------------
-inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* points)
+inline void CoordsCopy(const viskores::cont::CoordinateSystem& coords, vtkPoints* points)
 {
   auto pointArray = coords.GetDataAsMultiplexer();
   auto ptsPortal = pointArray.ReadPortal();
@@ -263,38 +263,40 @@ inline void CoordsCopy(const vtkm::cont::CoordinateSystem& coords, vtkPoints* po
 }
 
 inline void FieldCopy(
-  const vtkm::cont::ArrayHandle<float>& src, const char* name, vtkFloatArray* dst)
+  const viskores::cont::ArrayHandle<float>& src, const char* name, vtkFloatArray* dst)
 {
   auto portal = src.ReadPortal();
-  vtkm::Id length = portal.GetNumberOfValues();
+  viskores::Id length = portal.GetNumberOfValues();
 
   dst->SetName(name);
   dst->SetNumberOfComponents(1);
   dst->SetNumberOfTuples(length);
-  for (vtkm::Id i = 0; i < length; ++i)
+  for (viskores::Id i = 0; i < length; ++i)
   {
     dst->SetValue(i, portal.Get(i));
   }
 }
 
 //------------------------------------------------------------------------------
-vtkm::cont::testing::MakeTestDataSet Maker;
+viskores::cont::testing::MakeTestDataSet Maker;
 
 void TestUniformDataSet()
 {
   auto dataset = Maker.Make3DUniformDataSet0();
   auto coords = dataset.GetCoordinateSystem()
                   .GetData()
-                  .AsArrayHandle<vtkm::cont::ArrayHandleUniformPointCoordinates>();
+                  .AsArrayHandle<viskores::cont::ArrayHandleUniformPointCoordinates>();
   auto portal = coords.ReadPortal();
   auto dims = portal.GetDimensions();
   auto origin = portal.GetOrigin();
   auto spacing = portal.GetSpacing();
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("pointvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("cellvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "cellvar", cellField);
 
   vtkNew<vtkImageData> imageData;
@@ -319,7 +321,7 @@ void TestUniformDataSet()
 void TestCurvilinearDataSet()
 {
   auto dataset = Maker.Make3DRegularDataSet0();
-  vtkm::cont::CellSetStructured<3> css3;
+  viskores::cont::CellSetStructured<3> css3;
   dataset.GetCellSet().AsCellSet(css3);
   auto dims = css3.GetPointDimensions();
 
@@ -327,9 +329,11 @@ void TestCurvilinearDataSet()
   CoordsCopy(dataset.GetCoordinateSystem(), points);
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("pointvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("cellvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "cellvar", cellField);
 
   vtkNew<vtkStructuredGrid> dsVtk;
@@ -352,13 +356,13 @@ void TestExplicitDataSet()
   CoordsCopy(dataset.GetCoordinateSystem(), points);
 
   auto& cellset = *dataset.GetCellSet().GetCellSetBase();
-  vtkm::Id numCells = cellset.GetNumberOfCells();
+  viskores::Id numCells = cellset.GetNumberOfCells();
 
   vtkNew<vtkUnsignedCharArray> shapes;
   vtkNew<vtkCellArray> connectivity;
   shapes->SetNumberOfComponents(1);
   shapes->SetNumberOfTuples(numCells);
-  for (vtkm::Id i = 0; i < numCells; ++i)
+  for (viskores::Id i = 0; i < numCells; ++i)
   {
     shapes->SetValue(i, cellset.GetCellShape(i));
 
@@ -369,9 +373,11 @@ void TestExplicitDataSet()
   }
 
   vtkNew<vtkFloatArray> pointField, cellField;
-  FieldCopy(dataset.GetField("pointvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("pointvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "pointvar", pointField);
-  FieldCopy(dataset.GetField("cellvar").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<float>>(),
+  FieldCopy(
+    dataset.GetField("cellvar").GetData().AsArrayHandle<viskores::cont::ArrayHandle<float>>(),
     "cellvar", cellField);
 
   vtkNew<vtkUnstructuredGrid> dsVtk;

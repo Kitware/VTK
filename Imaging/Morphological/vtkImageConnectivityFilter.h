@@ -45,7 +45,7 @@
  * of the filter.
  *
  * @sa
- * vtkConnectivityFilter, vtkPolyDataConnectivityFilter, vtkmImageConnectivity
+ * vtkConnectivityFilter, vtkPolyDataConnectivityFilter, viskoresImageConnectivity
  */
 
 #ifndef vtkImageConnectivityFilter_h

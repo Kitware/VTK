@@ -11,7 +11,7 @@
 #ifndef fides_datamodel_Value_H_
 #define fides_datamodel_Value_H_
 
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <fides/DataModel.h>
 
@@ -24,7 +24,7 @@ struct ValueBase : public DataModelBase
 {
   /// Reads and returns array handles. Has to be implemented
   /// by subclasses.
-  virtual std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  virtual std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) = 0;
@@ -60,7 +60,7 @@ struct Value : public DataModelBase
   /// as actual IO for the variable is done after this method is
   /// called whereas the return value of this method is used
   /// immediately.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections);
@@ -90,7 +90,7 @@ struct ValueVariableDimensions : public ValueBase
   /// Reads the dimensions (shape) as well as the
   /// start of an n-dimensional variable. The first n values are the dimensions
   /// and the following are the start indices.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -113,7 +113,7 @@ struct ValueVariableDimensions : public ValueBase
 /// used for the metadata describing uniform grids.
 struct ValueArrayVariable : public ValueBase
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -154,7 +154,7 @@ struct ValueArray : public ValueBase
   void ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources) override;
 
   /// Returns array values read from json.
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;
@@ -180,7 +180,7 @@ struct ValueScalar : public ValueBase
                                       DataSourcesType&) override;
 
   /// Reads the variable
-  std::vector<vtkm::cont::UnknownArrayHandle> Read(
+  std::vector<viskores::cont::UnknownArrayHandle> Read(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections) override;

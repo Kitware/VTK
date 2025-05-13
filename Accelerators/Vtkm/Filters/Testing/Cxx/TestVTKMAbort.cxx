@@ -10,7 +10,7 @@
 #include "vtkmClip.h"
 #include "vtkmContour.h"
 
-#include <vtkm/cont/Initialize.h>
+#include <viskores/cont/Initialize.h>
 
 int TestVTKMAbort(int, char*[])
 {

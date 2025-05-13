@@ -44,15 +44,16 @@ bool TestOverrides()
 
 int TestVTKMOverride(int, char*[])
 {
-  // When VTK_ENABLE_VTKM_OVERRIDES is off, vtkmFilterOverrides::EnabledOn() should not have any
+  // When VTK_ENABLE_VISKORES_OVERRIDES is off, vtkmFilterOverrides::EnabledOn() should not have any
   // effects
-  std::cout << "Build option VTK_ENABLE_VTKM_OVERRIDES: " << VTK_ENABLE_VTKM_OVERRIDES << "\n";
+  std::cout << "Build option VTK_ENABLE_VISKORES_OVERRIDES: " << VTK_ENABLE_VISKORES_OVERRIDES
+            << "\n";
 
   vtkmFilterOverrides::EnabledOn();
-  if (!VTK_ENABLE_VTKM_OVERRIDES && vtkmFilterOverrides::GetEnabled())
+  if (!VTK_ENABLE_VISKORES_OVERRIDES && vtkmFilterOverrides::GetEnabled())
   {
     std::cerr << "vtkmFilterOverrides::GetEnabled() should always be false when "
-              << "VTK_ENABLE_VTKM_OVERRIDES is off";
+              << "VTK_ENABLE_VISKORES_OVERRIDES is off";
     return 1;
   }
   if (!TestOverrides())
@@ -60,8 +61,8 @@ int TestVTKMOverride(int, char*[])
     return 1;
   }
 
-#if VTK_ENABLE_VTKM_OVERRIDES
-  // Only makes sense when VTK_ENABLE_VTKM_OVERRIDES is On.
+#if VTK_ENABLE_VISKORES_OVERRIDES
+  // Only makes sense when VTK_ENABLE_VISKORES_OVERRIDES is On.
   vtkmFilterOverrides::EnabledOff();
   if (!TestOverrides())
   {

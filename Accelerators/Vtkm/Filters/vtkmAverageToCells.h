@@ -19,7 +19,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkPointDataToCellData.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToCells : public vtkPointDataToCellData

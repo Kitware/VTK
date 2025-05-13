@@ -45,7 +45,7 @@ void Value::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources)
   this->ValueImpl->ProcessJSON(json, sources);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> Value::Read(
+std::vector<viskores::cont::UnknownArrayHandle> Value::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -67,7 +67,7 @@ std::set<std::string> Value::GetGroupNames(
   return this->ValueImpl->GetGroupNames(paths, sources);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ValueVariableDimensions::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -110,13 +110,13 @@ void ValueArray::ProcessJSON(const rapidjson::Value& json, DataSourcesType& fide
   }
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ValueArray::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ValueArray::Read(
   const std::unordered_map<std::string, std::string>& fidesNotUsed(paths),
   DataSourcesType& fidesNotUsed(sources),
   const fides::metadata::MetaData& fidesNotUsed(selections))
 {
-  std::vector<vtkm::cont::UnknownArrayHandle> retVal;
-  retVal.push_back(vtkm::cont::make_ArrayHandle(this->Values, vtkm::CopyFlag::On));
+  std::vector<viskores::cont::UnknownArrayHandle> retVal;
+  retVal.push_back(viskores::cont::make_ArrayHandle(this->Values, viskores::CopyFlag::On));
   return retVal;
 }
 
@@ -129,7 +129,7 @@ std::set<std::string> ValueScalar::GetGroupNames(
   return ds->GetGroupNames(this->VariableName);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ValueScalar::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ValueScalar::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -139,7 +139,7 @@ std::vector<vtkm::cont::UnknownArrayHandle> ValueScalar::Read(
   return ds->GetScalarVariable(this->VariableName, selections);
 }
 
-std::vector<vtkm::cont::UnknownArrayHandle> ValueArrayVariable::Read(
+std::vector<viskores::cont::UnknownArrayHandle> ValueArrayVariable::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)

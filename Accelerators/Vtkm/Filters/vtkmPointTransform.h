@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class vtkmPointTransform
- * @brief transform points via vtkm PointTransform filter
+ * @brief transform points via viskores PointTransform filter
  *
  * vtkmPointTransform is a filter to transform point coordinates. For now it
  * does not support transforming associated point normals and vectors, as well
@@ -14,7 +14,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHomogeneousTransform;

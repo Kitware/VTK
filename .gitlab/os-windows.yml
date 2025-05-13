@@ -228,7 +228,7 @@
         - vtk # Since this is a bare runner, pin to a project.
         - msvc-19.35
         # - concurrent
-        - nonconcurrent # FIXME: non-relocatability in VTK-m and `VTK_DLL_PATHS`
+        - nonconcurrent # FIXME: non-relocatability in Viskores and `VTK_DLL_PATHS`
         - shell
         - vs2022
         - windows-x86_64

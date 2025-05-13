@@ -39,12 +39,12 @@ include(${FIDES_SOURCE_DIR}/cmake/fides_generate_export_header.cmake)
 
 if (FALSE) # XXX(kitware): use vtk_module system
 add_library(fides ${srcs})
-vtkm_add_target_information(fides
+viskores_add_target_information(fides
     DROP_UNUSED_SYMBOLS
     MODIFY_CUDA_FLAGS
     DEVICE_SOURCES ${srcs})
 
-if (VTKm_ENABLE_CUDA)
+if (Viskores_ENABLE_CUDA)
   set_target_properties(fides PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
   set_target_properties(fides PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
@@ -53,7 +53,7 @@ vtk_module_add_module(VTK::fides
   SOURCES ${srcs}
   HEADERS ${headers}
   HEADERS_SUBDIR "vtkfides/fides")
-vtkm_add_target_information(fides
+viskores_add_target_information(fides
     DROP_UNUSED_SYMBOLS
     MODIFY_CUDA_FLAGS
     DEVICE_SOURCES ${srcs})
@@ -63,8 +63,8 @@ fides_generate_export_header(fides)
 
 if (FALSE) # XXX(kitware): use vtk_module system
 target_compile_definitions(fides PRIVATE ${MPI_DEFS} ${ADIOS_DEFS})
-set(VTKM_LIBS vtkm::cont vtkm::filter_clean_grid)
-target_link_libraries(fides PUBLIC ${VTKM_LIBS} adios2::adios2 PRIVATE
+set(VISKORES_LIBS viskores::cont viskores::filter_clean_grid)
+target_link_libraries(fides PUBLIC ${VISKORES_LIBS} adios2::adios2 PRIVATE
   fides_rapidjson)
 
 target_include_directories(fides PUBLIC

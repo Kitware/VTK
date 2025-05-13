@@ -16,7 +16,7 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
-#include <vtkm/filter/clean_grid/CleanGrid.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmCleanGrid);
@@ -57,25 +57,25 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto fieldsFlag = this->CompactPoints ? tovtkm::FieldsFlag::Points : tovtkm::FieldsFlag::None;
-    vtkm::cont::DataSet in = tovtkm::Convert(input, fieldsFlag);
+    viskores::cont::DataSet in = tovtkm::Convert(input, fieldsFlag);
 
     // apply the filter
-    vtkm::filter::clean_grid::CleanGrid filter;
+    viskores::filter::clean_grid::CleanGrid filter;
     filter.SetCompactPointFields(this->CompactPoints);
     auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
     if (!fromvtkm::Convert(result, output, input))
     {
-      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
 

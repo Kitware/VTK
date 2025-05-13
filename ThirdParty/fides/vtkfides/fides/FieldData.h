@@ -13,7 +13,7 @@
 
 #include <fides/Deprecated.h>
 
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <vector>
 
@@ -27,26 +27,26 @@ namespace datamodel
 /// \brief Class to store data that does not have an Association of points or cells.
 ///
 /// Data is stored in UnknownArrayHandles, with one UnknownArrayHandle per data block.
-class FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
+class FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in Viskores DataSet.")
   FIDES_EXPORT FieldData
 {
 public:
   FieldData() = default;
 
-  FieldData(const std::string& name, const std::vector<vtkm::cont::UnknownArrayHandle>&& data);
+  FieldData(const std::string& name, const std::vector<viskores::cont::UnknownArrayHandle>&& data);
 
   /// Returns the name of this field
   std::string GetName() const;
 
   /// Get a reference to the data. Each element of the vector stores one block.
-  const std::vector<vtkm::cont::UnknownArrayHandle>& GetData() const;
+  const std::vector<viskores::cont::UnknownArrayHandle>& GetData() const;
 
   /// Get a reference to the data. Each element of the vector stores one block.
-  std::vector<vtkm::cont::UnknownArrayHandle>& GetData();
+  std::vector<viskores::cont::UnknownArrayHandle>& GetData();
 
 private:
   std::string Name;
-  std::vector<vtkm::cont::UnknownArrayHandle> Data;
+  std::vector<viskores::cont::UnknownArrayHandle> Data;
 };
 
 }

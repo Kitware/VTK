@@ -5,6 +5,23 @@
 #include <iterator>
 #include <vtkXMLUniformGridAMRWriter.h>
 
+#include "viskores/Flags.h"
+#include "viskores/Math.h"
+#include "viskores/Types.h"
+#include "viskores/cont/ArrayCopy.h"
+#include "viskores/cont/ArrayHandle.h"
+#include "viskores/cont/ArrayHandleBasic.h"
+#include "viskores/cont/ArrayHandleCounting.h"
+#include "viskores/cont/DeviceAdapterTag.h"
+#include "viskores/cont/ErrorBadValue.h"
+#include "viskores/cont/Initialize.h"
+#include "viskores/cont/Invoker.h"
+#include "viskores/cont/RuntimeDeviceInformation.h"
+#include "viskores/cont/RuntimeDeviceTracker.h"
+#include "viskores/cont/Token.h"
+#include "viskores/cont/UnknownArrayHandle.h"
+#include "viskores/cont/cuda/internal/CudaAllocator.h"
+#include "viskores/worklet/WorkletMapField.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkCompositeDataIterator.h"
@@ -23,23 +40,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
-#include "vtkm/Flags.h"
-#include "vtkm/Math.h"
-#include "vtkm/Types.h"
-#include "vtkm/cont/ArrayCopy.h"
-#include "vtkm/cont/ArrayHandle.h"
-#include "vtkm/cont/ArrayHandleBasic.h"
-#include "vtkm/cont/ArrayHandleCounting.h"
-#include "vtkm/cont/DeviceAdapterTag.h"
-#include "vtkm/cont/ErrorBadValue.h"
-#include "vtkm/cont/Initialize.h"
-#include "vtkm/cont/Invoker.h"
-#include "vtkm/cont/RuntimeDeviceInformation.h"
-#include "vtkm/cont/RuntimeDeviceTracker.h"
-#include "vtkm/cont/Token.h"
-#include "vtkm/cont/UnknownArrayHandle.h"
-#include "vtkm/cont/cuda/internal/CudaAllocator.h"
-#include "vtkm/worklet/WorkletMapField.h"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
 #include "vtkMPIController.h"
@@ -63,8 +63,8 @@
   (void)_scoped_cuda_disable_managed_mem
 
 #define SCOPED_RUNTIME_DEVICE_SELECTOR(memory_space)                                               \
-  vtkm::cont::ScopedRuntimeDeviceTracker deviceTracker(                                            \
-    vtkm::cont::make_DeviceAdapterId(memory_space));                                               \
+  viskores::cont::ScopedRuntimeDeviceTracker deviceTracker(                                        \
+    viskores::cont::make_DeviceAdapterId(memory_space));                                           \
   (void)deviceTracker
 
 namespace
@@ -82,7 +82,7 @@ struct ScopedCudaDisableManagedMemory
 {
   ScopedCudaDisableManagedMemory()
   {
-    using namespace vtkm::cont::cuda::internal;
+    using namespace viskores::cont::cuda::internal;
     if (CudaAllocator::UsingManagedMemory())
     {
       this->WasManagedMemoryEnabled = true;
@@ -93,7 +93,7 @@ struct ScopedCudaDisableManagedMemory
   {
     if (this->WasManagedMemoryEnabled)
     {
-      vtkm::cont::cuda::internal::CudaAllocator::ForceManagedMemoryOn();
+      viskores::cont::cuda::internal::CudaAllocator::ForceManagedMemoryOn();
     }
   }
 
@@ -102,45 +102,46 @@ private:
 };
 
 // Helper worklets used to populate coordinates/topology on the device.
-struct RectilinearCoordsWorklet : vtkm::worklet::WorkletMapField
+struct RectilinearCoordsWorklet : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldIn, FieldOut);
   using ExecutionSignature = void(_1, _2);
 
-  VTKM_CONT RectilinearCoordsWorklet(vtkm::FloatDefault spacing)
+  VISKORES_CONT RectilinearCoordsWorklet(viskores::FloatDefault spacing)
     : Spacing(spacing)
   {
   }
 
   template <typename T>
-  VTKM_EXEC void operator()(vtkm::Id i, T& coord) const
+  VISKORES_EXEC void operator()(viskores::Id i, T& coord) const
   {
     coord = -10.0 + i * this->Spacing;
   }
 
 private:
-  vtkm::FloatDefault Spacing;
+  viskores::FloatDefault Spacing;
 };
 
-struct ExplicitCoordsWorklet : vtkm::worklet::WorkletMapField
+struct ExplicitCoordsWorklet : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldIn, FieldOut);
   using ExecutionSignature = void(_1, _2);
 
-  VTKM_CONT ExplicitCoordsWorklet(vtkm::Vec3f spacings, vtkm::Vec<vtkm::Id, 3> dims)
+  VISKORES_CONT ExplicitCoordsWorklet(viskores::Vec3f spacings, viskores::Vec<viskores::Id, 3> dims)
     : Spacings(spacings)
     , Dims(dims)
   {
   }
 
   template <typename T>
-  VTKM_EXEC void operator()(vtkm::Id pointId, vtkm::Vec<T, 3>& coord) const
+  VISKORES_EXEC void operator()(viskores::Id pointId, viskores::Vec<T, 3>& coord) const
   {
     auto k = pointId % this->Dims[2];
-    vtkm::Id temp = pointId / this->Dims[2];
+    viskores::Id temp = pointId / this->Dims[2];
     auto j = temp % this->Dims[1];
-    vtkm::Id i = temp / this->Dims[1];
-    coord = vtkm::Vec3f(-10., -10., -10.) + this->Spacings * vtkm::Vec<vtkm::Id, 3>(i, j, k);
+    viskores::Id i = temp / this->Dims[1];
+    coord =
+      viskores::Vec3f(-10., -10., -10.) + this->Spacings * viskores::Vec<viskores::Id, 3>(i, j, k);
     if (this->Dims[2] == 1)
     {
       coord[2] = 0.0;
@@ -148,22 +149,22 @@ struct ExplicitCoordsWorklet : vtkm::worklet::WorkletMapField
   }
 
 private:
-  vtkm::Vec3f Spacings;
-  vtkm::Vec<vtkm::Id, 3> Dims;
+  viskores::Vec3f Spacings;
+  viskores::Vec<viskores::Id, 3> Dims;
 };
 
-struct TriangleIndicesWorklet : vtkm::worklet::WorkletMapField
+struct TriangleIndicesWorklet : viskores::worklet::WorkletMapField
 {
   using ControlSignature = void(FieldIn, WholeArrayOut);
   using ExcecutionSignature = void(_1, _2);
 
-  VTKM_EXEC_CONT TriangleIndicesWorklet(vtkm::Vec<vtkm::Id, 2> dims)
+  VISKORES_EXEC_CONT TriangleIndicesWorklet(viskores::Vec<viskores::Id, 2> dims)
     : Dims(dims)
   {
   }
 
   template <typename WritePortalType>
-  VTKM_EXEC void operator()(const vtkm::Id quadId, const WritePortalType& quadAsTris) const
+  VISKORES_EXEC void operator()(const viskores::Id quadId, const WritePortalType& quadAsTris) const
   {
     auto i = quadId % this->Dims[1];
     auto j = (quadId - i) / this->Dims[1];
@@ -178,17 +179,17 @@ struct TriangleIndicesWorklet : vtkm::worklet::WorkletMapField
   }
 
 private:
-  vtkm::Vec<vtkm::Id, 2> Dims;
+  viskores::Vec<viskores::Id, 2> Dims;
 };
 
 void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
-  conduit_cpp::Node& res, vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> outCoords[3],
-  vtkm::Int8 memorySpace)
+  conduit_cpp::Node& res, viskores::cont::ArrayHandleBasic<viskores::FloatDefault> outCoords[3],
+  viskores::Int8 memorySpace)
 {
   conduit_cpp::Node coords = res["coordsets/coords"];
   coords["type"] = "rectilinear";
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
-  vtkm::Vec3f spacings;
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
+  viskores::Vec3f spacings;
 
   spacings[0] = 20.0 / (nptsX - 1);
   spacings[1] = 20.0 / (nptsY - 1);
@@ -198,10 +199,10 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
   {
     spacings[2] = 20.0 / (nptsZ - 1);
   }
-  vtkm::Vec<vtkm::Id, 3> dims({ nptsX, nptsY, nptsZ });
+  viskores::Vec<viskores::Id, 3> dims({ nptsX, nptsY, nptsZ });
   for (int dim = 0; dim < 3; ++dim)
   {
-    vtkm::cont::Token token;
+    viskores::cont::Token token;
     outCoords[dim].PrepareForOutput(dims[dim], device, token);
   }
   conduit_cpp::Node coordVals = coords["values"];
@@ -210,9 +211,9 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
   {
     if (dims[dim] > 1)
     {
-      vtkm::cont::Invoker invoke(device);
+      viskores::cont::Invoker invoke(device);
       RectilinearCoordsWorklet worker(spacings[dim]);
-      invoke(worker, vtkm::cont::make_ArrayHandleCounting(0, 1, dims[dim]), outCoords[dim]);
+      invoke(worker, viskores::cont::make_ArrayHandleCounting(0, 1, dims[dim]), outCoords[dim]);
       if (auto ptr = outCoords[dim].GetReadPointer(device))
       {
         coordVals[axes[dim]].set_external(ptr, dims[dim]);
@@ -225,8 +226,8 @@ void CreateRectilinearMesh(unsigned int nptsX, unsigned int nptsY, unsigned int 
 }
 
 void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
-  conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  vtkm::Int8 memorySpace)
+  conduit_cpp::Node& res, viskores::cont::ArrayHandleSOA<viskores::Vec3f>& outCoords,
+  viskores::Int8 memorySpace)
 {
   conduit_cpp::Node coords = res["coordsets/coords"];
   conduit_cpp::Node coordVals = coords["values"];
@@ -238,12 +239,12 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   {
     npts *= nptsZ;
   }
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   {
-    vtkm::cont::Token token;
+    viskores::cont::Token token;
     outCoords.PrepareForOutput(npts, device, token);
   }
-  vtkm::Vec3f spacings;
+  viskores::Vec3f spacings;
 
   spacings[0] = 20.0 / (nptsX - 1);
   spacings[1] = 20.0 / (nptsY - 1);
@@ -253,10 +254,10 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   {
     spacings[2] = 20.0 / (nptsZ - 1);
   }
-  vtkm::Vec<vtkm::Id, 3> dims({ nptsX, nptsY, nptsZ });
-  vtkm::cont::Invoker invoke(device);
+  viskores::Vec<viskores::Id, 3> dims({ nptsX, nptsY, nptsZ });
+  viskores::cont::Invoker invoke(device);
   ExplicitCoordsWorklet worker(spacings, dims);
-  invoke(worker, vtkm::cont::make_ArrayHandleCounting(0, 1, npts), outCoords);
+  invoke(worker, viskores::cont::make_ArrayHandleCounting(0, 1, npts), outCoords);
   const char* axes[3] = { "x", "y", "z" };
   for (int dim = 0; dim < 3; ++dim)
   {
@@ -268,8 +269,8 @@ void CreateCoords(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
 }
 
 void CreateStructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
-  conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  vtkm::Int8 memorySpace)
+  conduit_cpp::Node& res, viskores::cont::ArrayHandleSOA<viskores::Vec3f>& outCoords,
+  viskores::Int8 memorySpace)
 {
   CreateCoords(nptsX, nptsY, nptsZ, res, outCoords, memorySpace);
 
@@ -284,9 +285,9 @@ void CreateStructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int n
 }
 
 void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& res,
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& outCoords,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& connectivity,
-  vtkm::cont::ArrayHandleBasic<vtkm::Float64>& values, vtkm::Int8 memorySpace)
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f>& outCoords,
+  viskores::cont::ArrayHandleBasic<unsigned int>& connectivity,
+  viskores::cont::ArrayHandleBasic<viskores::Float64>& values, viskores::Int8 memorySpace)
 {
   CreateStructuredMesh(nptsX, nptsY, 1, res, outCoords, memorySpace);
 
@@ -298,15 +299,15 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
   res["topologies/mesh/coordset"] = "coords";
   res["topologies/mesh/elements/shape"] = "tri";
 
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   {
-    vtkm::cont::Token token;
+    viskores::cont::Token token;
     connectivity.PrepareForOutput(nElements * 6, device, token);
   }
   {
-    vtkm::cont::Invoker invoke(device);
+    viskores::cont::Invoker invoke(device);
     TriangleIndicesWorklet worker({ nElementX, nElementY });
-    invoke(worker, vtkm::cont::make_ArrayHandleCounting(0, 1, nElements), connectivity);
+    invoke(worker, viskores::cont::make_ArrayHandleCounting(0, 1, nElements), connectivity);
     if (auto ptr = connectivity.GetReadPointer(device))
     {
       res["topologies/mesh/elements/connectivity"].set_external(ptr, nElements * 6);
@@ -319,13 +320,13 @@ void CreateTrisMesh(unsigned int nptsX, unsigned int nptsY, conduit_cpp::Node& r
   resFields["topology"] = "mesh";
   resFields["volume_dependent"] = "false";
 
-  vtkm::Id numberofValues = nElements * 2;
+  viskores::Id numberofValues = nElements * 2;
   {
-    vtkm::cont::Token token;
+    viskores::cont::Token token;
     values.PrepareForOutput(numberofValues, device, token);
   }
   {
-    ArrayCopy(vtkm::cont::make_ArrayHandleCounting(0, 1, numberofValues), values);
+    ArrayCopy(viskores::cont::make_ArrayHandleCounting(0, 1, numberofValues), values);
     if (auto ptr = values.GetReadPointer(device))
     {
       resFields["values"].set_external(ptr, numberofValues);
@@ -340,17 +341,17 @@ inline unsigned int calc(unsigned int i, unsigned int j, unsigned int k, unsigne
 }
 
 void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
-  conduit_cpp::Node& res, vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemShapes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemShapes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemOffsets, vtkm::Int8 memorySpace)
+  conduit_cpp::Node& res, viskores::cont::ArrayHandleSOA<viskores::Vec3f>& pointCoords,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemShapes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemShapes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemOffsets, viskores::Int8 memorySpace)
 {
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   CreateCoords(nptsX, nptsY, nptsZ, res, pointCoords, memorySpace);
 
   res["state/time"] = 3.1415;
@@ -374,11 +375,11 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   const unsigned int nEle = nTet + nHex + nPolyhedra;
 
   res["topologies/mesh/elements/shape"] = "mixed";
-  // VTKm does not support VTK_POLYHEDRON
+  // Viskores does not support VTK_POLYHEDRON
   // if we create the dataset in host mem. with device adapter serial
   // it will be read by VTK
   // when we create the datset in device mem. we a wedge instead
-  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  if (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL)
   {
     res["topologies/mesh/elements/shape_map/polyhedral"] = VTK_POLYHEDRON;
   }
@@ -396,7 +397,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   const auto elemConnectivitySize = nTet * 4 +
     // A wedge as a polyhedron (5 faces) for host memory
     // and as a cell (6 points) for device memory
-    nPolyhedra * ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? 5 : 6) + nHex * 8;
+    nPolyhedra * ((memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL) ? 5 : 6) + nHex * 8;
   const auto subElemConnectivitySize = nPolyhedra * 18;
 
   std::vector<unsigned int> elem_connectivity, elem_shapes, elem_sizes, elem_offsets;
@@ -454,7 +455,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           elem_shapes[idx_elem + 1] = VTK_TETRA;
           elem_shapes[idx_elem + 2] = VTK_TETRA;
           elem_shapes[idx_elem + 3] =
-            (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? VTK_POLYHEDRON : VTK_WEDGE;
+            (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL) ? VTK_POLYHEDRON : VTK_WEDGE;
 
           constexpr int TetraPointCount = 4;
           constexpr int WedgeFaceCount = 5;
@@ -466,7 +467,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           elem_sizes[idx_elem + 1] = TetraPointCount;
           elem_sizes[idx_elem + 2] = TetraPointCount;
           elem_sizes[idx_elem + 3] =
-            (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount;
+            (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount;
 
           elem_offsets[idx_elem + 1] = elem_offsets[idx_elem + 0] + TetraPointCount;
           elem_offsets[idx_elem + 2] = elem_offsets[idx_elem + 1] + TetraPointCount;
@@ -474,7 +475,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           if (idx_elem + 4 < elem_offsets.size())
           {
             elem_offsets[idx_elem + 4] = elem_offsets[idx_elem + 3] +
-              ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
+              ((memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
           }
 
           elem_connectivity[idx + 0] = calc(0, 0, 0, i, j, k, nptsX, nptsY);
@@ -492,9 +493,9 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
           elem_connectivity[idx + 10] = calc(0, 1, 0, i, j, k, nptsX, nptsY);
           elem_connectivity[idx + 11] = calc(1, 0, 0, i, j, k, nptsX, nptsY);
 
-          // VTKm does not support polyhedra or storing faces
+          // Viskores does not support polyhedra or storing faces
           // host memory datasets are processed by VTK
-          if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+          if (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL)
           {
             // note: there are no shared faces in this example
             elem_connectivity[idx + 12] = 0 + WedgeFaceCount * polyhedronCounter;
@@ -559,7 +560,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
 
           idx_elem += 4; // three tets, 1 polyhedron
           idx += 3 * TetraPointCount +
-            ((memorySpace == VTKM_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
+            ((memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL) ? WedgeFaceCount : WedgePointCount);
           polyhedronCounter += 1;
           // these are only used for subelem, so we don't need to branch
           // on polyhedron
@@ -570,18 +571,22 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
     }
   }
 
-  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_offsets, vtkm::CopyFlag::Off), elemOffsets);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_sizes, vtkm::CopyFlag::Off), elemSizes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_shapes, vtkm::CopyFlag::Off), elemShapes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(elem_connectivity, vtkm::CopyFlag::Off), elemConnectivity);
+  ArrayCopy(viskores::cont::make_ArrayHandle(elem_offsets, viskores::CopyFlag::Off), elemOffsets);
+  ArrayCopy(viskores::cont::make_ArrayHandle(elem_sizes, viskores::CopyFlag::Off), elemSizes);
+  ArrayCopy(viskores::cont::make_ArrayHandle(elem_shapes, viskores::CopyFlag::Off), elemShapes);
+  ArrayCopy(
+    viskores::cont::make_ArrayHandle(elem_connectivity, viskores::CopyFlag::Off), elemConnectivity);
 
-  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  if (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL)
   {
-    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_offsets, vtkm::CopyFlag::Off), subelemOffsets);
-    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_sizes, vtkm::CopyFlag::Off), subelemSizes);
-    ArrayCopy(vtkm::cont::make_ArrayHandle(subelem_shapes, vtkm::CopyFlag::Off), subelemShapes);
     ArrayCopy(
-      vtkm::cont::make_ArrayHandle(subelem_connectivity, vtkm::CopyFlag::Off), subelemConnectivity);
+      viskores::cont::make_ArrayHandle(subelem_offsets, viskores::CopyFlag::Off), subelemOffsets);
+    ArrayCopy(
+      viskores::cont::make_ArrayHandle(subelem_sizes, viskores::CopyFlag::Off), subelemSizes);
+    ArrayCopy(
+      viskores::cont::make_ArrayHandle(subelem_shapes, viskores::CopyFlag::Off), subelemShapes);
+    ArrayCopy(viskores::cont::make_ArrayHandle(subelem_connectivity, viskores::CopyFlag::Off),
+      subelemConnectivity);
   }
 
   auto elements = res["topologies/mesh/elements"];
@@ -591,7 +596,7 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
   elements["connectivity"].set_external(
     elemConnectivity.GetReadPointer(device), elemConnectivitySize);
 
-  if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+  if (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL)
   {
     auto subelements = res["topologies/mesh/subelements"];
     subelements["shapes"].set_external(subelemShapes.GetReadPointer(device), nFaces);
@@ -603,11 +608,11 @@ void CreateMixedUnstructuredMesh(unsigned int nptsX, unsigned int nptsY, unsigne
 }
 
 void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, conduit_cpp::Node& res,
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f>& pointCoords,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemShapes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets, vtkm::Int8 memorySpace)
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f>& pointCoords,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemShapes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemOffsets, viskores::Int8 memorySpace)
 {
   CreateCoords(npts_x, npts_y, 1, res, pointCoords, memorySpace);
 
@@ -690,12 +695,13 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
     }
   }
 
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
 
-  ArrayCopy(vtkm::cont::make_ArrayHandle(offsets, vtkm::CopyFlag::Off), elemOffsets);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(sizes, vtkm::CopyFlag::Off), elemSizes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(shapes, vtkm::CopyFlag::Off), elemShapes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(connectivity, vtkm::CopyFlag::Off), elemConnectivity);
+  ArrayCopy(viskores::cont::make_ArrayHandle(offsets, viskores::CopyFlag::Off), elemOffsets);
+  ArrayCopy(viskores::cont::make_ArrayHandle(sizes, viskores::CopyFlag::Off), elemSizes);
+  ArrayCopy(viskores::cont::make_ArrayHandle(shapes, viskores::CopyFlag::Off), elemShapes);
+  ArrayCopy(
+    viskores::cont::make_ArrayHandle(connectivity, viskores::CopyFlag::Off), elemConnectivity);
 
   auto elements = res["topologies/mesh/elements"];
   elements["shapes"].set_external(elemShapes.GetReadPointer(device), nele);
@@ -705,11 +711,11 @@ void CreateMixedUnstructuredMesh2D(unsigned int npts_x, unsigned int npts_y, con
     elemConnectivity.GetReadPointer(device), nquads * 4 + ntris * 3);
 }
 
-bool ValidateMeshTypeRectilinearImpl(vtkm::Int8 memorySpace)
+bool ValidateMeshTypeRectilinearImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pointCoords[3];
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 3, 3, mesh, pointCoords, memorySpace);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -741,11 +747,11 @@ bool ValidateMeshTypeRectilinearImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeStructuredImpl(vtkm::Int8 memorySpace)
+bool ValidateMeshTypeStructuredImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f> pointCoords;
   CreateStructuredMesh(3, 3, 3, mesh, pointCoords, memorySpace);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -777,14 +783,14 @@ bool ValidateMeshTypeStructuredImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeUnstructuredImpl(vtkm::Int8 memorySpace)
+bool ValidateMeshTypeUnstructuredImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
   // generate simple explicit tri-based 2d 'basic' mesh
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandleBasic<unsigned int> connectivity;
-  vtkm::cont::ArrayHandleBasic<vtkm::Float64> values;
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f> pointCoords;
+  viskores::cont::ArrayHandleBasic<unsigned int> connectivity;
+  viskores::cont::ArrayHandleBasic<viskores::Float64> values;
   CreateTrisMesh(3, 3, mesh, pointCoords, connectivity, values, memorySpace);
 
   auto data = Convert(mesh);
@@ -816,11 +822,11 @@ bool ValidateMeshTypeUnstructuredImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateRectilinearGridWithDifferentDimensionsImpl(vtkm::Int8 memorySpace)
+bool ValidateRectilinearGridWithDifferentDimensionsImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pointCoords[3];
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault> pointCoords[3];
   CreateRectilinearMesh(3, 2, 1, mesh, pointCoords, memorySpace);
   auto data = Convert(mesh);
   VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
@@ -839,13 +845,13 @@ bool ValidateRectilinearGridWithDifferentDimensionsImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
+bool Validate1DRectilinearGridImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
-  auto xAH = vtkm::cont::make_ArrayHandle({ 5.0, 6.0, 7.0 });
-  auto fieldAH = vtkm::cont::make_ArrayHandle({ 0.0, 1.0 });
+  auto xAH = viskores::cont::make_ArrayHandle({ 5.0, 6.0, 7.0 });
+  auto fieldAH = viskores::cont::make_ArrayHandle({ 0.0, 1.0 });
 
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   conduit_cpp::Node mesh;
   auto coords = mesh["coordsets/coords"];
   coords["type"] = "rectilinear";
@@ -876,15 +882,16 @@ bool Validate1DRectilinearGridImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
+bool ValidateMeshTypeMixedImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
   constexpr int nX = 5, nY = 5, nZ = 5;
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  vtkm::cont::ArrayHandleBasic<unsigned int> subelem_connectivity, subelem_sizes, subelem_offsets;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elem_shapes, subelem_shapes;
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f> pointCoords;
+  viskores::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
+  viskores::cont::ArrayHandleBasic<unsigned int> subelem_connectivity, subelem_sizes,
+    subelem_offsets;
+  viskores::cont::ArrayHandleBasic<unsigned int> elem_shapes, subelem_shapes;
   CreateMixedUnstructuredMesh(5, 5, 5, mesh, pointCoords, elem_shapes, elem_connectivity,
     elem_sizes, elem_offsets, subelem_shapes, subelem_connectivity, subelem_sizes, subelem_offsets,
     memorySpace);
@@ -918,7 +925,7 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
     {
       case VTK_POLYHEDRON:
       {
-        if (memorySpace == VTKM_DEVICE_ADAPTER_SERIAL)
+        if (memorySpace == VISKORES_DEVICE_ADAPTER_SERIAL)
         {
           ++nPolyhedra;
           const vtkIdType nFaces = it->GetNumberOfFaces();
@@ -933,9 +940,9 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
       }
       case VTK_WEDGE:
       {
-        if (memorySpace != VTKM_DEVICE_ADAPTER_SERIAL)
+        if (memorySpace != VISKORES_DEVICE_ADAPTER_SERIAL)
         {
-          // this is a wedge for device memory as VTKm does not have polyhedra
+          // this is a wedge for device memory as Viskores does not have polyhedra
           ++nPolyhedra;
           break;
         }
@@ -985,13 +992,13 @@ bool ValidateMeshTypeMixedImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
+bool ValidateMeshTypeMixed2DImpl(viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
-  vtkm::cont::ArrayHandleSOA<vtkm::Vec3f> pointCoords;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elem_shapes;
+  viskores::cont::ArrayHandleSOA<viskores::Vec3f> pointCoords;
+  viskores::cont::ArrayHandleBasic<unsigned int> elem_connectivity, elem_sizes, elem_offsets;
+  viskores::cont::ArrayHandleBasic<unsigned int> elem_shapes;
   CreateMixedUnstructuredMesh2D(
     5, 5, mesh, pointCoords, elem_shapes, elem_connectivity, elem_sizes, elem_offsets, memorySpace);
   const auto data = Convert(mesh);
@@ -1048,19 +1055,20 @@ bool ValidateMeshTypeMixed2DImpl(vtkm::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeAMRImpl(const std::string& file, vtkm::Int8 memorySpace)
+bool ValidateMeshTypeAMRImpl(const std::string& file, viskores::Int8 memorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
   // read in an example mesh dataset
   conduit_node_load(conduit_cpp::c_node(&mesh), file.c_str(), "");
 
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   // add in point data
   std::string field_name = "pointfield";
   double field_value = 1;
   size_t num_children = mesh["data"].number_of_children();
-  std::vector<vtkm::cont::ArrayHandle<vtkm::Float64>> pointValuesAHs; // keeps device data alive.
+  std::vector<viskores::cont::ArrayHandle<viskores::Float64>>
+    pointValuesAHs; // keeps device data alive.
   for (size_t i = 0; i < num_children; i++)
   {
     conduit_cpp::Node amr_block = mesh["data"].child(i);
@@ -1071,9 +1079,9 @@ bool ValidateMeshTypeAMRImpl(const std::string& file, vtkm::Int8 memorySpace)
     conduit_cpp::Node point_field = fields[field_name];
     point_field["association"] = "vertex";
     point_field["topology"] = "topo";
-    vtkm::cont::ArrayHandleBasic<vtkm::Float64> ah;
+    viskores::cont::ArrayHandleBasic<viskores::Float64> ah;
     {
-      vtkm::cont::Token token;
+      viskores::cont::Token token;
       ah.PrepareForOutput((i_dimension + 1) * (j_dimension + 1) * (k_dimension + 1), device, token);
     }
     ah.Fill(field_value);
@@ -1126,12 +1134,12 @@ bool ValidateMeshTypeStructured()
 {
   try
   {
-    VERIFY(ValidateMeshTypeStructuredImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeStructuredImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeStructuredImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeStructuredImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeStructuredImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeStructuredImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1142,12 +1150,12 @@ bool ValidateMeshTypeRectilinear()
 {
   try
   {
-    VERIFY(ValidateMeshTypeRectilinearImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeRectilinearImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeRectilinearImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeRectilinearImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeRectilinearImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeRectilinearImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1158,12 +1166,12 @@ bool ValidateMeshTypeUnstructured()
 {
   try
   {
-    VERIFY(ValidateMeshTypeUnstructuredImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeUnstructuredImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1174,12 +1182,12 @@ bool ValidateRectilinearGridWithDifferentDimensions()
 {
   try
   {
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateRectilinearGridWithDifferentDimensionsImpl with serial device failed.");
-    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateRectilinearGridWithDifferentDimensionsImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateRectilinearGridWithDifferentDimensionsImpl with CUDA device FAILED.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1190,12 +1198,12 @@ bool Validate1DRectilinearGrid()
 {
   try
   {
-    VERIFY(Validate1DRectilinearGridImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(Validate1DRectilinearGridImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "Validate1DRectilinearGridImpl with serial device failed.");
-    VERIFY(Validate1DRectilinearGridImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(Validate1DRectilinearGridImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "Validate1DRectilinearGridImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1206,12 +1214,12 @@ bool ValidateMeshTypeMixed()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixedImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeMixedImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeMixedImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeMixedImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeMixedImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1222,12 +1230,12 @@ bool ValidateMeshTypeMixed2D()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixed2DImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeMixed2DImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeMixed2DImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeMixed2DImpl(VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeMixed2DImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1238,12 +1246,12 @@ bool ValidateMeshTypeAMR(const std::string& file)
 {
   try
   {
-    VERIFY(ValidateMeshTypeAMRImpl(file, VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeAMRImpl(file, VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeAMRImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeAMRImpl(file, VTKM_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeAMRImpl(file, VISKORES_DEVICE_ADAPTER_CUDA),
       "ValidateMeshTypeAMRImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1251,46 +1259,48 @@ bool ValidateMeshTypeAMR(const std::string& file)
 }
 
 void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned int ny,
-  unsigned int nz, conduit_cpp::Node& mesh, vtkm::Int8 memorySpace,
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& points,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemSizes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
-  vtkm::cont::ArrayHandleBasic<unsigned int>& subelemOffsets,
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& velocity,
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault>& pressure)
+  unsigned int nz, conduit_cpp::Node& mesh, viskores::Int8 memorySpace,
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault>& points,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemConnectivity,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemSizes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& elemOffsets,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemConnectivity,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemSizes,
+  viskores::cont::ArrayHandleBasic<unsigned int>& subelemOffsets,
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault>& velocity,
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault>& pressure)
 {
-  auto device = vtkm::cont::make_DeviceAdapterId(memorySpace);
+  auto device = viskores::cont::make_DeviceAdapterId(memorySpace);
   unsigned int numPoints[3] = { nx, ny, nz };
   double spacing[3] = { 1, 1.1, 1.3 };
   grid.Initialize(numPoints, spacing);
   attribs.Initialize(&grid);
   attribs.UpdateFields(0);
 
-  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPoints(), vtkm::CopyFlag::Off), points);
+  ArrayCopy(viskores::cont::make_ArrayHandle(grid.GetPoints(), viskores::CopyFlag::Off), points);
   mesh["coordsets/coords/type"].set("explicit");
   mesh["coordsets/coords/values/x"].set_external(points.GetReadPointer(device),
-    grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(vtkm::FloatDefault));
+    grid.GetNumberOfPoints(), /*offset=*/0, /*stride=*/3 * sizeof(viskores::FloatDefault));
   mesh["coordsets/coords/values/y"].set_external(points.GetReadPointer(device),
     grid.GetNumberOfPoints(),
-    /*offset=*/sizeof(vtkm::FloatDefault), /*stride=*/3 * sizeof(vtkm::FloatDefault));
+    /*offset=*/sizeof(viskores::FloatDefault), /*stride=*/3 * sizeof(viskores::FloatDefault));
   mesh["coordsets/coords/values/z"].set_external(points.GetReadPointer(device),
     grid.GetNumberOfPoints(),
-    /*offset=*/2 * sizeof(vtkm::FloatDefault), /*stride=*/3 * sizeof(vtkm::FloatDefault));
+    /*offset=*/2 * sizeof(viskores::FloatDefault), /*stride=*/3 * sizeof(viskores::FloatDefault));
 
   // Next, add topology
   mesh["topologies/mesh/type"].set("unstructured");
   mesh["topologies/mesh/coordset"].set("coords");
 
   // add elements
-  ArrayCopy(
-    vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Connectivity, vtkm::CopyFlag::Off),
+  ArrayCopy(viskores::cont::make_ArrayHandle(
+              grid.GetPolyhedralCells().Connectivity, viskores::CopyFlag::Off),
     elemConnectivity);
   ArrayCopy(
-    vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Sizes, vtkm::CopyFlag::Off), elemSizes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolyhedralCells().Offsets, vtkm::CopyFlag::Off),
+    viskores::cont::make_ArrayHandle(grid.GetPolyhedralCells().Sizes, viskores::CopyFlag::Off),
+    elemSizes);
+  ArrayCopy(
+    viskores::cont::make_ArrayHandle(grid.GetPolyhedralCells().Offsets, viskores::CopyFlag::Off),
     elemOffsets);
   mesh["topologies/mesh/elements/shape"].set("polyhedral");
   mesh["topologies/mesh/elements/connectivity"].set_external(
@@ -1301,12 +1311,14 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
     elemOffsets.GetReadPointer(device), grid.GetPolyhedralCells().Offsets.size());
 
   // add faces (aka subelements)
-  ArrayCopy(
-    vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Connectivity, vtkm::CopyFlag::Off),
+  ArrayCopy(viskores::cont::make_ArrayHandle(
+              grid.GetPolygonalFaces().Connectivity, viskores::CopyFlag::Off),
     subelemConnectivity);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Sizes, vtkm::CopyFlag::Off),
+  ArrayCopy(
+    viskores::cont::make_ArrayHandle(grid.GetPolygonalFaces().Sizes, viskores::CopyFlag::Off),
     subelemSizes);
-  ArrayCopy(vtkm::cont::make_ArrayHandle(grid.GetPolygonalFaces().Offsets, vtkm::CopyFlag::Off),
+  ArrayCopy(
+    viskores::cont::make_ArrayHandle(grid.GetPolygonalFaces().Offsets, viskores::CopyFlag::Off),
     subelemOffsets);
   mesh["topologies/mesh/subelements/shape"].set("polygonal");
   mesh["topologies/mesh/subelements/connectivity"].set_external(
@@ -1317,10 +1329,10 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
     subelemOffsets.GetReadPointer(device), grid.GetPolygonalFaces().Offsets.size());
 
   // Finally, add fields.
-  ArrayCopy(
-    vtkm::cont::make_ArrayHandle(attribs.GetVelocityArray(), vtkm::CopyFlag::Off), velocity);
-  ArrayCopy(
-    vtkm::cont::make_ArrayHandle(attribs.GetPressureArray(), vtkm::CopyFlag::Off), pressure);
+  ArrayCopy(viskores::cont::make_ArrayHandle(attribs.GetVelocityArray(), viskores::CopyFlag::Off),
+    velocity);
+  ArrayCopy(viskores::cont::make_ArrayHandle(attribs.GetPressureArray(), viskores::CopyFlag::Off),
+    pressure);
   auto fields = mesh["fields"];
   fields["velocity/association"].set("vertex");
   fields["velocity/topology"].set("mesh");
@@ -1332,10 +1344,10 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
     /*offset=*/0);
   fields["velocity/values/y"].set_external(velocity.GetReadPointer(device),
     grid.GetNumberOfPoints(),
-    /*offset=*/grid.GetNumberOfPoints() * sizeof(vtkm::FloatDefault));
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(viskores::FloatDefault));
   fields["velocity/values/z"].set_external(velocity.GetReadPointer(device),
     grid.GetNumberOfPoints(),
-    /*offset=*/grid.GetNumberOfPoints() * sizeof(vtkm::FloatDefault) * 2);
+    /*offset=*/grid.GetNumberOfPoints() * sizeof(viskores::FloatDefault) * 2);
 
   // pressure is cell-data.
   fields["pressure/association"].set("element");
@@ -1344,21 +1356,21 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
   fields["pressure/values"].set_external(pressure.GetReadPointer(device), grid.GetNumberOfCells());
 }
 
-bool ValidatePolyhedraImpl(vtkm::Int8 memorySpace)
+bool ValidatePolyhedraImpl(viskores::Int8 memorySpace)
 {
   conduit_cpp::Node mesh;
   constexpr int nX = 4, nY = 4, nZ = 4;
   Grid grid;
   Attributes attribs;
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> points;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elemConnectivity;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elemSizes;
-  vtkm::cont::ArrayHandleBasic<unsigned int> elemOffsets;
-  vtkm::cont::ArrayHandleBasic<unsigned int> subelemConnectivity;
-  vtkm::cont::ArrayHandleBasic<unsigned int> subelemSizes;
-  vtkm::cont::ArrayHandleBasic<unsigned int> subelemOffsets;
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> velocity;
-  vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> pressure;
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault> points;
+  viskores::cont::ArrayHandleBasic<unsigned int> elemConnectivity;
+  viskores::cont::ArrayHandleBasic<unsigned int> elemSizes;
+  viskores::cont::ArrayHandleBasic<unsigned int> elemOffsets;
+  viskores::cont::ArrayHandleBasic<unsigned int> subelemConnectivity;
+  viskores::cont::ArrayHandleBasic<unsigned int> subelemSizes;
+  viskores::cont::ArrayHandleBasic<unsigned int> subelemOffsets;
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault> velocity;
+  viskores::cont::ArrayHandleBasic<viskores::FloatDefault> pressure;
   CreatePolyhedra(grid, attribs, nX, nY, nZ, mesh, memorySpace, points, elemConnectivity, elemSizes,
     elemOffsets, subelemConnectivity, subelemSizes, subelemOffsets, velocity, pressure);
   auto values = mesh["fields/velocity/values"];
@@ -1411,13 +1423,13 @@ bool ValidatePolyhedra()
   try
   {
     // conduit data in host memory creates a VTK dataset so this test works.
-    VERIFY(ValidatePolyhedraImpl(VTKM_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
       "ValidateMeshTypeUnstructuredImpl with serial device failed.");
-    // VTKm does not have VTK_POLYHEDRON
-    // VERIFY(ValidatePolyhedraImpl(VTKM_DEVICE_ADAPTER_CUDA),
+    // Viskores does not have VTK_POLYHEDRON
+    // VERIFY(ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_CUDA),
     //   "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
   }
-  catch (vtkm::cont::ErrorBadValue& e)
+  catch (viskores::cont::ErrorBadValue& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -1428,8 +1440,8 @@ bool ValidatePolyhedra()
 
 int TestConduitSourceDeviceMemory(int argc, char** argv)
 {
-  vtkm::cont::Initialize(argc, argv);
-#if defined(VTKM_ENABLE_CUDA)
+  viskores::cont::Initialize(argc, argv);
+#if defined(VISKORES_ENABLE_CUDA)
   // We really want to use unmanaged memory to exercise external memory space code paths.
   SCOPED_CUDA_DISABLE_MANAGED_MEMORY;
 #endif

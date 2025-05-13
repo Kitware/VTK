@@ -27,8 +27,8 @@
 
 #include <fides/DataSetWriter.h>
 
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/PartitionedDataSet.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/PartitionedDataSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFidesWriter);
@@ -312,7 +312,7 @@ void vtkFidesWriter::WriteData()
     auto inputPDS = inputPDC->GetPartitionedDataSet(pdsIdx);
     assert(inputPDS != nullptr);
 
-    vtkm::cont::PartitionedDataSet vtkmPDS;
+    viskores::cont::PartitionedDataSet vtkmPDS;
     std::vector<std::string> fieldsToWrite;
     for (unsigned int partIdx = 0; partIdx < inputPDS->GetNumberOfPartitions(); ++partIdx)
     {
@@ -345,7 +345,7 @@ void vtkFidesWriter::WriteData()
         }
       }
 
-      vtkm::cont::DataSet ds = tovtkm::Convert(partition, tovtkm::FieldsFlag::PointsAndCells);
+      viskores::cont::DataSet ds = tovtkm::Convert(partition, tovtkm::FieldsFlag::PointsAndCells);
       vtkmPDS.AppendPartition(ds);
     }
 

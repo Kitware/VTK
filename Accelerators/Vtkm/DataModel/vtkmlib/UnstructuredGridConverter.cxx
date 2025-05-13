@@ -24,9 +24,9 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/DataSetBuilderUniform.h>
+#include <viskores/cont/Field.h>
 
 namespace tovtkm
 {
@@ -34,14 +34,14 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an unstructured grid type
-vtkm::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
 {
   // This will need to use the custom storage and portals so that
-  // we can efficiently map between VTK and VTKm
-  vtkm::cont::DataSet dataset;
+  // we can efficiently map between VTK and Viskores
+  viskores::cont::DataSet dataset;
 
   // first step convert the points over to an array handle
-  vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
+  viskores::cont::CoordinateSystem coords = Convert(input->GetPoints());
   dataset.AddCoordinateSystem(coords);
   // last
 
@@ -72,7 +72,7 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   // If this fails, it's likely a missing entry in tovtkm::PointListOutVTK:
@@ -84,7 +84,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
   points->FastDelete();
 
   // With unstructured grids we need to actually convert 3 arrays from
-  // vtkm to vtk
+  // viskores to vtk
   vtkNew<vtkCellArray> cells;
   vtkNew<vtkUnsignedCharArray> types;
   auto const& outCells = voutput.GetCellSet();
@@ -100,7 +100,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkUnstructuredGrid* output, vt
 
   // now have to set this info back to the unstructured grid
 
-  // Next we need to convert any extra fields from vtkm over to vtk
+  // Next we need to convert any extra fields from viskores over to vtk
   const bool arraysConverted = fromvtkm::ConvertArrays(voutput, output);
 
   // Pass information about attributes.

@@ -14,7 +14,7 @@
 #include <fides/FidesTypes.h>
 #include <fides/Keys.h>
 
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/Field.h>
 
 #include <cstddef>
 #include <functional>
@@ -105,7 +105,7 @@ protected:
 /// \brief Simple struct representing field information.
 struct FIDES_EXPORT FieldInformation
 {
-  FieldInformation(std::string name, vtkm::cont::Field::Association assoc)
+  FieldInformation(std::string name, viskores::cont::Field::Association assoc)
     : Name(name)
     , Association(assoc)
   {
@@ -114,18 +114,18 @@ struct FIDES_EXPORT FieldInformation
   FIDES_DEPRECATED_SUPPRESS_BEGIN
   FIDES_DEPRECATED(
     1.1,
-    "fides::Association is no longer used. Use vtkm::cont::Field::Association directly.")
+    "fides::Association is no longer used. Use viskores::cont::Field::Association directly.")
   FieldInformation(std::string name, fides::Association assoc)
     : Name(name)
   {
-    this->Association = ConvertToVTKmAssociation(assoc);
+    this->Association = ConvertToViskoresAssociation(assoc);
   }
   FIDES_DEPRECATED_SUPPRESS_END
 
   /// Name of the field.
   std::string Name;
-  /// Association of the field. See VTK-m field association for details
-  vtkm::cont::Field::Association Association;
+  /// Association of the field. See Viskores field association for details
+  viskores::cont::Field::Association Association;
 };
 
 /// \brief Meta-data item to store a vector.

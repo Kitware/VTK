@@ -15,8 +15,8 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/DataSetUtils.h"
 
-#include <vtkm/cont/ErrorFilterExecution.h>
-#include <vtkm/filter/field_conversion/CellAverage.h>
+#include <viskores/cont/ErrorFilterExecution.h>
+#include <viskores/filter/field_conversion/CellAverage.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmAverageToCells);
@@ -63,11 +63,11 @@ int vtkmAverageToCells::RequestData(
   {
     if (this->CategoricalData)
     {
-      throw vtkm::cont::ErrorFilterExecution("CategoricalData is not supported.");
+      throw viskores::cont::ErrorFilterExecution("CategoricalData is not supported.");
     }
 
-    // convert the input dataset to a vtkm::cont::DataSet
-    vtkm::cont::DataSet in;
+    // convert the input dataset to a viskores::cont::DataSet
+    viskores::cont::DataSet in;
     if (this->ProcessAllArrays)
     {
       in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
@@ -121,19 +121,20 @@ int vtkmAverageToCells::RequestData(
       }
     }
 
-    // Execute the vtk-m filter
-    vtkm::filter::field_conversion::CellAverage filter;
+    // Execute the viskores filter
+    viskores::filter::field_conversion::CellAverage filter;
     for (auto i : GetFieldsIndicesWithoutCoords(in))
     {
       const auto& name = in.GetField(i).GetName();
-      filter.SetActiveField(name, vtkm::cont::Field::Association::Points);
+      filter.SetActiveField(name, viskores::cont::Field::Association::Points);
       auto result = filter.Execute(in);
 
       // convert back to VTK, and add the field as a cell field
       vtkDataArray* resultingArray = fromvtkm::Convert(result.GetCellField(name));
       if (resultingArray == nullptr)
       {
-        throw vtkm::cont::ErrorFilterExecution("Unable to convert result array from VTK-m to VTK");
+        throw viskores::cont::ErrorFilterExecution(
+          "Unable to convert result array from Viskores to VTK");
       }
 
       int outIdx = output->GetCellData()->AddArray(resultingArray);
@@ -144,9 +145,9 @@ int vtkmAverageToCells::RequestData(
       resultingArray->FastDelete();
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "VTK-m failed with message: " << e.GetMessage() << "\n"
+    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
                     << "Falling back to the default VTK implementation.");
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

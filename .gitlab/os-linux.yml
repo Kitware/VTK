@@ -538,13 +538,13 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_x86_64_mpi_python_qt_stdthread
 
-.fedora39_x86_64_mpi_python_vtkmoverride:
+.fedora39_x86_64_mpi_python_viskoresoverride:
     extends:
         - .fedora39_x86_64
         - .fedora_mpich_x86_64_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_python_vtkmoverride
+        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_python_viskoresoverride
 
 .fedora39_x86_64_tidy:
     extends:

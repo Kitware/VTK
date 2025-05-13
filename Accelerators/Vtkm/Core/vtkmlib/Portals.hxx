@@ -9,10 +9,10 @@
 #include "vtkDataArray.h"
 #include "vtkPoints.h"
 
-#include <vtkm/Types.h>
-#include <vtkm/VecTraits.h>
-#include <vtkm/cont/internal/IteratorFromArrayPortal.h>
-#include <vtkm/internal/Assume.h>
+#include <viskores/Types.h>
+#include <viskores/VecTraits.h>
+#include <viskores/cont/internal/IteratorFromArrayPortal.h>
+#include <viskores/internal/Assume.h>
 
 namespace
 {
@@ -21,10 +21,10 @@ template <int N>
 struct fillComponents
 {
   template <typename T, typename Tuple>
-  VTKM_EXEC void operator()(T* t, const Tuple& tuple) const
+  VISKORES_EXEC void operator()(T* t, const Tuple& tuple) const
   {
     fillComponents<N - 1>()(t, tuple);
-    t[N - 1] = vtkm::VecTraits<Tuple>::GetComponent(tuple, N - 1);
+    t[N - 1] = viskores::VecTraits<Tuple>::GetComponent(tuple, N - 1);
   }
 };
 
@@ -32,9 +32,9 @@ template <>
 struct fillComponents<1>
 {
   template <typename T, typename Tuple>
-  VTKM_EXEC void operator()(T* t, const Tuple& tuple) const
+  VISKORES_EXEC void operator()(T* t, const Tuple& tuple) const
   {
-    t[0] = vtkm::VecTraits<Tuple>::GetComponent(tuple, 0);
+    t[0] = viskores::VecTraits<Tuple>::GetComponent(tuple, 0);
   }
 };
 }
@@ -45,7 +45,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
-VTKM_EXEC_CONT vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal()
+VISKORES_EXEC_CONT vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal()
   : VTKData(nullptr)
   , Size(0)
 {
@@ -53,20 +53,20 @@ VTKM_EXEC_CONT vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal()
 
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
-VTKM_CONT vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal(
-  VTKDataArrayType* array, vtkm::Id size)
+VISKORES_CONT vtkArrayPortal<VType, VTKDataArrayType>::vtkArrayPortal(
+  VTKDataArrayType* array, viskores::Id size)
   : VTKData(array)
   , Size(size)
 {
-  VTKM_ASSERT(this->GetNumberOfValues() >= 0);
+  VISKORES_ASSERT(this->GetNumberOfValues() >= 0);
 }
 
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
-typename vtkArrayPortal<VType, VTKDataArrayType>::ValueType VTKM_EXEC
-vtkArrayPortal<VType, VTKDataArrayType>::Get(vtkm::Id index) const
+typename vtkArrayPortal<VType, VTKDataArrayType>::ValueType VISKORES_EXEC
+vtkArrayPortal<VType, VTKDataArrayType>::Get(viskores::Id index) const
 {
-  VTKM_ASSUME(this->VTKData->GetNumberOfComponents() == NUM_COMPONENTS);
+  VISKORES_ASSUME(this->VTKData->GetNumberOfComponents() == NUM_COMPONENTS);
 
   ValueType tuple;
   for (int j = 0; j < NUM_COMPONENTS; ++j)
@@ -79,10 +79,10 @@ vtkArrayPortal<VType, VTKDataArrayType>::Get(vtkm::Id index) const
 
 //------------------------------------------------------------------------------
 template <typename VType, typename VTKDataArrayType>
-VTKM_EXEC void vtkArrayPortal<VType, VTKDataArrayType>::Set(
-  vtkm::Id index, const ValueType& value) const
+VISKORES_EXEC void vtkArrayPortal<VType, VTKDataArrayType>::Set(
+  viskores::Id index, const ValueType& value) const
 {
-  VTKM_ASSUME((this->VTKData->GetNumberOfComponents() == NUM_COMPONENTS));
+  VISKORES_ASSUME((this->VTKData->GetNumberOfComponents() == NUM_COMPONENTS));
 
   for (int j = 0; j < NUM_COMPONENTS; ++j)
   {
@@ -93,7 +93,7 @@ VTKM_EXEC void vtkArrayPortal<VType, VTKDataArrayType>::Set(
 
 //------------------------------------------------------------------------------
 template <typename Type>
-VTKM_EXEC_CONT vtkPointsPortal<Type>::vtkPointsPortal()
+VISKORES_EXEC_CONT vtkPointsPortal<Type>::vtkPointsPortal()
   : Points(nullptr)
   , Array(nullptr)
   , Size(0)
@@ -102,17 +102,18 @@ VTKM_EXEC_CONT vtkPointsPortal<Type>::vtkPointsPortal()
 
 //------------------------------------------------------------------------------
 template <typename Type>
-VTKM_CONT vtkPointsPortal<Type>::vtkPointsPortal(vtkPoints* points, vtkm::Id size)
+VISKORES_CONT vtkPointsPortal<Type>::vtkPointsPortal(vtkPoints* points, viskores::Id size)
   : Points(points)
   , Array(static_cast<ComponentType*>(points->GetVoidPointer(0)))
   , Size(size)
 {
-  VTKM_ASSERT(this->GetNumberOfValues() >= 0);
+  VISKORES_ASSERT(this->GetNumberOfValues() >= 0);
 }
 
 //------------------------------------------------------------------------------
 template <typename Type>
-typename vtkPointsPortal<Type>::ValueType VTKM_EXEC vtkPointsPortal<Type>::Get(vtkm::Id index) const
+typename vtkPointsPortal<Type>::ValueType VISKORES_EXEC vtkPointsPortal<Type>::Get(
+  viskores::Id index) const
 {
   const ComponentType* const raw = this->Array + (index * NUM_COMPONENTS);
   return ValueType(raw[0], raw[1], raw[2]);
@@ -120,7 +121,7 @@ typename vtkPointsPortal<Type>::ValueType VTKM_EXEC vtkPointsPortal<Type>::Get(v
 
 //------------------------------------------------------------------------------
 template <typename Type>
-VTKM_EXEC void vtkPointsPortal<Type>::Set(vtkm::Id index, const ValueType& value) const
+VISKORES_EXEC void vtkPointsPortal<Type>::Set(viskores::Id index, const ValueType& value) const
 {
   ComponentType* rawArray = this->Array + (index * NUM_COMPONENTS);
   // use template magic to auto unroll insertion

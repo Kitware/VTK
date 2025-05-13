@@ -10,18 +10,18 @@
 
 #include <fides/CellSet.h>
 
-#include <vtkm/CellShape.h>
-#include <vtkm/VectorAnalysis.h>
-#include <vtkm/cont/Algorithm.h>
-#include <vtkm/cont/ArrayHandleCast.h>
-#include <vtkm/cont/ArrayHandleXGCCoordinates.h>
-#include <vtkm/cont/CellSetExtrude.h>
-#include <vtkm/cont/UnknownArrayHandle.h>
-#include <vtkm/filter/clean_grid/CleanGrid.h>
+#include <viskores/CellShape.h>
+#include <viskores/VectorAnalysis.h>
+#include <viskores/cont/Algorithm.h>
+#include <viskores/cont/ArrayHandleCast.h>
+#include <viskores/cont/ArrayHandleXGCCoordinates.h>
+#include <viskores/cont/CellSetExtrude.h>
+#include <viskores/cont/UnknownArrayHandle.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
 
-#include <vtkm/cont/Invoker.h>
-#include <vtkm/worklet/WorkletMapField.h>
-#include <vtkm/worklet/WorkletMapTopology.h>
+#include <viskores/cont/Invoker.h>
+#include <viskores/worklet/WorkletMapField.h>
+#include <viskores/worklet/WorkletMapTopology.h>
 
 namespace fides
 {
@@ -31,7 +31,7 @@ namespace fusionutil
 {
 
 //Calculate the radius for each point coordinate.
-class CalcRadius : public vtkm::worklet::WorkletMapField
+class CalcRadius : public viskores::worklet::WorkletMapField
 {
 public:
   using ControlSignature = void(FieldIn in, FieldOut out);
@@ -39,21 +39,21 @@ public:
   using InputDomain = _1;
 
   template <typename T, typename S>
-  VTKM_EXEC void operator()(const T& pt, S& out) const
+  VISKORES_EXEC void operator()(const T& pt, S& out) const
   {
-    out = vtkm::Sqrt(pt[0] * pt[0] + pt[1] * pt[1]);
+    out = viskores::Sqrt(pt[0] * pt[0] + pt[1] * pt[1]);
   }
 };
 
-class CalcPhi : public vtkm::worklet::WorkletMapField
+class CalcPhi : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcPhi(vtkm::Id nPlanes, vtkm::Id ptsPerPlane)
+  CalcPhi(viskores::Id nPlanes, viskores::Id ptsPerPlane)
     : NumPlanes(nPlanes)
     , NumPtsPerPlane(ptsPerPlane)
   {
     this->Phi0 = 0;
-    this->DeltaPhi = vtkm::TwoPi() / static_cast<vtkm::Float64>(this->NumPlanes);
+    this->DeltaPhi = viskores::TwoPi() / static_cast<viskores::Float64>(this->NumPlanes);
   }
 
   using ControlSignature = void(FieldIn in, FieldOut out);
@@ -61,10 +61,10 @@ public:
   using InputDomain = _1;
 
   template <typename T>
-  VTKM_EXEC void operator()(const vtkm::Id& idx, T& out) const
+  VISKORES_EXEC void operator()(const viskores::Id& idx, T& out) const
   {
-    vtkm::Id plane = idx / this->NumPtsPerPlane;
-    vtkm::Float64 planePhi = static_cast<vtkm::Float64>(plane * this->DeltaPhi);
+    viskores::Id plane = idx / this->NumPtsPerPlane;
+    viskores::Float64 planePhi = static_cast<viskores::Float64>(plane * this->DeltaPhi);
     out = static_cast<T>(this->Phi0 + planePhi);
 
     if (out < 0)
@@ -74,19 +74,19 @@ public:
   }
 
 private:
-  vtkm::Id NumPlanes;
-  vtkm::Id NumPtsPerPlane;
-  vtkm::Float64 DeltaPhi;
-  vtkm::Float64 Phi0;
+  viskores::Id NumPlanes;
+  viskores::Id NumPtsPerPlane;
+  viskores::Float64 DeltaPhi;
+  viskores::Float64 Phi0;
 };
 
 //Calculate the cell set connection IDs for GX Cellset
-class CalcGXCellSetConnIds : public vtkm::worklet::WorkletVisitCellsWithPoints
+class CalcGXCellSetConnIds : public viskores::worklet::WorkletVisitCellsWithPoints
 {
 public:
-  CalcGXCellSetConnIds(const vtkm::Id& numPlanes,
-                       const vtkm::Id& numTheta,
-                       const vtkm::Id& srfMinIdx)
+  CalcGXCellSetConnIds(const viskores::Id& numPlanes,
+                       const viskores::Id& numTheta,
+                       const viskores::Id& srfMinIdx)
     : NumPlanes(numPlanes)
     , NumTheta(numTheta)
     , SurfaceMinIdx(srfMinIdx)
@@ -102,18 +102,18 @@ public:
   using InputDomain = _1;
 
   template <typename ConnectionArrayType, typename SrfIndexType>
-  VTKM_EXEC void operator()(const vtkm::Id& cellId,
-                            ConnectionArrayType& resultIds,
-                            SrfIndexType& srfIndexField) const
+  VISKORES_EXEC void operator()(const viskores::Id& cellId,
+                                ConnectionArrayType& resultIds,
+                                SrfIndexType& srfIndexField) const
   {
-    vtkm::Id srfIdx = cellId / this->NumCellsPerSrf;
-    vtkm::Id plnIdx = cellId / (this->NumTheta - 1) % this->NumPlanes;
-    vtkm::Id cellIdx = cellId % (this->NumTheta - 1);
-    vtkm::Id srfOffset = srfIdx * this->NumPointsPerSrf;
+    viskores::Id srfIdx = cellId / this->NumCellsPerSrf;
+    viskores::Id plnIdx = cellId / (this->NumTheta - 1) % this->NumPlanes;
+    viskores::Id cellIdx = cellId % (this->NumTheta - 1);
+    viskores::Id srfOffset = srfIdx * this->NumPointsPerSrf;
 
     // Offset for points on the first and second plane.
-    vtkm::Id offset0 = srfOffset + plnIdx * this->NumTheta;
-    vtkm::Id offset1 = srfOffset + (plnIdx + 1) * this->NumTheta;
+    viskores::Id offset0 = srfOffset + plnIdx * this->NumTheta;
+    viskores::Id offset1 = srfOffset + (plnIdx + 1) * this->NumTheta;
 
     // if last plane, wrap around to first plane.
     if (plnIdx == this->NumPlanes - 1)
@@ -126,7 +126,7 @@ public:
     auto p2 = offset1 + cellIdx + 0;
     auto p3 = p2 + 1;
 
-    vtkm::Id index = cellId * 4;
+    viskores::Id index = cellId * 4;
     resultIds.Set(index + 0, p0);
     resultIds.Set(index + 1, p1);
     resultIds.Set(index + 2, p3);
@@ -136,11 +136,11 @@ public:
   }
 
 private:
-  vtkm::Id NumCellsPerSrf;
-  vtkm::Id NumPlanes;
-  vtkm::Id NumPointsPerSrf;
-  vtkm::Id NumTheta;
-  vtkm::Id SurfaceMinIdx;
+  viskores::Id NumCellsPerSrf;
+  viskores::Id NumPlanes;
+  viskores::Id NumPointsPerSrf;
+  viskores::Id NumTheta;
+  viskores::Id SurfaceMinIdx;
 };
 } //namespace fides::datamodel::fusionutil
 
@@ -182,7 +182,7 @@ void CellSet::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sources
   this->CellSetImpl->ProcessJSON(json, sources);
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSet::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSet::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -190,7 +190,7 @@ std::vector<vtkm::cont::UnknownCellSet> CellSet::Read(
   return this->CellSetImpl->Read(paths, sources, selections);
 }
 
-void CellSet::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSet::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                        const fides::metadata::MetaData& selections)
 {
   this->CellSetImpl->PostRead(partitions, selections);
@@ -208,35 +208,35 @@ void CellSetSingleType::ProcessJSON(const rapidjson::Value& json, DataSourcesTyp
 
   if (cellType == "vertex")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_VERTEX, 1);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_VERTEX, 1);
   }
   else if (cellType == "line")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_LINE, 2);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_LINE, 2);
   }
   else if (cellType == "triangle")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_TRIANGLE, 3);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_TRIANGLE, 3);
   }
   else if (cellType == "quad")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_QUAD, 4);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_QUAD, 4);
   }
   else if (cellType == "tetrahedron")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_TETRA, 4);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_TETRA, 4);
   }
   else if (cellType == "hexahedron")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_HEXAHEDRON, 8);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_HEXAHEDRON, 8);
   }
   else if (cellType == "wedge")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_WEDGE, 6);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_WEDGE, 6);
   }
   else if (cellType == "pyramid")
   {
-    this->CellInformation = std::pair<unsigned char, int>(vtkm::CELL_SHAPE_PYRAMID, 5);
+    this->CellInformation = std::pair<unsigned char, int>(viskores::CELL_SHAPE_PYRAMID, 5);
   }
   else
   {
@@ -244,7 +244,7 @@ void CellSetSingleType::ProcessJSON(const rapidjson::Value& json, DataSourcesTyp
   }
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetSingleType::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetSingleType::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -262,7 +262,7 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetSingleType::Read(
   this->IsStatic = isStatic;
 
   size_t nArrays = this->ConnectivityArrays.size();
-  std::vector<vtkm::cont::UnknownCellSet> cellSets(nArrays);
+  std::vector<viskores::cont::UnknownCellSet> cellSets(nArrays);
 
   if (this->IsStatic)
   {
@@ -271,7 +271,7 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetSingleType::Read(
   return cellSets;
 }
 
-void CellSetSingleType::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetSingleType::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                                  const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   size_t nParts = partitions.size();
@@ -280,14 +280,14 @@ void CellSetSingleType::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     auto& pds = partitions[i];
     // if the array isn't stored as a signed int, we'll have to do a deep copy
     // into another UnknownArrayHandle
-    vtkm::cont::UnknownArrayHandle connUnknown = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    viskores::cont::UnknownArrayHandle connUnknown = viskores::cont::ArrayHandle<viskores::Id>{};
     connUnknown.CopyShallowIfPossible(this->ConnectivityArrays[i]);
-    auto connCasted = connUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
+    auto connCasted = connUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Id>>();
 
-    vtkm::cont::CellSetSingleType<> cellSet;
+    viskores::cont::CellSetSingleType<> cellSet;
     if (pds.GetCellSet().IsValid())
     {
-      cellSet = pds.GetCellSet().AsCellSet<vtkm::cont::CellSetSingleType<>>();
+      cellSet = pds.GetCellSet().AsCellSet<viskores::cont::CellSetSingleType<>>();
     }
 
     cellSet.Fill(pds.GetNumberOfPoints(),
@@ -335,7 +335,7 @@ void CellSetExplicit::ProcessJSON(const rapidjson::Value& json, DataSourcesType&
   this->Connectivity->ProcessJSON(conn, sources);
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetExplicit::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetExplicit::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -350,7 +350,7 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetExplicit::Read(
   this->CellTypesArrays = this->CellTypes->Read(paths, sources, selections);
 
   size_t nArrays = this->ConnectivityArrays.size();
-  std::vector<vtkm::cont::UnknownCellSet> cellSets(nArrays);
+  std::vector<viskores::cont::UnknownCellSet> cellSets(nArrays);
 
   if (this->IsStatic)
   {
@@ -360,35 +360,38 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetExplicit::Read(
   return cellSets;
 }
 
-void CellSetExplicit::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetExplicit::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                                const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   size_t nParts = partitions.size();
   for (size_t i = 0; i < nParts; i++)
   {
     auto& pds = partitions[i];
-    vtkm::cont::ArrayHandle<vtkm::IdComponent> nVertsCasted =
-      this->NumberOfVerticesArrays[i].AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::IdComponent>>();
-    vtkm::cont::ArrayHandle<vtkm::Id> offsets;
-    vtkm::cont::Algorithm::ScanExtended(
-      vtkm::cont::make_ArrayHandleCast<vtkm::Id, vtkm::cont::ArrayHandle<vtkm::IdComponent>>(
+    viskores::cont::ArrayHandle<viskores::IdComponent> nVertsCasted =
+      this->NumberOfVerticesArrays[i]
+        .AsArrayHandle<viskores::cont::ArrayHandle<viskores::IdComponent>>();
+    viskores::cont::ArrayHandle<viskores::Id> offsets;
+    viskores::cont::Algorithm::ScanExtended(
+      viskores::cont::make_ArrayHandleCast<viskores::Id,
+                                           viskores::cont::ArrayHandle<viskores::IdComponent>>(
         nVertsCasted),
       offsets);
 
-    vtkm::cont::UnknownArrayHandle connUnknown = vtkm::cont::ArrayHandle<vtkm::Id>{};
+    viskores::cont::UnknownArrayHandle connUnknown = viskores::cont::ArrayHandle<viskores::Id>{};
     connUnknown.CopyShallowIfPossible(this->ConnectivityArrays[i]);
-    vtkm::cont::ArrayHandle<vtkm::Id> connCasted =
-      connUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>();
+    viskores::cont::ArrayHandle<viskores::Id> connCasted =
+      connUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Id>>();
 
-    vtkm::cont::UnknownArrayHandle typesUnknown = vtkm::cont::ArrayHandle<vtkm::UInt8>{};
+    viskores::cont::UnknownArrayHandle typesUnknown =
+      viskores::cont::ArrayHandle<viskores::UInt8>{};
     typesUnknown.CopyShallowIfPossible(this->CellTypesArrays[i]);
-    vtkm::cont::ArrayHandle<vtkm::UInt8> typesCasted =
-      typesUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::UInt8>>();
+    viskores::cont::ArrayHandle<viskores::UInt8> typesCasted =
+      typesUnknown.AsArrayHandle<viskores::cont::ArrayHandle<viskores::UInt8>>();
 
-    vtkm::cont::CellSetExplicit<> cellSet;
+    viskores::cont::CellSetExplicit<> cellSet;
     if (pds.GetCellSet().IsValid())
     {
-      cellSet = pds.GetCellSet().AsCellSet<vtkm::cont::CellSetExplicit<>>();
+      cellSet = pds.GetCellSet().AsCellSet<viskores::cont::CellSetExplicit<>>();
     }
 
     cellSet.Fill(pds.GetNumberOfPoints(), typesCasted, connCasted, offsets);
@@ -413,7 +416,7 @@ void CellSetStructured::ProcessJSON(const rapidjson::Value& json, DataSourcesTyp
   this->Dimensions->ProcessJSON(dimensions, sources);
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetStructured::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetStructured::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -421,12 +424,12 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetStructured::Read(
   this->DimensionArrays = this->Dimensions->Read(paths, sources, selections);
 
   std::size_t nArrays = this->DimensionArrays.size();
-  std::vector<vtkm::cont::UnknownCellSet> ret(nArrays);
+  std::vector<viskores::cont::UnknownCellSet> ret(nArrays);
 
   return ret;
 }
 
-void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetStructured::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                                  const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   std::size_t nParts = partitions.size();
@@ -435,26 +438,26 @@ void CellSetStructured::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   {
     auto& ds = partitions[i];
 
-    vtkm::cont::CellSetStructured<3> cellSet;
+    viskores::cont::CellSetStructured<3> cellSet;
     if (ds.GetCellSet().IsValid())
     {
-      cellSet = ds.GetCellSet().AsCellSet<vtkm::cont::CellSetStructured<3>>();
+      cellSet = ds.GetCellSet().AsCellSet<viskores::cont::CellSetStructured<3>>();
     }
-    vtkm::cont::UnknownArrayHandle dimUnknown = vtkm::cont::ArrayHandle<std::size_t>{};
+    viskores::cont::UnknownArrayHandle dimUnknown = viskores::cont::ArrayHandle<std::size_t>{};
     dimUnknown.CopyShallowIfPossible(this->DimensionArrays[i]);
-    const auto& dimArray = dimUnknown.AsArrayHandle<vtkm::cont::ArrayHandle<std::size_t>>();
+    const auto& dimArray = dimUnknown.AsArrayHandle<viskores::cont::ArrayHandle<std::size_t>>();
     auto dimPortal = dimArray.ReadPortal();
 
-    vtkm::Id3 dims(static_cast<vtkm::Id>(dimPortal.Get(0)),
-                   static_cast<vtkm::Id>(dimPortal.Get(1)),
-                   static_cast<vtkm::Id>(dimPortal.Get(2)));
+    viskores::Id3 dims(static_cast<viskores::Id>(dimPortal.Get(0)),
+                       static_cast<viskores::Id>(dimPortal.Get(1)),
+                       static_cast<viskores::Id>(dimPortal.Get(2)));
     cellSet.SetPointDimensions(dims);
 
     if (dimArray.GetNumberOfValues() > 3)
     {
-      vtkm::Id3 start(static_cast<vtkm::Id>(dimPortal.Get(3)),
-                      static_cast<vtkm::Id>(dimPortal.Get(4)),
-                      static_cast<vtkm::Id>(dimPortal.Get(5)));
+      viskores::Id3 start(static_cast<viskores::Id>(dimPortal.Get(3)),
+                          static_cast<viskores::Id>(dimPortal.Get(4)),
+                          static_cast<viskores::Id>(dimPortal.Get(5)));
       cellSet.SetGlobalPointIndexStart(start);
     }
     ds.SetCellSet(cellSet);
@@ -484,7 +487,7 @@ void CellSetXGC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   }
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetXGC::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
@@ -509,17 +512,17 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
   fides::metadata::MetaData newSelections = selections;
   newSelections.Remove(fides::keys::BLOCK_SELECTION());
 
-  std::vector<vtkm::cont::UnknownCellSet> cellSets;
+  std::vector<viskores::cont::UnknownCellSet> cellSets;
 
   //load the connect_list
-  std::vector<vtkm::cont::UnknownArrayHandle> connectivityVec =
+  std::vector<viskores::cont::UnknownArrayHandle> connectivityVec =
     this->CellConnectivity->Read(paths, sources, newSelections);
   if (connectivityVec.size() != 1)
   {
     throw std::runtime_error("XGC CellConnectivity should have one Array");
   }
 
-  using intType = vtkm::cont::ArrayHandle<vtkm::Int32>;
+  using intType = viskores::cont::ArrayHandle<viskores::Int32>;
   intType connectivityAH;
   if (connectivityVec[0].IsType<intType>())
   {
@@ -530,7 +533,7 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
     throw std::runtime_error("Only int arrays are supported for XGC cell connectivity.");
   }
 
-  std::vector<vtkm::cont::UnknownArrayHandle> planeConnectivityVec =
+  std::vector<viskores::cont::UnknownArrayHandle> planeConnectivityVec =
     this->PlaneConnectivity->Read(paths, sources, newSelections);
 
   if (planeConnectivityVec.size() > 1)
@@ -575,12 +578,12 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
   for (size_t i = 0; i < blocksInfo.size(); ++i)
   {
     const auto& block = blocksInfo[i];
-    vtkm::Int32 numPlanes = block.NumberOfPlanesOwned * (1 + numInsertPlanes);
-    auto xgcCell = vtkm::cont::CellSetExtrude(connectivityAH,
-                                              static_cast<vtkm::Int32>(numPointsPerPlane),
-                                              static_cast<vtkm::Int32>(numPlanes),
-                                              planeConnectivityAH,
-                                              this->IsPeriodic);
+    viskores::Int32 numPlanes = block.NumberOfPlanesOwned * (1 + numInsertPlanes);
+    auto xgcCell = viskores::cont::CellSetExtrude(connectivityAH,
+                                                  static_cast<viskores::Int32>(numPointsPerPlane),
+                                                  static_cast<viskores::Int32>(numPlanes),
+                                                  planeConnectivityAH,
+                                                  this->IsPeriodic);
     cellSets.push_back(xgcCell);
   }
 
@@ -591,10 +594,10 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetXGC::Read(
   return cellSets;
 }
 
-class CellSetXGC::CalcPsi : public vtkm::worklet::WorkletMapField
+class CellSetXGC::CalcPsi : public viskores::worklet::WorkletMapField
 {
 public:
-  CalcPsi(double psix, vtkm::Id ptsPerPlane)
+  CalcPsi(double psix, viskores::Id ptsPerPlane)
     : PsiX(psix)
     , PointsPerPlane(ptsPerPlane)
   {
@@ -605,34 +608,34 @@ public:
   using InputDomain = _2;
 
   template <typename T, typename S>
-  VTKM_EXEC void operator()(const T& in, const vtkm::Id& idx, S& out) const
+  VISKORES_EXEC void operator()(const T& in, const viskores::Id& idx, S& out) const
   {
     out = in.Get(idx % this->PointsPerPlane) / this->PsiX;
   }
 
 private:
   double PsiX;
-  vtkm::Id PointsPerPlane;
+  viskores::Id PointsPerPlane;
 };
 
-void CellSetXGC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetXGC::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                           const fides::metadata::MetaData& selections)
 {
   //This is a hack until we decide with XGC how to cellset connectivity.
   for (auto& ds : partitions)
   {
-    auto cs = ds.GetCellSet().AsCellSet<vtkm::cont::CellSetExtrude>();
-    vtkm::cont::ArrayHandle<int> nextNode;
-    vtkm::Id n = cs.GetNumberOfPointsPerPlane() * cs.GetNumberOfPlanes();
+    auto cs = ds.GetCellSet().AsCellSet<viskores::cont::CellSetExtrude>();
+    viskores::cont::ArrayHandle<int> nextNode;
+    viskores::Id n = cs.GetNumberOfPointsPerPlane() * cs.GetNumberOfPlanes();
     nextNode.Allocate(n);
     auto portal = nextNode.WritePortal();
-    for (vtkm::Id i = 0; i < n; i++)
+    for (viskores::Id i = 0; i < n; i++)
       portal.Set(i, i);
-    vtkm::cont::CellSetExtrude newCS(cs.GetConnectivityArray(),
-                                     cs.GetNumberOfPointsPerPlane(),
-                                     cs.GetNumberOfPlanes(),
-                                     nextNode,
-                                     cs.GetIsPeriodic());
+    viskores::cont::CellSetExtrude newCS(cs.GetConnectivityArray(),
+                                         cs.GetNumberOfPointsPerPlane(),
+                                         cs.GetNumberOfPlanes(),
+                                         nextNode,
+                                         cs.GetIsPeriodic());
 
     ds.SetCellSet(newCS);
   }
@@ -650,37 +653,38 @@ void CellSetXGC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   {
     for (auto& ds : partitions)
     {
-      using CellSetType = vtkm::cont::CellSetExtrude;
-      using CoordsType = vtkm::cont::ArrayHandleXGCCoordinates<double>;
+      using CellSetType = viskores::cont::CellSetExtrude;
+      using CoordsType = viskores::cont::ArrayHandleXGCCoordinates<double>;
 
       const auto& cs = ds.GetCellSet().AsCellSet<CellSetType>();
       const auto& coords = ds.GetCoordinateSystem().GetData().AsArrayHandle<CoordsType>();
 
-      vtkm::cont::Invoker invoke;
+      viskores::cont::Invoker invoke;
       if (addR)
       {
-        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        viskores::cont::ArrayHandle<viskores::Float64> var;
         invoke(fusionutil::CalcRadius{}, coords, var);
         ds.AddPointField("R", var);
       }
       if (addPhi)
       {
         fusionutil::CalcPhi calcPhi(cs.GetNumberOfPlanes(), cs.GetNumberOfPointsPerPlane());
-        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        viskores::cont::ArrayHandle<viskores::Float64> var;
         invoke(calcPhi, coords, var);
         ds.AddPointField("Phi", var);
       }
       if (addPsi)
       {
-        vtkm::Float64 psi_x = ds.GetField("psi_x")
-                                .GetData()
-                                .AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>()
-                                .ReadPortal()
-                                .Get(0);
-        auto psi =
-          ds.GetField("PSI").GetData().AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Float64>>();
+        viskores::Float64 psi_x = ds.GetField("psi_x")
+                                    .GetData()
+                                    .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>()
+                                    .ReadPortal()
+                                    .Get(0);
+        auto psi = ds.GetField("PSI")
+                     .GetData()
+                     .AsArrayHandle<viskores::cont::ArrayHandle<viskores::Float64>>();
 
-        vtkm::cont::ArrayHandle<vtkm::Float64> var;
+        viskores::cont::ArrayHandle<viskores::Float64> var;
         var.Allocate(coords.GetNumberOfValues());
         CellSetXGC::CalcPsi calcPsi(psi_x, cs.GetNumberOfPointsPerPlane());
         invoke(calcPsi, psi, var);
@@ -707,13 +711,13 @@ void CellSetGTC::ProcessJSON(const rapidjson::Value& json, DataSourcesType& sour
   this->IndexShift->ProcessJSON(json["index_shift"], sources);
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetGTC::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetGTC::Read(
   const std::unordered_map<std::string, std::string>& paths,
   DataSourcesType& sources,
   const fides::metadata::MetaData& selections)
 {
   // The size of the cellSetsGTC is always one
-  std::vector<vtkm::cont::UnknownCellSet> cellSets(1);
+  std::vector<viskores::cont::UnknownCellSet> cellSets(1);
 
   if (!this->IsCached)
   {
@@ -730,14 +734,14 @@ std::vector<vtkm::cont::UnknownCellSet> CellSetGTC::Read(
     }
 
     //Create the cell sets. We will fill them in PostRead
-    vtkm::cont::CellSetSingleType<> cellSet;
+    viskores::cont::CellSetSingleType<> cellSet;
     this->CachedCellSet = cellSet;
   }
 
   return cellSets;
 }
 
-void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetGTC::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                           const fides::metadata::MetaData& selections)
 {
   if (partitions.size() != 1)
@@ -784,12 +788,12 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
     throw std::runtime_error("num_planes and/or num_pts_per_plane not found.");
   }
 
-  using intType = vtkm::cont::ArrayHandle<int>;
+  using intType = viskores::cont::ArrayHandle<int>;
   auto numPlanes = dataSet.GetField("num_planes").GetData().AsArrayHandle<intType>();
   auto numPtsPerPlane = dataSet.GetField("num_pts_per_plane").GetData().AsArrayHandle<intType>();
 
-  this->NumberOfPointsPerPlane = static_cast<vtkm::Id>(numPtsPerPlane.ReadPortal().Get(0));
-  this->NumberOfPlanes = static_cast<vtkm::Id>(numPlanes.ReadPortal().Get(0));
+  this->NumberOfPointsPerPlane = static_cast<viskores::Id>(numPtsPerPlane.ReadPortal().Get(0));
+  this->NumberOfPlanes = static_cast<viskores::Id>(numPlanes.ReadPortal().Get(0));
 
   if (selections.Has(fides::keys::fusion::PLANE_INSERTION()))
   {
@@ -803,7 +807,7 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
 
   if (addR)
   {
-    vtkm::cont::Invoker invoke;
+    viskores::cont::Invoker invoke;
 
     const auto& coords = dataSet.GetCoordinateSystem().GetData();
     invoke(fusionutil::CalcRadius{}, coords, this->RArray);
@@ -812,7 +816,7 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   }
   if (addPhi)
   {
-    vtkm::cont::Invoker invoke;
+    viskores::cont::Invoker invoke;
     const auto& coords = dataSet.GetCoordinateSystem().GetData();
     fusionutil::CalcPhi calcPhi(this->NumberOfPlanes, this->NumberOfPointsPerPlane);
     invoke(calcPhi, coords, this->PhiArray);
@@ -822,22 +826,22 @@ void CellSetGTC::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
 }
 
 template <typename T, typename C>
-std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
-  const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>, C>& coords,
-  const vtkm::cont::ArrayHandle<int>& igrid,
-  const vtkm::cont::ArrayHandle<int>& indexShift)
+std::vector<viskores::Id> CellSetGTC::ComputeConnectivity(
+  const viskores::cont::ArrayHandle<viskores::Vec<T, 3>, C>& coords,
+  const viskores::cont::ArrayHandle<int>& igrid,
+  const viskores::cont::ArrayHandle<int>& indexShift)
 {
-  std::vector<vtkm::Id> nPoloidalNodes; // Number of nodes in each poloidal contour
-  std::vector<vtkm::Id> poloidalIndex;  // Starting node index of each poloidal contour
-  vtkm::Id nNodes = this->NumberOfPointsPerPlane;
+  std::vector<viskores::Id> nPoloidalNodes; // Number of nodes in each poloidal contour
+  std::vector<viskores::Id> poloidalIndex;  // Starting node index of each poloidal contour
+  viskores::Id nNodes = this->NumberOfPointsPerPlane;
 
   auto igridPortal = igrid.ReadPortal();
   auto coordsPortal = coords.ReadPortal();
 
-  for (vtkm::Id i = 0; i < igrid.GetNumberOfValues() - 1; i++)
+  for (viskores::Id i = 0; i < igrid.GetNumberOfValues() - 1; i++)
   {
     poloidalIndex.push_back(igridPortal.Get(i));
-    vtkm::Id nPts = static_cast<vtkm::Id>(igridPortal.Get(i + 1) - igridPortal.Get(i));
+    viskores::Id nPts = static_cast<viskores::Id>(igridPortal.Get(i + 1) - igridPortal.Get(i));
     nPoloidalNodes.push_back(nPts);
   }
 
@@ -845,7 +849,7 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
   // Work from the outside to the inside because there are more nodes
   // on the outside. As such, neighbors will get used multiple times
   // thus allowing for degenerate connections to be found.
-  std::vector<vtkm::Id> neighborIndex(nNodes);
+  std::vector<viskores::Id> neighborIndex(nNodes);
   for (size_t k = nPoloidalNodes.size() - 1; k > 0; --k)
   {
     for (size_t j = 0; j < static_cast<size_t>(nPoloidalNodes[k] - 1); ++j)
@@ -858,14 +862,14 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
       // the working node. Brute force search.
       // Never search the last node because it is the same as the
       // first node.
-      T minDist = vtkm::Infinity<T>();
+      T minDist = viskores::Infinity<T>();
       for (size_t i = 0; i < static_cast<size_t>(nPoloidalNodes[k - 1] - 1); i++)
       {
         // Index of the test node.
-        vtkm::Id m = poloidalIndex[k - 1] + i;
+        viskores::Id m = poloidalIndex[k - 1] + i;
         auto tmpPt = coordsPortal.Get(m);
 
-        auto dist = vtkm::MagnitudeSquared(basePt - tmpPt);
+        auto dist = viskores::MagnitudeSquared(basePt - tmpPt);
         if (dist < minDist)
         {
           neighborIndex[l] = m;
@@ -875,8 +879,8 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
     }
   }
 
-  std::vector<vtkm::Id> vtxList;
-  vtkm::Id nElements = 0;
+  std::vector<viskores::Id> vtxList;
+  viskores::Id nElements = 0;
 
   // Work from the outside to the inside because there are more nodes
   // on the outside. As such, neighbors will get used multiple times
@@ -885,8 +889,8 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
   {
     for (size_t j = 0; j < static_cast<size_t>(nPoloidalNodes[k] - 1); j++)
     {
-      vtkm::Id l = poloidalIndex[k] + static_cast<vtkm::Id>(j);
-      vtkm::Id l1 = (l + 1);
+      viskores::Id l = poloidalIndex[k] + static_cast<viskores::Id>(j);
+      viskores::Id l1 = (l + 1);
 
       // Never use the last node cause it is the same as the first node.
       if (l1 == poloidalIndex[k] + nPoloidalNodes[k] - 1)
@@ -915,13 +919,13 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
     }
   }
 
-  std::vector<vtkm::Id> connIds;
+  std::vector<viskores::Id> connIds;
   connIds.reserve(nElements * 6 * (this->NumberOfPlanes - 1));
-  for (vtkm::Id i = 0; i < this->NumberOfPlanes - 1; i++)
+  for (viskores::Id i = 0; i < this->NumberOfPlanes - 1; i++)
   {
-    vtkm::Id off = i * this->NumberOfPointsPerPlane;
-    vtkm::Id off2 = (i + 1) * this->NumberOfPointsPerPlane;
-    for (vtkm::Id j = 0; j < nElements; j++)
+    viskores::Id off = i * this->NumberOfPointsPerPlane;
+    viskores::Id off2 = (i + 1) * this->NumberOfPointsPerPlane;
+    for (viskores::Id j = 0; j < nElements; j++)
     {
       connIds.push_back(vtxList[j * 3 + 0] + off);
       connIds.push_back(vtxList[j * 3 + 1] + off);
@@ -938,28 +942,28 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
     //Connect the first/last plane.
     //Uses index-shift to map between flux surfaces.
     auto indexShiftPortal = indexShift.ReadPortal();
-    std::vector<vtkm::Id> pn(this->NumberOfPointsPerPlane, -1);
-    vtkm::Id n = igridPortal.GetNumberOfValues();
-    for (vtkm::Id gi = 0; gi < n - 1; gi++)
+    std::vector<viskores::Id> pn(this->NumberOfPointsPerPlane, -1);
+    viskores::Id n = igridPortal.GetNumberOfValues();
+    for (viskores::Id gi = 0; gi < n - 1; gi++)
     {
-      vtkm::Id n0 = igridPortal.Get(gi);
-      vtkm::Id nn = igridPortal.Get(gi + 1) - 1;
-      vtkm::Id shift = static_cast<vtkm::Id>(indexShiftPortal.Get(gi));
+      viskores::Id n0 = igridPortal.Get(gi);
+      viskores::Id nn = igridPortal.Get(gi + 1) - 1;
+      viskores::Id shift = static_cast<viskores::Id>(indexShiftPortal.Get(gi));
 
-      for (vtkm::Id i = 0; i < (nn - n0); i++)
+      for (viskores::Id i = 0; i < (nn - n0); i++)
       {
-        vtkm::Id i0 = i;
-        vtkm::Id i1 = i - shift;
+        viskores::Id i0 = i;
+        viskores::Id i1 = i - shift;
         if (i1 < 0)
           i1 = i1 + (nn - n0);
         pn[n0 + i0] = n0 + i1;
       }
     }
 
-    vtkm::Id offset = nNodes * (this->NumberOfPlanes - 1);
-    for (vtkm::Id i = 0; i < nElements; i++)
+    viskores::Id offset = nNodes * (this->NumberOfPlanes - 1);
+    for (viskores::Id i = 0; i < nElements; i++)
     {
-      vtkm::Id ids[3] = { connIds[i * 6 + 0], connIds[i * 6 + 1], connIds[i * 6 + 2] };
+      viskores::Id ids[3] = { connIds[i * 6 + 0], connIds[i * 6 + 1], connIds[i * 6 + 2] };
       if (!(ids[0] < nNodes && ids[1] < nNodes && ids[2] < nNodes))
         throw std::runtime_error("Invalid connectivity for GTC Cellset.");
 
@@ -978,22 +982,22 @@ std::vector<vtkm::Id> CellSetGTC::ComputeConnectivity(
   return connIds;
 }
 
-void CellSetGTC::ComputeCellSet(vtkm::cont::DataSet& dataSet)
+void CellSetGTC::ComputeCellSet(viskores::cont::DataSet& dataSet)
 {
-  vtkm::cont::ArrayHandle<int> igrid =
-    this->IGridArrays[0].AsArrayHandle<vtkm::cont::ArrayHandle<int>>();
-  vtkm::cont::ArrayHandle<int> indexShift =
-    this->IndexShiftArrays[0].AsArrayHandle<vtkm::cont::ArrayHandle<int>>();
+  viskores::cont::ArrayHandle<int> igrid =
+    this->IGridArrays[0].AsArrayHandle<viskores::cont::ArrayHandle<int>>();
+  viskores::cont::ArrayHandle<int> indexShift =
+    this->IndexShiftArrays[0].AsArrayHandle<viskores::cont::ArrayHandle<int>>();
 
   //These are fortran indices, so need to make it 0 based.
-  //Use VTKm to do this.
+  //Use Viskores to do this.
   auto portal = igrid.WritePortal();
   for (int i = 0; i < portal.GetNumberOfValues(); i++)
     portal.Set(i, portal.Get(i) - 1);
 
   auto cs = dataSet.GetCoordinateSystem().GetData();
-  std::vector<vtkm::Id> connIds;
-  vtkm::Id numCoords = 0;
+  std::vector<viskores::Id> connIds;
+  viskores::Id numCoords = 0;
   if (cs.IsType<GTCCoordsType32>())
   {
     auto coords = cs.AsArrayHandle<GTCCoordsType32>();
@@ -1011,47 +1015,48 @@ void CellSetGTC::ComputeCellSet(vtkm::cont::DataSet& dataSet)
     throw std::runtime_error("Unsupported type for GTC coordinates system.");
   }
 
-  vtkm::cont::CellSetSingleType<> cellSet;
+  viskores::cont::CellSetSingleType<> cellSet;
   if (dataSet.GetCellSet().IsValid())
   {
-    cellSet = dataSet.GetCellSet().AsCellSet<vtkm::cont::CellSetSingleType<>>();
+    cellSet = dataSet.GetCellSet().AsCellSet<viskores::cont::CellSetSingleType<>>();
   }
 
-  auto connIdsAH = vtkm::cont::make_ArrayHandle(connIds, vtkm::CopyFlag::On);
-  cellSet.Fill(numCoords, vtkm::CELL_SHAPE_WEDGE, 6, connIdsAH);
+  auto connIdsAH = viskores::cont::make_ArrayHandle(connIds, viskores::CopyFlag::On);
+  cellSet.Fill(numCoords, viskores::CELL_SHAPE_WEDGE, 6, connIdsAH);
   dataSet.SetCellSet(cellSet);
 
   this->CachedCellSet = cellSet;
   this->IsCached = true;
 }
 
-std::vector<vtkm::cont::UnknownCellSet> CellSetGX::Read(
+std::vector<viskores::cont::UnknownCellSet> CellSetGX::Read(
   const std::unordered_map<std::string, std::string>& fidesNotUsed(paths),
   DataSourcesType& fidesNotUsed(sources),
   const fides::metadata::MetaData& fidesNotUsed(selections))
 {
-  std::vector<vtkm::cont::UnknownCellSet> cellSets;
-  vtkm::cont::CellSetSingleType<> cellSet;
+  std::vector<viskores::cont::UnknownCellSet> cellSets;
+  viskores::cont::CellSetSingleType<> cellSet;
   cellSets.push_back(cellSet);
   return cellSets;
 }
 
-vtkm::Id CellSetGX::GetMetaDataValue(const vtkm::cont::DataSet& ds,
-                                     const std::string& fieldNm) const
+viskores::Id CellSetGX::GetMetaDataValue(const viskores::cont::DataSet& ds,
+                                         const std::string& fieldNm) const
 {
-  if (!ds.HasField(fieldNm, vtkm::cont::Field::Association::WholeDataSet))
+  if (!ds.HasField(fieldNm, viskores::cont::Field::Association::WholeDataSet))
     throw std::runtime_error("Error: CellSetGX missing field " + fieldNm);
 
-  const auto& field = ds.GetField(fieldNm, vtkm::cont::Field::Association::WholeDataSet).GetData();
+  const auto& field =
+    ds.GetField(fieldNm, viskores::cont::Field::Association::WholeDataSet).GetData();
   if (field.GetNumberOfValues() != 1)
     throw std::runtime_error("Error: Wrong number of values in field " + fieldNm);
-  if (!field.IsType<vtkm::cont::ArrayHandle<vtkm::Id>>())
+  if (!field.IsType<viskores::cont::ArrayHandle<viskores::Id>>())
     throw std::runtime_error("Error: Wrong type in field " + fieldNm);
 
-  return field.AsArrayHandle<vtkm::cont::ArrayHandle<vtkm::Id>>().ReadPortal().Get(0);
+  return field.AsArrayHandle<viskores::cont::ArrayHandle<viskores::Id>>().ReadPortal().Get(0);
 }
 
-void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+void CellSetGX::PostRead(std::vector<viskores::cont::DataSet>& partitions,
                          const fides::metadata::MetaData& fidesNotUsed(selections))
 {
   if (partitions.size() != 1)
@@ -1059,26 +1064,26 @@ void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
 
   auto& ds = partitions[0];
 
-  vtkm::Id numTheta = this->GetMetaDataValue(ds, "num_theta");
-  vtkm::Id numZeta = this->GetMetaDataValue(ds, "num_zeta");
-  vtkm::Id nfp = this->GetMetaDataValue(ds, "nfp");
-  vtkm::Id numSurfaces = this->GetMetaDataValue(ds, "num_surfaces");
-  vtkm::Id srfIdxMin = this->GetMetaDataValue(ds, "surface_min_index");
+  viskores::Id numTheta = this->GetMetaDataValue(ds, "num_theta");
+  viskores::Id numZeta = this->GetMetaDataValue(ds, "num_zeta");
+  viskores::Id nfp = this->GetMetaDataValue(ds, "nfp");
+  viskores::Id numSurfaces = this->GetMetaDataValue(ds, "num_surfaces");
+  viskores::Id srfIdxMin = this->GetMetaDataValue(ds, "surface_min_index");
 
-  vtkm::Id ptsPerPlane = numTheta;
-  vtkm::Id numPlanes = numZeta * nfp;
-  vtkm::Id numCellsPerSurface = (ptsPerPlane - 1) * (numPlanes - 1);
-  vtkm::Id totNumCells = numSurfaces * numCellsPerSurface;
+  viskores::Id ptsPerPlane = numTheta;
+  viskores::Id numPlanes = numZeta * nfp;
+  viskores::Id numCellsPerSurface = (ptsPerPlane - 1) * (numPlanes - 1);
+  viskores::Id totNumCells = numSurfaces * numCellsPerSurface;
 
   //create cell with with empty connection ids.
-  auto cellSet = vtkm::cont::CellSetSingleType<>();
-  vtkm::cont::ArrayHandle<vtkm::Id> connIds, surfaceIndices;
+  auto cellSet = viskores::cont::CellSetSingleType<>();
+  viskores::cont::ArrayHandle<viskores::Id> connIds, surfaceIndices;
   connIds.Allocate(totNumCells * 4);
-  cellSet.Fill(ds.GetNumberOfPoints(), vtkm::CELL_SHAPE_QUAD, 4, connIds);
+  cellSet.Fill(ds.GetNumberOfPoints(), viskores::CELL_SHAPE_QUAD, 4, connIds);
 
   //call worklet to set the point ids for the cellset.
   // create a cell centered variable with the surface index.
-  vtkm::cont::Invoker invoke;
+  viskores::cont::Invoker invoke;
   fides::datamodel::fusionutil::CalcGXCellSetConnIds worklet(numPlanes, numTheta, srfIdxMin);
   invoke(worklet, cellSet, connIds, surfaceIndices);
 
@@ -1086,7 +1091,7 @@ void CellSetGX::PostRead(std::vector<vtkm::cont::DataSet>& partitions,
   ds.AddCellField("SurfaceIndex", surfaceIndices);
 
   //Call CleanGrid filter to remove duplicates and merge points.
-  vtkm::filter::clean_grid::CleanGrid cleaner;
+  viskores::filter::clean_grid::CleanGrid cleaner;
   cleaner.SetMergePoints(true);
   cleaner.SetCompactPointFields(false);
   cleaner.SetRemoveDegenerateCells(true);

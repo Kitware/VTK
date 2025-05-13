@@ -17,17 +17,17 @@
 #include <fides/FieldData.h>
 #include <fides/predefined/InternalMetadataSource.h>
 
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/Field.h>
 
 namespace fides
 {
 namespace datamodel
 {
 
-/// \brief Data model object for VTK-m fields.
+/// \brief Data model object for Viskores fields.
 ///
 /// \c fides::datamodel::Field is responsible of creating
-/// VTK-m fields by loading data defined by the Fides
+/// Viskores fields by loading data defined by the Fides
 /// data model.
 struct Field : public DataModelBase
 {
@@ -49,11 +49,11 @@ struct Field : public DataModelBase
   /// handled by the underlying Array object.
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
-  std::vector<vtkm::cont::Field> Read(const std::unordered_map<std::string, std::string>& paths,
-                                      DataSourcesType& sources,
-                                      const fides::metadata::MetaData& selections);
+  std::vector<viskores::cont::Field> Read(const std::unordered_map<std::string, std::string>& paths,
+                                          DataSourcesType& sources,
+                                          const fides::metadata::MetaData& selections);
 
-  void PostRead(std::vector<vtkm::cont::DataSet>& partitions,
+  void PostRead(std::vector<viskores::cont::DataSet>& partitions,
                 const fides::metadata::MetaData& selections);
 
   /// Similar to Read() but to be used when reading field data instead of regular
@@ -62,7 +62,7 @@ struct Field : public DataModelBase
   /// The paths are passed to the \c DataSources to create
   /// file paths. \c selections restrict the data that is loaded.
   FIDES_DEPRECATED_SUPPRESS_BEGIN
-  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
+  FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in Viskores DataSet.")
   FieldData ReadFieldData(const std::unordered_map<std::string, std::string>& paths,
                           DataSourcesType& sources,
                           const fides::metadata::MetaData& selections);
@@ -91,7 +91,7 @@ struct Field : public DataModelBase
   std::string Name;
 
   /// The association of the array, either POINTS, CELL_SET, or FIELD_DATA
-  vtkm::cont::Field::Association Association;
+  viskores::cont::Field::Association Association;
 
 private:
   std::shared_ptr<fides::datamodel::Array> Array;

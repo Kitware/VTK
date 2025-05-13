@@ -17,7 +17,7 @@
 #include "vtkmFilterOverrides.h"
 #include "vtkmGradient.h"
 
-#include <vtkm/testing/Testing.h>
+#include <viskores/testing/Testing.h>
 
 namespace
 {

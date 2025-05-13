@@ -13,7 +13,7 @@
 
 #include <fides/DataSource.h>
 
-#include <vtkm/cont/UnknownArrayHandle.h>
+#include <viskores/cont/UnknownArrayHandle.h>
 
 #include <fides_rapidjson.h>
 // clang-format off
@@ -35,7 +35,7 @@ using DataSourcesType = std::unordered_map<std::string, std::shared_ptr<DataSour
 /// \brief Superclass for all data model classes.
 ///
 /// Data model classes represent different structures that reside
-/// in a VTK-m dataset and that are mapped to different variables
+/// in a Viskores dataset and that are mapped to different variables
 /// read by data sources. This class provides common basic functionality
 /// to all data model objects. These can be overriden by subclasses.
 struct DataModelBase
@@ -71,24 +71,24 @@ protected:
   // Data reading usually happens through this method, which works
   // with the data source. This also handles data caching for static
   // variables.
-  std::vector<vtkm::cont::UnknownArrayHandle> ReadSelf(
+  std::vector<viskores::cont::UnknownArrayHandle> ReadSelf(
     const std::unordered_map<std::string, std::string>& paths,
     DataSourcesType& sources,
     const fides::metadata::MetaData& selections,
     fides::io::IsVector isItVector = fides::io::IsVector::Auto);
 
-  std::vector<vtkm::cont::UnknownArrayHandle> Cache;
+  std::vector<viskores::cont::UnknownArrayHandle> Cache;
 };
 
 /// Utility function that returns an ArrayHandle with the data from `uah`.
 /// However, the returned ArrayHandle does not own data. The deleter of the Buffer is a no-op.
-vtkm::cont::UnknownArrayHandle make_ArrayHandleWithoutDataOwnership(
-  const vtkm::cont::UnknownArrayHandle& uah);
+viskores::cont::UnknownArrayHandle make_ArrayHandleWithoutDataOwnership(
+  const viskores::cont::UnknownArrayHandle& uah);
 
 /// Convenience function that returns a vector of ownerless ArrayHandle objects for
 /// each ArrayHandle in the input vector.
-std::vector<vtkm::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnership(
-  const std::vector<vtkm::cont::UnknownArrayHandle>& uahs);
+std::vector<viskores::cont::UnknownArrayHandle> make_ArrayHandlesWithoutDataOwnership(
+  const std::vector<viskores::cont::UnknownArrayHandle>& uahs);
 
 }
 }

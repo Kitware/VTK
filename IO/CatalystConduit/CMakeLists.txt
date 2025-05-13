@@ -37,7 +37,7 @@ configure_file(
   @ONLY)
 
 
-if (TARGET vtkm::cuda)
+if (TARGET viskores::cuda)
   # Temporarily suppress "has address taken but no possible call to it" warnings,
   # until we figure out its implications.
   # We are disabling all warnings as nvlink has no known way to suppress

@@ -79,7 +79,7 @@ and Matplotlib further increases its flexibility.
 :::{grid-item-card} Parallel Processing
 VTK offers excellent support for scalable distributed-memory parallel
 processing under MPI. VTK filters implement finer-grained parallelism using
-vtkSMP for coarse-grained threading and vtk-m for fine-grained processing on
+vtkSMP for coarse-grained threading and viskores for fine-grained processing on
 many-core and GPU architectures. These parallel processing capabilities make
 VTK highly efficient and suited for processing large data sets.
 :::

@@ -28,13 +28,13 @@
 #include FIDES_RAPIDJSON(rapidjson/prettywriter.h)
 // clang-format on
 
-#include <vtkm/cont/ArrayHandleCartesianProduct.h>
-#include <vtkm/cont/CellSetExplicit.h>
-#include <vtkm/cont/CellSetSingleType.h>
-#include <vtkm/cont/CoordinateSystem.h>
-#include <vtkm/cont/DataSet.h>
-#include <vtkm/cont/Logging.h>
-#include <vtkm/cont/UnknownCellSet.h>
+#include <viskores/cont/ArrayHandleCartesianProduct.h>
+#include <viskores/cont/CellSetExplicit.h>
+#include <viskores/cont/CellSetSingleType.h>
+#include <viskores/cont/CoordinateSystem.h>
+#include <viskores/cont/DataSet.h>
+#include <viskores/cont/Logging.h>
+#include <viskores/cont/UnknownCellSet.h>
 
 #include <fides/CellSet.h>
 #include <fides/CoordinateSystem.h>
@@ -65,42 +65,44 @@ namespace io
 namespace
 {
 
-// When VTK converts to VTK-m DataSet, it may do a cast of some arrays from 32-bit to 64-bit Integers.
+// When VTK converts to Viskores DataSet, it may do a cast of some arrays from 32-bit to 64-bit Integers.
 // I don't think we need to handle any other cases than what are in these lists.
-using CellSetSingleTypeList =
-  vtkm::List<vtkm::cont::CellSetSingleType<>,
-             vtkm::cont::CellSetSingleType<
-               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+using CellSetSingleTypeList = viskores::List<
+  viskores::cont::CellSetSingleType<>,
+  viskores::cont::CellSetSingleType<
+    viskores::cont::StorageTagCast<viskores::Int32, viskores::cont::StorageTagBasic>>>;
 
-using CellSetExplicitList =
-  vtkm::List<vtkm::cont::CellSetExplicit<>,
-             vtkm::cont::CellSetExplicit<
-               vtkm::cont::StorageTagBasic,
-               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>,
-               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+using CellSetExplicitList = viskores::List<
+  viskores::cont::CellSetExplicit<>,
+  viskores::cont::CellSetExplicit<
+    viskores::cont::StorageTagBasic,
+    viskores::cont::StorageTagCast<viskores::Int32, viskores::cont::StorageTagBasic>,
+    viskores::cont::StorageTagCast<viskores::Int32, viskores::cont::StorageTagBasic>>>;
 
-using FullCellSetExplicitList = vtkm::ListAppend<CellSetSingleTypeList, CellSetExplicitList>;
+using FullCellSetExplicitList = viskores::ListAppend<CellSetSingleTypeList, CellSetExplicitList>;
 
 struct GetDataSetTypeFunctor
 {
   template <typename ConnectivityStorage>
-  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<ConnectivityStorage>&,
-                            unsigned char& type,
-                            DataSetWriter& self)
+  VISKORES_CONT void operator()(const viskores::cont::CellSetSingleType<ConnectivityStorage>&,
+                                unsigned char& type,
+                                DataSetWriter& self)
   {
     type = self.DATASET_TYPE_UNSTRUCTURED_SINGLE;
   }
 
   template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
-  VTKM_CONT void operator()(
-    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
     unsigned char& type,
     DataSetWriter& self)
   {
     type = self.DATASET_TYPE_UNSTRUCTURED;
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet&, unsigned char& type, DataSetWriter& self)
+  VISKORES_CONT void operator()(const viskores::cont::CellSet&,
+                                unsigned char& type,
+                                DataSetWriter& self)
   {
     // in this case we didn't find an appropriate dataset type
     type = self.DATASET_TYPE_ERROR;
@@ -115,9 +117,9 @@ struct DefineVariableFunctor
   // the types (and if there's an issue, it's likely a bug). So this way, we don't
   // have to actually create an array of the casted type in order to have adios write it
   template <typename TCast, typename TOrig>
-  VTKM_CONT void operator()(
-    const vtkm::cont::ArrayHandle<TCast,
-                                  vtkm::cont::StorageTagCast<TOrig, vtkm::cont::StorageTagBasic>>&,
+  VISKORES_CONT void operator()(
+    const viskores::cont::
+      ArrayHandle<TCast, viskores::cont::StorageTagCast<TOrig, viskores::cont::StorageTagBasic>>&,
     const std::vector<size_t>& shape,
     const std::vector<size_t>& offset,
     const std::vector<size_t>& size,
@@ -128,14 +130,14 @@ struct DefineVariableFunctor
   }
 
   template <typename T, typename S>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>&,
-                            const std::vector<size_t>& shape,
-                            const std::vector<size_t>& offset,
-                            const std::vector<size_t>& size,
-                            adios2::IO& io,
-                            const std::string& name)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>&,
+                                const std::vector<size_t>& shape,
+                                const std::vector<size_t>& offset,
+                                const std::vector<size_t>& size,
+                                adios2::IO& io,
+                                const std::string& name)
   {
-    using ComponentType = typename vtkm::VecTraits<T>::ComponentType;
+    using ComponentType = typename viskores::VecTraits<T>::ComponentType;
     io.template DefineVariable<ComponentType>(name, shape, offset, size);
   }
 };
@@ -145,60 +147,60 @@ struct DefineVariableFunctor
 struct DefineCellsVariableFunctor
 {
   template <typename S>
-  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
-                            const std::vector<size_t>& shape,
-                            const std::vector<size_t>& offset,
-                            const std::vector<size_t>& size,
-                            adios2::IO& io,
-                            const std::string& name)
+  VISKORES_CONT void operator()(const viskores::cont::CellSetSingleType<S>& cellSet,
+                                const std::vector<size_t>& shape,
+                                const std::vector<size_t>& offset,
+                                const std::vector<size_t>& size,
+                                adios2::IO& io,
+                                const std::string& name)
   {
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     DefineVariableFunctor functor;
     functor(conn, shape, offset, size, io, name);
   }
 
   template <typename S>
-  VTKM_CONT void operator()(const vtkm::cont::CellSetExplicit<S>& cellSet,
-                            const std::vector<size_t>& shape,
-                            const std::vector<size_t>& offset,
-                            const std::vector<size_t>& size,
-                            adios2::IO& io,
-                            const std::string& name)
+  VISKORES_CONT void operator()(const viskores::cont::CellSetExplicit<S>& cellSet,
+                                const std::vector<size_t>& shape,
+                                const std::vector<size_t>& offset,
+                                const std::vector<size_t>& size,
+                                adios2::IO& io,
+                                const std::string& name)
   {
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     DefineVariableFunctor functor;
     functor(conn, shape, offset, size, io, name);
   }
 
   template <typename ConnType>
-  VTKM_CONT void operator()(
-    const vtkm::cont::CellSetExplicit<
-      vtkm::cont::StorageTagBasic,
-      vtkm::cont::StorageTagCast<ConnType, vtkm::cont::StorageTagBasic>,
-      vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>& cellSet,
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetExplicit<
+      viskores::cont::StorageTagBasic,
+      viskores::cont::StorageTagCast<ConnType, viskores::cont::StorageTagBasic>,
+      viskores::cont::StorageTagCast<viskores::Int32, viskores::cont::StorageTagBasic>>& cellSet,
     const std::vector<size_t>& shape,
     const std::vector<size_t>& offset,
     const std::vector<size_t>& size,
     adios2::IO& io,
     const std::string& name)
   {
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     DefineVariableFunctor functor;
     functor(conn, shape, offset, size, io, name);
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
-                            const std::vector<size_t>&,
-                            const std::vector<size_t>&,
-                            const std::vector<size_t>&,
-                            adios2::IO&,
-                            const std::string&)
+  VISKORES_CONT void operator()(const viskores::cont::CellSet& cellSet,
+                                const std::vector<size_t>&,
+                                const std::vector<size_t>&,
+                                const std::vector<size_t>&,
+                                adios2::IO&,
+                                const std::string&)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+      viskores::cont::TypeToString(typeid(cellSet)) + " is not supported";
     throw std::runtime_error(err);
   }
 };
@@ -206,17 +208,17 @@ struct DefineCellsVariableFunctor
 struct WriteExplicitCoordsFunctor
 {
   template <typename T>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>>& array,
-                            adios2::IO& io,
-                            adios2::Engine& engine,
-                            size_t& cOffset,
-                            size_t totalNumberOfCoords)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<viskores::Vec<T, 3>>& array,
+                                adios2::IO& io,
+                                adios2::Engine& engine,
+                                size_t& cOffset,
+                                size_t totalNumberOfCoords)
   {
     auto coordsVar = io.template InquireVariable<T>("coordinates");
     coordsVar.SetShape({ totalNumberOfCoords, 3 });
 
-    vtkm::cont::ArrayHandleBasic<vtkm::Vec<T, 3>> arr(array);
-    const vtkm::Vec<T, 3>* buffVec = arr.GetReadPointer();
+    viskores::cont::ArrayHandleBasic<viskores::Vec<T, 3>> arr(array);
+    const viskores::Vec<T, 3>* buffVec = arr.GetReadPointer();
     const T* buff = &buffVec[0][0];
 
     std::size_t numCoords = static_cast<std::size_t>(array.GetNumberOfValues());
@@ -232,45 +234,47 @@ struct WriteExplicitCoordsFunctor
   }
 
   template <typename T, typename S>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array,
-                            adios2::IO&,
-                            adios2::Engine&,
-                            size_t&,
-                            size_t)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
+                                adios2::IO&,
+                                adios2::Engine&,
+                                size_t&,
+                                size_t)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(array)) + " is not supported";
+      viskores::cont::TypeToString(typeid(array)) + " is not supported";
     throw std::runtime_error(err);
   }
 };
 
 template <typename T>
-vtkm::cont::ArrayHandle<T> GetSourceConnectivityArray(const vtkm::cont::ArrayHandle<T>& conn)
+viskores::cont::ArrayHandle<T> GetSourceConnectivityArray(
+  const viskores::cont::ArrayHandle<T>& conn)
 {
   return conn;
 }
 
 template <typename TOrig, typename TCast>
-vtkm::cont::ArrayHandle<TOrig> GetSourceConnectivityArray(
-  const vtkm::cont::ArrayHandle<TCast,
-                                vtkm::cont::StorageTagCast<TOrig, vtkm::cont::StorageTagBasic>>&
-    conn)
+viskores::cont::ArrayHandle<TOrig> GetSourceConnectivityArray(
+  const viskores::cont::ArrayHandle<
+    TCast,
+    viskores::cont::StorageTagCast<TOrig, viskores::cont::StorageTagBasic>>& conn)
 {
-  const vtkm::cont::ArrayHandleCast<TCast, vtkm::cont::ArrayHandle<TOrig>>& casted = conn;
+  const viskores::cont::ArrayHandleCast<TCast, viskores::cont::ArrayHandle<TOrig>>& casted = conn;
   return casted.GetSourceArray();
 }
 
 struct WriteSingleTypeCellsFunctor
 {
   template <typename ConnectivityStorage>
-  VTKM_CONT void operator()(const vtkm::cont::CellSetSingleType<ConnectivityStorage>& cellSet,
-                            adios2::IO& io,
-                            adios2::Engine& engine,
-                            size_t& offset,
-                            size_t totalNumberOfConnIds)
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetSingleType<ConnectivityStorage>& cellSet,
+    adios2::IO& io,
+    adios2::Engine& engine,
+    size_t& offset,
+    size_t totalNumberOfConnIds)
   {
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     const auto& sourceConn = GetSourceConnectivityArray(conn);
 
     std::size_t numConn = static_cast<std::size_t>(sourceConn.GetNumberOfValues());
@@ -282,21 +286,21 @@ struct WriteSingleTypeCellsFunctor
     adios2::Box<adios2::Dims> sel({ offset }, { numConn });
     connVar.SetSelection(sel);
 
-    vtkm::cont::ArrayHandleBasic<ConnType> arr(sourceConn);
+    viskores::cont::ArrayHandleBasic<ConnType> arr(sourceConn);
     const ConnType* buff = arr.GetReadPointer();
     engine.Put<ConnType>(connVar, buff);
 
     offset += numConn;
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
-                            adios2::IO&,
-                            adios2::Engine&,
-                            size_t&,
-                            size_t)
+  VISKORES_CONT void operator()(const viskores::cont::CellSet& cellSet,
+                                adios2::IO&,
+                                adios2::Engine&,
+                                size_t&,
+                                size_t)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(cellSet)) + " is not yet supported";
+      viskores::cont::TypeToString(typeid(cellSet)) + " is not yet supported";
     throw std::runtime_error(err);
   }
 };
@@ -304,32 +308,33 @@ struct WriteSingleTypeCellsFunctor
 struct CheckCellSetExplicitTypeFunctor
 {
   template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
-  VTKM_CONT void operator()(
-    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&,
     bool& isType)
   {
     isType = true;
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet&, bool& isType) { isType = false; }
+  VISKORES_CONT void operator()(const viskores::cont::CellSet&, bool& isType) { isType = false; }
 };
 
 struct ComputeNumConnsFunctor
 {
   template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
-  VTKM_CONT void operator()(
-    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>& cellSet,
-    vtkm::Id& numConn)
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&
+      cellSet,
+    viskores::Id& numConn)
   {
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     numConn += conn.GetNumberOfValues();
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet, vtkm::Id&) const
+  VISKORES_CONT void operator()(const viskores::cont::CellSet& cellSet, viskores::Id&) const
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+      viskores::cont::TypeToString(typeid(cellSet)) + " is not supported";
     throw std::runtime_error(err);
   }
 };
@@ -337,22 +342,23 @@ struct ComputeNumConnsFunctor
 struct WriteExplicitCellsFunctor
 {
   template <typename ShapesStorage, typename ConnectivityStorage, typename OffsetsStorage>
-  VTKM_CONT void operator()(
-    const vtkm::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>& cellSet,
+  VISKORES_CONT void operator()(
+    const viskores::cont::CellSetExplicit<ShapesStorage, ConnectivityStorage, OffsetsStorage>&
+      cellSet,
     std::size_t& cellOffset,
     std::size_t& connOffset,
-    std::vector<vtkm::IdComponent>& numVerts,
+    std::vector<viskores::IdComponent>& numVerts,
     std::size_t& numVertsOffset,
-    vtkm::Id totalNumberOfConns,
+    viskores::Id totalNumberOfConns,
     adios2::Engine& engine,
     adios2::IO& io)
   {
     size_t numCells = static_cast<size_t>(cellSet.GetNumberOfCells());
 
-    const auto& shapes =
-      cellSet.GetShapesArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& shapes = cellSet.GetShapesArray(viskores::TopologyElementTagCell{},
+                                                viskores::TopologyElementTagPoint{});
 
-    vtkm::cont::ArrayHandleBasic<uint8_t> shapes_arr(shapes);
+    viskores::cont::ArrayHandleBasic<uint8_t> shapes_arr(shapes);
     const uint8_t* buffer = shapes_arr.GetReadPointer();
     adios2::Box<adios2::Dims> shapesSelection({ cellOffset }, { numCells });
 
@@ -362,24 +368,24 @@ struct WriteExplicitCellsFunctor
 
     // Each offset must be converted to a number of vertices. See
     // CellSetExplicit::PostRead
-    auto const& offsets =
-      cellSet.GetOffsetsArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    auto const& offsets = cellSet.GetOffsetsArray(viskores::TopologyElementTagCell{},
+                                                  viskores::TopologyElementTagPoint{});
     auto rp = offsets.ReadPortal();
 
-    for (vtkm::Id i = 0; static_cast<size_t>(i) < numCells; i++)
+    for (viskores::Id i = 0; static_cast<size_t>(i) < numCells; i++)
     {
       numVerts[numVertsOffset + i] = rp.Get(i + 1) - rp.Get(i);
     }
 
     adios2::Box<adios2::Dims> vertsVarSel({ cellOffset }, { numCells });
-    auto vertsVar = io.InquireVariable<vtkm::IdComponent>("num_verts");
+    auto vertsVar = io.InquireVariable<viskores::IdComponent>("num_verts");
     vertsVar.SetSelection(vertsVarSel);
     engine.Put(vertsVar, &(numVerts[numVertsOffset]));
     cellOffset += numCells;
     numVertsOffset += numCells;
 
-    const auto& conn =
-      cellSet.GetConnectivityArray(vtkm::TopologyElementTagCell{}, vtkm::TopologyElementTagPoint{});
+    const auto& conn = cellSet.GetConnectivityArray(viskores::TopologyElementTagCell{},
+                                                    viskores::TopologyElementTagPoint{});
     const auto& sourceConn = GetSourceConnectivityArray(conn);
 
     std::size_t numConn = static_cast<std::size_t>(sourceConn.GetNumberOfValues());
@@ -392,23 +398,23 @@ struct WriteExplicitCellsFunctor
     connVar.SetSelection(connSelection);
 
     // Now get the buffer:
-    vtkm::cont::ArrayHandleBasic<ConnType> conn_arr(sourceConn);
+    viskores::cont::ArrayHandleBasic<ConnType> conn_arr(sourceConn);
     const ConnType* buff4 = conn_arr.GetReadPointer();
     engine.Put<ConnType>(connVar, buff4);
     connOffset += numConn;
   }
 
-  VTKM_CONT void operator()(const vtkm::cont::CellSet& cellSet,
-                            std::size_t&,
-                            std::size_t&,
-                            std::vector<vtkm::IdComponent>&,
-                            std::size_t&,
-                            vtkm::Id,
-                            adios2::Engine&,
-                            adios2::IO&)
+  VISKORES_CONT void operator()(const viskores::cont::CellSet& cellSet,
+                                std::size_t&,
+                                std::size_t&,
+                                std::vector<viskores::IdComponent>&,
+                                std::size_t&,
+                                viskores::Id,
+                                adios2::Engine&,
+                                adios2::IO&)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported";
+      viskores::cont::TypeToString(typeid(cellSet)) + " is not supported";
     throw std::runtime_error(err);
   }
 };
@@ -416,13 +422,13 @@ struct WriteExplicitCellsFunctor
 struct WriteFieldFunctor
 {
   template <typename T>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<vtkm::Vec<T, 3>>& array,
-                            adios2::IO& io,
-                            adios2::Engine& engine,
-                            const std::string& name,
-                            size_t totalSize,
-                            size_t offset,
-                            size_t numValues)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<viskores::Vec<T, 3>>& array,
+                                adios2::IO& io,
+                                adios2::Engine& engine,
+                                const std::string& name,
+                                size_t totalSize,
+                                size_t offset,
+                                size_t numValues)
   {
     auto var = io.template InquireVariable<T>(name);
     var.SetShape({ totalSize, 3 });
@@ -430,20 +436,20 @@ struct WriteFieldFunctor
     adios2::Box<adios2::Dims> sel({ offset, 0 }, { numValues, 3 });
     var.SetSelection(sel);
 
-    vtkm::cont::ArrayHandleBasic<vtkm::Vec<T, 3>> arr(array);
-    const vtkm::Vec<T, 3>* buffVec = arr.GetReadPointer();
+    viskores::cont::ArrayHandleBasic<viskores::Vec<T, 3>> arr(array);
+    const viskores::Vec<T, 3>* buffVec = arr.GetReadPointer();
     const T* buff = &buffVec[0][0];
     engine.template Put<T>(var, buff);
   }
 
   template <typename T>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T>& array,
-                            adios2::IO& io,
-                            adios2::Engine& engine,
-                            const std::string& name,
-                            size_t totalSize,
-                            size_t offset,
-                            size_t numValues)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T>& array,
+                                adios2::IO& io,
+                                adios2::Engine& engine,
+                                const std::string& name,
+                                size_t totalSize,
+                                size_t offset,
+                                size_t numValues)
   {
     auto var = io.template InquireVariable<T>(name);
     var.SetShape({ totalSize });
@@ -451,22 +457,22 @@ struct WriteFieldFunctor
     adios2::Box<adios2::Dims> sel({ offset }, { numValues });
     var.SetSelection(sel);
 
-    vtkm::cont::ArrayHandleBasic<T> arr(array);
+    viskores::cont::ArrayHandleBasic<T> arr(array);
     const T* buff = arr.GetReadPointer();
     engine.template Put<T>(var, buff);
   }
 
   template <typename T, typename S>
-  VTKM_CONT void operator()(const vtkm::cont::ArrayHandle<T, S>& array,
-                            adios2::IO&,
-                            adios2::Engine&,
-                            const std::string&,
-                            size_t,
-                            size_t,
-                            size_t)
+  VISKORES_CONT void operator()(const viskores::cont::ArrayHandle<T, S>& array,
+                                adios2::IO&,
+                                adios2::Engine&,
+                                const std::string&,
+                                size_t,
+                                size_t,
+                                size_t)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(array)) + " is not supported";
+      viskores::cont::TypeToString(typeid(array)) + " is not supported";
     throw std::runtime_error(err);
   }
 };
@@ -476,7 +482,7 @@ struct WriteFieldFunctor
 class DataSetWriter::GenericWriter
 {
 public:
-  GenericWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  GenericWriter(const viskores::cont::PartitionedDataSet& dataSets,
                 const std::string& fname,
                 const std::string& outputMode,
                 const bool& appendMode = false)
@@ -503,7 +509,7 @@ public:
   }
 
 #ifdef FIDES_USE_MPI
-  GenericWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  GenericWriter(const viskores::cont::PartitionedDataSet& dataSets,
                 const std::string& fname,
                 const std::string& outputMode,
                 MPI_Comm comm,
@@ -578,7 +584,7 @@ public:
     for (const auto& varName : this->PointCenteredFieldVars)
     {
       std::size_t ptsOffset = this->DataSetPointsOffset;
-      for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+      for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
       {
         const auto& ds = this->DataSets.GetPartition(i);
         std::size_t numPoints = static_cast<std::size_t>(ds.GetNumberOfPoints());
@@ -588,7 +594,7 @@ public:
           throw std::runtime_error("Variable " + varName + " not in datasset.");
         }
         auto field = ds.GetField(varName).GetData();
-        field.CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+        field.CastAndCallForTypes<viskores::TypeListCommon, VISKORES_DEFAULT_STORAGE_LIST>(
           WriteFieldFunctor{},
           this->IO,
           this->Engine,
@@ -604,7 +610,7 @@ public:
     {
       std::size_t cellsOffset = this->DataSetCellsOffset;
 
-      for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+      for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
       {
         const auto& ds = this->DataSets.GetPartition(i);
         std::size_t numCells = static_cast<std::size_t>(ds.GetCellSet().GetNumberOfCells());
@@ -615,7 +621,7 @@ public:
         }
 
         auto field = ds.GetField(varName).GetData();
-        field.CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
+        field.CastAndCallForTypes<viskores::TypeListCommon, VISKORES_DEFAULT_STORAGE_LIST>(
           WriteFieldFunctor{},
           this->IO,
           this->Engine,
@@ -672,9 +678,9 @@ public:
   void DefineFieldVariables()
   {
     std::size_t numPoints = 0, numCells = 0;
-    vtkm::IdComponent numFields = 0;
+    viskores::IdComponent numFields = 0;
 
-    vtkm::cont::DataSet ds0;
+    viskores::cont::DataSet ds0;
     if (this->DataSets.GetNumberOfPartitions() > 0)
     {
       ds0 = this->DataSets.GetPartition(0);
@@ -682,7 +688,7 @@ public:
     }
 
     // Determine total number of points/cells.
-    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+    for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       if (ds.GetNumberOfFields() != numFields)
@@ -694,7 +700,7 @@ public:
       numCells += static_cast<std::size_t>(ds.GetCellSet().GetNumberOfCells());
     }
 
-    for (vtkm::Id i = 0; i < numFields; i++)
+    for (viskores::Id i = 0; i < numFields; i++)
     {
       const auto& field = ds0.GetField(i);
       const auto& name = field.GetName();
@@ -710,7 +716,7 @@ public:
       std::size_t numComponents = static_cast<std::size_t>(field.GetData().GetNumberOfComponents());
       std::vector<std::size_t> shape, offset, size;
 
-      if (field.GetAssociation() == vtkm::cont::Field::Association::Points)
+      if (field.GetAssociation() == viskores::cont::Field::Association::Points)
       {
         if (numComponents == 1)
         {
@@ -725,11 +731,12 @@ public:
           size = { numPoints, numComponents };
         }
 
-        field.GetData().CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
-          DefineVariableFunctor{}, shape, offset, size, this->IO, name);
+        field.GetData()
+          .CastAndCallForTypes<viskores::TypeListCommon, VISKORES_DEFAULT_STORAGE_LIST>(
+            DefineVariableFunctor{}, shape, offset, size, this->IO, name);
         this->PointCenteredFieldVars.push_back(name);
       }
-      else if (field.GetAssociation() == vtkm::cont::Field::Association::Cells)
+      else if (field.GetAssociation() == viskores::cont::Field::Association::Cells)
       {
         if (numComponents == 1)
         {
@@ -743,14 +750,15 @@ public:
           offset = { this->DataSetCellsOffset, 0 };
           size = { numCells, numComponents };
         }
-        field.GetData().CastAndCallForTypes<vtkm::TypeListCommon, VTKM_DEFAULT_STORAGE_LIST>(
-          DefineVariableFunctor{}, shape, offset, size, this->IO, name);
+        field.GetData()
+          .CastAndCallForTypes<viskores::TypeListCommon, VISKORES_DEFAULT_STORAGE_LIST>(
+            DefineVariableFunctor{}, shape, offset, size, this->IO, name);
         this->CellCenteredFieldVars.push_back(name);
       }
     }
   }
 
-  void SetDataSets(vtkm::cont::PartitionedDataSet dataSets) { this->DataSets = dataSets; }
+  void SetDataSets(viskores::cont::PartitionedDataSet dataSets) { this->DataSets = dataSets; }
 
 protected:
   bool ShouldWriteVariable(const std::string& var) const
@@ -793,7 +801,7 @@ protected:
 
     for (std::size_t i = 0; i < this->NumberOfDataSets; i++)
     {
-      const auto& ds = this->DataSets.GetPartition(static_cast<vtkm::Id>(i));
+      const auto& ds = this->DataSets.GetPartition(static_cast<viskores::Id>(i));
       numPoints[static_cast<size_t>(this->Rank)] += ds.GetNumberOfPoints();
       numCells[static_cast<size_t>(this->Rank)] += ds.GetCellSet().GetNumberOfCells();
     }
@@ -821,7 +829,7 @@ protected:
 
   virtual void ComputeDataModelSpecificGlobalBlockInfo() = 0;
 
-  vtkm::cont::PartitionedDataSet DataSets;
+  viskores::cont::PartitionedDataSet DataSets;
   std::string OutputFileName;
 
 #ifdef FIDES_USE_MPI
@@ -852,11 +860,11 @@ protected:
 
 class DataSetWriter::UniformDataSetWriter : public DataSetWriter::GenericWriter
 {
-  using UniformCoordType = vtkm::cont::ArrayHandleUniformPointCoordinates;
-  using UniformCellType = vtkm::cont::CellSetStructured<3>;
+  using UniformCoordType = viskores::cont::ArrayHandleUniformPointCoordinates;
+  using UniformCellType = viskores::cont::CellSetStructured<3>;
 
 public:
-  UniformDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UniformDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                        const std::string& fname,
                        const std::string& outputMode,
                        const bool& appendMode = false)
@@ -865,7 +873,7 @@ public:
   }
 
 #ifdef FIDES_USE_MPI
-  UniformDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UniformDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                        const std::string& fname,
                        const std::string& outputMode,
                        MPI_Comm comm,
@@ -903,7 +911,7 @@ public:
 
     for (std::size_t i = 0; i < static_cast<size_t>(this->DataSets.GetNumberOfPartitions()); i++)
     {
-      const auto& ds = this->DataSets.GetPartition(static_cast<vtkm::Id>(i));
+      const auto& ds = this->DataSets.GetPartition(static_cast<viskores::Id>(i));
       const auto& ucoords = ds.GetCoordinateSystem().GetData().AsArrayHandle<UniformCoordType>();
       auto origin = ucoords.ReadPortal().GetOrigin();
       auto spacing = ucoords.ReadPortal().GetSpacing();
@@ -943,14 +951,14 @@ private:
 
 class DataSetWriter::RectilinearDataSetWriter : public DataSetWriter::GenericWriter
 {
-  using RectCoordType =
-    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
-  using RectCellType = vtkm::cont::CellSetStructured<3>;
+  using RectCoordType = viskores::cont::ArrayHandleCartesianProduct<
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>>;
+  using RectCellType = viskores::cont::CellSetStructured<3>;
 
 public:
-  RectilinearDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  RectilinearDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                            const std::string& fname,
                            const std::string& outputMode,
                            const bool& appendMode = false)
@@ -959,7 +967,7 @@ public:
   }
 
 #ifdef FIDES_USE_MPI
-  RectilinearDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  RectilinearDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                            const std::string& fname,
                            const std::string& outputMode,
                            MPI_Comm comm,
@@ -982,17 +990,20 @@ public:
     shape = { this->TotalNumberOfXCoords };
     offset = { this->XCoordsOffset };
     size = { this->NumXCoords };
-    this->XCoordsVar = this->IO.DefineVariable<vtkm::FloatDefault>("x_array", shape, offset, size);
+    this->XCoordsVar =
+      this->IO.DefineVariable<viskores::FloatDefault>("x_array", shape, offset, size);
 
     shape = { this->TotalNumberOfYCoords };
     offset = { this->YCoordsOffset };
     size = { this->NumYCoords };
-    this->YCoordsVar = this->IO.DefineVariable<vtkm::FloatDefault>("y_array", shape, offset, size);
+    this->YCoordsVar =
+      this->IO.DefineVariable<viskores::FloatDefault>("y_array", shape, offset, size);
 
     shape = { this->TotalNumberOfZCoords };
     offset = { this->ZCoordsOffset };
     size = { this->NumZCoords };
-    this->ZCoordsVar = this->IO.DefineVariable<vtkm::FloatDefault>("z_array", shape, offset, size);
+    this->ZCoordsVar =
+      this->IO.DefineVariable<viskores::FloatDefault>("z_array", shape, offset, size);
   }
 
   void WriteCoordinates() override
@@ -1009,21 +1020,21 @@ public:
     this->ZCoordsVar.SetShape({ this->TotalNumberOfZCoords });
     this->DimsVar.SetShape({ 3 * this->TotalNumberOfDataSets });
 
-    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+    for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       const auto& coords = ds.GetCoordinateSystem().GetData().AsArrayHandle<RectCoordType>();
 
-      vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> xc(coords.GetFirstArray());
-      vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> yc(coords.GetSecondArray());
-      vtkm::cont::ArrayHandleBasic<vtkm::FloatDefault> zc(coords.GetThirdArray());
+      viskores::cont::ArrayHandleBasic<viskores::FloatDefault> xc(coords.GetFirstArray());
+      viskores::cont::ArrayHandleBasic<viskores::FloatDefault> yc(coords.GetSecondArray());
+      viskores::cont::ArrayHandleBasic<viskores::FloatDefault> zc(coords.GetThirdArray());
       std::size_t numXc = static_cast<std::size_t>(xc.GetNumberOfValues());
       std::size_t numYc = static_cast<std::size_t>(yc.GetNumberOfValues());
       std::size_t numZc = static_cast<std::size_t>(zc.GetNumberOfValues());
 
-      const vtkm::FloatDefault* xBuff = xc.GetReadPointer();
-      const vtkm::FloatDefault* yBuff = yc.GetReadPointer();
-      const vtkm::FloatDefault* zBuff = zc.GetReadPointer();
+      const viskores::FloatDefault* xBuff = xc.GetReadPointer();
+      const viskores::FloatDefault* yBuff = yc.GetReadPointer();
+      const viskores::FloatDefault* zBuff = zc.GetReadPointer();
 
       adios2::Box<adios2::Dims> xSel({ xcOffset }, { numXc });
       adios2::Box<adios2::Dims> ySel({ ycOffset }, { numYc });
@@ -1033,9 +1044,9 @@ public:
       this->YCoordsVar.SetSelection(ySel);
       this->ZCoordsVar.SetSelection(zSel);
 
-      this->Engine.Put<vtkm::FloatDefault>(this->XCoordsVar, xBuff);
-      this->Engine.Put<vtkm::FloatDefault>(this->YCoordsVar, yBuff);
-      this->Engine.Put<vtkm::FloatDefault>(this->ZCoordsVar, zBuff);
+      this->Engine.Put<viskores::FloatDefault>(this->XCoordsVar, xBuff);
+      this->Engine.Put<viskores::FloatDefault>(this->YCoordsVar, yBuff);
+      this->Engine.Put<viskores::FloatDefault>(this->ZCoordsVar, zBuff);
 
       adios2::Box<adios2::Dims> sel({ i * 3 + (3 * this->DataSetOffset) }, { 3 });
 
@@ -1103,7 +1114,7 @@ protected:
 
 private:
   std::vector<std::size_t> DimsValues;
-  adios2::Variable<vtkm::FloatDefault> XCoordsVar, YCoordsVar, ZCoordsVar;
+  adios2::Variable<viskores::FloatDefault> XCoordsVar, YCoordsVar, ZCoordsVar;
   adios2::Variable<std::size_t> DimsVar;
   std::size_t TotalNumberOfXCoords = 0;
   std::size_t TotalNumberOfYCoords = 0;
@@ -1119,7 +1130,7 @@ private:
 class DataSetWriter::UnstructuredSingleTypeDataSetWriter : public DataSetWriter::GenericWriter
 {
 public:
-  UnstructuredSingleTypeDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UnstructuredSingleTypeDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
                                       const std::string& outputMode,
                                       const bool& appendMode = false)
@@ -1128,7 +1139,7 @@ public:
   }
 
 #ifdef FIDES_USE_MPI
-  UnstructuredSingleTypeDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UnstructuredSingleTypeDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                       const std::string& fname,
                                       const std::string& outputMode,
                                       MPI_Comm comm,
@@ -1162,7 +1173,7 @@ public:
   {
     std::size_t cOffset = this->CoordOffset;
 
-    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+    for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       const auto& coords = ds.GetCoordinateSystem().GetData();
@@ -1175,7 +1186,7 @@ public:
   {
     std::size_t offset = this->CellConnOffset;
 
-    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+    for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       ds.GetCellSet().template CastAndCallForTypes<CellSetSingleTypeList>(
@@ -1273,7 +1284,7 @@ private:
   size_t TotalNumberOfCells = 0;
   size_t TotalNumberOfConnIds = 0;
   size_t NumPointsInCell = 0;
-  vtkm::Id CellShape = 0;
+  viskores::Id CellShape = 0;
   size_t CoordOffset = 0;
   size_t CellConnOffset = 0;
 };
@@ -1281,7 +1292,7 @@ private:
 class DataSetWriter::UnstructuredExplicitDataSetWriter : public DataSetWriter::GenericWriter
 {
 public:
-  UnstructuredExplicitDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UnstructuredExplicitDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
                                     const std::string& outputMode,
                                     const bool& appendMode = false)
@@ -1291,7 +1302,7 @@ public:
   }
 
 #ifdef FIDES_USE_MPI
-  UnstructuredExplicitDataSetWriter(const vtkm::cont::PartitionedDataSet& dataSets,
+  UnstructuredExplicitDataSetWriter(const viskores::cont::PartitionedDataSet& dataSets,
                                     const std::string& fname,
                                     const std::string& outputMode,
                                     MPI_Comm comm,
@@ -1302,7 +1313,7 @@ public:
   }
 #endif
 
-  void ValidatePartitionTypes(const vtkm::cont::PartitionedDataSet& dataSets)
+  void ValidatePartitionTypes(const viskores::cont::PartitionedDataSet& dataSets)
   {
     // Validate that every partition has the same type:
     for (auto const& ds : dataSets)
@@ -1333,8 +1344,8 @@ public:
     // Now the shapes array.
     this->ShapesVar = this->IO.DefineVariable<uint8_t>(
       "cell_types", { static_cast<size_t>(this->TotalNumberOfCells) });
-    // VTK-m stores offsets, but Fides stores the number of vertices/cell.
-    this->VertsVar = this->IO.DefineVariable<vtkm::IdComponent>(
+    // Viskores stores offsets, but Fides stores the number of vertices/cell.
+    this->VertsVar = this->IO.DefineVariable<viskores::IdComponent>(
       "num_verts", { static_cast<size_t>(this->TotalNumberOfCells) });
 
     shape = { static_cast<size_t>(this->TotalNumberOfConns) };
@@ -1351,7 +1362,7 @@ public:
   {
     std::size_t cOffset = this->CoordOffset;
 
-    for (vtkm::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
+    for (viskores::Id i = 0; i < this->DataSets.GetNumberOfPartitions(); i++)
     {
       const auto& ds = this->DataSets.GetPartition(i);
       const auto& coords = ds.GetCoordinateSystem().GetData();
@@ -1374,7 +1385,7 @@ public:
     size_t numVertsOffset = 0;
     for (auto const& ds : this->DataSets)
     {
-      const vtkm::cont::UnknownCellSet& dCellSet = ds.GetCellSet();
+      const viskores::cont::UnknownCellSet& dCellSet = ds.GetCellSet();
       dCellSet.CastAndCallForTypes<CellSetExplicitList>(WriteExplicitCellsFunctor{},
                                                         cellOffset,
                                                         connOffset,
@@ -1445,16 +1456,16 @@ protected:
 
 private:
   adios2::Variable<uint8_t> ShapesVar;
-  adios2::Variable<vtkm::IdComponent> VertsVar;
-  vtkm::Id NumCoords = 0;
-  vtkm::Id NumCells = 0;
-  vtkm::Id CoordOffset = 0;
-  vtkm::Id TotalNumberOfCoords = 0;
-  vtkm::Id CellOffset = 0;
-  vtkm::Id NumConns = 0;
-  vtkm::Id ConnOffset = 0;
-  vtkm::Id TotalNumberOfConns = 0;
-  std::vector<vtkm::IdComponent> NumVerts;
+  adios2::Variable<viskores::IdComponent> VertsVar;
+  viskores::Id NumCoords = 0;
+  viskores::Id NumCells = 0;
+  viskores::Id CoordOffset = 0;
+  viskores::Id TotalNumberOfCoords = 0;
+  viskores::Id CellOffset = 0;
+  viskores::Id NumConns = 0;
+  viskores::Id ConnOffset = 0;
+  viskores::Id TotalNumberOfConns = 0;
+  std::vector<viskores::IdComponent> NumVerts;
 };
 
 DataSetWriter::DataSetWriter(const std::string& outputFile)
@@ -1472,21 +1483,21 @@ DataSetWriter::DataSetWriter(const std::string& outputFile, MPI_Comm comm)
 }
 #endif
 
-unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
+unsigned char DataSetWriter::GetDataSetType(const viskores::cont::DataSet& ds)
 {
-  using UniformCoordType = vtkm::cont::ArrayHandleUniformPointCoordinates;
-  using RectilinearCoordType =
-    vtkm::cont::ArrayHandleCartesianProduct<vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>,
-                                            vtkm::cont::ArrayHandle<vtkm::FloatDefault>>;
+  using UniformCoordType = viskores::cont::ArrayHandleUniformPointCoordinates;
+  using RectilinearCoordType = viskores::cont::ArrayHandleCartesianProduct<
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>,
+    viskores::cont::ArrayHandle<viskores::FloatDefault>>;
 
-  const vtkm::cont::CoordinateSystem& coords = ds.GetCoordinateSystem();
-  const vtkm::cont::UnknownCellSet& cellSet = ds.GetCellSet();
+  const viskores::cont::CoordinateSystem& coords = ds.GetCoordinateSystem();
+  const viskores::cont::UnknownCellSet& cellSet = ds.GetCellSet();
 
   //Check for structred cellset.
-  if (cellSet.IsType<vtkm::cont::CellSetStructured<1>>() ||
-      cellSet.IsType<vtkm::cont::CellSetStructured<2>>() ||
-      cellSet.IsType<vtkm::cont::CellSetStructured<3>>())
+  if (cellSet.IsType<viskores::cont::CellSetStructured<1>>() ||
+      cellSet.IsType<viskores::cont::CellSetStructured<2>>() ||
+      cellSet.IsType<viskores::cont::CellSetStructured<3>>())
   {
     if (coords.GetData().IsType<UniformCoordType>())
     {
@@ -1503,14 +1514,14 @@ unsigned char DataSetWriter::GetDataSetType(const vtkm::cont::DataSet& ds)
   }
   else
   {
-    vtkm::cont::UncertainCellSet<FullCellSetExplicitList> uncertainCS(ds.GetCellSet());
+    viskores::cont::UncertainCellSet<FullCellSetExplicitList> uncertainCS(ds.GetCellSet());
     unsigned char type;
     uncertainCS.CastAndCall(GetDataSetTypeFunctor{}, type, *this);
     return type;
   }
 }
 
-void DataSetWriter::SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSets)
+void DataSetWriter::SetDataSetType(const viskores::cont::PartitionedDataSet& dataSets)
 {
   int rank = 0, numRanks = 1;
 #ifdef FIDES_USE_MPI
@@ -1566,7 +1577,7 @@ void DataSetWriter::SetDataSetType(const vtkm::cont::PartitionedDataSet& dataSet
   this->DataSetType = globalDataSetType;
 }
 
-void DataSetWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
+void DataSetWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
                           const std::string& outputMode)
 {
   this->SetDataSetType(dataSets);
@@ -1648,7 +1659,7 @@ DataSetAppendWriter::DataSetAppendWriter(const std::string& outputFile, MPI_Comm
 }
 #endif
 
-void DataSetAppendWriter::Write(const vtkm::cont::PartitionedDataSet& dataSets,
+void DataSetAppendWriter::Write(const viskores::cont::PartitionedDataSet& dataSets,
                                 const std::string& outputMode)
 {
   if (!this->IsInitialized)
@@ -1675,7 +1686,7 @@ void DataSetAppendWriter::Close()
   this->Writer.reset();
 }
 
-void DataSetAppendWriter::Initialize(const vtkm::cont::PartitionedDataSet& dataSets,
+void DataSetAppendWriter::Initialize(const viskores::cont::PartitionedDataSet& dataSets,
                                      const std::string& outputMode)
 {
   this->SetDataSetType(dataSets);

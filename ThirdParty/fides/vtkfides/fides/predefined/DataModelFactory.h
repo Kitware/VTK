@@ -36,7 +36,7 @@ public:
   typedef std::shared_ptr<PredefinedDataModel> (*CreateDataModelCallback)(
     std::shared_ptr<InternalMetadataSource>);
   typedef std::shared_ptr<PredefinedDataModel> (*CreateDataModelCallbackFromDS)(
-    const vtkm::cont::DataSet&);
+    const viskores::cont::DataSet&);
 
   /// Register a predefined data model's callback with the factory
   bool RegisterDataModel(DataModelTypes modelId, CreateDataModelCallback createFn);
@@ -48,7 +48,7 @@ public:
   /// Create the predefined data model specified in the internal metadata source
   std::shared_ptr<PredefinedDataModel> CreateDataModel(
     std::shared_ptr<InternalMetadataSource> source);
-  std::shared_ptr<PredefinedDataModel> CreateDataModel(const vtkm::cont::DataSet& ds);
+  std::shared_ptr<PredefinedDataModel> CreateDataModel(const viskores::cont::DataSet& ds);
 
 private:
   DataModelFactory() = default;

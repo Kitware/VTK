@@ -6,15 +6,17 @@
 #define vtkmlib_Portals_cxx
 #include "Portals.h"
 
-#include <vtkm/cont/internal/ArrayPortalFromIterators.h>
+#include <viskores/cont/internal/ArrayPortalFromIterators.h>
 
 namespace tovtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 // T extern template instantiations
-template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3> const>;
-template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3> const>;
-template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float32, 3>>;
-template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<vtkm::Vec<vtkm::Float64, 3>>;
+template class VTKACCELERATORSVTKMCORE_EXPORT
+  vtkPointsPortal<viskores::Vec<viskores::Float32, 3> const>;
+template class VTKACCELERATORSVTKMCORE_EXPORT
+  vtkPointsPortal<viskores::Vec<viskores::Float64, 3> const>;
+template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<viskores::Vec<viskores::Float32, 3>>;
+template class VTKACCELERATORSVTKMCORE_EXPORT vtkPointsPortal<viskores::Vec<viskores::Float64, 3>>;
 VTK_ABI_NAMESPACE_END
 }

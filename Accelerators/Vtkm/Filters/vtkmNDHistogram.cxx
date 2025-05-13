@@ -18,7 +18,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 
-#include <vtkm/filter/density_estimate/NDHistogram.h>
+#include <viskores/filter/density_estimate/NDHistogram.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmNDHistogram);
@@ -113,22 +113,22 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    vtkm::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
-    vtkm::filter::density_estimate::NDHistogram filter;
+    viskores::filter::density_estimate::NDHistogram filter;
     for (size_t i = 0; i < this->FieldNames.size(); i++)
     {
       filter.AddFieldAndBin(this->FieldNames[i], this->NumberOfBins[i]);
     }
-    vtkm::cont::DataSet out = filter.Execute(in);
+    viskores::cont::DataSet out = filter.Execute(in);
 
-    vtkm::Id numberOfFields = out.GetNumberOfFields();
+    viskores::Id numberOfFields = out.GetNumberOfFields();
     this->BinDeltas.clear();
     this->DataRanges.clear();
     this->BinDeltas.reserve(static_cast<size_t>(numberOfFields));
     this->DataRanges.reserve(static_cast<size_t>(numberOfFields));
 
-    // Fetch the field array out of the vtkm filter result
+    // Fetch the field array out of the viskores filter result
     size_t index = 0;
     std::vector<vtkDataArray*> fArrays;
     for (auto& fn : this->FieldNames)
@@ -181,9 +181,9 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
     frequencyArray->FastDelete();
     sparseArray->FastDelete();
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
     return 0;
   }
   return 1;

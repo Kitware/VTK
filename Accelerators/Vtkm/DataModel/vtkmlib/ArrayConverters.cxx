@@ -9,8 +9,8 @@
 #include "vtkmlib/DataSetUtils.h"
 #include "vtkmlib/PortalTraits.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/DataSet.h>
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -22,7 +22,7 @@
 namespace tovtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
-void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::FieldsFlag fields)
+void ProcessFields(vtkDataSet* input, viskores::cont::DataSet& dataset, tovtkm::FieldsFlag fields)
 {
   if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
   {
@@ -35,7 +35,8 @@ void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::Fiel
         continue;
       }
 
-      vtkm::cont::Field pfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      viskores::cont::Field pfield =
+        tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
       dataset.AddField(pfield);
     }
   }
@@ -51,32 +52,32 @@ void ProcessFields(vtkDataSet* input, vtkm::cont::DataSet& dataset, tovtkm::Fiel
         continue;
       }
 
-      vtkm::cont::Field cfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      viskores::cont::Field cfield = tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
       dataset.AddField(cfield);
     }
   }
 }
 
 template <typename T>
-vtkm::cont::Field Convert(vtkmDataArray<T>* input, int association)
+viskores::cont::Field Convert(vtkmDataArray<T>* input, int association)
 {
   // we need to switch on if we are a cell or point field first!
   // The problem is that the constructor signature for fields differ based
   // on if they are a cell or point field.
   if (association == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
-    return vtkm::cont::make_FieldPoint(input->GetName(), input->GetVtkmUnknownArrayHandle());
+    return viskores::cont::make_FieldPoint(input->GetName(), input->GetVtkmUnknownArrayHandle());
   }
   else if (association == vtkDataObject::FIELD_ASSOCIATION_CELLS)
   {
-    return vtkm::cont::make_FieldCell(input->GetName(), input->GetVtkmUnknownArrayHandle());
+    return viskores::cont::make_FieldCell(input->GetName(), input->GetVtkmUnknownArrayHandle());
   }
 
-  return vtkm::cont::Field();
+  return viskores::cont::Field();
 }
 
 // determine the type and call the proper Convert routine
-vtkm::cont::Field Convert(vtkDataArray* input, int association)
+viskores::cont::Field Convert(vtkDataArray* input, int association)
 {
   // The association will tell us if we have a cell or point field
 
@@ -89,7 +90,7 @@ vtkm::cont::Field Convert(vtkDataArray* input, int association)
   // Investigate using vtkArrayDispatch, AOS for all types, and than SOA for
   // just
   // float/double
-  vtkm::cont::Field field;
+  viskores::cont::Field field;
   switch (input->GetDataType())
   {
     vtkTemplateMacro(
@@ -122,7 +123,7 @@ namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
+bool ConvertArrays(const viskores::cont::DataSet& input, vtkDataSet* output)
 {
   vtkPointData* pd = output->GetPointData();
   vtkCellData* cd = output->GetCellData();
@@ -130,21 +131,21 @@ bool ConvertArrays(const vtkm::cont::DataSet& input, vtkDataSet* output)
   // Do not copy the coordinate systems, this is done in a higher level routine.
   for (auto i : GetFieldsIndicesWithoutCoords(input))
   {
-    const vtkm::cont::Field& f = input.GetField(i);
+    const viskores::cont::Field& f = input.GetField(i);
     if (f.GetData().GetNumberOfComponentsFlat() < 1)
     {
-      vtkGenericWarningMacro("VTK-m field "
+      vtkGenericWarningMacro("Viskores field "
         << f.GetName()
         << " does not have a fixed tuple size. This field will be unavailable in VTK.");
       continue;
     }
     vtkDataArray* vfield = Convert(f);
-    if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::Points)
+    if (vfield && f.GetAssociation() == viskores::cont::Field::Association::Points)
     {
       pd->AddArray(vfield);
       vfield->FastDelete();
     }
-    else if (vfield && f.GetAssociation() == vtkm::cont::Field::Association::Cells)
+    else if (vfield && f.GetAssociation() == viskores::cont::Field::Association::Cells)
     {
       cd->AddArray(vfield);
       vfield->FastDelete();

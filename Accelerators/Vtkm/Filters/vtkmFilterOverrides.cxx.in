@@ -11,7 +11,7 @@ VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
 
-bool vtkmFilterOverridesEnabled = VTK_ENABLE_VTKM_OVERRIDES != 0;
+bool vtkmFilterOverridesEnabled = VTK_ENABLE_VISKORES_OVERRIDES != 0;
 
 struct FilterOverrides
 {
@@ -19,8 +19,8 @@ struct FilterOverrides
   const char* Override;
 };
 
-#if VTK_ENABLE_VTKM_OVERRIDES
-const std::vector<FilterOverrides> overrides = @VTKM_OVERRIDES_INITIALIZER_LIST_STRING@
+#if VTK_ENABLE_VISKORES_OVERRIDES
+const std::vector<FilterOverrides> overrides = @VISKORES_OVERRIDES_INITIALIZER_LIST_STRING@
 #endif
 
 } // namespace
@@ -29,7 +29,7 @@ void vtkmFilterOverrides::SetEnabled(bool value)
 {
   static_cast<void>(value);
 
-#if VTK_ENABLE_VTKM_OVERRIDES
+#if VTK_ENABLE_VISKORES_OVERRIDES
   if (vtkmFilterOverridesEnabled == value)
   {
     return;

@@ -32,7 +32,7 @@ namespace datamodel
 /// \brief Stores all FieldData.
 ///
 /// Use this to access fields that are marked as fides::Association::FIELD_DATA.
-class FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in VTK-m DataSet.")
+class FIDES_DEPRECATED(1.1, "FieldData is no longer used. All data is stored in Viskores DataSet.")
   FIDES_EXPORT FieldDataManager
 {
 public:

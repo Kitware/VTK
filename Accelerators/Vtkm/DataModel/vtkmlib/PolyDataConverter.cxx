@@ -23,10 +23,10 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
-#include <vtkm/cont/ErrorBadType.h>
-#include <vtkm/cont/Field.h>
+#include <viskores/cont/ArrayHandle.h>
+#include <viskores/cont/DataSetBuilderUniform.h>
+#include <viskores/cont/ErrorBadType.h>
+#include <viskores/cont/Field.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -65,19 +65,19 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an polydata type
-vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
 {
   // the poly data is an interesting issue with the fact that the
   // vtk datastructure can contain multiple types.
   // we should look at querying the cell types, so we can use single cell
   // set where possible
-  vtkm::cont::DataSet dataset;
+  viskores::cont::DataSet dataset;
 
   // Only set coordinates if they exists in the vtkPolyData
   if (input->GetPoints())
   {
     // first step convert the points over to an array handle
-    vtkm::cont::CoordinateSystem coords = Convert(input->GetPoints());
+    viskores::cont::CoordinateSystem coords = Convert(input->GetPoints());
     dataset.AddCoordinateSystem(coords);
   }
 
@@ -135,7 +135,7 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyLine cells.");
+      throw viskores::cont::ErrorBadType("Viskores does not currently support PolyLine cells.");
     }
   }
   else if (onlyVerts)
@@ -151,13 +151,13 @@ vtkm::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
     }
     else
     {
-      throw vtkm::cont::ErrorBadType("VTK-m does not currently support PolyVertex cells.");
+      throw viskores::cont::ErrorBadType("Viskores does not currently support PolyVertex cells.");
     }
   }
   else
   {
-    throw vtkm::cont::ErrorBadType(
-      "VTK-m does not currently support mixed cell types or triangle strips in vtkPolyData.");
+    throw viskores::cont::ErrorBadType(
+      "Viskores does not currently support mixed cell types or triangle strips in vtkPolyData.");
   }
 
   if (!filled)
@@ -178,7 +178,7 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   output->SetPoints(points);
@@ -197,7 +197,7 @@ bool Convert(const vtkm::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet
 
   output->SetPolys(cells.GetPointer());
 
-  // next we need to convert any extra fields from vtkm over to vtk
+  // next we need to convert any extra fields from viskores over to vtk
   bool arraysConverted = ConvertArrays(voutput, output);
 
   // Pass information about attributes.

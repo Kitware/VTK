@@ -7,7 +7,7 @@
  * @brief   deform geometry with scalar data
  *
  * vtkmWarpScalar is a filter that modifies point coordinates by moving points
- * along point normals by the scalar amount times the scalar factor with vtkm
+ * along point normals by the scalar amount times the scalar factor with viskores
  * as its backend.
  * Useful for creating carpet or x-y-z plots.
  *
@@ -31,7 +31,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkWarpScalar.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpScalar : public vtkWarpScalar

@@ -6,20 +6,20 @@
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ImplicitFunctionConverter.h"
 
-#include <vtkm/filter/clean_grid/CleanGrid.h>
-#include <vtkm/filter/contour/ClipWithImplicitFunction.h>
+#include <viskores/filter/clean_grid/CleanGrid.h>
+#include <viskores/filter/contour/ClipWithImplicitFunction.h>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
-vtkm::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(
-  vtkm::cont::DataSet& in, vtkImplicitFunction* clipFunction, bool insideOut)
+viskores::cont::DataSet vtkmClip::internals::ExecuteClipWithImplicitFunction(
+  viskores::cont::DataSet& in, vtkImplicitFunction* clipFunction, bool insideOut)
 {
   tovtkm::ImplicitFunctionConverter clipFunctionConverter;
   clipFunctionConverter.Set(clipFunction);
   auto function = clipFunctionConverter.Get();
 
-  vtkm::cont::DataSet result;
-  vtkm::filter::contour::ClipWithImplicitFunction functionFilter;
+  viskores::cont::DataSet result;
+  viskores::filter::contour::ClipWithImplicitFunction functionFilter;
   functionFilter.SetImplicitFunction(function);
   functionFilter.SetInvertClip(insideOut);
   result = functionFilter.Execute(in);

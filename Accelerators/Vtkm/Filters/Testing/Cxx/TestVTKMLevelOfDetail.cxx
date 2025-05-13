@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 // Uncomment this to directly compare serial and TBB versions
-// #define FORCE_VTKM_DEVICE
+// #define FORCE_VISKORES_DEVICE
 
-// TODO: Make a way to force the VTK-m device without actually loading VTK-m
+// TODO: Make a way to force the Viskores device without actually loading Viskores
 // headers (and all subsequent dependent headers).
 
 #include "vtkActor.h"
@@ -39,14 +39,14 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkmLevelOfDetail.h"
 
-#ifdef FORCE_VTKM_DEVICE
+#ifdef FORCE_VISKORES_DEVICE
 
-#include <vtkm/cont/RuntimeDeviceTracker.h>
+#include <viskores/cont/RuntimeDeviceTracker.h>
 
-#include <vtkm/cont/serial/DeviceAdapterSerial.h>
-#include <vtkm/cont/tbb/DeviceAdapterTBB.h>
+#include <viskores/cont/serial/DeviceAdapterSerial.h>
+#include <viskores/cont/tbb/DeviceAdapterTBB.h>
 
-#endif // FORCE_VTKM_DEVICE
+#endif // FORCE_VISKORES_DEVICE
 
 #include <iomanip>
 #include <sstream>
@@ -201,7 +201,7 @@ void RenderResults(int gridSize, vtkPolyData* input, double vtkmTime, vtkPolyDat
     vtkmRen->AddActor(actor);
 
     std::ostringstream tmp;
-    tmp << "VTK-m: " << std::setprecision(3) << vtkmTime << "s\n"
+    tmp << "Viskores: " << std::setprecision(3) << vtkmTime << "s\n"
         << "NumPts: " << vtkmData->GetNumberOfPoints() << "\n"
         << "NumTri: " << vtkmData->GetNumberOfCells() << "\n";
 
@@ -295,38 +295,38 @@ void RunBenchmark(int gridSize)
 #endif
   }
 
-#ifdef FORCE_VTKM_DEVICE
+#ifdef FORCE_VISKORES_DEVICE
 
-  vtkm::cont::RuntimeDeviceTracker tracker = vtkm::cont::GetRuntimeDeviceTracker();
+  viskores::cont::RuntimeDeviceTracker tracker = viskores::cont::GetRuntimeDeviceTracker();
 
-  // Run VTKm
+  // Run Viskores
   vtkSmartPointer<vtkPolyData> vtkmResultSerial;
   double vtkmTimeSerial = 0.;
   {
-    tracker.ForceDevice(vtkm::cont::DeviceAdapterTagSerial());
+    tracker.ForceDevice(viskores::cont::DeviceAdapterTagSerial());
     VTKmFilterGenerator generator(gridSize);
     vtkmTimeSerial = BenchmarkFilter(generator, input);
     vtkmResultSerial = generator.Result;
     tracker.Reset();
   }
 
-#ifdef VTKM_ENABLE_TBB
+#ifdef VISKORES_ENABLE_TBB
   vtkSmartPointer<vtkPolyData> vtkmResultTBB;
   double vtkmTimeTBB = 0.;
-  bool tbbDeviceValid = tracker.CanRunOn(vtkm::cont::DeviceAdapterTagTBB());
+  bool tbbDeviceValid = tracker.CanRunOn(viskores::cont::DeviceAdapterTagTBB());
   if (tbbDeviceValid)
   {
-    tracker.ForceDevice(vtkm::cont::DeviceAdapterTagTBB());
+    tracker.ForceDevice(viskores::cont::DeviceAdapterTagTBB());
     VTKmFilterGenerator generator(gridSize);
     vtkmTimeTBB = BenchmarkFilter(generator, input);
     vtkmResultTBB = generator.Result;
     tracker.Reset();
   }
-#endif // VTKM_ENABLE_TBB
+#endif // VISKORES_ENABLE_TBB
 
-#else // !FORCE_VTKM_DEVICE
+#else // !FORCE_VISKORES_DEVICE
 
-  // Run VTKm
+  // Run Viskores
   vtkSmartPointer<vtkPolyData> vtkmResult;
   double vtkmTime = 0.;
   {
@@ -361,28 +361,28 @@ void RunBenchmark(int gridSize)
                "and "
             << input->GetNumberOfCells() << " cells.\n";
 
-#ifdef FORCE_VTKM_DEVICE
+#ifdef FORCE_VISKORES_DEVICE
 
   std::cerr << "vtkmLevelOfDetail (serial, average clustered points): " << vtkmTimeSerial
             << " seconds, " << vtkmResultSerial->GetNumberOfPoints() << " points, "
             << vtkmResultSerial->GetNumberOfCells() << " cells.\n";
 
-#ifdef VTKM_ENABLE_TBB
+#ifdef VISKORES_ENABLE_TBB
   if (tbbDeviceValid)
   {
     std::cerr << "vtkmLevelOfDetail (tbb, average clustered points): " << vtkmTimeTBB
               << " seconds, " << vtkmResultTBB->GetNumberOfPoints() << " points, "
               << vtkmResultTBB->GetNumberOfCells() << " cells.\n";
   }
-#endif // VTKM_ENABLE_TBB
+#endif // VISKORES_ENABLE_TBB
 
-#else // !FORCE_VTKM_DEVICE
+#else // !FORCE_VISKORES_DEVICE
 
   std::cerr << "vtkmLevelOfDetail (average clustered points): " << vtkmTime << " seconds, "
             << vtkmResult->GetNumberOfPoints() << " points, " << vtkmResult->GetNumberOfCells()
             << " cells.\n";
 
-#endif // !FORCE_VTKM_DEVICE
+#endif // !FORCE_VISKORES_DEVICE
 
   std::cerr << "vtkQuadricClustering (average clustered points): " << vtkTimeAvePts << " seconds, "
             << vtkResultAvePts->GetNumberOfPoints() << " points, "
@@ -391,13 +391,13 @@ void RunBenchmark(int gridSize)
             << vtkResult->GetNumberOfPoints() << " points, " << vtkResult->GetNumberOfCells()
             << " cells.\n";
 
-#ifdef FORCE_VTKM_DEVICE
-#ifdef VTKM_ENABLE_TBB
+#ifdef FORCE_VISKORES_DEVICE
+#ifdef VISKORES_ENABLE_TBB
   RenderResults(gridSize, input, vtkmTimeTBB, vtkmResultTBB, vtkTime, vtkResult);
-#endif // VTKM_ENABLE_TBB
-#else  // !FORCE_VTKM_DEVICE
+#endif // VISKORES_ENABLE_TBB
+#else  // !FORCE_VISKORES_DEVICE
   RenderResults(gridSize, input, vtkmTime, vtkmResult, vtkTime, vtkResult);
-#endif // !FORCE_VTKM_DEVICE
+#endif // !FORCE_VISKORES_DEVICE
 }
 
 void RunBenchmarks()

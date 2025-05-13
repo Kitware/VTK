@@ -38,25 +38,26 @@ std::shared_ptr<PredefinedDataModel> CreateUniform(std::shared_ptr<InternalMetad
   return std::shared_ptr<PredefinedDataModel>(new UniformDataModel(source));
 }
 
-std::shared_ptr<PredefinedDataModel> CreateUniformFromDataSet(const vtkm::cont::DataSet& dataSet)
+std::shared_ptr<PredefinedDataModel> CreateUniformFromDataSet(
+  const viskores::cont::DataSet& dataSet)
 {
   return std::shared_ptr<PredefinedDataModel>(new UniformDataModel(dataSet));
 }
 
 std::shared_ptr<PredefinedDataModel> CreateRectilinearFromDataSet(
-  const vtkm::cont::DataSet& dataSet)
+  const viskores::cont::DataSet& dataSet)
 {
   return std::shared_ptr<PredefinedDataModel>(new RectilinearDataModel(dataSet));
 }
 
 std::shared_ptr<PredefinedDataModel> CreateUnstructuredSingleTypeFromDataSet(
-  const vtkm::cont::DataSet& dataSet)
+  const viskores::cont::DataSet& dataSet)
 {
   return std::shared_ptr<PredefinedDataModel>(new UnstructuredSingleTypeDataModel(dataSet));
 }
 
 std::shared_ptr<PredefinedDataModel> CreateUnstructuredFromDataSet(
-  const vtkm::cont::DataSet& dataSet)
+  const viskores::cont::DataSet& dataSet)
 {
   return std::shared_ptr<PredefinedDataModel>(new UnstructuredDataModel(dataSet));
 }
@@ -208,7 +209,7 @@ PredefinedDataModel::PredefinedDataModel(std::shared_ptr<InternalMetadataSource>
 {
 }
 
-PredefinedDataModel::PredefinedDataModel(const vtkm::cont::DataSet& dataSet)
+PredefinedDataModel::PredefinedDataModel(const viskores::cont::DataSet& dataSet)
   : MetadataSource(nullptr)
   , DataSetSource(dataSet)
   , FieldsToWriteSet(false)
@@ -279,11 +280,11 @@ void PredefinedDataModel::AddStepInformation(rapidjson::Value& parent)
 void PredefinedDataModel::AddFieldAttributes(
   std::unordered_map<std::string, std::vector<std::string>>& attrMap)
 {
-  vtkm::Id numFields = this->DataSetSource.GetNumberOfFields();
+  viskores::Id numFields = this->DataSetSource.GetNumberOfFields();
   attrMap[VarListAttrName] = std::vector<std::string>();
   attrMap[AssocListAttrName] = std::vector<std::string>();
   attrMap[VectorListAttrName] = std::vector<std::string>();
-  for (vtkm::Id i = 0; i < numFields; i++)
+  for (viskores::Id i = 0; i < numFields; i++)
   {
     auto field = this->DataSetSource.GetField(i);
     //If field restriction is turned on, then skip those fields.
@@ -329,9 +330,9 @@ void PredefinedDataModel::CreateFields(rapidjson::Value& parent)
 {
   if (this->MetadataSource == nullptr)
   {
-    vtkm::Id numFields = this->DataSetSource.GetNumberOfFields();
+    viskores::Id numFields = this->DataSetSource.GetNumberOfFields();
     rapidjson::Value fieldArr(rapidjson::kArrayType);
-    for (vtkm::Id i = 0; i < numFields; i++)
+    for (viskores::Id i = 0; i < numFields; i++)
     {
       auto field = this->DataSetSource.GetField(i);
       //If field restriction is turned on, then skip those fields.
@@ -419,7 +420,7 @@ UniformDataModel::UniformDataModel(std::shared_ptr<InternalMetadataSource> sourc
 {
 }
 
-UniformDataModel::UniformDataModel(const vtkm::cont::DataSet& dataSet)
+UniformDataModel::UniformDataModel(const viskores::cont::DataSet& dataSet)
   : PredefinedDataModel(dataSet)
 {
 }
@@ -498,7 +499,7 @@ RectilinearDataModel::RectilinearDataModel(std::shared_ptr<InternalMetadataSourc
 {
 }
 
-RectilinearDataModel::RectilinearDataModel(const vtkm::cont::DataSet& dataSet)
+RectilinearDataModel::RectilinearDataModel(const viskores::cont::DataSet& dataSet)
   : PredefinedDataModel(dataSet)
 {
 }
@@ -564,7 +565,7 @@ UnstructuredDataModel::UnstructuredDataModel(std::shared_ptr<InternalMetadataSou
 {
 }
 
-UnstructuredDataModel::UnstructuredDataModel(const vtkm::cont::DataSet& dataSet)
+UnstructuredDataModel::UnstructuredDataModel(const viskores::cont::DataSet& dataSet)
   : PredefinedDataModel(dataSet)
 {
 }
@@ -641,32 +642,33 @@ UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(
 {
 }
 
-UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(const vtkm::cont::DataSet& dataSet)
+UnstructuredSingleTypeDataModel::UnstructuredSingleTypeDataModel(
+  const viskores::cont::DataSet& dataSet)
   : UnstructuredDataModel(dataSet)
 {
 }
 
-using CellSetSingleTypeList =
-  vtkm::List<vtkm::cont::CellSetSingleType<>,
-             vtkm::cont::CellSetSingleType<
-               vtkm::cont::StorageTagCast<vtkm::Int32, vtkm::cont::StorageTagBasic>>>;
+using CellSetSingleTypeList = viskores::List<
+  viskores::cont::CellSetSingleType<>,
+  viskores::cont::CellSetSingleType<
+    viskores::cont::StorageTagCast<viskores::Int32, viskores::cont::StorageTagBasic>>>;
 
 struct ProcessCellSetSingleTypeAttributesFunctor
 {
   template <typename S>
-  void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
+  void operator()(const viskores::cont::CellSetSingleType<S>& cellSet,
                   std::unordered_map<std::string, std::vector<std::string>>& attrMap)
   {
-    vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
-    std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
+    viskores::UInt8 shapeId = cellSet.GetCellShape(0);
+    std::string cellType = fides::ConvertViskoresCellTypeToFides(shapeId);
     attrMap[CellTypeAttrName] = std::vector<std::string>(1, cellType);
   }
 
-  void operator()(const vtkm::cont::CellSet& cellSet,
+  void operator()(const viskores::cont::CellSet& cellSet,
                   std::unordered_map<std::string, std::vector<std::string>>&)
   {
     std::string err = std::string(__FILE__) + ":" + std::to_string(__LINE__) + " " +
-      vtkm::cont::TypeToString(typeid(cellSet)) + " is not supported in this functor";
+      viskores::cont::TypeToString(typeid(cellSet)) + " is not supported in this functor";
     throw std::runtime_error(err);
   }
 };
@@ -689,19 +691,19 @@ UnstructuredSingleTypeDataModel::GetAttributes()
 struct ProcessCellSetSingleTypeFunctor
 {
   template <typename S>
-  void operator()(const vtkm::cont::CellSetSingleType<S>& cellSet,
+  void operator()(const viskores::cont::CellSetSingleType<S>& cellSet,
                   rapidjson::Document& doc,
                   rapidjson::Value& parent,
                   bool& correctType)
   {
     correctType = true;
-    vtkm::UInt8 shapeId = cellSet.GetCellShape(0);
-    std::string cellType = fides::ConvertVTKmCellTypeToFides(shapeId);
+    viskores::UInt8 shapeId = cellSet.GetCellShape(0);
+    std::string cellType = fides::ConvertViskoresCellTypeToFides(shapeId);
 
     CreateUnstructuredSingleTypeCellset(doc.GetAllocator(), parent, "connectivity", cellType);
   }
 
-  void operator()(const vtkm::cont::CellSet&,
+  void operator()(const viskores::cont::CellSet&,
                   rapidjson::Document&,
                   rapidjson::Value&,
                   bool& correctType)

@@ -337,11 +337,11 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
   bool isDevicePointer = IsDevicePointer(mcarray.child(0).element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
     return nullptr;
   }
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
+  auto deviceAdapterId = viskores::cont::make_DeviceAdapterId(id);
 #endif
 
   if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
@@ -579,7 +579,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   bool isDevicePointer = IsDevicePointer(mcarray.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
     return nullptr;
   }
   if (!connectivity)
@@ -639,7 +639,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   bool isDevicePointer = IsDevicePointer(leaf.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "VTKm does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
     return nullptr;
   }
 
@@ -707,14 +707,14 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
     (atts.type == cudaMemoryTypeDevice || atts.type == cudaMemoryTypeManaged);
   std::cerr << "Cuda device: " << isCudaDevice;
 #if defined(VTK_USE_CUDA)
-  id = VTKM_DEVICE_ADAPTER_CUDA;
+  id = VISKORES_DEVICE_ADAPTER_CUDA;
 #elif defined(VTK_KOKKOS_BACKEND_CUDA)
-  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
 #endif
   return isCudaDevice;
 #elif defined(VTK_KOKKOS_BACKEND_HIP)
   hipPointerAttribute_t atts;
-  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
   const hipError_t perr = hipPointerGetAttributes(&atts, ptr);
   // clear last error so other error checking does
   // not pick it up
@@ -722,12 +722,12 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
   return perr == hipSuccess &&
     (atts.TYPE_ATTR == hipMemoryTypeDevice || atts.TYPE_ATTR == hipMemoryTypeUnified);
 #elif defined(VTK_KOKKOS_BACKEND_SYCL)
-  id = VTKM_DEVICE_ADAPTER_KOKKOS;
+  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
 #warning "SYCL device pointers are not correctly detected"
   (void)ptr;
   return false;
 #else // defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
-  id = VTKM_DEVICE_ADAPTER_SERIAL;
+  id = VISKORES_DEVICE_ADAPTER_SERIAL;
 #endif
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   (void)id;
@@ -740,13 +740,13 @@ bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id, bool
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
   void* pointer = const_cast<void*>(ptr);
   bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
-  auto deviceAdapterId = vtkm::cont::make_DeviceAdapterId(id);
+  auto deviceAdapterId = viskores::cont::make_DeviceAdapterId(id);
   // we process host pointers using VTK which is always available
   working = isDevicePointer ? vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId) : true;
 #else
   void* pointer = const_cast<void*>(ptr);
   bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
-  // no VTKm, so for a device pointer there is no runtime
+  // no Viskores, so for a device pointer there is no runtime
   // for host pointer VTK can handle that.
   working = (isDevicePointer) ? false : true;
 #endif

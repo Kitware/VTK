@@ -9,11 +9,11 @@
 
 #include "vtkAcceleratorsVTKmDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 #include <memory> // for std::shared_ptr
 
-namespace vtkm
+namespace viskores
 {
 namespace cont
 {
@@ -21,7 +21,7 @@ namespace cont
 class DataSet;
 
 }
-} // vtkm::cont
+} // viskores::cont
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -37,8 +37,8 @@ public:
 
   static vtkmDataSet* New();
 
-  void SetVtkmDataSet(const vtkm::cont::DataSet& ds);
-  vtkm::cont::DataSet GetVtkmDataSet() const;
+  void SetVtkmDataSet(const viskores::cont::DataSet& ds);
+  viskores::cont::DataSet GetVtkmDataSet() const;
 
   /**
    * Copy the geometric and topological structure of an object. Note that

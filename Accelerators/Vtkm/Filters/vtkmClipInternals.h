@@ -4,7 +4,7 @@
 #ifndef vtkmClipInternals_h
 #define vtkmClipInternals_h
 
-#include <vtkm/cont/DataSet.h>
+#include <viskores/cont/DataSet.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -13,10 +13,10 @@ class vtkImplicitFunction;
 
 struct vtkmClip::internals
 {
-  static vtkm::cont::DataSet ExecuteClipWithImplicitFunction(
-    vtkm::cont::DataSet& in, vtkImplicitFunction* clipFunction, bool insideOut);
-  static vtkm::cont::DataSet ExecuteClipWithField(vtkm::cont::DataSet& in, vtkDataArray* scalars,
-    int assoc, double value, bool insideOut, bool computeScalars);
+  static viskores::cont::DataSet ExecuteClipWithImplicitFunction(
+    viskores::cont::DataSet& in, vtkImplicitFunction* clipFunction, bool insideOut);
+  static viskores::cont::DataSet ExecuteClipWithField(viskores::cont::DataSet& in,
+    vtkDataArray* scalars, int assoc, double value, bool insideOut, bool computeScalars);
 };
 
 VTK_ABI_NAMESPACE_END

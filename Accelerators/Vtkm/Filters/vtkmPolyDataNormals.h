@@ -32,7 +32,7 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // for export macro
 #include "vtkPolyDataNormals.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing vtk-m
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmPolyDataNormals : public vtkPolyDataNormals
@@ -45,8 +45,8 @@ public:
   ///@{
   /**
    * When this flag is off (the default), then the computation will fall back
-   * to the serial VTK version if VTK-m fails to run. When the flag is on,
-   * the filter will generate an error if VTK-m fails to run. This is mostly
+   * to the serial VTK version if Viskores fails to run. When the flag is on,
+   * the filter will generate an error if Viskores fails to run. This is mostly
    * useful in testing to make sure the expected algorithm is run.
    */
   vtkGetMacro(ForceVTKm, vtkTypeBool);

@@ -2,8 +2,6 @@ NAME
   VTK::vtkviskores
 LIBRARY_NAME
   vtkviskores
-CONDITION
-  FALSE
 ORDER_DEPENDS
   # While not needed to satisfy symbols, this is necessary to guarantee that
   # VTK_SMP_IMPLEMENTATION_TYPE is available when configuring viskores.

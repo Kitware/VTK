@@ -12,7 +12,7 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/ImageDataConverter.h"
 
-#include "vtkm/filter/entity_extraction/ExtractStructured.h"
+#include "viskores/filter/entity_extraction/ExtractStructured.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmExtractVOI);
@@ -39,7 +39,7 @@ int vtkmExtractVOI::RequestData(
 
   try
   {
-    // convert the input dataset to a vtkm::cont::DataSet
+    // convert the input dataset to a viskores::cont::DataSet
     auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
 
     // transform VOI
@@ -52,7 +52,7 @@ int vtkmExtractVOI::RequestData(
     }
 
     // apply the filter
-    vtkm::filter::entity_extraction::ExtractStructured filter;
+    viskores::filter::entity_extraction::ExtractStructured filter;
     filter.SetVOI(voi[0], voi[1], voi[2], voi[3], voi[4], voi[5]);
     filter.SetSampleRate(this->SampleRate[0], this->SampleRate[1], this->SampleRate[2]);
     filter.SetIncludeBoundary((this->IncludeBoundary != 0));
@@ -63,20 +63,20 @@ int vtkmExtractVOI::RequestData(
     this->Internal->GetOutputWholeExtent(outExtents);
     if (!fromvtkm::Convert(result, outExtents, output, input))
     {
-      vtkErrorMacro(<< "Unable to convert VTKm DataSet back to VTK");
+      vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;
     }
   }
-  catch (const vtkm::cont::Error& e)
+  catch (const viskores::cont::Error& e)
   {
     if (this->ForceVTKm)
     {
-      vtkErrorMacro(<< "VTK-m error: " << e.GetMessage());
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
       return 0;
     }
     else
     {
-      vtkWarningMacro(<< "VTK-m error: " << e.GetMessage() << "Falling back to vtkExtractVOI");
+      vtkWarningMacro(<< "Viskores error: " << e.GetMessage() << "Falling back to vtkExtractVOI");
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
   }
