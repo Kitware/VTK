@@ -2,10 +2,10 @@ from vtkmodules.test import Testing as vtkTesting
 from vtkmodules.vtkSerializationManager import vtkObjectManager
 from vtkmodules.vtkFiltersSources import vtkPartitionedDataSetCollectionSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkColorTransferFunction, vtkCompositeDataDisplayAttributes, vtkCompositePolyDataMapper, vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor
+from pathlib import Path
 
 import vtkmodules.vtkRenderingOpenGL2
 
-import sys
 
 class TestCompositePolyDataMapper(vtkTesting.vtkTest):
 
@@ -41,6 +41,7 @@ class TestCompositePolyDataMapper(vtkTesting.vtkTest):
 
         r = vtkRenderer()
         r.AddActor(a)
+        r.ResetCamera()
 
         rw = vtkRenderWindow()
         rw.AddRenderer(r)
@@ -48,7 +49,7 @@ class TestCompositePolyDataMapper(vtkTesting.vtkTest):
         self.server_rwi = vtkRenderWindowInteractor()
         self.server_rwi.SetRenderWindow(rw)
 
-        self.server_rwi.Render()
+        rw.Render()
 
     def serialize(self):
 
@@ -58,7 +59,6 @@ class TestCompositePolyDataMapper(vtkTesting.vtkTest):
 
         manager.UpdateStatesFromObjects()
         active_ids = manager.GetAllDependencies(0)
-        manager.Export("state.json")
 
         states = map(manager.GetState, active_ids)
         hash_to_blob_map = {blob_hash: manager.GetBlob(
@@ -75,9 +75,9 @@ class TestCompositePolyDataMapper(vtkTesting.vtkTest):
             manager.RegisterBlob(hash_text, blob)
 
         manager.UpdateObjectsFromStates()
-        active_ids = manager.GetAllDependencies(0)
-        self.deserialized_rwi = manager.GetObjectAtId(self.id_rwi)
-        self.deserialized_rwi.Render()
+        interactor = manager.GetObjectAtId(self.id_rwi)
+        interactor.render_window.Render()
+        vtkTesting.compareImage(interactor.render_window, Path(vtkTesting.getAbsImagePath(f"{__class__.__name__}.png")).as_posix())
 
     def test(self):
         self.deserialize(*self.serialize())

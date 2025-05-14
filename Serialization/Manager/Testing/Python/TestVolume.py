@@ -1,28 +1,39 @@
-from vtkmodules.test import Testing as vtkTesting
-
 import argparse
-import vtk
+
+from pathlib import Path
+
+from vtkmodules.test import Testing as vtkTesting
+from vtkmodules.vtkSerializationManager import vtkObjectManager
+from vtkmodules.vtkCommonDataModel import vtkPiecewiseFunction
+from vtkmodules.vtkImagingCore import vtkRTAnalyticSource
+from vtkmodules.vtkRenderingCore import (
+    vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor,
+    vtkVolume, vtkVolumeProperty, vtkColorTransferFunction,)
+from vtkmodules.vtkRenderingVolume import (
+    vtkFixedPointVolumeRayCastMapper, vtkGPUVolumeRayCastMapper)
+from vtkmodules.vtkRenderingVolumeOpenGL2 import (vtkOpenGLGPUVolumeRayCastMapper, vtkSmartVolumeMapper)
+from vtkmodules.vtkRenderingAnnotation import vtkCubeAxesActor
+
+import vtkmodules.vtkRenderingOpenGL2
+import vtkmodules.vtkInteractionStyle
 
 MAPPERS = {
-    "FixedPoint": vtk.vtkFixedPointVolumeRayCastMapper(),
-    "GPU": vtk.vtkOpenGLGPUVolumeRayCastMapper(),
-    "RayCast": vtk.vtkGPUVolumeRayCastMapper(),
-    "Smart": vtk.vtkSmartVolumeMapper(),
+    "FixedPoint": vtkFixedPointVolumeRayCastMapper(),
+    "GPU": vtkOpenGLGPUVolumeRayCastMapper(),
+    "RayCast": vtkGPUVolumeRayCastMapper(),
+    "Smart": vtkSmartVolumeMapper(),
 }
 
 
-class TestDynamic(vtkTesting.vtkTest):
+class TestVolume(vtkTesting.vtkTest):
 
     def test(self):
-
-        from vtkmodules.vtkSerializationManager import vtkObjectManager
 
         parser = argparse.ArgumentParser(
             "TestVolume", description="Exercise volume mapper (de)serialization.")
         parser.add_argument('mapper', choices=MAPPERS.keys())
-
-        args = parser.parse_args()
-        MAPPER_TYPE = args.mapper
+        args, _ = parser.parse_known_args()
+        self.mapper_type = args.mapper
 
         ser_om = vtkObjectManager()
         ser_om.Initialize()
@@ -30,34 +41,34 @@ class TestDynamic(vtkTesting.vtkTest):
         deser_om = vtkObjectManager()
         deser_om.Initialize()
 
-        ren = vtk.vtkRenderer()
-        renWin = vtk.vtkRenderWindow()
+        ren = vtkRenderer()
+        renWin = vtkRenderWindow()
         renWin.AddRenderer(ren)
-        interactor = vtk.vtkRenderWindowInteractor()
+        interactor = vtkRenderWindowInteractor()
         interactor.SetRenderWindow(renWin)
         interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera()
 
-        source = vtk.vtkRTAnalyticSource()
+        source = vtkRTAnalyticSource()
         source.Update()
-        mapper = MAPPERS[MAPPER_TYPE]
+        mapper = MAPPERS[self.mapper_type]
         mapper.SetInputConnection(source.GetOutputPort())
-        actor = vtk.vtkVolume()
+        actor = vtkVolume()
         actor.SetMapper(mapper)
         actor.GetProperty().SetScalarOpacityUnitDistance(10)
         ren.AddActor(actor)
 
-        colorTransferFunction = vtk.vtkColorTransferFunction()
+        colorTransferFunction = vtkColorTransferFunction()
         colorTransferFunction.AddRGBPoint(0.0, 0.0, 0.0, 0.0)
         colorTransferFunction.AddRGBPoint(64.0, 1.0, 0.0, 0.0)
         colorTransferFunction.AddRGBPoint(128.0, 0.0, 0.0, 1.0)
         colorTransferFunction.AddRGBPoint(192.0, 0.0, 1.0, 0.0)
         colorTransferFunction.AddRGBPoint(255.0, 0.0, 0.2, 0.0)
 
-        opacityTransferFunction = vtk.vtkPiecewiseFunction()
+        opacityTransferFunction = vtkPiecewiseFunction()
         opacityTransferFunction.AddPoint(20, 0.0)
         opacityTransferFunction.AddPoint(255, 0.2)
 
-        volumeProperty = vtk.vtkVolumeProperty()
+        volumeProperty = vtkVolumeProperty()
         volumeProperty.SetColor(colorTransferFunction)
         volumeProperty.SetScalarOpacity(opacityTransferFunction)
         volumeProperty.ShadeOn()
@@ -65,7 +76,7 @@ class TestDynamic(vtkTesting.vtkTest):
 
         actor.SetProperty(volumeProperty)
 
-        cube = vtk.vtkCubeAxesActor()
+        cube = vtkCubeAxesActor()
         cube.SetCamera(ren.GetActiveCamera())
         cube.SetBounds(source.GetOutput().GetBounds())
         ren.AddActor(cube)
@@ -80,11 +91,6 @@ class TestDynamic(vtkTesting.vtkTest):
 
             ser_om.UpdateStatesFromObjects()
             active_ids = ser_om.GetAllDependencies(id_rwi)
-
-            # print(f"update({active_ids=})")
-            for vtk_id in active_ids:
-                vtk_obj = ser_om.GetObjectAtId(vtk_id)
-                # print(f" - {vtk_id}:{vtk_obj.GetClassName()}")
 
             status = dict(ids=[], mtimes=[], hashes=[])
             status['ids'] = active_ids
@@ -115,7 +121,6 @@ class TestDynamic(vtkTesting.vtkTest):
                 deser_om.RegisterBlob(hash_text, blob)
 
             deser_om.UpdateObjectsFromStates()
-            active_ids = deser_om.GetAllDependencies(0)
 
             renderWindow = deser_om.GetObjectAtId(id_rwi).GetRenderWindow()
             renderWindow.SetPosition(400, 1)
@@ -124,9 +129,9 @@ class TestDynamic(vtkTesting.vtkTest):
         id_rwi = ser_om.RegisterObject(interactor)
 
         deserialize(serialize(id_rwi))
-        rwi = deser_om.GetObjectAtId(id_rwi)
-        rwi.GetRenderWindow().Render()
+        interactor = deser_om.GetObjectAtId(id_rwi)
+        vtkTesting.compareImage(interactor.render_window, Path(vtkTesting.getAbsImagePath(f"{__class__.__name__}{self.mapper_type}Mapper.png")).as_posix())
 
 
 if __name__ == "__main__":
-    vtkTesting.main([(TestDynamic, 'test')])
+    vtkTesting.main([(TestVolume, 'test')])

@@ -1,6 +1,7 @@
 import math
+from pathlib import Path
 
-from vtkmodules.test import Testing as vtkPyTesting
+from vtkmodules.test import Testing as vtkTesting
 from vtkmodules.vtkSerializationManager import vtkObjectManager
 from vtkmodules.vtkChartsCore import vtkChart, vtkChartXY, vtkPlotPoints
 from vtkmodules.vtkCommonColor import vtkNamedColors
@@ -16,7 +17,7 @@ import vtkmodules.vtkRenderingOpenGL2  # noqa
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleSwitch  # noqa
 
 
-class TestChartsScatter(vtkPyTesting.vtkTest):
+class TestChartsScatter(vtkTesting.vtkTest):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -93,7 +94,6 @@ class TestChartsScatter(vtkPyTesting.vtkTest):
 
         manager.UpdateStatesFromObjects()
         active_ids = manager.GetAllDependencies(0)
-        manager.Export("state")
 
         states = map(manager.GetState, active_ids)
         hash_to_blob_map = {blob_hash: manager.GetBlob(
@@ -112,13 +112,14 @@ class TestChartsScatter(vtkPyTesting.vtkTest):
         manager.UpdateObjectsFromStates()
         active_ids = manager.GetAllDependencies(0)
         self.client_view = manager.GetObjectAtId(self.id_view)
-        self.client_view.GetInteractor().Render()
+        renderWindow = self.client_view.GetRenderWindow()
+        renderWindow.Render()
+        vtkTesting.compareImage(renderWindow, Path(vtkTesting.getAbsImagePath(f"{__class__.__name__}.png")).as_posix())
+
 
     def test(self):
         self.deserialize(*self.serialize())
 
 
 if __name__ == "__main__":
-    vtkLogger.Init()
-    vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_MAX)
-    vtkPyTesting.main([(TestChartsScatter, 'test')])
+    vtkTesting.main([(TestChartsScatter, 'test')])

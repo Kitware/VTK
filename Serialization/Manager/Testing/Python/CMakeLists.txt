@@ -1,34 +1,35 @@
 vtk_add_test_python(
+  NO_RT
   TestBiDirectionalSerialization.py,NO_VALID
   TestBlobs.py,NO_VALID
+  TestChartsScatter.py
   TestCompositeDataSets.py,NO_VALID
-  TestCompositePolyDataMapper.py,NO_VALID
-  TestChartsScatter.py,NO_VALID
+  TestCompositePolyDataMapper.py
   TestDynamic.py,NO_VALID
-  TestGlyph3DMapper.py,NO_VALID
+  TestGlyph3DMapper.py
   TestInitialize.py,NO_VALID
-  TestLabelMapper.py,NO_VALID
+  TestLabelMapper.py
   TestPolyDataMapperMTime.py,NO_VALID
-  # TestScalarBarWidget.py,NO_VALID needs more work, turn off interactor
+  TestScalarBarWidget.py
   # TestSilhouette.py,NO_VALID vtkPolyDataSilhouette.cxx needs to mark cells as modified.
-  TestSingleUpdate.py,NO_VALID
-  TestTexture.py,NO_VALID
-  TestSkybox.py,NO_VALID
+  TestSingleUpdate.py
+  TestSkybox.py
+  TestTexture.py,NO_DATA,NO_VALID
   TestUpdateObjectFromState.py,NO_DATA,NO_VALID
   TestUpdateStateFromObject.py,NO_DATA,NO_VALID
 )
 
 # vtkFixedPointVolumeRayCastMapper needs inspection before using either of VTK_MARSHAL(AUTO|MANUAL).
 # vtk_add_test_python(
-#   TestFixedPointVolumeMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID FixedPoint)
+#   TestVolumeFixedPointMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID FixedPoint)
 
 # vtkOpenGLGPUVolumeRayCastMapper needs inspection before using either of VTK_MARSHAL(AUTO|MANUAL).
 # vtk_add_test_python(
-#   TestGPUVolumeMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID GPU)
+#   TestVolumeGPUMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID GPU)
 
 # vtkGPUVolumeRayCastMapper needs inspection before using either of VTK_MARSHAL(AUTO|MANUAL).
 # vtk_add_test_python(
-#   TestRayCastVolumeMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID RayCast)
+#   TestVolumeRayCastMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID RayCast)
 
 vtk_add_test_python(
-  TestSmartVolumeMapper,TestVolume.py,NO_DATA,NO_OUTPUT,NO_VALID Smart)
+  TestVolumeSmartMapper,TestVolume.py,NO_DATA,NO_RT Smart)

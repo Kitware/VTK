@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 
 from vtkmodules.test import Testing as vtkTesting
+from vtkmodules.util.misc import vtkGetDataRoot
+from pathlib import Path
 
-def get_program_parameters():
-    import argparse
-    description = 'Scalar bar widget.'
-    epilogue = '''
-    '''
-    parser = argparse.ArgumentParser(description=description, epilog=epilogue,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('filename', help='uGridEx.vtk')
-    args = parser.parse_args()
-    return args.filename
 
-class TestObjectManagerScalarBarWidget(vtkTesting.vtkTest):
+VTK_DATA_ROOT = vtkGetDataRoot()
+
+class TestScalarBarWidget(vtkTesting.vtkTest):
 
     def test(self):
         from vtkmodules import vtkInteractionStyle as _
@@ -32,10 +26,9 @@ class TestObjectManagerScalarBarWidget(vtkTesting.vtkTest):
         )
         from vtkmodules.vtkSerializationManager import vtkObjectManager
 
-        id_rwi = ""
+        self.id_rwi = ""
 
         def serialize():
-            global id_rwi
 
             manager = vtkObjectManager()
             manager.Initialize()
@@ -43,7 +36,7 @@ class TestObjectManagerScalarBarWidget(vtkTesting.vtkTest):
             colors = vtkNamedColors()
 
             # The source file
-            file_name = get_program_parameters()
+            file_name = VTK_DATA_ROOT + "/Data/uGridEx.vtk"
 
             # Create a custom lut. The lut is used for both at the mapper and at the
             # scalar_bar
@@ -94,9 +87,8 @@ class TestObjectManagerScalarBarWidget(vtkTesting.vtkTest):
             renderer.GetActiveCamera().SetFocalPoint(1.0, 0.5, 3.0)
             renderer.GetActiveCamera().SetViewUp(0.6, 0.4, -0.7)
             render_window.Render()
-            interactor.Start()
-            id_rwi = manager.RegisterObject(interactor)
-            id_sbw = manager.RegisterObject(scalar_bar_widget)
+            self.id_rwi = manager.RegisterObject(interactor)
+            _ = manager.RegisterObject(scalar_bar_widget)
             manager.UpdateStatesFromObjects()
             active_ids = manager.GetAllDependencies(0)
 
@@ -115,11 +107,12 @@ class TestObjectManagerScalarBarWidget(vtkTesting.vtkTest):
                 manager.RegisterBlob(hash_text, blob)
 
             manager.UpdateObjectsFromStates()
-            active_ids = manager.GetAllDependencies(0)
-            manager.GetObjectAtId(id_rwi).Start()
+            interactor = manager.GetObjectAtId(self.id_rwi)
+            interactor.render_window.Render()
+            vtkTesting.compareImage(interactor.render_window, Path(vtkTesting.getAbsImagePath(f"{__class__.__name__}.png")).as_posix())
 
         deserialize(*serialize())
 
 
 if __name__ == "__main__":
-    vtkTesting.main([(TestObjectManagerScalarBarWidget, 'test')])
+    vtkTesting.main([(TestScalarBarWidget, 'test')])

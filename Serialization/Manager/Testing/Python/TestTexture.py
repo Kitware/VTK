@@ -59,7 +59,6 @@ class TestObjectManagerTexture(vtkPyTesting.vtkTest):
             manager.RegisterBlob(hash_text, blob)
 
         manager.UpdateObjectsFromStates()
-        active_ids = manager.GetAllDependencies(0)
         self.deserialized_image = manager.GetObjectAtId(self.id_image)
 
     def test(self):
