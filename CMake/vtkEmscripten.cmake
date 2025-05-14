@@ -3,7 +3,6 @@
 option(VTK_WEBASSEMBLY_64_BIT "Enable support for 64-bit memory in wasm. Adds -sMEMORY64=1 compile and link flags." OFF)
 if (VTK_WEBASSEMBLY_64_BIT)
   # stick to what Emscripten.cmake does.
-  set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CROSSCOMPILING_EMULATOR}" "--experimental-wasm-memory64")
   set(CMAKE_LIBRARY_ARCHITECTURE "wasm64-emscripten")
   set(CMAKE_SIZEOF_VOID_P 8)
   set(CMAKE_C_SIZEOF_DATA_PTR 8)

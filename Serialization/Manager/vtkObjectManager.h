@@ -190,7 +190,7 @@ public:
   std::size_t GetTotalVTKDataObjectMemoryUsage();
 
   /**
-   * Writes state of all registered objects to `filename.json`
+   * Writes state of all registered objects to `filename.states.json`
    * The blobs are written into `filename.blobs.json`.
    */
   void Export(const std::string& filename, int indentLevel = -1, char indentChar = ' ');

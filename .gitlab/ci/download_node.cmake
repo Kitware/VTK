@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(node_version "23.8.0")
+set(node_version "24.0.1")
 set(node_baseurl "https://vtk.org/files/support")
 # Uncomment to test newer releases before mirroring at vtk.org
 # set(node_baseurl "https://nodejs.org/download/release/v${node_version}")
@@ -8,11 +8,11 @@ set(node_baseurl "https://vtk.org/files/support")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "windows")
   set(node_platform "win-x64")
   set(node_ext "zip")
-  set(node_hash "9e03646224fcf44fa0b594df5d012da9cb5b137c52f36f33b11def3319cd132c")
+  set(node_hash "8bbbc4860ce03f8a6cc7369039f6497be3157c4bde3ad54651cc22f5f3af0b40")
 elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "linux")
   set(node_platform "linux-x64")
   set(node_ext "tar.gz")
-  set(node_hash "f6d98bbdd0a4078c1e422a6a1d8bf07ad693a4dd793bb5772990456faeca6e95")
+  set(node_hash "58239e217440acffb3889954f1dc0977f46048c54f226e446280fc8feb8c5ab9")
 else ()
   message(FATAL_ERROR
       "Unknown platform for node $ENV{CMAKE_CONFIGURATION}")

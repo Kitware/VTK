@@ -1,9 +1,8 @@
-import math
+from pathlib import Path
 
-from vtkmodules.test import Testing as vtkPyTesting
+from vtkmodules.test import Testing as vtkTesting
 from vtkmodules.vtkSerializationManager import vtkObjectManager
-from vtkmodules.vtkCommonDataModel import vtkPolyData
-from vtkmodules.vtkCommonCore import vtkFloatArray, vtkLogger, vtkStringArray
+from vtkmodules.vtkCommonCore import vtkLogger, vtkStringArray
 from vtkmodules.vtkFiltersSources import vtkPolyLineSource
 from vtkmodules.vtkFiltersCore import vtkElevationFilter
 from vtkmodules.vtkRenderingCore import vtkActor, vtkActor2D, vtkPolyDataMapper, vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor
@@ -18,10 +17,10 @@ try:
     import numpy as np
 except ImportError:
     print("This test requires numpy!")
-    vtkPyTesting.skip()
+    vtkTesting.skip()
 
 
-class TestLabelMapper(vtkPyTesting.vtkTest):
+class TestLabelMapper(vtkTesting.vtkTest):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,15 +105,13 @@ class TestLabelMapper(vtkPyTesting.vtkTest):
             manager.RegisterBlob(hash_text, blob)
 
         manager.UpdateObjectsFromStates()
-        active_ids = manager.GetAllDependencies(0)
-        self.client_window = manager.GetObjectAtId(self.id_window)
-        self.client_window.Render()
+        renderWindow = manager.GetObjectAtId(self.id_window)
+        renderWindow.Render()
+        vtkTesting.compareImage(renderWindow, Path(vtkTesting.getAbsImagePath(f"{__class__.__name__}.png")).as_posix())
 
     def test(self):
         self.deserialize(*self.serialize())
 
 
 if __name__ == "__main__":
-    vtkLogger.Init()
-    # vtkLogger.SetStderrVerbosity(vtkLogger.VERBOSITY_MAX)
-    vtkPyTesting.main([(TestLabelMapper, 'test')])
+    vtkTesting.main([(TestLabelMapper, 'test')])
