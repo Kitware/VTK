@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 VTK_DATA_ROOT = vtkGetDataRoot()
+EXPORT_STATE = False
 
 class TestScalarBarWidget(vtkTesting.vtkTest):
 
@@ -90,6 +91,9 @@ class TestScalarBarWidget(vtkTesting.vtkTest):
             self.id_rwi = manager.RegisterObject(interactor)
             _ = manager.RegisterObject(scalar_bar_widget)
             manager.UpdateStatesFromObjects()
+            if EXPORT_STATE:
+                # Saves state to scalar-bar-widget.states.json file and blobs in scalar-bar-widget.blobs.json file
+                manager.Export("scalar-bar-widget")
             active_ids = manager.GetAllDependencies(0)
 
             states = map(manager.GetState, active_ids)
