@@ -9,6 +9,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
+#include "vtkStringToken.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <array>
@@ -965,15 +966,39 @@ void vtkFieldData::CopyFlags(const vtkFieldData* source)
 //------------------------------------------------------------------------------
 void vtkFieldData::PassData(vtkFieldData* fd)
 {
+  this->AllocateArrays(this->GetNumberOfArrays() + fd->GetNumberOfArrays());
+
+  std::unordered_map<vtkStringToken, int> indexFromToken;
+  for (int i = 0; i < this->GetNumberOfArrays(); i++)
+  {
+    vtkAbstractArray* array = this->GetAbstractArray(i);
+    if (array)
+    {
+      indexFromToken[vtkStringToken(array->GetName())] = i;
+    }
+  }
+
   for (int i = 0; i < fd->GetNumberOfArrays(); ++i)
   {
     const char* arrayName = fd->GetArrayName(i);
     // If there is no blocker for the given array
     // and both CopyAllOff and CopyOn for that array are not true
+    int index = 0;
     if ((this->GetFlag(arrayName) != 0) &&
       !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) && fd->GetAbstractArray(i))
     {
-      this->AddArray(fd->GetAbstractArray(i));
+      vtkStringToken newToken = vtkStringToken(arrayName);
+      auto iterator = indexFromToken.find(newToken);
+      if (iterator != indexFromToken.end())
+      {
+        index = indexFromToken[newToken];
+      }
+      else
+      {
+        index = this->NumberOfActiveArrays;
+        this->NumberOfActiveArrays++;
+      }
+      this->SetArray(index, fd->GetAbstractArray(i));
     }
   }
 }
