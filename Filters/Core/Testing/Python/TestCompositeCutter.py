@@ -29,6 +29,7 @@ class TestCompositeCutter(Testing.vtkTest):
     cutter.Update()
 
     slice = cutter.GetOutputDataObject(0)
+    slice.RemoveGhostCells()
     self.assertEqual(slice.GetNumberOfCells(), 862)
 
 if __name__ == "__main__":
