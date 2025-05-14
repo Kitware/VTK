@@ -249,6 +249,7 @@
     - git submodule foreach --recursive cmake -P "$pwdpath/.gitlab/ci/fetch_submodule.cmake"
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
 
 .before_script_windows_openxr_deps: &before_script_windows_openxr_deps
     - cmake -P .gitlab/ci/download_openxr.cmake

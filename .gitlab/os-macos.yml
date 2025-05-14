@@ -214,6 +214,7 @@
     - git submodule foreach --recursive cmake -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
     - git submodule sync --recursive
     - git submodule update --init --recursive
+    - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
 
 .before_script_java_macos: &before_script_java_macos
     - cmake -P .gitlab/ci/download_java.cmake
