@@ -174,7 +174,8 @@ xcode-select --install
 
 ```{note}
 `ninja` is a more efficient alternative to `Makefiles` or Visual Studio solution files. The
-speed increase is the most noticeable when doing incremental build.
+speed increase is the most noticeable when doing incremental build. `ninja` version 1.10.1
+or higher is required.
 ```
 
 ## Configure
