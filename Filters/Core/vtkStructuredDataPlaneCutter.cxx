@@ -1044,12 +1044,6 @@ int vtkStructuredDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request
       // scalars cannot be null
       slice->GetPointData()->RemoveArray(slice->GetPointData()->GetScalars()->GetName());
     }
-    // vtkFlyingEdgesPlaneCutter does not handle ghost cells, if there are any ghost cells
-    // in the input, we need to remove them from the output
-    if (!allCellsVisible)
-    {
-      slice->RemoveGhostCells();
-    }
     output->ShallowCopy(slice);
     return 1;
   }
