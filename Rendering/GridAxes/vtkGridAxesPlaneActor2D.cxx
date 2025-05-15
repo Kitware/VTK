@@ -141,7 +141,7 @@ int vtkGridAxesPlaneActor2D::RenderOverlay(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkGridAxesPlaneActor2D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkGridAxesPlaneActor2D::HasTranslucentPolygonalGeometry()
 {
   return this->Actor->HasTranslucentPolygonalGeometry();
 }

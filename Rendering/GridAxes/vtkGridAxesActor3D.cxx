@@ -439,7 +439,7 @@ int vtkGridAxesActor3D::RenderOverlay(vtkViewport* viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkGridAxesActor3D::HasTranslucentPolygonalGeometry()
+vtkTypeBool vtkGridAxesActor3D::HasTranslucentPolygonalGeometry()
 {
   for (int cc = 0; cc < 6; cc++)
   {
