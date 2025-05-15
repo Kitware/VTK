@@ -371,10 +371,10 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
 //------------------------------------------------------------------------------
 vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgs(
   GraphicsPipelineType pipelineType,
-  vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType)
+  vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
-  const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
-  switch (toplogySourceType)
+  const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
+  switch (topologySourceType)
   {
     case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
     case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
@@ -424,9 +424,9 @@ vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgs(
 
 //------------------------------------------------------------------------------
 vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgsForDrawingVertices(
-  vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType)
+  vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType)
 {
-  const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
+  const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
   return { /*VertexCount=*/4, /*InstanceCount=*/bgInfo.VertexCount };
 }
 

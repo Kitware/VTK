@@ -55,7 +55,7 @@ public:
 
   /**
    * Reset the pipeline cache.
-   * @param w The window associated with the cache.
+   * @param window The window associated with the cache.
    */
   void ReleaseGraphicsResources(vtkWindow* window);
 

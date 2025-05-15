@@ -701,10 +701,10 @@ const TRIANGLE_VERTS = array(
   }
 
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgs(GraphicsPipelineType pipelineType,
-    vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType) override
+    vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override
   {
-    const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
-    switch (toplogySourceType)
+    const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
+    switch (topologySourceType)
     {
       case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_VERTS:
       case vtkWebGPUCellToPrimitiveConverter::TOPOLOGY_SOURCE_LINE_POINTS:
@@ -759,9 +759,9 @@ const TRIANGLE_VERTS = array(
   }
 
   vtkWebGPUPolyDataMapper::DrawCallArgs GetDrawCallArgsForDrawingVertices(
-    vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType) override
+    vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType) override
   {
-    const auto& bgInfo = this->TopologyBindGroupInfos[toplogySourceType];
+    const auto& bgInfo = this->TopologyBindGroupInfos[topologySourceType];
     return { /*VertexCount=*/3 * bgInfo.VertexCount, /*InstanceCount=*/this->NumberOfGlyphPoints };
   }
 

@@ -402,9 +402,9 @@ protected:
     std::uint32_t InstanceCount = 0;
   };
   virtual DrawCallArgs GetDrawCallArgs(GraphicsPipelineType pipelineType,
-    vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType);
+    vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType);
   virtual DrawCallArgs GetDrawCallArgsForDrawingVertices(
-    vtkWebGPUCellToPrimitiveConverter::TopologySourceType toplogySourceType);
+    vtkWebGPUCellToPrimitiveConverter::TopologySourceType topologySourceType);
 
   /**
    * Get whether the graphics pipeline needs rebuilt.
