@@ -1,12 +1,13 @@
 async function testInitialize() {
-  const manager = await globalThis.createVTKWasmSceneManager({});
-  if (!manager.initialize()) {
-    throw new Error();
-  }
+  const vtkWASM = await globalThis.createVTKWASM({})
+  const remoteSession = new vtkWASM.vtkRemoteSession();
+  console.log("remote session init success ", remoteSession);
+  const standaloneSession = new vtkWASM.vtkStandaloneSession();
+  console.log("standalone init success ", standaloneSession);
 }
 const tests = [
   {
-    description: "Initialize VTK scene manager",
+    description: "Initialize VTK sessions",
     test: testInitialize,
   },
 ];

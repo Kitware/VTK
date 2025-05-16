@@ -1,36 +1,36 @@
 async function testSkipProperty() {
-    const manager = await globalThis.createVTKWasmSceneManager({});
-    manager.initialize();
-    manager.registerStateJSON({
+    const vtkWASM = await globalThis.createVTKWASM({})
+    const remoteSession = new vtkWASM.vtkRemoteSession();
+    remoteSession.registerState({
         "ClassName": "vtkCamera", "SuperClassNames": ["vtkObject"], "vtk-object-manager-kept-alive": true, "Id": 1
     });
 
-    manager.updateObjectsFromStates();
+    remoteSession.updateObjectsFromStates();
 
     // Skip Position and update object.
-    manager.skipProperty("vtkOpenGLCamera", "Position");
-    manager.updateObjectFromStateJSON({
+    remoteSession.skipProperty("vtkOpenGLCamera", "Position");
+    remoteSession.updateObjectFromState({
         "Id": 1,
         "Position": [0, 1, 2]
     });
 
     // Verify property was skipped
-    manager.updateStateFromObject(1);
-    let state = manager.getState(1);
+    remoteSession.updateStateFromObject(1);
+    let state = remoteSession.getState(1);
     if (JSON.stringify(state.Position) == JSON.stringify([0, 1, 2])) {
         throw new Error("vtkCamera::Position did not get skipped!");
     }
 
     // UnSkip Position and update object.
-    manager.unSkipProperty("vtkOpenGLCamera", "Position");
-    manager.updateObjectFromStateJSON({
+    remoteSession.unSkipProperty("vtkOpenGLCamera", "Position");
+    remoteSession.updateObjectFromState({
         "Id": 1,
         "Position": [3, 4, 5]
     });
 
     // Verify property was deserialized
-    manager.updateStateFromObject(1);
-    state = manager.getState(1);
+    remoteSession.updateStateFromObject(1);
+    state = remoteSession.getState(1);
     if (JSON.stringify(state.Position) != JSON.stringify([3, 4, 5])) {
         throw new Error("vtkCamera::Position did not get unskipped!");
     }

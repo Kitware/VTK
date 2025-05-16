@@ -12,23 +12,21 @@ async function testStates() {
   const dataDirectory = process.argv[dataDirectoryIndex];
   const blobs = JSON.parse(await readFile(path.join(dataDirectory, "Data", "WasmSceneManager", "scalar-bar-widget.blobs.json")));
   const states = JSON.parse(await readFile(path.join(dataDirectory, "Data", "WasmSceneManager", "scalar-bar-widget.states.json")));
-  const manager = await globalThis.createVTKWasmSceneManager({});
-  if (!manager.initialize()) {
-    throw new Error("Failed to initialize scene manager");
-  }
+  const vtkWASM = await globalThis.createVTKWASM({})
+  const remoteSession = new vtkWASM.vtkRemoteSession();
   for (let i = 0; i < object_ids.length; ++i) {
     const object_id = object_ids[i];
-    if (!manager.registerState(JSON.stringify(states[object_id]))) {
+    if (!remoteSession.registerState(states[object_id])) {
       throw new Error(`Failed to register state at object_id=${object_id}`);
     }
   }
   for (let hash in blobs) {
-    if (!manager.registerBlob(hash, new Uint8Array(blobs[hash].bytes))) {
+    if (!remoteSession.registerBlob(hash, new Uint8Array(blobs[hash].bytes))) {
       throw new Error(`Failed to register blob with hash=${hash}`);
     }
   }
-  manager.updateObjectsFromStates();
-  const activeIds = manager.getAllDependencies(0);
+  remoteSession.updateObjectsFromStates();
+  const activeIds = remoteSession.getAllDependencies(0);
   if (!(activeIds instanceof Uint32Array)) {
     throw new Error("getAllDependencies did not return a Uint32Array");
   }

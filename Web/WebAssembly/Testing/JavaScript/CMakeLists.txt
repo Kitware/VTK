@@ -4,10 +4,10 @@ set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
 if (CMAKE_HOST_WIN32)
   list(APPEND _vtk_node_args
-    --import "file://$<TARGET_FILE:VTK::WasmSceneManager>")
+    --import "file://$<TARGET_FILE:VTK::WebAssemblyInterface>")
 else ()
   list(APPEND _vtk_node_args
-    --import "$<TARGET_FILE:VTK::WasmSceneManager>")
+    --import "$<TARGET_FILE:VTK::WebAssemblyInterface>")
 endif ()
 vtk_add_test_module_javascript_node(
   testBindRenderWindow.mjs
