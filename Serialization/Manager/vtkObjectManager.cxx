@@ -121,12 +121,19 @@ bool vtkObjectManager::InitializeDefaultHandlers()
 
 //------------------------------------------------------------------------------
 bool vtkObjectManager::InitializeExtensionModuleHandlers(
-  const std::vector<RegistrarType>& registrars)
+  const std::vector<vtkSessionObjectManagerRegistrarFunc>& registrars)
 {
-  for (const auto& registrar : registrars)
+  return this->InitializeExtensionModuleHandlers(registrars.data(), registrars.size());
+}
+
+//------------------------------------------------------------------------------
+bool vtkObjectManager::InitializeExtensionModuleHandlers(
+  const vtkSessionObjectManagerRegistrarFunc* registrars, std::size_t count)
+{
+  for (std::size_t i = 0; i < count; ++i)
   {
     const char* error = nullptr;
-    if (!registrar(this->Serializer, this->Deserializer, this->Invoker, &error))
+    if (!registrars[i](this->Serializer, this->Deserializer, this->Invoker, &error))
     {
       vtkErrorMacro(<< "Failed to register an extension SerDes handler. error=\"" << error << "\"");
       return false;
@@ -291,7 +298,27 @@ std::string vtkObjectManager::Invoke(
 nlohmann::json vtkObjectManager::Invoke(
   vtkTypeUInt32 identifier, const std::string& methodName, const nlohmann::json& args)
 {
-  return this->Invoker->Invoke(identifier, methodName, args);
+  auto resultJson = this->Invoker->Invoke(identifier, methodName, args);
+  if (!resultJson["Success"])
+  {
+    vtkErrorMacro(<< "Invoker failed to call " << methodName << " on object with ID: " << identifier
+                  << " Error message: " << resultJson["Message"].get<std::string>());
+    return {};
+  }
+  // Check if the result contains a "Value" or "Id" key
+  if (const auto valueIter = resultJson.find("Value"); valueIter != resultJson.end())
+  {
+    return *valueIter;
+  }
+  if (const auto idIter = resultJson.find("Id"); idIter != resultJson.end())
+  {
+    const auto resultObjectHandle = idIter->get<vtkTypeUInt32>();
+    // Synchronize the state of the object and return it.
+    // This is necessary because the object may have been modified by the method call
+    this->UpdateStateFromObject(resultObjectHandle);
+    return this->Context->GetState(resultObjectHandle);
+  }
+  return {};
 }
 
 //------------------------------------------------------------------------------
@@ -476,6 +503,36 @@ std::vector<vtkTypeUInt32> vtkObjectManager::GetAllDependencies(vtkTypeUInt32 id
       (front != vtkObjectManager::ROOT())) // avoids placing the 0 in result
     {
       result.emplace_back(front);
+    }
+    for (auto& dep : this->Context->GetDirectDependencies(front))
+    {
+      if (visited.count(dep) == 0)
+      {
+        traversealDeque.push_back(dep);
+      }
+    }
+  }
+  return result;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkTypeUInt32Array> vtkObjectManager::GetAllDependenciesAsVTKDataArray(
+  vtkTypeUInt32 identifier)
+{
+  auto root = identifier;
+  std::deque<vtkTypeUInt32> traversealDeque;
+  std::unordered_set<vtkTypeUInt32> visited;
+  auto result = vtk::TakeSmartPointer(vtkTypeUInt32Array::New());
+  result->SetNumberOfComponents(1);
+  traversealDeque.push_back(root);
+  while (!traversealDeque.empty())
+  {
+    const auto front = traversealDeque.front();
+    traversealDeque.pop_front();
+    if (visited.insert(front).second &&
+      (front != vtkObjectManager::ROOT())) // avoids placing the 0 in result
+    {
+      result->InsertNextValue(front);
     }
     for (auto& dep : this->Context->GetDirectDependencies(front))
     {
