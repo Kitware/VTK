@@ -103,13 +103,7 @@ bool vtkDeserializer::DeserializeJSON(
       }
     }
     {
-      const auto iter = state.find("SuperClassNames");
-      if (iter == state.end())
-      {
-        vtkErrorMacro(<< "Failed to find 'SuperClassNames' in state at id=" << identifier);
-        return false;
-      }
-      else
+      if (const auto iter = state.find("SuperClassNames"); iter != state.end())
       {
         superClassNames = iter->get<std::vector<std::string>>();
       }
