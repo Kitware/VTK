@@ -829,7 +829,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd, int ct
 //------------------------------------------------------------------------------
 void vtkDataSetAttributes::RemoveArray(int index)
 {
-  if ((index < 0) || (index >= this->NumberOfActiveArrays))
+  if (index < 0 || index >= this->GetNumberOfArrays())
   {
     return;
   }
