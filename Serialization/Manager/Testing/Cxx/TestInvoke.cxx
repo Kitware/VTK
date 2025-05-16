@@ -23,6 +23,7 @@ int TestInvoke(int argc, char* argv[])
   auto manager = vtk::TakeSmartPointer(vtkObjectManager::New());
   // Manually register handlers for the vtkTestingSerializationSerDes library
   // because these handlers are not part of the 'default' group.
+  manager->InitializeDefaultHandlers();
   manager->InitializeExtensionModuleHandlers({ RegisterClasses_vtkTestingSerialization });
 #if !defined(NDEBUG)
   manager->SetObjectManagerLogVerbosity(vtkLogger::VERBOSITY_INFO);
@@ -31,10 +32,11 @@ int TestInvoke(int argc, char* argv[])
 
   vtkNew<vtkSerDesMockObject> argMockObject;
   argMockObject->SetTag(5678);
+  const auto idArgMockObject = manager->RegisterObject(argMockObject);
 
   constexpr auto newCStyleEnumValue = vtkSerDesMock::Value2;
   constexpr auto newMemberScopedEnumValue = vtkSerDesMock::MemberScopedEnum::Value2;
-  const auto idMockObject = manager->RegisterObject(argMockObject);
+  const auto newVTKObjectValue = nlohmann::json{ { "Id", idArgMockObject } };
   constexpr double newNumericScalarValue = 2.0;
   const nlohmann::json /*float[4]*/ newNumericArrayValue = { 1.f, 2.f, 3.f, 4.f };
   const nlohmann::json /*char[]*/ newCharPointerValue = "TestInvokeCharPointer";
@@ -43,9 +45,6 @@ int TestInvoke(int argc, char* argv[])
   const nlohmann::json /*std::vector<float>*/ newStdVectorOfRealValue{ 1.f, 2.f, 3.f, 4.f };
   const nlohmann::json /*std::vector<std::string>*/ newStdVectorOfStdStringValue{ "Test", "Invoke",
     "StdVector", "Of", "String" };
-  const nlohmann::json /*std::vector<vtkTypeUInt32>*/ newStdVectorOfVTKObjectRawPointerValue{
-    idMockObject
-  };
   const nlohmann::json /*vtkBoundingBox*/ newBoundingBoxValue{ -10.0, 10.0, -100.0, 100.0, -1000.0,
     1000.0 };
   const nlohmann::json /*vtkColor3d*/ newColor3dValue{ 0.1, 0.2, 0.3 };
@@ -74,30 +73,20 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "CallWithArguments";
     const auto result = manager->Invoke(idTargetObject, methodName,
-      nlohmann::json{ newCStyleEnumValue, newMemberScopedEnumValue, idMockObject, idMockObject,
-        newNumericScalarValue, newNumericArrayValue, newCharPointerValue, newStdStringValue,
-        newStdVectorOfIntValue, newStdVectorOfRealValue, newStdVectorOfStdStringValue,
-        newStdVectorOfVTKObjectRawPointerValue, newBoundingBoxValue, newColor3dValue,
-        newColor3fValue, newColor3ubValue, newColor4dValue, newColor4fValue, newColor4ubValue,
-        newRectdValue, newRectfValue, newRectiValue, newTupleInt3Value, newVectorInt3Value,
-        newVector2dValue, newVector2fValue, newVector2iValue, newVector3dValue, newVector3fValue,
-        newVector3iValue, newVector4dValue, newVector4iValue });
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
+      nlohmann::json{ newCStyleEnumValue, newMemberScopedEnumValue, newVTKObjectValue,
+        newVTKObjectValue, newNumericScalarValue, newNumericArrayValue, newCharPointerValue,
+        newStdStringValue, newStdVectorOfIntValue, newStdVectorOfRealValue,
+        newStdVectorOfStdStringValue, newBoundingBoxValue, newColor3dValue, newColor3fValue,
+        newColor3ubValue, newColor4dValue, newColor4fValue, newColor4ubValue, newRectdValue,
+        newRectfValue, newRectiValue, newTupleInt3Value, newVectorInt3Value, newVector2dValue,
+        newVector2fValue, newVector2iValue, newVector3dValue, newVector3fValue, newVector3iValue,
+        newVector4dValue, newVector4iValue });
   }
 
   {
     const char* methodName = "ReturnCStyleEnum";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newCStyleEnumValue)
+    if (result != newCStyleEnumValue)
     {
       vtkLog(ERROR, << "CStyleEnumValue != newCStyleEnumValue");
       return EXIT_FAILURE;
@@ -107,12 +96,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnMemberScopedEnum";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newMemberScopedEnumValue)
+    if (result != newMemberScopedEnumValue)
     {
       vtkLog(ERROR, << "MemberScopedEnumValue != newMemberScopedEnumValue");
       return EXIT_FAILURE;
@@ -122,15 +106,10 @@ int TestInvoke(int argc, char* argv[])
   for (const auto& methodName : { "ReturnVTKObjectRawPointer", "ReturnVTKSmartPointer" })
   {
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Id"].get<vtkTypeUInt32>() != idMockObject)
+    if (result["Id"].get<vtkTypeUInt32>() != idArgMockObject)
     {
       vtkLogF(ERROR, "Id '%u' is invalid. Expected '%u'", result["Id"].get<vtkTypeUInt32>(),
-        idMockObject);
+        idArgMockObject);
       return EXIT_FAILURE;
     }
     const auto tag =
@@ -145,12 +124,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnNumericScalar";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newNumericScalarValue)
+    if (result != newNumericScalarValue)
     {
       vtkLog(ERROR, << "NumericScalarValue != newNumericScalarValue");
       return EXIT_FAILURE;
@@ -160,12 +134,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnNumericArray";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newNumericArrayValue)
+    if (result != newNumericArrayValue)
     {
       vtkLog(ERROR, << "NumericArrayValue != newNumericArrayValue");
       return EXIT_FAILURE;
@@ -175,14 +144,9 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnCharPointer";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
+    if (result != newCharPointerValue)
     {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newCharPointerValue)
-    {
-      vtkLog(ERROR, << result["Value"].dump());
+      vtkLog(ERROR, << result.dump());
       vtkLog(ERROR, << "CharPointerValue != newCharPointerValue");
       return EXIT_FAILURE;
     }
@@ -191,12 +155,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnStdString";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newStdStringValue)
+    if (result != newStdStringValue)
     {
       vtkLog(ERROR, << "StdStringValue != newStdStringValue");
       return EXIT_FAILURE;
@@ -206,12 +165,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnStdVectorOfInt";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newStdVectorOfIntValue)
+    if (result != newStdVectorOfIntValue)
     {
       vtkLog(ERROR, << "StdVectorOfIntValue != newStdVectorOfIntValue");
       return EXIT_FAILURE;
@@ -221,12 +175,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnStdVectorOfReal";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newStdVectorOfRealValue)
+    if (result != newStdVectorOfRealValue)
     {
       vtkLog(ERROR, << "StdVectorOfRealValue != newStdVectorOfRealValue");
       return EXIT_FAILURE;
@@ -236,12 +185,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnStdVectorOfStdString";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newStdVectorOfStdStringValue)
+    if (result != newStdVectorOfStdStringValue)
     {
       vtkLog(ERROR, << "StdVectorOfStdStringValue != newStdVectorOfStdStringValue");
       return EXIT_FAILURE;
@@ -249,30 +193,9 @@ int TestInvoke(int argc, char* argv[])
   }
 
   {
-    const char* methodName = "ReturnStdVectorOfVTKObjectRawPointer";
-    const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newStdVectorOfVTKObjectRawPointerValue)
-    {
-      vtkLog(
-        ERROR, << "StdVectorOfVTKObjectRawPointerValue != newStdVectorOfVTKObjectRawPointerValue");
-      return EXIT_FAILURE;
-    }
-  }
-
-  {
     const char* methodName = "ReturnBoundingBox";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newBoundingBoxValue)
+    if (result != newBoundingBoxValue)
     {
       vtkLog(ERROR, << "BoundingBoxValue != newBoundingBoxValue");
       return EXIT_FAILURE;
@@ -282,12 +205,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor3d";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor3dValue)
+    if (result != newColor3dValue)
     {
       vtkLog(ERROR, << "Color3dValue != newColor3dValue");
       return EXIT_FAILURE;
@@ -297,12 +215,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor3f";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor3fValue)
+    if (result != newColor3fValue)
     {
       vtkLog(ERROR, << "Color3fValue != newColor3fValue");
       return EXIT_FAILURE;
@@ -312,12 +225,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor3ub";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor3ubValue)
+    if (result != newColor3ubValue)
     {
       vtkLog(ERROR, << "Color3ubValue != newColor3ubValue");
       return EXIT_FAILURE;
@@ -327,12 +235,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor4d";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor4dValue)
+    if (result != newColor4dValue)
     {
       vtkLog(ERROR, << "Color4dValue != newColor4dValue");
       return EXIT_FAILURE;
@@ -342,12 +245,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor4f";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor4fValue)
+    if (result != newColor4fValue)
     {
       vtkLog(ERROR, << "Color4fValue != newColor4fValue");
       return EXIT_FAILURE;
@@ -357,12 +255,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnColor4ub";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newColor4ubValue)
+    if (result != newColor4ubValue)
     {
       vtkLog(ERROR, << "Color4ubValue != newColor4ubValue");
       return EXIT_FAILURE;
@@ -372,12 +265,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnRectd";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newRectdValue)
+    if (result != newRectdValue)
     {
       vtkLog(ERROR, << "RectdValue != newRectdValue");
       return EXIT_FAILURE;
@@ -387,12 +275,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnRectf";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newRectfValue)
+    if (result != newRectfValue)
     {
       vtkLog(ERROR, << "RectfValue != newRectfValue");
       return EXIT_FAILURE;
@@ -402,12 +285,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnRecti";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newRectiValue)
+    if (result != newRectiValue)
     {
       vtkLog(ERROR, << "RectiValue != newRectiValue");
       return EXIT_FAILURE;
@@ -417,12 +295,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnTupleInt3";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newTupleInt3Value)
+    if (result != newTupleInt3Value)
     {
       vtkLog(ERROR, << "TupleInt3Value != newTupleInt3Value");
       return EXIT_FAILURE;
@@ -432,12 +305,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVectorInt3";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVectorInt3Value)
+    if (result != newVectorInt3Value)
     {
       vtkLog(ERROR, << "VectorInt3Value != newVectorInt3Value");
       return EXIT_FAILURE;
@@ -447,12 +315,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector2d";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector2dValue)
+    if (result != newVector2dValue)
     {
       vtkLog(ERROR, << "Vector2dValue != newVector2dValue");
       return EXIT_FAILURE;
@@ -462,12 +325,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector2f";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector2fValue)
+    if (result != newVector2fValue)
     {
       vtkLog(ERROR, << "Vector2fValue != newVector2fValue");
       return EXIT_FAILURE;
@@ -477,12 +335,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector2i";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector2iValue)
+    if (result != newVector2iValue)
     {
       vtkLog(ERROR, << "Vector2iValue != newVector2iValue");
       return EXIT_FAILURE;
@@ -492,12 +345,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector3d";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector3dValue)
+    if (result != newVector3dValue)
     {
       vtkLog(ERROR, << "Vector3dValue != newVector3dValue");
       return EXIT_FAILURE;
@@ -507,12 +355,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector3f";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector3fValue)
+    if (result != newVector3fValue)
     {
       vtkLog(ERROR, << "Vector3fValue != newVector3fValue");
       return EXIT_FAILURE;
@@ -522,12 +365,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector3i";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector3iValue)
+    if (result != newVector3iValue)
     {
       vtkLog(ERROR, << "Vector3iValue != newVector3iValue");
       return EXIT_FAILURE;
@@ -537,12 +375,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector4d";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector4dValue)
+    if (result != newVector4dValue)
     {
       vtkLog(ERROR, << "Vector4dValue != newVector4dValue");
       return EXIT_FAILURE;
@@ -552,12 +385,7 @@ int TestInvoke(int argc, char* argv[])
   {
     const char* methodName = "ReturnVector4i";
     const auto result = manager->Invoke(idTargetObject, methodName, nlohmann::json::object());
-    if (!result["Success"])
-    {
-      vtkLog(ERROR, << "Invoker failed to call " << methodName);
-      return EXIT_FAILURE;
-    }
-    if (result["Value"] != newVector4iValue)
+    if (result != newVector4iValue)
     {
       vtkLog(ERROR, << "Vector4iValue != newVector4iValue");
       return EXIT_FAILURE;

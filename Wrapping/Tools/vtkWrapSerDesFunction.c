@@ -106,7 +106,7 @@ static int vtkWrapSerDes_CanMarshalValue(
     }
     else if (vtkWrap_IsVTKObjectBaseType(hinfo, element->Class))
     {
-      isAllowed = 1;
+      isAllowed = 0;
     }
     else
     {
@@ -437,7 +437,6 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
   const int isArray = vtkWrap_IsArray(valInfo);
   const int isStdVector = vtkWrap_IsStdVector(valInfo);
 
-  fprintf(fp, "      json result;\n");
   if (isVTKObject && isPointer)
   {
     fprintf(fp,
@@ -709,6 +708,16 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
 
 void vtkWrapSerDes_Functions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo)
 {
+  // Ignore the invoker for vtkObjectBase, as its methods are sensitive to object lifetime.
+  if (!strcmp(classInfo->Name, "vtkObjectBase"))
+  {
+    fprintf(fp,
+      "  result[\"Message\"] = std::string(\"Call to \") + objectBase->GetClassName() + "
+      "std::string(\"::\") + methodName + "
+      "std::string(\" is "
+      "not permitted.\");\n");
+    return;
+  }
   int functionId = 0, functionId2 = 0;
   FunctionInfo *theFunc = NULL, *overloadedFunc = NULL;
   int* generatedFunctionCalls = (int*)calloc(classInfo->NumberOfFunctions, sizeof(int));
@@ -758,5 +767,4 @@ void vtkWrapSerDes_Functions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo
     fprintf(fp, "  }\n");
   }
   free(generatedFunctionCalls);
-  fprintf(fp, "  return {{\"Success\", false}};\n");
 }

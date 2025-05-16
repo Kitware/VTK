@@ -51,11 +51,6 @@ void vtkSerDesMock::PrintSelf(ostream& os, vtkIndent indent)
   std::copy(this->StdVectorOfStdStringValue.begin(), this->StdVectorOfStdStringValue.end(),
     std::ostream_iterator<std::string>(os, ","));
   os << '\n';
-  os << "StdVectorOfVTKObjectRawPointerValue: ";
-  std::copy(this->StdVectorOfVTKObjectRawPointerValue.begin(),
-    this->StdVectorOfVTKObjectRawPointerValue.end(),
-    std::ostream_iterator<vtkSerDesMockObject*>(os, ","));
-  os << '\n';
   os << "BoundingBoxValue: "
      << "xMin=" << this->BoundingBoxValue.GetBound(0)
      << "xMax=" << this->BoundingBoxValue.GetBound(1)
@@ -88,14 +83,13 @@ void vtkSerDesMock::PrintSelf(ostream& os, vtkIndent indent)
 void vtkSerDesMock::CallWithArguments(CStyleEnum arg0, MemberScopedEnum arg1,
   vtkSerDesMockObject* arg2, vtkSmartPointer<vtkSerDesMockObject> arg3, double arg4, float arg5[4],
   char* arg6, const std::string& arg7, const std::vector<int>& arg8, const std::vector<float>& arg9,
-  const std::vector<std::string>& arg10, const std::vector<vtkSerDesMockObject*>& arg11,
-  const vtkBoundingBox& arg12, const vtkColor3d& arg13, const vtkColor3f& arg14,
-  const vtkColor3ub& arg15, const vtkColor4d& arg16, const vtkColor4f& arg17,
-  const vtkColor4ub& arg18, const vtkRectd& arg19, const vtkRectf& arg20, const vtkRecti& arg21,
-  const vtkTuple<int, 3>& arg22, const vtkVector<int, 3>& arg23, const vtkVector2d& arg24,
-  const vtkVector2f& arg25, const vtkVector2i& arg26, const vtkVector3d& arg27,
-  const vtkVector3f& arg28, const vtkVector3i& arg29, const vtkVector4d& arg30,
-  const vtkVector4i& arg31)
+  const std::vector<std::string>& arg10, const vtkBoundingBox& arg11, const vtkColor3d& arg12,
+  const vtkColor3f& arg13, const vtkColor3ub& arg14, const vtkColor4d& arg15,
+  const vtkColor4f& arg16, const vtkColor4ub& arg17, const vtkRectd& arg18, const vtkRectf& arg19,
+  const vtkRecti& arg20, const vtkTuple<int, 3>& arg21, const vtkVector<int, 3>& arg22,
+  const vtkVector2d& arg23, const vtkVector2f& arg24, const vtkVector2i& arg25,
+  const vtkVector3d& arg26, const vtkVector3f& arg27, const vtkVector3i& arg28,
+  const vtkVector4d& arg29, const vtkVector4i& arg30)
 {
   this->CStyleEnumValue = arg0;
   this->MemberScopedEnumValue = arg1;
@@ -109,27 +103,25 @@ void vtkSerDesMock::CallWithArguments(CStyleEnum arg0, MemberScopedEnum arg1,
   std::copy(arg8.begin(), arg8.end(), std::back_inserter(this->StdVectorOfIntValue));
   std::copy(arg9.begin(), arg9.end(), std::back_inserter(this->StdVectorOfRealValue));
   std::copy(arg10.begin(), arg10.end(), std::back_inserter(this->StdVectorOfStdStringValue));
-  std::copy(
-    arg11.begin(), arg11.end(), std::back_inserter(this->StdVectorOfVTKObjectRawPointerValue));
-  this->BoundingBoxValue = arg12;
-  this->Color3dValue = arg13;
-  this->Color3fValue = arg14;
-  this->Color3ubValue = arg15;
-  this->Color4dValue = arg16;
-  this->Color4fValue = arg17;
-  this->Color4ubValue = arg18;
-  this->RectdValue = arg19;
-  this->RectfValue = arg20;
-  this->RectiValue = arg21;
-  this->TupleInt3Value = arg22;
-  this->VectorInt3Value = arg23;
-  this->Vector2dValue = arg24;
-  this->Vector2fValue = arg25;
-  this->Vector2iValue = arg26;
-  this->Vector3dValue = arg27;
-  this->Vector3fValue = arg28;
-  this->Vector3iValue = arg29;
-  this->Vector4dValue = arg30;
-  this->Vector4iValue = arg31;
+  this->BoundingBoxValue = arg11;
+  this->Color3dValue = arg12;
+  this->Color3fValue = arg13;
+  this->Color3ubValue = arg14;
+  this->Color4dValue = arg15;
+  this->Color4fValue = arg16;
+  this->Color4ubValue = arg17;
+  this->RectdValue = arg18;
+  this->RectfValue = arg19;
+  this->RectiValue = arg20;
+  this->TupleInt3Value = arg21;
+  this->VectorInt3Value = arg22;
+  this->Vector2dValue = arg23;
+  this->Vector2fValue = arg24;
+  this->Vector2iValue = arg25;
+  this->Vector3dValue = arg26;
+  this->Vector3fValue = arg27;
+  this->Vector3iValue = arg28;
+  this->Vector4dValue = arg29;
+  this->Vector4iValue = arg30;
 }
 VTK_ABI_NAMESPACE_END
