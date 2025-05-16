@@ -57,26 +57,7 @@ const char vtkDataSetAttributes::LongAttributeNames[vtkDataSetAttributes::NUM_AT
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()
 {
-  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
-  {
-    this->AttributeIndices[attributeType] = -1;
-    this->CopyAttributeFlags[COPYTUPLE][attributeType] = 1;
-    this->CopyAttributeFlags[INTERPOLATE][attributeType] = 1;
-    this->CopyAttributeFlags[PASSDATA][attributeType] = 1;
-  }
-
-  // Global IDs should not be interpolated because they are labels, not "numbers"
-  // Global IDs should not be copied either, unless doing so preserves meaning.
-  // Passing through is usually OK because it is 1:1.
-  this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
-  this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
-
-  // Pedigree IDs should not be interpolated because they are labels, not "numbers"
-  // Pedigree IDs may be copied since they do not require 1:1 mapping.
-  this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
-
-  // Process IDs should not be interpolated because they are labels, not "numbers"
-  this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
+  this->InitializeFields();
 
   this->TargetIndices = nullptr;
 }
@@ -134,23 +115,12 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData* fd)
 {
   this->Initialize(); // free up memory
 
+  this->Superclass::DeepCopy(fd);
+
   vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
   // If the source is a vtkDataSetAttributes
   if (dsa)
   {
-    int numArrays = fd->GetNumberOfArrays();
-
-    // Allocate space for numArrays
-    this->AllocateArrays(numArrays);
-    for (int i = 0; i < numArrays; ++i)
-    {
-      vtkAbstractArray* data = fd->GetAbstractArray(i);
-      vtkAbstractArray* newData = data->NewInstance(); // instantiate same type of object
-      newData->DeepCopy(data);
-      newData->SetName(data->GetName());
-      this->AddArray(newData);
-      newData->Delete();
-    }
     // Copy the copy flags
     for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
     {
@@ -165,16 +135,6 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData* fd)
       this->CopyAttributeFlags[PASSDATA][attributeType] =
         dsa->CopyAttributeFlags[PASSDATA][attributeType];
     }
-    this->CopyFlags(dsa);
-
-    this->GhostsToSkip = fd->GetGhostsToSkip();
-    this->GhostArray =
-      vtkArrayDownCast<vtkUnsignedCharArray>(this->GetAbstractArray(this->GhostArrayName()));
-  }
-  // If the source is field data, do a field data copy
-  else
-  {
-    this->vtkFieldData::DeepCopy(fd);
   }
 }
 
@@ -184,21 +144,12 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData* fd)
 {
   this->Initialize(); // free up memory
 
+  this->vtkFieldData::ShallowCopy(fd);
+
   vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
   // If the source is a vtkDataSetAttributes
   if (dsa)
   {
-    int numArrays = fd->GetNumberOfArrays();
-
-    // Allocate space for numArrays
-    this->AllocateArrays(numArrays);
-    this->NumberOfActiveArrays = 0;
-    for (int i = 0; i < numArrays; ++i)
-    {
-      this->NumberOfActiveArrays++;
-      this->SetArray(i, fd->GetAbstractArray(i));
-    }
-
     // Copy the copy flags
     for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
     {
@@ -213,16 +164,6 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData* fd)
       this->CopyAttributeFlags[PASSDATA][attributeType] =
         dsa->CopyAttributeFlags[PASSDATA][attributeType];
     }
-    this->CopyFlags(dsa);
-
-    this->GhostsToSkip = fd->GetGhostsToSkip();
-    this->GhostArray =
-      vtkArrayDownCast<vtkUnsignedCharArray>(this->GetAbstractArray(this->GhostArrayName()));
-  }
-  // If the source is field data, do a field data copy
-  else
-  {
-    this->vtkFieldData::ShallowCopy(fd);
   }
 }
 
@@ -239,11 +180,18 @@ void vtkDataSetAttributes::InitializeFields()
     this->CopyAttributeFlags[INTERPOLATE][attributeType] = 1;
     this->CopyAttributeFlags[PASSDATA][attributeType] = 1;
   }
+
+  // Global IDs should not be interpolated because they are labels, not "numbers"
+  // Global IDs should not be copied either, unless doing so preserves meaning.
+  // Passing through is usually OK because it is 1:1.
   this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
 
+  // Pedigree IDs should not be interpolated because they are labels, not "numbers"
+  // Pedigree IDs may be copied since they do not require 1:1 mapping.
   this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
 
+  // Process IDs should not be interpolated because they are labels, not "numbers"
   this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
 }
 
@@ -259,20 +207,7 @@ void vtkDataSetAttributes::Initialize()
   // Call superclass' Initialize()
   this->vtkFieldData::Initialize();
 
-  // Reset the attribute copy flags.
-  for (int attributeType = 0; attributeType < NUM_ATTRIBUTES; ++attributeType)
-  {
-    this->AttributeIndices[attributeType] = -1;
-    this->CopyAttributeFlags[COPYTUPLE][attributeType] = 1;
-    this->CopyAttributeFlags[INTERPOLATE][attributeType] = 1;
-    this->CopyAttributeFlags[PASSDATA][attributeType] = 1;
-  }
-  this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
-  this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
-
-  this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] = 0;
-
-  this->CopyAttributeFlags[INTERPOLATE][PROCESSIDS] = 0;
+  this->InitializeFields();
 }
 
 //------------------------------------------------------------------------------
