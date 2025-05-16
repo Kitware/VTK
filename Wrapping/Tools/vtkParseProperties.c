@@ -834,7 +834,7 @@ static int methodMatchesProperty(
   if (isGetNumberOfMethod(meth->Name) &&
     (methType == VTK_PARSE_INT || methType == VTK_PARSE_SIZE_T || methType == VTK_PARSE_ID_TYPE) &&
     (methType & VTK_PARSE_INDIRECT) == 0 &&
-    ((methodBitfield & (VTK_METHOD_GET_IDX | VTK_METHOD_GET_NTH)) != 0))
+    ((methodBitfield & (VTK_METHOD_GET_IDX | VTK_METHOD_GET_NTH | VTK_METHOD_GET_IDX_RHS)) != 0))
   {
     return 1;
   }
