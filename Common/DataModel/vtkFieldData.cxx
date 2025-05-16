@@ -503,8 +503,6 @@ vtkAbstractArray* vtkFieldData::GetAbstractArray(int i)
 // Copy a field by creating new data arrays
 void vtkFieldData::DeepCopy(vtkFieldData* f)
 {
-  this->SetGhostsToSkip(this->GetGhostsToSkip());
-
   this->AllocateArrays(f->GetNumberOfArrays());
   for (int i = 0; i < f->GetNumberOfArrays(); ++i)
   {
@@ -519,6 +517,10 @@ void vtkFieldData::DeepCopy(vtkFieldData* f)
     this->AddArray(newData);
     newData->Delete();
   }
+
+  this->SetGhostsToSkip(f->GetGhostsToSkip());
+
+  this->CopyFlags(f);
 }
 
 //------------------------------------------------------------------------------
@@ -528,14 +530,14 @@ void vtkFieldData::ShallowCopy(vtkFieldData* f)
   this->AllocateArrays(f->GetNumberOfArrays());
   this->NumberOfActiveArrays = 0;
 
-  this->GhostsToSkip = f->GetGhostsToSkip();
-  this->GhostArray = f->GetGhostArray();
-
   for (int i = 0; i < f->GetNumberOfArrays(); ++i)
   {
     this->NumberOfActiveArrays++;
     this->SetArray(i, f->GetAbstractArray(i));
   }
+
+  this->SetGhostsToSkip(f->GetGhostsToSkip());
+
   this->CopyFlags(f);
 }
 
