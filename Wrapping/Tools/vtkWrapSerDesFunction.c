@@ -150,6 +150,12 @@ static int vtkWrapSerDes_IsFunctionAllowed(
     fprintf(fp, "    // Unallowable method:templated\n");
     return 0;
   }
+  /* Ignore NewInstance */
+  if (!strcmp(functionInfo->Name, "NewInstance"))
+  {
+    fprintf(fp, "    // Unallowable method:NewInstance\n");
+    return 0;
+  }
   /* Return value must be allowable */
   if (!vtkWrapSerDes_CanMarshalValue(
         fp, functionInfo->ReturnValue, classInfo, hinfo, /*isReturnValue=*/1))
