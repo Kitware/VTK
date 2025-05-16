@@ -123,7 +123,7 @@ static int vtkWrapSerDes_CanMarshalValue(
     const int declarationLength = vtkParse_ValueInfoToString(valInfo, NULL, VTK_PARSE_EVERYTHING);
     char* declaration = (char*)malloc((declarationLength + 1) * sizeof(char));
     vtkParse_ValueInfoToString(valInfo, declaration, VTK_PARSE_EVERYTHING);
-    fprintf(fp, "  //  Unallowable method:has-rejected-type=%s\n", declaration);
+    fprintf(fp, "    // Unallowable method:has-rejected-type=%s\n", declaration);
     free(declaration);
   }
   return isAllowed;
@@ -135,19 +135,19 @@ static int vtkWrapSerDes_IsFunctionAllowed(
   /* Ignore static methods */
   if (functionInfo->IsStatic)
   {
-    fprintf(fp, "  //  Unallowable method:static\n");
+    fprintf(fp, "    // Unallowable method:static\n");
     return 0;
   }
   /* Ignore inaccessible methods */
   if (!functionInfo->IsPublic)
   {
-    fprintf(fp, "  //  Unallowable method:not public\n");
+    fprintf(fp, "    // Unallowable method:not public\n");
     return 0;
   }
   /* Ignore template methods */
   if (functionInfo->Template)
   {
-    fprintf(fp, "  //  Unallowable method:templated\n");
+    fprintf(fp, "    // Unallowable method:templated\n");
     return 0;
   }
   /* Return value must be allowable */
@@ -159,7 +159,7 @@ static int vtkWrapSerDes_IsFunctionAllowed(
   /* Inherited methods and overriden methods are handled by superclasses */
   if (vtkWrap_IsInheritedMethod(classInfo, functionInfo) || functionInfo->IsOverride)
   {
-    fprintf(fp, "  //  Unallowable method:inherited\n");
+    fprintf(fp, "    // Unallowable method:inherited\n");
     return 0;
   }
   /* All parameters must be allowable */
