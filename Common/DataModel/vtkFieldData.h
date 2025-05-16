@@ -415,6 +415,15 @@ public:
    */
   vtkGetObjectMacro(GhostArray, vtkUnsignedCharArray);
 
+  /**
+   * Return the name used for Ghost Arrays.
+   * An array with this name is considered to be the GhostArray for this field.
+   * Ghost arrays are used in distributed context to add per-element semantic
+   * useful to handle data splited among many ranks.
+   * See vtkDataSetAttributes::CellGhostTypes and vtkDataSetAttributes::PointGhostTypes
+   */
+  static const char* GhostArrayName() { return "vtkGhostType"; }
+
 protected:
   vtkFieldData();
   ~vtkFieldData() override;

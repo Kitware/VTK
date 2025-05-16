@@ -135,11 +135,6 @@ public:
       2 // the point is needed to maintain connectivity, but the data values should be ignored.
   };
 
-  // A vtkDataArray with this name must be of type vtkUnsignedCharArray.
-  // Each value must be assigned according to the bit fields described in
-  // PointGhostTypes or CellGhostType
-  static const char* GhostArrayName() { return "vtkGhostType"; }
-
   //-----------------------------------------------------------------------------------
 
   ///@{

@@ -3,10 +3,7 @@
 #include "vtkFieldData.h"
 
 #include "vtkDataArray.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkStringToken.h"
@@ -443,7 +440,7 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray* data)
   }
 
   const char* name = data->GetName();
-  if (name && strcmp(name, vtkDataSetAttributes::GhostArrayName()) == 0)
+  if (name && strcmp(name, vtkFieldData::GhostArrayName()) == 0)
   {
     this->GhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   }
