@@ -514,7 +514,7 @@ void vtkFieldData::DeepCopy(vtkFieldData* f)
     {
       newData->CopyInformation(data->GetInformation(), /*deep=*/1);
     }
-    this->AddArray(newData);
+    this->SetArray(i, newData);
     newData->Delete();
   }
 
