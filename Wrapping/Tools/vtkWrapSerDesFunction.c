@@ -30,7 +30,13 @@ static int vtkWrapSerDes_CanMarshalValue(
   const int isStdVector = vtkWrap_IsStdVector(valInfo);
 
   int isAllowed = -1;
-  if (valInfo->Template != NULL)
+  // vtkAOSDataArrayTemplate does not get recognized as a template class through valInfo->Template.
+  if (strstr(valInfo->Class, "vtkAOSDataArrayTemplate") != NULL ||
+    strstr(valInfo->Class, "vtkSOADataArrayTemplate") != NULL)
+  {
+    isAllowed = 0;
+  }
+  else if (valInfo->Template != NULL)
   {
     isAllowed = 0;
   }
