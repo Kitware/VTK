@@ -345,6 +345,11 @@ void vtkFieldData::CopyStructure(vtkFieldData* r)
   // don't copy their data.
   for (int i = 0; i < r->GetNumberOfArrays(); ++i)
   {
+    if (!r->Data[i])
+    {
+      continue;
+    }
+
     vtkAbstractArray* data = r->Data[i]->NewInstance();
     int numComponents = r->Data[i]->GetNumberOfComponents();
     data->SetNumberOfComponents(numComponents);
@@ -503,19 +508,11 @@ vtkAbstractArray* vtkFieldData::GetAbstractArray(int i)
 // Copy a field by creating new data arrays
 void vtkFieldData::DeepCopy(vtkFieldData* f)
 {
-  this->AllocateArrays(f->GetNumberOfArrays());
+  this->CopyStructure(f);
+
   for (int i = 0; i < f->GetNumberOfArrays(); ++i)
   {
-    vtkAbstractArray* data = f->GetAbstractArray(i);
-    vtkAbstractArray* newData = data->NewInstance(); // instantiate same type of object
-    newData->DeepCopy(data);
-    newData->SetName(data->GetName());
-    if (data->HasInformation())
-    {
-      newData->CopyInformation(data->GetInformation(), /*deep=*/1);
-    }
-    this->SetArray(i, newData);
-    newData->Delete();
+    this->GetAbstractArray(i)->DeepCopy(f->GetAbstractArray(i));
   }
 
   this->SetGhostsToSkip(f->GetGhostsToSkip());
