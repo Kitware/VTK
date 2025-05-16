@@ -539,6 +539,8 @@ VTK_ABI_NAMESPACE_END
     vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>>, ValueType)                             \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, ValueType)
 
+#undef VTK_INSTANTIATE_VALUERANGE_VALUETYPE
+
 #elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_IMPLICIT_VALUERANGE_INSTANTIATING
 
 #ifndef VTK_IMPLICIT_TEMPLATE_EXTERN

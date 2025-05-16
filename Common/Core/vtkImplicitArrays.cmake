@@ -22,11 +22,14 @@ macro(_generate_implicit_array_specialization backend vtk_type concrete_type)
     "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx"
     @ONLY)
 
-  # append generated files to current module headers and sources
+  # append generated header to current module headers
   list(APPEND headers
     "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h")
-  list(APPEND sources
-    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx")
+
+  # append generated source to the bulk instantiation of concrete_type
+  string(REPLACE " " "_" _suffix "${concrete_type}")
+  list(APPEND "bulk_instantiation_sources_${_suffix}"
+    "#include \"${_className}.cxx\"")
 
   unset(VTK_TYPE_NAME)
   unset(CONCRETE_TYPE)
