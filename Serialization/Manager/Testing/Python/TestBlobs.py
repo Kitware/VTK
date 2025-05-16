@@ -40,7 +40,7 @@ class TestBlobs(vtkTesting.vtkTest):
             self.assertEqual(arrayUI32Id in active_ids, True)
 
             states = [ manager.GetState(object_id) for object_id in active_ids ]
-            hash_to_blob_map = { blob_hash: manager.GetBlob(blob_hash) for blob_hash in manager.GetBlobHashes(active_ids) }
+            hash_to_blob_map = { blob_hash: manager.GetBlob(blob_hash, True) for blob_hash in manager.GetBlobHashes(active_ids) }
 
             manager.UnRegisterObject(arrayF32Id)
             manager.UnRegisterObject(arrayUI32Id)

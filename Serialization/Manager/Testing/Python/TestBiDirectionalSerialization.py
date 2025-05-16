@@ -21,7 +21,7 @@ class TestBiDirectionalSerialization(vtkTesting.vtkTest):
             active_ids = manager.GetAllDependencies(0)
 
             states = map(manager.GetState, active_ids)
-            hash_to_blob_map = { blob_hash: manager.GetBlob(blob_hash) for blob_hash in manager.GetBlobHashes(active_ids) }
+            hash_to_blob_map = { blob_hash: manager.GetBlob(blob_hash, True) for blob_hash in manager.GetBlobHashes(active_ids) }
             return states, hash_to_blob_map
 
         def deserialize(states, hash_to_blob_map):

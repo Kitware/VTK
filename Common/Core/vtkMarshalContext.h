@@ -148,8 +148,11 @@ public:
 
   /**
    * Find and get the `blob` registered at `hash`.
+   * If `copy` is `true`, a copy of the blob is returned.
+   * If `copy` is `false`, the blob pointer is set in the array using `vtkTypeUInt8Array::SetArray`
+   * with the save flag set to `1`.
    */
-  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash);
+  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = false);
 
   /**
    * Return all direct dependencies of the object/state registered at `identifier`.

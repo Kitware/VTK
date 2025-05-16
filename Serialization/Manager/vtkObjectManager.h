@@ -129,8 +129,11 @@ public:
 
   /**
    * Returns a blob stored at `hash`.
+   * If `copy` is `true`, a copy of the blob is returned.
+   * If `copy` is `false`, the blob pointer is set in the array using `vtkTypeUInt8Array::SetArray`
+   * with the save flag set to `1`.
    */
-  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash) const;
+  vtkSmartPointer<vtkTypeUInt8Array> GetBlob(const std::string& hash, bool copy = false) const;
 
   /**
    * Specifies a `blob` for `hash`. Returns `true` if the `blob` is valid and successfully

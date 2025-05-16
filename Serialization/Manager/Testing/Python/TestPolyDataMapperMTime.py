@@ -43,7 +43,7 @@ class TestPolyDataMapperMTime(vtkTesting.vtkTest):
 
             states = map(manager.GetState, active_ids)
             hash_to_blob_map = {blob_hash: manager.GetBlob(
-                blob_hash) for blob_hash in manager.GetBlobHashes(active_ids)}
+                blob_hash, True) for blob_hash in manager.GetBlobHashes(active_ids)}
 
             test_ids = (manager.GetId(actor.mapper), manager.GetId(ctf), manager.GetId(actor.mapper.GetInputDataObject(0, 0)))
             return states, hash_to_blob_map, test_ids
