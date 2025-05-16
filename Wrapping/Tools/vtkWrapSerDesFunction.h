@@ -8,6 +8,10 @@
 
 #include <stdio.h>
 
-void vtkWrapSerDes_Functions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo);
+/* Define function void Invoke_ClassName_FuncName(..) for all methods in class*/
+void vtkWrapSerDes_DefineFunctions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo);
+
+/* Generate code that calls Invoke_ClassName_FuncName() */
+void vtkWrapSerDes_CallFunctions(FILE* fp, ClassInfo* classInfo, const HierarchyInfo* hinfo);
 
 #endif

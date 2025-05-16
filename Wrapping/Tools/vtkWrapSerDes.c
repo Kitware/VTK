@@ -63,10 +63,10 @@ static void vtkWrapSerDes_GenerateSpecialHeaders(
      what types each templated class is instantiated for (that info
      might be in the .cxx files, which we cannot access here) */
   types[numTypes++] = "vtkVariant";
-  /* the header file for the marshalled class */
   types[numTypes++] = "vtkDeserializer";
   types[numTypes++] = "vtkInvoker";
   types[numTypes++] = "vtkSerializer";
+  types[numTypes++] = "vtkStringToken";
 
   nn = file_info->Contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
