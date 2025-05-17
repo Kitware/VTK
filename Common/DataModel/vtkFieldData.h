@@ -476,6 +476,8 @@ private:
   vtkFieldData(const vtkFieldData&) = delete;
   void operator=(const vtkFieldData&) = delete;
 
+  friend class vtkFieldDataSerDesHelper; // for access to SetArray()
+
 public:
   class VTKCOMMONDATAMODEL_EXPORT BasicIterator
   {
