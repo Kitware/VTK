@@ -127,6 +127,42 @@ int TestHardwareSelector(int argc, char* argv[])
   renWin->SetSize(1280, 720);
   renWin->Render();
 
+  const int retVal = vtkRegressionTestImage(renWin);
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+  {
+    vtkNew<vtkRenderWindowInteractor> iren;
+    vtkNew<vtkRenderedAreaPicker> picker;
+    iren->SetPicker(picker);
+    iren->SetRenderWindow(renWin);
+    // use a rubber band pick style for area selections.
+    vtkNew<vtkInteractorStyleRubberBandPick> style;
+    iren->SetInteractorStyle(style);
+    style->SetDefaultRenderer(renderer);
+
+    vtkNew<vtkCallbackCommand> onEndPick;
+    onEndPick->SetCallback(
+      [](vtkObject* caller, unsigned long, void*, void*)
+      {
+        auto interactor = vtkRenderWindowInteractor::SafeDownCast(caller);
+        auto* areaPicker = vtkRenderedAreaPicker::SafeDownCast(interactor->GetPicker());
+        vtkNew<vtkHardwareSelector> _selector;
+        _selector->SetCaptureZValues(true);
+        _selector->SetRenderer(areaPicker->GetRenderer());
+
+        double x0 = areaPicker->GetRenderer()->GetPickX1();
+        double y0 = areaPicker->GetRenderer()->GetPickY1();
+        double x1 = areaPicker->GetRenderer()->GetPickX2();
+        double y1 = areaPicker->GetRenderer()->GetPickY2();
+
+        _selector->SetArea(
+          static_cast<int>(x0), static_cast<int>(y0), static_cast<int>(x1), static_cast<int>(y1));
+        auto selection = vtk::TakeSmartPointer(_selector->Select());
+        selection->Print(cout);
+      });
+    iren->AddObserver(vtkCommand::EndPickEvent, onEndPick);
+    iren->Start();
+  }
+  else
   {
     vtkNew<vtkHardwareSelector> selector;
     selector->SetCaptureZValues(true);
@@ -136,13 +172,14 @@ int TestHardwareSelector(int argc, char* argv[])
       auto selection = vtk::TakeSmartPointer(selector->Select());
       if (selection->GetNumberOfNodes() != 1)
       {
-        std::cerr << "Expected 1 nodes, got " << selection->GetNumberOfNodes() << "nodes\n";
+        std::cerr << __LINE__ << " Expected 1 nodes, got " << selection->GetNumberOfNodes()
+                  << "nodes\n";
         return EXIT_FAILURE;
       }
       auto* node = selection->GetNode(0);
       if (node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) != 0)
       {
-        std::cerr << "Expected propId = 0, got "
+        std::cerr << __LINE__ << " Expected propId = 0, got "
                   << node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) << "\n";
         return EXIT_FAILURE;
       }
@@ -152,7 +189,7 @@ int TestHardwareSelector(int argc, char* argv[])
         node->GetSelectionList()->PrintValues(oss);
         if (oss.str() != "5 6 ")
         {
-          std::cerr << "Expected selected Ids = " << oss.str() << " got 5 6 \n";
+          std::cerr << __LINE__ << " Expected selected Ids = " << oss.str() << " got 5 6 \n";
         }
       }
     }
@@ -161,13 +198,14 @@ int TestHardwareSelector(int argc, char* argv[])
       auto selection = vtk::TakeSmartPointer(selector->Select());
       if (selection->GetNumberOfNodes() != 1)
       {
-        std::cerr << "Expected 1 nodes, got " << selection->GetNumberOfNodes() << "nodes\n";
+        std::cerr << __LINE__ << " Expected 1 nodes, got " << selection->GetNumberOfNodes()
+                  << "nodes\n";
         return EXIT_FAILURE;
       }
       auto* node = selection->GetNode(0);
       if (node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) != 1)
       {
-        std::cerr << "Expected propId = 1, got "
+        std::cerr << __LINE__ << " Expected propId = 1, got "
                   << node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) << "\n";
         return EXIT_FAILURE;
       }
@@ -177,7 +215,7 @@ int TestHardwareSelector(int argc, char* argv[])
         node->GetSelectionList()->PrintValues(oss);
         if (oss.str() != "4 5 6 7 67 76 77 86 87 88 89 ")
         {
-          std::cerr << "Expected selected Ids = " << oss.str()
+          std::cerr << __LINE__ << " Expected selected Ids = " << oss.str()
                     << " got 4 5 6 7 67 76 77 86 87 88 89 \n";
           return EXIT_FAILURE;
         }
@@ -188,13 +226,14 @@ int TestHardwareSelector(int argc, char* argv[])
       auto selection = vtk::TakeSmartPointer(selector->Select());
       if (selection->GetNumberOfNodes() != 12)
       {
-        std::cerr << "Expected 12 nodes, got " << selection->GetNumberOfNodes() << "nodes\n";
+        std::cerr << __LINE__ << " Expected 12 nodes, got " << selection->GetNumberOfNodes()
+                  << "nodes\n";
         return EXIT_FAILURE;
       }
       auto* node = selection->GetNode(0);
       if (node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) != 2)
       {
-        std::cerr << "Expected propId = 2, got "
+        std::cerr << __LINE__ << " Expected propId = 2, got "
                   << node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) << "\n";
         return EXIT_FAILURE;
       }
@@ -304,13 +343,14 @@ int TestHardwareSelector(int argc, char* argv[])
       auto selection = vtk::TakeSmartPointer(selector->Select());
       if (selection->GetNumberOfNodes() != 1)
       {
-        std::cerr << "Expected 1 nodes, got " << selection->GetNumberOfNodes() << "nodes\n";
+        std::cerr << __LINE__ << " Expected 1 nodes, got " << selection->GetNumberOfNodes()
+                  << "nodes\n";
         return EXIT_FAILURE;
       }
       auto* node = selection->GetNode(0);
       if (node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) != 3)
       {
-        std::cerr << "Expected propId = 3, got "
+        std::cerr << __LINE__ << " Expected propId = 3, got "
                   << node->GetProperties()->Get(vtkSelectionNode::PROP_ID()) << "\n";
         return EXIT_FAILURE;
       }
@@ -320,47 +360,11 @@ int TestHardwareSelector(int argc, char* argv[])
         node->GetSelectionList()->PrintValues(oss);
         if (oss.str() != "3 4 5 ")
         {
-          std::cerr << "Expected selected Ids = " << oss.str() << " got 3 4 5 \n";
+          std::cerr << __LINE__ << " Expected selected Ids = " << oss.str() << " got 3 4 5 \n";
           return EXIT_FAILURE;
         }
       }
     }
-  }
-
-  const int retVal = vtkRegressionTestImage(renWin);
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-  {
-    vtkNew<vtkRenderWindowInteractor> iren;
-    vtkNew<vtkRenderedAreaPicker> picker;
-    iren->SetPicker(picker);
-    iren->SetRenderWindow(renWin);
-    // use a rubber band pick style for area selections.
-    vtkNew<vtkInteractorStyleRubberBandPick> style;
-    iren->SetInteractorStyle(style);
-    style->SetDefaultRenderer(renderer);
-
-    vtkNew<vtkCallbackCommand> onEndPick;
-    onEndPick->SetCallback(
-      [](vtkObject* caller, unsigned long, void*, void*)
-      {
-        auto interactor = vtkRenderWindowInteractor::SafeDownCast(caller);
-        auto* areaPicker = vtkRenderedAreaPicker::SafeDownCast(interactor->GetPicker());
-        vtkNew<vtkHardwareSelector> _selector;
-        _selector->SetCaptureZValues(true);
-        _selector->SetRenderer(areaPicker->GetRenderer());
-
-        double x0 = areaPicker->GetRenderer()->GetPickX1();
-        double y0 = areaPicker->GetRenderer()->GetPickY1();
-        double x1 = areaPicker->GetRenderer()->GetPickX2();
-        double y1 = areaPicker->GetRenderer()->GetPickY2();
-
-        _selector->SetArea(
-          static_cast<int>(x0), static_cast<int>(y0), static_cast<int>(x1), static_cast<int>(y1));
-        auto selection = vtk::TakeSmartPointer(_selector->Select());
-        selection->Print(cout);
-      });
-    iren->AddObserver(vtkCommand::EndPickEvent, onEndPick);
-    iren->Start();
   }
 
   vtkSmartPointer<vtkImageData> depthImage =

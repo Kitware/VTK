@@ -10,9 +10,16 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkWebGPUActor.h"
+#include "vtkWebGPUPolyDataMapper.h"
+#include "vtkWebGPURenderPipelineCache.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+
+#include "Private/vtkWebGPUBindGroupInternals.h"
+#include "Private/vtkWebGPUBindGroupLayoutInternals.h"
+
 #include <cstddef>
+#include <sstream>
 
 namespace
 {
@@ -172,6 +179,16 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
   SCOPED_ROLLBACK_ARRAY_ELEMENT(double, ScalarRange, 1);
 
   this->CachedInput = this->CurrentInput = batchElement.PolyData;
+  const std::string label = "CompositeDataProperties-" + this->CurrentInput->GetObjectDescription();
+  if (this->CompositeDataPropertiesBuffer == nullptr)
+  {
+    const auto alignedSize = vtkWebGPUConfiguration::Align(sizeof(CompositeDataProperties), 16);
+    this->CompositeDataPropertiesBuffer = wgpuConfiguration->CreateBuffer(alignedSize,
+      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst,
+      /*mappedAtCreation=*/false, label.c_str());
+    // Rebuild pipeline and bindgroups when buffer is re-created.
+    this->RebuildGraphicsPipelines = true;
+  }
   this->Superclass::RenderPiece(renderer, actor);
 
   // If requested, color partial / missing arrays with NaN color.
@@ -200,20 +217,20 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
     }
   }
 
-  // write to the `OverrideColorDescriptor` portion of the `MeshAttributeDescriptor` buffer only if
+  // write to the `OverrideColorDescriptor` portion of the `Mesh` buffer only if
   // colors/opacity/pickability per block changed.
   if ((this->Parent->GetMTime() > this->OverrideColorUploadTimestamp) ||
     (this->LastUseNanColor != useNanColor))
   {
     if (useNanColor)
     {
-      this->UpdateMeshDescriptor(wgpuConfiguration, true, batchElement.Opacity,
+      this->UploadCompositeDataProperties(wgpuConfiguration, true, batchElement.Opacity,
         vtkColor3d{ nanColor }, vtkColor3d{ nanColor }, batchElement.FlatIndex,
         batchElement.Pickability);
     }
     else
     {
-      this->UpdateMeshDescriptor(wgpuConfiguration, batchElement.OverridesColor,
+      this->UploadCompositeDataProperties(wgpuConfiguration, batchElement.OverridesColor,
         batchElement.Opacity, batchElement.AmbientColor, batchElement.DiffuseColor,
         batchElement.FlatIndex, batchElement.Pickability);
     }
@@ -222,48 +239,156 @@ void vtkWebGPUBatchedPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUBatchedPolyDataMapper::UpdateMeshDescriptor(
+std::vector<wgpu::BindGroupLayoutEntry>
+vtkWebGPUBatchedPolyDataMapper::GetMeshBindGroupLayoutEntries()
+{
+  // extend superclass bindings with additional entry for `Mesh` buffer.
+  auto entries = this->Superclass::GetMeshBindGroupLayoutEntries();
+  std::uint32_t bindingId = entries.size();
+
+  entries.emplace_back(
+    vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{ bindingId++,
+      wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::Uniform });
+  return entries;
+}
+
+//------------------------------------------------------------------------------
+std::vector<wgpu::BindGroupEntry> vtkWebGPUBatchedPolyDataMapper::GetMeshBindGroupEntries()
+{
+  // extend superclass bindings with additional entry for `Mesh` buffer.
+  auto entries = this->Superclass::GetMeshBindGroupEntries();
+  std::uint32_t bindingId = entries.size();
+
+  auto bindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
+    this->CompositeDataPropertiesBuffer, 0 };
+  entries.emplace_back(bindingInit.GetAsBinding());
+  return entries;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::UploadCompositeDataProperties(
   vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, bool applyOverrides,
   double overrideOpacity, const vtkColor3d& overrideAmbientColor,
-  const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable)
+  const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 composite_id, bool pickable)
 {
-  if (this->AttributeDescriptorBuffer != nullptr)
+  if (this->CompositeDataPropertiesBuffer != nullptr)
   {
     vtkTypeUInt32 applyOverrideColors = applyOverrides ? 1 : 0;
     vtkTypeFloat32 opacity = overrideOpacity;
-    vtkTypeFloat32 ambientColor[3];
-    vtkTypeFloat32 diffuseColor[3];
+    vtkTypeFloat32 ambient_color[3];
+    vtkTypeFloat32 diffuse_color[3];
     for (int i = 0; i < 3; ++i)
     {
-      ambientColor[i] = overrideAmbientColor[i];
-      diffuseColor[i] = overrideDiffuseColor[i];
+      ambient_color[i] = overrideAmbientColor[i];
+      diffuse_color[i] = overrideDiffuseColor[i];
     }
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, ApplyOverrideColors), &applyOverrideColors,
-      sizeof(vtkTypeUInt32), "MeshAttributeDescriptor.ApplyOverrideColors");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, ApplyOverrideColors), &applyOverrideColors,
+      sizeof(vtkTypeUInt32), "CompositeDataProperties.ApplyOverrideColors");
 
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Opacity), &opacity, sizeof(vtkTypeFloat32),
-      "MeshAttributeDescriptor.Opacity");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, Opacity), &opacity, sizeof(vtkTypeFloat32),
+      "CompositeDataProperties.Opacity");
 
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, CompositeId), &compositeId, sizeof(vtkTypeUInt32),
-      "MeshAttributeDescriptor.CompositeId");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, CompositeId), &composite_id, sizeof(vtkTypeUInt32),
+      "CompositeDataProperties.CompositeId");
 
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Ambient), &ambientColor, sizeof(ambientColor),
-      "MeshAttributeDescriptor.Ambient");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, Ambient), &ambient_color, sizeof(ambient_color),
+      "CompositeDataProperties.Ambient");
 
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Diffuse), &diffuseColor, sizeof(diffuseColor),
-      "MeshAttributeDescriptor.Diffuse");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, Diffuse), &diffuse_color, sizeof(diffuse_color),
+      "CompositeDataProperties.Diffuse");
 
     vtkTypeUInt32 pickableAsUInt32 = pickable ? 1u : 0u;
-    wgpuConfiguration->WriteBuffer(this->AttributeDescriptorBuffer,
-      offsetof(MeshAttributeDescriptor, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32),
-      "MeshAttributeDescriptor.Pickable");
+    wgpuConfiguration->WriteBuffer(this->CompositeDataPropertiesBuffer,
+      offsetof(CompositeDataProperties, Pickable), &pickableAsUInt32, sizeof(pickableAsUInt32),
+      "CompositeDataProperties.Pickable");
   }
   this->OverrideColorUploadTimestamp.Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomDef(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  const std::string code = R"(struct CompositeDataProperties
+{
+  apply_override_colors: u32,
+  opacity: f32,
+  composite_id: u32,
+  pickable: u32,
+  ambient: vec3<f32>,
+  pad: u32,
+  diffuse: vec3<f32>,
+};)";
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Custom::Def", code,
+    /*all=*/false);
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Custom::Def", code,
+    /*all=*/false);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomBindings(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  auto& bindingId = this->NumberOfBindings[GROUP_MESH];
+  std::stringstream codeStream;
+  codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
+             << ") var<uniform> composite_data_properties: CompositeDataProperties;";
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Custom::Bindings", codeStream.str(),
+    /*all=*/false);
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Custom::Bindings", codeStream.str(),
+    /*all=*/false);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReplaceVertexShaderPicking(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl",
+    R"(if (composite_data_properties.pickable == 1u)
+  {
+    // Write indices
+    output.cell_id = cell_id;
+    output.prop_id = actor.color_options.id;
+    output.composite_id = composite_data_properties.composite_id;
+    output.process_id = 0;
+  })",
+    /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderColors(
+  GraphicsPipelineType pipelineType, std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl",
+    R"(//VTK::Colors::Impl
+  if (composite_data_properties.apply_override_colors == 1u)
+  {
+    ambient_color = composite_data_properties.ambient.rgb;
+    diffuse_color = composite_data_properties.diffuse.rgb;
+    opacity = composite_data_properties.opacity;
+  })",
+    /*all=*/false);
+  this->Superclass::ReplaceFragmentShaderColors(pipelineType, fss);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderPicking(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
+    R"(if (composite_data_properties.pickable == 1u)
+  {
+    output.ids.x = vertex.cell_id + 1;
+    output.ids.y = vertex.prop_id + 1;
+    output.ids.z = vertex.composite_id + 1;
+    output.ids.w = vertex.process_id + 1;
+  })",
+    /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
@@ -306,4 +431,12 @@ vtkMTimeType vtkWebGPUBatchedPolyDataMapper::GetMTime()
     return this->Superclass::GetMTime();
   }
 }
+
+//------------------------------------------------------------------------------
+void vtkWebGPUBatchedPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
+{
+  this->CompositeDataPropertiesBuffer = nullptr;
+  this->Superclass::ReleaseGraphicsResources(w);
+}
+
 VTK_ABI_NAMESPACE_END

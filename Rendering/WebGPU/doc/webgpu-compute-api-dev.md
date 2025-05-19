@@ -181,7 +181,7 @@ void vtkWebGPURenderer::UpdateComputeBuffers()
     renderBuffer->SetByteSize(wgpuMapper->GetPointAttributeByteSize(bufferAttribute));
     renderBuffer->SetRenderBufferOffset(wgpuMapper->GetPointAttributeByteOffset(bufferAttribute) / sizeof(float));
     renderBuffer->SetRenderBufferElementCount(wgpuMapper->GetPointAttributeByteSize(bufferAttribute) / wgpuMapper->GetPointAttributeElementSize(bufferAttribute));
-    renderBuffer->SetWGPUBuffer(wgpuMapper->GetPointDataWGPUBuffer());
+    renderBuffer->SetWGPUBuffer(wgpuMapper->GetPointDataWGPUBuffer(bufferAttribute));
 
     // Setup done, the render buffer can be added to the pipeline
     vtkWebGPUComputePipeline* associatedPipeline = renderBuffer->GetAssociatedPipeline();

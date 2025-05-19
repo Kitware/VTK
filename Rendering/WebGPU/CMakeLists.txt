@@ -112,27 +112,19 @@ set(private_shader_files
   wgsl/ActorTransform.wgsl
   wgsl/CopyDepthTextureToBuffer.wgsl
   wgsl/FrustumCullingShader.wgsl
-  wgsl/LineFragmentShader.wgsl
-  wgsl/LineGlyphShader.wgsl
-  wgsl/LineMiterJoinVertexShader.wgsl
-  wgsl/LineRoundJoinVertexShader.wgsl
-  wgsl/LineShaderOpaque.wgsl
-  wgsl/LineShaderTranslucent.wgsl
   wgsl/OcclusionCullingCopyDepthTexture.wgsl
   wgsl/OcclusionCullingDepthMipmaps.wgsl
   wgsl/OcclusionCullingPropsCulling.wgsl
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
-  wgsl/PointGlyphShader.wgsl
-  wgsl/PointShader.wgsl
   wgsl/PolyData2D.wgsl
   wgsl/SceneLight.wgsl
   wgsl/SceneTransform.wgsl
-  wgsl/SurfaceMeshGlyphShader.wgsl
-  wgsl/SurfaceMeshShader.wgsl
   wgsl/Utilities.wgsl
-  wgsl/VTKCellToGraphicsPrimitive.wgsl)
+  wgsl/VTKCellToGraphicsPrimitive.wgsl
+  wgsl/vtkPolyDataVSWGSL.wgsl
+  wgsl/vtkPolyDataFSWGSL.wgsl)
 
 set(public_shader_files
   Testing/Cxx/TestShaders/TestComputePassShader.wgsl

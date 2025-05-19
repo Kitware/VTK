@@ -81,28 +81,29 @@ public:
    * - vtkPolyData::GetVerts()
    * - vtkPolyData::GetLines()
    * - vtkPolyData::GetPolys()
-   * This method will initialize the vertexCounts, topologyBuffers and edgeArrayBuffers
+   * This method will initialize the vertexCounts, connectivityBuffers and edgeArrayBuffers
    * after dispatching the compute pipelines.
    * Returns false if no buffers have changed, else returns true.
    */
   bool DispatchMeshToPrimitiveComputePipeline(vtkWebGPUConfiguration* wgpuConfiguration,
     vtkPolyData* mesh, int representation, vtkTypeUInt32* vertexCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-    wgpu::Buffer* topologyBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-    wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES]);
+    wgpu::Buffer* connectivityBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+    wgpu::Buffer* cellIdBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+    wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+    wgpu::Buffer* cellIdOffsetUniformBuffers[NUM_TOPOLOGY_SOURCE_TYPES]);
 
   /**
    * Tessellates each cell into primitives.
    * This function splits polygons, quads and triangle-strips into separate triangles.
    * It splits polylines into line segments and polyvertices into individual vertices.
-   * This method will initialize the vertexCounts, topologyBuffers and edgeArrayBuffers
+   * This method will initialize the vertexCounts, connectivityBuffers and edgeArrayBuffers
    * after dispatching the compute pipelines.
    * Returns false if no buffers have changed, else returns true.
    */
   bool DispatchCellToPrimitiveComputePipeline(vtkWebGPUConfiguration* wgpuConfiguration,
-    vtkCellArray* cells, int representation, int cellType, vtkIdType cellIdOffset,
-    vtkTypeUInt32* vertexCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-    wgpu::Buffer* topologyBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-    wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES]);
+    vtkCellArray* cells, int representation, int cellType, vtkTypeUInt32 cellIdOffset,
+    vtkTypeUInt32* vertexCount, wgpu::Buffer* connectivityBuffer, wgpu::Buffer* cellIdBuffer,
+    wgpu::Buffer* edgeArrayBuffer, wgpu::Buffer* cellIdOffsetUniformBuffer);
 
   /**
    * Get whether the Cell-to-Primitive compute pipeline needs rebuilt.

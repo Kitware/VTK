@@ -12,13 +12,13 @@
 #ifndef vtkWebGPUShaderProperty_h
 #define vtkWebGPUShaderProperty_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkShaderProperty.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWebGPUShaderProperty, vtkShaderProperty);

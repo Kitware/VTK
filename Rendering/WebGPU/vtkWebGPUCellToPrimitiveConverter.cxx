@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUCellToPrimitiveConverter.h"
+#include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "VTKCellToGraphicsPrimitive.h"
 #include "vtkABINamespace.h"
 #include "vtkCellArray.h"
@@ -8,9 +9,14 @@
 #include "vtkCellType.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkSetGet.h"
 #include "vtkTimeStamp.h"
+#include "vtkType.h"
 #include "vtkWebGPUComputeBuffer.h"
 #include "vtkWebGPUComputePipeline.h"
+
+#include <array>
+#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -281,42 +287,84 @@ vtkWebGPUCellToPrimitiveConverter::CreateCellToPrimitiveComputePassForCellType(
 bool vtkWebGPUCellToPrimitiveConverter::DispatchMeshToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkPolyData* mesh, int representation,
   vtkTypeUInt32* vertexCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* topologyBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES])
+  wgpu::Buffer* connectivityBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  wgpu::Buffer* cellIdBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
+  wgpu::Buffer* cellIdOffsetUniformBuffers[NUM_TOPOLOGY_SOURCE_TYPES])
 {
-  bool buffersUpdated =
-    this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration, mesh->GetVerts(),
-      representation, VTK_POLY_VERTEX, 0, vertexCounts, topologyBuffers, edgeArrayBuffers);
+  bool buffersUpdated = false;
+  vtkTypeUInt32 cellIdOffset = 0;
+  {
+    const auto idx = this->GetTopologySourceTypeForCellType(VTK_POLY_VERTEX, representation);
+    buffersUpdated = this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration,
+      mesh ? mesh->GetVerts() : nullptr, representation, VTK_POLY_VERTEX, cellIdOffset,
+      vertexCounts[idx], connectivityBuffers[idx], cellIdBuffers[idx], edgeArrayBuffers[idx],
+      cellIdOffsetUniformBuffers[idx]);
+    cellIdOffset += static_cast<vtkTypeUInt32>(mesh->GetNumberOfVerts());
+  }
   // dispatch compute pipeline that converts polyline to lines.
-  const vtkIdType numVerts = mesh->GetNumberOfVerts();
-  buffersUpdated |=
-    this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration, mesh->GetLines(),
-      representation, VTK_POLY_LINE, numVerts, vertexCounts, topologyBuffers, edgeArrayBuffers);
+  {
+    const auto idx = this->GetTopologySourceTypeForCellType(VTK_POLY_LINE, representation);
+    buffersUpdated |= this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration,
+      mesh ? mesh->GetLines() : nullptr, representation, VTK_POLY_LINE, cellIdOffset,
+      vertexCounts[idx], connectivityBuffers[idx], cellIdBuffers[idx], edgeArrayBuffers[idx],
+      cellIdOffsetUniformBuffers[idx]);
+    cellIdOffset += static_cast<vtkTypeUInt32>(mesh->GetNumberOfLines());
+  }
   // dispatch compute pipeline that converts polygon to triangles.
-  const vtkIdType numLines = mesh->GetNumberOfLines();
-  buffersUpdated |= this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration,
-    mesh->GetPolys(), representation, VTK_POLYGON, numLines + numVerts, vertexCounts,
-    topologyBuffers, edgeArrayBuffers);
+  {
+    const auto idx = this->GetTopologySourceTypeForCellType(VTK_POLYGON, representation);
+    buffersUpdated |= this->DispatchCellToPrimitiveComputePipeline(wgpuConfiguration,
+      mesh ? mesh->GetPolys() : nullptr, representation, VTK_POLYGON, cellIdOffset,
+      vertexCounts[idx], connectivityBuffers[idx], cellIdBuffers[idx], edgeArrayBuffers[idx],
+      cellIdOffsetUniformBuffers[idx]);
+  }
   return buffersUpdated;
 }
 
 //------------------------------------------------------------------------------
 bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   vtkWebGPUConfiguration* wgpuConfiguration, vtkCellArray* cells, int representation, int cellType,
-  vtkIdType cellIdOffset, vtkTypeUInt32* vertexCounts[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* topologyBuffers[NUM_TOPOLOGY_SOURCE_TYPES],
-  wgpu::Buffer* edgeArrayBuffers[NUM_TOPOLOGY_SOURCE_TYPES])
+  vtkTypeUInt32 cellIdOffset, vtkTypeUInt32* vertexCount, wgpu::Buffer* connectivityBuffer,
+  wgpu::Buffer* cellIdBuffer, wgpu::Buffer* edgeArrayBuffer,
+  wgpu::Buffer* cellIdOffsetUniformBuffer)
 {
+  if (wgpuConfiguration == nullptr)
+  {
+    vtkErrorMacro(<< "WGPUConfiguration is null!");
+    return false;
+  }
+  if (vertexCount == nullptr)
+  {
+    vtkErrorMacro(<< "vertexCount is null!");
+    return false;
+  }
+  if (connectivityBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "connectivityBuffer is null!");
+    return false;
+  }
+  if (cellIdBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "cellIdBuffer is null!");
+    return false;
+  }
+  if (cellIdOffsetUniformBuffer == nullptr)
+  {
+    vtkErrorMacro(<< "cellIdOffsetUniformBuffer is null!");
+    return false;
+  }
+
   const auto idx = this->GetTopologySourceTypeForCellType(cellType, representation);
 
   if (!cells)
   {
-    *(vertexCounts[idx]) = 0;
+    *vertexCount = 0;
     return false;
   }
   if (cells->GetNumberOfCells() == 0)
   {
-    *(vertexCounts[idx]) = 0;
+    *vertexCount = 0;
     return false;
   }
   if (!this->GetNeedToRebuildCellToPrimitiveComputePipeline(cells, idx))
@@ -324,164 +372,227 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
     return false;
   }
 
-  const char* cellTypeAsString = this->GetCellTypeAsString(cellType);
-  const char* primitiveTypeAsString = this->GetTessellatedPrimitiveTypeAsString(idx);
-  const auto primitiveSize = this->GetTessellatedPrimitiveSize(idx);
-  // extra workgroups are fine to have.
-  int nRequiredWorkGroups = std::ceil(cells->GetNumberOfCells() / 64.0);
-  std::array<vtkTypeUInt32, 3> nWorkGroupsPerDimension = { 1, 1, 1 };
-  if (::Factorize(nRequiredWorkGroups, nWorkGroupsPerDimension) == -1)
-  {
-    vtkErrorMacro(<< "Number of cells is too large to fit in available workgroups");
-    return false;
-  }
-  vtkDebugMacro(<< "Dispatch " << cellTypeAsString
-                << " with workgroups=" << nWorkGroupsPerDimension[0] << 'x'
-                << nWorkGroupsPerDimension[1] << 'x' << nWorkGroupsPerDimension[2]);
-
   if (!cells->ConvertTo32BitStorage())
   {
     vtkErrorMacro(<< "Failed to convert cell array storage to 32-bit");
     return false;
   }
-  const vtkIdType primitiveSizeOffset =
-    this->GetTessellatedPrimitiveSizeOffsetForCellType(cellType);
-  std::size_t numberOfPrimitives = 0;
-  std::vector<vtkTypeUInt32> primitiveIdOffsets;
-  auto cellIterator = vtk::TakeSmartPointer(cells->NewIterator());
-  for (cellIterator->GoToFirstCell(); !cellIterator->IsDoneWithTraversal();
-       cellIterator->GoToNextCell())
+  const char* cellTypeAsString = this->GetCellTypeAsString(cellType);
+  const char* primitiveTypeAsString = this->GetTessellatedPrimitiveTypeAsString(idx);
+  const auto primitiveSize = this->GetTessellatedPrimitiveSize(idx);
+  const std::size_t maxCellSize = static_cast<std::size_t>(cells->GetMaxCellSize());
+  if (primitiveSize == maxCellSize)
   {
-    const vtkIdType* cellPts = nullptr;
-    vtkIdType cellSize;
-    cellIterator->GetCurrentCell(cellSize, cellPts);
-    primitiveIdOffsets.emplace_back(numberOfPrimitives);
-    if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
+    auto* ids = cells->GetConnectivityArray();
+
+    *vertexCount = ids->GetNumberOfValues();
+
+    if (cellIdBuffer)
     {
-      // number of sides in polygon.
-      numberOfPrimitives += cellSize;
+      *cellIdBuffer = nullptr;
     }
-    else if (representation == VTK_POINTS)
+    if (edgeArrayBuffer)
     {
-      // number of points in cell.
-      numberOfPrimitives += cellSize;
+      *edgeArrayBuffer = nullptr;
+    }
+
+    auto label =
+      std::string("Connectivity-") + primitiveTypeAsString + "@" + cells->GetObjectDescription();
+    *connectivityBuffer =
+      wgpuConfiguration->CreateBuffer(ids->GetDataSize() * ids->GetDataTypeSize(),
+        wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, label.c_str());
+
+    label = std::string("CellIdOffsetUniform-") + primitiveTypeAsString + "@" +
+      cells->GetObjectDescription();
+    *cellIdOffsetUniformBuffer = wgpuConfiguration->CreateBuffer(sizeof(vtkTypeUInt32),
+      wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst, false, label.c_str());
+
+    vtkWebGPUComputeBufferInternals::UploadFromDataArray(
+      wgpuConfiguration, *connectivityBuffer, ids, "Write connectivity");
+
+    wgpuConfiguration->WriteBuffer(
+      *cellIdOffsetUniformBuffer, 0, &cellIdOffset, sizeof(vtkTypeUInt32), "Write cellIdOffset");
+  }
+  else
+  {
+    // extra workgroups are fine to have.
+    int nRequiredWorkGroups = std::ceil(cells->GetNumberOfCells() / 64.0);
+    std::array<vtkTypeUInt32, 3> nWorkGroupsPerDimension = { 1, 1, 1 };
+    if (::Factorize(nRequiredWorkGroups, nWorkGroupsPerDimension) == -1)
+    {
+      vtkErrorMacro(<< "Number of cells is too large to fit in available workgroups");
+      return false;
+    }
+    vtkDebugMacro(<< "Dispatch " << cellTypeAsString
+                  << " with workgroups=" << nWorkGroupsPerDimension[0] << 'x'
+                  << nWorkGroupsPerDimension[1] << 'x' << nWorkGroupsPerDimension[2]);
+
+    const vtkIdType primitiveSizeOffset =
+      this->GetTessellatedPrimitiveSizeOffsetForCellType(cellType);
+    vtkTypeUInt32 numberOfPrimitives = 0;
+    std::vector<vtkTypeUInt32> primitiveCounts;
+    auto cellIterator = vtk::TakeSmartPointer(cells->NewIterator());
+    for (cellIterator->GoToFirstCell(); !cellIterator->IsDoneWithTraversal();
+         cellIterator->GoToNextCell())
+    {
+      const vtkIdType* cellPts = nullptr;
+      vtkIdType cellSize;
+      cellIterator->GetCurrentCell(cellSize, cellPts);
+      primitiveCounts.emplace_back(numberOfPrimitives);
+      if (representation == VTK_WIREFRAME && cellType == VTK_POLYGON)
+      {
+        // number of sides in polygon.
+        numberOfPrimitives += cellSize;
+      }
+      else if (representation == VTK_POINTS)
+      {
+        // number of points in cell.
+        numberOfPrimitives += cellSize;
+      }
+      else
+      {
+        numberOfPrimitives += (cellSize - primitiveSizeOffset);
+      }
+    }
+    primitiveCounts.emplace_back(numberOfPrimitives);
+    // create input buffer for connectivity ids
+    vtkNew<vtkWebGPUComputeBuffer> inputConnectivityBuffer;
+    inputConnectivityBuffer->SetGroup(0);
+    inputConnectivityBuffer->SetBinding(0);
+    inputConnectivityBuffer->SetLabel(
+      std::string("InputConnectivity-") + cellTypeAsString + "@" + cells->GetObjectDescription());
+    inputConnectivityBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    inputConnectivityBuffer->SetData(cells->GetConnectivityArray());
+    inputConnectivityBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+
+    // create input buffer for offsets
+    vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
+    offsetsBuffer->SetGroup(0);
+    offsetsBuffer->SetBinding(1);
+    offsetsBuffer->SetLabel(
+      std::string("Offsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
+    offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    offsetsBuffer->SetData(cells->GetOffsetsArray());
+    offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
+
+    // create input buffer for primitive offsets
+    vtkNew<vtkWebGPUComputeBuffer> primitiveCountsBuffer;
+    primitiveCountsBuffer->SetGroup(0);
+    primitiveCountsBuffer->SetBinding(2);
+    primitiveCountsBuffer->SetLabel(std::string("PrimitiveCounts-") + primitiveTypeAsString + "@" +
+      cells->GetObjectDescription());
+    primitiveCountsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
+    primitiveCountsBuffer->SetData(primitiveCounts);
+    primitiveCountsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+
+    std::vector<vtkTypeUInt32> uniformData = { static_cast<unsigned int>(cellIdOffset) };
+    vtkNew<vtkWebGPUComputeBuffer> cellIfOffsetUniformComputeBuffer;
+    cellIfOffsetUniformComputeBuffer->SetGroup(0);
+    cellIfOffsetUniformComputeBuffer->SetBinding(3);
+    cellIfOffsetUniformComputeBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER);
+    cellIfOffsetUniformComputeBuffer->SetData(uniformData);
+    cellIfOffsetUniformComputeBuffer->SetLabel(
+      std::string("CellIdOffsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
+    cellIfOffsetUniformComputeBuffer->SetDataType(
+      vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
+
+    vtkNew<vtkWebGPUComputeBuffer> outputConnectivityBuffer;
+    outputConnectivityBuffer->SetGroup(0);
+    outputConnectivityBuffer->SetBinding(4);
+    outputConnectivityBuffer->SetLabel(std::string("OutputConnectivity-") + primitiveTypeAsString +
+      "@" + cells->GetObjectDescription());
+    outputConnectivityBuffer->SetMode(
+      vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
+    outputConnectivityBuffer->SetByteSize(
+      numberOfPrimitives * primitiveSize * sizeof(vtkTypeUInt32));
+
+    vtkNew<vtkWebGPUComputeBuffer> outputCellIdBuffer;
+    outputCellIdBuffer->SetGroup(0);
+    outputCellIdBuffer->SetBinding(5);
+    outputCellIdBuffer->SetLabel(
+      std::string("OutputCellId-") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
+    outputCellIdBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
+    outputCellIdBuffer->SetByteSize(numberOfPrimitives * sizeof(vtkTypeUInt32));
+
+    // handle optional edge visibility.
+    // this lets fragment shader hide internal edges of a polygon
+    // when edge visibility is turned on.
+    vtkNew<vtkWebGPUComputeBuffer> edgeArrayComputeBuffer;
+    edgeArrayComputeBuffer->SetGroup(0);
+    edgeArrayComputeBuffer->SetBinding(6);
+    edgeArrayComputeBuffer->SetLabel(
+      std::string("EdgeArray-") + primitiveTypeAsString + "@" + cells->GetObjectDescription());
+    edgeArrayComputeBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
+    if (primitiveSize == 3)
+    {
+      edgeArrayComputeBuffer->SetByteSize(numberOfPrimitives * sizeof(vtkTypeUInt32));
     }
     else
     {
-      numberOfPrimitives += (cellSize - primitiveSizeOffset);
+      // placeholder must be aligned to 32-bit boundary
+      edgeArrayComputeBuffer->SetByteSize(sizeof(vtkTypeUInt32));
     }
-  }
-  primitiveIdOffsets.emplace_back(numberOfPrimitives);
-  // create input buffer for connectivity ids
-  vtkNew<vtkWebGPUComputeBuffer> connBuffer;
-  connBuffer->SetGroup(0);
-  connBuffer->SetBinding(0);
-  connBuffer->SetLabel(
-    std::string("Connectivity-") + cellTypeAsString + "-" + cells->GetObjectDescription());
-  connBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  connBuffer->SetData(cells->GetConnectivityArray());
-  connBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
 
-  // create input buffer for offsets
-  vtkNew<vtkWebGPUComputeBuffer> offsetsBuffer;
-  offsetsBuffer->SetGroup(0);
-  offsetsBuffer->SetBinding(1);
-  offsetsBuffer->SetLabel(
-    std::string("Offsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
-  offsetsBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  offsetsBuffer->SetData(cells->GetOffsetsArray());
-  offsetsBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::VTK_DATA_ARRAY);
-
-  // create input buffer for primitive offsets
-  vtkNew<vtkWebGPUComputeBuffer> primIdBuffer;
-  primIdBuffer->SetGroup(0);
-  primIdBuffer->SetBinding(2);
-  primIdBuffer->SetLabel(
-    std::string("PrimitiveIds-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
-  primIdBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_ONLY_COMPUTE_STORAGE);
-  primIdBuffer->SetData(primitiveIdOffsets);
-  primIdBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-
-  std::vector<vtkTypeUInt32> uniformData = { static_cast<unsigned int>(cellIdOffset) };
-  vtkNew<vtkWebGPUComputeBuffer> uniformBuffer;
-  uniformBuffer->SetGroup(0);
-  uniformBuffer->SetBinding(3);
-  uniformBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER);
-  uniformBuffer->SetData(uniformData);
-  uniformBuffer->SetLabel(
-    std::string("CellIdOffsets-") + cellTypeAsString + "-" + cells->GetObjectDescription());
-  uniformBuffer->SetDataType(vtkWebGPUComputeBuffer::BufferDataType::STD_VECTOR);
-
-  std::size_t outputBufferSize = 2 * numberOfPrimitives * primitiveSize * sizeof(vtkTypeUInt32);
-  vtkNew<vtkWebGPUComputeBuffer> topologyBuffer;
-  topologyBuffer->SetGroup(0);
-  topologyBuffer->SetBinding(4);
-  topologyBuffer->SetLabel(
-    std::string("Topology-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
-  topologyBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_MAP_COMPUTE_STORAGE);
-  topologyBuffer->SetByteSize(outputBufferSize);
-
-  // handle optional edge visibility.
-  // this lets fragment shader hide internal edges of a polygon
-  // when edge visibility is turned on.
-  vtkNew<vtkWebGPUComputeBuffer> edgeArrayComputeBuffer;
-  edgeArrayComputeBuffer->SetGroup(0);
-  edgeArrayComputeBuffer->SetBinding(5);
-  edgeArrayComputeBuffer->SetLabel(
-    std::string("EdgeArray-") + primitiveTypeAsString + "-" + cells->GetObjectDescription());
-  edgeArrayComputeBuffer->SetMode(vtkWebGPUComputeBuffer::BufferMode::READ_WRITE_COMPUTE_STORAGE);
-  if (primitiveSize == 3)
-  {
-    edgeArrayComputeBuffer->SetByteSize(numberOfPrimitives * sizeof(vtkTypeUInt32));
-  }
-  else
-  {
-    // placeholder must be aligned to 32-bit boundary
-    edgeArrayComputeBuffer->SetByteSize(4);
-  }
-
-  // obtain a compute pass for cell type.
-  vtkSmartPointer<vtkWebGPUComputePass> pass;
-  vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
-  std::tie(pass, pipeline) =
-    this->CreateCellToPrimitiveComputePassForCellType(wgpuConfiguration, idx);
-  if (!(pass || pipeline))
-  {
-    vtkErrorMacro(<< "Failed to create a compute pass/pipeline to convert " << cellTypeAsString
-                  << "->" << primitiveTypeAsString);
-    return false;
-  }
-
-  // add buffers one by one to the compute pass.
-  pass->AddBuffer(connBuffer);
-  pass->AddBuffer(offsetsBuffer);
-  pass->AddBuffer(primIdBuffer);
-  pass->AddBuffer(uniformBuffer);
-  pass->AddBuffer(topologyBuffer);         // not used in cpu
-  pass->AddBuffer(edgeArrayComputeBuffer); // not used in cpu
-  // the topology and edge_array buffers are populated by compute pipeline and their contents
-  // read in the graphics pipeline within the vertex and fragment shaders
-  // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
-  if (pipeline->GetRegisteredBuffer(topologyBuffer, *topologyBuffers[idx]))
-  {
-    *(vertexCounts[idx]) = numberOfPrimitives * primitiveSize;
-  }
-  else
-  {
-    *(vertexCounts[idx]) = 0;
-  }
-  // do the same for the edge array buffer
-  if (edgeArrayBuffers[idx])
-  {
-    if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *(edgeArrayBuffers[idx])))
+    // obtain a compute pass for cell type.
+    vtkSmartPointer<vtkWebGPUComputePass> pass;
+    vtkSmartPointer<vtkWebGPUComputePipeline> pipeline;
+    std::tie(pass, pipeline) =
+      this->CreateCellToPrimitiveComputePassForCellType(wgpuConfiguration, idx);
+    if (!(pass || pipeline))
     {
-      vtkErrorMacro(<< "edge array buffer for " << primitiveTypeAsString << " is not registered!");
+      vtkErrorMacro(<< "Failed to create a compute pass/pipeline to convert " << cellTypeAsString
+                    << "->" << primitiveTypeAsString);
+      return false;
     }
+
+    // add buffers one by one to the compute pass.
+    pass->AddBuffer(inputConnectivityBuffer);
+    pass->AddBuffer(offsetsBuffer);
+    pass->AddBuffer(primitiveCountsBuffer);
+    pass->AddBuffer(cellIfOffsetUniformComputeBuffer);
+    pass->AddBuffer(outputConnectivityBuffer); // not used in cpu
+    pass->AddBuffer(outputCellIdBuffer);       // not used in cpu
+    pass->AddBuffer(edgeArrayComputeBuffer);   // not used in cpu
+    // the topology and edge_array buffers are populated by compute pipeline and their contents
+    // read in the graphics pipeline within the vertex and fragment shaders
+    // keep reference to the output of compute pipeline, reuse it in the vertex, fragment shaders.
+    if (pipeline->GetRegisteredBuffer(outputConnectivityBuffer, *connectivityBuffer))
+    {
+      *vertexCount = static_cast<vtkTypeUInt32>(numberOfPrimitives * primitiveSize);
+    }
+    else
+    {
+      *vertexCount = 0;
+    }
+    pipeline->GetRegisteredBuffer(outputCellIdBuffer, *cellIdBuffer);
+    // do the same for the edge array buffer only when output primitives are triangles.
+    if (edgeArrayBuffer)
+    {
+      if (primitiveSize == 3)
+      {
+        if (!pipeline->GetRegisteredBuffer(edgeArrayComputeBuffer, *edgeArrayBuffer))
+        {
+          vtkErrorMacro(<< "edgeArray compute buffer for " << primitiveTypeAsString
+                        << " is not registered!");
+        }
+      }
+      else
+      {
+        *edgeArrayBuffer = nullptr;
+      }
+    }
+    // repeat for cellIdOffset
+    if (!pipeline->GetRegisteredBuffer(
+          cellIfOffsetUniformComputeBuffer, *cellIdOffsetUniformBuffer))
+    {
+      vtkErrorMacro(<< "cellIdOffsetUniform compute buffer for " << primitiveTypeAsString
+                    << " is not registered!");
+    }
+    // dispatch
+    pass->SetWorkgroups(
+      nWorkGroupsPerDimension[0], nWorkGroupsPerDimension[1], nWorkGroupsPerDimension[2]);
+    pass->Dispatch();
   }
-  // dispatch
-  pass->SetWorkgroups(
-    nWorkGroupsPerDimension[0], nWorkGroupsPerDimension[1], nWorkGroupsPerDimension[2]);
-  pass->Dispatch();
 
   // update build timestamp
   this->UpdateCellToPrimitiveComputePipelineTimestamp(idx);

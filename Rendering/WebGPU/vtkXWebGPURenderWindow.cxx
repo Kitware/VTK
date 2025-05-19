@@ -734,6 +734,7 @@ bool vtkXWebGPURenderWindow::EnsureDisplay()
 {
   if (!this->DisplayId)
   {
+    XInitThreads();
     this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
     if (this->DisplayId == nullptr)
     {

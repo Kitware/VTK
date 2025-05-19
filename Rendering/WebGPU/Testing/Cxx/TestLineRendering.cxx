@@ -42,6 +42,7 @@ int TestLineRendering(int argc, char* argv[])
   lines->InsertNextCell({ 3, 4, 5 });
   lines->InsertNextCell({ 6, 7, 8 });
   lines->InsertNextCell({ 11, 10, 9 });
+  // lines->InsertNextCell({ 2, 11, 10, 9, 0 });
   polydata->SetLines(lines);
 
   vtkNew<vtkPolyDataMapper> mapper;
@@ -58,7 +59,15 @@ int TestLineRendering(int argc, char* argv[])
       break;
     }
   }
-  actor->GetProperty()->SetOpacity(translucent ? 0.4 : 1.0);
+  if (translucent)
+  {
+    actor->GetProperty()->SetOpacity(0.4);
+    actor->GetProperty()->SetLineJoin(vtkProperty::LineJoinType::MiterJoin);
+  }
+  else
+  {
+    actor->GetProperty()->SetLineJoin(vtkProperty::LineJoinType::RoundCapRoundJoin);
+  }
   actor->SetMapper(mapper);
   renderer->AddActor(actor);
 

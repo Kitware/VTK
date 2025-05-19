@@ -216,7 +216,8 @@ void vtkWebGPURenderer::Clear()
   bkgPipelineDescriptor.DisableBlending(1);
   const auto pipelineKey =
     wgpuPipelineCache->GetPipelineKey(&bkgPipelineDescriptor, backgroundShaderSource);
-  wgpuPipelineCache->CreateRenderPipeline(&bkgPipelineDescriptor, this, backgroundShaderSource);
+  wgpuPipelineCache->CreateRenderPipeline(
+    &bkgPipelineDescriptor, wgpuRenderWindow, backgroundShaderSource);
   auto pipeline = wgpuPipelineCache->GetRenderPipeline(pipelineKey);
 
   this->WGPURenderEncoder.SetPipeline(pipeline);
@@ -559,13 +560,12 @@ void vtkWebGPURenderer::ConfigureComputeRenderBuffers(
           renderBuffer->GetPointBufferAttribute();
 
         renderBuffer->SetByteSize(wgpuMapper->GetPointAttributeByteSize(bufferAttribute));
-        renderBuffer->SetRenderBufferOffset(
-          wgpuMapper->GetPointAttributeByteOffset(bufferAttribute) / sizeof(float));
+        renderBuffer->SetRenderBufferOffset(0);
         renderBuffer->SetRenderBufferElementCount(
           wgpuMapper->GetPointAttributeByteSize(bufferAttribute) /
           wgpuMapper->GetPointAttributeElementSize(bufferAttribute));
 
-        renderBuffer->SetWebGPUBuffer(wgpuMapper->GetPointDataWGPUBuffer());
+        renderBuffer->SetWebGPUBuffer(wgpuMapper->GetPointDataWGPUBuffer(bufferAttribute));
 
         it = wgpuMapper->NotSetupComputeRenderBuffers.erase(it);
         erased = true;
@@ -578,13 +578,12 @@ void vtkWebGPURenderer::ConfigureComputeRenderBuffers(
           renderBuffer->GetCellBufferAttribute();
 
         renderBuffer->SetByteSize(wgpuMapper->GetCellAttributeByteSize(bufferAttribute));
-        renderBuffer->SetRenderBufferOffset(
-          wgpuMapper->GetCellAttributeByteOffset(bufferAttribute) / sizeof(float));
+        renderBuffer->SetRenderBufferOffset(0);
         renderBuffer->SetRenderBufferElementCount(
           wgpuMapper->GetCellAttributeByteSize(bufferAttribute) /
           wgpuMapper->GetCellAttributeElementSize(bufferAttribute));
 
-        renderBuffer->SetWebGPUBuffer(wgpuMapper->GetCellDataWGPUBuffer());
+        renderBuffer->SetWebGPUBuffer(wgpuMapper->GetCellDataWGPUBuffer(bufferAttribute));
 
         // Erasing the element. erase() returns the iterator on the next element after removal
         it = wgpuMapper->NotSetupComputeRenderBuffers.erase(it);

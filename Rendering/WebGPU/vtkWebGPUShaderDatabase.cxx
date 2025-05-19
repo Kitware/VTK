@@ -7,9 +7,6 @@
 #include "ActorColorOptions.h"
 #include "ActorRenderOptions.h"
 #include "ActorTransform.h"
-#include "LineFragmentShader.h"
-#include "LineMiterJoinVertexShader.h"
-#include "LineRoundJoinVertexShader.h"
 #include "SceneLight.h"
 #include "SceneTransform.h"
 #include "Utilities.h"
@@ -35,9 +32,6 @@ vtkWebGPUShaderDatabase::vtkWebGPUShaderDatabase()
   this->Internals->Map["VTK/wgsl/ActorColorOptions.wgsl"] = ActorColorOptions;
   this->Internals->Map["VTK/wgsl/ActorRenderOptions.wgsl"] = ActorRenderOptions;
   this->Internals->Map["VTK/wgsl/ActorTransform.wgsl"] = ActorTransform;
-  this->Internals->Map["VTK/wgsl/LineFragmentShader.wgsl"] = LineFragmentShader;
-  this->Internals->Map["VTK/wgsl/LineMiterJoinVertexShader.wgsl"] = LineMiterJoinVertexShader;
-  this->Internals->Map["VTK/wgsl/LineRoundJoinVertexShader.wgsl"] = LineRoundJoinVertexShader;
   this->Internals->Map["VTK/wgsl/SceneLight.wgsl"] = SceneLight;
   this->Internals->Map["VTK/wgsl/SceneTransform.wgsl"] = SceneTransform;
   this->Internals->Map["VTK/wgsl/Utilities.wgsl"] = Utilities;
