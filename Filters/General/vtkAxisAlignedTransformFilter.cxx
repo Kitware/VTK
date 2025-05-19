@@ -1003,6 +1003,11 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
       i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
 
     vtkHyperTree* ht = inputHTG->GetTree(newId);
+    if (!ht)
+    {
+      outputHTG->RemoveTree(i);
+      continue;
+    }
     vtkHyperTree* rotatedHT = CreateNewRotatedHyperTree(inputHTG, ht, permutation);
     rotatedHT->SetGlobalIndexStart(cumulativeVertices);
     cumulativeVertices += rotatedHT->GetNumberOfVertices();
@@ -1029,6 +1034,10 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
       GetRotatedId(i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
 
     vtkHyperTree* inputHT = inputHTG->GetTree(newId);
+    if (!inputHT)
+    {
+      continue;
+    }
     vtkHyperTree* outputHT = outputHTG->GetTree(i);
     vtkNew<vtkHyperTreeGridNonOrientedCursor> cursorIn;
     vtkNew<vtkHyperTreeGridNonOrientedCursor> cursorOut;
@@ -1061,6 +1070,10 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
     int newId =
       GetRotatedId(i, rotationMatrix, newDims, dims, tvec, outputHTG->GetTransposedRootIndexing());
     vtkHyperTree* inputHT = inputHTG->GetTree(newId);
+    if (!inputHT)
+    {
+      continue;
+    }
     vtkHyperTree* outputHT = outputHTG->GetTree(i);
     vtkNew<vtkHyperTreeGridNonOrientedCursor> cursorIn;
     vtkNew<vtkHyperTreeGridNonOrientedCursor> cursorOut;
