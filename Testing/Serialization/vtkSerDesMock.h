@@ -52,14 +52,13 @@ public:
   void CallWithArguments(CStyleEnum arg0, MemberScopedEnum arg1, vtkSerDesMockObject* arg2,
     vtkSmartPointer<vtkSerDesMockObject> arg3, double arg4, float arg5[4], char* arg6,
     const std::string& arg7, const std::vector<int>& arg8, const std::vector<float>& arg9,
-    const std::vector<std::string>& arg10, const std::vector<vtkSerDesMockObject*>& arg11,
-    const vtkBoundingBox& arg12, const vtkColor3d& arg13, const vtkColor3f& arg14,
-    const vtkColor3ub& arg15, const vtkColor4d& arg16, const vtkColor4f& arg17,
-    const vtkColor4ub& arg18, const vtkRectd& arg19, const vtkRectf& arg20, const vtkRecti& arg21,
-    const vtkTuple<int, 3>& arg22, const vtkVector<int, 3>& arg23, const vtkVector2d& arg24,
-    const vtkVector2f& arg25, const vtkVector2i& arg26, const vtkVector3d& arg27,
-    const vtkVector3f& arg28, const vtkVector3i& arg29, const vtkVector4d& arg30,
-    const vtkVector4i& arg31);
+    const std::vector<std::string>& arg10, const vtkBoundingBox& arg11, const vtkColor3d& arg12,
+    const vtkColor3f& arg13, const vtkColor3ub& arg14, const vtkColor4d& arg15,
+    const vtkColor4f& arg16, const vtkColor4ub& arg17, const vtkRectd& arg18, const vtkRectf& arg19,
+    const vtkRecti& arg20, const vtkTuple<int, 3>& arg21, const vtkVector<int, 3>& arg22,
+    const vtkVector2d& arg23, const vtkVector2f& arg24, const vtkVector2i& arg25,
+    const vtkVector3d& arg26, const vtkVector3f& arg27, const vtkVector3i& arg28,
+    const vtkVector4d& arg29, const vtkVector4i& arg30);
 
   CStyleEnum ReturnCStyleEnum() { return this->CStyleEnumValue; }
 
@@ -85,11 +84,6 @@ public:
   std::vector<float> ReturnStdVectorOfReal() { return this->StdVectorOfRealValue; }
 
   std::vector<std::string> ReturnStdVectorOfStdString() { return this->StdVectorOfStdStringValue; }
-
-  std::vector<vtkSerDesMockObject*> ReturnStdVectorOfVTKObjectRawPointer()
-  {
-    return this->StdVectorOfVTKObjectRawPointerValue;
-  }
 
   vtkBoundingBox ReturnBoundingBox() { return this->BoundingBoxValue; }
 
@@ -150,7 +144,6 @@ private:
   std::vector<int> StdVectorOfIntValue;
   std::vector<float> StdVectorOfRealValue;
   std::vector<std::string> StdVectorOfStdStringValue;
-  std::vector<vtkSerDesMockObject*> StdVectorOfVTKObjectRawPointerValue;
   vtkBoundingBox BoundingBoxValue;
   vtkColor3d Color3dValue;
   vtkColor3f Color3fValue;

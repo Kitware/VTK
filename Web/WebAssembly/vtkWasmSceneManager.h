@@ -18,11 +18,14 @@
 
 #include "vtkObjectManager.h"
 
-#include "vtkSerializationManagerModule.h" // for export macro
+#include "vtkDeprecation.h"       // for VTK_DEPRECATED_IN_9_5_0
+#include "vtkWebAssemblyModule.h" // for export macro
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKSERIALIZATIONMANAGER_EXPORT vtkWasmSceneManager : public vtkObjectManager
+class VTK_DEPRECATED_IN_9_5_0(
+  "Please use vtkWASMObjectManager") VTKWEBASSEMBLY_EXPORT vtkWasmSceneManager
+  : public vtkObjectManager
 {
 public:
   static vtkWasmSceneManager* New();

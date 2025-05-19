@@ -1,30 +1,30 @@
 async function testOSMesaRenderWindowPatch() {
-    const manager = await globalThis.createVTKWasmSceneManager({});
-    manager.initialize();
-    manager.registerStateJSON({
+    const vtkWASM = await globalThis.createVTKWASM({})
+    const remoteSession = new vtkWASM.vtkRemoteSession();
+    remoteSession.registerState({
         Id: 1,
         ClassName: "vtkOSOpenGLRenderWindow",
         SuperClassNames: ["vtkWindow", "vtkRenderWindow"],
         "vtk-object-manager-kept-alive": true,
     });
-    if (manager.getState(1).ClassName !== "vtkWebAssemblyOpenGLRenderWindow") {
-        throw new Error("RenderWindow state was not created as vtkWebAssemblyOpenGLRenderWindow.");
+    if (remoteSession.getState(1).ClassName !== "vtkRenderWindow") {
+        throw new Error("RenderWindow state was not created as vtkRenderWindow.");
     }
-    manager.updateObjectsFromStates();
+    remoteSession.updateObjectsFromStates();
 
-    manager.updateObjectFromStateJSON({
+    remoteSession.updateObjectFromState({
         Id: 1,
         ClassName: "vtkOSOpenGLRenderWindow",
         SuperClassNames: ["vtkWindow", "vtkRenderWindow"],
         "vtk-object-manager-kept-alive": true,
     });
-    if (manager.getState(1).ClassName !== "vtkWebAssemblyOpenGLRenderWindow") {
-        throw new Error("RenderWindow state was not updated as vtkWebAssemblyOpenGLRenderWindow.");
+    if (remoteSession.getState(1).ClassName !== "vtkRenderWindow") {
+        throw new Error("RenderWindow state was not updated as vtkRenderWindow.");
     }
 }
 const tests = [
     {
-        description: "Patch vtkOSOpenGLRenderWindow to vtkWebAssemblyOpenGLRenderWindow",
+        description: "Patch vtkOSOpenGLRenderWindow to vtkRenderWindow",
         test: testOSMesaRenderWindowPatch,
     },
 ];

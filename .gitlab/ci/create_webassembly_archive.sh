@@ -16,5 +16,5 @@ version="$major.$minor.$build"
 readonly version
 
 cd build/install/bin
-tar -cvzf "vtk-$version-$architecture.tar.gz" ./vtkWasmSceneManager.*
+tar -cvzf "vtk-$version-$architecture.tar.gz" ./vtkWebAssemblyInterface.*
 cd ../../

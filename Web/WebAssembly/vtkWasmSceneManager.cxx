@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+// VTK_DEPRECATED_IN_9_5_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkWasmSceneManager.h"
 
 #include "vtkCallbackCommand.h"
@@ -39,6 +41,7 @@ vtkWasmSceneManager::~vtkWasmSceneManager() = default;
 //-------------------------------------------------------------------------------
 bool vtkWasmSceneManager::Initialize()
 {
+  vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
   bool result = this->Superclass::Initialize();
 #ifdef VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
   // Remove the default vtkOpenGLPolyDataMapper as it is not used with wasm build.
@@ -100,7 +103,6 @@ bool vtkWasmSceneManager::ResetCamera(vtkTypeUInt32 identifier)
 //-------------------------------------------------------------------------------
 bool vtkWasmSceneManager::StartEventLoop(vtkTypeUInt32 identifier)
 {
-  vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
   auto object = this->GetObjectAtId(identifier);
   if (auto* renderWindow = vtkRenderWindow::SafeDownCast(object))
   {
@@ -193,6 +195,7 @@ bool vtkWasmSceneManager::RemoveObserver(vtkTypeUInt32 identifier, unsigned long
   return true;
 }
 
+//-------------------------------------------------------------------------------
 bool vtkWasmSceneManager::BindRenderWindow(
   vtkTypeUInt32 renderWindowIdentifier, const char* canvasSelector)
 {

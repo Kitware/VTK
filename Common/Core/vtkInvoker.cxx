@@ -74,7 +74,7 @@ nlohmann::json vtkInvoker::Invoke(
     vtkWarningMacro(<< "Cannot invoke method \'" << methodName.c_str()
                     << "\' on an object (id=" << identifier << ") that does not exist");
   }
-  return { { "success", false } };
+  return { { "Success", false } };
 }
 
 //------------------------------------------------------------------------------

@@ -1,1 +1,1 @@
-globalThis.createVTKWasmSceneManager = vtkWasmSceneManager;
+globalThis.createVTKWASM = vtkWASM;

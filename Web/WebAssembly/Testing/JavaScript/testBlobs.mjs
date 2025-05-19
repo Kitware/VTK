@@ -8,18 +8,16 @@ async function testBlobs() {
   }
   const dataDirectory = process.argv[dataDirectoryIndex];
   const blobs = JSON.parse(await readFile(path.join(dataDirectory, "Data", "WasmSceneManager", "simple.blobs.json")));
-  const manager = await globalThis.createVTKWasmSceneManager({})
-  if (!manager.initialize()) {
-    throw new Error("Failed to initialize scene manager");
-  }
+  const vtkWASM = await globalThis.createVTKWASM({})
+  const remoteSession = new vtkWASM.vtkRemoteSession();
 
   for (let hash in blobs) {
-    if (!manager.registerBlob(hash, new Uint8Array(blobs[hash].bytes))) {
+    if (!remoteSession.registerBlob(hash, new Uint8Array(blobs[hash].bytes))) {
       throw new Error(`Failed to register blob with hash=${hash}`);
     }
   }
   for (let hash in blobs) {
-    const blob = manager.getBlob(hash);
+    const blob = remoteSession.getBlob(hash);
     if (!(blob instanceof Uint8Array)) {
       throw new Error(`getBlob did not return a Uint8Array for hash=${hash}`);
     }

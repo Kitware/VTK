@@ -211,27 +211,6 @@ static void vtkWrapSerDes_EndDeserializer(FILE* fp)
   fprintf(fp, "}\n\n");
 }
 
-/* Call superclass' invoker with 'methodName' and 'args' */
-void vtkWrapSerDes_WriteSuperClassMemberFunctionCall(FILE* fp, ClassInfo* classInfo)
-{
-  if (strcmp(classInfo->Name, "vtkObjectBase") != 0)
-  {
-    fprintf(fp,
-      "  if (auto f = invoker->GetHandler(typeid(%s::Superclass)))\n"
-      "  {\n"
-      "    vtkVLog(invoker->GetInvokerLogVerbosity(), \"Try superclass \" << methodName);\n"
-      "    const auto result = f(invoker, objectBase, methodName, args);\n"
-      "    if (result[\"Success\"].get<bool>())\n"
-      "    {\n"
-      "      vtkVLog(invoker->GetInvokerLogVerbosity(), \"Succeeded calling superclass \" << "
-      "methodName);\n"
-      "      return result;\n"
-      "    }\n"
-      "  }\n",
-      classInfo->Name);
-  }
-}
-
 /* begin invoker */
 static void vtkWrapSerDes_BeginInvoker(FILE* fp, ClassInfo* classInfo)
 {
@@ -240,30 +219,30 @@ static void vtkWrapSerDes_BeginInvoker(FILE* fp, ClassInfo* classInfo)
     "objectBase, const char* methodName, const nlohmann::json& args)\n",
     classInfo->Name);
   fprintf(fp, "{\n");
-  vtkWrapSerDes_WriteSuperClassMemberFunctionCall(fp, classInfo);
+  fprintf(fp, "  vtkVLogScopeFunction(invoker->GetInvokerLogVerbosity());\n");
   fprintf(fp, "  using json = nlohmann::json;\n");
-  fprintf(fp, "  auto context = invoker->GetContext();\n");
-  fprintf(fp,
-    "  if (context == nullptr) { vtkErrorWithObjectMacro(invoker, << \"Marshal context is "
-    "null!\"); }\n");
-  // might not be used, so silence unused-variable warnings
-  fprintf(fp, "  (void)context;\n");
-  fprintf(fp, "  (void)invoker;\n");
+  fprintf(fp, "  json result = {{\"Success\", false}, {\"Message\", \"\"}};\n");
+  // Ignore the invoker for vtkObjectBase, as its methods are sensitive to object lifetime.
   if (!strcmp(classInfo->Name, "vtkObjectBase"))
   {
-    fprintf(fp, "  auto* object = objectBase;\n");
+    fprintf(fp, "  (void)invoker;\n");
+    fprintf(fp, "  (void)objectBase;\n");
+    fprintf(fp, "  (void)methodName;\n");
+    fprintf(fp, "  (void)args;\n");
+    return;
   }
-  else
-  {
-    fprintf(fp, "  auto* object = %s::SafeDownCast(objectBase);\n", classInfo->Name);
-  }
-  // might not be used, so silence unused-variable warnings
-  fprintf(fp, "  (void)object;\n");
+  fprintf(fp, "  auto context = invoker->GetContext();\n");
+  fprintf(fp,
+    "  if (context == nullptr) { result[\"Message\"] = \"Marshal context is "
+    "null!\"; return result; }\n");
+  fprintf(fp, "  auto* object = %s::SafeDownCast(objectBase);\n", classInfo->Name);
 }
 
 /* end invoker */
 static void vtkWrapSerDes_EndInvoker(FILE* fp)
 {
+  fprintf(fp, "  vtkVLog(invoker->GetInvokerLogVerbosity(), \"result=\" << result.dump());\n");
+  fprintf(fp, "  return result;\n");
   fprintf(fp, "}\n\n");
 }
 
@@ -312,16 +291,18 @@ void vtkWrapSerDes_Class(FILE* fp, const HierarchyInfo* hinfo, ClassInfo* classI
       vtkWrapSerDes_BeginDeserializer(fp, classInfo);
       vtkWrapSerDes_Properties(fp, classInfo, hinfo, &vtkWrapSerDes_WritePropertyDeserializer);
       vtkWrapSerDes_EndDeserializer(fp);
+      vtkWrapSerDes_DefineFunctions(fp, classInfo, hinfo);
       vtkWrapSerDes_BeginInvoker(fp, classInfo);
-      vtkWrapSerDes_Functions(fp, classInfo, hinfo);
+      vtkWrapSerDes_CallFunctions(fp, classInfo, hinfo);
       vtkWrapSerDes_EndInvoker(fp);
       break;
     case VTK_MARSHAL_MANUAL_MODE:
       // Export additional registrar 'helper' function which is defined by
       // vtkClassNameSerDesHelper.cxx
       vtkWrapSerDes_ExportClassRegistrarHelpers(fp, classInfo->Name);
+      vtkWrapSerDes_DefineFunctions(fp, classInfo, hinfo);
       vtkWrapSerDes_BeginInvoker(fp, classInfo);
-      vtkWrapSerDes_Functions(fp, classInfo, hinfo);
+      vtkWrapSerDes_CallFunctions(fp, classInfo, hinfo);
       vtkWrapSerDes_EndInvoker(fp);
       break;
   }

@@ -268,21 +268,29 @@ bool vtkMarshalContext::UnRegisterBlob(const std::string& hash)
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkTypeUInt8Array> vtkMarshalContext::GetBlob(const std::string& hash)
+vtkSmartPointer<vtkTypeUInt8Array> vtkMarshalContext::GetBlob(
+  const std::string& hash, bool copy /*=false*/)
 {
   auto& internals = (*this->Internals);
-  vtkSmartPointer<vtkTypeUInt8Array> result;
+  auto result = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
 
   const auto blobIter = this->Internals->Blobs.find(hash);
   if (blobIter != internals.Blobs.end())
   {
-    const auto& values = blobIter->get_binary();
+    auto& values = blobIter->get_binary();
     if (!values.empty())
     {
-      result.TakeReference(vtkTypeUInt8Array::New());
-      result->SetNumberOfValues(values.size());
-      auto blobRange = vtk::DataArrayValueRange(result);
-      std::copy(values.begin(), values.end(), blobRange.begin());
+      if (copy)
+      {
+        for (const auto& value : values)
+        {
+          result->InsertNextValue(value);
+        }
+      }
+      else
+      {
+        result->SetArray(values.data(), static_cast<vtkIdType>(values.size()), /*save=*/1);
+      }
     }
   }
   return result;

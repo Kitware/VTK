@@ -97,7 +97,7 @@ class TestVolume(vtkTesting.vtkTest):
             status['mtimes'] = {object_id: ser_om.GetObjectAtId(
                 object_id).GetMTime() for object_id in active_ids}
             status['hashes'] = {blob_hash: ser_om.GetBlob(
-                blob_hash) for blob_hash in ser_om.GetBlobHashes(active_ids)}
+                blob_hash, True) for blob_hash in ser_om.GetBlobHashes(active_ids)}
             return status
 
         def deserialize(status: dict):
