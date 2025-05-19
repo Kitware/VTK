@@ -28,7 +28,7 @@ int TestTextureRGBADepthPeeling(int argc, char* argv[])
   {
     // WebAssembly OpenGL requires additional steps for dual depth peeling. See
     // TestFramebufferPass.cxx for details.
-    std::cout << "Skipping test with WebAssembly OpenGL\n";
+    std::cout << "Skipping test with dual-depth peeling for WebAssembly OpenGL\n";
     return VTK_SKIP_RETURN_CODE;
   }
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/textureRGBA.png");
