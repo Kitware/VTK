@@ -823,7 +823,6 @@ Rendering/Volume/vtkFixedPointVolumeRayCastCompositeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastCompositeShadeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.h
-Rendering/Volume/vtkMultiVolume.h
 Rendering/Volume/vtkOSPRayVolumeInterface.h
 Rendering/Volume/vtkRayCastImageDisplayHelper.h
 Rendering/Volume/vtkRecursiveSphereDirectionEncoder.h
