@@ -402,7 +402,7 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
     vtkLogF(ERROR, "Mesh blueprint verification failed!");
     return false;
   }
-  vtkLogF(INFO, "Mesh blueprint verified!");
+  vtkLogF(TRACE, "Mesh blueprint verified!");
 #endif
   std::map<std::string, vtkSmartPointer<vtkDataSet>> datasets;
 
