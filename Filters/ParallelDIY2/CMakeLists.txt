@@ -29,7 +29,8 @@ if (TARGET VTK::ParallelMPI)
     BASE      vtkAggregateDataSetFilter
     OVERRIDE  vtkDIYAggregateDataSetFilter)
   list(APPEND classes
-    vtkDIYAggregateDataSetFilter)
+    vtkDIYAggregateDataSetFilter
+    vtkRedistributeDataSetToSubCommFilter)
 endif()
 
 vtk_object_factory_configure(
