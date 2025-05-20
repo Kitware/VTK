@@ -28,6 +28,7 @@
 #include "vtkNew.h"                          // for ivar
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
@@ -38,7 +39,8 @@ class vtkMultiBlockDataSet;
 class vtkRenderWindow;
 class vtkSmartVolumeMapper;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkMultiBlockVolumeMapper
+  : public vtkVolumeMapper
 {
 public:
   static vtkMultiBlockVolumeMapper* New();

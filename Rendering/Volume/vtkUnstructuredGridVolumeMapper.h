@@ -18,6 +18,7 @@
 
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -25,7 +26,8 @@ class vtkVolume;
 class vtkUnstructuredGridBase;
 class vtkWindow;
 
-class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeMapper : public vtkAbstractVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALAUTO vtkUnstructuredGridVolumeMapper
+  : public vtkAbstractVolumeMapper
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeMapper, vtkAbstractVolumeMapper);

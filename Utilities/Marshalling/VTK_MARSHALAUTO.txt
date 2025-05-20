@@ -381,8 +381,16 @@ Rendering/UI/vtkWebAssemblyRenderWindowInteractor.h
 Rendering/UI/vtkWin32HardwareWindow.h
 Rendering/UI/vtkWin32RenderWindowInteractor.h
 Rendering/UI/vtkXRenderWindowInteractor.h
+Rendering/Volume/vtkFixedPointVolumeRayCastMapper.h
+Rendering/Volume/vtkGPUVolumeRayCastMapper.h
+Rendering/Volume/vtkProjectedTetrahedraMapper.h
+Rendering/Volume/vtkUnstructuredGridVolumeMapper.h
 Rendering/Volume/vtkVolumeMapper.h
+Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
+Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.h
+Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
+Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkSmartVolumeMapper.h
 Views/Context2D/vtkContextInteractorStyle.h
 Views/Context2D/vtkContextView.h

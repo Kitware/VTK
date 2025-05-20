@@ -33,6 +33,9 @@ vtkOpenGLSurfaceProbeVolumeMapper::vtkOpenGLSurfaceProbeVolumeMapper()
 }
 
 //------------------------------------------------------------------------------
+vtkOpenGLSurfaceProbeVolumeMapper::~vtkOpenGLSurfaceProbeVolumeMapper() = default;
+
+//------------------------------------------------------------------------------
 int vtkOpenGLSurfaceProbeVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)

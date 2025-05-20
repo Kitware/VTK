@@ -47,6 +47,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkThreads.h"               // for VTK_THREAD_RETURN_TYPE
 #include "vtkVolumeMapper.h"
+#include "vtkWrappingHints.h"
 
 #define VTKKW_FP_SHIFT 15
 #define VTKKW_FPMM_SHIFT 17
@@ -81,7 +82,8 @@ class vtkDataArray;
 VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays(void* arg);
 VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType(void* arg);
 
-class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALAUTO vtkFixedPointVolumeRayCastMapper
+  : public vtkVolumeMapper
 {
 public:
   static vtkFixedPointVolumeRayCastMapper* New();
@@ -264,7 +266,9 @@ public:
    * created - only need to set it when using from an AMR mapper which
    * renders multiple times into the same image.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   void SetRayCastImage(vtkFixedPointRayCastImage*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetObjectMacro(RayCastImage, vtkFixedPointRayCastImage);
   ///@}
 

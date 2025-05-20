@@ -823,11 +823,8 @@ Rendering/Volume/vtkFixedPointVolumeRayCastCompositeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastCompositeShadeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.h
-Rendering/Volume/vtkFixedPointVolumeRayCastMapper.h
-Rendering/Volume/vtkGPUVolumeRayCastMapper.h
 Rendering/Volume/vtkMultiVolume.h
 Rendering/Volume/vtkOSPRayVolumeInterface.h
-Rendering/Volume/vtkProjectedTetrahedraMapper.h
 Rendering/Volume/vtkRayCastImageDisplayHelper.h
 Rendering/Volume/vtkRecursiveSphereDirectionEncoder.h
 Rendering/Volume/vtkSphericalDirectionEncoder.h
@@ -836,7 +833,6 @@ Rendering/Volume/vtkUnstructuredGridHomogeneousRayIntegrator.h
 Rendering/Volume/vtkUnstructuredGridLinearRayIntegrator.h
 Rendering/Volume/vtkUnstructuredGridPartialPreIntegration.h
 Rendering/Volume/vtkUnstructuredGridPreIntegration.h
-Rendering/Volume/vtkUnstructuredGridVolumeMapper.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastFunction.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastIterator.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastMapper.h
@@ -845,11 +841,7 @@ Rendering/Volume/vtkUnstructuredGridVolumeZSweepMapper.h
 Rendering/Volume/vtkVolumeOutlineSource.h
 Rendering/Volume/vtkVolumePicker.h
 Rendering/Volume/vtkVolumeRayCastSpaceLeapingImageFilter.h
-Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLRayCastImageDisplayHelper.h
-Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeGradientOpacityTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTables.h

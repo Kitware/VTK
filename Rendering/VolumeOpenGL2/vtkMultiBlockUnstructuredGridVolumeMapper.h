@@ -13,6 +13,7 @@
 #include "vtkNew.h"                          // for ivars
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObjectTree;
@@ -23,7 +24,7 @@ class vtkUnstructuredGrid;
 class vtkRenderWindow;
 class vtkProjectedTetrahedraMapper;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockUnstructuredGridVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkMultiBlockUnstructuredGridVolumeMapper
   : public vtkUnstructuredGridVolumeMapper
 {
 public:

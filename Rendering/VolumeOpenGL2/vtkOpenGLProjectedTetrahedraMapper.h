@@ -20,6 +20,7 @@
 #include "vtkOpenGLHelper.h" // used for ivars
 #include "vtkProjectedTetrahedraMapper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"                // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
@@ -31,7 +32,7 @@ class vtkRenderWindow;
 class vtkUnsignedCharArray;
 class vtkVisibilitySort;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLProjectedTetrahedraMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLProjectedTetrahedraMapper
   : public vtkProjectedTetrahedraMapper
 {
 public:
