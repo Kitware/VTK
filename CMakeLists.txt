@@ -311,15 +311,19 @@ if (VTK_WRAP_SERIALIZATION)
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     list(APPEND vtk_requested_modules
       VTK::WebAssemblySession
-      VTK::WebAssembly)
+      VTK::WebAssembly
+      VTK::WebAssemblyAsync)
   else ()
     list(APPEND vtk_rejected_modules
       VTK::WebAssemblySession
-      VTK::WebAssembly)
+      VTK::WebAssembly
+      VTK::WebAssemblyAsync)
   endif ()
   set("_vtk_module_reason_VTK::WebAssemblySession"
   "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
   set("_vtk_module_reason_VTK::WebAssembly"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
+  set("_vtk_module_reason_VTK::WebAssemblyAsync"
   "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
 else ()
   list(APPEND vtk_rejected_modules

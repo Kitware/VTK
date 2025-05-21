@@ -1,8 +1,8 @@
 # Add WebAssembly interface for standalone applications
 
-You can now develop remote wasm or standalone wasm applications using the `vtkWebAssemblyInterface.wasm` binary.
-The `VTK::WebAssembly` module now builds a `vtkWebAssemblyInterface.wasm` and associated `.mjs` file
-that provides `vtkRemoteSession` and `vtkStandaloneSession` JavaScript classes.
+You can now develop remote wasm or standalone wasm applications using the `vtkWebAssembly.wasm` binary.
+The `VTK::WebAssembly` and `VTK::WebAssemblyAsync` now builds a `vtkWebAssembly[Async].wasm` and associated
+`.mjs` file that provide `vtkRemoteSession` and `vtkStandaloneSession` JavaScript classes.
 
 - Remote session API is concerned with use cases where a "server" creates VTK
  objects and sends the state to a WASM "client" that deserializes the state
