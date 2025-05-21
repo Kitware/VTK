@@ -2057,7 +2057,7 @@ bool vtkIOSSReaderInternal::GetNodeFields(vtkDataSetAttributes* dsa,
   else
   {
     // Exodus
-    const auto blockname = group_entity->name();
+    const auto& blockname = group_entity->name();
     auto& cache = this->Cache;
     vtkIdTypeArray* vtk_raw_ids_array = !mergeExodusEntityBlocks
       ? vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"))

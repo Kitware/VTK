@@ -114,9 +114,9 @@ public:
 
     for (Json::Value::ArrayIndex i = 0; i < root.size(); ++i)
     {
-      Json::Value nextMapping = root[i];
+      const Json::Value& nextMapping = root[i];
       std::string profileName = nextMapping["interaction_profile"].asString();
-      Json::Value assetPaths = nextMapping["asset_paths"];
+      const Json::Value& assetPaths = nextMapping["asset_paths"];
 
       std::string leftControllerPath = assetPaths["left_controller"].asString();
       std::string leftControllerPathFull =

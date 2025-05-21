@@ -245,8 +245,8 @@ public:
         return;
       }
 
-      std::string c1 = varX->GetValue(key);
-      std::string c2 = varY->GetValue(key);
+      const auto& c1 = varX->GetValue(key);
+      const auto& c2 = varY->GetValue(key);
 
       if (marginalToPair.find(c1) == marginalToPair.end())
       {
@@ -406,8 +406,8 @@ public:
       vtkIdType key = keys->GetValue(r);
 
       // Get values
-      std::string c1 = varX->GetValue(key);
-      std::string c2 = varY->GetValue(key);
+      const auto& c1 = varX->GetValue(key);
+      const auto& c2 = varY->GetValue(key);
 
       // Get primary statistics for (c1,c2) pair
       Tuple x(dataX->GetNumberOfComponents());
@@ -624,8 +624,8 @@ public:
         return;
       }
 
-      std::string c1 = varX->GetValue(key);
-      std::string c2 = varY->GetValue(key);
+      const auto& c1 = varX->GetValue(key);
+      const auto& c2 = varY->GetValue(key);
 
       if (marginalToPair.find(c1) == marginalToPair.end())
       {
@@ -767,8 +767,8 @@ public:
       vtkIdType key = keys->GetValue(r);
 
       // Get values
-      std::string c1 = varX->GetValue(key);
-      std::string c2 = varY->GetValue(key);
+      const auto& c1 = varX->GetValue(key);
+      const auto& c2 = varY->GetValue(key);
 
       // Get primary statistics for (c1,c2) pair
       Tuple x = dataX->GetValue(r);
@@ -1674,8 +1674,8 @@ void vtkContingencyStatistics::SelectAssessFunctor(vtkTable* outData, vtkMultiBl
     return;
   }
 
-  std::string varNameX = rowNames->GetValue(0);
-  std::string varNameY = rowNames->GetValue(1);
+  const auto& varNameX = rowNames->GetValue(0);
+  const auto& varNameY = rowNames->GetValue(1);
 
   // Grab the data for the requested variables
   vtkAbstractArray* valsX = outData->GetColumnByName(varNameX.c_str());

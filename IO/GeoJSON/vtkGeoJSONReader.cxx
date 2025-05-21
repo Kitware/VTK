@@ -163,8 +163,8 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseRoot(const Json::Value& root,
     for (Json::Value::ArrayIndex i = 0; i < rootFeatures.size(); i++)
     {
       // Append extracted geometry to existing outputData
-      Json::Value featureNode = rootFeatures[i];
-      Json::Value propertiesNode = featureNode["properties"];
+      const Json::Value& featureNode = rootFeatures[i];
+      const Json::Value& propertiesNode = featureNode["properties"];
       this->ParseFeatureProperties(propertiesNode, properties, serializedPropertiesArrayName);
       vtkNew<vtkGeoJSONFeature> feature;
       feature->SetOutlinePolygons(outlinePolygons);

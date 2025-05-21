@@ -1008,7 +1008,7 @@ void vtkGLTFWriter::WriteToStreamMultiBlock(ostream& output, vtkMultiBlockDataSe
           {
             for (size_t i = 0; i < textureFileNames.size(); ++i)
             {
-              std::string textureFileName = textureFileNames[i];
+              const auto& textureFileName = textureFileNames[i];
               WriteTexture(buffers, bufferViews, textures, samplers, images, this->InlineData,
                 this->CopyTextures, textureMap, this->TextureBaseDirectory, textureFileName,
                 this->FileName, this->Binary, binChunkOut, &binChunkOffset);

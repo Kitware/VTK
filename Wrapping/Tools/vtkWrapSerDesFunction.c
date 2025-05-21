@@ -746,7 +746,9 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
   }
   else
   {
-    fprintf(fp, "    auto%s methodReturnValue = object->%s(%s",
+    fprintf(fp,
+      "    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)\n"
+      "    auto%s methodReturnValue = object->%s(%s",
       (vtkWrap_IsPointer(functionInfo->ReturnValue) ? "*" : ""), functionInfo->Name, argStart);
     for (i = 0; i < functionInfo->NumberOfParameters; ++i)
     {

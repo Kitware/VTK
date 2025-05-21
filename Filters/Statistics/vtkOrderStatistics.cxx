@@ -1002,7 +1002,7 @@ void vtkOrderStatistics::SelectAssessFunctor(
   }
 
   // Retrieve name of variable of the request
-  std::string varName = rowNames->GetValue(0);
+  const auto& varName = rowNames->GetValue(0);
 
   // Grab the data for the requested variable
   vtkAbstractArray* vals = outData->GetColumnByName(varName.c_str());

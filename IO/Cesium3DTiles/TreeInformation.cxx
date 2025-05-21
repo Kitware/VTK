@@ -559,8 +559,7 @@ void TreeInformation::SaveTilesMesh()
   std::vector<vtkSmartPointer<vtkImageData>> textureImages(textureFileNames.size());
   for (size_t i = 0; i < textureFileNames.size(); ++i)
   {
-    auto textureFileName = textureFileNames[i];
-    textureImages[i] = GetTexture(this->TextureBaseDirectory, textureFileName);
+    textureImages[i] = GetTexture(this->TextureBaseDirectory, textureFileNames[i]);
   }
   SaveTileMeshData aux(vtkSelectionNode::CELL, textureImages);
   this->PostOrderTraversal(&TreeInformation::SaveTileMesh, this->Root, &aux);

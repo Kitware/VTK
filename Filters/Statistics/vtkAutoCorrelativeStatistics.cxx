@@ -589,7 +589,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
     return;
   }
 
-  std::string varName = rowNames->GetValue(0);
+  const auto& varName = rowNames->GetValue(0);
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>(modelTab->GetColumnByName("Variable"));
