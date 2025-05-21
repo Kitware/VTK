@@ -412,6 +412,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
   assert("pre: AMR grid connectivity is nullptr" && (amrConnectivity != nullptr));
   assert("pre: Ghosted AMR is nullptr" && (ghostedAMR != nullptr));
   std::vector<int> blocksPerLevel;
+  blocksPerLevel.reserve(amr->GetNumberOfLevels());
   for (unsigned int i = 0; i < amr->GetNumberOfLevels(); i++)
   {
     blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));

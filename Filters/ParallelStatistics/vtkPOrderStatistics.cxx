@@ -61,6 +61,7 @@ static void StringArrayToStringBuffer(vtkStringArray* sVals, std::string& sPack)
   std::vector<std::string> sVect; // consecutive strings
 
   vtkIdType nv = sVals->GetNumberOfValues();
+  sVect.reserve(nv); // reserve space for all strings
   for (vtkIdType i = 0; i < nv; ++i)
   {
     // Push back current string value

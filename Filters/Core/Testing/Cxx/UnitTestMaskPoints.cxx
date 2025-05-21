@@ -158,6 +158,7 @@ vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints)
   vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   std::vector<double> line;
+  line.reserve(numPoints);
   for (unsigned int i = 0; i < numPoints; ++i)
   {
     line.push_back(static_cast<double>(i));
