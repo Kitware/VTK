@@ -27,11 +27,6 @@ static nlohmann::json Serialize_vtkAbstractMapper(
   using json = nlohmann::json;
   json state;
   auto* object = vtkAbstractMapper::SafeDownCast(objectBase);
-  if (object->GetClippingPlanes())
-  {
-    state["ClippingPlanes"] =
-      serializer->SerializeJSON(reinterpret_cast<vtkObjectBase*>(object->GetClippingPlanes()));
-  }
   // vtkDataSetMapper is a special case handled by vtkDataSetMapperSerDes.cxx
   if (object->IsA("vtkDataSetMapper"))
   {
@@ -48,6 +43,11 @@ static nlohmann::json Serialize_vtkAbstractMapper(
     {
       state = f(object, serializer);
     }
+  }
+  if (object->GetClippingPlanes())
+  {
+    state["ClippingPlanes"] =
+      serializer->SerializeJSON(reinterpret_cast<vtkObjectBase*>(object->GetClippingPlanes()));
   }
   state["SuperClassNames"].push_back("vtkAlgorithm");
   return state;
