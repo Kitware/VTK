@@ -515,8 +515,7 @@ void vtkDrawTexturedElements::ReleaseResources(vtkWindow* window)
   this->ColorTextureGL->ReleaseGraphicsResources(window);
   for (auto& entry : this->Arrays)
   {
-    entry.second.Texture->ReleaseGraphicsResources(window);
-    entry.second.Buffer->ReleaseGraphicsResources();
+    entry.second.ReleaseGraphicsResources(window);
   }
 }
 

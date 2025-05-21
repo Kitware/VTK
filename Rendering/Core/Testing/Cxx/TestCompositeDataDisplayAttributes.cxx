@@ -7,6 +7,7 @@
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h" // for VTK_SKIP_RETURN_CODE
 #include "vtkXMLMultiBlockDataReader.h"
 
 #define Verify(x)                                                                                  \
@@ -21,6 +22,14 @@
 
 int TestCompositeDataDisplayAttributes(int argc, char* argv[])
 {
+#if defined(__EMSCRIPTEN__)
+  // The multi-block reader fails in Emscripten builds due to missing support for preloading
+  // individual files in compositedata formats.
+  std::cout << "This test is not supported in Emscripten builds\n";
+  (void)argc;
+  (void)argv;
+  return VTK_SKIP_RETURN_CODE;
+#else
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mb_with_pieces.vtm");
   vtkNew<vtkXMLMultiBlockDataReader> reader;
   reader->SetFileName(fname);
@@ -45,4 +54,5 @@ int TestCompositeDataDisplayAttributes(int argc, char* argv[])
   Verify(cdda->DataObjectFromIndex(5, mb) == block5);
   Verify(cdda->DataObjectFromIndex(9, mb) == block9);
   return EXIT_SUCCESS;
+#endif
 }

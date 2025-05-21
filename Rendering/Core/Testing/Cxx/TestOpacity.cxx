@@ -16,6 +16,7 @@
 #include "vtkImageData.h"
 #include "vtkImageGridSource.h"
 #include "vtkLookupTable.h"
+#include "vtkNew.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
@@ -32,35 +33,40 @@
 int TestOpacity(int argc, char* argv[])
 {
   // Standard rendering classes
-  vtkRenderer* renderer = vtkRenderer::New();
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> renWin;
+  if (renWin->IsA("vtkWebAssemblyOpenGLRenderWindow"))
+  {
+    // WebAssembly OpenGL requires additional steps for dual depth peeling. See
+    // TestFramebufferPass.cxx for details.
+    std::cout << "Skipping test with dual-depth peeling for WebAssembly OpenGL\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
-  renderer->Delete();
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
-  renWin->Delete();
 
   // We create a bunch of translucent spheres with an opaque plane in
   // the middle
   // we create a uniform grid and glyph it with a spherical shape.
 
   // Create the glyph source
-  vtkSphereSource* sphere = vtkSphereSource::New();
+  vtkNew<vtkSphereSource> sphere;
   sphere->SetRadius(1);
   sphere->SetCenter(0.0, 0.0, 0.0);
   sphere->SetThetaResolution(10);
   sphere->SetPhiResolution(10);
   sphere->SetLatLongTessellation(0);
 
-  vtkCubeSource* cube = vtkCubeSource::New();
+  vtkNew<vtkCubeSource> cube;
   cube->SetXLength(1.0);
   cube->SetYLength(1.0);
   cube->SetZLength(1.0);
   cube->SetCenter(0.0, 0.0, 0.0);
 
-  vtkImageGridSource* grid = vtkImageGridSource::New();
+  vtkNew<vtkImageGridSource> grid;
   grid->SetGridSpacing(1, 1, 1);
   grid->SetGridOrigin(0, 0, 0);
   grid->SetLineValue(1.0); // white
@@ -74,16 +80,13 @@ int TestOpacity(int argc, char* argv[])
   double range[2];
   grid->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
 
-  vtkGlyph3D* glyph = vtkGlyph3D::New();
+  vtkNew<vtkGlyph3D> glyph;
   glyph->SetInputConnection(0, grid->GetOutputPort(0));
-  grid->Delete();
 #ifdef VTK_TEST_OPACITY_CUBE
   glyph->SetSourceConnection(cube->GetOutputPort(0));
 #else
   glyph->SetSourceConnection(sphere->GetOutputPort(0));
 #endif
-  sphere->Delete();
-  cube->Delete();
   glyph->SetScaling(1); // on
   glyph->SetScaleModeToScaleByScalar();
   glyph->SetColorModeToColorByScale();
@@ -95,49 +98,40 @@ int TestOpacity(int argc, char* argv[])
   glyph->SetIndexModeToOff();
   glyph->SetGeneratePointIds(0);
 
-  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(glyph->GetOutputPort(0));
-  glyph->Delete();
 
   // This creates a blue to red lut.
-  vtkLookupTable* lut = vtkLookupTable::New();
+  vtkNew<vtkLookupTable> lut;
   lut->SetHueRange(0.667, 0.0);
   mapper->SetLookupTable(lut);
-  lut->Delete();
   mapper->SetScalarRange(range);
 
-  vtkActor* actor = vtkActor::New();
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
-  mapper->Delete();
   renderer->AddActor(actor);
-  actor->Delete();
 
-  vtkProperty* property = vtkProperty::New();
+  vtkNew<vtkProperty> property;
   property->SetOpacity(0.2);
   property->SetColor(0.0, 1.0, 0.0);
   actor->SetProperty(property);
-  property->Delete();
 
-  vtkPlaneSource* plane = vtkPlaneSource::New();
+  vtkNew<vtkPlaneSource> plane;
   plane->SetCenter(0.5, 0.5, 0.5);
 
-  vtkPolyDataMapper* planeMapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(0, plane->GetOutputPort(0));
-  plane->Delete();
 
-  vtkActor* planeActor = vtkActor::New();
+  vtkNew<vtkActor> planeActor;
   planeActor->SetMapper(planeMapper);
-  planeMapper->Delete();
   renderer->AddActor(planeActor);
 
-  vtkProperty* planeProperty = vtkProperty::New();
+  vtkNew<vtkProperty> planeProperty;
   planeProperty->SetOpacity(1.0);
   planeProperty->SetColor(1.0, 0.0, 0.0);
   planeActor->SetProperty(planeProperty);
-  planeProperty->Delete();
   planeProperty->SetBackfaceCulling(0);
   planeProperty->SetFrontfaceCulling(0);
-  planeActor->Delete();
 
   renderer->SetUseDepthPeeling(1);
   // reasonable depth peeling settings
@@ -167,9 +161,6 @@ int TestOpacity(int argc, char* argv[])
   {
     iren->Start();
   }
-
-  // Cleanup
-  iren->Delete();
 
   return !retVal;
 }

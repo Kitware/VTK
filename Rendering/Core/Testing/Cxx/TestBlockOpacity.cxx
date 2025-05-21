@@ -23,6 +23,13 @@ int TestBlockOpacity(int argc, char* argv[])
   // Standard rendering classes
   vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
+  if (renWin->IsA("vtkWebAssemblyOpenGLRenderWindow"))
+  {
+    // WebAssembly OpenGL requires additional steps for dual depth peeling. See
+    // TestFramebufferPass.cxx for details.
+    std::cout << "Skipping test with dual-depth peeling for WebAssembly OpenGL\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);

@@ -14,6 +14,7 @@
 #include "vtkRenderingOpenGL2Module.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextureObject.h"
+#include "vtkWindow.h"
 
 #include <vector>
 
@@ -39,6 +40,8 @@ public:
     const vtkOpenGLArrayTextureBufferAdapter&) = default;
 
   void Upload(vtkOpenGLRenderWindow* renderWindow, bool force = false);
+
+  void ReleaseGraphicsResources(vtkWindow* window);
 };
 
 VTK_ABI_NAMESPACE_END

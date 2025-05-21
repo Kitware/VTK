@@ -8,6 +8,7 @@
 
 #include "vtkActor.h"
 #include "vtkImageData.h"
+#include "vtkNew.h"
 #include "vtkPNGReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
@@ -22,43 +23,45 @@
 
 int TestTextureRGBADepthPeeling(int argc, char* argv[])
 {
+  vtkNew<vtkRenderWindow> renWin;
+  if (renWin->IsA("vtkWebAssemblyOpenGLRenderWindow"))
+  {
+    // WebAssembly OpenGL requires additional steps for dual depth peeling. See
+    // TestFramebufferPass.cxx for details.
+    std::cout << "Skipping test with dual-depth peeling for WebAssembly OpenGL\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/textureRGBA.png");
 
-  vtkPNGReader* PNGReader = vtkPNGReader::New();
+  vtkNew<vtkPNGReader> PNGReader;
   PNGReader->SetFileName(fname);
   PNGReader->Update();
 
-  vtkTexture* texture = vtkTexture::New();
+  vtkNew<vtkTexture> texture;
   texture->SetInputConnection(PNGReader->GetOutputPort());
-  PNGReader->Delete();
   texture->InterpolateOn();
 
-  vtkPlaneSource* planeSource = vtkPlaneSource::New();
+  vtkNew<vtkPlaneSource> planeSource;
   planeSource->Update();
 
-  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(planeSource->GetOutputPort());
-  planeSource->Delete();
 
-  vtkActor* actor = vtkActor::New();
+  vtkNew<vtkActor> actor;
   actor->SetTexture(texture);
-  texture->Delete();
   actor->SetMapper(mapper);
-  mapper->Delete();
 
-  vtkRenderer* renderer = vtkRenderer::New();
+  vtkNew<vtkRenderer> renderer;
   renderer->AddActor(actor);
-  actor->Delete();
   renderer->SetBackground(0.5, 0.7, 0.7);
 
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetAlphaBitPlanes(1);
   renWin->AddRenderer(renderer);
   renderer->SetUseDepthPeeling(1);
   renderer->SetMaximumNumberOfPeels(200);
   renderer->SetOcclusionRatio(0.1);
 
-  vtkRenderWindowInteractor* interactor = vtkRenderWindowInteractor::New();
+  vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renWin);
 
   renWin->SetSize(400, 400);
@@ -81,9 +84,6 @@ int TestTextureRGBADepthPeeling(int argc, char* argv[])
     interactor->Start();
   }
 
-  renderer->Delete();
-  renWin->Delete();
-  interactor->Delete();
   delete[] fname;
 
   return !retVal;
