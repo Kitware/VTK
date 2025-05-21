@@ -117,7 +117,29 @@ public:
   /**
    * Compute the centroid of a set of points. Returns false if the computation
    * is invalid (this occurs when numPts=0 or when ids is empty).
+   *
+   * The strategy used is to compute the average coordinate x_c (the center, but not
+   * the centroid of the polygon) and then apply the "geometric decomposition"
+   * method for centroids to an area-weighted sum centroids of triangles formed from
+   * the center x_c to each edge of the polygon.
+   *
+   * This method is robust to significant non-planarity of the polygon, but not
+   * so much that the normal computation is invalid. If the normal cannot be
+   * determined or the total area of the polygon is near zero, then false will be returned.
+   *
+   * If a \a tolerance is provided, the ratio of the out-of-plane extent of the
+   * polygon (dZ) relative to the longest in-plane extent of the polygon (dS) is
+   * compared to it.
+   * If dZ / dS > \a tolerance , then false will be returned and the \a centroid
+   * will be unmodified.
+   *
+   * The default is \a tolerance of 0.1.
+   * To ignore non-planar polygons, pass a tolerance <  – but note that the normal
+   * is estimated from the point coordinates and thus the centroid will become
+   * ill-conditioned for large deviations from the plane.
    */
+  static bool ComputeCentroid(
+    vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3], double tolerance);
   static bool ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3]);
   static bool ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* pts, double centroid[3]);
   ///@}
