@@ -194,7 +194,8 @@ int vtkMCubesReader::RequestData(vtkInformation* vtkNotUsed(request),
   //
   // Now re-read and merge
   //
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   fseek(fp, this->HeaderSize, 0);
 
   newPts = vtkPoints::New();

@@ -230,7 +230,8 @@ static int ParseFile(FILE* file, const char* label, float* data)
   if (file == nullptr || label == nullptr)
     return 0;
 
-  rewind(file);
+  clearerr(file);           // clear error and EOF flags
+  fseek(file, 0, SEEK_SET); // move to beginning
 
   if (fscanf(file, "%s %d", tag, &npts) != 2)
   {

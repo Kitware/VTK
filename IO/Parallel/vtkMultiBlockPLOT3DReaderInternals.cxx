@@ -22,7 +22,8 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
 
 int vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSize)
 {
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   this->Settings.BinaryFile = 0;
 
   // The shortest binary file is 12 files: 2 ints for block dims + 1 float for
@@ -53,7 +54,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE* fp, size_t fileSiz
 
 int vtkMultiBlockPLOT3DReaderInternals::CheckByteOrder(FILE* fp)
 {
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   int i;
   if (fread(&i, sizeof(int), 1, fp) < 1)
   {
@@ -79,7 +81,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckByteOrder(FILE* fp)
 
 int vtkMultiBlockPLOT3DReaderInternals::CheckByteCount(FILE* fp)
 {
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   // Read the first integer, then skip by that many bytes, then
   // read the value again. If the two match, it is likely that
   // the file has byte counts.
@@ -112,7 +115,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckMultiGrid(FILE* fp)
 {
   if (this->Settings.HasByteCount)
   {
-    rewind(fp);
+    clearerr(fp);           // clear error and EOF flags
+    fseek(fp, 0, SEEK_SET); // move to beginning
     // We read the byte count, if it is 4 (1 int),
     // then this is multi-grid because the first
     // value is the number of grids rather than
@@ -139,7 +143,8 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
 {
   if (this->Settings.HasByteCount)
   {
-    rewind(fp);
+    clearerr(fp);           // clear error and EOF flags
+    fseek(fp, 0, SEEK_SET); // move to beginning
     int recMarkBeg, recMarkEnd;
     int numGrids = 1;
     if (this->Settings.MultiGrid)
@@ -181,7 +186,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 {
   int recMarkBeg, recMarkEnd, numGrids = 1, nMax, totPts;
 
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   if (this->Settings.MultiGrid)
   {
     if (!this->ReadInts(fp, 1, &recMarkBeg) || !this->ReadInts(fp, 1, &numGrids) ||
@@ -247,7 +253,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
   int blankings[2] = { 0, 1 };
   int dimensions[2] = { 2, 3 };
 
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   int gridDims[3];
   if (this->ReadInts(fp, 3, gridDims) != 3)
   {
@@ -282,7 +289,8 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
 
   // Multi grid
   int nGrids;
-  rewind(fp);
+  clearerr(fp);           // clear error and EOF flags
+  fseek(fp, 0, SEEK_SET); // move to beginning
   if (!this->ReadInts(fp, 1, &nGrids))
   {
     return 0;

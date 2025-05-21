@@ -860,7 +860,8 @@ int vtkChacoReader::InputGeom(vtkIdType nvtxs, // Number of vertices to read in
   double xc = 0.0, yc = 0.0, zc = 0.0;
   int end_flag, ndims, i = 0;
 
-  rewind(this->CurrentGeometryFP);
+  clearerr(this->CurrentGeometryFP);           // clear error and EOF flags
+  fseek(this->CurrentGeometryFP, 0, SEEK_SET); // move to beginning
 
   end_flag = 1;
   while (end_flag == 1)
@@ -963,7 +964,8 @@ int vtkChacoReader::InputGraph1()
      => include vertex numbers */
 
   FILE* fin = this->CurrentGraphFP;
-  rewind(fin);
+  clearerr(fin);           // clear error and EOF flags
+  fseek(fin, 0, SEEK_SET); // move to beginning
 
   /* Read any leading comment lines */
   int end_flag = 1;
@@ -1069,7 +1071,8 @@ int vtkChacoReader::InputGraph2(
   int line_num = 0;
 
   FILE* fin = this->CurrentGraphFP;
-  rewind(fin);
+  clearerr(fin);           // clear error and EOF flags
+  fseek(fin, 0, SEEK_SET); // move to beginning
 
   /* Read past the first line containing the metadata */
 

@@ -1784,7 +1784,8 @@ public:
       {
         this->IsCompressed = false;
       }
-      rewind(this->File);
+      clearerr(this->File);           // clear error and EOF flags
+      fseek(this->File, 0, SEEK_SET); // move to beginning
 #if VTK_OPENFOAM_TIME_PROFILING
       auto end = std::chrono::high_resolution_clock::now();
       this->TimeInMicroseconds =
