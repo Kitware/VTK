@@ -14,6 +14,8 @@
 #include "vtkTetra.h"
 #include "vtkType.h"
 
+#include <algorithm>
+
 #define ENABLE_CACHING
 #define FIFTEEN_POINT_TETRA
 
@@ -1036,7 +1038,7 @@ vtkIdType vtkHigherOrderTetra::Index(const vtkIdType* bindex, vtkIdType order)
   vtkIdType max = order;
   vtkIdType min = 0;
 
-  vtkIdType bmin = std::min(std::min(std::min(bindex[0], bindex[1]), bindex[2]), bindex[3]);
+  vtkIdType bmin = std::min({ bindex[0], bindex[1], bindex[2], bindex[3] });
 
   // scope into the correct tetra
   while (bmin > min)

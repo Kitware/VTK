@@ -68,7 +68,7 @@ void vtkResliceCursorThickLineRepresentation ::SetResliceParameters(
     rc->GetImage()->GetSpacing(spacing);
 
     // Perhaps we should multiply this by 0.5 for nyquist
-    const double minSpacing = std::min(std::min(spacing[0], spacing[1]), spacing[2]);
+    const double minSpacing = std::min({ spacing[0], spacing[1], spacing[2] });
 
     // Set the slab resolution the minimum spacing. Reasonable default
     thickReslice->SetSlabResolution(minSpacing);

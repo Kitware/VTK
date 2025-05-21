@@ -1178,7 +1178,7 @@ void vtkCoordinateFrameRepresentation::SetNormal(double x, double y, double z)
     const double xDot = vtkMath::Dot(n, xNormal);
     const double yDot = vtkMath::Dot(n, yNormal);
     const double zDot = vtkMath::Dot(n, zNormal);
-    const double maxDot = std::max(xDot, std::max(yDot, zDot));
+    const double maxDot = std::max({ xDot, yDot, zDot });
     if (xDot == maxDot)
     {
       GramSchmidt(n, yNormal, zNormal, newXNormal, newYNormal, newZNormal);

@@ -585,9 +585,9 @@ int vtkLagrangianParticleTracker::RequestData(vtkInformation* vtkNotUsed(request
 vtkMTimeType vtkLagrangianParticleTracker::GetMTime()
 {
   // Take integrator and integration model MTime into account
-  return std::max(this->Superclass::GetMTime(),
-    std::max(this->IntegrationModel ? this->IntegrationModel->GetMTime() : 0,
-      this->Integrator ? this->Integrator->GetMTime() : 0));
+  return std::max(
+    { this->Superclass::GetMTime(), this->IntegrationModel ? this->IntegrationModel->GetMTime() : 0,
+      this->Integrator ? this->Integrator->GetMTime() : 0 });
 }
 
 //------------------------------------------------------------------------------

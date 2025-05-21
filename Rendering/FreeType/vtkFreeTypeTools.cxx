@@ -1539,14 +1539,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(
 
   // Compute the background/frame bounding box.
   vtkTuple<int, 4> bgBbox;
-  bgBbox[0] =
-    std::min(std::min(metaData.TL[0], metaData.TR[0]), std::min(metaData.BL[0], metaData.BR[0]));
-  bgBbox[1] =
-    std::max(std::max(metaData.TL[0], metaData.TR[0]), std::max(metaData.BL[0], metaData.BR[0]));
-  bgBbox[2] =
-    std::min(std::min(metaData.TL[1], metaData.TR[1]), std::min(metaData.BL[1], metaData.BR[1]));
-  bgBbox[3] =
-    std::max(std::max(metaData.TL[1], metaData.TR[1]), std::max(metaData.BL[1], metaData.BR[1]));
+  bgBbox[0] = std::min({ metaData.TL[0], metaData.TR[0], metaData.BL[0], metaData.BR[0] });
+  bgBbox[1] = std::max({ metaData.TL[0], metaData.TR[0], metaData.BL[0], metaData.BR[0] });
+  bgBbox[2] = std::min({ metaData.TL[1], metaData.TR[1], metaData.BL[1], metaData.BR[1] });
+  bgBbox[3] = std::max({ metaData.TL[1], metaData.TR[1], metaData.BL[1], metaData.BR[1] });
 
   // Calculate the final bounding box (should just be the bg, but just in
   // case...)
@@ -1675,8 +1671,8 @@ bool findScanRange(const vtkVector2i& TL, const vtkVector2i& TR, const vtkVector
 {
   // Initialize the min and max to a known invalid range using the bounds of the
   // rectangle:
-  min = std::max(std::max(TL[0], TR[0]), std::max(BL[0], BR[0]));
-  max = std::min(std::min(TL[0], TR[0]), std::min(BL[0], BR[0]));
+  min = std::max({ TL[0], TR[0], BL[0], BR[0] });
+  max = std::min({ TL[0], TR[0], BL[0], BR[0] });
 
   float lineParam;
   int numIntersections = 0;
@@ -1756,8 +1752,8 @@ void vtkFreeTypeTools::RenderBackground(
   const vtkVector2i& BR = metaData.BR;
 
   // Find the minimum and maximum y values:
-  int yMin = std::min(std::min(TL[1], TR[1]), std::min(BL[1], BR[1]));
-  int yMax = std::max(std::max(TL[1], TR[1]), std::max(BL[1], BR[1]));
+  int yMin = std::min({ TL[1], TR[1], BL[1], BR[1] });
+  int yMax = std::max({ TL[1], TR[1], BL[1], BR[1] });
 
   // Clamp these to prevent out of bounds errors:
   int extent[6];

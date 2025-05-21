@@ -266,7 +266,7 @@ void vtkResliceCursorPolyDataAlgorithm ::CutAndClip(vtkPolyData* input, vtkPolyD
 
   double s[3];
   this->ResliceCursor->GetImage()->GetSpacing(s);
-  const double smax = std::max(std::max(s[0], s[1]), s[2]);
+  const double smax = std::max({ s[0], s[1], s[2] });
   this->ExtrusionFilter1->SetScaleFactor(smax);
   this->ExtrusionFilter2->SetScaleFactor(smax);
 

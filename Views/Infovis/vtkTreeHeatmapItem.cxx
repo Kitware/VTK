@@ -525,10 +525,10 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 
   double xMin, xMax, yMin, yMax;
 
-  xMin = std::min(std::min(treeBounds[0], tableBounds[0]), columnTreeBounds[0]);
-  xMax = std::max(std::max(treeBounds[1], tableBounds[1]), columnTreeBounds[1]);
-  yMin = std::min(std::min(treeBounds[2], tableBounds[2]), columnTreeBounds[2]);
-  yMax = std::max(std::max(treeBounds[3], tableBounds[3]), columnTreeBounds[3]);
+  xMin = std::min({ treeBounds[0], tableBounds[0], columnTreeBounds[0] });
+  xMax = std::max({ treeBounds[1], tableBounds[1], columnTreeBounds[1] });
+  yMin = std::min({ treeBounds[2], tableBounds[2], columnTreeBounds[2] });
+  yMax = std::max({ treeBounds[3], tableBounds[3], columnTreeBounds[3] });
 
   bounds[0] = xMin;
   bounds[1] = xMax;

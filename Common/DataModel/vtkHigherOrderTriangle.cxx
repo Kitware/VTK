@@ -3,8 +3,6 @@
 
 #include "vtkHigherOrderTriangle.h"
 
-#include <cstdint>
-
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -16,6 +14,9 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
+
+#include <algorithm>
+#include <cstdint>
 
 #define ENABLE_CACHING
 #define SEVEN_POINT_TRIANGLE
@@ -891,7 +892,7 @@ vtkIdType vtkHigherOrderTriangle::Index(const vtkIdType* bindex, vtkIdType order
   vtkIdType max = order;
   vtkIdType min = 0;
 
-  vtkIdType bmin = std::min(std::min(bindex[0], bindex[1]), bindex[2]);
+  vtkIdType bmin = std::min({ bindex[0], bindex[1], bindex[2] });
 
   // scope into the correct triangle
   while (bmin > min)
