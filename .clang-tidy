@@ -1,21 +1,27 @@
 ---
 Checks: "-*,\
 boost-*,\
+-boost-use-ranges,\
 bugprone-*,\
 -bugprone-argument-comment,\
 -bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
+-bugprone-casting-through-void,\
+-bugprone-crtp-constructor-accessibility,\
 -bugprone-easily-swappable-parameters,\
 -bugprone-empty-catch,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
+-bugprone-inc-dec-in-conditions,\
 -bugprone-incorrect-roundings,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
 -bugprone-misplaced-widening-cast,\
+-bugprone-multi-level-implicit-pointer-conversion,\
 -bugprone-narrowing-conversions,\
 -bugprone-not-null-terminated-result,\
+-bugprone-pointer-arithmetic-on-polymorphic-object,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
 -bugprone-sizeof-expression,\
@@ -23,7 +29,9 @@ bugprone-*,\
 -bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
 -bugprone-unsafe-functions,\
+-bugprone-use-after-move,\
 clang-analyzer-*,\
+-clang-analyzer-core.BitwiseShift,\
 -clang-analyzer-core.CallAndMessage,\
 -clang-analyzer-core.DivideZero,\
 -clang-analyzer-core.NonNullParamChecker,\
@@ -40,6 +48,7 @@ clang-analyzer-*,\
 -clang-analyzer-deadcode.DeadStores,\
 -clang-analyzer-optin.cplusplus.UninitializedObject,\
 -clang-analyzer-optin.cplusplus.VirtualCall,\
+-clang-analyzer-optin.core.EnumCastOutOfRange,\
 -clang-analyzer-optin.mpi.MPI-Checker,\
 -clang-analyzer-optin.performance.Padding,\
 -clang-analyzer-optin.portability.UnixAPI,\
@@ -61,6 +70,7 @@ misc-*,\
 -misc-throw-by-value-catch-by-reference,\
 -misc-unconventional-assign-operator,\
 -misc-use-anonymous-namespace,\
+-misc-use-internal-linkage,\
 -misc-unused-parameters,\
 -misc-unused-using-decls,\
 modernize-*,\
@@ -85,16 +95,21 @@ mpi-*,\
 openmp-*,\
 performance-*,\
 -performance-avoid-endl,\
+-performance-enum-size,\
 -performance-inefficient-string-concatenation,\
 -performance-no-int-to-ptr,\
 -performance-type-promotion-in-math-fn,\
 -performance-unnecessary-value-param,\
 portability-*,\
+-portability-template-virtual-member-function,\
 readability-*,\
+-readability-avoid-nested-conditional-operator,\
 -readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
+-readability-container-contains,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
+-readability-enum-initial-value,\
 -readability-identifier-length,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\
@@ -103,6 +118,7 @@ readability-*,\
 -readability-isolate-declaration,\
 -readability-magic-numbers,\
 -readability-make-member-function-const,\
+-readability-math-missing-parentheses,\
 -readability-named-parameter,\
 -readability-non-const-parameter,\
 -readability-qualified-auto,\
@@ -113,6 +129,7 @@ readability-*,\
 -readability-suspicious-call-argument,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
+-readability-use-std-min-max,\
 "
 #WarningsAsErrors: "*"
 ...

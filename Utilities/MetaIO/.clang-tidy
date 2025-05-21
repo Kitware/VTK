@@ -13,11 +13,13 @@ bugprone-*,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
 -bugprone-misplaced-widening-cast,\
+-bugprone-multi-level-implicit-pointer-conversion,\
 -bugprone-narrowing-conversions,\
 -bugprone-not-null-terminated-result,\
 -bugprone-reserved-identifier,\
 -bugprone-signed-char-misuse,\
 -bugprone-unhandled-self-assignment,\
+-bugprone-unused-local-non-trivial-variable,\
 clang-analyzer-*,\
 -clang-analyzer-core.CallAndMessage,\
 -clang-analyzer-core.DivideZero,\
@@ -56,6 +58,7 @@ misc-*,\
 -misc-unused-parameters,\
 -misc-unused-using-decls,\
 -misc-use-anonymous-namespace,\
+-misc-use-internal-linkage,\
 modernize-*,\
 -modernize-avoid-c-arrays,\
 -modernize-deprecated-headers,\
@@ -86,6 +89,7 @@ performance-*,\
 -performance-unnecessary-copy-initialization,\
 -performance-unnecessary-value-param,\
 portability-*,\
+-portability-template-virtual-member-function,\
 readability-*,\
 -readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
@@ -99,6 +103,7 @@ readability-*,\
 -readability-isolate-declaration,\
 -readability-magic-numbers,\
 -readability-make-member-function-const,\
+-readability-math-missing-parentheses,\
 -readability-named-parameter,\
 -readability-non-const-parameter,\
 -readability-qualified-auto,\
@@ -112,6 +117,7 @@ readability-*,\
 -readability-static-accessed-through-instance,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
+-readability-use-std-min-max,\
 "
 #WarningsAsErrors: "*"
 ...
