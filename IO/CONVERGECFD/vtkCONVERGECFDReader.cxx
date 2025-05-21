@@ -549,7 +549,6 @@ int vtkCONVERGECFDReader::RequestInformation(
         std::string parcelTypePrefix = groupNameString.substr(0, underscorePos);
 
         std::string parcelVariablesGroupName = parcelTypePrefix + "_VARIABLES";
-        std::string parcelVariableTypeName = parcelTypePrefix + "_DATA";
 
         // Read parcel array names
         std::string parcelDataGroup("VARIABLE_NAMES/");
@@ -1114,8 +1113,6 @@ int vtkCONVERGECFDReader::RequestData(
     bool parcelExists = GroupExists(streamId, "PARCEL_DATA");
     if (parcelExists)
     {
-      std::string parcelDataRoot;
-
       // Branch between pre-3.1 and post-3.1 file formats
       H5O_info_t objectInfo;
       err = H5Oget_info_by_idx(
@@ -1257,7 +1254,6 @@ void vtkCONVERGECFDReader::ReadTimeSteps(vtkInformation* outInfo)
   }
 
   std::string prefix = regEx.match(1);
-  std::string indexString = regEx.match(2);
 
   vtkNew<vtkDirectory> dir;
   if (!dir->Open(path.c_str()))

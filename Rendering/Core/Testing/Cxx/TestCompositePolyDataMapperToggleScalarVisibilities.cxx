@@ -110,7 +110,6 @@ int TestCompositePolyDataMapperToggleScalarVisibilities(int argc, char* argv[])
       {
         const unsigned int n = compositeMesh->GetNumberOfPartitionedDataSets();
         selectedSphere %= (n + 1);
-        std::string text = "Selected sphere: " + std::to_string(selectedSphere);
         if (auto* mesh = compositeMesh->GetPartitionAsDataObject(selectedSphere, 0))
         {
           const auto flatIndex = compositeMesh->GetCompositeIndex(selectedSphere, 0);

@@ -970,7 +970,6 @@ int vtkMINCImageWriter::CreateMINCVariables(
     }
     if (attArray)
     {
-      std::string varpath = MI_GRPNAME MI_GRP_SEP;
       int natts = attArray->GetNumberOfValues();
       for (int iatt = 0; iatt < natts; iatt++)
       {

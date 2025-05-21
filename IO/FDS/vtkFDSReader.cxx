@@ -1143,7 +1143,6 @@ int vtkFDSReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   std::string rootNodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
   rootNodeName = this->SanitizeName(rootNodeName);
   this->Assembly->SetNodeName(vtkDataAssembly::GetRootNode(), rootNodeName.c_str());
-  std::string FDSRootDir = vtksys::SystemTools::GetFilenamePath(this->FileName);
 
   this->Internals->MaxNbOfPartitions = 0;
   this->Internals->GridCount = 0;
@@ -1610,8 +1609,6 @@ bool vtkFDSReader::ParseCSVF(const std::vector<int>& baseNodes)
       vtkWarningMacro(<< "Line " << parser.LineNumber << " : unable to parse devc file path.");
       return false;
     }
-
-    std::string nodeName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
 
     // add FDS root to file name to get full path
     fileName = FDSRootDir + "/" + fileName;

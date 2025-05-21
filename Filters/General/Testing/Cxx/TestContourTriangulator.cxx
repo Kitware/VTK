@@ -34,9 +34,7 @@ int TestContourTriangulator(int argc, char* argv[])
   }
 
   std::string dataRoot = testHelper->GetDataRoot();
-  std::string tempDir = testHelper->GetTempDirectory();
   std::string inputFileName = dataRoot + "/Data/fullhead15.png";
-  std::string tempBaseline = tempDir + "/TestContourTriangulator.png";
 
   vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
   if (!reader->CanReadFile(inputFileName.c_str()))

@@ -497,7 +497,6 @@ void vtkERFReader::BuildMesh(const hid_t& fileId)
       continue;
     }
 
-    std::string coords = entityPath + "/" + ::NODE_GROUP;
     auto entityArrays = vtkHDF5Helper::GetChildren(entityHandle, entityPath);
 
     vtkNew<vtkUnstructuredGrid> mesh;

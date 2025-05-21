@@ -48,7 +48,6 @@ int TestVariant(int, char*[])
     cerr << "v = " << v << " (" << vtkImageScalarTypeNameMacro(type[i]) << ")\n";
     for (int j = 0; j < numTypes; j++)
     {
-      std::string str;
       switch (type[j])
       {
         case VTK_INT:
