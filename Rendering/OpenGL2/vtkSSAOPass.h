@@ -108,6 +108,7 @@ public:
    *  vtkTextureObject::Float32 and vtkTextureObject::Fixed32 are supported.
    */
   vtkSetMacro(DepthFormat, int);
+  vtkGetMacro(DepthFormat, int);
 
   ///@{
   /**

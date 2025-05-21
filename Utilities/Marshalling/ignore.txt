@@ -333,7 +333,6 @@ Common/DataModel/vtkImageIterator.h
 Common/DataModel/vtkImageTransform.h
 Common/DataModel/vtkImplicitBoolean.h
 Common/DataModel/vtkImplicitDataSet.h
-Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkImplicitFunctionCollection.h
 Common/DataModel/vtkImplicitHalo.h
 Common/DataModel/vtkImplicitSelectionLoop.h
@@ -413,7 +412,6 @@ Common/DataModel/vtkQuadraticWedge.h
 Common/DataModel/vtkQuadratureSchemeDefinition.h
 Common/DataModel/vtkQuadric.h
 Common/DataModel/vtkRect.h
-Common/DataModel/vtkRectilinearGrid.h
 Common/DataModel/vtkReebGraph.h
 Common/DataModel/vtkReebGraphSimplificationMetric.h
 Common/DataModel/vtkSelection.h
@@ -435,7 +433,6 @@ Common/DataModel/vtkStaticPointLocator2D.h
 Common/DataModel/vtkStructuredCellArray.h
 Common/DataModel/vtkStructuredData.h
 Common/DataModel/vtkStructuredExtent.h
-Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
 Common/DataModel/vtkTetra.h
@@ -448,7 +445,6 @@ Common/DataModel/vtkTriQuadraticPyramid.h
 Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
 Common/DataModel/vtkUndirectedGraph.h
-Common/DataModel/vtkUniformGrid.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
@@ -659,7 +655,6 @@ Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCIEDE2000.h
 Rendering/Core/vtkCameraActor.h
 Rendering/Core/vtkCameraInterpolator.h
-Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellGraphicsPrimitiveMap.h
 Rendering/Core/vtkCellGridMapper.h
 Rendering/Core/vtkCellGridRenderRequest.h
@@ -683,7 +678,6 @@ Rendering/Core/vtkInteractorEventRecorder.h
 Rendering/Core/vtkInteractorStyle3D.h
 Rendering/Core/vtkLODProp3D.h
 Rendering/Core/vtkLabeledDatatypeDefinitions.h
-Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightKit.h
 Rendering/Core/vtkLookupTableWithEnabling.h
 Rendering/Core/vtkMapArrayValues.h
@@ -721,7 +715,6 @@ Rendering/Core/vtkTransformInterpolator.h
 Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkUniforms.h
 Rendering/Core/vtkViewDependentErrorMetric.h
-Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h

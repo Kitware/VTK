@@ -21,13 +21,14 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVisibilitySort.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 
 class vtkCellCenterDepthSortStack;
 
-class VTKRENDERINGCORE_EXPORT vtkCellCenterDepthSort : public vtkVisibilitySort
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCellCenterDepthSort : public vtkVisibilitySort
 {
 public:
   vtkTypeMacro(vtkCellCenterDepthSort, vtkVisibilitySort);

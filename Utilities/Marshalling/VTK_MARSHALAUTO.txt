@@ -63,13 +63,17 @@ Common/DataModel/vtkDataObject.h
 Common/DataModel/vtkDataObjectTree.h
 Common/DataModel/vtkDataSet.h
 Common/DataModel/vtkImageData.h
+Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkMultiPieceDataSet.h
 Common/DataModel/vtkPlane.h
 Common/DataModel/vtkPlaneCollection.h
 Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h
+Common/DataModel/vtkRectilinearGrid.h
 Common/DataModel/vtkStructuredGrid.h
+Common/DataModel/vtkStructuredPoints.h
+Common/DataModel/vtkUniformGrid.h
 Common/DataModel/vtkUnstructuredGridBase.h
 Common/ExecutionModel/vtkAlgorithmOutput.h
 Common/ExecutionModel/vtkCompositeDataPipeline.h
@@ -248,6 +252,7 @@ Rendering/Core/vtkAreaPicker.h
 Rendering/Core/vtkAssemblyNode.h
 Rendering/Core/vtkAssemblyPath.h
 Rendering/Core/vtkCamera.h
+Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellPicker.h
 Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
@@ -269,6 +274,7 @@ Rendering/Core/vtkInteractorStyle.h
 Rendering/Core/vtkInteractorStyleSwitchBase.h
 Rendering/Core/vtkLabeledContourMapper.h
 Rendering/Core/vtkLight.h
+Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightCollection.h
 Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkMapper.h
@@ -297,6 +303,7 @@ Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTexturedActor2D.h
 Rendering/Core/vtkViewport.h
+Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkVolume.h
 Rendering/Core/vtkVolumeCollection.h
 Rendering/Core/vtkVolumeProperty.h

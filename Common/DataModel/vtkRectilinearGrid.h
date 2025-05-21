@@ -29,13 +29,14 @@
 #include "vtkDataSet.h"
 #include "vtkSmartPointer.h"   // For vtkSmartPointer
 #include "vtkStructuredData.h" // For inline methods
+#include "vtkWrappingHints.h"  // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkStructuredCellArray;
 class vtkPoints;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkRectilinearGrid : public vtkDataSet
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkRectilinearGrid : public vtkDataSet
 {
 public:
   static vtkRectilinearGrid* New();

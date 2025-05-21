@@ -17,6 +17,7 @@ OPTIONAL_DEPENDS
   VTK::CommonExecutionModel
   VTK::CommonTransforms
   VTK::CommonMath
+  VTK::CommonMisc
   VTK::InteractionStyle
   VTK::InteractionWidgets
   VTK::RenderingAnnotation

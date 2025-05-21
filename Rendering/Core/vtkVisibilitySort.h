@@ -28,6 +28,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
@@ -35,7 +36,7 @@ class vtkDataSet;
 class vtkMatrix4x4;
 class vtkCamera;
 
-class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);

@@ -19,9 +19,10 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONDATAMODEL_EXPORT vtkStructuredPoints : public vtkImageData
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkStructuredPoints : public vtkImageData
 {
 public:
   static vtkStructuredPoints* New();
