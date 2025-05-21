@@ -4,10 +4,10 @@ set(_vtk_testing_nodejs_exe "${NodeJS_INTERPRETER}")
 
 if (CMAKE_HOST_WIN32)
   list(APPEND _vtk_node_args
-    --import "file://$<TARGET_FILE:VTK::WebAssemblyInterface>")
+    --import "file://$<TARGET_FILE:VTK::WebAssembly>")
 else ()
   list(APPEND _vtk_node_args
-    --import "$<TARGET_FILE:VTK::WebAssemblyInterface>")
+    --import "$<TARGET_FILE:VTK::WebAssembly>")
 endif ()
 vtk_add_test_module_javascript_node(
   testBindRenderWindow.mjs

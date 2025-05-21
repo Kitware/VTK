@@ -24,20 +24,21 @@
  *
  * @note This class is part of the WebAssembly module internals and is not exported for general use.
  *
- * @sa vtkWasmSceneManager, vtkStandaloneSession
+ * @sa vtkStandaloneSession
  */
 
 #ifndef vtkRemoteSession_h
 #define vtkRemoteSession_h
 
-#include "vtkSession.h"           // for vtkSession
-#include "vtkWebAssemblyModule.h" // for no export macro
+#include "vtkType.h"                     // for vtkTypeUInt32
+#include "vtkWebAssemblySessionModule.h" // for no export macro
 
 #include <emscripten/val.h> // for emscripten::val
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKWEBASSEMBLY_NO_EXPORT vtkRemoteSession
+typedef struct vtkSessionImpl* vtkSession;
+class VTKWEBASSEMBLYSESSION_EXPORT vtkRemoteSession
 {
 public:
   /**
@@ -62,14 +63,14 @@ public:
    * @param object The handle of the VTK object whose state is to be unregistered.
    * @return True if the state was successfully unregistered, false otherwise.
    */
-  bool UnRegisterState(vtkObjectHandle object);
+  bool UnRegisterState(vtkTypeUInt32 object);
 
   /**
    * @brief Retrieves the state associated with a VTK object handle.
    * @param object The handle of the VTK object.
    * @return A JavaScript object representing the state.
    */
-  emscripten::val GetState(vtkObjectHandle object);
+  emscripten::val GetState(vtkTypeUInt32 object);
 
   /**
    * @brief Skips a property during serialization or deserialization.
@@ -114,15 +115,14 @@ public:
    * @param args A JavaScript object containing the method arguments.
    * @return A JavaScript object representing the result of the method invocation.
    */
-  emscripten::val Invoke(
-    vtkObjectHandle object, const std::string& methodName, emscripten::val args);
+  emscripten::val Invoke(vtkTypeUInt32 object, const std::string& methodName, emscripten::val args);
 
   /**
    * @brief Retrieves all dependencies of a VTK object.
    * @param object The handle of the VTK object.
    * @return A JavaScript array representing the dependencies.
    */
-  emscripten::val GetAllDependencies(vtkObjectHandle object);
+  emscripten::val GetAllDependencies(vtkTypeUInt32 object);
 
   /**
    * @brief Updates a VTK object from a given state.
@@ -134,7 +134,7 @@ public:
    * @brief Updates the state from a given VTK object.
    * @param object The handle of the VTK object.
    */
-  void UpdateStateFromObject(vtkObjectHandle object);
+  void UpdateStateFromObject(vtkTypeUInt32 object);
 
   /**
    * @brief Sets the size of a VTK object.
@@ -143,35 +143,35 @@ public:
    * @param height The desired height.
    * @return True if the size was successfully set, false otherwise.
    */
-  bool SetSize(vtkObjectHandle object, int width, int height);
+  bool SetSize(vtkTypeUInt32 object, int width, int height);
 
   /**
    * @brief Renders a VTK object.
    * @param object The handle of the VTK object.
    * @return True if the rendering was successful, false otherwise.
    */
-  bool Render(vtkObjectHandle object);
+  bool Render(vtkTypeUInt32 object);
 
   /**
    * @brief Resets the camera for a VTK object.
    * @param object The handle of the VTK object.
    * @return True if the camera was successfully reset, false otherwise.
    */
-  bool ResetCamera(vtkObjectHandle object);
+  bool ResetCamera(vtkTypeUInt32 object);
 
   /**
    * @brief Starts an event loop for a VTK object.
    * @param object The handle of the VTK object.
    * @return True if the event loop was successfully started, false otherwise.
    */
-  bool StartEventLoop(vtkObjectHandle object);
+  bool StartEventLoop(vtkTypeUInt32 object);
 
   /**
    * @brief Stops an event loop for a VTK object.
    * @param object The handle of the VTK object.
    * @return True if the event loop was successfully stopped, false otherwise.
    */
-  bool StopEventLoop(vtkObjectHandle object);
+  bool StopEventLoop(vtkTypeUInt32 object);
 
   /**
    * @brief Binds a render window to a VTK object.
@@ -179,7 +179,7 @@ public:
    * @param canvasSelector The CSS selector for the canvas element.
    * @return True if the render window was successfully bound, false otherwise.
    */
-  bool BindRenderWindow(vtkObjectHandle object, const std::string canvasSelector);
+  bool BindRenderWindow(vtkTypeUInt32 object, const std::string canvasSelector);
 
   /**
    * @brief Observes an event on a VTK object.
@@ -189,7 +189,7 @@ public:
    * @return A unique tag identifying the observer.
    */
   unsigned long Observe(
-    vtkObjectHandle object, const std::string& eventName, emscripten::val jsFunction);
+    vtkTypeUInt32 object, const std::string& eventName, emscripten::val jsFunction);
 
   /**
    * @brief Removes an observer from a VTK object.
@@ -197,7 +197,7 @@ public:
    * @param tag The unique tag identifying the observer.
    * @return True if the observer was successfully removed, false otherwise.
    */
-  bool UnObserve(vtkObjectHandle object, unsigned long tag);
+  bool UnObserve(vtkTypeUInt32 object, unsigned long tag);
 
   /**
    * @brief Exports states into `fileName.states.json` and blobs into
@@ -284,7 +284,6 @@ public:
    */
   void SetSerializerLogVerbosity(const std::string& verbosityLevel);
 
-private:
   vtkSession Session;
 };
 

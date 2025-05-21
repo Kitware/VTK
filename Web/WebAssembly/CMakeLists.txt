@@ -3,29 +3,11 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     "The VTK::WebAssembly module requires Emscripten compiler.")
 endif ()
 
-set(classes
-  vtkWasmSceneManager)
-set(private_classes
-  vtkStandaloneSession
-  vtkRemoteSession)
-vtk_module_add_module(VTK::WebAssembly
-  CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes})
+vtk_module_add_executable(VTK::WebAssembly
+  vtkWasmSceneManager.h
+  vtkWasmSceneManager.cxx
+  vtkWebAssemblyBindings.cxx)
 
-vtk_add_test_mangling(VTK::WebAssembly)
-
-set(_vtk_wasm_autoinit_mods)
-get_property(_vtk_wasm_optional_deps GLOBAL
-  PROPERTY "_vtk_module_VTK::WebAssembly_optional_depends")
-foreach(_module IN LISTS _vtk_wasm_private_deps _vtk_wasm_optional_deps)
-  if (NOT TARGET "${_module}")
-    continue ()
-  endif ()
-  list(APPEND _vtk_wasm_autoinit_mods "${_module}")
-endforeach()
-vtk_module_autoinit(
-  TARGETS WebAssembly
-  MODULES ${_vtk_wasm_autoinit_mods})
 # -----------------------------------------------------------------------------
 # Emscripten compile+link options
 # -----------------------------------------------------------------------------
@@ -33,7 +15,7 @@ set(emscripten_link_options)
 list(APPEND emscripten_link_options
   "-lembind"
   "--extern-post-js=${CMAKE_CURRENT_SOURCE_DIR}/post.js"
-  # "--embind-emit-tsd=vtkWebAssemblyInterface.ts"
+  # "--embind-emit-tsd=vtkWebAssembly.ts"
   #"--memoryprofiler"
   #"--cpuprofiler"
   "-sALLOW_MEMORY_GROWTH=1"
@@ -102,30 +84,31 @@ else ()
   message (FATAL_ERROR "Unrecognized value for vtk_wasm_debuginfo=${vtk_wasm_debuginfo}")
 endif ()
 
-vtk_module_add_executable(WebAssemblyInterface
-  BASENAME vtkWebAssemblyInterface
-  vtkWebAssemblyInterfaceEmBinding.cxx)
-add_executable("VTK::WebAssemblyInterface" ALIAS
-  WebAssemblyInterface)
-target_link_libraries(WebAssemblyInterface
-  PRIVATE
-    VTK::WebAssembly)
-target_compile_options(WebAssemblyInterface
+vtk_module_compile_options(VTK::WebAssembly
   PRIVATE
     ${emscripten_compile_options}
     ${emscripten_optimizations}
     ${emscripten_debug_options})
-target_link_options(WebAssemblyInterface
+vtk_module_link_options(VTK::WebAssembly
   PRIVATE
     ${emscripten_link_options}
     ${emscripten_optimizations}
     ${emscripten_debug_options})
-set_target_properties(WebAssemblyInterface
+vtk_add_test_mangling(VTK::WebAssembly)
+
+get_property(_vtk_webassembly_optional_deps GLOBAL
+  PROPERTY "_vtk_module_VTK::WebAssembly_optional_depends")
+if (_vtk_webassembly_optional_deps)
+  vtk_module_autoinit(
+    TARGETS WebAssembly
+    MODULES ${_vtk_webassembly_optional_deps})
+endif ()
+set_target_properties(WebAssembly
   PROPERTIES
-  OUTPUT_NAME "vtkWebAssemblyInterface"
-  SUFFIX ".mjs")
+    OUTPUT_NAME "vtkWebAssembly"
+    SUFFIX ".mjs")
 # [cmake/cmake#20745](https://gitlab.kitware.com/cmake/cmake/-/issues/20745)
 # CMake doesn't install multiple files associated with an executable target.
 install(FILES
-  "$<TARGET_FILE_DIR:WebAssemblyInterface>/vtkWebAssemblyInterface.wasm"
+  "$<TARGET_FILE_DIR:WebAssembly>/vtkWebAssembly.wasm"
   DESTINATION ${CMAKE_INSTALL_BINDIR})

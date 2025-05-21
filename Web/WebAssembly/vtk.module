@@ -6,10 +6,9 @@ SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-DEPENDS
-  VTK::SerializationManager
 PRIVATE_DEPENDS
-  VTK::RenderingCore
+  VTK::SerializationManager
+  VTK::WebAssemblySession
 OPTIONAL_DEPENDS
   VTK::RenderingContextOpenGL2
   VTK::RenderingOpenGL2

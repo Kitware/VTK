@@ -310,11 +310,15 @@ if (VTK_WRAP_SERIALIZATION)
   "via `VTK_WRAP_SERIALIZATION` AND `VTK_BUILD_TESTING`")
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     list(APPEND vtk_requested_modules
+      VTK::WebAssemblySession
       VTK::WebAssembly)
   else ()
     list(APPEND vtk_rejected_modules
+      VTK::WebAssemblySession
       VTK::WebAssembly)
   endif ()
+  set("_vtk_module_reason_VTK::WebAssemblySession"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
   set("_vtk_module_reason_VTK::WebAssembly"
   "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
 else ()

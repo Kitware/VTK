@@ -7,22 +7,11 @@
 #include <emscripten/val.h>
 
 #include "vtkABINamespace.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkObjectManager.h"
-#include "vtkType.h"
+#include "vtkSession.h"
 
-// Initialize object factories.
-#if VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
-#include "vtkRenderingContextOpenGL2Module.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-#include "vtkOpenGLPolyDataMapper.h" // needed to remove unused mapper, also includes vtkRenderingOpenGL2Module.h
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingUI
-#include "vtkRenderingUIModule.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
-#include "vtkRenderingVolumeOpenGL2Module.h"
-#endif
 VTK_ABI_NAMESPACE_BEGIN
 
 // Implement vtkSessionJsonImpl as a wrapper around emscripten::val
@@ -87,55 +76,17 @@ vtkSession NewVTKInterfaceForJavaScript()
   return vtkCreateSession(&descriptor);
 }
 
-/**
- * Retrieves the session manager associated with a given session.
- *
- * This function attempts to obtain the session manager for the specified
- * vtkSession. If the session manager exists and can be cast to a
- * vtkObjectManager, it is returned. Otherwise, the function returns nullptr.
- *
- * @param session The vtkSession for which the session manager is to be retrieved.
- * @return A pointer to the vtkObjectManager if successful, or nullptr if no
- *         valid session manager is found.
- */
-vtkObjectManager* GetSessionManager(vtkSession session)
+struct CopyJSArrayToVTKDataArray
 {
-  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(session)))
+  template <typename ArrayT>
+  void operator()(ArrayT* dataArray, const emscripten::val& jsArray)
   {
-    return manager;
+    const auto length = jsArray["length"].as<std::size_t>();
+    auto range = vtk::DataArrayValueRange(dataArray);
+    auto memoryView = emscripten::val{ typed_memory_view(length, range.data()) };
+    memoryView.call<void>("set", jsArray);
   }
-  else
-  {
-    return nullptr;
-  }
-}
-
-/**
- * Sets up WebAssembly-specific handlers for the given session.
- *
- * This function configures the session to use WebAssembly-specific handlers
- * for serialization and deserialization. It removes the default
- * vtkOpenGLPolyDataMapper handler, as it is not used in the WebAssembly build.
- *
- * @param session The vtkSession for which to set up WebAssembly handlers.
- */
-void SetupWASMHandlers(vtkSession session)
-{
-  if (auto* manager = GetSessionManager(session))
-  {
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-    // Remove the default vtkOpenGLPolyDataMapper as it is not used with wasm build.
-    /// get rid of serialization handler
-    manager->GetSerializer()->UnRegisterHandler(typeid(vtkOpenGLPolyDataMapper));
-    /// get rid of de-serialization handler
-    manager->GetDeserializer()->UnRegisterHandler(typeid(vtkOpenGLPolyDataMapper));
-    /// get rid of constructor
-    manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper");
-#else
-    (void)manager;
-#endif
-  }
-}
+};
 }
 VTK_ABI_NAMESPACE_END
 
