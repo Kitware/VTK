@@ -3,6 +3,8 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVoidArray);
 vtkStandardExtendedNewMacro(vtkVoidArray);
@@ -139,7 +141,7 @@ void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
     return nullptr;
   }
 
-  memcpy(newArray, this->Array, (sz < this->Size ? sz : this->Size) * sizeof(voidPtr));
+  std::copy_n(this->Array, (sz < this->Size ? sz : this->Size), newArray);
 
   if (newSize < this->Size)
   {
