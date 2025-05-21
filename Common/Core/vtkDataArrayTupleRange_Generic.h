@@ -118,8 +118,8 @@ public:
     // Initialize the reference.
     this->Array = std::move(o.Array);
     this->NumComps = std::move(o.NumComps);
-    this->TupleId = std::move(o.TupleId);
-    this->ComponentId = std::move(o.ComponentId);
+    this->TupleId = o.TupleId;
+    this->ComponentId = o.ComponentId;
   }
 
   VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
@@ -223,8 +223,8 @@ public:
     { // Initialize the reference.
       this->Array = std::move(o.Array);
       this->NumComps = std::move(o.NumComps);
-      this->TupleId = std::move(o.TupleId);
-      this->ComponentId = std::move(o.ComponentId);
+      this->TupleId = o.TupleId;
+      this->ComponentId = o.ComponentId;
 
       return *this;
     }
