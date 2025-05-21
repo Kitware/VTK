@@ -86,7 +86,7 @@ typedef uint32_t vtkObjectHandle;
 typedef int vtkSessionResult;
 
 // Forward declarations
-// Opaque type representing the session implementation. See vtk.cxx for
+// Opaque type representing the session implementation. See vtkSession.cxx for
 // details.
 typedef struct vtkSessionImpl* vtkSession;
 // Opaque type representing the JSON implementation. This must be
