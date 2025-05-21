@@ -353,6 +353,10 @@ int LSDynaFamily::BufferChunk(WordType wType, vtkIdType chunkSizeInWords)
     this->Chunk = new unsigned char[this->ChunkAlloc * this->WordSize];
   }
 
+  if (VTK_LSDYNA_ISBADFILE(this->FD))
+  {
+    return 0;
+  }
   this->FWord = VTK_LSDYNA_TELL(this->FD);
 
   // Eventually, we must check the return value and see if the read
@@ -745,7 +749,13 @@ void LSDynaFamily::OpenFileHandles()
   if (VTK_LSDYNA_ISBADFILE(this->FD) && this->FileHandlesClosed)
   {
     this->FD = VTK_LSDYNA_OPENFILE(this->Files[this->FNum].c_str());
-    VTK_LSDYNA_SEEK(this->FD, static_cast<vtkLSDynaOff_t>(this->FWord), SEEK_SET);
+    if (VTK_LSDYNA_ISBADFILE(this->FD))
+    {
+      this->FNum = -1;
+      this->FAdapt = -1;
+      return;
+    }
+    VTK_LSDYNA_SEEK(this->FD, this->FWord, SEEK_SET);
     this->FileHandlesClosed = false;
   }
 }
