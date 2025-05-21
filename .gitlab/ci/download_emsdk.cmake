@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
 # Input variables.
-set(emsdk_version "4.0.3")
+set(emsdk_version "4.0.9")
 set(emsdk_ext "zip")
-set(emsdk_hash "0a406a89b2b8cebcdca3ca9da16c27266b3761bf6e1f251140b73758f690aef6")
+set(emsdk_hash "30263c749b98503118e090a0019db0a6180f680bb5d717ae3db40d3ed1614e0e")
 set(emsdk_suffix "${emsdk_version}.${emsdk_ext}")
 
 set(emsdk_url "https://github.com/emscripten-core/emsdk/archive/refs/tags")
