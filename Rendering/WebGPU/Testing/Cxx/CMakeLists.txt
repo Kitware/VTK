@@ -145,10 +145,10 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
 vtk_test_cxx_executable(vtkRenderingWebGPUCxxTests tests)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  # Enable asyncify for webgpu async API
+  # Enable JSPI for webgpu async API
   target_link_options(vtkRenderingWebGPUCxxTests
     PRIVATE
-      "-sASYNCIFY=1"
-      #~297 nesting levels
-      "-sASYNCIFY_STACK_SIZE=81920")
+      "-Wno-experimental"
+      "-sJSPI=1"
+      "-sJSPI_EXPORTS=['__wasm_call_ctors']")
 endif ()

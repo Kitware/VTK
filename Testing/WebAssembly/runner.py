@@ -189,6 +189,7 @@ class vtkWebAssemblyTestRunner:
                     "--incognito",
                     "--no-default-browser-check",
                     "--no-first-run",
+                    "--enable-features=WebAssemblyExperimentalJSPI"
                 ]
                 # on linux, chrome needs more flags to unblock webgpu
                 if sys.platform == "linux":

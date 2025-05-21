@@ -609,8 +609,32 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
   if (!internals.StartedMessageLoop)
   {
     internals.StartedMessageLoop = true;
-    emscripten_set_main_loop_arg(
-      &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
+    if (emscripten_has_asyncify())
+    {
+      // clang-format off
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
+      EM_ASM(
+        {
+          var callback = WebAssembly.promising(getWasmTableEntry($0));
+          async function tick()
+          {
+            // Start the frame callback. 'await' means we won't call
+            // requestAnimationFrame again until it completes.
+            await callback($1);
+            requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        },
+        &spinOnce, (void*)this);
+#pragma clang diagnostic pop
+      // clang-format on
+    }
+    else
+    {
+      emscripten_set_main_loop_arg(
+        &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
+    }
   }
 }
 

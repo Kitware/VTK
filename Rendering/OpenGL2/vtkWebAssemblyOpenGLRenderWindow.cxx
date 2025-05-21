@@ -148,20 +148,6 @@ void vtkWebAssemblyOpenGLRenderWindow::SetSize(int width, int height)
 }
 
 //------------------------------------------------------------------------------
-void vtkWebAssemblyOpenGLRenderWindow::Frame()
-{
-  this->Superclass::Frame();
-  if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
-  {
-    if (emscripten_has_asyncify())
-    {
-      // give back control to browser for screen refresh */
-      emscripten_sleep(0);
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
 int vtkWebAssemblyOpenGLRenderWindow::GetColorBufferSizes(int* rgba)
 {
   if (rgba == nullptr)

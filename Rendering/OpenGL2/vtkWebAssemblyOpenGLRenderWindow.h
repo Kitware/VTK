@@ -95,12 +95,6 @@ public:
    */
   void Clean();
 
-  /**
-   * A termination method performed at the end of the rendering process
-   * to do things like swapping buffers (if necessary) or similar actions.
-   */
-  void Frame() override;
-
   ///@{
   /**
    * Ability to push and pop this window's context
