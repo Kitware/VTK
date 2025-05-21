@@ -5931,6 +5931,7 @@ bool vtkFoamBoundaries::update(const vtkFoamDict& dict)
         if (subentry && subentry->GetType() == vtkFoamToken::STRINGLIST)
         {
           // Yes this is really needed, VTK constness is a bit odd
+          // NOLINTNEXTLINE(readability-redundant-casting)
           vtkStringArray& groupNames = const_cast<vtkStringArray&>(subentry->StringList());
           const vtkIdType nGroups = groupNames.GetNumberOfValues();
 

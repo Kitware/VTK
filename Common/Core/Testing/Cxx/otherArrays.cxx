@@ -572,10 +572,10 @@ int otherArraysTest(ostream& strm)
     strm << "Test IntArray" << endl;
     vtkIntArray* ptr = vtkIntArray::New();
     int* array = new int[SIZE];
-    int value = static_cast<int>(1);
+    int value = 1;
     for (int i = 0; i < SIZE; i++)
     {
-      *(array + i) = static_cast<int>(i);
+      array[i] = i;
     }
     errors += doArrayTest(strm, ptr, array, value, SIZE);
     ptr->Delete();

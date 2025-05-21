@@ -134,7 +134,7 @@ int TestReadDuplicateDataArrayNames(int argc, char* argv[])
       vtkUnstructuredGrid* ugrid = reader->GetOutput();
       double d = ugrid->GetPointData()->GetScalars()->GetTuple1(0);
 
-      if (std::abs(static_cast<double>((d - static_cast<double>(i)))) > VTK_EPSILON)
+      if (std::abs((d - static_cast<double>(i))) > VTK_EPSILON)
       {
         std::cerr << "Different timesteps were not correctly read." << std::endl;
         return EXIT_FAILURE;
@@ -157,7 +157,7 @@ int TestReadDuplicateDataArrayNames(int argc, char* argv[])
       double d = ugrid->GetPointData()->GetScalars("test123")->GetTuple1(i);
       std::cout << d << std::endl;
 
-      if (std::abs(static_cast<double>((d - static_cast<double>(i)))) > VTK_EPSILON)
+      if (std::abs((d - static_cast<double>(i))) > VTK_EPSILON)
       {
         std::cerr << "The first array with degenerate naming was not correctly read." << std::endl;
         return EXIT_FAILURE;

@@ -104,8 +104,7 @@ int TestAMRFlashReader(int argc, char* argv[])
     amr->Audit();
     if (amr != nullptr)
     {
-      rc += FlashReaderTest::CheckValue(
-        "OUTPUT LEVELS", static_cast<int>(ComputeMaxNonEmptyLevel(amr)), 2);
+      rc += FlashReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), 2);
       rc += FlashReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
         static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);
       int nc = 0, nvc = 0;

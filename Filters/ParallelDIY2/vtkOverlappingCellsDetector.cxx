@@ -413,7 +413,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       else
       {
         double boundstmp[6];
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        for (int i = 0; i < srp.in_link().size(); ++i)
         {
           if (i != myBlockId)
           {
@@ -502,7 +502,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       int localId = master.lid(myBlockId);
       auto& candidates = overlappingCellCandidatesDataSetsArray[localId];
       // enqueue
-      for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
+      for (int i = 0; i < cp.link()->size(); ++i)
       {
         vtkdiy2::BlockID& targetBlockId = cp.link()->target(i);
         cp.enqueue<vtkDataSet*>(targetBlockId, candidates.at(targetBlockId.gid));
@@ -607,7 +607,7 @@ int vtkOverlappingCellsDetector::ExposeOverlappingCellsAmongBlocks(
       int localId = master.lid(myBlockId);
       auto& collisionListMapList = collisionListMapListArray[localId];
       // enqueue
-      for (int i = 0; i < static_cast<int>(cp.link()->size()); ++i)
+      for (int i = 0; i < cp.link()->size(); ++i)
       {
         vtkdiy2::BlockID& targetBlockId = cp.link()->target(i);
         cp.enqueue(targetBlockId, collisionListMapList[targetBlockId.gid]);

@@ -167,8 +167,8 @@ int vtkVoxelModeller::RequestData(vtkInformation* vtkNotUsed(request),
     // compute dimensional bounds in data set
     for (i = 0; i < 3; i++)
     {
-      min[i] = static_cast<int>(static_cast<double>(adjBounds[2 * i] - origin[i]) / spacing[i]);
-      max[i] = static_cast<int>(static_cast<double>(adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
+      min[i] = static_cast<int>((adjBounds[2 * i] - origin[i]) / spacing[i]);
+      max[i] = static_cast<int>((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
       if (min[i] < 0)
       {
         min[i] = 0;

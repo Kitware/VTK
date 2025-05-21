@@ -281,7 +281,7 @@ extern "C"
       self->ImageViewer = nullptr;
       ckfree(self->IV);
     }
-    ckfree((char*)memPtr);
+    ckfree(memPtr);
   }
 }
 

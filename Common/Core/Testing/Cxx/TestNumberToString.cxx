@@ -37,7 +37,7 @@ int TestNumberToString(int, char*[])
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("int", static_cast<int>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue("int", 0) == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }
@@ -45,7 +45,7 @@ int TestNumberToString(int, char*[])
   {
     status = EXIT_FAILURE;
   }
-  if (ConvertNumericLimitsValue("long", static_cast<int>(0)) == EXIT_FAILURE)
+  if (ConvertNumericLimitsValue("long", static_cast<long>(0)) == EXIT_FAILURE)
   {
     status = EXIT_FAILURE;
   }

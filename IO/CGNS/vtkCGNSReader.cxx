@@ -1284,7 +1284,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     {
       if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd, fieldSrcStride,
             fieldDataType, cellDim, fieldMemDims, fieldMemStart, fieldMemEnd, fieldMemStride,
-            (void*)vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
+            vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
       {
         char message[81];
         cgio_error_message(message);
@@ -1295,8 +1295,7 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     {
       if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd, fieldSrcStride,
             fieldDataType, cellDim, fieldVectMemDims, fieldVectMemStart, fieldVectMemEnd,
-            fieldVectMemStride,
-            (void*)vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
+            fieldVectMemStride, vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
       {
         char message[81];
         cgio_error_message(message);
@@ -1568,7 +1567,7 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
             if (!cgnsVars[ff].isComponent)
             {
               if (cgio_read_all_data_type(self->cgioNum, cgioVarId, fieldDataType,
-                    (void*)vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
+                    vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
               {
                 char message[81];
                 cgio_error_message(message);
@@ -1598,7 +1597,7 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
               cgsize_t fieldVectMemEnd[3] = { 1, 1, 1 };
               cgsize_t fieldVectMemDims[3] = { 1, 1, 1 };
 
-              fieldSrcEnd[0] = static_cast<cgsize_t>(dataSize);
+              fieldSrcEnd[0] = dataSize;
               fieldVectMemStride[0] = static_cast<cgsize_t>(physicalDim);
               fieldVectMemDims[0] = fieldSrcEnd[0] * fieldVectMemStride[0];
               fieldVectMemEnd[0] = fieldSrcEnd[0] * fieldVectMemStride[0];
@@ -1606,7 +1605,7 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
               if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd,
                     fieldSrcStride, fieldDataType, 1, fieldVectMemDims, fieldVectMemStart,
                     fieldVectMemEnd, fieldVectMemStride,
-                    (void*)vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
+                    vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
               {
                 char message[81];
                 cgio_error_message(message);
@@ -5169,7 +5168,7 @@ int vtkCGNSReader::GetNumberOfPointArrays()
 //----------------------------------------------------------------------------
 const char* vtkCGNSReader::GetPointArrayName(int index)
 {
-  if (index >= (int)this->GetNumberOfPointArrays() || index < 0)
+  if (index >= this->GetNumberOfPointArrays() || index < 0)
   {
     return nullptr;
   }
@@ -5219,7 +5218,7 @@ int vtkCGNSReader::GetNumberOfCellArrays()
 //----------------------------------------------------------------------------
 const char* vtkCGNSReader::GetCellArrayName(int index)
 {
-  if (index >= (int)this->GetNumberOfCellArrays() || index < 0)
+  if (index >= this->GetNumberOfCellArrays() || index < 0)
   {
     return nullptr;
   }
@@ -5269,7 +5268,7 @@ int vtkCGNSReader::GetNumberOfFaceArrays()
 //----------------------------------------------------------------------------
 const char* vtkCGNSReader::GetFaceArrayName(int index)
 {
-  if (index >= (int)this->GetNumberOfFaceArrays() || index < 0)
+  if (index >= this->GetNumberOfFaceArrays() || index < 0)
   {
     return nullptr;
   }

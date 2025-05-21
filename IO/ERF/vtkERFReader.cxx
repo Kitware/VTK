@@ -803,7 +803,7 @@ void vtkERFReader::Fill0DCellType(vtkCellArray* cellArray, vtkUnsignedCharArray*
 
   for (int i = 0; i < numberOfCell; i++)
   {
-    vtkIdType pointId1 = static_cast<vtkIdType>(entid->LookupValue(resData[i]));
+    vtkIdType pointId1 = entid->LookupValue(resData[i]);
 
     cellArray->InsertNextCell(1, &pointId1);
     cellTypes->InsertNextValue(VTK_VERTEX);

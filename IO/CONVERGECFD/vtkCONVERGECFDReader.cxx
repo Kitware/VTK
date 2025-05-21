@@ -830,7 +830,7 @@ int vtkCONVERGECFDReader::RequestData(
     for (int i = 0; i < static_cast<int>(boundaryIds.size()); ++i)
     {
       // If boundary index 0 has boundary id == 1, index 1 of boundaryIdToIndex will be 0.
-      boundaryIdToIndex[boundaryIds[i]] = static_cast<int>(i);
+      boundaryIdToIndex[boundaryIds[i]] = i;
 
       vtkNew<vtkPolyData> boundarySurface;
       outputPDC->SetPartition(streamSurfaceStartId + i, 0, boundarySurface);

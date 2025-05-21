@@ -604,7 +604,7 @@ void vtkNek5000Reader::readData(char* dfName)
           for (auto j = 0; j < this->myNumBlocks; j++)
           {
             read_location =
-              total_header_size + var_offset + long(this->myBlockPositions[j] * l_blocksize);
+              total_header_size + var_offset + (this->myBlockPositions[j] * l_blocksize);
             dfPtr.seekg(read_location, std::ios_base::beg);
             if (!dfPtr)
               std::cerr << __LINE__ << "block=" << j
@@ -636,7 +636,7 @@ void vtkNek5000Reader::readData(char* dfName)
           for (auto j = 0; j < this->myNumBlocks; j++)
           {
             read_location =
-              total_header_size + var_offset + long(this->myBlockPositions[j] * l_blocksize);
+              total_header_size + var_offset + (this->myBlockPositions[j] * l_blocksize);
             dfPtr.seekg(read_location, std::ios_base::beg);
             if (!dfPtr)
               std::cerr << __LINE__ << ": seekg error at read_location = " << read_location

@@ -41,7 +41,7 @@ struct ComputeOccupancy
     , OccupiedValue(occupied)
     , Occupancy(occ)
   {
-    std::fill_n(this->Occupancy, dims[0] * dims[1] * dims[2], static_cast<unsigned char>(empty));
+    std::fill_n(this->Occupancy, dims[0] * dims[1] * dims[2], empty);
     for (int i = 0; i < 3; ++i)
     {
       this->hX = spacing[0];

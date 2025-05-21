@@ -340,8 +340,8 @@ int vtkGaussianSplatter::RequestData(vtkInformation* vtkNotUsed(request),
       // Determine splat footprint
       for (i = 0; i < 3; i++)
       {
-        min[i] = static_cast<int>(floor(static_cast<double>(loc[i]) - this->SplatDistance[i]));
-        max[i] = static_cast<int>(ceil(static_cast<double>(loc[i]) + this->SplatDistance[i]));
+        min[i] = static_cast<int>(floor(loc[i] - this->SplatDistance[i]));
+        max[i] = static_cast<int>(ceil(loc[i] + this->SplatDistance[i]));
         if (min[i] < 0)
         {
           min[i] = 0;

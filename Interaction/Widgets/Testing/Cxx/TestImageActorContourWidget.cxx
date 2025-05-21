@@ -855,7 +855,7 @@ int TestImageActorContourWidget(int argc, char* argv[])
   int max = imageViewer->GetSliceMax();
   SliderRepres->SetMinimumValue(min);
   SliderRepres->SetMaximumValue(max);
-  SliderRepres->SetValue(static_cast<int>((min + max) / 2));
+  SliderRepres->SetValue((min + max) / 2);
   SliderRepres->SetTitleText("Slice");
   SliderRepres->GetPoint1Coordinate()->SetCoordinateSystemToNormalizedDisplay();
   SliderRepres->GetPoint1Coordinate()->SetValue(0.3, 0.05);

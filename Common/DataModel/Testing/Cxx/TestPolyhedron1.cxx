@@ -113,7 +113,7 @@ int TestPolyhedron1(int argc, char* argv[])
   cellDataArray->Initialize();
   for (int i = 0; i < 12; i++)
   {
-    cellDataArray->InsertNextValue(static_cast<double>(1.0));
+    cellDataArray->InsertNextValue(1.0);
   }
 
   vtkSmartPointer<vtkUnstructuredGrid> ugrid = vtkSmartPointer<vtkUnstructuredGrid>::New();

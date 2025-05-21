@@ -149,8 +149,8 @@ void vtkImageFFTExecute(vtkImageFFT* self, vtkImageData* inData, int inExt[6], T
       pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
       {
-        *outPtr0 = static_cast<double>(pComplex->Real);
-        outPtr0[1] = static_cast<double>(pComplex->Imag);
+        *outPtr0 = pComplex->Real;
+        outPtr0[1] = pComplex->Imag;
         outPtr0 += outInc0;
         ++pComplex;
       }

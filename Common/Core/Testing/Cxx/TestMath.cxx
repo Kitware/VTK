@@ -712,7 +712,7 @@ int TestMath(int, char*[])
   double p2[3] = { 2.0, 2.0, 2.0 };
   double result[3] = { 0.0 };
 
-  auto roundTo3 = [](double value) { return (double)(round(value * 1000)) / 1000; };
+  auto roundTo3 = [](double value) { return (round(value * 1000)) / 1000; };
 
   double expectedForward[3] = { 3.0, 3.0, 3.0 };
   vtkMath::GetPointAlongLine(result, p1, p2, sqrt(3.0));

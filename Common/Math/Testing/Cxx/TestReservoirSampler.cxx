@@ -123,7 +123,7 @@ int TestReservoirSamplerExceptions()
   try
   {
     vtkReservoirSampler<int> good;
-    good(0, static_cast<int>(0));
+    good(0, 0);
   }
   catch (std::invalid_argument& e)
   {

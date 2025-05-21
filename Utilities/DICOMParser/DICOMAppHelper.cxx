@@ -355,7 +355,7 @@ void DICOMAppHelper::ArrayCallback(DICOMParser* parser, doublebyte group, double
     desc = (*iter).second.description;
   }
 
-  int t2 = int((0x0000FF00 & datatype) >> 8);
+  int t2 = (0x0000FF00 & datatype) >> 8;
   int t1 = int((0x000000FF & datatype));
 
   char ct2 = static_cast<char>(t2);
@@ -417,7 +417,7 @@ void DICOMAppHelper::ArrayCallback(DICOMParser* parser, doublebyte group, double
         *this->HeaderFile << fval;
         break;
       case DICOMParser::VR_FD: // float double
-        dval = static_cast<double>(atof(reinterpret_cast<char*>(val)));
+        dval = atof(reinterpret_cast<char*>(val));
         *this->HeaderFile << dval;
         break;
       case DICOMParser::VR_UL: // unsigned long

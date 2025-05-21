@@ -529,8 +529,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     }
     else
     {
-      numPts = static_cast<vtkDataSet*>(
-        this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts))
+      numPts = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts)
                  ->GetNumberOfPoints();
     }
     numLines = numPts / 6;
@@ -579,7 +578,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
       for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
       {
         partId = this->UnstructuredPartIds->GetId(i);
-        output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, partId));
+        output = this->GetDataSetFromBlock(compositeOutput, partId);
         if (output)
         {
           if (component == 0)
@@ -599,8 +598,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     }
     else
     {
-      output = static_cast<vtkDataSet*>(
-        this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
+      output = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts);
       if (output)
       {
         output->GetPointData()->AddArray(scalars);
@@ -625,7 +623,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName, const char* desc
     partId--; // EnSight starts #ing at 1.
     int realId = this->InsertNewPartId(partId);
 
-    output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, realId));
+    output = this->GetDataSetFromBlock(compositeOutput, realId);
     if (output == nullptr)
     {
       vtkErrorMacro("Could not get output for part " << partId);
@@ -771,8 +769,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     }
     else
     {
-      numPts = static_cast<vtkDataSet*>(
-        this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts))
+      numPts = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts)
                  ->GetNumberOfPoints();
     }
     numLines = numPts / 2;
@@ -808,7 +805,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
       for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
       {
         partId = this->UnstructuredPartIds->GetId(i);
-        output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, partId));
+        output = this->GetDataSetFromBlock(compositeOutput, partId);
         if (output)
         {
           output->GetPointData()->AddArray(vectors);
@@ -821,8 +818,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     }
     else
     {
-      output = static_cast<vtkDataSet*>(
-        this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
+      output = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts);
       output->GetPointData()->AddArray(vectors);
       if (!output->GetPointData()->GetVectors())
       {
@@ -840,7 +836,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName, const char* desc
     partId--;
     int realId = this->InsertNewPartId(partId);
 
-    output = static_cast<vtkDataSet*>(this->GetDataSetFromBlock(compositeOutput, realId));
+    output = this->GetDataSetFromBlock(compositeOutput, realId);
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreVectors = numPts % 6;

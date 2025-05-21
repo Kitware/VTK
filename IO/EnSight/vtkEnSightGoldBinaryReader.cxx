@@ -1523,8 +1523,7 @@ bool vtkEnSightGoldBinaryReader::ReadMeasureVariableArray(
   char line[80];
   this->ReadLine(line); // skip the description line
 
-  auto output = static_cast<vtkDataSet*>(
-    this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts));
+  auto output = this->GetDataSetFromBlock(compositeOutput, this->NumberOfGeometryParts);
   const auto numPts = output->GetNumberOfPoints();
   if (numPts)
   {

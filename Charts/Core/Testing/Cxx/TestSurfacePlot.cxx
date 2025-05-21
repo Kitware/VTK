@@ -35,7 +35,7 @@ int TestSurfacePlot(int, char*[])
     vtkNew<vtkFloatArray> arr;
     table->AddColumn(arr);
   }
-  table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
+  table->SetNumberOfRows(numPoints);
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     float x = i * inc;

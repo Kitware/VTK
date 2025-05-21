@@ -92,8 +92,7 @@ int TestEnzoReader(int argc, char* argv[])
     amr->Audit();
     if (amr != nullptr)
     {
-      rc += EnzoReaderTest::CheckValue(
-        "OUTPUT LEVELS", static_cast<int>(ComputeMaxNonEmptyLevel(amr)), level + 1);
+      rc += EnzoReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), level + 1);
       rc += EnzoReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
         static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);
       rc += EnzoReaderTest::CheckValue(
