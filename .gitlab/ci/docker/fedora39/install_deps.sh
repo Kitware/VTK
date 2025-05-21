@@ -85,6 +85,6 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Emscripten SDK dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    xz
+    xz libatomic
 
 dnf clean all
