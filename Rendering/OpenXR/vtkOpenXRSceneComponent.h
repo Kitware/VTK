@@ -105,7 +105,7 @@ private:
 
   int64_t LastModifiedTime{ 0 };
   ComponentTypes Type{ Unknown };
-  std::unique_ptr<vtkInternals> Impl{};
+  std::unique_ptr<vtkInternals> Impl;
 };
 
 VTK_ABI_NAMESPACE_END

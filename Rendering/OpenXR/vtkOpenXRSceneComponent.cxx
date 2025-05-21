@@ -16,14 +16,14 @@ struct MarkerInfo
 {
   double Width{ 0.0 };
   double Height{ 0.0 };
-  std::string Text{};
+  std::string Text;
 };
 
 }
 
 struct vtkOpenXRSceneComponent::vtkInternals
 {
-  vtkSmartPointer<vtkObject> Representation{};
+  vtkSmartPointer<vtkObject> Representation;
   MarkerInfo Marker{}; // additional info if Type is Marker
 };
 
