@@ -23,6 +23,7 @@
 #include "vtkQuad.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
+#include "vtkVector.h"
 
 #include <limits> // For DBL_MAX
 #include <vector>
@@ -30,7 +31,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolygon);
 
-constexpr double VTK_POLYGON_TOL = 1.e-08; // Absolute tolerance for testing near polygon boundary
+constexpr double VTK_POLYGON_TOL = 1.e-08; // Absolute tolerance for testing near polygon boundary.
+constexpr double VTK_DEFAULT_PLANARITY_TOLERANCE = 0.1; // dZ / max(dX, dY). See ComputeCentroid.
 
 //------------------------------------------------------------------------------
 // Instantiate polygon.
@@ -2233,71 +2235,92 @@ void vtkPolygon::PrintSelf(ostream& os, vtkIndent indent)
 // Compute the polygon centroid from a points list, the number of points, and an
 // array of point ids that index into the points list. Returns false if the
 // computation is invalid.
-bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* ids, double c[3])
+bool vtkPolygon::ComputeCentroid(
+  vtkPoints* p, int numPts, const vtkIdType* ids, double c[3], double tolerance)
 {
-  // Strategy:
-  // - Compute centroid of projected polygon on (x,y) if polygon is projectible, (x,z) otherwise
-  // - Accumulate signed projected area as well, which is needed in the centroid's formula
-  // - Infer 3rd dimension using polygon's normal.
-  vtkIdType i;
-  double p0[6];
-  double normal[3] = { 0.0 };
   if (numPts < 2)
   {
     return false;
   }
-  // Handle to the doubled area of the projected polygon on (x,y) or (x,z) if the polygon
-  // projected on (x,y) is degenerate.
-  double a = 0.0;
-  p->GetPoint(ids[0], p0);
 
-  vtkPolygon::ComputeNormal(p, numPts, ids, normal);
-  vtkIdType xOffset = 0, yOffset = 0;
-  // Checking if the polygon is colinear with z axis.
-  // If it is, the centroid computation axis shall be shifted
-  // because the projected polygon on (x,y) is degenerate.
-
+  vtkVector3d normal;
+  vtkPolygon::ComputeNormal(p, numPts, ids, normal.GetData());
+  if (normal.Normalize() <= 0.0)
   {
-    constexpr double z[3] = { 0.0, 0.0, 1.0 };
-    vtkMath::Cross(normal, z, c);
-    // If the normal is orthogonal with z axis, the projected polygon is then a line...
-    if (std::fabs(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] - 1.0) <= VTK_DBL_EPSILON)
-    {
-      yOffset = 1;
-      constexpr double y[3] = { 0.0, 1.0, 0.0 };
-      vtkMath::Cross(normal, y, c);
-      // If the normal is orthogonal with y axis, the projected polygon is then a line...
-      if (std::fabs(c[0] * c[0] + c[1] * c[1] + c[2] * c[2] - 1.0) <= VTK_DBL_EPSILON)
-      {
-        xOffset = 1;
-      }
-    }
-  }
-
-  c[0] = c[1] = c[2] = 0.0;
-
-  double maxabsdet = 0;
-  for (i = 0; i < numPts; i++)
-  {
-    p->GetPoint(ids[(i + 1) % numPts], p0 + 3 * !(i % 2));
-    double det = (p0[3 * (i % 2) + xOffset] * p0[3 * !(i % 2) + 1 + yOffset] -
-      p0[3 * !(i % 2) + xOffset] * p0[3 * (i % 2) + 1 + yOffset]);
-    c[xOffset] += (p0[xOffset] + p0[3 + xOffset]) * det;
-    c[1 + yOffset] += (p0[1 + yOffset] + p0[4 + yOffset]) * det;
-    a += det;
-    maxabsdet = std::abs(det) > maxabsdet ? std::abs(det) : maxabsdet;
-  }
-  if (std::abs(a) < VTK_DBL_EPSILON * maxabsdet)
-  {
-    // Polygon is degenerate
     return false;
   }
-  c[xOffset] /= 3.0 * a;
-  c[1 + yOffset] /= 3.0 * a;
-  c[2 - xOffset - yOffset] = 1.0 / normal[2 - xOffset - yOffset] *
-    (-normal[xOffset] * c[xOffset] - normal[1 + yOffset] * c[1 + yOffset] +
-      vtkMath::Dot(normal, p0));
+
+  // Set xx to be the average coordinate. This is not necessarily the centroid
+  // but will generally produce accurate triangle areas used to compute the centroid.
+  vtkVector3d xx(0, 0, 0);
+  vtkVector3d pp;
+  vtkVector3d qq;
+  double wt = 1. / numPts;
+  for (int ii = 0; ii < numPts; ++ii)
+  {
+    p->GetPoint(ids[ii], pp.GetData());
+    xx += wt * pp;
+  }
+  // Note that pp now contains the final point in the polygon.
+  // If we start again with the first point, we can track pairs
+  // of points along edges.
+
+  // Now compute the centroid of each triangle formed by xx and
+  // the endpoints of one edge in the polygon. Weight the
+  // centroid by the triangle's signed area (negative if the polygon
+  // winds clockwise) and sum them together.
+  //
+  // This is equivalent to computing (Integral(x_i dA) / Integral(dA))
+  // for each coordinate (x_0, x_1, x_2) using the "geometric decomposition"
+  // method.
+  double totalArea = 0.;
+  double area;
+  vtkVector3d accum(0, 0, 0);
+  vtkVector3d ctr;
+  double outOfPlane = 0;
+  double inPlane2 = 0;
+  for (int ii = 0; ii < numPts; ++ii, pp = qq)
+  {
+    p->GetPoint(ids[ii], qq.GetData());
+    // The centroid of xx-pp-qq is 2/3 of the way from xx to the midpoint of qq-pp
+    auto pq = (pp + qq) * 0.5;
+    ctr = (1. / 3. * xx) + (2. / 3. * pq);
+    auto dqx = qq - xx;
+    area = ((pp - xx).Cross(dqx)).Dot(normal) / 2;
+    accum += area * ctr;
+    totalArea += area;
+    // Compute the in-plane and out-of-plane distance from xx to qq.
+    // Note that because xx is the average coordinate, oop and
+    // ip2 will both be half-distances; their ratio will be correct
+    // for comparison to tolerance.
+    double oop = std::abs(dqx.Dot(normal)); // out-of-plane distance
+    if (oop > outOfPlane)
+    {
+      outOfPlane = oop;
+    }
+    double ip2 = (dqx - oop * normal).SquaredNorm();
+    if (ip2 > inPlane2)
+    {
+      inPlane2 = ip2;
+    }
+  }
+  // Fail if the polygon is too far from planarity and the tolerance is "active":
+  if (tolerance > 0. && outOfPlane / std::sqrt(inPlane2) > tolerance)
+  {
+    return false;
+  }
+  // Divide the accumulated product of weighted centroids by the total area
+  // of all the triangles. This produces the final centroid.
+  accum = (1. / totalArea) * accum;
+  c[0] = accum[0];
+  c[1] = accum[1];
+  c[2] = accum[2];
   return true;
+}
+
+bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3])
+{
+  return vtkPolygon::ComputeCentroid(p, numPts, pts, centroid, VTK_DEFAULT_PLANARITY_TOLERANCE);
 }
 
 //------------------------------------------------------------------------------
@@ -2305,7 +2328,8 @@ bool vtkPolygon::ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* ids,
 // that index into the points list. Returns false if the computation is invalid.
 bool vtkPolygon::ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* p, double c[3])
 {
-  return vtkPolygon::ComputeCentroid(p, ids->GetNumberOfTuples(), ids->GetPointer(0), c);
+  return vtkPolygon::ComputeCentroid(
+    p, ids->GetNumberOfTuples(), ids->GetPointer(0), c, VTK_DEFAULT_PLANARITY_TOLERANCE);
 }
 
 //------------------------------------------------------------------------------
