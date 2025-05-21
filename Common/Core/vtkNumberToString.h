@@ -152,7 +152,7 @@ public:
   };
 
   template <typename T>
-  const T& operator()(const T& val) const
+  T operator()(const T& val) const
   {
     return val;
   }
