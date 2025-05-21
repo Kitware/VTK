@@ -768,6 +768,8 @@ if (VTK_BUILD_TESTING)
       "--profiling-funcs"
       # we need emscripten to emit code that handles exit code and atexit(s)
       "-sEXIT_RUNTIME=1"
+      # For setting environment variables
+      "-sEXPORTED_RUNTIME_METHODS=['ENV']"
       # tests dynamically allocate memory, can easily go over the preset limit.
       "-sALLOW_MEMORY_GROWTH=1")
     install(TARGETS vtkWebAssemblyTestLinkOptions EXPORT "${vtk_install_export}")

@@ -169,6 +169,9 @@
       preRun: (runtime) => {
         // cache the VTK wasm runtime instance.
         vtkWasmRuntime = runtime;
+        {% if use_webgpu %}
+        vtkWasmRuntime.ENV.VTK_GRAPHICS_BACKEND = "WEBGPU";
+        {% endif %}
       },
       onRuntimeInitialized: () => {
         if (vtkWasmRuntime !== null) {
