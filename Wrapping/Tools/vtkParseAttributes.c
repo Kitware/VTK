@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* Each attribute has an associated enum constant */
 typedef enum parse_attribute_t_
 {
@@ -563,3 +565,5 @@ const char* vtkParse_GetAttributeError(void)
 {
   return attributeErrorText;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

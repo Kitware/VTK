@@ -20,6 +20,8 @@
 
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* The "attrib" is the attribute to set in the module, if null then
    val->Name is used as the attribute name.
@@ -278,3 +280,5 @@ void vtkWrapJavaScript_AddConstant(FILE* fp, const char* indent, ValueInfo* val)
 {
   vtkWrapJavaScript_AddConstantHelper(fp, indent, NULL, NULL, val);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

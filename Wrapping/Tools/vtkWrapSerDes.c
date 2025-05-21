@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* Get the header file for the specified class */
 static const char* vtkWrapSerDes_ClassHeader(const HierarchyInfo* hinfo, const char* classname)
@@ -428,3 +430,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   vtkParse_Free(file_info);
   return vtkParse_FinalizeMain(exitCode);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

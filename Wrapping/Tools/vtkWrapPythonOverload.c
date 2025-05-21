@@ -78,6 +78,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
 
@@ -617,3 +619,5 @@ void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, const i
     "}\n"
     "\n");
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

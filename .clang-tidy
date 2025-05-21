@@ -28,7 +28,6 @@ bugprone-*,\
 -bugprone-suspicious-realloc-usage,\
 -bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
--bugprone-unsafe-functions,\
 -bugprone-use-after-move,\
 clang-analyzer-*,\
 -clang-analyzer-core.BitwiseShift,\
@@ -131,5 +130,30 @@ readability-*,\
 -readability-use-anyofallof,\
 -readability-use-std-min-max,\
 "
+CheckOptions:
+  - key: bugprone-unsafe-functions.ReportDefaultFunctions
+    value: false
+  - key: bugprone-unsafe-functions.ReportMoreUnsafeFunctions
+    value: true
+  - key: bugprone-unsafe-functions.CustomFunctions
+    value: |
+      ^(atof|atoi|atol|atoll)$,vtk::from_chars or vtk::scan_int or vtk::scan_value,is unsafe and slow;
+      ^(stof|stod|stold|stoi|stol|stoll|stoul|stoull)$,vtk::from_chars or vtk::scan_int or vtk::scan_value,is slow;
+      ^(strtof|strtod|strtold|strtol|strtoll|_strtoi64|strtoul|strtoull)$,vtk::from_chars or vtk::scan_int or vtk::scan_value,is unsafe and slow;
+      ^(sscanf|sscanf_s|vsscanf|vsscanf_s)$,vtk::scan or vtk::scan_int or vtk::scan_value,is unsafe and slow;
+      ^(strptime)$,vtk::scan,is unsafe and slow;
+      ^(std::from_chars)$,vtk::from_chars,is slow;
+      ^(std::get_time)$,vtk::scan,is slow;
+      ^(scanf|scanf_s|vscanf|vscanf_s)$,vtk::input or vtk::scan or vtk::scan_value,is unsafe and slow;
+      ^(fscanf|fscanf_s|vfscanf|vfscanf_s)$,vtk::scan or vtk::scan_value,is unsafe and slow;
+      ^(itoa|_itoa|ltoa|_ltoa|lltoa|_i64toa|ultoa|_ultoa|ulltoa|_ulltoa|_ui64toa)$,vtk::to_string or vtk::to_chars,is unsafe and slow;
+      ^(sprintf|sprintf_s|vsprintf|vsprintf_s|strftime)$,vtk::format or vtk::format_to,is unsafe and slow;
+      ^(snprintf|snprintf_s|vsnprintf|vsnprintf_s)$,vtk::format_to_n,is unsafe and slow;
+      ^(std::to_chars)$,vtk::to_chars,is slow;
+      ^(std::to_string)$,vtk::to_string,is slow;
+      ^(std::put_time)$,vtk::format,is slow;
+      ^(printf|printf_s|vprintf|vprintf_s)$,vtk::print or vtk::println,is unsafe and slow;
+      ^(fprintf|fprintf_s|vfprintf|vfprintf_s)$,vtk::print or vtk::println,is unsafe and slow;
+
 #WarningsAsErrors: "*"
 ...

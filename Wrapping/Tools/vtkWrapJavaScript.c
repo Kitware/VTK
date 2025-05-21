@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* This is the main entry point for the javascript wrappers.  When called,
  * it will print the vtkXXEmbinding.cxx file contents to "fp".  */
@@ -485,3 +487,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   }
   return vtkParse_FinalizeMain(0);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

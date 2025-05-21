@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 #define callSetterBeginMacro(fp, indent) fprintf(fp, "%sobject->%s(", indent, setterName)
 
 #define callSetterParameterMacro(fp, ...)                                                          \
@@ -1051,3 +1053,5 @@ void vtkWrapSerDes_Properties(
   free(isWritten);
   vtkParseProperties_Free(properties);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

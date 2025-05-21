@@ -15,6 +15,8 @@
  * WS_COMMENT can be used to consider comments as tokens.
  */
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /** Array for quick lookup of char types */
 static const unsigned char parse_charbits[256] = {
   0,
@@ -922,3 +924,5 @@ unsigned int vtkParse_HashString(const char* cp, size_t l)
 
   return h;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -22,6 +22,8 @@
 
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 #ifdef NDEBUG
 #define DLOG(...)
 #else
@@ -261,3 +263,5 @@ int vtkWrapJavaScript_WrapOneClass(FILE* fp, const char* module, const char* cla
 
   return 1;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

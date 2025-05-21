@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* Regex-less algorithm to convert from PascalCase to snake_case
  * Caller must make sure to free the memory of the returned pointer after use. */
 static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
@@ -278,3 +280,5 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
   }
   free(getSetsInfo);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

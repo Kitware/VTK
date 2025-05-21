@@ -15,6 +15,8 @@
   recursive-descent parser that only evaluates integers.
 */
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 #define PREPROC_DEBUG 0
 
 /** Block size for reading files */
@@ -4815,3 +4817,5 @@ void vtkParsePreprocess_Free(PreprocessInfo* info)
 
   free(info);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

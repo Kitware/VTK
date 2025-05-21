@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* prototypes for the methods used by the python wrappers */
 
@@ -1395,3 +1397,5 @@ void vtkWrapPython_DeprecationWarning(
   }
   fprintf(fp, ", 1);\n\n");
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

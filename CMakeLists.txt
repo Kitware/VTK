@@ -906,10 +906,10 @@ if (VTK_WHEEL_BUILD)
 endif ()
 
 # Some generated code has some warnings that we need to exclude for now.
-configure_file(
-  "${VTK_SOURCE_DIR}/.clang-tidy"
-  "${VTK_BINARY_DIR}/.clang-tidy"
-  COPYONLY)
+# Create a clang-tidy file for the build tree that excludes bugprone-unsafe-functions
+file(READ "${VTK_SOURCE_DIR}/.clang-tidy" CLANG_TIDY_CONTENTS)
+string(REPLACE "clang-analyzer-*," "-bugprone-unsafe-functions,\\\nclang-analyzer-*," CLANG_TIDY_CONTENTS "${CLANG_TIDY_CONTENTS}")
+file(WRITE "${VTK_BINARY_DIR}/.clang-tidy" "${CLANG_TIDY_CONTENTS}")
 
 #-----------------------------------------------------------------------------
 # Do this at the end so the all variables it uses are setup.

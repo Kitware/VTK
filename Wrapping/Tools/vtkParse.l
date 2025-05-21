@@ -1,6 +1,6 @@
 %option yylineno
 %{
-
+// NOLINTBEGIN(bugprone-unsafe-functions)
 /*
 
 The file 'lex.yy.c' is generated from 'vtkParse.l'.
@@ -1788,3 +1788,5 @@ void preprocessor_directive(const char* text, size_t l)
     }
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* Generate a mangled name for a type, use gcc ia64 ABI.
  * The result is placed in new_name, which must be large enough
  * to accept the result.  This function is incomplete, it cannot
@@ -337,3 +339,5 @@ size_t vtkParse_MangledLiteral(const char* name, char* new_name)
 
   return (size_t)(cp - name);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

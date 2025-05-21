@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 static int vtkWrapSerDes_CanMarshalValue(
   ValueInfo* valInfo, ClassInfo* classInfo, const HierarchyInfo* hinfo, int isReturnValue)
 {
@@ -951,3 +953,5 @@ void vtkWrapSerDes_CallFunctions(FILE* fp, ClassInfo* classInfo, const Hierarchy
     fprintf(fp, "  (void)object;\n");
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

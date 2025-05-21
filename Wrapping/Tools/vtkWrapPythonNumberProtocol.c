@@ -4,6 +4,8 @@
 
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* Overrides __rshift__ operator for vtkAlgorithm and vtkDataObject */
 int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, const ClassInfo* classInfo)
 {
@@ -113,3 +115,5 @@ int vtkWrapPython_GenerateNumberProtocolDefintions(FILE* fp, const ClassInfo* cl
 
   return 1;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

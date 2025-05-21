@@ -23,6 +23,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */
 int vtkWrapJavaScript_IsEnumWrapped(HierarchyInfo* hinfo, const char* enumname)
@@ -177,3 +179,5 @@ void vtkWrapJavaScript_GenerateEnumTypes(
     fprintf(fp, "\n}\n");
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* add a class to the MergeInfo */
 int vtkParseMerge_PushClass(MergeInfo* info, const char* classname)
 {
@@ -850,3 +852,5 @@ MergeInfo* vtkParseMerge_MergeSuperClasses(
 
   return info;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)
