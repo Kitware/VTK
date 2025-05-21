@@ -7,10 +7,11 @@ readonly anari_commit="v0.10.0"
 
 readonly anari_root="$HOME/ANARI-SDK"
 readonly anari_src="$HOME/ANARI-SDK"
-readonly anari_build_root="$HOME/ANARI-SDK/build"
+readonly anari_build="$HOME/ANARI-SDK/build"
 
 git clone -b "$anari_commit" "$anari_repo" "$anari_src"
 
+mkdir -p "$anari_build"
 cd "$anari_build"
 
 cmake -G "Unix Makefiles" "$anari_src" \
