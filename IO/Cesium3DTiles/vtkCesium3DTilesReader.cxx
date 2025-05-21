@@ -102,7 +102,7 @@ public:
   bool IsOpen();
   void Close();
   void SetLevel(int level) { this->Level = level; }
-  friend inline ostream& operator<<(ostream& out, const Tileset& tileset)
+  friend ostream& operator<<(ostream& out, const Tileset& tileset)
   {
     out << "FileName: " << tileset.FileName << std::endl
         << "Level: " << tileset.Level << std::endl
