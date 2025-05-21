@@ -204,6 +204,8 @@ class FieldDataBase(object):
 
         return True
 
+    def __iter__(self):
+        return iter(self.keys())
 
 @vtkFieldData.override
 class FieldData(FieldDataBase, vtkFieldData):
