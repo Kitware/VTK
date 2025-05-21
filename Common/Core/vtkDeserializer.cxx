@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDeserializer.h"
+#include "vtkCollectionRange.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkObjectFactoryCollection.h"
 #include "vtksys/SystemInformation.hxx"
 
 // clang-format off
@@ -177,14 +179,51 @@ void vtkDeserializer::RegisterConstructor(const std::string& className, Construc
 vtkDeserializer::ConstructorType vtkDeserializer::GetConstructor(
   const std::string& className, const std::vector<std::string>& superClassNames)
 {
-  const auto& internals = (*this->Internals);
-  std::vector<std::string> classNamesToTry = { className };
   // Note that the `superClassNames` is ordered from least derived to most derived.
-  // For example, if the class hierarchy is A->B->C, the `superClassNames` will be ['A','B'] and
+  // For example, if the class hierarchy is A->B->C i.e, C is derived from B and B, in turn
+  // is derived from A, then, the `superClassNames` will be ['A','B'] and
   // className will be 'C'. Since we are trying to construct C, we want to try C first, then B, and
   // finally A.
   // So we need to reverse the order of `superClassNames` to get correct order ['C','B','A']. This
   // is important for classes that use object factory to create the objects.
+
+  bool isDisabledOverrideClass = false;
+  for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
+  {
+    for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)
+    {
+      if (!objectFactory->GetEnableFlag(i) &&
+        !strcmp(objectFactory->GetClassOverrideWithName(i), className.c_str()))
+      {
+        isDisabledOverrideClass = true;
+      }
+    }
+  }
+  if (isDisabledOverrideClass)
+  {
+    for (const auto& superClassName : superClassNames)
+    {
+      for (auto objectFactory : vtk::Range(vtkObjectFactory::GetRegisteredFactories()))
+      {
+        for (int i = 0; i < objectFactory->GetNumberOfOverrides(); ++i)
+        {
+          if (!strcmp(objectFactory->GetClassOverrideName(i), superClassName.c_str()))
+          {
+            if (objectFactory->GetEnableFlag(i))
+            {
+              vtkVLogF(this->GetDeserializerLogVerbosity(),
+                "Constructing \"%s\" using \"%s\" from \'%s\'", superClassName.c_str(),
+                objectFactory->GetClassOverrideWithName(i), objectFactory->GetDescription());
+              return [superClassName]()
+              { return vtkObjectFactory::CreateInstance(superClassName.c_str()); };
+            }
+          }
+        }
+      }
+    }
+  }
+  const auto& internals = (*this->Internals);
+  std::vector<std::string> classNamesToTry = { className };
   classNamesToTry.insert(classNamesToTry.end(), superClassNames.rbegin(), superClassNames.rend());
   for (const auto& name : classNamesToTry)
   {
