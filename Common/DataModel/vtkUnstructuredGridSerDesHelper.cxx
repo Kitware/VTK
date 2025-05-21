@@ -3,6 +3,7 @@
 #include "vtkCellArray.h"
 #include "vtkDeserializer.h"
 #include "vtkSerializer.h"
+#include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -48,8 +49,8 @@ static void Deserialize_vtkUnstructuredGrid(
     f(state, object, deserializer);
   }
 
-  vtkUnsignedCharArray* cellTypes = nullptr;
-  vtkCellArray* connectivity = nullptr;
+  vtkSmartPointer<vtkUnsignedCharArray> cellTypes;
+  vtkSmartPointer<vtkCellArray> connectivity;
   {
     auto iter = state.find("CellTypes");
     if ((iter != state.end()) && !iter->is_null())
