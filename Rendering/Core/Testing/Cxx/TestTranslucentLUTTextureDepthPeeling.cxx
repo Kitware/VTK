@@ -22,25 +22,31 @@
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageSinusoidSource.h"
 #include "vtkLookupTable.h"
+#include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 
 int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
 {
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
+  vtkNew<vtkRenderWindowInteractor> iren;
+  vtkNew<vtkRenderWindow> renWin;
+  if (renWin->IsA("vtkWebAssemblyOpenGLRenderWindow"))
+  {
+    // WebAssembly OpenGL requires additional steps for dual depth peeling. See
+    // TestFramebufferPass.cxx for details.
+    std::cout << "Skipping test with WebAssembly OpenGL\n";
+    return VTK_SKIP_RETURN_CODE;
+  }
   renWin->SetAlphaBitPlanes(1);
   renWin->SetMultiSamples(0);
   iren->SetRenderWindow(renWin);
-  renWin->Delete();
 
-  vtkRenderer* renderer = vtkRenderer::New();
+  vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer);
-  renderer->Delete();
   renderer->SetUseDepthPeeling(1);
   renderer->SetMaximumNumberOfPeels(200);
   renderer->SetOcclusionRatio(0.1);
 
-  vtkImageSinusoidSource* imageSource = vtkImageSinusoidSource::New();
+  vtkNew<vtkImageSinusoidSource> imageSource;
   imageSource->SetWholeExtent(0, 9, 0, 9, 0, 9);
   imageSource->SetPeriod(5);
   imageSource->Update();
@@ -49,16 +55,14 @@ int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
   double range[2];
   image->GetScalarRange(range);
 
-  vtkDataSetSurfaceFilter* surface = vtkDataSetSurfaceFilter::New();
+  vtkNew<vtkDataSetSurfaceFilter> surface;
 
   surface->SetInputConnection(imageSource->GetOutputPort());
-  imageSource->Delete();
 
-  vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(surface->GetOutputPort());
-  surface->Delete();
 
-  vtkLookupTable* lut = vtkLookupTable::New();
+  vtkNew<vtkLookupTable> lut;
   lut->SetTableRange(range);
   lut->SetAlphaRange(0.5, 0.5);
   lut->SetHueRange(0.2, 0.7);
@@ -69,13 +73,10 @@ int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->UseLookupTableScalarRangeOn();
   mapper->InterpolateScalarsBeforeMappingOn();
-  lut->Delete();
 
-  vtkActor* actor = vtkActor::New();
+  vtkNew<vtkActor> actor;
   renderer->AddActor(actor);
-  actor->Delete();
   actor->SetMapper(mapper);
-  mapper->Delete();
 
   renderer->SetBackground(0.1, 0.3, 0.0);
   renWin->SetSize(400, 400);
@@ -99,7 +100,6 @@ int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
   {
     iren->Start();
   }
-  iren->Delete();
 
   return !retVal;
 }

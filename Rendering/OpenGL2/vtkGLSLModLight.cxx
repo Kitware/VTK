@@ -714,12 +714,6 @@ bool vtkGLSLModLight::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShader
   vtkAbstractMapper* vtkNotUsed(mapper), vtkActor* actor,
   vtkOpenGLVertexArrayObject* vtkNotUsed(VAO) /*=nullptr*/)
 {
-  // for unlit there are no lighting parameters
-  if (this->LastLightComplexity < 1)
-  {
-    return false;
-  }
-
   vtkOpenGLRenderer* oglRen = vtkOpenGLRenderer::SafeDownCast(renderer);
   if (oglRen)
   {
