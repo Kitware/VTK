@@ -15,13 +15,14 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <cmath> // for std::abs
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints; // forward declaration
 
-class VTKCOMMONDATAMODEL_EXPORT vtkPlane : public vtkImplicitFunction
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPlane : public vtkImplicitFunction
 {
 public:
   /**
@@ -70,7 +71,9 @@ public:
    * The origin is shifted in the direction of the normal
    * by the offset.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_IS_REDUNDANT)
   virtual void SetOffset(double _arg);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_IS_REDUNDANT)
   vtkGetMacro(Offset, double);
   ///@}
 

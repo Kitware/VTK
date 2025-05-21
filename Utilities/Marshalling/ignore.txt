@@ -385,8 +385,6 @@ Common/DataModel/vtkPerlinNoise.h
 Common/DataModel/vtkPixel.h
 Common/DataModel/vtkPixelExtent.h
 Common/DataModel/vtkPixelTransfer.h
-Common/DataModel/vtkPlane.h
-Common/DataModel/vtkPlaneCollection.h
 Common/DataModel/vtkPlanes.h
 Common/DataModel/vtkPlanesIntersection.h
 Common/DataModel/vtkPointLocator.h
