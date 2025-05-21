@@ -18,7 +18,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderProperty : public vtkShaderProperty
 {
 public:
   vtkTypeMacro(vtkWebGPUShaderProperty, vtkShaderProperty);
@@ -38,33 +38,33 @@ public:
    */
   void AddVertexShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool){};
+    const std::string&, bool) override{};
   void AddFragmentShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool){};
+    const std::string&, bool) override{};
   void AddGeometryShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool){};
+    const std::string&, bool) override{};
   void AddTessControlShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool){};
+    const std::string&, bool) override{};
   void AddTessEvaluationShaderReplacement(const std::string&,
     bool, // do this replacement before the default
-    const std::string&, bool){};
-  int GetNumberOfShaderReplacements() { return 0; };
-  std::string GetNthShaderReplacementTypeAsString(vtkIdType) { return ""; };
-  void GetNthShaderReplacement(vtkIdType, std::string&, bool&, std::string&, bool&){};
-  void ClearVertexShaderReplacement(const std::string&, bool){};
-  void ClearFragmentShaderReplacement(const std::string&, bool){};
-  void ClearGeometryShaderReplacement(const std::string&, bool){};
-  void ClearTessControlShaderReplacement(const std::string&, bool){};
-  void ClearTessEvaluationShaderReplacement(const std::string&, bool){};
-  void ClearAllVertexShaderReplacements(){};
-  void ClearAllFragmentShaderReplacements(){};
-  void ClearAllGeometryShaderReplacements(){};
-  void ClearAllTessControlShaderReplacements(){};
-  void ClearAllTessEvalShaderReplacements(){};
-  void ClearAllShaderReplacements(){};
+    const std::string&, bool) override{};
+  int GetNumberOfShaderReplacements() override { return 0; };
+  std::string GetNthShaderReplacementTypeAsString(vtkIdType) override { return ""; };
+  void GetNthShaderReplacement(vtkIdType, std::string&, bool&, std::string&, bool&) override{};
+  void ClearVertexShaderReplacement(const std::string&, bool) override{};
+  void ClearFragmentShaderReplacement(const std::string&, bool) override{};
+  void ClearGeometryShaderReplacement(const std::string&, bool) override{};
+  void ClearTessControlShaderReplacement(const std::string&, bool) override{};
+  void ClearTessEvaluationShaderReplacement(const std::string&, bool) override{};
+  void ClearAllVertexShaderReplacements() override{};
+  void ClearAllFragmentShaderReplacements() override{};
+  void ClearAllGeometryShaderReplacements() override{};
+  void ClearAllTessControlShaderReplacements() override{};
+  void ClearAllTessEvalShaderReplacements() override{};
+  void ClearAllShaderReplacements() override{};
   ///@}
 
 protected:

@@ -17,6 +17,7 @@
 
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderingWebGPUModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 #include <memory> // for unique_ptr
 
@@ -25,7 +26,8 @@ class vtkActor2D;
 class vtkPoints;
 class vtkWebGPUPolyDataMapper2DInternals;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUPolyDataMapper2D : public vtkPolyDataMapper2D
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper2D
+  : public vtkPolyDataMapper2D
 {
 public:
   vtkTypeMacro(vtkWebGPUPolyDataMapper2D, vtkPolyDataMapper2D);

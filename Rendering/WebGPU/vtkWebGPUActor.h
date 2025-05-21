@@ -7,6 +7,7 @@
 
 #include "vtkProperty.h"              // for VTK_FLAT
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 #include <memory> // for unique_ptr
 
@@ -15,7 +16,7 @@ class vtkMatrix3x3;
 class vtkWebGPUConfiguration;
 class vtkWebGPURenderPipelineCache;
 class vtkWebGPUActorInternals;
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUActor : public vtkActor
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUActor : public vtkActor
 {
 public:
   static vtkWebGPUActor* New();

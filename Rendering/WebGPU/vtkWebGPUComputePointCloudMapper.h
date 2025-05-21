@@ -9,6 +9,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderingWebGPUModule.h" // for the module export macro
 #include "vtkSmartPointer.h"          // for smart pointers
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 class vtkWebGPURenderer;
 class vtkWebGPURenderWindow;
@@ -44,7 +45,8 @@ VTK_ABI_NAMESPACE_BEGIN
  * and incorrect depth values will be read --> invalid depth handling --> issues will arise with
  * multiple point clouds per renderer or a point cloud mixed with regular triangle based geometry.
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputePointCloudMapper : public vtkPolyDataMapper
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUComputePointCloudMapper
+  : public vtkPolyDataMapper
 {
 public:
   vtkTypeMacro(vtkWebGPUComputePointCloudMapper, vtkPolyDataMapper);

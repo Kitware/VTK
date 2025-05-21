@@ -14,12 +14,13 @@
 #include "vtkLight.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 class vtkCamera;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPULight : public vtkLight
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPULight : public vtkLight
 {
 public:
   static vtkWebGPULight* New();

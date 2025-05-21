@@ -12,6 +12,7 @@
 #include "vtkWebGPUComputePass.h"     // for compute passes
 #include "vtkWebGPUComputePipeline.h" // for the member compute pipeline
 #include "vtkWebGPURenderWindow.h"    // for the render window weak pointer member
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -65,7 +66,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * buffer to be reversed along the Y axis and incorrect depth values will be read --> invalid
  * culling.
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeOcclusionCuller : public vtkCuller
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUComputeOcclusionCuller : public vtkCuller
 {
 public:
   vtkTypeMacro(vtkWebGPUComputeOcclusionCuller, vtkCuller);

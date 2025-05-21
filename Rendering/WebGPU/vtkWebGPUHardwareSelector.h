@@ -18,9 +18,11 @@
 #include "vtkHardwareSelector.h"
 
 #include "vtkRenderingWebGPUModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUHardwareSelector : public vtkHardwareSelector
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUHardwareSelector
+  : public vtkHardwareSelector
 {
 public:
   static vtkWebGPUHardwareSelector* New();
