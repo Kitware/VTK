@@ -1,6 +1,6 @@
-# VTK WebAssembly JavaScript Interface
+# VTK WebAssembly JavaScript
 
-The `vtkWebAssemblyInterface.mjs` module provides JavaScript bindings to VTK's WebAssembly interface using Emscripten. It includes two key classes:
+The `vtkWebAssembly.mjs` module provides JavaScript bindings to VTK WebAssembly using Emscripten. It includes two key classes:
 
 - [`vtkStandaloneSession`](#vtkStandaloneSession): For standalone VTK WebAssembly apps capable of creating and manipulating VTK objects.
 - [`vtkRemoteSession`](#vtkRemoteSession): For remote VTK WebAssembly apps meant to sync with a VTK application on a remote server.
@@ -32,7 +32,7 @@ new vtkStandaloneSession()
 | `destroy(objectId: number) => boolean`                                         | Destroys a previously created VTK object.           |
 | `set(objectId: number, properties: object) => undefined`                       | Apply properties from JSON object to the VTK object.|
 | `get(objectId: number) => object`                                              | Retrieves the state of the given object.            |
-| `invoke(objectId: number, methodName: string, args: object) => Promise<object>`| Invokes a method on the object with JSON arguments. |
+| `invoke(objectId: number, methodName: string, args: object) => object`         | Invokes a method on the object with JSON arguments. |
 | `observe(objectId: number, eventName: string, callback: Function) => number`   | Registers a JavaScript callback for a VTK event.    |
 | `unObserve(objectId: number, tag: number) => boolean`                          | Unregisters an observer using its tag.              |
 
@@ -56,12 +56,12 @@ new vtkRemoteSession()
 | `registerBlob(hash: string, jsArray: Uint8Array) => boolean`                   | Registers a binary blob.                                   |
 | `unRegisterBlob(hash: string) => boolean`                                      | Unregisters a blob using its hash.                         |
 | `getBlob(hash: string) => Uint8Array`                                          | Retrieves a registered blob.                               |
-| `invoke(objectId: number, methodName: string, args: object) => Promise<object>`| Calls a method on a VTK object.                            |
+| `invoke(objectId: number, methodName: string, args: object) => object`         | Calls a method on a VTK object.                            |
 | `getAllDependencies(objectId: number) => Uint32Array`                          | Returns object dependency handles.                         |
 | `updateObjectFromState(state: object) => void`                                 | Applies a JSON state to an object.                         |
 | `updateStateFromObject(objectId: number) => void`                              | Updates the state JSON from the object.                    |
 | `setSize(objectId: number, width: number, height: number) => boolean`          | Sets the size of a render window.                          |
-| `render(objectId: number) => Promise<boolean>`                                 | Triggers a render operation.                               |
+| `render(objectId: number) => boolean`                                          | Triggers a render operation.                               |
 | `resetCamera(objectId: number) => boolean`                                     | Resets the camera for the given scene.                     |
 | `startEventLoop(objectId: number) => boolean`                                  | Begins the VTK interactor event loop.                      |
 | `stopEventLoop(objectId: number) => boolean`                                   | Stops the VTK interactor event loop.                       |

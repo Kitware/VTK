@@ -1,6 +1,6 @@
 # VTK WebAssembly JavaScript Async
 
-The `vtkWebAssemblyAsync.mjs` module provides Async JavaScript bindings to VTK's WebAssembly using Emscripten. It includes two key classes:
+The `vtkWebAssemblyAsync.mjs` module provides async JavaScript bindings to VTK WebAssembly using Emscripten. It includes two key classes:
 
 - [`vtkStandaloneSession`](#vtkStandaloneSession): For standalone VTK WebAssembly apps capable of creating and manipulating VTK objects.
 - [`vtkRemoteSession`](#vtkRemoteSession): For remote VTK WebAssembly apps meant to sync with a VTK application on a remote server.
