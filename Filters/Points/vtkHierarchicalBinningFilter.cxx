@@ -232,11 +232,11 @@ struct vtkBinTree
   {
     int level, localBin;
     this->TranslateGlobalBinToLocalBin(globalBin, level, localBin);
-    return this->Tree[level]->GetBinBounds(localBin, bounds);
+    this->Tree[level]->GetBinBounds(localBin, bounds);
   }
   void GetLocalBinBounds(int level, int localBin, double bounds[6])
   {
-    return this->Tree[level]->GetBinBounds(localBin, bounds);
+    this->Tree[level]->GetBinBounds(localBin, bounds);
   }
 
   void ExportMetaData(vtkPolyData* output)
@@ -842,10 +842,7 @@ void vtkHierarchicalBinningFilter::GetBinBounds(int globalBin, double bounds[6])
 {
   if (this->Tree)
   {
-    return this->Tree->GetBinBounds(globalBin, bounds);
-  }
-  else
-  {
+    this->Tree->GetBinBounds(globalBin, bounds);
     return;
   }
 }
@@ -855,11 +852,7 @@ void vtkHierarchicalBinningFilter::GetLocalBinBounds(int level, int localBin, do
 {
   if (this->Tree)
   {
-    return this->Tree->GetLocalBinBounds(level, localBin, bounds);
-  }
-  else
-  {
-    return;
+    this->Tree->GetLocalBinBounds(level, localBin, bounds);
   }
 }
 
