@@ -66,7 +66,7 @@ import numpy
 # version 2 has many API changes from version 1
 NUMPY_MAJOR_VERSION = int(numpy.__version__.split('.')[0])
 
-from typing import Generator, Tuple
+from typing import Generator, Tuple, Union, List
 import operator
 import sys
 from ..vtkCommonCore import buffer_shared
@@ -551,28 +551,140 @@ class VTKCompositeDataArray(object):
 
     Arrays = property(GetArrays)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Union[List, "VTKCompositeDataArray", numpy.ndarray]:
         """Overwritten to refer indexing to underlying VTKArrays.
-        For the most part, this will behave like Numpy. Note
-        that indexing is done per array - arrays are never treated
-        as forming a bigger array. If the index is another composite
-        array, a one-to-one mapping between arrays is assumed.
-        """
+        For the most part, this will behave like Numpy."""
         self.__init_from_composite()
-        res = []
-        if type(index) == VTKCompositeDataArray:
-            for a, idx in zip(self._Arrays, index.Arrays):
-                if a is not NoneArray:
-                    res.append(a.__getitem__(idx))
-                else:
-                    res.append(NoneArray)
+
+        arrays = self._Arrays
+        partition_sizes = [len(a) if a is not NoneArray else 0 for a in arrays]
+        offsets = numpy.cumsum([0] + partition_sizes)
+        total_size = offsets[-1]
+
+        if isinstance(index, VTKCompositeDataArray):
+            # Suboptimal because it converts VTKCompositeDataArray input indices into numpy data
+            return self[numpy.concatenate([array for array in index.Arrays if array is not NoneArray])]
+
+        if isinstance(index, (numpy.ndarray, list)):
+            index = numpy.asarray(index)
+            if index.ndim == 0:
+                return self[int(index)]
+            elif index.ndim == 1:
+                if index.dtype == bool:
+                    if len(index) != total_size:
+                        raise IndexError("Boolean index must be the same length as the array")
+                    # Convert boolean mask to integer indices
+                    index = numpy.nonzero(index)[0]
+                result = []
+                for idx in index:
+                    chunk_idx, local_idx = self._global_to_local_id(idx, total_size, offsets)
+                    result.append(arrays[chunk_idx][local_idx])
+                return numpy.asarray(result)
+            else:
+                raise IndexError("Only 1D Numpy or list indexing is supported for now")
+
+        if not isinstance(index, tuple):
+            index = (index,)
+
+        global_index = index[0]
+        remaining_indices = index[1:]
+
+        if isinstance(global_index, int):
+            chunk_idx, local_idx = self._global_to_local_id(global_index, total_size, offsets)
+            result = arrays[chunk_idx][local_idx]
+            if remaining_indices:
+                result = result[tuple(remaining_indices)]
+            return result
+
+        if isinstance(global_index, slice):
+            step = global_index.step if global_index.step is not None else 1
+            result = [NoneArray] * len(arrays)
+            i = 0
+            for (array, offset, size) in zip(arrays, offsets, partition_sizes):
+                if array is NoneArray:
+                    continue
+                local_slice = self._slice_intersection(global_index, offset, size, total_size)
+                if local_slice is not None:
+                    part = array[local_slice]
+                    if remaining_indices:
+                        # Slice all dimensions of the array except the first one
+                        part = part[(slice(0, None, None),) + remaining_indices]
+                    if step > 0:
+                        result[i] = part
+                    if step < 0:
+                        result[-i-1] = part
+                    i += 1
+            return self.__class__(result, dataset=self.DataSet, association=self.Association)
+
+        if isinstance(global_index, numpy.ndarray):
+            return self[numpy.concatenate([array for array in index])]
+
+        raise TypeError(f"Unsupported index type: {type(index)}")
+
+    def _global_to_local_id(self, global_index, total_size, offsets):
+        """Returns the chunk index and the local index of the chunk from the global index"""
+        if global_index < 0:
+            global_index += total_size
+        if not (0 <= global_index < total_size):
+            raise IndexError("Index out of bounds")
+        i = numpy.searchsorted(offsets, global_index, side='right') - 1
+        return i, global_index - offsets[i]
+
+    def _slice_intersection(self, global_slice, chunk_offset, chunk_size, total_length):
+        """Returns a local slice into the chunk for the global_slice, or None if no overlap.
+        Handles both positive and negative steps."""
+        start, stop, step = global_slice.indices(total_length)
+        chunk_start = chunk_offset
+        chunk_end   = chunk_offset + chunk_size
+
+        if step > 0:
+            # Find the first global index in the slice that is in the chunk.
+            if start < chunk_start:
+                offset_steps = (chunk_start - start + step - 1) // step
+                first = start + offset_steps * step
+            else:
+                first = start
+            if first >= stop or first >= chunk_end:
+                return None
+
+            # Find the last global index in the slice that is in the chunk.
+            max_possible = min(stop, chunk_end)
+            if first > max_possible:
+                last = first
+            else:
+                num_steps = ceil((max_possible - first) / step)
+                last = first + num_steps * step
+
         else:
-            for a in self._Arrays:
-                if a is not NoneArray:
-                    res.append(a.__getitem__(index))
-                else:
-                    res.append(NoneArray)
-        return VTKCompositeDataArray(res, dataset=self.DataSet)
+            # Find the first global index in the slice that is in the chunk.
+            if start >= chunk_end:
+                first = chunk_end - 1
+                remainder = (start - first) % (-step)
+                if remainder != 0:
+                    first = first - ( (-step) - remainder )
+            else:
+                first = start
+            if first < chunk_start or first <= stop:
+                return None
+
+            # Find the last global index in the slice that is in the chunk.
+            if chunk_start > stop:
+                last = chunk_start - 1
+            else:
+                num_steps = ceil((start - chunk_start) / (-step))
+                last = start + num_steps * step
+                if last <= chunk_start:
+                    last = chunk_start
+            if last > first or last < stop:
+                return None
+
+        # Global to local indices
+        local_first = first - chunk_offset
+        local_last = last - chunk_offset
+        local_last = local_last if local_last != -1 else None # For negative steps
+
+        return slice(local_first, local_last, step)
+
 
     def _numeric_op(self, other, op):
         """Used to implement numpy-style numerical operations such as __add__,
