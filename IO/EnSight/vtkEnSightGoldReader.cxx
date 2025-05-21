@@ -843,8 +843,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerNode(const char* fileName,
 
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
-  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-  char* linePtr = &line[0];
+  char* linePtr = line.data();
   this->ReadNextDataLine(linePtr); // skip the description line
 
   while (this->ReadNextDataLine(linePtr) && line.compare(0, 4, "part") == 0)
@@ -1164,8 +1163,7 @@ int vtkEnSightGoldReader::ReadAsymmetricTensorsPerElement(const char* fileName,
 
   // C++11 compatible way to get a pointer to underlying data
   // data() could be used with C++17
-  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-  char* linePtr = &line[0];
+  char* linePtr = line.data();
   this->ReadNextDataLine(linePtr);                // skip the description line
   int lineRead = this->ReadNextDataLine(linePtr); // "part"
 

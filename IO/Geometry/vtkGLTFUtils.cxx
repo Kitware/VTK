@@ -254,8 +254,7 @@ bool ExtractGLBFileInformation(vtkResourceStream* stream, uint32_t& version, uin
     // Read chunk type
     std::string chunkType;
     chunkType.resize(GLBWordSize);
-    // NOLINTNEXTLINE(readability-container-data-pointer)
-    if (stream->Read(&chunkType[0], chunkType.size()) != chunkType.size())
+    if (stream->Read(chunkType.data(), chunkType.size()) != chunkType.size())
     {
       vtkErrorWithObjectMacro(nullptr, "Truncated glb file");
       return false;

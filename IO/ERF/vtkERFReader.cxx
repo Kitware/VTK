@@ -925,8 +925,7 @@ std::string vtkERFReader::GetAttributeValueAsStr(
   hsize_t stringLength = H5Aget_storage_size(attributeHandler);
   std::string value;
   value.resize(stringLength + 1);
-  // NOLINTNEXTLINE(readability-container-data-pointer)
-  if (H5Aread(attributeHandler, dataType, &value[0]) >= 0)
+  if (H5Aread(attributeHandler, dataType, value.data()) >= 0)
   {
     value.erase(std::remove_if(value.begin(), value.end(),
                   [](char c)

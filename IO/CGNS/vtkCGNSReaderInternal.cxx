@@ -1104,8 +1104,7 @@ static void BroadcastString(vtkMultiProcessController* controller, std::string& 
     {
       const char* start = str.c_str();
       std::vector<char> tmp(start, start + len);
-      // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-      controller->Broadcast(&tmp[0], len, 0);
+      controller->Broadcast(tmp.data(), len, 0);
     }
   }
 }

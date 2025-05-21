@@ -48,7 +48,7 @@ public:
   }
   size_t WordSize() const override { return sizeof(T); }
   size_t WordCount() const override { return this->Header.size(); }
-  unsigned char* Data() override { return reinterpret_cast<unsigned char*>(&this->Header[0]); }
+  unsigned char* Data() override { return reinterpret_cast<unsigned char*>(this->Header.data()); }
 };
 
 vtkXMLDataHeader* vtkXMLDataHeader::New(int width, size_t count)

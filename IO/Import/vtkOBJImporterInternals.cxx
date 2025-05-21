@@ -261,8 +261,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   in.seekg(0, std::ios::end);
   contents.resize(in.tellg());
   in.seekg(0, std::ios::beg);
-  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-  in.read(&contents[0], contents.size());
+  in.read(contents.data(), contents.size());
   in.close();
 
   // watch for UTF-8 BOM

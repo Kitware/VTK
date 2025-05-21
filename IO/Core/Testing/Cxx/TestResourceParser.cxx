@@ -282,8 +282,7 @@ bool TestStringParse()
     "Wrong seek position");
 
   str.resize(26);
-  // NOLINTNEXTLINE(readability-container-data-pointer)
-  Check(parser->Read(&str[0], 26) == 26, "Parsing failed");
+  Check(parser->Read(str.data(), 26) == 26, "Parsing failed");
   Check(str == "abcdefghijklmnopqrstuvwxyz", "Wrong value");
 
   Check(parser->Tell() == dataBegin + 26, "Wrong parser position");
@@ -293,8 +292,7 @@ bool TestStringParse()
     "Wrong position");
 
   str.resize(16);
-  // NOLINTNEXTLINE(readability-container-data-pointer)
-  Check(parser->Read(&str[0], 16) == 16, "Parsing failed");
+  Check(parser->Read(str.data(), 16) == 16, "Parsing failed");
   Check(str == "klmnopqrstuvwxyz", "Wrong value");
 
   str.clear();
@@ -314,8 +312,7 @@ bool TestStringParse()
   Check(parser->Seek(-26, vtkResourceStream::SeekDirection::End) == dataBegin + 2600 - 26,
     "Wrong position");
   str.resize(26);
-  // NOLINTNEXTLINE(readability-container-data-pointer)
-  Check(parser->Read(&str[0], 26) == 26, "Parsing failed");
+  Check(parser->Read(str.data(), 26) == 26, "Parsing failed");
   Check(str == "abcdefghijklmnopqrstuvwxyz", "Wrong value");
 
   CheckEndOfStream(parser->Parse(str));

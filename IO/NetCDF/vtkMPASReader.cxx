@@ -2618,8 +2618,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid* dataset)
         size_t start[] = { this->Internals->GetCursorForDimension(dimid), 0 };
         size_t count[] = { 1, strLen };
         if (this->Internals->nc_err(
-              // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-              nc_get_vara_text(this->Internals->ncFile, varid, start, count, &time[0])))
+              nc_get_vara_text(this->Internals->ncFile, varid, start, count, time.data())))
         {
           // Trim off trailing whitespace:
           size_t realLength = time.find_last_not_of(' ');

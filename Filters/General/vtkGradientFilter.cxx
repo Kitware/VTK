@@ -519,7 +519,7 @@ struct PointGradients : public GradientsBase<TData>
               }
 
               // Get derivative of cell at point.
-              cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
+              cell->Derivatives(subId, parametricCoord, values.data(), 1, derivative);
 
               g[comp * 3] += derivative[0];
               g[comp * 3 + 1] += derivative[1];
@@ -539,17 +539,17 @@ struct PointGradients : public GradientsBase<TData>
         if (this->Vorticity)
         {
           auto vorticity = vtk::DataArrayTupleRange(this->Vorticity);
-          ComputeVorticityFromGradient(&g[0], vorticity[ptId]);
+          ComputeVorticityFromGradient(g.data(), vorticity[ptId]);
         }
         if (this->QCriterion)
         {
           auto qCriterion = vtk::DataArrayTupleRange(this->QCriterion);
-          ComputeQCriterionFromGradient(&g[0], qCriterion[ptId]);
+          ComputeQCriterionFromGradient(g.data(), qCriterion[ptId]);
         }
         if (this->Divergence)
         {
           auto divergence = vtk::DataArrayTupleRange(this->Divergence);
-          ComputeDivergenceFromGradient(&g[0], divergence[ptId]);
+          ComputeDivergenceFromGradient(g.data(), divergence[ptId]);
         }
         if (this->Gradients)
         {
@@ -641,7 +641,7 @@ struct CellGradients : public GradientsBase<TData>
           values[i] = a[comp];
         }
 
-        cell->Derivatives(subId, cellCenter, &values[0], 1, derivative);
+        cell->Derivatives(subId, cellCenter, values.data(), 1, derivative);
         cellGrad[comp * 3] = derivative[0];
         cellGrad[comp * 3 + 1] = derivative[1];
         cellGrad[comp * 3 + 2] = derivative[2];
@@ -659,17 +659,17 @@ struct CellGradients : public GradientsBase<TData>
       if (this->Vorticity)
       {
         auto vorticity = vtk::DataArrayTupleRange(this->Vorticity);
-        ComputeVorticityFromGradient(&cellGrad[0], vorticity[cellId]);
+        ComputeVorticityFromGradient(cellGrad.data(), vorticity[cellId]);
       }
       if (this->QCriterion)
       {
         auto qCriterion = vtk::DataArrayTupleRange(this->QCriterion);
-        ComputeQCriterionFromGradient(&cellGrad[0], qCriterion[cellId]);
+        ComputeQCriterionFromGradient(cellGrad.data(), qCriterion[cellId]);
       }
       if (this->Divergence)
       {
         auto divergence = vtk::DataArrayTupleRange(this->Divergence);
-        ComputeDivergenceFromGradient(&cellGrad[0], divergence[cellId]);
+        ComputeDivergenceFromGradient(cellGrad.data(), divergence[cellId]);
       }
 
     } // for all cells
