@@ -86,6 +86,12 @@ int vtkWrap_IsStdMap(const ValueInfo* val)
     strncmp(val->Class, "std::map<", 9) == 0);
 }
 
+int vtkWrap_IsStdUnorderedMap(const ValueInfo* val)
+{
+  return ((val->Type & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNKNOWN && val->Class &&
+    strncmp(val->Class, "std::unordered_map<", 19) == 0);
+}
+
 int vtkWrap_IsVTKObject(const ValueInfo* val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);

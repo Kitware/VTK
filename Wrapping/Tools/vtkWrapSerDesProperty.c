@@ -292,6 +292,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
   const int isArray = vtkWrap_IsArray(propertyValueInfo);
   const int isStdVector = vtkWrap_IsStdVector(propertyValueInfo);
   const int isStdMap = vtkWrap_IsStdMap(propertyValueInfo);
+  const int isStdUnorderedMap = vtkWrap_IsStdUnorderedMap(propertyValueInfo);
   const int isEnumMember = vtkWrap_IsEnumMember(classInfo, propertyValueInfo);
   const int isEnum = functionInfo->ReturnValue->IsEnum;
   const int isConst = vtkWrap_IsConst(propertyValueInfo);
@@ -512,7 +513,7 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     }
     free(element);
   }
-  else if (isStdMap)
+  else if (isStdMap || isStdUnorderedMap)
   {
     const char** args;
     const char* defaults[] = { NULL, NULL };
@@ -522,14 +523,22 @@ int vtkWrapSerDes_WritePropertySerializer(FILE* fp, const ClassInfo* classInfo,
     vtkParse_BasicTypeFromString(args[0], &(elements[0].Type), &(elements[0].Class), &n);
     vtkParse_BasicTypeFromString(args[1], &(elements[1].Type), &(elements[1].Class), &n);
 
-    /* check for a map from string to a vtkObject */
-    if (vtkWrap_IsString(&elements[0]) && vtkWrap_IsVTKObjectBaseType(hinfo, elements[1].Class))
+    /* check for a map from string or integer to a vtkObject */
+    if ((vtkWrap_IsString(&elements[0]) || vtkWrap_IsInteger(&elements[0])) &&
+      vtkWrap_IsVTKObjectBaseType(hinfo, elements[1].Class))
     {
       fprintf(fp, "  const auto& map = object->%s(%s);\n", getterName, getterIdxStr);
       fprintf(fp, "  auto& dst = state[\"%s\"]%s = json::object();\n", keyName, stateIdxStr);
       fprintf(fp, "  for (const auto& pair : map)\n");
       fprintf(fp, "  {\n");
-      fprintf(fp, "    dst[pair.first] = serializer->SerializeJSON(");
+      if (vtkWrap_IsInteger(&elements[0]))
+      {
+        fprintf(fp, "    dst[std::to_string(pair.first)] = serializer->SerializeJSON(");
+      }
+      else
+      {
+        fprintf(fp, "    dst[pair.first] = serializer->SerializeJSON(");
+      }
       fprintf(fp, "reinterpret_cast<vtkObjectBase*>(pair.second));\n");
       fprintf(fp, "  }\n");
       isWritten = 1;
@@ -630,6 +639,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
   const int isArray = vtkWrap_IsArray(val);
   const int isStdVector = vtkWrap_IsStdVector(val);
   const int isStdMap = vtkWrap_IsStdMap(val);
+  const int isStdUnorderedMap = vtkWrap_IsStdUnorderedMap(val);
   const int isIndexed = vtkWrapSerDes_IsIndexedWithSize(propertyInfo->PublicMethods);
 
   int isEnum = 0;
@@ -890,7 +900,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     }
     free(element);
   }
-  else if (isStdMap)
+  else if (isStdMap || isStdUnorderedMap)
   {
     const char** args;
     const char* defaults[] = { NULL, NULL };
@@ -900,9 +910,12 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     vtkParse_BasicTypeFromString(args[0], &(elements[0].Type), &(elements[0].Class), &n);
     vtkParse_BasicTypeFromString(args[1], &(elements[1].Type), &(elements[1].Class), &n);
 
-    /* check for a map from string to a vtkObject */
-    if (vtkWrap_IsString(&elements[0]) && vtkWrap_IsVTKObjectBaseType(hinfo, elements[1].Class))
+    /* check for a map from string or int to a vtkObject */
+    if ((vtkWrap_IsString(&elements[0]) || vtkWrap_IsInteger(&elements[0])) &&
+      vtkWrap_IsVTKObjectBaseType(hinfo, elements[1].Class))
     {
+      const char* mapType = isStdMap ? "map" : "unordered_map";
+      const char* mapKeyType = vtkWrap_IsString(&elements[0]) ? "std::string" : "int";
       fprintf(fp, "  {\n");
       if (!isIndexed)
       {
@@ -912,7 +925,7 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "    {\n");
       fprintf(fp, "      const auto* context = deserializer->GetContext();\n");
       fprintf(fp, "      auto values = iter->get<std::map<std::string, nlohmann::json>>();\n");
-      fprintf(fp, "      std::map<std::string, %s> map;\n", elements[1].Class);
+      fprintf(fp, "      std::%s<%s, %s> map;\n", mapType, mapKeyType, elements[1].Class);
       fprintf(fp, "      for (const auto& item : values)\n");
       fprintf(fp, "      {\n");
       fprintf(fp, "        const auto identifier = item.second.at(\"Id\").get<vtkTypeUInt32>();\n");
@@ -921,7 +934,8 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "        if (subObject != nullptr)\n");
       fprintf(fp, "        {\n");
       fprintf(fp, "          subObject->Register(object);\n");
-      fprintf(fp, "          map[item.first] = static_cast<%s>(static_cast<void*>(subObject));\n",
+      fprintf(fp, "          map[%s] = static_cast<%s>(static_cast<void*>(subObject));\n",
+        vtkWrap_IsInteger(&elements[0]) ? "std::stoi(item.first)" : "item.first",
         elements[1].Class);
       fprintf(fp, "        }\n");
       fprintf(fp, "      }\n");
