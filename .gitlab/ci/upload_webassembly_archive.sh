@@ -16,7 +16,8 @@ version="$major.$minor.$build"
 readonly version
 readonly prefix="vtk"
 readonly package_name="$prefix-$architecture"
+readonly package_tarball="$prefix-$version-$architecture.tar.gz"
 
 cd build/install/bin
-curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "$package_name.tar.gz" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$package_name/$version/$package_name.tar.gz"
+curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "$package_tarball" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/$package_name/$version/$package_tarball"
 cd ../../
