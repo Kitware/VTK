@@ -71,8 +71,8 @@ public:
   ~vtkAnariDeviceInternals() override = default;
 
   bool IsInitialized() const;
-  bool InitAnari(bool useDebugDevice = false, const char* libraryName = "environment",
-    const char* deviceName = "default");
+  bool InitAnari(const char* libraryName = "environment", const char* deviceName = "default",
+    bool useDebugDevice = false);
   void CleanupAnariObjects();
 
   template <typename T>
@@ -99,7 +99,7 @@ bool vtkAnariDeviceInternals::IsInitialized() const
 
 // ----------------------------------------------------------------------------
 bool vtkAnariDeviceInternals::InitAnari(
-  bool useDebugDevice, const char* libraryName, const char* deviceName)
+  const char* libraryName, const char* deviceName, bool useDebugDevice)
 {
   vtkAnariProfiling startProfiling("vtkAnariDeviceInternals::InitAnari", vtkAnariProfiling::YELLOW);
 
@@ -270,7 +270,7 @@ void vtkAnariDevice::SetAnariDebugConfig(const char* traceDir, const char* trace
 bool vtkAnariDevice::SetupAnariDeviceFromLibrary(
   const char* libraryName, const char* deviceName, bool enableDebugDevice)
 {
-  return this->Internal->InitAnari(enableDebugDevice, libraryName, deviceName);
+  return this->Internal->InitAnari(libraryName, deviceName, enableDebugDevice);
 }
 
 // ----------------------------------------------------------------------------
