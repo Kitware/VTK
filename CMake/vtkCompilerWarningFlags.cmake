@@ -75,6 +75,7 @@ if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   vtk_add_flag(-Wno-missing-noreturn ${langs})
   vtk_add_flag(-Wno-missing-prototypes ${langs})
   vtk_add_flag(-Wno-missing-variable-declarations ${langs})
+  vtk_add_flag(-Wno-nrvo ${langs}) # triggered in clang compiler when vtkNew<T> is returned
   vtk_add_flag(-Wno-objc-interface-ivars ${langs})
   vtk_add_flag(-Wno-padded ${langs})
   vtk_add_flag(-Wno-reserved-id-macro ${langs})
