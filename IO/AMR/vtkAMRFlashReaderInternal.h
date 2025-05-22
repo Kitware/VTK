@@ -94,22 +94,6 @@ typedef struct tagFlashReaderSimulationInformation
   char BuildTimeStamp[80];
 } FlashReaderSimulationInformation;
 
-static std::string GetSeparatedParticleName(const std::string& variable)
-{
-  std::string sepaName = variable;
-
-  if (sepaName.length() > 9 && sepaName.substr(0, 9) == "particle_")
-  {
-    sepaName = std::string("Particles/") + sepaName.substr(9);
-  }
-  else
-  {
-    sepaName = std::string("Particles/") + sepaName;
-  }
-
-  return sepaName;
-}
-
 // ----------------------------------------------------------------------------
 //                     Class  vtkFlashReaderInternal (begin)
 // ----------------------------------------------------------------------------
@@ -177,6 +161,22 @@ public:
   void ReadParticleAttributes();
   void ReadParticleAttributesFLASH3();
   void GetBlockAttribute(const char* attribute, int blockIdx, vtkDataSet* pDataSet);
+
+  static std::string GetSeparatedParticleName(const std::string& variable)
+  {
+    std::string sepaName = variable;
+
+    if (sepaName.length() > 9 && sepaName.substr(0, 9) == "particle_")
+    {
+      sepaName = std::string("Particles/") + sepaName.substr(9);
+    }
+    else
+    {
+      sepaName = std::string("Particles/") + sepaName;
+    }
+
+    return sepaName;
+  }
 };
 
 // ----------------------------------------------------------------------------

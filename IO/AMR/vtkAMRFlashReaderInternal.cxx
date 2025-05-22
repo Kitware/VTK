@@ -218,7 +218,7 @@ double vtkFlashReaderInternal::GetTime()
 const char* vtkFlashReaderInternal::GetParticleName(char* variableName)
 {
   static std::string particleName;
-  particleName = GetSeparatedParticleName(std::string(variableName));
+  particleName = vtkFlashReaderInternal::GetSeparatedParticleName(std::string(variableName));
   return particleName.c_str();
 }
 
@@ -1268,7 +1268,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
   for (int i = 0; i < numMembers; i++)
   {
     char* member_name = H5Tget_member_name(point_raw_type, i);
-    std::string nice_name = GetSeparatedParticleName(member_name);
+    std::string nice_name = vtkFlashReaderInternal::GetSeparatedParticleName(member_name);
     hid_t member_raw_type = H5Tget_member_type(point_raw_type, i);
     hid_t member_type = H5Tget_native_type(member_raw_type, H5T_DIR_ASCEND);
     int index = (int)(this->ParticleAttributeTypes.size());
@@ -1394,7 +1394,7 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
 
     if (name != "particle_x" && name != "particle_y" && name != "particle_z")
     {
-      std::string nice_name = GetSeparatedParticleName(name);
+      std::string nice_name = vtkFlashReaderInternal::GetSeparatedParticleName(name);
       this->ParticleAttributeTypes.push_back(H5T_NATIVE_DOUBLE);
       this->ParticleAttributeNames.push_back(name);
       this->ParticleAttributeNamesToIds[nice_name] = i;
