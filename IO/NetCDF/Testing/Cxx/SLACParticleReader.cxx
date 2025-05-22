@@ -25,27 +25,24 @@
 
 int SLACParticleReader(int argc, char* argv[])
 {
-  char* meshFileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/mesh.ncdf");
-  char* modeFileNamePattern =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/fields_%d.mod");
-  char* particleFileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/particles_5.ncdf");
+  char* directoryName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/");
+  const std::string directory = directoryName;
+  delete[] directoryName;
+  const std::string meshFileName = directory + "mesh.ncdf";
+  const std::string particleFileName = directory + "particles_5.ncdf";
 
   // Set up mesh reader.
   VTK_CREATE(vtkSLACReader, meshReader);
-  meshReader->SetMeshFileName(meshFileName);
-  delete[] meshFileName;
+  meshReader->SetMeshFileName(meshFileName.c_str());
 
-  size_t modeFileNameLength = strlen(modeFileNamePattern) + 10;
+  size_t modeFileNameLength = directory.size() + 32;
   char* modeFileName = new char[modeFileNameLength];
   for (int i = 0; i < 9; i++)
   {
-    snprintf(modeFileName, modeFileNameLength, modeFileNamePattern, i);
+    snprintf(modeFileName, modeFileNameLength, "%sfields_%d.mod", directory.c_str(), i);
     meshReader->AddModeFileName(modeFileName);
   }
   delete[] modeFileName;
-  delete[] modeFileNamePattern;
 
   meshReader->ReadInternalVolumeOn();
   meshReader->ReadExternalSurfaceOff();
@@ -57,8 +54,7 @@ int SLACParticleReader(int argc, char* argv[])
 
   // Set up particle reader.
   VTK_CREATE(vtkSLACParticleReader, particleReader);
-  particleReader->SetFileName(particleFileName);
-  delete[] particleFileName;
+  particleReader->SetFileName(particleFileName.c_str());
 
   // Set up rendering stuff.
   VTK_CREATE(vtkPolyDataMapper, meshMapper);
