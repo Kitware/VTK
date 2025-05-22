@@ -14,6 +14,7 @@
 #define vtkPolygon_h
 
 #include "vtkCell.h"
+#include "vtkCellStatus.h"            // For return type
 #include "vtkCommonDataModelModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -84,16 +85,16 @@ public:
    * Computes the unit normal to the polygon. If pts=nullptr, point indexing is
    * assumed to be {0, 1, ..., numPts-1}.
    */
-  static void ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double n[3]);
-  static void ComputeNormal(vtkPoints* p, double n[3]);
-  static void ComputeNormal(vtkIdTypeArray* ids, vtkPoints* pts, double n[3]);
+  static vtkCellStatus ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double n[3]);
+  static vtkCellStatus ComputeNormal(vtkPoints* p, double n[3]);
+  static vtkCellStatus ComputeNormal(vtkIdTypeArray* ids, vtkPoints* pts, double n[3]);
   ///@}
 
   /**
    * Compute the polygon normal from an array of points. This version assumes
    * that the polygon is convex, and looks for the first valid normal.
    */
-  static void ComputeNormal(int numPts, double* pts, double n[3]);
+  static vtkCellStatus ComputeNormal(int numPts, double* pts, double n[3]);
 
   /**
    * Determine whether or not a polygon is convex. This is a convenience
@@ -107,6 +108,14 @@ public:
   /**
    * Determine whether or not a polygon is convex. If pts=nullptr, point indexing
    * is assumed to be {0, 1, ..., numPts-1}.
+   *
+   * Note that in order to test convexity, the polygon must have a well-defined
+   * normal vector (i.e., have at least 3 points that are not collinear) and
+   * should also be planar to within some tolerance (if there are 4 or more points).
+   * Thus some variants of this method may return vtkCellStatus to indicate problems
+   * other than convexity.
+   *
+   * A default planarity tolerance is used in variants that do not explicitly accept one.
    */
   static bool IsConvex(vtkPoints* p, int numPts, const vtkIdType* pts);
   static bool IsConvex(vtkIdTypeArray* ids, vtkPoints* p);
@@ -138,7 +147,7 @@ public:
    * is estimated from the point coordinates and thus the centroid will become
    * ill-conditioned for large deviations from the plane.
    */
-  static bool ComputeCentroid(
+  static vtkCellStatus ComputeCentroid(
     vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3], double tolerance);
   static bool ComputeCentroid(vtkPoints* p, int numPts, const vtkIdType* pts, double centroid[3]);
   static bool ComputeCentroid(vtkIdTypeArray* ids, vtkPoints* pts, double centroid[3]);

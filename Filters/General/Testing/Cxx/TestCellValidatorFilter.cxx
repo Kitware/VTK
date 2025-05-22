@@ -14,7 +14,7 @@
 #include <vtkWeakPointer.h>
 
 //------------------------------------------------------------------------------
-bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellValidator::State>& expectedValues)
+bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellStatus>& expectedValues)
 {
   if (!stateArray)
   {
@@ -29,11 +29,11 @@ bool TestArray(vtkDataArray* stateArray, const std::vector<vtkCellValidator::Sta
 
   for (vtkIdType cellId = 0; cellId < size; cellId++)
   {
-    auto state =
-      static_cast<vtkCellValidator::State>(static_cast<short>(stateArray->GetTuple1(cellId)));
-    if (state != vtkCellValidator::Valid && (state & expectedValues[cellId]) == 0)
+    auto state = static_cast<vtkCellStatus>(static_cast<short>(stateArray->GetTuple1(cellId)));
+    if (state != vtkCellStatus::Valid && (state != expectedValues[cellId]))
     {
-      std::cout << "ERROR: invalid cell state found at id: " << cellId << "\n";
+      std::cerr << "ERROR: invalid cell state " << state << " found at id: " << cellId
+                << ", expected " << expectedValues[cellId] << "\n";
       return false;
     }
   }
@@ -53,18 +53,18 @@ int TestCellValidatorFilter(int, char*[])
   points->InsertNextPoint(0, 0.1, 0.1);
   polydata->SetPoints(points);
 
-  std::vector<vtkCellValidator::State> cellsValidity;
+  std::vector<vtkCellStatus> cellsValidity;
 
   vtkNew<vtkCellArray> lines;
   lines->InsertNextCell(2);
   lines->InsertCellPoint(0);
   lines->InsertCellPoint(1);
-  cellsValidity.emplace_back(vtkCellValidator::Valid);
+  cellsValidity.emplace_back(vtkCellStatus::Valid);
 
   lines->InsertNextCell(2);
   lines->InsertCellPoint(2);
   lines->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellValidator::Valid);
+  cellsValidity.emplace_back(vtkCellStatus::Valid);
 
   vtkNew<vtkCellArray> polys;
   polys->InsertNextCell(4);
@@ -72,27 +72,27 @@ int TestCellValidatorFilter(int, char*[])
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellValidator::Valid);
+  cellsValidity.emplace_back(vtkCellStatus::Valid);
 
   polys->InsertNextCell(4);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(3);
   polys->InsertCellPoint(2);
-  cellsValidity.emplace_back(vtkCellValidator::IntersectingEdges);
+  cellsValidity.emplace_back(vtkCellStatus::IntersectingEdges | vtkCellStatus::Nonconvex);
 
   polys->InsertNextCell(4);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   polys->InsertCellPoint(5);
   polys->InsertCellPoint(3);
-  cellsValidity.emplace_back(vtkCellValidator::Nonconvex);
+  cellsValidity.emplace_back(vtkCellStatus::Nonconvex);
 
   polys->InsertNextCell(2);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
   // line is not a poly: wrong number of points
-  cellsValidity.emplace_back(vtkCellValidator::WrongNumberOfPoints);
+  cellsValidity.emplace_back(vtkCellStatus::WrongNumberOfPoints);
 
   polydata->SetLines(lines);
   polydata->SetPolys(polys);

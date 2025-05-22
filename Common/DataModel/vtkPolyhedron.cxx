@@ -31,6 +31,8 @@
 #include <unordered_set>
 #include <vector>
 
+#define VTK_DEFAULT_PLANARITY_TOLERANCE 0.1
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolyhedron);
 
@@ -766,6 +768,12 @@ int vtkPolyhedron::IsInside(const double x[3], double tolerance)
 // December 1998, Pages 187 - 208.
 bool vtkPolyhedron::IsConvex()
 {
+  auto status = this->IsConvex(VTK_DEFAULT_PLANARITY_TOLERANCE);
+  return status == Status::Valid;
+}
+
+vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
+{
   double x[2][3], n[3], c[3], c0[3], c1[3], c0p[3], c1p[3], n0[3], n1[3];
   double np[3], tmp0, tmp1;
   vtkIdType i, w[2], edgeId, edgeFaces[2], v, r = 0;
@@ -798,14 +806,22 @@ bool vtkPolyhedron::IsConvex()
     this->Faces->GetCellAtId(edgeFaces[0], numPts, face, face_tmp);
 
     // compute the centroid and normal for the first face
-    vtkPolygon::ComputeCentroid(this->Points, numPts, face, c0);
+    auto status = vtkPolygon::ComputeCentroid(this->Points, numPts, face, c0, planarThreshold);
+    if (!status)
+    {
+      return status;
+    }
     vtkPolygon::ComputeNormal(this->Points, numPts, face, n0);
 
     // get the face vertex ids for the second face
     this->Faces->GetCellAtId(edgeFaces[1], numPts, face, face_tmp);
 
     // compute the centroid and normal for the second face
-    vtkPolygon::ComputeCentroid(this->Points, numPts, face, c1);
+    status = vtkPolygon::ComputeCentroid(this->Points, numPts, face, c1, planarThreshold);
+    if (!status)
+    {
+      return status;
+    }
     vtkPolygon::ComputeNormal(this->Points, numPts, face, n1);
 
     // check for local convexity (the average of the two centroids must be
@@ -819,7 +835,7 @@ bool vtkPolyhedron::IsConvex()
 
     if (vtkMath::Dot(n0, c0p) > 0. || vtkMath::Dot(n1, c1p) > 0.)
     {
-      return false;
+      return Status::Nonconvex;
     }
 
     // check if the edge is a seam edge
@@ -886,7 +902,7 @@ bool vtkPolyhedron::IsConvex()
       // emanating from the vertex => non-convex.
       if (d[v] == 2)
       {
-        return false;
+        return Status::Nonconvex;
       }
 
       // is this the first time that this vertex has been associated with a
@@ -911,14 +927,14 @@ bool vtkPolyhedron::IsConvex()
           }
           else
           {
-            return false;
+            return Status::Nonconvex;
           }
         }
       }
     }
   }
 
-  return true;
+  return Status::Valid;
 }
 
 //------------------------------------------------------------------------------
