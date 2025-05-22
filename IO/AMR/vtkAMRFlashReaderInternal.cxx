@@ -215,6 +215,14 @@ double vtkFlashReaderInternal::GetTime()
 }
 
 //------------------------------------------------------------------------------
+const char* vtkFlashReaderInternal::GetParticleName(char* variableName)
+{
+  static std::string particleName;
+  particleName = GetSeparatedParticleName(std::string(variableName));
+  return particleName.c_str();
+}
+
+//------------------------------------------------------------------------------
 void vtkFlashReaderInternal::ReadMetaData()
 {
   if (this->FileIndex >= 0)

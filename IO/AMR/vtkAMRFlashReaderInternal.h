@@ -156,12 +156,7 @@ public:
 
   void Init();
   void SetFileName(VTK_FILEPATH char* fileName) { this->FileName = fileName; }
-  const char* GetParticleName(char* variableName)
-  {
-    static std::string particleName;
-    particleName = GetSeparatedParticleName(std::string(variableName));
-    return particleName.c_str();
-  }
+  const char* GetParticleName(char* variableName);
 
   void ReadMetaData();
   void ReadProcessorIds();
