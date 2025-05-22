@@ -143,7 +143,6 @@ int vtkPixel::EvaluatePosition(const double x[3], double closestPoint[3], int& s
 void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3], double* weights)
 {
   const double *pt1, *pt2, *pt3;
-  int i;
 
   subId = 0;
 
@@ -160,7 +159,7 @@ void vtkPixel::EvaluateLocation(int& subId, const double pcoords[3], double x[3]
   pt2 = pts + 3;
   pt3 = pts + 6;
 
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; i++)
   {
     x[i] = pt1[i] + pcoords[0] * (pt2[i] - pt1[i]) + pcoords[1] * (pt3[i] - pt1[i]);
   }
