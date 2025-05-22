@@ -46,6 +46,7 @@ vtk_add_flag(-EHsc CXX)
 if (VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING)
   set(langs C)
   vtk_add_flag(-Wno-pre-c11-compat ${langs})
+  vtk_add_flag(-Wno-c++-keyword ${langs})
 
   set(langs C CXX)
   vtk_add_flag(-Weverything ${langs})
