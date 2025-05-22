@@ -931,7 +931,7 @@ public:
 
     for (const auto& bfieldData : this->Internals->BoundaryFields)
     {
-      if (oData.AssociatedGrid->GridNb != bfieldData.GridID)
+      if (oData.AssociatedGrid->GridNb != static_cast<unsigned int>(bfieldData.GridID))
       {
         continue;
       }
