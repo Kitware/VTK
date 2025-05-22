@@ -145,7 +145,7 @@ void vtkPlot3D::SetColors(vtkDataArray* colorArr)
 {
   assert(colorArr);
   const vtkIdType numPoints = this->Points->GetNumberOfPoints();
-  assert((unsigned int)colorArr->GetNumberOfTuples() == numPoints);
+  assert(colorArr->GetNumberOfTuples() == numPoints);
 
   this->NumberOfComponents = 3;
 
