@@ -41,6 +41,7 @@ public:
   /**
    * Get the vtkContext2D for the actor.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetNewMacro(Context, vtkContext2D);
   ///@}
 

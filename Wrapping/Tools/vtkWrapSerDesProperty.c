@@ -104,8 +104,8 @@ static int vtkWrapSerDes_IsDeserializable(const unsigned int methodType)
 
 /* -------------------------------------------------------------------- */
 /* If property type or name is to be excluded from marshalling, return 0 */
-static int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const FunctionInfo* functionInfo,
-  const PropertyInfo* propertyInfo, const char** reason)
+static int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const ClassInfo* classInfo,
+  const FunctionInfo* functionInfo, const PropertyInfo* propertyInfo, const char** reason)
 {
   const int ALLOWABLE = 1;
   const int UNALLOWABLE = 0;
@@ -142,8 +142,16 @@ static int vtkWrapSerDes_IsAllowable(const HierarchyInfo* hinfo, const FunctionI
   }
   else
   {
+    /* Single getter for vtkNew property */
+    if (methBitFlags == VTK_METHOD_GET &&
+      vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkObjectBase") &&
+      vtkWrap_IsVTKNew(classInfo, propertyInfo))
+
+    {
+      return ALLOWABLE;
+    }
     /* or a GET and derived from vtkCollection or vtkDataSetAttributes */
-    if (vtkWrapSerDes_MethodTypeMatches(methBitFlags, VTK_METHOD_GET))
+    else if (vtkWrapSerDes_MethodTypeMatches(methBitFlags, VTK_METHOD_GET))
     {
       if (vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkCollection") ||
         vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkDataSetAttributes"))
@@ -576,7 +584,9 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkLightCollection") ||
       vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkPropCollection") ||
       vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkRendererCollection") ||
-      vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkDataSetAttributes"))
+      vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkDataSetAttributes") ||
+      (vtkWrap_IsTypeOf(hinfo, propertyInfo->ClassName, "vtkObjectBase") &&
+        propertyInfo->PublicMethods == VTK_METHOD_GET && !isMappedProperty))
     {
       // These types are not settable on any instance.
       // For example:
@@ -1017,7 +1027,7 @@ void vtkWrapSerDes_Properties(
         theProp->ClassName);
       vtkWrapSerDes_WriteBitField(fp, theProp->PublicMethods);
       const char* skipReason = NULL;
-      if (!vtkWrapSerDes_IsAllowable(hinfo, theFunc, theProp, &skipReason) &&
+      if (!vtkWrapSerDes_IsAllowable(hinfo, classInfo, theFunc, theProp, &skipReason) &&
         !theFunc->MarshalPropertyName)
       {
         fprintf(fp, "\n   * - skipped due to reason=%s*/\n", skipReason);
