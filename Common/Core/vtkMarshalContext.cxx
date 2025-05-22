@@ -148,7 +148,16 @@ bool vtkMarshalContext::RegisterState(nlohmann::json state)
     }
     else
     {
-      stateIter->swap(state);
+      // Here `stateIter` refers to the existing state with the same identifier.
+      // add all keys from `state` to the `stateIter`.
+      // Note: the `merge_objects` flag is set to true in order to merge lists from `state` into
+      // the `stateIter`.
+      // Example:
+      // stateIter: {"Id: 1, "Color": "blue", "Points": [1, 2, 3], "Name": "foo"}
+      // state: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5]}
+      // After merge:
+      // stateIter: {"Id: 1, "Color": "red", "Points": [1, 2, 3, 4, 5], "Name": "foo"}
+      stateIter->update(state, /*merge_objects=*/false);
       return true;
     }
   }
