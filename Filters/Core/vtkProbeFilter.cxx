@@ -487,7 +487,7 @@ public:
     auto& lastLength2 = tlData.LastLength2;
     auto& lastCellId = tlData.LastCellId;
     // local data
-    double x[3], dist2;
+    double x[3], dist2 = 0.0;
     vtkIdType closestPointFound;
     int inside;
     bool foundInCache, insideCellBounds;
@@ -557,7 +557,6 @@ public:
               this->Source->GetCell(lastCellId, lastCell);
               lastCellId = closestPointStrategy->FindCell(
                 x, lastCell, currentCell, lastCellId, this->Tol2, lastSubId, lastPCoords, weights);
-              foundInCache = lastCellId != -1;
             }
             else
             {
@@ -585,6 +584,8 @@ public:
           // pcoords, weights and subid are all valid, so we can compute the closest point
           // using EvaluateLocation
           currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
+          // also compute distance
+          dist2 = vtkMath::Distance2BetweenPoints(x, lastClosestPoint);
           // copy bounds
           lastBBox.SetBounds(currentCell->GetBounds());
           // compute lastLength2
@@ -625,7 +626,6 @@ public:
         {
           // If ComputeTolerance is set, compute a tolerance proportional to the
           // cell length.
-          dist2 = vtkMath::Distance2BetweenPoints(x, lastClosestPoint);
           if (dist2 > (lastLength2 * CELL_TOLERANCE_FACTOR_SQR))
           {
             continue;

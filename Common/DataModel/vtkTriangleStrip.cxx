@@ -100,13 +100,14 @@ void vtkTriangleStrip::EvaluateLocation(
   const double* pt3 = pts + 3 * (subId + idx[order][2]);
   const double u3 = 1.0 - pcoords[0] - pcoords[1];
 
-  weights[0] = u3;
-  weights[1] = pcoords[0];
-  weights[2] = pcoords[1];
+  std::fill_n(weights, this->Points->GetNumberOfPoints(), 0.0);
+  weights[subId] = u3;
+  weights[subId + 1] = pcoords[0];
+  weights[subId + 2] = pcoords[1];
 
   for (int i = 0; i < 3; i++)
   {
-    x[i] = pt1[i] * weights[0] + pt2[i] * weights[1] + pt3[i] * weights[2];
+    x[i] = pt1[i] * weights[subId] + pt2[i] * weights[subId + 1] + pt3[i] * weights[subId + 2];
   }
 }
 

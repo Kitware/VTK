@@ -254,12 +254,10 @@ int vtkConvexPointSet::EvaluatePosition(const double x[3], double vtkNotUsed(clo
 void vtkConvexPointSet::EvaluateLocation(
   int& subId, const double pcoords[3], double x[3], double* weights)
 {
-  int i;
-  int numPnts;
   double tmpWgts[4];
   vtkIdType pntIndx;
 
-  for (i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
     pntIndx = this->PointIds->GetId(this->TetraIds->GetId((subId << 2) + i));
     this->Tetra->PointIds->SetId(i, pntIndx);
@@ -270,11 +268,7 @@ void vtkConvexPointSet::EvaluateLocation(
   this->Tetra->EvaluateLocation(subId, pcoords, x, tmpWgts);
 
   // init the actual array of weights (possibly greater than 4)
-  numPnts = this->GetNumberOfPoints();
-  for (i = 0; i < numPnts; i++)
-  {
-    weights[i] = 0.0;
-  }
+  std::fill_n(weights, this->GetNumberOfPoints(), 0.0);
 
   // update the target weights only
   weights[this->TetraIds->GetId((subId << 2))] = tmpWgts[0];
