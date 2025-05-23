@@ -240,7 +240,6 @@ public:
   {
     double v =
       (this->*SampleFactor)(this->S) * std::exp(this->ExponentFactor * (dist2) / (this->Radius2));
-    ///@}
 
     if (!this->Visited[idx])
     {
@@ -269,6 +268,7 @@ public:
       }
     } // not first visit
   }
+  ///@}
 
 protected:
   vtkGaussianSplatter();
