@@ -276,8 +276,15 @@ endforeach ()
 
 # Update sources to include render window specializations for
 # offscreen-only modes, if enabled.
+set(has_vtkRenderWindow_override 0)
 if (VTK_OPENGL_HAS_EGL)
   list(APPEND classes vtkEGLRenderWindow)
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_object_factory_declare(
+      BASE vtkRenderWindow
+      OVERRIDE vtkOpenGLRenderWindow)
+    set(has_vtkRenderWindow_override 1)
+  endif ()
   set_source_files_properties(vtkEGLRenderWindow.cxx
     PROPERTIES
       COMPILE_DEFINITIONS "VTK_DEFAULT_EGL_DEVICE_INDEX=${VTK_DEFAULT_EGL_DEVICE_INDEX}")
@@ -289,7 +296,7 @@ endif ()
 # vtkOpenGLRenderWindow has runtime detection of suitable backend in it's New() method.
 if (VTK_USE_X)
   list(APPEND classes vtkXOpenGLRenderWindow)
-  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS AND NOT has_vtkRenderWindow_override)
     vtk_object_factory_declare(
       BASE vtkRenderWindow
       OVERRIDE vtkOpenGLRenderWindow)
@@ -299,7 +306,7 @@ elseif (VTK_USE_WIN32_OPENGL)
   list(APPEND classes
     vtkWin32OpenGLRenderWindow
     vtkWin32OpenGLDXRenderWindow)
-  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS AND NOT has_vtkRenderWindow_override)
     vtk_object_factory_declare(
       BASE vtkRenderWindow
       OVERRIDE vtkOpenGLRenderWindow)
