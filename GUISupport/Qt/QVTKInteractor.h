@@ -16,7 +16,7 @@ VTK_ABI_NAMESPACE_BEGIN
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
 class vtkTDxWinDevice;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
 class vtkTDxMacDevice;
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
@@ -99,7 +99,7 @@ protected:
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
   vtkTDxWinDevice* Device;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   vtkTDxMacDevice* Device;
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))

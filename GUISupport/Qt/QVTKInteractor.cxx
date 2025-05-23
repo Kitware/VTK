@@ -20,7 +20,7 @@
 #include "vtkTDxWinDevice.h"
 #endif
 
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
 #include "vtkTDxMacDevice.h"
 #endif
 
@@ -70,7 +70,7 @@ QVTKInteractor::QVTKInteractor()
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
   this->Device = vtkTDxWinDevice::New();
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   this->Device = vtkTDxMacDevice::New();
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
@@ -93,7 +93,7 @@ void QVTKInteractor::Initialize()
     }
   }
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   if (this->UseTDx)
   {
     if (!this->Device->GetInitialized())
@@ -148,7 +148,7 @@ void QVTKInteractor::StartListening()
     this->Device->StartListening();
   }
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   if (this->UseTDx && !this->Device->GetInitialized())
   {
     this->Device->Initialize();
@@ -171,7 +171,7 @@ void QVTKInteractor::StopListening()
     this->Device->StopListening();
   }
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   if (this->UseTDx && this->Device->GetInitialized())
   {
     this->Device->Close();
@@ -211,7 +211,7 @@ QVTKInteractor::~QVTKInteractor()
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
   this->Device->Delete();
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
+#if defined(VTK_USE_TDX) && defined(Q_OS_MACOS)
   this->Device->Delete();
 #endif
 #if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
