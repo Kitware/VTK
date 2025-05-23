@@ -260,7 +260,7 @@ void vtkUnsignedDistance::StartAppend()
   {
     double* newScalars =
       static_cast<double*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-    std::fill_n(newScalars, numPts, static_cast<double>(this->CapValue));
+    std::fill_n(newScalars, numPts, this->CapValue);
   }
   else
   {

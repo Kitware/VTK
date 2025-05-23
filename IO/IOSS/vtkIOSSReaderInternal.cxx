@@ -963,11 +963,9 @@ Ioss::Region* vtkIOSSReaderInternal::GetRegion(const std::string& dbasename, int
     dbase->set_surface_split_type(Ioss::SPLIT_BY_ELEMENT_BLOCK);
 
     // note: `Ioss::Region` constructor may throw exception.
-    auto region = std::make_shared<Ioss::Region>(dbase.get());
-
     // release the dbase ptr since region (if created successfully) takes over
     // the ownership and calls delete on it when done.
-    (void)dbase.release();
+    auto region = std::make_shared<Ioss::Region>(dbase.release());
 
     riter =
       this->RegionMap.insert(std::make_pair(std::make_pair(dbasename, processor), region)).first;
@@ -2057,7 +2055,7 @@ bool vtkIOSSReaderInternal::GetNodeFields(vtkDataSetAttributes* dsa,
   else
   {
     // Exodus
-    const auto blockname = group_entity->name();
+    const auto& blockname = group_entity->name();
     auto& cache = this->Cache;
     vtkIdTypeArray* vtk_raw_ids_array = !mergeExodusEntityBlocks
       ? vtkIdTypeArray::SafeDownCast(cache.Find(group_entity, "__vtk_mesh_original_pt_ids__"))

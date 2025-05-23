@@ -3018,7 +3018,8 @@ int vtkMultiBlockPLOT3DReader::CanReadBinaryFile(const char* fname)
     fclose(xyzFp);
     return 0;
   }
-  rewind(xyzFp);
+  clearerr(xyzFp);           // clear error and EOF flags
+  fseek(xyzFp, 0, SEEK_SET); // move to beginning
 
   int numBlocks = this->GetNumberOfBlocksInternal(xyzFp, 0);
   fclose(xyzFp);

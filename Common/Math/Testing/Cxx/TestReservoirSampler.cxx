@@ -72,7 +72,7 @@ int TestReservoirSamplerExceptions()
   try
   {
     vtkReservoirSampler<int> good;
-    good(10, 20);
+    (void)good(10, 20);
   }
   catch (std::invalid_argument& e)
   {
@@ -89,7 +89,7 @@ int TestReservoirSamplerExceptions()
   try
   {
     vtkReservoirSampler<int> good;
-    good(50, 20);
+    (void)good(50, 20);
   }
   catch (std::invalid_argument& e)
   {
@@ -106,7 +106,7 @@ int TestReservoirSamplerExceptions()
   try
   {
     vtkReservoirSampler<int> good;
-    good(0, 10);
+    (void)good(0, 10);
   }
   catch (std::invalid_argument& e)
   {
@@ -123,7 +123,7 @@ int TestReservoirSamplerExceptions()
   try
   {
     vtkReservoirSampler<int> good;
-    good(0, static_cast<int>(0));
+    (void)good(0, 0);
   }
   catch (std::invalid_argument& e)
   {

@@ -28,10 +28,10 @@ struct vtkOpenXRSceneObserver::vtkInternals
   XrSceneObserverMSFT SceneObserver{};
   XrTime NextObserverQueryTime{};
   XrTime ObserverStartTime{};
-  std::vector<XrSceneComputeFeatureMSFT> SupportedFeatures{};
-  std::vector<XrSceneComputeFeatureMSFT> EnabledFeatures{};
+  std::vector<XrSceneComputeFeatureMSFT> SupportedFeatures;
+  std::vector<XrSceneComputeFeatureMSFT> EnabledFeatures;
   bool SupportsMarker{};
-  ComponentMap Components{};
+  ComponentMap Components;
 
   bool GetMarkersInfo(XrSceneMSFT scene, vtkOpenXRSceneObserver* parent)
   {

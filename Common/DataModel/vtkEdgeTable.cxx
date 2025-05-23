@@ -6,6 +6,8 @@
 #include "vtkPoints.h"
 #include "vtkVoidArray.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkEdgeTable);
 
@@ -496,8 +498,7 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
 
   size = (size < this->TableSize ? size : this->TableSize);
   newTableArray = new vtkIdList*[newSize];
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  memcpy(newTableArray, this->Table, size * sizeof(*newTableArray));
+  std::copy_n(this->Table, size, newTableArray);
   for (i = size; i < newSize; i++)
   {
     newTableArray[i] = nullptr;
@@ -509,8 +510,7 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
   if (this->StoreAttributes == 1)
   {
     newAttributeArray = new vtkIdList*[newSize];
-    // NOLINTNEXTLINE(bugprone-sizeof-expression)
-    memcpy(newAttributeArray, this->Attributes, size * sizeof(*newAttributeArray));
+    std::copy_n(this->Attributes, size, newAttributeArray);
     for (i = size; i < newSize; i++)
     {
       newAttributeArray[i] = nullptr;
@@ -521,8 +521,7 @@ vtkIdList** vtkEdgeTable::Resize(vtkIdType size)
   else if (this->StoreAttributes == 2)
   {
     newPointerAttributeArray = new vtkVoidArray*[newSize];
-    // NOLINTNEXTLINE(bugprone-sizeof-expression)
-    memcpy(newPointerAttributeArray, this->Attributes, size * sizeof(*newPointerAttributeArray));
+    std::copy_n(this->PointerAttributes, size, newPointerAttributeArray);
     for (i = size; i < newSize; i++)
     {
       newPointerAttributeArray[i] = nullptr;

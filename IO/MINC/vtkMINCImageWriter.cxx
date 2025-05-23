@@ -588,7 +588,7 @@ int vtkMINCImageWriter::CreateMINCDimensions(vtkImageData* input, int numTimeSte
   this->FileDimensionNames->SetNumberOfValues(ndim);
   for (int idim = 0; idim < ndim; idim++)
   {
-    std::string dimname = dimensions[idim];
+    const auto& dimname = dimensions[idim];
     this->FileDimensionNames->SetValue(idim, dimname);
     int dimIndex = this->IndexFromDimensionName(dimname.c_str());
     size_t length = numTimeSteps;
@@ -707,7 +707,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
   int ivar = 0;
   for (ivar = 0; ivar < nvars; ivar++)
   {
-    std::string varname = variables[ivar];
+    const auto& varname = variables[ivar];
     if (varname == MIrootvariable || varname == MIimagemin || varname == MIimagemax)
     {
       continue;
@@ -970,7 +970,6 @@ int vtkMINCImageWriter::CreateMINCVariables(
     }
     if (attArray)
     {
-      std::string varpath = MI_GRPNAME MI_GRP_SEP;
       int natts = attArray->GetNumberOfValues();
       for (int iatt = 0; iatt < natts; iatt++)
       {

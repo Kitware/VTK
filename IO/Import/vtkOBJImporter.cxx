@@ -447,7 +447,8 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       // Reset file position
-      rewind(in);
+      clearerr(in);           // clear error and EOF flags
+      fseek(in, 0, SEEK_SET); // move to beginning
     }
 
     if (mtllibDefined)

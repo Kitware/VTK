@@ -55,8 +55,6 @@ MPI_Comm MPIGetComm()
 
 void WriteBPFileNoSchema(const std::string& fileName)
 {
-  const std::string extent = "0 10 0 10 0 10";
-
   ADIOS_OPEN(fw, fileName);
   for (size_t t = 0; t < 2; ++t)
   {

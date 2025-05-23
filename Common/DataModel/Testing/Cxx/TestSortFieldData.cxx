@@ -49,7 +49,7 @@ int TestSortFieldData(int, char*[])
     ostr.str(""); // clear it out
     ostr << i;
     sArray->SetValue(permute[i], ostr.str());
-    dArray->SetComponent(i, 0, static_cast<double>(vtkMath::Random(-1, 1)));
+    dArray->SetComponent(i, 0, vtkMath::Random(-1, 1));
     dArray->SetComponent(permute[i], 1, static_cast<double>(i));
     vArray->SetValue(permute[i], vtkVariant(ostr.str()));
   }

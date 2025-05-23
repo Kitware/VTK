@@ -856,9 +856,15 @@ int vtkNIFTIImageWriter::RequestData(vtkInformation* vtkNotUsed(request),
       int code = gzwrite(file, rowBuffer, rowSize * scalarSize);
       bytesWritten = (code < 0 ? 0 : code);
     }
-    else
+    else if (rowBuffer)
     {
       bytesWritten = fwrite(rowBuffer, scalarSize, rowSize, ufile) * scalarSize;
+    }
+    else
+    {
+      vtkErrorMacro("Buffer is null, cannot write data");
+      this->SetErrorCode(vtkErrorCode::UnknownError);
+      break;
     }
     if (bytesWritten < static_cast<size_t>(rowSize * scalarSize))
     {

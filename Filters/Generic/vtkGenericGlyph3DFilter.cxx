@@ -476,7 +476,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
         value = vMag;
       }
 
-      index = static_cast<int>(static_cast<double>(value - this->Range[0]) * numberOfSources / den);
+      index = static_cast<int>((value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 : (index >= numberOfSources ? (numberOfSources - 1) : index));
 
       if (this->GetSource(index) != nullptr)
@@ -545,7 +545,7 @@ int vtkGenericGlyph3DFilter::RequestData(vtkInformation* vtkNotUsed(request),
           vNew[0] = (v[0] + vMag) / 2.0;
           vNew[1] = v[1] / 2.0;
           vNew[2] = v[2] / 2.0;
-          trans->RotateWXYZ(static_cast<double>(180.0), vNew[0], vNew[1], vNew[2]);
+          trans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
         }
       }
     }

@@ -1779,9 +1779,9 @@ wheel-sdk:upload:
 
 ## Static analysis builds
 
-fedora39-x86_64-tidy:build:
+fedora42-x86_64-tidy:build:
     extends:
-        - .fedora39_x86_64_tidy
+        - .fedora42_x86_64_tidy
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_tidy_artifacts

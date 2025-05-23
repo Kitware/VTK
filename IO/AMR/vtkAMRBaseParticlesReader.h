@@ -86,7 +86,7 @@ public:
   /**
    * Sets the min location
    */
-  inline void SetMinLocation(double minx, double miny, double minz)
+  void SetMinLocation(double minx, double miny, double minz)
   {
     this->MinLocation[0] = minx;
     this->MinLocation[1] = miny;
@@ -98,7 +98,7 @@ public:
   /**
    * Sets the max location
    */
-  inline void SetMaxLocation(double maxx, double maxy, double maxz)
+  void SetMaxLocation(double maxx, double maxy, double maxz)
   {
     this->MaxLocation[0] = maxx;
     this->MaxLocation[1] = maxy;

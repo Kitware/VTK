@@ -723,6 +723,7 @@ int vtkExtractSubsetWithSeed::RequestData(
         // since a leaf node can result in multiple pieces e.g. replaceLeaves()
         // may return a vtkMultiPieceDataSet, we handle it this way.
         std::vector<vtkDataObject*> extracts;
+        extracts.reserve(mp->GetNumberOfPieces());
         for (unsigned int cc = 0; cc < mp->GetNumberOfPieces(); ++cc)
         {
           extracts.push_back(replaceLeaves(mp->GetPiece(cc)));

@@ -186,7 +186,7 @@ int otherFieldData(int, char*[])
 
   // Coverage
   vtkFieldData::Iterator it(fd);
-  vtkFieldData::Iterator it2(it);
+  const vtkFieldData::Iterator it2(it); // NOLINT(performance-unnecessary-copy-initialization)
   (void)it;
   (void)it2;
 

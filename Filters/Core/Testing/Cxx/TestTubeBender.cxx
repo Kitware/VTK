@@ -53,7 +53,7 @@ int TestTubeBender(int argc, char* argv[])
 
     for (size_t i = 0; i < cellMap.size(); i++)
     {
-      auto cellN = cellMap[i];
+      const auto& cellN = cellMap[i];
       vtkNew<vtkPolyLine> polyline;
       polyline->GetPointIds()->SetNumberOfIds(static_cast<vtkIdType>(cellN.size()));
       for (size_t j = 0; j < cellN.size(); j++)

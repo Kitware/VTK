@@ -30,7 +30,7 @@ public:
   {
     vtkRenderWindowInteractor* rwi = this->GetInteractor();
 
-    vtkStdString path = filePaths->GetValue(0);
+    const vtkStdString& path = filePaths->GetValue(0);
 
     vtkNew<vtkXMLPolyDataReader> reader;
     reader->SetFileName(path.c_str());

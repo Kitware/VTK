@@ -132,7 +132,7 @@ public:
    * Get a pointer to Particle variables at its previous position
    * See GetEquationVariables for content description
    */
-  inline double* GetPrevEquationVariables() { return this->PrevEquationVariables.data(); }
+  double* GetPrevEquationVariables() { return this->PrevEquationVariables.data(); }
   ///@}
 
   ///@{
@@ -148,7 +148,7 @@ public:
    * the number of user variables can be recovered by GetNumberOfUserVariables,
    * but it is always NumberOfVariables - 7.
    */
-  inline double* GetEquationVariables() { return this->EquationVariables.data(); }
+  double* GetEquationVariables() { return this->EquationVariables.data(); }
   ///@}
 
   ///@{
@@ -157,7 +157,7 @@ public:
    * To be used with vtkInitialValueProblemSolver::ComputeNextStep.
    * See GetEquationVariables for content description
    */
-  inline double* GetNextEquationVariables() { return this->NextEquationVariables.data(); }
+  double* GetNextEquationVariables() { return this->NextEquationVariables.data(); }
   ///@}
 
   ///@{
@@ -166,7 +166,7 @@ public:
    * Convenience method, giving the same
    * results as GetPrevEquationVariables().
    */
-  inline double* GetPrevPosition() { return this->PrevEquationVariables.data(); }
+  double* GetPrevPosition() { return this->PrevEquationVariables.data(); }
   ///@}
 
   ///@{
@@ -175,7 +175,7 @@ public:
    * Convenience method, giving the same
    * results as GetEquationVariables().
    */
-  inline double* GetPosition() { return this->EquationVariables.data(); }
+  double* GetPosition() { return this->EquationVariables.data(); }
   ///@}
 
   ///@{
@@ -184,7 +184,7 @@ public:
    * Convenience method, giving the same
    * results as GetNextEquationVariables();
    */
-  inline double* GetNextPosition() { return this->NextEquationVariables.data(); }
+  double* GetNextPosition() { return this->NextEquationVariables.data(); }
   ///@}
 
   ///@{
@@ -193,7 +193,7 @@ public:
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 3;
    */
-  inline double* GetPrevVelocity() { return this->PrevVelocity; }
+  double* GetPrevVelocity() { return this->PrevVelocity; }
   ///@}
 
   ///@{
@@ -202,7 +202,7 @@ public:
    * Convenience method, giving the result:
    * GetEquationVariables() + 3;
    */
-  inline double* GetVelocity() { return this->Velocity; }
+  double* GetVelocity() { return this->Velocity; }
   ///@}
 
   ///@{
@@ -211,7 +211,7 @@ public:
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 3;
    */
-  inline double* GetNextVelocity() { return this->NextVelocity; }
+  double* GetNextVelocity() { return this->NextVelocity; }
   ///@}
 
   ///@{
@@ -220,7 +220,7 @@ public:
    * Convenience method, giving the result:
    * GetPrevEquationVariables() + 6;
    */
-  inline double* GetPrevUserVariables() { return this->PrevUserVariables; }
+  double* GetPrevUserVariables() { return this->PrevUserVariables; }
   ///@}
 
   ///@{
@@ -229,7 +229,7 @@ public:
    * Convenience method, giving the result:
    * GetEquationVariables() + 6;
    */
-  inline double* GetUserVariables() { return this->UserVariables; }
+  double* GetUserVariables() { return this->UserVariables; }
   ///@}
 
   ///@{
@@ -238,7 +238,7 @@ public:
    * Convenience method, giving the result:
    * GetNextEquationVariables() + 6;
    */
-  inline double* GetNextUserVariables() { return this->NextUserVariables; }
+  double* GetNextUserVariables() { return this->NextUserVariables; }
   ///@}
 
   ///@{
@@ -246,7 +246,7 @@ public:
    * Get a reference to PrevTrackedUserData
    * See GetTrackedUserData for an explanation on how to use it.
    */
-  inline std::vector<double>& GetPrevTrackedUserData() { return this->PrevTrackedUserData; }
+  std::vector<double>& GetPrevTrackedUserData() { return this->PrevTrackedUserData; }
   ///@}
 
   ///@{
@@ -260,7 +260,7 @@ public:
    * If you are using these, you are supposed to compute and set the next tracked user data
    * your implementation of FunctionValues in your model.
    */
-  inline std::vector<double>& GetTrackedUserData() { return this->TrackedUserData; }
+  std::vector<double>& GetTrackedUserData() { return this->TrackedUserData; }
   ///@}
 
   ///@{
@@ -268,7 +268,7 @@ public:
    * Get a reference to NextTrackedUserData
    * See GetTrackedUserData for an explanation on how to use it.
    */
-  inline std::vector<double>& GetNextTrackedUserData() { return this->NextTrackedUserData; }
+  std::vector<double>& GetNextTrackedUserData() { return this->NextTrackedUserData; }
   ///@}
 
   ///@{
@@ -279,8 +279,8 @@ public:
    * that you may need. This is set by the vtkLagrangianParticleTracker and can be
    * initialized/finalized in the model
    */
-  inline vtkLagrangianThreadedData* GetThreadedData() { return this->ThreadedData; }
-  inline void SetThreadedData(vtkLagrangianThreadedData* threadedData)
+  vtkLagrangianThreadedData* GetThreadedData() { return this->ThreadedData; }
+  void SetThreadedData(vtkLagrangianThreadedData* threadedData)
   {
     this->ThreadedData = threadedData;
   }

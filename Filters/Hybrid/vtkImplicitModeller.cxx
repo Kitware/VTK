@@ -407,8 +407,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend(void* arg)
   // compute dimensional bounds in data set
   for (i = 0; i < 3; i++)
   {
-    outExt[i * 2] = (int)((double)(adjBounds[2 * i] - origin[i]) / spacing[i]);
-    outExt[i * 2 + 1] = (int)((double)(adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
+    outExt[i * 2] = (int)((adjBounds[2 * i] - origin[i]) / spacing[i]);
+    outExt[i * 2 + 1] = (int)((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
     if (outExt[i * 2] < 0)
     {
       outExt[i * 2] = 0;
@@ -523,8 +523,8 @@ void vtkImplicitModellerAppendExecute(
     // compute dimensional bounds in data set
     for (i = 0; i < 3; i++)
     {
-      outExt[i * 2] = (int)((double)(adjBounds[2 * i] - origin[i]) / spacing[i]);
-      outExt[i * 2 + 1] = (int)((double)(adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
+      outExt[i * 2] = (int)(adjBounds[2 * i] - origin[i]) / spacing[i];
+      outExt[i * 2 + 1] = (int)((adjBounds[2 * i + 1] - origin[i]) / spacing[i]);
       if (outExt[i * 2] < 0)
       {
         outExt[i * 2] = 0;

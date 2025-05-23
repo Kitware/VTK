@@ -510,5 +510,5 @@ FILE* vtkParse_FileOpen(const char* fname, const char* mode)
     vtkParse_AddDependency(fname);
   }
 
-  return vtkParse_FileOpenNoDependency(fname, mode);
+  return vtkParse_FileOpenNoDependency(fname, mode ? mode : "r");
 }

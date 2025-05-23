@@ -1784,7 +1784,8 @@ public:
       {
         this->IsCompressed = false;
       }
-      rewind(this->File);
+      clearerr(this->File);           // clear error and EOF flags
+      fseek(this->File, 0, SEEK_SET); // move to beginning
 #if VTK_OPENFOAM_TIME_PROFILING
       auto end = std::chrono::high_resolution_clock::now();
       this->TimeInMicroseconds =
@@ -5931,6 +5932,7 @@ bool vtkFoamBoundaries::update(const vtkFoamDict& dict)
         if (subentry && subentry->GetType() == vtkFoamToken::STRINGLIST)
         {
           // Yes this is really needed, VTK constness is a bit odd
+          // NOLINTNEXTLINE(readability-redundant-casting)
           vtkStringArray& groupNames = const_cast<vtkStringArray&>(subentry->StringList());
           const vtkIdType nGroups = groupNames.GetNumberOfValues();
 

@@ -428,7 +428,7 @@ int vtkNrrdReader::ReadHeader(vtkCharArray* headerBuffer)
           // where <format> is a string to be processed by snprintf and <min>,
           // <max>, and <step> form the numbers.  <subdim> defines on which
           // dimension the files are split up.
-          std::string format = filepatterninfo[0];
+          const std::string& format = filepatterninfo[0];
           int min = atoi(filepatterninfo[1].c_str());
           int max = atoi(filepatterninfo[2].c_str());
           int step = atoi(filepatterninfo[3].c_str());

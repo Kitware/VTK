@@ -589,8 +589,7 @@ void vtkImageHistogramFunctor::Reduce()
   vtkIdType* histogram = this->Histogram->GetPointer(0);
   vtkIdType total = 0;
 
-  int numberOfBins =
-    static_cast<vtkImageHistogram*>(this->PipelineInfo->Algorithm)->GetNumberOfBins();
+  int numberOfBins = this->PipelineInfo->Algorithm->GetNumberOfBins();
 
   // clear histogram to zero
   for (int i = 0; i < numberOfBins; i++)

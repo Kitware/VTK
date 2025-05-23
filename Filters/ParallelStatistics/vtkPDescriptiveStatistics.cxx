@@ -125,7 +125,7 @@ void vtkPDescriptiveStatistics::Learn(
       double mom4_part = M_g[o + 3];
 
       double delta = mean_part - mean;
-      double delta_sur_N = delta / static_cast<double>(N);
+      double delta_sur_N = delta / N;
       double delta2_sur_N2 = delta_sur_N * delta_sur_N;
 
       double ns2 = ns * ns;

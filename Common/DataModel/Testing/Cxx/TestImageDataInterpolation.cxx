@@ -28,8 +28,8 @@ double SafeDiv(const double a, const double b)
     return std::numeric_limits<double>::max();
 
   // Catch underflow
-  if ((a == static_cast<double>(0.0)) || ((b > 1) && (a < b * std::numeric_limits<double>::max())))
-    return (static_cast<double>(0.0));
+  if ((a == 0.0) || ((b > 1) && (a < b * std::numeric_limits<double>::max())))
+    return (0.0);
 
   return (a / b);
 }

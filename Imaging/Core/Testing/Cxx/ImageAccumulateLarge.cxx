@@ -28,8 +28,8 @@ int ImageAccumulateLarge(int argc, char* argv[])
   vtkIdType oneBinExpected = 10;
   vtkIdType zeroBinExpected = dim * dim * dim - oneBinExpected;
 
-  memset(static_cast<void*>(image->GetScalarPointer(oneBinExpected, 0, 0)), 0, zeroBinExpected);
-  memset(static_cast<void*>(image->GetScalarPointer(0, 0, 0)), 1, oneBinExpected);
+  memset(image->GetScalarPointer(oneBinExpected, 0, 0), 0, zeroBinExpected);
+  memset(image->GetScalarPointer(0, 0, 0), 1, oneBinExpected);
 
   vtkSmartPointer<vtkImageAccumulate> filter = vtkSmartPointer<vtkImageAccumulate>::New();
   filter->SetInputData(image);
@@ -37,10 +37,10 @@ int ImageAccumulateLarge(int argc, char* argv[])
   filter->SetComponentOrigin(0, 0, 0);
   filter->SetComponentSpacing(1, 1, 1);
   filter->Update();
-  vtkIdType zeroBinResult = static_cast<vtkIdType>(
-    *(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(0, 0, 0))));
-  vtkIdType oneBinResult = static_cast<vtkIdType>(
-    *(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(1, 0, 0))));
+  vtkIdType zeroBinResult =
+    (*(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(0, 0, 0))));
+  vtkIdType oneBinResult =
+    (*(static_cast<vtkIdType*>(filter->GetOutput()->GetScalarPointer(1, 0, 0))));
   int status = EXIT_SUCCESS;
   if (zeroBinResult != zeroBinExpected)
   {

@@ -27,9 +27,6 @@ int TestContourTriangulatorCutter(int argc, char* argv[])
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();
   testHelper->AddArguments(argc, argv);
 
-  std::string tempDir = testHelper->GetTempDirectory();
-  std::string tempBaseline = tempDir + "/TestContourTriangulatorCutter.png";
-
   double bounds[6] = { -210.0, +210.0, -210.0, +210.0, -100.0, +150.0 };
   vtkSmartPointer<vtkOutlineSource> outline = vtkSmartPointer<vtkOutlineSource>::New();
   outline->SetBounds(bounds);

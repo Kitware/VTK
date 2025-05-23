@@ -235,7 +235,7 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
   {
     double minmax[2] = { 0.0, 0.0 };
     vtkDataSetAttributes* rowData = input->GetRowData();
-    std::string nameVal = s->GetValue(i);
+    const auto& nameVal = s->GetValue(i);
     if (rowData->GetRange(nameVal.c_str(), minmax))
     {
       vtkDataArray* in = rowData->GetArray(nameVal.c_str());

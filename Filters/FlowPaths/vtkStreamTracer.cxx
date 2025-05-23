@@ -1082,7 +1082,7 @@ struct TracerIntegrator
       inVectors = input->GetAttributesAsFieldData(vecType)->GetArray(vecName);
       // Convert intervals to arc-length unit
       input->GetCell(func->GetLastCellId(), cell);
-      cellLength = std::sqrt(static_cast<double>(cell->GetLength2()));
+      cellLength = std::sqrt(cell->GetLength2());
       speed = vtkMath::Norm(velocity);
       // Never call conversion methods if speed == 0
       if (speed != 0.0)
@@ -1252,7 +1252,7 @@ struct TracerIntegrator
 
         // Calculate cell length and speed to be used in unit conversions
         input->GetCell(func->GetLastCellId(), cell);
-        cellLength = std::sqrt(static_cast<double>(cell->GetLength2()));
+        cellLength = std::sqrt(cell->GetLength2());
         speed = speed2;
 
         // Check if conversion to float will produce a point in same place

@@ -364,7 +364,7 @@ struct DisplacePoint
   // is linearly repulsive near the point 0<=r<=1; has a slight (cubic)
   // attractive force in the region (1<r<=(1+af); and produces no force
   // further away.
-  inline double ParticleForce(double r, double af)
+  double ParticleForce(double r, double af)
   {
     double af1 = 1.0 + af;
     if (r <= 1.0) // repulsive, negative force
@@ -541,7 +541,7 @@ struct TensorDisplacement : public DisplacePoint
 
   //--------------------------------------------------------------------------
   // Average two 3x3 tensors represented as 9 entries in a contiguous array
-  inline void AverageTensors(const double* t0, const double* t1, double* tAve)
+  void AverageTensors(const double* t0, const double* t1, double* tAve)
   {
     tAve[0] = 0.5 * (t0[0] + t1[0]);
     tAve[1] = 0.5 * (t0[1] + t1[1]);
@@ -557,7 +557,7 @@ struct TensorDisplacement : public DisplacePoint
   //--------------------------------------------------------------------------
   // Invert 3x3 symmetric, positive definite matrix. Matrices are a pointer to
   // 9 entries in a contiguous array, three columns in order.
-  inline void Invert3x3(double* m, double* mI)
+  void Invert3x3(double* m, double* mI)
   {
     double detF = vtkMath::Determinant3x3(m, m + 3, m + 6);
     if (detF == 0.0)

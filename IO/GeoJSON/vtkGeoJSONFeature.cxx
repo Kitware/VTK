@@ -250,7 +250,7 @@ vtkPolyData* vtkGeoJSONFeature::ExtractPolygon(
   }
 
   // For exterior Polygon
-  Json::Value exteriorPolygon = coordinate[0];
+  const Json::Value& exteriorPolygon = coordinate[0];
 
   int EXTERIOR_POLYGON_VERTEX_COUNT = exteriorPolygon.size() - 1;
   exteriorPoly->GetPointIds()->SetNumberOfIds(EXTERIOR_POLYGON_VERTEX_COUNT);
@@ -392,10 +392,10 @@ void vtkGeoJSONFeature::ExtractGeoJSONFeatureGeometry(
   if (typeString == GeoJSON_GEOMETRY_COLLECTION)
   {
     // For GeometryCollection
-    Json::Value geometries = geometryRoot["geometries"];
+    const Json::Value& geometries = geometryRoot["geometries"];
     for (Json::Value::ArrayIndex i = 0; i < geometries.size(); i++)
     {
-      Json::Value child = geometries[i];
+      const Json::Value& child = geometries[i];
       this->ExtractGeoJSONFeatureGeometry(child, outputData);
     }
     return;

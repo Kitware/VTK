@@ -425,8 +425,8 @@ double* vtkDICOMImageReader::GetPixelSpacing()
 
   if (sortedFiles.size() > 1)
   {
-    std::pair<float, std::string> p1 = sortedFiles[0];
-    std::pair<float, std::string> p2 = sortedFiles[1];
+    const std::pair<float, std::string>& p1 = sortedFiles[0];
+    const std::pair<float, std::string>& p2 = sortedFiles[1];
     this->DataSpacing[2] = fabs(p1.first - p2.first);
   }
   else

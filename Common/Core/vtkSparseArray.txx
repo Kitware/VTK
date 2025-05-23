@@ -399,7 +399,7 @@ const typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateS
     return nullptr;
   }
 
-  return &this->Coordinates[dimension][0];
+  return this->Coordinates[dimension].data();
 }
 
 template <typename T>
@@ -412,19 +412,19 @@ typename vtkSparseArray<T>::CoordinateT* vtkSparseArray<T>::GetCoordinateStorage
     return nullptr;
   }
 
-  return &this->Coordinates[dimension][0];
+  return this->Coordinates[dimension].data();
 }
 
 template <typename T>
 const T* vtkSparseArray<T>::GetValueStorage() const
 {
-  return &(this->Values[0]);
+  return this->Values.data();
 }
 
 template <typename T>
 T* vtkSparseArray<T>::GetValueStorage()
 {
-  return &this->Values[0];
+  return this->Values.data();
 }
 
 template <typename T>

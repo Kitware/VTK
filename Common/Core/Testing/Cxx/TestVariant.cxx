@@ -37,7 +37,7 @@ int TestVariant(int, char*[])
         v = static_cast<float>(value);
         break;
       case VTK_DOUBLE:
-        v = static_cast<double>(value);
+        v = value;
         break;
       case VTK_STRING:
         v = strValue;
@@ -48,7 +48,6 @@ int TestVariant(int, char*[])
     cerr << "v = " << v << " (" << vtkImageScalarTypeNameMacro(type[i]) << ")\n";
     for (int j = 0; j < numTypes; j++)
     {
-      std::string str;
       switch (type[j])
       {
         case VTK_INT:
@@ -114,11 +113,10 @@ int TestVariant(int, char*[])
         case VTK_DOUBLE:
         {
           double conv = v.ToDouble();
-          if (conv != static_cast<double>(value))
+          if (conv != value)
           {
             cerr << "conversion invalid (" << vtkImageScalarTypeNameMacro(type[i]) << " " << conv
-                 << " != " << vtkImageScalarTypeNameMacro(type[j]) << " "
-                 << static_cast<double>(value) << ")" << endl;
+                 << " != " << vtkImageScalarTypeNameMacro(type[j]) << " " << value << ")" << endl;
             errors++;
           }
           break;

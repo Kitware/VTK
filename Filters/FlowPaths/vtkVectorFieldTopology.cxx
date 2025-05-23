@@ -779,8 +779,8 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchPoints(
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
   {
-    dist *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
-    offsetAwayFromBoundary *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+    dist *= sqrt(dataset->GetCell(0)->GetLength2());
+    offsetAwayFromBoundary *= sqrt(dataset->GetCell(0)->GetLength2());
   }
 
   vtkNew<vtkStreamTracer> streamTracer;
@@ -975,8 +975,8 @@ int vtkVectorFieldTopology::ComputeSeparatricesBoundarySwitchLines(vtkPolyData* 
   double offsetAwayFromBoundary = this->OffsetAwayFromBoundary;
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
   {
-    dist *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
-    offsetAwayFromBoundary *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+    dist *= sqrt(dataset->GetCell(0)->GetLength2());
+    offsetAwayFromBoundary *= sqrt(dataset->GetCell(0)->GetLength2());
   }
 
   vtkDataArray* vectors = dataset->GetPointData()->GetArray(this->NameOfVectorArray);
@@ -1400,7 +1400,7 @@ int vtkVectorFieldTopology::ComputeSeparatrices(vtkPolyData* criticalPoints,
   // adapt dist if cell unit was selected
   if (integrationStepUnit == vtkStreamTracer::CELL_LENGTH_UNIT)
   {
-    dist *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+    dist *= sqrt(dataset->GetCell(0)->GetLength2());
   }
 
   // Compute eigenvectors & eigenvalues

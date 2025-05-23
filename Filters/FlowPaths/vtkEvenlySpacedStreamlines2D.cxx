@@ -270,7 +270,7 @@ int vtkEvenlySpacedStreamlines2D::ComputeCellLength(double* cellLength)
   // Make sure we use the dataset found by the vtkAbstractInterpolatedVelocityField
   input = func->GetLastDataSet();
   input->GetCell(func->GetLastCellId(), cell);
-  *cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+  *cellLength = sqrt(cell->GetLength2());
   func->Delete();
   return 1;
 }

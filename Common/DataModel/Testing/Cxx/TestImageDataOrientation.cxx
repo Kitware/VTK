@@ -127,7 +127,6 @@ inline int DoOrientationTest(
 
     // Check setting image geometry using 4x4 matrix
 
-    std::string testedMatrix;
     if (testedMatrixIndex == 0)
     {
       image->ApplyIndexToPhysicalMatrix(indexToPhysical);

@@ -165,9 +165,8 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
   int numElem, numNodeSets, numSideSets;
   std::string title(MAX_LINE_LENGTH + 1, '\0');
 
-  // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-  int error = ex_get_init(this->FileId, &title[0], &this->NumberOfDimensions, &this->NumberOfNodes,
-    &numElem, &NumberOfElementBlocks, &numNodeSets, &numSideSets);
+  int error = ex_get_init(this->FileId, title.data(), &this->NumberOfDimensions,
+    &this->NumberOfNodes, &numElem, &NumberOfElementBlocks, &numNodeSets, &numSideSets);
 
   // Trim excess null characters from string:
   title.resize(strlen(title.c_str()));
@@ -195,8 +194,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
 
   for (int i = 0; i < numNodalVars; ++i)
   {
-    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-    error = ex_get_var_name(this->FileId, "n", i + 1, &(this->NodalVariableNames[i][0]));
+    error = ex_get_var_name(this->FileId, "n", i + 1, this->NodalVariableNames[i].data());
     if (error < 0)
     {
       vtkErrorMacro("Error retrieving nodal variable name at index" << i);
@@ -223,8 +221,7 @@ bool vtkCPExodusIIInSituReader::ExGetMetaData()
 
   for (int i = 0; i < numElemVars; ++i)
   {
-    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-    error = ex_get_var_name(this->FileId, "e", i + 1, &this->ElementVariableNames[i][0]);
+    error = ex_get_var_name(this->FileId, "e", i + 1, this->ElementVariableNames[i].data());
     if (error < 0)
     {
       vtkErrorMacro("Error retrieving element variable name at index" << i);
@@ -347,8 +344,7 @@ bool vtkCPExodusIIInSituReader::ExGetElemBlocks()
     int nodesPerElem;
     int numAttributes;
 
-    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-    int error = ex_get_elem_block(this->FileId, this->ElementBlockIds[blockInd], &elemType[0],
+    int error = ex_get_elem_block(this->FileId, this->ElementBlockIds[blockInd], elemType.data(),
       &numElem, &nodesPerElem, &numAttributes);
 
     // Trim excess null chars from the type string:

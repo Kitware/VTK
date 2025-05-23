@@ -29,7 +29,7 @@ vtkSQLDatabase* vtkQtSQLDatabaseCreateFromURLCallback(const char* URL)
 class vtkQtSQLDatabaseInitializer
 {
 public:
-  inline void Use() {}
+  void Use() {}
 
   vtkQtSQLDatabaseInitializer()
   {

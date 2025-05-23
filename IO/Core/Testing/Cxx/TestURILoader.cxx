@@ -102,8 +102,7 @@ bool TestFileLoading(const std::string& tmpDir)
 
     std::string text;
     text.resize(12);
-    // NOLINTNEXTLINE(readability-container-data-pointer)
-    Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
+    Check(stream->Read(text.data(), text.size()) == text.size(), "Truncated stream");
     Check(text == "Hello world!", "Wrong data");
   }
 
@@ -122,8 +121,7 @@ bool TestFileLoading(const std::string& tmpDir)
 
     std::string text;
     text.resize(12);
-    // NOLINTNEXTLINE(readability-container-data-pointer)
-    Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
+    Check(stream->Read(text.data(), text.size()) == text.size(), "Truncated stream");
     Check(text == "Hello world!", "Wrong data");
   }
 
@@ -138,8 +136,7 @@ bool TestBase64DataLoading()
 
   std::string text;
   text.resize(12);
-  // NOLINTNEXTLINE(readability-container-data-pointer)
-  Check(stream->Read(&text[0], text.size()) == text.size(), "Truncated stream");
+  Check(stream->Read(text.data(), text.size()) == text.size(), "Truncated stream");
   Check(text == "Hello world!", "Wrong data");
 
   return true;

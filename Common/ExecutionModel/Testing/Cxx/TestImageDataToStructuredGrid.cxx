@@ -26,9 +26,9 @@ double SafeDivision(const double a, const double b)
   }
 
   // Catch underflow
-  if ((a == static_cast<double>(0.0)) || ((b > 1) && (a < b * std::numeric_limits<double>::max())))
+  if ((a == 0.0) || ((b > 1) && (a < b * std::numeric_limits<double>::max())))
   {
-    return (static_cast<double>(0.0));
+    return 0.0;
   }
 
   return (a / b);

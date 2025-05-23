@@ -175,7 +175,7 @@ struct Attribute : public AttributeBase
   {
     assert(index < this->Array->GetNumberOfTuples());
 
-    AttributeTrait<AttributeId>::Get(index, &this->Value[0], this->Array);
+    AttributeTrait<AttributeId>::Get(index, this->Value.data(), this->Array);
     AttributeTrait<AttributeId>::Stream(out, this->Value[0]);
 
     for (int i = 1; i < this->Array->GetNumberOfComponents(); i++)

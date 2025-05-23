@@ -833,7 +833,7 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
 
     // Convert intervals to time unit
     cell = func->GetLastCell();
-    cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+    cellLength = sqrt(cell->GetLength2());
     speed = vtkMath::Norm(velocity);
 
     // Never call conversion methods if speed == 0
@@ -981,7 +981,7 @@ void vtkGenericStreamTracer::Integrate(vtkGenericDataSet* input0, vtkPolyData* o
 
       // Calculate cell length and speed to be used in unit conversions
       cell = func->GetLastCell();
-      cellLength = sqrt(static_cast<double>(cell->GetLength2()));
+      cellLength = sqrt(cell->GetLength2());
 
       speed = vtkMath::Norm(velocity);
 

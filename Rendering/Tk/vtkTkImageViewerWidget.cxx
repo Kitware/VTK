@@ -23,6 +23,17 @@
 #include <algorithm>
 #include <cstdlib>
 
+#if (TCL_MAJOR_VERSION >= 9)
+#define VTK_TCL_CONST const
+#elif ((TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4))
+#define VTK_TCL_CONST CONST84
+#else
+#define VTK_TCL_CONST
+#endif
+#ifndef offsetof
+#define offsetof(type, field) ((size_t)((char*)&((type*)0)->field))
+#endif
+
 #define VTK_ALL_EVENTS_MASK                                                                        \
   KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | EnterWindowMask |          \
     LeaveWindowMask | PointerMotionMask | ExposureMask | VisibilityChangeMask | FocusChangeMask |  \
@@ -32,14 +43,14 @@
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own ImageViewer window.
 static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
-  { TK_CONFIG_PIXELS, (char*)"-height", (char*)"height", (char*)"Height", (char*)"400",
-    Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, nullptr },
+  { TK_CONFIG_PIXELS, "-height", "height", "Height", "400",
+    offsetof(struct vtkTkImageViewerWidget, Height), 0, nullptr },
 
-  { TK_CONFIG_PIXELS, (char*)"-width", (char*)"width", (char*)"Width", (char*)"400",
-    Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, nullptr },
+  { TK_CONFIG_PIXELS, "-width", "width", "Width", "400",
+    offsetof(struct vtkTkImageViewerWidget, Width), 0, nullptr },
 
-  { TK_CONFIG_STRING, (char*)"-iv", (char*)"iv", (char*)"IV", (char*)"",
-    Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, nullptr },
+  { TK_CONFIG_STRING, "-iv", "iv", "IV", "", offsetof(struct vtkTkImageViewerWidget, IV), 0,
+    nullptr },
 
   { TK_CONFIG_END, nullptr, nullptr, nullptr, nullptr, 0, 0, nullptr }
 };
@@ -56,17 +67,22 @@ extern int vtkImageViewerCommand(ClientData cd, Tcl_Interp* interp, int argc, ch
 //------------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
 // options like width, height or the ImageViewer widget.
-int vtkTkImageViewerWidget_Configure(
-  Tcl_Interp* interp, struct vtkTkImageViewerWidget* self, int argc, char* argv[], int flags)
+#if (TCL_MAJOR_VERSION >= 9)
+int vtkTkImageViewerWidget_Configure(Tcl_Interp* interp, struct vtkTkImageViewerWidget* self,
+  Tcl_Size objc, Tcl_Obj* const* objv, int flags)
+#else
+int vtkTkImageViewerWidget_Configure(Tcl_Interp* interp, struct vtkTkImageViewerWidget* self,
+  int argc, VTK_TCL_CONST char* argv[], int flags)
+#endif
 {
   // Let Tk handle generic configure options.
-  if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkImageViewerWidgetConfigSpecs, argc,
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-        const_cast<CONST84 char**>(argv),
+#if (TCL_MAJOR_VERSION >= 9)
+  if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkImageViewerWidgetConfigSpecs, objc, objv,
+        (void*)self, flags) == TCL_ERROR)
 #else
-        argv,
-#endif
+  if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkImageViewerWidgetConfigSpecs, argc, argv,
         (char*)self, flags) == TCL_ERROR)
+#endif
   {
     return (TCL_ERROR);
   }
@@ -89,11 +105,8 @@ int vtkTkImageViewerWidget_Configure(
 // to choose the appropriate method to invoke.
 extern "C"
 {
-  int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp* interp, int argc,
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-    CONST84
-#endif
-    char* argv[])
+  int vtkTkImageViewerWidget_Widget(
+    ClientData clientData, Tcl_Interp* interp, int argc, VTK_TCL_CONST char* argv[])
   {
     struct vtkTkImageViewerWidget* self = (struct vtkTkImageViewerWidget*)clientData;
     int result = TCL_OK;
@@ -106,7 +119,11 @@ extern "C"
     }
 
     // Make sure the widget is not deleted during this function
+#if (TCL_MAJOR_VERSION >= 9)
+    Tcl_Preserve((ClientData)self);
+#else
     Tk_Preserve((ClientData)self);
+#endif
 
     // Handle render call to the widget
     if (strncmp(argv[1], "render", std::max<size_t>(1, strlen(argv[1]))) == 0 ||
@@ -137,13 +154,27 @@ extern "C"
       else
       {
         /* Execute a configuration change */
-        result = vtkTkImageViewerWidget_Configure(interp, self, argc - 2,
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-          const_cast<char**>(argv + 2),
+#if (TCL_MAJOR_VERSION >= 9)
+        // Convert string arguments to Tcl_Obj for TCL 9.0
+        Tcl_Obj** objv_config = (Tcl_Obj**)ckalloc((argc - 2) * sizeof(Tcl_Obj*));
+        for (int i = 0; i < argc - 2; i++)
+        {
+          objv_config[i] = Tcl_NewStringObj(argv[i + 2], -1);
+          Tcl_IncrRefCount(objv_config[i]);
+        }
+        result = vtkTkImageViewerWidget_Configure(
+          interp, self, argc - 2, objv_config, TK_CONFIG_ARGV_ONLY);
+
+        // Clean up the Tcl_Obj array
+        for (int i = 0; i < argc - 2; i++)
+        {
+          Tcl_DecrRefCount(objv_config[i]);
+        }
+        ckfree((char*)objv_config);
 #else
-          argv + 2,
+        result =
+          vtkTkImageViewerWidget_Configure(interp, self, argc - 2, argv + 2, TK_CONFIG_ARGV_ONLY);
 #endif
-          TK_CONFIG_ARGV_ONLY);
       }
     }
     else if (!strcmp(argv[1], "GetImageViewer"))
@@ -165,7 +196,11 @@ extern "C"
     }
 
     // Unlock the object so it can be deleted.
+#if (TCL_MAJOR_VERSION >= 9)
+    Tcl_Release((ClientData)self);
+#else
     Tk_Release((ClientData)self);
+#endif
     return result;
   }
 }
@@ -181,16 +216,10 @@ extern "C"
 //     * Configures this vtkTkImageViewerWidget for the given arguments
 extern "C"
 {
-  int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp* interp, int argc,
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-    CONST84
-#endif
-    char** argv)
+  int vtkTkImageViewerWidget_Cmd(
+    ClientData clientData, Tcl_Interp* interp, int argc, VTK_TCL_CONST char** argv)
   {
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-    CONST84
-#endif
-    char* name;
+    VTK_TCL_CONST char* name;
     Tk_Window main = (Tk_Window)clientData;
     Tk_Window tkwin;
     struct vtkTkImageViewerWidget* self;
@@ -233,13 +262,37 @@ extern "C"
       vtkTkImageViewerWidget_EventProc, (ClientData)self);
 
     // Configure vtkTkImageViewerWidget widget
-    if (vtkTkImageViewerWidget_Configure(interp, self, argc - 2,
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
-          const_cast<char**>(argv + 2),
+#if (TCL_MAJOR_VERSION >= 9)
+    // Convert string arguments to Tcl_Obj for TCL 9.0
+    Tcl_Obj** objv_init = (Tcl_Obj**)ckalloc((argc - 2) * sizeof(Tcl_Obj*));
+    for (int i = 0; i < argc - 2; i++)
+    {
+      objv_init[i] = Tcl_NewStringObj(argv[i + 2], -1);
+      Tcl_IncrRefCount(objv_init[i]);
+    }
+
+    if (vtkTkImageViewerWidget_Configure(interp, self, argc - 2, objv_init, 0) == TCL_ERROR)
+    {
+      // Clean up before error return
+      for (int i = 0; i < argc - 2; i++)
+      {
+        Tcl_DecrRefCount(objv_init[i]);
+      }
+      ckfree((char*)objv_init);
+
+      Tk_DestroyWindow(tkwin);
+      Tcl_DeleteCommand(interp, (char*)"vtkTkImageViewerWidget");
+      return TCL_ERROR;
+    }
+
+    // Clean up the Tcl_Obj array
+    for (int i = 0; i < argc - 2; i++)
+    {
+      Tcl_DecrRefCount(objv_init[i]);
+    }
+    ckfree((char*)objv_init);
 #else
-          argv + 2,
-#endif
-          0) == TCL_ERROR)
+    if (vtkTkImageViewerWidget_Configure(interp, self, argc - 2, argv + 2, 0) == TCL_ERROR)
     {
       Tk_DestroyWindow(tkwin);
       Tcl_DeleteCommand(interp, (char*)"vtkTkImageViewerWidget");
@@ -247,6 +300,7 @@ extern "C"
       // free(self);
       return TCL_ERROR;
     }
+#endif
 
     Tcl_AppendResult(interp, Tk_PathName(tkwin), nullptr);
     return TCL_OK;
@@ -255,7 +309,11 @@ extern "C"
 
 extern "C"
 {
+#if (TCL_MAJOR_VERSION >= 9)
+  void vtkTkImageViewerWidget_Destroy(void* memPtr)
+#else
   void vtkTkImageViewerWidget_Destroy(char* memPtr)
+#endif
   {
     struct vtkTkImageViewerWidget* self = (struct vtkTkImageViewerWidget*)memPtr;
 
@@ -281,7 +339,7 @@ extern "C"
       self->ImageViewer = nullptr;
       ckfree(self->IV);
     }
-    ckfree((char*)memPtr);
+    ckfree(memPtr);
   }
 }
 

@@ -395,11 +395,13 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
   if (isVTKObject && isPointer)
   {
     fprintf(fp,
+      "    // NOLINTNEXTLINE(readability-redundant-casting)\n"
       "    vtkTypeUInt32 identifier = "
       "context->GetId(reinterpret_cast<vtkObjectBase*>(methodReturnValue));\n");
     fprintf(fp,
       "    if (identifier == 0)\n"
       "    {\n"
+      "      // NOLINTNEXTLINE(readability-redundant-casting)\n"
       "      context->RegisterObject(reinterpret_cast<vtkObjectBase*>(methodReturnValue), "
       "identifier);\n"
       "    }\n");
@@ -416,11 +418,13 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
   if (isVTKSmartPointer)
   {
     fprintf(fp,
+      "    // NOLINTNEXTLINE(readability-redundant-casting)\n"
       "    vtkTypeUInt32 identifier = "
       "context->GetId(reinterpret_cast<vtkObjectBase*>(methodReturnValue.GetPointer()"
       "));\n");
     fprintf(fp,
       "    if (identifier == 0) { "
+      "// NOLINTNEXTLINE(readability-redundant-casting)\n"
       "context->RegisterObject(reinterpret_cast<vtkObjectBase*>(methodReturnValue."
       "GetPointer()), identifier); }");
     if (vtkWrap_IsNewInstance(valInfo))
@@ -499,12 +503,17 @@ static void vtkWrapSerDes_WriteReturnValueSerializer(
     }
     if (cp[l] == ':' && cp[l + 1] == ':')
     {
-      fprintf(fp, "    result[\"Value\"] = static_cast<%*.*s::%s>(methodReturnValue);\n", (int)l,
-        (int)l, cp, &cp[l + 2]);
+      fprintf(fp,
+        "    // NOLINTNEXTLINE(readability-redundant-casting)\n"
+        "    result[\"Value\"] = static_cast<%*.*s::%s>(methodReturnValue);\n",
+        (int)l, (int)l, cp, &cp[l + 2]);
     }
     else
     {
-      fprintf(fp, "    result[\"Value\"] = static_cast<%s>(methodReturnValue);\n", cp);
+      fprintf(fp,
+        "    // NOLINTNEXTLINE(readability-redundant-casting)\n"
+        "    result[\"Value\"] = static_cast<%s>(methodReturnValue);\n",
+        cp);
     }
     return;
   }
@@ -737,7 +746,9 @@ static int vtkWrapSerDes_WriteMemberFunctionCall(
   }
   else
   {
-    fprintf(fp, "    auto%s methodReturnValue = object->%s(%s",
+    fprintf(fp,
+      "    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)\n"
+      "    auto%s methodReturnValue = object->%s(%s",
       (vtkWrap_IsPointer(functionInfo->ReturnValue) ? "*" : ""), functionInfo->Name, argStart);
     for (i = 0; i < functionInfo->NumberOfParameters; ++i)
     {

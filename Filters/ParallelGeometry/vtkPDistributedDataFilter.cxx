@@ -1090,7 +1090,7 @@ vtkDataSet* vtkPDistributedDataFilter::TestFixTooFewInputFiles(
       else if (nodeType[me] == Producer)
       {
         vtkIdType keepCells = numMyCells - numTransferCells;
-        vtkIdType startCellId = (vtkIdType)numTransferCells;
+        vtkIdType startCellId = numTransferCells;
         sendCells[me] = vtkIdList::New();
         sendCells[me]->SetNumberOfIds(keepCells);
         for (i = 0; i < keepCells; i++)

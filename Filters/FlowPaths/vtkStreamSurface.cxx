@@ -71,7 +71,7 @@ int vtkStreamSurface::AdvectIterative(
 
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
-      distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+      distThreshold *= sqrt(dataset->GetCell(0)->GetLength2());
     }
   }
   else if (field->IsA("vtkUniformGridAMR"))
@@ -80,7 +80,7 @@ int vtkStreamSurface::AdvectIterative(
     dataset = data->GetDataSet(0, 0);
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
-      distThreshold *= sqrt(static_cast<double>(dataset->GetCell(0)->GetLength2()));
+      distThreshold *= sqrt(dataset->GetCell(0)->GetLength2());
     }
   }
 

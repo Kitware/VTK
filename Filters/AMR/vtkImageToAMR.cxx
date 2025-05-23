@@ -285,6 +285,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
     rootBox, this->NumberOfLevels, this->RefinementRatio, this->MaximumNumberOfBlocks, amrBoxes);
 
   std::vector<int> blocksPerLevel;
+  blocksPerLevel.reserve(amrBoxes.size());
   for (size_t i = 0; i < amrBoxes.size(); i++)
   {
     blocksPerLevel.push_back(static_cast<int>(amrBoxes[i].size()));

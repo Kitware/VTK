@@ -18,6 +18,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
 #include <cstdint>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -550,8 +551,7 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
 //------------------------------------------------------------------------------
 void vtkImageSSIM::ComputeErrorMetrics(vtkDoubleArray* scalars, double& tight, double& loose)
 {
-  auto arrayMax = [](const std::array<double, 3>& v)
-  { return std::max(std::max(v[0], v[1]), v[2]); };
+  auto arrayMax = [](const std::array<double, 3>& v) { return std::max({ v[0], v[1], v[2] }); };
 
   auto mink1 = ComputeMinkowski1(scalars);
   auto mink2 = ComputeMinkowski2(scalars);

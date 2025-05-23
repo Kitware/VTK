@@ -163,7 +163,7 @@ private:
 
   bool CreateMSFTSceneObserver();
 
-  std::unique_ptr<vtkInternals> Impl{};
+  std::unique_ptr<vtkInternals> Impl;
 
   double MinimumInterval{ 2.0 };
   double ClippingRadius{ 2.0 };

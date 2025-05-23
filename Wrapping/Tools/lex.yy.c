@@ -2760,11 +2760,11 @@ static int yy_get_next_buffer(void)
     /* Extend the array by 50%, plus the number we really need. */
     int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
     YY_CURRENT_BUFFER_LVALUE->yy_ch_buf =
-      (char*)yyrealloc((void*)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t)new_size);
+      (char*)yyrealloc((void*)YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, new_size);
     if (!YY_CURRENT_BUFFER_LVALUE->yy_ch_buf)
       YY_FATAL_ERROR("out of dynamic memory in yy_get_next_buffer()");
     /* "- 2" to take care of EOB's */
-    YY_CURRENT_BUFFER_LVALUE->yy_buf_size = (int)(new_size - 2);
+    YY_CURRENT_BUFFER_LVALUE->yy_buf_size = new_size - 2;
   }
 
   (yy_n_chars) += number_to_move;
@@ -2857,8 +2857,7 @@ static void yyunput(int c, char* yy_bp)
 
     yy_cp += (int)(dest - source);
     yy_bp += (int)(dest - source);
-    YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars) =
-      (int)YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
+    YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
 
     if (yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2)
       YY_FATAL_ERROR("flex scanner push-back overflow");

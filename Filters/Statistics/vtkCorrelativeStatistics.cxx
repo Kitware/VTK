@@ -822,8 +822,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor(
     return;
   }
 
-  std::string varNameX = rowNames->GetValue(0);
-  std::string varNameY = rowNames->GetValue(1);
+  const auto& varNameX = rowNames->GetValue(0);
+  const auto& varNameY = rowNames->GetValue(1);
 
   // Downcast meta columns to string arrays for efficient data access
   vtkStringArray* varX =

@@ -48,10 +48,8 @@ public:
 
   void Tick(vtkAnimationCue::AnimationCueInfo* info, vtkRenderer* ren)
   {
-    double newradius = 0.1 +
-      (static_cast<double>(info->AnimationTime - info->StartTime) /
-        static_cast<double>(info->EndTime - info->StartTime)) *
-        1;
+    double newradius =
+      0.1 + ((info->AnimationTime - info->StartTime) / (info->EndTime - info->StartTime)) * 1;
     this->SphereSource->SetRadius(newradius);
     this->SphereSource->Update();
     ren->Render();

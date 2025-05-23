@@ -15,8 +15,8 @@ template <class DerivedT, class ValueTypeT>
 double* vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuple(vtkIdType tupleIdx)
 {
   assert(!this->LegacyTuple.empty() && "Number of components is nonzero.");
-  this->GetTuple(tupleIdx, &this->LegacyTuple[0]);
-  return &this->LegacyTuple[0];
+  this->GetTuple(tupleIdx, this->LegacyTuple.data());
+  return this->LegacyTuple.data();
 }
 
 //-----------------------------------------------------------------------------
@@ -912,7 +912,7 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
 {
   this->LegacyValueRange.resize(2);
   this->GetValueRange(this->LegacyValueRange.data(), comp);
-  return &this->LegacyValueRange[0];
+  return this->LegacyValueRange.data();
 }
 
 //-----------------------------------------------------------------------------
@@ -922,7 +922,7 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(int comp)
 {
   this->LegacyValueRange.resize(2);
   this->GetFiniteValueRange(this->LegacyValueRange.data(), comp);
-  return &this->LegacyValueRange[0];
+  return this->LegacyValueRange.data();
 }
 
 //-----------------------------------------------------------------------------

@@ -3065,7 +3065,6 @@ bool EnSightDataSet::ReadRigidBodyGeometryFile()
     // now loop through transformations
     int transIdx = 0;
     bool pretransform = true;
-    std::regex regEx("^[^ ]+ ([^ ]+)");
     result = this->RigidBodyFile.ReadNextLine();
     while (result.first && transIdx < numTransformations)
     {

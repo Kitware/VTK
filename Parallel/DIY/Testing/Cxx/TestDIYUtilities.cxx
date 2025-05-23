@@ -123,7 +123,7 @@ bool TestFieldDataExchange(vtkMultiProcessController* controller, int nComponent
       }
       else
       {
-        for (int i = 0; i < static_cast<int>(srp.in_link().size()); ++i)
+        for (int i = 0; i < srp.in_link().size(); ++i)
         {
           const diy::BlockID& blockId = srp.in_link().target(i);
           if (blockId.gid != myBlockId)

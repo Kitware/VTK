@@ -110,7 +110,7 @@ void vtkBundlingMetadata::NormalizeNodePositions()
   float dx = this->XRange[1] - this->XRange[0];
   float dy = this->YRange[1] - this->YRange[0];
   float dz = this->ZRange[1] - this->ZRange[0];
-  this->Scale = std::max(dx, std::max(dy, dz));
+  this->Scale = std::max({ dx, dy, dz });
   for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
   {
     vtkVector3f p = this->Nodes[i];
@@ -260,9 +260,8 @@ float vtkBundlingMetadata::ConnectivityCompatibility(vtkIdType e1, vtkIdType e2)
   {
     return 1.0f;
   }
-  float minPath = std::min(this->NodeDistances[s1][s2],
-    std::min(this->NodeDistances[s1][t2],
-      std::min(this->NodeDistances[t1][s2], this->NodeDistances[t1][t2])));
+  float minPath = std::min({ this->NodeDistances[s1][s2], this->NodeDistances[s1][t2],
+    this->NodeDistances[t1][s2], this->NodeDistances[t1][t2] });
   return 1.0f / (minPath + 1.0f);
 }
 

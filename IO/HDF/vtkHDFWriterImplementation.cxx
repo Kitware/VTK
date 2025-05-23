@@ -1267,7 +1267,6 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
     "Creating steps sum " << name << " in " << this->GetGroupName(group) << "with base "
                           << this->GetBasePath(this->GetGroupName(group)));
 
-  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
   if (dataset == H5I_INVALID_HID)
   {
@@ -1300,7 +1299,6 @@ bool vtkHDFWriter::Implementation::WriteSumStepsPolyData(hid_t group, const char
   vtkDebugWithObjectMacro(
     this->Writer, "Creating polydata steps sum " << name << " in " << this->GetGroupName(group));
 
-  const std::string datasetPath = this->GetGroupName(group) + "/" + name;
   vtkHDF::ScopedH5DHandle dataset = this->OpenDataset(group, name);
   if (dataset == H5I_INVALID_HID)
   {
