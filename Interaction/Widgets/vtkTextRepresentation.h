@@ -17,6 +17,7 @@
 
 #include "vtkBorderRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
@@ -24,7 +25,8 @@ class vtkTextActor;
 class vtkTextProperty;
 class vtkTextRepresentationObserver;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkTextRepresentation : public vtkBorderRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkTextRepresentation
+  : public vtkBorderRepresentation
 {
 public:
   /**
@@ -53,7 +55,9 @@ public:
   /**
    * Get/Set the text string display by this representation.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetText(const char* text);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   const char* GetText();
   ///@}
 
@@ -98,7 +102,9 @@ public:
    * Set the text position, by overriding the same function of
    * vtkBorderRepresentation so that the Modified() will be called.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPosition(double x, double y) override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPosition(double pos[2]) override { this->SetPosition(pos[0], pos[1]); }
   ///@}
 

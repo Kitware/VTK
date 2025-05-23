@@ -605,7 +605,6 @@ Interaction/Widgets/vtkSphereWidget.h
 Interaction/Widgets/vtkSplineWidget.h
 Interaction/Widgets/vtkTerrainContourLineInterpolator.h
 Interaction/Widgets/vtkTerrainDataPointPlacer.h
-Interaction/Widgets/vtkTextRepresentation.h
 Interaction/Widgets/vtkTextWidget.h
 Interaction/Widgets/vtkTexturedButtonRepresentation.h
 Interaction/Widgets/vtkTexturedButtonRepresentation2D.h
