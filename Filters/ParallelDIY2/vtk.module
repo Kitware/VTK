@@ -28,7 +28,6 @@ PRIVATE_DEPENDS
   VTK::IOXML
   VTK::ParallelCore
   VTK::FiltersTemporal
-  VTK::FiltersParallelMPI
 TEST_DEPENDS
   VTK::diy2
   VTK::FiltersGeometry
